@@ -2,6 +2,7 @@ import storage from 'store'
 import { login, getInfo, logout } from '@/api/login'
 import { ACCESS_TOKEN } from '@/store/mutation-types'
 import { welcome } from '@/utils/util'
+import * as logger from '@/utils/logger'
 
 const user = {
   state: {
@@ -33,6 +34,20 @@ const user = {
   },
 
   actions: {
+    // Google 登录
+    LoginWithToken ({ commit }, accessToken) {
+      return new Promise((resolve, reject) => {
+        logger.info('LoginWithToken', accessToken)
+        if (accessToken && accessToken.toString().trim()) {
+          storage.set(ACCESS_TOKEN, accessToken, 7 * 24 * 60 * 60 * 1000)
+          commit('SET_TOKEN', accessToken)
+          resolve()
+        } else {
+          reject(new Error('illegal token ' + accessToken))
+        }
+      })
+    },
+
     // 登录
     Login ({ commit }, userInfo) {
       return new Promise((resolve, reject) => {

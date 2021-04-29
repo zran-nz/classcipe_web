@@ -64,7 +64,7 @@
       </a-form-item>
     </a-form>
     <div class="third-login-wrapper">
-      <third-login-button icon="googleIcon" :label="$t('user.login.loginWithGoogle')" @click.native="thirdSignIn"/>
+      <third-login-button icon="googleIcon" :label="$t('user.login.loginWithGoogle')" @click.native="thirdSignIn('google')"/>
     </div>
 
     <two-step-captcha
@@ -82,6 +82,7 @@ import TwoStepCaptcha from '@/components/tools/TwoStepCaptcha'
 import ThirdLoginButton from '@/components/Button/ThirdLoginButton'
 import { mapActions } from 'vuex'
 import { getSmsCaptcha, get2step } from '@/api/login'
+import { getThirdAuthURL, thirdAuthCallbackUrl } from '@/api/thirdAuth'
 
 export default {
   components: {
@@ -120,9 +121,13 @@ export default {
   methods: {
     ...mapActions(['Login', 'Logout']),
 
-    thirdSignIn () {
-      console.log('thirdSignIn')
-      window.open('http://test.classcipe.com/classcipe/thirdLogin/render/google?callbackUrl=' + window.location.href)
+    thirdSignIn (source) {
+      console.log('thirdSignIn', source)
+      let url = getThirdAuthURL(source)
+      url += '?callbackUrl='
+      url += thirdAuthCallbackUrl
+      console.log('full auth url ', url)
+      window.location.href = url
     },
     // handler
     handleUsernameOrEmail (rule, value, callback) {

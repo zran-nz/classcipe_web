@@ -23,6 +23,9 @@ export default {
 
       return this.$i18n.getLocaleMessage(this.$store.getters.lang).antLocale
     }
+  },
+  mounted () {
+    console.log('load env', process.env)
   }
 }
 </script>

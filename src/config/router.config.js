@@ -367,6 +367,11 @@ export const constantRouterMap = [
         component: () => import(/* webpackChunkName: "user" */ '@/views/user/RegisterResult')
       },
       {
+        path: 'auth-result',
+        name: 'authResult',
+        component: () => import(/* webpackChunkName: "user" */ '@/views/user/AuthResult')
+      },
+      {
         path: 'recover',
         name: 'recover',
         component: undefined
@@ -379,3 +384,9 @@ export const constantRouterMap = [
     component: () => import(/* webpackChunkName: "fail" */ '@/views/exception/404')
   }
 ]
+
+/**
+ * default main router
+ * @type {string}
+ */
+export const defaultRouter = '/dashboard/workplace'

@@ -13,7 +13,7 @@
             </a>
           </div>
           <div class="desc">
-            {{ $t('layouts.userLayout.title') }}
+            <!--            {{ $t('layouts.userLayout.title') }}-->
           </div>
         </div>
 
@@ -85,6 +85,7 @@ export default {
       padding: 32px 0 24px;
 
       .top {
+        margin-top: 100px;
         text-align: center;
 
         .header {
