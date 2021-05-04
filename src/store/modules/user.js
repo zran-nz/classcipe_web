@@ -1,6 +1,6 @@
 import storage from 'store'
-import { login, getInfo, logout } from '@/api/login'
-import { ACCESS_TOKEN } from '@/store/mutation-types'
+import { login, getInfo, logout, changeRole } from '@/api/login'
+import { ACCESS_TOKEN, CURRENT_ROLE, IS_ADD_PREFERENCE } from '@/store/mutation-types'
 import { welcome } from '@/utils/util'
 import * as logger from '@/utils/logger'
 
@@ -8,9 +8,13 @@ const user = {
   state: {
     token: '',
     name: '',
+    email: '',
     welcome: '',
     avatar: '',
+    currentRole: '',
+    isAddPreference: false,
     roles: [],
+    permissions: [],
     info: {}
   },
 
@@ -22,14 +26,27 @@ const user = {
       state.name = name
       state.welcome = welcome
     },
+    SET_EMAIL: (state, email) => {
+      state.email = email
+    },
     SET_AVATAR: (state, avatar) => {
       state.avatar = avatar
     },
     SET_ROLES: (state, roles) => {
       state.roles = roles
     },
+    SET_PERMISSIONS: (state, permissions) => {
+      state.permissions = permissions
+    },
     SET_INFO: (state, info) => {
       state.info = info
+    },
+    SET_CURRENT_ROLE: (state, currentRole) => {
+      logger.info('SET_CURRENT_ROLE', currentRole)
+      state.currentRole = currentRole
+    },
+    SET_IS_ADD_PREFERENCE: (state, isAddPreference) => {
+      state.isAddPreference = isAddPreference
     }
   },
 
@@ -65,29 +82,45 @@ const user = {
     // 获取用户信息
     GetInfo ({ commit }) {
       return new Promise((resolve, reject) => {
-        getInfo().then(response => {
+        getInfo({ token: storage.get(ACCESS_TOKEN) }).then(response => {
+          logger.info('GetInfo', response)
           const result = response.result
+          commit('SET_ROLES', result.roles)
+          commit('SET_PERMISSIONS', result.permissions)
+          commit('SET_INFO', result)
 
-          if (result.role && result.role.permissions.length > 0) {
-            const role = result.role
-            role.permissions = result.role.permissions
-            role.permissions.map(per => {
-              if (per.actionEntitySet != null && per.actionEntitySet.length > 0) {
-                const action = per.actionEntitySet.map(action => { return action.action })
-                per.actionList = action
-              }
-            })
-            role.permissionList = role.permissions.map(permission => { return permission.permissionId })
-            commit('SET_ROLES', result.role)
-            commit('SET_INFO', result)
-          } else {
-            reject(new Error('getInfo: roles must be a non-null array !'))
-          }
-
-          commit('SET_NAME', { name: result.name, welcome: welcome() })
+          commit('SET_NAME', { name: result.username, welcome: welcome() })
           commit('SET_AVATAR', result.avatar)
-
+          commit('SET_EMAIL', result.email)
+          commit('SET_CURRENT_ROLE', result.currentRole)
+          commit('SET_IS_ADD_PREFERENCE', result.isAddPreference)
+          storage.set(CURRENT_ROLE, result.currentRole)
+          storage.set(IS_ADD_PREFERENCE, result.isAddPreference)
           resolve(response)
+        }).catch(error => {
+          reject(error)
+        })
+      })
+    },
+
+    ChangeRole ({ commit }, roleInfo) {
+      logger.info('ChangeRole', roleInfo)
+      return new Promise((resolve, reject) => {
+        changeRole(roleInfo).then(response => {
+          logger.info('ChangeRole response', response)
+          const result = response.result.userInfo
+          commit('SET_ROLES', result.roles)
+          commit('SET_PERMISSIONS', result.permissions)
+          commit('SET_INFO', result)
+
+          commit('SET_NAME', { name: result.username, welcome: welcome() })
+          commit('SET_AVATAR', result.avatar)
+          commit('SET_EMAIL', result.email)
+          commit('SET_CURRENT_ROLE', result.currentRole)
+          commit('SET_IS_ADD_PREFERENCE', result.isAddPreference)
+          storage.set(CURRENT_ROLE, result.currentRole)
+          storage.set(IS_ADD_PREFERENCE, result.isAddPreference)
+          resolve()
         }).catch(error => {
           reject(error)
         })
@@ -100,7 +133,16 @@ const user = {
         logout(state.token).then(() => {
           commit('SET_TOKEN', '')
           commit('SET_ROLES', [])
+          commit('SET_NAME', '')
+          commit('SET_EMAIL', '')
+          commit('SET_AVATAR', '')
+          commit('SET_INFO', {})
+          commit('SET_CURRENT_ROLE', '')
+          commit('SET_PERMISSIONS', [])
+          commit('SET_IS_ADD_PREFERENCE', false)
+          storage.remove(CURRENT_ROLE)
           storage.remove(ACCESS_TOKEN)
+          storage.remove(IS_ADD_PREFERENCE)
           resolve()
         }).catch(() => {
           resolve()
@@ -108,7 +150,6 @@ const user = {
         })
       })
     }
-
   }
 }
 

@@ -10,6 +10,7 @@ import dashboard from './en-US/dashboard'
 import form from './en-US/form'
 import result from './en-US/result'
 import account from './en-US/account'
+import role from './en-US/role'
 
 const components = {
   antLocale: antdEnUS,
@@ -31,5 +32,6 @@ export default {
   ...dashboard,
   ...form,
   ...result,
-  ...account
+  ...account,
+  ...role
 }

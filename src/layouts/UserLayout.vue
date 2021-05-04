@@ -1,5 +1,4 @@
 <template>
-
   <div id="userLayout" :class="['user-layout-wrapper', isMobile && 'mobile']">
     <div class="container">
       <div class="user-layout-lang">
@@ -85,7 +84,6 @@ export default {
       padding: 32px 0 24px;
 
       .top {
-        margin-top: 100px;
         text-align: center;
 
         .header {

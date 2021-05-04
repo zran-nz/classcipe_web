@@ -21,25 +21,13 @@ export const asyncRouterMap = [
         name: 'dashboard',
         redirect: '/dashboard/workplace',
         component: RouteView,
-        meta: { title: 'menu.dashboard', keepAlive: true, icon: bxAnaalyse, permission: ['dashboard'] },
+        meta: { title: 'menu.dashboard', keepAlive: true, icon: bxAnaalyse },
         children: [
-          {
-            path: '/dashboard/analysis/:pageNo([1-9]\\d*)?',
-            name: 'Analysis',
-            component: () => import('@/views/dashboard/Analysis'),
-            meta: { title: 'menu.dashboard.analysis', keepAlive: false, permission: ['dashboard'] }
-          },
-          // 外部链接
-          {
-            path: 'https://www.baidu.com/',
-            name: 'Monitor',
-            meta: { title: 'menu.dashboard.monitor', target: '_blank' }
-          },
           {
             path: '/dashboard/workplace',
             name: 'Workplace',
             component: () => import('@/views/dashboard/Workplace'),
-            meta: { title: 'menu.dashboard.workplace', keepAlive: true, permission: ['dashboard'] }
+            meta: { title: 'menu.dashboard.workplace', keepAlive: true }
           }
         ]
       },
@@ -372,6 +360,16 @@ export const constantRouterMap = [
         component: () => import(/* webpackChunkName: "user" */ '@/views/user/AuthResult')
       },
       {
+        path: 'select-role',
+        name: 'selectRole',
+        component: () => import(/* webpackChunkName: "user" */ '@/views/user/SelectRole')
+      },
+      {
+        path: 'add-preference',
+        name: 'addPreference',
+        component: () => import(/* webpackChunkName: "user" */ '@/views/user/AddPreference')
+      },
+      {
         path: 'recover',
         name: 'recover',
         component: undefined
@@ -389,4 +387,16 @@ export const constantRouterMap = [
  * default main router
  * @type {string}
  */
-export const defaultRouter = '/dashboard/workplace'
+export const defaultDashboardRouter = '/dashboard/workplace'
+
+/**
+ * select role router
+ * @type {string}
+ */
+export const selectRoleRouter = '/user/select-role'
+
+/**
+ * add preference
+ * @type {string}
+ */
+export const addPreferenceRouter = '/user/add-preference'

@@ -39,7 +39,6 @@ const isProd = process.env.NODE_ENV === 'production'
 
 // vue.config.js
 const vueConfig = {
-  publicPath: './',
   configureWebpack: {
     // webpack plugins
     plugins: [
@@ -50,7 +49,7 @@ const vueConfig = {
         GIT_HASH: JSON.stringify(getGitHash()),
         BUILD_DATE: buildDate
       })
-    ],
+    ]
     // if prod, add externals
     // externals: isProd ? assetsCDN.externals : {}
   },

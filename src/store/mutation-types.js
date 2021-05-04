@@ -1,4 +1,6 @@
 export const ACCESS_TOKEN = 'Access-Token'
+export const CURRENT_ROLE = 'Current-Role'
+export const IS_ADD_PREFERENCE = 'Is-Add-Preference'
 
 export const SIDEBAR_TYPE = 'sidebar_type'
 export const TOGGLE_MOBILE_TYPE = 'is_mobile'

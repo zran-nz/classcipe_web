@@ -1,15 +1,15 @@
 import request from '@/utils/request'
 
 const userApi = {
-  Login: '/auth/login',
-  Logout: '/auth/logout',
+  Login: '/classcipe/sys/login',
+  Logout: '/classcipe/sys/logout',
+  ChangeRole: '/classcipe/sys/changeRole',
+  UserInfo: '/classcipe/sys/getUserInfoByToken',
   ForgePassword: '/auth/forge-password',
   Register: '/auth/register',
   twoStepCode: '/auth/2step-code',
   SendSms: '/account/sms',
   SendSmsErr: '/account/sms_err',
-  // get my info
-  UserInfo: '/user/info',
   UserMenu: '/user/nav'
 }
 
@@ -32,21 +32,26 @@ export function login (parameter) {
   })
 }
 
+/**
+ * parameter: {
+ *   token: ''
+ * }
+ * @param parameter
+ * @returns {AxiosPromise}
+ */
+export function getInfo (parameter) {
+  return request({
+    url: userApi.UserInfo,
+    method: 'get',
+    params: parameter
+  })
+}
+
 export function getSmsCaptcha (parameter) {
   return request({
     url: userApi.SendSms,
     method: 'post',
     data: parameter
-  })
-}
-
-export function getInfo () {
-  return request({
-    url: userApi.UserInfo,
-    method: 'get',
-    headers: {
-      'Content-Type': 'application/json;charset=UTF-8'
-    }
   })
 }
 
@@ -76,5 +81,21 @@ export function get2step (parameter) {
     url: userApi.twoStepCode,
     method: 'post',
     data: parameter
+  })
+}
+
+/**
+ * changeRole
+ * @param parameter
+ * @returns {AxiosPromise}
+ */
+export function changeRole (parameter) {
+  return request({
+    url: userApi.ChangeRole,
+    method: 'post',
+    data: parameter,
+    headers: {
+      'Content-Type': 'application/json;charset=UTF-8'
+    }
   })
 }
