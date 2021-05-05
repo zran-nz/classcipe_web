@@ -6,7 +6,7 @@
 </template>
 
 <script>
-import { defaultDashboardRouter, selectRoleRouter } from '@/config/router.config'
+import { selectRoleRouter } from '@/config/router.config'
 
 export default {
   name: 'AuthResult',
@@ -16,7 +16,7 @@ export default {
     this.$store.dispatch('LoginWithToken', accessToken).then(() => {
       this.$store.dispatch('GetInfo').then(response => {
         if (this.$store.getters.currentRole) {
-          this.$router.push({ path: defaultDashboardRouter })
+          this.$router.push(this.$store.getters.defaultRouter)
         } else {
           this.$router.push({ path: selectRoleRouter })
         }

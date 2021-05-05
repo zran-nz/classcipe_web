@@ -34,7 +34,7 @@
           <div class="mask">
             <a-icon type="plus" />
           </div>
-          <img :src="option.img"/>
+          <img :src="$store.getters.avatar"/>
         </div>
       </a-col>
 

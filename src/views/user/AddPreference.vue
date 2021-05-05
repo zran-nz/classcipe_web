@@ -79,7 +79,7 @@
 </template>
 
 <script>
-import { defaultDashboardRouter, selectRoleRouter } from '@/config/router.config'
+import { defaultExpertRouter, defaultTeacherRouter, selectRoleRouter } from '@/config/router.config'
 import {
   addPreference,
   getAllAreas,
@@ -235,9 +235,13 @@ export default {
         this.$refs.expertForm.validate(valid => {
           if (valid) {
             logger.info('save expert', this.expertForm)
-            addPreference(this.expertForm).then(response => {
+            const submitData = { areaIds: [this.expertForm.areaIds] }
+            if (this.expertForm.others) {
+              submitData.others = this.expertForm.others
+            }
+            addPreference(submitData).then(response => {
               this.$store.dispatch('GetInfo').then(() => {
-                this.$router.push(defaultDashboardRouter)
+                this.$router.push(this.$store.getters.currentRole === 'expert' ? defaultExpertRouter : defaultTeacherRouter)
               })
             })
           } else {
@@ -251,7 +255,7 @@ export default {
             logger.info('save teacher', this.teacherForm)
             addPreference(this.teacherForm).then(response => {
               this.$store.dispatch('GetInfo').then(() => {
-                this.$router.push(defaultDashboardRouter)
+                this.$router.push(this.$store.getters.defaultRouter)
               })
             })
           } else {

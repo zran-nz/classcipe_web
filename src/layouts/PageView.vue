@@ -6,7 +6,12 @@
 
 <script>
 
+import * as logger from '@/utils/logger'
+
 export default {
-  name: 'PageView'
+  name: 'PageView',
+  created () {
+    logger.info('PageView created')
+  }
 }
 </script>

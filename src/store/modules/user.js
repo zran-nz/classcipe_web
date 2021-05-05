@@ -1,6 +1,6 @@
 import storage from 'store'
 import { login, getInfo, logout, changeRole } from '@/api/login'
-import { ACCESS_TOKEN, CURRENT_ROLE, IS_ADD_PREFERENCE } from '@/store/mutation-types'
+import { ACCESS_TOKEN, CURRENT_ROLE, IS_ADD_PREFERENCE, USER_INFO } from '@/store/mutation-types'
 import { welcome } from '@/utils/util'
 import * as logger from '@/utils/logger'
 
@@ -85,8 +85,8 @@ const user = {
         getInfo({ token: storage.get(ACCESS_TOKEN) }).then(response => {
           logger.info('GetInfo', response)
           const result = response.result
-          commit('SET_ROLES', result.roles)
-          commit('SET_PERMISSIONS', result.permissions)
+          commit('SET_ROLES', result.currentRole ? [result.currentRole] : [])
+          commit('SET_PERMISSIONS', result.currentRole ? [result.currentRole] : [])
           commit('SET_INFO', result)
 
           commit('SET_NAME', { name: result.username, welcome: welcome() })
@@ -96,6 +96,7 @@ const user = {
           commit('SET_IS_ADD_PREFERENCE', result.isAddPreference)
           storage.set(CURRENT_ROLE, result.currentRole)
           storage.set(IS_ADD_PREFERENCE, result.isAddPreference)
+          storage.set(USER_INFO, result)
           resolve(response)
         }).catch(error => {
           reject(error)
@@ -109,8 +110,8 @@ const user = {
         changeRole(roleInfo).then(response => {
           logger.info('ChangeRole response', response)
           const result = response.result.userInfo
-          commit('SET_ROLES', result.roles)
-          commit('SET_PERMISSIONS', result.permissions)
+          commit('SET_ROLES', result.currentRole ? [result.currentRole] : [])
+          commit('SET_PERMISSIONS', result.currentRole ? [result.currentRole] : [])
           commit('SET_INFO', result)
 
           commit('SET_NAME', { name: result.username, welcome: welcome() })
@@ -120,6 +121,7 @@ const user = {
           commit('SET_IS_ADD_PREFERENCE', result.isAddPreference)
           storage.set(CURRENT_ROLE, result.currentRole)
           storage.set(IS_ADD_PREFERENCE, result.isAddPreference)
+          storage.set(USER_INFO, result)
           resolve()
         }).catch(error => {
           reject(error)
@@ -143,6 +145,7 @@ const user = {
           storage.remove(CURRENT_ROLE)
           storage.remove(ACCESS_TOKEN)
           storage.remove(IS_ADD_PREFERENCE)
+          storage.remove(USER_INFO)
           resolve()
         }).catch(() => {
           resolve()

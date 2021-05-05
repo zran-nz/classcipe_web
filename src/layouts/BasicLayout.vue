@@ -13,23 +13,20 @@
           我们推荐使用这种方式进行 LOGO 和 title 自定义
     -->
     <template v-slot:menuHeaderRender>
-      <div>
-        <img src="~@/assets/logo/logo-classicipe-green.png">
+      <div class="home-nav" @click="goHome">
+        <img src="~@/assets/logo/logo-classicipe-round-transparent-with-name.png">
         <h1>{{ title }}</h1>
       </div>
     </template>
     <!-- 1.0.0+ 版本 pro-layout 提供 API,
           增加 Header 左侧内容区自定义
     -->
-    <template v-slot:headerContentRender>
-      <div>
-        <a-tooltip title="刷新页面">
-          <a-icon type="reload" style="font-size: 18px;cursor: pointer;" @click="reload" />
-        </a-tooltip>
-      </div>
+    <template v-slot:menuRender>
+      <expert-nav v-if="$store.getters.currentRole === 'expert'"></expert-nav>
+      <teacher-nav v-if="$store.getters.currentRole === 'teacher'"></teacher-nav>
     </template>
     <template v-slot:rightContentRender>
-      <right-content :top-menu="settings.layout === 'topmenu'" :is-mobile="isMobile" :theme="settings.theme" />
+      <right-content :top-menu="settings.layout === 'topmenu'" :is-mobile="isMobile" :theme="settings.theme" @switch-role="handleSwitchRole" />
     </template>
     <!-- custom footer / 自定义Footer -->
     <template v-slot:footerRender>
@@ -43,18 +40,24 @@
 import { SettingDrawer, updateTheme } from '@ant-design-vue/pro-layout'
 import { i18nRender } from '@/locales'
 import { mapState } from 'vuex'
-import { CONTENT_WIDTH_TYPE, SIDEBAR_TYPE, TOGGLE_MOBILE_TYPE } from '@/store/mutation-types'
+import { CONTENT_WIDTH_TYPE } from '@/store/mutation-types'
 
 import defaultSettings from '@/config/defaultSettings'
 import RightContent from '@/components/GlobalHeader/RightContent'
 import GlobalFooter from '@/components/GlobalFooter'
+import * as logger from '@/utils/logger'
+
+import TeacherNav from '@/components/GlobalHeader/TeacherNav'
+import ExpertNav from '@/components/GlobalHeader/ExpertNav'
 
 export default {
   name: 'BasicLayout',
   components: {
     SettingDrawer,
     RightContent,
-    GlobalFooter
+    GlobalFooter,
+    TeacherNav,
+    ExpertNav
   },
   data () {
     return {
@@ -90,6 +93,15 @@ export default {
       isMobile: false
     }
   },
+  watch: {
+    '$route' (to, from) {
+      logger.info('route change', to, from)
+      if (to.path === '/') {
+        logger.info('go to defaultRouter ' + this.$store.getters.defaultRouter)
+        this.$router.replace(this.$store.getters.defaultRouter)
+      }
+    }
+  },
   computed: {
     ...mapState({
       // 动态主路由
@@ -97,15 +109,7 @@ export default {
     })
   },
   created () {
-    const routes = this.mainMenu.find(item => item.path === '/')
-    this.menus = (routes && routes.children) || []
-    // 处理侧栏收起状态
-    this.$watch('collapsed', () => {
-      this.$store.commit(SIDEBAR_TYPE, this.collapsed)
-    })
-    this.$watch('isMobile', () => {
-      this.$store.commit(TOGGLE_MOBILE_TYPE, this.isMobile)
-    })
+    logger.info('BasicLayout created, path ' + this.$route.path)
   },
   mounted () {
     const userAgent = navigator.userAgent
@@ -126,6 +130,18 @@ export default {
   },
   methods: {
     i18nRender,
+    handleSwitchRole (role) {
+      logger.info('switch-role ' + role)
+      this.$store.dispatch('ChangeRole', { role }).then(() => {
+        window.location.href = '/'
+      })
+    },
+    goHome () {
+      this.$router.push('/')
+    },
+    onSearch () {
+      this.$message.success('search something')
+    },
     handleMediaQuery (val) {
       this.query = val
       if (this.isMobile && !val['screen-xs']) {

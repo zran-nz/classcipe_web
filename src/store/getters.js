@@ -1,3 +1,5 @@
+import { defaultExpertRouter, defaultTeacherRouter } from '@/config/router.config'
+
 const getters = {
   isMobile: state => state.app.isMobile,
   lang: state => state.app.lang,
@@ -13,7 +15,8 @@ const getters = {
   permissions: state => state.user.permissions,
   userInfo: state => state.user.info,
   addRouters: state => state.permission.addRouters,
-  multiTab: state => state.app.multiTab
+  multiTab: state => state.app.multiTab,
+  defaultRouter: state => state.user.currentRole === 'expert' ? defaultExpertRouter : defaultTeacherRouter
 }
 
 export default getters

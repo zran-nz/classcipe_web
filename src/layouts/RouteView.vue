@@ -1,4 +1,6 @@
 <script>
+import * as logger from '@/utils/logger'
+
 export default {
   name: 'RouteView',
   props: {
@@ -9,6 +11,9 @@ export default {
   },
   data () {
     return {}
+  },
+  created () {
+    logger.info('RouteView created')
   },
   render () {
     const { $route: { meta }, $store: { getters } } = this

@@ -1,13 +1,21 @@
 <template>
   <div :class="wrpCls">
-    <avatar-dropdown :menu="showMenu" :current-user="currentUser" :class="prefixCls" />
-    <select-lang :class="prefixCls" />
+    <div class="tips">
+      <router-link to="/notification">
+        <a-badge dot>
+          <a-icon type="notification" />
+        </a-badge>
+      </router-link>
+    </div>
+    <avatar-dropdown :menu="showMenu" :current-user="$store.getters.userInfo" :class="prefixCls" @switch-role="handleSwitchRole" />
+    <!--    <select-lang :class="prefixCls" />-->
   </div>
 </template>
 
 <script>
 import AvatarDropdown from './AvatarDropdown'
 import SelectLang from '@/components/SelectLang'
+import * as logger from '@/utils/logger'
 
 export default {
   name: 'RightContent',
@@ -35,8 +43,7 @@ export default {
   },
   data () {
     return {
-      showMenu: true,
-      currentUser: {}
+      showMenu: true
     }
   },
   computed: {
@@ -48,11 +55,12 @@ export default {
     }
   },
   mounted () {
-    setTimeout(() => {
-      this.currentUser = {
-        name: 'Serati Ma'
-      }
-    }, 1500)
+  },
+  methods: {
+    handleSwitchRole (role) {
+      logger.info('handleSwitchRole ' + role)
+      this.$emit('switch-role', role)
+    }
   }
 }
 </script>

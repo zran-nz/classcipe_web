@@ -1,10 +1,17 @@
 export default {
     'menu.welcome': '欢迎',
     'menu.home': '主页',
+  'menu.main': 'Main',
+  'menu.my-class': 'My Class',
+    'menu.library': 'Library',
+    'menu.library.center': 'Library',
+    'menu.my-content': 'MyContent',
+    'menu.my-content.center': 'MyContent',
     'menu.dashboard': '仪表盘',
     'menu.dashboard.analysis': '分析页',
     'menu.dashboard.monitor': '监控页',
     'menu.dashboard.workplace': '工作台',
+  'menu.dashboard.notification': 'Notification',
     'menu.form': '表单页',
     'menu.form.basic-form': '基础表单',
     'menu.form.step-form': '分步表单',
@@ -34,6 +41,8 @@ export default {
     'menu.account': '个人页',
     'menu.account.center': '个人中心',
     'menu.account.settings': '个人设置',
+    'menu.account.switchToTeacher': '切换为老师',
+    'menu.account.switchToExpert': '切换为博士',
     'menu.account.trigger': '触发报错',
     'menu.account.logout': '退出登录'
 }

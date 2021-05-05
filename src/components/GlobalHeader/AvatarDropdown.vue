@@ -1,18 +1,24 @@
 <template>
-  <a-dropdown v-if="currentUser && currentUser.name" placement="bottomRight">
+  <a-dropdown v-if="currentUser && currentUser.nickname" placement="bottomRight">
     <span class="ant-pro-account-avatar">
-      <a-avatar size="small" src="https://gw.alipayobjects.com/zos/antfincdn/XAosXuNZyF/BiazfanxmamNRoxxVxka.png" class="antd-pro-global-header-index-avatar" />
-      <span>{{ currentUser.name }}</span>
+      <a-avatar size="small" :src="currentUser.avatar" class="antd-pro-global-header-index-avatar" v-if="currentUser.avatar"/>
+      <a-avatar size="small" src="~@/assets/logo/beatop.png" class="antd-pro-global-header-index-avatar" v-else/>
+      <span>{{ currentUser.currentRole }}</span>
     </span>
     <template v-slot:overlay>
       <a-menu class="ant-pro-drop-down menu" :selected-keys="[]">
-        <a-menu-item v-if="menu" key="center" @click="handleToCenter">
-          <a-icon type="user" />
-          {{ $t('menu.account.center') }}
-        </a-menu-item>
         <a-menu-item v-if="menu" key="settings" @click="handleToSettings">
-          <a-icon type="setting" />
+          <a-icon type="user" />
           {{ $t('menu.account.settings') }}
+        </a-menu-item>
+        <a-menu-item v-if="menu" key="center" @click="switchRole">
+          <a-icon type="setting" />
+          <template v-if="currentUser.currentRole === &quot;expert&quot;">
+            {{ $t('menu.account.switchToTeacher') }}
+          </template>
+          <template v-if="currentUser.currentRole === &quot;teacher&quot;">
+            {{ $t('menu.account.switchToExpert') }}
+          </template>
         </a-menu-item>
         <a-menu-divider v-if="menu" />
         <a-menu-item key="logout" @click="handleLogout">
@@ -43,8 +49,12 @@ export default {
     }
   },
   methods: {
-    handleToCenter () {
-      this.$router.push({ path: '/account/center' })
+    switchRole () {
+      if (this.currentUser.currentRole === 'expert') {
+        this.$emit('switch-role', 'teacher')
+      } else {
+        this.$emit('switch-role', 'expert')
+      }
     },
     handleToSettings () {
       this.$router.push({ path: '/account/settings' })

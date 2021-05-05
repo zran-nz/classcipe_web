@@ -12,15 +12,15 @@
           </div>
           <div class="account-center-detail">
             <p>
-              <i class="title"></i>交互专家
+              <i class="title"></i>XX专家
             </p>
             <p>
-              <i class="group"></i>蚂蚁金服－某某某事业群－某某平台部－某某技术部－UED
+              <i class="group"></i>XX
             </p>
             <p>
               <i class="address"></i>
-              <span>浙江省</span>
-              <span>杭州市</span>
+              <span>XX省</span>
+              <span>XX市</span>
             </p>
           </div>
           <a-divider/>
