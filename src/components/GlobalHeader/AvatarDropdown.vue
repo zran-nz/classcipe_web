@@ -3,7 +3,7 @@
     <span class="ant-pro-account-avatar">
       <a-avatar size="small" :src="currentUser.avatar" class="antd-pro-global-header-index-avatar" v-if="currentUser.avatar"/>
       <a-avatar size="small" src="~@/assets/logo/beatop.png" class="antd-pro-global-header-index-avatar" v-else/>
-      <span>{{ currentUser.currentRole }}</span>
+      <span>{{ currentUser.currentRole.substr(0, 1).toUpperCase() + currentUser.currentRole.substr(1) }}</span>
     </span>
     <template v-slot:overlay>
       <a-menu class="ant-pro-drop-down menu" :selected-keys="[]">

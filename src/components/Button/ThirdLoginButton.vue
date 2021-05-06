@@ -32,7 +32,7 @@ export default {
 </script>
 
 <style lang='less' scoped>
-
+@import "~@/components/index.less";
 .third-login-btn {
   cursor: pointer;
   user-select: none;
@@ -40,7 +40,8 @@ export default {
   width: 368px;
   height: 40px;
   font-size: 16px;
-  background: #ffffff;
+  background: @primary-color;
+  color: #fff;
   display: flex;
   flex-direction: row;
   align-items: center;

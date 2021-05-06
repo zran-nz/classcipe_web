@@ -2,8 +2,8 @@
   <div :class="wrpCls">
     <div class="tips">
       <router-link to="/notification">
-        <a-badge dot>
-          <a-icon type="notification" />
+        <a-badge>
+          <a-icon type="mail" />
         </a-badge>
       </router-link>
     </div>
