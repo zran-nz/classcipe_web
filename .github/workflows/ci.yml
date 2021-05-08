@@ -53,13 +53,13 @@ jobs:
           repository: xnuwu/classcipe_web/frontend
           tags: develop
           tag_with_ref: true
-      - name: Push Images to GitHub Packages (master)
-        if: github.ref == 'refs/heads/master' && github.event_name == 'push'
+      - name: Push Images to GitHub Packages (main)
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
         uses: docker/build-push-action@v1
         with:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
           registry: docker.pkg.github.com
           repository: xnuwu/classcipe_web/frontend
-          tags: master
+          tags: main
           tag_with_ref: true
