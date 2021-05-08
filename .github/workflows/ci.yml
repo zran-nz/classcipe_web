@@ -52,4 +52,3 @@ jobs:
           registry: docker.pkg.github.com
           repository: xnuwu/classcipe_web
           tags: main
-          tag_with_ref: true
