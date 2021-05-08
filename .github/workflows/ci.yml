@@ -51,4 +51,5 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
           registry: docker.pkg.github.com
           repository: xnuwu/classcipe_web
-          tags: main
+          tags: ${{ github.sha }}
+          tag_with_ref: true
