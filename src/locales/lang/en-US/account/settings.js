@@ -1,4 +1,5 @@
 export default {
+  'account.settings.menuMap.profile': 'Profile',
   'account.settings.menuMap.basic': 'Basic Settings',
   'account.settings.menuMap.security': 'Security Settings',
   'account.settings.menuMap.custom': 'Custom Settings',

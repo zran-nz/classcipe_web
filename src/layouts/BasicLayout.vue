@@ -37,7 +37,6 @@
 </template>
 
 <script>
-import { SettingDrawer, updateTheme } from '@ant-design-vue/pro-layout'
 import { i18nRender } from '@/locales'
 import { mapState } from 'vuex'
 import { CONTENT_WIDTH_TYPE } from '@/store/mutation-types'
@@ -53,7 +52,6 @@ import ExpertNav from '@/components/GlobalHeader/ExpertNav'
 export default {
   name: 'BasicLayout',
   components: {
-    SettingDrawer,
     RightContent,
     GlobalFooter,
     TeacherNav,

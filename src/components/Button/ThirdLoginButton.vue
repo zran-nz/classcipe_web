@@ -49,7 +49,7 @@ export default {
   transition: all 200ms ease-in;
   border: 1px solid rgba(27, 31, 35, 0.1);
   &:hover {
-    background: #fafbfc;
+    background: fade(@primary-color, 80%);
   }
   .btn-content {
     height: 40px;

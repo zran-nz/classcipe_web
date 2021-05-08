@@ -1,7 +1,7 @@
 <template>
-  <div>
-    Teacher Class
-  </div>
+  <a-card :bordered="false">
+    My Class
+  </a-card>
 </template>
 
 <script>

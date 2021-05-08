@@ -43,6 +43,7 @@ export default {
     'menu.account.switchToTeacher': 'Switch to Teacher',
     'menu.account.switchToExpert': 'Switch to Expert',
     'menu.account.settings': 'Account Settings',
+    'menu.account.profile': 'Profile',
     'menu.account.trigger': 'Trigger Error',
     'menu.account.logout': 'Logout'
 }

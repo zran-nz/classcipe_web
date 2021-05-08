@@ -83,21 +83,21 @@ export const asyncRouterMap = [
       {
         path: '/expert',
         name: 'expert',
-        redirect: '/expert/Library',
+        redirect: '/expert/my-content',
         component: RouteView,
         meta: { title: 'menu.main', keepAlive: true, icon: bxAnaalyse, permission: ['expert', 'teacher'] },
         children: [
-          {
-            path: '/expert/Library',
-            name: 'Library',
-            component: () => import('@/views/dashboard/Library'),
-            meta: { title: 'menu.library', keepAlive: true, permission: ['expert', 'teacher'] }
-          },
           {
             path: '/expert/my-content',
             name: 'MyContent',
             component: () => import('@/views/dashboard/MyContent'),
             meta: { title: 'menu.my-content', keepAlive: true, permission: ['expert', 'teacher'] }
+          },
+          {
+            path: '/expert/Library',
+            name: 'Library',
+            component: () => import('@/views/dashboard/Library'),
+            meta: { title: 'menu.library', keepAlive: true, permission: ['expert', 'teacher'] }
           },
           {
             path: '/expert/add-topic',
@@ -146,7 +146,7 @@ export const asyncRouterMap = [
                 path: '/account/settings/basic',
                 name: 'BasicSettings',
                 component: () => import('@/views/account/settings/BasicSetting'),
-                meta: { title: 'account.settings.menuMap.basic', hidden: true, permission: ['expert', 'teacher'] }
+                meta: { title: 'account.settings.menuMap.profile', hidden: true, permission: ['expert', 'teacher'] }
               },
               {
                 path: '/account/settings/security',
@@ -283,7 +283,7 @@ export const defaultTeacherRouter = '/teacher/main'
  * default expert main router
  * @type {string}
  */
-export const defaultExpertRouter = '/expert/library'
+export const defaultExpertRouter = '/expert/my-content'
 
 /**
  * select role router

@@ -4,11 +4,6 @@
       <div class="nav-items menu-list">
         <a-menu mode="horizontal" theme="dark">
           <a-menu-item>
-            <router-link to="/teacher/main">
-              <a-icon type="home" /> {{ $t('menu.main') }}
-            </router-link>
-          </a-menu-item>
-          <a-menu-item>
             <router-link to="/teacher/library">
               <a-icon type="profile" /> {{ $t('menu.library') }}
             </router-link>

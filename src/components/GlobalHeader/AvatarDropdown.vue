@@ -9,7 +9,7 @@
       <a-menu class="ant-pro-drop-down menu" :selected-keys="[]">
         <a-menu-item v-if="menu" key="settings" @click="handleToSettings">
           <a-icon type="user" />
-          {{ $t('menu.account.settings') }}
+          {{ $t('menu.account.profile') }}
         </a-menu-item>
         <a-menu-item v-if="menu" key="center" @click="switchRole">
           <a-icon type="setting" />

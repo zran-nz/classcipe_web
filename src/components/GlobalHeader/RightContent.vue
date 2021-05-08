@@ -3,7 +3,7 @@
     <div class="tips">
       <router-link to="/notification">
         <a-badge>
-          <a-icon type="mail" />
+          <a-icon type="notification" />
         </a-badge>
       </router-link>
     </div>
@@ -64,3 +64,12 @@ export default {
   }
 }
 </script>
+<style scoped lang='less'>
+.ant-badge {
+  svg {
+    height: 30px;
+    width: 30px;
+    color: #fff;
+  }
+}
+</style>

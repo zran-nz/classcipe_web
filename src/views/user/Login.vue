@@ -127,7 +127,7 @@ export default {
 </script>
 
 <style lang="less" scoped>
-.user-layout-login {
+.main {
   label {
     font-size: 14px;
   }
@@ -151,6 +151,7 @@ export default {
 
   .third-login-wrapper {
     min-width: 260px;
+    margin-top:100px;
     width: 368px;
     box-sizing: border-box;
     cursor: pointer;

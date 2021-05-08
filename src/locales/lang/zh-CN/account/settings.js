@@ -1,4 +1,5 @@
 export default {
+  'account.settings.menuMap.profile': '基本信息',
   'account.settings.menuMap.basic': '基本设置',
   'account.settings.menuMap.security': '安全设置',
   'account.settings.menuMap.custom': '个性化',

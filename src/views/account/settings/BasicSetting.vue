@@ -7,23 +7,23 @@
           <a-form-item
             :label="$t('account.settings.basic.nickname')"
           >
-            <a-input :placeholder="$t('account.settings.basic.nickname-message')" />
+            <a-input :placeholder="$t('account.settings.basic.nickname-message')" v-model="userInfo.nickname" disabled/>
           </a-form-item>
-          <a-form-item
-            :label="$t('account.settings.basic.profile')"
-          >
-            <a-textarea rows="4" :placeholder="$t('account.settings.basic.profile-message')"/>
-          </a-form-item>
+          <!--          <a-form-item-->
+          <!--            :label="$t('account.settings.basic.profile')"-->
+          <!--          >-->
+          <!--            <a-textarea rows="4" :placeholder="$t('account.settings.basic.profile-message')"/>-->
+          <!--          </a-form-item>-->
 
           <a-form-item
             :label="$t('account.settings.basic.email')"
             :required="false"
           >
-            <a-input placeholder="example@ant.design"/>
+            <a-input placeholder="example@ant.design" v-model="userInfo.email" disabled/>
           </a-form-item>
 
           <a-form-item>
-            <a-button type="primary">{{ $t('account.settings.basic.update') }}</a-button>
+            <!--            <a-button type="primary">{{ $t('account.settings.basic.update') }}</a-button>-->
           </a-form-item>
         </a-form>
 
@@ -54,6 +54,7 @@ export default {
   },
   data () {
     return {
+      userInfo: {},
       // cropper
       preview: {},
       option: {
@@ -72,6 +73,9 @@ export default {
         fixedNumber: [1, 1]
       }
     }
+  },
+  created () {
+    this.userInfo = this.$store.getters.userInfo
   },
   methods: {
     setavatar (url) {

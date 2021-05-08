@@ -4,18 +4,18 @@
       <div class="nav-items search-box">
         <a-input-search placeholder="input search text" style="width: 200px" v-model="searchText" @search="triggerSearch" @pressEnter="triggerSearch"/>
       </div>
-      <div class="nav-items menu-list">
+      <div class="nav-items menu-list teacher-nav-items">
         <a-menu mode="horizontal" theme="dark">
           <a-menu-item>
             <router-link to="/expert/library">
               <a-icon type="profile" /> {{ $t('menu.library') }}
             </router-link>
           </a-menu-item>
-          <a-menu-item>
-            <router-link to="/expert/my-content">
-              <a-icon type="pushpin" /> {{ $t('menu.my-content') }}
-            </router-link>
-          </a-menu-item>
+          <!--          <a-menu-item>-->
+          <!--            <router-link to="/expert/my-content">-->
+          <!--              <a-icon type="pushpin" /> {{ $t('menu.my-content') }}-->
+          <!--            </router-link>-->
+          <!--          </a-menu-item>-->
         </a-menu>
       </div>
     </div>
