@@ -25,7 +25,7 @@ const errorHandler = (error) => {
         description: data.message
       })
     }
-    if (error.response.status === 401 && !(data.result && data.result.isLogin)) {
+    if (error.response.status === 401 && !(data.result && data.result.isLogin) || (data.result && data.result.code === 510)) {
       notification.error({
         message: 'Unauthorized',
         description: 'Authorization verification failed'
