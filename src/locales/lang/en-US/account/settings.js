@@ -10,6 +10,8 @@ export default {
   'account.settings.basic.email': 'Email',
   'account.settings.basic.email-message': 'Please input your email!',
   'account.settings.basic.nickname': 'Nickname',
+  'account.settings.basic.gender': 'Gender',
+  'account.settings.basic.gender-message': 'Please select your Gender!',
   'account.settings.basic.nickname-message': 'Please input your Nickname!',
   'account.settings.basic.profile': 'Personal profile',
   'account.settings.basic.profile-message': 'Please input your personal profile!',
@@ -50,14 +52,14 @@ export default {
   'account.settings.binding.dingding-description': 'Currently unbound DingTalk account',
   'account.settings.binding.bind': 'Bind',
   'account.settings.notification.password': 'Account Password',
-  'account.settings.notification.password-description':
-    'Messages from other users will be notified in the form of a station letter',
+  'account.settings.notification.password-description': 'Messages from other users will be notified in the form of a station letter',
   'account.settings.notification.messages': 'System Messages',
-  'account.settings.notification.messages-description':
-    'System messages will be notified in the form of a station letter',
+  'account.settings.notification.messages-description': 'System messages will be notified in the form of a station letter',
   'account.settings.notification.todo': 'To-do Notification',
-  'account.settings.notification.todo-description':
-    'The to-do list will be notified in the form of a letter from the station',
+  'account.settings.notification.todo-description': 'The to-do list will be notified in the form of a letter from the station',
   'account.settings.settings.open': 'Open',
-  'account.settings.settings.close': 'Close'
+  'account.settings.settings.close': 'Close',
+  'account.settings.avatar.edit': 'Change your avatar',
+  'account.settings.avatar.select-image': 'Select image',
+  'account.settings.avatar.save-image': 'Save image'
 }

@@ -65,10 +65,7 @@ export function getCurrentUserNav () {
 export function logout () {
   return request({
     url: userApi.Logout,
-    method: 'post',
-    headers: {
-      'Content-Type': 'application/json;charset=UTF-8'
-    }
+    method: 'get'
   })
 }
 

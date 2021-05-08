@@ -27,5 +27,6 @@ export default function Initializer () {
   store.commit('SET_INFO', storage.get(USER_INFO))
 
   store.dispatch('setLang', storage.get(APP_LANGUAGE, 'en-US'))
+  store.dispatch('getSysConfig')
   // last step
 }

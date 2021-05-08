@@ -7,23 +7,30 @@
           <a-form-item
             :label="$t('account.settings.basic.nickname')"
           >
-            <a-input :placeholder="$t('account.settings.basic.nickname-message')" v-model="userInfo.nickname" disabled/>
+            <a-input :placeholder="$t('account.settings.basic.nickname-message')" v-model="userInfo.nickname"/>
           </a-form-item>
-          <!--          <a-form-item-->
-          <!--            :label="$t('account.settings.basic.profile')"-->
-          <!--          >-->
-          <!--            <a-textarea rows="4" :placeholder="$t('account.settings.basic.profile-message')"/>-->
-          <!--          </a-form-item>-->
 
           <a-form-item
             :label="$t('account.settings.basic.email')"
             :required="false"
           >
-            <a-input placeholder="example@ant.design" v-model="userInfo.email" disabled/>
+            <a-input placeholder="example@gmail.com" v-model="email" disabled/>
+          </a-form-item>
+
+          <a-form-item
+            :label="$t('account.settings.basic.gender')"
+          >
+            <a-radio-group v-model="userInfo.gender" :options="genderOptions" :default-value="defaultGender" />
+          </a-form-item>
+
+          <a-form-item
+            :label="$t('account.settings.basic.profile')"
+          >
+            <a-textarea rows="4" v-model="userInfo.notes" :placeholder="$t('account.settings.basic.profile-message')"/>
           </a-form-item>
 
           <a-form-item>
-            <!--            <a-button type="primary">{{ $t('account.settings.basic.update') }}</a-button>-->
+            <a-button type="primary" @click="updateProfile">{{ $t('account.settings.basic.update') }}</a-button>
           </a-form-item>
         </a-form>
 
@@ -34,19 +41,21 @@
           <div class="mask">
             <a-icon type="plus" />
           </div>
-          <img :src="$store.getters.avatar"/>
+          <img :src="userInfo.avatar"/>
         </div>
       </a-col>
 
     </a-row>
 
-    <avatar-modal ref="modal" @ok="setavatar"/>
+    <avatar-modal ref="modal" @ok="setAvatar"/>
 
   </div>
 </template>
 
 <script>
 import AvatarModal from './AvatarModal'
+import * as logger from '@/utils/logger'
+import { editUser } from '@/api/user'
 
 export default {
   components: {
@@ -54,32 +63,52 @@ export default {
   },
   data () {
     return {
-      userInfo: {},
-      // cropper
-      preview: {},
-      option: {
-        img: '/avatar2.jpg',
-        info: true,
-        size: 1,
-        outputType: 'jpeg',
-        canScale: false,
-        autoCrop: true,
-        // 只有自动截图开启 宽度高度才生效
-        autoCropWidth: 180,
-        autoCropHeight: 180,
-        fixedBox: true,
-        // 开启宽度和高度比例
-        fixed: true,
-        fixedNumber: [1, 1]
-      }
+      userInfo: {
+        nickname: '',
+        gender: '',
+        notes: '',
+        avatar: ''
+      },
+
+      email: '',
+      id: '',
+
+      defaultGender: 'male',
+      genderOptions: [
+        { label: 'female', value: 'female' },
+        { label: 'male', value: 'male' }
+      ]
     }
   },
   created () {
-    this.userInfo = this.$store.getters.userInfo
+    this.loadProfile()
   },
   methods: {
-    setavatar (url) {
-      this.option.img = url
+
+    loadProfile () {
+      this.userInfo.id = this.$store.getters.userInfo.id
+      this.email = this.$store.getters.userInfo.email
+      this.userInfo.nickname = this.$store.getters.userInfo.nickname
+      this.userInfo.gender = this.$store.getters.userInfo.gender === 'UNKNOWN' ? null : this.$store.getters.userInfo.gender
+      this.userInfo.notes = this.$store.getters.userInfo.notes
+      this.userInfo.avatar = this.$store.getters.userInfo.avatar
+      logger.info('load userInfo ', this.userInfo)
+    },
+    setAvatar (url) {
+      logger.info('setAvatar ' + url)
+      this.userInfo.avatar = url
+    },
+
+    updateProfile () {
+      logger.info('updateProfile', this.userInfo)
+      editUser(this.userInfo).then((response) => {
+        logger.info('editUser', response)
+        this.$store.dispatch('GetInfo')
+          .then(res => {
+            this.loadProfile()
+            this.$message.success('update success!')
+          })
+      })
     }
   }
 }

@@ -1,7 +1,7 @@
 <template>
 
   <a-modal
-    title="修改头像"
+    :title="$t('account.settings.avatar.edit')"
     :visible="visible"
     :maskClosable="false"
     :confirmLoading="confirmLoading"
@@ -32,7 +32,7 @@
     <a-row>
       <a-col :lg="2" :md="2">
         <a-upload name="file" :beforeUpload="beforeUpload" :showUploadList="false">
-          <a-button icon="upload">选择图片</a-button>
+          <a-button icon="upload">{{ $t('account.settings.avatar.select-image') }}</a-button>
         </a-upload>
       </a-col>
       <a-col :lg="{span: 1, offset: 2}" :md="2">
@@ -48,7 +48,7 @@
         <a-button icon="redo" @click="rotateRight"/>
       </a-col>
       <a-col :lg="{span: 2, offset: 6}" :md="2">
-        <a-button type="primary" @click="finish('blob')">保存</a-button>
+        <a-button type="primary" @click="finish('blob')">{{ $t('account.settings.avatar.save-image') }}</a-button>
       </a-col>
     </a-row>
   </a-modal>
@@ -66,7 +66,6 @@ export default {
       fileList: [],
       uploading: false,
       options: {
-        // img: 'https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png',
         img: '',
         autoCrop: true,
         autoCropWidth: 200,
@@ -124,12 +123,11 @@ export default {
           const img = window.URL.createObjectURL(data)
           this.model = true
           this.modelSrc = img
-          formData.append('file', data, this.fileName)
+          formData.append('file', data, 'avatar.png')
           this.$http.post(commonAPIUrl.UploadFile, formData, { contentType: false, processData: false, headers: { 'Content-Type': 'multipart/form-data' } })
             .then((response) => {
               console.log('upload response:', response)
-              _this.$message.success('上传成功')
-              _this.$emit('ok', response.url)
+              _this.$emit('ok', this.$store.getters.downloadUrl + response.result)
               _this.visible = false
             })
         })
@@ -147,7 +145,7 @@ export default {
       setTimeout(() => {
         vm.confirmLoading = false
         vm.close()
-        vm.$message.success('上传头像成功')
+        vm.$message.success('update avatar success!')
       }, 2000)
     },
 

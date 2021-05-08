@@ -12,9 +12,12 @@ import {
   TOGGLE_WEAK,
   TOGGLE_MULTI_TAB,
   // i18n
-  APP_LANGUAGE
+  APP_LANGUAGE,
+  DOWNLOAD_URL, SYS_CONFIG
 } from '@/store/mutation-types'
 import { loadLanguageAsync } from '@/locales'
+import { getSysConfig } from '@/api/common'
+import * as logger from '@/utils/logger'
 
 const app = {
   state: {
@@ -30,7 +33,9 @@ const app = {
     weak: false,
     multiTab: true,
     lang: 'en-US',
-    _antLocale: {}
+    _antLocale: {},
+    sysConfig: null,
+    downloadUrl: ''
   },
   mutations: {
     [SIDEBAR_TYPE]: (state, type) => {
@@ -80,6 +85,12 @@ const app = {
     [TOGGLE_MULTI_TAB]: (state, bool) => {
       storage.set(TOGGLE_MULTI_TAB, bool)
       state.multiTab = bool
+    },
+    [SYS_CONFIG]: (state, sysConfig) => {
+      state.sysConfig = sysConfig
+    },
+    [DOWNLOAD_URL]: (state, downloadUrl) => {
+      state.downloadUrl = downloadUrl
     }
   },
   actions: {
@@ -90,6 +101,26 @@ const app = {
           resolve()
         }).catch((e) => {
           reject(e)
+        })
+      })
+    },
+    getSysConfig ({ commit }) {
+      return new Promise((resolve, reject) => {
+        getSysConfig().then(response => {
+          const result = response.result
+          logger.info('getSysConfig', result)
+          const config = {}
+          result.forEach(item => {
+            config[item.title] = item.value
+          })
+          commit(SYS_CONFIG, config)
+          logger.info('config detail', config)
+          if (config.downloadUrl) {
+            commit(DOWNLOAD_URL, config.downloadUrl)
+          }
+          resolve(result)
+        }).catch(error => {
+          reject(error)
         })
       })
     }
