@@ -44,22 +44,22 @@ jobs:
           draft: false
           prerelease: false
       - name: Push Images to GitHub Packages (develop)
-          if: github.ref == 'refs/heads/develop' && github.event_name == 'push'
-          uses: docker/build-push-action@v1
-          with:
-            username: ${{ github.actor }}
-            password: ${{ secrets.GITHUB_TOKEN }}
-            registry: docker.pkg.github.com
-            repository: xnuwu/classcipe_web/frontend
-            tags: develop
-            tag_with_ref: true
+        if: github.ref == 'refs/heads/develop' && github.event_name == 'push'
+        uses: docker/build-push-action@v1
+        with:
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+          registry: docker.pkg.github.com
+          repository: xnuwu/classcipe_web/frontend
+          tags: develop
+          tag_with_ref: true
       - name: Push Images to GitHub Packages (master)
-          if: github.ref == 'refs/heads/master' && github.event_name == 'push'
-          uses: docker/build-push-action@v1
-          with:
-            username: ${{ github.actor }}
-            password: ${{ secrets.GITHUB_TOKEN }}
-            registry: docker.pkg.github.com
-            repository: xnuwu/classcipe_web/frontend
-            tags: master
-            tag_with_ref: true
+        if: github.ref == 'refs/heads/master' && github.event_name == 'push'
+        uses: docker/build-push-action@v1
+        with:
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+          registry: docker.pkg.github.com
+          repository: xnuwu/classcipe_web/frontend
+          tags: master
+          tag_with_ref: true
