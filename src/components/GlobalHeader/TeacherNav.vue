@@ -2,18 +2,18 @@
   <div class="top-nav teacher-nav">
     <div class="nav-left">
       <div class="nav-items menu-list">
-        <a-menu mode="horizontal" theme="dark">
-          <a-menu-item>
+        <a-menu mode="horizontal" theme="dark" :defaultSelectedKeys="defaultSelectedKeys">
+          <a-menu-item key="/teacher/library">
             <router-link to="/teacher/library">
               <a-icon type="profile" /> {{ $t('menu.library') }}
             </router-link>
           </a-menu-item>
-          <a-menu-item>
+          <a-menu-item key="/teacher/my-content">
             <router-link to="/teacher/my-content">
               <a-icon type="pushpin" /> {{ $t('menu.my-content') }}
             </router-link>
           </a-menu-item>
-          <a-menu-item>
+          <a-menu-item key="/teacher/my-class">
             <router-link to="/teacher/my-class">
               <a-icon type="contacts" /> {{ $t('menu.my-class') }}
             </router-link>
@@ -65,8 +65,12 @@ export default {
   name: 'TeacherNav',
   data () {
     return {
-      searchText: null
+      searchText: null,
+      defaultSelectedKeys: []
     }
+  },
+  mounted () {
+    this.defaultSelectedKeys.push(this.$route.path)
   },
   methods: {
     triggerSearch () {

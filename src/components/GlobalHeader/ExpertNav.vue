@@ -5,8 +5,8 @@
         <a-input-search placeholder="input search text" style="width: 200px" v-model="searchText" @search="triggerSearch" @pressEnter="triggerSearch"/>
       </div>
       <div class="nav-items menu-list teacher-nav-items">
-        <a-menu mode="horizontal" theme="dark">
-          <a-menu-item>
+        <a-menu mode="horizontal" theme="dark" :defaultSelectedKeys="defaultSelectedKeys">
+          <a-menu-item key="/expert/library">
             <router-link to="/expert/library">
               <a-icon type="profile" /> {{ $t('menu.library') }}
             </router-link>
@@ -55,8 +55,12 @@ export default {
   name: 'ExpertNav',
   data () {
     return {
-      searchText: null
+      searchText: null,
+      defaultSelectedKeys: []
     }
+  },
+  mounted () {
+    this.defaultSelectedKeys.push(this.$route.path)
   },
   methods: {
     triggerSearch () {
