@@ -160,6 +160,7 @@ export default {
       this.loading = true
       getMyClasses().then(response => {
           logger.info('getMyClasses', response.data)
+          response.data.forEach((item, index) => { item.key = index })
           this.data = response.data
           this.loading = false
       })
