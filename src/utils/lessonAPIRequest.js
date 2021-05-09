@@ -49,7 +49,7 @@ request.interceptors.request.use(config => {
 // response interceptor
 request.interceptors.response.use((response) => {
   logger.info('interceptor response', response.data)
-  if (response && response.data && response.data.code && response.data.code !== 'error') {
+  if (response && response.data && response.data.code && response.data.code !== 'ok') {
     if (process.env.NODE_ENV !== 'production') {
       notification.error({
         message: 'lesson api error',
