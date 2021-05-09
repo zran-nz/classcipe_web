@@ -1,6 +1,6 @@
 <template>
   <a-card :bordered="false">
-    <a-table :columns="columns" :data-source="data">
+    <a-table :columns="columns" :data-source="data" :loading="loading">
 
       <span slot="date" slot-scope="text"> {{ text | localFormatDate }}</span>
 
@@ -131,6 +131,7 @@ export default {
     return {
       columns: columns,
       data: [],
+      loading: true,
       selectedRowKeys: [],
       selectedRows: [],
 
@@ -156,9 +157,11 @@ export default {
   },
   methods: {
     loadTeacherClasses () {
+      this.loading = true
       getMyClasses().then(response => {
           logger.info('getMyClasses', response.data)
           this.data = response.data
+          this.loading = false
       })
     },
     handleProject (record) {
