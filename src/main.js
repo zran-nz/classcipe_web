@@ -22,7 +22,19 @@ import './utils/filter' // global filter
 import './global.less' // global style
 
 import { FormModel } from 'ant-design-vue'
+
+import Moment from 'moment'
 Vue.use(FormModel)
+
+// formatDate
+Vue.filter('formatDate', function (value) {
+  return Moment(value).format('YYYY-MM-DD HH:mm:ss')
+})
+
+// localFormatDate
+Vue.filter('localFormatDate', function (value) {
+  return Moment(value).format('LLLL')
+})
 
 Vue.config.productionTip = false
 

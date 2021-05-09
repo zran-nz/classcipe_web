@@ -18,25 +18,11 @@ const errorHandler = (error) => {
   if (error.response) {
     const data = error.response.data
     // 从 localstorage 获取 token
-    const token = storage.get(ACCESS_TOKEN)
     if (error.response.status === 403) {
       notification.error({
         message: 'Forbidden',
         description: data.message
       })
-    }
-    if (error.response.status === 401 && !(data.result && data.result.isLogin) || (data.result && data.result.code === 510)) {
-      notification.error({
-        message: 'Unauthorized',
-        description: 'Authorization verification failed'
-      })
-      if (token) {
-        store.dispatch('Logout').then(() => {
-          setTimeout(() => {
-            window.location.reload()
-          }, 1500)
-        })
-      }
     }
   }
   return Promise.reject(error)
@@ -57,6 +43,28 @@ request.interceptors.request.use(config => {
 
 // response interceptor
 request.interceptors.response.use((response) => {
+  logger.info('interceptor response', response.data)
+  if (response && response.data && response.data.code && response.data.code !== 0) {
+    // if code is 510 token invalid
+    if (response.data.code === 510) {
+      const token = storage.get(ACCESS_TOKEN)
+      if (token) {
+        store.dispatch('Logout').then(() => {
+          setTimeout(() => {
+            window.location.reload()
+          }, 1500)
+        })
+      }
+    } else {
+      if (process.env.NODE_ENV !== 'production') {
+        notification.error({
+          message: 'error',
+          description: response.data.message
+        })
+      }
+      logger.error(response.data)
+    }
+  }
   return response.data
 }, errorHandler)
 

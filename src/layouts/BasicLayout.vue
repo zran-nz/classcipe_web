@@ -108,6 +108,10 @@ export default {
   },
   created () {
     logger.info('BasicLayout created, path ' + this.$route.path)
+    if (this.$route.path === '/') {
+      logger.info('go to defaultRouter ' + this.$store.getters.defaultRouter)
+      this.$router.replace(this.$store.getters.defaultRouter)
+    }
   },
   mounted () {
     const userAgent = navigator.userAgent

@@ -1,5 +1,13 @@
 
 /**
+ * debug
+ * @param message
+ */
+function debug (...message) {
+  console.log(message)
+}
+
+/**
  * info
  * @param message
  */
@@ -24,6 +32,7 @@ function warn (...message) {
 }
 
 export {
+  debug,
   info,
   warn,
   error

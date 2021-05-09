@@ -35,7 +35,7 @@ export const asyncRouterMap = [
             meta: { title: 'menu.main', keepAlive: true, permission: ['expert', 'teacher'] }
           },
           {
-            path: '/teacher/Library',
+            path: '/teacher/library',
             name: 'Library',
             component: () => import('@/views/dashboard/Library'),
             meta: { title: 'menu.library', keepAlive: true, permission: ['expert', 'teacher'] }
@@ -277,7 +277,7 @@ export const constantRouterMap = [
  * default teacher main router
  * @type {string}
  */
-export const defaultTeacherRouter = '/teacher/main'
+export const defaultTeacherRouter = '/teacher/my-class'
 
 /**
  * default expert main router
