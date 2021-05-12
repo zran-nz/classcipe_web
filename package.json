@@ -8,6 +8,7 @@
     "build-develop": "vue-cli-service build --mode development",
     "test:unit": "vue-cli-service test:unit",
     "lint": "vue-cli-service lint",
+    "lint:fix": "vue-cli-service lint --fix",
     "build:preview": "vue-cli-service build --mode preview",
     "lint:nofix": "vue-cli-service lint --no-fix"
   },
@@ -19,6 +20,7 @@
     "core-js": "^3.1.2",
     "enquire.js": "^2.1.6",
     "html-loader": "^2.1.2",
+    "lodash-es": "^4.17.21",
     "lodash.clonedeep": "^4.5.0",
     "lodash.get": "^4.4.2",
     "lodash.pick": "^4.4.0",

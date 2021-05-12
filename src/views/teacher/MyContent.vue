@@ -16,6 +16,7 @@ export default {
   computed: {
   },
   created () {
+    logger.info('teacher my content')
   },
   mounted () {
   },
