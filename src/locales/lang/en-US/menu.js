@@ -11,7 +11,7 @@ export default {
     'menu.dashboard.analysis': 'Analysis',
     'menu.dashboard.monitor': 'Monitor',
     'menu.dashboard.workplace': 'Workplace',
-    'menu.dashboard.notification': 'Notification',
+    'menu.notification': 'Notification',
     'menu.form': 'Form',
     'menu.form.basic-form': 'Basic Form',
     'menu.form.step-form': 'Step Form',

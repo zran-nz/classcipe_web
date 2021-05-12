@@ -3,7 +3,7 @@
     <div class="tips">
       <router-link to="/notification">
         <a-badge>
-          <a-icon type="notification" />
+          <a-icon type="notification" :class="{'icon-active': routeActive, 'icon-inactive': !routeActive}" />
         </a-badge>
       </router-link>
     </div>
@@ -41,9 +41,20 @@ export default {
       required: true
     }
   },
+  watch: {
+    '$route.path' (toPath) {
+      logger.debug('icon route change ' + toPath)
+      if (toPath === '/notification') {
+        this.routeActive = true
+      } else {
+        this.routeActive = false
+      }
+    }
+  },
   data () {
     return {
-      showMenu: true
+      showMenu: true,
+      routeActive: false
     }
   },
   computed: {
@@ -55,6 +66,11 @@ export default {
     }
   },
   mounted () {
+    if (this.$route.path === '/notification') {
+      this.routeActive = true
+    } else {
+      this.routeActive = false
+    }
   },
   methods: {
     handleSwitchRole (role) {
@@ -65,11 +81,18 @@ export default {
 }
 </script>
 <style scoped lang='less'>
+@import "~@/components/index.less";
 .ant-badge {
   svg {
     height: 30px;
     width: 30px;
     color: #fff;
+  }
+  .icon-inactive {
+    color: #fff;
+  }
+  .icon-active {
+    color: @primary-color;
   }
 }
 </style>

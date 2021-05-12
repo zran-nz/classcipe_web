@@ -277,7 +277,7 @@ export const constantRouterMap = [
  * default teacher main router
  * @type {string}
  */
-export const defaultTeacherRouter = '/teacher/my-class'
+export const defaultTeacherRouter = '/teacher/my-content'
 
 /**
  * default expert main router
