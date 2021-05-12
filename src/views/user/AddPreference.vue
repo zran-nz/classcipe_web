@@ -84,7 +84,7 @@ import {
   addPreference,
   getAllAreas,
   getAllCurriculums,
-  getAllGrades,
+  GetGradesByCurriculumId,
   getAllSubjectsByCurriculumId,
   getAllSubjectsByParentId
 } from '@/api/preference'
@@ -168,12 +168,6 @@ export default {
           this.curriculumOptions = response.result
           logger.info('areaOptions', this.areaOptions)
         })
-
-        getAllGrades().then((response) => {
-          logger.info('getAllGrades', response)
-          this.gradeOptions = response.result
-          logger.info('gradeOptions', this.gradeOptions)
-        })
       }
     },
     goBack () {
@@ -195,6 +189,8 @@ export default {
 
     // 加载所有的subject 按照一级分类进行分组
     loadSubjectByCurriculumId (curriculumId) {
+      this.teacherForm.subjectIds = []
+      this.teacherForm.gradeIds = []
       getAllSubjectsByCurriculumId({ curriculumId }).then(response => {
         logger.info('subjectOptions', response.result)
         this.subjectOptions = []
@@ -228,6 +224,12 @@ export default {
             }
           })
         })
+      })
+
+      GetGradesByCurriculumId({ curriculumId }).then((response) => {
+        logger.info('GetGradesByCurriculumId', response)
+        this.gradeOptions = response.result
+        logger.info('gradeOptions', this.gradeOptions)
       })
     },
     saveDetail () {
