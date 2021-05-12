@@ -48,8 +48,7 @@ const vueConfig = {
         APP_VERSION: `"${require('./package.json').version}"`,
         GIT_HASH: JSON.stringify(getGitHash()),
         BUILD_DATE: buildDate
-      }),
-      new webpack.ContextReplacementPlugin(/moment[/\\]locale$/, /zh-cn|es-us/)
+      })
     ]
     // if prod, add externals
     // externals: isProd ? assetsCDN.externals : {}
