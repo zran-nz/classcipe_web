@@ -1,7 +1,7 @@
 <template>
-  <div>
-    Library
-  </div>
+  <a-card :bordered="false" >
+
+  </a-card>
 </template>
 
 <script>

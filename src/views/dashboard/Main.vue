@@ -1,6 +1,6 @@
 <template>
   <div>
-    Main
+    Mains
   </div>
 </template>
 

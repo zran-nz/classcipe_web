@@ -24,32 +24,47 @@ export const asyncRouterMap = [
       {
         path: '/teacher',
         name: 'teacher',
-        redirect: '/teacher/main',
+        redirect: '/teacher/main/my-content',
         component: RouteView,
         meta: { title: 'menu.main', keepAlive: true, icon: bxAnaalyse, permission: ['expert', 'teacher'] },
         children: [
           {
             path: '/teacher/main',
             name: 'Main',
-            component: () => import('@/views/dashboard/Main'),
-            meta: { title: 'menu.main', keepAlive: true, permission: ['expert', 'teacher'] }
+            redirect: '/teacher/main/my-content',
+            component: () => import('@/views/teacher/Main'),
+            meta: { title: 'menu.main', keepAlive: true, permission: ['expert', 'teacher'] },
+            children: [
+              {
+                path: '/teacher/main/my-content',
+                name: 'MyContent',
+                component: () => import('@/views/teacher/MyContent'),
+                meta: { title: 'menu.my-content', keepAlive: true, permission: ['expert', 'teacher'] }
+              },
+              {
+                path: '/teacher/main/favorites',
+                name: 'MyContent',
+                component: () => import('@/views/teacher/Favorites'),
+                meta: { title: 'menu.favorites', keepAlive: true, permission: ['expert', 'teacher'] }
+              },
+              {
+                path: '/teacher/main/my-subscribes',
+                name: 'MyContent',
+                component: () => import('@/views/teacher/MySubscribes'),
+                meta: { title: 'menu.my-subscribes', keepAlive: true, permission: ['expert', 'teacher'] }
+              }
+            ]
           },
           {
             path: '/teacher/library',
             name: 'Library',
-            component: () => import('@/views/dashboard/Library'),
+            component: () => import('@/views/teacher/Library'),
             meta: { title: 'menu.library', keepAlive: true, permission: ['expert', 'teacher'] }
-          },
-          {
-            path: '/teacher/my-content',
-            name: 'MyContent',
-            component: () => import('@/views/dashboard/MyContent'),
-            meta: { title: 'menu.my-content', keepAlive: true, permission: ['expert', 'teacher'] }
           },
           {
             path: '/teacher/my-class',
             name: 'MyClass',
-            component: () => import('@/views/dashboard/MyClass'),
+            component: () => import('@/views/teacher/MyClass'),
             meta: { title: 'menu.my-class', keepAlive: true, permission: ['expert', 'teacher'] }
           },
           {
@@ -90,13 +105,13 @@ export const asyncRouterMap = [
           {
             path: '/expert/my-content',
             name: 'MyContent',
-            component: () => import('@/views/dashboard/MyContent'),
+            component: () => import('@/views/expert/MyContent'),
             meta: { title: 'menu.my-content', keepAlive: true, permission: ['expert', 'teacher'] }
           },
           {
             path: '/expert/Library',
             name: 'Library',
-            component: () => import('@/views/dashboard/Library'),
+            component: () => import('@/views/expert/Library'),
             meta: { title: 'menu.library', keepAlive: true, permission: ['expert', 'teacher'] }
           },
           {
@@ -277,7 +292,7 @@ export const constantRouterMap = [
  * default teacher main router
  * @type {string}
  */
-export const defaultTeacherRouter = '/teacher/my-content'
+export const defaultTeacherRouter = '/teacher/main/my-content'
 
 /**
  * default expert main router

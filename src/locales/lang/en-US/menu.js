@@ -6,6 +6,8 @@ export default {
     'menu.library': 'Library',
     'menu.library.center': 'Library',
     'menu.my-content': 'MyContent',
+    'menu.favorites': 'Favorites',
+    'menu.my-subscribes': 'MySubscribes',
     'menu.my-content.center': 'MyContent',
     'menu.dashboard': 'Dashboard',
     'menu.dashboard.analysis': 'Analysis',

@@ -1,16 +1,13 @@
 <template>
-  <div>
-    MyContent
-  </div>
+  <div>My Content</div>
 </template>
 
 <script>
-import { PageHeaderWrapper } from '@ant-design-vue/pro-layout'
+import * as logger from '@/utils/logger'
 
 export default {
   name: 'MyContent',
   components: {
-    PageHeaderWrapper
   },
   data () {
     return {
@@ -19,7 +16,6 @@ export default {
   computed: {
   },
   created () {
-
   },
   mounted () {
   },
