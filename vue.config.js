@@ -54,16 +54,6 @@ const vueConfig = {
     // if prod, add externals
     // externals: isProd ? assetsCDN.externals : {}
   },
-  plugins: [
-    // ant-design-vue按需加载配置
-    [
-      'import',
-      { libraryName: 'ant-design-vue', libraryDirectory: 'es', style: 'css' },
-      'ant-design-vue'
-    ],
-    // lodash按需加载配置
-    'lodash'
-  ],
 
   chainWebpack: (config) => {
     config.resolve.alias
