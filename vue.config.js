@@ -54,13 +54,6 @@ const vueConfig = {
     // if prod, add externals
     // externals: isProd ? assetsCDN.externals : {}
   },
-
-  presets: [
-    [
-      '@vue/cli-plugin-babel/preset',
-      { useBuiltIns: 'entry', modules: 'commonjs' }
-    ]
-  ],
   plugins: [
     // ant-design-vue按需加载配置
     [
