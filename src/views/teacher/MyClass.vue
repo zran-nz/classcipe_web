@@ -4,7 +4,6 @@
       :columns="columns"
       :data-source="data"
       :pagination="false"
-      @change="pageChange"
       rowKey="id">
 
       <span slot="date" slot-scope="date"> {{ date | formatDate }}</span>
