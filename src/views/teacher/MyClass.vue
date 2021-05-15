@@ -154,7 +154,7 @@ export default {
       loadFailed: false,
       cursor: 0,
       currentPage: 0,
-      pageSize: 10,
+      pageSize: 50,
       total: 0
     }
   },
