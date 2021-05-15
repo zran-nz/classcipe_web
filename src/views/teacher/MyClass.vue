@@ -164,7 +164,7 @@ export default {
     loadTeacherClasses (cursor) {
       logger.info('loadTeacherClasses ' + ' ' + cursor + ' ' + cursor)
       this.loading = true
-      getMyClasses({ limit: this.pageSize, cursor }).then(response => {
+      getMyClasses().then(response => {
           logger.info('getMyClasses', response.data)
           let cursor
           response.data.forEach((item, index) => {
@@ -174,7 +174,6 @@ export default {
               cursor = item.id
             }
           })
-          this.cursor = cursor
           this.data = response.data
           logger.info('cursor ' + cursor + ' data', this.data)
           this.loading = false
