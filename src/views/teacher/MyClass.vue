@@ -227,7 +227,7 @@ export default {
     handleEndSession (record) {
       logger.info('handleEndSession', record)
       endSession({ class_id: record.class_id }).then(response => {
-        this.loadTeacherClasses()
+        this.loadTeacherClasses(this.data.length)
       })
     },
 
@@ -243,7 +243,7 @@ export default {
         this.showNameSessionModal = false
         this.nameSessionRecord.class_name = ''
         this.nameSessionRecord.class_id = ''
-        this.loadTeacherClasses(this.cursor)
+        this.loadTeacherClasses(this.data.length)
         this.$message.success('name session success!')
       })
     },
@@ -257,24 +257,15 @@ export default {
     handleTurnOnStudentPaced (record) {
       logger.info('handleTurnOnStudentPaced', record)
       turnOnStudentPaced({ class_id: record.class_id }).then(response => {
-        this.loadTeacherClasses()
+        this.loadTeacherClasses(this.data.length)
       })
     },
 
     handleReopenSession (record) {
       logger.info('handleReopenSession', record)
       reopenSession({ class_id: record.class_id }).then(response => {
-        this.loadTeacherClasses()
+        this.loadTeacherClasses(this.data.length)
       })
-    },
-
-    pageChange (pagination) {
-      logger.info('pageChange target page ' + pagination.current)
-      if (pagination.current === 1) {
-        this.loadTeacherClasses()
-      } else if (pagination.current > 1) {
-        this.loadTeacherClasses()
-      }
     }
   }
 }
