@@ -1,12 +1,17 @@
 <template>
-  <a-card :bordered="false">
-    <a-table :columns="columns" :data-source="data" :loading="loading" :pagination="{pageSize: pageSize, current: current + 1, total: 10}" @change="pageChange">
+  <a-card :bordered="false" ref="card">
+    <a-table
+      :columns="columns"
+      :data-source="data"
+      :pagination="false"
+      @change="pageChange"
+      rowKey="id">
 
-      <span slot="date" slot-scope="text"> {{ text | formatDate }}</span>
+      <span slot="date" slot-scope="date"> {{ date | formatDate }}</span>
 
-      <span slot="status" slot-scope="text">
-        {{ text }}
-        <!--        <a-badge :status="text | statusTypeFilter" :text="text | statusFilter" v-if="text !== 'none'"/>-->
+      <span slot="status" slot-scope="status">
+        {{ status }}
+        <!--        <a-badge :status="text | statusTypeFilter" :text="text | statusFilter" />-->
       </span>
 
       <span slot="action" slot-scope="text, record">
@@ -56,6 +61,10 @@
       </span>
     </a-table>
 
+    <div class="loading-status">
+      <a-spin v-if="loading"/>
+      <span v-if="loadFinished">All data loaded~</span>
+    </div>
     <a-modal
       :closable="false"
       v-model="showNameSessionModal"
@@ -142,15 +151,23 @@ export default {
         class_name: ''
       },
 
-      current: 0,
+      loadFailed: false,
       cursor: 0,
-      pageSize: 10
+      currentPage: 0,
+      pageSize: 10,
+      total: 0
     }
   },
   computed: {
+    loadFinished: function () {
+      return !this.loading && this.total === this.data.length
+    }
   },
   created () {
-    this.loadTeacherClasses()
+    this.loadTeacherClasses(this.pageSize)
+  },
+  mounted () {
+    window.addEventListener('scroll', this.loadTeacherClassesOnScroll, true)
   },
   filters: {
     statusFilter (type) {
@@ -161,23 +178,41 @@ export default {
     }
   },
   methods: {
-    loadTeacherClasses (cursor) {
-      logger.info('loadTeacherClasses ' + ' ' + cursor + ' ' + cursor)
+    loadTeacherClasses (limit, cursor) {
+      logger.info('loadTeacherClasses ' + ' limit:' + limit + 'cursor:' + cursor + ' ')
       this.loading = true
-      getMyClasses().then(response => {
-          logger.info('getMyClasses', response.data)
-          let cursor
-          response.data.forEach((item, index) => {
-            item.key = index
+      getMyClasses({ limit, cursor }).then(response => {
+        logger.info('getMyClasses', response.data)
+        if (response.data.records) {
+          response.data.records.forEach((item) => {
             item.date = item.date * 1000
-            if (!cursor || item.id < cursor) {
-              cursor = item.id
-            }
           })
-          this.data = response.data
-          logger.info('cursor ' + cursor + ' data', this.data)
-          this.loading = false
+          if (limit && cursor) {
+            this.data = this.data.concat(response.data.records)
+          } else {
+            this.data = response.data.records
+          }
+        }
+        this.total = response.data.total
+        logger.info('cursor ' + cursor + ' data', this.data)
+        this.loading = false
       })
+    },
+
+    loadTeacherClassesOnScroll () {
+      const rect = this.$refs.card.$el.getBoundingClientRect()
+      const scrollOffsetY = rect.y
+      const rectHeight = rect.height
+      const clientHeight = document.documentElement.clientHeight
+
+      if ((clientHeight) >= (scrollOffsetY + rectHeight) && !this.loading) {
+        logger.info('到达底部')
+        if (this.data.length === this.total) {
+          logger.info('数据全部加载完')
+        } else {
+          this.loadTeacherClasses(this.pageSize, this.data.length ? this.data[this.data.length - 1].id : undefined)
+        }
+      }
     },
     handleProject (record) {
       logger.info('handleProject', record)
@@ -246,4 +281,13 @@ export default {
 </script>
 
 <style lang="less" scoped>
+.loading-status {
+  display: flex;
+  justify-content: center;
+  padding: 30px 0 10px 0;
+
+  span {
+    color: #aaa;
+  }
+}
 </style>
