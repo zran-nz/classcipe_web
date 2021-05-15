@@ -34,6 +34,9 @@ jobs:
       - name: Build-Develop
         if: github.ref == 'refs/heads/develop' && github.event_name == 'push'
         run: yarn run build-develop
+      - name: Build-Test
+        if: github.ref == 'refs/heads/test' && github.event_name == 'push'
+        run: yarn run build-test
       - name: Build-Production
         if: github.ref == 'refs/heads/main' && github.event_name == 'push'
         run: yarn run build
@@ -57,6 +60,16 @@ jobs:
           repository: xnuwu/classcipe_web/frontend
           tags: develop
           tag_with_ref: true
+      - name: Push Images to GitHub Packages (test)
+        if: github.ref == 'refs/heads/test' && github.event_name == 'push'
+        uses: docker/build-push-action@v1
+        with:
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+          registry: docker.pkg.github.com
+          repository: xnuwu/classcipe_web/frontend
+          tags: test
+          tag_with_ref: true
       - name: Push Images to GitHub Packages (main)
         if: github.ref == 'refs/heads/main' && github.event_name == 'push'
         uses: docker/build-push-action@v1
@@ -67,14 +80,3 @@ jobs:
           repository: xnuwu/classcipe_web/frontend
           tags: production
           tag_with_ref: true
-      - name: Deploy to testing server
-        run: |
-          mkdir -p ~/.ssh
-          echo "$TEST_SERVER_PRIVATE_KEY" | tr -d '\r' > ~/.ssh/id_rsa
-          chmod 600 ~/.ssh/id_rsa
-          eval "$(ssh-agent -s)"
-          ssh-add ~/.ssh/id_rsa
-          ssh -o StrictHostKeyChecking=no ubuntu@test.classcipe.com
-          ssh  ubuntu@test.classcipe.com  'cd deployment-last && ./start-ui.sh'
-        env:
-          TEST_SERVER_PRIVATE_KEY: ${{ secrets.TEST_SERVER_PRIVATE_KEY }}
