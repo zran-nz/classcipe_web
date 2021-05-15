@@ -1,6 +1,6 @@
 <template>
   <a-card :bordered="false">
-    <a-table :columns="columns" :data-source="data" :loading="loading">
+    <a-table :columns="columns" :data-source="data" :loading="loading" :pagination="{pageSize: pageSize, current: current + 1, total: 10}" @change="pageChange">
 
       <span slot="date" slot-scope="text"> {{ text | localFormatDate }}</span>
 
@@ -139,7 +139,11 @@ export default {
       nameSessionRecord: {
         class_id: '',
         class_name: ''
-      }
+      },
+
+      current: 0,
+      cursor: 0,
+      pageSize: 10
     }
   },
   computed: {
@@ -156,12 +160,22 @@ export default {
     }
   },
   methods: {
-    loadTeacherClasses () {
+    loadTeacherClasses (cursor) {
+      logger.info('loadTeacherClasses ' + ' ' + cursor + ' ' + cursor)
       this.loading = true
-      getMyClasses().then(response => {
+      getMyClasses({ limit: this.pageSize, cursor }).then(response => {
           logger.info('getMyClasses', response.data)
-          response.data.forEach((item, index) => { item.key = index })
+          let cursor
+          response.data.forEach((item, index) => {
+            item.key = index
+            item.date = item.date * 1000
+            if (!cursor || item.id < cursor) {
+              cursor = item.id
+            }
+          })
+          this.cursor = cursor
           this.data = response.data
+          logger.info('cursor ' + cursor + ' data', this.data)
           this.loading = false
       })
     },
@@ -178,7 +192,7 @@ export default {
     handleEndSession (record) {
       logger.info('handleEndSession', record)
       endSession({ class_id: record.class_id }).then(response => {
-        this.loadTeacherClasses()
+        this.loadTeacherClasses(this.cursor)
       })
     },
 
@@ -194,7 +208,7 @@ export default {
         this.showNameSessionModal = false
         this.nameSessionRecord.class_name = ''
         this.nameSessionRecord.class_id = ''
-        this.loadTeacherClasses()
+        this.loadTeacherClasses(this.cursor)
         this.$message.success('name session success!')
       })
     },
@@ -208,15 +222,24 @@ export default {
     handleTurnOnStudentPaced (record) {
       logger.info('handleTurnOnStudentPaced', record)
       turnOnStudentPaced({ class_id: record.class_id }).then(response => {
-        this.loadTeacherClasses()
+        this.loadTeacherClasses(this.cursor)
       })
     },
 
     handleReopenSession (record) {
       logger.info('handleReopenSession', record)
       reopenSession({ class_id: record.class_id }).then(response => {
-        this.loadTeacherClasses()
+        this.loadTeacherClasses(this.cursor)
       })
+    },
+
+    pageChange (pagination) {
+      logger.info('pageChange target page ' + pagination.current)
+      if (pagination.current === 1) {
+        this.loadTeacherClasses()
+      } else if (pagination.current > 1) {
+        this.loadTeacherClasses(this.data[this.pageSize * (pagination.current - 1)])
+      }
     }
   }
 }

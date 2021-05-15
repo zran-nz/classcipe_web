@@ -24,3 +24,8 @@ export default {
   }
 }
 </script>
+<style lang='less'>
+.custom-render {
+  margin: 24px 0 24px 0;
+}
+</style>

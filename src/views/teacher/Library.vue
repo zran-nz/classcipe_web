@@ -1,6 +1,6 @@
 <template>
   <a-card :bordered="false" >
-    <!--    <finder :tree="tree"></finder>-->
+    <finder :tree="tree"></finder>
   </a-card>
 </template>
 
