@@ -2,10 +2,11 @@
   <a-card :bordered="false">
     <a-table :columns="columns" :data-source="data" :loading="loading" :pagination="{pageSize: pageSize, current: current + 1, total: 10}" @change="pageChange">
 
-      <span slot="date" slot-scope="text"> {{ text | localFormatDate }}</span>
+      <span slot="date" slot-scope="text"> {{ text | formatDate }}</span>
 
       <span slot="status" slot-scope="text">
-        <a-badge :status="text | statusTypeFilter" :text="text | statusFilter" />
+        {{ text }}
+        <!--        <a-badge :status="text | statusTypeFilter" :text="text | statusFilter" v-if="text !== 'none'"/>-->
       </span>
 
       <span slot="action" slot-scope="text, record">
@@ -192,7 +193,7 @@ export default {
     handleEndSession (record) {
       logger.info('handleEndSession', record)
       endSession({ class_id: record.class_id }).then(response => {
-        this.loadTeacherClasses(this.cursor)
+        this.loadTeacherClasses()
       })
     },
 
@@ -222,14 +223,14 @@ export default {
     handleTurnOnStudentPaced (record) {
       logger.info('handleTurnOnStudentPaced', record)
       turnOnStudentPaced({ class_id: record.class_id }).then(response => {
-        this.loadTeacherClasses(this.cursor)
+        this.loadTeacherClasses()
       })
     },
 
     handleReopenSession (record) {
       logger.info('handleReopenSession', record)
       reopenSession({ class_id: record.class_id }).then(response => {
-        this.loadTeacherClasses(this.cursor)
+        this.loadTeacherClasses()
       })
     },
 
@@ -238,7 +239,7 @@ export default {
       if (pagination.current === 1) {
         this.loadTeacherClasses()
       } else if (pagination.current > 1) {
-        this.loadTeacherClasses(this.data[this.pageSize * (pagination.current - 1)])
+        this.loadTeacherClasses()
       }
     }
   }
