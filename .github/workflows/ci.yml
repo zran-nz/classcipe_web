@@ -80,7 +80,8 @@ jobs:
           repository: xnuwu/classcipe_web/frontend
           tags: production
           tag_with_ref: true
-      - name: Deploy to testing server
+      - name: Deploy to develop server
+        if: github.ref == 'refs/heads/develop' && github.event_name == 'push'
         run: |
           mkdir -p ~/.ssh
           echo "$TEST_SERVER_PRIVATE_KEY" | tr -d '\r' > ~/.ssh/id_rsa
