@@ -12,6 +12,8 @@ import result from './en-US/result'
 import account from './en-US/account'
 import role from './en-US/role'
 
+import teacher from './en-US/teacher'
+
 const components = {
   antLocale: antdEnUS,
   momentName: 'eu',
@@ -33,5 +35,6 @@ export default {
   ...form,
   ...result,
   ...account,
-  ...role
+  ...role,
+  ...teacher
 }

@@ -25,7 +25,7 @@
           </a-menu>
         </div>
       </a-layout-sider>
-      <a-layout-content>
+      <a-layout-content class="main-content">
         <router-view />
       </a-layout-content>
     </a-layout>
