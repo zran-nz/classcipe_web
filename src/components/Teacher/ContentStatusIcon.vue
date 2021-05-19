@@ -4,7 +4,7 @@
       <a-icon type="file-word" />
     </template>
     <template v-if="status === 1">
-      <a-icon type="book" />
+      <a-icon type="cloud-upload" />
     </template>
   </div>
 </template>

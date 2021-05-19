@@ -77,12 +77,15 @@
           rowKey="key">
 
           <span slot="name" slot-scope="name, record">
-            <content-type-icon :status="record.type" />
+            <content-type-icon :type="record.type" />
             {{ name }}
             <span class="status-icon record-icon">
               {{ record.status }}
             </span>
-            <content-status-icon :status="record.status" />
+          </span>
+
+          <span slot="status" slot-scope="status">
+            <content-status-icon :status="status" />
           </span>
 
           <span slot="updateTime" slot-scope="updateTime">
@@ -102,6 +105,7 @@ import * as logger from '@/utils/logger'
 import { getMyContent } from '@/api/teacher'
 import { ownerMap, statusMap, typeMap } from '@/const/teacher'
 import ContentStatusIcon from '@/components/Teacher/ContentStatusIcon'
+import ContentTypeIcon from '@/components/Teacher/ContentTypeIcon'
 
 const columns = [
   {
@@ -110,6 +114,11 @@ const columns = [
     width: 450,
     ellipsis: true,
     scopedSlots: { customRender: 'name' }
+  },
+  {
+    title: 'Status',
+    dataIndex: 'status',
+    scopedSlots: { customRender: 'status' }
   },
   {
     title: 'CreateBy',
