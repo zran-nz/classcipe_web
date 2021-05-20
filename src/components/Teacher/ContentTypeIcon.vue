@@ -36,7 +36,8 @@ export default {
 
 <style lang='less' scoped>
 .status-icon-item {
-  width: 20px;
+  width: 30px;
+  text-align: center;
   display: inline-block;
 }
 </style>

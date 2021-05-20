@@ -11,5 +11,7 @@ export default {
   'teacher.my-content.assessment-type': 'Assessment',
   'teacher.my-content.all-owner': 'All Owner',
   'teacher.my-content.owner-by-me': 'Owner by me',
-  'teacher.my-content.owner-by-others': 'Owner by others'
+  'teacher.my-content.owner-by-others': 'Owner by others',
+  'teacher.my-content.action-edit': 'Edit',
+  'teacher.my-content.action-delete': 'Delete'
 }

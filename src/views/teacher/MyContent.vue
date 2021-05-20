@@ -70,31 +70,48 @@
     </div>
     <div class="content-wrapper">
       <div class="content-list">
-        <a-table
-          :columns="columns"
-          :data-source="myContentList"
-          :pagination="false"
-          rowKey="key">
+        <a-list size="large" :pagination="pagination" :data-source="myContentList" :loading="loading">
+          <a-list-item slot="renderItem" key="item.key" slot-scope="item">
 
-          <span slot="name" slot-scope="name, record">
-            <content-type-icon :type="record.type" />
-            {{ name }}
-            <span class="status-icon record-icon">
-              {{ record.status }}
+            <span class="content-info-left">
+              <content-type-icon :type="item.type" />
+
+              <span class="name-content">
+                {{ item.name }}
+              </span>
+              <content-status-icon :status="item.status" />
             </span>
-          </span>
 
-          <span slot="status" slot-scope="status">
-            <content-status-icon :status="status" />
-          </span>
+            <span class="content-info-right">
+              <span class="owner">
+                {{ item.createBy === $store.getters.email ? 'me' : item.createBy }}
+              </span>
+              <span class="update-time">
+                {{ item.updateTime }}
+              </span>
+              <div class="action">
+                <a slot="actions">
+                  <a-dropdown>
+                    <a-icon type="more" style="margin-right: 8px" />
+                    <a-menu slot="overlay">
+                      <a-menu-item>
+                        <a @click="handleEditItem(item)">
+                          <a-icon type="form" /> {{ $t('teacher.my-content.action-edit') }}
+                        </a>
+                      </a-menu-item>
+                      <a-menu-item>
+                        <a @click="handleDeleteItem(item)" class="delete-action">
+                          <a-icon type="delete" /> {{ $t('teacher.my-content.action-delete') }}
+                        </a>
+                      </a-menu-item>
+                    </a-menu>
+                  </a-dropdown>
+                </a>
+              </div>
+            </span>
 
-          <span slot="updateTime" slot-scope="updateTime">
-            <template v-if="updateTime">
-              {{ updateTime | formatDate }}
-            </template>
-          </span>
-          <span slot="createBy" slot-scope="createBy"> {{ createBy === $store.getters.email ? 'me' : createBy }}</span>
-        </a-table>
+          </a-list-item>
+        </a-list>
       </div>
     </div>
   </div>
@@ -107,33 +124,6 @@ import { ownerMap, statusMap, typeMap } from '@/const/teacher'
 import ContentStatusIcon from '@/components/Teacher/ContentStatusIcon'
 import ContentTypeIcon from '@/components/Teacher/ContentTypeIcon'
 
-const columns = [
-  {
-    title: 'Name',
-    dataIndex: 'name',
-    width: 450,
-    ellipsis: true,
-    scopedSlots: { customRender: 'name' }
-  },
-  {
-    title: 'Status',
-    dataIndex: 'status',
-    scopedSlots: { customRender: 'status' }
-  },
-  {
-    title: 'CreateBy',
-    dataIndex: 'createBy',
-    width: 200,
-    scopedSlots: { customRender: 'createBy' }
-  },
-  {
-    title: 'Update Time',
-    dataIndex: 'updateTime',
-    width: 200,
-    scopedSlots: { customRender: 'updateTime' }
-  }
-]
-
 export default {
   name: 'MyContent',
   components: {
@@ -142,7 +132,6 @@ export default {
   },
   data () {
     return {
-      columns: columns,
       loading: true,
       loadFailed: false,
       myContentList: [],
@@ -153,8 +142,17 @@ export default {
       currentOwner: 'all-owner',
       currentOwnerLabel: this.$t('teacher.my-content.all-owner'),
 
-      pageNo: 0,
-      pageSize: 15
+      pagination: {
+        onChange: page => {
+          logger.info('pagination onChange', page)
+          this.pageNo = page
+          this.loadMyContent()
+        },
+        showTotal: total => `Total ${total} items`,
+        total: 0,
+        pageSize: 15
+      },
+      pageNo: 0
     }
   },
   computed: {
@@ -167,12 +165,13 @@ export default {
   },
   methods: {
     loadMyContent () {
+      this.loading = true
       getMyContent({
         owner: ownerMap[this.currentOwner],
         status: statusMap[this.currentStatus],
         type: typeMap[this.currentType],
         pageNo: this.pageNo,
-        pageSize: this.pageSize
+        pageSize: this.pagination.pageSize
       }).then(res => {
         logger.info('getMyContent', res)
         if (res.result && res.result.records && res.result.records.length) {
@@ -180,10 +179,13 @@ export default {
             record.key = index
           })
           this.myContentList = res.result.records
+          this.pagination.total = res.result.total
         } else {
           this.myContentList = []
         }
         logger.info('myContentList', this.myContentList)
+      }).finally(() => {
+        this.loading = false
       })
     },
     toggleStatus (status, label) {
@@ -203,6 +205,13 @@ export default {
       this.currentOwner = owner
       this.currentOwnerLabel = label
       this.loadMyContent()
+    },
+
+    handleEditItem (item) {
+      logger.info('handleEditItem', item)
+    },
+    handleDeleteItem (item) {
+      logger.info('handleDeleteItem', item)
     }
   }
 }
@@ -237,5 +246,58 @@ export default {
     .type-owner {
     }
   }
+
+  .content-wrapper {
+    .content-list {
+      .content-info-left {
+        cursor: pointer;
+        display: flex;
+        justify-content: flex-start;
+        align-items: center;
+
+        &:hover {
+          color: @primary-color;
+        }
+      }
+      .content-info-right {
+        cursor: pointer;
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+
+        .owner {
+          width: 200px;
+          overflow: hidden;
+          white-space: nowrap;
+          text-overflow: ellipsis;
+          &:hover {
+            color: @primary-color;
+          }
+        }
+
+        .update-time {
+          width: 200px;
+          overflow: hidden;
+          white-space: nowrap;
+          text-overflow: ellipsis;
+          &:hover {
+            color: @primary-color;
+          }
+        }
+      }
+      .name-content {
+        text-align: left;
+        display: inline-block;
+        max-width: 450px;
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+      }
+    }
+  }
+}
+
+a.delete-action {
+  color: @red-6;
 }
 </style>

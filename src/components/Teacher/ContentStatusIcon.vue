@@ -1,9 +1,6 @@
 <template>
   <div class="status-icon-item">
     <template v-if="status === 0">
-      <a-icon type="file-word" />
-    </template>
-    <template v-if="status === 1">
       <a-icon type="cloud-upload" />
     </template>
   </div>
@@ -24,7 +21,8 @@ export default {
 
 <style lang='less' scoped>
 .status-icon-item {
-  width: 20px;
+  width: 30px;
+  text-align: center;
   display: inline-block;
 }
 </style>
