@@ -89,7 +89,7 @@ export const asyncRouterMap = [
             path: '/teacher/add-unit-plan',
             name: 'AddUnitPlan',
             component: () => import('@/views/teacher/AddUnitPlan'),
-            meta: { title: 'menu./teacher/add-unit-plan', keepAlive: true, permission: ['expert', 'teacher'] }
+            meta: { title: 'menu.teacher.add-unit-plan', keepAlive: true, permission: ['expert', 'teacher'] }
           }
         ]
       },

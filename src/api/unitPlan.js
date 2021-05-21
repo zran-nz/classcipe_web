@@ -1,11 +1,12 @@
 import request from '@/utils/request'
 
-export const topicAPIUrl = {
-  TopicAddOrUpdate: '/classcipe/api/topic/addOrUpdate',
-  TopicQueryById: '/classcipe/api/topic/queryById',
-  TopicDelete: '/classcipe/api/topic/delete',
-  TopicDeleteBatch: '/classcipe/api/topic/deleteBatch',
-  TopicList: '/classcipe/api/topic/list'
+export const unitPlanAPIUrl = {
+  UnitPlanAddOrUpdate: '/classcipe/api/unitPlan/addOrUpdate',
+  UnitPlanQueryById: '/classcipe/api/unitPlan/queryById',
+  UnitPlanDelete: '/classcipe/api/unitPlan/delete',
+  UnitPlanDeleteBatch: '/classcipe/api/unitPlan/deleteBatch',
+  UnitPlanList: '/classcipe/api/unitPlan/list',
+  ChangeStatus: '/classcipe/api/unitPlan/status'
 }
 
 /**
@@ -13,9 +14,9 @@ export const topicAPIUrl = {
  * @returns {AxiosPromise}
  * @constructor
  */
-export function TopicAddOrUpdate (parameter) {
+export function UnitPlanAddOrUpdate (parameter) {
   return request({
-    url: topicAPIUrl.TopicAddOrUpdate,
+    url: unitPlanAPIUrl.UnitPlanAddOrUpdate,
     method: 'post',
     data: parameter,
     headers: {
@@ -29,9 +30,9 @@ export function TopicAddOrUpdate (parameter) {
  * @returns {AxiosPromise}
  * @constructor
  */
-export function TopicQueryById (parameter) {
+export function UnitPlanQueryById (parameter) {
   return request({
-    url: topicAPIUrl.TopicQueryById,
+    url: unitPlanAPIUrl.UnitPlanQueryById,
     method: 'get',
     params: parameter
   })
@@ -42,9 +43,9 @@ export function TopicQueryById (parameter) {
  * @returns {AxiosPromise}
  * @constructor
  */
-export function TopicDelete (parameter) {
+export function UnitPlanDelete (parameter) {
   return request({
-    url: topicAPIUrl.TopicDelete,
+    url: unitPlanAPIUrl.UnitPlanDelete,
     method: 'post',
     data: parameter,
     headers: {
@@ -58,9 +59,9 @@ export function TopicDelete (parameter) {
  * @returns {AxiosPromise}
  * @constructor
  */
-export function TopicDeleteBatch (parameter) {
+export function UnitPlanDeleteBatch (parameter) {
   return request({
-    url: topicAPIUrl.TopicDeleteBatch,
+    url: unitPlanAPIUrl.UnitPlanDeleteBatch,
     method: 'post',
     data: parameter,
     headers: {
@@ -74,10 +75,26 @@ export function TopicDeleteBatch (parameter) {
  * @returns {AxiosPromise}
  * @constructor
  */
-export function TopicList (parameter) {
+export function UnitPlanList (parameter) {
   return request({
-    url: topicAPIUrl.TopicList,
+    url: unitPlanAPIUrl.UnitPlanList,
     method: 'get',
     params: parameter
+  })
+}
+
+/**
+ * @param parameter
+ * @returns {AxiosPromise}
+ * @constructor
+ */
+export function ChangeStatus (parameter) {
+  return request({
+    url: unitPlanAPIUrl.ChangeStatus,
+    method: 'post',
+    data: parameter,
+    headers: {
+      'Content-Type': 'application/json;charset=UTF-8'
+    }
   })
 }

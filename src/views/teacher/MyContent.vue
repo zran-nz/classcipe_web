@@ -73,7 +73,7 @@
         <a-list size="large" :pagination="pagination" :data-source="myContentList" :loading="loading">
           <a-list-item slot="renderItem" key="item.key" slot-scope="item">
 
-            <span class="content-info-left">
+            <span class="content-info-left" @click="handleViewDetail(item)">
               <content-type-icon :type="item.type" />
 
               <span class="name-content">
@@ -86,7 +86,7 @@
               <span class="owner">
                 {{ item.createBy === $store.getters.email ? 'me' : item.createBy }}
               </span>
-              <span class="update-time">
+              <span class="update-time" >
                 {{ item.updateTime }}
               </span>
               <div class="action">
@@ -119,7 +119,7 @@
 
 <script>
 import * as logger from '@/utils/logger'
-import { getMyContent } from '@/api/teacher'
+import { deleteMyContentByType, getMyContent } from '@/api/teacher'
 import { ownerMap, statusMap, typeMap } from '@/const/teacher'
 import ContentStatusIcon from '@/components/Teacher/ContentStatusIcon'
 import ContentTypeIcon from '@/components/Teacher/ContentTypeIcon'
@@ -212,6 +212,12 @@ export default {
     },
     handleDeleteItem (item) {
       logger.info('handleDeleteItem', item)
+      deleteMyContentByType(item).then(res => {
+        logger.info('DeleteMyContentByType', res)
+      })
+    },
+    handleViewDetail (item) {
+      logger.info('handleViewDetail', item)
     }
   }
 }

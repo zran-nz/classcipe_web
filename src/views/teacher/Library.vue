@@ -19,73 +19,73 @@ export default {
         label: 'Test',
         children: [
           {
-            id: 'fruits',
-            label: 'Fruits',
+            id: 'curriculum1',
+            label: 'curriculum1',
             children: [
               {
-                id: 'orange',
-                label: 'Orange',
+                id: 'subject1',
+                label: 'subject1',
                 selected: true
               },
               {
-                id: 'apple',
-                label: 'Apple',
+                id: 'subject2',
+                label: 'subject2',
                 selectable: false
               },
               {
-                id: 'grape',
-                label: 'Grape',
+                id: 'subject3',
+                label: 'subject3',
                 selected: true
               },
               {
-                id: 'banana',
-                label: 'Banana'
+                id: 'subject4',
+                label: 'subject4'
               },
               {
-                id: 'lemon',
-                label: 'Lemon',
+                id: 'subject5',
+                label: 'subject5',
                 selectable: false
               }
             ]
           },
           {
-            id: 'vegetables',
-            label: 'Vegetables',
+            id: 'curriculum2',
+            label: 'curriculum2',
             children: [
               {
-                id: 'carrot',
-                label: 'Carrot',
+                id: 'subject11',
+                label: 'subject11',
                 selected: true,
                 children: [
                   {
-                    id: 'carrot1',
-                    label: 'Carrot1',
+                    id: 'subject22',
+                    label: 'subject22',
                     selected: true
                   },
                   {
-                    id: 'eggplant1',
-                    label: 'Eggplant1',
+                    id: 'subject33',
+                    label: 'subject33',
                     selectable: false
                   }
                 ]
               },
               {
-                id: 'eggplant',
-                label: 'Eggplant',
+                id: 'subject21',
+                label: 'subject21',
                 selectable: false
               },
               {
-                id: 'parsnip',
-                label: 'Parsnip'
+                id: 'subject22',
+                label: 'subject22'
               },
               {
-                id: 'tomato',
-                label: 'Tomato',
+                id: 'subject33',
+                label: 'subject33',
                 selectable: false
               },
               {
-                id: 'bean',
-                label: 'Beans'
+                id: 'subject44',
+                label: 'subject44'
               }
             ]
           }

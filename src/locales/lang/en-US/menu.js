@@ -9,6 +9,7 @@ export default {
     'menu.favorites': 'Favorites',
     'menu.my-subscribes': 'MySubscribes',
     'menu.my-content.center': 'MyContent',
+    'menu.teacher.add-unit-plan': 'Add Unit Plan',
     'menu.dashboard': 'Dashboard',
     'menu.dashboard.analysis': 'Analysis',
     'menu.dashboard.monitor': 'Monitor',

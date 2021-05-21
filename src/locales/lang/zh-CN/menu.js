@@ -7,6 +7,7 @@ export default {
     'menu.library.center': 'Library',
     'menu.my-content': '我的内容',
     'menu.my-content.center': '我的内容',
+    'menu.teacher.unit-plan': '添加单元计划',
     'menu.favorites': '收藏夹',
     'menu.my-subscribes': '我的订阅',
     'menu.dashboard': '仪表盘',

@@ -1,7 +1,8 @@
 <template>
-  <div>
-    AddUnitPlan
-  </div>
+  <a-card :bordered="false" :bodyStyle="{ padding: '16px 0', height: '100%' }" :style="{ height: '100%' }">
+    <a-layout>
+    </a-layout>
+  </a-card>
 </template>
 
 <script>

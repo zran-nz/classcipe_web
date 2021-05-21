@@ -1,11 +1,11 @@
 import request from '@/utils/request'
 
-export const topicAPIUrl = {
-  ScenarioAddOrUpdate: '/classcipe/api/topic/addOrUpdate',
-  ScenarioQueryById: '/classcipe/api/topic/queryById',
-  ScenarioDelete: '/classcipe/api/topic/delete',
-  ScenarioDeleteBatch: '/classcipe/api/topic/deleteBatch',
-  ScenarioList: '/classcipe/api/topic/list'
+export const scenarioAPIUrl = {
+  ScenarioAddOrUpdate: '/classcipe/api/scenario/addOrUpdate',
+  ScenarioQueryById: '/classcipe/api/scenario/queryById',
+  ScenarioDelete: '/classcipe/api/scenario/delete',
+  ScenarioDeleteBatch: '/classcipe/api/scenario/deleteBatch',
+  ScenarioList: '/classcipe/api/scenario/list'
 }
 
 /**
@@ -15,7 +15,7 @@ export const topicAPIUrl = {
  */
 export function ScenarioAddOrUpdate (parameter) {
   return request({
-    url: topicAPIUrl.ScenarioAddOrUpdate,
+    url: scenarioAPIUrl.ScenarioAddOrUpdate,
     method: 'post',
     data: parameter,
     headers: {
@@ -31,7 +31,7 @@ export function ScenarioAddOrUpdate (parameter) {
  */
 export function ScenarioQueryById (parameter) {
   return request({
-    url: topicAPIUrl.ScenarioQueryById,
+    url: scenarioAPIUrl.ScenarioQueryById,
     method: 'get',
     params: parameter
   })
@@ -44,7 +44,7 @@ export function ScenarioQueryById (parameter) {
  */
 export function ScenarioDelete (parameter) {
   return request({
-    url: topicAPIUrl.ScenarioDelete,
+    url: scenarioAPIUrl.ScenarioDelete,
     method: 'post',
     data: parameter,
     headers: {
@@ -60,7 +60,7 @@ export function ScenarioDelete (parameter) {
  */
 export function ScenarioDeleteBatch (parameter) {
   return request({
-    url: topicAPIUrl.ScenarioDeleteBatch,
+    url: scenarioAPIUrl.ScenarioDeleteBatch,
     method: 'post',
     data: parameter,
     headers: {
@@ -76,7 +76,7 @@ export function ScenarioDeleteBatch (parameter) {
  */
 export function ScenarioList (parameter) {
   return request({
-    url: topicAPIUrl.ScenarioList,
+    url: scenarioAPIUrl.ScenarioList,
     method: 'get',
     params: parameter
   })
