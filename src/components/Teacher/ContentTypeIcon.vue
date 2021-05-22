@@ -22,7 +22,14 @@
 </template>
 
 <script>
-
+/**
+ 'topic': 1,
+ 'unit-plan': 2,
+ 'material': 3,
+ 'task': 4,
+ 'lesson': 5,
+ 'assessment': 6
+ */
 export default {
   name: 'ContentTypeIcon',
   props: {
@@ -36,8 +43,11 @@ export default {
 
 <style lang='less' scoped>
 .status-icon-item {
-  width: 30px;
   text-align: center;
   display: inline-block;
+}
+
+.ant-menu-item .anticon, .ant-menu-submenu-title .anticon {
+  margin-right: 0;
 }
 </style>

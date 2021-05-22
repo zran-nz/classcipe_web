@@ -1,67 +1,69 @@
 <template>
   <a-card :bordered="false" ref="card">
-    <a-table
-      :columns="columns"
-      :data-source="data"
-      :pagination="false"
-      rowKey="id">
+    <a-skeleton :loading="skeletonLoading" active>
+      <a-table
+        :columns="columns"
+        :data-source="data"
+        :pagination="false"
+        rowKey="id">
 
-      <span slot="date" slot-scope="date"> {{ date | formatDate }}</span>
+        <span slot="date" slot-scope="date"> {{ date | formatDate }}</span>
 
-      <span slot="status" slot-scope="status">
-        {{ status }}
-        <!--        <a-badge :status="text | statusTypeFilter" :text="text | statusFilter" />-->
-      </span>
+        <span slot="status" slot-scope="status">
+          {{ status }}
+          <!--        <a-badge :status="text | statusTypeFilter" :text="text | statusFilter" />-->
+        </span>
 
-      <span slot="action" slot-scope="text, record">
-        <a @click="handleProject(record)"><a-icon type="select" /></a>
-        <a-divider type="vertical" />
-        <a @click="handleOpenDashboard(record)"><a-icon type="layout" /></a>
-        <a-divider type="vertical" />
-        <template v-if="record.status === 'live'">
-          <a-dropdown>
-            <a-icon type="more" />
-            <a-menu slot="overlay">
-              <a-menu-item>
-                <a @click="handleTurnOnStudentPaced(record)">
-                  <a-icon type="usergroup-add" /> Turn On Student Paced
-                </a>
-              </a-menu-item>
-              <a-menu-item>
-                <a @click="handleEndSession(record)">
-                  <a-icon type="poweroff" /> End Session
-                </a>
-              </a-menu-item>
-              <a-menu-item>
-                <a @click="handleShowNameSessionModal(record)">
-                  <a-icon type="edit" /> Name This Session
-                </a>
-              </a-menu-item>
-            </a-menu>
-          </a-dropdown>
-        </template>
-        <template v-else>
-          <a-dropdown>
-            <a-icon type="more" />
-            <a-menu slot="overlay">
-              <a-menu-item>
-                <a @click="handleReopenSession(record)">
-                  <a-icon type="sync" /> Reopen Session
-                </a>
-              </a-menu-item>
-              <a-menu-item>
-                <a @click="handleShowNameSessionModal(record)">
-                  <a-icon type="edit" /> Name This Session
-                </a>
-              </a-menu-item>
-            </a-menu>
-          </a-dropdown>
-        </template>
-      </span>
-    </a-table>
+        <span slot="action" slot-scope="text, record">
+          <a @click="handleProject(record)"><a-icon type="select" /></a>
+          <a-divider type="vertical" />
+          <a @click="handleOpenDashboard(record)"><a-icon type="layout" /></a>
+          <a-divider type="vertical" />
+          <template v-if="record.status === 'live'">
+            <a-dropdown>
+              <a-icon type="more" />
+              <a-menu slot="overlay">
+                <a-menu-item>
+                  <a @click="handleTurnOnStudentPaced(record)">
+                    <a-icon type="usergroup-add" /> Turn On Student Paced
+                  </a>
+                </a-menu-item>
+                <a-menu-item>
+                  <a @click="handleEndSession(record)">
+                    <a-icon type="poweroff" /> End Session
+                  </a>
+                </a-menu-item>
+                <a-menu-item>
+                  <a @click="handleShowNameSessionModal(record)">
+                    <a-icon type="edit" /> Name This Session
+                  </a>
+                </a-menu-item>
+              </a-menu>
+            </a-dropdown>
+          </template>
+          <template v-else>
+            <a-dropdown>
+              <a-icon type="more" />
+              <a-menu slot="overlay">
+                <a-menu-item>
+                  <a @click="handleReopenSession(record)">
+                    <a-icon type="sync" /> Reopen Session
+                  </a>
+                </a-menu-item>
+                <a-menu-item>
+                  <a @click="handleShowNameSessionModal(record)">
+                    <a-icon type="edit" /> Name This Session
+                  </a>
+                </a-menu-item>
+              </a-menu>
+            </a-dropdown>
+          </template>
+        </span>
+      </a-table>
+    </a-skeleton>
 
     <div class="loading-status">
-      <a-spin v-if="loading"/>
+      <a-spin v-if="loading && !skeletonLoading"/>
       <span v-if="loadFinished">All data loaded~</span>
     </div>
     <a-modal
@@ -150,6 +152,7 @@ export default {
         class_name: ''
       },
 
+      skeletonLoading: true,
       loadFailed: false,
       cursor: 0,
       currentPage: 0,
@@ -195,6 +198,8 @@ export default {
         this.total = response.data.total
         logger.info('cursor ' + cursor + ' data', this.data)
         this.loading = false
+      }).finally(() => {
+        this.skeletonLoading = false
       })
     },
 

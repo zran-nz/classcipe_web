@@ -1,5 +1,7 @@
 <template>
   <div>
+
+    <a-button type="primary">AddInstructionalContent</a-button>
     AddInstructionalContent
   </div>
 </template>

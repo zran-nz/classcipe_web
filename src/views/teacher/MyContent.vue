@@ -69,50 +69,52 @@
       </div>
     </div>
     <div class="content-wrapper">
-      <div class="content-list">
-        <a-list size="large" :pagination="pagination" :data-source="myContentList" :loading="loading">
-          <a-list-item slot="renderItem" key="item.key" slot-scope="item">
+      <a-skeleton :loading="skeletonLoading" active>
+        <div class="content-list">
+          <a-list size="large" :pagination="pagination" :data-source="myContentList" :loading="loading">
+            <a-list-item slot="renderItem" key="item.key" slot-scope="item">
 
-            <span class="content-info-left" @click="handleViewDetail(item)">
-              <content-type-icon :type="item.type" />
+              <span class="content-info-left" @click="handleViewDetail(item)">
+                <content-type-icon :type="item.type" />
 
-              <span class="name-content">
-                {{ item.name }}
+                <span class="name-content">
+                  {{ item.name }}
+                </span>
+                <content-status-icon :status="item.status" />
               </span>
-              <content-status-icon :status="item.status" />
-            </span>
 
-            <span class="content-info-right">
-              <span class="owner">
-                {{ item.createBy === $store.getters.email ? 'me' : item.createBy }}
+              <span class="content-info-right">
+                <span class="owner">
+                  {{ item.createBy === $store.getters.email ? 'me' : item.createBy }}
+                </span>
+                <span class="update-time" >
+                  {{ item.updateTime }}
+                </span>
+                <div class="action">
+                  <a slot="actions">
+                    <a-dropdown>
+                      <a-icon type="more" style="margin-right: 8px" />
+                      <a-menu slot="overlay">
+                        <a-menu-item>
+                          <a @click="handleEditItem(item)">
+                            <a-icon type="form" /> {{ $t('teacher.my-content.action-edit') }}
+                          </a>
+                        </a-menu-item>
+                        <a-menu-item>
+                          <a @click="handleDeleteItem(item)" class="delete-action">
+                            <a-icon type="delete" /> {{ $t('teacher.my-content.action-delete') }}
+                          </a>
+                        </a-menu-item>
+                      </a-menu>
+                    </a-dropdown>
+                  </a>
+                </div>
               </span>
-              <span class="update-time" >
-                {{ item.updateTime }}
-              </span>
-              <div class="action">
-                <a slot="actions">
-                  <a-dropdown>
-                    <a-icon type="more" style="margin-right: 8px" />
-                    <a-menu slot="overlay">
-                      <a-menu-item>
-                        <a @click="handleEditItem(item)">
-                          <a-icon type="form" /> {{ $t('teacher.my-content.action-edit') }}
-                        </a>
-                      </a-menu-item>
-                      <a-menu-item>
-                        <a @click="handleDeleteItem(item)" class="delete-action">
-                          <a-icon type="delete" /> {{ $t('teacher.my-content.action-delete') }}
-                        </a>
-                      </a-menu-item>
-                    </a-menu>
-                  </a-dropdown>
-                </a>
-              </div>
-            </span>
 
-          </a-list-item>
-        </a-list>
-      </div>
+            </a-list-item>
+          </a-list>
+        </div>
+      </a-skeleton>
     </div>
   </div>
 </template>
@@ -132,6 +134,7 @@ export default {
   },
   data () {
     return {
+      skeletonLoading: true,
       loading: true,
       loadFailed: false,
       myContentList: [],
@@ -186,6 +189,7 @@ export default {
         logger.info('myContentList', this.myContentList)
       }).finally(() => {
         this.loading = false
+        this.skeletonLoading = false
       })
     },
     toggleStatus (status, label) {
@@ -239,7 +243,7 @@ export default {
       text-align: center;
       line-height: 28px;
       padding: 0 15px;
-      color: @btn-default-color;
+      color: @text-color;
       font-size: @btn-font-size-sm;
       font-weight: @btn-font-weight;
     }
@@ -260,6 +264,10 @@ export default {
         display: flex;
         justify-content: flex-start;
         align-items: center;
+
+        .status-icon-item {
+          width: 30px;
+        }
 
         &:hover {
           color: @primary-color;

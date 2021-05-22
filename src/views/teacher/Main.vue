@@ -1,5 +1,5 @@
 <template>
-  <a-card :bordered="false" :bodyStyle="{ padding: '16px 0', height: '100%' }" :style="{ height: '100%' }">
+  <a-card :bordered="false" :bodyStyle="{ padding: '16px 24px', height: '100%' }" :style="{ height: '100%' }">
     <a-layout>
       <a-layout-sider>
         <div class="nav-bar-left">
