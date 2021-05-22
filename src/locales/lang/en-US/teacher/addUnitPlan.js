@@ -9,9 +9,9 @@ export default {
   'teacher.add-unit-plan.assessment': 'Assessment',
   'teacher.add-unit-plan.lesson': 'Lesson',
   'teacher.add-unit-plan.add-to-this-topic': 'Add to this topic',
-  'teacher.add-unit-plan.unit-name': 'Unit Name',
+  'teacher.add-unit-plan.unit-name': 'Unit plan Name',
   'teacher.add-unit-plan.image': 'Image',
-  'teacher.add-unit-plan.upload-a-picture': 'upload a picture',
+  'teacher.add-unit-plan.upload-a-picture': 'Upload a picture',
   'teacher.add-unit-plan.about-the-scenario': 'About the Scenario',
   'teacher.add-unit-plan.description': 'Description',
   'teacher.add-unit-plan.sdg': 'SDG',
@@ -26,5 +26,8 @@ export default {
   'teacher.add-unit-plan.skill-tags': 'Skill tag',
   'teacher.add-unit-plan.add-more-question': 'ADD MORE QUESTION',
   'teacher.add-unit-plan.ensure': 'Ensure',
+  'teacher.add-unit-plan.upload-image-file-failed': 'Upload Image File Failed, Please Retry!',
+  'teacher.add-unit-plan.uploading': 'Uploading...',
+  'teacher.add-unit-plan.init-data-failed': 'Init Unit Plan Data Failed, Please Retry!',
   'teacher.add-unit-plan.about-the-scenariossssss': 'About the Scenariosss'
 }

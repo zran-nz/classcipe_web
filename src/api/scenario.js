@@ -1,6 +1,8 @@
 import request from '@/utils/request'
 
 export const scenarioAPIUrl = {
+  GetAllSdgs: '/classcipe/api/scenario/getAllSdgs',
+  ScenarioSearch: '/classcipe/api/scenario/search',
   ScenarioAddOrUpdate: '/classcipe/api/scenario/addOrUpdate',
   ScenarioQueryById: '/classcipe/api/scenario/queryById',
   ScenarioDelete: '/classcipe/api/scenario/delete',
@@ -8,6 +10,29 @@ export const scenarioAPIUrl = {
   ScenarioList: '/classcipe/api/scenario/list'
 }
 
+/**
+ * @returns {AxiosPromise}
+ * @constructor
+ */
+export function GetAllSdgs () {
+  return request({
+    url: scenarioAPIUrl.GetAllSdgs,
+    method: 'get'
+  })
+}
+
+/**
+ * @param parameter
+ * @returns {AxiosPromise}
+ * @constructor
+ */
+export function ScenarioSearch (parameter) {
+  return request({
+    url: scenarioAPIUrl.ScenarioSearch,
+    method: 'get',
+    params: parameter
+  })
+}
 /**
  * @param parameter
  * @returns {AxiosPromise}
