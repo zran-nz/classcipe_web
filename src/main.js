@@ -47,6 +47,13 @@ Vue.component('page-header-wrapper', PageHeaderWrapper)
 
 window.umi_plugin_ant_themeVar = themePluginConfig.theme
 
+// globalClick
+Vue.prototype.globalClick = function (callback) {
+  document.getElementById('app').onclick = function (event) {
+    callback(event)
+  }
+}
+
 new Vue({
   router,
   store,

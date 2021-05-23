@@ -113,40 +113,68 @@
                   </div>
                 </a-col>
               </a-row>
-              <!--              description-->
+              <!--description-->
               <a-form-model-item :label="$t('teacher.add-unit-plan.description')">
-                <a-select
-                  show-search
-                  :value="form.description"
-                  :placeholder="$t('teacher.add-unit-plan.description')"
-                  :default-active-first-option="false"
-                  :show-arrow="false"
-                  :filter-option="false"
-                  :not-found-content="null"
+                <input-search
+                  :default-value="form.scenario.description"
+                  :search-list.sync="descriptionSearchList"
+                  label="description"
                   @search="handleDescriptionSearch"
-                >
-                  <a-select-option v-for="(scenario,index) in scenarioList" :key="index" @click.native="handleSelectScenario(scenario)">
-                    {{ scenario.description }}
-                  </a-select-option>
-                </a-select>
+                  @selectItem="handleSelectScenario"
+                  @reset="descriptionSearchList = []" />
               </a-form-model-item>
-              <!--              sdg and KeyWords-->
-              <div class="sdg-blocks" v-for="(sdg,index) in form.scenario.sdgKeyWords" :key="index">
+              <!--sdg and KeyWords-->
+              <div class="sdg-blocks" v-for="(sdgItem, sdgIndex) in sdgDataObj" :key="sdgIndex" v-if="sdgItem !== null">
+                <div class="sdg-delete-wrapper">
+                  <a-tooltip placement="top">
+                    <template slot="title">
+                      <span>{{ $t('teacher.add-unit-plan.delete-sdg') }}</span>
+                    </template>
+                    <div class="sdg-delete" @click="handleDeleteSdg(sdgItem, sdgIndex)">
+                      <a-icon type="delete" :style="{ fontSize: '20px' }" />
+                    </div>
+                  </a-tooltip>
+                </div>
+                <a-row class="unit-content">
+                  <a-col offset="6" span="14">
+                    <div class="form-block-title">
+                      <a-divider dashed>SDG</a-divider>
+                    </div>
+                  </a-col>
+                </a-row>
+                <!--sdg-->
                 <a-form-model-item :label="$t('teacher.add-unit-plan.sdg')">
-                  <a-select v-model="form.scenario.sdgKeyWords[index].sdgId" placeholder="please select sdg">
-                    <a-select-option :value="sdg.id" v-for="(sdg,id) in sdgList" :key="id">
+                  <a-select v-model="sdgItem.sdgId" placeholder="please select sdg">
+                    <a-select-option v-for="(sdg,index) in sdgList" :value="sdg.id" :key="index">
                       {{ sdg.name }}
                     </a-select-option>
                   </a-select>
                 </a-form-model-item>
+                <!--keywords-->
                 <a-form-model-item :label="$t('teacher.add-unit-plan.key-words')">
-                  <a-select mode="tags" style="width: 100%" :placeholder="$t('teacher.add-unit-plan.key-words')" >
-                    <a-select-option v-for="(keyword,index) in form.scenario.sdgKeyWords[index].keywords" :key="index">
-                      {{ keyword }}
+                  <a-select
+                    mode="tags"
+                    :value="sdgItem.defaultKeywords"
+                    :not-found-content="null"
+                    style="width: 100%"
+                    placeholder="Please select keywords"
+                  >
+                    <a-select-option v-for="(keyword,key) in sdgItem.keywords" :value="keyword.name" :key="key">
+                      {{ keyword.name }}
                     </a-select-option>
                   </a-select>
                 </a-form-model-item>
               </div>
+              <!--add-more-sdg-->
+              <a-row class="unit-content">
+                <a-col offset="6" span="14">
+                  <div class="form-block-title form-block-action">
+                    <a-button type="link" icon="plus-circle" @click="handleAddMoreSdg">
+                      {{ $t('teacher.add-unit-plan.add-more-sdg') }}
+                    </a-button>
+                  </div>
+                </a-col>
+              </a-row>
             </div>
           </a-form-model>
         </a-card>
@@ -166,12 +194,14 @@ import ContentTypeIcon from '@/components/Teacher/ContentTypeIcon'
 import { typeMap } from '@/const/teacher'
 import { commonAPIUrl } from '@/api/common'
 import { GetAllSdgs, ScenarioSearch } from '@/api/scenario'
-import _ from 'lodash'
+import { debounce } from 'lodash-es'
+import InputSearch from '@/components/InputSearch/InputSearch'
 
 export default {
   name: 'AddUnitPlan',
   components: {
-    ContentTypeIcon
+    ContentTypeIcon,
+    InputSearch
   },
   data () {
     return {
@@ -226,7 +256,21 @@ export default {
 
       uploading: false,
       sdgList: [],
-      scenarioList: []
+
+      // 根据description搜索的下拉list列表
+      descriptionSearchList: [],
+
+      // 将scenario下面的sdg及keywords转成对象
+      sdgTotal: 1,
+      sdgMaxIndex: 1,
+      sdgPrefix: '__sdg_',
+      sdgDataObj: {
+        __sdg_1: {
+          sdgId: null,
+          keywords: [],
+          defaultKeywords: []
+        }
+      }
     }
   },
   computed: {
@@ -236,6 +280,7 @@ export default {
   },
   created () {
     this.initData()
+    this.debouncedGetSdgByDescription = debounce(this.searchScenario, 300)
   },
   mounted () {
   },
@@ -277,26 +322,70 @@ export default {
         this.uploading = false
       })
     },
-
-    searchScenario () {
-      ScenarioSearch({
-        searchKey: this.form.scenario.description
-      }).then((response) => {
-        logger.info('searchByDescription', response)
-        this.scenarioList = response.result
-      })
-    },
     handleDescriptionSearch (description) {
       logger.info('handleDescriptionSearch', description)
       this.form.scenario.description = description
-      if (description && description.trim()) {
-        _.debounce(this.searchScenario, 500)
+      this.debouncedGetSdgByDescription(description)
+    },
+
+    searchScenario (description) {
+      logger.info('searchScenario', description)
+      if (typeof description === 'string' && description.trim().length >= 3) {
+        ScenarioSearch({
+          searchKey: this.form.scenario.description
+        }).then((response) => {
+          logger.info('searchByDescription', response)
+          this.descriptionSearchList = response.result
+        })
       } else {
-        this.scenarioList = []
+        this.descriptionSearchList = []
       }
     },
+
+    // 由于Vue无法响应式处理数据元素，此处通过将数据转为scenarioObj的属性进行处理
     handleSelectScenario (scenario) {
-      logger.info('handleSelectScenario', scenario)
+      logger.info('handleSelectScenario', scenario, this.sdgMaxIndex)
+      if (this.sdgTotal === 1) {
+        const sdg = scenario.sdgKeyWords[0]
+        sdg.defaultKeywords = sdg.keywords.map(keyword => keyword.name)
+        logger.info('sdg', sdg)
+        this.$set(this.sdgDataObj, this.sdgPrefix + this.sdgMaxIndex, sdg)
+        this.sdgMaxIndex++
+        this.sdgTotal++
+        logger.info('after select scenarioObj: ', this.sdgDataObj, this.sdgMaxIndex)
+      } else {
+        logger.info('not use auto fill, becasue scenarioMaxIndex ' + this.sdgTotal)
+      }
+    },
+
+    handleAddMoreSdg () {
+      const sdg = {
+        sdgId: null,
+        keywords: [],
+        defaultKeywords: []
+      }
+      logger.info('handleAddMoreSdg ', sdg)
+      this.$set(this.sdgDataObj, this.sdgPrefix + this.sdgMaxIndex, sdg)
+      this.sdgMaxIndex++
+      this.sdgTotal++
+    },
+
+    handleDeleteSdg (sdgItem, sdgIndex) {
+      logger.info('handleDeleteSdg ', sdgItem, sdgIndex)
+      this.$set(this.sdgDataObj, sdgIndex, null)
+      this.sdgTotal--
+      logger.info('sdgDataObj ', this.sdgDataObj)
+    },
+
+    handleKeywordsChange (value) {
+      logger.info('handleKeywordsChange', value)
+    },
+
+    handleInputKeydown (event) {
+      logger.info('handleInputKeydown', event)
+      if (event.keyCode === 13) {
+        logger.info('handleInputKeydown enter', this.value)
+      }
     }
   }
 }
@@ -373,6 +462,29 @@ export default {
     .form-block-title {
       font-size: @font-size-lg;
       color: #000;
+    }
+
+    .form-block-action {
+      text-align: center;
+    }
+
+    .sdg-blocks {
+      position: relative;
+      .sdg-delete-wrapper {
+        transition: all 0.2s ease-in;
+        display: none;
+        position: absolute;
+        right: 40px;
+        top: 100px;
+        cursor: pointer;
+        color: @link-hover-color;
+      }
+
+      &:hover {
+        .sdg-delete-wrapper {
+          display: block;
+        }
+      }
     }
   }
 }
