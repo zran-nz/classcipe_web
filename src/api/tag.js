@@ -1,11 +1,39 @@
 import request from '@/utils/request'
 
 export const tagAPIUrl = {
+  GetTreeByKey: '/classcipe/api/tag/getTreeByKey',
+  GetTree: '/classcipe/api/tag/getTree',
   TagAddOrUpdate: '/classcipe/api/tag/addOrUpdate',
   TagQueryById: '/classcipe/api/tag/queryById',
   TagDelete: '/classcipe/api/tag/delete',
   TagDeleteBatch: '/classcipe/api/tag/deleteBatch',
   TagList: '/classcipe/api/tag/list'
+}
+
+/**
+ * @param parameter
+ * @returns {AxiosPromise}
+ * @constructor
+ */
+export function GetTreeByKey (parameter) {
+  return request({
+    url: tagAPIUrl.GetTreeByKey,
+    method: 'get',
+    params: parameter
+  })
+}
+
+/**
+ * @param parameter
+ * @returns {AxiosPromise}
+ * @constructor
+ */
+export function GetTree (parameter) {
+  return request({
+    url: tagAPIUrl.GetTree,
+    method: 'get',
+    params: parameter
+  })
 }
 
 /**

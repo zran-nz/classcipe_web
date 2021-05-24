@@ -152,17 +152,7 @@
                 </a-form-model-item>
                 <!--keywords-->
                 <a-form-model-item :label="$t('teacher.add-unit-plan.key-words')">
-                  <a-select
-                    mode="tags"
-                    :value="sdgItem.defaultKeywords"
-                    :not-found-content="null"
-                    style="width: 100%"
-                    placeholder="Please select keywords"
-                  >
-                    <a-select-option v-for="(keyword,key) in sdgItem.keywords" :value="keyword.name" :key="key">
-                      {{ keyword.name }}
-                    </a-select-option>
-                  </a-select>
+                  <sdg-tag-input :tag-list.sync="sdgItem.defaultKeywords" :sdg-key.sync="sdgIndex" @add-tag="handleAddSdgTag" @remove-tag="handleRemoveSdgTag"/>
                 </a-form-model-item>
               </div>
               <!--add-more-sdg-->
@@ -172,6 +162,50 @@
                     <a-button type="link" icon="plus-circle" @click="handleAddMoreSdg">
                       {{ $t('teacher.add-unit-plan.add-more-sdg') }}
                     </a-button>
+                  </div>
+                </a-col>
+              </a-row>
+            </div>
+
+            <div class="form-block">
+              <a-row class="unit-content">
+                <a-col offset="2" span="20">
+                  <div class="form-block-title">
+                    <a-divider orientation="left">
+                      {{ $t('teacher.add-unit-plan.basics') }}
+                    </a-divider>
+                  </div>
+                </a-col>
+
+                <a-form-model-item :label="$t('teacher.add-unit-plan.subject-covered')">
+                  <a-select v-model="form.subjects" @select="handleSelectSubject">
+                    <a-select-option v-for="(subject,index) in subjectList" :value="subject.name" :key="index">
+                      {{ subject.name }}
+                    </a-select-option>
+                  </a-select>
+                </a-form-model-item>
+
+                <a-form-model-item :label="$t('teacher.add-unit-plan.concepts')">
+                  <a-select v-model="form.concepts" @select="handleSelectConcept">
+                    <a-select-option v-for="(concept,index) in conceptsList" :value="concept.name" :key="index">
+                      {{ concept.name }}
+                    </a-select-option>
+                  </a-select>
+                </a-form-model-item>
+
+                <a-form-model-item :label="$t('teacher.add-unit-plan.direction-of-inquiry')">
+                  <a-input v-model="form.inquiry" allow-clear />
+                </a-form-model-item>
+              </a-row>
+            </div>
+
+            <div class="form-block">
+              <a-row class="unit-content">
+                <a-col offset="2" span="20">
+                  <div class="form-block-title">
+                    <a-divider orientation="left">
+                      {{ $t('teacher.add-unit-plan.questions') }}
+                    </a-divider>
                   </div>
                 </a-col>
               </a-row>
@@ -196,12 +230,15 @@ import { commonAPIUrl } from '@/api/common'
 import { GetAllSdgs, ScenarioSearch } from '@/api/scenario'
 import { debounce } from 'lodash-es'
 import InputSearch from '@/components/InputSearch/InputSearch'
+import SdgTagInput from '@/components/InputSearch/SdgTagInput'
+import { GetTreeByKey } from '@/api/tag'
 
 export default {
   name: 'AddUnitPlan',
   components: {
     ContentTypeIcon,
-    InputSearch
+    InputSearch,
+    SdgTagInput
   },
   data () {
     return {
@@ -257,6 +294,12 @@ export default {
       uploading: false,
       sdgList: [],
 
+      // Subject(s) Covered
+      subjectList: [],
+
+      // Concepts
+      conceptsList: [],
+
       // 根据description搜索的下拉list列表
       descriptionSearchList: [],
 
@@ -270,6 +313,17 @@ export default {
           keywords: [],
           defaultKeywords: []
         }
+      }
+    }
+  },
+  watch: {
+    'form.subjects': function () {
+      const conceptList = this.subjectList.find(subject => subject.name === this.form.subjects)
+      if (conceptList && conceptList.children) {
+        this.conceptsList = conceptList.children
+        logger.info('conceptList', conceptList.children)
+      } else {
+        this.conceptList = []
       }
     }
   },
@@ -287,12 +341,24 @@ export default {
   methods: {
     initData () {
       logger.info('initData doing...')
-      Promise.all([GetAllSdgs()]).then((sdgListResponse) => {
-        logger.info('initData done')
+      Promise.all([
+        GetAllSdgs(),
+        GetTreeByKey({ key: 'Related Concepts MYP' })
+      ]).then((sdgListResponse) => {
+        logger.info('initData done', sdgListResponse)
+
+        // GetAllSdgs
         logger.info('GetAllSdgs Response ', sdgListResponse[0])
         if (!sdgListResponse[0].code) {
           this.sdgList = sdgListResponse[0].result
         }
+
+        // GetTreeByKey
+        if (!sdgListResponse[1].code) {
+          logger.info('GetTreeByKey subjectList', sdgListResponse[1].result.children)
+          this.subjectList = sdgListResponse[1].result.children
+        }
+
         this.contentLoading = false
         this.referenceLoading = false
         logger.info('sdgList', this.sdgList)
@@ -365,9 +431,9 @@ export default {
         defaultKeywords: []
       }
       logger.info('handleAddMoreSdg ', sdg)
-      this.$set(this.sdgDataObj, this.sdgPrefix + this.sdgMaxIndex, sdg)
       this.sdgMaxIndex++
       this.sdgTotal++
+      this.$set(this.sdgDataObj, this.sdgPrefix + this.sdgMaxIndex, sdg)
     },
 
     handleDeleteSdg (sdgItem, sdgIndex) {
@@ -377,15 +443,31 @@ export default {
       logger.info('sdgDataObj ', this.sdgDataObj)
     },
 
-    handleKeywordsChange (value) {
-      logger.info('handleKeywordsChange', value)
+    handleAddSdgTag (data) {
+      const tag = data.tag
+      const sdgKey = data.sdgKey
+      logger.info('handleAddSdgTag ', tag, sdgKey)
+      this.sdgDataObj[sdgKey].defaultKeywords.push(tag)
+      logger.info('after handleAddSdgTag ', this.sdgDataObj[sdgKey].defaultKeywords)
     },
 
-    handleInputKeydown (event) {
-      logger.info('handleInputKeydown', event)
-      if (event.keyCode === 13) {
-        logger.info('handleInputKeydown enter', this.value)
-      }
+    handleRemoveSdgTag (data) {
+      const tag = data.tag
+      const sdgKey = data.sdgKey
+      logger.info('handleRemoveSdgTag ', tag, sdgKey)
+      this.sdgDataObj[sdgKey].defaultKeywords.splice(this.sdgDataObj[sdgKey].defaultKeywords.indexOf(tag), 1)
+      logger.info('after handleRemoveSdgTag ', this.sdgDataObj[sdgKey].defaultKeywords)
+    },
+
+    handleSelectSubject (subjects) {
+      logger.info('handleSelectSubject', subjects)
+      this.form.subjects = subjects
+      this.form.concepts = ''
+    },
+
+    handleSelectConcept (concept) {
+      logger.info('handleSelectConcept', concept)
+      this.form.concepts = concept
     }
   }
 }
@@ -465,22 +547,26 @@ export default {
     }
 
     .form-block-action {
+      padding-top: 20px;
       text-align: center;
     }
 
     .sdg-blocks {
       position: relative;
+      border: 1px dotted #fff;
       .sdg-delete-wrapper {
         transition: all 0.2s ease-in;
         display: none;
         position: absolute;
         right: 40px;
-        top: 100px;
+        top: 80px;
         cursor: pointer;
         color: @link-hover-color;
       }
 
       &:hover {
+        border: 1px dotted @link-hover-color;
+        box-sizing: border-box;
         .sdg-delete-wrapper {
           display: block;
         }
