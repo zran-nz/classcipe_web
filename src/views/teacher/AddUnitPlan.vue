@@ -124,7 +124,7 @@
                   @reset="descriptionSearchList = []" />
               </a-form-model-item>
               <!--sdg and KeyWords-->
-              <div class="sdg-blocks" v-for="(sdgItem, sdgIndex) in sdgDataObj" :key="sdgIndex" v-if="sdgItem !== null">
+              <div class="content-blocks" v-for="(sdgItem, sdgIndex) in sdgDataObj" :key="sdgIndex" v-if="sdgItem !== null">
                 <div class="sdg-delete-wrapper">
                   <a-tooltip placement="top">
                     <template slot="title">
@@ -209,7 +209,27 @@
                   </div>
                 </a-col>
               </a-row>
+              <div class="content-blocks" v-for="(questionItem, questionIndex) in questionDataObj" :key="questionIndex" v-if="questionItem !== null">
+                <div class="sdg-delete-wrapper">
+                  <a-tooltip placement="top">
+                    <template slot="title">
+                      <span>{{ $t('teacher.add-unit-plan.delete-questions') }}</span>
+                    </template>
+                    <div class="sdg-delete" @click="handleDeleteQuestion(questionItem, questionIndex)">
+                      <a-icon type="delete" :style="{ fontSize: '20px' }" />
+                    </div>
+                  </a-tooltip>
+                </div>
+                <a-row class="unit-content">
+                  <a-col offset="6" span="14">
+                    <div class="form-block-title">
+                      <a-divider dashed>Question</a-divider>
+                    </div>
+                  </a-col>
+                </a-row>
+              </div>
             </div>
+
           </a-form-model>
         </a-card>
       </a-col>
@@ -232,6 +252,7 @@ import { debounce } from 'lodash-es'
 import InputSearch from '@/components/InputSearch/InputSearch'
 import SdgTagInput from '@/components/InputSearch/SdgTagInput'
 import { GetTreeByKey } from '@/api/tag'
+import { GetMyGrades } from '@/api/teacher'
 
 export default {
   name: 'AddUnitPlan',
@@ -300,6 +321,9 @@ export default {
       // Concepts
       conceptsList: [],
 
+      // Grades
+      gradeList: [],
+
       // 根据description搜索的下拉list列表
       descriptionSearchList: [],
 
@@ -312,6 +336,19 @@ export default {
           sdgId: null,
           keywords: [],
           defaultKeywords: []
+        }
+      },
+
+      // 将questions转成对象
+      questionTotal: 1,
+      questionMaxIndex: 1,
+      questionPrefix: '__question_',
+      questionDataObj: {
+        __question_1: {
+          questionId: null,
+          name: '',
+          knowledgeTags: [],
+          skillTags: []
         }
       }
     }
@@ -343,7 +380,8 @@ export default {
       logger.info('initData doing...')
       Promise.all([
         GetAllSdgs(),
-        GetTreeByKey({ key: 'Related Concepts MYP' })
+        GetTreeByKey({ key: 'Related Concepts MYP' }),
+        GetMyGrades()
       ]).then((sdgListResponse) => {
         logger.info('initData done', sdgListResponse)
 
@@ -359,6 +397,11 @@ export default {
           this.subjectList = sdgListResponse[1].result.children
         }
 
+        // GetMyGrades
+        if (!sdgListResponse[2].code) {
+          logger.info('GetMyGrades', sdgListResponse[2].result)
+          this.gradeList = sdgListResponse[2].result
+        }
         this.contentLoading = false
         this.referenceLoading = false
         logger.info('sdgList', this.sdgList)
@@ -468,6 +511,13 @@ export default {
     handleSelectConcept (concept) {
       logger.info('handleSelectConcept', concept)
       this.form.concepts = concept
+    },
+
+    handleDeleteQuestion (questionItem, questionIndex) {
+      logger.info('handleDeleteQuestion ', questionItem, questionIndex)
+      this.$set(this.questionDataObj, questionIndex, null)
+      this.questionTotal--
+      logger.info('questionDataObj ', this.questionDataObj)
     }
   }
 }
@@ -551,7 +601,7 @@ export default {
       text-align: center;
     }
 
-    .sdg-blocks {
+    .content-blocks {
       position: relative;
       border: 1px dotted #fff;
       .sdg-delete-wrapper {

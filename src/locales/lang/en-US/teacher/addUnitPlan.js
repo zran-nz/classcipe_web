@@ -22,6 +22,7 @@ export default {
   'teacher.add-unit-plan.subject-covered': 'Subject(s) covered',
   'teacher.add-unit-plan.concepts': 'Concepts',
   'teacher.add-unit-plan.questions': 'Questions',
+  'teacher.add-unit-plan.delete-questions': 'Delete Questions',
   'teacher.add-unit-plan.direction-of-inquiry': 'Direction of inquiry',
   'teacher.add-unit-plan.nth-key-question': 'Key question {questionIndex}',
   'teacher.add-unit-plan.knowledge-tags': 'Knowledge tag(s)',
