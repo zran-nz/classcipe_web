@@ -11,6 +11,7 @@
           <input
             type="text"
             @keyup.enter="handleAddTag"
+            @blur="active = false"
             v-model="inputValue"
             :style="{width: inputWidth}"
             ref="input"
@@ -58,18 +59,9 @@ export default {
       return (length > 60 ? length : 60) + 'px'
     }
   },
-  mounted () {
-    this.globalClick(this.handleClick)
-  },
   created () {
-
   },
   methods: {
-    handleClick (event) {
-      if (!event.target.classList.contains('tag-dom')) {
-        this.active = false
-      }
-    },
     handleAddTag () {
       logger.info('handleAddTag ' + this.sdgKey + ' ' + this.inputValue)
       if (this.inputValue && this.inputValue.trim().length) {
