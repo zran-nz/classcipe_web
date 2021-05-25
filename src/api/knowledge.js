@@ -1,11 +1,25 @@
 import request from '@/utils/request'
 
 export const knowledgeAPIUrl = {
+  KnowledgeGetTree: '/classcipe/api/knowledge/getTree',
   KnowledgeAddOrUpdate: '/classcipe/api/knowledge/addOrUpdate',
   KnowledgeQueryById: '/classcipe/api/knowledge/queryById',
   KnowledgeDelete: '/classcipe/api/knowledge/delete',
   KnowledgeDeleteBatch: '/classcipe/api/knowledge/deleteBatch',
   KnowledgeList: '/classcipe/api/knowledge/list'
+}
+
+/**
+ * @param parameter
+ * @returns {AxiosPromise}
+ * @constructor
+ */
+export function KnowledgeGetTree (parameter) {
+  return request({
+    url: knowledgeAPIUrl.KnowledgeGetTree,
+    method: 'get',
+    params: parameter
+  })
 }
 
 /**

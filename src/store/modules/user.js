@@ -9,6 +9,7 @@ const user = {
     token: '',
     name: '',
     email: '',
+    bindCurriculum: '',
     welcome: '',
     avatar: '',
     currentRole: '',
@@ -28,6 +29,9 @@ const user = {
     },
     SET_EMAIL: (state, email) => {
       state.email = email
+    },
+    SET_BIND_CURRICULUM: (state, bindCurriculum) => {
+      state.bindCurriculum = bindCurriculum
     },
     SET_AVATAR: (state, avatar) => {
       state.avatar = avatar
@@ -92,6 +96,7 @@ const user = {
           commit('SET_NAME', { name: result.username, welcome: welcome() })
           commit('SET_AVATAR', result.avatar)
           commit('SET_EMAIL', result.email)
+          commit('SET_BIND_CURRICULUM', result.bindCurriculum)
           commit('SET_CURRENT_ROLE', result.currentRole)
           commit('SET_IS_ADD_PREFERENCE', result.isAddPreference)
           storage.set(CURRENT_ROLE, result.currentRole)
@@ -117,6 +122,7 @@ const user = {
           commit('SET_NAME', { name: result.username, welcome: welcome() })
           commit('SET_AVATAR', result.avatar)
           commit('SET_EMAIL', result.email)
+          commit('SET_BIND_CURRICULUM', result.bindCurriculum)
           commit('SET_CURRENT_ROLE', result.currentRole)
           commit('SET_IS_ADD_PREFERENCE', result.isAddPreference)
           storage.set(CURRENT_ROLE, result.currentRole)
@@ -137,6 +143,7 @@ const user = {
           commit('SET_ROLES', [])
           commit('SET_NAME', '')
           commit('SET_EMAIL', '')
+          commit('SET_BIND_CURRICULUM', '')
           commit('SET_AVATAR', '')
           commit('SET_INFO', {})
           commit('SET_CURRENT_ROLE', '')

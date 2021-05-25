@@ -1,11 +1,25 @@
 import request from '@/utils/request'
 
 export const subjectAPIUrl = {
+  SubjectTree: '/classcipe/api/subject/tree',
   SubjectAddOrUpdate: '/classcipe/api/subject/addOrUpdate',
   SubjectQueryById: '/classcipe/api/subject/queryById',
   SubjectDelete: '/classcipe/api/subject/delete',
   SubjectDeleteBatch: '/classcipe/api/subject/deleteBatch',
   SubjectList: '/classcipe/api/subject/list'
+}
+
+/**
+ * @param parameter
+ * @returns {AxiosPromise}
+ * @constructor
+ */
+export function SubjectTree (parameter) {
+  return request({
+    url: subjectAPIUrl.SubjectTree,
+    method: 'get',
+    params: parameter
+  })
 }
 
 /**

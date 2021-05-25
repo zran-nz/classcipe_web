@@ -11,6 +11,7 @@ const getters = {
   avatar: state => state.user.avatar,
   nickname: state => state.user.name,
   email: state => state.user.email,
+  bindCurriculum: state => state.user.bindCurriculum,
   welcome: state => state.user.welcome,
   currentRole: state => state.user.currentRole,
   roles: state => state.user.roles,

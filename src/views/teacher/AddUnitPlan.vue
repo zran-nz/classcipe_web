@@ -5,6 +5,10 @@
         <a-space>
           <a-button class="nav-back-btn" type="link" @click="$router.go(-1)"> <a-icon type="left" /> {{ $t('teacher.add-unit-plan.back') }}</a-button>
           <span class="unit-last-change-time" v-if="lastChangeSavedTime">
+            <span class="unit-nav-title">
+              {{ form.name }}
+            </span>
+            <a-divider type="vertical" v-if="!!form.name" />
             {{ $t('teacher.add-unit-plan.last-change-saved-at-time', {time: lastChangeSavedTime}) }}
           </span>
         </a-space>
@@ -104,7 +108,7 @@
             </div>
             <!--            about-the-scenario-->
             <div class="form-block">
-              <a-row class="unit-content">
+              <a-row>
                 <a-col offset="2" span="20">
                   <div class="form-block-title">
                     <a-divider orientation="left">
@@ -135,8 +139,8 @@
                     </div>
                   </a-tooltip>
                 </div>
-                <a-row class="unit-content">
-                  <a-col offset="6" span="14">
+                <a-row>
+                  <a-col offset="4" span="18">
                     <div class="form-block-title">
                       <a-divider dashed>SDG</a-divider>
                     </div>
@@ -156,8 +160,8 @@
                 </a-form-model-item>
               </div>
               <!--add-more-sdg-->
-              <a-row class="unit-content">
-                <a-col offset="6" span="14">
+              <a-row>
+                <a-col offset="2" span="20">
                   <div class="form-block-title form-block-action">
                     <a-button type="link" icon="plus-circle" @click="handleAddMoreSdg">
                       {{ $t('teacher.add-unit-plan.add-more-sdg') }}
@@ -168,7 +172,7 @@
             </div>
 
             <div class="form-block">
-              <a-row class="unit-content">
+              <a-row>
                 <a-col offset="2" span="20">
                   <div class="form-block-title">
                     <a-divider orientation="left">
@@ -200,7 +204,7 @@
             </div>
 
             <div class="form-block">
-              <a-row class="unit-content">
+              <a-row>
                 <a-col offset="2" span="20">
                   <div class="form-block-title">
                     <a-divider orientation="left">
@@ -209,7 +213,7 @@
                   </div>
                 </a-col>
               </a-row>
-              <div class="content-blocks" v-for="(questionItem, questionIndex) in questionDataObj" :key="questionIndex" v-if="questionItem !== null">
+              <div class="content-blocks question-item" v-for="(questionItem, questionIndex) in questionDataObj" :key="questionIndex" v-if="questionItem !== null">
                 <div class="sdg-delete-wrapper">
                   <a-tooltip placement="top">
                     <template slot="title">
@@ -220,13 +224,34 @@
                     </div>
                   </a-tooltip>
                 </div>
-                <a-row class="unit-content">
-                  <a-col offset="6" span="14">
+                <a-row>
+                  <a-col offset="4" span="18">
                     <div class="form-block-title">
-                      <a-divider dashed>Question</a-divider>
+                      <a-divider dashed>
+                        {{ $t('teacher.add-unit-plan.questions') }}
+                      </a-divider>
                     </div>
                   </a-col>
                 </a-row>
+                <a-form-model-item :label="$t('teacher.add-unit-plan.nth-key-question')">
+                  <a-input v-model="questionItem.name" allow-clear />
+                </a-form-model-item>
+
+                <!--knowledge tag-select span 14: grade-4 -->
+                <a-row>
+                  <a-col offset="4" span="18">
+                    <knowledge-tag
+                      :grade-list="gradeList"
+                      :subject-tree="subjectTree"
+                      :default-grade-id="questionIndex.knowledgeGradeId"
+                      :default-main-subject-id="questionIndex.knowledgeMainSubjectId"
+                      :default-sub-subject-id="questionIndex.knowledgeSubSubjectId"
+                      :default-knowledge-tags="questionIndex.knowledgeTags"
+                    />
+                  </a-col>
+                </a-row>
+
+                <!--skill tag-select-->
               </div>
             </div>
 
@@ -249,17 +274,21 @@ import { typeMap } from '@/const/teacher'
 import { commonAPIUrl } from '@/api/common'
 import { GetAllSdgs, ScenarioSearch } from '@/api/scenario'
 import { debounce } from 'lodash-es'
-import InputSearch from '@/components/InputSearch/InputSearch'
-import SdgTagInput from '@/components/InputSearch/SdgTagInput'
+import InputSearch from '@/components/UnitPlan/InputSearch'
+import SdgTagInput from '@/components/UnitPlan/SdgTagInput'
 import { GetTreeByKey } from '@/api/tag'
 import { GetMyGrades } from '@/api/teacher'
+import { SubjectTree } from '@/api/subject'
+import { formatSubjectTree } from '@/utils/bizUtil'
+import KnowledgeTag from '@/components/UnitPlan/KnowledgeTag'
 
 export default {
   name: 'AddUnitPlan',
   components: {
     ContentTypeIcon,
     InputSearch,
-    SdgTagInput
+    SdgTagInput,
+    KnowledgeTag
   },
   data () {
     return {
@@ -267,8 +296,8 @@ export default {
       referenceLoading: false,
       contentType: typeMap,
 
-      labelCol: { span: 6 },
-      wrapperCol: { span: 14 },
+      labelCol: { span: 4 },
+      wrapperCol: { span: 18 },
       form: {
         concepts: '',
         image: '',
@@ -324,6 +353,9 @@ export default {
       // Grades
       gradeList: [],
 
+      // SubjectTree
+      subjectTree: [],
+
       // 根据description搜索的下拉list列表
       descriptionSearchList: [],
 
@@ -347,7 +379,11 @@ export default {
         __question_1: {
           questionId: null,
           name: '',
+          knowledgeMainSubjectId: '',
+          knowledgeSubSubjectId: '',
+          knowledgeGradeId: '',
           knowledgeTags: [],
+          skillGrade: '',
           skillTags: []
         }
       }
@@ -381,7 +417,8 @@ export default {
       Promise.all([
         GetAllSdgs(),
         GetTreeByKey({ key: 'Related Concepts MYP' }),
-        GetMyGrades()
+        GetMyGrades(),
+        SubjectTree({ curriculumId: this.$store.getters.bindCurriculum })
       ]).then((sdgListResponse) => {
         logger.info('initData done', sdgListResponse)
 
@@ -401,6 +438,15 @@ export default {
         if (!sdgListResponse[2].code) {
           logger.info('GetMyGrades', sdgListResponse[2].result)
           this.gradeList = sdgListResponse[2].result
+        }
+
+        // SubjectTree
+        if (!sdgListResponse[3].code) {
+          logger.info('SubjectTree', sdgListResponse[3].result)
+          let subjectTree = sdgListResponse[3].result
+          subjectTree = formatSubjectTree(subjectTree)
+          this.subjectTree = subjectTree
+          logger.info('after format subjectTree', subjectTree)
         }
         this.contentLoading = false
         this.referenceLoading = false
@@ -534,8 +580,14 @@ export default {
     padding-left: 0;
   }
 
+  .unit-nav-title {
+    color: @text-color;
+    font-weight: bold;
+  }
+
   .unit-last-change-time {
     line-height: 32px;
+    color: @text-color-secondary;
   }
 
   .unit-right-action {
@@ -601,6 +653,10 @@ export default {
       text-align: center;
     }
 
+    .question-item {
+      padding-bottom: 24px;
+    }
+
     .content-blocks {
       position: relative;
       border: 1px dotted #fff;
@@ -608,8 +664,12 @@ export default {
         transition: all 0.2s ease-in;
         display: none;
         position: absolute;
-        right: 40px;
+        text-align: center;
+        right: 15px;
         top: 80px;
+        line-height: 50px;
+        width: 50px;
+        height: 50px;
         cursor: pointer;
         color: @link-hover-color;
       }
@@ -619,6 +679,16 @@ export default {
         box-sizing: border-box;
         .sdg-delete-wrapper {
           display: block;
+        }
+      }
+
+      .tag-select {
+        padding-bottom: 24px;
+
+        .tag-label {
+          color: @text-color-secondary;
+          text-align: center;
+          padding-bottom: 5px;
         }
       }
     }

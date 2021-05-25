@@ -3,6 +3,7 @@ import Vue from 'vue'
 // base library
 import {
   ConfigProvider,
+  Cascader,
   Layout,
   Input,
   InputNumber,
@@ -58,6 +59,7 @@ import PermissionHelper from '@/core/permission/permission'
 import './directives/action'
 
 Vue.use(ConfigProvider)
+Vue.use(Cascader)
 Vue.use(Layout)
 Vue.use(Input)
 Vue.use(InputNumber)
