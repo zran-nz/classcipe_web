@@ -1,117 +1,147 @@
 <template>
-  <div class="knowledge-tag-wrapper">
-    <a-row >
-      <a-col span="3">
-        <div class="tag-select grade-select border-right">
-          <div class="tag-label">
-            {{ $t('teacher.add-unit-plan.select-grade') }}
-          </div>
-          <div class="tag-list-container">
-            <div class="tag-list">
-              <div :class="{'tag-item': true, 'active-item': gradeId === grade.id}" v-for="(grade,index) in gradeList" :key="index" @click="handleSelectGrade(grade)">{{ grade.name }}</div>
+  <div class="knowledge-wrapper">
+    <div class="knowledge-tag-wrapper">
+      <a-row >
+        <a-col span="3">
+          <div class="tag-select grade-select border-right">
+            <div class="tag-label">
+              {{ $t('teacher.add-unit-plan.select-grade') }}
+            </div>
+            <div class="tag-list-container">
+              <div class="tag-list">
+                <div :class="{'tag-item': true, 'active-item': gradeId === grade.id}" v-for="(grade,index) in gradeList" :key="index" @click="handleSelectGrade(grade)">{{ grade.name }}</div>
+              </div>
             </div>
           </div>
-        </div>
-      </a-col>
+        </a-col>
 
-      <a-col span="9">
-        <div class="tag-select grade-select border-right">
-          <div class="tag-label">
-            {{ $t('teacher.add-unit-plan.select-subject') }}
-          </div>
-          <div class="subject-tree">
-            <div class="main-subject border-right">
-              <div class="tag-list-container">
-                <div class="tag-list">
-                  <div :class="{'tag-item': true, 'active-item': mainSubjectId === subject.id}" v-for="(subject,index) in subjectTree" :key="index" @click="handleSelectMainSubject(subject)">
-                    <a-tooltip placement="leftTop">
-                      <template slot="title">   {{ subject.name }}</template>
-                      {{ subject.name }}
-                    </a-tooltip>
-                    <a-icon type="right" class="tag-more" v-if="subject.children.length"/>
+        <a-col span="9">
+          <div class="tag-select grade-select border-right">
+            <div class="tag-label">
+              {{ $t('teacher.add-unit-plan.select-subject') }}
+            </div>
+            <div class="subject-tree">
+              <div class="main-subject border-right">
+                <div class="tag-list-container">
+                  <div class="tag-list">
+                    <div :class="{'tag-item': true, 'active-item': mainSubjectId === subject.id}" v-for="(subject,index) in subjectTree" :key="index" @click="handleSelectMainSubject(subject)">
+                      <a-tooltip placement="leftTop">
+                        <template slot="title">   {{ subject.name }}</template>
+                        {{ subject.name }}
+                      </a-tooltip>
+                      <a-icon type="right" class="tag-more" v-if="subject.children.length"/>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="sub-subject">
+                <div class="tag-list-container">
+                  <div class="tag-list">
+                    <div :class="{'tag-item': true, 'active-item': subSubjectId === subject.id}" v-for="(subject,index) in subjectTreeChildren" :key="index" @click="handleSelectSubSubject(subject)">
+                      <a-tooltip placement="leftTop">
+                        <template slot="title">{{ subject.name }}</template>
+                        {{ subject.name }}
+                      </a-tooltip>
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
-            <div class="sub-subject">
-              <div class="tag-list-container">
-                <div class="tag-list">
-                  <div :class="{'tag-item': true, 'active-item': subSubjectId === subject.id}" v-for="(subject,index) in subjectTreeChildren" :key="index" @click="handleSelectSubSubject(subject)">
-                    <a-tooltip placement="leftTop">
-                      <template slot="title">{{ subject.name }}</template>
-                      {{ subject.name }}
-                    </a-tooltip>
+          </div>
+        </a-col>
+        <a-col span="12">
+          <div class="tag-select grade-select">
+            <div class="tag-label">
+              {{ $t('teacher.add-unit-plan.knowledge-tags') }}
+            </div>
+            <div class="knowledge-tag-tree">
+              <div class="main-knowledge border-right">
+                <div class="tag-list-container">
+                  <div class="tag-list" v-show="!knowledgeLoading">
+                    <div :class="{'tag-item': true, 'active-item': mainKnowledgeId === knowledgeItem.id}" v-for="(knowledgeItem,index) in knowledgeTree" :key="index" @click="handleSelectMainKnowledgeItem(knowledgeItem)">
+                      <a-tooltip placement="leftTop">
+                        <template slot="title">  {{ knowledgeItem.name }}</template>
+                        {{ knowledgeItem.name }}
+                      </a-tooltip>
+                      <a-icon type="right" class="tag-more" v-if="knowledgeItem.children.length"/>
+                    </div>
                   </div>
+                  <a-spin v-show="knowledgeLoading" class="spin-loading"/>
                 </div>
               </div>
-            </div>
-          </div>
-        </div>
-      </a-col>
-      <a-col span="12">
-        <div class="tag-select grade-select">
-          <div class="tag-label">
-            {{ $t('teacher.add-unit-plan.knowledge-tags') }}
-          </div>
-          <div class="knowledge-tag-tree">
-            <div class="main-knowledge border-right">
-              <div class="tag-list-container">
-                <div class="tag-list" v-show="!knowledgeLoading">
-                  <div :class="{'tag-item': true, 'active-item': mainKnowledgeId === knowledgeItem.id}" v-for="(knowledgeItem,index) in knowledgeTree" :key="index" @click="handleSelectMainKnowledgeItem(knowledgeItem)">
-                    <a-tooltip placement="leftTop">
-                      <template slot="title">  {{ knowledgeItem.name }}</template>
-                      {{ knowledgeItem.name }}
-                    </a-tooltip>
-                    <a-icon type="right" class="tag-more" v-if="knowledgeItem.children.length"/>
-                  </div>
-                </div>
-                <a-spin v-show="knowledgeLoading" class="spin-loading"/>
-              </div>
-            </div>
-            <div class="sub-knowledge border-right">
-              <div class="tag-list-container">
-                <div class="tag-list">
-                  <div :class="{'tag-item': true, 'active-item': subKnowledgeId === subKnowledgeItem.id}" v-for="(subKnowledgeItem,index) in knowledgeTreeChild" :key="index" @click="handleSelectSubKnowledgeItem(subKnowledgeItem)">
-                    <a-tooltip placement="leftTop">
-                      <template slot="title">{{ subKnowledgeItem.name }}</template>
+              <div class="sub-knowledge border-right">
+                <div class="tag-list-container">
+                  <div class="tag-list">
+                    <div :class="{'tag-item': true, 'active-item': subKnowledgeId === subKnowledgeItem.id}" v-for="(subKnowledgeItem,index) in knowledgeTreeChild" :key="index" @click="handleSelectSubKnowledgeItem(subKnowledgeItem)">
+                      <a-tooltip placement="leftTop">
+                        <template slot="title">{{ subKnowledgeItem.name }}</template>
+                        {{ subKnowledgeItem.name }}
+                      </a-tooltip>
                       {{ subKnowledgeItem.name }}
-                    </a-tooltip>
-                    {{ subKnowledgeItem.name }}
-                    <a-icon type="right" class="tag-more" v-if="subKnowledgeItem.tags.length"/>
+                      <a-icon type="right" class="tag-more" v-if="subKnowledgeItem.tags.length"/>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
-            <div class="knowledge-tag">
-              <div class="tag-list-container">
-                <div class="tag-list">
-                  <div class="tag-item input-tag-item" v-show="showNewTagInput">
-                    <a-input :placeholder="$t('teacher.add-unit-plan.input-new-tag')" v-model="newTag" class="new-tag-input" @keyup.enter="handleAddNewTag"/>
+              <div class="knowledge-tag">
+                <div class="tag-list-container">
+                  <div class="tag-list" v-show="!loadingKnowledge">
+                    <div class="tag-item input-tag-item" v-show="showNewTagInput">
+                      <a-input :placeholder="$t('teacher.add-unit-plan.input-new-tag')" v-model="newTag" class="new-tag-input" @keyup.enter="handleAddNewTag"/>
+                    </div>
+                    <div :class="{'tag-item': true, 'active-item': selectedKnowledgeTagIdList.indexOf(knowledgeTag.id) !== -1}" v-for="(knowledgeTag,index) in knowledgeTags" :key="index" @click="handleSelectKnowledgeTag(knowledgeTag)">
+                      <a-tooltip placement="leftTop">
+                        <template slot="title">{{ knowledgeTag.name }}</template>
+                        {{ knowledgeTag.name }}
+                      </a-tooltip>
+                      <a-icon type="check" class="tag-more" v-if="selectedKnowledgeTagIdList.indexOf(knowledgeTag.id) !== -1"/>
+                    </div>
                   </div>
-                  <div :class="{'tag-item': true, 'active-item': selectedKnowledgeTags.indexOf(knowledgeTag.id) !== -1}" v-for="(knowledgeTag,index) in knowledgeTags" :key="index" @click="handleSelectKnowledgeTag(knowledgeTag)">
-                    <a-tooltip placement="leftTop">
-                      <template slot="title">{{ knowledgeTag.name }}</template>
-                      {{ knowledgeTag.name }}
-                    </a-tooltip>
-                    <a-icon type="check" class="tag-more" v-if="selectedKnowledgeTags.indexOf(knowledgeTag.id) !== -1"/>
-                  </div>
+                  <a-spin v-show="loadingKnowledge" class="spin-loading"/>
                 </div>
               </div>
             </div>
           </div>
-        </div>
-      </a-col>
-    </a-row>
+        </a-col>
+      </a-row>
+    </div>
+    <div class="tag-list-show">
+      <a-row :gutter="10" v-for="(knowledgeTag,index) in selectedKnowledgeTags" :key="index" class="tag-line">
+        <a-col span="5" class="tag-name-col">
+          <span class="tag-name tag-show-item">
+            <a-icon type="tag" class="tag-name-icon"/>
+            <tooltip placement="top">
+              <template slot="title">{{ knowledgeTag.name }}</template>
+              {{ knowledgeTag.name }}
+            </tooltip>
+          </span>
+        </a-col>
+        <a-col span="17" class="tag-name-col">
+          <span class="tag-description  tag-show-item">
+            {{ knowledgeTag.description }}
+          </span>
+        </a-col>
+        <a-col span="2" class="tag-action-col">
+          <span class="tag-action">
+            <a-icon type="delete" @click="handleDeleteTag(knowledgeTag)"/>
+          </span>
+        </a-col>
+      </a-row>
+    </div>
   </div>
 </template>
 
 <script>
 import * as logger from '@/utils/logger'
-import { KnowledgeAddOrUpdateTag, KnowledgeGetTree } from '@/api/knowledge'
+import { KnowledgeAddOrUpdateTag, KnowledgeGetTree, KnowledgeQueryTagsByKnowledgeId } from '@/api/knowledge'
 
 export default {
   name: 'KnowledgeTag',
   props: {
+    questionIndex: {
+      type: String,
+      default: ''
+    },
     gradeList: {
       type: Array,
       default: () => []
@@ -132,7 +162,7 @@ export default {
       type: String,
       default: ''
     },
-    defaultKnowledgeTags: {
+    selectedKnowledgeTags: {
       type: Array,
       default: () => []
     }
@@ -154,18 +184,21 @@ export default {
       knowledgeTree: [],
       knowledgeTreeChild: [],
       knowledgeTags: [],
-      selectedKnowledgeTags: [],
+      selectedKnowledgeTagIdList: [],
       knowledgeLoading: false,
 
       newTag: '',
-      showNewTagInput: false
+      showNewTagInput: false,
+      loadingKnowledge: false,
+      tagObjData: {},
+      currentSubKnowledge: { }
     }
   },
   created () {
     this.gradeId = this.defaultGradeId
     this.mainSubjectId = this.defaultMainSubjectId
     this.subSubjectId = this.defaultSubSubjectId
-    this.selectedKnowledgeTags = this.defaultKnowledgeTags
+    this.selectedKnowledgeTagIdList = this.selectedKnowledgeTags.map(knowledgeTag => knowledgeTag.id)
   },
   methods: {
     handleSelectGrade (grade) {
@@ -213,7 +246,7 @@ export default {
       this.knowledgeTree = []
       this.knowledgeTreeChild = []
       this.knowledgeTags = []
-      this.selectedKnowledgeTags = []
+      this.selectedKnowledgeTagIdList = []
       this.showNewTagInput = false
     },
 
@@ -244,31 +277,40 @@ export default {
     resetSubKnowledgeTags () {
       this.knowledgeTreeChild = []
       this.showNewTagInput = false
-      this.resetKnowledgeTags()
     },
 
     handleSelectSubKnowledgeItem (subKnowledgeItem) {
       logger.info('handleSelectSubKnowledgeItem', subKnowledgeItem)
       if (subKnowledgeItem.id !== this.subKnowledgeId) {
         this.subKnowledgeId = subKnowledgeItem.id
-        this.resetKnowledgeTags()
         this.knowledgeTags = subKnowledgeItem.tags
+        this.currentSubKnowledge = subKnowledgeItem
         this.showNewTagInput = true
       }
     },
 
-    resetKnowledgeTags () {
-      this.knowledgeTags = []
-    },
-
     handleSelectKnowledgeTag (knowledgeTag) {
       logger.info('handleSelectKnowledgeTag', knowledgeTag)
-      if (this.selectedKnowledgeTags.indexOf(knowledgeTag.id) === -1) {
-        this.selectedKnowledgeTags.push(knowledgeTag.id)
+      if (this.selectedKnowledgeTagIdList.indexOf(knowledgeTag.id) === -1) {
+        this.$set(this.tagObjData, knowledgeTag.id, Object.assign({}, this.currentSubKnowledge))
+        this.selectedKnowledgeTagIdList.push(knowledgeTag.id)
+        this.$emit('add-knowledge-tag', {
+          questionIndex: this.questionIndex,
+          id: knowledgeTag.id,
+          name: knowledgeTag.name,
+          description: this.currentSubKnowledge.name
+        })
+        logger.info('tagObjData', this.tagObjData)
       } else {
-        logger.info('before remove knowledgeTags', this.selectedKnowledgeTags, this.selectedKnowledgeTags.indexOf(knowledgeTag.id))
-        this.selectedKnowledgeTags.splice(this.selectedKnowledgeTags.indexOf(knowledgeTag.id), 1)
-        logger.info('after remove knowledgeTags', this.selectedKnowledgeTags)
+        logger.info('before remove knowledgeTags', this.selectedKnowledgeTagIdList, this.selectedKnowledgeTagIdList.indexOf(knowledgeTag.id))
+        this.selectedKnowledgeTagIdList.splice(this.selectedKnowledgeTagIdList.indexOf(knowledgeTag.id), 1)
+        this.$delete(this.tagObjData, knowledgeTag.id)
+        this.$emit('remove-knowledge-tag', {
+          questionIndex: this.questionIndex,
+          id: knowledgeTag.id
+        })
+        logger.info('tagObjData', this.tagObjData)
+        logger.info('after delete knowledgeTags', this.selectedKnowledgeTagIdList)
       }
     },
 
@@ -279,9 +321,37 @@ export default {
         name: this.newTag
       }).then(response => {
         logger.info('KnowledgeAddOrUpdateTag', response)
-        this.getKnowledgeTree()
         this.newTag = ''
+        this.refreshKnowledgeTags()
       })
+    },
+
+    refreshKnowledgeTags () {
+      this.loadingKnowledge = true
+      logger.info('refreshKnowledgeTags')
+      KnowledgeQueryTagsByKnowledgeId({
+        knowledgeId: this.subKnowledgeId
+      }).then(response => {
+        logger.info('KnowledgeQueryTagsByKnowledgeId', response)
+        this.knowledgeTags = response.result
+      }).finally(() => {
+        this.loadingKnowledge = false
+      })
+    },
+
+    handleDeleteTag (knowledgeTag) {
+      logger.info('handleDeleteTag', knowledgeTag)
+      if (this.selectedKnowledgeTagIdList.indexOf(knowledgeTag.id) === -1) {
+        logger.info('before delete knowledgeTags', this.selectedKnowledgeTagIdList, this.selectedKnowledgeTagIdList.indexOf(knowledgeTag.id))
+        this.selectedKnowledgeTagIdList.splice(this.selectedKnowledgeTagIdList.indexOf(knowledgeTag.id), 1)
+        this.$delete(this.tagObjData, knowledgeTag.id)
+        this.$emit('remove-knowledge-tag', {
+          questionIndex: this.questionIndex,
+          id: knowledgeTag.id
+        })
+        logger.info('tagObjData', this.tagObjData)
+        logger.info('after delete knowledgeTags', this.selectedKnowledgeTagIdList)
+      }
     }
   }
 }
@@ -410,6 +480,46 @@ export default {
       .new-tag-input {
         outline: none;
         border: none;
+      }
+    }
+  }
+}
+
+.tag-list-show {
+  padding-top: 15px;
+  .tag-line {
+    padding: 5px 0;
+    cursor: pointer;
+
+    &:hover {
+      color:  @select-item-selected-color;
+      background-color: fade(@outline-color, 5%);
+    }
+
+    .tag-show-item {
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      word-break: break-all;
+      font-size: 16px;
+    }
+
+    .tag-name-col {
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      word-break: break-all;
+    }
+
+    .tag-name-icon {
+      padding-right: 5px;
+    }
+
+    .tag-action-col {
+      text-align: right;
+
+      .tag-action {
+        padding-right: 10px;
       }
     }
   }

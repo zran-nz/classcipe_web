@@ -8,7 +8,7 @@ export default {
   'teacher.add-unit-plan.material': 'Material',
   'teacher.add-unit-plan.assessment': 'Assessment',
   'teacher.add-unit-plan.lesson': 'Lesson',
-  'teacher.add-unit-plan.add-to-this-topic': 'Add to this topic',
+  'teacher.add-unit-plan.add-to-this-unit-plan': 'add to this unit plan',
   'teacher.add-unit-plan.unit-name': 'Unit plan name',
   'teacher.add-unit-plan.image': 'Image',
   'teacher.add-unit-plan.upload-a-picture': 'Upload a picture',

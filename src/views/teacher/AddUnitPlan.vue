@@ -45,7 +45,7 @@
           <a-divider />
           <div class="unit-add-to">
             <a-dropdown>
-              <a-button type="primary" block> <a-icon type="plus" /> {{ $t('teacher.add-unit-plan.add-to-this-topic') }} </a-button>
+              <a-button type="primary" block> <a-icon type="plus" /> {{ $t('teacher.add-unit-plan.add-to-this-unit-plan') }} </a-button>
               <a-menu slot="overlay">
                 <a-menu-item>
                   {{ $t('teacher.add-unit-plan.material') }}
@@ -241,12 +241,15 @@
                 <a-row>
                   <a-col offset="4" span="18">
                     <knowledge-tag
+                      :question-index="questionIndex"
                       :grade-list="gradeList"
                       :subject-tree="subjectTree"
-                      :default-grade-id="questionIndex.knowledgeGradeId"
-                      :default-main-subject-id="questionIndex.knowledgeMainSubjectId"
-                      :default-sub-subject-id="questionIndex.knowledgeSubSubjectId"
-                      :default-knowledge-tags="questionIndex.knowledgeTags"
+                      :default-grade-id="questionItem.knowledgeGradeId"
+                      :default-main-subject-id="questionItem.knowledgeMainSubjectId"
+                      :default-sub-subject-id="questionItem.knowledgeSubSubjectId"
+                      :selected-knowledge-tags="questionItem.knowledgeTags"
+                      @remove-knowledge-tag="handleRemoveKnowledgeTag"
+                      @add-knowledge-tag="handleAddKnowledgeTag"
                     />
                   </a-col>
                 </a-row>
@@ -564,6 +567,24 @@ export default {
       this.$set(this.questionDataObj, questionIndex, null)
       this.questionTotal--
       logger.info('questionDataObj ', this.questionDataObj)
+    },
+
+    handleRemoveKnowledgeTag (data) {
+      logger.info('Unit Plan handleRemoveKnowledgeTag', data)
+      logger.info('target question data', this.questionDataObj[data.questionIndex.knowledgeTags])
+      this.questionDataObj[data.questionIndex].knowledgeTags = this.questionDataObj[data.questionIndex].knowledgeTags.filter(item => item.id !== data.id)
+      logger.info('Unit Plan after handleRemoveKnowledgeTag ', this.questionDataObj[data.questionIndex].knowledgeTags)
+    },
+
+    handleAddKnowledgeTag (data) {
+      logger.info('Unit Plan handleAddKnowledgeTag', data)
+      logger.info('target question data', this.questionDataObj[data.questionIndex])
+      const newTag = {
+        description: data.description,
+        id: data.id,
+        name: data.name
+      }
+      this.questionDataObj[data.questionIndex].knowledgeTags.push(newTag)
     }
   }
 }
