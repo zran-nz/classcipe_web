@@ -107,7 +107,7 @@
 
 <script>
 import * as logger from '@/utils/logger'
-import { KnowledgeGetTree } from '@/api/knowledge'
+import { KnowledgeAddOrUpdateTag, KnowledgeGetTree } from '@/api/knowledge'
 
 export default {
   name: 'KnowledgeTag',
@@ -274,6 +274,14 @@ export default {
 
     handleAddNewTag () {
       logger.info('handleAddNewTag', this.newTag)
+      KnowledgeAddOrUpdateTag({
+        knowledgeId: this.subKnowledgeId,
+        name: this.newTag
+      }).then(response => {
+        logger.info('KnowledgeAddOrUpdateTag', response)
+        this.getKnowledgeTree()
+        this.newTag = ''
+      })
     }
   }
 }
