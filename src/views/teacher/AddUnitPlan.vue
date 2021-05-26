@@ -530,6 +530,25 @@ export default {
             })
           }
 
+        if (unitPlanData.questions && unitPlanData.questions.length) {
+          unitPlanData.questions.forEach(questionItem => {
+            const question = {
+              questionId: questionItem.id,
+              name: questionItem.name,
+              knowledgeMainSubjectId: '',
+              knowledgeSubSubjectId: '',
+              knowledgeGradeId: '',
+              knowledgeTags: questionItem.knowledgeTags,
+              skillGradeId: '',
+              skillTags: questionItem.skillTags
+            }
+            this.$set(this.questionDataObj, this.questionPrefix + this.questionMaxIndex, question)
+            logger.info('restore questionDataObj: ' + (this.questionPrefix + this.questionMaxIndex), question, ' questionDataObj ', this.questionDataObj)
+            this.questionMaxIndex = this.questionMaxIndex + 1
+            this.questionTotal = this.questionTotal + 1
+          })
+        }
+
         this.form = unitPlanData
         logger.info('after restoreUnitPlan', this.form, this.sdgDataObj, this.questionDataObj)
       }).finally(() => {
