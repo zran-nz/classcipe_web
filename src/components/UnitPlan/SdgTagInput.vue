@@ -2,7 +2,7 @@
   <div :class="{'tag-input-wrapper': true, 'active': active, 'tag-dom': true}" @click="handleFocusInput">
     <div class="tag-input-list tag-dom">
       <div class="tag-list tag-dom">
-        <div class="tag-item tag-dom" v-for="(tag,index) in tagList" :key="index">
+        <div class="tag-item tag-dom" v-for="(tag,index) in selectedKeywords" :key="index">
           <a-tag :color="tagColorList[index % tagColorList.length]" closable @close="handleCloseTag(tag)" class="tag-dom">
             {{ tag }}
           </a-tag>
@@ -28,7 +28,7 @@ import * as logger from '@/utils/logger'
 export default {
   name: 'SdgTagInput',
   props: {
-    tagList: {
+    selectedKeywords: {
       type: Array,
       default: () => []
     },
@@ -65,25 +65,25 @@ export default {
     handleAddTag () {
       logger.info('handleAddTag ' + this.sdgKey + ' ' + this.inputValue)
       if (this.inputValue && this.inputValue.trim().length) {
-        const tag = this.inputValue.trim()
-        if (this.tagList.indexOf(tag) === -1) {
+        const tagName = this.inputValue.trim()
+        if (this.selectedKeywords.indexOf(tagName) === -1) {
           this.$emit('add-tag', {
             sdgKey: this.sdgKey,
-            tag
+            tagName
           })
         } else {
-          logger.info('skip! input value ' + tag + ' exist in', this.tagList)
+          logger.info('skip! input value ' + tagName + ' exist in', this.selectedKeywords)
         }
       } else {
         logger.info('skip! input value empty')
       }
       this.inputValue = ''
     },
-    handleCloseTag (tag) {
-      logger.info('handleCloseTag ' + this.sdgKey + ' ' + tag)
+    handleCloseTag (tagName) {
+      logger.info('handleCloseTag ' + this.sdgKey + ' ' + tagName)
       this.$emit('remove-tag', {
         sdgKey: this.sdgKey,
-        tag
+        tagName
       })
     },
 

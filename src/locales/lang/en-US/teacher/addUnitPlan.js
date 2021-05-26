@@ -1,7 +1,9 @@
 export default {
   'teacher.add-unit-plan.back': 'Back',
   'teacher.add-unit-plan.publish': 'Publish',
+  'teacher.add-unit-plan.publish-success': 'Publish Success',
   'teacher.add-unit-plan.save': 'Save',
+  'teacher.add-unit-plan.save-success': 'Save',
   'teacher.add-unit-plan.last-change-saved-at-time': 'last change saved at {time}',
   'teacher.add-unit-plan.default-unit-plan-name': 'Unnamed plan',
   'teacher.add-unit-plan.unit-plan': 'Unit plan',
@@ -12,6 +14,7 @@ export default {
   'teacher.add-unit-plan.unit-name': 'Unit plan name',
   'teacher.add-unit-plan.image': 'Image',
   'teacher.add-unit-plan.upload-a-picture': 'Upload a picture',
+  'teacher.add-unit-plan.click-to-upload': 'Click to upload',
   'teacher.add-unit-plan.about-the-scenario': 'About the Scenario',
   'teacher.add-unit-plan.description': 'Description',
   'teacher.add-unit-plan.sdg': 'SDG',

@@ -10,6 +10,7 @@
             </span>
             <a-divider type="vertical" v-if="!!form.name" />
             {{ $t('teacher.add-unit-plan.last-change-saved-at-time', {time: lastChangeSavedTime}) }}
+            <a-divider type="vertical" />
           </span>
         </a-space>
       </a-col>
@@ -48,7 +49,9 @@
               <a-button type="primary" block> <a-icon type="plus" /> {{ $t('teacher.add-unit-plan.add-to-this-unit-plan') }} </a-button>
               <a-menu slot="overlay">
                 <a-menu-item>
-                  {{ $t('teacher.add-unit-plan.material') }}
+                  <a @click="handleAddUnitPlanMaterial">
+                    {{ $t('teacher.add-unit-plan.material') }}
+                  </a>
                 </a-menu-item>
                 <a-menu-item>
                   {{ $t('teacher.add-unit-plan.assessment') }}
@@ -62,8 +65,8 @@
         </div>
       </a-col>
       <a-col span="15" class="main-content">
-        <a-card :bordered="false" :loading="contentLoading" :style="{ borderLeft: '1px solid rgb(235, 238, 240)', borderRight: '1px solid rgb(235, 238, 240)' }" :body-style="{padding: '16px'}">
-          <a-form-model :model="form" :label-col="labelCol" :wrapper-col="wrapperCol">
+        <a-card v-if="!contentLoading" :bordered="false" :style="{ borderLeft: '1px solid rgb(235, 238, 240)', borderRight: '1px solid rgb(235, 238, 240)' }" :body-style="{padding: '16px'}">
+          <a-form-model :model="form" :label-col="labelCol" :wrapper-col="wrapperCol" >
             <div class="form-block">
               <!--              unit-name-->
               <a-form-model-item :label="$t('teacher.add-unit-plan.unit-name')">
@@ -121,10 +124,10 @@
               <a-form-model-item :label="$t('teacher.add-unit-plan.description')">
                 <input-search
                   :default-value="form.scenario.description"
-                  :search-list.sync="descriptionSearchList"
+                  :search-list="descriptionSearchList"
                   label="description"
                   @search="handleDescriptionSearch"
-                  @selectItem="handleSelectScenario"
+                  @select-item="handleSelectScenario"
                   @reset="descriptionSearchList = []" />
               </a-form-model-item>
               <!--sdg and KeyWords-->
@@ -156,7 +159,7 @@
                 </a-form-model-item>
                 <!--keywords-->
                 <a-form-model-item :label="$t('teacher.add-unit-plan.key-words')">
-                  <sdg-tag-input :tag-list.sync="sdgItem.defaultKeywords" :sdg-key.sync="sdgIndex" @add-tag="handleAddSdgTag" @remove-tag="handleRemoveSdgTag"/>
+                  <sdg-tag-input :selected-keywords="sdgItem.selectedKeywords" :sdg-key="sdgIndex" @add-tag="handleAddSdgTag" @remove-tag="handleRemoveSdgTag"/>
                 </a-form-model-item>
               </div>
               <!--add-more-sdg-->
@@ -275,13 +278,20 @@
                 </a-col>
               </a-row>
             </div>
+            <div class="form-block action-line">
+              <a-space :size="30">
+                <a-button @click="handleSaveUnitPlan"> <a-icon type="save" /> {{ $t('teacher.add-unit-plan.save') }}</a-button>
+                <a-button type="primary" @click="handlePublishUnitPlan"> <a-icon type="cloud-upload" /> {{ $t('teacher.add-unit-plan.publish') }}</a-button>
+              </a-space>
+            </div>
 
           </a-form-model>
         </a-card>
+        <a-skeleton :loading="contentLoading" active>
+        </a-skeleton>
       </a-col>
       <a-col span="6" class="right-reference-view">
         <a-card :bordered="false" :loading="referenceLoading">
-          ss
         </a-card>
       </a-col>
     </a-row>
@@ -303,6 +313,7 @@ import { SubjectTree } from '@/api/subject'
 import { formatSubjectTree } from '@/utils/bizUtil'
 import KnowledgeTag from '@/components/UnitPlan/KnowledgeTag'
 import SkillTag from '@/components/UnitPlan/SkillTag'
+import { ChangeStatus, UnitPlanAddOrUpdate, UnitPlanQueryById } from '@/api/unitPlan'
 
 export default {
   name: 'AddUnitPlan',
@@ -312,6 +323,10 @@ export default {
     SdgTagInput,
     KnowledgeTag,
     SkillTag
+  },
+  props: {
+    // eslint-disable-next-line vue/require-default-prop
+    unitPlanId: null
   },
   data () {
     return {
@@ -361,7 +376,9 @@ export default {
               sdgId: ''
             }
           ]
-        }
+        },
+        createTime: '',
+        updateTime: ''
       },
 
       uploading: false,
@@ -389,8 +406,8 @@ export default {
       sdgDataObj: {
         __sdg_1: {
           sdgId: null,
-          keywords: [],
-          defaultKeywords: []
+          originKeywords: [],
+          selectedKeywords: []
         }
       },
 
@@ -425,10 +442,11 @@ export default {
   },
   computed: {
     lastChangeSavedTime () {
-      return '12:32 Today'
+      return this.form.updateTime || this.form.createTime
     }
   },
   created () {
+    logger.info('unitPlanId ' + this.unitPlanId + ' ' + this.$route.path)
     this.initData()
     this.debouncedGetSdgByDescription = debounce(this.searchScenario, 300)
   },
@@ -471,19 +489,54 @@ export default {
           this.subjectTree = subjectTree
           logger.info('after format subjectTree', subjectTree)
         }
-        this.contentLoading = false
-        this.referenceLoading = false
         logger.info('sdgList', this.sdgList)
+      }).then(() => {
+        this.restoreUnitPlan(this.unitPlanId, true)
       }).catch(() => {
         this.$message.error(this.$t('teacher.add-unit-plan.init-data-failed'))
+      }).finally(() => {
+        this.referenceLoading = false
       })
     },
-    handleSaveUnitPlan () {
-      logger.info('handleSaveUnitPlan')
+
+    restoreUnitPlan (unitPlanId, isFirstLoad) {
+      if (isFirstLoad) {
+        this.contentLoading = true
+      }
+      logger.info('restoreUnitPlan ' + unitPlanId)
+      UnitPlanQueryById({
+        id: unitPlanId
+      }).then(response => {
+        logger.info('UnitPlanQueryById ' + unitPlanId, response.result)
+        const unitPlanData = response.result
+        if (!unitPlanData.scenario) {
+          unitPlanData.scenario = {
+            description: '',
+            sdgKeyWords: []
+          }
+        }
+
+        if (unitPlanData.scenario && unitPlanData.scenario.sdgKeyWords && unitPlanData.scenario.sdgKeyWords.length) {
+            unitPlanData.scenario.sdgKeyWords.forEach((sdgKeyword, index) => {
+              const sdg = {
+                sdgId: sdgKeyword.sdgId,
+                originKeywords: sdgKeyword.keywords || [],
+                selectedKeywords: (sdgKeyword.keywords || []).map(item => item.name)
+              }
+              this.$set(this.sdgDataObj, this.sdgPrefix + this.sdgMaxIndex, sdg)
+              logger.info('restore scenarioObj: ' + (this.sdgPrefix + this.sdgMaxIndex), sdg, ' sdgDataObj ', this.sdgDataObj)
+              this.sdgMaxIndex = this.sdgMaxIndex + 1
+              this.sdgTotal = this.sdgTotal + 1
+            })
+          }
+
+        this.form = unitPlanData
+        logger.info('after restoreUnitPlan', this.form, this.sdgDataObj, this.questionDataObj)
+      }).finally(() => {
+        this.contentLoading = false
+      })
     },
-    handlePublishUnitPlan () {
-      logger.info('handlePublishUnitPlan')
-    },
+
     handleUploadImage (data) {
       logger.info('handleUploadImage', data)
       const formData = new FormData()
@@ -522,57 +575,61 @@ export default {
 
     // 由于Vue无法响应式处理数据元素，此处通过将数据转为scenarioObj的属性进行处理
     handleSelectScenario (scenario) {
-      logger.info('handleSelectScenario', scenario, this.sdgMaxIndex)
+      logger.info('handleSelectScenario', scenario, ' sdgMaxIndex ' + this.sdgMaxIndex, ' sdgTotal ' + this.sdgTotal)
+      this.form.scenario.description = scenario.description
+      this.form.scenario.id = scenario.id
       if (this.sdgTotal === 1) {
         const sdg = scenario.sdgKeyWords[0]
-        sdg.defaultKeywords = sdg.keywords.map(keyword => keyword.name)
+        sdg.selectedKeywords = sdg.keywords.map(keyword => keyword.name)
+        sdg.originKeywords = sdg.keywords
         logger.info('sdg', sdg)
-        this.$set(this.sdgDataObj, this.sdgPrefix + this.sdgMaxIndex, sdg)
-        this.sdgMaxIndex++
-        this.sdgTotal++
-        logger.info('after select scenarioObj: ', this.sdgDataObj, this.sdgMaxIndex)
+        const sdgIndex = Object.keys(this.sdgDataObj)[0]
+        logger.info('sdgIndex', sdgIndex)
+        this.$set(this.sdgDataObj, sdgIndex, sdg)
+        logger.info('after select scenarioObj: ', this.sdgDataObj, 'sdgMaxIndex ' + this.sdgMaxIndex, ' sdgTotal ' + this.sdgTotal)
       } else {
-        logger.info('not use auto fill, becasue scenarioMaxIndex ' + this.sdgTotal)
+        logger.info('not use auto fill, because sdgTotal ' + this.sdgTotal)
       }
     },
 
     handleAddMoreSdg () {
       const sdg = {
         sdgId: null,
-        keywords: [],
-        defaultKeywords: []
+        originKeywords: [],
+        selectedKeywords: []
       }
-      logger.info('handleAddMoreSdg ', sdg)
-      this.sdgMaxIndex++
-      this.sdgTotal++
+      logger.info('handleAddMoreSdg ', sdg, ' sdgMaxIndex ' + this.sdgMaxIndex, ' sdgTotal ' + this.sdgTotal)
+      this.sdgMaxIndex = this.sdgMaxIndex + 1
+      this.sdgTotal = this.sdgTotal + 1
       this.$set(this.sdgDataObj, this.sdgPrefix + this.sdgMaxIndex, sdg)
+      logger.info('after add scenarioObj: ', this.sdgDataObj, 'sdgMaxIndex ' + this.sdgMaxIndex, ' sdgTotal ' + this.sdgTotal)
     },
 
     handleDeleteSdg (sdgItem, sdgIndex) {
-      logger.info('handleDeleteSdg ', sdgItem, sdgIndex)
+      logger.info('handleDeleteSdg ', sdgItem, sdgIndex, 'sdgTotal' + this.sdgTotal)
       if (this.sdgTotal > 1) {
         this.$delete(this.sdgDataObj, sdgIndex)
-        this.sdgTotal--
-        logger.info('sdgDataObj ', this.sdgDataObj)
+        this.sdgTotal = this.sdgTotal - 1
+        logger.info('sdgDataObj ', this.sdgDataObj, 'sdgTotal ' + this.sdgTotal)
       } else {
         this.$message.warn(this.$t('teacher.add-unit-plan.at-least-one-sdg'))
       }
     },
 
     handleAddSdgTag (data) {
-      const tag = data.tag
+      const tagName = data.tagName
       const sdgKey = data.sdgKey
-      logger.info('handleAddSdgTag ', tag, sdgKey)
-      this.sdgDataObj[sdgKey].defaultKeywords.push(tag)
-      logger.info('after handleAddSdgTag ', this.sdgDataObj[sdgKey].defaultKeywords)
+      logger.info('handleAddSdgTag ', tagName, sdgKey)
+      this.sdgDataObj[sdgKey].selectedKeywords.push(tagName)
+      logger.info('after handleAddSdgTag ', this.sdgDataObj[sdgKey].selectedKeywords)
     },
 
     handleRemoveSdgTag (data) {
-      const tag = data.tag
+      const tagName = data.tagName
       const sdgKey = data.sdgKey
-      logger.info('handleRemoveSdgTag ', tag, sdgKey)
-      this.sdgDataObj[sdgKey].defaultKeywords.splice(this.sdgDataObj[sdgKey].defaultKeywords.indexOf(tag), 1)
-      logger.info('after handleRemoveSdgTag ', this.sdgDataObj[sdgKey].defaultKeywords)
+      logger.info('handleRemoveSdgTag ', tagName, sdgKey)
+      this.sdgDataObj[sdgKey].selectedKeywords.splice(this.sdgDataObj[sdgKey].selectedKeywords.indexOf(tagName), 1)
+      logger.info('after handleRemoveSdgTag ', this.sdgDataObj[sdgKey].selectedKeywords)
     },
 
     handleSelectSubject (subjects) {
@@ -590,7 +647,7 @@ export default {
       logger.info('handleDeleteQuestion ', questionItem, questionIndex)
       if (this.questionTotal > 1) {
         this.$delete(this.questionDataObj, questionIndex)
-        this.questionTotal--
+        this.questionTotal = this.questionTotal - 1
         logger.info('questionDataObj ', this.questionDataObj)
       } else {
         this.$message.warn(this.$t('teacher.add-unit-plan.at-least-one-question'))
@@ -627,8 +684,8 @@ export default {
         skillTags: []
       }
       logger.info('handleAddMoreQuestion ', question)
-      this.questionMaxIndex++
-      this.questionTotal++
+      this.questionMaxIndex = this.questionMaxIndex + 1
+      this.questionTotal = this.questionTotal + 1
       this.$set(this.questionDataObj, this.questionPrefix + this.questionMaxIndex, question)
     },
 
@@ -648,6 +705,93 @@ export default {
         name: data.name
       }
       this.questionDataObj[data.questionIndex].skillTags.push(newTag)
+    },
+
+    autoSave () {
+
+    },
+
+    handleSaveUnitPlan () {
+      logger.info('handleSaveUnitPlan', this.form, this.sdgDataObj, this.questionDataObj)
+
+      const unitPlanData = {
+        concepts: this.form.concepts,
+        image: this.form.image,
+        inquiry: this.form.inquiry,
+        name: this.form.name,
+        status: this.form.status,
+        subjects: this.form.subjects,
+        scenario: {
+          description: this.form.scenario.description,
+          sdgKeyWords: []
+        },
+        questions: []
+      }
+
+      if (this.unitPlanId) {
+        unitPlanData.id = this.unitPlanId
+      }
+      if (this.form.scenario.id) {
+        unitPlanData.scenario.id = this.form.scenario.id
+      }
+      logger.info('basic unitPlanData', unitPlanData)
+      for (const sdgIndex in this.sdgDataObj) {
+        const sdg = this.sdgDataObj[sdgIndex]
+        logger.info('sdg ' + sdgIndex, sdg)
+        const keywords = []
+        sdg.selectedKeywords.forEach(selectedKeyword => {
+          const existOriginKeyword = sdg.originKeywords.find(item => item.name.trim() === selectedKeyword.trim())
+          if (existOriginKeyword) {
+            logger.info('exist origin keyword [' + selectedKeyword + ']')
+            keywords.push(existOriginKeyword)
+          } else {
+            logger.info('new keyword [' + selectedKeyword + ']')
+            keywords.push({
+              name: selectedKeyword
+            })
+          }
+        })
+        logger.info('sdg scenario keywords', keywords)
+        unitPlanData.scenario.sdgKeyWords.push({
+          sdgId: sdg.sdgId,
+          keywords: keywords
+        })
+      }
+      logger.info('sdg unitPlanData', unitPlanData)
+      for (const questionIndex in this.questionDataObj) {
+        const question = this.questionDataObj[questionIndex]
+        logger.info('question ' + questionIndex, question)
+        unitPlanData.questions.push({
+          knowledgeTags: question.knowledgeTags,
+          skillTags: question.skillTags,
+          name: question.name
+        })
+      }
+      logger.info('question unitPlanData', unitPlanData)
+      UnitPlanAddOrUpdate(unitPlanData).then((response) => {
+        logger.info('UnitPlanAddOrUpdate', response.result)
+        this.restoreUnitPlan(response.result.id, false)
+      })
+    },
+    handlePublishUnitPlan () {
+      logger.info('handlePublishUnitPlan', {
+        id: this.unitPlanId,
+        status: 1
+      })
+      ChangeStatus({
+        id: this.unitPlanId,
+        status: 1
+      }).then(() => {
+        this.$message.success(this.$t('teacher.add-unit-plan.publish-success'))
+        this.form.status = 1
+      })
+    },
+
+    handleAddUnitPlanMaterial () {
+      logger.info('handleAddUnitPlanMaterial ' + this.unitPlanId)
+      this.$router.push({
+        path: '/teacher/add-unit-plan-material/' + this.unitPlanId
+      })
     }
   }
 }
@@ -735,6 +879,12 @@ export default {
     .form-block-action {
       padding-top: 20px;
       text-align: center;
+    }
+
+    .action-line {
+      padding: 50px 0;
+      display: flex;
+      justify-content: center;
     }
 
     .question-item {

@@ -222,6 +222,11 @@ export default {
     },
     handleViewDetail (item) {
       logger.info('handleViewDetail', item)
+      if (item.type === typeMap['unit-plan']) {
+        this.$router.push({
+          path: '/teacher/unit-plan/' + item.id
+        })
+      }
     }
   }
 }

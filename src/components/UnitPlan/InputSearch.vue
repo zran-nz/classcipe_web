@@ -43,6 +43,7 @@ export default {
   },
   created () {
     this.value = this.defaultValue
+    logger.info('inputSearch value', this.value)
   },
   methods: {
     handleClick (event) {
@@ -57,7 +58,7 @@ export default {
     handleSelectItem (item) {
       logger.info('handleSelectItem', item)
       this.value = item[this.label]
-      this.$emit('selectItem', item)
+      this.$emit('select-item', item)
       this.$emit('reset')
     },
     handleResetSearchList () {

@@ -241,8 +241,9 @@ export default {
       if (grandSubSkillItem.id !== this.mainSkillId) {
         this.resetSkillTags()
         this.grandSubSkillId = grandSubSkillItem.id
-        this.skillTags = grandSubSkillItem.tags
+        this.skillTags = []
         this.currentGrandSubSkill = grandSubSkillItem
+        this.refreshSkillTags()
       }
     },
 
