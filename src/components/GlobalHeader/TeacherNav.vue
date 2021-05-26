@@ -26,10 +26,10 @@
             Add new
           </a-button>
           <a-menu slot="overlay">
-            <a-menu-item>
-              <router-link to="/teacher/add-unit-plan">
+            <a-menu-item :disabled="creatingUnitPlan">
+              <a @click="goToUnitPlan">
                 Unit plan
-              </router-link>
+              </a>
             </a-menu-item>
             <a-menu-item>
               <router-link to="/teacher/add-instructional-content">
@@ -55,6 +55,7 @@
 <script>
 
 import * as logger from '@/utils/logger'
+import { UnitPlanAddOrUpdate } from '@/api/unitPlan'
 
 export default {
   name: 'TeacherNav',
@@ -62,7 +63,9 @@ export default {
     return {
       searchText: null,
       defaultSelectedKeys: [],
-      selectedKeys: []
+      selectedKeys: [],
+
+      creatingUnitPlan: false
     }
   },
   watch: {
@@ -78,6 +81,21 @@ export default {
     triggerSearch () {
       logger.info('teacher triggerSearch ' + this.searchText)
       this.$emit('triggerSearch', 'teacher', this.searchText)
+    },
+    goToUnitPlan () {
+      this.creatingUnitPlan = true
+      const unitPlanData = {
+        name: 'Unnamed Unit Plan'
+      }
+
+      UnitPlanAddOrUpdate(unitPlanData).then((response) => {
+        logger.info('creatingUnitPlan response', response.result)
+        this.$router.push({
+          path: '/teacher/unit-plan/' + response.result.id
+        })
+      }).finally(() => {
+        this.creatingUnitPlan = false
+      })
     }
   }
 }
