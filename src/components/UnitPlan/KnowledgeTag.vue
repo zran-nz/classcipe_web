@@ -110,10 +110,10 @@
         <a-col span="5" class="tag-name-col">
           <span class="tag-name tag-show-item">
             <a-icon type="tag" class="tag-name-icon"/>
-            <tooltip placement="top">
+            <a-tooltip placement="top">
               <template slot="title">{{ knowledgeTag.name }}</template>
               {{ knowledgeTag.name }}
-            </tooltip>
+            </a-tooltip>
           </span>
         </a-col>
         <a-col span="17" class="tag-name-col">
@@ -340,7 +340,7 @@ export default {
 
     handleDeleteTag (knowledgeTag) {
       logger.info('handleDeleteTag', knowledgeTag)
-      if (this.selectedKnowledgeTagIdList.indexOf(knowledgeTag.id) === -1) {
+      if (this.selectedKnowledgeTagIdList.indexOf(knowledgeTag.id) !== -1) {
         logger.info('before delete knowledgeTags', this.selectedKnowledgeTagIdList, this.selectedKnowledgeTagIdList.indexOf(knowledgeTag.id))
         this.selectedKnowledgeTagIdList.splice(this.selectedKnowledgeTagIdList.indexOf(knowledgeTag.id), 1)
         this.$delete(this.tagObjData, knowledgeTag.id)
@@ -350,6 +350,8 @@ export default {
         })
         logger.info('tagObjData', this.tagObjData)
         logger.info('after delete knowledgeTags', this.selectedKnowledgeTagIdList)
+      } else {
+        logger.info('no found target delete knowledgeTag', knowledgeTag)
       }
     }
   }

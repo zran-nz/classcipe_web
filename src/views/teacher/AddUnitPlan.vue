@@ -129,12 +129,12 @@
               </a-form-model-item>
               <!--sdg and KeyWords-->
               <div class="content-blocks" v-for="(sdgItem, sdgIndex) in sdgDataObj" :key="sdgIndex" v-if="sdgItem !== null">
-                <div class="sdg-delete-wrapper">
+                <div class="sdg-delete-wrapper" @click="handleDeleteSdg(sdgItem, sdgIndex)" v-show="sdgTotal > 1">
                   <a-tooltip placement="top">
                     <template slot="title">
                       <span>{{ $t('teacher.add-unit-plan.delete-sdg') }}</span>
                     </template>
-                    <div class="sdg-delete" @click="handleDeleteSdg(sdgItem, sdgIndex)">
+                    <div class="sdg-delete">
                       <a-icon type="delete" :style="{ fontSize: '20px' }" />
                     </div>
                   </a-tooltip>
@@ -214,12 +214,12 @@
                 </a-col>
               </a-row>
               <div class="content-blocks question-item" v-for="(questionItem, questionIndex) in questionDataObj" :key="questionIndex" v-if="questionItem !== null">
-                <div class="knowledge-delete-wrapper">
+                <div class="knowledge-delete-wrapper" @click="handleDeleteQuestion(questionItem, questionIndex)" v-show="questionTotal > 1">
                   <a-tooltip placement="top">
                     <template slot="title">
                       <span>{{ $t('teacher.add-unit-plan.delete-questions') }}</span>
                     </template>
-                    <div class="sdg-delete" @click="handleDeleteQuestion(questionItem, questionIndex)">
+                    <div class="sdg-delete">
                       <a-icon type="delete" :style="{ fontSize: '20px' }" />
                     </div>
                   </a-tooltip>
@@ -256,6 +256,16 @@
 
                 <!--skill tag-select-->
               </div>
+
+              <a-row>
+                <a-col offset="2" span="20">
+                  <div class="form-block-title form-block-action">
+                    <a-button type="link" icon="plus-circle" @click="handleAddMoreQuestion">
+                      {{ $t('teacher.add-unit-plan.add-more-question') }}
+                    </a-button>
+                  </div>
+                </a-col>
+              </a-row>
             </div>
 
           </a-form-model>
@@ -530,9 +540,13 @@ export default {
 
     handleDeleteSdg (sdgItem, sdgIndex) {
       logger.info('handleDeleteSdg ', sdgItem, sdgIndex)
-      this.$set(this.sdgDataObj, sdgIndex, null)
-      this.sdgTotal--
-      logger.info('sdgDataObj ', this.sdgDataObj)
+      if (this.sdgTotal > 1) {
+        this.$delete(this.sdgDataObj, sdgIndex)
+        this.sdgTotal--
+        logger.info('sdgDataObj ', this.sdgDataObj)
+      } else {
+        this.$message.warn(this.$t('teacher.add-unit-plan.at-least-one-sdg'))
+      }
     },
 
     handleAddSdgTag (data) {
@@ -564,9 +578,13 @@ export default {
 
     handleDeleteQuestion (questionItem, questionIndex) {
       logger.info('handleDeleteQuestion ', questionItem, questionIndex)
-      this.$set(this.questionDataObj, questionIndex, null)
-      this.questionTotal--
-      logger.info('questionDataObj ', this.questionDataObj)
+      if (this.questionTotal > 1) {
+        this.$delete(this.questionDataObj, questionIndex)
+        this.questionTotal--
+        logger.info('questionDataObj ', this.questionDataObj)
+      } else {
+        this.$message.warn(this.$t('teacher.add-unit-plan.at-least-one-question'))
+      }
     },
 
     handleRemoveKnowledgeTag (data) {
@@ -585,6 +603,23 @@ export default {
         name: data.name
       }
       this.questionDataObj[data.questionIndex].knowledgeTags.push(newTag)
+    },
+
+    handleAddMoreQuestion () {
+      const question = {
+        questionId: null,
+        name: '',
+        knowledgeMainSubjectId: '',
+        knowledgeSubSubjectId: '',
+        knowledgeGradeId: '',
+        knowledgeTags: [],
+        skillGrade: '',
+        skillTags: []
+      }
+      logger.info('handleAddMoreQuestion ', question)
+      this.questionMaxIndex++
+      this.questionTotal++
+      this.$set(this.questionDataObj, this.questionPrefix + this.questionMaxIndex, question)
     }
   }
 }
@@ -693,6 +728,7 @@ export default {
         height: 50px;
         cursor: pointer;
         color: @link-hover-color;
+        z-index: 1000;
       }
 
       &:hover {
@@ -709,16 +745,18 @@ export default {
         position: absolute;
         text-align: center;
         right: 15px;
-        top: 200px;
+        top: 180px;
         line-height: 50px;
         width: 50px;
         height: 50px;
         cursor: pointer;
         color: @link-hover-color;
+        z-index: 1000;
       }
 
       &:hover {
         border: 1px dotted @link-hover-color;
+        cursor: pointer;
         box-sizing: border-box;
         .knowledge-delete-wrapper {
           display: block;
