@@ -400,11 +400,11 @@ export default {
       descriptionSearchList: [],
 
       // 将scenario下面的sdg及keywords转成对象
-      sdgTotal: 1,
-      sdgMaxIndex: 1,
+      sdgTotal: 0,
+      sdgMaxIndex: 0,
       sdgPrefix: '__sdg_',
       sdgDataObj: {
-        __sdg_1: {
+        __sdg_0: {
           sdgId: null,
           originKeywords: [],
           selectedKeywords: []
@@ -412,11 +412,11 @@ export default {
       },
 
       // 将questions转成对象
-      questionTotal: 1,
-      questionMaxIndex: 1,
+      questionTotal: 0,
+      questionMaxIndex: 0,
       questionPrefix: '__question_',
       questionDataObj: {
-        __question_1: {
+        __question_0: {
           questionId: null,
           name: '',
           knowledgeMainSubjectId: '',
@@ -531,7 +531,15 @@ export default {
               this.sdgMaxIndex = this.sdgMaxIndex + 1
               this.sdgTotal = this.sdgTotal + 1
             })
+        } else {
+          const sdg = {
+            originKeywords: [],
+            selectedKeywords: []
           }
+          this.$set(this.sdgDataObj, this.sdgPrefix + this.sdgMaxIndex, sdg)
+          this.sdgMaxIndex = this.sdgMaxIndex + 1
+          this.sdgTotal = this.sdgTotal + 1
+        }
 
         const questionKeys = Object.keys(this.questionDataObj)
         questionKeys.forEach(questionKey => {
@@ -551,10 +559,24 @@ export default {
               skillTags: questionItem.skillTags
             }
             this.$set(this.questionDataObj, this.questionPrefix + this.questionMaxIndex, question)
-            logger.info('restore questionDataObj: ' + (this.questionPrefix + this.questionMaxIndex), question, ' questionDataObj ', this.questionDataObj)
+            logger.info('restore default questionDataObj: ' + (this.questionPrefix + this.questionMaxIndex), question, ' questionDataObj ', this.questionDataObj)
             this.questionMaxIndex = this.questionMaxIndex + 1
             this.questionTotal = this.questionTotal + 1
           })
+        } else {
+          const question = {
+            name: '',
+            knowledgeMainSubjectId: '',
+            knowledgeSubSubjectId: '',
+            knowledgeGradeId: '',
+            knowledgeTags: [],
+            skillGradeId: '',
+            skillTags: []
+          }
+          this.$set(this.questionDataObj, this.questionPrefix + this.questionMaxIndex, question)
+          logger.info('restore default questionDataObj: ' + (this.questionPrefix + this.questionMaxIndex), question, ' questionDataObj ', this.questionDataObj)
+          this.questionMaxIndex = this.questionMaxIndex + 1
+          this.questionTotal = this.questionTotal + 1
         }
 
         this.form = unitPlanData
