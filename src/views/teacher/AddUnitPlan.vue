@@ -237,24 +237,32 @@
                   <a-input v-model="questionItem.name" allow-clear />
                 </a-form-model-item>
 
-                <!--knowledge tag-select span 14: grade-4 -->
-                <a-row>
-                  <a-col offset="4" span="18">
-                    <knowledge-tag
-                      :question-index="questionIndex"
-                      :grade-list="gradeList"
-                      :subject-tree="subjectTree"
-                      :default-grade-id="questionItem.knowledgeGradeId"
-                      :default-main-subject-id="questionItem.knowledgeMainSubjectId"
-                      :default-sub-subject-id="questionItem.knowledgeSubSubjectId"
-                      :selected-knowledge-tags="questionItem.knowledgeTags"
-                      @remove-knowledge-tag="handleRemoveKnowledgeTag"
-                      @add-knowledge-tag="handleAddKnowledgeTag"
-                    />
-                  </a-col>
-                </a-row>
+                <!--knowledge tag-select -->
+                <a-form-model-item :label="$t('teacher.add-unit-plan.knowledge-tags')">
+                  <knowledge-tag
+                    :question-index="questionIndex"
+                    :grade-list="gradeList"
+                    :subject-tree="subjectTree"
+                    :default-grade-id="questionItem.knowledgeGradeId"
+                    :default-main-subject-id="questionItem.knowledgeMainSubjectId"
+                    :default-sub-subject-id="questionItem.knowledgeSubSubjectId"
+                    :selected-knowledge-tags="questionItem.knowledgeTags"
+                    @remove-knowledge-tag="handleRemoveKnowledgeTag"
+                    @add-knowledge-tag="handleAddKnowledgeTag"
+                  />
+                </a-form-model-item>
 
                 <!--skill tag-select-->
+                <a-form-model-item :label="$t('teacher.add-unit-plan.skill-tags')">
+                  <skill-tag
+                    :question-index="questionIndex"
+                    :grade-list="gradeList"
+                    :default-grade-id="questionItem.skillGradeId"
+                    :selected-skill-tags="questionItem.skillTags"
+                    @remove-skill-tag="handleRemoveSkillTag"
+                    @add-skill-tag="handleAddSkillTag"
+                  />
+                </a-form-model-item>
               </div>
 
               <a-row>
@@ -294,6 +302,7 @@ import { GetMyGrades } from '@/api/teacher'
 import { SubjectTree } from '@/api/subject'
 import { formatSubjectTree } from '@/utils/bizUtil'
 import KnowledgeTag from '@/components/UnitPlan/KnowledgeTag'
+import SkillTag from '@/components/UnitPlan/SkillTag'
 
 export default {
   name: 'AddUnitPlan',
@@ -301,7 +310,8 @@ export default {
     ContentTypeIcon,
     InputSearch,
     SdgTagInput,
-    KnowledgeTag
+    KnowledgeTag,
+    SkillTag
   },
   data () {
     return {
@@ -396,7 +406,7 @@ export default {
           knowledgeSubSubjectId: '',
           knowledgeGradeId: '',
           knowledgeTags: [],
-          skillGrade: '',
+          skillGradeId: '',
           skillTags: []
         }
       }
@@ -613,13 +623,31 @@ export default {
         knowledgeSubSubjectId: '',
         knowledgeGradeId: '',
         knowledgeTags: [],
-        skillGrade: '',
+        skillGradeId: '',
         skillTags: []
       }
       logger.info('handleAddMoreQuestion ', question)
       this.questionMaxIndex++
       this.questionTotal++
       this.$set(this.questionDataObj, this.questionPrefix + this.questionMaxIndex, question)
+    },
+
+    handleRemoveSkillTag (data) {
+      logger.info('Unit Plan handleRemoveSkillTag', data)
+      logger.info('target question data', this.questionDataObj[data.questionIndex])
+      this.questionDataObj[data.questionIndex].skillTags = this.questionDataObj[data.questionIndex].skillTags.filter(item => item.id !== data.id)
+      logger.info('Unit Plan after handleRemoveSkillTag ', this.questionDataObj[data.questionIndex].skillTags)
+    },
+
+    handleAddSkillTag (data) {
+      logger.info('Unit Plan handleAddSkillTag', data)
+      logger.info('target question data', this.questionDataObj[data.questionIndex])
+      const newTag = {
+        description: data.description,
+        id: data.id,
+        name: data.name
+      }
+      this.questionDataObj[data.questionIndex].skillTags.push(newTag)
     }
   }
 }

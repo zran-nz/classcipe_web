@@ -1,11 +1,56 @@
 import request from '@/utils/request'
 
 export const skillAPIUrl = {
+  SkillGetTreeByGradeId: '/classcipe/api/skill/getTreeByGradeId',
+  SkillAddOrUpdateTag: '/classcipe/api/skill/addOrUpdateTag',
+  SkillQueryTagsBySkillId: '/classcipe/api/skill/queryTagsBySkillId',
   SkillAddOrUpdate: '/classcipe/api/skill/addOrUpdate',
   SkillQueryById: '/classcipe/api/skill/queryById',
   SkillDelete: '/classcipe/api/skill/delete',
   SkillDeleteBatch: '/classcipe/api/skill/deleteBatch',
   SkillList: '/classcipe/api/skill/list'
+}
+
+/**
+ * @param parameter
+ * @returns {AxiosPromise}
+ * @constructor
+ */
+export function SkillGetTreeByGradeId (parameter) {
+  return request({
+    url: skillAPIUrl.SkillGetTreeByGradeId,
+    method: 'get',
+    params: parameter
+  })
+}
+
+/**
+ * @param parameter
+ * @returns {AxiosPromise}
+ * @constructor
+ */
+export function SkillAddOrUpdateTag (parameter) {
+  return request({
+    url: skillAPIUrl.SkillAddOrUpdateTag,
+    method: 'post',
+    data: parameter,
+    headers: {
+      'Content-Type': 'application/json;charset=UTF-8'
+    }
+  })
+}
+
+/**
+ * @param parameter
+ * @returns {AxiosPromise}
+ * @constructor
+ */
+export function SkillQueryTagsBySkillId (parameter) {
+  return request({
+    url: skillAPIUrl.SkillQueryTagsBySkillId,
+    method: 'get',
+    params: parameter
+  })
 }
 
 /**

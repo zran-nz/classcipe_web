@@ -106,7 +106,7 @@
       </a-row>
     </div>
     <div class="tag-list-show">
-      <a-row :gutter="10" v-for="(knowledgeTag,index) in selectedKnowledgeTags" :key="index" class="tag-line">
+      <a-row v-for="(knowledgeTag,index) in selectedKnowledgeTags" :key="index" class="tag-line">
         <a-col span="5" class="tag-name-col">
           <span class="tag-name tag-show-item">
             <a-icon type="tag" class="tag-name-icon"/>
@@ -171,7 +171,6 @@ export default {
   },
   data () {
     return {
-      knowledgeTagList: [],
 
       gradeId: '',
 
@@ -412,7 +411,7 @@ export default {
           border-bottom: @border-width-base solid #eee;
           cursor: pointer;
           &:hover {
-            background-color: fade(@outline-color, 10%);
+            background-color: fade(@outline-color, 20%);
           }
 
           .tag-more {
@@ -428,7 +427,7 @@ export default {
         }
 
         .active-item {
-          background-color: fade(@outline-color, 20%);
+          background-color: fade(@outline-color, 10%);
 
           &:hover {
             background-color: fade(@outline-color, 20%);
@@ -489,12 +488,12 @@ export default {
 .tag-list-show {
   padding-top: 15px;
   .tag-line {
-    padding: 5px 0;
+    transition: all 0.2 ease-in;
     cursor: pointer;
 
     &:hover {
       color:  @select-item-selected-color;
-      background-color: fade(@outline-color, 5%);
+      background-color: fade(@outline-color, 15%);
     }
 
     .tag-show-item {
