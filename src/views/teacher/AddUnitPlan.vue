@@ -30,11 +30,8 @@
           <div class="already-add-to-list">
             <div class="add-to-type">
               <div class="add-to-type-label">
-                <a-badge :count="5" :offset="[10, 0]">
-                  <content-type-icon :type="contentType.material"/>
-                  {{ $t('teacher.add-unit-plan.material') }}
-                </a-badge>
-
+                <content-type-icon :type="contentType.material"/>
+                {{ $t('teacher.add-unit-plan.material') }}
               </div>
               <div class="add-to-list">
                 <span v-for="(material,index) in form.materials" :key="index" class="add-to-item">
