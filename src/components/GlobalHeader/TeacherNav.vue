@@ -55,7 +55,6 @@
 <script>
 
 import * as logger from '@/utils/logger'
-import { UnitPlanAddOrUpdate } from '@/api/unitPlan'
 
 export default {
   name: 'TeacherNav',

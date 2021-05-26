@@ -28,20 +28,51 @@
             {{ $t('teacher.add-unit-plan.unit-plan') }}
           </div>
           <div class="already-add-to-list">
-            <a-menu mode="inline">
-              <a-menu-item key="material">
-                <content-type-icon :type="contentType.material"/>
-                {{ $t('teacher.add-unit-plan.material') }}
-              </a-menu-item>
-              <a-menu-item key="assessment">
+            <div class="add-to-type">
+              <div class="add-to-type-label">
+                <a-badge :count="5" :offset="[10, 0]">
+                  <content-type-icon :type="contentType.material"/>
+                  {{ $t('teacher.add-unit-plan.material') }}
+                </a-badge>
+
+              </div>
+              <div class="add-to-list">
+                <span v-for="(material,index) in form.materials" :key="index" class="add-to-item">
+                  <router-link to="">
+                    <a-icon type="link" />
+                    {{ material.name }}
+                  </router-link>
+                </span>
+              </div>
+            </div>
+            <div class="add-to-type">
+              <div class="add-to-type-label">
                 <content-type-icon :type="contentType.assessment"/>
                 {{ $t('teacher.add-unit-plan.assessment') }}
-              </a-menu-item>
-              <a-menu-item key="lesson">
+              </div>
+              <div class="add-to-list">
+                <!--                <span v-for="(material,index) in form.materials" :key="index" class="add-to-item">-->
+                <!--                  <router-link to="">-->
+                <!--                    <a-icon type="link" />-->
+                <!--                    {{ material.name }}-->
+                <!--                  </router-link>-->
+                <!--                </span>-->
+              </div>
+            </div>
+            <div class="add-to-type">
+              <div class="add-to-type-label">
                 <content-type-icon :type="contentType.lesson"/>
                 {{ $t('teacher.add-unit-plan.lesson') }}
-              </a-menu-item>
-            </a-menu>
+              </div>
+              <div class="add-to-list">
+                <!--                <span v-for="(material,index) in form.materials" :key="index" class="add-to-item">-->
+                <!--                  <router-link to="">-->
+                <!--                    <a-icon type="link" />-->
+                <!--                    {{ material.name }}-->
+                <!--                  </router-link>-->
+                <!--                </span>-->
+              </div>
+            </div>
           </div>
           <a-divider />
           <div class="unit-add-to">
@@ -378,7 +409,8 @@ export default {
           ]
         },
         createTime: '',
-        updateTime: ''
+        updateTime: '',
+        materials: []
       },
 
       uploading: false,
@@ -889,13 +921,23 @@ export default {
     }
 
     .already-add-to-list {
-      .ant-menu-inline {
+      .add-to-type {
         border-right: none;
         color: @text-color;
-      }
-
-      .ant-menu-inline .ant-menu-item::after {
-        border-right: none;
+        .add-to-type-label {
+          padding: 15px 0 5px 0;
+          cursor: pointer;
+        }
+        .add-to-list {
+          display: flex;
+          flex-direction: column;
+          justify-content: flex-start;
+          line-height: 30px;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          word-break: break-all;
+          white-space: nowrap;
+        }
       }
     }
   }

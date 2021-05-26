@@ -15,6 +15,7 @@ export default {
     PageHeaderWrapper
   },
   props: {
+    // eslint-disable-next-line vue/require-default-prop
     unitPlanId: null
   },
   created () {
