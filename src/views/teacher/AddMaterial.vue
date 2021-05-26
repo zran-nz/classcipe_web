@@ -18,46 +18,48 @@
       </a-col>
     </a-row>
     <a-row class="material-content">
-      <div class="uploader-wrapper">
-        <div class="file-type"></div>
-        <div class="uploader-container">
-          <a-upload-dragger
-            name="file"
-            accept="image/png, image/jpeg"
-            :showUploadList="false"
-            :customRequest="handleUpload"
-          >
-            <template v-if="uploading">
-              <div class="upload-container">
-                <p class="ant-upload-drag-icon">
-                  <a-icon type="cloud-upload" />
-                </p>
-                <p class="ant-upload-text">
-                  <a-spin />
-                  <span class="uploading-tips">{{ $t('teacher.add-unit-plan.uploading') }}</span>
-                </p>
-              </div>
-            </template>
-            <template v-if="!uploading && material && material.image">
-              <div class="image-preview">
-                <img :src="material.image" alt="">
-              </div>
-            </template>
-            <template v-if="!uploading && material && !material.image">
-              <div class="upload-container">
-                <p class="ant-upload-drag-icon">
-                  <a-icon type="picture" />
-                </p>
-                <p class="ant-upload-text">
-                  {{ $t('teacher.add-unit-plan.click-to-upload') }}
-                </p>
-              </div>
-            </template>
-          </a-upload-dragger>
+      <a-col offset="5" span="14">
+        <div class="uploader-wrapper">
+          <div class="file-type"></div>
+          <div class="uploader-container">
+            <a-upload-dragger
+              name="file"
+              accept="image/png, image/jpeg"
+              :showUploadList="false"
+              :customRequest="handleUpload"
+            >
+              <template v-if="uploading">
+                <div class="upload-container">
+                  <p class="ant-upload-drag-icon">
+                    <a-icon type="cloud-upload" />
+                  </p>
+                  <p class="ant-upload-text">
+                    <a-spin />
+                    <span class="uploading-tips">{{ $t('teacher.add-unit-plan.uploading') }}</span>
+                  </p>
+                </div>
+              </template>
+              <template v-if="!uploading && material && material.image">
+                <div class="image-preview">
+                  <img :src="material.image" alt="">
+                </div>
+              </template>
+              <template v-if="!uploading && material && !material.image">
+                <div class="upload-container">
+                  <p class="ant-upload-drag-icon">
+                    <a-icon type="picture" />
+                  </p>
+                  <p class="ant-upload-text">
+                    {{ $t('teacher.add-unit-plan.click-to-upload') }}
+                  </p>
+                </div>
+              </template>
+            </a-upload-dragger>
+          </div>
         </div>
-      </div>
-      <div class="info-wrapper"></div>
-      <div class="tag-wrapper"></div>
+        <div class="info-wrapper"></div>
+        <div class="tag-wrapper"></div>
+      </a-col>
     </a-row>
   </a-card>
 </template>
@@ -121,6 +123,14 @@ export default {
   .material-right-action {
     display: flex;
     justify-content: flex-end;
+  }
+}
+
+.material-content {
+  padding-top: 24px;
+
+  .uploader-container {
+    height: 300px;
   }
 }
 </style>

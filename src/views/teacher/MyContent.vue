@@ -88,7 +88,7 @@
                   {{ item.createBy === $store.getters.email ? 'me' : item.createBy }}
                 </span>
                 <span class="update-time" >
-                  {{ item.updateTime }}
+                  {{ item.updateTime || item.createTime }}
                 </span>
                 <div class="action">
                   <a slot="actions">
@@ -213,18 +213,25 @@ export default {
 
     handleEditItem (item) {
       logger.info('handleEditItem', item)
+      if (item.type === typeMap['unit-plan']) {
+        this.$router.push({
+          path: '/teacher/unit-plan-redirect/' + item.id
+        })
+      }
     },
     handleDeleteItem (item) {
       logger.info('handleDeleteItem', item)
       deleteMyContentByType(item).then(res => {
         logger.info('DeleteMyContentByType', res)
+      }).then(() => {
+        this.loadMyContent()
       })
     },
     handleViewDetail (item) {
       logger.info('handleViewDetail', item)
       if (item.type === typeMap['unit-plan']) {
         this.$router.push({
-          path: '/teacher/unit-plan/' + item.id
+          path: '/teacher/unit-plan-redirect/' + item.id
         })
       }
     }

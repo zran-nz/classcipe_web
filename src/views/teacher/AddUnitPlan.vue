@@ -450,8 +450,6 @@ export default {
     this.initData()
     this.debouncedGetSdgByDescription = debounce(this.searchScenario, 300)
   },
-  mounted () {
-  },
   methods: {
     initData () {
       logger.info('initData doing...')
@@ -516,6 +514,11 @@ export default {
           }
         }
 
+        const sdgKeys = Object.keys(this.sdgDataObj)
+        sdgKeys.forEach(sdgKey => {
+          logger.info('sdgDataObj delete ' + sdgKey)
+          this.$delete(this.sdgDataObj, sdgKey)
+        })
         if (unitPlanData.scenario && unitPlanData.scenario.sdgKeyWords && unitPlanData.scenario.sdgKeyWords.length) {
             unitPlanData.scenario.sdgKeyWords.forEach((sdgKeyword, index) => {
               const sdg = {
@@ -530,6 +533,11 @@ export default {
             })
           }
 
+        const questionKeys = Object.keys(this.questionDataObj)
+        questionKeys.forEach(questionKey => {
+          logger.info('questionDataObj delete ' + questionKey)
+          this.$delete(this.questionDataObj, questionKey)
+        })
         if (unitPlanData.questions && unitPlanData.questions.length) {
           unitPlanData.questions.forEach(questionItem => {
             const question = {
@@ -790,6 +798,7 @@ export default {
       UnitPlanAddOrUpdate(unitPlanData).then((response) => {
         logger.info('UnitPlanAddOrUpdate', response.result)
         this.restoreUnitPlan(response.result.id, false)
+        this.$message.success(this.$t('teacher.add-unit-plan.save-success'))
       })
     },
     handlePublishUnitPlan () {
@@ -896,7 +905,6 @@ export default {
     }
 
     .form-block-action {
-      padding-top: 20px;
       text-align: center;
     }
 

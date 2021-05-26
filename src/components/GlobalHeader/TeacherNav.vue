@@ -26,7 +26,7 @@
             Add new
           </a-button>
           <a-menu slot="overlay">
-            <a-menu-item :disabled="creatingUnitPlan">
+            <a-menu-item>
               <a @click="goToUnitPlan">
                 Unit plan
               </a>
@@ -63,9 +63,7 @@ export default {
     return {
       searchText: null,
       defaultSelectedKeys: [],
-      selectedKeys: [],
-
-      creatingUnitPlan: false
+      selectedKeys: []
     }
   },
   watch: {
@@ -83,18 +81,8 @@ export default {
       this.$emit('triggerSearch', 'teacher', this.searchText)
     },
     goToUnitPlan () {
-      this.creatingUnitPlan = true
-      const unitPlanData = {
-        name: 'Unnamed Unit Plan'
-      }
-
-      UnitPlanAddOrUpdate(unitPlanData).then((response) => {
-        logger.info('creatingUnitPlan response', response.result)
-        this.$router.push({
-          path: '/teacher/unit-plan/' + response.result.id
-        })
-      }).finally(() => {
-        this.creatingUnitPlan = false
+      this.$router.push({
+        path: '/teacher/unit-plan-redirect/create'
       })
     }
   }

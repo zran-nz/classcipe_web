@@ -3,7 +3,7 @@ export default {
   'teacher.add-unit-plan.publish': 'Publish',
   'teacher.add-unit-plan.publish-success': 'Publish Success',
   'teacher.add-unit-plan.save': 'Save',
-  'teacher.add-unit-plan.save-success': 'Save',
+  'teacher.add-unit-plan.save-success': 'Save Success',
   'teacher.add-unit-plan.last-change-saved-at-time': 'last change saved at {time}',
   'teacher.add-unit-plan.default-unit-plan-name': 'Unnamed plan',
   'teacher.add-unit-plan.unit-plan': 'Unit plan',
