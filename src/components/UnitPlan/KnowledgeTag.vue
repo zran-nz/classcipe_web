@@ -246,7 +246,6 @@ export default {
       this.knowledgeTree = []
       this.knowledgeTreeChild = []
       this.knowledgeTags = []
-      this.selectedKnowledgeTagIdList = []
       this.showNewTagInput = false
     },
 
@@ -517,6 +516,7 @@ export default {
 
     .tag-action-col {
       text-align: right;
+      position: relative;
 
       .tag-action {
         padding-right: 10px;

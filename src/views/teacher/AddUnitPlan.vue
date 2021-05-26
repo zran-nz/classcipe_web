@@ -214,7 +214,7 @@
                 </a-col>
               </a-row>
               <div class="content-blocks question-item" v-for="(questionItem, questionIndex) in questionDataObj" :key="questionIndex" v-if="questionItem !== null">
-                <div class="sdg-delete-wrapper">
+                <div class="knowledge-delete-wrapper">
                   <a-tooltip placement="top">
                     <template slot="title">
                       <span>{{ $t('teacher.add-unit-plan.delete-questions') }}</span>
@@ -699,6 +699,28 @@ export default {
         border: 1px dotted @link-hover-color;
         box-sizing: border-box;
         .sdg-delete-wrapper {
+          display: block;
+        }
+      }
+
+      .knowledge-delete-wrapper {
+        transition: all 0.2s ease-in;
+        display: none;
+        position: absolute;
+        text-align: center;
+        right: 15px;
+        top: 200px;
+        line-height: 50px;
+        width: 50px;
+        height: 50px;
+        cursor: pointer;
+        color: @link-hover-color;
+      }
+
+      &:hover {
+        border: 1px dotted @link-hover-color;
+        box-sizing: border-box;
+        .knowledge-delete-wrapper {
           display: block;
         }
       }
