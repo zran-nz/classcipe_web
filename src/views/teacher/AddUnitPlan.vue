@@ -3,7 +3,7 @@
     <a-row class="unit-plan-header">
       <a-col span="12">
         <a-space>
-          <a-button class="nav-back-btn" type="link" @click="$router.go(-1)"> <a-icon type="left" /> {{ $t('teacher.add-unit-plan.back') }}</a-button>
+          <a-button class="nav-back-btn" type="link" @click="goBack"> <a-icon type="left" /> {{ $t('teacher.add-unit-plan.back') }}</a-button>
           <span class="unit-last-change-time" v-if="lastChangeSavedTime">
             <span class="unit-nav-title">
               {{ form.name }}
@@ -883,6 +883,19 @@ export default {
       this.$router.push({
         path: '/teacher/unit-plan-material-redirect/' + this.unitPlanId + '/create'
       })
+    },
+
+    goBack () {
+      if (window.history.length <= 1) {
+        this.$router.push({ path: '/teacher/main/my-content' })
+        return false
+      } else {
+        this.$router.go(-1)
+      }
+
+      setTimeout(() => {
+        this.$router.push({ path: '/teacher/main/my-content' })
+      }, 500)
     }
   }
 }

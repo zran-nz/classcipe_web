@@ -25,7 +25,14 @@ export default {
       this.$router.replace('/teacher/unit-plan-material/' + this.unitPlanId + '/' + this.materialId)
     } else if (this.unitPlanId && this.materialId && this.materialId === 'create') {
       const materialData = {
-        name: 'Unnamed Material'
+        name: 'Unnamed Material',
+        overview: '',
+        planId: this.unitPlanId,
+        fileUrl: '',
+        concepts: [],
+        fileType: 0,
+        questions: [],
+        status: 0
       }
 
       MaterialAddOrUpdate(materialData).then((response) => {

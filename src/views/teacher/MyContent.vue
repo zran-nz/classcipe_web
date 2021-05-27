@@ -233,6 +233,10 @@ export default {
         this.$router.push({
           path: '/teacher/unit-plan-redirect/' + item.id
         })
+      } else if (item.type === typeMap.material) {
+        // this.$router.push({
+        //   path: '/teacher/unit-plan-material-redirect/' + item.planId + '/:' + item.id
+        // })
       }
     }
   }
