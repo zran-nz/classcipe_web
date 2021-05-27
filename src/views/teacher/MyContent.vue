@@ -101,9 +101,11 @@
                           </a>
                         </a-menu-item>
                         <a-menu-item>
-                          <a @click="handleDeleteItem(item)" class="delete-action">
-                            <a-icon type="delete" /> {{ $t('teacher.my-content.action-delete') }}
-                          </a>
+                          <a-popconfirm :title="$t('teacher.my-content.action-delete') + '?'" ok-text="Yes" @confirm="handleDeleteItem(item)" cancel-text="No">
+                            <a href="#" class="delete-action">
+                              <a-icon type="delete" /> {{ $t('teacher.my-content.action-delete') }}
+                            </a>
+                          </a-popconfirm>
                         </a-menu-item>
                       </a-menu>
                     </a-dropdown>
@@ -234,9 +236,9 @@ export default {
           path: '/teacher/unit-plan-redirect/' + item.id
         })
       } else if (item.type === typeMap.material) {
-        this.$router.push({
-          path: '/teacher/unit-plan-material-redirect/' + item.planId + '/:' + item.id
-        })
+        // this.$router.push({
+        //   path: '/teacher/unit-plan-material-redirect/' + item.planId + '/:' + item.id
+        // })
       }
     }
   }

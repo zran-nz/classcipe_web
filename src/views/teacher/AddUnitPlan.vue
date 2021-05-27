@@ -39,6 +39,9 @@
                     <a-icon type="link" />
                     {{ material.name }}
                   </router-link>
+                  <a-popconfirm :title="$t('teacher.my-content.action-delete') + '?'" ok-text="Yes" @confirm="handleDeleteMaterial(material)" cancel-text="No">
+                    <a-icon type="delete" class="hover-delete" />
+                  </a-popconfirm>
                 </span>
               </div>
             </div>
@@ -345,6 +348,7 @@ import KnowledgeTag from '@/components/UnitPlan/KnowledgeTag'
 import SkillTag from '@/components/UnitPlan/SkillTag'
 import { ChangeStatus, UnitPlanAddOrUpdate, UnitPlanQueryById } from '@/api/unitPlan'
 import { formatLocalUTC } from '@/utils/util'
+import { MaterialDelete } from '@/api/material'
 
 export default {
   name: 'AddUnitPlan',
@@ -474,7 +478,12 @@ export default {
   },
   computed: {
     lastChangeSavedTime () {
-      return formatLocalUTC(this.form.updateTime || this.form.createTime)
+      const time = this.form.updateTime || this.form.createTime
+      if (time) {
+        return formatLocalUTC(this.form.updateTime || this.form.createTime)
+      } else {
+        return ''
+      }
     }
   },
   created () {
@@ -891,6 +900,18 @@ export default {
       })
     },
 
+    handleDeleteMaterial (material) {
+      MaterialDelete({
+        id: material.id
+      }).then(response => {
+        UnitPlanQueryById({
+          id: this.unitPlanId
+        }).then(response => {
+          logger.info('handleDeleteMaterial UnitPlanQueryById ' + this.unitPlanId, response.result)
+          this.form.materials = response.result.materials
+        })
+      })
+    },
     goBack () {
       if (window.history.length <= 1) {
         this.$router.push({ path: '/teacher/main/my-content' })
@@ -1071,5 +1092,20 @@ export default {
       }
     }
   }
+
+  .add-to-item {
+    .hover-delete {
+      color: @red-6;
+      display: none;
+      cursor: pointer;
+    }
+
+    &:hover {
+      .hover-delete {
+        display: inline-block;
+      }
+    }
+  }
+
 }
 </style>
