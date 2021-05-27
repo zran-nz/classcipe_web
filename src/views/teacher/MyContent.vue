@@ -88,7 +88,7 @@
                   {{ item.createBy === $store.getters.email ? 'me' : item.createBy }}
                 </span>
                 <span class="update-time" >
-                  {{ item.updateTime || item.createTime }}
+                  {{ item.updateTime || item.createTime | dayjs }}
                 </span>
                 <div class="action">
                   <a slot="actions">
@@ -234,9 +234,9 @@ export default {
           path: '/teacher/unit-plan-redirect/' + item.id
         })
       } else if (item.type === typeMap.material) {
-        // this.$router.push({
-        //   path: '/teacher/unit-plan-material-redirect/' + item.planId + '/:' + item.id
-        // })
+        this.$router.push({
+          path: '/teacher/unit-plan-material-redirect/' + item.planId + '/:' + item.id
+        })
       }
     }
   }

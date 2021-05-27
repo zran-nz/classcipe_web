@@ -10,7 +10,6 @@
             </span>
             <a-divider type="vertical" v-if="!!form.name" />
             {{ $t('teacher.add-unit-plan.last-change-saved-at-time', {time: lastChangeSavedTime}) }}
-            <a-divider type="vertical" />
           </span>
         </a-space>
       </a-col>
@@ -345,6 +344,7 @@ import { formatSubjectTree } from '@/utils/bizUtil'
 import KnowledgeTag from '@/components/UnitPlan/KnowledgeTag'
 import SkillTag from '@/components/UnitPlan/SkillTag'
 import { ChangeStatus, UnitPlanAddOrUpdate, UnitPlanQueryById } from '@/api/unitPlan'
+import { formatLocalUTC } from '@/utils/util'
 
 export default {
   name: 'AddUnitPlan',
@@ -474,7 +474,7 @@ export default {
   },
   computed: {
     lastChangeSavedTime () {
-      return this.form.updateTime || this.form.createTime
+      return formatLocalUTC(this.form.updateTime || this.form.createTime)
     }
   },
   created () {

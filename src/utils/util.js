@@ -1,3 +1,5 @@
+import moment from 'moment'
+
 export function timeFix () {
   const time = new Date()
   const hour = time.getHours()
@@ -105,4 +107,8 @@ export function renderSize (value) {
   let size = srcSize / Math.pow(1024, index)
   size = size.toFixed(2)// 保留的小数位数
   return size + unitArr[index]
+}
+
+export function formatLocalUTC (dataStr, pattern = 'YYYY-MM-DD HH:mm:ss') {
+  return moment.utc(dataStr).local().format(pattern)
 }
