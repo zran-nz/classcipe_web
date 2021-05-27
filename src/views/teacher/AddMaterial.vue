@@ -3,7 +3,10 @@
     <a-row class="material-plan-header">
       <a-col span="12">
         <a-space>
-          <a-button class="nav-back-btn" type="link" @click="$router.go(-1)"> <a-icon type="left" /> {{ $t('teacher.add-unit-plan.back') }}</a-button>
+          <a-button class="nav-back-btn" type="link" @click="$router.go(-1)">
+            <a-icon type="left" />
+            {{ $t('teacher.add-unit-plan.back') }}
+          </a-button>
           <span class="material-last-change-time">
             <span class="material-nav-title">
               {{ unitPlanData.name }}
@@ -13,7 +16,10 @@
       </a-col>
       <a-col span="12" class="material-right-action">
         <a-space>
-          <a-button @click="handleAddOrUpdateMaterial"> <a-icon type="save" /> {{ $t('teacher.add-unit-plan.save') }}</a-button>
+          <a-button @click="handleAddOrUpdateMaterial">
+            <a-icon type="save" />
+            {{ $t('teacher.add-unit-plan.save') }}
+          </a-button>
         </a-space>
       </a-col>
     </a-row>
@@ -26,9 +32,11 @@
           <div class="already-add-to-list">
             <div class="add-to-type">
               <div class="add-to-type-label">
-                <content-type-icon :type="contentType.material"/>
+                <content-type-icon :type="contentType.material" />
                 {{ $t('teacher.add-unit-plan.material') }}
-                <template v-if="unitPlanData.materials && unitPlanData.materials.length">( {{ unitPlanData.materials.length }} )</template>
+                <template v-if="unitPlanData.materials && unitPlanData.materials.length">(
+                  {{ unitPlanData.materials.length }} )
+                </template>
               </div>
               <div class="add-to-list">
                 <span v-for="(material,index) in unitPlanData.materials" :key="index" class="add-to-item">
@@ -41,7 +49,7 @@
             </div>
             <div class="add-to-type">
               <div class="add-to-type-label">
-                <content-type-icon :type="contentType.assessment"/>
+                <content-type-icon :type="contentType.assessment" />
                 {{ $t('teacher.add-unit-plan.assessment') }}
               </div>
               <div class="add-to-list">
@@ -55,7 +63,7 @@
             </div>
             <div class="add-to-type">
               <div class="add-to-type-label">
-                <content-type-icon :type="contentType.lesson"/>
+                <content-type-icon :type="contentType.lesson" />
                 {{ $t('teacher.add-unit-plan.lesson') }}
               </div>
               <div class="add-to-list">
@@ -140,7 +148,9 @@
                           <strong>{{ $t('teacher.add-unit-plan.file-size') }}: {{ filesize }}</strong>
                         </p>
                         <p class="file-info">
-                          <a :href="uploader.url" target="_blank"><a-icon type="download" /> {{ $t('teacher.add-unit-plan.download') }}</a>
+                          <a :href="uploader.url" target="_blank">
+                            <a-icon type="download" />
+                            {{ $t('teacher.add-unit-plan.download') }}</a>
                         </p>
                       </div>
                     </a-result>
@@ -166,7 +176,7 @@
                       {{ $t('teacher.add-unit-plan.material-name') }}
                     </div>
                     <div class="info-input">
-                      <a-input :placeholder="$t('teacher.add-unit-plan.material-name')" v-model="material.name"/>
+                      <a-input :placeholder="$t('teacher.add-unit-plan.material-name')" v-model="material.name" />
                     </div>
                   </div>
                 </a-col>
@@ -176,7 +186,10 @@
                       {{ $t('teacher.add-unit-plan.material-overview') }}
                     </div>
                     <div class="info-input">
-                      <a-textarea rows="4" :placeholder="$t('teacher.add-unit-plan.overview')" v-model="material.overview"/>
+                      <a-textarea
+                        rows="4"
+                        :placeholder="$t('teacher.add-unit-plan.overview')"
+                        v-model="material.overview" />
                     </div>
                   </div>
                 </a-col>
@@ -184,7 +197,7 @@
             </div>
             <div class="material-tag tag-block">
               <div class="tag-list">
-                <div class="tag-label">{{ $t('teacher.add-unit-plan.material-tag') }}: </div>
+                <div class="tag-label">{{ $t('teacher.add-unit-plan.material-tag') }}:</div>
                 <div class="tag-item" v-for="(tag,index) in tagList" :key="index">
                   <a-tag :color="tagColorList[index % tagColorList.length]">
                     <a-tooltip :title="tag">
@@ -208,7 +221,9 @@
                 <div class="tag-area">
                   <div class="tag-list">
                     <div class="tag-item" v-for="(concept,index) in unitPlanData.concepts" :key="index">
-                      <a-tag :color="material.concepts.indexOf(concept) === -1 ? '' : '#87d068'" @click="handleAddConcept(concept)">
+                      <a-tag
+                        :color="material.concepts.indexOf(concept) === -1 ? '' : '#87d068'"
+                        @click="handleAddConcept(concept)">
                         {{ concept }}
                       </a-tag>
                     </div>
@@ -225,28 +240,36 @@
                       <strong> Question {{ index + 1 }}: {{ question.name }}</strong>
                     </div>
                     <div class="tag-list-line knowledge-tag-list">
-                      <div class="tag-item-line" v-for="(knowledgeTag,index) in question.knowledgeTags" :key="index" @click="handleSelectKnowledge(question, knowledgeTag)" >
+                      <div
+                        class="tag-item-line"
+                        v-for="(knowledgeTag,index) in question.knowledgeTags"
+                        :key="index"
+                        @click="handleSelectKnowledge(question, knowledgeTag)">
                         <div class="tag-name">
-                          <a-tag>
+                          <a-tag :color="selectedKnowledgeTagIdList.indexOf(knowledgeTag.id) === -1 ? '' : '#87d068'">
                             {{ knowledgeTag.name }}
                           </a-tag>
                         </div>
                         <div class="tag-desc">
-                          <a-tag>
+                          <a-tag :color="selectedKnowledgeTagIdList.indexOf(knowledgeTag.id) === -1 ? '' : '#87d068'">
                             {{ knowledgeTag.description }}
                           </a-tag>
                         </div>
                       </div>
                     </div>
                     <div class="tag-list-line skill-tag-list">
-                      <div class="tag-item-line" v-for="(skillTag,index) in question.skillTags" :key="index" @click="handleSelectSkill(question, skillTag)" >
+                      <div
+                        class="tag-item-line"
+                        v-for="(skillTag,index) in question.skillTags"
+                        :key="index"
+                        @click="handleSelectSkill(question, skillTag)">
                         <div class="tag-name">
-                          <a-tag>
+                          <a-tag :color="selectedSkillTagIdList.indexOf(skillTag.id) === -1 ? '' : '#87d068'">
                             {{ skillTag.name }}
                           </a-tag>
                         </div>
                         <div class="tag-desc">
-                          <a-tag>
+                          <a-tag :color="selectedSkillTagIdList.indexOf(skillTag.id) === -1 ? '' : '#87d068'">
                             {{ skillTag.description }}
                           </a-tag>
                         </div>
@@ -258,8 +281,11 @@
             </div>
           </div>
         </div>
-        <div class="info-wrapper"></div>
-        <div class="tag-wrapper"></div>
+        <div class="form-block action-line">
+          <a-space :size="30">
+            <a-button @click="handleAddOrUpdateMaterial"> <a-icon type="save" /> {{ $t('teacher.add-unit-plan.save') }}</a-button>
+          </a-space>
+        </div>
       </a-col>
     </a-row>
   </a-card>
@@ -302,7 +328,11 @@ export default {
         name: 'Unnamed',
         overview: '',
         concepts: [],
-        questions: []
+        questions: [],
+        fileUrl: '',
+        planId: null,
+        fileType: 0,
+        status: 0
       },
 
       uploader: {
@@ -340,8 +370,8 @@ export default {
       ],
 
       tagList: [],
-      selectedKnowledgeTags: [],
-      selectedSkillTags: []
+      selectedKnowledgeTagIdList: [],
+      selectedSkillTagIdList: []
     }
   },
   computed: {
@@ -373,6 +403,7 @@ export default {
         }).then(response => {
           logger.info('Material MaterialQueryById ' + this.materialId, response.result)
           this.material = response.result
+          this.uploader.url = this.material.fileUrl
           this.unitPlanData.questions.forEach(question => {
             if (!this.material.questions.find(item => item.id === question.id)) {
               this.material.questions.push({
@@ -416,7 +447,11 @@ export default {
       const formData = new FormData()
       formData.append('file', data.file, data.file.name)
       this.uploading = true
-      this.$http.post(commonAPIUrl.UploadFile, formData, { contentType: false, processData: false, headers: { 'Content-Type': 'multipart/form-data' } })
+      this.$http.post(commonAPIUrl.UploadFile, formData, {
+        contentType: false,
+        processData: false,
+        headers: { 'Content-Type': 'multipart/form-data' }
+      })
         .then((response) => {
           logger.info('material handleUpload upload response:', response)
           this.uploader.url = this.$store.getters.downloadUrl + response.result
@@ -441,9 +476,9 @@ export default {
         overview: this.material.overview,
         planId: this.unitPlanId,
         fileUrl: this.uploader.url,
-        // concepts: [],
+        concepts: this.material.concepts,
         fileType: 0,
-        questions: [],
+        questions: this.material.questions,
         status: 0
       }
 
@@ -471,20 +506,53 @@ export default {
 
     handleSelectKnowledge (question, knowledgeTag) {
       logger.info('handleSelectKnowledge', question, knowledgeTag)
+      const materialQuestion = this.material.questions.find(item => item.id === question.id)
+      if (materialQuestion) {
+        logger.info('handleSelectKnowledge materialQuestion', materialQuestion)
+        const targetKnowledgeTag = materialQuestion.knowledgeTags.find(item => item.name === knowledgeTag.name && item.id === knowledgeTag.id)
+        if (targetKnowledgeTag) {
+          logger.info('handleSelectKnowledge remove targetKnowledgeTag', targetKnowledgeTag)
+          this.selectedKnowledgeTagIdList.splice(this.selectedKnowledgeTagIdList.indexOf(knowledgeTag.id), 1)
+          materialQuestion.knowledgeTags = materialQuestion.knowledgeTags.filter(item => !(item.name === knowledgeTag.name && item.id === knowledgeTag.id))
+        } else {
+          logger.info('handleSelectSkill add knowledgeTag', knowledgeTag)
+          this.selectedKnowledgeTagIdList.push(knowledgeTag.id)
+          materialQuestion.knowledgeTags.push(knowledgeTag)
+        }
+      } else {
+        logger.warn('material question dont have matched question', this.material, question)
+      }
     },
     handleSelectSkill (question, skillTag) {
       logger.info('handleSelectSkill', question, skillTag)
+      const materialQuestion = this.material.questions.find(item => item.id === question.id)
+      if (materialQuestion) {
+        logger.info('handleSelectSkill materialQuestion', materialQuestion)
+        const targetSkillTag = materialQuestion.skillTags.find(item => item.name === skillTag.name && item.id === skillTag.id)
+        if (targetSkillTag) {
+          logger.info('handleSelectSkill remove targetSkillTag', targetSkillTag)
+          this.selectedSkillTagIdList.splice(this.selectedSkillTagIdList.indexOf(skillTag.id), 1)
+          materialQuestion.skillTags = materialQuestion.skillTags.filter(item => !(item.name === skillTag.name && item.id === skillTag.id))
+        } else {
+          logger.info('handleSelectSkill add targetSkillTag', skillTag)
+          this.selectedSkillTagIdList.push(skillTag.id)
+          materialQuestion.skillTags.push(skillTag)
+        }
+      } else {
+        logger.warn('material question dont have matched question', this.material, question)
+      }
+      logger.info('after handleSelectSkill', this.selectedSkillTagIdList)
     }
   }
 }
 </script>
 
-<style lang="less" scoped>
+<style lang='less' scoped>
 @import "~@/components/index.less";
 
 .material-plan-header {
   padding-bottom: 16px;
-  border-bottom: 1px solid  rgb(235, 238, 240);
+  border-bottom: 1px solid rgb(235, 238, 240);
 
   .nav-back-btn {
     padding-left: 0;
@@ -508,6 +576,7 @@ export default {
 
 .unit-menu-list {
   padding: 0 24px 16px 0;
+
   .unit-menu-title {
     font-size: @font-size-lg;
     line-height: 50px;
@@ -515,6 +584,7 @@ export default {
     cursor: pointer;
     color: @primary-color;
   }
+
   .unit-add-to {
 
   }
@@ -523,10 +593,12 @@ export default {
     .add-to-type {
       border-right: none;
       color: @text-color;
+
       .add-to-type-label {
         padding: 15px 0 5px 0;
         cursor: pointer;
       }
+
       .add-to-list {
         display: flex;
         flex-direction: column;
@@ -545,6 +617,7 @@ export default {
 
   .upload-content {
     padding: 30px 0;
+
     .uploader-wrapper {
       margin: auto;
       display: flex;
@@ -556,12 +629,15 @@ export default {
 
       .file-type {
         width: 50px;
+
         .file-type-list {
           display: flex;
           flex-direction: column;
+
           .file-type-item {
             height: 30px;
             width: 30px;
+
             svg {
               height: 30px;
               width: 30px;
@@ -577,12 +653,15 @@ export default {
       .uploader-container {
         display: block;
         width: 100%;
+
         .info {
           .info-form {
             padding: 16px 0;
+
             .info-item {
               display: flex;
               flex-direction: column;
+
               .info-label {
                 color: @text-color;
                 font-size: 16px;
@@ -608,14 +687,17 @@ export default {
         .material-tag {
           margin-top: 10px;
           width: 100%;
+
           .tag-list {
             display: flex;
             flex-direction: row;
             flex-wrap: wrap;
+
             .tag-label {
               font-weight: bold;
               padding-right: 10px;
             }
+
             .tag-item {
               font-size: 16px;
               margin-right: 10px;
@@ -633,10 +715,12 @@ export default {
             display: flex;
             flex-direction: row;
             flex-wrap: wrap;
+
             .tag-label {
               font-weight: bold;
               padding-right: 10px;
             }
+
             .tag-item {
               font-size: 16px;
               margin-right: 10px;
@@ -647,8 +731,10 @@ export default {
               white-space: nowrap;
             }
           }
+
           .label-title {
             padding: 15px 0 5px 0;
+
             strong {
               padding-left: 5px;
               font-size: 16px;
@@ -674,19 +760,21 @@ export default {
           display: flex;
           flex-direction: column;
           justify-content: flex-start;
+
           .tag-item-line {
             padding: 5px 0;
             display: flex;
             justify-content: flex-start;
             flex-direction: row;
+
             .tag-name {
               width: 20%;
-              max-width: 150px;
               overflow: hidden;
               text-overflow: ellipsis;
               word-break: break-all;
               white-space: nowrap;
             }
+
             .tag-desc {
               width: 80%;
               overflow: hidden;
@@ -698,6 +786,11 @@ export default {
         }
       }
     }
+  }
+
+  .action-line {
+    padding: 24px 0;
+    text-align: center;
   }
 }
 </style>
