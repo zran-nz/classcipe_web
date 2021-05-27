@@ -75,7 +75,9 @@
           <a-divider />
           <div class="unit-add-to">
             <a-dropdown>
-              <a-button type="primary" block> <a-icon type="plus" /> {{ $t('teacher.add-unit-plan.add-to-this-unit-plan') }} </a-button>
+              <a-button type="primary" block>
+                <!--                <a-icon type="plus" />-->
+                {{ $t('teacher.add-unit-plan.add-to-this-unit-plan') }} </a-button>
               <a-menu slot="overlay">
                 <a-menu-item>
                   <a @click="handleAddUnitPlanMaterial">
