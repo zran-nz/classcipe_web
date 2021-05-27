@@ -28,9 +28,13 @@ export default {
 
       UnitPlanAddOrUpdate(unitPlanData).then((response) => {
         logger.info('creatingUnitPlan response', response.result)
-        this.$router.replace({
-          path: '/teacher/unit-plan/' + response.result.id
-        })
+        if (response.success) {
+          this.$router.replace({
+            path: '/teacher/unit-plan/' + response.result.id
+          })
+        } else {
+          this.$message.error(response.message)
+        }
       })
     }
   }

@@ -495,8 +495,12 @@ export default {
 
       MaterialAddOrUpdate(materialData).then((response) => {
         logger.info('handleAddOrUpdateMaterial response', response)
-        this.$message.success(this.$t('teacher.add-unit-plan.save-material-success'))
-        this.$router.replace('/teacher/unit-plan/' + this.unitPlanId)
+        if (response.success) {
+          this.$message.success(this.$t('teacher.add-unit-plan.save-material-success'))
+          this.$router.replace('/teacher/unit-plan/' + this.unitPlanId)
+        } else {
+          this.$message.error(response.message)
+        }
       })
     },
 

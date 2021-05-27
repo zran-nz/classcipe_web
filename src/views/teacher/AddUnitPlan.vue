@@ -860,8 +860,12 @@ export default {
       logger.info('question unitPlanData', unitPlanData)
       UnitPlanAddOrUpdate(unitPlanData).then((response) => {
         logger.info('UnitPlanAddOrUpdate', response.result)
-        this.restoreUnitPlan(response.result.id, false)
-        this.$message.success(this.$t('teacher.add-unit-plan.save-success'))
+        if (response.success) {
+          this.restoreUnitPlan(response.result.id, false)
+          this.$message.success(this.$t('teacher.add-unit-plan.save-success'))
+        } else {
+          this.$message.error(response.message)
+        }
       })
     },
     handlePublishUnitPlan () {

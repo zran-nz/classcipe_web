@@ -37,9 +37,13 @@ export default {
 
       MaterialAddOrUpdate(materialData).then((response) => {
         logger.info('MaterialAddOrUpdate response', response.result)
-        this.$router.replace({
-          path: '/teacher/unit-plan-material/' + this.unitPlanId + '/' + response.result.id
-        })
+        if (response.success) {
+          this.$router.replace({
+            path: '/teacher/unit-plan-material/' + this.unitPlanId + '/' + response.result.id
+          })
+        } else {
+          this.$message.error(response.message)
+        }
       })
     } else {
       logger.error('url param invalid unitPlanId:' + this.unitPlanId + ' materialId:' + this.materialId)
