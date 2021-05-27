@@ -20,44 +20,73 @@
     <a-row class="material-content">
       <a-col span="3">
         <div class="unit-menu-list">
-          <div class="unit-menu-title">
-            {{ $t('teacher.add-unit-plan.unit-plan') }}
-          </div>
+          <!--          <div class="unit-menu-title">-->
+          <!--            {{ $t('teacher.add-unit-plan.unit-plan') }}-->
+          <!--          </div>-->
           <div class="already-add-to-list">
-            <a-menu mode="inline">
-              <a-menu-item key="material">
+            <div class="add-to-type">
+              <div class="add-to-type-label">
                 <content-type-icon :type="contentType.material"/>
                 {{ $t('teacher.add-unit-plan.material') }}
-              </a-menu-item>
-              <a-menu-item key="assessment">
+                <template v-if="unitPlanData.materials && unitPlanData.materials.length">( {{ unitPlanData.materials.length }} )</template>
+              </div>
+              <div class="add-to-list">
+                <span v-for="(material,index) in unitPlanData.materials" :key="index" class="add-to-item">
+                  <router-link :to="'/teacher/unit-plan-material/' + unitPlanId + '/' + material.id">
+                    <a-icon type="link" />
+                    {{ material.name }}
+                  </router-link>
+                </span>
+              </div>
+            </div>
+            <div class="add-to-type">
+              <div class="add-to-type-label">
                 <content-type-icon :type="contentType.assessment"/>
                 {{ $t('teacher.add-unit-plan.assessment') }}
-              </a-menu-item>
-              <a-menu-item key="lesson">
+              </div>
+              <div class="add-to-list">
+                <!--                <span v-for="(material,index) in form.materials" :key="index" class="add-to-item">-->
+                <!--                  <router-link to="">-->
+                <!--                    <a-icon type="link" />-->
+                <!--                    {{ material.name }}-->
+                <!--                  </router-link>-->
+                <!--                </span>-->
+              </div>
+            </div>
+            <div class="add-to-type">
+              <div class="add-to-type-label">
                 <content-type-icon :type="contentType.lesson"/>
                 {{ $t('teacher.add-unit-plan.lesson') }}
-              </a-menu-item>
-            </a-menu>
+              </div>
+              <div class="add-to-list">
+                <!--                <span v-for="(material,index) in form.materials" :key="index" class="add-to-item">-->
+                <!--                  <router-link to="">-->
+                <!--                    <a-icon type="link" />-->
+                <!--                    {{ material.name }}-->
+                <!--                  </router-link>-->
+                <!--                </span>-->
+              </div>
+            </div>
           </div>
-          <a-divider />
-          <div class="unit-add-to">
-            <a-dropdown>
-              <a-button type="primary" block> <a-icon type="plus" /> {{ $t('teacher.add-unit-plan.add-to-this-unit-plan') }} </a-button>
-              <a-menu slot="overlay">
-                <a-menu-item>
-                  <a @click="handleAddUnitPlanMaterial">
-                    {{ $t('teacher.add-unit-plan.material') }}
-                  </a>
-                </a-menu-item>
-                <a-menu-item>
-                  {{ $t('teacher.add-unit-plan.assessment') }}
-                </a-menu-item>
-                <a-menu-item>
-                  {{ $t('teacher.add-unit-plan.lesson') }}
-                </a-menu-item>
-              </a-menu>
-            </a-dropdown>
-          </div>
+          <!--          <a-divider />-->
+          <!--          <div class="unit-add-to">-->
+          <!--            <a-dropdown>-->
+          <!--              <a-button type="primary" block> <a-icon type="plus" /> {{ $t('teacher.add-unit-plan.add-to-this-unit-plan') }} </a-button>-->
+          <!--              <a-menu slot="overlay">-->
+          <!--                <a-menu-item>-->
+          <!--                  <a @click="handleAddUnitPlanMaterial">-->
+          <!--                    {{ $t('teacher.add-unit-plan.material') }}-->
+          <!--                  </a>-->
+          <!--                </a-menu-item>-->
+          <!--                <a-menu-item>-->
+          <!--                  {{ $t('teacher.add-unit-plan.assessment') }}-->
+          <!--                </a-menu-item>-->
+          <!--                <a-menu-item>-->
+          <!--                  {{ $t('teacher.add-unit-plan.lesson') }}-->
+          <!--                </a-menu-item>-->
+          <!--              </a-menu>-->
+          <!--            </a-dropdown>-->
+          <!--          </div>-->
         </div>
       </a-col>
       <a-col span="21" class="upload-content">
@@ -137,7 +166,7 @@
                       {{ $t('teacher.add-unit-plan.material-name') }}
                     </div>
                     <div class="info-input">
-                      <a-input allow-clear :placeholder="$t('teacher.add-unit-plan.material-name')" v-model="material.name"/>
+                      <a-input :placeholder="$t('teacher.add-unit-plan.material-name')" v-model="material.name"/>
                     </div>
                   </div>
                 </a-col>
@@ -147,14 +176,13 @@
                       {{ $t('teacher.add-unit-plan.material-overview') }}
                     </div>
                     <div class="info-input">
-                      <a-textarea allow-clear rows="4" :placeholder="$t('teacher.add-unit-plan.overview')" v-model="material.overview"/>
+                      <a-textarea rows="4" :placeholder="$t('teacher.add-unit-plan.overview')" v-model="material.overview"/>
                     </div>
                   </div>
                 </a-col>
               </a-row>
             </div>
-            <a-divider dashed />
-            <div class="material-tag">
+            <div class="material-tag tag-block">
               <div class="tag-list">
                 <div class="tag-label">{{ $t('teacher.add-unit-plan.material-tag') }}: </div>
                 <div class="tag-item" v-for="(tag,index) in tagList" :key="index">
@@ -163,6 +191,68 @@
                       {{ tag }}
                     </a-tooltip>
                   </a-tag>
+                </div>
+              </div>
+            </div>
+            <div class="more-tag tag-block">
+              <div class="more-tag-block">
+                <div class="label-title">
+                  <a-icon type="plus" />
+                  <strong> {{ $t('teacher.add-unit-plan.more-tag') }}</strong>
+                </div>
+              </div>
+              <div class="more-tag-block">
+                <div class="label-title">
+                  {{ $t('teacher.add-unit-plan.concepts') }}&nbsp;:
+                </div>
+                <div class="tag-area">
+                  <div class="tag-list">
+                    <div class="tag-item" v-for="(concept,index) in unitPlanData.concepts" :key="index">
+                      <a-tag :color="material.concepts.indexOf(concept) === -1 ? '' : '#87d068'" @click="handleAddConcept(concept)">
+                        {{ concept }}
+                      </a-tag>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="more-tag-block">
+                <div class="label-title">
+                  {{ $t('teacher.add-unit-plan.key-question') }}
+                </div>
+                <div class="tag-area">
+                  <div class="question-item" v-for="(question,index) in unitPlanData.questions" :key="index">
+                    <div class="question-label">
+                      <strong> Question {{ index + 1 }}: {{ question.name }}</strong>
+                    </div>
+                    <div class="tag-list-line knowledge-tag-list">
+                      <div class="tag-item-line" v-for="(knowledgeTag,index) in question.knowledgeTags" :key="index" @click="handleSelectKnowledge(question, knowledgeTag)" >
+                        <div class="tag-name">
+                          <a-tag>
+                            {{ knowledgeTag.name }}
+                          </a-tag>
+                        </div>
+                        <div class="tag-desc">
+                          <a-tag>
+                            {{ knowledgeTag.description }}
+                          </a-tag>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="tag-list-line skill-tag-list">
+                      <div class="tag-item-line" v-for="(skillTag,index) in question.skillTags" :key="index" @click="handleSelectSkill(question, skillTag)" >
+                        <div class="tag-name">
+                          <a-tag>
+                            {{ skillTag.name }}
+                          </a-tag>
+                        </div>
+                        <div class="tag-desc">
+                          <a-tag>
+                            {{ skillTag.description }}
+                          </a-tag>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -187,10 +277,10 @@ import ImageTypeSvg from '@/assets/icons/filetype/image.svg?inline'
 import AudioTypeSvg from '@/assets/icons/filetype/audio.svg?inline'
 import { commonAPIUrl } from '@/api/common'
 import { renderSize } from '@/utils/util'
-import { MaterialAddOrUpdate } from '@/api/material'
+import { MaterialAddOrUpdate, MaterialQueryById } from '@/api/material'
 
 export default {
-  name: 'AddUnitPlan',
+  name: 'AddMaterial',
   components: {
     ContentTypeIcon,
     FileTypeSvg,
@@ -201,6 +291,8 @@ export default {
   },
   props: {
     // eslint-disable-next-line vue/require-default-prop
+    materialId: null,
+    // eslint-disable-next-line vue/require-default-prop
     unitPlanId: null
   },
   data () {
@@ -208,7 +300,9 @@ export default {
       contentType: typeMap,
       material: {
         name: 'Unnamed',
-        overview: ''
+        overview: '',
+        concepts: [],
+        questions: []
       },
 
       uploader: {
@@ -230,6 +324,7 @@ export default {
         createTime: '',
         updateTime: '',
         questions: [],
+        materials: [],
         scenario: {}
       },
       uploading: false,
@@ -244,7 +339,9 @@ export default {
         'purple'
       ],
 
-      tagList: []
+      tagList: [],
+      selectedKnowledgeTags: [],
+      selectedSkillTags: []
     }
   },
   computed: {
@@ -257,22 +354,42 @@ export default {
     }
   },
   created () {
-    logger.info('unitPlanId ' + this.unitPlanId + ' ' + this.$route.path)
-    this.restoreUnitPlan(this.unitPlanId)
+    logger.info('restoreData ' + this.unitPlanId + ' ' + this.materialId)
+    this.restoreData()
   },
   methods: {
-    restoreUnitPlan (unitPlanId) {
-      logger.info('restoreUnitPlan ' + unitPlanId)
+    restoreData () {
+      logger.info('restoreUnitPlan ' + this.unitPlanId)
       UnitPlanQueryById({
-        id: unitPlanId
+        id: this.unitPlanId
       }).then(response => {
-        logger.info('Material UnitPlanQueryById ' + unitPlanId, response.result)
+        logger.info('Material UnitPlanQueryById ' + this.unitPlanId, response.result)
         this.unitPlanData = response.result
         this.initTagList()
+      }).then(() => {
+        logger.info('restoreMaterial ' + this.materialId)
+        MaterialQueryById({
+          id: this.materialId
+        }).then(response => {
+          logger.info('Material MaterialQueryById ' + this.materialId, response.result)
+          this.material = response.result
+          this.unitPlanData.questions.forEach(question => {
+            if (!this.material.questions.find(item => item.id === question.id)) {
+              this.material.questions.push({
+                id: question.id,
+                name: question.name,
+                knowledgeTags: [],
+                skillTags: []
+              })
+            }
+          })
+          logger.info('material.questions ', this.material.questions)
+        })
       })
     },
 
     initTagList () {
+      logger.info('initTagList', this.unitPlanData.scenario)
       const list = []
       if (this.unitPlanData.scenario) {
         if (this.unitPlanData.scenario.sdgKeyWords && this.unitPlanData.scenario.sdgKeyWords.length) {
@@ -314,7 +431,7 @@ export default {
     handleAddUnitPlanMaterial () {
       logger.info('handleAddUnitPlanMaterial ' + this.unitPlanId)
       this.$router.push({
-        path: '/teacher/add-unit-plan-material/' + this.unitPlanId
+        path: '/teacher/unit-plan-material-redirect/' + this.unitPlanId + '/create'
       })
     },
 
@@ -323,14 +440,40 @@ export default {
         name: this.material.name,
         overview: this.material.overview,
         planId: this.unitPlanId,
-        fileUrl: this.uploader.url
+        fileUrl: this.uploader.url,
+        // concepts: [],
+        fileType: 0,
+        questions: [],
+        status: 0
+      }
+
+      if (this.materialId) {
+        materialData.id = this.materialId
       }
 
       MaterialAddOrUpdate(materialData).then((response) => {
         logger.info('handleAddOrUpdateMaterial response', response)
-        this.$message.success(this.$t('teacher.add-unit-plan.add-material-success'))
+        this.$message.success(this.$t('teacher.add-unit-plan.save-material-success'))
         this.$router.replace('/teacher/unit-plan/' + this.unitPlanId)
       })
+    },
+
+    handleAddConcept (concept) {
+      logger.info('handleAddConcept', concept)
+      if (this.material.concepts.indexOf(concept) === -1) {
+        this.material.concepts.push(concept)
+        this.tagList.push(concept)
+      } else {
+        this.material.concepts.splice(this.material.concepts.indexOf(concept), 1)
+        this.tagList.push(this.tagList.indexOf(concept), 1)
+      }
+    },
+
+    handleSelectKnowledge (question, knowledgeTag) {
+      logger.info('handleSelectKnowledge', question, knowledgeTag)
+    },
+    handleSelectSkill (question, skillTag) {
+      logger.info('handleSelectSkill', question, skillTag)
     }
   }
 }
@@ -377,13 +520,23 @@ export default {
   }
 
   .already-add-to-list {
-    .ant-menu-inline {
+    .add-to-type {
       border-right: none;
       color: @text-color;
-    }
-
-    .ant-menu-inline .ant-menu-item::after {
-      border-right: none;
+      .add-to-type-label {
+        padding: 15px 0 5px 0;
+        cursor: pointer;
+      }
+      .add-to-list {
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start;
+        line-height: 30px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        word-break: break-all;
+        white-space: nowrap;
+      }
     }
   }
 }
@@ -396,10 +549,9 @@ export default {
       margin: auto;
       display: flex;
       justify-content: center;
-      width: 70%;
 
       .upload-container {
-        padding: 50px 0;
+        padding: 80px 0;
       }
 
       .file-type {
@@ -446,11 +598,20 @@ export default {
           }
         }
 
+        .tag-block {
+          padding: 20px 16px;
+          margin-bottom: 24px;
+          border: 1px dashed rgb(217, 217, 217);
+          border-radius: 2px;
+        }
+
         .material-tag {
+          margin-top: 10px;
           width: 100%;
           .tag-list {
             display: flex;
             flex-direction: row;
+            flex-wrap: wrap;
             .tag-label {
               font-weight: bold;
               padding-right: 10px;
@@ -458,6 +619,76 @@ export default {
             .tag-item {
               font-size: 16px;
               margin-right: 10px;
+              margin-bottom: 10px;
+              overflow: hidden;
+              text-overflow: ellipsis;
+              word-break: break-all;
+              white-space: nowrap;
+            }
+          }
+        }
+
+        .more-tag {
+          .tag-list {
+            display: flex;
+            flex-direction: row;
+            flex-wrap: wrap;
+            .tag-label {
+              font-weight: bold;
+              padding-right: 10px;
+            }
+            .tag-item {
+              font-size: 16px;
+              margin-right: 10px;
+              margin-bottom: 10px;
+              overflow: hidden;
+              text-overflow: ellipsis;
+              word-break: break-all;
+              white-space: nowrap;
+            }
+          }
+          .label-title {
+            padding: 15px 0 5px 0;
+            strong {
+              padding-left: 5px;
+              font-size: 16px;
+            }
+          }
+        }
+      }
+    }
+  }
+
+  .more-tag-block {
+    .tag-area {
+      .question-item {
+        padding: 5px 0 5px 0;
+
+        .question-label {
+          line-height: 40px;
+          font-size: 18px;
+          cursor: pointer;
+        }
+
+        .tag-list-line {
+          display: flex;
+          flex-direction: column;
+          justify-content: flex-start;
+          .tag-item-line {
+            padding: 5px 0;
+            display: flex;
+            justify-content: flex-start;
+            flex-direction: row;
+            .tag-name {
+              width: 20%;
+              max-width: 150px;
+              overflow: hidden;
+              text-overflow: ellipsis;
+              word-break: break-all;
+              white-space: nowrap;
+            }
+            .tag-desc {
+              width: 80%;
               overflow: hidden;
               text-overflow: ellipsis;
               word-break: break-all;

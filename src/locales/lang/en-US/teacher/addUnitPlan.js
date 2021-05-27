@@ -51,7 +51,9 @@ export default {
   'teacher.add-unit-plan.material-name': 'Material name',
   'teacher.add-unit-plan.material-overview': 'Overview',
   'teacher.add-unit-plan.material-tag': 'Tag',
-  'teacher.add-unit-plan.add-material-success': 'add material success!',
+  'teacher.add-unit-plan.key-question': 'Key question',
+  'teacher.add-unit-plan.save-material-success': 'Save Success!',
+  'teacher.add-unit-plan.more-tag': 'please choose more tags from the Unit plan',
   'teacher.add-unit-plan.key-question-required-tips': 'please make sure your material is connected with at least one of the key questions before publishing',
   'teacher.add-unit-plan.knowledge-and-skill-required-tips': 'please make sure your material has relevant knowledge and skill tag before publishing',
   'teacher.add-unit-plan.about-the-scenariossssss': 'About the Scenariosss'

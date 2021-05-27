@@ -21,7 +21,7 @@
         </a-space>
       </a-col>
     </a-row>
-    <a-row class="unit-content">
+    <a-row class="unit-content" v-if="!contentLoading">
       <a-col span="3">
         <div class="unit-menu-list">
           <div class="unit-menu-title">
@@ -32,10 +32,11 @@
               <div class="add-to-type-label">
                 <content-type-icon :type="contentType.material"/>
                 {{ $t('teacher.add-unit-plan.material') }}
+                <template v-if="form.materials && form.materials.length">( {{ form.materials.length }} )</template>
               </div>
               <div class="add-to-list">
                 <span v-for="(material,index) in form.materials" :key="index" class="add-to-item">
-                  <router-link to="">
+                  <router-link :to="'/teacher/unit-plan-material/' + unitPlanId + '/' + material.id">
                     <a-icon type="link" />
                     {{ material.name }}
                   </router-link>
@@ -93,7 +94,7 @@
         </div>
       </a-col>
       <a-col span="15" class="main-content">
-        <a-card v-if="!contentLoading" :bordered="false" :style="{ borderLeft: '1px solid rgb(235, 238, 240)', borderRight: '1px solid rgb(235, 238, 240)' }" :body-style="{padding: '16px'}">
+        <a-card :bordered="false" :style="{ borderLeft: '1px solid rgb(235, 238, 240)', borderRight: '1px solid rgb(235, 238, 240)' }" :body-style="{padding: '16px'}">
           <a-form-model :model="form" :label-col="labelCol" :wrapper-col="wrapperCol" >
             <div class="form-block">
               <!--              unit-name-->
@@ -221,7 +222,7 @@
                 </a-form-model-item>
 
                 <a-form-model-item :label="$t('teacher.add-unit-plan.concepts')">
-                  <a-select v-model="form.concepts" @select="handleSelectConcept">
+                  <a-select v-model="form.concepts" @select="handleSelectConcept" mode="multiple">
                     <a-select-option v-for="(concept,index) in conceptsList" :value="concept.name" :key="index">
                       {{ concept.name }}
                     </a-select-option>
@@ -315,14 +316,14 @@
 
           </a-form-model>
         </a-card>
-        <a-skeleton :loading="contentLoading" active>
-        </a-skeleton>
       </a-col>
       <a-col span="6" class="right-reference-view">
         <a-card :bordered="false" :loading="referenceLoading">
         </a-card>
       </a-col>
     </a-row>
+    <a-skeleton :loading="contentLoading" active>
+    </a-skeleton>
   </a-card>
 </template>
 
@@ -365,7 +366,7 @@ export default {
       labelCol: { span: 4 },
       wrapperCol: { span: 18 },
       form: {
-        concepts: '',
+        concepts: [],
         image: '',
         inquiry: '',
         name: '',
@@ -657,13 +658,25 @@ export default {
       this.form.scenario.description = scenario.description
       this.form.scenario.id = scenario.id
       if (this.sdgTotal === 1) {
-        const sdg = scenario.sdgKeyWords[0]
-        sdg.selectedKeywords = sdg.keywords.map(keyword => keyword.name)
-        sdg.originKeywords = sdg.keywords
-        logger.info('sdg', sdg)
-        const sdgIndex = Object.keys(this.sdgDataObj)[0]
-        logger.info('sdgIndex', sdgIndex)
-        this.$set(this.sdgDataObj, sdgIndex, sdg)
+        if (scenario.sdgKeyWords.length) {
+          const sdg = scenario.sdgKeyWords[0]
+          logger.info('scenario.sdgKeyWords[0]', sdg)
+          sdg.selectedKeywords = sdg.keywords.map(keyword => keyword.name)
+          sdg.originKeywords = sdg.keywords
+          logger.info('sdg', sdg)
+          const sdgIndex = Object.keys(this.sdgDataObj)[0]
+          logger.info('sdgIndex', sdgIndex)
+          this.$set(this.sdgDataObj, sdgIndex, sdg)
+        } else {
+          const sdg = {
+            originKeywords: [],
+            selectedKeywords: []
+          }
+          logger.info('sdg keywords empty')
+          const sdgIndex = Object.keys(this.sdgDataObj)[0]
+          logger.info('sdgIndex', sdgIndex)
+          this.$set(this.sdgDataObj, sdgIndex, sdg)
+        }
         logger.info('after select scenarioObj: ', this.sdgDataObj, 'sdgMaxIndex ' + this.sdgMaxIndex, ' sdgTotal ' + this.sdgTotal)
       } else {
         logger.info('not use auto fill, because sdgTotal ' + this.sdgTotal)
@@ -713,12 +726,11 @@ export default {
     handleSelectSubject (subjects) {
       logger.info('handleSelectSubject', subjects)
       this.form.subjects = subjects
-      this.form.concepts = ''
+      this.form.concepts = []
     },
 
     handleSelectConcept (concept) {
-      logger.info('handleSelectConcept', concept)
-      this.form.concepts = concept
+      logger.info('handleSelectConcept', concept, this.form.concepts)
     },
 
     handleDeleteQuestion (questionItem, questionIndex) {
@@ -869,7 +881,7 @@ export default {
     handleAddUnitPlanMaterial () {
       logger.info('handleAddUnitPlanMaterial ' + this.unitPlanId)
       this.$router.push({
-        path: '/teacher/add-unit-plan-material/' + this.unitPlanId
+        path: '/teacher/unit-plan-material-redirect/' + this.unitPlanId + '/create'
       })
     }
   }

@@ -100,11 +100,18 @@ export const asyncRouterMap = [
             meta: { title: 'menu.teacher.unit-plan', keepAlive: true, permission: ['expert', 'teacher'] }
           },
           {
-            path: '/teacher/add-unit-plan-material/:unitPlanId',
+            path: '/teacher/unit-plan-material-redirect/:unitPlanId/:materialId',
+            name: 'MaterialRedirect',
+            props: true,
+            component: () => import('@/views/teacher/MaterialRedirect'),
+            meta: { title: 'menu.teacher.material', keepAlive: true, permission: ['expert', 'teacher'] }
+          },
+          {
+            path: '/teacher/unit-plan-material/:unitPlanId/:materialId',
             props: true,
             name: 'UnitPlan',
             component: () => import('@/views/teacher/AddMaterial'),
-            meta: { title: 'menu.teacher.add-unit-plan-material', keepAlive: true, permission: ['expert', 'teacher'] }
+            meta: { title: 'menu.teacher.unit-plan-material', keepAlive: true, permission: ['expert', 'teacher'] }
           }
         ]
       },
