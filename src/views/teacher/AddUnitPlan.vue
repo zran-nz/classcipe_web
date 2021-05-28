@@ -37,7 +37,14 @@
                 <span v-for="(material,index) in form.materials" :key="index" class="add-to-item">
                   <router-link :to="'/teacher/unit-plan-material/' + unitPlanId + '/' + material.id">
                     <a-icon type="link" />
-                    {{ material.name }}
+                    <span class="material-name">
+                      <a-tooltip placement="top">
+                        <template slot="title">
+                          {{ material.name }}
+                        </template>
+                        {{ material.name }}
+                      </a-tooltip>
+                    </span>
                   </router-link>
                   <a-popconfirm :title="$t('teacher.my-content.action-delete') + '?'" ok-text="Yes" @confirm="handleDeleteMaterial(material)" cancel-text="No">
                     <a-icon type="delete" class="hover-delete" />
@@ -632,7 +639,7 @@ export default {
       const formData = new FormData()
       formData.append('file', data.file, data.file.name)
       this.uploading = true
-      this.$http.post(commonAPIUrl.UploadFile, formData, { contentType: false, processData: false, headers: { 'Content-Type': 'multipart/form-data' } })
+      this.$http.post(commonAPIUrl.UploadFile, formData, { contentType: false, processData: false, headers: { 'Content-Type': 'multipart/form-data' }, timeout: 60000 })
         .then((response) => {
           logger.info('handleUploadImage upload response:', response)
           this.form.image = this.$store.getters.downloadUrl + response.result
@@ -1094,15 +1101,53 @@ export default {
   }
 
   .add-to-item {
+    display: flex;
+    justify-content: flex-start;
+    flex-direction: row;
+    padding: 0 5px;
+    box-sizing: border-box;
+    cursor: pointer;
+    &:hover {
+      background-color: fade(@outline-color, 20%);
+    }
+
+    a {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      justify-content: flex-start;
+      max-width: 150px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      word-break: break-all;
+      white-space: nowrap;
+
+      i {
+        padding-right: 5px;
+      }
+    }
+
+    .material-name {
+      max-width: 120px;
+      display: inline-block;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      word-break: break-all;
+      white-space: nowrap;
+    }
+
     .hover-delete {
-      color: @red-6;
+      color: @red-4;
       display: none;
       cursor: pointer;
+      justify-content: center;
+      align-items: center;
+      padding-left: 5px;
     }
 
     &:hover {
       .hover-delete {
-        display: inline-block;
+        display: flex;
       }
     }
   }

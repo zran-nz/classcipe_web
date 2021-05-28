@@ -124,7 +124,7 @@ export default {
           this.model = true
           this.modelSrc = img
           formData.append('file', data, 'avatar.png')
-          this.$http.post(commonAPIUrl.UploadFile, formData, { contentType: false, processData: false, headers: { 'Content-Type': 'multipart/form-data' } })
+          this.$http.post(commonAPIUrl.UploadFile, formData, { contentType: false, processData: false, headers: { 'Content-Type': 'multipart/form-data' }, timeout: 60000 })
             .then((response) => {
               console.log('upload response:', response)
               _this.$emit('ok', this.$store.getters.downloadUrl + response.result)

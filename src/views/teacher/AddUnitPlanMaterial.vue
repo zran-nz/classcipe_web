@@ -457,7 +457,8 @@ export default {
       this.$http.post(commonAPIUrl.UploadFile, formData, {
         contentType: false,
         processData: false,
-        headers: { 'Content-Type': 'multipart/form-data' }
+        headers: { 'Content-Type': 'multipart/form-data' },
+        timeout: 60000
       })
         .then((response) => {
           logger.info('material handleUpload upload response:', response)
