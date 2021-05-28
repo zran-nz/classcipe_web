@@ -1,5 +1,5 @@
 <template>
-  <a-card :bordered="false" :bodyStyle="{ padding: '16px 24px', height: '100%', minHeight: '500px' }">
+  <a-card :bordered="false" :loading="contentLoading" :bodyStyle="{ padding: '16px 24px', height: '100%', minHeight: '500px' }">
     <a-row class="material-plan-header">
       <a-col span="12">
         <a-space>
@@ -39,18 +39,17 @@
                 </template>
               </div>
               <div class="add-to-list">
-                <span v-for="(material,index) in unitPlanData.materials" :key="index" class="add-to-item">
-                  <router-link :to="'/teacher/unit-plan-material/' + unitPlanId + '/' + material.id">
-
-                    <template v-if="material.id === materialId">
+                <span v-for="(materialItem,index) in unitPlanData.materials" :key="index" class="add-to-item">
+                  <a>
+                    <template v-if="materialItem.id === materialId">
                       <a-icon type="arrow-right" />
-                      <strong>{{ material.name }}</strong>
+                      <strong class="material-name">{{ materialItem.name }}</strong>
                     </template>
                     <template v-else>
                       <a-icon type="link" />
-                      {{ material.name }}
+                      <span class="material-name">{{ materialItem.name }}</span>
                     </template>
-                  </router-link>
+                  </a>
                 </span>
               </div>
             </div>
@@ -133,6 +132,31 @@
                 :showUploadList="false"
                 :customRequest="handleUpload"
               >
+                <template v-if="!uploading">
+                  <template v-if="!material.fileUrl">
+                    <div class="upload-container">
+                      <p class="ant-upload-drag-icon">
+                        <a-icon type="picture" />
+                      </p>
+                      <p class="ant-upload-text">
+                        {{ $t('teacher.add-unit-plan.upload-material') }}
+                      </p>
+                    </div>
+                  </template>
+                  <template v-if="material.fileUrl">
+                    <div class="upload-container">
+                      <p class="ant-upload-drag-icon">
+                        <video-type-svg v-if="material.fileType === fileType.video" />
+                        <audio-type-svg v-if="material.fileType === fileType.audio" />
+                        <image-type-svg v-if="material.fileType === fileType.img" />
+                        <file-type-svg v-if="material.fileType === fileType.other"/>
+                      </p>
+                      <a class="ant-upload-text">
+                        <a-icon type="link" /> {{ filename }}
+                      </a>
+                    </div>
+                  </template>
+                </template>
                 <template v-if="uploading">
                   <div class="upload-container">
                     <p class="ant-upload-drag-icon">
@@ -141,35 +165,6 @@
                     <p class="ant-upload-text">
                       <a-spin />
                       <span class="uploading-tips">{{ $t('teacher.add-unit-plan.uploading') }}</span>
-                    </p>
-                  </div>
-                </template>
-                <template v-if="!uploading && uploader && uploader.url">
-                  <div class="image-preview">
-                    <a-result status="success" :title="$t('teacher.add-unit-plan.uploading-success')">
-                      <div class="desc">
-                        <p class="file-info">
-                          <strong>{{ $t('teacher.add-unit-plan.file-name') }}: {{ uploader.file.name }}</strong>
-                        </p>
-                        <p class="file-info">
-                          <strong>{{ $t('teacher.add-unit-plan.file-size') }}: {{ filesize }}</strong>
-                        </p>
-                        <p class="file-info">
-                          <a :href="uploader.url" target="_blank">
-                            <a-icon type="download" />
-                            {{ $t('teacher.add-unit-plan.download') }}</a>
-                        </p>
-                      </div>
-                    </a-result>
-                  </div>
-                </template>
-                <template v-if="!uploading && uploader && !uploader.url">
-                  <div class="upload-container">
-                    <p class="ant-upload-drag-icon">
-                      <a-icon type="picture" />
-                    </p>
-                    <p class="ant-upload-text">
-                      {{ $t('teacher.add-unit-plan.upload-material') }}
                     </p>
                   </div>
                 </template>
@@ -249,8 +244,8 @@
                     <div class="tag-list-line knowledge-tag-list">
                       <div
                         class="tag-item-line"
-                        v-for="(knowledgeTag,index) in question.knowledgeTags"
-                        :key="index"
+                        v-for="(knowledgeTag,knowledgeIndex) in question.knowledgeTags"
+                        :key="knowledgeIndex"
                         @click="handleSelectKnowledge(question, knowledgeTag)">
                         <div class="tag-name">
                           <a-tag :color="selectedKnowledgeTagIdList.indexOf(knowledgeTag.id) === -1 ? '' : '#87d068'">
@@ -267,8 +262,8 @@
                     <div class="tag-list-line skill-tag-list">
                       <div
                         class="tag-item-line"
-                        v-for="(skillTag,index) in question.skillTags"
-                        :key="index"
+                        v-for="(skillTag, skillIndex) in question.skillTags"
+                        :key="skillIndex"
                         @click="handleSelectSkill(question, skillTag)">
                         <div class="tag-name">
                           <a-tag :color="selectedSkillTagIdList.indexOf(skillTag.id) === -1 ? '' : '#87d068'">
@@ -301,6 +296,7 @@
 <script>
 import * as logger from '@/utils/logger'
 import { typeMap } from '@/const/teacher'
+import { fileTypeMap } from '@/const/material'
 import ContentTypeIcon from '@/components/Teacher/ContentTypeIcon'
 import { UnitPlanQueryById } from '@/api/unitPlan'
 import FileTypeSvg from '@/assets/icons/filetype/file_type.svg?inline'
@@ -309,11 +305,11 @@ import LinkTypeSvg from '@/assets/icons/filetype/web.svg?inline'
 import ImageTypeSvg from '@/assets/icons/filetype/image.svg?inline'
 import AudioTypeSvg from '@/assets/icons/filetype/audio.svg?inline'
 import { commonAPIUrl } from '@/api/common'
-import { renderSize } from '@/utils/util'
+import { getFileType, renderSize } from '@/utils/util'
 import { MaterialAddOrUpdate, MaterialQueryById } from '@/api/material'
 
 export default {
-  name: 'AddMaterial',
+  name: 'AddUnitPlanMaterial',
   components: {
     ContentTypeIcon,
     FileTypeSvg,
@@ -330,7 +326,9 @@ export default {
   },
   data () {
     return {
+      contentLoading: true,
       contentType: typeMap,
+      fileType: fileTypeMap,
       material: {
         name: '',
         overview: '',
@@ -340,15 +338,6 @@ export default {
         planId: null,
         fileType: 0,
         status: 0
-      },
-
-      uploader: {
-        url: '',
-        file: {
-          name: '',
-          size: 0,
-          type: ''
-        }
       },
 
       unitPlanData: {
@@ -382,12 +371,11 @@ export default {
     }
   },
   computed: {
-    filesize () {
-      if (this.uploader && this.uploader.file && this.uploader.file.size) {
-        return renderSize(this.uploader.file.size)
-      } else {
-        return renderSize('')
+    filename () {
+      if (this.material && this.material.fileUrl) {
+        return this.material.fileUrl.substr(this.material.fileUrl.lastIndexOf('/') + 1)
       }
+      return ''
     }
   },
   created () {
@@ -410,7 +398,6 @@ export default {
         }).then(response => {
           logger.info('Material MaterialQueryById ' + this.materialId, response.result)
           this.material = response.result
-          this.uploader.url = this.material.fileUrl
           this.unitPlanData.questions.forEach(question => {
             if (!this.material.questions.find(item => item.id === question.id)) {
               this.material.questions.push({
@@ -422,6 +409,8 @@ export default {
             }
           })
           logger.info('material.questions ', this.material.questions)
+        }).finally(() => {
+          this.contentLoading = false
         })
       })
     },
@@ -450,22 +439,29 @@ export default {
     },
     handleUpload (data) {
       logger.info('handleUpload', data)
-      this.uploader.file = data.file
       const formData = new FormData()
       formData.append('file', data.file, data.file.name)
       this.uploading = true
+      const oldFileUrl = this.material.fileUrl
+      const oldFileType = this.material.fileType
+      this.material.fileUrl = ''
+      this.material.fileType = getFileType(data.file.type)
       this.$http.post(commonAPIUrl.UploadFile, formData, {
         contentType: false,
         processData: false,
-        headers: { 'Content-Type': 'multipart/form-data' },
-        timeout: 60000
+        headers: { 'Content-Type': 'multipart/form-data' }
       })
         .then((response) => {
           logger.info('material handleUpload upload response:', response)
-          this.uploader.url = this.$store.getters.downloadUrl + response.result
+          this.material.fileUrl = this.$store.getters.downloadUrl + response.result
         }).catch(err => {
         logger.error('material handleUpload error', err)
         this.$message.error(this.$t('teacher.add-unit-plan.uploading-failed'))
+      }).catch((err) => {
+        logger.error('handleUpload err', err)
+        this.material.fileUrl = oldFileUrl
+        this.material.fileType = oldFileType
+        logger.error('handleUpload err reset fileUrl', this.material.fileUrl)
       }).finally(() => {
         this.uploading = false
       })
@@ -479,16 +475,7 @@ export default {
     },
 
     handleAddOrUpdateMaterial () {
-      const materialData = {
-        name: this.material.name,
-        overview: this.material.overview,
-        planId: this.unitPlanId,
-        fileUrl: this.uploader.url,
-        concepts: this.material.concepts,
-        fileType: 0,
-        questions: this.material.questions,
-        status: 0
-      }
+      const materialData = Object.assign(this.material)
 
       if (this.materialId) {
         materialData.id = this.materialId
@@ -498,7 +485,6 @@ export default {
         logger.info('handleAddOrUpdateMaterial response', response)
         if (response.success) {
           this.$message.success(this.$t('teacher.add-unit-plan.save-material-success'))
-          this.$router.replace('/teacher/unit-plan/' + this.unitPlanId)
         } else {
           this.$message.error(response.message)
         }
@@ -803,6 +789,58 @@ export default {
   .action-line {
     padding: 24px 0;
     text-align: center;
+  }
+
+  .add-to-item {
+    display: flex;
+    justify-content: flex-start;
+    flex-direction: row;
+    padding: 0 5px;
+    box-sizing: border-box;
+    cursor: pointer;
+    &:hover {
+      background-color: fade(@outline-color, 20%);
+    }
+
+    a {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      justify-content: flex-start;
+      max-width: 150px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      word-break: break-all;
+      white-space: nowrap;
+
+      i {
+        padding-right: 5px;
+      }
+    }
+
+    .material-name {
+      max-width: 120px;
+      display: inline-block;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      word-break: break-all;
+      white-space: nowrap;
+    }
+  }
+
+  .ant-upload-drag-icon {
+    height: 50px;
+    width: 50px;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    margin: auto;
+
+    svg {
+      height: 50px;
+      width: 50px;
+    }
   }
 }
 </style>

@@ -1,4 +1,5 @@
 import moment from 'moment'
+import { fileTypeMap } from '@/const/material'
 
 export function timeFix () {
   const time = new Date()
@@ -111,4 +112,16 @@ export function renderSize (value) {
 
 export function formatLocalUTC (dataStr, pattern = 'YYYY-MM-DD HH:mm:ss') {
   return moment.utc(dataStr).local().format(pattern)
+}
+
+export function getFileType (fileTypeStr) {
+  if (fileTypeStr.indexOf('image') !== -1) {
+    return fileTypeMap.img
+  } else if (fileTypeStr.indexOf('video') !== -1) {
+    return fileTypeMap.video
+  } else if (fileTypeStr.indexOf('audio') !== -1) {
+    return fileTypeMap.audio
+  } else {
+    return fileTypeMap.other
+  }
 }
