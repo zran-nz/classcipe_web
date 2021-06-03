@@ -1,5 +1,28 @@
 <template>
   <div class="knowledge-wrapper">
+    <div class="tag-list-show">
+      <a-row v-for="(knowledgeTag,index) in selectedKnowledgeTags" :key="index" class="tag-line">
+        <a-col span="5" class="tag-name-col">
+          <span class="tag-name tag-show-item">
+            <a-icon type="tag" class="tag-name-icon"/>
+            <a-tooltip placement="top">
+              <template slot="title">{{ knowledgeTag.name }}</template>
+              {{ knowledgeTag.name }}
+            </a-tooltip>
+          </span>
+        </a-col>
+        <a-col span="17" class="tag-name-col">
+          <span class="tag-description  tag-show-item">
+            {{ knowledgeTag.description }}
+          </span>
+        </a-col>
+        <a-col span="2" class="tag-action-col">
+          <span class="tag-action">
+            <a-icon type="delete" @click="handleDeleteTag(knowledgeTag)"/>
+          </span>
+        </a-col>
+      </a-row>
+    </div>
     <div class="knowledge-tag-wrapper">
       <a-row >
         <a-col span="3">
@@ -102,29 +125,6 @@
               </div>
             </div>
           </div>
-        </a-col>
-      </a-row>
-    </div>
-    <div class="tag-list-show">
-      <a-row v-for="(knowledgeTag,index) in selectedKnowledgeTags" :key="index" class="tag-line">
-        <a-col span="5" class="tag-name-col">
-          <span class="tag-name tag-show-item">
-            <a-icon type="tag" class="tag-name-icon"/>
-            <a-tooltip placement="top">
-              <template slot="title">{{ knowledgeTag.name }}</template>
-              {{ knowledgeTag.name }}
-            </a-tooltip>
-          </span>
-        </a-col>
-        <a-col span="17" class="tag-name-col">
-          <span class="tag-description  tag-show-item">
-            {{ knowledgeTag.description }}
-          </span>
-        </a-col>
-        <a-col span="2" class="tag-action-col">
-          <span class="tag-action">
-            <a-icon type="delete" @click="handleDeleteTag(knowledgeTag)"/>
-          </span>
         </a-col>
       </a-row>
     </div>
@@ -486,10 +486,11 @@ export default {
 }
 
 .tag-list-show {
-  padding-top: 15px;
+  padding-bottom: 15px;
   .tag-line {
-    transition: all 0.2 ease-in;
+    transition: all 200ms ease-in;
     cursor: pointer;
+    padding-left: 10px;
 
     &:hover {
       color:  @select-item-selected-color;
