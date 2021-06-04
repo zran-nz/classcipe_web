@@ -3,8 +3,8 @@
     <div class="tag-list-show new-knowledge-tag-wrapper" :data-qidx="questionIndex">
       <a-row>
         <a-col offset="4" span="18">
-          <a-row v-for="(knowledgeTag,index) in selectedKnowledgeTags" :key="index" class="tag-line" @click.native="handleActiveSelectedTag(knowledgeTag)">
-            <a-col span="5" class="tag-name-col">
+          <a-row v-for="(knowledgeTag,index) in selectedKnowledgeTags" :key="index" class="tag-line" >
+            <a-col span="5" class="tag-name-col" @click.native="handleActiveSelectedTag(knowledgeTag)">
               <span class="tag-name tag-show-item">
                 <a-icon type="tag" class="tag-name-icon"/>
                 <a-tooltip placement="top">
@@ -13,17 +13,17 @@
                 </a-tooltip>
               </span>
             </a-col>
-            <a-col span="17" class="tag-name-col">
+            <a-col span="17" class="tag-name-col" @click.native="handleActiveSelectedTag(knowledgeTag)">
               <span class="tag-description  tag-show-item">
                 {{ knowledgeTag.description }}
               </span>
             </a-col>
             <a-col span="2" class="tag-action-col">
               <span class="tag-action">
-                <a-icon type="sync" @click="handleChangeTag(knowledgeTag)"/>
+                <a-icon type="sync" @click.native="handleChangeTag(knowledgeTag)"/>
               </span>
               <span class="tag-action">
-                <a-icon type="delete" @click="handleDeleteTag(knowledgeTag)"/>
+                <a-icon type="delete" @click.native="handleDeleteTag(knowledgeTag)"/>
               </span>
             </a-col>
           </a-row>
@@ -147,7 +147,7 @@
                       <!--                      <div class="tag-item input-tag-item" v-show="showNewTagInput">-->
                       <!--                        <a-input :placeholder="$t('teacher.add-unit-plan.input-new-tag')" v-model="newTag" class="new-tag-input" @keyup.enter="handleAddNewTag"/>-->
                       <!--                      </div>-->
-                      <div class="tag-item add-tag-item-icon" v-show="mode === modeType.associate">
+                      <div class="tag-item add-tag-item-icon" v-show="mode === modeType.associate && subKnowledgeId">
                         <a-popconfirm
                           :title="$t('teacher.add-unit-plan.knowledge-add-tags-confirm', {tagName: this.createdKnowledgeTag})"
                           ok-text="Yes"
@@ -474,7 +474,7 @@ export default {
       })
     },
 
-    refreshKnowledgeTags () {
+    refreshKnowledgeTags (tagDomId) {
       this.loadingKnowledge = true
       logger.info('refreshKnowledgeTags')
       KnowledgeQueryTagsByKnowledgeId({
@@ -482,15 +482,26 @@ export default {
       }).then(response => {
         logger.info('KnowledgeQueryTagsByKnowledgeId', response)
         this.knowledgeTags = response.result
+        const treeChildItem = this.knowledgeTreeChild.find(item => item.id === this.subKnowledgeId)
+        logger.info('refreshKnowledgeTags find tree child item ', treeChildItem)
+        if (treeChildItem) {
+          treeChildItem.tags = response.result
+        }
       }).finally(() => {
         this.loadingKnowledge = false
+        if (tagDomId) {
+          this.$nextTick(() => {
+            logger.info('refreshKnowledgeTags tagDomId ' + tagDomId)
+            scrollIntoViewById('knowledge-tag-id-' + tagDomId)
+          })
+        }
       })
     },
 
     handleChangeTag (knowledgeTag) {
       logger.info('handleChangeTag', knowledgeTag)
-      this.mode = this.modeType.select
       this.createdKnowledgeTag = knowledgeTag.name
+      this.mode = this.modeType.associate
       this.handleActiveSelectedTag(knowledgeTag)
     },
 
@@ -575,7 +586,6 @@ export default {
     },
 
     handleActiveSelectedTag (tagData) {
-      this.mode = this.modeType.associate
       logger.info('handleActiveSelectedTag', tagData)
       this.gradeId = tagData.gradeId
       if (this.mainSubjectId !== tagData.mainSubjectId) {
@@ -641,8 +651,11 @@ export default {
         name: this.createdKnowledgeTag
       }).then(response => {
         logger.info('handleAssociate KnowledgeAddOrUpdateTag', response)
-        this.refreshKnowledgeTags()
+        this.$message.success('success')
+        this.refreshKnowledgeTags(response.result.id)
         this.mode = this.modeType.select
+        this.inputTag = ''
+        this.createdKnowledgeTag = null
       })
     }
   }
