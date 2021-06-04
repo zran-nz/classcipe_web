@@ -1,4 +1,5 @@
 import config from '@/config/defaultSettings'
+import * as logger from '@/utils/logger'
 
 export const setDocumentTitle = function (title) {
   document.title = title
@@ -19,3 +20,17 @@ export const setDocumentTitle = function (title) {
 }
 
 export const domTitle = config.title
+
+export function scrollIntoViewById (domId) {
+  const element = document.getElementById(domId)
+  if (element) {
+    logger.info('scrollIntoViewById ' + domId)
+    element.scrollIntoView({
+      block: 'center',
+      inline: 'center',
+      behavior: 'smooth'
+    })
+  } else {
+    logger.info('scrollIntoViewById not found dom with id ' + domId)
+  }
+}

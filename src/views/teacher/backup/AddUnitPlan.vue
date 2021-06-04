@@ -277,22 +277,35 @@
                   </a-col>
                 </a-row>
                 <a-form-model-item :label="$t('teacher.add-unit-plan.nth-key-question')">
-                  <a-input v-model="questionItem.name" allow-clear/>
+                  <a-input v-model="questionItem.name" allow-clear />
                 </a-form-model-item>
 
                 <!--knowledge tag-select -->
-                <new-knowledge-tag
-                  :question-index="questionIndex"
-                  :grade-list="gradeList"
-                  :subject-tree="subjectTree"
-                  :default-grade-id="questionItem.knowledgeGradeId"
-                  :default-main-subject-id="questionItem.knowledgeMainSubjectId"
-                  :default-sub-subject-id="questionItem.knowledgeSubSubjectId"
-                  :selected-knowledge-tags="questionItem.knowledgeTags"
-                  @remove-knowledge-tag="handleRemoveKnowledgeTag"
-                  @add-knowledge-tag="handleAddKnowledgeTag"
-                />
+                <a-form-model-item :label="$t('teacher.add-unit-plan.knowledge-tags')">
+                  <knowledge-tag
+                    :question-index="questionIndex"
+                    :grade-list="gradeList"
+                    :subject-tree="subjectTree"
+                    :default-grade-id="questionItem.knowledgeGradeId"
+                    :default-main-subject-id="questionItem.knowledgeMainSubjectId"
+                    :default-sub-subject-id="questionItem.knowledgeSubSubjectId"
+                    :selected-knowledge-tags="questionItem.knowledgeTags"
+                    @remove-knowledge-tag="handleRemoveKnowledgeTag"
+                    @add-knowledge-tag="handleAddKnowledgeTag"
+                  />
+                </a-form-model-item>
 
+                <!--skill tag-select-->
+                <a-form-model-item :label="$t('teacher.add-unit-plan.skill-tags')">
+                  <skill-tag
+                    :question-index="questionIndex"
+                    :grade-list="gradeList"
+                    :default-grade-id="questionItem.skillGradeId"
+                    :selected-skill-tags="questionItem.skillTags"
+                    @remove-skill-tag="handleRemoveSkillTag"
+                    @add-skill-tag="handleAddSkillTag"
+                  />
+                </a-form-model-item>
               </div>
 
               <a-row>
@@ -338,7 +351,7 @@ import { GetTreeByKey } from '@/api/tag'
 import { GetMyGrades } from '@/api/teacher'
 import { SubjectTree } from '@/api/subject'
 import { formatSubjectTree } from '@/utils/bizUtil'
-import NewKnowledgeTag from '@/components/UnitPlan/NewKnowledgeTag'
+import KnowledgeTag from '@/components/UnitPlan/KnowledgeTag'
 import SkillTag from '@/components/UnitPlan/SkillTag'
 import { ChangeStatus, UnitPlanAddOrUpdate, UnitPlanQueryById } from '@/api/unitPlan'
 import { formatLocalUTC } from '@/utils/util'
@@ -350,7 +363,7 @@ export default {
     ContentTypeIcon,
     InputSearch,
     SdgTagInput,
-    NewKnowledgeTag,
+    KnowledgeTag,
     SkillTag
   },
   props: {
@@ -448,7 +461,6 @@ export default {
       questionDataObj: {
         __question_0: {
           questionId: null,
-          visible: false,
           name: '',
           knowledgeMainSubjectId: '',
           knowledgeSubSubjectId: '',
@@ -586,7 +598,6 @@ export default {
           unitPlanData.questions.forEach(questionItem => {
             const question = {
               questionId: questionItem.id,
-              visible: false,
               name: questionItem.name,
               knowledgeMainSubjectId: '',
               knowledgeSubSubjectId: '',
@@ -764,12 +775,7 @@ export default {
       const newTag = {
         description: data.description,
         id: data.id,
-        name: data.name,
-        gradeId: data.gradeId,
-        mainSubjectId: data.mainSubjectId,
-        subSubjectId: data.subSubjectId,
-        mainKnowledgeId: data.mainKnowledgeId,
-        subKnowledgeId: data.subKnowledgeId
+        name: data.name
       }
       this.questionDataObj[data.questionIndex].knowledgeTags.push(newTag)
     },
@@ -777,7 +783,6 @@ export default {
     handleAddMoreQuestion () {
       const question = {
         questionId: null,
-        visible: false,
         name: '',
         knowledgeMainSubjectId: '',
         knowledgeSubSubjectId: '',

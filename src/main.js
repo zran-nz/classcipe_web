@@ -24,6 +24,7 @@ import './global.less' // global style
 import { FormModel } from 'ant-design-vue'
 
 import Moment from 'moment'
+import * as logger from '@/utils/logger'
 Vue.use(FormModel)
 
 // formatDate
@@ -48,9 +49,25 @@ Vue.component('page-header-wrapper', PageHeaderWrapper)
 window.umi_plugin_ant_themeVar = themePluginConfig.theme
 
 // globalClick
-Vue.prototype.globalClick = function (callback) {
-  document.getElementById('app').onclick = function (event) {
-    callback(event)
+window.__globalClickHandler = new Map()
+Vue.prototype.globalClick = function (callback, pageName = '', reBind = false) {
+  logger.info('globalClick handler', window.__globalClickHandler)
+  if (pageName && window.__globalClickHandler.get(pageName)) {
+    if (reBind) {
+      logger.info('reBind globalClick handler for ' + pageName, callback)
+      document.getElementById('app').addEventListener('click', function (event) {
+        callback(event)
+      })
+      window.__globalClickHandler.set(pageName, callback)
+    } else {
+      logger.info('already bind globalClick handler for ' + pageName + ' skip!', callback)
+    }
+  } else {
+    logger.info('bind globalClick handler for ' + pageName, callback)
+    document.getElementById('app').addEventListener('click', function (event) {
+      callback(event)
+    })
+    window.__globalClickHandler.set(pageName, callback)
   }
 }
 

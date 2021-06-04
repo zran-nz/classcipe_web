@@ -305,7 +305,7 @@ import LinkTypeSvg from '@/assets/icons/filetype/web.svg?inline'
 import ImageTypeSvg from '@/assets/icons/filetype/image.svg?inline'
 import AudioTypeSvg from '@/assets/icons/filetype/audio.svg?inline'
 import { commonAPIUrl } from '@/api/common'
-import { getFileType, renderSize } from '@/utils/util'
+import { getFileType } from '@/utils/util'
 import { MaterialAddOrUpdate, MaterialQueryById } from '@/api/material'
 
 export default {
