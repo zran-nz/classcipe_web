@@ -1,5 +1,5 @@
 <template>
-  <a-card :bordered="false" :loading="contentLoading" :bodyStyle="{ padding: '16px 24px', height: '100%', minHeight: '500px' }">
+  <a-card :bordered="false" :loading="contentLoading" :bodyStyle="{ padding: '16px 24px 60px 24px', height: '100%', minHeight: '500px' }">
     <a-row class="material-plan-header">
       <a-col span="12">
         <a-space>
@@ -24,153 +24,65 @@
       </a-col>
     </a-row>
     <a-row class="material-content">
-      <a-col span="3">
-        <div class="unit-menu-list">
-          <!--          <div class="unit-menu-title">-->
-          <!--            {{ $t('teacher.add-unit-plan.unit-plan') }}-->
-          <!--          </div>-->
-          <div class="already-add-to-list">
-            <div class="add-to-type">
-              <div class="add-to-type-label">
-                <content-type-icon :type="contentType.material" />
-                {{ $t('teacher.add-unit-plan.material') }}
-                <template v-if="unitPlanData.materials && unitPlanData.materials.length">(
-                  {{ unitPlanData.materials.length }} )
+      <a-col span="4" class="drag-material">
+        <div class="material-drag-wrapper">
+          <div class="drag-list-wrapper">
+            <draggable :list="dragMaterialList" :group="{ name: 'material', pull: 'clone', put: false }" :clone="handleDragMaterialComponent" class="drag-list" :update="null">
+              <a-tooltip placement="right" v-for="item in dragMaterialList" :key="item.name">
+                <template slot="title">
+                  <span> {{ item.name }}</span>
                 </template>
-              </div>
-              <div class="add-to-list">
-                <span v-for="(materialItem,index) in unitPlanData.materials" :key="index" class="add-to-item">
-                  <a>
-                    <template v-if="materialItem.id === materialId">
-                      <a-icon type="arrow-right" />
-                      <strong class="material-name">{{ materialItem.name }}</strong>
-                    </template>
-                    <template v-else>
-                      <a-icon type="link" />
-                      <span class="material-name">{{ materialItem.name }}</span>
-                    </template>
-                  </a>
-                </span>
-              </div>
-            </div>
-            <div class="add-to-type">
-              <div class="add-to-type-label">
-                <content-type-icon :type="contentType.assessment" />
-                {{ $t('teacher.add-unit-plan.assessment') }}
-              </div>
-              <div class="add-to-list">
-                <!--                <span v-for="(material,index) in form.materials" :key="index" class="add-to-item">-->
-                <!--                  <router-link to="">-->
-                <!--                    <a-icon type="link" />-->
-                <!--                    {{ material.name }}-->
-                <!--                  </router-link>-->
-                <!--                </span>-->
-              </div>
-            </div>
-            <div class="add-to-type">
-              <div class="add-to-type-label">
-                <content-type-icon :type="contentType.lesson" />
-                {{ $t('teacher.add-unit-plan.lesson') }}
-              </div>
-              <div class="add-to-list">
-                <!--                <span v-for="(material,index) in form.materials" :key="index" class="add-to-item">-->
-                <!--                  <router-link to="">-->
-                <!--                    <a-icon type="link" />-->
-                <!--                    {{ material.name }}-->
-                <!--                  </router-link>-->
-                <!--                </span>-->
-              </div>
-            </div>
+                <div class="drag-item" draggable="true">
+                  <div class="icon">
+                    <text-type-svg v-if="item.type === 'text'"/>
+                    <image-type-svg v-else-if="item.type === 'image'"/>
+                    <video-type-svg v-else-if="item.type === 'video'"/>
+                    <audio-type-svg v-else-if="item.type === 'audio'"/>
+                    <embed-type-svg v-else-if="item.type === 'embed'"/>
+                    <upload-svg v-else/>
+                  </div>
+                  <div class="label">
+                    {{ item.name }}
+                  </div>
+                </div>
+              </a-tooltip>
+            </draggable>
           </div>
-          <!--          <a-divider />-->
-          <!--          <div class="unit-add-to">-->
-          <!--            <a-dropdown>-->
-          <!--              <a-button type="primary" block> <a-icon type="plus" /> {{ $t('teacher.add-unit-plan.add-to-this-unit-plan') }} </a-button>-->
-          <!--              <a-menu slot="overlay">-->
-          <!--                <a-menu-item>-->
-          <!--                  <a @click="handleAddUnitPlanMaterial">-->
-          <!--                    {{ $t('teacher.add-unit-plan.material') }}-->
-          <!--                  </a>-->
-          <!--                </a-menu-item>-->
-          <!--                <a-menu-item>-->
-          <!--                  {{ $t('teacher.add-unit-plan.assessment') }}-->
-          <!--                </a-menu-item>-->
-          <!--                <a-menu-item>-->
-          <!--                  {{ $t('teacher.add-unit-plan.lesson') }}-->
-          <!--                </a-menu-item>-->
-          <!--              </a-menu>-->
-          <!--            </a-dropdown>-->
-          <!--          </div>-->
+          <div class="drag-tips">
+          </div>
         </div>
       </a-col>
-      <a-col span="21" class="upload-content">
+      <a-col span="20" class="upload-content">
         <div class="uploader-wrapper">
-          <!--          <div class="file-type">-->
-          <!--            <div class="file-type-list">-->
-          <!--              <div class="file-type-item">-->
-          <!--                <file-type-svg />-->
-          <!--              </div>-->
-          <!--              <div class="file-type-item">-->
-          <!--                <link-type-svg />-->
-          <!--              </div>-->
-          <!--              <div class="file-type-item">-->
-          <!--                <video-type-svg />-->
-          <!--              </div>-->
-          <!--              <div class="file-type-item">-->
-          <!--                <image-type-svg />-->
-          <!--              </div>-->
-          <!--              <div class="file-type-item">-->
-          <!--                <audio-type-svg />-->
-          <!--              </div>-->
-          <!--            </div>-->
-          <!--          </div>-->
           <div class="uploader-container">
             <div class="uploader">
-              <a-upload-dragger
-                name="file"
-                accept="image/png, image/jpeg"
-                :showUploadList="false"
-                :customRequest="handleUpload"
-              >
-                <template v-if="!uploading">
-                  <template v-if="!material.fileUrl">
-                    <div class="upload-container">
-                      <p class="ant-upload-drag-icon">
-                        <a-icon type="picture" />
-                      </p>
-                      <p class="ant-upload-text">
-                        {{ $t('teacher.add-unit-plan.upload-material') }}
-                      </p>
-                    </div>
-                  </template>
-                  <template v-if="material.fileUrl">
-                    <div class="upload-container">
-                      <p class="ant-upload-drag-icon">
-                        <video-type-svg v-if="material.fileType === fileType.video" />
-                        <audio-type-svg v-if="material.fileType === fileType.audio" />
-                        <image-type-svg v-if="material.fileType === fileType.img" />
-                        <file-type-svg v-if="material.fileType === fileType.other"/>
-                      </p>
-                      <a class="ant-upload-text">
-                        <a-icon type="link" /> {{ filename }}
-                      </a>
-                    </div>
-                  </template>
-                </template>
-                <template v-if="uploading">
-                  <div class="upload-container">
-                    <p class="ant-upload-drag-icon">
-                      <a-icon type="cloud-upload" />
-                    </p>
-                    <p class="ant-upload-text">
-                      <a-spin />
-                      <span class="uploading-tips">{{ $t('teacher.add-unit-plan.uploading') }}</span>
-                    </p>
+              <div class="slider-wrapper">
+                <div class="slider-content">
+                  <div class="no-material-tips" v-if="!materialList.length">
+                    <a-icon type="link" /> {{ $t('teacher.add-unit-plan.drag-component-here-tips') }}
                   </div>
-                </template>
-              </a-upload-dragger>
+                  <draggable
+                    animation="300"
+                    v-model="materialList"
+                    group="material"
+                    @start="drag=true"
+                    @end="drag=false"
+                    class="slide-draggable"
+                    @change="handleSlideChange">
+                    <div v-for="(materialItem,index) in materialList" :key="index" class="material-item">
+                      {{ materialItem.name }}
+                      <div class="move-icon">
+                        <a-icon type="form" />
+                      </div>
+                      <div class="delete-icon" @click="handleDeleteMaterial(materialItem)">
+                        <a-icon type="close-square" />
+                      </div>
+                    </div>
+                  </draggable>
+                </div>
+              </div>
             </div>
-            <div class="info">
+            <div class="info block-item">
               <a-row class="info-form" :gutter="50">
                 <a-col span="12">
                   <div class="info-item">
@@ -197,7 +109,7 @@
                 </a-col>
               </a-row>
             </div>
-            <div class="material-tag tag-block">
+            <div class="material-tag tag-block block-item">
               <div class="tag-list">
                 <div class="tag-label">{{ $t('teacher.add-unit-plan.material-tag') }}:</div>
                 <div class="tag-item" v-for="(tag,index) in tagList" :key="index">
@@ -209,7 +121,7 @@
                 </div>
               </div>
             </div>
-            <div class="more-tag tag-block">
+            <div class="more-tag tag-block block-item">
               <div class="more-tag-block">
                 <div class="label-title">
                   <a-icon type="plus" />
@@ -283,11 +195,6 @@
             </div>
           </div>
         </div>
-        <div class="form-block action-line">
-          <a-space :size="30">
-            <a-button @click="handleAddOrUpdateMaterial"> <a-icon type="save" /> {{ $t('teacher.add-unit-plan.save') }}</a-button>
-          </a-space>
-        </div>
       </a-col>
     </a-row>
   </a-card>
@@ -299,24 +206,27 @@ import { typeMap } from '@/const/teacher'
 import { fileTypeMap } from '@/const/material'
 import ContentTypeIcon from '@/components/Teacher/ContentTypeIcon'
 import { UnitPlanQueryById } from '@/api/unitPlan'
-import FileTypeSvg from '@/assets/icons/filetype/file_type.svg?inline'
-import VideoTypeSvg from '@/assets/icons/filetype/video.svg?inline'
-import LinkTypeSvg from '@/assets/icons/filetype/web.svg?inline'
-import ImageTypeSvg from '@/assets/icons/filetype/image.svg?inline'
-import AudioTypeSvg from '@/assets/icons/filetype/audio.svg?inline'
+import TextTypeSvg from '@/assets/icons/material/text.svg?inline'
+import ImageTypeSvg from '@/assets/icons/material/image.svg?inline'
+import VideoTypeSvg from '@/assets/icons/material/video.svg?inline'
+import AudioTypeSvg from '@/assets/icons/material/audio.svg?inline'
+import EmbedTypeSvg from '@/assets/icons/material/embed.svg?inline'
 import { commonAPIUrl } from '@/api/common'
 import { getFileType } from '@/utils/util'
 import { MaterialAddOrUpdate, MaterialQueryById } from '@/api/material'
 
+import draggable from 'vuedraggable'
+
 export default {
   name: 'AddUnitPlanMaterial',
   components: {
+    draggable,
     ContentTypeIcon,
-    FileTypeSvg,
-    VideoTypeSvg,
-    LinkTypeSvg,
+    TextTypeSvg,
     ImageTypeSvg,
-    AudioTypeSvg
+    VideoTypeSvg,
+    AudioTypeSvg,
+    EmbedTypeSvg
   },
   props: {
     // eslint-disable-next-line vue/require-default-prop
@@ -329,6 +239,30 @@ export default {
       contentLoading: true,
       contentType: typeMap,
       fileType: fileTypeMap,
+      dragMaterialList: [
+        {
+          name: this.$t('teacher.add-unit-plan.add-material-text-type'),
+          type: 'text'
+        },
+        {
+          name: this.$t('teacher.add-unit-plan.add-material-image-type'),
+          type: 'image'
+        },
+        {
+          name: this.$t('teacher.add-unit-plan.add-material-video-type'),
+          type: 'video'
+        },
+        {
+          name: this.$t('teacher.add-unit-plan.add-material-audio-type'),
+          type: 'audio'
+        },
+        {
+          name: this.$t('teacher.add-unit-plan.add-material-embed-type'),
+          type: 'embed'
+        }
+      ],
+      materialList: [],
+      currentMaterialId: null,
       material: {
         name: '',
         overview: '',
@@ -540,6 +474,34 @@ export default {
         logger.warn('material question dont have matched question', this.material, question)
       }
       logger.info('after handleSelectSkill', this.selectedSkillTagIdList)
+    },
+
+    handleSlideChange (event) {
+      logger.info('handleSlideChange', event)
+    },
+
+    handleDragMaterialComponent (data) {
+      logger.info('handleDragMaterialComponent', data)
+      let id = Math.random() + ''
+      while (this.materialList.find(item => item.id === id)) {
+        id = Math.random()
+      }
+      const item = Object.assign({
+        id: Math.random() + '',
+        extra: {
+          url: null,
+          preview: null,
+          data: null
+        }
+      }, data)
+      logger.info('handleDragMaterialComponent item', item)
+      this.currentMaterialId = id
+      return item
+    },
+
+    handleDeleteMaterial (materialItem) {
+      logger.info('handleDeleteMaterial', materialItem)
+      this.materialList = this.materialList.filter(item => item.id !== materialItem.id)
     }
   }
 }
@@ -613,8 +575,71 @@ export default {
 
 .material-content {
 
+  .drag-material {
+    height: 100%;
+    .material-drag-wrapper {
+      padding-top: 20px;
+      padding-right: 24px;
+      .drag-list-wrapper {
+        .drag-list {
+          display: grid;
+          grid-template-columns: repeat(2, 1fr);
+          grid-gap: 8px;
+
+          .drag-item {
+            cursor: pointer;
+            user-select: none;
+            padding: 10px 0;
+            border-radius: 4px;
+            background-color: white;
+            border: 1px solid #E5E5E5;
+            box-sizing: border-box;
+            box-shadow: @box-shadow-base;
+            z-index: 10;
+            outline: none;
+            display: flex;
+            flex-direction: column;
+            flex-wrap: nowrap;
+            flex-basis: auto;
+            justify-content: center;
+            align-items: center;
+            transition: all 0.2s ease-in;
+
+            &:hover {
+              background-color: rgba(200, 200, 200, 0.2);
+            }
+
+            .icon {
+              width: 32px;
+              height: 32px;
+
+              svg {
+                width: 32px;
+                height: 32px;
+              }
+            }
+
+            .label {
+              font-size: 10px;
+              text-align: center;
+              color: @text-color;
+            }
+          }
+        }
+      }
+
+      .drag-tips {
+        font-size: 13px;
+        text-align: center;
+        padding: 30px 0 20px 0;
+        color: @text-color-secondary;
+      }
+    }
+  }
+
   .upload-content {
-    padding: 30px 0;
+    padding: 20px 50px;
+    background-color: #edf1f5;
 
     .uploader-wrapper {
       margin: auto;
@@ -624,26 +649,6 @@ export default {
       .upload-container {
         padding: 80px 0;
       }
-
-      .file-type {
-        width: 50px;
-
-        .file-type-list {
-          display: flex;
-          flex-direction: column;
-
-          .file-type-item {
-            height: 30px;
-            width: 30px;
-
-            svg {
-              height: 30px;
-              width: 30px;
-            }
-          }
-        }
-      }
-
       .uploading-tips {
         padding-left: 10px;
       }
@@ -651,6 +656,100 @@ export default {
       .uploader-container {
         display: block;
         width: 100%;
+
+        .slider-wrapper {
+          background-color: #fff;
+          border-radius: 3px;
+          margin-bottom: 15px;
+          box-shadow: 0 4px 8px 0 rgba(31, 33, 44, 10%);
+          padding: 20px;
+          position: relative;
+
+          .slider-content {
+            box-sizing: border-box;
+            height: 100%;
+            min-height: 480px;
+
+            .no-material-tips {
+              position: absolute;
+              left: 50%;
+              width: 200px;
+              text-align: center;
+              margin-left: -100px;
+              top: 50%;
+              margin-top: -20px;
+              cursor: pointer;
+              user-select: none;
+              z-index: 1;
+            }
+
+            .slide-draggable {
+              min-height: 480px;
+              z-index: 10;
+              display: flex;
+              flex-direction: column;
+              align-items: center;
+              justify-content: center;
+
+              .material-item {
+                box-sizing: border-box;
+                border: 2px solid #fff;
+                width: 100%;
+                padding: 20px 10px;
+                display: flex;
+                justify-content: center;
+                flex-direction: row;
+                position: relative;
+                cursor: auto;
+                &:hover {
+                  border: 2px solid #aaa;
+                  .move-icon {
+                    display: block;
+                   &:hover {
+                     color: #3378ED;
+                   }
+                  }
+                  .delete-icon {
+                    display: block;
+                    &:hover {
+                      color: #D01919;
+                    }
+                  }
+                }
+
+                .move-icon {
+                  display: none;
+                  position: absolute;
+                  left: -8px;
+                  top: -12px;
+                  line-height: 20px;
+                  cursor: pointer;
+                  background-color: #fff;
+                  font-size: 20px;
+                  padding: 2px;
+                }
+
+                .delete-icon {
+                  display: none;
+                  position: absolute;
+                  right: -12px;
+                  top: -15px;
+                  line-height: 20px;
+                  cursor: pointer;
+                  padding: 2px;
+                  background-color: #fff;
+                  font-size: 20px;
+                }
+              }
+            }
+          }
+        }
+
+        .block-item {
+          background-color: #fff;
+          padding: 10px 20px;
+          box-shadow: 0 4px 8px 0 rgba(31, 33, 44, 10%);
+        }
 
         .info {
           .info-form {
@@ -677,13 +776,12 @@ export default {
 
         .tag-block {
           padding: 20px 16px;
-          margin-bottom: 24px;
-          border: 1px dashed rgb(217, 217, 217);
+          margin-bottom: 15px;
           border-radius: 2px;
         }
 
         .material-tag {
-          margin-top: 10px;
+          margin-top: 15px;
           width: 100%;
 
           .tag-list {
