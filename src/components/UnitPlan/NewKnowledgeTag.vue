@@ -326,7 +326,7 @@ export default {
     handleClick (event) {
       console.log('NewKnowledgeTag event', event)
       const targetDom = event.path.find(path => {
-        if (path.className && path.className.indexOf('new-knowledge-tag-wrapper') !== -1) {
+        if (path.className && path.className.indexOf && path.className.indexOf('new-knowledge-tag-wrapper') !== -1) {
           if (path.dataset && path.dataset.qidx === this.questionIndex) {
             return true
           }
@@ -514,6 +514,7 @@ export default {
     handleSelectSearchItem (item) {
       logger.info('handleSelectSearchItem item', item)
       this.mode = this.modeType.select
+      this.createdKnowledgeTag = item.name
       this.handleActiveSelectedTag(item)
     },
 
@@ -642,8 +643,6 @@ export default {
         logger.info('handleAssociate KnowledgeAddOrUpdateTag', response)
         this.refreshKnowledgeTags()
         this.mode = this.modeType.select
-        this.createdKnowledgeTag = null
-        this.inputTag = ''
       })
     }
   }
