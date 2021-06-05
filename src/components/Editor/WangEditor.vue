@@ -7,6 +7,8 @@
 <script>
 import WEditor from 'wangeditor'
 
+const logger = require('@/utils/logger')
+
 export default {
   name: 'WangEditor',
   props: {
@@ -36,6 +38,7 @@ export default {
   },
   methods: {
     initEditor () {
+      logger.info('edit init content:' + this.value)
       this.editor = new WEditor(this.$refs.editor)
       // this.editor.onchangeTimeout = 200
       this.editor.customConfig.onchange = (html) => {
@@ -56,13 +59,14 @@ export default {
         'list', // 列表
         'justify', // 对齐方式
         'quote', // 引用
-        'emoticon', // 表情
         'table', // 表格
-        'code', // 插入代码
         'undo', // 撤销
         'redo' // 重复
       ]
       this.editor.create()
+      if (this.value) {
+        this.editor.txt.html(this.value)
+      }
     }
   }
 }

@@ -27,12 +27,17 @@
       <a-col span="4" class="drag-material">
         <div class="material-drag-wrapper">
           <div class="drag-list-wrapper">
-            <draggable :list="dragMaterialList" :group="{ name: 'material', pull: 'clone', put: false }" :clone="handleDragMaterialComponent" class="drag-list" :update="null">
+            <draggable
+              :list="dragMaterialList"
+              :group="{ name: 'material', pull: 'clone', put: false }"
+              :clone="handleDragMaterialComponent"
+              class="drag-list"
+              :update="null">
               <a-tooltip placement="right" v-for="item in dragMaterialList" :key="item.name">
                 <template slot="title">
                   <span> {{ item.name }}</span>
                 </template>
-                <div class="drag-item" draggable="true">
+                <div class="drag-item">
                   <div class="icon">
                     <text-type-svg v-if="item.type === 'text'"/>
                     <image-type-svg v-else-if="item.type === 'image'"/>
@@ -68,14 +73,21 @@
                     @start="drag=true"
                     @end="drag=false"
                     class="slide-draggable"
+                    @add="handleDragMaterialAdd"
                     @change="handleSlideChange">
-                    <div v-for="(materialItem,index) in materialList" :key="index" class="material-item">
-                      {{ materialItem.name }}
-                      <div class="move-icon">
+                    <div v-for="(materialItem,index) in materialList" :key="index" class="material-item" @dblclick="handleDbClickMaterialItem(materialItem)">
+                      <div class="move-icon" @click="handleDbClickMaterialItem(materialItem)">
                         <a-icon type="form" />
                       </div>
                       <div class="delete-icon" @click="handleDeleteMaterial(materialItem)">
                         <a-icon type="close-square" />
+                      </div>
+                      <div class="material-item-content-wrapper">
+                        <div class="material-item-content">
+                          <template v-if="materialItem.type === 'text'">
+                            <div id="material-text-content" v-html="materialItem.data"></div>
+                          </template>
+                        </div>
                       </div>
                     </div>
                   </draggable>
@@ -195,6 +207,25 @@
             </div>
           </div>
         </div>
+
+        <a-modal
+          :maskClosable="false"
+          :destroyOnClose="true"
+          v-model="materialModalVisible"
+          :title="currentMaterialTitle"
+          @ok="handleConfirmMaterial"
+          @cancel="handleCancelMaterial"
+          @afterClose="handleCancelMaterial"
+          :closable="false"
+          width="800px">
+          <div class="material-modal-wrapper">
+            <div class="material-content" v-if="currentMaterial">
+              <template v-if="currentMaterial.type === 'text'">
+                <text-editor :value="currentMaterial.data" ref="editor" @change="handleTextEditContentChange"></text-editor>
+              </template>
+            </div>
+          </div>
+        </a-modal>
       </a-col>
     </a-row>
   </a-card>
@@ -216,11 +247,13 @@ import { getFileType } from '@/utils/util'
 import { MaterialAddOrUpdate, MaterialQueryById } from '@/api/material'
 
 import draggable from 'vuedraggable'
+import TextEditor from '@/components/Editor/WangEditor'
 
 export default {
   name: 'AddUnitPlanMaterial',
   components: {
     draggable,
+    TextEditor,
     ContentTypeIcon,
     TextTypeSvg,
     ImageTypeSvg,
@@ -301,7 +334,10 @@ export default {
 
       tagList: [],
       selectedKnowledgeTagIdList: [],
-      selectedSkillTagIdList: []
+      selectedSkillTagIdList: [],
+      materialModalVisible: false,
+      currentMaterial: null,
+      currentMaterialTitle: ''
     }
   },
   computed: {
@@ -487,21 +523,67 @@ export default {
         id = Math.random()
       }
       const item = Object.assign({
-        id: Math.random() + '',
-        extra: {
-          url: null,
-          preview: null,
-          data: null
-        }
+        id,
+        url: null,
+        preview: null,
+        data: null
       }, data)
       logger.info('handleDragMaterialComponent item', item)
       this.currentMaterialId = id
+      this.currentMaterialTitle = item.name
+      this.currentMaterial = item
       return item
+    },
+
+    handleDragMaterialAdd (event) {
+      logger.info('handleDragMaterialAdd', event, this.currentMaterial)
+      this.materialModalVisible = true
     },
 
     handleDeleteMaterial (materialItem) {
       logger.info('handleDeleteMaterial', materialItem)
       this.materialList = this.materialList.filter(item => item.id !== materialItem.id)
+    },
+
+    handleDbClickMaterialItem (materialItem) {
+      logger.info('handleDbClickMaterialItem ', materialItem)
+      this.currentMaterial = materialItem
+      this.currentMaterialTitle = materialItem.name
+      this.materialModalVisible = true
+    },
+
+    handleConfirmMaterial () {
+      logger.info('handleConfirmMaterial ', this.currentMaterial)
+      let targetIndex = -1
+      for (let index; index < this.materialList.length; index++) {
+        if (this.materialList[index] && this.materialList[index].id === this.currentMaterial.id) {
+          targetIndex = index
+          logger.info('find targetIndex ' + targetIndex)
+          break
+        }
+      }
+
+      if (targetIndex !== -1) {
+        this.materialList.splice(targetIndex, 1, Object.assign({}, this.currentMaterial))
+        logger.info('handleConfirmMaterial after update ', this.materialList[targetIndex])
+      } else {
+        logger.warn('not found target material')
+      }
+      this.materialModalVisible = false
+    },
+
+    handleCancelMaterial () {
+      logger.info('handleCancelMaterial')
+      this.materialModalVisible = false
+      this.currentMaterial = null
+      this.currentMaterialTitle = ''
+    },
+
+    handleTextEditContentChange (data) {
+      logger.info('handleTextEditContentChange', data)
+      if (this.currentMaterial) {
+        this.currentMaterial.data = data
+      }
     }
   }
 }
@@ -595,7 +677,6 @@ export default {
             border: 1px solid #E5E5E5;
             box-sizing: border-box;
             box-shadow: @box-shadow-base;
-            z-index: 10;
             outline: none;
             display: flex;
             flex-direction: column;
@@ -739,6 +820,11 @@ export default {
                   padding: 2px;
                   background-color: #fff;
                   font-size: 20px;
+                }
+
+                .material-item-content-wrapper {
+                  padding: 0;
+                  margin: 0;
                 }
               }
             }

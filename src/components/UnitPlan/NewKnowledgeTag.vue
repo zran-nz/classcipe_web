@@ -324,7 +324,6 @@ export default {
   },
   methods: {
     handleClick (event) {
-      console.log('NewKnowledgeTag event', event)
       const targetDom = event.path.find(path => {
         if (path.className && path.className.indexOf && path.className.indexOf('new-knowledge-tag-wrapper') !== -1) {
           if (path.dataset && path.dataset.qidx === this.questionIndex) {
