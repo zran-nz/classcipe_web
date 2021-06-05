@@ -87,6 +87,11 @@
                           <template v-if="materialItem.type === 'text'">
                             <div id="material-text-content" v-html="materialItem.data"></div>
                           </template>
+                          <template v-if="materialItem.type === 'image'">
+                            <div id="material-image-content">
+                              <img :src="materialItem.data" alt="" v-if="materialItem && materialItem.data">
+                            </div>
+                          </template>
                         </div>
                       </div>
                     </div>
@@ -213,9 +218,8 @@
           :destroyOnClose="true"
           v-model="materialModalVisible"
           :title="currentMaterialTitle"
-          @ok="handleConfirmMaterial"
-          @cancel="handleCancelMaterial"
           @afterClose="handleCancelMaterial"
+          :footer="null"
           :closable="false"
           width="800px">
           <div class="material-modal-wrapper">
@@ -223,6 +227,17 @@
               <template v-if="currentMaterial.type === 'text'">
                 <text-editor :value="currentMaterial.data" ref="editor" @change="handleTextEditContentChange"></text-editor>
               </template>
+              <template v-if="currentMaterial.type === 'image'">
+                <image-material-select @ok="handleSelectMaterialImage" @cancel="handleCancelMaterial"/>
+              </template>
+            </div>
+            <div class="material-action" v-show="currentMaterial && ['text'].indexOf(currentMaterial.type) !== -1 ">
+              <a-button key="back" @click="handleCancelMaterial" class="action-item">
+                Cancel
+              </a-button>
+              <a-button key="submit" type="primary" @click="handleConfirmMaterial" class="action-item">
+                Ok
+              </a-button>
             </div>
           </div>
         </a-modal>
@@ -248,6 +263,7 @@ import { MaterialAddOrUpdate, MaterialQueryById } from '@/api/material'
 
 import draggable from 'vuedraggable'
 import TextEditor from '@/components/Editor/WangEditor'
+import ImageMaterialSelect from '@/components/UnitPlan/ImageMaterialSelect'
 
 export default {
   name: 'AddUnitPlanMaterial',
@@ -255,6 +271,7 @@ export default {
     draggable,
     TextEditor,
     ContentTypeIcon,
+    ImageMaterialSelect,
     TextTypeSvg,
     ImageTypeSvg,
     VideoTypeSvg,
@@ -584,6 +601,13 @@ export default {
       if (this.currentMaterial) {
         this.currentMaterial.data = data
       }
+    },
+
+    handleSelectMaterialImage (data) {
+      logger.info('handleSelectMaterialImage ', data)
+      this.currentMaterial.data = data
+      this.currentMaterial.url = data
+      this.handleConfirmMaterial()
     }
   }
 }
@@ -1025,6 +1049,17 @@ export default {
       height: 50px;
       width: 50px;
     }
+  }
+}
+
+.material-action {
+  padding: 10px 0;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+
+  .action-item {
+    margin-left: 20px;
   }
 }
 </style>
