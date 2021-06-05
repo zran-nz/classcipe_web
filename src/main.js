@@ -25,6 +25,9 @@ import { FormModel } from 'ant-design-vue'
 
 import Moment from 'moment'
 import * as logger from '@/utils/logger'
+
+import VueRecord from '@codekraft-studio/vue-record'
+
 Vue.use(FormModel)
 
 // formatDate
@@ -45,6 +48,8 @@ Vue.use(VueAxios)
 Vue.component('pro-layout', ProLayout)
 Vue.component('page-container', PageHeaderWrapper)
 Vue.component('page-header-wrapper', PageHeaderWrapper)
+// VueRecord for material audio
+Vue.use(VueRecord)
 
 window.umi_plugin_ant_themeVar = themePluginConfig.theme
 

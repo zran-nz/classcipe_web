@@ -85,11 +85,26 @@
                       <div class="material-item-content-wrapper">
                         <div class="material-item-content">
                           <template v-if="materialItem.type === 'text'">
-                            <div id="material-text-content" v-html="materialItem.data"></div>
+                            <div class="material-text-content" v-html="materialItem.data"></div>
                           </template>
                           <template v-if="materialItem.type === 'image'">
-                            <div id="material-image-content">
+                            <div class="material-image-content">
                               <img :src="materialItem.data" alt="" v-if="materialItem && materialItem.data">
+                            </div>
+                          </template>
+                          <template v-if="materialItem.type === 'audio'">
+                            <div class="material-audio-content" :data-url="materialItem.url">
+                              <audio :src="materialItem.url" v-show="materialItem && materialItem.url" controls />
+                            </div>
+                          </template>
+                          <template v-if="materialItem.type === 'video'">
+                            <div class="material-video-content" :data-url="materialItem.url">
+                              <video :src="materialItem.url" v-show="materialItem && materialItem.url" controls />
+                            </div>
+                          </template>
+                          <template v-if="materialItem.type === 'embed'">
+                            <div class="material-embed-content" :data-url="materialItem.url">
+                              <iframe :src="materialItem.url" />
                             </div>
                           </template>
                         </div>
@@ -230,8 +245,67 @@
               <template v-if="currentMaterial.type === 'image'">
                 <image-material-select @ok="handleSelectMaterialImage" @cancel="handleCancelMaterial"/>
               </template>
+              <template v-if="currentMaterial.type === 'audio'">
+                <div class="audio-material-content">
+                  <div class="link-url" v-show="currentMaterial.url">
+                    <a-icon type="link" />
+                    <span class="link-url-txt" @click="handleOpenUrl(currentMaterial.url)">{{ currentMaterial.url }}</span>
+                  </div>
+                  <div class="audio" v-show="currentMaterial.url">
+                    <audio :src="currentMaterial.url" controls />
+                  </div>
+                </div>
+                <div class="audio-material-action">
+                  <div class="action-item">
+                    <a-upload name="file" accept="audio/*" :customRequest="handleUploadAudio" :showUploadList="false">
+                      <a-button type="primary" icon="upload">{{ $t('teacher.add-unit-plan.upload-audio') }}</a-button>
+                    </a-upload>
+                  </div>
+                  <a-divider>
+                    {{ $t('teacher.add-unit-plan.or') }}
+                  </a-divider>
+                  <div class="action-item-column">
+                    <vue-record-audio mode="press" @result="handleAudioResult" />
+                    <div class="action-tips">
+                      {{ $t('teacher.add-unit-plan.record-your-voice') }}
+                    </div>
+                  </div>
+                </div>
+              </template>
+              <template v-if="currentMaterial.type === 'video'">
+                <div class="video-material-content">
+                  <div class="link-url" v-show="currentMaterial.url">
+                    <a-icon type="link" />
+                    <span class="link-url-txt" @click="handleOpenUrl(currentMaterial.url)">{{ currentMaterial.url }}</span>
+                  </div>
+                  <div class="video" v-show="currentMaterial.url">
+                    <video :src="currentMaterial.url" controls />
+                  </div>
+                </div>
+                <div class="video-material-action">
+                  <div class="action-item">
+                    <a-upload name="file" accept="video/*" :customRequest="handleUploadAudio" :showUploadList="false">
+                      <a-button type="primary" icon="upload">{{ $t('teacher.add-unit-plan.upload-audio') }}</a-button>
+                    </a-upload>
+                  </div>
+                </div>
+              </template>
+              <template v-if="currentMaterial.type === 'embed'">
+                <div class="embed-material-action">
+                  <div class="label">
+                    {{ $t('teacher.add-unit-plan.paste-link') }}
+                  </div>
+                  <div class="action-item">
+                    <a-input :placeholder="$t('teacher.add-unit-plan.paste-link-placeholder')" v-model="currentMaterial.url"/>
+                    <a-button class="preview-action" @click="iframeUrl = currentMaterial.url">{{ $t('teacher.add-unit-plan.paste-link-preview') }}</a-button>
+                  </div>
+                </div>
+                <div class="embed-material-content">
+                  <iframe v-if="iframeUrl" :src="iframeUrl"></iframe>
+                </div>
+              </template>
             </div>
-            <div class="material-action" v-show="currentMaterial && ['text'].indexOf(currentMaterial.type) !== -1 ">
+            <div class="material-action" v-show="currentMaterial && ['text', 'audio', 'video', 'embed'].indexOf(currentMaterial.type) !== -1 ">
               <a-button key="back" @click="handleCancelMaterial" class="action-item">
                 Cancel
               </a-button>
@@ -354,7 +428,8 @@ export default {
       selectedSkillTagIdList: [],
       materialModalVisible: false,
       currentMaterial: null,
-      currentMaterialTitle: ''
+      currentMaterialTitle: '',
+      iframeUrl: null
     }
   },
   computed: {
@@ -587,6 +662,8 @@ export default {
         logger.warn('not found target material')
       }
       this.materialModalVisible = false
+
+      this.iframeUrl = null
     },
 
     handleCancelMaterial () {
@@ -594,6 +671,7 @@ export default {
       this.materialModalVisible = false
       this.currentMaterial = null
       this.currentMaterialTitle = ''
+      this.iframeUrl = null
     },
 
     handleTextEditContentChange (data) {
@@ -608,6 +686,39 @@ export default {
       this.currentMaterial.data = data
       this.currentMaterial.url = data
       this.handleConfirmMaterial()
+    },
+
+    handleAudioResult (data) {
+      logger.info('handleAudioResult', data)
+      this.currentMaterial.data = window.URL.createObjectURL(data)
+      const formData = new FormData()
+      formData.append('file', data, 'audio.wav')
+      this.$http.post(commonAPIUrl.UploadFile, formData, { contentType: false, processData: false, headers: { 'Content-Type': 'multipart/form-data' }, timeout: 60000 })
+        .then((response) => {
+          logger.info('handleAudioResult upload response:', response)
+          this.currentMaterial.url = this.$store.getters.downloadUrl + response.result
+          logger.info('handleAudioResult currentMaterial', this.currentMaterial)
+        }).catch(err => {
+        logger.error('handleAudioResult error', err)
+      })
+    },
+
+    handleOpenUrl (url) {
+      window.open(url)
+    },
+
+    handleUploadAudio (data) {
+      logger.info('handleUploadAudio', data)
+      const formData = new FormData()
+      formData.append('file', data.file, data.file.name)
+      this.uploading = true
+      this.$http.post(commonAPIUrl.UploadFile, formData, { contentType: false, processData: false, headers: { 'Content-Type': 'multipart/form-data' }, timeout: 60000 })
+        .then((response) => {
+          logger.info('handleUploadAudio upload response:', response)
+          this.currentMaterial.url = this.$store.getters.downloadUrl + response.result
+        }).catch(err => {
+        logger.error('handleUploadImage error', err)
+      })
     }
   }
 }
@@ -849,6 +960,32 @@ export default {
                 .material-item-content-wrapper {
                   padding: 0;
                   margin: 0;
+                  width: 100%;
+                  text-align: center;
+                  .material-audio-content {
+                    display: block;
+                    audio {
+                      margin: auto;
+                      display: block;
+                      height: 40px;
+                    }
+                  }
+
+                  .material-video-content {
+                    display: block;
+                    video {
+                      margin: auto;
+                      display: block;
+                    }
+                  }
+
+                  .material-embed-content {
+                    iframe {
+                      border: 1px solid #aaa;
+                      width: 100%;
+                      min-height: 300px;
+                    }
+                  }
                 }
               }
             }
@@ -1049,6 +1186,129 @@ export default {
       height: 50px;
       width: 50px;
     }
+  }
+
+  .audio-material-content {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+
+    .link-url {
+      text-align: center;
+      height: 20px;
+      width: 100%;
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      word-break: break-all;
+      margin-bottom: 10px;
+      line-height: 20px;
+      color: @text-color;
+      cursor: pointer;
+
+      i {
+        padding-top: 3px;
+        line-height: 20px;
+        height: 20px;
+      }
+
+      .link-url-txt {
+        padding-left: 5px;
+      }
+
+      &:hover {
+        color: @primary-color;
+      }
+    }
+
+    .audio {
+      padding: 10px 0;
+    }
+  }
+
+  .video-material-content {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+
+    .link-url {
+      text-align: center;
+      width: 100%;
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      word-break: break-all;
+      margin-bottom: 10px;
+      line-height: 20px;
+      color: @text-color;
+      cursor: pointer;
+      padding: 10px 0;
+
+      i {
+        padding-top: 3px;
+        line-height: 20px;
+        height: 20px;
+      }
+
+      .link-url-txt {
+        padding-left: 5px;
+      }
+
+      &:hover {
+        color: @primary-color;
+      }
+    }
+
+    .video {
+      padding: 10px 0;
+    }
+  }
+
+  .audio-material-action, .video-material-action, .embed-material-action {
+    display: flex;
+    flex-direction: column;
+    .action-item {
+      display: flex;
+      flex-direction: row;
+      justify-content: center;
+      align-items: center;
+      padding: 15px 0;
+    }
+
+    .action-item-column {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 15px 0;
+      .action-tips {
+        line-height: 32px;
+        cursor: pointer;
+        user-select: none;
+      }
+    }
+  }
+
+  .embed-material-content {
+    iframe {
+      margin-top: 20px;
+      border: 1px solid #aaa;
+      width: 100%;
+      min-height: 300px;
+      box-shadow: @box-shadow-base;
+    }
+  }
+
+  .embed-material-action {
+    .label {
+      display: block;
+    }
+  }
+
+  .preview-action {
+    margin-left: 20px;
   }
 }
 

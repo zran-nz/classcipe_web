@@ -18,6 +18,7 @@
   "dependencies": {
     "@ant-design-vue/pro-layout": "^1.0.7",
     "@antv/data-set": "^0.10.2",
+    "@codekraft-studio/vue-record": "^0.0.3",
     "ant-design-vue": "^1.7.2",
     "axios": "^0.19.0",
     "core-js": "^3.1.2",
