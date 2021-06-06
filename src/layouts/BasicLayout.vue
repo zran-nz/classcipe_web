@@ -22,8 +22,8 @@
           增加 Header 左侧内容区自定义
     -->
     <template v-slot:menuRender>
-      <expert-nav v-if="$store.getters.currentRole === 'expert'"></expert-nav>
-      <teacher-nav v-if="$store.getters.currentRole === 'teacher'"></teacher-nav>
+      <expert-nav v-show="$store.getters.currentRole === 'expert'"></expert-nav>
+      <teacher-nav v-show="$store.getters.currentRole === 'teacher'"></teacher-nav>
     </template>
     <template v-slot:rightContentRender>
       <right-content :top-menu="settings.layout === 'topmenu'" :is-mobile="isMobile" :theme="settings.theme" @switch-role="handleSwitchRole" />
