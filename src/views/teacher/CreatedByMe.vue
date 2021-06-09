@@ -129,7 +129,7 @@ import ContentStatusIcon from '@/components/Teacher/ContentStatusIcon'
 import ContentTypeIcon from '@/components/Teacher/ContentTypeIcon'
 
 export default {
-  name: 'MyContent',
+  name: 'CreatedByMe',
   components: {
     ContentStatusIcon,
     ContentTypeIcon

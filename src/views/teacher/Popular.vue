@@ -1,6 +1,6 @@
 <template>
   <div>
-    Favorites
+    Popular
   </div>
 </template>
 
@@ -8,7 +8,7 @@
 import { PageHeaderWrapper } from '@ant-design-vue/pro-layout'
 
 export default {
-  name: 'Favorites',
+  name: 'Popular',
   components: {
     PageHeaderWrapper
   },

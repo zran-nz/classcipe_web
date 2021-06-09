@@ -12,7 +12,7 @@
             </router-link>
           </a-menu-item>
           <!--          <a-menu-item>-->
-          <!--            <router-link to="/expert/my-content">-->
+          <!--            <router-link to="/expert/created-by-me">-->
           <!--              <a-icon type="pushpin" /> {{ $t('menu.my-content') }}-->
           <!--            </router-link>-->
           <!--          </a-menu-item>-->

@@ -24,34 +24,52 @@ export const asyncRouterMap = [
       {
         path: '/teacher',
         name: 'teacher',
-        redirect: '/teacher/main/my-content',
+        redirect: '/teacher/main/created-by-me',
         component: RouteView,
         meta: { title: 'menu.main', keepAlive: true, icon: bxAnaalyse, permission: ['expert', 'teacher'] },
         children: [
           {
             path: '/teacher/main',
             name: 'Main',
-            redirect: '/teacher/main/my-content',
+            redirect: '/teacher/main/created-by-me',
             component: () => import('@/views/teacher/Main'),
             meta: { title: 'menu.main', keepAlive: true, permission: ['expert', 'teacher'] },
             children: [
               {
-                path: '/teacher/main/my-content',
-                name: 'MyContent',
-                component: () => import('@/views/teacher/MyContent'),
+                path: '/teacher/main/created-by-me',
+                name: 'CreatedByMe',
+                component: () => import('@/views/teacher/CreatedByMe'),
                 meta: { title: 'menu.my-content', keepAlive: true, permission: ['expert', 'teacher'] }
               },
               {
-                path: '/teacher/main/favorites',
-                name: 'MyContent',
-                component: () => import('@/views/teacher/Favorites'),
-                meta: { title: 'menu.favorites', keepAlive: true, permission: ['expert', 'teacher'] }
+                path: '/teacher/main/my-favorite',
+                name: 'MyFavorite',
+                component: () => import('@/views/teacher/MyFavorite'),
+                meta: { title: 'menu.my-favorite', keepAlive: true, permission: ['expert', 'teacher'] }
               },
               {
-                path: '/teacher/main/my-subscribes',
-                name: 'MyContent',
-                component: () => import('@/views/teacher/MySubscribes'),
-                meta: { title: 'menu.my-subscribes', keepAlive: true, permission: ['expert', 'teacher'] }
+                path: '/teacher/main/shared',
+                name: 'Shared',
+                component: () => import('@/views/teacher/Shared'),
+                meta: { title: 'menu.shared', keepAlive: true, permission: ['expert', 'teacher'] }
+              },
+              {
+                path: '/teacher/main/discover',
+                name: 'Discover',
+                component: () => import('@/views/teacher/Discover'),
+                meta: { title: 'menu.discover', keepAlive: true, permission: ['expert', 'teacher'] }
+              },
+              {
+                path: '/teacher/main/subscribes',
+                name: 'Subscribes',
+                component: () => import('@/views/teacher/Subscribes'),
+                meta: { title: 'menu.subscribes', keepAlive: true, permission: ['expert', 'teacher'] }
+              },
+              {
+                path: '/teacher/main/popular',
+                name: 'Popular',
+                component: () => import('@/views/teacher/Popular'),
+                meta: { title: 'menu.popular', keepAlive: true, permission: ['expert', 'teacher'] }
               }
             ]
           },
@@ -120,12 +138,12 @@ export const asyncRouterMap = [
       {
         path: '/expert',
         name: 'expert',
-        redirect: '/expert/my-content',
+        redirect: '/expert/created-by-me',
         component: RouteView,
         meta: { title: 'menu.main', keepAlive: true, icon: bxAnaalyse, permission: ['expert', 'teacher'] },
         children: [
           {
-            path: '/expert/my-content',
+            path: '/expert/created-by-me',
             name: 'MyContent',
             component: () => import('@/views/expert/MyContent'),
             meta: { title: 'menu.my-content', keepAlive: true, permission: ['expert', 'teacher'] }
@@ -314,13 +332,13 @@ export const constantRouterMap = [
  * default teacher main router
  * @type {string}
  */
-export const defaultTeacherRouter = '/teacher/main/my-content'
+export const defaultTeacherRouter = '/teacher/main/created-by-me'
 
 /**
  * default expert main router
  * @type {string}
  */
-export const defaultExpertRouter = '/expert/my-content'
+export const defaultExpertRouter = '/expert/created-by-me'
 
 /**
  * select role router
