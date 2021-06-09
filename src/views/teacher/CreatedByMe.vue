@@ -22,6 +22,9 @@
                 {{ currentTypeLabel }} <a-icon type="down" />
               </a>
               <a-menu slot="overlay">
+                <a-menu-item disabled>
+                  <span>{{ $t('teacher.my-content.choose-types-of-content') }}</span>
+                </a-menu-item>
                 <a-menu-item @click="toggleType('all-type', $t('teacher.my-content.all-type'))">
                   <span>{{ $t('teacher.my-content.all-type') }}</span>
                 </a-menu-item>
@@ -46,25 +49,25 @@
               </a-menu>
             </a-dropdown>
           </div>
-          <a-divider type="vertical" />
-          <div class="owner-filter">
-            <a-dropdown>
-              <a class="ant-dropdown-link" @click="e => e.preventDefault()">
-                {{ currentOwnerLabel }} <a-icon type="down" />
-              </a>
-              <a-menu slot="overlay">
-                <a-menu-item @click.native="toggleOwner('all-owner', $t('teacher.my-content.all-owner') )">
-                  <span>{{ $t('teacher.my-content.all-owner') }}</span>
-                </a-menu-item>
-                <a-menu-item @click="toggleOwner('owner-by-me', $t('teacher.my-content.owner-by-me') )">
-                  <span>{{ $t('teacher.my-content.owner-by-me') }}</span>
-                </a-menu-item>
-                <a-menu-item @click="toggleOwner('owner-by-others', $t('teacher.my-content.owner-by-others'))">
-                  <span>{{ $t('teacher.my-content.owner-by-others') }}</span>
-                </a-menu-item>
-              </a-menu>
-            </a-dropdown>
-          </div>
+          <!--          <a-divider type="vertical" />-->
+          <!--          <div class="owner-filter">-->
+          <!--            <a-dropdown>-->
+          <!--              <a class="ant-dropdown-link" @click="e => e.preventDefault()">-->
+          <!--                {{ currentOwnerLabel }} <a-icon type="down" />-->
+          <!--              </a>-->
+          <!--              <a-menu slot="overlay">-->
+          <!--                <a-menu-item @click.native="toggleOwner('all-owner', $t('teacher.my-content.all-owner') )">-->
+          <!--                  <span>{{ $t('teacher.my-content.all-owner') }}</span>-->
+          <!--                </a-menu-item>-->
+          <!--                <a-menu-item @click="toggleOwner('owner-by-me', $t('teacher.my-content.owner-by-me') )">-->
+          <!--                  <span>{{ $t('teacher.my-content.owner-by-me') }}</span>-->
+          <!--                </a-menu-item>-->
+          <!--                <a-menu-item @click="toggleOwner('owner-by-others', $t('teacher.my-content.owner-by-others'))">-->
+          <!--                  <span>{{ $t('teacher.my-content.owner-by-others') }}</span>-->
+          <!--                </a-menu-item>-->
+          <!--              </a-menu>-->
+          <!--            </a-dropdown>-->
+          <!--          </div>-->
         </a-space>
       </div>
     </div>
@@ -80,36 +83,29 @@
                 <span class="name-content">
                   {{ item.name }}
                 </span>
-                <content-status-icon :status="item.status" />
               </span>
 
               <span class="content-info-right">
-                <span class="owner">
-                  {{ item.createBy === $store.getters.email ? 'me' : item.createBy }}
-                </span>
                 <span class="update-time" >
                   {{ item.updateTime || item.createTime | dayjs }}
                 </span>
                 <div class="action">
-                  <a slot="actions">
-                    <a-dropdown>
-                      <a-icon type="more" style="margin-right: 8px" />
-                      <a-menu slot="overlay">
-                        <a-menu-item>
-                          <a @click="handleEditItem(item)">
-                            <a-icon type="form" /> {{ $t('teacher.my-content.action-edit') }}
+                  <div slot="actions">
+                    <div class="action-wrapper">
+                      <div class="action-item">
+                        <a-popconfirm :title="$t('teacher.my-content.action-delete') + '?'" ok-text="Yes" @confirm="handleDeleteItem(item)" cancel-text="No">
+                          <a href="#" class="delete-action">
+                            <a-icon type="delete" /> {{ $t('teacher.my-content.action-delete') }}
                           </a>
-                        </a-menu-item>
-                        <a-menu-item>
-                          <a-popconfirm :title="$t('teacher.my-content.action-delete') + '?'" ok-text="Yes" @confirm="handleDeleteItem(item)" cancel-text="No">
-                            <a href="#" class="delete-action">
-                              <a-icon type="delete" /> {{ $t('teacher.my-content.action-delete') }}
-                            </a>
-                          </a-popconfirm>
-                        </a-menu-item>
-                      </a-menu>
-                    </a-dropdown>
-                  </a>
+                        </a-popconfirm>
+                      </div>
+                      <div class="action-item">
+                        <a @click="handleEditItem(item)">
+                          <a-icon type="form" /> {{ $t('teacher.my-content.action-edit') }}
+                        </a>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </span>
 
@@ -117,6 +113,19 @@
           </a-list>
         </div>
       </a-skeleton>
+
+      <a-drawer
+        :title="previewTitle"
+        placement="right"
+        closable
+        width="800px"
+        :visible="previewVisible"
+        @close="handlePreviewClose"
+      >
+        <template v-if="previewDataLoading">
+          <a-skeleton />
+        </template>
+      </a-drawer>
     </div>
   </div>
 </template>
@@ -146,6 +155,10 @@ export default {
       currentTypeLabel: this.$t('teacher.my-content.all-type'),
       currentOwner: 'all-owner',
       currentOwnerLabel: this.$t('teacher.my-content.all-owner'),
+
+      previewTitle: '',
+      previewVisible: false,
+      previewDataLoading: true,
 
       pagination: {
         onChange: page => {
@@ -231,15 +244,15 @@ export default {
     },
     handleViewDetail (item) {
       logger.info('handleViewDetail', item)
-      if (item.type === typeMap['unit-plan']) {
-        this.$router.push({
-          path: '/teacher/unit-plan-redirect/' + item.id
-        })
-      } else if (item.type === typeMap.material) {
-        // this.$router.push({
-        //   path: '/teacher/unit-plan-material-redirect/' + item.planId + '/:' + item.id
-        // })
-      }
+      this.previewTitle = item.name
+      this.previewVisible = true
+      this.previewDataLoading = true
+    },
+
+    handlePreviewClose () {
+      logger.info('handlePreviewClose')
+      this.previewVisible = false
+      this.previewDataLoading = false
     }
   }
 }
@@ -284,7 +297,8 @@ export default {
         align-items: center;
 
         .status-icon-item {
-          width: 30px;
+          font-size: 18px;
+          width: 40px;
         }
 
         &:hover {
@@ -297,18 +311,8 @@ export default {
         justify-content: flex-end;
         align-items: center;
 
-        .owner {
-          width: 200px;
-          overflow: hidden;
-          white-space: nowrap;
-          text-overflow: ellipsis;
-          &:hover {
-            color: @primary-color;
-          }
-        }
-
         .update-time {
-          width: 200px;
+          width: 250px;
           overflow: hidden;
           white-space: nowrap;
           text-overflow: ellipsis;
@@ -317,6 +321,23 @@ export default {
           }
         }
       }
+
+      .action {
+        width: 150px;
+      }
+
+      .action-wrapper {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: flex-start;
+        .action-item {
+          display: inline;
+          margin-left: 20px;
+          user-select: none;
+        }
+      }
+
       .name-content {
         text-align: left;
         display: inline-block;
@@ -330,6 +351,6 @@ export default {
 }
 
 a.delete-action {
-  color: @red-6;
+  color: @red-4;
 }
 </style>
