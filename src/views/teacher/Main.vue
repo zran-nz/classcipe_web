@@ -106,7 +106,7 @@ export default {
   box-sizing: border-box;
   .nav-bar-wrapper {
     .nav-bar-item {
-      margin: 3px 0;
+      margin: 10px 0;
       font-weight: bold;
       font-size: 16px;
       cursor: pointer;
