@@ -4,7 +4,20 @@
       <a-skeleton active />
     </template>
     <template v-else>
-      <a-row class="top-info">
+      <a-row class="top-header" :gutter="[16,32]">
+        <a-col span="24">
+          <span class="title">
+            {{ unitPlanData.name }}
+          </span>
+          <template v-if="lastChangeSavedTime">
+            <a-divider type="vertical" />
+            <span class="last-change-time">
+              {{ $t('teacher.add-unit-plan.last-change-saved-at-time', {time: lastChangeSavedTime}) }}
+            </span>
+          </template>
+        </a-col>
+      </a-row>
+      <a-row class="top-info" :gutter="[16,32]">
         <a-col class="left-preview" span="10">
           <a-carousel arrows>
             <div
@@ -21,7 +34,7 @@
               <a-icon type="right-circle" />
             </div>
             <div v-if="!loading && !imgList.length" class="no-preview-img">
-              <a-icon type="file-image" />
+              <a-icon type="file-jpg" />
             </div>
             <div class="preview-img-item" v-for="(img,index) in imgList" :key="index">
               <img :src="img" />
@@ -33,7 +46,7 @@
         </a-col>
       </a-row>
       <a-divider />
-      <a-row class="bottom-relative">
+      <a-row class="bottom-relative" :gutter="[16,32]">
         <a-col span="24">
           bottom-relative
         </a-col>
@@ -44,6 +57,8 @@
 
 <script>
 import * as logger from '@/utils/logger'
+
+const { formatLocalUTC } = require('@/utils/util')
 
 const { UnitPlanQueryById } = require('@/api/unitPlan')
 
@@ -56,6 +71,16 @@ export default {
     }
   },
   computed: {
+    lastChangeSavedTime () {
+      if (this.unitPlanData) {
+        logger.info('lastChangeSavedTime unitPlanData', this.unitPlanData)
+        const time = this.unitPlanData.createTime || this.unitPlanData.updateTime
+        if (time) {
+          return formatLocalUTC(time)
+        }
+      }
+      return ''
+    }
   },
   mounted () {
   },
@@ -95,46 +120,78 @@ export default {
 @import "~@/components/index.less";
 
 .unit-plan-preview {
-  .ant-carousel {
-    /deep/ .slick-list {
-      border: 1px solid #eee;
+
+  .top-header {
+    position: relative;
+    color: rgba(0, 0, 0, 0.65);
+    background: #fff;
+    border-bottom: 1px solid #e8e8e8;
+    border-radius: 2px 2px 0 0;
+
+    .title {
+      font-weight: bold;
     }
 
-    /deep/ .slick-slide {
-      text-align: center;
-      height: 160px;
-      line-height: 160px;
-      background: #364d79;
-      overflow: hidden;
+    .last-change-time {
+      font-size: 12px;
+      color: @text-color-secondary;
     }
+  }
 
-    /deep/ .custom-slick-arrow {
-      width: 25px;
-      height: 25px;
-      font-size: 25px;
-      color: #fff;
-      background-color: rgba(31, 45, 61, 0.81);
-      opacity: 0.0;
-      border-radius: 50%;
-      transition: all 0.3s ease-in;
-    }
+  .top-info {
+    padding: 20px 0;
+  }
 
-    &:hover {
-      /deep/ .custom-slick-arrow {
-        opacity: 0.3;
+  .left-preview {
+    height: 100%;
+
+    .ant-carousel {
+
+      /deep/ .slick-list {
+        border: 1px solid #eee;
+        box-shadow: 0 4px 8px 0 rgba(31, 33, 44, 10%);
       }
-    }
 
-    /deep/ .custom-slick-arrow:before {
-      display: none;
-    }
+      /deep/ .slick-slide {
+        text-align: center;
+        height: 160px;
+        line-height: 160px;
+        overflow: hidden;
+      }
 
-    /deep/ .custom-slick-arrow:hover {
-      opacity: 0.5;
-    }
+      /deep/ .custom-slick-arrow {
+        width: 25px;
+        height: 25px;
+        font-size: 25px;
+        color: #fff;
+        background-color: rgba(31, 45, 61, 0.81);
+        opacity: 0.0;
+        border-radius: 50%;
+        transition: all 0.3s ease-in;
+      }
 
-    /deep/ .slick-slide h3 {
-      color: #fff;
+      &:hover {
+        /deep/ .custom-slick-arrow {
+          opacity: 0.3;
+        }
+      }
+
+      /deep/ .custom-slick-arrow:before {
+        display: none;
+      }
+
+      /deep/ .custom-slick-arrow:hover {
+        opacity: 0.5;
+      }
+
+      /deep/ .slick-slide h3 {
+        color: #fff;
+      }
+
+      /deep/ .no-preview-img {
+        font-size: 40px;
+        color: @text-color-secondary;
+      }
     }
   }
 }

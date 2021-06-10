@@ -1,5 +1,10 @@
 <template>
   <div class="image-material">
+    <div class="uploading-mask" v-show="uploading">
+      <div class="uploading">
+        <a-spin large />
+      </div>
+    </div>
     <a-row>
       <a-col :xs="24" :md="12" :style="{height: '350px'}">
         <vue-cropper
@@ -104,12 +109,15 @@ export default {
           const img = window.URL.createObjectURL(data)
           this.model = true
           this.modelSrc = img
+          this.uploading = true
           formData.append('file', data, 'avatar.png')
           this.$http.post(commonAPIUrl.UploadFile, formData, { contentType: false, processData: false, headers: { 'Content-Type': 'multipart/form-data' }, timeout: 60000 })
             .then((response) => {
               console.log('upload response:', response)
               _this.$emit('ok', this.$store.getters.downloadUrl + response.result)
-            })
+            }).finally(() => {
+              this.uploading = false
+          })
         })
       } else {
         this.$refs.cropper.getCropData((data) => {
@@ -141,6 +149,29 @@ export default {
 
 <style lang="less" scoped>
 
+.image-material {
+  position: relative;
+  .uploading-mask {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: fade(#eee, 80%);
+    z-index: 100;
+    .uploading {
+      z-index: 110;
+      position: absolute;
+      display: flex;
+      flex-direction: row;
+      justify-content: center;
+      width: 100px;
+      left: 50%;
+      top: 45%;
+      margin-left: -50px;
+    }
+  }
+}
   .avatar-upload-preview {
     position: absolute;
     top: 50%;

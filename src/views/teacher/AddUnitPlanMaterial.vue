@@ -85,26 +85,28 @@
                       <div class="material-item-content-wrapper">
                         <div class="material-item-content">
                           <template v-if="materialItem.type === 'text'">
-                            <div class="material-text-content" v-html="materialItem.data"></div>
+                            <div class="material-text-content" v-html="materialItem.description"></div>
                           </template>
                           <template v-if="materialItem.type === 'image'">
                             <div class="material-image-content">
-                              <img :src="materialItem.data" alt="" v-if="materialItem && materialItem.data">
+                              <img :src="materialItem.fileUrl" alt="" v-if="materialItem && materialItem.fileUrl">
                             </div>
                           </template>
                           <template v-if="materialItem.type === 'audio'">
-                            <div class="material-audio-content" :data-url="materialItem.url">
-                              <audio :src="materialItem.url" v-show="materialItem && materialItem.url" controls />
+                            <div class="material-audio-content" :data-url="materialItem.fileUrl">
+                              <audio :src="materialItem.fileUrl" v-show="materialItem && materialItem.fileUrl" controls />
                             </div>
                           </template>
                           <template v-if="materialItem.type === 'video'">
-                            <div class="material-video-content" :data-url="materialItem.url">
-                              <video :src="materialItem.url" v-show="materialItem && materialItem.url" controls />
+                            <div class="material-video-content" :data-url="materialItem.fileUrl">
+                              <video :src="materialItem.fileUrl" v-show="materialItem && materialItem.fileUrl" controls />
                             </div>
                           </template>
                           <template v-if="materialItem.type === 'embed'">
-                            <div class="material-embed-content" :data-url="materialItem.url">
-                              <iframe :src="materialItem.url" />
+                            <div class="material-embed-content" :data-url="materialItem.fileUrl">
+                              <span class="iframe-url">
+                                {{ materialItem.fileUrl }}
+                              </span>
                             </div>
                           </template>
                         </div>
@@ -239,20 +241,25 @@
           width="800px">
           <div class="material-modal-wrapper">
             <div class="material-content" v-if="currentMaterial">
+              <div class="uploading-mask" v-show="currentMaterialUploading">
+                <div class="uploading">
+                  <a-spin large />
+                </div>
+              </div>
               <template v-if="currentMaterial.type === 'text'">
-                <text-editor :value="currentMaterial.data" ref="editor" @change="handleTextEditContentChange"></text-editor>
+                <text-editor :value="currentMaterial.description" ref="editor" @change="handleTextEditContentChange"></text-editor>
               </template>
               <template v-if="currentMaterial.type === 'image'">
                 <image-material-select @ok="handleSelectMaterialImage" @cancel="handleCancelMaterial"/>
               </template>
               <template v-if="currentMaterial.type === 'audio'">
                 <div class="audio-material-content">
-                  <div class="link-url" v-show="currentMaterial.url">
+                  <div class="link-url" v-show="currentMaterial.fileUrl">
                     <a-icon type="link" />
-                    <span class="link-url-txt" @click="handleOpenUrl(currentMaterial.url)">{{ currentMaterial.url }}</span>
+                    <span class="link-url-txt" @click="handleOpenUrl(currentMaterial.fileUrl)">{{ currentMaterial.fileUrl }}</span>
                   </div>
-                  <div class="audio" v-show="currentMaterial.url">
-                    <audio :src="currentMaterial.url" controls />
+                  <div class="audio" v-show="currentMaterial.fileUrl">
+                    <audio :src="currentMaterial.fileUrl" controls />
                   </div>
                 </div>
                 <div class="audio-material-action">
@@ -274,18 +281,18 @@
               </template>
               <template v-if="currentMaterial.type === 'video'">
                 <div class="video-material-content">
-                  <div class="link-url" v-show="currentMaterial.url">
+                  <div class="link-url" v-show="currentMaterial.fileUrl">
                     <a-icon type="link" />
-                    <span class="link-url-txt" @click="handleOpenUrl(currentMaterial.url)">{{ currentMaterial.url }}</span>
+                    <span class="link-url-txt" @click="handleOpenUrl(currentMaterial.fileUrl)">{{ currentMaterial.fileUrl }}</span>
                   </div>
-                  <div class="video" v-show="currentMaterial.url">
-                    <video :src="currentMaterial.url" controls />
+                  <div class="video" v-show="currentMaterial.fileUrl">
+                    <video :src="currentMaterial.fileUrl" controls />
                   </div>
                 </div>
                 <div class="video-material-action">
                   <div class="action-item">
                     <a-upload name="file" accept="video/*" :customRequest="handleUploadAudio" :showUploadList="false">
-                      <a-button type="primary" icon="upload">{{ $t('teacher.add-unit-plan.upload-audio') }}</a-button>
+                      <a-button type="primary" icon="upload">{{ $t('teacher.add-unit-plan.upload-video') }}</a-button>
                     </a-upload>
                   </div>
                 </div>
@@ -296,8 +303,8 @@
                     {{ $t('teacher.add-unit-plan.paste-link') }}
                   </div>
                   <div class="action-item">
-                    <a-input :placeholder="$t('teacher.add-unit-plan.paste-link-placeholder')" v-model="currentMaterial.url"/>
-                    <a-button class="preview-action" @click="iframeUrl = currentMaterial.url">{{ $t('teacher.add-unit-plan.paste-link-preview') }}</a-button>
+                    <a-input :placeholder="$t('teacher.add-unit-plan.paste-link-placeholder')" v-model="currentMaterial.fileUrl"/>
+                    <a-button class="preview-action" @click="iframeUrl = currentMaterial.fileUrl">{{ $t('teacher.add-unit-plan.paste-link-preview') }}</a-button>
                   </div>
                 </div>
                 <div class="embed-material-content">
@@ -338,6 +345,8 @@ import { MaterialAddOrUpdate, MaterialQueryById } from '@/api/material'
 import draggable from 'vuedraggable'
 import TextEditor from '@/components/Editor/WangEditor'
 import ImageMaterialSelect from '@/components/UnitPlan/ImageMaterialSelect'
+
+const { getFileTypeByName, getTypeNameByType } = require('@/const/material')
 
 export default {
   name: 'AddUnitPlanMaterial',
@@ -429,7 +438,8 @@ export default {
       materialModalVisible: false,
       currentMaterial: null,
       currentMaterialTitle: '',
-      iframeUrl: null
+      currentMaterialUploading: false,
+      iframeUrl: ''
     }
   },
   computed: {
@@ -469,6 +479,11 @@ export default {
                 skillTags: []
               })
             }
+          })
+          this.material.files.forEach(item => {
+            const fileItem = Object.assign({}, item)
+            fileItem.type = getTypeNameByType(item.fileType)
+            this.materialList.push(fileItem)
           })
           logger.info('material.questions ', this.material.questions)
         }).finally(() => {
@@ -538,11 +553,30 @@ export default {
 
     handleAddOrUpdateMaterial () {
       const materialData = Object.assign(this.material)
-
       if (this.materialId) {
         materialData.id = this.materialId
       }
-
+      logger.info('handleAddOrUpdateMaterial materialData', materialData)
+      logger.info('materialList ', this.materialList)
+      const files = []
+      this.materialList.forEach(item => {
+        if (item.id && item.id.indexOf('new_') !== -1) {
+          files.push({
+            description: item.description,
+            fileType: getFileTypeByName(item.type),
+            fileUrl: item.fileUrl
+          })
+        } else {
+          files.push({
+            description: item.description,
+            fileType: getFileTypeByName(item.type),
+            fileUrl: item.fileUrl,
+            id: item.id
+          })
+        }
+      })
+      materialData.files = files
+      logger.info('after format materialData', materialData)
       MaterialAddOrUpdate(materialData).then((response) => {
         logger.info('handleAddOrUpdateMaterial response', response)
         if (response.success) {
@@ -610,15 +644,15 @@ export default {
 
     handleDragMaterialComponent (data) {
       logger.info('handleDragMaterialComponent', data)
-      let id = Math.random() + ''
+      let id = 'new_' + (Math.random())
       while (this.materialList.find(item => item.id === id)) {
-        id = Math.random()
+        id = 'new_' + (Math.random())
       }
       const item = Object.assign({
         id,
-        url: null,
-        preview: null,
-        data: null
+        fileUrl: null,
+        fileType: -1,
+        description: null
       }, data)
       logger.info('handleDragMaterialComponent item', item)
       this.currentMaterialId = id
@@ -639,15 +673,16 @@ export default {
 
     handleDbClickMaterialItem (materialItem) {
       logger.info('handleDbClickMaterialItem ', materialItem)
-      this.currentMaterial = materialItem
+      this.currentMaterial = Object.assign({}, materialItem)
       this.currentMaterialTitle = materialItem.name
       this.materialModalVisible = true
     },
 
     handleConfirmMaterial () {
-      logger.info('handleConfirmMaterial ', this.currentMaterial)
+      this.currentMaterialUploading = true
+      logger.info('handleConfirmMaterial ', this.currentMaterial, this.materialList)
       let targetIndex = -1
-      for (let index; index < this.materialList.length; index++) {
+      for (let index = 0; index < this.materialList.length; index++) {
         if (this.materialList[index] && this.materialList[index].id === this.currentMaterial.id) {
           targetIndex = index
           logger.info('find targetIndex ' + targetIndex)
@@ -661,46 +696,48 @@ export default {
       } else {
         logger.warn('not found target material')
       }
+      this.currentMaterialUploading = false
       this.materialModalVisible = false
-
-      this.iframeUrl = null
     },
 
     handleCancelMaterial () {
       logger.info('handleCancelMaterial')
+      this.currentMaterialUploading = false
       this.materialModalVisible = false
       this.currentMaterial = null
       this.currentMaterialTitle = ''
-      this.iframeUrl = null
     },
 
     handleTextEditContentChange (data) {
       logger.info('handleTextEditContentChange', data)
       if (this.currentMaterial) {
-        this.currentMaterial.data = data
+        this.currentMaterial.description = data
       }
     },
 
     handleSelectMaterialImage (data) {
       logger.info('handleSelectMaterialImage ', data)
-      this.currentMaterial.data = data
-      this.currentMaterial.url = data
+      this.currentMaterial.description = data
+      this.currentMaterial.fileUrl = data
       this.handleConfirmMaterial()
     },
 
     handleAudioResult (data) {
       logger.info('handleAudioResult', data)
+      this.currentMaterialUploading = true
       this.currentMaterial.data = window.URL.createObjectURL(data)
       const formData = new FormData()
       formData.append('file', data, 'audio.wav')
       this.$http.post(commonAPIUrl.UploadFile, formData, { contentType: false, processData: false, headers: { 'Content-Type': 'multipart/form-data' }, timeout: 60000 })
         .then((response) => {
           logger.info('handleAudioResult upload response:', response)
-          this.currentMaterial.url = this.$store.getters.downloadUrl + response.result
+          this.currentMaterial.fileUrl = this.$store.getters.downloadUrl + response.result
           logger.info('handleAudioResult currentMaterial', this.currentMaterial)
         }).catch(err => {
-        logger.error('handleAudioResult error', err)
-      })
+          logger.error('handleAudioResult error', err)
+        }).finally(() => {
+          this.currentMaterialUploading = false
+        })
     },
 
     handleOpenUrl (url) {
@@ -709,15 +746,18 @@ export default {
 
     handleUploadAudio (data) {
       logger.info('handleUploadAudio', data)
+      this.currentMaterialUploading = true
       const formData = new FormData()
       formData.append('file', data.file, data.file.name)
       this.uploading = true
       this.$http.post(commonAPIUrl.UploadFile, formData, { contentType: false, processData: false, headers: { 'Content-Type': 'multipart/form-data' }, timeout: 60000 })
         .then((response) => {
           logger.info('handleUploadAudio upload response:', response)
-          this.currentMaterial.url = this.$store.getters.downloadUrl + response.result
+          this.currentMaterial.fileUrl = this.$store.getters.downloadUrl + response.result
         }).catch(err => {
-        logger.error('handleUploadImage error', err)
+          logger.error('handleUploadImage error', err)
+        }).finally(() => {
+        this.currentMaterialUploading = false
       })
     }
   }
@@ -980,10 +1020,11 @@ export default {
                   }
 
                   .material-embed-content {
-                    iframe {
-                      border: 1px solid #aaa;
-                      width: 100%;
-                      min-height: 300px;
+                    .iframe-url {
+                      color: @primary-color;
+                      &:hover {
+                        text-decoration: underline;
+                      }
                     }
                   }
                 }
@@ -1320,6 +1361,33 @@ export default {
 
   .action-item {
     margin-left: 20px;
+  }
+}
+
+.material-modal-wrapper {
+  position: relative;
+  .material-content {
+    position: relative;
+    .uploading-mask {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: fade(#eee, 80%);
+      z-index: 100;
+      .uploading {
+        z-index: 110;
+        position: absolute;
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+        width: 100px;
+        left: 50%;
+        top: 45%;
+        margin-left: -50px;
+      }
+    }
   }
 }
 </style>

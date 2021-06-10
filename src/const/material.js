@@ -14,3 +14,38 @@ export const fileTypeMap = {
   txt: 5,
   other: 0
 }
+
+export function getFileTypeByName (typeName) {
+  switch (typeName) {
+    case 'image':
+    case 'img':
+      return fileTypeMap.img
+    case 'video':
+      return fileTypeMap.video
+    case 'link':
+    case 'embed':
+      return fileTypeMap.link
+    case 'audio':
+      return fileTypeMap.audio
+    case 'text':
+    case 'txt':
+      return fileTypeMap.txt
+    default:
+      return fileTypeMap.other
+  }
+}
+
+export function getTypeNameByType (type) {
+  switch (type) {
+    case fileTypeMap.txt:
+      return 'text'
+    case fileTypeMap.img:
+      return 'image'
+    case fileTypeMap.audio:
+      return 'audio'
+    case fileTypeMap.video:
+      return 'video'
+    case fileTypeMap.link:
+      return 'embed'
+  }
+}

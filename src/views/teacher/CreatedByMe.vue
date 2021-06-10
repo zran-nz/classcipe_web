@@ -115,7 +115,6 @@
       </a-skeleton>
 
       <a-drawer
-        :title="previewTitle"
         destroyOnClose
         placement="right"
         closable
@@ -161,7 +160,6 @@ export default {
       currentOwner: 'all-owner',
       currentOwnerLabel: this.$t('teacher.my-content.all-owner'),
 
-      previewTitle: '',
       previewVisible: false,
       previewCurrentId: '',
 
@@ -249,14 +247,12 @@ export default {
     },
     handleViewDetail (item) {
       logger.info('handleViewDetail', item)
-      this.previewTitle = item.name
       this.previewCurrentId = item.id
       this.previewVisible = true
     },
 
     handlePreviewClose () {
       logger.info('handlePreviewClose')
-      this.previewTitle = ''
       this.previewCurrentId = ''
       this.previewVisible = false
     }
