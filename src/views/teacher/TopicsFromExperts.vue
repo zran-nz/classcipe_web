@@ -1,8 +1,6 @@
 <template>
   <div>
-
-    <a-button type="primary">AddInstructionalContent</a-button>
-    AddInstructionalContent
+    TopicsFromExperts
   </div>
 </template>
 
@@ -10,7 +8,7 @@
 import { PageHeaderWrapper } from '@ant-design-vue/pro-layout'
 
 export default {
-  name: 'AddInstructionalContent',
+  name: 'TopicsFromExperts',
   components: {
     PageHeaderWrapper
   },

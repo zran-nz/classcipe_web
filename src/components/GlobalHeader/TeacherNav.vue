@@ -8,11 +8,6 @@
               <a-icon type="profile" /> {{ $t('menu.library') }}
             </router-link>
           </a-menu-item>
-          <a-menu-item key="/teacher/my-class">
-            <router-link to="/teacher/my-class">
-              <a-icon type="contacts" /> {{ $t('menu.my-class') }}
-            </router-link>
-          </a-menu-item>
         </a-menu>
       </div>
     </div>
@@ -27,23 +22,33 @@
           </a-button>
           <a-menu slot="overlay">
             <a-menu-item>
+              <router-link to="/teacher/topics-from-experts">
+                {{ $t('menu.topics-from-experts') }}
+              </router-link>
+            </a-menu-item>
+            <a-menu-item>
               <a @click="goToUnitPlan">
-                Unit plan
+                {{ $t('menu.unit-plans') }}
               </a>
             </a-menu-item>
             <a-menu-item>
-              <router-link to="/teacher/add-instructional-content">
-                Instructional content
+              <router-link to="/teacher/add-material">
+                {{ $t('menu.materials') }}
               </router-link>
             </a-menu-item>
             <a-menu-item>
               <router-link to="/teacher/add-task">
-                Task
+                {{ $t('menu.tasks') }}
+              </router-link>
+            </a-menu-item>
+            <a-menu-item>
+              <router-link to="/teacher/add-lesson">
+                {{ $t('menu.lessons') }}
               </router-link>
             </a-menu-item>
             <a-menu-item>
               <router-link to="/teacher/add-assessment">
-                Assessment
+                {{ $t('menu.assessments') }}
               </router-link>
             </a-menu-item>
           </a-menu>

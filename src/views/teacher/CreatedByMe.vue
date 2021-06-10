@@ -116,15 +116,18 @@
 
       <a-drawer
         :title="previewTitle"
+        destroyOnClose
         placement="right"
         closable
         width="800px"
         :visible="previewVisible"
         @close="handlePreviewClose"
       >
-        <template v-if="previewDataLoading">
-          <a-skeleton />
-        </template>
+        <div class="preview-wrapper">
+          <div class="preview-detail">
+            <unit-plan-preview :unit-plan-id="previewCurrentId" />
+          </div>
+        </div>
       </a-drawer>
     </div>
   </div>
@@ -132,6 +135,7 @@
 
 <script>
 import * as logger from '@/utils/logger'
+import UnitPlanPreview from '@/components/UnitPlan/UnitPlanPreview'
 import { deleteMyContentByType, getMyContent } from '@/api/teacher'
 import { ownerMap, statusMap, typeMap } from '@/const/teacher'
 import ContentStatusIcon from '@/components/Teacher/ContentStatusIcon'
@@ -141,7 +145,8 @@ export default {
   name: 'CreatedByMe',
   components: {
     ContentStatusIcon,
-    ContentTypeIcon
+    ContentTypeIcon,
+    UnitPlanPreview
   },
   data () {
     return {
@@ -158,7 +163,7 @@ export default {
 
       previewTitle: '',
       previewVisible: false,
-      previewDataLoading: true,
+      previewCurrentId: '',
 
       pagination: {
         onChange: page => {
@@ -245,14 +250,15 @@ export default {
     handleViewDetail (item) {
       logger.info('handleViewDetail', item)
       this.previewTitle = item.name
+      this.previewCurrentId = item.id
       this.previewVisible = true
-      this.previewDataLoading = true
     },
 
     handlePreviewClose () {
       logger.info('handlePreviewClose')
+      this.previewTitle = ''
+      this.previewCurrentId = ''
       this.previewVisible = false
-      this.previewDataLoading = false
     }
   }
 }

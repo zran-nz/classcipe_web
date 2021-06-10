@@ -98,10 +98,22 @@ export const asyncRouterMap = [
             meta: { title: 'menu.add-assessment', keepAlive: true, permission: ['expert', 'teacher'] }
           },
           {
-            path: '/teacher/add-instructional-content',
-            name: 'AddInstructionalContent',
-            component: () => import('@/views/teacher/AddInstructionalContent'),
-            meta: { title: 'menu.add-instructional-content', keepAlive: true, permission: ['expert', 'teacher'] }
+            path: '/teacher/topics-from-experts',
+            name: 'TopicsFromExperts',
+            component: () => import('@/views/teacher/TopicsFromExperts'),
+            meta: { title: 'menu.topics-from-experts', keepAlive: true, permission: ['expert', 'teacher'] }
+          },
+          {
+            path: '/teacher/add-lesson',
+            name: 'AddLesson',
+            component: () => import('@/views/teacher/AddLesson'),
+            meta: { title: 'menu.add-lesson', keepAlive: true, permission: ['expert', 'teacher'] }
+          },
+          {
+            path: '/teacher/add-material',
+            name: 'AddMaterial',
+            component: () => import('@/views/teacher/AddMaterial'),
+            meta: { title: 'menu.add-material', keepAlive: true, permission: ['expert', 'teacher'] }
           },
           {
             path: '/teacher/unit-plan/:unitPlanId',
