@@ -5,7 +5,8 @@ export const favoritesAPIUrl = {
   FavoritesQueryById: '/classcipe/api/favorites/queryById',
   FavoritesDelete: '/classcipe/api/favorites/delete',
   FavoritesDeleteBatch: '/classcipe/api/favorites/deleteBatch',
-  FavoritesList: '/classcipe/api/favorites/list'
+  FavoritesList: '/classcipe/api/favorites/list',
+  FavoritesGetMyFavorites: '/classcipe/api/favorites/getMyFavorites'
 }
 
 /**
@@ -77,6 +78,19 @@ export function FavoritesDeleteBatch (parameter) {
 export function FavoritesList (parameter) {
   return request({
     url: favoritesAPIUrl.FavoritesList,
+    method: 'get',
+    params: parameter
+  })
+}
+
+/**
+ * @param parameter
+ * @returns {AxiosPromise}
+ * @constructor
+ */
+export function FavoritesGetMyFavorites (parameter) {
+  return request({
+    url: favoritesAPIUrl.FavoritesGetMyFavorites,
     method: 'get',
     params: parameter
   })
