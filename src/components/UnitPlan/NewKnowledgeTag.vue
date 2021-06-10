@@ -223,7 +223,9 @@
 
 <script>
 import * as logger from '@/utils/logger'
-import { KnowledgeAddOrUpdateTag, KnowledgeGetTree, KnowledgeQueryTagsByKnowledgeId } from '@/api/knowledge'
+import { KnowledgeAddOrUpdateTag, KnowledgeGetTree, KnowledgeQueryTagsByKnowledgeId, KnowledgeSearch } from '@/api/knowledge'
+
+const { debounce } = require('lodash-es')
 
 const { scrollIntoViewById } = require('@/utils/domUtil')
 
@@ -321,6 +323,8 @@ export default {
     this.mainSubjectId = this.defaultMainSubjectId
     this.subSubjectId = this.defaultSubSubjectId
     this.selectedKnowledgeTagIdList = this.selectedKnowledgeTags.map(knowledgeTag => knowledgeTag.id)
+
+    this.debouncedSearchKnowledge = debounce(this.searchKnowledge, 300)
   },
   methods: {
     handleClick (event) {
@@ -530,31 +534,27 @@ export default {
 
     handleKeyup () {
       logger.info('handleKeyup ', this.inputTag)
-      const randNum = parseInt(Math.random() * 10 + '')
-      this.searchList = []
-      // mock data start
-      if (randNum > 4) {
-        for (let i = 0; i < randNum; i++) {
-          this.searchList.push({
-            name: this.inputTag + i,
-            description: 'Considering viewpoints – meanings and interpretations: For example – What is this painting telling us about the past? How does the artwork use visual conventions to convey meaning? How did the artist work within a space, and at this time? How and why did they innovate their practice?',
-            gradeId: '4',
-            id: '1393225420326879234',
-            mainKnowledgeId: '1393225419731288065',
-            mainSubjectId: '5',
-            subKnowledgeId: '1393225420121358337',
-            subSubjectId: '50'
-          })
-        }
-      }
-      // mock data end
       if (this.inputTag && this.inputTag.trim()) {
         this.mode = this.modeType.search
       } else {
         this.mode = this.modeType.select
       }
+      this.debouncedSearchKnowledge(this.inputTag)
       logger.info('handleKeyup toggle mode ' + this.mode)
       logger.info('searchList ', this.searchList)
+    },
+
+    searchKnowledge (keyword) {
+      logger.info('searchKnowledge', keyword)
+      this.searchList = []
+      if (typeof keyword === 'string' && keyword.trim().length >= 1) {
+        KnowledgeSearch({
+          key: keyword
+        }).then((response) => {
+          logger.info('searchKnowledge response', response)
+          this.searchList = response.result
+        })
+      }
     },
 
     handleCreateKnowledgeTag () {

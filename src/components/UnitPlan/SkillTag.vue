@@ -455,7 +455,13 @@ export default {
   .tag-line {
     transition: all 200ms ease-in;
     cursor: pointer;
-    padding-left: 10px;
+    padding: 3px;
+    line-height: 25px;
+    color: @primary-color;
+    text-decoration: underline;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
 
     &:hover {
       color:  @select-item-selected-color;

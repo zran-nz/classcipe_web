@@ -110,7 +110,8 @@ export const asyncRouterMap = [
             meta: { title: 'menu.add-lesson', keepAlive: true, permission: ['expert', 'teacher'] }
           },
           {
-            path: '/teacher/add-material',
+            path: '/teacher/add-material/:materialId',
+            props: true,
             name: 'AddMaterial',
             component: () => import('@/views/teacher/AddMaterial'),
             meta: { title: 'menu.add-material', keepAlive: true, permission: ['expert', 'teacher'] }

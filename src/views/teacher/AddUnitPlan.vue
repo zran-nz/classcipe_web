@@ -293,6 +293,17 @@
                   @add-knowledge-tag="handleAddKnowledgeTag"
                 />
 
+                <!--skill tag-select-->
+                <a-form-model-item :label="$t('teacher.add-unit-plan.skill-tags')">
+                  <skill-tag
+                    :question-index="questionIndex"
+                    :grade-list="gradeList"
+                    :default-grade-id="questionItem.skillGradeId"
+                    :selected-skill-tags="questionItem.skillTags"
+                    @remove-skill-tag="handleRemoveSkillTag"
+                    @add-skill-tag="handleAddSkillTag"
+                  />
+                </a-form-model-item>
               </div>
 
               <a-row>

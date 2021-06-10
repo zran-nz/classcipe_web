@@ -124,7 +124,7 @@
       >
         <div class="preview-wrapper">
           <div class="preview-detail">
-            <unit-plan-preview :unit-plan-id="previewCurrentId" />
+            <unit-plan-preview :unit-plan-id="previewCurrentId" v-if="previewType === typeMap['unit-plan']"/>
           </div>
         </div>
       </a-drawer>
@@ -162,6 +162,7 @@ export default {
 
       previewVisible: false,
       previewCurrentId: '',
+      previewType: '',
 
       pagination: {
         onChange: page => {
@@ -173,7 +174,9 @@ export default {
         total: 0,
         pageSize: 15
       },
-      pageNo: 1
+      pageNo: 1,
+
+      typeMap: typeMap
     }
   },
   computed: {
@@ -235,6 +238,10 @@ export default {
         this.$router.push({
           path: '/teacher/unit-plan-redirect/' + item.id
         })
+      } else if (item.type === typeMap['material']) {
+          this.$router.push({
+            path: '/teacher/add-material/' + item.id
+          })
       }
     },
     handleDeleteItem (item) {
@@ -248,12 +255,14 @@ export default {
     handleViewDetail (item) {
       logger.info('handleViewDetail', item)
       this.previewCurrentId = item.id
+      this.previewType = item.type
       this.previewVisible = true
     },
 
     handlePreviewClose () {
       logger.info('handlePreviewClose')
       this.previewCurrentId = ''
+      this.previewType = ''
       this.previewVisible = false
     }
   }
