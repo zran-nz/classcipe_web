@@ -170,7 +170,7 @@
                   <div class="tag-list">
                     <div class="tag-item" v-for="(concept,index) in unitPlanData.concepts" :key="index">
                       <a-tag
-                        :color="material.concepts.indexOf(concept) === -1 ? '' : '#87d068'"
+                        :color="material.concepts && material.concepts.indexOf(concept) === -1 ? '' : '#87d068'"
                         @click="handleAddConcept(concept)">
                         {{ concept }}
                       </a-tag>
@@ -408,7 +408,7 @@ export default {
       },
 
       unitPlanData: {
-        concepts: '',
+        concepts: [],
         image: '',
         inquiry: '',
         name: '',
