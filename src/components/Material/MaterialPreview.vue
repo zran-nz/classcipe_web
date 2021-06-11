@@ -122,6 +122,7 @@ import * as logger from '@/utils/logger'
 import { typeMap } from '@/const/teacher'
 import UnitPlanAssociatePreview from './UnitPlanAssociatePreview'
 
+const { GetAssociate } = require('@/api/teacher')
 const { formatLocalUTC } = require('@/utils/util')
 const { UnitPlanQueryById } = require('@/api/unitPlan')
 
@@ -158,6 +159,7 @@ export default {
     return {
       loading: true,
       unitPlanData: null,
+      associateData: null,
       imgList: [],
 
       tagColorList: [
@@ -191,6 +193,15 @@ export default {
         if (this.unitPlanData && this.unitPlanData.image) {
           this.imgList = [this.unitPlanData.image]
         }
+      }).then(() => {
+        logger.info('get favorite ' + this.unitPlanId)
+        GetAssociate({
+          id: this.unitPlanId,
+          type: typeMap['unit-plan']
+        }).then((response) => {
+          logger.info('GetAssociate ', response)
+          this.associateData = response.result
+        })
       }).finally(() => {
         this.loading = false
       })

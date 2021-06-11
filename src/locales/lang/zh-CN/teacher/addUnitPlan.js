@@ -16,11 +16,11 @@ export default {
   'teacher.add-unit-plan.upload-a-picture': 'Upload a picture',
   'teacher.add-unit-plan.upload-material': 'Upload your material',
   'teacher.add-unit-plan.click-to-upload': 'Click to upload',
-  'teacher.add-unit-plan.about-the-scenario': 'About the Scenario',
+  'teacher.add-unit-plan.real-life-scenario': 'Real life Scenario',
   'teacher.add-unit-plan.description': 'Description',
   'teacher.add-unit-plan.sdg': 'SDG',
   'teacher.add-unit-plan.key-words': 'Key words',
-  'teacher.add-unit-plan.add-more-sdg': 'Add more sdg',
+  'teacher.add-unit-plan.add-new-sdg': 'Add new sdg',
   'teacher.add-unit-plan.delete-sdg': 'Delete Sdg',
   'teacher.add-unit-plan.at-least-one-sdg': 'at least one sdg',
   'teacher.add-unit-plan.basics': 'Basics',
@@ -76,5 +76,5 @@ export default {
   'teacher.add-unit-plan.more-tag': 'please choose more tags from the Unit plan',
   'teacher.add-unit-plan.key-question-required-tips': 'please make sure your material is connected with at least one of the key questions before publishing',
   'teacher.add-unit-plan.knowledge-and-skill-required-tips': 'please make sure your material has relevant knowledge and skill tag before publishing',
-  'teacher.add-unit-plan.about-the-scenariossssss': 'About the Scenariosss'
+  'teacher.add-unit-plan.real-life-scenariossssss': 'About the Scenariosss'
 }

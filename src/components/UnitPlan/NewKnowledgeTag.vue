@@ -32,7 +32,7 @@
     </div>
     <a-form-model-item :label="$t('teacher.add-unit-plan.knowledge-tags')" class="new-knowledge-tag-wrapper" :data-qidx="questionIndex">
       <div class="knowledge-tag-search-input">
-        <input v-model="inputTag" @keyup="handleKeyup" />
+        <input v-model="inputTag" @keyup="handleKeyup" :placeholder="$t('teacher.add-unit-plan.please-enter-knowledge-tag')"/>
       </div>
       <div class="ready-created-tag-wrapper" v-if="mode === modeType.associate && createdKnowledgeTag !== null">
         <div class="associate-tips">

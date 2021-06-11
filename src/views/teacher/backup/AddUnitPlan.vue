@@ -149,13 +149,13 @@
                 </a-upload-dragger>
               </a-form-model-item>
             </div>
-            <!--            about-the-scenario-->
+            <!--            real-life-scenario-->
             <div class="form-block">
               <a-row>
                 <a-col offset="2" span="20">
                   <div class="form-block-title">
                     <a-divider orientation="left">
-                      {{ $t('teacher.add-unit-plan.about-the-scenario') }}
+                      {{ $t('teacher.add-unit-plan.real-life-scenario') }}
                     </a-divider>
                   </div>
                 </a-col>
@@ -202,12 +202,12 @@
                   <sdg-tag-input :selected-keywords="sdgItem.selectedKeywords" :sdg-key="sdgIndex" @add-tag="handleAddSdgTag" @remove-tag="handleRemoveSdgTag"/>
                 </a-form-model-item>
               </div>
-              <!--add-more-sdg-->
+              <!--add-new-sdg-->
               <a-row>
                 <a-col offset="2" span="20">
                   <div class="form-block-title form-block-action">
                     <a-button type="link" icon="plus-circle" @click="handleAddMoreSdg">
-                      {{ $t('teacher.add-unit-plan.add-more-sdg') }}
+                      {{ $t('teacher.add-unit-plan.add-new-sdg') }}
                     </a-button>
                   </div>
                 </a-col>

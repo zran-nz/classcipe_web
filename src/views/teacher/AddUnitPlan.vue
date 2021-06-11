@@ -149,13 +149,13 @@
                 </a-upload-dragger>
               </a-form-model-item>
             </div>
-            <!--            about-the-scenario-->
+            <!--            real-life-scenario-->
             <div class="form-block">
               <a-row>
                 <a-col offset="2" span="20">
                   <div class="form-block-title">
                     <a-divider orientation="left">
-                      {{ $t('teacher.add-unit-plan.about-the-scenario') }}
+                      {{ $t('teacher.add-unit-plan.real-life-scenario') }}
                     </a-divider>
                   </div>
                 </a-col>
@@ -190,7 +190,7 @@
                   </a-col>
                 </a-row>
                 <!--sdg-->
-                <a-form-model-item :label="$t('teacher.add-unit-plan.sdg')">
+                <a-form-model-item :label="$t('teacher.add-unit-plan.sdg-label')" class="long-label-form-item">
                   <a-select v-model="sdgItem.sdgId" placeholder="please select sdg">
                     <a-select-option v-for="(sdg,index) in sdgList" :value="sdg.id" :key="index">
                       {{ sdg.name }}
@@ -202,60 +202,27 @@
                   <sdg-tag-input :selected-keywords="sdgItem.selectedKeywords" :sdg-key="sdgIndex" @add-tag="handleAddSdgTag" @remove-tag="handleRemoveSdgTag"/>
                 </a-form-model-item>
               </div>
-              <!--add-more-sdg-->
+              <!--add-new-sdg-->
               <a-row>
                 <a-col offset="2" span="20">
                   <div class="form-block-title form-block-action">
                     <a-button type="link" icon="plus-circle" @click="handleAddMoreSdg">
-                      {{ $t('teacher.add-unit-plan.add-more-sdg') }}
+                      {{ $t('teacher.add-unit-plan.add-new-sdg') }}
                     </a-button>
                   </div>
                 </a-col>
               </a-row>
             </div>
-
+            <a-divider />
             <div class="form-block">
               <a-row>
-                <a-col offset="2" span="20">
-                  <div class="form-block-title">
-                    <a-divider orientation="left">
-                      {{ $t('teacher.add-unit-plan.basics') }}
-                    </a-divider>
-                  </div>
-                </a-col>
-
-                <a-form-model-item :label="$t('teacher.add-unit-plan.subject-covered')">
-                  <a-select v-model="form.subjects" @select="handleSelectSubject">
-                    <a-select-option v-for="(subject,index) in subjectList" :value="subject.name" :key="index">
-                      {{ subject.name }}
-                    </a-select-option>
-                  </a-select>
-                </a-form-model-item>
-
-                <a-form-model-item :label="$t('teacher.add-unit-plan.concepts')">
-                  <a-select v-model="form.concepts" @select="handleSelectConcept" mode="multiple">
-                    <a-select-option v-for="(concept,index) in conceptsList" :value="concept.name" :key="index">
-                      {{ concept.name }}
-                    </a-select-option>
-                  </a-select>
-                </a-form-model-item>
-
-                <a-form-model-item :label="$t('teacher.add-unit-plan.direction-of-inquiry')">
+                <a-form-model-item :label="$store.getters.currentRole === 'teacher' ? $t('teacher.add-unit-plan.teacher-direction-of-inquiry') : $t('teacher.add-unit-plan.expert-direction-of-inquiry')" class="long-label-form-item">
                   <a-input v-model="form.inquiry" allow-clear />
                 </a-form-model-item>
               </a-row>
             </div>
 
             <div class="form-block">
-              <a-row>
-                <a-col offset="2" span="20">
-                  <div class="form-block-title">
-                    <a-divider orientation="left">
-                      {{ $t('teacher.add-unit-plan.questions') }}
-                    </a-divider>
-                  </div>
-                </a-col>
-              </a-row>
               <div class="content-blocks question-item" v-for="(questionItem, questionIndex) in questionDataObj" :key="questionIndex" v-if="questionItem !== null">
                 <div class="knowledge-delete-wrapper" @click="handleDeleteQuestion(questionItem, questionIndex)" v-show="questionTotal > 1">
                   <a-tooltip placement="top">
@@ -276,7 +243,7 @@
                     </div>
                   </a-col>
                 </a-row>
-                <a-form-model-item :label="$t('teacher.add-unit-plan.nth-key-question')">
+                <a-form-model-item :label="$store.getters.currentRole === 'teacher' ? $t('teacher.add-unit-plan.teacher-nth-key-question') : $t('teacher.add-unit-plan.expert-nth-key-question')" >
                   <a-input v-model="questionItem.name" allow-clear/>
                 </a-form-model-item>
 
@@ -377,7 +344,6 @@ export default {
       labelCol: { span: 4 },
       wrapperCol: { span: 18 },
       form: {
-        concepts: [],
         image: '',
         inquiry: '',
         name: '',
@@ -428,9 +394,6 @@ export default {
       // Subject(s) Covered
       subjectList: [],
 
-      // Concepts
-      conceptsList: [],
-
       // Grades
       gradeList: [],
 
@@ -468,17 +431,6 @@ export default {
           skillGradeId: '',
           skillTags: []
         }
-      }
-    }
-  },
-  watch: {
-    'form.subjects': function () {
-      const conceptList = this.subjectList.find(subject => subject.name === this.form.subjects)
-      if (conceptList && conceptList.children) {
-        this.conceptsList = conceptList.children
-        logger.info('conceptList', conceptList.children)
-      } else {
-        this.conceptList = []
       }
     }
   },
@@ -744,11 +696,6 @@ export default {
     handleSelectSubject (subjects) {
       logger.info('handleSelectSubject', subjects)
       this.form.subjects = subjects
-      this.form.concepts = []
-    },
-
-    handleSelectConcept (concept) {
-      logger.info('handleSelectConcept', concept, this.form.concepts)
     },
 
     handleDeleteQuestion (questionItem, questionIndex) {
@@ -829,7 +776,6 @@ export default {
       logger.info('handleSaveUnitPlan', this.form, this.sdgDataObj, this.questionDataObj)
 
       const unitPlanData = {
-        concepts: this.form.concepts,
         image: this.form.image,
         inquiry: this.form.inquiry,
         name: this.form.name,
@@ -1031,6 +977,7 @@ export default {
     }
 
     .form-block-action {
+      padding: 10px 0 0 0;
       text-align: center;
     }
 
@@ -1158,5 +1105,8 @@ export default {
     }
   }
 
+  .long-form-item-label {
+    padding: 10px;
+  }
 }
 </style>
