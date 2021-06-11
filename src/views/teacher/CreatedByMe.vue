@@ -124,7 +124,7 @@
       >
         <div class="preview-wrapper">
           <div class="preview-detail">
-            <unit-plan-preview :unit-plan-id="previewCurrentId" v-if="previewType === typeMap['unit-plan']"/>
+            <unit-plan-preview :unit-plan-id="previewCurrentId" :show-associate="true" v-if="previewType === typeMap['unit-plan']" />
           </div>
         </div>
       </a-drawer>

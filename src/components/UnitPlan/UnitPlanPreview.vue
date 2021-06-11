@@ -39,7 +39,7 @@
               </a-empty>
             </div>
             <div class="preview-img-item" v-for="(img,index) in imgList" :key="index">
-              <img :src="img" />
+              <div class="preview-block" :style="{backgroundImage: 'url(' + img + ')' }" :data-img="img"></div>
             </div>
           </a-carousel>
           <div class="edit-action">
@@ -111,44 +111,19 @@
           </div>
         </a-col>
       </a-row>
-      <a-divider />
-      <a-row class="bottom-relative" :gutter="[16,32]">
-        <a-col span="16">
-          <a-space>
-            <a-button :type="activeContentType === typeMap.material ? 'primary' : 'default'" shape="round" @click="handleSelectContentType(typeMap.material)" class="type-button">
-              {{ $t('teacher.unit-plan-preview.material') }}
-            </a-button>
-            <a-button :type="activeContentType === typeMap.task ? 'primary' : 'default'" shape="round" @click="handleSelectContentType(typeMap.task)" class="type-button">
-              {{ $t('teacher.unit-plan-preview.task') }}
-            </a-button>
-            <a-button :type="activeContentType === typeMap.lesson ? 'primary' : 'default'" shape="round" @click="handleSelectContentType(typeMap.lesson)" class="type-button">
-              {{ $t('teacher.unit-plan-preview.lesson') }}
-            </a-button>
-            <a-button :type="activeContentType === typeMap.assessment ? 'primary' : 'default'" shape="round" @click="handleSelectContentType(typeMap.assessment)" class="type-button">
-              {{ $t('teacher.unit-plan-preview.assessment') }}
-            </a-button>
-          </a-space>
-        </a-col>
-        <a-col span="8">
-          <a-radio-group default-value="by-owner" button-style="solid">
-            <a-radio-button value="by-owner" class="left-button">
-              {{ $t('teacher.unit-plan-preview.by-owner') }}
-            </a-radio-button>
-            <a-radio-button value="by-others" class="right-button">
-              {{ $t('teacher.unit-plan-preview.by-others') }}
-            </a-radio-button>
-          </a-radio-group>
-        </a-col>
-      </a-row>
+      <a-divider v-if="showAssociate"/>
+      <unit-plan-associate-preview :unit-plan-id="unitPlanId" v-if="showAssociate"/>
     </template>
   </div>
 </template>
 
 <script>
 import * as logger from '@/utils/logger'
-import { ownerMap, typeMap } from '@/const/teacher'
-const { formatLocalUTC } = require('@/utils/util')
+import { typeMap } from '@/const/teacher'
+import UnitPlanAssociatePreview from './UnitPlanAssociatePreview'
 
+const { GetAssociate } = require('@/api/teacher')
+const { formatLocalUTC } = require('@/utils/util')
 const { UnitPlanQueryById } = require('@/api/unitPlan')
 
 export default {
@@ -157,7 +132,14 @@ export default {
     unitPlanId: {
       type: String,
       default: null
+    },
+    showAssociate: {
+      type: Boolean,
+      default: false
     }
+  },
+  components: {
+    UnitPlanAssociatePreview
   },
   computed: {
     lastChangeSavedTime () {
@@ -177,6 +159,7 @@ export default {
     return {
       loading: true,
       unitPlanData: null,
+      associateData: null,
       imgList: [],
 
       tagColorList: [
@@ -189,7 +172,9 @@ export default {
         'purple'
       ],
       activeContentType: -1,
-      typeMap: typeMap
+      typeMap: typeMap,
+
+      subPreviewVisible: false
     }
   },
   created () {
@@ -207,8 +192,16 @@ export default {
         this.unitPlanData = response.result
         if (this.unitPlanData && this.unitPlanData.image) {
           this.imgList = [this.unitPlanData.image]
-          this.imgList.push(this.unitPlanData.image)
         }
+      }).then(() => {
+        logger.info('get favorite ' + this.unitPlanId)
+        GetAssociate({
+          id: this.unitPlanId,
+          type: typeMap['unit-plan']
+        }).then((response) => {
+          logger.info('GetAssociate ', response)
+          this.associateData = response.result
+        })
       }).finally(() => {
         this.loading = false
       })
@@ -217,6 +210,11 @@ export default {
     handleSelectContentType (contentType) {
       logger.info('handleSelectContentType ' + contentType)
       this.activeContentType = contentType
+    },
+
+    handleSubPreviewClose () {
+      logger.info('handleSubPreviewClose')
+      this.subPreviewVisible = false
     }
   }
 }
@@ -260,8 +258,8 @@ export default {
 
       /deep/ .slick-slide {
         text-align: center;
-        height: 160px;
-        line-height: 160px;
+        height: 200px;
+        line-height: 200px;
         overflow: hidden;
       }
 
@@ -297,7 +295,14 @@ export default {
       /deep/ .no-preview-img {
         padding: 20px;
         .description {
+        }
+      }
 
+      /deep/ .preview-img-item {
+        .preview-block {
+          height: 200px;
+          background-position: center;
+          background-size: cover;
         }
       }
     }

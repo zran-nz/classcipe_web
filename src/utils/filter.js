@@ -12,9 +12,15 @@ Vue.filter('NumberFormat', function (value) {
 })
 
 Vue.filter('dayjs', function (dataStr, pattern = 'YYYY-MM-DD HH:mm:ss') {
-  return moment.utc(dataStr).local().format(pattern)
+  if (dataStr) {
+    return moment.utc(dataStr).local().format(pattern)
+  }
+  return ''
 })
 
 Vue.filter('moment', function (dataStr, pattern = 'YYYY-MM-DD HH:mm:ss') {
-  return moment.utc(dataStr).local().format(pattern)
+  if (dataStr) {
+    return moment.utc(dataStr).local().format(pattern)
+  }
+  return ''
 })

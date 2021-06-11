@@ -9,5 +9,6 @@ export default {
   'teacher.unit-plan-preview.lesson': 'lesson',
   'teacher.unit-plan-preview.assessment': 'assessment',
   'teacher.unit-plan-preview.by-owner': 'by Owner',
-  'teacher.unit-plan-preview.by-others': 'by Others'
+  'teacher.unit-plan-preview.by-others': 'by Others',
+  'teacher.unit-plan-preview.favorite': 'favorite'
 }

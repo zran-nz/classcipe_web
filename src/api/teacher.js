@@ -6,8 +6,22 @@ import { UnitPlanDelete } from '@/api/unitPlan'
 import * as logger from '@/utils/logger'
 
 export const teacherAPIUrl = {
+  GetAssociate: '/classcipe/api/teacher/getAssociate',
   GetMyContent: '/classcipe/api/teacher/getMyContent',
   GetMyGrades: '/classcipe/api/teacher/getMyGrades'
+}
+
+/**
+ * GetAssociate
+ * @param parameter
+ * @returns {AxiosPromise}
+ */
+export function GetAssociate (parameter) {
+  return request({
+    url: teacherAPIUrl.GetAssociate,
+    method: 'get',
+    params: parameter
+  })
 }
 
 /**
