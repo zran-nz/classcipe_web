@@ -4,7 +4,7 @@
       <a-skeleton active />
     </template>
     <template v-else>
-      <a-row class="top-header" :gutter="[16,32]">
+      <a-row class="top-header" :gutter="[16,24]">
         <a-col span="24">
           <span class="title">
             {{ unitPlanData.name }}
@@ -17,8 +17,8 @@
           </template>
         </a-col>
       </a-row>
-      <a-row class="top-info" :gutter="[16,32]">
-        <a-col class="left-preview" span="10">
+      <a-row class="top-info" :gutter="[16,24]">
+        <a-col class="left-preview" span="9">
           <a-carousel arrows>
             <div
               slot="prevArrow"
@@ -34,21 +34,110 @@
               <a-icon type="right-circle" />
             </div>
             <div v-if="!loading && !imgList.length" class="no-preview-img">
-              <a-icon type="file-jpg" />
+              <a-empty>
+                <!--                <span slot="description"></span>-->
+              </a-empty>
             </div>
             <div class="preview-img-item" v-for="(img,index) in imgList" :key="index">
               <img :src="img" />
             </div>
           </a-carousel>
+          <div class="edit-action">
+            <a-button type="primary">
+              <router-link :to="'/teacher/unit-plan-redirect/' + unitPlanId">{{ $t('teacher.unit-plan-preview.edit') }}</router-link>
+            </a-button>
+          </div>
         </a-col>
-        <a-col class="right-detail" span="14">
-          right-detail
+        <a-col class="right-detail" span="15">
+          <div class="detail-wrapper">
+            <div class="detail-block">
+              <div class="block-title">
+                {{ unitPlanData.scenario && unitPlanData.scenario.description }}
+                <span class="title-icon">
+                  <a-tooltip>
+                    <template slot="title">
+                      {{ $t('teacher.unit-plan-preview.scenario-description') }}
+                    </template>
+                    <a-icon type="info-circle" />
+                  </a-tooltip>
+                </span>
+              </div>
+              <div class="block-content">
+                <div class="content-list" v-if="unitPlanData.scenario && unitPlanData.scenario.sdgKeyWords">
+                  <div class="content-item" v-for="(sdgKeyword,index) in unitPlanData.scenario.sdgKeyWords" :key="index">
+                    <div class="question">
+                      {{ index + 1 }}、{{ sdgKeyword.sdgName }}
+                    </div>
+                    <div class="tags">
+                      <div class="tag-item" v-for="(tag,tagIndex) in sdgKeyword.keywords" :key="tagIndex">
+                        <a-tag :color="tagColorList[tagIndex % tagColorList.length]">
+                          {{ tag.name }}
+                        </a-tag>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="detail-block">
+              <div class="block-title">
+                {{ unitPlanData.inquiry }}
+                <span class="title-icon">
+                  <a-tooltip>
+                    <template slot="title">
+                      {{ $t('teacher.unit-plan-preview.direction-of-inquiry') }}
+                    </template>
+                    <a-icon type="info-circle" />
+                  </a-tooltip>
+                </span>
+              </div>
+              <div class="block-content">
+                <div class="content-list" v-if="unitPlanData.questions">
+                  <div class="content-item" v-for="(question,qIndex) in unitPlanData.questions" :key="qIndex">
+                    <div class="question">
+                      {{ qIndex + 1 }}、{{ question.name }}
+                    </div>
+                    <div class="content-sub-list">
+                      <div class="content-sub-item" v-for="(knowledgeTag, kIndex) in question.knowledgeTags" :key="kIndex">
+                        <div class="sub-title">
+                          {{ qIndex + 1 }}.{{ kIndex + 1 }}、{{ knowledgeTag.description }}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         </a-col>
       </a-row>
       <a-divider />
       <a-row class="bottom-relative" :gutter="[16,32]">
-        <a-col span="24">
-          bottom-relative
+        <a-col span="16">
+          <a-space>
+            <a-button :type="activeContentType === typeMap.material ? 'primary' : 'default'" shape="round" @click="handleSelectContentType(typeMap.material)" class="type-button">
+              {{ $t('teacher.unit-plan-preview.material') }}
+            </a-button>
+            <a-button :type="activeContentType === typeMap.task ? 'primary' : 'default'" shape="round" @click="handleSelectContentType(typeMap.task)" class="type-button">
+              {{ $t('teacher.unit-plan-preview.task') }}
+            </a-button>
+            <a-button :type="activeContentType === typeMap.lesson ? 'primary' : 'default'" shape="round" @click="handleSelectContentType(typeMap.lesson)" class="type-button">
+              {{ $t('teacher.unit-plan-preview.lesson') }}
+            </a-button>
+            <a-button :type="activeContentType === typeMap.assessment ? 'primary' : 'default'" shape="round" @click="handleSelectContentType(typeMap.assessment)" class="type-button">
+              {{ $t('teacher.unit-plan-preview.assessment') }}
+            </a-button>
+          </a-space>
+        </a-col>
+        <a-col span="8">
+          <a-radio-group default-value="by-owner" button-style="solid">
+            <a-radio-button value="by-owner" class="left-button">
+              {{ $t('teacher.unit-plan-preview.by-owner') }}
+            </a-radio-button>
+            <a-radio-button value="by-others" class="right-button">
+              {{ $t('teacher.unit-plan-preview.by-others') }}
+            </a-radio-button>
+          </a-radio-group>
         </a-col>
       </a-row>
     </template>
@@ -57,7 +146,7 @@
 
 <script>
 import * as logger from '@/utils/logger'
-
+import { ownerMap, typeMap } from '@/const/teacher'
 const { formatLocalUTC } = require('@/utils/util')
 
 const { UnitPlanQueryById } = require('@/api/unitPlan')
@@ -88,7 +177,19 @@ export default {
     return {
       loading: true,
       unitPlanData: null,
-      imgList: []
+      imgList: [],
+
+      tagColorList: [
+        'pink',
+        'orange',
+        'green',
+        'cyan',
+        'blue',
+        'red',
+        'purple'
+      ],
+      activeContentType: -1,
+      typeMap: typeMap
     }
   },
   created () {
@@ -111,6 +212,11 @@ export default {
       }).finally(() => {
         this.loading = false
       })
+    },
+
+    handleSelectContentType (contentType) {
+      logger.info('handleSelectContentType ' + contentType)
+      this.activeContentType = contentType
     }
   }
 }
@@ -139,7 +245,7 @@ export default {
   }
 
   .top-info {
-    padding: 20px 0;
+    padding: 20px 0 0 0;
   }
 
   .left-preview {
@@ -165,7 +271,7 @@ export default {
         font-size: 25px;
         color: #fff;
         background-color: rgba(31, 45, 61, 0.81);
-        opacity: 0.0;
+        opacity: 0.1;
         border-radius: 50%;
         transition: all 0.3s ease-in;
       }
@@ -181,7 +287,7 @@ export default {
       }
 
       /deep/ .custom-slick-arrow:hover {
-        opacity: 0.5;
+        opacity: 0.3;
       }
 
       /deep/ .slick-slide h3 {
@@ -189,9 +295,86 @@ export default {
       }
 
       /deep/ .no-preview-img {
-        font-size: 40px;
-        color: @text-color-secondary;
+        padding: 20px;
+        .description {
+
+        }
       }
+    }
+
+    .edit-action {
+      margin-top: 20px;
+    }
+  }
+
+  .right-detail {
+    .detail-wrapper {
+      .detail-block {
+        margin-bottom: 10px;
+        border: 1px solid #f3f3f3;
+
+        .block-title {
+          font-weight: 700;
+          font-size: 16px;
+          padding: 10px;
+          background-color: #fafafa;
+          .title-icon {
+            font-size: 14px;
+            font-weight: normal;
+            color: @text-color-secondary;
+          }
+        }
+
+        .block-content {
+          padding: 10px;
+          .content-list {
+            .content-item {
+              margin-bottom: 10px;
+              .question {
+                padding-bottom: 5px;
+                font-size: 14px;
+                font-weight: 500;
+              }
+              .tags {
+                display: flex;
+                flex-direction: row;
+                flex-wrap: wrap;
+                padding-bottom: 10px;
+
+                .tag-label {
+                  font-weight: bold;
+                  padding-right: 10px;
+                }
+
+                .tag-item {
+                  font-size: 16px;
+                  margin-right: 5px;
+                  margin-bottom: 5px;
+                  overflow: hidden;
+                  text-overflow: ellipsis;
+                  word-break: break-all;
+                  white-space: nowrap;
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  .bottom-relative {
+
+    .type-button {
+      width: 100px;
+    }
+
+    /deep/ .left-button {
+      border-radius: 16px 0 0 16px;
+    }
+
+    /deep/ .right-button {
+      border-radius: 0 16px 16px 0 ;
     }
   }
 }

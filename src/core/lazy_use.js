@@ -4,6 +4,7 @@ import Vue from 'vue'
 import {
   ConfigProvider,
   Carousel,
+  Empty,
   Layout,
   Input,
   InputNumber,
@@ -52,6 +53,7 @@ import './directives/action'
 Vue.use(ConfigProvider)
 Vue.use(Carousel)
 Vue.use(Layout)
+Vue.use(Empty)
 Vue.use(Input)
 Vue.use(InputNumber)
 Vue.use(Button)
