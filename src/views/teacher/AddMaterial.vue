@@ -373,6 +373,7 @@ export default {
       selectedSkillTagIdList: [],
       materialModalVisible: false,
       currentMaterial: null,
+      currentMaterialDescription: null,
       currentMaterialTitle: '',
       currentMaterialUploading: false,
       iframeUrl: ''
@@ -595,6 +596,10 @@ export default {
     handleConfirmMaterial () {
       this.currentMaterialUploading = true
       logger.info('handleConfirmMaterial ', this.currentMaterial, this.materialList)
+      if (this.currentMaterial.type === 'text') {
+        this.currentMaterial.description = this.currentMaterialDescription
+        logger.info('update text desc ' + this.currentMaterial.description)
+      }
       let targetIndex = -1
       for (let index = 0; index < this.materialList.length; index++) {
         if (this.materialList[index] && this.materialList[index].id === this.currentMaterial.id) {
@@ -624,9 +629,7 @@ export default {
 
     handleTextEditContentChange (data) {
       logger.info('handleTextEditContentChange', data)
-      if (this.currentMaterial) {
-        this.currentMaterial.description = data
-      }
+      this.currentMaterialDescription = data
     },
 
     handleSelectMaterialImage (data) {
