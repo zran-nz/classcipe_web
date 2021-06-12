@@ -101,6 +101,7 @@
                       <div class="content-sub-item" v-for="(knowledgeTag, kIndex) in question.knowledgeTags" :key="kIndex">
                         <div class="sub-title">
                           {{ qIndex + 1 }}.{{ kIndex + 1 }}、{{ knowledgeTag.description }}
+                          <span class="subject-name">{{ knowledgeTag.subjectName }}</span>
                           <a-tag :color="tagColorList[kIndex % tagColorList.length]">
                             {{ knowledgeTag.name }}
                           </a-tag>
@@ -368,6 +369,15 @@ export default {
                 padding: 5px 0;
                 background-color: #f9f9f9;
                 margin-bottom: 10px;
+                .subject-name {
+                  cursor: pointer;
+                  color: @primary-color;
+                  padding: 0 10px;
+                  line-height: 30px;
+                  border-radius: 30px;
+                  margin: 0 10px;
+                  background-color: fade(@outline-color, 20%);
+                }
               }
             }
           }
