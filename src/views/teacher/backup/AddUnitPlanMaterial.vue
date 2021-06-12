@@ -190,7 +190,7 @@
                     <div class="info-input">
                       <a-textarea
                         rows="4"
-                        :placeholder="$t('teacher.add-unit-plan.overview')"
+                        :placeholder="$t('teacher.add-unit-plan.material-overview')"
                         v-model="material.overview" />
                     </div>
                   </div>

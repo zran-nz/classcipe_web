@@ -32,7 +32,7 @@
               </a>
             </a-menu-item>
             <a-menu-item>
-              <router-link to="/teacher/add-material">
+              <router-link to="/teacher/unit-plan-material-redirect/none/create">
                 {{ $t('menu.materials') }}
               </router-link>
             </a-menu-item>

@@ -21,7 +21,27 @@ export default {
     materialId: null
   },
   created () {
-    if (this.materialId && this.materialId !== 'create') {
+    if (this.unitPlanId === 'none' && this.materialId === 'create') {
+      const materialData = {
+        name: 'Unnamed Material',
+        overview: '',
+        fileUrl: '',
+        fileType: 0,
+        questions: [],
+        status: 0
+      }
+
+      MaterialAddOrUpdate(materialData).then((response) => {
+        logger.info('MaterialAddOrUpdate none unit plan response', response.result)
+        if (response.success) {
+          this.$router.replace({
+            path: '/teacher/add-material/' + response.result.id
+          })
+        } else {
+          this.$message.error(response.message)
+        }
+      })
+    } else if (this.materialId && this.materialId !== 'create') {
       this.$router.replace('/teacher/unit-plan-material/' + this.unitPlanId + '/' + this.materialId)
     } else if (this.unitPlanId && this.materialId && this.materialId === 'create') {
       const materialData = {
@@ -29,7 +49,6 @@ export default {
         overview: '',
         planId: this.unitPlanId,
         fileUrl: '',
-        concepts: [],
         fileType: 0,
         questions: [],
         status: 0
