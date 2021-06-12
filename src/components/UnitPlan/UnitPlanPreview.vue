@@ -101,7 +101,7 @@
                       <div class="content-sub-item" v-for="(knowledgeTag, kIndex) in question.knowledgeTags" :key="kIndex">
                         <div class="sub-title">
                           {{ qIndex + 1 }}.{{ kIndex + 1 }}、{{ knowledgeTag.description }}
-                          <span class="subject-name">{{ knowledgeTag.subjectName }}</span>
+                          <span class="subject-name">{{ knowledgeTag.subSubjectName }}</span>
                           <a-tag :color="tagColorList[kIndex % tagColorList.length]">
                             {{ knowledgeTag.name }}
                           </a-tag>
