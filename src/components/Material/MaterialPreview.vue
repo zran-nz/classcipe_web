@@ -112,7 +112,6 @@ import * as logger from '@/utils/logger'
 import { typeMap } from '@/const/teacher'
 import MaterialAssociatePreview from '@/components/Material/MaterialAssociatePreview'
 import { fileTypeMap } from '@/const/material'
-const { GetAssociate } = require('@/api/teacher')
 const { formatLocalUTC } = require('@/utils/util')
 const { MaterialQueryById } = require('@/api/material')
 

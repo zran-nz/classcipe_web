@@ -89,13 +89,13 @@ export const asyncRouterMap = [
             path: '/teacher/add-task',
             name: 'AddTask',
             component: () => import('@/views/teacher/AddTask'),
-            meta: { title: 'menu.add-task', keepAlive: true, permission: ['expert', 'teacher'] }
+            meta: { title: 'menu.add-task', keepAlive: true, permission: ['expert', 'teacher'], editPage: true }
           },
           {
             path: '/teacher/add-assessment',
             name: 'AddAssessment',
             component: () => import('@/views/teacher/AddAssessment'),
-            meta: { title: 'menu.add-assessment', keepAlive: true, permission: ['expert', 'teacher'] }
+            meta: { title: 'menu.add-assessment', keepAlive: true, permission: ['expert', 'teacher'], editPage: true }
           },
           {
             path: '/teacher/topics-from-experts',
@@ -107,21 +107,21 @@ export const asyncRouterMap = [
             path: '/teacher/add-lesson',
             name: 'AddLesson',
             component: () => import('@/views/teacher/AddLesson'),
-            meta: { title: 'menu.add-lesson', keepAlive: true, permission: ['expert', 'teacher'] }
+            meta: { title: 'menu.add-lesson', keepAlive: true, permission: ['expert', 'teacher'], editPage: true }
           },
           {
             path: '/teacher/add-material/:materialId',
             props: true,
             name: 'AddMaterial',
             component: () => import('@/views/teacher/AddMaterial'),
-            meta: { title: 'menu.add-material', keepAlive: true, permission: ['expert', 'teacher'] }
+            meta: { title: 'menu.add-material', keepAlive: true, permission: ['expert', 'teacher'], editPage: true }
           },
           {
             path: '/teacher/unit-plan/:unitPlanId',
             props: true,
             name: 'UnitPlan',
             component: () => import('@/views/teacher/AddUnitPlan'),
-            meta: { title: 'menu.teacher.add-unit-plan', keepAlive: true, permission: ['expert', 'teacher'] }
+            meta: { title: 'menu.teacher.add-unit-plan', keepAlive: true, permission: ['expert', 'teacher'], editPage: true }
           },
           {
             path: '/teacher/unit-plan-redirect/:unitPlanId',
@@ -171,19 +171,19 @@ export const asyncRouterMap = [
             path: '/expert/add-topic',
             name: 'AddTopic',
             component: () => import('@/views/expert/AddTopic'),
-            meta: { title: 'menu.my-content', keepAlive: true, permission: ['expert', 'teacher'] }
+            meta: { title: 'menu.my-content', keepAlive: true, permission: ['expert', 'teacher'], editPage: true }
           },
           {
             path: '/expert/add-material',
             name: 'AddMaterial',
             component: () => import('@/views/expert/AddMaterial'),
-            meta: { title: 'menu.add-material', keepAlive: true, permission: ['expert', 'teacher'] }
+            meta: { title: 'menu.add-material', keepAlive: true, permission: ['expert', 'teacher'], editPage: true }
           },
           {
             path: '/expert/add-task',
             name: 'AddTask',
             component: () => import('@/views/expert/AddTask'),
-            meta: { title: 'menu.add-task', keepAlive: true, permission: ['expert', 'teacher'] }
+            meta: { title: 'menu.add-task', keepAlive: true, permission: ['expert', 'teacher'], editPage: true }
           }
         ]
       },

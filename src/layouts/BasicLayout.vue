@@ -94,6 +94,14 @@ export default {
   watch: {
     '$route' (to, from) {
       logger.info('route change', to, from)
+      if (to.meta && this.headerDom.length) {
+        if (to.meta.editPage) {
+          this.showGlobalHeader(!to.meta.editPage)
+        } else {
+          this.showGlobalHeader(true)
+        }
+      }
+
       if (to.path === '/') {
         logger.info('go to defaultRouter ' + this.$store.getters.defaultRouter)
         this.$router.replace(this.$store.getters.defaultRouter)
@@ -123,6 +131,9 @@ export default {
         }, 16)
       })
     }
+
+    this.headerDom = []
+    this.headerDom = document.getElementsByTagName('header')
 
     // first update color
     // TIPS: THEME COLOR HANDLER!! PLEASE CHECK THAT!!
@@ -179,6 +190,13 @@ export default {
     },
     reload () {
       window.location.reload()
+    },
+
+    showGlobalHeader (visible) {
+      logger.info('showGlobalHeader ' + visible)
+      this.headerDom.forEach(domItem => {
+        domItem.style.opacity = visible ? 1 : 0
+      })
     }
   }
 }
