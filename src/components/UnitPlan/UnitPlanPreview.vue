@@ -95,12 +95,25 @@
                 <div class="content-list" v-if="unitPlanData.questions">
                   <div class="content-item" v-for="(question,qIndex) in unitPlanData.questions" :key="qIndex">
                     <div class="question">
-                      {{ qIndex + 1 }}、{{ question.name }}
+                      {{ question.name }}
                     </div>
                     <div class="content-sub-list">
                       <div class="content-sub-item" v-for="(knowledgeTag, kIndex) in question.knowledgeTags" :key="kIndex">
                         <div class="sub-title">
                           {{ qIndex + 1 }}.{{ kIndex + 1 }}、{{ knowledgeTag.description }}
+                          <a-tag :color="tagColorList[kIndex % tagColorList.length]">
+                            {{ knowledgeTag.name }}
+                          </a-tag>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="content-sub-list">
+                      <div class="content-sub-item" v-for="(skillTag, sIndex) in question.skillTags" :key="sIndex">
+                        <div class="sub-title">
+                          {{ qIndex + 1 }}.{{ sIndex + 1 }}、{{ skillTag.description }}
+                          <a-tag :color="tagColorList[sIndex % tagColorList.length]">
+                            {{ skillTag.name }}
+                          </a-tag>
                         </div>
                       </div>
                     </div>
@@ -349,6 +362,12 @@ export default {
                   word-break: break-all;
                   white-space: nowrap;
                 }
+              }
+
+              .content-sub-list {
+                padding: 5px 0;
+                background-color: #f9f9f9;
+                margin-bottom: 10px;
               }
             }
           }

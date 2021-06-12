@@ -113,13 +113,16 @@
                 <a-input v-model="form.name" />
               </a-form-model-item>
               <!--              image-->
-              <a-form-model-item :label="$t('teacher.add-unit-plan.image')">
+              <a-form-model-item :label="$t('teacher.add-unit-plan.image')" class="img-wrapper">
                 <a-upload-dragger
                   name="file"
                   accept="image/png, image/jpeg"
                   :showUploadList="false"
                   :customRequest="handleUploadImage"
                 >
+                  <div class="delete-img" @click="handleDeleteImage($event)" v-show="form.image">
+                    <a-icon type="close-circle" />
+                  </div>
                   <template v-if="uploading">
                     <div class="upload-container">
                       <p class="ant-upload-drag-icon">
@@ -243,7 +246,7 @@
                     </div>
                   </a-col>
                 </a-row>
-                <a-form-model-item :label="$store.getters.currentRole === 'teacher' ? $t('teacher.add-unit-plan.teacher-nth-key-question') : $t('teacher.add-unit-plan.expert-nth-key-question')" >
+                <a-form-model-item class="long-label-form-item" :label="$store.getters.currentRole === 'teacher' ? $t('teacher.add-unit-plan.teacher-nth-key-question') : $t('teacher.add-unit-plan.expert-nth-key-question')" >
                   <a-input v-model="questionItem.name" allow-clear/>
                 </a-form-model-item>
 
@@ -602,6 +605,14 @@ export default {
         this.uploading = false
       })
     },
+
+    handleDeleteImage (e) {
+      logger.info('handleDeleteImage ', e)
+      e.stopPropagation()
+      e.preventDefault()
+      this.form.image = null
+    },
+
     handleDescriptionSearch (description) {
       logger.info('handleDescriptionSearch', description)
       this.form.scenario.description = description
@@ -1050,6 +1061,24 @@ export default {
           padding-bottom: 5px;
         }
       }
+    }
+
+    .img-wrapper {
+      position: relative;
+    }
+    .delete-img {
+      position: absolute;
+      top: -10px;
+      right: -10px;
+      background-color: #fafafa;
+      border-radius: 50%;
+      height: 30px;
+      width: 30px;
+      text-align: center;
+      vertical-align: middle;
+      color: @red-5;
+      z-index: 100;
+      font-size: 20px;
     }
   }
 

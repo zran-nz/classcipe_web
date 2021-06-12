@@ -96,7 +96,6 @@
 import * as logger from '@/utils/logger'
 import { typeMap } from '@/const/teacher'
 import ContentTypeIcon from '@/components/Teacher/ContentTypeIcon'
-import UnitPlanPreview from '@/components/UnitPlan/UnitPlanPreview'
 const { GetAssociate } = require('@/api/teacher')
 
 export default {
@@ -109,7 +108,7 @@ export default {
   },
   components: {
     ContentTypeIcon,
-    UnitPlanPreview
+    UnitPlanPreview: () => import('@/components/UnitPlan/UnitPlanPreview')
   },
   data () {
     return {
