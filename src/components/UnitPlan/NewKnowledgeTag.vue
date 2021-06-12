@@ -58,7 +58,7 @@
           </div>
         </div>
       </div>
-      <div class="knowledge-tag-wrapper" v-show="visible && (mode === modeType.select || mode === modeType.associate)">
+      <div class="knowledge-tag-wrapper" :data-visible="visible" :data-mode="mode" :data-show="visible && (mode === modeType.select || mode === modeType.associate)" v-if="visible && (mode === modeType.select || mode === modeType.associate)">
         <a-row >
           <a-col span="3">
             <div class="tag-select grade-select border-right">
@@ -173,7 +173,7 @@
           </a-col>
         </a-row>
       </div>
-      <div class="search-knowledge-tag-wrapper" :data-mode="mode" :data-visible="visible ? 'visible': 'hidden'" v-show="visible && mode === modeType.search">
+      <div class="search-knowledge-tag-wrapper" :data-visible="visible" :data-mode="mode" :data-show="visible && mode === modeType.search" v-if="visible && mode === modeType.search">
         <a-row >
           <a-col span="24">
             <div class="tag-select">
@@ -263,7 +263,10 @@ export default {
   },
   mounted () {
     logger.info('add mounted click handler')
-    this.globalClick(this.handleClick, this.$route.name, false)
+    this.globalClick(this.handleClick, this.$route.name, true)
+  },
+  beforeDestroy () {
+
   },
   data () {
     return {
@@ -328,6 +331,7 @@ export default {
   },
   methods: {
     handleClick (event) {
+      console.log('event.path', event.path)
       const targetDom = event.path.find(path => {
         if (path.className && path.className.indexOf && path.className.indexOf('new-knowledge-tag-wrapper') !== -1) {
           if (path.dataset && path.dataset.qidx === this.questionIndex) {

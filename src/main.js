@@ -59,6 +59,9 @@ Vue.prototype.globalClick = function (callback, pageName = '', reBind = false) {
   logger.info('globalClick handler', window.__globalClickHandler)
   if (pageName && window.__globalClickHandler.get(pageName)) {
     if (reBind) {
+      document.getElementById('app').removeEventListener('click', function (event) {
+        callback(event)
+      })
       logger.info('reBind globalClick handler for ' + pageName, callback)
       document.getElementById('app').addEventListener('click', function (event) {
         callback(event)
