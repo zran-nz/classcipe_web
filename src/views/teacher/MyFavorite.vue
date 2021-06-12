@@ -115,16 +115,19 @@
       </a-skeleton>
 
       <a-drawer
-        :title="previewTitle"
+        destroyOnClose
         placement="right"
         closable
-        width="800px"
+        width="900px"
         :visible="previewVisible"
         @close="handlePreviewClose"
       >
-        <template v-if="previewDataLoading">
-          <a-skeleton />
-        </template>
+        <div class="preview-wrapper">
+          <div class="preview-detail">
+            <unit-plan-preview :unit-plan-id="previewCurrentId" :show-associate="true" v-if="previewType === typeMap['unit-plan']" />
+            <material-preview :material-id="previewCurrentId" :show-associate="true" v-if="previewType === typeMap.material" />
+          </div>
+        </div>
       </a-drawer>
     </div>
   </div>
@@ -132,6 +135,8 @@
 
 <script>
 import * as logger from '@/utils/logger'
+import UnitPlanPreview from '@/components/UnitPlan/UnitPlanPreview'
+import MaterialPreview from '@/components/Material/MaterialPreview'
 import { typeMap } from '@/const/teacher'
 import ContentStatusIcon from '@/components/Teacher/ContentStatusIcon'
 import ContentTypeIcon from '@/components/Teacher/ContentTypeIcon'
@@ -141,7 +146,9 @@ export default {
   name: 'MyFavorite',
   components: {
     ContentStatusIcon,
-    ContentTypeIcon
+    ContentTypeIcon,
+    UnitPlanPreview,
+    MaterialPreview
   },
   data () {
     return {
@@ -156,9 +163,9 @@ export default {
       currentOwner: 'all-owner',
       currentOwnerLabel: this.$t('teacher.my-content.all-owner'),
 
-      previewTitle: '',
       previewVisible: false,
-      previewDataLoading: true,
+      previewCurrentId: '',
+      previewType: '',
 
       pagination: {
         onChange: page => {
@@ -170,7 +177,9 @@ export default {
         total: 0,
         pageSize: 15
       },
-      pageNo: 1
+      pageNo: 1,
+
+      typeMap: typeMap
     }
   },
   computed: {
@@ -178,8 +187,6 @@ export default {
   created () {
     logger.info('teacher my content')
     this.loadMyContent()
-  },
-  mounted () {
   },
   methods: {
     loadMyContent () {
@@ -230,6 +237,10 @@ export default {
         this.$router.push({
           path: '/teacher/unit-plan-redirect/' + item.id
         })
+      } else if (item.type === typeMap['material']) {
+        this.$router.push({
+          path: '/teacher/add-material/' + item.id
+        })
       }
     },
     handleDeleteItem (item) {
@@ -245,15 +256,16 @@ export default {
     },
     handleViewDetail (item) {
       logger.info('handleViewDetail', item)
-      this.previewTitle = item.name
+      this.previewCurrentId = item.id
+      this.previewType = item.type
       this.previewVisible = true
-      this.previewDataLoading = true
     },
 
     handlePreviewClose () {
       logger.info('handlePreviewClose')
+      this.previewCurrentId = ''
+      this.previewType = ''
       this.previewVisible = false
-      this.previewDataLoading = false
     }
   }
 }
