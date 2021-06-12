@@ -196,6 +196,7 @@ export default {
       logger.info('showGlobalHeader ' + visible)
       this.headerDom.forEach(domItem => {
         domItem.style.opacity = visible ? 1 : 0
+        domItem.style['pointer-events'] = visible ? 'auto' : 'none'
       })
     }
   }
