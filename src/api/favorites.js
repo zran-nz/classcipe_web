@@ -1,7 +1,7 @@
 import request from '@/utils/request'
 
 export const favoritesAPIUrl = {
-  FavoritesAddOrUpdate: '/classcipe/api/favorites/addOrUpdate',
+  FavoritesAdd: '/classcipe/api/favorites/add',
   FavoritesQueryById: '/classcipe/api/favorites/queryById',
   FavoritesDelete: '/classcipe/api/favorites/delete',
   FavoritesDeleteBatch: '/classcipe/api/favorites/deleteBatch',
@@ -14,9 +14,9 @@ export const favoritesAPIUrl = {
  * @returns {AxiosPromise}
  * @constructor
  */
-export function FavoritesAddOrUpdate (parameter) {
+export function FavoritesAdd (parameter) {
   return request({
-    url: favoritesAPIUrl.FavoritesAddOrUpdate,
+    url: favoritesAPIUrl.FavoritesAdd,
     method: 'post',
     data: parameter,
     headers: {

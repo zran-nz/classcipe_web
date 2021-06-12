@@ -54,10 +54,12 @@
                           {{ listItem.updateTime | moment }}
                         </a-col>
                         <a-col class="favorite" span="2" @click="handleFavorite(listItem)">
-                          <a-icon type="star" :theme="listItem.isFavorite ? 'filled' : 'outlined'"/>
-                          <template v-if="listItem.isFavorite">
-                            {{ $t('teacher.unit-plan-preview.favorite') }}
-                          </template>
+                          <span :class="{'favorite-active': listItem.isFavorite}">
+                            <a-icon type="star" :theme="listItem.isFavorite ? 'filled' : 'outlined'"/>
+                            <template v-if="listItem.isFavorite">
+                              {{ $t('teacher.unit-plan-preview.favorite') }}
+                            </template>
+                          </span>
                         </a-col>
                         <a-col class="action-item" span="2">
                           <a @click="handleEditItem(item.type, listItem)">{{ $t('teacher.unit-plan-preview.edit') }}</a>
@@ -96,6 +98,8 @@
 import * as logger from '@/utils/logger'
 import { typeMap } from '@/const/teacher'
 import ContentTypeIcon from '@/components/Teacher/ContentTypeIcon'
+
+const { FavoritesAdd } = require('@/api/favorites')
 const { GetAssociate } = require('@/api/teacher')
 
 export default {
@@ -185,6 +189,13 @@ export default {
 
     handleFavorite (item) {
       logger.info('handleFavorite', item)
+      FavoritesAdd({
+        sourceId: item.id,
+        sourceType: item.type
+      }).then(response => {
+        logger.info('FavoritesAdd ', response)
+        item.isFavorite = !item.isFavorite
+      })
     },
 
     handleEditItem (type, item) {
@@ -242,6 +253,14 @@ export default {
             }
             .favorite {
               cursor: pointer;
+
+              .favorite-active {
+                color: @primary-color;
+              }
+            }
+
+            .action-item {
+              text-align: right;
             }
           }
         }

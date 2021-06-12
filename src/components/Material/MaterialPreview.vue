@@ -1,5 +1,5 @@
 <template>
-  <div class="unit-plan-preview">
+  <div class="material-preview">
     <template v-if="loading">
       <a-skeleton active />
     </template>
@@ -7,12 +7,12 @@
       <a-row class="top-header" :gutter="[16,24]">
         <a-col span="24">
           <span class="title">
-            {{ unitPlanData.name }}
+            {{ materialData.name }}
           </span>
           <template v-if="lastChangeSavedTime">
             <a-divider type="vertical" />
             <span class="last-change-time">
-              {{ $t('teacher.add-unit-plan.last-change-saved-at-time', {time: lastChangeSavedTime}) }}
+              {{ $t('teacher.material.last-change-saved-at-time', {time: lastChangeSavedTime}) }}
             </span>
           </template>
         </a-col>
@@ -44,7 +44,7 @@
           </a-carousel>
           <div class="edit-action">
             <a-button type="primary">
-              <router-link :to="'/teacher/unit-plan-redirect/' + unitPlanId">{{ $t('teacher.unit-plan-preview.edit') }}</router-link>
+              <router-link :to="'/teacher/add-material/' + materialId">{{ $t('teacher.material-preview.edit') }}</router-link>
             </a-button>
           </div>
         </a-col>
@@ -52,57 +52,47 @@
           <div class="detail-wrapper">
             <div class="detail-block">
               <div class="block-title">
-                {{ unitPlanData.scenario && unitPlanData.scenario.description }}
+                {{ materialData.overview && materialData.overview }}
                 <span class="title-icon">
                   <a-tooltip>
                     <template slot="title">
-                      {{ $t('teacher.unit-plan-preview.scenario-description') }}
+                      {{ $t('teacher.material.overview') }}
                     </template>
                     <a-icon type="info-circle" />
                   </a-tooltip>
                 </span>
-              </div>
-              <div class="block-content">
-                <div class="content-list" v-if="unitPlanData.scenario && unitPlanData.scenario.sdgKeyWords">
-                  <div class="content-item" v-for="(sdgKeyword,index) in unitPlanData.scenario.sdgKeyWords" :key="index">
-                    <div class="question">
-                      {{ index + 1 }}、{{ sdgKeyword.sdgName }}
-                    </div>
-                    <div class="tags">
-                      <div class="tag-item" v-for="(tag,tagIndex) in sdgKeyword.keywords" :key="tagIndex">
-                        <a-tag :color="tagColorList[tagIndex % tagColorList.length]">
-                          {{ tag.name }}
-                        </a-tag>
-                      </div>
-                    </div>
-                  </div>
-                </div>
               </div>
             </div>
-            <div class="detail-block">
-              <div class="block-title">
-                {{ unitPlanData.inquiry }}
-                <span class="title-icon">
-                  <a-tooltip>
-                    <template slot="title">
-                      {{ $t('teacher.unit-plan-preview.direction-of-inquiry') }}
-                    </template>
-                    <a-icon type="info-circle" />
-                  </a-tooltip>
-                </span>
-              </div>
-              <div class="block-content">
-                <div class="content-list" v-if="unitPlanData.questions">
-                  <div class="content-item" v-for="(question,qIndex) in unitPlanData.questions" :key="qIndex">
-                    <div class="question">
-                      {{ qIndex + 1 }}、{{ question.name }}
-                    </div>
-                    <div class="content-sub-list">
-                      <div class="content-sub-item" v-for="(knowledgeTag, kIndex) in question.knowledgeTags" :key="kIndex">
-                        <div class="sub-title">
-                          {{ qIndex + 1 }}.{{ kIndex + 1 }}、{{ knowledgeTag.description }}
+            <div class="detail-block material-detail">
+              <div class="block-content" v-if="materialData && materialData.files">
+                <div v-for="(materialItem,index) in materialData.files" :key="index" class="material-item" >
+                  <div class="material-item-content-wrapper">
+                    <div class="material-item-content">
+                      <template v-if="materialItem.fileType === fileTypeMap.txt">
+                        <div class="material-text-content" v-html="materialItem.description"></div>
+                      </template>
+                      <template v-if="materialItem.fileType === fileTypeMap.img">
+                        <div class="material-image-content">
+                          <img :src="materialItem.fileUrl" alt="" v-if="materialItem && materialItem.fileUrl">
                         </div>
-                      </div>
+                      </template>
+                      <template v-if="materialItem.fileType === fileTypeMap.audio">
+                        <div class="material-audio-content" :data-url="materialItem.fileUrl">
+                          <audio :src="materialItem.fileUrl" v-show="materialItem && materialItem.fileUrl" controls />
+                        </div>
+                      </template>
+                      <template v-if="materialItem.fileType === fileTypeMap.video">
+                        <div class="material-video-content" :data-url="materialItem.fileUrl">
+                          <video :src="materialItem.fileUrl" v-show="materialItem && materialItem.fileUrl" controls />
+                        </div>
+                      </template>
+                      <template v-if="materialItem.fileType === fileTypeMap.link">
+                        <div class="material-embed-content" :data-url="materialItem.fileUrl">
+                          <span class="iframe-url">
+                            {{ materialItem.fileUrl }}
+                          </span>
+                        </div>
+                      </template>
                     </div>
                   </div>
                 </div>
@@ -112,7 +102,7 @@
         </a-col>
       </a-row>
       <a-divider v-if="showAssociate"/>
-      <unit-plan-associate-preview :unit-plan-id="unitPlanId" v-if="showAssociate"/>
+      <material-associate-preview :material-id="materialId" v-if="showAssociate"/>
     </template>
   </div>
 </template>
@@ -120,16 +110,16 @@
 <script>
 import * as logger from '@/utils/logger'
 import { typeMap } from '@/const/teacher'
-import UnitPlanAssociatePreview from './UnitPlanAssociatePreview'
-
+import MaterialAssociatePreview from '@/components/Material/MaterialAssociatePreview'
+import { fileTypeMap } from '@/const/material'
 const { GetAssociate } = require('@/api/teacher')
 const { formatLocalUTC } = require('@/utils/util')
-const { UnitPlanQueryById } = require('@/api/unitPlan')
+const { MaterialQueryById } = require('@/api/material')
 
 export default {
-  name: 'UnitPlanPreview',
+  name: 'MaterialPreview',
   props: {
-    unitPlanId: {
+    materialId: {
       type: String,
       default: null
     },
@@ -139,13 +129,13 @@ export default {
     }
   },
   components: {
-    UnitPlanAssociatePreview
+    MaterialAssociatePreview
   },
   computed: {
     lastChangeSavedTime () {
-      if (this.unitPlanData) {
-        logger.info('lastChangeSavedTime unitPlanData', this.unitPlanData)
-        const time = this.unitPlanData.createTime || this.unitPlanData.updateTime
+      if (this.materialData) {
+        logger.info('lastChangeSavedTime materialData', this.materialData)
+        const time = this.materialData.createTime || this.materialData.updateTime
         if (time) {
           return formatLocalUTC(time)
         }
@@ -158,7 +148,7 @@ export default {
   data () {
     return {
       loading: true,
-      unitPlanData: null,
+      materialData: null,
       associateData: null,
       imgList: [],
 
@@ -173,35 +163,31 @@ export default {
       ],
       activeContentType: -1,
       typeMap: typeMap,
+      fileTypeMap: fileTypeMap,
 
       subPreviewVisible: false
     }
   },
   created () {
-    logger.info('UnitPlanPreview unitPlanId ' + this.unitPlanId)
-    this.loadUnitPlanData()
+    logger.info('MaterialPreview materialId ' + this.materialId)
+    this.loadMaterialData()
   },
   methods: {
-    loadUnitPlanData () {
-      logger.info('loadUnitPlanData ' + this.unitPlanId)
+    loadMaterialData () {
+      logger.info('loadMaterialData ' + this.materialId)
       this.loading = true
-      UnitPlanQueryById({
-        id: this.unitPlanId
+      MaterialQueryById({
+        id: this.materialId
       }).then(response => {
-        logger.info('UnitPlanQueryById ' + this.unitPlanId, response.result)
-        this.unitPlanData = response.result
-        if (this.unitPlanData && this.unitPlanData.image) {
-          this.imgList = [this.unitPlanData.image]
+        logger.info('MaterialQueryById ' + this.materialId, response.result)
+        this.materialData = response.result
+        if (this.materialData && this.materialData.files) {
+          this.materialData.files.forEach(item => {
+            if (item.fileType === fileTypeMap.img) {
+              this.imgList.push(item.fileUrl)
+            }
+          })
         }
-      }).then(() => {
-        logger.info('get favorite ' + this.unitPlanId)
-        GetAssociate({
-          id: this.unitPlanId,
-          type: typeMap['unit-plan']
-        }).then((response) => {
-          logger.info('GetAssociate ', response)
-          this.associateData = response.result
-        })
       }).finally(() => {
         this.loading = false
       })
@@ -223,7 +209,7 @@ export default {
 <style lang="less" scoped>
 @import "~@/components/index.less";
 
-.unit-plan-preview {
+.material-preview {
 
   .top-header {
     position: relative;
@@ -332,38 +318,55 @@ export default {
 
         .block-content {
           padding: 10px;
-          .content-list {
-            .content-item {
-              margin-bottom: 10px;
-              .question {
-                padding-bottom: 5px;
-                font-size: 14px;
-                font-weight: 500;
-              }
-              .tags {
-                display: flex;
-                flex-direction: row;
-                flex-wrap: wrap;
-                padding-bottom: 10px;
-
-                .tag-label {
-                  font-weight: bold;
-                  padding-right: 10px;
+          width: 100%;
+          .material-item {
+            box-sizing: border-box;
+            border: 2px solid #fff;
+            width: 100%;
+            padding: 20px 10px;
+            display: flex;
+            justify-content: center;
+            flex-direction: row;
+            position: relative;
+            cursor: auto;
+            .material-item-content-wrapper {
+              padding: 0;
+              margin: 0;
+              width: 100%;
+              text-align: center;
+              .material-audio-content {
+                display: block;
+                audio {
+                  margin: auto;
+                  display: block;
+                  height: 40px;
                 }
+              }
 
-                .tag-item {
-                  font-size: 16px;
-                  margin-right: 5px;
-                  margin-bottom: 5px;
-                  overflow: hidden;
-                  text-overflow: ellipsis;
-                  word-break: break-all;
-                  white-space: nowrap;
+              .material-video-content {
+                display: block;
+                video {
+                  width: 100%;
+                  margin: auto;
+                  display: block;
+                }
+              }
+
+              .material-embed-content {
+                .iframe-url {
+                  color: @primary-color;
+                  &:hover {
+                    text-decoration: underline;
+                  }
                 }
               }
             }
           }
         }
+      }
+
+      .material-detail {
+        box-shadow: 0 4px 4px 0 rgba(31, 33, 44, 10%);
       }
     }
   }

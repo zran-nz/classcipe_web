@@ -54,10 +54,12 @@
                           {{ listItem.updateTime | moment }}
                         </a-col>
                         <a-col class="favorite" span="2" @click="handleFavorite(listItem)">
-                          <a-icon type="star" :theme="listItem.isFavorite ? 'filled' : 'outlined'"/>
-                          <template v-if="listItem.isFavorite">
-                            {{ $t('teacher.unit-plan-preview.favorite') }}
-                          </template>
+                          <span :class="{'favorite-active': listItem.isFavorite}">
+                            <a-icon type="star" :theme="listItem.isFavorite ? 'filled' : 'outlined'"/>
+                            <template v-if="listItem.isFavorite">
+                              {{ $t('teacher.unit-plan-preview.favorite') }}
+                            </template>
+                          </span>
                         </a-col>
                         <a-col class="action-item" span="2">
                           <a @click="handleEditItem(item.type, listItem)">{{ $t('teacher.unit-plan-preview.edit') }}</a>
@@ -84,7 +86,7 @@
       >
         <div class="preview-wrapper">
           <div class="preview-detail">
-            <unit-plan-preview :unit-plan-id="unitPlanId" :show-associate="false" v-if="previewType === typeMap['unit-plan']" />
+            <unit-plan-preview :unit-plan-id="materialId" :show-associate="false" v-if="previewType === typeMap['unit-plan']" />
           </div>
         </div>
       </a-drawer>
@@ -96,20 +98,21 @@
 import * as logger from '@/utils/logger'
 import { typeMap } from '@/const/teacher'
 import ContentTypeIcon from '@/components/Teacher/ContentTypeIcon'
-import UnitPlanPreview from '@/components/UnitPlan/UnitPlanPreview'
+
+const { FavoritesAdd } = require('@/api/favorites')
 const { GetAssociate } = require('@/api/teacher')
 
 export default {
-  name: 'UnitPlanAssociatePreview',
+  name: 'MaterialAssociatePreview',
   props: {
-    unitPlanId: {
+    materialId: {
       type: String,
       default: null
     }
   },
   components: {
     ContentTypeIcon,
-    UnitPlanPreview
+    MaterialPreview: () => import('@/components/Material/MaterialPreview')
   },
   data () {
     return {
@@ -134,22 +137,22 @@ export default {
     }
   },
   created () {
-    logger.info('UnitPlan Associate Preview unitPlanId ' + this.unitPlanId)
-    this.loadUnitPlanAssociateData()
+    logger.info('Material Associate Preview materialId ' + this.materialId)
+    this.loadMaterialAssociateData()
   },
   methods: {
-    loadUnitPlanAssociateData () {
-      logger.info('loadUnitPlanAssociateData ' + this.unitPlanId)
+    loadMaterialAssociateData () {
+      logger.info('loadMaterialAssociateData ' + this.materialId)
       this.loading = true
       GetAssociate({
-        id: this.unitPlanId,
-        type: typeMap['unit-plan']
+        id: this.materialId,
+        type: typeMap.material
       }).then((response) => {
         logger.info('GetAssociate ', response)
         this.associateData = response.result
         this.currentAssociateList = this.associateData[this.activeUserType]
       }).then(() => {
-        logger.info('get favorite ' + this.unitPlanId)
+        logger.info('get favorite ' + this.materialId)
       }).finally(() => {
         this.loading = false
       })
@@ -174,18 +177,25 @@ export default {
 
     handleClickTitle (item) {
       logger.info('handleClickTitle', item)
-      this.previewType = typeMap['unit-plan']
+      this.previewType = typeMap.material
       this.subPreviewVisible = true
     },
 
     handleSubPreview (type, item) {
       logger.info('handleSubPreview', type, item)
-      this.previewType = typeMap['unit-plan']
+      this.previewType = typeMap.material
       this.subPreviewVisible = true
     },
 
     handleFavorite (item) {
       logger.info('handleFavorite', item)
+      FavoritesAdd({
+        sourceId: item.id,
+        sourceType: item.type
+      }).then(response => {
+        logger.info('FavoritesAdd ', response)
+        item.isFavorite = !item.isFavorite
+      })
     },
 
     handleEditItem (type, item) {
@@ -243,6 +253,14 @@ export default {
             }
             .favorite {
               cursor: pointer;
+
+              .favorite-active {
+                color: @primary-color;
+              }
+            }
+
+            .action-item {
+              text-align: right;
             }
           }
         }

@@ -125,6 +125,7 @@
         <div class="preview-wrapper">
           <div class="preview-detail">
             <unit-plan-preview :unit-plan-id="previewCurrentId" :show-associate="true" v-if="previewType === typeMap['unit-plan']" />
+            <material-preview :material-id="previewCurrentId" :show-associate="true" v-if="previewType === typeMap.material" />
           </div>
         </div>
       </a-drawer>
@@ -135,6 +136,7 @@
 <script>
 import * as logger from '@/utils/logger'
 import UnitPlanPreview from '@/components/UnitPlan/UnitPlanPreview'
+import MaterialPreview from '@/components/Material/MaterialPreview'
 import { deleteMyContentByType, getMyContent } from '@/api/teacher'
 import { ownerMap, statusMap, typeMap } from '@/const/teacher'
 import ContentStatusIcon from '@/components/Teacher/ContentStatusIcon'
@@ -145,7 +147,8 @@ export default {
   components: {
     ContentStatusIcon,
     ContentTypeIcon,
-    UnitPlanPreview
+    UnitPlanPreview,
+    MaterialPreview
   },
   data () {
     return {
