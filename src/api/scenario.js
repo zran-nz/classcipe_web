@@ -7,7 +7,9 @@ export const scenarioAPIUrl = {
   ScenarioQueryById: '/classcipe/api/scenario/queryById',
   ScenarioDelete: '/classcipe/api/scenario/delete',
   ScenarioDeleteBatch: '/classcipe/api/scenario/deleteBatch',
-  ScenarioList: '/classcipe/api/scenario/list'
+  ScenarioList: '/classcipe/api/scenario/list',
+  ScenarioGetKeywordScenarios: '/classcipe/api/scenario/getKeywordScenarios',
+  ScenarioQueryContentByScenarioId: '/classcipe/api/scenario/queryContentByScenarioId'
 }
 
 /**
@@ -102,6 +104,32 @@ export function ScenarioDeleteBatch (parameter) {
 export function ScenarioList (parameter) {
   return request({
     url: scenarioAPIUrl.ScenarioList,
+    method: 'get',
+    params: parameter
+  })
+}
+
+/**
+ * @param parameter
+ * @returns {AxiosPromise}
+ * @constructor
+ */
+export function ScenarioGetKeywordScenarios (parameter) {
+  return request({
+    url: scenarioAPIUrl.ScenarioGetKeywordScenarios,
+    method: 'get',
+    params: parameter
+  })
+}
+
+/**
+ * @param parameter
+ * @returns {AxiosPromise}
+ * @constructor
+ */
+export function ScenarioQueryContentByScenarioId (parameter) {
+  return request({
+    url: scenarioAPIUrl.ScenarioQueryContentByScenarioId,
     method: 'get',
     params: parameter
   })

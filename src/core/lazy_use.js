@@ -50,6 +50,9 @@ import Dialog from '@/components/Dialog'
 import PermissionHelper from '@/core/permission/permission'
 import './directives/action'
 
+// logger
+import * as logger from '@/utils/logger'
+
 Vue.use(ConfigProvider)
 Vue.use(Carousel)
 Vue.use(Layout)
@@ -95,6 +98,9 @@ Vue.prototype.$info = Modal.info
 Vue.prototype.$success = Modal.success
 Vue.prototype.$error = Modal.error
 Vue.prototype.$warning = Modal.warning
+
+// logger
+Vue.prototype.$logger = logger
 
 Vue.use(Viser)
 Vue.use(Dialog) // this.$dialog func
