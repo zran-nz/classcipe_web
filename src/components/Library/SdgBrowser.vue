@@ -1,6 +1,6 @@
 <template>
   <div class="browser-block">
-    <div class="browser-block-item" :style="{width: blockWidth + 'px' }" @click="handleClickBlock(1, !!sdgList.length)">
+    <div class="browser-block-item" :style="{width: blockWidth + 'px' }">
       <!--      sdg list-->
       <div
         :class="{
@@ -15,6 +15,7 @@
           <template slot="title">
             {{ sdgItem.name }}
           </template>
+          <a-icon type="folder-open" theme="filled" class="file-dir-icon"/>
           {{ sdgItem.name }}
         </a-tooltip>
       </div>
@@ -27,7 +28,7 @@
         </div>
       </template>
     </div>
-    <div class="browser-block-item" :style="{width: blockWidth + 'px' }" @click="handleClickBlock(2, !!sdgKeywordNameList.length)">
+    <div class="browser-block-item" :style="{width: blockWidth + 'px' }" >
       <!--      sdg keyword name list-->
       <div
         :class="{
@@ -42,6 +43,7 @@
           <template slot="title">
             {{ sdgKeywordNameItem.name }}
           </template>
+          <a-icon type="folder-open" theme="filled" class="file-dir-icon"/>
           {{ sdgKeywordNameItem.name }}
         </a-tooltip>
       </div>
@@ -54,7 +56,7 @@
         </div>
       </template>
     </div>
-    <div class="browser-block-item" :style="{width: blockWidth + 'px' }" @click="handleClickBlock(3, !!sdgKeywordList.length)">
+    <div class="browser-block-item" :style="{width: blockWidth + 'px' }" >
       <!--      sdg keywords description-->
       <div
         :class="{
@@ -69,6 +71,7 @@
           <template slot="title">
             {{ sdgKeywordItem.description }}
           </template>
+          <a-icon type="folder-open" theme="filled" class="file-dir-icon"/>
           {{ sdgKeywordItem.description }}
         </a-tooltip>
       </div>
@@ -174,6 +177,7 @@ export default {
         this.sdgKeywordNameList = []
         this.currentSdgKeywordName = null
         this.scenarioGetKeywordScenarios(sdgItem.id)
+        this.handleClickBlock(1, sdgItem.name)
       }
     },
     scenarioGetKeywordScenarios (sdgId) {
@@ -200,6 +204,7 @@ export default {
       this.currentSdgKeywordScenarioId = null
       this.currentDataId = null
       this.dataList = []
+      this.handleClickBlock(2, sdgKeywordNameItem.name)
     },
 
     handleSelectSdgKeywordItem (sdgKeywordItem) {
@@ -208,6 +213,7 @@ export default {
       this.dataListLoading = true
       this.dataList = []
       this.scenarioQueryContentByScenarioId(this.currentSdgKeywordScenarioId)
+      this.handleClickBlock(3, sdgKeywordItem.description)
     },
 
     scenarioQueryContentByScenarioId (scenarioId) {
@@ -227,13 +233,9 @@ export default {
       this.$emit('previewDetail', dataItem)
     },
 
-    handleClickBlock (blockIndex, hasData) {
+    handleClickBlock (blockIndex, path) {
       this.$logger.info('handleClickBlock ' + blockIndex)
-      if (hasData) {
-        this.$emit('blockCollapse', { blockIndex })
-      } else {
-        this.$logger.info('non data')
-      }
+      this.$emit('blockCollapse', { blockIndex, path })
     }
   }
 }
@@ -266,6 +268,10 @@ export default {
         text-overflow: ellipsis;
         word-break: break-all;
         user-select: none;
+        .file-dir-icon {
+          color: #82c0d8;
+          font-size: 18px;
+        }
       }
       .odd-line {
         background-color: fade(@text-color-secondary, 3%);

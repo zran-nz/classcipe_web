@@ -1,7 +1,7 @@
 <template>
   <div class="browser-block">
     <!--      mainSubject list-->
-    <div class="browser-block-item" :style="{width: blockWidth + 'px' }" @click="handleClickBlock(1, !!mainSubjectList.length)">
+    <div class="browser-block-item" :style="{width: blockWidth + 'px' }">
       <div
         :class="{
           'browser-item': true,
@@ -15,6 +15,7 @@
           <template slot="title">
             {{ mainSubjectItem.name }}
           </template>
+          <a-icon type="folder-open" theme="filled" class="file-dir-icon"/>
           {{ mainSubjectItem.name }}
         </a-tooltip>
       </div>
@@ -28,7 +29,7 @@
       </template>
     </div>
     <!--      subSubject list-->
-    <div class="browser-block-item" :style="{width: blockWidth + 'px' }" @click="handleClickBlock(2, !!subSubjectList.length)">
+    <div class="browser-block-item" :style="{width: blockWidth + 'px' }" >
       <div
         :class="{
           'browser-item': true,
@@ -42,6 +43,7 @@
           <template slot="title">
             {{ subSubjectItem.name }}
           </template>
+          <a-icon type="folder-open" theme="filled" class="file-dir-icon"/>
           {{ subSubjectItem.name }}
         </a-tooltip>
       </div>
@@ -55,7 +57,7 @@
       </template>
     </div>
     <!--      main grade list-->
-    <div class="browser-block-item" :style="{width: blockWidth + 'px' }" @click="handleClickBlock(3, !!gradeList.length)">
+    <div class="browser-block-item" :style="{width: blockWidth + 'px' }">
       <div
         :class="{
           'browser-item': true,
@@ -69,6 +71,7 @@
           <template slot="title">
             {{ gradeItem.name }}
           </template>
+          <a-icon type="folder-open" theme="filled" class="file-dir-icon"/>
           {{ gradeItem.name }}
         </a-tooltip>
       </div>
@@ -82,7 +85,7 @@
       </template>
     </div>
     <!--      main knowledge list-->
-    <div class="browser-block-item" :style="{width: blockWidth + 'px' }" @click="handleClickBlock(4, !!mainKnowledgeList.length)">
+    <div class="browser-block-item" :style="{width: blockWidth + 'px' }">
       <div
         :class="{
           'browser-item': true,
@@ -96,6 +99,7 @@
           <template slot="title">
             {{ mainKnowledgeItem.name }}
           </template>
+          <a-icon type="folder-open" theme="filled" class="file-dir-icon"/>
           {{ mainKnowledgeItem.name }}
         </a-tooltip>
       </div>
@@ -109,7 +113,7 @@
       </template>
     </div>
     <!--      sub knowledge list-->
-    <div class="browser-block-item" :style="{width: blockWidth + 'px' }" @click="handleClickBlock(5, !!subKnowledgeList.length)">
+    <div class="browser-block-item" :style="{width: blockWidth + 'px' }" >
       <div
         :class="{
           'browser-item': true,
@@ -123,6 +127,7 @@
           <template slot="title">
             {{ subKnowledgeItem.name }}
           </template>
+          <a-icon type="folder-open" theme="filled" class="file-dir-icon"/>
           {{ subKnowledgeItem.name }}
         </a-tooltip>
       </div>
@@ -238,13 +243,14 @@ export default {
     },
     handleSelectMainSubjectItem (mainSubjectItem) {
       this.subSubjectListLoading = true
-      this.$logger.info('handleSelectSdgItem ', mainSubjectItem, this.currentMainSubjectId)
+      this.$logger.info('handleSelectMainSubjectItem ', mainSubjectItem, this.currentMainSubjectId)
       if (mainSubjectItem.id !== this.currentMainSubjectId) {
         this.currentMainSubjectId = mainSubjectItem.id
         this.subSubjectList = mainSubjectItem.children
         this.currentSubKnowledgeId = null
       }
       this.subSubjectListLoading = false
+      this.handleClickBlock(1, mainSubjectItem.name)
     },
 
     handleSelectSubSubjectItem (subSubjectItem) {
@@ -253,6 +259,7 @@ export default {
         this.currentSubSubjectId = subSubjectItem.id
         this.currentGradeId = null
       }
+      this.handleClickBlock(2, subSubjectItem.name)
     },
 
     handleSelectGradeItem (gradeItem) {
@@ -265,6 +272,7 @@ export default {
         this.subKnowledgeListLoading = false
         this.getKnowledgeTree()
       }
+      this.handleClickBlock(3, gradeItem.name)
     },
 
     getKnowledgeTree () {
@@ -290,6 +298,7 @@ export default {
         this.subKnowledgeList = knowledgeItem.children
       }
       this.subKnowledgeListLoading = false
+      this.handleClickBlock(4, knowledgeItem.name)
     },
 
     handleSelectSubKnowledgeItem (subKnowledgeItem) {
@@ -299,6 +308,7 @@ export default {
         this.dataList = []
         this.knowledgeQueryContentByDescriptionId(this.currentSubKnowledgeId)
       }
+      this.handleClickBlock(5, subKnowledgeItem.name)
     },
 
     knowledgeQueryContentByDescriptionId (descriptionId) {
@@ -318,13 +328,9 @@ export default {
       this.$emit('previewDetail', dataItem)
     },
 
-    handleClickBlock (blockIndex, hasData) {
-      this.$logger.info('CurriculumBrowser handleClickBlock ' + blockIndex)
-      if (hasData) {
-        this.$emit('blockCollapse', { blockIndex })
-      } else {
-        this.$logger.info('CurriculumBrowser non data')
-      }
+    handleClickBlock (blockIndex, path) {
+      this.$logger.info('handleClickBlock ' + blockIndex)
+      this.$emit('blockCollapse', { blockIndex, path })
     }
   }
 }
@@ -357,6 +363,11 @@ export default {
       text-overflow: ellipsis;
       word-break: break-all;
       user-select: none;
+
+      .file-dir-icon {
+        color: #82c0d8;
+        font-size: 18px;
+      }
     }
     .odd-line {
       background-color: fade(@text-color-secondary, 3%);

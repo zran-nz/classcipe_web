@@ -1,11 +1,11 @@
 <template>
   <div class="library-wrapper" ref="wrapper">
     <div class="library-nav-bar">
-      <navigation />
+      <navigation :path="navPath" @pathChange="handleNavPathChange"/>
     </div>
     <div class="library-content">
       <div class="browser-action" v-if="hasLeftBlock">
-        <div class="action-item">
+        <div class="action-item" @click="handleViewLeft">
           <a-icon type="left-circle" />
         </div>
       </div>
@@ -13,7 +13,7 @@
         <div class="browser-table">
           <div class="browser-type-list">
             <div :class="{'browser-type': true, 'odd-line': index % 2 === 0, 'active-line': currentBrowserType === browserTypeItem.type}" v-for="(browserTypeItem, index) in browserTypeList" :key="index" @click="toggleBrowserType(browserTypeItem)">
-              {{ browserTypeItem.label }}
+              <a-icon type="pushpin" theme="filled" class="pin-icon"/>{{ browserTypeItem.label }}
             </div>
           </div>
         </div>
@@ -56,6 +56,11 @@ const BrowserTypeMap = {
   sdg: 'sdg'
 }
 
+const BrowserTypeLabelMap = {
+  curriculum: 'Curriculum',
+  sdg: 'Sustainable development goal'
+}
+
 export default {
   name: 'Browser',
   components: {
@@ -73,12 +78,14 @@ export default {
   },
   data () {
     return {
+      navPath: [],
       browserTypeList: [
-        { type: 'curriculum', label: 'curriculum' },
+        { type: 'curriculum', label: 'Curriculum' },
         { type: 'sdg', label: 'Sustainable development goal' }
       ],
       currentBrowserType: null,
       BrowserTypeMap: BrowserTypeMap,
+      browserTypeLabelMap: BrowserTypeLabelMap,
       hasLeftBlock: false,
       blockWidth: 200,
 
@@ -87,33 +94,47 @@ export default {
       previewVisible: false,
       previewCurrentId: '',
       previewType: '',
+      blockIndex: 0,
       typeMap: typeMap
     }
   },
   created () {
     this.currentBrowserType = this.browserType
+    this.navPath.push(this.browserTypeLabelMap[this.currentBrowserType])
   },
   mounted () {
-    this.blockWidth = (this.$refs['wrapper'].getBoundingClientRect().width - 220) / 2.0
+    this.blockWidth = (this.$refs['wrapper'].getBoundingClientRect().width - 230) / 2.0
     this.$logger.info('globalWidth ' + this.blockWidth)
   },
   methods: {
     toggleBrowserType (browserTypeItem) {
       this.$logger.info('toggleBrowserType ' + browserTypeItem.type)
-      this.currentBrowserType = browserTypeItem.type
+      if (browserTypeItem.type !== this.currentBrowserType) {
+        this.currentBrowserType = browserTypeItem.type
+        this.navPath = []
+        this.navPath.push({ blockIndex: 0, path: browserTypeItem.label })
+        this.$logger.info('reset and add path ' + browserTypeItem.label)
+      }
     },
 
     handleBlockCollapse (data) {
-      this.$logger.info('handleBlockCollapse ' + data.blockIndex)
-      const blockIndex = data.blockIndex
-      if (blockIndex === 1) {
-        this.hasLeftBlock = false
-        this.browserMarginLeft = 0
+      this.$logger.info('handleBlockCollapse ' + data.blockIndex, data)
+      if (this.blockIndex !== data.blockIndex) {
+        this.blockIndex = data.blockIndex
+        if (this.blockIndex === 1) {
+          this.hasLeftBlock = false
+          this.browserMarginLeft = 0
+        } else {
+          this.hasLeftBlock = true
+          this.browserMarginLeft = (data.blockIndex - 1) * this.blockWidth
+        }
+        this.$logger.info('browserMarginLeft ' + this.browserMarginLeft + ', hasLeftBlock:' + this.hasLeftBlock)
       } else {
-        this.hasLeftBlock = true
-        this.browserMarginLeft = (data.blockIndex - 1) * this.blockWidth + 110
+        this.$logger.info('same block collapse')
       }
-      this.$logger.info('browserMarginLeft ' + this.browserMarginLeft + ', hasLeftBlock:' + this.hasLeftBlock)
+      this.navPath = this.navPath.filter((item) => item.blockIndex !== data.blockIndex)
+      this.navPath.push({ blockIndex: data.blockIndex, path: data.path })
+      this.$logger.info('add path ' + data.path)
     },
 
     handlePreviewDetail (data) {
@@ -128,6 +149,36 @@ export default {
       this.previewCurrentId = ''
       this.previewType = ''
       this.previewVisible = false
+    },
+
+    handleViewLeft () {
+      this.$logger.info('handleViewLeft ' + (this.blockIndex))
+      if (this.blockIndex <= 2) {
+        this.hasLeftBlock = false
+        this.browserMarginLeft = 0
+      } else {
+        this.blockIndex = this.blockIndex - 1
+        this.hasLeftBlock = true
+        this.browserMarginLeft = (this.blockIndex - 1) * this.blockWidth
+      }
+      const path = this.navPath.pop()
+      this.$logger.info('remove path ' + path)
+      this.$logger.info('browserMarginLeft ' + this.browserMarginLeft + ', hasLeftBlock:' + this.hasLeftBlock)
+    },
+
+    handleNavPathChange (data) {
+      this.$logger.info('handleNavPathChange', data)
+      const blockIndex = data.blockIndex
+      if (blockIndex <= 2) {
+        this.hasLeftBlock = false
+        this.browserMarginLeft = 0
+      } else {
+        this.blockIndex = blockIndex - 1
+        this.hasLeftBlock = true
+        this.browserMarginLeft = (this.blockIndex - 1) * this.blockWidth
+      }
+      this.navPath = this.navPath.filter(item => item.blockIndex <= blockIndex)
+      this.$logger.info('browserMarginLeft ' + this.browserMarginLeft + ', hasLeftBlock:' + this.hasLeftBlock)
     }
   }
 }
@@ -147,8 +198,10 @@ export default {
       left: 0;
       top: 0;
       bottom: 0;
-      width: 111px;
+      width: 231px;
+      box-sizing: border-box;
       background-color: fade(@text-color-secondary, 50%);
+      z-index: 110;
       .action-item {
         position: absolute;
         top: 50%;
@@ -170,6 +223,7 @@ export default {
       box-sizing: border-box;
       position: relative;
       transition: all .3s ease-in;
+      z-index: 100;
       .browser-table {
         box-sizing: border-box;
         display: flex;
@@ -177,13 +231,16 @@ export default {
         .browser-type-list {
           display: flex;
           flex-direction: column;
-          width: 220px;
+          width: 230px;
           box-sizing: border-box;
           .browser-type {
             line-height: 40px;
             padding: 0 10px;
             font-weight: 500;
             cursor: pointer;
+            .pin-icon {
+              font-size: 18px;
+            }
           }
           .odd-line {
             background-color: fade(@text-color-secondary, 3%);
