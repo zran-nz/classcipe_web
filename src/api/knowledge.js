@@ -9,7 +9,8 @@ export const knowledgeAPIUrl = {
   KnowledgeDelete: '/classcipe/api/knowledge/delete',
   KnowledgeDeleteBatch: '/classcipe/api/knowledge/deleteBatch',
   KnowledgeList: '/classcipe/api/knowledge/list',
-  KnowledgeSearch: '/classcipe/api/knowledge/search'
+  KnowledgeSearch: '/classcipe/api/knowledge/search',
+  KnowledgeQueryContentByDescriptionId: '/classcipe/api/knowledge/queryContentByDescriptionId'
 }
 
 /**
@@ -136,6 +137,19 @@ export function KnowledgeList (parameter) {
 export function KnowledgeSearch (parameter) {
   return request({
     url: knowledgeAPIUrl.KnowledgeSearch,
+    method: 'get',
+    params: parameter
+  })
+}
+
+/**
+ * @param parameter
+ * @returns {AxiosPromise}
+ * @constructor
+ */
+export function KnowledgeQueryContentByDescriptionId (parameter) {
+  return request({
+    url: knowledgeAPIUrl.KnowledgeQueryContentByDescriptionId,
     method: 'get',
     params: parameter
   })

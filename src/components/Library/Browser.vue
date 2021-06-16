@@ -18,7 +18,7 @@
           </div>
         </div>
         <div class="browser-detail">
-          <curriculum-browser :block-width="blockWidth" v-if="currentBrowserType === BrowserTypeMap.curriculum" />
+          <curriculum-browser :block-width="blockWidth" v-if="currentBrowserType === BrowserTypeMap.curriculum" @blockCollapse="handleBlockCollapse" @previewDetail="handlePreviewDetail"/>
           <sdg-browser :block-width="blockWidth" v-if="currentBrowserType === BrowserTypeMap.sdg" @blockCollapse="handleBlockCollapse" @previewDetail="handlePreviewDetail"/>
         </div>
       </div>

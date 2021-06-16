@@ -74,7 +74,7 @@ export const asyncRouterMap = [
             ]
           },
           {
-            path: '/teacher/library',
+            path: '/teacher/library/:browserType?/',
             name: 'Library',
             component: () => import('@/views/teacher/Library'),
             meta: { title: 'menu.library', keepAlive: true, permission: ['expert', 'teacher'] }
