@@ -1,16 +1,12 @@
 <template>
-  <a-card :bordered="false" >
-    <new-browser />
-  </a-card>
+  <div>
+  </div>
 </template>
 
 <script>
-import NewBrowser from '@/components/NewLibrary/NewBrowser'
-
 export default {
-  name: 'NewLibrary',
+  name: 'NewNavigation',
   components: {
-    NewBrowser
   },
   data () {
     return {
@@ -19,7 +15,6 @@ export default {
   computed: {
   },
   created () {
-
   },
   mounted () {
   },

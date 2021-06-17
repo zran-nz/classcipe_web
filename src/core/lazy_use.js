@@ -2,6 +2,7 @@ import Vue from 'vue'
 
 // base library
 import {
+  Tree,
   ConfigProvider,
   Carousel,
   Empty,
@@ -53,6 +54,7 @@ import './directives/action'
 // logger
 import * as logger from '@/utils/logger'
 
+Vue.use(Tree)
 Vue.use(ConfigProvider)
 Vue.use(Carousel)
 Vue.use(Layout)
