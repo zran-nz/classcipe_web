@@ -12,27 +12,34 @@
       </div>
     </div>
     <div class="content-list">
-      <div :class="{'content-item': true, 'odd-line': index % 2 === 0,'even-line': index % 2 === 1, 'active-line': currentId === item.id}" v-for="(item,index) in contentDataList" :key="index">
-        <div class="name" :style="{width: nameWidth + 'px'}" @click="handleContentListItemClick(item)">
-          <div class="icon">
-            <template v-if="item.type">
-              <content-type-icon :type="item.type" />
-            </template>
-            <template v-else>
-              <a-icon type="folder-open" theme="filled" class="file-dir-icon"/>
-            </template>
+      <template v-if="contentDataList.length">
+        <div :class="{'content-item': true, 'odd-line': index % 2 === 0,'even-line': index % 2 === 1, 'active-line': currentId === item.id}" v-for="(item,index) in contentDataList" :key="index">
+          <div class="name" :style="{width: nameWidth + 'px'}" @click="handleContentListItemClick(item)">
+            <div class="icon">
+              <template v-if="item.type">
+                <content-type-icon :type="item.type" />
+              </template>
+              <template v-else>
+                <a-icon type="folder" theme="filled" class="file-dir-icon"/>
+              </template>
+            </div>
+            <div class="name-text">
+              {{ item.name || item.description }}
+            </div>
           </div>
-          <div class="name-text">
-            {{ item.name || item.description }}
+          <div class="owner">
+            {{ item.createBy }}
+          </div>
+          <div class="date-modified">
+            {{ item.updateTime | dayjs }}
           </div>
         </div>
-        <div class="owner">
-          {{ item.createBy }}
+      </template>
+      <template v-else>
+        <div class="content-empty">
+          <a-empty />
         </div>
-        <div class="date-modified">
-          {{ item.updateTime | dayjs }}
-        </div>
-      </div>
+      </template>
     </div>
 
     <a-drawer
@@ -78,7 +85,8 @@ export default {
       previewCurrentId: '',
       previewType: '',
       blockIndex: 0,
-      typeMap: typeMap
+      typeMap: typeMap,
+      firstLoad: true
     }
   },
   computed: {
@@ -95,6 +103,7 @@ export default {
       this.$logger.info('handleContentListUpdate ', data)
       this.contentDataList = data.contentList
       this.parent = data.currentTreeData
+      this.firstLoad = false
     },
     handleContentListItemClick (item) {
       this.$logger.info('handleContentListItemClick ', item)
@@ -133,6 +142,9 @@ export default {
 @import "~@/components/index.less";
 
 .content-list-wrapper {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
   .content-header {
     font-weight: 600;
     background-color: #eee;
@@ -140,11 +152,11 @@ export default {
     cursor: pointer;
     user-select: none;
     display: flex;
-    height: 100%;
     overflow: hidden;
     .name {
       padding: 5px 10px;
       cursor: pointer;
+      user-select: none;
     }
     .owner {
       width: 200px;
@@ -159,12 +171,17 @@ export default {
     }
   }
   .content-list {
+    flex: 1;
     overflow-y: scroll;
     overflow-x: hidden;
     white-space: nowrap;
     text-overflow: ellipsis;
     word-break: break-all;
-    height: 100%;
+    height: calc(100%- 40);
+
+    .content-empty {
+      margin-top: 150px;
+    }
 
     .even-line {
       background-color: #ffffff;
@@ -183,7 +200,7 @@ export default {
       display: flex;
       flex-direction: row;
       align-items: center;
-      padding: 5px 10px;
+      padding: 10px;
 
       .name {
         cursor: pointer;
@@ -194,6 +211,7 @@ export default {
         white-space: nowrap;
         text-overflow: ellipsis;
         word-break: break-all;
+        user-select: none;
         .icon {
           padding: 0 10px 0 5px;
           .file-dir-icon {

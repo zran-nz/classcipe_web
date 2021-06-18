@@ -14,7 +14,8 @@
         </div>
       </div>
       <div class="type-icon-wrapper" @click="handleExpandTreeItem(treeItemData)">
-        <a-icon type="folder-open" theme="filled" class="file-dir-icon"/>
+        <a-icon type="folder-open" theme="filled" class="file-dir-icon" v-if="subTreeExpandStatus"/>
+        <a-icon type="folder" theme="filled" class="file-dir-icon" v-if="!subTreeExpandStatus" />
       </div>
       <div class="display-label-wrapper" @click="handleExpandTreeItem(treeItemData)">
         <span class="display-label">{{ treeItemData.name }}</span>
@@ -230,7 +231,7 @@ export default {
           if (treeItemData.children === undefined || !treeItemData.children.length) {
             this.subTreeLoading = true
             this.gradeList.forEach(item => { item.children = [] })
-            treeItemData.children = this.gradeList
+            treeItemData.children = Object.assign({}, this.gradeList)
             this.$logger.info('add gradeList ', treeItemData)
           }
           LibraryEventBus.$emit(LibraryEvent.ContentListUpdate, {
@@ -299,10 +300,11 @@ export default {
     },
 
     handleContentListItemClick (data) {
+      this.$logger.info('handleContentListItemClick ', data, this.treeCurrentParent)
       if (
         data.item.id === this.treeItemData.id &&
-        (data.item.name === this.treeItemData.name || data.item.name === this.treeItemData.description) &&
-        (this.treeCurrentParent && (this.treeCurrentParent.name === data.parent.name || this.treeCurrentParent.description === data.parent.name))) {
+        data.item.name === this.treeItemData.name &&
+        (!data.parent || this.treeCurrentParent && this.treeCurrentParent.name === data.parent.name)) {
         this.$logger.info('handleContentListItemClick start ', data, this.treeItemData)
         this.handleExpandTreeItem(this.treeItemData)
       }

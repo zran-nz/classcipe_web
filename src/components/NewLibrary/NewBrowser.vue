@@ -51,7 +51,7 @@ export default {
   .main {
     border: 1px solid #e9e9e9;
     overflow-y: hidden;
-    height: calc(100vh - 250px);
+    height: calc(100vh - 200px);
     display: flex;
     flex-direction: row;
     justify-content: flex-start;

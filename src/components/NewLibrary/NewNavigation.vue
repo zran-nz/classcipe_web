@@ -1,7 +1,7 @@
 <template>
   <div class="nav-path-wrapper">
     <div class="nav-path">
-      <div class="nav-path-item" v-for="(path,index) in navPath" :key="index">
+      <div class="nav-path-item" v-for="(path,index) in navPath" :key="index" @click="handleLibraryNavClick(path)">
         <template v-if="path">
           <template v-if="path.name && path.name.length > 50">
             <a-tooltip :mouseEnterDelay="1">
@@ -52,6 +52,14 @@ export default {
       }
       this.$logger.info('nav path list', navPathObjList)
       this.navPath = navPathObjList
+    },
+
+    handleLibraryNavClick (path) {
+      this.$logger.info('handleLibraryNavClick ', path)
+      LibraryEventBus.$emit(LibraryEvent.ContentListItemClick, {
+        item: path,
+        parent: path.parent
+      })
     }
   },
   destroyed () {
