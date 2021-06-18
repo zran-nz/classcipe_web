@@ -1,15 +1,84 @@
 <template>
-  <div>
+  <div class="content-list-wrapper">
+    <div class="content-header">
+      <div class="name" :style="{width: nameWidth + 'px'}">
+        Name
+      </div>
+      <div class="owner">
+        Owner
+      </div>
+      <div class="date-modified">
+        Date Modified
+      </div>
+    </div>
+    <div class="content-list">
+      <div :class="{'content-item': true, 'odd-line': index % 2 === 0,'even-line': index % 2 === 1, 'active-line': currentId === item.id}" v-for="(item,index) in contentDataList" :key="index">
+        <div class="name" :style="{width: nameWidth + 'px'}" @click="handleContentListItemClick(item)">
+          <div class="icon">
+            <template v-if="item.type">
+              <content-type-icon :type="item.type" />
+            </template>
+            <template v-else>
+              <a-icon type="folder-open" theme="filled" class="file-dir-icon"/>
+            </template>
+          </div>
+          <div class="name-text">
+            {{ item.name || item.description }}
+          </div>
+        </div>
+        <div class="owner">
+          {{ item.createBy }}
+        </div>
+        <div class="date-modified">
+          {{ item.updateTime | dayjs }}
+        </div>
+      </div>
+    </div>
+
+    <a-drawer
+      destroyOnClose
+      placement="right"
+      closable
+      width="900px"
+      :visible="previewVisible"
+      @close="handlePreviewClose"
+    >
+      <div class="preview-wrapper">
+        <div class="preview-detail">
+          <unit-plan-preview :unit-plan-id="previewCurrentId" :show-associate="true" v-if="previewType === typeMap['unit-plan']" />
+          <material-preview :material-id="previewCurrentId" :show-associate="true" v-if="previewType === typeMap.material" />
+        </div>
+      </div>
+    </a-drawer>
   </div>
 </template>
 
 <script>
+import { LibraryEvent, LibraryEventBus } from '@/components/NewLibrary/LibraryEventBus'
+import ContentTypeIcon from '@/components/Teacher/ContentTypeIcon'
+import UnitPlanPreview from '@/components/UnitPlan/UnitPlanPreview'
+import MaterialPreview from '@/components/Material/MaterialPreview'
+import { typeMap } from '@/const/teacher'
+
 export default {
   name: 'NewContentList',
   components: {
+    ContentTypeIcon,
+    UnitPlanPreview,
+    MaterialPreview
   },
   data () {
     return {
+      currentId: null,
+      nameWidth: 500,
+      contentDataList: [],
+      parent: null,
+
+      previewVisible: false,
+      previewCurrentId: '',
+      previewType: '',
+      blockIndex: 0,
+      typeMap: typeMap
     }
   },
   computed: {
@@ -17,11 +86,158 @@ export default {
   created () {
   },
   mounted () {
+    LibraryEventBus.$on(LibraryEvent.ContentListUpdate, this.handleContentListUpdate)
+    this.nameWidth = document.getElementById('new-library').getBoundingClientRect().width - 850
+    this.$logger.info('nameWidth ' + this.nameWidth)
   },
   methods: {
+    handleContentListUpdate (data) {
+      this.$logger.info('handleContentListUpdate ', data)
+      this.contentDataList = data.contentList
+      this.parent = data.currentTreeData
+    },
+    handleContentListItemClick (item) {
+      this.$logger.info('handleContentListItemClick ', item)
+      LibraryEventBus.$emit(LibraryEvent.ContentListItemClick, {
+        item,
+        parent: this.parent
+      })
+
+      if (item.type) {
+        this.$logger.info('handleContentListItemClick type', item)
+        this.handlePreviewDetail(item)
+      }
+    },
+    handlePreviewClose () {
+      this.$logger.info('handlePreviewClose')
+      this.previewCurrentId = ''
+      this.previewType = ''
+      this.previewVisible = false
+    },
+    handlePreviewDetail (data) {
+      this.$logger.info('handlePreviewDetail', data)
+      this.previewCurrentId = data.id
+      this.previewType = data.type
+      this.previewVisible = true
+    }
+  },
+  destroyed () {
+    LibraryEventBus.$off(LibraryEvent.ContentListUpdate, this.handleContentListUpdate)
+    this.$logger.info('off NewContentList ContentListUpdate handler')
   }
 }
 </script>
 
 <style lang="less" scoped>
+
+@import "~@/components/index.less";
+
+.content-list-wrapper {
+  .content-header {
+    font-weight: 600;
+    background-color: #eee;
+    line-height: 30px;
+    cursor: pointer;
+    user-select: none;
+    display: flex;
+    height: 100%;
+    overflow: hidden;
+    .name {
+      padding: 5px 10px;
+      cursor: pointer;
+    }
+    .owner {
+      width: 200px;
+      padding: 5px 10px;
+      text-align: left;
+    }
+
+    .date-modified {
+      width: 200px;
+      padding: 5px 10px;
+      text-align: left;
+    }
+  }
+  .content-list {
+    overflow-y: scroll;
+    overflow-x: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    word-break: break-all;
+    height: 100%;
+
+    .even-line {
+      background-color: #ffffff;
+    }
+
+    .odd-line {
+      background-color: #F8F8F8;
+    }
+
+    .active-line {
+      background-color: #EBEEFD;
+      color: @primary-color;
+    }
+
+    .content-item {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      padding: 5px 10px;
+
+      .name {
+        cursor: pointer;
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        word-break: break-all;
+        .icon {
+          padding: 0 10px 0 5px;
+          .file-dir-icon {
+            color: #82c0d8;
+            font-size: 18px;
+          }
+        }
+
+        .name-text {
+          overflow: hidden;
+          white-space: nowrap;
+          text-overflow: ellipsis;
+          word-break: break-all;
+        }
+      }
+
+      .owner {
+        width: 200px;
+        padding: 5px 10px;
+        text-align: left;
+      }
+
+      .date-modified {
+        width: 200px;
+        padding: 5px 10px;
+        text-align: left;
+      }
+    }
+  }
+
+  *::-webkit-scrollbar {
+    width: 3px;
+    height: 0;
+  }
+  *::-webkit-scrollbar-track {
+    border-radius: 1px;
+    background: rgba(0,0,0,0.00);
+    -webkit-box-shadow: inset 0 0 5px rgba(0,0,0,0.08);
+  }
+  /* 滚动条滑块 */
+  *::-webkit-scrollbar-thumb {
+    border-radius: 3px;
+    background: rgba(0,0,0,0.12);
+    -webkit-box-shadow: inset 0 0 10px rgba(0,0,0,0.2);
+  }
+}
 </style>
