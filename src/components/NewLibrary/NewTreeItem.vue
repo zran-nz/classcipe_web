@@ -231,7 +231,7 @@ export default {
           if (treeItemData.children === undefined || !treeItemData.children.length) {
             this.subTreeLoading = true
             this.gradeList.forEach(item => { item.children = [] })
-            treeItemData.children = Object.assign({}, this.gradeList)
+            treeItemData.children = [...this.gradeList]
             this.$logger.info('add gradeList ', treeItemData)
           }
           LibraryEventBus.$emit(LibraryEvent.ContentListUpdate, {
