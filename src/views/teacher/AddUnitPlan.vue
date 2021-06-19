@@ -251,13 +251,8 @@
                 </a-form-model-item>
 
                 <!--knowledge tag-select -->
-                <new-knowledge-tag
+                <new-clickable-knowledge-tag
                   :question-index="questionIndex"
-                  :grade-list="gradeList"
-                  :subject-tree="subjectTree"
-                  :default-grade-id="questionItem.knowledgeGradeId"
-                  :default-main-subject-id="questionItem.knowledgeMainSubjectId"
-                  :default-sub-subject-id="questionItem.knowledgeSubSubjectId"
                   :selected-knowledge-tags="questionItem.knowledgeTags"
                   @remove-knowledge-tag="handleRemoveKnowledgeTag"
                   @add-knowledge-tag="handleAddKnowledgeTag"
@@ -319,7 +314,7 @@ import { GetTreeByKey } from '@/api/tag'
 import { GetMyGrades } from '@/api/teacher'
 import { SubjectTree } from '@/api/subject'
 import { formatSubjectTree } from '@/utils/bizUtil'
-import NewKnowledgeTag from '@/components/UnitPlan/NewKnowledgeTag'
+import NewClickableKnowledgeTag from '@/components/UnitPlan/NewClickableKnowledgeTag'
 import SkillTag from '@/components/UnitPlan/SkillTag'
 import { ChangeStatus, UnitPlanAddOrUpdate, UnitPlanQueryById } from '@/api/unitPlan'
 import { formatLocalUTC } from '@/utils/util'
@@ -331,7 +326,7 @@ export default {
     ContentTypeIcon,
     InputSearch,
     SdgTagInput,
-    NewKnowledgeTag,
+    NewClickableKnowledgeTag,
     SkillTag
   },
   props: {
@@ -814,11 +809,15 @@ export default {
           const existOriginKeyword = sdg.originKeywords.find(item => item.name.trim() === selectedKeyword.trim())
           if (existOriginKeyword) {
             logger.info('exist origin keyword [' + selectedKeyword + ']')
+            if (!existOriginKeyword.curriculumId) {
+              existOriginKeyword.curriculumId = this.$store.getters.bindCurriculum
+            }
             keywords.push(existOriginKeyword)
           } else {
             logger.info('new keyword [' + selectedKeyword + ']')
             keywords.push({
-              name: selectedKeyword
+              name: selectedKeyword,
+              curriculumId: this.$store.getters.bindCurriculum
             })
           }
         })
@@ -832,6 +831,16 @@ export default {
       for (const questionIndex in this.questionDataObj) {
         const question = this.questionDataObj[questionIndex]
         logger.info('question ' + questionIndex, question)
+        if (question.knowledgeTags && question.knowledgeTags.length) {
+          question.knowledgeTags.forEach(item => {
+            item.curriculumId = this.$store.getters.bindCurriculum
+          })
+        }
+        if (question.skillTags && question.skillTags.length) {
+          question.skillTags.forEach(item => {
+            item.curriculumId = this.$store.getters.bindCurriculum
+          })
+        }
         const questionItem = {
           knowledgeTags: question.knowledgeTags,
           skillTags: question.skillTags,
