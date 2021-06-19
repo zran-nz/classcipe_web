@@ -135,6 +135,13 @@ export default {
     this.headerDom = []
     this.headerDom = document.getElementsByTagName('header')
 
+    if (this.$route.meta && this.headerDom.length) {
+      if (this.$route.meta.editPage) {
+        this.showGlobalHeader(!this.$route.meta.editPage)
+      } else {
+        this.showGlobalHeader(true)
+      }
+    }
     // first update color
     // TIPS: THEME COLOR HANDLER!! PLEASE CHECK THAT!!
     // if (process.env.NODE_ENV !== 'production' || process.env.VUE_APP_PREVIEW === 'true') {
