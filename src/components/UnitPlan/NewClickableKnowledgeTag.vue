@@ -124,8 +124,14 @@
         </a-checkbox-group>
         <div class="empty-search-list" v-if="!tagNameSearchList.length">
           <a-empty />
-          <span class="create-description"><a>Create A Description now</a></span>
+          <span class="create-description" @click="handleCreateDescription"><a>Create A Description now</a></span>
         </div>
+      </div>
+    </a-modal>
+
+    <a-modal v-model="associateLibraryVisible" @ok="handleEnsureAssociate" destroyOnClose width="90%" :dialog-style="{ top: '20px' }">
+      <div class="associate-library">
+        <new-browser />
       </div>
     </a-modal>
   </div>
@@ -134,6 +140,7 @@
 <script>
 import * as logger from '@/utils/logger'
 import { KnowledgeSearch, KnowledgeQueryTagsByKnowledgeId } from '@/api/knowledge'
+import NewBrowser from '@/components/NewLibrary/NewBrowser'
 const { debounce } = require('lodash-es')
 
 const TagOriginType = {
@@ -144,6 +151,9 @@ const TagOriginType = {
 }
 export default {
   name: 'NewClickableKnowledgeTag',
+  components: {
+    NewBrowser
+  },
   props: {
     questionIndex: {
       type: String,
@@ -179,7 +189,9 @@ export default {
       activeSubKnowledgeId: null,
       tagNameSearchListDialogueVisible: false,
       tagNameSearchList: [],
-      tagNameSearchListSelected: []
+      tagNameSearchListSelected: [],
+
+      associateLibraryVisible: false
     }
   },
   created () {
@@ -372,6 +384,16 @@ export default {
     tagNameSearchListChange (checkedValue) {
       this.$logger.info('tagNameSearchListChange', checkedValue)
       this.tagNameSearchListSelected = checkedValue
+    },
+
+    handleCreateDescription () {
+      this.$logger.info('handleCreateDescription')
+      this.associateLibraryVisible = true
+    },
+
+    handleEnsureAssociate () {
+      this.$logger.info('handleEnsureAssociate')
+      this.associateLibraryVisible = false
     }
   }
 }
@@ -566,5 +588,10 @@ export default {
   border-radius: 3px;
   background: rgba(0,0,0,0.12);
   -webkit-box-shadow: inset 0 0 10px rgba(0,0,0,0.2);
+}
+
+.associate-library {
+  margin-top: 20px;
+
 }
 </style>
