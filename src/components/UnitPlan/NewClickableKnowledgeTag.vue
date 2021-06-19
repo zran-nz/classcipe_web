@@ -396,6 +396,10 @@ export default {
             ...item,
             type: TagOriginType.Origin
           })
+          this.$emit('add-knowledge-tag', {
+            questionIndex: this.questionIndex,
+            ...item
+          })
           this.$set(this.descriptionTagMap, item.subKnowledgeId, list)
         } else {
           this.$logger.info('skip! exist ' + item.name + ' ' + item.id)
