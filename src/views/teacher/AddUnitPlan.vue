@@ -727,7 +727,7 @@ export default {
       logger.info('target question data', this.questionDataObj[data.questionIndex])
       const newTag = {
         description: data.description,
-        id: data.id,
+        // id: data.id,
         name: data.name,
         gradeId: data.gradeId,
         mainSubjectId: data.mainSubjectId,

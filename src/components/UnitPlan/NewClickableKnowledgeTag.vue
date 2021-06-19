@@ -23,24 +23,31 @@
           <div class="skt-tag-list">
             <div class="skt-tag-item" v-for="(tag,index) in tagList" :key="index" :data-tag-type="tag.type" @dblclick="handleDbClickTagListTag(tag)">
               <a-tag
+                draggable="true"
+                @dragstart="handleTagItemDragStart(tag, $event)"
                 :color="tagColorList[index % tagColorList.length]"
                 class="tag-item"
                 v-if="tag.type === tagOriginType.Origin">
                 {{ tag.name }}
               </a-tag>
               <a-tag
+                draggable="true"
+                @dragstart="handleTagItemDragStart(tag, $event)"
                 color="#108ee9"
                 class="tag-item"
                 v-if="tag.type === tagOriginType.Search">
                 <a-icon type="search" /> {{ tag.name }}
               </a-tag>
               <a-tag
+                draggable="true"
+                @dragstart="handleTagItemDragStart(tag, $event)"
                 color="#87d068"
                 class="tag-item"
                 v-if="tag.type === tagOriginType.Description">
                 <a-icon type="tag" /> {{ tag.name }}
               </a-tag>
               <a-tag
+                @dragstart="handleTagItemDragStart(tag, $event)"
                 color="#2db7f5"
                 class="tag-item"
                 v-if="tag.type === tagOriginType.Create"
@@ -75,8 +82,8 @@
                   {{ descriptionTagList[0].description }}
                 </a-tooltip>
               </div>
-              <div class="skt-description-tag-list">
-                <div class="tag-list-item" v-for="(tag,tIndex) in descriptionTagList" :key="tIndex">
+              <div class="skt-description-tag-list" droppable="true" @dragover.prevent @drop="handleTagItemDrop(subKnowledgeId, $event)">
+                <div class="tag-list-item" v-for="(tag,tIndex) in descriptionTagList" :key="tIndex + tag.name + tag.type">
                   <a-tag
                     :color="tagColorList[tIndex % tagColorList.length]"
                     class="tag-item"
@@ -139,7 +146,7 @@
 
 <script>
 import * as logger from '@/utils/logger'
-import { KnowledgeSearch, KnowledgeQueryTagsByKnowledgeId } from '@/api/knowledge'
+import { KnowledgeSearch, KnowledgeQueryTagsByKnowledgeId, KnowledgeAddOrUpdateTag } from '@/api/knowledge'
 import NewBrowser from '@/components/NewLibrary/NewBrowser'
 const { debounce } = require('lodash-es')
 
@@ -185,6 +192,7 @@ export default {
       ],
       tagOriginType: TagOriginType,
       descriptionTagMap: {},
+      subKnowledgeId2InfoMap: {}, // subKnowledgeId 对应的父级信息标签
 
       activeSubKnowledgeId: null,
       tagNameSearchListDialogueVisible: false,
@@ -205,6 +213,9 @@ export default {
       // descriptionTagMap
       if (!this.descriptionTagMap.hasOwnProperty(item.subKnowledgeId)) {
         this.$set(this.descriptionTagMap, item.subKnowledgeId, [])
+        this.subKnowledgeId2InfoMap[item.subKnowledgeId] = {
+          ...item
+        }
       }
 
       if (item.curriculumId === this.$store.getters.bindCurriculum) {
@@ -222,6 +233,7 @@ export default {
 
     this.$logger.info('after add tagList', this.tagList)
     this.$logger.info('after add descriptionTagMap', this.descriptionTagMap)
+    this.$logger.info('after add subKnowledgeId2InfoMap', this.subKnowledgeId2InfoMap)
   },
   watch: {
     searchList () {
@@ -263,26 +275,31 @@ export default {
     handleDescriptionTagClose (tag) {
       this.$logger.info('handleDescriptionTagClose ', tag)
       let list = this.descriptionTagMap[tag.subKnowledgeId]
+      this.$logger.info('raw handleDescriptionTagClose ', list)
       list = list.filter(item => item.name !== tag.name)
       this.$set(this.descriptionTagMap, tag.subKnowledgeId, list)
+      this.$emit('remove-knowledge-tag', {
+        questionIndex: this.questionIndex,
+        ...tag
+      })
       this.$logger.info('after handleDescriptionTagClose ', this.descriptionTagMap[tag.subKnowledgeId])
     },
 
     handleActiveDescription (subKnowledge) {
-      this.$logger.info('handleActiveDescription TagList' + subKnowledge)
+      this.$logger.info('handleActiveDescription TagList' + subKnowledge, ' old tag list', this.tagList)
       this.activeSubKnowledgeId = subKnowledge
       this.$logger.info('activeSubKnowledgeId ' + this.activeSubKnowledgeId)
-      logger.info('dbclick desc searchKnowledge')
-      this.searchList = []
+      logger.info('dblclick desc searchKnowledge')
       KnowledgeQueryTagsByKnowledgeId({
         knowledgeId: this.activeSubKnowledgeId
       }).then((response) => {
         this.$logger.info('KnowledgeQueryTagsByKnowledgeId response', response.result)
         const descriptionList = response.result
 
-        let tagList = this.tagList
+        let tagList = [...this.tagList]
+        this.$logger.info('tag list filter before tag list' + this.tagOriginType.Description, tagList)
         tagList = tagList.filter(item => item.type !== this.tagOriginType.Description)
-        this.$logger.info('tag list filter ' + this.tagOriginType.Description)
+        this.$logger.info('tag list filter after tag list' + this.tagOriginType.Description, tagList)
         const existNameList = []
         descriptionList.forEach(item => {
           if (existNameList.indexOf(item.name) === -1) {
@@ -326,6 +343,12 @@ export default {
     handleDeleteKnowledgeItem (subKnowledgeId) {
       this.$logger.info('handleDeleteKnowledgeItem ' + subKnowledgeId)
       if (this.descriptionTagMap.hasOwnProperty(subKnowledgeId)) {
+        this.descriptionTagMap[subKnowledgeId].forEach(item => {
+          this.$emit('remove-knowledge-tag', {
+            questionIndex: this.questionIndex,
+            ...item
+          })
+        })
         this.$delete(this.descriptionTagMap, subKnowledgeId)
         this.$logger.info('after delete ' + subKnowledgeId, this.descriptionTagMap)
       } else {
@@ -362,6 +385,9 @@ export default {
       ensureKnowledgeTagList.forEach(item => {
         if (!this.descriptionTagMap.hasOwnProperty(item.subKnowledgeId)) {
           this.$set(this.descriptionTagMap, item.subKnowledgeId, [])
+          this.subKnowledgeId2InfoMap[item.subKnowledgeId] = {
+            ...item
+          }
         }
 
         const list = this.descriptionTagMap[item.subKnowledgeId]
@@ -394,6 +420,96 @@ export default {
     handleEnsureAssociate () {
       this.$logger.info('handleEnsureAssociate')
       this.associateLibraryVisible = false
+    },
+
+    handleTagItemDragStart (tag, event) {
+      this.$logger.info('handleTagItemDragStart', tag, event)
+      event.dataTransfer.setData('tag', JSON.stringify(tag))
+    },
+
+    handleTagItemDrop (subKnowledgeId, event) {
+      this.$logger.info('handleTagItemDrop ' + subKnowledgeId, event)
+      let tag = event.dataTransfer.getData('tag')
+      this.$logger.info('drag tag ', tag)
+      tag = JSON.parse(tag)
+
+      if (!this.descriptionTagMap.hasOwnProperty(subKnowledgeId)) {
+        this.$set(this.descriptionTagMap, subKnowledgeId, [])
+      }
+
+      const list = this.descriptionTagMap[subKnowledgeId]
+      if (!list.find(eItem => eItem.name === tag.name)) {
+        this.$logger.info('add tag', tag)
+        list.push({
+          ...tag,
+          type: TagOriginType.Origin
+        })
+        this.$set(this.descriptionTagMap, subKnowledgeId, list)
+
+        // 检查是否已存在相同name的tag没有则创建
+        let existSameNameTag = false
+        let replaceTag = null
+        KnowledgeQueryTagsByKnowledgeId({
+          knowledgeId: subKnowledgeId
+        }).then((response) => {
+          this.$logger.info('KnowledgeQueryTagsByKnowledgeId response check', response.result)
+          const descriptionList = response.result
+          descriptionList.forEach(item => {
+            if (item.name === tag.name) {
+              existSameNameTag = true
+              replaceTag = item
+            }
+          })
+        }).finally(() => {
+          if (!existSameNameTag) {
+            KnowledgeAddOrUpdateTag({
+              subKnowledgeId: tag.subKnowledgeId,
+              name: tag.name,
+              description: tag.description
+            }).then((response) => {
+              this.$logger.info('KnowledgeAddOrUpdate response', response)
+
+              if (response.success) {
+                KnowledgeQueryTagsByKnowledgeId({
+                  knowledgeId: tag.subKnowledgeId
+                }).then((response) => {
+                  this.$logger.info('KnowledgeQueryTagsByKnowledgeId sub response check', response.result)
+                  const descriptionList = response.result
+                  descriptionList.forEach(item => {
+                    if (item.name === tag.name) {
+                      existSameNameTag = true
+                      replaceTag = item
+                      this.replaceTempTag(replaceTag)
+                    }
+                  })
+                })
+              } else {
+                this.$logger.error('KnowledgeAddOrUpdate', response)
+              }
+            })
+          } else {
+            this.replaceTempTag(replaceTag)
+          }
+        })
+      } else {
+        this.$logger.info('skip! exist ' + tag.name + ' ' + tag.id)
+      }
+    },
+
+    replaceTempTag (tag) {
+      this.$logger.info('replace tag', tag)
+      let list = this.descriptionTagMap[tag.subKnowledgeId || tag.id]
+      this.$logger.info('replace tag target list', list)
+      list = list.filter(item => item.name !== tag.name)
+      list.push({
+        ...tag,
+        type: TagOriginType.Origin
+      })
+      this.$emit('add-knowledge-tag', {
+        questionIndex: this.questionIndex,
+        ...tag
+      })
+      this.$set(this.descriptionTagMap, tag.subKnowledgeId, list)
     }
   }
 }
