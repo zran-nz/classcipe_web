@@ -36,7 +36,7 @@
         </div>
       </template>
       <template v-else>
-        <div class="content-empty">
+        <div class="content-empty" v-if="!firstLoad">
           <a-empty />
         </div>
       </template>
@@ -153,20 +153,21 @@ export default {
     user-select: none;
     display: flex;
     overflow: hidden;
+    padding: 5px 10px;
     .name {
-      padding: 5px 10px;
+      padding: 0 10px;
       cursor: pointer;
       user-select: none;
     }
     .owner {
       width: 200px;
-      padding: 5px 10px;
+      padding: 0 10px;
       text-align: left;
     }
 
     .date-modified {
       width: 200px;
-      padding: 5px 10px;
+      padding: 0 10px;
       text-align: left;
     }
   }
@@ -212,6 +213,7 @@ export default {
         text-overflow: ellipsis;
         word-break: break-all;
         user-select: none;
+        padding: 0 10px;
         .icon {
           padding: 0 10px 0 5px;
           .file-dir-icon {
@@ -230,13 +232,13 @@ export default {
 
       .owner {
         width: 200px;
-        padding: 5px 10px;
+        padding: 0 10px;
         text-align: left;
       }
 
       .date-modified {
         width: 200px;
-        padding: 5px 10px;
+        padding: 0 10px;
         text-align: left;
       }
     }

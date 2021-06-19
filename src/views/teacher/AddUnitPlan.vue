@@ -832,11 +832,18 @@ export default {
       for (const questionIndex in this.questionDataObj) {
         const question = this.questionDataObj[questionIndex]
         logger.info('question ' + questionIndex, question)
-        unitPlanData.questions.push({
+        const questionItem = {
           knowledgeTags: question.knowledgeTags,
           skillTags: question.skillTags,
           name: question.name
-        })
+        }
+        if (question.questionId) {
+          questionItem.id = question.questionId
+          this.$logger.info('old question item', questionItem)
+        } else {
+          this.$logger.info('new question item', questionItem)
+        }
+        unitPlanData.questions.push(questionItem)
       }
       logger.info('question unitPlanData', unitPlanData)
       UnitPlanAddOrUpdate(unitPlanData).then((response) => {
@@ -850,6 +857,7 @@ export default {
       })
     },
     handlePublishUnitPlan () {
+      this.handleSaveUnitPlan()
       logger.info('handlePublishUnitPlan', {
         id: this.unitPlanId,
         status: 1
