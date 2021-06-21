@@ -3,6 +3,7 @@ import { login, getInfo, logout, changeRole } from '@/api/login'
 import { ACCESS_TOKEN, CURRENT_ROLE, IS_ADD_PREFERENCE, USER_INFO } from '@/store/mutation-types'
 import { welcome } from '@/utils/util'
 import * as logger from '@/utils/logger'
+import { SESSION_ACTIVE_KEY } from '@/const/common'
 
 const user = {
   state: {
@@ -62,6 +63,7 @@ const user = {
         if (accessToken && accessToken.toString().trim()) {
           storage.set(ACCESS_TOKEN, accessToken, 7 * 24 * 60 * 60 * 1000)
           commit('SET_TOKEN', accessToken)
+          window.sessionStorage.setItem(SESSION_ACTIVE_KEY, accessToken)
           resolve()
         } else {
           reject(new Error('illegal token ' + accessToken))
@@ -76,6 +78,7 @@ const user = {
           const result = response.result
           storage.set(ACCESS_TOKEN, result.token, 7 * 24 * 60 * 60 * 1000)
           commit('SET_TOKEN', result.token)
+          window.sessionStorage.setItem(SESSION_ACTIVE_KEY, result.token)
           resolve()
         }).catch(error => {
           reject(error)
@@ -102,6 +105,7 @@ const user = {
           storage.set(CURRENT_ROLE, result.currentRole)
           storage.set(IS_ADD_PREFERENCE, result.isAddPreference)
           storage.set(USER_INFO, result)
+          window.sessionStorage.setItem(SESSION_ACTIVE_KEY, storage.get(ACCESS_TOKEN))
           resolve(response)
         }).catch(error => {
           reject(error)
@@ -153,6 +157,7 @@ const user = {
           storage.remove(ACCESS_TOKEN)
           storage.remove(IS_ADD_PREFERENCE)
           storage.remove(USER_INFO)
+          window.sessionStorage.removeItem(SESSION_ACTIVE_KEY)
           resolve()
         }).catch(() => {
           resolve()

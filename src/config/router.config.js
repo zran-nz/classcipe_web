@@ -306,32 +306,37 @@ export const constantRouterMap = [
       {
         path: 'login',
         name: 'login',
-        component: () => import(/* webpackChunkName: "user" */ '@/views/user/Login')
+        component: () => import(/* webpackChunkName: "login" */ '@/views/user/Login')
       },
       {
         path: 'register',
         name: 'register',
-        component: () => import(/* webpackChunkName: "user" */ '@/views/user/Register')
+        component: () => import(/* webpackChunkName: "register" */ '@/views/user/Register')
       },
       {
         path: 'register-result',
         name: 'registerResult',
-        component: () => import(/* webpackChunkName: "user" */ '@/views/user/RegisterResult')
+        component: () => import(/* webpackChunkName: "registerResult" */ '@/views/user/RegisterResult')
       },
       {
         path: 'auth-result',
         name: 'authResult',
-        component: () => import(/* webpackChunkName: "user" */ '@/views/user/AuthResult')
+        component: () => import(/* webpackChunkName: "authResult" */ '@/views/user/AuthResult')
       },
       {
         path: 'select-role',
         name: 'selectRole',
-        component: () => import(/* webpackChunkName: "user" */ '@/views/user/SelectRole')
+        component: () => import(/* webpackChunkName: "selectRole" */ '@/views/user/SelectRole')
       },
       {
         path: 'add-preference',
         name: 'addPreference',
-        component: () => import(/* webpackChunkName: "user" */ '@/views/user/AddPreference')
+        component: () => import(/* webpackChunkName: "addPreference" */ '@/views/user/AddPreference')
+      },
+      {
+        path: 'auth-check',
+        name: 'authCheck',
+        component: () => import(/* webpackChunkName: "authCheck" */ '@/views/user/AuthCheck')
       }
     ]
   },

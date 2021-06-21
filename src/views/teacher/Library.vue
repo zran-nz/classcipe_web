@@ -1,16 +1,17 @@
 <template>
   <a-card :bordered="false" >
-    <new-browser />
+    <!--    <new-browser />-->
+    <browser />
   </a-card>
 </template>
 
 <script>
-import NewBrowser from '@/components/NewLibrary/NewBrowser'
+import Browser from '@/components/Library/Browser'
 
 export default {
   name: 'NewLibrary',
   components: {
-    NewBrowser
+    Browser
   },
   data () {
     return {
