@@ -397,6 +397,7 @@ export default {
 
     setAvatar (url) {
       logger.info('setAvatar ' + url)
+      this.editMode = true
       this.userInfo.avatar = url
     },
 
