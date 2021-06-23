@@ -3,9 +3,6 @@
     <a-card :bordered="false" :bodyStyle="{ padding: '16px 0', height: '100%' }" :style="{ height: '100%' }">
       <div class="account-settings-info-main" :class="{ 'mobile': isMobile }">
         <div class="account-settings-info-right">
-          <div class="account-settings-info-title">
-            <span>{{ $t($route.meta.title) }}</span>
-          </div>
           <route-view></route-view>
         </div>
       </div>

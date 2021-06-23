@@ -25,6 +25,7 @@ export default {
   'account.settings.basic.phone': 'Phone Number',
   'account.settings.basic.phone-message': 'Please input your phone!',
   'account.settings.basic.update': 'Update Information',
+  'account.settings.basic.cancel': 'Cancel',
   'account.settings.basic.update.success': 'Update basic information successfully',
   'account.settings.security.strong': 'Strong',
   'account.settings.security.medium': 'Medium',

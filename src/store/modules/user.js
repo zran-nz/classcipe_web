@@ -96,7 +96,7 @@ const user = {
           commit('SET_PERMISSIONS', result.currentRole ? [result.currentRole] : [])
           commit('SET_INFO', result)
 
-          commit('SET_NAME', { name: result.username, welcome: welcome() })
+          commit('SET_NAME', { name: result.nickname, welcome: welcome() })
           commit('SET_AVATAR', result.avatar)
           commit('SET_EMAIL', result.email)
           commit('SET_BIND_CURRICULUM', result.bindCurriculum)

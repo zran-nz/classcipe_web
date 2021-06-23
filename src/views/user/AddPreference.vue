@@ -181,7 +181,6 @@ export default {
     handleSelectCurriculumOption (curriculum) {
       logger.info('handleSelectCurriculumOption', curriculum)
       if (this.currentCurriculum === null || this.currentCurriculum.id !== curriculum.id) {
-        this.currentSubject = null
         this.teacherForm.subjectIds = []
       }
       this.currentCurriculum = curriculum
