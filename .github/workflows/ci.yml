@@ -80,15 +80,15 @@ jobs:
           repository: xnuwu/classcipe_web/frontend
           tags: production
           tag_with_ref: true
-      - name: Deploy to develop server
-        if: github.ref == 'refs/heads/develop' && github.event_name == 'push'
-        run: |
-          mkdir -p ~/.ssh
-          echo "$TEST_SERVER_PRIVATE_KEY" | tr -d '\r' > ~/.ssh/id_rsa
-          chmod 600 ~/.ssh/id_rsa
-          eval "$(ssh-agent -s)"
-          ssh-add ~/.ssh/id_rsa
-          ssh -o StrictHostKeyChecking=no ubuntu@13.236.143.19
-          ssh  ubuntu@13.236.143.19  'cd deployment-last && ./start-ui.sh'
-        env:
-          TEST_SERVER_PRIVATE_KEY: ${{ secrets.TEST_SERVER_PRIVATE_KEY }}
+#      - name: Deploy to develop server
+#        if: github.ref == 'refs/heads/develop' && github.event_name == 'push'
+#        run: |
+#          mkdir -p ~/.ssh
+#          echo "$TEST_SERVER_PRIVATE_KEY" | tr -d '\r' > ~/.ssh/id_rsa
+#          chmod 600 ~/.ssh/id_rsa
+#          eval "$(ssh-agent -s)"
+#          ssh-add ~/.ssh/id_rsa
+#          ssh -o StrictHostKeyChecking=no ubuntu@13.236.143.19
+#          ssh  ubuntu@13.236.143.19  'cd deployment-last && ./start-ui.sh'
+#        env:
+#          TEST_SERVER_PRIVATE_KEY: ${{ secrets.TEST_SERVER_PRIVATE_KEY }}
