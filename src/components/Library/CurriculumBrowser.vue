@@ -252,7 +252,7 @@ export default {
       SubjectTree({ curriculumId: this.curriculumId }).then(response => {
         this.$logger.info('getSubjectTree response', response.result)
         this.mainSubjectList = response.result
-        if (this.mainSubjectList) {
+        if (this.mainSubjectList && this.mainSubjectList.length) {
           this.handleSelectMainSubjectItem(this.mainSubjectList[0])
         }
       }).finally(() => {
