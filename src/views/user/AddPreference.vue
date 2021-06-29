@@ -166,7 +166,7 @@ export default {
         getAllCurriculums().then((response) => {
           logger.info('getAllCurriculums', response)
           this.curriculumOptions = response.result
-          logger.info('areaOptions', this.areaOptions)
+          logger.info('getAllCurriculums', this.curriculumOptions)
         })
       }
     },

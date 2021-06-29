@@ -1,7 +1,7 @@
 <template>
   <div class="library-nav-content">
     <div class="nav-path">
-      <span class="nav-path-item" v-for="(item,index) in sortNavPath" :key="index" @click="changePath(item)">
+      <span class="nav-path-item" v-for="(item,index) in sortNavPath" :key="index" @click="changePath(item)" :data-item="item">
         /
         <a-tooltip :mouseEnterDelay="0.5" placement="top">
           <template slot="title">
@@ -36,7 +36,7 @@ export default {
     }
   },
   created () {
-    this.$logger.info('path', this.path)
+    this.$logger.info('navigation path', this.path)
   },
   methods: {
     changePath (item) {
@@ -65,7 +65,7 @@ export default {
     .nav-path-item {
       display:inline-block;
       margin-right: 5px;
-      max-width: 700px;
+      max-width: 400px;
       color: @primary-color;
       font-weight: 600;
       white-space: nowrap;

@@ -71,8 +71,7 @@
           <template slot="title">
             {{ gradeItem.name }}
           </template>
-          <a-icon type="folder-open" theme="filled" class="file-dir-icon"/>
-          {{ gradeItem.name }}
+          <a-icon type="folder-open" theme="filled" class="file-dir-icon"/>{{ gradeItem.name }}
         </a-tooltip>
       </div>
       <template v-if="!gradeList.length && !gradeListLoading">
@@ -140,7 +139,7 @@
         </div>
       </template>
     </div>
-    <div class="browser-block-item-last" :style="{width: blockWidth + (111) + 'px' }">
+    <div class="browser-block-item-last" :style="{width: blockWidth + 'px' }">
       <!--   data item list-->
       <div
         :class="{
@@ -188,6 +187,16 @@ export default {
     blockWidth: {
       type: Number,
       default: 200
+    },
+    curriculumId: {
+      type: String,
+      default: null
+    }
+  },
+  watch: {
+    curriculumId (value) {
+      this.$logger.info('curriculumId change ' + value)
+      this.refreshSubjectTree()
     }
   },
   data () {
@@ -229,9 +238,18 @@ export default {
         this.gradeList = response.result
       })
     },
+    refreshSubjectTree () {
+      this.mainSubjectList = []
+      this.subSubjectList = []
+      this.mainKnowledgeList = []
+      this.subSubjectList = []
+      this.subKnowledgeList = []
+      this.dataList = []
+      this.getSubjectTree()
+    },
     getSubjectTree () {
       this.mainSubjectListLoading = true
-      SubjectTree({ curriculumId: this.$store.getters.bindCurriculum }).then(response => {
+      SubjectTree({ curriculumId: this.curriculumId }).then(response => {
         this.$logger.info('getSubjectTree response', response.result)
         this.mainSubjectList = response.result
         if (this.mainSubjectList) {
@@ -354,8 +372,8 @@ export default {
     min-height: 600px;
     border-right: 1px solid #ddd;
     .browser-item {
-      line-height: 40px;
-      padding: 0 10px;
+      line-height: 20px;
+      padding: 10px;
       font-weight: 500;
       cursor: pointer;
       overflow: hidden;
@@ -363,6 +381,17 @@ export default {
       text-overflow: ellipsis;
       word-break: break-all;
       user-select: none;
+
+      span {
+        display: flex;
+        flex-direction: row;
+        justify-content: flex-start;
+        align-items: flex-start;
+
+        i {
+          padding-right: 5px;
+        }
+      }
 
       .file-dir-icon {
         color: #82c0d8;
@@ -375,6 +404,7 @@ export default {
     .active-line {
       background-color: fade(@outline-color, 20%);
       color: @primary-color;
+      white-space: normal;
     }
     .loading-wrapper {
       position: absolute;
@@ -395,8 +425,8 @@ export default {
     min-height: 600px;
     border-right: 1px solid #ddd;
     .browser-item {
-      line-height: 40px;
-      padding: 0 10px;
+      line-height: 20px;
+      padding: 10px;
       font-weight: 500;
       cursor: pointer;
       overflow: hidden;
@@ -404,6 +434,13 @@ export default {
       text-overflow: ellipsis;
       word-break: break-all;
       user-select: none;
+      span {
+        line-height: 20px;
+      }
+
+      .status-icon-item {
+        display: inline;
+      }
     }
     .odd-line {
       background-color: fade(@text-color-secondary, 3%);
@@ -411,6 +448,7 @@ export default {
     .active-line {
       background-color: fade(@outline-color, 20%);
       color: @primary-color;
+      white-space: normal;
     }
     .loading-wrapper {
       position: absolute;

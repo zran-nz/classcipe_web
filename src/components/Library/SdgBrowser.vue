@@ -259,8 +259,8 @@ export default {
       min-height: 600px;
       border-right: 1px solid #ddd;
       .browser-item {
-        line-height: 40px;
-        padding: 0 10px;
+        line-height: 20px;
+        padding: 10px;
         font-weight: 500;
         cursor: pointer;
         overflow: hidden;
@@ -272,6 +272,18 @@ export default {
           color: #82c0d8;
           font-size: 18px;
         }
+
+        span {
+          display: flex;
+          flex-direction: row;
+          justify-content: flex-start;
+          align-items: flex-start;
+          text-align: left;
+
+          i {
+            padding-right: 5px;
+          }
+        }
       }
       .odd-line {
         background-color: fade(@text-color-secondary, 3%);
@@ -279,6 +291,7 @@ export default {
       .active-line {
         background-color: fade(@outline-color, 20%);
         color: @primary-color;
+        white-space: normal;
       }
       .loading-wrapper {
         position: absolute;
@@ -299,8 +312,8 @@ export default {
       min-height: 600px;
       border-right: 1px solid #ddd;
       .browser-item {
-        line-height: 40px;
-        padding: 0 10px;
+        line-height: 20px;
+        padding: 10px;
         font-weight: 500;
         cursor: pointer;
         overflow: hidden;
@@ -308,6 +321,17 @@ export default {
         text-overflow: ellipsis;
         word-break: break-all;
         user-select: none;
+        span {
+          display: flex;
+          flex-direction: row;
+          justify-content: flex-start;
+          align-items: flex-start;
+
+          i {
+            padding-right: 5px;
+          }
+        }
+
       }
       .odd-line {
         background-color: fade(@text-color-secondary, 3%);
@@ -315,6 +339,7 @@ export default {
       .active-line {
         background-color: fade(@outline-color, 20%);
         color: @primary-color;
+        white-space: normal;
       }
       .loading-wrapper {
         position: absolute;

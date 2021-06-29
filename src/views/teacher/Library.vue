@@ -1,6 +1,5 @@
 <template>
   <a-card :bordered="false" >
-    <!--    <new-browser />-->
     <browser />
   </a-card>
 </template>

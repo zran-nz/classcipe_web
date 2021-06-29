@@ -1,6 +1,25 @@
 <template>
   <div class="library-wrapper" ref="wrapper">
     <div class="library-nav-bar">
+      <div class="curriculum-select" v-if="currentBrowserType === BrowserTypeMap.curriculum">
+        <a-spin v-if="!curriculumOptions.length"/>
+        <a-select
+          v-if="curriculumOptions.length"
+          size="small"
+          @change="handleCurriculumChange"
+          v-model="currentCurriculumId"
+          :default-value="$store.getters.bindCurriculum">
+          <a-select-option v-for="(curriculum,index) in curriculumOptions" :value="curriculum.id" :key="index">
+            {{ curriculum.name }}
+          </a-select-option>
+        </a-select>
+        <a-tooltip class="select-curriculum-tips">
+          <template slot="title">
+            Select Curriculum
+          </template>
+          <a-icon type="info-circle" />
+        </a-tooltip>
+      </div>
       <navigation :path="navPath" @pathChange="handleNavPathChange"/>
     </div>
     <div class="library-content">
@@ -18,7 +37,7 @@
           </div>
         </div>
         <div class="browser-detail">
-          <curriculum-browser :block-width="blockWidth" v-if="currentBrowserType === BrowserTypeMap.curriculum" @blockCollapse="handleBlockCollapse" @previewDetail="handlePreviewDetail"/>
+          <curriculum-browser :curriculum-id="currentCurriculumId" :block-width="blockWidth" v-if="currentBrowserType === BrowserTypeMap.curriculum" @blockCollapse="handleBlockCollapse" @previewDetail="handlePreviewDetail"/>
           <sdg-browser :block-width="blockWidth" v-if="currentBrowserType === BrowserTypeMap.sdg" @blockCollapse="handleBlockCollapse" @previewDetail="handlePreviewDetail"/>
         </div>
       </div>
@@ -50,6 +69,9 @@ import Navigation from './Navigation'
 import UnitPlanPreview from '@/components/UnitPlan/UnitPlanPreview'
 import MaterialPreview from '@/components/Material/MaterialPreview'
 import { typeMap } from '@/const/teacher'
+import {
+  getAllCurriculums
+} from '@/api/preference'
 
 const BrowserTypeMap = {
   curriculum: 'curriculum',
@@ -78,6 +100,8 @@ export default {
   },
   data () {
     return {
+      currentCurriculumId: this.$store.getters.bindCurriculum,
+      curriculumOptions: [],
       navPath: [],
       browserTypeList: [
         { type: 'curriculum', label: 'Curriculum' },
@@ -100,10 +124,19 @@ export default {
   },
   created () {
     this.currentBrowserType = this.browserType
-    this.navPath.push(this.browserTypeLabelMap[this.currentBrowserType])
+    this.navPath.push({
+      path: this.browserTypeLabelMap[this.currentBrowserType],
+      blockIndex: 0
+    })
+
+    getAllCurriculums().then((response) => {
+      this.$logger.info('getAllCurriculums', response)
+      this.curriculumOptions = response.result
+      this.$logger.info('getAllCurriculums', this.curriculumOptions)
+    })
   },
   mounted () {
-    this.blockWidth = (this.$refs['wrapper'].getBoundingClientRect().width - 230) / 2.0
+    this.blockWidth = (this.$refs['wrapper'].getBoundingClientRect().width - 100) / 2.0
     this.$logger.info('globalWidth ' + this.blockWidth)
   },
   methods: {
@@ -126,7 +159,7 @@ export default {
           this.browserMarginLeft = 0
         } else {
           this.hasLeftBlock = true
-          this.browserMarginLeft = (data.blockIndex - 1) * this.blockWidth
+          this.browserMarginLeft = (data.blockIndex - 1) * this.blockWidth + 50
         }
         this.$logger.info('browserMarginLeft ' + this.browserMarginLeft + ', hasLeftBlock:' + this.hasLeftBlock)
       } else {
@@ -159,7 +192,7 @@ export default {
       } else {
         this.blockIndex = this.blockIndex - 1
         this.hasLeftBlock = true
-        this.browserMarginLeft = (this.blockIndex - 1) * this.blockWidth
+        this.browserMarginLeft = (this.blockIndex - 1) * this.blockWidth + 50
       }
       const path = this.navPath.pop()
       this.$logger.info('remove path ' + path)
@@ -175,10 +208,22 @@ export default {
       } else {
         this.blockIndex = blockIndex - 1
         this.hasLeftBlock = true
-        this.browserMarginLeft = (this.blockIndex - 1) * this.blockWidth
+        this.browserMarginLeft = (this.blockIndex - 1) * this.blockWidth + 50
       }
       this.navPath = this.navPath.filter(item => item.blockIndex <= blockIndex)
       this.$logger.info('browserMarginLeft ' + this.browserMarginLeft + ', hasLeftBlock:' + this.hasLeftBlock)
+    },
+
+    handleCurriculumChange (value) {
+      this.$logger.info('handleCurriculumChange ' + value)
+      this.currentCurriculumId = value
+      this.hasLeftBlock = false
+      this.blockIndex = 0
+      this.browserMarginLeft = 0
+      this.navPath = [{
+        path: this.browserTypeLabelMap[this.currentBrowserType],
+        blockIndex: 0
+      }]
     }
   }
 }
@@ -187,8 +232,24 @@ export default {
 <style lang="less" scoped>
 @import "~@/components/index.less";
 .library-wrapper {
+  z-index: 0;
   display: flex;
   flex-direction: column;
+
+  .library-nav-bar {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: center;
+
+    .curriculum-select {
+      .select-curriculum-tips{
+        color: #aaa;
+        padding: 0 5px;
+      }
+    }
+  }
+
   .library-content {
     min-height: 600px;
     position: relative;
@@ -198,7 +259,7 @@ export default {
       left: 0;
       top: 0;
       bottom: 0;
-      width: 231px;
+      width: 101px;
       box-sizing: border-box;
       background-color: fade(@text-color-secondary, 50%);
       z-index: 110;
@@ -207,6 +268,7 @@ export default {
         top: 50%;
         left: 50%;
         width: 50px;
+        text-align: center;
         margin-top: -40px;
         margin-left: -25px;
         color: #fff;
@@ -231,15 +293,15 @@ export default {
         .browser-type-list {
           display: flex;
           flex-direction: column;
-          width: 230px;
+          width: 150px;
           box-sizing: border-box;
           .browser-type {
-            line-height: 40px;
-            padding: 0 10px;
+            padding: 10px;
             font-weight: 500;
             cursor: pointer;
             .pin-icon {
-              font-size: 18px;
+              font-size: 14px;
+              padding-right: 5px;
             }
           }
           .odd-line {
