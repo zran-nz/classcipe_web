@@ -13,7 +13,7 @@
     </div>
     <div class="content-list">
       <template v-if="contentDataList.length">
-        <div :class="{'content-item': true, 'odd-line': index % 2 === 0,'even-line': index % 2 === 1, 'active-line': currentId === item.id}" v-for="(item,index) in contentDataList" :key="index">
+        <div :class="{'content-item': true, 'odd-line': index % 2 === 0,'even-line': index % 2 === 1, 'active-line': currentId === item.id, 'selected-line': selectedIdList.indexOf(item.id) !== -1}" v-for="(item,index) in contentDataList" :key="index">
           <div class="name" :style="{width: nameWidth + 'px'}" @click="handleContentListItemClick(item)">
             <div class="icon">
               <template v-if="item.type">
@@ -111,7 +111,12 @@ export default {
 
     handleContentSelectedListUpdate (data) {
       this.$logger.info('handleContentSelectedListUpdate ', data)
-      this.selectedIdList = data.selectedIdList
+      if (this.selectedIdList.indexOf(data.id) === -1) {
+        this.selectedIdList.push(data.id)
+      } else {
+        this.selectedIdList.splice(this.selectedIdList.indexOf(data.id), 1)
+      }
+      this.$logger.info('after handleContentSelectedListUpdate ', this.selectedIdList)
     },
     handleContentListItemClick (item) {
       this.$logger.info('handleContentListItemClick ', item)
@@ -200,6 +205,11 @@ export default {
 
     .odd-line {
       background-color: #F8F8F8;
+    }
+
+    .selected-line {
+      background-color: fade(@outline-color, 10%);
+      color: @text-color;
     }
 
     .active-line {

@@ -90,12 +90,12 @@
               <div class="skt-description">
                 <a-tooltip :mouseEnterDelay="1" class="description-txt" >
                   <template slot="title">
-                    {{ descriptionTagList[0].tagList[0].description }}
+                    {{ subKnowledgeId2InfoMap.get(descriptionTagList[0].subKnowledgeId).description }}
                   </template>
-                  {{ descriptionTagList[0].tagList[0].description }}
+                  {{ subKnowledgeId2InfoMap.get(descriptionTagList[0].subKnowledgeId).description }}
                 </a-tooltip>
               </div>
-              <div class="skt-description-tag-list" :droppable="activeSubKnowledgeId === descriptionTagList[0].subKnowledgeId ? 'true' : 'false'" @dragover.prevent @drop="handleTagItemDrop(descriptionTagList[0].subKnowledgeId, $event)">
+              <div class="skt-description-tag-list" :droppable="activeSubKnowledgeId === descriptionTagList[0].subKnowledgeId ? 'true' : 'false'" @dragover.prevent @drop="handleTagItemDrop(descriptionTagList[0], $event)">
                 <div class="tag-list-item" v-for="(tag,tIndex) in descriptionTagList[0].tagList" :key="tIndex + tag.name + tag.type">
                   <a-tag
                     color="green"
@@ -140,12 +140,12 @@
                 <div class="skt-description">
                   <a-tooltip :mouseEnterDelay="1" class="description-txt" >
                     <template slot="title">
-                      {{ item.tagList[0].description }}
+                      {{ subKnowledgeId2InfoMap.get(item.subKnowledgeId).description }}
                     </template>
-                    {{ item.tagList[0].description }}
+                    {{ subKnowledgeId2InfoMap.get(item.subKnowledgeId).description }}
                   </a-tooltip>
                 </div>
-                <div class="skt-description-tag-list" :droppable="activeSubKnowledgeId === item.subKnowledgeId ? 'true' : 'false'" @dragover.prevent @drop="handleTagItemDrop(item.subKnowledgeId, $event)">
+                <div class="skt-description-tag-list" :droppable="activeSubKnowledgeId === item.subKnowledgeId ? 'true' : 'false'" @dragover.prevent @drop="handleTagItemDrop(item, $event)">
                   <div class="tag-list-item" v-for="(tag,tIndex) in item.tagList" :key="tIndex + tag.name + tag.type">
                     <a-tag
                       color="green"
@@ -205,13 +205,14 @@
 
     <a-modal v-model="associateLibraryVisible" @ok="handleEnsureAssociate" destroyOnClose width="80%" :dialog-style="{ top: '20px' }">
       <div class="associate-library">
-        <new-browser :select-mode="selectModel.knowledgeDescription" />
+        <new-browser :select-mode="selectModel.knowledgeDescription" :question-index="questionIndex"/>
       </div>
     </a-modal>
   </div>
 </template>
 
 <script>
+import { LibraryEvent, LibraryEventBus } from '@/components/NewLibrary/LibraryEventBus'
 import * as logger from '@/utils/logger'
 import { KnowledgeSearch, KnowledgeQueryTagsByKnowledgeId, KnowledgeAddOrUpdateTag } from '@/api/knowledge'
 import NewBrowser from '@/components/NewLibrary/NewBrowser'
@@ -241,8 +242,11 @@ export default {
   },
   mounted () {
     logger.info('NewClickableKnowledgeTag ' + this.questionIndex + ' selectedKnowledgeTags')
+    LibraryEventBus.$on(LibraryEvent.ContentListSelectClick, this.handleContentListSelectClick)
   },
-  beforeDestroy () {
+  destroyed () {
+    LibraryEventBus.$off(LibraryEvent.ContentListSelectClick, this.handleContentListSelectClick)
+    this.$logger.info('off NewClickableKnowledgeTag ContentListSelectClick handler')
   },
   data () {
     return {
@@ -334,6 +338,24 @@ export default {
     }
   },
   methods: {
+    handleContentListSelectClick (data) {
+      if (data.questionIndex === this.questionIndex) {
+        this.$logger.info('handleContentListSelectClick hit ' + this.questionIndex, data)
+        const tagIndex = this.descriptionTagList.findIndex(tItem => tItem.subKnowledgeId === data.subKnowledgeId)
+        if (tagIndex === -1) {
+          this.subKnowledgeId2InfoMap.set(data.subKnowledgeId, {
+            ...data
+          })
+          this.descriptionTagList.push({
+            subKnowledgeId: data.subKnowledgeId,
+            tagList: [],
+            _updateTimestamp: 0
+          })
+        }
+        LibraryEventBus.$emit(LibraryEvent.ContentListSelectedListUpdate, { id: data.subKnowledgeId })
+        this.$logger.info('subKnowledgeId2InfoMap[' + data.subKnowledgeId + ']', this.subKnowledgeId2InfoMap.get(data.subKnowledgeId))
+      }
+    },
     handleKeyup () {
       this.$logger.info('handleKeyup ', this.inputTag)
       this.debouncedSearchKnowledge(this.inputTag)
@@ -529,12 +551,19 @@ export default {
       event.dataTransfer.setData('tag', JSON.stringify(tag))
     },
 
-    handleTagItemDrop (subKnowledgeId, event) {
+    handleTagItemDrop (item, event) {
+      const subKnowledgeId = item.subKnowledgeId
       if (this.activeSubKnowledgeId === subKnowledgeId) {
-        this.$logger.info('handleTagItemDrop ' + subKnowledgeId, event)
-        let tag = event.dataTransfer.getData('tag')
-        this.$logger.info('drag tag ', tag)
-        tag = JSON.parse(tag)
+        this.$logger.info('handleTagItemDrop ' + subKnowledgeId, item, event)
+        const knowledgeInfo = this.subKnowledgeId2InfoMap.get(subKnowledgeId)
+        this.$logger.info('knowledgeInfo ', knowledgeInfo)
+        let rawTag = event.dataTransfer.getData('tag')
+        this.$logger.info('drag tag ', rawTag)
+        rawTag = JSON.parse(rawTag)
+        const tag = Object.assign({}, knowledgeInfo)
+        delete tag.id
+        tag.name = rawTag.name
+        this.$logger.info('ready add tag ', tag)
 
         const tagIndex = this.descriptionTagList.findIndex(tItem => tItem.subKnowledgeId === subKnowledgeId)
         const tagItem = this.descriptionTagList[tagIndex]
@@ -593,6 +622,7 @@ export default {
           })
         } else {
           this.$logger.info('skip! exist ' + tag.name + ' ' + tag.id)
+          this.$message.warn('already exist same name tag')
         }
       } else {
         this.$logger.info('not in edit mode', subKnowledgeId, this.activeSubKnowledgeId)
