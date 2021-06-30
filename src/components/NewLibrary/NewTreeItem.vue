@@ -336,7 +336,8 @@ export default {
               mainSubjectName: mainSubjectObj.name,
               subKnowledgeId: subKnowledgeObj.id,
               subSubjectId: subSubjectObj.id,
-              subSubjectName: subSubjectObj.name
+              subSubjectName: subSubjectObj.name,
+              questionIndex: this.questionIndex
             })
           }
         }
