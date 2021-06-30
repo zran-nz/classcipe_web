@@ -3,7 +3,7 @@
     <div class="nav-path">
       <div class="nav-path-item" v-for="(path,index) in navPath" :key="index" @click="handleLibraryNavClick(path)">
         <template v-if="path">
-          <template v-if="path.name && path.name.length > 50">
+          <template v-if="path.name && path.name.length > 20">
             <a-tooltip :mouseEnterDelay="1">
               <template slot="title">
                 {{ path.name }}
@@ -91,7 +91,7 @@ export default {
       padding: 0 3px 0 3px;
       color: @primary-color;
       font-weight: 600;
-      max-width: 600px;
+      max-width: 300px;
       overflow: hidden;
       text-overflow: ellipsis;
       word-break: break-all;

@@ -4,12 +4,12 @@
       <div class="name" :style="{width: nameWidth + 'px'}">
         Name
       </div>
-      <div class="owner">
-        Owner
-      </div>
-      <div class="date-modified">
-        Date Modified
-      </div>
+      <!--      <div class="owner">-->
+      <!--        Owner-->
+      <!--      </div>-->
+      <!--      <div class="date-modified">-->
+      <!--        Date Modified-->
+      <!--      </div>-->
     </div>
     <div class="content-list">
       <template v-if="contentDataList.length">
@@ -27,12 +27,12 @@
               {{ item.name || item.description }}
             </div>
           </div>
-          <div class="owner">
-            {{ item.createBy }}
-          </div>
-          <div class="date-modified">
-            {{ item.updateTime | dayjs }}
-          </div>
+          <!--          <div class="owner">-->
+          <!--            {{ item.createBy }}-->
+          <!--          </div>-->
+          <!--          <div class="date-modified">-->
+          <!--            {{ item.updateTime | dayjs }}-->
+          <!--          </div>-->
         </div>
       </template>
       <template v-else>
@@ -95,7 +95,7 @@ export default {
   },
   mounted () {
     LibraryEventBus.$on(LibraryEvent.ContentListUpdate, this.handleContentListUpdate)
-    this.nameWidth = document.getElementById('new-library').getBoundingClientRect().width - 850
+    this.nameWidth = document.getElementById('new-library').getBoundingClientRect().width - 400
     this.$logger.info('nameWidth ' + this.nameWidth)
   },
   methods: {
@@ -160,13 +160,13 @@ export default {
       user-select: none;
     }
     .owner {
-      width: 200px;
+      width: 170px;
       padding: 0 10px;
       text-align: left;
     }
 
     .date-modified {
-      width: 200px;
+      width: 170px;
       padding: 0 10px;
       text-align: left;
     }
@@ -231,13 +231,13 @@ export default {
       }
 
       .owner {
-        width: 200px;
+        width: 170px;
         padding: 0 10px;
         text-align: left;
       }
 
       .date-modified {
-        width: 200px;
+        width: 170px;
         padding: 0 10px;
         text-align: left;
       }

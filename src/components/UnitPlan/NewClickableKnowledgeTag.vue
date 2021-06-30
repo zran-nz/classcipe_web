@@ -2,21 +2,13 @@
   <div class="knowledge-skill-tag-selector">
     <div class="skt-search-wrapper">
       <!-- skt-input search-->
-      <a-form-model-item :label="$t('teacher.add-unit-plan.knowledge-tags')">
+      <a-form-model-item :label="$t('teacher.add-unit-plan.knowledge-tags')" class="input-search-item">
         <div class="knowledge-tag-search-input">
           <input v-model="inputTag" @keyup="handleKeyup" :placeholder="$t('teacher.add-unit-plan.please-enter-knowledge-tag')"/>
-          <a-tooltip :mouseEnterDelay="1">
-            <template slot="title">
-              Create Tag
-            </template>
-            <a-tag class="create-btn" v-show="inputTag && inputTag.length >= 1" @click="handleCreateTagByInput">
-              + Create
-            </a-tag>
-          </a-tooltip>
         </div>
       </a-form-model-item>
     </div>
-    <div class="skt-tag-wrapper">
+    <div class="skt-tag-wrapper" v-show="tagList.length || createTagName">
       <!--      skt-tag-list-->
       <a-row>
         <a-col offset="4" span="18">
@@ -25,7 +17,7 @@
               <a-tag
                 draggable="true"
                 @dragstart="handleTagItemDragStart(tag, $event)"
-                :color="tagColorList[index % tagColorList.length]"
+                color="green"
                 class="tag-item"
                 v-if="tag.type === tagOriginType.Origin">
                 {{ tag.name }}
@@ -55,37 +47,58 @@
                 @close="handleDeleteCreatedTag(tag)"><a-icon type="highlight" /> {{ tag.name }}
               </a-tag>
             </div>
+            <div class="skt-tag-create-line" v-show="createTagName && createTagName.length >= 1">
+              <div class="create-tag-label">
+                Create
+              </div>
+              <div class="create-tag">
+                <a-tag class="tag-item">
+                  {{ createTagName }}
+                </a-tag>
+                <a-icon type="plus-circle" @click="handleCreateTagByInput"/>
+              </div>
+            </div>
+          </div>
+
+        </a-col>
+      </a-row>
+    </div>
+    <div class="open-curriculum-wrapper">
+      <a-row>
+        <a-col offset="4" span="18">
+          <div class="open-curriculum" @click="handleCreateDescription">
+            <a-icon type="hdd" />
+            <a class="open-curriculum-text">Open Curriculum</a>
           </div>
         </a-col>
       </a-row>
     </div>
-    <div class="skt-description-list-wrapper">
+    <div class="skt-description-list-wrapper" v-if="descriptionTagList.length">
       <!--      description-list-->
       <a-row>
         <a-col offset="4" span="18">
           <div class="skt-description-list">
-            <div></div>
             <div
               :class="{
                 'skt-description-tag-item': true,
-                'active-description-line': subKnowledgeId === activeSubKnowledgeId}"
-              :data-id="subKnowledgeId"
-              v-for="(descriptionTagList, subKnowledgeId) in descriptionTagMap"
+                'skt-description-tag-item-top-fixed': true,
+                'active-description-line': descriptionTagList[0].subKnowledgeId === activeSubKnowledgeId}"
+              :data-id="descriptionTagList[0].subKnowledgeId"
               v-if="descriptionTagList.length"
-              :key="subKnowledgeId"
-              @dblclick="handleActiveDescription(subKnowledgeId)">
+              :key="descriptionTagList[0].subKnowledgeId"
+              @dblclick="handleActiveDescription(descriptionTagList[0].subKnowledgeId)">
               <div class="skt-description">
                 <a-tooltip :mouseEnterDelay="1" class="description-txt" >
                   <template slot="title">
-                    {{ descriptionTagList[0].description }}
+                    {{ descriptionTagList[0].tagList[0].description }}
                   </template>
-                  {{ descriptionTagList[0].description }}
+                  {{ descriptionTagList[0].tagList[0].description }}
                 </a-tooltip>
               </div>
-              <div class="skt-description-tag-list" droppable="true" @dragover.prevent @drop="handleTagItemDrop(subKnowledgeId, $event)">
-                <div class="tag-list-item" v-for="(tag,tIndex) in descriptionTagList" :key="tIndex + tag.name + tag.type">
+              <div class="skt-description-tag-list" :droppable="activeSubKnowledgeId === descriptionTagList[0].subKnowledgeId ? 'true' : 'false'" @dragover.prevent @drop="handleTagItemDrop(descriptionTagList[0].subKnowledgeId, $event)">
+                <div class="tag-list-item" v-for="(tag,tIndex) in descriptionTagList[0].tagList" :key="tIndex + tag.name + tag.type">
                   <a-tag
-                    :color="tagColorList[tIndex % tagColorList.length]"
+                    color="green"
                     class="tag-item"
                     v-if="tag.type === tagOriginType.Origin"
                     :closable="tag.subKnowledgeId === activeSubKnowledgeId"
@@ -108,11 +121,62 @@
                   </a-tag>
                 </div>
               </div>
-              <a-popconfirm title="Delete?" ok-text="Yes" @confirm="handleDeleteKnowledgeItem(subKnowledgeId)" cancel-text="No">
-                <span class="delete-action" v-show="subKnowledgeId === activeSubKnowledgeId" >
+              <a-popconfirm title="Delete?" ok-text="Yes" @confirm="handleDeleteKnowledgeItem(descriptionTagList[0].subKnowledgeId)" cancel-text="No">
+                <span class="delete-action" v-show="descriptionTagList[0].subKnowledgeId === activeSubKnowledgeId" >
                   <a-icon type="delete" />
                 </span>
               </a-popconfirm>
+            </div>
+            <div class="skt-description-sub-list">
+              <div
+                :class="{
+                  'skt-description-tag-item': true,
+                  'active-description-line': item.subKnowledgeId === activeSubKnowledgeId}"
+                :data-id="item.subKnowledgeId"
+                v-for="(item, dIndex) in descriptionTagList"
+                v-if="descriptionTagList.length && dIndex > 0"
+                :key="item.subKnowledgeId"
+                @dblclick="handleActiveDescription(item.subKnowledgeId)">
+                <div class="skt-description">
+                  <a-tooltip :mouseEnterDelay="1" class="description-txt" >
+                    <template slot="title">
+                      {{ item.tagList[0].description }}
+                    </template>
+                    {{ item.tagList[0].description }}
+                  </a-tooltip>
+                </div>
+                <div class="skt-description-tag-list" :droppable="activeSubKnowledgeId === item.subKnowledgeId ? 'true' : 'false'" @dragover.prevent @drop="handleTagItemDrop(item.subKnowledgeId, $event)">
+                  <div class="tag-list-item" v-for="(tag,tIndex) in item.tagList" :key="tIndex + tag.name + tag.type">
+                    <a-tag
+                      color="green"
+                      class="tag-item"
+                      v-if="tag.type === tagOriginType.Origin"
+                      :closable="tag.subKnowledgeId === activeSubKnowledgeId"
+                      @close="handleDescriptionTagClose(tag)">
+                      {{ tag.name }}
+                    </a-tag>
+                    <a-tag
+                      class="tag-item"
+                      v-if="tag.type === tagOriginType.Search"
+                      :closable="tag.subKnowledgeId === activeSubKnowledgeId"
+                      @close="handleDescriptionTagClose(tag)">
+                      {{ tag.name }}
+                    </a-tag>
+                    <a-tag
+                      class="tag-item"
+                      v-if="tag.type === tagOriginType.Description"
+                      :closable="tag.subKnowledgeId === activeSubKnowledgeId"
+                      @close="handleDescriptionTagClose(tag)">
+                      {{ tag.name }}
+                    </a-tag>
+                  </div>
+                </div>
+                <a-popconfirm title="Delete?" ok-text="Yes" @confirm="handleDeleteKnowledgeItem(item.subKnowledgeId)" cancel-text="No">
+                  <span class="delete-action" v-show="item.subKnowledgeId === activeSubKnowledgeId" >
+                    <a-icon type="delete" />
+                  </span>
+                </a-popconfirm>
+              </div>
             </div>
           </div>
         </a-col>
@@ -131,14 +195,17 @@
         </a-checkbox-group>
         <div class="empty-search-list" v-if="!tagNameSearchList.length">
           <a-empty />
-          <span class="create-description" @click="handleCreateDescription"><a>Create A Description now</a></span>
+          <div class="open-curriculum">
+            click 【
+            <a class="open-curriculum-text">Open Curriculum</a>】 to select description
+          </div>
         </div>
       </div>
     </a-modal>
 
-    <a-modal v-model="associateLibraryVisible" @ok="handleEnsureAssociate" destroyOnClose width="90%" :dialog-style="{ top: '20px' }">
+    <a-modal v-model="associateLibraryVisible" @ok="handleEnsureAssociate" destroyOnClose width="80%" :dialog-style="{ top: '20px' }">
       <div class="associate-library">
-        <new-browser />
+        <new-browser :select-mode="selectModel.knowledgeDescription" />
       </div>
     </a-modal>
   </div>
@@ -148,7 +215,8 @@
 import * as logger from '@/utils/logger'
 import { KnowledgeSearch, KnowledgeQueryTagsByKnowledgeId, KnowledgeAddOrUpdateTag } from '@/api/knowledge'
 import NewBrowser from '@/components/NewLibrary/NewBrowser'
-const { debounce } = require('lodash-es')
+import { SelectModel } from '@/components/NewLibrary/SelectModel'
+const { debounce, sortBy } = require('lodash-es')
 
 const TagOriginType = {
   Origin: 'Origin',
@@ -181,58 +249,69 @@ export default {
       inputTag: '',
       searchList: [],
       tagList: [],
-      tagColorList: [
-        'pink',
-        'orange',
-        'green',
-        'cyan',
-        'blue',
-        'red',
-        'purple'
-      ],
       tagOriginType: TagOriginType,
-      descriptionTagMap: {},
-      subKnowledgeId2InfoMap: {}, // subKnowledgeId 对应的父级信息标签
+      selectModel: SelectModel,
+      descriptionTagList: [],
+      subKnowledgeId2InfoMap: new Map(), // subKnowledgeId 对应的父级信息标签
 
       activeSubKnowledgeId: null,
       tagNameSearchListDialogueVisible: false,
       tagNameSearchList: [],
       tagNameSearchListSelected: [],
 
-      associateLibraryVisible: false
+      associateLibraryVisible: false,
+      createTagName: ''
     }
   },
   created () {
     this.debouncedSearchKnowledge = debounce(this.searchKnowledge, 500)
+    const descriptionTagMap = new Map()
+    const tagNameSet = new Set()
     this.selectedKnowledgeTags.forEach(item => {
-      this.tagList.push({
-        ...item,
-        type: TagOriginType.Origin
-      })
-
-      // descriptionTagMap
-      if (!this.descriptionTagMap.hasOwnProperty(item.subKnowledgeId)) {
-        this.$set(this.descriptionTagMap, item.subKnowledgeId, [])
-        this.subKnowledgeId2InfoMap[item.subKnowledgeId] = {
-          ...item
-        }
-      }
-
-      if (item.curriculumId === this.$store.getters.bindCurriculum) {
-        this.$logger.info('current bindCurriculum  match curriculumId, add ' + item.subKnowledgeId + ' to descriptionTagMap', item, this.descriptionTagMap[item.subKnowledgeId])
-        const list = this.descriptionTagMap[item.subKnowledgeId]
-        list.push({
+      // 逐条去重添加tag
+      if (!tagNameSet.has(item.name)) {
+        this.tagList.push({
           ...item,
           type: TagOriginType.Origin
         })
-        this.$set(this.descriptionTagMap, item.subKnowledgeId, list)
+      } else {
+        this.$logger.info('tag name ' + item.name + ' exist', item, tagNameSet)
+      }
+
+      // descriptionTagMap按照subKnowledgeId初始化对应的tagList
+      if (!!item.subKnowledgeId && item.curriculumId === this.$store.getters.bindCurriculum && !descriptionTagMap.has(item.subKnowledgeId)) {
+        descriptionTagMap.set(item.subKnowledgeId, [])
+        this.subKnowledgeId2InfoMap.set(item.subKnowledgeId, {
+          ...item
+        })
+      }
+
+      // descriptionTagMap筛选相同大纲的大纲描述和tag
+      if (item.curriculumId === this.$store.getters.bindCurriculum) {
+        this.$logger.info('current bindCurriculum  match curriculumId, add ' + item.subKnowledgeId + ' to descriptionTagMap', item, descriptionTagMap[item.subKnowledgeId])
+        const tagList = descriptionTagMap.get(item.subKnowledgeId)
+        tagList.push({
+          ...item,
+          type: TagOriginType.Origin
+        })
+        descriptionTagMap.set(item.subKnowledgeId, tagList)
       } else {
         this.$logger.info('skip! current bindCurriculum not match curriculumId', item, this.$store.getters.bindCurriculum)
       }
     })
 
+    // trans descriptionTagMap to list
+    for (const [subKnowledgeId, tagList] of descriptionTagMap) {
+      this.descriptionTagList.push(Object.assign({}, {
+        subKnowledgeId,
+        tagList,
+        _updateTimestamp: new Date().getTime()
+      }))
+      this.$logger.info('add ' + subKnowledgeId + ' tagList ', tagList)
+    }
+    this.descriptionTagList = sortBy(this.descriptionTagList, '_updateTimestamp', 'asc').reverse()
     this.$logger.info('after add tagList', this.tagList)
-    this.$logger.info('after add descriptionTagMap', this.descriptionTagMap)
+    this.$logger.info('after add descriptionTagList', this.descriptionTagList)
     this.$logger.info('after add subKnowledgeId2InfoMap', this.subKnowledgeId2InfoMap)
   },
   watch: {
@@ -258,6 +337,7 @@ export default {
     handleKeyup () {
       this.$logger.info('handleKeyup ', this.inputTag)
       this.debouncedSearchKnowledge(this.inputTag)
+      this.createTagName = this.inputTag
     },
     searchKnowledge (keyword) {
       logger.info('searchKnowledge', keyword)
@@ -274,21 +354,30 @@ export default {
 
     handleDescriptionTagClose (tag) {
       this.$logger.info('handleDescriptionTagClose ', tag)
-      let list = this.descriptionTagMap[tag.subKnowledgeId]
-      this.$logger.info('raw handleDescriptionTagClose ', list)
-      list = list.filter(item => item.name !== tag.name)
-      this.$set(this.descriptionTagMap, tag.subKnowledgeId, list)
+      const tagIndex = this.descriptionTagList.findIndex(item => item.subKnowledgeId === tag.subKnowledgeId)
+      const item = this.descriptionTagList[tagIndex]
+      this.$logger.info('raw handleDescriptionTagClose ', item)
+      item.tagList = item.tagList.filter(item => item.name !== tag.name)
+      this.descriptionTagList.splice(tagIndex, 1, item)
       this.$emit('remove-knowledge-tag', {
         questionIndex: this.questionIndex,
         ...tag
       })
-      this.$logger.info('after handleDescriptionTagClose ', this.descriptionTagMap[tag.subKnowledgeId])
+      this.$logger.info('after handleDescriptionTagClose ', this.descriptionTagList[tagIndex])
     },
 
     handleActiveDescription (subKnowledge) {
-      this.$logger.info('handleActiveDescription TagList' + subKnowledge, ' old tag list', this.tagList)
+      this.$logger.info('handleActiveDescription TagList' + subKnowledge, ' old tag list', this.tagList, this.descriptionTagList)
       this.activeSubKnowledgeId = subKnowledge
       this.$logger.info('activeSubKnowledgeId ' + this.activeSubKnowledgeId)
+      // 改变排序
+      const tagIndex = this.descriptionTagList.findIndex(item => item.subKnowledgeId === this.activeSubKnowledgeId)
+      const tagItem = this.descriptionTagList[tagIndex]
+      tagItem._updateTimestamp = new Date().getTime()
+      this.descriptionTagList.splice(tagIndex, 1, tagItem)
+      this.descriptionTagList = sortBy(this.descriptionTagList, '_updateTimestamp', 'asc').reverse()
+      this.$logger.info('update sort ', this.descriptionTagList)
+
       logger.info('dblclick desc searchKnowledge')
       KnowledgeQueryTagsByKnowledgeId({
         knowledgeId: this.activeSubKnowledgeId
@@ -316,15 +405,16 @@ export default {
     },
 
     handleCreateTagByInput () {
-      this.$logger.info('handleCreateTagByInput ' + this.inputTag)
-      const existTag = this.tagList.find(item => item.name === this.inputTag)
+      this.$logger.info('handleCreateTagByInput ' + this.createTagName)
+      const existTag = this.tagList.find(item => item.name === this.createTagName)
       if (existTag) {
-        this.$message.warn('duplicate tag name')
+        this.$message.warn('already exist same name tag')
       } else {
         this.tagList.push({
-          name: this.inputTag,
+          name: this.createTagName,
           type: this.tagOriginType.Create
         })
+        this.createTagName = ''
       }
     },
 
@@ -341,16 +431,18 @@ export default {
     },
 
     handleDeleteKnowledgeItem (subKnowledgeId) {
-      this.$logger.info('handleDeleteKnowledgeItem ' + subKnowledgeId)
-      if (this.descriptionTagMap.hasOwnProperty(subKnowledgeId)) {
-        this.descriptionTagMap[subKnowledgeId].forEach(item => {
+      this.$logger.info('handleDeleteKnowledgeItem ' + subKnowledgeId, this.descriptionTagList)
+      const tagIndex = this.descriptionTagList.findIndex(item => item.subKnowledgeId === subKnowledgeId)
+      const item = this.descriptionTagList[tagIndex]
+      if (tagIndex !== -1) {
+        item.tagList.forEach(item => {
           this.$emit('remove-knowledge-tag', {
             questionIndex: this.questionIndex,
             ...item
           })
         })
-        this.$delete(this.descriptionTagMap, subKnowledgeId)
-        this.$logger.info('after delete ' + subKnowledgeId, this.descriptionTagMap)
+        this.descriptionTagList.splice(tagIndex, 1)
+        this.$logger.info('after delete ' + subKnowledgeId, this.descriptionTagList)
       } else {
         this.$logger.info('descriptionTagMap dont exist ' + subKnowledgeId)
       }
@@ -383,16 +475,22 @@ export default {
       this.$logger.info('ensureKnowledgeTagList', ensureKnowledgeTagList)
 
       ensureKnowledgeTagList.forEach(item => {
-        if (!this.descriptionTagMap.hasOwnProperty(item.subKnowledgeId)) {
-          this.$set(this.descriptionTagMap, item.subKnowledgeId, [])
-          this.subKnowledgeId2InfoMap[item.subKnowledgeId] = {
+        let tagIndex = this.descriptionTagList.findIndex(tItem => tItem.subKnowledgeId === item.subKnowledgeId)
+        if (tagIndex === -1) {
+          this.descriptionTagList.push({
+            subKnowledgeId: item.subKnowledgeId,
+            tagList: [],
+            _updateTimestamp: new Date().getTime()
+          })
+          this.subKnowledgeId2InfoMap.set(item.subKnowledgeId, {
             ...item
-          }
+          })
         }
 
-        const list = this.descriptionTagMap[item.subKnowledgeId]
-        if (!list.find(eItem => eItem.id === item.id && eItem.name === item.name)) {
-          list.push({
+        tagIndex = this.descriptionTagList.findIndex(tItem => tItem.subKnowledgeId === item.subKnowledgeId)
+        const tagItem = this.descriptionTagList[tagIndex]
+        if (!tagItem.tagList.find(eItem => eItem.name === item.name)) {
+          tagItem.tagList.push({
             ...item,
             type: TagOriginType.Origin
           })
@@ -400,7 +498,7 @@ export default {
             questionIndex: this.questionIndex,
             ...item
           })
-          this.$set(this.descriptionTagMap, item.subKnowledgeId, list)
+          this.descriptionTagList.splice(tagIndex, 1, tagItem)
         } else {
           this.$logger.info('skip! exist ' + item.name + ' ' + item.id)
         }
@@ -432,80 +530,82 @@ export default {
     },
 
     handleTagItemDrop (subKnowledgeId, event) {
-      this.$logger.info('handleTagItemDrop ' + subKnowledgeId, event)
-      let tag = event.dataTransfer.getData('tag')
-      this.$logger.info('drag tag ', tag)
-      tag = JSON.parse(tag)
+      if (this.activeSubKnowledgeId === subKnowledgeId) {
+        this.$logger.info('handleTagItemDrop ' + subKnowledgeId, event)
+        let tag = event.dataTransfer.getData('tag')
+        this.$logger.info('drag tag ', tag)
+        tag = JSON.parse(tag)
 
-      if (!this.descriptionTagMap.hasOwnProperty(subKnowledgeId)) {
-        this.$set(this.descriptionTagMap, subKnowledgeId, [])
-      }
-
-      const list = this.descriptionTagMap[subKnowledgeId]
-      if (!list.find(eItem => eItem.name === tag.name)) {
-        this.$logger.info('add tag', tag)
-        list.push({
-          ...tag,
-          type: TagOriginType.Origin
-        })
-        this.$set(this.descriptionTagMap, subKnowledgeId, list)
-
-        // 检查是否已存在相同name的tag没有则创建
-        let existSameNameTag = false
-        let replaceTag = null
-        KnowledgeQueryTagsByKnowledgeId({
-          knowledgeId: subKnowledgeId
-        }).then((response) => {
-          this.$logger.info('KnowledgeQueryTagsByKnowledgeId response check', response.result)
-          const descriptionList = response.result
-          descriptionList.forEach(item => {
-            if (item.name === tag.name) {
-              existSameNameTag = true
-              replaceTag = item
-            }
+        const tagIndex = this.descriptionTagList.findIndex(tItem => tItem.subKnowledgeId === subKnowledgeId)
+        const tagItem = this.descriptionTagList[tagIndex]
+        if (!tagItem.tagList.find(eItem => eItem.name === tag.name)) {
+          this.$logger.info('add tag', tag)
+          tagItem.tagList.push({
+            ...tag,
+            type: TagOriginType.Origin
           })
-        }).finally(() => {
-          if (!existSameNameTag) {
-            KnowledgeAddOrUpdateTag({
-              subKnowledgeId: tag.subKnowledgeId,
-              name: tag.name,
-              description: tag.description
-            }).then((response) => {
-              this.$logger.info('KnowledgeAddOrUpdate response', response)
+          this.descriptionTagList.splice(tagIndex, 1, tagItem)
 
-              if (response.success) {
-                KnowledgeQueryTagsByKnowledgeId({
-                  knowledgeId: tag.subKnowledgeId
-                }).then((response) => {
-                  this.$logger.info('KnowledgeQueryTagsByKnowledgeId sub response check', response.result)
-                  const descriptionList = response.result
-                  descriptionList.forEach(item => {
-                    if (item.name === tag.name) {
-                      existSameNameTag = true
-                      replaceTag = item
-                      this.replaceTempTag(replaceTag)
-                    }
-                  })
-                })
-              } else {
-                this.$logger.error('KnowledgeAddOrUpdate', response)
+          // 检查是否已存在相同name的tag没有则创建
+          let existSameNameTag = false
+          let replaceTag = null
+          KnowledgeQueryTagsByKnowledgeId({
+            knowledgeId: subKnowledgeId
+          }).then((response) => {
+            this.$logger.info('KnowledgeQueryTagsByKnowledgeId response check', response.result)
+            const descriptionList = response.result
+            descriptionList.forEach(item => {
+              if (item.name === tag.name) {
+                existSameNameTag = true
+                replaceTag = item
               }
             })
-          } else {
-            this.replaceTempTag(replaceTag)
-          }
-        })
+          }).finally(() => {
+            if (!existSameNameTag) {
+              KnowledgeAddOrUpdateTag({
+                subKnowledgeId: tag.subKnowledgeId,
+                name: tag.name,
+                description: tag.description
+              }).then((response) => {
+                this.$logger.info('KnowledgeAddOrUpdate response', response)
+
+                if (response.success) {
+                  KnowledgeQueryTagsByKnowledgeId({
+                    knowledgeId: tag.subKnowledgeId
+                  }).then((response) => {
+                    this.$logger.info('KnowledgeQueryTagsByKnowledgeId sub response check', response.result)
+                    const descriptionList = response.result
+                    descriptionList.forEach(item => {
+                      if (item.name === tag.name) {
+                        existSameNameTag = true
+                        replaceTag = item
+                        this.replaceTempTag(replaceTag)
+                      }
+                    })
+                  })
+                } else {
+                  this.$logger.error('KnowledgeAddOrUpdate', response)
+                }
+              })
+            } else {
+              this.replaceTempTag(replaceTag)
+            }
+          })
+        } else {
+          this.$logger.info('skip! exist ' + tag.name + ' ' + tag.id)
+        }
       } else {
-        this.$logger.info('skip! exist ' + tag.name + ' ' + tag.id)
+        this.$logger.info('not in edit mode', subKnowledgeId, this.activeSubKnowledgeId)
       }
     },
 
     replaceTempTag (tag) {
       this.$logger.info('replace tag', tag)
-      let list = this.descriptionTagMap[tag.subKnowledgeId || tag.id]
-      this.$logger.info('replace tag target list', list)
-      list = list.filter(item => item.name !== tag.name)
-      list.push({
+      const tagIndex = this.descriptionTagList.findIndex(tItem => tItem.subKnowledgeId === (tag.subKnowledgeId || tag.id))
+      const tagItem = this.descriptionTagList[tagIndex]
+      this.$logger.info('replace tag target list', tagItem.tagList)
+      tagItem.tagList = tagItem.tagList.filter(item => item.name !== tag.name)
+      tagItem.tagList.push({
         ...tag,
         type: TagOriginType.Origin
       })
@@ -513,7 +613,7 @@ export default {
         questionIndex: this.questionIndex,
         ...tag
       })
-      this.$set(this.descriptionTagMap, tag.subKnowledgeId, list)
+      this.descriptionTagList.splice(tagIndex, 1, tagItem)
     }
   }
 }
@@ -525,6 +625,10 @@ export default {
 .knowledge-skill-tag-selector {
   user-select: none;
   .skt-search-wrapper {
+    .input-search-item {
+      margin-bottom: 0;
+    }
+
     .knowledge-tag-search-input {
       position: relative;
       margin: 0;
@@ -541,7 +645,7 @@ export default {
         color: @text-color;
         cursor: pointer;
         transition: all 0.3s;
-        padding: 0 100px 0 @input-padding-horizontal-base;
+        padding: 0 @input-padding-horizontal-base;
         border: @border-width-base solid #d9d9d9;
         outline: 0;
 
@@ -550,23 +654,13 @@ export default {
           border-right-width: @border-width-base !important;
         }
       }
-
-      .create-btn {
-        position: absolute;
-        right: 0;
-        top: 7px;
-        cursor: pointer;
-        background-color: @primary-color;
-        color: #fff;
-        font-weight: 600;
-      }
     }
   }
 
   .skt-tag-wrapper {
     margin-top: -15px;
     .skt-tag-list {
-      padding: 10px;
+      padding: 5px 10px;
       border: 1px dashed #ccc;
       background-color: #fafafa;
       display: flex;
@@ -590,15 +684,73 @@ export default {
           padding-bottom: 3px;
         }
       }
+
+      .skt-tag-create-line {
+        width: 100%;
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: flex-start;
+        padding: 5px 0;
+
+        .create-tag-label {
+          font-size: 14px;
+          padding-right: 10px;
+          color: @text-color-secondary;
+        }
+
+        .create-tag {
+          display: flex;
+          flex-direction: row;
+          align-items: center;
+          .tag-item {
+            border-radius: 10px;
+            word-break:normal;
+            width:auto;
+            display:inline;
+            white-space:pre-wrap;
+            word-wrap : break-word ;
+            overflow: hidden ;
+            padding-bottom: 3px;
+          }
+
+          i {
+            font-size: 18px;
+            color: @text-color-secondary;
+          }
+        }
+      }
+    }
+  }
+
+  .open-curriculum {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-end;
+    align-items: center;
+    margin-top: 5px;
+    padding: 5px 0;
+    color: @primary-color;
+    font-size: 12px;
+    font-weight: bold;
+
+    .open-curriculum-text {
+      padding-left: 5px;
+      font-size: 12px;
+      text-decoration: underline;
     }
   }
 
   .skt-description-list-wrapper {
-    margin-top: 10px;
     .skt-description-list {
       display: flex;
       flex-direction: column;
       justify-content: flex-start;
+      .skt-description-sub-list {
+        max-height: 250px;
+        overflow-y: scroll;
+        border: 1px solid #f9f9f9;
+      }
       .skt-description-tag-item {
         border: 1px solid #fff;
         display: flex;
@@ -687,10 +839,21 @@ export default {
 .empty-search-list {
   margin-top: 80px;
   text-align: center;
-  .create-description {
-    display: block;
-    margin-top: 20px;
-    text-decoration: underline;
+  .open-curriculum {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    margin-top: 5px;
+    padding: 5px 0;
+    font-size: 12px;
+
+    .open-curriculum-text {
+      color: @primary-color;
+      padding-left: 5px;
+      font-size: 12px;
+      text-decoration: underline;
+    }
   }
 }
 

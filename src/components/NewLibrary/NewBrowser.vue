@@ -5,7 +5,7 @@
     </div>
     <div class="main">
       <div class="tree-navigation">
-        <new-tree-navigation />
+        <new-tree-navigation :select-mode="selectMode" />
       </div>
       <div class="content-list">
         <new-content-list />
@@ -27,6 +27,12 @@ export default {
     NewContentList,
     NewTreeNavigation
   },
+  props: {
+    selectMode: {
+      type: String,
+      default: null
+    }
+  },
   data () {
     return {
     }
@@ -34,6 +40,7 @@ export default {
   computed: {
   },
   created () {
+    this.$logger.info('NewBrowser selectMode', this.selectMode)
   },
   mounted () {
   },

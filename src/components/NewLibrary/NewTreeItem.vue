@@ -26,6 +26,7 @@
         :grade-list="gradeList"
         :tree-current-parent="subTreeParent"
         :tree-item-data="treeItem"
+        :select-mode="selectMode"
         :tree-item-type="treeItemType"
         :default-deep="(defaultDeep + 1)"
         :default-expand-status="treeItem.expandStatus"
@@ -39,6 +40,8 @@
 <script>
 
 import { LibraryEventBus } from '@/components/NewLibrary/LibraryEventBus'
+
+const { SelectModel } = require('@/components/NewLibrary/SelectModel')
 
 const { LibraryEvent } = require('@/components/NewLibrary/LibraryEventBus')
 const { KnowledgeQueryContentByDescriptionId } = require('@/api/knowledge')
@@ -84,6 +87,10 @@ export default {
     defaultPaddingLeft: {
       type: Number,
       default: 25
+    },
+    selectMode: {
+      type: String,
+      default: null
     }
   },
   components: {
@@ -105,6 +112,7 @@ export default {
     }
   },
   created () {
+    this.$logger.info('NewTreeItem selectMode', this.selectMode)
     this.expand = this.expandStatus
     if (this.treeItemData && this.treeItemData.children) {
       this.hasSubTree = true
@@ -281,20 +289,25 @@ export default {
           }
         }
 
-        // 加载知识点关联数据
-        if (this.defaultDeep === 5) {
-          this.subTreeLoading = true
-          KnowledgeQueryContentByDescriptionId({ descriptionId: this.treeItemData.id }).then(response => {
-            this.$logger.info('KnowledgeQueryContentByDescriptionId response', response.result)
-            LibraryEventBus.$emit(LibraryEvent.ContentListUpdate, {
-              currentTreeData: this.treeItemData,
-              parentTreeData: this.treeCurrentParent,
-              contentList: response.result
+        this.$logger.info('selectMode', this.selectMode)
+        if (this.selectMode !== SelectModel.knowledgeDescription) {
+          // 加载知识点关联数据
+          if (this.defaultDeep === 5) {
+            this.subTreeLoading = true
+            KnowledgeQueryContentByDescriptionId({ descriptionId: this.treeItemData.id }).then(response => {
+              this.$logger.info('KnowledgeQueryContentByDescriptionId response', response.result)
+              LibraryEventBus.$emit(LibraryEvent.ContentListUpdate, {
+                currentTreeData: this.treeItemData,
+                parentTreeData: this.treeCurrentParent,
+                contentList: response.result
+              })
+            }).finally(() => {
+              this.subTreeLoading = false
+              this.subTreeExpandStatus = true
             })
-          }).finally(() => {
-            this.subTreeLoading = false
-            this.subTreeExpandStatus = true
-          })
+          }
+        } else {
+          this.$logger.info('select knowledge description treeItemData', this.treeItemData)
         }
       }
     },

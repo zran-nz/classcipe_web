@@ -5,6 +5,7 @@
       :tree-item-data="treeItemData"
       :tree-current-parent="null"
       :default-deep="0"
+      :select-mode="selectMode"
       :default-expand-status="treeItemData.expandStatus"
       :tree-item-type="treeItemData.type"
       :odd="index % 2 === 1"
@@ -25,6 +26,12 @@ export default {
   components: {
     NewTreeItem
   },
+  props: {
+    selectMode: {
+      type: String,
+      default: null
+    }
+  },
   data () {
     return {
       loaded: false,
@@ -36,6 +43,7 @@ export default {
     }
   },
   created () {
+    this.$logger.info('NewTreeNavigation selectMode', this.selectMode)
     const curriculumData = {
       id: '1',
       expandStatus: true,
