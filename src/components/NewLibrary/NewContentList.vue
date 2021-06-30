@@ -86,7 +86,9 @@ export default {
       previewType: '',
       blockIndex: 0,
       typeMap: typeMap,
-      firstLoad: true
+      firstLoad: true,
+
+      selectedIdList: []
     }
   },
   computed: {
@@ -95,6 +97,7 @@ export default {
   },
   mounted () {
     LibraryEventBus.$on(LibraryEvent.ContentListUpdate, this.handleContentListUpdate)
+    LibraryEventBus.$on(LibraryEvent.ContentListSelectedListUpdate, this.handleContentSelectedListUpdate)
     this.nameWidth = document.getElementById('new-library').getBoundingClientRect().width - 400
     this.$logger.info('nameWidth ' + this.nameWidth)
   },
@@ -104,6 +107,11 @@ export default {
       this.contentDataList = data.contentList
       this.parent = data.currentTreeData
       this.firstLoad = false
+    },
+
+    handleContentSelectedListUpdate (data) {
+      this.$logger.info('handleContentSelectedListUpdate ', data)
+      this.selectedIdList = data.selectedIdList
     },
     handleContentListItemClick (item) {
       this.$logger.info('handleContentListItemClick ', item)
@@ -133,6 +141,8 @@ export default {
   destroyed () {
     LibraryEventBus.$off(LibraryEvent.ContentListUpdate, this.handleContentListUpdate)
     this.$logger.info('off NewContentList ContentListUpdate handler')
+    LibraryEventBus.$off(LibraryEvent.ContentListSelectedListUpdate, this.handleContentSelectedListUpdate)
+    this.$logger.info('off NewContentList ContentListSelectedListUpdate handler')
   }
 }
 </script>

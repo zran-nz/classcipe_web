@@ -27,6 +27,7 @@
         :tree-current-parent="subTreeParent"
         :tree-item-data="treeItem"
         :select-mode="selectMode"
+        :question-index="questionIndex"
         :tree-item-type="treeItemType"
         :default-deep="(defaultDeep + 1)"
         :default-expand-status="treeItem.expandStatus"
@@ -91,6 +92,10 @@ export default {
     selectMode: {
       type: String,
       default: null
+    },
+    questionIndex: {
+      type: String,
+      default: null
     }
   },
   components: {
@@ -112,7 +117,6 @@ export default {
     }
   },
   created () {
-    this.$logger.info('NewTreeItem selectMode', this.selectMode)
     this.expand = this.expandStatus
     if (this.treeItemData && this.treeItemData.children) {
       this.hasSubTree = true
@@ -151,7 +155,8 @@ export default {
           deep: this.defaultDeep,
           currentTreeData: this.treeItemData,
           parentTreeData: this.treeCurrentParent,
-          contentList: treeItemData.children
+          contentList: treeItemData.children,
+          questionIndex: this.questionIndex
         })
       }
 
@@ -170,7 +175,8 @@ export default {
               deep: this.defaultDeep,
               currentTreeData: this.treeItemData,
               parentTreeData: this.treeCurrentParent,
-              contentList: treeItemData.children
+              contentList: treeItemData.children,
+              questionIndex: this.questionIndex
             })
           }).finally(() => {
             this.subTreeLoading = false
@@ -181,7 +187,8 @@ export default {
             deep: this.defaultDeep,
             currentTreeData: this.treeItemData,
             parentTreeData: this.treeCurrentParent,
-            contentList: treeItemData.children
+            contentList: treeItemData.children,
+            questionIndex: this.questionIndex
           })
           this.subTreeLoading = false
           this.subTreeExpandStatus = true
@@ -198,7 +205,8 @@ export default {
           deep: this.defaultDeep,
           currentTreeData: this.treeItemData,
           parentTreeData: this.treeCurrentParent,
-          contentList: treeItemData.children
+          contentList: treeItemData.children,
+          questionIndex: this.questionIndex
         })
         this.subTreeLoading = false
         this.subTreeExpandStatus = true
@@ -213,7 +221,8 @@ export default {
           LibraryEventBus.$emit(LibraryEvent.ContentListUpdate, {
             currentTreeData: this.treeItemData,
             parentTreeData: this.treeCurrentParent,
-            contentList: response.result
+            contentList: response.result,
+            questionIndex: this.questionIndex
           })
         }).finally(() => {
           this.subTreeLoading = false
@@ -231,7 +240,8 @@ export default {
           deep: this.defaultDeep,
           currentTreeData: this.treeItemData,
           parentTreeData: this.treeCurrentParent,
-          contentList: treeItemData.children
+          contentList: treeItemData.children,
+          questionIndex: this.questionIndex
         })
       } else {
         // 选择大纲判断是否已经有年级列表了
@@ -246,7 +256,8 @@ export default {
             deep: this.defaultDeep,
             currentTreeData: this.treeItemData,
             parentTreeData: this.treeCurrentParent,
-            contentList: treeItemData.children
+            contentList: treeItemData.children,
+            questionIndex: this.questionIndex
           })
           this.subTreeLoading = false
           this.subTreeExpandStatus = true
@@ -270,7 +281,8 @@ export default {
                 deep: this.defaultDeep,
                 currentTreeData: this.treeItemData,
                 parentTreeData: this.treeCurrentParent,
-                contentList: treeItemData.children
+                contentList: treeItemData.children,
+                questionIndex: this.questionIndex
               })
               this.$logger.info('mainKnowledgeList', treeItemData.children)
             }).finally(() => {
@@ -282,43 +294,61 @@ export default {
               deep: this.defaultDeep,
               currentTreeData: this.treeItemData,
               parentTreeData: this.treeCurrentParent,
-              contentList: treeItemData.children
+              contentList: treeItemData.children,
+              questionIndex: this.questionIndex
             })
             this.subTreeLoading = false
             this.subTreeExpandStatus = true
           }
         }
 
-        this.$logger.info('selectMode', this.selectMode)
-        if (this.selectMode !== SelectModel.knowledgeDescription) {
-          // 加载知识点关联数据
-          if (this.defaultDeep === 5) {
+        // 加载知识点关联数据
+        if (this.defaultDeep === 5) {
+          this.$logger.info('selectMode', this.selectMode)
+
+          if (this.selectMode !== SelectModel.knowledgeDescription) {
             this.subTreeLoading = true
             KnowledgeQueryContentByDescriptionId({ descriptionId: this.treeItemData.id }).then(response => {
               this.$logger.info('KnowledgeQueryContentByDescriptionId response', response.result)
               LibraryEventBus.$emit(LibraryEvent.ContentListUpdate, {
                 currentTreeData: this.treeItemData,
                 parentTreeData: this.treeCurrentParent,
-                contentList: response.result
+                contentList: response.result,
+                questionIndex: this.questionIndex
               })
             }).finally(() => {
               this.subTreeLoading = false
               this.subTreeExpandStatus = true
             })
+          } else {
+            this.$logger.info('select knowledge description treeItemData', this.treeItemData, this.treeCurrentParent)
+            const subKnowledgeObj = this.treeItemData
+            const mainKnowledgeObj = this.treeCurrentParent
+            const mainSubjectObj = this.treeCurrentParent.parent.parent.parent
+            const subSubjectObj = this.treeCurrentParent.parent.parent
+            this.$logger.info('mainSubjectObj', mainSubjectObj, 'subSubjectObj', subSubjectObj, 'mainKnowledgeObj', mainKnowledgeObj, 'subKnowledgeObj', subKnowledgeObj)
+            LibraryEventBus.$emit(LibraryEvent.ContentListSelectClick, {
+              curriculumId: this.$store.getters.bindCurriculum,
+              description: this.treeItemData.name,
+              gradeId: this.treeItemData.gradeId,
+              mainKnowledgeId: mainKnowledgeObj.id,
+              mainSubjectId: mainSubjectObj.id,
+              mainSubjectName: mainSubjectObj.name,
+              subKnowledgeId: subKnowledgeObj.id,
+              subSubjectId: subSubjectObj.id,
+              subSubjectName: subSubjectObj.name
+            })
           }
-        } else {
-          this.$logger.info('select knowledge description treeItemData', this.treeItemData)
         }
       }
     },
 
     handleContentListItemClick (data) {
-      this.$logger.info('handleContentListItemClick ', data, this.treeCurrentParent)
       if (
         data.item.id === this.treeItemData.id &&
         data.item.name === this.treeItemData.name &&
         (!data.parent || this.treeCurrentParent && this.treeCurrentParent.name === data.parent.name)) {
-        this.$logger.info('handleContentListItemClick start ', data, this.treeItemData)
+        this.$logger.info('handleContentListItemClick start ', data, this.treeItemData, this.treeCurrentParent)
         this.handleExpandTreeItem(this.treeItemData)
       }
     }

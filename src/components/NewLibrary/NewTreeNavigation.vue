@@ -6,6 +6,7 @@
       :tree-current-parent="null"
       :default-deep="0"
       :select-mode="selectMode"
+      :question-index="questionIndex"
       :default-expand-status="treeItemData.expandStatus"
       :tree-item-type="treeItemData.type"
       :odd="index % 2 === 1"
@@ -28,6 +29,10 @@ export default {
   },
   props: {
     selectMode: {
+      type: String,
+      default: null
+    },
+    questionIndex: {
       type: String,
       default: null
     }

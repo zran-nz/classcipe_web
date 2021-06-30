@@ -3,5 +3,7 @@ export const LibraryEventBus = new Vue()
 
 export const LibraryEvent = {
   ContentListUpdate: 'ContentListUpdate',
-  ContentListItemClick: 'ContentListItemClick'
+  ContentListItemClick: 'ContentListItemClick',
+  ContentListSelectClick: 'ContentListSelectClick',
+  ContentListSelectedListUpdate: 'ContentListSelectedListUpdate'
 }

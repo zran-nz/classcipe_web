@@ -5,7 +5,7 @@
     </div>
     <div class="main">
       <div class="tree-navigation">
-        <new-tree-navigation :select-mode="selectMode" />
+        <new-tree-navigation :select-mode="selectMode" :question-index="questionIndex" />
       </div>
       <div class="content-list">
         <new-content-list />
@@ -29,6 +29,10 @@ export default {
   },
   props: {
     selectMode: {
+      type: String,
+      default: null
+    },
+    questionIndex: {
       type: String,
       default: null
     }
