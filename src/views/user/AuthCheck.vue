@@ -19,7 +19,7 @@ export default {
       this.$router.push({ path: redirect })
     }).catch(err => {
       this.$logger.warn('AuthCheck token invalid, try login', err)
-      this.$store.dispatch('Logout').then(() => {
+      this.$store.dispatch('ClearAuth').then(() => {
         this.$router.push({ name: 'login', query: { redirect: this.$route.fullPath } })
       }).catch(err => {
         this.$logger.error('AuthCheck logout failed', err)

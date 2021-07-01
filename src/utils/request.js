@@ -49,7 +49,7 @@ request.interceptors.response.use((response) => {
     if (response.data.code === 510) {
       const token = storage.get(ACCESS_TOKEN)
       if (token) {
-        store.dispatch('Logout').then(() => {
+        store.dispatch('ClearAuth').then(() => {
           setTimeout(() => {
             window.location.reload()
           }, 1500)

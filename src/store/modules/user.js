@@ -164,6 +164,28 @@ const user = {
         }).finally(() => {
         })
       })
+    },
+
+    // CLear Info
+    ClearAuth ({ commit, state }) {
+      return new Promise((resolve) => {
+        commit('SET_TOKEN', '')
+        commit('SET_ROLES', [])
+        commit('SET_NAME', '')
+        commit('SET_EMAIL', '')
+        commit('SET_BIND_CURRICULUM', '')
+        commit('SET_AVATAR', '')
+        commit('SET_INFO', {})
+        commit('SET_CURRENT_ROLE', '')
+        commit('SET_PERMISSIONS', [])
+        commit('SET_IS_ADD_PREFERENCE', false)
+        storage.remove(CURRENT_ROLE)
+        storage.remove(ACCESS_TOKEN)
+        storage.remove(IS_ADD_PREFERENCE)
+        storage.remove(USER_INFO)
+        window.sessionStorage.removeItem(SESSION_ACTIVE_KEY)
+        resolve()
+      })
     }
   }
 }

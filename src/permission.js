@@ -83,7 +83,7 @@ router.beforeEach((to, from, next) => {
                 description: 'Failed to get userinfo, Please try again!'
               })
               // 失败时，获取用户信息失败时，调用登出，来清空历史保留信息
-              store.dispatch('Logout').then(() => {
+              store.dispatch('ClearAuth').then(() => {
                 next({ path: loginRoutePath, query: { redirect: to.fullPath } })
               })
             })

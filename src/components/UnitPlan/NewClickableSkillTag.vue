@@ -289,6 +289,9 @@ export default {
         this.descriptionId2InfoMap.set(item.descriptionId, {
           ...item
         })
+        this.$logger.info('skill tag description match', item)
+      } else {
+        this.$logger.info('skill tag skip! current bindCurriculum not match curriculumId ' + item.curriculumId + ' ' + this.$store.getters.bindCurriculum)
       }
 
       // descriptionTagMap筛选相同大纲的大纲描述和tag
@@ -300,8 +303,9 @@ export default {
           type: TagOriginType.Origin
         })
         descriptionTagMap.set(item.descriptionId, tagList)
+        this.$logger.info('skill tag description match add tag', item)
       } else {
-        this.$logger.info('skill skip! current bindCurriculum not match curriculumId', item, this.$store.getters.bindCurriculum)
+        this.$logger.info('skill skip! current bindCurriculum not match curriculumId' + item.curriculumId, item, this.$store.getters.bindCurriculum)
       }
     })
 
