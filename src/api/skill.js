@@ -7,6 +7,7 @@ export const skillAPIUrl = {
   SkillAddOrUpdate: '/classcipe/api/skill/addOrUpdate',
   SkillQueryById: '/classcipe/api/skill/queryById',
   SkillDelete: '/classcipe/api/skill/delete',
+  SkillSearch: '/classcipe/api/skill/search',
   SkillDeleteBatch: '/classcipe/api/skill/deleteBatch',
   SkillList: '/classcipe/api/skill/list'
 }
@@ -122,6 +123,20 @@ export function SkillDeleteBatch (parameter) {
 export function SkillList (parameter) {
   return request({
     url: skillAPIUrl.SkillList,
+    method: 'get',
+    params: parameter
+  })
+}
+
+/**
+ * SkillSearch
+ * @param parameter
+ * @returns {AxiosPromise}
+ * @constructor
+ */
+export function SkillSearch (parameter) {
+  return request({
+    url: skillAPIUrl.SkillSearch,
     method: 'get',
     params: parameter
   })

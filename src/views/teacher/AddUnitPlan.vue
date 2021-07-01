@@ -259,16 +259,15 @@
                 />
 
                 <!--skill tag-select-->
-                <a-form-model-item :label="$t('teacher.add-unit-plan.skill-tags')">
-                  <skill-tag
-                    :question-index="questionIndex"
-                    :grade-list="gradeList"
-                    :default-grade-id="questionItem.skillGradeId"
-                    :selected-skill-tags="questionItem.skillTags"
-                    @remove-skill-tag="handleRemoveSkillTag"
-                    @add-skill-tag="handleAddSkillTag"
-                  />
-                </a-form-model-item>
+                <new-clickable-skill-tag
+                  :question-index="questionIndex"
+                  :grade-list="gradeList"
+                  :default-grade-id="questionItem.skillGradeId"
+                  :selected-skill-tags="questionItem.skillTags"
+                  @remove-knowledge-tag="handleRemoveSkillTag"
+                  @add-knowledge-tag="handleAddSkillTag"
+                />
+
               </div>
 
               <a-row>
@@ -315,6 +314,7 @@ import { GetMyGrades } from '@/api/teacher'
 import { SubjectTree } from '@/api/subject'
 import { formatSubjectTree } from '@/utils/bizUtil'
 import NewClickableKnowledgeTag from '@/components/UnitPlan/NewClickableKnowledgeTag'
+import NewClickableSkillTag from '@/components/UnitPlan/NewClickableSkillTag'
 import SkillTag from '@/components/UnitPlan/SkillTag'
 import { ChangeStatus, UnitPlanAddOrUpdate, UnitPlanQueryById } from '@/api/unitPlan'
 import { formatLocalUTC } from '@/utils/util'
@@ -327,6 +327,7 @@ export default {
     InputSearch,
     SdgTagInput,
     NewClickableKnowledgeTag,
+    NewClickableSkillTag,
     SkillTag
   },
   props: {
