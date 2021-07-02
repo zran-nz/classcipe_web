@@ -22,6 +22,7 @@
                 {{ $t('teacher.main.shared') }}
               </router-link>
             </div>
+            <a-divider />
             <div :class="{'nav-bar-item': true, 'selected-nav-bar' : selectedKey === '/teacher/main/discover'}">
               <router-link to="/teacher/main/discover">
                 <a-icon type="compass" :theme="selectedKey === '/teacher/main/discover' ? 'filled': 'outlined'" />
