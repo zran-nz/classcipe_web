@@ -264,8 +264,8 @@
                   :grade-list="gradeList"
                   :default-grade-id="questionItem.skillGradeId"
                   :selected-skill-tags="questionItem.skillTags"
-                  @remove-knowledge-tag="handleRemoveSkillTag"
-                  @add-knowledge-tag="handleAddSkillTag"
+                  @remove-skill-tag="handleRemoveSkillTag"
+                  @add-skill-tag="handleAddSkillTag"
                 />
 
               </div>
@@ -767,12 +767,8 @@ export default {
     handleAddSkillTag (data) {
       logger.info('Unit Plan handleAddSkillTag', data)
       logger.info('target question data', this.questionDataObj[data.questionIndex])
-      const newTag = {
-        description: data.description,
-        id: data.id,
-        name: data.name
-      }
-      this.questionDataObj[data.questionIndex].skillTags.push(newTag)
+      this.questionDataObj[data.questionIndex].skillTags.push(Object.assign({}, data))
+      this.$logger.info('after handleAddSkillTag questionDataObj ' + data.questionIndex, this.questionDataObj[data.questionIndex])
     },
 
     autoSave () {

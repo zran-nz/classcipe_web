@@ -39,6 +39,7 @@
                 <a-icon type="tag" /> {{ tag.name }}
               </a-tag>
               <a-tag
+                draggable="true"
                 @dragstart="handleTagItemDragStart(tag, $event)"
                 color="#2db7f5"
                 class="tag-item"
@@ -197,7 +198,7 @@
           <a-empty />
           <div class="open-curriculum">
             click 【
-            <a class="open-curriculum-text">Open Skill</a>】 to select description
+            <a class="open-curriculum-text">Select Skill</a>】 to select description
           </div>
         </div>
       </div>
@@ -387,7 +388,7 @@ export default {
       this.$logger.info('skill raw handleDescriptionTagClose ', item)
       item.tagList = item.tagList.filter(item => item.name !== tag.name)
       this.descriptionTagList.splice(tagIndex, 1, item)
-      this.$emit('remove-knowledge-tag', {
+      this.$emit('remove-skill-tag', {
         questionIndex: this.questionIndex,
         ...tag
       })
@@ -464,7 +465,7 @@ export default {
       const item = this.descriptionTagList[tagIndex]
       if (tagIndex !== -1) {
         item.tagList.forEach(item => {
-          this.$emit('remove-knowledge-tag', {
+          this.$emit('remove-skill-tag', {
             questionIndex: this.questionIndex,
             ...item
           })
