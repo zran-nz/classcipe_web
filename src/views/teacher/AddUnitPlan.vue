@@ -23,84 +23,21 @@
     <a-row class="unit-content" v-if="!contentLoading">
       <a-col span="3">
         <div class="unit-menu-list">
-          <div class="unit-menu-title">
-            {{ $t('teacher.add-unit-plan.unit-plan') }}
+          <div class="menu-category-item">
+            <div class="menu-category-item-label">
+              > Content it includes
+            </div>
+            <div class="menu-category-list"></div>
           </div>
-          <div class="already-add-to-list">
-            <div class="add-to-type">
-              <div class="add-to-type-label">
-                <content-type-icon :type="contentType.material"/>
-                {{ $t('teacher.add-unit-plan.material') }}
-                <template v-if="form.materials && form.materials.length">( {{ form.materials.length }} )</template>
-              </div>
-              <div class="add-to-list">
-                <span v-for="(material,index) in form.materials" :key="index" class="add-to-item">
-                  <router-link :to="'/teacher/unit-plan-material/' + unitPlanId + '/' + material.id">
-                    <a-icon type="link" />
-                    <span class="material-name">
-                      <a-tooltip placement="top">
-                        <template slot="title">
-                          {{ material.name }}
-                        </template>
-                        {{ material.name }}
-                      </a-tooltip>
-                    </span>
-                  </router-link>
-                  <a-popconfirm :title="$t('teacher.my-content.action-delete') + '?'" ok-text="Yes" @confirm="handleDeleteMaterial(material)" cancel-text="No">
-                    <a-icon type="delete" class="hover-delete" />
-                  </a-popconfirm>
-                </span>
+          <div class="menu-category-item">
+            <div class="menu-category-item-label" @click="leftAddExpandStatus = !leftAddExpandStatus">
+              + Editing content
+            </div>
+            <div class="menu-sub-add-action" v-show="leftAddExpandStatus">
+              <div class="action-item" @click="selectAddContentTypeVisible = true">
+                {{ $t('teacher.add-unit-plan.add-to-this-unit-plan') }}
               </div>
             </div>
-            <div class="add-to-type">
-              <div class="add-to-type-label">
-                <content-type-icon :type="contentType.assessment"/>
-                {{ $t('teacher.add-unit-plan.assessment') }}
-              </div>
-              <div class="add-to-list">
-                <!--                <span v-for="(material,index) in form.materials" :key="index" class="add-to-item">-->
-                <!--                  <router-link to="">-->
-                <!--                    <a-icon type="link" />-->
-                <!--                    {{ material.name }}-->
-                <!--                  </router-link>-->
-                <!--                </span>-->
-              </div>
-            </div>
-            <div class="add-to-type">
-              <div class="add-to-type-label">
-                <content-type-icon :type="contentType.lesson"/>
-                {{ $t('teacher.add-unit-plan.lesson') }}
-              </div>
-              <div class="add-to-list">
-                <!--                <span v-for="(material,index) in form.materials" :key="index" class="add-to-item">-->
-                <!--                  <router-link to="">-->
-                <!--                    <a-icon type="link" />-->
-                <!--                    {{ material.name }}-->
-                <!--                  </router-link>-->
-                <!--                </span>-->
-              </div>
-            </div>
-          </div>
-          <a-divider />
-          <div class="unit-add-to">
-            <a-dropdown>
-              <a-button type="primary" block>
-                <!--                <a-icon type="plus" />-->
-                {{ $t('teacher.add-unit-plan.add-to-this-unit-plan') }} </a-button>
-              <a-menu slot="overlay">
-                <a-menu-item>
-                  <a @click="handleAddUnitPlanMaterial">
-                    {{ $t('teacher.add-unit-plan.material') }}
-                  </a>
-                </a-menu-item>
-                <a-menu-item>
-                  {{ $t('teacher.add-unit-plan.assessment') }}
-                </a-menu-item>
-                <a-menu-item>
-                  {{ $t('teacher.add-unit-plan.lesson') }}
-                </a-menu-item>
-              </a-menu>
-            </a-dropdown>
           </div>
         </div>
       </a-col>
@@ -295,6 +232,40 @@
         </a-card>
       </a-col>
     </a-row>
+    <a-modal
+      v-model="selectAddContentTypeVisible"
+      :footer="null"
+      destroyOnClose
+      title="Select Content Type"
+      @ok="selectAddContentTypeVisible = false"
+      @cancel="selectAddContentTypeVisible = false">
+      <div class="add-content-wrapper">
+        <div class="add-content-item">
+          <a @click="handleAddUnitPlanTask">
+            <content-type-icon :type="contentType.task"/>
+            {{ $t('teacher.add-unit-plan.task') }}
+          </a>
+        </div>
+        <div class="add-content-item">
+          <a @click="handleAddUnitPlanMaterial">
+            <content-type-icon :type="contentType.material"/>
+            {{ $t('teacher.add-unit-plan.material') }}
+          </a>
+        </div>
+        <div class="add-content-item">
+          <a @click="handleAddUnitPlanLesson">
+            <content-type-icon :type="contentType.lesson"/>
+            {{ $t('teacher.add-unit-plan.lesson') }}
+          </a>
+        </div>
+        <div class="add-content-item">
+          <a @click="handleAddUnitPlanAssessment">
+            <content-type-icon :type="contentType.assessment"/>
+            {{ $t('teacher.add-unit-plan.assessment') }}
+          </a>
+        </div>
+      </div>
+    </a-modal>
     <a-skeleton :loading="contentLoading" active>
     </a-skeleton>
   </a-card>
@@ -339,6 +310,9 @@ export default {
       contentLoading: true,
       referenceLoading: false,
       contentType: typeMap,
+
+      leftAddExpandStatus: false,
+      selectAddContentTypeVisible: false,
 
       labelCol: { span: 4 },
       wrapperCol: { span: 18 },
@@ -884,6 +858,27 @@ export default {
       })
     },
 
+    handleAddUnitPlanTask () {
+      logger.info('handleAddUnitPlanTask ' + this.unitPlanId)
+      this.$router.push({
+        path: '/teacher/unit-plan-task-redirect/' + this.unitPlanId + '/create'
+      })
+    },
+
+    handleAddUnitPlanLesson () {
+      logger.info('handleAddUnitPlanLesson ' + this.unitPlanId)
+      this.$router.push({
+        path: '/teacher/unit-plan-lesson-redirect/' + this.unitPlanId + '/create'
+      })
+    },
+
+    handleAddUnitPlanAssessment () {
+      logger.info('handleAddUnitPlanAssessment ' + this.unitPlanId)
+      this.$router.push({
+        path: '/teacher/unit-plan-assessment-redirect/' + this.unitPlanId + '/create'
+      })
+    },
+
     handleDeleteMaterial (material) {
       MaterialDelete({
         id: material.id
@@ -941,16 +936,28 @@ export default {
 
 .unit-content {
   .unit-menu-list {
+    margin-top: 10px;
     padding: 0 24px 16px 0;
-    .unit-menu-title {
-      font-size: @font-size-lg;
-      line-height: 50px;
-      text-align: center;
-      cursor: pointer;
-      color: @primary-color;
-    }
-    .unit-add-to {
 
+    .menu-category-item {
+      user-select: none;
+      cursor: pointer;
+
+      .menu-category-item-label {
+        font-weight: 600;
+        padding: 10px 0;
+      }
+
+      .menu-sub-add-action {
+        padding-left: 15px;
+        cursor: pointer;
+
+        .action-item {
+          color: @primary-color;
+          padding: 5px 0;
+          text-decoration: underline;
+        }
+      }
     }
 
     .already-add-to-list {
@@ -1150,6 +1157,27 @@ export default {
 
   .long-form-item-label {
     padding: 10px;
+  }
+}
+
+.add-content-wrapper {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: center;
+  .add-content-item {
+    width: 40%;
+    margin-right: 10px;
+    margin-left: 10px;
+    margin-bottom: 20px;
+    padding: 20px;
+    border: 1px solid #eee;
+    cursor: pointer;
+
+    &:hover {
+      background-color: fade(@outline-color, 20%);
+      border: 1px solid @primary-color;
+    }
   }
 }
 </style>
