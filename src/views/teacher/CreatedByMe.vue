@@ -49,25 +49,6 @@
               </a-menu>
             </a-dropdown>
           </div>
-          <!--          <a-divider type="vertical" />-->
-          <!--          <div class="owner-filter">-->
-          <!--            <a-dropdown>-->
-          <!--              <a class="ant-dropdown-link" @click="e => e.preventDefault()">-->
-          <!--                {{ currentOwnerLabel }} <a-icon type="down" />-->
-          <!--              </a>-->
-          <!--              <a-menu slot="overlay">-->
-          <!--                <a-menu-item @click.native="toggleOwner('all-owner', $t('teacher.my-content.all-owner') )">-->
-          <!--                  <span>{{ $t('teacher.my-content.all-owner') }}</span>-->
-          <!--                </a-menu-item>-->
-          <!--                <a-menu-item @click="toggleOwner('owner-by-me', $t('teacher.my-content.owner-by-me') )">-->
-          <!--                  <span>{{ $t('teacher.my-content.owner-by-me') }}</span>-->
-          <!--                </a-menu-item>-->
-          <!--                <a-menu-item @click="toggleOwner('owner-by-others', $t('teacher.my-content.owner-by-others'))">-->
-          <!--                  <span>{{ $t('teacher.my-content.owner-by-others') }}</span>-->
-          <!--                </a-menu-item>-->
-          <!--              </a-menu>-->
-          <!--            </a-dropdown>-->
-          <!--          </div>-->
         </a-space>
       </div>
     </div>
