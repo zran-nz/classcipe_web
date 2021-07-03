@@ -27,7 +27,11 @@
             <div class="menu-category-item-label">
               > Content it includes
             </div>
-            <div class="menu-category-list"></div>
+            <div class="menu-category-list">
+              <div class="include-item" v-for="(material,index) in form.materials" :key="index" @click="handleViewMaterial(material)">
+                <content-type-icon :type="contentType.material"/> {{ material.name }}
+              </div>
+            </div>
           </div>
           <div class="menu-category-item">
             <div class="menu-category-item-label" @click="leftAddExpandStatus = !leftAddExpandStatus">
@@ -35,7 +39,10 @@
             </div>
             <div class="menu-sub-add-action" v-show="leftAddExpandStatus">
               <div class="action-item" @click="selectAddContentTypeVisible = true">
-                {{ $t('teacher.add-unit-plan.add-to-this-unit-plan') }}
+                <a-icon type="plus-circle" /> {{ $t('teacher.add-unit-plan.add-to-this-unit-plan') }}
+              </div>
+              <div class="action-item" @click="selectLinkContentVisible = true">
+                <a-icon type="link" /> {{ $t('teacher.add-unit-plan.link-content') }}
               </div>
             </div>
           </div>
@@ -266,6 +273,19 @@
         </div>
       </div>
     </a-modal>
+
+    <a-modal
+      v-model="selectLinkContentVisible"
+      :footer="null"
+      destroyOnClose
+      width="80%"
+      title="Link in my content"
+      @ok="selectLinkContentVisible = false"
+      @cancel="selectLinkContentVisible = false">
+      <div class="link-content-wrapper">
+        <my-content-selector />
+      </div>
+    </a-modal>
     <a-skeleton :loading="contentLoading" active>
     </a-skeleton>
   </a-card>
@@ -290,6 +310,7 @@ import SkillTag from '@/components/UnitPlan/SkillTag'
 import { ChangeStatus, UnitPlanAddOrUpdate, UnitPlanQueryById } from '@/api/unitPlan'
 import { formatLocalUTC } from '@/utils/util'
 import { MaterialDelete } from '@/api/material'
+import MyContentSelector from '@/components/MyContent/MyContentSelector'
 
 export default {
   name: 'AddUnitPlan',
@@ -299,7 +320,8 @@ export default {
     SdgTagInput,
     NewClickableKnowledgeTag,
     NewClickableSkillTag,
-    SkillTag
+    SkillTag,
+    MyContentSelector
   },
   props: {
     // eslint-disable-next-line vue/require-default-prop
@@ -313,6 +335,7 @@ export default {
 
       leftAddExpandStatus: false,
       selectAddContentTypeVisible: false,
+      selectLinkContentVisible: false,
 
       labelCol: { span: 4 },
       wrapperCol: { span: 18 },
@@ -902,6 +925,13 @@ export default {
       setTimeout(() => {
         this.$router.push({ path: '/teacher/main/created-by-me' })
       }, 500)
+    },
+
+    handleViewMaterial (material) {
+      this.$logger.info('handleViewMaterial ', material)
+      this.$router.push({
+        path: '/teacher/unit-plan-material/' + this.unitPlanId + '/' + material.id
+      })
     }
   }
 }
@@ -937,7 +967,7 @@ export default {
 .unit-content {
   .unit-menu-list {
     margin-top: 10px;
-    padding: 0 24px 16px 0;
+    padding: 0 0 16px 0;
 
     .menu-category-item {
       user-select: none;
@@ -948,8 +978,23 @@ export default {
         padding: 10px 0;
       }
 
+      .menu-category-list {
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start;
+
+        .include-item {
+          color: @primary-color;
+          padding: 5px 0;
+          max-width: 100%;
+          text-decoration: underline;
+          overflow: hidden;
+          white-space: nowrap;
+          text-overflow: ellipsis;
+        }
+      }
+
       .menu-sub-add-action {
-        padding-left: 15px;
         cursor: pointer;
 
         .action-item {
@@ -1180,4 +1225,9 @@ export default {
     }
   }
 }
+
+.link-content-wrapper {
+
+}
+
 </style>

@@ -5,13 +5,9 @@
 </template>
 
 <script>
-import { PageHeaderWrapper } from '@ant-design-vue/pro-layout'
 
 export default {
   name: 'Discover',
-  components: {
-    PageHeaderWrapper
-  },
   data () {
     return {
     }
