@@ -243,6 +243,9 @@ export default {
     align-items: center;
 
     .curriculum-select {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
       .select-curriculum-tips{
         color: #aaa;
         padding: 0 5px;

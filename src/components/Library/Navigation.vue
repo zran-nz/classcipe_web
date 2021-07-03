@@ -1,7 +1,13 @@
 <template>
   <div class="library-nav-content">
     <div class="nav-path">
-      <span class="nav-path-item" v-for="(item,index) in sortNavPath" :key="index" @click="changePath(item)" :data-item="item">
+      <span
+        class="nav-path-item"
+        v-for="(item,index) in sortNavPath"
+        :key="index"
+        @click="changePath(item)"
+        :data-item="item"
+        :style="{'max-width': maxWidth + 'px'}">
         /
         <a-tooltip :mouseEnterDelay="0.5" placement="top">
           <template slot="title">
@@ -27,6 +33,7 @@ export default {
   },
   data () {
     return {
+      maxWidth: 400
     }
   },
   computed: {
@@ -34,6 +41,10 @@ export default {
       const rawPath = this.path
       return rawPath.sort((item1, item2) => item1.blockIndex - item2.blockIndex)
     }
+  },
+  mounted () {
+    this.maxWidth = document.documentElement.clientWidth / 5
+    this.$logger.info('Navigation item maxWidth ' + this.maxWidth)
   },
   created () {
     this.$logger.info('navigation path', this.path)
@@ -65,7 +76,6 @@ export default {
     .nav-path-item {
       display:inline-block;
       margin-right: 5px;
-      max-width: 400px;
       color: @primary-color;
       font-weight: 600;
       white-space: nowrap;

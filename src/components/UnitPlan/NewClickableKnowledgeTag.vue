@@ -39,6 +39,7 @@
                 <a-icon type="tag" /> {{ tag.name }}
               </a-tag>
               <a-tag
+                draggable="true"
                 @dragstart="handleTagItemDragStart(tag, $event)"
                 color="#2db7f5"
                 class="tag-item"
@@ -98,7 +99,6 @@
               <div class="skt-description-tag-list" :droppable="activeSubKnowledgeId === descriptionTagList[0].subKnowledgeId ? 'true' : 'false'" @dragover.prevent @drop="handleTagItemDrop(descriptionTagList[0], $event)">
                 <div class="tag-list-item" v-for="(tag,tIndex) in descriptionTagList[0].tagList" :key="tIndex + tag.name + tag.type">
                   <a-tag
-                    color="green"
                     class="tag-item"
                     v-if="tag.type === tagOriginType.Origin"
                     :closable="tag.subKnowledgeId === activeSubKnowledgeId"
@@ -148,7 +148,6 @@
                 <div class="skt-description-tag-list" :droppable="activeSubKnowledgeId === item.subKnowledgeId ? 'true' : 'false'" @dragover.prevent @drop="handleTagItemDrop(item, $event)">
                   <div class="tag-list-item" v-for="(tag,tIndex) in item.tagList" :key="tIndex + tag.name + tag.type">
                     <a-tag
-                      color="green"
                       class="tag-item"
                       v-if="tag.type === tagOriginType.Origin"
                       :closable="tag.subKnowledgeId === activeSubKnowledgeId"

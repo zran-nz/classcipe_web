@@ -99,7 +99,6 @@
               <div class="skt-description-tag-list" :droppable="activeDescriptionId === descriptionTagList[0].descriptionId ? 'true' : 'false'" @dragover.prevent @drop="handleTagItemDrop(descriptionTagList[0], $event)">
                 <div class="tag-list-item" v-for="(tag,tIndex) in descriptionTagList[0].tagList" :key="tIndex + tag.name + tag.type">
                   <a-tag
-                    color="green"
                     class="tag-item"
                     v-if="tag.type === tagOriginType.Origin"
                     :closable="tag.descriptionId === activeDescriptionId"
@@ -149,7 +148,6 @@
                 <div class="skt-description-tag-list" :droppable="activeDescriptionId === item.descriptionId ? 'true' : 'false'" @dragover.prevent @drop="handleTagItemDrop(item, $event)">
                   <div class="tag-list-item" v-for="(tag,tIndex) in item.tagList" :key="tIndex + tag.name + tag.type">
                     <a-tag
-                      color="green"
                       class="tag-item"
                       v-if="tag.type === tagOriginType.Origin"
                       :closable="tag.descriptionId === activeDescriptionId"
