@@ -550,7 +550,7 @@ export default {
                     const tagList = knowledgeTagMap.get(item.subKnowledgeId)
                     tagList.push({
                       ...item,
-                      type: TagOriginType.Origin
+                      type: TagOriginType.Extension
                     })
                     knowledgeTagMap.set(item.subKnowledgeId, tagList)
                   }
@@ -578,7 +578,7 @@ export default {
                     const tagList = skillTagMap.get(item.descriptionId)
                     tagList.push({
                       ...item,
-                      type: TagOriginType.Origin
+                      type: TagOriginType.Extension
                     })
                     skillTagMap.set(item.descriptionId, tagList)
                   }
@@ -816,58 +816,20 @@ export default {
     },
 
     handleConfirmSelectedRelevant () {
-      this.$logger.info('handleConfirmSelectedRelevant', this.form.questions, this.relevantSelectedQuestionList)
+      this.$logger.info('handleConfirmSelectedRelevant', this.relevantSelectedQuestionList)
       this.showRelevantQuestionVisible = false
-      this.form.questions = this.form.questions.concat(this.relevantSelectedQuestionList)
-      this.$logger.info('after handleConfirmSelectedRelevant', this.form.questions)
-
-      this.questionTotal = 0
-      this.questionMaxIndex = 0
-      const taskData = this.form
-      const questionKeys = Object.keys(this.questionDataObj)
-      questionKeys.forEach(questionKey => {
-        logger.info('questionDataObj delete ' + questionKey)
-        this.$delete(this.questionDataObj, questionKey)
+      const questionDataObj = Object.assign({}, this.questionDataObj['__question_0'])
+      this.$delete(this.questionDataObj, '__question_0')
+      this.$logger.info('questionDataObj __question_0', questionDataObj)
+      this.relevantSelectedQuestionList.forEach(item => {
+        questionDataObj.knowledgeTags = questionDataObj.knowledgeTags.concat(item.knowledgeTags)
+        questionDataObj.skillTags = questionDataObj.skillTags.concat(item.skillTags)
       })
-      if (taskData.questions && taskData.questions.length) {
-        taskData.questions.forEach(questionItem => {
-          const question = {
-            questionId: questionItem.id,
-            visible: false,
-            name: questionItem.name,
-            knowledgeMainSubjectId: '',
-            knowledgeSubSubjectId: '',
-            knowledgeGradeId: '',
-            knowledgeTags: questionItem.knowledgeTags,
-            skillGradeId: '',
-            skillTags: questionItem.skillTags,
-            origin: 'question'
-          }
-          this.$set(this.questionDataObj, this.questionPrefix + this.questionMaxIndex, question)
-          logger.info('restore default questionDataObj: ' + (this.questionPrefix + this.questionMaxIndex), question, ' questionDataObj ', this.questionDataObj)
-          this.questionMaxIndex = this.questionMaxIndex + 1
-          this.questionTotal = this.questionTotal + 1
-        })
-      }
 
-      if (taskData.suggestingTag && (taskData.suggestingTag.knowledgeTags.length || taskData.suggestingTag.skillTags.length)) {
-        const question = {
-          questionId: null,
-          visible: false,
-          name: null,
-          knowledgeMainSubjectId: '',
-          knowledgeSubSubjectId: '',
-          knowledgeGradeId: '',
-          knowledgeTags: taskData.suggestingTag.knowledgeTags,
-          skillGradeId: '',
-          skillTags: taskData.suggestingTag.skillTags,
-          origin: 'suggesting'
-        }
-        this.$set(this.questionDataObj, this.questionPrefix + this.questionMaxIndex, question)
-        logger.info('suggestingTag restore questionDataObj: ' + (this.questionPrefix + this.questionMaxIndex), question, ' questionDataObj ', this.questionDataObj)
-        this.questionMaxIndex = this.questionMaxIndex + 1
-        this.questionTotal = this.questionTotal + 1
-      }
+      this.$nextTick(() => {
+        this.$set(this.questionDataObj, '__question_0', questionDataObj)
+      })
+      this.$logger.info('after $set questionDataObj __question_0', this.questionDataObj)
     }
   }
 }
