@@ -656,33 +656,32 @@ export default {
         taskData.id = this.taskId
       }
       logger.info('basic taskData', taskData)
-      taskData.questions = []
-      for (const questionIndex in this.questionDataObj) {
-        const question = this.questionDataObj[questionIndex]
-        logger.info('question ' + questionIndex, question)
-        if (question.knowledgeTags && question.knowledgeTags.length) {
-          question.knowledgeTags.forEach(item => {
-            item.curriculumId = this.$store.getters.bindCurriculum
-          })
-        }
-        if (question.skillTags && question.skillTags.length) {
-          question.skillTags.forEach(item => {
-            item.curriculumId = this.$store.getters.bindCurriculum
-          })
-        }
-        const questionItem = {
-          knowledgeTags: question.knowledgeTags,
-          skillTags: question.skillTags,
-          name: question.name
-        }
-        if (question.questionId) {
-          questionItem.id = question.questionId
-          this.$logger.info('old question item', questionItem)
-        } else {
-          this.$logger.info('new question item', questionItem)
-        }
-        taskData.questions.push(questionItem)
+
+      const question = this.questionDataObj['__question_0']
+      logger.info('question __question_0', question)
+      if (question.knowledgeTags && question.knowledgeTags.length) {
+        question.knowledgeTags.forEach(item => {
+          item.curriculumId = this.$store.getters.bindCurriculum
+        })
       }
+      if (question.skillTags && question.skillTags.length) {
+        question.skillTags.forEach(item => {
+          item.curriculumId = this.$store.getters.bindCurriculum
+        })
+      }
+      const questionItem = {
+        knowledgeTags: question.knowledgeTags,
+        skillTags: question.skillTags,
+        name: question.name
+      }
+      if (question.questionId) {
+        questionItem.id = question.questionId
+        this.$logger.info('old question item', questionItem)
+      } else {
+        this.$logger.info('new question item', questionItem)
+      }
+
+      taskData.suggestingTag = questionItem
       logger.info('question taskData', taskData)
       TaskAddOrUpdate(taskData).then((response) => {
         logger.info('TaskAddOrUpdate', response.result)
@@ -816,58 +815,20 @@ export default {
     },
 
     handleConfirmSelectedRelevant () {
-      this.$logger.info('handleConfirmSelectedRelevant', this.form.questions, this.relevantSelectedQuestionList)
+      this.$logger.info('handleConfirmSelectedRelevant', this.relevantSelectedQuestionList)
       this.showRelevantQuestionVisible = false
-      this.form.questions = this.form.questions.concat(this.relevantSelectedQuestionList)
-      this.$logger.info('after handleConfirmSelectedRelevant', this.form.questions)
-
-      this.questionTotal = 0
-      this.questionMaxIndex = 0
-      const taskData = this.form
-      const questionKeys = Object.keys(this.questionDataObj)
-      questionKeys.forEach(questionKey => {
-        logger.info('questionDataObj delete ' + questionKey)
-        this.$delete(this.questionDataObj, questionKey)
+      const questionDataObj = Object.assign({}, this.questionDataObj['__question_0'])
+      this.$delete(this.questionDataObj, '__question_0')
+      this.$logger.info('questionDataObj __question_0', questionDataObj)
+      this.relevantSelectedQuestionList.forEach(item => {
+        questionDataObj.knowledgeTags = questionDataObj.knowledgeTags.concat(item.knowledgeTags)
+        questionDataObj.skillTags = questionDataObj.skillTags.concat(item.skillTags)
       })
-      if (taskData.questions && taskData.questions.length) {
-        taskData.questions.forEach(questionItem => {
-          const question = {
-            questionId: questionItem.id,
-            visible: false,
-            name: questionItem.name,
-            knowledgeMainSubjectId: '',
-            knowledgeSubSubjectId: '',
-            knowledgeGradeId: '',
-            knowledgeTags: questionItem.knowledgeTags,
-            skillGradeId: '',
-            skillTags: questionItem.skillTags,
-            origin: 'question'
-          }
-          this.$set(this.questionDataObj, this.questionPrefix + this.questionMaxIndex, question)
-          logger.info('restore default questionDataObj: ' + (this.questionPrefix + this.questionMaxIndex), question, ' questionDataObj ', this.questionDataObj)
-          this.questionMaxIndex = this.questionMaxIndex + 1
-          this.questionTotal = this.questionTotal + 1
-        })
-      }
 
-      if (taskData.suggestingTag && (taskData.suggestingTag.knowledgeTags.length || taskData.suggestingTag.skillTags.length)) {
-        const question = {
-          questionId: null,
-          visible: false,
-          name: null,
-          knowledgeMainSubjectId: '',
-          knowledgeSubSubjectId: '',
-          knowledgeGradeId: '',
-          knowledgeTags: taskData.suggestingTag.knowledgeTags,
-          skillGradeId: '',
-          skillTags: taskData.suggestingTag.skillTags,
-          origin: 'suggesting'
-        }
-        this.$set(this.questionDataObj, this.questionPrefix + this.questionMaxIndex, question)
-        logger.info('suggestingTag restore questionDataObj: ' + (this.questionPrefix + this.questionMaxIndex), question, ' questionDataObj ', this.questionDataObj)
-        this.questionMaxIndex = this.questionMaxIndex + 1
-        this.questionTotal = this.questionTotal + 1
-      }
+      this.$nextTick(() => {
+        this.$set(this.questionDataObj, '__question_0', questionDataObj)
+      })
+      this.$logger.info('after $set questionDataObj __question_0', this.questionDataObj)
     }
   }
 }
@@ -1366,7 +1327,7 @@ export default {
 }
 
 .select-relevant-tag {
-  max-height: 80vh;
+  max-height: 60vh;
   overflow-y: scroll;
 }
 

@@ -153,13 +153,13 @@ export default {
 
         item.knowledgeTagList.forEach(kTag => {
           if (this.selectedKnowledgeTagIdList.indexOf(kTag.info.id) !== -1) {
-            qData.knowledgeTags.push(kTag)
+            qData.knowledgeTags = qData.knowledgeTags.concat(kTag.tagList)
           }
         })
 
         item.skillTagList.forEach(sTag => {
           if (this.selectedSkillTagIdList.indexOf(sTag.info.id) !== -1) {
-            qData.skillTags.push(sTag)
+            qData.skillTags = qData.skillTags.concat(sTag.tagList)
           }
         })
 
@@ -168,7 +168,7 @@ export default {
         }
       })
       this.$logger.info('updateSelected data', questionList)
-      this.$emit('updateSelected', { questionList: questionList })
+      this.$emit('update-selected', { questionList: questionList })
     }
   }
 }
