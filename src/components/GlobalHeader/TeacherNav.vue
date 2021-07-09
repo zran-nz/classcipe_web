@@ -21,21 +21,11 @@
             Add new
           </a-button>
           <a-menu slot="overlay">
-<!--            <a-menu-item>
-              <router-link to="/teacher/topics-from-experts">
-                {{ $t('menu.topics-from-experts') }}
-              </router-link>
-            </a-menu-item>-->
             <a-menu-item>
               <a @click="goToUnitPlan">
                 {{ $t('menu.unit-plans') }}
               </a>
             </a-menu-item>
-<!--            <a-menu-item>
-              <router-link to="/teacher/unit-plan-material-redirect/none/create">
-                {{ $t('menu.materials') }}
-              </router-link>
-            </a-menu-item>-->
             <a-menu-item>
               <router-link to="/teacher/task-redirect">
                 {{ $t('menu.tasks') }}

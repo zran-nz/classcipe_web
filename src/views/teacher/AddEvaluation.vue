@@ -1,6 +1,6 @@
 <template>
   <div>
-    AddAssessment
+    AddEvaluation
   </div>
 </template>
 
@@ -8,7 +8,7 @@
 import { PageHeaderWrapper } from '@ant-design-vue/pro-layout'
 
 export default {
-  name: 'AddAssessment',
+  name: 'AddEvaluation',
   components: {
     PageHeaderWrapper
   },
