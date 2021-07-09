@@ -19,3 +19,20 @@ export const typeMap = {
   'lesson': 5,
   'assessment': 6
 }
+
+export function getLabelNameType (type) {
+  switch (type) {
+    case typeMap.topic:
+      return 'Topic'
+    case typeMap['unit-plan']:
+      return 'Unit Plan'
+    case typeMap.material:
+      return 'Material'
+    case typeMap.task:
+      return 'Task'
+    case typeMap.lesson:
+      return 'Lesson'
+    case typeMap.assessment:
+      return 'Assessment'
+  }
+}

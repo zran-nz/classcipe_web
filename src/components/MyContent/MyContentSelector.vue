@@ -26,7 +26,12 @@
         </div>
       </a-col>
       <a-col span="19">
-        <my-content-created-by-me :filter-type="filterType" />
+        <my-content-created-by-me
+          :filter-type-list="filterTypeList"
+          :selected-list="selectedList"
+          :mode="mode"
+          :selected-type="selectedType"
+        />
       </a-col>
     </a-row>
   </div>
@@ -41,9 +46,17 @@ export default {
     MyContentCreatedByMe
   },
   props: {
-    filterType: {
+    filterTypeList: {
+      type: Array,
+      default: () => []
+    },
+    selectedList: {
+      type: Array,
+      default: () => []
+    },
+    mode: {
       type: String,
-      default: null
+      default: 'link'
     }
   },
   data () {
@@ -54,7 +67,7 @@ export default {
   computed: {
   },
   created () {
-    this.$logger.info('MyContentSelector filterType ' + this.filterType)
+    this.$logger.info('MyContentSelector selectedType ' + this.selectedType + ', filterType ', this.filterTypeList)
   },
   mounted () {
   },

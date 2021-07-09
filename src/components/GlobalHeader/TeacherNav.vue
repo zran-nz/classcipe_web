@@ -42,7 +42,7 @@
               </router-link>
             </a-menu-item>
             <a-menu-item>
-              <router-link to="/teacher/add-lesson">
+              <router-link to="/teacher/lesson-redirect">
                 {{ $t('menu.lessons') }}
               </router-link>
             </a-menu-item>

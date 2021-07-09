@@ -2,22 +2,24 @@
   <div class="my-content">
     <div class="filter-line">
       <div class="status-tab">
-        <span :class="{'status-item': true, 'active-status-item': currentStatus === 'all-status'}" @click="toggleStatus('all-status', $t('teacher.my-content.all-status'))">
-          {{ $t('teacher.my-content.all-status') }}
-        </span>
-        <a-divider type="vertical" />
-        <span :class="{'status-item': true, 'active-status-item': currentStatus === 'published'}" @click="toggleStatus('published', $t('teacher.my-content.published-status'))">
-          {{ $t('teacher.my-content.published-status') }}
-        </span>
-        <a-divider type="vertical" />
-        <span :class="{'status-item': true, 'active-status-item': currentStatus === 'draft'}" @click="toggleStatus('draft', $t('teacher.my-content.draft-status'))">
-          {{ $t('teacher.my-content.draft-status') }}
-        </span>
+        <template v-if="selectedType === 'created-by-me'">
+          <span :class="{'status-item': true, 'active-status-item': currentStatus === 'all-status'}" @click="toggleStatus('all-status', $t('teacher.my-content.all-status'))">
+            {{ $t('teacher.my-content.all-status') }}
+          </span>
+          <a-divider type="vertical" />
+          <span :class="{'status-item': true, 'active-status-item': currentStatus === 'published'}" @click="toggleStatus('published', $t('teacher.my-content.published-status'))">
+            {{ $t('teacher.my-content.published-status') }}
+          </span>
+          <a-divider type="vertical" />
+          <span :class="{'status-item': true, 'active-status-item': currentStatus === 'draft'}" @click="toggleStatus('draft', $t('teacher.my-content.draft-status'))">
+            {{ $t('teacher.my-content.draft-status') }}
+          </span>
+        </template>
       </div>
       <div class="type-owner">
         <a-space>
           <div class="type-filter">
-            <a-dropdown v-show="!filterType">
+            <a-dropdown v-show="filterTypeList.length">
               <a class="ant-dropdown-link" @click="e => e.preventDefault()">
                 {{ currentTypeLabel }} <a-icon type="down" />
               </a>
@@ -25,25 +27,25 @@
                 <a-menu-item disabled>
                   <span>{{ $t('teacher.my-content.choose-types-of-content') }}</span>
                 </a-menu-item>
-                <a-menu-item @click="toggleType('all-type', $t('teacher.my-content.all-type'))">
+                <a-menu-item @click="toggleType('all-type', $t('teacher.my-content.all-type'))" v-if="filterTypeList.length === 6">
                   <span>{{ $t('teacher.my-content.all-type') }}</span>
                 </a-menu-item>
-                <a-menu-item @click="toggleType('topic', $t('teacher.my-content.topics-type') )">
+                <a-menu-item @click="toggleType('topic', $t('teacher.my-content.topics-type') )" v-if="filterTypeList.indexOf('topic') !== -1">
                   <span>{{ $t('teacher.my-content.topics-type') }}</span>
                 </a-menu-item>
-                <a-menu-item @click="toggleType('material', $t('teacher.my-content.materials-type'))">
+                <a-menu-item @click="toggleType('material', $t('teacher.my-content.materials-type'))" v-if="filterTypeList.indexOf('material') !== -1">
                   <span>{{ $t('teacher.my-content.materials-type') }}</span>
                 </a-menu-item>
-                <a-menu-item @click="toggleType('unit-plan', $t('teacher.my-content.unit-plan-type'))">
+                <a-menu-item @click="toggleType('unit-plan', $t('teacher.my-content.unit-plan-type'))" v-if="filterTypeList.indexOf('unit-plan') !== -1">
                   <span>{{ $t('teacher.my-content.unit-plan-type') }}</span>
                 </a-menu-item>
-                <a-menu-item @click="toggleType('task', $t('teacher.my-content.tasks-type') )">
+                <a-menu-item @click="toggleType('task', $t('teacher.my-content.tasks-type') )" v-if="filterTypeList.indexOf('task') !== -1">
                   <span>{{ $t('teacher.my-content.tasks-type') }}</span>
                 </a-menu-item>
-                <a-menu-item @click="toggleType('lesson', $t('teacher.my-content.lesson-type'))">
+                <a-menu-item @click="toggleType('lesson', $t('teacher.my-content.lesson-type'))" v-if="filterTypeList.indexOf('lesson') !== -1">
                   <span>{{ $t('teacher.my-content.lesson-type') }}</span>
                 </a-menu-item>
-                <a-menu-item @click="toggleType('assessment', $t('teacher.my-content.assessment-type'))">
+                <a-menu-item @click="toggleType('assessment', $t('teacher.my-content.assessment-type'))" v-if="filterTypeList.indexOf('assessment') !== -1">
                   <span>{{ $t('teacher.my-content.assessment-type') }}</span>
                 </a-menu-item>
               </a-menu>
@@ -56,9 +58,9 @@
       <a-skeleton :loading="skeletonLoading" active>
         <div class="content-list">
           <a-list size="large" :pagination="pagination" :data-source="myContentList" :loading="loading">
-            <a-list-item slot="renderItem" key="item.key" slot-scope="item">
+            <a-list-item slot="renderItem" key="item.key" slot-scope="item" :class="{'active-item': selectedList.indexOf(item.type + '-' + item.id) !== -1}" @click="handleToggleSelect(item)">
 
-              <span class="content-info-left" @click="handleViewDetail(item)">
+              <span class="content-info-left" @click="handleViewDetail(item, $event)">
                 <content-type-icon :type="item.type" />
 
                 <span class="name-content">
@@ -70,11 +72,11 @@
                 <span class="update-time" >
                   {{ item.updateTime || item.createTime | dayjs }}
                 </span>
-                <div class="action">
-                  <div slot="actions">
+                <div class="action" >
+                  <div slot="actions" v-show="mode === 'link'">
                     <div class="action-wrapper">
                       <div class="action-item">
-                        <a-popconfirm :title="'Link this content to my Unit' + '?'" ok-text="Yes" @confirm="handleLinkItem(item)" cancel-text="No">
+                        <a-popconfirm :title="'Link this content to my Unit' + '?'" ok-text="Yes" @confirm="handleLinkItem(item, $event)" cancel-text="No">
                           <span>
                             <a-icon type="form" /> Link
                           </span>
@@ -113,7 +115,8 @@ import * as logger from '@/utils/logger'
 import UnitPlanPreview from '@/components/UnitPlan/UnitPlanPreview'
 import MaterialPreview from '@/components/Material/MaterialPreview'
 import { getMyContent } from '@/api/teacher'
-import { ownerMap, statusMap, typeMap } from '@/const/teacher'
+import { FavoritesGetMyFavorites } from '@/api/favorites'
+import { ownerMap, statusMap, typeMap, getLabelNameType } from '@/const/teacher'
 import ContentStatusIcon from '@/components/Teacher/ContentStatusIcon'
 import ContentTypeIcon from '@/components/Teacher/ContentTypeIcon'
 import { MyContentEventBus, MyContentEvent } from '@/components/MyContent/MyContentEventBus'
@@ -127,9 +130,21 @@ export default {
     MaterialPreview
   },
   props: {
-    filterType: {
+    filterTypeList: {
+      type: Array,
+      default: () => []
+    },
+    selectedList: {
+      type: Array,
+      default: () => []
+    },
+    mode: {
       type: String,
-      default: null
+      default: 'link'
+    },
+    selectedType: {
+      type: String,
+      default: 'created-by-me'
     }
   },
   data () {
@@ -164,13 +179,23 @@ export default {
       typeMap: typeMap
     }
   },
-  computed: {
+  watch: {
+    selectedType (value) {
+      this.$logger.info('watch select type ' + value)
+      this.pageNo = 1
+      this.myContentList = []
+      this.pagination.total = 0
+      this.pagination.pageSize = 8
+      this.loadMyContent()
+    }
   },
   created () {
-    logger.info('teacher my content filter type ' + this.filterType)
-    if (this.filterType) {
-      this.currentType = this.filterType
+    logger.info('teacher my content filter type ', this.filterTypeList)
+    if (this.filterTypeList) {
+      this.currentType = this.filterTypeList[0]
+      this.currentTypeLabel = getLabelNameType(this.typeMap[this.filterTypeList[0]])
     }
+    this.$logger.info('currentType ' + this.currentType + ' , currentTypeLabel ' + this.currentTypeLabel + ', selected type ' + this.selectedType)
     this.loadMyContent()
   },
   mounted () {
@@ -178,6 +203,18 @@ export default {
   methods: {
     loadMyContent () {
       this.loading = true
+      if (this.selectedType === 'created-by-me') {
+        this.getMyContent()
+      } else if (this.selectedType === 'my-favorite') {
+        this.getMyFavorites()
+      } else if (this.selectedType === 'shared') {
+        this.loading = false
+        this.skeletonLoading = false
+        this.$logger.info('shared coming soon!')
+      }
+    },
+
+    getMyContent () {
       getMyContent({
         owner: ownerMap[this.currentOwner],
         status: statusMap[this.currentStatus],
@@ -194,8 +231,33 @@ export default {
           this.pagination.total = res.result.total
         } else {
           this.myContentList = []
+          this.pagination.total = 0
         }
         logger.info('myContentList', this.myContentList)
+      }).finally(() => {
+        this.loading = false
+        this.skeletonLoading = false
+      })
+    },
+
+    getMyFavorites () {
+      this.$logger.info('getMyFavorites')
+      FavoritesGetMyFavorites({
+        type: typeMap[this.currentType],
+        pageNo: this.pageNo,
+        pageSize: this.pagination.pageSize
+      }).then((res) => {
+        this.$logger.info('FavoritesGetMyFavorites response', res)
+        if (res.result && res.result.records && res.result.records.length) {
+          res.result.records.forEach((record, index) => {
+            record.key = index
+          })
+          this.myContentList = res.result.records
+          this.pagination.total = res.result.total
+        } else {
+          this.myContentList = []
+          this.pagination.total = 0
+        }
       }).finally(() => {
         this.loading = false
         this.skeletonLoading = false
@@ -220,15 +282,24 @@ export default {
       this.loadMyContent()
     },
 
-    handleLinkItem (item) {
+    handleLinkItem (item, event) {
       logger.info('handleLinkItem', item)
+      event.preventDefault()
+      event.stopPropagation()
       MyContentEventBus.$emit(MyContentEvent.LinkToMyContentItem, { item })
     },
-    handleViewDetail (item) {
+    handleViewDetail (item, event) {
       logger.info('handleViewDetail', item)
+      event.preventDefault()
+      event.stopPropagation()
       this.previewCurrentId = item.id
       this.previewType = item.type
       this.previewVisible = true
+    },
+
+    handleToggleSelect (item) {
+      logger.info('handleToggleSelect', item)
+      MyContentEventBus.$emit(MyContentEvent.ToggleSelectContentItem, { ...item })
     },
 
     handlePreviewClose () {
@@ -246,7 +317,14 @@ export default {
 
 .ant-list-item {
   padding: 8px 0;
+  position: relative;
 }
+
+.active-item {
+  background-color: fade(@outline-color, 20%);
+  color: @primary-color;
+}
+
 .my-content {
   padding: 0 15px 25px 15px;
   .filter-line {

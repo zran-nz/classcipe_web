@@ -6,6 +6,7 @@ import shared from './teacher/shared'
 import main from './teacher/main'
 import unitPlanPreview from './teacher/unitPlanPreview'
 import addTask from './teacher/addTask'
+import addLesson from './teacher/addLesson'
 
 export default {
   ...unitPlanPreview,
@@ -15,5 +16,6 @@ export default {
   ...myFavorite,
   ...shared,
   ...addUnitPlan,
-  ...addTask
+  ...addTask,
+  ...addLesson
 }

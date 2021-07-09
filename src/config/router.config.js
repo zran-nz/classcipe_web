@@ -112,10 +112,18 @@ export const asyncRouterMap = [
             meta: { title: 'menu.topics-from-experts', keepAlive: true, permission: ['expert', 'teacher'] }
           },
           {
-            path: '/teacher/add-lesson',
+            path: '/teacher/add-lesson/:lessonId?',
             name: 'AddLesson',
+            props: true,
             component: () => import('@/views/teacher/AddLesson'),
-            meta: { title: 'menu.add-lesson', keepAlive: true, permission: ['expert', 'teacher'] }
+            meta: { title: 'menu.lessons', keepAlive: true, permission: ['expert', 'teacher'] }
+          },
+          {
+            path: '/teacher/lesson-redirect/:lessonId?',
+            name: 'LessonRedirect',
+            props: true,
+            component: () => import('@/views/teacher/LessonRedirect'),
+            meta: { title: 'menu.lessons', keepAlive: true, permission: ['expert', 'teacher'] }
           },
           {
             path: '/teacher/add-material/:materialId',
