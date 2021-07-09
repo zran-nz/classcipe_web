@@ -26,7 +26,7 @@
         </div>
       </a-col>
       <a-col span="19">
-        <my-content-created-by-me />
+        <my-content-created-by-me :filter-type="filterType" />
       </a-col>
     </a-row>
   </div>
@@ -40,6 +40,12 @@ export default {
   components: {
     MyContentCreatedByMe
   },
+  props: {
+    filterType: {
+      type: String,
+      default: null
+    }
+  },
   data () {
     return {
       selectedType: 'created-by-me'
@@ -48,6 +54,7 @@ export default {
   computed: {
   },
   created () {
+    this.$logger.info('MyContentSelector filterType ' + this.filterType)
   },
   mounted () {
   },

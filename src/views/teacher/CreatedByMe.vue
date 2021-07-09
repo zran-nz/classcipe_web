@@ -223,9 +223,13 @@ export default {
           path: '/teacher/unit-plan-redirect/' + item.id
         })
       } else if (item.type === typeMap['material']) {
-          this.$router.push({
-            path: '/teacher/add-material/' + item.id
-          })
+        this.$router.push({
+          path: '/teacher/add-material/' + item.id
+        })
+      } else if (item.type === typeMap.task) {
+        this.$router.push({
+          path: '/teacher/task-redirect/' + item.id
+        })
       }
     },
     handleDeleteItem (item) {
