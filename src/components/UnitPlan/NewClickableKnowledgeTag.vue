@@ -47,6 +47,14 @@
                 closable
                 @close="handleDeleteCreatedTag(tag)"><a-icon type="highlight" /> {{ tag.name }}
               </a-tag>
+              <a-tag
+                draggable="true"
+                @dragstart="handleTagItemDragStart(tag, $event)"
+                class="tag-item"
+                v-if="tag.type === tagOriginType.Extension"
+                closable
+                @close="handleDeleteCreatedTag(tag)"><a-icon type="diff" />  {{ tag.name }}
+              </a-tag>
             </div>
             <div class="skt-tag-create-line" v-show="createTagName && createTagName.length >= 1">
               <div class="create-tag-label">
@@ -222,7 +230,8 @@ const TagOriginType = {
   Origin: 'Origin',
   Search: 'Search',
   Description: 'Description',
-  Create: 'Create'
+  Create: 'Create',
+  Extension: 'Extension'
 }
 export default {
   name: 'NewClickableKnowledgeTag',
@@ -235,6 +244,11 @@ export default {
       default: ''
     },
     selectedKnowledgeTags: {
+      type: Array,
+      default: () => []
+    },
+    // 扩充的tag列表，用于添加到tag列表中供选择，无其他作用
+    extTagList: {
       type: Array,
       default: () => []
     }
@@ -270,6 +284,7 @@ export default {
     this.debouncedSearchKnowledge = debounce(this.searchKnowledge, 500)
     const descriptionTagMap = new Map()
     const tagNameSet = new Set()
+
     this.selectedKnowledgeTags.forEach(item => {
       // 逐条去重添加tag
       if (!tagNameSet.has(item.name)) {
@@ -300,6 +315,18 @@ export default {
         descriptionTagMap.set(item.subKnowledgeId, tagList)
       } else {
         this.$logger.info('skip! current bindCurriculum not match curriculumId', item, this.$store.getters.bindCurriculum)
+      }
+    })
+
+    // 后加扩充tag，避免冲突
+    this.extTagList.forEach(item => {
+      if (!tagNameSet.has(item.name)) {
+        this.tagList.push({
+          ...item,
+          type: TagOriginType.Extension
+        })
+      } else {
+        this.$logger.info('Extension tag name ' + item.name + ' exist', item, tagNameSet)
       }
     })
 

@@ -86,10 +86,18 @@ export const asyncRouterMap = [
             meta: { title: 'menu.my-class', keepAlive: true, permission: ['expert', 'teacher'] }
           },
           {
-            path: '/teacher/add-task',
+            path: '/teacher/add-task/:taskId?',
             name: 'AddTask',
+            props: true,
             component: () => import('@/views/teacher/AddTask'),
-            meta: { title: 'menu.add-task', keepAlive: true, permission: ['expert', 'teacher'] }
+            meta: { title: 'menu.tasks', keepAlive: true, permission: ['expert', 'teacher'] }
+          },
+          {
+            path: '/teacher/task-redirect/:taskId?',
+            name: 'TaskRedirect',
+            props: true,
+            component: () => import('@/views/teacher/TaskRedirect'),
+            meta: { title: 'menu.tasks', keepAlive: true, permission: ['expert', 'teacher'] }
           },
           {
             path: '/teacher/add-assessment',

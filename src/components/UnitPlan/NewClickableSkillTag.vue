@@ -47,6 +47,15 @@
                 closable
                 @close="handleDeleteCreatedTag(tag)"><a-icon type="highlight" /> {{ tag.name }}
               </a-tag>
+
+              <a-tag
+                draggable="true"
+                @dragstart="handleTagItemDragStart(tag, $event)"
+                class="tag-item"
+                v-if="tag.type === tagOriginType.Extension"
+                closable
+                @close="handleDeleteCreatedTag(tag)"><a-icon type="diff" />  {{ tag.name }}
+              </a-tag>
             </div>
             <div class="skt-tag-create-line" v-show="createTagName && createTagName.length >= 1">
               <div class="create-tag-label">
@@ -223,7 +232,8 @@ const TagOriginType = {
   Origin: 'Origin',
   Search: 'Search',
   Description: 'Description',
-  Create: 'Create'
+  Create: 'Create',
+  Extension: 'Extension'
 }
 export default {
   name: 'NewClickableSkillTag',
@@ -236,6 +246,11 @@ export default {
       default: ''
     },
     selectedSkillTags: {
+      type: Array,
+      default: () => []
+    },
+    // 扩充的tag列表，用于添加到tag列表中供选择，无其他作用
+    extTagList: {
       type: Array,
       default: () => []
     }
@@ -281,6 +296,18 @@ export default {
       } else {
         this.$logger.info('skill tag name ' + item.name + ' exist', item, tagNameSet)
       }
+
+      // 后加扩充tag，避免冲突
+      this.extTagList.forEach(item => {
+        if (!tagNameSet.has(item.name)) {
+          this.tagList.push({
+            ...item,
+            type: TagOriginType.Extension
+          })
+        } else {
+          this.$logger.info('Extension tag name ' + item.name + ' exist', item, tagNameSet)
+        }
+      })
 
       // descriptionTagMap按照descriptionId初始化对应的tagList
       if (!!item.descriptionId && item.curriculumId === this.$store.getters.bindCurriculum && !descriptionTagMap.has(item.descriptionId)) {

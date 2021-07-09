@@ -860,7 +860,6 @@ export default {
       })
     },
     handlePublishUnitPlan () {
-      this.handleSaveUnitPlan()
       logger.info('handlePublishUnitPlan', {
         id: this.unitPlanId,
         status: 1

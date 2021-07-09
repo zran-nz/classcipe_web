@@ -3,12 +3,16 @@ import { typeMap } from '@/const/teacher'
 import { TopicDelete } from '@/api/topic'
 import { MaterialDelete } from '@/api/material'
 import { UnitPlanDelete } from '@/api/unitPlan'
+import { TaskDelete } from '@/api/task'
 import * as logger from '@/utils/logger'
 
 export const teacherAPIUrl = {
+  Associate: '/classcipe/api/teacher/associate',
+  BatchAssociate: '/classcipe/api/teacher/batchAssociate',
   GetAssociate: '/classcipe/api/teacher/getAssociate',
   GetMyContent: '/classcipe/api/teacher/getMyContent',
-  GetMyGrades: '/classcipe/api/teacher/getMyGrades'
+  GetMyGrades: '/classcipe/api/teacher/getMyGrades',
+  UpdateContentStatus: '/classcipe/api/teacher/content/status'
 }
 
 /**
@@ -71,8 +75,7 @@ export function deleteMyContentByType (data) {
     case typeMap.material:
       return MaterialDelete({ id })
     case typeMap.task:
-      logger.warn('task delete no yet implement!')
-      break
+      return TaskDelete({ id })
     case typeMap.lesson:
       logger.warn('lesson delete no yet implement!')
       break
@@ -83,4 +86,52 @@ export function deleteMyContentByType (data) {
       logger.error('wrong delete type ' + MyContentType + ' id: ' + id)
       break
   }
+}
+
+/**
+ * @param parameter
+ * @returns {AxiosPromise}
+ * @constructor
+ */
+export function UpdateContentStatus (parameter) {
+  return request({
+    url: teacherAPIUrl.UpdateContentStatus,
+    method: 'post',
+    data: parameter,
+    headers: {
+      'Content-Type': 'application/json;charset=UTF-8'
+    }
+  })
+}
+
+/**
+ * @param parameter
+ * @returns {AxiosPromise}
+ * @constructor
+ */
+export function Associate (parameter) {
+  return request({
+    url: teacherAPIUrl.Associate,
+    method: 'post',
+    data: parameter,
+    headers: {
+      'Content-Type': 'application/json;charset=UTF-8'
+    }
+  })
+}
+
+/**
+ * @param parameter
+ * @returns {AxiosPromise}
+ * @constructor
+ */
+export function BatchAssociate (parameter) {
+  return request({
+    url: teacherAPIUrl.BatchAssociate,
+    method: 'post',
+    data: parameter,
+    headers: {
+      'Content-Type': 'application/json;charset=UTF-8'
+    }
+  })
 }

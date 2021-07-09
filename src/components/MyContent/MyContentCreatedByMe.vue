@@ -17,7 +17,7 @@
       <div class="type-owner">
         <a-space>
           <div class="type-filter">
-            <a-dropdown>
+            <a-dropdown v-show="!filterType">
               <a class="ant-dropdown-link" @click="e => e.preventDefault()">
                 {{ currentTypeLabel }} <a-icon type="down" />
               </a>
@@ -74,8 +74,8 @@
                   <div slot="actions">
                     <div class="action-wrapper">
                       <div class="action-item">
-                        <a-popconfirm :title="'Link this content to my Unit' + '?'" ok-text="Yes" @confirm="handleDeleteItem(item)" cancel-text="No">
-                          <span @click="handleEditItem(item)">
+                        <a-popconfirm :title="'Link this content to my Unit' + '?'" ok-text="Yes" @confirm="handleLinkItem(item)" cancel-text="No">
+                          <span>
                             <a-icon type="form" /> Link
                           </span>
                         </a-popconfirm>
@@ -116,6 +116,7 @@ import { getMyContent } from '@/api/teacher'
 import { ownerMap, statusMap, typeMap } from '@/const/teacher'
 import ContentStatusIcon from '@/components/Teacher/ContentStatusIcon'
 import ContentTypeIcon from '@/components/Teacher/ContentTypeIcon'
+import { MyContentEventBus, MyContentEvent } from '@/components/MyContent/MyContentEventBus'
 
 export default {
   name: 'MyContentCreatedByMe',
@@ -124,6 +125,12 @@ export default {
     ContentTypeIcon,
     UnitPlanPreview,
     MaterialPreview
+  },
+  props: {
+    filterType: {
+      type: String,
+      default: null
+    }
   },
   data () {
     return {
@@ -160,7 +167,10 @@ export default {
   computed: {
   },
   created () {
-    logger.info('teacher my content')
+    logger.info('teacher my content filter type ' + this.filterType)
+    if (this.filterType) {
+      this.currentType = this.filterType
+    }
     this.loadMyContent()
   },
   mounted () {
@@ -210,11 +220,9 @@ export default {
       this.loadMyContent()
     },
 
-    handleEditItem (item) {
-      logger.info('handleEditItem', item)
-    },
-    handleDeleteItem (item) {
-      logger.info('handleDeleteItem', item)
+    handleLinkItem (item) {
+      logger.info('handleLinkItem', item)
+      MyContentEventBus.$emit(MyContentEvent.LinkToMyContentItem, { item })
     },
     handleViewDetail (item) {
       logger.info('handleViewDetail', item)
