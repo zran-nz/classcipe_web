@@ -5,6 +5,7 @@ import notification from 'ant-design-vue/es/notification'
 import { VueAxios } from './axios'
 import { ACCESS_TOKEN } from '@/store/mutation-types'
 import * as logger from '@/utils/logger'
+import router from '../router'
 
 // 创建 axios 实例
 const request = axios.create({
@@ -51,7 +52,8 @@ request.interceptors.response.use((response) => {
       if (token) {
         store.dispatch('ClearAuth').then(() => {
           setTimeout(() => {
-            window.location.reload()
+            // window.location.reload()
+            router.push({ name: 'login' })
           }, 1500)
         })
       }
