@@ -7,7 +7,8 @@ const preferenceApi = {
   GetAllSubjectsByParentId: '/classcipe/api/subject/getAllSubjectsByParentId',
   GetAllGrades: '/classcipe/api/grade/getAllGrades',
   GetGradesByCurriculumId: '/classcipe/api/grade/getGradesByCurriculumId',
-  AddPreference: '/classcipe/sys/addPreference'
+  AddPreference: '/classcipe/sys/addPreference',
+  GetCustomizedTags: '/classcipe/api/tag/getTree'
 }
 
 export function getAllAreas () {
@@ -63,5 +64,12 @@ export function addPreference (parameter) {
     headers: {
       'Content-Type': 'application/json;charset=UTF-8'
     }
+  })
+}
+
+export function getCustomizedTags () {
+  return request({
+    url: preferenceApi.GetCustomizedTags,
+    method: 'get'
   })
 }

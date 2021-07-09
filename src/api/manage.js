@@ -68,3 +68,12 @@ export function saveSub (sub) {
     data: sub
   })
 }
+
+//get
+export function getAction(url,parameter) {
+  return request({
+    url: url,
+    method: 'get',
+    data: parameter
+  })
+}

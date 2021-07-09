@@ -6,10 +6,10 @@
     <avatar-modal ref="modal" @ok="setAvatar" v-show="!loading"/>
     <a-row :gutter="[16, 16]" v-show="!loading">
       <a-col span="24" :style="{ minHeight: '180px' }" class="username-line">
-        <div class="ant-upload-preview" @click="$refs.modal.edit(1)" >
+        <div class="ant-upload-preview" @click="$refs.modal.edit(1)">
           <a-icon type="cloud-upload-o" class="upload-icon"/>
           <div class="mask">
-            <a-icon type="plus" />
+            <a-icon type="plus"/>
           </div>
           <img :src="userInfo.avatar"/>
         </div>
@@ -53,19 +53,28 @@
             <div class="profile-tag-item" v-for="(areaName,index) in userInfo.areaNameList" :key="index">
               <a-tag>{{ areaName }}</a-tag>
             </div>
-            <div class="profile-tag-item" v-for="(otherName,index) in userInfo.others" :key="'o' + index" v-if="userInfo.others && userInfo.others.length">
+            <div
+              class="profile-tag-item"
+              v-for="(otherName,index) in userInfo.others"
+              :key="'o' + index"
+              v-if="userInfo.others && userInfo.others.length">
               <a-tag color="#108ee9">{{ otherName }}</a-tag>
             </div>
           </div>
           <div class="profile-input profile-data" v-if="editMode">
             <a-select v-model="userInfo.areaIds" placeholder="Please select">
-              <a-select-option :value="areaOption.id" v-for="areaOption in areaOptions" :key="areaOption.id" @click.native="handleSelectAreaOption(areaOption)">{{ areaOption.name }}</a-select-option>
+              <a-select-option
+                :value="areaOption.id"
+                v-for="areaOption in areaOptions"
+                :key="areaOption.id"
+                @click.native="handleSelectAreaOption(areaOption)">{{ areaOption.name }}
+              </a-select-option>
             </a-select>
             <a-input
               class="area-input"
               v-if="currentArea && currentArea.name === 'Others'"
               v-model="userInfo.tempOthers"
-              placeholder="Please input" />
+              placeholder="Please input"/>
           </div>
         </div>
         <!--        curriculum-->
@@ -78,7 +87,14 @@
           </div>
           <div class="profile-input profile-data" v-if="editMode">
             <a-select v-model="userInfo.curriculumId" placeholder="Please select curriculum">
-              <a-select-option :value="curriculumOption.id" v-for="curriculumOption in curriculumOptions" :key="curriculumOption.id" @click.native="handleSelectCurriculumOption(curriculumOption)">{{ curriculumOption.name }}</a-select-option>
+              <a-select-option
+                :value="curriculumOption.id"
+                v-for="curriculumOption in curriculumOptions"
+                :key="curriculumOption.id"
+                @click.native="handleSelectCurriculumOption(curriculumOption)">{{
+                  curriculumOption.name
+                }}
+              </a-select-option>
             </a-select>
           </div>
         </div>
@@ -97,7 +113,11 @@
             <a-select v-model="userInfo.subjectIds" mode="multiple">
               <a-select-opt-group v-for="subjectOptGroup in subjectOptions" :key="subjectOptGroup.optGroupId">
                 <span slot="label">{{ subjectOptGroup.optGroupName }}</span>
-                <a-select-option :value="subjectOption.id" v-for="subjectOption in subjectOptGroup.options" :key="subjectOption.id">{{ subjectOption.name }}</a-select-option>
+                <a-select-option
+                  :value="subjectOption.id"
+                  v-for="subjectOption in subjectOptGroup.options"
+                  :key="subjectOption.id">{{ subjectOption.name }}
+                </a-select-option>
               </a-select-opt-group>
             </a-select>
           </div>
@@ -115,8 +135,34 @@
           </div>
           <div class="profile-input profile-data" v-if="editMode">
             <a-select v-model="userInfo.gradeIds" placeholder="Please select grade" mode="multiple">
-              <a-select-option :value="gradeOption.id" v-for="gradeOption in gradeOptions" :key="gradeOption.id">{{ gradeOption.name }}</a-select-option>
+              <a-select-option :value="gradeOption.id" v-for="gradeOption in gradeOptions" :key="gradeOption.id">
+                {{ gradeOption.name }}
+              </a-select-option>
             </a-select>
+          </div>
+        </div>
+
+        <!-- Customized tags -->
+        <div class="profile-item-line" v-if="$store.getters.currentRole === 'teacher'">
+          <div class="profile-label">
+            <span class="label-txt">Customized tags :</span>
+          </div>
+          <div class="profile-text profile-data" v-if="!editMode">
+
+          </div>
+          <div class="profile-input profile-data" v-if="editMode">
+            <a-tree-select
+              allowClear
+              labelInValue
+              style="width: 100%"
+              :dropdownStyle="{ maxHeight: '400px', overflow: 'auto' }"
+              placeholder="Choose Customized tags"
+              :treeData="customizedTags"
+              multiple="multiple"
+              :replaceFields="{title:'name', key:'id', value: 'id'}"
+              @change="onChange"
+              @search="onSearch">
+            </a-tree-select>
           </div>
         </div>
 
@@ -126,7 +172,8 @@
       <a-col span="24" class="action-line">
         <div class="edit-action-wrapper" v-if="!editMode">
           <div class="edit-action" @click="editMode = !editMode">
-            <a-icon type="edit" /> Edit
+            <a-icon type="edit"/>
+            Edit
           </div>
         </div>
         <div class="submit-action-wrapper" v-if="editMode">
@@ -150,7 +197,7 @@ import {
   getAllCurriculums,
   GetGradesByCurriculumId,
   getAllSubjectsByCurriculumId,
-  getAllSubjectsByParentId
+  getAllSubjectsByParentId, getCustomizedTags
 } from '@/api/preference'
 
 export default {
@@ -190,6 +237,8 @@ export default {
       subjectOptions: [],
       gradeOptions: [],
       areaOptions: [],
+      customizedTags: [],
+      customizedTagIds: '',
 
       loading: true,
       editMode: false
@@ -227,7 +276,8 @@ export default {
         Promise.all([
           getAllCurriculums(),
           GetGradesByCurriculumId({ curriculumId: this.userInfo.curriculumId }),
-          getAllSubjectsByCurriculumId({ curriculumId: this.$store.getters.bindCurriculum })
+          getAllSubjectsByCurriculumId({ curriculumId: this.$store.getters.bindCurriculum }),
+          getCustomizedTags()
         ]).then(response => {
           this.$logger.info('init data', response)
           if (!response[0].code) {
@@ -271,7 +321,7 @@ export default {
                   })
 
                   if (this.userInfo.subjectIds.indexOf(option.id) !== -1) {
-                    this.userInfo.subjectNameList.push(option.name)
+                    this.userInfo.subjectNameList.push(subject.name + '-' + option.name)
                   } else {
                     this.$logger.info('subject id ' + option.id + ' dont exist in ', this.userInfo.subjectIds)
                   }
@@ -289,6 +339,14 @@ export default {
                   logger.info('subject ' + subject.name + ' not options')
                 }
               })
+            })
+          }
+
+          if (!response[3].code) {
+            logger.info('getCustomizedTags response', response[3])
+            this.customizedTags = response[3].result
+            this.customizedTags.forEach(item => {
+              item.selectable = item.children.length === 0
             })
           }
 
@@ -445,6 +503,22 @@ export default {
       } else {
         this.$message.warn('illegal nickname')
       }
+    },
+
+    onChange (value) {
+      if (!value) {
+        this.$emit('change', '')
+        this.treeValue = null
+      } else if (value instanceof Array) {
+        this.$emit('change', value.map(item => item.value).join(','))
+        this.treeValue = value
+      } else {
+        this.$emit('change', value.value, value.label)
+        this.treeValue = value
+      }
+    },
+    onSearch (value) {
+      console.log(value)
     }
   }
 }
@@ -456,6 +530,7 @@ export default {
 .account-settings-info-view {
   position: relative;
   min-height: 300px;
+
   .loading-wrapper {
     width: 100px;
     text-align: center;
@@ -465,159 +540,166 @@ export default {
     margin-left: -50px;
   }
 }
-  .avatar-upload-wrapper {
-    height: 200px;
-    width: 100%;
+
+.avatar-upload-wrapper {
+  height: 200px;
+  width: 100%;
+}
+
+.username-line {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+
+  .user-name {
+    font-size: 25px;
+    padding-left: 30px;
+  }
+}
+
+.ant-upload-preview {
+  position: relative;
+  width: 100%;
+  max-width: 180px;
+  border-radius: 50%;
+  box-shadow: 0 0 4px #ccc;
+
+  .upload-icon {
+    display: none;
+    position: absolute;
+    top: 0;
+    right: 10px;
+    font-size: 1.4rem;
+    padding: 0.5rem;
+    background: rgba(222, 221, 221, 0.7);
+    border-radius: 50%;
+    border: 1px solid rgba(0, 0, 0, 0.2);
   }
 
-  .username-line {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: flex-start;
-
-    .user-name {
-      font-size: 25px;
-      padding-left: 30px;
+  &:hover {
+    .upload-icon {
+      display: block;
     }
   }
 
-  .ant-upload-preview {
-    position: relative;
+  .mask {
+    opacity: 0;
+    position: absolute;
+    background: rgba(0, 0, 0, 0.4);
+    cursor: pointer;
+    transition: opacity 0.4s;
+
+    &:hover {
+      opacity: 1;
+    }
+
+    i {
+      font-size: 2rem;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      margin-left: -1rem;
+      margin-top: -1rem;
+      color: #d6d6d6;
+    }
+  }
+
+  img, .mask {
     width: 100%;
     max-width: 180px;
+    height: 100%;
     border-radius: 50%;
-    box-shadow: 0 0 4px #ccc;
-
-    .upload-icon {
-      display: none;
-      position: absolute;
-      top: 0;
-      right: 10px;
-      font-size: 1.4rem;
-      padding: 0.5rem;
-      background: rgba(222, 221, 221, 0.7);
-      border-radius: 50%;
-      border: 1px solid rgba(0, 0, 0, 0.2);
-    }
-
-    &:hover {
-      .upload-icon {
-        display: block;
-      }
-    }
-    .mask {
-      opacity: 0;
-      position: absolute;
-      background: rgba(0,0,0,0.4);
-      cursor: pointer;
-      transition: opacity 0.4s;
-
-      &:hover {
-        opacity: 1;
-      }
-
-      i {
-        font-size: 2rem;
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        margin-left: -1rem;
-        margin-top: -1rem;
-        color: #d6d6d6;
-      }
-    }
-
-    img, .mask {
-      width: 100%;
-      max-width: 180px;
-      height: 100%;
-      border-radius: 50%;
-      overflow: hidden;
-    }
+    overflow: hidden;
   }
+}
 
-  .profile-item-line {
-    line-height: 30px;
+.profile-item-line {
+  line-height: 30px;
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  align-items: center;
+  font-size: 16px;
+  margin-bottom: 20px;
+
+  .profile-label {
+    width: 150px;
+    font-weight: 500;
     display: flex;
     flex-direction: row;
-    justify-content: flex-start;
+    justify-content: flex-end;
     align-items: center;
-    font-size: 16px;
-    margin-bottom: 20px;
-
-    .profile-label {
-      width: 150px;
-      font-weight: 500;
-      display: flex;
-      flex-direction: row;
-      justify-content: flex-end;
-      align-items: center;
-      cursor: pointer;
-      padding-right: 5px;
-
-      .label-txt {
-        padding: 0 5px;
-      }
-    }
-
-    .profile-data {
-      width: 50%;
-      font-weight: 600;
-      color: #000;
-      display: flex;
-      flex-direction: row;
-      flex-wrap: wrap;
-      align-items: center;
-      .profile-tag-item {
-        padding: 5px;
-      }
-
-      .ant-select {
-        width: 100%;
-      }
-    }
-
-    .edit-action {
-      display: none;
-      padding-left: 10px;
-    }
-
-    &:hover {
-      .edit-action {
-        display: block;
-        color: @primary-color;
-      }
-    }
-  }
-
-  .edit-action-wrapper {
-    width: 300px;
     cursor: pointer;
-    text-align: left;
-    color: @primary-color;
-    font-weight: 500;
-    margin-left: 150px;
+    padding-right: 5px;
+
+    .label-txt {
+      padding: 0 5px;
+    }
   }
 
-  .submit-action-wrapper {
-    text-align: left;
-    margin-left: 150px;
-    margin-right: 20px;
+  .profile-data {
+    width: 50%;
+    font-weight: 600;
+    color: #000;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+
+    .profile-tag-item {
+      padding: 5px;
+
+      .ant-tag {
+        color: #000;
+      }
+    }
+
+    .ant-select {
+      width: 100%;
+    }
   }
+
+  .edit-action {
+    display: none;
+    padding-left: 10px;
+  }
+
+  &:hover {
+    .edit-action {
+      display: block;
+      color: @primary-color;
+    }
+  }
+}
+
+.edit-action-wrapper {
+  width: 300px;
+  cursor: pointer;
+  text-align: left;
+  color: @primary-color;
+  font-weight: 500;
+  margin-left: 150px;
+}
+
+.submit-action-wrapper {
+  text-align: left;
+  margin-left: 150px;
+  margin-right: 20px;
+}
 
 .submit-action-wrapper-second {
   text-align: left;
   margin-right: 20px;
 }
 
-  .action-line {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-  }
+.action-line {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
 
-  .area-input {
-    margin-top: 10px;
-  }
+.area-input {
+  margin-top: 10px;
+}
 </style>

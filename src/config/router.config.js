@@ -100,10 +100,10 @@ export const asyncRouterMap = [
             meta: { title: 'menu.tasks', keepAlive: true, permission: ['expert', 'teacher'] }
           },
           {
-            path: '/teacher/add-assessment',
-            name: 'AddAssessment',
-            component: () => import('@/views/teacher/AddAssessment'),
-            meta: { title: 'menu.add-assessment', keepAlive: true, permission: ['expert', 'teacher'] }
+            path: '/teacher/add-evaluation',
+            name: 'AddEvaluation',
+            component: () => import('@/views/teacher/AddEvaluation'),
+            meta: { title: 'menu.add-evaluation', keepAlive: true, permission: ['expert', 'teacher'] }
           },
           {
             path: '/teacher/topics-from-experts',
