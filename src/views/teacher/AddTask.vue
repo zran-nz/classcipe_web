@@ -1327,7 +1327,7 @@ export default {
 }
 
 .select-relevant-tag {
-  max-height: 80vh;
+  max-height: 60vh;
   overflow-y: scroll;
 }
 
