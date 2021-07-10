@@ -11,13 +11,13 @@
           <div class="item-item" v-for="(knowledgeItem,ki) in question.knowledgeTagList" :key="ki">
             <div class="item-name">
               <template v-if="selectedQuestionIdList.indexOf(question.questionId) !== -1">
-                <a-checkbox @click="handleSelectKnowledge(knowledgeItem)" :checked="selectedKnowledgeTagIdList.indexOf(knowledgeItem.id) !== -1">
-                  {{ knowledgeItem.info.name }}
+                <a-checkbox @click="handleSelectKnowledge(knowledgeItem)" :checked="selectedKnowledgeTagIdList.indexOf(knowledgeItem.id) !== -1" class="relevant-checkbox">
+                  {{ knowledgeItem.info.description }}
                 </a-checkbox>
               </template>
               <template v-else>
                 <span class="pure-name">
-                  {{ knowledgeItem.info.name }}
+                  {{ knowledgeItem.info.description }}
                 </span>
               </template>
             </div>
@@ -32,13 +32,13 @@
           <div class="item-item" v-for="(skillItem, si) in question.skillTagList" :key="si">
             <div class="item-name">
               <template v-if="selectedQuestionIdList.indexOf(question.questionId) !== -1">
-                <a-checkbox @click="handleSelectSkill(skillItem)" :checked="selectedSkillTagIdList.indexOf(skillItem.id) !== -1">
-                  {{ skillItem.info.name }}
+                <a-checkbox @click="handleSelectSkill(skillItem)" :checked="selectedSkillTagIdList.indexOf(skillItem.id) !== -1" class="relevant-checkbox">
+                  {{ skillItem.info.description }}
                 </a-checkbox>
               </template>
               <template v-else>
                 <span class="pure-name">
-                  {{ skillItem.info.name }}
+                  {{ skillItem.info.description }}
                 </span>
               </template>
             </div>
@@ -220,7 +220,14 @@ export default {
               align-items: center;
 
               .pure-name {
-                padding-left: 28px;
+                padding-left: 24px;
+                padding-right: 8px;
+              }
+
+              .relevant-checkbox {
+                display: flex;
+                flex-direction: row;
+                align-items: center;
               }
             }
 

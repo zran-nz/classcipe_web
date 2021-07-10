@@ -1,5 +1,4 @@
 import request from '@/utils/request'
-import { unitPlanAPIUrl } from '@/api/unitPlan'
 
 export const taskAPIUrl = {
   createTaskPPT: '/classcipe/api/task/createTaskPPT',

@@ -5,6 +5,7 @@ import { MaterialDelete } from '@/api/material'
 import { UnitPlanDelete } from '@/api/unitPlan'
 import { TaskDelete } from '@/api/task'
 import * as logger from '@/utils/logger'
+import { LessonDelete } from '@/api/myLesson'
 
 export const teacherAPIUrl = {
   Associate: '/classcipe/api/teacher/associate',
@@ -77,8 +78,7 @@ export function deleteMyContentByType (data) {
     case typeMap.task:
       return TaskDelete({ id })
     case typeMap.lesson:
-      logger.warn('lesson delete no yet implement!')
-      break
+      return LessonDelete({ id })
     case typeMap.assessment:
       logger.warn('assessment delete no yet implement!')
       break

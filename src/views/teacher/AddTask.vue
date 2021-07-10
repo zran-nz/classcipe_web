@@ -67,8 +67,15 @@
                   <div :class="{'task-type-item': true, 'active-task-type': form.taskType === 'SA'}" @click="handleSelectTaskType('SA')">SA</div>
                 </div>
               </a-form-model-item>
-              <a-form-model-item :label="$t('teacher.add-task.overview')">
+              <a-form-model-item :label="$t('teacher.add-task.overview')" class="task-audio-line">
                 <a-textarea v-model="form.overview" allow-clear />
+                <div class="audio-wrapper" v-if="form.audioUrl">
+                  <audio :src="form.audioUrl" controls />
+                  <span @click="form.audioUrl = null"><a-icon type="delete" /></span>
+                </div>
+                <div class="task-audio" @click="handleAddAudioOverview">
+                  <a-icon type="audio" />
+                </div>
               </a-form-model-item>
               <div class="content-blocks question-item" v-for="(questionItem, questionIndex) in questionDataObj" :key="questionIndex" v-if="questionItem !== null">
                 <!--knowledge tag-select -->
@@ -191,7 +198,7 @@
           <div class="create-loading" v-if="creating">
             <a-spin />
           </div>
-          <a-button @click="handleAddTemplate" type="primary">Add</a-button>
+          <a-button @click="handleAddTemplate" type="primary" :loading="creating">Add</a-button>
         </div>
       </div>
     </a-modal>
@@ -211,6 +218,45 @@
       <div class="action-line">
         <a-button @click="handleCancelSelectedRelevant" class="button-item">Cancel</a-button>
         <a-button @click="handleConfirmSelectedRelevant" type="primary" class="button-item">Confirm</a-button>
+      </div>
+    </a-modal>
+
+    <a-modal
+      v-model="showAddAudioVisible"
+      :footer="null"
+      destroyOnClose
+      title="Add Audio"
+      @ok="showAddAudioVisible = false"
+      @cancel="showAddAudioVisible = false">
+
+      <div class="audio-material-action">
+        <div class="uploading-mask" v-show="currentUploading">
+          <div class="uploading">
+            <a-spin large />
+          </div>
+        </div>
+        <div class="action-item">
+          <a-upload name="file" accept="audio/*" :customRequest="handleUploadAudio" :showUploadList="false">
+            <a-button type="primary" icon="upload">{{ $t('teacher.add-unit-plan.upload-audio') }}</a-button>
+          </a-upload>
+        </div>
+        <a-divider>
+          {{ $t('teacher.add-unit-plan.or') }}
+        </a-divider>
+        <div class="action-item-column">
+          <vue-record-audio mode="press" @result="handleAudioResult" />
+          <div class="action-tips">
+            {{ $t('teacher.add-unit-plan.record-your-voice') }}
+          </div>
+        </div>
+        <div class="material-action" >
+          <a-button key="back" @click="handleCancelAddAudio" class="action-item">
+            Cancel
+          </a-button>
+          <a-button key="submit" type="primary" @click="handleConfirmAddAudio" class="action-item">
+            Ok
+          </a-button>
+        </div>
       </div>
     </a-modal>
 
@@ -237,6 +283,7 @@ import { formatLocalUTC } from '@/utils/util'
 import MyContentSelector from '@/components/MyContent/MyContentSelector'
 import RelevantTagSelector from '@/components/UnitPlan/RelevantTagSelector'
 import { TemplateTypeMap } from '@/const/template'
+import { commonAPIUrl } from '@/api/common'
 
 const TagOriginType = {
   Origin: 'Origin',
@@ -276,6 +323,7 @@ export default {
       selectLinkContentVisible: false,
       viewInGoogleSlideVisible: false,
       selectTemplateVisible: false,
+      showAddAudioVisible: false,
 
       labelCol: { span: 4 },
       wrapperCol: { span: 18 },
@@ -285,6 +333,7 @@ export default {
         id: null,
         image: '',
         lessonId: '',
+        audioUrl: '',
         name: 'Untitled task',
         overview: '',
         presentationId: '',
@@ -350,7 +399,9 @@ export default {
       extSkillTagList: [],
 
       subKnowledgeId2InfoMap: new Map(),
-      descriptionId2InfoMap: new Map()
+      descriptionId2InfoMap: new Map(),
+      audioUrl: null,
+      currentUploading: false
     }
   },
   computed: {
@@ -821,14 +872,74 @@ export default {
       this.$delete(this.questionDataObj, '__question_0')
       this.$logger.info('questionDataObj __question_0', questionDataObj)
       this.relevantSelectedQuestionList.forEach(item => {
-        questionDataObj.knowledgeTags = questionDataObj.knowledgeTags.concat(item.knowledgeTags)
-        questionDataObj.skillTags = questionDataObj.skillTags.concat(item.skillTags)
+        item.knowledgeTags.forEach(tagItem => {
+          if (!questionDataObj.knowledgeTags.find(kItem => kItem.name === tagItem.name && kItem.description === tagItem.description)) {
+            questionDataObj.knowledgeTags.push(tagItem)
+          }
+        })
+
+        item.skillTags.forEach(skillItem => {
+          if (!questionDataObj.skillTags.find(qItem => qItem.name === skillItem.name && qItem.description === skillItem.description)) {
+            questionDataObj.skillTags.push(skillItem)
+          }
+        })
       })
 
       this.$nextTick(() => {
         this.$set(this.questionDataObj, '__question_0', questionDataObj)
       })
       this.$logger.info('after $set questionDataObj __question_0', this.questionDataObj)
+    },
+
+    handleAddAudioOverview () {
+      this.$logger.info('handleAddAudioOverview')
+      this.showAddAudioVisible = true
+    },
+
+    handleAudioResult (data) {
+      logger.info('handleAudioResult', data)
+      this.currentUploading = true
+      const formData = new FormData()
+      formData.append('file', data, 'audio.wav')
+      this.$http.post(commonAPIUrl.UploadFile, formData, { contentType: false, processData: false, headers: { 'Content-Type': 'multipart/form-data' }, timeout: 60000 })
+        .then((response) => {
+          logger.info('handleAudioResult upload response:', response)
+          this.audioUrl = this.$store.getters.downloadUrl + response.result
+          logger.info('handleAudioResult audioUrl', this.audioUrl)
+        }).catch(err => {
+        logger.error('handleAudioResult error', err)
+      }).finally(() => {
+        this.currentUploading = false
+      })
+    },
+
+    handleUploadAudio (data) {
+      logger.info('handleUploadAudio', data)
+      this.currentUploading = true
+      const formData = new FormData()
+      formData.append('file', data.file, data.file.name)
+      this.uploading = true
+      this.$http.post(commonAPIUrl.UploadFile, formData, { contentType: false, processData: false, headers: { 'Content-Type': 'multipart/form-data' }, timeout: 60000 })
+        .then((response) => {
+          logger.info('handleUploadAudio upload response:', response)
+          this.audioUrl = this.$store.getters.downloadUrl + response.result
+        }).catch(err => {
+        logger.error('handleUploadImage error', err)
+      }).finally(() => {
+        this.currentUploading = false
+      })
+    },
+
+    handleCancelAddAudio () {
+      this.$logger.info('handleCancelAddAudio')
+      this.audioUrl = null
+      this.showAddAudioVisible = false
+    },
+
+    handleConfirmAddAudio () {
+      this.$logger.info('handleConfirmAddAudio ' + this.audioUrl)
+      this.form.audioUrl = this.audioUrl
+      this.showAddAudioVisible = false
     }
   }
 }
@@ -1296,6 +1407,19 @@ export default {
   }
 }
 
+.task-audio-line {
+  position: relative;
+  .task-audio {
+    position: absolute;
+    right: -35px;
+    top: -20px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+  }
+}
+
 .view-in-google-slider {
   display: flex;
   min-height: 100px;
@@ -1356,6 +1480,79 @@ export default {
   border-radius: 3px;
   background: rgba(0,0,0,0.12);
   -webkit-box-shadow: inset 0 0 10px rgba(0,0,0,0.2);
+}
+
+.audio-material-action {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+
+  .uploading-mask {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: fade(#eee, 80%);
+    z-index: 100;
+    .uploading {
+      z-index: 110;
+      position: absolute;
+      display: flex;
+      flex-direction: row;
+      justify-content: center;
+      width: 100px;
+      left: 50%;
+      top: 45%;
+      margin-left: -50px;
+    }
+  }
+
+  .action-item {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    margin-right: 10px;
+  }
+
+  .action-item-column {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 15px 0;
+    .action-tips {
+      line-height: 32px;
+      cursor: pointer;
+      user-select: none;
+    }
+  }
+}
+
+.material-action {
+  padding: 10px 0;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+}
+
+.audio-wrapper {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  height: 30px;
+  audio {
+    height: 30px;
+    border: none;
+    outline: none;
+  }
+
+  span {
+    padding: 0 10px;
+    color: red;
+    cursor: pointer;
+  }
 }
 
 </style>
