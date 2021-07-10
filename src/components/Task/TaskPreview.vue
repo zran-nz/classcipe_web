@@ -94,7 +94,7 @@
 
 <script>
 import * as logger from '@/utils/logger'
-import { TemplatesGetPageThumbnail } from '@/api/template'
+import { TemplatesGetPageThumbnail, TemplatesGetPresentation } from '@/api/template'
 const { TaskQueryById } = require('@/api/task')
 
 export default {
@@ -153,24 +153,30 @@ export default {
 
     loadThumbnail () {
       this.$logger.info('TaskPreview loadThumbnail ' + this.task.presentationId, this.task.selectPageObjectIds)
-      if (this.task.selectPageObjectIds.length) {
-        this.task.selectPageObjectIds.forEach(id => {
-          TemplatesGetPageThumbnail({
-            pageObjectId: id,
-            presentationId: this.task.presentationId,
-            mimeType: 'SMALL'
-          }).then(response => {
-            this.imgList.push(response.result.contentUrl)
-          }).finally(() => {
-            this.$logger.info('current imgList.length ' + (this.imgList.length) + ' total:' + this.task.selectPageObjectIds.length)
-            if (this.imgList.length === this.task.selectPageObjectIds.length) {
-              this.loading = false
-            }
+      TemplatesGetPresentation({
+        presentationId: this.task.presentationId
+      }).then(response => {
+        this.$logger.info('task loadThumbnail response', response.result)
+        const pageObjectIds = response.result.pageObjectIds
+        if (pageObjectIds.length) {
+          pageObjectIds.forEach(id => {
+            TemplatesGetPageThumbnail({
+              pageObjectId: id,
+              presentationId: this.task.presentationId,
+              mimeType: 'SMALL'
+            }).then(response => {
+              this.imgList.push(response.result.contentUrl)
+            }).finally(() => {
+              this.$logger.info('current imgList.length ' + (this.imgList.length) + ' total:' + this.task.selectPageObjectIds.length)
+              if (this.imgList.length === pageObjectIds.length) {
+                this.loading = false
+              }
+            })
           })
-        })
-      } else {
-        this.loading = false
-      }
+        } else {
+          this.loading = false
+        }
+      })
     },
 
     handleSelectContentType (contentType) {
