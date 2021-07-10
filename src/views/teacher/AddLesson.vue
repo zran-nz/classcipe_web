@@ -424,10 +424,9 @@ export default {
       form: {
         id: null,
         image: '',
-        lessonId: '',
+        presentationId: '',
         name: 'Untitled lesson',
         overview: '',
-        presentationId: '',
         questions: [{
           knowledgeTags: [
             {
@@ -968,6 +967,7 @@ export default {
           }).then(response => {
             this.$logger.info('handleAddTemplate response', response.result)
             this.form.id = response.result.id
+            this.form.presentationId = response.result.presentationId
             this.presentationLink = response.result.presentationLink
             this.form.presentationId = this.selectedTemplateList[0].presentationId
             this.selectTemplateVisible = false
@@ -1073,6 +1073,7 @@ export default {
           this.showChoseSelectTemplateVisible = false
           this.selectedMyContentVisible = false
           this.form.id = response.result.id
+          this.form.presentationId = response.result.presentationId
           this.presentationLink = response.result.presentationLink
           this.selectTemplateVisible = false
           this.mode = 'edit'
