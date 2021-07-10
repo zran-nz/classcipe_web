@@ -230,6 +230,10 @@ export default {
         this.$router.push({
           path: '/teacher/task-redirect/' + item.id
         })
+      } else if (item.type === typeMap.lesson) {
+        this.$router.push({
+          path: '/teacher/lesson-redirect/' + item.id
+        })
       }
     },
     handleDeleteItem (item) {
