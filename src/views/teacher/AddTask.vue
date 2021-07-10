@@ -937,9 +937,11 @@ export default {
     },
 
     handleConfirmAddAudio () {
-      this.$logger.info('handleConfirmAddAudio ' + this.audioUrl)
-      this.form.audioUrl = this.audioUrl
-      this.showAddAudioVisible = false
+      if(this.audioUrl) {
+        this.form.audioUrl = this.audioUrl
+       this.audioUrl = null
+       this.showAddAudioVisible = false
+      }
     }
   }
 }

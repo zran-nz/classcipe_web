@@ -15,7 +15,7 @@
       </a-col>
       <a-col span="12" class="unit-right-action">
         <a-space>
-          <a-button @click="handleSaveLesson"> <a-icon type="save" /> {{ $t('teacher.add-lesson.save') }}</a-button>
+          <a-button @click="handleSaveLesson" :loading="lessonSaving"> <a-icon type="save" /> {{ $t('teacher.add-lesson.save') }}</a-button>
           <a-button type="primary" @click="handlePublishLesson"> <a-icon type="cloud-upload" /> {{ $t('teacher.add-lesson.publish') }}</a-button>
         </a-space>
       </a-col>
@@ -67,8 +67,15 @@
                   <div :class="{'lesson-type-item': true, 'active-lesson-type': form.lessonType === 'SA'}" @click="handleSelectLessonType('SA')">SA</div>
                 </div>
               </a-form-model-item>
-              <a-form-model-item :label="$t('teacher.add-lesson.overview')">
+              <a-form-model-item :label="$t('teacher.add-lesson.overview')" class="task-audio-line">
                 <a-textarea v-model="form.overview" allow-clear />
+                <div class="audio-wrapper" v-if="form.audioUrl">
+                  <audio :src="form.audioUrl" controls />
+                  <span @click="form.audioUrl = null"><a-icon type="delete" /></span>
+                </div>
+                <div class="task-audio" @click="handleAddAudioOverview">
+                  <a-icon type="audio" />
+                </div>
               </a-form-model-item>
               <div class="content-blocks question-item" v-for="(questionItem, questionIndex) in questionDataObj" :key="questionIndex" v-if="questionItem !== null">
                 <!--knowledge tag-select -->
@@ -91,17 +98,34 @@
                   @add-skill-tag="handleAddSkillTag"
                 />
               </div>
-              <div class="form-block">
+              <div class="form-block" v-show="form.presentationId">
                 <a-row>
                   <a-col offset="4" span="18">
                     <a-divider />
                     <div class="label-line">
                       Pick slides to create a brilliant task and use it in your future lessons or share with global educators
                     </div>
-                    <div class="preview-list">
+                    <div class="preview-list" v-if="!thumbnailListLoading">
                       <div class="preview-item-cover" :style="{backgroundImage: 'url(' + item.contentUrl + ')'}" v-for="(item,index) in thumbnailList" :key="index" @click="handleToggleThumbnail(item)">
-                        <div class="template-select-icon" v-if=" selectedPageIdList.indexOf(template.id) !== -1">
+                        <div class="template-select-icon" v-if=" selectedPageIdList.indexOf(item.id) !== -1">
                           <a-icon type="check" />
+                        </div>
+                      </div>
+                    </div>
+                    <div class="thumbnail-loading" v-if="thumbnailListLoading">
+                      <a-spin size="large" />
+                    </div>
+                    <div class="thumbnail-task-list">
+                      <div class="thumbnail-task-item" v-if="selectedPageIdList.length > 0">
+                        <task-form :task-prefix="'task_' + taskIndex + '_'" @finish-task="handleFinishTask" />
+                      </div>
+                      <a-divider />
+                      <div class="task-preview-list">
+                        <div class="task-preview" v-for="(task, index) in form.tasks" :key="index">
+                          <task-preview :task-data="task" />
+                          <div class="task-delete" @click="handleTaskDelete(task)">
+                            <a-icon type="delete" />
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -348,6 +372,8 @@ import { commonAPIUrl } from '@/api/common'
 import MyContentSelector from '@/components/MyContent/MyContentSelector'
 import RelevantTagSelector from '@/components/UnitPlan/RelevantTagSelector'
 import { TemplateTypeMap } from '@/const/template'
+import TaskForm from '@/components/Task/TaskForm'
+import TaskPreview from '@/components/Task/TaskPreview'
 
 const TagOriginType = {
   Origin: 'Origin',
@@ -360,6 +386,8 @@ const TagOriginType = {
 export default {
   name: 'AddLesson',
   components: {
+    TaskPreview,
+    TaskForm,
     ContentTypeIcon,
     InputSearch,
     SdgTagInput,
@@ -418,6 +446,7 @@ export default {
           ]
         }],
         suggestingTag: [],
+        tasks: [],
         status: 0,
         lessonType: '',
         createTime: '',
@@ -479,7 +508,12 @@ export default {
 
       pageObjectIds: [],
       thumbnailList: [],
-      selectedPageIdList: []
+      selectedPageIdList: [],
+
+      thumbnailListLoading: false,
+
+      taskIndex: 0,
+      lessonSaving: false
     }
   },
   computed: {
@@ -625,6 +659,10 @@ export default {
         }
 
         this.form = lessonData
+
+        if (this.form.presentationId) {
+          this.loadThumbnail()
+        }
         logger.info('after restoreLesson', this.form, this.questionDataObj)
       }).finally(() => {
         this.contentLoading = false
@@ -832,6 +870,7 @@ export default {
 
       lessonData.suggestingTag = questionItem
       logger.info('question lessonData', lessonData)
+      this.lessonSaving = true
       LessonAddOrUpdate(lessonData).then((response) => {
         logger.info('LessonAddOrUpdate', response.result)
         if (response.success) {
@@ -840,6 +879,8 @@ export default {
         } else {
           this.$message.error(response.message)
         }
+      }).finally(() => {
+        this.lessonSaving = false
       })
     },
     handlePublishLesson () {
@@ -1047,6 +1088,7 @@ export default {
     },
 
     loadThumbnail () {
+      this.thumbnailListLoading = true
       this.$logger.info('loadThumbnail ' + this.form.presentationId)
       TemplatesGetPresentation({
         presentationId: this.form.presentationId
@@ -1062,6 +1104,11 @@ export default {
           }).then(response => {
             this.$logger.info('contentUrl ' + response.result.contentUrl)
             this.thumbnailList.push({ contentUrl: response.result.contentUrl, id: id })
+          }).finally(() => {
+            this.$logger.info('current thumbnailList ', this.thumbnailList)
+            if (this.thumbnailList.length === this.pageObjectIds.length) {
+              this.thumbnailListLoading = false
+            }
           })
         })
       })
@@ -1069,7 +1116,7 @@ export default {
 
     handleToggleThumbnail (thumbnail) {
       this.$logger.info('handleToggleThumbnail', thumbnail)
-      const index = this.selectedPageIdList.findIndex(thumbnail.id)
+      const index = this.selectedPageIdList.indexOf(thumbnail.id)
       if (index !== -1) {
         this.selectedPageIdList.splice(index, 1)
       } else {
@@ -1123,10 +1170,46 @@ export default {
 
     handleCancelAddAudio () {
       this.audioUrl = null
+      this.showAddAudioVisible = false
     },
 
     handleConfirmAddAudio () {
-      this.form.audioUrl = this.audioUrl
+      if (this.audioUrl) {
+        this.form.audioUrl = this.audioUrl
+        this.audioUrl = null
+      }
+      this.showAddAudioVisible = false
+    },
+
+    handleAddAudioOverview () {
+      this.$logger.info('handleAddAudioOverview')
+      this.showAddAudioVisible = true
+    },
+
+    handleAddAnotherTask () {
+      this.$logger.info('handleAddAnotherTask')
+    },
+
+    handleFinishTask (data) {
+      this.$logger.info('handleFinishTask', data)
+      const task = Object.assign({
+        presentationId: this.form.presentationId,
+        selectPageObjectIds: this.selectedPageIdList,
+        lessonId: this.form.id
+      }, data)
+      this.$logger.info('new task', task)
+      this.form.tasks.push(task)
+      this.selectedPageIdList = []
+      this.taskIndex++
+      this.$logger.info('after add tasks ', this.form.tasks)
+    },
+
+    handleTaskDelete (task) {
+      this.$logger.info('handleTaskDelete', task)
+      const index = this.form.tasks.findIndex(item => item.__taskId === task.__taskId)
+      if (index !== -1) {
+        this.form.tasks.splice(index, 1)
+      }
     }
   }
 }
@@ -1692,7 +1775,6 @@ export default {
     flex-direction: row;
     justify-content: center;
     align-items: center;
-    padding: 15px 0;
   }
 
   .action-item-column {
@@ -1745,8 +1827,11 @@ export default {
   justify-content: flex-start;
   flex-wrap: wrap;
   .preview-item-cover {
+    background-position: center center;
+    background-size: contain;
+    background-repeat: no-repeat;
     position: relative;
-    width: 20%;
+    width: 200px;
     height: 150px;
     margin: 0 15px 15px 0 ;
     border: 1px solid #eee;
@@ -1762,9 +1847,62 @@ export default {
       right: 5px;
       bottom: 5px;
       font-size: 10px;
-      background-color: fade(@outline-color, 60%);
+      background-color: fade(@outline-color, 100%);
       padding: 2px 5px;
       color: #fff;
+    }
+  }
+}
+
+.thumbnail-loading {
+  min-height: 200px;
+  margin-top: 20px;
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+}
+.task-audio-line {
+  position: relative;
+  .task-audio {
+    position: absolute;
+    right: -35px;
+    top: -20px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+  }
+}
+
+.audio-wrapper {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  height: 30px;
+  audio {
+    height: 30px;
+    border: none;
+    outline: none;
+  }
+
+  span {
+    padding: 0 10px;
+    color: red;
+    cursor: pointer;
+  }
+}
+
+.thumbnail-task-list {
+  display: flex;
+  flex-direction: column;
+  .task-preview-list {
+    position: relative;
+    .task-delete {
+      position: absolute;
+      right: -30px;
+      top: 30%;
     }
   }
 }

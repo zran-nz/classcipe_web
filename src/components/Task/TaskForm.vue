@@ -1,188 +1,113 @@
 <template>
-  <a-card :bordered="false" :style="{ borderLeft: '1px solid rgb(235, 238, 240)', borderRight: '1px solid rgb(235, 238, 240)' }" :body-style="{padding: '16px'}">
-    <a-form-model :model="form" :label-col="labelCol" :wrapper-col="wrapperCol" >
-      <div class="form-block" v-if="mode === 'edit'">
-        <a-form-model-item :label="$t('teacher.add-task.task-name')" class="task-type-line">
-          <a-input v-model="form.name" />
-          <div class="task-type">
-            <div :class="{'task-type-item': true, 'active-task-type': form.taskType === 'FA'}" @click="handleSelectTaskType('FA')">FA</div>
-            <div :class="{'task-type-item': true, 'active-task-type': form.taskType === 'SA'}" @click="handleSelectTaskType('SA')">SA</div>
-          </div>
-        </a-form-model-item>
-        <a-form-model-item :label="$t('teacher.add-task.overview')">
-          <a-textarea v-model="form.overview" allow-clear />
-        </a-form-model-item>
-        <div class="content-blocks question-item" v-for="(questionItem, questionIndex) in questionDataObj" :key="questionIndex" v-if="questionItem !== null">
-          <!--knowledge tag-select -->
-          <new-clickable-knowledge-tag
-            :question-index="questionIndex"
-            :selected-knowledge-tags="questionItem.knowledgeTags"
-            :ext-tag-list="extKnowledgeTagList"
-            @remove-knowledge-tag="handleRemoveKnowledgeTag"
-            @add-knowledge-tag="handleAddKnowledgeTag"
-          />
-
-          <!--skill tag-select-->
-          <new-clickable-skill-tag
-            :question-index="questionIndex"
-            :grade-list="gradeList"
-            :default-grade-id="questionItem.skillGradeId"
-            :selected-skill-tags="questionItem.skillTags"
-            :ext-tag-list="extSkillTagList"
-            @remove-skill-tag="handleRemoveSkillTag"
-            @add-skill-tag="handleAddSkillTag"
-          />
-
-        </div>
-      </div>
-      <div class="form-block" v-if="mode === 'create'">
-        <a-row>
-          <a-col span="12" offset="6" class="select-template">
-            <a-button @click="handleShowSelectTemplate">
-              {{ $t('teacher.add-task.choose-a-template') }}
-            </a-button>
-          </a-col>
-        </a-row>
-      </div>
-    </a-form-model>
-
-    <a-modal
-      v-model="selectLinkContentVisible"
-      :footer="null"
-      destroyOnClose
-      width="80%"
-      title="Link in my content"
-      @ok="selectLinkContentVisible = false"
-      @cancel="selectLinkContentVisible = false">
-      <div class="link-content-wrapper">
-        <my-content-selector :filter-type-list="['unit-plan']" />
-      </div>
-    </a-modal>
-
-    <a-modal
-      v-model="viewInGoogleSlideVisible"
-      :footer="null"
-      destroyOnClose
-      title="Create Success"
-      @ok="viewInGoogleSlideVisible = false"
-      @cancel="viewInGoogleSlideVisible = false">
-      <div class="view-in-google-slider">
-        <div class="view-line">
-          <div class="link-url">
-            <a :href="presentationLink" target="_blank">{{ presentationLink }}</a>
-          </div>
-          <div class="view-action">
-            <a-button type="primary" @click="handleOpenGoogleSlide(presentationLink)">View In Google Slide</a-button>
-          </div>
-        </div>
-      </div>
-    </a-modal>
-
-    <a-modal
-      v-model="selectTemplateVisible"
-      :footer="null"
-      destroyOnClose
-      title="Teaching Templates"
-      width="50%"
-      @ok="selectTemplateVisible = false"
-      @cancel="selectTemplateVisible = false">
-      <div class="select-template-wrapper">
-        <div class="template-type-list">
-          <div :class="{'template-type-item': true, 'active-template-type' : currentTemplateType === templateTypeMap['visible-thinking-tool']}" @click="handleToggleTemplateType(templateTypeMap['visible-thinking-tool'])">
-            Visible thinking tool
-          </div>
-          <div :class="{'template-type-item': true, 'active-template-type' : currentTemplateType === templateTypeMap.worksheet}" @click="handleToggleTemplateType(templateTypeMap.worksheet)">
-            Worksheet
-          </div>
-          <div :class="{'template-type-item': true, 'active-template-type' : currentTemplateType === templateTypeMap.quiz}" @click="handleToggleTemplateType(templateTypeMap.quiz)">
-            Quiz
-          </div>
-          <div :class="{'template-type-item': true, 'active-template-type' : currentTemplateType === templateTypeMap['summative-assessment-task']}" @click="handleToggleTemplateType(templateTypeMap['summative-assessment-task'])">
-            Summative assessment task
-          </div>
-        </div>
-        <div class="template-list-wrapper">
-          <div class="template-list" v-if="!templateLoading">
-            <div class="template-item" v-for="(template,index) in templateList" :key="index" @click="handleSelectTemplate(template)">
-              <div class="template-cover" :style="{backgroundImage: 'url(' + template.cover + ')'}">
+  <div class="task-form-wrapper">
+    <a-row class="unit-content">
+      <a-col class="main-content">
+        <a-form-model :model="form" :label-col="labelCol" :wrapper-col="wrapperCol" >
+          <div class="form-block">
+            <a-form-model-item :label="$t('teacher.add-task.task-name')" class="task-type-line">
+              <a-input v-model="form.name" />
+              <div class="task-type">
+                <div :class="{'task-type-item': true, 'active-task-type': form.taskType === 'FA'}" @click="handleSelectTaskType('FA')">FA</div>
+                <div :class="{'task-type-item': true, 'active-task-type': form.taskType === 'SA'}" @click="handleSelectTaskType('SA')">SA</div>
               </div>
-              <div class="template-info">
-                <div class="template-name">{{ template.name }}</div>
-                <div class="template-intro">{{ template.introduce }}</div>
-                <div class="template-select-icon" v-if="template.id && selectedTemplateIdList.indexOf(template.id) !== -1">
-                  <a-icon type="check" />
-                </div>
+            </a-form-model-item>
+            <a-form-model-item :label="$t('teacher.add-task.overview')" class="task-audio-line">
+              <a-textarea v-model="form.overview" allow-clear />
+              <div class="audio-wrapper" v-if="form.audioUrl">
+                <audio :src="form.audioUrl" controls />
+                <span @click="form.audioUrl = null"><a-icon type="delete" /></span>
               </div>
+              <div class="task-audio" @click="handleAddAudioOverview">
+                <a-icon type="audio" />
+              </div>
+            </a-form-model-item>
+            <div class="content-blocks question-item" v-for="(questionItem, questionIndex) in questionDataObj" :key="questionIndex" v-if="questionItem !== null">
+              <!--knowledge tag-select -->
+              <new-clickable-knowledge-tag
+                :question-index="questionIndex"
+                :selected-knowledge-tags="questionItem.knowledgeTags"
+                :ext-tag-list="extKnowledgeTagList"
+                @remove-knowledge-tag="handleRemoveKnowledgeTag"
+                @add-knowledge-tag="handleAddKnowledgeTag"
+              />
+
+              <!--skill tag-select-->
+              <new-clickable-skill-tag
+                :question-index="questionIndex"
+                :grade-list="gradeList"
+                :default-grade-id="questionItem.skillGradeId"
+                :selected-skill-tags="questionItem.skillTags"
+                :ext-tag-list="extSkillTagList"
+                @remove-skill-tag="handleRemoveSkillTag"
+                @add-skill-tag="handleAddSkillTag"
+              />
             </div>
           </div>
-          <div class="no-template" v-if="!templateLoading && templateList.length === 0">
-            <a-empty />
+          <div class="form-block save-task">
+            <a-button type="primary" @click="handleSaveTask">Save Task</a-button>
           </div>
-          <div class="template-loading" v-if="templateLoading">
-            <a-spin />
-          </div>
-        </div>
-        <div class="template-action">
-          <div class="create-loading" v-if="creating">
-            <a-spin />
-          </div>
-          <a-button @click="handleAddTemplate" type="primary">Add</a-button>
-        </div>
-      </div>
-    </a-modal>
-
+        </a-form-model>
+      </a-col>
+    </a-row>
     <a-modal
-      v-model="showRelevantQuestionVisible"
+      v-model="showAddAudioVisible"
       :footer="null"
       destroyOnClose
-      top="50px"
-      width="50%"
-      title="Select from the relevant Unit"
-      @ok="showRelevantQuestionVisible = false"
-      @cancel="showRelevantQuestionVisible = false">
-      <div class="select-relevant-tag">
-        <relevant-tag-selector :relevant-question-list="relevantQuestionList" @update-selected="handleUpdateSelected"/>
-      </div>
-      <div class="action-line">
-        <a-button @click="handleCancelSelectedRelevant" class="button-item">Cancel</a-button>
-        <a-button @click="handleConfirmSelectedRelevant" type="primary" class="button-item">Confirm</a-button>
+      title="Add Audio"
+      @ok="showAddAudioVisible = false"
+      @cancel="showAddAudioVisible = false">
+
+      <div class="audio-material-action">
+        <div class="uploading-mask" v-show="currentUploading">
+          <div class="uploading">
+            <a-spin large />
+          </div>
+        </div>
+        <div class="action-item">
+          <a-upload name="file" accept="audio/*" :customRequest="handleUploadAudio" :showUploadList="false">
+            <a-button type="primary" icon="upload">{{ $t('teacher.add-unit-plan.upload-audio') }}</a-button>
+          </a-upload>
+        </div>
+        <a-divider>
+          {{ $t('teacher.add-unit-plan.or') }}
+        </a-divider>
+        <div class="action-item-column">
+          <vue-record-audio mode="press" @result="handleAudioResult" />
+          <div class="action-tips">
+            {{ $t('teacher.add-unit-plan.record-your-voice') }}
+          </div>
+        </div>
+        <div class="material-action" >
+          <a-button key="back" @click="handleCancelAddAudio" class="action-item">
+            Cancel
+          </a-button>
+          <a-button key="submit" type="primary" @click="handleConfirmAddAudio" class="action-item">
+            Ok
+          </a-button>
+        </div>
       </div>
     </a-modal>
-
-    <a-skeleton :loading="contentLoading" active>
-    </a-skeleton>
-  </a-card>
+  </div>
 </template>
 
 <script>
 import * as logger from '@/utils/logger'
 import ContentTypeIcon from '@/components/Teacher/ContentTypeIcon'
 import { typeMap } from '@/const/teacher'
-import { UpdateContentStatus, GetMyGrades, Associate, GetAssociate } from '@/api/teacher'
+import { GetMyGrades } from '@/api/teacher'
 import InputSearch from '@/components/UnitPlan/InputSearch'
 import SdgTagInput from '@/components/UnitPlan/SdgTagInput'
 import NewClickableKnowledgeTag from '@/components/UnitPlan/NewClickableKnowledgeTag'
 import NewClickableSkillTag from '@/components/UnitPlan/NewClickableSkillTag'
 import SkillTag from '@/components/UnitPlan/SkillTag'
-import { TemplatesGetTemplates } from '@/api/template'
-import { MyContentEventBus, MyContentEvent } from '@/components/MyContent/MyContentEventBus'
-import { TaskCreateTaskPPT, TaskQueryById, TaskAddOrUpdate } from '@/api/task'
-import { UnitPlanQueryById } from '@/api/unitPlan'
 import { formatLocalUTC } from '@/utils/util'
 import MyContentSelector from '@/components/MyContent/MyContentSelector'
 import RelevantTagSelector from '@/components/UnitPlan/RelevantTagSelector'
 import { TemplateTypeMap } from '@/const/template'
-
-const TagOriginType = {
-  Origin: 'Origin',
-  Search: 'Search',
-  Description: 'Description',
-  Create: 'Create',
-  Extension: 'Extension'
-}
+import { commonAPIUrl } from '@/api/common'
 
 export default {
-  name: 'AddTask',
+  name: 'TaskForm',
   components: {
     ContentTypeIcon,
     InputSearch,
@@ -194,14 +119,18 @@ export default {
     RelevantTagSelector
   },
   props: {
-    // eslint-disable-next-line vue/require-default-prop
-    taskId: null
+    taskId: {
+      type: String,
+      default: ''
+    },
+    taskPrefix: {
+      type: String,
+      default: '',
+      required: true
+    }
   },
   data () {
     return {
-      mode: 'create',
-      contentLoading: true,
-      referenceLoading: false,
       contentType: typeMap,
       templateTypeMap: TemplateTypeMap,
 
@@ -211,18 +140,18 @@ export default {
       selectLinkContentVisible: false,
       viewInGoogleSlideVisible: false,
       selectTemplateVisible: false,
+      showAddAudioVisible: false,
 
       labelCol: { span: 4 },
       wrapperCol: { span: 18 },
 
       presentationLink: null,
       form: {
-        id: null,
+        __taskId: null,
         image: '',
-        lessonId: '',
+        audioUrl: '',
         name: 'Untitled task',
         overview: '',
-        presentationId: '',
         questions: [{
           knowledgeTags: [
             {
@@ -254,38 +183,13 @@ export default {
       questionMaxIndex: 0,
       questionPrefix: '__question_',
       questionDataObj: {
-        __question_0: {
-          questionId: null,
-          visible: false,
-          name: '',
-          knowledgeMainSubjectId: '',
-          knowledgeSubSubjectId: '',
-          knowledgeGradeId: '',
-          knowledgeTags: [],
-          skillGradeId: '',
-          skillTags: []
-        }
       },
-
-      currentTemplateType: TemplateTypeMap['visible-thinking-tool'],
-      templateList: [],
-      templateLoading: false,
-      selectedTemplateList: [],
-
-      // 关联信息
-      ownerAssociateData: [],
-      othersAssociateData: [],
-
-      // 待选择的unit plan中的描述标签
-      relevantQuestionList: [],
-      showRelevantQuestionVisible: false,
-      relevantSelectedQuestionList: [],
 
       extKnowledgeTagList: [],
       extSkillTagList: [],
 
-      subKnowledgeId2InfoMap: new Map(),
-      descriptionId2InfoMap: new Map()
+      audioUrl: null,
+      currentUploading: false
     }
   },
   computed: {
@@ -306,245 +210,44 @@ export default {
       return list
     }
   },
+  watch: {
+    selectPageObjectIds (value) {
+      this.$logger.info('selectPageObjectIds update', value)
+      this.form.selectPageObjectIds = value
+    }
+  },
   created () {
     logger.info('add task created ' + this.taskId + ' ' + this.$route.path)
-    this.mode = this.taskId ? 'edit' : 'create'
-
-    // 初始化关联事件处理
-    MyContentEventBus.$on(MyContentEvent.LinkToMyContentItem, this.handleLinkMyContent)
+    this.questionPrefix = '' + this.taskPrefix + '__question_'
+    this.$set(this.questionDataObj, this.questionPrefix + this.questionMaxIndex, {
+      questionId: null,
+      visible: false,
+      name: '',
+      knowledgeMainSubjectId: '',
+      knowledgeSubSubjectId: '',
+      knowledgeGradeId: '',
+      knowledgeTags: [],
+      skillGradeId: '',
+      skillTags: []
+    })
+    this.form.__taskId = '__taskId_' + this.taskPrefix
+    this.$logger.info('questionPrefix ' + this.questionPrefix)
+    this.$logger.info('questionDataObj ', this.questionDataObj)
     this.initData()
-  },
-  beforeDestroy () {
-    MyContentEventBus.$off(MyContentEvent.LinkToMyContentItem, this.handleLinkMyContent)
   },
   methods: {
     initData () {
       logger.info('initData doing...')
-      Promise.all([
-        GetMyGrades(),
-        TemplatesGetTemplates({ category: this.currentTemplateType })
-      ]).then((response) => {
+      GetMyGrades().then((response) => {
         this.$logger.info('add task initData done', response)
-
-        // GetMyGrades
-        if (!response[0].code) {
-          this.$logger.info('GetMyGrades', response[0].result)
-          this.gradeList = response[0].result
-        }
-
-        if (!response[1].code) {
-          this.$logger.info('template list', response[1].result)
-          this.templateList = response[1].result
-        }
-      }).then(() => {
-        if (this.taskId) {
-          this.$logger.info('restore task data ' + this.taskId)
-          this.restoreTask(this.taskId, true)
-          this.loadAssociate()
-        } else {
-          this.contentLoading = false
-        }
+        this.$logger.info('GetMyGrades', response.result)
+        this.gradeList = response.result
       }).catch((e) => {
         this.$logger.error(e)
         this.$message.error(this.$t('teacher.add-task.init-data-failed'))
-      }).finally(() => {
-        this.referenceLoading = false
       })
     },
 
-    restoreTask (taskId, isFirstLoad) {
-      if (isFirstLoad) {
-        this.contentLoading = true
-      }
-      logger.info('restoreTask ' + taskId)
-      TaskQueryById({
-        id: taskId
-      }).then(response => {
-        logger.info('TaskQueryById ' + taskId, response.result)
-        const taskData = response.result
-
-        const questionKeys = Object.keys(this.questionDataObj)
-        questionKeys.forEach(questionKey => {
-          logger.info('questionDataObj delete ' + questionKey)
-          this.$delete(this.questionDataObj, questionKey)
-        })
-        if (taskData.questions && taskData.questions.length) {
-          taskData.questions.forEach(questionItem => {
-            const question = {
-              questionId: questionItem.id,
-              visible: false,
-              name: questionItem.name,
-              knowledgeMainSubjectId: '',
-              knowledgeSubSubjectId: '',
-              knowledgeGradeId: '',
-              knowledgeTags: questionItem.knowledgeTags,
-              skillGradeId: '',
-              skillTags: questionItem.skillTags,
-              origin: 'question'
-            }
-            this.$set(this.questionDataObj, this.questionPrefix + this.questionMaxIndex, question)
-            logger.info('restore default questionDataObj: ' + (this.questionPrefix + this.questionMaxIndex), question, ' questionDataObj ', this.questionDataObj)
-            this.questionMaxIndex = this.questionMaxIndex + 1
-            this.questionTotal = this.questionTotal + 1
-          })
-        }
-
-        if (taskData.suggestingTag && (taskData.suggestingTag.knowledgeTags.length || taskData.suggestingTag.skillTags.length)) {
-          const question = {
-            questionId: null,
-            visible: false,
-            name: null,
-            knowledgeMainSubjectId: '',
-            knowledgeSubSubjectId: '',
-            knowledgeGradeId: '',
-            knowledgeTags: taskData.suggestingTag.knowledgeTags,
-            skillGradeId: '',
-            skillTags: taskData.suggestingTag.skillTags,
-            origin: 'suggesting'
-          }
-          this.$set(this.questionDataObj, this.questionPrefix + this.questionMaxIndex, question)
-          logger.info('suggestingTag restore questionDataObj: ' + (this.questionPrefix + this.questionMaxIndex), question, ' questionDataObj ', this.questionDataObj)
-          this.questionMaxIndex = this.questionMaxIndex + 1
-          this.questionTotal = this.questionTotal + 1
-        }
-
-        if (this.questionMaxIndex === 0) {
-          const question = {
-            name: '',
-            knowledgeMainSubjectId: '',
-            knowledgeSubSubjectId: '',
-            knowledgeGradeId: '',
-            knowledgeTags: [],
-            skillGradeId: '',
-            skillTags: []
-          }
-          this.$set(this.questionDataObj, this.questionPrefix + this.questionMaxIndex, question)
-          this.questionMaxIndex = this.questionMaxIndex + 1
-          this.questionTotal = this.questionTotal + 1
-        }
-
-        this.form = taskData
-        logger.info('after restoreTask', this.form, this.questionDataObj)
-      }).finally(() => {
-        this.contentLoading = false
-      })
-    },
-
-    handleLinkMyContent (data) {
-      this.$logger.info('handleLinkMyContent ', data)
-      this.selectLinkContentVisible = false
-      Associate({
-        fromId: this.form.id,
-        fromType: this.contentType.task,
-        toId: data.item.id,
-        toType: data.item.type
-      }).then(response => {
-        this.$logger.info('handleLinkMyContent response ', response)
-        this.loadAssociate()
-        this.loadRelevantTagInfo(data.item)
-      })
-    },
-    loadAssociate () {
-      GetAssociate({
-        id: this.taskId,
-        type: this.contentType.task
-      }).then(response => {
-        this.$logger.info('GetAssociate response', response)
-        const associate = response.result
-        this.ownerAssociateData = associate.owner
-        this.othersAssociateData = associate.others
-        this.$logger.info('ownerAssociateData ', this.ownerAssociateData, 'othersAssociateData', this.othersAssociateData)
-      })
-    },
-
-    loadRelevantTagInfo (item) {
-      this.$logger.info('loadRelevantTagInfo', item)
-      this.showRelevantQuestionVisible = false
-      if (item.type === this.contentType['unit-plan']) {
-        UnitPlanQueryById({ id: item.id }).then(response => {
-          this.$logger.info('loadRelevantTagInfo UnitPlanQueryById ' + item.id, response)
-          const unitPlanData = response.result
-          if (unitPlanData.questions && unitPlanData.questions.length) {
-            const questionList = unitPlanData.questions
-            const questionMap = new Map()
-            const relevantTagList = []
-            questionList.forEach(questionItem => {
-              if (questionItem.id && !questionMap.has(questionItem.id)) {
-                // 处理knowledge tags
-                const knowledgeTagMap = new Map()
-                const knowledgeTagList = []
-                questionItem.knowledgeTags.forEach(item => {
-                  if (!!item.subKnowledgeId && item.curriculumId === this.$store.getters.bindCurriculum) {
-                    if (!knowledgeTagMap.has(item.subKnowledgeId)) {
-                      knowledgeTagMap.set(item.subKnowledgeId, [])
-                      this.subKnowledgeId2InfoMap.set(item.subKnowledgeId, {
-                        ...item
-                      })
-                    }
-
-                    const tagList = knowledgeTagMap.get(item.subKnowledgeId)
-                    tagList.push({
-                      ...item,
-                      type: TagOriginType.Origin
-                    })
-                    knowledgeTagMap.set(item.subKnowledgeId, tagList)
-                  }
-                })
-                for (const [id, tagList] of knowledgeTagMap) {
-                  knowledgeTagList.push({
-                    id: tagList[0].id,
-                    tagList,
-                    info: this.subKnowledgeId2InfoMap.get(id)
-                  })
-                }
-
-                // 处理skill tags
-                const skillTagMap = new Map()
-                const skillTagList = []
-                questionItem.skillTags.forEach(item => {
-                  if (!!item.descriptionId && item.curriculumId === this.$store.getters.bindCurriculum) {
-                    if (!skillTagMap.has(item.descriptionId)) {
-                      skillTagMap.set(item.descriptionId, [])
-                      this.descriptionId2InfoMap.set(item.descriptionId, {
-                        ...item
-                      })
-                    }
-
-                    const tagList = skillTagMap.get(item.descriptionId)
-                    tagList.push({
-                      ...item,
-                      type: TagOriginType.Origin
-                    })
-                    skillTagMap.set(item.descriptionId, tagList)
-                  }
-                })
-                for (const [id, tagList] of skillTagMap) {
-                  skillTagList.push({
-                    id: tagList[0].id,
-                    tagList,
-                    info: this.descriptionId2InfoMap.get(id)
-                  })
-                }
-
-                relevantTagList.push({
-                  questionName: questionItem.name,
-                  questionId: questionItem.id,
-                  skillTagList,
-                  knowledgeTagList
-                })
-              }
-            })
-            questionMap.clear()
-
-            this.relevantQuestionList = relevantTagList
-            this.showRelevantQuestionVisible = true
-            this.$logger.info('relevantQuestionList', this.relevantQuestionList)
-          } else {
-            this.$logger.info('no relevantQuestionList')
-          }
-        })
-      }
-    },
     handleRemoveKnowledgeTag (data) {
       logger.info('Unit Plan handleRemoveKnowledgeTag', data)
       logger.info('target question data', this.questionDataObj[data.questionIndex.knowledgeTags])
@@ -587,13 +290,11 @@ export default {
 
       const taskData = Object.assign({}, this.form)
 
-      if (this.taskId) {
-        taskData.id = this.taskId
-      }
       logger.info('basic taskData', taskData)
 
-      const question = this.questionDataObj['__question_0']
-      logger.info('question __question_0', question)
+      this.$logger.info('question key ' + (this.questionPrefix + '0'))
+      const question = this.questionDataObj[this.questionPrefix + '0']
+      logger.info('question ' + this.questionPrefix + '0', question)
       if (question.knowledgeTags && question.knowledgeTags.length) {
         question.knowledgeTags.forEach(item => {
           item.curriculumId = this.$store.getters.bindCurriculum
@@ -617,32 +318,8 @@ export default {
       }
 
       taskData.suggestingTag = questionItem
-      logger.info('question taskData', taskData)
-      TaskAddOrUpdate(taskData).then((response) => {
-        logger.info('TaskAddOrUpdate', response.result)
-        if (response.success) {
-          this.restoreTask(response.result.id, false)
-          // this.$message.success(this.$t('teacher.add-task.save-success'))
-        } else {
-          this.$message.error(response.message)
-        }
-      })
-    },
-    handlePublishTask () {
-      logger.info('handlePublishTask', {
-        id: this.taskId,
-        status: 1
-      })
-
-      UpdateContentStatus({
-        id: this.taskId,
-        status: 1,
-        type: this.contentType.task
-      }).then(response => {
-        this.$logger.info('UpdateContentStatus response', response)
-        // this.$message.success('Publish success')
-        this.form.status = 1
-      })
+      logger.info('finish taskData', taskData)
+      this.$emit('finish-task', taskData)
     },
 
     handleSelectTaskType (type) {
@@ -650,120 +327,57 @@ export default {
       this.form.taskType = type
     },
 
-    goBack () {
-      if (window.history.length <= 1) {
-        this.$router.push({ path: '/teacher/main/created-by-me' })
-        return false
-      } else {
-        this.$router.go(-1)
-      }
-
-      setTimeout(() => {
-        this.$router.push({ path: '/teacher/main/created-by-me' })
-      }, 500)
+    handleAddAudioOverview () {
+      this.$logger.info('handleAddAudioOverview')
+      this.showAddAudioVisible = true
     },
 
-    handleToggleTemplateType (templateType) {
-      this.$logger.info('handleToggleTemplateType ' + templateType)
-      this.templateLoading = true
-      this.currentTemplateType = templateType
-      this.selectedTemplateList = []
-      TemplatesGetTemplates({ category: this.currentTemplateType }).then(response => {
-        this.$logger.info('handleToggleTemplateType ', response)
-        this.templateList = response.result
+    handleAudioResult (data) {
+      logger.info('handleAudioResult', data)
+      this.currentUploading = true
+      const formData = new FormData()
+      formData.append('file', data, 'audio.wav')
+      this.$http.post(commonAPIUrl.UploadFile, formData, { contentType: false, processData: false, headers: { 'Content-Type': 'multipart/form-data' }, timeout: 60000 })
+        .then((response) => {
+          logger.info('handleAudioResult upload response:', response)
+          this.audioUrl = this.$store.getters.downloadUrl + response.result
+          logger.info('handleAudioResult audioUrl', this.audioUrl)
+        }).catch(err => {
+        logger.error('handleAudioResult error', err)
       }).finally(() => {
-        this.templateLoading = false
+        this.currentUploading = false
       })
     },
 
-    handleShowSelectTemplate () {
-      this.selectedTemplateList = []
-      this.templateLoading = false
-      this.presentationLink = null
-      this.selectTemplateVisible = true
-    },
-
-    handleSelectTemplate (template) {
-      this.$logger.info('handleSelectTemplate ', template)
-      if (this.selectedTemplateList.length && this.selectedTemplateList[0].id === template.id) {
-        this.selectedTemplateList = []
-      } else {
-        this.selectedTemplateList = [template]
-      }
-    },
-
-    handleAddTemplate () {
-      this.$logger.info('handleAddTemplate ', this.selectedTemplateList)
-      if (!this.creating) {
-        if (this.selectedTemplateList.length) {
-          this.creating = true
-          TaskCreateTaskPPT({
-            name: this.form.name,
-            overview: this.form.overview,
-            pageObjectIds: this.selectedTemplateList[0].pageObjectIds,
-            templatePresentationId: this.selectedTemplateList[0].presentationId
-          }).then(response => {
-            this.$logger.info('handleAddTemplate response', response.result)
-            this.form.id = response.result.id
-            this.presentationLink = response.result.presentationLink
-            this.form.presentationId = this.selectedTemplateList[0].presentationId
-            this.selectTemplateVisible = false
-            this.mode = 'edit'
-            this.viewInGoogleSlideVisible = true
-            this.$router.replace({
-              path: '/teacher/add-task/' + response.result.id
-            })
-          }).finally(() => {
-            this.templateLoading = false
-            this.creating = false
-          })
-        } else {
-          this.$message.warn('Please select template!')
-        }
-      } else {
-        this.$logger.info('creating wait...')
-      }
-    },
-
-    handleOpenGoogleSlide (slideUrl) {
-      this.$logger.info('handleOpenGoogleSlide ' + slideUrl)
-      window.open(slideUrl, '_blank')
-    },
-
-    handleViewDetail (item) {
-      this.$logger.info('handleViewDetail ', item)
-      if (item.type === this.contentType['unit-plan']) {
-        this.$router.push({
-          path: '/teacher/unit-plan-redirect/' + item.id
-        })
-      }
-    },
-
-    handleUpdateSelected (data) {
-      this.$logger.info('handleUpdateSelected', data)
-      this.relevantSelectedQuestionList = data.questionList
-    },
-
-    handleCancelSelectedRelevant () {
-      this.showRelevantQuestionVisible = false
-      this.relevantSelectedQuestionList = []
-    },
-
-    handleConfirmSelectedRelevant () {
-      this.$logger.info('handleConfirmSelectedRelevant', this.relevantSelectedQuestionList)
-      this.showRelevantQuestionVisible = false
-      const questionDataObj = Object.assign({}, this.questionDataObj['__question_0'])
-      this.$delete(this.questionDataObj, '__question_0')
-      this.$logger.info('questionDataObj __question_0', questionDataObj)
-      this.relevantSelectedQuestionList.forEach(item => {
-        questionDataObj.knowledgeTags = questionDataObj.knowledgeTags.concat(item.knowledgeTags)
-        questionDataObj.skillTags = questionDataObj.skillTags.concat(item.skillTags)
+    handleUploadAudio (data) {
+      logger.info('handleUploadAudio', data)
+      this.currentUploading = true
+      const formData = new FormData()
+      formData.append('file', data.file, data.file.name)
+      this.uploading = true
+      this.$http.post(commonAPIUrl.UploadFile, formData, { contentType: false, processData: false, headers: { 'Content-Type': 'multipart/form-data' }, timeout: 60000 })
+        .then((response) => {
+          logger.info('handleUploadAudio upload response:', response)
+          this.audioUrl = this.$store.getters.downloadUrl + response.result
+        }).catch(err => {
+        logger.error('handleUploadImage error', err)
+      }).finally(() => {
+        this.currentUploading = false
       })
+    },
 
-      this.$nextTick(() => {
-        this.$set(this.questionDataObj, '__question_0', questionDataObj)
-      })
-      this.$logger.info('after $set questionDataObj __question_0', this.questionDataObj)
+    handleCancelAddAudio () {
+      this.$logger.info('handleCancelAddAudio')
+      this.audioUrl = null
+      this.showAddAudioVisible = false
+    },
+
+    handleConfirmAddAudio () {
+      if (this.audioUrl) {
+        this.form.audioUrl = this.audioUrl
+        this.audioUrl = null
+        this.showAddAudioVisible = false
+      }
     }
   }
 }
@@ -1231,6 +845,19 @@ export default {
   }
 }
 
+.task-audio-line {
+  position: relative;
+  .task-audio {
+    position: absolute;
+    right: -35px;
+    top: -20px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+  }
+}
+
 .view-in-google-slider {
   display: flex;
   min-height: 100px;
@@ -1293,4 +920,82 @@ export default {
   -webkit-box-shadow: inset 0 0 10px rgba(0,0,0,0.2);
 }
 
+.audio-material-action {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+
+  .uploading-mask {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: fade(#eee, 80%);
+    z-index: 100;
+    .uploading {
+      z-index: 110;
+      position: absolute;
+      display: flex;
+      flex-direction: row;
+      justify-content: center;
+      width: 100px;
+      left: 50%;
+      top: 45%;
+      margin-left: -50px;
+    }
+  }
+
+  .action-item {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    margin-right: 10px;
+  }
+
+  .action-item-column {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 15px 0;
+    .action-tips {
+      line-height: 32px;
+      cursor: pointer;
+      user-select: none;
+    }
+  }
+}
+
+.material-action {
+  padding: 10px 0;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+}
+
+.audio-wrapper {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  height: 30px;
+  audio {
+    height: 30px;
+    border: none;
+    outline: none;
+  }
+
+  span {
+    padding: 0 10px;
+    color: red;
+    cursor: pointer;
+  }
+}
+
+.save-task {
+  margin-top: 20px;
+  text-align: center;
+  padding: 10px 0;
+}
 </style>
