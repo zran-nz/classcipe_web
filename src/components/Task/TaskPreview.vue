@@ -135,38 +135,42 @@ export default {
     loadTaskData () {
       this.loading = true
       if (!this.taskData && this.taskId) {
-        logger.info('loadTaskData ' + this.taskId)
+        logger.info('TaskPreview loadTaskData ' + this.taskId)
         TaskQueryById({
           id: this.taskId
         }).then(response => {
           logger.info('TaskQueryById ' + this.taskId, response.result)
           this.task = response.result
         }).finally(() => {
-
+          this.loadThumbnail()
         })
       } else if (this.taskData) {
+        logger.info('TaskPreview taskData ', this.taskData)
         this.task = this.taskData
+        this.loadThumbnail()
       }
-      this.loadThumbnail()
     },
 
     loadThumbnail () {
-      this.$logger.info('loadThumbnail ' + this.task.presentationId)
-      this.task.selectPageObjectIds.forEach(id => {
-        TemplatesGetPageThumbnail({
-          pageObjectId: id,
-          presentationId: this.task.presentationId,
-          mimeType: 'SMALL'
-        }).then(response => {
-          this.$logger.info('contentUrl ' + response.result.contentUrl)
-          this.imgList.push(response.result.contentUrl)
-        }).finally(() => {
-          this.$logger.info('current imgList ', this.imgList)
-          if (this.imgList.length === this.task.selectPageObjectIds.length) {
-            this.loading = false
-          }
+      this.$logger.info('TaskPreview loadThumbnail ' + this.task.presentationId, this.task.selectPageObjectIds)
+      if (this.task.selectPageObjectIds.length) {
+        this.task.selectPageObjectIds.forEach(id => {
+          TemplatesGetPageThumbnail({
+            pageObjectId: id,
+            presentationId: this.task.presentationId,
+            mimeType: 'SMALL'
+          }).then(response => {
+            this.imgList.push(response.result.contentUrl)
+          }).finally(() => {
+            this.$logger.info('current imgList.length ' + (this.imgList.length) + ' total:' + this.task.selectPageObjectIds.length)
+            if (this.imgList.length === this.task.selectPageObjectIds.length) {
+              this.loading = false
+            }
+          })
         })
-      })
+      } else {
+        this.loading = false
+      }
     },
 
     handleSelectContentType (contentType) {
