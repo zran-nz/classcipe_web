@@ -222,6 +222,10 @@ export default {
         this.$router.push({
           path: '/teacher/unit-plan-redirect/' + item.id
         })
+      } else if (item.type === typeMap['topic']) {
+        this.$router.push({
+          path: '/expert/topic-redirect/' + item.id
+        })
       } else if (item.type === typeMap['material']) {
         this.$router.push({
           path: '/teacher/add-material/' + item.id

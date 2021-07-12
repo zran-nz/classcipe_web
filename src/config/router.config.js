@@ -221,6 +221,20 @@ export const asyncRouterMap = [
             name: 'Library',
             component: () => import('@/views/teacher/Library'),
             meta: { title: 'menu.library', keepAlive: true, permission: ['expert', 'teacher'] }
+          },
+          {
+            path: '/expert/topic/:topicId',
+            props: true,
+            name: 'AddTopic',
+            component: () => import('@/views/expert/AddTopic'),
+            meta: { title: 'menu.topics-from-experts', keepAlive: true, permission: ['expert', 'teacher'] }
+          },
+          {
+            path: '/expert/topic-redirect/:topicId',
+            props: true,
+            name: 'TopicRedirect',
+            component: () => import('@/views/expert/TopicRedirect'),
+            meta: { title: 'menu.teacher.unit-plan', keepAlive: true, permission: ['expert', 'teacher'] }
           }
         ]
       },

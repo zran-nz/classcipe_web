@@ -221,9 +221,9 @@ export default {
 
     handleEditItem (item) {
       logger.info('handleEditItem', item)
-      if (item.type === typeMap['unit-plan']) {
+      if (item.type === typeMap['topic']) {
         this.$router.push({
-          path: '/teacher/unit-plan-redirect/' + item.id
+          path: '/expert/topic-redirect/' + item.id
         })
       } else if (item.type === typeMap['material']) {
         this.$router.push({

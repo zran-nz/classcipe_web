@@ -48,6 +48,7 @@ export default {
   'teacher.add-unit-plan.input-new-tag': 'input new tag',
   'teacher.add-unit-plan.skill-tags': 'Skill tags',
   'teacher.add-unit-plan.add-more-question': 'Add another question/line',
+  'expert.add-unit-plan.add-more-question': 'Add another question',
   'teacher.add-unit-plan.at-least-one-question': 'at least one question',
   'teacher.add-unit-plan.please-enter-knowledge-tag': 'Please enter knowledge tag',
   'teacher.add-unit-plan.please-enter-skill-tag': 'Please enter skill tag',
