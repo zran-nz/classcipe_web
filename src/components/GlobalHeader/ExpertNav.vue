@@ -31,11 +31,11 @@
                 Topic
               </router-link>
             </a-menu-item>
-            <a-menu-item>
+            <!--            <a-menu-item>
               <router-link to="/expert/add-material">
                 Material
               </router-link>
-            </a-menu-item>
+            </a-menu-item>-->
             <a-menu-item>
               <router-link to="/expert/add-task">
                 Task

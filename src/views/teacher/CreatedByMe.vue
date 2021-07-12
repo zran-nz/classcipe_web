@@ -31,9 +31,9 @@
                 <a-menu-item @click="toggleType('topic', $t('teacher.my-content.topics-type') )">
                   <span>{{ $t('teacher.my-content.topics-type') }}</span>
                 </a-menu-item>
-                <a-menu-item @click="toggleType('material', $t('teacher.my-content.materials-type'))">
+                <!--                <a-menu-item @click="toggleType('material', $t('teacher.my-content.materials-type'))">
                   <span>{{ $t('teacher.my-content.materials-type') }}</span>
-                </a-menu-item>
+                </a-menu-item>-->
                 <a-menu-item @click="toggleType('unit-plan', $t('teacher.my-content.unit-plan-type'))">
                   <span>{{ $t('teacher.my-content.unit-plan-type') }}</span>
                 </a-menu-item>

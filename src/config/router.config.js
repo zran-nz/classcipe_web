@@ -172,34 +172,55 @@ export const asyncRouterMap = [
         meta: { title: 'menu.main', keepAlive: true, icon: bxAnaalyse, permission: ['expert', 'teacher'] },
         children: [
           {
-            path: '/expert/created-by-me',
-            name: 'MyContent',
-            component: () => import('@/views/expert/MyContent'),
-            meta: { title: 'menu.my-content', keepAlive: true, permission: ['expert', 'teacher'] }
+            path: '/expert/main',
+            name: 'Main',
+            redirect: '/expert/main/created-by-me',
+            component: () => import('@/views/expert/Main'),
+            meta: { title: 'menu.main', keepAlive: true, permission: ['expert', 'teacher'] },
+            children: [
+              {
+                path: '/expert/main/created-by-me',
+                name: 'CreatedByMe',
+                component: () => import('@/views/expert/CreatedByMe'),
+                meta: { title: 'menu.my-content', keepAlive: true, permission: ['expert', 'teacher'] }
+              },
+              {
+                path: '/expert/main/my-favorite',
+                name: 'MyFavorite',
+                component: () => import('@/views/expert/MyFavorite'),
+                meta: { title: 'menu.my-favorite', keepAlive: true, permission: ['expert', 'teacher'] }
+              },
+              {
+                path: '/expert/main/shared',
+                name: 'Shared',
+                component: () => import('@/views/teacher/Shared'),
+                meta: { title: 'menu.shared', keepAlive: true, permission: ['expert', 'teacher'] }
+              },
+              {
+                path: '/expert/main/discover',
+                name: 'Discover',
+                component: () => import('@/views/teacher/Discover'),
+                meta: { title: 'menu.discover', keepAlive: true, permission: ['expert', 'teacher'] }
+              },
+              {
+                path: '/expert/main/subscribes',
+                name: 'Subscribes',
+                component: () => import('@/views/teacher/Subscribes'),
+                meta: { title: 'menu.subscribes', keepAlive: true, permission: ['expert', 'teacher'] }
+              },
+              {
+                path: '/expert/main/popular',
+                name: 'Popular',
+                component: () => import('@/views/teacher/Popular'),
+                meta: { title: 'menu.popular', keepAlive: true, permission: ['expert', 'teacher'] }
+              }
+            ]
           },
           {
-            path: '/expert/Library',
+            path: '/expert/library/:browserType?/',
             name: 'Library',
-            component: () => import('@/views/expert/Library'),
+            component: () => import('@/views/teacher/Library'),
             meta: { title: 'menu.library', keepAlive: true, permission: ['expert', 'teacher'] }
-          },
-          {
-            path: '/expert/add-topic',
-            name: 'AddTopic',
-            component: () => import('@/views/expert/AddTopic'),
-            meta: { title: 'menu.my-content', keepAlive: true, permission: ['expert', 'teacher'] }
-          },
-          {
-            path: '/expert/add-material',
-            name: 'AddMaterial',
-            component: () => import('@/views/expert/AddMaterial'),
-            meta: { title: 'menu.add-material', keepAlive: true, permission: ['expert', 'teacher'] }
-          },
-          {
-            path: '/expert/add-task',
-            name: 'AddTask',
-            component: () => import('@/views/expert/AddTask'),
-            meta: { title: 'menu.add-task', keepAlive: true, permission: ['expert', 'teacher'] }
           }
         ]
       },
@@ -372,7 +393,7 @@ export const defaultTeacherRouter = '/teacher/main/created-by-me'
  * default expert main router
  * @type {string}
  */
-export const defaultExpertRouter = '/expert/created-by-me'
+export const defaultExpertRouter = '/expert/main/created-by-me'
 
 /**
  * select role router
