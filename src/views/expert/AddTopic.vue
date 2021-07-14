@@ -283,7 +283,7 @@
       @ok="selectLinkContentVisible = false"
       @cancel="selectLinkContentVisible = false">
       <div class="link-content-wrapper">
-        <my-content-selector />
+        <my-content-selector :filter-type-list="['task']" />
       </div>
     </a-modal>
     <a-skeleton :loading="contentLoading" active>

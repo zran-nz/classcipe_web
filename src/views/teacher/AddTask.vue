@@ -127,7 +127,7 @@
       @ok="selectLinkContentVisible = false"
       @cancel="selectLinkContentVisible = false">
       <div class="link-content-wrapper">
-        <my-content-selector :filter-type-list="['unit-plan']" />
+        <my-content-selector :filter-type-list="['topic']" />
       </div>
     </a-modal>
 

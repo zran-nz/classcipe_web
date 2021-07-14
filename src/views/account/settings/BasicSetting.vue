@@ -148,10 +148,13 @@
             <span class="label-txt">Customized tags :</span>
           </div>
           <div class="profile-text profile-data" v-if="!editMode">
-
+            <div class="profile-tag-item" v-for="(tag,index) in customizedTagIds" :key="index">
+              <a-tag>{{ tag.label }}</a-tag>
+            </div>
           </div>
           <div class="profile-input profile-data" v-if="editMode">
             <a-tree-select
+              v-model="customizedTagIds"
               allowClear
               labelInValue
               style="width: 100%"
@@ -238,7 +241,7 @@ export default {
       gradeOptions: [],
       areaOptions: [],
       customizedTags: [],
-      customizedTagIds: '',
+      customizedTagIds: [],
 
       loading: true,
       editMode: false
@@ -269,6 +272,13 @@ export default {
       this.userInfo.gradeIds = this.$store.getters.userInfo.preference.gradeIds
       this.userInfo.areaIds = this.$store.getters.userInfo.preference.areaIds
       this.userInfo.others = this.$store.getters.userInfo.preference.others
+      this.customizedTagIds = []
+      this.$store.getters.userInfo.customizedTags.forEach(item => {
+        this.customizedTagIds.push({
+          'label': item.name,
+          'value': item.id
+        })
+      })
       this.$logger.info('user info loaded', this.userInfo)
 
       this.loading = true
@@ -472,17 +482,18 @@ export default {
             postData.others = [this.userInfo.tempOthers]
           } else {
             this.$message.warn('illegal [others] contents')
-            return
           }
         }
       } else if (this.$store.getters.currentRole === 'teacher') {
         postData = {
           curriculumId: this.userInfo.curriculumId,
           gradeIds: this.userInfo.gradeIds,
-          subjectIds: this.userInfo.subjectIds
+          subjectIds: this.userInfo.subjectIds,
+          tagIds: this.customizedTagIds.map(function (item) {
+            return item.value
+          })
         }
       }
-
       this.$logger.info('tempNickname ', this.userInfo.tempNickname)
       if (this.userInfo.tempNickname && this.userInfo.tempNickname.length < 80) {
         const userData = {
