@@ -14,5 +14,7 @@ export default {
   'teacher.my-content.owner-by-me': 'Owner by me',
   'teacher.my-content.owner-by-others': 'Owner by others',
   'teacher.my-content.action-edit': 'Edit',
-  'teacher.my-content.action-delete': 'Delete'
+  'teacher.my-content.action-delete': 'Delete',
+  'teacher.my-content.action-session-new': 'Start/schedule a new session',
+  'teacher.my-content.action-session-previous': 'Previous sessions'
 }

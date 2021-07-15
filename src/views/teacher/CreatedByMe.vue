@@ -85,6 +85,24 @@
                           <a-icon type="form" /> {{ $t('teacher.my-content.action-edit') }}
                         </a>
                       </div>
+                      <div class="action-item" v-if="item.type === typeMap['lesson'] || item.type === typeMap['task']">
+                        <a-dropdown>
+                          <a-icon type="more" style="margin-right: 8px" />
+                          <a-menu slot="overlay">
+                            <a-menu-item>
+                              <a @click="handleEditItem(item)">
+                                {{ $t('teacher.my-content.action-session-new') }}
+                              </a>
+                            </a-menu-item>
+                            <a-menu-item>
+                              <a @click="handlePrevious(item)">
+                                {{ $t('teacher.my-content.action-session-previous') }}
+                              </a>
+                            </a-menu-item>
+                          </a-menu>
+                        </a-dropdown>
+                      </div>
+
                     </div>
                   </div>
                 </div>
@@ -240,6 +258,11 @@ export default {
         })
       }
     },
+    handlePrevious (item) {
+      this.$router.push({
+        path: '/teacher/my-class?slideId=' + item.presentationId
+      })
+    },
     handleDeleteItem (item) {
       logger.info('handleDeleteItem', item)
       deleteMyContentByType(item).then(res => {
@@ -330,7 +353,7 @@ export default {
       }
 
       .action {
-        width: 150px;
+        width: 200px;
       }
 
       .action-wrapper {

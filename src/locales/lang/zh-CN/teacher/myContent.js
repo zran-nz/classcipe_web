@@ -2,6 +2,7 @@ export default {
   'teacher.my-content.all-status': 'All',
   'teacher.my-content.published-status': 'Published',
   'teacher.my-content.draft-status': 'Draft',
+  'teacher.my-content.choose-types-of-content': 'Choose type(s) of content',
   'teacher.my-content.all-type': 'All type',
   'teacher.my-content.topics-type': 'Topics',
   'teacher.my-content.materials-type': 'Materials',
@@ -13,5 +14,7 @@ export default {
   'teacher.my-content.owner-by-me': 'Owner by me',
   'teacher.my-content.owner-by-others': 'Owner by others',
   'teacher.my-content.action-edit': 'Edit',
-  'teacher.my-content.action-delete': 'Delete'
+  'teacher.my-content.action-delete': 'Delete',
+  'teacher.my-content.action-session-new': 'Start/schedule a new session',
+  'teacher.my-content.action-session-previous': 'Previous sessions'
 }
