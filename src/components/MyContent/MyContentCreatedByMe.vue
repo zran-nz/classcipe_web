@@ -254,6 +254,7 @@ export default {
           })
           this.myContentList = res.result.records
           this.pagination.total = res.result.total
+          this.pagination.current = res.result.current
         } else {
           this.myContentList = []
           this.pagination.total = 0

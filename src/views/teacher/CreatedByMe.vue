@@ -174,7 +174,8 @@ export default {
         },
         showTotal: total => `Total ${total} items`,
         total: 0,
-        pageSize: 15
+        pageSize: 15,
+        current: 1
       },
       pageNo: 1,
 
@@ -206,8 +207,10 @@ export default {
           })
           this.myContentList = res.result.records
           this.pagination.total = res.result.total
+          this.pagination.current = res.result.current
         } else {
           this.myContentList = []
+          this.pagination.total = 0
         }
         logger.info('myContentList', this.myContentList)
       }).finally(() => {
@@ -219,12 +222,14 @@ export default {
       logger.info('toggleStatus ' + status + ' label ' + label)
       this.currentStatus = status
       this.currentStatusLabel = label
+      this.pageNo = 1
       this.loadMyContent()
     },
     toggleType (type, label) {
       logger.info('toggleType ' + type + ' label ' + label)
       this.currentType = type
       this.currentTypeLabel = label
+      this.pageNo = 1
       this.loadMyContent()
     },
     toggleOwner (owner, label) {
