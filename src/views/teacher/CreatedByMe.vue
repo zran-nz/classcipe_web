@@ -263,6 +263,12 @@ export default {
 
 <style lang="less" scoped>
 @import "~@/components/index.less";
+
+.ant-list-item {
+  padding: 8px 0;
+  position: relative;
+}
+
 .my-content {
   padding: 0 15px 25px 15px;
   .filter-line {
