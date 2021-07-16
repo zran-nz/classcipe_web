@@ -55,8 +55,8 @@
             </div>
             <div class="add-to-type">
               <div class="add-to-type-label">
-                <content-type-icon :type="contentType.assessment" />
-                {{ $t('teacher.add-unit-plan.assessment') }}
+                <content-type-icon :type="contentType.evaluation" />
+                {{ $t('teacher.add-unit-plan.evaluation') }}
               </div>
               <div class="add-to-list">
                 <!--                <span v-for="(material,index) in form.materials" :key="index" class="add-to-item">-->
@@ -93,7 +93,7 @@
           <!--                  </a>-->
           <!--                </a-menu-item>-->
           <!--                <a-menu-item>-->
-          <!--                  {{ $t('teacher.add-unit-plan.assessment') }}-->
+          <!--                  {{ $t('teacher.add-unit-plan.evaluation') }}-->
           <!--                </a-menu-item>-->
           <!--                <a-menu-item>-->
           <!--                  {{ $t('teacher.add-unit-plan.lesson') }}-->

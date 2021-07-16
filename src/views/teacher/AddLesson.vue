@@ -205,8 +205,8 @@
           <div :class="{'template-type-item': true, 'active-template-type' : currentTemplateType === templateTypeMap.quiz}" @click="handleToggleTemplateType(templateTypeMap.quiz)">
             Quiz
           </div>
-          <div :class="{'template-type-item': true, 'active-template-type' : currentTemplateType === templateTypeMap['summative-assessment-lesson']}" @click="handleToggleTemplateType(templateTypeMap['summative-assessment-lesson'])">
-            Summative assessment lesson
+          <div :class="{'template-type-item': true, 'active-template-type' : currentTemplateType === templateTypeMap['summative-evaluation-lesson']}" @click="handleToggleTemplateType(templateTypeMap['summative-evaluation-lesson'])">
+            Summative evaluation lesson
           </div>
         </div>
         <div class="template-list-wrapper">

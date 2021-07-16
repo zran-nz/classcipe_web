@@ -45,8 +45,8 @@
                 <a-menu-item @click="toggleType('lesson', $t('teacher.my-content.lesson-type'))" v-if="filterTypeList.indexOf('lesson') !== -1">
                   <span>{{ $t('teacher.my-content.lesson-type') }}</span>
                 </a-menu-item>
-                <a-menu-item @click="toggleType('assessment', $t('teacher.my-content.assessment-type'))" v-if="filterTypeList.indexOf('assessment') !== -1">
-                  <span>{{ $t('teacher.my-content.assessment-type') }}</span>
+                <a-menu-item @click="toggleType('evaluation', $t('teacher.my-content.evaluation-type'))" v-if="filterTypeList.indexOf('evaluation') !== -1">
+                  <span>{{ $t('teacher.my-content.evaluation-type') }}</span>
                 </a-menu-item>
               </a-menu>
             </a-dropdown>

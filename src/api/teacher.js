@@ -61,7 +61,7 @@ export function GetMyGrades () {
     'material': 3,
     'task': 4,
     'lesson': 5,
-    'assessment': 6
+    'evaluation': 6
  * @param data
  * @constructor
  */
@@ -79,8 +79,8 @@ export function deleteMyContentByType (data) {
       return TaskDelete({ id })
     case typeMap.lesson:
       return LessonDelete({ id })
-    case typeMap.assessment:
-      logger.warn('assessment delete no yet implement!')
+    case typeMap.evaluation:
+      logger.warn('evaluation delete no yet implement!')
       break
     default:
       logger.error('wrong delete type ' + MyContentType + ' id: ' + id)

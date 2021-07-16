@@ -8,7 +8,7 @@ export default {
   'teacher.add-task.default-task-name': 'Unnamed task',
   'teacher.add-task.task': 'Task',
   'teacher.add-task.material': 'Material',
-  'teacher.add-task.assessment': 'Assessment',
+  'teacher.add-task.evaluation': 'Evaluation',
   'teacher.add-task.lesson': 'Lesson',
   'teacher.add-task.add-to-this-task': 'add content',
   'teacher.add-task.link-content': 'link in my content',

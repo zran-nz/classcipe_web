@@ -169,8 +169,8 @@
           <div :class="{'template-type-item': true, 'active-template-type' : currentTemplateType === templateTypeMap.quiz}" @click="handleToggleTemplateType(templateTypeMap.quiz)">
             Quiz
           </div>
-          <div :class="{'template-type-item': true, 'active-template-type' : currentTemplateType === templateTypeMap['summative-assessment-task']}" @click="handleToggleTemplateType(templateTypeMap['summative-assessment-task'])">
-            Summative assessment task
+          <div :class="{'template-type-item': true, 'active-template-type' : currentTemplateType === templateTypeMap['summative-evaluation-task']}" @click="handleToggleTemplateType(templateTypeMap['summative-evaluation-task'])">
+            Summative evaluation task
           </div>
         </div>
         <div class="template-list-wrapper">
@@ -937,7 +937,7 @@ export default {
     },
 
     handleConfirmAddAudio () {
-      if(this.audioUrl) {
+      if (this.audioUrl) {
         this.form.audioUrl = this.audioUrl
        this.audioUrl = null
        this.showAddAudioVisible = false

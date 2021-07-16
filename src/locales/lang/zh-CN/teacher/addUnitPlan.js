@@ -8,7 +8,7 @@ export default {
   'teacher.add-unit-plan.default-unit-plan-name': 'Unnamed plan',
   'teacher.add-unit-plan.unit-plan': 'Unit plan',
   'teacher.add-unit-plan.material': 'Material',
-  'teacher.add-unit-plan.assessment': 'Assessment',
+  'teacher.add-unit-plan.evaluation': 'Evaluation',
   'teacher.add-unit-plan.lesson': 'Lesson',
   'teacher.add-unit-plan.add-to-this-unit-plan': 'add to this unit plan',
   'teacher.add-unit-plan.unit-name': 'Unit plan name',

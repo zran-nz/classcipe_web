@@ -266,9 +266,9 @@
           </a>
         </div>
         <div class="add-content-item">
-          <a @click="handleAddUnitPlanAssessment">
-            <content-type-icon :type="contentType.assessment"/>
-            {{ $t('teacher.add-unit-plan.assessment') }}
+          <a @click="handleAddUnitPlanEvaluation">
+            <content-type-icon :type="contentType.evaluation"/>
+            {{ $t('teacher.add-unit-plan.evaluation') }}
           </a>
         </div>
       </div>
@@ -894,10 +894,10 @@ export default {
       })
     },
 
-    handleAddUnitPlanAssessment () {
-      logger.info('handleAddUnitPlanAssessment ' + this.unitPlanId)
+    handleAddUnitPlanEvaluation () {
+      logger.info('handleAddUnitPlanEvaluation ' + this.unitPlanId)
       this.$router.push({
-        path: '/teacher/unit-plan-assessment-redirect/' + this.unitPlanId + '/create'
+        path: '/teacher/unit-plan-evaluation-redirect/' + this.unitPlanId + '/create'
       })
     },
 

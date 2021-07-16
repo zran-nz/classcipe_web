@@ -28,7 +28,7 @@
  'material': 3,
  'task': 4,
  'lesson': 5,
- 'assessment': 6
+ 'evaluation': 6
  */
 export default {
   name: 'ContentTypeIcon',

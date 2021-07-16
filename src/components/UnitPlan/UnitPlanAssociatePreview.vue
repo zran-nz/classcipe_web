@@ -16,8 +16,8 @@
             <a-button :type="activeContentType === typeMap.lesson ? 'primary' : 'default'" shape="round" @click="handleSelectContentType(typeMap.lesson)" class="type-button">
               {{ $t('teacher.unit-plan-preview.lesson') }}
             </a-button>
-            <a-button :type="activeContentType === typeMap.assessment ? 'primary' : 'default'" shape="round" @click="handleSelectContentType(typeMap.assessment)" class="type-button">
-              {{ $t('teacher.unit-plan-preview.assessment') }}
+            <a-button :type="activeContentType === typeMap.evaluation ? 'primary' : 'default'" shape="round" @click="handleSelectContentType(typeMap.evaluation)" class="type-button">
+              {{ $t('teacher.unit-plan-preview.evaluation') }}
             </a-button>
           </a-space>
         </a-col>

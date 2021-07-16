@@ -17,7 +17,7 @@ export const typeMap = {
   'material': 3,
   'task': 4,
   'lesson': 5,
-  'assessment': 6
+  'evaluation': 6
 }
 
 export function getLabelNameType (type) {
@@ -32,7 +32,7 @@ export function getLabelNameType (type) {
       return 'Task'
     case typeMap.lesson:
       return 'Lesson'
-    case typeMap.assessment:
-      return 'Assessment'
+    case typeMap.evaluation:
+      return 'Evaluation'
   }
 }

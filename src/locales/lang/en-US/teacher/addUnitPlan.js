@@ -9,7 +9,7 @@ export default {
   'teacher.add-unit-plan.unit-plan': 'Unit plan',
   'teacher.add-unit-plan.task': 'Task',
   'teacher.add-unit-plan.material': 'Material',
-  'teacher.add-unit-plan.assessment': 'Assessment',
+  'teacher.add-unit-plan.evaluation': 'Evaluation',
   'teacher.add-unit-plan.lesson': 'Lesson',
   'teacher.add-unit-plan.add-to-this-unit-plan': 'add content',
   'teacher.add-unit-plan.link-content': 'link in my content',
