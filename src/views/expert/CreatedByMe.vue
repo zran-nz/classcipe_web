@@ -2,17 +2,17 @@
   <div class="my-content">
     <div class="filter-line">
       <div class="status-tab">
-        <!--        <span :class="{'status-item': true, 'active-status-item': currentStatus === 'all-status'}" @click="toggleStatus('all-status', $t('teacher.my-content.all-status'))">-->
-        <!--          {{ $t('teacher.my-content.all-status') }}-->
-        <!--        </span>-->
-        <!--        <a-divider type="vertical" />-->
-        <!--        <span :class="{'status-item': true, 'active-status-item': currentStatus === 'published'}" @click="toggleStatus('published', $t('teacher.my-content.published-status'))">-->
-        <!--          {{ $t('teacher.my-content.published-status') }}-->
-        <!--        </span>-->
-        <!--        <a-divider type="vertical" />-->
-        <!--        <span :class="{'status-item': true, 'active-status-item': currentStatus === 'draft'}" @click="toggleStatus('draft', $t('teacher.my-content.draft-status'))">-->
-        <!--          {{ $t('teacher.my-content.draft-status') }}-->
-        <!--        </span>-->
+        <span :class="{'status-item': true, 'active-status-item': currentStatus === 'all-status'}" @click="toggleStatus('all-status', $t('teacher.my-content.all-status'))">
+          {{ $t('teacher.my-content.all-status') }}
+        </span>
+        <a-divider type="vertical" />
+        <span :class="{'status-item': true, 'active-status-item': currentStatus === 'published'}" @click="toggleStatus('published', $t('teacher.my-content.published-status'))">
+          {{ $t('teacher.my-content.published-status') }}
+        </span>
+        <a-divider type="vertical" />
+        <span :class="{'status-item': true, 'active-status-item': currentStatus === 'draft'}" @click="toggleStatus('draft', $t('teacher.my-content.draft-status'))">
+          {{ $t('teacher.my-content.draft-status') }}
+        </span>
       </div>
       <div class="type-owner">
         <a-space>
@@ -31,43 +31,12 @@
                 <a-menu-item @click="toggleType('topic', $t('teacher.my-content.topics-type') )">
                   <span>{{ $t('teacher.my-content.topics-type') }}</span>
                 </a-menu-item>
-                <!--                <a-menu-item @click="toggleType('material', $t('teacher.my-content.materials-type'))">
-                  <span>{{ $t('teacher.my-content.materials-type') }}</span>
-                </a-menu-item>-->
-                <a-menu-item @click="toggleType('unit-plan', $t('teacher.my-content.unit-plan-type'))">
-                  <span>{{ $t('teacher.my-content.unit-plan-type') }}</span>
-                </a-menu-item>
                 <a-menu-item @click="toggleType('task', $t('teacher.my-content.tasks-type') )">
                   <span>{{ $t('teacher.my-content.tasks-type') }}</span>
-                </a-menu-item>
-                <a-menu-item @click="toggleType('lesson', $t('teacher.my-content.lesson-type'))">
-                  <span>{{ $t('teacher.my-content.lesson-type') }}</span>
-                </a-menu-item>
-                <a-menu-item @click="toggleType('evaluation', $t('teacher.my-content.evaluation-type'))">
-                  <span>{{ $t('teacher.my-content.evaluation-type') }}</span>
                 </a-menu-item>
               </a-menu>
             </a-dropdown>
           </div>
-          <!--          <a-divider type="vertical" />-->
-          <!--          <div class="owner-filter">-->
-          <!--            <a-dropdown>-->
-          <!--              <a class="ant-dropdown-link" @click="e => e.preventDefault()">-->
-          <!--                {{ currentOwnerLabel }} <a-icon type="down" />-->
-          <!--              </a>-->
-          <!--              <a-menu slot="overlay">-->
-          <!--                <a-menu-item @click.native="toggleOwner('all-owner', $t('teacher.my-content.all-owner') )">-->
-          <!--                  <span>{{ $t('teacher.my-content.all-owner') }}</span>-->
-          <!--                </a-menu-item>-->
-          <!--                <a-menu-item @click="toggleOwner('owner-by-me', $t('teacher.my-content.owner-by-me') )">-->
-          <!--                  <span>{{ $t('teacher.my-content.owner-by-me') }}</span>-->
-          <!--                </a-menu-item>-->
-          <!--                <a-menu-item @click="toggleOwner('owner-by-others', $t('teacher.my-content.owner-by-others'))">-->
-          <!--                  <span>{{ $t('teacher.my-content.owner-by-others') }}</span>-->
-          <!--                </a-menu-item>-->
-          <!--              </a-menu>-->
-          <!--            </a-dropdown>-->
-          <!--          </div>-->
         </a-space>
       </div>
     </div>
@@ -137,13 +106,13 @@
 import * as logger from '@/utils/logger'
 import UnitPlanPreview from '@/components/UnitPlan/UnitPlanPreview'
 import MaterialPreview from '@/components/Material/MaterialPreview'
-import { typeMap } from '@/const/teacher'
+import { deleteMyContentByType, getMyContent } from '@/api/teacher'
+import { ownerMap, statusMap, typeMap } from '@/const/teacher'
 import ContentStatusIcon from '@/components/Teacher/ContentStatusIcon'
 import ContentTypeIcon from '@/components/Teacher/ContentTypeIcon'
-import { FavoritesGetMyFavorites, FavoritesDelete } from '@/api/favorites'
 
 export default {
-  name: 'MyFavorite',
+  name: 'CreatedByMe',
   components: {
     ContentStatusIcon,
     ContentTypeIcon,
@@ -188,15 +157,19 @@ export default {
     logger.info('teacher my content')
     this.loadMyContent()
   },
+  mounted () {
+  },
   methods: {
     loadMyContent () {
       this.loading = true
-      FavoritesGetMyFavorites({
+      getMyContent({
+        owner: ownerMap[this.currentOwner],
+        status: statusMap[this.currentStatus],
         type: typeMap[this.currentType],
         pageNo: this.pageNo,
         pageSize: this.pagination.pageSize
       }).then(res => {
-        logger.info('FavoritesGetMyFavorites', res)
+        logger.info('getMyContent', res)
         if (res.result && res.result.records && res.result.records.length) {
           res.result.records.forEach((record, index) => {
             record.key = index
@@ -235,7 +208,11 @@ export default {
 
     handleEditItem (item) {
       logger.info('handleEditItem', item)
-      if (item.type === typeMap['unit-plan']) {
+      if (item.type === typeMap['topic']) {
+        this.$router.push({
+          path: '/expert/topic-redirect/' + item.id
+        })
+      } else if (item.type === typeMap['unit-plan']) {
         this.$router.push({
           path: '/teacher/unit-plan-redirect/' + item.id
         })
@@ -243,15 +220,20 @@ export default {
         this.$router.push({
           path: '/teacher/add-material/' + item.id
         })
+      } else if (item.type === typeMap.task) {
+        this.$router.push({
+          path: '/teacher/task-redirect/' + item.id
+        })
+      } else if (item.type === typeMap.lesson) {
+        this.$router.push({
+          path: '/teacher/lesson-redirect/' + item.id
+        })
       }
     },
     handleDeleteItem (item) {
       logger.info('handleDeleteItem', item)
-      FavoritesDelete({
-        sourceId: item.id,
-        sourceType: item.type
-      }).then(res => {
-        logger.info('FavoritesDelete', res)
+      deleteMyContentByType(item).then(res => {
+        logger.info('DeleteMyContentByType', res)
       }).then(() => {
         this.loadMyContent()
       })

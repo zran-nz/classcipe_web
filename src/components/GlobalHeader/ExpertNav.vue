@@ -27,18 +27,18 @@
           </a-button>
           <a-menu slot="overlay">
             <a-menu-item>
-              <router-link to="/expert/add-topic">
+              <router-link to="/expert/topic-redirect/create">
                 Topic
               </router-link>
             </a-menu-item>
-            <a-menu-item>
+            <!--            <a-menu-item>
               <router-link to="/expert/add-material">
                 Material
               </router-link>
-            </a-menu-item>
+            </a-menu-item>-->
             <a-menu-item>
-              <router-link to="/expert/add-task">
-                Task
+              <router-link to="/teacher/task-redirect">
+                {{ $t('menu.tasks') }}
               </router-link>
             </a-menu-item>
           </a-menu>

@@ -166,7 +166,7 @@ export default {
     }
   },
   created () {
-    this.loadTeacherClasses(this.pageSize)
+    this.loadTeacherClasses(this.pageSize, this.cursor, this.$route.query.slideId)
   },
   mounted () {
     window.addEventListener('scroll', this.loadTeacherClassesOnScroll, true)
@@ -180,10 +180,10 @@ export default {
     }
   },
   methods: {
-    loadTeacherClasses (limit, cursor) {
-      logger.info('loadTeacherClasses ' + ' limit:' + limit + 'cursor:' + cursor + ' ')
+    loadTeacherClasses (limit, cursor, slideId) {
+      logger.info('loadTeacherClasses ' + ' limit:' + limit + 'cursor:' + cursor + ' slideId:' + slideId)
       this.loading = true
-      getMyClasses({ limit, cursor }).then(response => {
+      getMyClasses({ limit, cursor, slideId }).then(response => {
         logger.info('getMyClasses', response.data)
         if (response.data.records) {
           response.data.records.forEach((item) => {

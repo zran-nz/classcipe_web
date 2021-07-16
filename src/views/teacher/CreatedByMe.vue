@@ -31,9 +31,9 @@
                 <a-menu-item @click="toggleType('topic', $t('teacher.my-content.topics-type') )">
                   <span>{{ $t('teacher.my-content.topics-type') }}</span>
                 </a-menu-item>
-                <a-menu-item @click="toggleType('material', $t('teacher.my-content.materials-type'))">
+                <!--                <a-menu-item @click="toggleType('material', $t('teacher.my-content.materials-type'))">
                   <span>{{ $t('teacher.my-content.materials-type') }}</span>
-                </a-menu-item>
+                </a-menu-item>-->
                 <a-menu-item @click="toggleType('unit-plan', $t('teacher.my-content.unit-plan-type'))">
                   <span>{{ $t('teacher.my-content.unit-plan-type') }}</span>
                 </a-menu-item>
@@ -85,6 +85,24 @@
                           <a-icon type="form" /> {{ $t('teacher.my-content.action-edit') }}
                         </a>
                       </div>
+                      <div class="action-item" v-if="item.type === typeMap['lesson'] || item.type === typeMap['task']">
+                        <a-dropdown>
+                          <a-icon type="more" style="margin-right: 8px" />
+                          <a-menu slot="overlay">
+                            <a-menu-item>
+                              <a @click="handleEditItem(item)">
+                                {{ $t('teacher.my-content.action-session-new') }}
+                              </a>
+                            </a-menu-item>
+                            <a-menu-item>
+                              <a @click="handlePrevious(item)">
+                                {{ $t('teacher.my-content.action-session-previous') }}
+                              </a>
+                            </a-menu-item>
+                          </a-menu>
+                        </a-dropdown>
+                      </div>
+
                     </div>
                   </div>
                 </div>
@@ -156,7 +174,8 @@ export default {
         },
         showTotal: total => `Total ${total} items`,
         total: 0,
-        pageSize: 15
+        pageSize: 15,
+        current: 1
       },
       pageNo: 1,
 
@@ -188,8 +207,10 @@ export default {
           })
           this.myContentList = res.result.records
           this.pagination.total = res.result.total
+          this.pagination.current = res.result.current
         } else {
           this.myContentList = []
+          this.pagination.total = 0
         }
         logger.info('myContentList', this.myContentList)
       }).finally(() => {
@@ -201,12 +222,14 @@ export default {
       logger.info('toggleStatus ' + status + ' label ' + label)
       this.currentStatus = status
       this.currentStatusLabel = label
+      this.pageNo = 1
       this.loadMyContent()
     },
     toggleType (type, label) {
       logger.info('toggleType ' + type + ' label ' + label)
       this.currentType = type
       this.currentTypeLabel = label
+      this.pageNo = 1
       this.loadMyContent()
     },
     toggleOwner (owner, label) {
@@ -222,6 +245,10 @@ export default {
         this.$router.push({
           path: '/teacher/unit-plan-redirect/' + item.id
         })
+      } else if (item.type === typeMap['topic']) {
+        this.$router.push({
+          path: '/expert/topic-redirect/' + item.id
+        })
       } else if (item.type === typeMap['material']) {
         this.$router.push({
           path: '/teacher/add-material/' + item.id
@@ -235,6 +262,11 @@ export default {
           path: '/teacher/lesson-redirect/' + item.id
         })
       }
+    },
+    handlePrevious (item) {
+      this.$router.push({
+        path: '/teacher/my-class?slideId=' + item.presentationId
+      })
     },
     handleDeleteItem (item) {
       logger.info('handleDeleteItem', item)
@@ -332,7 +364,7 @@ export default {
       }
 
       .action {
-        width: 150px;
+        width: 200px;
       }
 
       .action-wrapper {

@@ -127,7 +127,7 @@
       @ok="selectLinkContentVisible = false"
       @cancel="selectLinkContentVisible = false">
       <div class="link-content-wrapper">
-        <my-content-selector :filter-type-list="['unit-plan']" />
+        <my-content-selector :filter-type-list="['topic']" />
       </div>
     </a-modal>
 
@@ -144,7 +144,7 @@
             <a :href="presentationLink" target="_blank">{{ presentationLink }}</a>
           </div>
           <div class="view-action">
-            <a-button type="primary" @click="handleOpenGoogleSlide(presentationLink)">View In Google Slide</a-button>
+            <a-button type="primary" @click="handleOpenGoogleSlide(presentationLink)">Edit In Google Slide</a-button>
           </div>
         </div>
       </div>
@@ -774,9 +774,9 @@ export default {
         this.$router.go(-1)
       }
 
-      setTimeout(() => {
-        this.$router.push({ path: '/teacher/main/created-by-me' })
-      }, 500)
+      // setTimeout(() => {
+      //   this.$router.push({ path: '/teacher/main/created-by-me' })
+      // }, 500)
     },
 
     handleToggleTemplateType (templateType) {

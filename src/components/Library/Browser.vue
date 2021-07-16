@@ -100,7 +100,7 @@ export default {
   },
   data () {
     return {
-      currentCurriculumId: this.$store.getters.bindCurriculum,
+      currentCurriculumId: this.$store.getters.bindCurriculum ? this.$store.getters.bindCurriculum : '1',
       curriculumOptions: [],
       navPath: [],
       browserTypeList: [

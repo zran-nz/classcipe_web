@@ -180,7 +180,7 @@
             <a :href="presentationLink" target="_blank">{{ presentationLink }}</a>
           </div>
           <div class="view-action">
-            <a-button type="primary" @click="handleOpenGoogleSlide(presentationLink)">View In Google Slide</a-button>
+            <a-button type="primary" @click="handleOpenGoogleSlide(presentationLink)">Edit In Google Slide</a-button>
           </div>
         </div>
       </div>
