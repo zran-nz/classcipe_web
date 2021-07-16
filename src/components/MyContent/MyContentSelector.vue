@@ -39,7 +39,7 @@
 
 <script>
 import MyContentCreatedByMe from './MyContentCreatedByMe'
-
+import DisplayMode from '@/components/MyContent/DisplayMode'
 export default {
   name: 'MyContentSelector',
   components: {
@@ -56,18 +56,19 @@ export default {
     },
     mode: {
       type: String,
-      default: 'link'
+      default: DisplayMode.Link
     }
   },
   data () {
     return {
+      displayMode: DisplayMode,
       selectedType: 'created-by-me'
     }
   },
   computed: {
   },
   created () {
-    this.$logger.info('MyContentSelector selectedType ' + this.selectedType + ', filterType ', this.filterTypeList)
+    this.$logger.info('MyContentSelector selectedType ' + this.selectedType + ', mode:' + this.mode + ', filterType ', this.filterTypeList)
   },
   mounted () {
   },

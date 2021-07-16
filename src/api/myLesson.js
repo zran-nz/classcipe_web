@@ -6,7 +6,7 @@ export const lessonAPIUrl = {
   delete: '/classcipe/api/lesson/delete',
   deleteBatch: '/classcipe/api/lesson/deleteBatch',
   list: '/classcipe/api/lesson/list',
-  queryById: '/classcipe/api/lesson/queryById'
+  LessonQueryById: '/classcipe/api/lesson/queryById'
 }
 
 /**
@@ -48,7 +48,7 @@ export function LessonAddOrUpdate (parameter) {
  */
 export function LessonQueryById (parameter) {
   return request({
-    url: lessonAPIUrl.queryById,
+    url: lessonAPIUrl.LessonQueryById,
     method: 'get',
     params: parameter
   })

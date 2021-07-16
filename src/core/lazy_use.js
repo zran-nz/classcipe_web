@@ -41,7 +41,7 @@ import {
   Space,
   TreeSelect,
   message,
-  notification
+  notification, Switch
 } from 'ant-design-vue'
 import Viser from 'viser-vue'
 
@@ -54,6 +54,7 @@ import './directives/action'
 // logger
 import * as logger from '@/utils/logger'
 
+Vue.use(Switch)
 Vue.use(ConfigProvider)
 Vue.use(ConfigProvider)
 Vue.use(Carousel)

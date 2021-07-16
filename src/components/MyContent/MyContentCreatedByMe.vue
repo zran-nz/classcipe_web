@@ -73,12 +73,23 @@
                   {{ item.updateTime || item.createTime | dayjs }}
                 </span>
                 <div class="action" >
-                  <div slot="actions" v-show="mode === 'link'">
+                  <div slot="actions" v-show="mode === displayMode.Link">
                     <div class="action-wrapper">
                       <div class="action-item">
                         <a-popconfirm :title="'Link this content to my Unit' + '?'" ok-text="Yes" @confirm="handleLinkItem(item, $event)" cancel-text="No">
                           <span>
                             <a-icon type="form" /> Link
+                          </span>
+                        </a-popconfirm>
+                      </div>
+                    </div>
+                  </div>
+                  <div slot="actions" v-show="mode === displayMode.Evaluatioin">
+                    <div class="action-wrapper">
+                      <div class="action-item">
+                        <a-popconfirm :title="'Link ?'" ok-text="Yes" @confirm="handleLinkItem(item, $event)" cancel-text="No">
+                          <span>
+                            <a-icon type="form" /> {{ 'Link this evaluation to this ' + (item.type === typeMap.task ? 'task' : (item.type === typeMap.lesson ? 'lesson' : '')) }}
                           </span>
                         </a-popconfirm>
                       </div>
@@ -120,6 +131,7 @@ import { ownerMap, statusMap, typeMap, getLabelNameType } from '@/const/teacher'
 import ContentStatusIcon from '@/components/Teacher/ContentStatusIcon'
 import ContentTypeIcon from '@/components/Teacher/ContentTypeIcon'
 import { MyContentEventBus, MyContentEvent } from '@/components/MyContent/MyContentEventBus'
+import DisplayMode from '@/components/MyContent/DisplayMode'
 
 export default {
   name: 'MyContentCreatedByMe',
@@ -140,7 +152,7 @@ export default {
     },
     mode: {
       type: String,
-      default: 'link'
+      default: DisplayMode.Link
     },
     selectedType: {
       type: String,
@@ -153,6 +165,7 @@ export default {
       loading: true,
       loadFailed: false,
       myContentList: [],
+      displayMode: DisplayMode,
       currentStatus: 'all-status',
       currentStatusLabel: this.$t('teacher.my-content.all-status'),
       currentType: 'all-type',
@@ -388,7 +401,6 @@ export default {
       }
 
       .action {
-        width: 80px;
         color: @primary-color;
         font-weight: 500;
       }

@@ -37,7 +37,7 @@
               </router-link>
             </a-menu-item>
             <a-menu-item>
-              <router-link to="/teacher/add-evaluation">
+              <router-link to="/teacher/evaluation-redirect">
                 {{ $t('menu.evaluations') }}
               </router-link>
             </a-menu-item>
