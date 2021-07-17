@@ -13,173 +13,23 @@
           </span>
         </a-space>
       </a-col>
-      <a-col span="12" class="unit-right-action">
-        <a-space>
-          <a-button @click="handleSaveEvaluation"> <a-icon type="save" /> {{ $t('teacher.add-evaluation.save') }}</a-button>
-          <a-button type="primary" @click="handlePublishEvaluation"> <a-icon type="cloud-upload" /> {{ $t('teacher.add-evaluation.publish') }}</a-button>
-        </a-space>
-      </a-col>
     </a-row>
     <a-row class="unit-content" v-if="!contentLoading">
-      <a-col span="3">
-        <div class="unit-menu-list">
-          <div class="menu-category-item">
-            <div class="menu-category-item-label" @click="leftAddExpandStatus = !leftAddExpandStatus">
-              + Editing content
-            </div>
-            <div class="menu-sub-add-action" v-show="leftAddExpandStatus">
-              <div class="action-item" @click="selectLinkContentVisible = true">
-                <a-icon type="link" /> {{ $t('teacher.add-evaluation.link-content') }}
-              </div>
-            </div>
-          </div>
-          <div class="menu-category-item">
-            <div class="menu-category-item-label">
-              < Content it belong
-            </div>
-            <div class="menu-category-list">
-              <template v-for="associateItem in ownerAssociateData">
-                <template v-for="data in associateItem.datas">
-                  <div class="include-item" v-for="(item,index) in data.lists" :key="index" @click="handleViewDetail(item)">
-                    <content-type-icon :type="item.type"/> {{ item.name }}
-                  </div>
-                </template>
-              </template>
-              <template v-for="associateItem in othersAssociateData" v-if="associateItem.datas && associateItem.datas.length">
-                <template v-for="data in associateItem.datas">
-                  <div class="include-item" v-for="(item,index) in data.lists" :key="index" @click="handleViewDetail(item)">
-                    <content-type-icon :type="item.type"/> {{ item.name }}
-                  </div>
-                </template>
-              </template>
-            </div>
-          </div>
-        </div>
+      <a-col span="4">
       </a-col>
       <a-col span="16" class="main-content">
-        <a-card :bordered="false" :style="{ borderLeft: '1px solid rgb(235, 238, 240)'}" :body-style="{padding: '16px'}">
+        <a-card :bordered="false" :body-style="{padding: '16px'}">
           <div class="rubric-wrapper">
             <div class="rubric-item" v-if="form.tableMode === 1 ">
-              <rubric-one ref="rubric" :description-list="evaluationTableList" :init-raw-headers="initRawHeaders" :init-raw-data="initRawData"/>
+              <rubric-one ref="rubric" :description-list="evaluationTableList" :init-raw-headers="initRawHeaders" :init-raw-data="initRawData" mode="evaluate"/>
             </div>
           </div>
-        </a-card>
-      </a-col>
-      <a-col span="5" class="right-reference-view">
-        <a-card :bordered="false" :loading="referenceLoading">
-          <div class="self-type">
-            <div class="self-type-item">
-              <a-switch checked-children="Student" un-checked-children="Peer" default-checked v-model="selfType"/>
-              <div class="name" v-if="selfType">
-                Student Evaluation
-              </div>
-              <div class="name" v-if="!selfType">
-                Peer Evaluation
-              </div>
-            </div>
+          <div class="action-line">
+            <a-button type="primary">Complete</a-button>
           </div>
         </a-card>
       </a-col>
     </a-row>
-
-    <a-modal
-      v-model="selectLinkContentVisible"
-      :footer="null"
-      :maskClosable="false"
-      :closable="false"
-      destroyOnClose
-      width="80%"
-      title="Link in my content"
-      @ok="selectLinkContentVisible = false"
-      @cancel="selectLinkContentVisible = false">
-      <div class="link-content-wrapper">
-        <my-content-selector :filter-type-list="['task', 'lesson']" :mode="displayMode.Evaluatioin"/>
-      </div>
-    </a-modal>
-
-    <a-modal
-      v-model="associateEvaluationVisible"
-      :footer="null"
-      :maskClosable="false"
-      :closable="false"
-      destroyOnClose
-      title="Associate my content"
-      @ok="associateEvaluationVisible = false"
-      @cancel="associateEvaluationVisible = false">
-      <div class="associate-evaluation">
-        <a-alert
-          message="Associate my content"
-          description="Evaluation should be associated with task or lesson."
-          type="info"
-          show-icon
-        />
-        <div class="associate-my-content-action">
-          <a-button type="primary" @click="selectLinkContentVisible = true">Open My Content</a-button>
-        </div>
-      </div>
-    </a-modal>
-
-    <a-modal
-      v-model="selectRubricVisible"
-      :footer="null"
-      :maskClosable="false"
-      :closable="false"
-      destroyOnClose
-      title="Choose rubric format">
-      <div class="select-rubric-wrapper">
-        <div
-          :class="{
-            'rubric-item': true,
-            'active-rubric': form.tableMode === 1
-          }"
-          @click="handleSelectRubric(1)"
-        >
-          <div class="rubric-preview">
-            <img src="~@/assets/evaluation/rubuc1.png" alt="rubric">
-          </div>
-          <div class="rubric-active-icon">
-            <a-icon type="check" />
-          </div>
-        </div>
-        <div
-          :class="{
-            'rubric-item': true,
-            'active-rubric': form.tableMode === 2
-          }"
-          @click="handleSelectRubric(2)"
-        >
-          <div class="rubric-preview">
-            <img src="~@/assets/evaluation/rubuc2.png" alt="rubric">
-          </div>
-          <div class="rubric-active-icon">
-            <a-icon type="check" />
-          </div>
-        </div>
-      </div>
-      <div class="select-rubric-action">
-        <a-button type="primary" @click="handleEnsureSelectRubric">Ok</a-button>
-      </div>
-    </a-modal>
-
-    <a-modal
-      v-model="showRelevantQuestionVisible"
-      :footer="null"
-      :maskClosable="false"
-      :closable="false"
-      destroyOnClose
-      top="50px"
-      width="50%"
-      title="Select existing tags from associated content for insertion"
-      @ok="showRelevantQuestionVisible = false"
-      @cancel="showRelevantQuestionVisible = false">
-      <div class="select-relevant-tag">
-        <relevant-tag-selector :relevant-question-list="relevantQuestionList" @update-selected="handleUpdateSelected"/>
-      </div>
-      <div class="action-line">
-        <a-button @click="handleCancelSelectedRelevant" class="button-item">Cancel</a-button>
-        <a-button @click="handleConfirmSelectedRelevant" type="primary" class="button-item">Confirm</a-button>
-      </div>
-    </a-modal>
 
     <a-skeleton :loading="contentLoading" active>
     </a-skeleton>
@@ -1399,7 +1249,7 @@ export default {
   max-width: 100%;
   overflow-x: auto;
   overflow-y: scroll;
-  padding: 0 20px 20px 20px;
+  padding: 0 10px;
 }
 
 .self-type {

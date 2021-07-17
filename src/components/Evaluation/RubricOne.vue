@@ -4,20 +4,20 @@
       <thead>
         <draggable v-model="headers" tag="tr" class="table-header" @end="handleDragEnd">
           <th v-for="(header, hIndex) in headers" class="header-item" :key="header.type">
-            <div @click="handleEditHeader(header)" :data-editable="header.editable + ''" class="label-text">
+            <div @click="handleEditHeader(header)" class="label-text">
               {{ header.label }}
             </div>
-            <template v-if="header.editable">
+            <template v-if="header.editable && mode !== 'evaluate'">
               <div class="label-input">
                 <input v-model="header.label" @blur="handleUpdateHeader(header)"/>
               </div>
             </template>
-            <div class="remove-header" v-if="header.type.startsWith('user_ext_')">
+            <div class="remove-header" v-if="header.type.startsWith('user_ext_') && mode !== 'evaluate'">
               <a-popconfirm :title="'Remove Header ?'" ok-text="Yes" @confirm="handleRemoveHeader(header)" cancel-text="No">
                 <a-icon type="delete" />
               </a-popconfirm>
             </div>
-            <template v-if="hIndex === headers.length - 1">
+            <template v-if="hIndex === headers.length - 1 && mode !== 'evaluate'">
               <div class="add-more-header">
                 <a-tooltip title="Add new column">
                   <a-icon type="plus-circle" @click="handleAddNewHeader"/>
@@ -44,9 +44,9 @@
               <template v-else-if="header.type === 'keywords'">
                 <div class="tag-list">
                   <div class="tag-item" v-for="(tag, tIndex) in item[header.type]" :key="tIndex">
-                    <a-tag closable @close="handleCloseTag(item, tag, $event)" :color="tagColorList[tIndex % tagColorList.length]">{{ tag }}</a-tag>
+                    <a-tag :closable="mode !== 'evaluate'" @close="handleCloseTag(item, tag, $event)" :color="tagColorList[tIndex % tagColorList.length]">{{ tag }}</a-tag>
                   </div>
-                  <div class="tag-item add-tag" v-if="item['description']">
+                  <div class="tag-item add-tag" v-if="item['description'] && mode !== 'evaluate'">
                     <span class="add-tag-icon" @click="showAddNewTagInput(item)">
                       <a-icon type="plus-circle"/>
                       <span>Add keywords</span>
@@ -56,14 +56,27 @@
               </template>
               <!--              标签内容-->
               <template v-else>
-                <a-textarea type="text" v-model="item[header.type]" class="ext-input" />
+                <a-textarea type="text" v-model="item[header.type]" class="ext-input" v-if="mode !== 'evaluate'"/>
+                <div class="evaluation-item" v-if="mode === 'evaluate'" @click="toggleCheckedItem(lIndex, header.type)">
+                  {{ item[header.type] }}
+                  <div class="checked-flag" v-if="activeItemKey.indexOf(lIndex + '-' + header.type)">
+                    <a-icon type="check" />
+                  </div>
+                </div>
               </template>
             </template>
 
-            <template v-if="hIndex === headers.length - 1">
+            <template v-if="hIndex === headers.length - 1 && mode !== 'evaluate'">
               <div class="add-more-header">
                 <a-popconfirm :title="'Delete this line ?'" ok-text="Yes" @confirm="handleDeleteLine(item)" cancel-text="No">
                   <a-icon type="delete"/>
+                </a-popconfirm>
+              </div>
+            </template>
+            <template v-if="hIndex === headers.length - 1 && mode === 'evaluate'">
+              <div class="add-evidence">
+                <a-popconfirm :title="'Add evidence ?'" ok-text="Yes" @confirm="handleAddEvidenceLine(item)" cancel-text="No">
+                  <a-icon type="plus-circle" /> Add Evidence
                 </a-popconfirm>
               </div>
             </template>
@@ -71,7 +84,7 @@
         </tr>
       </tbody>
     </table>
-    <div class="add-new-line" @click="handleAddNewLine">
+    <div class="add-new-line" @click="handleAddNewLine" v-if="mode !== 'evaluate'">
       <a-icon type="plus-circle"/> Add new Line
     </div>
 
@@ -157,25 +170,18 @@ export default {
       descriptionTagList: [],
       subKnowledgeId2InfoMap: new Map(),
       currentSelectLine: null,
-      addTagItem: null
+      addTagItem: null,
+      activeItemKey: []
     }
   },
   created () {
-    this.$logger.info('RubricOne created ', this.descriptionList, this.initRawHeaders)
+    this.$logger.info('RubricOne created ' + this.mode, this.descriptionList, this.initRawHeaders)
     if (this.initRawHeaders.length) {
       this.headers = this.initRawHeaders
     }
 
     if (this.initRawData.length) {
       this.list = this.initRawData
-    } else {
-      const newLineItem = {}
-      this.headers.forEach(item => {
-        newLineItem[item.label] = null
-      })
-      newLineItem.keywords = []
-      this.$logger.info('first init new line ', newLineItem)
-      this.list.push(newLineItem)
     }
     LibraryEventBus.$on(LibraryEvent.ContentListSelectClick, this.handleContentListSelectClick)
   },
@@ -214,14 +220,15 @@ export default {
       this.$logger.info('after update list', this.list)
     },
     initRawHeaders (newList) {
-      this.$logger.info('initRawHeaders', newList)
+      this.$logger.info('initRawHeaders change', newList)
       if (newList.length) {
         this.headers = newList
       }
     },
     initRawData (newList) {
-      this.$logger.info('initRawData', newList)
+      this.$logger.info('initRawData change', newList)
       if (newList.length) {
+        this.$logger.info('after initRawData', newList)
         this.list = newList
       }
     }
@@ -343,7 +350,7 @@ export default {
 
     handleDbClickBodyItem (item, header) {
       this.$logger.info('handleDbClickBodyItem', item, header)
-      if (header.type === 'description') {
+      if (header.type === 'description' && this.mode !== 'evaluate') {
         this.selectCurriculumVisible = true
         this.currentSelectLine = item
       }
@@ -401,6 +408,21 @@ export default {
     handleEnsureAddTag () {
       this.$logger.info('handleEnsureAddTag')
       this.selectKnowledgeTagVisible = false
+    },
+
+    toggleCheckedItem (lIndex, type) {
+      const key = lIndex + '-' + type
+      const index = this.activeItemKey.indexOf(key)
+      if (index !== -1) {
+        this.activeItemKey.splice(index, 1)
+      } else {
+        this.activeItemKey.push(key)
+      }
+    },
+
+    handleAddEvidenceLine (item) {
+      this.$logger.info('handleAddEvidenceLine', item)
+      this.$message.warn('coming soon!')
     }
   }
 }
@@ -552,6 +574,16 @@ export default {
             top: 50%;
             margin-top: -10px;
           }
+
+          .add-evidence {
+            cursor: pointer;
+            position: absolute;
+            right: -110px;
+            font-size: 14px;
+            color: @primary-color;
+            top: 50%;
+            margin-top: -12px;
+          }
         }
       }
     }
@@ -590,6 +622,33 @@ export default {
   width: 100%;
   height: 100%;
   border: none;
+}
+
+.evaluation-item {
+  background: fade(@primary-color, 10%);
+  height: 100%;
+  width: 100%;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  .checked-flag {
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+    height: 20px;
+    width: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-left: -25px;
+    margin-top: -25px;
+
+    i {
+      font-size: 20px;
+      color: @primary-color;
+    }
+  }
 }
 
 </style>
