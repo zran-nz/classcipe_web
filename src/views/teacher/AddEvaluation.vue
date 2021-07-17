@@ -24,34 +24,13 @@
       <a-col span="3">
         <div class="unit-menu-list">
           <div class="menu-category-item">
-            <div class="menu-category-item-label" @click="leftAddExpandStatus = !leftAddExpandStatus">
-              + Editing content
-            </div>
-            <div class="menu-sub-add-action" v-show="leftAddExpandStatus">
+            <content-sidebar :name="form.name" :type="contentType.evaluation"/>
+          </div>
+          <div class="menu-category-item">
+            <div class="menu-sub-add-action">
               <div class="action-item" @click="selectLinkContentVisible = true">
                 <a-icon type="link" /> {{ $t('teacher.add-evaluation.link-content') }}
               </div>
-            </div>
-          </div>
-          <div class="menu-category-item">
-            <div class="menu-category-item-label">
-              < Content it belong
-            </div>
-            <div class="menu-category-list">
-              <template v-for="associateItem in ownerAssociateData">
-                <template v-for="data in associateItem.datas">
-                  <div class="include-item" v-for="(item,index) in data.lists" :key="index" @click="handleViewDetail(item)">
-                    <content-type-icon :type="item.type"/> {{ item.name }}
-                  </div>
-                </template>
-              </template>
-              <template v-for="associateItem in othersAssociateData" v-if="associateItem.datas && associateItem.datas.length">
-                <template v-for="data in associateItem.datas">
-                  <div class="include-item" v-for="(item,index) in data.lists" :key="index" @click="handleViewDetail(item)">
-                    <content-type-icon :type="item.type"/> {{ item.name }}
-                  </div>
-                </template>
-              </template>
             </div>
           </div>
         </div>
@@ -204,6 +183,7 @@ import RelevantTagSelector from '@/components/UnitPlan/RelevantTagSelector'
 import { TemplateTypeMap } from '@/const/template'
 import DisplayMode from '@/components/MyContent/DisplayMode'
 import RubricOne from '@/components/Evaluation/RubricOne'
+import ContentSidebar from '@/components/Classcipe/ContentSidebar'
 
 const TagOriginType = {
   Origin: 'Origin',
@@ -220,7 +200,8 @@ export default {
     ContentTypeIcon,
     InputSearch,
     MyContentSelector,
-    RelevantTagSelector
+    RelevantTagSelector,
+    ContentSidebar
   },
   props: {
     evaluationId: {
@@ -242,7 +223,6 @@ export default {
 
       creating: false,
 
-      leftAddExpandStatus: false,
       selectLinkContentVisible: false,
       associateEvaluationVisible: false,
       selectRubricVisible: false,
@@ -252,7 +232,7 @@ export default {
 
       form: {
         id: null,
-        name: '',
+        name: 'Unnamed Evaluation',
         status: 0,
         selfType: 0,
         table: [],
