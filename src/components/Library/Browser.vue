@@ -186,7 +186,7 @@ export default {
 
     handleViewLeft () {
       this.$logger.info('handleViewLeft ' + (this.blockIndex))
-      if (this.blockIndex <= 2) {
+      if (this.blockIndex < 2) {
         this.hasLeftBlock = false
         this.browserMarginLeft = 0
       } else {
