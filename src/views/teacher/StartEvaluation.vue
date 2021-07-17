@@ -15,9 +15,9 @@
       </a-col>
     </a-row>
     <a-row class="unit-content" v-if="!contentLoading">
-      <a-col span="4">
+      <a-col span="2">
       </a-col>
-      <a-col span="16" class="main-content">
+      <a-col span="18" class="main-content">
         <a-card :bordered="false" :body-style="{padding: '16px'}">
           <div class="rubric-wrapper">
             <div class="rubric-item" v-if="form.tableMode === 1 ">
@@ -1249,7 +1249,7 @@ export default {
   max-width: 100%;
   overflow-x: auto;
   overflow-y: scroll;
-  padding: 0 10px;
+  padding: 0 20px 0 0;
 }
 
 .self-type {

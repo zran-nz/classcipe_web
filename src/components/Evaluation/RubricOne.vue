@@ -59,7 +59,7 @@
                 <a-textarea type="text" v-model="item[header.type]" class="ext-input" v-if="mode !== 'evaluate'"/>
                 <div class="evaluation-item" v-if="mode === 'evaluate'" @click="toggleCheckedItem(lIndex, header.type)">
                   {{ item[header.type] }}
-                  <div class="checked-flag" v-if="activeItemKey.indexOf(lIndex + '-' + header.type)">
+                  <div class="checked-flag" v-if="activeItemKey.indexOf(lIndex + '-' + header.type) !== -1">
                     <a-icon type="check" />
                   </div>
                 </div>
