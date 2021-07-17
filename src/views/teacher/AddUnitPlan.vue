@@ -24,20 +24,10 @@
       <a-col span="3">
         <div class="unit-menu-list">
           <div class="menu-category-item">
-            <div class="menu-category-item-label">
-              > Content it includes
-            </div>
-            <div class="menu-category-list">
-              <div class="include-item" v-for="(material,index) in form.materials" :key="index" @click="handleViewMaterial(material)">
-                <content-type-icon :type="contentType.material"/> {{ material.name }}
-              </div>
-            </div>
+            <content-sidebar :name="form.name" :type="contentType[&quot;unit-plan&quot;]"/>
           </div>
           <div class="menu-category-item">
-            <div class="menu-category-item-label" @click="leftAddExpandStatus = !leftAddExpandStatus">
-              + Editing content
-            </div>
-            <div class="menu-sub-add-action" v-show="leftAddExpandStatus">
+            <div class="menu-sub-add-action">
               <div class="action-item" @click="selectAddContentTypeVisible = true">
                 <a-icon type="plus-circle" /> {{ $t('teacher.add-unit-plan.add-to-this-unit-plan') }}
               </div>
@@ -311,6 +301,8 @@ import { ChangeStatus, UnitPlanAddOrUpdate, UnitPlanQueryById } from '@/api/unit
 import { formatLocalUTC } from '@/utils/util'
 import { MaterialDelete } from '@/api/material'
 import MyContentSelector from '@/components/MyContent/MyContentSelector'
+import ContentSidebar from '@/components/Classcipe/ContentSidebar'
+const { GetAssociate } = require('@/api/teacher')
 
 export default {
   name: 'AddUnitPlan',
@@ -321,7 +313,8 @@ export default {
     NewClickableKnowledgeTag,
     NewClickableSkillTag,
     SkillTag,
-    MyContentSelector
+    MyContentSelector,
+    ContentSidebar
   },
   props: {
     // eslint-disable-next-line vue/require-default-prop
@@ -333,7 +326,6 @@ export default {
       referenceLoading: false,
       contentType: typeMap,
 
-      leftAddExpandStatus: false,
       selectAddContentTypeVisible: false,
       selectLinkContentVisible: false,
 
@@ -427,7 +419,10 @@ export default {
           skillGradeId: '',
           skillTags: []
         }
-      }
+      },
+
+      ownerAssociateData: [],
+      othersAssociateData: []
     }
   },
   computed: {
@@ -485,6 +480,7 @@ export default {
         logger.info('sdgList', this.sdgList)
       }).then(() => {
         this.restoreUnitPlan(this.unitPlanId, true)
+        this.loadAssociate()
       }).catch(() => {
         this.$message.error(this.$t('teacher.add-unit-plan.init-data-failed'))
       }).finally(() => {
@@ -579,6 +575,19 @@ export default {
         logger.info('after restoreUnitPlan', this.form, this.sdgDataObj, this.questionDataObj)
       }).finally(() => {
         this.contentLoading = false
+      })
+    },
+
+    loadAssociate () {
+      GetAssociate({
+        id: this.unitPlanId,
+        type: this.contentType['unit-plan']
+      }).then(response => {
+        this.$logger.info('unitPlan GetAssociate response', response)
+        const associate = response.result
+        this.ownerAssociateData = associate.owner
+        this.othersAssociateData = associate.others
+        this.$logger.info('ownerAssociateData ', this.ownerAssociateData, 'othersAssociateData', this.othersAssociateData)
       })
     },
 
