@@ -214,7 +214,7 @@ const TagOriginType = {
 }
 
 export default {
-  name: 'AddEvaluation',
+  name: 'StartEvaluation',
   components: {
     RubricOne,
     ContentTypeIcon,

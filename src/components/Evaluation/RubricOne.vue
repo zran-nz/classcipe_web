@@ -116,6 +116,18 @@ export default {
     descriptionList: {
       type: Array,
       default: () => []
+    },
+    initRawData: {
+      type: Array,
+      default: () => []
+    },
+    initRawHeaders: {
+      type: Array,
+      default: () => []
+    },
+    mode: {
+      type: String,
+      default: null
     }
   },
   data () {
@@ -123,7 +135,7 @@ export default {
       selectModel: SelectModel,
       selfHeaderAddIndex: 1,
       headers: [
-        { label: 'description', previewLabel: 'Criteria', type: 'description', editable: false, required: true },
+        { label: 'Criteria', previewLabel: 'Criteria', type: 'description', editable: false, required: true },
         { label: 'Key words', previewLabel: 'Key words', type: 'keywords', editable: false, required: true },
         { label: 'Specific Indicator', previewLabel: 'Specific Indicator', type: 'user_ext_0', editable: false, required: false }
       ],
@@ -149,7 +161,22 @@ export default {
     }
   },
   created () {
-    this.$logger.info('RubricOne created ', this.descriptionList)
+    this.$logger.info('RubricOne created ', this.descriptionList, this.initRawHeaders)
+    if (this.initRawHeaders.length) {
+      this.headers = this.initRawHeaders
+    }
+
+    if (this.initRawData.length) {
+      this.list = this.initRawData
+    } else {
+      const newLineItem = {}
+      this.headers.forEach(item => {
+        newLineItem[item.label] = null
+      })
+      newLineItem.keywords = []
+      this.$logger.info('first init new line ', newLineItem)
+      this.list.push(newLineItem)
+    }
     LibraryEventBus.$on(LibraryEvent.ContentListSelectClick, this.handleContentListSelectClick)
   },
   destroyed () {
@@ -163,7 +190,7 @@ export default {
         const existObject = this.list.find(lineItem => lineItem.description === item.description)
         if (existObject) {
           if (existObject.keywords && existObject.keywords.length) {
-            item.keywords.forEach(keyword => {
+            item.tagList.forEach(keyword => {
               if (existObject.keywords.indexOf(keyword) === -1) {
                 existObject.keywords.push(keyword)
               }
@@ -185,6 +212,18 @@ export default {
         }
       })
       this.$logger.info('after update list', this.list)
+    },
+    initRawHeaders (newList) {
+      this.$logger.info('initRawHeaders', newList)
+      if (newList.length) {
+        this.headers = newList
+      }
+    },
+    initRawData (newList) {
+      this.$logger.info('initRawData', newList)
+      if (newList.length) {
+        this.list = newList
+      }
     }
   },
   methods: {
@@ -406,7 +445,7 @@ export default {
             right: 0;
             bottom: 0;
             width: 100%;
-            background-color: @outline-color;
+            background-color: #fff;
 
             input {
               font-weight: bold;
@@ -417,7 +456,7 @@ export default {
               line-height: 25px;
               width: 100%;
               border: none;
-              background-color: @outline-color;
+              background-color: #fff;
             }
           }
 
@@ -483,8 +522,15 @@ export default {
               display: flex;
               flex-direction: column;
               .tag-item {
-                margin-top: 3px;
                 margin-bottom: 3px;
+                span {
+                  max-width: 150px;
+                  word-break:normal;
+                  width:auto;
+                  white-space:pre-wrap;
+                  word-wrap : break-word;
+                  margin-top: 3px;
+                }
               }
             }
           }

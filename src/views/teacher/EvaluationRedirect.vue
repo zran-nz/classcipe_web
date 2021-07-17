@@ -31,9 +31,7 @@ export default {
      EvaluationAddOrUpdate(data).then((response) => {
         this.$logger.info('EvaluationAddOrUpdate response', response.result)
         if (response.success) {
-          // TODO 修改为真实的id
-          // this.$router.replace('/teacher/add-evaluation/' + response.result.id)
-          this.$router.replace('/teacher/add-evaluation/1415952916017655810/create')
+          this.$router.replace('/teacher/add-evaluation/' + response.result.id + '/create')
         } else {
           this.$message.error(response.message)
         }

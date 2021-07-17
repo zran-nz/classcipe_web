@@ -24,7 +24,7 @@
     </div>
     <div class="search-result-list">
       <div class="search-list">
-        <div class="list-item" v-for="name,index in searchResult" :key="index" @click="handleSearchTag(name)">
+        <div class="list-item" v-for="(name,sIndex) in searchResult" :key="sIndex" @click="handleSearchTag(name)">
           {{ name }}
         </div>
       </div>
@@ -68,7 +68,7 @@ export default {
     inputWidth () {
       const value = this.inputValue || ''
       const length = value.trim().length * 20 + 22
-      return (length > 60 ? length : 60) + 'px'
+      return (length > 60 ? (length > 400 ? 400 : length) : 60) + 'px'
     },
     searchResult () {
       const list = []
@@ -169,7 +169,7 @@ export default {
   color: @text-color;
   cursor: pointer;
   transition: all 0.3s;
-  padding: 0 @input-padding-horizontal-base;
+  padding: 0 5px;
   border: @border-width-base solid #d9d9d9;
   outline: 0;
 
@@ -215,6 +215,22 @@ export default {
           }
         }
       }
+
+      .tag-item {
+        max-width: 200px;
+        word-break:normal;
+        width:auto;
+        white-space:pre-wrap;
+        word-wrap : break-word;
+        margin: 5px 0;
+
+        .tag-dom {
+          word-break:normal;
+          width:auto;
+          display:block;
+          white-space:pre-wrap;
+        }
+      }
     }
   }
 }
@@ -237,7 +253,7 @@ export default {
       justify-content: flex-start;
       align-items: center;
       line-height: 25px;
-      padding: 5px 10px;
+      padding: 5px 5px;
       border-bottom: 1px solid #eee;
     }
 
