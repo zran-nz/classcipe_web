@@ -1,4 +1,5 @@
 import request from '@/utils/request'
+// import { lessonAPIUrl } from '@/api/myLesson'
 
 const api = {
   user: '/user',
@@ -69,11 +70,10 @@ export function saveSub (sub) {
   })
 }
 
-//get
-export function getAction(url,parameter) {
+export function getAction (url, parameter) {
   return request({
     url: url,
     method: 'get',
-    data: parameter
+    params: parameter
   })
 }

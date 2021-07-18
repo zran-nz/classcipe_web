@@ -1048,11 +1048,11 @@ export default {
           this.selectedMyContentList.push(this.selectedMyContentInfoMap.get(key))
         }
 
-        const keyArr = parseInt(key.split('-'))
-        if (keyArr[0] === this.contentType.task) {
+        const keyArr = key.split('-')
+        if (parseInt(keyArr[0]) === this.contentType.task) {
           this.selectedTaskIdList.push(keyArr[1])
         }
-        if (keyArr[0] === this.contentType.lesson) {
+        if (parseInt(keyArr[0]) === this.contentType.lesson) {
           this.selectedLessonIdList.push(keyArr[1])
         }
       })

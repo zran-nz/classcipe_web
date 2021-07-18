@@ -17,6 +17,7 @@
         <a-space>
           <a-button @click="handleSaveUnitPlan"> <a-icon type="save" /> {{ $t('teacher.add-unit-plan.save') }}</a-button>
           <a-button type="primary" @click="handlePublishUnitPlan"> <a-icon type="cloud-upload" /> {{ $t('teacher.add-unit-plan.publish') }}</a-button>
+          <a-button @click="handleCollaborate"><a-icon type="share-alt" ></a-icon>Collaborate</a-button>
         </a-space>
       </a-col>
     </a-row>
@@ -278,6 +279,8 @@
     </a-modal>
     <a-skeleton :loading="contentLoading" active>
     </a-skeleton>
+
+    <Collaborate ref="collaborate" :id="unitPlanId" :type="1" ></Collaborate>
   </a-card>
 </template>
 
@@ -302,6 +305,7 @@ import { formatLocalUTC } from '@/utils/util'
 import { MaterialDelete } from '@/api/material'
 import MyContentSelector from '@/components/MyContent/MyContentSelector'
 import ContentSidebar from '@/components/Classcipe/ContentSidebar'
+import Collaborate from './Collaborate'
 const { GetAssociate } = require('@/api/teacher')
 
 export default {
@@ -314,7 +318,8 @@ export default {
     NewClickableSkillTag,
     SkillTag,
     MyContentSelector,
-    ContentSidebar
+    ContentSidebar,
+    Collaborate
   },
   props: {
     // eslint-disable-next-line vue/require-default-prop
@@ -322,6 +327,7 @@ export default {
   },
   data () {
     return {
+      showCollaborateVisible: false,
       contentLoading: true,
       referenceLoading: false,
       contentType: typeMap,
@@ -940,6 +946,10 @@ export default {
       this.$router.push({
         path: '/teacher/unit-plan-material/' + this.unitPlanId + '/' + material.id
       })
+    },
+
+    handleCollaborate () {
+      this.$refs.collaborate.visible = true
     }
   }
 }
