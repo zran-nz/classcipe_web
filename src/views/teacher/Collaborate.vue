@@ -1,6 +1,7 @@
 <template>
   <a-modal
     :visible="visible"
+    title="Select users to collaborate"
     @ok="handleSelect"
     @cancel="handleClose"
     width="600px"
@@ -37,7 +38,7 @@
 
 <script>
 import { getAction } from '../../api/manage'
-import { AddUserCollaborate, userAPIUrl } from '../../api/user'
+import { AddUserCollaborate, GetCollaborateUsers, userAPIUrl } from '../../api/user'
 
 export default {
   name: 'Collaborate',
@@ -47,7 +48,8 @@ export default {
       uploading: false,
       value: [],
       data: [],
-      fetching: false
+      fetching: false,
+      lastFetchId: 0
     }
   },
   components: {},
@@ -82,7 +84,7 @@ export default {
       AddUserCollaborate(data).then((response) => {
         this.$logger.info('AddUserCollaborate response', response.result)
         if (response.success) {
-           alert('success')
+           this.$message.success('Add Collaborate Success')
            this.handleClose()
         } else {
           this.$message.error(response.message)
@@ -97,7 +99,13 @@ export default {
       console.log('fetching user', value)
       this.data = []
       this.fetching = true
+      this.lastFetchId += 1
+      const fetchId = this.lastFetchId
       getAction(userAPIUrl.SearchUser, ({ name: value })).then(res => {
+        if (fetchId !== this.lastFetchId) {
+          // for fetch callback order
+          return
+        }
         if (res.success) {
           res.result.forEach((record) => {
             this.data.push({
@@ -116,7 +124,14 @@ export default {
     }
   },
   created () {
-    this.value = this.defaultValue
+    GetCollaborateUsers({ id: this.id, type: this.type }).then((response) => {
+      this.$logger.info('GetCollaborateUsers response', response.result)
+      if (response.success) {
+        this.value = response.result
+      } else {
+        this.$message.error(response.message)
+      }
+    })
   }
 }
 </script>

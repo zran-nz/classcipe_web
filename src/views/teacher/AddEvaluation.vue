@@ -17,6 +17,8 @@
         <a-space>
           <a-button @click="handleSaveEvaluation"> <a-icon type="save" /> {{ $t('teacher.add-evaluation.save') }}</a-button>
           <a-button type="primary" @click="handlePublishEvaluation"> <a-icon type="cloud-upload" /> {{ $t('teacher.add-evaluation.publish') }}</a-button>
+          <a-button @click="$refs.collaborate.visible = true"><a-icon type="share-alt" ></a-icon>Collaborate</a-button>
+          <Collaborate ref="collaborate" :id="evaluationId" :type="contentType.evaluation" ></Collaborate>
         </a-space>
       </a-col>
     </a-row>
@@ -184,6 +186,7 @@ import { TemplateTypeMap } from '@/const/template'
 import DisplayMode from '@/components/MyContent/DisplayMode'
 import RubricOne from '@/components/Evaluation/RubricOne'
 import ContentSidebar from '@/components/Classcipe/ContentSidebar'
+import Collaborate from '@/views/teacher/Collaborate'
 
 const TagOriginType = {
   Origin: 'Origin',
@@ -201,7 +204,8 @@ export default {
     InputSearch,
     MyContentSelector,
     RelevantTagSelector,
-    ContentSidebar
+    ContentSidebar,
+    Collaborate
   },
   props: {
     evaluationId: {

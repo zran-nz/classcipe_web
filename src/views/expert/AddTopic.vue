@@ -17,6 +17,8 @@
         <a-space>
           <a-button @click="handleSaveTopic"> <a-icon type="save" /> {{ $t('teacher.add-unit-plan.save') }}</a-button>
           <a-button type="primary" @click="handlePublishTopic"> <a-icon type="cloud-upload" /> {{ $t('teacher.add-unit-plan.publish') }}</a-button>
+          <a-button @click="$refs.collaborate.visible = true"><a-icon type="share-alt" ></a-icon>Collaborate</a-button>
+          <Collaborate ref="collaborate" :id="topicId" :type="contentType.topic" ></Collaborate>
         </a-space>
       </a-col>
     </a-row>
@@ -311,6 +313,7 @@
   import { formatLocalUTC } from '@/utils/util'
   import { MaterialDelete } from '@/api/material'
   import MyContentSelector from '@/components/MyContent/MyContentSelector'
+  import Collaborate from '@/views/teacher/Collaborate'
 
   export default {
     name: 'AddTopic',
@@ -321,7 +324,8 @@
       NewClickableKnowledgeTag,
       NewClickableSkillTag,
       SkillTag,
-      MyContentSelector
+      MyContentSelector,
+      Collaborate
     },
     props: {
       // eslint-disable-next-line vue/require-default-prop

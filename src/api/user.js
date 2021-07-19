@@ -3,7 +3,10 @@ import request from '@/utils/request'
 export const userAPIUrl = {
   EditUser: '/classcipe/sys/user/edit',
   SearchUser: '/classcipe/sys/user/queryUserByName',
-  AddUserCollaborate: '/classcipe/sys/user/Collaborate'
+  AddUserCollaborate: '/classcipe/api/collaborate/addOrUpdate',
+  GetCollaborateUsers: '/classcipe/api/collaborate/getCollaborateUsers',
+  GetShared: '/classcipe/api/collaborate/getShared',
+  DeleteSharedByIdAndType: '/classcipe/api/collaborate/deleteByIdAndType'
 }
 
 /**
@@ -31,5 +34,34 @@ export function AddUserCollaborate (parameter) {
     headers: {
       'Content-Type': 'application/json;charset=UTF-8'
     }
+  })
+}
+
+export function GetCollaborateUsers (parameter) {
+  return request({
+    url: userAPIUrl.GetCollaborateUsers,
+    method: 'get',
+    params: parameter
+  })
+}
+
+/**
+ * @param parameter
+ * @returns {AxiosPromise}
+ * @constructor
+ */
+export function GetShared (parameter) {
+  return request({
+    url: userAPIUrl.GetShared,
+    method: 'get',
+    params: parameter
+  })
+}
+
+export function DeleteSharedByIdAndType (parameter) {
+  return request({
+    url: userAPIUrl.DeleteSharedByIdAndType,
+    method: 'post',
+    data: parameter
   })
 }

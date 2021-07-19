@@ -17,6 +17,8 @@
         <a-space>
           <a-button @click="handleSaveTask"> <a-icon type="save" /> {{ $t('teacher.add-task.save') }}</a-button>
           <a-button type="primary" @click="handlePublishTask"> <a-icon type="cloud-upload" /> {{ $t('teacher.add-task.publish') }}</a-button>
+          <a-button @click="$refs.collaborate.visible = true"><a-icon type="share-alt" ></a-icon>Collaborate</a-button>
+          <Collaborate ref="collaborate" :id="taskId" :type="contentType.task" ></Collaborate>
         </a-space>
       </a-col>
     </a-row>
@@ -284,6 +286,7 @@ import MyContentSelector from '@/components/MyContent/MyContentSelector'
 import RelevantTagSelector from '@/components/UnitPlan/RelevantTagSelector'
 import { TemplateTypeMap } from '@/const/template'
 import { commonAPIUrl } from '@/api/common'
+import Collaborate from '@/views/teacher/Collaborate'
 
 const TagOriginType = {
   Origin: 'Origin',
@@ -303,7 +306,8 @@ export default {
     NewClickableSkillTag,
     SkillTag,
     MyContentSelector,
-    RelevantTagSelector
+    RelevantTagSelector,
+    Collaborate
   },
   props: {
     // eslint-disable-next-line vue/require-default-prop
