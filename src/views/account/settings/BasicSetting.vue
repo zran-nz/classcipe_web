@@ -465,8 +465,19 @@ export default {
 
     setAvatar (url) {
       logger.info('setAvatar ' + url)
-      this.editMode = true
       this.userInfo.avatar = url
+      const userData = {
+        avatar: this.userInfo.avatar,
+        nickname: this.userInfo.tempNickname,
+        id: this.$store.getters.userInfo.id
+      }
+      editUser(userData).then(response => {
+        this.$logger.info('update preference and edit user response', response)
+      }).finally(() => {
+        this.$store.dispatch('GetInfo').then(() => {
+          this.initData()
+        })
+      })
     },
 
     saveDetail () {

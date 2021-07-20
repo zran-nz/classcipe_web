@@ -1,5 +1,16 @@
 <template>
   <a-card :bordered="false" ref="card">
+
+    <a-row class="class-header">
+      <a-col span="12">
+        <a-space>
+          <a-button class="nav-back-btn" type="link" @click="$router.go(-1)">
+            <a-icon type="left" />
+            {{ $t('teacher.add-unit-plan.back') }}
+          </a-button>
+        </a-space>
+      </a-col>
+    </a-row>
     <a-skeleton :loading="skeletonLoading" active>
       <a-table
         :columns="columns"
@@ -276,6 +287,16 @@ export default {
 </script>
 
 <style lang="less" scoped>
+
+.class-header {
+  padding-bottom: 16px;
+  border-bottom: 1px solid rgb(235, 238, 240);
+
+  .nav-back-btn {
+    padding-left: 0;
+  }
+}
+
 .loading-status {
   display: flex;
   justify-content: center;
