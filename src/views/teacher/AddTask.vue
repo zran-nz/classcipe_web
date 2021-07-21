@@ -286,7 +286,7 @@ import MyContentSelector from '@/components/MyContent/MyContentSelector'
 import RelevantTagSelector from '@/components/UnitPlan/RelevantTagSelector'
 import { TemplateTypeMap } from '@/const/template'
 import { commonAPIUrl } from '@/api/common'
-import Collaborate from '@/views/teacher/Collaborate'
+import Collaborate from '@/components/UnitPlan/Collaborate'
 
 const TagOriginType = {
   Origin: 'Origin',

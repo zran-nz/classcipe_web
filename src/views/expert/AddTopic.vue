@@ -313,7 +313,7 @@
   import { formatLocalUTC } from '@/utils/util'
   import { MaterialDelete } from '@/api/material'
   import MyContentSelector from '@/components/MyContent/MyContentSelector'
-  import Collaborate from '@/views/teacher/Collaborate'
+  import Collaborate from '@/components/UnitPlan/Collaborate'
 
   export default {
     name: 'AddTopic',

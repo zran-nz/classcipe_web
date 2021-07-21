@@ -143,34 +143,9 @@
         </div>
 
         <!-- Customized tags -->
-        <div class="profile-item-line" v-if="$store.getters.currentRole === 'teacher'">
-          <div class="profile-label">
-            <span class="label-txt">Customized tags :</span>
-          </div>
-          <div class="profile-text profile-data" v-if="!editMode">
-            <div class="profile-tag-item" v-for="(tag,index) in customizedTagIds" :key="index">
-              <a-tag>{{ tag.label }}</a-tag>
-            </div>
-          </div>
-          <div class="profile-input profile-data" v-if="editMode">
-            <a-tree-select
-              v-model="customizedTagIds"
-              allowClear
-              labelInValue
-              style="width: 100%"
-              :dropdownStyle="{ maxHeight: '400px', overflow: 'auto' }"
-              placeholder="Choose Customized tags"
-              :treeData="customizedTags"
-              multiple="multiple"
-              :replaceFields="{title:'name', key:'id', value: 'id'}"
-              @change="onChange"
-              @search="onSearch">
-            </a-tree-select>
-          </div>
-        </div>
 
-      </a-col>
-    </a-row>
+      </a-col></a-row>
+
     <a-row v-show="!loading">
       <a-col span="24" class="action-line">
         <div class="edit-action-wrapper" v-if="!editMode">
@@ -187,6 +162,20 @@
         </div>
       </a-col>
     </a-row>
+
+    <a-row>
+      <a-col span="4" class="action-line">
+        <div class="profile-label">
+          <span class="label-txt">Customized tags :</span>
+        </div>
+      </a-col>
+
+      <a-col span="12" class="action-line">
+        <custom-tag></custom-tag>
+      </a-col>
+
+    </a-row>
+
   </div>
 </template>
 
@@ -202,11 +191,13 @@ import {
   getAllSubjectsByCurriculumId,
   getAllSubjectsByParentId, getCustomizedTags
 } from '@/api/preference'
+import CustomTag from '@/components/UnitPlan/CustomTag'
 
 export default {
   name: 'BasicSetting',
   components: {
-    AvatarModal
+    AvatarModal,
+    CustomTag
   },
   data () {
     return {

@@ -186,7 +186,7 @@ import { TemplateTypeMap } from '@/const/template'
 import DisplayMode from '@/components/MyContent/DisplayMode'
 import RubricOne from '@/components/Evaluation/RubricOne'
 import ContentSidebar from '@/components/Classcipe/ContentSidebar'
-import Collaborate from '@/views/teacher/Collaborate'
+import Collaborate from '@/components/UnitPlan/Collaborate'
 
 const TagOriginType = {
   Origin: 'Origin',

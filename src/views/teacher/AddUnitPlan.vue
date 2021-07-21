@@ -304,7 +304,7 @@ import { formatLocalUTC } from '@/utils/util'
 import { MaterialDelete } from '@/api/material'
 import MyContentSelector from '@/components/MyContent/MyContentSelector'
 import ContentSidebar from '@/components/Classcipe/ContentSidebar'
-import Collaborate from './Collaborate'
+import Collaborate from '@/components/UnitPlan/Collaborate'
 const { GetAssociate } = require('@/api/teacher')
 
 export default {

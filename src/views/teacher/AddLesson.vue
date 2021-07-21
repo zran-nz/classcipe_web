@@ -376,7 +376,7 @@ import RelevantTagSelector from '@/components/UnitPlan/RelevantTagSelector'
 import { TemplateTypeMap } from '@/const/template'
 import TaskForm from '@/components/Task/TaskForm'
 import TaskPreview from '@/components/Task/TaskPreview'
-import Collaborate from '@/views/teacher/Collaborate'
+import Collaborate from '@/components/UnitPlan/Collaborate'
 
 const TagOriginType = {
   Origin: 'Origin',
