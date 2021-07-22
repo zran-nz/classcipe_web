@@ -7,7 +7,7 @@ export const tagAPIUrl = {
   TagQueryById: '/classcipe/api/tag/queryById',
   TagDelete: '/classcipe/api/tag/delete',
   TagDeleteBatch: '/classcipe/api/tag/deleteBatch',
-  TagList: '/classcipe/api/tag/list'
+  TagTree: '/classcipe/api/tag/getTree'
 }
 
 /**
@@ -102,9 +102,9 @@ export function TagDeleteBatch (parameter) {
  * @returns {AxiosPromise}
  * @constructor
  */
-export function TagList (parameter) {
+export function TagTree (parameter) {
   return request({
-    url: tagAPIUrl.TagList,
+    url: tagAPIUrl.TagTree,
     method: 'get',
     params: parameter
   })

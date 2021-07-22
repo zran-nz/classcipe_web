@@ -40,6 +40,7 @@ import {
   Result,
   Space,
   TreeSelect,
+  Tree,
   message,
   notification, Switch
 } from 'ant-design-vue'
@@ -94,6 +95,7 @@ Vue.use(PageHeader)
 Vue.use(Result)
 Vue.use(Space)
 Vue.use(TreeSelect)
+Vue.use(Tree)
 
 Vue.prototype.$confirm = Modal.confirm
 Vue.prototype.$message = message

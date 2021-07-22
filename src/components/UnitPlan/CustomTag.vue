@@ -26,8 +26,15 @@
 
         <a-row>
           <a-col offset="0" span="20">
-            <div class="knowledge-tag-search-input">
+            <div class="tag-search-input">
               <a-input-search v-model="inputTag" placeholder="input search text" class="search-input" @search="handleKeyup" @keyup="handleKeyup" />
+            </div>
+          </a-col>
+          <a-col span="4" align="middle">
+            <div class="tag-search-input">
+              <a-button icon="appstore" @click="handleBrowse">
+                Browse
+              </a-button>
             </div>
           </a-col>
         </a-row>
@@ -35,7 +42,7 @@
         <div class="skt-tag-wrapper" v-show="tagSearchList.length || createTagName">
           <!--      skt-tag-list-->
           <a-row>
-            <a-col offset="0" span="24">
+            <a-col offset="0" span="20">
               <div class="skt-tag-list">
                 <div class="skt-tag-item" v-for="(tag,index) in tagSearchList" :key="index" >
                   <a-tag
@@ -66,24 +73,32 @@
       <br />
     </div>
 
-    <a-modal v-model="settingVisible" destroyOnClose width="80%" :dialog-style="{ top: '20px' }">
+    <a-modal v-model="browseVisible" :footer="null" destroyOnClose width="80%" :dialog-style="{ top: '20px' }">
       <div class="associate-library">
-        <skill-browser />
+        <tag-browser />
       </div>
     </a-modal>
+
+    <a-modal v-model="settingVisible" :footer="null" destroyOnClose width="80%" :dialog-style="{ top: '20px' }">
+      <div>
+        <tag-setting />
+      </div>
+    </a-modal>
+
   </div>
 </template>
 
 <script>
 import * as logger from '@/utils/logger'
-import SkillBrowser from '@/components/SkillLibrary/SkillBrowser'
+import TagBrowser from '@/components/UnitPlan/TagBrowser'
+import TagSetting from '@/components/UnitPlan/TagSetting'
 const { SkillSearch } = require('@/api/skill')
-const { debounce, sortBy } = require('lodash-es')
+const { debounce } = require('lodash-es')
 
 export default {
   name: 'CustomTag',
   components: {
-    SkillBrowser
+    TagBrowser, TagSetting
   },
   props: {
     selectedSkillTags: {
@@ -100,6 +115,7 @@ export default {
     return {
       visible: true,
       settingVisible: false,
+      browseVisible: false,
       inputTag: '',
       tagIndex: -1,
       createTagName: '',
@@ -121,6 +137,9 @@ export default {
     },
     handleSetting () {
       this.settingVisible = true
+    },
+    handleBrowse () {
+      this.browseVisible = true
     },
     closeTag (e) {
       this.$message.success('Remove label successfully')
@@ -241,7 +260,7 @@ export default {
     }
   }
 
-  .knowledge-tag-search-input {
+  .tag-search-input {
     margin-top: 20px;
   }
 }
