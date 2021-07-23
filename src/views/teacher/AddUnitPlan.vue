@@ -468,15 +468,15 @@ export default {
         // }
 
         // GetMyGrades
-        if (!sdgListResponse[2].code) {
-          logger.info('GetMyGrades', sdgListResponse[2].result)
-          this.gradeList = sdgListResponse[2].result
+        if (!sdgListResponse[1].code) {
+          logger.info('GetMyGrades', sdgListResponse[1].result)
+          this.gradeList = sdgListResponse[1].result
         }
 
         // SubjectTree
-        if (!sdgListResponse[3].code) {
-          logger.info('SubjectTree', sdgListResponse[3].result)
-          let subjectTree = sdgListResponse[3].result
+        if (!sdgListResponse[2].code) {
+          logger.info('SubjectTree', sdgListResponse[2].result)
+          let subjectTree = sdgListResponse[2].result
           subjectTree = formatSubjectTree(subjectTree)
           this.subjectTree = subjectTree
           logger.info('after format subjectTree', subjectTree)
