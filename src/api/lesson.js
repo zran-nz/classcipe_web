@@ -5,7 +5,8 @@ export const lessonAPIUrl = {
   TurnOnStudentPaced: '/class/turn_on_student_paced',
   EndSession: '/class/end_session',
   ReopenSession: '/class/reopen_session',
-  NameSession: '/class/name_session'
+  NameSession: '/class/name_session',
+  StartLesson: '/slide/start_lesson'
 }
 
 export function getMyClasses (parameter) {
@@ -43,6 +44,14 @@ export function reopenSession (parameter) {
 export function nameSession (parameter) {
   return lessonAPIRequest({
     url: lessonAPIUrl.NameSession,
+    method: 'post',
+    data: parameter
+  })
+}
+
+export function StartLesson (parameter) {
+  return lessonAPIRequest({
+    url: lessonAPIUrl.StartLesson,
     method: 'post',
     data: parameter
   })

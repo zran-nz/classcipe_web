@@ -1,5 +1,5 @@
 <template>
-  <div class="unit-plan-preview">
+  <div class="lesson-preview">
     <template v-if="loading">
       <a-skeleton active />
     </template>
@@ -7,12 +7,12 @@
       <a-row class="top-header" :gutter="[16,24]">
         <a-col span="24">
           <span class="title">
-            {{ unitPlanData.name }}
+            {{ lesson.name }}
           </span>
-          <template v-if="lastChangeSavedTime">
+          <template v-if="lesson && (lesson.updateTime || lesson.createTime)">
             <a-divider type="vertical" />
             <span class="last-change-time">
-              {{ $t('teacher.add-unit-plan.last-change-saved-at-time', {time: lastChangeSavedTime}) }}
+              {{ (lesson.updateTime | lesson.createTime) | dayjs }}
             </span>
           </template>
         </a-col>
@@ -29,14 +29,23 @@
           </a-radio-group>
           <div class="edit-item">
             <a-button type="primary">
-              <router-link :to="'/teacher/unit-plan-redirect/' + unitPlanId">{{ $t('teacher.unit-plan-preview.edit') }}</router-link>
+              <router-link :to="'/teacher/lesson-redirect/' + lessonId">{{ $t('teacher.unit-plan-preview.edit') }}</router-link>
             </a-button>
           </div>
         </a-col>
       </a-row>
+
       <a-row class="top-info" :gutter="[16,24]" v-show="viewMode === 'Preview'">
-        <a-col class="left-preview" span="24">
-          <a-carousel arrows>
+        <a-col span="24">
+          <div v-if="!loading && !imgList.length" class="no-preview-img">
+            <a-empty>
+            </a-empty>
+          </div>
+        </a-col>
+        <a-col class="left-preview" span="19">
+          <a-carousel ref="carousel" v-if="!loading && imgList.length">
+            <a slot="customPaging" slot-scope="props">
+            </a>
             <div
               slot="prevArrow"
               class="custom-slick-arrow"
@@ -50,89 +59,71 @@
               style="right: 10px">
               <a-icon type="right-circle" />
             </div>
-            <div v-if="!loading && !imgList.length" class="no-preview-img">
-              <a-empty>
-                <!--                <span slot="description"></span>-->
-              </a-empty>
-            </div>
             <div class="preview-img-item" v-for="(img,index) in imgList" :key="index">
               <div class="preview-block" :style="{backgroundImage: 'url(' + img + ')' }" :data-img="img"></div>
             </div>
           </a-carousel>
+          <div class="img-text-info">
+            <span class="page" v-if="imgList.length">{{ (currentImgIndex + 1) }} / {{ imgList.length }}</span>
+            <span class="label" v-if="lesson && lesson.presentationId">
+              <a target="_blank" :href="'https://docs.google.com/presentation/d/' + lesson.presentationId">Edit</a>
+            </span>
+          </div>
+        </a-col>
+        <a-col span="5">
+          <div class="img-list-wrapper">
+            <div class="img-list">
+              <div class="img-item" v-for="(img,index) in imgList" :key="index" @click="handleGotoImgIndex(index)">
+                <img :src="img" />
+              </div>
+            </div>
+          </div>
         </a-col>
       </a-row>
-      <a-row class="top-info" :gutter="[16, 24]" v-show="viewMode === 'Detail'">
-        <a-col class="right-detail" span="24" >
+      <a-row class="top-info" :gutter="[16,24]" v-show="viewMode === 'Detail'">
+        <a-col class="right-detail" span="24">
           <div class="detail-wrapper">
             <div class="detail-block">
               <div class="block-title">
-                {{ unitPlanData.scenario && unitPlanData.scenario.description }}
+                {{ lesson.overview }}
                 <span class="title-icon">
                   <a-tooltip>
                     <template slot="title">
-                      {{ $t('teacher.unit-plan-preview.scenario-description') }}
+                      Overview
                     </template>
                     <a-icon type="info-circle" />
                   </a-tooltip>
                 </span>
               </div>
+              <div class="block-title" v-if="lesson.audioUrl">
+                <audio :src="lesson.audioUrl" controls />
+              </div>
               <div class="block-content">
-                <div class="content-list" v-if="unitPlanData.scenario && unitPlanData.scenario.sdgKeyWords">
-                  <div class="content-item" v-for="(sdgKeyword,index) in unitPlanData.scenario.sdgKeyWords" :key="index">
-                    <div class="question">
-                      {{ index + 1 }}、{{ sdgKeyword.sdgName }}
-                    </div>
-                    <div class="tags">
-                      <div class="tag-item" v-for="(tag,tagIndex) in sdgKeyword.keywords" :key="tagIndex">
-                        <a-tag :color="tagColorList[tagIndex % tagColorList.length]">
-                          {{ tag.name }}
+                <div class="content-list" v-if="lesson.suggestingTag">
+                  <div class="label">
+                    knowledge Tags
+                  </div>
+                  <div class="content-sub-list">
+                    <div class="content-sub-item" v-for="(knowledgeTag, kIndex) in lesson.suggestingTag.knowledgeTags" :key="kIndex">
+                      <div class="sub-title">
+                        {{ kIndex + 1 }}、{{ knowledgeTag.description }}
+                        <span class="subject-name">{{ knowledgeTag.subSubjectName }}</span>
+                        <a-tag :color="tagColorList[kIndex % tagColorList.length]">
+                          {{ knowledgeTag.name }}
                         </a-tag>
                       </div>
                     </div>
                   </div>
-                </div>
-                <div class="content-list" v-else>
-                  <a-empty />
-                </div>
-              </div>
-            </div>
-            <div class="detail-block">
-              <div class="block-title">
-                {{ unitPlanData.inquiry }}
-                <span class="title-icon">
-                  <a-tooltip>
-                    <template slot="title">
-                      {{ $t('teacher.unit-plan-preview.direction-of-inquiry') }}
-                    </template>
-                    <a-icon type="info-circle" />
-                  </a-tooltip>
-                </span>
-              </div>
-              <div class="block-content">
-                <div class="content-list" v-if="unitPlanData.questions && unitPlanData.questions.length">
-                  <div class="content-item" v-for="(question,qIndex) in unitPlanData.questions" :key="qIndex">
-                    <div class="question">
-                      {{ question.name }}
-                    </div>
-                    <div class="content-sub-list">
-                      <div class="content-sub-item" v-for="(knowledgeTag, kIndex) in question.knowledgeTags" :key="kIndex">
-                        <div class="sub-title">
-                          {{ qIndex + 1 }}.{{ kIndex + 1 }}、{{ knowledgeTag.description }}
-                          <span class="subject-name" v-if="knowledgeTag.subSubjectName">{{ knowledgeTag.subSubjectName }}</span>
-                          <a-tag :color="tagColorList[kIndex % tagColorList.length]">
-                            {{ knowledgeTag.name }}
-                          </a-tag>
-                        </div>
-                      </div>
-                    </div>
-                    <div class="content-sub-list">
-                      <div class="content-sub-item" v-for="(skillTag, sIndex) in question.skillTags" :key="sIndex">
-                        <div class="sub-title">
-                          {{ qIndex + 1 }}.{{ sIndex + 1 }}、{{ skillTag.description }}
-                          <a-tag :color="tagColorList[sIndex % tagColorList.length]">
-                            {{ skillTag.name }}
-                          </a-tag>
-                        </div>
+                  <div class="label">
+                    skill Tags
+                  </div>
+                  <div class="content-sub-list">
+                    <div class="content-sub-item" v-for="(skillTag, sIndex) in lesson.suggestingTag.skillTags" :key="sIndex">
+                      <div class="sub-title">
+                        {{ sIndex + 1 }}、{{ skillTag.description }}
+                        <a-tag :color="tagColorList[sIndex % tagColorList.length]">
+                          {{ skillTag.name }}
+                        </a-tag>
                       </div>
                     </div>
                   </div>
@@ -145,56 +136,34 @@
           </div>
         </a-col>
       </a-row>
-      <a-divider v-if="showAssociate"/>
-      <unit-plan-associate-preview :unit-plan-id="unitPlanId" v-if="showAssociate"/>
     </template>
   </div>
 </template>
 
 <script>
 import * as logger from '@/utils/logger'
-import { typeMap } from '@/const/teacher'
-import UnitPlanAssociatePreview from './UnitPlanAssociatePreview'
-
-const { formatLocalUTC } = require('@/utils/util')
-const { UnitPlanQueryById } = require('@/api/unitPlan')
+import { TemplatesGetPageThumbnail, TemplatesGetPresentation } from '@/api/template'
+const { LessonQueryById } = require('@/api/myLesson')
 
 export default {
-  name: 'UnitPlanPreview',
+  name: 'MainLessonPreview',
   props: {
-    unitPlanId: {
+    lessonId: {
       type: String,
       default: null
     },
-    showAssociate: {
-      type: Boolean,
-      default: false
+    lessonData: {
+      type: Object,
+      default: null
     }
-  },
-  components: {
-    UnitPlanAssociatePreview
-  },
-  computed: {
-    lastChangeSavedTime () {
-      if (this.unitPlanData) {
-        logger.info('lastChangeSavedTime unitPlanData', this.unitPlanData)
-        const time = this.unitPlanData.createTime || this.unitPlanData.updateTime
-        if (time) {
-          return formatLocalUTC(time)
-        }
-      }
-      return ''
-    }
-  },
-  mounted () {
   },
   data () {
     return {
       loading: true,
-      unitPlanData: null,
+      lesson: null,
       imgList: [],
       viewMode: 'Detail',
-
+      currentImgIndex: 0,
       tagColorList: [
         'pink',
         'orange',
@@ -204,31 +173,63 @@ export default {
         'red',
         'purple'
       ],
-      activeContentType: -1,
-      typeMap: typeMap,
-
-      subPreviewVisible: false
+      activeContentType: -1
     }
   },
   created () {
-    logger.info('UnitPlanPreview unitPlanId ' + this.unitPlanId)
-    this.loadUnitPlanData()
+    logger.info('LessonPreview lessonId ' + this.lessonId)
+    this.loadLessonData()
   },
   methods: {
-    loadUnitPlanData () {
-      logger.info('loadUnitPlanData ' + this.unitPlanId)
+    loadLessonData () {
       this.loading = true
-      UnitPlanQueryById({
-        id: this.unitPlanId
-      }).then(response => {
-        logger.info('UnitPlanQueryById ' + this.unitPlanId, response.result)
-        this.unitPlanData = response.result
-        if (this.unitPlanData && this.unitPlanData.image) {
-          this.imgList = [this.unitPlanData.image]
-        }
-      }).finally(() => {
+      if (!this.lessonData && this.lessonId) {
+        logger.info('LessonPreview loadLessonData ' + this.lessonId)
+        LessonQueryById({
+          id: this.lessonId
+        }).then(response => {
+          logger.info('LessonQueryById ' + this.lessonId, response.result)
+          this.lesson = response.result
+        }).finally(() => {
+          this.loadThumbnail()
+        })
+      } else if (this.lessonData) {
+        logger.info('LessonPreview lessonData ', this.lessonData)
+        this.lesson = this.lessonData
+        this.loadThumbnail()
+      }
+    },
+
+    loadThumbnail () {
+      this.$logger.info('LessonPreview loadThumbnail ' + this.lesson.presentationId, this.lesson.selectPageObjectIds)
+      if (this.lesson.presentationId) {
+        TemplatesGetPresentation({
+          presentationId: this.lesson.presentationId
+        }).then(response => {
+          this.$logger.info('lesson loadThumbnail response', response.result)
+          const pageObjectIds = response.result.pageObjectIds
+          if (pageObjectIds.length) {
+            pageObjectIds.forEach(id => {
+              TemplatesGetPageThumbnail({
+                pageObjectId: id,
+                presentationId: this.lesson.presentationId,
+                mimeType: 'SMALL'
+              }).then(response => {
+                this.imgList.push(response.result.contentUrl)
+              }).finally(() => {
+                this.$logger.info('current imgList.length ' + (this.imgList.length) + ' total:' + this.lesson.selectPageObjectIds.length)
+                if (this.imgList.length === pageObjectIds.length) {
+                  this.loading = false
+                }
+              })
+            })
+          } else {
+            this.loading = false
+          }
+        })
+      } else {
         this.loading = false
-      })
+      }
     },
 
     handleSelectContentType (contentType) {
@@ -243,6 +244,12 @@ export default {
 
     handleViewModeChange () {
       this.$logger.info('handleViewModeChange ' + this.viewMode)
+    },
+
+    handleGotoImgIndex (index) {
+      this.$logger.info('handleGotoImgIndex ' + index)
+      this.currentImgIndex = index
+      this.$refs.carousel.goTo(index)
     }
   }
 }
@@ -251,7 +258,7 @@ export default {
 <style lang="less" scoped>
 @import "~@/components/index.less";
 
-.unit-plan-preview {
+.lesson-preview {
 
   .top-header {
     position: relative;
@@ -262,11 +269,6 @@ export default {
 
     .title {
       font-weight: bold;
-      width: 350px;
-      overflow-x: hidden;
-      white-space: nowrap;
-      text-overflow: ellipsis;
-      word-break: break-all;
     }
 
     .last-change-time {
@@ -356,6 +358,11 @@ export default {
           font-size: 16px;
           padding: 10px;
           background-color: #fafafa;
+
+          audio {
+            height: 30px;
+            outline: none;
+          }
           .title-icon {
             font-size: 14px;
             font-weight: normal;
@@ -366,6 +373,11 @@ export default {
         .block-content {
           padding: 10px;
           .content-list {
+            .label {
+              font-weight: 500;
+              padding: 5px 0;
+              font-size: 15px;
+            }
             .content-item {
               margin-bottom: 10px;
               .question {
@@ -415,6 +427,7 @@ export default {
       }
     }
   }
+
   .bottom-relative {
 
     .type-button {
@@ -457,4 +470,50 @@ export default {
   text-align: right;
 }
 
+.img-list-wrapper {
+  display: flex;
+  height: 400px;
+  overflow-y: scroll;
+  flex-direction: column;
+  .img-list {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+    .img-item {
+      border: 1px solid #999;
+      box-shadow: 0 4px 8px 0 rgba(31, 33, 44, 10%);
+      margin: 10px 0;
+      img {
+        width: 100%;
+      }
+    }
+  }
+}
+
+.img-text-info {
+  display: flex;
+  align-items: center;
+  flex-direction: row;
+  padding: 10px 0;
+  .label {
+    padding: 0 10px;
+  }
+}
+
+*::-webkit-scrollbar {
+  width: 3px;
+  height: 0;
+}
+*::-webkit-scrollbar-track {
+  border-radius: 1px;
+  background: rgba(0,0,0,0.00);
+  -webkit-box-shadow: inset 0 0 5px rgba(0,0,0,0.08);
+}
+/* 滚动条滑块 */
+*::-webkit-scrollbar-thumb {
+  border-radius: 3px;
+  background: rgba(0,0,0,0.12);
+  -webkit-box-shadow: inset 0 0 10px rgba(0,0,0,0.2);
+}
 </style>

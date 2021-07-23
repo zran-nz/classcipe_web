@@ -140,13 +140,13 @@ export const asyncRouterMap = [
             component: () => import('@/views/teacher/LessonRedirect'),
             meta: { title: 'menu.lessons', keepAlive: true, permission: ['expert', 'teacher'] }
           },
-          {
-            path: '/teacher/add-material/:materialId',
-            props: true,
-            name: 'AddMaterial',
-            component: () => import('@/views/teacher/AddMaterial'),
-            meta: { title: 'menu.add-material', keepAlive: true, permission: ['expert', 'teacher'] }
-          },
+          // {
+          //   path: '/teacher/add-material/:materialId',
+          //   props: true,
+          //   name: 'AddMaterial',
+          //   component: () => import('@/views/teacher/AddMaterial'),
+          //   meta: { title: 'menu.add-material', keepAlive: true, permission: ['expert', 'teacher'] }
+          // },
           {
             path: '/teacher/unit-plan/:unitPlanId',
             props: true,
@@ -160,21 +160,21 @@ export const asyncRouterMap = [
             name: 'UnitPlanRedirect',
             component: () => import('@/views/teacher/UnitPlanRedirect'),
             meta: { title: 'menu.teacher.unit-plan', keepAlive: true, permission: ['expert', 'teacher'] }
-          },
-          {
-            path: '/teacher/unit-plan-material-redirect/:unitPlanId/:materialId',
-            name: 'MaterialRedirect',
-            props: true,
-            component: () => import('@/views/teacher/MaterialRedirect'),
-            meta: { title: 'menu.teacher.material', keepAlive: true, permission: ['expert', 'teacher'] }
-          },
-          {
-            path: '/teacher/unit-plan-material/:unitPlanId/:materialId',
-            props: true,
-            name: 'UnitPlanMaterial',
-            component: () => import('@/views/teacher/AddUnitPlanMaterial'),
-            meta: { title: 'menu.teacher.unit-plan-material', keepAlive: true, permission: ['expert', 'teacher'] }
           }
+          // {
+          //   path: '/teacher/unit-plan-material-redirect/:unitPlanId/:materialId',
+          //   name: 'MaterialRedirect',
+          //   props: true,
+          //   component: () => import('@/views/teacher/MaterialRedirect'),
+          //   meta: { title: 'menu.teacher.material', keepAlive: true, permission: ['expert', 'teacher'] }
+          // },
+          // {
+          //   path: '/teacher/unit-plan-material/:unitPlanId/:materialId',
+          //   props: true,
+          //   name: 'UnitPlanMaterial',
+          //   component: () => import('@/views/teacher/AddUnitPlanMaterial'),
+          //   meta: { title: 'menu.teacher.unit-plan-material', keepAlive: true, permission: ['expert', 'teacher'] }
+          // }
         ]
       },
 

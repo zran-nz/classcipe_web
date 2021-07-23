@@ -319,8 +319,10 @@ export default {
     Collaborate
   },
   props: {
-    // eslint-disable-next-line vue/require-default-prop
-    unitPlanId: null
+    unitPlanId: {
+      type: String,
+      default: null
+    }
   },
   data () {
     return {

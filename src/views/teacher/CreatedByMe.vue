@@ -73,45 +73,87 @@
                 <div class="action">
                   <div slot="actions">
                     <div class="action-wrapper">
-                      <div class="action-item">
-                        <a-popconfirm :title="$t('teacher.my-content.action-delete') + '?'" ok-text="Yes" @confirm="handleDeleteItem(item)" cancel-text="No">
-                          <a href="#" class="delete-action">
-                            <a-icon type="delete" /> {{ $t('teacher.my-content.action-delete') }}
+                      <template v-if="item.type === typeMap['lesson'] || item.type === typeMap['task']">
+                        <div class="action-item">
+                          <a @click="handleTeacherProjecting(item)">
+                            <tv-svg />
                           </a>
-                        </a-popconfirm>
-                      </div>
+                        </div>
+                        <div class="action-item">
+                          <a @click="handleDashboard(item)">
+                            <a-icon type="menu" />
+                          </a>
+                        </div>
+                      </template>
+                      <template v-else>
+                        <div class="action-item">
+                          <a-popconfirm :title="$t('teacher.my-content.action-delete') + '?'" ok-text="Yes" @confirm="handleDeleteItem(item)" cancel-text="No">
+                            <a href="#" class="delete-action">
+                              <a-icon type="delete" />
+                            </a>
+                          </a-popconfirm>
+                        </div>
+                        <div class="action-item">
+                          <a @click="handleEditItem(item)">
+                            <a-icon type="form" />
+                          </a>
+                        </div>
+                      </template>
+
                       <div class="action-item">
-                        <a @click="handleEditItem(item)">
-                          <a-icon type="form" /> {{ $t('teacher.my-content.action-edit') }}
-                        </a>
-                      </div>
-                      <div class="action-item" v-if="item.type === typeMap['evaluation']">
                         <a-dropdown>
                           <a-icon type="more" style="margin-right: 8px" />
-                          <a-menu slot="overlay">
-                            <a-menu-item>
-                              <a @click="handleEvaluation(item)">
-                                {{ $t('teacher.my-content.start-evaluation') }}
-                              </a>
-                            </a-menu-item>
-                          </a-menu>
-                        </a-dropdown>
-                      </div>
-                      <div class="action-item" v-if="item.type === typeMap['lesson'] || item.type === typeMap['task']">
-                        <a-dropdown>
-                          <a-icon type="more" style="margin-right: 8px" />
-                          <a-menu slot="overlay">
-                            <a-menu-item>
-                              <a @click="handleEditItem(item)">
-                                {{ $t('teacher.my-content.action-session-new') }}
-                              </a>
-                            </a-menu-item>
-                            <a-menu-item>
-                              <a @click="handlePrevious(item)">
-                                {{ $t('teacher.my-content.action-session-previous') }}
-                              </a>
-                            </a-menu-item>
-                          </a-menu>
+                          <template v-if="item.type === typeMap['evaluation']">
+                            <a-menu slot="overlay">
+                              <a-menu-item>
+                                <a @click="handleEvaluation(item)">
+                                  {{ $t('teacher.my-content.start-evaluation') }}
+                                </a>
+                              </a-menu-item>
+                            </a-menu>
+                          </template>
+                          <template v-if="item.type === typeMap['lesson'] || item.type === typeMap['task']">
+                            <a-menu slot="overlay">
+                              <a-menu-item>
+                                <a @click="handleEditEvaluationRubric(item)">
+                                  Edit evaluation rubric
+                                </a>
+                              </a-menu-item>
+                              <a-menu-item>
+                                <a @click="handleEnableStudentEvaluation(item)">
+                                  Enable Student Evaluation
+                                </a>
+                              </a-menu-item>
+                              <a-menu-item>
+                                <a @click="handleReviewEvaluation(item)">
+                                  Review & Evaluation
+                                </a>
+                              </a-menu-item>
+                              <a-menu-item>
+                                <a @click="handleEnablePeerEvaluation(item)">
+                                  Enable Peer Evaluation
+                                </a>
+                              </a-menu-item>
+                              <a-menu-item>
+                                <a @click="handleArchiveSession(item)">
+                                  Archive Session
+                                </a>
+                              </a-menu-item>
+                              <a-menu-item>
+                                <a @click="handleEditItem(item)">
+                                  <a-icon type="form" /> {{ $t('teacher.my-content.action-edit') }}
+                                </a>
+                              </a-menu-item>
+                              <a-menu-item>
+                                <a href="#" class="delete-action">
+                                  <a-icon type="delete" /> {{ $t('teacher.my-content.action-delete') }}
+                                </a>
+                              </a-menu-item>
+                            </a-menu>
+                          </template>
+                          <template v-else>
+
+                          </template>
                         </a-dropdown>
                       </div>
 
@@ -129,14 +171,16 @@
         destroyOnClose
         placement="right"
         closable
-        width="900px"
+        width="700px"
         :visible="previewVisible"
         @close="handlePreviewClose"
       >
         <div class="preview-wrapper">
           <div class="preview-detail">
             <unit-plan-preview :unit-plan-id="previewCurrentId" :show-associate="true" v-if="previewType === typeMap['unit-plan']" />
-            <material-preview :material-id="previewCurrentId" :show-associate="true" v-if="previewType === typeMap.material" />
+            <main-task-preview :task-id="previewCurrentId" v-if="previewType === typeMap.task" />
+            <main-lesson-preview :lesson-id="previewCurrentId" v-if="previewType === typeMap.lesson" />
+            <evaluation-preview :evaluation-id="previewCurrentId" v-if="previewType === typeMap.evaluation" />
           </div>
         </div>
       </a-drawer>
@@ -147,11 +191,16 @@
 <script>
 import * as logger from '@/utils/logger'
 import UnitPlanPreview from '@/components/UnitPlan/UnitPlanPreview'
-import MaterialPreview from '@/components/Material/MaterialPreview'
+import MainTaskPreview from '@/components/Task/MainTaskPreview'
+import MainLessonPreview from '@/components/Lesson/MainLessonPreview'
+import EvaluationPreview from '@/components/Evaluation/EvaluationPreview'
 import { deleteMyContentByType, getMyContent } from '@/api/teacher'
 import { ownerMap, statusMap, typeMap } from '@/const/teacher'
 import ContentStatusIcon from '@/components/Teacher/ContentStatusIcon'
 import ContentTypeIcon from '@/components/Teacher/ContentTypeIcon'
+import { lessonStatus, lessonHost } from '@/const/googleSlide'
+import { StartLesson, getMyClasses } from '@/api/lesson'
+import TvSvg from '@/assets/icons/lesson/tv.svg?inline'
 
 export default {
   name: 'CreatedByMe',
@@ -159,7 +208,10 @@ export default {
     ContentStatusIcon,
     ContentTypeIcon,
     UnitPlanPreview,
-    MaterialPreview
+    MainTaskPreview,
+    MainLessonPreview,
+    EvaluationPreview,
+    TvSvg
   },
   data () {
     return {
@@ -310,6 +362,80 @@ export default {
       this.previewCurrentId = ''
       this.previewType = ''
       this.previewVisible = false
+    },
+
+    handleTeacherProjecting (item) {
+      this.$logger.info('handleStartSession', item)
+      if (item.presentationId) {
+        const requestData = {
+          author: this.$store.getters.email,
+          slide_id: item.presentationId,
+          file_name: item.name,
+          status: lessonStatus.studentPaced,
+          redirect_url: null
+        }
+
+        this.$logger.info('handleStartSession', requestData)
+        StartLesson(requestData).then(res => {
+          this.$logger.info('StartLesson res', res)
+          if (res.code === 'ok') {
+            const targetUrl = lessonHost + 'slide_id=' + item.presentationId + '&class_id=' + res.data.class_id + '&type=classroom'
+            this.$logger.info('try open ' + targetUrl)
+            window.open(targetUrl, '_blank')
+          } else {
+            this.$message.warn('StartLesson Failed! ' + res.message)
+          }
+        })
+      } else {
+        this.$message.warn('This record is not bound to PPT!')
+      }
+    },
+
+    handleDashboard (item) {
+      this.$logger.info('handleDashboard', item)
+      if (item.presentationId) {
+        const requestData = {
+          author: this.$store.getters.email,
+          slide_id: item.presentationId,
+          file_name: item.name,
+          status: lessonStatus.studentPaced,
+          redirect_url: null
+        }
+
+        this.$logger.info('handleDashboard', requestData)
+        StartLesson(requestData).then(res => {
+          this.$logger.info('StartLesson res', res)
+          if (res.code === 'ok') {
+            const targetUrl = lessonHost + 'slide_id=' + item.presentationId + '&class_id=' + res.data.class_id + '&direct=true&currentPage=0&type=dashboard'
+            this.$logger.info('try open ' + targetUrl)
+            window.open(targetUrl, '_blank', 'height=700, width=1200, top=100, left= 100 toolbar=no, menubar=no, scrollbars=no, location=no, status=no')
+          } else {
+            this.$message.warn('StartLesson Failed! ' + res.message)
+          }
+        })
+      } else {
+        this.$message.warn('This record is not bound to PPT!')
+      }
+    },
+
+    handleEditEvaluationRubric (item) {
+      this.$logger.info('handleEditEvaluationRubric', item)
+      getMyClasses({ limit: 100, cursor: 0, slide_id: item.presentationId }).then(response => {
+        this.$logger.info('', response)
+      })
+    },
+
+    handleEnableStudentEvaluation (item) {
+      this.$logger.info('handleEnableStudentEvaluation', item)
+    },
+    handleReviewEvaluation (item) {
+      this.$logger.info('handleReviewEvaluation', item)
+    },
+    handleEnablePeerEvaluation (item) {
+      this.$logger.info('handleEnablePeerEvaluation', item)
+    },
+    handleArchiveSession (item) {
+      this.$logger.info('handleArchiveSession', item)
     }
   }
 }
@@ -386,7 +512,6 @@ export default {
       }
 
       .action {
-        width: 200px;
       }
 
       .action-wrapper {
@@ -396,8 +521,21 @@ export default {
         justify-content: flex-start;
         .action-item {
           display: inline;
-          margin-left: 20px;
+          margin-left: 5px;
           user-select: none;
+          font-size: 18px;
+
+          a {
+            width: 30px;
+            display: flex;
+            flex-direction: row;
+            justify-content: center;
+            align-items: center;
+            svg {
+              width: 25px;
+              height: 25px;
+            }
+          }
         }
       }
 

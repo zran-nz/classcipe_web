@@ -7,17 +7,17 @@
             <div @click="handleEditHeader(header)" class="label-text">
               {{ header.label }}
             </div>
-            <template v-if="header.editable && mode !== 'evaluate'">
+            <template v-if="header.editable && mode !== 'evaluate' && mode !== 'preview'">
               <div class="label-input">
                 <input v-model="header.label" @blur="handleUpdateHeader(header)"/>
               </div>
             </template>
-            <div class="remove-header" v-if="header.type.startsWith('user_ext_') && mode !== 'evaluate'">
+            <div class="remove-header" v-if="header.type.startsWith('user_ext_') && mode !== 'evaluate' && mode !== 'preview'">
               <a-popconfirm :title="'Remove Header ?'" ok-text="Yes" @confirm="handleRemoveHeader(header)" cancel-text="No">
                 <a-icon type="delete" />
               </a-popconfirm>
             </div>
-            <template v-if="hIndex === headers.length - 1 && mode !== 'evaluate'">
+            <template v-if="hIndex === headers.length - 1 && mode !== 'evaluate' && mode !== 'preview'">
               <div class="add-more-header">
                 <a-tooltip title="Add new column">
                   <a-icon type="plus-circle" @click="handleAddNewHeader"/>
@@ -44,9 +44,9 @@
               <template v-else-if="header.type === 'keywords'">
                 <div class="tag-list">
                   <div class="tag-item" v-for="(tag, tIndex) in item[header.type]" :key="tIndex">
-                    <a-tag :closable="mode !== 'evaluate'" @close="handleCloseTag(item, tag, $event)" :color="tagColorList[tIndex % tagColorList.length]">{{ tag }}</a-tag>
+                    <a-tag :closable="mode !== 'evaluate' && mode !== 'preview'" @close="handleCloseTag(item, tag, $event)" :color="tagColorList[tIndex % tagColorList.length]">{{ tag }}</a-tag>
                   </div>
-                  <div class="tag-item add-tag" v-if="item['description'] && mode !== 'evaluate'">
+                  <div class="tag-item add-tag" v-if="item['description'] && mode !== 'evaluate' && mode !== 'preview'">
                     <span class="add-tag-icon" @click="showAddNewTagInput(item)">
                       <a-icon type="plus-circle"/>
                       <span>Add keywords</span>
@@ -56,7 +56,7 @@
               </template>
               <!--              标签内容-->
               <template v-else>
-                <a-textarea type="text" v-model="item[header.type]" class="ext-input" v-if="mode !== 'evaluate'"/>
+                <a-textarea type="text" v-model="item[header.type]" class="ext-input" v-if="mode !== 'evaluate' && mode !== 'preview'"/>
                 <div class="evaluation-item" v-if="mode === 'evaluate'" @click="toggleCheckedItem(lIndex, header.type)">
                   {{ item[header.type] }}
                   <div class="checked-flag" v-if="activeItemKey.indexOf(lIndex + '-' + header.type) !== -1">
@@ -66,7 +66,7 @@
               </template>
             </template>
 
-            <template v-if="hIndex === headers.length - 1 && mode !== 'evaluate'">
+            <template v-if="hIndex === headers.length - 1 && mode !== 'evaluate' && mode !== 'preview'">
               <div class="add-more-header">
                 <a-popconfirm :title="'Delete this line ?'" ok-text="Yes" @confirm="handleDeleteLine(item)" cancel-text="No">
                   <a-icon type="delete"/>
@@ -84,7 +84,7 @@
         </tr>
       </tbody>
     </table>
-    <div class="add-new-line" @click="handleAddNewLine" v-if="mode !== 'evaluate'">
+    <div class="add-new-line" @click="handleAddNewLine" v-if="mode !== 'evaluate' && mode !== 'preview'">
       <a-icon type="plus-circle"/> Add new Line
     </div>
 
@@ -350,7 +350,7 @@ export default {
 
     handleDbClickBodyItem (item, header) {
       this.$logger.info('handleDbClickBodyItem', item, header)
-      if (header.type === 'description' && this.mode !== 'evaluate') {
+      if (header.type === 'description' && this.mode !== 'evaluate' && this.mode !== 'preview') {
         this.selectCurriculumVisible = true
         this.currentSelectLine = item
       }

@@ -31,9 +31,6 @@
                 <a-menu-item @click="toggleType('topic', $t('teacher.my-content.topics-type') )">
                   <span>{{ $t('teacher.my-content.topics-type') }}</span>
                 </a-menu-item>
-                <!--                <a-menu-item @click="toggleType('material', $t('teacher.my-content.materials-type'))">
-                  <span>{{ $t('teacher.my-content.materials-type') }}</span>
-                </a-menu-item>-->
                 <a-menu-item @click="toggleType('unit-plan', $t('teacher.my-content.unit-plan-type'))">
                   <span>{{ $t('teacher.my-content.unit-plan-type') }}</span>
                 </a-menu-item>
@@ -49,25 +46,6 @@
               </a-menu>
             </a-dropdown>
           </div>
-          <!--          <a-divider type="vertical" />-->
-          <!--          <div class="owner-filter">-->
-          <!--            <a-dropdown>-->
-          <!--              <a class="ant-dropdown-link" @click="e => e.preventDefault()">-->
-          <!--                {{ currentOwnerLabel }} <a-icon type="down" />-->
-          <!--              </a>-->
-          <!--              <a-menu slot="overlay">-->
-          <!--                <a-menu-item @click.native="toggleOwner('all-owner', $t('teacher.my-content.all-owner') )">-->
-          <!--                  <span>{{ $t('teacher.my-content.all-owner') }}</span>-->
-          <!--                </a-menu-item>-->
-          <!--                <a-menu-item @click="toggleOwner('owner-by-me', $t('teacher.my-content.owner-by-me') )">-->
-          <!--                  <span>{{ $t('teacher.my-content.owner-by-me') }}</span>-->
-          <!--                </a-menu-item>-->
-          <!--                <a-menu-item @click="toggleOwner('owner-by-others', $t('teacher.my-content.owner-by-others'))">-->
-          <!--                  <span>{{ $t('teacher.my-content.owner-by-others') }}</span>-->
-          <!--                </a-menu-item>-->
-          <!--              </a-menu>-->
-          <!--            </a-dropdown>-->
-          <!--          </div>-->
         </a-space>
       </div>
     </div>
@@ -92,18 +70,33 @@
                 <div class="action">
                   <div slot="actions">
                     <div class="action-wrapper">
-                      <div class="action-item">
-                        <a-popconfirm :title="$t('teacher.my-content.action-delete') + '?'" ok-text="Yes" @confirm="handleDeleteItem(item)" cancel-text="No">
-                          <a href="#" class="delete-action">
-                            <a-icon type="delete" /> {{ $t('teacher.my-content.action-delete') }}
+                      <template v-if="item.type === typeMap['lesson'] || item.type === typeMap['task']">
+                        <div class="action-item">
+                          <a @click="handleTeacherProjecting(item)">
+                            <tv-svg />
                           </a>
-                        </a-popconfirm>
-                      </div>
-                      <div class="action-item">
-                        <a @click="handleEditItem(item)">
-                          <a-icon type="form" /> {{ $t('teacher.my-content.action-edit') }}
-                        </a>
-                      </div>
+                        </div>
+                        <div class="action-item">
+                          <a @click="handleDashboard(item)">
+                            <a-icon type="menu" />
+                          </a>
+                        </div>
+                      </template>
+                      <template v-else>
+                        <div class="action-item">
+                          <a-popconfirm :title="$t('teacher.my-content.action-delete') + '?'" ok-text="Yes" @confirm="handleDeleteItem(item)" cancel-text="No">
+                            <a href="#" class="delete-action">
+                              <a-icon type="delete" />
+                            </a>
+                          </a-popconfirm>
+                        </div>
+                        <div class="action-item">
+                          <a @click="handleEditItem(item)">
+                            <a-icon type="form" />
+                          </a>
+                        </div>
+                      </template>
+
                     </div>
                   </div>
                 </div>
@@ -136,11 +129,13 @@
 <script>
 import * as logger from '@/utils/logger'
 import UnitPlanPreview from '@/components/UnitPlan/UnitPlanPreview'
-import MaterialPreview from '@/components/Material/MaterialPreview'
 import { typeMap } from '@/const/teacher'
 import ContentStatusIcon from '@/components/Teacher/ContentStatusIcon'
 import ContentTypeIcon from '@/components/Teacher/ContentTypeIcon'
 import { FavoritesGetMyFavorites, FavoritesDelete } from '@/api/favorites'
+import TvSvg from '@/assets/icons/lesson/tv.svg?inline'
+import { lessonStatus, lessonHost } from '@/const/googleSlide'
+import { StartLesson, getMyClasses } from '@/api/lesson'
 
 export default {
   name: 'MyFavorite',
@@ -148,7 +143,7 @@ export default {
     ContentStatusIcon,
     ContentTypeIcon,
     UnitPlanPreview,
-    MaterialPreview
+    TvSvg
   },
   data () {
     return {
@@ -268,6 +263,80 @@ export default {
       this.previewCurrentId = ''
       this.previewType = ''
       this.previewVisible = false
+    },
+
+    handleTeacherProjecting (item) {
+      this.$logger.info('handleStartSession', item)
+      if (item.presentationId) {
+        const requestData = {
+          author: this.$store.getters.email,
+          slide_id: item.presentationId,
+          file_name: item.name,
+          status: lessonStatus.studentPaced,
+          redirect_url: null
+        }
+
+        this.$logger.info('handleStartSession', requestData)
+        StartLesson(requestData).then(res => {
+          this.$logger.info('StartLesson res', res)
+          if (res.code === 'ok') {
+            const targetUrl = lessonHost + 'slide_id=' + item.presentationId + '&class_id=' + res.data.class_id + '&type=classroom'
+            this.$logger.info('try open ' + targetUrl)
+            window.open(targetUrl, '_blank')
+          } else {
+            this.$message.warn('StartLesson Failed! ' + res.message)
+          }
+        })
+      } else {
+        this.$message.warn('This record is not bound to PPT!')
+      }
+    },
+
+    handleDashboard (item) {
+      this.$logger.info('handleDashboard', item)
+      if (item.presentationId) {
+        const requestData = {
+          author: this.$store.getters.email,
+          slide_id: item.presentationId,
+          file_name: item.name,
+          status: lessonStatus.studentPaced,
+          redirect_url: null
+        }
+
+        this.$logger.info('handleDashboard', requestData)
+        StartLesson(requestData).then(res => {
+          this.$logger.info('StartLesson res', res)
+          if (res.code === 'ok') {
+            const targetUrl = lessonHost + 'slide_id=' + item.presentationId + '&class_id=' + res.data.class_id + '&direct=true&currentPage=0&type=dashboard'
+            this.$logger.info('try open ' + targetUrl)
+            window.open(targetUrl, '_blank', 'height=700, width=1200, top=100, left= 100 toolbar=no, menubar=no, scrollbars=no, location=no, status=no')
+          } else {
+            this.$message.warn('StartLesson Failed! ' + res.message)
+          }
+        })
+      } else {
+        this.$message.warn('This record is not bound to PPT!')
+      }
+    },
+
+    handleEditEvaluationRubric (item) {
+      this.$logger.info('handleEditEvaluationRubric', item)
+      getMyClasses({ limit: 100, cursor: 0, slide_id: item.presentationId }).then(response => {
+        this.$logger.info('', response)
+      })
+    },
+
+    handleEnableStudentEvaluation (item) {
+      this.$logger.info('handleEnableStudentEvaluation', item)
+    },
+    handleReviewEvaluation (item) {
+      this.$logger.info('handleReviewEvaluation', item)
+    },
+    handleEnablePeerEvaluation (item) {
+      this.$logger.info('handleEnablePeerEvaluation', item)
+    },
+    handleArchiveSession (item) {
+      this.$logger.info('handleArchiveSession', item)
     }
   }
 }
@@ -275,6 +344,11 @@ export default {
 
 <style lang="less" scoped>
 @import "~@/components/index.less";
+.ant-list-item {
+  padding: 8px 0;
+  position: relative;
+}
+
 .my-content {
   padding: 0 15px 25px 15px;
   .filter-line {
@@ -338,7 +412,6 @@ export default {
       }
 
       .action {
-        width: 150px;
       }
 
       .action-wrapper {
@@ -348,8 +421,21 @@ export default {
         justify-content: flex-start;
         .action-item {
           display: inline;
-          margin-left: 20px;
+          margin-left: 5px;
           user-select: none;
+          font-size: 18px;
+
+          a {
+            width: 30px;
+            display: flex;
+            flex-direction: row;
+            justify-content: center;
+            align-items: center;
+            svg {
+              width: 25px;
+              height: 25px;
+            }
+          }
         }
       }
 
