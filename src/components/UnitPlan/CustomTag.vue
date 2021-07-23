@@ -4,17 +4,17 @@
       <a-card title="Customized tags" style="width: 800px">
         <a slot="extra" href="#" @click="handleSetting">Tags setting <a-icon type="edit" /></a>
 
-        <div class="skt-tag-wrapper" v-show="tagList.length || createTagName">
+        <div class="skt-tag-wrapper" v-show="tagList.length">
           <!--      skt-tag-list-->
           <a-row>
             <a-col offset="0" span="24">
-              <div class="skt-tag-list">
-                <div class="skt-tag-item" v-for="(tag,index) in tagList" :key="index" >
+              <div class="skt-tag-list" >
+                <div class="skt-tag-item" v-for="tag in tagList" :key="tag.id" >
                   <a-tag
-                    :closable="tagIndex == index"
-                    @click="selectTag(index)"
+                    :closable="tagName === tag.name"
+                    @click="selectTag(tag)"
                     @close="closeTag(tag)"
-                    :color="tagIndex == index ? 'orange': 'green'"
+                    :color="tagName === tag.name ? 'orange': 'green'"
                     class="tag-item">
                     {{ tag.name }}
                   </a-tag>
@@ -24,13 +24,29 @@
           </a-row>
         </div>
 
+        <a-spin v-show="tagLoading" class="spin-loading"/>
+
+        <div class="tag-category" v-show="userTags">
+          <a-row>
+            <a-col offset="0" span="24">
+              <div>
+                <a-radio-group v-model="selectLabel" button-style="solid" @change="onChangeLabel">
+                  <a-radio-button v-for="(label,index) in userTags" :key="index" :value="label.id">
+                    {{ label.name }}
+                  </a-radio-button>
+                </a-radio-group>
+              </div>
+            </a-col>
+          </a-row>
+        </div>
+
         <a-row>
-          <a-col offset="0" span="20">
+          <a-col offset="0" :span="isShowBrowse ? 20 : 24">
             <div class="tag-search-input">
               <a-input-search v-model="inputTag" placeholder="input search text" class="search-input" @search="handleKeyup" @keyup="handleKeyup" />
             </div>
           </a-col>
-          <a-col span="4" align="middle">
+          <a-col span="4" align="middle" v-show="isShowBrowse">
             <div class="tag-search-input">
               <a-button icon="appstore" @click="handleBrowse">
                 Browse
@@ -42,19 +58,19 @@
         <div class="skt-tag-wrapper" v-show="tagSearchList.length || createTagName">
           <!--      skt-tag-list-->
           <a-row>
-            <a-col offset="0" span="20">
+            <a-col offset="0" :span="isShowBrowse ? 20 : 24">
               <div class="skt-tag-list">
                 <div class="skt-tag-item" v-for="(tag,index) in tagSearchList" :key="index" >
                   <a-tag
-                    :closable="tagIndex == index"
-                    @click="selectTag(index)"
-                    @close="closeTag(tag)"
-                    :color="tagIndex == index ? 'orange': 'green'"
+                    draggable="true"
+                    @dragstart="handleTagItemDragStart(tag, $event)"
+                    @click="selectChooseTag(index,tag)"
+                    color="green"
                     class="tag-item">
                     {{ tag.name }}
                   </a-tag>
                 </div>
-                <div class="skt-tag-create-line" v-show="createTagName && createTagName.length >= 1">
+                <div class="skt-tag-create-line" v-show="!isShowBrowse && createTagName && createTagName.length >= 1">
                   <div class="create-tag-label">
                     Create
                   </div>
@@ -75,7 +91,7 @@
 
     <a-modal v-model="browseVisible" :footer="null" destroyOnClose width="80%" :dialog-style="{ top: '20px' }">
       <div class="associate-library">
-        <tag-browser />
+        <tag-browser :root-key="globalRootKey" />
       </div>
     </a-modal>
 
@@ -92,7 +108,8 @@
 import * as logger from '@/utils/logger'
 import TagBrowser from '@/components/UnitPlan/TagBrowser'
 import TagSetting from '@/components/UnitPlan/TagSetting'
-const { SkillSearch } = require('@/api/skill')
+import { GetUserTags } from '@/api/tag'
+
 const { debounce } = require('lodash-es')
 
 export default {
@@ -113,21 +130,43 @@ export default {
   },
   data () {
     return {
+      globalRootKey: '',
+      isShowBrowse: false,
+      tagLoading: false,
       visible: true,
       settingVisible: false,
       browseVisible: false,
       inputTag: '',
-      tagIndex: -1,
+      tagName: '',
       createTagName: '',
       tagSearchList: [],
-      tagList: [{ name: 'test1', id: '1' }, { name: 'test2', id: '2' }, { name: 'test2', id: '2' }, { name: 'test2', id: '2' }, { name: 'test2', id: '2' }, { name: 'test2', id: '2' }, { name: 'test2', id: '2' }, { name: 'test2', id: '2' }, { name: 'test2', id: '2' }, { name: 'test2', id: '2' }]
+      userTags: [],
+      selectLabel: '',
+      tagList: [{ name: 'test1', id: '1' }, { name: 'test2', id: '2' }]
     }
   },
   created () {
-    this.debouncedSearchKnowledge = debounce(this.searchKnowledge, 500)
+    this.debouncedSearchKnowledge = debounce(this.searchTag, 500)
+    this.tagLoading = true
+    GetUserTags().then((response) => {
+      this.$logger.info('TagTree response', response.result)
+      if (response.success) {
+        this.userTags = response.result
+        if (this.userTags.length > 0) {
+          this.selectLabel = this.userTags[0].id
+        }
+      } else {
+        this.$message.error(response.message)
+      }
+      this.tagLoading = false
+    })
   },
   watch: {
-
+    // tagList (val) {
+    //   console.log(val)
+    //   alert(val)
+    //   this.filterKeyword()
+    // }
   },
   methods: {
     handleOk () {
@@ -141,15 +180,49 @@ export default {
     handleBrowse () {
       this.browseVisible = true
     },
-    closeTag (e) {
+    closeTag (tag) {
+      this.tagList = this.tagList.filter(item => item.name !== tag.name)
+      this.filterKeyword()
+      this.tagName = ''
       this.$message.success('Remove label successfully')
     },
-    selectTag (index) {
-      if (this.tagIndex === index) {
-        this.tagIndex = -1
+    selectTag (tag) {
+      this.tagName = tag.name
+    },
+    filterKeyword () {
+      const userTypeTags = this.userTags.filter(item => item.id === this.selectLabel)
+      if (!userTypeTags) {
         return
       }
-      this.tagIndex = index
+      if (userTypeTags[0].isGlobal) {
+        this.isShowBrowse = true
+        this.globalRootKey = userTypeTags[0].name
+      }
+      const tagListNames = []
+      this.tagList.forEach(item => {
+        tagListNames.push(item.name)
+      })
+      const keywords = userTypeTags[0].keyWords
+      this.tagSearchList = keywords.filter(item => tagListNames.indexOf(item.name) === -1)
+      if (this.inputTag) {
+        this.tagSearchList = this.tagSearchList.filter(item => item.name.toLowerCase().indexOf(this.inputTag.toLowerCase()) > -1)
+      }
+    },
+    selectChooseTag (index, tag) {
+        this.tagList.push(tag)
+        this.filterKeyword()
+    },
+    onChangeLabel (e) {
+      this.selectLabel = e.target.value
+      this.isShowBrowse = false
+      this.filterKeyword()
+    },
+    handleTagItemDragStart (tag, event) {
+      this.$logger.info('skill handleTagItemDragStart', tag, event)
+      event.dataTransfer.setData('tag', JSON.stringify(tag))
+    },
+    handleTagItemDrop (item, event) {
+      console.log(item)
     },
     handleCreateTagByInput () {
 
@@ -168,17 +241,9 @@ export default {
       this.createTagName = this.inputTag
     },
 
-    searchKnowledge (keyword) {
-      logger.info('skill searchKnowledge', keyword)
-      this.searchList = []
-      if (typeof keyword === 'string' && keyword.trim().length >= 1) {
-        SkillSearch({
-          key: keyword
-        }).then((response) => {
-          logger.info('skill searchKnowledge response', response)
-          this.searchList = response.result
-        })
-      }
+    searchTag (keyword) {
+      logger.info('tag searchTag', keyword)
+      this.filterKeyword()
     }
 
   }
@@ -257,6 +322,14 @@ export default {
           }
         }
       }
+    }
+  }
+
+  .tag-category {
+    margin-top: 20px;
+    .skt-tag-list {
+      padding: 5px 10px;
+      background-color: #e7f9f5;
     }
   }
 

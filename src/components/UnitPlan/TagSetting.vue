@@ -5,8 +5,6 @@
 
 <script>
 
-import { TagTree } from '@/api/tag'
-
 export default {
   name: 'TagSetting',
   components: {
@@ -26,15 +24,15 @@ export default {
   },
   created () {
     this.loadingTree = true
-    TagTree().then((response) => {
-      this.$logger.info('TagTree response', response.result)
-      if (response.success) {
-        this.treeItemData = response.result
-      } else {
-        this.$message.error(response.message)
-      }
-      this.loadingTree = false
-    })
+    // TagTree().then((response) => {
+    //   this.$logger.info('TagTree response', response.result)
+    //   if (response.success) {
+    //     this.treeItemData = response.result
+    //   } else {
+    //     this.$message.error(response.message)
+    //   }
+    //   this.loadingTree = false
+    // })
   },
   mounted () {
   },

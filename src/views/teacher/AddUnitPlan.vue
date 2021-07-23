@@ -289,7 +289,7 @@ import { GetAllSdgs, ScenarioSearch } from '@/api/scenario'
 import { debounce } from 'lodash-es'
 import InputSearch from '@/components/UnitPlan/InputSearch'
 import SdgTagInput from '@/components/UnitPlan/SdgTagInput'
-import { GetTreeByKey } from '@/api/tag'
+// import { GetTreeByKey } from '@/api/tag'
 import { GetMyGrades, Associate } from '@/api/teacher'
 import { SubjectTree } from '@/api/subject'
 import { formatSubjectTree } from '@/utils/bizUtil'
@@ -449,7 +449,7 @@ export default {
       logger.info('initData doing...')
       Promise.all([
         GetAllSdgs(),
-        GetTreeByKey({ key: 'Related Concepts MYP' }),
+        // GetTreeByKey({ key: 'Related Concepts MYP' }),
         GetMyGrades(),
         SubjectTree({ curriculumId: this.$store.getters.bindCurriculum })
       ]).then((sdgListResponse) => {
@@ -461,11 +461,11 @@ export default {
           this.sdgList = sdgListResponse[0].result
         }
 
-        // GetTreeByKey
-        if (!sdgListResponse[1].code) {
-          logger.info('GetTreeByKey subjectList', sdgListResponse[1].result.children)
-          this.subjectList = sdgListResponse[1].result.children
-        }
+        // // GetTreeByKey
+        // if (!sdgListResponse[1].code) {
+        //   logger.info('GetTreeByKey subjectList', sdgListResponse[1].result.children)
+        //   this.subjectList = sdgListResponse[1].result.children
+        // }
 
         // GetMyGrades
         if (!sdgListResponse[2].code) {
