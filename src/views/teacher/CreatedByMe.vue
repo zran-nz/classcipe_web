@@ -178,6 +178,7 @@
         <div class="preview-wrapper">
           <div class="preview-detail">
             <unit-plan-preview :unit-plan-id="previewCurrentId" :show-associate="true" v-if="previewType === typeMap['unit-plan']" />
+            <topic-preview :topic-id="previewCurrentId" :show-associate="true" v-if="previewType === typeMap.topic" />
             <main-task-preview :task-id="previewCurrentId" v-if="previewType === typeMap.task" />
             <main-lesson-preview :lesson-id="previewCurrentId" v-if="previewType === typeMap.lesson" />
             <evaluation-preview :evaluation-id="previewCurrentId" v-if="previewType === typeMap.evaluation" />
@@ -194,6 +195,7 @@ import UnitPlanPreview from '@/components/UnitPlan/UnitPlanPreview'
 import MainTaskPreview from '@/components/Task/MainTaskPreview'
 import MainLessonPreview from '@/components/Lesson/MainLessonPreview'
 import EvaluationPreview from '@/components/Evaluation/EvaluationPreview'
+import TopicPreview from '@/components/Topic/TopicPreview'
 import { deleteMyContentByType, getMyContent } from '@/api/teacher'
 import { ownerMap, statusMap, typeMap } from '@/const/teacher'
 import ContentStatusIcon from '@/components/Teacher/ContentStatusIcon'
@@ -211,6 +213,7 @@ export default {
     MainTaskPreview,
     MainLessonPreview,
     EvaluationPreview,
+    TopicPreview,
     TvSvg
   },
   data () {

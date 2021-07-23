@@ -61,18 +61,90 @@
                 <div class="action">
                   <div slot="actions">
                     <div class="action-wrapper">
-                      <div class="action-item">
-                        <a-popconfirm :title="$t('teacher.my-content.action-delete') + '?'" ok-text="Yes" @confirm="handleDeleteItem(item)" cancel-text="No">
-                          <a href="#" class="delete-action">
-                            <a-icon type="delete" /> {{ $t('teacher.my-content.action-delete') }}
+                      <template v-if="item.type === typeMap['lesson'] || item.type === typeMap['task']">
+                        <div class="action-item">
+                          <a @click="handleTeacherProjecting(item)">
+                            <tv-svg />
                           </a>
-                        </a-popconfirm>
-                      </div>
+                        </div>
+                        <div class="action-item">
+                          <a @click="handleDashboard(item)">
+                            <a-icon type="menu" />
+                          </a>
+                        </div>
+                      </template>
+                      <template v-else>
+                        <div class="action-item">
+                          <a-popconfirm :title="$t('teacher.my-content.action-delete') + '?'" ok-text="Yes" @confirm="handleDeleteItem(item)" cancel-text="No">
+                            <a href="#" class="delete-action">
+                              <a-icon type="delete" />
+                            </a>
+                          </a-popconfirm>
+                        </div>
+                        <div class="action-item">
+                          <a @click="handleEditItem(item)">
+                            <a-icon type="form" />
+                          </a>
+                        </div>
+                      </template>
+
                       <div class="action-item">
-                        <a @click="handleEditItem(item)">
-                          <a-icon type="form" /> {{ $t('teacher.my-content.action-edit') }}
-                        </a>
+                        <a-dropdown>
+                          <a-icon type="more" style="margin-right: 8px" />
+                          <template v-if="item.type === typeMap['evaluation']">
+                            <a-menu slot="overlay">
+                              <a-menu-item>
+                                <a @click="handleEvaluation(item)">
+                                  {{ $t('teacher.my-content.start-evaluation') }}
+                                </a>
+                              </a-menu-item>
+                            </a-menu>
+                          </template>
+                          <template v-if="item.type === typeMap['lesson'] || item.type === typeMap['task']">
+                            <a-menu slot="overlay">
+                              <a-menu-item>
+                                <a @click="handleEditEvaluationRubric(item)">
+                                  Edit evaluation rubric
+                                </a>
+                              </a-menu-item>
+                              <a-menu-item>
+                                <a @click="handleEnableStudentEvaluation(item)">
+                                  Enable Student Evaluation
+                                </a>
+                              </a-menu-item>
+                              <a-menu-item>
+                                <a @click="handleReviewEvaluation(item)">
+                                  Review & Evaluation
+                                </a>
+                              </a-menu-item>
+                              <a-menu-item>
+                                <a @click="handleEnablePeerEvaluation(item)">
+                                  Enable Peer Evaluation
+                                </a>
+                              </a-menu-item>
+                              <a-menu-item>
+                                <a @click="handleArchiveSession(item)">
+                                  Archive Session
+                                </a>
+                              </a-menu-item>
+                              <a-menu-item>
+                                <a @click="handleEditItem(item)">
+                                  <a-icon type="form" /> {{ $t('teacher.my-content.action-edit') }}
+                                </a>
+                              </a-menu-item>
+                              <a-menu-item>
+                                <a href="#" class="delete-action">
+                                  <a-icon type="delete" /> {{ $t('teacher.my-content.action-delete') }}
+                                </a>
+                              </a-menu-item>
+                            </a-menu>
+                          </template>
+                          <template v-else>
+
+                          </template>
+                        </a-dropdown>
                       </div>
+
                     </div>
                   </div>
                 </div>
@@ -110,6 +182,7 @@ import { deleteMyContentByType, getMyContent } from '@/api/teacher'
 import { ownerMap, statusMap, typeMap } from '@/const/teacher'
 import ContentStatusIcon from '@/components/Teacher/ContentStatusIcon'
 import ContentTypeIcon from '@/components/Teacher/ContentTypeIcon'
+import TvSvg from '@/assets/icons/lesson/tv.svg?inline'
 
 export default {
   name: 'CreatedByMe',
@@ -117,7 +190,8 @@ export default {
     ContentStatusIcon,
     ContentTypeIcon,
     UnitPlanPreview,
-    MaterialPreview
+    MaterialPreview,
+    TvSvg
   },
   data () {
     return {
@@ -257,6 +331,12 @@ export default {
 
 <style lang="less" scoped>
 @import "~@/components/index.less";
+
+.ant-list-item {
+  padding: 8px 0;
+  position: relative;
+}
+
 .my-content {
   padding: 0 15px 25px 15px;
   .filter-line {
@@ -320,7 +400,6 @@ export default {
       }
 
       .action {
-        width: 150px;
       }
 
       .action-wrapper {
@@ -330,8 +409,21 @@ export default {
         justify-content: flex-start;
         .action-item {
           display: inline;
-          margin-left: 20px;
+          margin-left: 5px;
           user-select: none;
+          font-size: 18px;
+
+          a {
+            width: 30px;
+            display: flex;
+            flex-direction: row;
+            justify-content: center;
+            align-items: center;
+            svg {
+              width: 25px;
+              height: 25px;
+            }
+          }
         }
       }
 

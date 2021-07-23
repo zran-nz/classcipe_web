@@ -26,20 +26,10 @@
       <a-col span="3">
         <div class="unit-menu-list">
           <div class="menu-category-item">
-            <div class="menu-category-item-label">
-              > Content it includes
-            </div>
-            <div class="menu-category-list">
-              <div class="include-item" v-for="(material,index) in form.materials" :key="index" @click="handleViewMaterial(material)">
-                <content-type-icon :type="contentType.material"/> {{ material.name }}
-              </div>
-            </div>
+            <associate-sidebar :name="form.name" :type="contentType.topic" :id="topicId" ref="associate"/>
           </div>
           <div class="menu-category-item">
-            <div class="menu-category-item-label" @click="leftAddExpandStatus = !leftAddExpandStatus">
-              + Editing content
-            </div>
-            <div class="menu-sub-add-action" v-show="leftAddExpandStatus">
+            <div class="menu-sub-add-action">
               <div class="action-item" @click="selectAddContentTypeVisible = true">
                 <a-icon type="plus-circle" /> {{ $t('teacher.add-unit-plan.add-to-this-unit-plan') }}
               </div>
@@ -249,8 +239,8 @@
       @ok="selectAddContentTypeVisible = false"
       @cancel="selectAddContentTypeVisible = false">
       <div class="add-content-wrapper">
-        <div class="add-content-item">
-          <a @click="handleAddTopicTask">
+        <div class="add-content-item" @click="handleAddUnitPlanTask">
+          <a>
             <content-type-icon :type="contentType.task"/>
             {{ $t('teacher.add-unit-plan.task') }}
           </a>
@@ -302,8 +292,7 @@
   import { debounce } from 'lodash-es'
   import InputSearch from '@/components/UnitPlan/InputSearch'
   import SdgTagInput from '@/components/UnitPlan/SdgTagInput'
-  // import { GetTreeByKey } from '@/api/tag'
-  import { GetMyGrades, UpdateContentStatus } from '@/api/teacher'
+  import { UpdateContentStatus, GetMyGrades, Associate } from '@/api/teacher'
   import { SubjectTree } from '@/api/subject'
   import { formatSubjectTree } from '@/utils/bizUtil'
   import NewClickableKnowledgeTag from '@/components/UnitPlan/NewClickableKnowledgeTag'
@@ -314,6 +303,8 @@
   import { MaterialDelete } from '@/api/material'
   import MyContentSelector from '@/components/MyContent/MyContentSelector'
   import Collaborate from '@/components/UnitPlan/Collaborate'
+
+  import { TaskAddOrUpdate } from '@/api/task'
 
   export default {
     name: 'AddTopic',
@@ -473,15 +464,15 @@
           // }
 
           // GetMyGrades
-          if (!sdgListResponse[2].code) {
-            logger.info('GetMyGrades', sdgListResponse[2].result)
-            this.gradeList = sdgListResponse[2].result
+          if (!sdgListResponse[1].code) {
+            logger.info('GetMyGrades', sdgListResponse[1].result)
+            this.gradeList = sdgListResponse[1].result
           }
 
           // SubjectTree
-          if (!sdgListResponse[3].code) {
-            logger.info('SubjectTree', sdgListResponse[3].result)
-            let subjectTree = sdgListResponse[3].result
+          if (!sdgListResponse[2].code) {
+            logger.info('SubjectTree', sdgListResponse[2].result)
+            let subjectTree = sdgListResponse[2].result
             subjectTree = formatSubjectTree(subjectTree)
             this.subjectTree = subjectTree
             logger.info('after format subjectTree', subjectTree)
@@ -489,7 +480,9 @@
           logger.info('sdgList', this.sdgList)
         }).then(() => {
           this.restoreTopic(this.topicId, true)
-        }).catch(() => {
+        }).catch((e) => {
+          this.$logger.info('topic initData', e)
+          console.log(e)
           this.$message.error(this.$t('teacher.add-unit-plan.init-data-failed'))
         }).finally(() => {
           this.referenceLoading = false
@@ -936,6 +929,39 @@
         this.$router.push({
           path: '/teacher/unit-plan-material/' + this.topicId + '/' + material.id
         })
+      },
+
+      handleAddUnitPlanTask () {
+        this.$logger.info('handleAddUnitPlanTask ' + this.unitPlanId)
+        // 下创建一个空的task，然后关联，然后再跳转过去
+        if (!this.addLoading) {
+          this.addLoading = true
+          TaskAddOrUpdate({ name: 'Unnamed Task' }).then((response) => {
+            this.$logger.info('TaskAddOrUpdate', response.result)
+            if (response.success) {
+              Associate({
+                fromId: this.unitPlanId,
+                fromType: this.contentType['unit-plan'],
+                toId: response.result.id,
+                toType: this.contentType.task
+              }).then(response => {
+                this.$logger.info('Associate response ', response)
+                // 刷新子组件的关联数据
+                this.$refs.associate.loadAssociateData()
+              })
+              this.addLoading = false
+              this.$router.push({
+                path: '/teacher/task-redirect/' + response.result.id
+              })
+            } else {
+              this.$message.error(response.message)
+            }
+          }).finally(() => {
+            this.addLoading = false
+          })
+        } else {
+          this.$logger.info('add loading')
+        }
       }
     }
   }
@@ -1215,10 +1241,10 @@
     flex-wrap: wrap;
     justify-content: center;
     .add-content-item {
-      width: 40%;
-      margin-right: 10px;
-      margin-left: 10px;
+
+      width: 80%;
       margin-bottom: 20px;
+      text-align: center;
       padding: 20px;
       border: 1px solid #eee;
       cursor: pointer;

@@ -223,7 +223,7 @@
       @cancel="selectedMyContentVisible = false">
       <div class="link-content-wrapper">
         <my-content-selector
-          :filter-type-list="['task', 'lesson', 'material']"
+          :filter-type-list="['task', 'lesson']"
           :selected-list="selectedMyContentKeyList"
           mode="select"
         />
