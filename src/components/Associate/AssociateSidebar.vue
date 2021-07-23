@@ -85,6 +85,7 @@ export default {
       }
     },
     loadAssociateData () {
+      this.loading = true
       GetAssociate({
         id: this.id,
         type: this.type
