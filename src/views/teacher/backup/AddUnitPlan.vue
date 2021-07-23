@@ -347,7 +347,7 @@ import { GetAllSdgs, ScenarioSearch } from '@/api/scenario'
 import { debounce } from 'lodash-es'
 import InputSearch from '@/components/UnitPlan/InputSearch'
 import SdgTagInput from '@/components/UnitPlan/SdgTagInput'
-import { GetTreeByKey } from '@/api/tag'
+// import { GetTreeByKey } from '@/api/tag'
 import { GetMyGrades } from '@/api/teacher'
 import { SubjectTree } from '@/api/subject'
 import { formatSubjectTree } from '@/utils/bizUtil'
@@ -503,7 +503,7 @@ export default {
       logger.info('initData doing...')
       Promise.all([
         GetAllSdgs(),
-        GetTreeByKey({ key: 'Related Concepts MYP' }),
+        // GetTreeByKey({ key: 'Related Concepts MYP' }),
         GetMyGrades(),
         SubjectTree({ curriculumId: this.$store.getters.bindCurriculum })
       ]).then((sdgListResponse) => {

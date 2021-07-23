@@ -1,13 +1,15 @@
 import request from '@/utils/request'
 
 export const tagAPIUrl = {
+  GetUserTags: '/classcipe/api/tag/getUserTags',
+  UserTagAddOrUpdate: '/classcipe/api/tag/addOrUpdateUserTag',
+  UserTagDelete: '/classcipe/api/tag/userTagDelete',
   GetTreeByKey: '/classcipe/api/tag/getTreeByKey',
-  GetTree: '/classcipe/api/tag/getTree',
-  TagAddOrUpdate: '/classcipe/api/tag/addOrUpdate',
+  GetGlobalTree: '/classcipe/api/tag/getTree',
+  GetGlobalTagKeywords: '/classcipe/api/tag/getTagKeywords',
   TagQueryById: '/classcipe/api/tag/queryById',
   TagDelete: '/classcipe/api/tag/delete',
-  TagDeleteBatch: '/classcipe/api/tag/deleteBatch',
-  TagTree: '/classcipe/api/tag/getTree'
+  TagDeleteBatch: '/classcipe/api/tag/deleteBatch'
 }
 
 /**
@@ -15,6 +17,14 @@ export const tagAPIUrl = {
  * @returns {AxiosPromise}
  * @constructor
  */
+export function GetGlobalTree (parameter) {
+  return request({
+    url: tagAPIUrl.GetGlobalTree,
+    method: 'get',
+    params: parameter
+  })
+}
+
 export function GetTreeByKey (parameter) {
   return request({
     url: tagAPIUrl.GetTreeByKey,
@@ -23,14 +33,17 @@ export function GetTreeByKey (parameter) {
   })
 }
 
-/**
- * @param parameter
- * @returns {AxiosPromise}
- * @constructor
- */
-export function GetTree (parameter) {
+export function GetGlobalTagKeywords (parameter) {
   return request({
-    url: tagAPIUrl.GetTree,
+    url: tagAPIUrl.GetGlobalTagKeywords,
+    method: 'get',
+    params: parameter
+  })
+}
+
+export function GetUserTags (parameter) {
+  return request({
+    url: tagAPIUrl.GetUserTags,
     method: 'get',
     params: parameter
   })
@@ -41,9 +54,9 @@ export function GetTree (parameter) {
  * @returns {AxiosPromise}
  * @constructor
  */
-export function TagAddOrUpdate (parameter) {
+export function UserTagAddOrUpdate (parameter) {
   return request({
-    url: tagAPIUrl.TagAddOrUpdate,
+    url: tagAPIUrl.UserTagAddOrUpdate,
     method: 'post',
     data: parameter,
     headers: {
@@ -70,42 +83,13 @@ export function TagQueryById (parameter) {
  * @returns {AxiosPromise}
  * @constructor
  */
-export function TagDelete (parameter) {
+export function UserTagDelete (parameter) {
   return request({
-    url: tagAPIUrl.TagDelete,
+    url: tagAPIUrl.UserTagDelete,
     method: 'post',
     data: parameter,
     headers: {
       'Content-Type': 'application/json;charset=UTF-8'
     }
-  })
-}
-
-/**
- * @param parameter
- * @returns {AxiosPromise}
- * @constructor
- */
-export function TagDeleteBatch (parameter) {
-  return request({
-    url: tagAPIUrl.TagDeleteBatch,
-    method: 'post',
-    data: parameter,
-    headers: {
-      'Content-Type': 'application/json;charset=UTF-8'
-    }
-  })
-}
-
-/**
- * @param parameter
- * @returns {AxiosPromise}
- * @constructor
- */
-export function TagTree (parameter) {
-  return request({
-    url: tagAPIUrl.TagTree,
-    method: 'get',
-    params: parameter
   })
 }

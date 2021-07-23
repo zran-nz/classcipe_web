@@ -6,16 +6,26 @@
     <div class="main">
       <div class="tree-navigation">
         <a-directory-tree
-          multiple
           default-expand-all
           @select="onSelect"
           @expand="onExpand"
           :icon="getIcon"
+          :tree-data="treeItemData"
+          :replace-fields="{children:'children', title:'name', key:'id'}"
           class="tree">
-          <a-tree-node :key="tag.id" :title="tag.name" class="root-icon-wrapper" :selectable="false" v-for="tag in treeItemData" >
+          <!--          <a-tree-node :key="tag.id" :title="tag.name" class="root-icon-wrapper" :selectable="false" v-for="tag in treeItemData" >
             <a-tree-node class="subtree-icon-wrapper" :key="child.id" :title="child.name" is-leaf v-for="child in tag.children"/>
-          </a-tree-node>
+          </a-tree-node>-->
+
+          <template slot="title" slot-scope="item" style="color: #08c">
+            <p>
+              <span>{{ item.title }}</span>
+              <span style="margin-left: 40px; color: orange;">{{ item.title }}</span>
+            </p>
+          </template>
+
         </a-directory-tree>
+
         <a-spin v-show="loadingTree" class="spin-loading"/>
       </div>
       <div class="content-list">
@@ -29,12 +39,10 @@
             <a-divider />
             <template v-if="tagValues.length > 0">
               <div class="skt-tag-list">
-                <div class="skt-tag-item" v-for="(tag,index) in tagValues" :key="index" >
+                <div class="skt-tag-item" v-for="tag in tagValues" :key="tag.id" >
                   <a-tag
-                    :closable="tagIndex == index"
-                    @click="selectTag(index)"
-                    @close="closeTag(tag)"
-                    :color="tagIndex == index ? 'orange': 'green'"
+                    @click="selectTag(tag)"
+                    :color="tagName == tag.name ? 'orange': 'green'"
                     class="tag-item">
                     {{ tag.name }}
                   </a-tag>
@@ -47,6 +55,7 @@
               </div>
             </template>
           </div>
+          <a-spin v-show="loadingContent" class="spin-content-loading"/>
 
         </div>
       </div>
@@ -56,50 +65,39 @@
 
 <script>
 
-import SkillContentList from '@/components/SkillLibrary/SkillContentList'
-import SkillTreeNavigation from '@/components/SkillLibrary/SkillTreeNavigation'
-import { TagTree } from '@/api/tag'
+import { GetGlobalTagKeywords, GetTreeByKey } from '@/api/tag'
 
 export default {
   name: 'TagBrowser',
   components: {
-    SkillContentList,
-    SkillTreeNavigation
-  },
-  props: {
-    selectMode: {
-      type: String,
-      default: null
-    },
-    treeItemData: {
-      type: Object,
-      default: null
-    },
-    treeCurrentParent: {
-      type: Object,
-      default: null
-    },
-    odd: {
-      type: Boolean,
-      default: false
-    }
+
   },
   data () {
     return {
+      treeItemData: [],
+      loadingContent: false,
       loadingTree: false,
       firstLoad: false,
-      tagValues: [{ name: 'how are you', id: '1' }, { name: 'test2', id: '2' }],
-      tagIndex: -1
+      tagValues: [],
+      tagName: ''
     }
   },
-  computed: {
+  props: {
+    rootKey: {
+      type: String,
+      default: ''
+    }
   },
   created () {
     this.loadingTree = true
-    TagTree().then((response) => {
+    GetTreeByKey({ key: this.rootKey }).then((response) => {
       this.$logger.info('TagTree response', response.result)
       if (response.success) {
-        this.treeItemData = response.result
+        this.treeItemData = response.result.children
+        this.treeItemData.forEach(item => {
+          item.scopedSlots = { title: 'title' }
+          this.loop(item)
+        })
       } else {
         this.$message.error(response.message)
       }
@@ -111,9 +109,22 @@ export default {
   methods: {
     onSelect (keys, event) {
       console.log('Trigger Select', keys, event)
+      this.loadingContent = true
+      GetGlobalTagKeywords({ tagId: keys[0] }).then((response) => {
+        this.$logger.info('GetGlobalTagKeywords response', response.result)
+        if (response.success) {
+          this.tagValues = response.result
+        } else {
+          this.$message.error(response.message)
+        }
+        this.loadingContent = false
+      })
     },
     onExpand () {
       console.log('Trigger Expand')
+    },
+    selectTag (tag) {
+      this.tagName = tag.name
     },
     getIcon (props) {
       const { expanded } = props
@@ -121,6 +132,18 @@ export default {
       //   return <a-icon type="home" />
       // }
       return <a-icon type={expanded ? 'folder-open' : 'folder'} />
+    },
+    loop (data) {
+      data.selectable = false
+      console.log(data)
+      if (data.children && data.children.length > 0) {
+        for (const i in data.children) {
+          this.loop(data.children[i])
+        }
+      } else if (data.children && data.children.length === 0) {
+        console.log('没有子节点')
+        data.selectable = true
+      }
     }
   }
 }
@@ -195,6 +218,11 @@ export default {
   .spin-loading {
     margin-top: 100px;
     margin-left: 50px;
+    width: 100px;
+  }
+  .spin-content-loading{
+    margin-top: 100px;
+    margin-left: 45%;
     width: 100px;
   }
   .ant-divider-horizontal{
