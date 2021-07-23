@@ -62,7 +62,7 @@ export function TaskQueryById (parameter) {
 export function TaskDelete (parameter) {
   return request({
     url: taskAPIUrl.delete + '?id=' + parameter.id,
-    method: 'delete',
+    method: 'post',
     data: parameter
   })
 }

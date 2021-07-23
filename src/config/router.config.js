@@ -93,7 +93,7 @@ export const asyncRouterMap = [
             meta: { title: 'menu.tasks', keepAlive: true, permission: ['expert', 'teacher'] }
           },
           {
-            path: '/teacher/task-redirect/:taskId?',
+            path: '/teacher/task-redirect/:taskId?/:parentId?',
             name: 'TaskRedirect',
             props: true,
             component: () => import('@/views/teacher/TaskRedirect'),

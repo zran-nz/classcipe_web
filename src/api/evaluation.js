@@ -45,7 +45,7 @@ export function EvaluationQueryById (parameter) {
 export function EvaluationDelete (parameter) {
   return request({
     url: evaluationAPIUrl.delete + '?id=' + parameter.id,
-    method: 'delete',
+    method: 'post',
     data: parameter
   })
 }

@@ -26,7 +26,7 @@
       <a-col span="3">
         <div class="unit-menu-list">
           <div class="menu-category-item">
-            <content-sidebar :name="form.name" :type="contentType[&quot;unit-plan&quot;]"/>
+            <associate-sidebar :name="form.name" :type="contentType[&quot;unit-plan&quot;]" :id="unitPlanId" ref="associate"/>
           </div>
           <div class="menu-category-item">
             <div class="menu-sub-add-action">
@@ -239,29 +239,26 @@
       @ok="selectAddContentTypeVisible = false"
       @cancel="selectAddContentTypeVisible = false">
       <div class="add-content-wrapper">
-        <div class="add-content-item">
-          <a @click="handleAddUnitPlanTask">
+        <div class="add-content-item" @click="handleAddUnitPlanTask">
+          <a>
             <content-type-icon :type="contentType.task"/>
             {{ $t('teacher.add-unit-plan.task') }}
           </a>
         </div>
-        <div class="add-content-item">
-          <a @click="handleAddUnitPlanMaterial">
-            <content-type-icon :type="contentType.material"/>
-            {{ $t('teacher.add-unit-plan.material') }}
-          </a>
-        </div>
-        <div class="add-content-item">
-          <a @click="handleAddUnitPlanLesson">
+        <div class="add-content-item" @click="handleAddUnitPlanLesson">
+          <a >
             <content-type-icon :type="contentType.lesson"/>
             {{ $t('teacher.add-unit-plan.lesson') }}
           </a>
         </div>
-        <div class="add-content-item">
-          <a @click="handleAddUnitPlanEvaluation">
+        <div class="add-content-item" @click="handleAddUnitPlanEvaluation">
+          <a >
             <content-type-icon :type="contentType.evaluation"/>
             {{ $t('teacher.add-unit-plan.evaluation') }}
           </a>
+        </div>
+        <div class="add-loading" v-if="addLoading">
+          <a-spin />
         </div>
       </div>
     </a-modal>
@@ -293,7 +290,7 @@ import { debounce } from 'lodash-es'
 import InputSearch from '@/components/UnitPlan/InputSearch'
 import SdgTagInput from '@/components/UnitPlan/SdgTagInput'
 import { GetTreeByKey } from '@/api/tag'
-import { GetMyGrades } from '@/api/teacher'
+import { GetMyGrades, Associate } from '@/api/teacher'
 import { SubjectTree } from '@/api/subject'
 import { formatSubjectTree } from '@/utils/bizUtil'
 import NewClickableKnowledgeTag from '@/components/UnitPlan/NewClickableKnowledgeTag'
@@ -301,11 +298,12 @@ import NewClickableSkillTag from '@/components/UnitPlan/NewClickableSkillTag'
 import SkillTag from '@/components/UnitPlan/SkillTag'
 import { ChangeStatus, UnitPlanAddOrUpdate, UnitPlanQueryById } from '@/api/unitPlan'
 import { formatLocalUTC } from '@/utils/util'
-import { MaterialDelete } from '@/api/material'
 import MyContentSelector from '@/components/MyContent/MyContentSelector'
-import ContentSidebar from '@/components/Classcipe/ContentSidebar'
+import AssociateSidebar from '@/components/Associate/AssociateSidebar'
 import Collaborate from '@/components/UnitPlan/Collaborate'
-const { GetAssociate } = require('@/api/teacher')
+import { TaskAddOrUpdate } from '@/api/task'
+import { LessonAddOrUpdate } from '@/api/myLesson'
+import { EvaluationAddOrUpdate } from '@/api/evaluation'
 
 export default {
   name: 'AddUnitPlan',
@@ -317,7 +315,7 @@ export default {
     NewClickableSkillTag,
     SkillTag,
     MyContentSelector,
-    ContentSidebar,
+    AssociateSidebar,
     Collaborate
   },
   props: {
@@ -426,8 +424,7 @@ export default {
         }
       },
 
-      ownerAssociateData: [],
-      othersAssociateData: []
+      addLoading: false
     }
   },
   computed: {
@@ -485,8 +482,7 @@ export default {
         logger.info('sdgList', this.sdgList)
       }).then(() => {
         this.restoreUnitPlan(this.unitPlanId, true)
-        this.loadAssociate()
-      }).catch(() => {
+      }).catch((e) => {
         this.$message.error(this.$t('teacher.add-unit-plan.init-data-failed'))
       }).finally(() => {
         this.referenceLoading = false
@@ -580,19 +576,6 @@ export default {
         logger.info('after restoreUnitPlan', this.form, this.sdgDataObj, this.questionDataObj)
       }).finally(() => {
         this.contentLoading = false
-      })
-    },
-
-    loadAssociate () {
-      GetAssociate({
-        id: this.unitPlanId,
-        type: this.contentType['unit-plan']
-      }).then(response => {
-        this.$logger.info('unitPlan GetAssociate response', response)
-        const associate = response.result
-        this.ownerAssociateData = associate.owner
-        this.othersAssociateData = associate.others
-        this.$logger.info('ownerAssociateData ', this.ownerAssociateData, 'othersAssociateData', this.othersAssociateData)
       })
     },
 
@@ -871,6 +854,8 @@ export default {
         } else {
           this.$message.error(response.message)
         }
+      }).then(() => {
+        this.$refs.associate.loadAssociateData()
       })
     },
     handlePublishUnitPlan () {
@@ -895,37 +880,102 @@ export default {
     },
 
     handleAddUnitPlanTask () {
-      logger.info('handleAddUnitPlanTask ' + this.unitPlanId)
-      this.$router.push({
-        path: '/teacher/unit-plan-task-redirect/' + this.unitPlanId + '/create'
-      })
+      this.$logger.info('handleAddUnitPlanTask ' + this.unitPlanId)
+      // 下创建一个空的task，然后关联，然后再跳转过去
+      if (!this.addLoading) {
+        this.addLoading = true
+        TaskAddOrUpdate({ name: 'Unnamed Task' }).then((response) => {
+          this.$logger.info('TaskAddOrUpdate', response.result)
+          if (response.success) {
+            Associate({
+              fromId: this.unitPlanId,
+              fromType: this.contentType['unit-plan'],
+              toId: response.result.id,
+              toType: this.contentType.task
+            }).then(response => {
+              this.$logger.info('Associate response ', response)
+              // 刷新子组件的关联数据
+              this.$refs.associate.loadAssociateData()
+            })
+            this.addLoading = false
+            this.$router.push({
+              path: '/teacher/task-redirect/' + response.result.id
+            })
+          } else {
+            this.$message.error(response.message)
+          }
+        }).finally(() => {
+          this.addLoading = false
+        })
+      } else {
+        this.$logger.info('add loading')
+      }
     },
 
     handleAddUnitPlanLesson () {
       logger.info('handleAddUnitPlanLesson ' + this.unitPlanId)
-      this.$router.push({
-        path: '/teacher/unit-plan-lesson-redirect/' + this.unitPlanId + '/create'
-      })
+      // 下创建一个空的lesson，然后关联，然后再跳转过去
+      if (!this.addLoading) {
+        this.addLoading = true
+        LessonAddOrUpdate({ name: 'Unnamed Lesson' }).then((response) => {
+          this.$logger.info('LessonAddOrUpdate', response.result)
+          if (response.success) {
+            Associate({
+              fromId: this.unitPlanId,
+              fromType: this.contentType['unit-plan'],
+              toId: response.result.id,
+              toType: this.contentType.lesson
+            }).then(response => {
+              this.$logger.info('Associate response ', response)
+              // 刷新子组件的关联数据
+              this.$refs.associate.loadAssociateData()
+            })
+            this.addLoading = false
+            this.$router.push({
+              path: '/teacher/unit-plan-lesson-redirect/' + response.result.id
+            })
+          } else {
+            this.$message.error(response.message)
+          }
+        }).finally(() => {
+          this.addLoading = false
+        })
+      } else {
+        this.$logger.info('add loading')
+      }
     },
 
     handleAddUnitPlanEvaluation () {
       logger.info('handleAddUnitPlanEvaluation ' + this.unitPlanId)
-      this.$router.push({
-        path: '/teacher/unit-plan-evaluation-redirect/' + this.unitPlanId + '/create'
-      })
-    },
-
-    handleDeleteMaterial (material) {
-      MaterialDelete({
-        id: material.id
-      }).then(response => {
-        UnitPlanQueryById({
-          id: this.unitPlanId
-        }).then(response => {
-          logger.info('handleDeleteMaterial UnitPlanQueryById ' + this.unitPlanId, response.result)
-          this.form.materials = response.result.materials
+      // 下创建一个空的evaluation，然后关联，然后再跳转过去
+      if (!this.addLoading) {
+        this.addLoading = true
+        EvaluationAddOrUpdate({ name: 'Unnamed Evaluation' }).then((response) => {
+          this.$logger.info('EvaluationAddOrUpdate', response.result)
+          if (response.success) {
+            Associate({
+              fromId: this.unitPlanId,
+              fromType: this.contentType['unit-plan'],
+              toId: response.result.id,
+              toType: this.contentType.evaluation
+            }).then(response => {
+              this.$logger.info('Associate response ', response)
+              // 刷新子组件的关联数据
+              this.$refs.associate.loadAssociateData()
+            })
+            this.addLoading = false
+            this.$router.push({
+              path: '/teacher/evaluation-redirect/' + response.result.id
+            })
+          } else {
+            this.$message.error(response.message)
+          }
+        }).finally(() => {
+          this.addLoading = false
         })
-      })
+      } else {
+        this.$logger.info('add loading')
+      }
     },
     goBack () {
       if (window.history.length <= 1) {
@@ -938,13 +988,6 @@ export default {
       setTimeout(() => {
         this.$router.push({ path: '/teacher/main/created-by-me' })
       }, 500)
-    },
-
-    handleViewMaterial (material) {
-      this.$logger.info('handleViewMaterial ', material)
-      this.$router.push({
-        path: '/teacher/unit-plan-material/' + this.unitPlanId + '/' + material.id
-      })
     }
   }
 }
@@ -1220,14 +1263,27 @@ export default {
 
 .add-content-wrapper {
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
   flex-wrap: wrap;
   justify-content: center;
+  align-items: center;
+  position: relative;
+  .add-loading {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-left: -20px;
+    margin-top: -20px;
+  }
   .add-content-item {
-    width: 40%;
-    margin-right: 10px;
-    margin-left: 10px;
+    width: 80%;
     margin-bottom: 20px;
+    text-align: center;
     padding: 20px;
     border: 1px solid #eee;
     cursor: pointer;

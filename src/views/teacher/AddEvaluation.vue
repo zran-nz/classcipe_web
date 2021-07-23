@@ -26,7 +26,7 @@
       <a-col span="3">
         <div class="unit-menu-list">
           <div class="menu-category-item">
-            <content-sidebar :name="form.name" :type="contentType.evaluation"/>
+            <associate-sidebar :name="form.name" :type="contentType.evaluation" :id="evaluationId" ref="associate"/>
           </div>
           <div class="menu-category-item">
             <div class="menu-sub-add-action">
@@ -185,7 +185,7 @@ import RelevantTagSelector from '@/components/UnitPlan/RelevantTagSelector'
 import { TemplateTypeMap } from '@/const/template'
 import DisplayMode from '@/components/MyContent/DisplayMode'
 import RubricOne from '@/components/Evaluation/RubricOne'
-import ContentSidebar from '@/components/Classcipe/ContentSidebar'
+import AssociateSidebar from '@/components/Associate/AssociateSidebar'
 import Collaborate from '@/components/UnitPlan/Collaborate'
 
 const TagOriginType = {
@@ -204,7 +204,7 @@ export default {
     InputSearch,
     MyContentSelector,
     RelevantTagSelector,
-    ContentSidebar,
+    AssociateSidebar,
     Collaborate
   },
   props: {
@@ -245,10 +245,6 @@ export default {
         updateTime: ''
       },
 
-      // 关联信息
-      ownerAssociateData: [],
-      othersAssociateData: [],
-
       // 待选择的unit plan中的描述标签
       relevantQuestionList: [],
       showRelevantQuestionVisible: false,
@@ -276,7 +272,7 @@ export default {
     }
   },
   created () {
-    logger.info('AddEvaluation created ' + this.evaluationId)
+    logger.info('AddEvaluation created ' + this.evaluationId + ', mode ' + this.mode)
     this.form.id = this.evaluationId
 
     if (this.mode === 'create') {
@@ -348,23 +344,8 @@ export default {
           this.initRawData = initRawData
         }
       }).then(() => {
-        GetAssociate({
-          id: this.evaluationId,
-          type: this.contentType.evaluation
-        }).then(response => {
-          this.$logger.info('EvaluationQueryById GetAssociate response', response)
-          const associateData = response.result
-          if (!(associateData.others.length && associateData.owner.length)) {
-            this.associateEvaluationVisible = true
-          } else {
-            this.ownerAssociateData = associateData.owner
-            this.othersAssociateData = associateData.others
-            this.$logger.info('associateData ', associateData)
-          }
-        }).finally(() => {
-          this.contentLoading = false
-          this.referenceLoading = false
-        })
+        this.contentLoading = false
+        this.referenceLoading = false
       })
     },
 
@@ -377,23 +358,12 @@ export default {
         toType: data.item.type
       }).then(response => {
         this.$logger.info('handleLinkMyContent response ', response)
-        this.loadAssociate()
+        // 刷新子组件的关联数据
+        this.$refs.associate.loadAssociateData()
         this.loadRelevantTagInfo(data.item)
       }).finally(() => {
         this.selectLinkContentVisible = false
         this.associateEvaluationVisible = false
-      })
-    },
-    loadAssociate () {
-      GetAssociate({
-        id: this.evaluationId,
-        type: this.contentType.evaluation
-      }).then(response => {
-        this.$logger.info('GetAssociate response', response)
-        const associate = response.result
-        this.ownerAssociateData = associate.owner
-        this.othersAssociateData = associate.others
-        this.$logger.info('ownerAssociateData ', this.ownerAssociateData, 'othersAssociateData', this.othersAssociateData)
       })
     },
 

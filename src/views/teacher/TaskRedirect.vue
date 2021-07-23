@@ -9,8 +9,10 @@
 export default {
   name: 'TaskRedirect',
   props: {
-    // eslint-disable-next-line vue/require-default-prop
-    taskId: null
+    taskId: {
+      type: String,
+      default: null
+    }
   },
   created () {
     this.$logger.info('task redirecting ' + this.taskId)
