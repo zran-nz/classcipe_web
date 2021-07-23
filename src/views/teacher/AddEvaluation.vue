@@ -172,7 +172,7 @@
 import * as logger from '@/utils/logger'
 import ContentTypeIcon from '@/components/Teacher/ContentTypeIcon'
 import { typeMap } from '@/const/teacher'
-import { UpdateContentStatus, Associate, GetAssociate } from '@/api/teacher'
+import { UpdateContentStatus, Associate } from '@/api/teacher'
 import InputSearch from '@/components/UnitPlan/InputSearch'
 import { TemplatesGetTemplates } from '@/api/template'
 import { MyContentEventBus, MyContentEvent } from '@/components/MyContent/MyContentEventBus'

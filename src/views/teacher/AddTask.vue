@@ -26,35 +26,7 @@
       <a-col span="3">
         <div class="unit-menu-list">
           <div class="menu-category-item">
-            <div class="menu-category-item-label" @click="leftAddExpandStatus = !leftAddExpandStatus">
-              + Editing content
-            </div>
-            <div class="menu-sub-add-action" v-show="leftAddExpandStatus">
-              <div class="action-item" @click="selectLinkContentVisible = true">
-                <a-icon type="link" /> {{ $t('teacher.add-task.link-content') }}
-              </div>
-            </div>
-          </div>
-          <div class="menu-category-item">
-            <div class="menu-category-item-label">
-              < Content it belong
-            </div>
-            <div class="menu-category-list">
-              <template v-for="associateItem in ownerAssociateData">
-                <template v-for="data in associateItem.datas">
-                  <div class="include-item" v-for="(item,index) in data.lists" :key="index" @click="handleViewDetail(item)">
-                    <content-type-icon :type="item.type"/> {{ item.name }}
-                  </div>
-                </template>
-              </template>
-              <template v-for="associateItem in othersAssociateData" v-if="associateItem.datas && associateItem.datas.length">
-                <template v-for="data in associateItem.datas">
-                  <div class="include-item" v-for="(item,index) in data.lists" :key="index" @click="handleViewDetail(item)">
-                    <content-type-icon :type="item.type"/> {{ item.name }}
-                  </div>
-                </template>
-              </template>
-            </div>
+            <associate-sidebar :name="form.name" :type="contentType.task" :id="taskId" ref="associate"/>
           </div>
         </div>
       </a-col>
@@ -271,7 +243,7 @@
 import * as logger from '@/utils/logger'
 import ContentTypeIcon from '@/components/Teacher/ContentTypeIcon'
 import { typeMap } from '@/const/teacher'
-import { UpdateContentStatus, GetMyGrades, Associate, GetAssociate } from '@/api/teacher'
+import { UpdateContentStatus, GetMyGrades, Associate } from '@/api/teacher'
 import InputSearch from '@/components/UnitPlan/InputSearch'
 import SdgTagInput from '@/components/UnitPlan/SdgTagInput'
 import NewClickableKnowledgeTag from '@/components/UnitPlan/NewClickableKnowledgeTag'
@@ -287,6 +259,7 @@ import RelevantTagSelector from '@/components/UnitPlan/RelevantTagSelector'
 import { TemplateTypeMap } from '@/const/template'
 import { commonAPIUrl } from '@/api/common'
 import Collaborate from '@/components/UnitPlan/Collaborate'
+import AssociateSidebar from '@/components/Associate/AssociateSidebar'
 
 const TagOriginType = {
   Origin: 'Origin',
@@ -307,7 +280,8 @@ export default {
     SkillTag,
     MyContentSelector,
     RelevantTagSelector,
-    Collaborate
+    Collaborate,
+    AssociateSidebar
   },
   props: {
     // eslint-disable-next-line vue/require-default-prop
@@ -390,10 +364,6 @@ export default {
       templateLoading: false,
       selectedTemplateList: [],
 
-      // 关联信息
-      ownerAssociateData: [],
-      othersAssociateData: [],
-
       // 待选择的unit plan中的描述标签
       relevantQuestionList: [],
       showRelevantQuestionVisible: false,
@@ -460,7 +430,6 @@ export default {
         if (this.taskId) {
           this.$logger.info('restore task data ' + this.taskId)
           this.restoreTask(this.taskId, true)
-          this.loadAssociate()
         } else {
           this.contentLoading = false
         }
@@ -560,20 +529,8 @@ export default {
         toType: data.item.type
       }).then(response => {
         this.$logger.info('handleLinkMyContent response ', response)
-        this.loadAssociate()
+        this.$refs.associate.loadAssociateData()
         this.loadRelevantTagInfo(data.item)
-      })
-    },
-    loadAssociate () {
-      GetAssociate({
-        id: this.taskId,
-        type: this.contentType.task
-      }).then(response => {
-        this.$logger.info('GetAssociate response', response)
-        const associate = response.result
-        this.ownerAssociateData = associate.owner
-        this.othersAssociateData = associate.others
-        this.$logger.info('ownerAssociateData ', this.ownerAssociateData, 'othersAssociateData', this.othersAssociateData)
       })
     },
 

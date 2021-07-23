@@ -50,9 +50,21 @@ export default {
       associateList: []
     }
   },
+  watch: {
+    id (newId) {
+      this.$logger.info('loadAssociateData change id', newId)
+      if (newId) {
+        this.loadAssociateData()
+      }
+    }
+  },
   created () {
     this.$logger.info('AssociateSidebar id ' + this.id + ' type ' + this.type)
-    this.loadAssociateData()
+    if (this.id) {
+      this.loadAssociateData()
+    } else {
+      this.loading = false
+    }
   },
   methods: {
     handleViewItem (item) {
