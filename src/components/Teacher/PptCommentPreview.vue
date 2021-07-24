@@ -4,7 +4,6 @@
       <div class="img-list">
         <div class="img-item" v-for="(img,index) in imgList" :key="index" @click="handleGotoImgIndex(index)">
           <img :src="img.imgUrl" />
-          {{ img.pageId }}
         </div>
       </div>
     </div>
