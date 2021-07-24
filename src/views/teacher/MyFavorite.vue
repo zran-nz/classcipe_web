@@ -15,6 +15,14 @@
         <!--        </span>-->
       </div>
       <div class="type-owner">
+        <div class="view-mode">
+          <div :class="{'view-mode-item': true, 'active-view': viewMode === 'img'}" @click="toggleViewMode('img')">
+            <a-icon type="appstore"/>
+          </div>
+          <div :class="{'view-mode-item': true, 'active-view': viewMode === 'list'}" @click="toggleViewMode('list')">
+            <a-icon type="unordered-list"/>
+          </div>
+        </div>
         <a-space>
           <div class="type-filter">
             <a-dropdown>
@@ -52,7 +60,7 @@
     <div class="content-wrapper">
       <a-skeleton :loading="skeletonLoading" active>
         <div class="content-list">
-          <a-list size="large" :pagination="pagination" :data-source="myContentList" :loading="loading">
+          <a-list size="large" :pagination="pagination" :data-source="myContentList" :loading="loading" v-if="viewMode === 'list'">
             <a-list-item slot="renderItem" key="item.key" slot-scope="item">
 
               <span class="content-info-left" @click="handleViewDetail(item)">
@@ -82,11 +90,101 @@
                           <a-icon type="form" /> {{ $t('teacher.my-content.action-edit') }}
                         </a>
                       </div>
-                    </div>
-                  </div>
-                </div>
-              </span>
+                      <div class="action-item" v-if="item.type === typeMap['evaluation']">
+                        <a-dropdown>
+                          <a-icon type="more" style="margin-right: 8px" />
+                          <a-menu slot="overlay">
+                            <a-menu-item>
+                              <a @click="handleEvaluation(item)">
+                                {{ $t('teacher.my-content.start-evaluation') }}
+                              </a>
+                            </a-menu-item>
+                          </a-menu>
+                        </a-dropdown>
+                      </div>
+                      <div class="action-item" v-if="item.type === typeMap['lesson'] || item.type === typeMap['task']">
+                        <a-dropdown>
+                          <a-icon type="more" style="margin-right: 8px" />
+                          <a-menu slot="overlay">
+                            <a-menu-item>
+                              <a @click="handleStartSession(item)">
+                                {{ $t('teacher.my-content.action-session-new') }}
+                              </a>
+                            </a-menu-item>
+                            <a-menu-item>
+                              <a @click="handleViewPreviewSession(item)">
+                                {{ $t('teacher.my-content.action-session-previous') }}
+                              </a>
+                            </a-menu-item>
+                          </a-menu>
+                        </a-dropdown>
+                      </div>
 
+                    </div>
+                  </div></div></span>
+
+            </a-list-item>
+          </a-list>
+          <a-list
+            :grid="{ gutter: 16, column: 4 }"
+            size="large"
+            :pagination="pagination"
+            :data-source="myContentList"
+            :loading="loading"
+            v-if="viewMode === 'img'">
+            <a-list-item slot="renderItem" key="item.key" slot-scope="item">
+              <a-card class="cover-card">
+                <div
+                  @click="handleViewDetail(item)"
+                  class="cover-image"
+                  slot="cover"
+                  :style="{backgroundImage: 'url(' + item.image + ')' }"
+                ></div>
+                <a-card-meta :title="item.name" :description="item.createTime | dayjs" @click="handleViewDetail(item)"></a-card-meta>
+                <template slot="actions" class="ant-card-actions">
+                  <div class="action-item">
+                    <a-popconfirm :title="$t('teacher.my-content.action-delete') + '?'" ok-text="Yes" @confirm="handleDeleteItem(item)" cancel-text="No">
+                      <a href="#" class="delete-action">
+                        <a-icon type="delete" /> {{ $t('teacher.my-content.action-delete') }}
+                      </a>
+                    </a-popconfirm>
+                  </div>
+                  <div class="action-item">
+                    <a @click="handleEditItem(item)">
+                      <a-icon type="form" /> {{ $t('teacher.my-content.action-edit') }}
+                    </a>
+                  </div>
+                  <div class="action-item" v-if="item.type === typeMap['evaluation']">
+                    <a-dropdown>
+                      <a-icon type="more" style="margin-right: 8px" />
+                      <a-menu slot="overlay">
+                        <a-menu-item>
+                          <a @click="handleEvaluation(item)">
+                            {{ $t('teacher.my-content.start-evaluation') }}
+                          </a>
+                        </a-menu-item>
+                      </a-menu>
+                    </a-dropdown>
+                  </div>
+                  <div class="action-item" v-if="item.type === typeMap['lesson'] || item.type === typeMap['task']">
+                    <a-dropdown>
+                      <a-icon type="more" style="margin-right: 8px" />
+                      <a-menu slot="overlay">
+                        <a-menu-item>
+                          <a @click="handleStartSession(item)">
+                            {{ $t('teacher.my-content.action-session-new') }}
+                          </a>
+                        </a-menu-item>
+                        <a-menu-item>
+                          <a @click="handleViewPreviewSession(item)">
+                            {{ $t('teacher.my-content.action-session-previous') }}
+                          </a>
+                        </a-menu-item>
+                      </a-menu>
+                    </a-dropdown>
+                  </div>
+                </template>
+              </a-card>
             </a-list-item>
           </a-list>
         </div>
@@ -159,7 +257,8 @@ export default {
       },
       pageNo: 1,
 
-      typeMap: typeMap
+      typeMap: typeMap,
+       viewMode: 'list'
     }
   },
   computed: {
@@ -169,6 +268,10 @@ export default {
     this.loadMyContent()
   },
   methods: {
+    toggleViewMode (viewMode) {
+      this.$logger.info('viewMode', viewMode)
+      this.viewMode = viewMode
+    },
     loadMyContent () {
       this.loading = true
       FavoritesGetMyFavorites({
@@ -424,5 +527,40 @@ export default {
 }
 a.delete-action {
   color: @red-4;
+}
+
+.type-owner {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+.view-mode {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-end;
+  align-items: center;
+  color: @text-color-secondary;
+  padding-right: 5px;
+
+  .view-mode-item {
+    font-size: 18px;
+    padding-left: 10px;
+  }
+
+  .active-view {
+    i {
+      color: @primary-color;
+    }
+  }
+  margin-right: 10px;
+}
+
+.cover-image {
+  height: 150px;
+  background-size: cover;
+  background-position: center center;
+  background-repeat: no-repeat;
+  border-bottom: 1px solid #eee;
 }
 </style>

@@ -559,5 +559,6 @@ a.delete-action {
   background-size: cover;
   background-position: center center;
   background-repeat: no-repeat;
+  border-bottom: 1px solid #eee;
 }
 </style>
