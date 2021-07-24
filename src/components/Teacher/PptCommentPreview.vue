@@ -1,6 +1,9 @@
 <template>
   <div class="ppt-comment-preview">
-    <div class="img-list-wrapper">
+    <div class="loading" v-if="loading">
+      <a-spin />
+    </div>
+    <div class="img-list-wrapper" v-show="!loading">
       <div class="img-list">
         <div class="img-item" v-for="(img,index) in imgList" :key="index" @click="handleGotoImgIndex(index)">
           <img :src="img.imgUrl" />
@@ -28,7 +31,7 @@
         </div>
       </a-carousel>
     </div>
-    <div class="comment-detail" >
+    <div class="comment-detail" v-show="!loading">
       <div class="comment-item" v-for="(comment,index) in commentData" :key="index">
         <template v-if="comment.page_id === currentPageId && comment.type === 'text'">
 
@@ -143,6 +146,17 @@ export default {
   align-items: flex-start;
   justify-content: flex-start;
   border: 1px solid #fafafa;
+  position: relative;
+
+  .loading {
+    width: 40px;
+    height: 40px;
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    margin-top: -20px;
+    margin-left: -20px;
+  }
 
   .img-list-wrapper {
     display: flex;
