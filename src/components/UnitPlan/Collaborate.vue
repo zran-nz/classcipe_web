@@ -66,7 +66,7 @@ export default {
     },
     defaultValue: {
       type: Array,
-      default: () => ['nan']
+      default: () => []
     }
   },
   methods: {

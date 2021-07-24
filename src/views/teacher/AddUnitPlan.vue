@@ -216,6 +216,9 @@
                 </a-col>
               </a-row>
             </div>
+
+            <custom-tag></custom-tag>
+
             <div class="form-block action-line">
               <a-space :size="30">
                 <a-button @click="handleSaveUnitPlan"> <a-icon type="save" /> {{ $t('teacher.add-unit-plan.save') }}</a-button>
@@ -304,6 +307,7 @@ import Collaborate from '@/components/UnitPlan/Collaborate'
 import { TaskAddOrUpdate } from '@/api/task'
 import { LessonAddOrUpdate } from '@/api/myLesson'
 import { EvaluationAddOrUpdate } from '@/api/evaluation'
+import CustomTag from '../../components/UnitPlan/CustomTag'
 
 export default {
   name: 'AddUnitPlan',
@@ -316,7 +320,8 @@ export default {
     SkillTag,
     MyContentSelector,
     AssociateSidebar,
-    Collaborate
+    Collaborate,
+    CustomTag
   },
   props: {
     unitPlanId: {

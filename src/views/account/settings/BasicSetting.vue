@@ -143,6 +143,14 @@
         </div>
 
         <!-- Customized tags -->
+        <div class="profile-item-line" v-if="$store.getters.currentRole === 'teacher'">
+          <div class="profile-label">
+            <span class="label-txt">Customized tags :</span>
+          </div>
+          <div class="profile-text profile-data">
+            <a slot="extra" href="#" @click="handleSetting">Tags setting <a-icon type="edit" /></a>
+          </div>
+        </div>
 
       </a-col></a-row>
 
@@ -163,18 +171,17 @@
       </a-col>
     </a-row>
 
-    <a-row>
-      <a-col span="4" class="action-line">
-        <div class="profile-label">
-          <span class="label-txt">Customized tags :</span>
-        </div>
-      </a-col>
-
-      <a-col span="12" class="action-line">
-        <custom-tag></custom-tag>
-      </a-col>
-
-    </a-row>
+    <a-modal
+      title="Tags Setting"
+      v-model="settingVisible"
+      :footer="null"
+      destroyOnClose
+      width="80%"
+      :dialog-style="{ top: '20px' }">
+      <div>
+        <tag-setting />
+      </div>
+    </a-modal>
 
   </div>
 </template>
@@ -191,13 +198,13 @@ import {
   getAllSubjectsByCurriculumId,
   getAllSubjectsByParentId, getCustomizedTags
 } from '@/api/preference'
-import CustomTag from '@/components/UnitPlan/CustomTag'
+import TagSetting from '../../../components/UnitPlan/TagSetting'
 
 export default {
   name: 'BasicSetting',
   components: {
     AvatarModal,
-    CustomTag
+    TagSetting
   },
   data () {
     return {
@@ -235,7 +242,8 @@ export default {
       customizedTagIds: [],
 
       loading: true,
-      editMode: false
+      editMode: false,
+      settingVisible: false
     }
   },
   watch: {
@@ -532,6 +540,9 @@ export default {
     },
     onSearch (value) {
       console.log(value)
+    },
+    handleSetting () {
+      this.settingVisible = true
     }
   }
 }

@@ -40,12 +40,15 @@
             <template v-if="tagValues.length > 0">
               <div class="skt-tag-list">
                 <div class="skt-tag-item" v-for="tag in tagValues" :key="tag.id" >
-                  <a-tag
-                    @click="selectTag(tag)"
-                    :color="tagName == tag.name ? 'orange': 'green'"
-                    class="tag-item">
-                    {{ tag.name }}
-                  </a-tag>
+                  <a-badge>
+                    <a-icon v-if="selectedTags.indexOf(tag.name) > -1" slot="count" type="check" style="color: #f5222d" />
+                    <a-tag
+                      @click="selectTag(tag)"
+                      :color="selectedTags.indexOf(tag.name) > -1 ? 'orange': 'green'"
+                      class="tag-item">
+                      {{ tag.name }}
+                    </a-tag>
+                  </a-badge>
                 </div>
               </div>
             </template>
@@ -79,13 +82,18 @@ export default {
       loadingTree: false,
       firstLoad: false,
       tagValues: [],
-      tagName: ''
+      selectedTags: [],
+      selectedTagsList: []
     }
   },
   props: {
     rootKey: {
       type: String,
       default: ''
+    },
+    tagList: {
+      type: Array,
+      default: () => []
     }
   },
   created () {
@@ -102,6 +110,10 @@ export default {
         this.$message.error(response.message)
       }
       this.loadingTree = false
+    })
+    this.tagList.forEach(item => {
+      this.selectedTags.push(item.name)
+      this.selectedTagsList.push(item)
     })
   },
   mounted () {
@@ -124,7 +136,15 @@ export default {
       console.log('Trigger Expand')
     },
     selectTag (tag) {
-      this.tagName = tag.name
+      const index = this.selectedTags.indexOf(tag.name)
+      if (index > -1) {
+        this.selectedTags.splice(index, 1)
+        this.selectedTagsList.splice(tag, 1)
+      } else {
+        this.selectedTags.push(tag.name)
+        this.selectedTagsList.push(tag)
+      }
+      this.$emit('add-global-tag', this.selectedTagsList)
     },
     getIcon (props) {
       const { expanded } = props

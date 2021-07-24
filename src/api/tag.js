@@ -6,6 +6,7 @@ export const tagAPIUrl = {
   UserTagDelete: '/classcipe/api/tag/userTagDelete',
   GetTreeByKey: '/classcipe/api/tag/getTreeByKey',
   GetGlobalTree: '/classcipe/api/tag/getTree',
+  GetRootGlobalTag: '/classcipe/api/tag/getRootGlobalTag',
   GetGlobalTagKeywords: '/classcipe/api/tag/getTagKeywords',
   TagQueryById: '/classcipe/api/tag/queryById',
   TagDelete: '/classcipe/api/tag/delete',
@@ -17,9 +18,9 @@ export const tagAPIUrl = {
  * @returns {AxiosPromise}
  * @constructor
  */
-export function GetGlobalTree (parameter) {
+export function GetRootGlobalTag (parameter) {
   return request({
-    url: tagAPIUrl.GetGlobalTree,
+    url: tagAPIUrl.GetRootGlobalTag,
     method: 'get',
     params: parameter
   })

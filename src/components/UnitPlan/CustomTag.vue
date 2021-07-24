@@ -32,7 +32,8 @@
               <div>
                 <a-radio-group v-model="selectLabel" button-style="solid" @change="onChangeLabel">
                   <a-radio-button v-for="(label,index) in userTags" :key="index" :value="label.id">
-                    {{ label.name }}
+                    <span v-if="label.isGlobal"><a-badge dot>{{ label.name }}</a-badge></span>
+                    <span v-else>{{ label.name }}</span>
                   </a-radio-button>
                 </a-radio-group>
               </div>
@@ -43,12 +44,18 @@
         <a-row>
           <a-col offset="0" :span="isShowBrowse ? 20 : 24">
             <div class="tag-search-input">
-              <a-input-search v-model="inputTag" placeholder="input search text" class="search-input" @search="handleKeyup" @keyup="handleKeyup" />
+              <a-input-search
+                v-model="inputTag"
+                size="large"
+                placeholder="search key words"
+                class="search-input"
+                @search="handleKeyup"
+                @keyup="handleKeyup" />
             </div>
           </a-col>
           <a-col span="4" align="middle" v-show="isShowBrowse">
             <div class="tag-search-input">
-              <a-button icon="appstore" @click="handleBrowse">
+              <a-button icon="appstore" @click="handleBrowse" size="large">
                 Browse
               </a-button>
             </div>
@@ -91,13 +98,19 @@
 
     <a-modal v-model="browseVisible" :footer="null" destroyOnClose width="80%" :dialog-style="{ top: '20px' }">
       <div class="associate-library">
-        <tag-browser :root-key="globalRootKey" />
+        <tag-browser :root-key="globalRootKey" :tagList="tagList" @add-global-tag="handleAddGlobalTag"/>
       </div>
     </a-modal>
 
-    <a-modal v-model="settingVisible" :footer="null" destroyOnClose width="80%" :dialog-style="{ top: '20px' }">
+    <a-modal
+      title="Tags Setting"
+      v-model="settingVisible"
+      :footer="null"
+      destroyOnClose
+      width="80%"
+      :dialog-style="{ top: '20px' }">
       <div>
-        <tag-setting />
+        <tag-setting @add-user-tag="handleAddUserTag"/>
       </div>
     </a-modal>
 
@@ -109,6 +122,7 @@ import * as logger from '@/utils/logger'
 import TagBrowser from '@/components/UnitPlan/TagBrowser'
 import TagSetting from '@/components/UnitPlan/TagSetting'
 import { GetUserTags } from '@/api/tag'
+import { UserTagAddOrUpdate } from '../../api/tag'
 
 const { debounce } = require('lodash-es')
 
@@ -142,24 +156,13 @@ export default {
       tagSearchList: [],
       userTags: [],
       selectLabel: '',
-      tagList: [{ name: 'test1', id: '1' }, { name: 'test2', id: '2' }]
+      tagList: []
     }
   },
   created () {
     this.debouncedSearchKnowledge = debounce(this.searchTag, 500)
-    this.tagLoading = true
-    GetUserTags().then((response) => {
-      this.$logger.info('TagTree response', response.result)
-      if (response.success) {
-        this.userTags = response.result
-        if (this.userTags.length > 0) {
-          this.selectLabel = this.userTags[0].id
-        }
-      } else {
-        this.$message.error(response.message)
-      }
-      this.tagLoading = false
-    })
+
+    this.loadUserTags()
   },
   watch: {
     // tagList (val) {
@@ -189,9 +192,25 @@ export default {
     selectTag (tag) {
       this.tagName = tag.name
     },
-    filterKeyword () {
+    loadUserTags () {
+      this.tagLoading = true
+      GetUserTags().then((response) => {
+        this.$logger.info('GetUserTags response', response.result)
+        if (response.success) {
+          this.userTags = response.result
+          if (this.userTags.length > 0) {
+            this.selectLabel = this.userTags[0].id
+            this.tagSearchList = this.userTags[0].keywords
+          }
+        } else {
+          this.$message.error(response.message)
+        }
+        this.tagLoading = false
+      })
+    },
+    filterKeyword (tag) {
       const userTypeTags = this.userTags.filter(item => item.id === this.selectLabel)
-      if (!userTypeTags) {
+      if (userTypeTags.length === 0) {
         return
       }
       if (userTypeTags[0].isGlobal) {
@@ -202,7 +221,10 @@ export default {
       this.tagList.forEach(item => {
         tagListNames.push(item.name)
       })
-      const keywords = userTypeTags[0].keyWords
+      const keywords = userTypeTags[0].keywords
+      if (tag) {
+        keywords.push(tag)
+      }
       this.tagSearchList = keywords.filter(item => tagListNames.indexOf(item.name) === -1)
       if (this.inputTag) {
         this.tagSearchList = this.tagSearchList.filter(item => item.name.toLowerCase().indexOf(this.inputTag.toLowerCase()) > -1)
@@ -221,17 +243,55 @@ export default {
       this.$logger.info('skill handleTagItemDragStart', tag, event)
       event.dataTransfer.setData('tag', JSON.stringify(tag))
     },
+    handleAddGlobalTag (tags) {
+      this.tagList = tags
+    },
+    handleGlobalLabel (label, isAdd) {
+      if (isAdd) {
+        label.isGlobal = true
+        this.userTags.push(label)
+      } else {
+        var index = this.userTags.findIndex(item => (item.isGlobal && item.name === label.name))
+        this.userTags.splice(index, 1)
+      }
+    },
+    handleAddUserTag (tags, isAdd) {
+       this.loadUserTags()
+    },
     handleTagItemDrop (item, event) {
       console.log(item)
     },
     handleCreateTagByInput () {
-
-    },
-    tagColor (index) {
-      if (index === this.tagIndex) {
-        return 'green'
+      this.$logger.info('skill handleCreateTagByInput ' + this.createTagName)
+      const existTag = this.tagList.find(item => item.name === this.createTagName)
+      const userTypeTags = this.userTags.filter(item => item.id === this.selectLabel)
+      if (userTypeTags.length === 0) {
+        this.$message.warn('Please click Tags setting')
+        return
+      }
+      var existTag2 = userTypeTags[0].keywords.find(item => item.name === this.createTagName)
+      if (existTag || existTag2) {
+        this.$message.warn('already exist same name tag')
       } else {
-        return '108ee9'
+        var item = {
+          name: this.createTagName,
+          parentId: this.selectLabel,
+          isGlobal: userTypeTags[0].isGlobal
+        }
+        this.tagLoading = true
+        UserTagAddOrUpdate(item).then((response) => {
+          this.$logger.info('add UserTagAddOrUpdate ', response.result)
+          if (response.success) {
+            item.id = response.result.id
+            this.createTagName = ''
+            this.inputTag = ''
+            this.filterKeyword(item)
+            this.$message.success('Add tag success')
+          } else {
+            this.$message.error(response.message)
+          }
+          this.tagLoading = false
+        })
       }
     },
 
@@ -331,10 +391,17 @@ export default {
       padding: 5px 10px;
       background-color: #e7f9f5;
     }
+    .ant-radio-button-wrapper{
+      margin-bottom: 10px;
+    }
   }
 
   .tag-search-input {
     margin-top: 20px;
+  }
+  .spin-loading{
+    margin-top: 50px;
+    margin-left: 40%;
   }
 }
 
