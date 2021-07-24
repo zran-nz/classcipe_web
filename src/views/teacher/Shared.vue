@@ -81,7 +81,7 @@
     </div>
     <div class="content-wrapper">
       <a-skeleton :loading="skeletonLoading" active>
-         <div class="content-list">
+        <div class="content-list">
           <a-list size="large" :pagination="pagination" :data-source="myContentList" :loading="loading" v-if="viewMode === 'list'">
             <a-list-item slot="renderItem" key="item.key" slot-scope="item">
 
@@ -94,6 +94,9 @@
               </span>
 
               <span class="content-info-right">
+                <span class="author">
+                  {{ item.createBy }}
+                </span>
                 <span class="update-time" >
                   {{ item.updateTime || item.createTime | dayjs }}
                 </span>
@@ -162,7 +165,8 @@
                   slot="cover"
                   :style="{backgroundImage: 'url(' + item.image + ')' }"
                 ></div>
-                <a-card-meta :title="item.name" :description="item.createTime | dayjs" @click="handleViewDetail(item)"></a-card-meta>
+                <a-card-meta :title="item.name" :description="item.createBy" @click="handleViewDetail(item)"></a-card-meta>
+                <a-card-meta :description="item.createTime | dayjs" @click="handleViewDetail(item)"></a-card-meta>
                 <template slot="actions" class="ant-card-actions">
                   <div class="action-item">
                     <a-popconfirm :title="$t('teacher.my-content.action-delete') + '?'" ok-text="Yes" @confirm="handleDeleteItem(item)" cancel-text="No">
@@ -512,6 +516,9 @@ export default {
         justify-content: flex-end;
         align-items: center;
 
+        .author {
+          width: 150px;
+        }
         .update-time {
           width: 200px;
           overflow: hidden;
@@ -522,6 +529,10 @@ export default {
           }
         }
       }
+      .action {
+        width: 200px;
+      }
+
       .action-wrapper {
         display: flex;
         flex-direction: row;
