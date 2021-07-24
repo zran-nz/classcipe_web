@@ -86,7 +86,7 @@
             :loading="loading"
             v-if="viewMode === 'img'">
             <a-list-item slot="renderItem" key="item.key" slot-scope="item">
-              <a-card>
+              <a-card class="cover-card">
                 <div
                   class="cover-image"
                   slot="cover"
@@ -233,7 +233,7 @@ export default {
         },
         showTotal: total => `Total ${total} items`,
         total: 0,
-        pageSize: 15,
+        pageSize: 16,
         current: 1
       },
       pageNo: 1,
