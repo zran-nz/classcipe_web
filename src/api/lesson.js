@@ -1,4 +1,5 @@
 import lessonAPIRequest from '@/utils/lessonAPIRequest'
+import request from '@/utils/request'
 
 export const lessonAPIUrl = {
   GetMyClasses: '/class/get_my_classes',
@@ -6,7 +7,9 @@ export const lessonAPIUrl = {
   EndSession: '/class/end_session',
   ReopenSession: '/class/reopen_session',
   NameSession: '/class/name_session',
-  StartLesson: '/slide/start_lesson'
+  StartLesson: '/slide/start_lesson',
+  GetStudents: '/class/get_students',
+  GetStudentResponse: '/class/get_student_response'
 }
 
 export function getMyClasses (parameter) {
@@ -54,5 +57,37 @@ export function StartLesson (parameter) {
     url: lessonAPIUrl.StartLesson,
     method: 'post',
     data: parameter
+  })
+}
+
+/**
+ * @param parameter
+ * @returns {AxiosPromise}
+ * @constructor
+ */
+export function GetStudents (parameter) {
+  return lessonAPIRequest({
+    url: lessonAPIUrl.GetStudents,
+    method: 'post',
+    data: parameter,
+    headers: {
+      'Content-Type': 'application/json;charset=UTF-8'
+    }
+  })
+}
+
+/**
+ * @param parameter
+ * @returns {AxiosPromise}
+ * @constructor
+ */
+export function GetStudentResponse (parameter) {
+  return lessonAPIRequest({
+    url: lessonAPIUrl.GetStudentResponse,
+    method: 'post',
+    data: parameter,
+    headers: {
+      'Content-Type': 'application/json;charset=UTF-8'
+    }
   })
 }

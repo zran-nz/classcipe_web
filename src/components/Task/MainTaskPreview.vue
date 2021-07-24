@@ -44,7 +44,7 @@
         </a-col>
         <a-col class="left-preview" span="19">
           <a-carousel ref="carousel" v-if="!loading && imgList.length">
-            <a slot="customPaging" slot-scope="props">
+            <a slot="customPaging">
             </a>
             <div
               slot="prevArrow"

@@ -30,28 +30,12 @@
 
 import * as logger from '@/utils/logger'
 import ContentTypeIcon from '@/components/Teacher/ContentTypeIcon'
-import { typeMap } from '@/const/teacher'
-import { UpdateContentStatus, Associate, GetAssociate } from '@/api/teacher'
 import InputSearch from '@/components/UnitPlan/InputSearch'
-import { TemplatesGetTemplates } from '@/api/template'
-import { MyContentEventBus, MyContentEvent } from '@/components/MyContent/MyContentEventBus'
-import { EvaluationQueryById, EvaluationAddOrUpdate } from '@/api/evaluation'
-import { TaskQueryById } from '@/api/task'
-import { LessonQueryById } from '@/api/myLesson'
+import { EvaluationQueryById } from '@/api/evaluation'
 import { formatLocalUTC } from '@/utils/util'
 import MyContentSelector from '@/components/MyContent/MyContentSelector'
 import RelevantTagSelector from '@/components/UnitPlan/RelevantTagSelector'
-import { TemplateTypeMap } from '@/const/template'
-import DisplayMode from '@/components/MyContent/DisplayMode'
 import RubricOne from '@/components/Evaluation/RubricOne'
-
-const TagOriginType = {
-  Origin: 'Origin',
-  Search: 'Search',
-  Description: 'Description',
-  Create: 'Create',
-  Extension: 'Extension'
-}
 
 export default {
   name: 'EvaluationPreview',

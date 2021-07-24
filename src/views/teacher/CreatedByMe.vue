@@ -1,57 +1,5 @@
 <template>
   <div class="my-content">
-    <div class="filter-line">
-      <div class="status-tab">
-        <span :class="{'status-item': true, 'active-status-item': currentStatus === 'all-status'}" @click="toggleStatus('all-status', $t('teacher.my-content.all-status'))">
-          {{ $t('teacher.my-content.all-status') }}
-        </span>
-        <a-divider type="vertical" />
-        <span :class="{'status-item': true, 'active-status-item': currentStatus === 'published'}" @click="toggleStatus('published', $t('teacher.my-content.published-status'))">
-          {{ $t('teacher.my-content.published-status') }}
-        </span>
-        <a-divider type="vertical" />
-        <span :class="{'status-item': true, 'active-status-item': currentStatus === 'draft'}" @click="toggleStatus('draft', $t('teacher.my-content.draft-status'))">
-          {{ $t('teacher.my-content.draft-status') }}
-        </span>
-      </div>
-      <div class="type-owner">
-        <a-space>
-          <div class="type-filter">
-            <a-dropdown>
-              <a class="ant-dropdown-link" @click="e => e.preventDefault()">
-                {{ currentTypeLabel }} <a-icon type="down" />
-              </a>
-              <a-menu slot="overlay">
-                <a-menu-item disabled>
-                  <span>{{ $t('teacher.my-content.choose-types-of-content') }}</span>
-                </a-menu-item>
-                <a-menu-item @click="toggleType('all-type', $t('teacher.my-content.all-type'))">
-                  <span>{{ $t('teacher.my-content.all-type') }}</span>
-                </a-menu-item>
-                <a-menu-item @click="toggleType('topic', $t('teacher.my-content.topics-type') )">
-                  <span>{{ $t('teacher.my-content.topics-type') }}</span>
-                </a-menu-item>
-                <!--                <a-menu-item @click="toggleType('material', $t('teacher.my-content.materials-type'))">
-                  <span>{{ $t('teacher.my-content.materials-type') }}</span>
-                </a-menu-item>-->
-                <a-menu-item @click="toggleType('unit-plan', $t('teacher.my-content.unit-plan-type'))">
-                  <span>{{ $t('teacher.my-content.unit-plan-type') }}</span>
-                </a-menu-item>
-                <a-menu-item @click="toggleType('task', $t('teacher.my-content.tasks-type') )">
-                  <span>{{ $t('teacher.my-content.tasks-type') }}</span>
-                </a-menu-item>
-                <a-menu-item @click="toggleType('lesson', $t('teacher.my-content.lesson-type'))">
-                  <span>{{ $t('teacher.my-content.lesson-type') }}</span>
-                </a-menu-item>
-                <a-menu-item @click="toggleType('evaluation', $t('teacher.my-content.evaluation-type'))">
-                  <span>{{ $t('teacher.my-content.evaluation-type') }}</span>
-                </a-menu-item>
-              </a-menu>
-            </a-dropdown>
-          </div>
-        </a-space>
-      </div>
-    </div>
     <div class="content-wrapper">
       <a-skeleton :loading="skeletonLoading" active>
         <div class="content-list">
@@ -73,94 +21,50 @@
                 <div class="action">
                   <div slot="actions">
                     <div class="action-wrapper">
-                      <template v-if="item.type === typeMap['lesson'] || item.type === typeMap['task']">
-                        <div class="action-item">
-                          <a @click="handleTeacherProjecting(item)">
-                            <tv-svg />
-                          </a>
-                        </div>
-                        <div class="action-item">
-                          <a @click="handleDashboard(item)">
-                            <a-icon type="menu" />
-                          </a>
-                        </div>
-                      </template>
-                      <template v-else>
-                        <div class="action-item">
-                          <a-popconfirm :title="$t('teacher.my-content.action-delete') + '?'" ok-text="Yes" @confirm="handleDeleteItem(item)" cancel-text="No">
-                            <a href="#" class="delete-action">
-                              <a-icon type="delete" />
-                            </a>
-                          </a-popconfirm>
-                        </div>
-                        <div class="action-item">
-                          <a @click="handleEditItem(item)">
-                            <a-icon type="form" />
-                          </a>
-                        </div>
-                      </template>
-
                       <div class="action-item">
+                        <a-popconfirm :title="$t('teacher.my-content.action-delete') + '?'" ok-text="Yes" @confirm="handleDeleteItem(item)" cancel-text="No">
+                          <a href="#" class="delete-action">
+                            <a-icon type="delete" /> {{ $t('teacher.my-content.action-delete') }}
+                          </a>
+                        </a-popconfirm>
+                      </div>
+                      <div class="action-item">
+                        <a @click="handleEditItem(item)">
+                          <a-icon type="form" /> {{ $t('teacher.my-content.action-edit') }}
+                        </a>
+                      </div>
+                      <div class="action-item" v-if="item.type === typeMap['evaluation']">
                         <a-dropdown>
                           <a-icon type="more" style="margin-right: 8px" />
-                          <template v-if="item.type === typeMap['evaluation']">
-                            <a-menu slot="overlay">
-                              <a-menu-item>
-                                <a @click="handleEvaluation(item)">
-                                  {{ $t('teacher.my-content.start-evaluation') }}
-                                </a>
-                              </a-menu-item>
-                            </a-menu>
-                          </template>
-                          <template v-if="item.type === typeMap['lesson'] || item.type === typeMap['task']">
-                            <a-menu slot="overlay">
-                              <a-menu-item>
-                                <a @click="handleEditEvaluationRubric(item)">
-                                  Edit evaluation rubric
-                                </a>
-                              </a-menu-item>
-                              <a-menu-item>
-                                <a @click="handleEnableStudentEvaluation(item)">
-                                  Enable Student Evaluation
-                                </a>
-                              </a-menu-item>
-                              <a-menu-item>
-                                <a @click="handleReviewEvaluation(item)">
-                                  Review & Evaluation
-                                </a>
-                              </a-menu-item>
-                              <a-menu-item>
-                                <a @click="handleEnablePeerEvaluation(item)">
-                                  Enable Peer Evaluation
-                                </a>
-                              </a-menu-item>
-                              <a-menu-item>
-                                <a @click="handleArchiveSession(item)">
-                                  Archive Session
-                                </a>
-                              </a-menu-item>
-                              <a-menu-item>
-                                <a @click="handleEditItem(item)">
-                                  <a-icon type="form" /> {{ $t('teacher.my-content.action-edit') }}
-                                </a>
-                              </a-menu-item>
-                              <a-menu-item>
-                                <a href="#" class="delete-action">
-                                  <a-icon type="delete" /> {{ $t('teacher.my-content.action-delete') }}
-                                </a>
-                              </a-menu-item>
-                            </a-menu>
-                          </template>
-                          <template v-else>
-
-                          </template>
+                          <a-menu slot="overlay">
+                            <a-menu-item>
+                              <a @click="handleEvaluation(item)">
+                                {{ $t('teacher.my-content.start-evaluation') }}
+                              </a>
+                            </a-menu-item>
+                          </a-menu>
+                        </a-dropdown>
+                      </div>
+                      <div class="action-item" v-if="item.type === typeMap['lesson'] || item.type === typeMap['task']">
+                        <a-dropdown>
+                          <a-icon type="more" style="margin-right: 8px" />
+                          <a-menu slot="overlay">
+                            <a-menu-item>
+                              <a @click="handleStartSession(item)">
+                                {{ $t('teacher.my-content.action-session-new') }}
+                              </a>
+                            </a-menu-item>
+                            <a-menu-item>
+                              <a @click="handleViewPreviewSession(item)">
+                                {{ $t('teacher.my-content.action-session-previous') }}
+                              </a>
+                            </a-menu-item>
+                          </a-menu>
                         </a-dropdown>
                       </div>
 
                     </div>
-                  </div>
-                </div>
-              </span>
+                  </div></div></span>
 
             </a-list-item>
           </a-list>
@@ -185,6 +89,20 @@
           </div>
         </div>
       </a-drawer>
+
+      <a-modal
+        v-model="viewPreviewSessionVisible"
+        :footer="null"
+        destroyOnClose
+        width="800px"
+        title="Previous sessions"
+        @ok="viewPreviewSessionVisible = false"
+        @cancel="viewPreviewSessionVisible = false">
+        <div class="preview-session-wrapper">
+          <class-list :slide-id="currentPreviewLesson.presentationId" :classData="currentPreviewLesson" v-if="currentPreviewLesson && currentPreviewLesson.presentationId"/>
+          <a-empty v-else/>
+        </div>
+      </a-modal>
     </div>
   </div>
 </template>
@@ -201,12 +119,14 @@ import { ownerMap, statusMap, typeMap } from '@/const/teacher'
 import ContentStatusIcon from '@/components/Teacher/ContentStatusIcon'
 import ContentTypeIcon from '@/components/Teacher/ContentTypeIcon'
 import { lessonStatus, lessonHost } from '@/const/googleSlide'
-import { StartLesson, getMyClasses } from '@/api/lesson'
+import { StartLesson } from '@/api/lesson'
 import TvSvg from '@/assets/icons/lesson/tv.svg?inline'
+import ClassList from '@/components/Teacher/ClassList'
 
 export default {
   name: 'CreatedByMe',
   components: {
+    ClassList,
     ContentStatusIcon,
     ContentTypeIcon,
     UnitPlanPreview,
@@ -232,6 +152,7 @@ export default {
       previewVisible: false,
       previewCurrentId: '',
       previewType: '',
+      currentPreviewLesson: null,
 
       pagination: {
         onChange: page => {
@@ -246,7 +167,9 @@ export default {
       },
       pageNo: 1,
 
-      typeMap: typeMap
+      typeMap: typeMap,
+      viewPreviewSessionVisible: false,
+      classList: []
     }
   },
   computed: {
@@ -367,7 +290,7 @@ export default {
       this.previewVisible = false
     },
 
-    handleTeacherProjecting (item) {
+    handleStartSession (item) {
       this.$logger.info('handleStartSession', item)
       if (item.presentationId) {
         const requestData = {
@@ -421,11 +344,14 @@ export default {
       }
     },
 
+    handleViewPreviewSession (item) {
+      this.$logger.info('handleViewPreviewSession', item)
+      this.currentPreviewLesson = item
+      this.viewPreviewSessionVisible = true
+    },
+
     handleEditEvaluationRubric (item) {
       this.$logger.info('handleEditEvaluationRubric', item)
-      getMyClasses({ limit: 100, cursor: 0, slide_id: item.presentationId }).then(response => {
-        this.$logger.info('', response)
-      })
     },
 
     handleEnableStudentEvaluation (item) {
@@ -513,8 +439,8 @@ export default {
           }
         }
       }
-
       .action {
+        width: 200px;
       }
 
       .action-wrapper {
@@ -524,21 +450,8 @@ export default {
         justify-content: flex-start;
         .action-item {
           display: inline;
-          margin-left: 5px;
+          margin-left: 20px;
           user-select: none;
-          font-size: 18px;
-
-          a {
-            width: 30px;
-            display: flex;
-            flex-direction: row;
-            justify-content: center;
-            align-items: center;
-            svg {
-              width: 25px;
-              height: 25px;
-            }
-          }
         }
       }
 
@@ -553,7 +466,6 @@ export default {
     }
   }
 }
-
 a.delete-action {
   color: @red-4;
 }

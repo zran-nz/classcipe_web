@@ -28,6 +28,11 @@
           <div class="menu-category-item">
             <associate-sidebar :name="form.name" :type="contentType.lesson" :id="lessonId" ref="associate"/>
           </div>
+          <div class="menu-category-item">
+            <div class="action-item" @click="selectLinkContentVisible = true">
+              <a-icon type="link" /> {{ $t('teacher.add-unit-plan.link-content') }}
+            </div>
+          </div>
         </div>
       </a-col>
       <a-col span="15" class="main-content">
@@ -1235,14 +1240,10 @@ export default {
         }
       }
 
-      .menu-sub-add-action {
-        cursor: pointer;
-
-        .action-item {
-          color: @primary-color;
-          padding: 5px 0;
-          text-decoration: underline;
-        }
+      .action-item {
+        color: @primary-color;
+        padding: 5px 0;
+        text-decoration: underline;
       }
     }
 
