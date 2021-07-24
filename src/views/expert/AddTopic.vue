@@ -303,7 +303,7 @@
   import { MaterialDelete } from '@/api/material'
   import MyContentSelector from '@/components/MyContent/MyContentSelector'
   import Collaborate from '@/components/UnitPlan/Collaborate'
-
+  import AssociateSidebar from '@/components/Associate/AssociateSidebar'
   import { TaskAddOrUpdate } from '@/api/task'
 
   export default {
@@ -316,7 +316,8 @@
       NewClickableSkillTag,
       SkillTag,
       MyContentSelector,
-      Collaborate
+      Collaborate,
+      AssociateSidebar
     },
     props: {
       // eslint-disable-next-line vue/require-default-prop

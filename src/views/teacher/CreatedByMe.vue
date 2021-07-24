@@ -74,6 +74,10 @@
                 <span class="update-time" >
                   {{ item.updateTime || item.createTime | dayjs }}
                 </span>
+                <span class="status">
+                  <template v-if="item.status === 0">Draft</template>
+                  <template v-if="item.status === 1">Published</template>
+                </span>
                 <div class="action">
                   <div slot="actions">
                     <div class="action-wrapper">
@@ -538,13 +542,16 @@ export default {
         align-items: center;
 
         .update-time {
-          width: 250px;
+          width: 150px;
           overflow: hidden;
           white-space: nowrap;
           text-overflow: ellipsis;
           &:hover {
             color: @primary-color;
           }
+        }
+        .status {
+          width: 80px;
         }
       }
       .action {
