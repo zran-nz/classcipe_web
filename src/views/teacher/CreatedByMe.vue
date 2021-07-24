@@ -88,11 +88,12 @@
             <a-list-item slot="renderItem" key="item.key" slot-scope="item">
               <a-card class="cover-card">
                 <div
+                  @click="handleViewDetail(item)"
                   class="cover-image"
                   slot="cover"
                   :style="{backgroundImage: 'url(' + item.image + ')' }"
                 ></div>
-                <a-card-meta :title="item.name" :description="item.createTime | dayjs"></a-card-meta>
+                <a-card-meta :title="item.name" :description="item.createTime | dayjs" @click="handleViewDetail(item)"></a-card-meta>
                 <template slot="actions" class="ant-card-actions">
                   <div class="action-item">
                     <a-popconfirm :title="$t('teacher.my-content.action-delete') + '?'" ok-text="Yes" @confirm="handleDeleteItem(item)" cancel-text="No">
