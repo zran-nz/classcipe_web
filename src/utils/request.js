@@ -44,7 +44,6 @@ request.interceptors.request.use(config => {
 
 // response interceptor
 request.interceptors.response.use((response) => {
-  logger.info('interceptor response', response.data)
   if (response && response.data && response.data.code && response.data.code !== 0) {
     // if code is 510 token invalid
     if (response.data.code === 510) {

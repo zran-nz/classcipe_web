@@ -1,5 +1,15 @@
 <template>
   <div class="my-content">
+    <div class="view-mode-toggle">
+      <div class="view-mode">
+        <div :class="{'view-mode-item': true, 'active-view': viewMode === 'img'}" @click="toggleViewMode('img')">
+          <a-icon type="appstore"/>
+        </div>
+        <div :class="{'view-mode-item': true, 'active-view': viewMode === 'list'}" @click="toggleViewMode('list')">
+          <a-icon type="unordered-list"/>
+        </div>
+      </div>
+    </div>
     <div class="content-wrapper">
       <a-skeleton :loading="skeletonLoading" active>
         <div class="content-list">
@@ -169,7 +179,9 @@ export default {
 
       typeMap: typeMap,
       viewPreviewSessionVisible: false,
-      classList: []
+      PPTCommentPreviewVisible: false,
+      classList: [],
+      viewMode: 'list'
     }
   },
   computed: {
@@ -178,9 +190,11 @@ export default {
     logger.info('teacher my content')
     this.loadMyContent()
   },
-  mounted () {
-  },
   methods: {
+    toggleViewMode (viewMode) {
+      this.$logger.info('viewMode', viewMode)
+      this.viewMode = viewMode
+    },
     loadMyContent () {
       this.loading = true
       getMyContent({
@@ -348,23 +362,6 @@ export default {
       this.$logger.info('handleViewPreviewSession', item)
       this.currentPreviewLesson = item
       this.viewPreviewSessionVisible = true
-    },
-
-    handleEditEvaluationRubric (item) {
-      this.$logger.info('handleEditEvaluationRubric', item)
-    },
-
-    handleEnableStudentEvaluation (item) {
-      this.$logger.info('handleEnableStudentEvaluation', item)
-    },
-    handleReviewEvaluation (item) {
-      this.$logger.info('handleReviewEvaluation', item)
-    },
-    handleEnablePeerEvaluation (item) {
-      this.$logger.info('handleEnablePeerEvaluation', item)
-    },
-    handleArchiveSession (item) {
-      this.$logger.info('handleArchiveSession', item)
     }
   }
 }
@@ -468,5 +465,30 @@ export default {
 }
 a.delete-action {
   color: @red-4;
+}
+
+.view-mode-toggle {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-end;
+  align-items: center;
+  .view-mode {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-end;
+    align-items: center;
+    color: @text-color-secondary;
+
+    .view-mode-item {
+      font-size: 18px;
+      padding-left: 10px;
+    }
+
+    .active-view {
+      i {
+        color: @primary-color;
+      }
+    }
+  }
 }
 </style>

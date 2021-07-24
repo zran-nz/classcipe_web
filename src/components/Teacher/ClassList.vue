@@ -62,17 +62,30 @@
       <a-spin v-if="loading && !skeletonLoading"/>
       <span v-if="loadFinished">All data loaded~</span>
     </div>
+
+    <a-modal
+      v-model="PPTCommentPreviewVisible"
+      :footer="null"
+      destroyOnClose
+      width="900px"
+      title="Summary"
+      @ok="PPTCommentPreviewVisible = false"
+      @cancel="PPTCommentPreviewVisible = false">
+      <div class="view-ppt-comment">
+        <ppt-comment-preview :slide-id="slideId" :class-id="currentClassId" v-if="slideId"/>
+      </div>
+    </a-modal>
   </div>
 </template>
 
 <script>
-import { getMyClasses, GetStudents, GetStudentResponse } from '@/api/lesson'
+import { getMyClasses, GetStudents } from '@/api/lesson'
 import TvSvg from '@/assets/icons/lesson/tv.svg?inline'
 import * as logger from '@/utils/logger'
 import { GetAssociate } from '@/api/teacher'
 import { typeMap } from '@/const/teacher'
 import { EvaluationAddOrUpdate } from '@/api/evaluation'
-
+import PptCommentPreview from '@/components/Teacher/PptCommentPreview'
 const columns = [
   {
     title: 'Class name',
@@ -118,7 +131,8 @@ const statusMap = {
 export default {
   name: 'ClassList',
   components: {
-    TvSvg
+    TvSvg,
+    PptCommentPreview
   },
   props: {
     slideId: {
@@ -135,16 +149,10 @@ export default {
       columns: columns,
       data: [],
       loading: true,
-      selectedRowKeys: [],
-      selectedRows: [],
       typeMap: typeMap,
 
-      showNameSessionModal: false,
-      nameSessionRecord: {
-        class_id: '',
-        class_name: ''
-      },
-
+      PPTCommentPreviewVisible: false,
+      currentClassId: null,
       skeletonLoading: true,
       loadFailed: false,
       cursor: 0,
@@ -257,9 +265,8 @@ export default {
     },
     handleReviewEvaluation (item) {
       this.$logger.info('handleReviewEvaluation', item, this.classData)
-      GetStudentResponse({ class_id: item.class_id }).then((response) => {
-        this.$logger.info('', response)
-      })
+      this.currentClassId = item.class_id
+      this.PPTCommentPreviewVisible = true
     },
     handleEnablePeerEvaluation (item) {
       this.$logger.info('handleEnablePeerEvaluation', item, this.classData)

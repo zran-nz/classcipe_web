@@ -1,5 +1,4 @@
 import lessonAPIRequest from '@/utils/lessonAPIRequest'
-import request from '@/utils/request'
 
 export const lessonAPIUrl = {
   GetMyClasses: '/class/get_my_classes',
