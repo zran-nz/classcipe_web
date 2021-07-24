@@ -79,7 +79,7 @@
 </template>
 
 <script>
-import { getMyClasses, GetStudents } from '@/api/lesson'
+import { getMyClasses } from '@/api/lesson'
 import TvSvg from '@/assets/icons/lesson/tv.svg?inline'
 import * as logger from '@/utils/logger'
 import { GetAssociate } from '@/api/teacher'
@@ -254,14 +254,46 @@ export default {
 
     handleEnableStudentEvaluation (item) {
       this.$logger.info('handleEnableStudentEvaluation', item, this.classData)
-      EvaluationAddOrUpdate({ id: this.classData.id, selfType: 1 }).then((response) => {
-        logger.info('EvaluationAddOrUpdate', response.result)
-        if (response.success) {
-          this.$message.success('Success')
-        } else {
-          this.$message.error(response.message)
-        }
-      })
+      if (this.classData) {
+        GetAssociate({
+          id: this.classData.id,
+          type: this.classData.type
+        }).then(response => {
+          this.$logger.info('GetAssociate res', response)
+          const owner = response.result.owner
+          const associateList = []
+          owner.forEach(item => {
+            const itemType = item.type
+            const itemTypeName = item.typeName
+            item.datas.forEach(dataItem => {
+              if (dataItem.lists.length) {
+                dataItem.lists.forEach(aItem => {
+                  associateList.push({
+                    itemType,
+                    itemTypeName,
+                    ...aItem
+                  })
+                })
+              }
+            })
+          })
+          this.$logger.info('associate list', associateList)
+          const evaluationItem = associateList.find(aItem => aItem.itemType === this.typeMap.evaluation)
+          if (evaluationItem) {
+            this.$logger.info('find evaluation ', evaluationItem)
+            EvaluationAddOrUpdate({ id: evaluationItem.id, selfType: 1 }).then((response) => {
+              logger.info('EvaluationAddOrUpdate', response.result)
+              if (response.success) {
+                this.$message.success('Success')
+              } else {
+                this.$message.error(response.message)
+              }
+            })
+          } else {
+            this.$logger.info('not find evaluation')
+          }
+        })
+      }
     },
     handleReviewEvaluation (item) {
       this.$logger.info('handleReviewEvaluation', item, this.classData)
@@ -270,14 +302,46 @@ export default {
     },
     handleEnablePeerEvaluation (item) {
       this.$logger.info('handleEnablePeerEvaluation', item, this.classData)
-      EvaluationAddOrUpdate({ id: this.classData.id, selfType: 2 }).then((response) => {
-        logger.info('EvaluationAddOrUpdate', response.result)
-        if (response.success) {
-          this.$message.success('Success')
-        } else {
-          this.$message.error(response.message)
-        }
-      })
+      if (this.classData) {
+        GetAssociate({
+          id: this.classData.id,
+          type: this.classData.type
+        }).then(response => {
+          this.$logger.info('GetAssociate res', response)
+          const owner = response.result.owner
+          const associateList = []
+          owner.forEach(item => {
+            const itemType = item.type
+            const itemTypeName = item.typeName
+            item.datas.forEach(dataItem => {
+              if (dataItem.lists.length) {
+                dataItem.lists.forEach(aItem => {
+                  associateList.push({
+                    itemType,
+                    itemTypeName,
+                    ...aItem
+                  })
+                })
+              }
+            })
+          })
+          this.$logger.info('associate list', associateList)
+          const evaluationItem = associateList.find(aItem => aItem.itemType === this.typeMap.evaluation)
+          if (evaluationItem) {
+            this.$logger.info('find evaluation ', evaluationItem)
+            EvaluationAddOrUpdate({ id: evaluationItem.id, selfType: 2 }).then((response) => {
+              logger.info('EvaluationAddOrUpdate', response.result)
+              if (response.success) {
+                this.$message.success('Success')
+              } else {
+                this.$message.error(response.message)
+              }
+            })
+          } else {
+            this.$logger.info('not find evaluation')
+          }
+        })
+      }
     },
     handleArchiveSession (item) {
       this.$logger.info('handleArchiveSession', item)

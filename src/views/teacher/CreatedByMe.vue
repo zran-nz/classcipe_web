@@ -1,13 +1,59 @@
 <template>
   <div class="my-content">
-    <div class="view-mode-toggle">
-      <div class="view-mode">
-        <div :class="{'view-mode-item': true, 'active-view': viewMode === 'img'}" @click="toggleViewMode('img')">
-          <a-icon type="appstore"/>
+    <div class="filter-line">
+      <div class="status-tab">
+        <span :class="{'status-item': true, 'active-status-item': currentStatus === 'all-status'}" @click="toggleStatus('all-status', $t('teacher.my-content.all-status'))">
+          {{ $t('teacher.my-content.all-status') }}
+        </span>
+        <a-divider type="vertical" />
+        <span :class="{'status-item': true, 'active-status-item': currentStatus === 'published'}" @click="toggleStatus('published', $t('teacher.my-content.published-status'))">
+          {{ $t('teacher.my-content.published-status') }}
+        </span>
+        <a-divider type="vertical" />
+        <span :class="{'status-item': true, 'active-status-item': currentStatus === 'draft'}" @click="toggleStatus('draft', $t('teacher.my-content.draft-status'))">
+          {{ $t('teacher.my-content.draft-status') }}
+        </span>
+      </div>
+      <div class="type-owner">
+        <div class="view-mode-toggle">
+          <div class="view-mode">
+            <div :class="{'view-mode-item': true, 'active-view': viewMode === 'img'}" @click="toggleViewMode('img')">
+              <a-icon type="appstore"/>
+            </div>
+            <div :class="{'view-mode-item': true, 'active-view': viewMode === 'list'}" @click="toggleViewMode('list')">
+              <a-icon type="unordered-list"/>
+            </div>
+          </div>
         </div>
-        <div :class="{'view-mode-item': true, 'active-view': viewMode === 'list'}" @click="toggleViewMode('list')">
-          <a-icon type="unordered-list"/>
-        </div>
+        <a-space>
+          <div class="type-filter">
+            <a-dropdown>
+              <a class="ant-dropdown-link" @click="e => e.preventDefault()">
+                {{ currentTypeLabel }} <a-icon type="down" />
+              </a>
+              <a-menu slot="overlay">
+                <a-menu-item disabled>
+                  <span>{{ $t('teacher.my-content.choose-types-of-content') }}</span>
+                </a-menu-item>
+                <a-menu-item @click="toggleType('all-type', $t('teacher.my-content.all-type'))">
+                  <span>{{ $t('teacher.my-content.all-type') }}</span>
+                </a-menu-item>
+                <a-menu-item @click="toggleType('unit-plan', $t('teacher.my-content.unit-plan-type'))">
+                  <span>{{ $t('teacher.my-content.unit-plan-type') }}</span>
+                </a-menu-item>
+                <a-menu-item @click="toggleType('task', $t('teacher.my-content.tasks-type') )">
+                  <span>{{ $t('teacher.my-content.tasks-type') }}</span>
+                </a-menu-item>
+                <a-menu-item @click="toggleType('lesson', $t('teacher.my-content.lesson-type'))">
+                  <span>{{ $t('teacher.my-content.lesson-type') }}</span>
+                </a-menu-item>
+                <a-menu-item @click="toggleType('evaluation', $t('teacher.my-content.evaluation-type'))">
+                  <span>{{ $t('teacher.my-content.evaluation-type') }}</span>
+                </a-menu-item>
+              </a-menu>
+            </a-dropdown>
+          </div>
+        </a-space>
       </div>
     </div>
     <div class="content-wrapper">
@@ -462,6 +508,9 @@ export default {
     }
 
     .type-owner {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
     }
   }
 
@@ -534,6 +583,8 @@ a.delete-action {
   flex-direction: row;
   justify-content: flex-end;
   align-items: center;
+  margin-right: 10px;
+   height: 25px;
   .view-mode {
     display: flex;
     flex-direction: row;
@@ -543,7 +594,7 @@ a.delete-action {
 
     .view-mode-item {
       font-size: 18px;
-      padding-left: 10px;
+      padding-left: 5px;
     }
 
     .active-view {

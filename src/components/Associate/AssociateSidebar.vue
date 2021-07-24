@@ -92,7 +92,7 @@ export default {
       }).then(response => {
         this.$logger.info('AssociateSidebar GetAssociate response', response)
         const owner = response.result.owner
-        const others = response.result.owner
+        const others = response.result.others
         const associateList = []
         owner.forEach(item => {
           const itemType = item.type
