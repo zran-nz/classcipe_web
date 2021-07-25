@@ -1,7 +1,7 @@
 <template>
   <div class="custom-tag">
     <div>
-      <a-card title="Customized tags" style="width: 800px">
+      <a-card title="Customized tags" :bordered="false">
         <a slot="extra" href="#" @click="handleSetting">Tags setting <a-icon type="edit" /></a>
 
         <div class="skt-tag-wrapper" v-show="tagList.length">
@@ -132,7 +132,7 @@ export default {
     TagBrowser, TagSetting
   },
   props: {
-    selectedSkillTags: {
+    selectedTagsList: {
       type: Array,
       default: () => []
     }
@@ -144,6 +144,7 @@ export default {
   },
   data () {
     return {
+      tagList: this.selectedTagsList,
       globalRootKey: '',
       isShowBrowse: false,
       tagLoading: false,
@@ -155,21 +156,17 @@ export default {
       createTagName: '',
       tagSearchList: [],
       userTags: [],
-      selectLabel: '',
-      tagList: []
+      selectLabel: ''
     }
   },
   created () {
     this.debouncedSearchKnowledge = debounce(this.searchTag, 500)
-
     this.loadUserTags()
   },
   watch: {
-    // tagList (val) {
-    //   console.log(val)
-    //   alert(val)
-    //   this.filterKeyword()
-    // }
+    selectedTagsList () {
+       this.tagList = this.selectedTagsList
+    }
   },
   methods: {
     handleOk () {
@@ -188,6 +185,7 @@ export default {
       this.filterKeyword()
       this.tagName = ''
       this.$message.success('Remove label successfully')
+      this.$emit('change-user-tags', this.tagList)
     },
     selectTag (tag) {
       this.tagName = tag.name
@@ -202,6 +200,7 @@ export default {
             this.selectLabel = this.userTags[0].id
             this.tagSearchList = this.userTags[0].keywords
           }
+          this.filterKeyword()
         } else {
           this.$message.error(response.message)
         }
@@ -245,6 +244,7 @@ export default {
     },
     handleAddGlobalTag (tags) {
       this.tagList = tags
+      this.$emit('change-user-tags', this.tagList)
     },
     handleGlobalLabel (label, isAdd) {
       if (isAdd) {
@@ -254,6 +254,7 @@ export default {
         var index = this.userTags.findIndex(item => (item.isGlobal && item.name === label.name))
         this.userTags.splice(index, 1)
       }
+      this.$emit('change-user-tags', this.tagList)
     },
     handleAddUserTag (tags, isAdd) {
        this.loadUserTags()
@@ -315,6 +316,7 @@ export default {
 
 @import "~@/components/index.less";
 .custom-tag {
+  margin-top: 20px;
   .skt-tag-wrapper {
     .skt-tag-list {
       padding: 5px 10px;
@@ -403,6 +405,15 @@ export default {
     margin-top: 50px;
     margin-left: 40%;
   }
+
+  &:hover {
+    border: 1px dotted @link-hover-color;
+    box-sizing: border-box;
+    .sdg-delete-wrapper {
+      display: block;
+    }
+  }
+
 }
 
 </style>

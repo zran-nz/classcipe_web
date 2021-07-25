@@ -36,7 +36,7 @@
                     Create
                   </div>
                   <div class="create-tag">
-                    <a-tag class="tag-item">
+                    <a-tag class="tag-item" color="orange">
                       {{ createTagName }}
                     </a-tag>
                     <a-icon type="plus-circle" @click="handleCreateTagByInput"/>
@@ -62,7 +62,7 @@
                       <a-icon v-if="selectedGlobalLabels.indexOf(tag.name) > -1" slot="count" type="check" style="color: #f5222d" />
                       <a-tag
                         @click="selectGlobalTag(tag)"
-                        class="tag-item" >
+                        :class="{'tag-item': true, 'active': selectedGlobalLabels.indexOf(tag.name) > -1}" >
                         {{ tag.name }}
                       </a-tag>
                     </a-badge>
@@ -89,10 +89,10 @@
             <div class="content-list">
               <template v-if="userTags.length > 0" >
                 <a-row v-for="root in userTags" :key="root.id" v-if="!root.isGlobal">
-                  <div class="skt-tag-list" style="background-color: #fffbea;">
+                  <div class="skt-tag-list">
                     <div class="skt-tag-item">
                       <a-badge>
-                        <a-icon @click="removeTag(root)" slot="count" type="close" style="color: #f5222d" />
+                        <a-icon @click="removeTag(root)" slot="count" type="close" />
                         <a-tag
                           color="orange"
                           class="tag-item-yellow" >
@@ -212,6 +212,7 @@ export default {
             this.inputTag = ''
             this.userTags.push(item)
             this.$message.success('Add tag success')
+            this.$emit('add-user-tag', item, true)
           } else {
             this.$message.error(response.message)
           }
@@ -225,7 +226,7 @@ export default {
     selectGlobalTag (tag) {
       var index = this.selectedGlobalLabels.indexOf(tag.name)
       if (index > -1) {
-        this.selectedGlobalLabels.splice(index)
+        this.selectedGlobalLabels.splice(index, 1)
         UserTagDelete({ name: tag.name, isGlobal: true }).then((response) => {
           this.$message.success('Remove tag success')
           this.$emit('add-user-tag', tag, false)
@@ -309,7 +310,7 @@ export default {
 
       .tag-item {
         background-color:#d2f4eb ;
-        border-radius: 10px;
+        border-radius: 15px;
         word-break: normal;
         width: auto;
         display: block;
@@ -326,7 +327,7 @@ export default {
       }
       .tag-item-yellow{
         background-color: #fff9d3;
-        border-radius: 10px;
+        border-radius: 15px;
         word-break: normal;
         width: auto;
         display: block;
@@ -343,18 +344,18 @@ export default {
       }
 
       .ant-tag{
-        border-radius: 5px;
+        border-radius: 15px;
         word-break: normal;
         width: auto;
         display: block;
         white-space: pre-wrap;
         word-wrap: break-word;
         overflow: hidden;
-        padding: 3px;
+        padding: 5px;
         font-size: 14px;
         &:hover {
           border: 1px solid @primary-color;
-          background-color: fade(@outline-color, 10%);
+          font-color: @primary-color;
         }
       }
     }
@@ -379,15 +380,16 @@ export default {
         align-items: center;
 
         .tag-item {
-          border-radius: 10px;
+          background-color: #fff9d3;
+          border-radius: 15px;
           word-break: normal;
           width: auto;
-          display: inline;
+          display: block;
           white-space: pre-wrap;
           word-wrap: break-word;
           overflow: hidden;
-          padding-bottom: 3px;
-          font-size: 15px
+          padding: 5px;
+          font-size: 16px;
         }
 
         i {
@@ -396,6 +398,16 @@ export default {
         }
       }
     }
+  }
+
+  .content-list-wrapper{
+    .skt-tag-item{
+      .active{
+        background-color: #14c49b;
+      }
+
+    }
+
   }
 }
 

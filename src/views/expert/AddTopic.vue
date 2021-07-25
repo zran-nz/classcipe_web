@@ -216,6 +216,9 @@
                 </a-col>
               </a-row>
             </div>
+
+            <custom-tag ref="customTag" :selected-tags-list="form.customTags" @change-user-tags="handleChangeUserTags"></custom-tag>
+
             <div class="form-block action-line">
               <a-space :size="30">
                 <a-button @click="handleSaveTopic"> <a-icon type="save" /> {{ $t('teacher.add-unit-plan.save') }}</a-button>
@@ -305,6 +308,7 @@
   import Collaborate from '@/components/UnitPlan/Collaborate'
   import AssociateSidebar from '@/components/Associate/AssociateSidebar'
   import { TaskAddOrUpdate } from '@/api/task'
+  import CustomTag from '../../components/UnitPlan/CustomTag'
 
   export default {
     name: 'AddTopic',
@@ -317,7 +321,8 @@
       SkillTag,
       MyContentSelector,
       Collaborate,
-      AssociateSidebar
+      AssociateSidebar,
+      CustomTag
     },
     props: {
       // eslint-disable-next-line vue/require-default-prop
@@ -377,7 +382,8 @@
           },
           createTime: '',
           updateTime: '',
-          materials: []
+          materials: [],
+          customTags: []
         },
 
         uploading: false,
@@ -783,7 +789,8 @@
             description: this.form.scenario.description,
             sdgKeyWords: []
           },
-          questions: []
+          questions: [],
+          customTags: this.form.customTags
         }
 
         if (this.topicId) {
@@ -963,6 +970,9 @@
         } else {
           this.$logger.info('add loading')
         }
+      },
+      handleChangeUserTags (tags) {
+        this.form.customTags = tags
       }
     }
   }

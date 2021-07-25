@@ -77,6 +77,9 @@
                   @add-skill-tag="handleAddSkillTag"
                 />
               </div>
+
+              <custom-tag ref="customTag" :selected-tags-list="form.customTags" @change-user-tags="handleChangeUserTags"></custom-tag>
+
               <div class="form-block" v-show="form.presentationId">
                 <a-row>
                   <a-col offset="4" span="18">
@@ -355,6 +358,7 @@ import TaskForm from '@/components/Task/TaskForm'
 import TaskPreview from '@/components/Task/TaskPreview'
 import Collaborate from '@/components/UnitPlan/Collaborate'
 import AssociateSidebar from '@/components/Associate/AssociateSidebar'
+import CustomTag from '../../components/UnitPlan/CustomTag'
 
 const TagOriginType = {
   Origin: 'Origin',
@@ -378,7 +382,8 @@ export default {
     MyContentSelector,
     RelevantTagSelector,
     Collaborate,
-    AssociateSidebar
+    AssociateSidebar,
+    CustomTag
   },
   props: {
     lessonId: {
@@ -434,7 +439,8 @@ export default {
         status: 0,
         lessonType: '',
         createTime: '',
-        updateTime: ''
+        updateTime: '',
+        customTags: []
       },
       // Grades
       gradeList: [],
@@ -812,29 +818,30 @@ export default {
 
       const question = this.questionDataObj['__question_0']
       logger.info('question __question_0', question)
-      if (question.knowledgeTags && question.knowledgeTags.length) {
-        question.knowledgeTags.forEach(item => {
-          item.curriculumId = this.$store.getters.bindCurriculum
-        })
+      if (question) {
+        if (question.knowledgeTags && question.knowledgeTags.length) {
+          question.knowledgeTags.forEach(item => {
+            item.curriculumId = this.$store.getters.bindCurriculum
+          })
+        }
+        if (question.skillTags && question.skillTags.length) {
+          question.skillTags.forEach(item => {
+            item.curriculumId = this.$store.getters.bindCurriculum
+          })
+        }
+        const questionItem = {
+          knowledgeTags: question.knowledgeTags,
+          skillTags: question.skillTags,
+          name: question.name
+        }
+        if (question.questionId) {
+          questionItem.id = question.questionId
+          this.$logger.info('old question item', questionItem)
+        } else {
+          this.$logger.info('new question item', questionItem)
+        }
+        lessonData.suggestingTag = questionItem
       }
-      if (question.skillTags && question.skillTags.length) {
-        question.skillTags.forEach(item => {
-          item.curriculumId = this.$store.getters.bindCurriculum
-        })
-      }
-      const questionItem = {
-        knowledgeTags: question.knowledgeTags,
-        skillTags: question.skillTags,
-        name: question.name
-      }
-      if (question.questionId) {
-        questionItem.id = question.questionId
-        this.$logger.info('old question item', questionItem)
-      } else {
-        this.$logger.info('new question item', questionItem)
-      }
-
-      lessonData.suggestingTag = questionItem
       logger.info('question lessonData', lessonData)
       this.lessonSaving = true
       LessonAddOrUpdate(lessonData).then((response) => {
@@ -1178,6 +1185,9 @@ export default {
       if (index !== -1) {
         this.form.tasks.splice(index, 1)
       }
+    },
+    handleChangeUserTags (tags) {
+      this.form.customTags = tags
     }
   }
 }

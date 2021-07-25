@@ -217,7 +217,7 @@
               </a-row>
             </div>
 
-            <custom-tag></custom-tag>
+            <custom-tag ref="customTag" :selected-tags-list="form.customTags" @change-user-tags="handleChangeUserTags"></custom-tag>
 
             <div class="form-block action-line">
               <a-space :size="30">
@@ -383,7 +383,8 @@ export default {
         },
         createTime: '',
         updateTime: '',
-        materials: []
+        materials: [],
+        customTags: []
       },
 
       uploading: false,
@@ -578,7 +579,6 @@ export default {
           this.questionMaxIndex = this.questionMaxIndex + 1
           this.questionTotal = this.questionTotal + 1
         }
-
         this.form = unitPlanData
         logger.info('after restoreUnitPlan', this.form, this.sdgDataObj, this.questionDataObj)
       }).finally(() => {
@@ -778,6 +778,7 @@ export default {
 
     handleSaveUnitPlan () {
       logger.info('handleSaveUnitPlan', this.form, this.sdgDataObj, this.questionDataObj)
+      console.log(this.$refs.customTag.tagList)
 
       const unitPlanData = {
         image: this.form.image,
@@ -789,7 +790,8 @@ export default {
           description: this.form.scenario.description,
           sdgKeyWords: []
         },
-        questions: []
+        questions: [],
+        customTags: this.form.customTags
       }
 
       if (this.unitPlanId) {
@@ -995,6 +997,9 @@ export default {
       setTimeout(() => {
         this.$router.push({ path: '/teacher/main/created-by-me' })
       }, 500)
+    },
+    handleChangeUserTags (tags) {
+      this.form.customTags = tags
     }
   }
 }
