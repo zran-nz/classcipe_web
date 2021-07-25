@@ -18,6 +18,8 @@ export const APP_LANGUAGE = 'app_language'
 export const SYS_CONFIG = 'sys_config'
 export const DOWNLOAD_URL = 'download_url'
 
+export const VIEW_MODE = 'view_mode'
+
 export const CONTENT_WIDTH_TYPE = {
   Fluid: 'Fluid',
   Fixed: 'Fixed'

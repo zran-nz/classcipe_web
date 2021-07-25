@@ -940,7 +940,7 @@
       },
 
       handleAddUnitPlanTask () {
-        this.$logger.info('handleAddUnitPlanTask ' + this.unitPlanId)
+        this.$logger.info('handleAddUnitPlanTask ' + this.topicId)
         // 下创建一个空的task，然后关联，然后再跳转过去
         if (!this.addLoading) {
           this.addLoading = true
@@ -948,8 +948,8 @@
             this.$logger.info('TaskAddOrUpdate', response.result)
             if (response.success) {
               Associate({
-                fromId: this.unitPlanId,
-                fromType: this.contentType['unit-plan'],
+                fromId: this.topicId,
+                fromType: this.contentType.topic,
                 toId: response.result.id,
                 toType: this.contentType.task
               }).then(response => {

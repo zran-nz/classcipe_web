@@ -86,7 +86,7 @@
       >
         <div class="preview-wrapper">
           <div class="preview-detail">
-            <unit-plan-preview :unit-plan-id="unitPlanId" :show-associate="false" v-if="previewType === typeMap['unit-plan']" />
+            <topic-preview :topic-id="topicId" :show-associate="false" v-if="previewType === typeMap.topic" />
           </div>
         </div>
       </a-drawer>
@@ -103,16 +103,16 @@ const { FavoritesAdd } = require('@/api/favorites')
 const { GetAssociate } = require('@/api/teacher')
 
 export default {
-  name: 'UnitPlanAssociatePreview',
+  name: 'TopicAssociatePreview',
   props: {
-    unitPlanId: {
+    topicId: {
       type: String,
       default: null
     }
   },
   components: {
     ContentTypeIcon,
-    UnitPlanPreview: () => import('@/components/UnitPlan/UnitPlanPreview')
+    TopicPreview: () => import('@/components/Topic/TopicPreview')
   },
   data () {
     return {
@@ -137,22 +137,22 @@ export default {
     }
   },
   created () {
-    logger.info('UnitPlan Associate Preview unitPlanId ' + this.unitPlanId)
-    this.loadUnitPlanAssociateData()
+    logger.info('Topic Associate Preview TopicId ' + this.topicId)
+    this.loadTopicAssociateData()
   },
   methods: {
-    loadUnitPlanAssociateData () {
-      logger.info('loadUnitPlanAssociateData ' + this.unitPlanId)
+    loadTopicAssociateData () {
+      logger.info('loadTopicAssociateData ' + this.topicId)
       this.loading = true
       GetAssociate({
-        id: this.unitPlanId,
-        type: typeMap['unit-plan']
+        id: this.topicId,
+        type: typeMap.topic
       }).then((response) => {
         logger.info('GetAssociate ', response)
         this.associateData = response.result
         this.currentAssociateList = this.associateData[this.activeUserType]
       }).then(() => {
-        logger.info('get favorite ' + this.unitPlanId)
+        logger.info('get favorite ' + this.topicId)
       }).finally(() => {
         this.loading = false
       })
@@ -177,13 +177,13 @@ export default {
 
     handleClickTitle (item) {
       logger.info('handleClickTitle', item)
-      this.previewType = typeMap['unit-plan']
+      this.previewType = typeMap.topic
       this.subPreviewVisible = true
     },
 
     handleSubPreview (type, item) {
       logger.info('handleSubPreview', type, item)
-      this.previewType = typeMap['unit-plan']
+      this.previewType = typeMap.topic
       this.subPreviewVisible = true
     },
 

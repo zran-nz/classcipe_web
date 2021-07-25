@@ -219,6 +219,8 @@ import { FavoritesGetMyFavorites, FavoritesDelete } from '@/api/favorites'
 import TvSvg from '@/assets/icons/lesson/tv.svg?inline'
 import { lessonStatus, lessonHost } from '@/const/googleSlide'
 import { StartLesson, getMyClasses } from '@/api/lesson'
+import storage from 'store'
+import { VIEW_MODE } from '@/store/mutation-types'
 
 export default {
   name: 'MyFavorite',
@@ -258,7 +260,7 @@ export default {
       pageNo: 1,
 
       typeMap: typeMap,
-       viewMode: 'list'
+      viewMode: storage.get(VIEW_MODE) ? storage.get(VIEW_MODE) : 'list'
     }
   },
   computed: {
@@ -270,6 +272,7 @@ export default {
   methods: {
     toggleViewMode (viewMode) {
       this.$logger.info('viewMode', viewMode)
+      storage.set(VIEW_MODE, viewMode)
       this.viewMode = viewMode
     },
     loadMyContent () {

@@ -33,7 +33,7 @@
                 <a-menu-item disabled>
                   <span>{{ $t('teacher.my-content.choose-types-of-content') }}</span>
                 </a-menu-item>
-                <a-menu-item @click="toggleType('all-type', $t('teacher.my-content.all-type'))">
+                <a-menu-item @click="toggleType('all-type', $t('teacher.my-content.all-type'))" v-show="$store.getters.currentRole === 'teacher'">
                   <span>{{ $t('teacher.my-content.all-type') }}</span>
                 </a-menu-item>
                 <a-menu-item @click="toggleType('topic', $t('teacher.my-content.topics-type') )">
@@ -42,16 +42,16 @@
                 <!--                <a-menu-item @click="toggleType('material', $t('teacher.my-content.materials-type'))">
                   <span>{{ $t('teacher.my-content.materials-type') }}</span>
                 </a-menu-item>-->
-                <a-menu-item @click="toggleType('unit-plan', $t('teacher.my-content.unit-plan-type'))">
+                <a-menu-item @click="toggleType('unit-plan', $t('teacher.my-content.unit-plan-type'))" v-show="$store.getters.currentRole === 'teacher'">
                   <span>{{ $t('teacher.my-content.unit-plan-type') }}</span>
                 </a-menu-item>
                 <a-menu-item @click="toggleType('task', $t('teacher.my-content.tasks-type') )">
                   <span>{{ $t('teacher.my-content.tasks-type') }}</span>
                 </a-menu-item>
-                <a-menu-item @click="toggleType('lesson', $t('teacher.my-content.lesson-type'))">
+                <a-menu-item @click="toggleType('lesson', $t('teacher.my-content.lesson-type'))" v-show="$store.getters.currentRole === 'teacher'">
                   <span>{{ $t('teacher.my-content.lesson-type') }}</span>
                 </a-menu-item>
-                <a-menu-item @click="toggleType('evaluation', $t('teacher.my-content.evaluation-type'))">
+                <a-menu-item @click="toggleType('evaluation', $t('teacher.my-content.evaluation-type'))" v-show="$store.getters.currentRole === 'teacher'">
                   <span>{{ $t('teacher.my-content.evaluation-type') }}</span>
                 </a-menu-item>
               </a-menu>
@@ -245,6 +245,8 @@ import { DeleteSharedByIdAndType, GetShared } from '@/api/user'
 import TvSvg from '@/assets/icons/lesson/tv.svg?inline'
 import { lessonStatus, lessonHost } from '@/const/googleSlide'
 import { StartLesson, getMyClasses } from '@/api/lesson'
+import storage from 'store'
+import { VIEW_MODE } from '@/store/mutation-types'
 
 export default {
   name: 'Shared',
@@ -284,7 +286,7 @@ export default {
       pageNo: 1,
 
       typeMap: typeMap,
-       viewMode: 'list'
+      viewMode: storage.get(VIEW_MODE) ? storage.get(VIEW_MODE) : 'list'
     }
   },
   computed: {
@@ -296,6 +298,7 @@ export default {
   methods: {
     toggleViewMode (viewMode) {
       this.$logger.info('viewMode', viewMode)
+      storage.set(VIEW_MODE, viewMode)
       this.viewMode = viewMode
     },
     loadMyContent () {

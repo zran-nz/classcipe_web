@@ -244,6 +244,8 @@ import { lessonStatus, lessonHost } from '@/const/googleSlide'
 import { StartLesson } from '@/api/lesson'
 import TvSvg from '@/assets/icons/lesson/tv.svg?inline'
 import ClassList from '@/components/Teacher/ClassList'
+import storage from 'store'
+import { VIEW_MODE } from '@/store/mutation-types'
 
 export default {
   name: 'CreatedByMe',
@@ -293,10 +295,10 @@ export default {
       viewPreviewSessionVisible: false,
       PPTCommentPreviewVisible: false,
       classList: [],
-      viewMode: 'list'
+      viewMode: storage.get(VIEW_MODE) ? storage.get(VIEW_MODE) : 'list'
     }
   },
-  computed: {
+  locomputed: {
   },
   created () {
     logger.info('teacher my content')
@@ -305,6 +307,7 @@ export default {
   methods: {
     toggleViewMode (viewMode) {
       this.$logger.info('viewMode', viewMode)
+      storage.set(VIEW_MODE, viewMode)
       this.viewMode = viewMode
     },
     loadMyContent () {

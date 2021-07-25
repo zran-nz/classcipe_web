@@ -190,6 +190,7 @@ export default {
         }).then(response => {
           logger.info('LessonQueryById ' + this.lessonId, response.result)
           this.lesson = response.result
+          this.loading = false
         }).finally(() => {
           this.loadThumbnail()
         })
@@ -215,7 +216,7 @@ export default {
                 presentationId: this.lesson.presentationId,
                 mimeType: 'SMALL'
               }).then(response => {
-                this.imgList.push(response.result.contentUrl)
+                this.imgList.push(response.result.contentUrl.replace('=s200', '=s800'))
               }).finally(() => {
                 this.$logger.info('current imgList.length ' + (this.imgList.length) + ' total:' + this.lesson.selectPageObjectIds.length)
                 if (this.imgList.length === pageObjectIds.length) {

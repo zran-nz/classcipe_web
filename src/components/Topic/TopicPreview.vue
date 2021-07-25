@@ -29,7 +29,7 @@
           </a-radio-group>
           <div class="edit-item">
             <a-button type="primary">
-              <router-link :to="'/teacher/topic-redirect/' + topicId">{{ $t('teacher.topic-preview.edit') }}</router-link>
+              <router-link :to="'/teacher/topic-redirect/' + topicId">{{ $t('teacher.unit-plan-preview.edit') }}</router-link>
             </a-button>
           </div>
         </a-col>

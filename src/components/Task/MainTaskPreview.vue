@@ -190,6 +190,7 @@ export default {
         }).then(response => {
           logger.info('TaskQueryById ' + this.taskId, response.result)
           this.task = response.result
+          this.loading = false
         }).finally(() => {
           this.loadThumbnail()
         })
@@ -215,7 +216,7 @@ export default {
                 presentationId: this.task.presentationId,
                 mimeType: 'SMALL'
               }).then(response => {
-                this.imgList.push(response.result.contentUrl)
+                this.imgList.push(response.result.contentUrl.replace('=s200', '=s800'))
               }).finally(() => {
                 this.$logger.info('current imgList.length ' + (this.imgList.length) + ' total:' + this.task.selectPageObjectIds.length)
                 if (this.imgList.length === pageObjectIds.length) {
