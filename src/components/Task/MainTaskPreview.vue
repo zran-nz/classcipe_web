@@ -27,7 +27,7 @@
               Preview
             </a-radio-button>
           </a-radio-group>
-          <div class="edit-item">
+          <div class="edit-item" v-if="canEdit">
             <a-button type="primary">
               <router-link :to="'/teacher/task-redirect/' + taskId">{{ $t('teacher.unit-plan-preview.edit') }}</router-link>
             </a-button>
@@ -151,6 +151,10 @@ export default {
     taskId: {
       type: String,
       default: null
+    },
+    canEdit: {
+      type: Boolean,
+      default: true
     },
     taskData: {
       type: Object,
