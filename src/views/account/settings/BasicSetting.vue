@@ -62,7 +62,7 @@
             </div>
           </div>
           <div class="profile-input profile-data" v-if="editMode">
-            <a-select v-model="userInfo.areaIds" placeholder="Please select">
+            <a-select v-model="userInfo.areaIds" placeholder="Please select" mode="multiple">
               <a-select-option
                 :value="areaOption.id"
                 v-for="areaOption in areaOptions"
