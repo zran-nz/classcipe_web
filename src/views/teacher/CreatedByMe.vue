@@ -240,12 +240,17 @@ import { deleteMyContentByType, getMyContent } from '@/api/teacher'
 import { ownerMap, statusMap, typeMap } from '@/const/teacher'
 import ContentStatusIcon from '@/components/Teacher/ContentStatusIcon'
 import ContentTypeIcon from '@/components/Teacher/ContentTypeIcon'
-import { lessonStatus, lessonHost } from '@/const/googleSlide'
+import { lessonHost, lessonStatus } from '@/const/googleSlide'
 import { StartLesson } from '@/api/lesson'
 import TvSvg from '@/assets/icons/lesson/tv.svg?inline'
 import ClassList from '@/components/Teacher/ClassList'
-import storage from 'store'
-import { VIEW_MODE } from '@/store/mutation-types'
+import {
+  SESSION_CURRENT_PAGE,
+  SESSION_CURRENT_STATUS,
+  SESSION_CURRENT_TYPE,
+  SESSION_CURRENT_TYPE_LABEL,
+  SESSION_VIEW_MODE
+} from '@/const/common'
 
 export default {
   name: 'CreatedByMe',
@@ -266,10 +271,10 @@ export default {
       loading: true,
       loadFailed: false,
       myContentList: [],
-      currentStatus: 'all-status',
+      currentStatus: sessionStorage.getItem(SESSION_CURRENT_STATUS) ? sessionStorage.getItem(SESSION_CURRENT_STATUS) : 'all-status',
       currentStatusLabel: this.$t('teacher.my-content.all-status'),
-      currentType: 'all-type',
-      currentTypeLabel: this.$t('teacher.my-content.all-type'),
+      currentType: sessionStorage.getItem(SESSION_CURRENT_TYPE) ? sessionStorage.getItem(SESSION_CURRENT_TYPE) : 'all-type',
+      currentTypeLabel: sessionStorage.getItem(SESSION_CURRENT_TYPE_LABEL) ? sessionStorage.getItem(SESSION_CURRENT_TYPE_LABEL) : this.$t('teacher.my-content.all-type'),
       currentOwner: 'all-owner',
       currentOwnerLabel: this.$t('teacher.my-content.all-owner'),
 
@@ -282,20 +287,20 @@ export default {
         onChange: page => {
           logger.info('pagination onChange', page)
           this.pageNo = page
+          sessionStorage.setItem(SESSION_CURRENT_PAGE, page)
           this.loadMyContent()
         },
         showTotal: total => `Total ${total} items`,
         total: 0,
-        pageSize: 16,
-        current: 1
+        pageSize: 16
       },
-      pageNo: 1,
+      pageNo: sessionStorage.getItem(SESSION_CURRENT_PAGE) ? sessionStorage.getItem(SESSION_CURRENT_PAGE) : 1,
 
       typeMap: typeMap,
       viewPreviewSessionVisible: false,
       PPTCommentPreviewVisible: false,
       classList: [],
-      viewMode: storage.get(VIEW_MODE) ? storage.get(VIEW_MODE) : 'list'
+      viewMode: sessionStorage.getItem(SESSION_VIEW_MODE) ? sessionStorage.getItem(SESSION_VIEW_MODE) : 'list'
     }
   },
   locomputed: {
@@ -307,7 +312,7 @@ export default {
   methods: {
     toggleViewMode (viewMode) {
       this.$logger.info('viewMode', viewMode)
-      storage.set(VIEW_MODE, viewMode)
+      sessionStorage.setItem(SESSION_VIEW_MODE, viewMode)
       this.viewMode = viewMode
     },
     loadMyContent () {
@@ -342,6 +347,8 @@ export default {
       this.currentStatus = status
       this.currentStatusLabel = label
       this.pageNo = 1
+      sessionStorage.setItem(SESSION_CURRENT_PAGE, this.pageNo)
+      sessionStorage.setItem(SESSION_CURRENT_STATUS, status)
       this.loadMyContent()
     },
     toggleType (type, label) {
@@ -349,6 +356,9 @@ export default {
       this.currentType = type
       this.currentTypeLabel = label
       this.pageNo = 1
+      sessionStorage.setItem(SESSION_CURRENT_PAGE, this.pageNo)
+      sessionStorage.setItem(SESSION_CURRENT_TYPE_LABEL, label)
+      sessionStorage.setItem(SESSION_CURRENT_TYPE, type)
       this.loadMyContent()
     },
     toggleOwner (owner, label) {

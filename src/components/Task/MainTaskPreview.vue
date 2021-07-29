@@ -36,6 +36,7 @@
       </a-row>
 
       <a-row class="top-info" :gutter="[16,24]" v-show="viewMode === 'Preview'">
+        <a-spin v-show="slideLoading" class="spin-loading"/>
         <a-col span="24">
           <div v-if="!loading && !imgList.length" class="no-preview-img">
             <a-empty>
@@ -79,7 +80,7 @@
             </div>
           </div>
         </a-col>
-      </a-row>
+        </a-skeleton></a-row>
       <a-row class="top-info" :gutter="[16,24]" v-show="viewMode === 'Detail'">
         <a-col class="right-detail" span="24">
           <div class="detail-wrapper">
@@ -164,6 +165,7 @@ export default {
   data () {
     return {
       loading: true,
+      slideLoading: true,
       task: null,
       imgList: [],
       viewMode: 'Detail',
@@ -187,6 +189,7 @@ export default {
   methods: {
     loadTaskData () {
       this.loading = true
+      this.slideLoading = true
       if (!this.taskData && this.taskId) {
         logger.info('TaskPreview loadTaskData ' + this.taskId)
         TaskQueryById({
@@ -224,16 +227,16 @@ export default {
               }).finally(() => {
                 this.$logger.info('current imgList.length ' + (this.imgList.length) + ' total:' + this.task.selectPageObjectIds.length)
                 if (this.imgList.length === pageObjectIds.length) {
-                  this.loading = false
+                  this.slideLoading = false
                 }
               })
             })
           } else {
-            this.loading = false
+            this.slideLoading = false
           }
         })
       } else {
-        this.loading = false
+        this.slideLoading = false
       }
     },
 
@@ -284,6 +287,12 @@ export default {
 
   .top-info {
     padding: 20px 0 0 0;
+    .spin-loading{
+      position: absolute;
+      left: 50%;
+      top: 50px;
+      z-index: 999;
+    }
   }
 
   .left-preview {

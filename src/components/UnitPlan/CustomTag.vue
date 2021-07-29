@@ -188,7 +188,11 @@ export default {
       this.$emit('change-user-tags', this.tagList)
     },
     selectTag (tag) {
-      this.tagName = tag.name
+      if (this.tagName === tag.name) {
+        this.tagName = ''
+      } else {
+        this.tagName = tag.name
+      }
     },
     loadUserTags () {
       this.tagLoading = true
@@ -406,12 +410,11 @@ export default {
     margin-left: 40%;
   }
 
+  position: relative;
+  border: 1px dotted #fff;
   &:hover {
     border: 1px dotted @link-hover-color;
     box-sizing: border-box;
-    .sdg-delete-wrapper {
-      display: block;
-    }
   }
 
 }

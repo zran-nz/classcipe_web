@@ -528,6 +528,9 @@ export default {
           this.$logger.info('UpdateContentStatus response', response)
           // this.$message.success('Publish success')
           this.form.status = 1
+        }).then(() => {
+          this.$message.success(this.$t('teacher.add-evaluation.publish-success'))
+          this.form.status = 1
         })
       }
     },

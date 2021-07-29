@@ -1,1 +1,6 @@
 export const SESSION_ACTIVE_KEY = 'classcipe_token_active'
+export const SESSION_VIEW_MODE = 'view_mode'
+export const SESSION_CURRENT_STATUS = 'currentStatus'
+export const SESSION_CURRENT_TYPE = 'currentType'
+export const SESSION_CURRENT_PAGE = 'currentPage'
+export const SESSION_CURRENT_TYPE_LABEL = 'currentTypeLabel'

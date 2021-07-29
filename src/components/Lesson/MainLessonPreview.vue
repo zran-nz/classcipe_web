@@ -36,6 +36,7 @@
       </a-row>
 
       <a-row class="top-info" :gutter="[16,24]" v-show="viewMode === 'Preview'">
+        <a-spin v-show="slideLoading" class="spin-loading"/>
         <a-col span="24">
           <div v-if="!loading && !imgList.length" class="no-preview-img">
             <a-empty>
@@ -160,6 +161,7 @@ export default {
   data () {
     return {
       loading: true,
+      slideLoading: true,
       lesson: null,
       imgList: [],
       viewMode: 'Detail',
@@ -183,6 +185,7 @@ export default {
   methods: {
     loadLessonData () {
       this.loading = true
+      this.slideLoading = true
       if (!this.lessonData && this.lessonId) {
         logger.info('LessonPreview loadLessonData ' + this.lessonId)
         LessonQueryById({
@@ -220,16 +223,16 @@ export default {
               }).finally(() => {
                 this.$logger.info('current imgList.length ' + (this.imgList.length) + ' total:' + this.lesson.selectPageObjectIds.length)
                 if (this.imgList.length === pageObjectIds.length) {
-                  this.loading = false
+                  this.slideLoading = false
                 }
               })
             })
           } else {
-            this.loading = false
+            this.slideLoading = false
           }
         })
       } else {
-        this.loading = false
+        this.slideLoading = false
       }
     },
 
@@ -280,6 +283,12 @@ export default {
 
   .top-info {
     padding: 20px 0 0 0;
+    .spin-loading{
+      position: absolute;
+      left: 50%;
+      top: 50px;
+      z-index: 999;
+    }
   }
 
   .left-preview {
