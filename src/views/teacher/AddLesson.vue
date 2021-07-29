@@ -358,7 +358,7 @@ import TaskForm from '@/components/Task/TaskForm'
 import TaskPreview from '@/components/Task/TaskPreview'
 import Collaborate from '@/components/UnitPlan/Collaborate'
 import AssociateSidebar from '@/components/Associate/AssociateSidebar'
-import CustomTag from '../../components/UnitPlan/CustomTag'
+import CustomTag from '@/components/UnitPlan/CustomTag'
 
 const TagOriginType = {
   Origin: 'Origin',

@@ -88,6 +88,8 @@
                 </a-col>
               </a-row>
             </div>
+
+            <custom-tag v-if="mode === 'edit'" ref="customTag" :selected-tags-list="form.customTags" @change-user-tags="handleChangeUserTags"></custom-tag>
           </a-form-model>
         </a-card>
       </a-col>
@@ -265,6 +267,7 @@ import { TemplateTypeMap } from '@/const/template'
 import { commonAPIUrl } from '@/api/common'
 import Collaborate from '@/components/UnitPlan/Collaborate'
 import AssociateSidebar from '@/components/Associate/AssociateSidebar'
+import CustomTag from '@/components/UnitPlan/CustomTag'
 
 const TagOriginType = {
   Origin: 'Origin',
@@ -286,7 +289,8 @@ export default {
     MyContentSelector,
     RelevantTagSelector,
     Collaborate,
-    AssociateSidebar
+    AssociateSidebar,
+    CustomTag
   },
   props: {
     // eslint-disable-next-line vue/require-default-prop
@@ -341,7 +345,8 @@ export default {
         status: 0,
         taskType: '',
         createTime: '',
-        updateTime: ''
+        updateTime: '',
+        customTags: []
       },
       // Grades
       gradeList: [],
@@ -911,6 +916,9 @@ export default {
        this.audioUrl = null
        this.showAddAudioVisible = false
       }
+    },
+    handleChangeUserTags (tags) {
+      this.form.customTags = tags
     }
   }
 }
