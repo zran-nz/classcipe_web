@@ -631,5 +631,21 @@ a.delete-action {
   background-position: center center;
   background-repeat: no-repeat;
   border-bottom: 1px solid #eee;
+  -webkit-transition: all 0.3s ease-in-out;
+  transition: all 0.3s ease-in-out;
+  &:hover {
+    background-size: 110%;
+    background-position: center;
+    background-repeat: no-repeat;
+    box-shadow: 0 0 2px 1px @primary-color;
+  }
 }
+
+//.cover-image {
+//  height: 150px;
+//  background-size: cover;
+//  background-position: center center;
+//  background-repeat: no-repeat;
+//  border-bottom: 1px solid #eee;
+//}
 </style>

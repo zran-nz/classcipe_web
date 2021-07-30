@@ -1,5 +1,4 @@
 <template>
-
   <div>
     <div class="preview-wrapper">
       <div class="preview-detail">
@@ -7,7 +6,6 @@
       </div>
     </div>
   </div>
-
 </template>
 
 <script>
