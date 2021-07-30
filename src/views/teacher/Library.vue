@@ -1,7 +1,7 @@
 <template>
-  <a-card :bordered="false" >
+  <div class="library-wrapper-container">
     <browser />
-  </a-card>
+  </div>
 </template>
 
 <script>

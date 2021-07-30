@@ -32,7 +32,9 @@
     <template v-slot:footerRender>
       <global-footer />
     </template>
-    <router-view />
+    <div :class="{'classcipe-main': true, 'no-full-layout': !fullLayoutFlag}">
+      <router-view />
+    </div>
   </pro-layout>
 </template>
 
@@ -112,7 +114,10 @@ export default {
     ...mapState({
       // 动态主路由
       mainMenu: state => state.permission.addRouters
-    })
+    }),
+    fullLayoutFlag () {
+      return this.$route.meta.fullLayout
+    }
   },
   created () {
     logger.info('BasicLayout created, path ' + this.$route.path)
@@ -142,6 +147,9 @@ export default {
         this.showGlobalHeader(true)
       }
     }
+
+    this.$logger.info('fullLayoutFlag', this.fullLayoutFlag)
+
     // first update color
     // TIPS: THEME COLOR HANDLER!! PLEASE CHECK THAT!!
     // if (process.env.NODE_ENV !== 'production' || process.env.VUE_APP_PREVIEW === 'true') {

@@ -1,21 +1,29 @@
 <template>
   <div class="library-nav-content">
     <div class="nav-path">
-      <span
+      <div class="nav-label">
+        <div class="nav-title">Library</div>
+        <div class="nav-icon">
+          <img src="~@/assets/icons/library/fangkuai.png" />
+        </div>
+      </div>
+      <div
         class="nav-path-item"
         v-for="(item,index) in sortNavPath"
         :key="index"
         @click="changePath(item)"
         :data-item="item"
         :style="{'max-width': maxWidth + 'px'}">
-        /
+        <span class="arrow-item">
+          <a-icon type="right" />
+        </span>
         <a-tooltip :mouseEnterDelay="0.5" placement="top">
           <template slot="title">
             {{ item.path }}
           </template>
           {{ item.path }}
         </a-tooltip>
-      </span>
+      </div>
     </div>
   </div>
 </template>
@@ -73,6 +81,32 @@ export default {
     line-height: 30px;
     font-size: 15px;
     word-break: break-all;
+
+    .nav-label {
+      display: flex;
+      align-items: center;
+      flex-direction: row;
+      justify-content: flex-start;
+
+      .nav-title {
+        width: 60px;
+        height: 27px;
+        font-family: Inter-Bold;
+        line-height: 24px;
+        color: #182552;
+        opacity: 1;
+      }
+      .nav-icon {
+        width: 27px;
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        img {
+          width: 18px;
+        }
+      }
+    }
+
     .nav-path-item {
       display:inline-block;
       margin-right: 5px;
@@ -81,6 +115,11 @@ export default {
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
+      .arrow-item {
+        width: 8px;
+        height: 14px;
+        color: #182552;
+      }
     }
   }
 }

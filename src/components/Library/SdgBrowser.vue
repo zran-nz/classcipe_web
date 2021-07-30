@@ -1,6 +1,6 @@
 <template>
   <div class="browser-block">
-    <div class="browser-block-item" :style="{width: blockWidth + 'px' }">
+    <div class="browser-block-item" :style="{width: blockWidth + 'px' , minWidth: blockWidth + 'px' }">
       <!--      sdg list-->
       <div
         :class="{
@@ -15,12 +15,18 @@
           <template slot="title">
             {{ sdgItem.name }}
           </template>
-          <a-icon type="folder-open" theme="filled" class="file-dir-icon"/>
+          <dir-icon dir-type="opened" v-if="currentSdgId !== sdgItem.id"/>
+          <dir-icon dir-type="yellow" v-if="currentSdgId === sdgItem.id"/>
           {{ sdgItem.name }}
         </a-tooltip>
+        <span class="arrow-item">
+          <a-icon type="right" />
+        </span>
       </div>
       <template v-if="!sdgList.length && !sdgListLoading">
-        <a-empty />
+        <div class="no-data">
+          <no-more-resources />
+        </div>
       </template>
       <template v-if="sdgListLoading">
         <div class="loading-wrapper">
@@ -28,7 +34,7 @@
         </div>
       </template>
     </div>
-    <div class="browser-block-item" :style="{width: blockWidth + 'px' }" >
+    <div class="browser-block-item" :style="{width: blockWidth + 'px' , minWidth: blockWidth + 'px' }" >
       <!--      sdg keyword name list-->
       <div
         :class="{
@@ -43,12 +49,18 @@
           <template slot="title">
             {{ sdgKeywordNameItem.name }}
           </template>
-          <a-icon type="folder-open" theme="filled" class="file-dir-icon"/>
+          <dir-icon dir-type="opened" v-if="currentSdgKeywordName !== sdgKeywordNameItem.name"/>
+          <dir-icon dir-type="yellow" v-if="currentSdgKeywordName === sdgKeywordNameItem.name"/>
           {{ sdgKeywordNameItem.name }}
         </a-tooltip>
+        <span class="arrow-item">
+          <a-icon type="right" />
+        </span>
       </div>
       <template v-if="!sdgKeywordNameList.length && !sdgKeywordNameListLoading">
-        <a-empty />
+        <div class="no-data">
+          <no-more-resources />
+        </div>
       </template>
       <template v-if="sdgKeywordNameListLoading">
         <div class="loading-wrapper">
@@ -56,7 +68,7 @@
         </div>
       </template>
     </div>
-    <div class="browser-block-item" :style="{width: blockWidth + 'px' }" >
+    <div class="browser-block-item" :style="{width: blockWidth + 'px' , minWidth: blockWidth + 'px' }" >
       <!--      sdg keywords description-->
       <div
         :class="{
@@ -71,12 +83,18 @@
           <template slot="title">
             {{ sdgKeywordItem.description }}
           </template>
-          <a-icon type="folder-open" theme="filled" class="file-dir-icon"/>
+          <dir-icon dir-type="opened" v-if="currentSdgKeywordScenarioId !== sdgKeywordItem.scenarioId"/>
+          <dir-icon dir-type="yellow" v-if="currentSdgKeywordScenarioId === sdgKeywordItem.scenarioId"/>
           {{ sdgKeywordItem.description }}
         </a-tooltip>
+        <span class="arrow-item">
+          <a-icon type="right" />
+        </span>
       </div>
       <template v-if="!sdgKeywordList.length && !sdgKeywordLoading">
-        <a-empty />
+        <div class="no-data">
+          <no-more-resources />
+        </div>
       </template>
       <template v-if="sdgKeywordLoading">
         <div class="loading-wrapper">
@@ -99,12 +117,17 @@
           <template slot="title">
             {{ dataItem.name }}
           </template>
-          <content-type-icon :type="dataItem.type" />
+          <dir-icon :content-type="dataItem.type" />
           {{ dataItem.name }}
         </a-tooltip>
+        <span class="arrow-item">
+          <a-icon type="right" />
+        </span>
       </div>
       <template v-if="!dataList.length && !dataListLoading">
-        <a-empty />
+        <div class="no-data">
+          <no-more-resources />
+        </div>
       </template>
       <template>
         <div class="loading-wrapper" v-if="dataListLoading">
@@ -118,6 +141,8 @@
 <script>
 import Navigation from './Navigation'
 import ContentTypeIcon from '@/components/Teacher/ContentTypeIcon'
+import DirIcon from '@/components/Library/DirIcon'
+import NoMoreResources from '@/components/Common/NoMoreResources'
 const { ScenarioQueryContentByScenarioId } = require('@/api/scenario')
 const { ScenarioGetKeywordScenarios } = require('@/api/scenario')
 const { GetAllSdgs } = require('@/api/scenario')
@@ -126,7 +151,9 @@ export default {
   name: 'SdgBrowser',
   components: {
     Navigation,
-    ContentTypeIcon
+    ContentTypeIcon,
+    NoMoreResources,
+    DirIcon
   },
   props: {
     blockWidth: {
@@ -246,7 +273,6 @@ export default {
   .browser-block {
     display: flex;
     flex-direction: row;
-    height: 100%;
     border-left: 1px solid #ddd;
     min-height: 600px;
 
@@ -256,11 +282,10 @@ export default {
       flex-direction: column;
       justify-content: flex-start;
       box-sizing: border-box;
-      min-height: 600px;
       border-right: 1px solid #ddd;
       .browser-item {
         line-height: 20px;
-        padding: 10px;
+        padding: 10px 0 10px 10px;
         font-weight: 500;
         cursor: pointer;
         overflow: hidden;
@@ -268,6 +293,17 @@ export default {
         text-overflow: ellipsis;
         word-break: break-all;
         user-select: none;
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+        .arrow-item {
+          padding: 0 10px;
+          width: 20px;
+          display: flex;
+          flex-direction: row;
+          align-items: center;
+          justify-content: center;
+        }
         .file-dir-icon {
           color: #82c0d8;
           font-size: 18px;
@@ -279,18 +315,23 @@ export default {
           justify-content: flex-start;
           align-items: flex-start;
           text-align: left;
+          width: calc(100% - 25px);
 
+          text-overflow: ellipsis;
+          word-break: break-all;
+          user-select: none;
+          overflow: hidden;
           i {
             padding-right: 5px;
           }
         }
       }
       .odd-line {
-        background-color: fade(@text-color-secondary, 3%);
+        background: rgba(228, 228, 228, 0.2);
       }
       .active-line {
-        background-color: fade(@outline-color, 20%);
-        color: @primary-color;
+        background: rgba(255, 187, 0, 0.1);
+        color: rgba(255, 187, 0, 1);
         white-space: normal;
       }
       .loading-wrapper {
@@ -309,11 +350,11 @@ export default {
       flex-direction: column;
       justify-content: flex-start;
       box-sizing: border-box;
-      min-height: 600px;
       border-right: 1px solid #ddd;
+      width: 100%;
       .browser-item {
         line-height: 20px;
-        padding: 10px;
+        padding: 10px 0 10px 10px;
         font-weight: 500;
         cursor: pointer;
         overflow: hidden;
@@ -321,11 +362,28 @@ export default {
         text-overflow: ellipsis;
         word-break: break-all;
         user-select: none;
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+        .arrow-item {
+          padding: 0 10px;
+          width: 20px;
+          display: flex;
+          flex-direction: row;
+          align-items: center;
+          justify-content: center;
+        }
         span {
           display: flex;
           flex-direction: row;
           justify-content: flex-start;
           align-items: flex-start;
+          width: calc(100% - 25px);
+
+          text-overflow: ellipsis;
+          word-break: break-all;
+          user-select: none;
+          overflow: hidden;
 
           i {
             padding-right: 5px;
@@ -334,11 +392,11 @@ export default {
 
       }
       .odd-line {
-        background-color: fade(@text-color-secondary, 3%);
+        background: rgba(228, 228, 228, 0.2);
       }
       .active-line {
-        background-color: fade(@outline-color, 20%);
-        color: @primary-color;
+        background: rgba(255, 187, 0, 0.1);
+        color: rgba(255, 187, 0, 1);
         white-space: normal;
       }
       .loading-wrapper {
@@ -351,4 +409,12 @@ export default {
       }
     }
   }
+
+.no-data {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 60%;
+}
 </style>
