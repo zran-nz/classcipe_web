@@ -53,13 +53,15 @@
         </div>
       </div>
       <div class="library-detail-preview-wrapper">
-        <div class="preview-info">
-          <div class="preview-wrapper" v-if="previewVisible">
+        <div class="preview-info" v-if="previewVisible">
+          <div class="preview-wrapper">
             <div class="preview-detail">
-              <unit-plan-preview :unit-plan-id="previewCurrentId" :show-associate="true" v-if="previewType === typeMap['unit-plan']" />
-              <material-preview :material-id="previewCurrentId" :show-associate="true" v-if="previewType === typeMap.material" />
+              <common-preview :id="previewCurrentId" :type="previewType"/>
             </div>
           </div>
+        </div>
+        <div class="wait-data" v-if="!previewVisible">
+          <no-more-resources tips="" />
         </div>
       </div>
     </div>
@@ -79,6 +81,7 @@ import {
 } from '@/api/preference'
 import DirIcon from '@/components/Library/DirIcon'
 import NoMoreResources from '@/components/Common/NoMoreResources'
+import CommonPreview from '@/components/Common/CommonPreview'
 
 const BrowserTypeMap = {
   curriculum: 'curriculum',
@@ -93,6 +96,7 @@ const BrowserTypeLabelMap = {
 export default {
   name: 'Browser',
   components: {
+    CommonPreview,
     NoMoreResources,
     Navigation,
     CurriculumBrowser,
@@ -183,9 +187,12 @@ export default {
 
     handlePreviewDetail (data) {
       this.$logger.info('handlePreviewDetail', data)
-      this.previewCurrentId = data.id
-      this.previewType = data.type
-      this.previewVisible = true
+      this.previewVisible = false
+      this.$nextTick(() => {
+        this.previewCurrentId = data.id
+        this.previewType = data.type
+        this.previewVisible = true
+      })
     },
 
     handlePreviewClose () {
@@ -402,11 +409,39 @@ export default {
       width: 500px;
       box-sizing: border-box;
       padding: 16px;
+      overflow-y: scroll;
+
+      &::-webkit-scrollbar {
+        width: 4px;
+        height: 2px;
+      }
+      &::-webkit-scrollbar-track {
+        border-radius: 3px;
+        background: rgba(0,0,0,0.01);
+        -webkit-box-shadow: inset 0 0 5px rgba(0,0,0,0.01);
+      }
+      /* 滚动条滑块 */
+      &::-webkit-scrollbar-thumb {
+        border-radius: 3px;
+        background: rgba(0,0,0,0.1);
+        -webkit-box-shadow: inset 0 0 10px rgba(0,0,0,0.1);
+      }
 
       .preview-info {
-        background: #fff;
-        overflow: scroll;
-        max-height: calc(100% - 200px);
+        background: #FFFFFF;
+        border: 1px solid #D8D8D8;
+        box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.16);
+        opacity: 1;
+        border-radius: 10px;
+      }
+
+      .wait-data {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        height: 60%;
+        margin: auto;
       }
     }
   }
