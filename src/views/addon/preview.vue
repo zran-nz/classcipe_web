@@ -1,5 +1,4 @@
 <template>
-
   <div>
     <div class="preview-wrapper">
       <div class="preview-detail">
@@ -7,14 +6,11 @@
       </div>
     </div>
   </div>
-
 </template>
 
 <script>
 
 import MainTaskPreview from '../../components/Task/MainTaskPreview'
-import { warning } from 'ant-design-vue/lib/vc-util/warning'
-import { getSlotOptions } from 'ant-design-vue/lib/_util/props-util'
 import storage from 'store'
 import { ACCESS_TOKEN } from '../../store/mutation-types'
 
