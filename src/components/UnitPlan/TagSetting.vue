@@ -58,20 +58,20 @@
               <template v-if="globalTagLables.length > 0">
                 <div class="skt-tag-list">
                   <div class="skt-tag-item" v-for="tag in globalTagLables" :key="tag.id" >
-                    <a-badge>
-                      <a-icon v-if="selectedGlobalLabels.indexOf(tag.name) > -1" slot="count" type="check" style="color: #f5222d" />
-                      <a-tag
-                        @click="selectGlobalTag(tag)"
-                        :class="{'tag-item': true, 'active': selectedGlobalLabels.indexOf(tag.name) > -1}" >
-                        {{ tag.name }}
-                      </a-tag>
-                    </a-badge>
+                    <a-tag
+                      @click="selectGlobalTag(tag)"
+                      :class="{'tag-item': true, 'active': selectedGlobalLabels.indexOf(tag.name) > -1}" >
+                      {{ tag.name }}
+                    </a-tag>
+                    <div class="icon-wrapper" v-if="selectedGlobalLabels.indexOf(tag.name) > -1">
+                      <a-icon :style="{ fontSize: '18px', color: '#ffffff' }" type="check-circle" class="checked-icon" />
+                    </div>
                   </div>
                 </div>
               </template>
               <template v-else>
                 <div class="content-empty" >
-                  <a-empty />
+                  <no-more-resources />
                 </div>
               </template>
             </div>
@@ -91,30 +91,29 @@
                 <a-row v-for="root in userTags" :key="root.id" v-if="!root.isGlobal">
                   <div class="skt-tag-list">
                     <div class="skt-tag-item">
-                      <a-badge>
-                        <a-icon @click="removeTag(root)" slot="count" type="close" />
-                        <a-tag
-                          color="orange"
-                          class="tag-item-yellow" >
-                          {{ root.name }}
-                        </a-tag>
-                      </a-badge>
+                      <a-tag
+                        color="orange"
+                        class="tag-item-yellow" >
+                        {{ root.name }}
+                      </a-tag>
+                      <div class="delete-icon-wrapper">
+                        <a-icon type="close-circle" @click="removeTag(tag)" style="color: #fff" />
+                      </div>
+
                     </div>
                     <div class="skt-tag-item" v-for="tag in root.keywords" :key="tag.id" >
-                      <a-badge>
-                        <a-icon @click="removeTag(tag)" slot="count" type="close" style="color: #f5222d" />
-                        <a-tag
-                          color="green">
-                          {{ tag.name }}
-                        </a-tag>
-                      </a-badge>
+                      <a-tag
+                        color="green">
+                        {{ tag.name }}
+                      </a-tag>
+                      <a-icon type="close-circle" @click="removeTag(tag)" style="color: #f5222d" />
                     </div>
                   </div>
                 </a-row>
               </template>
               <template v-else>
                 <div class="content-empty" >
-                  <a-empty />
+                   <no-more-resources />
                 </div>
               </template>
             </div>
@@ -132,12 +131,13 @@
 <script>
   import * as logger from '@/utils/logger'
   import { GetRootGlobalTag, GetUserTags, UserTagAddOrUpdate, UserTagDelete } from '../../api/tag'
-
+import NoMoreResources from '@/components/Common/NoMoreResources'
   const { debounce } = require('lodash-es')
 
 export default {
   name: 'TagSetting',
   components: {
+    NoMoreResources
   },
   props: {
   },
@@ -307,23 +307,39 @@ export default {
       align-items: center;
       vertical-align: middle;
       cursor: pointer;
+      position: relative;
 
+      .delete-icon-wrapper {
+        position: absolute;
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        right: 0;
+        justify-content: center;
+        top: -5px;
+        width: 18px;
+        height: 18px;
+        color: #fff;
+        background-color: #f5222d;
+        border-radius: 50%;
+      }
       .tag-item {
-        background-color:#d2f4eb ;
-        border-radius: 15px;
+        border-radius: 10px;
         word-break: normal;
         width: auto;
         display: block;
         white-space: pre-wrap;
         word-wrap: break-word;
         overflow: hidden;
-        padding: 6px;
-        font-size: 18px;
-
-        &:hover {
-          border: 1px solid @primary-color;
-        }
-
+        padding-bottom: 3px;
+        font-size: 15px;
+        border: 1px solid #D8D8D8;
+        box-shadow: 0px 6px 10px rgba(91, 91, 91, 0.16);
+        opacity: 1;
+        border-radius: 6px;
+        background-color: rgba(21, 195, 154, 0.1);
+        color: rgba(21, 195, 154, 1);
+        border: 1px solid rgba(21, 195, 154, 1);
       }
       .tag-item-yellow{
         background-color: #fff9d3;
@@ -402,13 +418,46 @@ export default {
 
   .content-list-wrapper{
     .skt-tag-item{
+      position: relative;
       .active{
-        background-color: #14c49b;
+        background-color: rgba(255, 187, 0, 1) !important;
+        border:1px solid rgba(255, 187, 0, 1) !important;
+        color: #fff;
       }
-
+      .icon-wrapper {
+        position: absolute;
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        right: 0;
+        justify-content: center;
+        top: -5px;
+        width: 18px;
+        height: 18px;
+        background-color: rgba(255, 187, 0, 1);
+        border-radius: 50%;
+      }
     }
 
   }
+}
+
+.content-list {
+  display: flex;
+  width: 100%;
+  flex-wrap: wrap;
+  background-color: #e7f9f5;
+}
+
+.content-empty {
+  width: 100%;
+  padding: 30px 0;
+  display: flex;
+  flex-direction: row;
+  text-align: center;
+  justify-content: center;
+  align-items: center;
+  margin: auto
 }
 
 </style>

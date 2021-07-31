@@ -31,10 +31,10 @@
             <a-col offset="0" span="24">
               <div>
                 <a-radio-group v-model="selectLabel" button-style="solid" @change="onChangeLabel">
-                  <a-radio-button v-for="(label,index) in userTags" :key="index" :value="label.id">
+                  <a-tag v-for="(label,index) in userTags" :key="index" :value="label.id" class="category-tag">
                     <span v-if="label.isGlobal"><a-badge dot>{{ label.name }}</a-badge></span>
                     <span v-else>{{ label.name }}</span>
-                  </a-radio-button>
+                  </a-tag>
                 </a-radio-group>
               </div>
             </a-col>
@@ -96,7 +96,7 @@
       <br />
     </div>
 
-    <a-modal v-model="browseVisible" :footer="null" destroyOnClose width="80%" :dialog-style="{ top: '20px' }">
+    <a-modal v-model="browseVisible" :footer="null" destroyOnClose width="600px" :dialog-style="{ top: '20px' }">
       <div class="associate-library">
         <tag-browser :root-key="globalRootKey" :tagList="tagList" @add-global-tag="handleAddGlobalTag"/>
       </div>
@@ -347,7 +347,11 @@ export default {
           word-wrap: break-word;
           overflow: hidden;
           padding-bottom: 3px;
-          font-size: 15px
+          font-size: 15px;
+          border: 1px solid #D8D8D8;
+          box-shadow: 0px 6px 10px rgba(91, 91, 91, 0.16);
+          opacity: 1;
+          border-radius: 6px;
         }
       }
 
@@ -379,7 +383,7 @@ export default {
             word-wrap: break-word;
             overflow: hidden;
             padding-bottom: 3px;
-            font-size: 15px
+            font-size: 15px;
           }
 
           i {
@@ -392,10 +396,14 @@ export default {
   }
 
   .tag-category {
-    margin-top: 20px;
+    padding: 10px;
+    background: rgba(255, 187, 0, 0.1);
+    opacity: 0.8;
+    border-radius: 6px;
     .skt-tag-list {
       padding: 5px 10px;
       background-color: #e7f9f5;
+      box-shadow: 0px 5px 10px rgba(78, 78, 78, 0.16);
     }
     .ant-radio-button-wrapper{
       margin-bottom: 10px;
@@ -416,7 +424,16 @@ export default {
     border: 1px dotted @link-hover-color;
     box-sizing: border-box;
   }
+}
 
+.category-tag {
+  padding: 3px 10px;
+  border-radius: 18px;
+  font-family: Inter-Bold;
+  background-color: #FFBB00;
+  color: #fff;
+  margin: 0 10px 10px 0;
+  border: 1px solid rgba(255, 187, 0, 1);
 }
 
 </style>

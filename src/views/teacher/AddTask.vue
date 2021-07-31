@@ -81,7 +81,11 @@
               </a-row>
             </div>
 
-            <custom-tag v-if="mode === 'edit'" ref="customTag" :selected-tags-list="form.customTags" @change-user-tags="handleChangeUserTags"></custom-tag>
+            <a-row>
+              <a-col offset="4" span="18">
+                <custom-tag v-if="mode === 'edit'" ref="customTag" :selected-tags-list="form.customTags" @change-user-tags="handleChangeUserTags"></custom-tag>
+              </a-col>
+            </a-row>
           </a-form-model>
         </a-card>
       </a-col>

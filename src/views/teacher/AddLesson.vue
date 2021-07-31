@@ -70,7 +70,11 @@
                 />
               </div>
 
-              <custom-tag ref="customTag" :selected-tags-list="form.customTags" @change-user-tags="handleChangeUserTags"></custom-tag>
+              <a-row>
+                <a-col offset="4" span="18">
+                  <custom-tag ref="customTag" :selected-tags-list="form.customTags" @change-user-tags="handleChangeUserTags"></custom-tag>
+                </a-col>
+              </a-row>
 
               <div class="form-block" v-show="form.presentationId">
                 <a-row>
