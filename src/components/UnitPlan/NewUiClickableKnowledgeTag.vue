@@ -271,7 +271,6 @@
           </a-col>
         </a-row>
         <!--   skill   description-list-->
-        {{skillDescriptionTagList}}
         <a-row v-if="currentMode === mode.skill">
           <a-col span="24">
             <div class="skt-description-list">
