@@ -85,7 +85,7 @@
     <div class="skt-description-list-wrapper" v-if="skillDescriptionTagList.length">
       <!--      description-list-->
       <a-row>
-        <a-col offset="4" span="18">
+        <a-col span="24">
           <div class="skt-description-list">
             <div
               :class="{

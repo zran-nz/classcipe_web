@@ -83,7 +83,9 @@
                     @dragstart="handleTagItemDragStart(tag, $event)"
                     class="tag-item recommend-tag-item">
                     <div class="tag-icon">
-                      <img src="~@/assets/icons/tag/recommend_red.png" class="recommend-icon"/>
+                      <img src="~@/assets/icons/tag/recommend_red.png" class="recommend-icon" v-if="currentMode === mode.knowledge"/>
+                      <img src="~@/assets/icons/tag/recommend_zise.png" class="recommend-icon" v-if="currentMode === mode.general"/>
+                      <img src="~@/assets/icons/tag/recommend_green.png" class="recommend-icon" v-if="currentMode === mode.skill"/>
                       <div class="tag-name">
                         {{ tag.name }}
                       </div>
@@ -109,22 +111,23 @@
                     </a-tag>
                     <a-icon type="plus-circle" @click="handleCreateTagByInput"/>
                   </div>
-                  <div
-                    class="create-tag"
-                    v-if="createdTagList && createdTagList.length"
-                    v-for="(tag,index) in createdTagList"
-                    :key="index"
-                    :data-tag-type="tag.type"
-                    @dblclick="handleDbClickTagListTag(tag)">
-                    <a-tag
-                      draggable="true"
-                      @dragstart="handleTagItemDragStart(tag, $event)"
-                      @close="handleDeleteCreatedTag(tag)"
-                      closable
-                      class="created-tag-item">
-                      {{ tag.name }}
-                    </a-tag>
-                  </div>
+                  <template v-if="createdTagList && createdTagList.length">
+                    <div
+                      class="create-tag"
+                      v-for="(tag,index) in createdTagList"
+                      :key="index"
+                      :data-tag-type="tag.type"
+                      @dblclick="handleDbClickTagListTag(tag)">
+                      <a-tag
+                        draggable="true"
+                        @dragstart="handleTagItemDragStart(tag, $event)"
+                        @close="handleDeleteCreatedTag(tag)"
+                        closable
+                        class="created-tag-item">
+                        {{ tag.name }}
+                      </a-tag>
+                    </div>
+                  </template>
                 </div>
               </div>
             </div>
@@ -146,8 +149,8 @@
         </a-row>
       </div>
       <div class="skt-description-list-wrapper" v-if="descriptionTagList.length">
-        <!--      description-list-->
-        <a-row>
+        <!--   knowledge   description-list-->
+        <a-row v-if="currentMode === mode.knowledge">
           <a-col span="24">
             <div class="skt-description-list">
               <div
@@ -267,7 +270,130 @@
             </div>
           </a-col>
         </a-row>
+        <!--   skill   description-list-->
+        <a-row v-if="currentMode === mode.skill">
+          <a-col span="24">
+            <div class="skt-description-list">
+              <div
+                :class="{
+                  'skt-description-tag-item': true,
+                  'skt-description-tag-item-top-fixed': true,
+                  'active-description-line': skillDescriptionTagList[0].descriptionId === activeDescriptionId
+                }"
+                :data-id="skillDescriptionTagList[0].descriptionId"
+                v-if="skillDescriptionTagList.length"
+                :key="skillDescriptionTagList[0].descriptionId"
+                @dblclick="handleActiveDescription(skillDescriptionTagList[0].descriptionId)">
+                <div class="skt-description">
+                  <a-tooltip :mouseEnterDelay="1" class="description-txt" >
+                    <template slot="title">
+                      {{ descriptionId2InfoMap.get(skillDescriptionTagList[0].descriptionId).description }}
+                    </template>
+                    {{ descriptionId2InfoMap.get(skillDescriptionTagList[0].descriptionId).description }}
+                  </a-tooltip>
+                </div>
+                <div class="skt-description-tag-list" :droppable="activeDescriptionId === skillDescriptionTagList[0].descriptionId ? 'true' : 'false'" @dragover.prevent @drop="handleTagItemDrop(skillDescriptionTagList[0], $event)">
+                  <div
+                    :class="{
+                      'tag-list-item': true,
+                      'knowledge-mode': currentMode === mode.knowledge,
+                      'skill-mode': currentMode === mode.skill,
+                      'general-mode': currentMode === mode.general,
+                    }"
+                    v-for="(tag,tIndex) in skillDescriptionTagList[0].tagList"
+                    :key="tIndex + tag.name + tag.type">
+                    <a-tag
+                      class="tag-item"
+                      v-if="tag.type === tagOriginType.Origin"
+                      :closable="tag.descriptionId === activeDescriptionId"
+                      @close="handleDescriptionTagClose(tag)">
+                      {{ tag.name }}
+                    </a-tag>
+                    <a-tag
+                      class="tag-item"
+                      v-if="tag.type === tagOriginType.Search"
+                      :closable="tag.descriptionId === activeDescriptionId"
+                      @close="handleDescriptionTagClose(tag)">
+                      {{ tag.name }}
+                    </a-tag>
+                    <a-tag
+                      class="tag-item"
+                      v-if="tag.type === tagOriginType.Description"
+                      :closable="tag.descriptionId === activeDescriptionId"
+                      @close="handleDescriptionTagClose(tag)">
+                      {{ tag.name }}
+                    </a-tag>
+                  </div>
+                </div>
+                <a-popconfirm title="Delete?" ok-text="Yes" @confirm="handleDeleteKnowledgeItem(skillDescriptionTagList[0].descriptionId)" cancel-text="No">
+                  <span class="delete-action" v-show="skillDescriptionTagList[0].descriptionId === activeDescriptionId" >
+                    <img src="~@/assets/icons/tag/delete.png"/>
+                  </span>
+                </a-popconfirm>
+              </div>
+              <div class="skt-description-sub-list">
+                <div
+                  :class="{
+                    'skt-description-tag-item': true,
+                    'active-description-line': item.descriptionId === activeDescriptionId}"
+                  :data-id="item.descriptionId"
+                  v-for="(item, dIndex) in skillDescriptionTagList"
+                  v-if="skillDescriptionTagList.length && dIndex > 0"
+                  :key="item.descriptionId"
+                  @dblclick="handleActiveDescription(item.descriptionId)">
+                  <div class="skt-description">
+                    <a-tooltip :mouseEnterDelay="1" class="description-txt" >
+                      <template slot="title">
+                        {{ descriptionId2InfoMap.get(item.descriptionId).description }}
+                      </template>
+                      {{ descriptionId2InfoMap.get(item.descriptionId).description }}
+                    </a-tooltip>
+                  </div>
+                  <div class="skt-description-tag-list" :droppable="activeDescriptionId === item.descriptionId ? 'true' : 'false'" @dragover.prevent @drop="handleTagItemDrop(item, $event)">
+                    <div
+                      :class="{
+                        'tag-list-item': true,
+                        'knowledge-mode': currentMode === mode.knowledge,
+                        'skill-mode': currentMode === mode.skill,
+                        'general-mode': currentMode === mode.general,
+                      }"
+                      v-for="(tag,tIndex) in item.tagList"
+                      :key="tIndex + tag.name + tag.type">
+                      <a-tag
+                        class="tag-item"
+                        v-if="tag.type === tagOriginType.Origin"
+                        :closable="tag.descriptionId === activeDescriptionId"
+                        @close="handleDescriptionTagClose(tag)">
+                        {{ tag.name }}
+                      </a-tag>
+                      <a-tag
+                        class="tag-item"
+                        v-if="tag.type === tagOriginType.Search"
+                        :closable="tag.descriptionId === activeDescriptionId"
+                        @close="handleDescriptionTagClose(tag)">
+                        {{ tag.name }}
+                      </a-tag>
+                      <a-tag
+                        class="tag-item"
+                        v-if="tag.type === tagOriginType.Description"
+                        :closable="tag.descriptionId === activeDescriptionId"
+                        @close="handleDescriptionTagClose(tag)">
+                        {{ tag.name }}
+                      </a-tag>
+                    </div>
+                  </div>
+                  <a-popconfirm title="Delete?" ok-text="Yes" @confirm="handleDeleteKnowledgeItem(item.descriptionId)" cancel-text="No">
+                    <span class="delete-action" v-show="item.descriptionId === activeDescriptionId" >
+                      <a-icon type="delete" />
+                    </span>
+                  </a-popconfirm>
+                </div>
+              </div>
+            </div>
+          </a-col>
+        </a-row>
       </div>
+
       <a-modal v-model="skillTagNameSearchListDialogueVisible" @ok="handleEnsureTagSearchList" destroyOnClose width="800px">
         <div class="search-tag-list skill-tag">
           <a-checkbox-group :value="skillTagNameSearchListSelected" v-if="skillTagNameSearchList.length" @change="skillTagNameSearchListChange">
@@ -1520,7 +1646,7 @@ export default {
         border-radius: 4px;
         display: flex;
         flex-direction: row;
-        align-items: center;
+        align-items: flex-start;
         justify-content: flex-start;
         margin-bottom: 10px;
         padding: 15px;
@@ -1580,11 +1706,28 @@ export default {
               border: 1px solid #EF4E4E;
             }
           }
+
+          .skill-mode {
+            .tag-item {
+               background-color: rgba(21, 195, 154, 0.1);
+            color: rgba(21, 195, 154, 1);
+            border: 1px solid rgba(21, 195, 154, 1);
+            }
+          }
+
+          .general-mode {
+            .tag-item {
+              background-color: rgba(114, 46, 209, 0.1);
+            color: #722ED1;
+            border: 1px solid #722ED1;
+            }
+          }
         }
 
         .delete-action {
           position: absolute;
           right: -40px;
+          top: 45px;
 
           img {
             width: 40px;
