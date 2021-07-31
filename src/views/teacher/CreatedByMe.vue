@@ -202,7 +202,7 @@
         @close="handlePreviewClose"
       >
         <div class="preview-wrapper">
-          <div class="preview-detail">
+          <div class="preview-detail" v-if="previewCurrentId && previewType">
             <common-preview :id="previewCurrentId" :type="previewType" />
           </div>
         </div>
@@ -422,9 +422,11 @@ export default {
 
     handlePreviewClose () {
       logger.info('handlePreviewClose')
-      this.previewCurrentId = ''
-      this.previewType = ''
       this.previewVisible = false
+      this.$nextTick(() => {
+        this.previewCurrentId = null
+        this.previewType = -1
+      })
     },
 
     handleStartSession (item) {

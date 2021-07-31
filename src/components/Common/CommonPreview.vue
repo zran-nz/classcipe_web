@@ -312,7 +312,6 @@ export default {
         TemplatesGetPresentation({
           presentationId: this.data.presentationId
         }).then(response => {
-          this.$logger.info('data loadThumbnail response', response.result)
           const pageObjectIds = response.result.pageObjectIds
           if (pageObjectIds.length) {
             pageObjectIds.forEach(id => {
