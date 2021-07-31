@@ -94,10 +94,10 @@
               <div class="keyword-block-content">
                 <div class="content-list" v-if="data.questions && data.questions.length">
                   <div class="content-item" v-for="(question,qIndex) in data.questions" :key="qIndex">
-                    <div class="question" v-if="question.name">
+                    <div class="question" v-if="question && question.name">
                       {{ question.name }}
                     </div>
-                    <div class="content-sub-list">
+                    <div class="content-sub-list" v-if="question && question.knowledgeTags && question.knowledgeTags.length">
                       <div class="content-sub-item" v-for="(knowledgeTag, kIndex) in question.knowledgeTags" :key="kIndex">
                         <div class="sub-title">
                           <div class="sub-title-name">
@@ -114,7 +114,7 @@
                         </div>
                       </div>
                     </div>
-                    <div class="content-sub-list">
+                    <div class="content-sub-list" v-if="question && question.skillTags&& question.skillTags.length">
                       <div class="content-sub-item" v-for="(skillTag, sIndex) in question.skillTags" :key="sIndex">
                         <div class="sub-title">
                           <div class="sub-title-name">
@@ -153,16 +153,21 @@
               <no-more-resources />
             </div>
           </a-col>
-          <a-col class="left-preview" span="19">
-            <a-carousel ref="carousel" v-if="!loading && imgList.length" arrows dots-class="slick-dots slick-thumb">
-              <a slot="customPaging" slot-scope="props">
-                {{ props }}
-                <!--                <img :src="getImgUrl(props.i)" />-->
-              </a>
+          <a-col class="left-preview" span="24">
+            <a-carousel ref="carousel" v-if="!loading && imgList.length" autoplay class="my-carousel">
               <div v-for="(img,index) in imgList" :key="index">
                 <img :src="img" />
               </div>
             </a-carousel>
+            <div class="carousel-page">
+              <div class="img-list-wrapper">
+                <div class="img-list">
+                  <div class="img-item" v-for="(img,index) in imgList" :key="index" @click="handleGotoImgIndex(index)">
+                    <img :src="img" />
+                  </div>
+                </div>
+              </div>
+            </div>
           </a-col>
         </a-col>
       </a-row>
@@ -235,7 +240,8 @@ export default {
       activeContentType: -1,
       typeMap: typeMap,
 
-      subPreviewVisible: false
+      subPreviewVisible: false,
+      currentImgIndex: 0
     }
   },
   created () {
@@ -361,6 +367,11 @@ export default {
         item.isFavorite = !item.isFavorite
         this.isFavorite = true
       })
+    },
+    handleGotoImgIndex (index) {
+      this.$logger.info('handleGotoImgIndex ' + index)
+      this.currentImgIndex = index
+      this.$refs.carousel.goTo(index)
     },
     handleEditItem (item) {
       item.type = this.type
@@ -512,7 +523,6 @@ export default {
     margin-top: 10px;
     min-height: 100px;
     padding: 5px;
-    border: 1px solid #D8D8D8;
     opacity: 1;
   }
 
@@ -520,63 +530,7 @@ export default {
     height: 100%;
 
     .ant-carousel {
-
-      /deep/ .slick-list {
-        border: 1px solid #eee;
-        box-shadow: 0 4px 8px 0 rgba(31, 33, 44, 10%);
-      }
-
-      /deep/ .slick-slide {
-        text-align: center;
-        height: 400px;
-        line-height: 400px;
-        overflow: hidden;
-      }
-
-      /deep/ .custom-slick-arrow {
-        width: 25px;
-        height: 25px;
-        font-size: 25px;
-        color: #fff;
-        background-color: rgba(31, 45, 61, 0.81);
-        opacity: 0.1;
-        border-radius: 50%;
-        transition: all 0.3s ease-in;
-      }
-
-      &:hover {
-        /deep/ .custom-slick-arrow {
-          opacity: 0.3;
-        }
-      }
-
-      /deep/ .custom-slick-arrow:before {
-        display: none;
-      }
-
-      /deep/ .custom-slick-arrow:hover {
-        opacity: 0.3;
-      }
-
-      /deep/ .slick-slide h3 {
-        color: #fff;
-      }
-
-      /deep/ .no-preview-img {
-        padding: 20px;
-        .description {
-        }
-      }
-
-      /deep/ .preview-img-item {
-        .preview-block {
-          height: 400px;
-          background-position: center;
-          background-size: cover;
-        }
-      }
     }
-
     .edit-action {
       margin-top: 20px;
     }
@@ -810,6 +764,64 @@ export default {
 
 .edit-action {
   text-align: right;
+}
+
+.my-carousel {
+  width: 100%;
+  box-shadow: 0px 10px 12px rgba(126, 126, 126, 0.16);
+  div {
+    img {
+      height: 350px;
+    }
+  }
+}
+
+.carousel-page {
+  display: flex;
+  height: 110px;
+  width: 100%;
+  overflow-x: scroll;
+  overflow-y: hidden;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+
+  &::-webkit-scrollbar {
+    width: 5px;
+    height: 5px;
+  }
+  &::-webkit-scrollbar-track {
+    border-radius: 3px;
+    background: rgba(0,0,0,0.00);
+    -webkit-box-shadow: inset 0 0 5px rgba(0,0,0,0.08);
+  }
+  /* 滚动条滑块 */
+  &::-webkit-scrollbar-thumb {
+    border-radius: 5px;
+    background: rgba(0,0,0,0.12);
+    -webkit-box-shadow: inset 0 0 10px rgba(0,0,0,0.2);
+  }
+  .img-list-wrapper {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    .img-list {
+      display: flex;
+      flex-direction: row;
+      justify-content: center;
+      align-items: flex-start;
+      .img-item {
+        height: 80px;
+        border: 1px solid #999;
+        box-shadow: 0 4px 8px 0 rgba(31, 33, 44, 10%);
+        margin: 0 10px;
+        img {
+          height: 100%;
+        }
+      }
+    }
+  }
 }
 
 </style>

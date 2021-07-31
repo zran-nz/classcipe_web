@@ -486,7 +486,7 @@ export default {
 
 .img-list-wrapper {
   display: flex;
-  height: 400px;
+  height: 350px;
   overflow-y: scroll;
   flex-direction: column;
   .img-list {
