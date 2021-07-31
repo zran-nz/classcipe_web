@@ -394,43 +394,41 @@
         </a-row>
       </div>
 
-      <a-modal v-model="skillTagNameSearchListDialogueVisible" @ok="handleEnsureTagSearchList" destroyOnClose width="800px">
-        <div class="search-tag-list skill-tag">
-          <a-checkbox-group :value="skillTagNameSearchListSelected" v-if="skillTagNameSearchList.length" @change="skillTagNameSearchListChange">
-            <a-row v-for="(item,index) in skillTagNameSearchList" :key="index" :gutter="[16,16]">
-              <a-col :span="24">
-                <a-checkbox :value="item.descriptionId">
+      <a-modal v-model="skillTagNameSearchListDialogueVisible" @ok="handleEnsureTagSearchList" destroyOnClose width="600px">
+        <div class="search-tag-list">
+          <div :class="{'search-description-item': true, 'selected-item': skillTagNameSearchListSelected.indexOf(item.descriptionId) !== -1}" v-for="(item,index) in skillTagNameSearchList" :key="index">
+            <div class="description-info" @click="handleSkillTagNameSearchListSelected(item)">
+              <div class="info-detail">
+                <div class="info-text">
                   {{ item.description }}
-                </a-checkbox>
-              </a-col>
-            </a-row>
-          </a-checkbox-group>
-          <div class="empty-search-list" v-if="!skillTagNameSearchList.length">
-            <a-empty />
-            <div class="open-curriculum">
-              click 【
-              <a class="open-curriculum-text">Select Skill</a>】 to select description
+                </div>
+                <div class="info-checked" v-if="skillTagNameSearchListSelected.indexOf(item.descriptionId) !== -1">
+                  <a-icon :style="{ fontSize: '16px', color: '#15C39A' }" type="check-circle" />
+                </div>
+              </div>
             </div>
+          </div>
+          <div class="empty-search-list" v-if="!skillTagNameSearchList.length">
+            <no-more-resources />
           </div>
         </div>
       </a-modal>
-      <a-modal v-model="tagNameSearchListDialogueVisible" @ok="handleEnsureTagSearchList" destroyOnClose width="800px">
+      <a-modal v-model="tagNameSearchListDialogueVisible" title="Select from the relevant Unit" @ok="handleEnsureTagSearchList" destroyOnClose width="600px">
         <div class="search-tag-list">
-          <a-checkbox-group :value="tagNameSearchListSelected" v-if="tagNameSearchList.length" @change="tagNameSearchListChange">
-            <a-row v-for="(item,index) in tagNameSearchList" :key="index" :gutter="[16,16]">
-              <a-col :span="24">
-                <a-checkbox :value="item.subKnowledgeId">
+          <div :class="{'search-description-item': true, 'selected-item': tagNameSearchListSelected.indexOf(item.descriptionId) !== -1}" v-for="(item,index) in tagNameSearchList" :key="index">
+            <div class="description-info" @click="handleTagNameSearchListSelected(item)">
+              <div class="info-detail">
+                <div class="info-text">
                   {{ item.description }}
-                </a-checkbox>
-              </a-col>
-            </a-row>
-          </a-checkbox-group>
-          <div class="empty-search-list" v-if="!tagNameSearchList.length">
-            <a-empty />
-            <div class="open-curriculum">
-              click 【
-              <a class="open-curriculum-text">Open Curriculum</a>】 to select description
+                </div>
+                <div class="info-checked" v-if="tagNameSearchListSelected.indexOf(item.descriptionId) !== -1">
+                  <a-icon :style="{ fontSize: '16px', color: '#15C39A' }" type="check-circle" />
+                </div>
+              </div>
             </div>
+          </div>
+          <div class="empty-search-list" v-if="!tagNameSearchList.length">
+            <no-more-resources />
           </div>
         </div>
       </a-modal>
@@ -1082,9 +1080,14 @@ export default {
       }
     },
 
-    tagNameSearchListChange (checkedValue) {
-      this.$logger.info('tagNameSearchListChange', checkedValue)
-      this.tagNameSearchListSelected = checkedValue
+    handleTagNameSearchListSelected (item) {
+      this.$logger.info('handleTagNameSearchListSelected', item)
+      const index = this.tagNameSearchListSelected.indexOf(item.descriptionId)
+      if (index !== -1) {
+        this.tagNameSearchListSelected.splice(index, 1)
+      } else {
+        this.tagNameSearchListSelected.push(item.descriptionId)
+      }
     },
 
     handleCreateDescription () {
@@ -1257,9 +1260,14 @@ export default {
       }
     },
 
-    skillTagNameSearchListChange (checkedValue) {
-      this.$logger.info('skill skillTagNameSearchListChange', checkedValue)
-      this.skillTagNameSearchListSelected = checkedValue
+    handleSkillTagNameSearchListSelected (item) {
+      this.$logger.info('handleSkillTagNameSearchListSelected', item)
+      const index = this.skillTagNameSearchListSelected.indexOf(item.descriptionId)
+      if (index !== -1) {
+        this.skillTagNameSearchListSelected.splice(index, 1)
+      } else {
+        this.skillTagNameSearchListSelected.push(item.descriptionId)
+      }
     },
 
     replaceTempTag (tag) {
@@ -1634,7 +1642,7 @@ export default {
       flex-direction: column;
       justify-content: flex-start;
       .skt-description-sub-list {
-        max-height: 250px;
+        max-height: 300px;
         overflow-y: scroll;
         border: 1px solid #f9f9f9;
       }
@@ -1749,10 +1757,36 @@ export default {
 }
 
 .search-tag-list {
-  margin-top: 20px;
-  padding: 10px;
-  height: 500px;
+  height: 300px;
   overflow-y: scroll;
+  .search-description-item {
+    margin-bottom: 10px;
+    box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.16);
+    border: 1px solid rgba(216, 216, 216, 1);
+    opacity: 1;
+    border-radius: 4px;
+    .description-info {
+      padding: 10px;
+      .info-detail {
+        position: relative;
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+
+        .info-checked {
+          color: #15C39A;
+        }
+      }
+    }
+  }
+
+  .selected-item {
+    background: rgba(21, 195, 154, 0.1);
+    border: 1px solid #15C39A;
+    opacity: 1;
+    border-radius: 4px;
+  }
 }
 
 .empty-search-list {
