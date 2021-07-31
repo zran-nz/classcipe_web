@@ -165,6 +165,7 @@ export default {
 
     handleBlockCollapse (data) {
       this.$logger.info('handleBlockCollapse ' + data.blockIndex, data)
+      this.previewVisible = false
       if (this.blockIndex !== data.blockIndex) {
         this.blockIndex = data.blockIndex
         if (this.blockIndex === 1) {
@@ -354,7 +355,7 @@ export default {
           }
         }
         .browser-table-wrapper {
-          height: calc(100vh - 200px);
+          height: calc(100vh - 190px);
           display: flex;
           flex-direction: row;
           border: 1px solid #ddd;

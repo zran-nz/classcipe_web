@@ -468,6 +468,7 @@ export default {
   .browser-block-item-wrapper {
     overflow-y: scroll;
     height: calc(100vh - 190px);
+    box-sizing: border-box;
 
     &::-webkit-scrollbar {
       width: 4px;
@@ -504,6 +505,8 @@ export default {
       display: flex;
       flex-direction: row;
       justify-content: space-between;
+      width: 100%;
+      box-sizing: border-box;
       .arrow-item {
         padding: 0 10px;
         width: 20px;
@@ -541,7 +544,6 @@ export default {
     .active-line {
       background: rgba(255, 187, 0, 0.1);
       color: rgba(255, 187, 0, 1);
-      white-space: normal;
     }
     .loading-wrapper {
       position: absolute;
@@ -553,13 +555,13 @@ export default {
     }
   }
 
-  .browser-block-item-last {
+    .browser-block-item-last {
     position: relative;
     display: flex;
     flex-direction: column;
     flex-wrap: wrap;
     justify-content: flex-start;
-    box-sizing: border-box;
+      box-sizing: border-box;
     border-right: 1px solid #ddd;
 
     .switch-type-wrapper {
@@ -626,6 +628,7 @@ export default {
       flex-direction: row;
       justify-content: space-between;
       background: rgba(228, 228, 228, 0.2);
+      width: 100%;
       .arrow-item {
         padding: 0 15px;
         font-weight: bold;
@@ -695,7 +698,6 @@ export default {
     .active-line {
       background-color: rgba(255, 187, 0, 0.1);
       color: rgba(255, 187, 0, 1);
-      white-space: normal;
     }
     .loading-wrapper {
       position: absolute;

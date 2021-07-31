@@ -296,6 +296,7 @@ export default {
         display: flex;
         flex-direction: row;
         justify-content: space-between;
+        width: 100%;
         .arrow-item {
           padding: 0 10px;
           width: 20px;
@@ -332,7 +333,6 @@ export default {
       .active-line {
         background: rgba(255, 187, 0, 0.1);
         color: rgba(255, 187, 0, 1);
-        white-space: normal;
       }
       .loading-wrapper {
         position: absolute;
@@ -365,6 +365,8 @@ export default {
         display: flex;
         flex-direction: row;
         justify-content: space-between;
+        width: 100%;
+        box-sizing: border-box;
         .arrow-item {
           padding: 0 10px;
           width: 20px;
@@ -397,7 +399,6 @@ export default {
       .active-line {
         background: rgba(255, 187, 0, 0.1);
         color: rgba(255, 187, 0, 1);
-        white-space: normal;
       }
       .loading-wrapper {
         position: absolute;
