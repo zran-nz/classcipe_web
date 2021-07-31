@@ -203,11 +203,7 @@
       >
         <div class="preview-wrapper">
           <div class="preview-detail">
-            <unit-plan-preview :unit-plan-id="previewCurrentId" :show-associate="true" v-if="previewType === typeMap['unit-plan']" />
-            <topic-preview :topic-id="previewCurrentId" :show-associate="true" v-if="previewType === typeMap.topic" />
-            <main-task-preview :task-id="previewCurrentId" v-if="previewType === typeMap.task" />
-            <main-lesson-preview :lesson-id="previewCurrentId" v-if="previewType === typeMap.lesson" />
-            <evaluation-preview :evaluation-id="previewCurrentId" v-if="previewType === typeMap.evaluation" />
+            <common-preview :id="previewCurrentId" :type="previewType" />
           </div>
         </div>
       </a-drawer>
@@ -251,10 +247,12 @@ import {
   SESSION_CURRENT_TYPE_LABEL,
   SESSION_VIEW_MODE
 } from '@/const/common'
+import CommonPreview from '@/components/Common/CommonPreview'
 
 export default {
   name: 'CreatedByMe',
   components: {
+    CommonPreview,
     ClassList,
     ContentStatusIcon,
     ContentTypeIcon,

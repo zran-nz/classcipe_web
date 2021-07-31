@@ -80,7 +80,7 @@
             </div>
           </div>
         </a-col>
-        </a-skeleton></a-row>
+      </a-row>
       <a-row class="top-info" :gutter="[16,24]" v-show="viewMode === 'Detail'">
         <a-col class="right-detail" span="24">
           <div class="detail-wrapper">

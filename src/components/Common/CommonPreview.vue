@@ -145,31 +145,25 @@
           </div>
         </a-col>
       </a-row>
-      <a-row class="data-info" :gutter="[16,24]" v-show="viewMode === 'Preview'">
-        <a-col class="left-preview" span="24">
-          <a-carousel arrows>
-            <div
-              slot="prevArrow"
-              class="custom-slick-arrow"
-              style="left: 10px;z-index: 1"
-            >
-              <a-icon type="left-circle" />
-            </div>
-            <div
-              slot="nextArrow"
-              class="custom-slick-arrow"
-              style="right: 10px">
-              <a-icon type="right-circle" />
-            </div>
+      <a-row class="preview-data-info" v-show="viewMode === 'Preview'">
+        <a-col class="slide-preview" span="24">
+          <a-spin v-show="slideLoading" class="spin-loading"/>
+          <a-col span="24">
             <div v-if="!loading && !imgList.length" class="no-preview-img">
-              <a-empty>
-                <!--                <span slot="description"></span>-->
-              </a-empty>
+              <no-more-resources />
             </div>
-            <div class="preview-img-item" v-for="(img,index) in imgList" :key="index">
-              <div class="preview-block" :style="{backgroundImage: 'url(' + img + ')' }" :data-img="img"></div>
-            </div>
-          </a-carousel>
+          </a-col>
+          <a-col class="left-preview" span="19">
+            <a-carousel ref="carousel" v-if="!loading && imgList.length" arrows dots-class="slick-dots slick-thumb">
+              <a slot="customPaging" slot-scope="props">
+                {{ props }}
+                <!--                <img :src="getImgUrl(props.i)" />-->
+              </a>
+              <div v-for="(img,index) in imgList" :key="index">
+                <img :src="img" />
+              </div>
+            </a-carousel>
+          </a-col>
         </a-col>
       </a-row>
       <div class="associate-info" v-if="type === typeMap['unit-plan'] || type === typeMap.topic">
@@ -184,7 +178,7 @@ import * as logger from '@/utils/logger'
 import { typeMap } from '@/const/teacher'
 import NoMoreResources from '@/components/Common/NoMoreResources'
 import CommonAssociatePreview from '@/components/Common/CommonAssociatePreview'
-
+import { TemplatesGetPageThumbnail, TemplatesGetPresentation } from '@/api/template'
 const { formatLocalUTC } = require('@/utils/util')
 const { UnitPlanQueryById } = require('@/api/unitPlan')
 const { LessonQueryById } = require('@/api/myLesson')
@@ -223,6 +217,7 @@ export default {
   data () {
     return {
       loading: true,
+      slideLoading: false,
       data: null,
       imgList: [],
       viewMode: 'Detail',
@@ -269,11 +264,9 @@ export default {
         }).then(response => {
           logger.info('TaskQueryById ' + this.id, response.result)
           this.data = response.result
-          if (this.data && this.data.image) {
-            this.imgList = [this.data.image]
-          }
         }).finally(() => {
           this.loading = false
+          this.loadThumbnail()
         })
       } else if (this.type === this.typeMap.lesson) {
         LessonQueryById({
@@ -282,11 +275,9 @@ export default {
           logger.info('LessonQueryById ' + this.id, response.result)
           this.data = response.result
           this.data.questions = [response.result.suggestingTag]
-          if (this.data && this.data.image) {
-            this.imgList = [this.data.image]
-          }
         }).finally(() => {
           this.loading = false
+          this.loadThumbnail()
         })
       } else if (this.type === this.typeMap.evaluation) {
         EvaluationQueryById({
@@ -312,6 +303,39 @@ export default {
         }).finally(() => {
           this.loading = false
         })
+      }
+    },
+
+    loadThumbnail () {
+      this.$logger.info('Preview loadThumbnail ', this.data)
+      if (this.data.presentationId) {
+        TemplatesGetPresentation({
+          presentationId: this.data.presentationId
+        }).then(response => {
+          this.$logger.info('data loadThumbnail response', response.result)
+          const pageObjectIds = response.result.pageObjectIds
+          if (pageObjectIds.length) {
+            pageObjectIds.forEach(id => {
+              TemplatesGetPageThumbnail({
+                pageObjectId: id,
+                presentationId: this.data.presentationId,
+                mimeType: 'SMALL'
+              }).then(response => {
+                this.imgList.push(response.result.contentUrl.replace('=s200', '=s800'))
+              }).finally(() => {
+                this.$logger.info('current imgList.length ' + (this.imgList.length) + ' total:' + this.data.selectPageObjectIds.length)
+                if (this.imgList.length === pageObjectIds.length) {
+                  this.slideLoading = false
+                }
+              })
+            })
+          } else {
+            this.imgList = [this.data.image]
+            this.slideLoading = false
+          }
+        })
+      } else {
+        this.slideLoading = false
       }
     },
 
@@ -483,6 +507,14 @@ export default {
     border: 1px solid #D8D8D8;
     opacity: 1;
     border-radius: 5px;
+  }
+
+  .preview-data-info {
+    margin-top: 10px;
+    min-height: 100px;
+    padding: 5px;
+    border: 1px solid #D8D8D8;
+    opacity: 1;
   }
 
   .left-preview {
