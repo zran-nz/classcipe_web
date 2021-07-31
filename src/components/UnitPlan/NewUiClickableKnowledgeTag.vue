@@ -271,6 +271,7 @@
           </a-col>
         </a-row>
         <!--   skill   description-list-->
+        {{skillDescriptionTagList}}
         <a-row v-if="currentMode === mode.skill">
           <a-col span="24">
             <div class="skt-description-list">
@@ -394,7 +395,7 @@
         </a-row>
       </div>
 
-      <a-modal v-model="skillTagNameSearchListDialogueVisible" @ok="handleEnsureTagSearchList" destroyOnClose width="600px">
+      <a-modal v-model="skillTagNameSearchListDialogueVisible" title="Select from the relevant Unit" @ok="handleEnsureTagSearchList" destroyOnClose width="600px">
         <div class="search-tag-list">
           <div :class="{'search-description-item': true, 'selected-item': skillTagNameSearchListSelected.indexOf(item.descriptionId) !== -1}" v-for="(item,index) in skillTagNameSearchList" :key="index">
             <div class="description-info" @click="handleSkillTagNameSearchListSelected(item)">
@@ -455,8 +456,8 @@ import NewBrowser from '@/components/NewLibrary/NewBrowser'
 import { SelectModel } from '@/components/NewLibrary/SelectModel'
 import SkillBrowser from '@/components/SkillLibrary/SkillBrowser'
 import { SkillSelectModel } from '@/components/SkillLibrary/SkillSelectModel'
+import NoMoreResources from '@/components/Common/NoMoreResources'
 const { debounce, sortBy } = require('lodash-es')
-
 const { SkillLibraryEventBus, SkillLibraryEvent } = require('@/components/SkillLibrary/SkillLibraryEventBus')
 const { SkillSearch, SkillQueryTagsBySkillId, SkillAddOrUpdateTag } = require('@/api/skill')
 
@@ -476,7 +477,8 @@ export default {
   name: 'NewUiClickableKnowledgeTag',
   components: {
     NewBrowser,
-    SkillBrowser
+    SkillBrowser,
+    NoMoreResources
   },
   props: {
     questionIndex: {
@@ -1069,6 +1071,7 @@ export default {
               ...item
             })
             this.skillDescriptionTagList.splice(tagIndex, 1, tagItem)
+            this.$logger.info('after add skillDescriptionTagList', this.skillDescriptionTagList)
           } else {
             this.$logger.info('skill skip! exist ' + item.name + ' ' + item.id)
           }
