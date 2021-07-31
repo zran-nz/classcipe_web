@@ -187,19 +187,12 @@
                 </a-form-model-item>
 
                 <!--knowledge tag-select -->
-                <new-clickable-knowledge-tag
+                <new-ui-clickable-knowledge-tag
                   :question-index="questionIndex"
                   :selected-knowledge-tags="questionItem.knowledgeTags"
+                  :selected-skill-tags="questionItem.skillTags"
                   @remove-knowledge-tag="handleRemoveKnowledgeTag"
                   @add-knowledge-tag="handleAddKnowledgeTag"
-                />
-
-                <!--skill tag-select-->
-                <new-clickable-skill-tag
-                  :question-index="questionIndex"
-                  :grade-list="gradeList"
-                  :default-grade-id="questionItem.skillGradeId"
-                  :selected-skill-tags="questionItem.skillTags"
                   @remove-skill-tag="handleRemoveSkillTag"
                   @add-skill-tag="handleAddSkillTag"
                 />
@@ -296,7 +289,7 @@ import SdgTagInput from '@/components/UnitPlan/SdgTagInput'
 import { GetMyGrades, Associate } from '@/api/teacher'
 import { SubjectTree } from '@/api/subject'
 import { formatSubjectTree } from '@/utils/bizUtil'
-import NewClickableKnowledgeTag from '@/components/UnitPlan/NewClickableKnowledgeTag'
+import NewUiClickableKnowledgeTag from '@/components/UnitPlan/NewUiClickableKnowledgeTag'
 import NewClickableSkillTag from '@/components/UnitPlan/NewClickableSkillTag'
 import SkillTag from '@/components/UnitPlan/SkillTag'
 import { ChangeStatus, UnitPlanAddOrUpdate, UnitPlanQueryById } from '@/api/unitPlan'
@@ -315,7 +308,7 @@ export default {
     ContentTypeIcon,
     InputSearch,
     SdgTagInput,
-    NewClickableKnowledgeTag,
+    NewUiClickableKnowledgeTag,
     NewClickableSkillTag,
     SkillTag,
     MyContentSelector,
@@ -1305,10 +1298,6 @@ export default {
       border: 1px solid @primary-color;
     }
   }
-}
-
-.link-content-wrapper {
-
 }
 
 </style>

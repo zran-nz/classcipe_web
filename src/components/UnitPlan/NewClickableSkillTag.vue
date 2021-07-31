@@ -82,7 +82,7 @@
         </a-col>
       </a-row>
     </div>
-    <div class="skt-description-list-wrapper" v-if="descriptionTagList.length">
+    <div class="skt-description-list-wrapper" v-if="skillDescriptionTagList.length">
       <!--      description-list-->
       <a-row>
         <a-col offset="4" span="18">
@@ -91,22 +91,22 @@
               :class="{
                 'skt-description-tag-item': true,
                 'skt-description-tag-item-top-fixed': true,
-                'active-description-line': descriptionTagList[0].descriptionId === activeDescriptionId
+                'active-description-line': skillDescriptionTagList[0].descriptionId === activeDescriptionId
               }"
-              :data-id="descriptionTagList[0].descriptionId"
-              v-if="descriptionTagList.length"
-              :key="descriptionTagList[0].descriptionId"
-              @dblclick="handleActiveDescription(descriptionTagList[0].descriptionId)">
+              :data-id="skillDescriptionTagList[0].descriptionId"
+              v-if="skillDescriptionTagList.length"
+              :key="skillDescriptionTagList[0].descriptionId"
+              @dblclick="handleActiveDescription(skillDescriptionTagList[0].descriptionId)">
               <div class="skt-description">
                 <a-tooltip :mouseEnterDelay="1" class="description-txt" >
                   <template slot="title">
-                    {{ descriptionId2InfoMap.get(descriptionTagList[0].descriptionId).description }}
+                    {{ descriptionId2InfoMap.get(skillDescriptionTagList[0].descriptionId).description }}
                   </template>
-                  {{ descriptionId2InfoMap.get(descriptionTagList[0].descriptionId).description }}
+                  {{ descriptionId2InfoMap.get(skillDescriptionTagList[0].descriptionId).description }}
                 </a-tooltip>
               </div>
-              <div class="skt-description-tag-list" :droppable="activeDescriptionId === descriptionTagList[0].descriptionId ? 'true' : 'false'" @dragover.prevent @drop="handleTagItemDrop(descriptionTagList[0], $event)">
-                <div class="tag-list-item" v-for="(tag,tIndex) in descriptionTagList[0].tagList" :key="tIndex + tag.name + tag.type">
+              <div class="skt-description-tag-list" :droppable="activeDescriptionId === skillDescriptionTagList[0].descriptionId ? 'true' : 'false'" @dragover.prevent @drop="handleTagItemDrop(skillDescriptionTagList[0], $event)">
+                <div class="tag-list-item" v-for="(tag,tIndex) in skillDescriptionTagList[0].tagList" :key="tIndex + tag.name + tag.type">
                   <a-tag
                     class="tag-item"
                     v-if="tag.type === tagOriginType.Origin"
@@ -130,8 +130,8 @@
                   </a-tag>
                 </div>
               </div>
-              <a-popconfirm title="Delete?" ok-text="Yes" @confirm="handleDeleteKnowledgeItem(descriptionTagList[0].descriptionId)" cancel-text="No">
-                <span class="delete-action" v-show="descriptionTagList[0].descriptionId === activeDescriptionId" >
+              <a-popconfirm title="Delete?" ok-text="Yes" @confirm="handleDeleteKnowledgeItem(skillDescriptionTagList[0].descriptionId)" cancel-text="No">
+                <span class="delete-action" v-show="skillDescriptionTagList[0].descriptionId === activeDescriptionId" >
                   <a-icon type="delete" />
                 </span>
               </a-popconfirm>
@@ -142,8 +142,8 @@
                   'skt-description-tag-item': true,
                   'active-description-line': item.descriptionId === activeDescriptionId}"
                 :data-id="item.descriptionId"
-                v-for="(item, dIndex) in descriptionTagList"
-                v-if="descriptionTagList.length && dIndex > 0"
+                v-for="(item, dIndex) in skillDescriptionTagList"
+                v-if="skillDescriptionTagList.length && dIndex > 0"
                 :key="item.descriptionId"
                 @dblclick="handleActiveDescription(item.descriptionId)">
                 <div class="skt-description">
@@ -190,10 +190,10 @@
         </a-col>
       </a-row>
     </div>
-    <a-modal v-model="tagNameSearchListDialogueVisible" @ok="handleEnsureTagSearchList" destroyOnClose width="800px">
+    <a-modal v-model="skillTagNameSearchListDialogueVisible" @ok="handleEnsureTagSearchList" destroyOnClose width="800px">
       <div class="search-tag-list">
-        <a-checkbox-group :value="tagNameSearchListSelected" v-if="tagNameSearchList.length" @change="tagNameSearchListChange">
-          <a-row v-for="(item,index) in tagNameSearchList" :key="index" :gutter="[16,16]">
+        <a-checkbox-group :value="skillTagNameSearchListSelected" v-if="skillTagNameSearchList.length" @change="skillTagNameSearchListChange">
+          <a-row v-for="(item,index) in skillTagNameSearchList" :key="index" :gutter="[16,16]">
             <a-col :span="24">
               <a-checkbox :value="item.descriptionId">
                 {{ item.description }}
@@ -201,7 +201,7 @@
             </a-col>
           </a-row>
         </a-checkbox-group>
-        <div class="empty-search-list" v-if="!tagNameSearchList.length">
+        <div class="empty-search-list" v-if="!skillTagNameSearchList.length">
           <a-empty />
           <div class="open-curriculum">
             click 【
@@ -210,10 +210,9 @@
         </div>
       </div>
     </a-modal>
-
-    <a-modal v-model="associateLibraryVisible" @ok="handleEnsureAssociate" destroyOnClose width="80%" :dialog-style="{ top: '20px' }">
+    <a-modal v-model="skillAssociateLibraryVisible" @ok="handleEnsureAssociate" destroyOnClose width="80%" :dialog-style="{ top: '20px' }">
       <div class="associate-library">
-        <skill-browser :select-mode="selectModel.skillDescription" :question-index="questionIndex"/>
+        <skill-browser :select-mode="skillSelectModel.skillDescription" :question-index="questionIndex"/>
       </div>
     </a-modal>
   </div>
@@ -269,16 +268,16 @@ export default {
       searchList: [],
       tagList: [],
       tagOriginType: TagOriginType,
-      selectModel: SkillSelectModel,
-      descriptionTagList: [],
+      skillSelectModel: SkillSelectModel,
+      skillDescriptionTagList: [],
       descriptionId2InfoMap: new Map(), // descriptionId 对应的父级信息标签
 
       activeDescriptionId: null,
-      tagNameSearchListDialogueVisible: false,
-      tagNameSearchList: [],
-      tagNameSearchListSelected: [],
+      skillTagNameSearchListDialogueVisible: false,
+      skillTagNameSearchList: [],
+      skillTagNameSearchListSelected: [],
 
-      associateLibraryVisible: false,
+      skillAssociateLibraryVisible: false,
       createTagName: ''
     }
   },
@@ -296,18 +295,6 @@ export default {
       } else {
         this.$logger.info('skill tag name ' + item.name + ' exist', item, tagNameSet)
       }
-
-      // 后加扩充tag，避免冲突
-      this.extTagList.forEach(item => {
-        if (!tagNameSet.has(item.name)) {
-          this.tagList.push({
-            ...item,
-            type: TagOriginType.Extension
-          })
-        } else {
-          this.$logger.info('Extension tag name ' + item.name + ' exist', item, tagNameSet)
-        }
-      })
 
       // descriptionTagMap按照descriptionId初始化对应的tagList
       if (!!item.descriptionId && item.curriculumId === this.$store.getters.bindCurriculum && !descriptionTagMap.has(item.descriptionId)) {
@@ -338,22 +325,22 @@ export default {
     this.$logger.info('skill descriptionTagMap', descriptionTagMap)
     // trans descriptionTagMap to list
     for (const [descriptionId, tagList] of descriptionTagMap) {
-      this.descriptionTagList.push(Object.assign({}, {
+      this.skillDescriptionTagList.push(Object.assign({}, {
         descriptionId,
         tagList,
         _updateTimestamp: new Date().getTime()
       }))
       this.$logger.info('skill add ' + descriptionId + ' tagList ', tagList)
     }
-    this.descriptionTagList = sortBy(this.descriptionTagList, '_updateTimestamp', 'asc').reverse()
+    this.skillDescriptionTagList = sortBy(this.skillDescriptionTagList, '_updateTimestamp', 'asc').reverse()
     this.$logger.info('skill after add tagList', this.tagList)
-    this.$logger.info('skill after add descriptionTagList', this.descriptionTagList)
+    this.$logger.info('skill after add skillDescriptionTagList', this.skillDescriptionTagList)
     this.$logger.info('skill after add descriptionId2InfoMap', this.descriptionId2InfoMap)
   },
   watch: {
     searchList () {
       this.$logger.info('skill update search tag list with list size ' + (this.searchList.length), this.searchList)
-      let tagList = this.tagList
+      let tagList = []
       tagList = tagList.filter(item => item.type !== this.tagOriginType.Search)
       const existNameList = []
       this.searchList.forEach(item => {
@@ -373,12 +360,12 @@ export default {
     handleSkillContentListSelectClick (data) {
       if (data.questionIndex === this.questionIndex) {
         this.$logger.info('skill handleSkillContentListSelectClick hit ' + this.questionIndex, data)
-        const tagIndex = this.descriptionTagList.findIndex(tItem => tItem.descriptionId === data.descriptionId)
+        const tagIndex = this.skillDescriptionTagList.findIndex(tItem => tItem.descriptionId === data.descriptionId)
         if (tagIndex === -1) {
           this.descriptionId2InfoMap.set(data.descriptionId, {
             ...data
           })
-          this.descriptionTagList.push({
+          this.skillDescriptionTagList.push({
             descriptionId: data.descriptionId,
             tagList: [],
             _updateTimestamp: 0
@@ -408,29 +395,29 @@ export default {
 
     handleDescriptionTagClose (tag) {
       this.$logger.info('skill handleDescriptionTagClose ', tag)
-      const tagIndex = this.descriptionTagList.findIndex(item => item.descriptionId === tag.descriptionId)
-      const item = this.descriptionTagList[tagIndex]
+      const tagIndex = this.skillDescriptionTagList.findIndex(item => item.descriptionId === tag.descriptionId)
+      const item = this.skillDescriptionTagList[tagIndex]
       this.$logger.info('skill raw handleDescriptionTagClose ', item)
       item.tagList = item.tagList.filter(item => item.name !== tag.name)
-      this.descriptionTagList.splice(tagIndex, 1, item)
+      this.skillDescriptionTagList.splice(tagIndex, 1, item)
       this.$emit('remove-skill-tag', {
         questionIndex: this.questionIndex,
         ...tag
       })
-      this.$logger.info('skill after handleDescriptionTagClose ', this.descriptionTagList[tagIndex])
+      this.$logger.info('skill after handleDescriptionTagClose ', this.skillDescriptionTagList[tagIndex])
     },
 
     handleActiveDescription (subKnowledge) {
-      this.$logger.info('skill handleActiveDescription TagList' + subKnowledge, ' old tag list', this.tagList, this.descriptionTagList)
+      this.$logger.info('skill handleActiveDescription TagList' + subKnowledge, ' old tag list', this.tagList, this.skillDescriptionTagList)
       this.activeDescriptionId = subKnowledge
       this.$logger.info('skill activeDescriptionId ' + this.activeDescriptionId)
       // 改变排序
-      const tagIndex = this.descriptionTagList.findIndex(item => item.descriptionId === this.activeDescriptionId)
-      const tagItem = this.descriptionTagList[tagIndex]
+      const tagIndex = this.skillDescriptionTagList.findIndex(item => item.descriptionId === this.activeDescriptionId)
+      const tagItem = this.skillDescriptionTagList[tagIndex]
       tagItem._updateTimestamp = new Date().getTime()
-      this.descriptionTagList.splice(tagIndex, 1, tagItem)
-      this.descriptionTagList = sortBy(this.descriptionTagList, '_updateTimestamp', 'asc').reverse()
-      this.$logger.info('skill update sort ', this.descriptionTagList)
+      this.skillDescriptionTagList.splice(tagIndex, 1, tagItem)
+      this.skillDescriptionTagList = sortBy(this.skillDescriptionTagList, '_updateTimestamp', 'asc').reverse()
+      this.$logger.info('skill update sort ', this.skillDescriptionTagList)
 
       logger.info('skill dblclick desc searchKnowledge')
       SkillQueryTagsBySkillId({
@@ -485,9 +472,9 @@ export default {
     },
 
     handleDeleteKnowledgeItem (descriptionId) {
-      this.$logger.info('skill handleDeleteKnowledgeItem ' + descriptionId, this.descriptionTagList)
-      const tagIndex = this.descriptionTagList.findIndex(item => item.descriptionId === descriptionId)
-      const item = this.descriptionTagList[tagIndex]
+      this.$logger.info('skill handleDeleteKnowledgeItem ' + descriptionId, this.skillDescriptionTagList)
+      const tagIndex = this.skillDescriptionTagList.findIndex(item => item.descriptionId === descriptionId)
+      const item = this.skillDescriptionTagList[tagIndex]
       if (tagIndex !== -1) {
         item.tagList.forEach(item => {
           this.$emit('remove-skill-tag', {
@@ -495,8 +482,8 @@ export default {
             ...item
           })
         })
-        this.descriptionTagList.splice(tagIndex, 1)
-        this.$logger.info('skill after delete ' + descriptionId, this.descriptionTagList)
+        this.skillDescriptionTagList.splice(tagIndex, 1)
+        this.$logger.info('skill after delete ' + descriptionId, this.skillDescriptionTagList)
       } else {
         this.$logger.info('skill descriptionTagMap dont exist ' + descriptionId)
       }
@@ -509,29 +496,29 @@ export default {
         key: tag.name
       }).then((response) => {
         logger.info('skill handleDbClickTagListTag searchKnowledge response', response)
-        this.tagNameSearchList = response.result.filter(item => item.curriculumId === this.$store.getters.bindCurriculum)
-        this.$logger.info('skill after filter curriculumId tagNameSearchList', this.tagNameSearchList)
-        this.tagNameSearchListSelected = []
-        this.tagNameSearchListDialogueVisible = true
+        this.skillTagNameSearchList = response.result.filter(item => item.curriculumId === this.$store.getters.bindCurriculum)
+        this.$logger.info('skill after filter curriculumId skillTagNameSearchList', this.skillTagNameSearchList)
+        this.skillTagNameSearchListSelected = []
+        this.skillTagNameSearchListDialogueVisible = true
       })
     },
 
     handleEnsureTagSearchList () {
-      this.$logger.info('skill handleEnsureTagSearchList', this.tagNameSearchListSelected)
+      this.$logger.info('skill handleEnsureTagSearchList', this.skillTagNameSearchListSelected)
       const ensureKnowledgeTagList = []
-      this.tagNameSearchList.forEach(item => {
-        if (this.tagNameSearchListSelected.indexOf(item.descriptionId) !== -1) {
+      this.skillTagNameSearchList.forEach(item => {
+        if (this.skillTagNameSearchListSelected.indexOf(item.descriptionId) !== -1) {
           ensureKnowledgeTagList.push(item)
         } else {
-          this.$logger.info(item.descriptionId + ' dont exist in ', this.tagNameSearchListSelected)
+          this.$logger.info(item.descriptionId + ' dont exist in ', this.skillTagNameSearchListSelected)
         }
       })
       this.$logger.info('skill ensureKnowledgeTagList', ensureKnowledgeTagList)
 
       ensureKnowledgeTagList.forEach(item => {
-        let tagIndex = this.descriptionTagList.findIndex(tItem => tItem.descriptionId === item.descriptionId)
+        let tagIndex = this.skillDescriptionTagList.findIndex(tItem => tItem.descriptionId === item.descriptionId)
         if (tagIndex === -1) {
-          this.descriptionTagList.push({
+          this.skillDescriptionTagList.push({
             descriptionId: item.descriptionId,
             tagList: [],
             _updateTimestamp: new Date().getTime()
@@ -541,8 +528,8 @@ export default {
           })
         }
 
-        tagIndex = this.descriptionTagList.findIndex(tItem => tItem.descriptionId === item.descriptionId)
-        const tagItem = this.descriptionTagList[tagIndex]
+        tagIndex = this.skillDescriptionTagList.findIndex(tItem => tItem.descriptionId === item.descriptionId)
+        const tagItem = this.skillDescriptionTagList[tagIndex]
         if (!tagItem.tagList.find(eItem => eItem.name === item.name)) {
           tagItem.tagList.push({
             ...item,
@@ -552,30 +539,30 @@ export default {
             questionIndex: this.questionIndex,
             ...item
           })
-          this.descriptionTagList.splice(tagIndex, 1, tagItem)
+          this.skillDescriptionTagList.splice(tagIndex, 1, tagItem)
         } else {
           this.$logger.info('skill skip! exist ' + item.name + ' ' + item.id)
         }
       })
 
-      this.tagNameSearchListSelected = []
-      this.tagNameSearchList = []
-      this.tagNameSearchListDialogueVisible = false
+      this.skillTagNameSearchListSelected = []
+      this.skillTagNameSearchList = []
+      this.skillTagNameSearchListDialogueVisible = false
     },
 
-    tagNameSearchListChange (checkedValue) {
-      this.$logger.info('skill tagNameSearchListChange', checkedValue)
-      this.tagNameSearchListSelected = checkedValue
+    skillTagNameSearchListChange (checkedValue) {
+      this.$logger.info('skill skillTagNameSearchListChange', checkedValue)
+      this.skillTagNameSearchListSelected = checkedValue
     },
 
     handleCreateDescription () {
       this.$logger.info('skill handleCreateDescription')
-      this.associateLibraryVisible = true
+      this.skillAssociateLibraryVisible = true
     },
 
     handleEnsureAssociate () {
       this.$logger.info('skill handleEnsureAssociate')
-      this.associateLibraryVisible = false
+      this.skillAssociateLibraryVisible = false
     },
 
     handleTagItemDragStart (tag, event) {
@@ -597,15 +584,15 @@ export default {
         tag.name = rawTag.name
         this.$logger.info('skill ready add tag ', tag)
 
-        const tagIndex = this.descriptionTagList.findIndex(tItem => tItem.descriptionId === descriptionId)
-        const tagItem = this.descriptionTagList[tagIndex]
+        const tagIndex = this.skillDescriptionTagList.findIndex(tItem => tItem.descriptionId === descriptionId)
+        const tagItem = this.skillDescriptionTagList[tagIndex]
         if (!tagItem.tagList.find(eItem => eItem.name === tag.name)) {
           this.$logger.info('skill add tag', tag)
           tagItem.tagList.push({
             ...tag,
             type: TagOriginType.Origin
           })
-          this.descriptionTagList.splice(tagIndex, 1, tagItem)
+          this.skillDescriptionTagList.splice(tagIndex, 1, tagItem)
 
           // 检查是否已存在相同name的tag没有则创建
           let existSameNameTag = false
@@ -662,8 +649,8 @@ export default {
 
     replaceTempTag (tag) {
       this.$logger.info('skill replace tag', tag)
-      const tagIndex = this.descriptionTagList.findIndex(tItem => tItem.descriptionId === (tag.descriptionId || tag.id))
-      const tagItem = this.descriptionTagList[tagIndex]
+      const tagIndex = this.skillDescriptionTagList.findIndex(tItem => tItem.descriptionId === (tag.descriptionId || tag.id))
+      const tagItem = this.skillDescriptionTagList[tagIndex]
       this.$logger.info('skill replace tag target list', tagItem.tagList)
       tagItem.tagList = tagItem.tagList.filter(item => item.name !== tag.name)
       tagItem.tagList.push({
@@ -674,7 +661,7 @@ export default {
         questionIndex: this.questionIndex,
         ...tag
       })
-      this.descriptionTagList.splice(tagIndex, 1, tagItem)
+      this.skillDescriptionTagList.splice(tagIndex, 1, tagItem)
     }
   }
 }
