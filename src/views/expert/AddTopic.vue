@@ -187,19 +187,12 @@
                 </a-form-model-item>
 
                 <!--knowledge tag-select -->
-                <new-clickable-knowledge-tag
+                <new-ui-clickable-knowledge-tag
                   :question-index="questionIndex"
                   :selected-knowledge-tags="questionItem.knowledgeTags"
+                  :selected-skill-tags="questionItem.skillTags"
                   @remove-knowledge-tag="handleRemoveKnowledgeTag"
                   @add-knowledge-tag="handleAddKnowledgeTag"
-                />
-
-                <!--skill tag-select-->
-                <new-clickable-skill-tag
-                  :question-index="questionIndex"
-                  :grade-list="gradeList"
-                  :default-grade-id="questionItem.skillGradeId"
-                  :selected-skill-tags="questionItem.skillTags"
                   @remove-skill-tag="handleRemoveSkillTag"
                   @add-skill-tag="handleAddSkillTag"
                 />
@@ -298,8 +291,6 @@
   import { UpdateContentStatus, GetMyGrades, Associate } from '@/api/teacher'
   import { SubjectTree } from '@/api/subject'
   import { formatSubjectTree } from '@/utils/bizUtil'
-  import NewClickableKnowledgeTag from '@/components/UnitPlan/NewClickableKnowledgeTag'
-  import NewClickableSkillTag from '@/components/UnitPlan/NewClickableSkillTag'
   import SkillTag from '@/components/UnitPlan/SkillTag'
   import { TopicAddOrUpdate, TopicQueryById } from '@/api/topic'
   import { formatLocalUTC } from '@/utils/util'
@@ -309,6 +300,7 @@
   import AssociateSidebar from '@/components/Associate/AssociateSidebar'
   import { TaskAddOrUpdate } from '@/api/task'
   import CustomTag from '../../components/UnitPlan/CustomTag'
+import NewUiClickableKnowledgeTag from '@/components/UnitPlan/NewUiClickableKnowledgeTag'
 
   export default {
     name: 'AddTopic',
@@ -316,8 +308,7 @@
       ContentTypeIcon,
       InputSearch,
       SdgTagInput,
-      NewClickableKnowledgeTag,
-      NewClickableSkillTag,
+      NewUiClickableKnowledgeTag,
       SkillTag,
       MyContentSelector,
       Collaborate,

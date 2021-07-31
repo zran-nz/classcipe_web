@@ -58,21 +58,13 @@
               </a-form-model-item>
               <div class="content-blocks question-item" v-for="(questionItem, questionIndex) in questionDataObj" :key="questionIndex" v-if="questionItem !== null">
                 <!--knowledge tag-select -->
-                <new-clickable-knowledge-tag
+                <!--knowledge tag-select -->
+                <new-ui-clickable-knowledge-tag
                   :question-index="questionIndex"
                   :selected-knowledge-tags="questionItem.knowledgeTags"
-                  :ext-tag-list="extKnowledgeTagList"
+                  :selected-skill-tags="questionItem.skillTags"
                   @remove-knowledge-tag="handleRemoveKnowledgeTag"
                   @add-knowledge-tag="handleAddKnowledgeTag"
-                />
-
-                <!--skill tag-select-->
-                <new-clickable-skill-tag
-                  :question-index="questionIndex"
-                  :grade-list="gradeList"
-                  :default-grade-id="questionItem.skillGradeId"
-                  :selected-skill-tags="questionItem.skillTags"
-                  :ext-tag-list="extSkillTagList"
                   @remove-skill-tag="handleRemoveSkillTag"
                   @add-skill-tag="handleAddSkillTag"
                 />
@@ -253,8 +245,6 @@ import { typeMap } from '@/const/teacher'
 import { UpdateContentStatus, GetMyGrades, Associate } from '@/api/teacher'
 import InputSearch from '@/components/UnitPlan/InputSearch'
 import SdgTagInput from '@/components/UnitPlan/SdgTagInput'
-import NewClickableKnowledgeTag from '@/components/UnitPlan/NewClickableKnowledgeTag'
-import NewClickableSkillTag from '@/components/UnitPlan/NewClickableSkillTag'
 import SkillTag from '@/components/UnitPlan/SkillTag'
 import { TemplatesGetTemplates } from '@/api/template'
 import { MyContentEventBus, MyContentEvent } from '@/components/MyContent/MyContentEventBus'
@@ -268,6 +258,7 @@ import { commonAPIUrl } from '@/api/common'
 import Collaborate from '@/components/UnitPlan/Collaborate'
 import AssociateSidebar from '@/components/Associate/AssociateSidebar'
 import CustomTag from '@/components/UnitPlan/CustomTag'
+import NewUiClickableKnowledgeTag from '@/components/UnitPlan/NewUiClickableKnowledgeTag'
 
 const TagOriginType = {
   Origin: 'Origin',
@@ -283,8 +274,7 @@ export default {
     ContentTypeIcon,
     InputSearch,
     SdgTagInput,
-    NewClickableKnowledgeTag,
-    NewClickableSkillTag,
+    NewUiClickableKnowledgeTag,
     SkillTag,
     MyContentSelector,
     RelevantTagSelector,

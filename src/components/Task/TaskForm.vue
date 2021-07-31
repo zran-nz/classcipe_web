@@ -23,21 +23,12 @@
             </a-form-model-item>
             <div class="content-blocks question-item" v-for="(questionItem, questionIndex) in questionDataObj" :key="questionIndex" v-if="questionItem !== null">
               <!--knowledge tag-select -->
-              <new-clickable-knowledge-tag
+              <new-ui-clickable-knowledge-tag
                 :question-index="questionIndex"
                 :selected-knowledge-tags="questionItem.knowledgeTags"
-                :ext-tag-list="extKnowledgeTagList"
+                :selected-skill-tags="questionItem.skillTags"
                 @remove-knowledge-tag="handleRemoveKnowledgeTag"
                 @add-knowledge-tag="handleAddKnowledgeTag"
-              />
-
-              <!--skill tag-select-->
-              <new-clickable-skill-tag
-                :question-index="questionIndex"
-                :grade-list="gradeList"
-                :default-grade-id="questionItem.skillGradeId"
-                :selected-skill-tags="questionItem.skillTags"
-                :ext-tag-list="extSkillTagList"
                 @remove-skill-tag="handleRemoveSkillTag"
                 @add-skill-tag="handleAddSkillTag"
               />
@@ -97,8 +88,7 @@ import { typeMap } from '@/const/teacher'
 import { GetMyGrades } from '@/api/teacher'
 import InputSearch from '@/components/UnitPlan/InputSearch'
 import SdgTagInput from '@/components/UnitPlan/SdgTagInput'
-import NewClickableKnowledgeTag from '@/components/UnitPlan/NewClickableKnowledgeTag'
-import NewClickableSkillTag from '@/components/UnitPlan/NewClickableSkillTag'
+import NewUiClickableKnowledgeTag from '@/components/UnitPlan/NewUiClickableKnowledgeTag'
 import SkillTag from '@/components/UnitPlan/SkillTag'
 import { formatLocalUTC } from '@/utils/util'
 import MyContentSelector from '@/components/MyContent/MyContentSelector'
@@ -112,8 +102,7 @@ export default {
     ContentTypeIcon,
     InputSearch,
     SdgTagInput,
-    NewClickableKnowledgeTag,
-    NewClickableSkillTag,
+    NewUiClickableKnowledgeTag,
     SkillTag,
     MyContentSelector,
     RelevantTagSelector
