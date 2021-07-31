@@ -42,7 +42,7 @@ import {
   TreeSelect,
   Tree,
   message,
-  notification, Switch
+  notification, Switch, Rate
 } from 'ant-design-vue'
 import Viser from 'viser-vue'
 
@@ -55,6 +55,7 @@ import './directives/action'
 // logger
 import * as logger from '@/utils/logger'
 
+Vue.use(Rate)
 Vue.use(Switch)
 Vue.use(ConfigProvider)
 Vue.use(ConfigProvider)

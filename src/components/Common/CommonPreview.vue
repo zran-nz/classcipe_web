@@ -24,11 +24,12 @@
             </div>
             <div class="action-item">
               <div class="star">
-                <img src="~@/assets/icons/common/preview/star_gray.png" />
+                <img src="~@/assets/icons/common/preview/star_gray.png" @click="handleFavorite(data)" v-if="!isFavorite"/>
+                <img src="~@/assets/icons/common/preview/star_yellow.png" @click="handleFavorite(data)" v-if="isFavorite"/>
               </div>
               <div class="edit" >
-                <a-button type="primary" shape="round">
-                  <div class="button-content">
+                <a-button type="primary" shape="round" @click="handleEditItem(data)">
+                  <div class="button-content" >
                     Edit <img class="edit-icon" src="~@/assets/icons/common/preview/edit_white.png" />
                   </div>
                 </a-button>
@@ -37,8 +38,8 @@
           </div>
         </a-col>
       </a-row>
-      <a-row>
-        <a-col span="3">
+      <a-row class="author-info">
+        <a-col span="3" class="avatar-icon">
           <img src="~@/assets/icons/library/default-avatar.png" />
         </a-col>
         <a-col span="21">
@@ -52,9 +53,99 @@
               </template>
             </div>
           </div>
+          <div class="star-info">
+            <a-tooltip placement="right">
+              <template slot="title">
+                10 people gave a score of 5 stars
+              </template>
+              <a-rate :default-value="5" allow-half disabled/>
+            </a-tooltip>
+          </div>
         </a-col>
       </a-row>
-      <a-row class="top-info" :gutter="[16,24]" v-show="viewMode === 'Preview'">
+      <a-row class="data-info" v-show="viewMode === 'Detail'">
+        <a-col class="right-detail" span="24" >
+          <div class="detail-wrapper">
+            <div class="detail-block" v-if="data && data.scenario">
+              <div class="block-title">
+                {{ data.scenario && data.scenario.description }}
+              </div>
+              <div class="scenario-block-content">
+                <div class="content-list" v-if="data.scenario && data.scenario.sdgKeyWords">
+                  <div class="content-item" v-for="(sdgKeyword,index) in data.scenario.sdgKeyWords" :key="index">
+                    <div class="question">
+                      {{ sdgKeyword.sdgName }}
+                    </div>
+                    <div class="tags">
+                      <div class="tag-item" v-for="(tag,tagIndex) in sdgKeyword.keywords" :key="tagIndex">
+                        <a-tag class="tag">
+                          {{ tag.name }}
+                        </a-tag>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="detail-block" v-if="data && data.questions && data.questions.length">
+              <div class="block-title" v-if="data.inquiry">
+                {{ data.inquiry }}
+              </div>
+              <div class="keyword-block-content">
+                <div class="content-list" v-if="data.questions && data.questions.length">
+                  <div class="content-item" v-for="(question,qIndex) in data.questions" :key="qIndex">
+                    <div class="question" v-if="question.name">
+                      {{ question.name }}
+                    </div>
+                    <div class="content-sub-list">
+                      <div class="content-sub-item" v-for="(knowledgeTag, kIndex) in question.knowledgeTags" :key="kIndex">
+                        <div class="sub-title">
+                          <div class="sub-title-name">
+                            {{ knowledgeTag.description }}
+                            <div class="subject-name" v-if="knowledgeTag.subSubjectName">
+                              {{ knowledgeTag.subSubjectName }}
+                            </div>
+                          </div>
+                          <div class="sub-detail">
+                            <a-tag class="tag">
+                              {{ knowledgeTag.name }}
+                            </a-tag>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="content-sub-list">
+                      <div class="content-sub-item" v-for="(skillTag, sIndex) in question.skillTags" :key="sIndex">
+                        <div class="sub-title">
+                          <div class="sub-title-name">
+                            {{ skillTag.description }}
+                          </div>
+                          <div class="sub-detail">
+                            <a-tag class="tag">
+                              {{ skillTag.name }}
+                            </a-tag>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="detail-block" v-if="data && data.overview">
+              <div class="block-title">
+                Overview
+              </div>
+              <div class="overview-block">
+                <div class="view-text">
+                  {{ data.overview }}
+                </div>
+              </div>
+            </div>
+          </div>
+        </a-col>
+      </a-row>
+      <a-row class="data-info" :gutter="[16,24]" v-show="viewMode === 'Preview'">
         <a-col class="left-preview" span="24">
           <a-carousel arrows>
             <div
@@ -81,90 +172,9 @@
           </a-carousel>
         </a-col>
       </a-row>
-      <a-row class="top-info" :gutter="[16, 24]" v-show="viewMode === 'Detail'">
-        <a-col class="right-detail" span="24" >
-          <div class="detail-wrapper">
-            <div class="detail-block">
-              <div class="block-title">
-                {{ data.scenario && data.scenario.description }}
-                <span class="title-icon">
-                  <a-tooltip>
-                    <template slot="title">
-                      {{ $t('teacher.unit-plan-preview.scenario-description') }}
-                    </template>
-                    <a-icon type="info-circle" />
-                  </a-tooltip>
-                </span>
-              </div>
-              <div class="block-content">
-                <div class="content-list" v-if="data.scenario && data.scenario.sdgKeyWords">
-                  <div class="content-item" v-for="(sdgKeyword,index) in data.scenario.sdgKeyWords" :key="index">
-                    <div class="question">
-                      {{ index + 1 }}、{{ sdgKeyword.sdgName }}
-                    </div>
-                    <div class="tags">
-                      <div class="tag-item" v-for="(tag,tagIndex) in sdgKeyword.keywords" :key="tagIndex">
-                        <a-tag :color="tagColorList[tagIndex % tagColorList.length]">
-                          {{ tag.name }}
-                        </a-tag>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <div class="content-list" v-else>
-                  <a-empty />
-                </div>
-              </div>
-            </div>
-            <div class="detail-block">
-              <div class="block-title">
-                {{ data.inquiry }}
-                <span class="title-icon">
-                  <a-tooltip>
-                    <template slot="title">
-                      {{ $t('teacher.unit-plan-preview.direction-of-inquiry') }}
-                    </template>
-                    <a-icon type="info-circle" />
-                  </a-tooltip>
-                </span>
-              </div>
-              <div class="block-content">
-                <div class="content-list" v-if="data.questions && data.questions.length">
-                  <div class="content-item" v-for="(question,qIndex) in data.questions" :key="qIndex">
-                    <div class="question">
-                      {{ question.name }}
-                    </div>
-                    <div class="content-sub-list">
-                      <div class="content-sub-item" v-for="(knowledgeTag, kIndex) in question.knowledgeTags" :key="kIndex">
-                        <div class="sub-title">
-                          {{ qIndex + 1 }}.{{ kIndex + 1 }}、{{ knowledgeTag.description }}
-                          <span class="subject-name" v-if="knowledgeTag.subSubjectName">{{ knowledgeTag.subSubjectName }}</span>
-                          <a-tag :color="tagColorList[kIndex % tagColorList.length]">
-                            {{ knowledgeTag.name }}
-                          </a-tag>
-                        </div>
-                      </div>
-                    </div>
-                    <div class="content-sub-list">
-                      <div class="content-sub-item" v-for="(skillTag, sIndex) in question.skillTags" :key="sIndex">
-                        <div class="sub-title">
-                          {{ qIndex + 1 }}.{{ sIndex + 1 }}、{{ skillTag.description }}
-                          <a-tag :color="tagColorList[sIndex % tagColorList.length]">
-                            {{ skillTag.name }}
-                          </a-tag>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <div class="content-list" v-else>
-                  <a-empty />
-                </div>
-              </div>
-            </div>
-          </div>
-        </a-col>
-      </a-row>
+      <div class="associate-info" v-if="type === typeMap['unit-plan'] || type === typeMap.topic">
+        <common-associate-preview :id="id" :content-type="type"/>
+      </div>
     </template>
   </div>
 </template>
@@ -172,19 +182,24 @@
 <script>
 import * as logger from '@/utils/logger'
 import { typeMap } from '@/const/teacher'
+import NoMoreResources from '@/components/Common/NoMoreResources'
+import CommonAssociatePreview from '@/components/Common/CommonAssociatePreview'
 
 const { formatLocalUTC } = require('@/utils/util')
 const { UnitPlanQueryById } = require('@/api/unitPlan')
 const { LessonQueryById } = require('@/api/myLesson')
 const { TaskQueryById } = require('@/api/task')
 const { EvaluationQueryById } = require('@/api/evaluation')
+const { FavoritesAdd } = require('@/api/favorites')
+const { TopicQueryById } = require('@/api/topic')
 
 export default {
   name: 'CommonPreview',
+  components: { CommonAssociatePreview, NoMoreResources },
   props: {
     id: {
       type: String,
-      default: null
+      required: true
     },
     type: {
       type: Number,
@@ -211,6 +226,7 @@ export default {
       data: null,
       imgList: [],
       viewMode: 'Detail',
+      isFavorite: false,
 
       tagColorList: [
         'pink',
@@ -229,23 +245,74 @@ export default {
   },
   created () {
     logger.info('CommonPreview id ' + this.id + ' type ' + this.type)
-    this.loadUnitPlanData()
+    this.loadData()
   },
   methods: {
-    loadUnitPlanData () {
-      logger.info('loadUnitPlanData ' + this.id)
+    loadData () {
+      logger.info('loadData ' + this.id + ' type ' + this.type)
       this.loading = true
-      UnitPlanQueryById({
-        id: this.id
-      }).then(response => {
-        logger.info('UnitPlanQueryById ' + this.id, response.result)
-        this.data = response.result
-        if (this.data && this.data.image) {
-          this.imgList = [this.data.image]
-        }
-      }).finally(() => {
-        this.loading = false
-      })
+      if (this.type === this.typeMap['unit-plan']) {
+        UnitPlanQueryById({
+          id: this.id
+        }).then(response => {
+          logger.info('UnitPlanQueryById ' + this.id, response.result)
+          this.data = response.result
+          if (this.data && this.data.image) {
+            this.imgList = [this.data.image]
+          }
+        }).finally(() => {
+          this.loading = false
+        })
+      } else if (this.type === this.typeMap.task) {
+        TaskQueryById({
+          id: this.id
+        }).then(response => {
+          logger.info('TaskQueryById ' + this.id, response.result)
+          this.data = response.result
+          if (this.data && this.data.image) {
+            this.imgList = [this.data.image]
+          }
+        }).finally(() => {
+          this.loading = false
+        })
+      } else if (this.type === this.typeMap.lesson) {
+        LessonQueryById({
+          id: this.id
+        }).then(response => {
+          logger.info('LessonQueryById ' + this.id, response.result)
+          this.data = response.result
+          this.data.questions = [response.result.suggestingTag]
+          if (this.data && this.data.image) {
+            this.imgList = [this.data.image]
+          }
+        }).finally(() => {
+          this.loading = false
+        })
+      } else if (this.type === this.typeMap.evaluation) {
+        EvaluationQueryById({
+          id: this.id
+        }).then(response => {
+          logger.info('EvaluationQueryById ' + this.id, response.result)
+          this.data = response.result
+          if (this.data && this.data.image) {
+            this.imgList = [this.data.image]
+          }
+        }).finally(() => {
+          this.loading = false
+        })
+      } else if (this.type === this.typeMap.topic) {
+        TopicQueryById({
+          id: this.id
+        }).then(response => {
+          logger.info('TopicQueryById ' + this.id, response.result)
+          this.data = response.result
+          if (this.data && this.data.image) {
+            this.imgList = [this.data.image]
+          }
+        }).finally(() => {
+          this.loading = false
+        })
+      }
     },
 
     handleSelectContentType (contentType) {
@@ -260,6 +327,40 @@ export default {
 
     handleViewModeChange () {
       this.$logger.info('handleViewModeChange ' + this.viewMode)
+    },
+    handleFavorite (item) {
+      logger.info('handleFavorite', item)
+      FavoritesAdd({
+        sourceId: item.id,
+        sourceType: item.type
+      }).then(response => {
+        logger.info('FavoritesAdd ', response)
+        item.isFavorite = !item.isFavorite
+        this.isFavorite = true
+      })
+    },
+    handleEditItem (item) {
+      item.type = this.type
+      logger.info('handleEditItem', item)
+      if (item.type === typeMap['unit-plan']) {
+        window.open('/teacher/unit-plan-redirect/' + item.id
+          , '_blank')
+      } else if (item.type === typeMap['topic']) {
+        window.open('/expert/topic-redirect/' + item.id
+          , '_blank')
+      } else if (item.type === typeMap['material']) {
+        window.open('/teacher/add-material/' + item.id
+          , '_blank')
+      } else if (item.type === typeMap.task) {
+        window.open('/teacher/task-redirect/' + item.id
+          , '_blank')
+      } else if (item.type === typeMap.lesson) {
+        window.open('/teacher/lesson-redirect/' + item.id
+          , '_blank')
+      } else if (item.type === typeMap.evaluation) {
+        window.open('/teacher/evaluation-redirect/' + item.id
+          , '_blank')
+      }
     }
   }
 }
@@ -283,16 +384,24 @@ export default {
       align-items: center;
       justify-content: space-between;
       .name {
+        width: 70%;
         overflow-x: hidden;
         white-space: nowrap;
         text-overflow: ellipsis;
         word-break: break-all;
+        font-family: Inter-Bold;
+        font-size: 15px;
+        color: #182552;
+        padding-right: 10px;
+        box-sizing: border-box;
       }
 
       .action-item {
         display: flex;
+        width: 30%;
         flex-direction: row;
         align-items: center;
+        justify-content: flex-end;
 
         .star {
           img {
@@ -301,7 +410,7 @@ export default {
         }
 
         .edit {
-          margin-left: 10px;
+          margin-left: 15px;
           .button-content {
             display: flex;
             align-items: center;
@@ -321,8 +430,59 @@ export default {
     }
   }
 
-  .top-info {
-    padding: 20px 0 0 0;
+  .author-info {
+    margin-top: 10px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+    .avatar-icon {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      justify-content: flex-start;
+      img {
+        width: 80%;
+      }
+    }
+    .sub-info {
+      padding-left: 5px;
+    }
+    .sub-info {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      justify-content: flex-start;
+      .created-by {
+        padding-right: 10px;
+        font-size: 13px;
+        font-weight: 500;
+        font-family: Inter-Bold;
+        color: #182552;
+      }
+
+      .created-time {
+        font-family: Inter-Bold;
+        font-size: 10px;
+        color: #000000;
+        opacity: 0.5;
+      }
+    }
+    .star-info {
+      ul {
+        margin-bottom: 0;
+      }
+    }
+  }
+
+  .data-info {
+    margin-top: 10px;
+    min-height: 100px;
+    padding: 5px;
+    background: rgba(253, 238, 218, 0.5);
+    border: 1px solid #D8D8D8;
+    opacity: 1;
+    border-radius: 5px;
   }
 
   .left-preview {
@@ -394,36 +554,38 @@ export default {
   .right-detail {
     .detail-wrapper {
       .detail-block {
-        margin-bottom: 10px;
-        border: 1px solid #f3f3f3;
 
         .block-title {
-          font-weight: 700;
+          font-weight: 500;
           font-size: 16px;
-          padding: 10px;
-          background-color: #fafafa;
-          .title-icon {
-            font-size: 14px;
-            font-weight: normal;
-            color: @text-color-secondary;
-          }
+          padding: 10px 15px;
+          font-family: Inter-Bold;
+          color: #000000;
         }
 
-        .block-content {
-          padding: 10px;
+        .scenario-block-content {
+          padding: 5px 10px;
           .content-list {
+            display: flex;
+            flex-direction: column;
+
             .content-item {
               margin-bottom: 10px;
+              background: #fff;
+              padding: 10px;
+              display: flex;
+              flex-direction: row;
+              align-items: center;
+              justify-content: space-around;
               .question {
-                padding-bottom: 5px;
                 font-size: 14px;
                 font-weight: 500;
+                padding-right: 15px;
               }
               .tags {
                 display: flex;
                 flex-direction: row;
                 flex-wrap: wrap;
-                padding-bottom: 10px;
 
                 .tag-label {
                   font-weight: bold;
@@ -438,6 +600,13 @@ export default {
                   text-overflow: ellipsis;
                   word-break: break-all;
                   white-space: nowrap;
+                  .tag {
+                    background: rgba(255, 187, 0, 0.1);
+                    border: 1px solid #FFBB00;
+                    border-radius: 20px;
+                    font-family: Inter-Bold;
+                    color: #FFBB00;
+                  }
                 }
               }
 
@@ -456,6 +625,110 @@ export default {
                 }
               }
             }
+          }
+        }
+
+        .keyword-block-content {
+          padding: 5px 10px;
+          .content-list {
+            display: flex;
+            flex-direction: column;
+
+            .content-item {
+              margin-bottom: 10px;
+              display: flex;
+              flex-direction: column;
+              align-items: flex-start;
+              justify-content: space-around;
+              .question {
+                width: 100%;
+                font-size: 14px;
+                font-weight: 500;
+                padding: 10px 10px;
+                background: rgba(255, 187, 0, 0.1);
+                color: rgba(255, 187, 0, 1);
+                margin-bottom: 10px;
+              }
+              .tags {
+                display: flex;
+                flex-direction: row;
+                flex-wrap: wrap;
+
+                .tag-label {
+                  font-weight: bold;
+                  padding-right: 10px;
+                }
+
+                .tag-item {
+                  font-size: 16px;
+                  margin-right: 5px;
+                  margin-bottom: 5px;
+                  overflow: hidden;
+                  text-overflow: ellipsis;
+                  word-break: break-all;
+                  white-space: nowrap;
+                  .tag {
+                    background: rgba(255, 187, 0, 0.1);
+                    border: 1px solid #FFBB00;
+                    border-radius: 20px;
+                    font-family: Inter-Bold;
+                    color: #FFBB00;
+                  }
+                }
+              }
+
+              .content-sub-list {
+                padding: 5px 0;
+                margin-bottom: 10px;
+                width: 100%;
+                .content-sub-item {
+                  background: #fff;
+                  margin-bottom: 10px;
+                  .sub-title {
+                    display: flex;
+                    flex-direction: row;
+                    align-items: center;
+                    justify-content: space-between;
+                    padding: 10px;
+                    .sub-title-name {
+                      padding-right: 15px;
+                      font-weight: 500;
+                      display: inline-block;
+                      .subject-name {
+                        display: inline-block;
+                        cursor: pointer;
+                        color: @primary-color;
+                        padding: 0 8px;
+                        line-height: 20px;
+                        border-radius: 20px;
+                        margin: 0 5px;
+                        background-color: fade(@outline-color, 20%);
+                      }
+                    }
+                  }
+                }
+
+                .tag {
+                  background: rgba(255, 187, 0, 0.1);
+                  border: 1px solid #FFBB00;
+                  border-radius: 20px;
+                  font-family: Inter-Bold;
+                  color: #FFBB00;
+                }
+              }
+            }
+          }
+        }
+
+        .overview-block {
+          padding: 10px;
+          margin-bottom: 10px;
+          .view-text {
+            padding: 10px;
+            background: #fff;
+            color: #000;
+            font-family: Inter-Bold;
+            font-weight: 500;
           }
         }
       }

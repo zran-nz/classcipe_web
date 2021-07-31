@@ -58,7 +58,7 @@ export default {
       }
     }
   },
-  created () {
+  mounted () {
     this.$logger.info('AssociateSidebar id ' + this.id + ' type ' + this.type)
     if (this.id) {
       this.loadAssociateData()

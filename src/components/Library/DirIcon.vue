@@ -1,12 +1,14 @@
 <template>
   <div class="dir-icon">
     <img src="~@/assets/icons/library/dir-blue.png" class="blue" v-if="dirType === 'blue'"/>
-    <img src="~@/assets/icons/library/dir-yellow.png" v-if="dirType === 'yellow'"/>
-    <img src="~@/assets/icons/library/dir-opened.png" class="opened" v-if="dirType === 'opened'"/>
-    <img src="~@/assets/icons/library/Lesson.png" v-if="contentType === typeMap.lesson"/>
-    <img src="~@/assets/icons/library/Task.png" v-if="contentType === typeMap.task"/>
-    <img src="~@/assets/icons/library/unitplan.png" v-if="contentType === typeMap['unit-plan']"/>
-    <img src="~@/assets/icons/library/topic.png" v-if="contentType === typeMap.topic"/>
+    <img src="~@/assets/icons/library/dir-yellow.png" v-else-if="dirType === 'yellow'"/>
+    <img src="~@/assets/icons/library/dir-opened.png" class="opened" v-else-if="dirType === 'opened'"/>
+    <img src="~@/assets/icons/library/Lesson.png" v-else-if="contentType === typeMap.lesson"/>
+    <img src="~@/assets/icons/library/Task.png" v-else-if="contentType === typeMap.task"/>
+    <img src="~@/assets/icons/library/unitplan.png" v-else-if="contentType === typeMap['unit-plan']"/>
+    <img src="~@/assets/icons/library/topic.png" v-else-if="contentType === typeMap.topic"/>
+    <img src="~@/assets/icons/library/evaluation.png" v-else-if="contentType === typeMap.evaluation"/>
+    <img src="~@/assets/icons/library/evaluation.png" v-else/>
   </div>
 </template>
 
@@ -29,6 +31,9 @@ export default {
     return {
       typeMap: typeMap
     }
+  },
+  created () {
+    this.$logger.info('dir icon ' + this.contentType)
   }
 }
 </script>
