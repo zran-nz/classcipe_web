@@ -466,6 +466,7 @@ export default {
       relevantQuestionList: [],
       showRelevantQuestionVisible: false,
       relevantSelectedQuestionList: [],
+      relevantSelectedUnitPlan: {},
 
       extKnowledgeTagList: [],
       extSkillTagList: [],
@@ -678,6 +679,7 @@ export default {
     loadRelevantTagInfo (item) {
       this.$logger.info('loadRelevantTagInfo', item)
       this.showRelevantQuestionVisible = false
+      this.relevantSelectedUnitPlan = item
       if (item.type === this.contentType['unit-plan']) {
         UnitPlanQueryById({ id: item.id }).then(response => {
           this.$logger.info('loadRelevantTagInfo UnitPlanQueryById ' + item.id, response)
@@ -984,7 +986,7 @@ export default {
       this.relevantSelectedQuestionList = []
     },
 
-    handleConfirmSelectedRelevant () {
+    handleConfirmSelectedRelevant (data) {
       this.$logger.info('handleConfirmSelectedRelevant', this.relevantSelectedQuestionList)
       this.showRelevantQuestionVisible = false
       const questionDataObj = Object.assign({}, this.questionDataObj['__question_0'])
@@ -999,6 +1001,17 @@ export default {
         this.$set(this.questionDataObj, '__question_0', questionDataObj)
       })
       this.$logger.info('after $set questionDataObj __question_0', this.questionDataObj)
+      this.$logger.info('handleLinkMyContent unit question', this.relevantSelectedUnitPlan)
+      Associate({
+        fromId: this.form.id,
+        fromType: this.contentType.lesson,
+        toId: this.relevantSelectedUnitPlan.id,
+        toType: this.relevantSelectedUnitPlan.type,
+        questions: this.relevantSelectedQuestionList
+      }).then(response => {
+        this.$logger.info('handleLinkMyContent response ', response)
+        this.$refs.associate.loadAssociateData()
+      })
     },
 
     handleCancelSelectedMyContent () {

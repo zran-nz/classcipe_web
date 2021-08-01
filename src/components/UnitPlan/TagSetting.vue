@@ -113,7 +113,7 @@
               </template>
               <template v-else>
                 <div class="content-empty" >
-                   <no-more-resources />
+                  <no-more-resources />
                 </div>
               </template>
             </div>

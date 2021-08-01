@@ -104,7 +104,7 @@
       @ok="selectLinkContentVisible = false"
       @cancel="selectLinkContentVisible = false">
       <div class="link-content-wrapper">
-        <my-content-selector :filter-type-list="['topic']" />
+        <my-content-selector :filter-type-list="['unit-plan','topic']" />
       </div>
     </a-modal>
 
@@ -254,6 +254,7 @@ import { TemplatesGetTemplates } from '@/api/template'
 import { MyContentEventBus, MyContentEvent } from '@/components/MyContent/MyContentEventBus'
 import { TaskCreateTaskPPT, TaskQueryById, TaskAddOrUpdate } from '@/api/task'
 import { UnitPlanQueryById } from '@/api/unitPlan'
+import { TopicQueryById } from '@/api/topic'
 import { formatLocalUTC } from '@/utils/util'
 import MyContentSelector from '@/components/MyContent/MyContentSelector'
 import RelevantTagSelector from '@/components/UnitPlan/RelevantTagSelector'
@@ -372,6 +373,7 @@ export default {
       relevantQuestionList: [],
       showRelevantQuestionVisible: false,
       relevantSelectedQuestionList: [],
+      relevantSelectedSource: {},
 
       extKnowledgeTagList: [],
       extSkillTagList: [],
@@ -541,10 +543,22 @@ export default {
     loadRelevantTagInfo (item) {
       this.$logger.info('loadRelevantTagInfo', item)
       this.showRelevantQuestionVisible = false
-      if (item.type === this.contentType['unit-plan']) {
-        UnitPlanQueryById({ id: item.id }).then(response => {
-          this.$logger.info('loadRelevantTagInfo UnitPlanQueryById ' + item.id, response)
-          const unitPlanData = response.result
+      this.relevantSelectedSource = item
+      const relevantQuery = new Promise((resolve, reject) => {
+        if (item.type === this.contentType['unit-plan']) {
+          UnitPlanQueryById({ id: item.id }).then(response => {
+            resolve(response)
+          })
+        }
+        if (item.type === this.contentType.topic) {
+          TopicQueryById({ id: item.id }).then(response => {
+            resolve(response)
+          })
+        }
+      })
+      Promise.all([relevantQuery]).then(response => {
+          this.$logger.info('loadRelevantTagInfo UnitPlanQueryById ' + item.id, response[0])
+          const unitPlanData = response[0].result
           if (unitPlanData.questions && unitPlanData.questions.length) {
             const questionList = unitPlanData.questions
             const questionMap = new Map()
@@ -624,7 +638,6 @@ export default {
             this.$logger.info('no relevantQuestionList')
           }
         })
-      }
     },
     handleRemoveKnowledgeTag (data) {
       logger.info('Unit Plan handleRemoveKnowledgeTag', data)
@@ -857,6 +870,16 @@ export default {
         this.$set(this.questionDataObj, '__question_0', questionDataObj)
       })
       this.$logger.info('after $set questionDataObj __question_0', this.questionDataObj)
+      Associate({
+        fromId: this.form.id,
+        fromType: this.contentType.task,
+        toId: this.relevantSelectedSource.id,
+        toType: this.relevantSelectedSource.type,
+        questions: this.relevantSelectedQuestionList
+      }).then(response => {
+        this.$logger.info('handleLinkMyContent response ', response)
+        this.$refs.associate.loadAssociateData()
+      })
     },
 
     handleAddAudioOverview () {

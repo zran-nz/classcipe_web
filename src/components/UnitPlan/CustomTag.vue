@@ -30,8 +30,8 @@
           <a-row>
             <a-col offset="0" span="24">
               <div>
-                <a-radio-group v-model="selectLabel" button-style="solid" @change="onChangeLabel">
-                  <a-tag v-for="(label,index) in userTags" :key="index" :value="label.id" class="category-tag">
+                <a-radio-group v-model="selectLabel" button-style="solid">
+                  <a-tag v-for="(label,index) in userTags" :key="index" :value="label.id" :class="{'category-tag': true, 'active': label.id === selectLabel}" @click="onChangeLabel(label)">
                     <span v-if="label.isGlobal"><a-badge dot>{{ label.name }}</a-badge></span>
                     <span v-else>{{ label.name }}</span>
                   </a-tag>
@@ -96,7 +96,7 @@
       <br />
     </div>
 
-    <a-modal v-model="browseVisible" :footer="null" destroyOnClose width="600px" :dialog-style="{ top: '20px' }">
+    <a-modal v-model="browseVisible" :footer="null" destroyOnClose width="800px" :dialog-style="{ top: '20px' }">
       <div class="associate-library">
         <tag-browser :root-key="globalRootKey" :tagList="tagList" @add-global-tag="handleAddGlobalTag"/>
       </div>
@@ -204,7 +204,7 @@ export default {
             this.selectLabel = this.userTags[0].id
             this.tagSearchList = this.userTags[0].keywords
           }
-          this.filterKeyword()
+          // this.filterKeyword()
         } else {
           this.$message.error(response.message)
         }
@@ -237,8 +237,8 @@ export default {
         this.tagList.push(tag)
         this.filterKeyword()
     },
-    onChangeLabel (e) {
-      this.selectLabel = e.target.value
+    onChangeLabel (label) {
+      this.selectLabel = label.id
       this.isShowBrowse = false
       this.filterKeyword()
     },
@@ -434,6 +434,10 @@ export default {
   color: #fff;
   margin: 0 10px 10px 0;
   border: 1px solid rgba(255, 187, 0, 1);
+  &.active{
+    background-color: #15c39a;
+    border: 1px solid #15c39a;
+  }
 }
 
 </style>
