@@ -220,6 +220,7 @@ export default {
     .content-item {
       display: flex;
       flex-direction: row;
+      flex-wrap: wrap;
       align-items: center;
       padding: 10px;
 
@@ -227,26 +228,24 @@ export default {
         cursor: pointer;
         display: flex;
         flex-direction: row;
-        align-items: center;
-        overflow: hidden;
-        white-space: nowrap;
-        text-overflow: ellipsis;
+        align-items: flex-start;
         word-break: break-all;
-        user-select: none;
         padding: 0 10px;
+        width: 100%;
         .icon {
-          padding: 0 10px 0 5px;
           .file-dir-icon {
+            padding: 3px 0;
+            box-sizing: border-box;
             color: #82c0d8;
             font-size: 18px;
           }
         }
 
         .name-text {
-          overflow: hidden;
-          white-space: nowrap;
-          text-overflow: ellipsis;
+          padding: 0 5px;
+          box-sizing: border-box;
           word-break: break-all;
+          white-space:normal;
         }
       }
 
