@@ -1,7 +1,8 @@
 <template>
   <div class="relevant-tag-selector-wrapper">
     <div class="question-list">
-      <div class="question-item" v-for="(question,index) in relevantQuestionList" :key="index" v-if="question.knowledgeTagList.length || question.skillTagList.tagList">
+      <!--      <div class="question-item" v-for="(question,index) in relevantQuestionList" :key="index" v-if="question.knowledgeTagList.length || question.skillTagList.tagList">-->
+      <div class="question-item" v-for="(question,index) in relevantQuestionList" :key="index" >
         <div class="question">
           <a-checkbox @click="handleSelectQuestion(question)" :checked="selectedQuestionIdList.indexOf(question.questionId) !== -1">
             {{ question.questionName }}

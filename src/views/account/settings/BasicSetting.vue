@@ -3,9 +3,17 @@
     <div class="loading-wrapper">
       <a-spin size="large" v-if="loading"/>
     </div>
+
+    <div class="edit-action-wrapper" v-if="!editMode">
+      <div class="edit-action" @click="editMode = !editMode">
+        <a-icon type="edit"/>
+        Edit
+      </div>
+    </div>
+
     <avatar-modal ref="modal" @ok="setAvatar" v-show="!loading"/>
     <a-row :gutter="[16, 16]" v-show="!loading">
-      <a-col span="24" :style="{ minHeight: '180px' }" class="username-line">
+      <a-col span="16" :style="{ minHeight: '180px' }" class="username-line">
         <div class="ant-upload-preview" @click="$refs.modal.edit(1)">
           <a-icon type="cloud-upload-o" class="upload-icon"/>
           <div class="mask">
@@ -20,6 +28,7 @@
           </div>
         </div>
       </a-col>
+
     </a-row>
     <a-divider v-show="!loading"/>
     <a-row :gutter="[16, 16]" v-show="!loading">
@@ -147,8 +156,9 @@
           <div class="profile-label">
             <span class="label-txt">Customized tags :</span>
           </div>
+
           <div class="profile-text profile-data">
-            <a slot="extra" href="#" @click="handleSetting">Tags setting <a-icon type="edit" /></a>
+            <a slot="extra" href="#" @click="handleSetting"> <a-icon type="edit" />&nbspTags setting</a>
           </div>
         </div>
 
@@ -156,14 +166,8 @@
 
     <a-row v-show="!loading">
       <a-col span="24" class="action-line">
-        <div class="edit-action-wrapper" v-if="!editMode">
-          <div class="edit-action" @click="editMode = !editMode">
-            <a-icon type="edit"/>
-            Edit
-          </div>
-        </div>
         <div class="submit-action-wrapper" v-if="editMode">
-          <a-button type="primary" @click="saveDetail">{{ $t('account.settings.basic.update') }}</a-button>
+          <a-button type="primary" :loading="loadSaving" @click="saveDetail">{{ $t('account.settings.basic.update') }}</a-button>
         </div>
         <div class="submit-action-wrapper-second" v-if="editMode">
           <a-button @click="editMode = !editMode">{{ $t('account.settings.basic.cancel') }}</a-button>
@@ -208,6 +212,7 @@ export default {
   },
   data () {
     return {
+      loadSaving: false,
       curriculumList: [],
       subjectList: [],
       gradeList: [],
@@ -481,6 +486,7 @@ export default {
 
     saveDetail () {
       let postData = null
+      this.loadSaving = true
       if (this.$store.getters.currentRole === 'expert') {
         postData = {
           areaIds: Array.isArray(this.userInfo.areaIds) ? this.userInfo.areaIds : [this.userInfo.areaIds]
@@ -519,6 +525,7 @@ export default {
           this.$store.dispatch('GetInfo').then(() => {
             this.initData()
             this.editMode = false
+            this.loadSaving = false
           })
         })
       } else {
@@ -703,7 +710,7 @@ export default {
   text-align: left;
   color: @primary-color;
   font-weight: 500;
-  margin-left: 150px;
+  margin-left: 400px;
 }
 
 .submit-action-wrapper {
