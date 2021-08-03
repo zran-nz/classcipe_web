@@ -652,16 +652,8 @@ export default {
     handleLinkMyContent (data) {
       this.$logger.info('handleLinkMyContent ', data)
       this.selectLinkContentVisible = false
-      Associate({
-        fromId: this.form.id,
-        fromType: this.contentType.lesson,
-        toId: data.item.id,
-        toType: data.item.type
-      }).then(response => {
-        this.$logger.info('handleLinkMyContent response ', response)
-        this.$refs.associate.loadAssociateData()
-        this.loadRelevantTagInfo(data.item)
-      })
+      // link到unit plan必须全question
+      this.loadRelevantTagInfo(data.item)
     },
 
     handleToggleSelectContentItem (data) {
@@ -684,6 +676,19 @@ export default {
         UnitPlanQueryById({ id: item.id }).then(response => {
           this.$logger.info('loadRelevantTagInfo UnitPlanQueryById ' + item.id, response)
           const unitPlanData = response.result
+          const that = this.$router
+          if (unitPlanData.questions.length === 0) {
+            this.$confirm({
+              title: item.name,
+              content: 'Please add plan questions and tags before linking',
+              onOk: function () {
+                that.push({
+                  path: '/teacher/unit-plan-redirect/' + item.id
+                })
+              }
+            })
+            return
+          }
           if (unitPlanData.questions && unitPlanData.questions.length) {
             const questionList = unitPlanData.questions
             const questionMap = new Map()

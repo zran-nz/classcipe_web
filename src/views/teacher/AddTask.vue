@@ -528,16 +528,19 @@ export default {
     handleLinkMyContent (data) {
       this.$logger.info('handleLinkMyContent ', data)
       this.selectLinkContentVisible = false
-      Associate({
-        fromId: this.form.id,
-        fromType: this.contentType.task,
-        toId: data.item.id,
-        toType: data.item.type
-      }).then(response => {
-        this.$logger.info('handleLinkMyContent response ', response)
-        this.$refs.associate.loadAssociateData()
+      if (data.item.type === this.contentType['unit-plan'] || data.item.type === this.contentType['topic']) {
         this.loadRelevantTagInfo(data.item)
-      })
+      } else {
+        Associate({
+          fromId: this.form.id,
+          fromType: this.contentType.task,
+          toId: data.item.id,
+          toType: data.item.type
+        }).then(response => {
+          this.$logger.info('handleLinkMyContent response ', response)
+          this.$refs.associate.loadAssociateData()
+        })
+      }
     },
 
     loadRelevantTagInfo (item) {
@@ -557,8 +560,21 @@ export default {
         }
       })
       Promise.all([relevantQuery]).then(response => {
-          this.$logger.info('loadRelevantTagInfo UnitPlanQueryById ' + item.id, response[0])
+          this.$logger.info('loadRelevantTagInfo QueryById ' + item.id, response[0])
           const unitPlanData = response[0].result
+          const that = this
+          if (unitPlanData.questions.length === 0) {
+            this.$confirm({
+              title: item.name,
+              content: 'Please add questions and tags before linking',
+              onOk: function () {
+                that.$router.push({
+                  path: (item.type === that.contentType['unit-plan'] ? '/teacher/unit-plan-redirect/' : '/expert/topic-redirect/') + item.id
+                })
+              }
+            })
+            return
+          }
           if (unitPlanData.questions && unitPlanData.questions.length) {
             const questionList = unitPlanData.questions
             const questionMap = new Map()

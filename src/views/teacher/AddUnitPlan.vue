@@ -272,9 +272,28 @@
       @ok="selectLinkContentVisible = false"
       @cancel="selectLinkContentVisible = false">
       <div class="link-content-wrapper">
-        <my-content-selector />
+        <my-content-selector :filter-type-list="['lesson','task','evaluation']" />
       </div>
     </a-modal>
+
+    <a-modal
+      v-model="showRelevantQuestionVisible"
+      :footer="null"
+      destroyOnClose
+      top="50px"
+      width="50%"
+      title="Select from the relevant Unit"
+      @ok="showRelevantQuestionVisible = false"
+      @cancel="showRelevantQuestionVisible = false">
+      <div class="select-relevant-tag">
+        <relevant-tag-selector :relevant-question-list="relevantQuestionList" @update-selected="handleUpdateSelected"/>
+      </div>
+      <div class="action-line">
+        <a-button @click="handleCancelSelectedRelevant" class="button-item">Cancel</a-button>
+        <a-button @click="handleConfirmSelectedRelevant" type="primary" class="button-item">Confirm</a-button>
+      </div>
+    </a-modal>
+
     <a-skeleton :loading="contentLoading" active>
     </a-skeleton>
   </a-card>
@@ -305,6 +324,8 @@ import { TaskAddOrUpdate } from '@/api/task'
 import { LessonAddOrUpdate } from '@/api/myLesson'
 import { EvaluationAddOrUpdate } from '@/api/evaluation'
 import CustomTag from '../../components/UnitPlan/CustomTag'
+import { MyContentEvent, MyContentEventBus } from '@/components/MyContent/MyContentEventBus'
+import RelevantTagSelector from '@/components/UnitPlan/RelevantTagSelector'
 
 export default {
   name: 'AddUnitPlan',
@@ -318,7 +339,8 @@ export default {
     MyContentSelector,
     AssociateSidebar,
     Collaborate,
-    CustomTag
+    CustomTag,
+    RelevantTagSelector
   },
   props: {
     unitPlanId: {
@@ -335,6 +357,16 @@ export default {
 
       selectAddContentTypeVisible: false,
       selectLinkContentVisible: false,
+
+      selectedMyContentInfoItem: {},
+      // 待选择的unit plan中的描述标签
+      relevantQuestionList: [],
+      showRelevantQuestionVisible: false,
+      relevantSelectedQuestionList: [],
+      relevantSelectedUnitPlan: {},
+
+      subKnowledgeId2InfoMap: new Map(),
+      descriptionId2InfoMap: new Map(),
 
       labelCol: { span: 4 },
       wrapperCol: { span: 18 },
@@ -444,8 +476,15 @@ export default {
   },
   created () {
     logger.info('unitPlanId ' + this.unitPlanId + ' ' + this.$route.path)
+    // 初始化关联事件处理
+    MyContentEventBus.$on(MyContentEvent.LinkToMyContentItem, this.handleLinkMyContent)
+    MyContentEventBus.$on(MyContentEvent.ToggleSelectContentItem, this.handleToggleSelectContentItem)
     this.initData()
     this.debouncedGetSdgByDescription = debounce(this.searchScenario, 300)
+  },
+  beforeDestroy () {
+    MyContentEventBus.$off(MyContentEvent.LinkToMyContentItem, this.handleLinkMyContent)
+    MyContentEventBus.$off(MyContentEvent.ToggleSelectContentItem, this.handleToggleSelectContentItem)
   },
   methods: {
     initData () {
@@ -983,6 +1022,134 @@ export default {
         this.$logger.info('add loading')
       }
     },
+
+    handleLinkMyContent (data) {
+      this.$logger.info('handleLinkMyContent ', data)
+      this.selectLinkContentVisible = false
+      this.loadRelevantTagInfo(data.item)
+    },
+
+    handleToggleSelectContentItem (data) {
+      this.$logger.info('handleToggleSelectContentItem', data)
+      this.selectedMyContentInfoItem = data
+    },
+
+    loadRelevantTagInfo (item) {
+      this.$logger.info('loadRelevantTagInfo', item)
+      this.showRelevantQuestionVisible = false
+      this.relevantSelectedUnitPlan = item
+      if (this.form.questions && this.form.questions.length) {
+        const questionList = this.form.questions
+        const questionMap = new Map()
+        const relevantTagList = []
+        questionList.forEach(questionItem => {
+          if (questionItem.id && !questionMap.has(questionItem.id)) {
+            // 处理knowledge tags
+            const knowledgeTagMap = new Map()
+            const knowledgeTagList = []
+            questionItem.knowledgeTags.forEach(item => {
+              if (!!item.subKnowledgeId && item.curriculumId === this.$store.getters.bindCurriculum) {
+                if (!knowledgeTagMap.has(item.subKnowledgeId)) {
+                  knowledgeTagMap.set(item.subKnowledgeId, [])
+                  this.subKnowledgeId2InfoMap.set(item.subKnowledgeId, {
+                    ...item
+                  })
+                }
+
+                const tagList = knowledgeTagMap.get(item.subKnowledgeId)
+                tagList.push(item)
+                knowledgeTagMap.set(item.subKnowledgeId, tagList)
+              }
+            })
+            for (const [id, tagList] of knowledgeTagMap) {
+              knowledgeTagList.push({
+                id: tagList[0].id,
+                tagList,
+                info: this.subKnowledgeId2InfoMap.get(id)
+              })
+            }
+
+            // 处理skill tags
+            const skillTagMap = new Map()
+            const skillTagList = []
+            questionItem.skillTags.forEach(item => {
+              if (!!item.descriptionId && item.curriculumId === this.$store.getters.bindCurriculum) {
+                if (!skillTagMap.has(item.descriptionId)) {
+                  skillTagMap.set(item.descriptionId, [])
+                  this.descriptionId2InfoMap.set(item.descriptionId, {
+                    ...item
+                  })
+                }
+
+                const tagList = skillTagMap.get(item.descriptionId)
+                tagList.push(item)
+                skillTagMap.set(item.descriptionId, tagList)
+              }
+            })
+            for (const [id, tagList] of skillTagMap) {
+              skillTagList.push({
+                id: tagList[0].id,
+                tagList,
+                info: this.descriptionId2InfoMap.get(id)
+              })
+            }
+
+            relevantTagList.push({
+              questionName: questionItem.name,
+              questionId: questionItem.id,
+              skillTagList,
+              knowledgeTagList
+            })
+          }
+        })
+        questionMap.clear()
+
+        this.relevantQuestionList = relevantTagList
+        this.showRelevantQuestionVisible = true
+        this.$logger.info('relevantQuestionList', this.relevantQuestionList)
+      } else {
+        this.$logger.info('no relevantQuestionList')
+      }
+    },
+
+    handleCancelSelectedRelevant () {
+      this.showRelevantQuestionVisible = false
+      this.relevantSelectedQuestionList = []
+    },
+
+    handleConfirmSelectedRelevant (data) {
+      this.$logger.info('handleConfirmSelectedRelevant', this.relevantSelectedQuestionList)
+      this.showRelevantQuestionVisible = false
+      const questionDataObj = Object.assign({}, this.questionDataObj['__question_0'])
+      this.$delete(this.questionDataObj, '__question_0')
+      this.$logger.info('questionDataObj __question_0', questionDataObj)
+      this.relevantSelectedQuestionList.forEach(item => {
+        questionDataObj.knowledgeTags = questionDataObj.knowledgeTags.concat(item.knowledgeTags)
+        questionDataObj.skillTags = questionDataObj.skillTags.concat(item.skillTags)
+      })
+
+      this.$nextTick(() => {
+        this.$set(this.questionDataObj, '__question_0', questionDataObj)
+      })
+      this.$logger.info('after $set questionDataObj __question_0', this.questionDataObj)
+      this.$logger.info('handleLinkMyContent unit question', this.relevantSelectedUnitPlan)
+      Associate({
+        fromId: this.form.id,
+        fromType: this.contentType['unit-plan'],
+        toId: this.selectedMyContentInfoItem.id,
+        toType: this.selectedMyContentInfoItem.type,
+        questions: this.relevantSelectedQuestionList
+      }).then(response => {
+        this.$logger.info('handleLinkMyContent response ', response)
+        this.$refs.associate.loadAssociateData()
+      })
+    },
+
+    handleUpdateSelected (data) {
+      this.$logger.info('handleUpdateSelected', data)
+      this.relevantSelectedQuestionList = data.questionList
+    },
+
     goBack () {
       if (window.history.length <= 1) {
         this.$router.push({ path: '/teacher/main/created-by-me' })
@@ -1301,6 +1468,22 @@ export default {
       background-color: fade(@outline-color, 20%);
       border: 1px solid @primary-color;
     }
+  }
+}
+
+.select-relevant-tag {
+  max-height: 60vh;
+  overflow-y: scroll;
+}
+
+.action-line {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-end;
+  align-items: center;
+  margin-top: 20px;
+  .button-item {
+    margin-left: 10px;
   }
 }
 
