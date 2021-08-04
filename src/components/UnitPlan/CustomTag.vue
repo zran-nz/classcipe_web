@@ -204,7 +204,7 @@ export default {
             this.selectLabel = this.userTags[0].id
             this.tagSearchList = this.userTags[0].keywords
           }
-          // this.filterKeyword()
+          this.filterKeyword()
         } else {
           this.$message.error(response.message)
         }
