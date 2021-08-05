@@ -197,7 +197,7 @@
         destroyOnClose
         placement="right"
         closable
-        width="600px"
+        width="800px"
         :visible="previewVisible"
         @close="handlePreviewClose"
       >
@@ -227,11 +227,6 @@
 
 <script>
 import * as logger from '@/utils/logger'
-import UnitPlanPreview from '@/components/UnitPlan/UnitPlanPreview'
-import MainTaskPreview from '@/components/Task/MainTaskPreview'
-import MainLessonPreview from '@/components/Lesson/MainLessonPreview'
-import EvaluationPreview from '@/components/Evaluation/EvaluationPreview'
-import TopicPreview from '@/components/Topic/TopicPreview'
 import { deleteMyContentByType, getMyContent } from '@/api/teacher'
 import { ownerMap, statusMap, typeMap } from '@/const/teacher'
 import ContentStatusIcon from '@/components/Teacher/ContentStatusIcon'
@@ -240,6 +235,7 @@ import { lessonHost, lessonStatus } from '@/const/googleSlide'
 import { StartLesson } from '@/api/lesson'
 import TvSvg from '@/assets/icons/lesson/tv.svg?inline'
 import ClassList from '@/components/Teacher/ClassList'
+import storage from 'store'
 import {
   SESSION_CURRENT_PAGE,
   SESSION_CURRENT_STATUS,
@@ -256,11 +252,6 @@ export default {
     ClassList,
     ContentStatusIcon,
     ContentTypeIcon,
-    UnitPlanPreview,
-    MainTaskPreview,
-    MainLessonPreview,
-    EvaluationPreview,
-    TopicPreview,
     TvSvg
   },
   data () {
@@ -298,7 +289,7 @@ export default {
       viewPreviewSessionVisible: false,
       PPTCommentPreviewVisible: false,
       classList: [],
-      viewMode: sessionStorage.getItem(SESSION_VIEW_MODE) ? sessionStorage.getItem(SESSION_VIEW_MODE) : 'list'
+      viewMode: storage.get(SESSION_VIEW_MODE) ? storage.get(SESSION_VIEW_MODE) : 'list'
     }
   },
   locomputed: {
@@ -310,7 +301,7 @@ export default {
   methods: {
     toggleViewMode (viewMode) {
       this.$logger.info('viewMode', viewMode)
-      sessionStorage.setItem(SESSION_VIEW_MODE, viewMode)
+      storage.set(SESSION_VIEW_MODE, viewMode)
       this.viewMode = viewMode
     },
     loadMyContent () {
@@ -345,8 +336,8 @@ export default {
       this.currentStatus = status
       this.currentStatusLabel = label
       this.pageNo = 1
-      sessionStorage.setItem(SESSION_CURRENT_PAGE, this.pageNo)
       sessionStorage.setItem(SESSION_CURRENT_STATUS, status)
+      sessionStorage.setItem(SESSION_CURRENT_PAGE, this.pageNo)
       this.loadMyContent()
     },
     toggleType (type, label) {

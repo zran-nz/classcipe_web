@@ -2,22 +2,21 @@
   <div>
     <div class="preview-wrapper">
       <div class="preview-detail">
-        <main-task-preview :task-id="taskId" :can-edit="false" />
+        <common-preview :id="taskId" :type="4" :can-edit="false"/>
       </div>
     </div>
   </div>
 </template>
 
 <script>
-
-import MainTaskPreview from '../../components/Task/MainTaskPreview'
 import storage from 'store'
 import { ACCESS_TOKEN } from '../../store/mutation-types'
+import CommonPreview from '@/components/Common/CommonPreview'
 
 export default {
   name: 'TaskPreview',
   components: {
-    MainTaskPreview
+    CommonPreview
   },
   created () {
     if (this.$route.query.token) {
@@ -37,7 +36,6 @@ export default {
 
 <style lang="less" scoped>
   .preview-detail{
-    width: 800px;
     /*margin: 0 auto;*/
   }
 </style>

@@ -46,7 +46,7 @@
       destroyOnClose
       placement="right"
       closable
-      width="900px"
+      width="800px"
       :visible="previewVisible"
       @close="handlePreviewClose"
     >

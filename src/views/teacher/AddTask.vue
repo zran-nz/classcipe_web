@@ -120,7 +120,8 @@
       @ok="selectLinkContentVisible = false"
       @cancel="selectLinkContentVisible = false">
       <div class="link-content-wrapper">
-        <my-content-selector :filter-type-list="['unit-plan','topic']" />
+        <my-content-selector v-if="$store.getters.currentRole === 'expert'" :filter-type-list="['topic']" />
+        <my-content-selector v-else :filter-type-list="['unit-plan']" />
       </div>
     </a-modal>
 

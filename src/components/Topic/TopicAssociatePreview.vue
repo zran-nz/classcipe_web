@@ -80,7 +80,7 @@
         destroyOnClose
         placement="right"
         closable
-        width="900px"
+        width="800px"
         :visible="subPreviewVisible"
         @close="handleSubPreviewClose"
       >

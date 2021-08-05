@@ -97,7 +97,7 @@
                         {{ root.name }}
                       </a-tag>
                       <div class="delete-icon-wrapper">
-                        <a-icon type="close-circle" @click="removeTag(tag)" style="color: #fff" />
+                        <a-icon type="close-circle" @click="removeTag(root)" style="color: #fff" />
                       </div>
 
                     </div>
@@ -447,6 +447,9 @@ export default {
   width: 100%;
   flex-wrap: wrap;
   background-color: #e7f9f5;
+  .ant-row{
+    width: 100%;
+  }
 }
 
 .content-empty {

@@ -191,15 +191,13 @@
         destroyOnClose
         placement="right"
         closable
-        width="700px"
+        width="800px"
         :visible="previewVisible"
         @close="handlePreviewClose"
       >
         <div class="preview-wrapper">
-          <div class="preview-detail">
-            <topic-preview :topic-id="previewCurrentId" :show-associate="true" v-if="previewType === typeMap.topic" />
-            <main-task-preview :task-id="previewCurrentId" v-if="previewType === typeMap.task" />
-            <main-lesson-preview :lesson-id="previewCurrentId" v-if="previewType === typeMap.lesson" />
+          <div class="preview-detail" v-if="previewCurrentId && previewType">
+            <common-preview :id="previewCurrentId" :type="previewType" />
           </div>
         </div>
       </a-drawer>
@@ -223,10 +221,6 @@
 
 <script>
   import * as logger from '@/utils/logger'
-  import MainTaskPreview from '@/components/Task/MainTaskPreview'
-  import MainLessonPreview from '@/components/Lesson/MainLessonPreview'
-  import EvaluationPreview from '@/components/Evaluation/EvaluationPreview'
-  import TopicPreview from '@/components/Topic/TopicPreview'
   import { deleteMyContentByType, getMyContent } from '@/api/teacher'
   import { ownerMap, statusMap, typeMap } from '@/const/teacher'
   import ContentStatusIcon from '@/components/Teacher/ContentStatusIcon'
@@ -236,24 +230,22 @@
   import TvSvg from '@/assets/icons/lesson/tv.svg?inline'
   import ClassList from '@/components/Teacher/ClassList'
   import storage from 'store'
-  import { VIEW_MODE } from '@/store/mutation-types'
   import {
     SESSION_CURRENT_PAGE,
     SESSION_CURRENT_STATUS,
     SESSION_CURRENT_TYPE,
-    SESSION_CURRENT_TYPE_LABEL, SESSION_VIEW_MODE
+    SESSION_CURRENT_TYPE_LABEL,
+    SESSION_VIEW_MODE
   } from '@/const/common'
+  import CommonPreview from '@/components/Common/CommonPreview'
 
   export default {
     name: 'CreatedByMe',
     components: {
+      CommonPreview,
       ClassList,
       ContentStatusIcon,
       ContentTypeIcon,
-      MainTaskPreview,
-      MainLessonPreview,
-      EvaluationPreview,
-      TopicPreview,
       TvSvg
     },
     data () {
@@ -283,8 +275,7 @@
           },
           showTotal: total => `Total ${total} items`,
           total: 0,
-          pageSize: 16,
-          current: this.pageNo
+          pageSize: 16
         },
         pageNo: sessionStorage.getItem(SESSION_CURRENT_PAGE) ? sessionStorage.getItem(SESSION_CURRENT_PAGE) : 1,
 
@@ -292,7 +283,7 @@
         viewPreviewSessionVisible: false,
         PPTCommentPreviewVisible: false,
         classList: [],
-        viewMode: storage.get(VIEW_MODE) ? storage.get(VIEW_MODE) : 'list'
+        viewMode: storage.get(SESSION_VIEW_MODE) ? storage.get(SESSION_VIEW_MODE) : 'list'
       }
     },
     locomputed: {
@@ -304,7 +295,7 @@
     methods: {
       toggleViewMode (viewMode) {
         this.$logger.info('viewMode', viewMode)
-        sessionStorage.setItem(SESSION_VIEW_MODE, viewMode)
+        storage.set(SESSION_VIEW_MODE, viewMode)
         this.viewMode = viewMode
       },
       loadMyContent () {
@@ -416,9 +407,11 @@
 
       handlePreviewClose () {
         logger.info('handlePreviewClose')
-        this.previewCurrentId = ''
-        this.previewType = ''
         this.previewVisible = false
+        this.$nextTick(() => {
+          this.previewCurrentId = null
+          this.previewType = -1
+        })
       },
 
       handleStartSession (item) {

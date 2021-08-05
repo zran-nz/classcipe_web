@@ -106,14 +106,13 @@
         destroyOnClose
         placement="right"
         closable
-        width="900px"
+        width="800px"
         :visible="previewVisible"
         @close="handlePreviewClose"
       >
         <div class="preview-wrapper">
-          <div class="preview-detail">
-            <unit-plan-preview :unit-plan-id="previewCurrentId" :show-associate="true" v-if="previewType === typeMap['unit-plan']" />
-            <material-preview :material-id="previewCurrentId" :show-associate="true" v-if="previewType === typeMap.material" />
+          <div class="preview-detail" v-if="previewCurrentId && previewType">
+            <common-preview :id="previewCurrentId" :type="previewType" />
           </div>
         </div>
       </a-drawer>
@@ -132,10 +131,12 @@ import ContentStatusIcon from '@/components/Teacher/ContentStatusIcon'
 import ContentTypeIcon from '@/components/Teacher/ContentTypeIcon'
 import { MyContentEventBus, MyContentEvent } from '@/components/MyContent/MyContentEventBus'
 import DisplayMode from '@/components/MyContent/DisplayMode'
+import CommonPreview from '@/components/Common/CommonPreview'
 
 export default {
   name: 'MyContentCreatedByMe',
   components: {
+    CommonPreview,
     ContentStatusIcon,
     ContentTypeIcon,
     UnitPlanPreview,

@@ -90,7 +90,7 @@
                           <a-icon type="form" /> {{ $t('teacher.my-content.action-edit') }}
                         </a>
                       </div>
-                      <div class="action-item" v-if="item.type === typeMap['evaluation']">
+                      <!--                    <div class="action-item" v-if="item.type === typeMap['evaluation']">
                         <a-dropdown>
                           <a-icon type="more" style="margin-right: 8px" />
                           <a-menu slot="overlay">
@@ -118,7 +118,7 @@
                             </a-menu-item>
                           </a-menu>
                         </a-dropdown>
-                      </div>
+                      </div>-->
 
                     </div>
                   </div></div></span>
@@ -154,7 +154,7 @@
                       <a-icon type="form" /> {{ $t('teacher.my-content.action-edit') }}
                     </a>
                   </div>
-                  <div class="action-item" v-if="item.type === typeMap['evaluation']">
+                  <!--          <div class="action-item" v-if="item.type === typeMap['evaluation']">
                     <a-dropdown>
                       <a-icon type="more" style="margin-right: 8px" />
                       <a-menu slot="overlay">
@@ -182,7 +182,7 @@
                         </a-menu-item>
                       </a-menu>
                     </a-dropdown>
-                  </div>
+                  </div>-->
                 </template>
               </a-card>
             </a-list-item>
@@ -194,14 +194,13 @@
         destroyOnClose
         placement="right"
         closable
-        width="900px"
+        width="800px"
         :visible="previewVisible"
         @close="handlePreviewClose"
       >
         <div class="preview-wrapper">
-          <div class="preview-detail">
-            <unit-plan-preview :unit-plan-id="previewCurrentId" :show-associate="true" v-if="previewType === typeMap['unit-plan']" />
-            <material-preview :material-id="previewCurrentId" :show-associate="true" v-if="previewType === typeMap.material" />
+          <div class="preview-detail" v-if="previewCurrentId && previewType">
+            <common-preview :id="previewCurrentId" :type="previewType" />
           </div>
         </div>
       </a-drawer>
@@ -221,10 +220,12 @@ import { lessonStatus, lessonHost } from '@/const/googleSlide'
 import { StartLesson, getMyClasses } from '@/api/lesson'
 import storage from 'store'
 import { VIEW_MODE } from '@/store/mutation-types'
+import CommonPreview from '@/components/Common/CommonPreview'
 
 export default {
   name: 'MyFavorite',
   components: {
+    CommonPreview,
     ContentStatusIcon,
     ContentTypeIcon,
     UnitPlanPreview,
@@ -258,7 +259,6 @@ export default {
         pageSize: 15
       },
       pageNo: 1,
-
       typeMap: typeMap,
       viewMode: storage.get(VIEW_MODE) ? storage.get(VIEW_MODE) : 'list'
     }
@@ -351,9 +351,11 @@ export default {
 
     handlePreviewClose () {
       logger.info('handlePreviewClose')
-      this.previewCurrentId = ''
-      this.previewType = ''
       this.previewVisible = false
+      this.$nextTick(() => {
+        this.previewCurrentId = null
+        this.previewType = -1
+      })
     },
 
     handleTeacherProjecting (item) {

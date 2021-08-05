@@ -67,7 +67,7 @@
       v-model="PPTCommentPreviewVisible"
       :footer="null"
       destroyOnClose
-      width="900px"
+      width="800px"
       title="Summary"
       @ok="PPTCommentPreviewVisible = false"
       @cancel="PPTCommentPreviewVisible = false">
