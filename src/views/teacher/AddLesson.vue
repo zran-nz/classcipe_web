@@ -18,6 +18,21 @@
           <a-button @click="handleSaveLesson" :loading="lessonSaving"> <a-icon type="save" /> {{ $t('teacher.add-lesson.save') }}</a-button>
           <a-button type="primary" @click="handlePublishLesson"> <a-icon type="cloud-upload" /> {{ $t('teacher.add-lesson.publish') }}</a-button>
           <a-button @click="$refs.collaborate.visible = true"><a-icon type="share-alt" ></a-icon>Collaborate</a-button>
+          <a-dropdown>
+            <a-icon type="more" />
+            <a-menu slot="overlay" style="top:10px">
+              <a-menu-item>
+                <a :href="'https://docs.google.com/presentation/d/' + form.presentationId">
+                  {{ $t('teacher.my-content.edit-slide-lesson') }}
+                </a>
+              </a-menu-item>
+              <a-menu-item>
+                <a @click="handleStartSession()">
+                  {{ $t('teacher.my-content.action-session-new') }}
+                </a>
+              </a-menu-item>
+            </a-menu>
+          </a-dropdown>
           <Collaborate ref="collaborate" :id="lessonId || form.id" :type="contentType.lesson" v-if="lessonId"></Collaborate>
         </a-space>
       </a-col>
@@ -354,6 +369,8 @@ import Collaborate from '@/components/UnitPlan/Collaborate'
 import AssociateSidebar from '@/components/Associate/AssociateSidebar'
 import CustomTag from '@/components/UnitPlan/CustomTag'
 import NewUiClickableKnowledgeTag from '@/components/UnitPlan/NewUiClickableKnowledgeTag'
+import { lessonHost, lessonStatus } from '@/const/googleSlide'
+import { StartLesson } from '@/api/lesson'
 
 const TagOriginType = {
   Origin: 'Origin',
@@ -642,6 +659,9 @@ export default {
 
         if (this.form.presentationId) {
           this.loadThumbnail()
+        } else {
+          // 未成功绑定ppt
+          this.handleShowSelectMyContent()
         }
         logger.info('after restoreLesson', this.form, this.questionDataObj)
       }).finally(() => {
@@ -937,6 +957,7 @@ export default {
         if (this.selectedTemplateList.length) {
           this.creating = true
           LessonCreateLessonPPT({
+            lessonId: this.lessonId ? this.lessonId : '',
             name: this.form.name,
             overview: this.form.overview,
             templatePresentationId: this.selectedTemplateList[0].presentationId,
@@ -969,7 +990,8 @@ export default {
 
     handleOpenGoogleSlide (slideUrl) {
       this.$logger.info('handleOpenGoogleSlide ' + slideUrl)
-      window.open(slideUrl, '_blank')
+      // window.open(slideUrl, '_blank')
+      window.location.href = slideUrl
     },
 
     handleViewDetail (item) {
@@ -1053,6 +1075,7 @@ export default {
       if (!this.creating) {
         this.creating = true
         LessonCreateLessonPPT({
+          lessonId: this.lessonId ? this.lessonId : '',
           lessonIds: this.selectedLessonIdList,
           taskIds: this.selectedTaskIdList,
           name: this.form.name,
@@ -1203,6 +1226,32 @@ export default {
     },
     handleChangeUserTags (tags) {
       this.form.customTags = tags
+    },
+    handleStartSession () {
+      this.$logger.info('handleStartSession', this.form)
+      if (this.form.presentationId) {
+        const requestData = {
+          author: this.$store.getters.email,
+          slide_id: this.form.presentationId,
+          file_name: this.form.name,
+          status: lessonStatus.studentPaced,
+          redirect_url: null
+        }
+
+        this.$logger.info('handleStartSession', requestData)
+        StartLesson(requestData).then(res => {
+          this.$logger.info('StartLesson res', res)
+          if (res.code === 'ok') {
+            const targetUrl = lessonHost + 'slide_id=' + this.form.presentationId + '&class_id=' + res.data.class_id + '&type=classroom'
+            this.$logger.info('try open ' + targetUrl)
+            window.open(targetUrl, '_blank')
+          } else {
+            this.$message.warn('StartLesson Failed! ' + res.message)
+          }
+        })
+      } else {
+        this.$message.warn('This record is not bound to PPT!')
+      }
     }
   }
 }
@@ -1232,6 +1281,10 @@ export default {
   .unit-right-action {
     display: flex;
     justify-content: flex-end;
+    .anticon-more{
+      color: #15c39a;
+      font-size: 18px;
+    }
   }
 }
 

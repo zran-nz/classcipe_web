@@ -102,6 +102,9 @@ export default {
       this.$logger.info('TagTree response', response.result)
       if (response.success) {
         this.treeItemData = response.result.children
+        if (this.treeItemData.length === 0) {
+            this.onSelect([response.result.id])
+        }
         this.treeItemData.forEach(item => {
           item.scopedSlots = { title: 'title' }
           this.loop(item)

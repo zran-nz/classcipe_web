@@ -18,7 +18,23 @@
           <a-button @click="handleSaveTask"> <a-icon type="save" /> {{ $t('teacher.add-task.save') }}</a-button>
           <a-button type="primary" @click="handlePublishTask"> <a-icon type="cloud-upload" /> {{ $t('teacher.add-task.publish') }}</a-button>
           <a-button @click="$refs.collaborate.visible = true"><a-icon type="share-alt" ></a-icon>Collaborate</a-button>
+          <a-dropdown >
+            <a-icon type="more" />
+            <a-menu slot="overlay" style="top:10px">
+              <a-menu-item>
+                <a :href="'https://docs.google.com/presentation/d/' + form.presentationId">
+                  {{ $t('teacher.my-content.edit-slide-task') }}
+                </a>
+              </a-menu-item>
+              <a-menu-item>
+                <a @click="handleStartSession()">
+                  {{ $t('teacher.my-content.action-session-new') }}
+                </a>
+              </a-menu-item>
+            </a-menu>
+          </a-dropdown>
           <Collaborate ref="collaborate" :id="taskId" :type="contentType.task" ></Collaborate>
+
         </a-space>
       </a-col>
     </a-row>
@@ -264,6 +280,8 @@ import Collaborate from '@/components/UnitPlan/Collaborate'
 import AssociateSidebar from '@/components/Associate/AssociateSidebar'
 import CustomTag from '@/components/UnitPlan/CustomTag'
 import NewUiClickableKnowledgeTag from '@/components/UnitPlan/NewUiClickableKnowledgeTag'
+import { lessonHost, lessonStatus } from '@/const/googleSlide'
+import { StartLesson } from '@/api/lesson'
 
 const TagOriginType = {
   Origin: 'Origin',
@@ -519,6 +537,10 @@ export default {
         }
 
         this.form = taskData
+        // 未绑定成功ppt
+        if (!this.form.presentationId) {
+          this.handleShowSelectTemplate()
+        }
         logger.info('after restoreTask', this.form, this.questionDataObj)
       }).finally(() => {
         this.contentLoading = false
@@ -811,6 +833,7 @@ export default {
         if (this.selectedTemplateList.length) {
           this.creating = true
           TaskCreateTaskPPT({
+            taskId: this.taskId ? this.taskId : '',
             name: this.form.name,
             overview: this.form.overview,
             pageObjectIds: this.selectedTemplateList[0].pageObjectIds,
@@ -840,7 +863,8 @@ export default {
 
     handleOpenGoogleSlide (slideUrl) {
       this.$logger.info('handleOpenGoogleSlide ' + slideUrl)
-      window.open(slideUrl, '_blank')
+      // window.open(slideUrl, '_blank')
+      window.location.href = slideUrl
     },
 
     handleViewDetail (item) {
@@ -952,6 +976,32 @@ export default {
     },
     handleChangeUserTags (tags) {
       this.form.customTags = tags
+    },
+    handleStartSession () {
+      this.$logger.info('handleStartSession', this.form)
+      if (this.form.presentationId) {
+        const requestData = {
+          author: this.$store.getters.email,
+          slide_id: this.form.presentationId,
+          file_name: this.form.name,
+          status: lessonStatus.studentPaced,
+          redirect_url: null
+        }
+
+        this.$logger.info('handleStartSession', requestData)
+        StartLesson(requestData).then(res => {
+          this.$logger.info('StartLesson res', res)
+          if (res.code === 'ok') {
+            const targetUrl = lessonHost + 'slide_id=' + this.form.presentationId + '&class_id=' + res.data.class_id + '&type=classroom'
+            this.$logger.info('try open ' + targetUrl)
+            window.open(targetUrl, '_blank')
+          } else {
+            this.$message.warn('StartLesson Failed! ' + res.message)
+          }
+        })
+      } else {
+        this.$message.warn('This record is not bound to PPT!')
+      }
     }
   }
 }
@@ -981,6 +1031,10 @@ export default {
   .unit-right-action {
     display: flex;
     justify-content: flex-end;
+    .anticon-more{
+      color: #15c39a;
+      font-size: 18px;
+    }
   }
 }
 

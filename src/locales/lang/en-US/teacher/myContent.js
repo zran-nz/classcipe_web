@@ -17,5 +17,7 @@ export default {
   'teacher.my-content.action-delete': 'Delete',
   'teacher.my-content.action-session-new': 'Start/schedule a new session',
   'teacher.my-content.action-session-previous': 'Previous sessions',
-  'teacher.my-content.start-evaluation': 'Evaluation'
+  'teacher.my-content.start-evaluation': 'Evaluation',
+  'teacher.my-content.edit-slide-task': 'Edit the task in google slide',
+  'teacher.my-content.edit-slide-lesson': 'Edit the lesson in google slide'
 }
