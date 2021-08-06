@@ -4,20 +4,28 @@
       <thead>
         <draggable v-model="headers" tag="tr" class="table-header" @end="handleDragEnd">
           <th v-for="(header, hIndex) in headers" class="header-item" :key="header.type">
+            <div class="edit-icon" @click="handleEditHeader(header)">
+              <img src="~@/assets/icons/evaluation/edit.png" class="link-icon"/>
+            </div>
             <div @click="handleEditHeader(header)" class="label-text">
               {{ header.label }}
             </div>
             <template v-if="header.editable && mode !== 'evaluate' && mode !== 'preview'">
               <div class="label-input">
-                <input v-model="header.label" @blur="handleUpdateHeader(header)"/>
+                <input v-model="header.label" @blur="handleUpdateHeader(header)" class="header-input-item"/>
               </div>
             </template>
             <div class="remove-header" v-if="header.type.startsWith('user_ext_') && mode !== 'evaluate' && mode !== 'preview'">
-              <a-popconfirm :title="'Remove Header ?'" ok-text="Yes" @confirm="handleRemoveHeader(header)" cancel-text="No">
-                <a-icon type="delete" />
+              <a-popconfirm :title="'Remove Header ?'" class="rubric-delete-popconfirm" ok-text="Yes" @confirm="handleRemoveHeader(header)" cancel-text="No">
+                <template slot="icon">
+                  <div class="rubric-big-delete">
+                    <img class="big-delete-icon" src="~@/assets/icons/evaluation/big_delete.png" />
+                  </div>
+                </template>
+                <img src="~@/assets/icons/evaluation/delete.png" class="link-icon"/>
               </a-popconfirm>
             </div>
-            <template v-if="hIndex === headers.length - 1 && mode !== 'evaluate' && mode !== 'preview'">
+            <template v-if="hIndex === headers.length - 1 && mode !== 'evaluate' && mode !== 'preview' && allowAddColumn">
               <div class="add-more-header">
                 <a-tooltip title="Add new column">
                   <a-icon type="plus-circle" @click="handleAddNewHeader"/>
@@ -30,10 +38,34 @@
 
       <tbody class="table-body">
         <tr v-for="(item, lIndex) in list" class="body-line" :key="lIndex">
-          <td v-for="(header, hIndex) in headers" class="body-item" :key="lIndex + '-' + header.type" @dblclick="handleDbClickBodyItem(item, header)">
+          <td v-for="(header, hIndex) in headers" class="body-item" :data-type="header.type" :key="lIndex + '-' + header.type" @dblclick="handleDbClickBodyItem(item, header)">
             <template v-if="item.hasOwnProperty(header.type)">
+              <!--              Level-->
+              <template v-if="header.type === 'level'">
+                <template v-if="item[header.type]">
+                  <div class="level">
+                    {{ item[header.type] }}
+                  </div>
+                </template>
+              </template>
+              <!--              main_subject-->
+              <template v-else-if="header.type === 'main_subject'">
+                <template v-if="item[header.type]">
+                  <div class="main_subject">
+                    {{ item[header.type] }}
+                  </div>
+                </template>
+              </template>
+              <!--              main_subject-->
+              <template v-else-if="header.type === 'sub_subject'">
+                <template v-if="item[header.type]">
+                  <div class="sub_subject">
+                    {{ item[header.type] }}
+                  </div>
+                </template>
+              </template>
               <!--              描述内容-->
-              <template v-if="header.type === 'description'">
+              <template v-else-if="header.type === 'description'">
                 <template v-if="item[header.type]">
                   <div class="description">
                     {{ item[header.type] }}
@@ -46,7 +78,7 @@
                   <div class="tag-item" v-for="(tag, tIndex) in item[header.type]" :key="tIndex">
                     <a-tag :closable="mode !== 'evaluate' && mode !== 'preview'" @close="handleCloseTag(item, tag, $event)" :color="tagColorList[tIndex % tagColorList.length]">{{ tag }}</a-tag>
                   </div>
-                  <div class="tag-item add-tag" v-if="item['description'] && mode !== 'evaluate' && mode !== 'preview'">
+                  <div class="tag-item add-tag" v-if="(item['description'] || item['level']) && mode !== 'evaluate' && mode !== 'preview'">
                     <span class="add-tag-icon" @click="showAddNewTagInput(item)">
                       <a-icon type="plus-circle"/>
                       <span>Add keywords</span>
@@ -56,7 +88,7 @@
               </template>
               <!--              标签内容-->
               <template v-else>
-                <a-textarea type="text" v-model="item[header.type]" class="ext-input" v-if="mode !== 'evaluate' && mode !== 'preview'"/>
+                <a-textarea type="text" v-model="item[header.type]" :data-type="header.type" class="ext-input" v-if="mode !== 'evaluate' && mode !== 'preview'"/>
                 <div class="evaluation-item" v-if="mode === 'evaluate'" @click="toggleCheckedItem(lIndex, header.type)">
                   {{ item[header.type] }}
                   <div class="checked-flag" v-if="activeItemKey.indexOf(lIndex + '-' + header.type) !== -1">
@@ -68,11 +100,17 @@
 
             <template v-if="hIndex === headers.length - 1 && mode !== 'evaluate' && mode !== 'preview'">
               <div class="add-more-header">
-                <a-popconfirm :title="'Delete this line ?'" ok-text="Yes" @confirm="handleDeleteLine(item)" cancel-text="No">
-                  <a-icon type="delete"/>
+                <a-popconfirm :title="'Delete this line ?'" class="rubric-delete-popconfirm" ok-text="Yes" @confirm="handleDeleteLine(item)" cancel-text="No">
+                  <template slot="icon">
+                    <div class="rubric-big-delete">
+                      <img class="big-delete-icon" src="~@/assets/icons/evaluation/big_delete.png" />
+                    </div>
+                  </template>
+                  <img src="~@/assets/icons/evaluation/delete.png" class="delete-row"/>
                 </a-popconfirm>
               </div>
             </template>
+
             <template v-if="hIndex === headers.length - 1 && mode === 'evaluate'">
               <div class="add-evidence">
                 <a-popconfirm :title="'Add evidence ?'" ok-text="Yes" @confirm="handleAddEvidenceLine(item)" cancel-text="No">
@@ -85,7 +123,9 @@
       </tbody>
     </table>
     <div class="add-new-line" @click="handleAddNewLine" v-if="mode !== 'evaluate' && mode !== 'preview'">
-      <a-icon type="plus-circle"/> Add new Line
+      <div class="add-new-line-item">
+        <a-icon type="plus-circle" theme="filled"/>
+      </div>
     </div>
 
     <a-modal v-model="selectCurriculumVisible" @ok="handleEnsureSelect" destroyOnClose width="80%" :dialog-style="{ top: '20px' }">
@@ -117,6 +157,7 @@ import { SelectModel } from '@/components/NewLibrary/SelectModel'
 import draggable from 'vuedraggable'
 import NewBrowser from '@/components/NewLibrary/NewBrowser'
 import AddKeywordTag from '@/components/Evaluation/AddKeywordTag'
+const { GetMyGrades } = require('@/api/teacher')
 
 export default {
   name: 'RubricOne',
@@ -141,17 +182,17 @@ export default {
     mode: {
       type: String,
       default: null
+    },
+    allowAddColumn: {
+      type: Boolean,
+      default: false
     }
   },
   data () {
     return {
       selectModel: SelectModel,
       selfHeaderAddIndex: 1,
-      headers: [
-        { label: 'Criteria', previewLabel: 'Criteria', type: 'description', editable: false, required: true },
-        { label: 'Key words', previewLabel: 'Key words', type: 'keywords', editable: false, required: true },
-        { label: 'Specific Indicator', previewLabel: 'Specific Indicator', type: 'user_ext_0', editable: false, required: false }
-      ],
+      headers: [],
       list: [],
 
       selectCurriculumVisible: false,
@@ -171,14 +212,41 @@ export default {
       subKnowledgeId2InfoMap: new Map(),
       currentSelectLine: null,
       addTagItem: null,
-      activeItemKey: []
+      activeItemKey: [],
+      gradeIdMapName: new Map()
     }
   },
   created () {
-    this.$logger.info('RubricOne created ' + this.mode, this.descriptionList, this.initRawHeaders)
+    this.$logger.info('RubricOne created ' + this.mode + ' allowAddColumn ' + this.allowAddColumn, this.descriptionList, this.initRawHeaders, this.initRawData)
     if (this.initRawHeaders.length) {
       this.headers = this.initRawHeaders
+    } else {
+      if (this.allowAddColumn) {
+        this.headers = [
+          { label: 'Criteria', previewLabel: 'Criteria', type: 'description', editable: false, required: true },
+          { label: 'Key words', previewLabel: 'Key words', type: 'keywords', editable: false, required: true },
+          { label: 'Level title', previewLabel: 'Level title', type: 'user_ext_0', editable: false, required: false }
+        ]
+      } else {
+        this.headers = [
+          { label: 'Level', previewLabel: 'Key words', type: 'level', editable: false, required: true },
+          { label: 'Criteria(curriculum)', previewLabel: 'Criteria(curriculum)', type: 'main_subject', editable: false, required: true },
+          { label: 'Strands(curriculum)', previewLabel: 'Strands(curriculum)', type: 'sub_subject', editable: false, required: true },
+          { label: 'Key words', previewLabel: 'Key words', type: 'keywords', editable: false, required: true },
+          { label: 'Specific Indicator', previewLabel: 'Specific Indicator', type: 'indicator', editable: false, required: true }
+        ]
+      }
     }
+
+    GetMyGrades().then((response) => {
+      this.$logger.info('GetMyGrades', response.result)
+      this.gradeList = response.result
+      this.gradeList.forEach(item => {
+        this.gradeIdMapName.set(item.id, item.name)
+      })
+    }).catch((e) => {
+      this.$logger.error(e)
+    })
 
     if (this.initRawData.length) {
       this.list = this.initRawData
@@ -350,7 +418,7 @@ export default {
 
     handleDbClickBodyItem (item, header) {
       this.$logger.info('handleDbClickBodyItem', item, header)
-      if (header.type === 'description' && this.mode !== 'evaluate' && this.mode !== 'preview') {
+      if ((header.type === 'description' || header.type === 'level') && this.mode !== 'evaluate' && this.mode !== 'preview') {
         this.selectCurriculumVisible = true
         this.currentSelectLine = item
       }
@@ -372,10 +440,18 @@ export default {
             })
           }
         } else {
-          const newItem = {
-            type: 'knowledge',
-            description: data.description,
-            keywords: data.tagList ? data.tagList : []
+          const newItem = {}
+          if (this.allowAddColumn) {
+            newItem.type = 'knowledge'
+            newItem.description = data.description
+            newItem.keywords = data.tagList ? data.tagList : []
+          } else {
+            newItem.level = this.gradeIdMapName.get(data.gradeId)
+            newItem.main_subject = data.mainSubjectName
+            newItem.sub_subject = data.subSubjectName
+            newItem.description = data.description
+            newItem.indicator = null
+            newItem.keywords = data.tagList ? data.tagList : []
           }
           this.headers.forEach(header => {
             if (!header.required) {
@@ -433,14 +509,18 @@ export default {
   .rubric {
     .rubric-table {
       table-layout: fixed;
-      margin: auto;
 
       .table-header {
-        color: #fff;
         border-top: 1px solid #15C39A;
         border-left: 1px solid #15C39A;
         background: #15C39A;
 
+        .header-item:hover {
+          background: #07AB84;
+          .edit-icon {
+            display: flex;
+          }
+        }
         .header-item {
           position: relative;
           box-sizing: border-box;
@@ -449,13 +529,28 @@ export default {
           padding: 0;
           min-width: 140px;
           max-width: 400px;
+          overflow: hidden;
 
+          .edit-icon {
+            position: absolute;
+            right: 10px;
+            top: 10px;
+            display: none;
+            cursor: pointer;
+
+            img {
+              height: 15px;
+            }
+          }
           .label-text {
             padding: 5px 10px;
+            font-weight: 300;
+            color: #fff;
             line-height: 25px;
             vertical-align: middle;
             cursor: pointer;
             z-index: 50;
+            font-family: Inter-Bold;
           }
 
           .label-input {
@@ -469,10 +564,9 @@ export default {
             background-color: #fff;
 
             input {
-              font-weight: bold;
+              font-family: Inter-Bold;
               outline: none;
               vertical-align: middle;
-              text-decoration: underline;
               padding: 5px 10px;
               line-height: 25px;
               width: 100%;
@@ -483,13 +577,14 @@ export default {
 
           .remove-header {
             position: absolute;
-            right: 5px;
+            right: 27px;
             top: 50%;
             margin-top: -13px;
-            background: @primary-color;
-            padding: 3px;
             color: red;
             display: none;
+            img {
+              height: 30px;
+            }
           }
         }
 
@@ -520,10 +615,8 @@ export default {
       }
 
       .table-body {
-        border-left: 1px solid @outline-color;
-
+        border-left: 1px solid rgba(216, 216, 216, 1);
         .body-line {
-
           .body-item {
             position: relative;
             max-width: 400px;
@@ -531,11 +624,20 @@ export default {
             height: 35px;
             line-height: 25px;
             box-sizing: border-box;
-            border-right: 1px solid #999;
-            border-bottom: 1px solid #999;
+            border-right: 1px solid rgba(216, 216, 216, 1);
+            border-bottom: 1px solid rgba(216, 216, 216, 1);
 
             .description {
-              padding: 5px 10px;
+              padding: 10px;
+              background: rgba(228, 228, 228, 0.2);
+              outline: none;
+              font-family: Inter-Bold;
+              line-height: 16px;
+              color: #11142D;
+            }
+
+            .level, .main_subject, .sub_subject, .tag-list {
+              padding: 10px;
             }
 
             .tag-list {
@@ -550,7 +652,6 @@ export default {
                   width:auto;
                   white-space:pre-wrap;
                   word-wrap : break-word;
-                  margin-top: 3px;
                 }
               }
             }
@@ -566,12 +667,16 @@ export default {
             right: -30px;
             font-size: 16px;
             color: #ccc;
-            width: 20px;
-            height: 20px;
+            width: 25px;
+            height: 25px;
             align-items: center;
             justify-content: center;
             top: 50%;
-            margin-top: -10px;
+            margin-top: -15px;
+            img.delete-row {
+              display: none;
+              width: 30px;
+            }
           }
 
           .add-evidence {
@@ -584,17 +689,30 @@ export default {
             margin-top: -12px;
           }
         }
+
+        .body-line:hover {
+          img.delete-row {
+            display: block;
+          }
+        }
       }
     }
   }
 
 .add-new-line {
-  margin: auto;
   margin-top: 10px;
-  padding: 10px;
-  text-align: center;
-  cursor: pointer;
-  user-select: none;
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  align-items: center;
+  .add-new-line-item {
+    cursor: pointer;
+    color: #888996;
+  }
+
+  .add-new-line-item:hover {
+    color: #15C39A;
+  }
 }
 
 .add-tag-action {
@@ -603,16 +721,16 @@ export default {
 }
 
 .add-tag-icon {
-  color: #bbb;
+  color: #888996;
   align-items: center;
   display: flex;
-  justify-content: flex-start;
+  justify-content: center;
   cursor: pointer;
   i {
     height: 100%;
   }
   span {
-    padding: 5px;
+    padding-left: 5px;
     font-size: 12px;
   }
 }
@@ -621,6 +739,7 @@ export default {
   width: 100%;
   height: 100%;
   border: none;
+  box-shadow: none;
 }
 
 .evaluation-item {

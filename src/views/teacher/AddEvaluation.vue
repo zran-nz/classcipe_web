@@ -37,29 +37,47 @@
           </div>
         </div>
       </a-col>
-      <a-col span="16" class="main-content">
-        <a-card :bordered="false" :style="{ borderLeft: '1px solid rgb(235, 238, 240)'}" :body-style="{padding: '16px'}">
-          <div class="rubric-wrapper">
-            <div class="rubric-item" v-if="form.tableMode === 1 ">
-              <rubric-one ref="rubric" :description-list="evaluationTableList" :init-raw-headers="initRawHeaders" :init-raw-data="initRawData"/>
-            </div>
-          </div>
-        </a-card>
-      </a-col>
-      <a-col span="5" class="right-reference-view">
-        <a-card :bordered="false" :loading="referenceLoading">
-          <div class="self-type">
-            <div class="self-type-item">
-              <a-switch checked-children="Student" un-checked-children="Peer" default-checked v-model="selfType"/>
-              <div class="name" v-if="selfType">
-                Student Evaluation
+      <a-col span="21" class="main-content">
+        <div class="rubric-content">
+          <a-row :gutter="[16,24]">
+            <a-col span="18">
+              <div class="rubric-wrapper">
+                <div class="rubric-name">
+                  <a-input v-model="form.name" aria-placeholder="Name of the evaluation" placeholder="Name of the evaluation"/>
+                </div>
+                <div class="rubric-item">
+                  <rubric-one
+                    ref="rubric"
+                    :description-list="evaluationTableList"
+                    :init-raw-headers="initRawHeaders"
+                    :init-raw-data="initRawData"
+                    :allow-add-column="form.tableMode === 1"
+                    v-if="form.tableMode !== 0"/>
+                </div>
               </div>
-              <div class="name" v-if="!selfType">
-                Peer Evaluation
+            </a-col>
+            <a-col span="6">
+              <div class="toggle-wrapper">
+                <div class="self-type">
+                  <div class="self-type-item">
+                    <div class="name" >
+                      Student Evaluation
+                    </div>
+                    <div class="action-item">
+                      <a-switch v-model="se"/>
+                    </div>
+                    <div class="name">
+                      Peer Evaluation
+                    </div>
+                    <div class="action-item">
+                      <a-switch v-model="pe"/>
+                    </div>
+                  </div>
+                </div>
               </div>
-            </div>
-          </div>
-        </a-card>
+            </a-col>
+          </a-row>
+        </div>
       </a-col>
     </a-row>
 
@@ -132,7 +150,7 @@
           <div
             :class="{
               'rubric-item': true,
-              'active-rubric': form.tableMode === 1
+              'active-rubric': tableMode === 1
             }"
             @click="handleSelectRubric(1)"
           >
@@ -146,7 +164,7 @@
           <div
             :class="{
               'rubric-item': true,
-              'active-rubric': form.tableMode === 2
+              'active-rubric': tableMode === 2
             }"
             @click="handleSelectRubric(2)"
           >
@@ -260,7 +278,8 @@ export default {
         id: null,
         name: 'Unnamed Evaluation',
         status: 0,
-        selfType: 0,
+        se: 0,
+        pe: 0,
         table: [],
         tableMode: 0,
         createTime: '',
@@ -280,7 +299,9 @@ export default {
       evaluationTableList: [],
       initRawHeaders: [],
       initRawData: [],
-      selfType: false
+      se: false,
+      pe: false,
+      tableMode: 0
     }
   },
   computed: {
@@ -315,8 +336,10 @@ export default {
         const evaluationData = response.result
         this.form.name = evaluationData.name
         this.form.id = evaluationData.id
-        this.form.selfType = evaluationData.selfType
-        this.selfType = evaluationData.selfType === 2
+        this.form.se = evaluationData.se
+        this.form.pe = evaluationData.pe
+        this.pe = evaluationData.pe === 1
+        this.se = evaluationData.se === 1
         this.form.tableMode = evaluationData.tableMode
         if (evaluationData.table.length) {
           const headers = evaluationData.table.splice(0, 1)[0]
@@ -498,7 +521,8 @@ export default {
       const dataList = this.$refs.rubric.list
       const evaluationData = {
         name: this.form.name,
-        selfType: this.selfType ? 2 : 1,
+        pe: this.pe ? 1 : 0,
+        se: this.se ? 1 : 0,
         tableMode: this.form.tableMode,
         table: []
       }
@@ -513,7 +537,7 @@ export default {
       this.$logger.info('header line ', headerLine)
 
       dataList.forEach(lineItem => {
-        if (lineItem['description']) {
+        if ((lineItem['description'] || lineItem['level'])) {
           const line = []
           headers.forEach(header => {
             line.push({
@@ -555,11 +579,6 @@ export default {
           this.form.status = 1
         })
       }
-    },
-
-    handleSelectEvaluationType (type) {
-      this.$logger.info('handleSelectEvaluationType ' + type)
-      this.form.selfType = type
     },
 
     goBack () {
@@ -682,16 +701,22 @@ export default {
 
     handleSelectRubric (tableMode) {
       this.$logger.info('handleSelectRubric ' + tableMode)
-      this.form.tableMode = tableMode
+      this.tableMode = tableMode
     },
 
     handleEnsureSelectRubric () {
-      this.$logger.info('handleEnsureSelectRubric ' + this.form.tableMode)
-      if (this.form.tableMode !== 0) {
+      this.$logger.info('handleEnsureSelectRubric ' + this.tableMode)
+      if (this.tableMode !== 0) {
         this.selectRubricVisible = false
+        this.form.tableMode = this.tableMode
 
         if (this.form.tableMode === 1) {
-          this.showRelevantQuestionVisible = true
+          this.$logger.info('relevantQuestionList length', this.relevantQuestionList.length)
+          if (this.relevantQuestionList.length) {
+            this.showRelevantQuestionVisible = true
+          } else {
+            this.$logger.info('skip!, empty relevantQuestionList!')
+          }
         }
       } else {
         this.$message.warn('Choose rubric format!')
@@ -792,8 +817,16 @@ export default {
   }
 
   .main-content {
-    padding: 30px 0;
-
+    padding: 20px ;
+    .rubric-content {
+      padding: 30px 20px ;
+      min-height: 400px;
+      background: #FFFFFF;
+      border: 1px solid #D8D8D8;
+      box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.16);
+      opacity: 1;
+      border-radius: 6px;
+    }
     .image-preview {
       img {
         max-width: 100%;
@@ -1228,14 +1261,14 @@ export default {
 }
 *::-webkit-scrollbar-track {
   border-radius: 3px;
-  background: rgba(0,0,0,0.00);
-  -webkit-box-shadow: inset 0 0 5px rgba(0,0,0,0.08);
+  background: rgba(0,0,0,0.01);
+  -webkit-box-shadow: inset 0 0 5px rgba(0,0,0,0.02);
 }
 /* 滚动条滑块 */
 *::-webkit-scrollbar-thumb {
   border-radius: 5px;
-  background: rgba(0,0,0,0.12);
-  -webkit-box-shadow: inset 0 0 10px rgba(0,0,0,0.2);
+  background: rgba(0,0,0,0.1);
+  -webkit-box-shadow: inset 0 0 10px rgba(0,0,0,0.1);
 }
 
 .audio-material-action {
@@ -1451,21 +1484,36 @@ export default {
   box-sizing: border-box;
   max-width: 100%;
   overflow-x: auto;
-  overflow-y: scroll;
-  padding: 0 20px 20px 20px;
+  padding: 0 40px 20px 20px;
+  .rubric-name {
+    width: 300px;
+    margin-bottom: 15px;
+    input {
+      border-radius: 3px;
+    }
+  }
 }
 
-.self-type {
-  margin-top: 30px;
-  display: flex;
-  flex-direction: column;
-  .self-type-item {
-    margin-right: 20px;
-    margin-bottom: 10px;
+.toggle-wrapper {
+
+  padding: 10px;
+  .self-type {
+
+    padding: 10px;
+    border: 1px solid #F7F8FF;
+    box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.16);
+    margin-top: 34px;
     display: flex;
-    flex-direction: row;
-    .name {
-      padding: 0 10px;
+    flex-direction: column;
+    .self-type-item {
+      margin-right: 20px;
+      margin-bottom: 10px;
+      display: flex;
+      flex-direction: column;
+      .name {
+        padding: 5px 0;
+        display: inline-block;
+      }
     }
   }
 }

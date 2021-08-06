@@ -829,8 +829,7 @@ export default {
 .rubric-wrapper {
   box-sizing: border-box;
   max-width: 100%;
-  overflow-x: auto;
-  overflow-y: scroll;
+  overflow-x: scroll;
   padding: 0 20px 0 0;
 }
 
