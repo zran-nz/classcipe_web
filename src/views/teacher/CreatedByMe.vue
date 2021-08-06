@@ -2,65 +2,74 @@
   <div class="my-content">
     <div class="filter-line">
       <div class="status-tab">
-        <span :class="{'status-item': true, 'active-status-item': currentStatus === 'all-status'}" @click="toggleStatus('all-status', $t('teacher.my-content.all-status'))">
-          {{ $t('teacher.my-content.all-status') }}
-        </span>
-        <a-divider type="vertical" />
-        <span :class="{'status-item': true, 'active-status-item': currentStatus === 'published'}" @click="toggleStatus('published', $t('teacher.my-content.published-status'))">
-          {{ $t('teacher.my-content.published-status') }}
-        </span>
-        <a-divider type="vertical" />
-        <span :class="{'status-item': true, 'active-status-item': currentStatus === 'draft'}" @click="toggleStatus('draft', $t('teacher.my-content.draft-status'))">
-          {{ $t('teacher.my-content.draft-status') }}
-        </span>
-      </div>
-      <div class="type-owner">
-        <div class="view-mode-toggle">
-          <div class="view-mode">
-            <div :class="{'view-mode-item': true, 'active-view': viewMode === 'img'}" @click="toggleViewMode('img')">
-              <a-icon type="appstore"/>
-            </div>
-            <div :class="{'view-mode-item': true, 'active-view': viewMode === 'list'}" @click="toggleViewMode('list')">
-              <a-icon type="unordered-list"/>
+        <div class="toggle-mode-type-wrapper">
+          <div class="toggle-mode-type">
+            <div class="toggle-mode">
+              <div :class="{'mode-item': true, 'skill-active-mode' : currentStatus === 'all-status'}" @click="toggleStatus('all-status', $t('teacher.my-content.all-status'))">
+                {{ $t('teacher.my-content.all-status') }}
+              </div>
+              <div :class="{'mode-item': true, 'knowledge-active-mode' : currentStatus === 'published'}" @click="toggleStatus('published', $t('teacher.my-content.published-status'))">
+                {{ $t('teacher.my-content.published-status') }}
+              </div>
+              <div :class="{'mode-item': true, 'general-active-mode' : currentStatus === 'draft'}" @click="toggleStatus('draft', $t('teacher.my-content.draft-status'))">
+                {{ $t('teacher.my-content.draft-status') }}
+              </div>
             </div>
           </div>
         </div>
-        <a-space>
-          <div class="type-filter">
-            <a-dropdown>
-              <a class="ant-dropdown-link" @click="e => e.preventDefault()">
-                {{ currentTypeLabel }} <a-icon type="down" />
-              </a>
-              <a-menu slot="overlay">
-                <a-menu-item disabled>
-                  <span>{{ $t('teacher.my-content.choose-types-of-content') }}</span>
-                </a-menu-item>
-                <a-menu-item @click="toggleType('all-type', $t('teacher.my-content.all-type'))">
-                  <span>{{ $t('teacher.my-content.all-type') }}</span>
-                </a-menu-item>
-                <a-menu-item @click="toggleType('unit-plan', $t('teacher.my-content.unit-plan-type'))">
-                  <span>{{ $t('teacher.my-content.unit-plan-type') }}</span>
-                </a-menu-item>
-                <a-menu-item @click="toggleType('task', $t('teacher.my-content.tasks-type') )">
-                  <span>{{ $t('teacher.my-content.tasks-type') }}</span>
-                </a-menu-item>
-                <a-menu-item @click="toggleType('lesson', $t('teacher.my-content.lesson-type'))">
-                  <span>{{ $t('teacher.my-content.lesson-type') }}</span>
-                </a-menu-item>
-                <a-menu-item @click="toggleType('evaluation', $t('teacher.my-content.evaluation-type'))">
-                  <span>{{ $t('teacher.my-content.evaluation-type') }}</span>
-                </a-menu-item>
-              </a-menu>
-            </a-dropdown>
+      </div>
+
+      <div class="type-owner">
+        <div class="type-filter">
+          <a-dropdown>
+            <a-menu slot="overlay">
+              <a-menu-item disabled>
+                <span>{{ $t('teacher.my-content.choose-types-of-content') }}</span>
+              </a-menu-item>
+              <a-menu-item @click="toggleType('all-type', $t('teacher.my-content.all-type'))">
+                <span>{{ $t('teacher.my-content.all-type') }}</span>
+              </a-menu-item>
+              <a-menu-item @click="toggleType('unit-plan', $t('teacher.my-content.unit-plan-type'))">
+                <span>{{ $t('teacher.my-content.unit-plan-type') }}</span>
+              </a-menu-item>
+              <a-menu-item @click="toggleType('task', $t('teacher.my-content.tasks-type') )">
+                <span>{{ $t('teacher.my-content.tasks-type') }}</span>
+              </a-menu-item>
+              <a-menu-item @click="toggleType('lesson', $t('teacher.my-content.lesson-type'))">
+                <span>{{ $t('teacher.my-content.lesson-type') }}</span>
+              </a-menu-item>
+              <a-menu-item @click="toggleType('evaluation', $t('teacher.my-content.evaluation-type'))">
+                <span>{{ $t('teacher.my-content.evaluation-type') }}</span>
+              </a-menu-item>
+            </a-menu>
+            <a-button
+              style="padding: 0 20px;display:flex; box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.16);align-items:center ;height: 40px;border-radius: 6px;background: #FFFFFF;border: 1px solid #eee;font-family: Inter-Bold;color: #182552;"> Choose type(s)of content <a-icon type="caret-down" /> </a-button>
+          </a-dropdown>
+        </div>
+        <div class="view-mode-toggle">
+          <div class="view-mode">
+            <div :class="{'view-mode-item': true, 'active-view': viewMode === 'img'}" @click="toggleViewMode('img')">
+              <a-icon type="appstore" theme="filled" v-if="viewMode === 'img'"/>
+              <a-icon type="appstore" v-if="viewMode === 'list'"/>
+            </div>
+            <div :class="{'view-mode-item': true, 'active-view': viewMode === 'list'}" @click="toggleViewMode('list')">
+              <a-icon type="unordered-list" />
+            </div>
           </div>
-        </a-space>
+        </div>
       </div>
     </div>
     <div class="content-wrapper">
       <a-skeleton :loading="skeletonLoading" active>
         <div class="content-list">
-          <a-list size="large" :pagination="pagination" :data-source="myContentList" :loading="loading" v-if="viewMode === 'list'">
-            <a-list-item slot="renderItem" key="item.key" slot-scope="item">
+          <a-list
+            size="large"
+            :pagination="pagination"
+            :data-source="myContentList"
+            :loading="loading"
+            v-if="viewMode === 'list'"
+          >
+            <a-list-item class="my-list-item" slot="renderItem" key="item.key" slot-scope="item">
 
               <span class="content-info-left" @click="handleViewDetail(item)">
                 <content-type-icon :type="item.type" />
@@ -491,31 +500,90 @@ export default {
   position: relative;
 }
 
+.active-item {
+  background-color: fade(@outline-color, 20%);
+  color: @primary-color;
+}
+
+.my-list-item {
+  box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.16);
+  opacity: 1;
+  border-radius: 4px;
+  background: #FFFFFF;
+  padding: 12px 10px;
+  margin-bottom: 15px;
+}
+
 .my-content {
   padding: 0 15px 25px 15px;
   .filter-line {
     padding: 15px 0;
     display: flex;
     justify-content: space-between;
-    .status-item {
-      border-radius: @btn-border-radius-base;
-      cursor: pointer;
-      display: inline-block;
-      min-width: 50px;
-      text-align: center;
-      line-height: 28px;
-      padding: 0 15px;
-      color: @text-color;
-      font-size: @btn-font-size-sm;
-      font-weight: @btn-font-weight;
-    }
+    .status-tab {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      .toggle-mode-type-wrapper {
+        width: 280px;
+        box-sizing: border-box;
+        .toggle-mode-type {
+          height: 40px;
+          display: inline-block;
+          border-radius: 40px;
+          background: rgba(228, 228, 228, 0.3);
 
-    .active-status-item {
-      background: @primary-color;
-      color: #fff;
+          .toggle-mode {
+            border-radius: 40px;
+            height: 40px;
+            display: flex;
+            flex-direction: row;
+            font-size: 14px;
+
+            //.mode-item:first-child {
+            //  border-bottom-left-radius: 35px;
+            //  border-top-left-radius: 35px;
+            //}
+            //
+            //.mode-item:last-child {
+            //  border-bottom-right-radius: 35px;
+            //  border-top-right-radius: 35px;
+            //}
+
+            .mode-item {
+              padding: 0 8px;
+              font-size: 12px;
+              height: 40px;
+              color: rgba(17, 20, 45, 1);
+              border-radius: 40px;
+              font-family: Inter-Bold;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              width: 90px;
+            }
+
+            .skill-active-mode {
+              color: #fff;
+              background: rgba(21, 195, 154, 1);
+            }
+
+            .knowledge-active-mode {
+              color: #fff;
+              background: rgba(21, 195, 154, 1);
+            }
+
+            .general-active-mode {
+              color: #fff;
+              background: rgba(21, 195, 154, 1);
+            }
+          }
+        }
+      }
     }
 
     .type-owner {
+      height: 40px;
       display: flex;
       flex-direction: row;
       align-items: center;
@@ -595,7 +663,14 @@ a.delete-action {
   justify-content: flex-end;
   align-items: center;
   margin-right: 10px;
-   height: 25px;
+  background: #FFFFFF;
+  border: 1px solid #F7F8FF;
+  box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.16);
+  opacity: 1;
+  border-radius: 6px;
+  height: 40px;
+  padding: 0px 15px;
+  margin-left: 20px;
   .view-mode {
     display: flex;
     flex-direction: row;
@@ -604,8 +679,9 @@ a.delete-action {
     color: @text-color-secondary;
 
     .view-mode-item {
-      font-size: 18px;
+      font-size: 20px;
       padding-left: 5px;
+      margin: 0 3px;
     }
 
     .active-view {

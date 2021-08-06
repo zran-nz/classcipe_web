@@ -15,75 +15,56 @@
         <!--        </span>-->
       </div>
       <div class="type-owner">
-        <div class="view-mode">
-          <div :class="{'view-mode-item': true, 'active-view': viewMode === 'img'}" @click="toggleViewMode('img')">
-            <a-icon type="appstore"/>
-          </div>
-          <div :class="{'view-mode-item': true, 'active-view': viewMode === 'list'}" @click="toggleViewMode('list')">
-            <a-icon type="unordered-list"/>
+        <div class="type-filter">
+          <a-dropdown>
+            <a-menu slot="overlay">
+              <a-menu-item disabled>
+                <span>{{ $t('teacher.my-content.choose-types-of-content') }}</span>
+              </a-menu-item>
+              <a-menu-item @click="toggleType('all-type', $t('teacher.my-content.all-type'))" v-show="$store.getters.currentRole === 'teacher'">
+                <span>{{ $t('teacher.my-content.all-type') }}</span>
+              </a-menu-item>
+              <a-menu-item @click="toggleType('topic', $t('teacher.my-content.topics-type') )">
+                <span>{{ $t('teacher.my-content.topics-type') }}</span>
+              </a-menu-item>
+              <!--                <a-menu-item @click="toggleType('material', $t('teacher.my-content.materials-type'))">
+                <span>{{ $t('teacher.my-content.materials-type') }}</span>
+              </a-menu-item>-->
+              <a-menu-item @click="toggleType('unit-plan', $t('teacher.my-content.unit-plan-type'))" v-show="$store.getters.currentRole === 'teacher'">
+                <span>{{ $t('teacher.my-content.unit-plan-type') }}</span>
+              </a-menu-item>
+              <a-menu-item @click="toggleType('task', $t('teacher.my-content.tasks-type') )">
+                <span>{{ $t('teacher.my-content.tasks-type') }}</span>
+              </a-menu-item>
+              <a-menu-item @click="toggleType('lesson', $t('teacher.my-content.lesson-type'))" v-show="$store.getters.currentRole === 'teacher'">
+                <span>{{ $t('teacher.my-content.lesson-type') }}</span>
+              </a-menu-item>
+              <a-menu-item @click="toggleType('evaluation', $t('teacher.my-content.evaluation-type'))" v-show="$store.getters.currentRole === 'teacher'">
+                <span>{{ $t('teacher.my-content.evaluation-type') }}</span>
+              </a-menu-item>
+            </a-menu>
+            <a-button
+              style="padding: 0 20px;display:flex; box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.16);align-items:center ;height: 40px;border-radius: 6px;background: #FFFFFF;border: 1px solid #eee;font-family: Inter-Bold;color: #182552;"> Choose type(s)of content <a-icon type="caret-down" /> </a-button>
+          </a-dropdown>
+        </div>
+        <div class="view-mode-toggle">
+          <div class="view-mode">
+            <div :class="{'view-mode-item': true, 'active-view': viewMode === 'img'}" @click="toggleViewMode('img')">
+              <a-icon type="appstore" theme="filled" v-if="viewMode === 'img'"/>
+              <a-icon type="appstore" v-if="viewMode === 'list'"/>
+            </div>
+            <div :class="{'view-mode-item': true, 'active-view': viewMode === 'list'}" @click="toggleViewMode('list')">
+              <a-icon type="unordered-list"/>
+            </div>
           </div>
         </div>
-        <a-space>
-          <div class="type-filter">
-            <a-dropdown>
-              <a class="ant-dropdown-link" @click="e => e.preventDefault()">
-                {{ currentTypeLabel }} <a-icon type="down" />
-              </a>
-              <a-menu slot="overlay">
-                <a-menu-item disabled>
-                  <span>{{ $t('teacher.my-content.choose-types-of-content') }}</span>
-                </a-menu-item>
-                <a-menu-item @click="toggleType('all-type', $t('teacher.my-content.all-type'))" v-show="$store.getters.currentRole === 'teacher'">
-                  <span>{{ $t('teacher.my-content.all-type') }}</span>
-                </a-menu-item>
-                <a-menu-item @click="toggleType('topic', $t('teacher.my-content.topics-type') )">
-                  <span>{{ $t('teacher.my-content.topics-type') }}</span>
-                </a-menu-item>
-                <!--                <a-menu-item @click="toggleType('material', $t('teacher.my-content.materials-type'))">
-                  <span>{{ $t('teacher.my-content.materials-type') }}</span>
-                </a-menu-item>-->
-                <a-menu-item @click="toggleType('unit-plan', $t('teacher.my-content.unit-plan-type'))" v-show="$store.getters.currentRole === 'teacher'">
-                  <span>{{ $t('teacher.my-content.unit-plan-type') }}</span>
-                </a-menu-item>
-                <a-menu-item @click="toggleType('task', $t('teacher.my-content.tasks-type') )">
-                  <span>{{ $t('teacher.my-content.tasks-type') }}</span>
-                </a-menu-item>
-                <a-menu-item @click="toggleType('lesson', $t('teacher.my-content.lesson-type'))" v-show="$store.getters.currentRole === 'teacher'">
-                  <span>{{ $t('teacher.my-content.lesson-type') }}</span>
-                </a-menu-item>
-                <a-menu-item @click="toggleType('evaluation', $t('teacher.my-content.evaluation-type'))" v-show="$store.getters.currentRole === 'teacher'">
-                  <span>{{ $t('teacher.my-content.evaluation-type') }}</span>
-                </a-menu-item>
-              </a-menu>
-            </a-dropdown>
-          </div>
-          <!--          <a-divider type="vertical" />-->
-          <!--          <div class="owner-filter">-->
-          <!--            <a-dropdown>-->
-          <!--              <a class="ant-dropdown-link" @click="e => e.preventDefault()">-->
-          <!--                {{ currentOwnerLabel }} <a-icon type="down" />-->
-          <!--              </a>-->
-          <!--              <a-menu slot="overlay">-->
-          <!--                <a-menu-item @click.native="toggleOwner('all-owner', $t('teacher.my-content.all-owner') )">-->
-          <!--                  <span>{{ $t('teacher.my-content.all-owner') }}</span>-->
-          <!--                </a-menu-item>-->
-          <!--                <a-menu-item @click="toggleOwner('owner-by-me', $t('teacher.my-content.owner-by-me') )">-->
-          <!--                  <span>{{ $t('teacher.my-content.owner-by-me') }}</span>-->
-          <!--                </a-menu-item>-->
-          <!--                <a-menu-item @click="toggleOwner('owner-by-others', $t('teacher.my-content.owner-by-others'))">-->
-          <!--                  <span>{{ $t('teacher.my-content.owner-by-others') }}</span>-->
-          <!--                </a-menu-item>-->
-          <!--              </a-menu>-->
-          <!--            </a-dropdown>-->
-          <!--          </div>-->
-        </a-space>
       </div>
     </div>
     <div class="content-wrapper">
       <a-skeleton :loading="skeletonLoading" active>
         <div class="content-list">
           <a-list size="large" :pagination="pagination" :data-source="myContentList" :loading="loading" v-if="viewMode === 'list'">
-            <a-list-item slot="renderItem" key="item.key" slot-scope="item">
+            <a-list-item class="my-list-item" slot="renderItem" key="item.key" slot-scope="item">
 
               <span class="content-info-left" @click="handleViewDetail(item)">
                 <content-type-icon :type="item.type" />
@@ -469,6 +450,15 @@ export default {
   position: relative;
 }
 
+.my-list-item {
+  box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.16);
+  opacity: 1;
+  border-radius: 4px;
+  background: #FFFFFF;
+  padding: 12px 10px;
+  margin-bottom: 15px;
+}
+
 .my-content {
   padding: 0 15px 25px 15px;
   .filter-line {
@@ -494,6 +484,10 @@ export default {
     }
 
     .type-owner {
+      height: 40px;
+      display: flex;
+      flex-direction: row;
+      align-items: center;
     }
   }
 
@@ -566,29 +560,45 @@ a.delete-action {
 }
 
 .type-owner {
+  height: 40px;
   display: flex;
   flex-direction: row;
   align-items: center;
 }
-.view-mode {
+
+.view-mode-toggle {
   display: flex;
   flex-direction: row;
   justify-content: flex-end;
   align-items: center;
-  color: @text-color-secondary;
-  padding-right: 5px;
+  margin-right: 10px;
+  background: #FFFFFF;
+  border: 1px solid #F7F8FF;
+  box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.16);
+  opacity: 1;
+  border-radius: 6px;
+  height: 40px;
+  padding: 0px 15px;
+  margin-left: 20px;
+  .view-mode {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-end;
+    align-items: center;
+    color: @text-color-secondary;
 
-  .view-mode-item {
-    font-size: 18px;
-    padding-left: 10px;
-  }
+    .view-mode-item {
+      font-size: 20px;
+      padding-left: 5px;
+      margin: 0 3px;
+    }
 
-  .active-view {
-    i {
-      color: @primary-color;
+    .active-view {
+      i {
+        color: @primary-color;
+      }
     }
   }
-  margin-right: 10px;
 }
 
 .cover-image {

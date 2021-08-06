@@ -6,38 +6,37 @@
           <div class="nav-bar-wrapper">
             <div :class="{'nav-bar-item': true, 'selected-nav-bar' : selectedKey === '/teacher/main/created-by-me'}">
               <router-link to="/teacher/main/created-by-me">
-                <a-icon type="container" :theme="selectedKey === '/teacher/main/created-by-me' ? 'filled': 'outlined'"/>
+                <img src="~@/assets/icons/myContent/Created_by_me@2x.png" class="icon-img" />
                 {{ $t('teacher.main.created-by-me') }}
               </router-link>
             </div>
             <div :class="{'nav-bar-item': true, 'selected-nav-bar' : selectedKey === '/teacher/main/my-favorite'}">
               <router-link to="/teacher/main/my-favorite">
-                <a-icon type="like" :theme="selectedKey === '/teacher/main/my-favorite' ? 'filled': 'outlined'" />
+                <img src="~@/assets/icons/myContent/My favorite@2x.png" class="icon-img" />
                 {{ $t('teacher.main.my-favorite') }}
               </router-link>
             </div>
-            <div :class="{'nav-bar-item': true, 'selected-nav-bar' : selectedKey === '/teacher/main/shared'}">
+            <div :class="{'nav-bar-item': true, 'nav-bar-item-split': true, 'selected-nav-bar' : selectedKey === '/teacher/main/shared'}">
               <router-link to="/teacher/main/shared">
-                <a-icon type="share-alt"/>
+                <img src="~@/assets/icons/myContent/Shared@2x.png" class="icon-img" />
                 {{ $t('teacher.main.shared') }}
               </router-link>
             </div>
-            <a-divider />
             <div :class="{'nav-bar-item': true, 'selected-nav-bar' : selectedKey === '/teacher/main/discover'}">
               <router-link to="/teacher/main/discover">
-                <a-icon type="compass" :theme="selectedKey === '/teacher/main/discover' ? 'filled': 'outlined'" />
+                <img src="~@/assets/icons/myContent/Discover@2x.png" class="icon-img" />
                 {{ $t('teacher.main.discover') }}
               </router-link>
             </div>
             <div :class="{'nav-bar-item': true, 'selected-nav-bar' : selectedKey === '/teacher/main/subscribes'}">
               <router-link to="/teacher/main/subscribes">
-                <a-icon type="star" :theme="selectedKey === '/teacher/main/subscribes' ? 'filled': 'outlined'" />
+                <img src="~@/assets/icons/myContent/Subscribes@2x.png" class="icon-img" />
                 {{ $t('teacher.main.subscribes') }}
               </router-link>
             </div>
             <div :class="{'nav-bar-item': true, 'selected-nav-bar' : selectedKey === '/teacher/main/popular'}">
               <router-link to="/teacher/main/popular">
-                <a-icon type="alert" :theme="selectedKey === '/teacher/main/popular' ? 'filled': 'outlined'" />
+                <img src="~@/assets/icons/myContent/Popular@2x.png" class="icon-img" />
                 {{ $t('teacher.main.popular') }}
               </router-link>
             </div>
@@ -103,40 +102,48 @@ export default {
 
 .nav-bar-left {
   height: 100%;
-  border-right: 1px solid #e8e8e8;
   box-sizing: border-box;
+  margin-top: 70px;
+  padding-right: 5px;
   .nav-bar-wrapper {
     .nav-bar-item {
-      margin: 10px 0;
-      font-weight: bold;
-      font-size: 16px;
+      font-family: Inter-Bold;
+      font-size: 14px;
       cursor: pointer;
+      background-image: url("~@/assets/icons/myContent/Rectangle@2x.png");
+      background-repeat: repeat;
+      background-size: cover;
 
       a {
         display: inline-block;
-        height: 50px;
+        width: 100%;
         line-height: 30px;
-        border-radius: 25px;
         padding: 10px 20px;
-        color: @text-color-secondary;
+        color: #000000;
         &:hover {
           color: @primary-color;
+        }
+
+        img.icon-img {
+          width: 25px;
+          margin-right: 10px;
         }
       }
 
       &:hover {
         a {
-          background-color: fade(@primary-color, 10%);
           color: @primary-color;
         }
       }
     }
 
+    .nav-bar-item-split {
+      margin-bottom: 20px;
+    }
+
     .selected-nav-bar {
       a {
-        background-color: fade(@primary-color, 10%);
         color: @primary-color;
-        border-radius: 25px;
       }
     }
   }

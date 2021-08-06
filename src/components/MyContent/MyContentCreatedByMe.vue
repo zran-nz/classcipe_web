@@ -2,27 +2,26 @@
   <div class="my-content">
     <div class="filter-line">
       <div class="status-tab">
-        <template v-if="selectedType === 'created-by-me'">
-          <span :class="{'status-item': true, 'active-status-item': currentStatus === 'all-status'}" @click="toggleStatus('all-status', $t('teacher.my-content.all-status'))">
-            {{ $t('teacher.my-content.all-status') }}
-          </span>
-          <a-divider type="vertical" />
-          <span :class="{'status-item': true, 'active-status-item': currentStatus === 'published'}" @click="toggleStatus('published', $t('teacher.my-content.published-status'))">
-            {{ $t('teacher.my-content.published-status') }}
-          </span>
-          <a-divider type="vertical" />
-          <span :class="{'status-item': true, 'active-status-item': currentStatus === 'draft'}" @click="toggleStatus('draft', $t('teacher.my-content.draft-status'))">
-            {{ $t('teacher.my-content.draft-status') }}
-          </span>
-        </template>
+        <div class="toggle-mode-type-wrapper" v-if="selectedType === 'created-by-me'">
+          <div class="toggle-mode-type">
+            <div class="toggle-mode">
+              <div :class="{'mode-item': true, 'skill-active-mode' : currentStatus === 'all-status'}" @click="toggleStatus('all-status', $t('teacher.my-content.all-status'))">
+                {{ $t('teacher.my-content.all-status') }}
+              </div>
+              <div :class="{'mode-item': true, 'knowledge-active-mode' : currentStatus === 'published'}" @click="toggleStatus('published', $t('teacher.my-content.published-status'))">
+                {{ $t('teacher.my-content.published-status') }}
+              </div>
+              <div :class="{'mode-item': true, 'general-active-mode' : currentStatus === 'draft'}" @click="toggleStatus('draft', $t('teacher.my-content.draft-status'))">
+                {{ $t('teacher.my-content.draft-status') }}
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
       <div class="type-owner">
         <a-space>
           <div class="type-filter">
-            <a-dropdown v-show="filterTypeList.length">
-              <a class="ant-dropdown-link" @click="e => e.preventDefault()">
-                {{ currentTypeLabel }} <a-icon type="down" />
-              </a>
+            <a-dropdown>
               <a-menu slot="overlay">
                 <a-menu-item disabled>
                   <span>{{ $t('teacher.my-content.choose-types-of-content') }}</span>
@@ -49,6 +48,8 @@
                   <span>{{ $t('teacher.my-content.evaluation-type') }}</span>
                 </a-menu-item>
               </a-menu>
+              <a-button
+                style="padding: 0 20px;display:flex; box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.16);align-items:center ;height: 40px;border-radius: 6px;background: #FFFFFF;border: 1px solid #eee;font-family: Inter-Bold;color: #182552;"> Choose type(s)of content <a-icon type="caret-down" /> </a-button>
             </a-dropdown>
           </div>
         </a-space>
@@ -58,7 +59,7 @@
       <a-skeleton :loading="skeletonLoading" active>
         <div class="content-list">
           <a-list size="large" :pagination="pagination" :data-source="myContentList" :loading="loading">
-            <a-list-item slot="renderItem" key="item.key" slot-scope="item" :class="{'active-item': selectedList.indexOf(item.type + '-' + item.id) !== -1}" @click="handleToggleSelect(item)">
+            <a-list-item slot="renderItem" key="item.key" slot-scope="item" :class="{'my-list-item': true, 'active-item': selectedList.indexOf(item.type + '-' + item.id) !== -1}" @click="handleToggleSelect(item)">
 
               <span class="content-info-left" @click="handleViewDetail(item, $event)">
                 <content-type-icon :type="item.type" />
@@ -71,6 +72,10 @@
               <span class="content-info-right">
                 <span class="update-time" >
                   {{ item.updateTime || item.createTime | dayjs }}
+                </span>
+                <span class="status">
+                  <template v-if="item.status === 0">Draft</template>
+                  <template v-if="item.status === 1">Published</template>
                 </span>
                 <div class="action" >
                   <div slot="actions" v-show="mode === displayMode.Link">
@@ -88,9 +93,10 @@
                     <div class="action-wrapper">
                       <div class="action-item">
                         <a-popconfirm :title="'Link ?'" ok-text="Yes" @confirm="handleLinkItem(item, $event)" cancel-text="No">
-                          <span>
-                            <a-icon type="form" /> {{ 'Link this evaluation to this ' + (item.type === typeMap.task ? 'task' : (item.type === typeMap.lesson ? 'lesson' : '')) }}
-                          </span>
+                          <div class="link-item">
+                            <img src="~@/assets/icons/myContent/link-icon.png" class="link-icon"/>
+                            {{ 'Link this evaluation to this ' + (item.type === typeMap.task ? 'task' : (item.type === typeMap.lesson ? 'lesson' : '')) }}
+                          </div>
                         </a-popconfirm>
                       </div>
                     </div>
@@ -132,6 +138,7 @@ import ContentTypeIcon from '@/components/Teacher/ContentTypeIcon'
 import { MyContentEventBus, MyContentEvent } from '@/components/MyContent/MyContentEventBus'
 import DisplayMode from '@/components/MyContent/DisplayMode'
 import CommonPreview from '@/components/Common/CommonPreview'
+import NoMoreResources from '@/components/Common/NoMoreResources'
 
 export default {
   name: 'MyContentCreatedByMe',
@@ -140,7 +147,8 @@ export default {
     ContentStatusIcon,
     ContentTypeIcon,
     UnitPlanPreview,
-    MaterialPreview
+    MaterialPreview,
+    NoMoreResources
   },
   props: {
     filterTypeList: {
@@ -340,12 +348,79 @@ export default {
   color: @primary-color;
 }
 
+.my-list-item {
+  box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.16);
+  opacity: 1;
+  border-radius: 4px;
+  background: #FFFFFF;
+  padding: 12px 10px;
+  margin-bottom: 15px;
+}
 .my-content {
   padding: 0 15px 25px 15px;
   .filter-line {
     padding: 15px 0;
     display: flex;
     justify-content: space-between;
+    .status-tab {
+      .toggle-mode-type-wrapper {
+        width: 280px;
+        box-sizing: border-box;
+        .toggle-mode-type {
+          height: 40px;
+          display: inline-block;
+          border-radius: 40px;
+          background: rgba(228, 228, 228, 0.3);
+
+          .toggle-mode {
+            border-radius: 40px;
+            height: 40px;
+            display: flex;
+            flex-direction: row;
+            font-size: 14px;
+
+            //.mode-item:first-child {
+            //  border-bottom-left-radius: 35px;
+            //  border-top-left-radius: 35px;
+            //}
+            //
+            //.mode-item:last-child {
+            //  border-bottom-right-radius: 35px;
+            //  border-top-right-radius: 35px;
+            //}
+
+            .mode-item {
+              padding: 0 8px;
+              font-size: 12px;
+              height: 40px;
+              color: rgba(17, 20, 45, 1);
+              border-radius: 40px;
+              font-family: Inter-Bold;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              width: 90px;
+            }
+
+            .skill-active-mode {
+              color: #fff;
+              background: rgba(21, 195, 154, 1);
+            }
+
+            .knowledge-active-mode {
+              color: #fff;
+              background: rgba(21, 195, 154, 1);
+            }
+
+            .general-active-mode {
+              color: #fff;
+              background: rgba(21, 195, 154, 1);
+            }
+          }
+        }
+      }
+    }
+
     .status-item {
       border-radius: @btn-border-radius-base;
       cursor: pointer;
@@ -396,9 +471,19 @@ export default {
           overflow: hidden;
           white-space: nowrap;
           text-overflow: ellipsis;
-          &:hover {
-            color: @primary-color;
-          }
+          font-family: Inter-Bold;
+          font-size: 13px;
+          color: #000000;
+          opacity: 0.5;
+        }
+
+        .status {
+          width: 80px;
+          font-family: Inter-Bold;
+          line-height: 24px;
+          color: #000000;
+          opacity: 1;
+          text-align: center;
         }
       }
 
@@ -416,16 +501,42 @@ export default {
           display: inline;
           margin-left: 20px;
           user-select: none;
+          .link-item {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: center;
+            height: 35px;
+            padding: 5px 15px;
+            border-radius: 35px;
+            border: 1px solid #BCBCBC;
+            font-family: Inter-Bold;
+            color: #182552;
+            font-size: 13px;
+            background: rgba(228, 228, 228, 0.2);
+            transition: all 0.3s ease;
+            .link-icon {
+              margin-right: 5px;
+              width: 15px;
+            }
+          }
+
+          .link-item:hover {
+            background: rgba(228, 228, 228, 0.5);
+          }
         }
       }
 
       .name-content {
         text-align: left;
+        padding-left: 5px;
         display: inline-block;
         max-width: 450px;
         overflow: hidden;
         white-space: nowrap;
         text-overflow: ellipsis;
+        font-family: Inter-Bold;
+        color: #11142D;
       }
     }
   }

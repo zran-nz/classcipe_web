@@ -70,7 +70,6 @@
       :closable="false"
       destroyOnClose
       width="80%"
-      title="Link in my content"
       @ok="selectLinkContentVisible = false"
       @cancel="selectLinkContentVisible = false">
       <div class="link-content-wrapper">

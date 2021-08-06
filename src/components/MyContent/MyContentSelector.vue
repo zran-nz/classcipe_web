@@ -6,19 +6,19 @@
           <div class="nav-bar-wrapper">
             <div :class="{'nav-bar-item': true, 'selected-nav-bar' : selectedType === 'created-by-me'}">
               <a @click="handleToggleType('created-by-me')">
-                <a-icon type="container" :theme="selectedType === 'created-by-me' ? 'filled': 'outlined'"/>
+                <img src="~@/assets/icons/myContent/Created_by_me@2x.png" class="icon-img" />
                 {{ $t('teacher.main.created-by-me') }}
               </a>
             </div>
             <div :class="{'nav-bar-item': true, 'selected-nav-bar' : selectedType === 'my-favorite'}">
               <a @click="handleToggleType('my-favorite')">
-                <a-icon type="like" :theme="selectedType === 'my-favorite' ? 'filled': 'outlined'" />
+                <img src="~@/assets/icons/myContent/My favorite@2x.png" class="icon-img" />
                 {{ $t('teacher.main.my-favorite') }}
               </a>
             </div>
             <div :class="{'nav-bar-item': true, 'selected-nav-bar' : selectedType === 'shared'}">
               <a @click="handleToggleType('shared')">
-                <a-icon type="share-alt"/>
+                <img src="~@/assets/icons/myContent/Shared@2x.png" class="icon-img" />
                 {{ $t('teacher.main.shared') }}
               </a>
             </div>
@@ -87,45 +87,53 @@ export default {
 @primary-color: #15c39a;
 @text-color-secondary: fade(@black, 45%);
 
-.nav-bar-left {
-  height: 100%;
-  border-right: 1px solid #e8e8e8;
-  box-sizing: border-box;
-  .nav-bar-wrapper {
-    .nav-bar-item {
-      margin: 10px 0;
-      font-weight: bold;
-      font-size: 16px;
-      cursor: pointer;
+.my-content-selector {
+  min-height: 300px;
 
-      a {
-        display: inline-block;
-        height: 50px;
-        line-height: 30px;
-        border-radius: 25px;
-        padding: 10px 20px;
-        color: @text-color-secondary;
-        &:hover {
-          color: @primary-color;
-        }
-      }
+  .nav-bar-left {
+    height: 100%;
+    box-sizing: border-box;
+    margin-top: 70px;
+    padding-right: 5px;
+    .nav-bar-wrapper {
+      border-radius: 6px;
+      .nav-bar-item {
+        font-family: Inter-Bold;
+        font-size: 14px;
+        cursor: pointer;
+        background-image: url("~@/assets/icons/myContent/Rectangle@2x.png");
+        background-repeat: repeat;
+        background-size: cover;
 
-      &:hover {
         a {
-          background-color: fade(@primary-color, 10%);
-          color: @primary-color;
+          display: inline-block;
+          width: 100%;
+          line-height: 30px;
+          padding: 10px 20px;
+          color: #000000;
+          &:hover {
+            color: @primary-color;
+          }
+
+          img.icon-img {
+            width: 25px;
+            margin-right: 10px;
+          }
+        }
+
+        &:hover {
+          a {
+            color: @primary-color;
+          }
         }
       }
-    }
 
-    .selected-nav-bar {
-      a {
-        background-color: fade(@primary-color, 10%);
-        color: @primary-color;
-        border-radius: 25px;
+      .selected-nav-bar {
+        a {
+          color: @primary-color;
+        }
       }
     }
   }
 }
-
 </style>
