@@ -615,14 +615,16 @@ export default {
 
         .update-time {
           width: 150px;
+          color: #11142D;
+          font-size: 13px;
           overflow: hidden;
           white-space: nowrap;
           text-overflow: ellipsis;
-          &:hover {
-            color: @primary-color;
-          }
         }
         .status {
+          font-family: Inter-Bold;
+          line-height: 24px;
+          color: #11142D;
           width: 80px;
         }
       }
@@ -644,6 +646,9 @@ export default {
 
       .name-content {
         text-align: left;
+        font-family: Inter-Bold;
+        line-height: 24px;
+        color: #11142D;
         display: inline-block;
         max-width: 450px;
         overflow: hidden;

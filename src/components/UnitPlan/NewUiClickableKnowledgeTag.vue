@@ -148,9 +148,9 @@
           </a-col>
         </a-row>
       </div>
-      <div class="skt-description-list-wrapper" v-if="descriptionTagList.length">
+      <div class="skt-description-list-wrapper">
         <!--   knowledge   description-list-->
-        <a-row v-if="currentMode === mode.knowledge">
+        <a-row v-if="currentMode === mode.knowledge && descriptionTagList.length">
           <a-col span="24">
             <div class="skt-description-list">
               <div
@@ -271,7 +271,7 @@
           </a-col>
         </a-row>
         <!--   skill   description-list-->
-        <a-row v-if="currentMode === mode.skill">
+        <a-row v-if="currentMode === mode.skill && skillDescriptionTagList.length">
           <a-col span="24">
             <div class="skt-description-list">
               <div
