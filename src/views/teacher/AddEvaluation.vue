@@ -526,6 +526,9 @@ export default {
         tableMode: this.form.tableMode,
         table: []
       }
+      if (this.form.id) {
+        evaluationData.id = this.form.id
+      }
       const headerLine = []
       headers.forEach(item => {
         headerLine.push({
