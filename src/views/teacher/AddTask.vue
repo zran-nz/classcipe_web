@@ -51,7 +51,7 @@
           </div>
         </div>
       </a-col>
-      <a-col span="15" class="main-content">
+      <a-col span="21" class="main-content">
         <a-card :bordered="false" :style="{ borderLeft: '1px solid rgb(235, 238, 240)', borderRight: '1px solid rgb(235, 238, 240)' }" :body-style="{padding: '16px'}">
           <a-form-model :model="form" :label-col="labelCol" :wrapper-col="wrapperCol" >
             <div class="form-block" v-if="mode === 'edit'">
@@ -88,13 +88,16 @@
               </div>
             </div>
             <div class="form-block" v-if="mode === 'create'">
-              <a-row>
-                <a-col span="12" offset="6" class="select-template">
-                  <a-button @click="handleShowSelectTemplate">
-                    {{ $t('teacher.add-task.choose-a-template') }}
-                  </a-button>
-                </a-col>
-              </a-row>
+              <div class="task-action-wrapper">
+                <div class="action-item-line">
+                  <img src="~@/assets/icons/lesson/Presentation-Collaboration@2x.png" alt="" class="action-img">
+                  <div class="action-label">
+                    <a-button shape="round" @click="handleShowSelectTemplate" class="action-item">
+                      {{ $t('teacher.add-task.choose-a-template') }}
+                    </a-button>
+                  </div>
+                </div>
+              </div>
             </div>
 
             <a-row>
@@ -103,10 +106,6 @@
               </a-col>
             </a-row>
           </a-form-model>
-        </a-card>
-      </a-col>
-      <a-col span="6" class="right-reference-view">
-        <a-card :bordered="false" :loading="referenceLoading">
         </a-card>
       </a-col>
     </a-row>
@@ -1615,6 +1614,33 @@ export default {
     padding: 0 10px;
     color: red;
     cursor: pointer;
+  }
+}
+
+.task-action-wrapper {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  .action-item-line {
+    margin: 0 25px;
+    padding: 15px;
+    box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.16);
+    opacity: 1;
+    border-radius: 3px;
+    .action-img {
+      width: 230px;
+    }
+    .action-label {
+      margin-top: 40px;
+      text-align: center;
+      .action-item {
+        border: 1px solid rgba(21, 195, 154, 1);
+        background: rgba(21, 195, 154, 0.1);
+        color: rgba(21, 195, 154, 1);
+        min-width: 120px;
+      }
+    }
   }
 }
 
