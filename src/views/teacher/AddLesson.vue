@@ -335,10 +335,28 @@
     <a-modal
       v-model="showCreateChoice"
       @ok="handleShowCreateChoice"
-      title="Create Lesson"
       @cancel="showCreateChoice = false"
       destroyOnClose>
-      Create lesson by using my content or template ?
+      <div class="evaluation-modal">
+        <div class="evaluation-header">
+          <div class="my-modal-header">
+            <div class="my-modal-icon">
+              <img src="~@/assets/icons/evaluation/evaluation_icon.png" alt="rubric">
+            </div>
+            <div class="my-modal-title">
+              Create Lesson
+            </div>
+          </div>
+        </div>
+        <div class="associate-evaluation">
+          <div class="tips-area">
+            <img src="@/assets/icons/evaluation/Collaboration-Develope-Website@2x.png" alt="">
+          </div>
+          <div class="tips">
+            Create lesson by using my content or template ?
+          </div>
+        </div>
+      </div>
     </a-modal>
 
     <a-skeleton :loading="contentLoading" active>
@@ -1948,4 +1966,61 @@ export default {
     }
   }
 }
+
+.evaluation-modal {
+  display: flex;
+  flex-direction: column;
+  .evaluation-header {
+    .my-modal-header {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      height: 40px;
+      .my-modal-icon {
+        img {
+          height: 25px;
+        }
+      }
+      .my-modal-title {
+        padding-left: 10px;
+        font-family: Inter-Bold;
+        color: #000000;
+      }
+    }
+  }
+  .associate-evaluation {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid #D8D8D8;
+    padding: 15px;
+    border-radius: 6px;
+    .tips-area {
+      display: flex;
+      justify-content: center;
+      padding: 10px;
+      box-sizing: border-box;
+      margin-bottom: 20px;
+      img {
+        height: 150px;
+      }
+    }
+    .tips {
+      text-align: center;
+      font-family: Inter-Bold;
+      color: #000;
+      margin: auto;
+    }
+  }
+
+  .associate-my-content-action {
+    margin-top: 20px;
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-end;
+    padding-right: 10px;
+  }
+}
+
 </style>

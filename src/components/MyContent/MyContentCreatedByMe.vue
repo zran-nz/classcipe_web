@@ -343,11 +343,6 @@ export default {
   position: relative;
 }
 
-.active-item {
-  background-color: fade(@outline-color, 20%);
-  color: @primary-color;
-}
-
 .my-list-item {
   box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.16);
   opacity: 1;
@@ -355,6 +350,10 @@ export default {
   background: #FFFFFF;
   padding: 12px 10px;
   margin-bottom: 15px;
+}
+.active-item {
+  background-color: fade(@outline-color, 20%);
+  color: @primary-color;
 }
 .my-content {
   padding: 0 15px 25px 15px;
