@@ -3,7 +3,7 @@
     <a-row class="evaluation-header">
       <a-col span="12">
         <a-space>
-          <a-button class="nav-back-btn" type="link" @click="goBack"> <a-icon type="left" /> {{ $t('teacher.add-evaluation.back') }}</a-button>
+          <a-button shape="round" class="nav-back-btn" type="link" @click="goBack"> <a-icon type="left" /> {{ $t('teacher.add-evaluation.back') }}</a-button>
           <span class="unit-last-change-time" v-if="lastChangeSavedTime">
             <span class="unit-nav-title">
               {{ form.name }}
@@ -15,9 +15,9 @@
       </a-col>
       <a-col span="12" class="unit-right-action">
         <a-space>
-          <a-button @click="handleSaveEvaluation"> <a-icon type="save" /> {{ $t('teacher.add-evaluation.save') }}</a-button>
-          <a-button type="primary" @click="handlePublishEvaluation"> <a-icon type="cloud-upload" /> {{ $t('teacher.add-evaluation.publish') }}</a-button>
-          <a-button @click="$refs.collaborate.visible = true"><a-icon type="share-alt" ></a-icon>Collaborate</a-button>
+          <a-button shape="round" @click="handleSaveEvaluation"> <a-icon type="save" /> {{ $t('teacher.add-evaluation.save') }}</a-button>
+          <a-button shape="round" type="primary" @click="handlePublishEvaluation"> <a-icon type="cloud-upload" /> {{ $t('teacher.add-evaluation.publish') }}</a-button>
+          <a-button shape="round" @click="$refs.collaborate.visible = true"><a-icon type="share-alt" ></a-icon>Collaborate</a-button>
           <Collaborate ref="collaborate" :id="evaluationId" :type="contentType.evaluation" ></Collaborate>
         </a-space>
       </a-col>
@@ -94,7 +94,7 @@
           show-icon
         />
         <div class="associate-my-content-action">
-          <a-button type="primary" @click="selectLinkContentVisible = true">Open My Content</a-button>
+          <a-button shape="round" type="primary" @click="selectLinkContentVisible = true">Open My Content</a-button>
         </div>
       </div>
     </a-modal>
@@ -104,40 +104,52 @@
       :footer="null"
       :maskClosable="false"
       :closable="false"
-      destroyOnClose
-      title="Choose rubric format">
-      <div class="select-rubric-wrapper">
-        <div
-          :class="{
-            'rubric-item': true,
-            'active-rubric': form.tableMode === 1
-          }"
-          @click="handleSelectRubric(1)"
-        >
-          <div class="rubric-preview">
-            <img src="~@/assets/evaluation/rubuc1.png" alt="rubric">
-          </div>
-          <div class="rubric-active-icon">
-            <a-icon type="check" />
+      width="600px"
+      destroyOnClose>
+      <div class="rubric">
+        <div class="rubric-header">
+          <div class="my-modal-header">
+            <div class="my-modal-icon">
+              <img src="~@/assets/icons/evaluation/rubric_icon.png" alt="rubric">
+            </div>
+            <div class="my-modal-title">
+              Choose rubric format
+            </div>
           </div>
         </div>
-        <div
-          :class="{
-            'rubric-item': true,
-            'active-rubric': form.tableMode === 2
-          }"
-          @click="handleSelectRubric(2)"
-        >
-          <div class="rubric-preview">
-            <img src="~@/assets/evaluation/rubuc2.png" alt="rubric">
+        <div class="select-rubric-wrapper">
+          <div
+            :class="{
+              'rubric-item': true,
+              'active-rubric': form.tableMode === 1
+            }"
+            @click="handleSelectRubric(1)"
+          >
+            <div class="rubric-preview">
+              <img src="~@/assets/icons/evaluation/rubric1.png" alt="rubric">
+            </div>
+            <div class="rubric-active-icon">
+              <a-icon type="check-circle" theme="filled"/>
+            </div>
           </div>
-          <div class="rubric-active-icon">
-            <a-icon type="check" />
+          <div
+            :class="{
+              'rubric-item': true,
+              'active-rubric': form.tableMode === 2
+            }"
+            @click="handleSelectRubric(2)"
+          >
+            <div class="rubric-preview">
+              <img src="~@/assets/icons/evaluation/rubric2.png" alt="rubric">
+            </div>
+            <div class="rubric-active-icon">
+              <a-icon type="check-circle" theme="filled"/>
+            </div>
           </div>
         </div>
-      </div>
-      <div class="select-rubric-action">
-        <a-button type="primary" @click="handleEnsureSelectRubric">Ok</a-button>
+        <div class="select-rubric-action">
+          <a-button shape="round" style="width: 80px;" type="primary" @click="handleEnsureSelectRubric">Ok</a-button>
+        </div>
       </div>
     </a-modal>
 
@@ -156,8 +168,8 @@
         <relevant-tag-selector :relevant-question-list="relevantQuestionList" @update-selected="handleUpdateSelected"/>
       </div>
       <div class="action-line">
-        <a-button @click="handleCancelSelectedRelevant" class="button-item">Cancel</a-button>
-        <a-button @click="handleConfirmSelectedRelevant" type="primary" class="button-item">Confirm</a-button>
+        <a-button shape="round" @click="handleCancelSelectedRelevant" class="button-item">Cancel</a-button>
+        <a-button shape="round" @click="handleConfirmSelectedRelevant" type="primary" class="button-item">Confirm</a-button>
       </div>
     </a-modal>
 
@@ -1299,50 +1311,79 @@ export default {
   }
 }
 
-.select-rubric-wrapper {
+.rubric {
   display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 30px;
-  .rubric-item {
-    margin: 0 10px;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    border: 1px solid #fff;
-    .rubric-preview {
-      border: 1px solid #ddd;
+  flex-direction: column;
 
-      img {
-        width: 210px;
-        margin: 0;
-        outline: none;
+  .rubric-header {
+    .my-modal-header {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      height: 40px;
+      .my-modal-icon {
+        img {
+          height: 25px;
+        }
+      }
+      .my-modal-title {
+        padding-left: 10px;
+        font-family: Inter-Bold;
+        color: #000000;
+      }
+    }
+    margin-bottom: 15px;
+  }
+  .select-rubric-wrapper {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 30px;
+
+    .rubric-item {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      background: #FFFFFF;
+      border-radius: 6px;
+      position: relative;
+      .rubric-preview {
+        border-radius: 6px;
+        padding: 35px 10px 10px 10px;
+        box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.16);
+        opacity: 1;
+        border-radius: 6px;
+        img {
+          width: 245px;
+          margin: 0;
+          outline: none;
+        }
+      }
+
+      .rubric-active-icon {
+        position: absolute;
+        top: 8px;
+        left: 10px;
+        opacity: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
       }
     }
 
-    .rubric-active-icon {
-      opacity: 0;
-      height: 40px;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-    }
-  }
+    .active-rubric {
+      font-size: 20px;
+      font-weight: bold;
+      color: @primary-color;
 
-  .active-rubric {
-    border: 1px solid  fade(@outline-color, 100%);
-    font-size: 20px;
-    font-weight: bold;
-    color: @primary-color;
-
-    .rubric-active-icon {
-      opacity: 1;
+      .rubric-active-icon {
+        opacity: 1;
+      }
     }
   }
 }
-
 .select-rubric-action {
   display: flex;
   flex-direction: row;
