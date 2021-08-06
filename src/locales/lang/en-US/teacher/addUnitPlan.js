@@ -50,7 +50,7 @@ export default {
   'teacher.add-unit-plan.add-more-question': 'Add another question/line',
   'expert.add-unit-plan.add-more-question': 'Add another question',
   'teacher.add-unit-plan.at-least-one-question': 'at least one question',
-  'teacher.add-unit-plan.please-enter-knowledge-tag': 'Please enter',
+  'teacher.add-unit-plan.please-enter-knowledge-tag': 'set learning outcomes',
   'teacher.add-unit-plan.please-enter-skill-tag': 'Please enter skill tag',
   'teacher.add-unit-plan.ensure': 'Ensure',
   'teacher.add-unit-plan.upload-image-file-failed': 'Upload Image File Failed, Please Retry!',
