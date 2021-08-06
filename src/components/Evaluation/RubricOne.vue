@@ -436,10 +436,10 @@ export default {
       margin: auto;
 
       .table-header {
-
-        border-top: 1px solid #999;
-        border-left: 1px solid #999;
-        background-color: @outline-color;
+        color: #fff;
+        border-top: 1px solid #15C39A;
+        border-left: 1px solid #15C39A;
+        background: #15C39A;
 
         .header-item {
           position: relative;
@@ -456,7 +456,6 @@ export default {
             vertical-align: middle;
             cursor: pointer;
             z-index: 50;
-            font-weight: bold;
           }
 
           .label-input {

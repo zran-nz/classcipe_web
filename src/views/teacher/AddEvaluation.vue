@@ -83,16 +83,27 @@
       :maskClosable="false"
       :closable="false"
       destroyOnClose
-      title="Associate my content"
       @ok="associateEvaluationVisible = false"
       @cancel="associateEvaluationVisible = false">
-      <div class="associate-evaluation">
-        <a-alert
-          message="Associate my content"
-          description="Evaluation should be associated with task or lesson."
-          type="info"
-          show-icon
-        />
+      <div class="evaluation-modal">
+        <div class="evaluation-header">
+          <div class="my-modal-header">
+            <div class="my-modal-icon">
+              <img src="~@/assets/icons/evaluation/evaluation_icon.png" alt="rubric">
+            </div>
+            <div class="my-modal-title">
+              Create evaluation
+            </div>
+          </div>
+        </div>
+        <div class="associate-evaluation">
+          <div class="tips-area">
+            <img src="@/assets/icons/evaluation/Collaboration-Develope-Website@2x.png" alt="">
+          </div>
+          <div class="tips">
+            Evaluation can be added to a lesson or task
+          </div>
+        </div>
         <div class="associate-my-content-action">
           <a-button shape="round" type="primary" @click="selectLinkContentVisible = true">Open My Content</a-button>
         </div>
@@ -1300,14 +1311,59 @@ export default {
   }
 }
 
-.associate-evaluation {
-  .associate-my-content-action {
+.evaluation-modal {
+  display: flex;
+  flex-direction: column;
+  .evaluation-header {
+    .my-modal-header {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      height: 40px;
+      .my-modal-icon {
+        img {
+          height: 25px;
+        }
+      }
+      .my-modal-title {
+        padding-left: 10px;
+        font-family: Inter-Bold;
+        color: #000000;
+      }
+    }
+  }
+  .associate-evaluation {
     display: flex;
-    justify-content: center;
+    flex-direction: column;
     align-items: center;
-    margin-top: 30px;
-    height: 50px;
-    margin-bottom: 30px;
+    justify-content: center;
+    border: 1px solid #D8D8D8;
+    padding: 15px;
+    border-radius: 6px;
+    .tips-area {
+      display: flex;
+      justify-content: center;
+      padding: 10px;
+      box-sizing: border-box;
+      margin-bottom: 20px;
+      img {
+        height: 150px;
+      }
+    }
+    .tips {
+      text-align: center;
+      font-family: Inter-Bold;
+      color: #000;
+      margin: auto;
+    }
+  }
+
+  .associate-my-content-action {
+    margin-top: 20px;
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-end;
+    padding-right: 10px;
   }
 }
 
