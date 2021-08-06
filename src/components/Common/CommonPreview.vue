@@ -24,8 +24,8 @@
             </div>
             <div class="action-item">
               <div class="star">
-                <img src="~@/assets/icons/common/preview/star_gray.png" @click="handleFavorite(data)" v-if="!isFavorite"/>
-                <img src="~@/assets/icons/common/preview/star_yellow.png" @click="handleFavorite(data)" v-if="isFavorite"/>
+                <img src="~@/assets/icons/common/preview/star_gray.png" @click="handleFavorite(data)" v-if="!data.isFavorite"/>
+                <img src="~@/assets/icons/common/preview/star_yellow.png" @click="handleFavorite(data)" v-if="data.isFavorite"/>
               </div>
               <div class="edit" >
                 <a-button type="primary" shape="round" @click="handleEditItem(data)">
@@ -226,7 +226,6 @@ export default {
       data: null,
       imgList: [],
       viewMode: 'Detail',
-      isFavorite: false,
 
       tagColorList: [
         'pink',
@@ -365,7 +364,7 @@ export default {
       }).then(response => {
         logger.info('FavoritesAdd ', response)
         item.isFavorite = !item.isFavorite
-        this.isFavorite = true
+        this.data.isFavorite = item.isFavorite
       })
     },
     handleGotoImgIndex (index) {
@@ -772,6 +771,7 @@ export default {
   div {
     img {
       height: 350px;
+      width: 100%;
     }
   }
 }
