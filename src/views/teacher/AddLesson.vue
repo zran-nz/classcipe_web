@@ -966,10 +966,11 @@ export default {
 
     handleSelectTemplate (template) {
       this.$logger.info('handleSelectTemplate ', template)
-      if (this.selectedTemplateList.length && this.selectedTemplateList[0].id === template.id) {
-        this.selectedTemplateList = []
+      const index = this.selectedTemplateList.findIndex(item => item.id === template.id)
+      if (index !== -1) {
+        this.selectedTemplateList.splice(index, 1)
       } else {
-        this.selectedTemplateList = [template]
+        this.selectedTemplateList.push(template)
       }
     },
 
@@ -982,7 +983,9 @@ export default {
             lessonId: this.lessonId ? this.lessonId : '',
             name: this.form.name,
             overview: this.form.overview,
-            templatePresentationId: this.selectedTemplateList[0].presentationId,
+            templatePresentationIds: this.selectedTemplateList.map(item => {
+              return item.presentationId
+            }),
             lessonIds: this.selectedLessonIdList,
             taskIds: this.selectedTaskIdList
           }).then(response => {
@@ -990,7 +993,6 @@ export default {
             this.form.id = response.result.id
             this.form.presentationId = response.result.presentationId
             this.presentationLink = response.result.presentationLink
-            this.form.presentationId = this.selectedTemplateList[0].presentationId
             this.selectTemplateVisible = false
             this.mode = 'edit'
             this.viewInGoogleSlideVisible = true

@@ -820,10 +820,11 @@ export default {
 
     handleSelectTemplate (template) {
       this.$logger.info('handleSelectTemplate ', template)
-      if (this.selectedTemplateList.length && this.selectedTemplateList[0].id === template.id) {
-        this.selectedTemplateList = []
+      const index = this.selectedTemplateList.findIndex(item => item.id === template.id)
+      if (index !== -1) {
+        this.selectedTemplateList.splice(index, 1)
       } else {
-        this.selectedTemplateList = [template]
+        this.selectedTemplateList.push(template)
       }
     },
 
@@ -837,12 +838,14 @@ export default {
             name: this.form.name,
             overview: this.form.overview,
             pageObjectIds: this.selectedTemplateList[0].pageObjectIds,
-            templatePresentationId: this.selectedTemplateList[0].presentationId
+            templatePresentationIds: this.selectedTemplateList.map(item => {
+              return item.presentationId
+            })
           }).then(response => {
             this.$logger.info('handleAddTemplate response', response.result)
             this.form.id = response.result.id
             this.presentationLink = response.result.presentationLink
-            this.form.presentationId = this.selectedTemplateList[0].presentationId
+            this.form.presentationId = response.result.presentationId
             this.selectTemplateVisible = false
             this.mode = 'edit'
             this.viewInGoogleSlideVisible = true
