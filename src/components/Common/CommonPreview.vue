@@ -185,7 +185,7 @@
         </a-col>
       </a-row>
       <div class="associate-info" v-if="type === typeMap['unit-plan'] || type === typeMap.topic">
-        <common-associate-preview id="1404757997341192194" :content-type="type"/>
+        <common-associate-preview :id="id" :content-type="type"/>
       </div>
     </template>
   </div>
