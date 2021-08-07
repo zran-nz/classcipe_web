@@ -88,12 +88,14 @@ import * as logger from '@/utils/logger'
 import LibraryIconSvg from '@/assets/icons/header/Librar_icony.svg?inline'
 import EditIconSvg from '@/assets/icons/header/bianji.svg?inline'
 import SousuoIconSvg from '@/assets/icons/header/sousuo.svg?inline'
+import ManageIconSvg from '@/assets/icons/header/Managing_icon.svg?inline'
 
 export default {
   name: 'TeacherNav',
   components: {
     LibraryIconSvg,
     EditIconSvg,
+    ManageIconSvg,
     SousuoIconSvg
   },
   data () {
