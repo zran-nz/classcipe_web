@@ -66,6 +66,9 @@
       <a-row class="data-info" v-show="viewMode === 'Detail'">
         <a-col class="right-detail" span="24" >
           <div class="detail-wrapper">
+            <div class="block-main-label" v-if="data && data.scenario">
+              Sustainable development goal
+            </div>
             <div class="detail-block" v-if="data && data.scenario">
               <div class="block-title">
                 {{ data.scenario && data.scenario.description }}
@@ -86,6 +89,9 @@
                   </div>
                 </div>
               </div>
+            </div>
+            <div class="block-main-label" v-if="data && data.questions && data.questions.length">
+              Line of inquiry/Key question
             </div>
             <div class="detail-block" v-if="data && data.questions && data.questions.length">
               <div class="block-title" v-if="data.inquiry">
@@ -133,7 +139,7 @@
               </div>
             </div>
             <div class="detail-block" v-if="data && data.overview">
-              <div class="block-title">
+              <div class="block-main-label">
                 Overview
               </div>
               <div class="overview-block">
@@ -542,7 +548,7 @@ export default {
         .block-title {
           font-weight: 500;
           font-size: 16px;
-          padding: 10px 15px;
+          padding: 5px 15px;
           font-family: Inter-Bold;
           color: #000000;
         }
@@ -822,6 +828,14 @@ export default {
       }
     }
   }
+}
+
+.block-main-label {
+  color: rgba(0, 0, 0, 1);
+  font-size: 18px;
+  font-weight: bold;
+  font-family: Inter-Bold;
+  padding: 5px 15px;
 }
 
 </style>
