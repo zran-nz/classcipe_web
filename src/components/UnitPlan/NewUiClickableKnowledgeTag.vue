@@ -1708,7 +1708,7 @@ export default {
           border: 1px dashed #666;
           padding: 5px 10px;
           width: 40%;
-          height: 147px;
+          height: 100px;
           overflow-y: scroll;
           min-height: 50px;
           display: flex;
