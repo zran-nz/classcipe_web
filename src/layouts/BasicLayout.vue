@@ -227,7 +227,6 @@ export default {
   }
 
 .nav-item {
-  padding: 0 10px;
   display: flex;
   flex-direction: row;
   align-items: center;

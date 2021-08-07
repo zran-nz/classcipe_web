@@ -90,13 +90,20 @@
                 </div>
               </div>
             </div>
+            <div class="detail-block" v-if="data && data.inquiry">
+              <div class="block-main-label">
+                Direction of inquiry
+              </div>
+              <div class="inquiry-block-content">
+                <div class="inquiry">
+                  {{ data.inquiry }}
+                </div>
+              </div>
+            </div>
             <div class="block-main-label" v-if="data && data.questions && data.questions.length">
               Line of inquiry/Key question
             </div>
             <div class="detail-block" v-if="data && data.questions && data.questions.length">
-              <div class="block-title" v-if="data.inquiry">
-                {{ data.inquiry }}
-              </div>
               <div class="keyword-block-content">
                 <div class="content-list" v-if="data.questions && data.questions.length">
                   <div class="content-item" v-for="(question,qIndex) in data.questions" :key="qIndex">
@@ -710,6 +717,20 @@ export default {
           }
         }
 
+        .inquiry-block-content {
+          width: 100%;
+          padding: 5px 10px;
+          .inquiry {
+            margin-bottom: 10px;
+            background: #fff;
+            padding: 10px;
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: flex-start;
+            flex-wrap: wrap;
+          }
+        }
         .overview-block {
           padding: 10px;
           margin-bottom: 10px;
@@ -748,7 +769,8 @@ export default {
 
 /deep/ .right-button {
   border-radius: 0 16px 16px 0 ;
-  background: rgba(228, 228, 228, 1);
+  background: rgba(247, 248, 255, 1);
+  border: none;
   font-size: 14px;
   font-family: Inter-Bold;
   color: #11142D;

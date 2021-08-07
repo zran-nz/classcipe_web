@@ -2,17 +2,33 @@
   <div class="associate-preview">
     <a-row class="bottom-relative">
       <a-col span="24" class="content-type-filter">
+        <a-radio-group v-model="activeUserType" button-style="solid" @change="handleUserTypeChange">
+          <a-radio-button value="owner" class="left-button">
+            {{ $t('teacher.unit-plan-preview.by-owner') }}
+          </a-radio-button>
+          <a-radio-button value="others" class="right-button">
+            {{ $t('teacher.unit-plan-preview.by-others') }}
+          </a-radio-button>
+        </a-radio-group>
         <div class="content-type-list">
-          <a-button :type="activeContentType === typeMap.task ? 'primary' : 'default'" shape="round" @click="handleSelectContentType(typeMap.task)" class="type-button">
-            {{ $t('teacher.unit-plan-preview.task') }}
-          </a-button>
-          <a-button :type="activeContentType === typeMap.lesson ? 'primary' : 'default'" shape="round" @click="handleSelectContentType(typeMap.lesson)" class="type-button">
-            {{ $t('teacher.unit-plan-preview.lesson') }}
-          </a-button>
-          <a-button :type="activeContentType === typeMap.evaluation ? 'primary' : 'default'" shape="round" @click="handleSelectContentType(typeMap.evaluation)" class="type-button">
-            {{ $t('teacher.unit-plan-preview.evaluation') }}
-          </a-button>
+          <div class="toggle-mode-type-wrapper">
+            <div class="toggle-mode-type">
+              <div class="toggle-mode">
+                <div :class="{'mode-item': true, 'skill-active-mode' : activeContentType === typeMap.task}" @click="handleSelectContentType(typeMap.task)">
+                  {{ $t('teacher.unit-plan-preview.task') }}
+                </div>
+                <div :class="{'mode-item': true, 'knowledge-active-mode' : activeContentType === typeMap.lesson}" @click="handleSelectContentType(typeMap.lesson)">
+                  {{ $t('teacher.unit-plan-preview.lesson') }}
+                </div>
+                <div :class="{'mode-item': true, 'general-active-mode' : activeContentType === typeMap.evaluation}" @click="handleSelectContentType(typeMap.evaluation)">
+                  {{ $t('teacher.unit-plan-preview.evaluation') }}
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
+      </a-col>
+      <a-col span="24" class="created-toggle">
         <div class="toggle-view-type">
           <div class="switch-icon">
             <div :class="{'icon-item': true, 'active-icon': dataListMode === 'list'}" @click="handleToggleDataListMode('list')">
@@ -23,16 +39,6 @@
             </div>
           </div>
         </div>
-      </a-col>
-      <a-col span="24" class="created-toggle">
-        <a-radio-group v-model="activeUserType" button-style="solid" @change="handleUserTypeChange">
-          <a-radio-button value="owner" class="left-button">
-            {{ $t('teacher.unit-plan-preview.by-owner') }}
-          </a-radio-button>
-          <a-radio-button value="others" class="right-button">
-            {{ $t('teacher.unit-plan-preview.by-others') }}
-          </a-radio-button>
-        </a-radio-group>
       </a-col>
     </a-row>
     <a-row>
@@ -235,11 +241,11 @@ export default {
   .bottom-relative {
 
     .content-type-filter {
-      padding: 10px 0;
+      padding: 10px 15px;
       display: flex;
       flex-direction: row;
       align-items: center;
-      justify-content: space-around;
+      justify-content: space-between;
       background: #FFFFFF;
       border: 1px solid #F7F8FF;
       box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.16);
@@ -249,43 +255,99 @@ export default {
 
       .content-type-list {
         display: flex;
-        justify-content: flex-start;
-        width: 70%;
-      }
-
-      .toggle-view-type {
-        width: 20%;
-        display: flex;
         flex-direction: row;
         align-items: center;
         justify-content: flex-end;
+        .toggle-mode-type-wrapper {
+          width: 290px;
+          box-sizing: border-box;
+          text-align: right;
+          .toggle-mode-type {
+            height: 40px;
+            display: inline-block;
+            border-radius: 40px;
+            background: rgba(228, 228, 228, 0.3);
 
-        .switch-icon {
-          display: flex;
-          flex-direction: row;
-          align-items: center;
-          justify-content: center;
+            .toggle-mode {
+              border-radius: 40px;
+              height: 40px;
+              display: flex;
+              flex-direction: row;
+              font-size: 14px;
 
-          .icon-item {
-            margin-left: 10px;
-            display: flex;
-            flex-direction: row;
-            align-items: center;
-            svg {
-              width: 22px;
-              color: rgba(24, 37, 82, 1);
-            }
-          }
+              //.mode-item:first-child {
+              //  border-bottom-left-radius: 35px;
+              //  border-top-left-radius: 35px;
+              //}
+              //
+              //.mode-item:last-child {
+              //  border-bottom-right-radius: 35px;
+              //  border-top-right-radius: 35px;
+              //}
 
-          .active-icon {
-            svg {
-              color: rgba(21, 195, 154, 1);
+              .mode-item {
+                padding: 0 8px;
+                font-size: 14px;
+                height: 40px;
+                color: rgba(17, 20, 45, 1);
+                border-radius: 40px;
+                font-family: Inter-Bold;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                width: 90px;
+              }
+
+              .skill-active-mode {
+                color: #fff;
+                background: rgba(21, 195, 154, 1);
+              }
+
+              .knowledge-active-mode {
+                color: #fff;
+                background: rgba(21, 195, 154, 1);
+              }
+
+              .general-active-mode {
+                color: #fff;
+                background: rgba(21, 195, 154, 1);
+              }
             }
           }
         }
       }
     }
 
+    .toggle-view-type {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      justify-content: flex-start;
+
+      .switch-icon {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: center;
+
+        .icon-item {
+          margin-left: 10px;
+          display: flex;
+          flex-direction: row;
+          align-items: center;
+          svg {
+            width: 22px;
+            color: rgba(24, 37, 82, 1);
+          }
+        }
+
+        .active-icon {
+          svg {
+            color: rgba(21, 195, 154, 1);
+          }
+        }
+      }
+    }
     .created-toggle {
       margin-top: 20px;
       margin-bottom: 15px;
