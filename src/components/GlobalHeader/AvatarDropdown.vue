@@ -90,6 +90,6 @@ export default {
 }
 
 .avatar-name {
-  padding-right: 5px;
+  padding-right: 10px;
 }
 </style>
