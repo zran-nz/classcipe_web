@@ -32,6 +32,9 @@ export default {
       type: Boolean,
       default: false
     }
+  },
+  created () {
+    this.$logger.info('DataCardView ' + this.title, this.cover, this.createdTime, this.activeFlag)
   }
 }
 </script>

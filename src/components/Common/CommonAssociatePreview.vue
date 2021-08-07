@@ -45,32 +45,34 @@
       <a-col span="24">
         <div class="associate-info">
           <div class="associate-block-list" v-for="(item,index) in currentAssociateList" :key="index">
-            <template v-if="item.type === activeContentType && item.datas">
+            <template v-if="item.type === activeContentType">
               <template v-if="dataListMode === 'list'">
                 <div
-                  class="question-item"
+                  class="question-item list-question-item"
                   v-for="(dataItem, dIndex) in item.datas"
+                  v-if="item.datas.length"
                   :key="dIndex">
                   <div
                     :class="{
+                      'list-item': true,
                       'browser-item': true,
                       'odd-line': index % 2 === 0,
                     }"
                     v-for="(listItem,lIndex) in dataItem.lists"
                     :key="lIndex">
-                    <a-tooltip :mouseEnterDelay="1">
-                      <template slot="title">
-                        {{ listItem.name }}
-                      </template>
+                    <div class="item-name">
                       <dir-icon :content-type="dataItem.type" />
                       <span class="data-name" @click="handleClickTitle(listItem)">
                         {{ listItem.name }}
                       </span>
+                    </div>
+                    <div class="arrow-item">
                       <span class="data-time">
                         {{ (listItem.updateTime || listItem.createTime) | dayjs }}
                       </span>
-                    </a-tooltip>
-                    <div class="arrow-item">
+                      <div class="edit-item-icon" @click="handleEditItem(item.type, listItem)">
+                        <img src="~@/assets/icons/myContent/bianji@2x.png" />
+                      </div>
                       <div class="star-it" @click="handleFavorite(listItem)">
                         <img src="~@/assets/icons/common/preview/star_gray.png" v-if="!listItem.isFavorite" />
                         <img src="~@/assets/icons/common/preview/star_yellow.png" v-if="listItem.isFavorite" />
@@ -81,22 +83,45 @@
                     </div>
                   </div>
                 </div>
+                <div class="no-list-tips" v-if="!item.datas.length">
+                  <no-more-resources />
+                </div>
               </template>
               <template v-if="dataListMode === 'card'">
-
                 <div
-                  class="question-item"
+                  class="question-item card-question-item"
                   v-for="(dataItem, dIndex) in item.datas"
+                  v-if="item.datas.length"
                   :key="dIndex">
                   <div
                     :class="{
+                      'card-item': true,
                       'browser-item': true,
                       'odd-line': index % 2 === 0,
                     }"
                     v-for="(listItem,lIndex) in dataItem.lists"
                     :key="lIndex">
-                    <data-card-view :title="listItem.name" :created-time="listItem.createdTime" :cover="listItem.image" />
+                    <data-card-view :title="listItem.name" :created-time="listItem.createTime" :cover="listItem.image" />
+                    <div class="card-action-item">
+                      <div class="action-left">
+                        <div class="edit-item-icon" @click="handleEditItem(item.type, listItem)">
+                          <img src="~@/assets/icons/myContent/bianji@2x.png" />
+                        </div>
+                        <div class="star-it" @click="handleFavorite(listItem)">
+                          <img src="~@/assets/icons/common/preview/star_gray.png" v-if="!listItem.isFavorite" />
+                          <img src="~@/assets/icons/common/preview/star_yellow.png" v-if="listItem.isFavorite" />
+                        </div>
+                      </div>
+                      <div class="action-right">
+                        <div class="edit-it" @click="handleEditItem(item.type, listItem)">
+                          <a-icon type="more" />
+                        </div>
+                      </div>
+                    </div>
                   </div>
+                </div>
+                <div class="no-list-tips" v-if="!item.datas.length">
+                  <no-more-resources />
                 </div>
               </template>
             </template>
@@ -117,9 +142,10 @@ import ContentTypeIcon from '@/components/Teacher/ContentTypeIcon'
 import PuBuIcon from '@/assets/icons/library/pubu .svg?inline'
 import ListModeIcon from '@/assets/icons/library/liebiao .svg?inline'
 import DataCardView from '@/components/Library/DataCardView'
+import DirIcon from '@/components/Library/DirIcon'
+import NoMoreResources from '@/components/Common/NoMoreResources'
 const { FavoritesAdd } = require('@/api/favorites')
 const { GetAssociate } = require('@/api/teacher')
-
 export default {
   name: 'CommonAssociatePreview',
   props: {
@@ -133,6 +159,8 @@ export default {
     }
   },
   components: {
+    NoMoreResources,
+    DirIcon,
     DataCardView,
     ContentTypeIcon,
     PuBuIcon,
@@ -151,7 +179,7 @@ export default {
         'red',
         'purple'
       ],
-      activeContentType: typeMap.material,
+      activeContentType: typeMap.task,
       activeUserType: 'owner',
       currentAssociateList: [],
       typeMap: typeMap,
@@ -226,7 +254,25 @@ export default {
 
     handleEditItem (type, item) {
       logger.info('handleEditItem', type, item)
-      this.$message.success('Edit Item')
+      if (item.type === typeMap['unit-plan']) {
+        window.open('/teacher/unit-plan-redirect/' + item.id
+          , '_blank')
+      } else if (item.type === typeMap['topic']) {
+        window.open('/expert/topic-redirect/' + item.id
+          , '_blank')
+      } else if (item.type === typeMap['material']) {
+        window.open('/teacher/add-material/' + item.id
+          , '_blank')
+      } else if (item.type === typeMap.task) {
+        window.open('/teacher/task-redirect/' + item.id
+          , '_blank')
+      } else if (item.type === typeMap.lesson) {
+        window.open('/teacher/lesson-redirect/' + item.id
+          , '_blank')
+      } else if (item.type === typeMap.evaluation) {
+        window.open('/teacher/evaluation-redirect/' + item.id
+          , '_blank')
+      }
     }
   }
 }
@@ -368,9 +414,165 @@ export default {
   }
 
   .associate-info {
-    min-height: 150px;
+    box-sizing: border-box;
+    background: rgba(228, 228, 228, 0.2);
     .associate-block-list {
+      display: flex;
+      flex-direction: row;
+      flex-wrap: wrap;
+      padding: 10px 0;
 
+        .list-question-item {
+          width: 100%;
+        }
+        .list-item {
+          padding: 10px;
+          cursor: pointer;
+          width: 100%;
+          flex-direction: row;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+
+          .data-name {
+            font-family: Inter-Bold;
+            font-weight: 500;
+            color: #000;
+          }
+
+          .item-name {
+            flex-direction: row;
+            display: flex;
+            align-items: center;
+          }
+          .arrow-item {
+            flex-direction: row;
+            display: flex;
+            align-items: center;
+
+            .data-time {
+              padding-right: 20px;
+            }
+
+            .star-it {
+              padding: 0 7px;
+              img {
+                cursor: pointer;
+                width: 15px;
+              }
+            }
+
+            .edit-item-icon {
+              padding: 0 7px;
+              img {
+                width: 15px;
+                cursor: pointer;
+              }
+            }
+
+            .edit-it {
+              font-size: 14px;
+              cursor: pointer;
+            }
+          }
+        }
+
+        .list-item:hover {
+          color: rgba(255, 187, 0, 1);
+          background: rgba(255, 187, 0, 0.1);
+        }
+
+        .card-question-item {
+          background: #FFFFFF;
+          border: 1px solid #F7F8FF;
+          box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.16);
+          width: 30%;
+          margin: 10px;
+        }
+    }
+  }
+}
+
+.data-card-view {
+  background: #FFFFFF;
+  opacity: 1;
+  height: 220px;
+  width: 100%;
+  box-sizing: border-box;
+
+  .card-cover {
+    height: 150px;
+    background-size: cover;
+    background-position: center center;
+  }
+
+  .card-info {
+    padding: 10px;
+
+    .card-title {
+      width: 100%;
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      word-break: break-all;
+      user-select: none;
+      font-size: 14px;
+      font-family: Inter-Bold;
+      line-height: 24px;
+    }
+
+    .card-time {
+      height: 16px;
+      font-size: 12px;
+      font-family: Inter-Bold;
+      line-height: 24px;
+      color: #000000;
+      opacity: 0.5;
+    }
+  }
+
+  .active-item {
+  }
+}
+
+.card-action-item {
+  padding: 0 10px 10px 10px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  .action-left {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+
+    .star-it {
+      padding: 0 7px;
+      img {
+        cursor: pointer;
+        width: 15px;
+      }
+    }
+
+    .edit-item-icon {
+      padding: 0 7px;
+      img {
+        width: 15px;
+        cursor: pointer;
+      }
+    }
+
+  }
+
+  .action-right {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+
+    .edit-it {
+      font-size: 14px;
+      cursor: pointer;
     }
   }
 }
