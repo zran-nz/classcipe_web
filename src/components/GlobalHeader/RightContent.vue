@@ -3,7 +3,7 @@
     <div class="tips">
       <router-link to="/notification">
         <a-badge>
-          <a-icon type="notification" :class="{'icon-active': routeActive, 'icon-inactive': !routeActive}" />
+          <a-icon type="mail" theme="filled" :class="{'icon-active': routeActive, 'icon-inactive': !routeActive}" />
         </a-badge>
       </router-link>
     </div>
@@ -84,8 +84,8 @@ export default {
 @import "~@/components/index.less";
 .ant-badge {
   svg {
-    height: 30px;
-    width: 30px;
+    height: 35px;
+    width: 35px;
     color: #fff;
   }
   .icon-inactive {

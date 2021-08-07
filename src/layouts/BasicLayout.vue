@@ -220,4 +220,68 @@ export default {
 
 <style lang='less'>
 @import "./BasicLayout.less";
+  .home-nav {
+    h1 {
+      font-family: Inter-Bold;
+    }
+  }
+
+.nav-item {
+  padding: 0 10px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+
+  .nav-icon {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    svg {
+      height: 28px;
+
+      .cls-1, .cls-4 {
+        fill: rgba(255, 255, 255, 1);
+      }
+
+      .cls-2, .cls-3{
+        fill: none;
+      }
+    }
+  }
+
+  .nav-label {
+    cursor: pointer;
+    user-select: none;
+    font-size: 13px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    padding: 0 8px;
+    font-family: Inter-Bold;
+  }
+}
+
+.router-link-active {
+  .nav-item {
+    .nav-icon {
+      svg {
+        .cls-1, .cls-4 {
+          fill: #15c39a;
+        }
+
+        .cls-2, .cls-3{
+          fill: none;
+        }
+      }
+    }
+
+    .nav-label {
+      color: #fff;
+    }
+  }
+}
+
 </style>

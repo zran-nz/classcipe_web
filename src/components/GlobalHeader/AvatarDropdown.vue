@@ -1,9 +1,10 @@
 <template>
   <a-dropdown v-if="currentUser && currentUser.nickname" placement="bottomRight">
     <span class="ant-pro-account-avatar">
+      <span class="avatar-name">{{ currentUser.currentRole.substr(0, 1).toUpperCase() + currentUser.currentRole.substr(1) }}</span>
       <a-avatar size="small" :src="currentUser.avatar" class="antd-pro-global-header-index-avatar" v-if="currentUser.avatar"/>
       <a-avatar size="small" src="~@/assets/logo/beatop.png" class="antd-pro-global-header-index-avatar" v-else/>
-      <span>{{ currentUser.currentRole.substr(0, 1).toUpperCase() + currentUser.currentRole.substr(1) }}</span>
+      <a-icon type="caret-down" />
     </span>
     <template v-slot:overlay>
       <a-menu class="ant-pro-drop-down menu" :selected-keys="[]">
@@ -86,5 +87,9 @@ export default {
   /deep/ .ant-dropdown-menu-item {
     min-width: 160px;
   }
+}
+
+.avatar-name {
+  padding-right: 5px;
 }
 </style>
