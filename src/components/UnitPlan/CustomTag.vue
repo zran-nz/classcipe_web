@@ -10,14 +10,16 @@
             <a-col offset="0" span="24">
               <div class="skt-tag-list" >
                 <div class="skt-tag-item" v-for="tag in tagList" :key="tag.id" >
-                  <a-tag
-                    :closable="tagName === tag.name"
-                    @click="selectTag(tag)"
-                    @close="closeTag(tag)"
-                    :color="tagName === tag.name ? 'orange': 'green'"
-                    class="tag-item">
-                    {{ tag.name }}
-                  </a-tag>
+                  <a-tooltip :title="tag.parentName">
+                    <a-tag
+                      :closable="tagName === tag.name"
+                      @click="selectTag(tag)"
+                      @close="closeTag(tag)"
+                      :color="tagName === tag.name ? 'orange': 'green'"
+                      class="tag-item">
+                      {{ tag.name }}
+                    </a-tag>
+                  </a-tooltip>
                 </div>
               </div>
             </a-col>
@@ -188,6 +190,7 @@ export default {
       this.$emit('change-user-tags', this.tagList)
     },
     selectTag (tag) {
+      console.log(tag)
       if (this.tagName === tag.name) {
         this.tagName = ''
       } else {

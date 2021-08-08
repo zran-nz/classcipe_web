@@ -51,13 +51,13 @@
           <div class="content-list-wrapper">
             <div class="content-header">
               <div class="title" >
-                System recommendation
+                Choose from system recommendation
               </div>
             </div>
             <div class="content-list">
               <template v-if="globalTagLables.length > 0">
                 <div class="skt-tag-list">
-                  <div class="skt-tag-item" v-for="tag in globalTagLables" :key="tag.id" >
+                  <div class="skt-tag-item" v-if="selectedGlobalLabels.indexOf(tag.name) > -1" v-for="tag in globalTagLables" :key="tag.id" >
                     <a-tag
                       @click="selectGlobalTag(tag)"
                       :class="{'tag-item': true, 'active': selectedGlobalLabels.indexOf(tag.name) > -1}" >
@@ -66,6 +66,13 @@
                     <div class="icon-wrapper" v-if="selectedGlobalLabels.indexOf(tag.name) > -1">
                       <a-icon :style="{ fontSize: '18px', color: '#ffffff' }" type="check-circle" class="checked-icon" />
                     </div>
+                  </div>
+                  <div class="skt-tag-item" v-if="selectedGlobalLabels.indexOf(tag.name) === -1" v-for="tag in globalTagLables" :key="tag.id" >
+                    <a-tag
+                      @click="selectGlobalTag(tag)"
+                      class="tag-item">
+                      {{ tag.name }}
+                    </a-tag>
                   </div>
                 </div>
               </template>
@@ -83,7 +90,7 @@
           <div class="content-list-wrapper">
             <div class="content-header">
               <div class="title" >
-                All Tag Labels
+                Categories created by me
               </div>
             </div>
             <div class="content-list">
@@ -210,7 +217,7 @@ export default {
             item.id = response.result.id
             this.createTagName = ''
             this.inputTag = ''
-            this.userTags.push(item)
+            this.userTags.unshift(item)
             this.$message.success('Add tag success')
             this.$emit('add-user-tag', item, true)
           } else {

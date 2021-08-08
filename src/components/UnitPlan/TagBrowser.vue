@@ -140,6 +140,7 @@ export default {
     },
     selectTag (tag) {
       const index = this.selectedTags.indexOf(tag.name)
+      tag.isGlobal = true
       if (index > -1) {
         this.selectedTags.splice(index, 1)
         this.selectedTagsList.splice(tag, 1)

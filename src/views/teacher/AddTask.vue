@@ -726,29 +726,32 @@ export default {
 
       const question = this.questionDataObj['__question_0']
       logger.info('question __question_0', question)
-      if (question.knowledgeTags && question.knowledgeTags.length) {
-        question.knowledgeTags.forEach(item => {
-          item.curriculumId = this.$store.getters.bindCurriculum
-        })
-      }
-      if (question.skillTags && question.skillTags.length) {
-        question.skillTags.forEach(item => {
-          item.curriculumId = this.$store.getters.bindCurriculum
-        })
-      }
-      const questionItem = {
-        knowledgeTags: question.knowledgeTags,
-        skillTags: question.skillTags,
-        name: question.name
-      }
-      if (question.questionId) {
-        questionItem.id = question.questionId
-        this.$logger.info('old question item', questionItem)
-      } else {
-        this.$logger.info('new question item', questionItem)
+      if (question) {
+        if (question.knowledgeTags && question.knowledgeTags.length) {
+          question.knowledgeTags.forEach(item => {
+            item.curriculumId = this.$store.getters.bindCurriculum
+          })
+        }
+        if (question.skillTags && question.skillTags.length) {
+          question.skillTags.forEach(item => {
+            item.curriculumId = this.$store.getters.bindCurriculum
+          })
+        }
+        const questionItem = {
+          knowledgeTags: question.knowledgeTags,
+          skillTags: question.skillTags,
+          name: question.name
+        }
+        if (question.questionId) {
+          questionItem.id = question.questionId
+          this.$logger.info('old question item', questionItem)
+        } else {
+          this.$logger.info('new question item', questionItem)
+        }
+
+        taskData.suggestingTag = questionItem
       }
 
-      taskData.suggestingTag = questionItem
       logger.info('question taskData', taskData)
       TaskAddOrUpdate(taskData).then((response) => {
         logger.info('TaskAddOrUpdate', response.result)

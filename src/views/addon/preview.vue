@@ -2,7 +2,7 @@
   <div style="width: 600px">
     <div class="preview-wrapper">
       <div class="preview-detail">
-        <common-preview  :id="taskId" :type="4" :can-edit="false"/>
+        <common-preview :id="taskId" :type="4" :can-edit="false"/>
       </div>
     </div>
   </div>
