@@ -521,6 +521,7 @@ export default {
     display: flex;
     justify-content: space-between;
     .status-tab {
+      cursor: pointer;
       display: flex;
       flex-direction: row;
       align-items: center;
@@ -663,6 +664,7 @@ a.delete-action {
 }
 
 .view-mode-toggle {
+  cursor: pointer;
   display: flex;
   flex-direction: row;
   justify-content: flex-end;

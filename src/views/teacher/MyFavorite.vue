@@ -553,6 +553,7 @@ a.delete-action {
 }
 
 .view-mode-toggle {
+  cursor: pointer;
   display: flex;
   flex-direction: row;
   justify-content: flex-end;

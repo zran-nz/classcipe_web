@@ -22,7 +22,7 @@
             <div class="name">
               {{ data.name }}
             </div>
-            <div class="action-item">
+            <div v-if="canEdit" class="action-item">
               <div class="star">
                 <img src="~@/assets/icons/common/preview/star_gray.png" @click="handleFavorite(data)" v-if="!data.isFavorite"/>
                 <img src="~@/assets/icons/common/preview/star_yellow.png" @click="handleFavorite(data)" v-if="data.isFavorite"/>
@@ -216,6 +216,10 @@ export default {
     type: {
       type: Number,
       required: true
+    },
+    canEdit: {
+      type: Boolean,
+      default: true
     }
   },
   computed: {

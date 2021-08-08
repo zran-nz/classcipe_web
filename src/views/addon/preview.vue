@@ -1,27 +1,26 @@
 <template>
-  <div>
+  <div style="width: 600px">
     <div class="preview-wrapper">
       <div class="preview-detail">
-        <common-preview :id="taskId" :type="4" :can-edit="false"/>
+        <common-preview  :id="taskId" :type="4" :can-edit="false"/>
       </div>
     </div>
   </div>
 </template>
 
 <script>
-import storage from 'store'
-import { ACCESS_TOKEN } from '../../store/mutation-types'
-import CommonPreview from '@/components/Common/CommonPreview'
+  import storage from 'store'
+  import { ACCESS_TOKEN } from '../../store/mutation-types'
+  import CommonPreview from '@/components/Common/CommonPreview'
 
-export default {
+  export default {
   name: 'TaskPreview',
   components: {
     CommonPreview
   },
   created () {
-    if (this.$route.query.token) {
-      storage.set(ACCESS_TOKEN, this.$route.query.token)
-    }
+    const token = this.$route.query.token
+    storage.set(ACCESS_TOKEN, token)
   },
   props: {
     taskId: {

@@ -362,6 +362,7 @@ export default {
     display: flex;
     justify-content: space-between;
     .status-tab {
+      cursor: pointer;
       .toggle-mode-type-wrapper {
         width: 280px;
         box-sizing: border-box;
