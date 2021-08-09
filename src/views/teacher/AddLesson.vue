@@ -188,7 +188,7 @@
       :footer="null"
       destroyOnClose
       title="Teaching Templates"
-      width="50%"
+      width="60%"
       @ok="selectTemplateVisible = false"
       @cancel="selectTemplateVisible = false">
       <div class="select-template-wrapper">
