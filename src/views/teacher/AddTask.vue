@@ -154,13 +154,13 @@
       <div class="select-template-wrapper">
         <div class="template-type-list">
           <div :class="{'template-type-item': true, 'active-template-type' : currentTemplateType === templateTypeMap['written-assessment']}" @click="handleToggleTemplateType(templateTypeMap['written-assessment'])">
-            Written assessment Oral assessment Performance
+            Written assessment
           </div>
-          <div :class="{'template-type-item': true, 'active-template-type' : currentTemplateType === templateTypeMap.exhibition}" @click="handleToggleTemplateType(templateTypeMap.exhibition)">
-            Exhibition
+          <div :class="{'template-type-item': true, 'active-template-type' : currentTemplateType === templateTypeMap.oral}" @click="handleToggleTemplateType(templateTypeMap.oral)">
+            Oral assessment
           </div>
           <div :class="{'template-type-item': true, 'active-template-type' : currentTemplateType === templateTypeMap['demonstration-assessments']}" @click="handleToggleTemplateType(templateTypeMap['demonstration-assessments'])">
-            Demonstration assessments
+            Performance/Exhibition/Demonstration assessments
           </div>
           <div :class="{'template-type-item': true, 'active-template-type' : currentTemplateType === templateTypeMap['other-assessment']}" @click="handleToggleTemplateType(templateTypeMap['other-assessment'])">
             Other assessment
