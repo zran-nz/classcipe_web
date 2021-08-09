@@ -4,7 +4,7 @@
       Browse More
     </div>
     <div class="main">
-      <div class="tree-navigation">
+      <div class="tree-navigation" v-if="treeItemData.length > 0">
         <a-directory-tree
           default-expand-all
           @select="onSelect"
@@ -41,13 +41,16 @@
               <div class="skt-tag-list">
                 <div class="skt-tag-item" v-for="tag in tagValues" :key="tag.id" >
                   <a-badge>
-                    <a-icon v-if="selectedTags.indexOf(tag.name) > -1" slot="count" type="check" style="color: #f5222d" />
+                    <!--                    <a-icon v-if="selectedTags.indexOf(tag.name) > -1" slot="count" type="check" color="orange" class="tag-item-yellow" />-->
                     <a-tag
                       @click="selectTag(tag)"
-                      :color="selectedTags.indexOf(tag.name) > -1 ? 'orange': 'green'"
+                      :class="{'tag-item': true, 'active': selectedTags.indexOf(tag.name) > -1}"
                       class="tag-item">
                       {{ tag.name }}
                     </a-tag>
+                    <div class="icon-wrapper" v-if="selectedTags.indexOf(tag.name) > -1">
+                      <a-icon :style="{ fontSize: '18px', color: '#ffffff' }" type="check-circle" class="checked-icon" />
+                    </div>
                   </a-badge>
                 </div>
               </div>
@@ -139,6 +142,7 @@ export default {
       console.log('Trigger Expand')
     },
     selectTag (tag) {
+      tag.parentName = this.rootKey
       const index = this.selectedTags.indexOf(tag.name)
       tag.isGlobal = true
       if (index > -1) {
@@ -267,9 +271,10 @@ export default {
       align-items: center;
       vertical-align: middle;
       cursor: pointer;
+      position: relative;
 
       .tag-item {
-        background-color:#d2f4eb ;
+        cursor: pointer;
         border-radius: 10px;
         word-break: normal;
         width: auto;
@@ -277,12 +282,86 @@ export default {
         white-space: pre-wrap;
         word-wrap: break-word;
         overflow: hidden;
+        padding-bottom: 3px;
+        font-size: 15px;
+        border: 1px solid #D8D8D8;
+        box-shadow: 0px 6px 10px rgba(91, 91, 91, 0.16);
+        opacity: 1;
+        border-radius: 6px;
+        background-color: rgba(21, 195, 154, 0.1);
+        color: rgba(21, 195, 154, 1);
+        border: 1px solid rgba(21, 195, 154, 1);
+      }
+
+      .active{
+        background-color: rgba(255, 187, 0, 1) !important;
+        border:1px solid rgba(255, 187, 0, 1) !important;
+        color: #fff;
+      }
+      .icon-wrapper {
+        position: absolute;
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        right: 0;
+        justify-content: center;
+        top: -5px;
+        width: 18px;
+        height: 18px;
+        background-color: rgba(255, 187, 0, 1);
+        border-radius: 50%;
+      }
+
+      .tag-item-yellow{
+        background-color: #fff9d3;
+        border-radius: 15px;
+        word-break: normal;
+        width: auto;
+        display: block;
+        white-space: pre-wrap;
+        word-wrap: break-word;
+        overflow: hidden;
         padding: 6px;
-        font-size: 18px
+        font-size: 18px;
+
+        &:hover {
+          border: 1px solid @primary-color;
+          background-color: fade(@outline-color, 10%);
+        }
+      }
+
+      .ant-tag{
+        border-radius: 10px;
+        word-break: normal;
+        width: auto;
+        display: block;
+        white-space: pre-wrap;
+        word-wrap: break-word;
+        overflow: hidden;
+        padding: 3px;
+        font-size: 14px;
+        &:hover {
+          border: 1px solid @primary-color;
+          font-color: @primary-color;
+        }
+      }
+
+      .icon-wrapper {
+        position: absolute;
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        right: 0;
+        justify-content: center;
+        top: -5px;
+        width: 18px;
+        height: 18px;
+        background-color: rgba(255, 187, 0, 1);
+        border-radius: 50%;
       }
     }
-
   }
+
 }
 
 </style>

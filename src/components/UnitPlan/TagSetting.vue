@@ -331,6 +331,7 @@ export default {
         border-radius: 50%;
       }
       .tag-item {
+        cursor: pointer;
         border-radius: 10px;
         word-break: normal;
         width: auto;
@@ -367,6 +368,7 @@ export default {
       }
 
       .ant-tag{
+        cursor: pointer;
         border-radius: 15px;
         word-break: normal;
         width: auto;
