@@ -158,7 +158,8 @@ export default {
       createTagName: '',
       tagSearchList: [],
       userTags: [],
-      selectLabel: ''
+      selectLabel: '',
+      selectLabelName: ''
     }
   },
   created () {
@@ -205,6 +206,7 @@ export default {
           this.userTags = response.result
           if (this.userTags.length > 0) {
             this.selectLabel = this.userTags[0].id
+            this.selectLabelName = this.userTags[0].name
             this.tagSearchList = this.userTags[0].keywords
           }
           this.filterKeyword()
@@ -237,11 +239,13 @@ export default {
       }
     },
     selectChooseTag (index, tag) {
+        tag.parentName = this.selectLabelName
         this.tagList.push(tag)
         this.filterKeyword()
     },
     onChangeLabel (label) {
       this.selectLabel = label.id
+      this.selectLabelName = label.name
       this.isShowBrowse = false
       this.filterKeyword()
     },
@@ -342,6 +346,7 @@ export default {
         cursor: pointer;
 
         .tag-item {
+          cursor: pointer;
           border-radius: 10px;
           word-break: normal;
           width: auto;
@@ -430,6 +435,7 @@ export default {
 }
 
 .category-tag {
+  cursor: pointer;
   padding: 3px 10px;
   border-radius: 18px;
   font-family: Inter-Bold;

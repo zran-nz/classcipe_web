@@ -188,23 +188,21 @@
       :footer="null"
       destroyOnClose
       title="Teaching Templates"
-      width="50%"
+      width="60%"
       @ok="selectTemplateVisible = false"
       @cancel="selectTemplateVisible = false">
       <div class="select-template-wrapper">
-        <div class="template-type-list">
-          <div :class="{'template-type-item': true, 'active-template-type' : currentTemplateType === templateTypeMap['visible-thinking-tool']}" @click="handleToggleTemplateType(templateTypeMap['visible-thinking-tool'])">
-            Visible thinking tool
-          </div>
-          <div :class="{'template-type-item': true, 'active-template-type' : currentTemplateType === templateTypeMap.worksheet}" @click="handleToggleTemplateType(templateTypeMap.worksheet)">
-            Worksheet
-          </div>
-          <div :class="{'template-type-item': true, 'active-template-type' : currentTemplateType === templateTypeMap.quiz}" @click="handleToggleTemplateType(templateTypeMap.quiz)">
-            Quiz
-          </div>
-          <div :class="{'template-type-item': true, 'active-template-type' : currentTemplateType === templateTypeMap['summative-evaluation-lesson']}" @click="handleToggleTemplateType(templateTypeMap['summative-evaluation-lesson'])">
-            Summative evaluation lesson
-          </div>
+        <div :class="{'template-type-item': true, 'active-template-type' : currentTemplateType === templateTypeMap['written-assessment']}" @click="handleToggleTemplateType(templateTypeMap['written-assessment'])">
+          Written assessment
+        </div>
+        <div :class="{'template-type-item': true, 'active-template-type' : currentTemplateType === templateTypeMap.oral}" @click="handleToggleTemplateType(templateTypeMap.oral)">
+          Oral assessment
+        </div>
+        <div :class="{'template-type-item': true, 'active-template-type' : currentTemplateType === templateTypeMap['demonstration-assessments']}" @click="handleToggleTemplateType(templateTypeMap['demonstration-assessments'])">
+          Performance/Exhibition/Demonstration assessments
+        </div>
+        <div :class="{'template-type-item': true, 'active-template-type' : currentTemplateType === templateTypeMap['other-assessment']}" @click="handleToggleTemplateType(templateTypeMap['other-assessment'])">
+          Other assessment
         </div>
         <div class="template-list-wrapper">
           <div class="template-list" v-if="!templateLoading">
