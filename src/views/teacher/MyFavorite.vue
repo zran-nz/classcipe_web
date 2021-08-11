@@ -325,9 +325,25 @@ export default {
         this.$router.push({
           path: '/teacher/unit-plan-redirect/' + item.id
         })
+      } else if (item.type === typeMap['topic']) {
+        this.$router.push({
+          path: '/expert/topic-redirect/' + item.id
+        })
       } else if (item.type === typeMap['material']) {
         this.$router.push({
           path: '/teacher/add-material/' + item.id
+        })
+      } else if (item.type === typeMap.task) {
+        this.$router.push({
+          path: '/teacher/task-redirect/' + item.id
+        })
+      } else if (item.type === typeMap.lesson) {
+        this.$router.push({
+          path: '/teacher/lesson-redirect/' + item.id
+        })
+      } else if (item.type === typeMap.evaluation) {
+        this.$router.push({
+          path: '/teacher/evaluation-redirect/' + item.id
         })
       }
     },
@@ -441,6 +457,12 @@ export default {
   padding: 8px 0;
   position: relative;
 }
+
+.active-item {
+  background-color: fade(@outline-color, 20%);
+  color: @primary-color;
+}
+
 .my-list-item {
   box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.16);
   opacity: 1;
@@ -449,28 +471,74 @@ export default {
   padding: 12px 10px;
   margin-bottom: 15px;
 }
+
 .my-content {
   padding: 0 15px 25px 15px;
   .filter-line {
     padding: 15px 0;
     display: flex;
     justify-content: space-between;
-    .status-item {
-      border-radius: @btn-border-radius-base;
+    .status-tab {
       cursor: pointer;
-      display: inline-block;
-      min-width: 50px;
-      text-align: center;
-      line-height: 28px;
-      padding: 0 15px;
-      color: @text-color;
-      font-size: @btn-font-size-sm;
-      font-weight: @btn-font-weight;
-    }
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      .toggle-mode-type-wrapper {
+        width: 280px;
+        box-sizing: border-box;
+        .toggle-mode-type {
+          height: 40px;
+          display: inline-block;
+          border-radius: 40px;
+          background: rgba(228, 228, 228, 0.3);
 
-    .active-status-item {
-      background: @primary-color;
-      color: #fff;
+          .toggle-mode {
+            border-radius: 40px;
+            height: 40px;
+            display: flex;
+            flex-direction: row;
+            font-size: 14px;
+
+            //.mode-item:first-child {
+            //  border-bottom-left-radius: 35px;
+            //  border-top-left-radius: 35px;
+            //}
+            //
+            //.mode-item:last-child {
+            //  border-bottom-right-radius: 35px;
+            //  border-top-right-radius: 35px;
+            //}
+
+            .mode-item {
+              padding: 0 8px;
+              font-size: 12px;
+              height: 40px;
+              color: rgba(17, 20, 45, 1);
+              border-radius: 40px;
+              font-family: Inter-Bold;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              width: 90px;
+            }
+
+            .skill-active-mode {
+              color: #fff;
+              background: rgba(21, 195, 154, 1);
+            }
+
+            .knowledge-active-mode {
+              color: #fff;
+              background: rgba(21, 195, 154, 1);
+            }
+
+            .general-active-mode {
+              color: #fff;
+              background: rgba(21, 195, 154, 1);
+            }
+          }
+        }
+      }
     }
 
     .type-owner {
@@ -505,13 +573,18 @@ export default {
         align-items: center;
 
         .update-time {
-          width: 250px;
+          width: 150px;
+          color: #11142D;
+          font-size: 13px;
           overflow: hidden;
           white-space: nowrap;
           text-overflow: ellipsis;
-          &:hover {
-            color: @primary-color;
-          }
+        }
+        .status {
+          font-family: Inter-Bold;
+          line-height: 24px;
+          color: #11142D;
+          width: 80px;
         }
       }
       .action {
@@ -532,6 +605,9 @@ export default {
 
       .name-content {
         text-align: left;
+        font-family: Inter-Bold;
+        line-height: 24px;
+        color: #11142D;
         display: inline-block;
         max-width: 450px;
         overflow: hidden;
@@ -543,13 +619,6 @@ export default {
 }
 a.delete-action {
   color: @red-4;
-}
-
-.type-owner {
-  height: 40px;
-  display: flex;
-  flex-direction: row;
-  align-items: center;
 }
 
 .view-mode-toggle {
@@ -594,5 +663,14 @@ a.delete-action {
   background-position: center center;
   background-repeat: no-repeat;
   border-bottom: 1px solid #eee;
+  -webkit-transition: all 0.3s ease-in-out;
+  transition: all 0.3s ease-in-out;
+  &:hover {
+    background-size: 110%;
+    background-position: center;
+    background-repeat: no-repeat;
+    box-shadow: 0 0 2px 1px @primary-color;
+  }
 }
+
 </style>
