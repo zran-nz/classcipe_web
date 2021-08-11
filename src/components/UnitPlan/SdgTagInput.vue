@@ -4,7 +4,7 @@
       <div class="tag-list tag-dom">
         <div class="tag-item tag-dom" v-for="(tag,index) in selectedKeywords" :key="index">
           <a-tag :color="tagColorList[index % tagColorList.length]" closable @close="handleCloseTag(tag)" class="tag-dom">
-            {{ tag }}
+            {{ tag.name }}
           </a-tag>
         </div>
         <div class="tag-input tag-dom">
@@ -33,7 +33,7 @@ export default {
       default: () => []
     },
     sdgKey: {
-      type: String,
+      type: Number,
       required: true
     }
   },

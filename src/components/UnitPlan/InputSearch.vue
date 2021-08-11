@@ -19,6 +19,10 @@ export default {
       type: String,
       default: null
     },
+    keyIndex: {
+      type: Number,
+      default: null
+    },
     label: {
       type: String,
       default: 'name'
@@ -53,12 +57,12 @@ export default {
     },
     handleSearch () {
       logger.info('handleSearch' + this.value)
-      this.$emit('search', this.value)
+      this.$emit('search', this.keyIndex, this.value)
     },
     handleSelectItem (item) {
       logger.info('handleSelectItem', item)
       this.value = item[this.label]
-      this.$emit('select-item', item)
+      this.$emit('select-item', this.keyIndex, item)
       this.$emit('reset')
     },
     handleResetSearchList () {

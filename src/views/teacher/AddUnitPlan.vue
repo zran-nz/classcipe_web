@@ -112,46 +112,46 @@
                   </div>
                 </a-col>
               </a-row>
-              <!--description-->
-              <a-form-model-item :label="$t('teacher.add-unit-plan.description')">
-                <input-search
-                  :default-value="form.scenario.description"
-                  :search-list="descriptionSearchList"
-                  label="description"
-                  @search="handleDescriptionSearch"
-                  @select-item="handleSelectScenario"
-                  @reset="descriptionSearchList = []" />
-              </a-form-model-item>
               <!--sdg and KeyWords-->
-              <div class="content-blocks" v-for="(sdgItem, sdgIndex) in sdgDataObj" :key="sdgIndex" v-if="sdgItem !== null">
-                <div class="sdg-delete-wrapper" @click="handleDeleteSdg(sdgItem, sdgIndex)" v-show="sdgTotal > 1">
+              <div class="content-blocks" v-for="(scenario, sdgIndex) in form.scenarios" :key="sdgIndex">
+                <div class="sdg-delete-wrapper" @click="handleDeleteSdg(sdgIndex)" v-show="form.scenarios.length > 1">
                   <a-tooltip placement="top">
                     <template slot="title">
-                      <span>{{ $t('teacher.add-unit-plan.delete-sdg') }}</span>
+                      <span>{{ $t('teacher.add-unit-plan.delete-goal') }}</span>
                     </template>
                     <div class="sdg-delete">
                       <a-icon type="delete" :style="{ fontSize: '20px' }" />
                     </div>
                   </a-tooltip>
                 </div>
-                <a-row>
-                  <a-col offset="4" span="18">
-                    <div class="form-block-title">
-                      <a-divider dashed>SDG</a-divider>
-                    </div>
-                  </a-col>
-                </a-row>
+
                 <!--sdg-->
                 <a-form-model-item :label="$t('teacher.add-unit-plan.sdg-label')" class="long-label-form-item">
-                  <a-select v-model="sdgItem.sdgId" placeholder="please select sdg">
+                  <a-select v-model="scenario.sdgId" placeholder="please select sdg">
                     <a-select-option v-for="(sdg,index) in sdgList" :value="sdg.id" :key="index">
                       {{ sdg.name }}
                     </a-select-option>
                   </a-select>
                 </a-form-model-item>
+
+                <!--description-->
+                <a-form-model-item :label="$t('teacher.add-unit-plan.description')">
+                  <input-search
+                    :v-model="scenario.description"
+                    :default-value="scenario.description"
+                    :key-index="sdgIndex"
+                    :search-list="descriptionSearchList"
+                    label="description"
+                    @search="handleDescriptionSearch"
+                    @select-item="handleSelectScenario"
+                    @reset="descriptionSearchList = []" />
+                </a-form-model-item>
+
                 <!--keywords-->
                 <a-form-model-item :label="$t('teacher.add-unit-plan.key-words')">
-                  <sdg-tag-input :selected-keywords="sdgItem.selectedKeywords" :sdg-key="sdgIndex" @add-tag="handleAddSdgTag" @remove-tag="handleRemoveSdgTag"/>
+                  <sdg-tag-input :selected-keywords="scenario.sdgKeyWords" :sdg-key="sdgIndex" @add-tag="handleAddSdgTag" @remove-tag="handleRemoveSdgTag"/>
+                  <!--   <add-keyword-tag :current-tag="scenario.sdgKeyWords" @add-tag="handleAddSdgTag" @remove-tag="handleRemoveSdgTag"/>-->
+
                 </a-form-model-item>
               </div>
               <!--add-new-sdg-->
@@ -159,7 +159,7 @@
                 <a-col offset="2" span="20">
                   <div class="form-block-title form-block-action">
                     <a-button type="link" icon="plus-circle" @click="handleAddMoreSdg">
-                      {{ $t('teacher.add-unit-plan.add-new-sdg') }}
+                      {{ $t('Choose another sustainable development goal') }}
                     </a-button>
                   </div>
                 </a-col>
@@ -172,6 +172,35 @@
                   <a-input v-model="form.inquiry" allow-clear />
                 </a-form-model-item>
               </a-row>
+
+              <a-row>
+                <a-col offset="2" span="11">
+                  <a-form-model-item label="Subjects" class="label-form-item">
+                    <a-select v-model="form.subjectIds" mode="multiple" placeholder="Please select subjects">
+                      <a-select-opt-group v-for="subjectOptGroup in subjectTree" :key="subjectOptGroup.id">
+                        <span slot="label">{{ subjectOptGroup.name }}</span>
+                        <a-select-option
+                          :value="subjectOption.id"
+                          v-for="subjectOption in subjectOptGroup.children"
+                          :key="subjectOption.id">{{ subjectOption.name }}
+                        </a-select-option>
+                      </a-select-opt-group>
+                    </a-select>
+                  </a-form-model-item>
+                </a-col>
+
+                <a-col span="11">
+                  <a-form-model-item label="Grade" class="label-form-item">
+                    <a-select v-model="form.gradeIds" placeholder="Please select grade" mode="multiple">
+                      <a-select-option :value="gradeOption.id" v-for="gradeOption in gradeList" :key="gradeOption.id">
+                        {{ gradeOption.name }}
+                      </a-select-option>
+                    </a-select>
+                  </a-form-model-item>
+                </a-col>
+
+              </a-row>
+
             </div>
 
             <div class="form-block">
@@ -378,6 +407,7 @@ import { EvaluationAddOrUpdate } from '@/api/evaluation'
 import CustomTag from '../../components/UnitPlan/CustomTag'
 import { MyContentEvent, MyContentEventBus } from '@/components/MyContent/MyContentEventBus'
 import RelevantTagSelector from '@/components/UnitPlan/RelevantTagSelector'
+import AddKeywordTag from '@/components/Evaluation/AddKeywordTag'
 
 export default {
   name: 'AddUnitPlan',
@@ -392,7 +422,8 @@ export default {
     AssociateSidebar,
     Collaborate,
     CustomTag,
-    RelevantTagSelector
+    RelevantTagSelector,
+    AddKeywordTag
   },
   props: {
     unitPlanId: {
@@ -452,24 +483,23 @@ export default {
             ]
           }
         ],
-        scenario: {
+        scenarios: {
           description: '',
+          sdgId: '',
           sdgKeyWords: [
             {
-              keywords: [
-                {
-                  id: '',
-                  name: ''
-                }
-              ],
-              sdgId: ''
+              id: '',
+              name: ''
             }
           ]
         },
         createTime: '',
         updateTime: '',
         materials: [],
-        customTags: []
+        customTags: [],
+        overview: '',
+        subjectIds: [],
+        gradeIds: []
       },
 
       uploading: false,
@@ -491,13 +521,6 @@ export default {
       sdgTotal: 0,
       sdgMaxIndex: 0,
       sdgPrefix: '__sdg_',
-      sdgDataObj: {
-        __sdg_0: {
-          sdgId: null,
-          originKeywords: [],
-          selectedKeywords: []
-        }
-      },
 
       // 将questions转成对象
       questionTotal: 0,
@@ -599,40 +622,6 @@ export default {
       }).then(response => {
         logger.info('UnitPlanQueryById ' + unitPlanId, response.result)
         const unitPlanData = response.result
-        if (!unitPlanData.scenario) {
-          unitPlanData.scenario = {
-            description: '',
-            sdgKeyWords: []
-          }
-        }
-
-        const sdgKeys = Object.keys(this.sdgDataObj)
-        sdgKeys.forEach(sdgKey => {
-          logger.info('sdgDataObj delete ' + sdgKey)
-          this.$delete(this.sdgDataObj, sdgKey)
-        })
-        if (unitPlanData.scenario && unitPlanData.scenario.sdgKeyWords && unitPlanData.scenario.sdgKeyWords.length) {
-            unitPlanData.scenario.sdgKeyWords.forEach((sdgKeyword, index) => {
-              const sdg = {
-                sdgId: sdgKeyword.sdgId,
-                originKeywords: sdgKeyword.keywords || [],
-                selectedKeywords: (sdgKeyword.keywords || []).map(item => item.name)
-              }
-              this.$set(this.sdgDataObj, this.sdgPrefix + this.sdgMaxIndex, sdg)
-              logger.info('restore scenarioObj: ' + (this.sdgPrefix + this.sdgMaxIndex), sdg, ' sdgDataObj ', this.sdgDataObj)
-              this.sdgMaxIndex = this.sdgMaxIndex + 1
-              this.sdgTotal = this.sdgTotal + 1
-            })
-        } else {
-          const sdg = {
-            originKeywords: [],
-            selectedKeywords: []
-          }
-          this.$set(this.sdgDataObj, this.sdgPrefix + this.sdgMaxIndex, sdg)
-          this.sdgMaxIndex = this.sdgMaxIndex + 1
-          this.sdgTotal = this.sdgTotal + 1
-        }
-
         const questionKeys = Object.keys(this.questionDataObj)
         questionKeys.forEach(questionKey => {
           logger.info('questionDataObj delete ' + questionKey)
@@ -672,7 +661,6 @@ export default {
           this.questionTotal = this.questionTotal + 1
         }
         this.form = unitPlanData
-        logger.info('after restoreUnitPlan', this.form, this.sdgDataObj, this.questionDataObj)
       }).finally(() => {
         this.contentLoading = false
       })
@@ -702,10 +690,10 @@ export default {
       this.form.image = null
     },
 
-    handleDescriptionSearch (description) {
-      logger.info('handleDescriptionSearch', description)
-      this.form.scenario.description = description
-      this.debouncedGetSdgByDescription(description)
+    handleDescriptionSearch (index, description) {
+      logger.info('handleDescriptionSearch:', index, description)
+      this.form.scenarios[index].description = description
+      // this.debouncedGetSdgByDescription(description)
     },
 
     searchScenario (description) {
@@ -722,9 +710,9 @@ export default {
       }
     },
 
-    // 由于Vue无法响应式处理数据元素，此处通过将数据转为scenarioObj的属性进行处理
-    handleSelectScenario (scenario) {
-      logger.info('handleSelectScenario', scenario, ' sdgMaxIndex ' + this.sdgMaxIndex, ' sdgTotal ' + this.sdgTotal)
+    // 由于Vue无法响应式处理数据元素，此处通过将数据转为scenarioObj的属性进行处理------------------废弃
+    // 直接修改form.scenarios数据
+    handleSelectScenario (index, scenario) {
       this.form.scenario.description = scenario.description
       this.form.scenario.id = scenario.id
       if (this.sdgTotal === 1) {
@@ -755,42 +743,40 @@ export default {
 
     handleAddMoreSdg () {
       const sdg = {
-        sdgId: null,
-        originKeywords: [],
-        selectedKeywords: []
-      }
-      logger.info('handleAddMoreSdg ', sdg, ' sdgMaxIndex ' + this.sdgMaxIndex, ' sdgTotal ' + this.sdgTotal)
-      this.sdgMaxIndex = this.sdgMaxIndex + 1
-      this.sdgTotal = this.sdgTotal + 1
-      this.$set(this.sdgDataObj, this.sdgPrefix + this.sdgMaxIndex, sdg)
-      logger.info('after add scenarioObj: ', this.sdgDataObj, 'sdgMaxIndex ' + this.sdgMaxIndex, ' sdgTotal ' + this.sdgTotal)
+          description: '',
+          sdgId: '',
+          sdgKeyWords: []
+        }
+      this.form.scenarios.push(sdg)
+      // this.$set(this.sdgDataObj, this.sdgPrefix + this.sdgMaxIndex, sdg)
+      // logger.info('after add scenarioObj: ', this.sdgDataObj, 'sdgMaxIndex ' + this.sdgMaxIndex, ' sdgTotal ' + this.sdgTotal)
     },
 
-    handleDeleteSdg (sdgItem, sdgIndex) {
-      logger.info('handleDeleteSdg ', sdgItem, sdgIndex, 'sdgTotal' + this.sdgTotal)
-      if (this.sdgTotal > 1) {
-        this.$delete(this.sdgDataObj, sdgIndex)
-        this.sdgTotal = this.sdgTotal - 1
-        logger.info('sdgDataObj ', this.sdgDataObj, 'sdgTotal ' + this.sdgTotal)
+    handleDeleteSdg (sdgIndex) {
+      if (this.form.scenarios.length > 1) {
+        this.form.scenarios.splice(sdgIndex, 1)
+        logger.info('scenarios ', this.form.scenarios, 'sdgTotal ' + this.form.scenarios.length)
       } else {
         this.$message.warn(this.$t('teacher.add-unit-plan.at-least-one-sdg'))
       }
     },
 
     handleAddSdgTag (data) {
-      const tagName = data.tagName
+      const tag = {
+        name: data.tagName
+      }
       const sdgKey = data.sdgKey
-      logger.info('handleAddSdgTag ', tagName, sdgKey)
-      this.sdgDataObj[sdgKey].selectedKeywords.push(tagName)
-      logger.info('after handleAddSdgTag ', this.sdgDataObj[sdgKey].selectedKeywords)
+      logger.info('handleAddSdgTag ', tag.name, sdgKey)
+      this.form.scenarios[sdgKey].sdgKeyWords.push(tag)
+      logger.info('after handleAddSdgTag ', this.form.scenarios[sdgKey].sdgKeyWords)
     },
 
     handleRemoveSdgTag (data) {
       const tagName = data.tagName
       const sdgKey = data.sdgKey
       logger.info('handleRemoveSdgTag ', tagName, sdgKey)
-      this.sdgDataObj[sdgKey].selectedKeywords.splice(this.sdgDataObj[sdgKey].selectedKeywords.indexOf(tagName), 1)
-      logger.info('after handleRemoveSdgTag ', this.sdgDataObj[sdgKey].selectedKeywords)
+      this.form.scenarios[sdgKey].sdgKeyWords.splice(this.form.scenarios[sdgKey].sdgKeyWords[sdgKey].sdgKeyWords.indexOf(tagName), 1)
+      logger.info('after handleRemoveSdgTag ', this.form.scenarios[sdgKey].sdgKeyWords)
     },
 
     handleSelectSubject (subjects) {
@@ -878,47 +864,18 @@ export default {
         name: this.form.name,
         status: this.form.status,
         subjects: this.form.subjects,
-        scenario: {
-          description: this.form.scenario.description,
-          sdgKeyWords: []
-        },
+        scenarios: this.form.scenarios,
         questions: [],
-        customTags: this.form.customTags
+        customTags: this.form.customTags,
+        overview: this.form.overview,
+        subjectIds: this.form.subjectIds,
+        gradeIds: this.form.gradeIds
       }
 
       if (this.unitPlanId) {
         unitPlanData.id = this.unitPlanId
       }
-      if (this.form.scenario.id) {
-        unitPlanData.scenario.id = this.form.scenario.id
-      }
       logger.info('basic unitPlanData', unitPlanData)
-      for (const sdgIndex in this.sdgDataObj) {
-        const sdg = this.sdgDataObj[sdgIndex]
-        logger.info('sdg ' + sdgIndex, sdg)
-        const keywords = []
-        sdg.selectedKeywords.forEach(selectedKeyword => {
-          const existOriginKeyword = sdg.originKeywords.find(item => item.name.trim() === selectedKeyword.trim())
-          if (existOriginKeyword) {
-            logger.info('exist origin keyword [' + selectedKeyword + ']')
-            if (!existOriginKeyword.curriculumId) {
-              existOriginKeyword.curriculumId = this.$store.getters.bindCurriculum
-            }
-            keywords.push(existOriginKeyword)
-          } else {
-            logger.info('new keyword [' + selectedKeyword + ']')
-            keywords.push({
-              name: selectedKeyword,
-              curriculumId: this.$store.getters.bindCurriculum
-            })
-          }
-        })
-        logger.info('sdg scenario keywords', keywords)
-        unitPlanData.scenario.sdgKeyWords.push({
-          sdgId: sdg.sdgId,
-          keywords: keywords
-        })
-      }
       logger.info('sdg unitPlanData', unitPlanData)
       for (const questionIndex in this.questionDataObj) {
         const question = this.questionDataObj[questionIndex]
@@ -1409,6 +1366,7 @@ export default {
 
     .content-blocks {
       position: relative;
+      padding-top: 20px;
       border: 1px dotted #fff;
       .sdg-delete-wrapper {
         transition: all 0.2s ease-in;
@@ -1678,6 +1636,10 @@ export default {
     color: red;
     cursor: pointer;
   }
+}
+.ant-select-dropdown-menu-item {
+  overflow: auto;
+  white-space: normal;
 }
 
 </style>
