@@ -123,7 +123,7 @@ export function ScenarioGetKeywordScenarios (parameter) {
 }
 
 /**
- * @param parameter
+ * @param parameter keywordsId或descriptionId
  * @returns {AxiosPromise}
  * @constructor
  */

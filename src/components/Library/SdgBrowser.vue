@@ -296,17 +296,17 @@ export default {
 
     handleSelectSdgKeywordItem (sdgKeywordItem) {
       this.$logger.info('handleSelectSdgKeywordItem ', sdgKeywordItem)
-      this.currentSdgKeywordScenarioId = sdgKeywordItem.scenarioId
+      // this.currentSdgKeywordScenarioId = sdgKeywordItem.scenarioId
       this.dataListLoading = true
       this.dataList = []
-      this.scenarioQueryContentByScenarioId(this.currentSdgKeywordScenarioId)
-      this.handleClickBlock(3, sdgKeywordItem.description)
+      this.scenarioQueryContentByScenarioId(sdgKeywordItem.id)
+      // this.handleClickBlock(3, sdgKeywordItem.description)
     },
 
-    scenarioQueryContentByScenarioId (scenarioId) {
+    scenarioQueryContentByScenarioId (keywordsId) {
       this.dataListLoading = true
-      this.$logger.info('scenarioQueryContentByScenarioId ' + scenarioId)
-      ScenarioQueryContentByScenarioId({ scenarioId }).then(response => {
+      this.$logger.info('scenarioQueryContentByScenarioId ' + keywordsId)
+      ScenarioQueryContentByScenarioId({ keywordsId: keywordsId }).then(response => {
         this.$logger.info('ScenarioQueryContentByScenarioId response', response.result)
         this.dataList = response.result
       }).finally(() => {
