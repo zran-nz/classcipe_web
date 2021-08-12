@@ -66,11 +66,11 @@
           <a-list size="large" :pagination="pagination" :data-source="myContentList" :loading="loading" v-if="viewMode === 'list'">
             <a-list-item class="my-list-item" slot="renderItem" key="item.key" slot-scope="item">
 
-              <span class="content-info-left" @click="handleViewDetail(item)">
+              <span class="content-info-left" @click="handleViewDetail(item.content)">
                 <content-type-icon :type="item.type" />
 
                 <span class="name-content">
-                  {{ item.name }}
+                  {{ item.content.name }}
                 </span>
               </span>
 
@@ -92,7 +92,7 @@
                         </a-popconfirm>
                       </div>
                       <div class="action-item">
-                        <a @click="handleEditItem(item)">
+                        <a @click="handleEditItem(item.content)">
                           <a-icon type="form" /> {{ $t('teacher.my-content.action-edit') }}
                         </a>
                       </div>
@@ -101,7 +101,7 @@
                           <a-icon type="more" style="margin-right: 8px" />
                           <a-menu slot="overlay">
                             <a-menu-item>
-                              <a @click="handleEvaluation(item)">
+                              <a @click="handleEvaluation(item.content)">
                                 {{ $t('teacher.my-content.start-evaluation') }}
                               </a>
                             </a-menu-item>
@@ -141,13 +141,13 @@
             <a-list-item slot="renderItem" key="item.key" slot-scope="item">
               <a-card class="cover-card">
                 <div
-                  @click="handleViewDetail(item)"
+                  @click="handleViewDetail(item.content)"
                   class="cover-image"
                   slot="cover"
-                  :style="{backgroundImage: 'url(' + item.image + ')' }"
+                  :style="{backgroundImage: 'url(' + item.content.image + ')' }"
                 ></div>
-                <a-card-meta :title="item.name" :description="item.createBy" @click="handleViewDetail(item)"></a-card-meta>
-                <a-card-meta :description="item.createTime | dayjs" @click="handleViewDetail(item)"></a-card-meta>
+                <a-card-meta :title="item.name" :description="item.createBy" @click="handleViewDetail(item.content)"></a-card-meta>
+                <a-card-meta :description="item.createTime | dayjs" @click="handleViewDetail(item.content)"></a-card-meta>
                 <template slot="actions" class="ant-card-actions">
                   <div class="action-item">
                     <a-popconfirm :title="$t('teacher.my-content.action-delete') + '?'" ok-text="Yes" @confirm="handleDeleteItem(item)" cancel-text="No">
@@ -157,7 +157,7 @@
                     </a-popconfirm>
                   </div>
                   <div class="action-item">
-                    <a @click="handleEditItem(item)">
+                    <a @click="handleEditItem(item.content)">
                       <a-icon type="form" /> {{ $t('teacher.my-content.action-edit') }}
                     </a>
                   </div>
@@ -166,7 +166,7 @@
                       <a-icon type="more" style="margin-right: 8px" />
                       <a-menu slot="overlay">
                         <a-menu-item>
-                          <a @click="handleEvaluation(item)">
+                          <a @click="handleEvaluation(item.content)">
                             {{ $t('teacher.my-content.start-evaluation') }}
                           </a>
                         </a-menu-item>
@@ -221,7 +221,7 @@ import UnitPlanPreview from '@/components/UnitPlan/UnitPlanPreview'
 import { typeMap } from '@/const/teacher'
 import ContentStatusIcon from '@/components/Teacher/ContentStatusIcon'
 import ContentTypeIcon from '@/components/Teacher/ContentTypeIcon'
-import { DeleteSharedByIdAndType, GetShared } from '@/api/user'
+import { DeleteCollaborate, GetShared } from '@/api/collaborate'
 import TvSvg from '@/assets/icons/lesson/tv.svg?inline'
 import { lessonStatus, lessonHost } from '@/const/googleSlide'
 import { StartLesson, getMyClasses } from '@/api/lesson'
@@ -340,11 +340,8 @@ export default {
     },
     handleDeleteItem (item) {
       logger.info('handleDeleteItem', item)
-      DeleteSharedByIdAndType({
-        sourceId: item.id,
-        sourceType: item.type
-      }).then(res => {
-        logger.info('DeleteSharedByIdAndType', res)
+      DeleteCollaborate({ id: item.id }).then(res => {
+        logger.info('DeleteCollaborate', res)
       }).then(() => {
         this.loadMyContent()
       })
