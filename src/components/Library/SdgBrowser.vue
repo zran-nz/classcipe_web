@@ -225,6 +225,7 @@ export default {
       currentSdgId: null,
 
       sdgKeywordNameList: [],
+      sdgDescriptionsList: [],
       sdgKeywordNameListLoading: false,
       currentSdgKeywordName: null,
 
@@ -269,10 +270,11 @@ export default {
       this.sdgKeywordNameListLoading = true
       ScenarioGetKeywordScenarios({ sdgId }).then(response => {
         this.$logger.info('ScenarioGetKeywordScenarios response', response.result)
-        this.sdgKeywordNameList = response.result
+        this.sdgKeywordNameList = response.result.sdgKeyWords
+        this.sdgDescriptionsList = response.result.descriptions // Descriptions内容
         if (this.sdgKeywordNameList.length) {
           this.currentSdgKeywordName = this.sdgKeywordNameList[0].name
-          this.sdgKeywordList = this.sdgKeywordNameList[0].sdgKeyWords
+          this.sdgKeywordList = this.sdgKeywordNameList
           this.currentSdgKeywordScenarioId = null
           this.currentDataId = null
           this.dataList = []

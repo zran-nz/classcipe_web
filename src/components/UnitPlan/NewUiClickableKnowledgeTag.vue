@@ -506,6 +506,14 @@ export default {
     selectedSkillTags: {
       type: Array,
       default: () => []
+    },
+    gradeIds: {
+      type: Array,
+      default: () => []
+    },
+    subjectIds: {
+      type: Array,
+      default: () => []
     }
   },
   mounted () {
@@ -978,9 +986,11 @@ export default {
       this.$logger.info('handleDbClickTagListTag', tag)
 
       if (this.currentMode === mode.knowledge) {
-// name 搜索是否有匹配的大纲描述
+     // name 点击name后是准确定位，同时添加筛选的subject和grade过滤条件缩小范围
         KnowledgeSearch({
-          key: tag.name
+          words: tag.name,
+          gradeIds: this.gradeIds,
+          subjectIds: this.subjectIds
         }).then((response) => {
           logger.info('handleDbClickTagListTag searchKnowledge response', response)
           this.tagNameSearchList = response.result.filter(item => item.curriculumId === this.$store.getters.bindCurriculum)
@@ -991,7 +1001,8 @@ export default {
       } else if (this.currentMode === mode.skill) {
         // name 搜索是否有匹配的大纲描述
         SkillSearch({
-          key: tag.name
+          words: tag.name,
+          gradeIds: this.gradeIds
         }).then((response) => {
           logger.info('skill handleDbClickTagListTag searchKnowledge response', response)
           this.skillTagNameSearchList = response.result.filter(item => item.curriculumId === this.$store.getters.bindCurriculum)

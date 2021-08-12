@@ -140,6 +140,7 @@
                     :v-model="scenario.description"
                     :default-value="scenario.description"
                     :key-index="sdgIndex"
+                    :currend-index="currentIndex"
                     :search-list="descriptionSearchList"
                     label="description"
                     @search="handleDescriptionSearch"
@@ -150,8 +151,6 @@
                 <!--keywords-->
                 <a-form-model-item :label="$t('teacher.add-unit-plan.key-words')">
                   <sdg-tag-input :selected-keywords="scenario.sdgKeyWords" :sdg-key="sdgIndex" @add-tag="handleAddSdgTag" @remove-tag="handleRemoveSdgTag"/>
-                  <!--   <add-keyword-tag :current-tag="scenario.sdgKeyWords" @add-tag="handleAddSdgTag" @remove-tag="handleRemoveSdgTag"/>-->
-
                 </a-form-model-item>
               </div>
               <!--add-new-sdg-->
@@ -231,6 +230,8 @@
                 <!--knowledge tag-select -->
                 <new-ui-clickable-knowledge-tag
                   :question-index="questionIndex"
+                  :grade-ids="form.gradeIds"
+                  :subject-ids="form.subjectIds"
                   :selected-knowledge-tags="questionItem.knowledgeTags"
                   :selected-skill-tags="questionItem.skillTags"
                   @remove-knowledge-tag="handleRemoveKnowledgeTag"
@@ -539,8 +540,8 @@ export default {
           skillTags: []
         }
       },
-
-      addLoading: false
+      addLoading: false,
+      currentIndex: 0
     }
   },
   computed: {
@@ -622,6 +623,13 @@ export default {
       }).then(response => {
         logger.info('UnitPlanQueryById ' + unitPlanId, response.result)
         const unitPlanData = response.result
+        if (unitPlanData.scenarios.length === 0) {
+          unitPlanData.scenarios.push({
+            description: '',
+            sdgId: '',
+            sdgKeyWords: []
+          })
+        }
         const questionKeys = Object.keys(this.questionDataObj)
         questionKeys.forEach(questionKey => {
           logger.info('questionDataObj delete ' + questionKey)
@@ -693,14 +701,15 @@ export default {
     handleDescriptionSearch (index, description) {
       logger.info('handleDescriptionSearch:', index, description)
       this.form.scenarios[index].description = description
-      // this.debouncedGetSdgByDescription(description)
+      this.debouncedGetSdgByDescription(index, description)
     },
 
-    searchScenario (description) {
+    searchScenario (index, description) {
       logger.info('searchScenario', description)
+      this.currentIndex = index
       if (typeof description === 'string' && description.trim().length >= 3) {
         ScenarioSearch({
-          searchKey: this.form.scenario.description
+          searchKey: this.form.scenarios[index].description
         }).then((response) => {
           logger.info('searchByDescription', response)
           this.descriptionSearchList = response.result
@@ -713,31 +722,12 @@ export default {
     // 由于Vue无法响应式处理数据元素，此处通过将数据转为scenarioObj的属性进行处理------------------废弃
     // 直接修改form.scenarios数据
     handleSelectScenario (index, scenario) {
-      this.form.scenario.description = scenario.description
-      this.form.scenario.id = scenario.id
-      if (this.sdgTotal === 1) {
-        if (scenario.sdgKeyWords.length) {
-          const sdg = scenario.sdgKeyWords[0]
-          logger.info('scenario.sdgKeyWords[0]', sdg)
-          sdg.selectedKeywords = sdg.keywords.map(keyword => keyword.name)
-          sdg.originKeywords = sdg.keywords
-          logger.info('sdg', sdg)
-          const sdgIndex = Object.keys(this.sdgDataObj)[0]
-          logger.info('sdgIndex', sdgIndex)
-          this.$set(this.sdgDataObj, sdgIndex, sdg)
-        } else {
-          const sdg = {
-            originKeywords: [],
-            selectedKeywords: []
-          }
-          logger.info('sdg keywords empty')
-          const sdgIndex = Object.keys(this.sdgDataObj)[0]
-          logger.info('sdgIndex', sdgIndex)
-          this.$set(this.sdgDataObj, sdgIndex, sdg)
-        }
-        logger.info('after select scenarioObj: ', this.sdgDataObj, 'sdgMaxIndex ' + this.sdgMaxIndex, ' sdgTotal ' + this.sdgTotal)
-      } else {
-        logger.info('not use auto fill, because sdgTotal ' + this.sdgTotal)
+      console.log(scenario)
+      this.form.scenarios[index].description = scenario.description
+      if (scenario.sdgKeyWords.length) {
+        const keyWords = scenario.sdgKeyWords
+        logger.info('scenario[' + index + '].sdgKeyWords', keyWords)
+        this.form.scenarios[index].sdgKeyWords = keyWords
       }
     },
 
@@ -775,7 +765,7 @@ export default {
       const tagName = data.tagName
       const sdgKey = data.sdgKey
       logger.info('handleRemoveSdgTag ', tagName, sdgKey)
-      this.form.scenarios[sdgKey].sdgKeyWords.splice(this.form.scenarios[sdgKey].sdgKeyWords[sdgKey].sdgKeyWords.indexOf(tagName), 1)
+      this.form.scenarios[sdgKey].sdgKeyWords.splice(this.form.scenarios[sdgKey].sdgKeyWords.indexOf(tagName), 1)
       logger.info('after handleRemoveSdgTag ', this.form.scenarios[sdgKey].sdgKeyWords)
     },
 
@@ -807,7 +797,7 @@ export default {
       logger.info('target question data', this.questionDataObj[data.questionIndex])
       const newTag = {
         description: data.description,
-        // id: data.id,
+        id: data.id,
         name: data.name,
         gradeId: data.gradeId,
         mainSubjectId: data.mainSubjectId,

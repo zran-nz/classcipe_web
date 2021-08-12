@@ -90,6 +90,9 @@ export default {
     handleFocusInput () {
       this.$refs['input'].focus()
       this.active = true
+    },
+    handleCreateTagByInput () {
+
     }
   }
 }

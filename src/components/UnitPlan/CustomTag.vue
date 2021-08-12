@@ -12,8 +12,7 @@
                 <div class="skt-tag-item" v-for="tag in tagList" :key="tag.id" >
                   <a-tooltip :title="tag.parentName">
                     <a-tag
-                      :closable="tagName === tag.name"
-                      @click="selectTag(tag)"
+                      :closable="true"
                       @close="closeTag(tag)"
                       :color="tagName === tag.name ? 'orange': 'green'"
                       class="tag-item">
@@ -51,8 +50,9 @@
                 size="large"
                 placeholder="search key words"
                 class="search-input"
-                @search="handleKeyup"
-                @keyup="handleKeyup" />
+                @keyup.enter.native="handleKeyup"
+                @search="searchTag"
+                @keyup="searchTag" />
             </div>
           </a-col>
           <a-col span="4" align="middle" v-show="isShowBrowse">
@@ -79,7 +79,7 @@
                     {{ tag.name }}
                   </a-tag>
                 </div>
-                <div class="skt-tag-create-line" v-show="!isShowBrowse && createTagName && createTagName.length >= 1">
+                <div class="skt-tag-create-line" @click="handleCreateTagByInput" v-show="!isShowBrowse && createTagName && createTagName.length >= 1">
                   <div class="create-tag-label">
                     Create
                   </div>
@@ -87,7 +87,7 @@
                     <a-tag class="tag-item">
                       {{ createTagName }}
                     </a-tag>
-                    <a-icon type="plus-circle" @click="handleCreateTagByInput"/>
+                    <!--                    <a-icon type="plus-circle" @click="handleCreateTagByInput"/>-->
                   </div>
                 </div>
               </div>
@@ -308,13 +308,16 @@ export default {
     },
 
     handleKeyup () {
-      this.$logger.info('skill handleKeyup ', this.inputTag)
+      this.$logger.info('tag handleKeyup ', this.inputTag)
       this.debouncedSearchKnowledge(this.inputTag)
       this.createTagName = this.inputTag
+      this.handleCreateTagByInput()
     },
 
     searchTag (keyword) {
       logger.info('tag searchTag', keyword)
+      // this.debouncedSearchKnowledge(this.inputTag)
+      this.createTagName = this.inputTag
       this.filterKeyword()
     }
 
@@ -331,8 +334,7 @@ export default {
   .skt-tag-wrapper {
     .skt-tag-list {
       padding: 5px 10px;
-      border: 1px dashed #ccc;
-      background-color: #fafafa;
+      background-color: #e7f9f5;
       display: flex;
       flex-direction: row;
       flex-wrap: wrap;
@@ -364,12 +366,16 @@ export default {
       }
 
       .skt-tag-create-line {
+        cursor: pointer;
         width: 100%;
         display: flex;
         flex-direction: row;
         align-items: center;
         justify-content: flex-start;
         padding: 5px 0;
+        &:hover {
+          background: rgba(0, 0, 0, 5%)
+        }
 
         .create-tag-label {
           font-size: 14px;
@@ -383,6 +389,7 @@ export default {
           align-items: center;
 
           .tag-item {
+            cursor: pointer;
             border-radius: 10px;
             word-break: normal;
             width: auto;

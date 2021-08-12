@@ -113,7 +113,7 @@
                         color="green">
                         {{ tag.name }}
                       </a-tag>
-                      <a-icon type="close-circle" @click="removeTag(tag)" style="color: #f5222d" />
+                      <a-icon class="delete-icon-sub" type="close-circle" @click="removeTag(tag)" style="color: #f5222d" />
                     </div>
                   </div>
                 </a-row>
@@ -136,10 +136,10 @@
 </template>
 
 <script>
-  import * as logger from '@/utils/logger'
+  // import * as logger from '@/utils/logger'
   import { GetRootGlobalTag, GetUserTags, UserTagAddOrUpdate, UserTagDelete } from '../../api/tag'
 import NoMoreResources from '@/components/Common/NoMoreResources'
-  const { debounce } = require('lodash-es')
+  // const { debounce } = require('lodash-es')
 
 export default {
   name: 'TagSetting',
@@ -162,7 +162,7 @@ export default {
   computed: {
   },
   created () {
-    this.debouncedSearchKnowledge = debounce(this.searchTag, 500)
+    // this.debouncedSearchKnowledge = debounce(this.searchTag, 500)
     this.tagLoading = true
     GetRootGlobalTag().then((response) => {
       this.$logger.info('GetRootGlobalTag response', response.result)
@@ -192,12 +192,12 @@ export default {
   },
   methods: {
     handleKeyup () {
-      this.$logger.info('skill handleKeyup ', this.inputTag)
-      this.debouncedSearchKnowledge(this.inputTag)
+      this.$logger.info('tag handleKeyup ', this.inputTag)
+      // this.debouncedSearchKnowledge(this.inputTag)
       this.createTagName = this.inputTag
     },
     searchTag (keyword) {
-      logger.info('tag searchTag', keyword)
+      // logger.info('tag searchTag', keyword)
       // this.filterKeyword()
     },
     handleCreateTagByInput () {
@@ -329,6 +329,11 @@ export default {
         color: #fff;
         background-color: #f5222d;
         border-radius: 50%;
+      }
+      .delete-icon-sub{
+        position: absolute;
+        right: 0;
+        top: 0;
       }
       .tag-item {
         cursor: pointer;

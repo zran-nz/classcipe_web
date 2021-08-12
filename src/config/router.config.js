@@ -407,8 +407,8 @@ export const constantRouterMap = [
     ]
   },
   {
-    path: '/addon/task/preview/:taskId',
-    name: 'TaskPreview',
+    path: '/addon/preview/:sourceType?/:id',
+    name: 'AddonPreview',
     props: true,
     component: () => import(/* webpackChunkName: "fail" */ '@/views/addon/preview')
   },

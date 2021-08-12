@@ -137,7 +137,10 @@ export function SkillList (parameter) {
 export function SkillSearch (parameter) {
   return request({
     url: skillAPIUrl.SkillSearch,
-    method: 'get',
-    params: parameter
+    method: 'post',
+    data: parameter,
+    headers: {
+      'Content-Type': 'application/json;charset=UTF-8'
+    }
   })
 }

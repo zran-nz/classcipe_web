@@ -137,8 +137,11 @@ export function KnowledgeList (parameter) {
 export function KnowledgeSearch (parameter) {
   return request({
     url: knowledgeAPIUrl.KnowledgeSearch,
-    method: 'get',
-    params: parameter
+    method: 'post',
+    data: parameter,
+    headers: {
+      'Content-Type': 'application/json;charset=UTF-8'
+    }
   })
 }
 

@@ -23,6 +23,10 @@ export default {
       type: Number,
       default: null
     },
+    currendIndex: {
+      type: Number,
+      default: null
+    },
     label: {
       type: String,
       default: 'name'
@@ -34,7 +38,7 @@ export default {
   },
   computed: {
     showSearchListFlag () {
-      return this.searchList.length > 0
+      return this.searchList.length > 0 && this.keyIndex === this.currendIndex
     }
   },
   mounted () {

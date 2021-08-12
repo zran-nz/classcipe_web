@@ -2,7 +2,7 @@
   <div style="width: 600px">
     <div class="preview-wrapper">
       <div class="preview-detail">
-        <common-preview :id="taskId" :type="4" :can-edit="false"/>
+        <common-preview :id="id" :type="type" :can-edit="false"/>
       </div>
     </div>
   </div>
@@ -14,16 +14,26 @@
   import CommonPreview from '@/components/Common/CommonPreview'
 
   export default {
-  name: 'TaskPreview',
+  name: 'AddonPreview',
   components: {
     CommonPreview
   },
+  data () {
+    return {
+      type: 4
+    }
+  },
   created () {
+    this.type = parseInt(this.sourceType)
     const token = this.$route.query.token
     storage.set(ACCESS_TOKEN, token)
   },
   props: {
-    taskId: {
+    id: {
+      type: String,
+      default: null
+    },
+    sourceType: {
       type: String,
       default: null
     }
