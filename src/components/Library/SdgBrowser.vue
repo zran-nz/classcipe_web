@@ -371,7 +371,7 @@ export default {
         font-weight: 500;
         cursor: pointer;
         overflow: hidden;
-        white-space: nowrap;
+        //white-space: nowrap;
         text-overflow: ellipsis;
         word-break: break-all;
         user-select: none;
