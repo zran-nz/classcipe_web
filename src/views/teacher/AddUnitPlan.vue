@@ -23,25 +23,18 @@
       </a-col>
     </a-row>
     <a-row class="unit-content" v-if="!contentLoading">
-      <a-col span="3">
+      <a-col span="4">
         <div class="unit-menu-list">
           <div class="menu-category-item">
             <associate-sidebar :name="form.name" :type="contentType[&quot;unit-plan&quot;]" :id="unitPlanId" ref="associate"/>
           </div>
           <div class="menu-category-item">
-            <div class="menu-sub-add-action">
-              <div class="action-item" @click="selectAddContentTypeVisible = true">
-                <a-icon type="plus-circle" /> {{ $t('teacher.add-unit-plan.add-to-this-unit-plan') }}
-              </div>
-              <div class="action-item" @click="selectLinkContentVisible = true">
-                <a-icon type="link" /> {{ $t('teacher.add-unit-plan.link-content') }}
-              </div>
-            </div>
+            <action-bar @create="selectAddContentTypeVisible = true" @link="selectLinkContentVisible = true" :show-create="true"/>
           </div>
         </div>
       </a-col>
       <a-col span="15" class="main-content">
-        <a-card :bordered="false" :style="{ borderLeft: '1px solid rgb(235, 238, 240)', borderRight: '1px solid rgb(235, 238, 240)' }" :body-style="{padding: '16px'}">
+        <a-card :bordered="false" :body-style="{padding: '16px'}">
           <a-form-model :model="form" :label-col="labelCol" :wrapper-col="wrapperCol" >
             <div class="form-block">
               <!--              unit-name-->
@@ -277,10 +270,6 @@
           </a-form-model>
         </a-card>
       </a-col>
-      <a-col span="6" class="right-reference-view">
-        <a-card :bordered="false" :loading="referenceLoading">
-        </a-card>
-      </a-col>
     </a-row>
     <a-modal
       v-model="selectAddContentTypeVisible"
@@ -417,10 +406,12 @@ import CustomTag from '../../components/UnitPlan/CustomTag'
 import { MyContentEvent, MyContentEventBus } from '@/components/MyContent/MyContentEventBus'
 import RelevantTagSelector from '@/components/UnitPlan/RelevantTagSelector'
 import AddKeywordTag from '@/components/Evaluation/AddKeywordTag'
+import ActionBar from '@/components/Associate/ActionBar'
 
 export default {
   name: 'AddUnitPlan',
   components: {
+    ActionBar,
     ContentTypeIcon,
     InputSearch,
     SdgTagInput,

@@ -1,15 +1,24 @@
 <template>
   <div class="content-sidebar">
     <template v-if="!loading">
-      <div class="main-name" >
-        <span class="name-label">
-          <a-tooltip :title="name">> {{ name }} </a-tooltip>
-        </span>
-      </div>
-      <div class="sub-list">
-        <div class="sub-item" v-for="(item,index) in associateList" :key="index" @click="handleViewItem(item)">
-          <  {{ item.name }}
-        </div>
+      <div class="content-collapse">
+        <a-collapse :bordered="false">
+          <a-collapse-panel key="1" :header="name">
+            <div class="sub-list" v-if="associateList.length > 0">
+              <div class="sub-item" v-for="(item,index) in associateList" :key="index" @click="handleViewItem(item)">
+                <div class="icon">
+                  <content-type-icon :type="item.type" size="20px" />
+                </div>
+                <div class="name">
+                  {{ item.name }}
+                </div>
+              </div>
+            </div>
+            <div class="sub-empty" v-if="!associateList.length">
+              No data
+            </div>
+          </a-collapse-panel>
+        </a-collapse>
       </div>
     </template>
     <template v-if="loading">
@@ -142,53 +151,50 @@ export default {
 .content-sidebar {
   display: flex;
   flex-direction: column;
-  padding-bottom: 10px;
-  margin-bottom: 10px;
-  border-bottom: 1px solid #eee;
+  margin-bottom: 15px;
   .main-loading {
     padding: 20px;
     margin: auto;
   }
-  .main-name {
-    width: 100%;
-    box-sizing: border-box;
-    display: flex;
-    align-items: center;
-    flex-direction: row;
-    justify-content: flex-start;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    word-break: break-all;
-    white-space: nowrap;
-    .name-label {
-      padding-left: 5px;
-      width: 100%;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      word-break: break-all;
-      white-space: nowrap;
-      font-size: 16px;
-      font-weight: 500;
-      color: @primary-color;
-    }
-    padding: 5px 0;
-  }
 
-  .sub-list {
-    padding-left: 20px;
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-start;
-    align-items: center;
-    .sub-item {
-      width: 100%;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      word-break: break-all;
-      white-space: nowrap;
-      padding: 3px 0;
-      color: @primary-color;
+  .content-collapse {
+
+    .sub-list {
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+      align-items: center;
+      .sub-item {
+        width: 100%;
+        padding: 8px 15px;
+        display: flex;
+        flex-direction: row;
+        align-items: flex-start;
+
+        .icon {
+          min-width: 23px;
+        }
+
+        .name {
+          padding-left: 6px;
+        }
+      }
+      .sub-item:hover {
+        color: @primary-color;
+      }
+
+      .sub-item:hover {
+        background: rgba(21, 195, 154, 0.1);
+      }
     }
   }
+}
+
+.sub-empty {
+  text-align: center;
+  font-size: 12px;
+  color: #bbb;
+  padding-top: 10px;
+  padding-bottom: 10px;
 }
 </style>

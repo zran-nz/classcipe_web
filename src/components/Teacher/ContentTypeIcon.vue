@@ -1,10 +1,11 @@
 <template>
   <div class="status-icon-item">
-    <img src="~@/assets/icons/library/Lesson.png" v-if="type === typeMap.lesson"/>
-    <img src="~@/assets/icons/library/Task.png" v-if="type === typeMap.task"/>
-    <img src="~@/assets/icons/library/unitplan.png" v-if="type === typeMap['unit-plan']"/>
-    <img src="~@/assets/icons/library/topic.png" v-if="type === typeMap.topic"/>
-    <img src="~@/assets/icons/library/evaluation.png" v-if="type === typeMap.evaluation"/>
+    <img src="~@/assets/icons/library/Lesson.png" :style="{width: size}" v-if="type === typeMap.lesson"/>
+    <img src="~@/assets/icons/library/Task.png" :style="{width: size}" v-else-if="type === typeMap.task"/>
+    <img src="~@/assets/icons/library/unitplan.png" :style="{width: size}" v-else-if="type === typeMap['unit-plan']"/>
+    <img src="~@/assets/icons/library/topic.png" :style="{width: size}" v-else-if="type === typeMap.topic"/>
+    <img src="~@/assets/icons/library/evaluation.png" :style="{width: size}" v-else-if="type === typeMap.evaluation"/>
+    <a-icon type="question-circle" :style="{fontSize: '18px'}" v-else/>
   </div>
 </template>
 
@@ -24,6 +25,10 @@ export default {
     type: {
       type: Number,
       default: -1
+    },
+    size: {
+      type: String,
+      default: '25px'
     }
   },
   data: function () {
@@ -38,9 +43,6 @@ export default {
 .status-icon-item {
   text-align: center;
   display: inline-block;
-  img {
-    width: 25px;
-  }
 }
 
 .ant-menu-item .anticon, .ant-menu-submenu-title .anticon {

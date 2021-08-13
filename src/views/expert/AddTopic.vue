@@ -29,14 +29,7 @@
             <associate-sidebar :name="form.name" :type="contentType.topic" :id="topicId" ref="associate"/>
           </div>
           <div class="menu-category-item">
-            <div class="menu-sub-add-action">
-              <div class="action-item" @click="selectAddContentTypeVisible = true">
-                <a-icon type="plus-circle" /> {{ $t('teacher.add-unit-plan.add-to-this-unit-plan') }}
-              </div>
-              <div class="action-item" @click="selectLinkContentVisible = true">
-                <a-icon type="link" /> {{ $t('teacher.add-unit-plan.link-content') }}
-              </div>
-            </div>
+            <action-bar @create="selectAddContentTypeVisible = true" @link="selectLinkContentVisible = true"/>
           </div>
         </div>
       </a-col>
@@ -305,10 +298,12 @@
   import { TaskAddOrUpdate } from '@/api/task'
   import CustomTag from '../../components/UnitPlan/CustomTag'
 import NewUiClickableKnowledgeTag from '@/components/UnitPlan/NewUiClickableKnowledgeTag'
+  import ActionBar from '@/components/Associate/ActionBar'
 
   export default {
     name: 'AddTopic',
     components: {
+      ActionBar,
       ContentTypeIcon,
       InputSearch,
       SdgTagInput,

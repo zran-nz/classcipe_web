@@ -42,7 +42,7 @@ import {
   TreeSelect,
   Tree,
   message,
-  notification, Switch, Rate
+  notification, Switch, Rate, Collapse
 } from 'ant-design-vue'
 import Viser from 'viser-vue'
 
@@ -54,8 +54,11 @@ import './directives/action'
 
 // logger
 import * as logger from '@/utils/logger'
+import CollapsePanel from 'ant-design-vue/lib/collapse/CollapsePanel'
 
 Vue.use(Rate)
+Vue.use(Collapse)
+Vue.use(CollapsePanel)
 Vue.use(Switch)
 Vue.use(ConfigProvider)
 Vue.use(ConfigProvider)

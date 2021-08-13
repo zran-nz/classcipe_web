@@ -23,21 +23,17 @@
       </a-col>
     </a-row>
     <a-row class="unit-content" v-if="!contentLoading">
-      <a-col span="3">
+      <a-col span="4">
         <div class="unit-menu-list">
           <div class="menu-category-item">
             <associate-sidebar :name="form.name" :type="contentType.evaluation" :id="evaluationId" ref="associate"/>
           </div>
           <div class="menu-category-item">
-            <div class="menu-sub-add-action">
-              <div class="action-item" @click="selectLinkContentVisible = true">
-                <a-icon type="link" /> {{ $t('teacher.add-evaluation.link-content') }}
-              </div>
-            </div>
+            <action-bar @create="selectAddContentTypeVisible = true" @link="selectLinkContentVisible = true"/>
           </div>
         </div>
       </a-col>
-      <a-col span="21" class="main-content">
+      <a-col span="20" class="main-content">
         <div class="rubric-content">
           <a-row :gutter="[16,24]">
             <a-col span="18">
@@ -227,6 +223,7 @@ import DisplayMode from '@/components/MyContent/DisplayMode'
 import RubricOne from '@/components/Evaluation/RubricOne'
 import AssociateSidebar from '@/components/Associate/AssociateSidebar'
 import Collaborate from '@/components/UnitPlan/Collaborate'
+import ActionBar from '@/components/Associate/ActionBar'
 
 const TagOriginType = {
   Origin: 'Origin',
@@ -239,6 +236,7 @@ const TagOriginType = {
 export default {
   name: 'AddEvaluation',
   components: {
+    ActionBar,
     RubricOne,
     ContentTypeIcon,
     InputSearch,
