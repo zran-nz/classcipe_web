@@ -17,8 +17,7 @@
         <a-space>
           <a-button @click="handleSaveUnitPlan"> <a-icon type="save" /> {{ $t('teacher.add-unit-plan.save') }}</a-button>
           <a-button type="primary" @click="handlePublishUnitPlan"> <a-icon type="cloud-upload" /> {{ $t('teacher.add-unit-plan.publish') }}</a-button>
-          <a-button @click="$refs.collaborate.visible = true"><a-icon type="share-alt" ></a-icon>Collaborate</a-button>
-          <Collaborate ref="collaborate" :id="unitPlanId" :type="contentType['unit-plan']" ></Collaborate>
+          <a-button @click="handleStartCollaborate"><a-icon type="share-alt" ></a-icon>Collaborate</a-button>
         </a-space>
       </a-col>
     </a-row>
@@ -271,6 +270,8 @@
         </a-card>
       </a-col>
     </a-row>
+
+    <collaborate-content ref="collaborate"/>
     <a-modal
       v-model="selectAddContentTypeVisible"
       :footer="null"
@@ -407,10 +408,12 @@ import { MyContentEvent, MyContentEventBus } from '@/components/MyContent/MyCont
 import RelevantTagSelector from '@/components/UnitPlan/RelevantTagSelector'
 import AddKeywordTag from '@/components/Evaluation/AddKeywordTag'
 import ActionBar from '@/components/Associate/ActionBar'
+import CollaborateContent from '@/components/collaborate/CollaborateContent'
 
 export default {
   name: 'AddUnitPlan',
   components: {
+    CollaborateContent,
     ActionBar,
     ContentTypeIcon,
     InputSearch,
@@ -1217,6 +1220,10 @@ export default {
     handleAddAudioOverview () {
       this.$logger.info('handleAddAudioOverview')
       this.showAddAudioVisible = true
+    },
+    handleStartCollaborate () {
+      this.$logger.info('handleStartCollaborate')
+      this.$refs.collaborate.startCollaborateModal(Object.assign({}, this.form), this.form.id, this.contentType['unit-plan'])
     }
   }
 }
