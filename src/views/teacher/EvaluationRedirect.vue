@@ -22,7 +22,7 @@ export default {
       this.$router.replace('/teacher/add-evaluation/' + this.evaluationId)
     } else {
       const data = {
-        name: 'Unnamed evaluation',
+        name: null,
         selfType: 0,
         status: 0,
         tableMode: 0

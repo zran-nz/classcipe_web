@@ -10,6 +10,7 @@ import { EvaluationDelete } from '@/api/evaluation'
 
 export const teacherAPIUrl = {
   Associate: '/classcipe/api/teacher/associate',
+  AssociateCancel: '/classcipe/api/teacher/associateCancel',
   BatchAssociate: '/classcipe/api/teacher/batchAssociate',
   GetAssociate: '/classcipe/api/teacher/getAssociate',
   GetMyContent: '/classcipe/api/teacher/getMyContent',
@@ -112,6 +113,22 @@ export function UpdateContentStatus (parameter) {
 export function Associate (parameter) {
   return request({
     url: teacherAPIUrl.Associate,
+    method: 'post',
+    data: parameter,
+    headers: {
+      'Content-Type': 'application/json;charset=UTF-8'
+    }
+  })
+}
+
+/**
+ * @param parameter
+ * @returns {AxiosPromise}
+ * @constructor
+ */
+export function AssociateCancel (parameter) {
+  return request({
+    url: teacherAPIUrl.AssociateCancel,
     method: 'post',
     data: parameter,
     headers: {

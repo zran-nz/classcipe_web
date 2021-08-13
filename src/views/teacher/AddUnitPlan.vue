@@ -997,7 +997,7 @@ export default {
       // 下创建一个空的evaluation，然后关联，然后再跳转过去
       if (!this.addLoading) {
         this.addLoading = true
-        EvaluationAddOrUpdate({ name: 'Unnamed Evaluation' }).then((response) => {
+        EvaluationAddOrUpdate({ name: null }).then((response) => {
           this.$logger.info('EvaluationAddOrUpdate', response.result)
           if (response.success) {
             Associate({

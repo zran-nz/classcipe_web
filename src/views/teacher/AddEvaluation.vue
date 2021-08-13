@@ -119,7 +119,8 @@
           </div>
         </div>
         <div class="associate-my-content-action">
-          <a-button shape="round" type="primary" @click="selectLinkContentVisible = true">Open My Content</a-button>
+          <a-button shape="round" @click="handleSkipLinkMyContent" class="action-item">Skip</a-button>
+          <a-button shape="round" type="primary" @click="selectLinkContentVisible = true">Add</a-button>
         </div>
       </div>
     </a-modal>
@@ -274,7 +275,7 @@ export default {
 
       form: {
         id: null,
-        name: 'Unnamed Evaluation',
+        name: null,
         status: 0,
         se: 0,
         pe: 0,
@@ -385,6 +386,11 @@ export default {
           })
           this.$logger.info('initRawData', initRawData)
           this.initRawData = initRawData
+        } else {
+          // 选择rubric
+          if (this.mode !== 'create' && this.form.tableMode === 0) {
+            this.selectRubricVisible = true
+          }
         }
       }).then(() => {
         this.contentLoading = false
@@ -394,6 +400,9 @@ export default {
 
     handleLinkMyContent (data) {
       this.$logger.info('handleLinkMyContent ', data)
+      if (!this.form.name) {
+        this.form.name = 'Evaluation of ' + data.item.name
+      }
       Associate({
         fromId: this.form.id,
         fromType: this.contentType.evaluation,
@@ -721,6 +730,13 @@ export default {
         }
       } else {
         this.$message.warn('Choose rubric format!')
+      }
+    },
+    handleSkipLinkMyContent () {
+      this.associateEvaluationVisible = false
+      // 选择rubric
+      if (this.mode === 'create' && this.form.tableMode === 0) {
+        this.selectRubricVisible = true
       }
     }
   }
@@ -1517,5 +1533,9 @@ export default {
       }
     }
   }
+}
+
+.action-item {
+  margin-right: 10px;
 }
 </style>
