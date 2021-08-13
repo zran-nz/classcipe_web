@@ -1,12 +1,13 @@
 <template>
   <div :class="wrpCls">
-    <div class="tips">
-      <router-link to="/notification">
-        <a-badge>
-          <a-icon type="mail" theme="filled" :class="{'icon-active': routeActive, 'icon-inactive': !routeActive}" />
-        </a-badge>
-      </router-link>
-    </div>
+    <!--    <div class="tips">-->
+    <!--      <router-link to="/notification">-->
+    <!--        <a-badge>-->
+    <!--          <a-icon type="mail" theme="filled" :class="{'icon-active': routeActive, 'icon-inactive': !routeActive}" />-->
+    <!--        </a-badge>-->
+    <!--      </router-link>-->
+    <Notice-Icon></Notice-Icon>
+    <!--    </div>-->
     <avatar-dropdown :menu="showMenu" :current-user="$store.getters.userInfo" :class="prefixCls" @switch-role="handleSwitchRole" />
     <!--    <select-lang :class="prefixCls" />-->
   </div>
@@ -16,12 +17,14 @@
 import AvatarDropdown from './AvatarDropdown'
 import SelectLang from '@/components/SelectLang'
 import * as logger from '@/utils/logger'
+import NoticeIcon from '@/components/NoticeIcon'
 
 export default {
   name: 'RightContent',
   components: {
     AvatarDropdown,
-    SelectLang
+    SelectLang,
+    NoticeIcon
   },
   props: {
     prefixCls: {
