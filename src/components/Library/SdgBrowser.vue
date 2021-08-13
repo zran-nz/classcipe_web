@@ -73,7 +73,35 @@
         <div class="switch-type-wrapper">
           <div class="switch-type">
             <div class="switch-label">
-              Switch typesetting
+              <a-dropdown>
+                <a-menu slot="overlay">
+                  <a-menu-item disabled>
+                    <span>{{ $t('teacher.my-content.choose-types-of-content') }}</span>
+                  </a-menu-item>
+                  <a-menu-item @click="toggleType(0, $t('teacher.my-content.all-type'))">
+                    <span>{{ $t('teacher.my-content.all-type') }}</span>
+                  </a-menu-item>
+                  <a-menu-item @click="toggleType( typeMap['unit-plan'], $t('teacher.my-content.unit-plan-type'))">
+                    <span>{{ $t('teacher.my-content.unit-plan-type') }}</span>
+                  </a-menu-item>
+                  <a-menu-item @click="toggleType(typeMap.topic, $t('teacher.my-content.topics-type'))">
+                    <span>{{ $t('teacher.my-content.topics-type') }}</span>
+                  </a-menu-item>
+                  <a-menu-item @click="toggleType(typeMap.task, $t('teacher.my-content.tasks-type') )">
+                    <span>{{ $t('teacher.my-content.tasks-type') }}</span>
+                  </a-menu-item>
+                  <a-menu-item @click="toggleType(typeMap.lesson, $t('teacher.my-content.lesson-type'))">
+                    <span>{{ $t('teacher.my-content.lesson-type') }}</span>
+                  </a-menu-item>
+                  <a-menu-item @click="toggleType(typeMap.evaluation, $t('teacher.my-content.evaluation-type'))">
+                    <span>{{ $t('teacher.my-content.evaluation-type') }}</span>
+                  </a-menu-item>
+                </a-menu>
+                <a-button
+                  style="padding: 0 10px;display:flex; align-items:center ;height: 35px;border-radius: 6px;background: rgba(245, 245, 245, 0.5);font-size:13px;border: 1px solid #BCBCBC;font-family: Inter-Bold;color: #182552;">
+                  <span v-if="currentTypeLabel">{{ currentTypeLabel }}</span> <span v-else>Choose type(s)of content</span>
+                  <a-icon type="caret-down" /> </a-button>
+              </a-dropdown>
             </div>
             <div class="switch-icon">
               <div :class="{'icon-item': true, 'active-icon': dataListMode === 'list'}" @click="handleToggleDataListMode('list')">
@@ -94,6 +122,7 @@
             }"
             v-for="(dataItem, index) in dataList"
             @click="handleSelectDataItem(dataItem)"
+            v-if="(currentType === 0 || dataItem.type === currentType)"
             :key="index">
             <a-tooltip :mouseEnterDelay="1">
               <template slot="title">
@@ -118,6 +147,7 @@
               class="card-item-wrapper"
               v-for="(dataItem, index) in dataList"
               @click="handleSelectDataItem(dataItem)"
+              v-if="(currentType === 0 || dataItem.type === currentType)"
               :key="index">
               <div class="card-item">
                 <data-card-view
@@ -153,6 +183,7 @@ import NoMoreResources from '@/components/Common/NoMoreResources'
 import PuBuIcon from '@/assets/icons/library/pubu .svg?inline'
 import ListModeIcon from '@/assets/icons/library/liebiao .svg?inline'
 import DataCardView from '@/components/Library/DataCardView'
+import { typeMap } from '@/const/teacher'
 const { ScenarioQueryContentByScenarioId } = require('@/api/scenario')
 const { ScenarioGetKeywordScenarios } = require('@/api/scenario')
 const { GetAllSdgs } = require('@/api/scenario')
@@ -176,6 +207,7 @@ export default {
   },
   data () {
     return {
+      typeMap: typeMap,
       sdgList: [],
       sdgListLoading: true,
       currentSdgId: null,
@@ -193,7 +225,10 @@ export default {
       dataList: [],
       dataListLoading: false,
       currentDataId: null,
-      dataListMode: 'list'
+      dataListMode: 'list',
+
+      currentTypeLabel: 'Choose type（S）of content',
+      currentType: 0
     }
   },
   created () {
@@ -282,6 +317,12 @@ export default {
     handleToggleDataListMode (mode) {
       this.$logger.info('handleToggleDataListMode' + mode)
       this.dataListMode = mode
+    },
+
+    toggleType (type, label) {
+      this.$logger.info('toggleType ' + type + ' label ' + label)
+      this.currentType = type
+      this.currentTypeLabel = label
     }
   }
 }
