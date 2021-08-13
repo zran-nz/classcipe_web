@@ -58,6 +58,19 @@ export function GetShared (parameter) {
   })
 }
 
+/**
+ * @param parameter
+ * @returns {AxiosPromise}
+ * @constructor
+ */
+export function SearchUser (parameter) {
+  return request({
+    url: userAPIUrl.SearchUser,
+    method: 'get',
+    params: parameter
+  })
+}
+
 export function DeleteSharedByIdAndType (parameter) {
   return request({
     url: userAPIUrl.DeleteSharedByIdAndType,
