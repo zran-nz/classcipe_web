@@ -287,7 +287,7 @@ export default {
   .bottom-relative {
 
     .content-type-filter {
-      padding: 10px 15px;
+      padding: 10px 5px;
       display: flex;
       flex-direction: row;
       align-items: center;
@@ -305,7 +305,6 @@ export default {
         align-items: center;
         justify-content: flex-end;
         .toggle-mode-type-wrapper {
-          width: 290px;
           box-sizing: border-box;
           text-align: right;
           .toggle-mode-type {
@@ -332,7 +331,7 @@ export default {
               //}
 
               .mode-item {
-                padding: 0 8px;
+                padding: 0 10px;
                 font-size: 14px;
                 height: 40px;
                 color: rgba(17, 20, 45, 1);
@@ -341,7 +340,6 @@ export default {
                 display: flex;
                 align-items: center;
                 justify-content: center;
-                width: 90px;
               }
 
               .skill-active-mode {
