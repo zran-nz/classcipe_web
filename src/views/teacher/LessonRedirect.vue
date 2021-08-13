@@ -5,7 +5,7 @@
 </template>
 
 <script>
-
+import { LessonAddOrUpdate } from '@/api/myLesson'
 export default {
   name: 'LessonRedirect',
   props: {
@@ -17,7 +17,19 @@ export default {
     if (this.lessonId) {
       this.$router.replace('/teacher/add-lesson/' + this.lessonId)
     } else {
-      this.$router.replace('/teacher/add-lesson')
+      const data = {
+        name: null,
+        status: 0
+      }
+
+      LessonAddOrUpdate(data).then((response) => {
+        this.$logger.info('LessonAddOrUpdate response', response.result)
+        if (response.success) {
+          this.$router.replace('/teacher/add-lesson/' + response.result.id)
+        } else {
+          this.$message.error(response.message)
+        }
+      })
     }
   }
 }

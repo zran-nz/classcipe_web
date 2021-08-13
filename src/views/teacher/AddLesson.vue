@@ -17,7 +17,7 @@
         <a-space>
           <a-button @click="handleSaveLesson" :loading="lessonSaving"> <a-icon type="save" /> {{ $t('teacher.add-lesson.save') }}</a-button>
           <a-button type="primary" @click="handlePublishLesson"> <a-icon type="cloud-upload" /> {{ $t('teacher.add-lesson.publish') }}</a-button>
-          <a-button @click="$refs.collaborate.visible = true"><a-icon type="share-alt" ></a-icon>Collaborate</a-button>
+          <a-button @click="handleStartCollaborate"><a-icon type="share-alt" ></a-icon>Collaborate</a-button>
           <a-dropdown>
             <a-icon type="more" />
             <a-menu slot="overlay" style="top:10px">
@@ -33,7 +33,6 @@
               </a-menu-item>
             </a-menu>
           </a-dropdown>
-          <Collaborate ref="collaborate" :id="lessonId || form.id" :type="contentType.lesson" v-if="lessonId"></Collaborate>
         </a-space>
       </a-col>
     </a-row>
@@ -148,7 +147,7 @@
         </a-card>
       </a-col>
     </a-row>
-
+    <collaborate-content ref="collaborate"/>
     <a-modal
       v-model="selectLinkContentVisible"
       :footer="null"
@@ -390,6 +389,7 @@ import NewUiClickableKnowledgeTag from '@/components/UnitPlan/NewUiClickableKnow
 import { lessonHost, lessonStatus } from '@/const/googleSlide'
 import { StartLesson } from '@/api/lesson'
 import ActionBar from '@/components/Associate/ActionBar'
+import CollaborateContent from '@/components/Collaborate/CollaborateContent'
 
 const TagOriginType = {
   Origin: 'Origin',
@@ -414,6 +414,7 @@ export default {
     RelevantTagSelector,
     Collaborate,
     AssociateSidebar,
+    CollaborateContent,
     CustomTag
   },
   props: {
@@ -1274,6 +1275,10 @@ export default {
       } else {
         this.$message.warn('This record is not bound to PPT!')
       }
+    },
+    handleStartCollaborate () {
+      this.$logger.info('handleStartCollaborate')
+      this.$refs.collaborate.startCollaborateModal(Object.assign({}, this.form), this.form.id, this.contentType['unit-plan'])
     }
   }
 }

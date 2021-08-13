@@ -5,7 +5,7 @@
 </template>
 
 <script>
-
+import { TaskAddOrUpdate } from '@/api/task'
 export default {
   name: 'TaskRedirect',
   props: {
@@ -19,7 +19,19 @@ export default {
     if (this.taskId) {
       this.$router.replace('/teacher/add-task/' + this.taskId)
     } else {
-      this.$router.replace('/teacher/add-task')
+      const data = {
+        name: null,
+        status: 0
+      }
+
+      TaskAddOrUpdate(data).then((response) => {
+        this.$logger.info('TaskAddOrUpdate response', response.result)
+        if (response.success) {
+          this.$router.replace('/teacher/add-task/' + response.result.id)
+        } else {
+          this.$message.error(response.message)
+        }
+      })
     }
   }
 }

@@ -17,8 +17,7 @@
         <a-space>
           <a-button shape="round" @click="handleSaveEvaluation"> <a-icon type="save" /> {{ $t('teacher.add-evaluation.save') }}</a-button>
           <a-button shape="round" type="primary" @click="handlePublishEvaluation"> <a-icon type="cloud-upload" /> {{ $t('teacher.add-evaluation.publish') }}</a-button>
-          <a-button shape="round" @click="$refs.collaborate.visible = true"><a-icon type="share-alt" ></a-icon>Collaborate</a-button>
-          <Collaborate ref="collaborate" :id="evaluationId" :type="contentType.evaluation" ></Collaborate>
+          <a-button @click="handleStartCollaborate"><a-icon type="share-alt" ></a-icon>Collaborate</a-button>
         </a-space>
       </a-col>
     </a-row>
@@ -76,7 +75,7 @@
         </div>
       </a-col>
     </a-row>
-
+    <collaborate-content ref="collaborate"/>
     <a-modal
       v-model="selectLinkContentVisible"
       :footer="null"
@@ -225,6 +224,7 @@ import RubricOne from '@/components/Evaluation/RubricOne'
 import AssociateSidebar from '@/components/Associate/AssociateSidebar'
 import Collaborate from '@/components/UnitPlan/Collaborate'
 import ActionBar from '@/components/Associate/ActionBar'
+import CollaborateContent from '@/components/Collaborate/CollaborateContent'
 
 const TagOriginType = {
   Origin: 'Origin',
@@ -244,6 +244,7 @@ export default {
     MyContentSelector,
     RelevantTagSelector,
     AssociateSidebar,
+    CollaborateContent,
     Collaborate
   },
   props: {
@@ -738,6 +739,10 @@ export default {
       if (this.mode === 'create' && this.form.tableMode === 0) {
         this.selectRubricVisible = true
       }
+    },
+    handleStartCollaborate () {
+      this.$logger.info('handleStartCollaborate')
+      this.$refs.collaborate.startCollaborateModal(Object.assign({}, this.form), this.form.id, this.contentType['unit-plan'])
     }
   }
 }
