@@ -18,9 +18,9 @@
       :maskClosable="false"
       :closable="true"
       destroyOnClose
-      width="1000px">
+      width="800px">
       <div class="collaborate-content-wrapper">
-        <collaborate-user-list @select="handleSelectedCollaborateUser"/>
+        <collaborate-user-list @selected="handleSelectedCollaborateUser"/>
       </div>
     </a-modal>
   </div>
@@ -29,6 +29,7 @@
 <script>
 import CollaborateContentList from '@/components/collaborate/CollaborateContentList'
 import CollaborateUserList from '@/components/collaborate/CollaborateUserList'
+import { InviteCollaborate } from '@/api/collaborate'
 
 export default {
   name: 'CollaborateContent',
@@ -43,7 +44,8 @@ export default {
       collaborateContentSelectVisible: false,
 
       userSelectVisible: false,
-      userSelectMode: 'invite'
+      selectedViewerContentList: [],
+      selectedEditorContentList: []
     }
   },
   created () {
@@ -59,11 +61,36 @@ export default {
     },
     handleSelectedCollaborateContent (data) {
       this.$logger.info('handleSelectedCollaborateContent', data)
+      this.selectedViewerContentList = data.selectedViewerContentList
+      this.selectedEditorContentList = data.selectedEditorContentList
       this.collaborateContentSelectVisible = false
       this.userSelectVisible = true
     },
     handleSelectedCollaborateUser (data) {
       this.$logger.info('handleSelectedCollaborateUser', data)
+      this.$logger.info('selectedViewerContentList', this.selectedViewerContentList)
+      this.$logger.info('selectedEditorContentList', this.selectedEditorContentList)
+      if (data.userSelectMode === 'invite') {
+        const postData = {
+          contents: [],
+          emails: [],
+          permissions: [],
+          message: ''
+        }
+        postData.contents = postData.contents.concat(this.selectedViewerContentList)
+        postData.contents = postData.contents.concat(this.selectedEditorContentList)
+        postData.emails = postData.emails.concat(data.selectedViewerEmailList)
+        postData.emails = postData.emails.concat(data.selectedEditorEmailList)
+        postData.permissions.push('view')
+        postData.permissions.push('edit')
+        postData.message = data.inviteMessage
+        this.$logger.info('post data', postData)
+        InviteCollaborate(postData).then(response => {
+          this.$logger.info('InviteCollaborate response', response)
+          this.userSelectVisible = false
+          this.$message.success('success!')
+        })
+      }
     }
   }
 }

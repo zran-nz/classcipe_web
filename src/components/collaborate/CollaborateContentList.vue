@@ -214,9 +214,26 @@ export default {
       if (this.selectedEditorContentIdList.length === 0 && this.selectedViewerContentIdList.length === 0) {
         this.$message.warn('please select content!')
       } else {
+        const selectedViewerContentList = []
+        const selectedEditorContentList = []
+        this.selectedViewerContentIdList.forEach(id => {
+          const item = this.collaborateContentList.find(it => it.id === id)
+          selectedViewerContentList.push({
+            id: id,
+            type: item.type
+          })
+        })
+        this.selectedEditorContentIdList.forEach(id => {
+          const item = this.collaborateContentList.find(it => it.id === id)
+          selectedEditorContentList.push({
+            id: id,
+            type: item.type
+          })
+        })
+        this.$logger.info('event data', selectedViewerContentList, selectedEditorContentList)
         this.$emit('selected', {
-          selectedViewerContentIdList: this.selectedViewerContentIdList,
-          selectedEditorContentIdList: this.selectedEditorContentIdList
+          selectedViewerContentList,
+          selectedEditorContentList
         })
       }
     }
