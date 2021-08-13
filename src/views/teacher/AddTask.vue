@@ -273,7 +273,6 @@ import MyContentSelector from '@/components/MyContent/MyContentSelector'
 import RelevantTagSelector from '@/components/UnitPlan/RelevantTagSelector'
 import { TemplateTypeMap } from '@/const/template'
 import { commonAPIUrl } from '@/api/common'
-import Collaborate from '@/components/UnitPlan/Collaborate'
 import AssociateSidebar from '@/components/Associate/AssociateSidebar'
 import CustomTag from '@/components/UnitPlan/CustomTag'
 import NewUiClickableKnowledgeTag from '@/components/UnitPlan/NewUiClickableKnowledgeTag'
@@ -301,7 +300,6 @@ export default {
     SkillTag,
     MyContentSelector,
     RelevantTagSelector,
-    Collaborate,
     AssociateSidebar,
     CollaborateContent,
     CustomTag
