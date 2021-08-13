@@ -203,6 +203,8 @@ export default {
 
         .name {
           padding-left: 6px;
+          padding-right: 10px;
+          word-break: break-all;
         }
       }
       .sub-item:hover {
