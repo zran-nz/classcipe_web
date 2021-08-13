@@ -36,73 +36,29 @@
         </template>
       </div>
     </div>
-    <div class="browser-block-item" :style="{width: blockWidth + 'px' , minWidth: blockWidth + 'px' }" >
-      <!--      sdg keyword name list-->
-      <div
-        :class="{
-          'browser-item': true,
-          'odd-line': index % 2 === 0,
-          'active-line': currentSdgKeywordName === sdgKeywordNameItem.name
-        }"
-        v-for="(sdgKeywordNameItem, index) in sdgKeywordNameList"
-        @click="handleSelectSdgKeywordNameItem(sdgKeywordNameItem)"
-        :key="index">
-        <a-tooltip :mouseEnterDelay="1">
-          <template slot="title">
-            {{ sdgKeywordNameItem.name }}
-          </template>
-          <dir-icon dir-type="opened" v-if="currentSdgKeywordName !== sdgKeywordNameItem.name"/>
-          <dir-icon dir-type="yellow" v-if="currentSdgKeywordName === sdgKeywordNameItem.name"/>
-          {{ sdgKeywordNameItem.name }}
-        </a-tooltip>
-        <span class="arrow-item">
-          <a-icon type="right" />
-        </span>
+    <div class="browser-block-item-wrapper" :style="{width: blockWidth + 'px' , minWidth: blockWidth + 'px' }" >
+      <!--     new sdg keywords description-->
+      <div class="keyword-wrapper">
+        <div class="keyword-list">
+          <div :class="{'keyword-item': true, 'kd-active-item': currentSdgKeywordScenario === 'keyword' && currentSdgKeywordScenarioId === keywordItem.id}" v-for="(keywordItem, kIndex) in sdgKeywordNameList" @click="scenarioQueryContentByKeywordId(keywordItem)" :key="kIndex">
+            <!--            <img src="~@/assets/icons/library/tuijian@2x.png" class="keyword-icon"/>-->
+            <span class="keyword-name">
+              {{ keywordItem.name }}
+            </span>
+            <a-icon
+              type="check-circle"
+              theme="filled"
+              v-if="currentSdgKeywordScenario === 'keyword' && currentSdgKeywordScenarioId === keywordItem.id" />
+          </div>
+        </div>
       </div>
-      <template v-if="!sdgKeywordNameList.length && !sdgKeywordNameListLoading">
-        <div class="no-data">
-          <no-more-resources />
+      <div class="description-wrapper">
+        <div class="description-list">
+          <div :class="{'description-item': true, 'kd-active-item': currentSdgKeywordScenario === 'description' && currentSdgKeywordScenarioId === descriptionItem.id}" v-for="(descriptionItem, dIndex) in sdgDescriptionsList" @click="scenarioQueryContentByDescriptionId(descriptionItem)" :key="dIndex">
+            {{ descriptionItem.name }}
+          </div>
         </div>
-      </template>
-      <template v-if="sdgKeywordNameListLoading">
-        <div class="loading-wrapper">
-          <a-spin />
-        </div>
-      </template>
-    </div>
-    <div class="browser-block-item" :style="{width: blockWidth + 'px' , minWidth: blockWidth + 'px' }" >
-      <!--      sdg keywords description-->
-      <div
-        :class="{
-          'browser-item': true,
-          'odd-line': index % 2 === 0,
-          'active-line': currentSdgKeywordScenarioId === sdgKeywordItem.scenarioId
-        }"
-        v-for="(sdgKeywordItem, index) in sdgKeywordList"
-        @click="handleSelectSdgKeywordItem(sdgKeywordItem)"
-        :key="index">
-        <a-tooltip :mouseEnterDelay="1">
-          <template slot="title">
-            {{ sdgKeywordItem.description }}
-          </template>
-          <dir-icon dir-type="opened" v-if="currentSdgKeywordScenarioId !== sdgKeywordItem.scenarioId"/>
-          <dir-icon dir-type="yellow" v-if="currentSdgKeywordScenarioId === sdgKeywordItem.scenarioId"/>
-          {{ sdgKeywordItem.description }}
-        </a-tooltip>
-        <span class="arrow-item">
-          <a-icon type="right" />
-        </span>
       </div>
-      <template v-if="!sdgKeywordList.length && !sdgKeywordLoading">
-        <div class="no-data">
-          <no-more-resources />
-        </div>
-      </template>
-      <template v-if="sdgKeywordLoading">
-        <div class="loading-wrapper">
-          <a-spin />
-        </div>
-      </template>
     </div>
     <div
       class="browser-block-item-wrapper"
@@ -229,8 +185,9 @@ export default {
       sdgKeywordNameListLoading: false,
       currentSdgKeywordName: null,
 
-      sdgKeywordList: [],
+      sdgDescriptionList: [],
       sdgKeywordLoading: false,
+      currentSdgKeywordScenario: null,
       currentSdgKeywordScenarioId: null,
 
       dataList: [],
@@ -274,7 +231,6 @@ export default {
         this.sdgDescriptionsList = response.result.descriptions // Descriptions内容
         if (this.sdgKeywordNameList.length) {
           this.currentSdgKeywordName = this.sdgKeywordNameList[0].name
-          this.sdgKeywordList = this.sdgKeywordNameList
           this.currentSdgKeywordScenarioId = null
           this.currentDataId = null
           this.dataList = []
@@ -284,30 +240,28 @@ export default {
       })
     },
 
-    handleSelectSdgKeywordNameItem (sdgKeywordNameItem) {
-      this.$logger.info('handleSelectSdgKeywordNameItem ', sdgKeywordNameItem)
-      this.currentSdgKeywordName = sdgKeywordNameItem.name
-      this.sdgKeywordList = sdgKeywordNameItem.sdgKeyWords
-      this.currentSdgKeywordScenarioId = null
-      this.currentDataId = null
-      this.dataList = []
-      this.handleClickBlock(2, sdgKeywordNameItem.name)
+    scenarioQueryContentByDescriptionId (descriptionItem) {
+      this.dataListLoading = true
+      this.$logger.info('scenarioQueryContentByDescriptionId ' + descriptionItem.id)
+      this.handleClickBlock(2, descriptionItem.name)
+      this.currentSdgKeywordScenarioId = descriptionItem.id
+      this.currentSdgKeywordScenario = 'description'
+      ScenarioQueryContentByScenarioId({ descriptionId: descriptionItem.id }).then(response => {
+        this.$logger.info('scenarioQueryContentByDescriptionId response', response.result)
+        this.dataList = response.result
+      }).finally(() => {
+        this.dataListLoading = false
+      })
     },
 
-    handleSelectSdgKeywordItem (sdgKeywordItem) {
-      this.$logger.info('handleSelectSdgKeywordItem ', sdgKeywordItem)
-      // this.currentSdgKeywordScenarioId = sdgKeywordItem.scenarioId
+    scenarioQueryContentByKeywordId (keywordsItem) {
       this.dataListLoading = true
-      this.dataList = []
-      this.scenarioQueryContentByScenarioId(sdgKeywordItem.id)
-      // this.handleClickBlock(3, sdgKeywordItem.description)
-    },
-
-    scenarioQueryContentByScenarioId (keywordsId) {
-      this.dataListLoading = true
-      this.$logger.info('scenarioQueryContentByScenarioId ' + keywordsId)
-      ScenarioQueryContentByScenarioId({ keywordsId: keywordsId }).then(response => {
-        this.$logger.info('ScenarioQueryContentByScenarioId response', response.result)
+      this.$logger.info('scenarioQueryContentByKeywordId ' + keywordsItem.id)
+      this.handleClickBlock(2, keywordsItem.name)
+      this.currentSdgKeywordScenarioId = keywordsItem.id
+      this.currentSdgKeywordScenario = 'keyword'
+      ScenarioQueryContentByScenarioId({ keywordsId: keywordsItem.id }).then(response => {
+        this.$logger.info('scenarioQueryContentByKeywordId response', response.result)
         this.dataList = response.result
       }).finally(() => {
         this.dataListLoading = false
@@ -592,5 +546,70 @@ export default {
   justify-content: center;
   align-items: center;
   height: 60%;
+}
+
+.keyword-wrapper {
+  padding: 15px 15px 0 15px;
+  box-sizing: border-box;
+  .keyword-list {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+
+    .keyword-item {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      justify-content: center;
+      border-radius: 15px;
+      padding: 3px 15px;
+      margin: 0 10px 10px 0;
+      border: 1px solid rgba(21, 195, 154, 1);
+      background: rgba(21, 195, 154, 0.1);
+      font-family: Inter-Bold;
+      color: #15C39A;
+      .keyword-name {
+        padding-right: 10px;
+      }
+
+      .keyword-icon {
+        height: 18px;
+      }
+    }
+  }
+}
+
+.description-wrapper {
+  padding: 15px;
+  box-sizing: border-box;
+  .description-list {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+
+    .description-item {
+      cursor: pointer;
+      display: flex;
+      flex-wrap: wrap;
+      margin-bottom: 15px;
+      font-size: 14px;
+      font-family: Inter-Bold;
+      line-height: 24px;
+      color: #000000;
+      background: #FFFFFF;
+      box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.16);
+      opacity: 1;
+      border-radius: 4px;
+      padding: 8px 15px;
+      width: 100%;
+    }
+
+    .kd-active-item {
+      background: rgba(21, 195, 154, 0.1);
+      border: 1px solid #15C39A;
+      font-family: Inter-Bold;
+      color: #15C39A;
+    }
+  }
 }
 </style>
