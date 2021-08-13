@@ -2,17 +2,6 @@
   <div class="my-content">
     <div class="filter-line">
       <div class="status-tab">
-        <!--        <span :class="{'status-item': true, 'active-status-item': currentStatus === 'all-status'}" @click="toggleStatus('all-status', $t('teacher.my-content.all-status'))">-->
-        <!--          {{ $t('teacher.my-content.all-status') }}-->
-        <!--        </span>-->
-        <!--        <a-divider type="vertical" />-->
-        <!--        <span :class="{'status-item': true, 'active-status-item': currentStatus === 'published'}" @click="toggleStatus('published', $t('teacher.my-content.published-status'))">-->
-        <!--          {{ $t('teacher.my-content.published-status') }}-->
-        <!--        </span>-->
-        <!--        <a-divider type="vertical" />-->
-        <!--        <span :class="{'status-item': true, 'active-status-item': currentStatus === 'draft'}" @click="toggleStatus('draft', $t('teacher.my-content.draft-status'))">-->
-        <!--          {{ $t('teacher.my-content.draft-status') }}-->
-        <!--        </span>-->
       </div>
       <div class="type-owner">
         <div class="type-filter">
@@ -62,136 +51,112 @@
     </div>
     <div class="content-wrapper">
       <a-skeleton :loading="skeletonLoading" active>
+        <div class="label-title">
+          <div class="label-icon">
+            <img src="~@/assets/icons/collaborate/invite.png" class="collaborate-icon" />
+          </div>
+          <div class="label-text">Invitation received</div>
+        </div>
         <div class="content-list">
           <a-list size="large" :pagination="pagination" :data-source="myContentList" :loading="loading" v-if="viewMode === 'list'">
             <a-list-item class="my-list-item" slot="renderItem" key="item.key" slot-scope="item">
-
-              <span class="content-info-left" @click="handleViewDetail(item.content)">
-                <content-type-icon :type="item.type" />
-
-                <span class="name-content">
-                  {{ item.content.name }}
-                </span>
-              </span>
-
-              <span class="content-info-right">
-                <span class="author">
-                  {{ item.createBy }}
-                </span>
-                <span class="update-time" >
-                  {{ item.updateTime || item.createTime | dayjs }}
-                </span>
-                <div class="action">
-                  <div slot="actions">
-                    <div class="action-wrapper">
-                      <div class="action-item">
-                        <a-popconfirm :title="$t('teacher.my-content.action-delete') + '?'" ok-text="Yes" @confirm="handleDeleteItem(item)" cancel-text="No">
-                          <a href="#" class="delete-action">
-                            <a-icon type="delete" /> {{ $t('teacher.my-content.action-delete') }}
-                          </a>
-                        </a-popconfirm>
-                      </div>
-                      <div class="action-item">
-                        <a @click="handleEditItem(item.content)">
-                          <a-icon type="form" /> {{ $t('teacher.my-content.action-edit') }}
-                        </a>
-                      </div>
-                      <div class="action-item" v-if="item.type === typeMap['evaluation']">
-                        <a-dropdown>
-                          <a-icon type="more" style="margin-right: 8px" />
-                          <a-menu slot="overlay">
-                            <a-menu-item>
-                              <a @click="handleEvaluation(item.content)">
-                                {{ $t('teacher.my-content.start-evaluation') }}
-                              </a>
-                            </a-menu-item>
-                          </a-menu>
-                        </a-dropdown>
-                      </div>
-                      <div class="action-item" v-if="item.type === typeMap['lesson'] || item.type === typeMap['task']">
-                        <a-dropdown>
-                          <a-icon type="more" style="margin-right: 8px" />
-                          <a-menu slot="overlay">
-                            <a-menu-item>
-                              <a @click="handleStartSession(item)">
-                                {{ $t('teacher.my-content.action-session-new') }}
-                              </a>
-                            </a-menu-item>
-                            <a-menu-item>
-                              <a @click="handleViewPreviewSession(item)">
-                                {{ $t('teacher.my-content.action-session-previous') }}
-                              </a>
-                            </a-menu-item>
-                          </a-menu>
-                        </a-dropdown>
-                      </div>
-
+              <div class="collaborate-item">
+                <div class="message-wrapper">
+                  {{ item.message }}
+                </div>
+                <div class="collaborate-action-wrapper">
+                  <div class="collaborate-content-info">
+                    <div class="type-icon">
+                      <content-type-icon :type="item.content.type" />
                     </div>
-                  </div></div></span>
-
+                    <div class="name"> {{ item.content.name }}</div>
+                    <div class="time"> {{ item.createTime }}</div>
+                    <div class="author"> {{ item.createBy }}</div>
+                  </div>
+                  <div class="collaborate-action">
+                    <div class="collaborate-action-item">
+                      <a-button
+                        class="button-item"
+                        @click="handleCollaborate(item)"
+                        style="padding: 0 10px;display:flex; align-items:center ;height: 36px;border-radius: 6px;background: #15C39A;border: 1px solid #eee;
+                        font-family: Inter-Bold;color: #fff;">
+                        <img src="~@/assets/icons/collaborate/collaborate.png" class="collaborate-icon" />
+                        <span
+                          class="btn-text">
+                          Collaborate
+                        </span>
+                      </a-button>
+                    </div>
+                    <div class="collaborate-action-item">
+                      <a-button
+                        class="button-item"
+                        @click="handleDeleteCollaborate(item)"
+                        style="padding: 0 10px;display:flex; align-items:center ;height: 36px;border-radius: 6px;background: rgba(255, 51, 85, 1);border: 1px solid #eee;
+                        font-family: Inter-Bold;color: #fff;">
+                        <img src="~@/assets/icons/collaborate/refuse.png" class="collaborate-icon" />
+                        <span
+                          class="btn-text">
+                          Delete
+                        </span>
+                      </a-button>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </a-list-item>
           </a-list>
           <a-list
-            :grid="{ gutter: 16, column: 4 }"
             size="large"
             :pagination="pagination"
             :data-source="myContentList"
             :loading="loading"
             v-if="viewMode === 'img'">
-            <a-list-item slot="renderItem" key="item.key" slot-scope="item">
-              <a-card class="cover-card">
-                <div
-                  @click="handleViewDetail(item.content)"
-                  class="cover-image"
-                  slot="cover"
-                  :style="{backgroundImage: 'url(' + item.content.image + ')' }"
-                ></div>
-                <a-card-meta :title="item.name" :description="item.createBy" @click="handleViewDetail(item.content)"></a-card-meta>
-                <a-card-meta :description="item.createTime | dayjs" @click="handleViewDetail(item.content)"></a-card-meta>
-                <template slot="actions" class="ant-card-actions">
-                  <div class="action-item">
-                    <a-popconfirm :title="$t('teacher.my-content.action-delete') + '?'" ok-text="Yes" @confirm="handleDeleteItem(item)" cancel-text="No">
-                      <a href="#" class="delete-action">
-                        <a-icon type="delete" /> {{ $t('teacher.my-content.action-delete') }}
-                      </a>
-                    </a-popconfirm>
+            <a-list-item slot="renderItem" class="card-my-list-item" key="item.key" slot-scope="item">
+              <div class="card-collaborate-item">
+                <div class="message-wrapper">
+                  {{ item.message }}
+                </div>
+                <div class="collaborate-action-wrapper">
+                  <div class="collaborate-content-info">
+                    <div class="type-icon">
+                      <content-type-icon size="40px" :type="item.content.type" />
+                      <div class="name"> {{ item.content.name }}</div>
+                    </div>
+                    <div class="sub-info">
+                      <div class="time"> {{ item.createTime }}</div>
+                      <div class="author"> {{ item.createBy }}</div>
+                    </div>
                   </div>
-                  <div class="action-item">
-                    <a @click="handleEditItem(item.content)">
-                      <a-icon type="form" /> {{ $t('teacher.my-content.action-edit') }}
-                    </a>
+                  <div class="collaborate-action">
+                    <div class="collaborate-action-item">
+                      <a-button
+                        class="button-item"
+                        @click="handleCollaborate(item)"
+                        style="padding: 0 10px;display:flex; align-items:center ;height: 36px;border-radius: 6px;background: #15C39A;border: 1px solid #eee;
+                        font-family: Inter-Bold;color: #fff;">
+                        <img src="~@/assets/icons/collaborate/collaborate.png" class="collaborate-icon" />
+                        <span
+                          class="btn-text">
+                          Collaborate
+                        </span>
+                      </a-button>
+                    </div>
+                    <div class="collaborate-action-item">
+                      <a-button
+                        class="button-item"
+                        @click="handleDeleteCollaborate(item)"
+                        style="padding: 0 10px;display:flex; align-items:center ;height: 36px;border-radius: 6px;background: rgba(255, 51, 85, 1);border: 1px solid #eee;
+                        font-family: Inter-Bold;color: #fff;">
+                        <img src="~@/assets/icons/collaborate/refuse.png" class="collaborate-icon" />
+                        <span
+                          class="btn-text">
+                          Delete
+                        </span>
+                      </a-button>
+                    </div>
                   </div>
-                  <div class="action-item" v-if="item.type === typeMap['evaluation']">
-                    <a-dropdown>
-                      <a-icon type="more" style="margin-right: 8px" />
-                      <a-menu slot="overlay">
-                        <a-menu-item>
-                          <a @click="handleEvaluation(item.content)">
-                            {{ $t('teacher.my-content.start-evaluation') }}
-                          </a>
-                        </a-menu-item>
-                      </a-menu>
-                    </a-dropdown>
-                  </div>
-                  <div class="action-item" v-if="item.type === typeMap['lesson'] || item.type === typeMap['task']">
-                    <a-dropdown>
-                      <a-icon type="more" style="margin-right: 8px" />
-                      <a-menu slot="overlay">
-                        <a-menu-item>
-                          <a @click="handleStartSession(item)">
-                            {{ $t('teacher.my-content.action-session-new') }}
-                          </a>
-                        </a-menu-item>
-                        <a-menu-item>
-                          <a @click="handleViewPreviewSession(item)">
-                            {{ $t('teacher.my-content.action-session-previous') }}
-                          </a>
-                        </a-menu-item>
-                      </a-menu>
-                    </a-dropdown>
-                  </div>
-                </template>
-              </a-card>
+                </div>
+              </div>
             </a-list-item>
           </a-list>
         </div>
@@ -221,7 +186,7 @@ import UnitPlanPreview from '@/components/UnitPlan/UnitPlanPreview'
 import { typeMap } from '@/const/teacher'
 import ContentStatusIcon from '@/components/Teacher/ContentStatusIcon'
 import ContentTypeIcon from '@/components/Teacher/ContentTypeIcon'
-import { DeleteCollaborate, GetShared } from '@/api/collaborate'
+import { DeleteCollaborate, GetShared, ReceiveCollaborate } from '@/api/collaborate'
 import TvSvg from '@/assets/icons/lesson/tv.svg?inline'
 import { lessonStatus, lessonHost } from '@/const/googleSlide'
 import { StartLesson, getMyClasses } from '@/api/lesson'
@@ -434,6 +399,25 @@ export default {
     },
     handleArchiveSession (item) {
       this.$logger.info('handleArchiveSession', item)
+    },
+
+    handleCollaborate (item) {
+      this.$logger.info('handleCollaborate', item)
+      ReceiveCollaborate({ id: item.id }).then(res => {
+        logger.info('ReceiveCollaborate', res)
+        this.$message.success('collaborate success')
+      }).then(() => {
+        this.loadMyContent()
+      })
+    },
+
+    handleDeleteCollaborate (item) {
+      this.$logger.info('handleDeleteCollaborate', item)
+      DeleteCollaborate({ id: item.id }).then(res => {
+        logger.info('DeleteCollaborate', res)
+      }).then(() => {
+        this.loadMyContent()
+      })
     }
   }
 }
@@ -452,8 +436,165 @@ export default {
   opacity: 1;
   border-radius: 4px;
   background: #FFFFFF;
-  padding: 12px 10px;
+  padding: 15px;
   margin-bottom: 15px;
+  width: 100%;
+
+  .collaborate-item {
+    width: 100%;
+    .message-wrapper {
+      min-height: 80px;
+      background: rgba(245, 245, 245, 0.5);
+      border: 1px solid #BCBCBC;
+      opacity: 1;
+      border-radius: 4px;
+      padding: 10px;
+      box-sizing: border-box;
+      width: 100%;
+    }
+
+    .collaborate-action-wrapper {
+      display: flex;
+      flex-direction: row;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 20px;
+
+      .collaborate-content-info {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-around;
+
+        .name {
+          padding-left: 10px;
+          font-family: Inter-Bold;
+          line-height: 24px;
+          color: #11142D;
+          padding-right: 10px;
+        }
+
+        .time {
+          width: 150px;
+          color: #000000;
+          opacity: 0.5;
+        }
+      }
+
+      .collaborate-action {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+
+        .collaborate-action-item {
+          margin: 0 10px;
+
+          .collaborate-icon {
+            height: 17px;
+          }
+
+          .btn-text {
+            padding: 0 5px;
+          }
+        }
+      }
+    }
+  }
+}
+
+.card-my-list-item {
+  width: 400px;
+  box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.16);
+  opacity: 1;
+  border-radius: 4px;
+  background: #FFFFFF;
+  padding: 15px;
+  margin-bottom: 15px;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  .card-collaborate-item {
+    width: 400px;
+    .message-wrapper {
+      min-height: 80px;
+      background: rgba(245, 245, 245, 0.5);
+      border: 1px solid #BCBCBC;
+      opacity: 1;
+      border-radius: 4px;
+      padding: 10px;
+      box-sizing: border-box;
+      width: 100%;
+    }
+
+    .collaborate-action-wrapper {
+      display: flex;
+      flex-direction: column;
+      flex-wrap: wrap;
+      align-items: flex-start;
+      justify-content: flex-start;
+      margin-top: 20px;
+
+      .collaborate-content-info {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        justify-content: space-between;
+
+        .type-icon {
+          width: 100%;
+          display: flex;
+          flex-direction: row;
+          align-items: center;
+          .name {
+            padding-left: 10px;
+            font-family: Inter-Bold;
+            line-height: 24px;
+            color: #11142D;
+            padding-right: 10px;
+          }
+        }
+
+        .sub-info {
+          width: 100%;
+          margin-top: 10px;
+          padding-left: 45px;
+          box-sizing: border-box;
+          display: flex;
+          flex-direction: row;
+          align-items: center;
+          justify-content: space-between;
+
+          .time {
+            width: 150px;
+            color: #000000;
+            opacity: 0.5;
+          }
+        }
+      }
+
+      .collaborate-action {
+        display: flex;
+        flex-direction: row;
+        width: 100%;
+        margin-top: 20px;
+        justify-content: flex-end;
+
+        .collaborate-action-item {
+          margin: 0 10px;
+
+          .collaborate-icon {
+            height: 17px;
+          }
+
+          .btn-text {
+            padding: 0 5px;
+          }
+        }
+      }
+    }
+  }
 }
 
 .my-content {
@@ -605,5 +746,29 @@ a.delete-action {
   background-position: center center;
   background-repeat: no-repeat;
   border-bottom: 1px solid #eee;
+}
+
+.label-title {
+  margin: 10px 0;
+  padding: 10px 15px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  background: rgba(255, 51, 85, 0.1);
+  opacity: 1;
+  border-radius: 6px;
+
+  .label-icon {
+    img {
+      height: 20px;
+    }
+  }
+
+  .label-text {
+    padding-left: 10px;
+    font-family: Inter-Bold;
+    line-height: 24px;
+    color: #FF3355;
+  }
 }
 </style>
