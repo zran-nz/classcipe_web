@@ -408,7 +408,7 @@ import { MyContentEvent, MyContentEventBus } from '@/components/MyContent/MyCont
 import RelevantTagSelector from '@/components/UnitPlan/RelevantTagSelector'
 import AddKeywordTag from '@/components/Evaluation/AddKeywordTag'
 import ActionBar from '@/components/Associate/ActionBar'
-import CollaborateContent from '@/components/collaborate/CollaborateContent'
+import CollaborateContent from '@/components/Collaborate/CollaborateContent'
 
 export default {
   name: 'AddUnitPlan',

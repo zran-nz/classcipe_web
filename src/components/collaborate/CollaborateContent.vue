@@ -27,8 +27,8 @@
 </template>
 
 <script>
-import CollaborateContentList from '@/components/collaborate/CollaborateContentList'
-import CollaborateUserList from '@/components/collaborate/CollaborateUserList'
+import CollaborateContentList from '@/components/Collaborate/CollaborateContentList'
+import CollaborateUserList from '@/components/Collaborate/CollaborateUserList'
 import { InviteCollaborate } from '@/api/collaborate'
 
 export default {

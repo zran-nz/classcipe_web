@@ -129,7 +129,7 @@ export default {
     }
   },
   created () {
-    logger.info('collaborate contentId ' + this.contentId + ' type ' + this.contentType, this.mainContent)
+    logger.info('Collaborate contentId ' + this.contentId + ' type ' + this.contentType, this.mainContent)
     this.loadAssociateContent()
   },
   mounted () {
