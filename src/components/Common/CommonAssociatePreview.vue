@@ -308,14 +308,14 @@ export default {
           box-sizing: border-box;
           text-align: right;
           .toggle-mode-type {
-            height: 40px;
+            height: 35px;
             display: inline-block;
-            border-radius: 40px;
+            border-radius: 35px;
             background: rgba(228, 228, 228, 0.3);
 
             .toggle-mode {
-              border-radius: 40px;
-              height: 40px;
+              border-radius: 35px;
+              height: 35px;
               display: flex;
               flex-direction: row;
               font-size: 14px;
@@ -331,9 +331,9 @@ export default {
               //}
 
               .mode-item {
-                padding: 0 10px;
+                padding: 0 15px;
                 font-size: 14px;
-                height: 40px;
+                height: 35px;
                 color: rgba(17, 20, 45, 1);
                 border-radius: 40px;
                 font-family: Inter-Bold;
