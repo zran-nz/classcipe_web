@@ -127,7 +127,7 @@
 
                 <!--sdg-->
                 <a-form-model-item :label="$t('teacher.add-unit-plan.sdg-label')" class="long-label-form-item">
-                  <a-select v-model="scenario.sdgId" placeholder="please select sdg">
+                  <a-select v-model="scenario.sdgId" placeholder="please select sdg" class="my-select">
                     <a-select-option v-for="(sdg,index) in sdgList" :value="sdg.id" :key="index">
                       {{ sdg.name }}
                     </a-select-option>
@@ -171,37 +171,45 @@
                   <a-input v-model="form.inquiry" allow-clear />
                 </a-form-model-item>
               </a-row>
-
-              <a-row>
-                <a-col offset="2" span="11">
-                  <a-form-model-item label="Subjects" class="label-form-item">
-                    <a-select v-model="form.subjectIds" mode="multiple" placeholder="Please select subjects">
-                      <a-select-opt-group v-for="subjectOptGroup in subjectTree" :key="subjectOptGroup.id">
-                        <span slot="label">{{ subjectOptGroup.name }}</span>
-                        <a-select-option
-                          :value="subjectOption.id"
-                          v-for="subjectOption in subjectOptGroup.children"
-                          :key="subjectOption.id">{{ subjectOption.name }}
-                        </a-select-option>
-                      </a-select-opt-group>
-                    </a-select>
-                  </a-form-model-item>
-                </a-col>
-
-                <a-col span="11">
-                  <a-form-model-item label="Grade" class="label-form-item">
-                    <a-select v-model="form.gradeIds" placeholder="Please select grade" mode="multiple">
-                      <a-select-option :value="gradeOption.id" v-for="gradeOption in gradeList" :key="gradeOption.id">
-                        {{ gradeOption.name }}
-                      </a-select-option>
-                    </a-select>
-                  </a-form-model-item>
-                </a-col>
-
-              </a-row>
-
             </div>
 
+            <div class="form-block">
+              <a-row>
+                <a-col span="4">
+                  <div class="self-field-label">
+                    Subjects
+                  </div>
+                </a-col>
+                <a-col span="18">
+                  <a-row :gutter="16">
+                    <a-col span="11">
+                      <a-form-model-item class="label-form-item">
+                        <a-select v-model="form.subjectIds" mode="multiple" placeholder="Please select subjects">
+                          <a-select-opt-group v-for="subjectOptGroup in subjectTree" :key="subjectOptGroup.id">
+                            <span slot="label">{{ subjectOptGroup.name }}</span>
+                            <a-select-option
+                              :value="subjectOption.id"
+                              v-for="subjectOption in subjectOptGroup.children"
+                              :key="subjectOption.id">{{ subjectOption.name }}
+                            </a-select-option>
+                          </a-select-opt-group>
+                        </a-select>
+                      </a-form-model-item>
+                    </a-col>
+
+                    <a-col span="13" class="grade-select">
+                      <a-form-model-item label="Grade" class="label-form-item">
+                        <a-select v-model="form.gradeIds" placeholder="Please select grade" mode="multiple">
+                          <a-select-option :value="gradeOption.id" v-for="gradeOption in gradeList" :key="gradeOption.id">
+                            {{ gradeOption.name }}
+                          </a-select-option>
+                        </a-select>
+                      </a-form-model-item>
+                    </a-col>
+                  </a-row>
+                </a-col>
+              </a-row>
+            </div>
             <div class="form-block">
               <div class="content-blocks question-item" v-for="(questionItem, questionIndex) in questionDataObj" :key="questionIndex" v-if="questionItem !== null">
                 <div class="knowledge-delete-wrapper" @click="handleDeleteQuestion(questionItem, questionIndex)" v-show="questionTotal > 1">
@@ -1630,6 +1638,15 @@ export default {
 .ant-select-dropdown-menu-item {
   overflow: auto;
   white-space: normal;
+}
+
+.self-field-label {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-end;
+  line-height: 32px;
+  padding-right: 10px;
 }
 
 </style>
