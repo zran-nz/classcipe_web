@@ -265,6 +265,7 @@ export default {
 
   .collaborate-content-wrapper {
     .content-list {
+      min-height: 300px;
       .content-info-left {
         cursor: pointer;
         display: flex;

@@ -20,7 +20,7 @@
       destroyOnClose
       width="800px">
       <div class="collaborate-content-wrapper">
-        <collaborate-user-list @selected="handleSelectedCollaborateUser"/>
+        <collaborate-user-list @selected="handleSelectedCollaborateUser" @cancel="handleCancel"/>
       </div>
     </a-modal>
   </div>
@@ -90,7 +90,23 @@ export default {
           this.userSelectVisible = false
           this.$message.success('success!')
         })
+      } else if (data.userSelectMode === 'publish') {
+        const postData = {
+          findUserType: data.inviteExperts ? 0 : (data.inviteAll ? 1 : 0),
+          message: data.publishMessage
+        }
+        this.$logger.info('publishMessage post data', postData)
+        InviteCollaborate(postData).then(response => {
+          this.$logger.info('InviteCollaborate response', response)
+          this.userSelectVisible = false
+          this.$message.success('Collaborate success!')
+        })
       }
+    },
+
+    handleCancel () {
+      this.$logger.info('handleCancel')
+      this.userSelectVisible = false
     }
   }
 }
