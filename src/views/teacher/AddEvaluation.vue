@@ -80,7 +80,7 @@
       v-model="selectLinkContentVisible"
       :footer="null"
       :maskClosable="false"
-      :closable="false"
+      :closable="true"
       destroyOnClose
       width="80%"
       @ok="selectLinkContentVisible = false"
@@ -742,7 +742,7 @@ export default {
     },
     handleStartCollaborate () {
       this.$logger.info('handleStartCollaborate')
-      this.$refs.collaborate.startCollaborateModal(Object.assign({}, this.form), this.form.id, this.contentType['unit-plan'])
+      this.$refs.collaborate.startCollaborateModal(Object.assign({}, this.form), this.form.id, this.contentType.evaluation)
     }
   }
 }

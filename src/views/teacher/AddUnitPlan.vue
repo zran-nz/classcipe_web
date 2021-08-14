@@ -25,7 +25,7 @@
       <a-col span="4">
         <div class="unit-menu-list">
           <div class="menu-category-item">
-            <associate-sidebar :name="form.name" :type="contentType[&quot;unit-plan&quot;]" :id="unitPlanId" ref="associate"/>
+            <associate-sidebar :name="form.name" :type="contentType['unit-plan']" :id="unitPlanId" ref="associate"/>
           </div>
           <div class="menu-category-item">
             <action-bar @create="selectAddContentTypeVisible = true" @link="selectLinkContentVisible = true" :show-create="true"/>
