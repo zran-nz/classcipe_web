@@ -74,7 +74,6 @@
                     draggable="true"
                     @dragstart="handleTagItemDragStart(tag, $event)"
                     @click="selectChooseTag(index,tag)"
-                    color="green"
                     class="tag-item">
                     {{ tag.name }}
                   </a-tag>
@@ -362,6 +361,9 @@ export default {
           box-shadow: 0px 6px 10px rgba(91, 91, 91, 0.16);
           opacity: 1;
           border-radius: 6px;
+          background-color: rgba(21, 195, 154, 0.1);
+          color: #15c39a;
+          border: 1px solid #15c39a;
         }
       }
 
@@ -399,6 +401,9 @@ export default {
             overflow: hidden;
             padding-bottom: 3px;
             font-size: 15px;
+            background-color: rgba(21, 195, 154, 0.1);
+            color: #15c39a;
+            border: 1px solid #15c39a;
           }
 
           i {

@@ -1,12 +1,12 @@
 <template>
   <a-popover
-    v-model="visible"
     trigger="click"
+    v-model="visible"
     placement="bottomRight"
-    overlayClassName="header-notice-wrapper"
-    :getPopupContainer="() => $refs.noticeRef.parentElement"
     :autoAdjustOverflow="true"
     :arrowPointAtCenter="true"
+    overlayClassName="header-notice-wrapper"
+    @visibleChange="handleHoverChange"
     :overlayStyle="{ width: '300px', top: '50px' }"
   >
     <template slot="content">
@@ -15,13 +15,9 @@
           <a-tab-pane tab="Message" key="1">
             <a-list>
               <a-list-item class="content-item" :key="index" v-for="(record, index) in announcement1">
-                <a-list-item-meta :title="record.titile" :description="record.sendTime| dayjs">
+                <a-list-item-meta :title="record.titile" :description="record.sendTime| dayjs" @click="showAnnouncement(record)">
                   <a-avatar style="background-color: white" slot="avatar" src="https://gw.alipayobjects.com/zos/rmsportal/ThXAXghbEsBCCSDihZxY.png"/>
                 </a-list-item-meta>
-                <!--                <div style="margin-left: 5%;width: 80%">-->
-                <!--                  <p><a @click="showAnnouncement(record)">{{ record.titile }}</a></p>-->
-                <!--                  <p style="color: rgba(0,0,0,.45);margin-bottom: 0px">{{ record.createTime }} 发布</p>-->
-                <!--                </div>-->
               </a-list-item>
 
               <!--              <a-list-item @click="goPage()" class="content-item">-->
@@ -58,7 +54,7 @@
                 <!--                </div>-->
               </a-list-item>
               <div style="margin-top: 5px;text-align: center">
-                <a-button @click="toMyAnnouncement()" type="dashed" block>Show More</a-button>
+                <a-button @click="goPage()" type="dashed" block>Show More</a-button>
               </div>
             </a-list>
           </a-tab-pane>
@@ -70,12 +66,14 @@
         <a-icon type="mail" theme="filled" :style="{ fontSize: '18px' }" :class="{'icon-active': routeActive, 'icon-inactive': !routeActive}" />
       </a-badge>
     </span>
+    <dynamic-notice ref="showDynamNotice" :path="openPath" :formData="formData"/>
   </a-popover>
 </template>
 
 <script>
 import * as logger from '@/utils/logger'
-import { getAction } from '@/api/manage'
+import { EditCementSend, ListCementByUser, NoticeQueryById } from '@/api/notice'
+import DynamicNotice from '@/components/NoticeIcon/DynamicNotice'
 
 export default {
   name: 'HeaderNotice',
@@ -84,12 +82,6 @@ export default {
       loading: false,
       visible: false,
       routeActive: false,
-      url: {
-        listCementByUser: '/classcipe/sys/annountCement/listByUser',
-        editCementSend: '/classcipe/sys/sysAnnouncementSend/editByAnntIdAndUserId',
-        queryById: '/classcipe/sys/annountCement/queryById'
-      },
-      hovered: false,
       announcement1: [],
       announcement2: [],
       msg1Count: '0',
@@ -102,6 +94,9 @@ export default {
       openPath: ''
     }
   },
+  components: {
+    DynamicNotice
+  },
   computed: {
     msgTotal () {
       return parseInt(this.msg1Count) + parseInt(this.msg2Count)
@@ -109,9 +104,9 @@ export default {
   },
   mounted () {
     this.loadData()
-    // this.timerFun();
+    // this.timerFun()
     this.initWebSocket()
-    // this.heartCheckFun();
+    this.heartCheckFun()
   },
   destroyed: function () { // 离开页面生命周期函数
     this.websocketOnclose()
@@ -128,24 +123,24 @@ export default {
   // },
   methods: {
     goPage () {
-      this.visible = !this.visible
+      this.handleHoverChange(false)
       this.$router.push({ path: '/notification' })
     },
     timerFun () {
-      // this.stopTimer = false
-      // const myTimer = setInterval(() => {
-      //   // 停止定时器
-      //   if (this.stopTimer == true) {
-      //     clearInterval(myTimer)
-      //     return
-      //   }
-      //   this.loadData()
-      // }, 6000)
+      this.stopTimer = false
+      const myTimer = setInterval(() => {
+        // 停止定时器
+        if (this.stopTimer) {
+          clearInterval(myTimer)
+          return
+        }
+        this.loadData()
+      }, 6000)
     },
     loadData () {
       try {
         // 获取系统消息
-        getAction(this.url.listCementByUser).then((res) => {
+        ListCementByUser().then((res) => {
           if (res.success) {
             this.announcement1 = res.result.anntMsgList
             this.msg1Count = res.result.anntMsgTotal
@@ -155,13 +150,13 @@ export default {
             // this.msg2Title = '系统消息(' + res.result.sysMsgTotal + ')'
           }
         }).catch(error => {
-          console.log('系统消息通知异常', error)// 这行打印permissionName is undefined
+          logger.info('系统消息通知异常', error)// 这行打印permissionName is undefined
           this.stopTimer = true
-          console.log('清理timer')
+          logger.info('清理timer')
         })
       } catch (err) {
         this.stopTimer = true
-        console.log('通知异常', err)
+        logger.info('通知异常', err)
       }
     },
     fetchNotice () {
@@ -175,36 +170,35 @@ export default {
       }, 200)
     },
     showAnnouncement (record) {
-      putAction(this.url.editCementSend, { anntId: record.id }).then((res) => {
+      EditCementSend({ anntId: record.id }).then((res) => {
         if (res.success) {
           this.loadData()
         }
       })
-      this.hovered = false
-      if (record.openType === 'component') {
+      this.visible = false
+      if (record.openType === 'url') {
+        this.openPath = record.openPage
+        this.formData = { id: record.busId }
+        this.$router.push({ path: record.openPage })
+      } else if (record.openType === 'component') {
         this.openPath = record.openPage
         this.formData = { id: record.busId }
         this.$refs.showDynamNotice.detail(record.openPage)
       } else {
-        this.$refs.ShowAnnouncement.detail(record)
+        this.goPage()
       }
-    },
-    toMyAnnouncement () {
-      this.$router.push({
-        path: '/isps/userAnnouncement'
-      })
     },
     modalFormOk () {
     },
     handleHoverChange (visible) {
-      this.hovered = visible
+      this.visible = visible
     },
 
     initWebSocket: function () {
       // WebSocket与普通的请求所用协议有所不同，ws等同于http，wss等同于https
       var userId = this.$store.getters.userInfo.id
       var url = process.env.VUE_APP_API_BASE_URL.replace('https://', 'wss://').replace('http://', 'ws://') + '/classcipe/websocket/' + userId
-      // console.log(url);
+      // logger.info(url);
       this.websock = new WebSocket(url)
       this.websock.onopen = this.websocketOnopen
       this.websock.onerror = this.websocketOnerror
@@ -212,16 +206,22 @@ export default {
       this.websock.onclose = this.websocketOnclose
     },
     websocketOnopen: function () {
-      console.log('WebSocket connect success')
+      logger.info('WebSocket connect success')
       // 心跳检测重置
-      // this.heartCheck.reset().start();
+      this.heartCheck.reset().start()
     },
     websocketOnerror: function (e) {
-      console.log('WebSocket connect error')
+      logger.info('WebSocket connect error')
       this.reconnect()
     },
     websocketOnmessage: function (e) {
-      console.log('-----receive message-------', e.data)
+      logger.info('-----receive message-------', e.data)
+      if (e.data.toString() === 'HeartBeat') {
+        // 心跳检测重置
+        this.heartCheck.reset().start()
+        return
+      }
+      // eslint-disable-next-line no-eval
       var data = eval('(' + e.data + ')') // 解析对象
       if (data.cmd === 'topic') {
         // 系统通知
@@ -231,12 +231,12 @@ export default {
         this.loadData()
       }
       // 心跳检测重置
-      // this.heartCheck.reset().start();
+      this.heartCheck.reset().start()
     },
     websocketOnclose: function (e) {
-      console.log('connection closed (' + e + ')')
+      logger.info('connection closed (' + e + ')')
       if (e) {
-        console.log('connection closed (' + e.code + ')')
+        logger.info('connection closed (' + e.code + ')')
       }
       this.reconnect()
     },
@@ -244,7 +244,7 @@ export default {
       try {
         this.websock.send(text)
       } catch (err) {
-        console.log('send failed (' + err.code + ')')
+        logger.info('send failed (' + err.code + ')')
       }
     },
 
@@ -252,7 +252,7 @@ export default {
       var text = data.msgTxt
       const key = `open${Date.now()}`
       this.$notification.open({
-        message: '消息提醒',
+        message: 'Notification',
         placement: 'bottomRight',
         description: text,
         key,
@@ -285,7 +285,7 @@ export default {
       var that = this
       // 心跳检测,每20s心跳一次
       that.heartCheck = {
-        timeout: 20000,
+        timeout: 30000,
         timeoutObj: null,
         serverTimeoutObj: null,
         reset: function () {
@@ -300,8 +300,8 @@ export default {
             // onmessage拿到返回的心跳就说明连接正常
             that.websocketSend('HeartBeat')
             console.info('The client sends a heartbeat')
-            // self.serverTimeoutObj = setTimeout(function(){//如果超过一定时间还没重置，说明后端主动断开了
-            //  that.websock.close();//如果onclose会执行reconnect，我们执行ws.close()就行了.如果直接执行reconnect 会触发onclose导致重连两次
+            // self.serverTimeoutObj = setTimeout(function () { // 如果超过一定时间还没重置，说明后端主动断开了
+            //  that.websock.close()// 如果onclose会执行reconnect，我们执行ws.close()就行了.如果直接执行reconnect 会触发onclose导致重连两次
             // }, self.timeout)
           }, this.timeout)
         }
@@ -311,7 +311,7 @@ export default {
     showDetail (key, data) {
       this.$notification.close(key)
       var id = data.msgId
-      getAction(this.url.queryById, { id: id }).then((res) => {
+      NoticeQueryById({ id: id }).then((res) => {
         if (res.success) {
           var record = res.result
           this.showAnnouncement(record)

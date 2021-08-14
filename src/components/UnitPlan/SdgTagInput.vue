@@ -1,25 +1,59 @@
 <template>
-  <div :class="{'tag-input-wrapper': true, 'active': active, 'tag-dom': true}" @click="handleFocusInput">
-    <div class="tag-input-list tag-dom">
-      <div class="tag-list tag-dom">
-        <div class="tag-item tag-dom" v-for="(tag,index) in selectedKeywords" :key="index">
-          <a-tag :color="tagColorList[index % tagColorList.length]" closable @close="handleCloseTag(tag)" class="tag-dom">
-            {{ tag.name }}
-          </a-tag>
-        </div>
-        <div class="tag-input tag-dom">
-          <input
-            type="text"
-            @keyup.enter="handleAddTag"
-            @blur="active = false"
-            v-model="inputValue"
-            :style="{width: inputWidth}"
-            ref="input"
-            class="tag-dom"/>
+  <div>
+    <div :class="{'tag-input-wrapper': true, 'active': active, 'tag-dom': true}" @click="handleFocusInput">
+      <div class="tag-input-list tag-dom">
+        <div class="tag-list tag-dom">
+          <div class="tag-item tag-dom" v-for="(tag,index) in selectedKeywords" :key="index">
+            <a-tag :color="tagColorList[index % tagColorList.length]" closable @close="handleCloseTag(tag)" class="tag-dom">
+              {{ tag.name }}
+            </a-tag>
+          </div>
+          <div class="tag-input tag-dom">
+            <input
+              type="text"
+              @keyup.enter="handleAddTag"
+              @blur="active = false"
+              @search="searchTag"
+              @keyup="searchTag"
+              v-model="inputValue"
+              :style="{width: inputWidth}"
+              ref="input"
+              class="tag-dom"/>
+          </div>
         </div>
       </div>
     </div>
+    <div class="skt-tag-wrapper" v-show="tagSearchList.length || createTagName">
+      <!--      skt-tag-list-->
+      <a-row>
+        <a-col offset="0" span="24">
+          <div class="skt-tag-list">
+            <div class="skt-tag-item" v-for="(tag,index) in tagSearchList" :key="index" >
+              <a-tag
+                draggable="true"
+                @click="selectChooseTag(tag)"
+                color="green"
+                class="tag-item">
+                {{ tag.name }}
+              </a-tag>
+            </div>
+            <div class="skt-tag-create-line" @click="handleCreateTagByInput" v-show="createTagName && createTagName.length >= 1">
+              <div class="create-tag-label">
+                Create
+              </div>
+              <div class="create-tag">
+                <a-tag class="tag-item">
+                  {{ createTagName }}
+                </a-tag>
+                <!--                    <a-icon type="plus-circle" @click="handleCreateTagByInput"/>-->
+              </div>
+            </div>
+          </div>
+        </a-col>
+      </a-row>
+    </div>
   </div>
+
 </template>
 
 <script>
@@ -49,7 +83,9 @@ export default {
         'red',
         'purple'
       ],
-      active: false
+      active: false,
+      createTagName: '',
+      tagSearchList: []
     }
   },
   computed: {
@@ -69,7 +105,7 @@ export default {
         if (this.selectedKeywords.indexOf(tagName) === -1) {
           this.$emit('add-tag', {
             sdgKey: this.sdgKey,
-            tagName
+            tagName: tagName
           })
         } else {
           logger.info('skip! input value ' + tagName + ' exist in', this.selectedKeywords)
@@ -78,6 +114,23 @@ export default {
         logger.info('skip! input value empty')
       }
       this.inputValue = ''
+    },
+    searchTag () {
+      logger.info('tag searchTag', this.inputValue)
+      this.tagSearchList = []
+      this.tagSearchList.push({ id: '1', 'name': 'haha' })
+      this.createTagName = this.inputValue
+    },
+    selectChooseTag (tag) {
+      console.log(this.selectedKeywords)
+      if (this.selectedKeywords.filter(item => item.name === tag.name).length == 0) {
+        this.$emit('add-tag', {
+          sdgKey: this.sdgKey,
+          tagName: tag.name
+        })
+      } else {
+        logger.info('skip! input value ' + tag.name + ' exist in', this.selectedKeywords)
+      }
     },
     handleCloseTag (tagName) {
       logger.info('handleCloseTag ' + this.sdgKey + ' ' + tagName)
@@ -101,6 +154,89 @@ export default {
 <style lang="less" scoped>
 @import "~@/components/index.less";
 @import "~ant-design-vue/lib/style/index";
+
+.skt-tag-wrapper {
+  margin-top: -5px;
+  .skt-tag-list {
+    padding: 5px 10px;
+    background-color: #e7f9f5;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+
+    .skt-tag-item {
+      margin: 8px 10px 8px 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      vertical-align: middle;
+      cursor: pointer;
+
+      .tag-item {
+        cursor: pointer;
+        border-radius: 10px;
+        word-break: normal;
+        width: auto;
+        display: block;
+        white-space: pre-wrap;
+        word-wrap: break-word;
+        overflow: hidden;
+        padding-bottom: 3px;
+        font-size: 15px;
+        border: 1px solid #D8D8D8;
+        box-shadow: 0px 6px 10px rgba(91, 91, 91, 0.16);
+        opacity: 1;
+        border-radius: 6px;
+      }
+    }
+
+    .skt-tag-create-line {
+      cursor: pointer;
+      width: 100%;
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      justify-content: flex-start;
+      padding: 5px 0;
+      &:hover {
+        background: rgba(0, 0, 0, 5%)
+      }
+
+      .create-tag-label {
+        font-size: 14px;
+        padding-right: 10px;
+        color: @text-color-secondary;
+      }
+
+      .create-tag {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+
+        .tag-item {
+          cursor: pointer;
+          border-radius: 10px;
+          word-break: normal;
+          width: auto;
+          display: inline;
+          white-space: pre-wrap;
+          word-wrap: break-word;
+          overflow: hidden;
+          padding-bottom: 3px;
+          font-size: 15px;
+          background-color: rgba(21, 195, 154, 0.1);
+          color: #15c39a;
+          border: 1px solid #15c39a;
+        }
+
+        i {
+          font-size: 18px;
+          color: @text-color-secondary;
+        }
+      }
+    }
+  }
+}
 
 .tag-input-wrapper {
   position: relative;

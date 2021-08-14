@@ -4,7 +4,7 @@
       <a-spin size="large" v-if="loading"/>
     </div>
 
-    <div class="edit-action-wrapper" v-if="!editMode">
+    <div v-show="!loading" class="edit-action-wrapper" v-if="!editMode">
       <div class="edit-action" @click="editMode = !editMode">
         <a-icon type="edit"/>
         Edit
