@@ -350,6 +350,7 @@ export default {
   background: #FFFFFF;
   padding: 12px 10px;
   margin-bottom: 15px;
+  width: 100%;
 }
 .active-item {
   background-color: fade(@outline-color, 20%);

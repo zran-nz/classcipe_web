@@ -513,6 +513,7 @@ export default {
 .my-list-item {
   box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.16);
   opacity: 1;
+  width: 100%;
   border-radius: 4px;
   background: #FFFFFF;
   padding: 12px 10px;
