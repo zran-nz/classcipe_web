@@ -1,6 +1,7 @@
 <template>
   <div class="input-search">
     <a-input v-model="value" @keyup="handleSearch" @focus="handleSearch" class="input-search-item"/>
+    <a-spin v-if="fetching" slot="notFoundContent" size="small" />
     <div class="search-list-wrapper" v-if="showSearchListFlag">
       <ul class="search-list" >
         <li class="search-list-item input-search-item" v-for="(item,key) in searchList" :key="key" @click="handleSelectItem(item)">{{ item[label] }}</li>
@@ -46,6 +47,8 @@ export default {
   },
   data () {
     return {
+      fetching: false,
+      lastFetchId: 0,
       value: null
     }
   },

@@ -20,6 +20,7 @@
               ref="input"
               class="tag-dom"/>
           </div>
+          <a-spin v-if="fetching" slot="notFoundContent" size="small" />
         </div>
       </div>
     </div>
@@ -32,7 +33,6 @@
               <a-tag
                 draggable="true"
                 @click="selectChooseTag(tag)"
-                color="green"
                 class="tag-item">
                 {{ tag.name }}
               </a-tag>
@@ -58,6 +58,8 @@
 
 <script>
 import * as logger from '@/utils/logger'
+import { getAction } from '../../api/manage'
+import { userAPIUrl } from '../../api/user'
 
 export default {
   name: 'SdgTagInput',
@@ -73,6 +75,8 @@ export default {
   },
   data () {
     return {
+      fetching: false,
+      lastFetchId: 0,
       inputValue: '',
       tagColorList: [
         'pink',
@@ -117,17 +121,42 @@ export default {
     },
     searchTag () {
       logger.info('tag searchTag', this.inputValue)
-      this.tagSearchList = []
-      this.tagSearchList.push({ id: '1', 'name': 'haha' })
       this.createTagName = this.inputValue
+      const searchKey = this.inputValue
+      this.tagSearchList = []
+      if (searchKey.length < 3) {
+        return
+      }
+      this.fetching = true
+      this.lastFetchId += 1
+      const fetchId = this.lastFetchId
+      getAction(userAPIUrl.SearchUser, ({ name: searchKey })).then(res => {
+        if (fetchId !== this.lastFetchId) {
+          return
+        }
+        if (res.success) {
+          res.result.forEach((record) => {
+            this.tagSearchList.push({
+              id: record.id,
+              name: record.username
+            })
+          })
+        }
+        this.fetching = false
+      })
+    },
+    reset () {
+      this.createTagName = ''
+      this.tagSearchList = []
+      this.inputValue = ''
     },
     selectChooseTag (tag) {
-      console.log(this.selectedKeywords)
-      if (this.selectedKeywords.filter(item => item.name === tag.name).length == 0) {
+      if (this.selectedKeywords.filter(item => item.name === tag.name).length === 0) {
         this.$emit('add-tag', {
           sdgKey: this.sdgKey,
           tagName: tag.name
         })
+        this.reset()
       } else {
         logger.info('skip! input value ' + tag.name + ' exist in', this.selectedKeywords)
       }
@@ -145,7 +174,7 @@ export default {
       this.active = true
     },
     handleCreateTagByInput () {
-
+      this.handleAddTag()
     }
   }
 }
@@ -156,7 +185,6 @@ export default {
 @import "~ant-design-vue/lib/style/index";
 
 .skt-tag-wrapper {
-  margin-top: -5px;
   .skt-tag-list {
     padding: 5px 10px;
     background-color: #e7f9f5;
@@ -183,10 +211,13 @@ export default {
         overflow: hidden;
         padding-bottom: 3px;
         font-size: 15px;
-        border: 1px solid #D8D8D8;
+        /*border: 1px solid #D8D8D8;*/
         box-shadow: 0px 6px 10px rgba(91, 91, 91, 0.16);
         opacity: 1;
         border-radius: 6px;
+        background-color: rgba(21, 195, 154, 0.1);
+        color: #15c39a;
+        border: 1px solid #15c39a;
       }
     }
 
@@ -197,7 +228,7 @@ export default {
       flex-direction: row;
       align-items: center;
       justify-content: flex-start;
-      padding: 5px 0;
+      /*padding: 5px 0;*/
       &:hover {
         background: rgba(0, 0, 0, 5%)
       }

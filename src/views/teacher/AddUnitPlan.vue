@@ -129,6 +129,7 @@
                 <!--description-->
                 <a-form-model-item :label="$t('teacher.add-unit-plan.description')">
                   <input-search
+                    ref="descriptionInputSearch"
                     :v-model="scenario.description"
                     :default-value="scenario.description"
                     :key-index="sdgIndex"
@@ -710,6 +711,7 @@ export default {
       logger.info('searchScenario', description)
       this.currentIndex = index
       if (typeof description === 'string' && description.trim().length >= 3) {
+        // this.$refs.descriptionInputSearch.fetching = true
         ScenarioSearch({
           searchKey: this.form.scenarios[index].description
         }).then((response) => {
