@@ -77,10 +77,32 @@ export default {
           permissions: [],
           message: ''
         }
-        postData.contents = postData.contents.concat(this.selectedViewerContentList)
-        postData.contents = postData.contents.concat(this.selectedEditorContentList)
-        postData.emails = postData.emails.concat(data.selectedViewerEmailList)
-        postData.emails = postData.emails.concat(data.selectedEditorEmailList)
+
+        this.selectedViewerContentList.forEach(contentItem => {
+          this.$logger.info('selectedViewerContentList contentItem', contentItem)
+          if (postData.contents.findIndex(item => item.id === contentItem.id) === -1) {
+            postData.contents.push(contentItem)
+          }
+        })
+
+        this.selectedEditorContentList.forEach(contentItem => {
+          if (postData.contents.findIndex(item => item.id === contentItem.id) === -1) {
+            postData.contents.push(contentItem)
+          }
+        })
+
+        data.selectedViewerEmailList.forEach(email => {
+          if (postData.emails.indexOf(email) === -1) {
+            postData.emails.push(email)
+          }
+        })
+
+        data.selectedEditorEmailList.forEach(email => {
+          if (postData.emails.indexOf(email) === -1) {
+            postData.emails.push(email)
+          }
+        })
+
         postData.permissions.push('view')
         postData.permissions.push('edit')
         postData.message = data.inviteMessage

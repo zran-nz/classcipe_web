@@ -69,23 +69,23 @@
               <div class="action" >
                 <div slot="actions">
                   <div class="action-wrapper">
-                    <div class="action-item">
+                    <div class="action-item" @click="handleAddToEditor(user.email)">
                       <div class="active-status-icon">
                         <img src="~@/assets/icons/collaborate/round.png" v-if="selectedEditorEmailList.indexOf(user.email) === -1"/>
                         <a-icon theme="filled" type="check-circle" v-if="selectedEditorEmailList.indexOf(user.email) !== -1" />
                       </div>
-                      <div class="action-name" @click="handleAddToEditor(user.email)">Editor</div>
-                      <div class="active-icon" @click="handleAddToEditor(user.email)">
+                      <div class="action-name">Editor</div>
+                      <div class="active-icon">
                         <img src="~@/assets/icons/collaborate/editor.png" />
                       </div>
                     </div>
-                    <div class="action-item">
+                    <div class="action-item" @click="handleAddToViewer(user.email)">
                       <div class="active-status-icon">
                         <img src="~@/assets/icons/collaborate/round.png" v-if="selectedViewerEmailList.indexOf(user.email) === -1"/>
                         <a-icon theme="filled" type="check-circle" v-if="selectedViewerEmailList.indexOf(user.email) !== -1" />
                       </div>
-                      <div class="action-name" @click="handleAddToViewer(user.email)">Viewer</div>
-                      <div class="active-icon" @click="handleAddToViewer(user.email)">
+                      <div class="action-name">Viewer</div>
+                      <div class="active-icon">
                         <img src="~@/assets/icons/collaborate/viewer.png" />
                       </div>
                     </div>
@@ -187,6 +187,19 @@ export default {
       SearchUser({ name: this.userNameOrEmail }).then(response => {
         this.$logger.info('SearchUser response', response)
         this.userList = response.result
+        this.selectedEditorEmailList = []
+        this.selectedViewerEmailList = []
+
+        this.selectedViewerEmailList = []
+        this.selectedEditorEmailList = []
+        if (this.userList.length) {
+          this.userList.forEach(uItem => {
+            if (uItem.email) {
+              this.selectedViewerEmailList.push(uItem.email)
+              this.selectedEditorEmailList.push(uItem.email)
+            }
+          })
+        }
       })
     },
 

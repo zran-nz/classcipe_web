@@ -25,23 +25,23 @@
                 <div class="action" >
                   <div slot="actions">
                     <div class="action-wrapper">
-                      <div class="action-item">
+                      <div class="action-item" @click="handleAddToEditor(item.id)">
                         <div class="active-status-icon">
                           <img src="~@/assets/icons/collaborate/round.png" v-if="selectedEditorContentIdList.indexOf(item.id) === -1"/>
                           <a-icon theme="filled" type="check-circle" v-if="selectedEditorContentIdList.indexOf(item.id) !== -1" />
                         </div>
-                        <div class="action-name" @click="handleAddToEditor(item.id)">Editor</div>
-                        <div class="active-icon" @click="handleAddToEditor(item.id)">
+                        <div class="action-name">Editor</div>
+                        <div class="active-icon">
                           <img src="~@/assets/icons/collaborate/editor.png" />
                         </div>
                       </div>
-                      <div class="action-item">
+                      <div class="action-item" @click="handleAddToViewer(item.id)">
                         <div class="active-status-icon">
                           <img src="~@/assets/icons/collaborate/round.png" v-if="selectedViewerContentIdList.indexOf(item.id) === -1"/>
                           <a-icon theme="filled" type="check-circle" v-if="selectedViewerContentIdList.indexOf(item.id) !== -1" />
                         </div>
-                        <div class="action-name" @click="handleAddToViewer(item.id)">Viewer</div>
-                        <div class="active-icon" @click="handleAddToViewer(item.id)">
+                        <div class="action-name">Viewer</div>
+                        <div class="active-icon">
                           <img src="~@/assets/icons/collaborate/viewer.png" />
                         </div>
                       </div>
@@ -162,6 +162,13 @@ export default {
         })
 
         this.collaborateContentList = collaborateContentList
+
+        this.selectedViewerContentIdList = []
+        this.selectedEditorContentIdList = []
+        this.collaborateContentList.forEach(cItem => {
+          this.selectedViewerContentIdList.push(cItem.id)
+          this.selectedEditorContentIdList.push(cItem.id)
+        })
         this.$logger.info('collaborateContentList', this.collaborateContentList)
       }).then(() => {
         logger.info('get favorite ' + this.materialId)
