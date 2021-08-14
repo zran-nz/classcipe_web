@@ -51,39 +51,152 @@
     </div>
     <div class="content-wrapper">
       <a-skeleton :loading="skeletonLoading" active>
-        <div class="label-title">
+        <div class="label-title-red">
           <div class="label-icon">
             <img src="~@/assets/icons/collaborate/invite.png" class="collaborate-icon" />
           </div>
           <div class="label-text">Invitation received</div>
         </div>
+        <div class="no-received-wrapper">
+          <template v-if="sharedNotReceivedList.length">
+            <div class="no-received-list" v-if="viewMode === 'list'">
+              <div class="no-received-my-list-item " v-for="(item,index) in sharedNotReceivedList" :key="index">
+                <div class="collaborate-item">
+                  <div class="message-wrapper">
+                    {{ item.message }}
+                  </div>
+                  <div class="collaborate-action-wrapper">
+                    <div class="collaborate-content-info">
+                      <div class="type-icon">
+                        <content-type-icon size="40px" :type="item.content.type" />
+                      </div>
+                      <div class="name"> {{ item.content.name }}</div>
+                      <div class="time"> {{ item.createTime }}</div>
+                      <div class="author">
+                        {{ item.createBy }}
+                      </div>
+                    </div>
+                    <div class="collaborate-action">
+                      <div class="collaborate-action-item">
+                        <a-button
+                          class="button-item"
+                          @click="handleCollaborate(item)"
+                          style="padding: 0 10px;display:flex; align-items:center ;height: 36px;border-radius: 6px;background: #15C39A;border: 1px solid #eee;
+                        font-family: Inter-Bold;color: #fff;">
+                          <img src="~@/assets/icons/collaborate/collaborate.png" class="collaborate-icon" />
+                          <span
+                            class="btn-text">
+                            Collaborate
+                          </span>
+                        </a-button>
+                      </div>
+                      <div class="collaborate-action-item">
+                        <a-button
+                          class="button-item"
+                          @click="handleDeleteCollaborate(item)"
+                          style="padding: 0 10px;display:flex; align-items:center ;height: 36px;border-radius: 6px;background: rgba(255, 51, 85, 1);border: 1px solid #eee;
+                        font-family: Inter-Bold;color: #fff;">
+                          <img src="~@/assets/icons/collaborate/shanchu@2x.png" class="collaborate-icon" />
+                          <span
+                            class="btn-text">
+                            Delete
+                          </span>
+                        </a-button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="no-received-card-list" v-if="viewMode === 'img'">
+              <div class="no-received-card-my-list-item" v-for="(item,index) in sharedNotReceivedList" :key="index">
+                <div class="card-collaborate-item">
+                  <div class="message-wrapper">
+                    {{ item.message }}
+                  </div>
+                  <div class="collaborate-action-wrapper">
+                    <div class="collaborate-content-info">
+                      <div class="type-icon">
+                        <content-type-icon size="40px" :type="item.content.type" />
+                        <div class="name"> {{ item.content.name }}</div>
+                      </div>
+                      <div class="sub-info">
+                        <div class="time"> {{ item.createTime }}</div>
+                        <div class="author">
+                          {{ item.createBy }}
+                        </div>
+                      </div>
+                    </div>
+                    <div class="collaborate-action">
+                      <div class="collaborate-action-item">
+                        <a-button
+                          class="button-item"
+                          @click="handleCollaborate(item)"
+                          style="padding: 0 10px;display:flex; align-items:center ;height: 36px;border-radius: 6px;background: #15C39A;border: 1px solid #eee;
+                        font-family: Inter-Bold;color: #fff;">
+                          <img src="~@/assets/icons/collaborate/collaborate.png" class="collaborate-icon" />
+                          <span
+                            class="btn-text">
+                            Collaborate
+                          </span>
+                        </a-button>
+                      </div>
+                      <div class="collaborate-action-item">
+                        <a-button
+                          class="button-item"
+                          @click="handleDeleteCollaborate(item)"
+                          style="padding: 0 10px;display:flex; align-items:center ;height: 36px;border-radius: 6px;background: rgba(255, 51, 85, 1);border: 1px solid #eee;
+                        font-family: Inter-Bold;color: #fff;">
+                          <img src="~@/assets/icons/collaborate/refuse.png" class="collaborate-icon" />
+                          <span
+                            class="btn-text">
+                            Delete
+                          </span>
+                        </a-button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </template>
+          <div class="no-received-empty" v-if="sharedNotReceivedList.length === 0">
+            <no-more-resources tips="No Invitation received"/>
+          </div>
+        </div>
+        <div class="label-title-green">
+          <div class="label-icon">
+            <img src="~@/assets/icons/collaborate/Shared@2x.png" class="collaborate-icon" />
+          </div>
+          <div class="label-text">Shared content</div>
+        </div>
         <div class="content-list">
           <a-list size="large" :pagination="pagination" :data-source="myContentList" :loading="loading" v-if="viewMode === 'list'">
             <a-list-item class="my-list-item" slot="renderItem" key="item.key" slot-scope="item">
               <div class="collaborate-item">
-                <div class="message-wrapper">
-                  {{ item.message }}
-                </div>
                 <div class="collaborate-action-wrapper">
                   <div class="collaborate-content-info">
                     <div class="type-icon">
-                      <content-type-icon :type="item.content.type" />
+                      <content-type-icon size="40px" :type="item.content.type" />
                     </div>
                     <div class="name"> {{ item.content.name }}</div>
                     <div class="time"> {{ item.createTime }}</div>
-                    <div class="author"> {{ item.createBy }}</div>
+                    <div class="author">
+                      <template v-if="item.content.status === 0">Draft</template>
+                      <template v-if="item.content.status === 1">Published</template>
+                    </div>
                   </div>
                   <div class="collaborate-action">
                     <div class="collaborate-action-item">
                       <a-button
                         class="button-item"
-                        @click="handleCollaborate(item)"
+                        @click="handleEditItem(item)"
                         style="padding: 0 10px;display:flex; align-items:center ;height: 36px;border-radius: 6px;background: #15C39A;border: 1px solid #eee;
                         font-family: Inter-Bold;color: #fff;">
-                        <img src="~@/assets/icons/collaborate/collaborate.png" class="collaborate-icon" />
+                        <img src="~@/assets/icons/collaborate/bianji2.png" class="collaborate-icon" />
                         <span
                           class="btn-text">
-                          Collaborate
+                          Edit
                         </span>
                       </a-button>
                     </div>
@@ -93,7 +206,7 @@
                         @click="handleDeleteCollaborate(item)"
                         style="padding: 0 10px;display:flex; align-items:center ;height: 36px;border-radius: 6px;background: rgba(255, 51, 85, 1);border: 1px solid #eee;
                         font-family: Inter-Bold;color: #fff;">
-                        <img src="~@/assets/icons/collaborate/refuse.png" class="collaborate-icon" />
+                        <img src="~@/assets/icons/collaborate/shanchu@2x.png" class="collaborate-icon" />
                         <span
                           class="btn-text">
                           Delete
@@ -113,9 +226,6 @@
             v-if="viewMode === 'img'">
             <a-list-item slot="renderItem" class="card-my-list-item" key="item.key" slot-scope="item">
               <div class="card-collaborate-item">
-                <div class="message-wrapper">
-                  {{ item.message }}
-                </div>
                 <div class="collaborate-action-wrapper">
                   <div class="collaborate-content-info">
                     <div class="type-icon">
@@ -124,20 +234,23 @@
                     </div>
                     <div class="sub-info">
                       <div class="time"> {{ item.createTime }}</div>
-                      <div class="author"> {{ item.createBy }}</div>
+                      <div class="author">
+                        <template v-if="item.content.status === 0">Draft</template>
+                        <template v-if="item.content.status === 1">Published</template>
+                      </div>
                     </div>
                   </div>
                   <div class="collaborate-action">
                     <div class="collaborate-action-item">
                       <a-button
                         class="button-item"
-                        @click="handleCollaborate(item)"
+                        @click="handleEditItem(item)"
                         style="padding: 0 10px;display:flex; align-items:center ;height: 36px;border-radius: 6px;background: #15C39A;border: 1px solid #eee;
                         font-family: Inter-Bold;color: #fff;">
-                        <img src="~@/assets/icons/collaborate/collaborate.png" class="collaborate-icon" />
+                        <img src="~@/assets/icons/collaborate/bianji2.png" class="collaborate-icon" />
                         <span
                           class="btn-text">
-                          Collaborate
+                          Edit
                         </span>
                       </a-button>
                     </div>
@@ -147,7 +260,7 @@
                         @click="handleDeleteCollaborate(item)"
                         style="padding: 0 10px;display:flex; align-items:center ;height: 36px;border-radius: 6px;background: rgba(255, 51, 85, 1);border: 1px solid #eee;
                         font-family: Inter-Bold;color: #fff;">
-                        <img src="~@/assets/icons/collaborate/refuse.png" class="collaborate-icon" />
+                        <img src="~@/assets/icons/collaborate/shanchu@2x.png" class="collaborate-icon" />
                         <span
                           class="btn-text">
                           Delete
@@ -186,17 +299,19 @@ import UnitPlanPreview from '@/components/UnitPlan/UnitPlanPreview'
 import { typeMap } from '@/const/teacher'
 import ContentStatusIcon from '@/components/Teacher/ContentStatusIcon'
 import ContentTypeIcon from '@/components/Teacher/ContentTypeIcon'
-import { DeleteCollaborate, GetShared, ReceiveCollaborate } from '@/api/collaborate'
+import { DeleteCollaborate, GetShared, ReceiveCollaborate, GetSharedNotReceived } from '@/api/collaborate'
 import TvSvg from '@/assets/icons/lesson/tv.svg?inline'
 import { lessonStatus, lessonHost } from '@/const/googleSlide'
 import { StartLesson, getMyClasses } from '@/api/lesson'
 import storage from 'store'
 import { VIEW_MODE } from '@/store/mutation-types'
 import CommonPreview from '@/components/Common/CommonPreview'
+import NoMoreResources from '@/components/Common/NoMoreResources'
 
 export default {
   name: 'Shared',
   components: {
+    NoMoreResources,
     CommonPreview,
     ContentStatusIcon,
     ContentTypeIcon,
@@ -232,7 +347,9 @@ export default {
       },
       pageNo: 1,
       typeMap: typeMap,
-      viewMode: storage.get(VIEW_MODE) ? storage.get(VIEW_MODE) : 'list'
+      viewMode: storage.get(VIEW_MODE) ? storage.get(VIEW_MODE) : 'list',
+
+      sharedNotReceivedList: []
     }
   },
   computed: {
@@ -249,6 +366,13 @@ export default {
     },
     loadMyContent () {
       this.loading = true
+      GetSharedNotReceived().then((response) => {
+        this.$logger.info('GetSharedNotReceived response', response)
+        this.sharedNotReceivedList = response.result
+      }).finally(() => {
+        this.loading = false
+        this.skeletonLoading = false
+      })
       GetShared({
         type: typeMap[this.currentType],
         pageNo: this.pageNo,
@@ -297,9 +421,25 @@ export default {
         this.$router.push({
           path: '/teacher/unit-plan-redirect/' + item.id
         })
+      } else if (item.type === typeMap['topic']) {
+        this.$router.push({
+          path: '/expert/topic-redirect/' + item.id
+        })
       } else if (item.type === typeMap['material']) {
         this.$router.push({
           path: '/teacher/add-material/' + item.id
+        })
+      } else if (item.type === typeMap.task) {
+        this.$router.push({
+          path: '/teacher/task-redirect/' + item.id
+        })
+      } else if (item.type === typeMap.lesson) {
+        this.$router.push({
+          path: '/teacher/lesson-redirect/' + item.id
+        })
+      } else if (item.type === typeMap.evaluation) {
+        this.$router.push({
+          path: '/teacher/evaluation-redirect/' + item.id
         })
       }
     },
@@ -459,8 +599,6 @@ export default {
       flex-wrap: wrap;
       align-items: center;
       justify-content: space-between;
-      margin-top: 20px;
-
       .collaborate-content-info {
         display: flex;
         flex-direction: row;
@@ -504,18 +642,17 @@ export default {
 }
 
 .card-my-list-item {
-  width: 400px;
-  box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.16);
-  opacity: 1;
-  border-radius: 4px;
-  background: #FFFFFF;
-  padding: 15px;
-  margin-bottom: 15px;
+  margin: 0 10px 10px;
   display: flex;
   flex-direction: row;
   flex-wrap: wrap;
   .card-collaborate-item {
-    width: 400px;
+    width: 350px;
+    box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.16);
+    opacity: 1;
+    border-radius: 4px;
+    background: #FFFFFF;
+    padding: 15px;
     .message-wrapper {
       min-height: 80px;
       background: rgba(245, 245, 245, 0.5);
@@ -533,7 +670,7 @@ export default {
       flex-wrap: wrap;
       align-items: flex-start;
       justify-content: flex-start;
-      margin-top: 20px;
+      padding: 10px 0;
 
       .collaborate-content-info {
         width: 100%;
@@ -558,7 +695,6 @@ export default {
 
         .sub-info {
           width: 100%;
-          margin-top: 10px;
           padding-left: 45px;
           box-sizing: border-box;
           display: flex;
@@ -748,7 +884,7 @@ a.delete-action {
   border-bottom: 1px solid #eee;
 }
 
-.label-title {
+.label-title-red {
   margin: 10px 0;
   padding: 10px 15px;
   display: flex;
@@ -771,4 +907,209 @@ a.delete-action {
     color: #FF3355;
   }
 }
+
+.label-title-green {
+  margin: 50px 0 10px 0;
+  padding: 10px 15px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  background: rgba(21, 195, 154, 0.1);
+  opacity: 1;
+  border-radius: 6px;
+
+  .label-icon {
+    img {
+      height: 20px;
+    }
+  }
+
+  .label-text {
+    padding-left: 10px;
+    font-family: Inter-Bold;
+    line-height: 24px;
+    color: #15C39A;;
+  }
+}
+
+.no-received-card-list {
+  display: flex;
+  flex-wrap: wrap;
+  flex-direction: row;
+  background: rgba(228, 228, 228, 0.2);
+  border: 1px solid #D8D8D8;
+  opacity: 1;
+  border-radius: 4px;
+  padding: 15px 10px;
+}
+
+.no-received-my-list-item {
+  box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.16);
+  opacity: 1;
+  border-radius: 4px;
+  background: #FFFFFF;
+  padding: 15px;
+  margin-bottom: 15px;
+  width: 100%;
+
+  .collaborate-item {
+    width: 100%;
+    .message-wrapper {
+      min-height: 80px;
+      background: rgba(245, 245, 245, 0.5);
+      border: 1px solid #BCBCBC;
+      opacity: 1;
+      border-radius: 4px;
+      padding: 10px;
+      box-sizing: border-box;
+      width: 100%;
+    }
+
+    .collaborate-action-wrapper {
+      display: flex;
+      flex-direction: row;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      margin: 20px 0 0;
+      .collaborate-content-info {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-around;
+
+        .name {
+          padding-left: 10px;
+          font-family: Inter-Bold;
+          line-height: 24px;
+          color: #11142D;
+          padding-right: 10px;
+        }
+
+        .time {
+          width: 150px;
+          color: #000000;
+          opacity: 0.5;
+        }
+      }
+
+      .collaborate-action {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+
+        .collaborate-action-item {
+          margin: 0 10px;
+
+          .collaborate-icon {
+            height: 17px;
+          }
+
+          .btn-text {
+            padding: 0 5px;
+          }
+        }
+      }
+    }
+  }
+}
+
+.no-received-card-my-list-item {
+  margin: 0 10px 10px;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  .card-collaborate-item {
+    width: 350px;
+    box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.16);
+    opacity: 1;
+    border-radius: 4px;
+    background: #FFFFFF;
+    padding: 15px;
+    .message-wrapper {
+      min-height: 150px;
+      background: rgba(245, 245, 245, 0.5);
+      border: 1px solid #BCBCBC;
+      opacity: 1;
+      border-radius: 4px;
+      padding: 10px;
+      box-sizing: border-box;
+      width: 100%;
+    }
+
+    .collaborate-action-wrapper {
+      display: flex;
+      flex-direction: column;
+      flex-wrap: wrap;
+      align-items: flex-start;
+      justify-content: flex-start;
+      padding: 10px 0;
+
+      .collaborate-content-info {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        justify-content: space-between;
+
+        .type-icon {
+          width: 100%;
+          display: flex;
+          flex-direction: row;
+          align-items: center;
+          .name {
+            padding-left: 10px;
+            font-family: Inter-Bold;
+            line-height: 24px;
+            color: #11142D;
+            padding-right: 10px;
+          }
+        }
+
+        .sub-info {
+          width: 100%;
+          padding-left: 45px;
+          box-sizing: border-box;
+          display: flex;
+          flex-direction: row;
+          align-items: center;
+          justify-content: space-between;
+
+          .time {
+            width: 130px;
+            opacity: 0.5;
+            font-size: 12px;
+            color: #000000;
+          }
+
+          .author {
+            font-size: 13px;
+            color: #000000;
+          }
+        }
+      }
+
+      .collaborate-action {
+        display: flex;
+        flex-direction: row;
+        width: 100%;
+        margin-top: 20px;
+        justify-content: flex-end;
+
+        .collaborate-action-item {
+          margin: 0 10px;
+
+          .collaborate-icon {
+            height: 17px;
+          }
+
+          .btn-text {
+            padding: 0 5px;
+          }
+        }
+      }
+    }
+  }
+}
+
 </style>
