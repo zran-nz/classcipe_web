@@ -190,7 +190,7 @@
                     <div class="collaborate-action-item">
                       <a-button
                         class="button-item"
-                        @click="handleEditItem(item)"
+                        @click="handleEditItem(item.content)"
                         style="padding: 0 10px;display:flex; align-items:center ;height: 36px;border-radius: 6px;background: #15C39A;border: 1px solid #eee;
                         font-family: Inter-Bold;color: #fff;">
                         <img src="~@/assets/icons/collaborate/bianji2.png" class="collaborate-icon" />
@@ -244,7 +244,7 @@
                     <div class="collaborate-action-item">
                       <a-button
                         class="button-item"
-                        @click="handleEditItem(item)"
+                        @click="handleEditItem(item.content)"
                         style="padding: 0 10px;display:flex; align-items:center ;height: 36px;border-radius: 6px;background: #15C39A;border: 1px solid #eee;
                         font-family: Inter-Bold;color: #fff;">
                         <img src="~@/assets/icons/collaborate/bianji2.png" class="collaborate-icon" />
