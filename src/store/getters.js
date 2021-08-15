@@ -20,7 +20,8 @@ const getters = {
   userInfo: state => state.user.info,
   addRouters: state => state.permission.addRouters,
   multiTab: state => state.app.multiTab,
-  defaultRouter: state => state.user.currentRole === 'expert' ? defaultExpertRouter : defaultTeacherRouter
+  defaultRouter: state => state.user.currentRole === 'expert' ? defaultExpertRouter : defaultTeacherRouter,
+  sharedCount: state => state.user.sharedCount
 }
 
 export default getters

@@ -17,7 +17,9 @@ const user = {
     isAddPreference: false,
     roles: [],
     permissions: [],
-    info: {}
+    info: {},
+    sharedCount: 0,
+    sharedFindCount: 0
   },
 
   mutations: {
@@ -52,6 +54,9 @@ const user = {
     },
     SET_IS_ADD_PREFERENCE: (state, isAddPreference) => {
       state.isAddPreference = isAddPreference
+    },
+    SET_SHARED_COUNT: (state, sharedCount) => {
+      state.sharedCount = sharedCount
     }
   },
 

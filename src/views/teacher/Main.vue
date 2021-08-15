@@ -18,7 +18,9 @@
             </div>
             <div :class="{'nav-bar-item': true, 'nav-bar-item-split': true, 'selected-nav-bar' : selectedKey === '/teacher/main/shared'}">
               <router-link to="/teacher/main/shared">
-                <img src="~@/assets/icons/myContent/Shared@2x.png" class="icon-img" />
+                <a-badge :count="$store.getters.sharedCount">
+                  <img src="~@/assets/icons/myContent/Shared@2x.png" class="icon-img" />
+                </a-badge>
                 {{ $t('teacher.main.shared') }}
               </router-link>
             </div>
@@ -83,8 +85,20 @@ export default {
 }
 </script>
 
-<style lang="less" scoped>
+<style lang="css">
+  .nav-bar-left .ant-badge-count {
+    right: 5px;
+    min-width: 16px;
+    height: 16px;
+    padding: 0 3px;
+    color: #fff;
+    font-size: 10px;
+    line-height: 16px;
+    border-radius: 10px;
+  }
+</style>
 
+<style lang="less" scoped>
 @black: #000;
 @primary-color: #15c39a;
 @text-color-secondary: fade(@black, 45%);

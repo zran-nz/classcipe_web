@@ -111,16 +111,23 @@ export default {
   destroyed: function () { // 离开页面生命周期函数
     this.websocketOnclose()
   },
-  // watch: {
-  //   '$route.path' (toPath) {
-  //     logger.debug('icon route change ' + toPath)
-  //     if (toPath === '/notification') {
-  //       this.routeActive = true
-  //     } else {
-  //       this.routeActive = false
-  //     }
-  //   }
-  // },
+  watch: {
+    '$route.path' (toPath) {
+      logger.debug('icon route change ' + toPath)
+      if (this.announcement1.length === 0) {
+        return
+      }
+      this.announcement1.forEach(item => {
+        if (item.openPage === toPath) {
+          EditCementSend({ anntId: item.id }).then((res) => {
+            if (res.success) {
+              this.loadData()
+            }
+          })
+        }
+      })
+    }
+  },
   methods: {
     goPage () {
       this.handleHoverChange(false)
@@ -148,6 +155,7 @@ export default {
             this.announcement2 = res.result.sysMsgList
             this.msg2Count = res.result.sysMsgTotal
             // this.msg2Title = '系统消息(' + res.result.sysMsgTotal + ')'
+            this.$store.commit('SET_SHARED_COUNT', this.msg1Count)
           }
         }).catch(error => {
           logger.info('系统消息通知异常', error)// 这行打印permissionName is undefined
@@ -216,11 +224,11 @@ export default {
     },
     websocketOnmessage: function (e) {
       logger.info('-----receive message-------', e.data)
-      if (e.data.toString() === 'HeartBeat') {
-        // 心跳检测重置
-        this.heartCheck.reset().start()
-        return
-      }
+      // if (e.data.toString() === 'HeartBeat') {
+      //   // 心跳检测重置
+      //   this.heartCheck.reset().start()
+      //   return
+      // }
       // eslint-disable-next-line no-eval
       var data = eval('(' + e.data + ')') // 解析对象
       if (data.cmd === 'topic') {
@@ -298,8 +306,8 @@ export default {
           this.timeoutObj = setTimeout(function () {
             // 这里发送一个心跳，后端收到后，返回一个心跳消息，
             // onmessage拿到返回的心跳就说明连接正常
-            that.websocketSend('HeartBeat')
-            console.info('The client sends a heartbeat')
+            that.websocketSend(JSON.stringify({ 'cmd': 'HeartCheck' }))
+            console.info('The client sends a heartcheck')
             // self.serverTimeoutObj = setTimeout(function () { // 如果超过一定时间还没重置，说明后端主动断开了
             //  that.websock.close()// 如果onclose会执行reconnect，我们执行ws.close()就行了.如果直接执行reconnect 会触发onclose导致重连两次
             // }, self.timeout)
@@ -323,6 +331,16 @@ export default {
 </script>
 
 <style lang="css">
+  .header-notice .ant-badge-count {
+    left: 5px;
+    min-width: 16px;
+    height: 16px;
+    padding: 0 3px;
+    color: #fff;
+    font-size: 10px;
+    line-height: 16px;
+    border-radius: 10px;
+  }
   .header-notice-wrapper {
     top: 40px !important;
   }
@@ -330,13 +348,6 @@ export default {
 <style lang="less" scoped>
 @import "~@/components/index.less";
   .ant-badge {
-    .ant-badge-count {
-      min-width: 16px;
-      height: 16px;
-      padding: 0 4px;
-      font-size: 12px;
-      line-height: 16px;
-    }
     svg {
       height: 35px;
       width: 35px;
