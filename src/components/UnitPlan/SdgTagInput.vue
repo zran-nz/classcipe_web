@@ -59,7 +59,7 @@
 <script>
 import * as logger from '@/utils/logger'
 import { getAction } from '../../api/manage'
-import { userAPIUrl } from '../../api/user'
+import { scenarioAPIUrl } from '../../api/scenario'
 
 export default {
   name: 'SdgTagInput',
@@ -130,7 +130,7 @@ export default {
       this.fetching = true
       this.lastFetchId += 1
       const fetchId = this.lastFetchId
-      getAction(userAPIUrl.SearchUser, ({ name: searchKey })).then(res => {
+      getAction(scenarioAPIUrl.ScenarioSearchKey, ({ keywords: searchKey })).then(res => {
         if (fetchId !== this.lastFetchId) {
           return
         }
@@ -138,7 +138,7 @@ export default {
           res.result.forEach((record) => {
             this.tagSearchList.push({
               id: record.id,
-              name: record.username
+              name: record.name
             })
           })
         }

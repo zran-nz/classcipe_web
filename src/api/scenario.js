@@ -3,6 +3,7 @@ import request from '@/utils/request'
 export const scenarioAPIUrl = {
   GetAllSdgs: '/classcipe/api/scenario/getAllSdgs',
   ScenarioSearch: '/classcipe/api/scenario/search',
+  ScenarioSearchKey: '/classcipe/api/scenario/searchKey',
   ScenarioAddOrUpdate: '/classcipe/api/scenario/addOrUpdate',
   ScenarioQueryById: '/classcipe/api/scenario/queryById',
   ScenarioDelete: '/classcipe/api/scenario/delete',
