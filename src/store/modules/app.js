@@ -13,7 +13,7 @@ import {
   TOGGLE_MULTI_TAB,
   // i18n
   APP_LANGUAGE,
-  DOWNLOAD_URL, SYS_CONFIG
+  DOWNLOAD_URL, SYS_CONFIG, RECEIVE_MSG
 } from '@/store/mutation-types'
 import { loadLanguageAsync } from '@/locales'
 import { getSysConfig } from '@/api/common'
@@ -35,7 +35,8 @@ const app = {
     lang: 'en-US',
     _antLocale: {},
     sysConfig: null,
-    downloadUrl: ''
+    downloadUrl: '',
+    receiveMsg: false
   },
   mutations: {
     [SIDEBAR_TYPE]: (state, type) => {
@@ -91,6 +92,9 @@ const app = {
     },
     [DOWNLOAD_URL]: (state, downloadUrl) => {
       state.downloadUrl = downloadUrl
+    },
+    [RECEIVE_MSG]: (state, receiveMsg) => {
+      state.receiveMsg = receiveMsg
     }
   },
   actions: {
