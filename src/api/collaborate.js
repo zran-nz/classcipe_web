@@ -5,6 +5,7 @@ export const userAPIUrl = {
   GetCollaborateUsers: '/classcipe/api/collaborate/getCollaborateUsers',
   GetShared: '/classcipe/api/collaborate/getShared',
   GetSharedNotReceived: '/classcipe/api/collaborate/getSharedNotReceived',
+  GetFindSharedNotReceived: '/classcipe/api/collaborate/getFindSharedNotReceived',
   DeleteCollaborate: '/classcipe/api/collaborate/delete',
   ReceiveCollaborate: '/classcipe/api/collaborate/receive'
 }
@@ -44,6 +45,14 @@ export function GetShared (parameter) {
 export function GetSharedNotReceived (parameter) {
   return request({
     url: userAPIUrl.GetSharedNotReceived,
+    method: 'get',
+    params: parameter
+  })
+}
+
+export function GetFindSharedNotReceived (parameter) {
+  return request({
+    url: userAPIUrl.GetFindSharedNotReceived,
     method: 'get',
     params: parameter
   })

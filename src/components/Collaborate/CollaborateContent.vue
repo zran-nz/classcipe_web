@@ -70,41 +70,38 @@ export default {
       this.$logger.info('handleSelectedCollaborateUser', data)
       this.$logger.info('selectedViewerContentList', this.selectedViewerContentList)
       this.$logger.info('selectedEditorContentList', this.selectedEditorContentList)
-      if (data.userSelectMode === 'invite') {
-        const postData = {
-          contents: [],
-          emails: [],
-          permissions: [],
-          message: ''
+      const postData = {
+        contents: [],
+        emails: [],
+        permissions: [],
+        message: '',
+        isFindUser: false
+      }
+      postData.permissions.push('view')
+      postData.permissions.push('edit')
+      this.selectedViewerContentList.forEach(contentItem => {
+        this.$logger.info('selectedViewerContentList contentItem', contentItem)
+        if (postData.contents.findIndex(item => item.id === contentItem.id) === -1) {
+          postData.contents.push(contentItem)
         }
+      })
 
-        this.selectedViewerContentList.forEach(contentItem => {
-          this.$logger.info('selectedViewerContentList contentItem', contentItem)
-          if (postData.contents.findIndex(item => item.id === contentItem.id) === -1) {
-            postData.contents.push(contentItem)
-          }
-        })
-
-        this.selectedEditorContentList.forEach(contentItem => {
-          if (postData.contents.findIndex(item => item.id === contentItem.id) === -1) {
-            postData.contents.push(contentItem)
-          }
-        })
-
+      this.selectedEditorContentList.forEach(contentItem => {
+        if (postData.contents.findIndex(item => item.id === contentItem.id) === -1) {
+          postData.contents.push(contentItem)
+        }
+      })
+      if (data.userSelectMode === 'invite') {
         data.selectedViewerEmailList.forEach(email => {
           if (postData.emails.indexOf(email) === -1) {
             postData.emails.push(email)
           }
         })
-
         data.selectedEditorEmailList.forEach(email => {
           if (postData.emails.indexOf(email) === -1) {
             postData.emails.push(email)
           }
         })
-
-        postData.permissions.push('view')
-        postData.permissions.push('edit')
         postData.message = data.inviteMessage
         this.$logger.info('post data', postData)
         InviteCollaborate(postData).then(response => {
@@ -113,10 +110,9 @@ export default {
           this.$message.success('success!')
         })
       } else if (data.userSelectMode === 'publish') {
-        const postData = {
-          findUserType: data.inviteExperts ? 0 : (data.inviteAll ? 1 : 0),
-          message: data.publishMessage
-        }
+        postData.isFindUser = true
+        postData.findUserType = data.inviteExperts ? 0 : (data.inviteAll ? 1 : 0)
+        postData.message = data.publishMessage
         this.$logger.info('publishMessage post data', postData)
         InviteCollaborate(postData).then(response => {
           this.$logger.info('InviteCollaborate response', response)
