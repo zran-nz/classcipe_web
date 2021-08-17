@@ -15,8 +15,8 @@
       </a-col>
       <a-col span="12" class="unit-right-action">
         <a-space>
-          <a-button @click="handleSaveUnitPlan"> <a-icon type="save" /> {{ $t('teacher.add-unit-plan.save') }}</a-button>
-          <a-button type="primary" @click="handlePublishUnitPlan"> <a-icon type="cloud-upload" /> {{ $t('teacher.add-unit-plan.publish') }}</a-button>
+          <a-button @click="handleSaveUnitPlan" :loading="saving"> <a-icon type="save" /> {{ $t('teacher.add-unit-plan.save') }}</a-button>
+          <a-button type="primary" @click="handlePublishUnitPlan" :loading="publishing"> <a-icon type="cloud-upload" /> {{ $t('teacher.add-unit-plan.publish') }}</a-button>
           <a-button @click="handleStartCollaborate"><a-icon type="share-alt" ></a-icon>Collaborate</a-button>
         </a-space>
       </a-col>
@@ -544,7 +544,9 @@ export default {
         }
       },
       addLoading: false,
-      currentIndex: 0
+      currentIndex: 0,
+      saving: false,
+      publishing: false
     }
   },
   computed: {
@@ -898,6 +900,7 @@ export default {
         unitPlanData.questions.push(questionItem)
       }
       logger.info('question unitPlanData', unitPlanData)
+      this.saving = true
       UnitPlanAddOrUpdate(unitPlanData).then((response) => {
         logger.info('UnitPlanAddOrUpdate', response.result)
         if (response.success) {
@@ -908,6 +911,7 @@ export default {
         }
       }).then(() => {
         this.$refs.associate.loadAssociateData()
+        this.saving = false
       })
     },
     handlePublishUnitPlan () {
@@ -915,12 +919,14 @@ export default {
         id: this.unitPlanId,
         status: 1
       })
+      this.publishing = true
       ChangeStatus({
         id: this.unitPlanId,
         status: 1
       }).then(() => {
         this.$message.success(this.$t('teacher.add-unit-plan.publish-success'))
         this.form.status = 1
+        this.publishing = false
       })
     },
 

@@ -15,8 +15,8 @@
       </a-col>
       <a-col span="12" class="unit-right-action">
         <a-space>
-          <a-button @click="handleSaveTask"> <a-icon type="save" /> {{ $t('teacher.add-task.save') }}</a-button>
-          <a-button type="primary" @click="handlePublishTask"> <a-icon type="cloud-upload" /> {{ $t('teacher.add-task.publish') }}</a-button>
+          <a-button @click="handleSaveTask" :loading="saving"> <a-icon type="save" /> {{ $t('teacher.add-task.save') }}</a-button>
+          <a-button type="primary" @click="handlePublishTask" :loading="publishing"> <a-icon type="cloud-upload" /> {{ $t('teacher.add-task.publish') }}</a-button>
           <a-button @click="handleStartCollaborate"><a-icon type="share-alt" ></a-icon>Collaborate</a-button>
           <a-dropdown >
             <a-icon type="more" />
@@ -398,7 +398,9 @@ export default {
       subKnowledgeId2InfoMap: new Map(),
       descriptionId2InfoMap: new Map(),
       audioUrl: null,
-      currentUploading: false
+      currentUploading: false,
+      saving: false,
+      publishing: false
     }
   },
   computed: {
@@ -752,6 +754,7 @@ export default {
       }
 
       logger.info('question taskData', taskData)
+      this.saving = true
       TaskAddOrUpdate(taskData).then((response) => {
         logger.info('TaskAddOrUpdate', response.result)
         if (response.success) {
@@ -760,6 +763,8 @@ export default {
         } else {
           this.$message.error(response.message)
         }
+      }).finally(() => {
+        this.saving = false
       })
     },
     handlePublishTask () {
@@ -768,6 +773,7 @@ export default {
         status: 1
       })
 
+      this.publishing = true
       UpdateContentStatus({
         id: this.taskId,
         status: 1,
@@ -779,6 +785,7 @@ export default {
       }).then(() => {
         this.$message.success(this.$t('teacher.add-task.publish-success'))
         this.form.status = 1
+        this.publishing = false
       })
     },
 

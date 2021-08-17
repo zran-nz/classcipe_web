@@ -15,8 +15,8 @@
       </a-col>
       <a-col span="12" class="unit-right-action">
         <a-space>
-          <a-button shape="round" @click="handleSaveEvaluation"> <a-icon type="save" /> {{ $t('teacher.add-evaluation.save') }}</a-button>
-          <a-button shape="round" type="primary" @click="handlePublishEvaluation"> <a-icon type="cloud-upload" /> {{ $t('teacher.add-evaluation.publish') }}</a-button>
+          <a-button shape="round" @click="handleSaveEvaluation" :loading="saving"> <a-icon type="save" /> {{ $t('teacher.add-evaluation.save') }}</a-button>
+          <a-button shape="round" type="primary" @click="handlePublishEvaluation" :loading="publishing"> <a-icon type="cloud-upload" /> {{ $t('teacher.add-evaluation.publish') }}</a-button>
           <a-button @click="handleStartCollaborate"><a-icon type="share-alt" ></a-icon>Collaborate</a-button>
         </a-space>
       </a-col>
@@ -301,7 +301,9 @@ export default {
       initRawData: [],
       se: false,
       pe: false,
-      tableMode: 0
+      tableMode: 0,
+      saving: false,
+      publishing: false
     }
   },
   computed: {
@@ -561,6 +563,7 @@ export default {
       })
 
       logger.info('evaluationData add line list', evaluationData)
+      this.saving = true
       EvaluationAddOrUpdate(evaluationData).then((response) => {
         logger.info('EvaluationAddOrUpdate', response.result)
         if (response.success) {
@@ -568,6 +571,8 @@ export default {
         } else {
           this.$message.error(response.message)
         }
+      }).finally(() => {
+        this.saving = false
       })
     },
     handlePublishEvaluation () {
@@ -577,6 +582,7 @@ export default {
       })
 
       if (this.evaluationId) {
+        this.publishing = true
         UpdateContentStatus({
           id: this.evaluationId,
           status: 1,
@@ -588,6 +594,7 @@ export default {
         }).then(() => {
           this.$message.success(this.$t('teacher.add-evaluation.publish-success'))
           this.form.status = 1
+          this.publishing = false
         })
       }
     },

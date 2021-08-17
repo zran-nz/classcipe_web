@@ -16,7 +16,7 @@
       <a-col span="12" class="unit-right-action">
         <a-space>
           <a-button @click="handleSaveLesson" :loading="lessonSaving"> <a-icon type="save" /> {{ $t('teacher.add-lesson.save') }}</a-button>
-          <a-button type="primary" @click="handlePublishLesson"> <a-icon type="cloud-upload" /> {{ $t('teacher.add-lesson.publish') }}</a-button>
+          <a-button type="primary" @click="handlePublishLesson" :loading="publishing"> <a-icon type="cloud-upload" /> {{ $t('teacher.add-lesson.publish') }}</a-button>
           <a-button @click="handleStartCollaborate"><a-icon type="share-alt" ></a-icon>Collaborate</a-button>
           <a-dropdown>
             <a-icon type="more" />
@@ -534,7 +534,8 @@ export default {
       thumbnailListLoading: false,
 
       taskIndex: 0,
-      lessonSaving: false
+      lessonSaving: false,
+      publishing: false
     }
   },
   computed: {
@@ -906,6 +907,7 @@ export default {
         status: 1
       })
 
+      this.publishing = true
       UpdateContentStatus({
         id: this.lessonId,
         status: 1,
@@ -917,6 +919,7 @@ export default {
       }).then(() => {
         this.$message.success(this.$t('teacher.add-lesson.publish-success'))
         this.form.status = 1
+        this.publishing = false
       })
     },
 
