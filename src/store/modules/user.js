@@ -57,6 +57,9 @@ const user = {
     },
     SET_SHARED_COUNT: (state, sharedCount) => {
       state.sharedCount = sharedCount
+    },
+    SET_SHARED_FIND_COUNT: (state, sharedFindCount) => {
+      state.sharedFindCount = sharedFindCount
     }
   },
 

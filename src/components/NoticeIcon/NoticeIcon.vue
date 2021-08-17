@@ -156,7 +156,8 @@ export default {
             this.announcement2 = res.result.sysMsgList
             this.msg2Count = res.result.sysMsgTotal
             // this.msg2Title = '系统消息(' + res.result.sysMsgTotal + ')'
-            this.$store.commit('SET_SHARED_COUNT', this.msg1Count)
+            this.$store.commit('SET_SHARED_COUNT', res.result.collaborate ? res.result.collaborate : 0)
+            this.$store.commit('SET_SHARED_FIND_COUNT', res.result.collaborateFind ? res.result.collaborateFind : 0)
           }
         }).catch(error => {
           logger.info('系统消息通知异常', error)// 这行打印permissionName is undefined

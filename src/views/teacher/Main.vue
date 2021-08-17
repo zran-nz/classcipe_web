@@ -26,7 +26,9 @@
             </div>
             <div :class="{'nav-bar-item': true, 'selected-nav-bar' : selectedKey === '/teacher/main/discover'}">
               <router-link to="/teacher/main/discover">
-                <img src="~@/assets/icons/myContent/Discover@2x.png" class="icon-img" />
+                <a-badge :count="$store.getters.sharedFindCount">
+                  <img src="~@/assets/icons/myContent/Discover@2x.png" class="icon-img" />
+                </a-badge>
                 {{ $t('teacher.main.discover') }}
               </router-link>
             </div>

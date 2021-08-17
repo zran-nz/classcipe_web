@@ -127,8 +127,10 @@
     mounted () {
       console.log('load env', process.env)
       // this.timerFun()
-      this.initWebSocket()
-      this.heartCheckFun()
+      if (this.$store.getters.userInfo) {
+        this.initWebSocket()
+        this.heartCheckFun()
+      }
     }
   }
 </script>
