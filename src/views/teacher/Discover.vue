@@ -1,197 +1,197 @@
 <template>
   <div class="my-content">
-    <div class="filter-line">
-      <div class="status-tab">
-      </div>
-      <div class="type-owner">
-        <div class="type-filter">
-          <a-dropdown>
-            <a-menu slot="overlay">
-              <a-menu-item disabled>
-                <span>{{ $t('teacher.my-content.choose-types-of-content') }}</span>
-              </a-menu-item>
-              <a-menu-item
-                @click="toggleType('all-type', $t('teacher.my-content.all-type'))"
-                v-show="$store.getters.currentRole === 'teacher'">
-                <span>{{ $t('teacher.my-content.all-type') }}</span>
-              </a-menu-item>
-              <a-menu-item @click="toggleType('topic', $t('teacher.my-content.topics-type') )">
-                <span>{{ $t('teacher.my-content.topics-type') }}</span>
-              </a-menu-item>
-              <!--                <a-menu-item @click="toggleType('material', $t('teacher.my-content.materials-type'))">
-                <span>{{ $t('teacher.my-content.materials-type') }}</span>
-              </a-menu-item>-->
-              <a-menu-item
-                @click="toggleType('unit-plan', $t('teacher.my-content.unit-plan-type'))"
-                v-show="$store.getters.currentRole === 'teacher'">
-                <span>{{ $t('teacher.my-content.unit-plan-type') }}</span>
-              </a-menu-item>
-              <a-menu-item @click="toggleType('task', $t('teacher.my-content.tasks-type') )">
-                <span>{{ $t('teacher.my-content.tasks-type') }}</span>
-              </a-menu-item>
-              <a-menu-item
-                @click="toggleType('lesson', $t('teacher.my-content.lesson-type'))"
-                v-show="$store.getters.currentRole === 'teacher'">
-                <span>{{ $t('teacher.my-content.lesson-type') }}</span>
-              </a-menu-item>
-              <a-menu-item
-                @click="toggleType('evaluation', $t('teacher.my-content.evaluation-type'))"
-                v-show="$store.getters.currentRole === 'teacher'">
-                <span>{{ $t('teacher.my-content.evaluation-type') }}</span>
-              </a-menu-item>
-            </a-menu>
-            <a-button
-              style="padding: 0 20px;display:flex; box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.16);align-items:center ;height: 40px;border-radius: 6px;background: #FFFFFF;border: 1px solid #eee;font-family: Inter-Bold;color: #182552;">
-              Choose type(s)of content
-              <a-icon type="caret-down"/>
-            </a-button>
-          </a-dropdown>
-        </div>
-        <div class="view-mode-toggle">
-          <div class="view-mode">
-            <div :class="{'view-mode-item': true, 'active-view': viewMode === 'img'}" @click="toggleViewMode('img')">
-              <a-icon type="appstore" theme="filled" v-if="viewMode === 'img'"/>
-              <a-icon type="appstore" v-if="viewMode === 'list'"/>
-            </div>
-            <div :class="{'view-mode-item': true, 'active-view': viewMode === 'list'}" @click="toggleViewMode('list')">
-              <a-icon type="unordered-list"/>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div class="content-wrapper">
-      <a-skeleton :loading="skeletonLoading" active>
-        <div class="label-title-blue">
-          <div class="label-text">Collaborate with global teachers/experts</div>
-        </div>
-        <div class="no-received-wrapper">
-          <template v-if="sharedNotReceivedList.length">
-            <div class="no-received-list" v-if="viewMode === 'list'">
-              <div class="no-received-my-list-item " v-for="(item,index) in sharedNotReceivedList" :key="index">
-                <div class="collaborate-item">
-                  <div class="message-wrapper">
-                    {{ item.message }}
-                  </div>
-                  <div class="collaborate-action-wrapper">
-                    <div class="collaborate-content-info">
-                      <div class="type-icon">
-                        <content-type-icon size="40px" :type="item.content.type"/>
-                      </div>
-                      <div class="name"> {{ item.content.name }}</div>
-                      <div class="time"> {{ item.createTime }}</div>
-                      <div class="author">
-                        {{ item.createBy }}
-                      </div>
-                    </div>
-                    <div class="collaborate-action">
-                      <div class="collaborate-action-item">
-                        <a-button
-                          class="button-item button-item-view"
-                          @click="handleCollaborate(item)">
-                          <img src="~@/assets/icons/collaborate/collaborate.png" class="collaborate-icon"/>
-                          <span
-                            class="btn-text">
-                            Collaborate
-                          </span>
-                        </a-button>
-                      </div>
-                      <div class="collaborate-action-item">
-                        <a-popconfirm
-                          :title="$t('teacher.my-content.action-delete') + '?'"
-                          ok-text="Yes"
-                          @confirm="handleDeleteCollaborate(item)"
-                          cancel-text="No">
-                          <a-button
-                            class="button-item button-item-delete">
-                            <img src="~@/assets/icons/collaborate/shanchu@2x.png" class="collaborate-icon"/>
-                            <span
-                              class="btn-text">
-                              Delete
-                            </span>
-                          </a-button>
-                        </a-popconfirm>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div class="no-received-card-list" v-if="viewMode === 'img'">
-              <div class="no-received-card-my-list-item" v-for="(item,index) in sharedNotReceivedList" :key="index">
-                <div class="card-collaborate-item">
-                  <div class="message-wrapper">
-                    {{ item.message }}
-                  </div>
-                  <div class="collaborate-action-wrapper">
-                    <div class="collaborate-content-info">
-                      <div class="type-icon">
-                        <content-type-icon size="40px" :type="item.content.type"/>
-                        <div class="name"> {{ item.content.name }}</div>
-                      </div>
-                      <div class="sub-info">
-                        <div class="time"> {{ item.createTime }}</div>
-                        <div class="author">
-                          {{ item.createBy }}
-                        </div>
-                      </div>
-                    </div>
-                    <div class="collaborate-action">
-                      <div class="collaborate-action-item">
-                        <a-button
-                          class="button-item button-item-view"
-                          @click="handleCollaborate(item)">
-                          <img src="~@/assets/icons/collaborate/collaborate.png" class="collaborate-icon"/>
-                          <span
-                            class="btn-text">
-                            Collaborate
-                          </span>
-                        </a-button>
-                      </div>
-                      <div class="collaborate-action-item">
-                        <a-popconfirm
-                          :title="$t('teacher.my-content.action-delete') + '?'"
-                          ok-text="Yes"
-                          @confirm="handleDeleteCollaborate(item)"
-                          cancel-text="No">
-                          <a-button
-                            class="button-item button-item-delete"
-                            style="">
-                            <img src="~@/assets/icons/collaborate/refuse.png" class="collaborate-icon"/>
-                            <span
-                              class="btn-text">
-                              Delete
-                            </span>
-                          </a-button>
-                        </a-popconfirm>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </template>
-          <div class="no-received-empty" v-if="sharedNotReceivedList.length === 0">
-            <no-more-resources tips="No Invitation received"/>
-          </div>
-        </div>
-      </a-skeleton>
+    <!--    <div class="filter-line">-->
+    <!--      <div class="status-tab">-->
+    <!--      </div>-->
+    <!--      <div class="type-owner">-->
+    <!--        <div class="type-filter">-->
+    <!--          <a-dropdown>-->
+    <!--            <a-menu slot="overlay">-->
+    <!--              <a-menu-item disabled>-->
+    <!--                <span>{{ $t('teacher.my-content.choose-types-of-content') }}</span>-->
+    <!--              </a-menu-item>-->
+    <!--              <a-menu-item-->
+    <!--                @click="toggleType('all-type', $t('teacher.my-content.all-type'))"-->
+    <!--                v-show="$store.getters.currentRole === 'teacher'">-->
+    <!--                <span>{{ $t('teacher.my-content.all-type') }}</span>-->
+    <!--              </a-menu-item>-->
+    <!--              <a-menu-item @click="toggleType('topic', $t('teacher.my-content.topics-type') )">-->
+    <!--                <span>{{ $t('teacher.my-content.topics-type') }}</span>-->
+    <!--              </a-menu-item>-->
+    <!--              &lt;!&ndash;                <a-menu-item @click="toggleType('material', $t('teacher.my-content.materials-type'))">-->
+    <!--                <span>{{ $t('teacher.my-content.materials-type') }}</span>-->
+    <!--              </a-menu-item>&ndash;&gt;-->
+    <!--              <a-menu-item-->
+    <!--                @click="toggleType('unit-plan', $t('teacher.my-content.unit-plan-type'))"-->
+    <!--                v-show="$store.getters.currentRole === 'teacher'">-->
+    <!--                <span>{{ $t('teacher.my-content.unit-plan-type') }}</span>-->
+    <!--              </a-menu-item>-->
+    <!--              <a-menu-item @click="toggleType('task', $t('teacher.my-content.tasks-type') )">-->
+    <!--                <span>{{ $t('teacher.my-content.tasks-type') }}</span>-->
+    <!--              </a-menu-item>-->
+    <!--              <a-menu-item-->
+    <!--                @click="toggleType('lesson', $t('teacher.my-content.lesson-type'))"-->
+    <!--                v-show="$store.getters.currentRole === 'teacher'">-->
+    <!--                <span>{{ $t('teacher.my-content.lesson-type') }}</span>-->
+    <!--              </a-menu-item>-->
+    <!--              <a-menu-item-->
+    <!--                @click="toggleType('evaluation', $t('teacher.my-content.evaluation-type'))"-->
+    <!--                v-show="$store.getters.currentRole === 'teacher'">-->
+    <!--                <span>{{ $t('teacher.my-content.evaluation-type') }}</span>-->
+    <!--              </a-menu-item>-->
+    <!--            </a-menu>-->
+    <!--            <a-button-->
+    <!--              style="padding: 0 20px;display:flex; box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.16);align-items:center ;height: 40px;border-radius: 6px;background: #FFFFFF;border: 1px solid #eee;font-family: Inter-Bold;color: #182552;">-->
+    <!--              Choose type(s)of content-->
+    <!--              <a-icon type="caret-down"/>-->
+    <!--            </a-button>-->
+    <!--          </a-dropdown>-->
+    <!--        </div>-->
+    <!--        <div class="view-mode-toggle">-->
+    <!--          <div class="view-mode">-->
+    <!--            <div :class="{'view-mode-item': true, 'active-view': viewMode === 'img'}" @click="toggleViewMode('img')">-->
+    <!--              <a-icon type="appstore" theme="filled" v-if="viewMode === 'img'"/>-->
+    <!--              <a-icon type="appstore" v-if="viewMode === 'list'"/>-->
+    <!--            </div>-->
+    <!--            <div :class="{'view-mode-item': true, 'active-view': viewMode === 'list'}" @click="toggleViewMode('list')">-->
+    <!--              <a-icon type="unordered-list"/>-->
+    <!--            </div>-->
+    <!--          </div>-->
+    <!--        </div>-->
+    <!--      </div>-->
+    <!--    </div>-->
+    <!--    <div class="content-wrapper">-->
+    <!--      <a-skeleton :loading="skeletonLoading" active>-->
+    <!--        <div class="label-title-blue">-->
+    <!--          <div class="label-text">Collaborate with global teachers/experts</div>-->
+    <!--        </div>-->
+    <!--        <div class="no-received-wrapper">-->
+    <!--          <template v-if="sharedNotReceivedList.length">-->
+    <!--            <div class="no-received-list" v-if="viewMode === 'list'">-->
+    <!--              <div class="no-received-my-list-item " v-for="(item,index) in sharedNotReceivedList" :key="index">-->
+    <!--                <div class="collaborate-item">-->
+    <!--                  <div class="message-wrapper">-->
+    <!--                    {{ item.message }}-->
+    <!--                  </div>-->
+    <!--                  <div class="collaborate-action-wrapper">-->
+    <!--                    <div class="collaborate-content-info">-->
+    <!--                      <div class="type-icon">-->
+    <!--                        <content-type-icon size="40px" :type="item.content.type"/>-->
+    <!--                      </div>-->
+    <!--                      <div class="name"> {{ item.content.name }}</div>-->
+    <!--                      <div class="time"> {{ item.createTime }}</div>-->
+    <!--                      <div class="author">-->
+    <!--                        {{ item.createBy }}-->
+    <!--                      </div>-->
+    <!--                    </div>-->
+    <!--                    <div class="collaborate-action">-->
+    <!--                      <div class="collaborate-action-item">-->
+    <!--                        <a-button-->
+    <!--                          class="button-item button-item-view"-->
+    <!--                          @click="handleCollaborate(item)">-->
+    <!--                          <img src="~@/assets/icons/collaborate/collaborate.png" class="collaborate-icon"/>-->
+    <!--                          <span-->
+    <!--                            class="btn-text">-->
+    <!--                            Collaborate-->
+    <!--                          </span>-->
+    <!--                        </a-button>-->
+    <!--                      </div>-->
+    <!--                      <div class="collaborate-action-item">-->
+    <!--                        <a-popconfirm-->
+    <!--                          :title="$t('teacher.my-content.action-delete') + '?'"-->
+    <!--                          ok-text="Yes"-->
+    <!--                          @confirm="handleDeleteCollaborate(item)"-->
+    <!--                          cancel-text="No">-->
+    <!--                          <a-button-->
+    <!--                            class="button-item button-item-delete">-->
+    <!--                            <img src="~@/assets/icons/collaborate/shanchu@2x.png" class="collaborate-icon"/>-->
+    <!--                            <span-->
+    <!--                              class="btn-text">-->
+    <!--                              Delete-->
+    <!--                            </span>-->
+    <!--                          </a-button>-->
+    <!--                        </a-popconfirm>-->
+    <!--                      </div>-->
+    <!--                    </div>-->
+    <!--                  </div>-->
+    <!--                </div>-->
+    <!--              </div>-->
+    <!--            </div>-->
+    <!--            <div class="no-received-card-list" v-if="viewMode === 'img'">-->
+    <!--              <div class="no-received-card-my-list-item" v-for="(item,index) in sharedNotReceivedList" :key="index">-->
+    <!--                <div class="card-collaborate-item">-->
+    <!--                  <div class="message-wrapper">-->
+    <!--                    {{ item.message }}-->
+    <!--                  </div>-->
+    <!--                  <div class="collaborate-action-wrapper">-->
+    <!--                    <div class="collaborate-content-info">-->
+    <!--                      <div class="type-icon">-->
+    <!--                        <content-type-icon size="40px" :type="item.content.type"/>-->
+    <!--                        <div class="name"> {{ item.content.name }}</div>-->
+    <!--                      </div>-->
+    <!--                      <div class="sub-info">-->
+    <!--                        <div class="time"> {{ item.createTime }}</div>-->
+    <!--                        <div class="author">-->
+    <!--                          {{ item.createBy }}-->
+    <!--                        </div>-->
+    <!--                      </div>-->
+    <!--                    </div>-->
+    <!--                    <div class="collaborate-action">-->
+    <!--                      <div class="collaborate-action-item">-->
+    <!--                        <a-button-->
+    <!--                          class="button-item button-item-view"-->
+    <!--                          @click="handleCollaborate(item)">-->
+    <!--                          <img src="~@/assets/icons/collaborate/collaborate.png" class="collaborate-icon"/>-->
+    <!--                          <span-->
+    <!--                            class="btn-text">-->
+    <!--                            Collaborate-->
+    <!--                          </span>-->
+    <!--                        </a-button>-->
+    <!--                      </div>-->
+    <!--                      <div class="collaborate-action-item">-->
+    <!--                        <a-popconfirm-->
+    <!--                          :title="$t('teacher.my-content.action-delete') + '?'"-->
+    <!--                          ok-text="Yes"-->
+    <!--                          @confirm="handleDeleteCollaborate(item)"-->
+    <!--                          cancel-text="No">-->
+    <!--                          <a-button-->
+    <!--                            class="button-item button-item-delete"-->
+    <!--                            style="">-->
+    <!--                            <img src="~@/assets/icons/collaborate/refuse.png" class="collaborate-icon"/>-->
+    <!--                            <span-->
+    <!--                              class="btn-text">-->
+    <!--                              Delete-->
+    <!--                            </span>-->
+    <!--                          </a-button>-->
+    <!--                        </a-popconfirm>-->
+    <!--                      </div>-->
+    <!--                    </div>-->
+    <!--                  </div>-->
+    <!--                </div>-->
+    <!--              </div>-->
+    <!--            </div>-->
+    <!--          </template>-->
+    <!--          <div class="no-received-empty" v-if="sharedNotReceivedList.length === 0">-->
+    <!--            <no-more-resources tips="No Invitation received"/>-->
+    <!--          </div>-->
+    <!--        </div>-->
+    <!--      </a-skeleton>-->
 
-      <a-drawer
-        destroyOnClose
-        placement="right"
-        closable
-        width="800px"
-        :visible="previewVisible"
-        @close="handlePreviewClose"
-      >
-        <div class="preview-wrapper">
-          <div class="preview-detail" v-if="previewCurrentId && previewType">
-            <common-preview :id="previewCurrentId" :type="previewType"/>
-          </div>
-        </div>
-      </a-drawer>
-    </div>
+    <!--      <a-drawer-->
+    <!--        destroyOnClose-->
+    <!--        placement="right"-->
+    <!--        closable-->
+    <!--        width="800px"-->
+    <!--        :visible="previewVisible"-->
+    <!--        @close="handlePreviewClose"-->
+    <!--      >-->
+    <!--        <div class="preview-wrapper">-->
+    <!--          <div class="preview-detail" v-if="previewCurrentId && previewType">-->
+    <!--            <common-preview :id="previewCurrentId" :type="previewType"/>-->
+    <!--          </div>-->
+    <!--        </div>-->
+    <!--      </a-drawer>-->
+    <!--    </div>-->
   </div>
 </template>
 
