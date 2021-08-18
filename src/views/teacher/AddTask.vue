@@ -69,6 +69,45 @@
                   <a-icon type="audio" />
                 </div>
               </a-form-model-item>
+
+              <div class="form-block">
+                <a-row>
+                  <a-col span="4">
+                    <div class="self-field-label">
+                      Subjects
+                    </div>
+                  </a-col>
+                  <a-col span="18">
+                    <a-row :gutter="16">
+                      <a-col span="11">
+                        <a-form-model-item class="label-form-item">
+                          <a-select v-model="form.subjectIds" mode="multiple" placeholder="Please select subjects">
+                            <a-select-opt-group v-for="subjectOptGroup in subjectTree" :key="subjectOptGroup.id">
+                              <span slot="label">{{ subjectOptGroup.name }}</span>
+                              <a-select-option
+                                :value="subjectOption.id"
+                                v-for="subjectOption in subjectOptGroup.children"
+                                :key="subjectOption.id">{{ subjectOption.name }}
+                              </a-select-option>
+                            </a-select-opt-group>
+                          </a-select>
+                        </a-form-model-item>
+                      </a-col>
+
+                      <a-col span="13" class="grade-select">
+                        <a-form-model-item label="Grade" class="label-form-item">
+                          <a-select v-model="form.gradeIds" placeholder="Please select grade" mode="multiple">
+                            <a-select-option :value="gradeOption.id" v-for="gradeOption in gradeList" :key="gradeOption.id">
+                              {{ gradeOption.name }}
+                            </a-select-option>
+                          </a-select>
+                        </a-form-model-item>
+                      </a-col>
+                    </a-row>
+                  </a-col>
+                </a-row>
+              </div>
+
               <div class="content-blocks question-item" v-for="(questionItem, questionIndex) in questionDataObj" :key="questionIndex" v-if="questionItem !== null">
                 <!--knowledge tag-select -->
                 <!--knowledge tag-select -->
@@ -150,17 +189,8 @@
       @cancel="selectTemplateVisible = false">
       <div class="select-template-wrapper">
         <div class="template-type-list">
-          <div :class="{'template-type-item': true, 'active-template-type' : currentTemplateType === templateTypeMap['written-assessment']}" @click="handleToggleTemplateType(templateTypeMap['written-assessment'])">
-            Written assessment
-          </div>
-          <div :class="{'template-type-item': true, 'active-template-type' : currentTemplateType === templateTypeMap.oral}" @click="handleToggleTemplateType(templateTypeMap.oral)">
-            Oral assessment
-          </div>
-          <div :class="{'template-type-item': true, 'active-template-type' : currentTemplateType === templateTypeMap['demonstration-assessments']}" @click="handleToggleTemplateType(templateTypeMap['demonstration-assessments'])">
-            Performance/Exhibition/Demonstration assessments
-          </div>
-          <div :class="{'template-type-item': true, 'active-template-type' : currentTemplateType === templateTypeMap['other-assessment']}" @click="handleToggleTemplateType(templateTypeMap['other-assessment'])">
-            Other assessment
+          <div v-for="(item, index) in initTemplates" :key="index" :class="{'template-type-item': true, 'active-template-type' : currentTemplateType === item.value}" @click="handleToggleTemplateType(item.value)">
+            {{ item.title }}
           </div>
         </div>
         <div class="template-list-wrapper">
@@ -272,7 +302,7 @@ import { formatLocalUTC } from '@/utils/util'
 import MyContentSelector from '@/components/MyContent/MyContentSelector'
 import RelevantTagSelector from '@/components/UnitPlan/RelevantTagSelector'
 import { TemplateTypeMap } from '@/const/template'
-import { commonAPIUrl } from '@/api/common'
+import { commonAPIUrl, GetDictItems } from '@/api/common'
 import AssociateSidebar from '@/components/Associate/AssociateSidebar'
 import CustomTag from '@/components/UnitPlan/CustomTag'
 import NewUiClickableKnowledgeTag from '@/components/UnitPlan/NewUiClickableKnowledgeTag'
@@ -280,6 +310,9 @@ import { lessonHost, lessonStatus } from '@/const/googleSlide'
 import { StartLesson } from '@/api/lesson'
 import ActionBar from '@/components/Associate/ActionBar'
 import CollaborateContent from '@/components/Collaborate/CollaborateContent'
+import { DICT_TEMPLATE } from '@/const/common'
+import { SubjectTree } from '@/api/subject'
+import { formatSubjectTree } from '@/utils/bizUtil'
 
 const TagOriginType = {
   Origin: 'Origin',
@@ -358,10 +391,15 @@ export default {
         taskType: '',
         createTime: '',
         updateTime: '',
-        customTags: []
+        customTags: [],
+        subjectIds: [],
+        gradeIds: [],
+        bloomCategories: ''
       },
       // Grades
       gradeList: [],
+      // SubjectTree
+      subjectTree: [],
 
       // 将questions转成对象
       questionTotal: 0,
@@ -400,7 +438,8 @@ export default {
       audioUrl: null,
       currentUploading: false,
       saving: false,
-      publishing: false
+      publishing: false,
+      initTemplates: []
     }
   },
   computed: {
@@ -417,7 +456,6 @@ export default {
       this.selectedTemplateList.forEach(item => {
         list.push(item.id)
       })
-
       return list
     }
   },
@@ -437,7 +475,8 @@ export default {
       logger.info('initData doing...')
       Promise.all([
         GetMyGrades(),
-        TemplatesGetTemplates({ category: this.currentTemplateType })
+        TemplatesGetTemplates({ category: this.currentTemplateType }),
+        SubjectTree({ curriculumId: this.$store.getters.bindCurriculum })
       ]).then((response) => {
         this.$logger.info('add task initData done', response)
 
@@ -451,6 +490,15 @@ export default {
           this.$logger.info('template list', response[1].result)
           this.templateList = response[1].result
         }
+
+        // SubjectTree
+        if (!response[2].code) {
+          logger.info('SubjectTree', response[2].result)
+          let subjectTree = response[2].result
+          subjectTree = formatSubjectTree(subjectTree)
+          this.subjectTree = subjectTree
+          logger.info('after format subjectTree', subjectTree)
+        }
       }).then(() => {
         if (this.taskId) {
           this.$logger.info('restore task data ' + this.taskId)
@@ -463,6 +511,13 @@ export default {
         this.$message.error(this.$t('teacher.add-task.init-data-failed'))
       }).finally(() => {
         this.referenceLoading = false
+      })
+
+      GetDictItems(DICT_TEMPLATE).then(response => {
+        if (response.success) {
+          logger.info('DICT_TEMPLATE', response.result)
+          this.initTemplates = response.result
+        }
       })
     },
 
@@ -1328,14 +1383,15 @@ export default {
   flex-direction: column;
 
   .template-type-list {
-    display: flex;
+    //display: flex;
+    display: inline-block;
     flex-direction: row;
     justify-content: center;
 
     .template-type-item {
       padding: 10px 15px;
       max-height: 50px;
-      display: flex;
+      display: inline-block;
       justify-content: center;
       align-items: center;
       text-align: center;
@@ -1658,6 +1714,14 @@ export default {
       }
     }
   }
+}
+.self-field-label {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-end;
+  line-height: 32px;
+  padding-right: 10px;
 }
 
 </style>

@@ -51,12 +51,24 @@
         <a-card :bordered="false" :body-style="{padding: '16px'}">
           <a-form-model :model="form" :label-col="labelCol" :wrapper-col="wrapperCol" >
             <div class="form-block" v-if="mode === 'edit'">
-              <a-form-model-item :label="$t('teacher.add-lesson.lesson-name')" class="lesson-type-line">
+              <a-form-model-item :label="$t('teacher.add-lesson.lesson-name')" >
                 <a-input v-model="form.name" />
-                <div class="lesson-type">
-                  <div :class="{'lesson-type-item': true, 'active-lesson-type': form.lessonType === 'FA'}" @click="handleSelectLessonType('FA')">FA</div>
-                  <div :class="{'lesson-type-item': true, 'active-lesson-type': form.lessonType === 'SA'}" @click="handleSelectLessonType('SA')">SA</div>
-                </div>
+              </a-form-model-item>
+              <a-form-model-item class="lesson-type-line">
+                <a-col span="4">
+                  <div class="lesson-type">
+                    <a-button type="primary" shape="circle" :class="{'lesson-type-item': true, 'active-lesson-type': form.lessonType === 'FA'}" @click="handleSelectLessonType('FA')">FA</a-button>
+                    <a-button type="primary" shape="circle" :class="{'lesson-type-item': true, 'active-lesson-type': form.lessonType === 'SA'}" @click="handleSelectLessonType('SA')">SA</a-button>
+                  </div>
+                </a-col>
+                <a-col span="20">
+                  <a-select v-model="form.bloomCategories" placeholder="Choose the Bloom Taxonomy Categories" :allowClear="true" >
+                    <a-select-option :value="item.value" v-for="(item, index) in initBlooms" :key="index" >
+                      {{ item.title }}
+                    </a-select-option>
+                  </a-select>
+                </a-col>
+
               </a-form-model-item>
               <a-form-model-item :label="$t('teacher.add-lesson.overview')" class="task-audio-line">
                 <a-textarea v-model="form.overview" allow-clear />
@@ -68,6 +80,45 @@
                   <a-icon type="audio" />
                 </div>
               </a-form-model-item>
+
+              <div class="form-block">
+                <a-row>
+                  <a-col span="4">
+                    <div class="self-field-label">
+                      Subjects
+                    </div>
+                  </a-col>
+                  <a-col span="18">
+                    <a-row :gutter="16">
+                      <a-col span="11">
+                        <a-form-model-item class="label-form-item">
+                          <a-select v-model="form.subjectIds" mode="multiple" placeholder="Please select subjects">
+                            <a-select-opt-group v-for="subjectOptGroup in subjectTree" :key="subjectOptGroup.id">
+                              <span slot="label">{{ subjectOptGroup.name }}</span>
+                              <a-select-option
+                                :value="subjectOption.id"
+                                v-for="subjectOption in subjectOptGroup.children"
+                                :key="subjectOption.id">{{ subjectOption.name }}
+                              </a-select-option>
+                            </a-select-opt-group>
+                          </a-select>
+                        </a-form-model-item>
+                      </a-col>
+
+                      <a-col span="13" class="grade-select">
+                        <a-form-model-item label="Grade" class="label-form-item">
+                          <a-select v-model="form.gradeIds" placeholder="Please select grade" mode="multiple">
+                            <a-select-option :value="gradeOption.id" v-for="gradeOption in gradeList" :key="gradeOption.id">
+                              {{ gradeOption.name }}
+                            </a-select-option>
+                          </a-select>
+                        </a-form-model-item>
+                      </a-col>
+                    </a-row>
+                  </a-col>
+                </a-row>
+              </div>
+
               <div class="content-blocks question-item" v-for="(questionItem, questionIndex) in questionDataObj" :key="questionIndex" v-if="questionItem !== null">
                 <!--knowledge tag-select -->
                 <!--knowledge tag-select -->
@@ -190,17 +241,8 @@
       @cancel="selectTemplateVisible = false">
       <div class="select-template-wrapper">
         <div class="template-type-list">
-          <div :class="{'template-type-item': true, 'active-template-type' : currentTemplateType === templateTypeMap['written-assessment']}" @click="handleToggleTemplateType(templateTypeMap['written-assessment'])">
-            Written assessment
-          </div>
-          <div :class="{'template-type-item': true, 'active-template-type' : currentTemplateType === templateTypeMap.oral}" @click="handleToggleTemplateType(templateTypeMap.oral)">
-            Oral assessment
-          </div>
-          <div :class="{'template-type-item': true, 'active-template-type' : currentTemplateType === templateTypeMap['demonstration-assessments']}" @click="handleToggleTemplateType(templateTypeMap['demonstration-assessments'])">
-            Performance/Exhibition/Demonstration assessments
-          </div>
-          <div :class="{'template-type-item': true, 'active-template-type' : currentTemplateType === templateTypeMap['other-assessment']}" @click="handleToggleTemplateType(templateTypeMap['other-assessment'])">
-            Other assessment
+          <div v-for="(item, index) in initTemplates" :key="index" :class="{'template-type-item': true, 'active-template-type' : currentTemplateType === item.value}" @click="handleToggleTemplateType(item.value)">
+            {{ item.title }}
           </div>
         </div>
         <div class="template-list-wrapper">
@@ -378,7 +420,7 @@ import { MyContentEventBus, MyContentEvent } from '@/components/MyContent/MyCont
 import { LessonCreateLessonPPT, LessonQueryById, LessonAddOrUpdate } from '@/api/myLesson'
 import { UnitPlanQueryById } from '@/api/unitPlan'
 import { formatLocalUTC } from '@/utils/util'
-import { commonAPIUrl } from '@/api/common'
+import { commonAPIUrl, GetDictItems } from '@/api/common'
 import MyContentSelector from '@/components/MyContent/MyContentSelector'
 import RelevantTagSelector from '@/components/UnitPlan/RelevantTagSelector'
 import { TemplateTypeMap } from '@/const/template'
@@ -392,6 +434,9 @@ import { lessonHost, lessonStatus } from '@/const/googleSlide'
 import { StartLesson } from '@/api/lesson'
 import ActionBar from '@/components/Associate/ActionBar'
 import CollaborateContent from '@/components/Collaborate/CollaborateContent'
+import { DICT_BLOOM_CATEGORY, DICT_TEMPLATE } from '@/const/common'
+import { SubjectTree } from '@/api/subject'
+import { formatSubjectTree } from '@/utils/bizUtil'
 
 const TagOriginType = {
   Origin: 'Origin',
@@ -474,10 +519,15 @@ export default {
         lessonType: '',
         createTime: '',
         updateTime: '',
-        customTags: []
+        customTags: [],
+        subjectIds: [],
+        gradeIds: [],
+        bloomCategories: ''
       },
       // Grades
       gradeList: [],
+      // SubjectTree
+      subjectTree: [],
 
       // 将questions转成对象
       questionTotal: 0,
@@ -535,7 +585,9 @@ export default {
 
       taskIndex: 0,
       lessonSaving: false,
-      publishing: false
+      publishing: false,
+      initTemplates: [],
+      initBlooms: []
     }
   },
   computed: {
@@ -579,7 +631,8 @@ export default {
       logger.info('initData doing...')
       Promise.all([
         GetMyGrades(),
-        TemplatesGetTemplates({ category: this.currentTemplateType })
+        TemplatesGetTemplates({ category: this.currentTemplateType }),
+        SubjectTree({ curriculumId: this.$store.getters.bindCurriculum })
       ]).then((response) => {
         this.$logger.info('add lesson initData done', response)
 
@@ -593,6 +646,15 @@ export default {
           this.$logger.info('template list', response[1].result)
           this.templateList = response[1].result
         }
+
+        // SubjectTree
+        if (!response[2].code) {
+          logger.info('SubjectTree', response[2].result)
+          let subjectTree = response[2].result
+          subjectTree = formatSubjectTree(subjectTree)
+          this.subjectTree = subjectTree
+          logger.info('after format subjectTree', subjectTree)
+        }
       }).then(() => {
         if (this.lessonId) {
           this.$logger.info('restore lesson data ' + this.lessonId)
@@ -605,6 +667,19 @@ export default {
         this.$message.error(this.$t('teacher.add-lesson.init-data-failed'))
       }).finally(() => {
         this.referenceLoading = false
+      })
+
+      GetDictItems(DICT_TEMPLATE).then(response => {
+        if (response.success) {
+          logger.info('DICT_TEMPLATE', response.result)
+          this.initTemplates = response.result
+        }
+      })
+      GetDictItems(DICT_BLOOM_CATEGORY).then(response => {
+        if (response.success) {
+          logger.info('DICT_BLOOM_CATEGORY', response.result)
+          this.initBlooms = response.result
+        }
       })
     },
 
@@ -680,7 +755,7 @@ export default {
         }
 
         this.form = lessonData
-
+        this.form.bloomCategories = this.form.bloomCategories ? this.form.bloomCategories : undefined // 为了展示placeholder
         if (this.form.presentationId) {
           this.loadThumbnail()
         } else {
@@ -1599,14 +1674,14 @@ export default {
   flex-direction: column;
 
   .template-type-list {
-    display: flex;
+    display: inline-block;
     flex-direction: row;
     justify-content: center;
 
     .template-type-item {
       padding: 10px 15px;
       max-height: 50px;
-      display: flex;
+      display: inline-block;
       justify-content: center;
       align-items: center;
       text-align: center;
@@ -1723,17 +1798,17 @@ export default {
 
 .lesson-type-line {
   position: relative;
+   .ant-col{
+     left: 22%;
+   }
   .lesson-type {
-    position: absolute;
-    right: -75px;
-    top: -5px;
     display: flex;
     flex-direction: row;
     align-items: center;
     justify-content: flex-start;
-
+    padding: 5px 20%;
     .lesson-type-item {
-      margin-right: 5px;
+      margin-right: 15px;
       cursor: pointer;
       padding: 5px;
       line-height: 15px;
@@ -2062,6 +2137,15 @@ export default {
       }
     }
   }
+}
+
+.self-field-label {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-end;
+  line-height: 32px;
+  padding-right: 10px;
 }
 
 </style>
