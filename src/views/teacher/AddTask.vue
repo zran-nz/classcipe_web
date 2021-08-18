@@ -54,11 +54,70 @@
             <div class="form-block" v-if="mode === 'edit'">
               <a-form-model-item :label="$t('teacher.add-task.task-name')" class="task-type-line">
                 <a-input v-model="form.name" />
-                <div class="task-type">
+                <!--    <div class="task-type">
                   <div :class="{'task-type-item': true, 'active-task-type': form.taskType === 'FA'}" @click="handleSelectTaskType('FA')">FA</div>
                   <div :class="{'task-type-item': true, 'active-task-type': form.taskType === 'SA'}" @click="handleSelectTaskType('SA')">SA</div>
-                </div>
+                </div>-->
               </a-form-model-item>
+              <div class="form-block">
+                <a-row :gutter="16" class="task-type-line">
+                  <a-col span="8">
+                    <div class="self-field-label">
+                      <div class="task-type">
+                        <a-button type="primary" shape="circle" :class="{'task-type-item': true, 'active-task-type': form.taskType === 'FA'}" @click="handleSelectTaskType('FA')">FA</a-button>
+                        <a-button type="primary" shape="circle" :class="{'task-type-item': true, 'active-task-type': form.taskType === 'SA'}" @click="handleSelectTaskType('SA')">SA</a-button>
+                      </div>
+                    </div>
+                  </a-col>
+                  <a-col span="14">
+                    <a-select v-model="form.bloomCategories" placeholder="Choose the Bloom Taxonomy Categories" :allowClear="true" >
+                      <a-select-option :value="item.value" v-for="(item, index) in initBlooms" :key="index" >
+                        {{ item.title }}
+                      </a-select-option>
+                    </a-select>
+                  </a-col>
+                </a-row>
+              </div>
+
+              <a-form-model-item :label="$t('teacher.add-unit-plan.image')" class="img-wrapper">
+                <a-upload-dragger
+                  name="file"
+                  accept="image/png, image/jpeg"
+                  :showUploadList="false"
+                  :customRequest="handleUploadImage"
+                >
+                  <div class="delete-img" @click="handleDeleteImage($event)" v-show="form.image">
+                    <a-icon type="close-circle" />
+                  </div>
+                  <template v-if="uploading">
+                    <div class="upload-container">
+                      <p class="ant-upload-drag-icon">
+                        <a-icon type="cloud-upload" />
+                      </p>
+                      <p class="ant-upload-text">
+                        <a-spin />
+                        <span class="uploading-tips">{{ $t('teacher.add-unit-plan.uploading') }}</span>
+                      </p>
+                    </div>
+                  </template>
+                  <template v-if="!uploading && form && form.image">
+                    <div class="image-preview">
+                      <img :src="form.image" alt="">
+                    </div>
+                  </template>
+                  <template v-if="!uploading && form && !form.image">
+                    <div class="upload-container">
+                      <p class="ant-upload-drag-icon">
+                        <a-icon type="picture" />
+                      </p>
+                      <p class="ant-upload-text">
+                        {{ $t('teacher.add-unit-plan.upload-a-picture') }}
+                      </p>
+                    </div>
+                  </template>
+                </a-upload-dragger>
+              </a-form-model-item>
+
               <a-form-model-item :label="$t('teacher.add-task.overview')" class="task-audio-line">
                 <a-textarea v-model="form.overview" allow-clear />
                 <div class="audio-wrapper" v-if="form.audioUrl">
@@ -310,7 +369,7 @@ import { lessonHost, lessonStatus } from '@/const/googleSlide'
 import { StartLesson } from '@/api/lesson'
 import ActionBar from '@/components/Associate/ActionBar'
 import CollaborateContent from '@/components/Collaborate/CollaborateContent'
-import { DICT_TEMPLATE } from '@/const/common'
+import { DICT_TEMPLATE, DICT_BLOOM_CATEGORY } from '@/const/common'
 import { SubjectTree } from '@/api/subject'
 import { formatSubjectTree } from '@/utils/bizUtil'
 
@@ -439,7 +498,9 @@ export default {
       currentUploading: false,
       saving: false,
       publishing: false,
-      initTemplates: []
+      initTemplates: [],
+      initBlooms: [],
+      uploading: false
     }
   },
   computed: {
@@ -519,6 +580,12 @@ export default {
           this.initTemplates = response.result
         }
       })
+      GetDictItems(DICT_BLOOM_CATEGORY).then(response => {
+        if (response.success) {
+          logger.info('DICT_BLOOM_CATEGORY', response.result)
+          this.initBlooms = response.result
+        }
+      })
     },
 
     restoreTask (taskId, isFirstLoad) {
@@ -593,6 +660,7 @@ export default {
         }
 
         this.form = taskData
+        this.form.bloomCategories = this.form.bloomCategories ? this.form.bloomCategories : undefined // 为了展示placeholder
         // 未绑定成功ppt
         if (!this.form.presentationId) {
           this.handleShowSelectTemplate()
@@ -1073,6 +1141,29 @@ export default {
     handleStartCollaborate () {
       this.$logger.info('handleStartCollaborate')
       this.$refs.collaborate.startCollaborateModal(Object.assign({}, this.form), this.form.id, this.contentType.task)
+    },
+    handleUploadImage (data) {
+      logger.info('handleUploadImage', data)
+      const formData = new FormData()
+      formData.append('file', data.file, data.file.name)
+      this.uploading = true
+      this.$http.post(commonAPIUrl.UploadFile, formData, { contentType: false, processData: false, headers: { 'Content-Type': 'multipart/form-data' }, timeout: 60000 })
+        .then((response) => {
+          logger.info('handleUploadImage upload response:', response)
+          this.form.image = this.$store.getters.downloadUrl + response.result
+        }).catch(err => {
+        logger.error('handleUploadImage error', err)
+        this.$message.error(this.$t('teacher.add-unit-plan.upload-image-file-failed'))
+      }).finally(() => {
+        this.uploading = false
+      })
+    },
+
+    handleDeleteImage (e) {
+      logger.info('handleDeleteImage ', e)
+      e.stopPropagation()
+      e.preventDefault()
+      this.form.image = null
     }
   }
 }
@@ -1507,25 +1598,23 @@ export default {
 }
 
 .task-type-line {
-  position: relative;
+  margin-bottom: 20px;
   .task-type {
-    position: absolute;
-    right: -75px;
-    top: -5px;
     display: flex;
     flex-direction: row;
     align-items: center;
     justify-content: flex-start;
-
+    padding: 5px 20%;
     .task-type-item {
-      margin-right: 5px;
+      margin-right: 15px;
       cursor: pointer;
       padding: 5px;
       line-height: 15px;
       width: 25px;
       height: 25px;
       font-size: 14px;
-      color: @text-color-secondary;
+      background-color: fade(@outline-color, 20%);
+      color: @primary-color;
       display: flex;
       justify-content: center;
       align-items: center;
@@ -1533,10 +1622,11 @@ export default {
     }
 
     .active-task-type {
-      background-color: fade(@outline-color, 20%);
-      color: @primary-color;
+      background-color: fade(#FF3355, 10%);
+      color: #FF3355;
       border-radius: 50%;
       font-weight: 500;
+      border-color:#FF3355
     }
   }
 }

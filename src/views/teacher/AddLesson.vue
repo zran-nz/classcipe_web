@@ -54,22 +54,66 @@
               <a-form-model-item :label="$t('teacher.add-lesson.lesson-name')" >
                 <a-input v-model="form.name" />
               </a-form-model-item>
-              <a-form-model-item class="lesson-type-line">
-                <a-col span="4">
-                  <div class="lesson-type">
-                    <a-button type="primary" shape="circle" :class="{'lesson-type-item': true, 'active-lesson-type': form.lessonType === 'FA'}" @click="handleSelectLessonType('FA')">FA</a-button>
-                    <a-button type="primary" shape="circle" :class="{'lesson-type-item': true, 'active-lesson-type': form.lessonType === 'SA'}" @click="handleSelectLessonType('SA')">SA</a-button>
-                  </div>
-                </a-col>
-                <a-col span="20">
-                  <a-select v-model="form.bloomCategories" placeholder="Choose the Bloom Taxonomy Categories" :allowClear="true" >
-                    <a-select-option :value="item.value" v-for="(item, index) in initBlooms" :key="index" >
-                      {{ item.title }}
-                    </a-select-option>
-                  </a-select>
-                </a-col>
 
+              <div class="form-block">
+                <a-row :gutter="16" class="lesson-type-line">
+                  <a-col span="8">
+                    <div class="self-field-label">
+                      <div class="lesson-type">
+                        <a-button type="primary" shape="circle" :class="{'lesson-type-item': true, 'active-lesson-type': form.lessonType === 'FA'}" @click="handleSelectLessonType('FA')">FA</a-button>
+                        <a-button type="primary" shape="circle" :class="{'lesson-type-item': true, 'active-lesson-type': form.lessonType === 'SA'}" @click="handleSelectLessonType('SA')">SA</a-button>
+                      </div>
+                    </div>
+                  </a-col>
+                  <a-col span="14">
+                    <a-select v-model="form.bloomCategories" placeholder="Choose the Bloom Taxonomy Categories" :allowClear="true" >
+                      <a-select-option :value="item.value" v-for="(item, index) in initBlooms" :key="index" >
+                        {{ item.title }}
+                      </a-select-option>
+                    </a-select>
+                  </a-col>
+                </a-row>
+              </div>
+
+              <a-form-model-item :label="$t('teacher.add-unit-plan.image')" class="img-wrapper">
+                <a-upload-dragger
+                  name="file"
+                  accept="image/png, image/jpeg"
+                  :showUploadList="false"
+                  :customRequest="handleUploadImage"
+                >
+                  <div class="delete-img" @click="handleDeleteImage($event)" v-show="form.image">
+                    <a-icon type="close-circle" />
+                  </div>
+                  <template v-if="uploading">
+                    <div class="upload-container">
+                      <p class="ant-upload-drag-icon">
+                        <a-icon type="cloud-upload" />
+                      </p>
+                      <p class="ant-upload-text">
+                        <a-spin />
+                        <span class="uploading-tips">{{ $t('teacher.add-unit-plan.uploading') }}</span>
+                      </p>
+                    </div>
+                  </template>
+                  <template v-if="!uploading && form && form.image">
+                    <div class="image-preview">
+                      <img :src="form.image" alt="">
+                    </div>
+                  </template>
+                  <template v-if="!uploading && form && !form.image">
+                    <div class="upload-container">
+                      <p class="ant-upload-drag-icon">
+                        <a-icon type="picture" />
+                      </p>
+                      <p class="ant-upload-text">
+                        {{ $t('teacher.add-unit-plan.upload-a-picture') }}
+                      </p>
+                    </div>
+                  </template>
+                </a-upload-dragger>
               </a-form-model-item>
+
               <a-form-model-item :label="$t('teacher.add-lesson.overview')" class="task-audio-line">
                 <a-textarea v-model="form.overview" allow-clear />
                 <div class="audio-wrapper" v-if="form.audioUrl">
@@ -587,7 +631,8 @@ export default {
       lessonSaving: false,
       publishing: false,
       initTemplates: [],
-      initBlooms: []
+      initBlooms: [],
+      uploading: false
     }
   },
   computed: {
@@ -1359,6 +1404,29 @@ export default {
     handleStartCollaborate () {
       this.$logger.info('handleStartCollaborate')
       this.$refs.collaborate.startCollaborateModal(Object.assign({}, this.form), this.form.id, this.contentType.lesson)
+    },
+    handleUploadImage (data) {
+      logger.info('handleUploadImage', data)
+      const formData = new FormData()
+      formData.append('file', data.file, data.file.name)
+      this.uploading = true
+      this.$http.post(commonAPIUrl.UploadFile, formData, { contentType: false, processData: false, headers: { 'Content-Type': 'multipart/form-data' }, timeout: 60000 })
+        .then((response) => {
+          logger.info('handleUploadImage upload response:', response)
+          this.form.image = this.$store.getters.downloadUrl + response.result
+        }).catch(err => {
+        logger.error('handleUploadImage error', err)
+        this.$message.error(this.$t('teacher.add-unit-plan.upload-image-file-failed'))
+      }).finally(() => {
+        this.uploading = false
+      })
+    },
+
+    handleDeleteImage (e) {
+      logger.info('handleDeleteImage ', e)
+      e.stopPropagation()
+      e.preventDefault()
+      this.form.image = null
     }
   }
 }
@@ -1797,10 +1865,7 @@ export default {
 }
 
 .lesson-type-line {
-  position: relative;
-   .ant-col{
-     left: 22%;
-   }
+  margin-bottom: 20px;
   .lesson-type {
     display: flex;
     flex-direction: row;
@@ -1815,7 +1880,8 @@ export default {
       width: 25px;
       height: 25px;
       font-size: 14px;
-      color: @text-color-secondary;
+      background-color: fade(@outline-color, 20%);
+      color: @primary-color;
       display: flex;
       justify-content: center;
       align-items: center;
@@ -1823,10 +1889,11 @@ export default {
     }
 
     .active-lesson-type {
-      background-color: fade(@outline-color, 20%);
-      color: @primary-color;
+      background-color: fade(#FF3355, 10%);
+      color: #FF3355;
       border-radius: 50%;
       font-weight: 500;
+      border-color:#FF3355
     }
   }
 }
