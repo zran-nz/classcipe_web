@@ -598,6 +598,7 @@ export default {
     flex-wrap: wrap;
 
     .keyword-item {
+      cursor: pointer;
       display: flex;
       flex-direction: row;
       align-items: center;

@@ -247,8 +247,17 @@
       @ok="selectTemplateVisible = false"
       @cancel="selectTemplateVisible = false">
       <div class="select-template-wrapper">
+        <div class="">
+          <a-button type="primary" shape="circle" :class="{'task-type-item': true, 'active-task-type': form.taskType === 'FA'}" @click="handleToggleTemplateType('currentFasa','FA')">FA</a-button>
+          <a-button type="primary" shape="circle" :class="{'task-type-item': true, 'active-task-type': form.taskType === 'SA'}" @click="handleToggleTemplateType('currentFasa','SA')">SA</a-button>
+        </div>
         <div class="template-type-list">
-          <div v-for="(item, index) in initTemplates" :key="index" :class="{'template-type-item': true, 'active-template-type' : currentTemplateType === item.value}" @click="handleToggleTemplateType(item.value)">
+          <div v-for="(item, index) in initTemplates" :key="index" :class="{'template-type-item': true, 'active-template-type' : currentTemplateType === item.value}" @click="handleToggleTemplateType('currentTemplateType',item.value)">
+            {{ item.title }}
+          </div>
+        </div>
+        <div class="template-type-list">
+          <div v-for="(item, index) in initBlooms" :key="index" :class="{'template-type-item': true, 'active-template-type' : currentBloomCategory === item.value}" @click="handleToggleTemplateType('currentBloomCategory',item.value)">
             {{ item.title }}
           </div>
         </div>
@@ -478,7 +487,9 @@ export default {
         }
       },
 
-      currentTemplateType: TemplateTypeMap['visible-thinking-tool'],
+      currentTemplateType: '',
+      currentBloomCategory: '',
+      currentFasa: '',
       templateList: [],
       templateLoading: false,
       selectedTemplateList: [],
@@ -930,12 +941,14 @@ export default {
       // }, 500)
     },
 
-    handleToggleTemplateType (templateType) {
-      this.$logger.info('handleToggleTemplateType ' + templateType)
+    handleToggleTemplateType (key, value) {
+      this.$logger.info('handleToggleTemplateType ' + value)
       this.templateLoading = true
-      this.currentTemplateType = templateType
+      if (key === 'currentTemplateType') this.currentTemplateType = value
+      if (key === 'currentBloomCategory') this.currentBloomCategory = value
+      if (key === 'currentFasa') this.currentFasa = value
       this.selectedTemplateList = []
-      TemplatesGetTemplates({ category: this.currentTemplateType }).then(response => {
+      TemplatesGetTemplates({ category: this.currentTemplateType, bloomCategories: this.currentBloomCategory, fasa: this.currentFasa }).then(response => {
         this.$logger.info('handleToggleTemplateType ', response)
         this.templateList = response.result
       }).finally(() => {

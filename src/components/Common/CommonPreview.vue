@@ -27,7 +27,7 @@
                 <img src="~@/assets/icons/common/preview/star_gray.png" @click="handleFavorite(data)" v-if="!data.isFavorite"/>
                 <img src="~@/assets/icons/common/preview/star_yellow.png" @click="handleFavorite(data)" v-if="data.isFavorite"/>
               </div>
-              <div class="edit" >
+              <div class="edit" v-if="permissionEdit">
                 <a-button type="primary" shape="round" @click="handleEditItem(data)">
                   <div class="button-content" >
                     Edit <img class="edit-icon" src="~@/assets/icons/common/preview/edit_white.png" />
@@ -235,6 +235,7 @@ export default {
     }
   },
   mounted () {
+
   },
   data () {
     return {
@@ -257,11 +258,18 @@ export default {
       typeMap: typeMap,
 
       subPreviewVisible: false,
-      currentImgIndex: 0
+      currentImgIndex: 0,
+      permissionEdit: true
     }
   },
   created () {
     logger.info('CommonPreview id ' + this.id + ' type ' + this.type)
+    if (this.type === this.typeMap['unit-plan'] && this.$store.getters.currentRole === 'expert') {
+      this.permissionEdit = false
+    }
+    if (this.type === this.typeMap.topic && this.$store.getters.currentRole === 'teacher') {
+      this.permissionEdit = false
+    }
     this.loadData()
   },
   methods: {
