@@ -3,4 +3,4 @@ export const lessonStatus = {
   studentPaced: 'student-paced'
 }
 
-export const lessonHost = 'https://dev.frontend.newzealand.actself.me/index.html#/class?'
+export const lessonHost = 'https://dev.frontend.newzealand.actself.me/'
