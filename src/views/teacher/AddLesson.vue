@@ -158,15 +158,15 @@
                   <custom-tag ref="customTag" :selected-tags-list="form.customTags" @change-user-tags="handleChangeUserTags"></custom-tag>
                 </div>
 
-                <div class="form-block" v-show="form.presentationId">
+                <div class="slide-form-block" v-show="form.presentationId">
                   <a-divider />
                   <div class="label-line">
                     Pick slides to create a brilliant task and use it in your future lessons or share with global educators
                   </div>
                   <div class="preview-list" v-if="!thumbnailListLoading">
-                    <div class="preview-item-cover" :style="{backgroundImage: 'url(' + item.contentUrl + ')'}" v-for="(item,index) in thumbnailList" :key="index" @click="handleToggleThumbnail(item)">
-                      <div class="template-select-icon" v-if=" selectedPageIdList.indexOf(item.id) !== -1">
-                        <a-icon type="check" />
+                    <div :class="{'preview-item-cover': true, 'preview-item-cover-active': selectedPageIdList.indexOf(item.id) !== -1}" :style="{backgroundImage: 'url(' + item.contentUrl + ')'}" v-for="(item,index) in thumbnailList" :key="index" @click="handleToggleThumbnail(item)">
+                      <div class="template-select-icon" v-if="selectedPageIdList.indexOf(item.id) !== -1">
+                        <img src="~@/assets/icons/lesson/selected.png"/>
                       </div>
                     </div>
                   </div>
@@ -2229,24 +2229,26 @@ export default {
     position: relative;
     width: 180px;
     height: 150px;
+    border-radius: 5px;
     margin: 0 15px 15px 0 ;
     border: 1px solid #eee;
     box-shadow: 0 4px 4px 4px #eee;
-    &:hover {
-      box-shadow: 0 4px 4px 2px #bbb;
-      border: 1px solid fade(@outline-color, 40%);
-    }
 
     .template-select-icon {
       z-index: 50;
       position: absolute;
       right: 5px;
-      bottom: 5px;
-      font-size: 10px;
-      background-color: fade(@outline-color, 100%);
-      padding: 2px 5px;
-      color: #fff;
+      top: 5px;
+      img {
+        height: 18px;
+      }
     }
+  }
+
+  .preview-item-cover-active {
+    border: 1px solid #15C39A;
+    box-shadow: 0px 3px 6px rgba(21, 195, 154, 0.16);
+    border-radius: 5px;
   }
 }
 
@@ -2297,6 +2299,8 @@ export default {
 }
 
 .thumbnail-task-list {
+  width: 600px;
+  margin: auto;
   display: flex;
   flex-direction: column;
   .task-preview-list {
@@ -2528,5 +2532,14 @@ export default {
 
 .my-full-form-wrapper {
   margin-top: 70px;
+}
+
+.slide-form-block {
+  width: 800px;
+  margin-left: -100px;
+}
+
+.label-line {
+  text-align: center;
 }
 </style>

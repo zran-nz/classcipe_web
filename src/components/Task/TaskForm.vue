@@ -34,8 +34,15 @@
               />
             </div>
           </div>
-          <div class="form-block save-task">
-            <a-button type="primary" shape="round" @click="handleSaveTask">Save Task</a-button>
+          <div class="save-task">
+            <a-button :style="{'display': 'flex', 'align-items': 'center', 'background' : '#15C39A', 'color': '#fff', 'justify-content': 'center', 'padding': '20px 15px', 'border-radius': '5px'}" @click="handleSaveTask">
+              <div class="btn-icon">
+                <img src="~@/assets/icons/task/taskAdd.png" />
+              </div>
+              <div class="btn-text">
+                Add another task
+              </div>
+            </a-button>
           </div>
         </a-form-model>
       </a-col>
@@ -980,8 +987,29 @@ export default {
 }
 
 .save-task {
+  display: flex;
   margin-top: 20px;
-  text-align: center;
   padding: 10px 0;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.btn-icon {
+  height: 20px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  img {
+    height: 15px;
+    width: 15px;
+  }
+}
+
+.btn-text {
+  font-family: Inter-Bold;
+  line-height: 24px;
+  padding-left: 5px;
 }
 </style>
