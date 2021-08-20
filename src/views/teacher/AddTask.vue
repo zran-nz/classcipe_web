@@ -247,31 +247,46 @@
       @ok="selectTemplateVisible = false"
       @cancel="selectTemplateVisible = false">
       <div class="select-template-wrapper">
-        <div class="">
-          <a-button type="primary" shape="circle" :class="{'task-type-item': true, 'active-task-type': form.taskType === 'FA'}" @click="handleToggleTemplateType('currentFasa','FA')">FA</a-button>
-          <a-button type="primary" shape="circle" :class="{'task-type-item': true, 'active-task-type': form.taskType === 'SA'}" @click="handleToggleTemplateType('currentFasa','SA')">SA</a-button>
-        </div>
-        <div class="template-type-list">
-          <div v-for="(item, index) in initTemplates" :key="index" :class="{'template-type-item': true, 'active-template-type' : currentTemplateType === item.value}" @click="handleToggleTemplateType('currentTemplateType',item.value)">
-            {{ item.title }}
+        <div class="template-select-header">
+          <div class="header-title">
+            <div class="header-title-text">
+              You can choose template(s) to start with or create task from scratch
+            </div>
           </div>
-        </div>
-        <div class="template-type-list">
-          <div v-for="(item, index) in initBlooms" :key="index" :class="{'template-type-item': true, 'active-template-type' : currentBloomCategory === item.value}" @click="handleToggleTemplateType('currentBloomCategory',item.value)">
-            {{ item.title }}
+          <div class="filter-wrapper">
+            <div class="first-filter-line">
+              <div class="task-type">
+                <div :class="{'task-type-item': true, 'green-active-task-type': currentFasa === 'FA'}" @click="handleToggleTemplateType('currentFasa','FA')">FA</div>
+                <div :class="{'task-type-item': true, 'red-active-task-type': currentFasa === 'SA'}" @click="handleToggleTemplateType('currentFasa','SA')">SA</div>
+              </div>
+              <div class="template-type-list">
+                <div v-for="(item, index) in initTemplates" :key="index" :class="{'template-type-item': true, 'active-template-type' : currentTemplateType === item.value}" @click="handleToggleTemplateType('currentTemplateType',item.value)">
+                  {{ item.title }}
+                  <img src="~@/assets/icons/lesson/active_green.png" v-if=" currentTemplateType === item.value"/>
+                </div>
+              </div>
+            </div>
+            <div class="second-filter-line">
+              <div class="template-type-list">
+                <div v-for="(item, index) in initBlooms" :key="index" :class="{'template-type-item': true, 'sub-active-template-type' : currentBloomCategory === item.value}" @click="handleToggleTemplateType('currentBloomCategory',item.value)">
+                  {{ item.title }}
+                  <img src="~@/assets/icons/lesson/active_red.png" v-if=" currentBloomCategory === item.value"/>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
         <div class="template-list-wrapper">
           <div class="template-list" v-if="!templateLoading">
-            <div class="template-item" v-for="(template,index) in templateList" :key="index" @click="handleSelectTemplate(template)">
+            <div :class="{'template-item': true, 'template-item-active': template.id && selectedTemplateIdList.indexOf(template.id) !== -1 }" v-for="(template,index) in templateList" :key="index" @click="handleSelectTemplate(template)">
               <div class="template-cover" :style="{backgroundImage: 'url(' + template.cover + ')'}">
               </div>
               <div class="template-info">
                 <div class="template-name">{{ template.name }}</div>
                 <div class="template-intro">{{ template.introduce }}</div>
-                <div class="template-select-icon" v-if="template.id && selectedTemplateIdList.indexOf(template.id) !== -1">
-                  <a-icon type="check" />
-                </div>
+              </div>
+              <div class="template-select-icon" v-if="template.id && selectedTemplateIdList.indexOf(template.id) !== -1">
+                <img src="~@/assets/icons/lesson/selected.png" v-if="template.id && selectedTemplateIdList.indexOf(template.id) !== -1 "/>
               </div>
             </div>
           </div>
@@ -286,7 +301,7 @@
           <div class="create-loading" v-if="creating">
             <a-spin />
           </div>
-          <a-button @click="handleAddTemplate" type="primary" :loading="creating">Add</a-button>
+          <a-button @click="handleAddTemplate" shape="round" type="primary" :loading="creating">Create the task in google slide</a-button>
         </div>
       </div>
     </a-modal>
@@ -942,11 +957,29 @@ export default {
     },
 
     handleToggleTemplateType (key, value) {
-      this.$logger.info('handleToggleTemplateType ' + value)
+      this.$logger.info('handleToggleTemplateType ' + key + ' ' + value)
       this.templateLoading = true
-      if (key === 'currentTemplateType') this.currentTemplateType = value
-      if (key === 'currentBloomCategory') this.currentBloomCategory = value
-      if (key === 'currentFasa') this.currentFasa = value
+      if (key === 'currentTemplateType') {
+        if (this.currentTemplateType === value) {
+          this.currentTemplateType = null
+        } else {
+          this.currentTemplateType = value
+        }
+      }
+      if (key === 'currentBloomCategory') {
+        if (this.currentBloomCategory === value) {
+          this.currentBloomCategory = null
+        } else {
+          this.currentBloomCategory = value
+        }
+      }
+      if (key === 'currentFasa') {
+        if (this.currentFasa === value) {
+          this.currentFasa = null
+        } else {
+          this.currentFasa = value
+        }
+      }
       this.selectedTemplateList = []
       TemplatesGetTemplates({ category: this.currentTemplateType, bloomCategories: this.currentBloomCategory, fasa: this.currentFasa }).then(response => {
         this.$logger.info('handleToggleTemplateType ', response)
@@ -1487,32 +1520,148 @@ export default {
   user-select: none;
   flex-direction: column;
 
-  .template-type-list {
-    //display: flex;
-    display: inline-block;
-    flex-direction: row;
+  .template-select-header {
+    background: rgba(255, 255, 255, 0.2);
+    border: 1px solid #ddd;
+    opacity: 1;
+    border-radius: 4px;
+    padding: 10px ;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
     justify-content: center;
 
-    .template-type-item {
-      padding: 10px 15px;
-      max-height: 50px;
-      display: inline-block;
-      justify-content: center;
-      align-items: center;
-      text-align: center;
-      min-width: 70px;
+    .header-title {
+      padding: 15px 0 25px;
+      .header-title-text {
+        font-size: 30px;
+        font-family: Inter-Bold;
+        line-height: 24px;
+        color: #182552;
+        opacity: 1;
+      }
     }
 
-    .active-template-type {
-      background-color: fade(@outline-color, 20%);
-      color: @primary-color;
-      border-radius: 40px;
+    .filter-wrapper {
+      display: flex;
+      flex-direction: column;
+      box-sizing: border-box;
+      .first-filter-line {
+        display: flex;
+        flex-direction: row;
+        align-items: flex-start;
+        justify-content: flex-start;
+        position: relative;
+        margin-bottom: 10px;
+        .task-type {
+          width: 100px;
+          display: flex;
+          flex-direction: row;
+          align-items: center;
+          justify-content: center;
+          .task-type-item {
+            margin-right: 10px;
+            width: 33px;
+            height: 33px;
+            border-radius: 33px;
+            border: 2px solid #ddd;
+            font-weight: bold;
+            display: flex;
+            color: #bbb;
+            align-items: center;
+            justify-content: center;
+          }
+
+          .green-active-task-type {
+            background: rgba(21, 195, 154, 0.1);
+            border: 2px solid #15C39A;
+            border-radius: 50%;
+            font-weight: bold;
+            color: #15C39A;
+          }
+
+          .red-active-task-type {
+            background: rgba(255, 51, 85, 0.1);
+            border: 2px solid #FF3355;
+            border-radius: 50%;
+            opacity: 1;
+            font-weight: bold;
+            color: #FF3355;
+            opacity: 1;
+          }
+        }
+      }
+
+      .second-filter-line {
+        padding-left: 93px;
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: flex-start;
+        position: relative;
+      }
+    }
+    .template-type-list {
+      display: inline-block;
+      flex-direction: row;
+      justify-content: flex-start;
+
+      .template-type-item {
+        margin-right: 10px;
+        margin-bottom: 10px;
+        padding: 5px 15px;
+        max-height: 50px;
+        display: inline-block;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+        font-size: 14px;
+        min-width: 70px;
+        background: rgba(245, 245, 245, 0.5);
+        border: 1px solid #ddd;
+        color: #11142D;
+        opacity: 1;
+        border-radius: 25px;
+      }
+
+      .active-template-type {
+        background: #15C39A;
+        opacity: 1;
+        color: #fff;
+        position: relative;
+        border-radius: 40px;
+        img {
+          height: 18px;
+          position: absolute;
+          right: -3px;
+          top: -7px;
+        }
+      }
+
+      .sub-active-template-type {
+        background: #FF3355;
+        opacity: 1;
+        color: #fff;
+        position: relative;
+        border-radius: 40px;
+        img {
+          height: 18px;
+          position: absolute;
+          right: -3px;
+          top: -7px;
+        }
+      }
     }
   }
 
   .template-list-wrapper {
     margin-top: 20px;
     min-height: 250px;
+    background: rgba(228, 228, 228, 0.2);
+    border: 1px solid #D8D8D8;
+    opacity: 1;
+    border-radius: 4px;
+    padding: 20px;
 
     .template-list {
       display: flex;
@@ -1523,27 +1672,34 @@ export default {
 
       .template-item {
         background-size: cover;
-        margin-right: 10px;
-        margin-bottom: 10px;
-        border: 1px solid #eee;
-        padding: 0;
+        margin-right: 1%;
+        margin-left: 1%;
+        margin-bottom: 20px;
         box-sizing: border-box;
         width: 23%;
-        box-shadow: 0 4px 4px 2px #fff;
-        transition: all 0.2s ease-in;
+        box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.16);
+        background: #FFFFFF;
+        border: 1px solid #E8E8E8;
+        border-radius: 4px;
+        position: relative;
+
+        .template-select-icon {
+          z-index: 50;
+          position: absolute;
+          right: 5px;
+          top: 5px;
+          img {
+            height: 18px;
+          }
+        }
 
         .template-cover {
           height: 150px;
+          border-radius: 4px;
           width: 100%;
           background-color: #ddd;
           box-sizing: border-box;
           padding: 0;
-          border-bottom: 1px solid #eee;
-        }
-
-        &:hover {
-          box-shadow: 0 4px 4px 2px #eee;
-          border: 1px solid fade(@outline-color, 40%);
         }
 
         .template-info {
@@ -1555,42 +1711,44 @@ export default {
 
           .template-name {
             font-weight: 500;
-            font-size: 15px;
+            font-size: 14px;
             z-index: 10;
             overflow: hidden;
             white-space: nowrap;
             text-overflow: ellipsis;
             word-break: break-all;
+            padding: 10px 0;
+            min-height: 40px;
           }
           .template-intro {
+            min-height: 30px;
             z-index: 10;
-            padding: 5px 0 0 0;
+            padding: 5px;
             overflow: hidden;
             white-space: nowrap;
             text-overflow: ellipsis;
             word-break: break-all;
             color: rgba(0,0,0,.45);
             font-size: 12px;
-          }
-
-          .template-select-icon {
-            z-index: 50;
-            position: absolute;
-            right: 5px;
-            bottom: 5px;
-            font-size: 10px;
-            background-color: fade(@outline-color, 60%);
-            padding: 2px 5px;
-            color: #fff;
+            background: rgba(244, 244, 244, 0.5);
+            border-radius: 4px;
+            font-family: Inter-Bold;
+            color: #000000;
           }
         }
+      }
+
+      .template-item-active {
+        border: 1px solid #15C39A;
+        box-shadow: 0px 3px 6px rgba(21, 195, 154, 0.16);
+        opacity: 1;
       }
     }
   }
 
   .template-action {
-    padding: 10px 0;
-    text-align: right;
+    padding: 20px 0 0;
+    text-align: center;
 
     .create-loading {
       display: inline-block;
