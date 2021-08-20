@@ -184,6 +184,9 @@ export default {
       })
     },
     searchUser () {
+      if (this.userNameOrEmail.length < 3) {
+        return
+      }
       SearchUser({ name: this.userNameOrEmail }).then(response => {
         this.$logger.info('SearchUser response', response)
         this.userList = response.result
@@ -192,14 +195,14 @@ export default {
 
         this.selectedViewerEmailList = []
         this.selectedEditorEmailList = []
-        if (this.userList.length) {
-          this.userList.forEach(uItem => {
-            if (uItem.email) {
-              this.selectedViewerEmailList.push(uItem.email)
-              this.selectedEditorEmailList.push(uItem.email)
-            }
-          })
-        }
+        // if (this.userList.length) {
+        //   this.userList.forEach(uItem => {
+        //     if (uItem.email) {
+        //       this.selectedViewerEmailList.push(uItem.email)
+        //       this.selectedEditorEmailList.push(uItem.email)
+        //     }
+        //   })
+        // }
       })
     },
 

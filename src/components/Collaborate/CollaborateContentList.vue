@@ -166,7 +166,7 @@ export default {
         this.selectedViewerContentIdList = []
         this.selectedEditorContentIdList = []
         this.collaborateContentList.forEach(cItem => {
-          this.selectedViewerContentIdList.push(cItem.id)
+          // this.selectedViewerContentIdList.push(cItem.id)
           this.selectedEditorContentIdList.push(cItem.id)
         })
         this.$logger.info('collaborateContentList', this.collaborateContentList)
@@ -201,6 +201,9 @@ export default {
         this.selectedEditorContentIdList.splice(index, 1)
       } else {
         this.selectedEditorContentIdList.push(id)
+        if (this.selectedViewerContentIdList.indexOf(id) > -1) {
+          this.selectedViewerContentIdList.splice(this.selectedViewerContentIdList.indexOf(id), 1)
+        }
       }
       this.$logger.info('selectedEditorContentIdList ', this.selectedEditorContentIdList)
     },
@@ -212,6 +215,9 @@ export default {
         this.selectedViewerContentIdList.splice(index, 1)
       } else {
         this.selectedViewerContentIdList.push(id)
+        if (this.selectedEditorContentIdList.indexOf(id) > -1) {
+          this.selectedEditorContentIdList.splice(this.selectedEditorContentIdList.indexOf(id), 1)
+        }
       }
       this.$logger.info('selectedViewerContentIdList ', this.selectedViewerContentIdList)
     },
