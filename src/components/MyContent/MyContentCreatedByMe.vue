@@ -713,4 +713,5 @@ a.delete-action {
     }
   }
 }
+
 </style>

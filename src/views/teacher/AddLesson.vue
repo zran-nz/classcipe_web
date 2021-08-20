@@ -340,7 +340,12 @@
           <div class="create-loading" v-if="creating">
             <a-spin />
           </div>
-          <a-button @click="handleAddTemplate" shape="round" type="primary" :loading="creating">Create the task in google slide</a-button>
+          <a-button @click="handleAddTemplate" :style="{'display': 'flex', 'align-items': 'center', 'justify-content': 'center', 'padding': '10px'}" shape="round" type="primary" :loading="creating">
+            <img src="~@/assets/icons/lesson/path.png" class="btn-icon"/>
+            <div class="btn-text">
+              Create the task in google slide
+            </div>
+          </a-button>
         </div>
       </div>
     </a-modal>
@@ -2047,7 +2052,10 @@ export default {
 
   .template-action {
     padding: 20px 0 0;
-    text-align: center;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
 
     .create-loading {
       display: inline-block;
@@ -2452,4 +2460,11 @@ export default {
   }
 }
 
+.btn-icon {
+  height: 20px;
+}
+
+.btn-text {
+  padding: 0 5px;
+}
 </style>
