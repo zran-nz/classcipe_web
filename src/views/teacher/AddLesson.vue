@@ -322,11 +322,38 @@
     <a-modal
       v-model="selectedMyContentVisible"
       :footer="null"
+      :title="null"
       destroyOnClose
       width="80%"
-      title="Select My Content"
-      @ok="selectedMyContentVisible = false"
-      @cancel="selectedMyContentVisible = false">
+      :closable="false"
+      @ok="selectedMyContentVisible = false">
+      <modal-header @close="selectedMyContentVisible = false"/>
+      <div class="select-type-wrapper">
+        <div class="select-type">
+          <div class="select-tips">
+            Choose lesson and tasks from
+          </div>
+          <div class="select-button">
+            <a-button style="color: #fff;border-radius: 5px; padding: 15px;background: #15C39A; display: flex;flex-direction: row;align-items: center;justify-content: center" type="primary">
+              <img src="~@/assets/icons/lesson/content_icon.png" />
+              <div class="button-label">
+                My content
+              </div>
+            </a-button>
+          </div>
+          <div class="select-tips">
+            Of
+          </div>
+          <div class="select-button">
+            <a-button style="color: #fff;border-radius: 5px;background: #15C39A; display: flex;flex-direction: row;align-items: center;justify-content: center" type="primary">
+              <img src="~@/assets/icons/lesson/template_icon.png" />
+              <div class="button-label">
+                Choose a template
+              </div>
+            </a-button>
+          </div>
+        </div>
+      </div>
       <div class="link-content-wrapper">
         <my-content-selector
           :filter-type-list="['task', 'lesson']"
@@ -481,6 +508,7 @@ import CollaborateContent from '@/components/Collaborate/CollaborateContent'
 import { DICT_BLOOM_CATEGORY, DICT_TEMPLATE } from '@/const/common'
 import { SubjectTree } from '@/api/subject'
 import { formatSubjectTree } from '@/utils/bizUtil'
+import ModalHeader from '@/components/Common/ModalHeader'
 
 const TagOriginType = {
   Origin: 'Origin',
@@ -493,6 +521,7 @@ const TagOriginType = {
 export default {
   name: 'AddLesson',
   components: {
+    ModalHeader,
     ActionBar,
     TaskPreview,
     TaskForm,
@@ -2214,6 +2243,38 @@ export default {
   justify-content: flex-end;
   line-height: 32px;
   padding-right: 10px;
+}
+
+.select-type-wrapper {
+  margin-bottom: 20px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+
+  .select-type {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .select-tips {
+    font-family: Inter-Bold;
+    line-height: 24px;
+    color: #000000;
+    padding: 0 10px;
+  }
+}
+
+.select-button {
+  img {
+    height: 12px;
+  }
+
+  .button-label {
+    padding: 0 5px;
+  }
 }
 
 </style>
