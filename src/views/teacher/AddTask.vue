@@ -11,169 +11,160 @@
       />
     </div>
     <a-card :bordered="false" :bodyStyle="{ padding: '16px 24px', height: '100%', minHeight: '500px' }">
-      <a-row class="unit-content" v-if="!contentLoading">
-        <a-col span="4">
-          <div class="unit-menu-list">
-            <div class="menu-category-item">
-              <associate-sidebar :name="form.name" :type="contentType.task" :id="taskId" ref="associate"/>
+      <template v-if="mode === 'edit'">
+        <a-row class="unit-content" v-if="!contentLoading">
+          <a-col span="4">
+            <div class="unit-menu-list">
+              <div class="menu-category-item">
+                <associate-sidebar :name="form.name" :type="contentType.task" :id="taskId" ref="associate"/>
+              </div>
+              <div class="menu-category-item">
+                <action-bar @create="selectAddContentTypeVisible = true" @link="selectLinkContentVisible = true"/>
+              </div>
             </div>
-            <div class="menu-category-item">
-              <action-bar @create="selectAddContentTypeVisible = true" @link="selectLinkContentVisible = true"/>
-            </div>
-          </div>
-        </a-col>
-        <a-col span="20" class="main-content">
-          <a-card :bordered="false" :body-style="{padding: '16px'}">
-            <a-form-model :model="form" :label-col="labelCol" :wrapper-col="wrapperCol" >
-              <div class="form-block" v-if="mode === 'edit'">
-                <a-form-model-item :label="$t('teacher.add-task.task-name')" class="task-type-line">
-                  <a-input v-model="form.name" />
-                </a-form-model-item>
+          </a-col>
+          <a-col span="16" offset="2" class="main-content">
+            <a-card :bordered="false" :body-style="{padding: '16px'}">
+              <a-form-model :model="form" class="my-form-wrapper">
                 <div class="form-block">
-                  <a-row :gutter="16" class="task-type-line">
-                    <a-col span="8">
+                  <div class="form-block">
+                    <div class="header-action">
+                      <div class="header-action-item">
+                        <a-button @click="handleEditGoogleSlide" :style="{'display': 'flex', 'align-items': 'center', 'justify-content': 'center', 'padding': '20px 15px', 'border-radius': '5px'}" type="primary" >
+                          <img src="~@/assets/icons/lesson/path.png" class="btn-icon"/>
+                          <div class="btn-text">
+                            Edit my lesson in google slide
+                          </div>
+                        </a-button>
+                      </div>
+                      <div class="header-action-item">
+                        <a-button @click="handleStartSession" :style="{'display': 'flex', 'align-items': 'center', 'justify-content': 'center', 'padding': '20px 15px', 'border-radius': '5px'}" type="primary" >
+                          <img src="~@/assets/icons/lesson/startLesson.png" class="btn-icon"/>
+                          <div class="btn-text">
+                            Start a session
+                          </div>
+                        </a-button>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="form-block">
+                    <a-input v-model="form.name" class="my-form-input" placeholder="Name"/>
+                  </div>
+                  <div class="form-block">
+                    <div class="self-type-wrapper">
                       <div class="self-field-label">
-                        <div class="task-type">
-                          <a-button type="primary" shape="circle" :class="{'task-type-item': true, 'active-task-type': form.taskType === 'FA'}" @click="handleSelectTaskType('FA')">FA</a-button>
-                          <a-button type="primary" shape="circle" :class="{'task-type-item': true, 'active-task-type': form.taskType === 'SA'}" @click="handleSelectTaskType('SA')">SA</a-button>
+                        <div :class="{'lesson-type-item': true, 'green-active-task-type': form.taskType === 'FA'}" @click="handleSelectTaskType('FA')">FA</div>
+                        <div :class="{'lesson-type-item': true, 'red-active-task-type': form.taskType === 'SA'}" @click="handleSelectTaskType('SA')">SA</div>
+                      </div>
+                      <div class="self-type-filter">
+                        <a-select class="my-big-select" size="large" v-model="form.bloomCategories" placeholder="Choose the Bloom Taxonomy Categories" :allowClear="true" >
+                          <a-select-option :value="item.value" v-for="(item, index) in initBlooms" :key="index" >
+                            {{ item.title }}
+                          </a-select-option>
+                        </a-select>
+                      </div>
+                    </div>
+                  </div>
+
+                  <a-form-model-item class="img-wrapper">
+                    <a-upload-dragger
+                      name="file"
+                      accept="image/png, image/jpeg"
+                      :showUploadList="false"
+                      :customRequest="handleUploadImage"
+                    >
+                      <div class="delete-img" @click="handleDeleteImage($event)" v-show="form.image">
+                        <a-icon type="close-circle" />
+                      </div>
+                      <template v-if="uploading">
+                        <div class="upload-container">
+                          <p class="ant-upload-drag-icon">
+                            <a-icon type="cloud-upload" />
+                          </p>
+                          <p class="ant-upload-text">
+                            <a-spin />
+                            <span class="uploading-tips">{{ $t('teacher.add-unit-plan.uploading') }}</span>
+                          </p>
                         </div>
-                      </div>
-                    </a-col>
-                    <a-col span="14">
-                      <a-select v-model="form.bloomCategories" placeholder="Choose the Bloom Taxonomy Categories" :allowClear="true" >
-                        <a-select-option :value="item.value" v-for="(item, index) in initBlooms" :key="index" >
-                          {{ item.title }}
-                        </a-select-option>
-                      </a-select>
-                    </a-col>
-                  </a-row>
-                </div>
+                      </template>
+                      <template v-if="!uploading && form && form.image">
+                        <div class="image-preview">
+                          <img :src="form.image" alt="">
+                        </div>
+                      </template>
+                      <template v-if="!uploading && form && !form.image">
+                        <div class="upload-container">
+                          <p class="ant-upload-drag-icon">
+                            <img src="~@/assets/icons/lesson/upload_icon.png" class="upload-icon" />
+                          </p>
+                          <p class="ant-upload-text">
+                            {{ $t('teacher.add-unit-plan.upload-a-picture') }}
+                          </p>
+                        </div>
+                      </template>
+                    </a-upload-dragger>
+                  </a-form-model-item>
 
-                <a-form-model-item :label="$t('teacher.add-unit-plan.image')" class="img-wrapper">
-                  <a-upload-dragger
-                    name="file"
-                    accept="image/png, image/jpeg"
-                    :showUploadList="false"
-                    :customRequest="handleUploadImage"
-                  >
-                    <div class="delete-img" @click="handleDeleteImage($event)" v-show="form.image">
-                      <a-icon type="close-circle" />
+                  <div class="form-block">
+                    <a-form-model-item :label="$t('teacher.add-task.overview')" class="task-audio-line">
+                      <a-textarea v-model="form.overview" allow-clear />
+                      <div class="audio-wrapper" v-if="form.audioUrl">
+                        <audio :src="form.audioUrl" controls />
+                        <span @click="form.audioUrl = null"><a-icon type="delete" /></span>
+                      </div>
+                      <div class="task-audio" @click="handleAddAudioOverview">
+                        <a-icon type="audio" />
+                      </div>
+                    </a-form-model-item>
+                  </div>
+
+                  <div class="form-block">
+                    <div class="subject-grade-wrapper">
+                      <div class="select-item">
+                        <a-select size="large" v-model="form.subjectIds" mode="multiple" placeholder="Subjects" class="subject-item">
+                          <a-select-opt-group v-for="subjectOptGroup in subjectTree" :key="subjectOptGroup.id">
+                            <span slot="label">{{ subjectOptGroup.name }}</span>
+                            <a-select-option
+                              :value="subjectOption.id"
+                              v-for="subjectOption in subjectOptGroup.children"
+                              :key="subjectOption.id">{{ subjectOption.name }}
+                            </a-select-option>
+                          </a-select-opt-group>
+                        </a-select>
+                      </div>
+                      <div class="select-item">
+                        <a-select size="large" v-model="form.gradeIds" placeholder="Grade" mode="multiple" class="grade-item">
+                          <a-select-option :value="gradeOption.id" v-for="gradeOption in gradeList" :key="gradeOption.id">
+                            {{ gradeOption.name }}
+                          </a-select-option>
+                        </a-select>
+                      </div>
                     </div>
-                    <template v-if="uploading">
-                      <div class="upload-container">
-                        <p class="ant-upload-drag-icon">
-                          <a-icon type="cloud-upload" />
-                        </p>
-                        <p class="ant-upload-text">
-                          <a-spin />
-                          <span class="uploading-tips">{{ $t('teacher.add-unit-plan.uploading') }}</span>
-                        </p>
-                      </div>
-                    </template>
-                    <template v-if="!uploading && form && form.image">
-                      <div class="image-preview">
-                        <img :src="form.image" alt="">
-                      </div>
-                    </template>
-                    <template v-if="!uploading && form && !form.image">
-                      <div class="upload-container">
-                        <p class="ant-upload-drag-icon">
-                          <a-icon type="picture" />
-                        </p>
-                        <p class="ant-upload-text">
-                          {{ $t('teacher.add-unit-plan.upload-a-picture') }}
-                        </p>
-                      </div>
-                    </template>
-                  </a-upload-dragger>
-                </a-form-model-item>
+                  </div>
 
-                <a-form-model-item :label="$t('teacher.add-task.overview')" class="task-audio-line">
-                  <a-textarea v-model="form.overview" allow-clear />
-                  <div class="audio-wrapper" v-if="form.audioUrl">
-                    <audio :src="form.audioUrl" controls />
-                    <span @click="form.audioUrl = null"><a-icon type="delete" /></span>
+                  <div class="form-block">
+                    <div class="content-blocks question-item" v-for="(questionItem, questionIndex) in questionDataObj" :key="questionIndex" v-if="questionItem !== null">
+                      <new-ui-clickable-knowledge-tag
+                        :question-index="questionIndex"
+                        :selected-knowledge-tags="questionItem.knowledgeTags"
+                        :selected-skill-tags="questionItem.skillTags"
+                        @remove-knowledge-tag="handleRemoveKnowledgeTag"
+                        @add-knowledge-tag="handleAddKnowledgeTag"
+                        @remove-skill-tag="handleRemoveSkillTag"
+                        @add-skill-tag="handleAddSkillTag"
+                      />
+                    </div>
                   </div>
-                  <div class="task-audio" @click="handleAddAudioOverview">
-                    <a-icon type="audio" />
-                  </div>
-                </a-form-model-item>
+                </div>
 
                 <div class="form-block">
-                  <a-row>
-                    <a-col span="4">
-                      <div class="self-field-label">
-                        Subjects
-                      </div>
-                    </a-col>
-                    <a-col span="18">
-                      <a-row :gutter="16">
-                        <a-col span="11">
-                          <a-form-model-item class="label-form-item">
-                            <a-select v-model="form.subjectIds" mode="multiple" placeholder="Please select subjects">
-                              <a-select-opt-group v-for="subjectOptGroup in subjectTree" :key="subjectOptGroup.id">
-                                <span slot="label">{{ subjectOptGroup.name }}</span>
-                                <a-select-option
-                                  :value="subjectOption.id"
-                                  v-for="subjectOption in subjectOptGroup.children"
-                                  :key="subjectOption.id">{{ subjectOption.name }}
-                                </a-select-option>
-                              </a-select-opt-group>
-                            </a-select>
-                          </a-form-model-item>
-                        </a-col>
-
-                        <a-col span="13" class="grade-select">
-                          <a-form-model-item label="Grade" class="label-form-item">
-                            <a-select v-model="form.gradeIds" placeholder="Please select grade" mode="multiple">
-                              <a-select-option :value="gradeOption.id" v-for="gradeOption in gradeList" :key="gradeOption.id">
-                                {{ gradeOption.name }}
-                              </a-select-option>
-                            </a-select>
-                          </a-form-model-item>
-                        </a-col>
-                      </a-row>
-                    </a-col>
-                  </a-row>
-                </div>
-
-                <div class="content-blocks question-item" v-for="(questionItem, questionIndex) in questionDataObj" :key="questionIndex" v-if="questionItem !== null">
-                  <!--knowledge tag-select -->
-                  <!--knowledge tag-select -->
-                  <new-ui-clickable-knowledge-tag
-                    :question-index="questionIndex"
-                    :selected-knowledge-tags="questionItem.knowledgeTags"
-                    :selected-skill-tags="questionItem.skillTags"
-                    @remove-knowledge-tag="handleRemoveKnowledgeTag"
-                    @add-knowledge-tag="handleAddKnowledgeTag"
-                    @remove-skill-tag="handleRemoveSkillTag"
-                    @add-skill-tag="handleAddSkillTag"
-                  />
-
-                </div>
-              </div>
-              <div class="form-block" v-if="mode === 'create'">
-                <div class="task-action-wrapper">
-                  <div class="action-item-line">
-                    <img src="~@/assets/icons/lesson/Presentation-Collaboration@2x.png" alt="" class="action-img">
-                    <div class="action-label">
-                      <a-button shape="round" @click="handleShowSelectTemplate" class="action-item">
-                        {{ $t('teacher.add-task.choose-a-template') }}
-                      </a-button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <a-row>
-                <a-col offset="4" span="18">
                   <custom-tag v-if="mode === 'edit'" ref="customTag" :selected-tags-list="form.customTags" @change-user-tags="handleChangeUserTags"></custom-tag>
-                </a-col>
-              </a-row>
-            </a-form-model>
-          </a-card>
-        </a-col>
-      </a-row>
+                </div>
+              </a-form-model>
+            </a-card>
+          </a-col>
+        </a-row>
+      </template>
       <collaborate-content ref="collaborate"/>
       <a-modal
         v-model="selectLinkContentVisible"
@@ -1184,6 +1175,15 @@ export default {
       e.stopPropagation()
       e.preventDefault()
       this.form.image = null
+    },
+
+    handleEditGoogleSlide () {
+      this.$logger.info('handleEditGoogleSlide', this.form.presentationId)
+      if (this.form.presentationId) {
+        window.open('https://docs.google.com/presentation/d/' + this.form.presentationId)
+      } else {
+        this.$message.warn('please create slide first!')
+      }
     }
   }
 }
@@ -1280,7 +1280,6 @@ export default {
   }
 
   .main-content {
-    padding: 30px 0;
 
     .image-preview {
       img {
@@ -1294,6 +1293,10 @@ export default {
 
     .upload-container {
       padding: 16px 0;
+    }
+
+    .upload-icon {
+      height: 70px;
     }
 
     .uploading-tips {
@@ -1343,14 +1346,6 @@ export default {
         z-index: 1000;
       }
 
-      &:hover {
-        border: 1px dotted @link-hover-color;
-        box-sizing: border-box;
-        .sdg-delete-wrapper {
-          display: block;
-        }
-      }
-
       .knowledge-delete-wrapper {
         transition: all 0.2s ease-in;
         display: none;
@@ -1364,15 +1359,6 @@ export default {
         cursor: pointer;
         color: @link-hover-color;
         z-index: 1000;
-      }
-
-      &:hover {
-        border: 1px dotted @link-hover-color;
-        cursor: pointer;
-        box-sizing: border-box;
-        .knowledge-delete-wrapper {
-          display: block;
-        }
       }
 
       .tag-select {
@@ -2087,6 +2073,107 @@ export default {
 
 .my-full-form-wrapper {
   margin-top: 70px;
+}
+
+.my-slide-pick-modal {
+  padding: 0;
+  box-sizing: border-box;
+  .ant-modal-body {
+    background: rgba(15, 53, 56, 0.5);
+    padding: 0;
+    box-sizing: border-box;
+  }
+}
+.select-slide-wrapper {
+  padding: 15px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background: rgba(15, 53, 56, 1);
+  .modal-title {
+    font-size: 20px;
+    font-family: FZCuYuan-M03S;
+    font-weight: 400;
+    line-height: 24px;
+    color: #FFFFFF;
+    margin-bottom: 10px;
+    margin-top: 10px;
+  }
+
+  .main-tips {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    width: 500px;
+    height: 250px;
+    .left-img {
+      height: 250px;
+      display: flex;
+      flex-direction: row;
+      align-items: flex-end;
+      width: 250px;
+
+      img {
+        width: 250px;
+      }
+    }
+    .right-img-text {
+      height: 250px;
+      display: flex;
+      flex-direction: row;
+      align-items: flex-start;
+      width: 250px;
+      position: relative;
+      img {
+        width: 250px;
+      }
+
+      .img-text {
+        position: absolute;
+        font-size: 18px;
+        width: 190px;
+        height: 150px;
+        margin: auto;
+        left: 35px;
+        top: 40px;
+        font-family: FZCuYuan-M03S;
+        font-weight: 400;
+        line-height: 20px;
+        color: #0F3538;
+      }
+    }
+  }
+}
+
+.slide-action {
+  padding: 25px 0 30px 0;
+  background: rgba(15, 53, 56, 1);
+
+  .slide-btn-wrapper {
+    display: flex;
+    justify-content: center;
+    .slide-btn-item {
+      margin: 0 10px;
+    }
+
+    .slide-btn-item-no {
+
+    }
+
+    .slide-btn-item-yes {
+
+    }
+  }
+}
+
+.pick-task-slide-wrapper {
+  width: 1000px;
+  margin: auto;
+
+  .slide-form-block {
+  }
 }
 
 </style>
