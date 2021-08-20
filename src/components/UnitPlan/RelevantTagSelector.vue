@@ -3,49 +3,34 @@
     <div class="question-list">
       <!--      <div class="question-item" v-for="(question,index) in relevantQuestionList" :key="index" v-if="question.knowledgeTagList.length || question.skillTagList.tagList">-->
       <div class="question-item" v-for="(question,index) in relevantQuestionList" :key="index" >
-        <div class="question">
-          <a-checkbox @click="handleSelectQuestion(question)" :checked="selectedQuestionIdList.indexOf(question.questionId) !== -1">
-            {{ question.questionName }}
-          </a-checkbox>
+        <div @click="handleSelectQuestion(question)" :class="{'question': true, 'checked-item': selectedQuestionIdList.indexOf(question.questionId) !== -1}">
+          <div class="content-text">
+            {{ question.questionName ? question.questionName : 'Unnamed question' }}
+          </div>
+          <div class="selected-icon">
+            <a-icon type="check-circle" theme="filled" v-if="selectedQuestionIdList.indexOf(question.questionId) !== -1" />
+          </div>
         </div>
         <div class="item-list">
-          <div class="item-item" v-for="(knowledgeItem,ki) in question.knowledgeTagList" :key="ki">
-            <div class="item-name">
-              <template v-if="selectedQuestionIdList.indexOf(question.questionId) !== -1">
-                <a-checkbox @click="handleSelectKnowledge(knowledgeItem)" :checked="selectedKnowledgeTagIdList.indexOf(knowledgeItem.id) !== -1" class="relevant-checkbox">
-                  {{ knowledgeItem.info.description }}
-                </a-checkbox>
-              </template>
-              <template v-else>
-                <span class="pure-name">
-                  {{ knowledgeItem.info.description }}
-                </span>
-              </template>
-            </div>
-            <div class="item-tag-list">
-              <div class="item-tag" v-for="(tag,ti) in knowledgeItem.tagList" :key="ti">
-                <a-tag color="green" class="tag-item">{{ tag.name }}</a-tag>
+          <div :class="{'item-item': true, 'checked-item': selectedQuestionIdList.indexOf(question.questionId) !== -1}" v-for="(knowledgeItem,ki) in question.knowledgeTagList" :key="ki">
+            <div class="item-name" @click="handleSelectKnowledge(knowledgeItem)">
+              <div class="content-text">
+                {{ knowledgeItem.info.description ? question.questionName : 'Unnamed description' }}
+              </div>
+              <div class="selected-icon">
+                <a-icon type="check-circle" theme="filled" v-if="selectedQuestionIdList.indexOf(question.questionId) !== -1" />
               </div>
             </div>
           </div>
         </div>
         <div class="item-list">
-          <div class="item-item" v-for="(skillItem, si) in question.skillTagList" :key="si">
+          <div :class="{'item-item': true, 'checked-item': selectedSkillTagIdList.indexOf(skillItem.id) !== -1}" @click="handleSelectSkill(skillItem)" v-for="(skillItem, si) in question.skillTagList" :key="si">
             <div class="item-name">
-              <template v-if="selectedQuestionIdList.indexOf(question.questionId) !== -1">
-                <a-checkbox @click="handleSelectSkill(skillItem)" :checked="selectedSkillTagIdList.indexOf(skillItem.id) !== -1" class="relevant-checkbox">
-                  {{ skillItem.info.description }}
-                </a-checkbox>
-              </template>
-              <template v-else>
-                <span class="pure-name">
-                  {{ skillItem.info.description }}
-                </span>
-              </template>
-            </div>
-            <div class="item-tag-list">
-              <div class="item-tag" v-for="(tag,ti) in skillItem.tagList" :key="ti">
-                <a-tag color="green" class="tag-item">{{ tag.name }}</a-tag>
+              <div class="content-text">
+                {{ skillItem.info.description ? skillItem.info.description : 'Unnamed question' }}
+              </div>
+              <div class="selected-icon">
+                <a-icon type="check-circle" theme="filled" v-if="selectedSkillTagIdList.indexOf(skillItem.id) !== -1" />
               </div>
             </div>
           </div>
@@ -190,66 +175,98 @@ export default {
         flex-direction: column;
         border: 1px solid #eee;
         padding: 10px;
-        margin-bottom: 5px;
+        margin-bottom: 20px;
         .question {
+          margin-bottom: 15px;
           display: flex;
           flex-direction: row;
+          justify-content: space-between;
           font-weight: 500;
           font-size: 15px;
           padding: 5px;
+          background: #fff;
+          border: 1px solid #fff;
+          box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.16);
+          border-radius: 5px;
+
+          align-items: center;
+          .content-text {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: flex-start;
+            padding: 10px;
+          }
+
+          .selected-icon {
+            width: 40px;
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: center;
+          }
         }
+
+        .checked-item {
+          color: #15C39A;
+          background: rgba(21, 195, 154, 0.1);
+          border: 1px solid #15C39A;
+          font-family: Inter-Bold;
+          color: #15C39A;
+        }
+
         .item-list {
+          padding-left: 30px;
+          box-sizing: border-box;
           display: flex;
           flex-direction: column;
           .item-item {
-            user-select: none;
+            margin-bottom: 15px;
             display: flex;
             flex-direction: row;
-            margin-bottom: 8px;
-            padding-left: 5px;
-            &:hover {
-              background-color: fade(@outline-color, 10%);
+            justify-content: space-between;
+            font-weight: 500;
+            font-size: 15px;
+            padding: 5px;
+            background: #fff;
+            border: 1px solid #fff;
+            box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.16);
+            border-radius: 5px;
 
-              .item-tag-list {
-                background: none;
-              }
-            }
+            align-items: center;
 
             .item-name {
-              width: 50%;
+              user-select: none;
+              font-family: Inter-Bold;
               display: flex;
-              align-items: center;
-
-              .pure-name {
-                padding-left: 24px;
-                padding-right: 8px;
-              }
-
-              .relevant-checkbox {
-                display: flex;
-                flex-direction: row;
-                align-items: center;
-              }
+              flex-direction: row;
+              justify-content: space-between;
             }
 
-            .item-tag-list {
-              width: 50%;
+            .content-text {
               display: flex;
+              flex-direction: row;
               align-items: center;
               justify-content: flex-start;
-              background-color: #f9f9f9;
-              padding: 6px;
-
-              .tag-item {
-                width: auto;
-                display: block;
-                white-space: pre-wrap;
-                word-wrap: break-word;
-                overflow: hidden;
-                border-radius: 10px;
-                word-break: normal;
-              }
+              padding: 10px;
             }
+
+            .selected-icon {
+              width: 40px;
+              display: flex;
+              flex-direction: row;
+              align-items: center;
+              justify-content: center;
+              color: #15C39A;
+            }
+          }
+
+          .checked-item {
+            color: #15C39A;
+            background: rgba(21, 195, 154, 0.1);
+            border: 1px solid #15C39A;
+            font-family: Inter-Bold;
+            color: #15C39A;
           }
         }
       }

@@ -273,7 +273,7 @@
         destroyOnClose
         top="50px"
         width="50%"
-        title="Select from the relevant Unit"
+        title="Select learning outcomes from relevant Unit / Topic"
         @ok="showRelevantQuestionVisible = false"
         @cancel="showRelevantQuestionVisible = false">
         <div class="select-relevant-tag">

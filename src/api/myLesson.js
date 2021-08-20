@@ -62,7 +62,7 @@ export function LessonQueryById (parameter) {
 export function LessonDelete (parameter) {
   return request({
     url: lessonAPIUrl.delete + '?id=' + parameter.id,
-    method: 'delete',
+    method: 'post',
     data: parameter
   })
 }

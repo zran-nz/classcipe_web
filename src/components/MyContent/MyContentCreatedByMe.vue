@@ -135,6 +135,17 @@
                   :style="{backgroundImage: 'url(' + item.image + ')' }"
                 ></div>
                 <a-card-meta :title="item.name ? item.name : 'Untitled'" :description="item.createTime | dayjs"></a-card-meta>
+                <div slot="actions" v-show="mode === displayMode.Link">
+                  <div class="action-wrapper">
+                    <div class="action-item">
+                      <a-popconfirm :title="'Link this content to my Unit' + '?'" ok-text="Yes" @confirm="handleLinkItem(item, $event)" cancel-text="No">
+                        <span>
+                          <a-icon type="form" /> Link
+                        </span>
+                      </a-popconfirm>
+                    </div>
+                  </div>
+                </div>
                 <div class="card-action-icon">
                   <img src="~@/assets/icons/lesson/selected.png" v-if="selectedList.indexOf(item.type + '-' + item.id) !== -1"/>
                 </div>
@@ -577,10 +588,10 @@ export default {
         display: flex;
         flex-direction: row;
         align-items: center;
-        justify-content: flex-start;
+        justify-content: flex-end;
         .action-item {
           display: inline;
-          margin-left: 20px;
+          margin-right: 10px;
           user-select: none;
           .link-item {
             display: flex;
@@ -612,7 +623,7 @@ export default {
         text-align: left;
         padding-left: 5px;
         display: inline-block;
-        width: 450px;
+        width: 400px;
         overflow: hidden;
         white-space: nowrap;
         text-overflow: ellipsis;
