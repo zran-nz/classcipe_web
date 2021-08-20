@@ -52,20 +52,30 @@
                 style="padding: 0 20px;display:flex; box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.16);align-items:center ;height: 40px;border-radius: 6px;background: #FFFFFF;border: 1px solid #eee;font-family: Inter-Bold;color: #182552;"> Choose type(s)of content <a-icon type="caret-down" /> </a-button>
             </a-dropdown>
           </div>
+          <div class="switch-icon">
+            <div :class="{'icon-item': true, 'active-icon': dataListMode === 'list'}" @click="handleToggleDataListMode('list')">
+              <list-mode-icon />
+            </div>
+            <div :class="{'icon-item': true, 'active-icon': dataListMode === 'card'}" @click="handleToggleDataListMode('card')">
+              <pu-bu-icon />
+            </div>
+          </div>
         </a-space>
       </div>
     </div>
     <div class="content-wrapper">
       <a-skeleton :loading="skeletonLoading" active>
         <div class="content-list">
-          <a-list size="large" :pagination="pagination" :data-source="myContentList" :loading="loading">
+          <a-list size="large" :pagination="pagination" :data-source="myContentList" :loading="loading" v-if="dataListMode === 'list'">
             <a-list-item slot="renderItem" key="item.key" slot-scope="item" :class="{'my-list-item': true, 'active-item': selectedList.indexOf(item.type + '-' + item.id) !== -1}" @click="handleToggleSelect(item)">
 
-              <span class="content-info-left" @click="handleViewDetail(item, $event)">
-                <content-type-icon :type="item.type" />
+              <span class="content-info-left" >
+                <content-type-icon :type="item.type" @click.native="handleViewDetail(item, $event)"/>
 
                 <span class="name-content">
-                  {{ item.name }}
+                  <span class="name-text" @click="handleViewDetail(item, $event)">
+                    {{ item.name ? item.name : 'Untitled' }}
+                  </span>
                 </span>
               </span>
 
@@ -103,9 +113,36 @@
                   </div>
                 </div>
               </span>
+              <div class="action-icon">
+                <img src="~@/assets/icons/lesson/selected.png" v-if="selectedList.indexOf(item.type + '-' + item.id) !== -1"/>
+              </div>
+            </a-list-item>
+          </a-list>
+
+          <a-list
+            :grid="{ gutter: 16, column: 4 }"
+            size="large"
+            :pagination="pagination"
+            :data-source="myContentList"
+            :loading="loading"
+            v-if="dataListMode === 'card'">
+            <a-list-item slot="renderItem" key="item.key" slot-scope="item" @click="handleToggleSelect(item)">
+              <a-card class="cover-card">
+                <div
+                  @click="handleViewDetail(item, $event)"
+                  class="cover-image"
+                  slot="cover"
+                  :style="{backgroundImage: 'url(' + item.image + ')' }"
+                ></div>
+                <a-card-meta :title="item.name ? item.name : 'Untitled'" :description="item.createTime | dayjs"></a-card-meta>
+                <div class="card-action-icon">
+                  <img src="~@/assets/icons/lesson/selected.png" v-if="selectedList.indexOf(item.type + '-' + item.id) !== -1"/>
+                </div>
+              </a-card>
             </a-list-item>
           </a-list>
         </div>
+
       </a-skeleton>
 
       <a-drawer
@@ -139,6 +176,8 @@ import { MyContentEventBus, MyContentEvent } from '@/components/MyContent/MyCont
 import DisplayMode from '@/components/MyContent/DisplayMode'
 import CommonPreview from '@/components/Common/CommonPreview'
 import NoMoreResources from '@/components/Common/NoMoreResources'
+import PuBuIcon from '@/assets/icons/library/pubu .svg?inline'
+import ListModeIcon from '@/assets/icons/library/liebiao .svg?inline'
 
 export default {
   name: 'MyContentCreatedByMe',
@@ -148,7 +187,9 @@ export default {
     ContentTypeIcon,
     UnitPlanPreview,
     MaterialPreview,
-    NoMoreResources
+    NoMoreResources,
+    PuBuIcon,
+    ListModeIcon
   },
   props: {
     filterTypeList: {
@@ -198,7 +239,9 @@ export default {
       },
       pageNo: 1,
 
-      typeMap: typeMap
+      typeMap: typeMap,
+
+      dataListMode: 'list'
     }
   },
   watch: {
@@ -234,6 +277,11 @@ export default {
         this.skeletonLoading = false
         this.$logger.info('shared coming soon!')
       }
+    },
+
+    handleToggleDataListMode (mode) {
+      this.$logger.info('handleToggleDataListMode' + mode)
+      this.dataListMode = mode
     },
 
     getMyContent () {
@@ -312,7 +360,7 @@ export default {
       MyContentEventBus.$emit(MyContentEvent.LinkToMyContentItem, { item })
     },
     handleViewDetail (item, event) {
-      logger.info('handleViewDetail', item)
+      logger.info('handleViewDetail', item, event)
       event.preventDefault()
       event.stopPropagation()
       this.previewCurrentId = item.id
@@ -351,15 +399,17 @@ export default {
   padding: 12px 10px;
   margin-bottom: 15px;
   width: 100%;
+  border: 2px solid #fff;
 }
 .active-item {
-  background-color: fade(@outline-color, 20%);
-  color: @primary-color;
+  border: 2px solid #15C39A;
+  box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.16);
 }
 .my-content {
   padding: 0 15px 25px 15px;
   .filter-line {
     padding: 15px 0;
+    margin-bottom: 10px;
     display: flex;
     justify-content: space-between;
     .status-tab {
@@ -441,6 +491,9 @@ export default {
     }
 
     .type-owner {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
     }
   }
 
@@ -466,6 +519,7 @@ export default {
         display: flex;
         justify-content: flex-end;
         align-items: center;
+        margin-right: 20px;
 
         .update-time {
           width: 140px;
@@ -485,6 +539,19 @@ export default {
           color: #000000;
           opacity: 1;
           text-align: center;
+        }
+      }
+
+      .action-icon {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: flex-end;
+        padding: 0 10px;
+        width: 80px;
+        box-sizing: border-box;
+        img {
+          height: 18px;
         }
       }
 
@@ -532,7 +599,7 @@ export default {
         text-align: left;
         padding-left: 5px;
         display: inline-block;
-        max-width: 450px;
+        width: 450px;
         overflow: hidden;
         white-space: nowrap;
         text-overflow: ellipsis;
@@ -545,5 +612,66 @@ export default {
 
 a.delete-action {
   color: @red-4;
+}
+
+.switch-icon {
+  background: #FFFFFF;
+  border: 1px solid #F7F8FF;
+  box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.16);
+  opacity: 1;
+  border-radius: 6px;
+  padding: 5px 15px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+
+  .icon-item {
+    cursor: pointer;
+    margin-left: 5px;
+    margin-right: 5px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    svg {
+      width: 20px;
+      color: rgba(24, 37, 82, 1);
+    }
+  }
+
+  .active-icon {
+    svg {
+      color: rgba(21, 195, 154, 1);
+    }
+  }
+}
+
+.cover-image {
+  height: 150px;
+  background-size: cover;
+  background-position: center center;
+  background-repeat: no-repeat;
+  border-bottom: 1px solid #eee;
+  -webkit-transition: all 0.3s ease-in-out;
+  transition: all 0.3s ease-in-out;
+  &:hover {
+    background-size: 110%;
+    background-position: center;
+    background-repeat: no-repeat;
+    box-shadow: 0 0 2px 1px @primary-color;
+  }
+}
+
+.cover-card {
+  position: relative;
+  user-select: none;
+  .card-action-icon {
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+    img {
+      height: 18px;
+    }
+  }
 }
 </style>

@@ -278,11 +278,12 @@
     <a-modal
       v-model="selectTemplateVisible"
       :footer="null"
+      :title="null"
+      :closable="false"
       destroyOnClose
-      title="Teaching Templates"
-      width="60%"
-      @ok="selectTemplateVisible = false"
-      @cancel="selectTemplateVisible = false">
+      width="80%"
+      @ok="selectTemplateVisible = false">
+      <modal-header @close="selectTemplateVisible = false"/>
       <div class="select-template-wrapper">
         <div class="template-type-list">
           <div v-for="(item, index) in initTemplates" :key="index" :class="{'template-type-item': true, 'active-template-type' : currentTemplateType === item.value}" @click="handleToggleTemplateType(item.value)">
@@ -345,7 +346,7 @@
             Of
           </div>
           <div class="select-button">
-            <a-button style="color: #fff;border-radius: 5px;background: #15C39A; display: flex;flex-direction: row;align-items: center;justify-content: center" type="primary">
+            <a-button @click="selectTemplateVisible = true" style="color: #fff;border-radius: 5px;background: #15C39A; display: flex;flex-direction: row;align-items: center;justify-content: center" type="primary">
               <img src="~@/assets/icons/lesson/template_icon.png" />
               <div class="button-label">
                 Choose a template
@@ -2268,6 +2269,7 @@ export default {
 }
 
 .select-button {
+  padding: 0 5px;
   img {
     height: 12px;
   }
