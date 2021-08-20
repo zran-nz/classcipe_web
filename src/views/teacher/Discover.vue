@@ -74,7 +74,7 @@
                     {{ item.message }}
                   </div>
                   <div class="collaborate-action-wrapper">
-                    <div class="collaborate-content-info">
+                    <div class="collaborate-content-info" @click="handleViewDetail(item.content)">
                       <div class="type-icon">
                         <content-type-icon size="40px" :type="item.content.type"/>
                       </div>
@@ -124,7 +124,7 @@
                     {{ item.message }}
                   </div>
                   <div class="collaborate-action-wrapper">
-                    <div class="collaborate-content-info">
+                    <div class="collaborate-content-info" @click="handleViewDetail(item.content)">
                       <div class="type-icon">
                         <content-type-icon size="40px" :type="item.content.type"/>
                         <div class="name"> {{ item.content.name }}</div>
@@ -521,6 +521,7 @@
           flex-direction: row;
           align-items: center;
           justify-content: space-around;
+          cursor: pointer;
 
           .name {
             padding-left: 10px;
@@ -597,6 +598,7 @@
           flex-direction: column;
           align-items: flex-start;
           justify-content: space-between;
+          cursor: pointer;
 
           .type-icon {
             width: 100%;

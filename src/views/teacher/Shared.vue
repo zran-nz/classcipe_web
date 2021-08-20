@@ -77,7 +77,7 @@
                     {{ item.message }}
                   </div>
                   <div class="collaborate-action-wrapper">
-                    <div class="collaborate-content-info">
+                    <div class="collaborate-content-info" @click="handleViewDetail(item.content)">
                       <div class="type-icon">
                         <content-type-icon size="40px" :type="item.content.type"/>
                       </div>
@@ -127,7 +127,7 @@
                     {{ item.message }}
                   </div>
                   <div class="collaborate-action-wrapper">
-                    <div class="collaborate-content-info">
+                    <div class="collaborate-content-info" @click="handleViewDetail(item.content)">
                       <div class="type-icon">
                         <content-type-icon size="40px" :type="item.content.type"/>
                         <div class="name"> {{ item.content.name }}</div>
@@ -194,12 +194,15 @@
             <a-list-item class="my-list-item" slot="renderItem" key="item.key" slot-scope="item">
               <div class="collaborate-item">
                 <div class="collaborate-action-wrapper">
-                  <div class="collaborate-content-info">
+                  <div class="collaborate-content-info" @click="handleViewDetail(item.content)">
                     <div class="type-icon">
                       <content-type-icon size="40px" :type="item.content.type"/>
                     </div>
                     <div class="name"> {{ item.content.name }}</div>
                     <div class="time"> {{ item.createTime }}</div>
+                    <div class="author">
+                      {{ item.createBy }}
+                    </div>
                     <div class="author">
                       <template v-if="item.content.status === 0">Draft</template>
                       <template v-if="item.content.status === 1">Published</template>
@@ -248,7 +251,7 @@
             <a-list-item slot="renderItem" class="card-my-list-item" key="item.key" slot-scope="item">
               <div class="card-collaborate-item">
                 <div class="collaborate-action-wrapper">
-                  <div class="collaborate-content-info">
+                  <div class="collaborate-content-info" @click="handleViewDetail(item.content)">
                     <div class="type-icon">
                       <content-type-icon size="40px" :type="item.content.type"/>
                       <div class="name"> {{ item.content.name }}</div>
@@ -307,7 +310,7 @@
       >
         <div class="preview-wrapper">
           <div class="preview-detail" v-if="previewCurrentId && previewType">
-            <common-preview :id="previewCurrentId" :type="previewType"/>
+            <common-preview :id="previewCurrentId" :type="previewType" />
           </div>
         </div>
       </a-drawer>
@@ -629,6 +632,7 @@
           flex-direction: row;
           align-items: center;
           justify-content: space-around;
+          cursor: pointer;
 
           .name {
             padding-left: 10px;
@@ -705,6 +709,7 @@
           flex-direction: column;
           align-items: flex-start;
           justify-content: space-between;
+          cursor: pointer;
 
           .type-icon {
             width: 100%;
@@ -1016,6 +1021,7 @@
           flex-direction: row;
           align-items: center;
           justify-content: space-around;
+          cursor: pointer;
 
           .name {
             padding-left: 10px;
@@ -1092,6 +1098,7 @@
           flex-direction: column;
           align-items: flex-start;
           justify-content: space-between;
+          cursor: pointer;
 
           .type-icon {
             width: 100%;
