@@ -148,15 +148,28 @@
       <a-drawer
         destroyOnClose
         placement="right"
-        closable
-        width="800px"
+        width="700px"
+        :closable="false"
         :visible="previewVisible"
         @close="handlePreviewClose"
       >
         <div class="preview-wrapper">
-          <div class="preview-detail" v-if="previewCurrentId && previewType">
-            <common-preview :id="previewCurrentId" :type="previewType" />
-          </div>
+          <a-row class="preview-wrapper-row">
+            <a-col span="3">
+              <div class="view-back" @click="handlePreviewClose">
+                <div class="back-icon">
+                  <img src="~@/assets/icons/common/back.png" />
+                </div>
+              </div>
+            </a-col>
+            <a-col span="21">
+              <div class="detail-wrapper">
+                <div class="preview-detail" v-if="previewCurrentId && previewType">
+                  <common-preview :id="previewCurrentId" :type="previewType" />
+                </div>
+              </div>
+            </a-col>
+          </a-row>
         </div>
       </a-drawer>
     </div>
@@ -671,6 +684,32 @@ a.delete-action {
     right: 10px;
     img {
       height: 18px;
+    }
+  }
+}
+
+.preview-wrapper {
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+
+  .preview-wrapper-row {
+    width: 100%;
+    .view-back {
+      .back-icon {
+        text-align: center;
+        img {
+          width: 70px;
+          cursor: pointer;
+        }
+      }
+    }
+    .detail-wrapper {
+      background: #FFFFFF;
+      border: 1px solid #ddd;
+      box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.1);
+      opacity: 1;
+      border-radius: 10px;
     }
   }
 }
