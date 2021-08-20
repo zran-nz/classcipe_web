@@ -25,31 +25,30 @@
         <a-col span="16" offset="2" class="main-content">
           <a-card :bordered="false" :body-style="{padding: '16px'}">
             <a-form-model :model="form" class="my-form-wrapper">
-              <div class="form-block">
-                <div class="header-action">
-                  <div class="header-action-item">
-                    <a-button @click="handleEditGoogleSlide" :style="{'display': 'flex', 'align-items': 'center', 'justify-content': 'center', 'padding': '20px 15px', 'border-radius': '5px'}" type="primary" >
-                      <img src="~@/assets/icons/lesson/path.png" class="btn-icon"/>
-                      <div class="btn-text">
-                        Edit my lesson in google slide
-                      </div>
-                    </a-button>
-                  </div>
-                  <div class="header-action-item">
-                    <a-button @click="handleStartSession" :style="{'display': 'flex', 'align-items': 'center', 'justify-content': 'center', 'padding': '20px 15px', 'border-radius': '5px'}" type="primary" >
-                      <img src="~@/assets/icons/lesson/startLesson.png" class="btn-icon"/>
-                      <div class="btn-text">
-                        Start a session
-                      </div>
-                    </a-button>
+              <template v-if="mode === 'edit'">
+                <div class="form-block">
+                  <div class="header-action">
+                    <div class="header-action-item">
+                      <a-button @click="handleEditGoogleSlide" :style="{'display': 'flex', 'align-items': 'center', 'justify-content': 'center', 'padding': '20px 15px', 'border-radius': '5px'}" type="primary" >
+                        <img src="~@/assets/icons/lesson/path.png" class="btn-icon"/>
+                        <div class="btn-text">
+                          Edit my lesson in google slide
+                        </div>
+                      </a-button>
+                    </div>
+                    <div class="header-action-item">
+                      <a-button @click="handleStartSession" :style="{'display': 'flex', 'align-items': 'center', 'justify-content': 'center', 'padding': '20px 15px', 'border-radius': '5px'}" type="primary" >
+                        <img src="~@/assets/icons/lesson/startLesson.png" class="btn-icon"/>
+                        <div class="btn-text">
+                          Start a session
+                        </div>
+                      </a-button>
+                    </div>
                   </div>
                 </div>
-              </div>
-              <template v-if="mode === 'edit'">
                 <div class="form-block">
                   <a-input v-model="form.name" class="my-form-input" placeholder="Name"/>
                 </div>
-
                 <div class="form-block">
                   <div class="self-type-wrapper">
                     <div class="self-field-label">
@@ -157,54 +156,37 @@
                 <div class="form-block">
                   <custom-tag ref="customTag" :selected-tags-list="form.customTags" @change-user-tags="handleChangeUserTags"></custom-tag>
                 </div>
-
-                <div class="slide-form-block" v-show="form.presentationId">
-                  <a-divider />
-                  <div class="label-line">
-                    Pick slides to create a brilliant task and use it in your future lessons or share with global educators
-                  </div>
-                  <div class="preview-list" v-if="!thumbnailListLoading">
-                    <div :class="{'preview-item-cover': true, 'preview-item-cover-active': selectedPageIdList.indexOf(item.id) !== -1}" :style="{backgroundImage: 'url(' + item.contentUrl + ')'}" v-for="(item,index) in thumbnailList" :key="index" @click="handleToggleThumbnail(item)">
-                      <div class="template-select-icon" v-if="selectedPageIdList.indexOf(item.id) !== -1">
-                        <img src="~@/assets/icons/lesson/selected.png"/>
-                      </div>
-                    </div>
-                  </div>
-                  <div class="thumbnail-loading" v-if="thumbnailListLoading">
-                    <a-spin size="large" />
-                  </div>
-                  <div class="thumbnail-task-list">
-                    <div class="thumbnail-task-item" v-if="selectedPageIdList.length > 0">
-                      <task-form :task-prefix="'task_' + taskIndex + '_'" @finish-task="handleFinishTask" />
-                    </div>
+              </template>
+              <template class="form-block" v-if="mode === 'pick-task-slide'">
+                <div class="pick-task-slide-wrapper">
+                  <div class="slide-form-block" v-show="form.presentationId">
                     <a-divider />
-                    <div class="task-preview-list">
-                      <div class="task-preview" v-for="(task, index) in form.tasks" :key="index">
-                        <task-preview :task-data="task" />
-                        <div class="task-delete" @click="handleTaskDelete(task)">
-                          <a-icon type="delete" />
+                    <div class="label-line">
+                      Pick slides to create a brilliant task and use it in your future lessons or share with global educators
+                    </div>
+                    <div class="preview-list" v-if="!thumbnailListLoading">
+                      <div :class="{'preview-item-cover': true, 'preview-item-cover-active': selectedPageIdList.indexOf(item.id) !== -1}" :style="{backgroundImage: 'url(' + item.contentUrl + ')'}" v-for="(item,index) in thumbnailList" :key="index" @click="handleToggleThumbnail(item)">
+                        <div class="template-select-icon" v-if="selectedPageIdList.indexOf(item.id) !== -1">
+                          <img src="~@/assets/icons/lesson/selected.png"/>
                         </div>
                       </div>
                     </div>
-                  </div>
-                </div>
-              </template>
-              <template class="form-block" v-if="mode === 'create'">
-                <div class="lesson-action-wrapper">
-                  <div class="action-item-line">
-                    <img src="~@/assets/icons/lesson/Presentation-Collaboration@2x.png" alt="" class="action-img">
-                    <div class="action-label">
-                      <a-button shape="round" @click="handleShowSelectTemplate" class="action-item">
-                        {{ $t('teacher.add-lesson.choose-my-content') }}
-                      </a-button>
+                    <div class="thumbnail-loading" v-if="thumbnailListLoading">
+                      <a-spin size="large" />
                     </div>
-                  </div>
-                  <div class="action-item-line">
-                    <img src="~@/assets/icons/lesson/Teamwork-Video-Production@2x.png" alt="" class="action-img">
-                    <div class="action-label">
-                      <a-button shape="round" @click="handleShowSelectMyContent" :loading="creating" class="action-item">
-                        Create
-                      </a-button>
+                    <div class="thumbnail-task-list">
+                      <div class="thumbnail-task-item" v-if="selectedPageIdList.length > 0">
+                        <task-form :task-prefix="'task_' + taskIndex + '_'" @finish-task="handleFinishTask" />
+                      </div>
+                      <a-divider />
+                      <div class="task-preview-list">
+                        <div class="task-preview" v-for="(task, index) in form.tasks" :key="index">
+                          <task-preview :task-data="task" />
+                          <div class="task-delete" @click="handleTaskDelete(task)">
+                            <a-icon type="delete" />
+                          </div>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -214,6 +196,7 @@
         </a-col>
       </a-row>
       <collaborate-content ref="collaborate"/>
+
       <a-modal
         v-model="selectLinkContentVisible"
         :footer="null"
@@ -475,6 +458,43 @@
         </div>
       </a-modal>
 
+      <a-modal
+        class="my-slide-pick-modal"
+        v-model="selectedSlideVisible"
+        :footer="null"
+        :title="null"
+        destroyOnClose
+        width="700px"
+        :closable="false">
+        <div class="select-slide-wrapper">
+          <modal-header @close="selectedSlideVisible = false" :white="true"/>
+          <div class="modal-title">
+            Great news!
+          </div>
+          <div class="main-tips">
+            <div class="left-img">
+              <img src="~@/assets/icons/lesson/woniu.png" />
+            </div>
+            <div class="right-img-text">
+              <img src="~@/assets/icons/lesson/quote.png" />
+              <div class="img-text">
+                Pick slides to create a brilliant task and use it in your future lessons or share with global educators
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="slide-action row-flex-center">
+          <div class="slide-btn-wrapper">
+            <a-button @click="handleCancelPickTaskSlide" style="background: #D7D9D9;border: 1px solid #D7D9D9;border-radius: 25px;color: #000;" class="slide-btn-item slide-btn-item-no " type="primary">
+              Not this time
+            </a-button>
+            <a-button @click="handleAddTaskWithSlide" style="background: #15C39A;;border: 1px solid #15C39A;border-radius: 25px;color: #fff;" class="slide-btn-item slide-btn-item-yes" type="primary">
+              Pick now
+            </a-button>
+          </div>
+        </div>
+      </a-modal>
+
       <a-skeleton :loading="contentLoading" active>
       </a-skeleton>
     </a-card>
@@ -665,7 +685,9 @@ export default {
       publishing: false,
       initTemplates: [],
       initBlooms: [],
-      uploading: false
+      uploading: false,
+
+      selectedSlideVisible: false
     }
   },
   computed: {
@@ -688,17 +710,11 @@ export default {
   },
   created () {
     logger.info('add lesson created ' + this.lessonId + ' ' + this.$route.path)
-    this.mode = this.lessonId ? 'edit' : 'create'
 
     // 初始化关联事件处理
     MyContentEventBus.$on(MyContentEvent.LinkToMyContentItem, this.handleLinkMyContent)
     MyContentEventBus.$on(MyContentEvent.ToggleSelectContentItem, this.handleToggleSelectContentItem)
     this.initData()
-  },
-  mounted () {
-    if (this.mode === 'create') {
-      this.showCreateChoice = true
-    }
   },
   beforeDestroy () {
     MyContentEventBus.$off(MyContentEvent.LinkToMyContentItem, this.handleLinkMyContent)
@@ -838,7 +854,7 @@ export default {
           this.loadThumbnail()
         } else {
           // 未成功绑定ppt
-          this.handleShowSelectMyContent()
+          // this.handleShowSelectMyContent()
         }
         logger.info('after restoreLesson', this.form, this.questionDataObj)
       }).finally(() => {
@@ -1051,6 +1067,7 @@ export default {
           this.$message.error(response.message)
         }
       }).finally(() => {
+        this.selectedSlideVisible = true
         this.lessonSaving = false
       })
     },
@@ -1069,6 +1086,7 @@ export default {
         this.$logger.info('UpdateContentStatus response', response)
         // this.$message.success('Publish success')
         this.form.status = 1
+        this.selectedSlideVisible = true
       }).then(() => {
         this.$message.success(this.$t('teacher.add-lesson.publish-success'))
         this.form.status = 1
@@ -1171,7 +1189,6 @@ export default {
             this.form.presentationId = response.result.presentationId
             this.presentationLink = response.result.presentationLink
             this.selectTemplateVisible = false
-            this.mode = 'edit'
             this.viewInGoogleSlideVisible = true
             this.$router.replace({
               path: '/teacher/add-lesson/' + response.result.id
@@ -1490,6 +1507,18 @@ export default {
       } else {
         this.$message.warn('please create slide first!')
       }
+    },
+
+    handleAddTaskWithSlide () {
+      this.$logger.info('handleAddTaskWithSlide')
+      this.mode = 'pick-task-slide'
+      this.selectedSlideVisible = false
+    },
+
+    handleCancelPickTaskSlide () {
+      this.$logger.info('handleCancelPickTaskSlide')
+      this.selectedSlideVisible = false
+      this.mode = 'edit'
     }
   }
 }
@@ -2541,5 +2570,98 @@ export default {
 
 .label-line {
   text-align: center;
+}
+
+.my-slide-pick-modal {
+  padding: 0;
+  box-sizing: border-box;
+  .ant-modal-body {
+    background: rgba(15, 53, 56, 0.5);
+    padding: 0;
+    box-sizing: border-box;
+  }
+}
+.select-slide-wrapper {
+  padding: 15px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background: rgba(15, 53, 56, 1);
+  .modal-title {
+    font-size: 20px;
+    font-family: FZCuYuan-M03S;
+    font-weight: 400;
+    line-height: 24px;
+    color: #FFFFFF;
+    margin-bottom: 10px;
+    margin-top: 10px;
+  }
+
+  .main-tips {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    width: 500px;
+    height: 250px;
+    .left-img {
+      height: 250px;
+      display: flex;
+      flex-direction: row;
+      align-items: flex-end;
+      width: 250px;
+
+      img {
+        width: 250px;
+      }
+    }
+    .right-img-text {
+      height: 250px;
+      display: flex;
+      flex-direction: row;
+      align-items: flex-start;
+      width: 250px;
+      position: relative;
+      img {
+        width: 250px;
+      }
+
+      .img-text {
+        position: absolute;
+        font-size: 18px;
+        width: 190px;
+        height: 150px;
+        margin: auto;
+        left: 35px;
+        top: 40px;
+        font-family: FZCuYuan-M03S;
+        font-weight: 400;
+        line-height: 20px;
+        color: #0F3538;
+      }
+    }
+  }
+}
+
+.slide-action {
+  padding: 25px 0 30px 0;
+  background: rgba(15, 53, 56, 1);
+
+  .slide-btn-wrapper {
+    display: flex;
+    justify-content: center;
+    .slide-btn-item {
+      margin: 0 10px;
+    }
+
+    .slide-btn-item-no {
+
+    }
+
+    .slide-btn-item-yes {
+
+    }
+  }
 }
 </style>

@@ -1,7 +1,8 @@
 <template>
   <div class="my-modal-header">
     <div class="close-icon" @click="handleClickClose">
-      <img src="~@/assets/icons/common/close.png" />
+      <img src="~@/assets/icons/common/close.png" v-if="!white" />
+      <img src="~@/assets/icons/common/close_white.png" v-if="white"/>
     </div>
   </div>
 </template>
@@ -9,6 +10,12 @@
 <script>
 export default {
   name: 'ModalHeader',
+  props: {
+    white: {
+      type: Boolean,
+      default: false
+    }
+  },
   methods: {
     handleClickClose () {
       this.$logger.info('handleClickClose')
@@ -20,6 +27,7 @@ export default {
 
 <style scoped>
 .my-modal-header {
+  width: 100%;
   display: flex;
   flex-direction: row;
   justify-content: flex-end;
