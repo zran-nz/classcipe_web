@@ -252,7 +252,7 @@
         :title="null"
         :closable="false"
         destroyOnClose
-        width="80%"
+        width="1100px"
         @ok="selectTemplateVisible = false">
         <modal-header @close="selectTemplateVisible = false"/>
 

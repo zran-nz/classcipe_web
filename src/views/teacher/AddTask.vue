@@ -28,10 +28,6 @@
               <div class="form-block" v-if="mode === 'edit'">
                 <a-form-model-item :label="$t('teacher.add-task.task-name')" class="task-type-line">
                   <a-input v-model="form.name" />
-                  <!--    <div class="task-type">
-                    <div :class="{'task-type-item': true, 'active-task-type': form.taskType === 'FA'}" @click="handleSelectTaskType('FA')">FA</div>
-                    <div :class="{'task-type-item': true, 'active-task-type': form.taskType === 'SA'}" @click="handleSelectTaskType('SA')">SA</div>
-                  </div>-->
                 </a-form-model-item>
                 <div class="form-block">
                   <a-row :gutter="16" class="task-type-line">
@@ -217,7 +213,7 @@
         :footer="null"
         destroyOnClose
         title="Teaching Templates"
-        width="60%"
+        width="1100px"
         @ok="selectTemplateVisible = false"
         @cancel="selectTemplateVisible = false">
         <div class="select-template-wrapper">
@@ -1954,6 +1950,7 @@ export default {
     }
   }
 }
+
 .self-field-label {
   display: flex;
   flex-direction: row;
@@ -1961,6 +1958,135 @@ export default {
   justify-content: flex-end;
   line-height: 32px;
   padding-right: 10px;
+}
+
+.select-type-wrapper {
+  margin-bottom: 20px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+
+  .select-type {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .select-tips {
+    font-family: Inter-Bold;
+    line-height: 24px;
+    color: #000000;
+    padding: 0 10px;
+  }
+}
+
+.select-button {
+  padding: 0 5px;
+  img {
+    height: 12px;
+  }
+
+  .button-label {
+    padding: 0 5px;
+  }
+}
+
+.btn-icon {
+  height: 20px;
+}
+
+.btn-text {
+  padding: 0 5px;
+}
+
+.header-action {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  align-items: center;
+
+  .header-action-item {
+    padding-right: 20px;
+  }
+}
+
+.form-block {
+  margin-bottom: 35px;
+  width: 600px;
+}
+
+.self-type-wrapper {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+  .self-field-label {
+    width: 100px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    .lesson-type-item {
+      margin-right: 10px;
+      width: 33px;
+      height: 33px;
+      border-radius: 33px;
+      border: 2px solid #ddd;
+      font-weight: bold;
+      display: flex;
+      color: #bbb;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .green-active-task-type {
+      background: rgba(21, 195, 154, 0.1);
+      border: 2px solid #15C39A;
+      border-radius: 50%;
+      font-weight: bold;
+      color: #15C39A;
+    }
+
+    .red-active-task-type {
+      background: rgba(255, 51, 85, 0.1);
+      border: 2px solid #FF3355;
+      border-radius: 50%;
+      opacity: 1;
+      font-weight: bold;
+      color: #FF3355;
+      opacity: 1;
+    }
+  }
+
+  .self-type-filter {
+    width: 500px;
+  }
+}
+
+.subject-grade-wrapper {
+  width: 600px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+
+  .select-item {
+    width: 280px;
+  }
+}
+
+.form-header {
+  z-index: 1000;
+  position: fixed;
+  top: 64px;
+  left: 0;
+  right: 0;
+}
+
+.my-full-form-wrapper {
+  margin-top: 70px;
 }
 
 </style>
