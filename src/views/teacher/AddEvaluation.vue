@@ -1,206 +1,197 @@
 <template>
-  <a-card :bordered="false" :bodyStyle="{ padding: '16px 24px', height: '100%', minHeight: '500px' }">
-    <a-row class="evaluation-header">
-      <a-col span="12">
-        <a-space>
-          <a-button shape="round" class="nav-back-btn" type="link" @click="goBack"> <a-icon type="left" /> {{ $t('teacher.add-evaluation.back') }}</a-button>
-          <span class="unit-last-change-time" v-if="lastChangeSavedTime">
-            <span class="unit-nav-title">
-              {{ form.name }}
-            </span>
-            <a-divider type="vertical" v-if="!!form.name" />
-            {{ $t('teacher.add-evaluation.last-change-saved-at-time', {time: lastChangeSavedTime}) }}
-          </span>
-        </a-space>
-      </a-col>
-      <a-col span="12" class="unit-right-action">
-        <a-space>
-          <a-button shape="round" @click="handleSaveEvaluation" :loading="saving"> <a-icon type="save" /> {{ $t('teacher.add-evaluation.save') }}</a-button>
-          <a-button shape="round" type="primary" @click="handlePublishEvaluation" :loading="publishing"> <a-icon type="cloud-upload" /> {{ $t('teacher.add-evaluation.publish') }}</a-button>
-          <a-button @click="handleStartCollaborate"><a-icon type="share-alt" ></a-icon>Collaborate</a-button>
-        </a-space>
-      </a-col>
-    </a-row>
-    <a-row class="unit-content" v-if="!contentLoading">
-      <a-col span="4">
-        <div class="unit-menu-list">
-          <div class="menu-category-item">
-            <associate-sidebar :name="form.name" :type="contentType.evaluation" :id="evaluationId" ref="associate"/>
+  <div class="my-full-form-wrapper">
+    <div class="form-header">
+      <common-form-header
+        :name="form.name"
+        :last-change-saved-time="lastChangeSavedTime"
+        @back="goBack"
+        @save="handleSaveEvaluation"
+        @publish="handlePublishEvaluation"
+        @collaborate="handleStartCollaborate"
+      />
+    </div>
+    <a-card :bordered="false" :bodyStyle="{ padding: '16px 24px', height: '100%', minHeight: '500px' }">
+      <a-row class="unit-content" v-if="!contentLoading">
+        <a-col span="4">
+          <div class="unit-menu-list">
+            <div class="menu-category-item">
+              <associate-sidebar :name="form.name" :type="contentType.evaluation" :id="evaluationId" ref="associate"/>
+            </div>
+            <div class="menu-category-item">
+              <action-bar @create="selectAddContentTypeVisible = true" @link="selectLinkContentVisible = true"/>
+            </div>
           </div>
-          <div class="menu-category-item">
-            <action-bar @create="selectAddContentTypeVisible = true" @link="selectLinkContentVisible = true"/>
-          </div>
-        </div>
-      </a-col>
-      <a-col span="20" class="main-content">
-        <div class="rubric-content">
-          <a-row :gutter="[16,24]">
-            <a-col span="18">
-              <div class="rubric-wrapper">
-                <div class="rubric-name">
-                  <a-input v-model="form.name" aria-placeholder="Name of the evaluation" placeholder="Name of the evaluation"/>
+        </a-col>
+        <a-col span="20" class="main-content">
+          <div class="rubric-content">
+            <a-row :gutter="[16,24]">
+              <a-col span="18">
+                <div class="rubric-wrapper">
+                  <div class="rubric-name">
+                    <a-input v-model="form.name" aria-placeholder="Name of the evaluation" placeholder="Name of the evaluation"/>
+                  </div>
+                  <div class="rubric-item">
+                    <rubric-one
+                      ref="rubric"
+                      :description-list="evaluationTableList"
+                      :init-raw-headers="initRawHeaders"
+                      :init-raw-data="initRawData"
+                      :allow-add-column="form.tableMode === 1"
+                      v-if="form.tableMode !== 0"/>
+                  </div>
                 </div>
-                <div class="rubric-item">
-                  <rubric-one
-                    ref="rubric"
-                    :description-list="evaluationTableList"
-                    :init-raw-headers="initRawHeaders"
-                    :init-raw-data="initRawData"
-                    :allow-add-column="form.tableMode === 1"
-                    v-if="form.tableMode !== 0"/>
-                </div>
-              </div>
-            </a-col>
-            <a-col span="6">
-              <div class="toggle-wrapper">
-                <div class="self-type">
-                  <div class="self-type-item">
-                    <div class="name" >
-                      Student Evaluation
-                    </div>
-                    <div class="action-item">
-                      <a-switch v-model="se"/>
-                    </div>
-                    <div class="name">
-                      Peer Evaluation
-                    </div>
-                    <div class="action-item">
-                      <a-switch v-model="pe"/>
+              </a-col>
+              <a-col span="6">
+                <div class="toggle-wrapper">
+                  <div class="self-type">
+                    <div class="self-type-item">
+                      <div class="name" >
+                        Student Evaluation
+                      </div>
+                      <div class="action-item">
+                        <a-switch v-model="se"/>
+                      </div>
+                      <div class="name">
+                        Peer Evaluation
+                      </div>
+                      <div class="action-item">
+                        <a-switch v-model="pe"/>
+                      </div>
                     </div>
                   </div>
                 </div>
+              </a-col>
+            </a-row>
+          </div>
+        </a-col>
+      </a-row>
+      <collaborate-content ref="collaborate"/>
+      <a-modal
+        v-model="selectLinkContentVisible"
+        :footer="null"
+        :maskClosable="false"
+        :closable="true"
+        destroyOnClose
+        width="80%"
+        @ok="selectLinkContentVisible = false"
+        @cancel="selectLinkContentVisible = false">
+        <div class="link-content-wrapper">
+          <my-content-selector :filter-type-list="['task', 'lesson']" :mode="displayMode.Evaluatioin"/>
+        </div>
+      </a-modal>
+
+      <a-modal
+        v-model="associateEvaluationVisible"
+        :footer="null"
+        :maskClosable="false"
+        :closable="false"
+        destroyOnClose
+        @ok="associateEvaluationVisible = false"
+        @cancel="associateEvaluationVisible = false">
+        <div class="evaluation-modal">
+          <div class="evaluation-header">
+            <div class="my-modal-header">
+              <div class="my-modal-icon">
+                <img src="~@/assets/icons/evaluation/evaluation_icon.png" alt="rubric">
               </div>
-            </a-col>
-          </a-row>
+              <div class="my-modal-title">
+                Create evaluation
+              </div>
+            </div>
+          </div>
+          <div class="associate-evaluation">
+            <div class="tips-area">
+              <img src="@/assets/icons/evaluation/Collaboration-Develope-Website@2x.png" alt="">
+            </div>
+            <div class="tips">
+              Evaluation can be added to a lesson or task
+            </div>
+          </div>
+          <div class="associate-my-content-action">
+            <a-button shape="round" @click="handleSkipLinkMyContent" class="action-item">Skip</a-button>
+            <a-button shape="round" type="primary" @click="selectLinkContentVisible = true">Add</a-button>
+          </div>
         </div>
-      </a-col>
-    </a-row>
-    <collaborate-content ref="collaborate"/>
-    <a-modal
-      v-model="selectLinkContentVisible"
-      :footer="null"
-      :maskClosable="false"
-      :closable="true"
-      destroyOnClose
-      width="80%"
-      @ok="selectLinkContentVisible = false"
-      @cancel="selectLinkContentVisible = false">
-      <div class="link-content-wrapper">
-        <my-content-selector :filter-type-list="['task', 'lesson']" :mode="displayMode.Evaluatioin"/>
-      </div>
-    </a-modal>
+      </a-modal>
 
-    <a-modal
-      v-model="associateEvaluationVisible"
-      :footer="null"
-      :maskClosable="false"
-      :closable="false"
-      destroyOnClose
-      @ok="associateEvaluationVisible = false"
-      @cancel="associateEvaluationVisible = false">
-      <div class="evaluation-modal">
-        <div class="evaluation-header">
-          <div class="my-modal-header">
-            <div class="my-modal-icon">
-              <img src="~@/assets/icons/evaluation/evaluation_icon.png" alt="rubric">
+      <a-modal
+        v-model="selectRubricVisible"
+        :footer="null"
+        :maskClosable="false"
+        :closable="false"
+        width="600px"
+        destroyOnClose>
+        <div class="rubric">
+          <div class="rubric-header">
+            <div class="my-modal-header">
+              <div class="my-modal-icon">
+                <img src="~@/assets/icons/evaluation/rubric_icon.png" alt="rubric">
+              </div>
+              <div class="my-modal-title">
+                Choose rubric format
+              </div>
             </div>
-            <div class="my-modal-title">
-              Create evaluation
+          </div>
+          <div class="select-rubric-wrapper">
+            <div
+              :class="{
+                'rubric-item': true,
+                'active-rubric': tableMode === 1
+              }"
+              @click="handleSelectRubric(1)"
+            >
+              <div class="rubric-preview">
+                <img src="~@/assets/icons/evaluation/rubric1.png" alt="rubric">
+              </div>
+              <div class="rubric-active-icon">
+                <a-icon type="check-circle" theme="filled"/>
+              </div>
+            </div>
+            <div
+              :class="{
+                'rubric-item': true,
+                'active-rubric': tableMode === 2
+              }"
+              @click="handleSelectRubric(2)"
+            >
+              <div class="rubric-preview">
+                <img src="~@/assets/icons/evaluation/rubric2.png" alt="rubric">
+              </div>
+              <div class="rubric-active-icon">
+                <a-icon type="check-circle" theme="filled"/>
+              </div>
             </div>
           </div>
-        </div>
-        <div class="associate-evaluation">
-          <div class="tips-area">
-            <img src="@/assets/icons/evaluation/Collaboration-Develope-Website@2x.png" alt="">
-          </div>
-          <div class="tips">
-            Evaluation can be added to a lesson or task
+          <div class="select-rubric-action">
+            <a-button shape="round" style="width: 80px;" type="primary" @click="handleEnsureSelectRubric">Ok</a-button>
           </div>
         </div>
-        <div class="associate-my-content-action">
-          <a-button shape="round" @click="handleSkipLinkMyContent" class="action-item">Skip</a-button>
-          <a-button shape="round" type="primary" @click="selectLinkContentVisible = true">Add</a-button>
-        </div>
-      </div>
-    </a-modal>
+      </a-modal>
 
-    <a-modal
-      v-model="selectRubricVisible"
-      :footer="null"
-      :maskClosable="false"
-      :closable="false"
-      width="600px"
-      destroyOnClose>
-      <div class="rubric">
-        <div class="rubric-header">
-          <div class="my-modal-header">
-            <div class="my-modal-icon">
-              <img src="~@/assets/icons/evaluation/rubric_icon.png" alt="rubric">
-            </div>
-            <div class="my-modal-title">
-              Choose rubric format
-            </div>
-          </div>
+      <a-modal
+        v-model="showRelevantQuestionVisible"
+        :footer="null"
+        :maskClosable="false"
+        :closable="false"
+        destroyOnClose
+        top="50px"
+        width="50%"
+        title="Select existing tags from associated content for insertion"
+        @ok="showRelevantQuestionVisible = false"
+        @cancel="showRelevantQuestionVisible = false">
+        <div class="select-relevant-tag">
+          <relevant-tag-selector :relevant-question-list="relevantQuestionList" @update-selected="handleUpdateSelected"/>
         </div>
-        <div class="select-rubric-wrapper">
-          <div
-            :class="{
-              'rubric-item': true,
-              'active-rubric': tableMode === 1
-            }"
-            @click="handleSelectRubric(1)"
-          >
-            <div class="rubric-preview">
-              <img src="~@/assets/icons/evaluation/rubric1.png" alt="rubric">
-            </div>
-            <div class="rubric-active-icon">
-              <a-icon type="check-circle" theme="filled"/>
-            </div>
-          </div>
-          <div
-            :class="{
-              'rubric-item': true,
-              'active-rubric': tableMode === 2
-            }"
-            @click="handleSelectRubric(2)"
-          >
-            <div class="rubric-preview">
-              <img src="~@/assets/icons/evaluation/rubric2.png" alt="rubric">
-            </div>
-            <div class="rubric-active-icon">
-              <a-icon type="check-circle" theme="filled"/>
-            </div>
-          </div>
+        <div class="action-line">
+          <a-button shape="round" @click="handleCancelSelectedRelevant" class="button-item">Cancel</a-button>
+          <a-button shape="round" @click="handleConfirmSelectedRelevant" type="primary" class="button-item">Confirm</a-button>
         </div>
-        <div class="select-rubric-action">
-          <a-button shape="round" style="width: 80px;" type="primary" @click="handleEnsureSelectRubric">Ok</a-button>
-        </div>
-      </div>
-    </a-modal>
+      </a-modal>
 
-    <a-modal
-      v-model="showRelevantQuestionVisible"
-      :footer="null"
-      :maskClosable="false"
-      :closable="false"
-      destroyOnClose
-      top="50px"
-      width="50%"
-      title="Select existing tags from associated content for insertion"
-      @ok="showRelevantQuestionVisible = false"
-      @cancel="showRelevantQuestionVisible = false">
-      <div class="select-relevant-tag">
-        <relevant-tag-selector :relevant-question-list="relevantQuestionList" @update-selected="handleUpdateSelected"/>
-      </div>
-      <div class="action-line">
-        <a-button shape="round" @click="handleCancelSelectedRelevant" class="button-item">Cancel</a-button>
-        <a-button shape="round" @click="handleConfirmSelectedRelevant" type="primary" class="button-item">Confirm</a-button>
-      </div>
-    </a-modal>
-
-    <a-skeleton :loading="contentLoading" active>
-    </a-skeleton>
-  </a-card>
+      <a-skeleton :loading="contentLoading" active>
+      </a-skeleton>
+    </a-card>
+  </div>
 </template>
 
 <script>
@@ -225,6 +216,7 @@ import AssociateSidebar from '@/components/Associate/AssociateSidebar'
 import Collaborate from '@/components/UnitPlan/Collaborate'
 import ActionBar from '@/components/Associate/ActionBar'
 import CollaborateContent from '@/components/Collaborate/CollaborateContent'
+import CommonFormHeader from '@/components/Common/CommonFormHeader'
 
 const TagOriginType = {
   Origin: 'Origin',
@@ -237,6 +229,7 @@ const TagOriginType = {
 export default {
   name: 'AddEvaluation',
   components: {
+    CommonFormHeader,
     ActionBar,
     RubricOne,
     ContentTypeIcon,
@@ -340,6 +333,8 @@ export default {
         this.form.id = evaluationData.id
         this.form.se = evaluationData.se
         this.form.pe = evaluationData.pe
+        this.form.createTime = evaluationData.createTime
+        this.form.updateTime = evaluationData.updateTime
         this.pe = evaluationData.pe === 1
         this.se = evaluationData.se === 1
         this.form.tableMode = evaluationData.tableMode

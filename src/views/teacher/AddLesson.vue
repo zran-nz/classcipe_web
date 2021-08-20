@@ -1806,7 +1806,7 @@ export default {
     .header-title {
       padding: 15px 0 25px;
       .header-title-text {
-        font-size: 30px;
+        font-size: 20px;
         font-family: Inter-Bold;
         line-height: 24px;
         color: #182552;
@@ -1826,7 +1826,7 @@ export default {
         position: relative;
         margin-bottom: 10px;
         .task-type {
-          width: 100px;
+          min-width: 100px;
           display: flex;
           flex-direction: row;
           align-items: center;
@@ -1865,7 +1865,7 @@ export default {
       }
 
       .second-filter-line {
-        padding-left: 93px;
+        padding-left: 100px;
         display: flex;
         flex-direction: row;
         align-items: center;

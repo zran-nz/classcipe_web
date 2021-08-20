@@ -98,6 +98,9 @@ export default {
       default: ''
     }
   },
+  created () {
+    this.$logger.info('form header name:' + this.name + ' lastChangeSavedTime:' + this.lastChangeSavedTime)
+  },
   methods: {
     handleBack () {
       this.$logger.info('handleBack')

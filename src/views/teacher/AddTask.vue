@@ -1,371 +1,346 @@
 <template>
-  <a-card :bordered="false" :bodyStyle="{ padding: '16px 24px', height: '100%', minHeight: '500px' }">
-    <a-row class="task-header">
-      <a-col span="12">
-        <a-space>
-          <a-button class="nav-back-btn" type="link" @click="goBack"> <a-icon type="left" /> {{ $t('teacher.add-task.back') }}</a-button>
-          <span class="unit-last-change-time" v-if="lastChangeSavedTime">
-            <span class="unit-nav-title">
-              {{ form.name }}
-            </span>
-            <a-divider type="vertical" v-if="!!form.name" />
-            {{ $t('teacher.add-task.last-change-saved-at-time', {time: lastChangeSavedTime}) }}
-          </span>
-        </a-space>
-      </a-col>
-      <a-col span="12" class="unit-right-action">
-        <a-space>
-          <a-button @click="handleSaveTask" :loading="saving"> <a-icon type="save" /> {{ $t('teacher.add-task.save') }}</a-button>
-          <a-button type="primary" @click="handlePublishTask" :loading="publishing"> <a-icon type="cloud-upload" /> {{ $t('teacher.add-task.publish') }}</a-button>
-          <a-button @click="handleStartCollaborate"><a-icon type="share-alt" ></a-icon>Collaborate</a-button>
-          <a-dropdown >
-            <a-icon type="more" />
-            <a-menu slot="overlay" style="top:10px">
-              <a-menu-item>
-                <a :href="'https://docs.google.com/presentation/d/' + form.presentationId">
-                  {{ $t('teacher.my-content.edit-slide-task') }}
-                </a>
-              </a-menu-item>
-              <a-menu-item>
-                <a @click="handleStartSession()">
-                  {{ $t('teacher.my-content.action-session-new') }}
-                </a>
-              </a-menu-item>
-            </a-menu>
-          </a-dropdown>
-
-        </a-space>
-      </a-col>
-    </a-row>
-    <a-row class="unit-content" v-if="!contentLoading">
-      <a-col span="4">
-        <div class="unit-menu-list">
-          <div class="menu-category-item">
-            <associate-sidebar :name="form.name" :type="contentType.task" :id="taskId" ref="associate"/>
+  <div class="my-full-form-wrapper">
+    <div class="form-header">
+      <common-form-header
+        :name="form.name"
+        :last-change-saved-time="lastChangeSavedTime"
+        @back="goBack"
+        @save="handleSaveTask"
+        @publish="handlePublishTask"
+        @collaborate="handleStartCollaborate"
+      />
+    </div>
+    <a-card :bordered="false" :bodyStyle="{ padding: '16px 24px', height: '100%', minHeight: '500px' }">
+      <a-row class="unit-content" v-if="!contentLoading">
+        <a-col span="4">
+          <div class="unit-menu-list">
+            <div class="menu-category-item">
+              <associate-sidebar :name="form.name" :type="contentType.task" :id="taskId" ref="associate"/>
+            </div>
+            <div class="menu-category-item">
+              <action-bar @create="selectAddContentTypeVisible = true" @link="selectLinkContentVisible = true"/>
+            </div>
           </div>
-          <div class="menu-category-item">
-            <action-bar @create="selectAddContentTypeVisible = true" @link="selectLinkContentVisible = true"/>
-          </div>
-        </div>
-      </a-col>
-      <a-col span="20" class="main-content">
-        <a-card :bordered="false" :body-style="{padding: '16px'}">
-          <a-form-model :model="form" :label-col="labelCol" :wrapper-col="wrapperCol" >
-            <div class="form-block" v-if="mode === 'edit'">
-              <a-form-model-item :label="$t('teacher.add-task.task-name')" class="task-type-line">
-                <a-input v-model="form.name" />
-                <!--    <div class="task-type">
-                  <div :class="{'task-type-item': true, 'active-task-type': form.taskType === 'FA'}" @click="handleSelectTaskType('FA')">FA</div>
-                  <div :class="{'task-type-item': true, 'active-task-type': form.taskType === 'SA'}" @click="handleSelectTaskType('SA')">SA</div>
-                </div>-->
-              </a-form-model-item>
-              <div class="form-block">
-                <a-row :gutter="16" class="task-type-line">
-                  <a-col span="8">
-                    <div class="self-field-label">
-                      <div class="task-type">
-                        <a-button type="primary" shape="circle" :class="{'task-type-item': true, 'active-task-type': form.taskType === 'FA'}" @click="handleSelectTaskType('FA')">FA</a-button>
-                        <a-button type="primary" shape="circle" :class="{'task-type-item': true, 'active-task-type': form.taskType === 'SA'}" @click="handleSelectTaskType('SA')">SA</a-button>
+        </a-col>
+        <a-col span="20" class="main-content">
+          <a-card :bordered="false" :body-style="{padding: '16px'}">
+            <a-form-model :model="form" :label-col="labelCol" :wrapper-col="wrapperCol" >
+              <div class="form-block" v-if="mode === 'edit'">
+                <a-form-model-item :label="$t('teacher.add-task.task-name')" class="task-type-line">
+                  <a-input v-model="form.name" />
+                  <!--    <div class="task-type">
+                    <div :class="{'task-type-item': true, 'active-task-type': form.taskType === 'FA'}" @click="handleSelectTaskType('FA')">FA</div>
+                    <div :class="{'task-type-item': true, 'active-task-type': form.taskType === 'SA'}" @click="handleSelectTaskType('SA')">SA</div>
+                  </div>-->
+                </a-form-model-item>
+                <div class="form-block">
+                  <a-row :gutter="16" class="task-type-line">
+                    <a-col span="8">
+                      <div class="self-field-label">
+                        <div class="task-type">
+                          <a-button type="primary" shape="circle" :class="{'task-type-item': true, 'active-task-type': form.taskType === 'FA'}" @click="handleSelectTaskType('FA')">FA</a-button>
+                          <a-button type="primary" shape="circle" :class="{'task-type-item': true, 'active-task-type': form.taskType === 'SA'}" @click="handleSelectTaskType('SA')">SA</a-button>
+                        </div>
                       </div>
-                    </div>
-                  </a-col>
-                  <a-col span="14">
-                    <a-select v-model="form.bloomCategories" placeholder="Choose the Bloom Taxonomy Categories" :allowClear="true" >
-                      <a-select-option :value="item.value" v-for="(item, index) in initBlooms" :key="index" >
-                        {{ item.title }}
-                      </a-select-option>
-                    </a-select>
-                  </a-col>
-                </a-row>
-              </div>
+                    </a-col>
+                    <a-col span="14">
+                      <a-select v-model="form.bloomCategories" placeholder="Choose the Bloom Taxonomy Categories" :allowClear="true" >
+                        <a-select-option :value="item.value" v-for="(item, index) in initBlooms" :key="index" >
+                          {{ item.title }}
+                        </a-select-option>
+                      </a-select>
+                    </a-col>
+                  </a-row>
+                </div>
 
-              <a-form-model-item :label="$t('teacher.add-unit-plan.image')" class="img-wrapper">
-                <a-upload-dragger
-                  name="file"
-                  accept="image/png, image/jpeg"
-                  :showUploadList="false"
-                  :customRequest="handleUploadImage"
-                >
-                  <div class="delete-img" @click="handleDeleteImage($event)" v-show="form.image">
-                    <a-icon type="close-circle" />
+                <a-form-model-item :label="$t('teacher.add-unit-plan.image')" class="img-wrapper">
+                  <a-upload-dragger
+                    name="file"
+                    accept="image/png, image/jpeg"
+                    :showUploadList="false"
+                    :customRequest="handleUploadImage"
+                  >
+                    <div class="delete-img" @click="handleDeleteImage($event)" v-show="form.image">
+                      <a-icon type="close-circle" />
+                    </div>
+                    <template v-if="uploading">
+                      <div class="upload-container">
+                        <p class="ant-upload-drag-icon">
+                          <a-icon type="cloud-upload" />
+                        </p>
+                        <p class="ant-upload-text">
+                          <a-spin />
+                          <span class="uploading-tips">{{ $t('teacher.add-unit-plan.uploading') }}</span>
+                        </p>
+                      </div>
+                    </template>
+                    <template v-if="!uploading && form && form.image">
+                      <div class="image-preview">
+                        <img :src="form.image" alt="">
+                      </div>
+                    </template>
+                    <template v-if="!uploading && form && !form.image">
+                      <div class="upload-container">
+                        <p class="ant-upload-drag-icon">
+                          <a-icon type="picture" />
+                        </p>
+                        <p class="ant-upload-text">
+                          {{ $t('teacher.add-unit-plan.upload-a-picture') }}
+                        </p>
+                      </div>
+                    </template>
+                  </a-upload-dragger>
+                </a-form-model-item>
+
+                <a-form-model-item :label="$t('teacher.add-task.overview')" class="task-audio-line">
+                  <a-textarea v-model="form.overview" allow-clear />
+                  <div class="audio-wrapper" v-if="form.audioUrl">
+                    <audio :src="form.audioUrl" controls />
+                    <span @click="form.audioUrl = null"><a-icon type="delete" /></span>
                   </div>
-                  <template v-if="uploading">
-                    <div class="upload-container">
-                      <p class="ant-upload-drag-icon">
-                        <a-icon type="cloud-upload" />
-                      </p>
-                      <p class="ant-upload-text">
-                        <a-spin />
-                        <span class="uploading-tips">{{ $t('teacher.add-unit-plan.uploading') }}</span>
-                      </p>
-                    </div>
-                  </template>
-                  <template v-if="!uploading && form && form.image">
-                    <div class="image-preview">
-                      <img :src="form.image" alt="">
-                    </div>
-                  </template>
-                  <template v-if="!uploading && form && !form.image">
-                    <div class="upload-container">
-                      <p class="ant-upload-drag-icon">
-                        <a-icon type="picture" />
-                      </p>
-                      <p class="ant-upload-text">
-                        {{ $t('teacher.add-unit-plan.upload-a-picture') }}
-                      </p>
-                    </div>
-                  </template>
-                </a-upload-dragger>
-              </a-form-model-item>
+                  <div class="task-audio" @click="handleAddAudioOverview">
+                    <a-icon type="audio" />
+                  </div>
+                </a-form-model-item>
 
-              <a-form-model-item :label="$t('teacher.add-task.overview')" class="task-audio-line">
-                <a-textarea v-model="form.overview" allow-clear />
-                <div class="audio-wrapper" v-if="form.audioUrl">
-                  <audio :src="form.audioUrl" controls />
-                  <span @click="form.audioUrl = null"><a-icon type="delete" /></span>
-                </div>
-                <div class="task-audio" @click="handleAddAudioOverview">
-                  <a-icon type="audio" />
-                </div>
-              </a-form-model-item>
+                <div class="form-block">
+                  <a-row>
+                    <a-col span="4">
+                      <div class="self-field-label">
+                        Subjects
+                      </div>
+                    </a-col>
+                    <a-col span="18">
+                      <a-row :gutter="16">
+                        <a-col span="11">
+                          <a-form-model-item class="label-form-item">
+                            <a-select v-model="form.subjectIds" mode="multiple" placeholder="Please select subjects">
+                              <a-select-opt-group v-for="subjectOptGroup in subjectTree" :key="subjectOptGroup.id">
+                                <span slot="label">{{ subjectOptGroup.name }}</span>
+                                <a-select-option
+                                  :value="subjectOption.id"
+                                  v-for="subjectOption in subjectOptGroup.children"
+                                  :key="subjectOption.id">{{ subjectOption.name }}
+                                </a-select-option>
+                              </a-select-opt-group>
+                            </a-select>
+                          </a-form-model-item>
+                        </a-col>
 
-              <div class="form-block">
-                <a-row>
-                  <a-col span="4">
-                    <div class="self-field-label">
-                      Subjects
-                    </div>
-                  </a-col>
-                  <a-col span="18">
-                    <a-row :gutter="16">
-                      <a-col span="11">
-                        <a-form-model-item class="label-form-item">
-                          <a-select v-model="form.subjectIds" mode="multiple" placeholder="Please select subjects">
-                            <a-select-opt-group v-for="subjectOptGroup in subjectTree" :key="subjectOptGroup.id">
-                              <span slot="label">{{ subjectOptGroup.name }}</span>
-                              <a-select-option
-                                :value="subjectOption.id"
-                                v-for="subjectOption in subjectOptGroup.children"
-                                :key="subjectOption.id">{{ subjectOption.name }}
+                        <a-col span="13" class="grade-select">
+                          <a-form-model-item label="Grade" class="label-form-item">
+                            <a-select v-model="form.gradeIds" placeholder="Please select grade" mode="multiple">
+                              <a-select-option :value="gradeOption.id" v-for="gradeOption in gradeList" :key="gradeOption.id">
+                                {{ gradeOption.name }}
                               </a-select-option>
-                            </a-select-opt-group>
-                          </a-select>
-                        </a-form-model-item>
-                      </a-col>
+                            </a-select>
+                          </a-form-model-item>
+                        </a-col>
+                      </a-row>
+                    </a-col>
+                  </a-row>
+                </div>
 
-                      <a-col span="13" class="grade-select">
-                        <a-form-model-item label="Grade" class="label-form-item">
-                          <a-select v-model="form.gradeIds" placeholder="Please select grade" mode="multiple">
-                            <a-select-option :value="gradeOption.id" v-for="gradeOption in gradeList" :key="gradeOption.id">
-                              {{ gradeOption.name }}
-                            </a-select-option>
-                          </a-select>
-                        </a-form-model-item>
-                      </a-col>
-                    </a-row>
-                  </a-col>
-                </a-row>
+                <div class="content-blocks question-item" v-for="(questionItem, questionIndex) in questionDataObj" :key="questionIndex" v-if="questionItem !== null">
+                  <!--knowledge tag-select -->
+                  <!--knowledge tag-select -->
+                  <new-ui-clickable-knowledge-tag
+                    :question-index="questionIndex"
+                    :selected-knowledge-tags="questionItem.knowledgeTags"
+                    :selected-skill-tags="questionItem.skillTags"
+                    @remove-knowledge-tag="handleRemoveKnowledgeTag"
+                    @add-knowledge-tag="handleAddKnowledgeTag"
+                    @remove-skill-tag="handleRemoveSkillTag"
+                    @add-skill-tag="handleAddSkillTag"
+                  />
+
+                </div>
+              </div>
+              <div class="form-block" v-if="mode === 'create'">
+                <div class="task-action-wrapper">
+                  <div class="action-item-line">
+                    <img src="~@/assets/icons/lesson/Presentation-Collaboration@2x.png" alt="" class="action-img">
+                    <div class="action-label">
+                      <a-button shape="round" @click="handleShowSelectTemplate" class="action-item">
+                        {{ $t('teacher.add-task.choose-a-template') }}
+                      </a-button>
+                    </div>
+                  </div>
+                </div>
               </div>
 
-              <div class="content-blocks question-item" v-for="(questionItem, questionIndex) in questionDataObj" :key="questionIndex" v-if="questionItem !== null">
-                <!--knowledge tag-select -->
-                <!--knowledge tag-select -->
-                <new-ui-clickable-knowledge-tag
-                  :question-index="questionIndex"
-                  :selected-knowledge-tags="questionItem.knowledgeTags"
-                  :selected-skill-tags="questionItem.skillTags"
-                  @remove-knowledge-tag="handleRemoveKnowledgeTag"
-                  @add-knowledge-tag="handleAddKnowledgeTag"
-                  @remove-skill-tag="handleRemoveSkillTag"
-                  @add-skill-tag="handleAddSkillTag"
-                />
+              <a-row>
+                <a-col offset="4" span="18">
+                  <custom-tag v-if="mode === 'edit'" ref="customTag" :selected-tags-list="form.customTags" @change-user-tags="handleChangeUserTags"></custom-tag>
+                </a-col>
+              </a-row>
+            </a-form-model>
+          </a-card>
+        </a-col>
+      </a-row>
+      <collaborate-content ref="collaborate"/>
+      <a-modal
+        v-model="selectLinkContentVisible"
+        :footer="null"
+        destroyOnClose
+        width="80%"
+        title="Link in my content"
+        @ok="selectLinkContentVisible = false"
+        @cancel="selectLinkContentVisible = false">
+        <div class="link-content-wrapper">
+          <my-content-selector v-if="$store.getters.currentRole === 'expert'" :filter-type-list="['topic']" />
+          <my-content-selector v-else :filter-type-list="['unit-plan']" />
+        </div>
+      </a-modal>
 
+      <a-modal
+        v-model="viewInGoogleSlideVisible"
+        :footer="null"
+        destroyOnClose
+        title="Create Success"
+        @ok="viewInGoogleSlideVisible = false"
+        @cancel="viewInGoogleSlideVisible = false">
+        <div class="view-in-google-slider">
+          <div class="view-line">
+            <div class="link-url">
+              <a :href="presentationLink" target="_blank">{{ presentationLink }}</a>
+            </div>
+            <div class="view-action">
+              <a-button type="primary" @click="handleOpenGoogleSlide(presentationLink)">Edit In Google Slide</a-button>
+            </div>
+          </div>
+        </div>
+      </a-modal>
+
+      <a-modal
+        v-model="selectTemplateVisible"
+        :footer="null"
+        destroyOnClose
+        title="Teaching Templates"
+        width="60%"
+        @ok="selectTemplateVisible = false"
+        @cancel="selectTemplateVisible = false">
+        <div class="select-template-wrapper">
+          <div class="template-select-header">
+            <div class="header-title">
+              <div class="header-title-text">
+                You can choose template(s) to start with or create task from scratch
               </div>
             </div>
-            <div class="form-block" v-if="mode === 'create'">
-              <div class="task-action-wrapper">
-                <div class="action-item-line">
-                  <img src="~@/assets/icons/lesson/Presentation-Collaboration@2x.png" alt="" class="action-img">
-                  <div class="action-label">
-                    <a-button shape="round" @click="handleShowSelectTemplate" class="action-item">
-                      {{ $t('teacher.add-task.choose-a-template') }}
-                    </a-button>
+            <div class="filter-wrapper">
+              <div class="first-filter-line">
+                <div class="task-type">
+                  <div :class="{'task-type-item': true, 'green-active-task-type': currentFasa === 'FA'}" @click="handleToggleTemplateType('currentFasa','FA')">FA</div>
+                  <div :class="{'task-type-item': true, 'red-active-task-type': currentFasa === 'SA'}" @click="handleToggleTemplateType('currentFasa','SA')">SA</div>
+                </div>
+                <div class="template-type-list">
+                  <div v-for="(item, index) in initTemplates" :key="index" :class="{'template-type-item': true, 'active-template-type' : currentTemplateType === item.value}" @click="handleToggleTemplateType('currentTemplateType',item.value)">
+                    {{ item.title }}
+                    <img src="~@/assets/icons/lesson/active_green.png" v-if=" currentTemplateType === item.value"/>
+                  </div>
+                </div>
+              </div>
+              <div class="second-filter-line">
+                <div class="template-type-list">
+                  <div v-for="(item, index) in initBlooms" :key="index" :class="{'template-type-item': true, 'sub-active-template-type' : currentBloomCategory === item.value}" @click="handleToggleTemplateType('currentBloomCategory',item.value)">
+                    {{ item.title }}
+                    <img src="~@/assets/icons/lesson/active_red.png" v-if=" currentBloomCategory === item.value"/>
                   </div>
                 </div>
               </div>
             </div>
-
-            <a-row>
-              <a-col offset="4" span="18">
-                <custom-tag v-if="mode === 'edit'" ref="customTag" :selected-tags-list="form.customTags" @change-user-tags="handleChangeUserTags"></custom-tag>
-              </a-col>
-            </a-row>
-          </a-form-model>
-        </a-card>
-      </a-col>
-    </a-row>
-    <collaborate-content ref="collaborate"/>
-    <a-modal
-      v-model="selectLinkContentVisible"
-      :footer="null"
-      destroyOnClose
-      width="80%"
-      title="Link in my content"
-      @ok="selectLinkContentVisible = false"
-      @cancel="selectLinkContentVisible = false">
-      <div class="link-content-wrapper">
-        <my-content-selector v-if="$store.getters.currentRole === 'expert'" :filter-type-list="['topic']" />
-        <my-content-selector v-else :filter-type-list="['unit-plan']" />
-      </div>
-    </a-modal>
-
-    <a-modal
-      v-model="viewInGoogleSlideVisible"
-      :footer="null"
-      destroyOnClose
-      title="Create Success"
-      @ok="viewInGoogleSlideVisible = false"
-      @cancel="viewInGoogleSlideVisible = false">
-      <div class="view-in-google-slider">
-        <div class="view-line">
-          <div class="link-url">
-            <a :href="presentationLink" target="_blank">{{ presentationLink }}</a>
           </div>
-          <div class="view-action">
-            <a-button type="primary" @click="handleOpenGoogleSlide(presentationLink)">Edit In Google Slide</a-button>
-          </div>
-        </div>
-      </div>
-    </a-modal>
-
-    <a-modal
-      v-model="selectTemplateVisible"
-      :footer="null"
-      destroyOnClose
-      title="Teaching Templates"
-      width="60%"
-      @ok="selectTemplateVisible = false"
-      @cancel="selectTemplateVisible = false">
-      <div class="select-template-wrapper">
-        <div class="template-select-header">
-          <div class="header-title">
-            <div class="header-title-text">
-              You can choose template(s) to start with or create task from scratch
-            </div>
-          </div>
-          <div class="filter-wrapper">
-            <div class="first-filter-line">
-              <div class="task-type">
-                <div :class="{'task-type-item': true, 'green-active-task-type': currentFasa === 'FA'}" @click="handleToggleTemplateType('currentFasa','FA')">FA</div>
-                <div :class="{'task-type-item': true, 'red-active-task-type': currentFasa === 'SA'}" @click="handleToggleTemplateType('currentFasa','SA')">SA</div>
-              </div>
-              <div class="template-type-list">
-                <div v-for="(item, index) in initTemplates" :key="index" :class="{'template-type-item': true, 'active-template-type' : currentTemplateType === item.value}" @click="handleToggleTemplateType('currentTemplateType',item.value)">
-                  {{ item.title }}
-                  <img src="~@/assets/icons/lesson/active_green.png" v-if=" currentTemplateType === item.value"/>
+          <div class="template-list-wrapper">
+            <div class="template-list" v-if="!templateLoading">
+              <div :class="{'template-item': true, 'template-item-active': template.id && selectedTemplateIdList.indexOf(template.id) !== -1 }" v-for="(template,index) in templateList" :key="index" @click="handleSelectTemplate(template)">
+                <div class="template-cover" :style="{backgroundImage: 'url(' + template.cover + ')'}">
+                </div>
+                <div class="template-info">
+                  <div class="template-name">{{ template.name }}</div>
+                  <div class="template-intro">{{ template.introduce }}</div>
+                </div>
+                <div class="template-select-icon" v-if="template.id && selectedTemplateIdList.indexOf(template.id) !== -1">
+                  <img src="~@/assets/icons/lesson/selected.png" v-if="template.id && selectedTemplateIdList.indexOf(template.id) !== -1 "/>
                 </div>
               </div>
             </div>
-            <div class="second-filter-line">
-              <div class="template-type-list">
-                <div v-for="(item, index) in initBlooms" :key="index" :class="{'template-type-item': true, 'sub-active-template-type' : currentBloomCategory === item.value}" @click="handleToggleTemplateType('currentBloomCategory',item.value)">
-                  {{ item.title }}
-                  <img src="~@/assets/icons/lesson/active_red.png" v-if=" currentBloomCategory === item.value"/>
-                </div>
-              </div>
+            <div class="no-template" v-if="!templateLoading && templateList.length === 0">
+              <a-empty />
+            </div>
+            <div class="template-loading" v-if="templateLoading">
+              <a-spin />
             </div>
           </div>
+          <div class="template-action">
+            <div class="create-loading" v-if="creating">
+              <a-spin />
+            </div>
+            <a-button @click="handleAddTemplate" shape="round" type="primary" :loading="creating">Create the task in google slide</a-button>
+          </div>
         </div>
-        <div class="template-list-wrapper">
-          <div class="template-list" v-if="!templateLoading">
-            <div :class="{'template-item': true, 'template-item-active': template.id && selectedTemplateIdList.indexOf(template.id) !== -1 }" v-for="(template,index) in templateList" :key="index" @click="handleSelectTemplate(template)">
-              <div class="template-cover" :style="{backgroundImage: 'url(' + template.cover + ')'}">
-              </div>
-              <div class="template-info">
-                <div class="template-name">{{ template.name }}</div>
-                <div class="template-intro">{{ template.introduce }}</div>
-              </div>
-              <div class="template-select-icon" v-if="template.id && selectedTemplateIdList.indexOf(template.id) !== -1">
-                <img src="~@/assets/icons/lesson/selected.png" v-if="template.id && selectedTemplateIdList.indexOf(template.id) !== -1 "/>
-              </div>
+      </a-modal>
+
+      <a-modal
+        v-model="showRelevantQuestionVisible"
+        :footer="null"
+        destroyOnClose
+        top="50px"
+        width="50%"
+        title="Select from the relevant Unit"
+        @ok="showRelevantQuestionVisible = false"
+        @cancel="showRelevantQuestionVisible = false">
+        <div class="select-relevant-tag">
+          <relevant-tag-selector :relevant-question-list="relevantQuestionList" @update-selected="handleUpdateSelected"/>
+        </div>
+        <div class="action-line">
+          <a-button @click="handleCancelSelectedRelevant" class="button-item">Cancel</a-button>
+          <a-button @click="handleConfirmSelectedRelevant" type="primary" class="button-item">Confirm</a-button>
+        </div>
+      </a-modal>
+
+      <a-modal
+        v-model="showAddAudioVisible"
+        :footer="null"
+        destroyOnClose
+        title="Add Audio"
+        @ok="showAddAudioVisible = false"
+        @cancel="showAddAudioVisible = false">
+
+        <div class="audio-material-action">
+          <div class="uploading-mask" v-show="currentUploading">
+            <div class="uploading">
+              <a-spin large />
             </div>
           </div>
-          <div class="no-template" v-if="!templateLoading && templateList.length === 0">
-            <a-empty />
+          <div class="action-item">
+            <a-upload name="file" accept="audio/*" :customRequest="handleUploadAudio" :showUploadList="false">
+              <a-button type="primary" icon="upload">{{ $t('teacher.add-unit-plan.upload-audio') }}</a-button>
+            </a-upload>
           </div>
-          <div class="template-loading" v-if="templateLoading">
-            <a-spin />
+          <a-divider>
+            {{ $t('teacher.add-unit-plan.or') }}
+          </a-divider>
+          <div class="action-item-column">
+            <vue-record-audio mode="press" @result="handleAudioResult" />
+            <div class="action-tips">
+              {{ $t('teacher.add-unit-plan.record-your-voice') }}
+            </div>
+          </div>
+          <div class="material-action" >
+            <a-button key="back" @click="handleCancelAddAudio" class="action-item">
+              Cancel
+            </a-button>
+            <a-button key="submit" type="primary" @click="handleConfirmAddAudio" class="action-item">
+              Ok
+            </a-button>
           </div>
         </div>
-        <div class="template-action">
-          <div class="create-loading" v-if="creating">
-            <a-spin />
-          </div>
-          <a-button @click="handleAddTemplate" shape="round" type="primary" :loading="creating">Create the task in google slide</a-button>
-        </div>
-      </div>
-    </a-modal>
+      </a-modal>
 
-    <a-modal
-      v-model="showRelevantQuestionVisible"
-      :footer="null"
-      destroyOnClose
-      top="50px"
-      width="50%"
-      title="Select from the relevant Unit"
-      @ok="showRelevantQuestionVisible = false"
-      @cancel="showRelevantQuestionVisible = false">
-      <div class="select-relevant-tag">
-        <relevant-tag-selector :relevant-question-list="relevantQuestionList" @update-selected="handleUpdateSelected"/>
-      </div>
-      <div class="action-line">
-        <a-button @click="handleCancelSelectedRelevant" class="button-item">Cancel</a-button>
-        <a-button @click="handleConfirmSelectedRelevant" type="primary" class="button-item">Confirm</a-button>
-      </div>
-    </a-modal>
-
-    <a-modal
-      v-model="showAddAudioVisible"
-      :footer="null"
-      destroyOnClose
-      title="Add Audio"
-      @ok="showAddAudioVisible = false"
-      @cancel="showAddAudioVisible = false">
-
-      <div class="audio-material-action">
-        <div class="uploading-mask" v-show="currentUploading">
-          <div class="uploading">
-            <a-spin large />
-          </div>
-        </div>
-        <div class="action-item">
-          <a-upload name="file" accept="audio/*" :customRequest="handleUploadAudio" :showUploadList="false">
-            <a-button type="primary" icon="upload">{{ $t('teacher.add-unit-plan.upload-audio') }}</a-button>
-          </a-upload>
-        </div>
-        <a-divider>
-          {{ $t('teacher.add-unit-plan.or') }}
-        </a-divider>
-        <div class="action-item-column">
-          <vue-record-audio mode="press" @result="handleAudioResult" />
-          <div class="action-tips">
-            {{ $t('teacher.add-unit-plan.record-your-voice') }}
-          </div>
-        </div>
-        <div class="material-action" >
-          <a-button key="back" @click="handleCancelAddAudio" class="action-item">
-            Cancel
-          </a-button>
-          <a-button key="submit" type="primary" @click="handleConfirmAddAudio" class="action-item">
-            Ok
-          </a-button>
-        </div>
-      </div>
-    </a-modal>
-
-    <a-skeleton :loading="contentLoading" active>
-    </a-skeleton>
-  </a-card>
+      <a-skeleton :loading="contentLoading" active>
+      </a-skeleton>
+    </a-card>
+  </div>
 </template>
 
 <script>
@@ -396,6 +371,7 @@ import CollaborateContent from '@/components/Collaborate/CollaborateContent'
 import { DICT_TEMPLATE, DICT_BLOOM_CATEGORY } from '@/const/common'
 import { SubjectTree } from '@/api/subject'
 import { formatSubjectTree } from '@/utils/bizUtil'
+import CommonFormHeader from '@/components/Common/CommonFormHeader'
 
 const TagOriginType = {
   Origin: 'Origin',
@@ -408,6 +384,7 @@ const TagOriginType = {
 export default {
   name: 'AddTask',
   components: {
+    CommonFormHeader,
     ActionBar,
     ContentTypeIcon,
     InputSearch,
@@ -1534,7 +1511,7 @@ export default {
     .header-title {
       padding: 15px 0 25px;
       .header-title-text {
-        font-size: 30px;
+        font-size: 20px;
         font-family: Inter-Bold;
         line-height: 24px;
         color: #182552;
@@ -1554,7 +1531,7 @@ export default {
         position: relative;
         margin-bottom: 10px;
         .task-type {
-          width: 100px;
+          min-width: 100px;
           display: flex;
           flex-direction: row;
           align-items: center;
@@ -1593,7 +1570,7 @@ export default {
       }
 
       .second-filter-line {
-        padding-left: 93px;
+        padding-left: 100px;
         display: flex;
         flex-direction: row;
         align-items: center;
