@@ -113,8 +113,8 @@
                   </div>
                 </div>
               </span>
-              <div class="action-icon">
-                <img src="~@/assets/icons/lesson/selected.png" v-if="selectedList.indexOf(item.type + '-' + item.id) !== -1"/>
+              <div class="action-icon" v-if="selectedList.indexOf(item.type + '-' + item.id) !== -1">
+                <img src="~@/assets/icons/lesson/selected.png"/>
               </div>
             </a-list-item>
           </a-list>
