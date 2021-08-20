@@ -79,6 +79,10 @@ export default {
       }
       postData.permissions.push('view')
       postData.permissions.push('edit')
+      if (data.selectedViewerEmailList.length === 0 && data.selectedEditorEmailList.length === 0) {
+        this.$message.error('Please select user')
+        return
+      }
       this.selectedViewerContentList.forEach(contentItem => {
         this.$logger.info('selectedViewerContentList contentItem', contentItem)
         if (postData.contents.findIndex(item => item.id === contentItem.id) === -1) {
