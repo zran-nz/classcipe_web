@@ -18,21 +18,6 @@
           <a-button @click="handleSaveLesson" :loading="lessonSaving"> <a-icon type="save" /> {{ $t('teacher.add-lesson.save') }}</a-button>
           <a-button type="primary" @click="handlePublishLesson" :loading="publishing"> <a-icon type="cloud-upload" /> {{ $t('teacher.add-lesson.publish') }}</a-button>
           <a-button @click="handleStartCollaborate"><a-icon type="share-alt" ></a-icon>Collaborate</a-button>
-          <a-dropdown>
-            <a-icon type="more" />
-            <a-menu slot="overlay" style="top:10px">
-              <a-menu-item>
-                <a :href="'https://docs.google.com/presentation/d/' + form.presentationId">
-                  {{ $t('teacher.my-content.edit-slide-lesson') }}
-                </a>
-              </a-menu-item>
-              <a-menu-item>
-                <a @click="handleStartSession()">
-                  {{ $t('teacher.my-content.action-session-new') }}
-                </a>
-              </a-menu-item>
-            </a-menu>
-          </a-dropdown>
         </a-space>
       </a-col>
     </a-row>
@@ -47,35 +32,51 @@
           </div>
         </div>
       </a-col>
-      <a-col span="20" class="main-content">
+      <a-col span="16" offset="2" class="main-content">
         <a-card :bordered="false" :body-style="{padding: '16px'}">
-          <a-form-model :model="form" :label-col="labelCol" :wrapper-col="wrapperCol" >
-            <div class="form-block" v-if="mode === 'edit'">
-              <a-form-model-item :label="$t('teacher.add-lesson.lesson-name')" >
-                <a-input v-model="form.name" />
-              </a-form-model-item>
+          <a-form-model :model="form" class="my-form-wrapper">
+            <div class="form-block">
+              <div class="header-action">
+                <div class="header-action-item">
+                  <a-button @click="handleEditGoogleSlide" :style="{'display': 'flex', 'align-items': 'center', 'justify-content': 'center', 'padding': '20px 15px', 'border-radius': '5px'}" type="primary" >
+                    <img src="~@/assets/icons/lesson/path.png" class="btn-icon"/>
+                    <div class="btn-text">
+                      Edit my lesson in google slide
+                    </div>
+                  </a-button>
+                </div>
+                <div class="header-action-item">
+                  <a-button @click="handleStartSession" :style="{'display': 'flex', 'align-items': 'center', 'justify-content': 'center', 'padding': '20px 15px', 'border-radius': '5px'}" type="primary" >
+                    <img src="~@/assets/icons/lesson/startLesson.png" class="btn-icon"/>
+                    <div class="btn-text">
+                      Start a session
+                    </div>
+                  </a-button>
+                </div>
+              </div>
+            </div>
+            <template v-if="mode === 'edit'">
+              <div class="form-block">
+                <a-input v-model="form.name" class="my-form-input" placeholder="Name"/>
+              </div>
 
               <div class="form-block">
-                <a-row :gutter="16" class="lesson-type-line">
-                  <a-col span="8">
-                    <div class="self-field-label">
-                      <div class="lesson-type">
-                        <a-button type="primary" shape="circle" :class="{'lesson-type-item': true, 'active-lesson-type': form.lessonType === 'FA'}" @click="handleSelectLessonType('FA')">FA</a-button>
-                        <a-button type="primary" shape="circle" :class="{'lesson-type-item': true, 'active-lesson-type': form.lessonType === 'SA'}" @click="handleSelectLessonType('SA')">SA</a-button>
-                      </div>
-                    </div>
-                  </a-col>
-                  <a-col span="14">
-                    <a-select v-model="form.bloomCategories" placeholder="Choose the Bloom Taxonomy Categories" :allowClear="true" >
+                <div class="self-type-wrapper">
+                  <div class="self-field-label">
+                    <div :class="{'lesson-type-item': true, 'green-active-task-type': form.lessonType === 'FA'}" @click="handleSelectLessonType('FA')">FA</div>
+                    <div :class="{'lesson-type-item': true, 'red-active-task-type': form.lessonType === 'SA'}" @click="handleSelectLessonType('SA')">SA</div>
+                  </div>
+                  <div class="self-type-filter">
+                    <a-select class="my-big-select" size="large" v-model="form.bloomCategories" placeholder="Choose the Bloom Taxonomy Categories" :allowClear="true" >
                       <a-select-option :value="item.value" v-for="(item, index) in initBlooms" :key="index" >
                         {{ item.title }}
                       </a-select-option>
                     </a-select>
-                  </a-col>
-                </a-row>
+                  </div>
+                </div>
               </div>
 
-              <a-form-model-item :label="$t('teacher.add-unit-plan.image')" class="img-wrapper">
+              <a-form-model-item class="img-wrapper">
                 <a-upload-dragger
                   name="file"
                   accept="image/png, image/jpeg"
@@ -104,7 +105,7 @@
                   <template v-if="!uploading && form && !form.image">
                     <div class="upload-container">
                       <p class="ant-upload-drag-icon">
-                        <a-icon type="picture" />
+                        <img src="~@/assets/icons/lesson/upload_icon.png" class="upload-icon" />
                       </p>
                       <p class="ant-upload-text">
                         {{ $t('teacher.add-unit-plan.upload-a-picture') }}
@@ -114,111 +115,91 @@
                 </a-upload-dragger>
               </a-form-model-item>
 
-              <a-form-model-item :label="$t('teacher.add-lesson.overview')" class="task-audio-line">
-                <a-textarea v-model="form.overview" allow-clear />
+              <a-form-model-item class="task-audio-line">
+                <a-textarea v-model="form.overview" allow-clear placeholder="Overview"/>
                 <div class="audio-wrapper" v-if="form.audioUrl">
                   <audio :src="form.audioUrl" controls />
                   <span @click="form.audioUrl = null"><a-icon type="delete" /></span>
                 </div>
                 <div class="task-audio" @click="handleAddAudioOverview">
-                  <a-icon type="audio" />
+                  <img src="~@/assets/icons/lesson/microphone.png" />
                 </div>
               </a-form-model-item>
 
               <div class="form-block">
-                <a-row>
-                  <a-col span="4">
-                    <div class="self-field-label">
-                      Subjects
-                    </div>
-                  </a-col>
-                  <a-col span="18">
-                    <a-row :gutter="16">
-                      <a-col span="11">
-                        <a-form-model-item class="label-form-item">
-                          <a-select v-model="form.subjectIds" mode="multiple" placeholder="Please select subjects">
-                            <a-select-opt-group v-for="subjectOptGroup in subjectTree" :key="subjectOptGroup.id">
-                              <span slot="label">{{ subjectOptGroup.name }}</span>
-                              <a-select-option
-                                :value="subjectOption.id"
-                                v-for="subjectOption in subjectOptGroup.children"
-                                :key="subjectOption.id">{{ subjectOption.name }}
-                              </a-select-option>
-                            </a-select-opt-group>
-                          </a-select>
-                        </a-form-model-item>
-                      </a-col>
-
-                      <a-col span="13" class="grade-select">
-                        <a-form-model-item label="Grade" class="label-form-item">
-                          <a-select v-model="form.gradeIds" placeholder="Please select grade" mode="multiple">
-                            <a-select-option :value="gradeOption.id" v-for="gradeOption in gradeList" :key="gradeOption.id">
-                              {{ gradeOption.name }}
-                            </a-select-option>
-                          </a-select>
-                        </a-form-model-item>
-                      </a-col>
-                    </a-row>
-                  </a-col>
-                </a-row>
+                <div class="subject-grade-wrapper">
+                  <div class="select-item">
+                    <a-select size="large" v-model="form.subjectIds" mode="multiple" placeholder="Subjects" class="subject-item">
+                      <a-select-opt-group v-for="subjectOptGroup in subjectTree" :key="subjectOptGroup.id">
+                        <span slot="label">{{ subjectOptGroup.name }}</span>
+                        <a-select-option
+                          :value="subjectOption.id"
+                          v-for="subjectOption in subjectOptGroup.children"
+                          :key="subjectOption.id">{{ subjectOption.name }}
+                        </a-select-option>
+                      </a-select-opt-group>
+                    </a-select>
+                  </div>
+                  <div class="select-item">
+                    <a-select size="large" v-model="form.gradeIds" placeholder="Grade" mode="multiple" class="grade-item">
+                      <a-select-option :value="gradeOption.id" v-for="gradeOption in gradeList" :key="gradeOption.id">
+                        {{ gradeOption.name }}
+                      </a-select-option>
+                    </a-select>
+                  </div>
+                </div>
               </div>
 
-              <div class="content-blocks question-item" v-for="(questionItem, questionIndex) in questionDataObj" :key="questionIndex" v-if="questionItem !== null">
-                <!--knowledge tag-select -->
-                <!--knowledge tag-select -->
-                <new-ui-clickable-knowledge-tag
-                  :question-index="questionIndex"
-                  :selected-knowledge-tags="questionItem.knowledgeTags"
-                  :selected-skill-tags="questionItem.skillTags"
-                  @remove-knowledge-tag="handleRemoveKnowledgeTag"
-                  @add-knowledge-tag="handleAddKnowledgeTag"
-                  @remove-skill-tag="handleRemoveSkillTag"
-                  @add-skill-tag="handleAddSkillTag"
-                />
+              <div class="form-block">
+                <div class="content-blocks question-item" v-for="(questionItem, questionIndex) in questionDataObj" :key="questionIndex" v-if="questionItem !== null">
+                  <new-ui-clickable-knowledge-tag
+                    :question-index="questionIndex"
+                    :selected-knowledge-tags="questionItem.knowledgeTags"
+                    :selected-skill-tags="questionItem.skillTags"
+                    @remove-knowledge-tag="handleRemoveKnowledgeTag"
+                    @add-knowledge-tag="handleAddKnowledgeTag"
+                    @remove-skill-tag="handleRemoveSkillTag"
+                    @add-skill-tag="handleAddSkillTag"
+                  />
+                </div>
               </div>
 
-              <a-row>
-                <a-col offset="4" span="18">
-                  <custom-tag ref="customTag" :selected-tags-list="form.customTags" @change-user-tags="handleChangeUserTags"></custom-tag>
-                </a-col>
-              </a-row>
+              <div class="form-block">
+                <custom-tag ref="customTag" :selected-tags-list="form.customTags" @change-user-tags="handleChangeUserTags"></custom-tag>
+              </div>
 
               <div class="form-block" v-show="form.presentationId">
-                <a-row>
-                  <a-col offset="4" span="18">
-                    <a-divider />
-                    <div class="label-line">
-                      Pick slides to create a brilliant task and use it in your future lessons or share with global educators
+                <a-divider />
+                <div class="label-line">
+                  Pick slides to create a brilliant task and use it in your future lessons or share with global educators
+                </div>
+                <div class="preview-list" v-if="!thumbnailListLoading">
+                  <div class="preview-item-cover" :style="{backgroundImage: 'url(' + item.contentUrl + ')'}" v-for="(item,index) in thumbnailList" :key="index" @click="handleToggleThumbnail(item)">
+                    <div class="template-select-icon" v-if=" selectedPageIdList.indexOf(item.id) !== -1">
+                      <a-icon type="check" />
                     </div>
-                    <div class="preview-list" v-if="!thumbnailListLoading">
-                      <div class="preview-item-cover" :style="{backgroundImage: 'url(' + item.contentUrl + ')'}" v-for="(item,index) in thumbnailList" :key="index" @click="handleToggleThumbnail(item)">
-                        <div class="template-select-icon" v-if=" selectedPageIdList.indexOf(item.id) !== -1">
-                          <a-icon type="check" />
-                        </div>
+                  </div>
+                </div>
+                <div class="thumbnail-loading" v-if="thumbnailListLoading">
+                  <a-spin size="large" />
+                </div>
+                <div class="thumbnail-task-list">
+                  <div class="thumbnail-task-item" v-if="selectedPageIdList.length > 0">
+                    <task-form :task-prefix="'task_' + taskIndex + '_'" @finish-task="handleFinishTask" />
+                  </div>
+                  <a-divider />
+                  <div class="task-preview-list">
+                    <div class="task-preview" v-for="(task, index) in form.tasks" :key="index">
+                      <task-preview :task-data="task" />
+                      <div class="task-delete" @click="handleTaskDelete(task)">
+                        <a-icon type="delete" />
                       </div>
                     </div>
-                    <div class="thumbnail-loading" v-if="thumbnailListLoading">
-                      <a-spin size="large" />
-                    </div>
-                    <div class="thumbnail-task-list">
-                      <div class="thumbnail-task-item" v-if="selectedPageIdList.length > 0">
-                        <task-form :task-prefix="'task_' + taskIndex + '_'" @finish-task="handleFinishTask" />
-                      </div>
-                      <a-divider />
-                      <div class="task-preview-list">
-                        <div class="task-preview" v-for="(task, index) in form.tasks" :key="index">
-                          <task-preview :task-data="task" />
-                          <div class="task-delete" @click="handleTaskDelete(task)">
-                            <a-icon type="delete" />
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </a-col>
-                </a-row>
+                  </div>
+                </div>
               </div>
-            </div>
-            <div class="form-block" v-if="mode === 'create'">
+            </template>
+            <template class="form-block" v-if="mode === 'create'">
               <div class="lesson-action-wrapper">
                 <div class="action-item-line">
                   <img src="~@/assets/icons/lesson/Presentation-Collaboration@2x.png" alt="" class="action-img">
@@ -237,7 +218,7 @@
                   </div>
                 </div>
               </div>
-            </div>
+            </template>
           </a-form-model>
         </a-card>
       </a-col>
@@ -576,7 +557,7 @@ export default {
   },
   data () {
     return {
-      mode: 'create',
+      mode: 'edit',
       contentLoading: true,
       referenceLoading: false,
       contentType: typeMap,
@@ -589,9 +570,6 @@ export default {
       viewInGoogleSlideVisible: false,
       selectTemplateVisible: false,
       showAddAudioVisible: false,
-
-      labelCol: { span: 4 },
-      wrapperCol: { span: 18 },
 
       presentationLink: null,
       form: {
@@ -1321,7 +1299,7 @@ export default {
           this.mode = 'edit'
           this.viewInGoogleSlideVisible = true
           this.$router.replace({
-            path: '/teacher/add-lesson/' + response.result.id
+            path: '/teacher/lesson-redirect/' + response.result.id
           })
         }).finally(() => {
           this.creating = false
@@ -1510,6 +1488,15 @@ export default {
       e.stopPropagation()
       e.preventDefault()
       this.form.image = null
+    },
+
+    handleEditGoogleSlide () {
+      this.$logger.info('handleEditGoogleSlide', this.form.presentationId)
+      if (this.form.presentationId) {
+        window.open('https://docs.google.com/presentation/d/' + this.form.presentationId)
+      } else {
+        this.$message.warn('please create slide first!')
+      }
     }
   }
 }
@@ -1615,7 +1602,8 @@ export default {
     }
 
     p.ant-upload-text {
-      color: @text-color;
+      color: #000;
+      font-family: Inter-Bold;
     }
 
     .upload-container {
@@ -1626,6 +1614,9 @@ export default {
       padding-left: 10px;
     }
 
+    .upload-icon {
+      height: 70px;
+    }
     .select-template {
       text-align: center;
 
@@ -1653,10 +1644,10 @@ export default {
 
     .question-item {
       padding-bottom: 24px;
-      padding-top: 24px;
     }
 
     .content-blocks {
+      width: 600px;
       position: relative;
       border: 1px dotted #fff;
       .sdg-delete-wrapper {
@@ -1674,14 +1665,6 @@ export default {
         z-index: 1000;
       }
 
-      &:hover {
-        border: 1px dotted @link-hover-color;
-        box-sizing: border-box;
-        .sdg-delete-wrapper {
-          display: block;
-        }
-      }
-
       .knowledge-delete-wrapper {
         transition: all 0.2s ease-in;
         display: none;
@@ -1697,15 +1680,6 @@ export default {
         z-index: 1000;
       }
 
-      &:hover {
-        border: 1px dotted @link-hover-color;
-        cursor: pointer;
-        box-sizing: border-box;
-        .knowledge-delete-wrapper {
-          display: block;
-        }
-      }
-
       .tag-select {
         padding-bottom: 24px;
 
@@ -1719,6 +1693,7 @@ export default {
 
     .img-wrapper {
       position: relative;
+      width: 600px;
     }
     .delete-img {
       position: absolute;
@@ -2259,7 +2234,7 @@ export default {
     background-size: contain;
     background-repeat: no-repeat;
     position: relative;
-    width: 200px;
+    width: 180px;
     height: 150px;
     margin: 0 15px 15px 0 ;
     border: 1px solid #eee;
@@ -2293,14 +2268,20 @@ export default {
 }
 .task-audio-line {
   position: relative;
+  width: 600px;
   .task-audio {
     position: absolute;
-    right: -35px;
-    top: -20px;
+    right: -55px;
+    top: -30px;
+    cursor: pointer;
     display: flex;
     flex-direction: row;
     align-items: center;
     justify-content: flex-start;
+
+    img {
+      height: 40px;
+    }
   }
 }
 
@@ -2466,5 +2447,81 @@ export default {
 
 .btn-text {
   padding: 0 5px;
+}
+
+.header-action {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  align-items: center;
+
+  .header-action-item {
+    padding-right: 20px;
+  }
+}
+
+.form-block {
+  margin-bottom: 35px;
+  width: 600px;
+}
+
+.self-type-wrapper {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+  .self-field-label {
+    width: 100px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    .lesson-type-item {
+      margin-right: 10px;
+      width: 33px;
+      height: 33px;
+      border-radius: 33px;
+      border: 2px solid #ddd;
+      font-weight: bold;
+      display: flex;
+      color: #bbb;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .green-active-task-type {
+      background: rgba(21, 195, 154, 0.1);
+      border: 2px solid #15C39A;
+      border-radius: 50%;
+      font-weight: bold;
+      color: #15C39A;
+    }
+
+    .red-active-task-type {
+      background: rgba(255, 51, 85, 0.1);
+      border: 2px solid #FF3355;
+      border-radius: 50%;
+      opacity: 1;
+      font-weight: bold;
+      color: #FF3355;
+      opacity: 1;
+    }
+  }
+
+  .self-type-filter {
+    width: 500px;
+  }
+}
+
+.subject-grade-wrapper {
+  width: 600px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+
+  .select-item {
+    width: 280px;
+  }
 }
 </style>

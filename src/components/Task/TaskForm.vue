@@ -2,23 +2,23 @@
   <div class="task-form-wrapper">
     <a-row class="unit-content">
       <a-col class="main-content">
-        <a-form-model :model="form" :label-col="labelCol" :wrapper-col="wrapperCol" >
+        <a-form-model :model="form" class="my-form-wrapper">
           <div class="form-block">
-            <a-form-model-item :label="$t('teacher.add-task.task-name')" class="task-type-line">
-              <a-input v-model="form.name" />
+            <a-form-model-item class="task-type-line">
+              <a-input v-model="form.name" class="my-form-input" placeholder="name"/>
               <div class="task-type">
-                <div :class="{'task-type-item': true, 'active-task-type': form.taskType === 'FA'}" @click="handleSelectTaskType('FA')">FA</div>
-                <div :class="{'task-type-item': true, 'active-task-type': form.taskType === 'SA'}" @click="handleSelectTaskType('SA')">SA</div>
+                <div :class="{'task-type-item': true, 'green-active-task-type': form.taskType === 'FA'}" @click="handleSelectTaskType('FA')">FA</div>
+                <div :class="{'task-type-item': true, 'red-active-task-type': form.taskType === 'SA'}" @click="handleSelectTaskType('SA')">SA</div>
               </div>
             </a-form-model-item>
-            <a-form-model-item :label="$t('teacher.add-task.overview')" class="task-audio-line">
-              <a-textarea v-model="form.overview" allow-clear />
+            <a-form-model-item class="task-audio-line">
+              <a-textarea v-model="form.overview" allow-clear placeholder="overview"/>
               <div class="audio-wrapper" v-if="form.audioUrl">
                 <audio :src="form.audioUrl" controls />
                 <span @click="form.audioUrl = null"><a-icon type="delete" /></span>
               </div>
               <div class="task-audio" @click="handleAddAudioOverview">
-                <a-icon type="audio" />
+                <img src="~@/assets/icons/lesson/microphone.png" />
               </div>
             </a-form-model-item>
             <div class="content-blocks question-item" v-for="(questionItem, questionIndex) in questionDataObj" :key="questionIndex" v-if="questionItem !== null">
@@ -35,7 +35,7 @@
             </div>
           </div>
           <div class="form-block save-task">
-            <a-button type="primary" @click="handleSaveTask">Save Task</a-button>
+            <a-button type="primary" shape="round" @click="handleSaveTask">Save Task</a-button>
           </div>
         </a-form-model>
       </a-col>
@@ -526,14 +526,6 @@ export default {
         z-index: 1000;
       }
 
-      &:hover {
-        border: 1px dotted @link-hover-color;
-        box-sizing: border-box;
-        .sdg-delete-wrapper {
-          display: block;
-        }
-      }
-
       .knowledge-delete-wrapper {
         transition: all 0.2s ease-in;
         display: none;
@@ -547,15 +539,6 @@ export default {
         cursor: pointer;
         color: @link-hover-color;
         z-index: 1000;
-      }
-
-      &:hover {
-        border: 1px dotted @link-hover-color;
-        cursor: pointer;
-        box-sizing: border-box;
-        .knowledge-delete-wrapper {
-          display: block;
-        }
       }
 
       .tag-select {
@@ -803,33 +786,42 @@ export default {
   position: relative;
   .task-type {
     position: absolute;
-    right: -75px;
+    right: -100px;
     top: -5px;
     display: flex;
     flex-direction: row;
     align-items: center;
     justify-content: flex-start;
-
+    width: 90px;
     .task-type-item {
-      margin-right: 5px;
-      cursor: pointer;
-      padding: 5px;
-      line-height: 15px;
-      width: 25px;
-      height: 25px;
-      font-size: 14px;
-      color: @text-color-secondary;
+      margin-right: 10px;
+      width: 33px;
+      height: 33px;
+      border-radius: 33px;
+      border: 2px solid #ddd;
+      font-weight: bold;
       display: flex;
-      justify-content: center;
+      color: #bbb;
       align-items: center;
-      text-align: center;
+      justify-content: center;
     }
 
-    .active-task-type {
-      background-color: fade(@outline-color, 20%);
-      color: @primary-color;
+    .green-active-task-type {
+      background: rgba(21, 195, 154, 0.1);
+      border: 2px solid #15C39A;
       border-radius: 50%;
-      font-weight: 500;
+      font-weight: bold;
+      color: #15C39A;
+    }
+
+    .red-active-task-type {
+      background: rgba(255, 51, 85, 0.1);
+      border: 2px solid #FF3355;
+      border-radius: 50%;
+      opacity: 1;
+      font-weight: bold;
+      color: #FF3355;
+      opacity: 1;
     }
   }
 }
@@ -838,12 +830,17 @@ export default {
   position: relative;
   .task-audio {
     position: absolute;
-    right: -35px;
-    top: -20px;
+    right: -55px;
+    top: -30px;
+    cursor: pointer;
     display: flex;
     flex-direction: row;
     align-items: center;
     justify-content: flex-start;
+
+    img {
+      height: 40px;
+    }
   }
 }
 

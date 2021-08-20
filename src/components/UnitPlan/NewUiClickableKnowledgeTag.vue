@@ -1,6 +1,6 @@
 <template>
   <a-row class="new-tag-ui">
-    <a-col offset="4" span="18">
+    <a-col span="24">
       <div class="skt-search-wrapper">
         <!-- skt-input search-->
         <div class="search-input">
