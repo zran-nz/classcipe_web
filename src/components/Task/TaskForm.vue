@@ -6,11 +6,24 @@
           <div class="form-block">
             <a-form-model-item class="task-type-line">
               <a-input v-model="form.name" class="my-form-input" placeholder="name"/>
-              <div class="task-type">
-                <div :class="{'task-type-item': true, 'green-active-task-type': form.taskType === 'FA'}" @click="handleSelectTaskType('FA')">FA</div>
-                <div :class="{'task-type-item': true, 'red-active-task-type': form.taskType === 'SA'}" @click="handleSelectTaskType('SA')">SA</div>
-              </div>
             </a-form-model-item>
+
+            <div class="form-block">
+              <div class="self-type-wrapper">
+                <div class="self-field-label">
+                  <div :class="{'lesson-type-item': true, 'green-active-task-type': form.lessonType === 'FA'}" @click="handleSelectTaskType('FA')">FA</div>
+                  <div :class="{'lesson-type-item': true, 'red-active-task-type': form.lessonType === 'SA'}" @click="handleSelectTaskType('SA')">SA</div>
+                </div>
+                <div class="self-type-filter">
+                  <a-select class="my-big-select" size="large" v-model="form.bloomCategories" placeholder="Choose the Bloom Taxonomy Categories" :allowClear="true" >
+                    <a-select-option :value="item.value" v-for="(item, index) in initBlooms" :key="index" >
+                      {{ item.title }}
+                    </a-select-option>
+                  </a-select>
+                </div>
+              </div>
+            </div>
+
             <a-form-model-item class="task-audio-line">
               <a-textarea v-model="form.overview" allow-clear placeholder="overview"/>
               <div class="audio-wrapper" v-if="form.audioUrl">
@@ -21,6 +34,30 @@
                 <img src="~@/assets/icons/lesson/microphone.png" />
               </div>
             </a-form-model-item>
+            <div class="form-block">
+              <div class="subject-grade-wrapper">
+                <div class="select-item">
+                  <a-select size="large" v-model="form.subjectIds" mode="multiple" placeholder="Subjects" class="subject-item">
+                    <a-select-opt-group v-for="subjectOptGroup in subjectTree" :key="subjectOptGroup.id">
+                      <span slot="label">{{ subjectOptGroup.name }}</span>
+                      <a-select-option
+                        :value="subjectOption.id"
+                        v-for="subjectOption in subjectOptGroup.children"
+                        :key="subjectOption.id">{{ subjectOption.name }}
+                      </a-select-option>
+                    </a-select-opt-group>
+                  </a-select>
+                </div>
+                <div class="select-item">
+                  <a-select size="large" v-model="form.gradeIds" placeholder="Grade" mode="multiple" class="grade-item">
+                    <a-select-option :value="gradeOption.id" v-for="gradeOption in gradeList" :key="gradeOption.id">
+                      {{ gradeOption.name }}
+                    </a-select-option>
+                  </a-select>
+                </div>
+              </div>
+            </div>
+
             <div class="content-blocks question-item" v-for="(questionItem, questionIndex) in questionDataObj" :key="questionIndex" v-if="questionItem !== null">
               <!--knowledge tag-select -->
               <new-ui-clickable-knowledge-tag
@@ -32,6 +69,10 @@
                 @remove-skill-tag="handleRemoveSkillTag"
                 @add-skill-tag="handleAddSkillTag"
               />
+            </div>
+
+            <div class="form-block">
+              <custom-tag ref="customTag" :selected-tags-list="form.customTags" @change-user-tags="handleChangeUserTags"></custom-tag>
             </div>
           </div>
           <div class="save-task">
@@ -101,7 +142,11 @@ import { formatLocalUTC } from '@/utils/util'
 import MyContentSelector from '@/components/MyContent/MyContentSelector'
 import RelevantTagSelector from '@/components/UnitPlan/RelevantTagSelector'
 import { TemplateTypeMap } from '@/const/template'
-import { commonAPIUrl } from '@/api/common'
+import { commonAPIUrl, GetDictItems } from '@/api/common'
+import { SubjectTree } from '@/api/subject'
+import { formatSubjectTree } from '@/utils/bizUtil'
+import { DICT_BLOOM_CATEGORY } from '@/const/common'
+import CustomTag from '@/components/UnitPlan/CustomTag'
 
 export default {
   name: 'TaskForm',
@@ -112,6 +157,7 @@ export default {
     NewUiClickableKnowledgeTag,
     SkillTag,
     MyContentSelector,
+    CustomTag,
     RelevantTagSelector
   },
   props: {
@@ -169,10 +215,16 @@ export default {
         status: 0,
         taskType: '',
         createTime: '',
-        updateTime: ''
+        updateTime: '',
+        customTags: [],
+        subjectIds: [],
+        gradeIds: [],
+        bloomCategories: ''
       },
       // Grades
       gradeList: [],
+      // SubjectTree
+      subjectTree: [],
 
       // 将questions转成对象
       questionTotal: 0,
@@ -185,7 +237,9 @@ export default {
       extSkillTagList: [],
 
       audioUrl: null,
-      currentUploading: false
+      currentUploading: false,
+
+      initBlooms: []
     }
   },
   computed: {
@@ -241,6 +295,21 @@ export default {
       }).catch((e) => {
         this.$logger.error(e)
         this.$message.error(this.$t('teacher.add-task.init-data-failed'))
+      })
+
+       SubjectTree({ curriculumId: this.$store.getters.bindCurriculum }).then((response) => {
+         logger.info('SubjectTree', response.result)
+         let subjectTree = response.result
+         subjectTree = formatSubjectTree(subjectTree)
+         this.subjectTree = subjectTree
+         logger.info('after format subjectTree', subjectTree)
+      })
+
+      GetDictItems(DICT_BLOOM_CATEGORY).then(response => {
+        if (response.success) {
+          logger.info('DICT_BLOOM_CATEGORY', response.result)
+          this.initBlooms = response.result
+        }
       })
     },
 
@@ -374,6 +443,10 @@ export default {
         this.audioUrl = null
         this.showAddAudioVisible = false
       }
+    },
+
+    handleChangeUserTags (tags) {
+      this.form.customTags = tags
     }
   }
 }
@@ -1011,5 +1084,69 @@ export default {
   font-family: Inter-Bold;
   line-height: 24px;
   padding-left: 5px;
+}
+
+.subject-grade-wrapper {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+
+  .select-item {
+    width: 280px;
+  }
+}
+
+.form-block {
+  margin-bottom: 35px;
+  width: 600px;
+}
+
+.self-type-wrapper {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+  .self-field-label {
+    width: 100px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    .lesson-type-item {
+      margin-right: 10px;
+      width: 33px;
+      height: 33px;
+      border-radius: 33px;
+      border: 2px solid #ddd;
+      font-weight: bold;
+      display: flex;
+      color: #bbb;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .green-active-task-type {
+      background: rgba(21, 195, 154, 0.1);
+      border: 2px solid #15C39A;
+      border-radius: 50%;
+      font-weight: bold;
+      color: #15C39A;
+    }
+
+    .red-active-task-type {
+      background: rgba(255, 51, 85, 0.1);
+      border: 2px solid #FF3355;
+      border-radius: 50%;
+      opacity: 1;
+      font-weight: bold;
+      color: #FF3355;
+      opacity: 1;
+    }
+  }
+
+  .self-type-filter {
+    width: 500px;
+  }
 }
 </style>

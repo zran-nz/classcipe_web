@@ -11,21 +11,21 @@
       />
     </div>
     <a-card :bordered="false" :bodyStyle="{ padding: '16px 24px', height: '100%', minHeight: '500px' }">
-      <a-row class="unit-content" v-if="!contentLoading">
-        <a-col span="4">
-          <div class="unit-menu-list">
-            <div class="menu-category-item">
-              <associate-sidebar :name="form.name" :type="contentType.lesson" :id="lessonId" ref="associate"/>
+      <template v-if="mode === 'edit'">
+        <a-row class="unit-content" >
+          <a-col span="4">
+            <div class="unit-menu-list" v-show="mode === 'edit'">
+              <div class="menu-category-item">
+                <associate-sidebar :name="form.name" :type="contentType.lesson" :id="lessonId" ref="associate"/>
+              </div>
+              <div class="menu-category-item">
+                <action-bar @create="selectAddContentTypeVisible = true" @link="selectLinkContentVisible = true"/>
+              </div>
             </div>
-            <div class="menu-category-item">
-              <action-bar @create="selectAddContentTypeVisible = true" @link="selectLinkContentVisible = true"/>
-            </div>
-          </div>
-        </a-col>
-        <a-col span="16" offset="2" class="main-content">
-          <a-card :bordered="false" :body-style="{padding: '16px'}">
-            <a-form-model :model="form" class="my-form-wrapper">
-              <template v-if="mode === 'edit'">
+          </a-col>
+          <a-col span="16" offset="2" class="main-content">
+            <a-card :bordered="false" :body-style="{padding: '16px'}">
+              <a-form-model :model="form" class="my-form-wrapper">
                 <div class="form-block">
                   <div class="header-action">
                     <div class="header-action-item">
@@ -156,47 +156,42 @@
                 <div class="form-block">
                   <custom-tag ref="customTag" :selected-tags-list="form.customTags" @change-user-tags="handleChangeUserTags"></custom-tag>
                 </div>
-              </template>
-              <template class="form-block" v-if="mode === 'pick-task-slide'">
-                <div class="pick-task-slide-wrapper">
-                  <div class="slide-form-block" v-show="form.presentationId">
-                    <a-divider />
-                    <div class="label-line">
-                      Pick slides to create a brilliant task and use it in your future lessons or share with global educators
-                    </div>
-                    <div class="preview-list" v-if="!thumbnailListLoading">
-                      <div :class="{'preview-item-cover': true, 'preview-item-cover-active': selectedPageIdList.indexOf(item.id) !== -1}" :style="{backgroundImage: 'url(' + item.contentUrl + ')'}" v-for="(item,index) in thumbnailList" :key="index" @click="handleToggleThumbnail(item)">
-                        <div class="template-select-icon" v-if="selectedPageIdList.indexOf(item.id) !== -1">
-                          <img src="~@/assets/icons/lesson/selected.png"/>
-                        </div>
-                      </div>
-                    </div>
-                    <div class="thumbnail-loading" v-if="thumbnailListLoading">
-                      <a-spin size="large" />
-                    </div>
-                    <div class="thumbnail-task-list">
-                      <div class="thumbnail-task-item" v-if="selectedPageIdList.length > 0">
-                        <task-form :task-prefix="'task_' + taskIndex + '_'" @finish-task="handleFinishTask" />
-                      </div>
-                      <a-divider />
-                      <div class="task-preview-list">
-                        <div class="task-preview" v-for="(task, index) in form.tasks" :key="index">
-                          <task-preview :task-data="task" />
-                          <div class="task-delete" @click="handleTaskDelete(task)">
-                            <a-icon type="delete" />
-                          </div>
-                        </div>
-                      </div>
-                    </div>
+              </a-form-model>
+            </a-card>
+          </a-col>
+        </a-row>
+      </template>
+      <template v-if="mode === 'pick-task-slide'">
+
+        <div class="pick-task-slide-wrapper">
+          <div class="slide-form-block" v-show="form.presentationId">
+            <div class="preview-list" v-if="!thumbnailListLoading">
+              <div :class="{'preview-item-cover': true, 'preview-item-cover-active': selectedPageIdList.indexOf(item.id) !== -1}" :style="{backgroundImage: 'url(' + item.contentUrl + ')'}" v-for="(item,index) in thumbnailList" :key="index" @click="handleToggleThumbnail(item)">
+                <div class="template-select-icon" v-if="selectedPageIdList.indexOf(item.id) !== -1">
+                  <img src="~@/assets/icons/lesson/selected.png"/>
+                </div>
+              </div>
+            </div>
+            <div class="thumbnail-loading" v-if="thumbnailListLoading">
+              <a-spin size="large" />
+            </div>
+            <div class="thumbnail-task-list">
+              <div class="thumbnail-task-item" v-if="selectedPageIdList.length > 0">
+                <task-form :task-prefix="'task_' + taskIndex + '_'" @finish-task="handleFinishTask" />
+              </div>
+              <div class="task-preview-list">
+                <div class="task-preview" v-for="(task, index) in form.tasks" :key="index">
+                  <task-preview :task-data="task" />
+                  <div class="task-delete" @click="handleTaskDelete(task)">
+                    <a-icon type="delete" />
                   </div>
                 </div>
-              </template>
-            </a-form-model>
-          </a-card>
-        </a-col>
-      </a-row>
+              </div>
+            </div>
+          </div>
+        </div>
+      </template>
       <collaborate-content ref="collaborate"/>
-
       <a-modal
         v-model="selectLinkContentVisible"
         :footer="null"
@@ -854,7 +849,7 @@ export default {
           this.loadThumbnail()
         } else {
           // 未成功绑定ppt
-          // this.handleShowSelectMyContent()
+          this.handleShowSelectMyContent()
         }
         logger.info('after restoreLesson', this.form, this.questionDataObj)
       }).finally(() => {
@@ -1615,7 +1610,6 @@ export default {
   }
 
   .main-content {
-    padding: 30px 0;
 
     .image-preview {
       img {
@@ -2251,15 +2245,20 @@ export default {
   flex-direction: row;
   justify-content: flex-start;
   flex-wrap: wrap;
+  background: rgba(228, 228, 228, 0.2);
+  border: 1px solid #D8D8D8;
+  opacity: 1;
+  border-radius: 4px;
+  padding: 15px 15px 0 15px;
   .preview-item-cover {
     background-position: center center;
-    background-size: contain;
+    background-size: cover;
     background-repeat: no-repeat;
     position: relative;
-    width: 180px;
-    height: 150px;
+    width: 250px;
+    height: 180px;
     border-radius: 5px;
-    margin: 0 15px 15px 0 ;
+    margin: 0 25px 25px 0 ;
     border: 1px solid #eee;
     box-shadow: 0 4px 4px 4px #eee;
 
@@ -2563,15 +2562,6 @@ export default {
   margin-top: 70px;
 }
 
-.slide-form-block {
-  width: 800px;
-  margin-left: -100px;
-}
-
-.label-line {
-  text-align: center;
-}
-
 .my-slide-pick-modal {
   padding: 0;
   box-sizing: border-box;
@@ -2662,6 +2652,14 @@ export default {
     .slide-btn-item-yes {
 
     }
+  }
+}
+
+.pick-task-slide-wrapper {
+  width: 1000px;
+  margin: auto;
+
+  .slide-form-block {
   }
 }
 </style>
