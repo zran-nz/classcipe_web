@@ -157,7 +157,7 @@
                   slot="cover"
                   :style="{backgroundImage: 'url(' + item.image + ')' }"
                 ></div>
-                <a-card-meta :title="item.name" :description="item.createTime | dayjs" @click="handleViewDetail(item)"></a-card-meta>
+                <a-card-meta :title="item.name ? item.name : 'Untitled'" :description="item.createTime | dayjs" @click="handleViewDetail(item)"></a-card-meta>
                 <template slot="actions" class="ant-card-actions">
                   <div class="action-item">
                     <a-popconfirm :title="$t('teacher.my-content.action-delete') + '?'" ok-text="Yes" @confirm="handleDeleteItem(item)" cancel-text="No">
