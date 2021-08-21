@@ -60,6 +60,7 @@
           </div>
         </a-button>
         <a-button
+          v-if="showCollaborate"
           class="my-form-header-btn"
           style="{
             width: 120px;
@@ -96,6 +97,10 @@ export default {
     lastChangeSavedTime: {
       type: String,
       default: ''
+    },
+    showCollaborate: {
+      type: Boolean,
+      default: true
     }
   },
   created () {

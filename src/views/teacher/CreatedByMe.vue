@@ -231,7 +231,7 @@
         @cancel="viewPreviewSessionVisible = false">
         <div class="preview-session-wrapper">
           <class-list :slide-id="currentPreviewLesson.presentationId" :classData="currentPreviewLesson" v-if="currentPreviewLesson && currentPreviewLesson.presentationId"/>
-          <a-empty v-else/>
+          <no-more-resources tips="Not exist previous sessions" v-else/>
         </div>
       </a-modal>
     </div>
@@ -260,10 +260,12 @@ import {
   SESSION_VIEW_MODE
 } from '@/const/common'
 import CommonPreview from '@/components/Common/CommonPreview'
+import NoMoreResources from '@/components/Common/NoMoreResources'
 
 export default {
   name: 'CreatedByMe',
   components: {
+    NoMoreResources,
     CommonPreview,
     ClassList,
     ContentStatusIcon,

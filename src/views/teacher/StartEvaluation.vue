@@ -1,39 +1,37 @@
 <template>
-  <a-card :bordered="false" :bodyStyle="{ padding: '16px 24px', height: '100%', minHeight: '500px' }">
-    <a-row class="evaluation-header">
-      <a-col span="12">
-        <a-space>
-          <a-button class="nav-back-btn" type="link" @click="goBack"> <a-icon type="left" /> {{ $t('teacher.add-evaluation.back') }}</a-button>
-          <span class="unit-last-change-time" v-if="lastChangeSavedTime">
-            <span class="unit-nav-title">
-              {{ form.name }}
-            </span>
-            <a-divider type="vertical" v-if="!!form.name" />
-            {{ $t('teacher.add-evaluation.last-change-saved-at-time', {time: lastChangeSavedTime}) }}
-          </span>
-        </a-space>
-      </a-col>
-    </a-row>
-    <a-row class="unit-content" v-if="!contentLoading">
-      <a-col span="2">
-      </a-col>
-      <a-col span="18" class="main-content">
-        <a-card :bordered="false" :body-style="{padding: '16px'}">
-          <div class="rubric-wrapper">
-            <div class="rubric-item" v-if="form.tableMode === 1 ">
-              <rubric-one ref="rubric" :description-list="evaluationTableList" :init-raw-headers="initRawHeaders" :init-raw-data="initRawData" mode="evaluate"/>
+  <div class="my-full-form-wrapper">
+    <div class="form-header">
+      <common-form-header
+        :name="form.name"
+        :last-change-saved-time="lastChangeSavedTime"
+        :show-collaborate="false"
+        @back="goBack"
+        @save="handleSaveEvaluation"
+        @publish="handlePublishEvaluation"
+      />
+    </div>
+    <a-card :bordered="false" :bodyStyle="{ padding: '16px 24px', height: '100%', minHeight: '500px' }">
+      <a-row class="unit-content" v-if="!contentLoading">
+        <a-col span="2">
+        </a-col>
+        <a-col span="18" class="main-content">
+          <a-card :bordered="false" :body-style="{padding: '16px'}">
+            <div class="rubric-wrapper">
+              <div class="rubric-item" v-if="form.tableMode === 1 ">
+                <rubric-one ref="rubric" :description-list="evaluationTableList" :init-raw-headers="initRawHeaders" :init-raw-data="initRawData" mode="evaluate"/>
+              </div>
             </div>
-          </div>
-          <div class="action-line">
-            <a-button type="primary">Complete</a-button>
-          </div>
-        </a-card>
-      </a-col>
-    </a-row>
+            <div class="action-line">
+              <a-button type="primary">Complete</a-button>
+            </div>
+          </a-card>
+        </a-col>
+      </a-row>
 
-    <a-skeleton :loading="contentLoading" active>
-    </a-skeleton>
-  </a-card>
+      <a-skeleton :loading="contentLoading" active>
+      </a-skeleton>
+    </a-card>
+  </div>
 </template>
 
 <script>
@@ -54,6 +52,7 @@ import RelevantTagSelector from '@/components/UnitPlan/RelevantTagSelector'
 import { TemplateTypeMap } from '@/const/template'
 import DisplayMode from '@/components/MyContent/DisplayMode'
 import RubricOne from '@/components/Evaluation/RubricOne'
+import CommonFormHeader from '@/components/Common/CommonFormHeader'
 
 const TagOriginType = {
   Origin: 'Origin',
@@ -69,6 +68,7 @@ export default {
     RubricOne,
     ContentTypeIcon,
     InputSearch,
+    CommonFormHeader,
     MyContentSelector,
     RelevantTagSelector
   },
