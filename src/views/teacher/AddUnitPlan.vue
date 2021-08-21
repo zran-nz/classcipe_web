@@ -250,13 +250,6 @@
                 </a-col>
               </a-row>
 
-              <div class="form-block action-line">
-                <a-space :size="30">
-                  <a-button @click="handleSaveUnitPlan"> <a-icon type="save" /> {{ $t('teacher.add-unit-plan.save') }}</a-button>
-                  <a-button type="primary" @click="handlePublishUnitPlan"> <a-icon type="cloud-upload" /> {{ $t('teacher.add-unit-plan.publish') }}</a-button>
-                </a-space>
-              </div>
-
             </a-form-model>
           </a-card>
         </a-col>

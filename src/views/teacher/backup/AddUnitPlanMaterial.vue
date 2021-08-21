@@ -283,11 +283,6 @@
             </div>
           </div>
         </div>
-        <div class="form-block action-line">
-          <a-space :size="30">
-            <a-button @click="handleAddOrUpdateMaterial"> <a-icon type="save" /> {{ $t('teacher.add-unit-plan.save') }}</a-button>
-          </a-space>
-        </div>
       </a-col>
     </a-row>
   </a-card>
