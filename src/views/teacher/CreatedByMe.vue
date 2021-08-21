@@ -80,7 +80,7 @@
                 <content-type-icon :type="item.type" />
 
                 <span class="name-content">
-                  {{ item.name }}
+                  {{ item.name ? item.name : 'Unnamed' }}
                 </span>
               </span>
 
@@ -95,48 +95,47 @@
                 <div class="action">
                   <div slot="actions">
                     <div class="action-wrapper">
-                      <div class="action-item">
-                        <a-popconfirm :title="$t('teacher.my-content.action-delete') + '?'" ok-text="Yes" @confirm="handleDeleteItem(item)" cancel-text="No">
-                          <a href="#" class="delete-action">
-                            <a-icon type="delete" /> {{ $t('teacher.my-content.action-delete') }}
-                          </a>
-                        </a-popconfirm>
+                      <div class="preview-session-wrapper action-item-wrapper">
+                        <div class="session-btn" @click="handleViewPreviewSession(item)" v-if="item.type === typeMap['lesson'] || item.type === typeMap['task']">
+                          <div class="session-btn-icon">
+                            <previous-sessions-svg />
+                          </div>
+                          <div class="session-btn-text">Previous sessions</div>
+                        </div>
                       </div>
-                      <div class="action-item">
-                        <a @click="handleEditItem(item)">
-                          <a-icon type="form" /> {{ $t('teacher.my-content.action-edit') }}
-                        </a>
+                      <div class="start-session-wrapper action-item-wrapper">
+                        <div class="session-btn" @click="handleStartSession(item)" v-if="item.type === typeMap['lesson'] || item.type === typeMap['task']">
+                          <div class="session-btn-icon">
+                            <start-session-svg />
+                          </div>
+                          <div class="session-btn-text">Start a session</div>
+                        </div>
+                        <div class="session-btn" @click="handleEvaluation(item)" v-if="item.type === typeMap.evaluation">
+                          <div class="session-btn-icon">
+                            <evaluation-svg />
+                          </div>
+                          <div class="session-btn-text">Enter evaluation</div>
+                        </div>
                       </div>
-                      <div class="action-item" v-if="item.type === typeMap['evaluation']">
+                      <div class="more-action-wrapper action-item-wrapper">
                         <a-dropdown>
                           <a-icon type="more" style="margin-right: 8px" />
                           <a-menu slot="overlay">
                             <a-menu-item>
-                              <a @click="handleEvaluation(item)">
-                                {{ $t('teacher.my-content.start-evaluation') }}
+                              <a-popconfirm :title="$t('teacher.my-content.action-delete') + '?'" ok-text="Yes" @confirm="handleDeleteItem(item)" cancel-text="No">
+                                <a href="#" class="delete-action">
+                                  <a-icon type="delete" /> {{ $t('teacher.my-content.action-delete') }}
+                                </a>
+                              </a-popconfirm>
+                            </a-menu-item>
+                            <a-menu-item>
+                              <a @click="handleEditItem(item)">
+                                <a-icon type="form" /> {{ $t('teacher.my-content.action-edit') }}
                               </a>
                             </a-menu-item>
                           </a-menu>
                         </a-dropdown>
                       </div>
-                      <div class="action-item" v-if="item.type === typeMap['lesson'] || item.type === typeMap['task']">
-                        <a-dropdown>
-                          <a-icon type="more" style="margin-right: 8px" />
-                          <a-menu slot="overlay">
-                            <a-menu-item>
-                              <a @click="handleStartSession(item)">
-                                {{ $t('teacher.my-content.action-session-new') }}
-                              </a>
-                            </a-menu-item>
-                            <a-menu-item>
-                              <a @click="handleViewPreviewSession(item)">
-                                {{ $t('teacher.my-content.action-session-previous') }}
-                              </a>
-                            </a-menu-item>
-                          </a-menu>
-                        </a-dropdown>
-                      </div>
-
                     </div>
                   </div></div></span>
 
@@ -248,6 +247,9 @@ import ContentTypeIcon from '@/components/Teacher/ContentTypeIcon'
 import { lessonHost, lessonStatus } from '@/const/googleSlide'
 import { StartLesson } from '@/api/lesson'
 import TvSvg from '@/assets/icons/lesson/tv.svg?inline'
+import EvaluationSvg from '@/assets/icons/common/evaluation.svg?inline'
+import PreviousSessionsSvg from '@/assets/icons/common/PreviousSessions.svg?inline'
+import StartSessionSvg from '@/assets/icons/common/StartSession.svg?inline'
 import ClassList from '@/components/Teacher/ClassList'
 import storage from 'store'
 import {
@@ -266,7 +268,10 @@ export default {
     ClassList,
     ContentStatusIcon,
     ContentTypeIcon,
-    TvSvg
+    TvSvg,
+    EvaluationSvg,
+    PreviousSessionsSvg,
+    StartSessionSvg
   },
   data () {
     return {
@@ -513,6 +518,7 @@ export default {
 }
 
 .my-list-item {
+  min-width: 800px;
   box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.16);
   opacity: 1;
   width: 100%;
@@ -600,7 +606,9 @@ export default {
   }
 
   .content-wrapper {
+    min-width: 800px;
     .content-list {
+      min-width: 800px;
       .content-info-left {
         cursor: pointer;
         display: flex;
@@ -638,18 +646,71 @@ export default {
         }
       }
       .action {
-        width: 200px;
+        width: 360px;
       }
 
       .action-wrapper {
         display: flex;
         flex-direction: row;
         align-items: center;
-        justify-content: flex-start;
-        .action-item {
-          display: inline;
-          margin-left: 20px;
-          user-select: none;
+        justify-content: flex-end;
+
+        .action-item-wrapper {
+          display: flex;
+          flex-direction: row;
+          align-items: center;
+          justify-content: center;
+          margin-left: 5px;
+
+          .session-btn {
+            display: flex;
+            border-radius: 32px;
+            flex-direction: row;
+            align-items: center;
+            justify-content: center;
+            padding: 6px 13px;
+            background: rgba(245, 245, 245, 0.5);
+            box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.16);
+            opacity: 1;
+            border: 1px solid rgba(188, 188, 188, 1);
+
+            .session-btn-icon {
+              display: flex;
+              flex-direction: row;
+              align-items: center;
+              justify-content: center;
+              font-size: 13px;
+              svg {
+                height: 14px;
+                fill: #182552;
+                stroke: #182552;
+                stroke-width: 0.5px;
+              }
+            }
+
+            .session-btn-text {
+              font-size: 13px;
+              padding-left: 7px;
+              font-family: Inter-Bold;
+              color: #182552;
+            }
+          }
+
+          .session-btn:hover {
+            border: 1px solid rgba(21, 195, 154, 1);
+            background: rgba(21, 195, 154, 0.1);
+            .session-btn-icon {
+              svg {
+                fill: #15c39a;
+                stroke: #15c39a;
+                stroke-width: 0.5px;
+              }
+            }
+
+            .session-btn-text {
+              color: #15C39A;
+            }
+          }
         }
       }
 
