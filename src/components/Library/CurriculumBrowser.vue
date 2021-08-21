@@ -297,6 +297,7 @@ import ListModeIcon from '@/assets/icons/library/liebiao .svg?inline'
 import CardList from '@/views/list/CardList'
 import DataCardView from '@/components/Library/DataCardView'
 import { typeMap } from '@/const/teacher'
+import { GetGradesByCurriculumId } from '@/api/preference'
 const { GetMyGrades } = require('@/api/teacher')
 const { SubjectTree } = require('@/api/subject')
 
@@ -325,6 +326,7 @@ export default {
     curriculumId (value) {
       this.$logger.info('curriculumId change ' + value)
       this.refreshSubjectTree()
+      this.getGradesByCurriculumId(value)
     }
   },
   data () {
@@ -371,6 +373,14 @@ export default {
         this.gradeList = response.result
       })
     },
+
+    getGradesByCurriculumId (curriculumId) {
+      GetGradesByCurriculumId({ curriculumId: curriculumId }).then(response => {
+        this.$logger.info('GetGradesByCurriculumId', response.result)
+        this.gradeList = response.result
+      })
+    },
+
     refreshSubjectTree () {
       this.mainSubjectList = []
       this.subSubjectList = []
