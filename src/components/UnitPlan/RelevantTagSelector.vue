@@ -149,9 +149,7 @@ export default {
           }
         })
 
-        if (qData.knowledgeTags.length || qData.skillTags.length) {
-          questionList.push(qData)
-        }
+        questionList.push(qData)
       })
       this.$logger.info('updateSelected data', questionList)
       this.$emit('update-selected', { questionList: questionList })

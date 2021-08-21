@@ -14,6 +14,7 @@ export const teacherAPIUrl = {
   BatchAssociate: '/classcipe/api/teacher/batchAssociate',
   GetAssociate: '/classcipe/api/teacher/getAssociate',
   GetMyContent: '/classcipe/api/teacher/getMyContent',
+  FindMyContent: '/classcipe/api/teacher/findMyContent',
   GetMyGrades: '/classcipe/api/teacher/getMyGrades',
   UpdateContentStatus: '/classcipe/api/teacher/content/status'
 }
@@ -41,6 +42,22 @@ export function getMyContent (parameter) {
     url: teacherAPIUrl.GetMyContent,
     method: 'get',
     params: parameter
+  })
+}
+
+/**
+ * types
+ * @param parameter
+ * @returns {AxiosPromise}
+ */
+export function FindMyContent (parameter) {
+  return request({
+    url: teacherAPIUrl.FindMyContent,
+    method: 'post',
+    data: parameter,
+    headers: {
+      'Content-Type': 'application/json;charset=UTF-8'
+    }
   })
 }
 

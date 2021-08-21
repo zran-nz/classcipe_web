@@ -26,7 +26,7 @@
                 <a-menu-item disabled>
                   <span>{{ $t('teacher.my-content.choose-types-of-content') }}</span>
                 </a-menu-item>
-                <a-menu-item @click="toggleType('all-type', $t('teacher.my-content.all-type'))" v-if="filterTypeList.length === 6">
+                <a-menu-item @click="toggleType('', $t('teacher.my-content.all-type'))" >
                   <span>{{ $t('teacher.my-content.all-type') }}</span>
                 </a-menu-item>
                 <a-menu-item @click="toggleType('topic', $t('teacher.my-content.topics-type') )" v-if="filterTypeList.indexOf('topic') !== -1">
@@ -193,9 +193,9 @@
 import * as logger from '@/utils/logger'
 import UnitPlanPreview from '@/components/UnitPlan/UnitPlanPreview'
 import MaterialPreview from '@/components/Material/MaterialPreview'
-import { getMyContent } from '@/api/teacher'
+import { FindMyContent } from '@/api/teacher'
 import { FavoritesGetMyFavorites } from '@/api/favorites'
-import { ownerMap, statusMap, typeMap, getLabelNameType } from '@/const/teacher'
+import { ownerMap, statusMap, typeMap } from '@/const/teacher'
 import ContentStatusIcon from '@/components/Teacher/ContentStatusIcon'
 import ContentTypeIcon from '@/components/Teacher/ContentTypeIcon'
 import { MyContentEventBus, MyContentEvent } from '@/components/MyContent/MyContentEventBus'
@@ -244,7 +244,7 @@ export default {
       displayMode: DisplayMode,
       currentStatus: 'all-status',
       currentStatusLabel: this.$t('teacher.my-content.all-status'),
-      currentType: 'all-type',
+      currentType: '',
       currentTypeLabel: this.$t('teacher.my-content.all-type'),
       currentOwner: 'all-owner',
       currentOwnerLabel: this.$t('teacher.my-content.all-owner'),
@@ -282,11 +282,11 @@ export default {
   },
   created () {
     logger.info('teacher my content filter type ', this.filterTypeList)
-    if (this.filterTypeList) {
-      this.currentType = this.filterTypeList[0]
-      this.currentTypeLabel = getLabelNameType(this.typeMap[this.filterTypeList[0]])
-    }
-    this.$logger.info('currentType ' + this.currentType + ' , currentTypeLabel ' + this.currentTypeLabel + ', selected type ' + this.selectedType)
+    // if (this.filterTypeList) {
+      // this.currentType = this.filterTypeList[0]
+      // this.currentTypeLabel = getLabelNameType(this.typeMap[this.filterTypeList[0]])
+    // }
+    // this.$logger.info('currentType ' + this.currentType + ' , currentTypeLabel ' + this.currentTypeLabel + ', selected type ' + this.selectedType)
     this.loadMyContent()
   },
   mounted () {
@@ -311,10 +311,14 @@ export default {
     },
 
     getMyContent () {
-      getMyContent({
+      const typeList = []
+      this.filterTypeList.forEach(item => {
+        typeList.push(typeMap[item])
+      })
+      FindMyContent({
         owner: ownerMap[this.currentOwner],
         status: statusMap[this.currentStatus],
-        type: typeMap[this.currentType],
+        types: this.currentType ? [typeMap[this.currentType]] : typeList,
         pageNo: this.pageNo,
         pageSize: this.pagination.pageSize
       }).then(res => {
