@@ -37,7 +37,7 @@
                           </div>
                         </a-button>
                       </div>
-                      <div class="header-action-item">
+                      <div class="header-action-item" v-if="$store.getters.currentRole === 'teacher'">
                         <a-button @click="handleStartSession" :style="{'display': 'flex', 'align-items': 'center', 'justify-content': 'center', 'padding': '20px 15px', 'border-radius': '5px'}" type="primary" >
                           <img src="~@/assets/icons/lesson/startLesson.png" class="btn-icon"/>
                           <div class="btn-text">
