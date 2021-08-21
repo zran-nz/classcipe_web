@@ -1,43 +1,73 @@
 <template>
-  <div class="content-sidebar">
-    <template v-if="!loading">
-      <div class="content-collapse">
-        <a-collapse default-active-key="1" :bordered="false">
-          <a-collapse-panel key="1" :header="name">
-            <div class="sub-list" v-if="associateList.length > 0">
-              <div class="sub-item" v-for="(item,index) in associateList" :key="index">
-                <div class="icon" @click="handleViewItem(item)">
-                  <content-type-icon :type="item.type" size="20px" />
-                </div>
-                <div class="name" @click="handleViewItem(item)">
-                  {{ item.name }}
-                </div>
-                <div class="cancel-associate">
-
-                  <a-popconfirm
-                    title="Cancel associate?"
-                    ok-text="Yes"
-                    cancel-text="No"
-                    @confirm="handleCancelAssociate(item)"
-                  >
-                    <a-icon type="close" />
-                  </a-popconfirm>
-
+  <div class="unit-menu-list">
+    <div class="menu-category-item">
+      <div class="content-sidebar">
+        <div class="content-collapse">
+          <a-collapse default-active-key="1" :bordered="false">
+            <a-collapse-panel key="1" :header="parentName">
+              <div class="sub-list">
+                <div class="sub-item">
+                  <div class="icon">
+                    <content-type-icon :type="type" size="20px" />
+                  </div>
+                  <div class="name">
+                    {{ name ? name : 'Unnamed' }}
+                  </div>
                 </div>
               </div>
-            </div>
-            <div class="sub-empty" v-if="!associateList.length">
-              No data
-            </div>
-          </a-collapse-panel>
-        </a-collapse>
+            </a-collapse-panel>
+          </a-collapse>
+        </div>
       </div>
-    </template>
-    <template v-if="loading">
-      <div class="main-loading">
-        <a-spin />
+    </div>
+    <div class="menu-category-item">
+      <div class="action-bar-wrapper">
+        <div class="action-create" @click="handleCreateEvent" v-show="showCreate">
+          <div class="action-icon">
+            <img src="~@/assets/icons/common/sidebar/jianli_icon@2x.png" />
+          </div>
+          <div class="action-label">Create new under current</div>
+        </div>
+        <div class="action-link" @click="handleLinkEvent">
+          <div class="action-icon">
+            <img src="~@/assets/icons/common/sidebar/Link@2x.png" />
+          </div>
+          <div class="action-label">Link in my content</div>
+        </div>
       </div>
-    </template>
+    </div>
+    <div class="menu-category-item" v-if="subName">
+      <div class="content-sidebar">
+        <div class="content-collapse">
+          <a-collapse default-active-key="1" :bordered="false">
+            <a-collapse-panel key="1" :header="subName">
+              <div class="sub-list" v-if="associateList.length > 0">
+                <div class="sub-item" v-for="(item,index) in associateList" :key="index">
+                  <div class="icon" @click="handleViewItem(item)">
+                    <content-type-icon :type="item.type" size="20px" />
+                  </div>
+                  <div class="name" @click="handleViewItem(item)">
+                    {{ item.name }}
+                  </div>
+                  <div class="cancel-associate">
+
+                    <a-popconfirm
+                      title="Cancel associate?"
+                      ok-text="Yes"
+                      cancel-text="No"
+                      @confirm="handleCancelAssociate(item)"
+                    >
+                      <a-icon type="close" />
+                    </a-popconfirm>
+
+                  </div>
+                </div>
+              </div>
+            </a-collapse-panel>
+          </a-collapse>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -62,11 +92,17 @@ export default {
     id: {
       type: String,
       default: null
+    },
+    showCreate: {
+      type: Boolean,
+      default: false
     }
   },
   data () {
     return {
       loading: true,
+      parentName: null,
+      subName: null,
       typeMap: typeMap,
       associateList: []
     }
@@ -115,6 +151,7 @@ export default {
         const owner = response.result.owner
         const others = response.result.others
         const associateList = []
+
         owner.forEach(item => {
           const itemType = item.type
           const itemTypeName = item.typeName
@@ -149,6 +186,64 @@ export default {
 
         this.$logger.info('associateList', associateList)
         this.associateList = associateList
+
+        /**
+         * Unit plan 只有下级页面，没有上级页面
+
+         Topic 只有下级页面，没有上级页面
+
+         Lesson/Task 既有下级页面Evaluation，也有上级页面Unit plan
+
+         Evaluation只有上级页面，没有下级页面
+         Unit plan > Lesson
+
+         Unit plan/Topic > task
+
+         Lesson > Evaluation
+
+         Task > Evaluation
+         * @type {string}
+         */
+        this.parentName = null
+        this.subName = null
+        if (this.type === this.typeMap['unit-plan'] || this.type === this.typeMap.topic) {
+          // 没有上级
+          // 取第一个下级（非空name）的name做标题
+          if (this.associateList.length) {
+            for (let i = 0; i < associateList.length; i++) {
+              if (associateList[i] && associateList[i].name && (associateList.type === this.typeMap.lesson || associateList.type === this.typeMap.task)) {
+                this.subName = associateList[i].name
+                break
+              }
+            }
+          }
+        }
+
+        if (this.type === this.typeMap.lesson || this.type === this.typeMap.task) {
+          // 上级只能是task或者unit plan
+          const parentItem = this.associateList.find(aItem => aItem.type === this.typeMap['unit-plan'] || this.typeMap.topic)
+          this.$logger.info('parent item', parentItem)
+          if (parentItem && parentItem.name) {
+            this.parentName = parentItem.name
+          }
+          // 下级页面Evaluation Task
+          const subItem = this.associateList.find(aItem => aItem.type === this.typeMap.evaluation || aItem.type === this.typeMap.task)
+          this.$logger.info('sub item', parentItem)
+          if (subItem && subItem.name) {
+            this.subName = subItem.name
+          }
+        }
+
+        if (this.type === this.typeMap.evaluation) {
+          // 只有上级
+          const parentItem = this.associateList.find(aItem => aItem.type === this.typeMap.lesson || this.typeMap.task)
+          this.$logger.info('parent item', parentItem)
+          if (parentItem && parentItem.name) {
+            this.parentName = parentItem.name
+          }
+        }
+
+        this.$logger.info('associate parent and sub current type ' + this.type + ' parent ' + this.parentName + ' sub ' + this.subName, this.associateList)
       }).finally(() => {
         this.loading = false
       })
@@ -165,6 +260,16 @@ export default {
         // 刷新子组件的关联数据
         this.loadAssociateData()
       })
+    },
+
+    handleLinkEvent () {
+      this.$logger.info('handelLinkEvent')
+      this.$emit('link')
+    },
+
+    handleCreateEvent () {
+      this.$logger.info('handleCreateEvent')
+      this.$emit('create')
     }
   }
 }
@@ -231,4 +336,115 @@ export default {
   right: 10px;
   top: 10px;
 }
+
+.action-bar-wrapper {
+  display: flex;
+  flex-direction: column;
+  padding: 0 0 10px;
+  color: #fff;
+  .action-create {
+    margin-bottom: 10px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    padding: 8px 10px;
+    background: rgba(255, 51, 85, 1);
+    box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.16);
+    opacity: 1;
+    border-radius: 4px;
+
+    .action-icon {
+      img {
+        height: 15px;
+      }
+    }
+
+    .action-label {
+      font-size: 12px;
+      padding-left: 8px;
+    }
+  }
+
+  .action-link {
+    margin-bottom: 10px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    padding: 8px 10px;
+    background: rgba(21, 195, 154, 1);
+    box-shadow:  0px 3px 6px rgba(0, 0, 0, 0.16);
+    opacity: 1;
+    border-radius: 4px;
+
+    .action-icon {
+      img {
+        height: 15px;
+      }
+    }
+
+    .action-label {
+      font-size: 12px;
+      padding-left: 8px;
+    }
+  }
+}
+
+.unit-menu-list {
+  margin-top: 10px;
+  padding: 0 0 16px 0;
+
+  .menu-category-item {
+    user-select: none;
+    cursor: pointer;
+
+    .menu-category-item-label {
+      font-weight: 600;
+      padding: 10px 0;
+    }
+
+    .menu-category-list {
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+
+      .include-item {
+        color: @primary-color;
+        padding: 5px 0;
+        max-width: 100%;
+        text-decoration: underline;
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+      }
+    }
+
+    .action-item {
+      color: @primary-color;
+      padding: 5px 0;
+      text-decoration: underline;
+    }
+  }
+
+  .already-add-to-list {
+    .add-to-type {
+      border-right: none;
+      color: @text-color;
+      .add-to-type-label {
+        padding: 15px 0 5px 0;
+        cursor: pointer;
+      }
+      .add-to-list {
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start;
+        line-height: 30px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        word-break: break-all;
+        white-space: nowrap;
+      }
+    }
+  }
+}
+
 </style>

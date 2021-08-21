@@ -13,14 +13,14 @@
     <a-card :bordered="false" :bodyStyle="{ padding: '16px 24px', height: '100%', minHeight: '500px' }">
       <a-row class="unit-content" v-if="!contentLoading">
         <a-col span="4">
-          <div class="unit-menu-list">
-            <div class="menu-category-item">
-              <associate-sidebar :name="form.name" :type="contentType['unit-plan']" :id="unitPlanId" ref="associate"/>
-            </div>
-            <div class="menu-category-item">
-              <action-bar @create="selectAddContentTypeVisible = true" @link="selectLinkContentVisible = true" :show-create="true"/>
-            </div>
-          </div>
+          <associate-sidebar
+            :name="form.name"
+            :type="contentType['unit-plan']"
+            :id="unitPlanId"
+            ref="associate"
+            @create="selectAddContentTypeVisible = true"
+            @link="selectLinkContentVisible = true"
+            :show-create="true"/>
         </a-col>
         <a-col span="15" class="main-content">
           <a-card :bordered="false" :body-style="{padding: '16px'}">
@@ -391,7 +391,6 @@ import CustomTag from '../../components/UnitPlan/CustomTag'
 import { MyContentEvent, MyContentEventBus } from '@/components/MyContent/MyContentEventBus'
 import RelevantTagSelector from '@/components/UnitPlan/RelevantTagSelector'
 import AddKeywordTag from '@/components/Evaluation/AddKeywordTag'
-import ActionBar from '@/components/Associate/ActionBar'
 import CollaborateContent from '@/components/Collaborate/CollaborateContent'
 import CommonFormHeader from '@/components/Common/CommonFormHeader'
 
@@ -400,7 +399,6 @@ export default {
   components: {
     CollaborateContent,
     CommonFormHeader,
-    ActionBar,
     ContentTypeIcon,
     InputSearch,
     SdgTagInput,

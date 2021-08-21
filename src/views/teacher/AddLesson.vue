@@ -14,14 +14,14 @@
       <template v-if="mode === 'edit'">
         <a-row class="unit-content" >
           <a-col span="4">
-            <div class="unit-menu-list" v-show="mode === 'edit'">
-              <div class="menu-category-item">
-                <associate-sidebar :name="form.name" :type="contentType.lesson" :id="lessonId" ref="associate"/>
-              </div>
-              <div class="menu-category-item">
-                <action-bar @create="selectAddContentTypeVisible = true" @link="selectLinkContentVisible = true"/>
-              </div>
-            </div>
+            <associate-sidebar
+              v-if="mode === 'edit'"
+              :name="form.name"
+              :type="contentType.lesson"
+              :id="lessonId"
+              ref="associate"
+              @create="selectAddContentTypeVisible = true"
+              @link="selectLinkContentVisible = true" />
           </a-col>
           <a-col span="16" offset="2" class="main-content">
             <a-card :bordered="false" :body-style="{padding: '16px'}">
@@ -521,7 +521,6 @@ import CustomTag from '@/components/UnitPlan/CustomTag'
 import NewUiClickableKnowledgeTag from '@/components/UnitPlan/NewUiClickableKnowledgeTag'
 import { lessonHost, lessonStatus } from '@/const/googleSlide'
 import { StartLesson } from '@/api/lesson'
-import ActionBar from '@/components/Associate/ActionBar'
 import CollaborateContent from '@/components/Collaborate/CollaborateContent'
 import { DICT_BLOOM_CATEGORY, DICT_TEMPLATE } from '@/const/common'
 import { SubjectTree } from '@/api/subject'
@@ -542,7 +541,6 @@ export default {
   components: {
     CommonFormHeader,
     ModalHeader,
-    ActionBar,
     TaskPreview,
     TaskForm,
     ContentTypeIcon,
@@ -2240,6 +2238,8 @@ export default {
 
 .preview-list {
   margin-top: 20px;
+  height: 520px;
+  overflow-y: scroll;
   width: 100%;
   display: flex;
   flex-direction: row;
@@ -2255,10 +2255,10 @@ export default {
     background-size: cover;
     background-repeat: no-repeat;
     position: relative;
-    width: 250px;
-    height: 180px;
+    width: 225px;
+    height: 160px;
     border-radius: 5px;
-    margin: 0 25px 25px 0 ;
+    margin: 0 5px 5px 10px;
     border: 1px solid #eee;
     box-shadow: 0 4px 4px 4px #eee;
 

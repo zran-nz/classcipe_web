@@ -14,14 +14,13 @@
       <template v-if="mode === 'edit'">
         <a-row class="unit-content" v-if="!contentLoading">
           <a-col span="4">
-            <div class="unit-menu-list">
-              <div class="menu-category-item">
-                <associate-sidebar :name="form.name" :type="contentType.task" :id="taskId" ref="associate"/>
-              </div>
-              <div class="menu-category-item">
-                <action-bar @create="selectAddContentTypeVisible = true" @link="selectLinkContentVisible = true"/>
-              </div>
-            </div>
+            <associate-sidebar
+              :name="form.name"
+              :type="contentType.task"
+              :id="taskId"
+              ref="associate"
+              @create="selectAddContentTypeVisible = true"
+              @link="selectLinkContentVisible = true" />
           </a-col>
           <a-col span="16" offset="2" class="main-content">
             <a-card :bordered="false" :body-style="{padding: '16px'}">
@@ -353,7 +352,6 @@ import CustomTag from '@/components/UnitPlan/CustomTag'
 import NewUiClickableKnowledgeTag from '@/components/UnitPlan/NewUiClickableKnowledgeTag'
 import { lessonHost, lessonStatus } from '@/const/googleSlide'
 import { StartLesson } from '@/api/lesson'
-import ActionBar from '@/components/Associate/ActionBar'
 import CollaborateContent from '@/components/Collaborate/CollaborateContent'
 import { DICT_TEMPLATE, DICT_BLOOM_CATEGORY } from '@/const/common'
 import { SubjectTree } from '@/api/subject'
@@ -372,7 +370,6 @@ export default {
   name: 'AddTask',
   components: {
     CommonFormHeader,
-    ActionBar,
     ContentTypeIcon,
     InputSearch,
     SdgTagInput,

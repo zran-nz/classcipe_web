@@ -34,14 +34,13 @@
       </a-row>
       <a-row class="unit-content" v-if="!contentLoading">
         <a-col span="3">
-          <div class="unit-menu-list">
-            <div class="menu-category-item">
-              <associate-sidebar :name="form.name" :type="contentType.topic" :id="topicId" ref="associate"/>
-            </div>
-            <div class="menu-category-item">
-              <action-bar @create="selectAddContentTypeVisible = true" @link="selectLinkContentVisible = true"/>
-            </div>
-          </div>
+          <associate-sidebar
+            :name="form.name"
+            :type="contentType.topic"
+            :id="topicId"
+            ref="associate"
+            @create="selectAddContentTypeVisible = true"
+            @link="selectLinkContentVisible = true"/>
         </a-col>
         <a-col span="15" class="main-content">
           <a-card :bordered="false" :style="{ borderLeft: '1px solid rgb(235, 238, 240)', borderRight: '1px solid rgb(235, 238, 240)' }" :body-style="{padding: '16px'}">
@@ -302,12 +301,10 @@
   import { TaskAddOrUpdate } from '@/api/task'
   import CustomTag from '../../components/UnitPlan/CustomTag'
   import NewUiClickableKnowledgeTag from '@/components/UnitPlan/NewUiClickableKnowledgeTag'
-  import ActionBar from '@/components/Associate/ActionBar'
   import CommonFormHeader from '@/components/Common/CommonFormHeader'
   export default {
     name: 'AddTopic',
     components: {
-      ActionBar,
       ContentTypeIcon,
       InputSearch,
       SdgTagInput,
