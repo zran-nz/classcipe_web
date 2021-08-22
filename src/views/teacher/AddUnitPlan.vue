@@ -107,28 +107,37 @@
                     </a-tooltip>
                   </div>
 
+                  <!--description-->
+                  <div class="scenario-description">
+                    <a-form-model-item :label="$t('teacher.add-unit-plan.description')">
+                      <input-search
+                        ref="descriptionInputSearch"
+                        :v-model="scenario.description"
+                        :default-value="scenario.description"
+                        :key-index="sdgIndex"
+                        :currend-index="currentIndex"
+                        :search-list="descriptionSearchList"
+                        label="description"
+                        @search="handleDescriptionSearch"
+                        @select-item="handleSelectScenario"
+                        @reset="descriptionSearchList = []" />
+                    </a-form-model-item>
+
+                    <a-button class="browse" type="primary" @click="handleSelectDescription(sdgIndex)">
+                      <img src="~@/assets/icons/unitplan/browse.png" class="btn-icon"/>
+                      <div class="btn-text">
+                        Browse
+                      </div>
+                    </a-button>
+                  </div>
+
                   <!--sdg-->
                   <a-form-model-item :label="$t('teacher.add-unit-plan.sdg-label')" class="long-label-form-item">
                     <a-select v-model="scenario.sdgId" placeholder="please select sdg" class="my-select">
-                      <a-select-option v-for="(sdg,index) in sdgList" :value="sdg.id" :key="index">
+                      <a-select-option v-for="(sdg,index) in sdgList" :value="sdg.id" :key="index" :disabled="selectedSdg.indexOf(sdg.id) != -1">
                         {{ sdg.name }}
                       </a-select-option>
                     </a-select>
-                  </a-form-model-item>
-
-                  <!--description-->
-                  <a-form-model-item :label="$t('teacher.add-unit-plan.description')">
-                    <input-search
-                      ref="descriptionInputSearch"
-                      :v-model="scenario.description"
-                      :default-value="scenario.description"
-                      :key-index="sdgIndex"
-                      :currend-index="currentIndex"
-                      :search-list="descriptionSearchList"
-                      label="description"
-                      @search="handleDescriptionSearch"
-                      @select-item="handleSelectScenario"
-                      @reset="descriptionSearchList = []" />
                   </a-form-model-item>
 
                   <!--keywords-->
@@ -136,6 +145,7 @@
                     <sdg-tag-input :selected-keywords="scenario.sdgKeyWords" :sdg-key="sdgIndex" @add-tag="handleAddSdgTag" @remove-tag="handleRemoveSdgTag"/>
                   </a-form-model-item>
                 </div>
+
                 <!--add-new-sdg-->
                 <a-row>
                   <a-col offset="2" span="20">
@@ -358,6 +368,12 @@
         </div>
       </a-modal>
 
+      <a-modal v-model="showLibraryVisible" @ok="handleConfirmAssociate" destroyOnClose width="80%" :dialog-style="{ top: '20px' }">
+        <div class="associate-library">
+          <new-browser :select-mode="selectModel.knowledgeDescription" :question-index="selectDescriptionIndex"/>
+        </div>
+      </a-modal>
+
       <a-skeleton :loading="contentLoading" active>
       </a-skeleton>
     </a-card>
@@ -393,6 +409,8 @@ import RelevantTagSelector from '@/components/UnitPlan/RelevantTagSelector'
 import AddKeywordTag from '@/components/Evaluation/AddKeywordTag'
 import CollaborateContent from '@/components/Collaborate/CollaborateContent'
 import CommonFormHeader from '@/components/Common/CommonFormHeader'
+import NewBrowser from '@/components/NewLibrary/NewBrowser'
+import { SelectModel } from '@/components/NewLibrary/SelectModel'
 
 export default {
   name: 'AddUnitPlan',
@@ -410,7 +428,8 @@ export default {
     Collaborate,
     CustomTag,
     RelevantTagSelector,
-    AddKeywordTag
+    AddKeywordTag,
+    NewBrowser
   },
   props: {
     unitPlanId: {
@@ -529,7 +548,10 @@ export default {
       addLoading: false,
       currentIndex: 0,
       saving: false,
-      publishing: false
+      publishing: false,
+      showLibraryVisible: false,
+      selectModel: SelectModel,
+      selectDescriptionIndex: ''
     }
   },
   computed: {
@@ -540,6 +562,12 @@ export default {
       } else {
         return ''
       }
+    },
+    selectedSdg () {
+      const sdgList = []
+      this.form.scenarios.forEach(item => sdgList.push(item.sdgId))
+      console.log(sdgList)
+      return sdgList
     }
   },
   created () {
@@ -1215,6 +1243,15 @@ export default {
     handleStartCollaborate () {
       this.$logger.info('handleStartCollaborate')
       this.$refs.collaborate.startCollaborateModal(Object.assign({}, this.form), this.form.id, this.contentType['unit-plan'])
+    },
+    handleSelectDescription (sdgIndex) {
+      this.$logger.info('handleSelectDescription')
+      this.selectDescriptionIndex = sdgIndex
+      this.showLibraryVisible = true
+    },
+    handleConfirmAssociate () {
+      this.$logger.info('handleConfirmAssociate')
+      this.associateLibraryVisible = false
     }
   }
 }
@@ -1355,6 +1392,28 @@ export default {
       position: relative;
       padding-top: 20px;
       border: 1px dotted #fff;
+      padding-right: 40px;
+      .scenario-description{
+        position: relative;
+        .browse{
+          padding: 10px 5px;
+          position: absolute;
+          right: -25px;
+          top: 3px;
+          display: flex;
+          flex-direction: row;
+          align-items: center;
+          justify-content: flex-start;
+          border-radius: 6px;
+        }
+        .btn-icon {
+          height: 18px;
+          width: 18px;
+        }
+        .btn-text {
+          padding: 0 5px;
+        }
+      }
       .sdg-delete-wrapper {
         transition: all 0.2s ease-in;
         display: none;

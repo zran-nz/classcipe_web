@@ -57,8 +57,11 @@
           </a-col>
           <a-col span="4" align="middle" v-show="isShowBrowse">
             <div class="tag-search-input">
-              <a-button icon="appstore" @click="handleBrowse" size="large">
-                Browse
+              <a-button class="browse" @click="handleBrowse" type="primary" size="large">
+                <img src="~@/assets/icons/unitplan/browse.png" class="btn-icon"/>
+                <div class="btn-text">
+                  Browse
+                </div>
               </a-button>
             </div>
           </a-col>
@@ -432,6 +435,21 @@ export default {
 
   .tag-search-input {
     margin-top: 20px;
+    .browse{
+      padding: 10px 5px;
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      justify-content: flex-start;
+      border-radius: 6px;
+    }
+    .btn-icon {
+      height: 18px;
+      width: 18px;
+    }
+    .btn-text {
+      padding: 0 5px;
+    }
   }
   .spin-loading{
     margin-top: 50px;
