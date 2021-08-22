@@ -1169,7 +1169,7 @@ export default {
           this.creating = true
           LessonCreateLessonPPT({
             lessonId: this.lessonId ? this.lessonId : '',
-            name: this.form.name,
+            name: this.form.name ? this.form.name : 'Unnamed Lesson',
             overview: this.form.overview,
             templatePresentationIds: this.selectedTemplateList.map(item => {
               return item.presentationId
@@ -1289,7 +1289,7 @@ export default {
           lessonId: this.lessonId ? this.lessonId : '',
           lessonIds: this.selectedLessonIdList,
           taskIds: this.selectedTaskIdList,
-          name: this.form.name,
+          name: this.form.name ? this.form.name : 'Unnamed Lesson',
           overview: this.form.overview
         }).then(response => {
           this.$logger.info('handleCreateLesson', response.result)

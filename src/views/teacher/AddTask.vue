@@ -974,7 +974,7 @@ export default {
           this.creating = true
           TaskCreateTaskPPT({
             taskId: this.taskId ? this.taskId : '',
-            name: this.form.name,
+            name: this.form.name ? this.form.name : 'Unnamed Task',
             overview: this.form.overview,
             pageObjectIds: this.selectedTemplateList[0].pageObjectIds,
             templatePresentationIds: this.selectedTemplateList.map(item => {
