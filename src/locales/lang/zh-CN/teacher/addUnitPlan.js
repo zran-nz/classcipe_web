@@ -16,7 +16,7 @@ export default {
   'teacher.add-unit-plan.upload-a-picture': 'Upload a picture',
   'teacher.add-unit-plan.upload-material': 'Upload your material',
   'teacher.add-unit-plan.click-to-upload': 'Click to upload',
-  'teacher.add-unit-plan.real-life-scenario': 'Real life Scenario',
+  'teacher.add-unit-plan.real-life-scenario': 'Sustainable development goal',
   'teacher.add-unit-plan.description': 'Description',
   'teacher.add-unit-plan.sdg': 'SDG',
   'teacher.add-unit-plan.key-words': 'Key words',

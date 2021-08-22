@@ -19,7 +19,7 @@ export default {
   'teacher.add-task.upload-a-picture': 'Upload a picture',
   'teacher.add-task.upload-material': 'Upload your material',
   'teacher.add-task.click-to-upload': 'Click to upload',
-  'teacher.add-task.real-life-scenario': 'Real life Scenario',
+  'teacher.add-task.real-life-scenario': 'Sustainable development goal',
   'teacher.add-task.description': 'Description',
   'teacher.add-task.sdg-label': 'Choose the relevant UN sustainable development goal',
   'teacher.add-task.key-words': 'Key words',

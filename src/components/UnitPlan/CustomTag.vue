@@ -81,7 +81,7 @@
                     {{ tag.name }}
                   </a-tag>
                 </div>
-                <div class="skt-tag-create-line" @click="handleCreateTagByInput" v-show="!isShowBrowse && createTagName && createTagName.length >= 1">
+                <div class="skt-tag-create-line" @click="handleCreateTagByInput" v-show="tagSearchList.length === 0 && !isShowBrowse && createTagName && createTagName.length >= 1">
                   <div class="create-tag-label">
                     Create
                   </div>

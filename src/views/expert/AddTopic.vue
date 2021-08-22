@@ -5,45 +5,25 @@
         :name="form.name"
         :last-change-saved-time="lastChangeSavedTime"
         @back="goBack"
-        @save="handleSaveTopic"
-        @publish="handlePublishTopic"
+        @save="handleSaveUnitPlan"
+        @publish="handlePublishUnitPlan"
+        @collaborate="handleStartCollaborate"
       />
     </div>
     <a-card :bordered="false" :bodyStyle="{ padding: '16px 24px', height: '100%', minHeight: '500px' }">
-      <a-row class="unit-plan-header">
-        <a-col span="12">
-          <a-space>
-            <a-button class="nav-back-btn" type="link" @click="goBack"> <a-icon type="left" /> {{ $t('teacher.add-unit-plan.back') }}</a-button>
-            <span class="unit-last-change-time" v-if="lastChangeSavedTime">
-              <span class="unit-nav-title">
-                {{ form.name }}
-              </span>
-              <a-divider type="vertical" v-if="!!form.name" />
-              {{ $t('teacher.add-unit-plan.last-change-saved-at-time', {time: lastChangeSavedTime}) }}
-            </span>
-          </a-space>
-        </a-col>
-        <a-col span="12" class="unit-right-action">
-          <a-space>
-            <a-button @click="handleSaveTopic"> <a-icon type="save" /> {{ $t('teacher.add-unit-plan.save') }}</a-button>
-            <a-button type="primary" @click="handlePublishTopic"> <a-icon type="cloud-upload" /> {{ $t('teacher.add-unit-plan.publish') }}</a-button>
-            <a-button @click="$refs.collaborate.visible = true"><a-icon type="share-alt" ></a-icon>Collaborate</a-button>
-            <Collaborate ref="collaborate" :id="topicId" :type="contentType.topic" ></Collaborate>
-          </a-space>
-        </a-col>
-      </a-row>
       <a-row class="unit-content" v-if="!contentLoading">
-        <a-col span="3">
+        <a-col span="4">
           <associate-sidebar
             :name="form.name"
             :type="contentType.topic"
             :id="topicId"
             ref="associate"
             @create="selectAddContentTypeVisible = true"
-            @link="selectLinkContentVisible = true"/>
+            @link="selectLinkContentVisible = true"
+            :show-create="true"/>
         </a-col>
         <a-col span="15" class="main-content">
-          <a-card :bordered="false" :style="{ borderLeft: '1px solid rgb(235, 238, 240)', borderRight: '1px solid rgb(235, 238, 240)' }" :body-style="{padding: '16px'}">
+          <a-card :bordered="false" :body-style="{padding: '16px'}">
             <a-form-model :model="form" :label-col="labelCol" :wrapper-col="wrapperCol" >
               <div class="form-block">
                 <!--              unit-name-->
@@ -89,6 +69,19 @@
                     </template>
                   </a-upload-dragger>
                 </a-form-model-item>
+
+                <!--      overview-->
+                <a-form-model-item :label="$t('teacher.add-lesson.overview')" class="task-audio-line">
+                  <a-textarea v-model="form.overview" allow-clear />
+                  <div class="audio-wrapper" v-if="form.audioUrl">
+                    <audio :src="form.audioUrl" controls />
+                    <span @click="form.audioUrl = null"><a-icon type="delete" /></span>
+                  </div>
+                  <div class="task-audio" @click="handleAddAudioOverview">
+                    <a-icon type="audio" />
+                  </div>
+                </a-form-model-item>
+
               </div>
               <!--            real-life-scenario-->
               <div class="form-block">
@@ -101,54 +94,64 @@
                     </div>
                   </a-col>
                 </a-row>
-                <!--description-->
-                <a-form-model-item :label="$t('teacher.add-unit-plan.description')">
-                  <input-search
-                    :default-value="form.scenario.description"
-                    :search-list="descriptionSearchList"
-                    label="description"
-                    @search="handleDescriptionSearch"
-                    @select-item="handleSelectScenario"
-                    @reset="descriptionSearchList = []" />
-                </a-form-model-item>
                 <!--sdg and KeyWords-->
-                <div class="content-blocks" v-for="(sdgItem, sdgIndex) in sdgDataObj" :key="sdgIndex" v-if="sdgItem !== null">
-                  <div class="sdg-delete-wrapper" @click="handleDeleteSdg(sdgItem, sdgIndex)" v-show="sdgTotal > 1">
+                <div class="content-blocks" v-for="(scenario, sdgIndex) in form.scenarios" :key="sdgIndex">
+                  <div class="sdg-delete-wrapper" @click="handleDeleteSdg(sdgIndex)" v-show="form.scenarios.length > 1">
                     <a-tooltip placement="top">
                       <template slot="title">
-                        <span>{{ $t('teacher.add-unit-plan.delete-sdg') }}</span>
+                        <span>{{ $t('teacher.add-unit-plan.delete-goal') }}</span>
                       </template>
                       <div class="sdg-delete">
                         <a-icon type="delete" :style="{ fontSize: '20px' }" />
                       </div>
                     </a-tooltip>
                   </div>
-                  <a-row>
-                    <a-col offset="4" span="18">
-                      <div class="form-block-title">
-                        <a-divider dashed>SDG</a-divider>
+
+                  <!--description-->
+                  <div class="scenario-description">
+                    <a-form-model-item :label="$t('teacher.add-unit-plan.description')">
+                      <input-search
+                        ref="descriptionInputSearch"
+                        :v-model="scenario.description"
+                        :default-value="scenario.description"
+                        :key-index="sdgIndex"
+                        :currend-index="currentIndex"
+                        :search-list="descriptionSearchList"
+                        label="description"
+                        @search="handleDescriptionSearch"
+                        @select-item="handleSelectScenario"
+                        @reset="descriptionSearchList = []" />
+                    </a-form-model-item>
+
+                    <a-button class="browse" type="primary" @click="handleSelectDescription(sdgIndex)">
+                      <img src="~@/assets/icons/unitplan/browse.png" class="btn-icon"/>
+                      <div class="btn-text">
+                        Browse
                       </div>
-                    </a-col>
-                  </a-row>
+                    </a-button>
+                  </div>
+
                   <!--sdg-->
                   <a-form-model-item :label="$t('teacher.add-unit-plan.sdg-label')" class="long-label-form-item">
-                    <a-select v-model="sdgItem.sdgId" placeholder="please select sdg">
-                      <a-select-option v-for="(sdg,index) in sdgList" :value="sdg.id" :key="index">
+                    <a-select v-model="scenario.sdgId" placeholder="please select sdg" class="my-select">
+                      <a-select-option v-for="(sdg,index) in sdgList" :value="sdg.id" :key="index" :disabled="selectedSdg.indexOf(sdg.id) != -1">
                         {{ sdg.name }}
                       </a-select-option>
                     </a-select>
                   </a-form-model-item>
+
                   <!--keywords-->
                   <a-form-model-item :label="$t('teacher.add-unit-plan.key-words')">
-                    <sdg-tag-input :selected-keywords="sdgItem.selectedKeywords" :sdg-key="sdgIndex" @add-tag="handleAddSdgTag" @remove-tag="handleRemoveSdgTag"/>
+                    <sdg-tag-input :selected-keywords="scenario.sdgKeyWords" :sdg-key="sdgIndex" @add-tag="handleAddSdgTag" @remove-tag="handleRemoveSdgTag"/>
                   </a-form-model-item>
                 </div>
+
                 <!--add-new-sdg-->
                 <a-row>
                   <a-col offset="2" span="20">
                     <div class="form-block-title form-block-action">
                       <a-button type="link" icon="plus-circle" @click="handleAddMoreSdg">
-                        {{ $t('teacher.add-unit-plan.add-new-sdg') }}
+                        {{ $t('Choose another sustainable development goal') }}
                       </a-button>
                     </div>
                   </a-col>
@@ -163,6 +166,43 @@
                 </a-row>
               </div>
 
+              <div class="form-block">
+                <a-row>
+                  <a-col span="4">
+                    <div class="self-field-label">
+                      Subjects
+                    </div>
+                  </a-col>
+                  <a-col span="18">
+                    <a-row :gutter="16">
+                      <a-col span="11">
+                        <a-form-model-item class="label-form-item">
+                          <a-select v-model="form.subjectIds" mode="multiple" placeholder="Please select subjects">
+                            <a-select-opt-group v-for="subjectOptGroup in subjectTree" :key="subjectOptGroup.id">
+                              <span slot="label">{{ subjectOptGroup.name }}</span>
+                              <a-select-option
+                                :value="subjectOption.id"
+                                v-for="subjectOption in subjectOptGroup.children"
+                                :key="subjectOption.id">{{ subjectOption.name }}
+                              </a-select-option>
+                            </a-select-opt-group>
+                          </a-select>
+                        </a-form-model-item>
+                      </a-col>
+
+                      <a-col span="13" class="grade-select">
+                        <a-form-model-item label="Grade" class="label-form-item">
+                          <a-select v-model="form.gradeIds" placeholder="Please select grade" mode="multiple">
+                            <a-select-option :value="gradeOption.id" v-for="gradeOption in gradeList" :key="gradeOption.id">
+                              {{ gradeOption.name }}
+                            </a-select-option>
+                          </a-select>
+                        </a-form-model-item>
+                      </a-col>
+                    </a-row>
+                  </a-col>
+                </a-row>
+              </div>
               <div class="form-block">
                 <div class="content-blocks question-item" v-for="(questionItem, questionIndex) in questionDataObj" :key="questionIndex" v-if="questionItem !== null">
                   <div class="knowledge-delete-wrapper" @click="handleDeleteQuestion(questionItem, questionIndex)" v-show="questionTotal > 1">
@@ -191,6 +231,8 @@
                   <!--knowledge tag-select -->
                   <new-ui-clickable-knowledge-tag
                     :question-index="questionIndex"
+                    :grade-ids="form.gradeIds"
+                    :subject-ids="form.subjectIds"
                     :selected-knowledge-tags="questionItem.knowledgeTags"
                     :selected-skill-tags="questionItem.skillTags"
                     @remove-knowledge-tag="handleRemoveKnowledgeTag"
@@ -205,27 +247,19 @@
                   <a-col offset="2" span="20">
                     <div class="form-block-title form-block-action">
                       <a-button type="link" icon="plus-circle" @click="handleAddMoreQuestion">
-                        {{ $t('expert.add-unit-plan.add-more-question') }}
+                        {{ $t('teacher.add-unit-plan.add-more-question') }}
                       </a-button>
                     </div>
                   </a-col>
                 </a-row>
               </div>
 
-              <a-row>
-                <a-col offset="4" span="18">
-                  <custom-tag ref="customTag" :selected-tags-list="form.customTags" @change-user-tags="handleChangeUserTags"></custom-tag>
-                </a-col>
-              </a-row>
-
             </a-form-model>
           </a-card>
         </a-col>
-        <a-col span="6" class="right-reference-view">
-          <a-card :bordered="false" :loading="referenceLoading">
-          </a-card>
-        </a-col>
       </a-row>
+
+      <collaborate-content ref="collaborate"/>
       <a-modal
         v-model="selectAddContentTypeVisible"
         :footer="null"
@@ -240,24 +274,9 @@
               {{ $t('teacher.add-unit-plan.task') }}
             </a>
           </div>
-          <!--   <div class="add-content-item">
-            <a @click="handleAddUnitPlanMaterial">
-              <content-type-icon :type="contentType.material"/>
-              {{ $t('teacher.add-unit-plan.material') }}
-            </a>
-          </div>-->
-          <!--        <div class="add-content-item">
-            <a @click="handleAddUnitPlanLesson">
-              <content-type-icon :type="contentType.lesson"/>
-              {{ $t('teacher.add-unit-plan.lesson') }}
-            </a>
+          <div class="add-loading" v-if="addLoading">
+            <a-spin />
           </div>
-          <div class="add-content-item">
-            <a @click="handleAddUnitPlanAssessment">
-              <content-type-icon :type="contentType.assessment"/>
-              {{ $t('teacher.add-unit-plan.assessment') }}
-            </a>
-          </div>-->
         </div>
       </a-modal>
 
@@ -273,6 +292,70 @@
           <my-content-selector :filter-type-list="['task']" />
         </div>
       </a-modal>
+
+      <a-modal
+        v-model="showRelevantQuestionVisible"
+        :footer="null"
+        destroyOnClose
+        top="50px"
+        width="50%"
+        title="Select from the relevant Unit"
+        @ok="showRelevantQuestionVisible = false"
+        @cancel="showRelevantQuestionVisible = false">
+        <div class="select-relevant-tag">
+          <relevant-tag-selector :relevant-question-list="relevantQuestionList" @update-selected="handleUpdateSelected"/>
+        </div>
+        <div class="action-line">
+          <a-button @click="handleCancelSelectedRelevant" class="button-item">Cancel</a-button>
+          <a-button @click="handleConfirmSelectedRelevant" type="primary" class="button-item">Confirm</a-button>
+        </div>
+      </a-modal>
+
+      <a-modal
+        v-model="showAddAudioVisible"
+        :footer="null"
+        destroyOnClose
+        title="Add Audio"
+        @ok="showAddAudioVisible = false"
+        @cancel="showAddAudioVisible = false">
+
+        <div class="audio-material-action">
+          <div class="uploading-mask" v-show="currentUploading">
+            <div class="uploading">
+              <a-spin large />
+            </div>
+          </div>
+          <div class="action-item">
+            <a-upload name="file" accept="audio/*" :customRequest="handleUploadAudio" :showUploadList="false">
+              <a-button type="primary" icon="upload">{{ $t('teacher.add-unit-plan.upload-audio') }}</a-button>
+            </a-upload>
+          </div>
+          <a-divider>
+            {{ $t('teacher.add-unit-plan.or') }}
+          </a-divider>
+          <div class="action-item-column">
+            <vue-record-audio mode="press" @result="handleAudioResult" />
+            <div class="action-tips">
+              {{ $t('teacher.add-unit-plan.record-your-voice') }}
+            </div>
+          </div>
+          <div class="material-action" >
+            <a-button key="back" @click="handleCancelAddAudio" class="action-item">
+              Cancel
+            </a-button>
+            <a-button key="submit" type="primary" @click="handleConfirmAddAudio" class="action-item">
+              Ok
+            </a-button>
+          </div>
+        </div>
+      </a-modal>
+
+      <a-modal v-model="showLibraryVisible" @ok="handleConfirmAssociate" destroyOnClose width="80%" :dialog-style="{ top: '20px' }">
+        <div class="associate-library">
+          <new-browser :select-mode="selectModel.knowledgeDescription" :question-index="selectDescriptionIndex"/>
+        </div>
+      </a-modal>
+
       <a-skeleton :loading="contentLoading" active>
       </a-skeleton>
     </a-card>
@@ -288,47 +371,75 @@
   import { debounce } from 'lodash-es'
   import InputSearch from '@/components/UnitPlan/InputSearch'
   import SdgTagInput from '@/components/UnitPlan/SdgTagInput'
-  import { UpdateContentStatus, GetMyGrades, Associate } from '@/api/teacher'
+  import { GetMyGrades, Associate, UpdateContentStatus } from '@/api/teacher'
   import { SubjectTree } from '@/api/subject'
   import { formatSubjectTree } from '@/utils/bizUtil'
+  import NewUiClickableKnowledgeTag from '@/components/UnitPlan/NewUiClickableKnowledgeTag'
+  import NewClickableSkillTag from '@/components/UnitPlan/NewClickableSkillTag'
   import SkillTag from '@/components/UnitPlan/SkillTag'
   import { TopicAddOrUpdate, TopicQueryById } from '@/api/topic'
   import { formatLocalUTC } from '@/utils/util'
-  import { MaterialDelete } from '@/api/material'
   import MyContentSelector from '@/components/MyContent/MyContentSelector'
-  import Collaborate from '@/components/UnitPlan/Collaborate'
   import AssociateSidebar from '@/components/Associate/AssociateSidebar'
+  import Collaborate from '@/components/UnitPlan/Collaborate'
   import { TaskAddOrUpdate } from '@/api/task'
-  import CustomTag from '../../components/UnitPlan/CustomTag'
-  import NewUiClickableKnowledgeTag from '@/components/UnitPlan/NewUiClickableKnowledgeTag'
+  import { LessonAddOrUpdate } from '@/api/myLesson'
+  import { EvaluationAddOrUpdate } from '@/api/evaluation'
+  import { MyContentEvent, MyContentEventBus } from '@/components/MyContent/MyContentEventBus'
+  import RelevantTagSelector from '@/components/UnitPlan/RelevantTagSelector'
+  import AddKeywordTag from '@/components/Evaluation/AddKeywordTag'
+  import CollaborateContent from '@/components/Collaborate/CollaborateContent'
   import CommonFormHeader from '@/components/Common/CommonFormHeader'
+  import NewBrowser from '@/components/NewLibrary/NewBrowser'
+  import { SelectModel } from '@/components/NewLibrary/SelectModel'
+
   export default {
-    name: 'AddTopic',
+    name: 'AddUnitPlan',
     components: {
+      CollaborateContent,
+      CommonFormHeader,
       ContentTypeIcon,
       InputSearch,
       SdgTagInput,
       NewUiClickableKnowledgeTag,
+      NewClickableSkillTag,
       SkillTag,
       MyContentSelector,
-      Collaborate,
       AssociateSidebar,
-      CustomTag,
-      CommonFormHeader
+      Collaborate,
+      RelevantTagSelector,
+      AddKeywordTag,
+      NewBrowser
     },
     props: {
-      // eslint-disable-next-line vue/require-default-prop
-      topicId: null
+      topicId: {
+        type: String,
+        default: null
+      }
     },
     data () {
       return {
+        showCollaborateVisible: false,
         contentLoading: true,
         referenceLoading: false,
         contentType: typeMap,
 
-        leftAddExpandStatus: false,
         selectAddContentTypeVisible: false,
         selectLinkContentVisible: false,
+
+        showAddAudioVisible: false,
+        currentUploading: false,
+        audioUrl: null,
+
+        selectedMyContentInfoItem: {},
+        // 待选择的unit plan中的描述标签
+        relevantQuestionList: [],
+        showRelevantQuestionVisible: false,
+        relevantSelectedQuestionList: [],
+        relevantSelectedUnitPlan: {},
+
+        subKnowledgeId2InfoMap: new Map(),
+        descriptionId2InfoMap: new Map(),
 
         labelCol: { span: 4 },
         wrapperCol: { span: 18 },
@@ -358,31 +469,30 @@
               ]
             }
           ],
-          scenario: {
+          scenarios: {
             description: '',
+            sdgId: '',
             sdgKeyWords: [
               {
-                keywords: [
-                  {
-                    id: '',
-                    name: ''
-                  }
-                ],
-                sdgId: ''
+                id: '',
+                name: ''
               }
             ]
           },
           createTime: '',
           updateTime: '',
           materials: [],
-          customTags: []
+          customTags: [],
+          overview: '',
+          subjectIds: [],
+          gradeIds: []
         },
 
         uploading: false,
         sdgList: [],
 
         // Subject(s) Covered
-        // subjectList: [],
+        subjectList: [],
 
         // Grades
         gradeList: [],
@@ -397,13 +507,6 @@
         sdgTotal: 0,
         sdgMaxIndex: 0,
         sdgPrefix: '__sdg_',
-        sdgDataObj: {
-          __sdg_0: {
-            sdgId: null,
-            originKeywords: [],
-            selectedKeywords: []
-          }
-        },
 
         // 将questions转成对象
         questionTotal: 0,
@@ -421,7 +524,14 @@
             skillGradeId: '',
             skillTags: []
           }
-        }
+        },
+        addLoading: false,
+        currentIndex: 0,
+        saving: false,
+        publishing: false,
+        showLibraryVisible: false,
+        selectModel: SelectModel,
+        selectDescriptionIndex: ''
       }
     },
     computed: {
@@ -432,12 +542,25 @@
         } else {
           return ''
         }
+      },
+      selectedSdg () {
+        const sdgList = []
+        this.form.scenarios.forEach(item => sdgList.push(item.sdgId))
+        console.log(sdgList)
+        return sdgList
       }
     },
     created () {
       logger.info('topicId ' + this.topicId + ' ' + this.$route.path)
+      // 初始化关联事件处理
+      MyContentEventBus.$on(MyContentEvent.LinkToMyContentItem, this.handleLinkMyContent)
+      MyContentEventBus.$on(MyContentEvent.ToggleSelectContentItem, this.handleToggleSelectContentItem)
       this.initData()
       this.debouncedGetSdgByDescription = debounce(this.searchScenario, 300)
+    },
+    beforeDestroy () {
+      MyContentEventBus.$off(MyContentEvent.LinkToMyContentItem, this.handleLinkMyContent)
+      MyContentEventBus.$off(MyContentEvent.ToggleSelectContentItem, this.handleToggleSelectContentItem)
     },
     methods: {
       initData () {
@@ -478,60 +601,31 @@
           }
           logger.info('sdgList', this.sdgList)
         }).then(() => {
-          this.restoreTopic(this.topicId, true)
+          this.restoreUnitPlan(this.topicId, true)
         }).catch((e) => {
-          this.$logger.info('topic initData', e)
-          console.log(e)
           this.$message.error(this.$t('teacher.add-unit-plan.init-data-failed'))
         }).finally(() => {
           this.referenceLoading = false
         })
       },
 
-      restoreTopic (topicId, isFirstLoad) {
+      restoreUnitPlan (topicId, isFirstLoad) {
         if (isFirstLoad) {
           this.contentLoading = true
         }
-        logger.info('restoreTopic ' + topicId)
+        logger.info('restoreUnitPlan ' + topicId)
         TopicQueryById({
           id: topicId
         }).then(response => {
           logger.info('TopicQueryById ' + topicId, response.result)
           const topicData = response.result
-          if (!topicData.scenario) {
-            topicData.scenario = {
+          if (topicData.scenarios.length === 0) {
+            topicData.scenarios.push({
               description: '',
+              sdgId: '',
               sdgKeyWords: []
-            }
-          }
-
-          const sdgKeys = Object.keys(this.sdgDataObj)
-          sdgKeys.forEach(sdgKey => {
-            logger.info('sdgDataObj delete ' + sdgKey)
-            this.$delete(this.sdgDataObj, sdgKey)
-          })
-          if (topicData.scenario && topicData.scenario.sdgKeyWords && topicData.scenario.sdgKeyWords.length) {
-            topicData.scenario.sdgKeyWords.forEach((sdgKeyword, index) => {
-              const sdg = {
-                sdgId: sdgKeyword.sdgId,
-                originKeywords: sdgKeyword.keywords || [],
-                selectedKeywords: (sdgKeyword.keywords || []).map(item => item.name)
-              }
-              this.$set(this.sdgDataObj, this.sdgPrefix + this.sdgMaxIndex, sdg)
-              logger.info('restore scenarioObj: ' + (this.sdgPrefix + this.sdgMaxIndex), sdg, ' sdgDataObj ', this.sdgDataObj)
-              this.sdgMaxIndex = this.sdgMaxIndex + 1
-              this.sdgTotal = this.sdgTotal + 1
             })
-          } else {
-            const sdg = {
-              originKeywords: [],
-              selectedKeywords: []
-            }
-            this.$set(this.sdgDataObj, this.sdgPrefix + this.sdgMaxIndex, sdg)
-            this.sdgMaxIndex = this.sdgMaxIndex + 1
-            this.sdgTotal = this.sdgTotal + 1
           }
-
           const questionKeys = Object.keys(this.questionDataObj)
           questionKeys.forEach(questionKey => {
             logger.info('questionDataObj delete ' + questionKey)
@@ -570,9 +664,7 @@
             this.questionMaxIndex = this.questionMaxIndex + 1
             this.questionTotal = this.questionTotal + 1
           }
-
           this.form = topicData
-          logger.info('after restoreTopic', this.form, this.sdgDataObj, this.questionDataObj)
         }).finally(() => {
           this.contentLoading = false
         })
@@ -602,17 +694,19 @@
         this.form.image = null
       },
 
-      handleDescriptionSearch (description) {
-        logger.info('handleDescriptionSearch', description)
-        this.form.scenario.description = description
-        this.debouncedGetSdgByDescription(description)
+      handleDescriptionSearch (index, description) {
+        logger.info('handleDescriptionSearch:', index, description)
+        this.form.scenarios[index].description = description
+        this.debouncedGetSdgByDescription(index, description)
       },
 
-      searchScenario (description) {
+      searchScenario (index, description) {
         logger.info('searchScenario', description)
+        this.currentIndex = index
         if (typeof description === 'string' && description.trim().length >= 3) {
+          // this.$refs.descriptionInputSearch.fetching = true
           ScenarioSearch({
-            searchKey: this.form.scenario.description
+            searchKey: this.form.scenarios[index].description
           }).then((response) => {
             logger.info('searchByDescription', response)
             this.descriptionSearchList = response.result
@@ -622,75 +716,54 @@
         }
       },
 
-      // 由于Vue无法响应式处理数据元素，此处通过将数据转为scenarioObj的属性进行处理
-      handleSelectScenario (scenario) {
-        logger.info('handleSelectScenario', scenario, ' sdgMaxIndex ' + this.sdgMaxIndex, ' sdgTotal ' + this.sdgTotal)
-        this.form.scenario.description = scenario.description
-        this.form.scenario.id = scenario.id
-        if (this.sdgTotal === 1) {
-          if (scenario.sdgKeyWords.length) {
-            const sdg = scenario.sdgKeyWords[0]
-            logger.info('scenario.sdgKeyWords[0]', sdg)
-            sdg.selectedKeywords = sdg.keywords.map(keyword => keyword.name)
-            sdg.originKeywords = sdg.keywords
-            logger.info('sdg', sdg)
-            const sdgIndex = Object.keys(this.sdgDataObj)[0]
-            logger.info('sdgIndex', sdgIndex)
-            this.$set(this.sdgDataObj, sdgIndex, sdg)
-          } else {
-            const sdg = {
-              originKeywords: [],
-              selectedKeywords: []
-            }
-            logger.info('sdg keywords empty')
-            const sdgIndex = Object.keys(this.sdgDataObj)[0]
-            logger.info('sdgIndex', sdgIndex)
-            this.$set(this.sdgDataObj, sdgIndex, sdg)
-          }
-          logger.info('after select scenarioObj: ', this.sdgDataObj, 'sdgMaxIndex ' + this.sdgMaxIndex, ' sdgTotal ' + this.sdgTotal)
-        } else {
-          logger.info('not use auto fill, because sdgTotal ' + this.sdgTotal)
+      // 由于Vue无法响应式处理数据元素，此处通过将数据转为scenarioObj的属性进行处理------------------废弃
+      // 直接修改form.scenarios数据
+      handleSelectScenario (index, scenario) {
+        console.log(scenario)
+        this.form.scenarios[index].description = scenario.description
+        if (scenario.sdgKeyWords.length) {
+          const keyWords = scenario.sdgKeyWords
+          logger.info('scenario[' + index + '].sdgKeyWords', keyWords)
+          this.form.scenarios[index].sdgKeyWords = keyWords
         }
       },
 
       handleAddMoreSdg () {
         const sdg = {
-          sdgId: null,
-          originKeywords: [],
-          selectedKeywords: []
+          description: '',
+          sdgId: '',
+          sdgKeyWords: []
         }
-        logger.info('handleAddMoreSdg ', sdg, ' sdgMaxIndex ' + this.sdgMaxIndex, ' sdgTotal ' + this.sdgTotal)
-        this.sdgMaxIndex = this.sdgMaxIndex + 1
-        this.sdgTotal = this.sdgTotal + 1
-        this.$set(this.sdgDataObj, this.sdgPrefix + this.sdgMaxIndex, sdg)
-        logger.info('after add scenarioObj: ', this.sdgDataObj, 'sdgMaxIndex ' + this.sdgMaxIndex, ' sdgTotal ' + this.sdgTotal)
+        this.form.scenarios.push(sdg)
+        // this.$set(this.sdgDataObj, this.sdgPrefix + this.sdgMaxIndex, sdg)
+        // logger.info('after add scenarioObj: ', this.sdgDataObj, 'sdgMaxIndex ' + this.sdgMaxIndex, ' sdgTotal ' + this.sdgTotal)
       },
 
-      handleDeleteSdg (sdgItem, sdgIndex) {
-        logger.info('handleDeleteSdg ', sdgItem, sdgIndex, 'sdgTotal' + this.sdgTotal)
-        if (this.sdgTotal > 1) {
-          this.$delete(this.sdgDataObj, sdgIndex)
-          this.sdgTotal = this.sdgTotal - 1
-          logger.info('sdgDataObj ', this.sdgDataObj, 'sdgTotal ' + this.sdgTotal)
+      handleDeleteSdg (sdgIndex) {
+        if (this.form.scenarios.length > 1) {
+          this.form.scenarios.splice(sdgIndex, 1)
+          logger.info('scenarios ', this.form.scenarios, 'sdgTotal ' + this.form.scenarios.length)
         } else {
           this.$message.warn(this.$t('teacher.add-unit-plan.at-least-one-sdg'))
         }
       },
 
       handleAddSdgTag (data) {
-        const tagName = data.tagName
+        const tag = {
+          name: data.tagName
+        }
         const sdgKey = data.sdgKey
-        logger.info('handleAddSdgTag ', tagName, sdgKey)
-        this.sdgDataObj[sdgKey].selectedKeywords.push(tagName)
-        logger.info('after handleAddSdgTag ', this.sdgDataObj[sdgKey].selectedKeywords)
+        logger.info('handleAddSdgTag ', tag.name, sdgKey)
+        this.form.scenarios[sdgKey].sdgKeyWords.push(tag)
+        logger.info('after handleAddSdgTag ', this.form.scenarios[sdgKey].sdgKeyWords)
       },
 
       handleRemoveSdgTag (data) {
         const tagName = data.tagName
         const sdgKey = data.sdgKey
         logger.info('handleRemoveSdgTag ', tagName, sdgKey)
-        this.sdgDataObj[sdgKey].selectedKeywords.splice(this.sdgDataObj[sdgKey].selectedKeywords.indexOf(tagName), 1)
-        logger.info('after handleRemoveSdgTag ', this.sdgDataObj[sdgKey].selectedKeywords)
+        this.form.scenarios[sdgKey].sdgKeyWords.splice(this.form.scenarios[sdgKey].sdgKeyWords.indexOf(tagName), 1)
+        logger.info('after handleRemoveSdgTag ', this.form.scenarios[sdgKey].sdgKeyWords)
       },
 
       handleSelectSubject (subjects) {
@@ -721,7 +794,7 @@
         logger.info('target question data', this.questionDataObj[data.questionIndex])
         const newTag = {
           description: data.description,
-          // id: data.id,
+          id: data.id,
           name: data.name,
           gradeId: data.gradeId,
           mainSubjectId: data.mainSubjectId,
@@ -768,8 +841,8 @@
 
       },
 
-      handleSaveTopic () {
-        logger.info('handleSaveTopic', this.form, this.sdgDataObj, this.questionDataObj)
+      handleSaveUnitPlan () {
+        logger.info('handleSaveUnitPlan', this.form, this.sdgDataObj, this.questionDataObj)
 
         const topicData = {
           image: this.form.image,
@@ -777,47 +850,18 @@
           name: this.form.name,
           status: this.form.status,
           subjects: this.form.subjects,
-          scenario: {
-            description: this.form.scenario.description,
-            sdgKeyWords: []
-          },
+          scenarios: this.form.scenarios,
           questions: [],
-          customTags: this.form.customTags
+          customTags: this.form.customTags,
+          overview: this.form.overview,
+          subjectIds: this.form.subjectIds,
+          gradeIds: this.form.gradeIds
         }
 
         if (this.topicId) {
           topicData.id = this.topicId
         }
-        if (this.form.scenario.id) {
-          topicData.scenario.id = this.form.scenario.id
-        }
         logger.info('basic topicData', topicData)
-        for (const sdgIndex in this.sdgDataObj) {
-          const sdg = this.sdgDataObj[sdgIndex]
-          logger.info('sdg ' + sdgIndex, sdg)
-          const keywords = []
-          sdg.selectedKeywords.forEach(selectedKeyword => {
-            const existOriginKeyword = sdg.originKeywords.find(item => item.name.trim() === selectedKeyword.trim())
-            if (existOriginKeyword) {
-              logger.info('exist origin keyword [' + selectedKeyword + ']')
-              if (!existOriginKeyword.curriculumId) {
-                existOriginKeyword.curriculumId = this.$store.getters.bindCurriculum
-              }
-              keywords.push(existOriginKeyword)
-            } else {
-              logger.info('new keyword [' + selectedKeyword + ']')
-              keywords.push({
-                name: selectedKeyword,
-                curriculumId: this.$store.getters.bindCurriculum
-              })
-            }
-          })
-          logger.info('sdg scenario keywords', keywords)
-          topicData.scenario.sdgKeyWords.push({
-            sdgId: sdg.sdgId,
-            keywords: keywords
-          })
-        }
         logger.info('sdg topicData', topicData)
         for (const questionIndex in this.questionDataObj) {
           const question = this.questionDataObj[questionIndex]
@@ -846,88 +890,41 @@
           topicData.questions.push(questionItem)
         }
         logger.info('question topicData', topicData)
+        this.saving = true
         TopicAddOrUpdate(topicData).then((response) => {
           logger.info('TopicAddOrUpdate', response.result)
           if (response.success) {
-            this.restoreTopic(response.result.id, false)
+            this.restoreUnitPlan(response.result.id, false)
             this.$message.success(this.$t('teacher.add-unit-plan.save-success'))
           } else {
             this.$message.error(response.message)
           }
+        }).then(() => {
+          this.$refs.associate.loadAssociateData()
+          this.saving = false
         })
       },
-      handlePublishTopic () {
-        logger.info('handlePublishTopic', {
+      handlePublishUnitPlan () {
+        logger.info('handlePublishUnitPlan', {
           id: this.topicId,
           status: 1
         })
+        this.publishing = true
         UpdateContentStatus({
           id: this.topicId,
-          type: this.contentType.topic,
-          status: 1
+          status: 1,
+          type: this.contentType.topic
         }).then(() => {
           this.$message.success(this.$t('teacher.add-unit-plan.publish-success'))
           this.form.status = 1
+          this.publishing = false
         })
       },
 
-      handleAddTopicMaterial () {
-        logger.info('handleAddTopicMaterial ' + this.topicId)
+      handleAddUnitPlanMaterial () {
+        logger.info('handleAddUnitPlanMaterial ' + this.topicId)
         this.$router.push({
           path: '/teacher/unit-plan-material-redirect/' + this.topicId + '/create'
-        })
-      },
-
-      handleAddTopicTask () {
-        logger.info('handleAddTopicTask ' + this.topicId)
-        this.$router.push({
-          path: '/teacher/unit-plan-task-redirect/' + this.topicId + '/create'
-        })
-      },
-
-      handleAddTopicLesson () {
-        logger.info('handleAddTopicLesson ' + this.topicId)
-        this.$router.push({
-          path: '/teacher/unit-plan-lesson-redirect/' + this.topicId + '/create'
-        })
-      },
-
-      handleAddTopicAssessment () {
-        logger.info('handleAddTopicAssessment ' + this.topicId)
-        this.$router.push({
-          path: '/teacher/unit-plan-assessment-redirect/' + this.topicId + '/create'
-        })
-      },
-
-      handleDeleteMaterial (material) {
-        MaterialDelete({
-          id: material.id
-        }).then(response => {
-          TopicQueryById({
-            id: this.topicId
-          }).then(response => {
-            logger.info('handleDeleteMaterial TopicQueryById ' + this.topicId, response.result)
-            this.form.materials = response.result.materials
-          })
-        })
-      },
-      goBack () {
-        if (window.history.length <= 1) {
-          this.$router.push({ path: '/teacher/main/created-by-me' })
-          return false
-        } else {
-          this.$router.go(-1)
-        }
-
-        // setTimeout(() => {
-        //   this.$router.push({ path: '/teacher/main/created-by-me' })
-        // }, 500)
-      },
-
-      handleViewMaterial (material) {
-        this.$logger.info('handleViewMaterial ', material)
-        this.$router.push({
-          path: '/teacher/unit-plan-material/' + this.topicId + '/' + material.id
         })
       },
 
@@ -963,8 +960,278 @@
           this.$logger.info('add loading')
         }
       },
+
+      handleAddUnitPlanLesson () {
+        logger.info('handleAddUnitPlanLesson ' + this.topicId)
+        // 下创建一个空的lesson，然后关联，然后再跳转过去
+        if (!this.addLoading) {
+          this.addLoading = true
+          LessonAddOrUpdate({ name: 'Unnamed Lesson' }).then((response) => {
+            this.$logger.info('LessonAddOrUpdate', response.result)
+            if (response.success) {
+              Associate({
+                fromId: this.topicId,
+                fromType: this.contentType.topic,
+                toId: response.result.id,
+                toType: this.contentType.lesson
+              }).then(response => {
+                this.$logger.info('Associate response ', response)
+                // 刷新子组件的关联数据
+                this.$refs.associate.loadAssociateData()
+              })
+              this.addLoading = false
+              this.$router.push({
+                path: '/teacher/topic-redirect/' + response.result.id
+              })
+            } else {
+              this.$message.error(response.message)
+            }
+          }).finally(() => {
+            this.addLoading = false
+          })
+        } else {
+          this.$logger.info('add loading')
+        }
+      },
+
+      handleAddUnitPlanEvaluation () {
+        logger.info('handleAddUnitPlanEvaluation ' + this.topicId)
+        // 下创建一个空的evaluation，然后关联，然后再跳转过去
+        if (!this.addLoading) {
+          this.addLoading = true
+          EvaluationAddOrUpdate({ name: null }).then((response) => {
+            this.$logger.info('EvaluationAddOrUpdate', response.result)
+            if (response.success) {
+              Associate({
+                fromId: this.topicId,
+                fromType: this.contentType.topic,
+                toId: response.result.id,
+                toType: this.contentType.evaluation
+              }).then(response => {
+                this.$logger.info('Associate response ', response)
+                // 刷新子组件的关联数据
+                this.$refs.associate.loadAssociateData()
+              })
+              this.addLoading = false
+              this.$router.push({
+                path: '/teacher/evaluation-redirect/' + response.result.id
+              })
+            } else {
+              this.$message.error(response.message)
+            }
+          }).finally(() => {
+            this.addLoading = false
+          })
+        } else {
+          this.$logger.info('add loading')
+        }
+      },
+
+      handleLinkMyContent (data) {
+        this.$logger.info('handleLinkMyContent ', data)
+        this.selectLinkContentVisible = false
+        this.loadRelevantTagInfo(data.item)
+      },
+
+      handleToggleSelectContentItem (data) {
+        this.$logger.info('handleToggleSelectContentItem', data)
+        this.selectedMyContentInfoItem = data
+      },
+
+      loadRelevantTagInfo (item) {
+        this.$logger.info('loadRelevantTagInfo', item)
+        this.showRelevantQuestionVisible = false
+        this.relevantSelectedUnitPlan = item
+        if (this.form.questions && this.form.questions.length) {
+          const questionList = this.form.questions
+          const questionMap = new Map()
+          const relevantTagList = []
+          questionList.forEach(questionItem => {
+            if (questionItem.id && !questionMap.has(questionItem.id)) {
+              // 处理knowledge tags
+              const knowledgeTagMap = new Map()
+              const knowledgeTagList = []
+              questionItem.knowledgeTags.forEach(item => {
+                if (!!item.subKnowledgeId && item.curriculumId === this.$store.getters.bindCurriculum) {
+                  if (!knowledgeTagMap.has(item.subKnowledgeId)) {
+                    knowledgeTagMap.set(item.subKnowledgeId, [])
+                    this.subKnowledgeId2InfoMap.set(item.subKnowledgeId, {
+                      ...item
+                    })
+                  }
+
+                  const tagList = knowledgeTagMap.get(item.subKnowledgeId)
+                  tagList.push(item)
+                  knowledgeTagMap.set(item.subKnowledgeId, tagList)
+                }
+              })
+              for (const [id, tagList] of knowledgeTagMap) {
+                knowledgeTagList.push({
+                  id: tagList[0].id,
+                  tagList,
+                  info: this.subKnowledgeId2InfoMap.get(id)
+                })
+              }
+
+              // 处理skill tags
+              const skillTagMap = new Map()
+              const skillTagList = []
+              questionItem.skillTags.forEach(item => {
+                if (!!item.descriptionId && item.curriculumId === this.$store.getters.bindCurriculum) {
+                  if (!skillTagMap.has(item.descriptionId)) {
+                    skillTagMap.set(item.descriptionId, [])
+                    this.descriptionId2InfoMap.set(item.descriptionId, {
+                      ...item
+                    })
+                  }
+
+                  const tagList = skillTagMap.get(item.descriptionId)
+                  tagList.push(item)
+                  skillTagMap.set(item.descriptionId, tagList)
+                }
+              })
+              for (const [id, tagList] of skillTagMap) {
+                skillTagList.push({
+                  id: tagList[0].id,
+                  tagList,
+                  info: this.descriptionId2InfoMap.get(id)
+                })
+              }
+
+              relevantTagList.push({
+                questionName: questionItem.name,
+                questionId: questionItem.id,
+                skillTagList,
+                knowledgeTagList
+              })
+            }
+          })
+          questionMap.clear()
+
+          this.relevantQuestionList = relevantTagList
+          this.showRelevantQuestionVisible = true
+          this.$logger.info('relevantQuestionList', this.relevantQuestionList)
+        } else {
+          this.$logger.info('no relevantQuestionList')
+        }
+      },
+
+      handleCancelSelectedRelevant () {
+        this.showRelevantQuestionVisible = false
+        this.relevantSelectedQuestionList = []
+      },
+
+      handleConfirmSelectedRelevant (data) {
+        this.$logger.info('handleConfirmSelectedRelevant', this.relevantSelectedQuestionList)
+        this.showRelevantQuestionVisible = false
+        const questionDataObj = Object.assign({}, this.questionDataObj['__question_0'])
+        this.$delete(this.questionDataObj, '__question_0')
+        this.$logger.info('questionDataObj __question_0', questionDataObj)
+        this.relevantSelectedQuestionList.forEach(item => {
+          questionDataObj.knowledgeTags = questionDataObj.knowledgeTags.concat(item.knowledgeTags)
+          questionDataObj.skillTags = questionDataObj.skillTags.concat(item.skillTags)
+        })
+
+        this.$nextTick(() => {
+          this.$set(this.questionDataObj, '__question_0', questionDataObj)
+        })
+        this.$logger.info('after $set questionDataObj __question_0', this.questionDataObj)
+        this.$logger.info('handleLinkMyContent unit question', this.relevantSelectedUnitPlan)
+        Associate({
+          fromId: this.form.id,
+          fromType: this.contentType.topic,
+          toId: this.selectedMyContentInfoItem.id,
+          toType: this.selectedMyContentInfoItem.type,
+          questions: this.relevantSelectedQuestionList
+        }).then(response => {
+          this.$logger.info('handleLinkMyContent response ', response)
+          this.$refs.associate.loadAssociateData()
+        })
+      },
+
+      handleUpdateSelected (data) {
+        this.$logger.info('handleUpdateSelected', data)
+        this.relevantSelectedQuestionList = data.questionList
+      },
+
+      goBack () {
+        if (window.history.length <= 1) {
+          this.$router.push({ path: '/teacher/main/created-by-me' })
+          return false
+        } else {
+          this.$router.go(-1)
+        }
+
+        setTimeout(() => {
+          this.$router.push({ path: '/teacher/main/created-by-me' })
+        }, 500)
+      },
       handleChangeUserTags (tags) {
         this.form.customTags = tags
+      },
+      handleAudioResult (data) {
+        logger.info('handleAudioResult', data)
+        this.currentUploading = true
+        const formData = new FormData()
+        formData.append('file', data, 'audio.wav')
+        this.$http.post(commonAPIUrl.UploadFile, formData, { contentType: false, processData: false, headers: { 'Content-Type': 'multipart/form-data' }, timeout: 60000 })
+          .then((response) => {
+            logger.info('handleAudioResult upload response:', response)
+            this.audioUrl = this.$store.getters.downloadUrl + response.result
+            logger.info('handleAudioResult audioUrl', this.audioUrl)
+          }).catch(err => {
+          logger.error('handleAudioResult error', err)
+        }).finally(() => {
+          this.currentUploading = false
+        })
+      },
+
+      handleUploadAudio (data) {
+        logger.info('handleUploadAudio', data)
+        this.currentUploading = true
+        const formData = new FormData()
+        formData.append('file', data.file, data.file.name)
+        this.uploading = true
+        this.$http.post(commonAPIUrl.UploadFile, formData, { contentType: false, processData: false, headers: { 'Content-Type': 'multipart/form-data' }, timeout: 60000 })
+          .then((response) => {
+            logger.info('handleUploadAudio upload response:', response)
+            this.audioUrl = this.$store.getters.downloadUrl + response.result
+          }).catch(err => {
+          logger.error('handleUploadImage error', err)
+        }).finally(() => {
+          this.currentUploading = false
+        })
+      },
+
+      handleCancelAddAudio () {
+        this.audioUrl = null
+        this.showAddAudioVisible = false
+      },
+
+      handleConfirmAddAudio () {
+        if (this.audioUrl) {
+          this.form.audioUrl = this.audioUrl
+          this.audioUrl = null
+        }
+        this.showAddAudioVisible = false
+      },
+
+      handleAddAudioOverview () {
+        this.$logger.info('handleAddAudioOverview')
+        this.showAddAudioVisible = true
+      },
+      handleStartCollaborate () {
+        this.$logger.info('handleStartCollaborate')
+        this.$refs.collaborate.startCollaborateModal(Object.assign({}, this.form), this.form.id, this.contentType.topic)
+      },
+      handleSelectDescription (sdgIndex) {
+        this.$logger.info('handleSelectDescription')
+        this.selectDescriptionIndex = sdgIndex
+        this.showLibraryVisible = true
+      },
+      handleConfirmAssociate () {
+        this.$logger.info('handleConfirmAssociate')
+        this.associateLibraryVisible = false
       }
     }
   }
@@ -1103,7 +1370,30 @@
 
       .content-blocks {
         position: relative;
+        padding-top: 20px;
         border: 1px dotted #fff;
+        padding-right: 40px;
+        .scenario-description{
+          position: relative;
+          .browse{
+            padding: 10px 5px;
+            position: absolute;
+            right: -25px;
+            top: 3px;
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: flex-start;
+            border-radius: 6px;
+          }
+          .btn-icon {
+            height: 18px;
+            width: 18px;
+          }
+          .btn-text {
+            padding: 0 5px;
+          }
+        }
         .sdg-delete-wrapper {
           transition: all 0.2s ease-in;
           display: none;
@@ -1240,11 +1530,24 @@
 
   .add-content-wrapper {
     display: flex;
-    flex-direction: row;
+    flex-direction: column;
     flex-wrap: wrap;
     justify-content: center;
+    align-items: center;
+    position: relative;
+    .add-loading {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-left: -20px;
+      margin-top: -20px;
+    }
     .add-content-item {
-
       width: 80%;
       margin-bottom: 20px;
       text-align: center;
@@ -1259,8 +1562,119 @@
     }
   }
 
-  .link-content-wrapper {
+  .select-relevant-tag {
+    max-height: 60vh;
+    overflow-y: scroll;
+  }
 
+  .action-line {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-end;
+    align-items: center;
+    margin-top: 20px;
+    .button-item {
+      margin-left: 10px;
+    }
+  }
+
+  .task-audio-line {
+    position: relative;
+    .task-audio {
+      position: absolute;
+      right: -35px;
+      top: -20px;
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      justify-content: flex-start;
+    }
+  }
+  .audio-material-action {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+
+    .uploading-mask {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: fade(#eee, 80%);
+      z-index: 100;
+      .uploading {
+        z-index: 110;
+        position: absolute;
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+        width: 100px;
+        left: 50%;
+        top: 45%;
+        margin-left: -50px;
+      }
+    }
+
+    .action-item {
+      display: flex;
+      flex-direction: row;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .action-item-column {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 15px 0;
+      .action-tips {
+        line-height: 32px;
+        cursor: pointer;
+        user-select: none;
+      }
+    }
+  }
+  .material-action {
+    padding: 10px 0;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+
+    .action-item {
+      margin-left: 20px;
+    }
+  }
+  .audio-wrapper {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    height: 30px;
+    audio {
+      height: 30px;
+      border: none;
+      outline: none;
+    }
+
+    span {
+      padding: 0 10px;
+      color: red;
+      cursor: pointer;
+    }
+  }
+  .ant-select-dropdown-menu-item {
+    overflow: auto;
+    white-space: normal;
+  }
+
+  .self-field-label {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-end;
+    line-height: 32px;
+    padding-right: 10px;
   }
 
 </style>

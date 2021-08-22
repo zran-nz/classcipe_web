@@ -19,7 +19,7 @@ export default {
   'teacher.add-lesson.upload-a-picture': 'Upload a picture',
   'teacher.add-lesson.upload-material': 'Upload your material',
   'teacher.add-lesson.click-to-upload': 'Click to upload',
-  'teacher.add-lesson.real-life-scenario': 'Real life Scenario',
+  'teacher.add-lesson.real-life-scenario': 'Sustainable development goal',
   'teacher.add-lesson.description': 'Description',
   'teacher.add-lesson.sdg-label': 'Choose the relevant UN sustainable development goal',
   'teacher.add-lesson.key-words': 'Key words',
