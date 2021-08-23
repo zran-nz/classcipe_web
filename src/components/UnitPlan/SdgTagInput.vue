@@ -8,9 +8,10 @@
               {{ tag.name }}
             </a-tag>
           </div>
-          <div class="tag-input tag-dom my-form-input">
+          <div class="tag-input tag-dom ">
             <input
               type="text"
+              placeholder="Enter key words"
               @keyup.enter="handleAddTag"
               @blur="active = false"
               @search="searchTag"
@@ -96,7 +97,7 @@ export default {
     inputWidth () {
       const value = this.inputValue || ''
       const length = value.trim().length * 20 + 22
-      return (length > 60 ? length : 60) + 'px'
+      return (length > 100 ? length : 100) + 'px'
     }
   },
   created () {
@@ -293,6 +294,7 @@ export default {
     flex-direction: row;
     justify-content: flex-start;
     align-items: center;
+    min-height: 40px;
 
     .tag-list {
       display: flex;
