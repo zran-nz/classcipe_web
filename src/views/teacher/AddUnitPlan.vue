@@ -161,9 +161,9 @@
                   </a-col>
                 </a-row>
               </div>
-              <a-divider />
 
               <div class="form-block">
+                <a-divider />
                 <a-input v-model="form.inquiry" :placeholder="$store.getters.currentRole === 'teacher' ? $t('teacher.add-unit-plan.teacher-direction-of-inquiry') : $t('teacher.add-unit-plan.expert-direction-of-inquiry')" class="my-form-input" />
               </div>
 
@@ -1358,8 +1358,8 @@ export default {
       width: 600px;
       position: relative;
       border: 1px dotted #fff;
-
       .scenario-description{
+        margin-top: 10px;
         position: relative;
         .browse{
           padding: 10px 5px;

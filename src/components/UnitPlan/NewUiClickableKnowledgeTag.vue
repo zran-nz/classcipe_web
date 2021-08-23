@@ -26,9 +26,9 @@
                 <div :class="{'mode-item': true, 'knowledge-active-mode' : currentMode === mode.knowledge}" @click="handleToggleMode(mode.knowledge)">
                   Knowledge tags
                 </div>
-                <div :class="{'mode-item': true, 'general-active-mode' : currentMode === mode.general}" @click="handleToggleMode(mode.general)">
+                <!-- <div :class="{'mode-item': true, 'general-active-mode' : currentMode === mode.general}" @click="handleToggleMode(mode.general)">
                   General ability
-                </div>
+                </div>-->
               </div>
             </div>
           </a-tooltip>
