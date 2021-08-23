@@ -22,16 +22,16 @@
             @link="selectLinkContentVisible = true"
             :show-create="true"/>
         </a-col>
-        <a-col span="15" class="main-content">
+        <a-col span="16" offset="2" class="main-content">
           <a-card :bordered="false" :body-style="{padding: '16px'}">
-            <a-form-model :model="form" :label-col="labelCol" :wrapper-col="wrapperCol" >
+            <a-form-model :model="form" class="my-form-wrapper">
               <div class="form-block">
-                <!--              unit-name-->
-                <a-form-model-item :label="$t('teacher.add-unit-plan.unit-name')">
-                  <a-input v-model="form.name" />
-                </a-form-model-item>
-                <!--              image-->
-                <a-form-model-item :label="$t('teacher.add-unit-plan.image')" class="img-wrapper">
+                <a-input v-model="form.name" placeholder="Name" class="my-form-input" />
+              </div>
+
+              <div class="form-block">
+                <!-- image-->
+                <a-form-model-item class="img-wrapper">
                   <a-upload-dragger
                     name="file"
                     accept="image/png, image/jpeg"
@@ -60,7 +60,7 @@
                     <template v-if="!uploading && form && !form.image">
                       <div class="upload-container">
                         <p class="ant-upload-drag-icon">
-                          <a-icon type="picture" />
+                          <img src="~@/assets/icons/lesson/upload_icon.png" class="upload-icon" />
                         </p>
                         <p class="ant-upload-text">
                           {{ $t('teacher.add-unit-plan.upload-a-picture') }}
@@ -70,23 +70,27 @@
                   </a-upload-dragger>
                 </a-form-model-item>
 
-                <!--      overview-->
-                <a-form-model-item :label="$t('teacher.add-lesson.overview')" class="task-audio-line">
-                  <a-textarea v-model="form.overview" allow-clear />
+                <a-form-model-item class="task-audio-line">
+                  <a-textarea v-model="form.overview" allow-clear placeholder="Overview"/>
                   <div class="audio-wrapper" v-if="form.audioUrl">
                     <audio :src="form.audioUrl" controls />
                     <span @click="form.audioUrl = null"><a-icon type="delete" /></span>
                   </div>
-                  <div class="task-audio" @click="handleAddAudioOverview">
-                    <a-icon type="audio" />
-                  </div>
+                  <a-tooltip>
+                    <template slot="title">
+                      Voice input
+                    </template>
+                    <div class="task-audio" @click="handleAddAudioOverview">
+                      <img src="~@/assets/icons/lesson/microphone.png" />
+                    </div>
+                  </a-tooltip>
                 </a-form-model-item>
 
               </div>
               <!--            real-life-scenario-->
               <div class="form-block">
                 <a-row>
-                  <a-col offset="2" span="20">
+                  <a-col span="24">
                     <div class="form-block-title">
                       <a-divider orientation="left">
                         {{ $t('teacher.add-unit-plan.real-life-scenario') }}
@@ -109,7 +113,7 @@
 
                   <!--description-->
                   <div class="scenario-description">
-                    <a-form-model-item :label="$t('teacher.add-unit-plan.description')">
+                    <a-form-model-item>
                       <input-search
                         ref="descriptionInputSearch"
                         :v-model="scenario.description"
@@ -132,8 +136,8 @@
                   </div>
 
                   <!--sdg-->
-                  <a-form-model-item :label="$t('teacher.add-unit-plan.sdg-label')" class="long-label-form-item">
-                    <a-select v-model="scenario.sdgId" placeholder="please select sdg" class="my-select">
+                  <a-form-model-item >
+                    <a-select size="large" v-model="scenario.sdgId" placeholder="Choose the Bloom Taxonomy Categories" class="my-big-select">
                       <a-select-option v-for="(sdg,index) in sdgList" :value="sdg.id" :key="index" :disabled="selectedSdg.indexOf(sdg.id) != -1">
                         {{ sdg.name }}
                       </a-select-option>
@@ -141,14 +145,14 @@
                   </a-form-model-item>
 
                   <!--keywords-->
-                  <a-form-model-item :label="$t('teacher.add-unit-plan.key-words')">
+                  <a-form-model-item>
                     <sdg-tag-input :selected-keywords="scenario.sdgKeyWords" :sdg-key="sdgIndex" @add-tag="handleAddSdgTag" @remove-tag="handleRemoveSdgTag"/>
                   </a-form-model-item>
                 </div>
 
                 <!--add-new-sdg-->
                 <a-row>
-                  <a-col offset="2" span="20">
+                  <a-col span="22">
                     <div class="form-block-title form-block-action">
                       <a-button type="link" icon="plus-circle" @click="handleAddMoreSdg">
                         {{ $t('Choose another sustainable development goal') }}
@@ -158,81 +162,39 @@
                 </a-row>
               </div>
               <a-divider />
+
               <div class="form-block">
-                <a-row>
-                  <a-form-model-item :label="$store.getters.currentRole === 'teacher' ? $t('teacher.add-unit-plan.teacher-direction-of-inquiry') : $t('teacher.add-unit-plan.expert-direction-of-inquiry')" class="long-label-form-item">
-                    <a-input v-model="form.inquiry" allow-clear />
-                  </a-form-model-item>
-                </a-row>
+                <a-input v-model="form.inquiry" :placeholder="$store.getters.currentRole === 'teacher' ? $t('teacher.add-unit-plan.teacher-direction-of-inquiry') : $t('teacher.add-unit-plan.expert-direction-of-inquiry')" class="my-form-input" />
               </div>
 
               <div class="form-block">
-                <a-row>
-                  <a-col span="4">
-                    <div class="self-field-label">
-                      Subjects
-                    </div>
-                  </a-col>
-                  <a-col span="18">
-                    <a-row :gutter="16">
-                      <a-col span="11">
-                        <a-form-model-item class="label-form-item">
-                          <a-select v-model="form.subjectIds" mode="multiple" placeholder="Please select subjects">
-                            <a-select-opt-group v-for="subjectOptGroup in subjectTree" :key="subjectOptGroup.id">
-                              <span slot="label">{{ subjectOptGroup.name }}</span>
-                              <a-select-option
-                                :value="subjectOption.id"
-                                v-for="subjectOption in subjectOptGroup.children"
-                                :key="subjectOption.id">{{ subjectOption.name }}
-                              </a-select-option>
-                            </a-select-opt-group>
-                          </a-select>
-                        </a-form-model-item>
-                      </a-col>
-
-                      <a-col span="13" class="grade-select">
-                        <a-form-model-item label="Grade" class="label-form-item">
-                          <a-select v-model="form.gradeIds" placeholder="Please select grade" mode="multiple">
-                            <a-select-option :value="gradeOption.id" v-for="gradeOption in gradeList" :key="gradeOption.id">
-                              {{ gradeOption.name }}
-                            </a-select-option>
-                          </a-select>
-                        </a-form-model-item>
-                      </a-col>
-                    </a-row>
-                  </a-col>
-                </a-row>
+                <div class="subject-grade-wrapper">
+                  <div class="select-item">
+                    <a-select size="large" v-model="form.subjectIds" mode="multiple" placeholder="Subjects" class="subject-item">
+                      <a-select-opt-group v-for="subjectOptGroup in subjectTree" :key="subjectOptGroup.id">
+                        <span slot="label">{{ subjectOptGroup.name }}</span>
+                        <a-select-option
+                          :value="subjectOption.id"
+                          v-for="subjectOption in subjectOptGroup.children"
+                          :key="subjectOption.id">{{ subjectOption.name }}
+                        </a-select-option>
+                      </a-select-opt-group>
+                    </a-select>
+                  </div>
+                  <div class="select-item">
+                    <a-select size="large" v-model="form.gradeIds" placeholder="Grade" mode="multiple" class="grade-item">
+                      <a-select-option :value="gradeOption.id" v-for="gradeOption in gradeList" :key="gradeOption.id">
+                        {{ gradeOption.name }}
+                      </a-select-option>
+                    </a-select>
+                  </div>
+                </div>
               </div>
+
               <div class="form-block">
                 <div class="content-blocks question-item" v-for="(questionItem, questionIndex) in questionDataObj" :key="questionIndex" v-if="questionItem !== null">
-                  <div class="knowledge-delete-wrapper" @click="handleDeleteQuestion(questionItem, questionIndex)" v-show="questionTotal > 1">
-                    <a-tooltip placement="top">
-                      <template slot="title">
-                        <span>{{ $t('teacher.add-unit-plan.delete-questions') }}</span>
-                      </template>
-                      <div class="sdg-delete">
-                        <a-icon type="delete" :style="{ fontSize: '20px' }" />
-                      </div>
-                    </a-tooltip>
-                  </div>
-                  <a-row>
-                    <a-col offset="4" span="18">
-                      <div class="form-block-title">
-                        <a-divider dashed>
-                          {{ $t('teacher.add-unit-plan.questions') }}
-                        </a-divider>
-                      </div>
-                    </a-col>
-                  </a-row>
-                  <a-form-model-item class="long-label-form-item" :label="$store.getters.currentRole === 'teacher' ? $t('teacher.add-unit-plan.teacher-nth-key-question') : $t('teacher.add-unit-plan.expert-nth-key-question')" >
-                    <a-input v-model="questionItem.name" allow-clear/>
-                  </a-form-model-item>
-
-                  <!--knowledge tag-select -->
                   <new-ui-clickable-knowledge-tag
                     :question-index="questionIndex"
-                    :grade-ids="form.gradeIds"
-                    :subject-ids="form.subjectIds"
                     :selected-knowledge-tags="questionItem.knowledgeTags"
                     :selected-skill-tags="questionItem.skillTags"
                     @remove-knowledge-tag="handleRemoveKnowledgeTag"
@@ -240,25 +202,12 @@
                     @remove-skill-tag="handleRemoveSkillTag"
                     @add-skill-tag="handleAddSkillTag"
                   />
-
                 </div>
-
-                <a-row>
-                  <a-col offset="2" span="20">
-                    <div class="form-block-title form-block-action">
-                      <a-button type="link" icon="plus-circle" @click="handleAddMoreQuestion">
-                        {{ $t('teacher.add-unit-plan.add-more-question') }}
-                      </a-button>
-                    </div>
-                  </a-col>
-                </a-row>
               </div>
 
-              <a-row>
-                <a-col offset="4" span="18">
-                  <custom-tag ref="customTag" :selected-tags-list="form.customTags" @change-user-tags="handleChangeUserTags"></custom-tag>
-                </a-col>
-              </a-row>
+              <div class="form-block">
+                <custom-tag ref="customTag" :selected-tags-list="form.customTags" @change-user-tags="handleChangeUserTags"></custom-tag>
+              </div>
 
             </a-form-model>
           </a-card>
@@ -491,7 +440,7 @@ export default {
         ],
         scenarios: {
           description: '',
-          sdgId: '',
+          sdgId: undefined,
           sdgKeyWords: [
             {
               id: '',
@@ -642,8 +591,14 @@ export default {
         if (unitPlanData.scenarios.length === 0) {
           unitPlanData.scenarios.push({
             description: '',
-            sdgId: '',
+            sdgId: undefined,
             sdgKeyWords: []
+          })
+        } else {
+          unitPlanData.scenarios.forEach(item => {
+            if (!item.sdgId) {
+              item.sdgId = undefined
+            }
           })
         }
         const questionKeys = Object.keys(this.questionDataObj)
@@ -751,7 +706,7 @@ export default {
     handleAddMoreSdg () {
       const sdg = {
           description: '',
-          sdgId: '',
+          sdgId: undefined,
           sdgKeyWords: []
         }
       this.form.scenarios.push(sdg)
@@ -1348,8 +1303,6 @@ export default {
   }
 
   .main-content {
-    padding: 30px 0;
-
     .image-preview {
       img {
         max-width: 100%;
@@ -1357,7 +1310,8 @@ export default {
     }
 
     p.ant-upload-text {
-      color: @text-color;
+      color: #000;
+      font-family: Inter-Bold;
     }
 
     .upload-container {
@@ -1366,6 +1320,18 @@ export default {
 
     .uploading-tips {
       padding-left: 10px;
+    }
+
+    .upload-icon {
+      height: 70px;
+    }
+    .select-template {
+      text-align: center;
+
+      .lesson-select-template {
+        margin-left: 10px;
+        margin-right: 10px;
+      }
     }
 
     .form-block-title {
@@ -1389,17 +1355,17 @@ export default {
     }
 
     .content-blocks {
+      width: 600px;
       position: relative;
-      padding-top: 20px;
       border: 1px dotted #fff;
-      padding-right: 40px;
+
       .scenario-description{
         position: relative;
         .browse{
           padding: 10px 5px;
           position: absolute;
-          right: -25px;
-          top: 3px;
+          right: -100px;
+          top: 5px;
           display: flex;
           flex-direction: row;
           align-items: center;
@@ -1414,13 +1380,14 @@ export default {
           padding: 0 5px;
         }
       }
+
       .sdg-delete-wrapper {
         transition: all 0.2s ease-in;
-        display: none;
+        display: block;
         position: absolute;
         text-align: center;
-        right: 15px;
-        top: 80px;
+        right:-60px;
+        top: 65px;
         line-height: 50px;
         width: 50px;
         height: 50px;
@@ -1428,10 +1395,9 @@ export default {
         color: @link-hover-color;
         z-index: 1000;
       }
-
       &:hover {
-        border: 1px dotted @link-hover-color;
-        box-sizing: border-box;
+        //border: 1px dotted @link-hover-color;
+        //box-sizing: border-box;
         .sdg-delete-wrapper {
           display: block;
         }
@@ -1450,10 +1416,11 @@ export default {
         cursor: pointer;
         color: @link-hover-color;
         z-index: 1000;
+        display: block;
       }
 
       &:hover {
-        border: 1px dotted @link-hover-color;
+        //border: 1px dotted @link-hover-color;
         cursor: pointer;
         box-sizing: border-box;
         .knowledge-delete-wrapper {
@@ -1474,6 +1441,7 @@ export default {
 
     .img-wrapper {
       position: relative;
+      width: 600px;
     }
     .delete-img {
       position: absolute;
@@ -1600,14 +1568,38 @@ export default {
 
 .task-audio-line {
   position: relative;
+  width: 600px;
   .task-audio {
     position: absolute;
-    right: -35px;
-    top: -20px;
+    right: -55px;
+    top: -30px;
+    cursor: pointer;
     display: flex;
     flex-direction: row;
     align-items: center;
     justify-content: flex-start;
+
+    img {
+      height: 40px;
+    }
+  }
+}
+
+.audio-wrapper {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  height: 30px;
+  audio {
+    height: 30px;
+    border: none;
+    outline: none;
+  }
+
+  span {
+    padding: 0 10px;
+    color: red;
+    cursor: pointer;
   }
 }
 .audio-material-action {
@@ -1666,23 +1658,6 @@ export default {
     margin-left: 20px;
   }
 }
-.audio-wrapper {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  height: 30px;
-  audio {
-    height: 30px;
-    border: none;
-    outline: none;
-  }
-
-  span {
-    padding: 0 10px;
-    color: red;
-    cursor: pointer;
-  }
-}
 .ant-select-dropdown-menu-item {
   overflow: auto;
   white-space: normal;
@@ -1695,6 +1670,22 @@ export default {
   justify-content: flex-end;
   line-height: 32px;
   padding-right: 10px;
+}
+
+.form-block {
+  margin-bottom: 35px;
+  width: 600px;
+}
+.subject-grade-wrapper {
+  width: 600px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+
+  .select-item {
+    width: 280px;
+  }
 }
 
 </style>

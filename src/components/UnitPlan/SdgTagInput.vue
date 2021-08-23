@@ -8,7 +8,7 @@
               {{ tag.name }}
             </a-tag>
           </div>
-          <div class="tag-input tag-dom">
+          <div class="tag-input tag-dom my-form-input">
             <input
               type="text"
               @keyup.enter="handleAddTag"
