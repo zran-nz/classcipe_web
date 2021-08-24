@@ -4,7 +4,9 @@
       <img src="~@/assets/icons/library/no_more_resources.png" />
     </div>
     <div class="tips">
-      {{ tips }}
+      <a @click="showDialog()">
+        {{ tips }}
+      </a>
     </div>
   </div>
 </template>
@@ -13,6 +15,11 @@
 export default {
   name: 'NoMoreResources',
 
+  methods: {
+    showDialog () {
+      this.$emit('show-library')
+    }
+  },
   props: {
     tips: {
       type: String,
