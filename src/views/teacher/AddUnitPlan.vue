@@ -195,6 +195,8 @@
                 <div class="content-blocks question-item" v-for="(questionItem, questionIndex) in questionDataObj" :key="questionIndex" v-if="questionItem !== null">
                   <new-ui-clickable-knowledge-tag
                     :question-index="questionIndex"
+                    :grade-ids="form.gradeIds"
+                    :subject-ids="form.subjectIds"
                     :selected-knowledge-tags="questionItem.knowledgeTags"
                     :selected-skill-tags="questionItem.skillTags"
                     @remove-knowledge-tag="handleRemoveKnowledgeTag"
