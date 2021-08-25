@@ -102,7 +102,7 @@ export default {
   },
   data () {
     return {
-      subTreeExpandStatus: ExpandStatus.collapse,
+      subTreeExpandStatus: this.defaultDeep < 2 ? ExpandStatus.open : ExpandStatus.collapse,
       hasSubTree: false,
       subTreeParent: null,
       subTreeLoading: false

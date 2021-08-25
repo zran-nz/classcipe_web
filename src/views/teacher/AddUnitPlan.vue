@@ -87,6 +87,12 @@
                 </a-form-model-item>
 
               </div>
+
+              <div class="form-block">
+                <!--                <a-divider />-->
+                <a-input v-model="form.inquiry" :placeholder="$store.getters.currentRole === 'teacher' ? $t('teacher.add-unit-plan.teacher-direction-of-inquiry') : $t('teacher.add-unit-plan.expert-direction-of-inquiry')" class="my-form-input" />
+              </div>
+
               <!--            real-life-scenario-->
               <div class="form-block">
                 <a-row>
@@ -164,10 +170,6 @@
 
               <div class="form-block">
                 <a-divider />
-                <a-input v-model="form.inquiry" :placeholder="$store.getters.currentRole === 'teacher' ? $t('teacher.add-unit-plan.teacher-direction-of-inquiry') : $t('teacher.add-unit-plan.expert-direction-of-inquiry')" class="my-form-input" />
-              </div>
-
-              <div class="form-block">
                 <div class="subject-grade-wrapper">
                   <div class="select-item">
                     <a-select size="large" v-model="form.subjectIds" mode="multiple" placeholder="Subjects" class="subject-item">

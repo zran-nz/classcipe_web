@@ -18,7 +18,7 @@
 <script>
 import NewTreeItem from '@/components/NewLibrary/NewTreeItem'
 import { NavigationType } from '@/components/NewLibrary/NavigationType'
-const { GetAllSdgs } = require('@/api/scenario')
+// const { GetAllSdgs } = require('@/api/scenario')
 const { GetMyGrades } = require('@/api/teacher')
 const { SubjectTree } = require('@/api/subject')
 
@@ -57,16 +57,16 @@ export default {
       children: [],
       parent: null
     }
-    const sdgData = {
-      expandStatus: true,
-      type: NavigationType.sdg,
-      name: 'Sustainable development goal',
-      children: [],
-      parent: null
-    }
+    // const sdgData = {
+    //   expandStatus: true,
+    //   type: NavigationType.sdg,
+    //   name: 'Sustainable development goal',
+    //   children: [],
+    //   parent: null
+    // }
     Promise.all([
       SubjectTree({ curriculumId: this.$store.getters.bindCurriculum }),
-      GetAllSdgs(),
+      // GetAllSdgs(),
       GetMyGrades()
     ]).then((initDataResponse) => {
       this.$logger.info('initData done', initDataResponse)
@@ -78,22 +78,22 @@ export default {
         curriculumData.children = initDataResponse[0].result
       }
 
-      // GetAllSdgs
-      this.$logger.info('GetAllSdgs Response ', initDataResponse[1])
-      if (!initDataResponse[1].code) {
-        this.sdgList = initDataResponse[1].result
-        this.sdgList.forEach(item => { item.children = [] })
-        sdgData.children = this.sdgList
-      }
+      // // GetAllSdgs
+      // this.$logger.info('GetAllSdgs Response ', initDataResponse[1])
+      // if (!initDataResponse[1].code) {
+      //   this.sdgList = initDataResponse[1].result
+      //   this.sdgList.forEach(item => { item.children = [] })
+      //   sdgData.children = this.sdgList
+      // }
 
       // GetMyGrades
-      this.$logger.info('GetMyGrades Response ', initDataResponse[2])
-      if (!initDataResponse[2].code) {
-        this.gradeList = initDataResponse[2].result
+      this.$logger.info('GetMyGrades Response ', initDataResponse[1])
+      if (!initDataResponse[1].code) {
+        this.gradeList = initDataResponse[1].result
       }
     }).finally(() => {
       this.treeDataList.push(curriculumData)
-      this.treeDataList.push(sdgData)
+      // this.treeDataList.push(sdgData)
       this.loaded = true
     })
   },

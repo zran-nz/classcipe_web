@@ -114,12 +114,12 @@
                   'skill-mode': currentMode === mode.skill,
                   'general-mode': currentMode === mode.general,
                 }">
-                <div class="skt-tag-create-line" @click="handleCreateTagByInput">
-                  <div class="create-tag-label">
+                <div class="skt-tag-create-line" @click="handleCreateTagByInput" >
+                  <div class="create-tag-label" v-if="createTagName">
                     Create
                   </div>
                   <div class="create-tag">
-                    <a-tag class="created-tag-item" v-if="createTagName && createTagName.length >= 1">
+                    <a-tag class="created-tag-item" v-if="createTagName">
                       {{ createTagName }}
                     </a-tag>
                   </div>
@@ -524,7 +524,7 @@
                 })
               }
             } else {
-              if (this.descriptionKnowLedgeTagList.findIndex(tItem => tItem.subKnowledgeId === data.subKnowledgeId) === -1) {
+              if (this.descriptionSkillTagList.findIndex(tItem => tItem.subKnowledgeId === data.subKnowledgeId) === -1) {
               this.descriptionSkillTagList.push({
                 subKnowledgeId: data.subKnowledgeId,
                 tagList: [],
@@ -629,6 +629,8 @@
               tagType: this.currentMode === mode.knowledge ? TagType.knowledge : TagType.skill
             })
           }
+          this.createTagName = ''
+          this.inputTag = ''
         }
       },
 
