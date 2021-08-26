@@ -748,6 +748,10 @@ export default {
         align-items: center;
         justify-content: flex-start;
         padding: 5px 0;
+        cursor: pointer;
+        &:hover {
+          background: rgba(0, 0, 0, 5%)
+        }
 
         .create-tag-label {
           font-size: 14px;

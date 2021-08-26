@@ -26,6 +26,9 @@
             <div class="name-text">
               {{ item.name || item.description }}
             </div>
+            <div class="action-icon" v-if="selectedIdList.indexOf(item.id) !== -1">
+              <img src="~@/assets/icons/lesson/selected.png"/>
+            </div>
           </div>
           <!--          <div class="owner">-->
           <!--            {{ item.createBy }}-->
@@ -210,6 +213,17 @@ export default {
     .selected-line {
       background-color: fade(@outline-color, 10%);
       color: @text-color;
+      margin: 3px;
+      border: 1px solid #15C39A;
+      box-sizing: border-box;
+
+      .action-icon {
+        position: absolute;
+        right: 40px;
+        img {
+          height: 18px;
+        }
+      }
     }
 
     .active-line {

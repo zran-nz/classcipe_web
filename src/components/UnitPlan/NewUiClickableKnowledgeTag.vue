@@ -1050,11 +1050,13 @@
           background: rgba(243, 234, 233, 0.5);
 
           .tag-item {
+            cursor: pointer;
             background-color: rgba(239, 78, 78, 1);
             color: #fff;
           }
 
           .recommend-tag-item {
+            cursor: pointer;
             padding: 3px 6px;
             border-radius: 18px;
             font-family: Inter-Bold;
@@ -1066,6 +1068,7 @@
           .create-tag {
             margin-right: 5px;
             .created-tag-item {
+              cursor: pointer;
               margin: 0 3px;
               padding: 3px 6px;
               border-radius: 18px;
@@ -1081,6 +1084,7 @@
           background: rgba(21, 195, 154, 0.1);
 
           .tag-item {
+            cursor: pointer;
             background-color: rgba(21, 195, 154, 1);
             color: #fff;
           }
@@ -1097,6 +1101,7 @@
           .create-tag {
             margin-right: 5px;
             .created-tag-item {
+              cursor: pointer;
               margin: 0 3px;
               padding: 3px 6px;
               border-radius: 18px;
@@ -1128,6 +1133,7 @@
           .create-tag {
             margin-right: 5px;
             .created-tag-item {
+              cursor: pointer;
               margin: 0 3px;
               padding: 3px 6px;
               border-radius: 18px;
@@ -1167,6 +1173,7 @@
           align-items: center;
           justify-content: flex-start;
           padding: 5px 0;
+          cursor: pointer;
 
           .create-tag-label {
             font-size: 14px;

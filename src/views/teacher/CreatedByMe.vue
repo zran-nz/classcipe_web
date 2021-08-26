@@ -104,7 +104,7 @@
                         </div>
                       </div>
                       <div class="start-session-wrapper action-item-wrapper">
-                        <div class="session-btn" @click="handleStartSession(item)" v-if="item.type === typeMap['lesson'] || item.type === typeMap['task']">
+                        <div class="session-btn" @click="handleStartSessionTags(item)" v-if="item.type === typeMap['lesson'] || item.type === typeMap['task']">
                           <div class="session-btn-icon">
                             <start-session-svg />
                           </div>
@@ -187,12 +187,12 @@
                       <a-icon type="more" style="margin-right: 8px" />
                       <a-menu slot="overlay">
                         <a-menu-item>
-                          <a @click="handleStartSession(item)">
+                          <a @click="handleStartSessionTags(item)">
                             {{ $t('teacher.my-content.action-session-new') }}
                           </a>
                         </a-menu-item>
                         <a-menu-item>
-                          <a @click="handleViewPreviewSession(item)">
+                          <a @click="handleStartSessionTags(item)">
                             {{ $t('teacher.my-content.action-session-previous') }}
                           </a>
                         </a-menu-item>
@@ -234,6 +234,20 @@
           <no-more-resources tips="Not exist previous sessions" v-else/>
         </div>
       </a-modal>
+
+      <a-modal
+        title="Add sesson tags"
+        @ok="handleStartSession({})"
+        okText="Start"
+        v-model="lessonSelectTagVisible"
+        :maskClosable="false"
+        :closable="true"
+        destroyOnClose
+        width="800px">
+        <div class="collaborate-content-wrapper">
+          <custom-tag :selected-tags-list="sessonTags" @change-user-tags="handleSelectedSessonTags" />
+        </div>
+      </a-modal>
     </div>
   </div>
 </template>
@@ -251,6 +265,7 @@ import EvaluationSvg from '@/assets/icons/common/evaluation.svg?inline'
 import PreviousSessionsSvg from '@/assets/icons/common/PreviousSessions.svg?inline'
 import StartSessionSvg from '@/assets/icons/common/StartSession.svg?inline'
 import ClassList from '@/components/Teacher/ClassList'
+import CustomTag from '@/components/UnitPlan/CustomTag'
 import storage from 'store'
 import {
   SESSION_CURRENT_PAGE,
@@ -273,7 +288,8 @@ export default {
     TvSvg,
     EvaluationSvg,
     PreviousSessionsSvg,
-    StartSessionSvg
+    StartSessionSvg,
+    CustomTag
   },
   data () {
     return {
@@ -310,7 +326,10 @@ export default {
       viewPreviewSessionVisible: false,
       PPTCommentPreviewVisible: false,
       classList: [],
-      viewMode: storage.get(SESSION_VIEW_MODE) ? storage.get(SESSION_VIEW_MODE) : 'list'
+      viewMode: storage.get(SESSION_VIEW_MODE) ? storage.get(SESSION_VIEW_MODE) : 'list',
+      lessonSelectTagVisible: false,
+      sessonTags: [],
+      sessonItem: {}
     }
   },
   locomputed: {
@@ -441,7 +460,9 @@ export default {
       })
     },
 
-    handleStartSession (item) {
+    handleStartSession () {
+      this.$logger.info('selected sessonTags', this.sessonTags)
+      const item = this.sessonItem
       this.$logger.info('handleStartSession', item)
       if (item.presentationId) {
         const requestData = {
@@ -501,6 +522,15 @@ export default {
       this.$logger.info('handleViewPreviewSession', item)
       this.currentPreviewLesson = item
       this.viewPreviewSessionVisible = true
+    },
+    handleSelectedSessonTags (tags) {
+      this.sessonTags = tags
+      this.$logger.info('handleSelectedSessonTags', tags)
+    },
+    handleStartSessionTags (item) {
+      this.sessonItem = item
+      this.lessonSelectTagVisible = true
+      this.sessonTags = []
     }
   }
 }

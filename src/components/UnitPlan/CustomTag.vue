@@ -1,15 +1,15 @@
 <template>
   <div class="custom-tag">
     <div>
-      <a-card title="Customized tags" :bordered="false">
+      <a-card class="cover-card" title="Customized tags" :bordered="false">
         <a slot="extra" href="#" @click="handleSetting">Tags setting <a-icon type="edit" /></a>
 
-        <div class="skt-tag-wrapper" v-show="tagList.length">
+        <div class="tag-select-wrapper" v-show="tagList.length">
           <!--      skt-tag-list-->
           <a-row>
             <a-col offset="0" span="24">
               <div class="skt-tag-list" >
-                <div class="skt-tag-item" v-for="tag in tagList" :key="tag.id" >
+                <div class="skt-tag-item " v-for="tag in tagList" :key="tag.id" >
                   <a-tooltip :title="tag.parentName">
                     <a-tag
                       :closable="true"
@@ -72,24 +72,29 @@
           <a-row>
             <a-col offset="0" :span="isShowBrowse ? 20 : 24">
               <div class="skt-tag-list">
-                <div class="skt-tag-item" v-for="(tag,index) in tagSearchList" :key="index" >
-                  <a-tag
-                    draggable="true"
-                    @dragstart="handleTagItemDragStart(tag, $event)"
-                    @click="selectChooseTag(index,tag)"
-                    class="tag-item">
-                    {{ tag.name }}
-                  </a-tag>
-                </div>
-                <div class="skt-tag-create-line" @click="handleCreateTagByInput" v-show="tagSearchList.length === 0 && !isShowBrowse && createTagName && createTagName.length >= 1">
-                  <div class="create-tag-label">
-                    Create
-                  </div>
-                  <div class="create-tag">
-                    <a-tag class="tag-item">
-                      {{ createTagName }}
+                <div class="triangle"></div>
+                <div class="search-tag-wrapper tag-wrapper">
+                  <div class="skt-tag-item" v-for="(tag,index) in tagSearchList" :key="index" >
+                    <a-tag
+                      draggable="true"
+                      @dragstart="handleTagItemDragStart(tag, $event)"
+                      @click="selectChooseTag(index,tag)"
+                      class="tag-item">
+                      {{ tag.name }}
                     </a-tag>
-                    <!--                    <a-icon type="plus-circle" @click="handleCreateTagByInput"/>-->
+                  </div>
+                </div>
+                <div class="create-tag-wrapper tag-wrapper">
+                  <div class="skt-tag-create-line" @click="handleCreateTagByInput" v-show="!isShowBrowse && createTagName && createTagName.length >= 1">
+                    <div class="create-tag-label">
+                      Create
+                    </div>
+                    <div class="create-tag">
+                      <a-tag class="created-tag-item">
+                        {{ createTagName }}
+                      </a-tag>
+                      <!--                    <a-icon type="plus-circle" @click="handleCreateTagByInput"/>-->
+                    </div>
                   </div>
                 </div>
               </div>
@@ -332,41 +337,140 @@ export default {
 
 @import "~@/components/index.less";
 .custom-tag {
+  .cover-card .ant-card-body{
+    padding: 5px;
+  }
   margin-top: 20px;
+  .tag-select-wrapper{
+    margin: 10px 0px 10px 0px;
+      .skt-tag-list {
+        padding: 5px 10px;
+        background-color: #e7f9f5;
+        border: 1px solid #D8D8D8;
+        display: flex;
+        flex-direction: row;
+        flex-wrap: wrap;
+        box-shadow: 0px 6px 10px rgba(91, 91, 91, 0.16);
+        position: relative;
+
+        .skt-tag-item {
+          margin: 8px 10px 8px 0;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          vertical-align: middle;
+          cursor: pointer;
+
+          .tag-item {
+            cursor: pointer;
+            border-radius: 10px;
+            word-break: normal;
+            width: auto;
+            display: block;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            overflow: hidden;
+            padding-bottom: 3px;
+            font-size: 15px;
+            border: 1px solid #D8D8D8;
+            box-shadow: 0px 6px 10px rgba(91, 91, 91, 0.16);
+            opacity: 1;
+            border-radius: 6px;
+            background-color: rgba(21, 195, 154, 0.1);
+            color: #15c39a;
+            border: 1px solid #15c39a;
+          }
+        }
+      }
+  }
   .skt-tag-wrapper {
+    margin-top: 10px;
     .skt-tag-list {
-      padding: 5px 10px;
-      background-color: #e7f9f5;
+      padding: 20px 10px 5px 10px;
+      background: rgba(255, 255, 255, 1);
+      border: 1px solid #D8D8D8;
       display: flex;
       flex-direction: row;
       flex-wrap: wrap;
+      box-shadow: 0px 6px 10px rgba(91, 91, 91, 0.16);
+      position: relative;
+
+      .triangle {
+        position: absolute;
+        top: -20px;
+        width: 0;
+        height: 0;
+        border: 10px solid transparent;
+        border-bottom: 10px solid #eee;
+      }
+
+      .tag-wrapper {
+        width: 100%;
+        margin-bottom: 10px;
+        display: flex;
+        flex-direction: row;
+        flex-wrap: wrap;
+        padding: 10px;
+        background: rgba(21, 195, 154, 0.1);
+        .create-tag {
+          margin-right: 5px;
+          .created-tag-item {
+            cursor: pointer;
+            margin: 0 3px;
+            padding: 3px 6px;
+            border-radius: 18px;
+            font-family: Inter-Bold;
+            background-color: rgba(21, 195, 154, 0.1);
+            color: rgba(21, 195, 154, 1);
+            border: 1px solid rgba(21, 195, 154, 1);
+          }
+        }
+        .tag-item {
+          background-color: rgba(21, 195, 154, 1);
+          color: #fff;
+          padding: 3px 6px;
+          cursor: pointer;
+
+          .tag-icon {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            img {
+              padding-right: 3px;
+              height: 12px;
+            }
+            img.search-icon {
+              height: 10px;
+            }
+          }
+        }
+      }
+
+      .create-tag-wrapper {
+        //background-color: rgba(250, 250, 250, 1);
+        padding: 0 10px;
+        width: 100%;
+      }
 
       .skt-tag-item {
-        margin: 8px 10px 8px 0;
+        margin: 5px 10px 5px 0;
         display: flex;
         justify-content: center;
         align-items: center;
         vertical-align: middle;
         cursor: pointer;
-
         .tag-item {
           cursor: pointer;
-          border-radius: 10px;
-          word-break: normal;
-          width: auto;
-          display: block;
-          white-space: pre-wrap;
-          word-wrap: break-word;
-          overflow: hidden;
+          border-radius: 28px;
+          padding-left: 10px;
+          padding-right: 10px;
+          word-break:normal;
+          width:auto;
+          display:block;
+          white-space:pre-wrap;
+          word-wrap : break-word ;
+          overflow: hidden ;
           padding-bottom: 3px;
-          font-size: 15px;
-          border: 1px solid #D8D8D8;
-          box-shadow: 0px 6px 10px rgba(91, 91, 91, 0.16);
-          opacity: 1;
-          border-radius: 6px;
-          background-color: rgba(21, 195, 154, 0.1);
-          color: #15c39a;
-          border: 1px solid #15c39a;
         }
       }
 
@@ -383,36 +487,18 @@ export default {
         }
 
         .create-tag-label {
+          cursor: pointer;
           font-size: 14px;
-          padding-right: 10px;
-          color: @text-color-secondary;
+          padding-right: 5px;
+          padding-left: 5px;
+          color: #000;
         }
 
         .create-tag {
+          cursor:pointer;
           display: flex;
           flex-direction: row;
           align-items: center;
-
-          .tag-item {
-            cursor: pointer;
-            border-radius: 10px;
-            word-break: normal;
-            width: auto;
-            display: inline;
-            white-space: pre-wrap;
-            word-wrap: break-word;
-            overflow: hidden;
-            padding-bottom: 3px;
-            font-size: 15px;
-            background-color: rgba(21, 195, 154, 0.1);
-            color: #15c39a;
-            border: 1px solid #15c39a;
-          }
-
-          i {
-            font-size: 18px;
-            color: @text-color-secondary;
-          }
         }
       }
     }
