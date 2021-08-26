@@ -236,17 +236,23 @@
       </a-modal>
 
       <a-modal
-        title="Add sesson tags"
-        @ok="handleStartSession({})"
-        okText="Start"
+        title="Add session tags"
         v-model="lessonSelectTagVisible"
         :maskClosable="false"
         :closable="true"
         destroyOnClose
         width="800px">
-        <div class="collaborate-content-wrapper">
-          <custom-tag :selected-tags-list="sessonTags" @change-user-tags="handleSelectedSessonTags" />
+        <div>
+          <custom-tag :selected-tags-list="sessionTags" @change-user-tags="handleSelectedSessionTags" />
         </div>
+        <template slot="footer">
+          <a-button key="back" @click="lessonSelectTagVisible=false">
+            Cancel
+          </a-button>
+          <a-button key="submit" type="primary" :loading="startLoading" @click="handleStartSession()">
+            Start
+          </a-button>
+        </template>
       </a-modal>
     </div>
   </div>
@@ -254,7 +260,7 @@
 
 <script>
 import * as logger from '@/utils/logger'
-import { deleteMyContentByType, getMyContent } from '@/api/teacher'
+import { deleteMyContentByType, getMyContent, SaveSessonTags } from '@/api/teacher'
 import { ownerMap, statusMap, typeMap } from '@/const/teacher'
 import ContentStatusIcon from '@/components/Teacher/ContentStatusIcon'
 import ContentTypeIcon from '@/components/Teacher/ContentTypeIcon'
@@ -328,8 +334,9 @@ export default {
       classList: [],
       viewMode: storage.get(SESSION_VIEW_MODE) ? storage.get(SESSION_VIEW_MODE) : 'list',
       lessonSelectTagVisible: false,
-      sessonTags: [],
-      sessonItem: {}
+      sessionTags: [],
+      sessionItem: {},
+      startLoading: false
     }
   },
   locomputed: {
@@ -461,8 +468,13 @@ export default {
     },
 
     handleStartSession () {
-      this.$logger.info('selected sessonTags', this.sessonTags)
-      const item = this.sessonItem
+      this.$logger.info('selected sessionTags', this.sessionTags)
+      if (this.sessionTags.length === 0) {
+        this.$message.warn('Please add session tags')
+        return
+      }
+      this.startLoading = true
+      const item = this.sessionItem
       this.$logger.info('handleStartSession', item)
       if (item.presentationId) {
         const requestData = {
@@ -477,16 +489,34 @@ export default {
         StartLesson(requestData).then(res => {
           this.$logger.info('StartLesson res', res)
           if (res.code === 'ok') {
-            // const targetUrl = lessonHost + 'slide_id=' + item.presentationId + '&class_id=' + res.data.class_id + '&type=classroom'
-            const targetUrl = lessonHost + 't/' + res.data.class_id
-            this.$logger.info('try open ' + targetUrl)
-            window.open(targetUrl, '_blank')
+            const dataTags = []
+            this.sessionTags.forEach(tag => {
+              dataTags.push({
+                'name': tag.name,
+                'parentId': tag.parentId,
+                'isGlobal': tag.isGlobal ? 1 : 0,
+                'classId': res.data.class_id,
+                'presentationId': item.presentationId,
+                'sourceId': item.id,
+                'sourceType': item.type
+              })
+            })
+            SaveSessonTags(dataTags).then(() => {
+              this.startLoading = false
+              this.lessonSelectTagVisible = false
+              // const targetUrl = lessonHost + 'slide_id=' + item.presentationId + '&class_id=' + res.data.class_id + '&type=classroom'
+              const targetUrl = lessonHost + 't/' + res.data.class_id
+              this.$logger.info('try open ' + targetUrl)
+              window.open(targetUrl, '_blank')
+            })
           } else {
             this.$message.warn('StartLesson Failed! ' + res.message)
+            this.startLoading = false
           }
         })
       } else {
         this.$message.warn('This record is not bound to PPT!')
+        this.startLoading = false
       }
     },
 
@@ -523,14 +553,14 @@ export default {
       this.currentPreviewLesson = item
       this.viewPreviewSessionVisible = true
     },
-    handleSelectedSessonTags (tags) {
-      this.sessonTags = tags
-      this.$logger.info('handleSelectedSessonTags', tags)
+    handleSelectedSessionTags (tags) {
+      this.sessionTags = tags
+      this.$logger.info('handleSelectedSessionTags', tags)
     },
     handleStartSessionTags (item) {
-      this.sessonItem = item
+      this.sessionItem = item
       this.lessonSelectTagVisible = true
-      this.sessonTags = []
+      this.sessionTags = []
     }
   }
 }

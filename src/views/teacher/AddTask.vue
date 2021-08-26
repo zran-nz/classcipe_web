@@ -37,7 +37,7 @@
                         </a-button>
                       </div>
                       <div class="header-action-item" v-if="$store.getters.currentRole === 'teacher'">
-                        <a-button @click="handleStartSession" :style="{'display': 'flex', 'align-items': 'center', 'justify-content': 'center', 'padding': '20px 15px', 'border-radius': '5px'}" type="primary" >
+                        <a-button @click="handleStartSessionTags" :style="{'display': 'flex', 'align-items': 'center', 'justify-content': 'center', 'padding': '20px 15px', 'border-radius': '5px'}" type="primary" >
                           <img src="~@/assets/icons/lesson/startLesson.png" class="btn-icon"/>
                           <div class="btn-text">
                             Start a session
@@ -323,6 +323,26 @@
         </div>
       </a-modal>
 
+      <a-modal
+        title="Add session tags"
+        v-model="lessonSelectTagVisible"
+        :maskClosable="false"
+        :closable="true"
+        destroyOnClose
+        width="800px">
+        <div>
+          <custom-tag :selected-tags-list="sessionTags" @change-user-tags="handleSelectedSessionTags" />
+        </div>
+        <template slot="footer">
+          <a-button key="back" @click="lessonSelectTagVisible=false">
+            Cancel
+          </a-button>
+          <a-button key="submit" type="primary" :loading="startLoading" @click="handleStartSession()">
+            Start
+          </a-button>
+        </template>
+      </a-modal>
+
       <a-skeleton :loading="contentLoading" active>
       </a-skeleton>
     </a-card>
@@ -333,7 +353,7 @@
 import * as logger from '@/utils/logger'
 import ContentTypeIcon from '@/components/Teacher/ContentTypeIcon'
 import { typeMap } from '@/const/teacher'
-import { UpdateContentStatus, GetMyGrades, Associate } from '@/api/teacher'
+import { UpdateContentStatus, GetMyGrades, Associate, SaveSessonTags } from '@/api/teacher'
 import InputSearch from '@/components/UnitPlan/InputSearch'
 import SdgTagInput from '@/components/UnitPlan/SdgTagInput'
 import SkillTag from '@/components/UnitPlan/SkillTag'
@@ -487,7 +507,10 @@ export default {
       publishing: false,
       initTemplates: [],
       initBlooms: [],
-      uploading: false
+      uploading: false,
+      lessonSelectTagVisible: false,
+      sessionTags: [],
+      startLoading: false
     }
   },
   computed: {
@@ -1122,6 +1145,11 @@ export default {
     handleStartSession () {
       this.$logger.info('handleStartSession', this.form)
       if (this.form.presentationId) {
+        if (this.sessionTags.length === 0) {
+          this.$message.warn('Please add session tags')
+          return
+        }
+        this.startLoading = true
         const requestData = {
           author: this.$store.getters.email,
           slide_id: this.form.presentationId,
@@ -1134,16 +1162,34 @@ export default {
         StartLesson(requestData).then(res => {
           this.$logger.info('StartLesson res', res)
           if (res.code === 'ok') {
-            // const targetUrl = lessonHost + 'slide_id=' + this.form.presentationId + '&class_id=' + res.data.class_id + '&type=classroom'
-            const targetUrl = lessonHost + 't/' + res.data.class_id
-            this.$logger.info('try open ' + targetUrl)
-            window.open(targetUrl, '_blank')
+            const dataTags = []
+            this.sessionTags.forEach(tag => {
+              dataTags.push({
+                'name': tag.name,
+                'parentId': tag.parentId,
+                'isGlobal': tag.isGlobal ? 1 : 0,
+                'classId': res.data.class_id,
+                'presentationId': this.form.presentationId,
+                'sourceId': this.form.id,
+                'sourceType': this.form.type
+              })
+            })
+            SaveSessonTags(dataTags).then(() => {
+              this.startLoading = false
+              this.lessonSelectTagVisible = false
+              // const targetUrl = lessonHost + 'slide_id=' + this.form.presentationId + '&class_id=' + res.data.class_id + '&type=classroom'
+              const targetUrl = lessonHost + 't/' + res.data.class_id
+              this.$logger.info('try open ' + targetUrl)
+              window.open(targetUrl, '_blank')
+            })
           } else {
             this.$message.warn('StartLesson Failed! ' + res.message)
+            this.startLoading = false
           }
         })
       } else {
         this.$message.warn('This record is not bound to PPT!')
+        this.startLoading = false
       }
     },
     handleStartCollaborate () {
@@ -1181,6 +1227,14 @@ export default {
       } else {
         this.$message.warn('please create slide first!')
       }
+    },
+    handleSelectedSessionTags (tags) {
+      this.sessionTags = tags
+      this.$logger.info('handleSelectedSessionTags', tags)
+    },
+    handleStartSessionTags () {
+      this.lessonSelectTagVisible = true
+      this.sessionTags = []
     }
   }
 }

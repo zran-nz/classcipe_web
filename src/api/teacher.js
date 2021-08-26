@@ -5,8 +5,8 @@ import { MaterialDelete } from '@/api/material'
 import { UnitPlanDelete } from '@/api/unitPlan'
 import { TaskDelete } from '@/api/task'
 import * as logger from '@/utils/logger'
-import { LessonDelete } from '@/api/myLesson'
 import { EvaluationDelete } from '@/api/evaluation'
+import { LessonDelete } from '@/api/myLesson'
 
 export const teacherAPIUrl = {
   Associate: '/classcipe/api/teacher/associate',
@@ -16,7 +16,8 @@ export const teacherAPIUrl = {
   GetMyContent: '/classcipe/api/teacher/getMyContent',
   FindMyContent: '/classcipe/api/teacher/findMyContent',
   GetMyGrades: '/classcipe/api/teacher/getMyGrades',
-  UpdateContentStatus: '/classcipe/api/teacher/content/status'
+  UpdateContentStatus: '/classcipe/api/teacher/content/status',
+  saveSessonTags: '/classcipe/api/sessonTags/addBatch'
 }
 
 /**
@@ -162,6 +163,17 @@ export function AssociateCancel (parameter) {
 export function BatchAssociate (parameter) {
   return request({
     url: teacherAPIUrl.BatchAssociate,
+    method: 'post',
+    data: parameter,
+    headers: {
+      'Content-Type': 'application/json;charset=UTF-8'
+    }
+  })
+}
+
+export function SaveSessonTags (parameter) {
+  return request({
+    url: teacherAPIUrl.saveSessonTags,
     method: 'post',
     data: parameter,
     headers: {
