@@ -393,8 +393,25 @@ export default {
     .user-list {
       display: flex;
       padding: 0 10px;
-      min-height: 300px;
+      height: 480px;
+      overflow-y: scroll;
       flex-direction: column;
+
+      &::-webkit-scrollbar {
+        width: 5px;
+        height: 5px;
+      }
+      &::-webkit-scrollbar-track {
+        border-radius: 3px;
+        background: rgba(0,0,0,0.00);
+        -webkit-box-shadow: inset 0 0 5px rgba(0,0,0,0.08);
+      }
+      /* 滚动条滑块 */
+      &::-webkit-scrollbar-thumb {
+        border-radius: 5px;
+        background: rgba(0,0,0,0.12);
+        -webkit-box-shadow: inset 0 0 10px rgba(0,0,0,0.2);
+      }
       .empty-user {
         padding: 15px 0;
       }
