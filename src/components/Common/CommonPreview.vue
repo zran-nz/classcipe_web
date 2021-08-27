@@ -238,11 +238,14 @@
               </div>
             </a-col>
             <a-col class="left-preview" span="24">
-              <a-carousel ref="carousel" v-if="!loading && imgList.length" autoplay class="my-carousel">
+              <a-carousel ref="carousel" v-if="!loading && imgList.length" class="my-carousel">
                 <div v-for="(img,cIndex) in imgList" :key="'cIndex' + cIndex">
                   <img :src="img" />
                 </div>
               </a-carousel>
+              <div class="page-info" v-if="imgList && imgList.length">
+                {{ currentImgIndex + 1 }} / {{ imgList.length }}
+              </div>
               <div class="carousel-page">
                 <div class="img-list-wrapper">
                   <div class="img-list">
@@ -431,7 +434,8 @@ export default {
               }).then(response => {
                 this.imgList.push(response.result.contentUrl.replace('=s200', '=s800'))
               }).finally(() => {
-                this.$logger.info('current imgList.length ' + (this.imgList.length) + ' total:' + this.data.selectPageObjectIds.length)
+                this.$logger.info('current imgList ', this.imgList)
+                this.$logger.info('current selectPageObjectIds ', this.data.selectPageObjectIds)
                 if (this.imgList.length === pageObjectIds.length) {
                   this.slideLoading = false
                 }
@@ -957,7 +961,7 @@ export default {
       align-items: flex-start;
       .img-item {
         height: 80px;
-        border: 1px solid #999;
+        border: 1px solid #ddd;
         box-shadow: 0 4px 8px 0 rgba(31, 33, 44, 10%);
         margin: 0 10px;
         img {
@@ -1215,7 +1219,29 @@ export default {
   }
 
   .content-item {
+  }
+}
 
+.page-info {
+  position: absolute;
+  right: 10px;
+  bottom: 120px;
+  background: #E4E4E4;
+  padding: 1px 10px;
+  border-radius: 20px;
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  align-items: center;
+  .page-num-tag {
+    display: inline;
+    background: rgba(228, 228, 228, 0.5);
+    padding: 1px 10px;
+    border-radius: 16px;
+    font-size: 8px;
+    font-family: Segoe UI;
+    font-weight: 400;
+    color: #808191;
   }
 }
 </style>
