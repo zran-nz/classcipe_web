@@ -442,7 +442,7 @@ export default {
       MyContentEventBus.$emit(MyContentEvent.LinkToMyContentItem, { item })
     },
     handleViewDetail (item, event) {
-      logger.info('handleViewDetail', item, event)
+      logger.info('my content created by me handleViewDetail', item, event)
       event.preventDefault()
       event.stopPropagation()
       this.previewCurrentId = item.id
