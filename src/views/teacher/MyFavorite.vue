@@ -193,16 +193,25 @@
       <a-drawer
         destroyOnClose
         placement="right"
-        closable
+        :closable='false'
         width="800px"
         :visible="previewVisible"
         @close="handlePreviewClose"
       >
-        <div class="preview-wrapper">
-          <div class="preview-detail" v-if="previewCurrentId && previewType">
-            <common-preview :id="previewCurrentId" :type="previewType" />
-          </div>
-        </div>
+        <a-row class="preview-wrapper-row">
+          <a-col span="2">
+            <div class="view-back" @click="handlePreviewClose">
+              <div class="back-icon">
+                <img src="~@/assets/icons/common/back.png" />
+              </div>
+            </div>
+          </a-col>
+          <a-col span="22">
+            <div class="detail-wrapper" v-if="previewCurrentId && previewType">
+              <common-preview :id="previewCurrentId" :type="previewType" />
+            </div>
+          </a-col>
+        </a-row>
       </a-drawer>
     </div>
   </div>
