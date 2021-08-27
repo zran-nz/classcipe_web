@@ -65,6 +65,33 @@
       </a-row>
       <a-row class="data-info" v-show="viewMode === 'Detail'">
         <a-col class="right-detail" span="24" >
+          <div class="detail-block">
+            <div class="info-tag">
+              <div class="info-tag-item" v-if="data.subjectNames" v-for="(subject, sIndex) in data.subjectNames" :key="sIndex">
+                Subject/ {{ subject }}
+              </div>
+              <div class="info-tag-item" v-if="data.gradeNames" v-for="(grade, gIndex) in data.gradeNames" :key="gIndex">
+                Grade: {{ grade }}
+              </div>
+              <div class="info-tag-item" v-if="data.subjectNames" v-for="(subject, sIndex) in data.subjectNames" :key="sIndex">
+                Subject/ {{ subject }}
+              </div>
+            </div>
+          </div>
+          <div class="detail-block" v-if="data.overview">
+            <div class="block-main-label">
+              Overview
+            </div>
+            <div class="overview-block">
+              <div class="view-text">
+                {{ data.overview }}
+              </div>
+            </div>
+          </div>
+        </a-col>
+      </a-row>
+      <a-row class="preview-data-info" v-show="viewMode === 'Preview'">
+        <a-col class="slide-preview" span="24">
           <div class="detail-wrapper">
             <div class="block-main-label" v-if="data && data.scenario">
               Sustainable development goal
@@ -145,21 +172,8 @@
                 </div>
               </div>
             </div>
-            <div class="detail-block" v-if="data && data.overview">
-              <div class="block-main-label">
-                Overview
-              </div>
-              <div class="overview-block">
-                <div class="view-text">
-                  {{ data.overview }}
-                </div>
-              </div>
-            </div>
+
           </div>
-        </a-col>
-      </a-row>
-      <a-row class="preview-data-info" v-show="viewMode === 'Preview'">
-        <a-col class="slide-preview" span="24">
           <a-spin v-show="slideLoading" class="spin-loading"/>
           <a-col span="24">
             <div v-if="!loading && !imgList.length" class="no-preview-img">
@@ -565,6 +579,19 @@ export default {
     .detail-wrapper {
       .detail-block {
 
+        .info-tag {
+          display: flex;
+          flex-direction: column;
+          align-items: flex-start;
+
+          .info-tag-item {
+            margin-bottom: 10px;
+            border: 1px solid #D8D8D8;
+            box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.16);
+            opacity: 1;
+            border-radius: 10px;
+          }
+        }
         .block-title {
           font-weight: 500;
           font-size: 16px;
@@ -744,6 +771,7 @@ export default {
             flex-wrap: wrap;
           }
         }
+
         .overview-block {
           padding: 10px;
           margin-bottom: 10px;

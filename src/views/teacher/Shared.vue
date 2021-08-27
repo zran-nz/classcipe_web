@@ -303,7 +303,7 @@
       <a-drawer
         destroyOnClose
         placement="right"
-        :closable='false'
+        :closable="false"
         width="800px"
         :visible="previewVisible"
         @close="handlePreviewClose"
