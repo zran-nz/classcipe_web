@@ -5,7 +5,7 @@
         :name="form.name"
         :last-change-saved-time="lastChangeSavedTime"
         @back="goBack"
-        @save="handleSaveUnitPlan"
+        @save="handleSaveTopic"
         @publish="handlePublishUnitPlan"
         @collaborate="handleStartCollaborate"
       />
@@ -561,6 +561,8 @@
     beforeDestroy () {
       MyContentEventBus.$off(MyContentEvent.LinkToMyContentItem, this.handleLinkMyContent)
       MyContentEventBus.$off(MyContentEvent.ToggleSelectContentItem, this.handleToggleSelectContentItem)
+      logger.debug('beforeDestroy, try save!')
+      this.handleSaveTopic()
     },
     methods: {
       initData () {
@@ -841,8 +843,8 @@
 
       },
 
-      handleSaveUnitPlan () {
-        logger.info('handleSaveUnitPlan', this.form, this.sdgDataObj, this.questionDataObj)
+      handleSaveTopic () {
+        logger.info('handleSaveTopic', this.form, this.sdgDataObj, this.questionDataObj)
 
         const topicData = {
           image: this.form.image,

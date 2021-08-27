@@ -564,6 +564,8 @@ export default {
   },
   beforeDestroy () {
     MyContentEventBus.$off(MyContentEvent.LinkToMyContentItem, this.handleLinkMyContent)
+    logger.debug('beforeDestroy, try save!')
+    this.handleSaveTask()
   },
   methods: {
     initData () {

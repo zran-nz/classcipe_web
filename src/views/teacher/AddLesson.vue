@@ -757,6 +757,8 @@ export default {
   beforeDestroy () {
     MyContentEventBus.$off(MyContentEvent.LinkToMyContentItem, this.handleLinkMyContent)
     MyContentEventBus.$off(MyContentEvent.ToggleSelectContentItem, this.handleToggleSelectContentItem)
+    logger.debug('beforeDestroy, try save!')
+    this.handleSaveLesson()
   },
   methods: {
     initData () {
