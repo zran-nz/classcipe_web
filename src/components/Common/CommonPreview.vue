@@ -449,6 +449,7 @@ export default {
         word-break: break-all;
         font-family: Inter-Bold;
         font-size: 15px;
+        font-weight: bold;
         color: #182552;
         padding-right: 10px;
         box-sizing: border-box;
