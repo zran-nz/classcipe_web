@@ -21,7 +21,8 @@
               :id="lessonId"
               ref="associate"
               @create="selectAddContentTypeVisible = true"
-              @link="selectLinkContentVisible = true" />
+              @link="selectLinkContentVisible = true"
+              :show-create="true"/>
           </a-col>
           <a-col span="16" offset="2" class="main-content">
             <a-card :bordered="false" :body-style="{padding: '16px'}">
@@ -192,6 +193,25 @@
         </div>
       </template>
       <collaborate-content ref="collaborate"/>
+      <a-modal
+        v-model="selectAddContentTypeVisible"
+        :footer="null"
+        destroyOnClose
+        title="Select Content Type"
+        @ok="selectAddContentTypeVisible = false"
+        @cancel="selectAddContentTypeVisible = false">
+        <div class="add-content-wrapper">
+          <div class="add-content-item" @click="handleAddLessonEvaluation">
+            <a >
+              <content-type-icon :type="contentType.evaluation"/>
+              {{ $t('teacher.add-unit-plan.evaluation') }}
+            </a>
+          </div>
+          <div class="add-loading" v-if="addLoading">
+            <a-spin />
+          </div>
+        </div>
+      </a-modal>
       <a-modal
         v-model="selectLinkContentVisible"
         :footer="null"
@@ -547,6 +567,7 @@ import { SubjectTree } from '@/api/subject'
 import { formatSubjectTree } from '@/utils/bizUtil'
 import ModalHeader from '@/components/Common/ModalHeader'
 import CommonFormHeader from '@/components/Common/CommonFormHeader'
+import { EvaluationAddOrUpdate } from '@/api/evaluation'
 
 const TagOriginType = {
   Origin: 'Origin',
@@ -702,7 +723,9 @@ export default {
       selectedSlideVisible: false,
       lessonSelectTagVisible: false,
       sessionTags: [],
-      startLoading: false
+      startLoading: false,
+      addLoading: false,
+      selectAddContentTypeVisible: false
     }
   },
   computed: {
@@ -1566,6 +1589,38 @@ export default {
     handleStartSessionTags () {
       this.lessonSelectTagVisible = true
       this.sessionTags = []
+    },
+    handleAddLessonEvaluation () {
+      logger.info('handleAddLessonEvaluation ' + this.lessonId)
+      // 下创建一个空的evaluation，然后关联，然后再跳转过去
+      if (!this.addLoading) {
+        this.addLoading = true
+        EvaluationAddOrUpdate({ name: null }).then((response) => {
+          this.$logger.info('EvaluationAddOrUpdate', response.result)
+          if (response.success) {
+            Associate({
+              fromId: this.lessonId,
+              fromType: this.contentType.lesson,
+              toId: response.result.id,
+              toType: this.contentType.evaluation
+            }).then(response => {
+              this.$logger.info('Associate response ', response)
+              // 刷新子组件的关联数据
+              this.$refs.associate.loadAssociateData()
+            })
+            this.addLoading = false
+            this.$router.push({
+              path: '/teacher/evaluation-redirect/' + response.result.id
+            })
+          } else {
+            this.$message.error(response.message)
+          }
+        }).finally(() => {
+          this.addLoading = false
+        })
+      } else {
+        this.$logger.info('add loading')
+      }
     }
   }
 }
