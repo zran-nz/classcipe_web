@@ -88,7 +88,7 @@
                   </a-form-model-item>
                 </div>
 
-                <div class="form-block over-form-block" ref="overview">
+                <div class="form-block over-form-block" id="overview">
                   <a-form-model-item class="task-audio-line">
                     <a-textarea v-model="form.overview" allow-clear placeholder="Overview" autoSize/>
                     <div class="audio-wrapper" v-if="form.audioUrl">
@@ -119,7 +119,7 @@
                 <!--sdg and KeyWords-->
                 <div
                   class="sdg-content-blocks sdg-form-block"
-                  ref="sdg"
+                  id="sdg"
                   v-for="(scenario, sdgIndex) in form.scenarios"
                   :key="sdgIndex">
 
@@ -187,7 +187,7 @@
                   </a-row>
                 </div>
 
-                <div class="form-block inquiry-form-block" ref="inquiry">
+                <div class="form-block inquiry-form-block" id="inquiry">
                   <!--                <a-divider />-->
                   <a-input v-model="form.inquiry" :placeholder="$store.getters.currentRole === 'teacher' ? $t('teacher.add-unit-plan.teacher-direction-of-inquiry') : $t('teacher.add-unit-plan.expert-direction-of-inquiry')" class="my-form-input" />
                 </div>
@@ -218,7 +218,7 @@
 
                 <div
                   class="sdg-content-blocks question-item question-form-blocks"
-                  ref="question"
+                  id="question"
                   v-for="(questionItem, questionIndex) in questionDataObj"
                   :key="questionIndex"
                   v-if="questionItem !== null">
@@ -1350,7 +1350,7 @@ export default {
       this.$logger.info(this.$refs[data.blockType])
       this.$logger.info(this.$refs['form'])
       this.$refs['form'].className = 'unit-plan-form-left ' + data.blockType
-      this.$refs[data.blockType].scrollIntoView({
+      document.getElementById(data.blockType).scrollIntoView({
         behavior: 'smooth',
         block: 'center'
       })
