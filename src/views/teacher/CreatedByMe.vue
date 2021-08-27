@@ -192,7 +192,7 @@
                           </a>
                         </a-menu-item>
                         <a-menu-item>
-                          <a @click="handleStartSessionTags(item)">
+                          <a @click="handleViewPreviewSession(item)">
                             {{ $t('teacher.my-content.action-session-previous') }}
                           </a>
                         </a-menu-item>
