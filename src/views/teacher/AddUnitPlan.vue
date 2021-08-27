@@ -24,7 +24,7 @@
         </a-col>
         <a-col span="20" class="main-content">
           <a-card :bordered="false" :body-style="{padding: '16px'}">
-            <div class="unit-plan-form-left">
+            <div class="unit-plan-form-left" ref="form">
               <a-form-model :model="form" class="my-form-wrapper">
                 <div class="form-block">
                   <div class="refer-action row-flex-right">
@@ -86,7 +86,9 @@
                       </template>
                     </a-upload-dragger>
                   </a-form-model-item>
+                </div>
 
+                <div class="form-block over-form-block" ref="overview">
                   <a-form-model-item class="task-audio-line">
                     <a-textarea v-model="form.overview" allow-clear placeholder="Overview" autoSize/>
                     <div class="audio-wrapper" v-if="form.audioUrl">
@@ -102,7 +104,6 @@
                       </div>
                     </a-tooltip>
                   </a-form-model-item>
-
                 </div>
 
                 <!--            real-life-scenario-->
@@ -115,9 +116,12 @@
                     </a-col>
                   </a-row>
                 </div>
-
                 <!--sdg and KeyWords-->
-                <div class="sdg-content-blocks" v-for="(scenario, sdgIndex) in form.scenarios" :key="sdgIndex">
+                <div
+                  class="sdg-content-blocks sdg-form-block"
+                  ref="sdg"
+                  v-for="(scenario, sdgIndex) in form.scenarios"
+                  :key="sdgIndex">
 
                   <!--description-->
                   <div class="scenario-description">
@@ -183,7 +187,7 @@
                   </a-row>
                 </div>
 
-                <div class="form-block">
+                <div class="form-block inquiry-form-block" ref="inquiry">
                   <!--                <a-divider />-->
                   <a-input v-model="form.inquiry" :placeholder="$store.getters.currentRole === 'teacher' ? $t('teacher.add-unit-plan.teacher-direction-of-inquiry') : $t('teacher.add-unit-plan.expert-direction-of-inquiry')" class="my-form-input" />
                 </div>
@@ -212,7 +216,12 @@
                   </div>
                 </div>
 
-                <div class="sdg-content-blocks question-item" v-for="(questionItem, questionIndex) in questionDataObj" :key="questionIndex" v-if="questionItem !== null">
+                <div
+                  class="sdg-content-blocks question-item question-form-blocks"
+                  ref="question"
+                  v-for="(questionItem, questionIndex) in questionDataObj"
+                  :key="questionIndex"
+                  v-if="questionItem !== null">
 
                   <div class="form-input-item">
                     <a-input
@@ -248,7 +257,6 @@
 
               </a-form-model>
             </div>
-            <div class="unit-plan-form-refer"></div>
           </a-card>
         </a-col>
       </a-row>
@@ -589,7 +597,8 @@ export default {
       selectReferMyContentVisible: false,
       referDetailVisible: false,
       referId: null,
-      referType: null
+      referType: null,
+      activeReferBlock: ''
     }
   },
   computed: {
@@ -1338,6 +1347,13 @@ export default {
 
     handleHoverReferBlock (data) {
       this.$logger.info('handleHoverReferBlock', data)
+      this.$logger.info(this.$refs[data.blockType])
+      this.$logger.info(this.$refs['form'])
+      this.$refs['form'].className = 'unit-plan-form-left ' + data.blockType
+      this.$refs[data.blockType].scrollIntoView({
+        behavior: 'smooth',
+        block: 'center'
+      })
     },
 
     handleReferBlock (data) {
@@ -1907,12 +1923,6 @@ export default {
   border-radius: 3px;
 }
 
-.refer-mode {
-  .form-block-active {
-    border: 1px solid #15C39A;
-  }
-}
-
 .subject-grade-wrapper {
   display: flex;
   flex-direction: row;
@@ -1998,4 +2008,27 @@ export default {
   border-radius: 10px;
 }
 
+.overview {
+  .over-form-block {
+    border: 1px solid #15C39A !important;
+  }
+}
+
+.sdg {
+  .sdg-form-block {
+    border: 1px solid #15C39A !important;
+  }
+}
+
+.inquiry {
+  .inquiry-form-block {
+    border: 1px solid #15C39A !important;
+  }
+}
+
+.question {
+  .question-form-blocks {
+    border: 1px solid #15C39A !important;
+  }
+}
 </style>
