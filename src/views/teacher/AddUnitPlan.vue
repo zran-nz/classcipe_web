@@ -388,7 +388,7 @@
         placement="right"
         :closable="false"
         :mask="false"
-        width="600px"
+        width="700px"
         :visible="referDetailVisible"
         @close="handleCloseReferDetail"
       >
@@ -403,7 +403,13 @@
           <a-col span="22">
             <div class="detail-wrapper">
               <div class="refer-detail">
-                <refer-preview :id="referId" :type="referType" @refer="handleReferBlock" @hover-refer-block="handleHoverReferBlock"/>
+                <refer-preview
+                  :id="referId"
+                  :type="referType"
+                  @refer="handleReferBlock"
+                  @hover-refer-block="handleHoverReferBlock"
+                  @refer-associate="handleReferAssociate"
+                />
               </div>
             </div>
           </a-col>
@@ -1381,6 +1387,21 @@ export default {
         this.questionTotal = this.questionTotal + 1
         this.$set(this.questionDataObj, this.questionPrefix + this.questionMaxIndex, question)
       }
+    },
+
+    handleReferAssociate (data) {
+      this.$logger.info('handleReferAssociate', data)
+      Associate({
+        fromId: this.unitPlanId,
+        fromType: this.contentType['unit-plan'],
+        toId: data.item.id,
+        toType: data.item.type
+      }).then(response => {
+        this.$logger.info('Associate response ', response)
+        // 刷新子组件的关联数据
+        this.$refs.associate.loadAssociateData()
+        this.$message.success('success!')
+      })
     }
   }
 }

@@ -141,7 +141,7 @@
         </a-col>
       </a-row>
       <div class="associate-info" v-if="id && type">
-        <refer-associate-list :id="id" :content-type="type" />
+        <refer-associate-list :id="id" :content-type="type" @refer-associate="handleReferAssociate"/>
       </div>
     </template>
   </div>
@@ -244,6 +244,12 @@ export default {
       this.$emit('hover-refer-block', {
         blockType
       })
+    },
+
+    // 关联refer
+    handleReferAssociate (data) {
+      this.$logger.info('handleReferAssociate', data)
+      this.$emit('refer-associate', data)
     }
   }
 }
@@ -408,7 +414,7 @@ export default {
               display: flex;
               flex-direction: row;
               align-items: center;
-              justify-content: space-around;
+              justify-content: space-between;
               .question {
                 font-size: 14px;
                 font-weight: 500;

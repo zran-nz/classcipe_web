@@ -201,7 +201,6 @@
                   </div>
                 </div>
               </div>
-
               <div class="card-action-icon">
                 <img src="~@/assets/icons/lesson/selected.png" v-if="selectedList.indexOf(item.type + '-' + item.id) !== -1"/>
               </div>

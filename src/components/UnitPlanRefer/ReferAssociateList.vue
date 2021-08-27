@@ -72,7 +72,7 @@
                       </span>
                       <div class="link-it" @click="handleLinkIt(listItem)">
                         <div class="link-item">
-                          <img src="~@/assets/icons/myContent/link-icon.png" class="link-icon"/>
+                          <img src="~@/assets/icons/myContent/Link_color.png" class="link-icon"/>
                           {{ 'Link this content to my Unit' }}
                         </div>
                       </div>
@@ -88,18 +88,45 @@
                   :key="dIndex">
                   <div
                     :class="{
+                      'my-card-list-item': true,
                       'card-item': true,
                       'browser-item': true,
                       'odd-line': index % 2 === 0,
                     }"
                     v-for="(listItem,lIndex) in dataItem.lists"
                     :key="lIndex">
-                    <data-card-view :title="listItem.name" :created-time="listItem.createTime" :cover="listItem.image" />
-                    <div class="card-action-item">
-                      <div class="link-it" @click="handleLinkIt(listItem)">
-                        <div class="link-item">
-                          <img src="~@/assets/icons/myContent/link-icon.png" class="link-icon"/>
-                          {{ 'Link this content to my Unit' }}
+                    <div class="cover-img-wrapper">
+                      <div
+                        class="cover-image"
+                        :style="{backgroundImage: 'url(' + listItem.image + ')' }"
+                      >
+                      </div>
+                    </div>
+                    <div class="item-intro">
+                      <div class="page-info">
+                        <span class="page-num-tag">
+                          1/1
+                        </span>
+                      </div>
+                      <div class="main-title">
+                        {{ listItem.name ? listItem.name : 'Untitled' }}
+                      </div>
+                      <div class="sub-title">
+                        {{ listItem.createTime | dayjs }}
+                      </div>
+                    </div>
+                    <div class="item-action-wrapper">
+                      <!-- refer mode -->
+                      <div>
+                        <div class="action-wrapper">
+                          <div class="action-item">
+                            <a-popconfirm :title="'Link ?'" ok-text="Yes" @confirm="handleLinkIt(item)" cancel-text="No">
+                              <div class="link-item">
+                                <img src="~@/assets/icons/myContent/Link_color.png" class="link-icon"/>
+                                Link this content to my Unit
+                              </div>
+                            </a-popconfirm>
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -222,6 +249,7 @@ export default {
 
     handleLinkIt (item) {
       this.$logger.info('handleLinkIt', item)
+      this.$emit('refer-associate', { item })
     }
   }
 }
@@ -399,6 +427,7 @@ export default {
 
             .data-time {
               padding-right: 20px;
+              font-size: 10px;
             }
 
             .link-it {
@@ -409,11 +438,11 @@ export default {
                 justify-content: center;
                 padding: 5px 15px;
                 border-radius: 35px;
-                border: 1px solid #BCBCBC;
+                border: 1px solid rgba(21, 195, 154);
                 font-family: Inter-Bold;
-                color: #182552;
-                font-size: 13px;
-                background: rgba(228, 228, 228, 0.2);
+                color: rgba(21, 195, 154);
+                font-size: 12px;
+                background: rgba(21, 195, 154, 0.1);
                 transition: all 0.3s ease;
                 .link-icon {
                   margin-right: 5px;
@@ -444,14 +473,6 @@ export default {
         .list-item:hover {
           color: rgba(255, 187, 0, 1);
           background: rgba(255, 187, 0, 0.1);
-        }
-
-        .card-question-item {
-          background: #FFFFFF;
-          border: 1px solid #F7F8FF;
-          box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.16);
-          width: 30%;
-          margin: 10px;
         }
     }
   }
@@ -528,6 +549,171 @@ export default {
 
     .link-item:hover {
       background: rgba(228, 228, 228, 0.5);
+    }
+  }
+}
+
+.my-card-list-item {
+  overflow: hidden;
+  box-sizing: border-box;
+  margin: 10px;
+  width: 250px;
+  position: relative;
+  user-select: none;
+  background: #FFFFFF;
+  border: 1px solid #F7F8FF;
+  box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.16);
+  opacity: 1;
+  border-radius: 6px;
+
+  &:hover {
+    background-size: 110%;
+    background-position: center;
+    background-repeat: no-repeat;
+    box-shadow: 0 0 2px 1px @primary-color;
+  }
+
+  .cover-img-wrapper {
+    border-radius: 6px;
+    border: none;
+    outline: none;
+    .cover-image {
+      border: none;
+      outline: none;
+      height: 150px;
+      width: 250px;
+      background-size: cover;
+      background-repeat: no-repeat;
+      background-position: center center;
+      border-bottom: 1px solid #eee;
+      -webkit-transition: all 0.3s ease-in-out;
+      transition: all 0.3s ease-in-out;
+    }
+  }
+
+  .item-intro {
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+
+    .page-info {
+      display: flex;
+      flex-direction: row;
+      align-items: flex-start;
+      align-items: center;
+      .page-num-tag {
+        display: inline;
+        background: rgba(228, 228, 228, 0.5);
+        padding: 1px 10px;
+        border-radius: 16px;
+        font-size: 8px;
+        font-family: Segoe UI;
+        font-weight: 400;
+        color: #808191;
+      }
+    }
+
+    .main-title {
+      padding: 5px 0;
+      font-size: 14px;
+      font-family: Inter-Bold;
+      line-height: 24px;
+      color: #000000;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .sub-title {
+      font-size: 8px;
+      font-family: Segoe UI;
+      font-weight: 400;
+      color: #808191;
+    }
+  }
+
+  .item-action-wrapper {
+    padding: 5px 10px 15px 10px;
+
+    .action-wrapper {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      justify-content: center;
+      .action-item {
+        display: inline;
+        margin-right: 10px;
+        user-select: none;
+        .link-item {
+          display: flex;
+          flex-direction: row;
+          align-items: center;
+          justify-content: center;
+          padding: 3px 15px;
+          border-radius: 35px;
+          background: rgba(21, 195, 154, 0.1);
+          border: 1px solid #15C39A;
+          color: #15C39A;
+          display: flex;
+          flex-direction: row;
+          align-items: center;
+          transition: all 0.3s ease;
+          .link-icon {
+            margin-right: 5px;
+            width: 15px;
+          }
+        }
+
+        .link-item:hover {
+          background: rgba(21, 195, 154, 0.1);
+        }
+      }
+
+      .refer-item {
+        .refer-btn{
+          background: rgba(21, 195, 154, 0.1);
+          border: 1px solid #15C39A;
+          border-radius: 20px;
+          color: #15C39A;
+          padding: 10px 15px;
+          display: flex;
+          flex-direction: row;
+          align-items: center;
+          justify-content: flex-start;
+        }
+        .btn-icon {
+          height: 10px;
+          width: 10px;
+        }
+        .btn-icon-white {
+          display: none;
+        }
+        .btn-icon-color {
+          display: inline-block;
+        }
+        .btn-text {
+          padding-left: 8px;
+        }
+      }
+
+      .refer-btn:hover {
+        background: #07AB84;
+        color: #fff;
+        .btn-icon-white {
+          display: inline-block;
+        }
+        .btn-icon-color {
+          display: none;
+        }
+      }
+    }
+  }
+  .card-action-icon {
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+    img {
+      height: 18px;
     }
   }
 }
