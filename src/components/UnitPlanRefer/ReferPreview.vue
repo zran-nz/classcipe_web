@@ -392,6 +392,7 @@ export default {
 
   .right-detail {
     .detail-wrapper {
+
       .detail-block {
 
         .block-title {
