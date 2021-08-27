@@ -1,5 +1,5 @@
 <template>
-  <div class="unit-plan-preview">
+  <div class="my-unit-plan-preview">
     <template v-if="loading">
       <a-skeleton active />
     </template>
@@ -63,107 +63,163 @@
           </div>
         </a-col>
       </a-row>
-      <a-row class="data-info" v-show="viewMode === 'Detail'">
+      <a-row class="data-info" v-if="viewMode === 'Detail'">
         <a-col class="right-detail" span="24" >
-          <div class="detail-block">
+          <div class="tag-detail-block">
             <div class="info-tag">
-              <div class="info-tag-item" v-if="data.subjectNames" v-for="(subject, sIndex) in data.subjectNames" :key="sIndex">
-                Subject/ {{ subject }}
+              <div class="info-tag-item" v-if="data.subjectNames" v-for="(subject, sIndex) in data.subjectNames" :key="'sIndex' + sIndex">
+                Subject / {{ subject }}
               </div>
-              <div class="info-tag-item" v-if="data.gradeNames" v-for="(grade, gIndex) in data.gradeNames" :key="gIndex">
+              <div class="info-tag-item" v-if="data.gradeNames" v-for="(grade, gIndex) in data.gradeNames" :key="'gIndex' + gIndex">
                 Grade: {{ grade }}
               </div>
-              <div class="info-tag-item" v-if="data.subjectNames" v-for="(subject, sIndex) in data.subjectNames" :key="sIndex">
-                Subject/ {{ subject }}
+              <div class="info-tag-item" v-if="data.bloomCategoriesText">
+                {{ data.bloomCategoriesText }}
               </div>
             </div>
           </div>
-          <div class="detail-block" v-if="data.overview">
-            <div class="block-main-label">
-              Overview
-            </div>
-            <div class="overview-block">
-              <div class="view-text">
-                {{ data.overview }}
+          <div class="sub-detail">
+            <div class="detail-block" v-if="data.overview">
+              <div class="block-main-label">
+                Overview
               </div>
+              <div class="overview-block">
+                <div class="view-text">
+                  {{ data.overview }}
+                </div>
+              </div>
+              <div class="block-main-label">
+                Customized tags
+              </div>
+              <div class="overview-block">
+                <div class="custom-tags">
+                  <div class="tag-item" v-for="(tag,tagIndex) in data.customTags" :key="'tagIndex' + tagIndex">
+                    <a-tag class="tag">
+                      {{ tag.name }}
+                    </a-tag>
+                  </div>
+                </div>
+              </div>
+              <div class="block-main-label">
+                Learning outcomes
+              </div>
+              <div class="overview-block">
+                <div class="learn-question-tag">
+                  <template v-if="data.questions && data.questions.length">
+                    <div class="keyword-block-content">
+                      <div class="content-list" v-if="data.questions && data.questions.length">
+                        <div class="content-item" v-for="(question,qIndex) in data.questions" :key="'qIndex' + qIndex">
+                          <div class="question" v-if="question && question.name">
+                            {{ question.name }}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </template>
+                </div>
+              </div>
+              <template v-if="data.inquiry">
+                <div class="block-main-label">
+                  Direction of inquiry
+                </div>
+                <div class="inquiry-block-content">
+                  <div class="inquiry">
+                    {{ data.inquiry }}
+                  </div>
+                </div>
+              </template>
             </div>
           </div>
         </a-col>
       </a-row>
-      <a-row class="preview-data-info" v-show="viewMode === 'Preview'">
+      <a-row class="preview-data-info" v-if="viewMode === 'Preview'">
         <a-col class="slide-preview" span="24">
-          <div class="detail-wrapper">
-            <div class="block-main-label" v-if="data && data.scenario">
-              Sustainable development goal
-            </div>
-            <div class="detail-block" v-if="data && data.scenario">
-              <div class="block-title">
-                {{ data.scenario && data.scenario.description }}
+          <div class="data-detail-wrapper" v-if="data.scenarios || data.inquiry || (data.questions && data.questions.length)">
+
+            <template v-if="data.scenarios">
+              <div class="block-main-label">
+                Sustainable development goal
               </div>
-              <div class="scenario-block-content">
-                <div class="content-list" v-if="data.scenario && data.scenario.sdgKeyWords">
-                  <div class="content-item" v-for="(sdgKeyword,index) in data.scenario.sdgKeyWords" :key="index">
-                    <div class="question">
-                      {{ sdgKeyword.sdgName }}
-                    </div>
-                    <div class="tags">
-                      <div class="tag-item" v-for="(tag,tagIndex) in sdgKeyword.keywords" :key="tagIndex">
-                        <a-tag class="tag">
-                          {{ tag.name }}
-                        </a-tag>
+              <div class="detail-block">
+                <div
+                  class="scenario-item ref-block"
+                  v-for="(scenario,sIndex) in data.scenarios"
+                  :key="sIndex">
+                  <!--                <div class="block-title">-->
+                  <!--                  {{ scenario.description }}-->
+                  <!--                </div>-->
+                  <div class="scenario-block-content">
+                    <div class="content-list">
+                      <div class="content-item">
+                        <div class="question">
+                          {{ scenario.sdgName }}
+                        </div>
+                        <div class="tags">
+                          <div class="tag-item" v-for="(keyword,tagIndex) in scenario.sdgKeyWords" :key="'tagIndex' + tagIndex">
+                            <a-tag class="tag">
+                              {{ keyword.name }}
+                            </a-tag>
+                          </div>
+                        </div>
                       </div>
                     </div>
                   </div>
                 </div>
               </div>
-            </div>
-            <div class="detail-block" v-if="data && data.inquiry">
-              <div class="block-main-label">
-                Direction of inquiry
-              </div>
-              <div class="inquiry-block-content">
-                <div class="inquiry">
-                  {{ data.inquiry }}
+            </template>
+
+            <template v-if="data && data.inquiry">
+              <div class="detail-block">
+                <div class="block-main-label">
+                  Direction of inquiry / Staement of inquiry / Centeral idea / Enduring understanding
+                </div>
+                <div class="inquiry-block-content">
+                  <div class="inquiry">
+                    {{ data.inquiry }}
+                  </div>
                 </div>
               </div>
-            </div>
-            <div class="block-main-label" v-if="data && data.questions && data.questions.length">
-              Line of inquiry/Key question
-            </div>
-            <div class="detail-block" v-if="data && data.questions && data.questions.length">
-              <div class="keyword-block-content">
-                <div class="content-list" v-if="data.questions && data.questions.length">
-                  <div class="content-item" v-for="(question,qIndex) in data.questions" :key="qIndex">
-                    <div class="question" v-if="question && question.name">
-                      {{ question.name }}
-                    </div>
-                    <div class="content-sub-list" v-if="question && question.knowledgeTags && question.knowledgeTags.length">
-                      <div class="content-sub-item" v-for="(knowledgeTag, kIndex) in question.knowledgeTags" :key="kIndex">
-                        <div class="sub-title">
-                          <div class="sub-title-name">
-                            {{ knowledgeTag.description }}
-                            <div class="subject-name" v-if="knowledgeTag.subSubjectName">
-                              {{ knowledgeTag.subSubjectName }}
+            </template>
+
+            <template v-if="data && data.questions && data.questions.length">
+              <div class="block-main-label">
+                Line of inquiry/Key question
+              </div>
+              <div class="detail-block">
+                <div class="keyword-block-content">
+                  <div class="content-list" v-if="data.questions && data.questions.length">
+                    <div class="content-item" v-for="(question,qIndex) in data.questions" :key="'qIndex' + qIndex">
+                      <div class="question" v-if="question && question.name">
+                        {{ question.name }}
+                      </div>
+                      <div class="content-sub-list" v-if="question && question.knowledgeTags && question.knowledgeTags.length">
+                        <div class="content-sub-item" v-for="(knowledgeTag, kIndex) in question.knowledgeTags" :key="'kIndex' + kIndex">
+                          <div class="sub-title">
+                            <div class="sub-title-name">
+                              {{ knowledgeTag.description }}
+                              <div class="subject-name" v-if="knowledgeTag.subSubjectName">
+                                {{ knowledgeTag.subSubjectName }}
+                              </div>
+                            </div>
+                            <div class="sub-detail">
+                              <a-tag class="tag">
+                                {{ knowledgeTag.name }}
+                              </a-tag>
                             </div>
                           </div>
-                          <div class="sub-detail">
-                            <a-tag class="tag">
-                              {{ knowledgeTag.name }}
-                            </a-tag>
-                          </div>
                         </div>
                       </div>
-                    </div>
-                    <div class="content-sub-list" v-if="question && question.skillTags&& question.skillTags.length">
-                      <div class="content-sub-item" v-for="(skillTag, sIndex) in question.skillTags" :key="sIndex">
-                        <div class="sub-title">
-                          <div class="sub-title-name">
-                            {{ skillTag.description }}
-                          </div>
-                          <div class="sub-detail">
-                            <a-tag class="tag">
-                              {{ skillTag.name }}
-                            </a-tag>
+                      <div class="content-sub-list" v-if="question && question.skillTags&& question.skillTags.length">
+                        <div class="content-sub-item" v-for="(skillTag, sIndex) in question.skillTags" :key="'sIndex' + sIndex">
+                          <div class="sub-title">
+                            <div class="sub-title-name">
+                              {{ skillTag.description }}
+                            </div>
+                            <div class="sub-detail">
+                              <a-tag class="tag">
+                                {{ skillTag.name }}
+                              </a-tag>
+                            </div>
                           </div>
                         </div>
                       </div>
@@ -171,31 +227,38 @@
                   </div>
                 </div>
               </div>
-            </div>
-
+            </template>
           </div>
           <a-spin v-show="slideLoading" class="spin-loading"/>
-          <a-col span="24">
-            <div v-if="!loading && !imgList.length" class="no-preview-img">
-              <no-more-resources />
-            </div>
-          </a-col>
-          <a-col class="left-preview" span="24">
-            <a-carousel ref="carousel" v-if="!loading && imgList.length" autoplay class="my-carousel">
-              <div v-for="(img,index) in imgList" :key="index">
-                <img :src="img" />
+          <!-- lesson task img list-->
+          <template v-if="type === typeMap.lesson || type === typeMap.task ">
+            <a-col span="24">
+              <div v-if="!loading && !imgList.length" class="no-preview-img">
+                <no-more-resources />
               </div>
-            </a-carousel>
-            <div class="carousel-page">
-              <div class="img-list-wrapper">
-                <div class="img-list">
-                  <div class="img-item" v-for="(img,index) in imgList" :key="index" @click="handleGotoImgIndex(index)">
-                    <img :src="img" />
+            </a-col>
+            <a-col class="left-preview" span="24">
+              <a-carousel ref="carousel" v-if="!loading && imgList.length" autoplay class="my-carousel">
+                <div v-for="(img,cIndex) in imgList" :key="'cIndex' + cIndex">
+                  <img :src="img" />
+                </div>
+              </a-carousel>
+              <div class="carousel-page">
+                <div class="img-list-wrapper">
+                  <div class="img-list">
+                    <div class="img-item" v-for="(img,index) in imgList" :key="'index' + index" @click="handleGotoImgIndex(index)">
+                      <img :src="img" />
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
-          </a-col>
+            </a-col>
+            <!-- evaluation preview-->
+          </template>
+          <!-- evaluation-->
+          <template v-if="type === typeMap.evaluation && data.table && data.table.length">
+            <evaluation-preview :evaluation-id="data.id" />
+          </template>
         </a-col>
       </a-row>
       <div class="associate-info" v-if="type === typeMap['unit-plan'] || type === typeMap.topic">
@@ -211,6 +274,7 @@ import { typeMap } from '@/const/teacher'
 import NoMoreResources from '@/components/Common/NoMoreResources'
 import CommonAssociatePreview from '@/components/Common/CommonAssociatePreview'
 import { TemplatesGetPageThumbnail, TemplatesGetPresentation } from '@/api/template'
+import EvaluationPreview from '@/components/Evaluation/EvaluationPreview'
 const { formatLocalUTC } = require('@/utils/util')
 const { UnitPlanQueryById } = require('@/api/unitPlan')
 const { LessonQueryById } = require('@/api/myLesson')
@@ -221,7 +285,7 @@ const { TopicQueryById } = require('@/api/topic')
 
 export default {
   name: 'CommonPreview',
-  components: { CommonAssociatePreview, NoMoreResources },
+  components: { EvaluationPreview, CommonAssociatePreview, NoMoreResources },
   props: {
     id: {
       type: String,
@@ -441,7 +505,7 @@ export default {
 <style lang="less" scoped>
 @import "~@/components/index.less";
 
-.unit-plan-preview {
+.my-unit-plan-preview {
   padding: 20px 16px;
 
   .top-header {
@@ -549,49 +613,43 @@ export default {
   }
 
   .data-info {
-    margin-top: 10px;
     min-height: 100px;
-    padding: 5px;
-    background: rgba(253, 238, 218, 0.5);
-    border: 1px solid #D8D8D8;
+    padding: 0 5px;
     opacity: 1;
     border-radius: 5px;
-  }
 
-  .preview-data-info {
-    margin-top: 10px;
-    min-height: 100px;
-    padding: 5px;
-    opacity: 1;
-  }
+    .right-detail {
 
-  .left-preview {
-    height: 100%;
-
-    .ant-carousel {
-    }
-    .edit-action {
-      margin-top: 20px;
-    }
-  }
-
-  .right-detail {
-    .detail-wrapper {
-      .detail-block {
+      .tag-detail-block {
 
         .info-tag {
+          padding-left: 75px;
+          margin-bottom: 5px;
           display: flex;
           flex-direction: column;
           align-items: flex-start;
 
           .info-tag-item {
-            margin-bottom: 10px;
-            border: 1px solid #D8D8D8;
+            padding: 5px 15px;
+            background: #fafafa;
+            margin-bottom: 8px;
+            border: 1px solid rgba(188, 188, 188, 0.5);
             box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.16);
             opacity: 1;
-            border-radius: 10px;
+            border-radius: 33px;
+            font-family: Inter-Bold;
+            color: #182552;
           }
         }
+      }
+
+      .sub-detail {
+        min-height: 100px;
+        padding: 10px 0;
+        background: rgba(253, 238, 218, 0.5);
+        border: 1px solid #DCDCDC;
+        border-radius: 5px;
+
         .block-title {
           font-weight: 500;
           font-size: 16px;
@@ -650,7 +708,6 @@ export default {
               .content-sub-list {
                 padding: 5px 0;
                 background-color: #f9f9f9;
-                margin-bottom: 10px;
                 .subject-name {
                   cursor: pointer;
                   color: @primary-color;
@@ -666,7 +723,6 @@ export default {
         }
 
         .keyword-block-content {
-          padding: 5px 10px;
           .content-list {
             display: flex;
             flex-direction: column;
@@ -716,7 +772,6 @@ export default {
 
               .content-sub-list {
                 padding: 5px 0;
-                margin-bottom: 10px;
                 width: 100%;
                 .content-sub-item {
                   background: #fff;
@@ -786,6 +841,25 @@ export default {
       }
     }
   }
+
+  .preview-data-info {
+    margin-top: 10px;
+    min-height: 100px;
+    padding: 5px;
+    opacity: 1;
+  }
+
+  .left-preview {
+    margin-top: 10px;
+    height: 100%;
+
+    .ant-carousel {
+    }
+    .edit-action {
+      margin-top: 20px;
+    }
+  }
+
   .bottom-relative {
 
     .type-button {
@@ -893,12 +967,254 @@ export default {
   }
 }
 
-.block-main-label {
-  color: rgba(0, 0, 0, 1);
-  font-size: 18px;
-  font-weight: bold;
-  font-family: Inter-Bold;
-  padding: 5px 15px;
+.data-info {
+  .block-main-label {
+    color: rgba(0, 0, 0, 1);
+    font-size: 18px;
+    font-weight: bold;
+    font-family: Inter-Bold;
+    padding: 5px 15px;
+  }
 }
 
+.custom-tags {
+  background: #fff;
+  padding: 10px;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: center;
+
+  .tag-item {
+    font-size: 16px;
+    margin-right: 5px;
+    margin-bottom: 5px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    word-break: break-all;
+    white-space: nowrap;
+    .tag {
+      background: rgba(255, 187, 0, 0.1);
+      border: 1px solid #FFBB00;
+      border-radius: 20px;
+      font-family: Inter-Bold;
+      color: #FFBB00;
+      padding: 3px 10px;
+    }
+  }
+}
+
+.learn-question-tag {
+  width: 100%;
+}
+
+.data-detail-wrapper {
+  background: rgba(253, 238, 218, 0.5);
+  border: 1px solid rgba(220, 220, 220, 1);
+  padding: 10px;
+  .detail-block {
+    .block-title {
+      font-weight: 500;
+      font-size: 16px;
+      font-family: Inter-Bold;
+      color: #000000;
+      width: 100%;
+    }
+
+    .scenario-block-content {
+      padding: 5px 0;
+      .content-list {
+        display: flex;
+        flex-direction: column;
+
+        .content-item {
+          background: #fff;
+          padding: 5px 10px;
+          display: flex;
+          flex-direction: row;
+          justify-content: space-between;
+          .question {
+            font-size: 14px;
+            font-weight: 500;
+            padding-right: 15px;
+          }
+          .tags {
+            display: flex;
+            flex-direction: row;
+            flex-wrap: wrap;
+            width: 250px;
+            justify-content: flex-end;
+
+            .tag-label {
+              font-weight: bold;
+              padding-right: 10px;
+            }
+
+            .tag-item {
+              font-size: 16px;
+              margin-right: 5px;
+              margin-bottom: 5px;
+              overflow: hidden;
+              text-overflow: ellipsis;
+              word-break: break-all;
+              white-space: nowrap;
+              .tag {
+                background: rgba(255, 187, 0, 0.1);
+                border: 1px solid #FFBB00;
+                border-radius: 20px;
+                font-family: Inter-Bold;
+                color: #FFBB00;
+              }
+            }
+          }
+
+          .content-sub-list {
+            padding: 5px 0;
+            background-color: #f9f9f9;
+            .subject-name {
+              cursor: pointer;
+              color: @primary-color;
+              padding: 0 10px;
+              line-height: 30px;
+              border-radius: 30px;
+              margin: 0 10px;
+              background-color: fade(@outline-color, 20%);
+            }
+          }
+        }
+      }
+    }
+
+    .keyword-block-content {
+      padding: 5px 0;
+      .content-list {
+        display: flex;
+        flex-direction: column;
+
+        .content-item {
+          margin-bottom: 10px;
+          display: flex;
+          flex-direction: column;
+          align-items: flex-start;
+          justify-content: space-around;
+          .question {
+            width: 100%;
+            font-size: 14px;
+            font-weight: 500;
+            padding: 5px 0;
+          }
+          .tags {
+            display: flex;
+            flex-direction: row;
+            flex-wrap: wrap;
+
+            .tag-label {
+              font-weight: bold;
+              padding-right: 10px;
+            }
+
+            .tag-item {
+              font-size: 16px;
+              margin-right: 5px;
+              margin-bottom: 5px;
+              overflow: hidden;
+              text-overflow: ellipsis;
+              word-break: break-all;
+              white-space: nowrap;
+              .tag {
+                background: rgba(255, 187, 0, 0.1);
+                border: 1px solid #FFBB00;
+                border-radius: 20px;
+                font-family: Inter-Bold;
+                color: #FFBB00;
+              }
+            }
+          }
+
+          .content-sub-list {
+            padding: 5px 0;
+            width: 100%;
+            .content-sub-item {
+              background: rgba(255, 187, 0, 0.1);
+              color: rgba(255, 187, 0, 1);
+              margin-bottom: 10px;
+              .sub-title {
+                display: flex;
+                flex-direction: row;
+                align-items: center;
+                justify-content: space-between;
+                padding: 10px;
+                .sub-title-name {
+                  padding-right: 15px;
+                  font-weight: 500;
+                  display: inline-block;
+                  .subject-name {
+                    display: inline-block;
+                    cursor: pointer;
+                    color: @primary-color;
+                    padding: 0 8px;
+                    line-height: 20px;
+                    border-radius: 20px;
+                    margin: 0 5px;
+                    background-color: fade(@outline-color, 20%);
+                  }
+                }
+              }
+            }
+
+            .tag {
+              background: rgba(255, 187, 0, 0.1);
+              border: 1px solid #FFBB00;
+              border-radius: 20px;
+              font-family: Inter-Bold;
+              color: #FFBB00;
+            }
+          }
+        }
+      }
+    }
+
+    .inquiry-block-content {
+      width: 100%;
+      background: rgba(21, 195, 154, 0.1);
+      border: 1px dashed rgba(216, 216, 216, 1);
+      .inquiry {
+        padding: 5px 10px;
+        margin-bottom: 10px;
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: flex-start;
+        flex-wrap: wrap;
+        color: rgba(21, 195, 154, 1);
+      }
+    }
+
+    .overview-block {
+      padding: 10px;
+      margin-bottom: 10px;
+      .view-text {
+        padding: 10px;
+        background: #fff;
+        color: #000;
+        font-family: Inter-Bold;
+        font-weight: 500;
+      }
+    }
+  }
+}
+
+.preview-data-info {
+  .block-main-label {
+    color: rgba(0, 0, 0, 1);
+    font-size: 18px;
+    font-weight: bold;
+    font-family: Inter-Bold;
+    padding: 5px 0;
+  }
+
+  .content-item {
+
+  }
+}
 </style>

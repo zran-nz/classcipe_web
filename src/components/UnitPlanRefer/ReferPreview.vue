@@ -570,6 +570,7 @@ export default {
             flex-wrap: wrap;
           }
         }
+
         .overview-block {
           padding: 10px;
           margin-bottom: 10px;
