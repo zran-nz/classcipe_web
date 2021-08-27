@@ -123,23 +123,35 @@
           </a-list>
 
           <a-list
-            :grid="{ gutter: 16, column: 4 }"
             size="large"
             :pagination="pagination"
             :data-source="myContentList"
             :loading="loading"
             v-if="dataListMode === 'card'">
-            <a-list-item slot="renderItem" key="item.key" slot-scope="item" @click="handleToggleSelect(item)">
-              <a-card class="cover-card">
+            <div slot="renderItem" key="item.key" class="my-card-list-item" slot-scope="item" @click="handleToggleSelect(item)">
+              <div class="cover-img-wrapper">
                 <div
                   @click="handleViewDetail(item, $event)"
                   class="cover-image"
-                  slot="cover"
                   :style="{backgroundImage: 'url(' + item.image + ')' }"
-                ></div>
-                <a-card-meta :title="item.name ? item.name : 'Untitled'" :description="item.createTime | dayjs"></a-card-meta>
-                <!-- link mode -->
-                <div slot="actions" v-show="mode === displayMode.Link">
+                >
+                </div>
+              </div>
+              <div class="item-intro">
+                <div class="page-info">
+                  <span class="page-num-tag">
+                    1/1
+                  </span>
+                </div>
+                <div class="main-title">
+                  {{ item.name ? item.name : 'Untitled' }}
+                </div>
+                <div class="sub-title">
+                  {{ item.createTime | dayjs }}
+                </div>
+              </div>
+              <div class="item-action-wrapper">
+                <div v-show="mode === displayMode.Link">
                   <div class="action-wrapper">
                     <div class="action-item">
                       <a-popconfirm :title="'Link this content to my Unit' + '?'" ok-text="Yes" @confirm="handleLinkItem(item, $event)" cancel-text="No">
@@ -151,22 +163,25 @@
                   </div>
                 </div>
                 <!-- refer mode -->
-                <div slot="actions" v-show="mode === displayMode.Link">
+                <div v-show="mode === displayMode.Refer">
                   <div class="action-wrapper">
-                    <div class="action-item">
-                      <a-popconfirm :title="'Link this content to my Unit' + '?'" ok-text="Yes" @confirm="handleLinkItem(item, $event)" cancel-text="No">
-                        <span>
-                          <a-icon type="form" /> Link
-                        </span>
-                      </a-popconfirm>
+                    <div class="action-item refer-item">
+                      <a-button class="refer-btn" type="primary" @click="handleReferItem(item, $event)">
+                        <img src="~@/assets/icons/myContent/refer_white.png" class="btn-icon btn-icon-white"/>
+                        <img src="~@/assets/icons/myContent/refer_color.png" class="btn-icon btn-icon-color"/>
+                        <div class="btn-text">
+                          Refer
+                        </div>
+                      </a-button>
                     </div>
                   </div>
                 </div>
-                <div class="card-action-icon">
-                  <img src="~@/assets/icons/lesson/selected.png" v-if="selectedList.indexOf(item.type + '-' + item.id) !== -1"/>
-                </div>
-              </a-card>
-            </a-list-item>
+              </div>
+
+              <div class="card-action-icon">
+                <img src="~@/assets/icons/lesson/selected.png" v-if="selectedList.indexOf(item.type + '-' + item.id) !== -1"/>
+              </div>
+            </div>
           </a-list>
         </div>
 
@@ -438,8 +453,10 @@ export default {
 @import "~@/components/index.less";
 
 .ant-list-item {
-  padding: 8px 0;
+  padding: 0;
+  margin: 10px;
   position: relative;
+  width: 200px;
 }
 
 .my-list-item {
@@ -615,7 +632,7 @@ export default {
         display: flex;
         flex-direction: row;
         align-items: center;
-        justify-content: flex-end;
+        justify-content: center;
         .action-item {
           display: inline;
           margin-right: 10px;
@@ -735,35 +752,6 @@ a.delete-action {
   }
 }
 
-.cover-image {
-  height: 150px;
-  background-size: cover;
-  background-position: center center;
-  background-repeat: no-repeat;
-  border-bottom: 1px solid #eee;
-  -webkit-transition: all 0.3s ease-in-out;
-  transition: all 0.3s ease-in-out;
-  &:hover {
-    background-size: 110%;
-    background-position: center;
-    background-repeat: no-repeat;
-    box-shadow: 0 0 2px 1px @primary-color;
-  }
-}
-
-.cover-card {
-  position: relative;
-  user-select: none;
-  .card-action-icon {
-    position: absolute;
-    bottom: 10px;
-    right: 10px;
-    img {
-      height: 18px;
-    }
-  }
-}
-
 .preview-wrapper {
   display: flex;
   flex-direction: row;
@@ -790,4 +778,168 @@ a.delete-action {
   }
 }
 
+.my-card-list-item {
+  overflow: hidden;
+  box-sizing: border-box;
+  margin: 10px;
+  width: 250px;
+  position: relative;
+  user-select: none;
+  background: #FFFFFF;
+  border: 1px solid #F7F8FF;
+  box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.16);
+  opacity: 1;
+  border-radius: 6px;
+
+  &:hover {
+    background-size: 110%;
+    background-position: center;
+    background-repeat: no-repeat;
+    box-shadow: 0 0 2px 1px @primary-color;
+  }
+
+  .cover-img-wrapper {
+    border-radius: 6px;
+    border: none;
+    outline: none;
+    .cover-image {
+      border: none;
+      outline: none;
+      height: 150px;
+      width: 250px;
+      background-size: cover;
+      background-repeat: no-repeat;
+      background-position: center center;
+      border-bottom: 1px solid #eee;
+      -webkit-transition: all 0.3s ease-in-out;
+      transition: all 0.3s ease-in-out;
+    }
+  }
+
+  .item-intro {
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+
+    .page-info {
+      display: flex;
+      flex-direction: row;
+      align-items: flex-start;
+      align-items: center;
+      .page-num-tag {
+        display: inline;
+        background: rgba(228, 228, 228, 0.5);
+        padding: 1px 10px;
+        border-radius: 16px;
+        font-size: 8px;
+        font-family: Segoe UI;
+        font-weight: 400;
+        color: #808191;
+      }
+    }
+
+    .main-title {
+      padding: 5px 0;
+      font-size: 14px;
+      font-family: Inter-Bold;
+      line-height: 24px;
+      color: #000000;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .sub-title {
+      font-size: 8px;
+      font-family: Segoe UI;
+      font-weight: 400;
+      color: #808191;
+    }
+  }
+
+  .item-action-wrapper {
+    padding: 5px 10px 15px 10px;
+
+    .action-wrapper {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      justify-content: center;
+      .action-item {
+        display: inline;
+        margin-right: 10px;
+        user-select: none;
+        .link-item {
+          display: flex;
+          flex-direction: row;
+          align-items: center;
+          justify-content: center;
+          height: 35px;
+          padding: 5px 15px;
+          border-radius: 35px;
+          border: 1px solid #BCBCBC;
+          font-family: Inter-Bold;
+          color: #182552;
+          font-size: 13px;
+          background: rgba(228, 228, 228, 0.2);
+          transition: all 0.3s ease;
+          .link-icon {
+            margin-right: 5px;
+            width: 15px;
+          }
+        }
+
+        .link-item:hover {
+          background: rgba(228, 228, 228, 0.5);
+        }
+      }
+
+      .refer-item {
+        .refer-btn{
+          background: rgba(21, 195, 154, 0.1);
+          border: 1px solid #15C39A;
+          border-radius: 20px;
+          color: #15C39A;
+          padding: 10px 15px;
+          display: flex;
+          flex-direction: row;
+          align-items: center;
+          justify-content: flex-start;
+        }
+        .btn-icon {
+          height: 10px;
+          width: 10px;
+        }
+        .btn-icon-white {
+          display: none;
+        }
+        .btn-icon-color {
+          display: inline-block;
+        }
+        .btn-text {
+          padding-left: 8px;
+        }
+      }
+
+      .refer-btn:hover {
+        background: #07AB84;
+        color: #fff;
+        .btn-icon-white {
+          display: inline-block;
+        }
+        .btn-icon-color {
+          display: none;
+        }
+      }
+    }
+  }
+  .card-action-icon {
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+    img {
+      height: 18px;
+    }
+  }
+}
 </style>

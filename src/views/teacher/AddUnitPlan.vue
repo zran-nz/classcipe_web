@@ -290,7 +290,7 @@
         v-model="selectLinkContentVisible"
         :footer="null"
         destroyOnClose
-        width="80%"
+        width="1200px"
         title="Link in my content"
         @ok="selectLinkContentVisible = false"
         @cancel="selectLinkContentVisible = false">
