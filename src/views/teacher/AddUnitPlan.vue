@@ -1343,6 +1343,7 @@ export default {
       this.referDetailVisible = false
       this.referId = null
       this.referType = null
+      this.$refs['form'].className = 'unit-plan-form-left'
     },
 
     handleHoverReferBlock (data) {
