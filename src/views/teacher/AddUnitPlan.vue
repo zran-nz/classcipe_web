@@ -22,107 +22,127 @@
             @link="selectLinkContentVisible = true"
             :show-create="true"/>
         </a-col>
-        <a-col span="16" offset="2" class="main-content">
+        <a-col span="20" class="main-content">
           <a-card :bordered="false" :body-style="{padding: '16px'}">
-            <a-form-model :model="form" class="my-form-wrapper">
-              <div class="form-block">
-                <a-input v-model="form.name" placeholder="Name" class="my-form-input" />
-              </div>
-
-              <div class="form-block">
-                <!-- image-->
-                <a-form-model-item class="img-wrapper">
-                  <a-upload-dragger
-                    name="file"
-                    accept="image/png, image/jpeg"
-                    :showUploadList="false"
-                    :customRequest="handleUploadImage"
-                  >
-                    <div class="delete-img" @click="handleDeleteImage($event)" v-show="form.image">
-                      <a-icon type="close-circle" />
+            <div class="unit-plan-form-left">
+              <a-form-model :model="form" class="my-form-wrapper">
+                <div class="form-block">
+                  <div class="refer-action row-flex-right">
+                    <div class="refer-text">
+                      Refer from
                     </div>
-                    <template v-if="uploading">
-                      <div class="upload-container">
-                        <p class="ant-upload-drag-icon">
-                          <a-icon type="cloud-upload" />
-                        </p>
-                        <p class="ant-upload-text">
-                          <a-spin />
-                          <span class="uploading-tips">{{ $t('teacher.add-unit-plan.uploading') }}</span>
-                        </p>
-                      </div>
-                    </template>
-                    <template v-if="!uploading && form && form.image">
-                      <div class="image-preview">
-                        <img :src="form.image" alt="">
-                      </div>
-                    </template>
-                    <template v-if="!uploading && form && !form.image">
-                      <div class="upload-container">
-                        <p class="ant-upload-drag-icon">
-                          <img src="~@/assets/icons/lesson/upload_icon.png" class="upload-icon" />
-                        </p>
-                        <p class="ant-upload-text">
-                          {{ $t('teacher.add-unit-plan.upload-a-picture') }}
-                        </p>
-                      </div>
-                    </template>
-                  </a-upload-dragger>
-                </a-form-model-item>
-
-                <a-form-model-item class="task-audio-line">
-                  <a-textarea v-model="form.overview" allow-clear placeholder="Overview"/>
-                  <div class="audio-wrapper" v-if="form.audioUrl">
-                    <audio :src="form.audioUrl" controls />
-                    <span @click="form.audioUrl = null"><a-icon type="delete" /></span>
+                    <div class="refer-btn">
+                      <a-button class="refer" type="primary" @click="handleStartRefer">
+                        <img src="~@/assets/icons/unitplan/refer.png" class="btn-icon"/>
+                        <div class="btn-text">
+                          My Content
+                        </div>
+                      </a-button>
+                    </div>
                   </div>
-                  <a-tooltip>
-                    <template slot="title">
-                      Voice input
-                    </template>
-                    <div class="task-audio" @click="handleAddAudioOverview">
-                      <img src="~@/assets/icons/lesson/microphone.png" />
-                    </div>
-                  </a-tooltip>
-                </a-form-model-item>
+                </div>
 
-              </div>
+                <div class="form-block">
+                  <a-input v-model="form.name" placeholder="Name" class="my-form-input" />
+                </div>
 
-              <div class="form-block">
-                <!--                <a-divider />-->
-                <a-input v-model="form.inquiry" :placeholder="$store.getters.currentRole === 'teacher' ? $t('teacher.add-unit-plan.teacher-direction-of-inquiry') : $t('teacher.add-unit-plan.expert-direction-of-inquiry')" class="my-form-input" />
-              </div>
-
-              <!--            real-life-scenario-->
-              <div class="form-block">
-                <a-row>
-                  <a-col span="24">
-                    <div class="form-block-title">
-                      <a-divider orientation="left">
-                        {{ $t('teacher.add-unit-plan.real-life-scenario') }}
-                      </a-divider>
-                    </div>
-                  </a-col>
-                </a-row>
-                <!--sdg and KeyWords-->
-                <div class="content-blocks" v-for="(scenario, sdgIndex) in form.scenarios" :key="sdgIndex">
-                  <div class="sdg-delete-wrapper" @click="handleDeleteSdg(sdgIndex)" v-show="form.scenarios.length > 1">
-                    <a-tooltip placement="top">
-                      <template slot="title">
-                        <span>{{ $t('teacher.add-unit-plan.delete-goal') }}</span>
+                <div class="form-block">
+                  <!-- image-->
+                  <a-form-model-item class="img-wrapper">
+                    <a-upload-dragger
+                      name="file"
+                      accept="image/png, image/jpeg"
+                      :showUploadList="false"
+                      :customRequest="handleUploadImage"
+                    >
+                      <div class="delete-img" @click="handleDeleteImage($event)" v-show="form.image">
+                        <a-icon type="close-circle" />
+                      </div>
+                      <template v-if="uploading">
+                        <div class="upload-container">
+                          <p class="ant-upload-drag-icon">
+                            <a-icon type="cloud-upload" />
+                          </p>
+                          <p class="ant-upload-text">
+                            <a-spin />
+                            <span class="uploading-tips">{{ $t('teacher.add-unit-plan.uploading') }}</span>
+                          </p>
+                        </div>
                       </template>
-                      <div class="sdg-delete">
-                        <a-icon type="delete" :style="{ fontSize: '20px' }" />
+                      <template v-if="!uploading && form && form.image">
+                        <div class="image-preview">
+                          <img :src="form.image" alt="">
+                        </div>
+                      </template>
+                      <template v-if="!uploading && form && !form.image">
+                        <div class="upload-container">
+                          <p class="ant-upload-drag-icon">
+                            <img src="~@/assets/icons/lesson/upload_icon.png" class="upload-icon" />
+                          </p>
+                          <p class="ant-upload-text">
+                            {{ $t('teacher.add-unit-plan.upload-a-picture') }}
+                          </p>
+                        </div>
+                      </template>
+                    </a-upload-dragger>
+                  </a-form-model-item>
+
+                  <a-form-model-item class="task-audio-line">
+                    <a-textarea v-model="form.overview" allow-clear placeholder="Overview"/>
+                    <div class="audio-wrapper" v-if="form.audioUrl">
+                      <audio :src="form.audioUrl" controls />
+                      <span @click="form.audioUrl = null"><a-icon type="delete" /></span>
+                    </div>
+                    <a-tooltip>
+                      <template slot="title">
+                        Voice input
+                      </template>
+                      <div class="task-audio" @click="handleAddAudioOverview">
+                        <img src="~@/assets/icons/lesson/microphone.png" />
                       </div>
                     </a-tooltip>
-                  </div>
+                  </a-form-model-item>
+
+                </div>
+
+                <!--            real-life-scenario-->
+                <div class="form-block ">
+                  <a-row>
+                    <a-col span="24">
+                      <div class="form-block-title">
+                        Choose the relevant UN sustainable development goal
+                      </div>
+                    </a-col>
+                  </a-row>
+                </div>
+
+                <!--sdg and KeyWords-->
+                <div class="sdg-content-blocks" v-for="(scenario, sdgIndex) in form.scenarios" :key="sdgIndex">
 
                   <!--description-->
                   <div class="scenario-description">
+                    <div class="sdg-delete-wrapper" @click="handleDeleteSdg(sdgIndex)" v-show="form.scenarios.length > 1">
+                      <a-tooltip placement="top">
+                        <template slot="title">
+                          <span>{{ $t('teacher.add-unit-plan.delete-goal') }}</span>
+                        </template>
+                        <div class="sdg-delete">
+                          <a-icon type="delete" :style="{ fontSize: '20px' }" />
+                        </div>
+                      </a-tooltip>
+                    </div>
+                    <!--sdg-->
+                    <a-form-model-item >
+                      <a-select size="large" v-model="scenario.sdgId" placeholder="Choose the Bloom Taxonomy Categories" class="my-big-select">
+                        <a-select-option v-for="(sdg,index) in sdgList" :value="sdg.id" :key="index" :disabled="selectedSdg.indexOf(sdg.id) != -1">
+                          {{ sdg.name }}
+                        </a-select-option>
+                      </a-select>
+                    </a-form-model-item>
+
                     <a-form-model-item>
                       <input-search
                         ref="descriptionInputSearch"
-                        :v-model="scenario.description"
                         :default-value="scenario.description"
                         :key-index="sdgIndex"
                         :currend-index="currentIndex"
@@ -141,60 +161,65 @@
                     </a-button>
                   </div>
 
-                  <!--sdg-->
-                  <a-form-model-item >
-                    <a-select size="large" v-model="scenario.sdgId" placeholder="Choose the Bloom Taxonomy Categories" class="my-big-select">
-                      <a-select-option v-for="(sdg,index) in sdgList" :value="sdg.id" :key="index" :disabled="selectedSdg.indexOf(sdg.id) != -1">
-                        {{ sdg.name }}
-                      </a-select-option>
-                    </a-select>
-                  </a-form-model-item>
-
                   <!--keywords-->
                   <a-form-model-item>
                     <sdg-tag-input :selected-keywords="scenario.sdgKeyWords" :sdg-key="sdgIndex" @add-tag="handleAddSdgTag" @remove-tag="handleRemoveSdgTag"/>
                   </a-form-model-item>
                 </div>
 
-                <!--add-new-sdg-->
-                <a-row>
-                  <a-col span="22">
-                    <div class="form-block-title form-block-action">
-                      <a-button type="link" icon="plus-circle" @click="handleAddMoreSdg">
-                        {{ $t('Choose another sustainable development goal') }}
-                      </a-button>
-                    </div>
-                  </a-col>
-                </a-row>
-              </div>
+                <div class="form-block">
+                  <!--add-new-sdg-->
+                  <a-row>
+                    <a-col span="24">
+                      <div class="form-block-title form-block-action row-flex-right">
+                        <a-button class="add-sdg-btn" @click="handleAddMoreSdg">
+                          <img src="~@/assets/icons/unitplan/add_sdg.png" class="btn-icon"/>
+                          <div class="btn-text">
+                            Choose another sustainable development goal
+                          </div>
+                        </a-button>
+                      </div>
+                    </a-col>
+                  </a-row>
+                </div>
 
-              <div class="form-block">
-                <a-divider />
-                <div class="subject-grade-wrapper">
-                  <div class="select-item">
-                    <a-select size="large" v-model="form.subjectIds" mode="multiple" placeholder="Subjects" class="subject-item">
-                      <a-select-opt-group v-for="subjectOptGroup in subjectTree" :key="subjectOptGroup.id">
-                        <span slot="label">{{ subjectOptGroup.name }}</span>
-                        <a-select-option
-                          :value="subjectOption.id"
-                          v-for="subjectOption in subjectOptGroup.children"
-                          :key="subjectOption.id">{{ subjectOption.name }}
+                <div class="form-block">
+                  <!--                <a-divider />-->
+                  <a-input v-model="form.inquiry" :placeholder="$store.getters.currentRole === 'teacher' ? $t('teacher.add-unit-plan.teacher-direction-of-inquiry') : $t('teacher.add-unit-plan.expert-direction-of-inquiry')" class="my-form-input" />
+                </div>
+
+                <div class="form-block">
+                  <div class="subject-grade-wrapper">
+                    <div class="select-item">
+                      <a-select size="large" v-model="form.subjectIds" mode="multiple" placeholder="Subjects" class="subject-item">
+                        <a-select-opt-group v-for="subjectOptGroup in subjectTree" :key="subjectOptGroup.id">
+                          <span slot="label">{{ subjectOptGroup.name }}</span>
+                          <a-select-option
+                            :value="subjectOption.id"
+                            v-for="subjectOption in subjectOptGroup.children"
+                            :key="subjectOption.id">{{ subjectOption.name }}
+                          </a-select-option>
+                        </a-select-opt-group>
+                      </a-select>
+                    </div>
+                    <div class="select-item">
+                      <a-select size="large" v-model="form.gradeIds" placeholder="Grade" mode="multiple" class="grade-item">
+                        <a-select-option :value="gradeOption.id" v-for="gradeOption in gradeList" :key="gradeOption.id">
+                          {{ gradeOption.name }}
                         </a-select-option>
-                      </a-select-opt-group>
-                    </a-select>
-                  </div>
-                  <div class="select-item">
-                    <a-select size="large" v-model="form.gradeIds" placeholder="Grade" mode="multiple" class="grade-item">
-                      <a-select-option :value="gradeOption.id" v-for="gradeOption in gradeList" :key="gradeOption.id">
-                        {{ gradeOption.name }}
-                      </a-select-option>
-                    </a-select>
+                      </a-select>
+                    </div>
                   </div>
                 </div>
-              </div>
 
-              <div class="form-block">
-                <div class="content-blocks question-item" v-for="(questionItem, questionIndex) in questionDataObj" :key="questionIndex" v-if="questionItem !== null">
+                <div class="sdg-content-blocks question-item" v-for="(questionItem, questionIndex) in questionDataObj" :key="questionIndex" v-if="questionItem !== null">
+
+                  <div class="form-input-item">
+                    <a-input
+                      v-model="questionItem.name"
+                      class="my-form-input"
+                      :placeholder="$store.getters.currentRole === 'teacher' ? $t('teacher.add-unit-plan.teacher-nth-key-question') : $t('teacher.add-unit-plan.expert-nth-key-question')"/>
+                  </div>
                   <new-ui-clickable-knowledge-tag
                     :question-index="questionIndex"
                     :grade-ids="form.gradeIds"
@@ -207,13 +232,23 @@
                     @add-skill-tag="handleAddSkillTag"
                   />
                 </div>
-              </div>
+                <a-row>
+                  <a-col offset="2" span="20">
+                    <div class="form-block-title form-block-action">
+                      <a-button type="link" icon="plus-circle" @click="handleAddMoreQuestion">
+                        {{ $t('teacher.add-unit-plan.add-more-question') }}
+                      </a-button>
+                    </div>
+                  </a-col>
+                </a-row>
 
-              <div class="form-block">
-                <custom-tag ref="customTag" :selected-tags-list="form.customTags" @change-user-tags="handleChangeUserTags"></custom-tag>
-              </div>
+                <div class="form-block">
+                  <custom-tag ref="customTag" :selected-tags-list="form.customTags" @change-user-tags="handleChangeUserTags"></custom-tag>
+                </div>
 
-            </a-form-model>
+              </a-form-model>
+            </div>
+            <div class="unit-plan-form-refer"></div>
           </a-card>
         </a-col>
       </a-row>
@@ -327,6 +362,19 @@
         </div>
       </a-modal>
 
+      <a-modal
+        v-model="selectReferMyContentVisible"
+        :footer="null"
+        destroyOnClose
+        width="80%"
+        title="Refer MyContent"
+        @ok="selectReferMyContentVisible = false"
+        @cancel="selectReferMyContentVisible = false">
+        <div class="link-content-wrapper">
+          <my-content-selector :filter-type-list="['unit-plan', 'topic']" :mode="DisplayMode.Refer" />
+        </div>
+      </a-modal>
+
       <a-skeleton :loading="contentLoading" active>
       </a-skeleton>
     </a-card>
@@ -364,6 +412,8 @@ import CollaborateContent from '@/components/Collaborate/CollaborateContent'
 import CommonFormHeader from '@/components/Common/CommonFormHeader'
 import NewBrowser from '@/components/NewLibrary/NewBrowser'
 import { SelectModel } from '@/components/NewLibrary/SelectModel'
+import DisplayMode from '@/components/MyContent/DisplayMode'
+import { LibraryEvent, LibraryEventBus } from '@/components/NewLibrary/LibraryEventBus'
 
 export default {
   name: 'AddUnitPlan',
@@ -396,6 +446,7 @@ export default {
       contentLoading: true,
       referenceLoading: false,
       contentType: typeMap,
+      DisplayMode: DisplayMode,
 
       selectAddContentTypeVisible: false,
       selectLinkContentVisible: false,
@@ -504,7 +555,9 @@ export default {
       publishing: false,
       showLibraryVisible: false,
       selectModel: SelectModel,
-      selectDescriptionIndex: ''
+      selectDescriptionIndex: '',
+
+      selectReferMyContentVisible: false
     }
   },
   computed: {
@@ -528,12 +581,14 @@ export default {
     // 初始化关联事件处理
     MyContentEventBus.$on(MyContentEvent.LinkToMyContentItem, this.handleLinkMyContent)
     MyContentEventBus.$on(MyContentEvent.ToggleSelectContentItem, this.handleToggleSelectContentItem)
+    LibraryEventBus.$on(LibraryEvent.ContentListSelectClick, this.handleSdgDescriptionSelectClick)
     this.initData()
     this.debouncedGetSdgByDescription = debounce(this.searchScenario, 300)
   },
   beforeDestroy () {
     MyContentEventBus.$off(MyContentEvent.LinkToMyContentItem, this.handleLinkMyContent)
     MyContentEventBus.$off(MyContentEvent.ToggleSelectContentItem, this.handleToggleSelectContentItem)
+    LibraryEventBus.$off(LibraryEvent.ContentListSelectClick, this.handleSdgDescriptionSelectClick)
   },
   methods: {
     initData () {
@@ -1204,13 +1259,30 @@ export default {
       this.$refs.collaborate.startCollaborateModal(Object.assign({}, this.form), this.form.id, this.contentType['unit-plan'])
     },
     handleSelectDescription (sdgIndex) {
-      this.$logger.info('handleSelectDescription')
-      this.selectDescriptionIndex = sdgIndex
+      this.$logger.info('handleSelectDescription', sdgIndex)
+      this.selectDescriptionIndex = '' + sdgIndex
       this.showLibraryVisible = true
     },
     handleConfirmAssociate () {
       this.$logger.info('handleConfirmAssociate')
       this.associateLibraryVisible = false
+    },
+
+    handleStartRefer () {
+      this.$logger.info('handleStartRefer')
+      this.selectReferMyContentVisible = true
+    },
+
+    handleSdgDescriptionSelectClick (data) {
+      this.$logger.info('unit plan handleSdgDescriptionSelectClick', data)
+      const sdgIndex = parseInt(data.questionIndex)
+      this.$logger.info('sdgIndex ' + sdgIndex)
+      const scenarioItem = this.form.scenarios[sdgIndex]
+      this.$logger.info('scenarioItem ', scenarioItem)
+      scenarioItem.description = data.description
+      this.form.scenarios.splice(sdgIndex, 1, scenarioItem)
+      this.$logger.info('after update scenarios', this.form.scenarios)
+      this.showLibraryVisible = false
     }
   }
 }
@@ -1339,8 +1411,11 @@ export default {
     }
 
     .form-block-title {
-      font-size: @font-size-lg;
-      color: #000;
+      font-family: PingFang SC;
+      font-weight: bold;
+      line-height: 24px;
+      color: #000000;
+      margin-bottom: 10px;
     }
 
     .form-block-action {
@@ -1358,6 +1433,94 @@ export default {
       padding-bottom: 24px;
     }
 
+    .sdg-content-blocks {
+      width: 800px;
+      position: relative;
+      border: 1px solid #fff;
+      box-sizing: border-box;
+      padding: 20px 150px 20px 50px;
+      border-radius: 3px;
+
+      .scenario-description{
+        margin-top: 10px;
+        position: relative;
+
+        .sdg-delete-wrapper {
+          transition: all 0.2s ease-in;
+          display: block;
+          position: absolute;
+          text-align: center;
+          right:-60px;
+          top: 0;
+          line-height: 40px;
+          width: 40px;
+          height: 40px;
+          cursor: pointer;
+          color: @link-hover-color;
+          z-index: 100;
+        }
+        .browse{
+          padding: 10px 5px;
+          position: absolute;
+          right: -100px;
+          top: 70px;
+          display: flex;
+          flex-direction: row;
+          align-items: center;
+          justify-content: flex-start;
+          border-radius: 6px;
+        }
+        .btn-icon {
+          height: 18px;
+          width: 18px;
+        }
+        .btn-text {
+          padding: 0 5px;
+        }
+      }
+
+      &:hover {
+        border: 1px solid #15C39A;
+        .sdg-delete-wrapper {
+          display: block;
+        }
+      }
+
+      .knowledge-delete-wrapper {
+        transition: all 0.2s ease-in;
+        display: none;
+        position: absolute;
+        text-align: center;
+        right: 15px;
+        top: 180px;
+        line-height: 50px;
+        width: 50px;
+        height: 50px;
+        cursor: pointer;
+        color: @link-hover-color;
+        z-index: 1000;
+        display: block;
+      }
+
+      &:hover {
+        //border: 1px dotted @link-hover-color;
+        cursor: pointer;
+        box-sizing: border-box;
+        .knowledge-delete-wrapper {
+          display: block;
+        }
+      }
+
+      .tag-select {
+        padding-bottom: 24px;
+
+        .tag-label {
+          color: @text-color-secondary;
+          text-align: center;
+          padding-bottom: 5px;
+        }
+      }
+    }
     .content-blocks {
       width: 600px;
       position: relative;
@@ -1369,7 +1532,7 @@ export default {
           padding: 10px 5px;
           position: absolute;
           right: -100px;
-          top: 5px;
+          top: 70px;
           display: flex;
           flex-direction: row;
           align-items: center;
@@ -1391,7 +1554,7 @@ export default {
         position: absolute;
         text-align: center;
         right:-60px;
-        top: 65px;
+        top: 5px;
         line-height: 50px;
         width: 50px;
         height: 50px;
@@ -1399,6 +1562,7 @@ export default {
         color: @link-hover-color;
         z-index: 1000;
       }
+
       &:hover {
         //border: 1px dotted @link-hover-color;
         //box-sizing: border-box;
@@ -1677,11 +1841,20 @@ export default {
 }
 
 .form-block {
-  margin-bottom: 35px;
-  width: 600px;
+  box-sizing: border-box;
+  margin-bottom: 10px;
+  border: 1px solid #fff;
+  padding: 20px 150px 20px 50px;
+  border-radius: 3px;
 }
+
+.refer-mode {
+  .form-block-active {
+    border: 1px solid #15C39A;
+  }
+}
+
 .subject-grade-wrapper {
-  width: 600px;
   display: flex;
   flex-direction: row;
   align-items: center;
@@ -1690,6 +1863,63 @@ export default {
   .select-item {
     width: 280px;
   }
+}
+
+.form-block {
+  width: 800px;
+  .refer-action {
+    .refer-text {
+      font-family: Inter-Bold;
+      line-height: 24px;
+      color: #000000;
+      margin-right: 10px;
+    }
+
+    .refer-btn {
+      .refer{
+        padding: 10px 15px;
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: flex-start;
+        border-radius: 6px;
+      }
+      .btn-icon {
+        height: 12px;
+        width: 12px;
+      }
+      .btn-text {
+        padding-left: 8px;
+      }
+    }
+  }
+}
+
+.add-sdg-btn {
+  padding: 15px 15px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+  border-radius: 5px;
+  height: 45px;
+
+  .btn-icon {
+    height: 25px;
+    width: 25px;
+  }
+
+  .btn-text {
+    padding-left: 10px;
+  }
+}
+
+.unit-plan-form-left {
+  width: 800px;
+}
+
+.form-input-item {
+  margin-bottom: 20px;
 }
 
 </style>

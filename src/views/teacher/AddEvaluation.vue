@@ -75,7 +75,7 @@
         @ok="selectLinkContentVisible = false"
         @cancel="selectLinkContentVisible = false">
         <div class="link-content-wrapper">
-          <my-content-selector :filter-type-list="['task', 'lesson']" :mode="displayMode.Evaluatioin"/>
+          <my-content-selector :filter-type-list="['task', 'lesson']" :mode="displayMode.Evaluation"/>
         </div>
       </a-modal>
 

@@ -1,7 +1,8 @@
 const DisplayMode = {
   Link: 'Link',
   Select: 'Select',
-  Evaluatioin: 'Evaluatioin'
+  Evaluation: 'Evaluation',
+  Refer: 'Refer'
 }
 
 export default DisplayMode

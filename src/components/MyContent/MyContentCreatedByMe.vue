@@ -20,7 +20,7 @@
       </div>
       <div class="type-owner">
         <a-space>
-          <div class="type-filter">
+          <div class="type-filter" v-show="mode !== 'refer'">
             <a-dropdown>
               <a-menu slot="overlay">
                 <a-menu-item disabled>
@@ -90,7 +90,7 @@
                   <template v-if="item.status === 1">Published</template>
                 </span>
                 <div class="action" >
-                  <div slot="actions" v-show="mode === displayMode.Link">
+                  <div slot="actions" v-if="mode === displayMode.Link">
                     <div class="action-wrapper">
                       <div class="action-item">
                         <a-popconfirm :title="'Link this content to my Unit' + '?'" ok-text="Yes" @confirm="handleLinkItem(item, $event)" cancel-text="No">
@@ -101,21 +101,22 @@
                       </div>
                     </div>
                   </div>
-                  <div slot="actions" v-show="mode === displayMode.Evaluatioin">
+                  <div slot="actions" v-if="mode === displayMode.Refer">
                     <div class="action-wrapper">
-                      <div class="action-item">
-                        <a-popconfirm :title="'Link ?'" ok-text="Yes" @confirm="handleLinkItem(item, $event)" cancel-text="No">
-                          <div class="link-item">
-                            <img src="~@/assets/icons/myContent/link-icon.png" class="link-icon"/>
-                            {{ 'Link this evaluation to this ' + (item.type === typeMap.task ? 'task' : (item.type === typeMap.lesson ? 'lesson' : '')) }}
+                      <div class="action-item refer-item">
+                        <a-button class="refer-btn" type="primary" @click="handleReferItem(item, $event)">
+                          <img src="~@/assets/icons/myContent/refer_white.png" class="btn-icon btn-icon-white"/>
+                          <img src="~@/assets/icons/myContent/refer_color.png" class="btn-icon btn-icon-color"/>
+                          <div class="btn-text">
+                            Refer
                           </div>
-                        </a-popconfirm>
+                        </a-button>
                       </div>
                     </div>
                   </div>
                 </div>
               </span>
-              <div class="action-icon" v-if="selectedList.indexOf(item.type + '-' + item.id) !== -1">
+              <div class="action-icon" v-if="selectedList.indexOf(item.type + '-' + item.id) !== -1" v-show="mode !== 'refer'">
                 <img src="~@/assets/icons/lesson/selected.png"/>
               </div>
             </a-list-item>
@@ -137,6 +138,19 @@
                   :style="{backgroundImage: 'url(' + item.image + ')' }"
                 ></div>
                 <a-card-meta :title="item.name ? item.name : 'Untitled'" :description="item.createTime | dayjs"></a-card-meta>
+                <!-- link mode -->
+                <div slot="actions" v-show="mode === displayMode.Link">
+                  <div class="action-wrapper">
+                    <div class="action-item">
+                      <a-popconfirm :title="'Link this content to my Unit' + '?'" ok-text="Yes" @confirm="handleLinkItem(item, $event)" cancel-text="No">
+                        <span>
+                          <a-icon type="form" /> Link
+                        </span>
+                      </a-popconfirm>
+                    </div>
+                  </div>
+                </div>
+                <!-- refer mode -->
                 <div slot="actions" v-show="mode === displayMode.Link">
                   <div class="action-wrapper">
                     <div class="action-item">
@@ -408,6 +422,13 @@ export default {
       this.previewCurrentId = ''
       this.previewType = ''
       this.previewVisible = false
+    },
+
+    handleReferItem (item, event) {
+      logger.info('handleReferItem', item)
+      event.preventDefault()
+      event.stopPropagation()
+      MyContentEventBus.$emit(MyContentEvent.ReferContentItem, { item })
     }
   }
 }
@@ -621,6 +642,44 @@ export default {
 
           .link-item:hover {
             background: rgba(228, 228, 228, 0.5);
+          }
+        }
+
+        .refer-item {
+          .refer-btn{
+            background: rgba(21, 195, 154, 0.1);
+            border: 1px solid #15C39A;
+            border-radius: 20px;
+            color: #15C39A;
+            padding: 10px 15px;
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: flex-start;
+          }
+          .btn-icon {
+            height: 10px;
+            width: 10px;
+          }
+          .btn-icon-white {
+            display: none;
+          }
+          .btn-icon-color {
+            display: inline-block;
+          }
+          .btn-text {
+            padding-left: 8px;
+          }
+        }
+
+        .refer-btn:hover {
+          background: #07AB84;
+          color: #fff;
+          .btn-icon-white {
+            display: inline-block;
+          }
+          .btn-icon-color {
+            display: none;
           }
         }
       }

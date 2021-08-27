@@ -4,7 +4,7 @@
       <div class="tag-input-list tag-dom">
         <div class="tag-list tag-dom">
           <div class="tag-item tag-dom" v-for="(tag,index) in selectedKeywords" :key="index">
-            <a-tag :color="tagColorList[index % tagColorList.length]" closable @close="handleCloseTag(tag)" class="tag-dom">
+            <a-tag closable @close="handleCloseTag(tag)" class="tag-dom input-tag-item">
               {{ tag.name }}
             </a-tag>
           </div>
@@ -188,7 +188,7 @@ export default {
 .skt-tag-wrapper {
   .skt-tag-list {
     padding: 5px 10px;
-    background-color: #e7f9f5;
+    background: #FAFAFA;
     display: flex;
     flex-direction: row;
     flex-wrap: wrap;
@@ -230,14 +230,12 @@ export default {
       align-items: center;
       justify-content: flex-start;
       /*padding: 5px 0;*/
-      &:hover {
-        background: rgba(0, 0, 0, 5%)
-      }
 
       .create-tag-label {
         font-size: 14px;
         padding-right: 10px;
-        color: @text-color-secondary;
+        font-family: Inter-Bold;
+        color: #11142D;
       }
 
       .create-tag {
@@ -247,7 +245,7 @@ export default {
 
         .tag-item {
           cursor: pointer;
-          border-radius: 10px;
+          border-radius: 25px;
           word-break: normal;
           width: auto;
           display: inline;
@@ -335,6 +333,17 @@ export default {
   border-right-width: @border-width-base !important;
   outline: 0;
   box-shadow: @input-outline-offset @outline-blur-size @outline-width fade(@outline-color, 20%);
+}
+
+.input-tag-item {
+  border-radius: 26px;
+  padding: 0 10px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid #D8D8D8;
+  font-size: 12px;
+  font-family: Inter-Bold;
+  line-height: 24px;
+  color: #11142D;
 }
 
 </style>

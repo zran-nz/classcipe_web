@@ -56,6 +56,12 @@ export default {
     this.value = this.defaultValue
     logger.info('inputSearch value', this.value)
   },
+  watch: {
+    defaultValue (val) {
+      this.$logger.info('defaultValue change', val)
+      this.value = val
+    }
+  },
   methods: {
     handleClick (event) {
       if (!event.target.classList.contains('input-search-item')) {

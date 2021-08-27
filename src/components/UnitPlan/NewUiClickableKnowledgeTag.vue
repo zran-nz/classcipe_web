@@ -906,11 +906,11 @@
       display: flex;
       flex-direction: row;
       .search-input {
-        width: calc(100% - 280px);
+        width: calc(100% - 190px);
       }
 
       .toggle-mode-type-wrapper {
-        width: 280px;
+        width: 190px;
         box-sizing: border-box;
         text-align: right;
         .toggle-mode-type {
@@ -1417,5 +1417,9 @@
   .associate-library {
     margin-top: 20px;
 
+  }
+
+  .open-curriculum-wrapper {
+    margin-top: 10px;
   }
 </style>

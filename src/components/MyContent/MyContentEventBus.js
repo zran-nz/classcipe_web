@@ -3,5 +3,6 @@ export const MyContentEventBus = new Vue()
 
 export const MyContentEvent = {
   LinkToMyContentItem: 'LinkToMyContentItem',
-  ToggleSelectContentItem: 'ToggleSelectContentItem'
+  ToggleSelectContentItem: 'ToggleSelectContentItem',
+  ReferContentItem: 'ReferContentItem'
 }
