@@ -72,7 +72,7 @@
             <a-list-item slot="renderItem" key="item.key" slot-scope="item" :class="{'my-list-item': true, 'active-item': selectedList.indexOf(item.type + '-' + item.id) !== -1}" @click="handleToggleSelect(item)">
 
               <span class="content-info-left" >
-                <content-type-icon :type="item.type" @click.native="handleViewDetail(item, $event)"/>
+                <content-type-icon :type="item.type"/>
 
                 <span class="name-content">
                   <span class="name-text" @click="handleViewDetail(item, $event)">
@@ -114,6 +114,18 @@
                       </div>
                     </div>
                   </div>
+                  <div slot="actions" v-show="mode === displayMode.Evaluation">
+                    <div class="action-wrapper">
+                      <div class="action-item">
+                        <a-popconfirm :title="'Link ?'" ok-text="Yes" @confirm="handleLinkItem(item, $event)" cancel-text="No">
+                          <div class="link-item">
+                            <img src="~@/assets/icons/myContent/link-icon.png" class="link-icon"/>
+                            {{ 'Link this evaluation to this ' + (item.type === typeMap.task ? 'task' : (item.type === typeMap.lesson ? 'lesson' : '')) }}
+                          </div>
+                        </a-popconfirm>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </span>
               <div class="action-icon" v-if="selectedList.indexOf(item.type + '-' + item.id) !== -1" v-show="mode !== 'refer'">
@@ -131,7 +143,6 @@
             <div slot="renderItem" key="item.key" class="my-card-list-item" slot-scope="item" @click="handleToggleSelect(item)">
               <div class="cover-img-wrapper">
                 <div
-                  @click="handleViewDetail(item, $event)"
                   class="cover-image"
                   :style="{backgroundImage: 'url(' + item.image + ')' }"
                 >
@@ -143,7 +154,7 @@
                     1/1
                   </span>
                 </div>
-                <div class="main-title">
+                <div class="main-title" @click="handleViewDetail(item, $event)">
                   {{ item.name ? item.name : 'Untitled' }}
                 </div>
                 <div class="sub-title">
@@ -173,6 +184,19 @@
                           Refer
                         </div>
                       </a-button>
+                    </div>
+                  </div>
+                </div>
+                <!-- refer mode -->
+                <div v-show="mode === displayMode.Evaluation">
+                  <div class="action-wrapper">
+                    <div class="action-item">
+                      <a-popconfirm :title="'Link ?'" ok-text="Yes" @confirm="handleLinkItem(item, $event)" cancel-text="No">
+                        <div class="link-item">
+                          <img src="~@/assets/icons/myContent/link-icon.png" class="link-icon"/>
+                          {{ 'Link this evaluation to this ' + (item.type === typeMap.task ? 'task' : (item.type === typeMap.lesson ? 'lesson' : '')) }}
+                        </div>
+                      </a-popconfirm>
                     </div>
                   </div>
                 </div>
@@ -290,7 +314,7 @@ export default {
         },
         showTotal: total => `Total ${total} items`,
         total: 0,
-        pageSize: 8
+        pageSize: 9
       },
       pageNo: 1,
 
@@ -465,7 +489,6 @@ export default {
   border-radius: 4px;
   background: #FFFFFF;
   padding: 12px 10px;
-  margin-bottom: 15px;
   width: 100%;
   border: 2px solid #fff;
 }
@@ -642,7 +665,6 @@ export default {
             flex-direction: row;
             align-items: center;
             justify-content: center;
-            height: 35px;
             padding: 5px 15px;
             border-radius: 35px;
             border: 1px solid #BCBCBC;
@@ -874,7 +896,6 @@ a.delete-action {
           flex-direction: row;
           align-items: center;
           justify-content: center;
-          height: 35px;
           padding: 5px 15px;
           border-radius: 35px;
           border: 1px solid #BCBCBC;

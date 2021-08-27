@@ -88,7 +88,7 @@
                   </a-form-model-item>
 
                   <a-form-model-item class="task-audio-line">
-                    <a-textarea v-model="form.overview" allow-clear placeholder="Overview"/>
+                    <a-textarea v-model="form.overview" allow-clear placeholder="Overview" autoSize/>
                     <div class="audio-wrapper" v-if="form.audioUrl">
                       <audio :src="form.audioUrl" controls />
                       <span @click="form.audioUrl = null"><a-icon type="delete" /></span>
@@ -366,7 +366,7 @@
         v-model="selectReferMyContentVisible"
         :footer="null"
         destroyOnClose
-        width="80%"
+        width="1150px"
         title="Refer MyContent"
         @ok="selectReferMyContentVisible = false"
         @cancel="selectReferMyContentVisible = false">
@@ -374,6 +374,33 @@
           <my-content-selector :filter-type-list="['unit-plan', 'topic']" :mode="DisplayMode.Refer" />
         </div>
       </a-modal>
+
+      <a-drawer
+        destroyOnClose
+        placement="right"
+        :closable="false"
+        :mask="false"
+        width="600px"
+        :visible="referDetailVisible"
+        @close="handleCloseReferDetail"
+      >
+        <a-row class="preview-wrapper-row">
+          <a-col span="2">
+            <div class="view-back" @click="handleCloseReferDetail">
+              <div class="back-icon">
+                <img src="~@/assets/icons/common/back.png" />
+              </div>
+            </div>
+          </a-col>
+          <a-col span="22">
+            <div class="detail-wrapper">
+              <div class="refer-detail">
+                <refer-preview :id="referId" :type="referType" @refer="handleReferBlock" @hover-refer-block="handleHoverReferBlock"/>
+              </div>
+            </div>
+          </a-col>
+        </a-row>
+      </a-drawer>
 
       <a-skeleton :loading="contentLoading" active>
       </a-skeleton>
@@ -414,10 +441,12 @@ import NewBrowser from '@/components/NewLibrary/NewBrowser'
 import { SelectModel } from '@/components/NewLibrary/SelectModel'
 import DisplayMode from '@/components/MyContent/DisplayMode'
 import { LibraryEvent, LibraryEventBus } from '@/components/NewLibrary/LibraryEventBus'
+import ReferPreview from '@/components/UnitPlanRefer/ReferPreview'
 
 export default {
   name: 'AddUnitPlan',
   components: {
+    ReferPreview,
     CollaborateContent,
     CommonFormHeader,
     ContentTypeIcon,
@@ -557,7 +586,10 @@ export default {
       selectModel: SelectModel,
       selectDescriptionIndex: '',
 
-      selectReferMyContentVisible: false
+      selectReferMyContentVisible: false,
+      referDetailVisible: false,
+      referId: null,
+      referType: null
     }
   },
   computed: {
@@ -581,6 +613,7 @@ export default {
     // 初始化关联事件处理
     MyContentEventBus.$on(MyContentEvent.LinkToMyContentItem, this.handleLinkMyContent)
     MyContentEventBus.$on(MyContentEvent.ToggleSelectContentItem, this.handleToggleSelectContentItem)
+    MyContentEventBus.$on(MyContentEvent.ReferContentItem, this.handleReferItem)
     LibraryEventBus.$on(LibraryEvent.ContentListSelectClick, this.handleSdgDescriptionSelectClick)
     this.initData()
     this.debouncedGetSdgByDescription = debounce(this.searchScenario, 300)
@@ -588,6 +621,7 @@ export default {
   beforeDestroy () {
     MyContentEventBus.$off(MyContentEvent.LinkToMyContentItem, this.handleLinkMyContent)
     MyContentEventBus.$off(MyContentEvent.ToggleSelectContentItem, this.handleToggleSelectContentItem)
+    MyContentEventBus.$off(MyContentEvent.ReferContentItem, this.handleReferItem)
     LibraryEventBus.$off(LibraryEvent.ContentListSelectClick, this.handleSdgDescriptionSelectClick)
   },
   methods: {
@@ -1271,6 +1305,7 @@ export default {
     handleStartRefer () {
       this.$logger.info('handleStartRefer')
       this.selectReferMyContentVisible = true
+      this.referDetailVisible = false
     },
 
     handleSdgDescriptionSelectClick (data) {
@@ -1283,6 +1318,30 @@ export default {
       this.form.scenarios.splice(sdgIndex, 1, scenarioItem)
       this.$logger.info('after update scenarios', this.form.scenarios)
       this.showLibraryVisible = false
+    },
+
+    handleReferItem (data) {
+      this.$logger.info('handleReferItem', data)
+      this.referId = data.item.id
+      this.referType = data.item.type
+      this.selectReferMyContentVisible = false
+      this.referDetailVisible = true
+      this.$logger.info('referId ' + this.referId + ' referType ' + this.referType)
+    },
+
+    handleCloseReferDetail () {
+      this.$logger.info('handleCloseReferDetail')
+      this.referDetailVisible = false
+      this.referId = null
+      this.referType = null
+    },
+
+    handleHoverReferBlock (data) {
+      this.$logger.info('handleHoverReferBlock', data)
+    },
+
+    handleReferBlock (data) {
+      this.$logger.info('handleReferBlock', data)
     }
   }
 }
@@ -1920,6 +1979,23 @@ export default {
 
 .form-input-item {
   margin-bottom: 20px;
+}
+
+.view-back {
+  .back-icon {
+    text-align: left;
+    img {
+      width: 90%;
+      cursor: pointer;
+    }
+  }
+}
+.detail-wrapper {
+  background: #FFFFFF;
+  border: 1px solid #D8D8D8;
+  box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.16);
+  opacity: 1;
+  border-radius: 10px;
 }
 
 </style>
