@@ -366,7 +366,7 @@
         v-model="selectReferMyContentVisible"
         :footer="null"
         destroyOnClose
-        width="80%"
+        width="1150px"
         title="Refer MyContent"
         @ok="selectReferMyContentVisible = false"
         @cancel="selectReferMyContentVisible = false">

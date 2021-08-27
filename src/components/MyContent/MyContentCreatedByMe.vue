@@ -72,7 +72,7 @@
             <a-list-item slot="renderItem" key="item.key" slot-scope="item" :class="{'my-list-item': true, 'active-item': selectedList.indexOf(item.type + '-' + item.id) !== -1}" @click="handleToggleSelect(item)">
 
               <span class="content-info-left" >
-                <content-type-icon :type="item.type" @click.native="handleViewDetail(item, $event)"/>
+                <content-type-icon :type="item.type"/>
 
                 <span class="name-content">
                   <span class="name-text" @click="handleViewDetail(item, $event)">
@@ -131,7 +131,6 @@
             <div slot="renderItem" key="item.key" class="my-card-list-item" slot-scope="item" @click="handleToggleSelect(item)">
               <div class="cover-img-wrapper">
                 <div
-                  @click="handleViewDetail(item, $event)"
                   class="cover-image"
                   :style="{backgroundImage: 'url(' + item.image + ')' }"
                 >
@@ -143,7 +142,7 @@
                     1/1
                   </span>
                 </div>
-                <div class="main-title">
+                <div class="main-title" @click="handleViewDetail(item, $event)">
                   {{ item.name ? item.name : 'Untitled' }}
                 </div>
                 <div class="sub-title">
@@ -290,7 +289,7 @@ export default {
         },
         showTotal: total => `Total ${total} items`,
         total: 0,
-        pageSize: 8
+        pageSize: 9
       },
       pageNo: 1,
 
