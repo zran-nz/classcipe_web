@@ -1347,8 +1347,6 @@ export default {
 
     handleHoverReferBlock (data) {
       this.$logger.info('handleHoverReferBlock', data)
-      this.$logger.info(this.$refs[data.blockType])
-      this.$logger.info(this.$refs['form'])
       this.$refs['form'].className = 'unit-plan-form-left ' + data.blockType
       document.getElementById(data.blockType).scrollIntoView({
         behavior: 'smooth',
@@ -1358,6 +1356,30 @@ export default {
 
     handleReferBlock (data) {
       this.$logger.info('handleReferBlock', data)
+      if (data.blockType === 'overview') {
+        this.form.overview = data.data
+      }
+
+      if (data.blockType === 'inquiry') {
+        this.form.inquiry = data.data
+      }
+
+      if (data.blockType === 'sdg') {
+        this.form.scenarios.push(data.data)
+      }
+
+      if (data.blockType === 'question') {
+        this.form.scenarios.push(data.data)
+
+        const question = Object.assign({
+          questionId: null,
+          visible: false
+        }, data.data)
+        logger.info('handleReferBlock AddQuestion ', question)
+        this.questionMaxIndex = this.questionMaxIndex + 1
+        this.questionTotal = this.questionTotal + 1
+        this.$set(this.questionDataObj, this.questionPrefix + this.questionMaxIndex, question)
+      }
     }
   }
 }
@@ -1515,6 +1537,7 @@ export default {
       box-sizing: border-box;
       padding: 20px 150px 20px 50px;
       border-radius: 3px;
+      margin-bottom: 5px;
 
       .scenario-description{
         margin-top: 10px;

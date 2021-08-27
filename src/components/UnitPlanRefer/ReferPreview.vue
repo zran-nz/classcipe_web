@@ -20,7 +20,10 @@
             <div class="block-main-label">
               Overview
             </div>
-            <div class="ref-block" @mouseenter="handleHoverBlock('overview')">
+            <div
+              class="ref-block"
+              @click="handleReferItem('overview', data.overview)"
+              @mouseenter="handleHoverBlock('overview')">
               <div class="overview-block">
                 <div class="view-text">
                   {{ data.overview }}
@@ -33,7 +36,12 @@
             </div>
             <div class="detail-block">
               <template v-if="data.scenarios && data.scenarios.length">
-                <div class="scenario-item ref-block" v-for="(scenario,sIndex) in data.scenarios" :key="sIndex" @mouseenter="handleHoverBlock('sdg')">
+                <div
+                  class="scenario-item ref-block"
+                  v-for="(scenario,sIndex) in data.scenarios"
+                  :key="sIndex"
+                  @click="handleReferItem('sdg', scenario)"
+                  @mouseenter="handleHoverBlock('sdg')">
                   <div class="block-title">
                     {{ scenario.description }}
                   </div>
@@ -64,7 +72,10 @@
               <div class="block-main-label">
                 Scenario description
               </div>
-              <div class="inquiry-block-content ref-block" @mouseenter="handleHoverBlock('inquiry')">
+              <div
+                class="inquiry-block-content ref-block"
+                @click="handleReferItem('inquiry', data.inquiry)"
+                @mouseenter="handleHoverBlock('inquiry')">
                 <template v-if="data.inquiry">
                   <div class="inquiry">
                     {{ data.inquiry }}
@@ -81,7 +92,10 @@
                 <div class="keyword-block-content">
                   <div class="content-list" v-if="data.questions && data.questions.length">
                     <div class="content-item" v-for="(question,qIndex) in data.questions" :key="qIndex">
-                      <div class="ref-block" @mouseenter="handleHoverBlock('question')">
+                      <div
+                        class="ref-block"
+                        @click="handleReferItem('question', question)"
+                        @mouseenter="handleHoverBlock('question')">
                         <div class="question" v-if="question && question.name">
                           {{ question.name }}
                         </div>
@@ -216,11 +230,11 @@ export default {
     },
 
     // 点击对应的区块时触发
-    handleReferItem (referBlockType, referData) {
-      this.$logger.info('handleReferItem ' + referBlockType, referData)
+    handleReferItem (blockType, data) {
+      this.$logger.info('handleReferItem ' + blockType, data)
       this.$emit('refer', {
-        referBlockType,
-        referData
+        blockType,
+        data
       })
     },
 
