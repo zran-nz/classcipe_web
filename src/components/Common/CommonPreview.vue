@@ -257,7 +257,7 @@
           </template>
           <!-- evaluation-->
           <template v-if="type === typeMap.evaluation && data.table && data.table.length">
-            <evaluation-preview :evaluation-id="data.id" />
+            <evaluation-table-preview :evaluation-id="data.id" />
           </template>
         </a-col>
       </a-row>
@@ -275,6 +275,7 @@ import NoMoreResources from '@/components/Common/NoMoreResources'
 import CommonAssociatePreview from '@/components/Common/CommonAssociatePreview'
 import { TemplatesGetPageThumbnail, TemplatesGetPresentation } from '@/api/template'
 import EvaluationPreview from '@/components/Evaluation/EvaluationPreview'
+import EvaluationTablePreview from '@/components/Evaluation/EvaluationTablePreview'
 const { formatLocalUTC } = require('@/utils/util')
 const { UnitPlanQueryById } = require('@/api/unitPlan')
 const { LessonQueryById } = require('@/api/myLesson')
@@ -285,7 +286,7 @@ const { TopicQueryById } = require('@/api/topic')
 
 export default {
   name: 'CommonPreview',
-  components: { EvaluationPreview, CommonAssociatePreview, NoMoreResources },
+  components: { EvaluationTablePreview, EvaluationPreview, CommonAssociatePreview, NoMoreResources },
   props: {
     id: {
       type: String,

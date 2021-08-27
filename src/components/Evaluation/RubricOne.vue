@@ -4,7 +4,7 @@
       <thead>
         <draggable v-model="headers" tag="tr" class="table-header" @end="handleDragEnd">
           <th v-for="(header, hIndex) in headers" class="header-item" :key="header.type">
-            <div class="edit-icon" @click="handleEditHeader(header)">
+            <div class="edit-icon" @click="handleEditHeader(header)" v-if="header.editable && mode !== 'evaluate' && mode !== 'preview'">
               <img src="~@/assets/icons/evaluation/edit.png" class="link-icon"/>
             </div>
             <div @click="handleEditHeader(header)" class="label-text">
