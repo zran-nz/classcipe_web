@@ -50,7 +50,7 @@
                         <a-button @click="handleStartSession('dash')" :style="{'display': 'flex', 'align-items': 'center', 'justify-content': 'center', 'padding': '20px 15px', 'border-radius': '5px'}" type="primary" >
                           <img src="~@/assets/icons/lesson/startLesson.png" class="btn-icon"/>
                           <div class="btn-text">
-                            Start dash
+                            Start a dash
                           </div>
                         </a-button>
                       </div>
