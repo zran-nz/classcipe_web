@@ -1,39 +1,41 @@
 <template>
   <div class="unit-menu-list">
-    <div class="menu-category-item" v-if="parentAssociateList.length > 0">
+    <div class="menu-category-item parent-data" v-if="parentAssociateList.length > 0">
       <div class="content-sidebar">
         <div class="content-collapse parent-content">
-          <a-collapse default-active-key="1" :bordered="false">
-            <a-collapse-panel key="1" header="Content it includes">
-              <div class="sub-list">
-                <div class="sub-item" v-for="(item,index) in parentAssociateList" :key="index">
-                  <div class="icon" @click="handleViewItem(item)">
-                    <content-type-icon :type="item.type" size="20px" />
-                  </div>
-                  <div class="name" @click="handleViewItem(item)">
-                    {{ item.name ? item.name : 'Unnamed' }}
-                  </div>
-                  <div class="cancel-associate">
-
-                    <a-popconfirm
-                      title="Cancel associate?"
-                      ok-text="Yes"
-                      cancel-text="No"
-                      @confirm="handleCancelAssociate(item)"
-                    >
-                      <a-icon type="close" />
-                    </a-popconfirm>
-
-                  </div>
-                </div>
+          <div class="sub-list">
+            <div class="sub-item" v-for="(item,index) in parentAssociateList" :key="index">
+              <div class="icon" @click="handleViewItem(item)">
+                <content-type-icon :type="item.type" size="20px" />
               </div>
-            </a-collapse-panel>
-          </a-collapse>
+              <div class="name" @click="handleViewItem(item)">
+                {{ item.name ? item.name : 'Unnamed' }}
+              </div>
+              <div class="cancel-associate">
+
+                <a-popconfirm
+                  title="Cancel associate?"
+                  ok-text="Yes"
+                  cancel-text="No"
+                  @confirm="handleCancelAssociate(item)"
+                >
+                  <a-icon type="close" />
+                </a-popconfirm>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
-    <div class="menu-category-item">
+    <div class="menu-category-item current-data">
       <div class="action-bar-wrapper">
+        <div class="editing-item">
+          <div class="name">
+            {{ name ? name : "Unnamed" }}
+          </div>
+          <div class="cancel-associate">
+          </div>
+        </div>
         <div class="action-create" @click="handleCreateEvent" v-show="showCreate">
           <div class="action-icon">
             <img src="~@/assets/icons/common/sidebar/jianli_icon@2x.png" />
@@ -48,35 +50,31 @@
         </div>
       </div>
     </div>
-    <div class="menu-category-item" v-if="subAssociateList.length > 0">
+    <div class="menu-category-item  sub-data" v-if="subAssociateList.length > 0">
       <div class="content-sidebar">
         <div class="content-collapse sub-content">
-          <a-collapse default-active-key="1" :bordered="false">
-            <a-collapse-panel key="1" header="Content it belongs">
-              <div class="sub-list">
-                <div class="sub-item" v-for="(item,index) in subAssociateList" :key="index">
-                  <div class="icon" @click="handleViewItem(item)">
-                    <content-type-icon :type="item.type" size="20px" />
-                  </div>
-                  <div class="name" @click="handleViewItem(item)">
-                    {{ item.name ? item.name : 'Unnamed' }}
-                  </div>
-                  <div class="cancel-associate">
-
-                    <a-popconfirm
-                      title="Cancel associate?"
-                      ok-text="Yes"
-                      cancel-text="No"
-                      @confirm="handleCancelAssociate(item)"
-                    >
-                      <a-icon type="close" />
-                    </a-popconfirm>
-
-                  </div>
-                </div>
+          <div class="sub-list">
+            <div class="sub-item" v-for="(item,index) in subAssociateList" :key="index">
+              <div class="icon" @click="handleViewItem(item)">
+                <content-type-icon :type="item.type" size="20px" />
               </div>
-            </a-collapse-panel>
-          </a-collapse>
+              <div class="name" @click="handleViewItem(item)">
+                {{ item.name ? item.name : 'Unnamed' }}
+              </div>
+              <div class="cancel-associate">
+
+                <a-popconfirm
+                  title="Cancel associate?"
+                  ok-text="Yes"
+                  cancel-text="No"
+                  @confirm="handleCancelAssociate(item)"
+                >
+                  <a-icon type="close" />
+                </a-popconfirm>
+
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -113,8 +111,6 @@ export default {
   data () {
     return {
       loading: true,
-      parentName: null,
-      subName: null,
       typeMap: typeMap,
       associateList: [],
       parentAssociateList: [],
@@ -130,7 +126,7 @@ export default {
     }
   },
   mounted () {
-    this.$logger.info('AssociateSidebar id ' + this.id + ' type ' + this.type)
+    this.$logger.info('AssociateSidebar id ' + this.id + ' type ' + this.type + 'name' + this.name)
     if (this.id) {
       this.loadAssociateData()
     } else {
@@ -276,7 +272,6 @@ export default {
 .content-sidebar {
   display: flex;
   flex-direction: column;
-  margin-bottom: 15px;
   .main-loading {
     padding: 20px;
     margin: auto;
@@ -291,11 +286,15 @@ export default {
       align-items: center;
       .sub-item {
         width: 100%;
-        padding: 8px 15px;
+        padding: 10px 2px;
         display: flex;
         flex-direction: row;
         align-items: flex-start;
         position: relative;
+        font-size: 14px;
+        font-family: Inter-Bold;
+        line-height: 24px;
+        color: #000000;
 
         .icon {
           min-width: 23px;
@@ -306,13 +305,6 @@ export default {
           padding-right: 10px;
           word-break: break-all;
         }
-      }
-      .sub-item:hover {
-        color: @primary-color;
-      }
-
-      .sub-item:hover {
-        background: rgba(21, 195, 154, 0.1);
       }
     }
   }
@@ -442,4 +434,63 @@ export default {
   }
 }
 
+.parent-content {
+  .ant-collapse-header {
+    background: rgba(21, 195, 154, 0.1);
+  }
+}
+
+.sub-content {
+  .ant-collapse-header {
+    background: rgba(228, 228, 228, 0.2);
+  }
+}
+
+.content-collapse {
+
+  .ant-collapse-item {
+    border-bottom: none;
+  }
+
+  .ant-collapse-content > .ant-collapse-content-box {
+    padding: 0;
+  }
+}
+
+.editing-item {
+  padding: 10px 0px;
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  position: relative;
+  font-size: 14px;
+  font-family: Inter-Bold;
+  line-height: 24px;
+  color: #000000;
+
+  .icon {
+    min-width: 23px;
+  }
+
+  .name {
+    padding-left: 6px;
+    padding-right: 10px;
+    word-break: break-all;
+  }
+}
+
+.parent-data {
+  background: rgba(228, 228, 228, 0.1);
+}
+
+.current-data {
+  padding-left: 30px;
+  padding-right: 10px;
+  background: rgba(21, 195, 154, 0.1);
+}
+
+.sub-data {
+  padding-left: 60px;
+  background: rgba(228, 228, 228, 0.1);
+}
 </style>
