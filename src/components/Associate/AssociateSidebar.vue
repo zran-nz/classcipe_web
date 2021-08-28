@@ -1,17 +1,29 @@
 <template>
   <div class="unit-menu-list">
-    <div class="menu-category-item">
+    <div class="menu-category-item" v-if="parentAssociateList.length > 0">
       <div class="content-sidebar">
-        <div class="content-collapse">
+        <div class="content-collapse parent-content">
           <a-collapse default-active-key="1" :bordered="false">
-            <a-collapse-panel key="1" :header="parentName">
+            <a-collapse-panel key="1" header="Content it includes">
               <div class="sub-list">
-                <div class="sub-item">
-                  <div class="icon">
-                    <content-type-icon :type="type" size="20px" />
+                <div class="sub-item" v-for="(item,index) in parentAssociateList" :key="index">
+                  <div class="icon" @click="handleViewItem(item)">
+                    <content-type-icon :type="item.type" size="20px" />
                   </div>
-                  <div class="name">
-                    {{ name ? name : 'Unnamed' }}
+                  <div class="name" @click="handleViewItem(item)">
+                    {{ item.name }}
+                  </div>
+                  <div class="cancel-associate">
+
+                    <a-popconfirm
+                      title="Cancel associate?"
+                      ok-text="Yes"
+                      cancel-text="No"
+                      @confirm="handleCancelAssociate(item)"
+                    >
+                      <a-icon type="close" />
+                    </a-popconfirm>
+
                   </div>
                 </div>
               </div>
@@ -36,13 +48,13 @@
         </div>
       </div>
     </div>
-    <div class="menu-category-item" v-if="subName">
+    <div class="menu-category-item" v-if="subAssociateList.length > 0">
       <div class="content-sidebar">
-        <div class="content-collapse">
+        <div class="content-collapse sub-content">
           <a-collapse default-active-key="1" :bordered="false">
-            <a-collapse-panel key="1" :header="subName">
-              <div class="sub-list" v-if="associateList.length > 0">
-                <div class="sub-item" v-for="(item,index) in associateList" :key="index">
+            <a-collapse-panel key="1" header="Content it belongs">
+              <div class="sub-list">
+                <div class="sub-item" v-for="(item,index) in subAssociateList" :key="index">
                   <div class="icon" @click="handleViewItem(item)">
                     <content-type-icon :type="item.type" size="20px" />
                   </div>
@@ -104,7 +116,9 @@ export default {
       parentName: null,
       subName: null,
       typeMap: typeMap,
-      associateList: []
+      associateList: [],
+      parentAssociateList: [],
+      subAssociateList: []
     }
   },
   watch: {
@@ -207,43 +221,24 @@ export default {
         this.parentName = null
         this.subName = null
         if (this.type === this.typeMap['unit-plan'] || this.type === this.typeMap.topic) {
-          // 没有上级
-          // 取第一个下级（非空name）的name做标题
-          if (this.associateList.length) {
-            for (let i = 0; i < associateList.length; i++) {
-              if (associateList[i] && associateList[i].name && (associateList.type === this.typeMap.lesson || associateList.type === this.typeMap.task)) {
-                this.subName = associateList[i].name
-                break
-              }
-            }
-          }
+          // 没有上级，所有的都是下级
+          this.subAssociateList = this.associateList
         }
 
         if (this.type === this.typeMap.lesson || this.type === this.typeMap.task) {
           // 上级只能是task或者unit plan
-          const parentItem = this.associateList.find(aItem => aItem.type === this.typeMap['unit-plan'] || this.typeMap.topic)
-          this.$logger.info('parent item', parentItem)
-          if (parentItem && parentItem.name) {
-            this.parentName = parentItem.name
-          }
+          this.parentAssociateList = this.associateList.filter(aItem => aItem.type === this.typeMap['unit-plan'] || aItem.type === this.typeMap.topic)
+
           // 下级页面Evaluation Task
-          const subItem = this.associateList.find(aItem => aItem.type === this.typeMap.evaluation || aItem.type === this.typeMap.task)
-          this.$logger.info('sub item', parentItem)
-          if (subItem && subItem.name) {
-            this.subName = subItem.name
-          }
+          this.subAssociateList = this.associateList.filter(aItem => aItem.type === this.typeMap.evaluation || aItem.type === this.typeMap.task)
         }
 
         if (this.type === this.typeMap.evaluation) {
           // 只有上级
-          const parentItem = this.associateList.find(aItem => aItem.type === this.typeMap.lesson || this.typeMap.task)
-          this.$logger.info('parent item', parentItem)
-          if (parentItem && parentItem.name) {
-            this.parentName = parentItem.name
-          }
+          this.parentAssociateList = this.associateList
         }
 
-        this.$logger.info('associate parent and sub current type ' + this.type + ' parent ' + this.parentName + ' sub ' + this.subName, this.associateList)
+        this.$logger.info('associateList ', this.associateList, ' parentAssociateList ', this.parentAssociateList, ' subAssociateList', this.subAssociateList)
       }).finally(() => {
         this.loading = false
       })
