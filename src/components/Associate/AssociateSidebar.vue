@@ -490,7 +490,7 @@ export default {
 }
 
 .sub-data {
-  padding-left: 60px;
+  padding-left: 50px;
   background: rgba(228, 228, 228, 0.1);
 }
 </style>
