@@ -45,6 +45,15 @@
                           </div>
                         </a-button>
                       </div>
+
+                      <div class="header-action-item" v-if="$store.getters.currentRole === 'teacher'">
+                        <a-button @click="handleStartSession('dash')" :style="{'display': 'flex', 'align-items': 'center', 'justify-content': 'center', 'padding': '20px 15px', 'border-radius': '5px'}" type="primary" >
+                          <img src="~@/assets/icons/lesson/startLesson.png" class="btn-icon"/>
+                          <div class="btn-text">
+                            Start dash
+                          </div>
+                        </a-button>
+                      </div>
                     </div>
                   </div>
                   <div class="form-block">
@@ -1168,10 +1177,10 @@ export default {
     handleChangeUserTags (tags) {
       this.form.customTags = tags
     },
-    handleStartSession () {
+    handleStartSession (type) {
       this.$logger.info('handleStartSession', this.form)
       if (this.form.presentationId) {
-        if (this.sessionTags.length === 0) {
+        if (this.sessionTags.length === 0 && !type) {
           this.$message.warn('Please add session tags')
           return
         }
@@ -1188,26 +1197,34 @@ export default {
         StartLesson(requestData).then(res => {
           this.$logger.info('StartLesson res', res)
           if (res.code === 'ok') {
-            const dataTags = []
-            this.sessionTags.forEach(tag => {
-              dataTags.push({
-                'name': tag.name,
-                'parentId': tag.parentId,
-                'isGlobal': tag.isGlobal ? 1 : 0,
-                'classId': res.data.class_id,
-                'presentationId': this.form.presentationId,
-                'sourceId': this.form.id,
-                'sourceType': this.form.type
-              })
-            })
-            SaveSessonTags(dataTags).then(() => {
+            if (type && type === 'dash') {
               this.startLoading = false
               this.lessonSelectTagVisible = false
-              // const targetUrl = lessonHost + 'slide_id=' + this.form.presentationId + '&class_id=' + res.data.class_id + '&type=classroom'
-              const targetUrl = lessonHost + 't/' + res.data.class_id
+              const targetUrl = lessonHost + 'd/' + res.data.class_id
               this.$logger.info('try open ' + targetUrl)
               window.open(targetUrl, '_blank')
-            })
+            } else {
+              const dataTags = []
+              this.sessionTags.forEach(tag => {
+                dataTags.push({
+                  'name': tag.name,
+                  'parentId': tag.parentId,
+                  'isGlobal': tag.isGlobal ? 1 : 0,
+                  'classId': res.data.class_id,
+                  'presentationId': this.form.presentationId,
+                  'sourceId': this.form.id,
+                  'sourceType': this.form.type
+                })
+              })
+              SaveSessonTags(dataTags).then(() => {
+                this.startLoading = false
+                this.lessonSelectTagVisible = false
+                // const targetUrl = lessonHost + 'slide_id=' + this.form.presentationId + '&class_id=' + res.data.class_id + '&type=classroom'
+                const targetUrl = lessonHost + 't/' + res.data.class_id
+                this.$logger.info('try open ' + targetUrl)
+                window.open(targetUrl, '_blank')
+              })
+            }
           } else {
             this.$message.warn('StartLesson Failed! ' + res.message)
             this.startLoading = false
