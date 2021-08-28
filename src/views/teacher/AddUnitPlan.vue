@@ -638,8 +638,8 @@ export default {
     MyContentEventBus.$off(MyContentEvent.ToggleSelectContentItem, this.handleToggleSelectContentItem)
     MyContentEventBus.$off(MyContentEvent.ReferContentItem, this.handleReferItem)
     LibraryEventBus.$off(LibraryEvent.ContentListSelectClick, this.handleSdgDescriptionSelectClick)
-    logger.debug('beforeDestroy, try save!')
-    this.handleSaveUnitPlan()
+    // logger.debug('beforeDestroy, try save!')
+    // this.handleSaveUnitPlan()
   },
   methods: {
     initData () {

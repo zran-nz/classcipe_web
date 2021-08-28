@@ -561,8 +561,8 @@
     beforeDestroy () {
       MyContentEventBus.$off(MyContentEvent.LinkToMyContentItem, this.handleLinkMyContent)
       MyContentEventBus.$off(MyContentEvent.ToggleSelectContentItem, this.handleToggleSelectContentItem)
-      logger.debug('beforeDestroy, try save!')
-      this.handleSaveTopic()
+      // logger.debug('beforeDestroy, try save!')
+      // this.handleSaveTopic()
     },
     methods: {
       initData () {
