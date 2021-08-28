@@ -452,7 +452,7 @@ export default {
         image: '',
         lessonId: '',
         audioUrl: '',
-        name: 'Untitled task',
+        name: 'Untitled Task',
         overview: '',
         presentationId: '',
         questions: [{

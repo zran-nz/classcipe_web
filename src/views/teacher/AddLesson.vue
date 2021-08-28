@@ -623,7 +623,7 @@ export default {
         id: null,
         image: '',
         presentationId: '',
-        name: 'Untitled lesson',
+        name: 'Untitled Lesson',
         overview: '',
         questions: [{
           knowledgeTags: [

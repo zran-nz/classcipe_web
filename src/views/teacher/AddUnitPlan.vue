@@ -513,7 +513,7 @@ export default {
       form: {
         image: '',
         inquiry: '',
-        name: '',
+        name: 'Untitled UnitPlan',
         status: 0,
         subjects: '',
         questions: [

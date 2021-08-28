@@ -11,7 +11,7 @@
                     <content-type-icon :type="item.type" size="20px" />
                   </div>
                   <div class="name" @click="handleViewItem(item)">
-                    {{ item.name }}
+                    {{ item.name ? item.name : 'Unnamed' }}
                   </div>
                   <div class="cancel-associate">
 
@@ -59,7 +59,7 @@
                     <content-type-icon :type="item.type" size="20px" />
                   </div>
                   <div class="name" @click="handleViewItem(item)">
-                    {{ item.name }}
+                    {{ item.name ? item.name : 'Unnamed' }}
                   </div>
                   <div class="cancel-associate">
 

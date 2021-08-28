@@ -266,7 +266,7 @@ export default {
 
       form: {
         id: null,
-        name: null,
+        name: 'Untitled Evaluation',
         status: 0,
         se: 0,
         pe: 0,
@@ -398,7 +398,7 @@ export default {
     handleLinkMyContent (data) {
       this.$logger.info('handleLinkMyContent ', data)
       if (!this.form.name) {
-        this.form.name = 'Evaluation of ' + data.item.name
+        this.form.name = 'Evaluation of ' + (data.item.name ? data.item.name : 'Untitled')
       }
       Associate({
         fromId: this.form.id,
