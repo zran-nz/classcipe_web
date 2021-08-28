@@ -895,6 +895,7 @@ export default {
   font-family: Inter-Bold;
   color: #11142D;
   opacity: 1;
+  top:-1px;
 }
 
 .action-header {
