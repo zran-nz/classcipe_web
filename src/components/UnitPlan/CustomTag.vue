@@ -144,6 +144,10 @@ export default {
     selectedTagsList: {
       type: Array,
       default: () => []
+    },
+    customTagsList: {
+      type: Array,
+      default: () => []
     }
   },
   mounted () {
@@ -207,7 +211,7 @@ export default {
     },
     loadUserTags () {
       this.tagLoading = true
-      GetUserTags().then((response) => {
+      GetUserTags({ defaultTags: this.customTagsList.join(',') }).then((response) => {
         this.$logger.info('GetUserTags response', response.result)
         if (response.success) {
           this.userTags = response.result

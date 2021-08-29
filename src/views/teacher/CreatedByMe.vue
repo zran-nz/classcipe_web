@@ -252,7 +252,7 @@
         destroyOnClose
         width="800px">
         <div>
-          <custom-tag :selected-tags-list="sessionTags" @change-user-tags="handleSelectedSessionTags" />
+          <custom-tag :custom-tags-list="['ATL','Inquiry stage']" :selected-tags-list="sessionTags" @change-user-tags="handleSelectedSessionTags" />
         </div>
         <template slot="footer">
           <a-button key="back" @click="lessonSelectTagVisible=false">
