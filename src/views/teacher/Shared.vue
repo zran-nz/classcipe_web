@@ -506,7 +506,7 @@
           const requestData = {
             author: this.$store.getters.email,
             slide_id: item.presentationId,
-            file_name: item.name ? item.name : 'uname',
+            file_name: item.name ? item.name : 'Unnamed',
             status: lessonStatus.studentPaced,
             redirect_url: null
           }
@@ -534,7 +534,7 @@
           const requestData = {
             author: this.$store.getters.email,
             slide_id: item.presentationId,
-            file_name: item.name ? item.name : 'uname',
+            file_name: item.name ? item.name : 'Unnamed',
             status: lessonStatus.studentPaced,
             redirect_url: null
           }
