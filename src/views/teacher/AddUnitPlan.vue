@@ -223,6 +223,17 @@
                   :key="questionIndex"
                   v-if="questionItem !== null">
 
+                  <div class="knowledge-delete-wrapper" @click="handleDeleteQuestion(questionItem, questionIndex)" v-show="questionTotal > 1">
+                    <a-tooltip placement="top">
+                      <template slot="title">
+                        <span>{{ $t('teacher.add-unit-plan.delete-questions') }}</span>
+                      </template>
+                      <div class="sdg-delete">
+                        <a-icon type="delete" :style="{ fontSize: '20px' }" />
+                      </div>
+                    </a-tooltip>
+                  </div>
+
                   <div class="form-input-item">
                     <a-input
                       v-model="questionItem.name"
@@ -1614,7 +1625,7 @@ export default {
         position: absolute;
         text-align: center;
         right: 15px;
-        top: 180px;
+        top: 80px;
         line-height: 50px;
         width: 50px;
         height: 50px;
