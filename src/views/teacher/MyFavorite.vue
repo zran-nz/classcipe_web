@@ -389,7 +389,7 @@ export default {
         const requestData = {
           author: this.$store.getters.email,
           slide_id: item.presentationId,
-          file_name: item.name,
+          file_name: item.name ? item.name : 'uname',
           status: lessonStatus.studentPaced,
           redirect_url: null
         }
@@ -417,7 +417,7 @@ export default {
         const requestData = {
           author: this.$store.getters.email,
           slide_id: item.presentationId,
-          file_name: item.name,
+          file_name: item.name ? item.name : 'uname',
           status: lessonStatus.studentPaced,
           redirect_url: null
         }

@@ -1188,7 +1188,7 @@ export default {
         const requestData = {
           author: this.$store.getters.email,
           slide_id: this.form.presentationId,
-          file_name: this.form.name,
+          file_name: this.form.name ? this.form.name : 'uname',
           status: lessonStatus.studentPaced,
           redirect_url: null
         }
