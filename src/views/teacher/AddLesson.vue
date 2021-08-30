@@ -1245,7 +1245,7 @@ export default {
           }).finally(() => {
             this.templateLoading = false
             this.creating = false
-            this.loadThumbnail()
+            // this.loadThumbnail()
           })
         } else {
           this.$message.warn('Please select template!')

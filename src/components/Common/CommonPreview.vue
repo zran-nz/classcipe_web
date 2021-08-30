@@ -276,7 +276,7 @@ import * as logger from '@/utils/logger'
 import { typeMap } from '@/const/teacher'
 import NoMoreResources from '@/components/Common/NoMoreResources'
 import CommonAssociatePreview from '@/components/Common/CommonAssociatePreview'
-import { TemplatesGetPageThumbnail, TemplatesGetPresentation } from '@/api/template'
+import { TemplatesGetPresentation, TemplatesGetPublishedPresentation } from '@/api/template'
 import EvaluationPreview from '@/components/Evaluation/EvaluationPreview'
 import EvaluationTablePreview from '@/components/Evaluation/EvaluationTablePreview'
 const { formatLocalUTC } = require('@/utils/util')
@@ -302,6 +302,10 @@ export default {
     canEdit: {
       type: Boolean,
       default: true
+    },
+    isLibrary: {
+      type: Boolean,
+      default: false
     }
   },
   computed: {
@@ -421,31 +425,39 @@ export default {
     loadThumbnail () {
       this.$logger.info('Preview loadThumbnail ', this.data)
       if (this.data.presentationId) {
-        TemplatesGetPresentation({
-          presentationId: this.data.presentationId
-        }).then(response => {
-          const pageObjectIds = response.result.pageObjectIds
-          if (pageObjectIds.length) {
-            pageObjectIds.forEach(id => {
-              TemplatesGetPageThumbnail({
-                pageObjectId: id,
-                presentationId: this.data.presentationId,
-                mimeType: 'SMALL'
-              }).then(response => {
-                this.imgList.push(response.result.contentUrl.replace('=s200', '=s800'))
-              }).finally(() => {
+        if (this.isLibrary) {
+          TemplatesGetPublishedPresentation({
+            presentationId: this.data.presentationId
+          }).then(response => {
+            const pageObjects = response.result.pageObjects
+            if (pageObjects.length) {
+              pageObjects.forEach(page => {
+                this.imgList.push(page.contentUrl)
+                this.slideLoading = false
                 this.$logger.info('current imgList ', this.imgList)
-                this.$logger.info('current selectPageObjectIds ', this.data.selectPageObjectIds)
-                if (this.imgList.length === pageObjectIds.length) {
-                  this.slideLoading = false
-                }
               })
-            })
-          } else {
-            this.imgList = [this.data.image]
-            this.slideLoading = false
-          }
-        })
+            } else {
+              this.imgList = [this.data.image]
+              this.slideLoading = false
+            }
+          })
+        } else {
+          TemplatesGetPresentation({
+            presentationId: this.data.presentationId
+          }).then(response => {
+            const pageObjects = response.result.pageObjects
+            if (pageObjects.length) {
+              pageObjects.forEach(page => {
+                this.imgList.push(page.contentUrl)
+                this.slideLoading = false
+                this.$logger.info('current imgList ', this.imgList)
+              })
+            } else {
+              this.imgList = [this.data.image]
+              this.slideLoading = false
+            }
+          })
+        }
       } else {
         this.slideLoading = false
       }
@@ -858,8 +870,6 @@ export default {
     margin-top: 10px;
     height: 100%;
 
-    .ant-carousel {
-    }
     .edit-action {
       margin-top: 20px;
     }
@@ -1243,6 +1253,15 @@ export default {
     font-family: Segoe UI;
     font-weight: 400;
     color: #808191;
+  }
+}
+
+/deep/ .ant-carousel {
+  .slick-dots li{
+    background:#364d79;
+    //&.slick-active{
+    //  background:#15c39a;
+    //}
   }
 }
 </style>

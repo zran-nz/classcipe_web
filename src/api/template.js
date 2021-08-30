@@ -3,6 +3,7 @@ import request from '@/utils/request'
 export const templateUrl = {
   getTemplates: '/classcipe/api/templates/getTemplates',
   getPresentation: '/classcipe/api/templates/getPresentation',
+  getPublishedPresentation: '/classcipe/api/templates/getPublishedPresentation',
   getPageThumbnail: '/classcipe/api/templates/getPageThumbnail',
   queryById: '/classcipe/api/templates/queryById'
 }
@@ -54,6 +55,14 @@ export function TemplatesGetPageThumbnail (parameter) {
 export function TemplatesQueryById (parameter) {
   return request({
     url: templateUrl.queryById,
+    method: 'get',
+    params: parameter
+  })
+}
+
+export function TemplatesGetPublishedPresentation (parameter) {
+  return request({
+    url: templateUrl.getPublishedPresentation,
     method: 'get',
     params: parameter
   })

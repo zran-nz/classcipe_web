@@ -56,7 +56,7 @@
         <div class="preview-info" v-if="previewVisible">
           <div class="preview-wrapper">
             <div class="preview-detail">
-              <common-preview :id="previewCurrentId" :type="previewType"/>
+              <common-preview :id="previewCurrentId" :type="previewType" :is-library="true"/>
             </div>
           </div>
         </div>
