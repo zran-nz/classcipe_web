@@ -553,7 +553,7 @@ import { UpdateContentStatus, GetMyGrades, Associate, SaveSessonTags } from '@/a
 import InputSearch from '@/components/UnitPlan/InputSearch'
 import SdgTagInput from '@/components/UnitPlan/SdgTagInput'
 import SkillTag from '@/components/UnitPlan/SkillTag'
-import { TemplatesGetTemplates, TemplatesGetPresentation, TemplatesGetPageThumbnail } from '@/api/template'
+import { TemplatesGetTemplates, TemplatesGetPresentation } from '@/api/template'
 import { MyContentEventBus, MyContentEvent } from '@/components/MyContent/MyContentEventBus'
 import { LessonCreateLessonPPT, LessonQueryById, LessonAddOrUpdate } from '@/api/myLesson'
 import { UnitPlanQueryById } from '@/api/unitPlan'
@@ -1362,7 +1362,7 @@ export default {
           })
         }).finally(() => {
           this.creating = false
-          this.loadThumbnail()
+          // this.loadThumbnail()
         })
       }
     },
@@ -1374,23 +1374,14 @@ export default {
         presentationId: this.form.presentationId
       }).then(response => {
         this.$logger.info('loadThumbnail response', response.result)
-        this.pageObjectIds = response.result.pageObjectIds
+        const pageObjects = response.result.pageObjects
         this.thumbnailList = []
-        this.pageObjectIds.forEach(id => {
-          TemplatesGetPageThumbnail({
-            pageObjectId: id,
-            presentationId: this.form.presentationId,
-            mimeType: 'SMALL'
-          }).then(response => {
-            this.$logger.info('contentUrl ' + response.result.contentUrl)
-            this.thumbnailList.push({ contentUrl: response.result.contentUrl, id: id })
-          }).finally(() => {
-            this.$logger.info('current thumbnailList ', this.thumbnailList)
-            if (this.thumbnailList.length === this.pageObjectIds.length) {
-              this.thumbnailListLoading = false
-            }
-          })
+        pageObjects.forEach(page => {
+          this.thumbnailList.push({ contentUrl: page.contentUrl, id: page.pageObjectId })
+          this.slideLoading = false
+          this.$logger.info('current imgList ', this.imgList)
         })
+        this.thumbnailListLoading = false
       })
     },
 
