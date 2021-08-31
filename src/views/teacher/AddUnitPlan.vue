@@ -90,7 +90,7 @@
 
                 <div class="form-block over-form-block" id="overview">
                   <a-form-model-item class="task-audio-line">
-                    <a-textarea v-model="form.overview" allow-clear placeholder="Overview" autoSize/>
+                    <a-textarea v-model="form.overview" placeholder="Overview" allow-clear />
                     <div class="audio-wrapper" v-if="form.audioUrl">
                       <audio :src="form.audioUrl" controls />
                       <span @click="form.audioUrl = null"><a-icon type="delete" /></span>
@@ -1874,7 +1874,7 @@ export default {
   .task-audio {
     position: absolute;
     right: -55px;
-    top: -25px;
+    top: -30px;
     cursor: pointer;
     display: flex;
     flex-direction: row;
@@ -1884,6 +1884,9 @@ export default {
     img {
       height: 40px;
     }
+  }
+  &.ant-form-item{
+    margin-bottom: 0px;
   }
 }
 
