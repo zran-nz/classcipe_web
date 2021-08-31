@@ -118,6 +118,7 @@ export default {
     triggerSearch () {
       logger.info('teacher triggerSearch ' + this.searchText)
       this.$emit('triggerSearch', 'teacher', this.searchText)
+      this.$router.push({ path: '/teacher/main/created-by-me', query: { searchKey: this.searchText } })
     },
     goToUnitPlan () {
       this.$router.push({

@@ -350,6 +350,11 @@ export default {
   },
   locomputed: {
   },
+  watch: {
+    '$route' (val) {
+      this.loadMyContent()
+    }
+  },
   created () {
     logger.info('teacher my content')
     this.loadMyContent()
@@ -365,9 +370,10 @@ export default {
       FindMyContent({
         owner: ownerMap[this.currentOwner],
         status: statusMap[this.currentStatus],
-        types: this.currentType ? [typeMap[this.currentType]] : [],
+        types: this.currentType !== 'all-type' ? [typeMap[this.currentType]] : [],
         pageNo: this.pageNo,
-        pageSize: this.pagination.pageSize
+        pageSize: this.pagination.pageSize,
+        searchKey: this.$route.query.searchKey ? this.$route.query.searchKey : ''
       }).then(res => {
         logger.info('getMyContent', res)
         if (res.result && res.result.records && res.result.records.length) {
