@@ -114,18 +114,16 @@
                     </a-upload-dragger>
                   </a-form-model-item>
 
-                  <div class="form-block">
-                    <a-form-model-item :label="$t('teacher.add-task.overview')" class="task-audio-line">
-                      <a-textarea v-model="form.overview" allow-clear />
-                      <div class="audio-wrapper" v-if="form.audioUrl">
-                        <audio :src="form.audioUrl" controls />
-                        <span @click="form.audioUrl = null"><a-icon type="delete" /></span>
-                      </div>
-                      <div class="task-audio" @click="handleAddAudioOverview">
-                        <a-icon type="audio" />
-                      </div>
-                    </a-form-model-item>
-                  </div>
+                  <a-form-model-item class="task-audio-line">
+                    <a-textarea v-model="form.overview" allow-clear placeholder="Overview"/>
+                    <div class="audio-wrapper" v-if="form.audioUrl">
+                      <audio :src="form.audioUrl" controls />
+                      <span @click="form.audioUrl = null"><a-icon type="delete" /></span>
+                    </div>
+                    <div class="task-audio" @click="handleAddAudioOverview">
+                      <img src="~@/assets/icons/lesson/microphone.png" />
+                    </div>
+                  </a-form-model-item>
 
                   <div class="form-block">
                     <div class="subject-grade-wrapper">
@@ -1890,14 +1888,20 @@ export default {
 
 .task-audio-line {
   position: relative;
+  width: 600px;
   .task-audio {
     position: absolute;
-    right: -35px;
-    top: -20px;
+    right: -55px;
+    top: -30px;
+    cursor: pointer;
     display: flex;
     flex-direction: row;
     align-items: center;
     justify-content: flex-start;
+
+    img {
+      height: 40px;
+    }
   }
 }
 
