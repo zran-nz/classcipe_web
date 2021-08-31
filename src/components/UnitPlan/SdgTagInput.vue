@@ -312,12 +312,15 @@ export default {
           display: inline-block;
           width: 100%;
           padding: @input-padding-vertical-base 0;
-          color: @input-color;
-          font-size: @font-size-base;
-          line-height: @line-height-base;
+          color: @black;
+          //font-size: @font-size-lg;
+          //line-height: @line-height-base;
           background-color: @input-bg;
           background-image: none;
           border: none;
+          font-size: 14px;
+          font-family: Inter-Bold;
+          line-height: 24px;
           &:focus,
           &:active {
             border: none;

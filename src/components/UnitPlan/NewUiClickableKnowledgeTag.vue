@@ -980,13 +980,12 @@
         line-height: @input-height-base;
         text-align: start;
         vertical-align: top;
-        color: @text-color;
+        color: @black;
         cursor: pointer;
         transition: all 0.3s;
         padding: 0 @input-padding-horizontal-base;
         border: @border-width-base solid #d9d9d9;
         outline: 0;
-
         &:hover {
           border-color: @input-hover-border-color;
           border-right-width: @border-width-base !important;

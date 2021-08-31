@@ -698,7 +698,7 @@ export default {
         line-height: @input-height-base;
         text-align: start;
         vertical-align: top;
-        color: @text-color;
+        color: @black;
         cursor: pointer;
         transition: all 0.3s;
         padding: 0 @input-padding-horizontal-base;

@@ -269,7 +269,7 @@
 
 <script>
 import * as logger from '@/utils/logger'
-import { deleteMyContentByType, getMyContent, SaveSessonTags } from '@/api/teacher'
+import { deleteMyContentByType, FindMyContent, SaveSessonTags } from '@/api/teacher'
 import { ownerMap, statusMap, typeMap } from '@/const/teacher'
 import ContentStatusIcon from '@/components/Teacher/ContentStatusIcon'
 import ContentTypeIcon from '@/components/Teacher/ContentTypeIcon'
@@ -362,10 +362,10 @@ export default {
     },
     loadMyContent () {
       this.loading = true
-      getMyContent({
+      FindMyContent({
         owner: ownerMap[this.currentOwner],
         status: statusMap[this.currentStatus],
-        type: typeMap[this.currentType],
+        types: this.currentType ? [typeMap[this.currentType]] : [],
         pageNo: this.pageNo,
         pageSize: this.pagination.pageSize
       }).then(res => {

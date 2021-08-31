@@ -143,7 +143,7 @@
                     </div>
                     <!--sdg-->
                     <a-form-model-item >
-                      <a-select size="large" v-model="scenario.sdgId" placeholder="Choose the Bloom Taxonomy Categories" class="my-big-select">
+                      <a-select size="large" v-model="scenario.sdgId" class="my-big-select">
                         <a-select-option v-for="(sdg,index) in sdgList" :value="sdg.id" :key="index" :disabled="selectedSdg.indexOf(sdg.id) != -1">
                           {{ sdg.name }}
                         </a-select-option>
@@ -550,7 +550,7 @@ export default {
         ],
         scenarios: {
           description: '',
-          sdgId: undefined,
+          sdgId: '1',
           sdgKeyWords: [
             {
               id: '',
@@ -713,7 +713,7 @@ export default {
         if (unitPlanData.scenarios.length === 0) {
           unitPlanData.scenarios.push({
             description: '',
-            sdgId: undefined,
+            sdgId: '1',
             sdgKeyWords: []
           })
         } else {
