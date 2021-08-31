@@ -106,8 +106,14 @@
                   </a-form-model-item>
                 </div>
 
+                <div class="form-block inquiry-form-block" id="inquiry">
+                  <!--                <a-divider />-->
+                  <a-input v-model="form.inquiry" :placeholder="$store.getters.currentRole === 'teacher' ? $t('teacher.add-unit-plan.teacher-direction-of-inquiry') : $t('teacher.add-unit-plan.expert-direction-of-inquiry')" class="my-form-input" />
+                </div>
+
                 <!--            real-life-scenario-->
                 <div class="form-block ">
+                  <a-divider />
                   <a-row>
                     <a-col span="24">
                       <div class="form-block-title">
@@ -185,11 +191,6 @@
                       </div>
                     </a-col>
                   </a-row>
-                </div>
-
-                <div class="form-block inquiry-form-block" id="inquiry">
-                  <!--                <a-divider />-->
-                  <a-input v-model="form.inquiry" :placeholder="$store.getters.currentRole === 'teacher' ? $t('teacher.add-unit-plan.teacher-direction-of-inquiry') : $t('teacher.add-unit-plan.expert-direction-of-inquiry')" class="my-form-input" />
                 </div>
 
                 <div class="form-block">
@@ -1873,7 +1874,7 @@ export default {
   .task-audio {
     position: absolute;
     right: -55px;
-    top: -30px;
+    top: -25px;
     cursor: pointer;
     display: flex;
     flex-direction: row;
@@ -2088,5 +2089,8 @@ export default {
   .question-form-blocks {
     border: 1px solid #15C39A !important;
   }
+}
+#inquiry{
+  margin-top: -10px;
 }
 </style>
