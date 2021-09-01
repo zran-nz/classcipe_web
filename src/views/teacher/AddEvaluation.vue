@@ -2,7 +2,8 @@
   <div class="my-full-form-wrapper">
     <div class="form-header">
       <common-form-header
-        :name="form.name"
+        ref="commonFormHeader"
+        :form="form"
         :last-change-saved-time="lastChangeSavedTime"
         @back="goBack"
         @save="handleSaveEvaluation"
@@ -273,6 +274,7 @@ export default {
         table: [],
         tableMode: 0,
         createTime: '',
+        createBy: '',
         updateTime: ''
       },
 
@@ -328,6 +330,7 @@ export default {
       EvaluationQueryById({ id: this.evaluationId }).then(response => {
         this.$logger.info('EvaluationQueryById response', response.result)
         const evaluationData = response.result
+        this.form = evaluationData
         this.form.name = evaluationData.name
         this.form.id = evaluationData.id
         this.form.se = evaluationData.se
@@ -557,7 +560,6 @@ export default {
       })
 
       logger.info('evaluationData add line list', evaluationData)
-      this.saving = true
       EvaluationAddOrUpdate(evaluationData).then((response) => {
         logger.info('EvaluationAddOrUpdate', response.result)
         if (response.success) {
@@ -566,7 +568,7 @@ export default {
           this.$message.error(response.message)
         }
       }).finally(() => {
-        this.saving = false
+        this.$refs.commonFormHeader.saving = false
       })
     },
     handlePublishEvaluation () {
@@ -576,7 +578,6 @@ export default {
       })
 
       if (this.evaluationId) {
-        this.publishing = true
         UpdateContentStatus({
           id: this.evaluationId,
           status: 1,
@@ -588,7 +589,7 @@ export default {
         }).then(() => {
           this.$message.success(this.$t('teacher.add-evaluation.publish-success'))
           this.form.status = 1
-          this.publishing = false
+          this.$refs.commonFormHeader.publishing = false
         })
       }
     },

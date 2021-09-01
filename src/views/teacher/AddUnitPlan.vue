@@ -2,7 +2,8 @@
   <div class="my-full-form-wrapper">
     <div class="form-header">
       <common-form-header
-        :name="form.name"
+        ref="commonFormHeader"
+        :form="form"
         :last-change-saved-time="lastChangeSavedTime"
         @back="goBack"
         @save="handleSaveUnitPlan"
@@ -988,7 +989,6 @@ export default {
         unitPlanData.questions.push(questionItem)
       }
       logger.info('question unitPlanData', unitPlanData)
-      this.saving = true
       UnitPlanAddOrUpdate(unitPlanData).then((response) => {
         logger.info('UnitPlanAddOrUpdate', response.result)
         if (response.success) {
@@ -998,8 +998,8 @@ export default {
           this.$message.error(response.message)
         }
       }).then(() => {
+        this.$refs.commonFormHeader.saving = false
         this.$refs.associate.loadAssociateData()
-        this.saving = false
       })
     },
     handlePublishUnitPlan () {
@@ -1007,14 +1007,13 @@ export default {
         id: this.unitPlanId,
         status: 1
       })
-      this.publishing = true
       ChangeStatus({
         id: this.unitPlanId,
         status: 1
       }).then(() => {
         this.$message.success(this.$t('teacher.add-unit-plan.publish-success'))
         this.form.status = 1
-        this.publishing = false
+        this.$refs.commonFormHeader.publishing = false
       })
     },
 

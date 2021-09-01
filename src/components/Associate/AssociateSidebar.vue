@@ -320,8 +320,9 @@ export default {
 
 .cancel-associate {
   position: absolute;
-  right: 10px;
+  right: 5px;
   top: 10px;
+  color:red;
 }
 
 .action-bar-wrapper {

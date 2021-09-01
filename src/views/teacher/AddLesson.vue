@@ -2,7 +2,8 @@
   <div class="my-full-form-wrapper">
     <div class="form-header">
       <common-form-header
-        :name="form.name"
+        ref="commonFormHeader"
+        :form="form"
         :last-change-saved-time="lastChangeSavedTime"
         @back="goBack"
         @save="handleSaveLesson"
@@ -1106,7 +1107,6 @@ export default {
         lessonData.suggestingTag = questionItem
       }
       logger.info('question lessonData', lessonData)
-      this.lessonSaving = true
       LessonAddOrUpdate(lessonData).then((response) => {
         logger.info('LessonAddOrUpdate', response.result)
         if (response.success) {
@@ -1117,7 +1117,7 @@ export default {
         }
       }).finally(() => {
         this.selectedSlideVisible = true
-        this.lessonSaving = false
+        this.$refs.commonFormHeader.saving = false
       })
     },
     handlePublishLesson () {
@@ -1139,7 +1139,7 @@ export default {
       }).then(() => {
         this.$message.success(this.$t('teacher.add-lesson.publish-success'))
         this.form.status = 1
-        this.publishing = false
+        this.$refs.commonFormHeader.publishing = false
       })
     },
 

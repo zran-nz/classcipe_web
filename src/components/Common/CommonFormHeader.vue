@@ -8,9 +8,9 @@
         <a-button class="nav-back-btn" type="link" @click="handleBack">{{ $t('teacher.add-lesson.back') }}</a-button>
         <span class="unit-last-change-time" v-if="lastChangeSavedTime">
           <span class="unit-nav-title">
-            {{ name }}
+            {{ form.name }}
           </span>
-          <a-divider type="vertical" v-if="!!name" />
+          <a-divider type="vertical" v-if="!!form.name" />
           {{ $t('teacher.add-lesson.last-change-saved-at-time', {time: lastChangeSavedTime}) }}
         </span>
       </a-space>
@@ -19,6 +19,7 @@
       <a-space>
         <a-button
           @click="handleSave"
+          :loading="saving"
           class="my-form-header-btn"
           style="{
             width: 120px;
@@ -39,6 +40,8 @@
           </div>
         </a-button>
         <a-button
+          v-if="isOwner"
+          :loading="publishing"
           class="my-form-header-btn"
           style="{
             width: 120px;
@@ -60,7 +63,7 @@
           </div>
         </a-button>
         <a-button
-          v-if="showCollaborate"
+          v-if="showCollaborate && isOwner"
           class="my-form-header-btn"
           style="{
             width: 120px;
@@ -90,9 +93,9 @@
 export default {
   name: 'CommonFormHeader',
   props: {
-    name: {
-      type: String,
-      default: ''
+    form: {
+      type: Object,
+      default: () => null
     },
     lastChangeSavedTime: {
       type: String,
@@ -103,8 +106,19 @@ export default {
       default: true
     }
   },
+  data () {
+    return {
+      publishing: false,
+      saving: false
+    }
+  },
+  computed: {
+    isOwner () {
+      return this.$store.getters.userInfo.email === this.form.createBy
+    }
+  },
   created () {
-    this.$logger.info('form header name:' + this.name + ' lastChangeSavedTime:' + this.lastChangeSavedTime)
+    this.$logger.info('form header name:' + this.form.name + ' lastChangeSavedTime:' + this.lastChangeSavedTime)
   },
   methods: {
     handleBack () {
@@ -112,10 +126,12 @@ export default {
       this.$emit('back')
     },
     handleSave () {
+      this.saving = true
       this.$logger.info('handleSave')
       this.$emit('save')
     },
     handlePublish () {
+      this.publishing = true
       this.$logger.info('handlePublish')
       this.$emit('publish')
     },
@@ -165,6 +181,7 @@ export default {
 
   .unit-right-action {
     display: flex;
+    right: 10px;
     justify-content: flex-end;
     .my-form-header-btn{
     }

@@ -2,7 +2,8 @@
   <div class="my-full-form-wrapper">
     <div class="form-header">
       <common-form-header
-        :name="form.name"
+        ref="commonFormHeader"
+        :form="form"
         :last-change-saved-time="lastChangeSavedTime"
         @back="goBack"
         @save="handleSaveTopic"

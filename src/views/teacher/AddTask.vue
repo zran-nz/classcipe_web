@@ -2,7 +2,8 @@
   <div class="my-full-form-wrapper">
     <div class="form-header">
       <common-form-header
-        :name="form.name"
+        ref="commonFormHeader"
+        :form="form"
         :last-change-saved-time="lastChangeSavedTime"
         @back="goBack"
         @save="handleSaveTask"
@@ -920,7 +921,6 @@ export default {
       }
 
       logger.info('question taskData', taskData)
-      this.saving = true
       TaskAddOrUpdate(taskData).then((response) => {
         logger.info('TaskAddOrUpdate', response.result)
         if (response.success) {
@@ -930,7 +930,7 @@ export default {
           this.$message.error(response.message)
         }
       }).finally(() => {
-        this.saving = false
+        this.$refs.commonFormHeader.saving = false
       })
     },
     handlePublishTask () {
@@ -951,7 +951,7 @@ export default {
       }).then(() => {
         this.$message.success(this.$t('teacher.add-task.publish-success'))
         this.form.status = 1
-        this.publishing = false
+        this.$refs.commonFormHeader.publishing = false
       })
     },
 
