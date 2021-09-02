@@ -13,7 +13,7 @@ import * as logger from '@/utils/logger'
 
 NProgress.configure({ showSpinner: false }) // NProgress Configuration
 
-const allowList = ['login', 'register', 'registerResult', 'authResult', 'authCheck', 'AddonPreview'] // no redirect allowList
+const allowList = ['login', 'register', 'registerResult', 'authResult', 'authCheck', 'AddonPreview', 'PageRedirect'] // no redirect allowList
 const loginRoutePath = '/user/login'
 const authCheckPath = '/user/auth-check'
 

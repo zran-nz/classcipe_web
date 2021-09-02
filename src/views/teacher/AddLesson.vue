@@ -13,7 +13,7 @@
     </div>
     <a-card :bordered="false" :bodyStyle="{ padding: '16px 24px', height: '100%', minHeight: '500px' }">
       <template v-if="mode === 'edit'">
-        <a-row class="unit-content" >
+        <a-row class="unit-content" v-if="!contentLoading" >
           <a-col span="4">
             <associate-sidebar
               v-if="mode === 'edit'"
@@ -153,11 +153,9 @@
                 <div class="form-block">
                   <div class="content-blocks question-item">
                     <new-ui-clickable-knowledge-tag
-                      :question-index="form.id"
-                      :grade-ids="form.gradeIds"
-                      :subject-ids="form.subjectIds"
-                      :selected-knowledge-tags="suggestingTag.knowledgeTags"
-                      :selected-skill-tags="suggestingTag.skillTags"
+                      :question-index="questionPrefix"
+                      :selected-knowledge-tags="form.suggestingTag.knowledgeTags"
+                      :selected-skill-tags="form.suggestingTag.skillTags"
                       @remove-knowledge-tag="handleRemoveKnowledgeTag"
                       @add-knowledge-tag="handleAddKnowledgeTag"
                       @remove-skill-tag="handleRemoveSkillTag"
@@ -635,6 +633,8 @@ export default {
         knowledgeTags: [],
         skillTags: []
       },
+      // 将questions转成对象
+      questionPrefix: '__question_0',
       form: {
         id: null,
         image: '',
@@ -650,7 +650,7 @@ export default {
         subjectIds: [],
         gradeIds: [],
         bloomCategories: ''
-      },
+  },
       // Grades
       gradeList: [],
       // SubjectTree
@@ -807,14 +807,16 @@ export default {
       }).then(response => {
         logger.info('LessonQueryById ' + lessonId, response.result)
         const lessonData = response.result
-        // lesson和task只有suggestingTag
-        this.form = lessonData
-        this.suggestingTag = this.form.suggestingTag
-        this.suggestingTag.knowledgeTags = [{}]
-        this.$set(this.suggestingTag, 'skillTags', lessonData.suggestingTag.skillTags)
-        // console.log('----------------')
-        // console.log(this.knowledgeTags)
         this.form.bloomCategories = this.form.bloomCategories ? this.form.bloomCategories : undefined // 为了展示placeholder
+        this.form = lessonData
+        if (!this.form.suggestingTag) {
+          this.form.suggestingTag = {
+            'knowledgeTags': [],
+            'skillTags': []
+          }
+        }
+        this.suggestingTag = this.form.suggestingTag
+
         if (!this.form.presentationId) {
           // 未成功绑定ppt
           this.handleShowSelectMyContent()
@@ -970,12 +972,12 @@ export default {
     handleRemoveSkillTag (data) {
       logger.info('Unit Plan handleRemoveSkillTag', data)
       this.suggestingTag.skillTags = this.suggestingTag.skillTags.filter(item => item.id !== data.id)
-      logger.info('Unit Plan after handleRemoveSkillTag ', this.this.suggestingTag.skillTags)
+      logger.info('Unit Plan after handleRemoveSkillTag ', this.suggestingTag.skillTags)
     },
 
     handleAddSkillTag (data) {
       this.suggestingTag.skillTags.push(Object.assign({}, data))
-      this.$logger.info('after handleAddSkillTag skillTags ', this.this.suggestingTag.skillTags)
+      this.$logger.info('after handleAddSkillTag skillTags ', this.suggestingTag.skillTags)
     },
 
     handleSaveLesson () {

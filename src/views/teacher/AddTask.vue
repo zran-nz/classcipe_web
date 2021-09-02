@@ -151,11 +151,11 @@
                   </div>
 
                   <div class="form-block">
-                    <div class="content-blocks question-item" v-for="(questionItem, questionIndex) in questionDataObj" :key="questionIndex" v-if="questionItem !== null">
+                    <div class="content-blocks question-item">
                       <new-ui-clickable-knowledge-tag
-                        :question-index="questionIndex"
-                        :selected-knowledge-tags="questionItem.knowledgeTags"
-                        :selected-skill-tags="questionItem.skillTags"
+                        :question-index="questionPrefix"
+                        :selected-knowledge-tags="form.suggestingTag.knowledgeTags"
+                        :selected-skill-tags="form.suggestingTag.skillTags"
                         @remove-knowledge-tag="handleRemoveKnowledgeTag"
                         @add-knowledge-tag="handleAddKnowledgeTag"
                         @remove-skill-tag="handleRemoveSkillTag"
@@ -463,23 +463,6 @@ export default {
         name: 'Untitled Task',
         overview: '',
         presentationId: '',
-        questions: [{
-          knowledgeTags: [
-            {
-              description: '',
-              id: '',
-              name: ''
-            }
-          ],
-          name: '',
-          skillTags: [
-            {
-              description: '',
-              id: '',
-              name: ''
-            }
-          ]
-        }],
         suggestingTag: [],
         status: 0,
         taskType: '',
@@ -496,21 +479,10 @@ export default {
       subjectTree: [],
 
       // 将questions转成对象
-      questionTotal: 0,
-      questionMaxIndex: 0,
-      questionPrefix: '__question_',
-      questionDataObj: {
-        __question_0: {
-          questionId: null,
-          visible: false,
-          name: '',
-          knowledgeMainSubjectId: '',
-          knowledgeSubSubjectId: '',
-          knowledgeGradeId: '',
-          knowledgeTags: [],
-          skillGradeId: '',
-          skillTags: []
-        }
+      questionPrefix: '__question_0',
+      suggestingTag: {
+        knowledgeTags: [],
+        skillTags: []
       },
 
       currentTemplateType: '',
@@ -642,74 +614,19 @@ export default {
       }).then(response => {
         logger.info('TaskQueryById ' + taskId, response.result)
         const taskData = response.result
-
-        const questionKeys = Object.keys(this.questionDataObj)
-        questionKeys.forEach(questionKey => {
-          logger.info('questionDataObj delete ' + questionKey)
-          this.$delete(this.questionDataObj, questionKey)
-        })
-        if (taskData.questions && taskData.questions.length) {
-          taskData.questions.forEach(questionItem => {
-            const question = {
-              questionId: questionItem.id,
-              visible: false,
-              name: questionItem.name,
-              knowledgeMainSubjectId: '',
-              knowledgeSubSubjectId: '',
-              knowledgeGradeId: '',
-              knowledgeTags: questionItem.knowledgeTags,
-              skillGradeId: '',
-              skillTags: questionItem.skillTags,
-              origin: 'question'
-            }
-            this.$set(this.questionDataObj, this.questionPrefix + this.questionMaxIndex, question)
-            logger.info('restore default questionDataObj: ' + (this.questionPrefix + this.questionMaxIndex), question, ' questionDataObj ', this.questionDataObj)
-            this.questionMaxIndex = this.questionMaxIndex + 1
-            this.questionTotal = this.questionTotal + 1
-          })
-        }
-
-        if (taskData.suggestingTag && (taskData.suggestingTag.knowledgeTags.length || taskData.suggestingTag.skillTags.length)) {
-          const question = {
-            questionId: null,
-            visible: false,
-            name: null,
-            knowledgeMainSubjectId: '',
-            knowledgeSubSubjectId: '',
-            knowledgeGradeId: '',
-            knowledgeTags: taskData.suggestingTag.knowledgeTags,
-            skillGradeId: '',
-            skillTags: taskData.suggestingTag.skillTags,
-            origin: 'suggesting'
-          }
-          this.$set(this.questionDataObj, this.questionPrefix + this.questionMaxIndex, question)
-          logger.info('suggestingTag restore questionDataObj: ' + (this.questionPrefix + this.questionMaxIndex), question, ' questionDataObj ', this.questionDataObj)
-          this.questionMaxIndex = this.questionMaxIndex + 1
-          this.questionTotal = this.questionTotal + 1
-        }
-
-        if (this.questionMaxIndex === 0) {
-          const question = {
-            name: '',
-            knowledgeMainSubjectId: '',
-            knowledgeSubSubjectId: '',
-            knowledgeGradeId: '',
-            knowledgeTags: [],
-            skillGradeId: '',
-            skillTags: []
-          }
-          this.$set(this.questionDataObj, this.questionPrefix + this.questionMaxIndex, question)
-          this.questionMaxIndex = this.questionMaxIndex + 1
-          this.questionTotal = this.questionTotal + 1
-        }
-
         this.form = taskData
+        if (!this.form.suggestingTag) {
+          this.form.suggestingTag = {
+            'knowledgeTags': [],
+            'skillTags': []
+          }
+        }
+        this.suggestingTag = this.form.suggestingTag
         this.form.bloomCategories = this.form.bloomCategories ? this.form.bloomCategories : undefined // 为了展示placeholder
         // 未绑定成功ppt
         if (!this.form.presentationId) {
           this.handleShowSelectTemplate()
         }
-        logger.info('after restoreTask', this.form, this.questionDataObj)
       }).finally(() => {
         this.contentLoading = false
       })
@@ -848,13 +765,12 @@ export default {
     handleRemoveKnowledgeTag (data) {
       logger.info('Unit Plan handleRemoveKnowledgeTag', data)
       logger.info('target question data', this.questionDataObj[data.questionIndex.knowledgeTags])
-      this.questionDataObj[data.questionIndex].knowledgeTags = this.questionDataObj[data.questionIndex].knowledgeTags.filter(item => item.id !== data.id)
-      logger.info('Unit Plan after handleRemoveKnowledgeTag ', this.questionDataObj[data.questionIndex].knowledgeTags)
+      this.suggestingTag.knowledgeTags = this.suggestingTag.knowledgeTags.filter(item => item.id !== data.id)
+      logger.info('Unit Plan after handleRemoveKnowledgeTag ', this.suggestingTag.knowledgeTags)
     },
 
     handleAddKnowledgeTag (data) {
       logger.info('Unit Plan handleAddKnowledgeTag', data)
-      logger.info('target question data', this.questionDataObj[data.questionIndex])
       const newTag = {
         description: data.description,
         name: data.name,
@@ -865,21 +781,18 @@ export default {
         subKnowledgeId: data.subKnowledgeId,
         origin: 'suggesting'
       }
-      this.questionDataObj[data.questionIndex].knowledgeTags.push(newTag)
+      this.suggestingTag.knowledgeTags.push(newTag)
     },
 
     handleRemoveSkillTag (data) {
       logger.info('Unit Plan handleRemoveSkillTag', data)
-      logger.info('target question data', this.questionDataObj[data.questionIndex])
-      this.questionDataObj[data.questionIndex].skillTags = this.questionDataObj[data.questionIndex].skillTags.filter(item => item.id !== data.id)
-      logger.info('Unit Plan after handleRemoveSkillTag ', this.questionDataObj[data.questionIndex].skillTags)
+      this.suggestingTag.skillTags = this.suggestingTag.skillTags.filter(item => item.id !== data.id)
+      logger.info('Unit Plan after handleRemoveSkillTag ', this.suggestingTag.skillTags)
     },
 
     handleAddSkillTag (data) {
-      logger.info('Unit Plan handleAddSkillTag', data)
-      logger.info('target question data', this.questionDataObj[data.questionIndex])
-      this.questionDataObj[data.questionIndex].skillTags.push(Object.assign({}, data))
-      this.$logger.info('after handleAddSkillTag questionDataObj ' + data.questionIndex, this.questionDataObj[data.questionIndex])
+      this.suggestingTag.skillTags.push(Object.assign({}, data))
+      this.$logger.info('after handleAddSkillTag skillTags ', this.suggestingTag.skillTags)
     },
 
     handleSaveTask () {
@@ -890,35 +803,8 @@ export default {
       if (this.taskId) {
         taskData.id = this.taskId
       }
+      taskData.suggestingTag = this.suggestingTag
       logger.info('basic taskData', taskData)
-
-      const question = this.questionDataObj['__question_0']
-      logger.info('question __question_0', question)
-      if (question) {
-        if (question.knowledgeTags && question.knowledgeTags.length) {
-          question.knowledgeTags.forEach(item => {
-            item.curriculumId = this.$store.getters.bindCurriculum
-          })
-        }
-        if (question.skillTags && question.skillTags.length) {
-          question.skillTags.forEach(item => {
-            item.curriculumId = this.$store.getters.bindCurriculum
-          })
-        }
-        const questionItem = {
-          knowledgeTags: question.knowledgeTags,
-          skillTags: question.skillTags,
-          name: question.name
-        }
-        if (question.questionId) {
-          questionItem.id = question.questionId
-          this.$logger.info('old question item', questionItem)
-        } else {
-          this.$logger.info('new question item', questionItem)
-        }
-
-        taskData.suggestingTag = questionItem
-      }
 
       logger.info('question taskData', taskData)
       TaskAddOrUpdate(taskData).then((response) => {
