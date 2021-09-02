@@ -413,7 +413,7 @@ export const constantRouterMap = [
     component: () => import(/* webpackChunkName: "fail" */ '@/views/addon/preview')
   },
   {
-    path: '/addon/pageRedirect',
+    path: '/addon/pageRedirect/:sourceType?/:id',
     name: 'PageRedirect',
     props: true,
     component: () => import(/* webpackChunkName: "fail" */ '@/views/addon/PageRedirect')

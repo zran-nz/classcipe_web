@@ -1,33 +1,30 @@
 <template>
   <div>
-    <a-spin size="large">
-    </a-spin>
   </div>
 </template>
 
 <script>
   import storage from 'store'
-  import { ACCESS_TOKEN } from '../../store/mutation-types'
+  import { ACCESS_TOKEN } from '@/store/mutation-types'
   import { typeMap } from '@/const/teacher'
 
   export default {
   name: 'PageRedirect',
   components: {
   },
-  data () {
-  },
+    data () {
+      return {
+        type: 4
+      }
+    },
   created () {
     const token = this.$route.query.token
-    const id = this.$route.query.id
-    const type = this.$route.query.type
     if (token) {
       storage.set(ACCESS_TOKEN, token)
-      if (type === typeMap.lesson) {
-        this.$router.replace('/teacher/add-lesson/' + id)
-      } else if (type === typeMap.task) {
-        this.$router.replace('/teacher/add-task/' + id)
-      } else {
-        this.$router.push({ path: '/teacher/main/created-by-me' })
+      if (parseInt(this.sourceType) === typeMap.lesson) {
+          this.$router.push({ path: '/teacher/add-lesson/' + this.id })
+      } else if (parseInt(this.sourceType) === typeMap.task) {
+        this.$router.push('/teacher/add-task/' + this.id)
       }
     } else {
       this.$router.push({ path: '/user/login' })
