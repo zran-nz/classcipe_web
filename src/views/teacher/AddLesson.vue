@@ -807,8 +807,8 @@ export default {
       }).then(response => {
         logger.info('LessonQueryById ' + lessonId, response.result)
         const lessonData = response.result
-        this.form.bloomCategories = this.form.bloomCategories ? this.form.bloomCategories : undefined // 为了展示placeholder
         this.form = lessonData
+        this.form.bloomCategories = this.form.bloomCategories ? this.form.bloomCategories : undefined // 为了展示placeholder
         if (!this.form.suggestingTag) {
           this.form.suggestingTag = {
             'knowledgeTags': [],
