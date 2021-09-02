@@ -913,6 +913,7 @@
         width: 190px;
         box-sizing: border-box;
         text-align: right;
+        cursor: pointer;
         .toggle-mode-type {
           height: 35px;
           display: inline-block;

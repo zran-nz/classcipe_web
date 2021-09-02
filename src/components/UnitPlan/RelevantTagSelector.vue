@@ -12,13 +12,13 @@
           </div>
         </div>
         <div class="item-list">
-          <div :class="{'item-item': true, 'checked-item': selectedQuestionIdList.indexOf(question.questionId) !== -1}" v-for="(knowledgeItem,ki) in question.knowledgeTagList" :key="ki">
-            <div class="item-name" @click="handleSelectKnowledge(knowledgeItem)">
+          <div :class="{'item-item': true, 'checked-item': selectedKnowledgeTagIdList.indexOf(knowledgeItem.id) !== -1}" @click="handleSelectKnowledge(knowledgeItem)" v-for="(knowledgeItem,ki) in question.knowledgeTagList" :key="ki">
+            <div class="item-name">
               <div class="content-text">
-                {{ knowledgeItem.info.description ? question.questionName : 'Unnamed description' }}
+                {{ knowledgeItem.info.description ? knowledgeItem.info.description : 'Unnamed description' }}
               </div>
               <div class="selected-icon">
-                <a-icon type="check-circle" theme="filled" v-if="selectedQuestionIdList.indexOf(question.questionId) !== -1" />
+                <a-icon type="check-circle" theme="filled" v-if="selectedKnowledgeTagIdList.indexOf(knowledgeItem.id) !== -1" />
               </div>
             </div>
           </div>
@@ -27,7 +27,7 @@
           <div :class="{'item-item': true, 'checked-item': selectedSkillTagIdList.indexOf(skillItem.id) !== -1}" @click="handleSelectSkill(skillItem)" v-for="(skillItem, si) in question.skillTagList" :key="si">
             <div class="item-name">
               <div class="content-text">
-                {{ skillItem.info.description ? skillItem.info.description : 'Unnamed question' }}
+                {{ skillItem.info.description ? skillItem.info.description : 'Unnamed description' }}
               </div>
               <div class="selected-icon">
                 <a-icon type="check-circle" theme="filled" v-if="selectedSkillTagIdList.indexOf(skillItem.id) !== -1" />

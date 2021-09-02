@@ -634,7 +634,23 @@ export default {
         skillTags: []
       },
       // 将questions转成对象
-      questionPrefix: '__question_0',
+      // 将questions转成对象
+      questionTotal: 0,
+      questionMaxIndex: 0,
+      questionPrefix: '__question_',
+      questionDataObj: {
+        __question_0: {
+          questionId: null,
+          visible: false,
+          name: '',
+          knowledgeMainSubjectId: '',
+          knowledgeSubSubjectId: '',
+          knowledgeGradeId: '',
+          knowledgeTags: [],
+          skillGradeId: '',
+          skillTags: []
+        }
+      },
       form: {
         id: null,
         image: '',
