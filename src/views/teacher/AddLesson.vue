@@ -528,7 +528,7 @@
         destroyOnClose
         width="800px">
         <div>
-          <custom-tag :selected-tags-list="sessionTags" @change-user-tags="handleSelectedSessionTags" />
+          <custom-tag :custom-tags-list="['ATL','Inquiry stage']" :selected-tags-list="sessionTags" @change-user-tags="handleSelectedSessionTags" />
         </div>
         <template slot="footer">
           <a-button key="back" @click="lessonSelectTagVisible=false">
@@ -554,7 +554,7 @@ import { UpdateContentStatus, GetMyGrades, Associate, SaveSessonTags } from '@/a
 import InputSearch from '@/components/UnitPlan/InputSearch'
 import SdgTagInput from '@/components/UnitPlan/SdgTagInput'
 import SkillTag from '@/components/UnitPlan/SkillTag'
-import { TemplatesGetTemplates } from '@/api/template'
+import { TemplatesGetTemplates, TemplatesGetPresentation } from '@/api/template'
 import { MyContentEventBus, MyContentEvent } from '@/components/MyContent/MyContentEventBus'
 import { LessonCreateLessonPPT, LessonQueryById, LessonAddOrUpdate } from '@/api/myLesson'
 import { UnitPlanQueryById } from '@/api/unitPlan'
@@ -1004,6 +1004,9 @@ export default {
       if (this.lessonId) {
         lessonData.id = this.lessonId
       }
+      if (this.form.presentationId) {
+        this.loadThumbnail()
+      }
       lessonData.suggestingTag = this.suggestingTag
       logger.info('basic lessonData', lessonData)
       logger.info('question lessonData', lessonData)
@@ -1265,6 +1268,24 @@ export default {
           // this.loadThumbnail()
         })
       }
+    },
+
+    loadThumbnail () {
+      this.thumbnailListLoading = true
+      this.$logger.info('loadThumbnail ' + this.form.presentationId)
+      TemplatesGetPresentation({
+        presentationId: this.form.presentationId
+      }).then(response => {
+        this.$logger.info('loadThumbnail response', response.result)
+        const pageObjects = response.result.pageObjects
+        this.thumbnailList = []
+        pageObjects.forEach(page => {
+          this.thumbnailList.push({ contentUrl: page.contentUrl, id: page.pageObjectId })
+          this.slideLoading = false
+          this.$logger.info('current imgList ', this.imgList)
+        })
+        this.thumbnailListLoading = false
+      })
     },
 
     handleToggleThumbnail (thumbnail) {

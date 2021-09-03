@@ -20,7 +20,7 @@
             :id="unitPlanId"
             ref="associate"
             @create="selectAddContentTypeVisible = true"
-            @link="selectLinkContentVisible = true"
+            @link="showSelectLinkContentVisible"
             :show-create="true"/>
         </a-col>
         <a-col span="20" class="main-content">
@@ -469,7 +469,13 @@ import { SelectModel } from '@/components/NewLibrary/SelectModel'
 import DisplayMode from '@/components/MyContent/DisplayMode'
 import { LibraryEvent, LibraryEventBus } from '@/components/NewLibrary/LibraryEventBus'
 import ReferPreview from '@/components/UnitPlanRefer/ReferPreview'
-
+const TagOriginType = {
+  Origin: 'Origin',
+  Search: 'Search',
+  Description: 'Description',
+  Create: 'Create',
+  Extension: 'Extension'
+}
 export default {
   name: 'AddUnitPlan',
   components: {
@@ -1157,7 +1163,10 @@ export default {
                 }
 
                 const tagList = knowledgeTagMap.get(item.subKnowledgeId)
-                tagList.push(item)
+                tagList.push({
+                  ...item,
+                  type: TagOriginType.Origin
+                })
                 knowledgeTagMap.set(item.subKnowledgeId, tagList)
               }
             })
@@ -1182,7 +1191,10 @@ export default {
                 }
 
                 const tagList = skillTagMap.get(item.descriptionId)
-                tagList.push(item)
+                tagList.push({
+                  ...item,
+                  type: TagOriginType.Origin
+                })
                 skillTagMap.set(item.descriptionId, tagList)
               }
             })
@@ -1415,6 +1427,21 @@ export default {
         this.$refs.associate.loadAssociateData()
         this.$message.success('success!')
       })
+    },
+    showSelectLinkContentVisible () {
+      if (!this.form.questions || this.form.questions.length === 0) {
+        this.$logger.info('no relevantQuestionList')
+        var that = this
+        this.$confirm({
+          title: 'Alert',
+          content: 'Please add questions and tags before linking',
+          onOk: function () {
+            that.handleHoverReferBlock({ blockType: 'question' })
+          }
+        })
+      } else {
+        this.selectLinkContentVisible = true
+      }
     }
   }
 }
