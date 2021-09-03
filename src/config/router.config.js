@@ -107,7 +107,7 @@ export const asyncRouterMap = [
             meta: { title: 'menu.evaluations', keepAlive: true, permission: ['expert', 'teacher'] }
           },
           {
-            path: '/teacher/start-evaluation/:evaluationId',
+            path: '/teacher/start-evaluation/:evaluationId/:classId',
             name: 'StartEvaluation',
             props: true,
             component: () => import('@/views/teacher/StartEvaluation'),
