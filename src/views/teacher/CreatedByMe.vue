@@ -110,12 +110,6 @@
                           </div>
                           <div class="session-btn-text">Start a session</div>
                         </div>
-                        <div class="session-btn" @click="handleEvaluation(item)" v-if="item.type === typeMap.evaluation">
-                          <div class="session-btn-icon">
-                            <evaluation-svg />
-                          </div>
-                          <div class="session-btn-text">Enter evaluation</div>
-                        </div>
                       </div>
                       <div class="more-action-wrapper action-item-wrapper">
                         <a-dropdown>
@@ -169,18 +163,6 @@
                     <a @click="handleEditItem(item)">
                       <a-icon type="form" /> {{ $t('teacher.my-content.action-edit') }}
                     </a>
-                  </div>
-                  <div class="action-item" v-if="item.type === typeMap['evaluation']">
-                    <a-dropdown>
-                      <a-icon type="more" style="margin-right: 8px" />
-                      <a-menu slot="overlay">
-                        <a-menu-item>
-                          <a @click="handleEvaluation(item)">
-                            {{ $t('teacher.my-content.start-evaluation') }}
-                          </a>
-                        </a-menu-item>
-                      </a-menu>
-                    </a-dropdown>
                   </div>
                   <div class="action-item" v-if="item.type === typeMap['lesson'] || item.type === typeMap['task']">
                     <a-dropdown>
@@ -452,12 +434,6 @@ export default {
     handlePrevious (item) {
       this.$router.push({
         path: '/teacher/my-class?slideId=' + item.presentationId
-      })
-    },
-
-    handleEvaluation (item) {
-      this.$router.push({
-        path: '/teacher/start-evaluation/' + item.id
       })
     },
     handleDeleteItem (item) {
