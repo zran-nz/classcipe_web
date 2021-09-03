@@ -162,7 +162,7 @@ export default {
 
       // TODO 新增tag接口
       tagList: ['Content tag', 'Content tag', 'Content tag'],
-      colorList: ['pink', 'red', 'orange', 'green', 'purple', 'cyan', 'blue' ]
+      colorList: [ 'pink', 'red', 'orange', 'green', 'purple', 'cyan', 'blue' ]
     }
   },
   created () {
