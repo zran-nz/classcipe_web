@@ -233,11 +233,11 @@
       <a-modal
         v-model="viewPreviewSessionVisible"
         :footer="null"
+        :title="null"
+        :closable="false"
         destroyOnClose
-        width="800px"
-        title="Previous sessions"
-        @ok="viewPreviewSessionVisible = false"
-        @cancel="viewPreviewSessionVisible = false">
+        width="800px">
+        <modal-header @close="viewPreviewSessionVisible = false"/>
         <div class="preview-session-wrapper">
           <class-list :slide-id="currentPreviewLesson.presentationId" :classData="currentPreviewLesson" v-if="currentPreviewLesson && currentPreviewLesson.presentationId"/>
           <no-more-resources tips="Not exist previous sessions" v-else/>
@@ -291,6 +291,7 @@ import {
 } from '@/const/common'
 import CommonPreview from '@/components/Common/CommonPreview'
 import NoMoreResources from '@/components/Common/NoMoreResources'
+import ModalHeader from '@/components/Common/ModalHeader'
 
 export default {
   name: 'CreatedByMe',
@@ -304,7 +305,8 @@ export default {
     EvaluationSvg,
     PreviousSessionsSvg,
     StartSessionSvg,
-    CustomTag
+    CustomTag,
+    ModalHeader
   },
   data () {
     return {

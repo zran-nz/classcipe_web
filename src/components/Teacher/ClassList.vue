@@ -1,68 +1,111 @@
 <template>
-  <div class="class-list">
-    <a-table
-      :loading="loading"
-      :columns="columns"
-      :data-source="data"
-      :pagination="false"
-      rowKey="id">
+  <div class="my-class-list">
+    <div class="class-list-wrapper">
+      <div class="class-list" v-if="!loading">
+        <div class="list-item" v-for="(classItem, cIndex) in data" :key="cIndex">
+          <div class="class-icon">
+            <img src="~@/assets/icons/myClass/class_icon.png" />
+          </div>
+          <div class="class-tag">
+            <div class="class-tag-list">
+              <div class="class-tag-item" :key="tIndex" v-for="(tagName, tIndex) in tagList">
+                <a-tag :color="colorList[tIndex % colorList.length]" class="my-class-tag">
+                  {{ tagName }}
+                </a-tag>
+              </div>
+            </div>
+          </div>
+          <div class="class-date">{{ classItem.date | formatDate }}</div>
+          <div class="class-number">
+            <a-tooltip :mouseEnterDelay="1">
+              <template slot="title">
+                20/42, 20 students have been evaluated
+              </template>
+              <div class="class-number-item">
+                <div class="active-num">20</div> /
+                <div class="total-num">42</div>
+              </div>
+            </a-tooltip>
+          </div>
+          <div class="class-action">
+            <div class="icon-action">
+              <a-tooltip>
+                <template slot="title">
+                  teacher-projecting
+                </template>
+                <div class="icon-action-item">
+                  <img src="~@/assets/icons/myClass/gengduo_gray.png" class="icon-gray" />
+                  <img src="~@/assets/icons/myClass/gengduo_color.png" class="icon-color"/>
+                </div>
+              </a-tooltip>
 
-      <span slot="date" slot-scope="date"> {{ date | formatDate }}</span>
+              <a-tooltip>
+                <template slot="title">
+                  dashboard
+                </template>
+                <div class="icon-action-item">
+                  <img src="~@/assets/icons/myClass/Startasession@2x_color.png" class="icon-gray" />
+                  <img src="~@/assets/icons/myClass/Startasession@2x_gray.png" class="icon-color"/>
+                </div>
+              </a-tooltip>
+            </div>
 
-      <span slot="status" slot-scope="status">
-        {{ status }}
-        <!--        <a-badge :status="text | statusTypeFilter" :text="text | statusFilter" />-->
-      </span>
-
-      <span slot="action" slot-scope="text, record" class="action-line">
-        <div class="action-item">
-          <tv-svg @click="handleTeacherProjecting(record)"/>
+            <a-popover placement="rightBottom" trigger="click">
+              <template slot="content">
+                <div class="class-more-icon-panel">
+                  <div class="class-more-item" @click="handleEditEvaluationRubric(classItem)">
+                    <div class="class-action-icon">
+                      <img src="~@/assets/icons/myClass/edit.png" />
+                    </div>
+                    <div class="class-action-name">
+                      Edit evaluation rubric
+                    </div>
+                  </div>
+                  <div class="class-more-item" @click="handleReviewEvaluation(classItem)">
+                    <div class="class-action-icon">
+                      <img src="~@/assets/icons/myClass/view.png" />
+                    </div>
+                    <div class="class-action-name">
+                      Review & Evaluation
+                    </div>
+                  </div>
+                  <div class="class-more-item" @click="handleArchiveSession(classItem)">
+                    <div class="class-action-icon">
+                      <img src="~@/assets/icons/myClass/archive.png" />
+                    </div>
+                    <div class="class-action-name">
+                      Archive Session
+                    </div>
+                  </div>
+                  <div class="class-more-item" @click="handleEnableStudentEvaluation(classItem)">
+                    <div class="class-action-icon">
+                      <a-switch size="small"/>
+                    </div>
+                    <div class="class-action-name">
+                      Enable Student Evaluation
+                    </div>
+                  </div>
+                  <div class="class-more-item" @click="handleEnablePeerEvaluation(classItem)">
+                    <div class="class-action-icon">
+                      <a-switch size="small"/>
+                    </div>
+                    <div class="class-action-name">
+                      Enable Peer Evaluation
+                    </div>
+                  </div>
+                </div>
+              </template>
+              <div class="more-action">
+                <img src="~@/assets/icons/myClass/more.png"/>
+              </div>
+            </a-popover>
+          </div>
         </div>
-        <div class="action-item">
-          <a @click="handleDashboard(record)">
-            <a-icon type="menu" />
-          </a>
-        </div>
-        <div class="action-item">
-          <a-dropdown>
-            <a-icon type="more" style="margin-right: 8px" />
-
-            <a-menu slot="overlay">
-              <a-menu-item>
-                <a @click="handleEditEvaluationRubric(record)">
-                  Edit evaluation rubric
-                </a>
-              </a-menu-item>
-              <a-menu-item>
-                <a @click="handleEnableStudentEvaluation(record)">
-                  Enable Student Evaluation
-                </a>
-              </a-menu-item>
-              <a-menu-item>
-                <a @click="handleReviewEvaluation(record)">
-                  Review & Evaluation
-                </a>
-              </a-menu-item>
-              <a-menu-item>
-                <a @click="handleEnablePeerEvaluation(record)">
-                  Enable Peer Evaluation
-                </a>
-              </a-menu-item>
-              <a-menu-item>
-                <a @click="handleArchiveSession(record)">
-                  Archive Session
-                </a>
-              </a-menu-item>
-            </a-menu>
-          </a-dropdown>
-        </div>
-      </span>
-    </a-table>
-    <div class="loading-status">
-      <a-spin v-if="loading && !skeletonLoading"/>
-      <span v-if="loadFinished">All data loaded~</span>
+      </div>
+      <div class="loading" v-if="loading">
+        <a-spin />
+      </div>
     </div>
-
     <a-modal
       v-model="PPTCommentPreviewVisible"
       :footer="null"
@@ -86,47 +129,6 @@ import { GetAssociate } from '@/api/teacher'
 import { typeMap } from '@/const/teacher'
 import { EvaluationAddOrUpdate } from '@/api/evaluation'
 import PptCommentPreview from '@/components/Teacher/PptCommentPreview'
-const columns = [
-  {
-    title: 'Class name',
-    dataIndex: 'class_name',
-    width: 200
-  },
-  {
-    title: 'Date',
-    dataIndex: 'date',
-    scopedSlots: { customRender: 'date' },
-    width: 150
-  },
-  {
-    title: 'Status',
-    dataIndex: 'status',
-    scopedSlots: { customRender: 'status' },
-    width: 100
-  },
-  {
-    title: 'Action',
-    dataIndex: 'action',
-    width: '100px',
-    scopedSlots: { customRender: 'action' },
-    fixed: 'right'
-  }
-]
-
-const statusMap = {
-  'live': {
-    status: 'success',
-    text: 'Live'
-  },
-  'student-paced': {
-    status: 'processing',
-    text: 'Student-paced '
-  },
-  'close': {
-    status: 'default',
-    text: 'Close'
-  }
-}
 
 export default {
   name: 'ClassList',
@@ -146,39 +148,25 @@ export default {
   },
   data () {
     return {
-      columns: columns,
       data: [],
       loading: true,
       typeMap: typeMap,
 
       PPTCommentPreviewVisible: false,
       currentClassId: null,
-      skeletonLoading: true,
       loadFailed: false,
       cursor: 0,
       currentPage: 0,
       pageSize: 500,
-      total: 0
-    }
-  },
-  computed: {
-    loadFinished: function () {
-      return !this.loading && this.total === this.data.length
+      total: 0,
+
+      // TODO 新增tag接口
+      tagList: ['Content tag', 'Content tag', 'Content tag'],
+      colorList: ['pink', 'red', 'orange', 'green', 'purple', 'cyan', 'blue' ]
     }
   },
   created () {
     this.loadTeacherClasses(this.pageSize, this.slideId)
-  },
-  mounted () {
-    window.addEventListener('scroll', this.loadTeacherClassesOnScroll, true)
-  },
-  filters: {
-    statusFilter (type) {
-      return statusMap[type].text
-    },
-    statusTypeFilter (type) {
-      return statusMap[type].status
-    }
   },
   methods: {
     loadTeacherClasses (limit, slideId) {
@@ -199,8 +187,6 @@ export default {
         this.total = response.data.total
         logger.info(' data', this.data)
         this.loading = false
-      }).finally(() => {
-        this.skeletonLoading = false
       })
     },
 
@@ -352,44 +338,223 @@ export default {
 
 <style lang="less" scoped>
 
-.ant-table-thead > tr > th, .ant-table-tbody > tr > td {
-  padding: 5px;
-}
+.my-class-list {
+  background: rgba(228, 228, 228, 0.1);
+  border: 1px solid #D8D8D8;
+  opacity: 1;
+  height: 620px;
+  overflow-y: scroll;
+  border-radius: 4px;
 
-.class-header {
-  padding-bottom: 16px;
-  border-bottom: 1px solid rgb(235, 238, 240);
+  &::-webkit-scrollbar {
+    width: 5px;
+    height: 5px;
+  }
+  &::-webkit-scrollbar-track {
+    border-radius: 3px;
+    background: rgba(0,0,0,0.00);
+    -webkit-box-shadow: inset 0 0 5px rgba(0,0,0,0.08);
+  }
+  /* 滚动条滑块 */
+  &::-webkit-scrollbar-thumb {
+    border-radius: 5px;
+    background: rgba(0,0,0,0.12);
+    -webkit-box-shadow: inset 0 0 10px rgba(0,0,0,0.2);
+  }
 
-  .nav-back-btn {
-    padding-left: 0;
+  .class-list-wrapper {
+    padding: 15px;
+
+    .class-list {
+      display: flex;
+      flex-direction: column;
+      .list-item {
+        padding: 15px;
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: flex-start;
+        margin-bottom: 20px;
+        background: #fff;
+        border: 1px solid #D8D8D8;
+        box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.16);
+        opacity: 1;
+        border-radius: 4px;
+
+        .class-icon {
+          width: 40px;
+          display: flex;
+          flex-direction: row;
+          align-items: center;
+
+          img {
+            height: 35px;
+          }
+        }
+
+        .class-tag {
+          padding: 0 5px;
+          width: 300px;
+          .class-tag-list {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: flex-start;
+            flex-wrap: wrap;
+
+            .my-class-tag {
+              margin: 5px;
+              border-radius: 22px;
+            }
+          }
+        }
+
+        .class-date {
+          width: 150px;
+          font-size: 12px;
+          font-family: Inter-Bold;
+          line-height: 24px;
+          color: #aaa;
+          text-align: right;
+          padding-right: 20px;
+        }
+
+        .class-number {
+          padding: 0 5px;
+          .class-number-item {
+            cursor: pointer;
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: center;
+            background: rgba(245, 245, 245, 0.5);
+            border: 1px solid #d4cdcd;
+            opacity: 1;
+            font-size: 13px;
+            border-radius: 6px;
+            padding: 3px 10px;
+          }
+
+          .class-number-item {
+            .active-num {
+              padding: 0 3px;
+              font-family: Inter-Bold;
+              line-height: 24px;
+              color: #15C39A;
+            }
+
+            .total-num {
+              padding: 0 3px;
+              font-family: Inter-Bold;
+              line-height: 24px;
+              color: #11142D;
+            }
+          }
+
+          .class-number-item:hover {
+            background: #15C39A;
+            border: 1px solid #15C39A;
+            color: #fff;
+
+            .active-num {
+              color: #fff;
+            }
+
+            .total-num {
+              color: #fff;
+            }
+          }
+        }
+
+        .class-action {
+          width: 120px;
+          display: flex;
+          flex-direction: row;
+          align-items: center;
+          justify-content: flex-end;
+
+          .icon-action {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            .icon-action-item {
+              cursor: pointer;
+              padding: 5px 8px;
+              box-sizing: border-box;
+              img {
+                height: 20px;
+              }
+              .icon-gray {
+                display: inline-block;
+              }
+
+              .icon-color {
+                display: none;
+              }
+            }
+
+            .icon-action-item:hover {
+              .icon-gray {
+                display: none;
+              }
+
+              .icon-color {
+                display: inline-block;
+              }
+            }
+          }
+
+          .more-action {
+            cursor: pointer;
+            padding: 0 5px;
+            margin-left: 8px;
+            img {
+              height: 15px;
+            }
+          }
+        }
+      }
+    }
   }
 }
-
-.loading-status {
+.class-more-icon-panel {
   display: flex;
-  justify-content: center;
-  padding: 30px 0 10px 0;
+  flex-direction: column;
 
-  span {
-    color: #aaa;
+  .class-more-item {
+    cursor: pointer;
+    padding: 10px  5px ;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+
+    .class-action-icon {
+      width: 40px;
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      justify-content: center;
+
+      img {
+        height: 20px;
+      }
+    }
+  }
+
+  .class-more-item:hover {
+    background: #eee;
   }
 }
 
-.action-item {
-  height: 20px;
-  svg {
-    width: 20px;
-    height: 20px;
-  }
-}
-
-.action-line {
+.loading {
+  padding: 40px;
   display: flex;
   align-items: center;
-  flex-direction: row;
-  justify-content: flex-end;
-  .action-item {
-    padding: 0 5px;
+  justify-content: center;
+  text-align: center;
+
+  .ant-spin {
+    text-align: center;
   }
 }
 </style>
