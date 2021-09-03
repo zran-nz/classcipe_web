@@ -283,8 +283,8 @@ export default {
     },
     handleReviewEvaluation (item) {
       this.$logger.info('handleReviewEvaluation', item, this.classData)
-      this.currentClassId = item.class_id
-      this.PPTCommentPreviewVisible = true
+      // TODO 需要关联对应的evaluation id，当前写死1431173111758254082
+      window.open('/teacher/start-evaluation/1431173111758254082/' + item.class_id, '_blank')
     },
     handleEnablePeerEvaluation (item) {
       this.$logger.info('handleEnablePeerEvaluation', item, this.classData)
