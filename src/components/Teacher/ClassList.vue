@@ -17,7 +17,7 @@
           </div>
           <div class="class-date">{{ classItem.date | formatDate }}</div>
           <div class="class-number">
-            <a-tooltip :mouseEnterDelay="1">
+            <a-tooltip>
               <template slot="title">
                 20/42, 20 students have been evaluated
               </template>
@@ -34,8 +34,8 @@
                   teacher-projecting
                 </template>
                 <div class="icon-action-item">
-                  <img src="~@/assets/icons/myClass/gengduo_gray.png" class="icon-gray" />
-                  <img src="~@/assets/icons/myClass/gengduo_color.png" class="icon-color"/>
+                  <img src="~@/assets/icons/myClass/Startasession@2x_color.png" class="icon-color" />
+                  <img src="~@/assets/icons/myClass/Startasession@2x_gray.png" class="icon-gray"/>
                 </div>
               </a-tooltip>
 
@@ -44,8 +44,8 @@
                   dashboard
                 </template>
                 <div class="icon-action-item">
-                  <img src="~@/assets/icons/myClass/Startasession@2x_color.png" class="icon-gray" />
-                  <img src="~@/assets/icons/myClass/Startasession@2x_gray.png" class="icon-color"/>
+                  <img src="~@/assets/icons/myClass/gengduo_gray.png" class="icon-gray" />
+                  <img src="~@/assets/icons/myClass/gengduo_color.png" class="icon-color"/>
                 </div>
               </a-tooltip>
             </div>
@@ -369,12 +369,12 @@ export default {
       display: flex;
       flex-direction: column;
       .list-item {
-        padding: 15px;
+        padding: 13px 15px;
         display: flex;
         flex-direction: row;
         align-items: center;
         justify-content: flex-start;
-        margin-bottom: 20px;
+        margin-bottom: 10px;
         background: #fff;
         border: 1px solid #D8D8D8;
         box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.16);
@@ -388,7 +388,7 @@ export default {
           align-items: center;
 
           img {
-            height: 35px;
+            height: 30px;
           }
         }
 
