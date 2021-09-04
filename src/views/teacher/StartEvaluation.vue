@@ -109,7 +109,13 @@
             </div>
             <div class="rubric-wrapper">
               <div class="rubric-item" v-if="form.tableMode === 1 ">
-                <rubric-one ref="rubric" :description-list="evaluationTableList" :init-raw-headers="initRawHeaders" :init-raw-data="initRawData" mode="evaluate"/>
+                <rubric-one
+                  ref="rubric"
+                  :description-list="evaluationTableList"
+                  :init-raw-headers="initRawHeaders"
+                  :init-raw-data="initRawData"
+                  mode="evaluate"
+                  @add-evidence="handleAddEvaluation"/>
               </div>
             </div>
             <div class="action-line">
@@ -118,6 +124,21 @@
           </div>
         </div>
       </div>
+
+      <a-drawer
+        destroyOnClose
+        placement="right"
+        width="820px"
+        :closable="false"
+        :visible="addEvaluationVisible"
+        @close="handleAddEvaluationClose"
+      >
+        <div class="add-evaluation-evidence-wrapper">
+          <div class="slide-preview">
+            <ppt-slide-view :slide-id="slideId" :class-id="currentClassId" v-if="slideId" @add-evidence-finish="handleAddEvidenceFinish"/>
+          </div>
+        </div>
+      </a-drawer>
 
       <a-modal
         v-model="showAddAudioVisible"
@@ -186,6 +207,7 @@ import RubricOne from '@/components/Evaluation/RubricOne'
 import CommonFormHeader from '@/components/Common/CommonFormHeader'
 import { GetStudents } from '@/api/lesson'
 import { commonAPIUrl } from '@/api/common'
+import PptSlideView from '@/components/Evaluation/PptSlideView'
 
 const TagOriginType = {
   Origin: 'Origin',
@@ -198,6 +220,7 @@ const TagOriginType = {
 export default {
   name: 'StartEvaluation',
   components: {
+    PptSlideView,
     RubricOne,
     ContentTypeIcon,
     InputSearch,
@@ -276,7 +299,12 @@ export default {
       groupSelectMode: false,
 
       summary: '',
-      activeEvaluationType: 'Peer'
+      activeEvaluationType: 'Peer',
+
+      addEvaluationVisible: false,
+
+      currentClassId: null,
+      slideId: null
     }
   },
   computed: {
@@ -384,7 +412,7 @@ export default {
 
       // 获取班级学生
       // TODO 写死了class_id
-      GetStudents({ class_id: '95585170' }).then(response => {
+      GetStudents({ class_id: '89c48832' }).then(response => {
       // GetStudents({ class_id: this.classId }).then(response => {
         this.$logger.info('start evaluation GetStudents', response)
         this.studentList = response.data
@@ -811,8 +839,26 @@ export default {
       }).finally(() => {
         this.currentUploading = false
       })
-    }
+    },
 
+    handleAddEvaluation (data) {
+      this.$logger.info('handleAddEvaluation classId ' + this.classId, data)
+
+      // TODO 绑定evaluation和task中的slide
+      this.currentClassId = this.classId
+      // this.slideId = '1tfhTKkxPXsgfh_9mYZUVqHQn_1up1sAOln5PHiRXmj4'
+      this.slideId = '1-oo7FBGrusK0UulTEA4OQpFo_rMWFsrq9cOEEMLNFzM'
+      this.addEvaluationVisible = true
+    },
+
+    handleAddEvaluationClose () {
+      this.$logger.info('handleAddEvaluationClose')
+      this.addEvaluationVisible = false
+    },
+
+    handleAddEvidenceFinish (data) {
+      this.$logger.info('handleAddEvidenceFinish', data)
+    }
   }
 }
 </script>
@@ -1167,6 +1213,12 @@ export default {
     padding: 0 10px;
     color: red;
     cursor: pointer;
+  }
+}
+
+.add-evaluation-evidence-wrapper {
+  .go-session-detail {
+    margin-bottom: 20px;
   }
 }
 </style>

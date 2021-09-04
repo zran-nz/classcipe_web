@@ -33,7 +33,7 @@
                 <template slot="title">
                   teacher-projecting
                 </template>
-                <div class="icon-action-item">
+                <div class="icon-action-item" @click="handleTeacherProjecting(classItem)">
                   <img src="~@/assets/icons/myClass/Startasession@2x_color.png" class="icon-color" />
                   <img src="~@/assets/icons/myClass/Startasession@2x_gray.png" class="icon-gray"/>
                 </div>
@@ -43,7 +43,7 @@
                 <template slot="title">
                   dashboard
                 </template>
-                <div class="icon-action-item">
+                <div class="icon-action-item" @click="handleDashboard(classItem)">
                   <img src="~@/assets/icons/myClass/gengduo_gray.png" class="icon-gray" />
                   <img src="~@/assets/icons/myClass/gengduo_color.png" class="icon-color"/>
                 </div>

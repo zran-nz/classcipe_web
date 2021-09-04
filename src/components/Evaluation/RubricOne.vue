@@ -112,7 +112,7 @@
             </template>
 
             <template v-if="hIndex === headers.length - 1 && mode === 'evaluate'">
-              <div class="add-evidence" @confirm="handleAddEvidenceLine(item)">
+              <div class="add-evidence" @click="handleAddEvidenceLine(lIndex, item)">
                 <img src="~@/assets/icons/evaluation/tianjia@2x.png" />
                 <div class="add-text">
                   Add Evidence
@@ -497,9 +497,11 @@ export default {
       }
     },
 
-    handleAddEvidenceLine (item) {
-      this.$logger.info('handleAddEvidenceLine', item)
-      this.$message.warn('coming soon!')
+    handleAddEvidenceLine (lIndex, item) {
+      this.$logger.info('handleAddEvidenceLine', lIndex, item)
+      this.$emit('add-evidence', {
+        index: lIndex, data: item
+      })
     }
   }
 }
