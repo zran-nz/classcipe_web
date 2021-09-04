@@ -63,22 +63,30 @@
           <div class="student-evaluation-form">
             <div class="evaluation-header">
               <div class="summary">
-                <div class="student-avatar">
-                  <img slot="prefix" src="~@/assets/icons/evaluation/touxiang_student.png" />
+                <div class="summary-info">
+                  <div class="student-avatar">
+                    <img slot="prefix" src="~@/assets/icons/evaluation/touxiang_student.png" />
+                  </div>
+                  <div class="student-name">
+                    <template v-if="selectedStudentEmailList.length">
+                      {{ selectedStudentEmailList[0] }}
+                    </template>
+                    <template v-else>
+                      Student ID
+                    </template>
+                  </div>
+                  <div class="summary-input">
+                    <a-input v-model="summary" class="my-form-input" placeholder="Summary"/>
+                  </div>
+                  <div class="voice-summary" @click="handleAddAudioOverview">
+                    <img src="~@/assets/icons/evaluation/voice.png" />
+                  </div>
                 </div>
-                <div class="student-name">
-                  <template v-if="selectedStudentEmailList.length">
-                    {{ selectedStudentEmailList[0] }}
-                  </template>
-                  <template v-else>
-                    Student ID
-                  </template>
-                </div>
-                <div class="summary-input">
-                  <a-input v-model="summary" class="my-form-input" placeholder="Summary"/>
-                </div>
-                <div class="voice-summary">
-                  <img src="~@/assets/icons/evaluation/voice.png" />
+                <div class="summary-voice" v-if="form.audioUrl">
+                  <div class="audio-wrapper">
+                    <audio :src="form.audioUrl" controls />
+                    <span @click="form.audioUrl = null"><a-icon type="delete" /></span>
+                  </div>
                 </div>
               </div>
               <div class="evaluation-type">
@@ -105,11 +113,54 @@
               </div>
             </div>
             <div class="action-line">
-              <a-button type="primary">Complete</a-button>
+              <a-button type="primary" shape="round">Complete</a-button>
             </div>
           </div>
         </div>
       </div>
+
+      <a-modal
+        v-model="showAddAudioVisible"
+        :footer="null"
+        destroyOnClose
+        title="Add Audio"
+        @ok="showAddAudioVisible = false"
+        @cancel="showAddAudioVisible = false">
+
+        <div class="audio-material-action">
+          <div class="uploading-mask" v-show="currentUploading">
+            <div class="uploading">
+              <a-spin large />
+            </div>
+          </div>
+          <div class="action-item">
+            <a-upload name="file" accept="audio/*" :customRequest="handleUploadAudio" :showUploadList="false">
+              <a-button type="primary" icon="upload">{{ $t('teacher.add-unit-plan.upload-audio') }}</a-button>
+            </a-upload>
+          </div>
+          <a-divider>
+            {{ $t('teacher.add-unit-plan.or') }}
+          </a-divider>
+          <div class="action-item-column">
+            <vue-record-audio mode="press" @result="handleAudioResult" />
+            <div class="action-tips">
+              {{ $t('teacher.add-unit-plan.record-your-voice') }}
+            </div>
+            <div class="audio-wrapper" v-if="audioUrl">
+              <audio :src="audioUrl" controls />
+              <span @click="audioUrl = null"><a-icon type="delete" /></span>
+            </div>
+          </div>
+          <div class="material-action" >
+            <a-button key="back" @click="handleCancelAddAudio" class="action-item">
+              Cancel
+            </a-button>
+            <a-button key="submit" type="primary" @click="handleConfirmAddAudio" class="action-item">
+              Ok
+            </a-button>
+          </div>
+        </div>
+      </a-modal>
     </a-card>
   </div>
 </template>
@@ -134,6 +185,7 @@ import DisplayMode from '@/components/MyContent/DisplayMode'
 import RubricOne from '@/components/Evaluation/RubricOne'
 import CommonFormHeader from '@/components/Common/CommonFormHeader'
 import { GetStudents } from '@/api/lesson'
+import { commonAPIUrl } from '@/api/common'
 
 const TagOriginType = {
   Origin: 'Origin',
@@ -187,6 +239,7 @@ export default {
 
       form: {
         id: null,
+        audioUrl: null,
         name: '',
         status: 0,
         selfType: 0,
@@ -207,8 +260,9 @@ export default {
 
       subKnowledgeId2InfoMap: new Map(),
       descriptionId2InfoMap: new Map(),
-      audioUrl: null,
+      showAddAudioVisible: false,
       currentUploading: false,
+      audioUrl: null,
 
       evaluationTableList: [],
       initRawHeaders: [],
@@ -217,6 +271,7 @@ export default {
 
       studentList: [],
       selectedStudentEmailList: [],
+      selectedStudentNameList: [],
       searchStudentInput: '',
       groupSelectMode: false,
 
@@ -259,6 +314,7 @@ export default {
         this.form.selfType = evaluationData.selfType
         this.selfType = evaluationData.selfType === 2
         this.form.tableMode = evaluationData.tableMode
+        this.audioUrl = evaluationData.audioUrl
         if (evaluationData.table.length) {
           const headers = evaluationData.table.splice(0, 1)[0]
           this.$logger.info('headers ', headers)
@@ -693,6 +749,11 @@ export default {
       }
     },
 
+    handleAddAudioOverview () {
+      this.$logger.info('handleAddAudioOverview')
+      this.showAddAudioVisible = true
+    },
+
     handleToggleSelectMode () {
       this.$logger.info('handleToggleSelectMode', this.groupSelectMode)
       if (!this.groupSelectMode) {
@@ -703,7 +764,55 @@ export default {
     handleActiveEvaluationType (type) {
       this.$logger.info('handleActiveEvaluationType', type)
       this.activeEvaluationType = type
+    },
+
+    handleUploadAudio (data) {
+      logger.info('handleUploadAudio', data)
+      this.currentUploading = true
+      const formData = new FormData()
+      formData.append('file', data.file, data.file.name)
+      this.uploading = true
+      this.$http.post(commonAPIUrl.UploadFile, formData, { contentType: false, processData: false, headers: { 'Content-Type': 'multipart/form-data' }, timeout: 60000 })
+        .then((response) => {
+          logger.info('handleUploadAudio upload response:', response)
+          this.audioUrl = this.$store.getters.downloadUrl + response.result
+        }).catch(err => {
+        logger.error('handleUploadImage error', err)
+      }).finally(() => {
+        this.currentUploading = false
+      })
+    },
+
+    handleCancelAddAudio () {
+      this.audioUrl = null
+      this.showAddAudioVisible = false
+    },
+
+    handleConfirmAddAudio () {
+      if (this.audioUrl) {
+        this.form.audioUrl = this.audioUrl
+        this.audioUrl = null
+      }
+      this.showAddAudioVisible = false
+    },
+
+    handleAudioResult (data) {
+      logger.info('handleAudioResult', data)
+      this.currentUploading = true
+      const formData = new FormData()
+      formData.append('file', data, 'audio.wav')
+      this.$http.post(commonAPIUrl.UploadFile, formData, { contentType: false, processData: false, headers: { 'Content-Type': 'multipart/form-data' }, timeout: 60000 })
+        .then((response) => {
+          logger.info('handleAudioResult upload response:', response)
+          this.audioUrl = this.$store.getters.downloadUrl + response.result
+          logger.info('handleAudioResult audioUrl', this.audioUrl)
+        }).catch(err => {
+        logger.error('handleAudioResult error', err)
+      }).finally(() => {
+        this.currentUploading = false
+      })
     }
+
   }
 }
 </script>
@@ -717,6 +826,7 @@ export default {
 
   .class-student-wrapper {
     padding: 10px 0;
+    min-width: 250px;
     width: 250px;
     .search-student {
       margin-bottom: 10px;
@@ -861,26 +971,34 @@ export default {
   }
 
   .student-evaluation-form {
+    min-width: 800px;
     padding: 10px 40px;
     .evaluation-header {
       .summary {
-        margin-bottom: 30px;
-        display: flex;
-        flex-direction: row;
-        align-items: center;
+        margin-bottom: 20px;
+        .summary-info {
+          margin-bottom: 10px;
+          display: flex;
+          flex-direction: row;
+          align-items: center;
 
-        .student-avatar {
-          img {
-            height: 30px;
+          .student-avatar {
+            img {
+              height: 30px;
+            }
+          }
+
+          .student-name {
+            font-family: Inter-Bold;
+            line-height: 24px;
+            color: #11142D;
+            opacity: 1;
+            padding-left: 15px;
           }
         }
 
-        .student-name {
-          font-family: Inter-Bold;
-          line-height: 24px;
-          color: #11142D;
-          opacity: 1;
-          padding-left: 15px;
+        .summary-voice {
+          padding: 10px 0;
         }
       }
 
@@ -892,6 +1010,7 @@ export default {
 
         .evaluation-type-item {
           user-select: none;
+          flex-wrap: nowrap;
           margin-right: 20px;
           cursor: pointer;
           padding: 12px 15px;
@@ -941,9 +1060,9 @@ export default {
 .action-line {
   display: flex;
   flex-direction: row;
-  justify-content: flex-end;
+  justify-content: flex-start;
   align-items: center;
-  margin-top: 20px;
+  margin-top: 30px;
   .button-item {
     margin-left: 10px;
   }
@@ -974,5 +1093,80 @@ export default {
   font-family: Inter-Bold;
   line-height: 24px;
   color: #000000;
+}
+
+.audio-material-action {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+
+  .uploading-mask {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: fade(#eee, 80%);
+    z-index: 100;
+    .uploading {
+      z-index: 110;
+      position: absolute;
+      display: flex;
+      flex-direction: row;
+      justify-content: center;
+      width: 100px;
+      left: 50%;
+      top: 45%;
+      margin-left: -50px;
+    }
+  }
+
+  .action-item {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .action-item-column {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 15px 0;
+    .action-tips {
+      line-height: 32px;
+      cursor: pointer;
+      user-select: none;
+    }
+  }
+}
+.material-action {
+  padding: 10px 0;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+
+  .action-item {
+    margin-left: 20px;
+  }
+}
+
+.audio-wrapper {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  height: 30px;
+  audio {
+    height: 30px;
+    border: none;
+    outline: none;
+  }
+
+  span {
+    padding: 0 10px;
+    color: red;
+    cursor: pointer;
+  }
 }
 </style>
