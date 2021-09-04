@@ -112,10 +112,11 @@
             </template>
 
             <template v-if="hIndex === headers.length - 1 && mode === 'evaluate'">
-              <div class="add-evidence">
-                <a-popconfirm :title="'Add evidence ?'" ok-text="Yes" @confirm="handleAddEvidenceLine(item)" cancel-text="No">
-                  <a-icon type="plus-circle" /> Add Evidence
-                </a-popconfirm>
+              <div class="add-evidence" @confirm="handleAddEvidenceLine(item)">
+                <img src="~@/assets/icons/evaluation/tianjia@2x.png" />
+                <div class="add-text">
+                  Add Evidence
+                </div>
               </div>
             </template>
           </td>
@@ -682,11 +683,25 @@ export default {
           .add-evidence {
             cursor: pointer;
             position: absolute;
-            right: -110px;
+            right: -150px;
             font-size: 14px;
-            color: @primary-color;
             top: 50%;
-            margin-top: -12px;
+            margin-top: -20px;
+            display: flex;
+            align-items: center;
+            padding: 6px 10px;
+            border: 1px solid #15c39a;
+            background: rgba(21, 195, 154, 0.1);
+            border-radius: 3px;
+
+            img {
+              height: 15px;
+            }
+
+            .add-text {
+              padding: 0 5px;
+              color: rgba(21, 195, 154, 1);
+            }
           }
         }
 
