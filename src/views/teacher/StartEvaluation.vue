@@ -52,7 +52,7 @@
                   </div>
                 </div>
                 <div class="select-mode-toggle">
-                  <a-switch v-model="groupSelectMode" size="small" @change="handleToggleSelectMode" />
+                  <a-switch v-model="groupSelectMode" @change="handleToggleSelectMode" />
                   <div class="select-tips">
                     Single student Group
                   </div>
@@ -61,6 +61,44 @@
             </div>
           </div>
           <div class="student-evaluation-form">
+            <div class="evaluation-header">
+              <div class="summary">
+                <div class="student-avatar">
+                  <img slot="prefix" src="~@/assets/icons/evaluation/touxiang_student.png" />
+                </div>
+                <div class="student-name">
+                  <template v-if="selectedStudentEmailList.length">
+                    {{ selectedStudentEmailList[0] }}
+                  </template>
+                  <template v-else>
+                    Student ID
+                  </template>
+                </div>
+                <div class="summary-input">
+                  <a-input v-model="summary" class="my-form-input" placeholder="Summary"/>
+                </div>
+                <div class="voice-summary">
+                  <img src="~@/assets/icons/evaluation/voice.png" />
+                </div>
+              </div>
+              <div class="evaluation-type">
+                <div :class="{'evaluation-type-item': true, 'active-evaluation-type': activeEvaluationType === 'Student'}" @click="handleActiveEvaluationType('Student')">
+                  <img src="~@/assets/icons/evaluation/huangse@2x.png" alt="">
+                  <div class="type-name">Student evaluation</div>
+                </div>
+
+                <div :class="{'evaluation-type-item': true, 'active-evaluation-type': activeEvaluationType === 'Teacher'}" @click="handleActiveEvaluationType('Teacher')">
+                  <img src="~@/assets/icons/evaluation/lanse@2x.png" alt="">
+                  <div class="type-name">Teacher evaluation</div>
+                </div>
+
+                <div :class="{'evaluation-type-item': true, 'active-evaluation-type': activeEvaluationType === 'Peer'}" @click="handleActiveEvaluationType('Peer')">
+                  <img src="~@/assets/icons/evaluation/lvse@2x.png" alt="">
+                  <div class="type-name">Peer evaluation</div>
+                </div>
+
+              </div>
+            </div>
             <div class="rubric-wrapper">
               <div class="rubric-item" v-if="form.tableMode === 1 ">
                 <rubric-one ref="rubric" :description-list="evaluationTableList" :init-raw-headers="initRawHeaders" :init-raw-data="initRawData" mode="evaluate"/>
@@ -180,7 +218,10 @@ export default {
       studentList: [],
       selectedStudentEmailList: [],
       searchStudentInput: '',
-      groupSelectMode: false
+      groupSelectMode: false,
+
+      summary: '',
+      activeEvaluationType: 'Peer'
     }
   },
   computed: {
@@ -644,7 +685,11 @@ export default {
           this.selectedStudentEmailList.splice(index, 1)
         }
       } else {
-
+        if (this.selectedStudentEmailList.length && this.selectedStudentEmailList[0] === student.email) {
+          this.selectedStudentEmailList = []
+        } else {
+          this.selectedStudentEmailList = [student.email]
+        }
       }
     },
 
@@ -653,6 +698,11 @@ export default {
       if (!this.groupSelectMode) {
         this.selectedStudentEmailList = []
       }
+    },
+
+    handleActiveEvaluationType (type) {
+      this.$logger.info('handleActiveEvaluationType', type)
+      this.activeEvaluationType = type
     }
   }
 }
@@ -666,7 +716,8 @@ export default {
   flex-direction: row;
 
   .class-student-wrapper {
-    width: 260px;
+    padding: 10px 0;
+    width: 250px;
     .search-student {
       margin-bottom: 10px;
       border-radius: 4px;
@@ -745,13 +796,13 @@ export default {
             flex-direction: row;
             align-items: center;
             img {
-              height: 30px;
-              border-radius: 30px;
+              height: 35px;
+              border-radius: 35px;
             }
           }
 
           .student-name {
-            padding: 0 5px;
+            padding: 0 10px;
             box-sizing: border-box;
             font-size: 14px;
             font-family: Inter-Bold;
@@ -797,7 +848,9 @@ export default {
           box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.16);
           opacity: 1;
           border-radius: 6px;
-          padding: 10px;
+          padding: 12px;
+          font-family: Inter-Bold;
+          color: #182552;
 
           .select-tips {
             padding: 0 10px;
@@ -808,7 +861,80 @@ export default {
   }
 
   .student-evaluation-form {
-    padding: 0 15px;
+    padding: 10px 40px;
+    .evaluation-header {
+      .summary {
+        margin-bottom: 30px;
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+
+        .student-avatar {
+          img {
+            height: 30px;
+          }
+        }
+
+        .student-name {
+          font-family: Inter-Bold;
+          line-height: 24px;
+          color: #11142D;
+          opacity: 1;
+          padding-left: 15px;
+        }
+      }
+
+      .evaluation-type {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        margin-bottom: 30px;
+
+        .evaluation-type-item {
+          user-select: none;
+          margin-right: 20px;
+          cursor: pointer;
+          padding: 12px 15px;
+          display: flex;
+          flex-direction: row;
+          align-items: center;
+          background: #FFFFFF;
+          border: 1px solid #F7F8FF;
+          box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.16);
+          opacity: 1;
+          border-radius: 6px;
+
+          img {
+            height: 25px;
+          }
+
+          .type-name {
+            padding: 0 10px;
+            line-height: 24px;
+            color: #11142D;
+            opacity: 1;
+          }
+        }
+
+        .active-evaluation-type {
+          border: 1px solid #15C39A !important;
+        }
+      }
+
+      .summary-input {
+        padding: 0 15px;
+        box-sizing: border-box;
+        input {
+          width: 380px;
+        }
+      }
+
+      .voice-summary {
+        img {
+          height: 40px;
+        }
+      }
+    }
   }
 }
 
@@ -837,5 +963,16 @@ export default {
   border-radius: 5px;
   background: rgba(0,0,0,0.12);
   -webkit-box-shadow: inset 0 0 10px rgba(0,0,0,0.2);
+}
+
+.my-form-input {
+  border-radius: 4px;
+  padding: 10px;
+  height: 42px;
+  width: 600px;
+  font-size: 14px;
+  font-family: Inter-Bold;
+  line-height: 24px;
+  color: #000000;
 }
 </style>

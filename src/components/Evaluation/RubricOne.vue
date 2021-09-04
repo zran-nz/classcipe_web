@@ -527,7 +527,7 @@ export default {
           border-right: 1px solid #999;
           border-bottom: 1px solid #999;
           padding: 0;
-          min-width: 140px;
+          min-width: 200px;
           max-width: 400px;
           overflow: hidden;
 
