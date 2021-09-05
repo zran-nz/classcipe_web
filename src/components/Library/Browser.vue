@@ -6,7 +6,7 @@
           <navigation :path="navPath" @pathChange="handleNavPathChange"/>
         </div>
         <div class="filter-line" >
-          <div class="curriculum-select" v-if="currentBrowserType === BrowserTypeMap.curriculum">
+          <div class="curriculum-select" v-if="currentBrowserType !== BrowserTypeMap.sdg">
             <a-select
               v-if="curriculumOptions.length"
               @change="handleCurriculumChange"
@@ -47,6 +47,7 @@
             </div>
             <div class="browser-detail">
               <curriculum-browser :curriculum-id="currentCurriculumId" :block-width="blockWidth" v-if="currentBrowserType === BrowserTypeMap.curriculum" @blockCollapse="handleBlockCollapse" @previewDetail="handlePreviewDetail"/>
+              <assessment-browser :curriculum-id="currentCurriculumId" :block-width="blockWidth" v-if="currentBrowserType === BrowserTypeMap.assessmentType" @blockCollapse="handleBlockCollapse" @previewDetail="handlePreviewDetail"/>
               <sdg-browser :block-width="blockWidth" v-if="currentBrowserType === BrowserTypeMap.sdg" @blockCollapse="handleBlockCollapse" @previewDetail="handlePreviewDetail"/>
             </div>
           </div>
@@ -82,10 +83,12 @@ import {
 import DirIcon from '@/components/Library/DirIcon'
 import NoMoreResources from '@/components/Common/NoMoreResources'
 import CommonPreview from '@/components/Common/CommonPreview'
+import AssessmentBrowser from './AssessmentBrowser'
 
 const BrowserTypeMap = {
   curriculum: 'curriculum',
-  sdg: 'sdg'
+  sdg: 'sdg',
+  assessmentType: 'assessmentType'
 }
 
 const BrowserTypeLabelMap = {
@@ -96,6 +99,7 @@ const BrowserTypeLabelMap = {
 export default {
   name: 'Browser',
   components: {
+    AssessmentBrowser,
     CommonPreview,
     NoMoreResources,
     Navigation,
@@ -118,6 +122,7 @@ export default {
       navPath: [],
       browserTypeList: [
         { type: 'curriculum', label: 'Curriculum' },
+        { type: 'assessmentType', label: 'Assessment type' },
         { type: 'sdg', label: 'Sustainable development goal' }
       ],
       currentBrowserType: 'curriculum',

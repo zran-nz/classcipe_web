@@ -298,7 +298,6 @@ import CardList from '@/views/list/CardList'
 import DataCardView from '@/components/Library/DataCardView'
 import { typeMap } from '@/const/teacher'
 import { GetGradesByCurriculumId } from '@/api/preference'
-const { GetMyGrades } = require('@/api/teacher')
 const { SubjectTree } = require('@/api/subject')
 
 export default {
@@ -364,15 +363,9 @@ export default {
   created () {
     this.$logger.info('CurriculumBrowser blockWidth:' + this.blockWidth)
     this.getSubjectTree()
-    this.getAllGrades()
+    this.getGradesByCurriculumId(this.curriculumId)
   },
   methods: {
-    getAllGrades () {
-      GetMyGrades().then(response => {
-        this.$logger.info('GetMyGrades', response.result)
-        this.gradeList = response.result
-      })
-    },
 
     getGradesByCurriculumId (curriculumId) {
       GetGradesByCurriculumId({ curriculumId: curriculumId }).then(response => {

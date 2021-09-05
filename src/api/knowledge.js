@@ -10,7 +10,8 @@ export const knowledgeAPIUrl = {
   KnowledgeDeleteBatch: '/classcipe/api/knowledge/deleteBatch',
   KnowledgeList: '/classcipe/api/knowledge/list',
   KnowledgeSearch: '/classcipe/api/knowledge/search',
-  KnowledgeQueryContentByDescriptionId: '/classcipe/api/knowledge/queryContentByDescriptionId'
+  KnowledgeQueryContentByDescriptionId: '/classcipe/api/knowledge/queryContentByDescriptionId',
+  GetAssessmentTypeList: '/classcipe/api/knowledgeAssessmentType/getAssessmentTypeList'
 }
 
 /**
@@ -153,6 +154,14 @@ export function KnowledgeSearch (parameter) {
 export function KnowledgeQueryContentByDescriptionId (parameter) {
   return request({
     url: knowledgeAPIUrl.KnowledgeQueryContentByDescriptionId,
+    method: 'get',
+    params: parameter
+  })
+}
+
+export function GetAssessmentTypeList (parameter) {
+  return request({
+    url: knowledgeAPIUrl.GetAssessmentTypeList,
     method: 'get',
     params: parameter
   })
