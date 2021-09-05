@@ -334,6 +334,7 @@
         this.currentMainSubjectId = mainSubjectItem.id
         this.handleClickBlock(1, mainSubjectItem.name)
         if (this.currentGradeId) {
+          this.getAssessmentTypeList()
           this.handleClickBlock(2, this.currentGradeName)
         }
         // this.handleClickBlock(3, this.)
