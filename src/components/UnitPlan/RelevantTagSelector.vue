@@ -3,7 +3,7 @@
     <div class="question-list">
       <!--      <div class="question-item" v-for="(question,index) in relevantQuestionList" :key="index" v-if="question.knowledgeTagList.length || question.skillTagList.tagList">-->
       <div class="question-item" v-for="(question,index) in relevantQuestionList" :key="index" >
-        <div @click="handleSelectQuestion(question)" :class="{'question': true, 'checked-item': selectedQuestionIdList.indexOf(question.questionId) !== -1}">
+        <div v-if="question.questionId" @click="handleSelectQuestion(question)" :class="{'question': true, 'checked-item': selectedQuestionIdList.indexOf(question.questionId) !== -1}">
           <div class="content-text">
             {{ question.questionName ? question.questionName : 'Unnamed question' }}
           </div>

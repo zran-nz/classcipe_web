@@ -93,8 +93,9 @@
 <script>
 import { STable, Ellipsis } from '@/components'
 import { PageHeaderWrapper } from '@ant-design-vue/pro-layout'
-import { endSession, getMyClasses, nameSession, reopenSession, turnOnStudentPaced } from '@/api/lesson'
+import { endSession, nameSession, reopenSession, turnOnStudentPaced } from '@/api/lesson'
 import * as logger from '@/utils/logger'
+import { FindMyClasses } from '@/api/evaluation'
 
 const columns = [
   {
@@ -194,19 +195,19 @@ export default {
     loadTeacherClasses (limit, cursor, slideId) {
       logger.info('loadTeacherClasses ' + ' limit:' + limit + 'cursor:' + cursor + ' slideId:' + slideId)
       this.loading = true
-      getMyClasses({ limit, cursor, slideId }).then(response => {
-        logger.info('getMyClasses', response.data)
-        if (response.data.records) {
-          response.data.records.forEach((item) => {
+      FindMyClasses({ limit, cursor, slideId }).then(response => {
+        logger.info('findMyClasses', response.result.data)
+        if (response.success) {
+          response.result.data.records.forEach((item) => {
             item.date = item.date * 1000
           })
           if (limit && cursor) {
-            this.data = this.data.concat(response.data.records)
+            this.data = this.data.concat(response.result.data.records)
           } else {
-            this.data = response.data.records
+            this.data = response.result.data.records
           }
         }
-        this.total = response.data.total
+        this.total = response.result.data.total
         logger.info('cursor ' + cursor + ' data', this.data)
         this.loading = false
       }).finally(() => {

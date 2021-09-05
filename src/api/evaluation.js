@@ -1,11 +1,14 @@
 import request from '@/utils/request'
+import storage from 'store'
+import { ACCESS_TOKEN } from '@/store/mutation-types'
 
 export const evaluationAPIUrl = {
   addOrUpdate: '/classcipe/api/evaluation/addOrUpdate',
   delete: '/classcipe/api/evaluation/delete',
   deleteBatch: '/classcipe/api/evaluation/deleteBatch',
   list: '/classcipe/api/evaluation/list',
-  queryById: '/classcipe/api/evaluation/queryById'
+  queryById: '/classcipe/api/evaluation/queryById',
+  findMyClasses: '/classcipe/api/evaluation/findMyClasses'
 }
 
 /**
@@ -45,6 +48,16 @@ export function EvaluationQueryById (parameter) {
 export function EvaluationDelete (parameter) {
   return request({
     url: evaluationAPIUrl.delete + '?id=' + parameter.id,
+    method: 'post',
+    data: parameter
+  })
+}
+
+export function FindMyClasses (parameter) {
+  const token = storage.get(ACCESS_TOKEN)
+  parameter['token'] = token
+  return request({
+    url: evaluationAPIUrl.findMyClasses,
     method: 'post',
     data: parameter
   })

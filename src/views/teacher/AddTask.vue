@@ -402,19 +402,11 @@ import NewUiClickableKnowledgeTag from '@/components/UnitPlan/NewUiClickableKnow
 import { lessonHost, lessonStatus } from '@/const/googleSlide'
 import { StartLesson } from '@/api/lesson'
 import CollaborateContent from '@/components/Collaborate/CollaborateContent'
-import { DICT_TEMPLATE, DICT_BLOOM_CATEGORY } from '@/const/common'
+import { DICT_TEMPLATE, DICT_BLOOM_CATEGORY, TagOriginType } from '@/const/common'
 import { SubjectTree } from '@/api/subject'
 import { formatSubjectTree } from '@/utils/bizUtil'
 import CommonFormHeader from '@/components/Common/CommonFormHeader'
 import { EvaluationAddOrUpdate } from '@/api/evaluation'
-
-const TagOriginType = {
-  Origin: 'Origin',
-  Search: 'Search',
-  Description: 'Description',
-  Create: 'Create',
-  Extension: 'Extension'
-}
 
 export default {
   name: 'AddTask',
@@ -512,6 +504,7 @@ export default {
       showRelevantQuestionVisible: false,
       relevantSelectedQuestionList: [],
       relevantSelectedSource: {},
+      isAssociateBindIn: false,
 
       extKnowledgeTagList: [],
       extSkillTagList: [],
@@ -641,6 +634,11 @@ export default {
         // 未绑定成功ppt
         if (!this.form.presentationId) {
           this.handleShowSelectTemplate()
+          return
+        }
+        // plan添加task未绑定tag的情况
+        if (this.form.associateId && this.form.associateStatus === 0) {
+          this.loadRelevantTagInfoBindIn({ id: this.form.associateId, type: this.form.associateType })
         }
       }).finally(() => {
         this.contentLoading = false
@@ -651,7 +649,7 @@ export default {
       this.$logger.info('handleLinkMyContent ', data)
       this.selectLinkContentVisible = false
       if (data.item.type === this.contentType['unit-plan'] || data.item.type === this.contentType['topic']) {
-        this.loadRelevantTagInfo(data.item)
+        this.loadRelevantTagInfoBindIn(data.item)
       } else {
         Associate({
           fromId: this.form.id,
@@ -665,9 +663,10 @@ export default {
       }
     },
 
-    loadRelevantTagInfo (item) {
-      this.$logger.info('loadRelevantTagInfo', item)
+    loadRelevantTagInfoToOther (item) {
+      this.$logger.info('loadRelevantTagInfoBindIn', item)
       this.showRelevantQuestionVisible = false
+      this.isAssociateBindIn = false
       this.relevantSelectedSource = item
       const relevantQuery = new Promise((resolve, reject) => {
         if (item.type === this.contentType['unit-plan']) {
@@ -682,9 +681,84 @@ export default {
         }
       })
       Promise.all([relevantQuery]).then(response => {
-          this.$logger.info('loadRelevantTagInfo QueryById ' + item.id, response[0])
-          const unitPlanData = response[0].result
-          const that = this
+        this.$logger.info('loadRelevantTagInfoBindIn QueryById ' + item.id, response[0])
+        const unitPlanData = response[0].result
+        const that = this
+        if (unitPlanData.questions && unitPlanData.questions.length) {
+          const questionList = unitPlanData.questions
+          const questionMap = new Map()
+          const relevantTagList = []
+          questionList.forEach(questionItem => {
+            if (questionItem.id && !questionMap.has(questionItem.id)) {
+              // 处理knowledge tags
+              const knowledgeTagMap = new Map()
+              const knowledgeTagList = []
+              questionItem.knowledgeTags.forEach(item => {
+                if (!!item.subKnowledgeId && item.curriculumId === this.$store.getters.bindCurriculum) {
+                  if (!knowledgeTagMap.has(item.subKnowledgeId)) {
+                    knowledgeTagMap.set(item.subKnowledgeId, [])
+                    this.subKnowledgeId2InfoMap.set(item.subKnowledgeId, {
+                      ...item
+                    })
+                  }
+
+                  const tagList = knowledgeTagMap.get(item.subKnowledgeId)
+                  tagList.push({
+                    ...item,
+                    type: TagOriginType.Origin
+                  })
+                  knowledgeTagMap.set(item.subKnowledgeId, tagList)
+                }
+              })
+              for (const [id, tagList] of knowledgeTagMap) {
+                knowledgeTagList.push({
+                  id: tagList[0].id,
+                  tagList,
+                  info: this.subKnowledgeId2InfoMap.get(id)
+                })
+              }
+
+              // 处理skill tags
+              const skillTagMap = new Map()
+              const skillTagList = []
+              questionItem.skillTags.forEach(item => {
+                if (!!item.descriptionId && item.curriculumId === this.$store.getters.bindCurriculum) {
+                  if (!skillTagMap.has(item.descriptionId)) {
+                    skillTagMap.set(item.descriptionId, [])
+                    this.descriptionId2InfoMap.set(item.descriptionId, {
+                      ...item
+                    })
+                  }
+
+                  const tagList = skillTagMap.get(item.descriptionId)
+                  tagList.push({
+                    ...item,
+                    type: TagOriginType.Origin
+                  })
+                  skillTagMap.set(item.descriptionId, tagList)
+                }
+              })
+              for (const [id, tagList] of skillTagMap) {
+                skillTagList.push({
+                  id: tagList[0].id,
+                  tagList,
+                  info: this.descriptionId2InfoMap.get(id)
+                })
+              }
+
+              relevantTagList.push({
+                questionName: questionItem.name,
+                questionId: questionItem.id,
+                skillTagList,
+                knowledgeTagList
+              })
+            }
+          })
+          questionMap.clear()
+          this.relevantQuestionList = relevantTagList
+          this.showRelevantQuestionVisible = true
+          this.$logger.info('relevantQuestionList', this.relevantQuestionList)
+        } else {
           if (unitPlanData.questions.length === 0) {
             this.$confirm({
               title: item.name,
@@ -697,6 +771,32 @@ export default {
             })
             return
           }
+          this.$logger.info('no relevantQuestionList')
+        }
+      })
+    },
+    loadRelevantTagInfoBindIn (item) {
+      this.$logger.info('loadRelevantTagInfoBindIn', item)
+      this.showRelevantQuestionVisible = false
+      this.isAssociateBindIn = true
+      this.relevantSelectedSource = item
+      this.relevantSelectedSource = item
+      const relevantQuery = new Promise((resolve, reject) => {
+        if (item.type === this.contentType['unit-plan']) {
+          UnitPlanQueryById({ id: item.id }).then(response => {
+            resolve(response)
+          })
+        }
+        if (item.type === this.contentType.topic) {
+          TopicQueryById({ id: item.id }).then(response => {
+            resolve(response)
+          })
+        }
+      })
+      Promise.all([relevantQuery]).then(response => {
+          this.$logger.info('loadRelevantTagInfoBindIn QueryById ' + item.id, response[0])
+          const unitPlanData = response[0].result
+          const that = this
           if (unitPlanData.questions && unitPlanData.questions.length) {
             const questionList = unitPlanData.questions
             const questionMap = new Map()
@@ -768,11 +868,19 @@ export default {
               }
             })
             questionMap.clear()
-
             this.relevantQuestionList = relevantTagList
             this.showRelevantQuestionVisible = true
             this.$logger.info('relevantQuestionList', this.relevantQuestionList)
           } else {
+              this.$confirm({
+                title: item.name,
+                content: 'Please add questions and tags before linking',
+                onOk: function () {
+                  that.$router.push({
+                    path: (item.type === that.contentType['unit-plan'] ? '/teacher/unit-plan-redirect/' : '/expert/topic-redirect/') + item.id
+                  })
+                }
+              })
             this.$logger.info('no relevantQuestionList')
           }
         })
@@ -1009,16 +1117,29 @@ export default {
         this.$set(this.questionDataObj, '__question_0', questionDataObj)
       })
       this.$logger.info('after $set questionDataObj __question_0', this.questionDataObj)
-      Associate({
-        fromId: this.form.id,
-        fromType: this.contentType.task,
-        toId: this.relevantSelectedSource.id,
-        toType: this.relevantSelectedSource.type,
-        questions: this.relevantSelectedQuestionList
-      }).then(response => {
-        this.$logger.info('handleLinkMyContent response ', response)
-        this.$refs.associate.loadAssociateData()
-      })
+      if (this.isAssociateBindIn) {
+        Associate({
+          fromId: this.relevantSelectedSource.id,
+          fromType: this.relevantSelectedSource.type,
+          toId: this.form.id,
+          toType: this.contentType.task,
+          questions: this.relevantSelectedQuestionList
+        }).then(response => {
+          this.$logger.info('handleLinkMyContent response ', response)
+          this.$refs.associate.loadAssociateData()
+        })
+      } else {
+        Associate({
+          fromId: this.form.id,
+          fromType: this.contentType.task,
+          toId: this.relevantSelectedSource.id,
+          toType: this.relevantSelectedSource.type,
+          questions: this.relevantSelectedQuestionList
+        }).then(response => {
+          this.$logger.info('handleLinkMyContent response ', response)
+          this.$refs.associate.loadAssociateData()
+        })
+      }
     },
 
     handleAddAudioOverview () {
@@ -1183,7 +1304,11 @@ export default {
       // 下创建一个空的evaluation，然后关联，然后再跳转过去
       if (!this.addLoading) {
         this.addLoading = true
-        EvaluationAddOrUpdate({ name: null }).then((response) => {
+        EvaluationAddOrUpdate({
+          name: null,
+          associateId: this.form.id,
+          associateType: this.form.type
+        }).then((response) => {
           this.$logger.info('EvaluationAddOrUpdate', response.result)
           if (response.success) {
             Associate({

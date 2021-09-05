@@ -11,3 +11,11 @@ export const TagType = {
   'knowledge': 1,
   'skill': 2
 }
+
+export const TagOriginType = {
+  Origin: 'Origin',
+  Search: 'Search',
+  Description: 'Description',
+  Create: 'Create',
+  Extension: 'Extension'
+}

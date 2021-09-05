@@ -8,7 +8,7 @@
           </div>
           <div class="class-tag">
             <div class="class-tag-list">
-              <div class="class-tag-item" :key="tIndex" v-for="(tagName, tIndex) in tagList">
+              <div class="class-tag-item" :key="tIndex" v-for="(tagName, tIndex) in classItem.tags">
                 <a-tag :color="colorList[tIndex % colorList.length]" class="my-class-tag">
                   {{ tagName }}
                 </a-tag>
@@ -122,12 +122,12 @@
 </template>
 
 <script>
-import { getMyClasses } from '@/api/lesson'
+import { FindMyClasses, EvaluationAddOrUpdate } from '@/api/evaluation'
 import TvSvg from '@/assets/icons/lesson/tv.svg?inline'
 import * as logger from '@/utils/logger'
 import { GetAssociate } from '@/api/teacher'
 import { typeMap } from '@/const/teacher'
-import { EvaluationAddOrUpdate } from '@/api/evaluation'
+
 import PptCommentPreview from '@/components/Teacher/PptCommentPreview'
 
 export default {
@@ -157,7 +157,7 @@ export default {
       loadFailed: false,
       cursor: 0,
       currentPage: 0,
-      pageSize: 500,
+      pageSize: 100,
       total: 0,
 
       // TODO 新增tag接口
@@ -172,19 +172,19 @@ export default {
     loadTeacherClasses (limit, slideId) {
       logger.info('loadTeacherClasses ' + ' limit:' + limit + ' slideId:' + slideId)
       this.loading = true
-      getMyClasses({ limit, slideId }).then(response => {
-        logger.info('getMyClasses', response.data)
-        if (response.data.records) {
-          response.data.records.forEach((item) => {
+      FindMyClasses({ limit, slideId }).then(response => {
+        logger.info('FindMyClasses', response.result.data)
+        if (response.success) {
+          response.result.data.records.forEach((item) => {
             item.date = item.date * 1000
           })
           if (limit) {
-            this.data = this.data.concat(response.data.records)
+            this.data = this.data.concat(response.result.data.records)
           } else {
-            this.data = response.data.records
+            this.data = response.result.data.records
           }
         }
-        this.total = response.data.total
+        this.total = response.result.data.total
         logger.info(' data', this.data)
         this.loading = false
       })

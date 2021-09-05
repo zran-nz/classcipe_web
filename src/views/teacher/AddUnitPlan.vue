@@ -19,7 +19,7 @@
             :type="contentType['unit-plan']"
             :id="unitPlanId"
             ref="associate"
-            @create="selectAddContentTypeVisible = true"
+            @create="showSelectAddContentTypeVisible"
             @link="showSelectLinkContentVisible"
             :show-create="true"/>
         </a-col>
@@ -1035,7 +1035,11 @@ export default {
       // 下创建一个空的task，然后关联，然后再跳转过去
       if (!this.addLoading) {
         this.addLoading = true
-        TaskAddOrUpdate({ name: 'Unnamed Task' }).then((response) => {
+        TaskAddOrUpdate({
+            name: 'Unnamed Task',
+            associateId: this.form.id,
+            associateType: this.form.type
+          }).then((response) => {
           this.$logger.info('TaskAddOrUpdate', response.result)
           if (response.success) {
             Associate({
@@ -1068,7 +1072,10 @@ export default {
       // 下创建一个空的lesson，然后关联，然后再跳转过去
       if (!this.addLoading) {
         this.addLoading = true
-        LessonAddOrUpdate({ name: 'Unnamed Lesson' }).then((response) => {
+        LessonAddOrUpdate({
+          name: 'Unnamed Lesson',
+          associateId: this.form.id,
+          associateType: this.form.type }).then((response) => {
           this.$logger.info('LessonAddOrUpdate', response.result)
           if (response.success) {
             Associate({
@@ -1101,7 +1108,11 @@ export default {
       // 下创建一个空的evaluation，然后关联，然后再跳转过去
       if (!this.addLoading) {
         this.addLoading = true
-        EvaluationAddOrUpdate({ name: null }).then((response) => {
+        EvaluationAddOrUpdate({
+          name: null,
+          associateId: this.form.id,
+          associateType: this.form.type
+        }).then((response) => {
           this.$logger.info('EvaluationAddOrUpdate', response.result)
           if (response.success) {
             Associate({
@@ -1441,6 +1452,21 @@ export default {
         })
       } else {
         this.selectLinkContentVisible = true
+      }
+    },
+    showSelectAddContentTypeVisible () {
+      if (!this.form.questions || this.form.questions.length === 0) {
+        this.$logger.info('no relevantQuestionList')
+        var that = this
+        this.$confirm({
+          title: 'Alert',
+          content: 'Please add questions and tags before linking',
+          onOk: function () {
+            that.handleHoverReferBlock({ blockType: 'question' })
+          }
+        })
+      } else {
+        this.selectAddContentTypeVisible = true
       }
     }
   }
