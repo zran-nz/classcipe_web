@@ -315,6 +315,7 @@
         this.subSubjectList = []
         this.mainKnowledgeList = []
         this.subSubjectList = []
+        this.assessmentNameList = []
         this.dataList = []
         this.getSubjectTree()
       },
