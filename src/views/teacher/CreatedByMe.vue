@@ -143,40 +143,45 @@
             :loading="loading"
             v-if="viewMode === 'img'">
             <a-list-item slot="renderItem" key="item.key" slot-scope="item">
-              <a-card class="cover-card">
-                <div class="mask">
-                  <div class="mask-actions">
-                    <div class="action-item">
-                      <a-popconfirm :title="$t('teacher.my-content.action-delete') + '?'" ok-text="Yes" @confirm="handleDeleteItem(item)" cancel-text="No">
-                        <a href="#" class="delete-action">
-                          <a-icon type="delete" /> {{ $t('teacher.my-content.action-delete') }}
-                        </a>
-                      </a-popconfirm>
-                    </div>
-                    <div class="action-item">
-                      <a @click="handleEditItem(item)">
-                        <a-icon type="form" /> {{ $t('teacher.my-content.action-edit') }}
-                      </a>
-                    </div>
-                    <div class="action-item" v-if="item.type === typeMap['lesson'] || item.type === typeMap['task']">
-                      <a-dropdown>
-                        <a-icon type="more" style="margin-right: 8px" />
-                        <a-menu slot="overlay">
-                          <a-menu-item>
-                            <a @click="handleStartSessionTags(item)">
-                              {{ $t('teacher.my-content.action-session-new') }}
+              <a-card class="cover-card" @click="handleViewDetail(item)">
+                <div class="mask"></div>
+                <div class="mask-actions">
+                  <div class="action-item action-item-top">
+                    <a-dropdown>
+                      <a-icon type="more" style="margin-right: 8px" />
+                      <a-menu slot="overlay">
+                        <a-menu-item>
+                          <a-popconfirm :title="$t('teacher.my-content.action-delete') + '?'" ok-text="Yes" @confirm="handleDeleteItem(item)" cancel-text="No">
+                            <a href="#" class="delete-action">
+                              <a-icon type="delete" /> {{ $t('teacher.my-content.action-delete') }}
                             </a>
-                          </a-menu-item>
-                          <a-menu-item>
-                            <a @click="handleViewPreviewSession(item)">
-                              {{ $t('teacher.my-content.action-session-previous') }}
-                            </a>
-                          </a-menu-item>
-                        </a-menu>
-                      </a-dropdown>
+                          </a-popconfirm>
+                        </a-menu-item>
+                      </a-menu>
+                    </a-dropdown>
+                  </div>
+                  <div class="action-item action-item-center">
+                    <div class="session-btn session-btn-left" @click.stop="handleStartSessionTags(item)"  v-if="item.type === typeMap['lesson'] || item.type === typeMap['task']" >
+                      <div class="session-btn-text">Teacher presenting</div>
+                    </div>
+                    <div class="session-btn session-btn-right" @click.stop="handleStartSessionTags(item)"  v-if="item.type === typeMap['lesson'] || item.type === typeMap['task']">
+                      <div class="session-btn-text">Student-Paced</div>
                     </div>
                   </div>
-
+                  <div class="action-item action-item-bottom" >
+                    <div class="session-btn" @click.stop="handleEditItem(item)">
+                      <div class="session-btn-icon">
+                        <edit-svg />
+                      </div>
+                      <div class="session-btn-text">Edit</div>
+                    </div>
+                    <div class="session-btn" @click.stop="handleViewPreviewSession(item)"  v-if="item.type === typeMap['lesson'] || item.type === typeMap['task']">
+                      <div class="session-btn-icon">
+                        <previous-sessions-svg />
+                      </div>
+                      <div class="session-btn-text">Previous</div>
+                    </div>
+                  </div>
                 </div>
                 <img class="cover-image" :src="item.image">
                 <a-card-meta :title="item.name ? item.name : 'Untitled'" :description="item.createTime | dayjs" @click="handleViewDetail(item)"></a-card-meta>
@@ -258,6 +263,7 @@ import { StartLesson } from '@/api/lesson'
 import TvSvg from '@/assets/icons/lesson/tv.svg?inline'
 import EvaluationSvg from '@/assets/icons/common/evaluation.svg?inline'
 import PreviousSessionsSvg from '@/assets/icons/common/PreviousSessions.svg?inline'
+import EditSvg from '@/assets/icons/common/Edit.svg?inline'
 import StartSessionSvg from '@/assets/icons/common/StartSession.svg?inline'
 import ClassList from '@/components/Teacher/ClassList'
 import CustomTag from '@/components/UnitPlan/CustomTag'
@@ -286,7 +292,8 @@ export default {
     PreviousSessionsSvg,
     StartSessionSvg,
     CustomTag,
-    ModalHeader
+    ModalHeader,
+    EditSvg
   },
   data () {
     return {
@@ -827,18 +834,10 @@ a.delete-action {
   opacity: 0;
   margin:-10px;
   position: absolute;
-  //background: rgba(0, 0, 0, 0.4);
   cursor: pointer;
   transition: opacity 0.4s;
   background: #0A1C32;
   border-radius: 6px;
-
-  &:hover {
-    opacity: 0.72;
-  }
-  .mask-actions{
-    position: absolute;
-  }
 }
 
 .cover-card{
@@ -848,10 +847,130 @@ a.delete-action {
   opacity: 1;
   border-radius: 6px;
 
+  &:hover {
+    .mask-actions{
+      display: block;
+    }
+    .mask{
+      opacity: 0.72;
+    }
+  }
+  .mask-actions{
+    margin:-10px;
+    height: 100%;
+    width: 100%;
+    position: absolute;
+    flex-direction: column;
+    display: none;
+    .action-item{
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: space-around;
+    }
+    .action-item-top{
+      height: 20px;
+      flex-direction: row;
+      justify-content: right;
+      padding-top: 15px;
+      svg {
+        height: 30px;
+      }
+      i{
+        width: 20px;
+        font-size: 20px;
+        color: rgba(255, 255, 255, 1);
+        display: flex;
+        flex-direction: row;
+        justify-content: right;
+      }
+    }
+    .action-item-center{
+      min-height: 150px;
+      .session-btn{
+        margin:20px
+      }
+      .session-btn-left {
+        width: 160px;
+        height: 40px;
+        background: #15C39A;
+        opacity: 1;
+        border-radius: 20px;
+        justify-content: center;
+        display: flex;
+        padding: 6px 13px;
+        .session-btn-text {
+          font-size: 12px;
+          font-family: Inter-Bold;
+          line-height: 24px;
+          color: #FFFFFF;
+          opacity: 1;
+        }
+      }
+      .session-btn-right {
+        width: 160px;
+        height: 40px;
+        background: #182552;
+        opacity: 1;
+        border-radius: 20px;
+        display: flex;
+        justify-content: center;
+        padding: 6px 13px;
+        .session-btn-text {
+          font-size: 12px;
+          font-family: Inter-Bold;
+          line-height: 24px;
+          color: #FFFFFF;
+          opacity: 1;
+        }
+      }
+    }
+    .action-item-bottom{
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      justify-content: space-around;
+      .session-btn {
+        width: 100px;
+        display: flex;
+        border-radius: 32px;
+        flex-direction: row;
+        align-items: center;
+        justify-content: center;
+        padding: 6px 13px;
+        background: rgba(245, 245, 245, 1);
+        box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.16);
+        opacity: 1;
+        border: 1px solid rgba(188, 188, 188, 1);
+        .session-btn-icon {
+          display: flex;
+          flex-direction: row;
+          align-items: center;
+          justify-content: center;
+          font-size: 13px;
+          svg {
+            height: 14px;
+            fill: #182552;
+            stroke: #182552;
+            stroke-width: 0.5px;
+          }
+        }
+
+        .session-btn-text {
+          font-size: 13px;
+          padding-left: 7px;
+          font-family: Inter-Bold;
+          color: #182552;
+        }
+      }
+    }
+  }
+
   img {
     width: 100%;
-    height: 200px;
-    padding: 8px 15px;
+    height: 160px;
+    padding: 5px 10px;
     background-size: cover;
     background-position: center center;
     background-repeat: no-repeat;
