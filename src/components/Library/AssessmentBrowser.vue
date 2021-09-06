@@ -229,7 +229,7 @@
 
 <script>
   import ContentTypeIcon from '@/components/Teacher/ContentTypeIcon'
-  import { GetAssessmentTypeList, KnowledgeQueryContentByDescriptionId } from '@/api/knowledge'
+  import { GetAssessmentTypeList, QueryContentByAssessmentTypeId } from '@/api/knowledge'
   import DirIcon from '@/components/Library/DirIcon'
   import NoMoreResources from '@/components/Common/NoMoreResources'
   import PuBuIcon from '@/assets/icons/library/pubu .svg?inline'
@@ -389,17 +389,23 @@
         this.currentTypeLabel = label
       },
 
-      queryContentByAssessment (keywordsItem) {
+      queryContentByAssessment (assessmentItem) {
         this.dataListLoading = true
-        this.$logger.info('queryContentByAssessment ' + keywordsItem.id)
-        this.handleClickBlock(3, keywordsItem.name)
-        this.currentAssessmentTypeId = keywordsItem.id
-        KnowledgeQueryContentByDescriptionId({ descriptionId: keywordsItem.knowledgeId }).then(response => {
+        this.$logger.info('queryContentByAssessment ' + assessmentItem.id)
+        this.handleClickBlock(3, assessmentItem.name)
+        this.currentAssessmentTypeId = assessmentItem.id
+        QueryContentByAssessmentTypeId({ assessmentTypeId: assessmentItem.id }).then(response => {
           this.$logger.info('queryContentByAssessment response', response.result)
           this.dataList = response.result
         }).finally(() => {
           this.dataListLoading = false
         })
+        // KnowledgeQueryContentByDescriptionId({ descriptionId: assessmentItem.knowledgeId }).then(response => {
+        //   this.$logger.info('queryContentByAssessment response', response.result)
+        //   this.dataList = response.result
+        // }).finally(() => {
+        //   this.dataListLoading = false
+        // })
       }
     }
   }

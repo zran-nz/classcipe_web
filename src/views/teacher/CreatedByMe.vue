@@ -144,44 +144,42 @@
             v-if="viewMode === 'img'">
             <a-list-item slot="renderItem" key="item.key" slot-scope="item">
               <a-card class="cover-card">
-                <div
-                  @click="handleViewDetail(item)"
-                  class="cover-image"
-                  slot="cover"
-                  :style="{backgroundImage: 'url(' + item.image + ')' }"
-                ></div>
-                <a-card-meta :title="item.name ? item.name : 'Untitled'" :description="item.createTime | dayjs" @click="handleViewDetail(item)"></a-card-meta>
-                <template slot="actions" class="ant-card-actions">
-                  <div class="action-item">
-                    <a-popconfirm :title="$t('teacher.my-content.action-delete') + '?'" ok-text="Yes" @confirm="handleDeleteItem(item)" cancel-text="No">
-                      <a href="#" class="delete-action">
-                        <a-icon type="delete" /> {{ $t('teacher.my-content.action-delete') }}
+                <div class="mask">
+                  <div class="mask-actions">
+                    <div class="action-item">
+                      <a-popconfirm :title="$t('teacher.my-content.action-delete') + '?'" ok-text="Yes" @confirm="handleDeleteItem(item)" cancel-text="No">
+                        <a href="#" class="delete-action">
+                          <a-icon type="delete" /> {{ $t('teacher.my-content.action-delete') }}
+                        </a>
+                      </a-popconfirm>
+                    </div>
+                    <div class="action-item">
+                      <a @click="handleEditItem(item)">
+                        <a-icon type="form" /> {{ $t('teacher.my-content.action-edit') }}
                       </a>
-                    </a-popconfirm>
+                    </div>
+                    <div class="action-item" v-if="item.type === typeMap['lesson'] || item.type === typeMap['task']">
+                      <a-dropdown>
+                        <a-icon type="more" style="margin-right: 8px" />
+                        <a-menu slot="overlay">
+                          <a-menu-item>
+                            <a @click="handleStartSessionTags(item)">
+                              {{ $t('teacher.my-content.action-session-new') }}
+                            </a>
+                          </a-menu-item>
+                          <a-menu-item>
+                            <a @click="handleViewPreviewSession(item)">
+                              {{ $t('teacher.my-content.action-session-previous') }}
+                            </a>
+                          </a-menu-item>
+                        </a-menu>
+                      </a-dropdown>
+                    </div>
                   </div>
-                  <div class="action-item">
-                    <a @click="handleEditItem(item)">
-                      <a-icon type="form" /> {{ $t('teacher.my-content.action-edit') }}
-                    </a>
-                  </div>
-                  <div class="action-item" v-if="item.type === typeMap['lesson'] || item.type === typeMap['task']">
-                    <a-dropdown>
-                      <a-icon type="more" style="margin-right: 8px" />
-                      <a-menu slot="overlay">
-                        <a-menu-item>
-                          <a @click="handleStartSessionTags(item)">
-                            {{ $t('teacher.my-content.action-session-new') }}
-                          </a>
-                        </a-menu-item>
-                        <a-menu-item>
-                          <a @click="handleViewPreviewSession(item)">
-                            {{ $t('teacher.my-content.action-session-previous') }}
-                          </a>
-                        </a-menu-item>
-                      </a-menu>
-                    </a-dropdown>
-                  </div>
-                </template>
+
+                </div>
+                <img class="cover-image" :src="item.image">
+                <a-card-meta :title="item.name ? item.name : 'Untitled'" :description="item.createTime | dayjs" @click="handleViewDetail(item)"></a-card-meta>
               </a-card>
             </a-list-item>
           </a-list>
@@ -823,19 +821,45 @@ a.delete-action {
   }
 }
 
-.cover-image {
-  height: 150px;
-  background-size: cover;
-  background-position: center center;
-  background-repeat: no-repeat;
-  border-bottom: 1px solid #eee;
-  -webkit-transition: all 0.3s ease-in-out;
-  transition: all 0.3s ease-in-out;
+.mask {
+  height: 100%;
+  width: 100%;
+  opacity: 0;
+  margin:-10px;
+  position: absolute;
+  //background: rgba(0, 0, 0, 0.4);
+  cursor: pointer;
+  transition: opacity 0.4s;
+  background: #0A1C32;
+  border-radius: 6px;
+
   &:hover {
-    background-size: 110%;
-    background-position: center;
-    background-repeat: no-repeat;
-    box-shadow: 0 0 2px 1px @primary-color;
+    opacity: 0.72;
+  }
+  .mask-actions{
+    position: absolute;
   }
 }
+
+.cover-card{
+  background: #FFFFFF;
+  border: 1px solid #F7F8FF;
+  box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.16);
+  opacity: 1;
+  border-radius: 6px;
+
+  img {
+    width: 100%;
+    height: 200px;
+    padding: 8px 15px;
+    background-size: cover;
+    background-position: center center;
+    background-repeat: no-repeat;
+    //border-bottom: 1px solid #eee;
+    -webkit-transition: all 0.3s ease-in-out;
+    transition: all 0.3s ease-in-out;
+
+  }
+}
+
 </style>
