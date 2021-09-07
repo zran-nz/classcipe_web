@@ -835,7 +835,7 @@ a.delete-action {
   margin:-10px;
   position: absolute;
   cursor: pointer;
-  transition: opacity 0.4s;
+  transition: opacity 0.8s;
   background: #0A1C32;
   border-radius: 6px;
 }
