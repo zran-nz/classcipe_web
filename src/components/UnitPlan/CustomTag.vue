@@ -211,7 +211,7 @@ export default {
     },
     loadUserTags () {
       this.tagLoading = true
-      GetUserTags({ defaultTags: encodeURIComponent(this.customTagsList.join(',')) }).then((response) => {
+      GetUserTags({ defaultTags: this.customTagsList.join(',') }).then((response) => {
         this.$logger.info('GetUserTags response', response.result)
         if (response.success) {
           this.userTags = response.result
