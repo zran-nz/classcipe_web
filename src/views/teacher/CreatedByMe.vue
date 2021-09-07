@@ -161,10 +161,10 @@
                     </a-dropdown>
                   </div>
                   <div class="action-item action-item-center">
-                    <div class="session-btn session-btn-left" @click.stop="handleStartSessionTags(item)"  v-if="item.type === typeMap['lesson'] || item.type === typeMap['task']" >
+                    <div class="session-btn session-btn-left" @click.stop="handleStartSessionTags(item)" v-if="item.type === typeMap['lesson'] || item.type === typeMap['task']" >
                       <div class="session-btn-text">Teacher presenting</div>
                     </div>
-                    <div class="session-btn session-btn-right" @click.stop="handleStartSessionTags(item)"  v-if="item.type === typeMap['lesson'] || item.type === typeMap['task']">
+                    <div class="session-btn session-btn-right" @click.stop="handleStartSessionTags(item)" v-if="item.type === typeMap['lesson'] || item.type === typeMap['task']">
                       <div class="session-btn-text">Student-Paced</div>
                     </div>
                   </div>
@@ -175,7 +175,7 @@
                       </div>
                       <div class="session-btn-text">Edit</div>
                     </div>
-                    <div class="session-btn" @click.stop="handleViewPreviewSession(item)"  v-if="item.type === typeMap['lesson'] || item.type === typeMap['task']">
+                    <div class="session-btn" @click.stop="handleViewPreviewSession(item)" v-if="item.type === typeMap['lesson'] || item.type === typeMap['task']">
                       <div class="session-btn-icon">
                         <previous-sessions-svg />
                       </div>
@@ -872,7 +872,7 @@ a.delete-action {
     .action-item-top{
       height: 20px;
       flex-direction: row;
-      justify-content: right;
+      justify-content: flex-end;
       padding-top: 15px;
       svg {
         height: 30px;
@@ -883,13 +883,13 @@ a.delete-action {
         color: rgba(255, 255, 255, 1);
         display: flex;
         flex-direction: row;
-        justify-content: right;
+        justify-content: flex-end;
       }
     }
     .action-item-center{
       min-height: 150px;
       .session-btn{
-        margin:20px
+        margin:15px
       }
       .session-btn-left {
         width: 160px;
