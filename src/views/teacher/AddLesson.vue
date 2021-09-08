@@ -255,126 +255,93 @@
       </a-modal>
 
       <a-modal
-        v-model="selectTemplateVisible"
-        :footer="null"
-        :title="null"
-        :closable="false"
-        destroyOnClose
-        width="1100px"
-        @ok="selectTemplateVisible = false">
-        <modal-header @close="selectTemplateVisible = false"/>
-
-        <div class="select-template-wrapper">
-          <div class="template-select-header">
-            <div class="header-title">
-              <div class="header-title-text">
-                Teaching Templates
-              </div>
-            </div>
-            <div class="filter-wrapper">
-              <div class="first-filter-line">
-                <div class="task-type">
-                  <div :class="{'task-type-item': true, 'green-active-task-type': currentFasa === 'FA'}" @click="handleToggleTemplateType('currentFasa','FA')">FA</div>
-                  <div :class="{'task-type-item': true, 'red-active-task-type': currentFasa === 'SA'}" @click="handleToggleTemplateType('currentFasa','SA')">SA</div>
-                </div>
-                <div class="template-type-list">
-                  <div v-for="(item, index) in initTemplates" :key="index" :class="{'template-type-item': true, 'active-template-type' : currentTemplateType === item.value}" @click="handleToggleTemplateType('currentTemplateType',item.value)">
-                    {{ item.title }}
-                    <img src="~@/assets/icons/lesson/active_green.png" v-if=" currentTemplateType === item.value"/>
-                  </div>
-                </div>
-              </div>
-              <div class="second-filter-line">
-                <div class="template-type-list">
-                  <div v-for="(item, index) in initBlooms" :key="index" :class="{'template-type-item': true, 'sub-active-template-type' : currentBloomCategory === item.value}" @click="handleToggleTemplateType('currentBloomCategory',item.value)">
-                    {{ item.title }}
-                    <img src="~@/assets/icons/lesson/active_red.png" v-if=" currentBloomCategory === item.value"/>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="template-list-wrapper">
-            <div class="template-list" v-if="!templateLoading">
-              <div :class="{'template-item': true, 'template-item-active': template.id && selectedTemplateIdList.indexOf(template.id) !== -1 }" v-for="(template,index) in templateList" :key="index" @click="handleSelectTemplate(template)">
-                <div class="template-cover" :style="{backgroundImage: 'url(' + template.cover + ')'}">
-                </div>
-                <div class="template-info">
-                  <div class="template-name">{{ template.name }}</div>
-                  <div class="template-intro">{{ template.introduce }}</div>
-                </div>
-                <div class="template-select-icon" v-if="template.id && selectedTemplateIdList.indexOf(template.id) !== -1">
-                  <img src="~@/assets/icons/lesson/selected.png" v-if="template.id && selectedTemplateIdList.indexOf(template.id) !== -1 "/>
-                </div>
-              </div>
-            </div>
-            <div class="no-template" v-if="!templateLoading && templateList.length === 0">
-              <a-empty />
-            </div>
-            <div class="template-loading" v-if="templateLoading">
-              <a-spin />
-            </div>
-          </div>
-          <div class="template-action">
-            <div class="create-loading" v-if="creating">
-              <a-spin />
-            </div>
-            <a-button @click="handleAddTemplate" :style="{'display': 'flex', 'align-items': 'center', 'justify-content': 'center', 'padding': '10px'}" shape="round" type="primary" :loading="creating">
-              <img src="~@/assets/icons/lesson/path.png" class="btn-icon"/>
-              <div class="btn-text">
-                Create the task in google slide
-              </div>
-            </a-button>
-          </div>
-        </div>
-      </a-modal>
-
-      <a-modal
         v-model="selectedMyContentVisible"
         :footer="null"
         :title="null"
         destroyOnClose
         width="80%"
-        :closable="false"
+        :closable="true"
         @ok="selectedMyContentVisible = false">
-        <modal-header @close="selectedMyContentVisible = false"/>
-        <div class="select-type-wrapper">
-          <div class="select-type">
-            <div class="select-tips">
-              Choose lesson and tasks from
-            </div>
-            <div class="select-button">
-              <a-button style="color: #fff;border-radius: 5px; padding: 15px;background: #15C39A; display: flex;flex-direction: row;align-items: center;justify-content: center" type="primary">
-                <img src="~@/assets/icons/lesson/content_icon.png" />
-                <div class="button-label">
-                  My content
+        <a-tabs class="template-tabs">
+          <a-tab-pane key="1" tab="Teaching Templates">
+            <div class="select-template-wrapper">
+              <div class="template-select-header">
+                <div class="header-title">
+                  <div class="header-title-text">
+                    Teaching Templates
+                  </div>
                 </div>
-              </a-button>
-            </div>
-            <div class="select-tips">
-              Of
-            </div>
-            <div class="select-button">
-              <a-button @click="selectTemplateVisible = true" style="color: #fff;border-radius: 5px;background: #15C39A; display: flex;flex-direction: row;align-items: center;justify-content: center" type="primary">
-                <img src="~@/assets/icons/lesson/template_icon.png" />
-                <div class="button-label">
-                  Choose a template
+                <div class="filter-wrapper">
+                  <div class="first-filter-line">
+                    <div class="task-type">
+                      <div :class="{'task-type-item': true, 'green-active-task-type': currentFasa === 'FA'}" @click="handleToggleTemplateType('currentFasa','FA')">FA</div>
+                      <div :class="{'task-type-item': true, 'red-active-task-type': currentFasa === 'SA'}" @click="handleToggleTemplateType('currentFasa','SA')">SA</div>
+                    </div>
+                    <div class="template-type-list">
+                      <div v-for="(item, index) in initTemplates" :key="index" :class="{'template-type-item': true, 'active-template-type' : currentTemplateType === item.value}" @click="handleToggleTemplateType('currentTemplateType',item.value)">
+                        {{ item.title }}
+                        <img src="~@/assets/icons/lesson/active_green.png" v-if=" currentTemplateType === item.value"/>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="second-filter-line">
+                    <div class="template-type-list">
+                      <div v-for="(item, index) in initBlooms" :key="index" :class="{'template-type-item': true, 'sub-active-template-type' : currentBloomCategory === item.value}" @click="handleToggleTemplateType('currentBloomCategory',item.value)">
+                        {{ item.title }}
+                        <img src="~@/assets/icons/lesson/active_red.png" v-if=" currentBloomCategory === item.value"/>
+                      </div>
+                    </div>
+                  </div>
                 </div>
-              </a-button>
+              </div>
+              <div class="template-list-wrapper">
+                <div class="template-list" v-if="!templateLoading">
+                  <div :class="{'template-item': true, 'template-item-active': template.id && selectedTemplateIdList.indexOf(template.id) !== -1 }" v-for="(template,index) in templateList" :key="index" @click="handleSelectTemplate(template)">
+                    <div class="template-cover" :style="{backgroundImage: 'url(' + template.cover + ')'}">
+                    </div>
+                    <div class="template-info">
+                      <div class="template-name">{{ template.name }}</div>
+                      <div class="template-intro">{{ template.introduce }}</div>
+                    </div>
+                    <div class="template-select-icon" v-if="template.id && selectedTemplateIdList.indexOf(template.id) !== -1">
+                      <img src="~@/assets/icons/lesson/selected.png" v-if="template.id && selectedTemplateIdList.indexOf(template.id) !== -1 "/>
+                    </div>
+                  </div>
+                </div>
+                <div class="no-template" v-if="!templateLoading && templateList.length === 0">
+                  <a-empty />
+                </div>
+                <div class="template-loading" v-if="templateLoading">
+                  <a-spin />
+                </div>
+              </div>
+              <div class="template-action">
+                <div class="create-loading" v-if="creating">
+                  <a-spin />
+                </div>
+                <a-button @click="handleAddTemplate" :style="{'display': 'flex', 'align-items': 'center', 'justify-content': 'center', 'padding': '10px'}" shape="round" type="primary" :loading="creating">
+                  <img src="~@/assets/icons/lesson/path.png" class="btn-icon"/>
+                  <div class="btn-text">
+                    Create the task in google slide
+                  </div>
+                </a-button>
+              </div>
             </div>
-          </div>
-        </div>
-        <div class="link-content-wrapper">
-          <my-content-selector
-            :filter-type-list="['task', 'lesson']"
-            :selected-list="selectedMyContentKeyList"
-            mode="select"
-          />
-        </div>
-        <div class="action-line">
-          <a-button @click="handleCancelSelectedMyContent" class="button-item">Cancel</a-button>
-          <a-button @click="handleConfirmSelectedMyContent" type="primary" class="button-item">Confirm</a-button>
-        </div>
+          </a-tab-pane>
+          <a-tab-pane key="2" tab="My content">
+            <div class="link-content-wrapper">
+              <my-content-selector
+                :filter-type-list="['task', 'lesson']"
+                :selected-list="selectedMyContentKeyList"
+                mode="select"
+              />
+            </div>
+            <div class="action-line">
+              <!--              <a-button @click="handleCancelSelectedMyContent" class="button-item">Cancel</a-button>-->
+              <a-button @click="handleConfirmSelectedMyContent" type="primary" class="button-item" :loading="creating">Confirm</a-button>
+            </div>
+          </a-tab-pane>
+        </a-tabs>
       </a-modal>
 
       <a-modal
@@ -431,28 +398,6 @@
               Ok
             </a-button>
           </div>
-        </div>
-      </a-modal>
-
-      <a-modal
-        v-model="showChoseSelectTemplateVisible"
-        :footer="null"
-        destroyOnClose
-        title="Selected My Content"
-        @ok="showChoseSelectTemplateVisible = false"
-        @cancel="showChoseSelectTemplateVisible = false">
-        <div class="selected-my-content">
-          <div class="selected-item" v-for="(item,index) in selectedMyContentList" :key="index">
-            <content-type-icon :type="item.type"/> {{ item.name }}
-          </div>
-        </div>
-        <div class="more-action">
-          <a-button key="back" @click="handleCreateLesson" :loading="creating" class="action-item">
-            Create
-          </a-button>
-          <a-button key="submit" type="primary" @click="handleContinueSelectTemplate" class="action-item">
-            Choose template
-          </a-button>
         </div>
       </a-modal>
 
@@ -1097,18 +1042,14 @@ export default {
       })
     },
 
-    handleShowSelectTemplate () {
-      this.selectedTemplateList = []
-      this.templateLoading = false
-      this.presentationLink = null
-      this.selectTemplateVisible = true
-    },
-
     handleShowSelectMyContent () {
       this.$logger.info('handleShowSelectMyContent')
       this.selectedTaskIdList = []
       this.selectedLessonIdList = []
+      this.selectedMyContentList = []
       this.selectedMyContentVisible = true
+      this.selectedTemplateList = []
+      this.templateLoading = false
     },
 
     handleSelectTemplate (template) {
@@ -1132,9 +1073,7 @@ export default {
             overview: this.form.overview,
             templatePresentationIds: this.selectedTemplateList.map(item => {
               return item.presentationId
-            }),
-            lessonIds: this.selectedLessonIdList,
-            taskIds: this.selectedTaskIdList
+            })
           }).then(response => {
             this.$logger.info('handleAddTemplate response', response.result)
             this.form.id = response.result.id
@@ -1148,6 +1087,7 @@ export default {
           }).finally(() => {
             this.templateLoading = false
             this.creating = false
+            this.selectedMyContentVisible = false
             // this.loadThumbnail()
           })
         } else {
@@ -1220,7 +1160,10 @@ export default {
 
     handleConfirmSelectedMyContent () {
       this.$logger.info('handleConfirmSelectedMyContent', this.selectedMyContentKeyList)
-      this.selectedMyContentVisible = false
+      if (this.selectedMyContentKeyList.length === 0) {
+        this.$message.warn('Please select a content!')
+        return
+      }
       this.selectedTaskIdList = []
       this.selectedLessonIdList = []
       this.selectedMyContentList = []
@@ -1237,7 +1180,7 @@ export default {
           this.selectedLessonIdList.push(keyArr[1])
         }
       })
-      this.showChoseSelectTemplateVisible = true
+      this.handleCreateLesson()
     },
 
     handleCreateLesson () {
@@ -1265,6 +1208,7 @@ export default {
           })
         }).finally(() => {
           this.creating = false
+          this.selectedMyContentVisible = false
           // this.loadThumbnail()
         })
       }
@@ -2064,9 +2008,9 @@ export default {
   .template-action {
     padding: 20px 0 0;
     display: flex;
-    flex-direction: row;
+    flex-direction: row-reverse;
     align-items: center;
-    justify-content: center;
+    justify-content: right;
 
     .create-loading {
       display: inline-block;
@@ -2683,5 +2627,11 @@ export default {
 
   .slide-form-block {
   }
+}
+.template-tabs /deep/ .ant-tabs-nav-scroll{
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+  justify-content: center;
 }
 </style>

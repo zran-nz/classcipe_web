@@ -13,7 +13,7 @@
     </div>
     <a-card :bordered="false" :bodyStyle="{ padding: '16px 24px', height: '100%', minHeight: '500px' }">
       <a-row class="unit-content" v-if="!contentLoading">
-        <a-col span="4">
+        <a-col span="4" v-if="showSidebar">
           <associate-sidebar
             :name="form.name"
             :type="contentType['unit-plan']"
@@ -406,14 +406,14 @@
         @close="handleCloseReferDetail"
       >
         <a-row class="preview-wrapper-row">
-          <a-col span="2">
+          <a-col span="2" class="view-back-col">
             <div class="view-back" @click="handleCloseReferDetail">
               <div class="back-icon">
                 <img src="~@/assets/icons/common/back.png" />
               </div>
             </div>
           </a-col>
-          <a-col span="22">
+          <a-col span="24" class="preview-wrapper-col">
             <div class="detail-wrapper">
               <div class="refer-detail">
                 <refer-preview
@@ -623,7 +623,19 @@ export default {
       referDetailVisible: false,
       referId: null,
       referType: null,
-      activeReferBlock: ''
+      activeReferBlock: '',
+      showSidebar: true
+    }
+  },
+  watch: {
+    referDetailVisible (value) {
+      this.$logger.info('watch referDetailVisible ' + value)
+      this.$logger.info('screen width: ', document.body.clientWidth)
+       if (value && document.body.clientWidth < 1500) {
+         this.showSidebar = false
+       } else {
+         this.showSidebar = true
+       }
     }
   },
   computed: {
@@ -2105,15 +2117,27 @@ export default {
   margin-bottom: 20px;
 }
 
-.view-back {
-  .back-icon {
-    text-align: left;
-    img {
-      width: 90%;
-      cursor: pointer;
+.preview-wrapper-row{
+  .preview-wrapper-col{
+    margin: 15px;
+  }
+  .view-back-col {
+    position: absolute;
+    left: -20px;
+    top: -20px;
+    .view-back{
+      .back-icon {
+        text-align: left;
+
+        img {
+          width: 90%;
+          cursor: pointer;
+        }
+      }
     }
   }
 }
+
 .detail-wrapper {
   background: #FFFFFF;
   border: 1px solid #D8D8D8;
