@@ -631,7 +631,7 @@ export default {
     referDetailVisible (value) {
       this.$logger.info('watch referDetailVisible ' + value)
       this.$logger.info('screen width: ', document.body.clientWidth)
-       if (value && document.body.clientWidth < 1500) {
+       if (value && document.body.clientWidth < 1700) {
          this.showSidebar = false
        } else {
          this.showSidebar = true
