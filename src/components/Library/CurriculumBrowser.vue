@@ -35,7 +35,7 @@
       </template>
     </div>
     <!--      subSubject list-->
-    <div class="browser-block-item" :style="{width: blockWidth + 'px' , minWidth: blockWidth + 'px' }" >
+    <div class="browser-block-item" v-if="hasChildSubject" :style="{width: blockWidth + 'px' , minWidth: blockWidth + 'px' }" >
       <div
         :class="{
           'browser-item': true,
@@ -343,6 +343,8 @@ export default {
       subSubjectListLoading: true,
       currentSubSubjectId: null,
 
+      knowledgeDeep: 1,
+
       mainKnowledgeList: [],
       mainKnowledgeListLoading: false,
       currentMainKnowledgeId: null,
@@ -357,7 +359,8 @@ export default {
       dataListMode: 'list',
 
       currentTypeLabel: 'Choose type（S）of content',
-      currentType: 0
+      currentType: 0,
+      hasChildSubject: true
     }
   },
   created () {
@@ -397,7 +400,15 @@ export default {
     },
     handleSelectMainSubjectItem (mainSubjectItem) {
       this.subSubjectListLoading = true
+      this.hasChildSubject = true
       this.$logger.info('handleSelectMainSubjectItem ', mainSubjectItem, this.currentMainSubjectId)
+      if (mainSubjectItem.hasChild === '0') {
+        this.hasChildSubject = false
+        this.currentMainSubjectId = mainSubjectItem.id
+        this.subSubjectList = []
+        this.currentSubKnowledgeId = null
+        return
+      }
       if (mainSubjectItem.id !== this.currentMainSubjectId) {
         this.currentMainSubjectId = mainSubjectItem.id
         this.subSubjectList = mainSubjectItem.children
@@ -429,15 +440,28 @@ export default {
       this.handleClickBlock(3, gradeItem.name)
     },
 
+    getKnowledgeDeep (mainKnowLedge) {
+      let deep = 1
+      while (mainKnowLedge.children.length > 0 && mainKnowLedge.hasChild === '1') {
+        deep++
+        mainKnowLedge = mainKnowLedge.children[0]
+      }
+      return deep
+    },
+
     getKnowledgeTree () {
       this.mainKnowledgeListLoading = true
       this.$logger.info('grade:' + this.currentGradeId + ', subjectId:' + this.currentSubSubjectId)
       KnowledgeGetTree({
         gradeId: this.currentGradeId,
-        subjectId: this.currentSubSubjectId
+        subjectId: this.hasChildSubject ? this.currentSubSubjectId : this.currentMainSubjectId
       }).then((response) => {
         this.$logger.info('KnowledgeGetTree response', response)
         this.mainKnowledgeList = response.result
+        // if (this.mainKnowledgeList.length > 0) {
+        //   this.knowledgeDeep = this.getKnowledgeDeep(this.mainKnowledgeList[0])
+        // }
+        // this.$logger.info('knowledgeDeep', this.knowledgeDeep)
         this.$logger.info('mainKnowledgeList', this.knowledgeTree)
       }).finally(() => {
         this.mainKnowledgeListLoading = false

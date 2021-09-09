@@ -309,6 +309,9 @@ export default {
       display: inline-block;
       position: relative;
       border-radius: 3px;
+      /deep/ .ant-select-selection{
+        width: 150px;
+      }
       .select-curriculum {
         position: relative;
         font-size: 14px;
