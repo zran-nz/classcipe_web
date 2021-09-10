@@ -115,7 +115,7 @@
                   :init-raw-headers="initRawHeaders"
                   :init-raw-data="initRawData"
                   mode="evaluate"
-                  @add-evidence="handleAddEvaluation"/>
+                  @add-evidence="handleAddEvidence"/>
               </div>
             </div>
             <div class="action-line">
@@ -411,10 +411,8 @@ export default {
       })
 
       // 获取班级学生
-      // TODO 写死了class_id
-      GetStudents({ class_id: '89c48832' }).then(response => {
-      // GetStudents({ class_id: this.classId }).then(response => {
-        this.$logger.info('start evaluation GetStudents', response)
+      GetStudents({ class_id: this.classId }).then(response => {
+        this.$logger.info(this.classId + ' GetStudents', response)
         this.studentList = response.data
       })
     },
@@ -841,14 +839,12 @@ export default {
       })
     },
 
-    handleAddEvaluation (data) {
-      this.$logger.info('handleAddEvaluation classId ' + this.classId, data)
+    handleAddEvidence (data) {
+      this.$logger.info('handleAddEvidence classId ' + this.classId, data)
 
-      // TODO 绑定evaluation和task中的slide
       this.currentClassId = this.classId
-      // this.slideId = '1tfhTKkxPXsgfh_9mYZUVqHQn_1up1sAOln5PHiRXmj4'
-      this.slideId = '1-oo7FBGrusK0UulTEA4OQpFo_rMWFsrq9cOEEMLNFzM'
-      this.addEvaluationVisible = true
+      this.slideId = data.presentationId
+      .this.addEvaluationVisible = true
     },
 
     handleAddEvaluationClose () {

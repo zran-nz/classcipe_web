@@ -129,6 +129,7 @@ import { GetAssociate } from '@/api/teacher'
 import { typeMap } from '@/const/teacher'
 
 import PptCommentPreview from '@/components/Teacher/PptCommentPreview'
+import { lessonHost } from '@/const/googleSlide'
 
 export default {
   name: 'ClassList',
@@ -192,12 +193,12 @@ export default {
 
     handleTeacherProjecting (item) {
       this.$logger.info('handleStartSession', item)
-      window.open(item.class_link_for_teacher, '_blank')
+      window.open(lessonHost + 't/' + item.class_id, '_blank')
     },
 
     handleDashboard (item) {
       this.$logger.info('handleDashboard', item)
-      window.open(item.dashboard_link, '_blank', 'height=700, width=1200, top=100, left= 100 toolbar=no, menubar=no, scrollbars=no, location=no, status=no')
+      window.open(lessonHost + 'd/' + item.class_id, '_blank', 'height=700, width=1200, top=100, left= 100 toolbar=no, menubar=no, scrollbars=no, location=no, status=no')
     },
 
     handleEditEvaluationRubric (item) {
@@ -283,8 +284,11 @@ export default {
     },
     handleReviewEvaluation (item) {
       this.$logger.info('handleReviewEvaluation', item, this.classData)
-      // TODO 需要关联对应的evaluation id，当前写死1431173111758254082
-      window.open('/teacher/start-evaluation/1431173111758254082/' + item.class_id, '_blank')
+      if (item.evaluationId) {
+        window.open('/teacher/start-evaluation/' + item.evaluationId + '/' + item.class_id, '_blank')
+      } else {
+        this.$message.warn('Please associate evaluation first!')
+      }
     },
     handleEnablePeerEvaluation (item) {
       this.$logger.info('handleEnablePeerEvaluation', item, this.classData)

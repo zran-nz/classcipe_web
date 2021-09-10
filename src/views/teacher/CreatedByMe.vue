@@ -534,7 +534,7 @@ export default {
           this.$logger.info('StartLesson res', res)
           if (res.code === 'ok') {
             // const targetUrl = lessonHost + 'slide_id=' + item.presentationId + '&class_id=' + res.data.class_id + '&direct=true&currentPage=0&type=dashboard'
-            const targetUrl = lessonHost + 't/' + res.data.class_id
+            const targetUrl = lessonHost + 'd/' + res.data.class_id
             this.$logger.info('try open ' + targetUrl)
             window.open(targetUrl, '_blank', 'height=700, width=1200, top=100, left= 100 toolbar=no, menubar=no, scrollbars=no, location=no, status=no')
           } else {
