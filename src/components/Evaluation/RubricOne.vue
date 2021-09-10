@@ -3,7 +3,7 @@
     <table class="rubric-table">
       <thead>
         <draggable v-model="headers" tag="tr" class="table-header" @end="handleDragEnd">
-          <th v-for="(header, hIndex) in headers" class="header-item" :key="header.type">
+          <th v-for="(header, hIndex) in headers" class="header-item" :key="header.type" v-if="header.type !== 'Evidence'">
             <div class="edit-icon" @click="handleEditHeader(header)" v-if="header.editable && mode !== 'evaluate' && mode !== 'preview'">
               <img src="~@/assets/icons/evaluation/edit.png" class="link-icon"/>
             </div>
@@ -38,7 +38,13 @@
 
       <tbody class="table-body">
         <tr v-for="(item, lIndex) in list" class="body-line" :key="lIndex">
-          <td v-for="(header, hIndex) in headers" class="body-item" :data-type="header.type" :key="lIndex + '-' + header.type" @dblclick="handleDbClickBodyItem(item, header)">
+          <td
+            v-for="(header, hIndex) in headers"
+            class="body-item"
+            v-if="header.type !== 'Evidence'"
+            :data-type="header.type"
+            :key="lIndex + '-' + header.type"
+            @dblclick="handleDbClickBodyItem(item, header)">
             <template v-if="item.hasOwnProperty(header.type)">
               <!--              Level-->
               <template v-if="header.type === 'level'">
@@ -237,6 +243,10 @@ export default {
           { label: 'Specific Indicator', previewLabel: 'Specific Indicator', type: 'indicator', editable: false, required: true }
         ]
       }
+
+      this.headers.push(
+        { label: 'Evidence', previewLabel: 'Evidence', type: 'evidence', editable: false, required: false }
+      )
     }
 
     GetMyGrades().then((response) => {

@@ -106,6 +106,20 @@
         <a-spin />
       </div>
     </div>
+
+    <a-modal
+      v-model="reviewEvaluationVisible"
+      :footer="null"
+      :title="null"
+      destroyOnClose
+      width="1300px"
+      @ok="reviewEvaluationVisible = false"
+      @cancel="reviewEvaluationVisible = false">
+      <div class="review-evaluation-wrapper" v-if="currentReviewEvaluationSessionItem">
+        <review-evaluation :class-id="currentReviewEvaluationSessionItem.class_id" :slide-id="classData.presentationId" :evaluation-id="currentReviewEvaluationSessionItem.evaluationId" />
+      </div>
+    </a-modal>
+
     <a-modal
       v-model="PPTCommentPreviewVisible"
       :footer="null"
@@ -130,10 +144,12 @@ import { typeMap } from '@/const/teacher'
 
 import PptCommentPreview from '@/components/Teacher/PptCommentPreview'
 import { lessonHost } from '@/const/googleSlide'
+import ReviewEvaluation from '@/components/Evaluation/ReviewEvaluation'
 
 export default {
   name: 'ClassList',
   components: {
+    ReviewEvaluation,
     TvSvg,
     PptCommentPreview
   },
@@ -160,6 +176,9 @@ export default {
       currentPage: 0,
       pageSize: 100,
       total: 0,
+
+      reviewEvaluationVisible: false,
+      currentReviewEvaluationSessionItem: null,
 
       // TODO 新增tag接口
       tagList: ['Content tag', 'Content tag', 'Content tag'],
@@ -285,7 +304,10 @@ export default {
     handleReviewEvaluation (item) {
       this.$logger.info('handleReviewEvaluation', item, this.classData)
       if (item.evaluationId) {
-        window.open('/teacher/start-evaluation/' + item.evaluationId + '/' + item.class_id, '_blank')
+        // window.open('/teacher/start-evaluation/' + item.evaluationId + '/' + item.class_id, '_blank')
+        // review & evaluation现在是弹出层进行操作
+        this.reviewEvaluationVisible = true
+        this.currentReviewEvaluationSessionItem = item
       } else {
         this.$message.warn('Please associate evaluation first!')
       }

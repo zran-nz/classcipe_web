@@ -1,17 +1,180 @@
 <template>
-  <div class="my-full-form-wrapper">
-    <div class="form-header">
-      <common-form-header
-        ref="commonFormHeader"
-        :form="form"
-        :last-change-saved-time="lastChangeSavedTime"
-        :show-collaborate="false"
-        @back="goBack"
-        @save="handleSaveEvaluation"
-        @publish="handlePublishEvaluation"
-      />
-    </div>
-    <start-evaluation-view :slide-id="slideId" :class-id="classId" :evaluation-id="evaluationId" />
+  <div class="start-evaluation-view">
+    <a-card :bordered="false" :bodyStyle="{ padding: '16px 24px', height: '100%', minHeight: '500px' }" :loading="contentLoading">
+      <div>
+        <div class="start-evaluation-content">
+          <div class="class-student-wrapper">
+            <div class="search-student">
+              <a-input
+                v-model="searchStudentInput"
+                class="user-search"
+                aria-placeholder="Search"
+                placeholder="Search"
+                @change="handleSearchStudent">
+                <img slot="prefix" src="~@/assets/icons/collaborate/search.png" class="search-icon" />
+              </a-input>
+            </div>
+            <div class="student-list-area">
+              <div class="class-name">
+                <div class="class-name-tag">
+                  班级tag
+                </div>
+              </div>
+              <div class="students-bar">
+                <div class="student-bar-item">
+                  All Students（{{ studentList.length }}）<a-icon type="caret-down" />
+                </div>
+              </div>
+              <div class="student-list-wrapper">
+                <div class="student-list">
+                  <div :class="{'list-item': true, 'selected-student': selectedStudentEmailList.indexOf(student.email) !== -1}" v-for="(student, sIndex) in studentList" :key="sIndex" @click="handleClickStudent(student)">
+                    <div class="student-avatar">
+                      <img :src="student.avatar" alt="" v-if="student.avatar" />
+                      <img slot="prefix" src="~@/assets/icons/evaluation/default_avatar.png" alt="" v-if="!student.avatar" />
+                    </div>
+                    <div class="student-name" :data-email="student.email">
+                      {{ student.user_name }}
+                    </div>
+                    <div class="select-status-icon" v-if="(selectedStudentEmailList.indexOf(student.email) !== -1)">
+                      <img slot="prefix" src="~@/assets/icons/evaluation/selected.png" />
+                    </div>
+                  </div>
+                </div>
+                <div class="select-mode-toggle">
+                  <a-switch v-model="groupSelectMode" @change="handleToggleSelectMode" />
+                  <div class="select-tips">
+                    Single student Group
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="student-evaluation-form">
+            <div class="evaluation-header">
+              <div class="summary">
+                <div class="summary-info">
+                  <div class="student-avatar">
+                    <img slot="prefix" src="~@/assets/icons/evaluation/touxiang_student.png" />
+                  </div>
+                  <div class="student-name">
+                    <template v-if="selectedStudentEmailList.length">
+                      {{ selectedStudentEmailList[0] }}
+                    </template>
+                    <template v-else>
+                      Student ID
+                    </template>
+                  </div>
+                  <div class="summary-input">
+                    <a-input v-model="summary" class="my-form-input" placeholder="Summary"/>
+                  </div>
+                  <div class="voice-summary" @click="handleAddAudioOverview">
+                    <img src="~@/assets/icons/evaluation/voice.png" />
+                  </div>
+                </div>
+                <div class="summary-voice" v-if="form.audioUrl">
+                  <div class="audio-wrapper">
+                    <audio :src="form.audioUrl" controls />
+                    <span @click="form.audioUrl = null"><a-icon type="delete" /></span>
+                  </div>
+                </div>
+              </div>
+              <div class="evaluation-type">
+                <div :class="{'evaluation-type-item': true, 'active-evaluation-type': activeEvaluationType === 'Student'}" @click="handleActiveEvaluationType('Student')">
+                  <img src="~@/assets/icons/evaluation/huangse@2x.png" alt="">
+                  <div class="type-name">Student evaluation</div>
+                </div>
+
+                <div :class="{'evaluation-type-item': true, 'active-evaluation-type': activeEvaluationType === 'Teacher'}" @click="handleActiveEvaluationType('Teacher')">
+                  <img src="~@/assets/icons/evaluation/lanse@2x.png" alt="">
+                  <div class="type-name">Teacher evaluation</div>
+                </div>
+
+                <div :class="{'evaluation-type-item': true, 'active-evaluation-type': activeEvaluationType === 'Peer'}" @click="handleActiveEvaluationType('Peer')">
+                  <img src="~@/assets/icons/evaluation/lvse@2x.png" alt="">
+                  <div class="type-name">Peer evaluation</div>
+                </div>
+
+              </div>
+            </div>
+            <div class="rubric-wrapper">
+              <div class="rubric-item" v-if="form.tableMode === 1 ">
+                <rubric-one
+                  ref="rubric"
+                  :description-list="evaluationTableList"
+                  :init-raw-headers="initRawHeaders"
+                  :init-raw-data="initRawData"
+                  mode="evaluate"
+                  @add-evidence="handleAddEvidence"/>
+              </div>
+            </div>
+            <div class="action-line">
+              <a-button type="primary" shape="round">Complete</a-button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <a-drawer
+        destroyOnClose
+        placement="right"
+        width="820px"
+        :closable="false"
+        :visible="addEvaluationVisible"
+        @close="handleAddEvaluationClose"
+      >
+        <div class="add-evaluation-evidence-wrapper">
+          <div class="slide-preview">
+            <ppt-slide-view :slide-id="slideId" :class-id="currentClassId" v-if="slideId" @ensure-evidence-finish="handleEnsureEvidenceFinish" @add-evidence-finish="handleAddEvidenceFinish"/>
+            <template v-if="!slideId">
+              <no-more-resources tips="no slide" />
+            </template>
+          </div>
+        </div>
+      </a-drawer>
+
+      <a-modal
+        v-model="showAddAudioVisible"
+        :footer="null"
+        destroyOnClose
+        title="Add Audio"
+        @ok="showAddAudioVisible = false"
+        @cancel="showAddAudioVisible = false">
+
+        <div class="audio-material-action">
+          <div class="uploading-mask" v-show="currentUploading">
+            <div class="uploading">
+              <a-spin large />
+            </div>
+          </div>
+          <div class="action-item">
+            <a-upload name="file" accept="audio/*" :customRequest="handleUploadAudio" :showUploadList="false">
+              <a-button type="primary" icon="upload">{{ $t('teacher.add-unit-plan.upload-audio') }}</a-button>
+            </a-upload>
+          </div>
+          <a-divider>
+            {{ $t('teacher.add-unit-plan.or') }}
+          </a-divider>
+          <div class="action-item-column">
+            <vue-record-audio mode="press" @result="handleAudioResult" />
+            <div class="action-tips">
+              {{ $t('teacher.add-unit-plan.record-your-voice') }}
+            </div>
+            <div class="audio-wrapper" v-if="audioUrl">
+              <audio :src="audioUrl" controls />
+              <span @click="audioUrl = null"><a-icon type="delete" /></span>
+            </div>
+          </div>
+          <div class="material-action" >
+            <a-button key="back" @click="handleCancelAddAudio" class="action-item">
+              Cancel
+            </a-button>
+            <a-button key="submit" type="primary" @click="handleConfirmAddAudio" class="action-item">
+              Ok
+            </a-button>
+          </div>
+        </div>
+      </a-modal>
+    </a-card>
   </div>
 </template>
 
@@ -23,6 +186,7 @@ import { typeMap } from '@/const/teacher'
 import { UpdateContentStatus, Associate, GetAssociate } from '@/api/teacher'
 import InputSearch from '@/components/UnitPlan/InputSearch'
 import { TemplatesGetTemplates } from '@/api/template'
+import { MyContentEventBus, MyContentEvent } from '@/components/MyContent/MyContentEventBus'
 import { EvaluationQueryById, EvaluationAddOrUpdate } from '@/api/evaluation'
 import { TaskQueryById } from '@/api/task'
 import { LessonQueryById } from '@/api/myLesson'
@@ -36,7 +200,7 @@ import CommonFormHeader from '@/components/Common/CommonFormHeader'
 import { GetStudents } from '@/api/lesson'
 import { commonAPIUrl } from '@/api/common'
 import PptSlideView from '@/components/Evaluation/PptSlideView'
-import StartEvaluationView from '@/components/Evaluation/StartEvaluationView'
+import NoMoreResources from '@/components/Common/NoMoreResources'
 
 const TagOriginType = {
   Origin: 'Origin',
@@ -47,9 +211,9 @@ const TagOriginType = {
 }
 
 export default {
-  name: 'StartEvaluation',
+  name: 'StartEvaluationView',
   components: {
-    StartEvaluationView,
+    NoMoreResources,
     PptSlideView,
     RubricOne,
     ContentTypeIcon,
@@ -61,15 +225,15 @@ export default {
   props: {
     evaluationId: {
       type: String,
-      default: null
+      required: true
     },
     classId: {
       type: String,
-      default: null
+      required: true
     },
-    mode: {
+    slideId: {
       type: String,
-      default: null
+      required: true
     }
   },
   data () {
@@ -134,7 +298,7 @@ export default {
       addEvaluationVisible: false,
 
       currentClassId: null,
-      slideId: null
+      currentFormRowData: null
     }
   },
   computed: {
@@ -150,7 +314,13 @@ export default {
   created () {
     logger.info('AddEvaluation created ' + this.evaluationId)
     this.form.id = this.evaluationId
+
+    // 初始化关联事件处理
+    MyContentEventBus.$on(MyContentEvent.LinkToMyContentItem, this.handleLinkMyContent)
     this.initData()
+  },
+  beforeDestroy () {
+    MyContentEventBus.$off(MyContentEvent.LinkToMyContentItem, this.handleLinkMyContent)
   },
   methods: {
     initData () {
@@ -211,24 +381,9 @@ export default {
           this.$logger.info('initRawData', initRawData)
           this.initRawData = initRawData
         }
-      }).then(() => {
-        GetAssociate({
-          id: this.evaluationId,
-          type: this.contentType.evaluation
-        }).then(response => {
-          this.$logger.info('EvaluationQueryById GetAssociate response', response)
-          const associateData = response.result
-          if (!(associateData.others.length && associateData.owner.length)) {
-            this.associateEvaluationVisible = true
-          } else {
-            this.ownerAssociateData = associateData.owner
-            this.othersAssociateData = associateData.others
-            this.$logger.info('associateData ', associateData)
-          }
-        }).finally(() => {
-          this.contentLoading = false
-          this.referenceLoading = false
-        })
+      }).finally(() => {
+        this.contentLoading = false
+        this.referenceLoading = false
       })
 
       // 获取班级学生
@@ -238,22 +393,6 @@ export default {
       })
     },
 
-    handleLinkMyContent (data) {
-      this.$logger.info('handleLinkMyContent ', data)
-      Associate({
-        fromId: this.form.id,
-        fromType: this.contentType.evaluation,
-        toId: data.item.id,
-        toType: data.item.type
-      }).then(response => {
-        this.$logger.info('handleLinkMyContent response ', response)
-        this.loadAssociate()
-        this.loadRelevantTagInfo(data.item)
-      }).finally(() => {
-        this.selectLinkContentVisible = false
-        this.associateEvaluationVisible = false
-      })
-    },
     loadAssociate () {
       GetAssociate({
         id: this.evaluationId,
@@ -361,11 +500,6 @@ export default {
         this.$logger.info('relevantQuestionList', this.relevantQuestionList)
       } else {
         this.$logger.warn('formatRelevantData data empty')
-      }
-
-      // 选择rubric
-      if (this.mode === 'create' && this.form.tableMode === 0) {
-        this.selectRubricVisible = true
       }
     },
 
@@ -662,9 +796,8 @@ export default {
 
     handleAddEvidence (data) {
       this.$logger.info('handleAddEvidence classId ' + this.classId, data)
-
       this.currentClassId = this.classId
-      this.slideId = data.presentationId
+      this.currentFormRowData = data
       this.addEvaluationVisible = true
     },
 
@@ -675,6 +808,18 @@ export default {
 
     handleAddEvidenceFinish (data) {
       this.$logger.info('handleAddEvidenceFinish', data)
+    },
+
+    handleEnsureEvidenceFinish (data) {
+      this.$logger.info('handleEnsureEvidenceFinish', data, this.currentFormRowData)
+      this.addEvaluationVisible = false
+      this.$logger.info('data.data', data.data)
+      this.$logger.info('currentFormRowData.data', this.currentFormRowData.data)
+      const newData = Object.assign({}, data.data)
+      const newRowData = Object.assign({}, this.currentFormRowData.data)
+      newRowData.evidence = newData
+      this.$logger.info('newRowData ', newRowData)
+      this.evaluationTableList.splice(this.currentFormRowData.index, 1, newRowData)
     }
   }
 }
@@ -696,8 +841,6 @@ export default {
       border-radius: 4px;
       .user-search {
         border-radius: 4px;
-        outline: none;
-        border: none;
         box-shadow: none;
       }
       .search-icon {

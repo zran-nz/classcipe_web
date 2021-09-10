@@ -6,7 +6,10 @@
           <img src="~@/assets/icons/common/back.png" />
         </div>
       </div>
-      <a-button shape="round" type="primary">Session details</a-button>
+      <a-space>
+        <a-button shape="round" type="primary" @click="handleEnsureEvidence">Ensure</a-button>
+        <a-button shape="round" type="primary">Session details</a-button>
+      </a-space>
     </div>
     <div class="slide-header">
       <div class="slide-header-item">Slide</div>
@@ -101,6 +104,10 @@ export default {
     classId: {
       type: String,
       default: null
+    },
+    selectedIdList: {
+      type: Array,
+      default: () => []
     }
   },
   data () {
@@ -113,6 +120,7 @@ export default {
   },
   created () {
     this.$logger.info('PptSlideView' + this.slideId + ' classId ' + this.classId)
+    this.selectedSlidePageIdList = this.selectedIdList
     this.loadData()
   },
   methods: {
@@ -205,6 +213,11 @@ export default {
     handleAddEvidenceClose () {
       this.$logger.info('handleAddEvidenceClose')
       this.$emit('add-evidence-finish', { data: this.selectedSlidePageIdList })
+    },
+
+    handleEnsureEvidence () {
+      this.$logger.info('handleEnsureEvidence', this.selectedSlidePageIdList)
+      this.$emit('ensure-evidence-finish', { data: this.selectedSlidePageIdList })
     }
   }
 }
