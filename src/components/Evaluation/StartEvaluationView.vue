@@ -815,7 +815,7 @@ export default {
       this.addEvaluationVisible = false
       this.$logger.info('data.data', data.data)
       this.$logger.info('currentFormRowData.data', this.currentFormRowData.data)
-      const newData = Object.assign({}, data.data)
+      const newData = data.data
       const newRowData = Object.assign({}, this.currentFormRowData.data)
       newRowData.evidence = newData
       this.$logger.info('newRowData ', newRowData)

@@ -275,11 +275,13 @@ export default {
         const existObject = this.list.find(lineItem => lineItem.description === item.description)
         if (existObject) {
           if (existObject.keywords && existObject.keywords.length) {
-            item.tagList.forEach(keyword => {
-              if (existObject.keywords.indexOf(keyword) === -1) {
-                existObject.keywords.push(keyword)
-              }
-            })
+            if (item.tagList && item.tagList.length) {
+              item.tagList.forEach(keyword => {
+                if (existObject.keywords.indexOf(keyword) === -1) {
+                  existObject.keywords.push(keyword)
+                }
+              })
+            }
           }
         } else {
           const newItem = {
@@ -292,7 +294,11 @@ export default {
               newItem[header.type] = null
             }
           })
-          this.$logger.info('add list new description', newItem)
+          if (item.evidence) {
+            newItem.evidence = item.evidence
+          }
+          // TODO fix rubric对evidence字段处理
+          this.$logger.info('add list new description', newItem, item)
           this.list.push(newItem)
         }
       })
