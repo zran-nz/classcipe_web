@@ -12,7 +12,8 @@ export const knowledgeAPIUrl = {
   KnowledgeSearch: '/classcipe/api/knowledge/search',
   KnowledgeQueryContentByDescriptionId: '/classcipe/api/knowledge/queryContentByDescriptionId',
   GetAssessmentTypeList: '/classcipe/api/knowledgeAssessmentType/getAssessmentTypeList',
-  QueryContentByAssessmentTypeId: '/classcipe/api/knowledgeAssessmentType/queryContentByAssessmentTypeId'
+  QueryContentByAssessmentTypeId: '/classcipe/api/knowledgeAssessmentType/queryContentByAssessmentTypeId',
+  QueryKnowledgesByAssessmentTypeId: '/classcipe/api/knowledgeAssessmentType/queryKnowledgesByAssessmentTypeId'
 }
 
 /**
@@ -171,6 +172,14 @@ export function GetAssessmentTypeList (parameter) {
 export function QueryContentByAssessmentTypeId (parameter) {
   return request({
     url: knowledgeAPIUrl.QueryContentByAssessmentTypeId,
+    method: 'get',
+    params: parameter
+  })
+}
+
+export function QueryKnowledgesByAssessmentTypeId (parameter) {
+  return request({
+    url: knowledgeAPIUrl.QueryKnowledgesByAssessmentTypeId,
     method: 'get',
     params: parameter
   })

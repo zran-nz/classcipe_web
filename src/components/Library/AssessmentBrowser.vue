@@ -71,6 +71,7 @@
       </div>
     </div>
 
+    <!--      assessment type list-->
     <div
       class="browser-block-item-wrapper browser-block-item"
       :style="{width: blockWidth + 'px' , minWidth: blockWidth + 'px' }">
@@ -102,6 +103,41 @@
       <template v-if="assessmentTypeListLoading">
         <div class="loading-wrapper">
           <a-spin/>
+        </div>
+      </template>
+    </div>
+
+    <!--      sub knowledge list-->
+    <div class="browser-block-item browser-block-item-wrapper" :style="{width: blockWidth + 'px' , minWidth: blockWidth + 'px' }" >
+      <div
+        :class="{
+          'browser-item': true,
+          'odd-line': index % 2 === 0,
+          'active-line': currentSubKnowledgeId === subKnowledgeItem.id
+        }"
+        v-for="(subKnowledgeItem, index) in subKnowledgeList"
+        @click="handleSelectSubKnowledgeItem(subKnowledgeItem)"
+        :key="index">
+        <a-tooltip :mouseEnterDelay="1">
+          <template slot="title">
+            {{ subKnowledgeItem.name }}
+          </template>
+          <dir-icon dir-type="opened" v-if="currentSubKnowledgeId !== subKnowledgeItem.id"/>
+          <dir-icon dir-type="yellow" v-if="currentSubKnowledgeId === subKnowledgeItem.id"/>
+          {{ subKnowledgeItem.name }}
+        </a-tooltip>
+        <span class="arrow-item">
+          <a-icon type="right" />
+        </span>
+      </div>
+      <template v-if="!subKnowledgeList.length && !subKnowledgeListLoading">
+        <div class="no-data">
+          <no-more-resources />
+        </div>
+      </template>
+      <template v-if="subKnowledgeListLoading">
+        <div class="loading-wrapper">
+          <a-spin />
         </div>
       </template>
     </div>
@@ -229,7 +265,7 @@
 
 <script>
   import ContentTypeIcon from '@/components/Teacher/ContentTypeIcon'
-  import { GetAssessmentTypeList, QueryContentByAssessmentTypeId } from '@/api/knowledge'
+  import { GetAssessmentTypeList, QueryKnowledgesByAssessmentTypeId, KnowledgeQueryContentByDescriptionId } from '@/api/knowledge'
   import DirIcon from '@/components/Library/DirIcon'
   import NoMoreResources from '@/components/Common/NoMoreResources'
   import PuBuIcon from '@/assets/icons/library/pubu .svg?inline'
@@ -283,6 +319,10 @@
         subSubjectList: [],
         subSubjectListLoading: true,
         currentSubSubjectId: null,
+
+        subKnowledgeList: [],
+        subKnowledgeListLoading: false,
+        currentSubKnowledgeId: null,
 
         dataList: [],
         dataListLoading: false,
@@ -390,22 +430,40 @@
       },
 
       queryContentByAssessment (assessmentItem) {
-        this.dataListLoading = true
+        this.subKnowledgeListLoading = true
         this.$logger.info('queryContentByAssessment ' + assessmentItem.id)
         this.handleClickBlock(3, assessmentItem.name)
         this.currentAssessmentTypeId = assessmentItem.id
-        QueryContentByAssessmentTypeId({ assessmentTypeId: assessmentItem.id }).then(response => {
+        QueryKnowledgesByAssessmentTypeId({
+          assessmentTypeId: assessmentItem.id
+        }).then(response => {
           this.$logger.info('queryContentByAssessment response', response.result)
+          this.subKnowledgeListLoading = true
+          this.subKnowledgeList = response.result
+        }).finally(() => {
+          this.subKnowledgeListLoading = false
+        })
+      },
+
+      handleSelectSubKnowledgeItem (subKnowledgeItem) {
+        this.$logger.info('handleSelectSubKnowledgeItem', subKnowledgeItem)
+        if (subKnowledgeItem.id !== this.currentSubKnowledgeId) {
+          this.currentSubKnowledgeId = subKnowledgeItem.id
+          this.dataList = []
+          this.knowledgeQueryContentByDescriptionId(this.currentSubKnowledgeId)
+        }
+        this.handleClickBlock(4, subKnowledgeItem.name)
+      },
+
+      knowledgeQueryContentByDescriptionId (descriptionId) {
+        this.dataListLoading = true
+        this.$logger.info('knowledgeQueryContentByDescriptionId ' + descriptionId)
+        KnowledgeQueryContentByDescriptionId({ descriptionId }).then(response => {
+          this.$logger.info('KnowledgeQueryContentByDescriptionId response', response.result)
           this.dataList = response.result
         }).finally(() => {
           this.dataListLoading = false
         })
-        // KnowledgeQueryContentByDescriptionId({ descriptionId: assessmentItem.knowledgeId }).then(response => {
-        //   this.$logger.info('queryContentByAssessment response', response.result)
-        //   this.dataList = response.result
-        // }).finally(() => {
-        //   this.dataListLoading = false
-        // })
       }
     }
   }
