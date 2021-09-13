@@ -160,39 +160,39 @@ export default {
         this.$logger.info('AssociateSidebar GetAssociate response', response)
         const owner = response.result.owner
         const others = response.result.others
-        const associateList = []
+        const associateList = [...owner, ...others]
 
-        owner.forEach(item => {
-          const itemType = item.type
-          const itemTypeName = item.typeName
-          item.datas.forEach(dataItem => {
-            if (dataItem.lists.length) {
-              dataItem.lists.forEach(aItem => {
-                associateList.push({
-                  itemType,
-                  itemTypeName,
-                  ...aItem
-                })
-              })
-            }
-          })
-        })
-
-        others.forEach(item => {
-          const itemType = item.type
-          const itemTypeName = item.typeName
-          item.datas.forEach(dataItem => {
-            if (dataItem.lists.length) {
-              dataItem.lists.forEach(aItem => {
-                associateList.push({
-                  itemType,
-                  itemTypeName,
-                  ...aItem
-                })
-              })
-            }
-          })
-        })
+        // owner.forEach(item => {
+        //   const itemType = item.type
+        //   const itemTypeName = item.typeName
+        //   item.datas.forEach(dataItem => {
+        //     if (dataItem.lists.length) {
+        //       dataItem.lists.forEach(aItem => {
+        //         associateList.push({
+        //           itemType,
+        //           itemTypeName,
+        //           ...aItem
+        //         })
+        //       })
+        //     }
+        //   })
+        // })
+        //
+        // others.forEach(item => {
+        //   const itemType = item.type
+        //   const itemTypeName = item.typeName
+        //   item.datas.forEach(dataItem => {
+        //     if (dataItem.lists.length) {
+        //       dataItem.lists.forEach(aItem => {
+        //         associateList.push({
+        //           itemType,
+        //           itemTypeName,
+        //           ...aItem
+        //         })
+        //       })
+        //     }
+        //   })
+        // })
 
         this.$logger.info('associateList', associateList)
         this.associateList = associateList

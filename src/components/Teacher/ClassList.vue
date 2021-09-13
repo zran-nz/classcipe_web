@@ -230,24 +230,24 @@ export default {
         }).then(response => {
           this.$logger.info('GetAssociate res', response)
           const owner = response.result.owner
-          const associateList = []
-          owner.forEach(item => {
-            const itemType = item.type
-            const itemTypeName = item.typeName
-            item.datas.forEach(dataItem => {
-              if (dataItem.lists.length) {
-                dataItem.lists.forEach(aItem => {
-                  associateList.push({
-                    itemType,
-                    itemTypeName,
-                    ...aItem
-                  })
-                })
-              }
-            })
-          })
+          const associateList = [...owner]
+          // owner.forEach(item => {
+          //   const itemType = item.type
+          //   const itemTypeName = item.typeName
+          //   item.datas.forEach(dataItem => {
+          //     if (dataItem.lists.length) {
+          //       dataItem.lists.forEach(aItem => {
+          //         associateList.push({
+          //           itemType,
+          //           itemTypeName,
+          //           ...aItem
+          //         })
+          //       })
+          //     }
+          //   })
+          // })
           this.$logger.info('associate list', associateList)
-          const evaluationItem = associateList.find(aItem => aItem.itemType === this.typeMap.evaluation)
+          const evaluationItem = associateList.find(aItem => aItem.type === this.typeMap.evaluation)
           if (evaluationItem) {
             this.$logger.info('find evaluation ', evaluationItem)
             window.open('/teacher/evaluation-redirect/' + evaluationItem.id, '_blank')
@@ -284,7 +284,7 @@ export default {
             })
           })
           this.$logger.info('associate list', associateList)
-          const evaluationItem = associateList.find(aItem => aItem.itemType === this.typeMap.evaluation)
+          const evaluationItem = associateList.find(aItem => aItem.type === this.typeMap.evaluation)
           if (evaluationItem) {
             this.$logger.info('find evaluation ', evaluationItem)
             EvaluationAddOrUpdate({ id: evaluationItem.id, selfType: 1 }).then((response) => {
@@ -338,7 +338,7 @@ export default {
             })
           })
           this.$logger.info('associate list', associateList)
-          const evaluationItem = associateList.find(aItem => aItem.itemType === this.typeMap.evaluation)
+          const evaluationItem = associateList.find(aItem => aItem.type === this.typeMap.evaluation)
           if (evaluationItem) {
             this.$logger.info('find evaluation ', evaluationItem)
             EvaluationAddOrUpdate({ id: evaluationItem.id, selfType: 2 }).then((response) => {

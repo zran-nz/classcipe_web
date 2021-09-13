@@ -52,11 +52,11 @@
                 {{ $t('menu.tasks') }}
               </router-link>
             </a-menu-item>
-            <a-menu-item>
+            <!--            <a-menu-item>
               <router-link to="/teacher/lesson-redirect">
                 {{ $t('menu.lessons') }}
               </router-link>
-            </a-menu-item>
+            </a-menu-item>-->
             <a-menu-item>
               <router-link to="/teacher/evaluation-redirect">
                 {{ $t('menu.evaluations') }}

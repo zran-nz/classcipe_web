@@ -44,89 +44,79 @@
     <a-row>
       <a-col span="24">
         <div class="associate-info">
-          <div class="associate-block-list" v-for="(item,index) in currentAssociateList" :key="index">
-            <template v-if="item.type === activeContentType">
-              <template v-if="dataListMode === 'list'">
+          <template v-if="dataListMode === 'list'">
+            <div class="associate-block-list" v-for="(item,index) in currentAssociateList" :key="index" v-if="item.type === activeContentType">
+              <div
+                class="question-item list-question-item">
                 <div
-                  class="question-item list-question-item"
-                  v-for="(dataItem, dIndex) in item.datas"
-                  v-if="item.datas.length"
-                  :key="dIndex">
-                  <div
-                    :class="{
-                      'list-item': true,
-                      'browser-item': true,
-                      'odd-line': index % 2 === 0,
-                    }"
-                    v-for="(listItem,lIndex) in dataItem.lists"
-                    :key="lIndex">
-                    <div class="item-name">
-                      <dir-icon :content-type="dataItem.type" />
-                      <span class="data-name" @click="handleClickTitle(listItem)">
-                        {{ listItem.name }}
-                      </span>
+                  :class="{
+                    'list-item': true,
+                    'browser-item': true,
+                    'odd-line': index % 2 === 0,
+                  }">
+                  <div class="item-name">
+                    <dir-icon :content-type="item.type" />
+                    <span class="data-name" @click="handleClickTitle(item)">
+                      {{ item.name }}
+                    </span>
+                  </div>
+                  <div class="arrow-item">
+                    <span class="data-time">
+                      {{ (item.updateTime || item.createTime) | dayjs }}
+                    </span>
+                    <div class="edit-item-icon" @click="handleEditItem(item.type, item)">
+                      <img src="~@/assets/icons/myContent/bianji@2x.png" />
                     </div>
-                    <div class="arrow-item">
-                      <span class="data-time">
-                        {{ (listItem.updateTime || listItem.createTime) | dayjs }}
-                      </span>
-                      <div class="edit-item-icon" @click="handleEditItem(item.type, listItem)">
+                    <div class="star-it" @click="handleFavorite(item)">
+                      <img src="~@/assets/icons/common/preview/star_gray.png" v-if="!item.isFavorite" />
+                      <img src="~@/assets/icons/common/preview/star_yellow.png" v-if="item.isFavorite" />
+                    </div>
+                    <div class="edit-it" @click="handleEditItem(item.type, item)">
+                      <a-icon type="more" />
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <!--                <div class="no-list-tips" v-if="!item.datas.length">-->
+              <!--                  <no-more-resources />-->
+              <!--                </div>-->
+            </div>
+          </template>
+          <template v-if="dataListMode === 'card'">
+            <div class="associate-block-list associate-block-list-card">
+              <div class="question-item card-question-item" v-for="(item,index) in currentAssociateList" :key="index" v-if="item.type === activeContentType">
+                <div
+                  :class="{
+                    'card-item': true,
+                    'browser-item': true,
+                    'odd-line': index % 2 === 0,
+                  }">
+                  <data-card-view :title="item.name" :created-time="item.createTime" :cover="item.image" />
+                  <div class="card-action-item">
+                    <div class="action-left">
+                      <div class="edit-item-icon" @click="handleEditItem(item.type, item)">
                         <img src="~@/assets/icons/myContent/bianji@2x.png" />
                       </div>
-                      <div class="star-it" @click="handleFavorite(listItem)">
-                        <img src="~@/assets/icons/common/preview/star_gray.png" v-if="!listItem.isFavorite" />
-                        <img src="~@/assets/icons/common/preview/star_yellow.png" v-if="listItem.isFavorite" />
+                      <div class="star-it" @click="handleFavorite(item)">
+                        <img src="~@/assets/icons/common/preview/star_gray.png" v-if="!item.isFavorite" />
+                        <img src="~@/assets/icons/common/preview/star_yellow.png" v-if="item.isFavorite" />
                       </div>
-                      <div class="edit-it" @click="handleEditItem(item.type, listItem)">
+                    </div>
+                    <div class="action-right">
+                      <div class="edit-it" @click="handleEditItem(item.type, item)">
                         <a-icon type="more" />
                       </div>
                     </div>
                   </div>
                 </div>
-                <div class="no-list-tips" v-if="!item.datas.length">
-                  <no-more-resources />
-                </div>
-              </template>
-              <template v-if="dataListMode === 'card'">
-                <div
-                  class="question-item card-question-item"
-                  v-for="(dataItem, dIndex) in item.datas"
-                  v-if="item.datas.length"
-                  :key="dIndex">
-                  <div
-                    :class="{
-                      'card-item': true,
-                      'browser-item': true,
-                      'odd-line': index % 2 === 0,
-                    }"
-                    v-for="(listItem,lIndex) in dataItem.lists"
-                    :key="lIndex">
-                    <data-card-view :title="listItem.name" :created-time="listItem.createTime" :cover="listItem.image" />
-                    <div class="card-action-item">
-                      <div class="action-left">
-                        <div class="edit-item-icon" @click="handleEditItem(item.type, listItem)">
-                          <img src="~@/assets/icons/myContent/bianji@2x.png" />
-                        </div>
-                        <div class="star-it" @click="handleFavorite(listItem)">
-                          <img src="~@/assets/icons/common/preview/star_gray.png" v-if="!listItem.isFavorite" />
-                          <img src="~@/assets/icons/common/preview/star_yellow.png" v-if="listItem.isFavorite" />
-                        </div>
-                      </div>
-                      <div class="action-right">
-                        <div class="edit-it" @click="handleEditItem(item.type, listItem)">
-                          <a-icon type="more" />
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <div class="no-list-tips" v-if="!item.datas.length">
-                  <no-more-resources />
-                </div>
-              </template>
-            </template>
-          </div>
+              </div>
+            </div>
+            <!--              <div class="no-list-tips" v-if="!item.datas.length">
+                <no-more-resources />
+              </div>-->
+          </template>
         </div>
+
       </a-col>
     </a-row>
     <a-row>
@@ -319,6 +309,7 @@ export default {
               display: flex;
               flex-direction: row;
               font-size: 14px;
+              cursor: pointer;
 
               //.mode-item:first-child {
               //  border-bottom-left-radius: 35px;
@@ -419,6 +410,10 @@ export default {
       flex-direction: row;
       flex-wrap: wrap;
       padding: 10px 0;
+      &.associate-block-list-card{
+        display: flex;
+        flex-wrap: wrap;
+      }
 
         .list-question-item {
           width: 100%;

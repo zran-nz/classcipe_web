@@ -154,22 +154,9 @@ export default {
         logger.info('loadAssociateContent GetAssociate ', response)
         const collaborateContentList = [this.mainContent]
         const owner = response.result.owner
-        owner.forEach(item => {
-          const itemType = item.type
-          const itemTypeName = item.typeName
-          item.datas.forEach(dataItem => {
-            if (dataItem.lists.length) {
-              dataItem.lists.forEach(aItem => {
-                collaborateContentList.push({
-                  itemType,
-                  itemTypeName,
-                  ...aItem
-                })
-              })
-            }
-          })
-        })
-
+        if (owner) {
+          collaborateContentList.push(...owner)
+        }
         this.collaborateContentList = collaborateContentList
 
         this.selectedViewerContentIdList = []
