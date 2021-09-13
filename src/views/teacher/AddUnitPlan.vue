@@ -27,247 +27,225 @@
           <a-card :bordered="false" :body-style="{padding: '16px'}">
             <div class="unit-plan-form-left" ref="form">
               <a-form-model :model="form" class="my-form-wrapper">
-                <div class="form-block">
-                  <div class="refer-action row-flex-right">
-                    <div class="refer-text">
-                      Refer from
-                    </div>
-                    <div class="refer-btn">
-                      <a-button class="refer" type="primary" @click="handleStartRefer">
-                        <img src="~@/assets/icons/unitplan/refer.png" class="btn-icon"/>
-                        <div class="btn-text">
-                          My Content
+                <a-steps :current="0" direction="vertical">
+                  <a-step >
+                    <template slot="description">
+                      <div class="form-block">
+                        <div class="refer-action row-flex-right">
+                          <div class="refer-text">
+                            Refer from
+                          </div>
+                          <div class="refer-btn">
+                            <a-button class="refer" type="primary" @click="handleStartRefer">
+                              <img src="~@/assets/icons/unitplan/refer.png" class="btn-icon"/>
+                              <div class="btn-text">
+                                My Content
+                              </div>
+                            </a-button>
+                          </div>
                         </div>
-                      </a-button>
-                    </div>
-                  </div>
-                </div>
-
-                <div class="form-block">
-                  <a-input v-model="form.name" placeholder="Name" class="my-form-input" />
-                </div>
-
-                <div class="form-block">
-                  <!-- image-->
-                  <a-form-model-item class="img-wrapper">
-                    <a-upload-dragger
-                      name="file"
-                      accept="image/png, image/jpeg"
-                      :showUploadList="false"
-                      :customRequest="handleUploadImage"
-                    >
-                      <div class="delete-img" @click="handleDeleteImage($event)" v-show="form.image">
-                        <a-icon type="close-circle" />
                       </div>
-                      <template v-if="uploading">
-                        <div class="upload-container">
-                          <p class="ant-upload-drag-icon">
-                            <a-icon type="cloud-upload" />
-                          </p>
-                          <p class="ant-upload-text">
-                            <a-spin />
-                            <span class="uploading-tips">{{ $t('teacher.add-unit-plan.uploading') }}</span>
-                          </p>
-                        </div>
-                      </template>
-                      <template v-if="!uploading && form && form.image">
-                        <div class="image-preview">
-                          <img :src="form.image" alt="">
-                        </div>
-                      </template>
-                      <template v-if="!uploading && form && !form.image">
-                        <div class="upload-container">
-                          <p class="ant-upload-drag-icon">
-                            <img src="~@/assets/icons/lesson/upload_icon.png" class="upload-icon" />
-                          </p>
-                          <p class="ant-upload-text">
-                            {{ $t('teacher.add-unit-plan.upload-a-picture') }}
-                          </p>
-                        </div>
-                      </template>
-                    </a-upload-dragger>
-                  </a-form-model-item>
-                </div>
 
-                <div class="form-block over-form-block" id="overview">
-                  <a-form-model-item class="task-audio-line">
-                    <a-textarea v-model="form.overview" placeholder="Overview" allow-clear />
-                    <div class="audio-wrapper" v-if="form.audioUrl">
-                      <audio :src="form.audioUrl" controls />
-                      <span @click="form.audioUrl = null"><a-icon type="delete" /></span>
-                    </div>
-                    <a-tooltip>
-                      <template slot="title">
-                        Voice input
-                      </template>
-                      <div class="task-audio" @click="handleAddAudioOverview">
-                        <img src="~@/assets/icons/lesson/microphone.png" />
+                      <div class="form-block">
+                        <a-form-item label="Course Name">
+                          <a-input v-model="form.name" placeholder="Enter Course Name" class="my-form-input" />
+                        </a-form-item>
                       </div>
-                    </a-tooltip>
-                  </a-form-model-item>
-                </div>
 
-                <div class="form-block inquiry-form-block" id="inquiry">
-                  <!--                <a-divider />-->
-                  <a-input v-model="form.inquiry" :placeholder="$store.getters.currentRole === 'teacher' ? $t('teacher.add-unit-plan.teacher-direction-of-inquiry') : $t('teacher.add-unit-plan.expert-direction-of-inquiry')" class="my-form-input" />
-                </div>
-
-                <!--            real-life-scenario-->
-                <div class="form-block ">
-                  <a-divider />
-                  <a-row>
-                    <a-col span="24">
-                      <div class="form-block-title">
-                        Choose the relevant UN sustainable development goal
+                      <div class="form-block">
+                        <!-- image-->
+                        <a-form-model-item class="img-wrapper">
+                          <a-upload-dragger
+                            name="file"
+                            accept="image/png, image/jpeg"
+                            :showUploadList="false"
+                            :customRequest="handleUploadImage"
+                          >
+                            <div class="delete-img" @click="handleDeleteImage($event)" v-show="form.image">
+                              <a-icon type="close-circle" />
+                            </div>
+                            <template v-if="uploading">
+                              <div class="upload-container">
+                                <p class="ant-upload-drag-icon">
+                                  <a-icon type="cloud-upload" />
+                                </p>
+                                <p class="ant-upload-text">
+                                  <a-spin />
+                                  <span class="uploading-tips">{{ $t('teacher.add-unit-plan.uploading') }}</span>
+                                </p>
+                              </div>
+                            </template>
+                            <template v-if="!uploading && form && form.image">
+                              <div class="image-preview">
+                                <img :src="form.image" alt="">
+                              </div>
+                            </template>
+                            <template v-if="!uploading && form && !form.image">
+                              <div class="upload-container">
+                                <p class="ant-upload-drag-icon">
+                                  <img src="~@/assets/icons/lesson/upload_icon.png" class="upload-icon" />
+                                </p>
+                                <p class="ant-upload-text">
+                                  {{ $t('teacher.add-unit-plan.upload-a-picture') }}
+                                </p>
+                              </div>
+                            </template>
+                          </a-upload-dragger>
+                        </a-form-model-item>
                       </div>
-                    </a-col>
-                  </a-row>
-                </div>
-                <!--sdg and KeyWords-->
-                <div
-                  class="sdg-content-blocks sdg-form-block"
-                  id="sdg"
-                  v-for="(scenario, sdgIndex) in form.scenarios"
-                  :key="sdgIndex">
 
-                  <!--description-->
-                  <div class="scenario-description">
-                    <div class="sdg-delete-wrapper" @click="handleDeleteSdg(sdgIndex)" v-show="form.scenarios.length > 1">
-                      <a-tooltip placement="top">
-                        <template slot="title">
-                          <span>{{ $t('teacher.add-unit-plan.delete-goal') }}</span>
-                        </template>
-                        <div class="sdg-delete">
-                          <a-icon type="delete" :style="{ fontSize: '20px' }" />
+                      <div class="form-block over-form-block" id="overview">
+                        <a-form-model-item class="task-audio-line" label="Course Overview">
+                          <a-textarea v-model="form.overview" placeholder="Overview" allow-clear />
+                          <!--        <div class="audio-wrapper" v-if="form.audioUrl">
+                            <audio :src="form.audioUrl" controls />
+                            <span @click="form.audioUrl = null"><a-icon type="delete" /></span>
+                          </div>
+                          <a-tooltip>
+                            <template slot="title">
+                              Voice input
+                            </template>
+                            <div class="task-audio" @click="handleAddAudioOverview">
+                              <img src="~@/assets/icons/lesson/microphone.png" />
+                            </div>
+                          </a-tooltip>-->
+                        </a-form-model-item>
+                      </div>
+
+                      <div class="form-block inquiry-form-block" id="inquiry">
+                        <!--                <a-divider />-->
+                        <a-input v-model="form.inquiry" :placeholder="$store.getters.currentRole === 'teacher' ? $t('teacher.add-unit-plan.teacher-direction-of-inquiry') : $t('teacher.add-unit-plan.expert-direction-of-inquiry')" class="my-form-input" />
+                      </div>
+
+                      <!--            real-life-scenario-->
+                      <div class="form-block ">
+                        <a-divider>Teach Goal</a-divider>
+                        <a-row>
+                          <a-col span="24">
+                            <div class="form-block-title">
+                              Choose the relevant UN sustainable development goal
+                            </div>
+                          </a-col>
+                        </a-row>
+                      </div>
+                      <!--sdg and KeyWords-->
+                      <div
+                        class="sdg-content-blocks sdg-form-block"
+                        id="sdg"
+                        v-for="(scenario, sdgIndex) in form.scenarios"
+                        :key="sdgIndex">
+
+                        <!--description-->
+                        <div class="scenario-description">
+                          <div class="sdg-delete-wrapper" @click="handleDeleteSdg(sdgIndex)" v-show="form.scenarios.length > 1">
+                            <a-tooltip placement="top">
+                              <template slot="title">
+                                <span>{{ $t('teacher.add-unit-plan.delete-goal') }}</span>
+                              </template>
+                              <div class="sdg-delete">
+                                <a-icon type="delete" :style="{ fontSize: '20px' }" />
+                              </div>
+                            </a-tooltip>
+                          </div>
+                          <!--sdg-->
+                          <a-form-model-item >
+                            <a-select size="large" v-model="scenario.sdgId" class="my-big-select">
+                              <a-select-option v-for="(sdg,index) in sdgList" :value="sdg.id" :key="index" :disabled="selectedSdg.indexOf(sdg.id) != -1">
+                                {{ sdg.name }}
+                              </a-select-option>
+                            </a-select>
+                          </a-form-model-item>
+
+                          <a-form-model-item>
+                            <input-search
+                              ref="descriptionInputSearch"
+                              :default-value="scenario.description"
+                              :key-index="sdgIndex"
+                              :currend-index="currentIndex"
+                              :search-list="descriptionSearchList"
+                              label="description"
+                              @search="handleDescriptionSearch"
+                              @select-item="handleSelectScenario"
+                              @reset="descriptionSearchList = []" />
+                          </a-form-model-item>
+
+                          <!--      <a-button class="browse" type="primary" @click="handleSelectDescription(sdgIndex)">
+                            <img src="~@/assets/icons/unitplan/browse.png" class="btn-icon"/>
+                            <div class="btn-text">
+                              Browse
+                            </div>
+                          </a-button>-->
                         </div>
-                      </a-tooltip>
-                    </div>
-                    <!--sdg-->
-                    <a-form-model-item >
-                      <a-select size="large" v-model="scenario.sdgId" class="my-big-select">
-                        <a-select-option v-for="(sdg,index) in sdgList" :value="sdg.id" :key="index" :disabled="selectedSdg.indexOf(sdg.id) != -1">
-                          {{ sdg.name }}
-                        </a-select-option>
-                      </a-select>
-                    </a-form-model-item>
 
-                    <a-form-model-item>
-                      <input-search
-                        ref="descriptionInputSearch"
-                        :default-value="scenario.description"
-                        :key-index="sdgIndex"
-                        :currend-index="currentIndex"
-                        :search-list="descriptionSearchList"
-                        label="description"
-                        @search="handleDescriptionSearch"
-                        @select-item="handleSelectScenario"
-                        @reset="descriptionSearchList = []" />
-                    </a-form-model-item>
+                        <!--keywords-->
+                        <!--    <a-form-model-item>
+                          <sdg-tag-input :selected-keywords="scenario.sdgKeyWords" :sdg-key="sdgIndex" @add-tag="handleAddSdgTag" @remove-tag="handleRemoveSdgTag"/>
+                        </a-form-model-item>-->
 
-                    <a-button class="browse" type="primary" @click="handleSelectDescription(sdgIndex)">
-                      <img src="~@/assets/icons/unitplan/browse.png" class="btn-icon"/>
-                      <div class="btn-text">
-                        Browse
+                        <a-button type="link" icon="plus-circle" size="large" @click="handleAddMoreSdg"></a-button>
                       </div>
-                    </a-button>
-                  </div>
 
-                  <!--keywords-->
-                  <a-form-model-item>
-                    <sdg-tag-input :selected-keywords="scenario.sdgKeyWords" :sdg-key="sdgIndex" @add-tag="handleAddSdgTag" @remove-tag="handleRemoveSdgTag"/>
-                  </a-form-model-item>
-                </div>
+                      <div class="form-block">
+                        <div class="form-input-item" v-for="(question, index) in form.questions" :key="index">
+                          <a-input
+                            v-model="question.name"
+                            class="my-form-input"
+                            :placeholder="$store.getters.currentRole === 'teacher' ? $t('teacher.add-unit-plan.teacher-nth-key-question') : $t('teacher.add-unit-plan.expert-nth-key-question')"/>
+                          <div class="delete-icon" @click="handleRemoveQuestion(index)" v-show="form.questions.length > 1">
+                            <a-icon type="delete" :style="{ fontSize: '20px' }" />
+                          </div>
+                        </div>
+                        <a-button type="link" icon="plus-circle" size="large" @click="handleAddMoreQuestion"></a-button>
+                      </div>
 
-                <div class="form-block">
-                  <!--add-new-sdg-->
-                  <a-row>
-                    <a-col span="24">
-                      <div class="form-block-title form-block-action row-flex-right">
-                        <a-button class="add-sdg-btn" @click="handleAddMoreSdg">
-                          <img src="~@/assets/icons/unitplan/add_sdg.png" class="btn-icon"/>
-                          <div class="btn-text">
-                            Choose another sustainable development goal
+                    </template>
+                  </a-step>
+                  <a-step>
+                    <template slot="description">
+                      <a-form-item label="Set Learning outcomes" >
+                        <a-button type="primary" @click="showBroswer">
+                          <div class="btn-text" style="line-height: 20px">
+                            Add Learning outcomes
                           </div>
                         </a-button>
+                      </a-form-item>
+
+                      <new-ui-clickable-knowledge-tag
+                        :question-index="questionIndex"
+                        :grade-ids="form.gradeIds"
+                        :subject-ids="form.subjectIds"
+                        :selected-knowledge-tags="questionItem.knowledgeTags"
+                        :selected-skill-tags="questionItem.skillTags"
+                        @remove-knowledge-tag="handleRemoveKnowledgeTag"
+                        @add-knowledge-tag="handleAddKnowledgeTag"
+                        @remove-skill-tag="handleRemoveSkillTag"
+                        @add-skill-tag="handleAddSkillTag"
+                      />
+                      <!--
+                      <div
+                        class="sdg-content-blocks question-item question-form-blocks"
+                        id="question"
+                        v-for="(learn, index) in form.learnOuts"
+                        :key="index">
+
+                        <div class="knowledge-delete-wrapper" @click="handleDeleteQuestion(questionItem, questionIndex)" v-show="form.learnOuts > 1">
+                          <a-tooltip placement="top">
+                            <template slot="title">
+                              <span>{{ $t('teacher.add-unit-plan.delete-questions') }}</span>
+                            </template>
+                            <div class="sdg-delete">
+                              <a-icon type="delete" :style="{ fontSize: '20px' }" />
+                            </div>
+                          </a-tooltip>
+                        </div>
+
+                      </div>-->
+                      <div class="form-block">
+                        <custom-tag ref="customTag" :selected-tags-list="form.customTags" @change-user-tags="handleChangeUserTags"></custom-tag>
                       </div>
-                    </a-col>
-                  </a-row>
-                </div>
-
-                <div class="form-block">
-                  <div class="subject-grade-wrapper">
-                    <div class="select-item">
-                      <a-select size="large" v-model="form.subjectIds" mode="multiple" placeholder="Subjects" class="subject-item">
-                        <a-select-opt-group v-for="subjectOptGroup in subjectTree" :key="subjectOptGroup.id">
-                          <span slot="label">{{ subjectOptGroup.name }}</span>
-                          <a-select-option
-                            :value="subjectOption.id"
-                            v-for="subjectOption in subjectOptGroup.children"
-                            :key="subjectOption.id">{{ subjectOption.name }}
-                          </a-select-option>
-                        </a-select-opt-group>
-                      </a-select>
-                    </div>
-                    <div class="select-item">
-                      <a-select size="large" v-model="form.gradeIds" placeholder="Grade" mode="multiple" class="grade-item">
-                        <a-select-option :value="gradeOption.id" v-for="gradeOption in gradeList" :key="gradeOption.id">
-                          {{ gradeOption.name }}
-                        </a-select-option>
-                      </a-select>
-                    </div>
-                  </div>
-                </div>
-
-                <div
-                  class="sdg-content-blocks question-item question-form-blocks"
-                  id="question"
-                  v-for="(questionItem, questionIndex) in questionDataObj"
-                  :key="questionIndex"
-                  v-if="questionItem !== null">
-
-                  <div class="knowledge-delete-wrapper" @click="handleDeleteQuestion(questionItem, questionIndex)" v-show="questionTotal > 1">
-                    <a-tooltip placement="top">
-                      <template slot="title">
-                        <span>{{ $t('teacher.add-unit-plan.delete-questions') }}</span>
-                      </template>
-                      <div class="sdg-delete">
-                        <a-icon type="delete" :style="{ fontSize: '20px' }" />
-                      </div>
-                    </a-tooltip>
-                  </div>
-
-                  <div class="form-input-item">
-                    <a-input
-                      v-model="questionItem.name"
-                      class="my-form-input"
-                      :placeholder="$store.getters.currentRole === 'teacher' ? $t('teacher.add-unit-plan.teacher-nth-key-question') : $t('teacher.add-unit-plan.expert-nth-key-question')"/>
-                  </div>
-                  <new-ui-clickable-knowledge-tag
-                    :question-index="questionIndex"
-                    :grade-ids="form.gradeIds"
-                    :subject-ids="form.subjectIds"
-                    :selected-knowledge-tags="questionItem.knowledgeTags"
-                    :selected-skill-tags="questionItem.skillTags"
-                    @remove-knowledge-tag="handleRemoveKnowledgeTag"
-                    @add-knowledge-tag="handleAddKnowledgeTag"
-                    @remove-skill-tag="handleRemoveSkillTag"
-                    @add-skill-tag="handleAddSkillTag"
-                  />
-                </div>
-                <a-row>
-                  <a-col offset="2" span="20">
-                    <div class="form-block-title form-block-action">
-                      <a-button type="link" icon="plus-circle" @click="handleAddMoreQuestion">
-                        {{ $t('teacher.add-unit-plan.add-more-question') }}
-                      </a-button>
-                    </div>
-                  </a-col>
-                </a-row>
-
-                <div class="form-block">
-                  <custom-tag ref="customTag" :selected-tags-list="form.customTags" @change-user-tags="handleChangeUserTags"></custom-tag>
-                </div>
-
+                    </template>
+                  </a-step>
+                </a-steps>
               </a-form-model>
             </div>
           </a-card>
@@ -535,24 +513,11 @@ export default {
         name: 'Untitled UnitPlan',
         status: 0,
         subjects: '',
+        learnOuts: [],
         questions: [
           {
             id: '',
-            knowledgeTags: [
-              {
-                description: '',
-                id: '',
-                name: ''
-              }
-            ],
-            name: '',
-            skillTags: [
-              {
-                description: '',
-                id: '',
-                name: ''
-              }
-            ]
+            name: ''
           }
         ],
         scenarios: {
@@ -923,20 +888,15 @@ export default {
 
     handleAddMoreQuestion () {
       const question = {
-        questionId: null,
-        visible: false,
-        name: '',
-        knowledgeMainSubjectId: '',
-        knowledgeSubSubjectId: '',
-        knowledgeGradeId: '',
-        knowledgeTags: [],
-        skillGradeId: '',
-        skillTags: []
+        id: null,
+        name: ''
       }
       logger.info('handleAddMoreQuestion ', question)
-      this.questionMaxIndex = this.questionMaxIndex + 1
-      this.questionTotal = this.questionTotal + 1
-      this.$set(this.questionDataObj, this.questionPrefix + this.questionMaxIndex, question)
+      this.form.questions.push(question)
+    },
+    handleRemoveQuestion (index) {
+      logger.info('handleRemoveQuestion ', index)
+      this.form.questions.splice(index, 1)
     },
 
     handleRemoveSkillTag (data) {
@@ -1578,7 +1538,8 @@ export default {
   .main-content {
     .image-preview {
       img {
-        max-width: 100%;
+        /*max-width: 100%;*/
+        max-height: 250px;
       }
     }
 
@@ -1631,7 +1592,7 @@ export default {
     }
 
     .sdg-content-blocks {
-      width: 800px;
+      /*width: 800px;*/
       position: relative;
       border: 1px solid #fff;
       box-sizing: border-box;
@@ -2171,5 +2132,20 @@ export default {
 }
 #inquiry{
   margin-top: -10px;
+}
+
+.delete-icon {
+  -webkit-transition: all 0.2s ease-in;
+  transition: all 0.2s ease-in;
+  position: absolute;
+  right: 10px;
+  margin-right: 30px;
+  margin-top: -40px;
+  line-height: 40px;
+  width: 40px;
+  height: 40px;
+  cursor: pointer;
+  color: @link-hover-color;
+  z-index: 100;
 }
 </style>
