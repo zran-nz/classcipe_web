@@ -105,73 +105,73 @@
       </div>
     </div>
     <!--      main knowledge list-->
-    <div class="browser-block-item" :style="{width: blockWidth + 'px' , minWidth: blockWidth + 'px' }">
+    <div class="browser-block-item knowledge" :style="{width: blockWidth + 'px' , minWidth: blockWidth + 'px' }" v-for="(knowledge, deepIndex) in knowledges" :key="deepIndex">
       <div
         :class="{
           'browser-item': true,
           'odd-line': index % 2 === 0,
-          'active-line': currentMainKnowledgeId === mainKnowledgeItem.id
+          'active-line': knowledge.currentKnowledgeId === knowledgeItem.id
         }"
-        v-for="(mainKnowledgeItem, index) in mainKnowledgeList"
-        @click="handleSelectMainKnowledgeItem(mainKnowledgeItem)"
+        v-for="(knowledgeItem, index) in knowledge.knowledgeList"
+        @click="handleSelectKnowledgeItem(knowledgeItem,deepIndex)"
         :key="index">
         <a-tooltip :mouseEnterDelay="1">
           <template slot="title">
-            {{ mainKnowledgeItem.name }}
+            {{ knowledgeItem.name }}
           </template>
-          <dir-icon dir-type="opened" v-if="currentMainKnowledgeId !== mainKnowledgeItem.id"/>
-          <dir-icon dir-type="yellow" v-if="currentMainKnowledgeId === mainKnowledgeItem.id"/>
-          {{ mainKnowledgeItem.name }}
+          <dir-icon dir-type="opened" v-if="knowledge.currentKnowledgeId !== knowledgeItem.id"/>
+          <dir-icon dir-type="yellow" v-if="knowledge.currentKnowledgeId === knowledgeItem.id"/>
+          {{ knowledgeItem.name }}
         </a-tooltip>
         <span class="arrow-item">
           <a-icon type="right" />
         </span>
       </div>
-      <template v-if="!mainKnowledgeList.length && !mainKnowledgeListLoading">
+      <template v-if="!knowledge.knowledgeList.length && !knowledge.knowledgeListLoading">
         <div class="no-data">
           <no-more-resources />
         </div>
       </template>
-      <template v-if="mainKnowledgeListLoading">
+      <template v-if="knowledge.knowledgeListLoading">
         <div class="loading-wrapper">
           <a-spin />
         </div>
       </template>
     </div>
     <!--      sub knowledge list-->
-    <div class="browser-block-item" :style="{width: blockWidth + 'px' , minWidth: blockWidth + 'px' }" >
-      <div
-        :class="{
-          'browser-item': true,
-          'odd-line': index % 2 === 0,
-          'active-line': currentSubKnowledgeId === subKnowledgeItem.id
-        }"
-        v-for="(subKnowledgeItem, index) in subKnowledgeList"
-        @click="handleSelectSubKnowledgeItem(subKnowledgeItem)"
-        :key="index">
-        <a-tooltip :mouseEnterDelay="1">
-          <template slot="title">
-            {{ subKnowledgeItem.name }}
-          </template>
-          <dir-icon dir-type="opened" v-if="currentSubKnowledgeId !== subKnowledgeItem.id"/>
-          <dir-icon dir-type="yellow" v-if="currentSubKnowledgeId === subKnowledgeItem.id"/>
-          {{ subKnowledgeItem.name }}
-        </a-tooltip>
-        <span class="arrow-item">
-          <a-icon type="right" />
-        </span>
-      </div>
-      <template v-if="!subKnowledgeList.length && !subKnowledgeListLoading">
-        <div class="no-data">
-          <no-more-resources />
-        </div>
-      </template>
-      <template v-if="subKnowledgeListLoading">
-        <div class="loading-wrapper">
-          <a-spin />
-        </div>
-      </template>
-    </div>
+    <!--    <div class="browser-block-item" :style="{width: blockWidth + 'px' , minWidth: blockWidth + 'px' }" >-->
+    <!--      <div-->
+    <!--        :class="{-->
+    <!--          'browser-item': true,-->
+    <!--          'odd-line': index % 2 === 0,-->
+    <!--          'active-line': currentSubKnowledgeId === subKnowledgeItem.id-->
+    <!--        }"-->
+    <!--        v-for="(subKnowledgeItem, index) in subKnowledgeList"-->
+    <!--        @click="handleSelectSubKnowledgeItem(subKnowledgeItem)"-->
+    <!--        :key="index">-->
+    <!--        <a-tooltip :mouseEnterDelay="1">-->
+    <!--          <template slot="title">-->
+    <!--            {{ subKnowledgeItem.name }}-->
+    <!--          </template>-->
+    <!--          <dir-icon dir-type="opened" v-if="currentSubKnowledgeId !== subKnowledgeItem.id"/>-->
+    <!--          <dir-icon dir-type="yellow" v-if="currentSubKnowledgeId === subKnowledgeItem.id"/>-->
+    <!--          {{ subKnowledgeItem.name }}-->
+    <!--        </a-tooltip>-->
+    <!--        <span class="arrow-item">-->
+    <!--          <a-icon type="right" />-->
+    <!--        </span>-->
+    <!--      </div>-->
+    <!--      <template v-if="!subKnowledgeList.length && !subKnowledgeListLoading">-->
+    <!--        <div class="no-data">-->
+    <!--          <no-more-resources />-->
+    <!--        </div>-->
+    <!--      </template>-->
+    <!--      <template v-if="subKnowledgeListLoading">-->
+    <!--        <div class="loading-wrapper">-->
+    <!--          <a-spin />-->
+    <!--        </div>-->
+    <!--      </template>-->
+    <!--    </div>-->
     <div
       class="browser-block-item-wrapper"
       :style="{width: blockWidth + 'px' ,
@@ -334,7 +334,10 @@ export default {
       gradeList: [],
       currentGradeId: null,
       gradeListLoading: false,
-
+      subjects: [],
+      knowledges: [],
+      knowledgeDeep: 1,
+      subjectDeep: 2,
       mainSubjectList: [],
       mainSubjectListLoading: true,
       currentMainSubjectId: null,
@@ -342,8 +345,6 @@ export default {
       subSubjectList: [],
       subSubjectListLoading: true,
       currentSubSubjectId: null,
-
-      knowledgeDeep: 1,
 
       mainKnowledgeList: [],
       mainKnowledgeListLoading: false,
@@ -380,9 +381,7 @@ export default {
     refreshSubjectTree () {
       this.mainSubjectList = []
       this.subSubjectList = []
-      this.mainKnowledgeList = []
-      this.subSubjectList = []
-      this.subKnowledgeList = []
+      this.knowledges = []
       this.dataList = []
       this.getSubjectTree()
     },
@@ -401,12 +400,14 @@ export default {
     handleSelectMainSubjectItem (mainSubjectItem) {
       this.subSubjectListLoading = true
       this.hasChildSubject = true
+      this.subjectDeep = 2
       this.$logger.info('handleSelectMainSubjectItem ', mainSubjectItem, this.currentMainSubjectId)
       if (mainSubjectItem.hasChild === '0') {
         this.hasChildSubject = false
         this.currentMainSubjectId = mainSubjectItem.id
         this.subSubjectList = []
         this.currentSubKnowledgeId = null
+        this.subjectDeep = 1
         return
       }
       if (mainSubjectItem.id !== this.currentMainSubjectId) {
@@ -431,26 +432,30 @@ export default {
       this.$logger.info('handleSelectGradeItem ', gradeItem)
       if (gradeItem.id !== this.currentGradeId) {
         this.currentGradeId = gradeItem.id
-        this.mainKnowledgeList = []
-        this.mainKnowledgeListLoading = true
-        this.subKnowledgeList = []
-        this.subKnowledgeListLoading = false
         this.getKnowledgeTree()
       }
       this.handleClickBlock(3, gradeItem.name)
     },
 
-    getKnowledgeDeep (mainKnowLedge) {
-      let deep = 1
-      while (mainKnowLedge.children.length > 0 && mainKnowLedge.hasChild === '1') {
-        deep++
-        mainKnowLedge = mainKnowLedge.children[0]
-      }
-      return deep
+    getKnowledgeDeep (obj, k) {
+        this.knowledgeDeep = 0
+        this.knowledgeDeep = Math.max(this.knowledgeDeep, k)
+        if (obj.children) {
+          obj.children.forEach((v) => {
+            this.getKnowledgeDeep(v, k + 1)
+          })
+        }
+      return this.knowledgeDeep
     },
 
     getKnowledgeTree () {
-      this.mainKnowledgeListLoading = true
+      this.knowledges = []
+      const knowledgeItem = {
+        knowledgeList: [],
+        knowledgeListLoading: true,
+        currentKnowledgeId: null
+      }
+      this.knowledges.push(knowledgeItem)
       this.$logger.info('grade:' + this.currentGradeId + ', subjectId:' + this.currentSubSubjectId)
       KnowledgeGetTree({
         gradeId: this.currentGradeId,
@@ -458,25 +463,44 @@ export default {
       }).then((response) => {
         this.$logger.info('KnowledgeGetTree response', response)
         this.mainKnowledgeList = response.result
-        // if (this.mainKnowledgeList.length > 0) {
-        //   this.knowledgeDeep = this.getKnowledgeDeep(this.mainKnowledgeList[0])
-        // }
-        // this.$logger.info('knowledgeDeep', this.knowledgeDeep)
+        this.knowledgeDeep = 1
+        if (this.mainKnowledgeList.length > 0) {
+          this.knowledges[0].knowledgeList = this.mainKnowledgeList
+          this.$logger.info('knowledges', this.knowledges)
+        }
         this.$logger.info('mainKnowledgeList', this.knowledgeTree)
       }).finally(() => {
-        this.mainKnowledgeListLoading = false
+        this.knowledges[0].knowledgeListLoading = false
       })
     },
 
-    handleSelectMainKnowledgeItem (knowledgeItem) {
-      this.$logger.info('handleSelectMainKnowledgeItem', knowledgeItem)
-      if (knowledgeItem.id !== this.currentMainKnowledgeId) {
-        this.currentMainKnowledgeId = knowledgeItem.id
-        this.subKnowledgeListLoading = true
-        this.subKnowledgeList = knowledgeItem.children
+    handleSelectKnowledgeItem (knowledgeItem, deepIndex) {
+      this.$logger.info('handleSelectKnowledgeItem', knowledgeItem)
+      this.knowledgeDeep = this.getKnowledgeDeep(knowledgeItem, deepIndex + 1)
+      if (deepIndex + 1 === this.knowledgeDeep) {
+        this.$logger.info('handleSelectSubKnowledgeItem', knowledgeItem)
+        if (knowledgeItem.id !== this.knowledges[deepIndex].currentKnowledgeId) {
+          this.knowledges[deepIndex].currentKnowledgeId = knowledgeItem.id
+          this.dataList = []
+          this.knowledgeQueryContentByDescriptionId(knowledgeItem.id)
+        }
+        this.handleClickBlock(this.subjectDeep + 1 + this.knowledgeDeep, knowledgeItem.name)
+        return
       }
-      this.subKnowledgeListLoading = false
-      this.handleClickBlock(4, knowledgeItem.name)
+      this.knowledges.push({
+        knowledgeList: [],
+        knowledgeListLoading: false,
+        currentKnowledgeId: null
+      })
+      const nextIndex = deepIndex + 1
+      if (knowledgeItem.id !== this.knowledges[deepIndex].currentKnowledgeId) {
+        this.knowledges[deepIndex].currentKnowledgeId = knowledgeItem.id
+        this.knowledges[nextIndex].knowledgeListLoading = true
+        this.knowledges[nextIndex].knowledgeList = knowledgeItem.children
+        this.knowledges[nextIndex].knowledgeListLoading = false
+      }
+      this.$logger.info('knowledges', this.knowledges)
+      this.handleClickBlock(this.subjectDeep + 2 + deepIndex, knowledgeItem.name)
     },
 
     handleSelectSubKnowledgeItem (subKnowledgeItem) {
