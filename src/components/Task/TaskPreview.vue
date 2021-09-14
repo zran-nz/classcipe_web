@@ -94,7 +94,7 @@
 
 <script>
 import * as logger from '@/utils/logger'
-import { TemplatesGetPageThumbnail, TemplatesGetPresentation } from '@/api/template'
+import { TemplatesGetPresentation } from '@/api/template'
 const { TaskQueryById } = require('@/api/task')
 
 export default {
@@ -156,26 +156,14 @@ export default {
       TemplatesGetPresentation({
         presentationId: this.task.presentationId
       }).then(response => {
+        this.loading = false
         this.$logger.info('task loadThumbnail response', response.result)
-        const pageObjectIds = response.result.pageObjectIds
-        if (pageObjectIds.length) {
-          pageObjectIds.forEach(id => {
-            TemplatesGetPageThumbnail({
-              pageObjectId: id,
-              presentationId: this.task.presentationId,
-              mimeType: 'SMALL'
-            }).then(response => {
-              this.imgList.push(response.result.contentUrl)
-            }).finally(() => {
-              this.$logger.info('current imgList.length ' + (this.imgList.length) + ' total:' + this.task.selectPageObjectIds.length)
-              if (this.imgList.length === pageObjectIds.length) {
-                this.loading = false
-              }
-            })
-          })
-        } else {
-          this.loading = false
-        }
+        const pageObjects = response.result.pageObjects
+        this.imgList = []
+        pageObjects.forEach(page => {
+          this.imgList.push(page.contentUrl)
+        })
+        this.$logger.info('current imgList ', this.imgList)
       })
     },
 

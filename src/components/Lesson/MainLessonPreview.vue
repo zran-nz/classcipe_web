@@ -143,7 +143,7 @@
 
 <script>
 import * as logger from '@/utils/logger'
-import { TemplatesGetPageThumbnail, TemplatesGetPresentation } from '@/api/template'
+import { TemplatesGetPresentation } from '@/api/template'
 const { LessonQueryById } = require('@/api/myLesson')
 
 export default {
@@ -210,26 +210,14 @@ export default {
         TemplatesGetPresentation({
           presentationId: this.lesson.presentationId
         }).then(response => {
+          this.imgList = []
           this.$logger.info('lesson loadThumbnail response', response.result)
-          const pageObjectIds = response.result.pageObjectIds
-          if (pageObjectIds.length) {
-            pageObjectIds.forEach(id => {
-              TemplatesGetPageThumbnail({
-                pageObjectId: id,
-                presentationId: this.lesson.presentationId,
-                mimeType: 'SMALL'
-              }).then(response => {
-                this.imgList.push(response.result.contentUrl.replace('=s200', '=s800'))
-              }).finally(() => {
-                this.$logger.info('current imgList.length ' + (this.imgList.length) + ' total:' + this.lesson.selectPageObjectIds.length)
-                if (this.imgList.length === pageObjectIds.length) {
-                  this.slideLoading = false
-                }
-              })
-            })
-          } else {
+          const pageObjects = response.result.pageObjects
+          pageObjects.forEach(page => {
+            this.imgList.push(page.contentUrl)
             this.slideLoading = false
-          }
+          })
+          this.$logger.info('current imgList ', this.imgList)
         })
       } else {
         this.slideLoading = false

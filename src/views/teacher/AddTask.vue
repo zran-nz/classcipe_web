@@ -13,9 +13,10 @@
     </div>
     <a-card :bordered="false" :bodyStyle="{ padding: '16px 24px', height: '100%', minHeight: '500px' }">
       <template v-if="mode === 'edit'">
-        <a-row class="unit-content" v-if="!contentLoading">
+        <a-row class="unit-content" v-if="!contentLoading" >
           <a-col span="4">
             <associate-sidebar
+              v-if="mode === 'edit'"
               :name="form.name"
               :type="contentType.task"
               :id="taskId"
@@ -28,152 +29,199 @@
             <a-card :bordered="false" :body-style="{padding: '16px'}">
               <a-form-model :model="form" class="my-form-wrapper">
                 <div class="form-block">
-                  <div class="form-block">
-                    <div class="header-action">
-                      <div class="header-action-item">
-                        <a-button @click="handleEditGoogleSlide" :style="{'display': 'flex', 'align-items': 'center', 'justify-content': 'center', 'padding': '20px 15px', 'border-radius': '5px'}" type="primary" >
-                          <img src="~@/assets/icons/lesson/path.png" class="btn-icon"/>
-                          <div class="btn-text">
-                            Edit my lesson in google slide
-                          </div>
-                        </a-button>
-                      </div>
-                      <div class="header-action-item" v-if="$store.getters.currentRole === 'teacher'">
-                        <a-button @click="handleStartSessionTags" :style="{'display': 'flex', 'align-items': 'center', 'justify-content': 'center', 'padding': '20px 15px', 'border-radius': '5px'}" type="primary" >
-                          <img src="~@/assets/icons/lesson/startLesson.png" class="btn-icon"/>
-                          <div class="btn-text">
-                            Start a session
-                          </div>
-                        </a-button>
-                      </div>
+                  <div class="header-action">
+                    <div class="header-action-item">
+                      <a-button @click="handleEditGoogleSlide" :style="{'display': 'flex', 'align-items': 'center', 'justify-content': 'center', 'padding': '20px 15px', 'border-radius': '5px'}" type="primary" >
+                        <img src="~@/assets/icons/task/path.png" class="btn-icon"/>
+                        <div class="btn-text">
+                          Edit my task in google slide
+                        </div>
+                      </a-button>
+                    </div>
+                    <div class="header-action-item">
+                      <a-button @click="handleStartSessionTags" :style="{'display': 'flex', 'align-items': 'center', 'justify-content': 'center', 'padding': '20px 15px', 'border-radius': '5px'}" type="primary" >
+                        <img src="~@/assets/icons/task/startTask.png" class="btn-icon"/>
+                        <div class="btn-text">
+                          Start a session
+                        </div>
+                      </a-button>
+                    </div>
 
-                      <div class="header-action-item" v-if="$store.getters.currentRole === 'teacher'">
-                        <a-button @click="handleStartSession('dash')" :style="{'display': 'flex', 'align-items': 'center', 'justify-content': 'center', 'padding': '20px 15px', 'border-radius': '5px'}" type="primary" >
-                          <img src="~@/assets/icons/lesson/startLesson.png" class="btn-icon"/>
-                          <div class="btn-text">
-                            Start a dash
-                          </div>
-                        </a-button>
-                      </div>
+                    <div class="header-action-item">
+                      <a-button @click="handleStartSession('dash')" :style="{'display': 'flex', 'align-items': 'center', 'justify-content': 'center', 'padding': '20px 15px', 'border-radius': '5px'}" type="primary" >
+                        <img src="~@/assets/icons/task/startTask.png" class="btn-icon"/>
+                        <div class="btn-text">
+                          Start a dash
+                        </div>
+                      </a-button>
                     </div>
                   </div>
-                  <div class="form-block">
-                    <a-input v-model="form.name" class="my-form-input" placeholder="Name"/>
+                </div>
+                <div class="form-block">
+                  <a-input v-model="form.name" class="my-form-input" placeholder="Name"/>
+                </div>
+                <div class="form-block">
+                  <div class="self-type-wrapper">
+                    <div class="self-field-label">
+                      <div :class="{'task-type-item': true, 'green-active-task-type': form.taskType === 'FA'}" @click="handleSelectTaskType('FA')">FA</div>
+                      <div :class="{'task-type-item': true, 'red-active-task-type': form.taskType === 'SA'}" @click="handleSelectTaskType('SA')">SA</div>
+                    </div>
+                    <div class="self-type-filter">
+                      <a-select class="my-big-select" size="large" v-model="form.bloomCategories" placeholder="Choose the Bloom Taxonomy Categories" :allowClear="true" >
+                        <a-select-option :value="item.value" v-for="(item, index) in initBlooms" :key="index" >
+                          {{ item.title }}
+                        </a-select-option>
+                      </a-select>
+                    </div>
                   </div>
-                  <div class="form-block">
-                    <div class="self-type-wrapper">
-                      <div class="self-field-label">
-                        <div :class="{'lesson-type-item': true, 'green-active-task-type': form.taskType === 'FA'}" @click="handleSelectTaskType('FA')">FA</div>
-                        <div :class="{'lesson-type-item': true, 'red-active-task-type': form.taskType === 'SA'}" @click="handleSelectTaskType('SA')">SA</div>
+                </div>
+
+                <a-form-model-item class="img-wrapper">
+                  <a-upload-dragger
+                    name="file"
+                    accept="image/png, image/jpeg"
+                    :showUploadList="false"
+                    :customRequest="handleUploadImage"
+                  >
+                    <div class="delete-img" @click="handleDeleteImage($event)" v-show="form.image">
+                      <a-icon type="close-circle" />
+                    </div>
+                    <template v-if="uploading">
+                      <div class="upload-container">
+                        <p class="ant-upload-drag-icon">
+                          <a-icon type="cloud-upload" />
+                        </p>
+                        <p class="ant-upload-text">
+                          <a-spin />
+                          <span class="uploading-tips">{{ $t('teacher.add-unit-plan.uploading') }}</span>
+                        </p>
                       </div>
-                      <div class="self-type-filter">
-                        <a-select class="my-big-select" size="large" v-model="form.bloomCategories" placeholder="Choose the Bloom Taxonomy Categories" :allowClear="true" >
-                          <a-select-option :value="item.value" v-for="(item, index) in initBlooms" :key="index" >
-                            {{ item.title }}
+                    </template>
+                    <template v-if="!uploading && form && form.image">
+                      <div class="image-preview">
+                        <img :src="form.image" alt="">
+                      </div>
+                    </template>
+                    <template v-if="!uploading && form && !form.image">
+                      <div class="upload-container">
+                        <p class="ant-upload-drag-icon">
+                          <img src="~@/assets/icons/task/upload_icon.png" class="upload-icon" />
+                        </p>
+                        <p class="ant-upload-text">
+                          {{ $t('teacher.add-unit-plan.upload-a-picture') }}
+                        </p>
+                      </div>
+                    </template>
+                  </a-upload-dragger>
+                </a-form-model-item>
+
+                <a-form-model-item class="task-audio-line">
+                  <a-textarea v-model="form.overview" allow-clear placeholder="Overview"/>
+                  <div class="audio-wrapper" v-if="form.audioUrl">
+                    <audio :src="form.audioUrl" controls />
+                    <span @click="form.audioUrl = null"><a-icon type="delete" /></span>
+                  </div>
+                  <div class="task-audio" @click="handleAddAudioOverview">
+                    <img src="~@/assets/icons/task/microphone.png" />
+                  </div>
+                </a-form-model-item>
+
+                <div class="form-block">
+                  <div class="subject-grade-wrapper">
+                    <div class="select-item">
+                      <a-select size="large" v-model="form.subjectIds" mode="multiple" placeholder="Subjects" class="subject-item">
+                        <a-select-opt-group v-for="subjectOptGroup in subjectTree" :key="subjectOptGroup.id">
+                          <span slot="label">{{ subjectOptGroup.name }}</span>
+                          <a-select-option
+                            :value="subjectOption.id"
+                            v-for="subjectOption in subjectOptGroup.children"
+                            :key="subjectOption.id">{{ subjectOption.name }}
                           </a-select-option>
-                        </a-select>
-                      </div>
+                        </a-select-opt-group>
+                      </a-select>
                     </div>
-                  </div>
-
-                  <a-form-model-item class="img-wrapper">
-                    <a-upload-dragger
-                      name="file"
-                      accept="image/png, image/jpeg"
-                      :showUploadList="false"
-                      :customRequest="handleUploadImage"
-                    >
-                      <div class="delete-img" @click="handleDeleteImage($event)" v-show="form.image">
-                        <a-icon type="close-circle" />
-                      </div>
-                      <template v-if="uploading">
-                        <div class="upload-container">
-                          <p class="ant-upload-drag-icon">
-                            <a-icon type="cloud-upload" />
-                          </p>
-                          <p class="ant-upload-text">
-                            <a-spin />
-                            <span class="uploading-tips">{{ $t('teacher.add-unit-plan.uploading') }}</span>
-                          </p>
-                        </div>
-                      </template>
-                      <template v-if="!uploading && form && form.image">
-                        <div class="image-preview">
-                          <img :src="form.image" alt="">
-                        </div>
-                      </template>
-                      <template v-if="!uploading && form && !form.image">
-                        <div class="upload-container">
-                          <p class="ant-upload-drag-icon">
-                            <img src="~@/assets/icons/lesson/upload_icon.png" class="upload-icon" />
-                          </p>
-                          <p class="ant-upload-text">
-                            {{ $t('teacher.add-unit-plan.upload-a-picture') }}
-                          </p>
-                        </div>
-                      </template>
-                    </a-upload-dragger>
-                  </a-form-model-item>
-
-                  <a-form-model-item class="task-audio-line">
-                    <a-textarea v-model="form.overview" allow-clear placeholder="Overview"/>
-                    <div class="audio-wrapper" v-if="form.audioUrl">
-                      <audio :src="form.audioUrl" controls />
-                      <span @click="form.audioUrl = null"><a-icon type="delete" /></span>
-                    </div>
-                    <div class="task-audio" @click="handleAddAudioOverview">
-                      <img src="~@/assets/icons/lesson/microphone.png" />
-                    </div>
-                  </a-form-model-item>
-
-                  <div class="form-block">
-                    <div class="subject-grade-wrapper">
-                      <div class="select-item">
-                        <a-select size="large" v-model="form.subjectIds" mode="multiple" placeholder="Subjects" class="subject-item">
-                          <a-select-opt-group v-for="subjectOptGroup in subjectTree" :key="subjectOptGroup.id">
-                            <span slot="label">{{ subjectOptGroup.name }}</span>
-                            <a-select-option
-                              :value="subjectOption.id"
-                              v-for="subjectOption in subjectOptGroup.children"
-                              :key="subjectOption.id">{{ subjectOption.name }}
-                            </a-select-option>
-                          </a-select-opt-group>
-                        </a-select>
-                      </div>
-                      <div class="select-item">
-                        <a-select size="large" v-model="form.gradeIds" placeholder="Grade" mode="multiple" class="grade-item">
-                          <a-select-option :value="gradeOption.id" v-for="gradeOption in gradeList" :key="gradeOption.id">
-                            {{ gradeOption.name }}
-                          </a-select-option>
-                        </a-select>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div class="form-block">
-                    <div class="content-blocks question-item">
-                      <new-ui-clickable-knowledge-tag
-                        :question-index="questionPrefix"
-                        :selected-knowledge-tags="form.suggestingTag.knowledgeTags"
-                        :selected-skill-tags="form.suggestingTag.skillTags"
-                        @remove-knowledge-tag="handleRemoveKnowledgeTag"
-                        @add-knowledge-tag="handleAddKnowledgeTag"
-                        @remove-skill-tag="handleRemoveSkillTag"
-                        @add-skill-tag="handleAddSkillTag"
-                      />
+                    <div class="select-item">
+                      <a-select size="large" v-model="form.gradeIds" placeholder="Grade" mode="multiple" class="grade-item">
+                        <a-select-option :value="gradeOption.id" v-for="gradeOption in gradeList" :key="gradeOption.id">
+                          {{ gradeOption.name }}
+                        </a-select-option>
+                      </a-select>
                     </div>
                   </div>
                 </div>
 
                 <div class="form-block">
-                  <custom-tag v-if="mode === 'edit'" ref="customTag" :selected-tags-list="form.customTags" @change-user-tags="handleChangeUserTags"></custom-tag>
+                  <div class="content-blocks question-item">
+                    <new-ui-clickable-knowledge-tag
+                      :question-index="questionPrefix"
+                      :selected-knowledge-tags="form.suggestingTag.knowledgeTags"
+                      :selected-skill-tags="form.suggestingTag.skillTags"
+                      @remove-knowledge-tag="handleRemoveKnowledgeTag"
+                      @add-knowledge-tag="handleAddKnowledgeTag"
+                      @remove-skill-tag="handleRemoveSkillTag"
+                      @add-skill-tag="handleAddSkillTag"
+                    />
+                  </div>
+                </div>
+
+                <div class="form-block">
+                  <custom-tag ref="customTag" :selected-tags-list="form.customTags" @change-user-tags="handleChangeUserTags"></custom-tag>
                 </div>
               </a-form-model>
             </a-card>
           </a-col>
         </a-row>
       </template>
+      <template v-if="mode === 'pick-task-slide'">
+
+        <div class="pick-task-slide-wrapper">
+          <div class="slide-form-block" v-show="form.presentationId">
+            <div class="preview-list" v-if="!thumbnailListLoading">
+              <div :class="{'preview-item-cover': true, 'preview-item-cover-active': selectedPageIdList.indexOf(item.id) !== -1}" :style="{backgroundImage: 'url(' + item.contentUrl + ')'}" v-for="(item,index) in thumbnailList" :key="index" @click="handleToggleThumbnail(item)">
+                <div class="template-select-icon" v-if="selectedPageIdList.indexOf(item.id) !== -1">
+                  <img src="~@/assets/icons/task/selected.png"/>
+                </div>
+              </div>
+            </div>
+            <div class="thumbnail-loading" v-if="thumbnailListLoading">
+              <a-spin size="large" />
+            </div>
+            <div class="thumbnail-task-list">
+              <div class="thumbnail-task-item" v-if="selectedPageIdList.length > 0">
+                <task-form :select-ids="selectedPageIdList" :task-id="taskId" :task-prefix="'task_' + taskIndex + '_'" @finish-task="handleFinishTask" />
+              </div>
+              <div class="task-preview-list">
+                <div class="task-preview" v-for="(task, index) in subTasks" :key="index">
+                  <task-preview :task-id="task.id" />
+                  <!--                  <div class="task-delete" @click="handleTaskDelete(task)">-->
+                  <!--                    <a-icon type="delete" />-->
+                  <!--                  </div>-->
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </template>
       <collaborate-content ref="collaborate"/>
+      <a-modal
+        v-model="selectAddContentTypeVisible"
+        :footer="null"
+        destroyOnClose
+        title="Select Content Type"
+        @ok="selectAddContentTypeVisible = false"
+        @cancel="selectAddContentTypeVisible = false">
+        <div class="add-content-wrapper">
+          <div class="add-content-item" @click="handleAddTaskEvaluation">
+            <a >
+              <content-type-icon :type="contentType.evaluation"/>
+              {{ $t('teacher.add-unit-plan.evaluation') }}
+            </a>
+          </div>
+          <div class="add-loading" v-if="addLoading">
+            <a-spin />
+          </div>
+        </div>
+      </a-modal>
       <a-modal
         v-model="selectLinkContentVisible"
         :footer="null"
@@ -183,8 +231,7 @@
         @ok="selectLinkContentVisible = false"
         @cancel="selectLinkContentVisible = false">
         <div class="link-content-wrapper">
-          <my-content-selector v-if="$store.getters.currentRole === 'expert'" :filter-type-list="['topic']" />
-          <my-content-selector v-else :filter-type-list="['unit-plan']" />
+          <my-content-selector :filter-type-list="['unit-plan']" />
         </div>
       </a-modal>
 
@@ -208,71 +255,93 @@
       </a-modal>
 
       <a-modal
-        v-model="selectTemplateVisible"
+        v-model="selectedMyContentVisible"
         :footer="null"
+        :title="null"
         destroyOnClose
-        title="Teaching Templates"
-        width="1100px"
-        @ok="selectTemplateVisible = false"
-        @cancel="selectTemplateVisible = false">
-        <div class="select-template-wrapper">
-          <div class="template-select-header">
-            <div class="header-title">
-              <div class="header-title-text">
-                You can choose template(s) to start with or create task from scratch
-              </div>
-            </div>
-            <div class="filter-wrapper">
-              <div class="first-filter-line">
-                <div class="task-type">
-                  <div :class="{'task-type-item': true, 'green-active-task-type': currentFasa === 'FA'}" @click="handleToggleTemplateType('currentFasa','FA')">FA</div>
-                  <div :class="{'task-type-item': true, 'red-active-task-type': currentFasa === 'SA'}" @click="handleToggleTemplateType('currentFasa','SA')">SA</div>
+        width="80%"
+        :closable="true"
+        @ok="selectedMyContentVisible = false">
+        <a-tabs class="template-tabs">
+          <a-tab-pane key="1" tab="Teaching Templates">
+            <div class="select-template-wrapper">
+              <div class="template-select-header">
+                <div class="header-title">
+                  <div class="header-title-text">
+                    Teaching Templates
+                  </div>
                 </div>
-                <div class="template-type-list">
-                  <div v-for="(item, index) in initTemplates" :key="index" :class="{'template-type-item': true, 'active-template-type' : currentTemplateType === item.value}" @click="handleToggleTemplateType('currentTemplateType',item.value)">
-                    {{ item.title }}
-                    <img src="~@/assets/icons/lesson/active_green.png" v-if=" currentTemplateType === item.value"/>
+                <div class="filter-wrapper">
+                  <div class="first-filter-line">
+                    <div class="task-type">
+                      <div :class="{'task-type-item': true, 'green-active-task-type': currentFasa === 'FA'}" @click="handleToggleTemplateType('currentFasa','FA')">FA</div>
+                      <div :class="{'task-type-item': true, 'red-active-task-type': currentFasa === 'SA'}" @click="handleToggleTemplateType('currentFasa','SA')">SA</div>
+                    </div>
+                    <div class="template-type-list">
+                      <div v-for="(item, index) in initTemplates" :key="index" :class="{'template-type-item': true, 'active-template-type' : currentTemplateType === item.value}" @click="handleToggleTemplateType('currentTemplateType',item.value)">
+                        {{ item.title }}
+                        <img src="~@/assets/icons/task/active_green.png" v-if=" currentTemplateType === item.value"/>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="second-filter-line">
+                    <div class="template-type-list">
+                      <div v-for="(item, index) in initBlooms" :key="index" :class="{'template-type-item': true, 'sub-active-template-type' : currentBloomCategory === item.value}" @click="handleToggleTemplateType('currentBloomCategory',item.value)">
+                        {{ item.title }}
+                        <img src="~@/assets/icons/task/active_red.png" v-if=" currentBloomCategory === item.value"/>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
-              <div class="second-filter-line">
-                <div class="template-type-list">
-                  <div v-for="(item, index) in initBlooms" :key="index" :class="{'template-type-item': true, 'sub-active-template-type' : currentBloomCategory === item.value}" @click="handleToggleTemplateType('currentBloomCategory',item.value)">
-                    {{ item.title }}
-                    <img src="~@/assets/icons/lesson/active_red.png" v-if=" currentBloomCategory === item.value"/>
+              <div class="template-list-wrapper">
+                <div class="template-list" v-if="!templateLoading">
+                  <div :class="{'template-item': true, 'template-item-active': template.id && selectedTemplateIdList.indexOf(template.id) !== -1 }" v-for="(template,index) in templateList" :key="index" @click="handleSelectTemplate(template)">
+                    <div class="template-cover" :style="{backgroundImage: 'url(' + template.cover + ')'}">
+                    </div>
+                    <div class="template-info">
+                      <div class="template-name">{{ template.name }}</div>
+                      <div class="template-intro">{{ template.introduce }}</div>
+                    </div>
+                    <div class="template-select-icon" v-if="template.id && selectedTemplateIdList.indexOf(template.id) !== -1">
+                      <img src="~@/assets/icons/task/selected.png" v-if="template.id && selectedTemplateIdList.indexOf(template.id) !== -1 "/>
+                    </div>
                   </div>
                 </div>
-              </div>
-            </div>
-          </div>
-          <div class="template-list-wrapper">
-            <div class="template-list" v-if="!templateLoading">
-              <div :class="{'template-item': true, 'template-item-active': template.id && selectedTemplateIdList.indexOf(template.id) !== -1 }" v-for="(template,index) in templateList" :key="index" @click="handleSelectTemplate(template)">
-                <div class="template-cover" :style="{backgroundImage: 'url(' + template.cover + ')'}">
+                <div class="no-template" v-if="!templateLoading && templateList.length === 0">
+                  <a-empty />
                 </div>
-                <div class="template-info">
-                  <div class="template-name">{{ template.name }}</div>
-                  <div class="template-intro">{{ template.introduce }}</div>
-                </div>
-                <div class="template-select-icon" v-if="template.id && selectedTemplateIdList.indexOf(template.id) !== -1">
-                  <img src="~@/assets/icons/lesson/selected.png" v-if="template.id && selectedTemplateIdList.indexOf(template.id) !== -1 "/>
+                <div class="template-loading" v-if="templateLoading">
+                  <a-spin />
                 </div>
               </div>
+              <div class="template-action">
+                <div class="create-loading" v-if="creating">
+                  <a-spin />
+                </div>
+                <a-button @click="handleAddTemplate" :style="{'display': 'flex', 'align-items': 'center', 'justify-content': 'center', 'padding': '10px'}" shape="round" type="primary" :loading="creating">
+                  <img src="~@/assets/icons/task/path.png" class="btn-icon"/>
+                  <div class="btn-text">
+                    Create the task in google slide
+                  </div>
+                </a-button>
+              </div>
             </div>
-            <div class="no-template" v-if="!templateLoading && templateList.length === 0">
-              <a-empty />
+          </a-tab-pane>
+          <a-tab-pane key="2" tab="My content">
+            <div class="link-content-wrapper">
+              <my-content-selector
+                :filter-type-list="['task']"
+                :selected-list="selectedMyContentKeyList"
+                mode="select"
+              />
             </div>
-            <div class="template-loading" v-if="templateLoading">
-              <a-spin />
+            <div class="action-line">
+              <!--              <a-button @click="handleCancelSelectedMyContent" class="button-item">Cancel</a-button>-->
+              <a-button @click="handleConfirmSelectedMyContent" type="primary" class="button-item" :loading="creating">Confirm</a-button>
             </div>
-          </div>
-          <div class="template-action">
-            <div class="create-loading" v-if="creating">
-              <a-spin />
-            </div>
-            <a-button @click="handleAddTemplate" shape="round" type="primary" :loading="creating">Create the task in google slide</a-button>
-          </div>
-        </div>
+          </a-tab-pane>
+        </a-tabs>
       </a-modal>
 
       <a-modal
@@ -281,7 +350,7 @@
         destroyOnClose
         top="50px"
         width="50%"
-        title="Select learning outcomes from relevant Unit / Topic"
+        title="Select from the relevant Unit"
         @ok="showRelevantQuestionVisible = false"
         @cancel="showRelevantQuestionVisible = false">
         <div class="select-relevant-tag">
@@ -333,8 +402,72 @@
       </a-modal>
 
       <a-modal
+        v-model="showCreateChoice"
+        @ok="handleShowCreateChoice"
+        @cancel="showCreateChoice = false"
+        destroyOnClose>
+        <div class="evaluation-modal">
+          <div class="evaluation-header">
+            <div class="my-modal-header">
+              <div class="my-modal-icon">
+                <img src="~@/assets/icons/evaluation/evaluation_icon.png" alt="rubric">
+              </div>
+              <div class="my-modal-title">
+                Create Task
+              </div>
+            </div>
+          </div>
+          <div class="associate-evaluation">
+            <div class="tips-area">
+              <img src="@/assets/icons/evaluation/Collaboration-Develope-Website@2x.png" alt="">
+            </div>
+            <div class="tips">
+              Create task by using my content or template ?
+            </div>
+          </div>
+        </div>
+      </a-modal>
+
+      <a-modal
+        class="my-slide-pick-modal"
+        v-model="selectedSlideVisible"
+        :footer="null"
+        :title="null"
+        destroyOnClose
+        width="700px"
+        :closable="false">
+        <div class="select-slide-wrapper">
+          <modal-header @close="selectedSlideVisible = false" :white="true"/>
+          <div class="modal-title">
+            Great news!
+          </div>
+          <div class="main-tips">
+            <div class="left-img">
+              <img src="~@/assets/icons/task/woniu.png" />
+            </div>
+            <div class="right-img-text">
+              <img src="~@/assets/icons/task/quote.png" />
+              <div class="img-text">
+                Pick slides to create a brilliant task and use it in your future tasks or share with global educators
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="slide-action row-flex-center">
+          <div class="slide-btn-wrapper">
+            <a-button @click="handleCancelPickTaskSlide" style="background: #D7D9D9;border: 1px solid #D7D9D9;border-radius: 25px;color: #000;" class="slide-btn-item slide-btn-item-no " type="primary">
+              Not this time
+            </a-button>
+            <a-button @click="handleAddTaskWithSlide" style="background: #15C39A;;border: 1px solid #15C39A;border-radius: 25px;color: #fff;" class="slide-btn-item slide-btn-item-yes" type="primary">
+              Pick now
+            </a-button>
+          </div>
+        </div>
+      </a-modal>
+
+      <a-modal
         title="Add session tags"
-        v-model="lessonSelectTagVisible"
+        v-model="taskSelectTagVisible"
         :maskClosable="false"
         :closable="true"
         destroyOnClose
@@ -343,33 +476,13 @@
           <custom-tag :custom-tags-list="['ATL','Inquiry stage']" :selected-tags-list="sessionTags" @change-user-tags="handleSelectedSessionTags" />
         </div>
         <template slot="footer">
-          <a-button key="back" @click="lessonSelectTagVisible=false">
+          <a-button key="back" @click="taskSelectTagVisible=false">
             Cancel
           </a-button>
           <a-button key="submit" type="primary" :loading="startLoading" @click="handleStartSession()">
             Start
           </a-button>
         </template>
-      </a-modal>
-
-      <a-modal
-        v-model="selectAddContentTypeVisible"
-        :footer="null"
-        destroyOnClose
-        title="Select Content Type"
-        @ok="selectAddContentTypeVisible = false"
-        @cancel="selectAddContentTypeVisible = false">
-        <div class="add-content-wrapper">
-          <div class="add-content-item" @click="handleAddTaskEvaluation">
-            <a >
-              <content-type-icon :type="contentType.evaluation"/>
-              {{ $t('teacher.add-unit-plan.evaluation') }}
-            </a>
-          </div>
-          <div class="add-loading" v-if="addLoading">
-            <a-spin />
-          </div>
-        </div>
       </a-modal>
 
       <a-skeleton :loading="contentLoading" active>
@@ -379,1957 +492,2138 @@
 </template>
 
 <script>
-import * as logger from '@/utils/logger'
-import ContentTypeIcon from '@/components/Teacher/ContentTypeIcon'
-import { typeMap } from '@/const/teacher'
-import { UpdateContentStatus, GetMyGrades, Associate, SaveSessonTags } from '@/api/teacher'
-import InputSearch from '@/components/UnitPlan/InputSearch'
-import SdgTagInput from '@/components/UnitPlan/SdgTagInput'
-import SkillTag from '@/components/UnitPlan/SkillTag'
-import { TemplatesGetTemplates } from '@/api/template'
-import { MyContentEventBus, MyContentEvent } from '@/components/MyContent/MyContentEventBus'
-import { TaskCreateTaskPPT, TaskQueryById, TaskAddOrUpdate } from '@/api/task'
-import { UnitPlanQueryById } from '@/api/unitPlan'
-import { TopicQueryById } from '@/api/topic'
-import { formatLocalUTC } from '@/utils/util'
-import MyContentSelector from '@/components/MyContent/MyContentSelector'
-import RelevantTagSelector from '@/components/UnitPlan/RelevantTagSelector'
-import { TemplateTypeMap } from '@/const/template'
-import { commonAPIUrl, GetDictItems } from '@/api/common'
-import AssociateSidebar from '@/components/Associate/AssociateSidebar'
-import CustomTag from '@/components/UnitPlan/CustomTag'
-import NewUiClickableKnowledgeTag from '@/components/UnitPlan/NewUiClickableKnowledgeTag'
-import { lessonHost, lessonStatus } from '@/const/googleSlide'
-import { StartLesson } from '@/api/lesson'
-import CollaborateContent from '@/components/Collaborate/CollaborateContent'
-import { DICT_TEMPLATE, DICT_BLOOM_CATEGORY, TagOriginType } from '@/const/common'
-import { SubjectTree } from '@/api/subject'
-import { formatSubjectTree } from '@/utils/bizUtil'
-import CommonFormHeader from '@/components/Common/CommonFormHeader'
-import { EvaluationAddOrUpdate } from '@/api/evaluation'
+  import * as logger from '@/utils/logger'
+  import ContentTypeIcon from '@/components/Teacher/ContentTypeIcon'
+  import { typeMap } from '@/const/teacher'
+  import { UpdateContentStatus, GetMyGrades, Associate, SaveSessonTags } from '@/api/teacher'
+  import InputSearch from '@/components/UnitPlan/InputSearch'
+  import SdgTagInput from '@/components/UnitPlan/SdgTagInput'
+  import SkillTag from '@/components/UnitPlan/SkillTag'
+  import { TemplatesGetTemplates, TemplatesGetPresentation } from '@/api/template'
+  import { MyContentEventBus, MyContentEvent } from '@/components/MyContent/MyContentEventBus'
+  import { TaskCreateTaskPPT, TaskQueryById, TaskAddOrUpdate } from '@/api/task'
+  import { UnitPlanQueryById } from '@/api/unitPlan'
+  import { formatLocalUTC } from '@/utils/util'
+  import { commonAPIUrl, GetDictItems } from '@/api/common'
+  import MyContentSelector from '@/components/MyContent/MyContentSelector'
+  import RelevantTagSelector from '@/components/UnitPlan/RelevantTagSelector'
+  import { TemplateTypeMap } from '@/const/template'
+  import TaskForm from '@/components/Task/TaskForm'
+  import TaskPreview from '@/components/Task/TaskPreview'
+  import Collaborate from '@/components/UnitPlan/Collaborate'
+  import AssociateSidebar from '@/components/Associate/AssociateSidebar'
+  import CustomTag from '@/components/UnitPlan/CustomTag'
+  import NewUiClickableKnowledgeTag from '@/components/UnitPlan/NewUiClickableKnowledgeTag'
+  import { lessonHost, lessonStatus } from '@/const/googleSlide'
+  import { StartLesson } from '@/api/lesson'
+  import CollaborateContent from '@/components/Collaborate/CollaborateContent'
+  import { DICT_BLOOM_CATEGORY, DICT_TEMPLATE } from '@/const/common'
+  import { SubjectTree } from '@/api/subject'
+  import { formatSubjectTree } from '@/utils/bizUtil'
+  import ModalHeader from '@/components/Common/ModalHeader'
+  import CommonFormHeader from '@/components/Common/CommonFormHeader'
+  import { EvaluationAddOrUpdate } from '@/api/evaluation'
 
-export default {
-  name: 'AddTask',
-  components: {
-    CommonFormHeader,
-    ContentTypeIcon,
-    InputSearch,
-    SdgTagInput,
-    NewUiClickableKnowledgeTag,
-    SkillTag,
-    MyContentSelector,
-    RelevantTagSelector,
-    AssociateSidebar,
-    CollaborateContent,
-    CustomTag
-  },
-  props: {
-    // eslint-disable-next-line vue/require-default-prop
-    taskId: null
-  },
-  data () {
-    return {
-      mode: 'create',
-      contentLoading: true,
-      referenceLoading: false,
-      contentType: typeMap,
-      templateTypeMap: TemplateTypeMap,
+  const TagOriginType = {
+    Origin: 'Origin',
+    Search: 'Search',
+    Description: 'Description',
+    Create: 'Create',
+    Extension: 'Extension'
+  }
 
-      creating: false,
+  export default {
+    name: 'AddTask',
+    components: {
+      CommonFormHeader,
+      ModalHeader,
+      TaskPreview,
+      TaskForm,
+      ContentTypeIcon,
+      InputSearch,
+      SdgTagInput,
+      NewUiClickableKnowledgeTag,
+      SkillTag,
+      MyContentSelector,
+      RelevantTagSelector,
+      Collaborate,
+      AssociateSidebar,
+      CollaborateContent,
+      CustomTag
+    },
+    props: {
+      taskId: {
+        type: String,
+        default: null
+      }
+    },
+    data () {
+      return {
+        mode: 'edit',
+        contentLoading: true,
+        referenceLoading: false,
+        contentType: typeMap,
+        templateTypeMap: TemplateTypeMap,
 
-      leftAddExpandStatus: false,
-      selectLinkContentVisible: false,
-      viewInGoogleSlideVisible: false,
-      selectTemplateVisible: false,
-      showAddAudioVisible: false,
+        creating: false,
 
-      labelCol: { span: 4 },
-      wrapperCol: { span: 18 },
+        leftAddExpandStatus: false,
+        selectLinkContentVisible: false,
+        viewInGoogleSlideVisible: false,
+        selectTemplateVisible: false,
+        showAddAudioVisible: false,
 
-      presentationLink: null,
-      form: {
-        id: null,
-        image: '',
-        lessonId: '',
-        audioUrl: '',
-        name: 'Untitled Task',
-        overview: '',
-        presentationId: '',
-        suggestingTag: [],
-        status: 0,
-        taskType: '',
-        createTime: '',
-        updateTime: '',
-        customTags: [],
-        subjectIds: [],
-        gradeIds: [],
-        bloomCategories: ''
-      },
-      // Grades
-      gradeList: [],
-      // SubjectTree
-      subjectTree: [],
-
-      // 将questions转成对象
-      questionTotal: 0,
-      questionMaxIndex: 0,
-      questionPrefix: '__question_',
-      questionDataObj: {
-        __question_0: {
-          questionId: null,
-          visible: false,
-          name: '',
-          knowledgeMainSubjectId: '',
-          knowledgeSubSubjectId: '',
-          knowledgeGradeId: '',
+        presentationLink: null,
+        suggestingTag: {
           knowledgeTags: [],
-          skillGradeId: '',
           skillTags: []
-        }
-      },
-      suggestingTag: {
-        knowledgeTags: [],
-        skillTags: []
-      },
-
-      currentTemplateType: '',
-      currentBloomCategory: '',
-      currentFasa: '',
-      templateList: [],
-      templateLoading: false,
-      selectedTemplateList: [],
-
-      // 待选择的unit plan中的描述标签
-      relevantQuestionList: [],
-      showRelevantQuestionVisible: false,
-      relevantSelectedQuestionList: [],
-      relevantSelectedSource: {},
-      isAssociateBindIn: false,
-
-      extKnowledgeTagList: [],
-      extSkillTagList: [],
-
-      subKnowledgeId2InfoMap: new Map(),
-      descriptionId2InfoMap: new Map(),
-      audioUrl: null,
-      currentUploading: false,
-      saving: false,
-      publishing: false,
-      initTemplates: [],
-      initBlooms: [],
-      uploading: false,
-      lessonSelectTagVisible: false,
-      sessionTags: [],
-      startLoading: false,
-      addLoading: false,
-      selectAddContentTypeVisible: false
-    }
-  },
-  computed: {
-    lastChangeSavedTime () {
-      const time = this.form.updateTime || this.form.createTime
-      if (time) {
-        return formatLocalUTC(this.form.updateTime || this.form.createTime)
-      } else {
-        return ''
-      }
-    },
-    selectedTemplateIdList () {
-      const list = []
-      this.selectedTemplateList.forEach(item => {
-        list.push(item.id)
-      })
-      return list
-    }
-  },
-  created () {
-    logger.info('add task created ' + this.taskId + ' ' + this.$route.path)
-    this.mode = this.taskId ? 'edit' : 'create'
-
-    // 初始化关联事件处理
-    MyContentEventBus.$on(MyContentEvent.LinkToMyContentItem, this.handleLinkMyContent)
-    this.initData()
-  },
-  beforeDestroy () {
-    MyContentEventBus.$off(MyContentEvent.LinkToMyContentItem, this.handleLinkMyContent)
-    // logger.debug('beforeDestroy, try save!')
-    // this.handleSaveTask()
-  },
-  methods: {
-    initData () {
-      logger.info('initData doing...')
-      Promise.all([
-        GetMyGrades(),
-        TemplatesGetTemplates({ category: this.currentTemplateType }),
-        SubjectTree({ curriculumId: this.$store.getters.bindCurriculum })
-      ]).then((response) => {
-        this.$logger.info('add task initData done', response)
-
-        // GetMyGrades
-        if (!response[0].code) {
-          this.$logger.info('GetMyGrades', response[0].result)
-          this.gradeList = response[0].result
-        }
-
-        if (!response[1].code) {
-          this.$logger.info('template list', response[1].result)
-          this.templateList = response[1].result
-        }
-
+        },
+        // 将questions转成对象
+        // 将questions转成对象
+        questionTotal: 0,
+        questionMaxIndex: 0,
+        questionPrefix: '__question_',
+        questionDataObj: {
+          __question_0: {
+            questionId: null,
+            visible: false,
+            name: '',
+            knowledgeMainSubjectId: '',
+            knowledgeSubSubjectId: '',
+            knowledgeGradeId: '',
+            knowledgeTags: [],
+            skillGradeId: '',
+            skillTags: []
+          }
+        },
+        form: {
+          id: null,
+          image: '',
+          presentationId: '',
+          name: 'Untitled Task',
+          overview: '',
+          tasks: [],
+          status: 0,
+          taskType: '',
+          createTime: '',
+          updateTime: '',
+          customTags: [],
+          subjectIds: [],
+          gradeIds: [],
+          bloomCategories: ''
+        },
+        // Grades
+        gradeList: [],
         // SubjectTree
-        if (!response[2].code) {
-          logger.info('SubjectTree', response[2].result)
-          let subjectTree = response[2].result
-          subjectTree = formatSubjectTree(subjectTree)
-          this.subjectTree = subjectTree
-          logger.info('after format subjectTree', subjectTree)
-        }
-      }).then(() => {
-        if (this.taskId) {
-          this.$logger.info('restore task data ' + this.taskId)
-          this.restoreTask(this.taskId, true)
-        } else {
-          this.contentLoading = false
-        }
-      }).catch((e) => {
-        this.$logger.error(e)
-        this.$message.error(this.$t('teacher.add-task.init-data-failed'))
-      }).finally(() => {
-        this.referenceLoading = false
-      })
+        subjectTree: [],
 
-      GetDictItems(DICT_TEMPLATE).then(response => {
-        if (response.success) {
-          logger.info('DICT_TEMPLATE', response.result)
-          this.initTemplates = response.result
-        }
-      })
-      GetDictItems(DICT_BLOOM_CATEGORY).then(response => {
-        if (response.success) {
-          logger.info('DICT_BLOOM_CATEGORY', response.result)
-          this.initBlooms = response.result
-        }
-      })
-    },
+        currentTemplateType: TemplateTypeMap['visible-thinking-tool'],
+        currentBloomCategory: '',
+        currentFasa: '',
+        templateList: [],
+        templateLoading: false,
+        selectedTemplateList: [],
 
-    restoreTask (taskId, isFirstLoad) {
-      if (isFirstLoad) {
-        this.contentLoading = true
+        // 待选择的unit plan中的描述标签
+        relevantQuestionList: [],
+        showRelevantQuestionVisible: false,
+        relevantSelectedQuestionList: [],
+        relevantSelectedUnitPlan: {},
+
+        extKnowledgeTagList: [],
+        extSkillTagList: [],
+
+        subKnowledgeId2InfoMap: new Map(),
+        descriptionId2InfoMap: new Map(),
+
+        currentUploading: false,
+        audioUrl: null,
+
+        selectedTaskIdList: [],
+        selectedMyContentVisible: false,
+        selectedMyContentKeyList: [],
+        selectedMyContentList: [],
+        selectedMyContentInfoMap: new Map(),
+        showChoseSelectTemplateVisible: false,
+
+        showCreateChoice: false,
+
+        pageObjectIds: [],
+        thumbnailList: [],
+        selectedPageIdList: [],
+        subTasks: [],
+
+        thumbnailListLoading: false,
+
+        taskIndex: 0,
+        taskSaving: false,
+        publishing: false,
+        initTemplates: [],
+        initBlooms: [],
+        uploading: false,
+        selectedSlideVisible: false,
+        taskSelectTagVisible: false,
+        sessionTags: [],
+        startLoading: false,
+        addLoading: false,
+        selectAddContentTypeVisible: false
       }
-      logger.info('restoreTask ' + taskId)
-      TaskQueryById({
-        id: taskId
-      }).then(response => {
-        logger.info('TaskQueryById ' + taskId, response.result)
-        const taskData = response.result
-        this.form = taskData
-        if (!this.form.suggestingTag) {
-          this.form.suggestingTag = {
-            'knowledgeTags': [],
-            'skillTags': []
-          }
-        }
-        this.suggestingTag = this.form.suggestingTag
-        this.form.bloomCategories = this.form.bloomCategories ? this.form.bloomCategories : undefined // 为了展示placeholder
-        // 未绑定成功ppt
-        if (!this.form.presentationId) {
-          this.handleShowSelectTemplate()
-          return
-        }
-        // plan添加task未绑定tag的情况
-        if (this.form.associateId && this.form.associateStatus === 0) {
-          this.loadRelevantTagInfoBindIn({ id: this.form.associateId, type: this.form.associateType })
-        }
-      }).finally(() => {
-        this.contentLoading = false
-      })
     },
-
-    handleLinkMyContent (data) {
-      this.$logger.info('handleLinkMyContent ', data)
-      this.selectLinkContentVisible = false
-      if (data.item.type === this.contentType['unit-plan'] || data.item.type === this.contentType['topic']) {
-        this.loadRelevantTagInfoBindIn(data.item)
-      } else {
-        Associate({
-          fromId: this.form.id,
-          fromType: this.contentType.task,
-          toId: data.item.id,
-          toType: data.item.type
-        }).then(response => {
-          this.$logger.info('handleLinkMyContent response ', response)
-          this.$refs.associate.loadAssociateData()
+    computed: {
+      lastChangeSavedTime () {
+        const time = this.form.updateTime || this.form.createTime
+        if (time) {
+          return formatLocalUTC(this.form.updateTime || this.form.createTime)
+        } else {
+          return ''
+        }
+      },
+      selectedTemplateIdList () {
+        const list = []
+        this.selectedTemplateList.forEach(item => {
+          list.push(item.id)
         })
+
+        return list
       }
     },
+    created () {
+      logger.info('add task created ' + this.taskId + ' ' + this.$route.path)
 
-    loadRelevantTagInfoToOther (item) {
-      this.$logger.info('loadRelevantTagInfoBindIn', item)
-      this.showRelevantQuestionVisible = false
-      this.isAssociateBindIn = false
-      this.relevantSelectedSource = item
-      const relevantQuery = new Promise((resolve, reject) => {
-        if (item.type === this.contentType['unit-plan']) {
-          UnitPlanQueryById({ id: item.id }).then(response => {
-            resolve(response)
-          })
-        }
-        if (item.type === this.contentType.topic) {
-          TopicQueryById({ id: item.id }).then(response => {
-            resolve(response)
-          })
-        }
-      })
-      Promise.all([relevantQuery]).then(response => {
-        this.$logger.info('loadRelevantTagInfoBindIn QueryById ' + item.id, response[0])
-        const unitPlanData = response[0].result
-        const that = this
-        if (unitPlanData.questions && unitPlanData.questions.length) {
-          const questionList = unitPlanData.questions
-          const questionMap = new Map()
-          const relevantTagList = []
-          questionList.forEach(questionItem => {
-            if (questionItem.id && !questionMap.has(questionItem.id)) {
-              // 处理knowledge tags
-              const knowledgeTagMap = new Map()
-              const knowledgeTagList = []
-              questionItem.knowledgeTags.forEach(item => {
-                if (!!item.subKnowledgeId && item.curriculumId === this.$store.getters.bindCurriculum) {
-                  if (!knowledgeTagMap.has(item.subKnowledgeId)) {
-                    knowledgeTagMap.set(item.subKnowledgeId, [])
-                    this.subKnowledgeId2InfoMap.set(item.subKnowledgeId, {
-                      ...item
-                    })
-                  }
-
-                  const tagList = knowledgeTagMap.get(item.subKnowledgeId)
-                  tagList.push({
-                    ...item,
-                    type: TagOriginType.Origin
-                  })
-                  knowledgeTagMap.set(item.subKnowledgeId, tagList)
-                }
-              })
-              for (const [id, tagList] of knowledgeTagMap) {
-                knowledgeTagList.push({
-                  id: tagList[0].id,
-                  tagList,
-                  info: this.subKnowledgeId2InfoMap.get(id)
-                })
-              }
-
-              // 处理skill tags
-              const skillTagMap = new Map()
-              const skillTagList = []
-              questionItem.skillTags.forEach(item => {
-                if (!!item.descriptionId && item.curriculumId === this.$store.getters.bindCurriculum) {
-                  if (!skillTagMap.has(item.descriptionId)) {
-                    skillTagMap.set(item.descriptionId, [])
-                    this.descriptionId2InfoMap.set(item.descriptionId, {
-                      ...item
-                    })
-                  }
-
-                  const tagList = skillTagMap.get(item.descriptionId)
-                  tagList.push({
-                    ...item,
-                    type: TagOriginType.Origin
-                  })
-                  skillTagMap.set(item.descriptionId, tagList)
-                }
-              })
-              for (const [id, tagList] of skillTagMap) {
-                skillTagList.push({
-                  id: tagList[0].id,
-                  tagList,
-                  info: this.descriptionId2InfoMap.get(id)
-                })
-              }
-
-              relevantTagList.push({
-                questionName: questionItem.name,
-                questionId: questionItem.id,
-                skillTagList,
-                knowledgeTagList
-              })
-            }
-          })
-          questionMap.clear()
-          this.relevantQuestionList = relevantTagList
-          this.showRelevantQuestionVisible = true
-          this.$logger.info('relevantQuestionList', this.relevantQuestionList)
-        } else {
-          if (unitPlanData.questions.length === 0) {
-            this.$confirm({
-              title: item.name,
-              content: 'Please add questions and tags before linking',
-              onOk: function () {
-                that.$router.push({
-                  path: (item.type === that.contentType['unit-plan'] ? '/teacher/unit-plan-redirect/' : '/expert/topic-redirect/') + item.id
-                })
-              }
-            })
-            return
-          }
-          this.$logger.info('no relevantQuestionList')
-        }
-      })
+      // 初始化关联事件处理
+      MyContentEventBus.$on(MyContentEvent.LinkToMyContentItem, this.handleLinkMyContent)
+      MyContentEventBus.$on(MyContentEvent.ToggleSelectContentItem, this.handleToggleSelectContentItem)
+      this.initData()
     },
-    loadRelevantTagInfoBindIn (item) {
-      this.$logger.info('loadRelevantTagInfoBindIn', item)
-      this.showRelevantQuestionVisible = false
-      this.isAssociateBindIn = true
-      this.relevantSelectedSource = item
-      this.relevantSelectedSource = item
-      const relevantQuery = new Promise((resolve, reject) => {
+    beforeDestroy () {
+      MyContentEventBus.$off(MyContentEvent.LinkToMyContentItem, this.handleLinkMyContent)
+      MyContentEventBus.$off(MyContentEvent.ToggleSelectContentItem, this.handleToggleSelectContentItem)
+      // logger.debug('beforeDestroy, try save!')
+      // this.handleSaveTask()
+    },
+    methods: {
+      initData () {
+        logger.info('initData doing...')
+        Promise.all([
+          GetMyGrades(),
+          TemplatesGetTemplates({ category: this.currentTemplateType }),
+          SubjectTree({ curriculumId: this.$store.getters.bindCurriculum })
+        ]).then((response) => {
+          this.$logger.info('add task initData done', response)
+
+          // GetMyGrades
+          if (!response[0].code) {
+            this.$logger.info('GetMyGrades', response[0].result)
+            this.gradeList = response[0].result
+          }
+
+          if (!response[1].code) {
+            this.$logger.info('template list', response[1].result)
+            this.templateList = response[1].result
+          }
+
+          // SubjectTree
+          if (!response[2].code) {
+            logger.info('SubjectTree', response[2].result)
+            let subjectTree = response[2].result
+            subjectTree = formatSubjectTree(subjectTree)
+            this.subjectTree = subjectTree
+            logger.info('after format subjectTree', subjectTree)
+          }
+        }).then(() => {
+          if (this.taskId) {
+            this.$logger.info('restore task data ' + this.taskId)
+            this.restoreTask(this.taskId, true)
+          } else {
+            this.contentLoading = false
+          }
+        }).catch((e) => {
+          this.$logger.error(e)
+          this.$message.error(this.$t('teacher.add-task.init-data-failed'))
+        }).finally(() => {
+          this.referenceLoading = false
+        })
+
+        GetDictItems(DICT_TEMPLATE).then(response => {
+          if (response.success) {
+            logger.info('DICT_TEMPLATE', response.result)
+            this.initTemplates = response.result
+          }
+        })
+        GetDictItems(DICT_BLOOM_CATEGORY).then(response => {
+          if (response.success) {
+            logger.info('DICT_BLOOM_CATEGORY', response.result)
+            this.initBlooms = response.result
+          }
+        })
+      },
+
+      restoreTask (taskId, isFirstLoad) {
+        if (isFirstLoad) {
+          this.contentLoading = true
+        }
+        logger.info('restoreTask ' + taskId)
+        TaskQueryById({
+          id: taskId
+        }).then(response => {
+          logger.info('TaskQueryById ' + taskId, response.result)
+          const taskData = response.result
+          this.form = taskData
+          this.form.bloomCategories = this.form.bloomCategories ? this.form.bloomCategories : undefined // 为了展示placeholder
+          if (!this.form.suggestingTag) {
+            this.form.suggestingTag = {
+              'knowledgeTags': [],
+              'skillTags': []
+            }
+          }
+          this.suggestingTag = this.form.suggestingTag
+
+          if (!this.form.presentationId) {
+            // 未成功绑定ppt
+            this.handleShowSelectMyContent()
+          }
+        }).finally(() => {
+          this.contentLoading = false
+        })
+      },
+
+      handleLinkMyContent (data) {
+        this.$logger.info('handleLinkMyContent ', data)
+        this.selectLinkContentVisible = false
+        // link到unit plan必须全question
+        this.loadRelevantTagInfo(data.item)
+      },
+
+      handleToggleSelectContentItem (data) {
+        this.$logger.info('handleToggleSelectContentItem', data)
+        const key = data.type + '-' + data.id
+        const index = this.selectedMyContentKeyList.indexOf(key)
+        if (index !== -1) {
+          this.selectedMyContentKeyList.splice(index, 1)
+        } else {
+          this.selectedMyContentKeyList.push(key)
+        }
+        this.selectedMyContentInfoMap.set(key, data)
+      },
+
+      loadRelevantTagInfo (item) {
+        this.$logger.info('loadRelevantTagInfo', item)
+        this.showRelevantQuestionVisible = false
+        this.relevantSelectedUnitPlan = item
         if (item.type === this.contentType['unit-plan']) {
           UnitPlanQueryById({ id: item.id }).then(response => {
-            resolve(response)
-          })
-        }
-        if (item.type === this.contentType.topic) {
-          TopicQueryById({ id: item.id }).then(response => {
-            resolve(response)
-          })
-        }
-      })
-      Promise.all([relevantQuery]).then(response => {
-          this.$logger.info('loadRelevantTagInfoBindIn QueryById ' + item.id, response[0])
-          const unitPlanData = response[0].result
-          const that = this
-          if (unitPlanData.questions && unitPlanData.questions.length) {
-            const questionList = unitPlanData.questions
-            const questionMap = new Map()
-            const relevantTagList = []
-            questionList.forEach(questionItem => {
-              if (questionItem.id && !questionMap.has(questionItem.id)) {
-                // 处理knowledge tags
-                const knowledgeTagMap = new Map()
-                const knowledgeTagList = []
-                questionItem.knowledgeTags.forEach(item => {
-                  if (!!item.subKnowledgeId && item.curriculumId === this.$store.getters.bindCurriculum) {
-                    if (!knowledgeTagMap.has(item.subKnowledgeId)) {
-                      knowledgeTagMap.set(item.subKnowledgeId, [])
-                      this.subKnowledgeId2InfoMap.set(item.subKnowledgeId, {
-                        ...item
-                      })
-                    }
-
-                    const tagList = knowledgeTagMap.get(item.subKnowledgeId)
-                    tagList.push({
-                      ...item,
-                      type: TagOriginType.Origin
-                    })
-                    knowledgeTagMap.set(item.subKnowledgeId, tagList)
-                  }
-                })
-                for (const [id, tagList] of knowledgeTagMap) {
-                  knowledgeTagList.push({
-                    id: tagList[0].id,
-                    tagList,
-                    info: this.subKnowledgeId2InfoMap.get(id)
-                  })
-                }
-
-                // 处理skill tags
-                const skillTagMap = new Map()
-                const skillTagList = []
-                questionItem.skillTags.forEach(item => {
-                  if (!!item.descriptionId && item.curriculumId === this.$store.getters.bindCurriculum) {
-                    if (!skillTagMap.has(item.descriptionId)) {
-                      skillTagMap.set(item.descriptionId, [])
-                      this.descriptionId2InfoMap.set(item.descriptionId, {
-                        ...item
-                      })
-                    }
-
-                    const tagList = skillTagMap.get(item.descriptionId)
-                    tagList.push({
-                      ...item,
-                      type: TagOriginType.Origin
-                    })
-                    skillTagMap.set(item.descriptionId, tagList)
-                  }
-                })
-                for (const [id, tagList] of skillTagMap) {
-                  skillTagList.push({
-                    id: tagList[0].id,
-                    tagList,
-                    info: this.descriptionId2InfoMap.get(id)
-                  })
-                }
-
-                relevantTagList.push({
-                  questionName: questionItem.name,
-                  questionId: questionItem.id,
-                  skillTagList,
-                  knowledgeTagList
-                })
-              }
-            })
-            questionMap.clear()
-            this.relevantQuestionList = relevantTagList
-            this.showRelevantQuestionVisible = true
-            this.$logger.info('relevantQuestionList', this.relevantQuestionList)
-          } else {
+            this.$logger.info('loadRelevantTagInfo UnitPlanQueryById ' + item.id, response)
+            const unitPlanData = response.result
+            const that = this.$router
+            if (unitPlanData.questions.length === 0) {
               this.$confirm({
                 title: item.name,
-                content: 'Please add questions and tags before linking',
+                content: 'Please add plan questions and tags before linking',
                 onOk: function () {
-                  that.$router.push({
-                    path: (item.type === that.contentType['unit-plan'] ? '/teacher/unit-plan-redirect/' : '/expert/topic-redirect/') + item.id
+                  that.push({
+                    path: '/teacher/unit-plan-redirect/' + item.id
                   })
                 }
               })
-            this.$logger.info('no relevantQuestionList')
-          }
-        })
-    },
-    handleRemoveKnowledgeTag (data) {
-      logger.info('Unit Plan handleRemoveKnowledgeTag', data)
-      logger.info('target question data', this.questionDataObj[data.questionIndex.knowledgeTags])
-      this.suggestingTag.knowledgeTags = this.suggestingTag.knowledgeTags.filter(item => item.id !== data.id)
-      logger.info('Unit Plan after handleRemoveKnowledgeTag ', this.suggestingTag.knowledgeTags)
-    },
-
-    handleAddKnowledgeTag (data) {
-      logger.info('Unit Plan handleAddKnowledgeTag', data)
-      const newTag = {
-        description: data.description,
-        name: data.name,
-        gradeId: data.gradeId,
-        mainSubjectId: data.mainSubjectId,
-        subSubjectId: data.subSubjectId,
-        mainKnowledgeId: data.mainKnowledgeId,
-        subKnowledgeId: data.subKnowledgeId,
-        origin: 'suggesting'
-      }
-      this.suggestingTag.knowledgeTags.push(newTag)
-    },
-
-    handleRemoveSkillTag (data) {
-      logger.info('Unit Plan handleRemoveSkillTag', data)
-      this.suggestingTag.skillTags = this.suggestingTag.skillTags.filter(item => item.id !== data.id)
-      logger.info('Unit Plan after handleRemoveSkillTag ', this.suggestingTag.skillTags)
-    },
-
-    handleAddSkillTag (data) {
-      this.suggestingTag.skillTags.push(Object.assign({}, data))
-      this.$logger.info('after handleAddSkillTag skillTags ', this.suggestingTag.skillTags)
-    },
-
-    handleSaveTask () {
-      logger.info('handleSaveTask', this.form, this.questionDataObj)
-
-      const taskData = Object.assign({}, this.form)
-
-      if (this.taskId) {
-        taskData.id = this.taskId
-      }
-      taskData.suggestingTag = this.suggestingTag
-      logger.info('basic taskData', taskData)
-
-      logger.info('question taskData', taskData)
-      TaskAddOrUpdate(taskData).then((response) => {
-        logger.info('TaskAddOrUpdate', response.result)
-        if (response.success) {
-          this.restoreTask(response.result.id, false)
-          // this.$message.success(this.$t('teacher.add-task.save-success'))
-        } else {
-          this.$message.error(response.message)
-        }
-      }).finally(() => {
-        this.$refs.commonFormHeader.saving = false
-      })
-    },
-    handlePublishTask () {
-      logger.info('handlePublishTask', {
-        id: this.taskId,
-        status: 1
-      })
-
-      this.publishing = true
-      UpdateContentStatus({
-        id: this.taskId,
-        status: 1,
-        type: this.contentType.task
-      }).then(response => {
-        this.$logger.info('UpdateContentStatus response', response)
-        // this.$message.success('Publish success')
-        this.form.status = 1
-      }).then(() => {
-        this.$message.success(this.$t('teacher.add-task.publish-success'))
-        this.form.status = 1
-        this.$refs.commonFormHeader.publishing = false
-      })
-    },
-
-    handleSelectTaskType (type) {
-      this.$logger.info('handleSelectTaskType ' + type)
-      this.form.taskType = type
-    },
-
-    goBack () {
-      if (window.history.length <= 1) {
-        this.$router.push({ path: '/teacher/main/created-by-me' })
-        return false
-      } else {
-        this.$router.go(-1)
-      }
-
-      // setTimeout(() => {
-      //   this.$router.push({ path: '/teacher/main/created-by-me' })
-      // }, 500)
-    },
-
-    handleToggleTemplateType (key, value) {
-      this.$logger.info('handleToggleTemplateType ' + key + ' ' + value)
-      this.templateLoading = true
-      if (key === 'currentTemplateType') {
-        if (this.currentTemplateType === value) {
-          this.currentTemplateType = null
-        } else {
-          this.currentTemplateType = value
-        }
-      }
-      if (key === 'currentBloomCategory') {
-        if (this.currentBloomCategory === value) {
-          this.currentBloomCategory = null
-        } else {
-          this.currentBloomCategory = value
-        }
-      }
-      if (key === 'currentFasa') {
-        if (this.currentFasa === value) {
-          this.currentFasa = null
-        } else {
-          this.currentFasa = value
-        }
-      }
-      this.selectedTemplateList = []
-      TemplatesGetTemplates({ category: this.currentTemplateType, bloomCategories: this.currentBloomCategory, fasa: this.currentFasa }).then(response => {
-        this.$logger.info('handleToggleTemplateType ', response)
-        this.templateList = response.result
-      }).finally(() => {
-        this.templateLoading = false
-      })
-    },
-
-    handleShowSelectTemplate () {
-      this.selectedTemplateList = []
-      this.templateLoading = false
-      this.presentationLink = null
-      this.selectTemplateVisible = true
-    },
-
-    handleSelectTemplate (template) {
-      this.$logger.info('handleSelectTemplate ', template)
-      const index = this.selectedTemplateList.findIndex(item => item.id === template.id)
-      if (index !== -1) {
-        this.selectedTemplateList.splice(index, 1)
-      } else {
-        this.selectedTemplateList.push(template)
-      }
-    },
-
-    handleAddTemplate () {
-      this.$logger.info('handleAddTemplate ', this.selectedTemplateList)
-      if (!this.creating) {
-        if (this.selectedTemplateList.length) {
-          this.creating = true
-          TaskCreateTaskPPT({
-            taskId: this.taskId ? this.taskId : '',
-            name: this.form.name ? this.form.name : 'Unnamed Task',
-            overview: this.form.overview,
-            pageObjectIds: this.selectedTemplateList[0].pageObjectIds,
-            templatePresentationIds: this.selectedTemplateList.map(item => {
-              return item.presentationId
-            })
-          }).then(response => {
-            this.$logger.info('handleAddTemplate response', response.result)
-            this.form.id = response.result.id
-            this.presentationLink = response.result.presentationLink
-            this.form.presentationId = response.result.presentationId
-            this.selectTemplateVisible = false
-            this.mode = 'edit'
-            this.viewInGoogleSlideVisible = true
-            this.$router.replace({
-              path: '/teacher/add-task/' + response.result.id
-            })
-          }).finally(() => {
-            this.templateLoading = false
-            this.creating = false
-          })
-        } else {
-          this.$message.warn('Please select template!')
-        }
-      } else {
-        this.$logger.info('creating wait...')
-      }
-    },
-
-    handleOpenGoogleSlide (slideUrl) {
-      this.$logger.info('handleOpenGoogleSlide ' + slideUrl)
-      // window.open(slideUrl, '_blank')
-      window.location.href = slideUrl
-    },
-
-    handleViewDetail (item) {
-      this.$logger.info('handleViewDetail ', item)
-      if (item.type === this.contentType['unit-plan']) {
-        this.$router.push({
-          path: '/teacher/unit-plan-redirect/' + item.id
-        })
-      }
-    },
-
-    handleUpdateSelected (data) {
-      this.$logger.info('handleUpdateSelected', data)
-      this.relevantSelectedQuestionList = data.questionList
-    },
-
-    handleCancelSelectedRelevant () {
-      this.showRelevantQuestionVisible = false
-      this.relevantSelectedQuestionList = []
-    },
-
-    handleConfirmSelectedRelevant () {
-      this.$logger.info('handleConfirmSelectedRelevant', this.relevantSelectedQuestionList)
-      this.showRelevantQuestionVisible = false
-      const questionDataObj = Object.assign({}, this.questionDataObj['__question_0'])
-      this.$delete(this.questionDataObj, '__question_0')
-      this.$logger.info('questionDataObj __question_0', questionDataObj)
-      this.relevantSelectedQuestionList.forEach(item => {
-        item.knowledgeTags.forEach(tagItem => {
-          if (!questionDataObj.knowledgeTags.find(kItem => kItem.name === tagItem.name && kItem.description === tagItem.description)) {
-            questionDataObj.knowledgeTags.push(tagItem)
-          }
-        })
-
-        item.skillTags.forEach(skillItem => {
-          if (!questionDataObj.skillTags.find(qItem => qItem.name === skillItem.name && qItem.description === skillItem.description)) {
-            questionDataObj.skillTags.push(skillItem)
-          }
-        })
-      })
-
-      this.$nextTick(() => {
-        this.$set(this.questionDataObj, '__question_0', questionDataObj)
-      })
-      this.$logger.info('after $set questionDataObj __question_0', this.questionDataObj)
-      if (this.isAssociateBindIn) {
-        Associate({
-          fromId: this.relevantSelectedSource.id,
-          fromType: this.relevantSelectedSource.type,
-          toId: this.form.id,
-          toType: this.contentType.task,
-          questions: this.relevantSelectedQuestionList
-        }).then(response => {
-          this.$logger.info('handleLinkMyContent response ', response)
-          this.$refs.associate.loadAssociateData()
-        })
-      } else {
-        Associate({
-          fromId: this.form.id,
-          fromType: this.contentType.task,
-          toId: this.relevantSelectedSource.id,
-          toType: this.relevantSelectedSource.type,
-          questions: this.relevantSelectedQuestionList
-        }).then(response => {
-          this.$logger.info('handleLinkMyContent response ', response)
-          this.$refs.associate.loadAssociateData()
-        })
-      }
-    },
-
-    handleAddAudioOverview () {
-      this.$logger.info('handleAddAudioOverview')
-      this.showAddAudioVisible = true
-    },
-
-    handleAudioResult (data) {
-      logger.info('handleAudioResult', data)
-      this.currentUploading = true
-      const formData = new FormData()
-      formData.append('file', data, 'audio.wav')
-      this.$http.post(commonAPIUrl.UploadFile, formData, { contentType: false, processData: false, headers: { 'Content-Type': 'multipart/form-data' }, timeout: 60000 })
-        .then((response) => {
-          logger.info('handleAudioResult upload response:', response)
-          this.audioUrl = this.$store.getters.downloadUrl + response.result
-          logger.info('handleAudioResult audioUrl', this.audioUrl)
-        }).catch(err => {
-        logger.error('handleAudioResult error', err)
-      }).finally(() => {
-        this.currentUploading = false
-      })
-    },
-
-    handleUploadAudio (data) {
-      logger.info('handleUploadAudio', data)
-      this.currentUploading = true
-      const formData = new FormData()
-      formData.append('file', data.file, data.file.name)
-      this.uploading = true
-      this.$http.post(commonAPIUrl.UploadFile, formData, { contentType: false, processData: false, headers: { 'Content-Type': 'multipart/form-data' }, timeout: 60000 })
-        .then((response) => {
-          logger.info('handleUploadAudio upload response:', response)
-          this.audioUrl = this.$store.getters.downloadUrl + response.result
-        }).catch(err => {
-        logger.error('handleUploadImage error', err)
-      }).finally(() => {
-        this.currentUploading = false
-      })
-    },
-
-    handleCancelAddAudio () {
-      this.$logger.info('handleCancelAddAudio')
-      this.audioUrl = null
-      this.showAddAudioVisible = false
-    },
-
-    handleConfirmAddAudio () {
-      if (this.audioUrl) {
-        this.form.audioUrl = this.audioUrl
-       this.audioUrl = null
-       this.showAddAudioVisible = false
-      }
-    },
-    handleChangeUserTags (tags) {
-      this.form.customTags = tags
-    },
-    handleStartSession (type) {
-      this.$logger.info('handleStartSession', this.form)
-      if (this.form.presentationId) {
-        if (this.sessionTags.length === 0 && !type) {
-          this.$message.warn('Please add session tags')
-          return
-        }
-        this.startLoading = true
-        const requestData = {
-          author: this.$store.getters.email,
-          slide_id: this.form.presentationId,
-          file_name: this.form.name ? this.form.name : 'Unnamed',
-          status: lessonStatus.studentPaced,
-          redirect_url: null
-        }
-
-        this.$logger.info('handleStartSession', requestData)
-        StartLesson(requestData).then(res => {
-          this.$logger.info('StartLesson res', res)
-          if (res.code === 'ok') {
-            if (type && type === 'dash') {
-              this.startLoading = false
-              this.lessonSelectTagVisible = false
-              const targetUrl = lessonHost + 'd/' + res.data.class_id
-              this.$logger.info('try open ' + targetUrl)
-              window.open(targetUrl, '_blank')
-            } else {
-              const dataTags = []
-              this.sessionTags.forEach(tag => {
-                dataTags.push({
-                  'name': tag.name,
-                  'parentId': tag.parentId,
-                  'isGlobal': tag.isGlobal ? 1 : 0,
-                  'classId': res.data.class_id,
-                  'presentationId': this.form.presentationId,
-                  'sourceId': this.form.id,
-                  'sourceType': this.form.type
-                })
-              })
-              SaveSessonTags(dataTags).then(() => {
-                this.startLoading = false
-                this.lessonSelectTagVisible = false
-                // const targetUrl = lessonHost + 'slide_id=' + this.form.presentationId + '&class_id=' + res.data.class_id + '&type=classroom'
-                const targetUrl = lessonHost + 't/' + res.data.class_id
-                this.$logger.info('try open ' + targetUrl)
-                window.open(targetUrl, '_blank')
-              })
+              return
             }
-          } else {
-            this.$message.warn('StartLesson Failed! ' + res.message)
-            this.startLoading = false
-          }
-        })
-      } else {
-        this.$message.warn('This record is not bound to PPT!')
-        this.startLoading = false
-      }
-    },
-    handleStartCollaborate () {
-      this.$logger.info('handleStartCollaborate')
-      this.$refs.collaborate.startCollaborateModal(Object.assign({}, this.form), this.form.id, this.contentType.task)
-    },
-    handleUploadImage (data) {
-      logger.info('handleUploadImage', data)
-      const formData = new FormData()
-      formData.append('file', data.file, data.file.name)
-      this.uploading = true
-      this.$http.post(commonAPIUrl.UploadFile, formData, { contentType: false, processData: false, headers: { 'Content-Type': 'multipart/form-data' }, timeout: 60000 })
-        .then((response) => {
-          logger.info('handleUploadImage upload response:', response)
-          this.form.image = this.$store.getters.downloadUrl + response.result
-        }).catch(err => {
-        logger.error('handleUploadImage error', err)
-        this.$message.error(this.$t('teacher.add-unit-plan.upload-image-file-failed'))
-      }).finally(() => {
-        this.uploading = false
-      })
-    },
+            if (unitPlanData.questions && unitPlanData.questions.length) {
+              const questionList = unitPlanData.questions
+              const questionMap = new Map()
+              const relevantTagList = []
+              questionList.forEach(questionItem => {
+                if (questionItem.id && !questionMap.has(questionItem.id)) {
+                  // 处理knowledge tags
+                  const knowledgeTagMap = new Map()
+                  const knowledgeTagList = []
+                  questionItem.knowledgeTags.forEach(item => {
+                    if (!!item.subKnowledgeId && item.curriculumId === this.$store.getters.bindCurriculum) {
+                      if (!knowledgeTagMap.has(item.subKnowledgeId)) {
+                        knowledgeTagMap.set(item.subKnowledgeId, [])
+                        this.subKnowledgeId2InfoMap.set(item.subKnowledgeId, {
+                          ...item
+                        })
+                      }
 
-    handleDeleteImage (e) {
-      logger.info('handleDeleteImage ', e)
-      e.stopPropagation()
-      e.preventDefault()
-      this.form.image = null
-    },
+                      const tagList = knowledgeTagMap.get(item.subKnowledgeId)
+                      tagList.push({
+                        ...item,
+                        type: TagOriginType.Origin
+                      })
+                      knowledgeTagMap.set(item.subKnowledgeId, tagList)
+                    }
+                  })
+                  for (const [id, tagList] of knowledgeTagMap) {
+                    knowledgeTagList.push({
+                      id: tagList[0].id,
+                      tagList,
+                      info: this.subKnowledgeId2InfoMap.get(id)
+                    })
+                  }
 
-    handleEditGoogleSlide () {
-      this.$logger.info('handleEditGoogleSlide', this.form.presentationId)
-      if (this.form.presentationId) {
-        window.open('https://docs.google.com/presentation/d/' + this.form.presentationId)
-      } else {
-        this.$message.warn('please create slide first!')
-      }
-    },
-    handleSelectedSessionTags (tags) {
-      this.sessionTags = tags
-      this.$logger.info('handleSelectedSessionTags', tags)
-    },
-    handleStartSessionTags () {
-      this.lessonSelectTagVisible = true
-      this.sessionTags = []
-    },
-    handleAddTaskEvaluation () {
-      logger.info('handleAddTaskEvaluation ' + this.lessonId)
-      // 下创建一个空的evaluation，然后关联，然后再跳转过去
-      if (!this.addLoading) {
-        this.addLoading = true
-        EvaluationAddOrUpdate({
-          name: null,
-          associateId: this.form.id,
-          associateType: this.form.type
-        }).then((response) => {
-          this.$logger.info('EvaluationAddOrUpdate', response.result)
+                  // 处理skill tags
+                  const skillTagMap = new Map()
+                  const skillTagList = []
+                  questionItem.skillTags.forEach(item => {
+                    if (!!item.descriptionId && item.curriculumId === this.$store.getters.bindCurriculum) {
+                      if (!skillTagMap.has(item.descriptionId)) {
+                        skillTagMap.set(item.descriptionId, [])
+                        this.descriptionId2InfoMap.set(item.descriptionId, {
+                          ...item
+                        })
+                      }
+
+                      const tagList = skillTagMap.get(item.descriptionId)
+                      tagList.push({
+                        ...item,
+                        type: TagOriginType.Origin
+                      })
+                      skillTagMap.set(item.descriptionId, tagList)
+                    }
+                  })
+                  for (const [id, tagList] of skillTagMap) {
+                    skillTagList.push({
+                      id: tagList[0].id,
+                      tagList,
+                      info: this.descriptionId2InfoMap.get(id)
+                    })
+                  }
+
+                  relevantTagList.push({
+                    questionName: questionItem.name,
+                    questionId: questionItem.id,
+                    skillTagList,
+                    knowledgeTagList
+                  })
+                }
+              })
+              questionMap.clear()
+
+              this.relevantQuestionList = relevantTagList
+              this.showRelevantQuestionVisible = true
+              this.$logger.info('relevantQuestionList', this.relevantQuestionList)
+            } else {
+              this.$logger.info('no relevantQuestionList')
+            }
+          })
+        }
+      },
+      handleRemoveKnowledgeTag (data) {
+        logger.info('Unit Plan handleRemoveKnowledgeTag', data)
+        logger.info('target question data', this.questionDataObj[data.questionIndex.knowledgeTags])
+        this.suggestingTag.knowledgeTags = this.suggestingTag.knowledgeTags.filter(item => item.id !== data.id)
+        logger.info('Unit Plan after handleRemoveKnowledgeTag ', this.suggestingTag.knowledgeTags)
+      },
+
+      handleAddKnowledgeTag (data) {
+        logger.info('Unit Plan handleAddKnowledgeTag', data)
+        const newTag = {
+          description: data.description,
+          name: data.name,
+          gradeId: data.gradeId,
+          mainSubjectId: data.mainSubjectId,
+          subSubjectId: data.subSubjectId,
+          mainKnowledgeId: data.mainKnowledgeId,
+          subKnowledgeId: data.subKnowledgeId,
+          origin: 'suggesting'
+        }
+        this.suggestingTag.knowledgeTags.push(newTag)
+      },
+
+      handleRemoveSkillTag (data) {
+        logger.info('Unit Plan handleRemoveSkillTag', data)
+        this.suggestingTag.skillTags = this.suggestingTag.skillTags.filter(item => item.id !== data.id)
+        logger.info('Unit Plan after handleRemoveSkillTag ', this.suggestingTag.skillTags)
+      },
+
+      handleAddSkillTag (data) {
+        this.suggestingTag.skillTags.push(Object.assign({}, data))
+        this.$logger.info('after handleAddSkillTag skillTags ', this.suggestingTag.skillTags)
+      },
+
+      handleSaveTask () {
+        logger.info('handleSaveTask', this.form, this.questionDataObj)
+
+        const taskData = Object.assign({}, this.form)
+
+        if (this.taskId) {
+          taskData.id = this.taskId
+        }
+        if (this.form.presentationId) {
+          this.loadThumbnail()
+        }
+        taskData.suggestingTag = this.suggestingTag
+        logger.info('basic taskData', taskData)
+        logger.info('question taskData', taskData)
+        TaskAddOrUpdate(taskData).then((response) => {
+          logger.info('TaskAddOrUpdate', response.result)
           if (response.success) {
-            Associate({
-              fromId: this.taskId,
-              fromType: this.contentType.task,
-              toId: response.result.id,
-              toType: this.contentType.evaluation
-            }).then(response => {
-              this.$logger.info('Associate response ', response)
-              // 刷新子组件的关联数据
-              this.$refs.associate.loadAssociateData()
-            })
-            this.addLoading = false
-            this.$router.push({
-              path: '/teacher/evaluation-redirect/' + response.result.id
-            })
+            this.restoreTask(response.result.id, false)
+            // this.$message.success(this.$t('teacher.add-task.save-success'))
           } else {
             this.$message.error(response.message)
           }
         }).finally(() => {
-          this.addLoading = false
+          this.selectedSlideVisible = true
+          this.$refs.commonFormHeader.saving = false
         })
-      } else {
-        this.$logger.info('add loading')
+      },
+      handlePublishTask () {
+        logger.info('handlePublishTask', {
+          id: this.taskId,
+          status: 1
+        })
+
+        this.publishing = true
+        UpdateContentStatus({
+          id: this.taskId,
+          status: 1,
+          type: this.contentType.task
+        }).then(response => {
+          this.$logger.info('UpdateContentStatus response', response)
+          // this.$message.success('Publish success')
+          this.form.status = 1
+          this.selectedSlideVisible = true
+        }).then(() => {
+          this.$message.success(this.$t('teacher.add-task.publish-success'))
+          this.form.status = 1
+          this.$refs.commonFormHeader.publishing = false
+        })
+      },
+
+      handleSelectTaskType (type) {
+        this.$logger.info('handleSelectTaskType ' + type)
+        this.form.taskType = type
+      },
+
+      goBack () {
+        if (window.history.length <= 1) {
+          this.$router.push({ path: '/teacher/main/created-by-me' })
+          return false
+        } else {
+          this.$router.go(-1)
+        }
+
+        setTimeout(() => {
+          this.$router.push({ path: '/teacher/main/created-by-me' })
+        }, 500)
+      },
+
+      handleToggleTemplateType (key, value) {
+        this.$logger.info('handleToggleTemplateType ' + key + ' ' + value)
+        this.templateLoading = true
+        if (key === 'currentTemplateType') {
+          if (this.currentTemplateType === value) {
+            this.currentTemplateType = null
+          } else {
+            this.currentTemplateType = value
+          }
+        }
+        if (key === 'currentBloomCategory') {
+          if (this.currentBloomCategory === value) {
+            this.currentBloomCategory = null
+          } else {
+            this.currentBloomCategory = value
+          }
+        }
+        if (key === 'currentFasa') {
+          if (this.currentFasa === value) {
+            this.currentFasa = null
+          } else {
+            this.currentFasa = value
+          }
+        }
+        this.selectedTemplateList = []
+        TemplatesGetTemplates({ category: this.currentTemplateType, bloomCategories: this.currentBloomCategory, fasa: this.currentFasa }).then(response => {
+          this.$logger.info('handleToggleTemplateType ', response)
+          this.templateList = response.result
+        }).finally(() => {
+          this.templateLoading = false
+        })
+      },
+
+      handleShowSelectMyContent () {
+        this.$logger.info('handleShowSelectMyContent')
+        this.selectedTaskIdList = []
+        this.selectedMyContentList = []
+        this.selectedMyContentVisible = true
+        this.selectedTemplateList = []
+        this.templateLoading = false
+      },
+
+      handleSelectTemplate (template) {
+        this.$logger.info('handleSelectTemplate ', template)
+        const index = this.selectedTemplateList.findIndex(item => item.id === template.id)
+        if (index !== -1) {
+          this.selectedTemplateList.splice(index, 1)
+        } else {
+          this.selectedTemplateList.push(template)
+        }
+      },
+
+      handleAddTemplate () {
+        this.$logger.info('handleAddTemplate ', this.selectedTemplateList)
+        if (!this.creating) {
+          if (this.selectedTemplateList.length) {
+            this.creating = true
+            TaskCreateTaskPPT({
+              taskId: this.taskId ? this.taskId : '',
+              name: this.form.name ? this.form.name : 'Unnamed Task',
+              overview: this.form.overview,
+              templatePresentationIds: this.selectedTemplateList.map(item => {
+                return item.presentationId
+              })
+            }).then(response => {
+              this.$logger.info('handleAddTemplate response', response.result)
+              this.form.id = response.result.id
+              this.form.presentationId = response.result.presentationId
+              this.presentationLink = response.result.presentationLink
+              this.selectTemplateVisible = false
+              this.viewInGoogleSlideVisible = true
+              this.$router.replace({
+                path: '/teacher/add-task/' + response.result.id
+              })
+            }).finally(() => {
+              this.templateLoading = false
+              this.creating = false
+              this.selectedMyContentVisible = false
+              // this.loadThumbnail()
+            })
+          } else {
+            this.$message.warn('Please select template!')
+          }
+        } else {
+          this.$logger.info('creating wait...')
+        }
+      },
+
+      handleOpenGoogleSlide (slideUrl) {
+        this.$logger.info('handleOpenGoogleSlide ' + slideUrl)
+        // window.open(slideUrl, '_blank')
+        window.location.href = slideUrl
+      },
+
+      handleViewDetail (item) {
+        this.$logger.info('handleViewDetail ', item)
+        if (item.type === this.contentType['unit-plan']) {
+          this.$router.push({
+            path: '/teacher/unit-plan-redirect/' + item.id
+          })
+        }
+      },
+
+      handleUpdateSelected (data) {
+        this.$logger.info('handleUpdateSelected', data)
+        this.relevantSelectedQuestionList = data.questionList
+      },
+
+      handleCancelSelectedRelevant () {
+        this.showRelevantQuestionVisible = false
+        this.relevantSelectedQuestionList = []
+      },
+
+      handleConfirmSelectedRelevant (data) {
+        this.$logger.info('handleConfirmSelectedRelevant', this.relevantSelectedQuestionList)
+        this.showRelevantQuestionVisible = false
+        const questionDataObj = Object.assign({}, this.questionDataObj['__question_0'])
+        this.$delete(this.questionDataObj, '__question_0')
+        this.$logger.info('questionDataObj __question_0', questionDataObj)
+        this.relevantSelectedQuestionList.forEach(item => {
+          questionDataObj.knowledgeTags = questionDataObj.knowledgeTags.concat(item.knowledgeTags)
+          questionDataObj.skillTags = questionDataObj.skillTags.concat(item.skillTags)
+        })
+
+        this.$nextTick(() => {
+          this.$set(this.questionDataObj, '__question_0', questionDataObj)
+        })
+        this.$logger.info('after $set questionDataObj __question_0', this.questionDataObj)
+        this.$logger.info('handleLinkMyContent unit question', this.relevantSelectedUnitPlan)
+        Associate({
+          fromId: this.form.id,
+          fromType: this.contentType.task,
+          toId: this.relevantSelectedUnitPlan.id,
+          toType: this.relevantSelectedUnitPlan.type,
+          questions: this.relevantSelectedQuestionList
+        }).then(response => {
+          this.$logger.info('handleLinkMyContent response ', response)
+          this.$refs.associate.loadAssociateData()
+        })
+      },
+
+      handleCancelSelectedMyContent () {
+        this.selectedMyContentVisible = false
+        this.selectedTaskIdList = []
+        this.selectedMyContentList = []
+      },
+
+      handleConfirmSelectedMyContent () {
+        this.$logger.info('handleConfirmSelectedMyContent', this.selectedMyContentKeyList)
+        if (this.selectedMyContentKeyList.length === 0) {
+          this.$message.warn('Please select a content!')
+          return
+        }
+        this.selectedTaskIdList = []
+        this.selectedMyContentList = []
+        this.selectedMyContentKeyList.forEach(key => {
+          if (this.selectedMyContentInfoMap.has(key)) {
+            this.selectedMyContentList.push(this.selectedMyContentInfoMap.get(key))
+          }
+
+          const keyArr = key.split('-')
+          if (parseInt(keyArr[0]) === this.contentType.task) {
+            this.selectedTaskIdList.push(keyArr[1])
+          }
+        })
+        this.handleCreateTask()
+      },
+
+      handleCreateTask () {
+        this.$logger.info('handleCreateTask')
+        if (!this.creating) {
+          this.creating = true
+          TaskCreateTaskPPT({
+            taskId: this.taskId ? this.taskId : '',
+            taskIds: this.selectedTaskIdList,
+            name: this.form.name ? this.form.name : 'Unnamed Task',
+            overview: this.form.overview
+          }).then(response => {
+            this.$logger.info('handleCreateTask', response.result)
+            this.showChoseSelectTemplateVisible = false
+            this.selectedMyContentVisible = false
+            this.form.id = response.result.id
+            this.form.presentationId = response.result.presentationId
+            this.presentationLink = response.result.presentationLink
+            this.selectTemplateVisible = false
+            this.mode = 'edit'
+            this.viewInGoogleSlideVisible = true
+            this.$router.replace({
+              path: '/teacher/task-redirect/' + response.result.id
+            })
+          }).finally(() => {
+            this.creating = false
+            this.selectedMyContentVisible = false
+            // this.loadThumbnail()
+          })
+        }
+      },
+
+      loadThumbnail () {
+        this.thumbnailListLoading = true
+        this.$logger.info('loadThumbnail ' + this.form.presentationId)
+        TemplatesGetPresentation({
+          presentationId: this.form.presentationId
+        }).then(response => {
+          this.$logger.info('loadThumbnail response', response.result)
+          const pageObjects = response.result.pageObjects
+          this.thumbnailList = []
+          pageObjects.forEach(page => {
+            this.thumbnailList.push({ contentUrl: page.contentUrl, id: page.pageObjectId })
+            this.$logger.info('current imgList ', this.imgList)
+          })
+          this.thumbnailListLoading = false
+        })
+      },
+
+      handleToggleThumbnail (thumbnail) {
+        this.$logger.info('handleToggleThumbnail', thumbnail)
+        const index = this.selectedPageIdList.indexOf(thumbnail.id)
+        if (index !== -1) {
+          this.selectedPageIdList.splice(index, 1)
+        } else {
+          this.selectedPageIdList.push(thumbnail.id)
+        }
+      },
+
+      handleContinueSelectTemplate () {
+        this.showChoseSelectTemplateVisible = false
+        this.selectTemplateVisible = true
+      },
+
+      handleShowCreateChoice () {
+        this.showCreateChoice = false
+        this.selectedMyContentVisible = true
+      },
+
+      handleAudioResult (data) {
+        logger.info('handleAudioResult', data)
+        this.currentUploading = true
+        const formData = new FormData()
+        formData.append('file', data, 'audio.wav')
+        this.$http.post(commonAPIUrl.UploadFile, formData, { contentType: false, processData: false, headers: { 'Content-Type': 'multipart/form-data' }, timeout: 60000 })
+          .then((response) => {
+            logger.info('handleAudioResult upload response:', response)
+            this.audioUrl = this.$store.getters.downloadUrl + response.result
+            logger.info('handleAudioResult audioUrl', this.audioUrl)
+          }).catch(err => {
+          logger.error('handleAudioResult error', err)
+        }).finally(() => {
+          this.currentUploading = false
+        })
+      },
+
+      handleUploadAudio (data) {
+        logger.info('handleUploadAudio', data)
+        this.currentUploading = true
+        const formData = new FormData()
+        formData.append('file', data.file, data.file.name)
+        this.uploading = true
+        this.$http.post(commonAPIUrl.UploadFile, formData, { contentType: false, processData: false, headers: { 'Content-Type': 'multipart/form-data' }, timeout: 60000 })
+          .then((response) => {
+            logger.info('handleUploadAudio upload response:', response)
+            this.audioUrl = this.$store.getters.downloadUrl + response.result
+          }).catch(err => {
+          logger.error('handleUploadImage error', err)
+        }).finally(() => {
+          this.currentUploading = false
+        })
+      },
+
+      handleCancelAddAudio () {
+        this.audioUrl = null
+        this.showAddAudioVisible = false
+      },
+
+      handleConfirmAddAudio () {
+        if (this.audioUrl) {
+          this.form.audioUrl = this.audioUrl
+          this.audioUrl = null
+        }
+        this.showAddAudioVisible = false
+      },
+
+      handleAddAudioOverview () {
+        this.$logger.info('handleAddAudioOverview')
+        this.showAddAudioVisible = true
+      },
+
+      handleAddAnotherTask () {
+        this.$logger.info('handleAddAnotherTask')
+      },
+
+      handleFinishTask (data) {
+        this.$logger.info('handleFinishTask', data)
+        const task = Object.assign({
+          presentationId: this.form.presentationId,
+          selectPageObjectIds: this.selectedPageIdList,
+          taskId: this.form.id
+        }, data)
+        this.$logger.info('new task', task)
+        this.subTasks.push(task)
+        this.selectedPageIdList = []
+        this.taskIndex++
+        this.$logger.info('after add tasks ', this.form.tasks)
+      },
+
+      handleTaskDelete (task) {
+        this.$logger.info('handleTaskDelete', task)
+        const index = this.form.tasks.findIndex(item => item.__taskId === task.__taskId)
+        if (index !== -1) {
+          this.form.tasks.splice(index, 1)
+        }
+      },
+      handleChangeUserTags (tags) {
+        this.form.customTags = tags
+      },
+      handleStartSession (type) {
+        this.$logger.info('handleStartSession', this.form)
+        if (this.form.presentationId) {
+          this.$logger.info('selected sessionTags', this.sessionTags)
+          if (this.sessionTags.length === 0 && !type) {
+            this.$message.warn('Please add session tags')
+            return
+          }
+          this.startLoading = true
+          const requestData = {
+            author: this.$store.getters.email,
+            slide_id: this.form.presentationId,
+            file_name: this.form.name ? this.form.name : 'Unnamed',
+            status: lessonStatus.studentPaced,
+            redirect_url: null
+          }
+
+          this.$logger.info('handleStartSession', requestData)
+          StartLesson(requestData).then(res => {
+            this.$logger.info('StartLesson res', res)
+            if (res.code === 'ok') {
+              const dataTags = []
+              if (type && type === 'dash') {
+                this.startLoading = false
+                this.taskSelectTagVisible = false
+                const targetUrl = lessonHost + 'd/' + res.data.class_id
+                this.$logger.info('try open ' + targetUrl)
+                window.open(targetUrl, '_blank')
+              } else {
+                this.sessionTags.forEach(tag => {
+                  dataTags.push({
+                    'name': tag.name,
+                    'parentId': tag.parentId,
+                    'isGlobal': tag.isGlobal ? 1 : 0,
+                    'classId': res.data.class_id,
+                    'presentationId': this.form.presentationId,
+                    'sourceId': this.form.id,
+                    'sourceType': this.form.type
+                  })
+                })
+                SaveSessonTags(dataTags).then(() => {
+                  this.startLoading = false
+                  this.taskSelectTagVisible = false
+                  // const targetUrl = lessonHost + 'slide_id=' + this.form.presentationId + '&class_id=' + res.data.class_id + '&type=classroom'
+                  const targetUrl = lessonHost + 't/' + res.data.class_id
+                  this.$logger.info('try open ' + targetUrl)
+                  window.open(targetUrl, '_blank')
+                })
+              }
+            } else {
+              this.$message.warn('StartLesson Failed! ' + res.message)
+              this.startLoading = false
+            }
+          })
+        } else {
+          this.$message.warn('This record is not bound to PPT!')
+          this.startLoading = false
+        }
+      },
+      handleStartCollaborate () {
+        this.$logger.info('handleStartCollaborate')
+        this.$refs.collaborate.startCollaborateModal(Object.assign({}, this.form), this.form.id, this.contentType.task)
+      },
+      handleUploadImage (data) {
+        logger.info('handleUploadImage', data)
+        const formData = new FormData()
+        formData.append('file', data.file, data.file.name)
+        this.uploading = true
+        this.$http.post(commonAPIUrl.UploadFile, formData, { contentType: false, processData: false, headers: { 'Content-Type': 'multipart/form-data' }, timeout: 60000 })
+          .then((response) => {
+            logger.info('handleUploadImage upload response:', response)
+            this.form.image = this.$store.getters.downloadUrl + response.result
+          }).catch(err => {
+          logger.error('handleUploadImage error', err)
+          this.$message.error(this.$t('teacher.add-unit-plan.upload-image-file-failed'))
+        }).finally(() => {
+          this.uploading = false
+        })
+      },
+
+      handleDeleteImage (e) {
+        logger.info('handleDeleteImage ', e)
+        e.stopPropagation()
+        e.preventDefault()
+        this.form.image = null
+      },
+
+      handleEditGoogleSlide () {
+        this.$logger.info('handleEditGoogleSlide', this.form.presentationId)
+        if (this.form.presentationId) {
+          window.open('https://docs.google.com/presentation/d/' + this.form.presentationId)
+        } else {
+          this.$message.warn('please create slide first!')
+        }
+      },
+
+      handleAddTaskWithSlide () {
+        this.$logger.info('handleAddTaskWithSlide')
+        this.mode = 'pick-task-slide'
+        this.selectedSlideVisible = false
+      },
+
+      handleCancelPickTaskSlide () {
+        this.$logger.info('handleCancelPickTaskSlide')
+        this.selectedSlideVisible = false
+        this.mode = 'edit'
+      },
+      handleSelectedSessionTags (tags) {
+        this.sessionTags = tags
+        this.$logger.info('handleSelectedSessionTags', tags)
+      },
+      handleStartSessionTags () {
+        this.taskSelectTagVisible = true
+        this.sessionTags = []
+      },
+      handleAddTaskEvaluation () {
+        logger.info('handleAddTaskEvaluation ' + this.taskId)
+        // 下创建一个空的evaluation，然后关联，然后再跳转过去
+        if (!this.addLoading) {
+          this.addLoading = true
+          EvaluationAddOrUpdate({ name: null }).then((response) => {
+            this.$logger.info('EvaluationAddOrUpdate', response.result)
+            if (response.success) {
+              Associate({
+                fromId: this.taskId,
+                fromType: this.contentType.task,
+                toId: response.result.id,
+                toType: this.contentType.evaluation
+              }).then(response => {
+                this.$logger.info('Associate response ', response)
+                // 刷新子组件的关联数据
+                this.$refs.associate.loadAssociateData()
+              })
+              this.addLoading = false
+              this.$router.push({
+                path: '/teacher/evaluation-redirect/' + response.result.id
+              })
+            } else {
+              this.$message.error(response.message)
+            }
+          }).finally(() => {
+            this.addLoading = false
+          })
+        } else {
+          this.$logger.info('add loading')
+        }
       }
     }
   }
-}
 </script>
 
 <style lang="less" scoped>
-@import "~@/components/index.less";
+  @import "~@/components/index.less";
 
-.task-header {
-  padding-bottom: 16px;
-  border-bottom: 1px solid  rgb(235, 238, 240);
+  .task-header {
+    padding-bottom: 16px;
+    border-bottom: 1px solid  rgb(235, 238, 240);
 
-  .nav-back-btn {
-    padding-left: 0;
-  }
-
-  .unit-nav-title {
-    color: @text-color;
-    font-weight: bold;
-  }
-
-  .unit-last-change-time {
-    line-height: 32px;
-    color: @text-color-secondary;
-  }
-
-  .unit-right-action {
-    display: flex;
-    justify-content: flex-end;
-    .anticon-more{
-      color: #15c39a;
-      font-size: 18px;
-    }
-  }
-}
-
-.unit-content {
-  .unit-menu-list {
-    margin-top: 10px;
-    padding: 0 0 16px 0;
-
-    .menu-category-item {
-      user-select: none;
-      cursor: pointer;
-
-      .menu-category-item-label {
-        font-weight: 600;
-        padding: 10px 0;
-      }
-
-      .menu-category-list {
-        display: flex;
-        flex-direction: column;
-        justify-content: flex-start;
-
-        .include-item {
-          color: @primary-color;
-          padding: 5px 0;
-          max-width: 100%;
-          text-decoration: underline;
-          overflow: hidden;
-          white-space: nowrap;
-          text-overflow: ellipsis;
-        }
-      }
-
-      .action-item {
-        color: @primary-color;
-        padding: 5px 0;
-        text-decoration: underline;
-      }
+    .nav-back-btn {
+      padding-left: 0;
     }
 
-    .already-add-to-list {
-      .add-to-type {
-        border-right: none;
-        color: @text-color;
-        .add-to-type-label {
-          padding: 15px 0 5px 0;
-          cursor: pointer;
+    .unit-nav-title {
+      color: @text-color;
+      font-weight: bold;
+    }
+
+    .unit-last-change-time {
+      line-height: 32px;
+      color: @text-color-secondary;
+    }
+
+    .unit-right-action {
+      display: flex;
+      justify-content: flex-end;
+      .anticon-more{
+        color: #15c39a;
+        font-size: 18px;
+      }
+    }
+  }
+
+  .unit-content {
+    .unit-menu-list {
+      margin-top: 10px;
+      padding: 0 0 16px 0;
+
+      .menu-category-item {
+        user-select: none;
+        cursor: pointer;
+
+        .menu-category-item-label {
+          font-weight: 600;
+          padding: 10px 0;
         }
-        .add-to-list {
+
+        .menu-category-list {
           display: flex;
           flex-direction: column;
           justify-content: flex-start;
-          line-height: 30px;
-          overflow: hidden;
-          text-overflow: ellipsis;
-          word-break: break-all;
-          white-space: nowrap;
+
+          .include-item {
+            color: @primary-color;
+            padding: 5px 0;
+            max-width: 100%;
+            text-decoration: underline;
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+          }
+        }
+
+        .action-item {
+          color: @primary-color;
+          padding: 5px 0;
+          text-decoration: underline;
         }
       }
-    }
-  }
 
-  .main-content {
-
-    .image-preview {
-      img {
-        max-width: 100%;
-      }
-    }
-
-    p.ant-upload-text {
-      color: @text-color;
-    }
-
-    .upload-container {
-      padding: 16px 0;
-    }
-
-    .upload-icon {
-      height: 70px;
-    }
-
-    .uploading-tips {
-      padding-left: 10px;
-    }
-
-    .select-template {
-      text-align: center;
-    }
-
-    .form-block-title {
-      font-size: @font-size-lg;
-      color: #000;
-    }
-
-    .form-block-action {
-      padding: 10px 0 0 0;
-      text-align: center;
-    }
-
-    .action-line {
-      padding: 50px 0;
-      display: flex;
-      justify-content: center;
-    }
-
-    .question-item {
-      padding-bottom: 24px;
-      padding-top: 24px;
-    }
-
-    .content-blocks {
-      position: relative;
-      border: 1px dotted #fff;
-      .sdg-delete-wrapper {
-        transition: all 0.2s ease-in;
-        display: none;
-        position: absolute;
-        text-align: center;
-        right: 15px;
-        top: 80px;
-        line-height: 50px;
-        width: 50px;
-        height: 50px;
-        cursor: pointer;
-        color: @link-hover-color;
-        z-index: 1000;
-      }
-
-      .knowledge-delete-wrapper {
-        transition: all 0.2s ease-in;
-        display: none;
-        position: absolute;
-        text-align: center;
-        right: 15px;
-        top: 180px;
-        line-height: 50px;
-        width: 50px;
-        height: 50px;
-        cursor: pointer;
-        color: @link-hover-color;
-        z-index: 1000;
-      }
-
-      .tag-select {
-        padding-bottom: 24px;
-
-        .tag-label {
-          color: @text-color-secondary;
-          text-align: center;
-          padding-bottom: 5px;
+      .already-add-to-list {
+        .add-to-type {
+          border-right: none;
+          color: @text-color;
+          .add-to-type-label {
+            padding: 15px 0 5px 0;
+            cursor: pointer;
+          }
+          .add-to-list {
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            line-height: 30px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            word-break: break-all;
+            white-space: nowrap;
+          }
         }
       }
     }
 
-    .img-wrapper {
-      position: relative;
-    }
-    .delete-img {
-      position: absolute;
-      top: -10px;
-      right: -10px;
-      background-color: #fafafa;
-      border-radius: 50%;
-      height: 30px;
-      width: 30px;
-      text-align: center;
-      vertical-align: middle;
-      color: @red-5;
-      z-index: 100;
-      font-size: 20px;
-    }
-  }
+    .main-content {
 
-  .add-to-item {
-    display: flex;
-    justify-content: flex-start;
-    flex-direction: row;
-    padding: 0 5px;
-    box-sizing: border-box;
-    cursor: pointer;
-    &:hover {
-      background-color: fade(@outline-color, 20%);
-    }
-
-    a {
-      display: flex;
-      flex-direction: row;
-      align-items: center;
-      justify-content: flex-start;
-      max-width: 150px;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      word-break: break-all;
-      white-space: nowrap;
-
-      i {
-        padding-right: 5px;
+      .image-preview {
+        img {
+          max-width: 100%;
+        }
       }
-    }
 
-    .material-name {
-      max-width: 120px;
-      display: inline-block;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      word-break: break-all;
-      white-space: nowrap;
-    }
-
-    .hover-delete {
-      color: @red-4;
-      display: none;
-      cursor: pointer;
-      justify-content: center;
-      align-items: center;
-      padding-left: 5px;
-    }
-
-    &:hover {
-      .hover-delete {
-        display: flex;
-      }
-    }
-  }
-
-  .long-form-item-label {
-    padding: 10px;
-  }
-}
-
-.add-content-wrapper {
-  display: flex;
-  flex-direction: row;
-  flex-wrap: wrap;
-  justify-content: center;
-  .add-content-item {
-    width: 40%;
-    margin-right: 10px;
-    margin-left: 10px;
-    margin-bottom: 20px;
-    padding: 20px;
-    border: 1px solid #eee;
-    cursor: pointer;
-
-    &:hover {
-      background-color: fade(@outline-color, 20%);
-      border: 1px solid @primary-color;
-    }
-  }
-}
-
-.link-content-wrapper {
-
-}
-
-.select-template-wrapper {
-  display: flex;
-  cursor: pointer;
-  user-select: none;
-  flex-direction: column;
-
-  .template-select-header {
-    background: rgba(255, 255, 255, 0.2);
-    border: 1px solid #ddd;
-    opacity: 1;
-    border-radius: 4px;
-    padding: 10px ;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-
-    .header-title {
-      padding: 15px 0 25px;
-      .header-title-text {
-        font-size: 20px;
+      p.ant-upload-text {
+        color: #000;
         font-family: Inter-Bold;
-        line-height: 24px;
-        color: #182552;
-        opacity: 1;
+      }
+
+      .upload-container {
+        padding: 16px 0;
+      }
+
+      .uploading-tips {
+        padding-left: 10px;
+      }
+
+      .upload-icon {
+        height: 70px;
+      }
+      .select-template {
+        text-align: center;
+
+        .task-select-template {
+          margin-left: 10px;
+          margin-right: 10px;
+        }
+      }
+
+      .form-block-title {
+        font-size: @font-size-lg;
+        color: #000;
+      }
+
+      .form-block-action {
+        padding: 10px 0 0 0;
+        text-align: center;
+      }
+
+      .action-line {
+        padding: 50px 0;
+        display: flex;
+        justify-content: center;
+      }
+
+      .question-item {
+        padding-bottom: 24px;
+      }
+
+      .content-blocks {
+        width: 600px;
+        position: relative;
+        border: 1px dotted #fff;
+        .sdg-delete-wrapper {
+          transition: all 0.2s ease-in;
+          display: none;
+          position: absolute;
+          text-align: center;
+          right: 15px;
+          top: 80px;
+          line-height: 50px;
+          width: 50px;
+          height: 50px;
+          cursor: pointer;
+          color: @link-hover-color;
+          z-index: 1000;
+        }
+
+        .knowledge-delete-wrapper {
+          transition: all 0.2s ease-in;
+          display: none;
+          position: absolute;
+          text-align: center;
+          right: 15px;
+          top: 180px;
+          line-height: 50px;
+          width: 50px;
+          height: 50px;
+          cursor: pointer;
+          color: @link-hover-color;
+          z-index: 1000;
+        }
+
+        .tag-select {
+          padding-bottom: 24px;
+
+          .tag-label {
+            color: @text-color-secondary;
+            text-align: center;
+            padding-bottom: 5px;
+          }
+        }
+      }
+
+      .img-wrapper {
+        position: relative;
+        width: 600px;
+      }
+      .delete-img {
+        position: absolute;
+        top: -10px;
+        right: -10px;
+        background-color: #fafafa;
+        border-radius: 50%;
+        height: 30px;
+        width: 30px;
+        text-align: center;
+        vertical-align: middle;
+        color: @red-5;
+        z-index: 100;
+        font-size: 20px;
       }
     }
 
-    .filter-wrapper {
+    .add-to-item {
+      display: flex;
+      justify-content: flex-start;
+      flex-direction: row;
+      padding: 0 5px;
+      box-sizing: border-box;
+      cursor: pointer;
+      &:hover {
+        background-color: fade(@outline-color, 20%);
+      }
+
+      a {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: flex-start;
+        max-width: 150px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        word-break: break-all;
+        white-space: nowrap;
+
+        i {
+          padding-right: 5px;
+        }
+      }
+
+      .material-name {
+        max-width: 120px;
+        display: inline-block;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        word-break: break-all;
+        white-space: nowrap;
+      }
+
+      .hover-delete {
+        color: @red-4;
+        display: none;
+        cursor: pointer;
+        justify-content: center;
+        align-items: center;
+        padding-left: 5px;
+      }
+
+      &:hover {
+        .hover-delete {
+          display: flex;
+        }
+      }
+    }
+
+    .long-form-item-label {
+      padding: 10px;
+    }
+  }
+
+  .add-content-wrapper {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    .add-content-item {
+      width: 40%;
+      margin-right: 10px;
+      margin-left: 10px;
+      margin-bottom: 20px;
+      padding: 20px;
+      border: 1px solid #eee;
+      cursor: pointer;
+
+      &:hover {
+        background-color: fade(@outline-color, 20%);
+        border: 1px solid @primary-color;
+      }
+    }
+  }
+
+  .link-content-wrapper {
+
+  }
+
+  .select-template-wrapper {
+    display: flex;
+    cursor: pointer;
+    user-select: none;
+    flex-direction: column;
+
+    .template-select-header {
+      background: rgba(255, 255, 255, 0.2);
+      border: 1px solid #ddd;
+      opacity: 1;
+      border-radius: 4px;
+      padding: 10px ;
       display: flex;
       flex-direction: column;
-      box-sizing: border-box;
-      .first-filter-line {
+      align-items: center;
+      justify-content: center;
+
+      .header-title {
+        padding: 15px 0 25px;
+        .header-title-text {
+          font-size: 20px;
+          font-family: Inter-Bold;
+          line-height: 24px;
+          color: #182552;
+          opacity: 1;
+        }
+      }
+
+      .filter-wrapper {
+        display: flex;
+        flex-direction: column;
+        box-sizing: border-box;
+        .first-filter-line {
+          display: flex;
+          flex-direction: row;
+          align-items: flex-start;
+          justify-content: flex-start;
+          position: relative;
+          margin-bottom: 10px;
+          .task-type {
+            min-width: 100px;
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: center;
+            .task-type-item {
+              margin-right: 10px;
+              width: 33px;
+              height: 33px;
+              border-radius: 33px;
+              border: 2px solid #ddd;
+              font-weight: bold;
+              display: flex;
+              color: #bbb;
+              align-items: center;
+              justify-content: center;
+            }
+
+            .green-active-task-type {
+              background: rgba(21, 195, 154, 0.1);
+              border: 2px solid #15C39A;
+              border-radius: 50%;
+              font-weight: bold;
+              color: #15C39A;
+            }
+
+            .red-active-task-type {
+              background: rgba(255, 51, 85, 0.1);
+              border: 2px solid #FF3355;
+              border-radius: 50%;
+              opacity: 1;
+              font-weight: bold;
+              color: #FF3355;
+              opacity: 1;
+            }
+          }
+        }
+
+        .second-filter-line {
+          padding-left: 100px;
+          display: flex;
+          flex-direction: row;
+          align-items: center;
+          justify-content: flex-start;
+          position: relative;
+        }
+      }
+      .template-type-list {
+        display: inline-block;
+        flex-direction: row;
+        justify-content: flex-start;
+
+        .template-type-item {
+          margin-right: 10px;
+          margin-bottom: 10px;
+          padding: 5px 15px;
+          max-height: 50px;
+          display: inline-block;
+          justify-content: center;
+          align-items: center;
+          text-align: center;
+          font-size: 14px;
+          min-width: 70px;
+          background: rgba(245, 245, 245, 0.5);
+          border: 1px solid #ddd;
+          color: #11142D;
+          opacity: 1;
+          border-radius: 25px;
+        }
+
+        .active-template-type {
+          background: #15C39A;
+          opacity: 1;
+          color: #fff;
+          position: relative;
+          border-radius: 40px;
+          img {
+            height: 18px;
+            position: absolute;
+            right: -3px;
+            top: -7px;
+          }
+        }
+
+        .sub-active-template-type {
+          background: #FF3355;
+          opacity: 1;
+          color: #fff;
+          position: relative;
+          border-radius: 40px;
+          img {
+            height: 18px;
+            position: absolute;
+            right: -3px;
+            top: -7px;
+          }
+        }
+      }
+    }
+
+    .template-list-wrapper {
+      margin-top: 20px;
+      min-height: 250px;
+      background: rgba(228, 228, 228, 0.2);
+      border: 1px solid #D8D8D8;
+      opacity: 1;
+      border-radius: 4px;
+      padding: 20px;
+
+      .template-list {
         display: flex;
         flex-direction: row;
         align-items: flex-start;
         justify-content: flex-start;
-        position: relative;
-        margin-bottom: 10px;
-        .task-type {
-          min-width: 100px;
-          display: flex;
-          flex-direction: row;
-          align-items: center;
-          justify-content: center;
-          .task-type-item {
-            margin-right: 10px;
-            width: 33px;
-            height: 33px;
-            border-radius: 33px;
-            border: 2px solid #ddd;
-            font-weight: bold;
+        flex-wrap: wrap;
+
+        .template-item {
+          background-size: cover;
+          margin-right: 1%;
+          margin-left: 1%;
+          margin-bottom: 20px;
+          box-sizing: border-box;
+          width: 23%;
+          box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.16);
+          background: #FFFFFF;
+          border: 1px solid #E8E8E8;
+          border-radius: 4px;
+          position: relative;
+
+          .template-select-icon {
+            z-index: 50;
+            position: absolute;
+            right: 5px;
+            top: 5px;
+            img {
+              height: 18px;
+            }
+          }
+
+          .template-cover {
+            height: 150px;
+            border-radius: 4px;
+            width: 100%;
+            background-color: #ddd;
+            box-sizing: border-box;
+            padding: 0;
+          }
+
+          .template-info {
+            padding: 10px;
             display: flex;
-            color: #bbb;
-            align-items: center;
-            justify-content: center;
-          }
+            position: relative;
+            flex-direction: column;
+            justify-content: flex-start;
 
-          .green-active-task-type {
-            background: rgba(21, 195, 154, 0.1);
-            border: 2px solid #15C39A;
-            border-radius: 50%;
-            font-weight: bold;
-            color: #15C39A;
-          }
-
-          .red-active-task-type {
-            background: rgba(255, 51, 85, 0.1);
-            border: 2px solid #FF3355;
-            border-radius: 50%;
-            opacity: 1;
-            font-weight: bold;
-            color: #FF3355;
-            opacity: 1;
+            .template-name {
+              font-weight: 500;
+              font-size: 14px;
+              z-index: 10;
+              overflow: hidden;
+              white-space: nowrap;
+              text-overflow: ellipsis;
+              word-break: break-all;
+              padding: 10px 0;
+              min-height: 40px;
+            }
+            .template-intro {
+              min-height: 30px;
+              z-index: 10;
+              padding: 5px;
+              overflow: hidden;
+              white-space: nowrap;
+              text-overflow: ellipsis;
+              word-break: break-all;
+              color: rgba(0,0,0,.45);
+              font-size: 12px;
+              background: rgba(244, 244, 244, 0.5);
+              border-radius: 4px;
+              font-family: Inter-Bold;
+              color: #000000;
+            }
           }
         }
-      }
 
-      .second-filter-line {
-        padding-left: 100px;
-        display: flex;
-        flex-direction: row;
-        align-items: center;
-        justify-content: flex-start;
-        position: relative;
+        .template-item-active {
+          border: 1px solid #15C39A;
+          box-shadow: 0px 3px 6px rgba(21, 195, 154, 0.16);
+          opacity: 1;
+        }
       }
     }
-    .template-type-list {
-      display: inline-block;
-      flex-direction: row;
-      justify-content: flex-start;
 
-      .template-type-item {
-        margin-right: 10px;
-        margin-bottom: 10px;
-        padding: 5px 15px;
-        max-height: 50px;
+    .template-action {
+      padding: 20px 0 0;
+      display: flex;
+      flex-direction: row-reverse;
+      align-items: center;
+      justify-content: right;
+
+      .create-loading {
         display: inline-block;
-        justify-content: center;
-        align-items: center;
-        text-align: center;
-        font-size: 14px;
-        min-width: 70px;
-        background: rgba(245, 245, 245, 0.5);
-        border: 1px solid #ddd;
-        color: #11142D;
-        opacity: 1;
-        border-radius: 25px;
-      }
-
-      .active-template-type {
-        background: #15C39A;
-        opacity: 1;
-        color: #fff;
-        position: relative;
-        border-radius: 40px;
-        img {
-          height: 18px;
-          position: absolute;
-          right: -3px;
-          top: -7px;
-        }
-      }
-
-      .sub-active-template-type {
-        background: #FF3355;
-        opacity: 1;
-        color: #fff;
-        position: relative;
-        border-radius: 40px;
-        img {
-          height: 18px;
-          position: absolute;
-          right: -3px;
-          top: -7px;
-        }
+        margin-right: 20px;
       }
     }
   }
 
-  .template-list-wrapper {
+  .template-loading {
     margin-top: 20px;
     min-height: 250px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .no-template {
+    margin-top: 20px;
+  }
+
+  .task-type-line {
+    margin-bottom: 20px;
+    .task-type {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      justify-content: flex-start;
+      padding: 5px 20%;
+      .task-type-item {
+        margin-right: 15px;
+        cursor: pointer;
+        padding: 5px;
+        line-height: 15px;
+        width: 25px;
+        height: 25px;
+        font-size: 14px;
+        background-color: fade(@outline-color, 20%);
+        color: @primary-color;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+      }
+
+      .active-task-type {
+        background-color: fade(#FF3355, 10%);
+        color: #FF3355;
+        border-radius: 50%;
+        font-weight: 500;
+        border-color:#FF3355
+      }
+    }
+  }
+
+  .view-in-google-slider {
+    display: flex;
+    min-height: 100px;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+
+    .view-line {
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+      justify-content: flex-start;
+
+      .link-url {
+        width: 100%;
+        word-break: break-all;
+        overflow: hidden;
+      }
+
+      .view-action {
+        width: 100%;
+        display: flex;
+        flex-direction: row;
+        justify-content: flex-end;
+        margin-top: 20px;
+        text-align: right;
+      }
+    }
+  }
+
+  .select-relevant-tag {
+    max-height: 60vh;
+    overflow-y: scroll;
+  }
+
+  .action-line {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-end;
+    align-items: center;
+    margin-top: 20px;
+    .button-item {
+      margin-left: 10px;
+    }
+  }
+
+  *::-webkit-scrollbar {
+    width: 3px;
+    height: 0;
+  }
+  *::-webkit-scrollbar-track {
+    border-radius: 1px;
+    background: rgba(0,0,0,0.00);
+    -webkit-box-shadow: inset 0 0 5px rgba(0,0,0,0.08);
+  }
+  /* 滚动条滑块 */
+  *::-webkit-scrollbar-thumb {
+    border-radius: 3px;
+    background: rgba(0,0,0,0.12);
+    -webkit-box-shadow: inset 0 0 10px rgba(0,0,0,0.2);
+  }
+
+  .audio-material-action {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+
+    .uploading-mask {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: fade(#eee, 80%);
+      z-index: 100;
+      .uploading {
+        z-index: 110;
+        position: absolute;
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+        width: 100px;
+        left: 50%;
+        top: 45%;
+        margin-left: -50px;
+      }
+    }
+
+    .action-item {
+      display: flex;
+      flex-direction: row;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .action-item-column {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 15px 0;
+      .action-tips {
+        line-height: 32px;
+        cursor: pointer;
+        user-select: none;
+      }
+    }
+  }
+
+  .material-action {
+    padding: 10px 0;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+
+    .action-item {
+      margin-left: 20px;
+    }
+  }
+
+  .selected-my-content {
+    .selected-item {
+      padding: 5px 0;
+      font-size: 14px;
+      margin-bottom: 5px;
+    }
+  }
+  .more-action {
+    margin-top: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    .action-item {
+      margin: 0 10px;
+    }
+  }
+
+  .preview-list {
+    margin-top: 20px;
+    height: 520px;
+    overflow-y: scroll;
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    flex-wrap: wrap;
     background: rgba(228, 228, 228, 0.2);
     border: 1px solid #D8D8D8;
     opacity: 1;
     border-radius: 4px;
-    padding: 20px;
+    padding: 15px 15px 0 15px;
+    .preview-item-cover {
+      background-position: center center;
+      background-size: cover;
+      background-repeat: no-repeat;
+      position: relative;
+      width: 225px;
+      height: 160px;
+      border-radius: 5px;
+      margin: 0 5px 5px 10px;
+      border: 1px solid #eee;
+      box-shadow: 0 4px 4px 4px #eee;
 
-    .template-list {
+      .template-select-icon {
+        z-index: 50;
+        position: absolute;
+        right: 5px;
+        top: 5px;
+        img {
+          height: 18px;
+        }
+      }
+    }
+
+    .preview-item-cover-active {
+      border: 1px solid #15C39A;
+      box-shadow: 0px 3px 6px rgba(21, 195, 154, 0.16);
+      border-radius: 5px;
+    }
+  }
+
+  .thumbnail-loading {
+    min-height: 200px;
+    margin-top: 20px;
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+  }
+  .task-audio-line {
+    position: relative;
+    width: 600px;
+    .task-audio {
+      position: absolute;
+      right: -55px;
+      top: -30px;
+      cursor: pointer;
       display: flex;
       flex-direction: row;
-      align-items: flex-start;
-      justify-content: flex-start;
-      flex-wrap: wrap;
-
-      .template-item {
-        background-size: cover;
-        margin-right: 1%;
-        margin-left: 1%;
-        margin-bottom: 20px;
-        box-sizing: border-box;
-        width: 23%;
-        box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.16);
-        background: #FFFFFF;
-        border: 1px solid #E8E8E8;
-        border-radius: 4px;
-        position: relative;
-
-        .template-select-icon {
-          z-index: 50;
-          position: absolute;
-          right: 5px;
-          top: 5px;
-          img {
-            height: 18px;
-          }
-        }
-
-        .template-cover {
-          height: 150px;
-          border-radius: 4px;
-          width: 100%;
-          background-color: #ddd;
-          box-sizing: border-box;
-          padding: 0;
-        }
-
-        .template-info {
-          padding: 10px;
-          display: flex;
-          position: relative;
-          flex-direction: column;
-          justify-content: flex-start;
-
-          .template-name {
-            font-weight: 500;
-            font-size: 14px;
-            z-index: 10;
-            overflow: hidden;
-            white-space: nowrap;
-            text-overflow: ellipsis;
-            word-break: break-all;
-            padding: 10px 0;
-            min-height: 40px;
-          }
-          .template-intro {
-            min-height: 30px;
-            z-index: 10;
-            padding: 5px;
-            overflow: hidden;
-            white-space: nowrap;
-            text-overflow: ellipsis;
-            word-break: break-all;
-            color: rgba(0,0,0,.45);
-            font-size: 12px;
-            background: rgba(244, 244, 244, 0.5);
-            border-radius: 4px;
-            font-family: Inter-Bold;
-            color: #000000;
-          }
-        }
-      }
-
-      .template-item-active {
-        border: 1px solid #15C39A;
-        box-shadow: 0px 3px 6px rgba(21, 195, 154, 0.16);
-        opacity: 1;
-      }
-    }
-  }
-
-  .template-action {
-    padding: 20px 0 0;
-    text-align: center;
-
-    .create-loading {
-      display: inline-block;
-      margin-right: 20px;
-    }
-  }
-}
-
-.template-loading {
-  margin-top: 20px;
-  min-height: 250px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.no-template {
-  margin-top: 20px;
-}
-
-.task-type-line {
-  margin-bottom: 20px;
-  .task-type {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: flex-start;
-    padding: 5px 20%;
-    .task-type-item {
-      margin-right: 15px;
-      cursor: pointer;
-      padding: 5px;
-      line-height: 15px;
-      width: 25px;
-      height: 25px;
-      font-size: 14px;
-      background-color: fade(@outline-color, 20%);
-      color: @primary-color;
-      display: flex;
-      justify-content: center;
       align-items: center;
-      text-align: center;
-    }
+      justify-content: flex-start;
 
-    .active-task-type {
-      background-color: fade(#FF3355, 10%);
-      color: #FF3355;
-      border-radius: 50%;
-      font-weight: 500;
-      border-color:#FF3355
+      img {
+        height: 40px;
+      }
     }
   }
-}
 
-.task-audio-line {
-  position: relative;
-  width: 600px;
-  .task-audio {
-    position: absolute;
-    right: -55px;
-    top: -30px;
-    cursor: pointer;
+  .audio-wrapper {
     display: flex;
     flex-direction: row;
     align-items: center;
-    justify-content: flex-start;
+    height: 30px;
+    audio {
+      height: 30px;
+      border: none;
+      outline: none;
+    }
 
-    img {
-      height: 40px;
+    span {
+      padding: 0 10px;
+      color: red;
+      cursor: pointer;
     }
   }
-}
 
-.view-in-google-slider {
-  display: flex;
-  min-height: 100px;
-  flex-direction: row;
-  align-items: center;
-  justify-content: center;
-
-  .view-line {
+  .thumbnail-task-list {
+    width: 600px;
+    margin: auto;
     display: flex;
     flex-direction: column;
-    width: 100%;
-    justify-content: flex-start;
+    .task-preview-list {
+      position: relative;
+      .task-delete {
+        position: absolute;
+        right: -30px;
+        top: 30%;
+      }
+    }
+  }
 
-    .link-url {
-      width: 100%;
-      word-break: break-all;
-      overflow: hidden;
+  .evaluation-modal {
+    display: flex;
+    flex-direction: column;
+    .evaluation-header {
+      .my-modal-header {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        height: 40px;
+        .my-modal-icon {
+          img {
+            height: 25px;
+          }
+        }
+        .my-modal-title {
+          padding-left: 10px;
+          font-family: Inter-Bold;
+          color: #000000;
+        }
+      }
+    }
+    .associate-evaluation {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid #D8D8D8;
+      padding: 15px;
+      border-radius: 6px;
+      .tips-area {
+        display: flex;
+        justify-content: center;
+        padding: 10px;
+        box-sizing: border-box;
+        margin-bottom: 20px;
+        img {
+          height: 150px;
+        }
+      }
+      .tips {
+        text-align: center;
+        font-family: Inter-Bold;
+        color: #000;
+        margin: auto;
+      }
     }
 
-    .view-action {
-      width: 100%;
+    .associate-my-content-action {
+      margin-top: 20px;
       display: flex;
       flex-direction: row;
       justify-content: flex-end;
-      margin-top: 20px;
-      text-align: right;
-    }
-  }
-}
-
-.select-relevant-tag {
-  max-height: 60vh;
-  overflow-y: scroll;
-}
-
-.action-line {
-  display: flex;
-  flex-direction: row;
-  justify-content: flex-end;
-  align-items: center;
-  margin-top: 20px;
-  .button-item {
-    margin-left: 10px;
-  }
-}
-
-*::-webkit-scrollbar {
-  width: 3px;
-  height: 0;
-}
-*::-webkit-scrollbar-track {
-  border-radius: 1px;
-  background: rgba(0,0,0,0.00);
-  -webkit-box-shadow: inset 0 0 5px rgba(0,0,0,0.08);
-}
-/* 滚动条滑块 */
-*::-webkit-scrollbar-thumb {
-  border-radius: 3px;
-  background: rgba(0,0,0,0.12);
-  -webkit-box-shadow: inset 0 0 10px rgba(0,0,0,0.2);
-}
-
-.audio-material-action {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-
-  .uploading-mask {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: fade(#eee, 80%);
-    z-index: 100;
-    .uploading {
-      z-index: 110;
-      position: absolute;
-      display: flex;
-      flex-direction: row;
-      justify-content: center;
-      width: 100px;
-      left: 50%;
-      top: 45%;
-      margin-left: -50px;
+      padding-right: 10px;
     }
   }
 
-  .action-item {
+  .task-action-wrapper {
     display: flex;
     flex-direction: row;
-    justify-content: center;
     align-items: center;
-    margin-right: 10px;
-  }
-
-  .action-item-column {
-    display: flex;
-    flex-direction: column;
     justify-content: center;
-    align-items: center;
-    padding: 15px 0;
-    .action-tips {
-      line-height: 32px;
-      cursor: pointer;
-      user-select: none;
-    }
-  }
-}
-
-.material-action {
-  padding: 10px 0;
-  display: flex;
-  justify-content: flex-end;
-  align-items: center;
-}
-
-.audio-wrapper {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  height: 30px;
-  audio {
-    height: 30px;
-    border: none;
-    outline: none;
-  }
-
-  span {
-    padding: 0 10px;
-    color: red;
-    cursor: pointer;
-  }
-}
-
-.task-action-wrapper {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: center;
-  .action-item-line {
-    margin: 0 25px;
-    padding: 15px;
-    box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.16);
-    opacity: 1;
-    border-radius: 3px;
-    .action-img {
-      width: 230px;
-    }
-    .action-label {
-      margin-top: 40px;
-      text-align: center;
-      .action-item {
-        border: 1px solid rgba(21, 195, 154, 1);
-        background: rgba(21, 195, 154, 0.1);
-        color: rgba(21, 195, 154, 1);
-        min-width: 120px;
+    .action-item-line {
+      margin: 0 25px;
+      padding: 15px;
+      box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.16);
+      opacity: 1;
+      border-radius: 3px;
+      .action-img {
+        width: 230px;
+      }
+      .action-label {
+        margin-top: 40px;
+        text-align: center;
+        .action-item {
+          border: 1px solid rgba(21, 195, 154, 1);
+          background: rgba(21, 195, 154, 0.1);
+          color: rgba(21, 195, 154, 1);
+          min-width: 120px;
+        }
       }
     }
   }
-}
 
-.self-field-label {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: flex-end;
-  line-height: 32px;
-  padding-right: 10px;
-}
-
-.select-type-wrapper {
-  margin-bottom: 20px;
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: center;
-
-  .select-type {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .select-tips {
-    font-family: Inter-Bold;
-    line-height: 24px;
-    color: #000000;
-    padding: 0 10px;
-  }
-}
-
-.select-button {
-  padding: 0 5px;
-  img {
-    height: 12px;
-  }
-
-  .button-label {
-    padding: 0 5px;
-  }
-}
-
-.btn-icon {
-  height: 20px;
-}
-
-.btn-text {
-  padding: 0 5px;
-}
-
-.header-action {
-  display: flex;
-  flex-direction: row;
-  justify-content: flex-start;
-  align-items: center;
-
-  .header-action-item {
-    padding-right: 20px;
-  }
-}
-
-.form-block {
-  margin-bottom: 35px;
-  width: 600px;
-}
-
-.self-type-wrapper {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: flex-start;
   .self-field-label {
-    width: 100px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-end;
+    line-height: 32px;
+    padding-right: 10px;
+  }
+
+  .select-type-wrapper {
+    margin-bottom: 20px;
     display: flex;
     flex-direction: row;
     align-items: center;
     justify-content: center;
-    .lesson-type-item {
-      margin-right: 10px;
-      width: 33px;
-      height: 33px;
-      border-radius: 33px;
-      border: 2px solid #ddd;
-      font-weight: bold;
+
+    .select-type {
       display: flex;
-      color: #bbb;
+      flex-direction: row;
       align-items: center;
       justify-content: center;
     }
 
-    .green-active-task-type {
-      background: rgba(21, 195, 154, 0.1);
-      border: 2px solid #15C39A;
-      border-radius: 50%;
-      font-weight: bold;
-      color: #15C39A;
-    }
-
-    .red-active-task-type {
-      background: rgba(255, 51, 85, 0.1);
-      border: 2px solid #FF3355;
-      border-radius: 50%;
-      opacity: 1;
-      font-weight: bold;
-      color: #FF3355;
-      opacity: 1;
+    .select-tips {
+      font-family: Inter-Bold;
+      line-height: 24px;
+      color: #000000;
+      padding: 0 10px;
     }
   }
 
-  .self-type-filter {
-    width: 500px;
-  }
-}
+  .select-button {
+    padding: 0 5px;
+    img {
+      height: 12px;
+    }
 
-.subject-grade-wrapper {
-  width: 600px;
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: space-between;
-
-  .select-item {
-    width: 280px;
-  }
-}
-
-.form-header {
-  z-index: 1000;
-  position: fixed;
-  top: 64px;
-  left: 0;
-  right: 0;
-}
-
-.my-full-form-wrapper {
-  margin-top: 70px;
-}
-
-.my-slide-pick-modal {
-  padding: 0;
-  box-sizing: border-box;
-  .ant-modal-body {
-    background: rgba(15, 53, 56, 0.5);
-    padding: 0;
-    box-sizing: border-box;
-  }
-}
-.select-slide-wrapper {
-  padding: 15px;
-  box-sizing: border-box;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  background: rgba(15, 53, 56, 1);
-  .modal-title {
-    font-size: 20px;
-    font-family: FZCuYuan-M03S;
-    font-weight: 400;
-    line-height: 24px;
-    color: #FFFFFF;
-    margin-bottom: 10px;
-    margin-top: 10px;
+    .button-label {
+      padding: 0 5px;
+    }
   }
 
-  .main-tips {
+  .btn-icon {
+    height: 20px;
+  }
+
+  .btn-text {
+    padding: 0 5px;
+  }
+
+  .header-action {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: center;
+
+    .header-action-item {
+      padding-right: 20px;
+    }
+  }
+
+  .form-block {
+    margin-bottom: 35px;
+    width: 600px;
+  }
+
+  .self-type-wrapper {
     display: flex;
     flex-direction: row;
     align-items: center;
-    width: 500px;
-    height: 250px;
-    .left-img {
-      height: 250px;
+    justify-content: flex-start;
+    .self-field-label {
+      width: 100px;
       display: flex;
       flex-direction: row;
-      align-items: flex-end;
-      width: 250px;
+      align-items: center;
+      justify-content: center;
+      .task-type-item {
+        margin-right: 10px;
+        width: 33px;
+        height: 33px;
+        border-radius: 33px;
+        border: 2px solid #ddd;
+        font-weight: bold;
+        display: flex;
+        color: #bbb;
+        align-items: center;
+        justify-content: center;
+      }
 
-      img {
-        width: 250px;
+      .green-active-task-type {
+        background: rgba(21, 195, 154, 0.1);
+        border: 2px solid #15C39A;
+        border-radius: 50%;
+        font-weight: bold;
+        color: #15C39A;
+      }
+
+      .red-active-task-type {
+        background: rgba(255, 51, 85, 0.1);
+        border: 2px solid #FF3355;
+        border-radius: 50%;
+        opacity: 1;
+        font-weight: bold;
+        color: #FF3355;
+        opacity: 1;
       }
     }
-    .right-img-text {
-      height: 250px;
-      display: flex;
-      flex-direction: row;
-      align-items: flex-start;
-      width: 250px;
-      position: relative;
-      img {
-        width: 250px;
-      }
 
-      .img-text {
-        position: absolute;
-        font-size: 18px;
-        width: 190px;
-        height: 150px;
-        margin: auto;
-        left: 35px;
-        top: 40px;
-        font-family: FZCuYuan-M03S;
-        font-weight: 400;
-        line-height: 20px;
-        color: #0F3538;
-      }
+    .self-type-filter {
+      width: 500px;
     }
   }
-}
 
-.slide-action {
-  padding: 25px 0 30px 0;
-  background: rgba(15, 53, 56, 1);
-
-  .slide-btn-wrapper {
+  .subject-grade-wrapper {
+    width: 600px;
     display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+
+    .select-item {
+      width: 280px;
+    }
+  }
+
+  .form-header {
+    z-index: 1000;
+    position: fixed;
+    top: 64px;
+    left: 0;
+    right: 0;
+  }
+
+  .my-full-form-wrapper {
+    margin-top: 70px;
+  }
+
+  .my-slide-pick-modal {
+    padding: 0;
+    box-sizing: border-box;
+    .ant-modal-body {
+      background: rgba(15, 53, 56, 0.5);
+      padding: 0;
+      box-sizing: border-box;
+    }
+  }
+  .select-slide-wrapper {
+    padding: 15px;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
     justify-content: center;
-    .slide-btn-item {
-      margin: 0 10px;
+    align-items: center;
+    background: rgba(15, 53, 56, 1);
+    .modal-title {
+      font-size: 20px;
+      font-family: FZCuYuan-M03S;
+      font-weight: 400;
+      line-height: 24px;
+      color: #FFFFFF;
+      margin-bottom: 10px;
+      margin-top: 10px;
     }
 
-    .slide-btn-item-no {
+    .main-tips {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      width: 500px;
+      height: 250px;
+      .left-img {
+        height: 250px;
+        display: flex;
+        flex-direction: row;
+        align-items: flex-end;
+        width: 250px;
 
-    }
+        img {
+          width: 250px;
+        }
+      }
+      .right-img-text {
+        height: 250px;
+        display: flex;
+        flex-direction: row;
+        align-items: flex-start;
+        width: 250px;
+        position: relative;
+        img {
+          width: 250px;
+        }
 
-    .slide-btn-item-yes {
-
+        .img-text {
+          position: absolute;
+          font-size: 18px;
+          width: 190px;
+          height: 150px;
+          margin: auto;
+          left: 35px;
+          top: 40px;
+          font-family: FZCuYuan-M03S;
+          font-weight: 400;
+          line-height: 20px;
+          color: #0F3538;
+        }
+      }
     }
   }
-}
 
-.pick-task-slide-wrapper {
-  width: 1000px;
-  margin: auto;
+  .slide-action {
+    padding: 25px 0 30px 0;
+    background: rgba(15, 53, 56, 1);
 
-  .slide-form-block {
+    .slide-btn-wrapper {
+      display: flex;
+      justify-content: center;
+      .slide-btn-item {
+        margin: 0 10px;
+      }
+
+      .slide-btn-item-no {
+
+      }
+
+      .slide-btn-item-yes {
+
+      }
+    }
   }
-}
 
+  .pick-task-slide-wrapper {
+    width: 1000px;
+    margin: auto;
+
+    .slide-form-block {
+    }
+  }
+  .template-tabs /deep/ .ant-tabs-nav-scroll{
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    justify-content: center;
+  }
 </style>

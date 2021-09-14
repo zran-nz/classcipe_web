@@ -76,7 +76,7 @@
             </div>
           </div>
           <div class="save-task">
-            <a-button :style="{'display': 'flex', 'align-items': 'center', 'background' : '#15C39A', 'color': '#fff', 'justify-content': 'center', 'padding': '20px 15px', 'border-radius': '5px'}" @click="handleSaveTask">
+            <a-button :loading="loadSaving" :style="{'display': 'flex', 'align-items': 'center', 'background' : '#15C39A', 'color': '#fff', 'justify-content': 'center', 'padding': '20px 15px', 'border-radius': '5px'}" @click="handleSaveTask">
               <div class="btn-icon">
                 <img src="~@/assets/icons/task/taskAdd.png" />
               </div>
@@ -147,6 +147,7 @@ import { SubjectTree } from '@/api/subject'
 import { formatSubjectTree } from '@/utils/bizUtil'
 import { DICT_BLOOM_CATEGORY } from '@/const/common'
 import CustomTag from '@/components/UnitPlan/CustomTag'
+const { SpliteTask } = require('@/api/task')
 
 export default {
   name: 'TaskForm',
@@ -165,6 +166,12 @@ export default {
       type: String,
       default: ''
     },
+    selectIds: {
+      type: Array,
+      default: () => {
+        return []
+      }
+    },
     taskPrefix: {
       type: String,
       default: '',
@@ -177,6 +184,7 @@ export default {
       templateTypeMap: TemplateTypeMap,
 
       creating: false,
+      loadSaving: false,
 
       leftAddExpandStatus: false,
       selectLinkContentVisible: false,
@@ -189,6 +197,7 @@ export default {
 
       presentationLink: null,
       form: {
+        selectPageObjectIds: [],
         __taskId: null,
         image: '',
         audioUrl: '',
@@ -261,7 +270,7 @@ export default {
     }
   },
   watch: {
-    selectPageObjectIds (value) {
+    selectIds (value) {
       this.$logger.info('selectPageObjectIds update', value)
       this.form.selectPageObjectIds = value
     }
@@ -383,8 +392,24 @@ export default {
       }
 
       taskData.suggestingTag = questionItem
+      taskData.selectPageObjectIds = this.form.selectPageObjectIds
       logger.info('finish taskData', taskData)
-      this.$emit('finish-task', taskData)
+      const SpliteTaskData = {
+        'taskId': this.taskId,
+        'subTask': taskData
+      }
+      this.loadSaving = true
+      SpliteTask(SpliteTaskData).then((response) => {
+        this.$logger.info('SpliteTask ', response.result)
+        if (response.success) {
+          this.$message.success('Add another task success')
+          taskData.id = response.result.id
+          this.$emit('finish-task', taskData)
+        } else {
+          this.$message.error(response.message)
+        }
+        this.loadSaving = false
+      })
     },
 
     handleSelectTaskType (type) {
