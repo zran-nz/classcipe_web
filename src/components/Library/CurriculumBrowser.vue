@@ -334,7 +334,6 @@ export default {
       gradeList: [],
       currentGradeId: null,
       gradeListLoading: false,
-      subjects: [],
       knowledges: [],
       knowledgeDeep: 1,
       subjectDeep: 2,
@@ -347,13 +346,6 @@ export default {
       currentSubSubjectId: null,
 
       mainKnowledgeList: [],
-      mainKnowledgeListLoading: false,
-      currentMainKnowledgeId: null,
-
-      subKnowledgeList: [],
-      subKnowledgeListLoading: false,
-      currentSubKnowledgeId: null,
-
       dataList: [],
       dataListLoading: false,
       currentDataId: null,
@@ -405,15 +397,18 @@ export default {
       if (mainSubjectItem.hasChild === '0') {
         this.hasChildSubject = false
         this.currentMainSubjectId = mainSubjectItem.id
-        this.subSubjectList = []
-        this.currentSubKnowledgeId = null
+        this.currentGradeId = null
+        this.knowledges = []
         this.subjectDeep = 1
+        this.handleClickBlock(1, mainSubjectItem.name)
         return
       }
       if (mainSubjectItem.id !== this.currentMainSubjectId) {
         this.currentMainSubjectId = mainSubjectItem.id
         this.subSubjectList = mainSubjectItem.children
         this.currentSubKnowledgeId = null
+        this.knowledges = []
+        this.currentGradeId = null
       }
       this.subSubjectListLoading = false
       this.handleClickBlock(1, mainSubjectItem.name)
@@ -434,7 +429,7 @@ export default {
         this.currentGradeId = gradeItem.id
         this.getKnowledgeTree()
       }
-      this.handleClickBlock(3, gradeItem.name)
+      this.handleClickBlock(this.subjectDeep + 2, gradeItem.name)
     },
 
     getKnowledgeDeep (obj, k) {
