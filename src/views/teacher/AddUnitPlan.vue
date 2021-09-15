@@ -370,7 +370,7 @@
         @ok="selectReferMyContentVisible = false"
         @cancel="selectReferMyContentVisible = false">
         <div class="link-content-wrapper">
-          <my-content-selector :filter-type-list="['unit-plan', 'topic']" :mode="DisplayMode.Refer" />
+          <my-content-selector :current-id="unitPlanId" :filter-type-list="['unit-plan', 'topic']" :mode="DisplayMode.Refer" />
         </div>
       </a-modal>
 
