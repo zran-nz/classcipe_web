@@ -429,7 +429,7 @@ export default {
         this.currentGradeId = gradeItem.id
         this.getKnowledgeTree()
       }
-      this.handleClickBlock(this.subjectDeep + 2, gradeItem.name)
+      this.handleClickBlock(this.subjectDeep + 1, gradeItem.name)
     },
 
     getKnowledgeDeep (obj, k) {
