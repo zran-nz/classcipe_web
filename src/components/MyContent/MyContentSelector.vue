@@ -31,6 +31,7 @@
           :selected-list="selectedList"
           :mode="mode"
           :selected-type="selectedType"
+          :current-id="currentId"
         />
       </a-col>
     </a-row>
@@ -57,6 +58,10 @@ export default {
     mode: {
       type: String,
       default: DisplayMode.Link
+    },
+    currentId: {
+      type: String,
+      default: ''
     }
   },
   data () {

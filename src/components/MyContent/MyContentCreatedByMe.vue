@@ -285,6 +285,10 @@ export default {
     selectedType: {
       type: String,
       default: 'created-by-me'
+    },
+    currentId: {
+      type: String,
+      default: ''
     }
   },
   data () {
@@ -372,7 +376,8 @@ export default {
         status: statusMap[this.currentStatus],
         types: this.currentType ? [typeMap[this.currentType]] : typeList,
         pageNo: this.pageNo,
-        pageSize: this.pagination.pageSize
+        pageSize: this.pagination.pageSize,
+        currentId: this.currentId
       }).then(res => {
         logger.info('getMyContent', res)
         if (res.result && res.result.records && res.result.records.length) {

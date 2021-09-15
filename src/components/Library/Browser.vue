@@ -46,7 +46,13 @@
               </div>
             </div>
             <div class="browser-detail">
-              <curriculum-browser :curriculum-id="currentCurriculumId" :block-width="blockWidth" v-if="currentBrowserType === BrowserTypeMap.curriculum" @blockCollapse="handleBlockCollapse" @previewDetail="handlePreviewDetail"/>
+              <curriculum-browser
+                :block-index="blockIndex"
+                :curriculum-id="currentCurriculumId"
+                :block-width="blockWidth"
+                v-if="currentBrowserType === BrowserTypeMap.curriculum"
+                @blockCollapse="handleBlockCollapse"
+                @previewDetail="handlePreviewDetail"/>
               <assessment-browser :curriculum-id="currentCurriculumId" :block-width="blockWidth" v-if="currentBrowserType === BrowserTypeMap.assessmentType" @blockCollapse="handleBlockCollapse" @previewDetail="handlePreviewDetail"/>
               <sdg-browser :block-width="blockWidth" v-if="currentBrowserType === BrowserTypeMap.sdg" @blockCollapse="handleBlockCollapse" @previewDetail="handlePreviewDetail"/>
             </div>
@@ -231,6 +237,7 @@ export default {
       this.previewVisible = false
       const blockIndex = data.blockIndex
       if (blockIndex <= 2) {
+        this.blockIndex = blockIndex
         this.hasLeftBlock = false
         this.browserMarginLeft = 0
         this.blockWidth = (this.$refs['wrapper'].getBoundingClientRect().width - 781) / 2.0

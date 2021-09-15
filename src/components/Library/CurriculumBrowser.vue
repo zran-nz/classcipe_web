@@ -319,6 +319,10 @@ export default {
     curriculumId: {
       type: String,
       default: null
+    },
+    blockIndex: {
+      type: Number,
+      default: 0
     }
   },
   watch: {
@@ -326,6 +330,18 @@ export default {
       this.$logger.info('curriculumId change ' + value)
       this.refreshSubjectTree()
       this.getGradesByCurriculumId(value)
+    },
+    blockIndex (value) {
+      if (value === 0) {
+        this.currentMainSubjectId = null
+        this.currentSubSubjectId = null
+        this.currentGradeId = null
+      } else if (value === 1) {
+        this.currentSubSubjectId = null
+        this.currentGradeId = null
+      } else if (value === 2) {
+        this.currentGradeId = null
+      }
     }
   },
   data () {
@@ -394,10 +410,11 @@ export default {
       this.hasChildSubject = true
       this.subjectDeep = 2
       this.$logger.info('handleSelectMainSubjectItem ', mainSubjectItem, this.currentMainSubjectId)
-      if (mainSubjectItem.hasChild === '0') {
+      if (mainSubjectItem.children.length === 0) {
         this.hasChildSubject = false
         this.currentMainSubjectId = mainSubjectItem.id
         this.currentGradeId = null
+        this.currentSubSubjectId = null
         this.knowledges = []
         this.subjectDeep = 1
         this.handleClickBlock(1, mainSubjectItem.name)
@@ -406,9 +423,9 @@ export default {
       if (mainSubjectItem.id !== this.currentMainSubjectId) {
         this.currentMainSubjectId = mainSubjectItem.id
         this.subSubjectList = mainSubjectItem.children
-        this.currentSubKnowledgeId = null
         this.knowledges = []
         this.currentGradeId = null
+        this.currentSubSubjectId = null
       }
       this.subSubjectListLoading = false
       this.handleClickBlock(1, mainSubjectItem.name)
@@ -419,6 +436,7 @@ export default {
       if (subSubjectItem.id !== this.currentSubSubjectId) {
         this.currentSubSubjectId = subSubjectItem.id
         this.currentGradeId = null
+        this.knowledges = []
       }
       this.handleClickBlock(2, subSubjectItem.name)
     },
@@ -465,7 +483,9 @@ export default {
         }
         this.$logger.info('mainKnowledgeList', this.knowledgeTree)
       }).finally(() => {
-        this.knowledges[0].knowledgeListLoading = false
+          if (this.knowledges.length > 0) {
+            this.knowledges[0].knowledgeListLoading = false
+          }
       })
     },
 

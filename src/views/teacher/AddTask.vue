@@ -331,6 +331,7 @@
           <a-tab-pane key="2" tab="My content">
             <div class="link-content-wrapper">
               <my-content-selector
+                :current-id="taskId"
                 :filter-type-list="['task']"
                 :selected-list="selectedMyContentKeyList"
                 mode="select"
@@ -997,16 +998,17 @@
       },
 
       goBack () {
-        if (window.history.length <= 1) {
-          this.$router.push({ path: '/teacher/main/created-by-me' })
-          return false
-        } else {
-          this.$router.go(-1)
-        }
-
-        setTimeout(() => {
-          this.$router.push({ path: '/teacher/main/created-by-me' })
-        }, 500)
+        this.$router.push({ path: '/teacher/main/created-by-me' })
+        // if (window.history.length <= 1) {
+        //   this.$router.push({ path: '/teacher/main/created-by-me' })
+        //   return false
+        // } else {
+        //   this.$router.go(-1)
+        // }
+        //
+        // setTimeout(() => {
+        //   this.$router.push({ path: '/teacher/main/created-by-me' })
+        // }, 500)
       },
 
       handleToggleTemplateType (key, value) {
@@ -1079,7 +1081,7 @@
               this.form.presentationId = response.result.presentationId
               this.presentationLink = response.result.presentationLink
               this.selectTemplateVisible = false
-              this.viewInGoogleSlideVisible = true
+              this.restoreTask(this.form.id, false)
               this.$router.replace({
                 path: '/teacher/add-task/' + response.result.id
               })
@@ -1087,6 +1089,7 @@
               this.templateLoading = false
               this.creating = false
               this.selectedMyContentVisible = false
+              this.viewInGoogleSlideVisible = true
               // this.loadThumbnail()
             })
           } else {
