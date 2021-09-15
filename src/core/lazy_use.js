@@ -41,6 +41,7 @@ import {
   Space,
   TreeSelect,
   Tree,
+  Steps,
   message,
   notification, Switch, Rate, Collapse
 } from 'ant-design-vue'
@@ -100,6 +101,7 @@ Vue.use(Result)
 Vue.use(Space)
 Vue.use(TreeSelect)
 Vue.use(Tree)
+Vue.use(Steps)
 
 Vue.prototype.$confirm = Modal.confirm
 Vue.prototype.$message = message
