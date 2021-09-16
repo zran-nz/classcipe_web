@@ -157,7 +157,7 @@
                       </div>
 
                       <a-form-item label="Set Learning outcomes" >
-                        <a-button type="primary" @click="showBroswer">
+                        <a-button type="primary">
                           <div class="btn-text" style="line-height: 20px">
                             Add Learning outcomes
                           </div>
@@ -165,24 +165,13 @@
                       </a-form-item>
 
                       <!--knowledge tag-select -->
-                      <new-ui-clickable-knowledge-tag
-                        :question-index="questionIndex"
-                        :grade-ids="form.gradeIds"
-                        :subject-ids="form.subjectIds"
-                        :selected-knowledge-tags="questionItem.knowledgeTags"
-                        :selected-skill-tags="questionItem.skillTags"
-                        @remove-knowledge-tag="handleRemoveKnowledgeTag"
-                        @add-knowledge-tag="handleAddKnowledgeTag"
-                        @remove-skill-tag="handleRemoveSkillTag"
-                        @add-skill-tag="handleAddSkillTag"
-                      />
-
+                      <ui-learn-out />
                     </template>
                   </a-step>
                   <a-step>
                     <template slot="description">
                       <a-form-item label="Link Plan content" >
-                        <a-button type="primary" @click="showBroswer">
+                        <a-button type="primary" >
                           <div class="btn-text" style="line-height: 20px">
                             + Link
                           </div>
@@ -425,7 +414,6 @@ import { ChangeStatus, UnitPlanAddOrUpdate, UnitPlanQueryById } from '@/api/unit
 import { formatLocalUTC } from '@/utils/util'
 import MyContentSelector from '@/components/MyContent/MyContentSelector'
 import AssociateSidebar from '@/components/Associate/AssociateSidebar'
-import Collaborate from '@/components/UnitPlan/Collaborate'
 import { TaskAddOrUpdate } from '@/api/task'
 import { LessonAddOrUpdate } from '@/api/myLesson'
 import { EvaluationAddOrUpdate } from '@/api/evaluation'
@@ -440,6 +428,7 @@ import { SelectModel } from '@/components/NewLibrary/SelectModel'
 import DisplayMode from '@/components/MyContent/DisplayMode'
 import { LibraryEvent, LibraryEventBus } from '@/components/NewLibrary/LibraryEventBus'
 import ReferPreview from '@/components/UnitPlanRefer/ReferPreview'
+import UiLearnOut from "@/components/UnitPlan/UiLearnOut";
 const TagOriginType = {
   Origin: 'Origin',
   Search: 'Search',
@@ -461,11 +450,11 @@ export default {
     SkillTag,
     MyContentSelector,
     AssociateSidebar,
-    Collaborate,
     CustomTag,
     RelevantTagSelector,
     AddKeywordTag,
-    NewBrowser
+    NewBrowser,
+    UiLearnOut
   },
   props: {
     unitPlanId: {

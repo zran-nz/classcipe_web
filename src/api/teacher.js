@@ -11,7 +11,6 @@ import { LessonDelete } from '@/api/myLesson'
 export const teacherAPIUrl = {
   Associate: '/classcipe/api/teacher/associate',
   AssociateCancel: '/classcipe/api/teacher/associateCancel',
-  BatchAssociate: '/classcipe/api/teacher/batchAssociate',
   GetAssociate: '/classcipe/api/teacher/getAssociate',
   GetMyContent: '/classcipe/api/teacher/getMyContent',
   FindMyContent: '/classcipe/api/teacher/findMyContent',
@@ -147,22 +146,6 @@ export function Associate (parameter) {
 export function AssociateCancel (parameter) {
   return request({
     url: teacherAPIUrl.AssociateCancel,
-    method: 'post',
-    data: parameter,
-    headers: {
-      'Content-Type': 'application/json;charset=UTF-8'
-    }
-  })
-}
-
-/**
- * @param parameter
- * @returns {AxiosPromise}
- * @constructor
- */
-export function BatchAssociate (parameter) {
-  return request({
-    url: teacherAPIUrl.BatchAssociate,
     method: 'post',
     data: parameter,
     headers: {
