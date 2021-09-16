@@ -164,6 +164,19 @@
                         </a-button>
                       </a-form-item>
 
+                      <!--knowledge tag-select -->
+                      <new-ui-clickable-knowledge-tag
+                        :question-index="questionIndex"
+                        :grade-ids="form.gradeIds"
+                        :subject-ids="form.subjectIds"
+                        :selected-knowledge-tags="questionItem.knowledgeTags"
+                        :selected-skill-tags="questionItem.skillTags"
+                        @remove-knowledge-tag="handleRemoveKnowledgeTag"
+                        @add-knowledge-tag="handleAddKnowledgeTag"
+                        @remove-skill-tag="handleRemoveSkillTag"
+                        @add-skill-tag="handleAddSkillTag"
+                      />
+
                     </template>
                   </a-step>
                   <a-step>
