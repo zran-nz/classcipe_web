@@ -13,7 +13,7 @@
     </div>
     <a-card :bordered="false" :bodyStyle="{ padding: '16px 24px', height: '100%', minHeight: '500px' }">
       <a-row class="unit-content" v-if="!contentLoading">
-        <a-col span="4" v-if="showSidebar">
+        <!--        <a-col span="4" v-if="showSidebar">
           <associate-sidebar
             :name="form.name"
             :type="contentType['unit-plan']"
@@ -22,9 +22,9 @@
             @create="showSelectAddContentTypeVisible"
             @link="showSelectLinkContentVisible"
             :show-create="true"/>
-        </a-col>
-        <a-col span="20" class="main-content">
-          <a-card :bordered="false" :body-style="{padding: '16px'}">
+        </a-col>-->
+        <a-col span="24" class="main-content">
+          <a-card :bordered="false" :body-style="{padding: '16px', display: 'flex', 'justify-content': 'space-between'}" class="card-wrapper">
             <div class="unit-plan-form-left" ref="form">
               <a-form-model :model="form" class="my-form-wrapper">
                 <a-steps :current="0" direction="vertical">
@@ -50,48 +50,6 @@
                         <a-form-item label="Course Name">
                           <a-input v-model="form.name" placeholder="Enter Course Name" class="my-form-input" />
                         </a-form-item>
-                      </div>
-
-                      <div class="form-block">
-                        <!-- image-->
-                        <a-form-model-item class="img-wrapper">
-                          <a-upload-dragger
-                            name="file"
-                            accept="image/png, image/jpeg"
-                            :showUploadList="false"
-                            :customRequest="handleUploadImage"
-                          >
-                            <div class="delete-img" @click="handleDeleteImage($event)" v-show="form.image">
-                              <a-icon type="close-circle" />
-                            </div>
-                            <template v-if="uploading">
-                              <div class="upload-container">
-                                <p class="ant-upload-drag-icon">
-                                  <a-icon type="cloud-upload" />
-                                </p>
-                                <p class="ant-upload-text">
-                                  <a-spin />
-                                  <span class="uploading-tips">{{ $t('teacher.add-unit-plan.uploading') }}</span>
-                                </p>
-                              </div>
-                            </template>
-                            <template v-if="!uploading && form && form.image">
-                              <div class="image-preview">
-                                <img :src="form.image" alt="">
-                              </div>
-                            </template>
-                            <template v-if="!uploading && form && !form.image">
-                              <div class="upload-container">
-                                <p class="ant-upload-drag-icon">
-                                  <img src="~@/assets/icons/lesson/upload_icon.png" class="upload-icon" />
-                                </p>
-                                <p class="ant-upload-text">
-                                  {{ $t('teacher.add-unit-plan.upload-a-picture') }}
-                                </p>
-                              </div>
-                            </template>
-                          </a-upload-dragger>
-                        </a-form-model-item>
                       </div>
 
                       <div class="form-block over-form-block" id="overview">
@@ -198,10 +156,6 @@
                         <a-button type="link" icon="plus-circle" size="large" @click="handleAddMoreQuestion"></a-button>
                       </div>
 
-                    </template>
-                  </a-step>
-                  <a-step>
-                    <template slot="description">
                       <a-form-item label="Set Learning outcomes" >
                         <a-button type="primary" @click="showBroswer">
                           <div class="btn-text" style="line-height: 20px">
@@ -210,43 +164,69 @@
                         </a-button>
                       </a-form-item>
 
-                      <new-ui-clickable-knowledge-tag
-                        :question-index="questionIndex"
-                        :grade-ids="form.gradeIds"
-                        :subject-ids="form.subjectIds"
-                        :selected-knowledge-tags="questionItem.knowledgeTags"
-                        :selected-skill-tags="questionItem.skillTags"
-                        @remove-knowledge-tag="handleRemoveKnowledgeTag"
-                        @add-knowledge-tag="handleAddKnowledgeTag"
-                        @remove-skill-tag="handleRemoveSkillTag"
-                        @add-skill-tag="handleAddSkillTag"
-                      />
-                      <!--
-                      <div
-                        class="sdg-content-blocks question-item question-form-blocks"
-                        id="question"
-                        v-for="(learn, index) in form.learnOuts"
-                        :key="index">
-
-                        <div class="knowledge-delete-wrapper" @click="handleDeleteQuestion(questionItem, questionIndex)" v-show="form.learnOuts > 1">
-                          <a-tooltip placement="top">
-                            <template slot="title">
-                              <span>{{ $t('teacher.add-unit-plan.delete-questions') }}</span>
-                            </template>
-                            <div class="sdg-delete">
-                              <a-icon type="delete" :style="{ fontSize: '20px' }" />
-                            </div>
-                          </a-tooltip>
-                        </div>
-
-                      </div>-->
-                      <div class="form-block">
-                        <custom-tag ref="customTag" :selected-tags-list="form.customTags" @change-user-tags="handleChangeUserTags"></custom-tag>
-                      </div>
+                    </template>
+                  </a-step>
+                  <a-step>
+                    <template slot="description">
+                      <a-form-item label="Link Plan content" >
+                        <a-button type="primary" @click="showBroswer">
+                          <div class="btn-text" style="line-height: 20px">
+                            + Link
+                          </div>
+                        </a-button>
+                      </a-form-item>
                     </template>
                   </a-step>
                 </a-steps>
               </a-form-model>
+            </div>
+            <div class="unit-plan-form-right">
+
+              <div class="form-block-right">
+                <!-- image-->
+                <a-form-model-item class="img-wrapper">
+                  <a-upload-dragger
+                    name="file"
+                    accept="image/png, image/jpeg"
+                    :showUploadList="false"
+                    :customRequest="handleUploadImage"
+                  >
+                    <div class="delete-img" @click="handleDeleteImage($event)" v-show="form.image">
+                      <a-icon type="close-circle" />
+                    </div>
+                    <template v-if="uploading">
+                      <div class="upload-container">
+                        <p class="ant-upload-drag-icon">
+                          <a-icon type="cloud-upload" />
+                        </p>
+                        <p class="ant-upload-text">
+                          <a-spin />
+                          <span class="uploading-tips">{{ $t('teacher.add-unit-plan.uploading') }}</span>
+                        </p>
+                      </div>
+                    </template>
+                    <template v-if="!uploading && form && form.image">
+                      <div class="image-preview">
+                        <img :src="form.image" alt="">
+                      </div>
+                    </template>
+                    <template v-if="!uploading && form && !form.image">
+                      <div class="upload-container">
+                        <p class="ant-upload-drag-icon">
+                          <img src="~@/assets/icons/lesson/upload_icon.png" class="upload-icon" />
+                        </p>
+                        <p class="ant-upload-text">
+                          {{ $t('teacher.add-unit-plan.upload-a-picture') }}
+                        </p>
+                      </div>
+                    </template>
+                  </a-upload-dragger>
+                </a-form-model-item>
+              </div>
+
+              <div class="" >
+                <custom-tag ref="customTag" :selected-tags-list="form.customTags" @change-user-tags="handleChangeUserTags"></custom-tag>
+              </div>
             </div>
           </a-card>
         </a-col>
@@ -553,29 +533,6 @@ export default {
 
       // 根据description搜索的下拉list列表
       descriptionSearchList: [],
-
-      // 将scenario下面的sdg及keywords转成对象
-      sdgTotal: 0,
-      sdgMaxIndex: 0,
-      sdgPrefix: '__sdg_',
-
-      // 将questions转成对象
-      questionTotal: 0,
-      questionMaxIndex: 0,
-      questionPrefix: '__question_',
-      questionDataObj: {
-        __question_0: {
-          questionId: null,
-          visible: false,
-          name: '',
-          knowledgeMainSubjectId: '',
-          knowledgeSubSubjectId: '',
-          knowledgeGradeId: '',
-          knowledgeTags: [],
-          skillGradeId: '',
-          skillTags: []
-        }
-      },
       addLoading: false,
       currentIndex: 0,
       saving: false,
@@ -707,45 +664,10 @@ export default {
             }
           })
         }
-        const questionKeys = Object.keys(this.questionDataObj)
-        questionKeys.forEach(questionKey => {
-          logger.info('questionDataObj delete ' + questionKey)
-          this.$delete(this.questionDataObj, questionKey)
-        })
-        if (unitPlanData.questions && unitPlanData.questions.length) {
-          unitPlanData.questions.forEach(questionItem => {
-            const question = {
-              questionId: questionItem.id,
-              visible: false,
-              name: questionItem.name,
-              knowledgeMainSubjectId: '',
-              knowledgeSubSubjectId: '',
-              knowledgeGradeId: '',
-              knowledgeTags: questionItem.knowledgeTags,
-              skillGradeId: '',
-              skillTags: questionItem.skillTags
-            }
-            this.$set(this.questionDataObj, this.questionPrefix + this.questionMaxIndex, question)
-            logger.info('restore default questionDataObj: ' + (this.questionPrefix + this.questionMaxIndex), question, ' questionDataObj ', this.questionDataObj)
-            this.questionMaxIndex = this.questionMaxIndex + 1
-            this.questionTotal = this.questionTotal + 1
-          })
-        } else {
-          const question = {
-            name: '',
-            knowledgeMainSubjectId: '',
-            knowledgeSubSubjectId: '',
-            knowledgeGradeId: '',
-            knowledgeTags: [],
-            skillGradeId: '',
-            skillTags: []
-          }
-          this.$set(this.questionDataObj, this.questionPrefix + this.questionMaxIndex, question)
-          logger.info('restore default questionDataObj: ' + (this.questionPrefix + this.questionMaxIndex), question, ' questionDataObj ', this.questionDataObj)
-          this.questionMaxIndex = this.questionMaxIndex + 1
-          this.questionTotal = this.questionTotal + 1
-        }
         this.form = unitPlanData
+        if (unitPlanData.questions.length === 0) {
+          this.form.questions.push({ 'name': '' })
+        }
       }).finally(() => {
         this.contentLoading = false
       })
@@ -1765,25 +1687,6 @@ export default {
         }
       }
     }
-
-    .img-wrapper {
-      position: relative;
-      width: 600px;
-    }
-    .delete-img {
-      position: absolute;
-      top: -10px;
-      right: -10px;
-      background-color: #fafafa;
-      border-radius: 50%;
-      height: 30px;
-      width: 30px;
-      text-align: center;
-      vertical-align: middle;
-      color: @red-5;
-      z-index: 100;
-      font-size: 20px;
-    }
   }
 
   .add-to-item {
@@ -2070,8 +1973,34 @@ export default {
   }
 }
 
-.unit-plan-form-left {
-  width: 800px;
+.card-wrapper{
+  .unit-plan-form-left {
+    width: 800px;
+  }
+
+  .unit-plan-form-right {
+    width: 600px;
+    .form-block-right{
+      .img-wrapper {
+        position: relative;
+        width: 600px;
+      }
+      .delete-img {
+        position: absolute;
+        top: -10px;
+        right: -10px;
+        background-color: #fafafa;
+        border-radius: 50%;
+        height: 30px;
+        width: 30px;
+        text-align: center;
+        vertical-align: middle;
+        color: @red-5;
+        z-index: 100;
+        font-size: 20px;
+      }
+    }
+  }
 }
 
 .form-input-item {
