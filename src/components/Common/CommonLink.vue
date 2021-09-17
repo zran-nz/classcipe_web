@@ -87,6 +87,59 @@
           </div>
         </div>
       </template>
+      <template v-if="othersLinkGroupList.length && !linkGroupLoading">
+        <div class="link-group" v-for="(linkGroup, lIndex) in othersLinkGroupList" :key="lIndex">
+          <div class="group-item">
+            <div class="group-header">
+              <div class="group-left-info">
+                <div class="group-name">
+                  <div class="group-name-text" v-if="!linkGroup.editing">{{ linkGroup.group ? linkGroup.group : 'Untitled Term' }}</div>
+                  <div class="group-name-input" v-if="linkGroup.editing">
+                    <input v-model="linkGroup.group" class="group-name-input"/>
+                  </div>
+                </div>
+                <div class="group-edit-icon" @click="handleToggleEditGroupName(linkGroup)">
+                  <a-icon type="edit" v-if="!linkGroup.editing"/>
+                  <a-icon type="check" v-if="linkGroup.editing"/>
+                </div>
+              </div>
+              <div class="group-right-info">
+                <div class="group-action">
+                  <a-button type="primary" @click="handleLinkGroup(linkGroup)">
+                    <div class="btn-text" style="line-height: 20px">
+                      + Link
+                    </div>
+                  </a-button>
+                </div>
+              </div>
+            </div>
+            <div class="group-body">
+              <div class="group-link-item" v-for="(item,index) in linkGroup.contents" :key="index">
+                <div class="left-info">
+                  <div class="icon">
+                    <content-type-icon :type="item.type"/>
+                  </div>
+                  <div class="name">
+                    <a-tooltip placement="top">
+                      <template slot="title">
+                        {{ item.name }}
+                      </template>
+                      {{ item.name }}
+                    </a-tooltip>
+                  </div>
+                </div>
+                <div class="right-info">
+                  <div class="date">{{ item.createTime | dayjs }}</div>
+                  <div class="status">
+                    <template v-if="item.status === 0">Draft</template>
+                    <template v-if="item.status === 1">Published</template>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </template>
     </div>
 
     <a-modal
