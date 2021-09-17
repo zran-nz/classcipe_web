@@ -16,14 +16,20 @@
                   double click one learning outcome to add relevant tags double click one learning outcome to
                   add relevant tags double click one learning outcome to add relevant tags
                 </div>
-                <span class="add-action" >
-                    <img src="~@/assets/icons/tag/delete.png"/>
-                </span>
+                <div
+                  class="actions">
+                  <span class="add-action" >
+                    <img src="~@/assets/icons/tag/add.png"/>
+                  </span>
+                  <span class="up-down" >
+                    <a-icon type="down" />
+                  </span>
+                </div>
               </div>
               <a-popconfirm title="Delete?" ok-text="Yes" @confirm="handleDeleteKnowledgeItem(descriptionTagList[0].subKnowledgeId)" cancel-text="No">
-                  <span class="delete-action" >
-                    <img src="~@/assets/icons/tag/delete.png"/>
-                  </span>
+                <span class="delete-action" >
+                  <img src="~@/assets/icons/tag/delete.png"/>
+                </span>
               </a-popconfirm>
             </div>
             <div class="skt-description-list">
@@ -36,14 +42,14 @@
                 <div class="skt-description">
                   double click one learning outcome to add relevant tags double cli
                 </div>
-        <!--        <span class="delete-action" >
+                <!--        <span class="delete-action" >
                     <img src="~@/assets/icons/tag/delete.png"/>
                 </span>-->
               </div>
               <a-popconfirm title="Delete?" ok-text="Yes" @confirm="handleDeleteKnowledgeItem(descriptionTagList[0].subKnowledgeId)" cancel-text="No">
-                  <span class="delete-action" >
-                    <img src="~@/assets/icons/tag/delete.png"/>
-                  </span>
+                <span class="delete-action" >
+                  <img src="~@/assets/icons/tag/delete.png"/>
+                </span>
               </a-popconfirm>
             </div>
           </a-col>
@@ -190,7 +196,6 @@
         this.$logger.info('after handleDescriptionTagClose ', this.descriptionTagList[tagIndex])
       },
 
-
       handleCreateTagByInput () {
         this.$logger.info('handleCreateTagByInput ' + this.createTagName)
         if (this.createTagName) {
@@ -251,7 +256,7 @@
         display: flex;
         flex-direction: row;
         align-items: center;
-        justify-content: flex-start;
+        justify-content: space-between;
         margin-bottom: 10px;
         padding: 10px;
         position: relative;
@@ -320,14 +325,24 @@
           }
 
         }
-        .add-action {
+        .actions{
           display: flex;
-          height: 40px;
-          img {
-            width: 40px;
+          align-items: center;
+          .add-action {
+            display: flex;
+            cursor:pointer;
+            height: 20px;
+            img {
+              width: 20px;
+            }
+          }
+          .up-down{
+            cursor: pointer;
+            display: flex;
+            width: 20px;
+            margin-left: 8px;
           }
         }
-
       }
       .delete-action {
         display: flex;

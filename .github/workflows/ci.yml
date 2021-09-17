@@ -38,7 +38,7 @@ jobs:
         if: github.ref == 'refs/heads/test' && github.event_name == 'push'
         run: yarn run build-test
       - name: Build-Production
-        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        if: github.ref == 'refs/heads/prod' && github.event_name == 'push'
         run: yarn run build
       - name: Create Release
         id: create_release
@@ -70,8 +70,8 @@ jobs:
           repository: xnuwu/classcipe_web/frontend
           tags: test
           tag_with_ref: true
-      - name: Push Images to GitHub Packages (main)
-        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+      - name: Push Images to GitHub Packages (prod)
+        if: github.ref == 'refs/heads/prod' && github.event_name == 'push'
         uses: docker/build-push-action@v1
         with:
           username: ${{ github.actor }}
