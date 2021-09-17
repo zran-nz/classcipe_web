@@ -172,13 +172,18 @@
                   </a-step>
                   <a-step>
                     <template slot="description">
-                      <a-form-item label="Link Plan content" class="link-plan-title">
-                        <a-button type="primary" @click="handleAddLink">
-                          <div class="btn-text" style="line-height: 20px">
-                            + Link
-                          </div>
-                        </a-button>
-                      </a-form-item>
+                      <div class="form-block">
+                        <a-form-item label="Link Plan content" class="link-plan-title">
+                          <a-button type="primary" @click="handleAddLink">
+                            <div class="btn-text" style="line-height: 20px">
+                              + Link
+                            </div>
+                          </a-button>
+                        </a-form-item>
+                        <div class="common-link-wrapper">
+                          <common-link :from-id="this.form.id" :from-type="this.contentType['unit-plan']"/>
+                        </div>
+                      </div>
                     </template>
                   </a-step>
                 </a-steps>
@@ -431,6 +436,7 @@ import DisplayMode from '@/components/MyContent/DisplayMode'
 import { LibraryEvent, LibraryEventBus } from '@/components/NewLibrary/LibraryEventBus'
 import ReferPreview from '@/components/UnitPlanRefer/ReferPreview'
 import UiLearnOut from '@/components/UnitPlan/UiLearnOut'
+import CommonLink from '@/components/Common/CommonLink'
 const TagOriginType = {
   Origin: 'Origin',
   Search: 'Search',
@@ -441,6 +447,7 @@ const TagOriginType = {
 export default {
   name: 'AddUnitPlan',
   components: {
+    CommonLink,
     ReferPreview,
     CollaborateContent,
     CommonFormHeader,
@@ -2104,5 +2111,6 @@ export default {
 
 .link-plan-title {
   font-weight: bold;
+  margin-bottom: 15px;
 }
 </style>

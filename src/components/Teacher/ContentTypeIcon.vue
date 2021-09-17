@@ -1,11 +1,11 @@
 <template>
   <div class="status-icon-item">
     <img src="~@/assets/icons/library/Lesson.png" :style="{width: size}" v-if="type === typeMap.lesson"/>
-    <img src="~@/assets/icons/library/Task.png" :style="{width: size}" v-else-if="type === typeMap.task"/>
-    <img src="~@/assets/icons/library/unitplan.png" :style="{width: size}" v-else-if="type === typeMap['unit-plan']"/>
-    <img src="~@/assets/icons/library/topic.png" :style="{width: size}" v-else-if="type === typeMap.topic"/>
-    <img src="~@/assets/icons/library/evaluation.png" :style="{width: size}" v-else-if="type === typeMap.evaluation"/>
-    <a-icon type="question-circle" :style="{fontSize: '18px'}" v-else/>
+    <img src="~@/assets/icons/myContent/Task@2x.png" :style="{width: size}" v-else-if="type === typeMap.task"/>
+    <img src="~@/assets/icons/myContent/Unit@2x.png" :style="{width: size}" v-else-if="type === typeMap['unit-plan']"/>
+    <img src="~@/assets/icons/myContent/To@2x.png" :style="{width: size}" v-else-if="type === typeMap.topic"/>
+    <img src="~@/assets/icons/myContent/EV@2x.png" :style="{width: size}" v-else-if="type === typeMap.evaluation"/>
+    <a-icon type="question-circle" :style="{fontSize: '20px'}" v-else/>
   </div>
 </template>
 
@@ -28,7 +28,7 @@ export default {
     },
     size: {
       type: String,
-      default: '25px'
+      default: '30px'
     }
   },
   data: function () {

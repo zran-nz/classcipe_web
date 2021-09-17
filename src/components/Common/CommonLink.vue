@@ -35,11 +35,13 @@
         </div>
       </template>
       <template v-if="linkGroupList.length && !linkGroupLoading">
-        <div class="link-group" v-for="(linkGroup, lIndex) in linkGroupList">
+        <div class="link-group" v-for="(linkGroup, lIndex) in linkGroupList" :key="lIndex">
           <div class="group-item">
             <div class="group-header">
               <div class="group-left-info">
-                <div class="group-name"></div>
+                <div class="group-name">
+                  {{ linkGroup }}
+                </div>
                 <div class="group-edit-icon"></div>
               </div>
               <div class="group-right-info">
@@ -54,15 +56,39 @@
       </template>
     </div>
 
+    <a-modal
+      v-model="selectLinkContentVisible"
+      :footer="null"
+      destroyOnClose
+      width="800px">
+      <div class="my-modal-title" slot="title">
+        Link my content
+      </div>
+      <div class="link-content-wrapper">
+        <new-my-content
+          :from-type="fromType"
+          :from-id="fromId"
+          :filter-type-list="[typeMap.evaluation]"
+          :group-id-name-list="groupIdNameList"
+          :default-group-id="currentGroupId"
+          :mode="'common-link'"
+          @cancel="selectLinkContentVisible = false"
+          @ensure="handleEnsureSelectedLink"/>
+      </div>
+    </a-modal>
   </div>
 </template>
 
 <script>
 
 import { GetAssociate } from '@/api/teacher'
+import MyContentSelector from '@/components/MyContent/MyContentSelector'
+import NewMyContent from '@/components/MyContent/NewMyContent'
+import { typeMap } from '@/const/teacher'
 
 export default {
   name: 'CommonLink',
+  components: { NewMyContent, MyContentSelector },
   props: {
     fromType: {
       type: Number,
@@ -86,8 +112,13 @@ export default {
 
       linkGroupLoading: true,
       linkGroupList: [],
+      groupIdNameList: [{ groupName: 'Untitled Term', groupId: '0' }],
 
-      groupLinkModalVisible: false
+      // 当前点击的groupId
+      currentGroupId: null,
+
+      selectLinkContentVisible: true,
+      typeMap: typeMap
     }
   },
   created () {
@@ -116,7 +147,15 @@ export default {
 
     handleDefaultGroupLink () {
       this.$logger.info('handleDefaultGroupLink')
-      this.groupLinkModalVisible = true
+      this.currentGroupId = '0'
+      this.$logger.info('groupIdNameList', this.groupIdNameList)
+      this.selectLinkContentVisible = true
+    },
+
+    handleEnsureSelectedLink (data) {
+      this.$logger.info('handleEnsureSelectedLink', data)
+      this.selectLinkContentVisible = false
+      this.getAssociate()
     }
   }
 }
@@ -185,5 +224,9 @@ export default {
       }
     }
   }
+}
+
+.my-modal-title {
+  text-align: center;
 }
 </style>
