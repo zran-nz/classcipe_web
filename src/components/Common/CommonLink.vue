@@ -20,7 +20,7 @@
               </div>
               <div class="group-right-info">
                 <div class="group-action">
-                  <a-button type="primary" @click="handleDefaultGroupLink">
+                  <a-button type="primary" @click="handleDefaultGroupLink" :style="{'background-color': '#fff', 'color': '#000', 'border': 'none'}">
                     <div class="btn-text" style="line-height: 20px">
                       + Link
                     </div>
@@ -34,22 +34,108 @@
           </div>
         </div>
       </template>
-      <template v-if="!ownerLinkGroupList.length.length && !linkGroupLoading">
-        <div class="link-group" v-for="(linkGroup, lIndex) in !ownerLinkGroupList.length" :key="lIndex">
+      <template v-if="ownerLinkGroupList.length && !linkGroupLoading">
+        <div class="link-group" v-for="(linkGroup, lIndex) in ownerLinkGroupList" :key="lIndex">
           <div class="group-item">
             <div class="group-header">
               <div class="group-left-info">
                 <div class="group-name">
-                  {{ linkGroup.group }}
+                  <div class="group-name-text" v-if="!linkGroup.editing">{{ linkGroup.group ? linkGroup.group : 'Untitled Term' }}</div>
+                  <div class="group-name-input" v-if="linkGroup.editing">
+                    <input v-model="linkGroup.group" class="group-name-input"/>
+                  </div>
                 </div>
-                <div class="group-edit-icon"></div>
+                <div class="group-edit-icon" @click="handleToggleEditGroupName(linkGroup)">
+                  <a-icon type="edit" v-if="!linkGroup.editing"/>
+                  <a-icon type="check" v-if="linkGroup.editing"/>
+                </div>
               </div>
               <div class="group-right-info">
-                <div class="group-action"></div>
+                <div class="group-action">
+                  <a-button type="primary" @click="handleLinkGroup(linkGroup)" :style="{'background-color': '#fff', 'color': '#000', 'border': 'none'}">
+                    <div class="btn-text" style="line-height: 20px">
+                      + Link
+                    </div>
+                  </a-button>
+                </div>
               </div>
             </div>
             <div class="group-body">
-              <div class="group-link-item"></div>
+              <div class="group-link-item" v-for="(item,index) in linkGroup.contents" :key="index">
+                <div class="left-info">
+                  <div class="icon">
+                    <content-type-icon :type="item.type"/>
+                  </div>
+                  <div class="name">
+                    <a-tooltip placement="top">
+                      <template slot="title">
+                        {{ item.name }}
+                      </template>
+                      {{ item.name }}
+                    </a-tooltip>
+                  </div>
+                </div>
+                <div class="right-info">
+                  <div class="date">{{ item.createTime | dayjs }}</div>
+                  <div class="status">
+                    <template v-if="item.status === 0">Draft</template>
+                    <template v-if="item.status === 1">Published</template>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </template>
+      <template v-if="othersLinkGroupList.length && !linkGroupLoading">
+        <div class="link-group" v-for="(linkGroup, lIndex) in othersLinkGroupList" :key="lIndex">
+          <div class="group-item">
+            <div class="group-header">
+              <div class="group-left-info">
+                <div class="group-name">
+                  <div class="group-name-text" v-if="!linkGroup.editing">{{ linkGroup.group ? linkGroup.group : 'Untitled Term' }}</div>
+                  <div class="group-name-input" v-if="linkGroup.editing">
+                    <input v-model="linkGroup.group" class="group-name-input"/>
+                  </div>
+                </div>
+                <div class="group-edit-icon" @click="handleToggleEditGroupName(linkGroup)">
+                  <a-icon type="edit" v-if="!linkGroup.editing"/>
+                  <a-icon type="check" v-if="linkGroup.editing"/>
+                </div>
+              </div>
+              <div class="group-right-info">
+                <div class="group-action">
+                  <a-button type="primary" @click="handleLinkGroup(linkGroup)">
+                    <div class="btn-text" style="line-height: 20px">
+                      + Link
+                    </div>
+                  </a-button>
+                </div>
+              </div>
+            </div>
+            <div class="group-body">
+              <div class="group-link-item" v-for="(item,index) in linkGroup.contents" :key="index">
+                <div class="left-info">
+                  <div class="icon">
+                    <content-type-icon :type="item.type"/>
+                  </div>
+                  <div class="name">
+                    <a-tooltip placement="top">
+                      <template slot="title">
+                        {{ item.name }}
+                      </template>
+                      {{ item.name }}
+                    </a-tooltip>
+                  </div>
+                </div>
+                <div class="right-info">
+                  <div class="date">{{ item.createTime | dayjs }}</div>
+                  <div class="status">
+                    <template v-if="item.status === 0">Draft</template>
+                    <template v-if="item.status === 1">Published</template>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -69,8 +155,8 @@
           :from-type="fromType"
           :from-id="fromId"
           :filter-type-list="[typeMap.evaluation]"
-          :group-id-name-list="groupIdNameList"
-          :default-group-id="currentGroupId"
+          :group-name-list="groupNameList"
+          :default-group-name="groupNameList[0]"
           :mode="'common-link'"
           @cancel="selectLinkContentVisible = false"
           @ensure="handleEnsureSelectedLink"/>
@@ -81,14 +167,15 @@
 
 <script>
 
-import { GetAssociate } from '@/api/teacher'
+import { GetAssociate, AddOrSaveGroupName } from '@/api/teacher'
 import MyContentSelector from '@/components/MyContent/MyContentSelector'
 import NewMyContent from '@/components/MyContent/NewMyContent'
 import { typeMap } from '@/const/teacher'
+import ContentTypeIcon from '@/components/Teacher/ContentTypeIcon'
 
 export default {
   name: 'CommonLink',
-  components: { NewMyContent, MyContentSelector },
+  components: { ContentTypeIcon, NewMyContent, MyContentSelector },
   props: {
     fromType: {
       type: Number,
@@ -113,7 +200,7 @@ export default {
       linkGroupLoading: true,
       ownerLinkGroupList: [],
       othersLinkGroupList: [],
-      groupIdNameList: [{ groupName: 'Untitled Term', groupId: '0' }],
+      groupNameList: ['Untitled Term'],
 
       // 当前点击的groupId
       currentGroupId: null,
@@ -134,8 +221,27 @@ export default {
         type: this.fromType
       }).then(response => {
         this.$logger.info('CommonLink GetAssociate response', response)
+        const groupNameList = []
+        response.result.owner.forEach(item => {
+          if (groupNameList.indexOf(item.group) === -1) {
+            groupNameList.push(item.group)
+          }
+          item.editing = false
+        })
+        response.result.others.forEach(item => {
+          if (groupNameList.indexOf(item.group) === -1) {
+            groupNameList.push(item.group)
+          }
+          item.editing = false
+        })
+        this.$logger.info('formatted owner', response.result.owner)
+        this.$logger.info('formatted others', response.result.others)
+        this.$logger.info('formatted groupNameList', groupNameList)
         this.ownerLinkGroupList = response.result.owner
         this.othersLinkGroupList = response.result.others
+        if (groupNameList.length) {
+          this.groupNameList = groupNameList
+        }
       }).finally(() => {
         this.linkGroupLoading = false
       })
@@ -148,8 +254,7 @@ export default {
 
     handleDefaultGroupLink () {
       this.$logger.info('handleDefaultGroupLink')
-      this.currentGroupId = '0'
-      this.$logger.info('groupIdNameList', this.groupIdNameList)
+      this.$logger.info('groupNameList', this.groupNameList)
       this.selectLinkContentVisible = true
     },
 
@@ -157,7 +262,33 @@ export default {
       this.$logger.info('handleEnsureSelectedLink', data)
       this.selectLinkContentVisible = false
       this.getAssociate()
+    },
+
+    handleLinkGroup (group) {
+      this.$logger.info('handleLinkGroup', group)
+      this.selectLinkContentVisible = true
+    },
+
+    handleToggleEditGroupName (linkGroup) {
+      this.$logger.info('handleToggleEditGroupName', linkGroup)
+      if (linkGroup.editing) {
+        const ids = []
+        linkGroup.contents.forEach(item => {
+          ids.push(item.id)
+        })
+        AddOrSaveGroupName({
+          fromId: this.fromId,
+          fromType: this.fromType,
+          groupName: linkGroup.group,
+          ids: ids
+        }).then(response => {
+          this.$logger.info('AddOrSaveGroupName', response)
+          this.getAssociate()
+        })
+      }
+      linkGroup.editing = !linkGroup.editing
     }
+
   }
 }
 </script>
@@ -168,10 +299,13 @@ export default {
 .common-link {
   .link-group-wrapper {
     .link-group {
+      margin-bottom: 25px;
       .group-item {
         .group-header {
-          background-color: rgba(21, 195, 154, 0.1);
+          background-color: #C3EAFC;
           display: flex;
+          border-top-left-radius: 4px;
+          border-top-right-radius: 4px;
           flex-direction: row;
           align-items: center;
           justify-content: space-between;
@@ -209,6 +343,7 @@ export default {
             .group-edit-icon {
               padding-left: 5px;
               cursor: pointer;
+              color: #fff;
             }
           }
 
@@ -222,6 +357,47 @@ export default {
             }
           }
         }
+
+        .group-body {
+          .group-link-item {
+            border-bottom: 1px solid #eee;
+            padding: 10px;
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+
+            .left-info {
+              display: flex;
+              flex-direction: row;
+              align-items: center;
+              .icon {
+                width: 40px;
+              }
+
+              .name {
+                color: #000;
+                width: 330px;
+                overflow: hidden;
+                white-space: nowrap;
+                text-overflow: ellipsis;
+                word-break: break-all;
+              }
+
+            }
+
+            .right-info {
+              display: flex;
+              flex-direction: row;
+              align-items: center;
+              .status {
+                text-align: right;
+                width: 70px;
+              }
+            }
+          }
+        }
       }
     }
   }
@@ -230,4 +406,5 @@ export default {
 .my-modal-title {
   text-align: center;
 }
+
 </style>
