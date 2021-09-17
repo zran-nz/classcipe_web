@@ -1,3 +1,4 @@
 export const SelectModel = {
-  knowledgeDescription: 'knowledgeDescription'
+  knowledgeDescription: 'knowledgeDescription',
+  syncData: 'syncData'
 }
