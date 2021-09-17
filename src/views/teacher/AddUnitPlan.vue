@@ -24,10 +24,10 @@
             :show-create="true"/>
         </a-col>-->
         <a-col span="24" class="main-content">
-          <a-card :bordered="false" :body-style="{padding: '16px', display: 'flex', 'justify-content': 'space-between'}" class="card-wrapper">
+          <a-card :bordered="false" :body-style="{padding: '16px', display: 'flex', 'justify-content': 'center'}" class="card-wrapper">
             <div class="unit-plan-form-left" ref="form">
               <a-form-model :model="form" class="my-form-wrapper">
-                <a-steps :current="0" direction="vertical">
+                <a-steps :current="currentActiveStepIndex" direction="vertical">
                   <a-step >
                     <template slot="description">
                       <div class="form-block">
@@ -155,23 +155,25 @@
                         </div>
                         <a-button type="link" icon="plus-circle" size="large" @click="handleAddMoreQuestion"></a-button>
                       </div>
+                      <div class="form-block">
+                        <a-form-item label="Set Learning outcomes" >
+                          <a-button type="primary">
+                            <div class="btn-text" style="line-height: 20px">
+                              Add Learning outcomes
+                            </div>
+                          </a-button>
+                        </a-form-item>
 
-                      <a-form-item label="Set Learning outcomes" >
-                        <a-button type="primary">
-                          <div class="btn-text" style="line-height: 20px">
-                            Add Learning outcomes
-                          </div>
-                        </a-button>
-                      </a-form-item>
+                        <!--knowledge tag-select -->
+                        <ui-learn-out />
+                      </div>
 
-                      <!--knowledge tag-select -->
-                      <ui-learn-out />
                     </template>
                   </a-step>
                   <a-step>
                     <template slot="description">
-                      <a-form-item label="Link Plan content" >
-                        <a-button type="primary" >
+                      <a-form-item label="Link Plan content" class="link-plan-title">
+                        <a-button type="primary" @click="handleAddLink">
                           <div class="btn-text" style="line-height: 20px">
                             + Link
                           </div>
@@ -548,7 +550,10 @@ export default {
       referId: null,
       referType: null,
       activeReferBlock: '',
-      showSidebar: true
+      showSidebar: true,
+
+      // 当前激活的step
+      currentActiveStepIndex: 0
     }
   },
   watch: {
@@ -1364,6 +1369,23 @@ export default {
       } else {
         this.selectAddContentTypeVisible = true
       }
+    },
+
+    handleAddLink () {
+      this.$logger.info('handleAddLink')
+
+      // 如果第一部分有内容，点击link激活step 到第二部分，否则提示先输入第一部分表单内容
+      if (this.form.name ||
+        this.form.overview ||
+        this.form.inquiry ||
+        this.form.scenarios.length ||
+        this.form.questions.length) {
+        this.currentActiveStepIndex = 1
+
+        // 添加link
+      } else {
+        this.$message.warn('Course info is empty, please fill the form first!')
+      }
     }
   }
 }
@@ -1516,11 +1538,11 @@ export default {
     }
 
     .sdg-content-blocks {
-      /*width: 800px;*/
+      width: 700px;
       position: relative;
       border: 1px solid #fff;
       box-sizing: border-box;
-      padding: 20px 150px 20px 50px;
+      padding: 20px 50px 20px 50px;
       border-radius: 3px;
       margin-bottom: 5px;
 
@@ -2078,5 +2100,9 @@ export default {
   cursor: pointer;
   color: @link-hover-color;
   z-index: 100;
+}
+
+.link-plan-title {
+  font-weight: bold;
 }
 </style>
