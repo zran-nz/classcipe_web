@@ -20,7 +20,7 @@
               </div>
               <div class="group-right-info">
                 <div class="group-action">
-                  <a-button type="primary" @click="handleDefaultGroupLink">
+                  <a-button type="primary" @click="handleDefaultGroupLink" :style="{'background-color': '#fff', 'color': '#000', 'border': 'none'}">
                     <div class="btn-text" style="line-height: 20px">
                       + Link
                     </div>
@@ -52,7 +52,7 @@
               </div>
               <div class="group-right-info">
                 <div class="group-action">
-                  <a-button type="primary" @click="handleLinkGroup(linkGroup)">
+                  <a-button type="primary" @click="handleLinkGroup(linkGroup)" :style="{'background-color': '#fff', 'color': '#000', 'border': 'none'}">
                     <div class="btn-text" style="line-height: 20px">
                       + Link
                     </div>
@@ -272,19 +272,23 @@ export default {
     handleToggleEditGroupName (linkGroup) {
       this.$logger.info('handleToggleEditGroupName', linkGroup)
       if (linkGroup.editing) {
-        const ids = []
-        linkGroup.contents.forEach(item => {
-          ids.push(item.id)
-        })
-        AddOrSaveGroupName({
-          fromId: this.fromId,
-          fromType: this.fromType,
-          groupName: linkGroup.group,
-          ids: ids
-        }).then(response => {
-          this.$logger.info('AddOrSaveGroupName', response)
-          this.getAssociate()
-        })
+        if (this.groupNameList.indexOf(linkGroup.group) !== -1) {
+          this.$message.warn('existing same group name')
+        } else {
+          const ids = []
+          linkGroup.contents.forEach(item => {
+            ids.push(item.id)
+          })
+          AddOrSaveGroupName({
+            fromId: this.fromId,
+            fromType: this.fromType,
+            groupName: linkGroup.group,
+            ids: ids
+          }).then(response => {
+            this.$logger.info('AddOrSaveGroupName', response)
+            this.getAssociate()
+          })
+        }
       }
       linkGroup.editing = !linkGroup.editing
     }
@@ -299,11 +303,13 @@ export default {
 .common-link {
   .link-group-wrapper {
     .link-group {
-      margin: 15px 0;
+      margin-bottom: 25px;
       .group-item {
         .group-header {
-          background-color: rgba(21, 195, 154, 0.1);
+          background-color: #C3EAFC;
           display: flex;
+          border-top-left-radius: 4px;
+          border-top-right-radius: 4px;
           flex-direction: row;
           align-items: center;
           justify-content: space-between;
@@ -341,6 +347,7 @@ export default {
             .group-edit-icon {
               padding-left: 5px;
               cursor: pointer;
+              color: #fff;
             }
           }
 

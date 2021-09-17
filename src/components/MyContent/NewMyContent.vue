@@ -202,14 +202,12 @@
               </div>
             </div>
           </a-list>
-          <div class="choose-group">
-            <div class="choose-label">Choose</div>
-            <a-select :default-value="defaultGroupName" style="width: 100%" v-model="selectedGroup">
-              <a-select-option :value="groupName" v-for="(groupName, gIndex) in groupNameList" :key="gIndex">
-                {{ groupName }}
-              </a-select-option>
-            </a-select>
-          </div>
+          <div class="choose-label">Choose</div>
+          <a-select :default-value="defaultGroupName" style="width: 100%" v-model="selectedGroup">
+            <a-select-option :value="groupName" v-for="(groupName, gIndex) in groupNameList" :key="gIndex">
+              {{ groupName }}
+            </a-select-option>
+          </a-select>
           <div class="modal-ensure-action-line">
             <a-button class="action-item action-cancel" shape="round" @click="handleCancel">Cancel</a-button>
             <a-button class="action-ensure action-item" type="primary" shape="round" @click="handleEnsure">Ok</a-button>
@@ -316,7 +314,7 @@ export default {
     },
     groupNameList: {
       type: Array,
-      default: () => []
+      required: true
     }
   },
   data () {
@@ -602,18 +600,17 @@ export default {
     },
 
     handleEnsure () {
-      this.$logger.info('handleEnsure ' + this.selectedGroup, this.mySelectedMap)
+      this.$logger.info('handleEnsure ' + this.selectedGroup, this.groupNameList, this.mySelectedMap)
       if (!this.mySelectedMap.size) {
         this.$message.warn('No my content be selected!')
       } else if (!this.selectedGroup) {
         this.$message.warn('No group be selected!')
       } else {
-        const groupName = this.groupNameList.find(gItem => gItem === this.selectedGroup)
         // 开始关联数据
         const postData = {
           fromId: this.fromId,
           fromType: this.fromType,
-          groupName: groupName,
+          groupName: this.selectedGroup,
           otherContents: []
         }
 

@@ -174,14 +174,14 @@
                     <template slot="description">
                       <div class="form-block">
                         <a-form-item label="Link Plan content" class="link-plan-title">
-                          <a-button type="primary" @click="handleAddLink">
+                          <a-button type="primary" :style="{'background-color': '#fff', 'color': '#000', 'border': '1px solid #D8D8D8'}" @click="handleAddLink">
                             <div class="btn-text" style="line-height: 20px">
                               + Link
                             </div>
                           </a-button>
                         </a-form-item>
                         <div class="common-link-wrapper">
-                          <common-link :from-id="this.form.id" :from-type="this.contentType['unit-plan']"/>
+                          <common-link ref="commonLink" :from-id="this.unitPlanId" :from-type="this.contentType['unit-plan']"/>
                         </div>
                       </div>
                     </template>
@@ -271,19 +271,6 @@
           <div class="add-loading" v-if="addLoading">
             <a-spin />
           </div>
-        </div>
-      </a-modal>
-
-      <a-modal
-        v-model="selectLinkContentVisible"
-        :footer="null"
-        destroyOnClose
-        width="1200px"
-        title="Link in my content"
-        @ok="selectLinkContentVisible = false"
-        @cancel="selectLinkContentVisible = false">
-        <div class="link-content-wrapper">
-          <my-content-selector :filter-type-list="['lesson','task','evaluation']" />
         </div>
       </a-modal>
 
@@ -396,6 +383,27 @@
         </a-row>
       </a-drawer>
 
+      <a-modal
+        v-model="selectLinkContentVisible"
+        :footer="null"
+        destroyOnClose
+        width="800px">
+        <div class="my-modal-title" slot="title">
+          Link my content
+        </div>
+        <div class="link-content-wrapper">
+          <new-my-content
+            :from-type="contentType['unit-plan']"
+            :from-id="unitPlanId"
+            :filter-type-list="[contentType.evaluation]"
+            :group-name-list="groupNameList"
+            :default-group-name="'Untitled Term' + groupNameList.length + 1"
+            :mode="'common-link'"
+            @cancel="selectLinkContentVisible = false"
+            @ensure="handleEnsureSelectedLink"/>
+        </div>
+      </a-modal>
+
       <a-skeleton :loading="contentLoading" active>
       </a-skeleton>
     </a-card>
@@ -411,7 +419,7 @@ import { GetAllSdgs, ScenarioSearch } from '@/api/scenario'
 import { debounce } from 'lodash-es'
 import InputSearch from '@/components/UnitPlan/InputSearch'
 import SdgTagInput from '@/components/UnitPlan/SdgTagInput'
-import { GetMyGrades, Associate } from '@/api/teacher'
+import { GetMyGrades, Associate, GetAssociate } from '@/api/teacher'
 import { SubjectTree } from '@/api/subject'
 import { formatSubjectTree } from '@/utils/bizUtil'
 import NewUiClickableKnowledgeTag from '@/components/UnitPlan/NewUiClickableKnowledgeTag'
@@ -437,6 +445,8 @@ import { LibraryEvent, LibraryEventBus } from '@/components/NewLibrary/LibraryEv
 import ReferPreview from '@/components/UnitPlanRefer/ReferPreview'
 import UiLearnOut from '@/components/UnitPlan/UiLearnOut'
 import CommonLink from '@/components/Common/CommonLink'
+import NewMyContent from '@/components/MyContent/NewMyContent'
+
 const TagOriginType = {
   Origin: 'Origin',
   Search: 'Search',
@@ -447,6 +457,7 @@ const TagOriginType = {
 export default {
   name: 'AddUnitPlan',
   components: {
+    NewMyContent,
     CommonLink,
     ReferPreview,
     CollaborateContent,
@@ -499,6 +510,7 @@ export default {
       labelCol: { span: 4 },
       wrapperCol: { span: 18 },
       form: {
+        id: null,
         image: '',
         inquiry: '',
         name: 'Untitled UnitPlan',
@@ -560,7 +572,9 @@ export default {
       showSidebar: true,
 
       // 当前激活的step
-      currentActiveStepIndex: 0
+      currentActiveStepIndex: 0,
+
+      groupNameList: []
     }
   },
   watch: {
@@ -598,6 +612,7 @@ export default {
     MyContentEventBus.$on(MyContentEvent.ReferContentItem, this.handleReferItem)
     LibraryEventBus.$on(LibraryEvent.ContentListSelectClick, this.handleSdgDescriptionSelectClick)
     this.initData()
+    this.getAssociate()
     this.debouncedGetSdgByDescription = debounce(this.searchScenario, 300)
   },
   beforeDestroy () {
@@ -1343,7 +1358,6 @@ export default {
       }).then(response => {
         this.$logger.info('Associate response ', response)
         // 刷新子组件的关联数据
-        this.$refs.associate.loadAssociateData()
         this.$message.success('success!')
       })
     },
@@ -1379,7 +1393,7 @@ export default {
     },
 
     handleAddLink () {
-      this.$logger.info('handleAddLink')
+      this.$logger.info('handleAddLink', this.groupNameList)
 
       // 如果第一部分有内容，点击link激活step 到第二部分，否则提示先输入第一部分表单内容
       if (this.form.name ||
@@ -1388,11 +1402,46 @@ export default {
         this.form.scenarios.length ||
         this.form.questions.length) {
         this.currentActiveStepIndex = 1
-
+        this.selectLinkContentVisible = true
         // 添加link
       } else {
         this.$message.warn('Course info is empty, please fill the form first!')
       }
+    },
+
+    handleEnsureSelectedLink (data) {
+      this.$logger.info('handleEnsureSelectedLink', data)
+      this.selectLinkContentVisible = false
+      this.getAssociate()
+      // 刷新组件内的列表
+      this.$refs.commonLink.getAssociate()
+    },
+
+    getAssociate () {
+      this.$logger.info('AddUnitPlan GetAssociate id[' + this.unitPlanId + '] fromType[' + this.contentType['unit-plan'] + ']')
+      GetAssociate({
+        id: this.unitPlanId,
+        type: this.contentType['unit-plan']
+      }).then(response => {
+        this.$logger.info('AddUnitPlan GetAssociate response', response)
+        const groupNameList = []
+        response.result.owner.forEach(item => {
+          if (groupNameList.indexOf(item.group) === -1) {
+            groupNameList.push(item.group)
+          }
+        })
+        response.result.others.forEach(item => {
+          if (groupNameList.indexOf(item.group) === -1) {
+            groupNameList.push(item.group)
+          }
+        })
+        if (groupNameList.length) {
+          this.groupNameList = groupNameList
+        }
+        this.$logger.info('AddUnitPlan GetAssociate formatted groupNameList', groupNameList, this.groupNameList)
+      }).finally(() => {
+        this.linkGroupLoading = false
+      })
     }
   }
 }
