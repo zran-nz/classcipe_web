@@ -17,13 +17,13 @@
                   add relevant tags double click one learning outcome to add relevant tags
                 </div>
                 <span class="add-action" >
-                    <img src="~@/assets/icons/tag/delete.png"/>
+                  <img src="~@/assets/icons/tag/delete.png"/>
                 </span>
               </div>
               <a-popconfirm title="Delete?" ok-text="Yes" @confirm="handleDeleteKnowledgeItem(descriptionTagList[0].subKnowledgeId)" cancel-text="No">
-                  <span class="delete-action" >
-                    <img src="~@/assets/icons/tag/delete.png"/>
-                  </span>
+                <span class="delete-action" >
+                  <img src="~@/assets/icons/tag/delete.png"/>
+                </span>
               </a-popconfirm>
             </div>
             <div class="skt-description-list">
@@ -36,14 +36,14 @@
                 <div class="skt-description">
                   double click one learning outcome to add relevant tags double cli
                 </div>
-        <!--        <span class="delete-action" >
+                <!--        <span class="delete-action" >
                     <img src="~@/assets/icons/tag/delete.png"/>
                 </span>-->
               </div>
               <a-popconfirm title="Delete?" ok-text="Yes" @confirm="handleDeleteKnowledgeItem(descriptionTagList[0].subKnowledgeId)" cancel-text="No">
-                  <span class="delete-action" >
-                    <img src="~@/assets/icons/tag/delete.png"/>
-                  </span>
+                <span class="delete-action" >
+                  <img src="~@/assets/icons/tag/delete.png"/>
+                </span>
               </a-popconfirm>
             </div>
           </a-col>
@@ -189,7 +189,6 @@
         this.descriptionTagList.splice(tagIndex, 1, item)
         this.$logger.info('after handleDescriptionTagClose ', this.descriptionTagList[tagIndex])
       },
-
 
       handleCreateTagByInput () {
         this.$logger.info('handleCreateTagByInput ' + this.createTagName)

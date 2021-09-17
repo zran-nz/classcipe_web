@@ -428,7 +428,7 @@ import { SelectModel } from '@/components/NewLibrary/SelectModel'
 import DisplayMode from '@/components/MyContent/DisplayMode'
 import { LibraryEvent, LibraryEventBus } from '@/components/NewLibrary/LibraryEventBus'
 import ReferPreview from '@/components/UnitPlanRefer/ReferPreview'
-import UiLearnOut from "@/components/UnitPlan/UiLearnOut";
+import UiLearnOut from '@/components/UnitPlan/UiLearnOut'
 const TagOriginType = {
   Origin: 'Origin',
   Search: 'Search',
