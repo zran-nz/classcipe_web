@@ -188,7 +188,7 @@ export function AddOrSaveGroupName (parameter) {
  * @param parameter
  * @returns {AxiosPromise}
  */
-export function getReferOutcomes (parameter) {
+export function GetReferOutcomes (parameter) {
   return request({
     url: teacherAPIUrl.GetReferOutcomes,
     method: 'get',
