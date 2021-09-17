@@ -272,23 +272,19 @@ export default {
     handleToggleEditGroupName (linkGroup) {
       this.$logger.info('handleToggleEditGroupName', linkGroup)
       if (linkGroup.editing) {
-        if (this.groupNameList.indexOf(linkGroup.group) !== -1) {
-          this.$message.warn('existing same group name')
-        } else {
-          const ids = []
-          linkGroup.contents.forEach(item => {
-            ids.push(item.id)
-          })
-          AddOrSaveGroupName({
-            fromId: this.fromId,
-            fromType: this.fromType,
-            groupName: linkGroup.group,
-            ids: ids
-          }).then(response => {
-            this.$logger.info('AddOrSaveGroupName', response)
-            this.getAssociate()
-          })
-        }
+        const ids = []
+        linkGroup.contents.forEach(item => {
+          ids.push(item.id)
+        })
+        AddOrSaveGroupName({
+          fromId: this.fromId,
+          fromType: this.fromType,
+          groupName: linkGroup.group,
+          ids: ids
+        }).then(response => {
+          this.$logger.info('AddOrSaveGroupName', response)
+          this.getAssociate()
+        })
       }
       linkGroup.editing = !linkGroup.editing
     }
