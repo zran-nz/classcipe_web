@@ -1,7 +1,7 @@
 <template>
   <div class="common-link">
     <div class="link-group-wrapper">
-      <template v-if="!linkGroupList.length && !linkGroupLoading">
+      <template v-if="!ownerLinkGroupList.length && !linkGroupLoading">
         <!-- 初次加载显示一个默认的空link面板-->
         <div class="link-group">
           <div class="group-item">
@@ -34,13 +34,13 @@
           </div>
         </div>
       </template>
-      <template v-if="linkGroupList.length && !linkGroupLoading">
-        <div class="link-group" v-for="(linkGroup, lIndex) in linkGroupList" :key="lIndex">
+      <template v-if="!ownerLinkGroupList.length.length && !linkGroupLoading">
+        <div class="link-group" v-for="(linkGroup, lIndex) in !ownerLinkGroupList.length" :key="lIndex">
           <div class="group-item">
             <div class="group-header">
               <div class="group-left-info">
                 <div class="group-name">
-                  {{ linkGroup }}
+                  {{ linkGroup.group }}
                 </div>
                 <div class="group-edit-icon"></div>
               </div>
@@ -111,13 +111,14 @@ export default {
       defaultGroupOtherContents: [],
 
       linkGroupLoading: true,
-      linkGroupList: [],
+      ownerLinkGroupList: [],
+      othersLinkGroupList: [],
       groupIdNameList: [{ groupName: 'Untitled Term', groupId: '0' }],
 
       // 当前点击的groupId
       currentGroupId: null,
 
-      selectLinkContentVisible: true,
+      selectLinkContentVisible: false,
       typeMap: typeMap
     }
   },
@@ -133,8 +134,8 @@ export default {
         type: this.fromType
       }).then(response => {
         this.$logger.info('CommonLink GetAssociate response', response)
-        const owner = response.result.owner
-        const others = response.result.others
+        this.ownerLinkGroupList = response.result.owner
+        this.othersLinkGroupList = response.result.others
       }).finally(() => {
         this.linkGroupLoading = false
       })
