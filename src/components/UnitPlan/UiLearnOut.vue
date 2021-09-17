@@ -5,16 +5,15 @@
       <div class="skt-description-list-wrapper">
         <a-row >
           <a-col span="24">
-            <div class="skt-description-list">
+            <div class="skt-description-list" v-for="(knowledge,index) in KnowledgeList" :key="index">
               <div
                 :class="{
                   'skt-description-tag-item': true,
                   'skt-description-tag-item-top-fixed': true,
                   'active-description-line': false}"
-                @dblclick="handleActiveDescription()">
+                @click="handleActiveDescription(index)">
                 <div class="skt-description">
-                  double click one learning outcome to add relevant tags double click one learning outcome to
-                  add relevant tags double click one learning outcome to add relevant tags
+                  {{ knowledge.name }}
                 </div>
 
                 <div
@@ -22,58 +21,19 @@
                   <span class="add-action" >
                     <img src="~@/assets/icons/tag/add.png"/>
                   </span>
-                  <span class="up-down" >
-                    <a-icon type="down" />
+                  <span class="up-down">
+                    <a-icon type="up" v-if="knowledge.tagListVisible"/>
+                    <a-icon type="down" v-else />
                   </span>
                 </div>
-                <a-divider style="margin: 10px 0px" />
-                <div class="skt-description-tag-list" >
-                  <div :class="{'tag-list-item': true,'skill-mode': true}">
-                    <a-tag class="tag-item" closable>tag1233231</a-tag>
-                  </div>
-                  <div :class="{'tag-list-item': true,'skill-mode': true}">
-                    <a-tag class="tag-item">1231123123123</a-tag>
-                  </div>
-                  <div :class="{'tag-list-item': true,'skill-mode': true}">
-                    <a-tag class="tag-item">tatagtagtagtaggtatagtagtagtaggt</a-tag>
-                  </div>
-                  <div :class="{'tag-list-item': true,'skill-mode': true}">
-                    <a-tag class="tag-item">tag1233231</a-tag>
-                  </div>
-                  <div :class="{'tag-list-item': true,'skill-mode': true}">
-                    <a-tag class="tag-item">1231123123123</a-tag>
-                  </div>
-                  <div :class="{'tag-list-item': true,'skill-mode': true}">
-                    <a-tag class="tag-item">tatagtagtagtaggtatagtagtagtaggtatagtagtagtaggtatagtagtagtaggtatagtagtagtagg tatagtagtagtagg</a-tag>
-                  </div>
-                  <div :class="{'tag-list-item': true,'skill-mode': true}">
-                    <a-tag class="tag-item">tatagtagtagtaggtatagtagtagtaggtatagtagtagtaggtatagtagtagtaggtatagtagtagtagg</a-tag>
+                <a-divider style="margin: 10px 0px" v-if="knowledge.tagListVisible" />
+                <div class="skt-description-tag-list" v-if="knowledge.tagListVisible">
+                  <div :class="{'tag-list-item': true,'skill-mode': true}" v-for="(tag,tIndex) in knowledge.tags" :key="tIndex">
+                    <a-tag class="tag-item" closable @close="handleDeleteTag(index,tIndex)">{{ tag.name }}</a-tag>
                   </div>
                 </div>
               </div>
-              <a-popconfirm title="Delete?" ok-text="Yes" @confirm="handleDeleteKnowledgeItem(descriptionTagList[0].subKnowledgeId)" cancel-text="No">
-                <span class="delete-action" >
-                  <img src="~@/assets/icons/tag/delete.png"/>
-                </span>
-              </a-popconfirm>
-
-            </div>
-
-            <div class="skt-description-list">
-              <div
-                :class="{
-                  'skt-description-tag-item': true,
-                  'skt-description-tag-item-top-fixed': true,
-                  'active-description-line': true}"
-                @dblclick="handleActiveDescription()">
-                <div class="skt-description">
-                  double click one learning outcome to add relevant tags double cli
-                </div>
-                <!--        <span class="delete-action" >
-                    <img src="~@/assets/icons/tag/delete.png"/>
-                </span>-->
-              </div>
-              <a-popconfirm title="Delete?" ok-text="Yes" @confirm="handleDeleteKnowledgeItem(descriptionTagList[0].subKnowledgeId)" cancel-text="No">
+              <a-popconfirm title="Delete?" ok-text="Yes" @confirm="handleDeleteKnowledgeItem(index)" cancel-text="No">
                 <span class="delete-action" >
                   <img src="~@/assets/icons/tag/delete.png"/>
                 </span>
@@ -115,132 +75,37 @@
 
     },
     computed: {
-      searchTagList () {
-        return this.tagList.filter(tag => tag.type === this.tagOriginType.Search)
-      },
-      recommendTagList () {
-        return this.tagList.filter(tag => tag.type === this.tagOriginType.Description)
-      },
-      createdTagList () {
-        return this.tagList.filter(tag => tag.type === this.tagOriginType.Create)
-      }
     },
     data () {
       return {
-        inputTag: '',
-        searchList: [],
-        tagList: [],
-        selectModel: SelectModel,
-        descriptionTagList: [],
-        descriptionKnowLedgeTagList: [],
-        descriptionSkillList: [],
-        subKnowledgeId2InfoMap: new Map(), // subKnowledgeId 对应的父级信息标签
-        activeSubKnowledgeId: null,
-        tagNameSearchListDialogueVisible: false,
-        tagNameSearchList: [],
-        tagNameSearchListSelected: [],
-
-        associateLibraryVisible: false,
-        createTagName: '',
-        activeDescriptionId: null,
-        tagListVisible: false
+        KnowledgeList: []
       }
     },
     created () {
-      this.debouncedSearchKnowledge = debounce(this.searchKnowledge, 500)
-      this.$logger.info('after add tagList', this.tagList)
-      this.$logger.info('after add descriptionKnowLedgeTagList', this.descriptionKnowLedgeTagList)
-      this.$logger.info('after add descriptionSkillTagList', this.descriptionSkillTagList)
+      this.KnowledgeList = this.learnOuts
+      logger.info('KnowledgeList ', this.KnowledgeList)
     },
     watch: {
-      searchList () {
-        this.$logger.info('update search tag list with list size ' + (this.searchList.length), this.searchList)
-        let tagList = this.tagList
-        tagList = this.tagList
-        tagList = tagList.filter(item => item.type !== this.tagOriginType.Search)
-        const existNameList = []
-        this.searchList.forEach(item => {
-          if (existNameList.indexOf(item.name) === -1) {
-            tagList.push({
-              ...item
-            })
-            existNameList.push(item.name)
-          }
-        })
-        this.tagList = tagList
-        this.$logger.info('after update search tag list', this.tagList)
-        if (tagList.length > 0) {
-          this.tagListVisible = true
-        } else {
-          if (!this.inputTag) {
-            this.tagListVisible = false
-          }
-        }
-      }
     },
     methods: {
-      handleContentListSelectClick (data) {
-      },
-      handleKeyup () {
-        this.$logger.info('handleKeyup ', this.inputTag)
-        this.debouncedSearchKnowledge(this.inputTag)
-        this.createTagName = this.inputTag
-      },
-      searchKnowledge (keyword) {
-        logger.info('searchKnowledge', keyword)
-        this.searchList = []
-        // knowledge和skill统一数据接口
-        if (typeof keyword === 'string' && keyword.trim().length >= 1) {
-          KnowledgeSearch({
-            key: keyword,
-            tagType: TagType.knowledge
-          }).then((response) => {
-            logger.info('searchKnowledge response', response)
-            this.searchList = response.result
-          })
+      handleActiveDescription (index) {
+        if (!this.KnowledgeList[index].tagListVisible) {
+          this.KnowledgeList[index].tagListVisible = true
+        } else {
+          this.KnowledgeList[index].tagListVisible = false
         }
+        this.$set(this.KnowledgeList, index, this.KnowledgeList[index])
+        logger.info('tagListVisible ', this.KnowledgeList[index].tagListVisible)
+      },
+      handleDeleteTag (kIndex, tIndex) {
+        this.KnowledgeList[kIndex].tags.splice(tIndex, 1)
+        logger.info('handleDeleteTag ', this.KnowledgeList[kIndex].tags)
+        this.$emit('set-learn-outs', this.KnowledgeList)
       },
 
-      handleDescriptionTagClose (tag) {
-        this.$logger.info('handleDescriptionTagClose ', tag)
-        const tagIndex = this.descriptionTagList.findIndex(item => item.subKnowledgeId === tag.subKnowledgeId)
-        const item = this.descriptionTagList[tagIndex]
-        this.$logger.info('raw handleDescriptionTagClose ', item)
-        item.tagList = item.tagList.filter(item => item.name !== tag.name)
-        this.descriptionTagList.splice(tagIndex, 1, item)
-        this.$logger.info('after handleDescriptionTagClose ', this.descriptionTagList[tagIndex])
-      },
-
-      handleCreateTagByInput () {
-        this.$logger.info('handleCreateTagByInput ' + this.createTagName)
-        if (this.createTagName) {
-          const existTag = this.tagList.find(item => item.name === this.createTagName)
-          if (existTag) {
-            this.$message.warn('already exist same name tag')
-          } else {
-            this.tagList.push({
-              name: this.createTagName
-            })
-          }
-          this.createTagName = ''
-          this.inputTag = ''
-        }
-      },
-
-      handleDeleteCreatedTag (tag) {
-        this.$logger.info('handleDeleteCreatedTag ', tag)
-        const tagList = []
-        this.tagList.forEach(item => {
-          if (!(item.type === this.tagOriginType.Create && item.name === tag.name)) {
-            tagList.push(item)
-          }
-        })
-        this.tagList = tagList
-        this.$logger.info('after handleDeleteCreatedTag tag list', this.tagList)
-      },
-
-      handleDeleteKnowledgeItem (subKnowledgeId) {
-
+      handleDeleteKnowledgeItem (index) {
+        this.KnowledgeList.splice(index, 1)
+        this.$emit('set-learn-outs', this.KnowledgeList)
       }
     }
   }
@@ -258,7 +123,7 @@
       justify-content: flex-start;
        &:hover{
         .delete-action {
-          display: flex;
+          display: block;
         }
       }
 
@@ -286,6 +151,7 @@
           color: @primary-color;
         }
         .skt-description {
+          cursor: pointer;
           width: 90%;
           padding-right: 10px;
           position: relative;
@@ -356,10 +222,11 @@
         }
       }
       .delete-action {
-        display: flex;
+        position: absolute;
+        right: -40px;
+        display: none;
         cursor: pointer;
         height: 40px;
-        display: none;
         img {
           width: 40px;
         }
