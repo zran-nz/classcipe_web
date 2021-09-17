@@ -10,12 +10,13 @@
                 :class="{
                   'skt-description-tag-item': true,
                   'skt-description-tag-item-top-fixed': true,
-                  'active-description-line': true}"
+                  'active-description-line': false}"
                 @dblclick="handleActiveDescription()">
                 <div class="skt-description">
                   double click one learning outcome to add relevant tags double click one learning outcome to
                   add relevant tags double click one learning outcome to add relevant tags
                 </div>
+
                 <div
                   class="actions">
                   <span class="add-action" >
@@ -25,13 +26,39 @@
                     <a-icon type="down" />
                   </span>
                 </div>
+                <a-divider style="margin: 10px 0px" />
+                <div class="skt-description-tag-list" >
+                  <div :class="{'tag-list-item': true,'skill-mode': true}">
+                    <a-tag class="tag-item" closable>tag1233231</a-tag>
+                  </div>
+                  <div :class="{'tag-list-item': true,'skill-mode': true}">
+                    <a-tag class="tag-item">1231123123123</a-tag>
+                  </div>
+                  <div :class="{'tag-list-item': true,'skill-mode': true}">
+                    <a-tag class="tag-item">tatagtagtagtaggtatagtagtagtaggt</a-tag>
+                  </div>
+                  <div :class="{'tag-list-item': true,'skill-mode': true}">
+                    <a-tag class="tag-item">tag1233231</a-tag>
+                  </div>
+                  <div :class="{'tag-list-item': true,'skill-mode': true}">
+                    <a-tag class="tag-item">1231123123123</a-tag>
+                  </div>
+                  <div :class="{'tag-list-item': true,'skill-mode': true}">
+                    <a-tag class="tag-item">tatagtagtagtaggtatagtagtagtaggtatagtagtagtaggtatagtagtagtaggtatagtagtagtagg tatagtagtagtagg</a-tag>
+                  </div>
+                  <div :class="{'tag-list-item': true,'skill-mode': true}">
+                    <a-tag class="tag-item">tatagtagtagtaggtatagtagtagtaggtatagtagtagtaggtatagtagtagtaggtatagtagtagtagg</a-tag>
+                  </div>
+                </div>
               </div>
               <a-popconfirm title="Delete?" ok-text="Yes" @confirm="handleDeleteKnowledgeItem(descriptionTagList[0].subKnowledgeId)" cancel-text="No">
                 <span class="delete-action" >
                   <img src="~@/assets/icons/tag/delete.png"/>
                 </span>
               </a-popconfirm>
+
             </div>
+
             <div class="skt-description-list">
               <div
                 :class="{
@@ -76,19 +103,7 @@
       NoMoreResources
     },
     props: {
-      selectedKnowledgeTags: {
-        type: Array,
-        default: () => []
-      },
-      selectedSkillTags: {
-        type: Array,
-        default: () => []
-      },
-      gradeIds: {
-        type: Array,
-        default: () => []
-      },
-      subjectIds: {
+      learnOuts: {
         type: Array,
         default: () => []
       }
@@ -241,6 +256,12 @@
       flex-direction: row;
       align-items: center;
       justify-content: flex-start;
+       &:hover{
+        .delete-action {
+          display: flex;
+        }
+      }
+
       .skt-description-sub-list {
         max-height: 300px;
         overflow-y: scroll;
@@ -254,6 +275,7 @@
         opacity: 1;
         border-radius: 4px;
         display: flex;
+        flex-wrap: wrap;
         flex-direction: row;
         align-items: center;
         justify-content: space-between;
@@ -274,21 +296,14 @@
             color: #11142D;
             display: inline-block;
             width: 100%;
-            height: 100px;
-            overflow-y: scroll;
           }
         }
 
         .skt-description-tag-list {
-          border: 1px dashed #666;
-          padding: 5px 10px;
-          width: 40%;
-          height: 100px;
-          overflow-y: scroll;
-          min-height: 50px;
           display: flex;
           flex-direction: row;
           flex-wrap: wrap;
+          padding: 5px 10px;
           .tag-list-item {
             margin: 3px 10px 3px 0;
             display: flex;
@@ -297,6 +312,7 @@
             vertical-align: middle;
             cursor: pointer;
             .tag-item {
+              cursor: pointer;
               border-radius: 10px;
               word-break:normal;
               width:auto;
@@ -305,14 +321,9 @@
               word-wrap : break-word ;
               overflow: hidden ;
               padding-bottom: 3px;
-            }
-          }
-
-          .knowledge-mode {
-            .tag-item {
-              color: rgba(239, 78, 78, 1);
-              background: rgba(239, 78, 78, 0.1);
-              border: 1px solid #EF4E4E;
+              /deep/ .anticon-close{
+                color: rgba(239, 78, 78, 1);
+              }
             }
           }
 
@@ -346,7 +357,9 @@
       }
       .delete-action {
         display: flex;
+        cursor: pointer;
         height: 40px;
+        display: none;
         img {
           width: 40px;
         }
@@ -354,7 +367,7 @@
 
       .active-description-line {
         color: @primary-color;
-        border: 2px solid @primary-color !important;
+        border: 1px solid @primary-color !important;
         background-color: fade(@outline-color, 20%);
 
         &:hover {
