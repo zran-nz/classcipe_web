@@ -204,9 +204,9 @@
           </a-list>
           <div class="choose-group">
             <div class="choose-label">Choose</div>
-            <a-select :default-value="defaultGroupId" style="width: 100%" v-model="selectedGroup">
-              <a-select-option :value="group.groupId" v-for="(group, gIndex) in groupIdNameList" :key="gIndex">
-                {{ group.groupName }}
+            <a-select :default-value="defaultGroupName" style="width: 100%" v-model="selectedGroup">
+              <a-select-option :value="groupName" v-for="(groupName, gIndex) in groupNameList" :key="gIndex">
+                {{ groupName }}
               </a-select-option>
             </a-select>
           </div>
@@ -310,11 +310,11 @@ export default {
       type: String,
       required: true
     },
-    defaultGroupId: {
+    defaultGroupName: {
       type: String,
       default: null
     },
-    groupIdNameList: {
+    groupNameList: {
       type: Array,
       default: () => []
     }
@@ -374,14 +374,14 @@ export default {
   },
   created () {
     this.$logger.info('NewMyContent filterTypeList', this.filterTypeList)
-    this.$logger.info('NewMyContent groupIdNameList', this.groupIdNameList)
+    this.$logger.info('NewMyContent groupNameList', this.groupNameList)
     if (this.filterTypeList.length) {
       this.currentType = this.filterTypeList[0]
       this.currentTypeLabel = getLabelNameType(this.filterTypeList[0])
     }
     this.$logger.info('currentTypeLabel ' + this.currentTypeLabel)
     this.mySelectedList = this.selectedList
-    this.selectedGroup = this.defaultGroupId
+    this.selectedGroup = this.defaultGroupName
     this.loadMyContent()
   },
   methods: {
@@ -608,12 +608,12 @@ export default {
       } else if (!this.selectedGroup) {
         this.$message.warn('No group be selected!')
       } else {
-        const group = this.groupIdNameList.find(gItem => gItem.groupId === this.selectedGroup)
+        const groupName = this.groupNameList.find(gItem => gItem === this.selectedGroup)
         // 开始关联数据
         const postData = {
           fromId: this.fromId,
           fromType: this.fromType,
-          groupName: group.groupName,
+          groupName: groupName,
           otherContents: []
         }
 
