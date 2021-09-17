@@ -77,6 +77,8 @@ export default {
       if (!initDataResponse[0].code) {
         this.subjectTree = initDataResponse[0].result
         curriculumData.children = initDataResponse[0].result
+        // 兼容新的任意层级,任意一个层级下一层都会可能是gradeList
+        this.addGradeListProperty(curriculumData.children)
       }
 
       // // GetAllSdgs
@@ -94,11 +96,20 @@ export default {
       }
     }).finally(() => {
       this.treeDataList.push(curriculumData)
+      this.$logger.info('addGradeListProperty treeDataList', this.treeDataList)
       // this.treeDataList.push(sdgData)
       this.loaded = true
     })
   },
   methods: {
+    addGradeListProperty (list) {
+      list.forEach(item => {
+        if (!item.hasOwnProperty('gradeList')) {
+          item.gradeList = []
+        }
+        this.addGradeListProperty(item.children)
+      })
+    }
   }
 }
 </script>

@@ -122,12 +122,25 @@ export default {
       this.$logger.info('after handleContentSelectedListUpdate ', this.selectedIdList)
     },
     handleContentListItemClick (item) {
-      this.$logger.info('handleContentListItemClick ', item)
-      LibraryEventBus.$emit(LibraryEvent.ContentListItemClick, {
-        item,
-        parent: this.parent
-      })
+      this.$logger.info('handleContentListItemClick', item, this.parent)
 
+      if (item.children.length) {
+        // 如果有子列表，表示还未到最后一层description，通知左侧导航栏更新同步层级
+        LibraryEventBus.$emit(LibraryEvent.ContentListItemClick, {
+          item,
+          parent: this.parent,
+          eventType: 'sync'
+        })
+        this.$logger.info('$emit sync')
+      } else {
+        // 最后一列，字列表无需让导航栏更新，导航栏不显示最后一层description。通过事件类型区分。
+        LibraryEventBus.$emit(LibraryEvent.ContentListItemClick, {
+          item,
+          parent: this.parent,
+          eventType: 'selectDescription'
+        })
+        this.$logger.info('$emit selectDescription')
+      }
       if (item.type) {
         this.$logger.info('handleContentListItemClick type', item)
         this.handlePreviewDetail(item)
@@ -213,8 +226,7 @@ export default {
     .selected-line {
       background-color: fade(@outline-color, 10%);
       color: @text-color;
-      margin: 3px;
-      border: 1px solid #15C39A;
+      border: 1px solid #15C39A !important;
       box-sizing: border-box;
 
       .action-icon {
@@ -232,6 +244,7 @@ export default {
     }
 
     .content-item {
+      border: 1px solid #fff;
       display: flex;
       flex-direction: row;
       flex-wrap: wrap;
