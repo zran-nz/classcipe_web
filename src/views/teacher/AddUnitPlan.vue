@@ -414,7 +414,11 @@
         @cancel="selectSyncDataVisible = false">
         <div class="link-content-wrapper">
           <!-- 此处的questionIndex用于标识区分是哪个组件调用的，返回的事件数据中会带上，方便业务数据处理，可随意写，可忽略-->
-          <new-browser :select-mode="selectModel.syncData" question-index="_questionIndex_1" :sync-data="syncData" @select="handleSelectListData"/>
+          <new-browser :select-mode="selectModel.syncData" question-index="_questionIndex_1" :sync-data="syncData" @select-sync="handleSelectListData"/>
+          <div class="modal-ensure-action-line-right">
+            <a-button class="action-item action-cancel" shape="round" @click="handleCancelSelectSyncData">Cancel</a-button>
+            <a-button class="action-ensure action-item" type="primary" shape="round" @click="handleEnsureSelectSyncData">Ok</a-button>
+          </div>
         </div>
       </a-modal>
 
@@ -589,7 +593,9 @@ export default {
       currentActiveStepIndex: 0,
 
       groupNameList: [],
-      syncData: []
+      syncData: [],
+      selectSyncDataVisible: false,
+      selectedSyncList: []
     }
   },
   watch: {
@@ -1495,6 +1501,16 @@ export default {
 
     handleSelectListData (data) {
       this.$logger.info('handleSelectListData', data)
+      this.selectedSyncList = data
+    },
+
+    handleCancelSelectSyncData () {
+      this.selectedSyncList = []
+      this.selectSyncDataVisible = false
+    },
+
+    handleEnsureSelectSyncData () {
+      this.selectSyncDataVisible = false
     }
   }
 }
