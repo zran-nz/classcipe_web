@@ -1499,16 +1499,19 @@ export default {
       })
     },
 
+    // TODO 自动更新选择的sync 的数据knowledgeId和name列表
     handleSelectListData (data) {
       this.$logger.info('handleSelectListData', data)
       this.selectedSyncList = data
     },
 
+    // TODO 自动更新选择的sync 的数据knowledgeId和name列表
     handleCancelSelectSyncData () {
       this.selectedSyncList = []
       this.selectSyncDataVisible = false
     },
 
+    // TODO 自动更新选择的sync 的数据knowledgeId和name列表
     handleEnsureSelectSyncData () {
       this.selectSyncDataVisible = false
     }
