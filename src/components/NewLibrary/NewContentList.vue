@@ -13,7 +13,13 @@
     </div>
     <div class="content-list">
       <template v-if="contentDataList && contentDataList.length">
-        <div :class="{'content-item': true, 'odd-line': index % 2 === 0,'even-line': index % 2 === 1, 'active-line': currentId === item.id, 'selected-line': selectedIdList.indexOf(item.id) !== -1}" v-for="(item,index) in contentDataList" :key="index">
+        <div
+          :class="{'content-item': true,
+                   'odd-line': index % 2 === 0,'even-line': index % 2 === 1,
+                   'active-line': currentId === item.id,
+                   'selected-line': item.hasOwnProperty('froms') ? selectedKnowledgeIdList.indexOf(item.knowledgeId) !== -1 : selectedIdList.indexOf(item.id) !== -1}"
+          v-for="(item,index) in contentDataList"
+          :key="index">
           <div class="name" :style="{width: nameWidth + 'px'}" @click="handleContentListItemClick(item)">
             <div class="icon">
               <template v-if="item.type">
@@ -26,7 +32,7 @@
             <div class="name-text">
               {{ item.name || item.description }}
             </div>
-            <div class="action-icon" v-if="selectedIdList.indexOf(item.id) !== -1">
+            <div class="action-icon" v-if="item.hasOwnProperty('froms') ? selectedKnowledgeIdList.indexOf(item.knowledgeId) !== -1 : selectedIdList.indexOf(item.id) !== -1">
               <img src="~@/assets/icons/lesson/selected.png"/>
             </div>
           </div>
@@ -91,7 +97,9 @@ export default {
       typeMap: typeMap,
       firstLoad: true,
 
-      selectedIdList: []
+      selectedIdList: [],
+      selectedKnowledgeIdList: [],
+      selectedKnowledgeIdNameMap: new Map()
     }
   },
   computed: {
@@ -124,26 +132,47 @@ export default {
     handleContentListItemClick (item) {
       this.$logger.info('handleContentListItemClick', item, this.parent)
 
-      if (item.children.length) {
-        // 如果有子列表，表示还未到最后一层description，通知左侧导航栏更新同步层级
-        LibraryEventBus.$emit(LibraryEvent.ContentListItemClick, {
-          item,
-          parent: this.parent,
-          eventType: 'sync'
+      if (item.hasOwnProperty('froms')) {
+        this.$logger.info('handle sync handleContentListItemClick', item)
+        const index = this.selectedKnowledgeIdList.indexOf(item.knowledgeId)
+        if (index !== -1) {
+          this.selectedKnowledgeIdList.splice(index, 1)
+          this.selectedKnowledgeIdNameMap.delete(item.knowledgeId)
+        } else {
+          this.selectedKnowledgeIdList.push(item.knowledgeId)
+          this.selectedKnowledgeIdNameMap.set(item.knowledgeId, item.name)
+        }
+        const selectedList = []
+        this.selectedKnowledgeIdList.forEach(knowledgeId => {
+          selectedList.push({
+            knowledgeId: knowledgeId,
+            name: this.selectedKnowledgeIdNameMap.get(knowledgeId)
+          })
         })
-        this.$logger.info('$emit sync')
+        this.$emit('select-sync', selectedList)
+        this.$logger.info('selectedKnowledgeIdNameMap', this.selectedKnowledgeIdNameMap)
       } else {
-        // 最后一列，字列表无需让导航栏更新，导航栏不显示最后一层description。通过事件类型区分。
-        LibraryEventBus.$emit(LibraryEvent.ContentListItemClick, {
-          item,
-          parent: this.parent,
-          eventType: 'selectDescription'
-        })
-        this.$logger.info('$emit selectDescription')
-      }
-      if (item.type) {
-        this.$logger.info('handleContentListItemClick type', item)
-        this.handlePreviewDetail(item)
+        if (item.children.length) {
+          // 如果有子列表，表示还未到最后一层description，通知左侧导航栏更新同步层级
+          LibraryEventBus.$emit(LibraryEvent.ContentListItemClick, {
+            item,
+            parent: this.parent,
+            eventType: 'sync'
+          })
+          this.$logger.info('$emit sync')
+        } else {
+          // 最后一列，字列表无需让导航栏更新，导航栏不显示最后一层description。通过事件类型区分。
+          LibraryEventBus.$emit(LibraryEvent.ContentListItemClick, {
+            item,
+            parent: this.parent,
+            eventType: 'selectDescription'
+          })
+          this.$logger.info('$emit selectDescription')
+        }
+        if (item.type) {
+          this.$logger.info('handleContentListItemClick type', item)
+          this.handlePreviewDetail(item)
+        }
       }
     },
     handlePreviewClose () {
@@ -250,6 +279,7 @@ export default {
       flex-wrap: wrap;
       align-items: center;
       padding: 10px;
+      margin: 3px;
 
       .name {
         cursor: pointer;

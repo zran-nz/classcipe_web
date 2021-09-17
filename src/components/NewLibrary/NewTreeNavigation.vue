@@ -5,7 +5,7 @@
       :tree-item-data="treeItemData"
       :tree-current-parent="null"
       :default-deep="0"
-      current-item-type="subject"
+      :current-item-type="treeItemData.type === NavigationType.curriculum ? 'subject' : 'sync'"
       :select-mode="selectMode"
       :question-index="questionIndex"
       :default-expand-status="treeItemData.expandStatus"
@@ -19,7 +19,6 @@
 <script>
 import NewTreeItem from '@/components/NewLibrary/NewTreeItem'
 import { NavigationType } from '@/components/NewLibrary/NavigationType'
-// const { GetAllSdgs } = require('@/api/scenario')
 const { GetMyGrades } = require('@/api/teacher')
 const { SubjectTree } = require('@/api/subject')
 
@@ -36,12 +35,17 @@ export default {
     questionIndex: {
       type: String,
       default: null
+    },
+    syncData: {
+      type: Array,
+      default: () => []
     }
   },
   data () {
     return {
       loaded: false,
       treeDataList: [],
+      NavigationType: NavigationType,
 
       sdgList: [],
       subjectTree: [],
@@ -58,13 +62,20 @@ export default {
       children: [],
       parent: null
     }
-    // const sdgData = {
-    //   expandStatus: true,
-    //   type: NavigationType.sdg,
-    //   name: 'Sustainable development goal',
-    //   children: [],
-    //   parent: null
-    // }
+    const syncData = {
+      expandStatus: true,
+      type: NavigationType.sync,
+      name: 'Sync assessment objectives with linked content',
+      children: [],
+      parent: null
+    }
+    if (this.syncData && this.syncData.length) {
+      syncData.children = this.syncData
+      this.treeDataList.push(syncData)
+      this.$logger.info('syncData treeDataList', this.treeDataList)
+    } else {
+      this.$logger.info('no sync data, ignore it')
+    }
     Promise.all([
       SubjectTree({ curriculumId: this.$store.getters.bindCurriculum }),
       // GetAllSdgs(),
@@ -97,7 +108,6 @@ export default {
     }).finally(() => {
       this.treeDataList.push(curriculumData)
       this.$logger.info('addGradeListProperty treeDataList', this.treeDataList)
-      // this.treeDataList.push(sdgData)
       this.loaded = true
     })
   },

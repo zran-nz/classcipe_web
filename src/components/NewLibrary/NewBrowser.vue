@@ -5,10 +5,14 @@
     </div>
     <div class="main">
       <div class="tree-navigation">
-        <new-tree-navigation :select-mode="selectMode" :question-index="questionIndex" />
+        <new-tree-navigation
+          :select-mode="selectMode"
+          :question-index="questionIndex"
+          :sync-data="syncData"
+        />
       </div>
       <div class="content-list">
-        <new-content-list />
+        <new-content-list @select-sync="handleSelectListData"/>
       </div>
     </div>
   </div>
@@ -35,13 +39,15 @@ export default {
     questionIndex: {
       type: String,
       default: null
+    },
+    syncData: {
+      type: Array,
+      default: () => []
     }
   },
   data () {
     return {
     }
-  },
-  computed: {
   },
   created () {
     this.$logger.info('NewBrowser selectMode', this.selectMode)
@@ -49,6 +55,10 @@ export default {
   mounted () {
   },
   methods: {
+    handleSelectListData (data) {
+      this.$logger.info('NewBrowser handleSelectListData', data)
+      this.$emit('select-sync', data)
+    }
   }
 }
 </script>

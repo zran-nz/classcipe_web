@@ -404,6 +404,24 @@
         </div>
       </a-modal>
 
+      <a-modal
+        v-model="selectSyncDataVisible"
+        :footer="null"
+        destroyOnClose
+        width="80%"
+        :title="null"
+        @ok="selectSyncDataVisible = false"
+        @cancel="selectSyncDataVisible = false">
+        <div class="link-content-wrapper">
+          <!-- 此处的questionIndex用于标识区分是哪个组件调用的，返回的事件数据中会带上，方便业务数据处理，可随意写，可忽略-->
+          <new-browser :select-mode="selectModel.syncData" question-index="_questionIndex_1" :sync-data="syncData" @select-sync="handleSelectListData"/>
+          <div class="modal-ensure-action-line-right">
+            <a-button class="action-item action-cancel" shape="round" @click="handleCancelSelectSyncData">Cancel</a-button>
+            <a-button class="action-ensure action-item" type="primary" shape="round" @click="handleEnsureSelectSyncData">Ok</a-button>
+          </div>
+        </div>
+      </a-modal>
+
       <a-skeleton :loading="contentLoading" active>
       </a-skeleton>
     </a-card>
@@ -419,7 +437,7 @@ import { GetAllSdgs, ScenarioSearch } from '@/api/scenario'
 import { debounce } from 'lodash-es'
 import InputSearch from '@/components/UnitPlan/InputSearch'
 import SdgTagInput from '@/components/UnitPlan/SdgTagInput'
-import { GetMyGrades, Associate, GetAssociate } from '@/api/teacher'
+import { GetMyGrades, Associate, GetAssociate, GetReferOutcomes } from '@/api/teacher'
 import { SubjectTree } from '@/api/subject'
 import { formatSubjectTree } from '@/utils/bizUtil'
 import NewUiClickableKnowledgeTag from '@/components/UnitPlan/NewUiClickableKnowledgeTag'
@@ -574,7 +592,10 @@ export default {
       // 当前激活的step
       currentActiveStepIndex: 0,
 
-      groupNameList: []
+      groupNameList: [],
+      syncData: [],
+      selectSyncDataVisible: false,
+      selectedSyncList: []
     }
   },
   watch: {
@@ -613,6 +634,7 @@ export default {
     LibraryEventBus.$on(LibraryEvent.ContentListSelectClick, this.handleDescriptionSelectClick)
     this.initData()
     this.getAssociate()
+    this.handleSyncData()
     this.debouncedGetSdgByDescription = debounce(this.searchScenario, 300)
   },
   beforeDestroy () {
@@ -667,6 +689,39 @@ export default {
         this.$message.error(this.$t('teacher.add-unit-plan.init-data-failed'))
       }).finally(() => {
         this.referenceLoading = false
+      })
+    },
+
+    handleSyncData () {
+      this.$logger.info(' handleSyncData')
+      GetReferOutcomes({
+        id: this.unitPlanId,
+        type: this.contentType['unit-plan']
+      }).then(response => {
+        this.$logger.info('getReferOutcomes response', response)
+        if (response.result.length) {
+          this.syncData = response.result
+          this.selectSyncDataVisible = true
+        } else {
+          // TODO 测试假数据
+          this.syncData = [
+            {
+              'froms': [
+                'test name 123456'
+              ],
+              'knowledgeId': '1438128010953814018',
+              'name': 'Keeping Healthy'
+            },
+            {
+              'froms': [
+                '测试task'
+              ],
+              'knowledgeId': '1438128011541016577',
+              'name': '1Nn1 Recite numbers in order (forwards from 1 to 100, backwards from 20 to 0)'
+            }
+          ]
+          this.selectSyncDataVisible = true
+        }
       })
     },
 
@@ -1433,6 +1488,23 @@ export default {
       }).finally(() => {
         this.linkGroupLoading = false
       })
+    },
+
+    // TODO 自动更新选择的sync 的数据knowledgeId和name列表
+    handleSelectListData (data) {
+      this.$logger.info('handleSelectListData', data)
+      this.selectedSyncList = data
+    },
+
+    // TODO 自动更新选择的sync 的数据knowledgeId和name列表
+    handleCancelSelectSyncData () {
+      this.selectedSyncList = []
+      this.selectSyncDataVisible = false
+    },
+
+    // TODO 自动更新选择的sync 的数据knowledgeId和name列表
+    handleEnsureSelectSyncData () {
+      this.selectSyncDataVisible = false
     }
   }
 }

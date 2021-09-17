@@ -21,7 +21,8 @@
         <span class="display-label">{{ treeItemData.name }}</span>
       </div>
     </div>
-    <template v-if="subItemType">
+    <!--    大纲浏览-->
+    <template v-if="subItemType ">
       <div class="sub-tree" v-show="subTreeExpandStatus && hasSubTree" :data-sub-type="subItemType">
         <template v-if="subItemType === 'subject'">
           <new-tree-item
@@ -84,8 +85,6 @@ const { LibraryEvent } = require('@/components/NewLibrary/LibraryEventBus')
 const { KnowledgeQueryContentByDescriptionId } = require('@/api/knowledge')
 const { KnowledgeGetTree } = require('@/api/knowledge')
 const { NavigationType } = require('@/components/NewLibrary/NavigationType')
-const { ScenarioQueryContentByScenarioId } = require('@/api/scenario')
-const { ScenarioGetKeywordScenarios } = require('@/api/scenario')
 
 const ExpandStatus = {
   collapse: false,
@@ -204,98 +203,26 @@ export default {
       this.$logger.info('handleExpandTreeItem deep: ' + this.defaultDeep + ' type: ' + this.treeItemType + ' treeItemData', treeItemData, ' parent ', this.treeCurrentParent)
       if (this.treeItemType === NavigationType.curriculum) {
         this.handleExpandCurriculumTreeItem(treeItemData)
-      } else if (this.treeItemType === NavigationType.sdg) {
-        this.handleExpandSdgTreeItem(treeItemData)
+      } else if (this.treeItemType === NavigationType.sync) {
+        this.handleExpandSyncDataList(treeItemData)
       }
+    },
+
+    handleExpandSyncDataList (data) {
+      this.$logger.info('handleExpandSyncDataList', data)
+      LibraryEventBus.$emit(LibraryEvent.ContentListUpdate, {
+        deep: 0,
+        currentTreeData: this.treeItemData,
+        parentTreeData: this.treeCurrentParent,
+        contentList: data.children,
+        questionIndex: this.questionIndex
+      })
+      this.subTreeLoading = false
     },
 
     handleCollapseTreeItem (treeItemData) {
       this.$logger.info('handleExpandTreeItem ' + (!this.subTreeExpandStatus))
       this.subTreeExpandStatus = false
-    },
-
-    handleExpandSdgTreeItem (treeItemData) {
-      this.$logger.info('handleExpandSdgTreeItem data ', treeItemData, ' children ', treeItemData.children, ' deep ' + this.defaultDeep)
-      if (this.defaultDeep === 0) {
-        this.subTreeExpandStatus = true
-        LibraryEventBus.$emit(LibraryEvent.ContentListUpdate, {
-          deep: this.defaultDeep,
-          currentTreeData: this.treeItemData,
-          parentTreeData: this.treeCurrentParent,
-          contentList: treeItemData.children,
-          questionIndex: this.questionIndex
-        })
-      }
-
-      if (this.defaultDeep === 1) {
-        if (!treeItemData.children || !treeItemData.children.length) {
-          this.subTreeLoading = true
-          const sdgId = treeItemData.id
-          this.$logger.info('ScenarioGetKeywordScenarios ' + sdgId)
-          // sdg keyword name list
-          ScenarioGetKeywordScenarios({ sdgId }).then(response => {
-            this.$logger.info('ScenarioGetKeywordScenarios response', response.result)
-            response.result.forEach(item => { item.children = [] })
-            treeItemData.children = response.result
-
-            LibraryEventBus.$emit(LibraryEvent.ContentListUpdate, {
-              deep: this.defaultDeep,
-              currentTreeData: this.treeItemData,
-              parentTreeData: this.treeCurrentParent,
-              contentList: treeItemData.children,
-              questionIndex: this.questionIndex
-            })
-          }).finally(() => {
-            this.subTreeLoading = false
-            this.subTreeExpandStatus = true
-          })
-        } else {
-          LibraryEventBus.$emit(LibraryEvent.ContentListUpdate, {
-            deep: this.defaultDeep,
-            currentTreeData: this.treeItemData,
-            parentTreeData: this.treeCurrentParent,
-            contentList: treeItemData.children,
-            questionIndex: this.questionIndex
-          })
-          this.subTreeLoading = false
-          this.subTreeExpandStatus = true
-        }
-      }
-
-      if (this.defaultDeep === 2) {
-        if (!treeItemData.children || !treeItemData.children.length) {
-          const sdgKeyWords = treeItemData.sdgKeyWords
-          sdgKeyWords.map(item => { item.children = []; item.name = item.description })
-          treeItemData.children = sdgKeyWords
-        }
-        LibraryEventBus.$emit(LibraryEvent.ContentListUpdate, {
-          deep: this.defaultDeep,
-          currentTreeData: this.treeItemData,
-          parentTreeData: this.treeCurrentParent,
-          contentList: treeItemData.children,
-          questionIndex: this.questionIndex
-        })
-        this.subTreeLoading = false
-        this.subTreeExpandStatus = true
-      }
-
-      if (this.defaultDeep === 3) {
-        // 加载知识点关联数据
-        this.$logger.info('ScenarioQueryContentByScenarioId ' + this.treeItemData.scenarioId)
-        this.subTreeLoading = true
-        ScenarioQueryContentByScenarioId({ scenarioId: this.treeItemData.scenarioId }).then(response => {
-          this.$logger.info('ScenarioQueryContentByScenarioId response', response.result)
-          LibraryEventBus.$emit(LibraryEvent.ContentListUpdate, {
-            currentTreeData: this.treeItemData,
-            parentTreeData: this.treeCurrentParent,
-            contentList: response.result,
-            questionIndex: this.questionIndex
-          })
-        }).finally(() => {
-          this.subTreeLoading = false
-          this.subTreeExpandStatus = true
-        })
-      }
     },
 
     handleExpandCurriculumTreeItem (treeItemData) {
