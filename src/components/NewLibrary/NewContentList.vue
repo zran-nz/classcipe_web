@@ -12,7 +12,7 @@
       <!--      </div>-->
     </div>
     <div class="content-list">
-      <template v-if="contentDataList.length">
+      <template v-if="contentDataList && contentDataList.length">
         <div :class="{'content-item': true, 'odd-line': index % 2 === 0,'even-line': index % 2 === 1, 'active-line': currentId === item.id, 'selected-line': selectedIdList.indexOf(item.id) !== -1}" v-for="(item,index) in contentDataList" :key="index">
           <div class="name" :style="{width: nameWidth + 'px'}" @click="handleContentListItemClick(item)">
             <div class="icon">

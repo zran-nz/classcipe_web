@@ -1,5 +1,5 @@
 <template>
-  <div class="tree-item" v-if="treeItemData" :data-deep="defaultDeep">
+  <div class="tree-item" v-if="treeItemData" :data-deep="defaultDeep" :data-current-type="currentItemType">
     <div :class="{'item-wrapper': true , 'odd-line': odd, 'even-line': !odd}" :style="{paddingLeft: (defaultDeep * defaultPaddingLeft === 0 ? defaultPaddingLeft / 3 : defaultDeep * defaultPaddingLeft) + 'px'}">
       <div class="subtree-icon-wrapper">
         <div class="subtree-icon-item" v-if="hasSubTree">
@@ -21,20 +21,40 @@
         <span class="display-label">{{ treeItemData.name }}</span>
       </div>
     </div>
-    <div class="sub-tree" v-show="subTreeExpandStatus && hasSubTree" >
-      <new-tree-item
-        :grade-list="gradeList"
-        :tree-current-parent="subTreeParent"
-        :tree-item-data="treeItem"
-        :select-mode="selectMode"
-        :question-index="questionIndex"
-        :tree-item-type="treeItemType"
-        :default-deep="(defaultDeep + 1)"
-        :default-expand-status="treeItem.expandStatus"
-        v-for="(treeItem, index) in treeItemData.children"
-        :odd="odd ? index % 2 === 1 : index % 2 === 0 "
-        :key="index"/>
-    </div>
+    <template v-if="subItemType">
+      <div class="sub-tree" v-show="subTreeExpandStatus && hasSubTree" :data-sub-type="subItemType">
+        <template v-if="subItemType !== 'grade'">
+          <new-tree-item
+            :grade-list="gradeList"
+            :tree-current-parent="subTreeParent"
+            :tree-item-data="treeItem"
+            :current-item-type="subItemType"
+            :select-mode="selectMode"
+            :question-index="questionIndex"
+            :tree-item-type="treeItemType"
+            :default-deep="(defaultDeep + 1)"
+            :default-expand-status="treeItem.expandStatus"
+            v-for="(treeItem, index) in treeItemData.children"
+            :odd="odd ? index % 2 === 1 : index % 2 === 0 "
+            :key="index"/>
+        </template>
+        <template v-if="subItemType === 'grade'">
+          <new-tree-item
+            :grade-list="gradeList"
+            :tree-current-parent="subTreeParent"
+            :tree-item-data="treeItem"
+            :current-item-type="subItemType"
+            :select-mode="selectMode"
+            :question-index="questionIndex"
+            :tree-item-type="treeItemType"
+            :default-deep="(defaultDeep + 1)"
+            :default-expand-status="treeItem.expandStatus"
+            v-for="(treeItem, index) in gradeList"
+            :odd="odd ? index % 2 === 1 : index % 2 === 0 "
+            :key="index"/>
+        </template>
+      </div>
+    </template>
   </div>
 </template>
 
@@ -96,29 +116,42 @@ export default {
     questionIndex: {
       type: String,
       default: null
+    },
+    // 当前节点类型，用来判断下一级的节点类型，大纲节点-subject > 年级节点-grade > 知识点节点-knowledge
+    currentItemType: {
+      type: String,
+      required: true
     }
-  },
-  components: {
   },
   data () {
     return {
       subTreeExpandStatus: this.defaultDeep < 2 ? ExpandStatus.open : ExpandStatus.collapse,
       hasSubTree: false,
       subTreeParent: null,
-      subTreeLoading: false
+      subTreeLoading: false,
+      subItemType: null
     }
   },
   watch: {
     hasSubTreeWatch () {
-      if (this.treeItemData && this.treeItemData.children) {
-       this.hasSubTree = true
+      if (this.treeItemData) {
+        if (this.currentItemType === 'subject' && this.treeItemData.children) {
+          this.hasSubTree = true
+        } else if (this.currentItemType === 'knowledge' && this.treeItemData.children) {
+          this.hasSubTree = true
+        } else if (this.currentItemType === 'grade') {
+          this.hasSubTree = true
+        } else {
+          this.hasSubTree = false
+        }
+      } else {
+        this.hasSubTree = false
       }
-      this.hasSubTree = false
     }
   },
   created () {
     this.expand = this.expandStatus
-    if (this.treeItemData && this.treeItemData.children) {
+    if (this.treeItemData && (this.treeItemData.children || this.treeItemData.gradeList)) {
       this.hasSubTree = true
     }
     const currentTreeWithParent = Object.assign({}, this.treeItemData)
@@ -126,6 +159,21 @@ export default {
     this.subTreeParent = currentTreeWithParent
   },
   mounted () {
+    this.$logger.info('new tree item mounted! currentItemType: ' + this.currentItemType + ' subItemType:' + this.subItemType)
+    if (this.currentItemType === 'subject') {
+      if (this.treeItemData.children.length) {
+        this.subItemType = 'subject'
+      } else {
+        this.subItemType = 'grade'
+      }
+    } else if (this.currentItemType === 'grade') {
+      this.subItemType = 'knowledge'
+    } else if (this.currentItemType === 'knowledge') {
+      if (this.treeItemData.children.length) {
+        this.subItemType = 'knowledge'
+      }
+    }
+    this.$logger.info('after handle subItemType:' + this.subItemType)
     LibraryEventBus.$on(LibraryEvent.ContentListItemClick, this.handleContentListItemClick)
   },
   destroyed () {
@@ -232,9 +280,9 @@ export default {
     },
 
     handleExpandCurriculumTreeItem (treeItemData) {
-      this.$logger.info('handleExpandCurriculumTreeItem data ', treeItemData, ' children ', treeItemData.children, ' deep ' + this.defaultDeep)
+      this.$logger.info('handleExpandCurriculumTreeItem[' + this.currentItemType + '] data ', treeItemData, ' children ', treeItemData.children, ' deep ' + this.defaultDeep)
 
-      if (this.defaultDeep === 0 || this.defaultDeep === 1 || this.defaultDeep === 4) {
+      if (this.defaultDeep === 0) {
         this.subTreeExpandStatus = true
         LibraryEventBus.$emit(LibraryEvent.ContentListUpdate, {
           deep: this.defaultDeep,
@@ -244,28 +292,39 @@ export default {
           questionIndex: this.questionIndex
         })
       } else {
-        // 选择大纲判断是否已经有年级列表了
-        if (this.defaultDeep === 2) {
+        // 选择大纲判断是否已经到底了
+        if (this.currentItemType === 'subject') {
           if (treeItemData.children === undefined || !treeItemData.children.length) {
             this.subTreeLoading = true
             this.gradeList.forEach(item => { item.children = [] })
-            treeItemData.children = [...this.gradeList]
+            treeItemData.gradeList = [...this.gradeList]
             this.$logger.info('add gradeList ', treeItemData)
+            LibraryEventBus.$emit(LibraryEvent.ContentListUpdate, {
+              deep: this.defaultDeep,
+              currentTreeData: this.treeItemData,
+              parentTreeData: this.treeCurrentParent,
+              contentList: treeItemData.gradeList,
+              questionIndex: this.questionIndex
+            })
+            // subject的children为空，说明到底了。下一层就是grade
+            this.subItemType = 'grade'
+          } else {
+            LibraryEventBus.$emit(LibraryEvent.ContentListUpdate, {
+              deep: this.defaultDeep,
+              currentTreeData: this.treeItemData,
+              parentTreeData: this.treeCurrentParent,
+              contentList: treeItemData.children,
+              questionIndex: this.questionIndex
+            })
+            this.subItemType = 'subject'
           }
-          LibraryEventBus.$emit(LibraryEvent.ContentListUpdate, {
-            deep: this.defaultDeep,
-            currentTreeData: this.treeItemData,
-            parentTreeData: this.treeCurrentParent,
-            contentList: treeItemData.children,
-            questionIndex: this.questionIndex
-          })
           this.subTreeLoading = false
           this.subTreeExpandStatus = true
           this.$logger.info('gradeList already add', treeItemData)
         }
 
-        // 选择年级判断是否已经有知识点了
-        if (this.defaultDeep === 3) {
+        // 判断年级判断是否已经有知识点了
+        if (this.currentItemType === 'grade') {
           if (!treeItemData.children.length) {
             this.subTreeLoading = true
             const gradeId = treeItemData.id
@@ -289,6 +348,8 @@ export default {
               this.subTreeLoading = false
               this.subTreeExpandStatus = true
             })
+            // grade下一层knowledge
+            this.subItemType = 'knowledge'
           } else {
             LibraryEventBus.$emit(LibraryEvent.ContentListUpdate, {
               deep: this.defaultDeep,
@@ -303,45 +364,62 @@ export default {
         }
 
         // 加载知识点关联数据
-        if (this.defaultDeep === 5) {
+        if (this.currentItemType === 'knowledge') {
           this.$logger.info('selectMode', this.selectMode)
 
-          if (this.selectMode !== SelectModel.knowledgeDescription) {
-            this.subTreeLoading = true
-            KnowledgeQueryContentByDescriptionId({ descriptionId: this.treeItemData.id }).then(response => {
-              this.$logger.info('KnowledgeQueryContentByDescriptionId response', response.result)
-              LibraryEventBus.$emit(LibraryEvent.ContentListUpdate, {
-                currentTreeData: this.treeItemData,
-                parentTreeData: this.treeCurrentParent,
-                contentList: response.result,
+          if (treeItemData.children === undefined || !treeItemData.children.length) {
+            this.$logger.info('select reach knowledge bottom')
+            if (this.selectMode !== SelectModel.knowledgeDescription) {
+              this.subTreeLoading = true
+              KnowledgeQueryContentByDescriptionId({ descriptionId: this.treeItemData.id }).then(response => {
+                this.$logger.info('KnowledgeQueryContentByDescriptionId response', response.result)
+                LibraryEventBus.$emit(LibraryEvent.ContentListUpdate, {
+                  currentTreeData: this.treeItemData,
+                  parentTreeData: this.treeCurrentParent,
+                  contentList: response.result,
+                  questionIndex: this.questionIndex
+                })
+              }).finally(() => {
+                this.subTreeLoading = false
+                this.subTreeExpandStatus = true
+              })
+            } else {
+              this.$logger.info('select knowledge description treeItemData', this.treeItemData, this.treeCurrentParent)
+              const subKnowledgeObj = this.treeItemData
+              const mainKnowledgeObj = this.treeCurrentParent
+              const mainSubjectObj = this.treeCurrentParent.parent.parent.parent
+              const subSubjectObj = this.treeCurrentParent.parent.parent
+              this.$logger.info('mainSubjectObj', mainSubjectObj, 'subSubjectObj', subSubjectObj, 'mainKnowledgeObj', mainKnowledgeObj, 'subKnowledgeObj', subKnowledgeObj)
+              LibraryEventBus.$emit(LibraryEvent.ContentListSelectClick, {
+                curriculumId: this.$store.getters.bindCurriculum,
+                description: this.treeItemData.name,
+                gradeId: this.treeItemData.gradeId,
+                mainKnowledgeId: mainKnowledgeObj.id,
+                mainSubjectId: mainSubjectObj.id,
+                mainSubjectName: mainSubjectObj.name,
+                subKnowledgeId: subKnowledgeObj.id,
+                subSubjectId: subSubjectObj.id,
+                subSubjectName: subSubjectObj.name,
                 questionIndex: this.questionIndex
               })
-            }).finally(() => {
-              this.subTreeLoading = false
-              this.subTreeExpandStatus = true
-            })
+            }
           } else {
-            this.$logger.info('select knowledge description treeItemData', this.treeItemData, this.treeCurrentParent)
-            const subKnowledgeObj = this.treeItemData
-            const mainKnowledgeObj = this.treeCurrentParent
-            const mainSubjectObj = this.treeCurrentParent.parent.parent.parent
-            const subSubjectObj = this.treeCurrentParent.parent.parent
-            this.$logger.info('mainSubjectObj', mainSubjectObj, 'subSubjectObj', subSubjectObj, 'mainKnowledgeObj', mainKnowledgeObj, 'subKnowledgeObj', subKnowledgeObj)
-            LibraryEventBus.$emit(LibraryEvent.ContentListSelectClick, {
-              curriculumId: this.$store.getters.bindCurriculum,
-              description: this.treeItemData.name,
-              gradeId: this.treeItemData.gradeId,
-              mainKnowledgeId: mainKnowledgeObj.id,
-              mainSubjectId: mainSubjectObj.id,
-              mainSubjectName: mainSubjectObj.name,
-              subKnowledgeId: subKnowledgeObj.id,
-              subSubjectId: subSubjectObj.id,
-              subSubjectName: subSubjectObj.name,
+            // 非最后一层的knowledge 列表
+            this.subTreeExpandStatus = true
+            LibraryEventBus.$emit(LibraryEvent.ContentListUpdate, {
+              deep: this.defaultDeep,
+              currentTreeData: this.treeItemData,
+              parentTreeData: this.treeCurrentParent,
+              contentList: treeItemData.children,
               questionIndex: this.questionIndex
             })
+
+            // knowledge 最后一级别，所有的下面都是knowledge
+            this.subItemType = 'knowledge'
           }
         }
       }
+      this.$logger.info('handleExpandCurriculumTreeItem handle finish!')
     },
 
     handleContentListItemClick (data) {

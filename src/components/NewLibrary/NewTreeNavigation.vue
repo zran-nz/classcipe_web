@@ -5,6 +5,7 @@
       :tree-item-data="treeItemData"
       :tree-current-parent="null"
       :default-deep="0"
+      current-item-type="subject"
       :select-mode="selectMode"
       :question-index="questionIndex"
       :default-expand-status="treeItemData.expandStatus"

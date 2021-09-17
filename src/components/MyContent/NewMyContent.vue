@@ -522,6 +522,7 @@ export default {
     handleToggleType (type) {
       this.$logger.info('handleToggleType ' + type)
       this.createdType = type
+      this.loadMyContent()
     },
 
     handleToggleDisplayType (type) {
