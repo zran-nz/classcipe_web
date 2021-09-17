@@ -1,24 +1,18 @@
 <template>
-  <a-row class="new-tag-ui">
+  <div class="tag-ui">
     <a-col span="24">
 
       <div class="skt-description-list-wrapper">
         <a-row >
           <a-col span="24">
             <div class="skt-description-list" v-for="(knowledge,index) in KnowledgeList" :key="index">
-              <div
-                :class="{
-                  'skt-description-tag-item': true,
-                  'skt-description-tag-item-top-fixed': true,
-                  'active-description-line': false}"
-                @click="handleActiveDescription(index)">
+              <div class="skt-description-tag-item skt-description-tag-item-top-fixed" @click="handleActiveDescription(index)">
                 <div class="skt-description">
                   {{ knowledge.name }}
                 </div>
-
                 <div
                   class="actions">
-                  <span class="add-action" >
+                  <span class="add-action" @click.stop.prevent="handleAddTag(knowledge)">
                     <img src="~@/assets/icons/tag/add.png"/>
                   </span>
                   <span class="up-down">
@@ -29,7 +23,7 @@
                 <a-divider style="margin: 10px 0px" v-if="knowledge.tagListVisible" />
                 <div class="skt-description-tag-list" v-if="knowledge.tagListVisible">
                   <div :class="{'tag-list-item': true,'skill-mode': true}" v-for="(tag,tIndex) in knowledge.tags" :key="tIndex">
-                    <a-tag class="tag-item" closable @close="handleDeleteTag(index,tIndex)">{{ tag.name }}</a-tag>
+                    <a-tag class="tag-item" :closable="true" @close="handleDeleteTag(index,tIndex)">{{ tag.name }}</a-tag>
                   </div>
                 </div>
               </div>
@@ -44,22 +38,31 @@
       </div>
 
     </a-col>
-  </a-row>
+
+    <a-modal
+      v-model="addTagVisible"
+      :footer="null"
+      destroyOnClose
+      width="800px">
+      <div class="my-modal-title" slot="title">
+        Add tag
+      </div>
+      <learn-out-add-tag :select-knowledge="knowledge" />
+    </a-modal>
+
+  </div>
+
 </template>
 
 <script>
   import * as logger from '@/utils/logger'
-  import { KnowledgeSearch } from '@/api/knowledge'
-  import NewBrowser from '@/components/NewLibrary/NewBrowser'
-  import { SelectModel } from '@/components/NewLibrary/SelectModel'
   import NoMoreResources from '@/components/Common/NoMoreResources'
-  import { TagType } from '@/const/common'
-  const { debounce } = require('lodash-es')
+  import LearnOutAddTag from '@/components/UnitPlan/LearnOutAddTag'
 
   export default {
     name: 'UiLearnOut',
     components: {
-      NewBrowser,
+      LearnOutAddTag,
       NoMoreResources
     },
     props: {
@@ -78,7 +81,9 @@
     },
     data () {
       return {
-        KnowledgeList: []
+        KnowledgeList: [],
+        addTagVisible: false,
+        knowledge: {}
       }
     },
     created () {
@@ -99,6 +104,7 @@
       },
       handleDeleteTag (kIndex, tIndex) {
         this.KnowledgeList[kIndex].tags.splice(tIndex, 1)
+        this.$set(this.KnowledgeList, kIndex, this.KnowledgeList[kIndex])
         logger.info('handleDeleteTag ', this.KnowledgeList[kIndex].tags)
         this.$emit('set-learn-outs', this.KnowledgeList)
       },
@@ -106,6 +112,10 @@
       handleDeleteKnowledgeItem (index) {
         this.KnowledgeList.splice(index, 1)
         this.$emit('set-learn-outs', this.KnowledgeList)
+      },
+      handleAddTag (knowLedge) {
+        this.knowledge = knowLedge
+        this.addTagVisible = true
       }
     }
   }
@@ -149,6 +159,7 @@
         position: relative;
         &:hover {
           color: @primary-color;
+          border: 1px solid @primary-color !important;
         }
         .skt-description {
           cursor: pointer;
@@ -229,17 +240,6 @@
         height: 40px;
         img {
           width: 40px;
-        }
-      }
-
-      .active-description-line {
-        color: @primary-color;
-        border: 1px solid @primary-color !important;
-        background-color: fade(@outline-color, 20%);
-
-        &:hover {
-          border: 1px solid @primary-color;
-          color: @primary-color;
         }
       }
     }

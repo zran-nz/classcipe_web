@@ -157,7 +157,7 @@
                       </div>
                       <div class="form-block">
                         <a-form-item label="Set Learning outcomes" >
-                          <a-button type="primary">
+                          <a-button type="primary" @click="handleSelectDescription">
                             <div class="btn-text" style="line-height: 20px">
                               Add Learning outcomes
                             </div>
@@ -610,7 +610,7 @@ export default {
     MyContentEventBus.$on(MyContentEvent.LinkToMyContentItem, this.handleLinkMyContent)
     MyContentEventBus.$on(MyContentEvent.ToggleSelectContentItem, this.handleToggleSelectContentItem)
     MyContentEventBus.$on(MyContentEvent.ReferContentItem, this.handleReferItem)
-    LibraryEventBus.$on(LibraryEvent.ContentListSelectClick, this.handleSdgDescriptionSelectClick)
+    LibraryEventBus.$on(LibraryEvent.ContentListSelectClick, this.handleDescriptionSelectClick)
     this.initData()
     this.getAssociate()
     this.debouncedGetSdgByDescription = debounce(this.searchScenario, 300)
@@ -619,7 +619,7 @@ export default {
     MyContentEventBus.$off(MyContentEvent.LinkToMyContentItem, this.handleLinkMyContent)
     MyContentEventBus.$off(MyContentEvent.ToggleSelectContentItem, this.handleToggleSelectContentItem)
     MyContentEventBus.$off(MyContentEvent.ReferContentItem, this.handleReferItem)
-    LibraryEventBus.$off(LibraryEvent.ContentListSelectClick, this.handleSdgDescriptionSelectClick)
+    LibraryEventBus.$off(LibraryEvent.ContentListSelectClick, this.handleDescriptionSelectClick)
     // logger.debug('beforeDestroy, try save!')
     // this.handleSaveUnitPlan()
   },
@@ -1266,9 +1266,7 @@ export default {
       this.$logger.info('handleStartCollaborate')
       this.$refs.collaborate.startCollaborateModal(Object.assign({}, this.form), this.form.id, this.contentType['unit-plan'])
     },
-    handleSelectDescription (sdgIndex) {
-      this.$logger.info('handleSelectDescription', sdgIndex)
-      this.selectDescriptionIndex = '' + sdgIndex
+    handleSelectDescription () {
       this.showLibraryVisible = true
     },
     handleConfirmAssociate () {
@@ -1282,15 +1280,8 @@ export default {
       this.referDetailVisible = false
     },
 
-    handleSdgDescriptionSelectClick (data) {
-      this.$logger.info('unit plan handleSdgDescriptionSelectClick', data)
-      const sdgIndex = parseInt(data.questionIndex)
-      this.$logger.info('sdgIndex ' + sdgIndex)
-      const scenarioItem = this.form.scenarios[sdgIndex]
-      this.$logger.info('scenarioItem ', scenarioItem)
-      scenarioItem.description = data.description
-      this.form.scenarios.splice(sdgIndex, 1, scenarioItem)
-      this.$logger.info('after update scenarios', this.form.scenarios)
+    handleDescriptionSelectClick (data) {
+      this.$logger.info('unit plan handleDescriptionSelectClick', data)
       this.showLibraryVisible = false
     },
 
