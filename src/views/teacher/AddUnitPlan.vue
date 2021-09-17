@@ -165,7 +165,7 @@
                         </a-form-item>
 
                         <!--knowledge tag-select -->
-                        <ui-learn-out />
+                        <ui-learn-out :learn-outs="form.learnOuts" />
                       </div>
 
                     </template>
