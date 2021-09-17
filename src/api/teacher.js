@@ -16,7 +16,9 @@ export const teacherAPIUrl = {
   FindMyContent: '/classcipe/api/teacher/findMyContent',
   GetMyGrades: '/classcipe/api/teacher/getMyGrades',
   UpdateContentStatus: '/classcipe/api/teacher/content/status',
-  saveSessonTags: '/classcipe/api/sessonTags/addBatch'
+  saveSessonTags: '/classcipe/api/sessonTags/addBatch',
+  AddOrSaveGroupName: '/classcipe/api/teacher/addOrSaveGroupName',
+  GetReferOutcomes: '/classcipe/api/teacher/getReferOutcomes'
 }
 
 /**
@@ -162,5 +164,34 @@ export function SaveSessonTags (parameter) {
     headers: {
       'Content-Type': 'application/json;charset=UTF-8'
     }
+  })
+}
+
+/**
+ * @param parameter
+ * @returns {AxiosPromise}
+ * @constructor
+ */
+export function AddOrSaveGroupName (parameter) {
+  return request({
+    url: teacherAPIUrl.AddOrSaveGroupName,
+    method: 'post',
+    data: parameter,
+    headers: {
+      'Content-Type': 'application/json;charset=UTF-8'
+    }
+  })
+}
+
+/**
+ * getMyContent
+ * @param parameter
+ * @returns {AxiosPromise}
+ */
+export function getReferOutcomes (parameter) {
+  return request({
+    url: teacherAPIUrl.GetReferOutcomes,
+    method: 'get',
+    params: parameter
   })
 }
