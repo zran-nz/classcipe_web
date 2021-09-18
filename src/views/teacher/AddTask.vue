@@ -18,9 +18,12 @@
             <a-card :bordered="false" :body-style="{padding: '16px', display: 'flex', 'justify-content': 'center'}" class="card-wrapper">
               <a-form-model :model="form" class="task-form-left">
                 <a-steps :current="currentActiveStepIndex" direction="vertical">
-                  <a-step >
+                  <a-step>
+                    <div class="step-title" slot="title" @click="handleExitEditPPTMode($event)">
+                      Edit course info
+                    </div>
                     <template slot="description">
-                      <div class="form-block">
+                      <div class="form-block" v-show="!editPPTMode">
                         <div class="header-action">
                           <div class="header-action-item">
                             <a-button @click="handleEditGoogleSlide" :style="{'display': 'flex', 'align-items': 'center', 'justify-content': 'center', 'padding': '20px 15px', 'border-radius': '5px'}" type="primary" >
@@ -50,19 +53,19 @@
                         </div>
                       </div>
 
-                      <div class="form-block">
+                      <div class="form-block" v-show="!editPPTMode">
                         <a-form-item label="Task name">
                           <a-input v-model="form.name" placeholder="Enter Course Name" class="my-form-input" />
                         </a-form-item>
                       </div>
 
-                      <div class="form-block over-form-block" id="overview">
+                      <div class="form-block over-form-block" id="overview" v-show="!editPPTMode">
                         <a-form-model-item class="task-audio-line" label="Course Overview">
                           <a-textarea v-model="form.overview" placeholder="Overview" allow-clear />
                         </a-form-model-item>
                       </div>
 
-                      <div class="form-block">
+                      <div class="form-block" v-show="!editPPTMode">
                         <div class="self-type-wrapper">
                           <div class="self-field-label">
                             <div :class="{'task-type-item': true, 'green-active-task-type': form.taskType === 'FA'}" @click="handleSelectTaskType('FA')">FA</div>
@@ -78,7 +81,7 @@
                         </div>
                       </div>
 
-                      <div class="form-block">
+                      <div class="form-block" v-show="!editPPTMode">
                         <a-form-item label="Set assessment objectives" >
                           <a-button type="primary" @click="handleSelectDescription">
                             <div class="btn-text" style="line-height: 20px">
@@ -90,22 +93,35 @@
                         <!--knowledge tag-select -->
                         <ui-learn-out :learn-outs="form.learnOuts" @remove-learn-outs="handleRemoveLearnOuts" />
                       </div>
-
                     </template>
                   </a-step>
 
-                  <a-step>
+                  <a-step title="Edit your course slides">
                     <template slot="description">
-                      <div class="form-block">
-                        <a-form-item label="Link Plan content" class="link-plan-title">
-                          <a-button type="primary" :style="{'background-color': '#fff', 'color': '#000', 'border': '1px solid #D8D8D8'}" @click="handleAddLink">
-                            <div class="btn-text" style="line-height: 20px">
-                              + Link
+                      <div class="slide-select-wrapper" @click="handleToggleSlideMode" ref="slide">
+                        <div class="slide-select">
+                          <div class="slide-select-and-preview">
+                            <div class="reset-edit-basic-info" @click="handleExitEditPPTMode($event)">Edit course info</div>
+                            <div class="slide-select-action" v-show="!form.presentationId">
+                              <img src="~@/assets/icons/task/Teamwork-Pie-Chart@2x.png" />
+                              <div class="select-action">
+                                <div class="modal-ensure-action-line">
+                                  <a-button class="action-item action-cancel" shape="round" @click="handleShowSelectMyContent">Select template</a-button>
+                                  <a-button class="action-ensure action-item" type="primary" shape="round" @click="handleCreateInGoogle">Create a new ppt in Google side</a-button>
+                                </div>
+                              </div>
                             </div>
-                          </a-button>
-                        </a-form-item>
-                        <div class="common-link-wrapper">
-                          <common-link ref="commonLink" :from-id="this.taskId" :from-type="this.contentType['task']"/>
+                            <div class="slide-preview" v-show="form.presentationId && thumbnailList.length">
+                              <a-carousel arrows dots-class="slick-dots slick-thumb">
+                                <a slot="customPaging" slot-scope="props">
+                                  <img :src="thumbnailList[props.i].contentUrl" />
+                                </a>
+                                <div v-for="(item,index) in thumbnailList" :key="index">
+                                  <img :src="item.contentUrl" />
+                                </div>
+                              </a-carousel>
+                            </div>
+                          </div>
                         </div>
                       </div>
                     </template>
@@ -117,7 +133,7 @@
 
               <div class="task-form-right">
 
-                <div class="form-block-right">
+                <div class="form-block-right" v-show="!editPPTMode">
                   <!-- image-->
                   <a-form-model-item class="img-wrapper">
                     <a-upload-dragger
@@ -159,7 +175,18 @@
                   </a-form-model-item>
                 </div>
 
-                <div class="" >
+                <div class="form-block-right" v-show="editPPTMode">
+                  <div class="slide-preview-list">
+                    <div class="slide-preview-item" v-for="(recommendThumbnail, rIndex) in recommendThumbnailList" :key="rIndex">
+                      <a-carousel>
+                        <div v-for="(item,index) in recommendThumbnail" :key="index">
+                          <img :src="item.contentUrl" />
+                        </div>
+                      </a-carousel>
+                    </div>
+                  </div>
+                </div>
+                <div v-show="!editPPTMode">
                   <custom-tag ref="customTag" :selected-tags-list="form.customTags" @change-user-tags="handleChangeUserTags"></custom-tag>
                 </div>
               </div>
@@ -657,7 +684,11 @@
         syncData: [],
         selectSyncDataVisible: false,
         selectedSyncList: [],
-        selectModel: SelectModel
+        selectModel: SelectModel,
+
+        editPPTMode: false,
+
+        recommendThumbnailList: []
       }
     },
     computed: {
@@ -778,6 +809,10 @@
           }
         }).finally(() => {
           this.contentLoading = false
+
+          if (this.form.presentationId) {
+            this.loadThumbnail()
+          }
         })
       },
 
@@ -1030,7 +1065,7 @@
           }).finally(() => {
             this.creating = false
             this.selectedMyContentVisible = false
-            // this.loadThumbnail()
+            this.loadThumbnail()
           })
         }
       },
@@ -1049,7 +1084,35 @@
             this.$logger.info('current imgList ', this.imgList)
           })
           this.thumbnailListLoading = false
+
+          // TODO 修改为加载推荐模板
+          this.loadRecommendThumbnail()
         })
+      },
+
+      // TODO 修改为加载推荐模板
+      loadRecommendThumbnail () {
+        this.$logger.info('loadRecommendThumbnail ' + this.form.presentationId)
+        const list1 = []
+        this.thumbnailList.forEach(item => {
+          list1.push(item)
+        })
+
+        this.recommendThumbnailList.push(list1)
+
+        const list2 = []
+        this.thumbnailList.forEach(item => {
+          list2.push(item)
+        })
+
+        this.recommendThumbnailList.push(list2)
+
+        const list3 = []
+        this.thumbnailList.forEach(item => {
+          list3.push(item)
+        })
+
+        this.recommendThumbnailList.push(list3)
       },
 
       handleToggleThumbnail (thumbnail) {
@@ -1387,6 +1450,36 @@
       },
       handleSelectDescription () {
         this.selectSyncDataVisible = true
+      },
+
+      handleExitEditPPTMode (e) {
+        e.preventDefault()
+        e.stopPropagation()
+        this.$logger.info('handleExitEditPPTMode' + this.editPPTMode)
+        if (this.editPPTMode) {
+          this.currentActiveStepIndex = 0
+          this.editPPTMode = false
+          this.$refs.slide.scrollIntoView({
+            block: 'start',
+            behavior: 'smooth'
+          })
+        }
+      },
+
+      handleToggleSlideMode () {
+        this.$logger.info('handleToggleSlideMode')
+        this.currentActiveStepIndex = 1
+        if (!this.editPPTMode) {
+          this.editPPTMode = true
+          this.$refs.slide.scrollIntoView({
+            block: 'start',
+            behavior: 'smooth'
+          })
+        }
+      },
+
+      handleCreateInGoogle () {
+        this.$logger.info('handleCreateInGoogle')
       }
     }
   }
@@ -2572,5 +2665,129 @@
     flex-direction: row;
     width: 100%;
     justify-content: center;
+  }
+
+  .slide-select-wrapper {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: flex-start;
+    position: relative;
+    .slide-select {
+      width: 600px;
+      background: #fff;
+      position: relative;
+      .slide-select-and-preview {
+        width: 600px;
+        min-height: 400px;
+
+        .reset-edit-basic-info {
+          z-index: 100;
+          position: absolute;
+          top: 10px;
+          left: 3px;
+          background: rgba(0,0,0, 0.8);
+          opacity: 0.7;
+          padding: 5px 10px;
+          font-size: 12px;
+          border-radius: 20px;
+          cursor: pointer;
+          color: #fff;
+        }
+
+        .slide-select-action {
+          height: 400px;
+          width: 600px;
+          align-items: center;
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+
+          img {
+            height: 150px;
+          }
+        }
+
+        .slide-preview {
+          border: 1px solid rgba(0, 0, 0, 0.1);
+        }
+      }
+    }
+
+    .slide-recommend {
+      width: 600px;
+      padding: 0 20px;
+      box-sizing: border-box;
+    }
+  }
+
+  .ant-carousel {
+
+    z-index: 50;
+    /deep/ .slick-dots {
+      height: auto;
+    }
+
+    /deep/ .slick-slide img {
+      border: 5px solid #fff;
+      display: block;
+      margin: auto;
+      max-width: 80%;
+    }
+
+    /deep/ .slick-thumb {
+      padding-bottom: 10px;
+      overflow-x: scroll;
+      flex-direction: row;
+      align-items: center;
+      bottom: -70px;
+      white-space:nowrap;
+
+      &::-webkit-scrollbar {
+        width: 5px;
+        height: 5px;
+      }
+      &::-webkit-scrollbar-track {
+        border-radius: 3px;
+        background: rgba(0,0,0,0.00);
+        -webkit-box-shadow: inset 0 0 5px rgba(0,0,0,0.08);
+      }
+      /* 滚动条滑块 */
+      &::-webkit-scrollbar-thumb {
+        border-radius: 5px;
+        background: rgba(0,0,0,0.12);
+        -webkit-box-shadow: inset 0 0 10px rgba(0,0,0,0.2);
+      }
+    }
+
+    /deep/ .slick-thumb li {
+      width: 60px;
+      height: 45px;
+    }
+
+    /deep/ .slick-thumb li img {
+      width: 100%;
+      height: 100%;
+      filter: grayscale(100%);
+      border: 1px solid #fff;
+    }
+
+    /deep/ .slick-thumb li.slick-active img {
+      filter: grayscale(0%);
+      border: 1px solid #15c39a;
+    }
+  }
+
+  .slide-preview-list {
+    width: 300px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+
+    .slide-preview-item {
+      margin-bottom: 10px;
+      width: 300px;
+    }
   }
 </style>
