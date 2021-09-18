@@ -12,7 +12,7 @@
         />
       </div>
       <div class="content-list">
-        <new-content-list @select-sync="handleSelectListData"/>
+        <new-content-list @select-sync="handleSelectListData" @select-curriculum="handleSelectCurriculumListData"/>
       </div>
     </div>
   </div>
@@ -58,6 +58,11 @@ export default {
     handleSelectListData (data) {
       this.$logger.info('NewBrowser handleSelectListData', data)
       this.$emit('select-sync', data)
+    },
+    // curriculum
+    handleSelectCurriculumListData (data) {
+      this.$logger.info('NewBrowser handleSelectCurriculumListData', data)
+      this.$emit('select-curriculum', data)
     }
   }
 }

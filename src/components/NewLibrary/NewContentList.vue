@@ -17,7 +17,7 @@
           :class="{'content-item': true,
                    'odd-line': index % 2 === 0,'even-line': index % 2 === 1,
                    'active-line': currentId === item.id,
-                   'selected-line': item.hasOwnProperty('froms') ? selectedKnowledgeIdList.indexOf(item.knowledgeId) !== -1 : selectedIdList.indexOf(item.id) !== -1}"
+                   'selected-line': item.hasOwnProperty('froms') ? selectedKnowledgeIdList.indexOf(item.knowledgeId) !== -1 : selectedCurriculumIdList.indexOf(item.id) !== -1}"
           v-for="(item,index) in contentDataList"
           :key="index">
           <div class="name" :style="{width: nameWidth + 'px'}" @click="handleContentListItemClick(item)">
@@ -32,7 +32,7 @@
             <div class="name-text">
               {{ item.name || item.description }}
             </div>
-            <div class="action-icon" v-if="item.hasOwnProperty('froms') ? selectedKnowledgeIdList.indexOf(item.knowledgeId) !== -1 : selectedIdList.indexOf(item.id) !== -1">
+            <div class="action-icon" v-if="item.hasOwnProperty('froms') ? selectedKnowledgeIdList.indexOf(item.knowledgeId) !== -1 : selectedCurriculumIdList.indexOf(item.id) !== -1">
               <img src="~@/assets/icons/lesson/selected.png"/>
             </div>
           </div>
@@ -97,9 +97,11 @@ export default {
       typeMap: typeMap,
       firstLoad: true,
 
-      selectedIdList: [],
+      selectedCurriculumIdList: [],
       selectedKnowledgeIdList: [],
-      selectedKnowledgeIdNameMap: new Map()
+      selectedKnowledgeIdNameMap: new Map(),
+
+      selectedCurriculumMap: new Map()
     }
   },
   computed: {
@@ -122,17 +124,20 @@ export default {
 
     handleContentSelectedListUpdate (data) {
       this.$logger.info('handleContentSelectedListUpdate ', data)
-      if (this.selectedIdList.indexOf(data.id) === -1) {
-        this.selectedIdList.push(data.id)
+      if (this.selectedCurriculumIdList.indexOf(data.id) === -1) {
+        this.selectedCurriculumIdList.push(data.id)
+        this.selectedCurriculumMap.set(data.id, data)
       } else {
-        this.selectedIdList.splice(this.selectedIdList.indexOf(data.id), 1)
+        this.selectedCurriculumIdList.splice(this.selectedCurriculumIdList.indexOf(data.id), 1)
+        this.selectedCurriculumMap.delete(data.id)
       }
-      this.$logger.info('after handleContentSelectedListUpdate ', this.selectedIdList)
+      this.$logger.info('after handleContentSelectedListUpdate ', this.selectedCurriculumIdList, this.selectedCurriculumMap)
     },
     handleContentListItemClick (item) {
       this.$logger.info('handleContentListItemClick', item, this.parent)
 
       if (item.hasOwnProperty('froms')) {
+        // 同步更新点击sync data数据，通过当前字段是否包含froms来区分sync和大纲描述
         this.$logger.info('handle sync handleContentListItemClick', item)
         const index = this.selectedKnowledgeIdList.indexOf(item.knowledgeId)
         if (index !== -1) {
@@ -152,6 +157,7 @@ export default {
         this.$emit('select-sync', selectedList)
         this.$logger.info('selectedKnowledgeIdNameMap', this.selectedKnowledgeIdNameMap)
       } else {
+        // 同步更新点击大纲描述数据
         if (item.children.length) {
           // 如果有子列表，表示还未到最后一层description，通知左侧导航栏更新同步层级
           LibraryEventBus.$emit(LibraryEvent.ContentListItemClick, {
@@ -161,13 +167,24 @@ export default {
           })
           this.$logger.info('$emit sync')
         } else {
-          // 最后一列，字列表无需让导航栏更新，导航栏不显示最后一层description。通过事件类型区分。
-          LibraryEventBus.$emit(LibraryEvent.ContentListItemClick, {
-            item,
-            parent: this.parent,
-            eventType: 'selectDescription'
+          // 最后一列，字列表无需让导航栏更新，导航栏不显示最后一层description。通过事件类型区分。 ContentListItemClick
+          const index = this.selectedCurriculumIdList.indexOf(item.id)
+          if (index !== -1) {
+            this.selectedCurriculumIdList.splice(index, 1)
+            this.selectedCurriculumMap.delete(item.id)
+          } else {
+            this.selectedCurriculumIdList.push(item.id)
+            this.selectedCurriculumMap.set(item.id, item)
+          }
+          const selectedList = []
+          this.selectedCurriculumIdList.forEach(knowledgeId => {
+            selectedList.push({
+              knowledgeId: knowledgeId,
+              knowledgeData: this.selectedCurriculumMap.get(knowledgeId)
+            })
           })
-          this.$logger.info('$emit selectDescription')
+          this.$emit('select-curriculum', selectedList)
+          this.$logger.info('selectedCurriculumMap', this.selectedCurriculumMap)
         }
         // if (item.type) {
         //   this.$logger.info('handleContentListItemClick type', item)

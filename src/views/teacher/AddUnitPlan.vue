@@ -394,10 +394,15 @@
         @cancel="selectSyncDataVisible = false">
         <div class="link-content-wrapper">
           <!-- 此处的questionIndex用于标识区分是哪个组件调用的，返回的事件数据中会带上，方便业务数据处理，可随意写，可忽略-->
-          <new-browser :select-mode="selectModel.syncData" question-index="_questionIndex_1" :sync-data="syncData" @select-sync="handleSelectListData"/>
+          <new-browser
+            :select-mode="selectModel.syncData"
+            question-index="_questionIndex_1"
+            :sync-data="syncData"
+            @select-sync="handleSelectListData"
+            @select-curriculum="handleSelectCurriculum"/>
           <div class="modal-ensure-action-line-right">
-            <a-button class="action-item action-cancel" shape="round" @click="handleCancelSelectSyncData">Cancel</a-button>
-            <a-button class="action-ensure action-item" type="primary" shape="round" @click="handleEnsureSelectSyncData">Ok</a-button>
+            <a-button class="action-item action-cancel" shape="round" @click="handleCancelSelectData">Cancel</a-button>
+            <a-button class="action-ensure action-item" type="primary" shape="round" @click="handleEnsureSelectData">Ok</a-button>
           </div>
         </div>
       </a-modal>
@@ -568,7 +573,10 @@ export default {
       groupNameListOther: [],
       syncData: [],
       selectSyncDataVisible: false,
-      selectedSyncList: []
+      selectedSyncList: [],
+
+      // 已选择的大纲知识点描述数据
+      selectedCurriculumList: []
     }
   },
   watch: {
@@ -1252,15 +1260,21 @@ export default {
       this.selectedSyncList = data
     },
 
+    handleSelectCurriculum (data) {
+      this.$logger.info('handleSelectCurriculum', data)
+      this.selectedCurriculumList = data
+    },
+
     // TODO 自动更新选择的sync 的数据knowledgeId和name列表
-    handleCancelSelectSyncData () {
+    handleCancelSelectData () {
       this.selectedSyncList = []
+      this.selectedCurriculumList = []
       this.selectSyncDataVisible = false
     },
 
     // TODO 自动更新选择的sync 的数据knowledgeId和name列表
-    handleEnsureSelectSyncData () {
-      this.$logger.info('handleEnsureSelectSyncData')
+    handleEnsureSelectData () {
+      this.$logger.info('handleEnsureSelectData', this.selectedCurriculumList, this.selectedSyncList)
       this.selectedSyncList.forEach(data => {
         const filterLearnOuts = this.form.learnOuts.filter(item => item.knowledgeId === data.knowledgeId)
         if (filterLearnOuts.length > 0) {

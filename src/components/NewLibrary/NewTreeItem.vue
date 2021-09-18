@@ -366,49 +366,51 @@ export default {
         // 同步导航栏和内容列表
         this.$logger.info('handleContentListItemClick start ', data, this.treeItemData, this.treeCurrentParent)
         this.handleExpandTreeItem(this.treeItemData)
-      } else if (
-        this.currentItemType === 'knowledge' &&
-        data.eventType === 'selectDescription' &&
-        data.parent.id === this.treeItemData.id &&
-        data.parent.name === this.treeItemData.name) {
-        // 处理knowledge中选择大纲描述逻辑
-        if (this.selectMode === SelectModel.knowledgeDescription) {
-          this.$logger.info('select knowledge description treeItemData', data.item, this.treeItemData, this.treeCurrentParent)
-          const knowledgeObj = data.item
-          let gradeObj = null
-          if (this.treeItemData.hasOwnProperty('isGrade')) {
-            gradeObj = this.treeItemData
-          } else {
-            let parent = this.treeCurrentParent
-            // 往上查找直到找到grade
-            while (parent) {
-              if (parent.hasOwnProperty('isGrade')) {
-                gradeObj = parent
-                break
-              } else {
-                if (parent.hasOwnProperty('parent')) {
-                  parent = parent.parent
-                } else {
-                  break
-                }
-              }
-            }
-          }
-          this.$logger.info('gradeObj', gradeObj, 'knowledgeObj', knowledgeObj)
-          const selectDescriptionData = {
-            curriculumId: this.$store.getters.bindCurriculum,
-            description: data.item.id,
-            descriptionId: data.item.name,
-            gradeId: gradeObj.id,
-            gradeName: gradeObj.name,
-            gradeObj: gradeObj,
-            knowledgeObj: knowledgeObj,
-            questionIndex: this.questionIndex
-          }
-          this.$logger.info('【select description data】', selectDescriptionData)
-          LibraryEventBus.$emit(LibraryEvent.ContentListSelectClick, selectDescriptionData)
-        }
       }
+        // 旧数据交互逻辑，废弃中
+        // else if (
+        // this.currentItemType === 'knowledge' &&
+        // data.eventType === 'selectDescription' &&
+        // data.parent.id === this.treeItemData.id &&
+        // data.parent.name === this.treeItemData.name) {
+        // // 处理knowledge中选择大纲描述逻辑
+        // if (this.selectMode === SelectModel.knowledgeDescription) {
+        //   this.$logger.info('select knowledge description treeItemData', data.item, this.treeItemData, this.treeCurrentParent)
+        //   const knowledgeObj = data.item
+        //   let gradeObj = null
+        //   if (this.treeItemData.hasOwnProperty('isGrade')) {
+        //     gradeObj = this.treeItemData
+        //   } else {
+        //     let parent = this.treeCurrentParent
+        //     // 往上查找直到找到grade
+        //     while (parent) {
+        //       if (parent.hasOwnProperty('isGrade')) {
+        //         gradeObj = parent
+        //         break
+        //       } else {
+        //         if (parent.hasOwnProperty('parent')) {
+        //           parent = parent.parent
+        //         } else {
+        //           break
+        //         }
+        //       }
+        //     }
+        //   }
+        //   this.$logger.info('gradeObj', gradeObj, 'knowledgeObj', knowledgeObj)
+        //   const selectDescriptionData = {
+        //     curriculumId: this.$store.getters.bindCurriculum,
+        //     description: data.item.id,
+        //     descriptionId: data.item.name,
+        //     gradeId: gradeObj.id,
+        //     gradeName: gradeObj.name,
+        //     gradeObj: gradeObj,
+        //     knowledgeObj: knowledgeObj,
+        //     questionIndex: this.questionIndex
+        //   }
+        //   this.$logger.info('【select description data】', selectDescriptionData)
+        //   LibraryEventBus.$emit(LibraryEvent.ContentListSelectClick, selectDescriptionData)
+        // }
+      // }
     }
   }
 }
