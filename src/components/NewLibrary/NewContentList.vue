@@ -167,24 +167,29 @@ export default {
           })
           this.$logger.info('$emit sync')
         } else {
-          // 最后一列，字列表无需让导航栏更新，导航栏不显示最后一层description。通过事件类型区分。 ContentListItemClick
-          const index = this.selectedCurriculumIdList.indexOf(item.id)
-          if (index !== -1) {
-            this.selectedCurriculumIdList.splice(index, 1)
-            this.selectedCurriculumMap.delete(item.id)
-          } else {
-            this.selectedCurriculumIdList.push(item.id)
-            this.selectedCurriculumMap.set(item.id, item)
-          }
-          const selectedList = []
-          this.selectedCurriculumIdList.forEach(knowledgeId => {
-            selectedList.push({
-              knowledgeId: knowledgeId,
-              knowledgeData: this.selectedCurriculumMap.get(knowledgeId)
+          // 有的时候grade下面没数据，需要排除一下grade
+          if (!item.hasOwnProperty('isGrade')) {
+            // 最后一列，字列表无需让导航栏更新，导航栏不显示最后一层description。通过事件类型区分。 ContentListItemClick
+            const index = this.selectedCurriculumIdList.indexOf(item.id)
+            if (index !== -1) {
+              this.selectedCurriculumIdList.splice(index, 1)
+              this.selectedCurriculumMap.delete(item.id)
+            } else {
+              this.selectedCurriculumIdList.push(item.id)
+              this.selectedCurriculumMap.set(item.id, item)
+            }
+            const selectedList = []
+            this.selectedCurriculumIdList.forEach(knowledgeId => {
+              selectedList.push({
+                knowledgeId: knowledgeId,
+                knowledgeData: this.selectedCurriculumMap.get(knowledgeId)
+              })
             })
-          })
-          this.$emit('select-curriculum', selectedList)
-          this.$logger.info('selectedCurriculumMap', this.selectedCurriculumMap)
+            this.$emit('select-curriculum', selectedList)
+            this.$logger.info('selectedCurriculumMap', this.selectedCurriculumMap)
+          } else {
+            this.$logger.info('current is grade, skip empty children item!')
+          }
         }
         // if (item.type) {
         //   this.$logger.info('handleContentListItemClick type', item)
