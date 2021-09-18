@@ -30,7 +30,7 @@
                 <a-steps :current="currentActiveStepIndex" direction="vertical">
                   <a-step >
                     <template slot="description">
-                      <div class="form-block">
+                      <!--                      <div class="form-block">
                         <div class="refer-action row-flex-right">
                           <div class="refer-text">
                             Refer from
@@ -44,7 +44,7 @@
                             </a-button>
                           </div>
                         </div>
-                      </div>
+                      </div>-->
 
                       <div class="form-block">
                         <a-form-item label="Course Name">
@@ -72,7 +72,9 @@
 
                       <div class="form-block inquiry-form-block" id="inquiry">
                         <!--                <a-divider />-->
-                        <a-input v-model="form.inquiry" :placeholder="$store.getters.currentRole === 'teacher' ? $t('teacher.add-unit-plan.teacher-direction-of-inquiry') : $t('teacher.add-unit-plan.expert-direction-of-inquiry')" class="my-form-input" />
+                        <a-form-item label="Big idea*（Or statement of inquiry / Enduring understanding ）">
+                          <a-input v-model="form.inquiry" :placeholder="$store.getters.currentRole === 'teacher' ? $t('teacher.add-unit-plan.teacher-direction-of-inquiry') : $t('teacher.add-unit-plan.expert-direction-of-inquiry')" class="my-form-input" />
+                        </a-form-item>
                       </div>
 
                       <!--            real-life-scenario-->
@@ -107,7 +109,7 @@
                           </div>
                           <!--sdg-->
                           <a-form-model-item >
-                            <a-select size="large" v-model="scenario.sdgId" class="my-big-select">
+                            <a-select size="large" v-model="scenario.sdgId" class="my-big-select" placeholder="Select a goal from UN">
                               <a-select-option v-for="(sdg,index) in sdgList" :value="sdg.id" :key="index" :disabled="selectedSdg.indexOf(sdg.id) != -1">
                                 {{ sdg.name }}
                               </a-select-option>
@@ -144,28 +146,30 @@
                       </div>
 
                       <div class="form-block">
-                        <div class="form-input-item" v-for="(question, index) in form.questions" :key="index">
-                          <a-input
-                            v-model="question.name"
-                            class="my-form-input"
-                            :placeholder="$store.getters.currentRole === 'teacher' ? $t('teacher.add-unit-plan.teacher-nth-key-question') : $t('teacher.add-unit-plan.expert-nth-key-question')"/>
-                          <div class="delete-icon" @click="handleRemoveQuestion(index)" v-show="form.questions.length > 1">
-                            <a-icon type="delete" :style="{ fontSize: '20px' }" />
+                        <a-form-item label="Key question/line of inquiry">
+                          <div class="form-input-item" v-for="(question, index) in form.questions" :key="index">
+                            <a-input
+                              v-model="question.name"
+                              class="my-form-input"
+                              :placeholder="$store.getters.currentRole === 'teacher' ? $t('teacher.add-unit-plan.teacher-nth-key-question') : $t('teacher.add-unit-plan.expert-nth-key-question')"/>
+                            <div class="delete-icon" @click="handleRemoveQuestion(index)" v-show="form.questions.length > 1">
+                              <a-icon type="delete" :style="{ fontSize: '20px' }" />
+                            </div>
                           </div>
-                        </div>
+                        </a-form-item>
                         <a-button type="link" icon="plus-circle" size="large" @click="handleAddMoreQuestion"></a-button>
                       </div>
                       <div class="form-block">
-                        <a-form-item label="Set Learning outcomes" >
+                        <a-form-item label="Set assessment objectives" >
                           <a-button type="primary" @click="handleSelectDescription">
                             <div class="btn-text" style="line-height: 20px">
-                              Add Learning outcomes
+                              Add assessment objectives
                             </div>
                           </a-button>
                         </a-form-item>
 
                         <!--knowledge tag-select -->
-                        <ui-learn-out :learn-outs="form.learnOuts" />
+                        <ui-learn-out :learn-outs="form.learnOuts" @remove-learn-outs="handleRemoveLearnOuts" />
                       </div>
 
                     </template>
@@ -275,24 +279,6 @@
       </a-modal>
 
       <a-modal
-        v-model="showRelevantQuestionVisible"
-        :footer="null"
-        destroyOnClose
-        top="50px"
-        width="50%"
-        title="Select from the relevant Unit"
-        @ok="showRelevantQuestionVisible = false"
-        @cancel="showRelevantQuestionVisible = false">
-        <div class="select-relevant-tag">
-          <relevant-tag-selector :relevant-question-list="relevantQuestionList" @update-selected="handleUpdateSelected"/>
-        </div>
-        <div class="action-line">
-          <a-button @click="handleCancelSelectedRelevant" class="button-item">Cancel</a-button>
-          <a-button @click="handleConfirmSelectedRelevant" type="primary" class="button-item">Confirm</a-button>
-        </div>
-      </a-modal>
-
-      <a-modal
         v-model="showAddAudioVisible"
         :footer="null"
         destroyOnClose
@@ -328,12 +314,6 @@
               Ok
             </a-button>
           </div>
-        </div>
-      </a-modal>
-
-      <a-modal v-model="showLibraryVisible" @ok="handleConfirmAssociate" destroyOnClose width="80%" :dialog-style="{ top: '20px' }">
-        <div class="associate-library">
-          <new-browser :select-mode="selectModel.knowledgeDescription" :question-index="selectDescriptionIndex"/>
         </div>
       </a-modal>
 
@@ -395,7 +375,7 @@
           <new-my-content
             :from-type="contentType['unit-plan']"
             :from-id="unitPlanId"
-            :filter-type-list="[contentType.evaluation]"
+            :filter-type-list="[contentType.task,contentType.evaluation]"
             :group-name-list="groupNameList"
             :default-group-name="'Untitled Term' + groupNameList.length + 1"
             :mode="'common-link'"
@@ -465,13 +445,6 @@ import UiLearnOut from '@/components/UnitPlan/UiLearnOut'
 import CommonLink from '@/components/Common/CommonLink'
 import NewMyContent from '@/components/MyContent/NewMyContent'
 
-const TagOriginType = {
-  Origin: 'Origin',
-  Search: 'Search',
-  Description: 'Description',
-  Create: 'Create',
-  Extension: 'Extension'
-}
 export default {
   name: 'AddUnitPlan',
   components: {
@@ -578,7 +551,6 @@ export default {
       currentIndex: 0,
       saving: false,
       publishing: false,
-      showLibraryVisible: false,
       selectModel: SelectModel,
       selectDescriptionIndex: '',
 
@@ -593,6 +565,7 @@ export default {
       currentActiveStepIndex: 0,
 
       groupNameList: [],
+      groupNameListOther: [],
       syncData: [],
       selectSyncDataVisible: false,
       selectedSyncList: []
@@ -628,17 +601,14 @@ export default {
   created () {
     logger.info('unitPlanId ' + this.unitPlanId + ' ' + this.$route.path)
     // 初始化关联事件处理
-    MyContentEventBus.$on(MyContentEvent.LinkToMyContentItem, this.handleLinkMyContent)
     MyContentEventBus.$on(MyContentEvent.ToggleSelectContentItem, this.handleToggleSelectContentItem)
     MyContentEventBus.$on(MyContentEvent.ReferContentItem, this.handleReferItem)
     LibraryEventBus.$on(LibraryEvent.ContentListSelectClick, this.handleDescriptionSelectClick)
     this.initData()
     this.getAssociate()
-    this.handleSyncData()
     this.debouncedGetSdgByDescription = debounce(this.searchScenario, 300)
   },
   beforeDestroy () {
-    MyContentEventBus.$off(MyContentEvent.LinkToMyContentItem, this.handleLinkMyContent)
     MyContentEventBus.$off(MyContentEvent.ToggleSelectContentItem, this.handleToggleSelectContentItem)
     MyContentEventBus.$off(MyContentEvent.ReferContentItem, this.handleReferItem)
     LibraryEventBus.$off(LibraryEvent.ContentListSelectClick, this.handleDescriptionSelectClick)
@@ -701,26 +671,6 @@ export default {
         this.$logger.info('getReferOutcomes response', response)
         if (response.result.length) {
           this.syncData = response.result
-          this.selectSyncDataVisible = true
-        } else {
-          // TODO 测试假数据
-          this.syncData = [
-            {
-              'froms': [
-                'test name 123456'
-              ],
-              'knowledgeId': '1438128010953814018',
-              'name': 'Keeping Healthy'
-            },
-            {
-              'froms': [
-                '测试task'
-              ],
-              'knowledgeId': '1438128011541016577',
-              'name': '1Nn1 Recite numbers in order (forwards from 1 to 100, backwards from 20 to 0)'
-            }
-          ]
-          this.selectSyncDataVisible = true
         }
       })
     },
@@ -858,40 +808,6 @@ export default {
       this.form.subjects = subjects
     },
 
-    handleDeleteQuestion (questionItem, questionIndex) {
-      logger.info('handleDeleteQuestion ', questionItem, questionIndex)
-      if (this.questionTotal > 1) {
-        this.$delete(this.questionDataObj, questionIndex)
-        this.questionTotal = this.questionTotal - 1
-        logger.info('questionDataObj ', this.questionDataObj)
-      } else {
-        this.$message.warn(this.$t('teacher.add-unit-plan.at-least-one-question'))
-      }
-    },
-
-    handleRemoveKnowledgeTag (data) {
-      logger.info('Unit Plan handleRemoveKnowledgeTag', data)
-      logger.info('target question data', this.questionDataObj[data.questionIndex.knowledgeTags])
-      this.questionDataObj[data.questionIndex].knowledgeTags = this.questionDataObj[data.questionIndex].knowledgeTags.filter(item => item.id !== data.id)
-      logger.info('Unit Plan after handleRemoveKnowledgeTag ', this.questionDataObj[data.questionIndex].knowledgeTags)
-    },
-
-    handleAddKnowledgeTag (data) {
-      logger.info('Unit Plan handleAddKnowledgeTag', data)
-      logger.info('target question data', this.questionDataObj[data.questionIndex])
-      const newTag = {
-        description: data.description,
-        id: data.id,
-        name: data.name,
-        gradeId: data.gradeId,
-        mainSubjectId: data.mainSubjectId,
-        subSubjectId: data.subSubjectId,
-        mainKnowledgeId: data.mainKnowledgeId,
-        subKnowledgeId: data.subKnowledgeId
-      }
-      this.questionDataObj[data.questionIndex].knowledgeTags.push(newTag)
-    },
-
     handleAddMoreQuestion () {
       const question = {
         id: null,
@@ -934,44 +850,18 @@ export default {
         status: this.form.status,
         subjects: this.form.subjects,
         scenarios: this.form.scenarios,
-        questions: [],
+        questions: this.form.questions,
         customTags: this.form.customTags,
         overview: this.form.overview,
         subjectIds: this.form.subjectIds,
-        gradeIds: this.form.gradeIds
+        gradeIds: this.form.gradeIds,
+        learnOuts: this.form.learnOuts
       }
 
       if (this.unitPlanId) {
         unitPlanData.id = this.unitPlanId
       }
       logger.info('basic unitPlanData', unitPlanData)
-      logger.info('sdg unitPlanData', unitPlanData)
-      for (const questionIndex in this.questionDataObj) {
-        const question = this.questionDataObj[questionIndex]
-        logger.info('question ' + questionIndex, question)
-        if (question.knowledgeTags && question.knowledgeTags.length) {
-          question.knowledgeTags.forEach(item => {
-            item.curriculumId = this.$store.getters.bindCurriculum
-          })
-        }
-        if (question.skillTags && question.skillTags.length) {
-          question.skillTags.forEach(item => {
-            item.curriculumId = this.$store.getters.bindCurriculum
-          })
-        }
-        const questionItem = {
-          knowledgeTags: question.knowledgeTags,
-          skillTags: question.skillTags,
-          name: question.name
-        }
-        if (question.questionId) {
-          questionItem.id = question.questionId
-          this.$logger.info('old question item', questionItem)
-        } else {
-          this.$logger.info('new question item', questionItem)
-        }
-        unitPlanData.questions.push(questionItem)
-      }
       logger.info('question unitPlanData', unitPlanData)
       UnitPlanAddOrUpdate(unitPlanData).then((response) => {
         logger.info('UnitPlanAddOrUpdate', response.result)
@@ -983,7 +873,6 @@ export default {
         }
       }).then(() => {
         this.$refs.commonFormHeader.saving = false
-        this.$refs.associate.loadAssociateData()
       })
     },
     handlePublishUnitPlan () {
@@ -1027,8 +916,6 @@ export default {
               toType: this.contentType.task
             }).then(response => {
               this.$logger.info('Associate response ', response)
-              // 刷新子组件的关联数据
-              this.$refs.associate.loadAssociateData()
             })
             this.addLoading = false
             this.$router.push({
@@ -1063,8 +950,6 @@ export default {
               toType: this.contentType.lesson
             }).then(response => {
               this.$logger.info('Associate response ', response)
-              // 刷新子组件的关联数据
-              this.$refs.associate.loadAssociateData()
             })
             this.addLoading = false
             this.$router.push({
@@ -1100,8 +985,6 @@ export default {
               toType: this.contentType.evaluation
             }).then(response => {
               this.$logger.info('Associate response ', response)
-              // 刷新子组件的关联数据
-              this.$refs.associate.loadAssociateData()
             })
             this.addLoading = false
             this.$router.push({
@@ -1118,137 +1001,9 @@ export default {
       }
     },
 
-    handleLinkMyContent (data) {
-      this.$logger.info('handleLinkMyContent ', data)
-      this.selectLinkContentVisible = false
-      this.loadRelevantTagInfo(data.item)
-    },
-
     handleToggleSelectContentItem (data) {
       this.$logger.info('handleToggleSelectContentItem', data)
       this.selectedMyContentInfoItem = data
-    },
-
-    loadRelevantTagInfo (item) {
-      this.$logger.info('loadRelevantTagInfo', item)
-      this.showRelevantQuestionVisible = false
-      this.relevantSelectedUnitPlan = item
-      if (this.form.questions && this.form.questions.length) {
-        const questionList = this.form.questions
-        const questionMap = new Map()
-        const relevantTagList = []
-        questionList.forEach(questionItem => {
-          if (questionItem.id && !questionMap.has(questionItem.id)) {
-            // 处理knowledge tags
-            const knowledgeTagMap = new Map()
-            const knowledgeTagList = []
-            questionItem.knowledgeTags.forEach(item => {
-              if (!!item.subKnowledgeId && item.curriculumId === this.$store.getters.bindCurriculum) {
-                if (!knowledgeTagMap.has(item.subKnowledgeId)) {
-                  knowledgeTagMap.set(item.subKnowledgeId, [])
-                  this.subKnowledgeId2InfoMap.set(item.subKnowledgeId, {
-                    ...item
-                  })
-                }
-
-                const tagList = knowledgeTagMap.get(item.subKnowledgeId)
-                tagList.push({
-                  ...item,
-                  type: TagOriginType.Origin
-                })
-                knowledgeTagMap.set(item.subKnowledgeId, tagList)
-              }
-            })
-            for (const [id, tagList] of knowledgeTagMap) {
-              knowledgeTagList.push({
-                id: tagList[0].id,
-                tagList,
-                info: this.subKnowledgeId2InfoMap.get(id)
-              })
-            }
-
-            // 处理skill tags
-            const skillTagMap = new Map()
-            const skillTagList = []
-            questionItem.skillTags.forEach(item => {
-              if (!!item.descriptionId && item.curriculumId === this.$store.getters.bindCurriculum) {
-                if (!skillTagMap.has(item.descriptionId)) {
-                  skillTagMap.set(item.descriptionId, [])
-                  this.descriptionId2InfoMap.set(item.descriptionId, {
-                    ...item
-                  })
-                }
-
-                const tagList = skillTagMap.get(item.descriptionId)
-                tagList.push({
-                  ...item,
-                  type: TagOriginType.Origin
-                })
-                skillTagMap.set(item.descriptionId, tagList)
-              }
-            })
-            for (const [id, tagList] of skillTagMap) {
-              skillTagList.push({
-                id: tagList[0].id,
-                tagList,
-                info: this.descriptionId2InfoMap.get(id)
-              })
-            }
-
-            relevantTagList.push({
-              questionName: questionItem.name,
-              questionId: questionItem.id,
-              skillTagList,
-              knowledgeTagList
-            })
-          }
-        })
-        questionMap.clear()
-
-        this.relevantQuestionList = relevantTagList
-        this.showRelevantQuestionVisible = true
-        this.$logger.info('relevantQuestionList', this.relevantQuestionList)
-      } else {
-        this.$logger.info('no relevantQuestionList')
-      }
-    },
-
-    handleCancelSelectedRelevant () {
-      this.showRelevantQuestionVisible = false
-      this.relevantSelectedQuestionList = []
-    },
-
-    handleConfirmSelectedRelevant (data) {
-      this.$logger.info('handleConfirmSelectedRelevant', this.relevantSelectedQuestionList)
-      this.showRelevantQuestionVisible = false
-      const questionDataObj = Object.assign({}, this.questionDataObj['__question_0'])
-      this.$delete(this.questionDataObj, '__question_0')
-      this.$logger.info('questionDataObj __question_0', questionDataObj)
-      this.relevantSelectedQuestionList.forEach(item => {
-        questionDataObj.knowledgeTags = questionDataObj.knowledgeTags.concat(item.knowledgeTags)
-        questionDataObj.skillTags = questionDataObj.skillTags.concat(item.skillTags)
-      })
-
-      this.$nextTick(() => {
-        this.$set(this.questionDataObj, '__question_0', questionDataObj)
-      })
-      this.$logger.info('after $set questionDataObj __question_0', this.questionDataObj)
-      this.$logger.info('handleLinkMyContent unit question', this.relevantSelectedUnitPlan)
-      Associate({
-        fromId: this.form.id,
-        fromType: this.contentType['unit-plan'],
-        toId: this.selectedMyContentInfoItem.id,
-        toType: this.selectedMyContentInfoItem.type,
-        questions: this.relevantSelectedQuestionList
-      }).then(response => {
-        this.$logger.info('handleLinkMyContent response ', response)
-        this.$refs.associate.loadAssociateData()
-      })
-    },
-
-    handleUpdateSelected (data) {
-      this.$logger.info('handleUpdateSelected', data)
-      this.relevantSelectedQuestionList = data.questionList
     },
 
     goBack () {
@@ -1322,7 +1077,7 @@ export default {
       this.$refs.collaborate.startCollaborateModal(Object.assign({}, this.form), this.form.id, this.contentType['unit-plan'])
     },
     handleSelectDescription () {
-      this.showLibraryVisible = true
+      this.selectSyncDataVisible = true
     },
     handleConfirmAssociate () {
       this.$logger.info('handleConfirmAssociate')
@@ -1337,7 +1092,7 @@ export default {
 
     handleDescriptionSelectClick (data) {
       this.$logger.info('unit plan handleDescriptionSelectClick', data)
-      this.showLibraryVisible = false
+      this.selectSyncDataVisible = false
     },
 
     handleReferItem (data) {
@@ -1470,21 +1225,22 @@ export default {
         type: this.contentType['unit-plan']
       }).then(response => {
         this.$logger.info('AddUnitPlan GetAssociate response', response)
-        const groupNameList = []
+        this.groupNameList = []
+        this.groupNameListOther = []
         response.result.owner.forEach(item => {
-          if (groupNameList.indexOf(item.group) === -1) {
-            groupNameList.push(item.group)
+          if (this.groupNameList.indexOf(item.group) === -1) {
+            this.groupNameList.push(item.group)
           }
         })
         response.result.others.forEach(item => {
-          if (groupNameList.indexOf(item.group) === -1) {
-            groupNameList.push(item.group)
+          if (this.groupNameListOther.indexOf(item.group) === -1) {
+            this.groupNameListOther.push(item.group)
           }
         })
-        if (groupNameList.length) {
-          this.groupNameList = groupNameList
+        if (this.groupNameList.length > 0 || this.groupNameListOther.length > 0) {
+          this.handleSyncData()
         }
-        this.$logger.info('AddUnitPlan GetAssociate formatted groupNameList', groupNameList, this.groupNameList)
+        this.$logger.info('AddUnitPlan GetAssociate formatted groupNameList', this.groupNameList, this.groupNameListOther)
       }).finally(() => {
         this.linkGroupLoading = false
       })
@@ -1504,7 +1260,27 @@ export default {
 
     // TODO 自动更新选择的sync 的数据knowledgeId和name列表
     handleEnsureSelectSyncData () {
+      this.$logger.info('handleEnsureSelectSyncData')
+      this.selectedSyncList.forEach(data => {
+        const filterLearnOuts = this.form.learnOuts.filter(item => item.knowledgeId === data.knowledgeId)
+        if (filterLearnOuts.length > 0) {
+          return
+        }
+        this.form.learnOuts.push({
+          knowledgeId: data.knowledgeId,
+          name: data.name,
+          tags: []
+        })
+      })
+      this.$logger.info('this.form.learnOuts', this.form.learnOuts)
       this.selectSyncDataVisible = false
+    },
+    handleRemoveLearnOuts (data) {
+      this.$logger.info('handleRemoveLearnOuts', data)
+      var index = this.form.learnOuts.findIndex(item => (item.knowledgeId === data.knowledgeId))
+      if (index > -1) {
+        this.form.learnOuts.splice(index, 1)
+      }
     }
   }
 }
@@ -2052,7 +1828,7 @@ export default {
   box-sizing: border-box;
   margin-bottom: 10px;
   border: 1px solid #fff;
-  padding: 20px 150px 20px 50px;
+  padding: 10px 150px 10px 50px;
   border-radius: 3px;
 }
 
@@ -2148,6 +1924,7 @@ export default {
 
 .form-input-item {
   margin-bottom: 20px;
+  position: relative;
 }
 
 .preview-wrapper-row{
@@ -2207,17 +1984,15 @@ export default {
 }
 
 .delete-icon {
-  -webkit-transition: all 0.2s ease-in;
   transition: all 0.2s ease-in;
   position: absolute;
-  right: 10px;
-  margin-right: 30px;
-  margin-top: -40px;
+  right: -50px;
+  top: 0px;
   line-height: 40px;
   width: 40px;
   height: 40px;
   cursor: pointer;
-  color: @link-hover-color;
+  color: #38cfa6;
   z-index: 100;
 }
 

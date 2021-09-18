@@ -1,6 +1,6 @@
 <template>
   <div class="my-content-selector">
-    <div class="nav-bar-top">
+    <!--    <div class="nav-bar-top">
       <div class="nav-bar-wrapper">
         <div :class="{'nav-bar-item': true, 'selected-nav-bar' : selectedType === 'created-by-me'}">
           <a @click="handleToggleType('created-by-me')">
@@ -21,7 +21,7 @@
           </a>
         </div>
       </div>
-    </div>
+    </div>-->
     <my-content-created-by-me
       :filter-type-list="filterTypeList"
       :selected-list="selectedList"

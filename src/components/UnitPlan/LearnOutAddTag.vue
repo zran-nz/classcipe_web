@@ -1,22 +1,22 @@
 <template>
-  <div class="add-tag" >
+  <div class="add-tag">
     <div style="font-family: Inter-Bold">
       {{ knowledge.name }}
     </div>
-    <div class="tag-select-wrapper" v-show="knowledge.tags.length">
+    <div class="tag-select-wrapper" v-show="tags.length">
       <!--      skt-tag-list-->
       <a-row>
         <a-col offset="0" span="24">
-          <div class="skt-tag-list" >
-            <div class="skt-tag-item " v-for="(tag,index) in knowledge.tags" :key="index" >
-              <a-tooltip :title="tag.parentName">
-                <a-tag
-                  :closable="true"
-                  @close="closeTag(tag)"
-                  class="tag-item">
-                  {{ tag.name }}
-                </a-tag>
-              </a-tooltip>
+          <div class="skt-tag-list">
+            <div class="skt-tag-item " v-for="name in tags" :key="name">
+              <!--              <a-tooltip :title="tag.parentName">-->
+              <a-tag
+                :closable="true"
+                @close="closeTag(name)"
+                class="tag-item">
+                {{ name }}
+              </a-tag>
+              <!--              </a-tooltip>-->
             </div>
           </div>
         </a-col>
@@ -25,7 +25,7 @@
 
     <a-spin v-show="tagLoading" class="spin-loading"/>
 
-    <a-row >
+    <a-row>
       <a-col>
         <div class="tag-search-input">
           <a-input-search
@@ -35,7 +35,7 @@
             class="search-input"
             @keyup.enter.native="handleKeyup"
             @search="searchTag"
-            @keyup="searchTag" />
+            @keyup="searchTag"/>
         </div>
       </a-col>
     </a-row>
@@ -44,27 +44,24 @@
       <a-row>
         <a-col offset="0" span="24">
           <div class="title">Hot</div>
-          <div class="skt-tag-list" >
-            <div class="skt-tag-item " v-for="tag in hotList" :key="tag.id" >
-              <a-tooltip :title="tag.parentName">
-                <a-tag
-                  class="tag-item">
-                  {{ tag.name }}
-                </a-tag>
-              </a-tooltip>
+          <div class="skt-tag-list">
+            <div class="skt-tag-item " v-for="(name,index) in hotList" :key="index">
+              <a-tag
+                @click="addTag(name)"
+                :class="{'tag-item':true,'tag-disable':tags.indexOf(name) > -1}">
+                {{ name }}
+              </a-tag>
             </div>
           </div>
         </a-col>
         <a-col offset="0" span="24">
           <div class="title">Knowledge</div>
-          <div class="skt-tag-list" >
-            <div class="skt-tag-item " v-for="tag in recommendList" :key="tag.id" >
-              <a-tooltip :title="tag.parentName">
-                <a-tag
-                  class="tag-item">
-                  {{ tag.name }}
-                </a-tag>
-              </a-tooltip>
+          <div class="skt-tag-list">
+            <div class="skt-tag-item " v-for="(name,index) in recommendList" :key="index">
+              <a-tag
+                :class="{'tag-item':true,'tag-disable':tags.indexOf(name) > -1}">
+                {{ name }}
+              </a-tag>
             </div>
           </div>
         </a-col>
@@ -78,18 +75,20 @@
           <div class="skt-tag-list">
             <div class="triangle"></div>
             <div class="search-tag-wrapper tag-wrapper">
-              <div class="skt-tag-item" v-for="(tag,index) in tagSearchList" :key="index" >
+              <div class="skt-tag-item" v-for="name in tagSearchList" :key="name">
                 <a-tag
                   draggable="true"
-                  @dragstart="handleTagItemDragStart(tag, $event)"
-                  @click="selectChooseTag(index,tag)"
-                  class="tag-item">
-                  {{ tag.name }}
+                  @click="selectChooseTag(name)"
+                  :class="{'tag-item':true,'tag-disable':tags.indexOf(name) > -1}">
+                  {{ name }}
                 </a-tag>
               </div>
             </div>
             <div class="create-tag-wrapper tag-wrapper">
-              <div class="skt-tag-create-line" @click="handleCreateTagByInput" v-show="inputTag && inputTag.length >= 1">
+              <div
+                class="skt-tag-create-line"
+                @click="handleCreateTagByInput"
+                v-show="inputTag && inputTag.length >= 1">
                 <div class="create-tag-label">
                   Create
                 </div>
@@ -108,29 +107,29 @@
 
     <a-skeleton :loading="contentLoading" active>
     </a-skeleton>
+
+    <!--    <div class="modal-ensure-action-line-right" style="justify-content: center">-->
+    <!--      <a-button class="action-item action-cancel" shape="round" @click="addTagVisible = false">Cancel</a-button>-->
+    <!--      <a-button class="action-ensure action-item" type="primary" shape="round" @click="handleEnsureSelectData">Confirm</a-button>-->
+    <!--    </div>-->
+
   </div>
 </template>
 
 <script>
 import * as logger from '@/utils/logger'
-import { UserTagAddOrUpdate } from '../../api/tag'
-import { GetRecommendByKnowledgeId } from '@/api/knowledge'
+import { FindRecommendByKnowledgeId } from '@/api/knowledge'
 
 const { debounce } = require('lodash-es')
 
 export default {
   name: 'LearnOutAddTag',
-  components: {
-
-  },
+  components: {},
   props: {
-    selectKnowledge: {
+    knowledge: {
       type: Object,
-      default: null
-    },
-    customTagsList: {
-      type: Array,
-      default: () => []
+      default: () => {
+      }
     }
   },
   mounted () {
@@ -140,7 +139,7 @@ export default {
   },
   data () {
     return {
-      knowledge: {},
+      tags: this.knowledge.tags ? this.knowledge.tags : [],
       hotList: [],
       recommendList: [],
       tagLoading: false,
@@ -154,12 +153,13 @@ export default {
   },
   created () {
     this.debouncedSearchKnowledge = debounce(this.searchTag, 500)
-    this.knowledge = this.selectKnowledge
+    // this.knowledge.tags.forEach(tag => {
+    //   this.tags.push(tag)
+    // })
     this.$logger.info('knowledge ', this.knowledge)
     this.loadRecommendTags()
   },
-  watch: {
-  },
+  watch: {},
   methods: {
     handleOk () {
     },
@@ -173,23 +173,14 @@ export default {
       this.browseVisible = true
     },
     closeTag (tag) {
-      // this.tagList = this.tagList.filter(item => item.name !== tag.name)
-      // this.filterKeyword()
-      // this.tagName = ''
-      // this.$message.success('Remove label successfully')
-      // this.$emit('change-user-tags', this.tagList)
+      this.tags.splice(this.tags.indexOf(tag), 1)
     },
-    selectTag (tag) {
-      console.log(tag)
-      if (this.tagName === tag.name) {
-        this.tagName = ''
-      } else {
-        this.tagName = tag.name
-      }
+    selectChooseTag (tag) {
+      this.addTag(tag)
     },
     loadRecommendTags () {
       this.contentLoading = true
-      GetRecommendByKnowledgeId({ knowledgeId: this.knowledge.knowledgeId }).then((response) => {
+      FindRecommendByKnowledgeId({ knowledgeId: this.knowledge.knowledgeId }).then((response) => {
         this.$logger.info('loadRecommendTags response', response.result)
         if (response.success) {
           this.hotList = response.result.hots
@@ -200,57 +191,9 @@ export default {
         }
       })
     },
-    selectChooseTag (index, tag) {
-        tag.parentName = this.selectLabelName
-        this.tagList.push(tag)
-    },
-    handleTagItemDragStart (tag, event) {
-      this.$logger.info('skill handleTagItemDragStart', tag, event)
-      event.dataTransfer.setData('tag', JSON.stringify(tag))
-    },
-    handleAddGlobalTag (tags) {
-      this.tagList = tags
-      this.$emit('change-user-tags', this.tagList)
-    },
-    handleGlobalLabel (label, isAdd) {
-      if (isAdd) {
-        label.isGlobal = true
-        this.userTags.push(label)
-      } else {
-        var index = this.userTags.findIndex(item => (item.isGlobal && item.name === label.name))
-        this.userTags.splice(index, 1)
-      }
-      this.$emit('change-user-tags', this.tagList)
-    },
-    handleCreateTagByInput () {
-      this.$logger.info('skill handleCreateTagByInput ' + this.inputTag)
-      const existTag = this.tagList.find(item => item.name === this.inputTag)
-      const userTypeTags = this.userTags.filter(item => item.id === this.selectLabel)
-      if (userTypeTags.length === 0) {
-        this.$message.warn('Please click Tags setting')
-        return
-      }
-      var existTag2 = userTypeTags[0].keywords.find(item => item.name === this.inputTag)
-      if (existTag || existTag2) {
-        this.$message.warn('already exist same name tag')
-      } else {
-        var item = {
-          name: this.inputTag,
-          parentId: this.selectLabel,
-          isGlobal: userTypeTags[0].isGlobal
-        }
-        this.tagLoading = true
-        UserTagAddOrUpdate(item).then((response) => {
-          this.$logger.info('add UserTagAddOrUpdate ', response.result)
-          if (response.success) {
-            item.id = response.result.id
-            this.inputTag = ''
-            this.$message.success('Add tag success')
-          } else {
-            this.$message.error(response.message)
-          }
-          this.tagLoading = false
-        })
+    addTag (tag) {
+      if (this.tags.indexOf(tag) === -1) {
+        this.tags.push(tag)
       }
     },
 
@@ -260,15 +203,21 @@ export default {
       this.handleCreateTagByInput()
     },
 
+    handleCreateTagByInput () {
+      this.$logger.info('skill handleCreateTagByInput ' + this.inputTag)
+      this.addTag(this.inputTag)
+      this.inputTag = ''
+    },
+
     searchTag () {
       logger.info('searchTag', this.inputTag)
       const keyword = this.inputTag
-      if(!keyword){
+      if (!keyword) {
         this.tagSearchList = []
         return
       }
       if (typeof keyword === 'string' && keyword.trim().length >= 3) {
-        GetRecommendByKnowledgeId({
+        FindRecommendByKnowledgeId({
           knowledgeId: this.knowledge.knowledgeId,
           searchKey: keyword
         }).then((response) => {
@@ -278,6 +227,12 @@ export default {
       } else {
         this.tagSearchList = []
       }
+    },
+
+    handleEnsureSelectData () {
+      this.addTagVisible = false
+      this.knowledge.tags = this.tags
+      this.$emit('remove-learn-outs', this.tags)
     }
   }
 
@@ -288,58 +243,63 @@ export default {
 
 @import "~@/components/index.less";
 
-/deep/ .ant-modal-title{
+/deep/ .ant-modal-title {
   text-align: center;
 }
+
 .add-tag {
   margin: 10px;
   min-height: 400px;
-  .tag-select-wrapper{
+
+  .tag-select-wrapper {
     margin: 15px 0px 10px 0px;
-      .skt-tag-list {
-        padding: 5px 10px;
-        background-color: #e7f9f5;
+
+    .skt-tag-list {
+      padding: 5px 10px;
+      background-color: #e7f9f5;
+      display: flex;
+      flex-direction: row;
+      flex-wrap: wrap;
+      box-shadow: 0px 6px 10px rgba(91, 91, 91, 0.16);
+      position: relative;
+
+      .skt-tag-item {
+        margin: 8px 10px 8px 0;
         display: flex;
-        flex-direction: row;
-        flex-wrap: wrap;
-        box-shadow: 0px 6px 10px rgba(91, 91, 91, 0.16);
-        position: relative;
+        justify-content: center;
+        align-items: center;
+        vertical-align: middle;
+        cursor: pointer;
 
-        .skt-tag-item {
-          margin: 8px 10px 8px 0;
-          display: flex;
-          justify-content: center;
-          align-items: center;
-          vertical-align: middle;
+        .tag-item {
+          font-family: Inter-Bold;
+          color: #15C39A;
           cursor: pointer;
-
-          .tag-item {
-            font-family: Inter-Bold;
-            color: #15C39A;
-            cursor: pointer;
-            border-radius: 10px;
-            word-break: normal;
-            width: auto;
-            display: block;
-            white-space: pre-wrap;
-            word-wrap: break-word;
-            overflow: hidden;
-            padding: 4px;
-            font-size: 14px;
-            border: 1px solid #D8D8D8;
-            -webkit-box-shadow: 0px 6px 10px rgb(91 91 91 / 16%);
-            box-shadow: 0px 6px 10px rgb(91 91 91 / 16%);
-            opacity: 1;
-            border-radius: 10px;
-            background-color: rgba(21, 195, 154, 0.1);
-            border: 1px solid #15c39a;
-          }
+          border-radius: 10px;
+          word-break: normal;
+          width: auto;
+          display: block;
+          white-space: pre-wrap;
+          word-wrap: break-word;
+          overflow: hidden;
+          padding: 4px;
+          font-size: 14px;
+          border: 1px solid #D8D8D8;
+          -webkit-box-shadow: 0px 6px 10px rgb(91 91 91 / 16%);
+          box-shadow: 0px 6px 10px rgb(91 91 91 / 16%);
+          opacity: 1;
+          border-radius: 10px;
+          background-color: rgba(21, 195, 154, 0.1);
+          border: 1px solid #15c39a;
         }
       }
+    }
   }
-  .hot-select-wrapper{
+
+  .hot-select-wrapper {
     margin: 15px 0px 10px 0px;
-    .title{
+
+    .title {
       width: 100%;
       height: 18px;
       font-size: 16px;
@@ -349,6 +309,7 @@ export default {
       color: #11142D;
       opacity: 1;
     }
+
     .skt-tag-list {
       padding: 5px 10px;
       display: flex;
@@ -385,11 +346,22 @@ export default {
           background-color: rgba(21, 195, 154, 0.1);
           border: 1px solid #15c39a;
         }
+
+        .tag-disable {
+          color: rgba(0, 0, 0, .25);
+          background-color: #f5f5f5;
+          border-color: #d9d9d9;
+          text-shadow: none;
+          box-shadow: none;
+          cursor: not-allowed;
+        }
       }
     }
   }
+
   .skt-tag-wrapper {
     margin-top: 10px;
+
     .skt-tag-list {
       border: 1px solid #D8D8D8;
       padding: 20px 10px 5px 10px;
@@ -417,8 +389,10 @@ export default {
         flex-wrap: wrap;
         padding: 10px;
         background: rgba(21, 195, 154, 0.1);
+
         .create-tag {
           margin-right: 5px;
+
           .created-tag-item {
             cursor: pointer;
             margin: 0 3px;
@@ -430,6 +404,7 @@ export default {
             border: 1px solid rgba(21, 195, 154, 1);
           }
         }
+
         .tag-item {
           background-color: rgba(21, 195, 154, 1);
           color: #fff;
@@ -440,10 +415,12 @@ export default {
             display: flex;
             align-items: center;
             justify-content: center;
+
             img {
               padding-right: 3px;
               height: 12px;
             }
+
             img.search-icon {
               height: 10px;
             }
@@ -464,19 +441,30 @@ export default {
         align-items: center;
         vertical-align: middle;
         cursor: pointer;
+
         .tag-item {
           cursor: pointer;
           border-radius: 28px;
           padding-left: 10px;
           padding-right: 10px;
-          word-break:normal;
-          width:auto;
-          display:block;
-          white-space:pre-wrap;
-          word-wrap : break-word ;
-          overflow: hidden ;
+          word-break: normal;
+          width: auto;
+          display: block;
+          white-space: pre-wrap;
+          word-wrap: break-word;
+          overflow: hidden;
           padding-bottom: 3px;
         }
+
+        .tag-disable {
+          color: rgba(0, 0, 0, .25);
+          background-color: #f5f5f5;
+          border-color: #d9d9d9;
+          text-shadow: none;
+          box-shadow: none;
+          cursor: not-allowed;
+        }
+
       }
 
       .skt-tag-create-line {
@@ -487,6 +475,7 @@ export default {
         align-items: center;
         justify-content: flex-start;
         padding: 5px 0;
+
         &:hover {
           background: rgba(0, 0, 0, 5%)
         }
@@ -500,7 +489,7 @@ export default {
         }
 
         .create-tag {
-          cursor:pointer;
+          cursor: pointer;
           display: flex;
           flex-direction: row;
           align-items: center;
@@ -511,7 +500,8 @@ export default {
 
   .tag-search-input {
     margin-top: 20px;
-    .browse{
+
+    .browse {
       padding: 10px 5px;
       display: flex;
       flex-direction: row;
@@ -519,21 +509,31 @@ export default {
       justify-content: flex-start;
       border-radius: 6px;
     }
+
     .btn-icon {
       height: 18px;
       width: 18px;
     }
+
     .btn-text {
       padding: 0 5px;
     }
   }
-  .spin-loading{
+
+  .spin-loading {
     margin-top: 50px;
     margin-left: 40%;
   }
 
-  /deep/ .anticon-close{
+  /deep/ .anticon-close {
     color: rgba(239, 78, 78, 1);
+  }
+
+  .action-item {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
   }
 
 }

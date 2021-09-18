@@ -169,10 +169,10 @@ export default {
           })
           this.$logger.info('$emit selectDescription')
         }
-        if (item.type) {
-          this.$logger.info('handleContentListItemClick type', item)
-          this.handlePreviewDetail(item)
-        }
+        // if (item.type) {
+        //   this.$logger.info('handleContentListItemClick type', item)
+        //   this.handlePreviewDetail(item)
+        // }
       }
     },
     handlePreviewClose () {

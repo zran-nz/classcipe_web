@@ -66,7 +66,7 @@
                   <div class="icon">
                     <content-type-icon :type="item.type"/>
                   </div>
-                  <div class="name">
+                  <div class="name" @click="handleViewDetail(item)">
                     <a-tooltip placement="top">
                       <template slot="title">
                         {{ item.name }}
@@ -93,25 +93,25 @@
             <div class="group-header">
               <div class="group-left-info">
                 <div class="group-name">
-                  <div class="group-name-text" v-if="!linkGroup.editing">{{ linkGroup.group ? linkGroup.group : 'Untitled Term' }}</div>
-                  <div class="group-name-input" v-if="linkGroup.editing">
-                    <input v-model="linkGroup.group" class="group-name-input"/>
-                  </div>
+                  <div class="group-name-text" >{{ linkGroup.group ? linkGroup.group : 'Linked by others' }}</div>
+                  <!--                  <div class="group-name-input" v-if="linkGroup.editing">-->
+                  <!--                    <input v-model="linkGroup.group" class="group-name-input"/>-->
+                  <!--                  </div>-->
                 </div>
-                <div class="group-edit-icon" @click="handleToggleEditGroupName(linkGroup)">
-                  <a-icon type="edit" v-if="!linkGroup.editing"/>
-                  <a-icon type="check" v-if="linkGroup.editing"/>
-                </div>
+                <!--                <div class="group-edit-icon" @click="handleToggleEditGroupName(linkGroup)">-->
+                <!--                  <a-icon type="edit" v-if="!linkGroup.editing"/>-->
+                <!--                  <a-icon type="check" v-if="linkGroup.editing"/>-->
+                <!--                </div>-->
               </div>
-              <div class="group-right-info">
-                <div class="group-action">
-                  <a-button type="primary" @click="handleLinkGroup(linkGroup)">
-                    <div class="btn-text" style="line-height: 20px">
-                      + Link
-                    </div>
-                  </a-button>
-                </div>
-              </div>
+              <!--              <div class="group-right-info">-->
+              <!--                <div class="group-action">-->
+              <!--                  <a-button type="primary" @click="handleLinkGroup(linkGroup)">-->
+              <!--                    <div class="btn-text" style="line-height: 20px">-->
+              <!--                      + Link-->
+              <!--                    </div>-->
+              <!--                  </a-button>-->
+              <!--                </div>-->
+              <!--              </div>-->
             </div>
             <div class="group-body">
               <div class="group-link-item" v-for="(item,index) in linkGroup.contents" :key="index">
@@ -119,7 +119,7 @@
                   <div class="icon">
                     <content-type-icon :type="item.type"/>
                   </div>
-                  <div class="name">
+                  <div class="name" @click="handleViewDetail(item)">
                     <a-tooltip placement="top">
                       <template slot="title">
                         {{ item.name }}
@@ -154,7 +154,7 @@
         <new-my-content
           :from-type="fromType"
           :from-id="fromId"
-          :filter-type-list="[typeMap.evaluation]"
+          :filter-type-list="[typeMap.task,typeMap.evaluation]"
           :group-name-list="groupNameList"
           :default-group-name="groupNameList[0]"
           :mode="'common-link'"
@@ -162,6 +162,30 @@
           @ensure="handleEnsureSelectedLink"/>
       </div>
     </a-modal>
+
+    <a-drawer
+      destroyOnClose
+      placement="right"
+      :closable="false"
+      width="800px"
+      :visible="previewVisible"
+      @close="previewVisible = false"
+    >
+      <a-row class="preview-wrapper-row">
+        <a-col span="2">
+          <div class="view-back" @click="previewVisible = false">
+            <div class="back-icon">
+              <img src="~@/assets/icons/common/back.png" />
+            </div>
+          </div>
+        </a-col>
+        <a-col span="22">
+          <div class="detail-wrapper" v-if="previewCurrentId && previewType">
+            <common-preview :id="previewCurrentId" :type="previewType" />
+          </div>
+        </a-col>
+      </a-row>
+    </a-drawer>
   </div>
 </template>
 
@@ -172,10 +196,12 @@ import MyContentSelector from '@/components/MyContent/MyContentSelector'
 import NewMyContent from '@/components/MyContent/NewMyContent'
 import { typeMap } from '@/const/teacher'
 import ContentTypeIcon from '@/components/Teacher/ContentTypeIcon'
+import * as logger from '@/utils/logger'
+import CommonPreview from '@/components/Common/CommonPreview'
 
 export default {
   name: 'CommonLink',
-  components: { ContentTypeIcon, NewMyContent, MyContentSelector },
+  components: { ContentTypeIcon, NewMyContent, MyContentSelector, CommonPreview },
   props: {
     fromType: {
       type: Number,
@@ -206,7 +232,10 @@ export default {
       currentGroupId: null,
 
       selectLinkContentVisible: false,
-      typeMap: typeMap
+      typeMap: typeMap,
+      previewVisible: false,
+      previewCurrentId: '',
+      previewType: ''
     }
   },
   created () {
@@ -228,12 +257,12 @@ export default {
           }
           item.editing = false
         })
-        response.result.others.forEach(item => {
-          if (groupNameList.indexOf(item.group) === -1) {
-            groupNameList.push(item.group)
-          }
-          item.editing = false
-        })
+        // response.result.others.forEach(item => {
+        //   if (groupNameList.indexOf(item.group) === -1) {
+        //     groupNameList.push(item.group)
+        //   }
+        //   item.editing = false
+        // })
         this.$logger.info('formatted owner', response.result.owner)
         this.$logger.info('formatted others', response.result.others)
         this.$logger.info('formatted groupNameList', groupNameList)
@@ -287,6 +316,12 @@ export default {
         })
       }
       linkGroup.editing = !linkGroup.editing
+    },
+    handleViewDetail (item) {
+      logger.info('handleViewDetail', item)
+      this.previewCurrentId = item.id
+      this.previewType = item.type
+      this.previewVisible = true
     }
 
   }

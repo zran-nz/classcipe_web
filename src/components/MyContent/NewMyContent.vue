@@ -6,7 +6,7 @@
           <a-menu-item @click="handleToggleType('All')">
             <span>All</span>
           </a-menu-item>
-          <a-menu-item @click="handleToggleType('Created by me')" >
+          <a-menu-item @click="handleToggleType('Created by me')">
             <span> {{ $t('teacher.main.created-by-me') }}</span>
           </a-menu-item>
           <a-menu-item @click="handleToggleType('My favorite')">
@@ -18,7 +18,8 @@
         </a-menu>
         <a-button
           style="padding: 0 20px;display:flex; box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.16);align-items:center ;height: 40px;border-radius: 6px;background: #FFFFFF;border: 1px solid #eee;font-family: Inter-Bold;color: #182552;">
-          {{ createdType }} <a-icon type="caret-down" />
+          {{ createdType }}
+          <a-icon type="caret-down"/>
         </a-button>
       </a-dropdown>
     </div>
@@ -35,19 +36,22 @@
                  'active-display-type': currentType === typeMap['unit-plan']}"
         v-if="filterTypeList.indexOf(typeMap['unit-plan']) !== -1"
         @click="handleToggleDisplayType(typeMap['unit-plan'])">
-        {{ $t('teacher.my-content.unit-plan-type') }}</div>
+        {{ $t('teacher.my-content.unit-plan-type') }}
+      </div>
       <div
         :class="{'display-type-item': true,
-                 'active-display-type': currentType === typeMap.lesson}"
-        v-if="filterTypeList.indexOf(typeMap.lesson) !== -1"
-        @click="handleToggleDisplayType(typeMap.lesson)">
-        {{ $t('teacher.my-content.lesson-type') }}</div>
+                 'active-display-type': currentType === typeMap.task}"
+        v-if="filterTypeList.indexOf(typeMap.task) !== -1"
+        @click="handleToggleDisplayType(typeMap.task)">
+        {{ $t('teacher.my-content.tasks-type') }}
+      </div>
       <div
         :class="{'display-type-item': true,
                  'active-display-type': currentType === typeMap.evaluation}"
         v-if="filterTypeList.indexOf(typeMap.evaluation) !== -1"
         @click="handleToggleDisplayType(typeMap.evaluation)">
-        {{ $t('teacher.my-content.evaluation-type') }}</div>
+        {{ $t('teacher.my-content.evaluation-type') }}
+      </div>
     </div>
     <div class="create-new-action">
       <div class="create-action" @click="handleCreateNew">
@@ -61,16 +65,29 @@
     <div class="content-wrapper">
       <a-skeleton :loading="skeletonLoading" active>
         <div class="content-list">
-          <a-list size="large" :pagination="pagination" :data-source="myContentList" :loading="loading" v-if="dataListMode === 'list'">
-            <a-list-item slot="renderItem" key="item.key" slot-scope="item" :class="{'my-list-item': true, 'active-item': mySelectedList.indexOf(item.type + '-' + item.id) !== -1}" @click="handleToggleSelect(item)">
+          <a-list
+            size="large"
+            :pagination="pagination"
+            :data-source="myContentList"
+            :loading="loading"
+            v-if="dataListMode === 'list'">
+            <a-list-item
+              slot="renderItem"
+              key="item.key"
+              slot-scope="item"
+              :class="{'my-list-item': true, 'active-item': mySelectedList.indexOf(item.type + '-' + item.id) !== -1}"
+              @click="handleToggleSelect(item)">
 
               <div class="select-block" @click="handleLinkItem(item, $event)">
-                <a-icon class="select-block-icon" type="border" v-if="mySelectedList.indexOf(item.type + '-' + item.id) === -1"/>
+                <a-icon
+                  class="select-block-icon"
+                  type="border"
+                  v-if="mySelectedList.indexOf(item.type + '-' + item.id) === -1"/>
                 <div class="selected-icon" v-if="mySelectedList.indexOf(item.type + '-' + item.id) !== -1">
                   <img src="~@/assets/icons/lesson/selected.png"/>
                 </div>
               </div>
-              <span class="content-info-left" >
+              <span class="content-info-left">
                 <content-type-icon :type="item.type"/>
 
                 <span class="name-content">
@@ -85,16 +102,20 @@
                   <template v-if="item.status === 0">Draft</template>
                   <template v-if="item.status === 1">Published</template>
                 </span>
-                <span class="update-time" >
+                <span class="update-time">
                   {{ item.updateTime || item.createTime | dayjs }}
                 </span>
-                <div class="action" >
+                <div class="action">
                   <div slot="actions" v-if="mode === displayMode.Link">
                     <div class="action-wrapper">
                       <div class="action-item">
-                        <a-popconfirm :title="'Link this content to my Unit' + '?'" ok-text="Yes" @confirm="handleLinkItem(item, $event)" cancel-text="No">
+                        <a-popconfirm
+                          :title="'Link this content to my Unit' + '?'"
+                          ok-text="Yes"
+                          @confirm="handleLinkItem(item, $event)"
+                          cancel-text="No">
                           <span>
-                            <a-icon type="form" /> Link
+                            <a-icon type="form"/> Link
                           </span>
                         </a-popconfirm>
                       </div>
@@ -116,10 +137,16 @@
                   <div slot="actions" v-show="mode === displayMode.Evaluation">
                     <div class="action-wrapper">
                       <div class="action-item">
-                        <a-popconfirm :title="'Link ?'" ok-text="Yes" @confirm="handleLinkItem(item, $event)" cancel-text="No">
+                        <a-popconfirm
+                          :title="'Link ?'"
+                          ok-text="Yes"
+                          @confirm="handleLinkItem(item, $event)"
+                          cancel-text="No">
                           <div class="link-item">
                             <img src="~@/assets/icons/myContent/link-icon.png" class="link-icon"/>
-                            {{ 'Link this evaluation to this ' + (item.type === typeMap.task ? 'task' : (item.type === typeMap.lesson ? 'lesson' : '')) }}
+                            {{
+                              'Link this evaluation to this ' + (item.type === typeMap.task ? 'task' : (item.type === typeMap.task ? 'lesson' : ''))
+                            }}
                           </div>
                         </a-popconfirm>
                       </div>
@@ -136,7 +163,12 @@
             :data-source="myContentList"
             :loading="loading"
             v-if="dataListMode === 'card'">
-            <div slot="renderItem" key="item.key" class="my-card-list-item" slot-scope="item" @click="handleToggleSelect(item)">
+            <div
+              slot="renderItem"
+              key="item.key"
+              class="my-card-list-item"
+              slot-scope="item"
+              @click="handleToggleSelect(item)">
               <div class="cover-img-wrapper">
                 <div
                   class="cover-image"
@@ -161,9 +193,13 @@
                 <div v-show="mode === displayMode.Link">
                   <div class="action-wrapper">
                     <div class="action-item">
-                      <a-popconfirm :title="'Link this content to my Unit' + '?'" ok-text="Yes" @confirm="handleLinkItem(item, $event)" cancel-text="No">
+                      <a-popconfirm
+                        :title="'Link this content to my Unit' + '?'"
+                        ok-text="Yes"
+                        @confirm="handleLinkItem(item, $event)"
+                        cancel-text="No">
                         <span>
-                          <a-icon type="form" /> Link
+                          <a-icon type="form"/> Link
                         </span>
                       </a-popconfirm>
                     </div>
@@ -187,10 +223,16 @@
                 <div v-show="mode === displayMode.Evaluation">
                   <div class="action-wrapper">
                     <div class="action-item">
-                      <a-popconfirm :title="'Link ?'" ok-text="Yes" @confirm="handleLinkItem(item, $event)" cancel-text="No">
+                      <a-popconfirm
+                        :title="'Link ?'"
+                        ok-text="Yes"
+                        @confirm="handleLinkItem(item, $event)"
+                        cancel-text="No">
                         <div class="link-item">
                           <img src="~@/assets/icons/myContent/link-icon.png" class="link-icon"/>
-                          {{ 'Link this evaluation to this ' + (item.type === typeMap.task ? 'task' : (item.type === typeMap.lesson ? 'lesson' : '')) }}
+                          {{
+                            'Link this evaluation to this ' + (item.type === typeMap.task ? 'task' : (item.type === typeMap.task ? 'lesson' : ''))
+                          }}
                         </div>
                       </a-popconfirm>
                     </div>
@@ -198,7 +240,9 @@
                 </div>
               </div>
               <div class="card-action-icon">
-                <img src="~@/assets/icons/lesson/selected.png" v-if="mySelectedList.indexOf(item.type + '-' + item.id) !== -1"/>
+                <img
+                  src="~@/assets/icons/lesson/selected.png"
+                  v-if="mySelectedList.indexOf(item.type + '-' + item.id) !== -1"/>
               </div>
             </div>
           </a-list>
@@ -229,14 +273,14 @@
             <a-col span="3">
               <div class="view-back" @click="handlePreviewClose">
                 <div class="back-icon">
-                  <img src="~@/assets/icons/common/back.png" />
+                  <img src="~@/assets/icons/common/back.png"/>
                 </div>
               </div>
             </a-col>
             <a-col span="21">
               <div class="detail-wrapper">
                 <div class="preview-detail" v-if="previewCurrentId && previewType">
-                  <common-preview :id="previewCurrentId" :type="previewType" />
+                  <common-preview :id="previewCurrentId" :type="previewType"/>
                 </div>
               </div>
             </a-col>
@@ -263,7 +307,7 @@ import NoMoreResources from '@/components/Common/NoMoreResources'
 import PuBuIcon from '@/assets/icons/library/pubu .svg?inline'
 import ListModeIcon from '@/assets/icons/library/liebiao .svg?inline'
 import { EvaluationAddOrUpdate } from '@/api/evaluation'
-import { LessonAddOrUpdate } from '@/api/myLesson'
+import { TaskAddOrUpdate } from '@/api/task'
 import { UnitPlanAddOrUpdate } from '@/api/unitPlan'
 import { TopicAddOrUpdate } from '@/api/topic'
 
@@ -560,11 +604,11 @@ export default {
             this.createNewNameMode = 'hide'
             this.createNewName = ''
           })
-        } else if (this.currentType === this.typeMap.lesson) {
-          LessonAddOrUpdate({
+        } else if (this.currentType === this.typeMap.task) {
+          TaskAddOrUpdate({
             name: this.createNewName
           }).then((response) => {
-            this.$logger.info('LessonAddOrUpdate response', response)
+            this.$logger.info('TaskAddOrUpdate response', response)
             this.loadMyContent()
           }).finally(() => {
             this.createNewNameMode = 'hide'
@@ -654,21 +698,26 @@ export default {
   width: 100%;
   border: 2px solid #fff;
 }
+
 .active-item {
   border: 2px solid #15C39A;
   box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.16);
 }
+
 .my-content {
   .filter-line {
     padding: 15px 0;
     margin-bottom: 10px;
     display: flex;
     justify-content: space-between;
+
     .status-tab {
       cursor: pointer;
+
       .toggle-mode-type-wrapper {
         width: 280px;
         box-sizing: border-box;
+
         .toggle-mode-type {
           height: 40px;
           display: inline-block;
@@ -753,6 +802,7 @@ export default {
     justify-content: flex-start;
     padding-bottom: 10px;
     border-bottom: 1px solid #eee;
+
     .display-type-item {
       cursor: pointer;
       user-select: none;
@@ -772,6 +822,7 @@ export default {
   .create-new-action {
     display: flex;
     justify-content: flex-start;
+
     .create-action {
       cursor: pointer;
       display: inline-block;
@@ -787,6 +838,7 @@ export default {
       display: flex;
       justify-content: flex-start;
       align-items: center;
+
       input {
         padding: 0 5px;
         outline: none;
@@ -814,6 +866,7 @@ export default {
         display: flex;
         justify-content: flex-start;
         align-items: center;
+
         .select-block-icon {
           color: #ccc;
           font-size: 20px;
@@ -826,6 +879,7 @@ export default {
           }
         }
       }
+
       .content-info-left {
         cursor: pointer;
         display: flex;
@@ -841,6 +895,7 @@ export default {
           color: @primary-color;
         }
       }
+
       .content-info-right {
         cursor: pointer;
         display: flex;
@@ -876,6 +931,7 @@ export default {
         padding: 0 10px;
         width: 80px;
         box-sizing: border-box;
+
         img {
           height: 18px;
         }
@@ -891,10 +947,12 @@ export default {
         flex-direction: row;
         align-items: center;
         justify-content: center;
+
         .action-item {
           display: inline;
           margin-right: 10px;
           user-select: none;
+
           .link-item {
             display: flex;
             flex-direction: row;
@@ -908,6 +966,7 @@ export default {
             font-size: 13px;
             background: rgba(228, 228, 228, 0.2);
             transition: all 0.3s ease;
+
             .link-icon {
               margin-right: 5px;
               width: 15px;
@@ -920,7 +979,7 @@ export default {
         }
 
         .refer-item {
-          .refer-btn{
+          .refer-btn {
             background: rgba(21, 195, 154, 0.1);
             border: 1px solid #15C39A;
             border-radius: 20px;
@@ -931,16 +990,20 @@ export default {
             align-items: center;
             justify-content: flex-start;
           }
+
           .btn-icon {
             height: 10px;
             width: 10px;
           }
+
           .btn-icon-white {
             display: none;
           }
+
           .btn-icon-color {
             display: inline-block;
           }
+
           .btn-text {
             padding-left: 8px;
           }
@@ -949,9 +1012,11 @@ export default {
         .refer-btn:hover {
           background: #07AB84;
           color: #fff;
+
           .btn-icon-white {
             display: inline-block;
           }
+
           .btn-icon-color {
             display: none;
           }
@@ -996,6 +1061,7 @@ a.delete-action {
     display: flex;
     flex-direction: row;
     align-items: center;
+
     svg {
       width: 20px;
       color: rgba(24, 37, 82, 1);
@@ -1016,15 +1082,18 @@ a.delete-action {
 
   .preview-wrapper-row {
     width: 100%;
+
     .view-back {
       .back-icon {
         text-align: center;
+
         img {
           width: 70px;
           cursor: pointer;
         }
       }
     }
+
     .detail-wrapper {
       background: #FFFFFF;
       border: 1px solid #ddd;
@@ -1059,6 +1128,7 @@ a.delete-action {
     border-radius: 6px;
     border: none;
     outline: none;
+
     .cover-image {
       border: none;
       outline: none;
@@ -1083,6 +1153,7 @@ a.delete-action {
       flex-direction: row;
       align-items: flex-start;
       align-items: center;
+
       .page-num-tag {
         display: inline;
         background: rgba(228, 228, 228, 0.5);
@@ -1122,10 +1193,12 @@ a.delete-action {
       flex-direction: row;
       align-items: center;
       justify-content: center;
+
       .action-item {
         display: inline;
         margin-right: 10px;
         user-select: none;
+
         .link-item {
           display: flex;
           flex-direction: row;
@@ -1139,6 +1212,7 @@ a.delete-action {
           font-size: 13px;
           background: rgba(228, 228, 228, 0.2);
           transition: all 0.3s ease;
+
           .link-icon {
             margin-right: 5px;
             width: 15px;
@@ -1151,7 +1225,7 @@ a.delete-action {
       }
 
       .refer-item {
-        .refer-btn{
+        .refer-btn {
           background: rgba(21, 195, 154, 0.1);
           border: 1px solid #15C39A;
           border-radius: 20px;
@@ -1162,16 +1236,20 @@ a.delete-action {
           align-items: center;
           justify-content: flex-start;
         }
+
         .btn-icon {
           height: 10px;
           width: 10px;
         }
+
         .btn-icon-white {
           display: none;
         }
+
         .btn-icon-color {
           display: inline-block;
         }
+
         .btn-text {
           padding-left: 8px;
         }
@@ -1180,19 +1258,23 @@ a.delete-action {
       .refer-btn:hover {
         background: #07AB84;
         color: #fff;
+
         .btn-icon-white {
           display: inline-block;
         }
+
         .btn-icon-color {
           display: none;
         }
       }
     }
   }
+
   .card-action-icon {
     position: absolute;
     bottom: 10px;
     right: 10px;
+
     img {
       height: 18px;
     }
@@ -1201,6 +1283,7 @@ a.delete-action {
 
 .choose-group {
   margin: 10px 0;
+
   .choose-label {
     padding-bottom: 10px;
     color: #000000;

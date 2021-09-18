@@ -5,25 +5,25 @@
       <div class="skt-description-list-wrapper">
         <a-row >
           <a-col span="24">
-            <div class="skt-description-list" v-for="(knowledge,index) in KnowledgeList" :key="index">
+            <div class="skt-description-list" v-for="(k,index) in KnowledgeList" :key="index">
               <div class="skt-description-tag-item skt-description-tag-item-top-fixed" @click="handleActiveDescription(index)">
-                <div class="skt-description">
-                  {{ knowledge.name }}
+                <div class="skt-description" @dblclick="handleAddTag(k)">
+                  {{ k.name }}
                 </div>
                 <div
                   class="actions">
-                  <span class="add-action" @click.stop.prevent="handleAddTag(knowledge)">
+                  <span class="add-action" @click.stop.prevent="handleAddTag(k)">
                     <img src="~@/assets/icons/tag/add.png"/>
                   </span>
                   <span class="up-down">
-                    <a-icon type="up" v-if="knowledge.tagListVisible"/>
+                    <a-icon type="up" v-if="k.tagListVisible"/>
                     <a-icon type="down" v-else />
                   </span>
                 </div>
-                <a-divider style="margin: 10px 0px" v-if="knowledge.tagListVisible" />
-                <div class="skt-description-tag-list" v-if="knowledge.tagListVisible">
-                  <div :class="{'tag-list-item': true,'skill-mode': true}" v-for="(tag,tIndex) in knowledge.tags" :key="tIndex">
-                    <a-tag class="tag-item" :closable="true" @close="handleDeleteTag(index,tIndex)">{{ tag.name }}</a-tag>
+                <a-divider style="margin: 10px 0px" v-if="k.tagListVisible" />
+                <div class="skt-description-tag-list" v-if="k.tagListVisible">
+                  <div :class="{'tag-list-item': true,'skill-mode': true}" v-for="name in k.tags" :key="name">
+                    <a-tag class="tag-item" :closable="true" @close="handleDeleteTag(index,name)">{{ name }}</a-tag>
                   </div>
                 </div>
               </div>
@@ -47,7 +47,11 @@
       <div class="my-modal-title" slot="title">
         Add tag
       </div>
-      <learn-out-add-tag :select-knowledge="knowledge" />
+      <learn-out-add-tag :knowledge="knowledge" />
+      <!--      <div class="modal-ensure-action-line-right" style="justify-content: center">
+        <a-button class="action-item action-cancel" shape="round" @click="addTagVisible = false">Cancel</a-button>
+        <a-button class="action-ensure action-item" type="primary" shape="round" @click="handleEnsureSelectData">Confirm</a-button>
+      </div>-->
     </a-modal>
 
   </div>
@@ -102,20 +106,22 @@
         this.$set(this.KnowledgeList, index, this.KnowledgeList[index])
         logger.info('tagListVisible ', this.KnowledgeList[index].tagListVisible)
       },
-      handleDeleteTag (kIndex, tIndex) {
-        this.KnowledgeList[kIndex].tags.splice(tIndex, 1)
-        this.$set(this.KnowledgeList, kIndex, this.KnowledgeList[kIndex])
-        logger.info('handleDeleteTag ', this.KnowledgeList[kIndex].tags)
-        this.$emit('set-learn-outs', this.KnowledgeList)
+      handleDeleteTag (kIndex, tagName) {
+        this.KnowledgeList[kIndex].tags.splice(this.KnowledgeList[kIndex].tags.indexOf(tagName), 1)
+        // this.$emit('set-learn-outs', this.KnowledgeList)
       },
 
       handleDeleteKnowledgeItem (index) {
+        const data = this.KnowledgeList[index]
         this.KnowledgeList.splice(index, 1)
-        this.$emit('set-learn-outs', this.KnowledgeList)
+        this.$emit('remove-learn-outs', data)
       },
       handleAddTag (knowLedge) {
         this.knowledge = knowLedge
         this.addTagVisible = true
+      },
+      handleEnsureSelectData () {
+        this.addTagVisible = false
       }
     }
   }

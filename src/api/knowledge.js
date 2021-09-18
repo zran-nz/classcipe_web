@@ -6,7 +6,7 @@ export const knowledgeAPIUrl = {
   KnowledgeAddOrUpdateTag: '/classcipe/api/knowledge/addOrUpdateTag',
   KnowledgeQueryById: '/classcipe/api/knowledge/queryById',
   KnowledgeQueryTagsByKnowledgeId: '/classcipe/api/knowledge/queryTagsByKnowledgeId',
-  GetRecommendByKnowledgeId: '/classcipe/api/knowledge/getRecommendByKnowledgeId',
+  FindRecommendByKnowledgeId: '/classcipe/api/knowledge/findRecommendByKnowledgeId',
   KnowledgeDelete: '/classcipe/api/knowledge/delete',
   KnowledgeDeleteBatch: '/classcipe/api/knowledge/deleteBatch',
   KnowledgeList: '/classcipe/api/knowledge/list',
@@ -14,7 +14,7 @@ export const knowledgeAPIUrl = {
   KnowledgeQueryContentByDescriptionId: '/classcipe/api/knowledge/queryContentByDescriptionId',
   GetAssessmentTypeList: '/classcipe/api/knowledgeAssessmentType/getAssessmentTypeList',
   QueryContentByAssessmentTypeId: '/classcipe/api/knowledgeAssessmentType/queryContentByAssessmentTypeId',
-  QueryKnowledgesByAssessmentTypeId: '/classcipe/api/knowledgeAssessmentType/queryKnowledgesByAssessmentTypeId',
+  QueryKnowledgesByAssessmentTypeId: '/classcipe/api/knowledgeAssessmentType/queryKnowledgesByAssessmentTypeId'
 }
 
 /**
@@ -186,10 +186,13 @@ export function QueryKnowledgesByAssessmentTypeId (parameter) {
   })
 }
 
-export function GetRecommendByKnowledgeId (parameter) {
+export function FindRecommendByKnowledgeId (parameter) {
   return request({
-    url: knowledgeAPIUrl.GetRecommendByKnowledgeId,
-    method: 'get',
-    params: parameter
+    url: knowledgeAPIUrl.FindRecommendByKnowledgeId,
+    method: 'post',
+    data: parameter,
+    headers: {
+      'Content-Type': 'application/json;charset=UTF-8'
+    }
   })
 }
