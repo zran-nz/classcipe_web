@@ -101,7 +101,7 @@
                       <div class="slide-select-wrapper" @click="handleToggleSlideMode" ref="slide">
                         <div class="slide-select">
                           <div class="slide-select-and-preview">
-                            <div class="reset-edit-basic-info" @click="handleExitEditPPTMode($event)">Edit course info</div>
+                            <div class="reset-edit-basic-info" @click="handleExitEditPPTMode($event)" v-show="editPPTMode">Edit course info</div>
                             <div class="slide-select-action" v-show="!form.presentationId">
                               <img src="~@/assets/icons/task/Teamwork-Pie-Chart@2x.png" />
                               <div class="select-action">
