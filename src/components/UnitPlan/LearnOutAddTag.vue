@@ -219,7 +219,7 @@ export default {
       if (typeof keyword === 'string' && keyword.trim().length >= 3) {
         FindRecommendByKnowledgeId({
           knowledgeId: this.knowledge.knowledgeId,
-          searchKey: keyword
+          key: keyword
         }).then((response) => {
           logger.info('searchByDescription', response)
           this.tagSearchList = response.result.tags
