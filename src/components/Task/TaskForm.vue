@@ -34,46 +34,46 @@
                 <img src="~@/assets/icons/lesson/microphone.png" />
               </div>
             </a-form-model-item>
-            <div class="form-block">
-              <div class="subject-grade-wrapper">
-                <div class="select-item">
-                  <a-select size="large" v-model="form.subjectIds" mode="multiple" placeholder="Subjects" class="subject-item">
-                    <a-select-opt-group v-for="subjectOptGroup in subjectTree" :key="subjectOptGroup.id">
-                      <span slot="label">{{ subjectOptGroup.name }}</span>
-                      <a-select-option
-                        :value="subjectOption.id"
-                        v-for="subjectOption in subjectOptGroup.children"
-                        :key="subjectOption.id">{{ subjectOption.name }}
-                      </a-select-option>
-                    </a-select-opt-group>
-                  </a-select>
-                </div>
-                <div class="select-item">
-                  <a-select size="large" v-model="form.gradeIds" placeholder="Grade" mode="multiple" class="grade-item">
-                    <a-select-option :value="gradeOption.id" v-for="gradeOption in gradeList" :key="gradeOption.id">
-                      {{ gradeOption.name }}
-                    </a-select-option>
-                  </a-select>
-                </div>
-              </div>
-            </div>
+            <!--            <div class="form-block">-->
+            <!--              <div class="subject-grade-wrapper">-->
+            <!--                <div class="select-item">-->
+            <!--                  <a-select size="large" v-model="form.subjectIds" mode="multiple" placeholder="Subjects" class="subject-item">-->
+            <!--                    <a-select-opt-group v-for="subjectOptGroup in subjectTree" :key="subjectOptGroup.id">-->
+            <!--                      <span slot="label">{{ subjectOptGroup.name }}</span>-->
+            <!--                      <a-select-option-->
+            <!--                        :value="subjectOption.id"-->
+            <!--                        v-for="subjectOption in subjectOptGroup.children"-->
+            <!--                        :key="subjectOption.id">{{ subjectOption.name }}-->
+            <!--                      </a-select-option>-->
+            <!--                    </a-select-opt-group>-->
+            <!--                  </a-select>-->
+            <!--                </div>-->
+            <!--                <div class="select-item">-->
+            <!--                  <a-select size="large" v-model="form.gradeIds" placeholder="Grade" mode="multiple" class="grade-item">-->
+            <!--                    <a-select-option :value="gradeOption.id" v-for="gradeOption in gradeList" :key="gradeOption.id">-->
+            <!--                      {{ gradeOption.name }}-->
+            <!--                    </a-select-option>-->
+            <!--                  </a-select>-->
+            <!--                </div>-->
+            <!--              </div>-->
+            <!--            </div>-->
 
-            <div class="content-blocks question-item" v-for="(questionItem, questionIndex) in questionDataObj" :key="questionIndex" v-if="questionItem !== null">
-              <!--knowledge tag-select -->
-              <new-ui-clickable-knowledge-tag
-                :question-index="questionIndex"
-                :selected-knowledge-tags="questionItem.knowledgeTags"
-                :selected-skill-tags="questionItem.skillTags"
-                @remove-knowledge-tag="handleRemoveKnowledgeTag"
-                @add-knowledge-tag="handleAddKnowledgeTag"
-                @remove-skill-tag="handleRemoveSkillTag"
-                @add-skill-tag="handleAddSkillTag"
-              />
-            </div>
+            <!--            <div class="content-blocks question-item" v-for="(questionItem, questionIndex) in questionDataObj" :key="questionIndex" v-if="questionItem !== null">-->
+            <!--              &lt;!&ndash;knowledge tag-select &ndash;&gt;-->
+            <!--              <new-ui-clickable-knowledge-tag-->
+            <!--                :question-index="questionIndex"-->
+            <!--                :selected-knowledge-tags="questionItem.knowledgeTags"-->
+            <!--                :selected-skill-tags="questionItem.skillTags"-->
+            <!--                @remove-knowledge-tag="handleRemoveKnowledgeTag"-->
+            <!--                @add-knowledge-tag="handleAddKnowledgeTag"-->
+            <!--                @remove-skill-tag="handleRemoveSkillTag"-->
+            <!--                @add-skill-tag="handleAddSkillTag"-->
+            <!--              />-->
+            <!--            </div>-->
 
-            <div class="form-block">
-              <custom-tag ref="customTag" :selected-tags-list="form.customTags" @change-user-tags="handleChangeUserTags"></custom-tag>
-            </div>
+            <!--            <div class="form-block">-->
+            <!--              <custom-tag ref="customTag" :selected-tags-list="form.customTags" @change-user-tags="handleChangeUserTags"></custom-tag>-->
+            <!--            </div>-->
           </div>
           <div class="save-task">
             <a-button :loading="loadSaving" :style="{'display': 'flex', 'align-items': 'center', 'background' : '#15C39A', 'color': '#fff', 'justify-content': 'center', 'padding': '20px 15px', 'border-radius': '5px'}" @click="handleSaveTask">

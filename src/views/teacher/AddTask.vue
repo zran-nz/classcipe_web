@@ -127,6 +127,23 @@
                     </template>
                   </a-step>
 
+                  <a-step>
+                    <template slot="description">
+                      <div class="form-block">
+                        <a-form-item label="Link Plan content" class="link-plan-title">
+                          <a-button type="primary" :style="{'background-color': '#fff', 'color': '#000', 'border': '1px solid #D8D8D8'}" @click="handleAddLink">
+                            <div class="btn-text" style="line-height: 20px">
+                              + Link
+                            </div>
+                          </a-button>
+                        </a-form-item>
+                        <div class="common-link-wrapper">
+                          <common-link ref="commonLink" :from-id="this.taskId" :from-type="this.contentType.task"/>
+                        </div>
+                      </div>
+                    </template>
+                  </a-step>
+
                 </a-steps>
 
               </a-form-model>
@@ -178,7 +195,17 @@
                 <div class="form-block-right" v-show="editPPTMode">
                   <div class="slide-preview-list">
                     <div class="slide-preview-item" v-for="(recommendThumbnail, rIndex) in recommendThumbnailList" :key="rIndex">
-                      <a-carousel>
+                      <a-carousel arrows>
+                        <div
+                          slot="prevArrow"
+                          class="custom-slick-arrow"
+                          style="left: 10px;zIndex: 1"
+                        >
+                          <a-icon type="left-circle" />
+                        </div>
+                        <div slot="nextArrow" class="custom-slick-arrow" style="right: 10px">
+                          <a-icon type="right-circle" />
+                        </div>
                         <div v-for="(item,index) in recommendThumbnail" :key="index">
                           <img :src="item.contentUrl" />
                         </div>
@@ -853,12 +880,12 @@
           logger.info('TaskAddOrUpdate', response.result)
           if (response.success) {
             this.restoreTask(response.result.id, false)
-            // this.$message.success(this.$t('teacher.add-task.save-success'))
+            this.$message.success(this.$t('teacher.add-task.save-success'))
           } else {
             this.$message.error(response.message)
           }
         }).finally(() => {
-          this.selectedSlideVisible = true
+          // this.selectedSlideVisible = true
           this.$refs.commonFormHeader.saving = false
         })
       },
@@ -2779,6 +2806,8 @@
   }
 
   .slide-preview-list {
+    max-height: 600px;
+    overflow-y: auto;
     width: 300px;
     display: flex;
     flex-direction: column;
@@ -2788,6 +2817,36 @@
     .slide-preview-item {
       margin-bottom: 10px;
       width: 300px;
+    }
+  }
+  .ant-carousel{
+    .slick-slide {
+      text-align: center;
+      height: 160px;
+      line-height: 160px;
+      background: #364d79;
+      overflow: hidden;
+    }
+    custom-slick-arrow {
+      width: 25px;
+      height: 25px;
+      font-size: 25px;
+      color: #fff;
+      background-color: rgba(31, 45, 61, 0.11);
+      opacity: 0.3;
+    }
+    .custom-slick-arrow:before {
+      display: none;
+    }
+    .custom-slick-arrow:hover {
+      opacity: 0.5;
+    }
+    .slick-slide h3 {
+      color: #fff;
+    }
+    .anticon{
+      color: #15c39a;
+      font-size: 20px;
     }
   }
 </style>
