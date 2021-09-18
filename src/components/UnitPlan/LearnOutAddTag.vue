@@ -59,6 +59,7 @@
           <div class="skt-tag-list">
             <div class="skt-tag-item " v-for="(name,index) in recommendList" :key="index">
               <a-tag
+                @click="addTag(name)"
                 :class="{'tag-item':true,'tag-disable':tags.indexOf(name) > -1}">
                 {{ name }}
               </a-tag>
