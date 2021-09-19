@@ -17,12 +17,9 @@
           <a-col span="24" class="main-content">
             <a-card :bordered="false" :body-style="{padding: '16px', display: 'flex', 'justify-content': 'center'}" class="card-wrapper">
               <a-form-model :model="form" class="task-form-left">
-                <a-steps :current="currentActiveStepIndex" direction="vertical">
-                  <a-step>
-                    <div class="step-title" slot="title" @click="handleExitEditPPTMode($event)">
-                      Edit course info
-                    </div>
-                    <template slot="description">
+                <a-steps :current="currentActiveStepIndex" direction="vertical" @change="onChangeStep">
+                  <a-step title="Edit course info" :status="currentActiveStepIndex === 0 ? 'process':'wait'">
+                    <template v-if="currentActiveStepIndex === 0" slot="description">
                       <div class="form-block" v-show="!editPPTMode">
                         <div class="header-action">
                           <div class="header-action-item">
@@ -96,12 +93,12 @@
                     </template>
                   </a-step>
 
-                  <a-step title="Edit your course slides">
-                    <template slot="description">
-                      <div class="slide-select-wrapper" @click="handleToggleSlideMode" ref="slide">
+                  <a-step title="Edit your course slides" :status="currentActiveStepIndex === 1 ? 'process':'wait'">
+                    <template v-if="currentActiveStepIndex === 1" slot="description">
+                      <div class="slide-select-wrapper" ref="slide">
                         <div class="slide-select">
                           <div class="slide-select-and-preview">
-                            <div class="reset-edit-basic-info" @click="handleExitEditPPTMode($event)" v-show="editPPTMode">Edit course info</div>
+                            <div class="reset-edit-basic-info" v-show="editPPTMode">Edit course info</div>
                             <div class="slide-select-action" v-show="!form.presentationId">
                               <img src="~@/assets/icons/task/Teamwork-Pie-Chart@2x.png" />
                               <div class="select-action">
@@ -127,8 +124,8 @@
                     </template>
                   </a-step>
 
-                  <a-step>
-                    <template slot="description">
+                  <a-step title="Link Task content" :status="currentActiveStepIndex === 2 ? 'process':'wait'">
+                    <template v-if="currentActiveStepIndex === 2" slot="description">
                       <div class="form-block">
                         <a-form-item label="Link Plan content" class="link-plan-title">
                           <a-button type="primary" :style="{'background-color': '#fff', 'color': '#000', 'border': '1px solid #D8D8D8'}" @click="handleAddLink">
@@ -535,10 +532,15 @@
         @cancel="selectSyncDataVisible = false">
         <div class="link-content-wrapper">
           <!-- 此处的questionIndex用于标识区分是哪个组件调用的，返回的事件数据中会带上，方便业务数据处理，可随意写，可忽略-->
-          <new-browser :select-mode="selectModel.syncData" question-index="_questionIndex_1" :sync-data="syncData" @select-sync="handleSelectListData"/>
+          <new-browser
+            :select-mode="selectModel.syncData"
+            question-index="_questionIndex_1"
+            :sync-data="syncData"
+            @select-sync="handleSelectListData"
+            @select-curriculum="handleSelectCurriculum"/>
           <div class="modal-ensure-action-line-right">
-            <a-button class="action-item action-cancel" shape="round" @click="handleCancelSelectSyncData">Cancel</a-button>
-            <a-button class="action-ensure action-item" type="primary" shape="round" @click="handleEnsureSelectSyncData">Ok</a-button>
+            <a-button class="action-item action-cancel" shape="round" @click="handleCancelSelectData">Cancel</a-button>
+            <a-button class="action-ensure action-item" type="primary" shape="round" @click="handleEnsureSelectData">Ok</a-button>
           </div>
         </div>
       </a-modal>
@@ -553,7 +555,7 @@
   import * as logger from '@/utils/logger'
   import ContentTypeIcon from '@/components/Teacher/ContentTypeIcon'
   import { typeMap } from '@/const/teacher'
-  import { UpdateContentStatus, GetMyGrades, Associate, SaveSessonTags, GetAssociate } from '@/api/teacher'
+  import { UpdateContentStatus, GetMyGrades, Associate, SaveSessonTags, GetAssociate, GetReferOutcomes } from '@/api/teacher'
   import InputSearch from '@/components/UnitPlan/InputSearch'
   import SdgTagInput from '@/components/UnitPlan/SdgTagInput'
   import SkillTag from '@/components/UnitPlan/SkillTag'
@@ -711,6 +713,8 @@
         syncData: [],
         selectSyncDataVisible: false,
         selectedSyncList: [],
+        // 已选择的大纲知识点描述数据
+        selectedCurriculumList: [],
         selectModel: SelectModel,
 
         editPPTMode: false,
@@ -1445,15 +1449,20 @@
         this.selectedSyncList = data
       },
 
+      handleSelectCurriculum (data) {
+        this.$logger.info('handleSelectCurriculum', data)
+        this.selectedCurriculumList = data
+      },
+
       // TODO 自动更新选择的sync 的数据knowledgeId和name列表
-      handleCancelSelectSyncData () {
+      handleCancelSelectData () {
         this.selectedSyncList = []
         this.selectSyncDataVisible = false
       },
 
       // TODO 自动更新选择的sync 的数据knowledgeId和name列表
-      handleEnsureSelectSyncData () {
-        this.$logger.info('handleEnsureSelectSyncData')
+      handleEnsureSelectData () {
+        this.$logger.info('handleEnsureSelectData')
         this.selectedSyncList.forEach(data => {
           const filterLearnOuts = this.form.learnOuts.filter(item => item.knowledgeId === data.knowledgeId)
           if (filterLearnOuts.length > 0) {
@@ -1462,6 +1471,17 @@
           this.form.learnOuts.push({
             knowledgeId: data.knowledgeId,
             name: data.name,
+            tags: []
+          })
+        })
+        this.selectedCurriculumList.forEach(data => {
+          const filterLearnOuts = this.form.learnOuts.filter(item => item.knowledgeId === data.knowledgeData.knowledgeId)
+          if (filterLearnOuts.length > 0) {
+            return
+          }
+          this.form.learnOuts.push({
+            knowledgeId: data.knowledgeData.id,
+            name: data.knowledgeData.name,
             tags: []
           })
         })
@@ -1478,19 +1498,30 @@
       handleSelectDescription () {
         this.selectSyncDataVisible = true
       },
+      handleSyncData () {
+        this.$logger.info(' handleSyncData')
+        GetReferOutcomes({
+          id: this.unitPlanId,
+          type: this.contentType.task
+        }).then(response => {
+          this.$logger.info('getReferOutcomes response', response)
+          if (response.result.length) {
+            this.syncData = response.result
+          }
+        })
+      },
 
-      handleExitEditPPTMode (e) {
-        e.preventDefault()
-        e.stopPropagation()
-        this.$logger.info('handleExitEditPPTMode' + this.editPPTMode)
-        if (this.editPPTMode) {
-          this.currentActiveStepIndex = 0
-          this.editPPTMode = false
-          this.$refs.slide.scrollIntoView({
-            block: 'start',
-            behavior: 'smooth'
-          })
-        }
+      onChangeStep (current) {
+        console.log('onChange:', current)
+        this.currentActiveStepIndex = current
+        // if (this.editPPTMode) {
+        //   this.currentActiveStepIndex = 0
+        //   this.editPPTMode = false
+        //   this.$refs.slide.scrollIntoView({
+        //     block: 'start',
+        //     behavior: 'smooth'
+        //   })
+        // }
       },
 
       handleToggleSlideMode () {
