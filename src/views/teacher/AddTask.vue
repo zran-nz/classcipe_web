@@ -1508,6 +1508,7 @@
           this.$logger.info('getReferOutcomes response', response)
           if (response.result.length) {
             this.syncData = response.result
+
           }
         })
       },

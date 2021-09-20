@@ -29,9 +29,12 @@
                 <a-icon type="folder" theme="filled" class="file-dir-icon"/>
               </template>
             </div>
+            <a-tooltip placement="top">
+              <template slot="title">{{item.froms[0]}}</template>
             <div class="name-text">
               {{ item.name || item.description }}
             </div>
+            </a-tooltip>
             <div class="action-icon" v-if="item.hasOwnProperty('froms') ? selectedKnowledgeIdList.indexOf(item.knowledgeId) !== -1 : selectedCurriculumIdList.indexOf(item.id) !== -1">
               <img src="~@/assets/icons/lesson/selected.png"/>
             </div>
@@ -145,7 +148,7 @@ export default {
           this.selectedKnowledgeIdNameMap.delete(item.knowledgeId)
         } else {
           this.selectedKnowledgeIdList.push(item.knowledgeId)
-          this.selectedKnowledgeIdNameMap.set(item.knowledgeId, item.name)
+          this.selectedKnowledgeIdNameMap.set(item.knowledgeId, item.name, item.tagType, item.tags)
         }
         const selectedList = []
         this.selectedKnowledgeIdList.forEach(knowledgeId => {
