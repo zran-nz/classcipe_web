@@ -43,7 +43,7 @@
       v-model="addTagVisible"
       :footer="null"
       destroyOnClose
-      width="800px">
+      width="1000px">
       <div class="my-modal-title" slot="title">
         Add tag
       </div>

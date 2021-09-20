@@ -332,16 +332,17 @@ export default {
       this.getGradesByCurriculumId(value)
     },
     blockIndex (value) {
-      if (value === 0) {
-        this.currentMainSubjectId = null
-        this.currentSubSubjectId = null
-        this.currentGradeId = null
-      } else if (value === 1) {
-        this.currentSubSubjectId = null
-        this.currentGradeId = null
-      } else if (value === 2) {
-        this.currentGradeId = null
-      }
+      this.$logger.info('block index change ' + value)
+      // if (value === 0) {
+      //   this.currentMainSubjectId = null
+      //   this.currentSubSubjectId = null
+      //   this.currentGradeId = null
+      // } else if (value === 1) {
+      //   this.currentSubSubjectId = null
+      //   this.currentGradeId = null
+      // } else if (value === 2) {
+      //   this.currentGradeId = null
+      // }
     }
   },
   data () {

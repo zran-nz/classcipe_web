@@ -192,7 +192,7 @@ export default {
       } else {
         this.$logger.info('same block collapse')
       }
-      this.navPath = this.navPath.filter((item) => item.blockIndex !== data.blockIndex)
+      this.navPath = this.navPath.filter((item) => item.blockIndex < data.blockIndex)
       this.navPath.push({ blockIndex: data.blockIndex, path: data.path })
       this.$logger.info('add path ' + data.path)
     },

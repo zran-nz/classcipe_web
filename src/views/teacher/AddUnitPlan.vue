@@ -1283,7 +1283,8 @@ export default {
         this.form.learnOuts.push({
           knowledgeId: data.knowledgeId,
           name: data.name,
-          tags: []
+          tags: data.tags,
+          tagType: data.tagType
         })
       })
       this.selectedCurriculumList.forEach(data => {
@@ -1294,7 +1295,7 @@ export default {
         this.form.learnOuts.push({
           knowledgeId: data.knowledgeData.id,
           name: data.knowledgeData.name,
-          tags: []
+          tagType: data.tagType
         })
       })
       this.$logger.info('this.form.learnOuts', this.form.learnOuts)
