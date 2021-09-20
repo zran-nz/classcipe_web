@@ -20,7 +20,7 @@
                 <a-steps :current="currentActiveStepIndex" direction="vertical" @change="onChangeStep">
                   <a-step title="Edit course info" :status="currentActiveStepIndex === 0 ? 'process':'wait'">
                     <template v-if="currentActiveStepIndex === 0" slot="description">
-                      <div class="form-block" v-show="!editPPTMode">
+                      <div class="form-block" >
                         <div class="header-action">
                           <div class="header-action-item">
                             <a-button @click="handleEditGoogleSlide" :style="{'display': 'flex', 'align-items': 'center', 'justify-content': 'center', 'padding': '20px 15px', 'border-radius': '5px'}" type="primary" >
@@ -50,19 +50,19 @@
                         </div>
                       </div>
 
-                      <div class="form-block" v-show="!editPPTMode">
+                      <div class="form-block" >
                         <a-form-item label="Task name">
                           <a-input v-model="form.name" placeholder="Enter Course Name" class="my-form-input" />
                         </a-form-item>
                       </div>
 
-                      <div class="form-block over-form-block" id="overview" v-show="!editPPTMode">
+                      <div class="form-block over-form-block" id="overview" >
                         <a-form-model-item class="task-audio-line" label="Course Overview">
                           <a-textarea v-model="form.overview" placeholder="Overview" allow-clear />
                         </a-form-model-item>
                       </div>
 
-                      <div class="form-block" v-show="!editPPTMode">
+                      <div class="form-block" >
                         <div class="self-type-wrapper">
                           <div class="self-field-label">
                             <div :class="{'task-type-item': true, 'green-active-task-type': form.taskType === 'FA'}" @click="handleSelectTaskType('FA')">FA</div>
@@ -78,7 +78,7 @@
                         </div>
                       </div>
 
-                      <div class="form-block" v-show="!editPPTMode">
+                      <div class="form-block" >
                         <a-form-item label="Set assessment objectives" >
                           <a-button type="primary" @click="handleSelectDescription">
                             <div class="btn-text" style="line-height: 20px">
@@ -98,7 +98,7 @@
                       <div class="slide-select-wrapper" ref="slide">
                         <div class="slide-select">
                           <div class="slide-select-and-preview">
-                            <div class="reset-edit-basic-info" v-show="editPPTMode">Edit course info</div>
+                            <!--                            <div class="reset-edit-basic-info" >Edit course info</div>-->
                             <div class="slide-select-action" v-show="!form.presentationId">
                               <img src="~@/assets/icons/task/Teamwork-Pie-Chart@2x.png" />
                               <div class="select-action">
@@ -147,7 +147,7 @@
 
               <div class="task-form-right">
 
-                <div class="form-block-right" v-show="!editPPTMode">
+                <div class="form-block-right" v-show="currentActiveStepIndex !== 1" >
                   <!-- image-->
                   <a-form-model-item class="img-wrapper">
                     <a-upload-dragger
@@ -189,7 +189,8 @@
                   </a-form-model-item>
                 </div>
 
-                <div class="form-block-right" v-show="editPPTMode">
+                <div class="form-block-right" v-show="!form.presentationId && currentActiveStepIndex === 1">
+                  Teaching Tips
                   <div class="slide-preview-list">
                     <div class="slide-preview-item" v-for="(recommendThumbnail, rIndex) in recommendThumbnailList" :key="rIndex">
                       <a-carousel arrows>
@@ -210,7 +211,7 @@
                     </div>
                   </div>
                 </div>
-                <div v-show="!editPPTMode">
+                <div v-show="currentActiveStepIndex !== 1">
                   <custom-tag ref="customTag" :selected-tags-list="form.customTags" @change-user-tags="handleChangeUserTags"></custom-tag>
                 </div>
               </div>
@@ -834,10 +835,10 @@
           }
           this.suggestingTag = this.form.suggestingTag
 
-          if (!this.form.presentationId) {
-            // 未成功绑定ppt
-            this.handleShowSelectMyContent()
-          }
+          // if (!this.form.presentationId) {
+          //   // 未成功绑定ppt
+          //   this.handleShowSelectMyContent()
+          // }
         }).finally(() => {
           this.contentLoading = false
 
