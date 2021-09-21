@@ -54,11 +54,13 @@ export default {
   },
   created () {
     this.$logger.info('NewTreeNavigation selectMode', this.selectMode)
+    const skillCategory = this.$store.getters.skillCategory
+    this.$logger.info('NewTreeNavigation skillCategory', skillCategory)
     const curriculumData = {
       id: '1',
       expandStatus: true,
       type: NavigationType.curriculum,
-      name: 'Curriculum',
+      name: skillCategory.length === 3 ? skillCategory[0] : 'Curriculum',
       children: [],
       parent: null
     }
@@ -108,6 +110,26 @@ export default {
     }).finally(() => {
       this.treeDataList.push(curriculumData)
       this.$logger.info('addGradeListProperty treeDataList', this.treeDataList)
+      if (skillCategory.length === 3) {
+        const specificSkillsData = {
+          id: '1',
+          expandStatus: true,
+          type: NavigationType.skill,
+          name: skillCategory[1],
+          children: [],
+          parent: null
+        }
+        const centurySkillsData = {
+          id: '1',
+          expandStatus: true,
+          type: NavigationType.centurySkills,
+          name: skillCategory[2],
+          children: [],
+          parent: null
+        }
+        this.treeDataList.push(specificSkillsData)
+        this.treeDataList.push(centurySkillsData)
+      }
       this.loaded = true
     })
   },

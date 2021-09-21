@@ -290,10 +290,11 @@ export default {
       color: @text-color;
       border: 1px solid #15C39A !important;
       box-sizing: border-box;
+      position: relative;
 
       .action-icon {
         position: absolute;
-        right: 40px;
+        right: 10px;
         img {
           height: 18px;
         }

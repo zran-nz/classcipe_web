@@ -324,37 +324,113 @@
                 <div class="filter-row">
                   <div class="ant-form-item-label">Learning Experience:</div>
                   <div class="row-select">
-                    <a-cascader
-                      class="row-cascader"
-                      :fieldNames="{ label: 'name', value: 'id', children: 'children' }"
-                      v-model="filterLearn"
-                      :options="learnExperienceList"
-                      change-on-select
-                      @change="selectFilter"/>
+                    <a-checkbox class="row-checkbox"></a-checkbox>
+                    <a-select class="row-choose" placeholder="Teaching strategies" >
+                      <a-select-option value="Demonstrations">
+                        Demonstrations
+                      </a-select-option>
+                    </a-select>
+                  </div>
+                  <div class="row-select">
+                    <a-checkbox class="row-checkbox"></a-checkbox>
+                    <a-select class="row-choose" placeholder="differentiated instructions" >
+                      <a-select-option value="jack">
+                        Jack
+                      </a-select-option>
+                    </a-select>
                   </div>
                 </div>
                 <div class="filter-row">
                   <div class="ant-form-item-label">Assessment:</div>
                   <div class="row-select">
-                    <a-cascader
-                      class="row-cascader"
-                      :fieldNames="{ label: 'name', value: 'id', children: 'children' }"
-                      v-model="filterAssessments"
-                      :options="assessmentsList"
-                      change-on-select
-                      @change="selectFilter"/>
+                    <a-checkbox class="row-checkbox"></a-checkbox>
+                    <a-select class="row-choose" default-value="Knowledge focus" >
+                      <a-select-option value="Knowledge focus">
+                        Knowledge focus
+                      </a-select-option>
+                      <a-select-option value="Skill focus">
+                        Skill focus
+                      </a-select-option>
+                    </a-select>
+                  </div>
+                  <div class="row-select">
+                    <a-checkbox class="row-checkbox"></a-checkbox>
+                    <a-select class="row-choose" placeholder="Bloom Taxonomy Categories">
+                      <a-select-option value="Create">
+                        Create
+                      </a-select-option>
+                    </a-select>
+                  </div>
+                  <div class="row-select">
+                    <a-checkbox class="row-checkbox"></a-checkbox>
+                    <a-select class="row-choose" >
+                      <a-select-option value="jack">
+                        Jack
+                      </a-select-option>
+                      <a-select-option value="lucy">
+                        Lucy
+                      </a-select-option>
+                      <a-select-option value="disabled" disabled>
+                        Disabled
+                      </a-select-option>
+                      <a-select-option value="Yiminghe">
+                        yiminghe
+                      </a-select-option>
+                    </a-select>
                   </div>
                 </div>
                 <div class="filter-row">
                   <div class="ant-form-item-label">21 century skills:</div>
                   <div class="row-select">
-                    <a-cascader
-                      class="row-cascader"
-                      :fieldNames="{ label: 'name', value: 'id', children: 'children' }"
-                      v-model="filterCentury"
-                      :options="centuryList"
-                      change-on-select
-                      @change="selectFilter" />
+                    <a-checkbox class="row-checkbox"></a-checkbox>
+                    <a-select class="row-choose" >
+                      <a-select-option value="jack">
+                        Jack
+                      </a-select-option>
+                      <a-select-option value="lucy">
+                        Lucy
+                      </a-select-option>
+                      <a-select-option value="disabled" disabled>
+                        Disabled
+                      </a-select-option>
+                      <a-select-option value="Yiminghe">
+                        yiminghe
+                      </a-select-option>
+                    </a-select>
+                  </div>
+                  <div class="row-select">
+                    <a-checkbox class="row-checkbox"></a-checkbox>
+                    <a-select class="row-choose" >
+                      <a-select-option value="jack">
+                        Jack
+                      </a-select-option>
+                      <a-select-option value="lucy">
+                        Lucy
+                      </a-select-option>
+                      <a-select-option value="disabled" disabled>
+                        Disabled
+                      </a-select-option>
+                      <a-select-option value="Yiminghe">
+                        yiminghe
+                      </a-select-option>
+                    </a-select>
+                  </div>
+                  <div class="row-select">
+                    <a-checkbox class="row-checkbox"></a-checkbox>
+                    <a-select class="row-choose" >
+                      <a-select-option value="jack">
+                        Jack
+                      </a-select-option>
+                      <a-select-option value="lucy">
+                        Lucy
+                      </a-select-option>
+                      <a-select-option value="disabled" disabled>
+                        Disabled
+                      </a-select-option>
+                      <a-select-option value="Yiminghe">
+                        yiminghe
+                      </a-select-option>
+                    </a-select>
                   </div>
                 </div>
               </div>
@@ -569,7 +645,7 @@
   import InputSearch from '@/components/UnitPlan/InputSearch'
   import SdgTagInput from '@/components/UnitPlan/SdgTagInput'
   import SkillTag from '@/components/UnitPlan/SkillTag'
-  import { FilterTemplates, TemplatesGetPresentation } from '@/api/template'
+  import { TemplatesGetTemplates, TemplatesGetPresentation } from '@/api/template'
   import { MyContentEventBus, MyContentEvent } from '@/components/MyContent/MyContentEventBus'
   import { TaskCreateTaskPPT, TaskQueryById, TaskAddOrUpdate } from '@/api/task'
   import { SelectModel } from '@/components/NewLibrary/SelectModel'
@@ -598,7 +674,6 @@
   import { LibraryEvent, LibraryEventBus } from '@/components/NewLibrary/LibraryEventBus'
   import NewBrowser from '@/components/NewLibrary/NewBrowser'
   import NewMyContent from '@/components/MyContent/NewMyContent'
-  import { GetTreeByKey } from '@/api/tag'
 
   export default {
     name: 'AddTask',
@@ -730,13 +805,7 @@
 
         editPPTMode: false,
 
-        recommendThumbnailList: [],
-        learnExperienceList: [],
-        filterLearn: [],
-        assessmentsList: [],
-        filterAssessments: [],
-        centuryList: [],
-        filterCentury: []
+        recommendThumbnailList: []
       }
     },
     computed: {
@@ -766,7 +835,6 @@
       LibraryEventBus.$on(LibraryEvent.ContentListSelectClick, this.handleDescriptionSelectClick)
       this.initData()
       this.getAssociate()
-      this.initTemplateFilter()
     },
     beforeDestroy () {
       MyContentEventBus.$off(MyContentEvent.LinkToMyContentItem, this.handleLinkMyContent)
@@ -780,7 +848,7 @@
         logger.info('initData doing...')
         Promise.all([
           GetMyGrades(),
-          FilterTemplates({}),
+          TemplatesGetTemplates({ category: this.currentTemplateType }),
           SubjectTree({ curriculumId: this.$store.getters.bindCurriculum })
         ]).then((response) => {
           this.$logger.info('add task initData done', response)
@@ -828,28 +896,6 @@
           if (response.success) {
             logger.info('DICT_BLOOM_CATEGORY', response.result)
             this.initBlooms = response.result
-          }
-        })
-      },
-
-      initTemplateFilter () {
-        GetTreeByKey({ key: 'template' }).then((response) => {
-          this.$logger.info('initTemplateFilter response', response.result)
-          if (response.success) {
-            this.treeItemData = response.result.children
-            this.treeItemData.forEach(item => {
-              if (item.name === 'Learning experience') {
-                this.learnExperienceList = item.children
-              }
-              if (item.name === 'Assessments') {
-                this.assessmentsList = item.children
-              }
-              if (item.name === '21 century skills') {
-                this.centuryList = item.children
-              }
-            })
-          } else {
-            this.$message.error(response.message)
           }
         })
       },
@@ -973,6 +1019,39 @@
         // setTimeout(() => {
         //   this.$router.push({ path: '/teacher/main/created-by-me' })
         // }, 500)
+      },
+
+      handleToggleTemplateType (key, value) {
+        this.$logger.info('handleToggleTemplateType ' + key + ' ' + value)
+        this.templateLoading = true
+        if (key === 'currentTemplateType') {
+          if (this.currentTemplateType === value) {
+            this.currentTemplateType = null
+          } else {
+            this.currentTemplateType = value
+          }
+        }
+        if (key === 'currentBloomCategory') {
+          if (this.currentBloomCategory === value) {
+            this.currentBloomCategory = null
+          } else {
+            this.currentBloomCategory = value
+          }
+        }
+        if (key === 'currentFasa') {
+          if (this.currentFasa === value) {
+            this.currentFasa = null
+          } else {
+            this.currentFasa = value
+          }
+        }
+        this.selectedTemplateList = []
+        TemplatesGetTemplates({ category: this.currentTemplateType, bloomCategories: this.currentBloomCategory, fasa: this.currentFasa }).then(response => {
+          this.$logger.info('handleToggleTemplateType ', response)
+          this.templateList = response.result
+        }).finally(() => {
+          this.templateLoading = false
+        })
       },
 
       handleShowSelectMyContent () {
@@ -1545,32 +1624,11 @@
 
       handleCreateInGoogle () {
         this.$logger.info('handleCreateInGoogle')
-      },
-      selectFilter (data) {
-        this.$logger.info('selectFilter', data)
-        this.$logger.info('filterLearn', this.filterLearn)
-        this.templateLoading = true
-        this.selectedTemplateList = []
-        FilterTemplates({
-            filterLearn: this.filterLearn,
-            filterAssessments: this.filterAssessments,
-            filterCentury: this.filterCentury
-        }).then(response => {
-          this.$logger.info('handleToggleTemplateType ', response)
-          this.templateList = response.result
-        }).finally(() => {
-          this.templateLoading = false
-        })
       }
     }
   }
 </script>
 
-<style>
-  .ant-cascader-menu{
-    min-width: 200px;
-  }
-</style>
 <style lang="less" scoped>
   @import "~@/components/index.less";
 
@@ -1907,7 +1965,6 @@
       flex-direction: column;
       .filter-row{
         align-items: center;
-        justify-content: center;
         padding: 5px;
         display: flex;
         width: 100%;
@@ -1918,11 +1975,17 @@
           color: #11142D;
         }
         .row-select{
-          width: 60%;
+          width: 25%;
           margin-left: 10px;
-        }
-        .row-cascader{
-          width: 90%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          .row-checkbox{
+            padding-right: 5px;
+          }
+          .row-choose{
+            width: 85%;
+          }
         }
       }
 
@@ -2928,5 +2991,4 @@
       font-size: 20px;
     }
   }
-
 </style>
