@@ -192,7 +192,7 @@
                 <div class="form-block-right" v-show="!form.presentationId && currentActiveStepIndex === 1">
                   Teaching Tips
                   <div class="slide-preview-list">
-                    <div class="slide-preview-item" v-for="(recommendThumbnail, rIndex) in recommendThumbnailList" :key="rIndex">
+                    <div class="slide-preview-item" v-for="(template, rIndex) in recommendTemplateList" :key="rIndex">
                       <a-carousel arrows>
                         <div
                           slot="prevArrow"
@@ -204,8 +204,8 @@
                         <div slot="nextArrow" class="custom-slick-arrow" style="right: 10px">
                           <a-icon type="right-circle" />
                         </div>
-                        <div v-for="(item,index) in recommendThumbnail" :key="index">
-                          <img :src="item.contentUrl" />
+                        <div v-for="(item,index) in template.images" :key="index">
+                          <img :src="item" />
                         </div>
                       </a-carousel>
                     </div>
@@ -572,7 +572,7 @@
   import InputSearch from '@/components/UnitPlan/InputSearch'
   import SdgTagInput from '@/components/UnitPlan/SdgTagInput'
   import SkillTag from '@/components/UnitPlan/SkillTag'
-  import { FilterTemplates, TemplatesGetPresentation } from '@/api/template'
+  import { FilterTemplates, TemplatesGetPresentation, recommendTemplates } from '@/api/template'
   import { MyContentEventBus, MyContentEvent } from '@/components/MyContent/MyContentEventBus'
   import { TaskCreateTaskPPT, TaskQueryById, TaskAddOrUpdate } from '@/api/task'
   import { SelectModel } from '@/components/NewLibrary/SelectModel'
@@ -733,7 +733,7 @@
 
         editPPTMode: false,
 
-        recommendThumbnailList: [],
+        recommendTemplateList: [],
         learnExperienceList: [],
         filterLearn: [],
         assessmentsList: [],
@@ -1125,35 +1125,18 @@
             this.$logger.info('current imgList ', this.imgList)
           })
           this.thumbnailListLoading = false
-
-          // TODO 修改为加载推荐模板
-          this.loadRecommendThumbnail()
         })
       },
 
       // TODO 修改为加载推荐模板
       loadRecommendThumbnail () {
-        this.$logger.info('loadRecommendThumbnail ' + this.form.presentationId)
-        const list1 = []
-        this.thumbnailList.forEach(item => {
-          list1.push(item)
+        this.$logger.info('loadRecommendThumbnail')
+        recommendTemplates({}).then(response => {
+          logger.info('loadRecommendThumbnail res:', response.result)
+          if (response.success) {
+            this.recommendTemplateList = response.result
+          }
         })
-
-        this.recommendThumbnailList.push(list1)
-
-        const list2 = []
-        this.thumbnailList.forEach(item => {
-          list2.push(item)
-        })
-
-        this.recommendThumbnailList.push(list2)
-
-        const list3 = []
-        this.thumbnailList.forEach(item => {
-          list3.push(item)
-        })
-
-        this.recommendThumbnailList.push(list3)
       },
 
       handleToggleThumbnail (thumbnail) {
@@ -1524,6 +1507,9 @@
       onChangeStep (current) {
         console.log('onChange:', current)
         this.currentActiveStepIndex = current
+        if (current === 1 && !this.form.presentationId) {
+          this.loadRecommendThumbnail()
+        }
         // if (this.editPPTMode) {
         //   this.currentActiveStepIndex = 0
         //   this.editPPTMode = false
@@ -2893,9 +2879,9 @@
   }
 
   .slide-preview-list {
-    max-height: 600px;
-    overflow-y: auto;
-    width: 300px;
+    max-height: 700px;
+    overflow-y: scroll;
+    width: 400px;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -2903,14 +2889,14 @@
 
     .slide-preview-item {
       margin-bottom: 10px;
-      width: 300px;
+      width: 400px;
     }
   }
   .ant-carousel{
     .slick-slide {
       text-align: center;
-      height: 160px;
-      line-height: 160px;
+      height: 200px;
+      line-height: 200px;
       background: #364d79;
       overflow: hidden;
     }
