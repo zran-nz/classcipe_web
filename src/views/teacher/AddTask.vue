@@ -329,6 +329,7 @@
                       :fieldNames="{ label: 'name', value: 'id', children: 'children' }"
                       v-model="filterLearn"
                       :options="learnExperienceList"
+                      :show-search="{ filterSearch }"
                       change-on-select
                       @change="selectFilter"/>
                   </div>
@@ -341,6 +342,7 @@
                       :fieldNames="{ label: 'name', value: 'id', children: 'children' }"
                       v-model="filterAssessments"
                       :options="assessmentsList"
+                      :show-search="{ filterSearch }"
                       change-on-select
                       @change="selectFilter"/>
                   </div>
@@ -353,6 +355,7 @@
                       :fieldNames="{ label: 'name', value: 'id', children: 'children' }"
                       v-model="filterCentury"
                       :options="centuryList"
+                      :show-search="{ filterSearch }"
                       change-on-select
                       @change="selectFilter" />
                   </div>
@@ -1545,6 +1548,10 @@
 
       handleCreateInGoogle () {
         this.$logger.info('handleCreateInGoogle')
+        window.open('https://docs.google.com/presentation', '_blank')
+      },
+      filterSearch (inputValue, path) {
+        return path.some(option => option.name.toLowerCase().indexOf(inputValue.toLowerCase()) > -1)
       },
       selectFilter (data) {
         this.$logger.info('selectFilter', data)
@@ -1569,6 +1576,7 @@
 <style>
   .ant-cascader-menu{
     min-width: 200px;
+    min-height: 270px;
   }
 </style>
 <style lang="less" scoped>
