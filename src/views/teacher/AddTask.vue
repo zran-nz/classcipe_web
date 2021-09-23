@@ -95,32 +95,34 @@
 
                   <a-step title="Edit your course slides" :status="currentActiveStepIndex === 1 ? 'process':'wait'">
                     <template v-if="currentActiveStepIndex === 1" slot="description">
-                      <div class="slide-select-wrapper" ref="slide">
-                        <div class="slide-select">
-                          <div class="slide-select-and-preview">
-                            <!--                            <div class="reset-edit-basic-info" >Edit course info</div>-->
-                            <div class="slide-select-action" v-show="!form.presentationId">
-                              <img src="~@/assets/icons/task/Teamwork-Pie-Chart@2x.png" />
-                              <div class="select-action">
-                                <div class="modal-ensure-action-line">
-                                  <a-button class="action-item action-cancel" shape="round" @click="handleShowSelectMyContent">Select template</a-button>
-                                  <a-button class="action-ensure action-item" type="primary" shape="round" @click="handleCreateInGoogle">Create a new ppt in Google side</a-button>
+                      <a-skeleton :loading="skeletonLoading" active>
+                        <div class="slide-select-wrapper" ref="slide">
+                          <div class="slide-select">
+                            <div class="slide-select-and-preview">
+                              <!--                            <div class="reset-edit-basic-info" >Edit course info</div>-->
+                              <div class="slide-select-action" v-show="!form.presentationId">
+                                <img src="~@/assets/icons/task/Teamwork-Pie-Chart@2x.png" />
+                                <div class="select-action">
+                                  <div class="modal-ensure-action-line">
+                                    <a-button class="action-item action-cancel" shape="round" @click="handleShowSelectMyContent">Select template</a-button>
+                                    <a-button class="action-ensure action-item" type="primary" shape="round" @click="handleCreateInGoogle">Create a new ppt in Google side</a-button>
+                                  </div>
                                 </div>
                               </div>
-                            </div>
-                            <div class="slide-preview" v-show="form.presentationId && thumbnailList.length">
-                              <a-carousel arrows dots-class="slick-dots slick-thumb">
-                                <a slot="customPaging" slot-scope="props">
-                                  <img :src="thumbnailList[props.i].contentUrl" />
-                                </a>
-                                <div v-for="(item,index) in thumbnailList" :key="index">
-                                  <img :src="item.contentUrl" />
-                                </div>
-                              </a-carousel>
+                              <div class="slide-preview" v-show="form.presentationId && thumbnailList.length">
+                                <a-carousel arrows dots-class="slick-dots slick-thumb">
+                                  <a slot="customPaging" slot-scope="props">
+                                    <img :src="thumbnailList[props.i].contentUrl" />
+                                  </a>
+                                  <div v-for="(item,index) in thumbnailList" :key="index">
+                                    <img :src="item.contentUrl" />
+                                  </div>
+                                </a-carousel>
+                              </div>
                             </div>
                           </div>
                         </div>
-                      </div>
+                      </a-skeleton>
                     </template>
                   </a-step>
 
@@ -188,11 +190,25 @@
                     </a-upload-dragger>
                   </a-form-model-item>
                 </div>
-
-                <div class="form-block-right" v-show="!form.presentationId && currentActiveStepIndex === 1">
-                  Teaching Tips
+                <div class="recomend-loading" v-if="recomendListLoading">
+                  <a-spin size="large" />
+                </div>
+                <div class="form-block-right" v-show="!form.presentationId && currentActiveStepIndex === 1" v-if="!recomendListLoading">
+                  <div class="right-title">Teaching Tips</div>
                   <div class="slide-preview-list">
                     <div class="slide-preview-item" v-for="(template, rIndex) in recommendTemplateList" :key="rIndex">
+                      <div class="mask-cover">
+                        <div class="mask-actions">
+                          <div class="action-item action-item-center">
+                            <!--                            <div class="session-btn session-btn-left">-->
+                            <!--                              <div class="session-btn-text">Preview</div>-->
+                            <!--                            </div>-->
+                            <div class="session-btn session-btn-right" v-if="!addRecomendLoading">
+                              <div class="session-btn-text" @click="selectRecommendTemplate(template)">Add as slide</div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
                       <a-carousel arrows>
                         <div
                           slot="prevArrow"
@@ -208,6 +224,9 @@
                           <img :src="item" />
                         </div>
                       </a-carousel>
+                      <a-row v-if="template.introduce" class="slide-desc" :title="template.introduce">
+                        {{ template.introduce }}
+                      </a-row>
                     </div>
                   </div>
                 </div>
@@ -739,7 +758,10 @@
         assessmentsList: [],
         filterAssessments: [],
         centuryList: [],
-        filterCentury: []
+        filterCentury: [],
+        recomendListLoading: false,
+        addRecomendLoading: false,
+        skeletonLoading: false
       }
     },
     computed: {
@@ -999,6 +1021,7 @@
 
       handleAddTemplate () {
         this.$logger.info('handleAddTemplate ', this.selectedTemplateList)
+        const hideLoading = this.$message.loading('Creating ppt in Google side...', 0)
         if (!this.creating) {
           if (this.selectedTemplateList.length) {
             this.creating = true
@@ -1024,6 +1047,8 @@
               this.creating = false
               this.selectedMyContentVisible = false
               this.viewInGoogleSlideVisible = true
+              this.addRecomendLoading = false
+              hideLoading()
               // this.loadThumbnail()
             })
           } else {
@@ -1113,6 +1138,7 @@
 
       loadThumbnail () {
         this.thumbnailListLoading = true
+        this.skeletonLoading = true
         this.$logger.info('loadThumbnail ' + this.form.presentationId)
         TemplatesGetPresentation({
           presentationId: this.form.presentationId
@@ -1125,16 +1151,19 @@
             this.$logger.info('current imgList ', this.imgList)
           })
           this.thumbnailListLoading = false
+          this.skeletonLoading = false
         })
       },
 
       // TODO 修改为加载推荐模板
       loadRecommendThumbnail () {
         this.$logger.info('loadRecommendThumbnail')
+        this.recomendListLoading = true
         recommendTemplates({}).then(response => {
           logger.info('loadRecommendThumbnail res:', response.result)
           if (response.success) {
             this.recommendTemplateList = response.result
+            this.recomendListLoading = false
           }
         })
       },
@@ -1554,6 +1583,12 @@
         }).finally(() => {
           this.templateLoading = false
         })
+      },
+      selectRecommendTemplate (template) {
+        this.selectedTemplateList = []
+        this.selectedTemplateList.push(template)
+        this.addRecomendLoading = true
+        this.handleAddTemplate()
       }
     }
   }
@@ -1668,6 +1703,14 @@
             .img-wrapper {
               position: relative;
               width: 600px;
+            }
+            .right-title{
+              font-size: 16px;
+              font-family: Inter-Bold;
+              line-height: 24px;
+              color: #151515;
+              opacity: 1;
+              height: 40px;
             }
             .delete-img {
               position: absolute;
@@ -2888,8 +2931,88 @@
     justify-content: flex-start;
 
     .slide-preview-item {
+      position: relative;
       margin-bottom: 10px;
       width: 400px;
+      &:hover {
+        .mask-cover .mask-actions{
+          display: block;
+        }
+        .ant-carousel{
+          opacity: 0.6;
+          cursor: pointer;
+          transition: opacity 0.8s;
+          //background: #0A1C32;
+        }
+      }
+
+      .mask-cover{
+        .mask-actions{
+          height: 100%;
+          width: 80%;
+          left: 10%;
+          position: absolute;
+          flex-direction: column;
+          z-index: 9999;
+          display: none;
+          .action-item{
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-around;
+          }
+          .action-item-center{
+            min-height: 150px;
+            .session-btn{
+              margin:15px
+            }
+            .session-btn-left {
+              width: 160px;
+              height: 40px;
+              background: #15C39A;
+              opacity: 1;
+              border-radius: 20px;
+              justify-content: center;
+              display: flex;
+              padding: 6px 13px;
+              .session-btn-text {
+                font-size: 12px;
+                font-family: Inter-Bold;
+                line-height: 24px;
+                color: #FFFFFF;
+                opacity: 1;
+              }
+            }
+            .session-btn-right {
+              width: 160px;
+              height: 40px;
+              background: #182552;
+              opacity: 1;
+              border-radius: 20px;
+              display: flex;
+              justify-content: center;
+              padding: 6px 13px;
+              .session-btn-text {
+                font-size: 12px;
+                font-family: Inter-Bold;
+                line-height: 24px;
+                color: #FFFFFF;
+                opacity: 1;
+              }
+            }
+          }
+        }
+
+      }
+
+    }
+    .slide-desc{
+      width: 70%;
+      max-height: 50px;
+      margin: 0 auto;
+      margin-bottom: 10px;
+      overflow: hidden;
     }
   }
   .ant-carousel{
@@ -2922,5 +3045,13 @@
       font-size: 20px;
     }
   }
-
+  .recomend-loading {
+    min-height: 200px;
+    margin-top: 200px;
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+  }
 </style>
