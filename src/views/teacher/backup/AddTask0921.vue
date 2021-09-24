@@ -95,34 +95,32 @@
 
                   <a-step title="Edit your course slides" :status="currentActiveStepIndex === 1 ? 'process':'wait'">
                     <template v-if="currentActiveStepIndex === 1" slot="description">
-                      <a-skeleton :loading="skeletonLoading" active>
-                        <div class="slide-select-wrapper" ref="slide">
-                          <div class="slide-select">
-                            <div class="slide-select-and-preview">
-                              <!--                            <div class="reset-edit-basic-info" >Edit course info</div>-->
-                              <div class="slide-select-action" v-show="!form.presentationId">
-                                <img src="~@/assets/icons/task/Teamwork-Pie-Chart@2x.png" />
-                                <div class="select-action">
-                                  <div class="modal-ensure-action-line">
-                                    <a-button class="action-item action-cancel" shape="round" @click="handleShowSelectMyContent">Select template</a-button>
-                                    <a-button class="action-ensure action-item" type="primary" shape="round" @click="handleCreateInGoogle">Create a new ppt in Google side</a-button>
-                                  </div>
+                      <div class="slide-select-wrapper" ref="slide">
+                        <div class="slide-select">
+                          <div class="slide-select-and-preview">
+                            <!--                            <div class="reset-edit-basic-info" >Edit course info</div>-->
+                            <div class="slide-select-action" v-show="!form.presentationId">
+                              <img src="~@/assets/icons/task/Teamwork-Pie-Chart@2x.png" />
+                              <div class="select-action">
+                                <div class="modal-ensure-action-line">
+                                  <a-button class="action-item action-cancel" shape="round" @click="handleShowSelectMyContent">Select template</a-button>
+                                  <a-button class="action-ensure action-item" type="primary" shape="round" @click="handleCreateInGoogle">Create a new ppt in Google side</a-button>
                                 </div>
                               </div>
-                              <div class="slide-preview" v-show="form.presentationId && thumbnailList.length">
-                                <a-carousel arrows dots-class="slick-dots slick-thumb">
-                                  <a slot="customPaging" slot-scope="props">
-                                    <img :src="thumbnailList[props.i].contentUrl" />
-                                  </a>
-                                  <div v-for="(item,index) in thumbnailList" :key="index">
-                                    <img :src="item.contentUrl" />
-                                  </div>
-                                </a-carousel>
-                              </div>
+                            </div>
+                            <div class="slide-preview" v-show="form.presentationId && thumbnailList.length">
+                              <a-carousel arrows dots-class="slick-dots slick-thumb">
+                                <a slot="customPaging" slot-scope="props">
+                                  <img :src="thumbnailList[props.i].contentUrl" />
+                                </a>
+                                <div v-for="(item,index) in thumbnailList" :key="index">
+                                  <img :src="item.contentUrl" />
+                                </div>
+                              </a-carousel>
                             </div>
                           </div>
                         </div>
-                      </a-skeleton>
+                      </div>
                     </template>
                   </a-step>
 
@@ -190,25 +188,11 @@
                     </a-upload-dragger>
                   </a-form-model-item>
                 </div>
-                <div class="recomend-loading" v-if="recomendListLoading">
-                  <a-spin size="large" />
-                </div>
-                <div class="form-block-right" v-show="!form.presentationId && currentActiveStepIndex === 1" v-if="!recomendListLoading">
-                  <div class="right-title">Teaching Tips</div>
+
+                <div class="form-block-right" v-show="!form.presentationId && currentActiveStepIndex === 1">
+                  Teaching Tips
                   <div class="slide-preview-list">
-                    <div class="slide-preview-item" v-for="(template, rIndex) in recommendTemplateList" :key="rIndex">
-                      <div class="mask-cover">
-                        <div class="mask-actions">
-                          <div class="action-item action-item-center">
-                            <!--                            <div class="session-btn session-btn-left">-->
-                            <!--                              <div class="session-btn-text">Preview</div>-->
-                            <!--                            </div>-->
-                            <div class="session-btn session-btn-right" v-if="!addRecomendLoading">
-                              <div class="session-btn-text" @click="selectRecommendTemplate(template)">Add as slide</div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
+                    <div class="slide-preview-item" v-for="(recommendThumbnail, rIndex) in recommendThumbnailList" :key="rIndex">
                       <a-carousel arrows>
                         <div
                           slot="prevArrow"
@@ -220,13 +204,10 @@
                         <div slot="nextArrow" class="custom-slick-arrow" style="right: 10px">
                           <a-icon type="right-circle" />
                         </div>
-                        <div v-for="(item,index) in template.images" :key="index">
-                          <img :src="item" />
+                        <div v-for="(item,index) in recommendThumbnail" :key="index">
+                          <img :src="item.contentUrl" />
                         </div>
                       </a-carousel>
-                      <a-row v-if="template.introduce" class="slide-desc" :title="template.introduce">
-                        {{ template.introduce }}
-                      </a-row>
                     </div>
                   </div>
                 </div>
@@ -343,40 +324,113 @@
                 <div class="filter-row">
                   <div class="ant-form-item-label">Learning Experience:</div>
                   <div class="row-select">
-                    <a-cascader
-                      class="row-cascader"
-                      :fieldNames="{ label: 'name', value: 'id', children: 'children' }"
-                      v-model="filterLearn"
-                      :options="learnExperienceList"
-                      :show-search="{ filterSearch }"
-                      change-on-select
-                      @change="selectFilter"/>
+                    <a-checkbox class="row-checkbox"></a-checkbox>
+                    <a-select class="row-choose" placeholder="Teaching strategies" >
+                      <a-select-option value="Demonstrations">
+                        Demonstrations
+                      </a-select-option>
+                    </a-select>
+                  </div>
+                  <div class="row-select">
+                    <a-checkbox class="row-checkbox"></a-checkbox>
+                    <a-select class="row-choose" placeholder="differentiated instructions" >
+                      <a-select-option value="jack">
+                        Jack
+                      </a-select-option>
+                    </a-select>
                   </div>
                 </div>
                 <div class="filter-row">
                   <div class="ant-form-item-label">Assessment:</div>
                   <div class="row-select">
-                    <a-cascader
-                      class="row-cascader"
-                      :fieldNames="{ label: 'name', value: 'id', children: 'children' }"
-                      v-model="filterAssessments"
-                      :options="assessmentsList"
-                      :show-search="{ filterSearch }"
-                      change-on-select
-                      @change="selectFilter"/>
+                    <a-checkbox class="row-checkbox"></a-checkbox>
+                    <a-select class="row-choose" default-value="Knowledge focus" >
+                      <a-select-option value="Knowledge focus">
+                        Knowledge focus
+                      </a-select-option>
+                      <a-select-option value="Skill focus">
+                        Skill focus
+                      </a-select-option>
+                    </a-select>
+                  </div>
+                  <div class="row-select">
+                    <a-checkbox class="row-checkbox"></a-checkbox>
+                    <a-select class="row-choose" placeholder="Bloom Taxonomy Categories">
+                      <a-select-option value="Create">
+                        Create
+                      </a-select-option>
+                    </a-select>
+                  </div>
+                  <div class="row-select">
+                    <a-checkbox class="row-checkbox"></a-checkbox>
+                    <a-select class="row-choose" >
+                      <a-select-option value="jack">
+                        Jack
+                      </a-select-option>
+                      <a-select-option value="lucy">
+                        Lucy
+                      </a-select-option>
+                      <a-select-option value="disabled" disabled>
+                        Disabled
+                      </a-select-option>
+                      <a-select-option value="Yiminghe">
+                        yiminghe
+                      </a-select-option>
+                    </a-select>
                   </div>
                 </div>
                 <div class="filter-row">
                   <div class="ant-form-item-label">21 century skills:</div>
                   <div class="row-select">
-                    <a-cascader
-                      class="row-cascader"
-                      :fieldNames="{ label: 'name', value: 'id', children: 'children' }"
-                      v-model="filterCentury"
-                      :options="centuryList"
-                      :show-search="{ filterSearch }"
-                      change-on-select
-                      @change="selectFilter" />
+                    <a-checkbox class="row-checkbox"></a-checkbox>
+                    <a-select class="row-choose" >
+                      <a-select-option value="jack">
+                        Jack
+                      </a-select-option>
+                      <a-select-option value="lucy">
+                        Lucy
+                      </a-select-option>
+                      <a-select-option value="disabled" disabled>
+                        Disabled
+                      </a-select-option>
+                      <a-select-option value="Yiminghe">
+                        yiminghe
+                      </a-select-option>
+                    </a-select>
+                  </div>
+                  <div class="row-select">
+                    <a-checkbox class="row-checkbox"></a-checkbox>
+                    <a-select class="row-choose" >
+                      <a-select-option value="jack">
+                        Jack
+                      </a-select-option>
+                      <a-select-option value="lucy">
+                        Lucy
+                      </a-select-option>
+                      <a-select-option value="disabled" disabled>
+                        Disabled
+                      </a-select-option>
+                      <a-select-option value="Yiminghe">
+                        yiminghe
+                      </a-select-option>
+                    </a-select>
+                  </div>
+                  <div class="row-select">
+                    <a-checkbox class="row-checkbox"></a-checkbox>
+                    <a-select class="row-choose" >
+                      <a-select-option value="jack">
+                        Jack
+                      </a-select-option>
+                      <a-select-option value="lucy">
+                        Lucy
+                      </a-select-option>
+                      <a-select-option value="disabled" disabled>
+                        Disabled
+                      </a-select-option>
+                      <a-select-option value="Yiminghe">
+                        yiminghe
+                      </a-select-option>
+                    </a-select>
                   </div>
                 </div>
               </div>
@@ -591,7 +645,7 @@
   import InputSearch from '@/components/UnitPlan/InputSearch'
   import SdgTagInput from '@/components/UnitPlan/SdgTagInput'
   import SkillTag from '@/components/UnitPlan/SkillTag'
-  import { FilterTemplates, TemplatesGetPresentation, recommendTemplates } from '@/api/template'
+  import { TemplatesGetTemplates, TemplatesGetPresentation } from '@/api/template'
   import { MyContentEventBus, MyContentEvent } from '@/components/MyContent/MyContentEventBus'
   import { TaskCreateTaskPPT, TaskQueryById, TaskAddOrUpdate } from '@/api/task'
   import { SelectModel } from '@/components/NewLibrary/SelectModel'
@@ -620,7 +674,6 @@
   import { LibraryEvent, LibraryEventBus } from '@/components/NewLibrary/LibraryEventBus'
   import NewBrowser from '@/components/NewLibrary/NewBrowser'
   import NewMyContent from '@/components/MyContent/NewMyContent'
-  import { GetTreeByKey } from '@/api/tag'
 
   export default {
     name: 'AddTask',
@@ -752,16 +805,7 @@
 
         editPPTMode: false,
 
-        recommendTemplateList: [],
-        learnExperienceList: [],
-        filterLearn: [],
-        assessmentsList: [],
-        filterAssessments: [],
-        centuryList: [],
-        filterCentury: [],
-        recomendListLoading: false,
-        addRecomendLoading: false,
-        skeletonLoading: false
+        recommendThumbnailList: []
       }
     },
     computed: {
@@ -791,7 +835,6 @@
       LibraryEventBus.$on(LibraryEvent.ContentListSelectClick, this.handleDescriptionSelectClick)
       this.initData()
       this.getAssociate()
-      this.initTemplateFilter()
     },
     beforeDestroy () {
       MyContentEventBus.$off(MyContentEvent.LinkToMyContentItem, this.handleLinkMyContent)
@@ -805,7 +848,7 @@
         logger.info('initData doing...')
         Promise.all([
           GetMyGrades(),
-          FilterTemplates({}),
+          TemplatesGetTemplates({ category: this.currentTemplateType }),
           SubjectTree({ curriculumId: this.$store.getters.bindCurriculum })
         ]).then((response) => {
           this.$logger.info('add task initData done', response)
@@ -853,28 +896,6 @@
           if (response.success) {
             logger.info('DICT_BLOOM_CATEGORY', response.result)
             this.initBlooms = response.result
-          }
-        })
-      },
-
-      initTemplateFilter () {
-        GetTreeByKey({ key: 'template' }).then((response) => {
-          this.$logger.info('initTemplateFilter response', response.result)
-          if (response.success) {
-            this.treeItemData = response.result.children
-            this.treeItemData.forEach(item => {
-              if (item.name === 'Learning experience') {
-                this.learnExperienceList = item.children
-              }
-              if (item.name === 'Assessments') {
-                this.assessmentsList = item.children
-              }
-              if (item.name === '21 century skills') {
-                this.centuryList = item.children
-              }
-            })
-          } else {
-            this.$message.error(response.message)
           }
         })
       },
@@ -1000,6 +1021,39 @@
         // }, 500)
       },
 
+      handleToggleTemplateType (key, value) {
+        this.$logger.info('handleToggleTemplateType ' + key + ' ' + value)
+        this.templateLoading = true
+        if (key === 'currentTemplateType') {
+          if (this.currentTemplateType === value) {
+            this.currentTemplateType = null
+          } else {
+            this.currentTemplateType = value
+          }
+        }
+        if (key === 'currentBloomCategory') {
+          if (this.currentBloomCategory === value) {
+            this.currentBloomCategory = null
+          } else {
+            this.currentBloomCategory = value
+          }
+        }
+        if (key === 'currentFasa') {
+          if (this.currentFasa === value) {
+            this.currentFasa = null
+          } else {
+            this.currentFasa = value
+          }
+        }
+        this.selectedTemplateList = []
+        TemplatesGetTemplates({ category: this.currentTemplateType, bloomCategories: this.currentBloomCategory, fasa: this.currentFasa }).then(response => {
+          this.$logger.info('handleToggleTemplateType ', response)
+          this.templateList = response.result
+        }).finally(() => {
+          this.templateLoading = false
+        })
+      },
+
       handleShowSelectMyContent () {
         this.$logger.info('handleShowSelectMyContent')
         this.selectedTaskIdList = []
@@ -1021,7 +1075,6 @@
 
       handleAddTemplate () {
         this.$logger.info('handleAddTemplate ', this.selectedTemplateList)
-        const hideLoading = this.$message.loading('Creating ppt in Google side...', 0)
         if (!this.creating) {
           if (this.selectedTemplateList.length) {
             this.creating = true
@@ -1047,8 +1100,6 @@
               this.creating = false
               this.selectedMyContentVisible = false
               this.viewInGoogleSlideVisible = true
-              this.addRecomendLoading = false
-              hideLoading()
               // this.loadThumbnail()
             })
           } else {
@@ -1138,7 +1189,6 @@
 
       loadThumbnail () {
         this.thumbnailListLoading = true
-        this.skeletonLoading = true
         this.$logger.info('loadThumbnail ' + this.form.presentationId)
         TemplatesGetPresentation({
           presentationId: this.form.presentationId
@@ -1151,21 +1201,35 @@
             this.$logger.info('current imgList ', this.imgList)
           })
           this.thumbnailListLoading = false
-          this.skeletonLoading = false
+
+          // TODO 修改为加载推荐模板
+          this.loadRecommendThumbnail()
         })
       },
 
       // TODO 修改为加载推荐模板
       loadRecommendThumbnail () {
-        this.$logger.info('loadRecommendThumbnail')
-        this.recomendListLoading = true
-        recommendTemplates({}).then(response => {
-          logger.info('loadRecommendThumbnail res:', response.result)
-          if (response.success) {
-            this.recommendTemplateList = response.result
-            this.recomendListLoading = false
-          }
+        this.$logger.info('loadRecommendThumbnail ' + this.form.presentationId)
+        const list1 = []
+        this.thumbnailList.forEach(item => {
+          list1.push(item)
         })
+
+        this.recommendThumbnailList.push(list1)
+
+        const list2 = []
+        this.thumbnailList.forEach(item => {
+          list2.push(item)
+        })
+
+        this.recommendThumbnailList.push(list2)
+
+        const list3 = []
+        this.thumbnailList.forEach(item => {
+          list3.push(item)
+        })
+
+        this.recommendThumbnailList.push(list3)
       },
 
       handleToggleThumbnail (thumbnail) {
@@ -1536,9 +1600,6 @@
       onChangeStep (current) {
         console.log('onChange:', current)
         this.currentActiveStepIndex = current
-        if (current === 1 && !this.form.presentationId) {
-          this.loadRecommendThumbnail()
-        }
         // if (this.editPPTMode) {
         //   this.currentActiveStepIndex = 0
         //   this.editPPTMode = false
@@ -1563,43 +1624,11 @@
 
       handleCreateInGoogle () {
         this.$logger.info('handleCreateInGoogle')
-        window.open('https://docs.google.com/presentation', '_blank')
-      },
-      filterSearch (inputValue, path) {
-        return path.some(option => option.name.toLowerCase().indexOf(inputValue.toLowerCase()) > -1)
-      },
-      selectFilter (data) {
-        this.$logger.info('selectFilter', data)
-        this.$logger.info('filterLearn', this.filterLearn)
-        this.templateLoading = true
-        this.selectedTemplateList = []
-        FilterTemplates({
-            filterLearn: this.filterLearn,
-            filterAssessments: this.filterAssessments,
-            filterCentury: this.filterCentury
-        }).then(response => {
-          this.$logger.info('handleToggleTemplateType ', response)
-          this.templateList = response.result
-        }).finally(() => {
-          this.templateLoading = false
-        })
-      },
-      selectRecommendTemplate (template) {
-        this.selectedTemplateList = []
-        this.selectedTemplateList.push(template)
-        this.addRecomendLoading = true
-        this.handleAddTemplate()
       }
     }
   }
 </script>
 
-<style>
-  .ant-cascader-menu{
-    min-width: 200px;
-    min-height: 270px;
-  }
-</style>
 <style lang="less" scoped>
   @import "~@/components/index.less";
 
@@ -1703,14 +1732,6 @@
             .img-wrapper {
               position: relative;
               width: 600px;
-            }
-            .right-title{
-              font-size: 16px;
-              font-family: Inter-Bold;
-              line-height: 24px;
-              color: #151515;
-              opacity: 1;
-              height: 40px;
             }
             .delete-img {
               position: absolute;
@@ -1944,7 +1965,6 @@
       flex-direction: column;
       .filter-row{
         align-items: center;
-        justify-content: center;
         padding: 5px;
         display: flex;
         width: 100%;
@@ -1955,11 +1975,17 @@
           color: #11142D;
         }
         .row-select{
-          width: 60%;
+          width: 25%;
           margin-left: 10px;
-        }
-        .row-cascader{
-          width: 90%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          .row-checkbox{
+            padding-right: 5px;
+          }
+          .row-choose{
+            width: 85%;
+          }
         }
       }
 
@@ -2922,104 +2948,24 @@
   }
 
   .slide-preview-list {
-    max-height: 700px;
-    overflow-y: scroll;
-    width: 400px;
+    max-height: 600px;
+    overflow-y: auto;
+    width: 300px;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: flex-start;
 
     .slide-preview-item {
-      position: relative;
       margin-bottom: 10px;
-      width: 400px;
-      &:hover {
-        .mask-cover .mask-actions{
-          display: block;
-        }
-        .ant-carousel{
-          opacity: 0.6;
-          cursor: pointer;
-          transition: opacity 0.8s;
-          //background: #0A1C32;
-        }
-      }
-
-      .mask-cover{
-        .mask-actions{
-          height: 100%;
-          width: 80%;
-          left: 10%;
-          position: absolute;
-          flex-direction: column;
-          z-index: 9999;
-          display: none;
-          .action-item{
-            cursor: pointer;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: space-around;
-          }
-          .action-item-center{
-            min-height: 150px;
-            .session-btn{
-              margin:15px
-            }
-            .session-btn-left {
-              width: 160px;
-              height: 40px;
-              background: #15C39A;
-              opacity: 1;
-              border-radius: 20px;
-              justify-content: center;
-              display: flex;
-              padding: 6px 13px;
-              .session-btn-text {
-                font-size: 12px;
-                font-family: Inter-Bold;
-                line-height: 24px;
-                color: #FFFFFF;
-                opacity: 1;
-              }
-            }
-            .session-btn-right {
-              width: 160px;
-              height: 40px;
-              background: #182552;
-              opacity: 1;
-              border-radius: 20px;
-              display: flex;
-              justify-content: center;
-              padding: 6px 13px;
-              .session-btn-text {
-                font-size: 12px;
-                font-family: Inter-Bold;
-                line-height: 24px;
-                color: #FFFFFF;
-                opacity: 1;
-              }
-            }
-          }
-        }
-
-      }
-
-    }
-    .slide-desc{
-      width: 70%;
-      max-height: 50px;
-      margin: 0 auto;
-      margin-bottom: 10px;
-      overflow: hidden;
+      width: 300px;
     }
   }
   .ant-carousel{
     .slick-slide {
       text-align: center;
-      height: 200px;
-      line-height: 200px;
+      height: 160px;
+      line-height: 160px;
       background: #364d79;
       overflow: hidden;
     }
@@ -3044,14 +2990,5 @@
       color: #15c39a;
       font-size: 20px;
     }
-  }
-  .recomend-loading {
-    min-height: 200px;
-    margin-top: 200px;
-    width: 100%;
-    display: flex;
-    flex-direction: row;
-    justify-content: center;
-    align-items: center;
   }
 </style>

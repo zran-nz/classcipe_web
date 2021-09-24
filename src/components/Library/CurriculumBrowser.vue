@@ -105,7 +105,7 @@
       </div>
     </div>
     <!--      main knowledge list-->
-    <div class="browser-block-item knowledge" :style="{width: blockWidth + 'px' , minWidth: blockWidth + 'px' }" v-for="(knowledge, deepIndex) in knowledges" :key="deepIndex">
+    <div class="browser-block-item browser-block-item-wrapper" :style="{width: blockWidth + 'px' , minWidth: blockWidth + 'px' }" v-for="(knowledge, deepIndex) in knowledges" :key="deepIndex">
       <div
         :class="{
           'browser-item': true,
@@ -332,16 +332,17 @@ export default {
       this.getGradesByCurriculumId(value)
     },
     blockIndex (value) {
-      if (value === 0) {
-        this.currentMainSubjectId = null
-        this.currentSubSubjectId = null
-        this.currentGradeId = null
-      } else if (value === 1) {
-        this.currentSubSubjectId = null
-        this.currentGradeId = null
-      } else if (value === 2) {
-        this.currentGradeId = null
-      }
+      this.$logger.info('block index change ' + value)
+      // if (value === 0) {
+      //   this.currentMainSubjectId = null
+      //   this.currentSubSubjectId = null
+      //   this.currentGradeId = null
+      // } else if (value === 1) {
+      //   this.currentSubSubjectId = null
+      //   this.currentGradeId = null
+      // } else if (value === 2) {
+      //   this.currentGradeId = null
+      // }
     }
   },
   data () {

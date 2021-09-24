@@ -1,4 +1,6 @@
 export const NavigationType = {
-  curriculum: 'curriculum',
-  sync: 'sync'
+  curriculum: 'learningOutcomes',
+  sync: 'sync',
+  skill: 'specificSkills',
+  centurySkills: 'centurySkills'
 }

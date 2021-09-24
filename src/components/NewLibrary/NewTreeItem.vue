@@ -80,7 +80,7 @@
 import { LibraryEventBus } from '@/components/NewLibrary/LibraryEventBus'
 const { LibraryEvent } = require('@/components/NewLibrary/LibraryEventBus')
 const { KnowledgeQueryContentByDescriptionId } = require('@/api/knowledge')
-const { KnowledgeGetTree } = require('@/api/knowledge')
+const { KnowledgeGetTree, Get21Century } = require('@/api/knowledge')
 const { NavigationType } = require('@/components/NewLibrary/NavigationType')
 
 const ExpandStatus = {
@@ -202,6 +202,8 @@ export default {
         this.handleExpandCurriculumTreeItem(treeItemData)
       } else if (this.treeItemType === NavigationType.sync) {
         this.handleExpandSyncDataList(treeItemData)
+      } else {
+        this.handleExpandSkillTreeItem(treeItemData)
       }
     },
 
@@ -350,6 +352,62 @@ export default {
           }
         }
       }
+      this.$logger.info('handleExpandCurriculumTreeItem handle finish!')
+    },
+
+    handleExpandSkillTreeItem (treeItemData) {
+      this.subItemType = 'knowledge'
+      this.$logger.info('handleExpandSkillTreeItem data ', treeItemData, ' children ', treeItemData.children, ' deep ' + this.defaultDeep)
+      if (this.defaultDeep === 0) {
+        this.subTreeExpandStatus = true
+        Get21Century({ curriculumId: this.$store.getters.bindCurriculum }).then((response) => {
+          this.$logger.info('Get21Century response', response)
+          this.subTreeExpandStatus = true
+          LibraryEventBus.$emit(LibraryEvent.ContentListUpdate, {
+            deep: this.defaultDeep,
+            currentTreeData: this.treeItemData,
+            parentTreeData: this.treeCurrentParent,
+            contentList: [response.result],
+            questionIndex: this.questionIndex
+          })
+        }).finally(() => {
+          this.subTreeExpandStatus = true
+          this.subTreeLoading = false
+          this.hasSubTree = true
+          this.subItemType = 'knowledge'
+        })
+      } else {
+        // 加载知识点关联数据
+          this.$logger.info('selectMode', this.selectMode)
+          // knowledge导航栏不展示description，右侧列表展示，故下下级为空到底
+          if (treeItemData.children.length && treeItemData.children[0].children.length) {
+            this.$logger.info('select reach knowledge bottom')
+            this.subTreeLoading = true
+            KnowledgeQueryContentByDescriptionId({ descriptionId: this.treeItemData.id }).then(response => {
+              this.$logger.info('KnowledgeQueryContentByDescriptionId response', response.result)
+              LibraryEventBus.$emit(LibraryEvent.ContentListUpdate, {
+                currentTreeData: this.treeItemData,
+                parentTreeData: this.treeCurrentParent,
+                contentList: response.result,
+                questionIndex: this.questionIndex
+              })
+            }).finally(() => {
+              this.subTreeLoading = false
+              this.subTreeExpandStatus = true
+            })
+          } else {
+            // 非最后一层的knowledge 列表
+            this.subTreeExpandStatus = true
+            LibraryEventBus.$emit(LibraryEvent.ContentListUpdate, {
+              deep: this.defaultDeep,
+              currentTreeData: this.treeItemData,
+              parentTreeData: this.treeCurrentParent,
+              contentList: treeItemData.children,
+              questionIndex: this.questionIndex
+            })
+            this.subItemType = 'knowledge'
+          }
+        }
       this.$logger.info('handleExpandCurriculumTreeItem handle finish!')
     },
 

@@ -29,9 +29,18 @@
                 <a-icon type="folder" theme="filled" class="file-dir-icon"/>
               </template>
             </div>
-            <div class="name-text">
-              {{ item.name || item.description }}
-            </div>
+            <a-tooltip placement="top" >
+              <template slot="title" v-if="item.hasOwnProperty('froms')">{{ item.froms }}</template>
+              <div class="name-text">
+                {{ item.name || item.description }}
+              </div>
+              <div class="collapse-item" v-if="item.hasOwnProperty('froms')">
+                <a-tag class="tag-item" v-for="(tag,tIndex) in item.tags" :key="tIndex">
+                  {{ tag }}
+                </a-tag>
+                <a-icon class="collapse-icon" type="down" />
+              </div>
+            </a-tooltip>
             <div class="action-icon" v-if="item.hasOwnProperty('froms') ? selectedKnowledgeIdList.indexOf(item.knowledgeId) !== -1 : selectedCurriculumIdList.indexOf(item.id) !== -1">
               <img src="~@/assets/icons/lesson/selected.png"/>
             </div>
@@ -145,13 +154,15 @@ export default {
           this.selectedKnowledgeIdNameMap.delete(item.knowledgeId)
         } else {
           this.selectedKnowledgeIdList.push(item.knowledgeId)
-          this.selectedKnowledgeIdNameMap.set(item.knowledgeId, item.name)
+          this.selectedKnowledgeIdNameMap.set(item.knowledgeId, item.name, item.tagType, item.tags)
         }
         const selectedList = []
         this.selectedKnowledgeIdList.forEach(knowledgeId => {
           selectedList.push({
             knowledgeId: knowledgeId,
-            name: this.selectedKnowledgeIdNameMap.get(knowledgeId)
+            name: this.selectedKnowledgeIdNameMap.get(knowledgeId),
+            tagType: item.tagType,
+            tags: item.tags
           })
         })
         this.$emit('select-sync', selectedList)
@@ -279,6 +290,7 @@ export default {
       color: @text-color;
       border: 1px solid #15C39A !important;
       box-sizing: border-box;
+      position: relative;
 
       .action-icon {
         position: absolute;
@@ -328,6 +340,26 @@ export default {
           box-sizing: border-box;
           word-break: break-all;
           white-space:normal;
+        }
+        .collapse-item{
+          display: flex;
+          padding: 10px;
+          position: relative;
+          .collapse-icon{
+            right: 0;
+            position: absolute;
+          }
+          .tag-item{
+            color: rgb(21, 195, 154);
+            border: 1px solid rgb(21, 195, 154);
+            cursor: pointer;
+            border-radius: 10px;
+            word-break: normal;
+            width: auto;
+            display: block;
+            white-space: pre-wrap;
+            overflow-wrap: break-word;
+          }
         }
       }
 

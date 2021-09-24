@@ -81,14 +81,34 @@
                     <template v-if="item.status === 0">Draft</template>
                     <template v-if="item.status === 1">Published</template>
                   </div>
+                  <div class="more-action-wrapper action-item-wrapper">
+                    <a-dropdown>
+                      <a-icon type="more" style="margin-right: 8px" />
+                      <a-menu slot="overlay">
+                        <a-menu-item>
+                          <a-popconfirm :title="$t('teacher.my-content.action-delete') + '?'" ok-text="Yes" @confirm="handleDeleteLinkItem(item)" cancel-text="No">
+                            <a href="#" class="delete-action">
+                              <a-icon type="delete" /> {{ $t('teacher.my-content.action-delete') }}
+                            </a>
+                          </a-popconfirm>
+                        </a-menu-item>
+                        <a-menu-item>
+                          <a @click="handleEditLinkItem(item)">
+                            <a-icon type="form" /> {{ $t('teacher.my-content.action-edit') }}
+                          </a>
+                        </a-menu-item>
+                      </a-menu>
+                    </a-dropdown>
+                  </div>
                 </div>
+
               </div>
             </div>
           </div>
         </div>
       </template>
       <template v-if="othersLinkGroupList.length && !linkGroupLoading">
-        <div class="link-group" v-for="(linkGroup, lIndex) in othersLinkGroupList" :key="lIndex">
+        <div class="link-group" v-for="linkGroup in othersLinkGroupList" :key="linkGroup.group">
           <div class="group-item">
             <div class="group-header">
               <div class="group-left-info">
@@ -198,6 +218,7 @@ import { typeMap } from '@/const/teacher'
 import ContentTypeIcon from '@/components/Teacher/ContentTypeIcon'
 import * as logger from '@/utils/logger'
 import CommonPreview from '@/components/Common/CommonPreview'
+import { AssociateCancel } from '../../api/teacher'
 
 export default {
   name: 'CommonLink',
@@ -245,6 +266,7 @@ export default {
   methods: {
     getAssociate () {
       this.$logger.info('GetAssociate id[' + this.fromId + '] fromType[' + this.fromType + ']')
+      this.linkGroupLoading = true
       GetAssociate({
         id: this.fromId,
         type: this.fromType
@@ -322,6 +344,35 @@ export default {
       this.previewCurrentId = item.id
       this.previewType = item.type
       this.previewVisible = true
+    },
+    handleEditLinkItem (item) {
+      logger.info('handleEditLinkItem', item)
+      if (item.type === typeMap['unit-plan']) {
+        window.open('/teacher/unit-plan-redirect/' + item.id, '_blank')
+      } else if (item.type === typeMap['topic']) {
+        window.open('/expert/topic-redirect/' + item.id, '_blank')
+      } else if (item.type === typeMap['material']) {
+        window.open('/teacher/add-material/' + item.id, '_blank')
+      } else if (item.type === typeMap.task) {
+        window.open('/teacher/task-redirect/' + item.id, '_blank')
+      } else if (item.type === typeMap.lesson) {
+        window.open('/teacher/lesson-redirect/' + item.id, '_blank')
+      } else if (item.type === typeMap.evaluation) {
+        window.open('/teacher/evaluation-redirect/' + item.id, '_blank')
+      }
+    },
+    handleDeleteLinkItem (item) {
+      this.$logger.info('handleDeleteLinkItem', item)
+      AssociateCancel({
+        fromId: this.fromId,
+        fromType: this.fromType,
+        toId: item.id,
+        toType: item.type
+      }).then(response => {
+        this.$logger.info('handleDeleteLinkItem response ', response)
+        // 刷新子组件的关联数据
+        this.getAssociate()
+      })
     }
 
   }
@@ -413,7 +464,7 @@ export default {
 
               .name {
                 color: #000;
-                width: 330px;
+                width: 300px;
                 overflow: hidden;
                 white-space: nowrap;
                 text-overflow: ellipsis;
@@ -429,6 +480,11 @@ export default {
               .status {
                 text-align: right;
                 width: 70px;
+              }
+              .more-action-wrapper{
+                width: 30px;
+                display: flex;
+                justify-content: flex-end;
               }
             }
           }

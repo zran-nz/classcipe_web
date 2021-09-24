@@ -27,9 +27,9 @@
           <a-card :bordered="false" :body-style="{padding: '16px', display: 'flex', 'justify-content': 'center'}" class="card-wrapper">
             <div class="unit-plan-form-left" ref="form">
               <a-form-model :model="form" class="my-form-wrapper">
-                <a-steps :current="currentActiveStepIndex" direction="vertical">
-                  <a-step >
-                    <template slot="description">
+                <a-steps :current="currentActiveStepIndex" direction="vertical" @change="onChangeStep">
+                  <a-step title="Edit course info" :status="currentActiveStepIndex === 0 ? 'process':'wait'">
+                    <template slot="description" v-if="currentActiveStepIndex === 0">
                       <!--                      <div class="form-block">
                         <div class="refer-action row-flex-right">
                           <div class="refer-text">
@@ -72,7 +72,7 @@
 
                       <div class="form-block inquiry-form-block" id="inquiry">
                         <!--                <a-divider />-->
-                        <a-form-item label="Big idea*（Or statement of inquiry / Enduring understanding ）">
+                        <a-form-item label="Big idea* (Or statement of inquiry / Enduring understanding)">
                           <a-input v-model="form.inquiry" :placeholder="$store.getters.currentRole === 'teacher' ? $t('teacher.add-unit-plan.teacher-direction-of-inquiry') : $t('teacher.add-unit-plan.expert-direction-of-inquiry')" class="my-form-input" />
                         </a-form-item>
                       </div>
@@ -174,8 +174,8 @@
 
                     </template>
                   </a-step>
-                  <a-step>
-                    <template slot="description">
+                  <a-step title="Link Plan content">
+                    <template slot="description" v-if="currentActiveStepIndex === 1">
                       <div class="form-block">
                         <a-form-item label="Link Plan content" class="link-plan-title">
                           <a-button type="primary" :style="{'background-color': '#fff', 'color': '#000', 'border': '1px solid #D8D8D8'}" @click="handleAddLink">
@@ -1283,7 +1283,8 @@ export default {
         this.form.learnOuts.push({
           knowledgeId: data.knowledgeId,
           name: data.name,
-          tags: []
+          tags: data.tags,
+          tagType: data.tagType
         })
       })
       this.selectedCurriculumList.forEach(data => {
@@ -1294,7 +1295,7 @@ export default {
         this.form.learnOuts.push({
           knowledgeId: data.knowledgeData.id,
           name: data.knowledgeData.name,
-          tags: []
+          tagType: data.tagType
         })
       })
       this.$logger.info('this.form.learnOuts', this.form.learnOuts)
@@ -1306,6 +1307,10 @@ export default {
       if (index > -1) {
         this.form.learnOuts.splice(index, 1)
       }
+    },
+    onChangeStep (current) {
+      console.log('onChange:', current)
+      this.currentActiveStepIndex = current
     }
   }
 }
@@ -1435,8 +1440,8 @@ export default {
     }
 
     .form-block-title {
-      font-family: PingFang SC;
-      font-weight: bold;
+      /*font-family: PingFang SC;*/
+      /*font-weight: bold;*/
       line-height: 24px;
       color: #000000;
       margin-bottom: 10px;
@@ -1462,7 +1467,7 @@ export default {
       position: relative;
       border: 1px solid #fff;
       box-sizing: border-box;
-      padding: 20px 50px 20px 50px;
+      padding: 5px 50px 5px 50px;
       border-radius: 3px;
       margin-bottom: 5px;
 
@@ -1475,7 +1480,7 @@ export default {
           display: block;
           position: absolute;
           text-align: center;
-          right:-60px;
+          right:-40px;
           top: 0;
           line-height: 40px;
           width: 40px;
