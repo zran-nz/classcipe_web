@@ -2938,12 +2938,6 @@
         .mask-cover .mask-actions{
           display: block;
         }
-        .ant-carousel{
-          opacity: 0.6;
-          cursor: pointer;
-          transition: opacity 0.8s;
-          //background: #0A1C32;
-        }
       }
 
       .mask-cover{

@@ -40,35 +40,6 @@
       </a-col>
     </a-row>
 
-    <div class="hot-select-wrapper" v-if="!contentLoading" v-show="!inputTag">
-      <a-row>
-        <a-col offset="0" span="24">
-          <div class="title">Hot</div>
-          <div class="skt-tag-list">
-            <div class="skt-tag-item " v-for="(name,index) in hotList" :key="index">
-              <a-tag
-                @click="addTag(name)"
-                :class="{'tag-item':true,'tag-disable':tags.indexOf(name) > -1}">
-                {{ name }}
-              </a-tag>
-            </div>
-          </div>
-        </a-col>
-        <a-col offset="0" span="24">
-          <div class="title">Knowledge</div>
-          <div class="skt-tag-list">
-            <div class="skt-tag-item " v-for="(name,index) in recommendList" :key="index">
-              <a-tag
-                @click="addTag(name)"
-                :class="{'tag-item':true,'tag-disable':tags.indexOf(name) > -1}">
-                {{ name }}
-              </a-tag>
-            </div>
-          </div>
-        </a-col>
-      </a-row>
-    </div>
-
     <div class="skt-tag-wrapper" v-show="tagSearchList.length || inputTag">
       <!--      skt-tag-list-->
       <a-row>
@@ -106,6 +77,40 @@
       </a-row>
     </div>
 
+    <div class="hot-select-wrapper" v-if="!contentLoading" v-show="!inputTag">
+      <a-row>
+        <a-col offset="0" span="24">
+          <div class="title">Hot</div>
+          <div class="skt-tag-list">
+            <div class="skt-tag-item" v-for="(name,index) in hotList" :key="index">
+              <a-tag
+                @click="addTag(name)"
+                :class="{'tag-item':true,'tag-disable':tags.indexOf(name) > -1}">
+                {{ name }}
+              </a-tag>
+            </div>
+          </div>
+        </a-col>
+        <a-col offset="0" span="24">
+          <div class="title">Knowledge</div>
+          <div :class="{'skt-tag-list':true, 'hide-some':isHideSome}" ref="knowledgeTagRef">
+            <div class="skt-tag-item " v-for="(name,index) in recommendList" :key="index">
+              <a-tag
+                @click="addTag(name)"
+                :class="{'tag-item':true,'tag-disable':tags.indexOf(name) > -1}">
+                {{ name }}
+              </a-tag>
+            </div>
+          </div>
+
+          <div class="downUp">
+            <a-icon type="double-right" v-if="isHideSome" @click="showAll"/>
+            <a-icon type="double-left" v-if="!isHideSome" @click="showAll"/>
+          </div>
+        </a-col>
+      </a-row>
+    </div>
+
     <a-skeleton :loading="contentLoading" active>
     </a-skeleton>
 
@@ -126,6 +131,8 @@ const { debounce } = require('lodash-es')
 export default {
   name: 'LearnOutAddTag',
   components: {},
+  computed: {
+  },
   props: {
     knowledge: {
       type: Object,
@@ -149,7 +156,8 @@ export default {
       inputTag: '',
       tagName: '',
       tagSearchList: [],
-      userTags: []
+      userTags: [],
+      isHideSome: true
     }
   },
   created () {
@@ -160,7 +168,8 @@ export default {
     this.$logger.info('knowledge ', this.knowledge)
     this.loadRecommendTags()
   },
-  watch: {},
+  watch: {
+  },
   methods: {
     handleOk () {
     },
@@ -187,6 +196,11 @@ export default {
           this.hotList = response.result.hots
           this.recommendList = response.result.tags
           this.contentLoading = false
+          setTimeout(() => {
+            if (this.$refs.knowledgeTagRef.offsetHeight < 200) {
+              this.isHideSome = false
+            }
+          }, 100)
         } else {
           this.$message.error(response.message)
         }
@@ -234,6 +248,9 @@ export default {
       this.addTagVisible = false
       this.knowledge.tags = this.tags
       this.$emit('remove-learn-outs', this.tags)
+    },
+    showAll () {
+      this.isHideSome = !this.isHideSome
     }
   }
 
@@ -311,12 +328,32 @@ export default {
       opacity: 1;
     }
 
+    .downUp{
+      height: 20px;
+      cursor: pointer;
+      display: flex;
+      justify-content: center;
+      font-size: 20px;
+      transform: rotate(
+        90deg);
+      -ms-transform: rotate(90deg);
+      -moz-transform: rotate(90deg);
+      -webkit-transform: rotate(
+        90deg);
+    }
+
     .skt-tag-list {
       padding: 5px 10px;
       display: flex;
       flex-direction: row;
       flex-wrap: wrap;
       position: relative;
+
+      &.hide-some{
+        overflow: hidden;
+        max-height: 200px;
+        margin-bottom: 30px;
+      }
 
       .skt-tag-item {
         margin: 8px 10px 8px 0;

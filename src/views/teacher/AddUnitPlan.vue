@@ -75,6 +75,9 @@
                         <a-form-item label="Big idea* (Or statement of inquiry / Enduring understanding)">
                           <a-input v-model="form.inquiry" :placeholder="$store.getters.currentRole === 'teacher' ? $t('teacher.add-unit-plan.teacher-direction-of-inquiry') : $t('teacher.add-unit-plan.expert-direction-of-inquiry')" class="my-form-input" />
                         </a-form-item>
+                        <span class="browse">
+                          <a-icon type="appstore" theme="twoTone" twoToneColor="rgba(21, 195, 154, 1)" />
+                        </span>
                       </div>
 
                       <!--            real-life-scenario-->
@@ -129,12 +132,6 @@
                               @reset="descriptionSearchList = []" />
                           </a-form-model-item>
 
-                          <!--      <a-button class="browse" type="primary" @click="handleSelectDescription(sdgIndex)">
-                            <img src="~@/assets/icons/unitplan/browse.png" class="btn-icon"/>
-                            <div class="btn-text">
-                              Browse
-                            </div>
-                          </a-button>-->
                         </div>
 
                         <!--keywords-->
@@ -2011,6 +2008,7 @@ export default {
 }
 #inquiry{
   margin-top: -10px;
+  position: relative;
 }
 
 .delete-icon {
@@ -2029,5 +2027,18 @@ export default {
 .link-plan-title {
   font-weight: bold;
   margin-bottom: 15px;
+}
+.browse{
+  font-size: 20px;
+  padding: 10px 5px;
+  position: absolute;
+  right: 110px;
+  top: 50px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+  border-radius: 6px;
 }
 </style>
