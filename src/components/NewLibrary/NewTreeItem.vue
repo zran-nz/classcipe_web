@@ -277,6 +277,7 @@ export default {
                 item.children = []
                 item.isGrade = true
                 treeItemData.gradeList.push(Object.assign({}, item))
+                treeItemData.children.push(Object.assign({}, item))
               })
               this.$logger.info('add gradeList ', treeItemData)
             } else {
@@ -288,6 +289,7 @@ export default {
               currentTreeData: this.treeItemData,
               parentTreeData: this.treeCurrentParent,
               contentList: treeItemData.gradeList,
+              gradeList: treeItemData.gradeList,
               questionIndex: this.questionIndex
             })
             // subject的children为空，说明到底了。下一层就是grade
@@ -417,6 +419,7 @@ export default {
             this.gradeList.forEach(item => {
               item.children = []
               item.isGrade = true
+              treeItemData.children.push(Object.assign({}, item))
               treeItemData.gradeList.push(Object.assign({}, item))
             })
             this.$logger.info('add gradeList ', treeItemData)
@@ -428,6 +431,7 @@ export default {
             dataType: this.treeItemType,
             currentTreeData: this.treeItemData,
             parentTreeData: this.treeCurrentParent,
+            gradeList: treeItemData.contentList,
             contentList: treeItemData.gradeList,
             questionIndex: this.questionIndex
           })
@@ -533,6 +537,7 @@ export default {
           currentTreeData: this.treeItemData,
           parentTreeData: this.treeCurrentParent,
           gradeList: treeItemData.gradeList,
+          contentList: treeItemData.gradeList,
           questionIndex: this.questionIndex
         })
         this.subItemType = 'grade'
@@ -631,6 +636,7 @@ export default {
 
     handleContentListItemClick (data) {
       if (
+        data.dataType === this.treeItemType &&
         data.eventType === 'syncDir' &&
         data.item.id === this.treeItemData.id &&
         data.item.name === this.treeItemData.name &&

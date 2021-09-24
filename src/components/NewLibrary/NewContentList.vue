@@ -172,7 +172,7 @@ export default {
         this.$logger.info('selectedKnowledgeIdNameMap', this.selectedKnowledgeIdNameMap)
       } else if (this.currentDataType === NavigationType.learningOutcomes) {
         // 同步更新点击大纲描述数据
-        if (item.children.length) {
+        if (item.children.length || (item.gradeList && item.gradeList.length)) {
           // 如果有子列表，表示还未到最后一层description，通知左侧导航栏更新同步层级
           LibraryEventBus.$emit(LibraryEvent.ContentListItemClick, {
             item,
@@ -204,12 +204,20 @@ export default {
             this.$emit('select-curriculum', selectedList)
             this.$logger.info('selectedCurriculumMap', this.selectedCurriculumMap)
           } else {
-            this.$logger.info('current is grade, skip empty children item!')
+            // grade下层为空
+            const eventData = {
+              item,
+              dataType: this.currentDataType,
+              parent: this.parent,
+              eventType: 'syncDir'
+            }
+            LibraryEventBus.$emit(LibraryEvent.ContentListItemClick, eventData)
+            this.$logger.info('current is grade, skip empty children item!', eventData)
           }
         }
       } else if (this.currentDataType === NavigationType.specificSkills) {
         // subject specific skills 是mainSubject-year-knowledge
-        if (item.children.length) {
+        if (item.children.length || (item.gradeList && item.gradeList.length)) {
           // 如果有子列表，表示还未到最后一层knowledge，通知左侧导航栏更新同步层级
           LibraryEventBus.$emit(LibraryEvent.ContentListItemClick, {
             item,
@@ -241,12 +249,20 @@ export default {
             this.$emit('select-subject-specific-skill', selectedList)
             this.$logger.info('selectedSubjectSpecificSkillIdMap', this.selectedSubjectSpecificSkillIdMap)
           } else {
-            this.$logger.info('current is grade, skip empty children item!')
+            // grade下层为空
+            const eventData = {
+              item,
+              dataType: this.currentDataType,
+              parent: this.parent,
+              eventType: 'syncDir'
+            }
+            LibraryEventBus.$emit(LibraryEvent.ContentListItemClick, eventData)
+            this.$logger.info('current is grade, skip empty children item!', eventData)
           }
         }
       } else if (this.currentDataType === NavigationType.centurySkills) {
         // 21 century skills 是year-knowledge
-        if (item.children.length) {
+        if (item.children.length || (item.gradeList && item.gradeList.length)) {
           // 如果有子列表，表示还未到最后一层description，通知左侧导航栏更新同步层级
           LibraryEventBus.$emit(LibraryEvent.ContentListItemClick, {
             item,
@@ -278,7 +294,15 @@ export default {
             this.$emit('select-century-skill', selectedList)
             this.$logger.info('selected21CenturySkillIdMap', this.selected21CenturySkillIdMap)
           } else {
-            this.$logger.info('current is grade, skip empty children item!')
+            // grade下层为空
+            const eventData = {
+              item,
+              dataType: this.currentDataType,
+              parent: this.parent,
+              eventType: 'syncDir'
+            }
+            LibraryEventBus.$emit(LibraryEvent.ContentListItemClick, eventData)
+            this.$logger.info('current is grade, skip empty children item!', eventData)
           }
         }
       }

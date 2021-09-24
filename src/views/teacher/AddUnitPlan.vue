@@ -1294,7 +1294,11 @@ export default {
 
     // TODO 自动更新选择的sync 的数据knowledgeId和name列表
     handleEnsureSelectData () {
-      this.$logger.info('handleEnsureSelectData', this.selectedCurriculumList, this.selectedSyncList)
+      this.$logger.info('handleEnsureSelectData',
+        this.selectedCurriculumList,
+        this.selectedSpecificSkillList,
+        this.selectedCenturySkillList,
+        this.selectedSyncList)
       this.selectedSyncList.forEach(data => {
         const filterLearnOuts = this.form.learnOuts.filter(item => item.knowledgeId === data.knowledgeId)
         if (filterLearnOuts.length > 0) {

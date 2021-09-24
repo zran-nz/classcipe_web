@@ -88,6 +88,12 @@ export default {
     ]).then((initDataResponse) => {
       this.$logger.info('initData done', initDataResponse)
 
+      // GetMyGrades
+      this.$logger.info('GetMyGrades Response ', initDataResponse[1])
+      if (!initDataResponse[1].code) {
+        this.gradeList = initDataResponse[1].result
+      }
+
       // SubjectTree
       this.$logger.info('SubjectTree Response ', initDataResponse[0])
       if (!initDataResponse[0].code) {
@@ -95,12 +101,6 @@ export default {
         curriculumData.children = initDataResponse[0].result
         // 兼容新的任意层级,任意一个层级下一层都会可能是gradeList
         this.addGradeListProperty(curriculumData.children)
-      }
-
-      // GetMyGrades
-      this.$logger.info('GetMyGrades Response ', initDataResponse[1])
-      if (!initDataResponse[1].code) {
-        this.gradeList = initDataResponse[1].result
       }
     }).finally(() => {
       this.treeDataList.push(curriculumData)
@@ -134,6 +134,7 @@ export default {
           gradeItem.isGrade = true
           gradeItem.children = []
           centurySkillsData.gradeList.push(Object.assign({}, gradeItem))
+          centurySkillsData.children.push(Object.assign({}, gradeItem))
         })
         this.treeDataList.push(centurySkillsData)
 
@@ -148,6 +149,11 @@ export default {
       list.forEach(item => {
         if (!item.hasOwnProperty('gradeList')) {
           item.gradeList = []
+          this.gradeList.forEach(gradeItem => {
+            gradeItem.children = []
+            gradeItem.isGrade = true
+            item.gradeList.push(Object.assign({}, gradeItem))
+          })
         }
         this.addGradeListProperty(item.children)
       })
