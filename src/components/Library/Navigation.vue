@@ -2,10 +2,10 @@
   <div class="library-nav-content">
     <div class="nav-path">
       <div class="nav-label">
-        <div class="nav-title">Library</div>
         <div class="nav-icon">
-          <img src="~@/assets/icons/library/fangkuai.png" />
+          <block-svg style="width: 20px" />
         </div>
+        <div class="nav-title">Library</div>
       </div>
       <div
         class="nav-path-item"
@@ -30,8 +30,21 @@
 
 <script>
 
+import BackBtnSvg from '@/assets/svgIcon/library/back_btn.svg?inline'
+import BlockSvg from '@/assets/svgIcon/library/block.svg?inline'
+import BlueDirSvg from '@/assets/svgIcon/library/blue_dir.svg?inline'
+import OpenDirSvg from '@/assets/svgIcon/library/open_dir.svg?inline'
+import YellowDirSvg from '@/assets/svgIcon/library/yellow_dir.svg?inline'
+
 export default {
   name: 'Navigation',
+  components: {
+    BackBtnSvg,
+    BlockSvg,
+    BlueDirSvg,
+    OpenDirSvg,
+    YellowDirSvg
+  },
   props: {
     path: {
       type: Array,
@@ -89,8 +102,7 @@ export default {
       justify-content: flex-start;
 
       .nav-title {
-        width: 60px;
-        height: 27px;
+        padding: 0 5px;
         font-family: Inter-Bold;
         line-height: 24px;
         color: #182552;
@@ -111,7 +123,6 @@ export default {
       display:inline-block;
       margin-right: 5px;
       color: @primary-color;
-      font-weight: 600;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
