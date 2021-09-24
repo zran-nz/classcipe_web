@@ -1,12 +1,12 @@
 <template>
   <div class="library-wrapper" ref="wrapper">
-    <div class="nav-header">
+    <div class="nav-header" :style="{height: currentBrowserType === BrowserTypeMap.sdg ? '75px' : '127px'}">
       <div class="header-info">
         <div class="library-nav-bar">
           <navigation :path="navPath" @pathChange="handleNavPathChange"/>
         </div>
-        <div class="filter-line" >
-          <div class="curriculum-select" v-if="currentBrowserType !== BrowserTypeMap.sdg">
+        <div class="filter-line" v-if="currentBrowserType !== BrowserTypeMap.sdg">
+          <div class="curriculum-select">
             <a-select
               v-if="curriculumOptions.length"
               @change="handleCurriculumChange"
@@ -24,7 +24,7 @@
         </div>
       </div>
     </div>
-    <div class="library-detail-wrapper">
+    <div class="library-detail-wrapper" :style="{top: currentBrowserType === BrowserTypeMap.sdg ? '74px' : '126px', height: currentBrowserType === BrowserTypeMap.sdg ? 'calc(100vh - 138px)': 'calc(100vh - 190px)'}">
       <div class="library-detail-nav-wrapper">
         <div class="library-content">
           <div class="browser-action" v-if="hasLeftBlock">
@@ -143,7 +143,10 @@ export default {
       previewCurrentId: '',
       previewType: '',
       blockIndex: 0,
-      typeMap: typeMap
+      typeMap: typeMap,
+
+      headerTop: '64px',
+      libraryDetailTop: '126px'
     }
   },
   created () {
@@ -277,8 +280,8 @@ export default {
   background: rgba(247, 248, 255, 1);
   .nav-header {
     position: fixed;
-    top: 64px;
     left: 0;
+    top: 64px;
     right: 0;
     box-sizing: border-box;
     box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.16);
@@ -332,8 +335,6 @@ export default {
   .library-detail-wrapper {
     position: absolute;
     width: 100%;
-    top: 126px;
-    height: calc(100vh - 190px);
     overflow: hidden;
     display: flex;
     flex-direction: row;
@@ -391,7 +392,7 @@ export default {
               width: 280px;
               box-sizing: border-box;
               .browser-type {
-                padding: 10px;
+                padding: 10px 20px;
                 font-weight: 500;
                 cursor: pointer;
                 background: rgba(228, 228, 228, 0.2);
@@ -404,9 +405,13 @@ export default {
                   position: absolute;
                   right: 10px;
                 }
+                &:hover {
+                  background: #EDF1F5;
+                }
+
               }
               .odd-line {
-                background: rgba(228, 228, 228, 0.2);
+                background: rgba(255, 255,255);
               }
               .active-line {
                 background-color: rgba(21, 195, 154, 0.1);

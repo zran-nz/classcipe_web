@@ -1,8 +1,8 @@
 <template>
   <div class="dir-icon">
-    <img src="~@/assets/icons/library/dir-blue.png" class="blue" v-if="dirType === 'blue'"/>
-    <img src="~@/assets/icons/library/dir-yellow.png" v-else-if="dirType === 'yellow'"/>
-    <img src="~@/assets/icons/library/dir-opened.png" class="opened" v-else-if="dirType === 'opened'"/>
+    <blue-dir-svg class="blue" v-if="dirType === 'blue'"/>
+    <yellow-dir-svg v-else-if="dirType === 'yellow'" class="yellow"/>
+    <open-dir-svg class="opened" v-else-if="dirType === 'opened'"/>
     <img src="~@/assets/icons/library/Lesson.png" v-else-if="contentType === typeMap.lesson"/>
     <img src="~@/assets/icons/library/Task.png" v-else-if="contentType === typeMap.task"/>
     <img src="~@/assets/icons/library/unitplan.png" v-else-if="contentType === typeMap['unit-plan']"/>
@@ -13,10 +13,18 @@
 </template>
 
 <script>
+import BlueDirSvg from '@/assets/svgIcon/library/blue_dir.svg?inline'
+import YellowDirSvg from '@/assets/svgIcon/library/yellow_dir.svg?inline'
+import OpenDirSvg from '@/assets/svgIcon/library/open_dir.svg?inline'
 
 import { typeMap } from '@/const/teacher'
 export default {
   name: 'DirIcon',
+  components: {
+    BlueDirSvg,
+    YellowDirSvg,
+    OpenDirSvg
+  },
   props: {
     dirType: {
       type: String,
@@ -44,12 +52,17 @@ export default {
 .dir-icon {
   padding: 0 10px 0 0;
   width: 40px;
-  img {
+
+  .blue {
+    width: 22px;
+  }
+
+  .opened {
     width: 25px;
   }
 
-  .blue {
-    width: 23px;
+  .yellow {
+    width: 25px;
   }
 }
 </style>

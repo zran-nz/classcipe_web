@@ -16,8 +16,8 @@
             <template slot="title">
               {{ sdgItem.name }}
             </template>
-            <dir-icon dir-type="opened" v-if="currentSdgId !== sdgItem.id"/>
-            <dir-icon dir-type="yellow" v-if="currentSdgId === sdgItem.id"/>
+            <dir-icon dir-type="blue" v-if="currentSdgId !== sdgItem.id"/>
+            <dir-icon dir-type="opened" v-if="currentSdgId === sdgItem.id"/>
             {{ sdgItem.name }}
           </a-tooltip>
           <span class="arrow-item">
@@ -367,7 +367,7 @@ export default {
       border-right: 1px solid #ddd;
       .browser-item {
         line-height: 20px;
-        padding: 10px 0 10px 10px;
+        padding: 10px 15px 10px 20px;
         font-weight: 500;
         cursor: pointer;
         overflow: hidden;
@@ -379,6 +379,10 @@ export default {
         flex-direction: row;
         justify-content: space-between;
         width: 100%;
+
+        &:hover {
+          background: #EDF1F5;
+        }
         .arrow-item {
           padding: 0 10px;
           width: 20px;
@@ -410,11 +414,11 @@ export default {
         }
       }
       .odd-line {
-        background: rgba(228, 228, 228, 0.2);
+        background: rgba(255, 255,255);
       }
       .active-line {
-        background: rgba(255, 187, 0, 0.1);
-        color: rgba(255, 187, 0, 1);
+        background-color: rgba(21, 195, 154, 0.1);
+        color: #15c39a;
       }
       .loading-wrapper {
         position: absolute;

@@ -667,7 +667,7 @@ export default {
     border-right: 1px solid #ddd;
     .browser-item {
       line-height: 20px;
-      padding: 10px 0 10px 10px;
+      padding: 10px 10px 10px 20px;
       font-weight: 500;
       cursor: pointer;
       overflow: hidden;
