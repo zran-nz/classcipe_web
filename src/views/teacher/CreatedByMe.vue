@@ -929,7 +929,6 @@ a.delete-action {
         display: flex;
         padding: 6px 13px;
         .session-btn-text {
-          display: none;
           font-size: 12px;
           font-family: Inter-Bold;
           line-height: 24px;
@@ -938,13 +937,6 @@ a.delete-action {
         }
       }
 
-      .session-btn-left {
-        &:hover {
-          .session-btn-text {
-            display: inline-block;
-          }
-        }
-      }
       .session-btn-right {
         width: 160px;
         height: 40px;
@@ -955,18 +947,11 @@ a.delete-action {
         justify-content: center;
         padding: 6px 13px;
         .session-btn-text {
-          display: none;
           font-size: 12px;
           font-family: Inter-Bold;
           line-height: 24px;
           color: #FFFFFF;
           opacity: 1;
-        }
-      }
-
-      .session-btn-right:hover {
-        .session-btn-text {
-          display: inline-block;
         }
       }
     }
