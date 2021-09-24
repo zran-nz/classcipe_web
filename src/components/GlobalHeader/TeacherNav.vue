@@ -12,6 +12,7 @@
                 <div class="nav-label">
                   {{ $t('menu.library') }}
                 </div>
+                <div class="nav-button-border"></div>
               </div>
             </router-link>
           </a-menu-item>
@@ -23,6 +24,7 @@
               <div class="nav-label">
                 Managing
               </div>
+              <div class="nav-button-border"></div>
             </div>
           </a-menu-item>
         </a-menu>
@@ -146,6 +148,45 @@ export default {
 .top-nav {
   ul, ol {
     margin-bottom: 0;
+  }
+}
+
+a {
+  color: #15C39A;
+}
+
+ant-dropdown {
+  a:hover {
+    background: #EDF1F5;
+  }
+}
+
+.nav-button-border {
+  display: none;
+}
+
+.nav-item {
+  position: relative;
+  .nav-icon {
+    z-index: 50;
+  }
+  .nav-label {
+    z-index: 50;
+  }
+}
+
+.router-link-active {
+  .nav-button-border {
+    position: absolute;
+    bottom: 0;
+    width: 80%;
+    height: 4px;
+    border: 1px solid #15c39a;
+    border-top-left-radius: 4px;
+    border-top-right-radius: 4px;
+    background: #15c39a;
+    display: inline-block;
+    z-index: 100;
   }
 }
 </style>

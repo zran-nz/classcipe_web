@@ -1,10 +1,10 @@
 <template>
   <div class="status-icon-item">
     <img src="~@/assets/icons/library/Lesson.png" :style="{width: size}" v-if="type === typeMap.lesson"/>
-    <img src="~@/assets/icons/myContent/Task@2x.png" :style="{width: size}" v-else-if="type === typeMap.task"/>
-    <img src="~@/assets/icons/myContent/Unit@2x.png" :style="{width: size}" v-else-if="type === typeMap['unit-plan']"/>
-    <img src="~@/assets/icons/myContent/To@2x.png" :style="{width: size}" v-else-if="type === typeMap.topic"/>
-    <img src="~@/assets/icons/myContent/EV@2x.png" :style="{width: size}" v-else-if="type === typeMap.evaluation"/>
+    <task-svg :style="{height: size}" v-else-if="type === typeMap.task"/>
+    <unit-svg :style="{height: size}" v-else-if="type === typeMap['unit-plan']"/>
+    <to-svg :style="{ height: size}" v-else-if="type === typeMap.topic"/>
+    <ev-svg :style="{height: size}" v-else-if="type === typeMap.evaluation"/>
     <a-icon type="question-circle" :style="{fontSize: '20px'}" v-else/>
   </div>
 </template>
@@ -19,8 +19,19 @@
  'evaluation': 6
  */
 import { typeMap } from '@/const/teacher'
+import EvSvg from '@/assets/svgIcon/contentType/EV.svg?inline'
+import TaskSvg from '@/assets/svgIcon/contentType/Task.svg?inline'
+import ToSvg from '@/assets/svgIcon/contentType/To.svg?inline'
+import UnitSvg from '@/assets/svgIcon/contentType/Unit.svg?inline'
+
 export default {
   name: 'ContentTypeIcon',
+  components: {
+    EvSvg,
+    ToSvg,
+    UnitSvg,
+    TaskSvg
+  },
   props: {
     type: {
       type: Number,
@@ -42,7 +53,8 @@ export default {
 <style lang='less' scoped>
 .status-icon-item {
   text-align: center;
-  display: inline-block;
+  display: flex;
+  align-items: center;
 }
 
 .ant-menu-item .anticon, .ant-menu-submenu-title .anticon {

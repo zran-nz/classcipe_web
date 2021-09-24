@@ -5,7 +5,11 @@
       :tree-item-data="treeItemData"
       :tree-current-parent="null"
       :default-deep="0"
-      :current-item-type="treeItemData.type === NavigationType.curriculum ? 'subject' : 'sync'"
+      :current-item-type="treeItemData.type === NavigationType.learningOutcomes ? 'subject' : // 如果当前是大纲，那么第一层数据是不区分层级的subject
+        (treeItemData.type === NavigationType.sync ? 'sync' : // 如果是sync第一次是外部的同步数据列表
+          (treeItemData.type === NavigationType.specificSkills ? 'subject' : ( // 如果是specificSkills，那么第一层数据是subject，注意subject只有一层
+            (treeItemData.type === NavigationType.centurySkills ? 'grade' : 'none' // 如果是centurySkills，那么第一层数据是grade年级列表
+            ))))"
       :select-mode="selectMode"
       :question-index="questionIndex"
       :default-expand-status="treeItemData.expandStatus"
@@ -59,7 +63,7 @@ export default {
     const curriculumData = {
       id: '1',
       expandStatus: true,
-      type: NavigationType.curriculum,
+      type: NavigationType.learningOutcomes,
       name: skillCategory.length === 3 ? skillCategory[0] : 'Curriculum',
       children: [],
       parent: null
@@ -80,10 +84,15 @@ export default {
     }
     Promise.all([
       SubjectTree({ curriculumId: this.$store.getters.bindCurriculum }),
-      // GetAllSdgs(),
       GetMyGrades()
     ]).then((initDataResponse) => {
       this.$logger.info('initData done', initDataResponse)
+
+      // GetMyGrades
+      this.$logger.info('GetMyGrades Response ', initDataResponse[1])
+      if (!initDataResponse[1].code) {
+        this.gradeList = initDataResponse[1].result
+      }
 
       // SubjectTree
       this.$logger.info('SubjectTree Response ', initDataResponse[0])
@@ -93,51 +102,58 @@ export default {
         // 兼容新的任意层级,任意一个层级下一层都会可能是gradeList
         this.addGradeListProperty(curriculumData.children)
       }
-
-      // // GetAllSdgs
-      // this.$logger.info('GetAllSdgs Response ', initDataResponse[1])
-      // if (!initDataResponse[1].code) {
-      //   this.sdgList = initDataResponse[1].result
-      //   this.sdgList.forEach(item => { item.children = [] })
-      //   sdgData.children = this.sdgList
-      // }
-
-      // GetMyGrades
-      this.$logger.info('GetMyGrades Response ', initDataResponse[1])
-      if (!initDataResponse[1].code) {
-        this.gradeList = initDataResponse[1].result
-      }
     }).finally(() => {
       this.treeDataList.push(curriculumData)
-      this.$logger.info('addGradeListProperty treeDataList', this.treeDataList)
       if (skillCategory.length === 3) {
+        // subject specific skills 是mainSubject-year-knowledge
         const specificSkillsData = {
           id: '1',
           expandStatus: true,
-          type: NavigationType.skill,
+          type: NavigationType.specificSkills,
           name: skillCategory[1],
           children: [],
           parent: null
         }
+        // 从大纲数据中复制一份数据，只用mainSubject既第一层
+        curriculumData.children.forEach(subjectItem => {
+          specificSkillsData.children.push(Object.assign({}, subjectItem))
+        })
+        this.treeDataList.push(specificSkillsData)
+
+        // 21 century skills 是year-knowledge
         const centurySkillsData = {
           id: '1',
           expandStatus: true,
           type: NavigationType.centurySkills,
           name: skillCategory[2],
           children: [],
+          gradeList: [],
           parent: null
         }
-        this.treeDataList.push(specificSkillsData)
+        this.gradeList.forEach(gradeItem => {
+          gradeItem.isGrade = true
+          gradeItem.children = []
+          centurySkillsData.gradeList.push(Object.assign({}, gradeItem))
+          centurySkillsData.children.push(Object.assign({}, gradeItem))
+        })
         this.treeDataList.push(centurySkillsData)
+
+        this.$logger.info('after handle treeDataList', this.treeDataList)
       }
       this.loaded = true
     })
   },
   methods: {
+    // 给任意层级的数据先增加gradeList属性，然后直接给vue进行监测数据更新。避免数据操作过程中加数据，太麻烦
     addGradeListProperty (list) {
       list.forEach(item => {
         if (!item.hasOwnProperty('gradeList')) {
           item.gradeList = []
+          this.gradeList.forEach(gradeItem => {
+            gradeItem.children = []
+            gradeItem.isGrade = true
+            item.gradeList.push(Object.assign({}, gradeItem))
+          })
         }
         this.addGradeListProperty(item.children)
       })

@@ -46,7 +46,8 @@
               </a-menu-item>
             </a-menu>
             <a-button
-              style="padding: 0 20px;display:flex; box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.16);align-items:center ;height: 40px;border-radius: 6px;background: #FFFFFF;border: 1px solid #eee;font-family: Inter-Bold;color: #182552;">
+              class="type-filter-button"
+              style="padding: 0 20px;display:flex; align-items:center ;height: 40px;border-radius: 6px;background: #FFFFFF;font-family: Inter-Bold;color: #182552;">
               <span v-if="currentTypeLabel">{{ currentTypeLabel }}</span> <span v-else>Choose type(s)of content</span>
               <a-icon type="caret-down" /> </a-button>
           </a-dropdown>
@@ -54,11 +55,10 @@
         <div class="view-mode-toggle">
           <div class="view-mode">
             <div :class="{'view-mode-item': true, 'active-view': viewMode === 'img'}" @click="toggleViewMode('img')">
-              <a-icon type="appstore" theme="filled" v-if="viewMode === 'img'"/>
-              <a-icon type="appstore" v-if="viewMode === 'list'"/>
+              <pubu-svg />
             </div>
             <div :class="{'view-mode-item': true, 'active-view': viewMode === 'list'}" @click="toggleViewMode('list')">
-              <a-icon type="unordered-list" />
+              <liebiao-svg />
             </div>
           </div>
         </div>
@@ -148,7 +148,7 @@
                 <div class="mask-actions">
                   <div class="action-item action-item-top">
                     <a-dropdown>
-                      <a-icon type="more" style="margin-right: 8px" />
+                      <a-icon type="more" style="margin-right: 8px" class="more-icon" />
                       <a-menu slot="overlay">
                         <a-menu-item>
                           <a-popconfirm :title="$t('teacher.my-content.action-delete') + '?'" ok-text="Yes" @confirm="handleDeleteItem(item)" cancel-text="No">
@@ -183,7 +183,7 @@
                     </div>
                   </div>
                 </div>
-                <img class="cover-image" :src="item.image">
+                <div class="cover-img" :style="{backgroundImage: 'url(' + item.image + ')'}"></div>
                 <a-card-meta :title="item.name ? item.name : 'Untitled'" :description="item.createTime | dayjs" @click="handleViewDetail(item)"></a-card-meta>
               </a-card>
             </a-list-item>
@@ -267,6 +267,9 @@ import EditSvg from '@/assets/icons/common/Edit.svg?inline'
 import StartSessionSvg from '@/assets/icons/common/StartSession.svg?inline'
 import ClassList from '@/components/Teacher/ClassList'
 import CustomTag from '@/components/UnitPlan/CustomTag'
+import LiebiaoSvg from '@/assets/svgIcon/myContent/liebiao.svg?inline'
+import PubuSvg from '@/assets/svgIcon/myContent/pubu.svg?inline'
+
 import storage from 'store'
 import {
   SESSION_CURRENT_PAGE,
@@ -293,7 +296,9 @@ export default {
     StartSessionSvg,
     CustomTag,
     ModalHeader,
-    EditSvg
+    EditSvg,
+    LiebiaoSvg,
+    PubuSvg
   },
   data () {
     return {
@@ -579,13 +584,17 @@ export default {
 
 .my-list-item {
   min-width: 800px;
-  box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.16);
   opacity: 1;
   width: 100%;
   border-radius: 4px;
   background: #FFFFFF;
-  padding: 12px 10px;
+  padding: 15px 10px;
   margin-bottom: 15px;
+  cursor: pointer;
+}
+
+.my-list-item:hover {
+  box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.16);
 }
 
 .my-content {
@@ -636,6 +645,10 @@ export default {
               align-items: center;
               justify-content: center;
               width: 90px;
+
+              &:hover {
+                background: #EDF1F5;
+              }
             }
 
             .skill-active-mode {
@@ -730,7 +743,6 @@ export default {
             justify-content: center;
             padding: 6px 13px;
             background: rgba(245, 245, 245, 0.5);
-            box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.16);
             opacity: 1;
             border: 1px solid rgba(188, 188, 188, 1);
 
@@ -757,7 +769,7 @@ export default {
           }
 
           .session-btn:hover {
-            border: 1px solid rgba(21, 195, 154, 1);
+            border-color: #15c39a;
             background: rgba(21, 195, 154, 0.1);
             .session-btn-icon {
               svg {
@@ -768,6 +780,7 @@ export default {
             }
 
             .session-btn-text {
+              display: inline-block;
               color: #15C39A;
             }
           }
@@ -800,13 +813,16 @@ a.delete-action {
   align-items: center;
   margin-right: 10px;
   background: #FFFFFF;
-  border: 1px solid #F7F8FF;
-  box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.16);
+  border: 1px solid #D8D8D8;
   opacity: 1;
   border-radius: 6px;
   height: 40px;
   padding: 0px 15px;
   margin-left: 20px;
+
+  &:hover {
+    border: 1px solid #15c39a;
+  }
   .view-mode {
     display: flex;
     flex-direction: row;
@@ -818,11 +834,18 @@ a.delete-action {
       font-size: 20px;
       padding-left: 5px;
       margin: 0 3px;
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+
+      svg {
+        height: 22px;
+      }
     }
 
     .active-view {
-      i {
-        color: @primary-color;
+      svg {
+        fill: @primary-color;
       }
     }
   }
@@ -842,17 +865,25 @@ a.delete-action {
 
 .cover-card{
   background: #FFFFFF;
-  border: 1px solid #F7F8FF;
-  box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.16);
   opacity: 1;
   border-radius: 6px;
+  border: none;
 
+  .cover-img {
+    width: 100%;
+    min-height: 160px;
+    background-position: center center;
+    background-repeat: no-repeat;
+    background-size: cover;
+    margin-bottom: 10px;
+  }
   &:hover {
+    box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.16);
     .mask-actions{
       display: block;
     }
     .mask{
-      opacity: 0.72;
+      opacity: 0.3;
     }
   }
   .mask-actions{
@@ -874,11 +905,8 @@ a.delete-action {
       flex-direction: row;
       justify-content: flex-end;
       padding-top: 15px;
-      svg {
-        height: 30px;
-      }
       i{
-        width: 20px;
+        width: 25px;
         font-size: 20px;
         color: rgba(255, 255, 255, 1);
         display: flex;
@@ -908,6 +936,7 @@ a.delete-action {
           opacity: 1;
         }
       }
+
       .session-btn-right {
         width: 160px;
         height: 40px;
@@ -932,13 +961,15 @@ a.delete-action {
       align-items: center;
       justify-content: space-around;
       .session-btn {
-        width: 100px;
+        height: 33px;
+        width: auto;
         display: flex;
         border-radius: 32px;
         flex-direction: row;
         align-items: center;
         justify-content: center;
-        padding: 6px 13px;
+        padding: 6px 10px;
+        transition: all 0.3s ease-in-out;
         background: rgba(245, 245, 245, 1);
         box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.16);
         opacity: 1;
@@ -958,10 +989,17 @@ a.delete-action {
         }
 
         .session-btn-text {
+          display: none;
           font-size: 13px;
           padding-left: 7px;
           font-family: Inter-Bold;
           color: #182552;
+        }
+      }
+
+      .session-btn:hover {
+        .session-btn-text {
+          display: inline-block;
         }
       }
     }

@@ -15,8 +15,8 @@
           <template slot="title">
             {{ mainSubjectItem.name }}
           </template>
-          <dir-icon dir-type="opened" v-if="currentMainSubjectId !== mainSubjectItem.id"/>
-          <dir-icon dir-type="yellow" v-if="currentMainSubjectId === mainSubjectItem.id"/>
+          <dir-icon dir-type="blue" v-if="currentMainSubjectId !== mainSubjectItem.id"/>
+          <dir-icon dir-type="opened" v-if="currentMainSubjectId === mainSubjectItem.id"/>
           {{ mainSubjectItem.name }}
         </a-tooltip>
         <span class="arrow-item">
@@ -49,8 +49,8 @@
           <template slot="title">
             {{ subSubjectItem.name }}
           </template>
-          <dir-icon dir-type="opened" v-if="currentSubSubjectId !== subSubjectItem.id"/>
-          <dir-icon dir-type="yellow" v-if="currentSubSubjectId === subSubjectItem.id"/>
+          <dir-icon dir-type="blue" v-if="currentSubSubjectId !== subSubjectItem.id"/>
+          <dir-icon dir-type="opened" v-if="currentSubSubjectId === subSubjectItem.id"/>
           {{ subSubjectItem.name }}
         </a-tooltip>
         <span class="arrow-item">
@@ -84,8 +84,8 @@
             <template slot="title">
               {{ gradeItem.name }}
             </template>
-            <dir-icon dir-type="opened" v-if="currentGradeId !== gradeItem.id"/>
-            <dir-icon dir-type="yellow" v-if="currentGradeId === gradeItem.id"/>
+            <dir-icon dir-type="blue" v-if="currentGradeId !== gradeItem.id"/>
+            <dir-icon dir-type="opened" v-if="currentGradeId === gradeItem.id"/>
             {{ gradeItem.name }}
           </a-tooltip>
           <span class="arrow-item">
@@ -119,8 +119,8 @@
           <template slot="title">
             {{ knowledgeItem.name }}
           </template>
-          <dir-icon dir-type="opened" v-if="knowledge.currentKnowledgeId !== knowledgeItem.id"/>
-          <dir-icon dir-type="yellow" v-if="knowledge.currentKnowledgeId === knowledgeItem.id"/>
+          <dir-icon dir-type="blue" v-if="knowledge.currentKnowledgeId !== knowledgeItem.id"/>
+          <dir-icon dir-type="opened" v-if="knowledge.currentKnowledgeId === knowledgeItem.id"/>
           {{ knowledgeItem.name }}
         </a-tooltip>
         <span class="arrow-item">
@@ -600,7 +600,7 @@ export default {
     border-right: 1px solid #ddd;
     .browser-item {
       line-height: 20px;
-      padding: 10px 0 10px 10px;
+      padding: 10px 15px 10px 20px;
       font-weight: 500;
       cursor: pointer;
       overflow: hidden;
@@ -615,6 +615,9 @@ export default {
       justify-content: space-between;
       width: 100%;
       box-sizing: border-box;
+      &:hover {
+        background: #EDF1F5;
+      }
       .arrow-item {
         padding: 0 10px;
         width: 20px;
@@ -647,11 +650,11 @@ export default {
       }
     }
     .odd-line {
-      background: rgba(228, 228, 228, 0.2);
+      background: rgba(255, 255,255);
     }
     .active-line {
-      background: rgba(255, 187, 0, 0.1);
-      color: rgba(255, 187, 0, 1);
+      background-color: rgba(21, 195, 154, 0.1);
+      color: #15c39a;
     }
     .loading-wrapper {
       position: absolute;
@@ -804,8 +807,8 @@ export default {
       background: rgba(228, 228, 228, 0.2);
     }
     .active-line {
-      background-color: rgba(255, 187, 0, 0.1);
-      color: rgba(255, 187, 0, 1);
+      background-color: rgba(21, 195, 154, 0.1);
+      color: #15c39a;
     }
     .loading-wrapper {
       position: absolute;

@@ -17,7 +17,8 @@
           </a-menu-item>
         </a-menu>
         <a-button
-          style="padding: 0 20px;display:flex; box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.16);align-items:center ;height: 40px;border-radius: 6px;background: #FFFFFF;border: 1px solid #eee;font-family: Inter-Bold;color: #182552;">
+          class="type-filter-button"
+          style="padding: 0 20px;display:flex; align-items:center ;height: 40px;border-radius: 6px;background: #FFFFFF;font-family: Inter-Bold;color: #182552;">
           {{ createdType }}
           <a-icon type="caret-down"/>
         </a-button>
@@ -689,7 +690,6 @@ export default {
 }
 
 .my-list-item {
-  box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.16);
   opacity: 1;
   margin: 0 0 15px 0;
   border-radius: 4px;
@@ -697,6 +697,10 @@ export default {
   padding: 12px 10px;
   width: 100%;
   border: 2px solid #fff;
+}
+
+.my-list-item:hover {
+  box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.16);
 }
 
 .active-item {
