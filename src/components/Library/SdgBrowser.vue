@@ -571,8 +571,8 @@ export default {
         background: rgba(228, 228, 228, 0.2);
       }
       .active-line {
-        background-color: rgba(255, 187, 0, 0.1);
-        color: rgba(255, 187, 0, 1);
+        background-color: rgba(21, 195, 154, 0.1);
+        color: #15c39a;
       }
       .loading-wrapper {
         position: absolute;
@@ -643,18 +643,25 @@ export default {
       line-height: 24px;
       color: #000000;
       background: #FFFFFF;
-      box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.16);
+      border: 1px solid #D8D8D8;
       opacity: 1;
       border-radius: 4px;
       padding: 8px 15px;
       width: 100%;
+
+      &:hover {
+        color: #15c39a;
+        background-color: rgba(21, 195, 154, 0.1);
+        border-color: #15c39a;
+        box-shadow: 2px 4px 6px rgba(21, 195, 154, 0.2);
+      }
     }
 
     .kd-active-item {
-      background: rgba(21, 195, 154, 0.1);
-      border: 1px solid #15C39A;
-      font-family: Inter-Bold;
-      color: #15C39A;
+      color: #15c39a;
+      background-color: rgba(21, 195, 154, 0.1);
+      border-color: #15c39a;
+      box-shadow: 2px 4px 6px rgba(21, 195, 154, 0.2);
     }
   }
 }

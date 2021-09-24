@@ -53,6 +53,10 @@ export default {
   padding: 0 10px 0 0;
   width: 40px;
 
+  img {
+    width: 30px;
+  }
+
   .blue {
     width: 22px;
   }

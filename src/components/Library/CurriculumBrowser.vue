@@ -806,8 +806,8 @@ export default {
       background: rgba(228, 228, 228, 0.2);
     }
     .active-line {
-      background-color: rgba(255, 187, 0, 0.1);
-      color: rgba(255, 187, 0, 1);
+      background-color: rgba(21, 195, 154, 0.1);
+      color: #15c39a;
     }
     .loading-wrapper {
       position: absolute;
