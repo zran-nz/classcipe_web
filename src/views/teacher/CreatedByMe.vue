@@ -55,10 +55,10 @@
         <div class="view-mode-toggle">
           <div class="view-mode">
             <div :class="{'view-mode-item': true, 'active-view': viewMode === 'img'}" @click="toggleViewMode('img')">
-              <liebiao-svg />
+              <pubu-svg />
             </div>
             <div :class="{'view-mode-item': true, 'active-view': viewMode === 'list'}" @click="toggleViewMode('list')">
-              <pubu-svg />
+              <liebiao-svg />
             </div>
           </div>
         </div>
