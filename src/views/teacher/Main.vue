@@ -151,11 +151,12 @@ export default {
         color: #000000;
 
         svg {
-          width: 40px;
+          width: 50px;
         }
       }
 
       &:hover {
+        background: #EDF1F5;
         a {
           color: @primary-color;
         }
@@ -167,8 +168,10 @@ export default {
     }
 
     .selected-nav-bar {
+      background: #EDF1F5;
       a {
         color: @primary-color;
+        font-weight: bold;
       }
     }
   }
