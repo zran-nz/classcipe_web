@@ -29,7 +29,7 @@
         <div class="library-content">
           <div class="browser-action" v-if="hasLeftBlock">
             <div class="action-item" @click="handleViewLeft">
-              <a-icon type="left-circle" />
+              <back-svg style="width: 70px"/>
             </div>
           </div>
           <div class="browser-table-wrapper" :style="{left: -browserMarginLeft + 'px'}">
@@ -90,6 +90,7 @@ import DirIcon from '@/components/Library/DirIcon'
 import NoMoreResources from '@/components/Common/NoMoreResources'
 import CommonPreview from '@/components/Common/CommonPreview'
 import AssessmentBrowser from './AssessmentBrowser'
+import BackSvg from '@/assets/svgIcon/library/back_btn.svg?inline'
 
 const BrowserTypeMap = {
   curriculum: 'curriculum',
@@ -113,7 +114,8 @@ export default {
     SdgBrowser,
     UnitPlanPreview,
     MaterialPreview,
-    DirIcon
+    DirIcon,
+    BackSvg
   },
   props: {
     browserType: {
@@ -361,10 +363,10 @@ export default {
             position: absolute;
             top: 50%;
             left: 50%;
-            width: 50px;
+            width: 70px;
             text-align: center;
             margin-top: -40px;
-            margin-left: -25px;
+            margin-left: -35px;
             color: #fff;
             font-size: 30px;
             cursor: pointer;
