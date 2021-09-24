@@ -148,4 +148,12 @@ export default {
     margin-bottom: 0;
   }
 }
+
+a {
+  color: #15C39A;
+}
+
+a:hover {
+  background: #EDF1F5;
+}
 </style>

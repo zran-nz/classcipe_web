@@ -46,7 +46,8 @@
               </a-menu-item>
             </a-menu>
             <a-button
-              style="padding: 0 20px;display:flex; box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.16);align-items:center ;height: 40px;border-radius: 6px;background: #FFFFFF;border: 1px solid #eee;font-family: Inter-Bold;color: #182552;">
+              class="type-filter-button"
+              style="padding: 0 20px;display:flex; align-items:center ;height: 40px;border-radius: 6px;background: #FFFFFF;font-family: Inter-Bold;color: #182552;">
               <span v-if="currentTypeLabel">{{ currentTypeLabel }}</span> <span v-else>Choose type(s)of content</span>
               <a-icon type="caret-down" /> </a-button>
           </a-dropdown>
@@ -54,11 +55,10 @@
         <div class="view-mode-toggle">
           <div class="view-mode">
             <div :class="{'view-mode-item': true, 'active-view': viewMode === 'img'}" @click="toggleViewMode('img')">
-              <a-icon type="appstore" theme="filled" v-if="viewMode === 'img'"/>
-              <a-icon type="appstore" v-if="viewMode === 'list'"/>
+              <liebiao-svg />
             </div>
             <div :class="{'view-mode-item': true, 'active-view': viewMode === 'list'}" @click="toggleViewMode('list')">
-              <a-icon type="unordered-list" />
+              <pubu-svg />
             </div>
           </div>
         </div>
@@ -267,6 +267,9 @@ import EditSvg from '@/assets/icons/common/Edit.svg?inline'
 import StartSessionSvg from '@/assets/icons/common/StartSession.svg?inline'
 import ClassList from '@/components/Teacher/ClassList'
 import CustomTag from '@/components/UnitPlan/CustomTag'
+import LiebiaoSvg from '@/assets/svgIcon/myContent/liebiao.svg?inline'
+import PubuSvg from '@/assets/svgIcon/myContent/pubu.svg?inline'
+
 import storage from 'store'
 import {
   SESSION_CURRENT_PAGE,
@@ -293,7 +296,9 @@ export default {
     StartSessionSvg,
     CustomTag,
     ModalHeader,
-    EditSvg
+    EditSvg,
+    LiebiaoSvg,
+    PubuSvg
   },
   data () {
     return {
@@ -804,13 +809,16 @@ a.delete-action {
   align-items: center;
   margin-right: 10px;
   background: #FFFFFF;
-  border: 1px solid #F7F8FF;
-  box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.16);
+  border: 1px solid #D8D8D8;
   opacity: 1;
   border-radius: 6px;
   height: 40px;
   padding: 0px 15px;
   margin-left: 20px;
+
+  &:hover {
+    border: 1px solid #15c39a;
+  }
   .view-mode {
     display: flex;
     flex-direction: row;
@@ -822,11 +830,18 @@ a.delete-action {
       font-size: 20px;
       padding-left: 5px;
       margin: 0 3px;
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+
+      svg {
+        height: 22px;
+      }
     }
 
     .active-view {
-      i {
-        color: @primary-color;
+      svg {
+        fill: @primary-color;
       }
     }
   }
@@ -982,6 +997,16 @@ a.delete-action {
     -webkit-transition: all 0.3s ease-in-out;
     transition: all 0.3s ease-in-out;
 
+  }
+}
+
+.type-filter {
+
+  button.type-filter-button, button.ant-button {
+    border-color: #D8D8D8;
+    &:hover {
+      border-color: #15c39a;
+    }
   }
 }
 
