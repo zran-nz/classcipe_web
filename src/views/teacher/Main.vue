@@ -6,20 +6,20 @@
           <div class="nav-bar-wrapper">
             <div :class="{'nav-bar-item': true, 'selected-nav-bar' : selectedKey === '/teacher/main/created-by-me'}">
               <router-link to="/teacher/main/created-by-me">
-                <img src="~@/assets/icons/myContent/Created_by_me@2x.png" class="icon-img" />
+                <created-by-me-svg />
                 {{ $t('teacher.main.created-by-me') }}
               </router-link>
             </div>
             <div :class="{'nav-bar-item': true, 'selected-nav-bar' : selectedKey === '/teacher/main/my-favorite'}">
               <router-link to="/teacher/main/my-favorite">
-                <img src="~@/assets/icons/myContent/My favorite@2x.png" class="icon-img" />
+                <my-favorite-svg />
                 {{ $t('teacher.main.my-favorite') }}
               </router-link>
             </div>
             <div :class="{'nav-bar-item': true, 'nav-bar-item-split': true, 'selected-nav-bar' : selectedKey === '/teacher/main/shared'}">
               <router-link to="/teacher/main/shared">
                 <a-badge :count="$store.getters.sharedCount">
-                  <img src="~@/assets/icons/myContent/Shared@2x.png" class="icon-img" />
+                  <shared-svg />
                 </a-badge>
                 {{ $t('teacher.main.shared') }}
               </router-link>
@@ -27,20 +27,20 @@
             <div :class="{'nav-bar-item': true, 'selected-nav-bar' : selectedKey === '/teacher/main/discover'}">
               <router-link to="/teacher/main/discover">
                 <a-badge :count="$store.getters.sharedFindCount">
-                  <img src="~@/assets/icons/myContent/Discover@2x.png" class="icon-img" />
+                  <discover-svg />
                 </a-badge>
                 {{ $t('teacher.main.discover') }}
               </router-link>
             </div>
             <div :class="{'nav-bar-item': true, 'selected-nav-bar' : selectedKey === '/teacher/main/subscribes'}">
               <router-link to="/teacher/main/subscribes">
-                <img src="~@/assets/icons/myContent/Subscribes@2x.png" class="icon-img" />
+                <subscribes-svg />
                 {{ $t('teacher.main.subscribes') }}
               </router-link>
             </div>
             <div :class="{'nav-bar-item': true, 'selected-nav-bar' : selectedKey === '/teacher/main/popular'}">
               <router-link to="/teacher/main/popular">
-                <img src="~@/assets/icons/myContent/Popular@2x.png" class="icon-img" />
+                <popular-svg />
                 {{ $t('teacher.main.popular') }}
               </router-link>
             </div>
@@ -57,11 +57,23 @@
 <script>
 import { PageHeaderWrapper } from '@ant-design-vue/pro-layout'
 import * as logger from '@/utils/logger'
+import CreatedByMeSvg from '@/assets/svgIcon/myContent/Created_by_me.svg?inline'
+import DiscoverSvg from '@/assets/svgIcon/myContent/Discover.svg?inline'
+import MyFavoriteSvg from '@/assets/svgIcon/myContent/My_favorite.svg?inline'
+import PopularSvg from '@/assets/svgIcon/myContent/Popular.svg?inline'
+import SharedSvg from '@/assets/svgIcon/myContent/Shared.svg?inline'
+import SubscribesSvg from '@/assets/svgIcon/myContent/Subscribes.svg?inline'
 
 export default {
   name: 'Main',
   components: {
-    PageHeaderWrapper
+    PageHeaderWrapper,
+    CreatedByMeSvg,
+    DiscoverSvg,
+    MyFavoriteSvg,
+    PopularSvg,
+    SharedSvg,
+    SubscribesSvg
   },
   data () {
     return {
@@ -131,18 +143,15 @@ export default {
       background-size: cover;
 
       a {
-        display: inline-block;
+        display: flex;
+        align-items: center;
         width: 100%;
         line-height: 30px;
         padding: 10px 20px;
         color: #000000;
-        &:hover {
-          color: @primary-color;
-        }
 
-        img.icon-img {
-          width: 25px;
-          margin-right: 10px;
+        svg {
+          width: 40px;
         }
       }
 
