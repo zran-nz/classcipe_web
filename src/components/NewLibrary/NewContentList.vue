@@ -282,7 +282,9 @@ export default {
 
       .action-icon {
         position: absolute;
-        right: 40px;
+        right: 5px;
+        top: 50%;
+        margin-top: -10px;
         img {
           height: 18px;
         }
@@ -302,6 +304,7 @@ export default {
       align-items: center;
       padding: 10px;
       margin: 3px;
+      position: relative;
 
       .name {
         cursor: pointer;
