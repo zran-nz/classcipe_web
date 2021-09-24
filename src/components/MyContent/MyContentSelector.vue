@@ -1,27 +1,5 @@
 <template>
   <div class="my-content-selector">
-    <!--    <div class="nav-bar-top">
-      <div class="nav-bar-wrapper">
-        <div :class="{'nav-bar-item': true, 'selected-nav-bar' : selectedType === 'created-by-me'}">
-          <a @click="handleToggleType('created-by-me')">
-            <img src="~@/assets/icons/myContent/Created_by_me@2x.png" class="icon-img" />
-            {{ $t('teacher.main.created-by-me') }}
-          </a>
-        </div>
-        <div :class="{'nav-bar-item': true, 'selected-nav-bar' : selectedType === 'my-favorite'}">
-          <a @click="handleToggleType('my-favorite')">
-            <img src="~@/assets/icons/myContent/My favorite@2x.png" class="icon-img" />
-            {{ $t('teacher.main.my-favorite') }}
-          </a>
-        </div>
-        <div :class="{'nav-bar-item': true, 'selected-nav-bar' : selectedType === 'shared'}">
-          <a @click="handleToggleType('shared')">
-            <img src="~@/assets/icons/myContent/Shared@2x.png" class="icon-img" />
-            {{ $t('teacher.main.shared') }}
-          </a>
-        </div>
-      </div>
-    </div>-->
     <my-content-created-by-me
       :filter-type-list="filterTypeList"
       :selected-list="selectedList"
