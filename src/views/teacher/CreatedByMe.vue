@@ -636,6 +636,10 @@ export default {
               align-items: center;
               justify-content: center;
               width: 90px;
+
+              &:hover {
+                background: #EDF1F5;
+              }
             }
 
             .skill-active-mode {
