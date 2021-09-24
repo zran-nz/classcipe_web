@@ -78,9 +78,6 @@
 <script>
 
 import { LibraryEventBus } from '@/components/NewLibrary/LibraryEventBus'
-
-const { SelectModel } = require('@/components/NewLibrary/SelectModel')
-
 const { LibraryEvent } = require('@/components/NewLibrary/LibraryEventBus')
 const { KnowledgeQueryContentByDescriptionId } = require('@/api/knowledge')
 const { KnowledgeGetTree } = require('@/api/knowledge')
