@@ -1308,8 +1308,10 @@ export default {
           tagType: data.tagType
         })
       })
-      this.selectedCurriculumList.forEach(data => {
-        const filterLearnOuts = this.form.learnOuts.filter(item => item.knowledgeId === data.knowledgeData.knowledgeId)
+      const selectList = this.selectedCurriculumList.concat(this.selectedSpecificSkillList).concat(this.selectedCenturySkillList)
+      console.log(selectList)
+      selectList.forEach(data => {
+        const filterLearnOuts = this.form.learnOuts.filter(item => item.knowledgeId === data.knowledgeId)
         if (filterLearnOuts.length > 0) {
           return
         }
