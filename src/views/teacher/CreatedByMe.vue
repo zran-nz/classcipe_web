@@ -584,13 +584,17 @@ export default {
 
 .my-list-item {
   min-width: 800px;
-  box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.16);
   opacity: 1;
   width: 100%;
   border-radius: 4px;
   background: #FFFFFF;
-  padding: 12px 10px;
+  padding: 15px 10px;
   margin-bottom: 15px;
+  cursor: pointer;
+}
+
+.my-list-item:hover {
+  box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.16);
 }
 
 .my-content {
@@ -739,7 +743,6 @@ export default {
             justify-content: center;
             padding: 6px 13px;
             background: rgba(245, 245, 245, 0.5);
-            box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.16);
             opacity: 1;
             border: 1px solid rgba(188, 188, 188, 1);
 
@@ -758,7 +761,6 @@ export default {
             }
 
             .session-btn-text {
-              display: none;
               font-size: 13px;
               padding-left: 7px;
               font-family: Inter-Bold;
@@ -767,7 +769,7 @@ export default {
           }
 
           .session-btn:hover {
-            border: 1px solid rgba(21, 195, 154, 1);
+            border-color: #15c39a;
             background: rgba(21, 195, 154, 0.1);
             .session-btn-icon {
               svg {
