@@ -399,7 +399,10 @@
             question-index="_questionIndex_1"
             :sync-data="syncData"
             @select-sync="handleSelectListData"
-            @select-curriculum="handleSelectCurriculum"/>
+            @select-curriculum="handleSelectCurriculum"
+            @select-subject-specific-skill="handleSelectSubjectSpecificSkillListData"
+            @select-century-skill="handleSelect21CenturySkillListData"
+          />
           <div class="modal-ensure-action-line-right">
             <a-button class="action-item action-cancel" shape="round" @click="handleCancelSelectData">Cancel</a-button>
             <a-button class="action-ensure action-item" type="primary" shape="round" @click="handleEnsureSelectData">Ok</a-button>
@@ -576,7 +579,12 @@ export default {
       selectedSyncList: [],
 
       // 已选择的大纲知识点描述数据
-      selectedCurriculumList: []
+      selectedCurriculumList: [],
+
+      // specific skill
+      selectedSpecificSkillList: [],
+      // century skill
+      selectedCenturySkillList: []
     }
   },
   watch: {
@@ -1265,10 +1273,22 @@ export default {
       this.selectedCurriculumList = data
     },
 
+    handleSelectSubjectSpecificSkillListData (data) {
+      this.$logger.info('handleSelectSubjectSpecificSkillListData', data)
+      this.selectedSpecificSkillList = data
+    },
+
+    handleSelect21CenturySkillListData (data) {
+      this.$logger.info('handleSelect21CenturySkillListData', data)
+      this.selectedCenturySkillList = data
+    },
+
     // TODO 自动更新选择的sync 的数据knowledgeId和name列表
     handleCancelSelectData () {
       this.selectedSyncList = []
       this.selectedCurriculumList = []
+      this.selectedSpecificSkillList = []
+      this.selectedCenturySkillList = []
       this.selectSyncDataVisible = false
     },
 

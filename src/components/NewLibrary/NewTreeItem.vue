@@ -72,18 +72,6 @@
             :key="index"/>
         </template>
       </div>
-
-      <template v-if="treeItemType === NavigationType.sync">
-        <!--sync 同步数据不展示层级，直接右侧列表栏战术列表逻辑-->
-      </template>
-
-      <template v-if="treeItemType === NavigationType.specificSkills">
-        <!--specificSkills 同步数据展示逻辑-->
-      </template>
-
-      <template v-if="treeItemType === NavigationType.centurySkills">
-        <!--centurySkills 同步数据展示逻辑-->
-      </template>
     </template>
   </div>
 </template>
@@ -251,6 +239,7 @@ export default {
       this.$logger.info('handleExpandSyncDataList', data)
       LibraryEventBus.$emit(LibraryEvent.ContentListUpdate, {
         deep: 0,
+        dataType: this.treeItemType,
         currentTreeData: this.treeItemData,
         parentTreeData: this.treeCurrentParent,
         contentList: data.children,
@@ -271,6 +260,7 @@ export default {
         this.subTreeExpandStatus = true
         LibraryEventBus.$emit(LibraryEvent.ContentListUpdate, {
           deep: this.defaultDeep,
+          dataType: this.treeItemType,
           currentTreeData: this.treeItemData,
           parentTreeData: this.treeCurrentParent,
           contentList: treeItemData.children,
@@ -294,6 +284,7 @@ export default {
             }
             LibraryEventBus.$emit(LibraryEvent.ContentListUpdate, {
               deep: this.defaultDeep,
+              dataType: this.treeItemType,
               currentTreeData: this.treeItemData,
               parentTreeData: this.treeCurrentParent,
               contentList: treeItemData.gradeList,
@@ -304,6 +295,7 @@ export default {
           } else {
             LibraryEventBus.$emit(LibraryEvent.ContentListUpdate, {
               deep: this.defaultDeep,
+              dataType: this.treeItemType,
               currentTreeData: this.treeItemData,
               parentTreeData: this.treeCurrentParent,
               contentList: treeItemData.children,
@@ -331,6 +323,7 @@ export default {
               treeItemData.children = response.result
               LibraryEventBus.$emit(LibraryEvent.ContentListUpdate, {
                 deep: this.defaultDeep,
+                dataType: this.treeItemType,
                 currentTreeData: this.treeItemData,
                 parentTreeData: this.treeCurrentParent,
                 contentList: treeItemData.children,
@@ -346,6 +339,7 @@ export default {
           } else {
             LibraryEventBus.$emit(LibraryEvent.ContentListUpdate, {
               deep: this.defaultDeep,
+              dataType: this.treeItemType,
               currentTreeData: this.treeItemData,
               parentTreeData: this.treeCurrentParent,
               contentList: treeItemData.children,
@@ -368,6 +362,7 @@ export default {
               this.$logger.info('KnowledgeQueryContentByDescriptionId response', response.result)
               LibraryEventBus.$emit(LibraryEvent.ContentListUpdate, {
                 currentTreeData: this.treeItemData,
+                dataType: this.treeItemType,
                 parentTreeData: this.treeCurrentParent,
                 contentList: response.result,
                 questionIndex: this.questionIndex
@@ -381,6 +376,7 @@ export default {
             this.subTreeExpandStatus = true
             LibraryEventBus.$emit(LibraryEvent.ContentListUpdate, {
               deep: this.defaultDeep,
+              dataType: this.treeItemType,
               currentTreeData: this.treeItemData,
               parentTreeData: this.treeCurrentParent,
               contentList: treeItemData.children,
@@ -403,6 +399,7 @@ export default {
         this.subTreeExpandStatus = true
         LibraryEventBus.$emit(LibraryEvent.ContentListUpdate, {
           deep: this.defaultDeep,
+          dataType: this.treeItemType,
           currentTreeData: this.treeItemData,
           parentTreeData: this.treeCurrentParent,
           contentList: treeItemData.children,
@@ -428,6 +425,7 @@ export default {
           }
           LibraryEventBus.$emit(LibraryEvent.ContentListUpdate, {
             deep: this.defaultDeep,
+            dataType: this.treeItemType,
             currentTreeData: this.treeItemData,
             parentTreeData: this.treeCurrentParent,
             contentList: treeItemData.gradeList,
@@ -452,6 +450,7 @@ export default {
               treeItemData.children = response.result
               LibraryEventBus.$emit(LibraryEvent.ContentListUpdate, {
                 deep: this.defaultDeep,
+                dataType: this.treeItemType,
                 currentTreeData: this.treeItemData,
                 parentTreeData: this.treeCurrentParent,
                 contentList: treeItemData.children,
@@ -467,6 +466,7 @@ export default {
           } else {
             LibraryEventBus.$emit(LibraryEvent.ContentListUpdate, {
               deep: this.defaultDeep,
+              dataType: this.treeItemType,
               currentTreeData: this.treeItemData,
               parentTreeData: this.treeCurrentParent,
               contentList: treeItemData.children,
@@ -488,6 +488,7 @@ export default {
             KnowledgeQueryContentByDescriptionId({ descriptionId: this.treeItemData.id }).then(response => {
               this.$logger.info('KnowledgeQueryContentByDescriptionId response', response.result)
               LibraryEventBus.$emit(LibraryEvent.ContentListUpdate, {
+                dataType: this.treeItemType,
                 currentTreeData: this.treeItemData,
                 parentTreeData: this.treeCurrentParent,
                 contentList: response.result,
@@ -502,6 +503,7 @@ export default {
             this.subTreeExpandStatus = true
             LibraryEventBus.$emit(LibraryEvent.ContentListUpdate, {
               deep: this.defaultDeep,
+              dataType: this.treeItemType,
               currentTreeData: this.treeItemData,
               parentTreeData: this.treeCurrentParent,
               contentList: treeItemData.children,
@@ -527,6 +529,7 @@ export default {
         this.subTreeExpandStatus = true
         LibraryEventBus.$emit(LibraryEvent.ContentListUpdate, {
           deep: this.defaultDeep,
+          dataType: this.treeItemType,
           currentTreeData: this.treeItemData,
           parentTreeData: this.treeCurrentParent,
           gradeList: treeItemData.gradeList,
@@ -553,6 +556,7 @@ export default {
                 treeItemData.children = response.result
                 LibraryEventBus.$emit(LibraryEvent.ContentListUpdate, {
                   deep: this.defaultDeep,
+                  dataType: this.treeItemType,
                   currentTreeData: this.treeItemData,
                   parentTreeData: this.treeCurrentParent,
                   contentList: treeItemData.children,
@@ -571,6 +575,7 @@ export default {
           } else {
             LibraryEventBus.$emit(LibraryEvent.ContentListUpdate, {
               deep: this.defaultDeep,
+              dataType: this.treeItemType,
               currentTreeData: this.treeItemData,
               parentTreeData: this.treeCurrentParent,
               contentList: treeItemData.children,
@@ -592,6 +597,7 @@ export default {
             KnowledgeQueryContentByDescriptionId({ descriptionId: this.treeItemData.id }).then(response => {
               this.$logger.info('KnowledgeQueryContentByDescriptionId response', response.result)
               LibraryEventBus.$emit(LibraryEvent.ContentListUpdate, {
+                dataType: this.treeItemType,
                 currentTreeData: this.treeItemData,
                 parentTreeData: this.treeCurrentParent,
                 contentList: response.result,
@@ -605,6 +611,7 @@ export default {
             // 非最后一层的knowledge 列表
             this.subTreeExpandStatus = true
             LibraryEventBus.$emit(LibraryEvent.ContentListUpdate, {
+              dataType: this.treeItemType,
               deep: this.defaultDeep,
               currentTreeData: this.treeItemData,
               parentTreeData: this.treeCurrentParent,
@@ -624,7 +631,7 @@ export default {
 
     handleContentListItemClick (data) {
       if (
-        data.eventType === 'sync' &&
+        data.eventType === 'syncDir' &&
         data.item.id === this.treeItemData.id &&
         data.item.name === this.treeItemData.name &&
         // 通过id和name无法唯一定位到指定的条目，因为多个subject下面的grade的id和name都相同，所以加一层父级的条目的名称一致性判断
@@ -633,50 +640,6 @@ export default {
         this.$logger.info('handleContentListItemClick start ', data, this.treeItemData, this.treeCurrentParent)
         this.handleExpandTreeItem(this.treeItemData)
       }
-        // 旧数据交互逻辑，废弃中
-        // else if (
-        // this.currentItemType === 'knowledge' &&
-        // data.eventType === 'selectDescription' &&
-        // data.parent.id === this.treeItemData.id &&
-        // data.parent.name === this.treeItemData.name) {
-        // // 处理knowledge中选择大纲描述逻辑
-        // if (this.selectMode === SelectModel.knowledgeDescription) {
-        //   this.$logger.info('select knowledge description treeItemData', data.item, this.treeItemData, this.treeCurrentParent)
-        //   const knowledgeObj = data.item
-        //   let gradeObj = null
-        //   if (this.treeItemData.hasOwnProperty('isGrade')) {
-        //     gradeObj = this.treeItemData
-        //   } else {
-        //     let parent = this.treeCurrentParent
-        //     // 往上查找直到找到grade
-        //     while (parent) {
-        //       if (parent.hasOwnProperty('isGrade')) {
-        //         gradeObj = parent
-        //         break
-        //       } else {
-        //         if (parent.hasOwnProperty('parent')) {
-        //           parent = parent.parent
-        //         } else {
-        //           break
-        //         }
-        //       }
-        //     }
-        //   }
-        //   this.$logger.info('gradeObj', gradeObj, 'knowledgeObj', knowledgeObj)
-        //   const selectDescriptionData = {
-        //     curriculumId: this.$store.getters.bindCurriculum,
-        //     description: data.item.id,
-        //     descriptionId: data.item.name,
-        //     gradeId: gradeObj.id,
-        //     gradeName: gradeObj.name,
-        //     gradeObj: gradeObj,
-        //     knowledgeObj: knowledgeObj,
-        //     questionIndex: this.questionIndex
-        //   }
-        //   this.$logger.info('【select description data】', selectDescriptionData)
-        //   LibraryEventBus.$emit(LibraryEvent.ContentListSelectClick, selectDescriptionData)
-        // }
-      // }
     }
   }
 }
