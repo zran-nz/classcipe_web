@@ -153,7 +153,9 @@ a {
   color: #15C39A;
 }
 
-a:hover {
-  background: #EDF1F5;
+ant-dropdown {
+  a:hover {
+    background: #EDF1F5;
+  }
 }
 </style>
