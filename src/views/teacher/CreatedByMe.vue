@@ -1034,14 +1034,4 @@ a.delete-action {
   }
 }
 
-.type-filter {
-
-  button.type-filter-button, button.ant-button {
-    border-color: #D8D8D8;
-    &:hover {
-      border-color: #15c39a;
-    }
-  }
-}
-
 </style>
