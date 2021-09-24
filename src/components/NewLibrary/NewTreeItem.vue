@@ -21,8 +21,9 @@
         <span class="display-label">{{ treeItemData.name }}</span>
       </div>
     </div>
-    <!--    大纲浏览-->
     <template v-if="subItemType ">
+
+      <!--learningOutcomes 大纲浏览的展示逻辑-->
       <div class="sub-tree" v-show="subTreeExpandStatus && hasSubTree" :data-sub-type="subItemType">
         <template v-if="subItemType === 'subject'">
           <new-tree-item
@@ -71,6 +72,18 @@
             :key="index"/>
         </template>
       </div>
+
+      <template v-if="treeItemType === NavigationType.sync">
+        <!--sync 同步数据不展示层级，直接右侧列表栏战术列表逻辑-->
+      </template>
+
+      <template v-if="treeItemType === NavigationType.specificSkills">
+        <!--specificSkills 同步数据展示逻辑-->
+      </template>
+
+      <template v-if="treeItemType === NavigationType.centurySkills">
+        <!--centurySkills 同步数据展示逻辑-->
+      </template>
     </template>
   </div>
 </template>
@@ -78,10 +91,10 @@
 <script>
 
 import { LibraryEventBus } from '@/components/NewLibrary/LibraryEventBus'
+import { NavigationType } from '@/components/NewLibrary/NavigationType'
 const { LibraryEvent } = require('@/components/NewLibrary/LibraryEventBus')
 const { KnowledgeQueryContentByDescriptionId } = require('@/api/knowledge')
 const { KnowledgeGetTree, Get21Century } = require('@/api/knowledge')
-const { NavigationType } = require('@/components/NewLibrary/NavigationType')
 
 const ExpandStatus = {
   collapse: false,
@@ -141,7 +154,8 @@ export default {
       hasSubTree: false,
       subTreeParent: null,
       subTreeLoading: false,
-      subItemType: null
+      subItemType: null,
+      NavigationType: NavigationType
     }
   },
   watch: {
@@ -176,17 +190,40 @@ export default {
     this.subTreeParent = currentTreeWithParent
   },
   mounted () {
-    if (this.currentItemType === 'subject') {
-      if (this.treeItemData.children.length) {
-        this.subItemType = 'subject'
-      } else {
-        this.subItemType = 'grade'
-      }
-    } else if (this.currentItemType === 'grade') {
-      this.subItemType = 'knowledge'
-    } else if (this.currentItemType === 'knowledge') {
-      if (this.treeItemData.children.length) {
+    // 根据不同的列表类型判断下一层对应的数据类型（注意sync是同步数据只有一级，故没有下级。直接列表展示，所以这里忽略sync的处理）
+    if (this.treeItemType === NavigationType.learningOutcomes) {
+      if (this.currentItemType === 'subject') {
+        if (this.treeItemData.children.length) {
+          this.subItemType = 'subject'
+        } else {
+          this.subItemType = 'grade'
+        }
+      } else if (this.currentItemType === 'grade') {
         this.subItemType = 'knowledge'
+      } else if (this.currentItemType === 'knowledge') {
+        if (this.treeItemData.children.length) {
+          this.subItemType = 'knowledge'
+        }
+      }
+    } else if (this.treeItemType === NavigationType.specificSkills) {
+      // subject specific skills 是mainSubject-year-knowledge
+      if (this.currentItemType === 'subject') {
+        this.subItemType = 'grade'
+      } else if (this.currentItemType === 'grade') {
+        this.subItemType = 'knowledge'
+      } else if (this.currentItemType === 'knowledge') {
+        if (this.treeItemData.children.length) {
+          this.subItemType = 'knowledge'
+        }
+      }
+    } else if (this.treeItemType === NavigationType.centurySkills) {
+      // 21 century skills 是year-knowledge
+      if (this.currentItemType === 'grade') {
+        this.subItemType = 'knowledge'
+      } else if (this.currentItemType === 'knowledge') {
+        if (this.treeItemData.children.length) {
+          this.subItemType = 'knowledge'
+        }
       }
     }
     LibraryEventBus.$on(LibraryEvent.ContentListItemClick, this.handleContentListItemClick)
@@ -195,6 +232,7 @@ export default {
     LibraryEventBus.$off(LibraryEvent.ContentListItemClick, this.handleContentListItemClick)
   },
   methods: {
+    // 点击左侧菜单栏，同步右侧的列表以及展开当前下一级菜单。
     handleExpandTreeItem (treeItemData) {
       this.$logger.info('handleExpandTreeItem ' + (!this.subTreeExpandStatus))
       this.$logger.info('handleExpandTreeItem deep: ' + this.defaultDeep + ' type: ' + this.treeItemType + ' treeItemData', treeItemData, ' parent ', this.treeCurrentParent)
@@ -202,8 +240,10 @@ export default {
         this.handleExpandCurriculumTreeItem(treeItemData)
       } else if (this.treeItemType === NavigationType.sync) {
         this.handleExpandSyncDataList(treeItemData)
-      } else {
-        this.handleExpandSkillTreeItem(treeItemData)
+      } else if (this.treeItemType === NavigationType.specificSkills) {
+        this.handleExpandSpecificSkillTreeItem(treeItemData)
+      } else if (this.treeItemType === NavigationType.centurySkills) {
+        this.handleExpandCenturySkillTreeItem(treeItemData)
       }
     },
 
@@ -355,32 +395,94 @@ export default {
       this.$logger.info('handleExpandCurriculumTreeItem handle finish!')
     },
 
-    handleExpandSkillTreeItem (treeItemData) {
-      this.subItemType = 'knowledge'
-      this.$logger.info('handleExpandSkillTreeItem data ', treeItemData, ' children ', treeItemData.children, ' deep ' + this.defaultDeep)
+    // subject specific skills 是mainSubject-year-knowledge
+    handleExpandSpecificSkillTreeItem (treeItemData) {
+      this.$logger.info('handleExpandSpecificSkillTreeItem data ', treeItemData, ' children ', treeItemData.children, ' deep ' + this.defaultDeep)
       if (this.defaultDeep === 0) {
+        // 直接展开第一层mainSubject
         this.subTreeExpandStatus = true
-        Get21Century({ curriculumId: this.$store.getters.bindCurriculum }).then((response) => {
-          this.$logger.info('Get21Century response', response)
+        LibraryEventBus.$emit(LibraryEvent.ContentListUpdate, {
+          deep: this.defaultDeep,
+          currentTreeData: this.treeItemData,
+          parentTreeData: this.treeCurrentParent,
+          contentList: treeItemData.children,
+          questionIndex: this.questionIndex
+        })
+        this.subItemType = 'subject'
+        this.subTreeLoading = false
+        this.hasSubTree = true
+      } else {
+        if (this.currentItemType === 'subject') {
+          this.subTreeLoading = true
           this.subTreeExpandStatus = true
+          if (!treeItemData.gradeList.length) {
+            treeItemData.gradeList = []
+            this.gradeList.forEach(item => {
+              item.children = []
+              item.isGrade = true
+              treeItemData.gradeList.push(Object.assign({}, item))
+            })
+            this.$logger.info('add gradeList ', treeItemData)
+          } else {
+            this.$logger.info('use old gradeList ', treeItemData)
+          }
           LibraryEventBus.$emit(LibraryEvent.ContentListUpdate, {
             deep: this.defaultDeep,
             currentTreeData: this.treeItemData,
             parentTreeData: this.treeCurrentParent,
-            contentList: [response.result],
+            contentList: treeItemData.gradeList,
             questionIndex: this.questionIndex
           })
-        }).finally(() => {
-          this.subTreeExpandStatus = true
-          this.subTreeLoading = false
+          this.subItemType = 'grade'
           this.hasSubTree = true
-          this.subItemType = 'knowledge'
-        })
-      } else {
+        }
+
+        // 判断年级判断是否已经有知识点了
+        if (this.currentItemType === 'grade') {
+          if (!treeItemData.children.length) {
+            this.subTreeLoading = true
+            const gradeId = treeItemData.id
+            const subjectId = this.treeCurrentParent.id
+            this.$logger.info('knowledgeTree gradeId ' + gradeId + ' subjectId ' + subjectId)
+            KnowledgeGetTree({
+              gradeId,
+              subjectId
+            }).then((response) => {
+              this.$logger.info('KnowledgeGetTree response', response)
+              treeItemData.children = response.result
+              LibraryEventBus.$emit(LibraryEvent.ContentListUpdate, {
+                deep: this.defaultDeep,
+                currentTreeData: this.treeItemData,
+                parentTreeData: this.treeCurrentParent,
+                contentList: treeItemData.children,
+                questionIndex: this.questionIndex
+              })
+              this.$logger.info('mainKnowledgeList', treeItemData.children)
+            }).finally(() => {
+              this.subTreeLoading = false
+              this.subTreeExpandStatus = true
+            })
+            // grade下一层knowledge
+            this.subItemType = 'knowledge'
+          } else {
+            LibraryEventBus.$emit(LibraryEvent.ContentListUpdate, {
+              deep: this.defaultDeep,
+              currentTreeData: this.treeItemData,
+              parentTreeData: this.treeCurrentParent,
+              contentList: treeItemData.children,
+              questionIndex: this.questionIndex
+            })
+            this.subTreeLoading = false
+            this.subTreeExpandStatus = true
+          }
+        }
+
         // 加载知识点关联数据
+        if (this.currentItemType === 'knowledge') {
           this.$logger.info('selectMode', this.selectMode)
+
           // knowledge导航栏不展示description，右侧列表展示，故下下级为空到底
-          if (treeItemData.children.length && treeItemData.children[0].children.length) {
+          if (treeItemData.children === undefined || !treeItemData.children.length) {
             this.$logger.info('select reach knowledge bottom')
             this.subTreeLoading = true
             KnowledgeQueryContentByDescriptionId({ descriptionId: this.treeItemData.id }).then(response => {
@@ -405,9 +507,118 @@ export default {
               contentList: treeItemData.children,
               questionIndex: this.questionIndex
             })
+
+            // knowledge 最后一级别，所有的下面都是knowledge
             this.subItemType = 'knowledge'
           }
         }
+
+        this.subTreeLoading = false
+      }
+      this.$logger.info('handleExpandCurriculumTreeItem handle finish!')
+    },
+
+    // 21 century skills 是year-knowledge
+    handleExpandCenturySkillTreeItem (treeItemData) {
+      this.subItemType = 'knowledge'
+      this.$logger.info('handleExpandCenturySkillTreeItem data ', treeItemData, ' children ', treeItemData.children, ' deep ' + this.defaultDeep)
+      if (this.defaultDeep === 0) {
+        // 直接展开第一层gradeList
+        this.subTreeExpandStatus = true
+        LibraryEventBus.$emit(LibraryEvent.ContentListUpdate, {
+          deep: this.defaultDeep,
+          currentTreeData: this.treeItemData,
+          parentTreeData: this.treeCurrentParent,
+          gradeList: treeItemData.gradeList,
+          questionIndex: this.questionIndex
+        })
+        this.subItemType = 'grade'
+        this.subTreeLoading = false
+        this.hasSubTree = true
+      } else {
+        // 判断年级判断是否已经有知识点了
+        if (this.currentItemType === 'grade') {
+          if (!treeItemData.children.length) {
+            this.subTreeLoading = true
+            const gradeId = treeItemData.id
+            const subjectId = this.treeCurrentParent.id
+            this.$logger.info('knowledgeTree gradeId ' + gradeId + ' subjectId ' + subjectId)
+
+            Get21Century({
+              gradeId,
+              curriculumId: this.$store.getters.bindCurriculum
+            }).then((response) => {
+              this.$logger.info('Get21Century response', response)
+              if (response.result) {
+                treeItemData.children = response.result
+                LibraryEventBus.$emit(LibraryEvent.ContentListUpdate, {
+                  deep: this.defaultDeep,
+                  currentTreeData: this.treeItemData,
+                  parentTreeData: this.treeCurrentParent,
+                  contentList: treeItemData.children,
+                  questionIndex: this.questionIndex
+                })
+                this.$logger.info('mainKnowledgeList', treeItemData.children)
+                this.subTreeExpandStatus = true
+              } else {
+                this.subTreeExpandStatus = false
+              }
+            }).finally(() => {
+              this.subTreeLoading = false
+            })
+            // grade下一层knowledge
+            this.subItemType = 'knowledge'
+          } else {
+            LibraryEventBus.$emit(LibraryEvent.ContentListUpdate, {
+              deep: this.defaultDeep,
+              currentTreeData: this.treeItemData,
+              parentTreeData: this.treeCurrentParent,
+              contentList: treeItemData.children,
+              questionIndex: this.questionIndex
+            })
+            this.subTreeLoading = false
+            this.subTreeExpandStatus = true
+          }
+        }
+
+        // 加载知识点关联数据
+        if (this.currentItemType === 'knowledge') {
+          this.$logger.info('selectMode', this.selectMode)
+
+          // knowledge导航栏不展示description，右侧列表展示，故下下级为空到底
+          if (treeItemData.children === undefined || !treeItemData.children.length) {
+            this.$logger.info('select reach knowledge bottom')
+            this.subTreeLoading = true
+            KnowledgeQueryContentByDescriptionId({ descriptionId: this.treeItemData.id }).then(response => {
+              this.$logger.info('KnowledgeQueryContentByDescriptionId response', response.result)
+              LibraryEventBus.$emit(LibraryEvent.ContentListUpdate, {
+                currentTreeData: this.treeItemData,
+                parentTreeData: this.treeCurrentParent,
+                contentList: response.result,
+                questionIndex: this.questionIndex
+              })
+            }).finally(() => {
+              this.subTreeLoading = false
+              this.subTreeExpandStatus = true
+            })
+          } else {
+            // 非最后一层的knowledge 列表
+            this.subTreeExpandStatus = true
+            LibraryEventBus.$emit(LibraryEvent.ContentListUpdate, {
+              deep: this.defaultDeep,
+              currentTreeData: this.treeItemData,
+              parentTreeData: this.treeCurrentParent,
+              contentList: treeItemData.children,
+              questionIndex: this.questionIndex
+            })
+
+            // knowledge 最后一级别，所有的下面都是knowledge
+            this.subItemType = 'knowledge'
+          }
+        }
+
+        this.subTreeLoading = false
+      }
       this.$logger.info('handleExpandCurriculumTreeItem handle finish!')
     },
 

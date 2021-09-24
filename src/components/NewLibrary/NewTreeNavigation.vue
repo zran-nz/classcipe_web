@@ -5,7 +5,11 @@
       :tree-item-data="treeItemData"
       :tree-current-parent="null"
       :default-deep="0"
-      :current-item-type="treeItemData.type === NavigationType.learningOutcomes ? 'subject' : 'sync'"
+      :current-item-type="treeItemData.type === NavigationType.learningOutcomes ? 'subject' : // 如果当前是大纲，那么第一层数据是不区分层级的subject
+        (treeItemData.type === NavigationType.sync ? 'sync' : // 如果是sync第一次是外部的同步数据列表
+          (treeItemData.type === NavigationType.specificSkills ? 'subject' : ( // 如果是specificSkills，那么第一层数据是subject，注意subject只有一层
+            (treeItemData.type === NavigationType.centurySkills ? 'grade' : 'none' // 如果是centurySkills，那么第一层数据是grade年级列表
+            ))))"
       :select-mode="selectMode"
       :question-index="questionIndex"
       :default-expand-status="treeItemData.expandStatus"
@@ -110,7 +114,8 @@ export default {
           children: [],
           parent: null
         }
-        this.subjectTree.forEach(subjectItem => {
+        // 从大纲数据中复制一份数据，只用mainSubject既第一层
+        curriculumData.children.forEach(subjectItem => {
           specificSkillsData.children.push(Object.assign({}, subjectItem))
         })
         this.treeDataList.push(specificSkillsData)
@@ -122,11 +127,13 @@ export default {
           type: NavigationType.centurySkills,
           name: skillCategory[2],
           children: [],
+          gradeList: [],
           parent: null
         }
         this.gradeList.forEach(gradeItem => {
           gradeItem.isGrade = true
-          centurySkillsData.children.push(Object.assign({}, gradeItem))
+          gradeItem.children = []
+          centurySkillsData.gradeList.push(Object.assign({}, gradeItem))
         })
         this.treeDataList.push(centurySkillsData)
 
@@ -136,6 +143,7 @@ export default {
     })
   },
   methods: {
+    // 给任意层级的数据先增加gradeList属性，然后直接给vue进行监测数据更新。避免数据操作过程中加数据，太麻烦
     addGradeListProperty (list) {
       list.forEach(item => {
         if (!item.hasOwnProperty('gradeList')) {
