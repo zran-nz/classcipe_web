@@ -54,7 +54,7 @@
             :odd="odd ? index % 2 === 1 : index % 2 === 0 "
             :key="index"/>
         </template>
-        <!--        knowledge 下级列表不展示最后一级-->
+        <!-- knowledge 下级列表不展示最后一级-->
         <template v-if="subItemType === 'knowledge' && (treeItemData.children.length && treeItemData.children[0].children.length)">
           <new-tree-item
             :grade-list="gradeList"
@@ -198,7 +198,7 @@ export default {
     handleExpandTreeItem (treeItemData) {
       this.$logger.info('handleExpandTreeItem ' + (!this.subTreeExpandStatus))
       this.$logger.info('handleExpandTreeItem deep: ' + this.defaultDeep + ' type: ' + this.treeItemType + ' treeItemData', treeItemData, ' parent ', this.treeCurrentParent)
-      if (this.treeItemType === NavigationType.curriculum) {
+      if (this.treeItemType === NavigationType.learningOutcomes) {
         this.handleExpandCurriculumTreeItem(treeItemData)
       } else if (this.treeItemType === NavigationType.sync) {
         this.handleExpandSyncDataList(treeItemData)

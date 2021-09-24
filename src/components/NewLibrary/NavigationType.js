@@ -1,6 +1,10 @@
 export const NavigationType = {
-  curriculum: 'learningOutcomes',
-  sync: 'sync',
-  skill: 'specificSkills',
-  centurySkills: 'centurySkills'
+  // 数据层级结构：mainsubject-subsubject-year-knowledge
+  learningOutcomes: 'learningOutcomes',
+  // 数据层级结构：mainsubject-year-knowledge
+  specificSkills: 'specificSkills',
+  // 数据层级结构：year-knowledge
+  centurySkills: 'centurySkills',
+  // 同步其他人link后的数据
+  sync: 'sync'
 }

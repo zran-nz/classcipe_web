@@ -5,7 +5,7 @@
       :tree-item-data="treeItemData"
       :tree-current-parent="null"
       :default-deep="0"
-      :current-item-type="treeItemData.type === NavigationType.curriculum ? 'subject' : 'sync'"
+      :current-item-type="treeItemData.type === NavigationType.learningOutcomes ? 'subject' : 'sync'"
       :select-mode="selectMode"
       :question-index="questionIndex"
       :default-expand-status="treeItemData.expandStatus"
@@ -59,7 +59,7 @@ export default {
     const curriculumData = {
       id: '1',
       expandStatus: true,
-      type: NavigationType.curriculum,
+      type: NavigationType.learningOutcomes,
       name: skillCategory.length === 3 ? skillCategory[0] : 'Curriculum',
       children: [],
       parent: null
@@ -80,7 +80,6 @@ export default {
     }
     Promise.all([
       SubjectTree({ curriculumId: this.$store.getters.bindCurriculum }),
-      // GetAllSdgs(),
       GetMyGrades()
     ]).then((initDataResponse) => {
       this.$logger.info('initData done', initDataResponse)
@@ -94,14 +93,6 @@ export default {
         this.addGradeListProperty(curriculumData.children)
       }
 
-      // // GetAllSdgs
-      // this.$logger.info('GetAllSdgs Response ', initDataResponse[1])
-      // if (!initDataResponse[1].code) {
-      //   this.sdgList = initDataResponse[1].result
-      //   this.sdgList.forEach(item => { item.children = [] })
-      //   sdgData.children = this.sdgList
-      // }
-
       // GetMyGrades
       this.$logger.info('GetMyGrades Response ', initDataResponse[1])
       if (!initDataResponse[1].code) {
@@ -109,16 +100,22 @@ export default {
       }
     }).finally(() => {
       this.treeDataList.push(curriculumData)
-      this.$logger.info('addGradeListProperty treeDataList', this.treeDataList)
       if (skillCategory.length === 3) {
+        // subject specific skills 是mainSubject-year-knowledge
         const specificSkillsData = {
           id: '1',
           expandStatus: true,
-          type: NavigationType.skill,
+          type: NavigationType.specificSkills,
           name: skillCategory[1],
           children: [],
           parent: null
         }
+        this.subjectTree.forEach(subjectItem => {
+          specificSkillsData.children.push(Object.assign({}, subjectItem))
+        })
+        this.treeDataList.push(specificSkillsData)
+
+        // 21 century skills 是year-knowledge
         const centurySkillsData = {
           id: '1',
           expandStatus: true,
@@ -127,8 +124,13 @@ export default {
           children: [],
           parent: null
         }
-        this.treeDataList.push(specificSkillsData)
+        this.gradeList.forEach(gradeItem => {
+          gradeItem.isGrade = true
+          centurySkillsData.children.push(Object.assign({}, gradeItem))
+        })
         this.treeDataList.push(centurySkillsData)
+
+        this.$logger.info('after handle treeDataList', this.treeDataList)
       }
       this.loaded = true
     })

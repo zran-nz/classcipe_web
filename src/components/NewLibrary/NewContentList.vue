@@ -4,12 +4,6 @@
       <div class="name" :style="{width: nameWidth + 'px'}">
         Name
       </div>
-      <!--      <div class="owner">-->
-      <!--        Owner-->
-      <!--      </div>-->
-      <!--      <div class="date-modified">-->
-      <!--        Date Modified-->
-      <!--      </div>-->
     </div>
     <div class="content-list">
       <template v-if="contentDataList && contentDataList.length">
@@ -45,12 +39,6 @@
               <img src="~@/assets/icons/lesson/selected.png"/>
             </div>
           </div>
-          <!--          <div class="owner">-->
-          <!--            {{ item.createBy }}-->
-          <!--          </div>-->
-          <!--          <div class="date-modified">-->
-          <!--            {{ item.updateTime | dayjs }}-->
-          <!--          </div>-->
         </div>
       </template>
       <template v-else>
@@ -107,10 +95,16 @@ export default {
       firstLoad: true,
 
       selectedCurriculumIdList: [],
+      selectedCurriculumMap: new Map(),
+
       selectedKnowledgeIdList: [],
       selectedKnowledgeIdNameMap: new Map(),
 
-      selectedCurriculumMap: new Map()
+      selected21CenturySkillIdList: [],
+      selected21CenturySkillIdMap: new Map(),
+
+      selectedSubjectSpecificSkillIdList: [],
+      selectedSubjectSpecificSkillIdMap: new Map()
     }
   },
   computed: {
@@ -143,7 +137,7 @@ export default {
       this.$logger.info('after handleContentSelectedListUpdate ', this.selectedCurriculumIdList, this.selectedCurriculumMap)
     },
     handleContentListItemClick (item) {
-      this.$logger.info('handleContentListItemClick', item, this.parent)
+      this.$logger.info('handleContentListItemClick current item: ', item, ' parent:', this.parent)
 
       if (item.hasOwnProperty('froms')) {
         // 同步更新点击sync data数据，通过当前字段是否包含froms来区分sync和大纲描述
@@ -202,10 +196,6 @@ export default {
             this.$logger.info('current is grade, skip empty children item!')
           }
         }
-        // if (item.type) {
-        //   this.$logger.info('handleContentListItemClick type', item)
-        //   this.handlePreviewDetail(item)
-        // }
       }
     },
     handlePreviewClose () {
