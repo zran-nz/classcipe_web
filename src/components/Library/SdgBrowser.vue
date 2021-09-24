@@ -373,7 +373,7 @@ export default {
         overflow: hidden;
         //white-space: nowrap;
         text-overflow: ellipsis;
-        word-break: break-all;
+        word-break: break-word;
         user-select: none;
         display: flex;
         flex-direction: row;
@@ -405,7 +405,7 @@ export default {
           width: calc(100% - 25px);
 
           text-overflow: ellipsis;
-          word-break: break-all;
+          word-break: break-word;
           user-select: none;
           overflow: hidden;
           i {
@@ -497,7 +497,7 @@ export default {
         overflow: hidden;
         white-space: nowrap;
         text-overflow: ellipsis;
-        word-break: break-all;
+        word-break: break-word;
         user-select: none;
         display: flex;
         flex-direction: row;
@@ -521,7 +521,7 @@ export default {
           align-items: center;
           width: calc(100% - 25px);
           text-overflow: ellipsis;
-          word-break: break-all;
+          word-break: break-word;
           user-select: none;
           overflow: hidden;
 

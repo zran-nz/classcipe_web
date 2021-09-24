@@ -516,7 +516,7 @@
         overflow: hidden;
         //white-space: nowrap;
         text-overflow: ellipsis;
-        word-break: break-all;
+        word-break: break-word;
         user-select: none;
         background: rgba(228, 228, 228, 0.2);
         position: relative;
@@ -545,7 +545,7 @@
           width: calc(100% - 25px);
 
           text-overflow: ellipsis;
-          word-break: break-all;
+          word-break: break-word;
           user-select: none;
           overflow: hidden;
 
@@ -682,7 +682,7 @@
         overflow: hidden;
         white-space: nowrap;
         text-overflow: ellipsis;
-        word-break: break-all;
+        word-break: break-word;
         user-select: none;
         display: flex;
         flex-direction: row;

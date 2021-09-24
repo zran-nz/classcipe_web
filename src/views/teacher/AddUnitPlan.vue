@@ -75,9 +75,11 @@
                         <a-form-item label="Big idea* (Or statement of inquiry / Enduring understanding)">
                           <a-input v-model="form.inquiry" :placeholder="$store.getters.currentRole === 'teacher' ? $t('teacher.add-unit-plan.teacher-direction-of-inquiry') : $t('teacher.add-unit-plan.expert-direction-of-inquiry')" class="my-form-input" />
                         </a-form-item>
-                        <span class="browse">
-                          <a-icon type="appstore" theme="twoTone" twoToneColor="rgba(21, 195, 154, 1)" />
-                        </span>
+                        <a-tooltip title="Browse" @click="handleSelectDescription(true)">
+                          <span class="browse">
+                            <a-icon type="appstore" theme="twoTone" twoToneColor="rgba(21, 195, 154, 1)" />
+                          </span>
+                        </a-tooltip>
                       </div>
 
                       <!--            real-life-scenario-->
@@ -158,7 +160,7 @@
                       </div>
                       <div class="form-block">
                         <a-form-item label="Set assessment objectives" >
-                          <a-button type="primary" @click="handleSelectDescription">
+                          <a-button type="primary" @click="handleSelectDescription(false)">
                             <div class="btn-text" style="line-height: 20px">
                               Add assessment objectives
                             </div>
@@ -581,7 +583,8 @@ export default {
       // specific skill
       selectedSpecificSkillList: [],
       // century skill
-      selectedCenturySkillList: []
+      selectedCenturySkillList: [],
+      selectIdea: false
     }
   },
   watch: {
@@ -1089,8 +1092,9 @@ export default {
       this.$logger.info('handleStartCollaborate')
       this.$refs.collaborate.startCollaborateModal(Object.assign({}, this.form), this.form.id, this.contentType['unit-plan'])
     },
-    handleSelectDescription () {
+    handleSelectDescription (selectIdea) {
       this.selectSyncDataVisible = true
+      this.selectIdea = selectIdea
     },
     handleConfirmAssociate () {
       this.$logger.info('handleConfirmAssociate')
@@ -1310,6 +1314,13 @@ export default {
       })
       const selectList = this.selectedCurriculumList.concat(this.selectedSpecificSkillList).concat(this.selectedCenturySkillList)
       console.log(selectList)
+      if (this.selectIdea) {
+        if (selectList.length > 0) {
+          this.form.inquiry = selectList[0].knowledgeData.name
+        }
+        this.selectSyncDataVisible = false
+        return
+      }
       selectList.forEach(data => {
         const filterLearnOuts = this.form.learnOuts.filter(item => item.knowledgeId === data.knowledgeId)
         if (filterLearnOuts.length > 0) {
