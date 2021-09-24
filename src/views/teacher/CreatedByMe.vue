@@ -148,7 +148,7 @@
                 <div class="mask-actions">
                   <div class="action-item action-item-top">
                     <a-dropdown>
-                      <a-icon type="more" style="margin-right: 8px" />
+                      <a-icon type="more" style="margin-right: 8px" class="more-icon" />
                       <a-menu slot="overlay">
                         <a-menu-item>
                           <a-popconfirm :title="$t('teacher.my-content.action-delete') + '?'" ok-text="Yes" @confirm="handleDeleteItem(item)" cancel-text="No">
@@ -183,7 +183,7 @@
                     </div>
                   </div>
                 </div>
-                <img class="cover-image" :src="item.image">
+                <div class="cover-img" :style="{backgroundImage: 'url(' + item.image + ')'}"></div>
                 <a-card-meta :title="item.name ? item.name : 'Untitled'" :description="item.createTime | dayjs" @click="handleViewDetail(item)"></a-card-meta>
               </a-card>
             </a-list-item>
@@ -758,6 +758,7 @@ export default {
             }
 
             .session-btn-text {
+              display: none;
               font-size: 13px;
               padding-left: 7px;
               font-family: Inter-Bold;
@@ -777,6 +778,7 @@ export default {
             }
 
             .session-btn-text {
+              display: inline-block;
               color: #15C39A;
             }
           }
@@ -861,17 +863,25 @@ a.delete-action {
 
 .cover-card{
   background: #FFFFFF;
-  border: 1px solid #F7F8FF;
-  box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.16);
   opacity: 1;
   border-radius: 6px;
+  border: none;
 
+  .cover-img {
+    width: 100%;
+    min-height: 160px;
+    background-position: center center;
+    background-repeat: no-repeat;
+    background-size: cover;
+    margin-bottom: 10px;
+  }
   &:hover {
+    box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.16);
     .mask-actions{
       display: block;
     }
     .mask{
-      opacity: 0.72;
+      opacity: 0.3;
     }
   }
   .mask-actions{
@@ -893,11 +903,8 @@ a.delete-action {
       flex-direction: row;
       justify-content: flex-end;
       padding-top: 15px;
-      svg {
-        height: 30px;
-      }
       i{
-        width: 20px;
+        width: 25px;
         font-size: 20px;
         color: rgba(255, 255, 255, 1);
         display: flex;
@@ -920,11 +927,20 @@ a.delete-action {
         display: flex;
         padding: 6px 13px;
         .session-btn-text {
+          display: none;
           font-size: 12px;
           font-family: Inter-Bold;
           line-height: 24px;
           color: #FFFFFF;
           opacity: 1;
+        }
+      }
+
+      .session-btn-left {
+        &:hover {
+          .session-btn-text {
+            display: inline-block;
+          }
         }
       }
       .session-btn-right {
@@ -937,11 +953,18 @@ a.delete-action {
         justify-content: center;
         padding: 6px 13px;
         .session-btn-text {
+          display: none;
           font-size: 12px;
           font-family: Inter-Bold;
           line-height: 24px;
           color: #FFFFFF;
           opacity: 1;
+        }
+      }
+
+      .session-btn-right:hover {
+        .session-btn-text {
+          display: inline-block;
         }
       }
     }
@@ -951,13 +974,15 @@ a.delete-action {
       align-items: center;
       justify-content: space-around;
       .session-btn {
-        width: 100px;
+        height: 33px;
+        width: auto;
         display: flex;
         border-radius: 32px;
         flex-direction: row;
         align-items: center;
         justify-content: center;
-        padding: 6px 13px;
+        padding: 6px 10px;
+        transition: all 0.3s ease-in-out;
         background: rgba(245, 245, 245, 1);
         box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.16);
         opacity: 1;
@@ -977,10 +1002,17 @@ a.delete-action {
         }
 
         .session-btn-text {
+          display: none;
           font-size: 13px;
           padding-left: 7px;
           font-family: Inter-Bold;
           color: #182552;
+        }
+      }
+
+      .session-btn:hover {
+        .session-btn-text {
+          display: inline-block;
         }
       }
     }
