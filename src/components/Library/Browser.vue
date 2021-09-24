@@ -312,7 +312,7 @@ export default {
     padding: 0 0 20px;
     height: 52px;
     .curriculum-select {
-      background: rgba(24, 37, 82, 0.1);
+      background: #eaebef;
       display: inline-block;
       position: relative;
       border-radius: 3px;
