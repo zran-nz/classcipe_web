@@ -16,7 +16,7 @@
         <a-row class="unit-content" v-if="!contentLoading" >
           <a-col span="24" class="main-content">
             <a-card :bordered="false" :body-style="{padding: '16px', display: 'flex', 'justify-content': 'center'}" class="card-wrapper">
-              <a-form-model :model="form" class="task-form-left">
+              <a-form-model :model="form" class="task-form-left my-form-wrapper">
                 <a-steps :current="currentActiveStepIndex" direction="vertical" @change="onChangeStep">
                   <a-step title="Edit course info" :status="currentActiveStepIndex === 0 ? 'process':'wait'">
                     <template v-if="currentActiveStepIndex === 0" slot="description">
@@ -63,19 +63,41 @@
                       </div>
 
                       <div class="form-block" >
-                        <div class="self-type-wrapper">
-                          <div class="self-field-label">
-                            <div :class="{'task-type-item': true, 'green-active-task-type': form.taskType === 'FA'}" @click="handleSelectTaskType('FA')">FA</div>
-                            <div :class="{'task-type-item': true, 'red-active-task-type': form.taskType === 'SA'}" @click="handleSelectTaskType('SA')">SA</div>
+                        <a-form-model-item class="task-audio-line" label="Choose type">
+                          <div class="self-type-wrapper">
+                            <div class="self-field-label">
+                              <div :class="{'task-type-item': true, 'green-active-task-type': form.taskType === 'FA'}" @click="handleSelectTaskType('FA')">FA</div>
+                              <div :class="{'task-type-item': true, 'red-active-task-type': form.taskType === 'SA'}" @click="handleSelectTaskType('SA')">SA</div>
+                            </div>
+                          <!--                          <div class="self-type-filter">-->
+                          <!--                            <a-select class="my-big-select" size="large" v-model="form.bloomCategories" placeholder="Choose the Bloom Taxonomy Categories" :allowClear="true" >-->
+                          <!--                              <a-select-option :value="item.value" v-for="(item, index) in initBlooms" :key="index" >-->
+                          <!--                                {{ item.title }}-->
+                          <!--                              </a-select-option>-->
+                          <!--                            </a-select>-->
+                          <!--                          </div>-->
                           </div>
-                          <div class="self-type-filter">
-                            <a-select class="my-big-select" size="large" v-model="form.bloomCategories" placeholder="Choose the Bloom Taxonomy Categories" :allowClear="true" >
-                              <a-select-option :value="item.value" v-for="(item, index) in initBlooms" :key="index" >
-                                {{ item.title }}
-                              </a-select-option>
-                            </a-select>
-                          </div>
-                        </div>
+                        </a-form-model-item>
+                      </div>
+
+                      <div class="form-block form-question" v-if="associateQuestionList.length > 0">
+                        <a-form-model-item label="Choose Key questions">
+                          <a-select
+                            size="large"
+                            class="my-big-select"
+                            v-model="form.questionIds"
+                            mode="multiple"
+                            placeholder="Choose Key questions"
+                            option-label-prop="label"
+                          >
+                            <a-select-option v-for="(item,index) in associateQuestionList" :value="item.id" :label="item.name" :key="index">
+                              <span class="question-options">
+                                {{ item.name }}
+                              </span>
+                              From Unit Plan({{ item.unitName }})
+                            </a-select-option>
+                          </a-select>
+                        </a-form-model-item>
                       </div>
 
                       <div class="form-block" >
@@ -668,10 +690,6 @@
         showAddAudioVisible: false,
 
         presentationLink: null,
-        suggestingTag: {
-          knowledgeTags: [],
-          skillTags: []
-        },
         form: {
           id: null,
           image: '',
@@ -700,13 +718,6 @@
         templateList: [],
         templateLoading: false,
         selectedTemplateList: [],
-
-        extKnowledgeTagList: [],
-        extSkillTagList: [],
-
-        subKnowledgeId2InfoMap: new Map(),
-        descriptionId2InfoMap: new Map(),
-
         currentUploading: false,
         audioUrl: null,
 
@@ -761,7 +772,8 @@
         filterCentury: [],
         recomendListLoading: false,
         addRecomendLoading: false,
-        skeletonLoading: false
+        skeletonLoading: false,
+        associateQuestionList: []
       }
     },
     computed: {
@@ -891,14 +903,6 @@
           const taskData = response.result
           this.form = taskData
           this.form.bloomCategories = this.form.bloomCategories ? this.form.bloomCategories : undefined // 为了展示placeholder
-          if (!this.form.suggestingTag) {
-            this.form.suggestingTag = {
-              'knowledgeTags': [],
-              'skillTags': []
-            }
-          }
-          this.suggestingTag = this.form.suggestingTag
-
           // if (!this.form.presentationId) {
           //   // 未成功绑定ppt
           //   this.handleShowSelectMyContent()
@@ -942,7 +946,6 @@
         if (this.form.presentationId) {
           this.loadThumbnail()
         }
-        taskData.suggestingTag = this.suggestingTag
         logger.info('basic taskData', taskData)
         logger.info('question taskData', taskData)
         TaskAddOrUpdate(taskData).then((response) => {
@@ -1455,6 +1458,16 @@
             if (this.groupNameListOther.indexOf(item.group) === -1) {
               this.groupNameListOther.push(item.group)
             }
+            item.contents.forEach(content => {
+              if (content.type === typeMap['unit-plan']) {
+                content.questions.forEach(question => {
+                  this.associateQuestionList.push({
+                    ...question,
+                    unitName: content.name
+                  })
+                })
+              }
+            })
           })
           if (this.groupNameList.length > 0 || this.groupNameListOther.length > 0) {
             this.handleSyncData()
@@ -1549,18 +1562,11 @@
 
       onChangeStep (current) {
         console.log('onChange:', current)
-        this.currentActiveStepIndex = current
-        if (current === 1 && !this.form.presentationId) {
-          this.loadRecommendThumbnail()
+        if (typeof current === 'number') {
+          this.currentActiveStepIndex = current
+        } else {
+          this.currentActiveStepIndex = 0
         }
-        // if (this.editPPTMode) {
-        //   this.currentActiveStepIndex = 0
-        //   this.editPPTMode = false
-        //   this.$refs.slide.scrollIntoView({
-        //     block: 'start',
-        //     behavior: 'smooth'
-        //   })
-        // }
       },
 
       handleToggleSlideMode () {
@@ -2641,9 +2647,16 @@
   .form-block {
     margin-bottom: 35px;
     width: 600px;
+    /deep/ .ant-form-item label{
+      font-size: 16px;
+      font-weight: 500;
+      font-family: Inter-Bold;
+      line-height: 24px;
+    }
   }
 
   .self-type-wrapper {
+    cursor: pointer;
     display: flex;
     flex-direction: row;
     align-items: center;
@@ -3061,5 +3074,18 @@
     flex-direction: row;
     justify-content: center;
     align-items: center;
+  }
+
+  .question-options {
+    width: 100%;
+    display: block;
+    font-size: 18px;
+    font-family: Inter-Bold;
+    line-height: 24px;
+    color: #11142D;
+  }
+
+  /deep/ .ant-steps-item-title{
+    font-size:18px
   }
 </style>

@@ -92,56 +92,61 @@
                             </div>
                           </a-col>
                         </a-row>
-                      </div>
-                      <!--sdg and KeyWords-->
-                      <div
-                        class="sdg-content-blocks sdg-form-block"
-                        id="sdg"
-                        v-for="(scenario, sdgIndex) in form.scenarios"
-                        :key="sdgIndex">
+                        <!--sdg and KeyWords-->
+                        <div
+                          class="sdg-content-blocks sdg-form-block"
+                          id="sdg"
+                          v-for="(scenario, sdgIndex) in form.scenarios"
+                          :key="sdgIndex">
 
-                        <!--description-->
-                        <div class="scenario-description">
-                          <div class="sdg-delete-wrapper" @click="handleDeleteSdg(sdgIndex)" v-show="form.scenarios.length > 1">
-                            <a-tooltip placement="top">
-                              <template slot="title">
-                                <span>{{ $t('teacher.add-unit-plan.delete-goal') }}</span>
-                              </template>
-                              <div class="sdg-delete">
-                                <a-icon type="delete" :style="{ fontSize: '20px' }" />
-                              </div>
-                            </a-tooltip>
+                          <!--description-->
+                          <div class="scenario-description">
+                            <div class="sdg-delete-wrapper" @click="handleDeleteSdg(sdgIndex)" v-show="form.scenarios.length > 1">
+                              <a-tooltip placement="top">
+                                <template slot="title">
+                                  <span>{{ $t('teacher.add-unit-plan.delete-goal') }}</span>
+                                </template>
+                                <div class="sdg-delete">
+                                  <a-icon type="delete" :style="{ fontSize: '20px' }" />
+                                </div>
+                              </a-tooltip>
+                            </div>
+                            <!--sdg-->
+                            <a-form-model-item >
+                              <a-select size="large" v-model="scenario.sdgId" class="my-big-select" placeholder="Select a goal from UN">
+                                <a-select-option v-for="(sdg,index) in sdgList" :value="sdg.id" :key="index" :disabled="selectedSdg.indexOf(sdg.id) != -1">
+                                  {{ sdg.name }}
+                                </a-select-option>
+                              </a-select>
+                            </a-form-model-item>
+
+                            <a-form-model-item>
+                              <input-search
+                                ref="descriptionInputSearch"
+                                :default-value="scenario.description"
+                                :key-index="sdgIndex"
+                                :currend-index="currentIndex"
+                                :search-list="descriptionSearchList"
+                                label="description"
+                                @search="handleDescriptionSearch"
+                                @select-item="handleSelectScenario"
+                                @reset="descriptionSearchList = []" />
+                            </a-form-model-item>
+
                           </div>
-                          <!--sdg-->
-                          <a-form-model-item >
-                            <a-select size="large" v-model="scenario.sdgId" class="my-big-select" placeholder="Select a goal from UN">
-                              <a-select-option v-for="(sdg,index) in sdgList" :value="sdg.id" :key="index" :disabled="selectedSdg.indexOf(sdg.id) != -1">
-                                {{ sdg.name }}
-                              </a-select-option>
-                            </a-select>
-                          </a-form-model-item>
-
-                          <a-form-model-item>
-                            <input-search
-                              ref="descriptionInputSearch"
-                              :default-value="scenario.description"
-                              :key-index="sdgIndex"
-                              :currend-index="currentIndex"
-                              :search-list="descriptionSearchList"
-                              label="description"
-                              @search="handleDescriptionSearch"
-                              @select-item="handleSelectScenario"
-                              @reset="descriptionSearchList = []" />
-                          </a-form-model-item>
-
-                        </div>
 
                         <!--keywords-->
                         <!--    <a-form-model-item>
                           <sdg-tag-input :selected-keywords="scenario.sdgKeyWords" :sdg-key="sdgIndex" @add-tag="handleAddSdgTag" @remove-tag="handleRemoveSdgTag"/>
                         </a-form-model-item>-->
-
-                        <a-button type="link" icon="plus-circle" size="large" @click="handleAddMoreSdg"></a-button>
+                        </div>
+                        <a-button
+                          class="add-button"
+                          style="top:-20px"
+                          type="link"
+                          icon="plus-circle"
+                          size="large"
+                          @click="handleAddMoreSdg"></a-button>
                       </div>
 
                       <div class="form-block">
@@ -156,8 +161,15 @@
                             </div>
                           </div>
                         </a-form-item>
-                        <a-button type="link" icon="plus-circle" size="large" @click="handleAddMoreQuestion"></a-button>
+                        <a-button
+                          class="add-button"
+                          style="top:-40px;"
+                          type="link"
+                          icon="plus-circle"
+                          size="large"
+                          @click="handleAddMoreQuestion"></a-button>
                       </div>
+
                       <div class="form-block">
                         <a-form-item label="Set assessment objectives" >
                           <a-button type="primary" @click="handleSelectDescription(false)">
@@ -1344,7 +1356,11 @@ export default {
     },
     onChangeStep (current) {
       console.log('onChange:', current)
-      this.currentActiveStepIndex = current
+      if (typeof current === 'number') {
+        this.currentActiveStepIndex = current
+      } else {
+        this.currentActiveStepIndex = 0
+      }
     }
   }
 }
@@ -1497,11 +1513,11 @@ export default {
     }
 
     .sdg-content-blocks {
-      width: 700px;
+      //width: 700px;
       position: relative;
       border: 1px solid #fff;
       box-sizing: border-box;
-      padding: 5px 50px 5px 50px;
+      //padding: 5px 50px 5px 50px;
       border-radius: 3px;
       margin-bottom: 5px;
 
@@ -1544,7 +1560,7 @@ export default {
       }
 
       &:hover {
-        border: 1px solid #15C39A;
+        //border: 1px solid #15C39A;
         .sdg-delete-wrapper {
           display: block;
         }
@@ -1935,6 +1951,12 @@ export default {
       }
     }
   }
+  /deep/ .ant-form-item label{
+    font-size: 16px;
+    font-weight: 500;
+    font-family: Inter-Bold;
+    line-height: 24px;
+  }
 }
 
 .add-sdg-btn {
@@ -2077,5 +2099,8 @@ export default {
   align-items: center;
   justify-content: flex-start;
   border-radius: 6px;
+}
+/deep/ .ant-steps-item-title{
+  font-size:18px
 }
 </style>
