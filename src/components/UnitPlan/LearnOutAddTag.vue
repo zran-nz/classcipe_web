@@ -114,11 +114,6 @@
     <a-skeleton :loading="contentLoading" active>
     </a-skeleton>
 
-    <!--    <div class="modal-ensure-action-line-right" style="justify-content: center">-->
-    <!--      <a-button class="action-item action-cancel" shape="round" @click="addTagVisible = false">Cancel</a-button>-->
-    <!--      <a-button class="action-ensure action-item" type="primary" shape="round" @click="handleEnsureSelectData">Confirm</a-button>-->
-    <!--    </div>-->
-
   </div>
 </template>
 
@@ -139,11 +134,6 @@ export default {
       default: () => {
       }
     }
-  },
-  mounted () {
-  },
-  destroyed () {
-
   },
   data () {
     return {
@@ -173,17 +163,10 @@ export default {
   methods: {
     handleOk () {
     },
-    handleCancel () {
-      this.visible = false
-    },
-    handleSetting () {
-      this.settingVisible = true
-    },
-    handleBrowse () {
-      this.browseVisible = true
-    },
     closeTag (tag) {
       this.tags.splice(this.tags.indexOf(tag), 1)
+      this.$emit('handle-select-tags', this.tags)
+      this.$logger.info('handle-select-tags ', this.tags)
     },
     selectChooseTag (tag) {
       this.addTag(tag)
@@ -210,6 +193,8 @@ export default {
       if (this.tags.indexOf(tag) === -1) {
         this.tags.push(tag)
       }
+      this.$emit('handle-select-tags', this.tags)
+      this.$logger.info('handle-select-tags ', this.tags)
     },
 
     handleKeyup () {

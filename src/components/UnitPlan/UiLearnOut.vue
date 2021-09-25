@@ -47,7 +47,7 @@
       <div class="my-modal-title" slot="title">
         Add tag
       </div>
-      <learn-out-add-tag :knowledge="knowledge" />
+      <learn-out-add-tag @handle-select-tags="handleEnsureTags" :knowledge="knowledge" />
       <!--      <div class="modal-ensure-action-line-right" style="justify-content: center">
         <a-button class="action-item action-cancel" shape="round" @click="addTagVisible = false">Cancel</a-button>
         <a-button class="action-ensure action-item" type="primary" shape="round" @click="handleEnsureSelectData">Confirm</a-button>
@@ -87,7 +87,8 @@
       return {
         KnowledgeList: [],
         addTagVisible: false,
-        knowledge: {}
+        knowledge: {},
+        tags: []
       }
     },
     created () {
@@ -122,6 +123,10 @@
       },
       handleEnsureSelectData () {
         this.addTagVisible = false
+        // this.knowledge.tags = this.tags
+      },
+      handleEnsureTags (tags) {
+        this.knowledge.tags = tags
       }
     }
   }

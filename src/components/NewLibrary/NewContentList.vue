@@ -443,9 +443,8 @@ export default {
         .collapse-item{
           display: flex;
           padding: 10px;
-          position: relative;
           .collapse-icon{
-            right: 0;
+            right: 10px;
             position: absolute;
           }
           .tag-item{

@@ -1484,7 +1484,11 @@
 
       // TODO 自动更新选择的sync 的数据knowledgeId和name列表
       handleEnsureSelectData () {
-        this.$logger.info('handleEnsureSelectData')
+        this.$logger.info('handleEnsureSelectData',
+          this.selectedCurriculumList,
+          this.selectedSpecificSkillList,
+          this.selectedCenturySkillList,
+          this.selectedSyncList)
         this.selectedSyncList.forEach(data => {
           const filterLearnOuts = this.form.learnOuts.filter(item => item.knowledgeId === data.knowledgeId)
           if (filterLearnOuts.length > 0) {
@@ -1493,18 +1497,28 @@
           this.form.learnOuts.push({
             knowledgeId: data.knowledgeId,
             name: data.name,
-            tags: []
+            tags: data.tags,
+            tagType: data.tagType
           })
         })
-        this.selectedCurriculumList.forEach(data => {
-          const filterLearnOuts = this.form.learnOuts.filter(item => item.knowledgeId === data.knowledgeData.knowledgeId)
+        const selectList = this.selectedCurriculumList.concat(this.selectedSpecificSkillList).concat(this.selectedCenturySkillList)
+        console.log(selectList)
+        if (this.selectIdea) {
+          if (selectList.length > 0) {
+            this.form.inquiry = selectList[0].knowledgeData.name
+          }
+          this.selectSyncDataVisible = false
+          return
+        }
+        selectList.forEach(data => {
+          const filterLearnOuts = this.form.learnOuts.filter(item => item.knowledgeId === data.knowledgeId)
           if (filterLearnOuts.length > 0) {
             return
           }
           this.form.learnOuts.push({
             knowledgeId: data.knowledgeData.id,
             name: data.knowledgeData.name,
-            tags: []
+            tagType: data.tagType
           })
         })
         this.$logger.info('this.form.learnOuts', this.form.learnOuts)
