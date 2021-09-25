@@ -1459,6 +1459,7 @@
               this.groupNameListOther.push(item.group)
             }
             item.contents.forEach(content => {
+              console.log(content)
               if (content.type === typeMap['unit-plan']) {
                 content.questions.forEach(question => {
                   this.associateQuestionList.push({
