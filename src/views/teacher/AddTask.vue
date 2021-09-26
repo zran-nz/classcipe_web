@@ -15,7 +15,7 @@
       <template v-if="mode === 'edit'">
         <a-row class="unit-content" v-if="!contentLoading" >
           <a-col span="24" class="main-content">
-            <a-card :bordered="false" :body-style="{padding: '16px', display: 'flex', 'justify-content': 'space-between'}" class="card-wrapper">
+            <a-card :bordered="false" :body-style="{padding: '16px', display: 'flex', 'justify-content': 'center'}" class="card-wrapper">
               <a-form-model :model="form" class="task-form-left my-form-wrapper">
                 <a-steps :current="currentActiveStepIndex" direction="vertical" @change="onChangeStep">
                   <a-step title="Edit course info" :status="currentActiveStepIndex === 0 ? 'process':'wait'">
@@ -52,13 +52,13 @@
 
                       <div class="form-block" >
                         <a-form-item label="Task name">
-                          <a-input v-model="form.name" placeholder="Enter Course Name" class="my-form-input" />
+                          <a-input v-model="form.name" placeholder="Enter Course Name" class="my-form-input" @focus="focusInput($event,140)" />
                         </a-form-item>
                       </div>
 
                       <div class="form-block over-form-block" id="overview" >
                         <a-form-model-item class="task-audio-line" label="Course Overview">
-                          <a-textarea v-model="form.overview" placeholder="Overview" allow-clear />
+                          <a-textarea v-model="form.overview" placeholder="Overview" allow-clear @focus="focusInput($event,260)" />
                         </a-form-model-item>
                       </div>
 
@@ -171,7 +171,7 @@
 
               <div class="task-form-right">
 
-                <div class="form-block-right" v-show="currentActiveStepIndex !== 1" >
+                <div class="form-block-right" v-show="currentActiveStepIndex !== 1 && !showCustomTag" >
                   <!-- image-->
                   <a-form-model-item class="img-wrapper">
                     <a-upload-dragger
@@ -252,7 +252,7 @@
                     </div>
                   </div>
                 </div>
-                <div v-show="currentActiveStepIndex !== 1">
+                <div v-show="showCustomTag" :style="{'margin-top':customTagTop+'px'}" >
                   <custom-tag ref="customTag" :selected-tags-list="form.customTags" @change-user-tags="handleChangeUserTags"></custom-tag>
                 </div>
               </div>
@@ -773,7 +773,9 @@
         recomendListLoading: false,
         addRecomendLoading: false,
         skeletonLoading: false,
-        associateQuestionList: []
+        associateQuestionList: [],
+        showCustomTag: false,
+        customTagTop: 0
       }
     },
     computed: {
@@ -1608,6 +1610,12 @@
         this.selectedTemplateList.push(template)
         this.addRecomendLoading = true
         this.handleAddTemplate()
+      },
+      focusInput (event, height) {
+        // this.customTagTop = event.currentTarget.getBoundingClientRect().top
+        console.log(this.customTagTop)
+        this.customTagTop = height
+        this.showCustomTag = true
       }
     }
   }

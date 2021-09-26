@@ -1,8 +1,9 @@
 <template>
   <div class="custom-tag">
     <div>
-      <a-card class="cover-card" title="Customized tags" :bordered="false">
-        <a slot="extra" href="#" @click="handleSetting">Tags setting <a-icon type="edit" /></a>
+      <a-card class="cover-card" :head-style="{background:'#15c39a',color:'#fff'}" title="Tags your content" :bordered="false">
+        <a class="header-triangle"></a>
+        <a-button class="setting-button" slot="extra" href="#" @click="handleSetting">My tags <a-icon type="edit" /></a-button>
 
         <div class="tag-select-wrapper" v-show="tagList.length">
           <!--      skt-tag-list-->
@@ -341,8 +342,30 @@ export default {
 
 @import "~@/components/index.less";
 .custom-tag {
-  .cover-card .ant-card-body{
-    padding: 5px;
+  //border: 1px solid #e8e8e8;
+  box-sizing: border-box;
+  position: relative;
+  .header-triangle{
+    display: block;
+    left: -40px;
+    top: 15px;
+    border-style: solid;
+    position: absolute;
+    border-width: 15px 40px 20px 0px;
+    border-color: transparent #15c39a transparent transparent;
+  }
+  .cover-card  /deep/ .ant-card-body{
+    padding: 15px;
+    border: 1px solid #e8e8e8;
+  }
+  .setting-button{
+    color: #fff;
+    background-color: #15c39a;
+    border-radius: 6px;
+    &:hover {
+      border-color: #15c39a;
+      background-color: rgba(255,255,255,0.2);
+    }
   }
   margin-top: 20px;
   .tag-select-wrapper{
@@ -547,11 +570,11 @@ export default {
   }
 
   position: relative;
-  border: 1px dotted #fff;
-  &:hover {
-    border: 1px dotted @link-hover-color;
-    box-sizing: border-box;
-  }
+  //border: 1px dotted #fff;
+  //&:hover {
+  //  border: 1px dotted @link-hover-color;
+  //  box-sizing: border-box;
+  //}
 }
 
 .category-tag {
