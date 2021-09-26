@@ -25,7 +25,7 @@
         </a-col>-->
         <a-col span="24" class="main-content">
           <a-card :bordered="false" :body-style="{padding: '16px', display: 'flex', 'justify-content': 'space-between'}" class="card-wrapper">
-            <div class="unit-plan-form-left" ref="form">
+            <div class="unit-plan-form-left" ref="form" @click="focusInput($event)">
               <a-form-model :model="form" class="my-form-wrapper">
                 <a-steps :current="currentActiveStepIndex" direction="vertical" @change="onChangeStep">
                   <a-step title="Edit course info" :status="currentActiveStepIndex === 0 ? 'process':'wait'">
@@ -48,13 +48,13 @@
 
                       <div class="form-block">
                         <a-form-item label="Course Name">
-                          <a-input v-model="form.name" placeholder="Enter Course Name" class="my-form-input" />
+                          <a-input ref="name" v-model="form.name" placeholder="Enter Course Name" class="my-form-input"/>
                         </a-form-item>
                       </div>
 
                       <div class="form-block over-form-block" id="overview">
                         <a-form-model-item class="task-audio-line" label="Course Overview">
-                          <a-textarea v-model="form.overview" placeholder="Overview" allow-clear />
+                          <a-textarea class="overview" v-model="form.overview" placeholder="Overview" allow-clear />
                           <!--        <div class="audio-wrapper" v-if="form.audioUrl">
                             <audio :src="form.audioUrl" controls />
                             <span @click="form.audioUrl = null"><a-icon type="delete" /></span>
@@ -72,8 +72,11 @@
 
                       <div class="form-block inquiry-form-block" id="inquiry">
                         <!--                <a-divider />-->
-                        <a-form-item label="Big idea* (Or statement of inquiry / Enduring understanding)">
-                          <a-input v-model="form.inquiry" :placeholder="$store.getters.currentRole === 'teacher' ? $t('teacher.add-unit-plan.teacher-direction-of-inquiry') : $t('teacher.add-unit-plan.expert-direction-of-inquiry')" class="my-form-input" />
+                        <a-form-item label="Big idea* (Or statement of inquiry / Enduring understanding)" >
+                          <a-input
+                            v-model="form.inquiry"
+                            :placeholder="$store.getters.currentRole === 'teacher' ? $t('teacher.add-unit-plan.teacher-direction-of-inquiry') : $t('teacher.add-unit-plan.expert-direction-of-inquiry')"
+                            class="my-form-input inquiry"/>
                         </a-form-item>
                         <a-tooltip title="Browse" @click="handleSelectDescription(true)">
                           <span class="browse">
@@ -120,7 +123,7 @@
                               </a-select>
                             </a-form-model-item>
 
-                            <a-form-model-item>
+                            <a-form-model-item >
                               <input-search
                                 ref="descriptionInputSearch"
                                 :default-value="scenario.description"
@@ -135,10 +138,10 @@
 
                           </div>
 
-                        <!--keywords-->
-                        <!--    <a-form-model-item>
-                          <sdg-tag-input :selected-keywords="scenario.sdgKeyWords" :sdg-key="sdgIndex" @add-tag="handleAddSdgTag" @remove-tag="handleRemoveSdgTag"/>
-                        </a-form-model-item>-->
+                          <!--keywords-->
+                          <!--    <a-form-model-item>
+                            <sdg-tag-input :selected-keywords="scenario.sdgKeyWords" :sdg-key="sdgIndex" @add-tag="handleAddSdgTag" @remove-tag="handleRemoveSdgTag"/>
+                          </a-form-model-item>-->
                         </div>
                         <a-button
                           class="add-button"
@@ -206,9 +209,9 @@
             </div>
             <div class="unit-plan-form-right">
 
-              <div class="form-block-right">
+              <div class="form-block-right" v-if="!showCustomTag">
                 <!-- image-->
-                <a-form-model-item class="img-wrapper">
+                <a-form-model-item class="img-wrapper" >
                   <a-upload-dragger
                     name="file"
                     accept="image/png, image/jpeg"
@@ -248,8 +251,8 @@
                 </a-form-model-item>
               </div>
 
-              <div class="" >
-                <custom-tag ref="customTag" :selected-tags-list="form.customTags" @change-user-tags="handleChangeUserTags"></custom-tag>
+              <div :style="{'margin-top':customTagTop+'px'}" >
+                <custom-tag :show-arrow="showCustomTag" ref="customTag" :selected-tags-list="form.customTags" @change-user-tags="handleChangeUserTags"></custom-tag>
               </div>
             </div>
           </a-card>
@@ -596,18 +599,20 @@ export default {
       selectedSpecificSkillList: [],
       // century skill
       selectedCenturySkillList: [],
-      selectIdea: false
+      selectIdea: false,
+      showCustomTag: false,
+      customTagTop: 0
     }
   },
   watch: {
     referDetailVisible (value) {
       this.$logger.info('watch referDetailVisible ' + value)
       this.$logger.info('screen width: ', document.body.clientWidth)
-       if (value && document.body.clientWidth < 1700) {
-         this.showSidebar = false
-       } else {
-         this.showSidebar = true
-       }
+      if (value && document.body.clientWidth < 1700) {
+        this.showSidebar = false
+      } else {
+        this.showSidebar = true
+      }
     }
   },
   computed: {
@@ -745,8 +750,8 @@ export default {
           logger.info('handleUploadImage upload response:', response)
           this.form.image = this.$store.getters.downloadUrl + response.result
         }).catch(err => {
-          logger.error('handleUploadImage error', err)
-          this.$message.error(this.$t('teacher.add-unit-plan.upload-image-file-failed'))
+        logger.error('handleUploadImage error', err)
+        this.$message.error(this.$t('teacher.add-unit-plan.upload-image-file-failed'))
       }).finally(() => {
         this.uploading = false
       })
@@ -795,10 +800,10 @@ export default {
 
     handleAddMoreSdg () {
       const sdg = {
-          description: '',
-          sdgId: undefined,
-          sdgKeyWords: []
-        }
+        description: '',
+        sdgId: undefined,
+        sdgKeyWords: []
+      }
       this.form.scenarios.push(sdg)
       // this.$set(this.sdgDataObj, this.sdgPrefix + this.sdgMaxIndex, sdg)
       // logger.info('after add scenarioObj: ', this.sdgDataObj, 'sdgMaxIndex ' + this.sdgMaxIndex, ' sdgTotal ' + this.sdgTotal)
@@ -931,10 +936,10 @@ export default {
       if (!this.addLoading) {
         this.addLoading = true
         TaskAddOrUpdate({
-            name: 'Unnamed Task',
-            associateId: this.form.id,
-            associateType: this.form.type
-          }).then((response) => {
+          name: 'Unnamed Task',
+          associateId: this.form.id,
+          associateType: this.form.type
+        }).then((response) => {
           this.$logger.info('TaskAddOrUpdate', response.result)
           if (response.success) {
             Associate({
@@ -1359,6 +1364,14 @@ export default {
       if (typeof current === 'number') {
         this.currentActiveStepIndex = current
       }
+    },
+    focusInput (event) {
+      console.log(event)
+      // console.log(this.$refs[ref].$el.offsetTop)
+      // this.customTagTop = this.$refs[ref].$el.offsetTop + 20
+      console.log(event.currentTarget)
+      this.customTagTop = event.clientY
+      this.showCustomTag = true
     }
   }
 }
@@ -2096,7 +2109,7 @@ export default {
   font-size: 20px;
   padding: 10px 5px;
   position: absolute;
-  right: 110px;
+  right: 155px;
   top: 50px;
   cursor: pointer;
   display: flex;

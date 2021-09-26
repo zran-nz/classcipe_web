@@ -51,21 +51,21 @@
                       </div>
 
                       <div class="form-block" >
-                        <a-form-item label="Task name">
-                          <a-input v-model="form.name" placeholder="Enter Course Name" class="my-form-input" @focus="focusInput($event,140)" />
+                        <a-form-item label="Task name" ref="name">
+                          <a-input v-model="form.name" placeholder="Enter Course Name" class="my-form-input"/>
                         </a-form-item>
                       </div>
 
                       <div class="form-block over-form-block" id="overview" >
-                        <a-form-model-item class="task-audio-line" label="Course Overview">
-                          <a-textarea v-model="form.overview" placeholder="Overview" allow-clear @focus="focusInput($event,260)" />
+                        <a-form-model-item class="task-audio-line" label="Course Overview" ref="overview">
+                          <a-textarea v-model="form.overview" placeholder="Overview" allow-clear />
                         </a-form-model-item>
                       </div>
 
                       <div class="form-block" >
-                        <a-form-model-item class="task-audio-line" label="Choose type">
-                          <div class="self-type-wrapper">
-                            <div class="self-field-label">
+                        <a-form-model-item class="task-audio-line" label="Choose type" ref="taskType">
+                          <div class="self-type-wrapper" >
+                            <div class="self-field-label" >
                               <div :class="{'task-type-item': true, 'green-active-task-type': form.taskType === 'FA'}" @click="handleSelectTaskType('FA')">FA</div>
                               <div :class="{'task-type-item': true, 'red-active-task-type': form.taskType === 'SA'}" @click="handleSelectTaskType('SA')">SA</div>
                             </div>
@@ -110,7 +110,7 @@
                         </a-form-item>
 
                         <!--knowledge tag-select -->
-                        <ui-learn-out :learn-outs="form.learnOuts" @remove-learn-outs="handleRemoveLearnOuts" />
+                        <ui-learn-out ref="learnOut" :learn-outs="form.learnOuts" @remove-learn-outs="handleRemoveLearnOuts" />
                       </div>
                     </template>
                   </a-step>
@@ -252,8 +252,8 @@
                     </div>
                   </div>
                 </div>
-                <div v-show="showCustomTag" :style="{'margin-top':customTagTop+'px'}" >
-                  <custom-tag ref="customTag" :selected-tags-list="form.customTags" @change-user-tags="handleChangeUserTags"></custom-tag>
+                <div :style="{'margin-top':customTagTop+'px'}" v-show="currentActiveStepIndex === 0" >
+                  <custom-tag :show-arrow="showCustomTag" ref="customTag" :selected-tags-list="form.customTags" @change-user-tags="handleChangeUserTags"></custom-tag>
                 </div>
               </div>
             </a-card>
@@ -989,6 +989,7 @@
       handleSelectTaskType (type) {
         this.$logger.info('handleSelectTaskType ' + type)
         this.form.taskType = type
+        this.focusInput('taskType')
       },
 
       goBack () {
@@ -1611,10 +1612,8 @@
         this.addRecomendLoading = true
         this.handleAddTemplate()
       },
-      focusInput (event, height) {
-        // this.customTagTop = event.currentTarget.getBoundingClientRect().top
-        console.log(this.customTagTop)
-        this.customTagTop = height
+      focusInput (ref) {
+        this.customTagTop = this.$refs[ref].$el.offsetTop + 20
         this.showCustomTag = true
       }
     }
