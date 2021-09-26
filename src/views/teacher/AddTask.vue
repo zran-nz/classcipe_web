@@ -15,7 +15,7 @@
       <template v-if="mode === 'edit'">
         <a-row class="unit-content" v-if="!contentLoading" >
           <a-col span="24" class="main-content">
-            <a-card :bordered="false" :body-style="{padding: '16px', display: 'flex', 'justify-content': 'center'}" class="card-wrapper">
+            <a-card :bordered="false" :body-style="{padding: '16px', display: 'flex', 'justify-content': 'space-between'}" class="card-wrapper">
               <a-form-model :model="form" class="task-form-left my-form-wrapper">
                 <a-steps :current="currentActiveStepIndex" direction="vertical" @change="onChangeStep">
                   <a-step title="Edit course info" :status="currentActiveStepIndex === 0 ? 'process':'wait'">
@@ -151,7 +151,7 @@
                   <a-step title="Link Task content" :status="currentActiveStepIndex === 2 ? 'process':'wait'">
                     <template v-if="currentActiveStepIndex === 2" slot="description">
                       <div class="form-block">
-                        <a-form-item label="Link Plan content" class="link-plan-title">
+                        <a-form-item label="Link Task content" class="link-plan-title">
                           <a-button type="primary" :style="{'background-color': '#fff', 'color': '#000', 'border': '1px solid #D8D8D8'}" @click="handleAddLink">
                             <div class="btn-text" style="line-height: 20px">
                               + Link
@@ -1713,7 +1713,7 @@
 
       .card-wrapper{
         .task-form-left {
-          width: 800px;
+          width: 700px;
         }
 
         .task-form-right {

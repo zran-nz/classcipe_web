@@ -24,7 +24,7 @@
             :show-create="true"/>
         </a-col>-->
         <a-col span="24" class="main-content">
-          <a-card :bordered="false" :body-style="{padding: '16px', display: 'flex', 'justify-content': 'center'}" class="card-wrapper">
+          <a-card :bordered="false" :body-style="{padding: '16px', display: 'flex', 'justify-content': 'space-between'}" class="card-wrapper">
             <div class="unit-plan-form-left" ref="form">
               <a-form-model :model="form" class="my-form-wrapper">
                 <a-steps :current="currentActiveStepIndex" direction="vertical" @change="onChangeStep">
@@ -1528,7 +1528,7 @@ export default {
           display: block;
           position: absolute;
           text-align: center;
-          right:-40px;
+          right:-10px;
           top: 0;
           line-height: 40px;
           width: 40px;
@@ -1554,6 +1554,9 @@ export default {
         }
         .btn-text {
           padding: 0 5px;
+        }
+        .my-big-select{
+          width: 600px;
         }
       }
 
@@ -1906,7 +1909,7 @@ export default {
   box-sizing: border-box;
   margin-bottom: 10px;
   border: 1px solid #fff;
-  padding: 10px 150px 10px 50px;
+  padding: 10px 150px 10px 10px;
   border-radius: 3px;
 }
 
@@ -1978,7 +1981,7 @@ export default {
 
 .card-wrapper{
   .unit-plan-form-left {
-    width: 800px;
+    width: 700px;
   }
 
   .unit-plan-form-right {
@@ -2049,7 +2052,11 @@ export default {
 .sdg {
   .sdg-form-block {
     border: 1px solid #15C39A !important;
+    .my-big-select{
+      width: 600px;
+    }
   }
+
 }
 
 .inquiry {
@@ -2071,7 +2078,7 @@ export default {
 .delete-icon {
   transition: all 0.2s ease-in;
   position: absolute;
-  right: -50px;
+  right: -10px;
   top: 0px;
   line-height: 40px;
   width: 40px;
