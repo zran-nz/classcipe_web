@@ -1565,8 +1565,6 @@
         console.log('onChange:', current)
         if (typeof current === 'number') {
           this.currentActiveStepIndex = current
-        } else {
-          this.currentActiveStepIndex = 0
         }
       },
 
