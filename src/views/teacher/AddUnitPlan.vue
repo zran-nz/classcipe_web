@@ -25,7 +25,7 @@
         </a-col>-->
         <a-col span="24" class="main-content">
           <a-card :bordered="false" :body-style="{padding: '16px', display: 'flex', 'justify-content': 'space-between'}" class="card-wrapper">
-            <div class="unit-plan-form-left" ref="form" @click="focusInput($event)">
+            <div class="unit-plan-form-left root-locate-form" ref="form" @click="focusInput($event)">
               <a-form-model :model="form" class="my-form-wrapper">
                 <a-steps :current="currentActiveStepIndex" direction="vertical" @change="onChangeStep">
                   <a-step title="Edit course info" :status="currentActiveStepIndex === 0 ? 'process':'wait'">
@@ -251,7 +251,7 @@
                 </a-form-model-item>
               </div>
 
-              <div :style="{'margin-top':customTagTop+'px'}" >
+              <div :style="{'position': 'absolute', 'top':customTagTop+'px'}" >
                 <custom-tag :show-arrow="showCustomTag" ref="customTag" :selected-tags-list="form.customTags" @change-user-tags="handleChangeUserTags"></custom-tag>
               </div>
             </div>
@@ -1366,11 +1366,25 @@ export default {
       }
     },
     focusInput (event) {
-      console.log(event)
-      // console.log(this.$refs[ref].$el.offsetTop)
-      // this.customTagTop = this.$refs[ref].$el.offsetTop + 20
-      console.log(event.currentTarget)
-      this.customTagTop = event.clientY
+      this.$logger.info('focusInput ', event.target)
+
+      // 设置一个父级定位专用的dom，设置class名称【root-locate-form】，
+      // 然后通过事件获取到当前元素，依次往上层查询父元素，累加偏离值，直到定位元素。
+      const eventDom = event.target
+      let formTop = eventDom.offsetTop
+      let currentDom = eventDom.offsetParent
+
+      while (currentDom !== null) {
+        formTop += currentDom.offsetTop
+        currentDom = currentDom.offsetParent
+        if (currentDom.classList && currentDom.classList.contains('root-locate-form')) {
+          console.log(currentDom.classList)
+          break
+        }
+      }
+
+      // custom tag 自带了margin-top: 20px,这里减掉不然不对齐。
+      this.customTagTop = formTop - 20
       this.showCustomTag = true
     }
   }
@@ -1994,10 +2008,12 @@ export default {
 
 .card-wrapper{
   .unit-plan-form-left {
+    position: relative;
     width: 700px;
   }
 
   .unit-plan-form-right {
+    position: relative;
     width: 600px;
     .form-block-right{
       .img-wrapper {
@@ -2120,5 +2136,9 @@ export default {
 }
 /deep/ .ant-steps-item-title{
   font-size:18px
+}
+
+.root-locate-form {
+  position: relative;
 }
 </style>
