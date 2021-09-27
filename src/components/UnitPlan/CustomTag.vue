@@ -32,85 +32,72 @@
           <a-row>
             <a-col offset="0" span="24">
               <div>
-                <a-radio-group v-model="selectLabel" button-style="solid">
-                  <a-tag v-for="(label,index) in userTags" :key="index" :value="label.id" :class="{'category-tag': true, 'active': label.id === selectLabel}" @click="onChangeLabel(label)">
-                    <span v-if="label.isGlobal"><a-badge dot>{{ label.name }}</a-badge></span>
-                    <span v-else>{{ label.name }}</span>
-                  </a-tag>
-                </a-radio-group>
+                <a-tabs
+                  default-active-key="1"
+                  tab-position="top"
+                  @change="changeTab"
+                >
+                  <a-tab-pane v-for="(label,index) in userTags" :key="index" :tab="label.name">
+                    <a-row>
+                      <a-col offset="0" :span="24">
+                        <div class="tag-search-input">
+                          <a-input-search
+                            v-model="inputTag"
+                            size="large"
+                            placeholder=" + Add tags"
+                            class="search-input"
+                            @keyup.enter.native="handleKeyup"
+                            @search="searchTag"
+                            @keyup="searchTag" >
+                            <a-button slot="enterButton">
+                              Add
+                            </a-button>
+                          </a-input-search>
+                        </div>
+                      </a-col>
+                    </a-row>
+
+                    <div class="skt-tag-wrapper" v-show="tagSearchList.length || createTagName">
+                      <div class="triangle"></div>
+                      <!--      skt-tag-list-->
+                      <div class="skt-tag-list">
+
+                        <div class="search-tag-wrapper tag-wrapper">
+                          <div class="skt-tag-item" v-for="(tag,index) in tagSearchList" :key="index" >
+                            <a-tag
+                              draggable="true"
+                              @dragstart="handleTagItemDragStart(tag, $event)"
+                              @click="selectChooseTag(index,tag)"
+                              class="tag-item">
+                              {{ tag.name }}
+                            </a-tag>
+                          </div>
+                        </div>
+                        <div class="create-tag-wrapper tag-wrapper">
+                          <div class="skt-tag-create-line" @click="handleCreateTagByInput" v-show="!isShowBrowse && createTagName && createTagName.length >= 1">
+                            <div class="create-tag-label">
+                              Create
+                            </div>
+                            <div class="create-tag">
+                              <a-tag class="created-tag-item">
+                                {{ createTagName }}
+                              </a-tag>
+                              <!--                    <a-icon type="plus-circle" @click="handleCreateTagByInput"/>-->
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </a-tab-pane>
+                </a-tabs>
               </div>
             </a-col>
           </a-row>
         </div>
 
-        <a-row>
-          <a-col offset="0" :span="isShowBrowse ? 20 : 24">
-            <div class="tag-search-input">
-              <a-input-search
-                v-model="inputTag"
-                size="large"
-                placeholder="search key words"
-                class="search-input"
-                @keyup.enter.native="handleKeyup"
-                @search="searchTag"
-                @keyup="searchTag" />
-            </div>
-          </a-col>
-          <a-col span="4" align="middle" v-show="isShowBrowse">
-            <div class="tag-search-input">
-              <a-button class="browse" @click="handleBrowse" type="primary" size="large">
-                <img src="~@/assets/icons/unitplan/browse.png" class="btn-icon"/>
-                <div class="btn-text">
-                  Browse
-                </div>
-              </a-button>
-            </div>
-          </a-col>
-        </a-row>
-
-        <div class="skt-tag-wrapper" v-show="tagSearchList.length || createTagName">
-          <!--      skt-tag-list-->
-          <a-row>
-            <a-col offset="0" :span="isShowBrowse ? 20 : 24">
-              <div class="skt-tag-list">
-                <div class="triangle"></div>
-                <div class="search-tag-wrapper tag-wrapper">
-                  <div class="skt-tag-item" v-for="(tag,index) in tagSearchList" :key="index" >
-                    <a-tag
-                      draggable="true"
-                      @dragstart="handleTagItemDragStart(tag, $event)"
-                      @click="selectChooseTag(index,tag)"
-                      class="tag-item">
-                      {{ tag.name }}
-                    </a-tag>
-                  </div>
-                </div>
-                <div class="create-tag-wrapper tag-wrapper">
-                  <div class="skt-tag-create-line" @click="handleCreateTagByInput" v-show="!isShowBrowse && createTagName && createTagName.length >= 1">
-                    <div class="create-tag-label">
-                      Create
-                    </div>
-                    <div class="create-tag">
-                      <a-tag class="created-tag-item">
-                        {{ createTagName }}
-                      </a-tag>
-                      <!--                    <a-icon type="plus-circle" @click="handleCreateTagByInput"/>-->
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </a-col>
-          </a-row>
-        </div>
       </a-card>
       <br />
     </div>
-
-    <a-modal v-model="browseVisible" :footer="null" destroyOnClose width="800px" :dialog-style="{ top: '20px' }">
-      <div class="associate-library">
-        <tag-browser :root-key="globalRootKey" :tagList="tagList" @add-global-tag="handleAddGlobalTag"/>
-      </div>
-    </a-modal>
 
     <a-modal
       title="Tags Setting"
@@ -188,6 +175,12 @@ export default {
     }
   },
   methods: {
+    changeTab (tabIndex) {
+      const label = this.userTags[tabIndex]
+      this.selectLabel = label.id
+      this.selectLabelName = label.name
+      this.filterKeyword()
+    },
     handleOk () {
     },
     handleCancel () {
@@ -203,7 +196,7 @@ export default {
       this.tagList = this.tagList.filter(item => item.name !== tag.name)
       this.filterKeyword()
       this.tagName = ''
-      this.$message.success('Remove label successfully')
+      // this.$message.success('Remove label successfully')
       this.$emit('change-user-tags', this.tagList)
     },
     selectTag (tag) {
@@ -237,10 +230,6 @@ export default {
       if (userTypeTags.length === 0) {
         return
       }
-      if (userTypeTags[0].isGlobal) {
-        this.isShowBrowse = true
-        this.globalRootKey = userTypeTags[0].name
-      }
       const tagListNames = []
       this.tagList.forEach(item => {
         tagListNames.push(item.name)
@@ -258,12 +247,6 @@ export default {
         tag.parentName = this.selectLabelName
         this.tagList.push(tag)
         this.filterKeyword()
-    },
-    onChangeLabel (label) {
-      this.selectLabel = label.id
-      this.selectLabelName = label.name
-      this.isShowBrowse = false
-      this.filterKeyword()
     },
     handleTagItemDragStart (tag, event) {
       this.$logger.info('skill handleTagItemDragStart', tag, event)
@@ -377,7 +360,7 @@ export default {
       .skt-tag-list {
         padding: 5px 10px;
         background-color: #e7f9f5;
-        border: 1px solid #D8D8D8;
+        //border: 1px solid #D8D8D8;
         display: flex;
         flex-direction: row;
         flex-wrap: wrap;
@@ -401,12 +384,12 @@ export default {
             white-space: pre-wrap;
             word-wrap: break-word;
             overflow: hidden;
-            padding-bottom: 3px;
+            padding: 4px 4px 6px 4px;
             font-size: 15px;
             border: 1px solid #D8D8D8;
             box-shadow: 0px 6px 10px rgba(91, 91, 91, 0.16);
             opacity: 1;
-            border-radius: 6px;
+            border-radius: 10px;
             background-color: rgba(21, 195, 154, 0.1);
             color: #15c39a;
             border: 1px solid #15c39a;
@@ -416,6 +399,16 @@ export default {
   }
   .skt-tag-wrapper {
     margin-top: 10px;
+    position: relative;
+    .triangle {
+      position: absolute;
+      top: -18px;
+      left: 20px;
+      width: 0;
+      height: 0;
+      border: 10px solid transparent;
+      border-bottom: 10px solid #eee;
+    }
     .skt-tag-list {
       padding: 20px 10px 5px 10px;
       background: rgba(255, 255, 255, 1);
@@ -425,15 +418,6 @@ export default {
       flex-wrap: wrap;
       box-shadow: 0px 6px 10px rgba(91, 91, 91, 0.16);
       position: relative;
-
-      .triangle {
-        position: absolute;
-        top: -20px;
-        width: 0;
-        height: 0;
-        border: 10px solid transparent;
-        border-bottom: 10px solid #eee;
-      }
 
       .tag-wrapper {
         width: 100%;
@@ -536,13 +520,14 @@ export default {
   }
 
   .tag-category {
+    min-height: 350px;
     padding: 10px;
-    background: rgba(255, 187, 0, 0.1);
-    opacity: 0.8;
     border-radius: 6px;
     .skt-tag-list {
-      padding: 5px 10px;
-      background-color: #e7f9f5;
+      max-height: 250px;
+      overflow-y: auto;
+      //padding: 5px 10px;
+      //background-color: #e7f9f5;
       box-shadow: 0px 5px 10px rgba(78, 78, 78, 0.16);
     }
     .ant-radio-button-wrapper{
@@ -595,5 +580,9 @@ export default {
     border: 1px solid #15c39a;
   }
 }
+/deep/ .ant-tabs-nav .ant-tabs-tab {
+  margin: 0 10px 0 0;
+  padding: 12px 10px;
 
+}
 </style>

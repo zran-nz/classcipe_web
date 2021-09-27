@@ -1568,6 +1568,9 @@
         console.log('onChange:', current)
         if (typeof current === 'number') {
           this.currentActiveStepIndex = current
+          if (current === 1 && !this.form.presentationId) {
+            this.loadRecommendThumbnail()
+          }
         }
       },
 
@@ -2115,6 +2118,8 @@
     .template-list-wrapper {
       margin-top: 20px;
       min-height: 250px;
+      max-height: 600px;
+      overflow-y: auto;
       background: rgba(228, 228, 228, 0.2);
       border: 1px solid #D8D8D8;
       opacity: 1;
