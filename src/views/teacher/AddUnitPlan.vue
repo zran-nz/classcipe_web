@@ -251,7 +251,7 @@
                 </a-form-model-item>
               </div>
 
-              <div :style="{'position': 'absolute', 'top':customTagTop+'px'}" >
+              <div :style="{'width':'600px','position': 'absolute', 'top':customTagTop+'px'}" >
                 <custom-tag :show-arrow="showCustomTag" ref="customTag" :selected-tags-list="form.customTags" @change-user-tags="handleChangeUserTags"></custom-tag>
               </div>
             </div>
@@ -601,7 +601,7 @@ export default {
       selectedCenturySkillList: [],
       selectIdea: false,
       showCustomTag: false,
-      customTagTop: 0
+      customTagTop: 300
     }
   },
   watch: {
@@ -1373,19 +1373,29 @@ export default {
       const eventDom = event.target
       let formTop = eventDom.offsetTop
       let currentDom = eventDom.offsetParent
-
+      let currentFocus = ''
       while (currentDom !== null) {
         formTop += currentDom.offsetTop
         currentDom = currentDom.offsetParent
+        if (currentDom.classList.contains('sdg-content-blocks')) {
+          currentFocus = 'sdg'
+        } else if (currentDom.classList.contains('inquiry-form-block')) {
+          currentFocus = 'inquiry'
+        }
         if (currentDom.classList && currentDom.classList.contains('root-locate-form')) {
           console.log(currentDom.classList)
           break
         }
       }
-
+      console.log(currentFocus)
       // custom tag 自带了margin-top: 20px,这里减掉不然不对齐。
-      this.customTagTop = formTop - 20
-      this.showCustomTag = true
+      if (currentFocus) {
+        this.customTagTop = formTop - 20
+        this.showCustomTag = true
+      } else {
+        this.customTagTop = 300
+        this.showCustomTag = false
+      }
     }
   }
 }
