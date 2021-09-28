@@ -490,6 +490,7 @@ export default {
         transition: all 0.2s ease-in;
 
         .template-cover {
+          background-size: 100% 100%;
           height: 150px;
           width: 100%;
           background-color: #ddd;

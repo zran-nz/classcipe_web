@@ -108,12 +108,12 @@
         </div>
       </template>
       <template v-if="othersLinkGroupList.length && !linkGroupLoading">
-        <div class="link-group" v-for="linkGroup in othersLinkGroupList" :key="linkGroup.group">
+        <div class="link-group">
           <div class="group-item">
             <div class="group-header">
               <div class="group-left-info">
                 <div class="group-name">
-                  <div class="group-name-text" >{{ linkGroup.group ? linkGroup.group : 'Linked by others' }}</div>
+                  <div class="group-name-text" >Linked by others</div>
                   <!--                  <div class="group-name-input" v-if="linkGroup.editing">-->
                   <!--                    <input v-model="linkGroup.group" class="group-name-input"/>-->
                   <!--                  </div>-->
@@ -134,7 +134,7 @@
               <!--              </div>-->
             </div>
             <div class="group-body">
-              <div class="group-link-item" v-for="(item,index) in linkGroup.contents" :key="index">
+              <div class="group-link-item" v-for="(item,index) in othersLinkGroupList" :key="index">
                 <div class="left-info">
                   <div class="icon">
                     <content-type-icon :type="item.type"/>
@@ -289,7 +289,11 @@ export default {
         this.$logger.info('formatted others', response.result.others)
         this.$logger.info('formatted groupNameList', groupNameList)
         this.ownerLinkGroupList = response.result.owner
-        this.othersLinkGroupList = response.result.others
+        this.othersLinkGroupList = []
+        response.result.others.forEach(item => {
+          this.othersLinkGroupList.push(...item.contents)
+        })
+        // this.othersLinkGroupList = response.result.others
         if (groupNameList.length) {
           this.groupNameList = groupNameList
         }

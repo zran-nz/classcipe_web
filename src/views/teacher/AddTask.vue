@@ -16,7 +16,7 @@
         <a-row class="unit-content" v-if="!contentLoading" >
           <a-col span="24" class="main-content">
             <a-card :bordered="false" :body-style="{padding: '16px', display: 'flex', 'justify-content': 'center'}" class="card-wrapper">
-              <a-form-model :model="form" class="task-form-left">
+              <a-form-model :model="form" class="task-form-left my-form-wrapper">
                 <a-steps :current="currentActiveStepIndex" direction="vertical" @change="onChangeStep">
                   <a-step title="Edit course info" :status="currentActiveStepIndex === 0 ? 'process':'wait'">
                     <template v-if="currentActiveStepIndex === 0" slot="description">
@@ -51,31 +51,53 @@
                       </div>
 
                       <div class="form-block" >
-                        <a-form-item label="Task name">
-                          <a-input v-model="form.name" placeholder="Enter Course Name" class="my-form-input" />
+                        <a-form-item label="Task name" ref="name">
+                          <a-input v-model="form.name" placeholder="Enter Course Name" class="my-form-input"/>
                         </a-form-item>
                       </div>
 
                       <div class="form-block over-form-block" id="overview" >
-                        <a-form-model-item class="task-audio-line" label="Course Overview">
+                        <a-form-model-item class="task-audio-line" label="Course Overview" ref="overview">
                           <a-textarea v-model="form.overview" placeholder="Overview" allow-clear />
                         </a-form-model-item>
                       </div>
 
                       <div class="form-block" >
-                        <div class="self-type-wrapper">
-                          <div class="self-field-label">
-                            <div :class="{'task-type-item': true, 'green-active-task-type': form.taskType === 'FA'}" @click="handleSelectTaskType('FA')">FA</div>
-                            <div :class="{'task-type-item': true, 'red-active-task-type': form.taskType === 'SA'}" @click="handleSelectTaskType('SA')">SA</div>
+                        <a-form-model-item class="task-audio-line" label="Choose type" ref="taskType">
+                          <div class="self-type-wrapper" >
+                            <div class="self-field-label" >
+                              <div :class="{'task-type-item': true, 'green-active-task-type': form.taskType === 'FA'}" @click="handleSelectTaskType('FA')">FA</div>
+                              <div :class="{'task-type-item': true, 'red-active-task-type': form.taskType === 'SA'}" @click="handleSelectTaskType('SA')">SA</div>
+                            </div>
+                          <!--                          <div class="self-type-filter">-->
+                          <!--                            <a-select class="my-big-select" size="large" v-model="form.bloomCategories" placeholder="Choose the Bloom Taxonomy Categories" :allowClear="true" >-->
+                          <!--                              <a-select-option :value="item.value" v-for="(item, index) in initBlooms" :key="index" >-->
+                          <!--                                {{ item.title }}-->
+                          <!--                              </a-select-option>-->
+                          <!--                            </a-select>-->
+                          <!--                          </div>-->
                           </div>
-                          <div class="self-type-filter">
-                            <a-select class="my-big-select" size="large" v-model="form.bloomCategories" placeholder="Choose the Bloom Taxonomy Categories" :allowClear="true" >
-                              <a-select-option :value="item.value" v-for="(item, index) in initBlooms" :key="index" >
-                                {{ item.title }}
-                              </a-select-option>
-                            </a-select>
-                          </div>
-                        </div>
+                        </a-form-model-item>
+                      </div>
+
+                      <div class="form-block form-question" v-if="associateQuestionList.length > 0">
+                        <a-form-model-item label="Choose Key questions">
+                          <a-select
+                            size="large"
+                            class="my-big-select"
+                            v-model="form.questionIds"
+                            mode="multiple"
+                            placeholder="Choose Key questions"
+                            option-label-prop="label"
+                          >
+                            <a-select-option v-for="(item,index) in associateQuestionList" :value="item.id" :label="item.name" :key="index">
+                              <span class="question-options">
+                                {{ item.name }}
+                              </span>
+                              From Unit Plan({{ item.unitName }})
+                            </a-select-option>
+                          </a-select>
+                        </a-form-model-item>
                       </div>
 
                       <div class="form-block" >
@@ -88,7 +110,7 @@
                         </a-form-item>
 
                         <!--knowledge tag-select -->
-                        <ui-learn-out :learn-outs="form.learnOuts" @remove-learn-outs="handleRemoveLearnOuts" />
+                        <ui-learn-out ref="learnOut" :learn-outs="form.learnOuts" @remove-learn-outs="handleRemoveLearnOuts" />
                       </div>
                     </template>
                   </a-step>
@@ -129,7 +151,7 @@
                   <a-step title="Link Task content" :status="currentActiveStepIndex === 2 ? 'process':'wait'">
                     <template v-if="currentActiveStepIndex === 2" slot="description">
                       <div class="form-block">
-                        <a-form-item label="Link Plan content" class="link-plan-title">
+                        <a-form-item label="Link Task content" class="link-plan-title">
                           <a-button type="primary" :style="{'background-color': '#fff', 'color': '#000', 'border': '1px solid #D8D8D8'}" @click="handleAddLink">
                             <div class="btn-text" style="line-height: 20px">
                               + Link
@@ -149,7 +171,7 @@
 
               <div class="task-form-right">
 
-                <div class="form-block-right" v-show="currentActiveStepIndex !== 1" >
+                <div class="form-block-right" v-show="currentActiveStepIndex !== 1 && !showCustomTag" >
                   <!-- image-->
                   <a-form-model-item class="img-wrapper">
                     <a-upload-dragger
@@ -230,8 +252,8 @@
                     </div>
                   </div>
                 </div>
-                <div v-show="currentActiveStepIndex !== 1">
-                  <custom-tag ref="customTag" :selected-tags-list="form.customTags" @change-user-tags="handleChangeUserTags"></custom-tag>
+                <div :style="{'margin-top':customTagTop+'px'}" v-show="currentActiveStepIndex === 0" >
+                  <custom-tag :show-arrow="showCustomTag" ref="customTag" :selected-tags-list="form.customTags" @change-user-tags="handleChangeUserTags"></custom-tag>
                 </div>
               </div>
             </a-card>
@@ -668,10 +690,6 @@
         showAddAudioVisible: false,
 
         presentationLink: null,
-        suggestingTag: {
-          knowledgeTags: [],
-          skillTags: []
-        },
         form: {
           id: null,
           image: '',
@@ -700,13 +718,6 @@
         templateList: [],
         templateLoading: false,
         selectedTemplateList: [],
-
-        extKnowledgeTagList: [],
-        extSkillTagList: [],
-
-        subKnowledgeId2InfoMap: new Map(),
-        descriptionId2InfoMap: new Map(),
-
         currentUploading: false,
         audioUrl: null,
 
@@ -761,7 +772,10 @@
         filterCentury: [],
         recomendListLoading: false,
         addRecomendLoading: false,
-        skeletonLoading: false
+        skeletonLoading: false,
+        associateQuestionList: [],
+        showCustomTag: false,
+        customTagTop: 0
       }
     },
     computed: {
@@ -891,14 +905,6 @@
           const taskData = response.result
           this.form = taskData
           this.form.bloomCategories = this.form.bloomCategories ? this.form.bloomCategories : undefined // 为了展示placeholder
-          if (!this.form.suggestingTag) {
-            this.form.suggestingTag = {
-              'knowledgeTags': [],
-              'skillTags': []
-            }
-          }
-          this.suggestingTag = this.form.suggestingTag
-
           // if (!this.form.presentationId) {
           //   // 未成功绑定ppt
           //   this.handleShowSelectMyContent()
@@ -942,7 +948,6 @@
         if (this.form.presentationId) {
           this.loadThumbnail()
         }
-        taskData.suggestingTag = this.suggestingTag
         logger.info('basic taskData', taskData)
         logger.info('question taskData', taskData)
         TaskAddOrUpdate(taskData).then((response) => {
@@ -984,6 +989,7 @@
       handleSelectTaskType (type) {
         this.$logger.info('handleSelectTaskType ' + type)
         this.form.taskType = type
+        this.focusInput('taskType')
       },
 
       goBack () {
@@ -1455,6 +1461,17 @@
             if (this.groupNameListOther.indexOf(item.group) === -1) {
               this.groupNameListOther.push(item.group)
             }
+            item.contents.forEach(content => {
+              console.log(content)
+              if (content.type === typeMap['unit-plan']) {
+                content.questions.forEach(question => {
+                  this.associateQuestionList.push({
+                    ...question,
+                    unitName: content.name
+                  })
+                })
+              }
+            })
           })
           if (this.groupNameList.length > 0 || this.groupNameListOther.length > 0) {
             this.handleSyncData()
@@ -1484,7 +1501,11 @@
 
       // TODO 自动更新选择的sync 的数据knowledgeId和name列表
       handleEnsureSelectData () {
-        this.$logger.info('handleEnsureSelectData')
+        this.$logger.info('handleEnsureSelectData',
+          this.selectedCurriculumList,
+          this.selectedSpecificSkillList,
+          this.selectedCenturySkillList,
+          this.selectedSyncList)
         this.selectedSyncList.forEach(data => {
           const filterLearnOuts = this.form.learnOuts.filter(item => item.knowledgeId === data.knowledgeId)
           if (filterLearnOuts.length > 0) {
@@ -1493,18 +1514,28 @@
           this.form.learnOuts.push({
             knowledgeId: data.knowledgeId,
             name: data.name,
-            tags: []
+            tags: data.tags,
+            tagType: data.tagType
           })
         })
-        this.selectedCurriculumList.forEach(data => {
-          const filterLearnOuts = this.form.learnOuts.filter(item => item.knowledgeId === data.knowledgeData.knowledgeId)
+        const selectList = this.selectedCurriculumList.concat(this.selectedSpecificSkillList).concat(this.selectedCenturySkillList)
+        console.log(selectList)
+        if (this.selectIdea) {
+          if (selectList.length > 0) {
+            this.form.inquiry = selectList[0].knowledgeData.name
+          }
+          this.selectSyncDataVisible = false
+          return
+        }
+        selectList.forEach(data => {
+          const filterLearnOuts = this.form.learnOuts.filter(item => item.knowledgeId === data.knowledgeId)
           if (filterLearnOuts.length > 0) {
             return
           }
           this.form.learnOuts.push({
             knowledgeId: data.knowledgeData.id,
             name: data.knowledgeData.name,
-            tags: []
+            tagType: data.tagType
           })
         })
         this.$logger.info('this.form.learnOuts', this.form.learnOuts)
@@ -1535,18 +1566,12 @@
 
       onChangeStep (current) {
         console.log('onChange:', current)
-        this.currentActiveStepIndex = current
-        if (current === 1 && !this.form.presentationId) {
-          this.loadRecommendThumbnail()
+        if (typeof current === 'number') {
+          this.currentActiveStepIndex = current
+          if (current === 1 && !this.form.presentationId) {
+            this.loadRecommendThumbnail()
+          }
         }
-        // if (this.editPPTMode) {
-        //   this.currentActiveStepIndex = 0
-        //   this.editPPTMode = false
-        //   this.$refs.slide.scrollIntoView({
-        //     block: 'start',
-        //     behavior: 'smooth'
-        //   })
-        // }
       },
 
       handleToggleSlideMode () {
@@ -1589,6 +1614,10 @@
         this.selectedTemplateList.push(template)
         this.addRecomendLoading = true
         this.handleAddTemplate()
+      },
+      focusInput (ref) {
+        this.customTagTop = this.$refs[ref].$el.offsetTop + 20
+        this.showCustomTag = true
       }
     }
   }
@@ -1694,7 +1723,7 @@
 
       .card-wrapper{
         .task-form-left {
-          width: 800px;
+          width: 700px;
         }
 
         .task-form-right {
@@ -2089,6 +2118,8 @@
     .template-list-wrapper {
       margin-top: 20px;
       min-height: 250px;
+      max-height: 600px;
+      overflow-y: auto;
       background: rgba(228, 228, 228, 0.2);
       border: 1px solid #D8D8D8;
       opacity: 1;
@@ -2126,6 +2157,7 @@
           }
 
           .template-cover {
+            background-size: 100% 100%;
             height: 150px;
             border-radius: 4px;
             width: 100%;
@@ -2627,9 +2659,16 @@
   .form-block {
     margin-bottom: 35px;
     width: 600px;
+    /deep/ .ant-form-item label{
+      font-size: 16px;
+      font-weight: 500;
+      font-family: Inter-Bold;
+      line-height: 24px;
+    }
   }
 
   .self-type-wrapper {
+    cursor: pointer;
     display: flex;
     flex-direction: row;
     align-items: center;
@@ -3047,5 +3086,18 @@
     flex-direction: row;
     justify-content: center;
     align-items: center;
+  }
+
+  .question-options {
+    width: 100%;
+    display: block;
+    font-size: 18px;
+    font-family: Inter-Bold;
+    line-height: 24px;
+    color: #11142D;
+  }
+
+  /deep/ .ant-steps-item-title{
+    font-size:18px
   }
 </style>

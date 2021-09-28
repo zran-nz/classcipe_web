@@ -24,8 +24,8 @@
             :show-create="true"/>
         </a-col>-->
         <a-col span="24" class="main-content">
-          <a-card :bordered="false" :body-style="{padding: '16px', display: 'flex', 'justify-content': 'center'}" class="card-wrapper">
-            <div class="unit-plan-form-left" ref="form">
+          <a-card :bordered="false" :body-style="{padding: '16px', display: 'flex', 'justify-content': 'space-between'}" class="card-wrapper">
+            <div class="unit-plan-form-left root-locate-form" ref="form" @click="focusInput($event)">
               <a-form-model :model="form" class="my-form-wrapper">
                 <a-steps :current="currentActiveStepIndex" direction="vertical" @change="onChangeStep">
                   <a-step title="Edit course info" :status="currentActiveStepIndex === 0 ? 'process':'wait'">
@@ -48,13 +48,13 @@
 
                       <div class="form-block">
                         <a-form-item label="Course Name">
-                          <a-input v-model="form.name" placeholder="Enter Course Name" class="my-form-input" />
+                          <a-input ref="name" v-model="form.name" placeholder="Enter Course Name" class="my-form-input"/>
                         </a-form-item>
                       </div>
 
                       <div class="form-block over-form-block" id="overview">
                         <a-form-model-item class="task-audio-line" label="Course Overview">
-                          <a-textarea v-model="form.overview" placeholder="Overview" allow-clear />
+                          <a-textarea class="overview" v-model="form.overview" placeholder="Overview" allow-clear />
                           <!--        <div class="audio-wrapper" v-if="form.audioUrl">
                             <audio :src="form.audioUrl" controls />
                             <span @click="form.audioUrl = null"><a-icon type="delete" /></span>
@@ -72,8 +72,11 @@
 
                       <div class="form-block inquiry-form-block" id="inquiry">
                         <!--                <a-divider />-->
-                        <a-form-item label="Big idea* (Or statement of inquiry / Enduring understanding)">
-                          <a-input v-model="form.inquiry" :placeholder="$store.getters.currentRole === 'teacher' ? $t('teacher.add-unit-plan.teacher-direction-of-inquiry') : $t('teacher.add-unit-plan.expert-direction-of-inquiry')" class="my-form-input" />
+                        <a-form-item label="Big idea* (Or statement of inquiry / Enduring understanding)" >
+                          <a-input
+                            v-model="form.inquiry"
+                            :placeholder="$store.getters.currentRole === 'teacher' ? $t('teacher.add-unit-plan.teacher-direction-of-inquiry') : $t('teacher.add-unit-plan.expert-direction-of-inquiry')"
+                            class="my-form-input inquiry"/>
                         </a-form-item>
                         <a-tooltip title="Browse" @click="handleSelectDescription(true)">
                           <span class="browse">
@@ -92,56 +95,61 @@
                             </div>
                           </a-col>
                         </a-row>
-                      </div>
-                      <!--sdg and KeyWords-->
-                      <div
-                        class="sdg-content-blocks sdg-form-block"
-                        id="sdg"
-                        v-for="(scenario, sdgIndex) in form.scenarios"
-                        :key="sdgIndex">
+                        <!--sdg and KeyWords-->
+                        <div
+                          class="sdg-content-blocks sdg-form-block"
+                          id="sdg"
+                          v-for="(scenario, sdgIndex) in form.scenarios"
+                          :key="sdgIndex">
 
-                        <!--description-->
-                        <div class="scenario-description">
-                          <div class="sdg-delete-wrapper" @click="handleDeleteSdg(sdgIndex)" v-show="form.scenarios.length > 1">
-                            <a-tooltip placement="top">
-                              <template slot="title">
-                                <span>{{ $t('teacher.add-unit-plan.delete-goal') }}</span>
-                              </template>
-                              <div class="sdg-delete">
-                                <a-icon type="delete" :style="{ fontSize: '20px' }" />
-                              </div>
-                            </a-tooltip>
+                          <!--description-->
+                          <div class="scenario-description">
+                            <div class="sdg-delete-wrapper" @click="handleDeleteSdg(sdgIndex)" v-show="form.scenarios.length > 1">
+                              <a-tooltip placement="top">
+                                <template slot="title">
+                                  <span>{{ $t('teacher.add-unit-plan.delete-goal') }}</span>
+                                </template>
+                                <div class="sdg-delete">
+                                  <a-icon type="delete" :style="{ fontSize: '20px' }" />
+                                </div>
+                              </a-tooltip>
+                            </div>
+                            <!--sdg-->
+                            <a-form-model-item >
+                              <a-select size="large" v-model="scenario.sdgId" class="my-big-select" placeholder="Select a goal from UN">
+                                <a-select-option v-for="(sdg,index) in sdgList" :value="sdg.id" :key="index" :disabled="selectedSdg.indexOf(sdg.id) != -1">
+                                  {{ sdg.name }}
+                                </a-select-option>
+                              </a-select>
+                            </a-form-model-item>
+
+                            <a-form-model-item >
+                              <input-search
+                                ref="descriptionInputSearch"
+                                :default-value="scenario.description"
+                                :key-index="sdgIndex"
+                                :currend-index="currentIndex"
+                                :search-list="descriptionSearchList"
+                                label="description"
+                                @search="handleDescriptionSearch"
+                                @select-item="handleSelectScenario"
+                                @reset="descriptionSearchList = []" />
+                            </a-form-model-item>
+
                           </div>
-                          <!--sdg-->
-                          <a-form-model-item >
-                            <a-select size="large" v-model="scenario.sdgId" class="my-big-select" placeholder="Select a goal from UN">
-                              <a-select-option v-for="(sdg,index) in sdgList" :value="sdg.id" :key="index" :disabled="selectedSdg.indexOf(sdg.id) != -1">
-                                {{ sdg.name }}
-                              </a-select-option>
-                            </a-select>
-                          </a-form-model-item>
 
-                          <a-form-model-item>
-                            <input-search
-                              ref="descriptionInputSearch"
-                              :default-value="scenario.description"
-                              :key-index="sdgIndex"
-                              :currend-index="currentIndex"
-                              :search-list="descriptionSearchList"
-                              label="description"
-                              @search="handleDescriptionSearch"
-                              @select-item="handleSelectScenario"
-                              @reset="descriptionSearchList = []" />
-                          </a-form-model-item>
-
+                          <!--keywords-->
+                          <!--    <a-form-model-item>
+                            <sdg-tag-input :selected-keywords="scenario.sdgKeyWords" :sdg-key="sdgIndex" @add-tag="handleAddSdgTag" @remove-tag="handleRemoveSdgTag"/>
+                          </a-form-model-item>-->
                         </div>
-
-                        <!--keywords-->
-                        <!--    <a-form-model-item>
-                          <sdg-tag-input :selected-keywords="scenario.sdgKeyWords" :sdg-key="sdgIndex" @add-tag="handleAddSdgTag" @remove-tag="handleRemoveSdgTag"/>
-                        </a-form-model-item>-->
-
-                        <a-button type="link" icon="plus-circle" size="large" @click="handleAddMoreSdg"></a-button>
+                        <a-button
+                          class="add-button"
+                          style="top:-20px"
+                          type="link"
+                          icon="plus-circle"
+                          size="large"
+                          @click="handleAddMoreSdg"></a-button>
                       </div>
 
                       <div class="form-block">
@@ -156,8 +164,15 @@
                             </div>
                           </div>
                         </a-form-item>
-                        <a-button type="link" icon="plus-circle" size="large" @click="handleAddMoreQuestion"></a-button>
+                        <a-button
+                          class="add-button"
+                          style="top:-40px;"
+                          type="link"
+                          icon="plus-circle"
+                          size="large"
+                          @click="handleAddMoreQuestion"></a-button>
                       </div>
+
                       <div class="form-block">
                         <a-form-item label="Set assessment objectives" >
                           <a-button type="primary" @click="handleSelectDescription(false)">
@@ -194,9 +209,9 @@
             </div>
             <div class="unit-plan-form-right">
 
-              <div class="form-block-right">
+              <div class="form-block-right" v-if="!showCustomTag">
                 <!-- image-->
-                <a-form-model-item class="img-wrapper">
+                <a-form-model-item class="img-wrapper" >
                   <a-upload-dragger
                     name="file"
                     accept="image/png, image/jpeg"
@@ -236,8 +251,8 @@
                 </a-form-model-item>
               </div>
 
-              <div class="" >
-                <custom-tag ref="customTag" :selected-tags-list="form.customTags" @change-user-tags="handleChangeUserTags"></custom-tag>
+              <div :style="{'width':'600px','position': 'absolute', 'top':customTagTop+'px'}" >
+                <custom-tag :show-arrow="showCustomTag" ref="customTag" :selected-tags-list="form.customTags" @change-user-tags="handleChangeUserTags"></custom-tag>
               </div>
             </div>
           </a-card>
@@ -584,18 +599,20 @@ export default {
       selectedSpecificSkillList: [],
       // century skill
       selectedCenturySkillList: [],
-      selectIdea: false
+      selectIdea: false,
+      showCustomTag: false,
+      customTagTop: 300
     }
   },
   watch: {
     referDetailVisible (value) {
       this.$logger.info('watch referDetailVisible ' + value)
       this.$logger.info('screen width: ', document.body.clientWidth)
-       if (value && document.body.clientWidth < 1700) {
-         this.showSidebar = false
-       } else {
-         this.showSidebar = true
-       }
+      if (value && document.body.clientWidth < 1700) {
+        this.showSidebar = false
+      } else {
+        this.showSidebar = true
+      }
     }
   },
   computed: {
@@ -733,8 +750,8 @@ export default {
           logger.info('handleUploadImage upload response:', response)
           this.form.image = this.$store.getters.downloadUrl + response.result
         }).catch(err => {
-          logger.error('handleUploadImage error', err)
-          this.$message.error(this.$t('teacher.add-unit-plan.upload-image-file-failed'))
+        logger.error('handleUploadImage error', err)
+        this.$message.error(this.$t('teacher.add-unit-plan.upload-image-file-failed'))
       }).finally(() => {
         this.uploading = false
       })
@@ -783,10 +800,10 @@ export default {
 
     handleAddMoreSdg () {
       const sdg = {
-          description: '',
-          sdgId: undefined,
-          sdgKeyWords: []
-        }
+        description: '',
+        sdgId: undefined,
+        sdgKeyWords: []
+      }
       this.form.scenarios.push(sdg)
       // this.$set(this.sdgDataObj, this.sdgPrefix + this.sdgMaxIndex, sdg)
       // logger.info('after add scenarioObj: ', this.sdgDataObj, 'sdgMaxIndex ' + this.sdgMaxIndex, ' sdgTotal ' + this.sdgTotal)
@@ -919,10 +936,10 @@ export default {
       if (!this.addLoading) {
         this.addLoading = true
         TaskAddOrUpdate({
-            name: 'Unnamed Task',
-            associateId: this.form.id,
-            associateType: this.form.type
-          }).then((response) => {
+          name: 'Unnamed Task',
+          associateId: this.form.id,
+          associateType: this.form.type
+        }).then((response) => {
           this.$logger.info('TaskAddOrUpdate', response.result)
           if (response.success) {
             Associate({
@@ -1344,7 +1361,41 @@ export default {
     },
     onChangeStep (current) {
       console.log('onChange:', current)
-      this.currentActiveStepIndex = current
+      if (typeof current === 'number') {
+        this.currentActiveStepIndex = current
+      }
+    },
+    focusInput (event) {
+      this.$logger.info('focusInput ', event.target)
+
+      // 设置一个父级定位专用的dom，设置class名称【root-locate-form】，
+      // 然后通过事件获取到当前元素，依次往上层查询父元素，累加偏离值，直到定位元素。
+      const eventDom = event.target
+      let formTop = eventDom.offsetTop
+      let currentDom = eventDom.offsetParent
+      let currentFocus = ''
+      while (currentDom !== null) {
+        formTop += currentDom.offsetTop
+        currentDom = currentDom.offsetParent
+        if (currentDom.classList.contains('sdg-content-blocks')) {
+          currentFocus = 'sdg'
+        } else if (currentDom.classList.contains('inquiry-form-block')) {
+          currentFocus = 'inquiry'
+        }
+        if (currentDom.classList && currentDom.classList.contains('root-locate-form')) {
+          console.log(currentDom.classList)
+          break
+        }
+      }
+      console.log(currentFocus)
+      // custom tag 自带了margin-top: 20px,这里减掉不然不对齐。
+      if (currentFocus) {
+        this.customTagTop = formTop - 20
+        this.showCustomTag = true
+      } else {
+        this.customTagTop = 300
+        this.showCustomTag = false
+      }
     }
   }
 }
@@ -1497,11 +1548,11 @@ export default {
     }
 
     .sdg-content-blocks {
-      width: 700px;
+      //width: 700px;
       position: relative;
       border: 1px solid #fff;
       box-sizing: border-box;
-      padding: 5px 50px 5px 50px;
+      //padding: 5px 50px 5px 50px;
       border-radius: 3px;
       margin-bottom: 5px;
 
@@ -1514,7 +1565,7 @@ export default {
           display: block;
           position: absolute;
           text-align: center;
-          right:-40px;
+          right:-10px;
           top: 0;
           line-height: 40px;
           width: 40px;
@@ -1541,10 +1592,13 @@ export default {
         .btn-text {
           padding: 0 5px;
         }
+        .my-big-select{
+          width: 600px;
+        }
       }
 
       &:hover {
-        border: 1px solid #15C39A;
+        //border: 1px solid #15C39A;
         .sdg-delete-wrapper {
           display: block;
         }
@@ -1892,7 +1946,7 @@ export default {
   box-sizing: border-box;
   margin-bottom: 10px;
   border: 1px solid #fff;
-  padding: 10px 150px 10px 50px;
+  padding: 10px 150px 10px 10px;
   border-radius: 3px;
 }
 
@@ -1935,6 +1989,12 @@ export default {
       }
     }
   }
+  /deep/ .ant-form-item label{
+    font-size: 16px;
+    font-weight: 500;
+    font-family: Inter-Bold;
+    line-height: 24px;
+  }
 }
 
 .add-sdg-btn {
@@ -1958,10 +2018,12 @@ export default {
 
 .card-wrapper{
   .unit-plan-form-left {
-    width: 800px;
+    position: relative;
+    width: 700px;
   }
 
   .unit-plan-form-right {
+    position: relative;
     width: 600px;
     .form-block-right{
       .img-wrapper {
@@ -2029,7 +2091,11 @@ export default {
 .sdg {
   .sdg-form-block {
     border: 1px solid #15C39A !important;
+    .my-big-select{
+      width: 600px;
+    }
   }
+
 }
 
 .inquiry {
@@ -2051,7 +2117,7 @@ export default {
 .delete-icon {
   transition: all 0.2s ease-in;
   position: absolute;
-  right: -50px;
+  right: -10px;
   top: 0px;
   line-height: 40px;
   width: 40px;
@@ -2069,7 +2135,7 @@ export default {
   font-size: 20px;
   padding: 10px 5px;
   position: absolute;
-  right: 110px;
+  right: 155px;
   top: 50px;
   cursor: pointer;
   display: flex;
@@ -2077,5 +2143,12 @@ export default {
   align-items: center;
   justify-content: flex-start;
   border-radius: 6px;
+}
+/deep/ .ant-steps-item-title{
+  font-size:18px
+}
+
+.root-locate-form {
+  position: relative;
 }
 </style>
