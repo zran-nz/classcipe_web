@@ -2157,6 +2157,7 @@
           }
 
           .template-cover {
+            background-size: 100% 100%;
             height: 150px;
             border-radius: 4px;
             width: 100%;
