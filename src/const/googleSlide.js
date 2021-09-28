@@ -3,4 +3,4 @@ export const lessonStatus = {
   studentPaced: 'student-paced'
 }
 
-export const lessonHost = 'https://dev.frontend.newzealand.actself.me/'
+export const lessonHost = process.env.VUE_APP_LESSON_HOST_BASE_URL + '/'
