@@ -25,7 +25,10 @@
   },
   created () {
     this.type = parseInt(this.sourceType)
-    const token = this.$route.query.token
+    let token = this.$route.query.token
+    if (!token) {
+      token = this.$route.query.accessToken
+    }
     storage.set(ACCESS_TOKEN, token)
   },
   props: {
