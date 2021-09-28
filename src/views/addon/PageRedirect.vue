@@ -19,6 +19,9 @@
     },
   created () {
     const token = this.$route.query.token
+    if (!token) {
+      token = this.$route.query.accessToken
+    }
     if (token) {
       storage.set(ACCESS_TOKEN, token)
       if (parseInt(this.sourceType) === typeMap.lesson) {
