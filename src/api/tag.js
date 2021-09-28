@@ -10,7 +10,8 @@ export const tagAPIUrl = {
   GetGlobalTagKeywords: '/classcipe/api/tag/getTagKeywords',
   TagQueryById: '/classcipe/api/tag/queryById',
   TagDelete: '/classcipe/api/tag/delete',
-  TagDeleteBatch: '/classcipe/api/tag/deleteBatch'
+  TagDeleteBatch: '/classcipe/api/tag/deleteBatch',
+  FindCustomTags: '/classcipe/api/tag/findCustomTags'
 }
 
 /**
@@ -87,6 +88,17 @@ export function TagQueryById (parameter) {
 export function UserTagDelete (parameter) {
   return request({
     url: tagAPIUrl.UserTagDelete,
+    method: 'post',
+    data: parameter,
+    headers: {
+      'Content-Type': 'application/json;charset=UTF-8'
+    }
+  })
+}
+
+export function FindCustomTags (parameter) {
+  return request({
+    url: tagAPIUrl.FindCustomTags,
     method: 'post',
     data: parameter,
     headers: {
