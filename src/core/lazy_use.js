@@ -42,6 +42,7 @@ import {
   TreeSelect,
   Tree,
   Steps,
+  Cascader,
   message,
   notification, Switch, Rate, Collapse
 } from 'ant-design-vue'
@@ -102,6 +103,7 @@ Vue.use(Space)
 Vue.use(TreeSelect)
 Vue.use(Tree)
 Vue.use(Steps)
+Vue.use(Cascader)
 
 Vue.prototype.$confirm = Modal.confirm
 Vue.prototype.$message = message

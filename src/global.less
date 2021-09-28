@@ -161,7 +161,7 @@ ol {
 
 .curriculum-select {
   .ant-select-selection {
-    background: rgba(24, 37, 82, 0.1);
+    background: #eaebef;
     border: none;
     color: rgba(24, 37, 82, 0.91);
     position: relative;
@@ -200,7 +200,7 @@ ol {
       border: 1px solid #D8D8D8;
       opacity: 1;
       border-radius: 4px;
-      padding: 15px 10px;
+      padding: 15px;
     }
   }
 }
@@ -208,7 +208,6 @@ ol {
 .ant-pagination-item, .ant-pagination-item-link  {
   opacity: 1;
   border-radius: 4px;
-  box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.16);
   a {
     color: #000000;
   }
@@ -218,7 +217,6 @@ ol {
   background: #15C39A;
   opacity: 1;
   border-radius: 4px;
-  box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.16);
   a {
     color: #fff;
   }
@@ -334,7 +332,7 @@ ol {
   ::placeholder {
     font-size: 14px;
     font-family: Inter-Bold;
-    line-height: 24px;
+    line-height: 18px;
     //color: #000000;
   }
   .ant-input{
@@ -382,7 +380,7 @@ ol {
 .ant-select-selection__placeholder, .ant-select-search__field__placeholder {
   font-size: 14px;
   font-family: Inter-Bold;
-  line-height: 24px;
+  line-height: 20px;
   //color: #000000;
 }
 
@@ -455,4 +453,82 @@ ol {
     padding: 10px;
   }
 
+}
+
+.ant-modal-body {
+  padding: 15px 25px;
+}
+
+.modal-ensure-action-line-right {
+  margin: 15px 0;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-end;
+
+  .action-item {
+    min-width: 80px;
+    margin: 10px 15px;
+  }
+}
+
+.modal-ensure-action-line {
+  margin: 15px 0;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+
+  .action-item {
+    min-width: 80px;
+    margin: 10px 15px;
+  }
+}
+
+.ant-list-something-after-last-item .ant-spin-container > .ant-list-items > .active-item:last-child {
+  border: 2px solid #15C39A;
+}
+
+.ant-dropdown-menu-item:hover {
+  color: #15c39a;
+  background: #EDF1F5;
+}
+
+.ant-dropdown-menu-item span {
+  color: #15c39a;
+}
+
+.ant-dropdown-menu-item-disabled span {
+  color: #ddd;
+}
+
+.more-icon {
+  svg {
+    background: #fff;
+    color: #aaa;
+    border-radius: 15px;
+    padding: 3px;
+    display: inline-block;
+  }
+}
+
+.my-content-selector {
+  .content-wrapper {
+    .content-list {
+      .ant-spin-nested-loading {
+        padding: 15px 0 0 15px;
+      }
+    }
+  }
+}
+
+
+.type-filter {
+
+  button.type-filter-button, button.ant-button {
+    border-color: #D8D8D8;
+    &:hover {
+      border-color: #15c39a;
+    }
+  }
 }

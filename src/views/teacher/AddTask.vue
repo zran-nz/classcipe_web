@@ -14,160 +14,226 @@
     <a-card :bordered="false" :bodyStyle="{ padding: '16px 24px', height: '100%', minHeight: '500px' }">
       <template v-if="mode === 'edit'">
         <a-row class="unit-content" v-if="!contentLoading" >
-          <a-col span="4">
-            <associate-sidebar
-              v-if="mode === 'edit'"
-              :name="form.name"
-              :type="contentType.task"
-              :id="taskId"
-              ref="associate"
-              @create="selectAddContentTypeVisible = true"
-              @link="selectLinkContentVisible = true"
-              :show-create="true"/>
-          </a-col>
-          <a-col span="16" offset="2" class="main-content">
-            <a-card :bordered="false" :body-style="{padding: '16px'}">
-              <a-form-model :model="form" class="my-form-wrapper">
-                <div class="form-block">
-                  <div class="header-action">
-                    <div class="header-action-item">
-                      <a-button @click="handleEditGoogleSlide" :style="{'display': 'flex', 'align-items': 'center', 'justify-content': 'center', 'padding': '20px 15px', 'border-radius': '5px'}" type="primary" >
-                        <img src="~@/assets/icons/task/path.png" class="btn-icon"/>
-                        <div class="btn-text">
-                          Edit my task in google slide
-                        </div>
-                      </a-button>
-                    </div>
-                    <div class="header-action-item">
-                      <a-button @click="handleStartSessionTags" :style="{'display': 'flex', 'align-items': 'center', 'justify-content': 'center', 'padding': '20px 15px', 'border-radius': '5px'}" type="primary" >
-                        <img src="~@/assets/icons/task/startTask.png" class="btn-icon"/>
-                        <div class="btn-text">
-                          Start a session
-                        </div>
-                      </a-button>
-                    </div>
+          <a-col span="24" class="main-content">
+            <a-card :bordered="false" :body-style="{padding: '16px', display: 'flex', 'justify-content': 'center'}" class="card-wrapper">
+              <a-form-model :model="form" class="task-form-left">
+                <a-steps :current="currentActiveStepIndex" direction="vertical" @change="onChangeStep">
+                  <a-step title="Edit course info" :status="currentActiveStepIndex === 0 ? 'process':'wait'">
+                    <template v-if="currentActiveStepIndex === 0" slot="description">
+                      <div class="form-block" >
+                        <div class="header-action">
+                          <div class="header-action-item">
+                            <a-button @click="handleEditGoogleSlide" :style="{'display': 'flex', 'align-items': 'center', 'justify-content': 'center', 'padding': '20px 15px', 'border-radius': '5px'}" type="primary" >
+                              <img src="~@/assets/icons/task/path.png" class="btn-icon"/>
+                              <div class="btn-text">
+                                Edit my task in google slide
+                              </div>
+                            </a-button>
+                          </div>
+                          <div class="header-action-item">
+                            <a-button @click="handleStartSessionTags" :style="{'display': 'flex', 'align-items': 'center', 'justify-content': 'center', 'padding': '20px 15px', 'border-radius': '5px'}" type="primary" >
+                              <img src="~@/assets/icons/task/startTask.png" class="btn-icon"/>
+                              <div class="btn-text">
+                                Start a session
+                              </div>
+                            </a-button>
+                          </div>
 
-                    <div class="header-action-item">
-                      <a-button @click="handleStartSession('dash')" :style="{'display': 'flex', 'align-items': 'center', 'justify-content': 'center', 'padding': '20px 15px', 'border-radius': '5px'}" type="primary" >
-                        <img src="~@/assets/icons/task/startTask.png" class="btn-icon"/>
-                        <div class="btn-text">
-                          Start a dash
+                          <div class="header-action-item">
+                            <a-button @click="handleStartSession('dash')" :style="{'display': 'flex', 'align-items': 'center', 'justify-content': 'center', 'padding': '20px 15px', 'border-radius': '5px'}" type="primary" >
+                              <img src="~@/assets/icons/task/startTask.png" class="btn-icon"/>
+                              <div class="btn-text">
+                                Start a dash
+                              </div>
+                            </a-button>
+                          </div>
                         </div>
-                      </a-button>
-                    </div>
-                  </div>
-                </div>
-                <div class="form-block">
-                  <a-input v-model="form.name" class="my-form-input" placeholder="Name"/>
-                </div>
-                <div class="form-block">
-                  <div class="self-type-wrapper">
-                    <div class="self-field-label">
-                      <div :class="{'task-type-item': true, 'green-active-task-type': form.taskType === 'FA'}" @click="handleSelectTaskType('FA')">FA</div>
-                      <div :class="{'task-type-item': true, 'red-active-task-type': form.taskType === 'SA'}" @click="handleSelectTaskType('SA')">SA</div>
-                    </div>
-                    <div class="self-type-filter">
-                      <a-select class="my-big-select" size="large" v-model="form.bloomCategories" placeholder="Choose the Bloom Taxonomy Categories" :allowClear="true" >
-                        <a-select-option :value="item.value" v-for="(item, index) in initBlooms" :key="index" >
-                          {{ item.title }}
-                        </a-select-option>
-                      </a-select>
-                    </div>
-                  </div>
-                </div>
+                      </div>
 
-                <a-form-model-item class="img-wrapper">
-                  <a-upload-dragger
-                    name="file"
-                    accept="image/png, image/jpeg"
-                    :showUploadList="false"
-                    :customRequest="handleUploadImage"
-                  >
-                    <div class="delete-img" @click="handleDeleteImage($event)" v-show="form.image">
-                      <a-icon type="close-circle" />
-                    </div>
-                    <template v-if="uploading">
-                      <div class="upload-container">
-                        <p class="ant-upload-drag-icon">
-                          <a-icon type="cloud-upload" />
-                        </p>
-                        <p class="ant-upload-text">
-                          <a-spin />
-                          <span class="uploading-tips">{{ $t('teacher.add-unit-plan.uploading') }}</span>
-                        </p>
+                      <div class="form-block" >
+                        <a-form-item label="Task name">
+                          <a-input v-model="form.name" placeholder="Enter Course Name" class="my-form-input" />
+                        </a-form-item>
+                      </div>
+
+                      <div class="form-block over-form-block" id="overview" >
+                        <a-form-model-item class="task-audio-line" label="Course Overview">
+                          <a-textarea v-model="form.overview" placeholder="Overview" allow-clear />
+                        </a-form-model-item>
+                      </div>
+
+                      <div class="form-block" >
+                        <div class="self-type-wrapper">
+                          <div class="self-field-label">
+                            <div :class="{'task-type-item': true, 'green-active-task-type': form.taskType === 'FA'}" @click="handleSelectTaskType('FA')">FA</div>
+                            <div :class="{'task-type-item': true, 'red-active-task-type': form.taskType === 'SA'}" @click="handleSelectTaskType('SA')">SA</div>
+                          </div>
+                          <div class="self-type-filter">
+                            <a-select class="my-big-select" size="large" v-model="form.bloomCategories" placeholder="Choose the Bloom Taxonomy Categories" :allowClear="true" >
+                              <a-select-option :value="item.value" v-for="(item, index) in initBlooms" :key="index" >
+                                {{ item.title }}
+                              </a-select-option>
+                            </a-select>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div class="form-block" >
+                        <a-form-item label="Set assessment objectives" >
+                          <a-button type="primary" @click="handleSelectDescription">
+                            <div class="btn-text" style="line-height: 20px">
+                              Add assessment objectives
+                            </div>
+                          </a-button>
+                        </a-form-item>
+
+                        <!--knowledge tag-select -->
+                        <ui-learn-out :learn-outs="form.learnOuts" @remove-learn-outs="handleRemoveLearnOuts" />
                       </div>
                     </template>
-                    <template v-if="!uploading && form && form.image">
-                      <div class="image-preview">
-                        <img :src="form.image" alt="">
+                  </a-step>
+
+                  <a-step title="Edit your course slides" :status="currentActiveStepIndex === 1 ? 'process':'wait'">
+                    <template v-if="currentActiveStepIndex === 1" slot="description">
+                      <a-skeleton :loading="skeletonLoading" active>
+                        <div class="slide-select-wrapper" ref="slide">
+                          <div class="slide-select">
+                            <div class="slide-select-and-preview">
+                              <!--                            <div class="reset-edit-basic-info" >Edit course info</div>-->
+                              <div class="slide-select-action" v-show="!form.presentationId">
+                                <img src="~@/assets/icons/task/Teamwork-Pie-Chart@2x.png" />
+                                <div class="select-action">
+                                  <div class="modal-ensure-action-line">
+                                    <a-button class="action-item action-cancel" shape="round" @click="handleShowSelectMyContent">Select template</a-button>
+                                    <a-button class="action-ensure action-item" type="primary" shape="round" @click="handleCreateInGoogle">Create a new ppt in Google side</a-button>
+                                  </div>
+                                </div>
+                              </div>
+                              <div class="slide-preview" v-show="form.presentationId && thumbnailList.length">
+                                <a-carousel arrows dots-class="slick-dots slick-thumb">
+                                  <a slot="customPaging" slot-scope="props">
+                                    <img :src="thumbnailList[props.i].contentUrl" />
+                                  </a>
+                                  <div v-for="(item,index) in thumbnailList" :key="index">
+                                    <img :src="item.contentUrl" />
+                                  </div>
+                                </a-carousel>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </a-skeleton>
+                    </template>
+                  </a-step>
+
+                  <a-step title="Link Task content" :status="currentActiveStepIndex === 2 ? 'process':'wait'">
+                    <template v-if="currentActiveStepIndex === 2" slot="description">
+                      <div class="form-block">
+                        <a-form-item label="Link Plan content" class="link-plan-title">
+                          <a-button type="primary" :style="{'background-color': '#fff', 'color': '#000', 'border': '1px solid #D8D8D8'}" @click="handleAddLink">
+                            <div class="btn-text" style="line-height: 20px">
+                              + Link
+                            </div>
+                          </a-button>
+                        </a-form-item>
+                        <div class="common-link-wrapper">
+                          <common-link ref="commonLink" :from-id="this.taskId" :from-type="this.contentType.task"/>
+                        </div>
                       </div>
                     </template>
-                    <template v-if="!uploading && form && !form.image">
-                      <div class="upload-container">
-                        <p class="ant-upload-drag-icon">
-                          <img src="~@/assets/icons/task/upload_icon.png" class="upload-icon" />
-                        </p>
-                        <p class="ant-upload-text">
-                          {{ $t('teacher.add-unit-plan.upload-a-picture') }}
-                        </p>
+                  </a-step>
+
+                </a-steps>
+
+              </a-form-model>
+
+              <div class="task-form-right">
+
+                <div class="form-block-right" v-show="currentActiveStepIndex !== 1" >
+                  <!-- image-->
+                  <a-form-model-item class="img-wrapper">
+                    <a-upload-dragger
+                      name="file"
+                      accept="image/png, image/jpeg"
+                      :showUploadList="false"
+                      :customRequest="handleUploadImage"
+                    >
+                      <div class="delete-img" @click="handleDeleteImage($event)" v-show="form.image">
+                        <a-icon type="close-circle" />
                       </div>
-                    </template>
-                  </a-upload-dragger>
-                </a-form-model-item>
-
-                <a-form-model-item class="task-audio-line">
-                  <a-textarea v-model="form.overview" allow-clear placeholder="Overview"/>
-                  <div class="audio-wrapper" v-if="form.audioUrl">
-                    <audio :src="form.audioUrl" controls />
-                    <span @click="form.audioUrl = null"><a-icon type="delete" /></span>
-                  </div>
-                  <div class="task-audio" @click="handleAddAudioOverview">
-                    <img src="~@/assets/icons/task/microphone.png" />
-                  </div>
-                </a-form-model-item>
-
-                <div class="form-block">
-                  <div class="subject-grade-wrapper">
-                    <div class="select-item">
-                      <a-select size="large" v-model="form.subjectIds" mode="multiple" placeholder="Subjects" class="subject-item">
-                        <a-select-opt-group v-for="subjectOptGroup in subjectTree" :key="subjectOptGroup.id">
-                          <span slot="label">{{ subjectOptGroup.name }}</span>
-                          <a-select-option
-                            :value="subjectOption.id"
-                            v-for="subjectOption in subjectOptGroup.children"
-                            :key="subjectOption.id">{{ subjectOption.name }}
-                          </a-select-option>
-                        </a-select-opt-group>
-                      </a-select>
-                    </div>
-                    <div class="select-item">
-                      <a-select size="large" v-model="form.gradeIds" placeholder="Grade" mode="multiple" class="grade-item">
-                        <a-select-option :value="gradeOption.id" v-for="gradeOption in gradeList" :key="gradeOption.id">
-                          {{ gradeOption.name }}
-                        </a-select-option>
-                      </a-select>
+                      <template v-if="uploading">
+                        <div class="upload-container">
+                          <p class="ant-upload-drag-icon">
+                            <a-icon type="cloud-upload" />
+                          </p>
+                          <p class="ant-upload-text">
+                            <a-spin />
+                            <span class="uploading-tips">{{ $t('teacher.add-unit-plan.uploading') }}</span>
+                          </p>
+                        </div>
+                      </template>
+                      <template v-if="!uploading && form && form.image">
+                        <div class="image-preview">
+                          <img :src="form.image" alt="">
+                        </div>
+                      </template>
+                      <template v-if="!uploading && form && !form.image">
+                        <div class="upload-container">
+                          <p class="ant-upload-drag-icon">
+                            <img src="~@/assets/icons/lesson/upload_icon.png" class="upload-icon" />
+                          </p>
+                          <p class="ant-upload-text">
+                            {{ $t('teacher.add-unit-plan.upload-a-picture') }}
+                          </p>
+                        </div>
+                      </template>
+                    </a-upload-dragger>
+                  </a-form-model-item>
+                </div>
+                <div class="recomend-loading" v-if="recomendListLoading">
+                  <a-spin size="large" />
+                </div>
+                <div class="form-block-right" v-show="!form.presentationId && currentActiveStepIndex === 1" v-if="!recomendListLoading">
+                  <div class="right-title">Teaching Tips</div>
+                  <div class="slide-preview-list">
+                    <div class="slide-preview-item" v-for="(template, rIndex) in recommendTemplateList" :key="rIndex">
+                      <div class="mask-cover">
+                        <div class="mask-actions">
+                          <div class="action-item action-item-center">
+                            <!--                            <div class="session-btn session-btn-left">-->
+                            <!--                              <div class="session-btn-text">Preview</div>-->
+                            <!--                            </div>-->
+                            <div class="session-btn session-btn-right" v-if="!addRecomendLoading">
+                              <div class="session-btn-text" @click="selectRecommendTemplate(template)">Add as slide</div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      <a-carousel arrows>
+                        <div
+                          slot="prevArrow"
+                          class="custom-slick-arrow"
+                          style="left: 10px;zIndex: 1"
+                        >
+                          <a-icon type="left-circle" />
+                        </div>
+                        <div slot="nextArrow" class="custom-slick-arrow" style="right: 10px">
+                          <a-icon type="right-circle" />
+                        </div>
+                        <div v-for="(item,index) in template.images" :key="index">
+                          <img :src="item" />
+                        </div>
+                      </a-carousel>
+                      <a-row v-if="template.introduce" class="slide-desc" :title="template.introduce">
+                        {{ template.introduce }}
+                      </a-row>
                     </div>
                   </div>
                 </div>
-
-                <div class="form-block">
-                  <div class="content-blocks question-item">
-                    <new-ui-clickable-knowledge-tag
-                      :question-index="questionPrefix"
-                      :selected-knowledge-tags="form.suggestingTag.knowledgeTags"
-                      :selected-skill-tags="form.suggestingTag.skillTags"
-                      @remove-knowledge-tag="handleRemoveKnowledgeTag"
-                      @add-knowledge-tag="handleAddKnowledgeTag"
-                      @remove-skill-tag="handleRemoveSkillTag"
-                      @add-skill-tag="handleAddSkillTag"
-                    />
-                  </div>
-                </div>
-
-                <div class="form-block">
+                <div v-show="currentActiveStepIndex !== 1">
                   <custom-tag ref="customTag" :selected-tags-list="form.customTags" @change-user-tags="handleChangeUserTags"></custom-tag>
                 </div>
-              </a-form-model>
+              </div>
             </a-card>
           </a-col>
         </a-row>
@@ -226,12 +292,20 @@
         v-model="selectLinkContentVisible"
         :footer="null"
         destroyOnClose
-        width="80%"
-        title="Link in my content"
-        @ok="selectLinkContentVisible = false"
-        @cancel="selectLinkContentVisible = false">
+        width="800px">
+        <div class="my-modal-title" slot="title">
+          Link my content
+        </div>
         <div class="link-content-wrapper">
-          <my-content-selector :filter-type-list="['unit-plan']" />
+          <new-my-content
+            :from-type="contentType.task"
+            :from-id="taskId"
+            :filter-type-list="[contentType.evaluation]"
+            :group-name-list="groupNameList"
+            :default-group-name="'Untitled Term' + groupNameList.length + 1"
+            :mode="'common-link'"
+            @cancel="selectLinkContentVisible = false"
+            @ensure="handleEnsureSelectedLink"/>
         </div>
       </a-modal>
 
@@ -266,31 +340,43 @@
           <a-tab-pane key="1" tab="Teaching Templates">
             <div class="select-template-wrapper">
               <div class="template-select-header">
-                <div class="header-title">
-                  <div class="header-title-text">
-                    Teaching Templates
+                <div class="filter-row">
+                  <div class="ant-form-item-label">Learning Experience:</div>
+                  <div class="row-select">
+                    <a-cascader
+                      class="row-cascader"
+                      :fieldNames="{ label: 'name', value: 'id', children: 'children' }"
+                      v-model="filterLearn"
+                      :options="learnExperienceList"
+                      :show-search="{ filterSearch }"
+                      change-on-select
+                      @change="selectFilter"/>
                   </div>
                 </div>
-                <div class="filter-wrapper">
-                  <div class="first-filter-line">
-                    <div class="task-type">
-                      <div :class="{'task-type-item': true, 'green-active-task-type': currentFasa === 'FA'}" @click="handleToggleTemplateType('currentFasa','FA')">FA</div>
-                      <div :class="{'task-type-item': true, 'red-active-task-type': currentFasa === 'SA'}" @click="handleToggleTemplateType('currentFasa','SA')">SA</div>
-                    </div>
-                    <div class="template-type-list">
-                      <div v-for="(item, index) in initTemplates" :key="index" :class="{'template-type-item': true, 'active-template-type' : currentTemplateType === item.value}" @click="handleToggleTemplateType('currentTemplateType',item.value)">
-                        {{ item.title }}
-                        <img src="~@/assets/icons/task/active_green.png" v-if=" currentTemplateType === item.value"/>
-                      </div>
-                    </div>
+                <div class="filter-row">
+                  <div class="ant-form-item-label">Assessment:</div>
+                  <div class="row-select">
+                    <a-cascader
+                      class="row-cascader"
+                      :fieldNames="{ label: 'name', value: 'id', children: 'children' }"
+                      v-model="filterAssessments"
+                      :options="assessmentsList"
+                      :show-search="{ filterSearch }"
+                      change-on-select
+                      @change="selectFilter"/>
                   </div>
-                  <div class="second-filter-line">
-                    <div class="template-type-list">
-                      <div v-for="(item, index) in initBlooms" :key="index" :class="{'template-type-item': true, 'sub-active-template-type' : currentBloomCategory === item.value}" @click="handleToggleTemplateType('currentBloomCategory',item.value)">
-                        {{ item.title }}
-                        <img src="~@/assets/icons/task/active_red.png" v-if=" currentBloomCategory === item.value"/>
-                      </div>
-                    </div>
+                </div>
+                <div class="filter-row">
+                  <div class="ant-form-item-label">21 century skills:</div>
+                  <div class="row-select">
+                    <a-cascader
+                      class="row-cascader"
+                      :fieldNames="{ label: 'name', value: 'id', children: 'children' }"
+                      v-model="filterCentury"
+                      :options="centuryList"
+                      :show-search="{ filterSearch }"
+                      change-on-select
+                      @change="selectFilter" />
                   </div>
                 </div>
               </div>
@@ -343,24 +429,6 @@
             </div>
           </a-tab-pane>
         </a-tabs>
-      </a-modal>
-
-      <a-modal
-        v-model="showRelevantQuestionVisible"
-        :footer="null"
-        destroyOnClose
-        top="50px"
-        width="50%"
-        title="Select from the relevant Unit"
-        @ok="showRelevantQuestionVisible = false"
-        @cancel="showRelevantQuestionVisible = false">
-        <div class="select-relevant-tag">
-          <relevant-tag-selector :relevant-question-list="relevantQuestionList" @update-selected="handleUpdateSelected"/>
-        </div>
-        <div class="action-line">
-          <a-button @click="handleCancelSelectedRelevant" class="button-item">Cancel</a-button>
-          <a-button @click="handleConfirmSelectedRelevant" type="primary" class="button-item">Confirm</a-button>
-        </div>
       </a-modal>
 
       <a-modal
@@ -486,6 +554,29 @@
         </template>
       </a-modal>
 
+      <a-modal
+        v-model="selectSyncDataVisible"
+        :footer="null"
+        destroyOnClose
+        width="80%"
+        :title="null"
+        @ok="selectSyncDataVisible = false"
+        @cancel="selectSyncDataVisible = false">
+        <div class="link-content-wrapper">
+          <!-- 此处的questionIndex用于标识区分是哪个组件调用的，返回的事件数据中会带上，方便业务数据处理，可随意写，可忽略-->
+          <new-browser
+            :select-mode="selectModel.syncData"
+            question-index="_questionIndex_1"
+            :sync-data="syncData"
+            @select-sync="handleSelectListData"
+            @select-curriculum="handleSelectCurriculum"/>
+          <div class="modal-ensure-action-line-right">
+            <a-button class="action-item action-cancel" shape="round" @click="handleCancelSelectData">Cancel</a-button>
+            <a-button class="action-ensure action-item" type="primary" shape="round" @click="handleEnsureSelectData">Ok</a-button>
+          </div>
+        </div>
+      </a-modal>
+
       <a-skeleton :loading="contentLoading" active>
       </a-skeleton>
     </a-card>
@@ -496,14 +587,14 @@
   import * as logger from '@/utils/logger'
   import ContentTypeIcon from '@/components/Teacher/ContentTypeIcon'
   import { typeMap } from '@/const/teacher'
-  import { UpdateContentStatus, GetMyGrades, Associate, SaveSessonTags } from '@/api/teacher'
+  import { UpdateContentStatus, GetMyGrades, Associate, SaveSessonTags, GetAssociate, GetReferOutcomes } from '@/api/teacher'
   import InputSearch from '@/components/UnitPlan/InputSearch'
   import SdgTagInput from '@/components/UnitPlan/SdgTagInput'
   import SkillTag from '@/components/UnitPlan/SkillTag'
-  import { TemplatesGetTemplates, TemplatesGetPresentation } from '@/api/template'
+  import { FilterTemplates, TemplatesGetPresentation, recommendTemplates } from '@/api/template'
   import { MyContentEventBus, MyContentEvent } from '@/components/MyContent/MyContentEventBus'
   import { TaskCreateTaskPPT, TaskQueryById, TaskAddOrUpdate } from '@/api/task'
-  import { UnitPlanQueryById } from '@/api/unitPlan'
+  import { SelectModel } from '@/components/NewLibrary/SelectModel'
   import { formatLocalUTC } from '@/utils/util'
   import { commonAPIUrl, GetDictItems } from '@/api/common'
   import MyContentSelector from '@/components/MyContent/MyContentSelector'
@@ -524,19 +615,21 @@
   import ModalHeader from '@/components/Common/ModalHeader'
   import CommonFormHeader from '@/components/Common/CommonFormHeader'
   import { EvaluationAddOrUpdate } from '@/api/evaluation'
-
-  const TagOriginType = {
-    Origin: 'Origin',
-    Search: 'Search',
-    Description: 'Description',
-    Create: 'Create',
-    Extension: 'Extension'
-  }
+  import CommonLink from '@/components/Common/CommonLink'
+  import UiLearnOut from '@/components/UnitPlan/UiLearnOut'
+  import { LibraryEvent, LibraryEventBus } from '@/components/NewLibrary/LibraryEventBus'
+  import NewBrowser from '@/components/NewLibrary/NewBrowser'
+  import NewMyContent from '@/components/MyContent/NewMyContent'
+  import { GetTreeByKey } from '@/api/tag'
 
   export default {
     name: 'AddTask',
     components: {
       CommonFormHeader,
+      NewBrowser,
+      NewMyContent,
+      UiLearnOut,
+      CommonLink,
       ModalHeader,
       TaskPreview,
       TaskForm,
@@ -579,24 +672,6 @@
           knowledgeTags: [],
           skillTags: []
         },
-        // 将questions转成对象
-        // 将questions转成对象
-        questionTotal: 0,
-        questionMaxIndex: 0,
-        questionPrefix: '__question_',
-        questionDataObj: {
-          __question_0: {
-            questionId: null,
-            visible: false,
-            name: '',
-            knowledgeMainSubjectId: '',
-            knowledgeSubSubjectId: '',
-            knowledgeGradeId: '',
-            knowledgeTags: [],
-            skillGradeId: '',
-            skillTags: []
-          }
-        },
         form: {
           id: null,
           image: '',
@@ -611,7 +686,8 @@
           customTags: [],
           subjectIds: [],
           gradeIds: [],
-          bloomCategories: ''
+          bloomCategories: '',
+          learnOuts: []
         },
         // Grades
         gradeList: [],
@@ -624,12 +700,6 @@
         templateList: [],
         templateLoading: false,
         selectedTemplateList: [],
-
-        // 待选择的unit plan中的描述标签
-        relevantQuestionList: [],
-        showRelevantQuestionVisible: false,
-        relevantSelectedQuestionList: [],
-        relevantSelectedUnitPlan: {},
 
         extKnowledgeTagList: [],
         extSkillTagList: [],
@@ -667,7 +737,31 @@
         sessionTags: [],
         startLoading: false,
         addLoading: false,
-        selectAddContentTypeVisible: false
+        selectAddContentTypeVisible: false,
+        // 当前激活的step
+        currentActiveStepIndex: 0,
+
+        groupNameList: [],
+        groupNameListOther: [],
+        syncData: [],
+        selectSyncDataVisible: false,
+        selectedSyncList: [],
+        // 已选择的大纲知识点描述数据
+        selectedCurriculumList: [],
+        selectModel: SelectModel,
+
+        editPPTMode: false,
+
+        recommendTemplateList: [],
+        learnExperienceList: [],
+        filterLearn: [],
+        assessmentsList: [],
+        filterAssessments: [],
+        centuryList: [],
+        filterCentury: [],
+        recomendListLoading: false,
+        addRecomendLoading: false,
+        skeletonLoading: false
       }
     },
     computed: {
@@ -694,11 +788,15 @@
       // 初始化关联事件处理
       MyContentEventBus.$on(MyContentEvent.LinkToMyContentItem, this.handleLinkMyContent)
       MyContentEventBus.$on(MyContentEvent.ToggleSelectContentItem, this.handleToggleSelectContentItem)
+      LibraryEventBus.$on(LibraryEvent.ContentListSelectClick, this.handleDescriptionSelectClick)
       this.initData()
+      this.getAssociate()
+      this.initTemplateFilter()
     },
     beforeDestroy () {
       MyContentEventBus.$off(MyContentEvent.LinkToMyContentItem, this.handleLinkMyContent)
       MyContentEventBus.$off(MyContentEvent.ToggleSelectContentItem, this.handleToggleSelectContentItem)
+      LibraryEventBus.$off(LibraryEvent.ContentListSelectClick, this.handleDescriptionSelectClick)
       // logger.debug('beforeDestroy, try save!')
       // this.handleSaveTask()
     },
@@ -707,7 +805,7 @@
         logger.info('initData doing...')
         Promise.all([
           GetMyGrades(),
-          TemplatesGetTemplates({ category: this.currentTemplateType }),
+          FilterTemplates({}),
           SubjectTree({ curriculumId: this.$store.getters.bindCurriculum })
         ]).then((response) => {
           this.$logger.info('add task initData done', response)
@@ -759,6 +857,28 @@
         })
       },
 
+      initTemplateFilter () {
+        GetTreeByKey({ key: 'template' }).then((response) => {
+          this.$logger.info('initTemplateFilter response', response.result)
+          if (response.success) {
+            this.treeItemData = response.result.children
+            this.treeItemData.forEach(item => {
+              if (item.name === 'Learning experience') {
+                this.learnExperienceList = item.children
+              }
+              if (item.name === 'Assessments') {
+                this.assessmentsList = item.children
+              }
+              if (item.name === '21 century skills') {
+                this.centuryList = item.children
+              }
+            })
+          } else {
+            this.$message.error(response.message)
+          }
+        })
+      },
+
       restoreTask (taskId, isFirstLoad) {
         if (isFirstLoad) {
           this.contentLoading = true
@@ -779,12 +899,16 @@
           }
           this.suggestingTag = this.form.suggestingTag
 
-          if (!this.form.presentationId) {
-            // 未成功绑定ppt
-            this.handleShowSelectMyContent()
-          }
+          // if (!this.form.presentationId) {
+          //   // 未成功绑定ppt
+          //   this.handleShowSelectMyContent()
+          // }
         }).finally(() => {
           this.contentLoading = false
+
+          if (this.form.presentationId) {
+            this.loadThumbnail()
+          }
         })
       },
 
@@ -807,141 +931,6 @@
         this.selectedMyContentInfoMap.set(key, data)
       },
 
-      loadRelevantTagInfo (item) {
-        this.$logger.info('loadRelevantTagInfo', item)
-        this.showRelevantQuestionVisible = false
-        this.relevantSelectedUnitPlan = item
-        if (item.type === this.contentType['unit-plan']) {
-          UnitPlanQueryById({ id: item.id }).then(response => {
-            this.$logger.info('loadRelevantTagInfo UnitPlanQueryById ' + item.id, response)
-            const unitPlanData = response.result
-            const that = this.$router
-            if (unitPlanData.questions.length === 0) {
-              this.$confirm({
-                title: item.name,
-                content: 'Please add plan questions and tags before linking',
-                onOk: function () {
-                  that.push({
-                    path: '/teacher/unit-plan-redirect/' + item.id
-                  })
-                }
-              })
-              return
-            }
-            if (unitPlanData.questions && unitPlanData.questions.length) {
-              const questionList = unitPlanData.questions
-              const questionMap = new Map()
-              const relevantTagList = []
-              questionList.forEach(questionItem => {
-                if (questionItem.id && !questionMap.has(questionItem.id)) {
-                  // 处理knowledge tags
-                  const knowledgeTagMap = new Map()
-                  const knowledgeTagList = []
-                  questionItem.knowledgeTags.forEach(item => {
-                    if (!!item.subKnowledgeId && item.curriculumId === this.$store.getters.bindCurriculum) {
-                      if (!knowledgeTagMap.has(item.subKnowledgeId)) {
-                        knowledgeTagMap.set(item.subKnowledgeId, [])
-                        this.subKnowledgeId2InfoMap.set(item.subKnowledgeId, {
-                          ...item
-                        })
-                      }
-
-                      const tagList = knowledgeTagMap.get(item.subKnowledgeId)
-                      tagList.push({
-                        ...item,
-                        type: TagOriginType.Origin
-                      })
-                      knowledgeTagMap.set(item.subKnowledgeId, tagList)
-                    }
-                  })
-                  for (const [id, tagList] of knowledgeTagMap) {
-                    knowledgeTagList.push({
-                      id: tagList[0].id,
-                      tagList,
-                      info: this.subKnowledgeId2InfoMap.get(id)
-                    })
-                  }
-
-                  // 处理skill tags
-                  const skillTagMap = new Map()
-                  const skillTagList = []
-                  questionItem.skillTags.forEach(item => {
-                    if (!!item.descriptionId && item.curriculumId === this.$store.getters.bindCurriculum) {
-                      if (!skillTagMap.has(item.descriptionId)) {
-                        skillTagMap.set(item.descriptionId, [])
-                        this.descriptionId2InfoMap.set(item.descriptionId, {
-                          ...item
-                        })
-                      }
-
-                      const tagList = skillTagMap.get(item.descriptionId)
-                      tagList.push({
-                        ...item,
-                        type: TagOriginType.Origin
-                      })
-                      skillTagMap.set(item.descriptionId, tagList)
-                    }
-                  })
-                  for (const [id, tagList] of skillTagMap) {
-                    skillTagList.push({
-                      id: tagList[0].id,
-                      tagList,
-                      info: this.descriptionId2InfoMap.get(id)
-                    })
-                  }
-
-                  relevantTagList.push({
-                    questionName: questionItem.name,
-                    questionId: questionItem.id,
-                    skillTagList,
-                    knowledgeTagList
-                  })
-                }
-              })
-              questionMap.clear()
-
-              this.relevantQuestionList = relevantTagList
-              this.showRelevantQuestionVisible = true
-              this.$logger.info('relevantQuestionList', this.relevantQuestionList)
-            } else {
-              this.$logger.info('no relevantQuestionList')
-            }
-          })
-        }
-      },
-      handleRemoveKnowledgeTag (data) {
-        logger.info('Unit Plan handleRemoveKnowledgeTag', data)
-        logger.info('target question data', this.questionDataObj[data.questionIndex.knowledgeTags])
-        this.suggestingTag.knowledgeTags = this.suggestingTag.knowledgeTags.filter(item => item.id !== data.id)
-        logger.info('Unit Plan after handleRemoveKnowledgeTag ', this.suggestingTag.knowledgeTags)
-      },
-
-      handleAddKnowledgeTag (data) {
-        logger.info('Unit Plan handleAddKnowledgeTag', data)
-        const newTag = {
-          description: data.description,
-          name: data.name,
-          gradeId: data.gradeId,
-          mainSubjectId: data.mainSubjectId,
-          subSubjectId: data.subSubjectId,
-          mainKnowledgeId: data.mainKnowledgeId,
-          subKnowledgeId: data.subKnowledgeId,
-          origin: 'suggesting'
-        }
-        this.suggestingTag.knowledgeTags.push(newTag)
-      },
-
-      handleRemoveSkillTag (data) {
-        logger.info('Unit Plan handleRemoveSkillTag', data)
-        this.suggestingTag.skillTags = this.suggestingTag.skillTags.filter(item => item.id !== data.id)
-        logger.info('Unit Plan after handleRemoveSkillTag ', this.suggestingTag.skillTags)
-      },
-
-      handleAddSkillTag (data) {
-        this.suggestingTag.skillTags.push(Object.assign({}, data))
-        this.$logger.info('after handleAddSkillTag skillTags ', this.suggestingTag.skillTags)
-      },
-
       handleSaveTask () {
         logger.info('handleSaveTask', this.form, this.questionDataObj)
 
@@ -960,12 +949,12 @@
           logger.info('TaskAddOrUpdate', response.result)
           if (response.success) {
             this.restoreTask(response.result.id, false)
-            // this.$message.success(this.$t('teacher.add-task.save-success'))
+            this.$message.success(this.$t('teacher.add-task.save-success'))
           } else {
             this.$message.error(response.message)
           }
         }).finally(() => {
-          this.selectedSlideVisible = true
+          // this.selectedSlideVisible = true
           this.$refs.commonFormHeader.saving = false
         })
       },
@@ -1011,39 +1000,6 @@
         // }, 500)
       },
 
-      handleToggleTemplateType (key, value) {
-        this.$logger.info('handleToggleTemplateType ' + key + ' ' + value)
-        this.templateLoading = true
-        if (key === 'currentTemplateType') {
-          if (this.currentTemplateType === value) {
-            this.currentTemplateType = null
-          } else {
-            this.currentTemplateType = value
-          }
-        }
-        if (key === 'currentBloomCategory') {
-          if (this.currentBloomCategory === value) {
-            this.currentBloomCategory = null
-          } else {
-            this.currentBloomCategory = value
-          }
-        }
-        if (key === 'currentFasa') {
-          if (this.currentFasa === value) {
-            this.currentFasa = null
-          } else {
-            this.currentFasa = value
-          }
-        }
-        this.selectedTemplateList = []
-        TemplatesGetTemplates({ category: this.currentTemplateType, bloomCategories: this.currentBloomCategory, fasa: this.currentFasa }).then(response => {
-          this.$logger.info('handleToggleTemplateType ', response)
-          this.templateList = response.result
-        }).finally(() => {
-          this.templateLoading = false
-        })
-      },
-
       handleShowSelectMyContent () {
         this.$logger.info('handleShowSelectMyContent')
         this.selectedTaskIdList = []
@@ -1065,6 +1021,7 @@
 
       handleAddTemplate () {
         this.$logger.info('handleAddTemplate ', this.selectedTemplateList)
+        const hideLoading = this.$message.loading('Creating ppt in Google side...', 0)
         if (!this.creating) {
           if (this.selectedTemplateList.length) {
             this.creating = true
@@ -1090,6 +1047,8 @@
               this.creating = false
               this.selectedMyContentVisible = false
               this.viewInGoogleSlideVisible = true
+              this.addRecomendLoading = false
+              hideLoading()
               // this.loadThumbnail()
             })
           } else {
@@ -1118,39 +1077,6 @@
       handleUpdateSelected (data) {
         this.$logger.info('handleUpdateSelected', data)
         this.relevantSelectedQuestionList = data.questionList
-      },
-
-      handleCancelSelectedRelevant () {
-        this.showRelevantQuestionVisible = false
-        this.relevantSelectedQuestionList = []
-      },
-
-      handleConfirmSelectedRelevant (data) {
-        this.$logger.info('handleConfirmSelectedRelevant', this.relevantSelectedQuestionList)
-        this.showRelevantQuestionVisible = false
-        const questionDataObj = Object.assign({}, this.questionDataObj['__question_0'])
-        this.$delete(this.questionDataObj, '__question_0')
-        this.$logger.info('questionDataObj __question_0', questionDataObj)
-        this.relevantSelectedQuestionList.forEach(item => {
-          questionDataObj.knowledgeTags = questionDataObj.knowledgeTags.concat(item.knowledgeTags)
-          questionDataObj.skillTags = questionDataObj.skillTags.concat(item.skillTags)
-        })
-
-        this.$nextTick(() => {
-          this.$set(this.questionDataObj, '__question_0', questionDataObj)
-        })
-        this.$logger.info('after $set questionDataObj __question_0', this.questionDataObj)
-        this.$logger.info('handleLinkMyContent unit question', this.relevantSelectedUnitPlan)
-        Associate({
-          fromId: this.form.id,
-          fromType: this.contentType.task,
-          toId: this.relevantSelectedUnitPlan.id,
-          toType: this.relevantSelectedUnitPlan.type,
-          questions: this.relevantSelectedQuestionList
-        }).then(response => {
-          this.$logger.info('handleLinkMyContent response ', response)
-          this.$refs.associate.loadAssociateData()
-        })
       },
 
       handleCancelSelectedMyContent () {
@@ -1205,13 +1131,14 @@
           }).finally(() => {
             this.creating = false
             this.selectedMyContentVisible = false
-            // this.loadThumbnail()
+            this.loadThumbnail()
           })
         }
       },
 
       loadThumbnail () {
         this.thumbnailListLoading = true
+        this.skeletonLoading = true
         this.$logger.info('loadThumbnail ' + this.form.presentationId)
         TemplatesGetPresentation({
           presentationId: this.form.presentationId
@@ -1224,6 +1151,20 @@
             this.$logger.info('current imgList ', this.imgList)
           })
           this.thumbnailListLoading = false
+          this.skeletonLoading = false
+        })
+      },
+
+      // TODO 修改为加载推荐模板
+      loadRecommendThumbnail () {
+        this.$logger.info('loadRecommendThumbnail')
+        this.recomendListLoading = true
+        recommendTemplates({}).then(response => {
+          logger.info('loadRecommendThumbnail res:', response.result)
+          if (response.success) {
+            this.recommendTemplateList = response.result
+            this.recomendListLoading = false
+          }
         })
       },
 
@@ -1473,11 +1414,192 @@
         } else {
           this.$logger.info('add loading')
         }
+      },
+      handleAddLink () {
+        this.$logger.info('handleAddLink', this.groupNameList)
+
+        // 如果第一部分有内容，点击link激活step 到第二部分，否则提示先输入第一部分表单内容
+        if (this.form.name ||
+          this.form.overview ||
+          this.form.questions.length) {
+          this.currentActiveStepIndex = 1
+          this.selectLinkContentVisible = true
+          // 添加link
+        } else {
+          this.$message.warn('Course info is empty, please fill the form first!')
+        }
+      },
+      handleEnsureSelectedLink (data) {
+        this.$logger.info('handleEnsureSelectedLink', data)
+        this.selectLinkContentVisible = false
+        this.getAssociate()
+        // 刷新组件内的列表
+        this.$refs.commonLink.getAssociate()
+      },
+
+      getAssociate () {
+        this.$logger.info('AddTask GetAssociate id[' + this.taskId + '] fromType[' + this.contentType.task + ']')
+        GetAssociate({
+          id: this.taskId,
+          type: this.contentType.task
+        }).then(response => {
+          this.$logger.info('AddTask GetAssociate response', response)
+          this.groupNameList = []
+          this.groupNameListOther = []
+          response.result.owner.forEach(item => {
+            if (this.groupNameList.indexOf(item.group) === -1) {
+              this.groupNameList.push(item.group)
+            }
+          })
+          response.result.others.forEach(item => {
+            if (this.groupNameListOther.indexOf(item.group) === -1) {
+              this.groupNameListOther.push(item.group)
+            }
+          })
+          if (this.groupNameList.length > 0 || this.groupNameListOther.length > 0) {
+            this.handleSyncData()
+          }
+          this.$logger.info('AddTask GetAssociate formatted groupNameList', this.groupNameList, this.groupNameListOther)
+        }).finally(() => {
+          this.linkGroupLoading = false
+        })
+      },
+
+      // TODO 自动更新选择的sync 的数据knowledgeId和name列表
+      handleSelectListData (data) {
+        this.$logger.info('handleSelectListData', data)
+        this.selectedSyncList = data
+      },
+
+      handleSelectCurriculum (data) {
+        this.$logger.info('handleSelectCurriculum', data)
+        this.selectedCurriculumList = data
+      },
+
+      // TODO 自动更新选择的sync 的数据knowledgeId和name列表
+      handleCancelSelectData () {
+        this.selectedSyncList = []
+        this.selectSyncDataVisible = false
+      },
+
+      // TODO 自动更新选择的sync 的数据knowledgeId和name列表
+      handleEnsureSelectData () {
+        this.$logger.info('handleEnsureSelectData')
+        this.selectedSyncList.forEach(data => {
+          const filterLearnOuts = this.form.learnOuts.filter(item => item.knowledgeId === data.knowledgeId)
+          if (filterLearnOuts.length > 0) {
+            return
+          }
+          this.form.learnOuts.push({
+            knowledgeId: data.knowledgeId,
+            name: data.name,
+            tags: []
+          })
+        })
+        this.selectedCurriculumList.forEach(data => {
+          const filterLearnOuts = this.form.learnOuts.filter(item => item.knowledgeId === data.knowledgeData.knowledgeId)
+          if (filterLearnOuts.length > 0) {
+            return
+          }
+          this.form.learnOuts.push({
+            knowledgeId: data.knowledgeData.id,
+            name: data.knowledgeData.name,
+            tags: []
+          })
+        })
+        this.$logger.info('this.form.learnOuts', this.form.learnOuts)
+        this.selectSyncDataVisible = false
+      },
+      handleRemoveLearnOuts (data) {
+        this.$logger.info('handleRemoveLearnOuts', data)
+        var index = this.form.learnOuts.findIndex(item => (item.knowledgeId === data.knowledgeId))
+        if (index > -1) {
+          this.form.learnOuts.splice(index, 1)
+        }
+      },
+      handleSelectDescription () {
+        this.selectSyncDataVisible = true
+      },
+      handleSyncData () {
+        this.$logger.info(' handleSyncData')
+        GetReferOutcomes({
+          id: this.unitPlanId,
+          type: this.contentType.task
+        }).then(response => {
+          this.$logger.info('getReferOutcomes response', response)
+          if (response.result.length) {
+            this.syncData = response.result
+          }
+        })
+      },
+
+      onChangeStep (current) {
+        console.log('onChange:', current)
+        this.currentActiveStepIndex = current
+        if (current === 1 && !this.form.presentationId) {
+          this.loadRecommendThumbnail()
+        }
+        // if (this.editPPTMode) {
+        //   this.currentActiveStepIndex = 0
+        //   this.editPPTMode = false
+        //   this.$refs.slide.scrollIntoView({
+        //     block: 'start',
+        //     behavior: 'smooth'
+        //   })
+        // }
+      },
+
+      handleToggleSlideMode () {
+        this.$logger.info('handleToggleSlideMode')
+        this.currentActiveStepIndex = 1
+        if (!this.editPPTMode) {
+          this.editPPTMode = true
+          this.$refs.slide.scrollIntoView({
+            block: 'start',
+            behavior: 'smooth'
+          })
+        }
+      },
+
+      handleCreateInGoogle () {
+        this.$logger.info('handleCreateInGoogle')
+        window.open('https://docs.google.com/presentation', '_blank')
+      },
+      filterSearch (inputValue, path) {
+        return path.some(option => option.name.toLowerCase().indexOf(inputValue.toLowerCase()) > -1)
+      },
+      selectFilter (data) {
+        this.$logger.info('selectFilter', data)
+        this.$logger.info('filterLearn', this.filterLearn)
+        this.templateLoading = true
+        this.selectedTemplateList = []
+        FilterTemplates({
+            filterLearn: this.filterLearn,
+            filterAssessments: this.filterAssessments,
+            filterCentury: this.filterCentury
+        }).then(response => {
+          this.$logger.info('handleToggleTemplateType ', response)
+          this.templateList = response.result
+        }).finally(() => {
+          this.templateLoading = false
+        })
+      },
+      selectRecommendTemplate (template) {
+        this.selectedTemplateList = []
+        this.selectedTemplateList.push(template)
+        this.addRecomendLoading = true
+        this.handleAddTemplate()
       }
     }
   }
 </script>
 
+<style>
+  .ant-cascader-menu{
+    min-width: 200px;
+    min-height: 270px;
+  }
+</style>
 <style lang="less" scoped>
   @import "~@/components/index.less";
 
@@ -1569,6 +1691,44 @@
     }
 
     .main-content {
+
+      .card-wrapper{
+        .task-form-left {
+          width: 800px;
+        }
+
+        .task-form-right {
+          width: 600px;
+          .form-block-right{
+            .img-wrapper {
+              position: relative;
+              width: 600px;
+            }
+            .right-title{
+              font-size: 16px;
+              font-family: Inter-Bold;
+              line-height: 24px;
+              color: #151515;
+              opacity: 1;
+              height: 40px;
+            }
+            .delete-img {
+              position: absolute;
+              top: -10px;
+              right: -10px;
+              background-color: #fafafa;
+              border-radius: 50%;
+              height: 30px;
+              width: 30px;
+              text-align: center;
+              vertical-align: middle;
+              color: @red-5;
+              z-index: 100;
+              font-size: 20px;
+            }
+          }
+        }
+      }
 
       .image-preview {
         img {
@@ -1782,11 +1942,29 @@
       padding: 10px ;
       display: flex;
       flex-direction: column;
-      align-items: center;
-      justify-content: center;
+      .filter-row{
+        align-items: center;
+        justify-content: center;
+        padding: 5px;
+        display: flex;
+        width: 100%;
+        .ant-form-item-label{
+          width: 20%;
+          font-weight: bold;
+          line-height: 24px;
+          color: #11142D;
+        }
+        .row-select{
+          width: 60%;
+          margin-left: 10px;
+        }
+        .row-cascader{
+          width: 90%;
+        }
+      }
 
       .header-title {
-        padding: 15px 0 25px;
+        padding: 5px 15px 5px 15px;
         .header-title-text {
           font-size: 20px;
           font-family: Inter-Bold;
@@ -2628,5 +2806,246 @@
     flex-direction: row;
     width: 100%;
     justify-content: center;
+    font-weight: bold;
+    line-height: 24px;
+  }
+
+  .slide-select-wrapper {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: flex-start;
+    position: relative;
+    .slide-select {
+      width: 600px;
+      background: #fff;
+      position: relative;
+      .slide-select-and-preview {
+        width: 600px;
+        min-height: 400px;
+
+        .reset-edit-basic-info {
+          z-index: 100;
+          position: absolute;
+          top: 10px;
+          left: 3px;
+          background: rgba(0,0,0, 0.8);
+          opacity: 0.7;
+          padding: 5px 10px;
+          font-size: 12px;
+          border-radius: 20px;
+          cursor: pointer;
+          color: #fff;
+        }
+
+        .slide-select-action {
+          height: 400px;
+          width: 600px;
+          align-items: center;
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+
+          img {
+            height: 150px;
+          }
+        }
+
+        .slide-preview {
+          border: 1px solid rgba(0, 0, 0, 0.1);
+        }
+      }
+    }
+
+    .slide-recommend {
+      width: 600px;
+      padding: 0 20px;
+      box-sizing: border-box;
+    }
+  }
+
+  .ant-carousel {
+
+    z-index: 50;
+    /deep/ .slick-dots {
+      height: auto;
+    }
+
+    /deep/ .slick-slide img {
+      border: 5px solid #fff;
+      display: block;
+      margin: auto;
+      max-width: 80%;
+    }
+
+    /deep/ .slick-thumb {
+      padding-bottom: 10px;
+      overflow-x: scroll;
+      flex-direction: row;
+      align-items: center;
+      bottom: -70px;
+      white-space:nowrap;
+
+      &::-webkit-scrollbar {
+        width: 5px;
+        height: 5px;
+      }
+      &::-webkit-scrollbar-track {
+        border-radius: 3px;
+        background: rgba(0,0,0,0.00);
+        -webkit-box-shadow: inset 0 0 5px rgba(0,0,0,0.08);
+      }
+      /* 滚动条滑块 */
+      &::-webkit-scrollbar-thumb {
+        border-radius: 5px;
+        background: rgba(0,0,0,0.12);
+        -webkit-box-shadow: inset 0 0 10px rgba(0,0,0,0.2);
+      }
+    }
+
+    /deep/ .slick-thumb li {
+      width: 60px;
+      height: 45px;
+    }
+
+    /deep/ .slick-thumb li img {
+      width: 100%;
+      height: 100%;
+      filter: grayscale(100%);
+      border: 1px solid #fff;
+    }
+
+    /deep/ .slick-thumb li.slick-active img {
+      filter: grayscale(0%);
+      border: 1px solid #15c39a;
+    }
+  }
+
+  .slide-preview-list {
+    max-height: 700px;
+    overflow-y: scroll;
+    width: 400px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+
+    .slide-preview-item {
+      position: relative;
+      margin-bottom: 10px;
+      width: 400px;
+      &:hover {
+        .mask-cover .mask-actions{
+          display: block;
+        }
+      }
+
+      .mask-cover{
+        .mask-actions{
+          height: 100%;
+          width: 80%;
+          left: 10%;
+          position: absolute;
+          flex-direction: column;
+          z-index: 9999;
+          display: none;
+          .action-item{
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-around;
+          }
+          .action-item-center{
+            min-height: 150px;
+            .session-btn{
+              margin:15px
+            }
+            .session-btn-left {
+              width: 160px;
+              height: 40px;
+              background: #15C39A;
+              opacity: 1;
+              border-radius: 20px;
+              justify-content: center;
+              display: flex;
+              padding: 6px 13px;
+              .session-btn-text {
+                font-size: 12px;
+                font-family: Inter-Bold;
+                line-height: 24px;
+                color: #FFFFFF;
+                opacity: 1;
+              }
+            }
+            .session-btn-right {
+              width: 160px;
+              height: 40px;
+              background: #182552;
+              opacity: 1;
+              border-radius: 20px;
+              display: flex;
+              justify-content: center;
+              padding: 6px 13px;
+              .session-btn-text {
+                font-size: 12px;
+                font-family: Inter-Bold;
+                line-height: 24px;
+                color: #FFFFFF;
+                opacity: 1;
+              }
+            }
+          }
+        }
+
+      }
+
+    }
+    .slide-desc{
+      width: 70%;
+      max-height: 50px;
+      margin: 0 auto;
+      margin-bottom: 10px;
+      overflow: hidden;
+    }
+  }
+  .ant-carousel{
+    .slick-slide {
+      text-align: center;
+      height: 200px;
+      line-height: 200px;
+      background: #364d79;
+      overflow: hidden;
+    }
+    custom-slick-arrow {
+      width: 25px;
+      height: 25px;
+      font-size: 25px;
+      color: #fff;
+      background-color: rgba(31, 45, 61, 0.11);
+      opacity: 0.3;
+    }
+    .custom-slick-arrow:before {
+      display: none;
+    }
+    .custom-slick-arrow:hover {
+      opacity: 0.5;
+    }
+    .slick-slide h3 {
+      color: #fff;
+    }
+    .anticon{
+      color: #15c39a;
+      font-size: 20px;
+    }
+  }
+  .recomend-loading {
+    min-height: 200px;
+    margin-top: 200px;
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
   }
 </style>

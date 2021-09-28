@@ -41,25 +41,26 @@
                 <a-menu-item @click="toggleType('task', $t('teacher.my-content.tasks-type') )" v-if="filterTypeList.indexOf('task') !== -1">
                   <span>{{ $t('teacher.my-content.tasks-type') }}</span>
                 </a-menu-item>
-                <a-menu-item @click="toggleType('lesson', $t('teacher.my-content.lesson-type'))" v-if="filterTypeList.indexOf('lesson') !== -1">
+                <!--                <a-menu-item @click="toggleType('lesson', $t('teacher.my-content.lesson-type'))" v-if="filterTypeList.indexOf('lesson') !== -1">
                   <span>{{ $t('teacher.my-content.lesson-type') }}</span>
-                </a-menu-item>
+                </a-menu-item>-->
                 <a-menu-item @click="toggleType('evaluation', $t('teacher.my-content.evaluation-type'))" v-if="filterTypeList.indexOf('evaluation') !== -1">
                   <span>{{ $t('teacher.my-content.evaluation-type') }}</span>
                 </a-menu-item>
               </a-menu>
               <a-button
-                style="padding: 0 20px;display:flex; box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.16);align-items:center ;height: 40px;border-radius: 6px;background: #FFFFFF;border: 1px solid #eee;font-family: Inter-Bold;color: #182552;">
+                class="type-filter-button"
+                style="padding: 0 20px;display:flex; align-items:center ;height: 40px;border-radius: 6px;background: #FFFFFF;font-family: Inter-Bold;color: #182552;">
                 {{ currentTypeLabel }} <a-icon type="caret-down" />
               </a-button>
             </a-dropdown>
           </div>
           <div class="switch-icon">
             <div :class="{'icon-item': true, 'active-icon': dataListMode === 'list'}" @click="handleToggleDataListMode('list')">
-              <list-mode-icon />
+              <liebiao-svg />
             </div>
             <div :class="{'icon-item': true, 'active-icon': dataListMode === 'card'}" @click="handleToggleDataListMode('card')">
-              <pu-bu-icon />
+              <pubu-svg />
             </div>
           </div>
         </a-space>
@@ -254,8 +255,8 @@ import { MyContentEventBus, MyContentEvent } from '@/components/MyContent/MyCont
 import DisplayMode from '@/components/MyContent/DisplayMode'
 import CommonPreview from '@/components/Common/CommonPreview'
 import NoMoreResources from '@/components/Common/NoMoreResources'
-import PuBuIcon from '@/assets/icons/library/pubu .svg?inline'
-import ListModeIcon from '@/assets/icons/library/liebiao .svg?inline'
+import LiebiaoSvg from '@/assets/svgIcon/myContent/liebiao.svg?inline'
+import PubuSvg from '@/assets/svgIcon/myContent/pubu.svg?inline'
 
 export default {
   name: 'MyContentCreatedByMe',
@@ -266,8 +267,8 @@ export default {
     UnitPlanPreview,
     MaterialPreview,
     NoMoreResources,
-    PuBuIcon,
-    ListModeIcon
+    PubuSvg,
+    LiebiaoSvg
   },
   props: {
     filterTypeList: {
@@ -482,20 +483,25 @@ export default {
 
 .ant-list-item {
   padding: 0;
-  margin: 10px;
   position: relative;
   width: 200px;
 }
 
 .my-list-item {
-  box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.16);
+  min-width: 800px;
   opacity: 1;
+  width: 100%;
   border-radius: 4px;
   background: #FFFFFF;
-  padding: 12px 10px;
-  width: 100%;
-  border: 2px solid #fff;
+  padding: 15px 10px;
+  margin-bottom: 10px;
+  cursor: pointer;
 }
+
+.my-list-item:hover {
+  box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.16);
+}
+
 .active-item {
   border: 2px solid #15C39A;
   box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.16);
@@ -546,6 +552,10 @@ export default {
               align-items: center;
               justify-content: center;
               width: 90px;
+
+              &:hover {
+                background: #EDF1F5;
+              }
             }
 
             .skill-active-mode {
@@ -748,8 +758,7 @@ a.delete-action {
 
 .switch-icon {
   background: #FFFFFF;
-  border: 1px solid #F7F8FF;
-  box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.16);
+  border: 1px solid #D8D8D8;
   opacity: 1;
   border-radius: 6px;
   padding: 5px 15px;
@@ -775,6 +784,10 @@ a.delete-action {
     svg {
       color: rgba(21, 195, 154, 1);
     }
+  }
+
+  &:hover {
+    border-color: #15c39a;
   }
 }
 
@@ -807,8 +820,8 @@ a.delete-action {
 .my-card-list-item {
   overflow: hidden;
   box-sizing: border-box;
-  margin: 10px;
-  width: 250px;
+  margin: 0 15px 15px 0;
+  width: 264px;
   position: relative;
   user-select: none;
   background: #FFFFFF;

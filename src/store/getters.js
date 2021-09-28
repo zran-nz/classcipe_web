@@ -22,7 +22,8 @@ const getters = {
   multiTab: state => state.app.multiTab,
   defaultRouter: state => state.user.currentRole === 'expert' ? defaultExpertRouter : defaultTeacherRouter,
   sharedCount: state => state.user.sharedCount,
-  sharedFindCount: state => state.user.sharedFindCount
+  sharedFindCount: state => state.user.sharedFindCount,
+  skillCategory: state => state.user.skillCategory
 }
 
 export default getters

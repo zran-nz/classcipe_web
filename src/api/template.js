@@ -2,6 +2,8 @@ import request from '@/utils/request'
 
 export const templateUrl = {
   getTemplates: '/classcipe/api/templates/getTemplates',
+  filterTemplates: '/classcipe/api/templates/filterTemplates',
+  recommendTemplates: '/classcipe/api/templates/recommendTemplates',
   getPresentation: '/classcipe/api/templates/getPresentation',
   getPublishedPresentation: '/classcipe/api/templates/getPublishedPresentation',
   getPageThumbnail: '/classcipe/api/templates/getPageThumbnail',
@@ -18,6 +20,28 @@ export function TemplatesGetTemplates (parameter) {
     url: templateUrl.getTemplates,
     method: 'get',
     params: parameter
+  })
+}
+
+export function FilterTemplates (parameter) {
+  return request({
+    url: templateUrl.filterTemplates,
+    method: 'post',
+    data: parameter,
+    headers: {
+      'Content-Type': 'application/json;charset=UTF-8'
+    }
+  })
+}
+
+export function recommendTemplates (parameter) {
+  return request({
+    url: templateUrl.recommendTemplates,
+    method: 'post',
+    data: parameter,
+    headers: {
+      'Content-Type': 'application/json;charset=UTF-8'
+    }
   })
 }
 

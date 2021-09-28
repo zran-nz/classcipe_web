@@ -4,16 +4,20 @@
       <div class="name" :style="{width: nameWidth + 'px'}">
         Name
       </div>
-      <!--      <div class="owner">-->
-      <!--        Owner-->
-      <!--      </div>-->
-      <!--      <div class="date-modified">-->
-      <!--        Date Modified-->
-      <!--      </div>-->
     </div>
     <div class="content-list">
-      <template v-if="contentDataList.length">
-        <div :class="{'content-item': true, 'odd-line': index % 2 === 0,'even-line': index % 2 === 1, 'active-line': currentId === item.id, 'selected-line': selectedIdList.indexOf(item.id) !== -1}" v-for="(item,index) in contentDataList" :key="index">
+      <template v-if="contentDataList && contentDataList.length">
+        <div
+          :class="{'content-item': true,
+                   'odd-line': index % 2 === 0,'even-line': index % 2 === 1,
+                   'active-line': currentId === item.id,
+                   'selected-line': currentDataType === NavigationType.sync ? (selectedKnowledgeIdList.indexOf(item.knowledgeId) !== -1) : (
+                     currentDataType === NavigationType.learningOutcomes ? (selectedCurriculumIdList.indexOf(item.id) !== -1) : (
+                       currentDataType === NavigationType.specificSkills ? (selectedSubjectSpecificSkillIdList.indexOf(item.id) !== -1) : (
+                         currentDataType === NavigationType.centurySkills ? (selected21CenturySkillIdList.indexOf(item.id) !== -1) : false)
+                     ))}"
+          v-for="(item,index) in contentDataList"
+          :key="index">
           <div class="name" :style="{width: nameWidth + 'px'}" @click="handleContentListItemClick(item)">
             <div class="icon">
               <template v-if="item.type">
@@ -23,19 +27,22 @@
                 <a-icon type="folder" theme="filled" class="file-dir-icon"/>
               </template>
             </div>
-            <div class="name-text">
-              {{ item.name || item.description }}
-            </div>
-            <div class="action-icon" v-if="selectedIdList.indexOf(item.id) !== -1">
+            <a-tooltip placement="top" >
+              <template slot="title" v-if="item.hasOwnProperty('froms')">{{ item.froms }}</template>
+              <div class="name-text">
+                {{ item.name || item.description }}
+              </div>
+              <div class="collapse-item" v-if="item.hasOwnProperty('froms')">
+                <a-tag class="tag-item" v-for="(tag,tIndex) in item.tags" :key="tIndex">
+                  {{ tag }}
+                </a-tag>
+                <a-icon class="collapse-icon" type="down" />
+              </div>
+            </a-tooltip>
+            <div class="action-icon" v-if="item.hasOwnProperty('froms') ? selectedKnowledgeIdList.indexOf(item.knowledgeId) !== -1 : selectedCurriculumIdList.indexOf(item.id) !== -1">
               <img src="~@/assets/icons/lesson/selected.png"/>
             </div>
           </div>
-          <!--          <div class="owner">-->
-          <!--            {{ item.createBy }}-->
-          <!--          </div>-->
-          <!--          <div class="date-modified">-->
-          <!--            {{ item.updateTime | dayjs }}-->
-          <!--          </div>-->
         </div>
       </template>
       <template v-else>
@@ -69,6 +76,7 @@ import ContentTypeIcon from '@/components/Teacher/ContentTypeIcon'
 import UnitPlanPreview from '@/components/UnitPlan/UnitPlanPreview'
 import MaterialPreview from '@/components/Material/MaterialPreview'
 import { typeMap } from '@/const/teacher'
+import { NavigationType } from '@/components/NewLibrary/NavigationType'
 
 export default {
   name: 'NewContentList',
@@ -90,8 +98,20 @@ export default {
       blockIndex: 0,
       typeMap: typeMap,
       firstLoad: true,
+      NavigationType: NavigationType,
 
-      selectedIdList: []
+      selectedCurriculumIdList: [],
+      selectedCurriculumMap: new Map(),
+
+      selectedKnowledgeIdList: [],
+      selectedKnowledgeIdNameMap: new Map(),
+
+      selected21CenturySkillIdList: [],
+      selected21CenturySkillIdMap: new Map(),
+
+      selectedSubjectSpecificSkillIdList: [],
+      selectedSubjectSpecificSkillIdMap: new Map(),
+      currentDataType: 'none'
     }
   },
   computed: {
@@ -109,28 +129,182 @@ export default {
       this.$logger.info('handleContentListUpdate ', data)
       this.contentDataList = data.contentList
       this.parent = data.currentTreeData
+      this.currentDataType = data.dataType
       this.firstLoad = false
     },
 
     handleContentSelectedListUpdate (data) {
       this.$logger.info('handleContentSelectedListUpdate ', data)
-      if (this.selectedIdList.indexOf(data.id) === -1) {
-        this.selectedIdList.push(data.id)
+      if (this.selectedCurriculumIdList.indexOf(data.id) === -1) {
+        this.selectedCurriculumIdList.push(data.id)
+        this.selectedCurriculumMap.set(data.id, data)
       } else {
-        this.selectedIdList.splice(this.selectedIdList.indexOf(data.id), 1)
+        this.selectedCurriculumIdList.splice(this.selectedCurriculumIdList.indexOf(data.id), 1)
+        this.selectedCurriculumMap.delete(data.id)
       }
-      this.$logger.info('after handleContentSelectedListUpdate ', this.selectedIdList)
+      this.$logger.info('after handleContentSelectedListUpdate ', this.selectedCurriculumIdList, this.selectedCurriculumMap)
     },
     handleContentListItemClick (item) {
-      this.$logger.info('handleContentListItemClick ', item)
-      LibraryEventBus.$emit(LibraryEvent.ContentListItemClick, {
-        item,
-        parent: this.parent
-      })
+      this.$logger.info(this.currentDataType + ': handleContentListItemClick current item: ', item, ' parent:', this.parent)
 
-      if (item.type) {
-        this.$logger.info('handleContentListItemClick type', item)
-        this.handlePreviewDetail(item)
+      if (this.currentDataType === NavigationType.sync) {
+        // 同步更新点击sync data数据，通过当前字段是否包含froms来区分sync和大纲描述
+        this.$logger.info('handle sync handleContentListItemClick', item)
+        const index = this.selectedKnowledgeIdList.indexOf(item.knowledgeId)
+        if (index !== -1) {
+          this.selectedKnowledgeIdList.splice(index, 1)
+          this.selectedKnowledgeIdNameMap.delete(item.knowledgeId)
+        } else {
+          this.selectedKnowledgeIdList.push(item.knowledgeId)
+          this.selectedKnowledgeIdNameMap.set(item.knowledgeId, item.name, item.tagType, item.tags)
+        }
+        const selectedList = []
+        this.selectedKnowledgeIdList.forEach(knowledgeId => {
+          selectedList.push({
+            dataType: this.currentDataType,
+            knowledgeId: knowledgeId,
+            name: this.selectedKnowledgeIdNameMap.get(knowledgeId),
+            tagType: item.tagType,
+            tags: item.tags
+          })
+        })
+        this.$emit('select-sync', selectedList)
+        this.$logger.info('selectedKnowledgeIdNameMap', this.selectedKnowledgeIdNameMap)
+      } else if (this.currentDataType === NavigationType.learningOutcomes) {
+        // 同步更新点击大纲描述数据
+        if (item.children.length || (item.gradeList && item.gradeList.length)) {
+          // 如果有子列表，表示还未到最后一层description，通知左侧导航栏更新同步层级
+          LibraryEventBus.$emit(LibraryEvent.ContentListItemClick, {
+            item,
+            dataType: this.currentDataType,
+            parent: this.parent,
+            eventType: 'syncDir'
+          })
+          this.$logger.info('$emit sync')
+        } else {
+          // 有的时候grade下面没数据，需要排除一下grade
+          if (!item.hasOwnProperty('isGrade')) {
+            // 最后一列，字列表无需让导航栏更新，导航栏不显示最后一层description。通过事件类型区分。 ContentListItemClick
+            const index = this.selectedCurriculumIdList.indexOf(item.id)
+            if (index !== -1) {
+              this.selectedCurriculumIdList.splice(index, 1)
+              this.selectedCurriculumMap.delete(item.id)
+            } else {
+              this.selectedCurriculumIdList.push(item.id)
+              this.selectedCurriculumMap.set(item.id, item)
+            }
+            const selectedList = []
+            this.selectedCurriculumIdList.forEach(knowledgeId => {
+              selectedList.push({
+                dataType: this.currentDataType,
+                knowledgeId: knowledgeId,
+                knowledgeData: this.selectedCurriculumMap.get(knowledgeId)
+              })
+            })
+            this.$emit('select-curriculum', selectedList)
+            this.$logger.info('selectedCurriculumMap', this.selectedCurriculumMap)
+          } else {
+            // grade下层为空
+            const eventData = {
+              item,
+              dataType: this.currentDataType,
+              parent: this.parent,
+              eventType: 'syncDir'
+            }
+            LibraryEventBus.$emit(LibraryEvent.ContentListItemClick, eventData)
+            this.$logger.info('current is grade, skip empty children item!', eventData)
+          }
+        }
+      } else if (this.currentDataType === NavigationType.specificSkills) {
+        // subject specific skills 是mainSubject-year-knowledge
+        if (item.children.length || (item.gradeList && item.gradeList.length)) {
+          // 如果有子列表，表示还未到最后一层knowledge，通知左侧导航栏更新同步层级
+          LibraryEventBus.$emit(LibraryEvent.ContentListItemClick, {
+            item,
+            dataType: this.currentDataType,
+            parent: this.parent,
+            eventType: 'syncDir'
+          })
+          this.$logger.info('$emit sync')
+        } else {
+          // 有的时候grade下面没数据，需要排除一下grade
+          if (!item.hasOwnProperty('isGrade')) {
+            // 最后一列，字列表无需让导航栏更新，导航栏不显示最后一层description。通过事件类型区分。 ContentListItemClick
+            const index = this.selectedSubjectSpecificSkillIdList.indexOf(item.id)
+            if (index !== -1) {
+              this.selectedSubjectSpecificSkillIdList.splice(index, 1)
+              this.selectedSubjectSpecificSkillIdMap.delete(item.id)
+            } else {
+              this.selectedSubjectSpecificSkillIdList.push(item.id)
+              this.selectedSubjectSpecificSkillIdMap.set(item.id, item)
+            }
+            const selectedList = []
+            this.selectedSubjectSpecificSkillIdList.forEach(knowledgeId => {
+              selectedList.push({
+                dataType: this.currentDataType,
+                knowledgeId: knowledgeId,
+                knowledgeData: this.selectedSubjectSpecificSkillIdMap.get(knowledgeId)
+              })
+            })
+            this.$emit('select-subject-specific-skill', selectedList)
+            this.$logger.info('selectedSubjectSpecificSkillIdMap', this.selectedSubjectSpecificSkillIdMap)
+          } else {
+            // grade下层为空
+            const eventData = {
+              item,
+              dataType: this.currentDataType,
+              parent: this.parent,
+              eventType: 'syncDir'
+            }
+            LibraryEventBus.$emit(LibraryEvent.ContentListItemClick, eventData)
+            this.$logger.info('current is grade, skip empty children item!', eventData)
+          }
+        }
+      } else if (this.currentDataType === NavigationType.centurySkills) {
+        // 21 century skills 是year-knowledge
+        if (item.children.length || (item.gradeList && item.gradeList.length)) {
+          // 如果有子列表，表示还未到最后一层description，通知左侧导航栏更新同步层级
+          LibraryEventBus.$emit(LibraryEvent.ContentListItemClick, {
+            item,
+            dataType: this.currentDataType,
+            parent: this.parent,
+            eventType: 'syncDir'
+          })
+          this.$logger.info('$emit sync')
+        } else {
+          // 有的时候grade下面没数据，需要排除一下grade
+          if (!item.hasOwnProperty('isGrade')) {
+            // 最后一列，字列表无需让导航栏更新，导航栏不显示最后一层description。通过事件类型区分。 ContentListItemClick
+            const index = this.selected21CenturySkillIdList.indexOf(item.id)
+            if (index !== -1) {
+              this.selected21CenturySkillIdList.splice(index, 1)
+              this.selected21CenturySkillIdMap.delete(item.id)
+            } else {
+              this.selected21CenturySkillIdList.push(item.id)
+              this.selected21CenturySkillIdMap.set(item.id, item)
+            }
+            const selectedList = []
+            this.selected21CenturySkillIdList.forEach(knowledgeId => {
+              selectedList.push({
+                dataType: this.currentDataType,
+                knowledgeId: knowledgeId,
+                knowledgeData: this.selected21CenturySkillIdMap.get(knowledgeId)
+              })
+            })
+            this.$emit('select-century-skill', selectedList)
+            this.$logger.info('selected21CenturySkillIdMap', this.selected21CenturySkillIdMap)
+          } else {
+            // grade下层为空
+            const eventData = {
+              item,
+              dataType: this.currentDataType,
+              parent: this.parent,
+              eventType: 'syncDir'
+            }
+            LibraryEventBus.$emit(LibraryEvent.ContentListItemClick, eventData)
+            this.$logger.info('current is grade, skip empty children item!', eventData)
+          }
+        }
       }
     },
     handlePreviewClose () {
@@ -213,13 +387,15 @@ export default {
     .selected-line {
       background-color: fade(@outline-color, 10%);
       color: @text-color;
-      margin: 3px;
-      border: 1px solid #15C39A;
+      border: 1px solid #15C39A !important;
       box-sizing: border-box;
+      position: relative;
 
       .action-icon {
         position: absolute;
-        right: 40px;
+        right: 5px;
+        top: 50%;
+        margin-top: -10px;
         img {
           height: 18px;
         }
@@ -232,11 +408,14 @@ export default {
     }
 
     .content-item {
+      border: 1px solid #fff;
       display: flex;
       flex-direction: row;
       flex-wrap: wrap;
       align-items: center;
       padding: 10px;
+      margin: 3px;
+      position: relative;
 
       .name {
         cursor: pointer;
@@ -260,6 +439,26 @@ export default {
           box-sizing: border-box;
           word-break: break-all;
           white-space:normal;
+        }
+        .collapse-item{
+          display: flex;
+          padding: 10px;
+          position: relative;
+          .collapse-icon{
+            right: 0;
+            position: absolute;
+          }
+          .tag-item{
+            color: rgb(21, 195, 154);
+            border: 1px solid rgb(21, 195, 154);
+            cursor: pointer;
+            border-radius: 10px;
+            word-break: normal;
+            width: auto;
+            display: block;
+            white-space: pre-wrap;
+            overflow-wrap: break-word;
+          }
         }
       }
 

@@ -15,8 +15,8 @@
           <template slot="title">
             {{ mainSubjectItem.name }}
           </template>
-          <dir-icon dir-type="opened" v-if="currentMainSubjectId !== mainSubjectItem.id"/>
-          <dir-icon dir-type="yellow" v-if="currentMainSubjectId === mainSubjectItem.id"/>
+          <dir-icon dir-type="blue" v-if="currentMainSubjectId !== mainSubjectItem.id"/>
+          <dir-icon dir-type="opened" v-if="currentMainSubjectId === mainSubjectItem.id"/>
           {{ mainSubjectItem.name }}
         </a-tooltip>
         <span class="arrow-item">
@@ -50,8 +50,8 @@
             <template slot="title">
               {{ gradeItem.name }}
             </template>
-            <dir-icon dir-type="opened" v-if="currentGradeId !== gradeItem.id"/>
-            <dir-icon dir-type="yellow" v-if="currentGradeId === gradeItem.id"/>
+            <dir-icon dir-type="blue" v-if="currentGradeId !== gradeItem.id"/>
+            <dir-icon dir-type="opened" v-if="currentGradeId === gradeItem.id"/>
             {{ gradeItem.name }}
           </a-tooltip>
           <span class="arrow-item">
@@ -122,8 +122,8 @@
           <template slot="title">
             {{ subKnowledgeItem.name }}
           </template>
-          <dir-icon dir-type="opened" v-if="currentSubKnowledgeId !== subKnowledgeItem.id"/>
-          <dir-icon dir-type="yellow" v-if="currentSubKnowledgeId === subKnowledgeItem.id"/>
+          <dir-icon dir-type="blue" v-if="currentSubKnowledgeId !== subKnowledgeItem.id"/>
+          <dir-icon dir-type="opened" v-if="currentSubKnowledgeId === subKnowledgeItem.id"/>
           {{ subKnowledgeItem.name }}
         </a-tooltip>
         <span class="arrow-item">
@@ -172,9 +172,9 @@
                   <a-menu-item @click="toggleType(typeMap.task, $t('teacher.my-content.tasks-type') )">
                     <span>{{ $t('teacher.my-content.tasks-type') }}</span>
                   </a-menu-item>
-                  <a-menu-item @click="toggleType(typeMap.lesson, $t('teacher.my-content.lesson-type'))">
+                  <!--                  <a-menu-item @click="toggleType(typeMap.lesson, $t('teacher.my-content.lesson-type'))">
                     <span>{{ $t('teacher.my-content.lesson-type') }}</span>
-                  </a-menu-item>
+                  </a-menu-item>-->
                   <a-menu-item @click="toggleType(typeMap.evaluation, $t('teacher.my-content.evaluation-type'))">
                     <span>{{ $t('teacher.my-content.evaluation-type') }}</span>
                   </a-menu-item>
@@ -435,7 +435,8 @@
         this.handleClickBlock(3, assessmentItem.name)
         this.currentAssessmentTypeId = assessmentItem.id
         QueryKnowledgesByAssessmentTypeId({
-          assessmentTypeId: assessmentItem.id
+          assessmentTypeId: assessmentItem.id,
+          gradeId: this.currentGradeId
         }).then(response => {
           this.$logger.info('queryContentByAssessment response', response.result)
           this.subKnowledgeListLoading = true
@@ -510,13 +511,13 @@
 
       .browser-item {
         line-height: 20px;
-        padding: 10px 0 10px 10px;
+        padding: 10px 15px 10px 20px;
         font-weight: 500;
         cursor: pointer;
         overflow: hidden;
         //white-space: nowrap;
         text-overflow: ellipsis;
-        word-break: break-all;
+        word-break: break-word;
         user-select: none;
         background: rgba(228, 228, 228, 0.2);
         position: relative;
@@ -525,7 +526,9 @@
         justify-content: space-between;
         width: 100%;
         box-sizing: border-box;
-
+        &:hover {
+          background: #EDF1F5;
+        }
         .arrow-item {
           padding: 0 10px;
           width: 20px;
@@ -543,7 +546,7 @@
           width: calc(100% - 25px);
 
           text-overflow: ellipsis;
-          word-break: break-all;
+          word-break: break-word;
           user-select: none;
           overflow: hidden;
 
@@ -563,8 +566,8 @@
       }
 
       .active-line {
-        background: rgba(255, 187, 0, 0.1);
-        color: rgba(255, 187, 0, 1);
+        background-color: rgba(21, 195, 154, 0.1);
+        color: #15c39a;
       }
 
       .loading-wrapper {
@@ -680,7 +683,7 @@
         overflow: hidden;
         white-space: nowrap;
         text-overflow: ellipsis;
-        word-break: break-all;
+        word-break: break-word;
         user-select: none;
         display: flex;
         flex-direction: row;
@@ -759,8 +762,8 @@
       }
 
       .active-line {
-        background-color: rgba(255, 187, 0, 0.1);
-        color: rgba(255, 187, 0, 1);
+        background-color: rgba(21, 195, 154, 0.1);
+        color: #15c39a;
       }
 
       .loading-wrapper {

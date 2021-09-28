@@ -29,11 +29,11 @@
               <a-menu-item @click="toggleType('task', $t('teacher.my-content.tasks-type') )">
                 <span>{{ $t('teacher.my-content.tasks-type') }}</span>
               </a-menu-item>
-              <a-menu-item
+              <!--              <a-menu-item
                 @click="toggleType('lesson', $t('teacher.my-content.lesson-type'))"
                 v-show="$store.getters.currentRole === 'teacher'">
                 <span>{{ $t('teacher.my-content.lesson-type') }}</span>
-              </a-menu-item>
+              </a-menu-item>-->
               <a-menu-item
                 @click="toggleType('evaluation', $t('teacher.my-content.evaluation-type'))"
                 v-show="$store.getters.currentRole === 'teacher'">

@@ -5,10 +5,19 @@
     </div>
     <div class="main">
       <div class="tree-navigation">
-        <new-tree-navigation :select-mode="selectMode" :question-index="questionIndex" />
+        <new-tree-navigation
+          :select-mode="selectMode"
+          :question-index="questionIndex"
+          :sync-data="syncData"
+        />
       </div>
       <div class="content-list">
-        <new-content-list />
+        <new-content-list
+          @select-sync="handleSelectListData"
+          @select-curriculum="handleSelectCurriculumListData"
+          @select-subject-specific-skill="handleSelectSubjectSpecificSkillListData"
+          @select-century-skill="handleSelect21CenturySkillListData"
+        />
       </div>
     </div>
   </div>
@@ -35,13 +44,15 @@ export default {
     questionIndex: {
       type: String,
       default: null
+    },
+    syncData: {
+      type: Array,
+      default: () => []
     }
   },
   data () {
     return {
     }
-  },
-  computed: {
   },
   created () {
     this.$logger.info('NewBrowser selectMode', this.selectMode)
@@ -49,6 +60,27 @@ export default {
   mounted () {
   },
   methods: {
+    handleSelectListData (data) {
+      this.$logger.info('NewBrowser handleSelectListData', data)
+      this.$emit('select-sync', data)
+    },
+    // curriculum
+    handleSelectCurriculumListData (data) {
+      this.$logger.info('NewBrowser handleSelectCurriculumListData', data)
+      this.$emit('select-curriculum', data)
+    },
+
+    // subject-specific-skill
+    handleSelectSubjectSpecificSkillListData (data) {
+      this.$logger.info('NewBrowser handleSelectSubjectSpecificSkillListData', data)
+      this.$emit('select-subject-specific-skill', data)
+    },
+
+    // century-skill
+    handleSelect21CenturySkillListData (data) {
+      this.$logger.info('NewBrowser handleSelect21CenturySkillListData', data)
+      this.$emit('select-century-skill', data)
+    }
   }
 }
 </script>

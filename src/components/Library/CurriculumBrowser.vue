@@ -15,8 +15,8 @@
           <template slot="title">
             {{ mainSubjectItem.name }}
           </template>
-          <dir-icon dir-type="opened" v-if="currentMainSubjectId !== mainSubjectItem.id"/>
-          <dir-icon dir-type="yellow" v-if="currentMainSubjectId === mainSubjectItem.id"/>
+          <dir-icon dir-type="blue" v-if="currentMainSubjectId !== mainSubjectItem.id"/>
+          <dir-icon dir-type="opened" v-if="currentMainSubjectId === mainSubjectItem.id"/>
           {{ mainSubjectItem.name }}
         </a-tooltip>
         <span class="arrow-item">
@@ -49,8 +49,8 @@
           <template slot="title">
             {{ subSubjectItem.name }}
           </template>
-          <dir-icon dir-type="opened" v-if="currentSubSubjectId !== subSubjectItem.id"/>
-          <dir-icon dir-type="yellow" v-if="currentSubSubjectId === subSubjectItem.id"/>
+          <dir-icon dir-type="blue" v-if="currentSubSubjectId !== subSubjectItem.id"/>
+          <dir-icon dir-type="opened" v-if="currentSubSubjectId === subSubjectItem.id"/>
           {{ subSubjectItem.name }}
         </a-tooltip>
         <span class="arrow-item">
@@ -84,8 +84,8 @@
             <template slot="title">
               {{ gradeItem.name }}
             </template>
-            <dir-icon dir-type="opened" v-if="currentGradeId !== gradeItem.id"/>
-            <dir-icon dir-type="yellow" v-if="currentGradeId === gradeItem.id"/>
+            <dir-icon dir-type="blue" v-if="currentGradeId !== gradeItem.id"/>
+            <dir-icon dir-type="opened" v-if="currentGradeId === gradeItem.id"/>
             {{ gradeItem.name }}
           </a-tooltip>
           <span class="arrow-item">
@@ -105,7 +105,7 @@
       </div>
     </div>
     <!--      main knowledge list-->
-    <div class="browser-block-item knowledge" :style="{width: blockWidth + 'px' , minWidth: blockWidth + 'px' }" v-for="(knowledge, deepIndex) in knowledges" :key="deepIndex">
+    <div class="browser-block-item browser-block-item-wrapper" :style="{width: blockWidth + 'px' , minWidth: blockWidth + 'px' }" v-for="(knowledge, deepIndex) in knowledges" :key="deepIndex">
       <div
         :class="{
           'browser-item': true,
@@ -119,8 +119,8 @@
           <template slot="title">
             {{ knowledgeItem.name }}
           </template>
-          <dir-icon dir-type="opened" v-if="knowledge.currentKnowledgeId !== knowledgeItem.id"/>
-          <dir-icon dir-type="yellow" v-if="knowledge.currentKnowledgeId === knowledgeItem.id"/>
+          <dir-icon dir-type="blue" v-if="knowledge.currentKnowledgeId !== knowledgeItem.id"/>
+          <dir-icon dir-type="opened" v-if="knowledge.currentKnowledgeId === knowledgeItem.id"/>
           {{ knowledgeItem.name }}
         </a-tooltip>
         <span class="arrow-item">
@@ -202,9 +202,9 @@
                   <a-menu-item @click="toggleType(typeMap.task, $t('teacher.my-content.tasks-type') )">
                     <span>{{ $t('teacher.my-content.tasks-type') }}</span>
                   </a-menu-item>
-                  <a-menu-item @click="toggleType(typeMap.lesson, $t('teacher.my-content.lesson-type'))">
+                  <!--                  <a-menu-item @click="toggleType(typeMap.lesson, $t('teacher.my-content.lesson-type'))">
                     <span>{{ $t('teacher.my-content.lesson-type') }}</span>
-                  </a-menu-item>
+                  </a-menu-item>-->
                   <a-menu-item @click="toggleType(typeMap.evaluation, $t('teacher.my-content.evaluation-type'))">
                     <span>{{ $t('teacher.my-content.evaluation-type') }}</span>
                   </a-menu-item>
@@ -332,16 +332,17 @@ export default {
       this.getGradesByCurriculumId(value)
     },
     blockIndex (value) {
-      if (value === 0) {
-        this.currentMainSubjectId = null
-        this.currentSubSubjectId = null
-        this.currentGradeId = null
-      } else if (value === 1) {
-        this.currentSubSubjectId = null
-        this.currentGradeId = null
-      } else if (value === 2) {
-        this.currentGradeId = null
-      }
+      this.$logger.info('block index change ' + value)
+      // if (value === 0) {
+      //   this.currentMainSubjectId = null
+      //   this.currentSubSubjectId = null
+      //   this.currentGradeId = null
+      // } else if (value === 1) {
+      //   this.currentSubSubjectId = null
+      //   this.currentGradeId = null
+      // } else if (value === 2) {
+      //   this.currentGradeId = null
+      // }
     }
   },
   data () {
@@ -599,13 +600,13 @@ export default {
     border-right: 1px solid #ddd;
     .browser-item {
       line-height: 20px;
-      padding: 10px 0 10px 10px;
+      padding: 10px 15px 10px 20px;
       font-weight: 500;
       cursor: pointer;
       overflow: hidden;
       //white-space: nowrap;
       text-overflow: ellipsis;
-      word-break: break-all;
+      word-break: break-word;
       user-select: none;
       background: rgba(228, 228, 228, 0.2);
       position: relative;
@@ -614,6 +615,9 @@ export default {
       justify-content: space-between;
       width: 100%;
       box-sizing: border-box;
+      &:hover {
+        background: #EDF1F5;
+      }
       .arrow-item {
         padding: 0 10px;
         width: 20px;
@@ -631,7 +635,7 @@ export default {
         width: calc(100% - 25px);
 
         text-overflow: ellipsis;
-        word-break: break-all;
+        word-break: break-word;
         user-select: none;
         overflow: hidden;
 
@@ -646,11 +650,11 @@ export default {
       }
     }
     .odd-line {
-      background: rgba(228, 228, 228, 0.2);
+      background: rgba(255, 255,255);
     }
     .active-line {
-      background: rgba(255, 187, 0, 0.1);
-      color: rgba(255, 187, 0, 1);
+      background-color: rgba(21, 195, 154, 0.1);
+      color: #15c39a;
     }
     .loading-wrapper {
       position: absolute;
@@ -729,7 +733,7 @@ export default {
       overflow: hidden;
       white-space: nowrap;
       text-overflow: ellipsis;
-      word-break: break-all;
+      word-break: break-word;
       user-select: none;
       display: flex;
       flex-direction: row;
@@ -753,7 +757,7 @@ export default {
         align-items: center;
         width: calc(100% - 25px);
         text-overflow: ellipsis;
-        word-break: break-all;
+        word-break: break-word;
         user-select: none;
         overflow: hidden;
 
@@ -803,8 +807,8 @@ export default {
       background: rgba(228, 228, 228, 0.2);
     }
     .active-line {
-      background-color: rgba(255, 187, 0, 0.1);
-      color: rgba(255, 187, 0, 1);
+      background-color: rgba(21, 195, 154, 0.1);
+      color: #15c39a;
     }
     .loading-wrapper {
       position: absolute;

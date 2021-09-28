@@ -19,7 +19,8 @@ const user = {
     permissions: [],
     info: {},
     sharedCount: 0,
-    sharedFindCount: 0
+    sharedFindCount: 0,
+    skillCategory: []
   },
 
   mutations: {
@@ -60,6 +61,9 @@ const user = {
     },
     SET_SHARED_FIND_COUNT: (state, sharedFindCount) => {
       state.sharedFindCount = sharedFindCount
+    },
+    SET_SKILL_CATEGORY: (state, skillCategory) => {
+      state.skillCategory = skillCategory
     }
   },
 
@@ -108,6 +112,7 @@ const user = {
           commit('SET_AVATAR', result.avatar)
           commit('SET_EMAIL', result.email)
           commit('SET_BIND_CURRICULUM', result.bindCurriculum)
+          commit('SET_SKILL_CATEGORY', result.skillCategory)
           commit('SET_CURRENT_ROLE', result.currentRole)
           commit('SET_IS_ADD_PREFERENCE', result.isAddPreference)
           storage.set(CURRENT_ROLE, result.currentRole)

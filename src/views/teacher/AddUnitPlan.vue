@@ -24,13 +24,13 @@
             :show-create="true"/>
         </a-col>-->
         <a-col span="24" class="main-content">
-          <a-card :bordered="false" :body-style="{padding: '16px', display: 'flex', 'justify-content': 'space-between'}" class="card-wrapper">
+          <a-card :bordered="false" :body-style="{padding: '16px', display: 'flex', 'justify-content': 'center'}" class="card-wrapper">
             <div class="unit-plan-form-left" ref="form">
               <a-form-model :model="form" class="my-form-wrapper">
-                <a-steps :current="0" direction="vertical">
-                  <a-step >
-                    <template slot="description">
-                      <div class="form-block">
+                <a-steps :current="currentActiveStepIndex" direction="vertical" @change="onChangeStep">
+                  <a-step title="Edit course info" :status="currentActiveStepIndex === 0 ? 'process':'wait'">
+                    <template slot="description" v-if="currentActiveStepIndex === 0">
+                      <!--                      <div class="form-block">
                         <div class="refer-action row-flex-right">
                           <div class="refer-text">
                             Refer from
@@ -44,7 +44,7 @@
                             </a-button>
                           </div>
                         </div>
-                      </div>
+                      </div>-->
 
                       <div class="form-block">
                         <a-form-item label="Course Name">
@@ -72,7 +72,14 @@
 
                       <div class="form-block inquiry-form-block" id="inquiry">
                         <!--                <a-divider />-->
-                        <a-input v-model="form.inquiry" :placeholder="$store.getters.currentRole === 'teacher' ? $t('teacher.add-unit-plan.teacher-direction-of-inquiry') : $t('teacher.add-unit-plan.expert-direction-of-inquiry')" class="my-form-input" />
+                        <a-form-item label="Big idea* (Or statement of inquiry / Enduring understanding)">
+                          <a-input v-model="form.inquiry" :placeholder="$store.getters.currentRole === 'teacher' ? $t('teacher.add-unit-plan.teacher-direction-of-inquiry') : $t('teacher.add-unit-plan.expert-direction-of-inquiry')" class="my-form-input" />
+                        </a-form-item>
+                        <a-tooltip title="Browse" @click="handleSelectDescription(true)">
+                          <span class="browse">
+                            <a-icon type="appstore" theme="twoTone" twoToneColor="rgba(21, 195, 154, 1)" />
+                          </span>
+                        </a-tooltip>
                       </div>
 
                       <!--            real-life-scenario-->
@@ -107,7 +114,7 @@
                           </div>
                           <!--sdg-->
                           <a-form-model-item >
-                            <a-select size="large" v-model="scenario.sdgId" class="my-big-select">
+                            <a-select size="large" v-model="scenario.sdgId" class="my-big-select" placeholder="Select a goal from UN">
                               <a-select-option v-for="(sdg,index) in sdgList" :value="sdg.id" :key="index" :disabled="selectedSdg.indexOf(sdg.id) != -1">
                                 {{ sdg.name }}
                               </a-select-option>
@@ -127,12 +134,6 @@
                               @reset="descriptionSearchList = []" />
                           </a-form-model-item>
 
-                          <!--      <a-button class="browse" type="primary" @click="handleSelectDescription(sdgIndex)">
-                            <img src="~@/assets/icons/unitplan/browse.png" class="btn-icon"/>
-                            <div class="btn-text">
-                              Browse
-                            </div>
-                          </a-button>-->
                         </div>
 
                         <!--keywords-->
@@ -144,39 +145,48 @@
                       </div>
 
                       <div class="form-block">
-                        <div class="form-input-item" v-for="(question, index) in form.questions" :key="index">
-                          <a-input
-                            v-model="question.name"
-                            class="my-form-input"
-                            :placeholder="$store.getters.currentRole === 'teacher' ? $t('teacher.add-unit-plan.teacher-nth-key-question') : $t('teacher.add-unit-plan.expert-nth-key-question')"/>
-                          <div class="delete-icon" @click="handleRemoveQuestion(index)" v-show="form.questions.length > 1">
-                            <a-icon type="delete" :style="{ fontSize: '20px' }" />
+                        <a-form-item label="Key question/line of inquiry">
+                          <div class="form-input-item" v-for="(question, index) in form.questions" :key="index">
+                            <a-input
+                              v-model="question.name"
+                              class="my-form-input"
+                              :placeholder="$store.getters.currentRole === 'teacher' ? $t('teacher.add-unit-plan.teacher-nth-key-question') : $t('teacher.add-unit-plan.expert-nth-key-question')"/>
+                            <div class="delete-icon" @click="handleRemoveQuestion(index)" v-show="form.questions.length > 1">
+                              <a-icon type="delete" :style="{ fontSize: '20px' }" />
+                            </div>
                           </div>
-                        </div>
+                        </a-form-item>
                         <a-button type="link" icon="plus-circle" size="large" @click="handleAddMoreQuestion"></a-button>
                       </div>
+                      <div class="form-block">
+                        <a-form-item label="Set assessment objectives" >
+                          <a-button type="primary" @click="handleSelectDescription(false)">
+                            <div class="btn-text" style="line-height: 20px">
+                              Add assessment objectives
+                            </div>
+                          </a-button>
+                        </a-form-item>
 
-                      <a-form-item label="Set Learning outcomes" >
-                        <a-button type="primary">
-                          <div class="btn-text" style="line-height: 20px">
-                            Add Learning outcomes
-                          </div>
-                        </a-button>
-                      </a-form-item>
+                        <!--knowledge tag-select -->
+                        <ui-learn-out :learn-outs="form.learnOuts" @remove-learn-outs="handleRemoveLearnOuts" />
+                      </div>
 
-                      <!--knowledge tag-select -->
-                      <ui-learn-out />
                     </template>
                   </a-step>
-                  <a-step>
-                    <template slot="description">
-                      <a-form-item label="Link Plan content" >
-                        <a-button type="primary" >
-                          <div class="btn-text" style="line-height: 20px">
-                            + Link
-                          </div>
-                        </a-button>
-                      </a-form-item>
+                  <a-step title="Link Plan content">
+                    <template slot="description" v-if="currentActiveStepIndex === 1">
+                      <div class="form-block">
+                        <a-form-item label="Link Plan content" class="link-plan-title">
+                          <a-button type="primary" :style="{'background-color': '#fff', 'color': '#000', 'border': '1px solid #D8D8D8'}" @click="handleAddLink">
+                            <div class="btn-text" style="line-height: 20px">
+                              + Link
+                            </div>
+                          </a-button>
+                        </a-form-item>
+                        <div class="common-link-wrapper">
+                          <common-link ref="commonLink" :from-id="this.unitPlanId" :from-type="this.contentType['unit-plan']"/>
+                        </div>
+                      </div>
                     </template>
                   </a-step>
                 </a-steps>
@@ -268,37 +278,6 @@
       </a-modal>
 
       <a-modal
-        v-model="selectLinkContentVisible"
-        :footer="null"
-        destroyOnClose
-        width="1200px"
-        title="Link in my content"
-        @ok="selectLinkContentVisible = false"
-        @cancel="selectLinkContentVisible = false">
-        <div class="link-content-wrapper">
-          <my-content-selector :filter-type-list="['lesson','task','evaluation']" />
-        </div>
-      </a-modal>
-
-      <a-modal
-        v-model="showRelevantQuestionVisible"
-        :footer="null"
-        destroyOnClose
-        top="50px"
-        width="50%"
-        title="Select from the relevant Unit"
-        @ok="showRelevantQuestionVisible = false"
-        @cancel="showRelevantQuestionVisible = false">
-        <div class="select-relevant-tag">
-          <relevant-tag-selector :relevant-question-list="relevantQuestionList" @update-selected="handleUpdateSelected"/>
-        </div>
-        <div class="action-line">
-          <a-button @click="handleCancelSelectedRelevant" class="button-item">Cancel</a-button>
-          <a-button @click="handleConfirmSelectedRelevant" type="primary" class="button-item">Confirm</a-button>
-        </div>
-      </a-modal>
-
-      <a-modal
         v-model="showAddAudioVisible"
         :footer="null"
         destroyOnClose
@@ -334,12 +313,6 @@
               Ok
             </a-button>
           </div>
-        </div>
-      </a-modal>
-
-      <a-modal v-model="showLibraryVisible" @ok="handleConfirmAssociate" destroyOnClose width="80%" :dialog-style="{ top: '20px' }">
-        <div class="associate-library">
-          <new-browser :select-mode="selectModel.knowledgeDescription" :question-index="selectDescriptionIndex"/>
         </div>
       </a-modal>
 
@@ -389,6 +362,53 @@
         </a-row>
       </a-drawer>
 
+      <a-modal
+        v-model="selectLinkContentVisible"
+        :footer="null"
+        destroyOnClose
+        width="800px">
+        <div class="my-modal-title" slot="title">
+          Link my content
+        </div>
+        <div class="link-content-wrapper">
+          <new-my-content
+            :from-type="contentType['unit-plan']"
+            :from-id="unitPlanId"
+            :filter-type-list="[contentType.task,contentType.evaluation]"
+            :group-name-list="groupNameList"
+            :default-group-name="'Untitled Term' + groupNameList.length + 1"
+            :mode="'common-link'"
+            @cancel="selectLinkContentVisible = false"
+            @ensure="handleEnsureSelectedLink"/>
+        </div>
+      </a-modal>
+
+      <a-modal
+        v-model="selectSyncDataVisible"
+        :footer="null"
+        destroyOnClose
+        width="80%"
+        :title="null"
+        @ok="selectSyncDataVisible = false"
+        @cancel="selectSyncDataVisible = false">
+        <div class="link-content-wrapper">
+          <!-- 此处的questionIndex用于标识区分是哪个组件调用的，返回的事件数据中会带上，方便业务数据处理，可随意写，可忽略-->
+          <new-browser
+            :select-mode="selectModel.syncData"
+            question-index="_questionIndex_1"
+            :sync-data="syncData"
+            @select-sync="handleSelectListData"
+            @select-curriculum="handleSelectCurriculum"
+            @select-subject-specific-skill="handleSelectSubjectSpecificSkillListData"
+            @select-century-skill="handleSelect21CenturySkillListData"
+          />
+          <div class="modal-ensure-action-line-right">
+            <a-button class="action-item action-cancel" shape="round" @click="handleCancelSelectData">Cancel</a-button>
+            <a-button class="action-ensure action-item" type="primary" shape="round" @click="handleEnsureSelectData">Ok</a-button>
+          </div>
+        </div>
+      </a-modal>
+
       <a-skeleton :loading="contentLoading" active>
       </a-skeleton>
     </a-card>
@@ -404,7 +424,7 @@ import { GetAllSdgs, ScenarioSearch } from '@/api/scenario'
 import { debounce } from 'lodash-es'
 import InputSearch from '@/components/UnitPlan/InputSearch'
 import SdgTagInput from '@/components/UnitPlan/SdgTagInput'
-import { GetMyGrades, Associate } from '@/api/teacher'
+import { GetMyGrades, Associate, GetAssociate, GetReferOutcomes } from '@/api/teacher'
 import { SubjectTree } from '@/api/subject'
 import { formatSubjectTree } from '@/utils/bizUtil'
 import NewUiClickableKnowledgeTag from '@/components/UnitPlan/NewUiClickableKnowledgeTag'
@@ -428,17 +448,15 @@ import { SelectModel } from '@/components/NewLibrary/SelectModel'
 import DisplayMode from '@/components/MyContent/DisplayMode'
 import { LibraryEvent, LibraryEventBus } from '@/components/NewLibrary/LibraryEventBus'
 import ReferPreview from '@/components/UnitPlanRefer/ReferPreview'
-import UiLearnOut from "@/components/UnitPlan/UiLearnOut";
-const TagOriginType = {
-  Origin: 'Origin',
-  Search: 'Search',
-  Description: 'Description',
-  Create: 'Create',
-  Extension: 'Extension'
-}
+import UiLearnOut from '@/components/UnitPlan/UiLearnOut'
+import CommonLink from '@/components/Common/CommonLink'
+import NewMyContent from '@/components/MyContent/NewMyContent'
+
 export default {
   name: 'AddUnitPlan',
   components: {
+    NewMyContent,
+    CommonLink,
     ReferPreview,
     CollaborateContent,
     CommonFormHeader,
@@ -490,6 +508,7 @@ export default {
       labelCol: { span: 4 },
       wrapperCol: { span: 18 },
       form: {
+        id: null,
         image: '',
         inquiry: '',
         name: 'Untitled UnitPlan',
@@ -539,7 +558,6 @@ export default {
       currentIndex: 0,
       saving: false,
       publishing: false,
-      showLibraryVisible: false,
       selectModel: SelectModel,
       selectDescriptionIndex: '',
 
@@ -548,7 +566,25 @@ export default {
       referId: null,
       referType: null,
       activeReferBlock: '',
-      showSidebar: true
+      showSidebar: true,
+
+      // 当前激活的step
+      currentActiveStepIndex: 0,
+
+      groupNameList: [],
+      groupNameListOther: [],
+      syncData: [],
+      selectSyncDataVisible: false,
+      selectedSyncList: [],
+
+      // 已选择的大纲知识点描述数据
+      selectedCurriculumList: [],
+
+      // specific skill
+      selectedSpecificSkillList: [],
+      // century skill
+      selectedCenturySkillList: [],
+      selectIdea: false
     }
   },
   watch: {
@@ -581,18 +617,17 @@ export default {
   created () {
     logger.info('unitPlanId ' + this.unitPlanId + ' ' + this.$route.path)
     // 初始化关联事件处理
-    MyContentEventBus.$on(MyContentEvent.LinkToMyContentItem, this.handleLinkMyContent)
     MyContentEventBus.$on(MyContentEvent.ToggleSelectContentItem, this.handleToggleSelectContentItem)
     MyContentEventBus.$on(MyContentEvent.ReferContentItem, this.handleReferItem)
-    LibraryEventBus.$on(LibraryEvent.ContentListSelectClick, this.handleSdgDescriptionSelectClick)
+    LibraryEventBus.$on(LibraryEvent.ContentListSelectClick, this.handleDescriptionSelectClick)
     this.initData()
+    this.getAssociate()
     this.debouncedGetSdgByDescription = debounce(this.searchScenario, 300)
   },
   beforeDestroy () {
-    MyContentEventBus.$off(MyContentEvent.LinkToMyContentItem, this.handleLinkMyContent)
     MyContentEventBus.$off(MyContentEvent.ToggleSelectContentItem, this.handleToggleSelectContentItem)
     MyContentEventBus.$off(MyContentEvent.ReferContentItem, this.handleReferItem)
-    LibraryEventBus.$off(LibraryEvent.ContentListSelectClick, this.handleSdgDescriptionSelectClick)
+    LibraryEventBus.$off(LibraryEvent.ContentListSelectClick, this.handleDescriptionSelectClick)
     // logger.debug('beforeDestroy, try save!')
     // this.handleSaveUnitPlan()
   },
@@ -640,6 +675,19 @@ export default {
         this.$message.error(this.$t('teacher.add-unit-plan.init-data-failed'))
       }).finally(() => {
         this.referenceLoading = false
+      })
+    },
+
+    handleSyncData () {
+      this.$logger.info(' handleSyncData')
+      GetReferOutcomes({
+        id: this.unitPlanId,
+        type: this.contentType['unit-plan']
+      }).then(response => {
+        this.$logger.info('getReferOutcomes response', response)
+        if (response.result.length) {
+          this.syncData = response.result
+        }
       })
     },
 
@@ -776,40 +824,6 @@ export default {
       this.form.subjects = subjects
     },
 
-    handleDeleteQuestion (questionItem, questionIndex) {
-      logger.info('handleDeleteQuestion ', questionItem, questionIndex)
-      if (this.questionTotal > 1) {
-        this.$delete(this.questionDataObj, questionIndex)
-        this.questionTotal = this.questionTotal - 1
-        logger.info('questionDataObj ', this.questionDataObj)
-      } else {
-        this.$message.warn(this.$t('teacher.add-unit-plan.at-least-one-question'))
-      }
-    },
-
-    handleRemoveKnowledgeTag (data) {
-      logger.info('Unit Plan handleRemoveKnowledgeTag', data)
-      logger.info('target question data', this.questionDataObj[data.questionIndex.knowledgeTags])
-      this.questionDataObj[data.questionIndex].knowledgeTags = this.questionDataObj[data.questionIndex].knowledgeTags.filter(item => item.id !== data.id)
-      logger.info('Unit Plan after handleRemoveKnowledgeTag ', this.questionDataObj[data.questionIndex].knowledgeTags)
-    },
-
-    handleAddKnowledgeTag (data) {
-      logger.info('Unit Plan handleAddKnowledgeTag', data)
-      logger.info('target question data', this.questionDataObj[data.questionIndex])
-      const newTag = {
-        description: data.description,
-        id: data.id,
-        name: data.name,
-        gradeId: data.gradeId,
-        mainSubjectId: data.mainSubjectId,
-        subSubjectId: data.subSubjectId,
-        mainKnowledgeId: data.mainKnowledgeId,
-        subKnowledgeId: data.subKnowledgeId
-      }
-      this.questionDataObj[data.questionIndex].knowledgeTags.push(newTag)
-    },
-
     handleAddMoreQuestion () {
       const question = {
         id: null,
@@ -852,44 +866,18 @@ export default {
         status: this.form.status,
         subjects: this.form.subjects,
         scenarios: this.form.scenarios,
-        questions: [],
+        questions: this.form.questions,
         customTags: this.form.customTags,
         overview: this.form.overview,
         subjectIds: this.form.subjectIds,
-        gradeIds: this.form.gradeIds
+        gradeIds: this.form.gradeIds,
+        learnOuts: this.form.learnOuts
       }
 
       if (this.unitPlanId) {
         unitPlanData.id = this.unitPlanId
       }
       logger.info('basic unitPlanData', unitPlanData)
-      logger.info('sdg unitPlanData', unitPlanData)
-      for (const questionIndex in this.questionDataObj) {
-        const question = this.questionDataObj[questionIndex]
-        logger.info('question ' + questionIndex, question)
-        if (question.knowledgeTags && question.knowledgeTags.length) {
-          question.knowledgeTags.forEach(item => {
-            item.curriculumId = this.$store.getters.bindCurriculum
-          })
-        }
-        if (question.skillTags && question.skillTags.length) {
-          question.skillTags.forEach(item => {
-            item.curriculumId = this.$store.getters.bindCurriculum
-          })
-        }
-        const questionItem = {
-          knowledgeTags: question.knowledgeTags,
-          skillTags: question.skillTags,
-          name: question.name
-        }
-        if (question.questionId) {
-          questionItem.id = question.questionId
-          this.$logger.info('old question item', questionItem)
-        } else {
-          this.$logger.info('new question item', questionItem)
-        }
-        unitPlanData.questions.push(questionItem)
-      }
       logger.info('question unitPlanData', unitPlanData)
       UnitPlanAddOrUpdate(unitPlanData).then((response) => {
         logger.info('UnitPlanAddOrUpdate', response.result)
@@ -901,7 +889,6 @@ export default {
         }
       }).then(() => {
         this.$refs.commonFormHeader.saving = false
-        this.$refs.associate.loadAssociateData()
       })
     },
     handlePublishUnitPlan () {
@@ -945,8 +932,6 @@ export default {
               toType: this.contentType.task
             }).then(response => {
               this.$logger.info('Associate response ', response)
-              // 刷新子组件的关联数据
-              this.$refs.associate.loadAssociateData()
             })
             this.addLoading = false
             this.$router.push({
@@ -981,8 +966,6 @@ export default {
               toType: this.contentType.lesson
             }).then(response => {
               this.$logger.info('Associate response ', response)
-              // 刷新子组件的关联数据
-              this.$refs.associate.loadAssociateData()
             })
             this.addLoading = false
             this.$router.push({
@@ -1018,8 +1001,6 @@ export default {
               toType: this.contentType.evaluation
             }).then(response => {
               this.$logger.info('Associate response ', response)
-              // 刷新子组件的关联数据
-              this.$refs.associate.loadAssociateData()
             })
             this.addLoading = false
             this.$router.push({
@@ -1036,137 +1017,9 @@ export default {
       }
     },
 
-    handleLinkMyContent (data) {
-      this.$logger.info('handleLinkMyContent ', data)
-      this.selectLinkContentVisible = false
-      this.loadRelevantTagInfo(data.item)
-    },
-
     handleToggleSelectContentItem (data) {
       this.$logger.info('handleToggleSelectContentItem', data)
       this.selectedMyContentInfoItem = data
-    },
-
-    loadRelevantTagInfo (item) {
-      this.$logger.info('loadRelevantTagInfo', item)
-      this.showRelevantQuestionVisible = false
-      this.relevantSelectedUnitPlan = item
-      if (this.form.questions && this.form.questions.length) {
-        const questionList = this.form.questions
-        const questionMap = new Map()
-        const relevantTagList = []
-        questionList.forEach(questionItem => {
-          if (questionItem.id && !questionMap.has(questionItem.id)) {
-            // 处理knowledge tags
-            const knowledgeTagMap = new Map()
-            const knowledgeTagList = []
-            questionItem.knowledgeTags.forEach(item => {
-              if (!!item.subKnowledgeId && item.curriculumId === this.$store.getters.bindCurriculum) {
-                if (!knowledgeTagMap.has(item.subKnowledgeId)) {
-                  knowledgeTagMap.set(item.subKnowledgeId, [])
-                  this.subKnowledgeId2InfoMap.set(item.subKnowledgeId, {
-                    ...item
-                  })
-                }
-
-                const tagList = knowledgeTagMap.get(item.subKnowledgeId)
-                tagList.push({
-                  ...item,
-                  type: TagOriginType.Origin
-                })
-                knowledgeTagMap.set(item.subKnowledgeId, tagList)
-              }
-            })
-            for (const [id, tagList] of knowledgeTagMap) {
-              knowledgeTagList.push({
-                id: tagList[0].id,
-                tagList,
-                info: this.subKnowledgeId2InfoMap.get(id)
-              })
-            }
-
-            // 处理skill tags
-            const skillTagMap = new Map()
-            const skillTagList = []
-            questionItem.skillTags.forEach(item => {
-              if (!!item.descriptionId && item.curriculumId === this.$store.getters.bindCurriculum) {
-                if (!skillTagMap.has(item.descriptionId)) {
-                  skillTagMap.set(item.descriptionId, [])
-                  this.descriptionId2InfoMap.set(item.descriptionId, {
-                    ...item
-                  })
-                }
-
-                const tagList = skillTagMap.get(item.descriptionId)
-                tagList.push({
-                  ...item,
-                  type: TagOriginType.Origin
-                })
-                skillTagMap.set(item.descriptionId, tagList)
-              }
-            })
-            for (const [id, tagList] of skillTagMap) {
-              skillTagList.push({
-                id: tagList[0].id,
-                tagList,
-                info: this.descriptionId2InfoMap.get(id)
-              })
-            }
-
-            relevantTagList.push({
-              questionName: questionItem.name,
-              questionId: questionItem.id,
-              skillTagList,
-              knowledgeTagList
-            })
-          }
-        })
-        questionMap.clear()
-
-        this.relevantQuestionList = relevantTagList
-        this.showRelevantQuestionVisible = true
-        this.$logger.info('relevantQuestionList', this.relevantQuestionList)
-      } else {
-        this.$logger.info('no relevantQuestionList')
-      }
-    },
-
-    handleCancelSelectedRelevant () {
-      this.showRelevantQuestionVisible = false
-      this.relevantSelectedQuestionList = []
-    },
-
-    handleConfirmSelectedRelevant (data) {
-      this.$logger.info('handleConfirmSelectedRelevant', this.relevantSelectedQuestionList)
-      this.showRelevantQuestionVisible = false
-      const questionDataObj = Object.assign({}, this.questionDataObj['__question_0'])
-      this.$delete(this.questionDataObj, '__question_0')
-      this.$logger.info('questionDataObj __question_0', questionDataObj)
-      this.relevantSelectedQuestionList.forEach(item => {
-        questionDataObj.knowledgeTags = questionDataObj.knowledgeTags.concat(item.knowledgeTags)
-        questionDataObj.skillTags = questionDataObj.skillTags.concat(item.skillTags)
-      })
-
-      this.$nextTick(() => {
-        this.$set(this.questionDataObj, '__question_0', questionDataObj)
-      })
-      this.$logger.info('after $set questionDataObj __question_0', this.questionDataObj)
-      this.$logger.info('handleLinkMyContent unit question', this.relevantSelectedUnitPlan)
-      Associate({
-        fromId: this.form.id,
-        fromType: this.contentType['unit-plan'],
-        toId: this.selectedMyContentInfoItem.id,
-        toType: this.selectedMyContentInfoItem.type,
-        questions: this.relevantSelectedQuestionList
-      }).then(response => {
-        this.$logger.info('handleLinkMyContent response ', response)
-        this.$refs.associate.loadAssociateData()
-      })
-    },
-
-    handleUpdateSelected (data) {
-      this.$logger.info('handleUpdateSelected', data)
-      this.relevantSelectedQuestionList = data.questionList
     },
 
     goBack () {
@@ -1239,10 +1092,9 @@ export default {
       this.$logger.info('handleStartCollaborate')
       this.$refs.collaborate.startCollaborateModal(Object.assign({}, this.form), this.form.id, this.contentType['unit-plan'])
     },
-    handleSelectDescription (sdgIndex) {
-      this.$logger.info('handleSelectDescription', sdgIndex)
-      this.selectDescriptionIndex = '' + sdgIndex
-      this.showLibraryVisible = true
+    handleSelectDescription (selectIdea) {
+      this.selectSyncDataVisible = true
+      this.selectIdea = selectIdea
     },
     handleConfirmAssociate () {
       this.$logger.info('handleConfirmAssociate')
@@ -1255,16 +1107,9 @@ export default {
       this.referDetailVisible = false
     },
 
-    handleSdgDescriptionSelectClick (data) {
-      this.$logger.info('unit plan handleSdgDescriptionSelectClick', data)
-      const sdgIndex = parseInt(data.questionIndex)
-      this.$logger.info('sdgIndex ' + sdgIndex)
-      const scenarioItem = this.form.scenarios[sdgIndex]
-      this.$logger.info('scenarioItem ', scenarioItem)
-      scenarioItem.description = data.description
-      this.form.scenarios.splice(sdgIndex, 1, scenarioItem)
-      this.$logger.info('after update scenarios', this.form.scenarios)
-      this.showLibraryVisible = false
+    handleDescriptionSelectClick (data) {
+      this.$logger.info('unit plan handleDescriptionSelectClick', data)
+      this.selectSyncDataVisible = false
     },
 
     handleReferItem (data) {
@@ -1331,7 +1176,6 @@ export default {
       }).then(response => {
         this.$logger.info('Associate response ', response)
         // 刷新子组件的关联数据
-        this.$refs.associate.loadAssociateData()
         this.$message.success('success!')
       })
     },
@@ -1364,6 +1208,143 @@ export default {
       } else {
         this.selectAddContentTypeVisible = true
       }
+    },
+
+    handleAddLink () {
+      this.$logger.info('handleAddLink', this.groupNameList)
+
+      // 如果第一部分有内容，点击link激活step 到第二部分，否则提示先输入第一部分表单内容
+      if (this.form.name ||
+        this.form.overview ||
+        this.form.inquiry ||
+        this.form.scenarios.length ||
+        this.form.questions.length) {
+        this.currentActiveStepIndex = 1
+        this.selectLinkContentVisible = true
+        // 添加link
+      } else {
+        this.$message.warn('Course info is empty, please fill the form first!')
+      }
+    },
+
+    handleEnsureSelectedLink (data) {
+      this.$logger.info('handleEnsureSelectedLink', data)
+      this.selectLinkContentVisible = false
+      this.getAssociate()
+      // 刷新组件内的列表
+      this.$refs.commonLink.getAssociate()
+    },
+
+    getAssociate () {
+      this.$logger.info('AddUnitPlan GetAssociate id[' + this.unitPlanId + '] fromType[' + this.contentType['unit-plan'] + ']')
+      GetAssociate({
+        id: this.unitPlanId,
+        type: this.contentType['unit-plan']
+      }).then(response => {
+        this.$logger.info('AddUnitPlan GetAssociate response', response)
+        this.groupNameList = []
+        this.groupNameListOther = []
+        response.result.owner.forEach(item => {
+          if (this.groupNameList.indexOf(item.group) === -1) {
+            this.groupNameList.push(item.group)
+          }
+        })
+        response.result.others.forEach(item => {
+          if (this.groupNameListOther.indexOf(item.group) === -1) {
+            this.groupNameListOther.push(item.group)
+          }
+        })
+        if (this.groupNameList.length > 0 || this.groupNameListOther.length > 0) {
+          this.handleSyncData()
+        }
+        this.$logger.info('AddUnitPlan GetAssociate formatted groupNameList', this.groupNameList, this.groupNameListOther)
+      }).finally(() => {
+        this.linkGroupLoading = false
+      })
+    },
+
+    // TODO 自动更新选择的sync 的数据knowledgeId和name列表
+    handleSelectListData (data) {
+      this.$logger.info('handleSelectListData', data)
+      this.selectedSyncList = data
+    },
+
+    handleSelectCurriculum (data) {
+      this.$logger.info('handleSelectCurriculum', data)
+      this.selectedCurriculumList = data
+    },
+
+    handleSelectSubjectSpecificSkillListData (data) {
+      this.$logger.info('handleSelectSubjectSpecificSkillListData', data)
+      this.selectedSpecificSkillList = data
+    },
+
+    handleSelect21CenturySkillListData (data) {
+      this.$logger.info('handleSelect21CenturySkillListData', data)
+      this.selectedCenturySkillList = data
+    },
+
+    // TODO 自动更新选择的sync 的数据knowledgeId和name列表
+    handleCancelSelectData () {
+      this.selectedSyncList = []
+      this.selectedCurriculumList = []
+      this.selectedSpecificSkillList = []
+      this.selectedCenturySkillList = []
+      this.selectSyncDataVisible = false
+    },
+
+    // TODO 自动更新选择的sync 的数据knowledgeId和name列表
+    handleEnsureSelectData () {
+      this.$logger.info('handleEnsureSelectData',
+        this.selectedCurriculumList,
+        this.selectedSpecificSkillList,
+        this.selectedCenturySkillList,
+        this.selectedSyncList)
+      this.selectedSyncList.forEach(data => {
+        const filterLearnOuts = this.form.learnOuts.filter(item => item.knowledgeId === data.knowledgeId)
+        if (filterLearnOuts.length > 0) {
+          return
+        }
+        this.form.learnOuts.push({
+          knowledgeId: data.knowledgeId,
+          name: data.name,
+          tags: data.tags,
+          tagType: data.tagType
+        })
+      })
+      const selectList = this.selectedCurriculumList.concat(this.selectedSpecificSkillList).concat(this.selectedCenturySkillList)
+      console.log(selectList)
+      if (this.selectIdea) {
+        if (selectList.length > 0) {
+          this.form.inquiry = selectList[0].knowledgeData.name
+        }
+        this.selectSyncDataVisible = false
+        return
+      }
+      selectList.forEach(data => {
+        const filterLearnOuts = this.form.learnOuts.filter(item => item.knowledgeId === data.knowledgeId)
+        if (filterLearnOuts.length > 0) {
+          return
+        }
+        this.form.learnOuts.push({
+          knowledgeId: data.knowledgeData.id,
+          name: data.knowledgeData.name,
+          tagType: data.tagType
+        })
+      })
+      this.$logger.info('this.form.learnOuts', this.form.learnOuts)
+      this.selectSyncDataVisible = false
+    },
+    handleRemoveLearnOuts (data) {
+      this.$logger.info('handleRemoveLearnOuts', data)
+      var index = this.form.learnOuts.findIndex(item => (item.knowledgeId === data.knowledgeId))
+      if (index > -1) {
+        this.form.learnOuts.splice(index, 1)
+      }
+    },
+    onChangeStep (current) {
+      console.log('onChange:', current)
+      this.currentActiveStepIndex = current
     }
   }
 }
@@ -1493,8 +1474,8 @@ export default {
     }
 
     .form-block-title {
-      font-family: PingFang SC;
-      font-weight: bold;
+      /*font-family: PingFang SC;*/
+      /*font-weight: bold;*/
       line-height: 24px;
       color: #000000;
       margin-bottom: 10px;
@@ -1516,11 +1497,11 @@ export default {
     }
 
     .sdg-content-blocks {
-      /*width: 800px;*/
+      width: 700px;
       position: relative;
       border: 1px solid #fff;
       box-sizing: border-box;
-      padding: 20px 150px 20px 50px;
+      padding: 5px 50px 5px 50px;
       border-radius: 3px;
       margin-bottom: 5px;
 
@@ -1533,7 +1514,7 @@ export default {
           display: block;
           position: absolute;
           text-align: center;
-          right:-60px;
+          right:-40px;
           top: 0;
           line-height: 40px;
           width: 40px;
@@ -1911,7 +1892,7 @@ export default {
   box-sizing: border-box;
   margin-bottom: 10px;
   border: 1px solid #fff;
-  padding: 20px 150px 20px 50px;
+  padding: 10px 150px 10px 50px;
   border-radius: 3px;
 }
 
@@ -2007,6 +1988,7 @@ export default {
 
 .form-input-item {
   margin-bottom: 20px;
+  position: relative;
 }
 
 .preview-wrapper-row{
@@ -2063,20 +2045,37 @@ export default {
 }
 #inquiry{
   margin-top: -10px;
+  position: relative;
 }
 
 .delete-icon {
-  -webkit-transition: all 0.2s ease-in;
   transition: all 0.2s ease-in;
   position: absolute;
-  right: 10px;
-  margin-right: 30px;
-  margin-top: -40px;
+  right: -50px;
+  top: 0px;
   line-height: 40px;
   width: 40px;
   height: 40px;
   cursor: pointer;
-  color: @link-hover-color;
+  color: #38cfa6;
   z-index: 100;
+}
+
+.link-plan-title {
+  font-weight: bold;
+  margin-bottom: 15px;
+}
+.browse{
+  font-size: 20px;
+  padding: 10px 5px;
+  position: absolute;
+  right: 110px;
+  top: 50px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+  border-radius: 6px;
 }
 </style>
