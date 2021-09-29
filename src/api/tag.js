@@ -3,6 +3,7 @@ import request from '@/utils/request'
 export const tagAPIUrl = {
   GetUserTags: '/classcipe/api/tag/getUserTags',
   UserTagAddOrUpdate: '/classcipe/api/tag/addOrUpdateUserTag',
+  AddUserTagNew: '/classcipe/api/tag/addUserTagNew',
   UserTagDelete: '/classcipe/api/tag/userTagDelete',
   GetTreeByKey: '/classcipe/api/tag/getTreeByKey',
   GetGlobalTree: '/classcipe/api/tag/getTree',
@@ -59,6 +60,22 @@ export function GetUserTags (parameter) {
 export function UserTagAddOrUpdate (parameter) {
   return request({
     url: tagAPIUrl.UserTagAddOrUpdate,
+    method: 'post',
+    data: parameter,
+    headers: {
+      'Content-Type': 'application/json;charset=UTF-8'
+    }
+  })
+}
+
+/**
+ * @param parameter
+ * @returns {AxiosPromise}
+ * @constructor
+ */
+export function AddUserTagNew (parameter) {
+  return request({
+    url: tagAPIUrl.AddUserTagNew,
     method: 'post',
     data: parameter,
     headers: {

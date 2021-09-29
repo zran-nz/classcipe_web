@@ -13,10 +13,9 @@
                 <div class="skt-tag-item " v-for="tag in tagList" :key="tag.id" >
                   <a-tooltip :title="tag.parentName">
                     <a-tag
-                      :closable="true"
+                      :closable="customCategory.indexOf(tag.parentName)!== -1"
                       @close="closeTag(tag)"
-                      :color="tagName === tag.name ? 'orange': 'green'"
-                      class="tag-item">
+                      :class="{'tag-item':true,'tag-disable':customCategory.indexOf(tag.parentName) === -1 }">
                       {{ tag.name }}
                     </a-tag>
                   </a-tooltip>
@@ -33,7 +32,7 @@
             <a-col offset="0" span="24">
               <div>
                 <a-tabs
-                  default-active-key="1"
+                  :default-active-key="selectLabel"
                   tab-position="top"
                   @change="changeTab"
                 >
@@ -44,11 +43,12 @@
                           <a-input-search
                             v-model="inputTag"
                             size="large"
-                            placeholder=" + Add tags"
+                            placeholder="Add tags"
                             class="search-input"
                             @keyup.enter.native="handleKeyup"
                             @search="searchTag"
                             @keyup="searchTag" >
+                            <a-icon slot="prefix" type="plus-circle" :style="{ fontSize: '16px', color: '#15c39a','margin-right':'5px' }" />
                             <a-button slot="enterButton">
                               Add
                             </a-button>
@@ -117,8 +117,7 @@
 import * as logger from '@/utils/logger'
 import TagBrowser from '@/components/UnitPlan/TagBrowser'
 import TagSetting from '@/components/UnitPlan/TagSetting'
-import { FindCustomTags } from '@/api/tag'
-import { UserTagAddOrUpdate } from '../../api/tag'
+import { AddUserTagNew } from '@/api/tag'
 
 const { debounce } = require('lodash-es')
 
@@ -131,6 +130,10 @@ export default {
     selectedTagsList: {
       type: Array,
       default: () => []
+    },
+    userTags: {
+      type: Object,
+      required: true
     },
     customTagsList: {
       type: Array,
@@ -160,16 +163,23 @@ export default {
       createTagName: '',
       tagSearchList: [],
       userTagsMap: new Map(),
-      selectLabel: ''
+      selectLabel: '',
+      customCategory: []
     }
   },
   created () {
     this.debouncedSearchKnowledge = debounce(this.searchTag, 500)
-    this.loaduserTagsMap()
+    this.customCategory = this.customTagsList
+    this.handleUserTagsMap()
   },
   watch: {
     selectedTagsList () {
        this.tagList = this.selectedTagsList
+    },
+    customTagsList (categorys, old) {
+      logger.info('new customTagsList', categorys)
+      this.customCategory = categorys
+      this.handleUserTagsMap()
     }
   },
   methods: {
@@ -204,34 +214,25 @@ export default {
         this.tagName = tag.name
       }
     },
-    loaduserTagsMap () {
-      this.tagLoading = true
-      FindCustomTags({}).then((response) => {
-        this.$logger.info('FindCustomTags response', response.result)
-        if (response.success) {
-          this.mergeTags(response.result)
-          this.$logger.info('mergeTags tags', this.userTagsMap)
-          this.selectLabel = ''
-          this.userTagsMap.forEach((value, key) => {
-            if (!this.selectLabel) {
-              this.selectLabel = key
-            }
-          })
-          this.filterKeyword()
-        } else {
-          this.$message.error(response.message)
+    handleUserTagsMap () {
+      this.mergeTags(this.userTags)
+      this.$logger.info('mergeTags tags', this.userTagsMap)
+      this.selectLabel = ''
+      this.userTagsMap.forEach((value, key) => {
+        if (!this.selectLabel) {
+          this.selectLabel = key
         }
-        this.tagLoading = false
       })
+      this.filterKeyword()
     },
     mergeTags (result) {
       const recommendTags = result.recommends
       const myTags = result.userTags
       this.userTagsMap = new Map()
-      const categorys = ['Key words', 'Global interactions']
-      if (categorys.length > 0) {
+      // const categorys = ['Key words', 'Global interactions']
+      if (this.customCategory.length > 0) {
         // 默认显示的tag，优先从个人库获取
-        categorys.forEach(parent => {
+        this.customCategory.forEach(parent => {
           this.userTagsMap.set(parent, new Set())
           const tagC = myTags.filter(tag => tag.name === parent)
           logger.info('tagC', tagC)
@@ -272,26 +273,8 @@ export default {
         })
         this.filterKeyword()
     },
-    handleTagItemDragStart (tag, event) {
-      this.$logger.info('skill handleTagItemDragStart', tag, event)
-      event.dataTransfer.setData('tag', JSON.stringify(tag))
-    },
-    handleAddGlobalTag (tags) {
-      this.tagList = tags
-      this.$emit('change-user-tags', this.tagList)
-    },
-    handleGlobalLabel (label, isAdd) {
-      if (isAdd) {
-        label.isGlobal = true
-        this.userTagsMap.push(label)
-      } else {
-        var index = this.userTagsMap.findIndex(item => (item.isGlobal && item.name === label.name))
-        this.userTagsMap.splice(index, 1)
-      }
-      this.$emit('change-user-tags', this.tagList)
-    },
     handleAddUserTag (tags, isAdd) {
-       this.loaduserTagsMap()
+       // this.handleUserTagsMap()
     },
     handleTagItemDrop (item, event) {
       console.log(item)
@@ -299,29 +282,29 @@ export default {
     handleCreateTagByInput () {
       this.$logger.info('skill handleCreateTagByInput ' + this.createTagName)
       const existTag = this.tagList.find(item => item.name === this.createTagName)
-      const userTypeTags = this.userTagsMap.filter(item => item.id === this.selectLabel)
-      if (userTypeTags.length === 0) {
-        this.$message.warn('Please click Tags setting')
+      const userTypeTags = this.userTagsMap.get(this.selectLabel)
+      if (!userTypeTags) {
+        this.$message.warn('Please click tab')
         return
       }
-      var existTag2 = userTypeTags[0].keywords.find(item => item.name === this.createTagName)
-      if (existTag || existTag2) {
+      if (existTag || userTypeTags.has(this.createTagName)) {
         this.$message.warn('already exist same name tag')
       } else {
         var item = {
           name: this.createTagName,
-          parentId: this.selectLabel,
-          isGlobal: userTypeTags[0].isGlobal
+          parentName: this.selectLabel
         }
         this.tagLoading = true
-        UserTagAddOrUpdate(item).then((response) => {
-          this.$logger.info('add UserTagAddOrUpdate ', response.result)
+        AddUserTagNew(item).then((response) => {
+          this.$logger.info('add AddUserTagNew ', response.result)
           if (response.success) {
             item.id = response.result.id
             this.createTagName = ''
             this.inputTag = ''
-            this.filterKeyword(item)
+            this.userTagsMap.get(this.selectLabel).add(item.name)
+            this.changeTab(this.selectLabel)
             this.$message.success('Add tag success')
+            this.$emit('change-add-keywords', item)
           } else {
             this.$message.error(response.message)
           }
@@ -382,6 +365,8 @@ export default {
   .tag-select-wrapper{
     margin: 10px 0px 10px 0px;
       .skt-tag-list {
+        max-height: 300px;
+        overflow-y: auto;
         padding: 5px 10px;
         background-color: #e7f9f5;
         //border: 1px solid #D8D8D8;
@@ -418,7 +403,16 @@ export default {
             color: #15c39a;
             border: 1px solid #15c39a;
           }
+          .tag-disable {
+            color: rgba(0, 0, 0, .25);
+            background-color: #f5f5f5;
+            border-color: #d9d9d9;
+            text-shadow: none;
+            box-shadow: none;
+            cursor: not-allowed;
+          }
         }
+
       }
   }
   .skt-tag-wrapper {
@@ -576,10 +570,15 @@ export default {
     .btn-text {
       padding: 0 5px;
     }
+    /deep/ .ant-input-search .ant-input-lg{
+      padding-left: 35px;
+    }
   }
   .spin-loading{
-    margin-top: 50px;
+    top: 300px;
     margin-left: 40%;
+    position: absolute;
+    z-index: 9999;
   }
 
   position: relative;
@@ -608,5 +607,10 @@ export default {
   margin: 0 10px 0 0;
   padding: 12px 10px;
 
+}
+/deep/ .ant-tag .anticon-close {
+  font-size: 14px;
+  color: red;
+  vertical-align: top;
 }
 </style>

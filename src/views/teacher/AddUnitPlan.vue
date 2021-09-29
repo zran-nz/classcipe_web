@@ -251,8 +251,15 @@
                 </a-form-model-item>
               </div>
 
-              <div :style="{'width':'600px','position': 'absolute', 'top':customTagTop+'px'}" >
-                <custom-tag :show-arrow="showCustomTag" ref="customTag" :selected-tags-list="form.customTags" @change-user-tags="handleChangeUserTags"></custom-tag>
+              <div v-if="!this.contentLoading" :style="{'width':'600px','position': 'absolute', 'top':customTagTop+'px'}">
+                <custom-tag
+                  :show-arrow="showCustomTag"
+                  :user-tags="userTags"
+                  :custom-tags-list="customTagList"
+                  ref="customTag"
+                  :selected-tags-list="form.customTags"
+                  @change-add-keywords="handleChangeAddKeywords"
+                  @change-user-tags="handleChangeUserTags"></custom-tag>
               </div>
             </div>
           </a-card>
@@ -434,6 +441,7 @@
 import * as logger from '@/utils/logger'
 import ContentTypeIcon from '@/components/Teacher/ContentTypeIcon'
 import { typeMap } from '@/const/teacher'
+import { CustomTagType } from '@/const/common'
 import { commonAPIUrl } from '@/api/common'
 import { GetAllSdgs, ScenarioSearch } from '@/api/scenario'
 import { debounce } from 'lodash-es'
@@ -466,6 +474,7 @@ import ReferPreview from '@/components/UnitPlanRefer/ReferPreview'
 import UiLearnOut from '@/components/UnitPlan/UiLearnOut'
 import CommonLink from '@/components/Common/CommonLink'
 import NewMyContent from '@/components/MyContent/NewMyContent'
+import { FindCustomTags } from '@/api/tag'
 
 export default {
   name: 'AddUnitPlan',
@@ -601,7 +610,9 @@ export default {
       selectedCenturySkillList: [],
       selectIdea: false,
       showCustomTag: false,
-      customTagTop: 300
+      customTagTop: 300,
+      customTagList: [],
+      userTags: {}
     }
   },
   watch: {
@@ -639,6 +650,7 @@ export default {
     LibraryEventBus.$on(LibraryEvent.ContentListSelectClick, this.handleDescriptionSelectClick)
     this.initData()
     this.getAssociate()
+    this.loadUserTags()
     this.debouncedGetSdgByDescription = debounce(this.searchScenario, 300)
   },
   beforeDestroy () {
@@ -1054,6 +1066,12 @@ export default {
     handleChangeUserTags (tags) {
       this.form.customTags = tags
     },
+    handleChangeAddKeywords (tag) {
+      var index = this.userTags.userTags.findIndex(item => item.name === tag.parentName)
+      if (index > -1) {
+        this.userTags.userTags[index].keywords.push(tag.name)
+      }
+    },
     handleAudioResult (data) {
       logger.info('handleAudioResult', data)
       this.currentUploading = true
@@ -1365,6 +1383,25 @@ export default {
         this.currentActiveStepIndex = current
       }
     },
+    loadUserTags () {
+      console.log(this.$refs)
+      // this.$refs.customTag.tagLoading = true
+      FindCustomTags({}).then((response) => {
+        this.$logger.info('FindCustomTags response', response.result)
+        if (response.success) {
+          this.userTags = response.result
+          // 默认展示的tag分类
+          this.customTagList = CustomTagType.plan.default
+          // 再拼接自己添加的
+          this.userTags.userTags.forEach(tag => {
+            this.customTagList.push(tag.name)
+          })
+        } else {
+          this.$message.error(response.message)
+        }
+        // this.$refs.customTag.tagLoading = false
+      })
+    },
     focusInput (event) {
       this.$logger.info('focusInput ', event.target)
 
@@ -1379,8 +1416,10 @@ export default {
         currentDom = currentDom.offsetParent
         if (currentDom.classList.contains('sdg-content-blocks')) {
           currentFocus = 'sdg'
+          this.customTagList = CustomTagType.plan.sdg
         } else if (currentDom.classList.contains('inquiry-form-block')) {
           currentFocus = 'inquiry'
+          this.customTagList = CustomTagType.plan.bigIdea
         }
         if (currentDom.classList && currentDom.classList.contains('root-locate-form')) {
           console.log(currentDom.classList)
@@ -1392,7 +1431,13 @@ export default {
       if (currentFocus) {
         this.customTagTop = formTop - 20
         this.showCustomTag = true
+        console.log(this.customTagList)
       } else {
+        this.customTagList = CustomTagType.plan.default
+        // 再拼接自己添加的
+        this.userTags.userTags.forEach(tag => {
+          this.customTagList.push(tag.name)
+        })
         this.customTagTop = 300
         this.showCustomTag = false
       }
