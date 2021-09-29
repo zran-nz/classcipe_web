@@ -254,7 +254,7 @@ export default {
   margin-top: 20px;
 
   .tag-category {
-    min-height: 450px;
+    min-height: 480px;
     border-radius: 6px;
     .ant-radio-button-wrapper{
       margin-bottom: 10px;
@@ -263,6 +263,7 @@ export default {
 
   .skt-tag-wrapper {
     margin-top: 10px;
+    height: 400px;
     .skt-tag-list {
       top:10px;
       max-height: 380px;
