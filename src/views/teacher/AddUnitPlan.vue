@@ -1384,17 +1384,20 @@ export default {
       }
     },
     loadUserTags () {
-      console.log(this.$refs)
       // this.$refs.customTag.tagLoading = true
       FindCustomTags({}).then((response) => {
         this.$logger.info('FindCustomTags response', response.result)
         if (response.success) {
           this.userTags = response.result
           // 默认展示的tag分类
-          this.customTagList = CustomTagType.plan.default
+          CustomTagType.plan.default.forEach(name => {
+            this.customTagList.push(name)
+          })
           // 再拼接自己添加的
           this.userTags.userTags.forEach(tag => {
-            this.customTagList.push(tag.name)
+            if (this.customTagList.indexOf(tag.name) === -1) {
+              this.customTagList.push(tag.name)
+            }
           })
         } else {
           this.$message.error(response.message)
@@ -1411,15 +1414,20 @@ export default {
       let formTop = eventDom.offsetTop
       let currentDom = eventDom.offsetParent
       let currentFocus = ''
+      this.customTagList = []
       while (currentDom !== null) {
         formTop += currentDom.offsetTop
         currentDom = currentDom.offsetParent
         if (currentDom.classList.contains('sdg-content-blocks')) {
           currentFocus = 'sdg'
-          this.customTagList = CustomTagType.plan.sdg
+          CustomTagType.plan.sdg.forEach(name => {
+            this.customTagList.push(name)
+          })
         } else if (currentDom.classList.contains('inquiry-form-block')) {
           currentFocus = 'inquiry'
-          this.customTagList = CustomTagType.plan.bigIdea
+          CustomTagType.plan.bigIdea.forEach(name => {
+            this.customTagList.push(name)
+          })
         }
         if (currentDom.classList && currentDom.classList.contains('root-locate-form')) {
           console.log(currentDom.classList)
@@ -1431,15 +1439,19 @@ export default {
       if (currentFocus) {
         this.customTagTop = formTop - 20
         this.showCustomTag = true
-        console.log(this.customTagList)
       } else {
-        this.customTagList = CustomTagType.plan.default
-        // 再拼接自己添加的
+        CustomTagType.plan.default.forEach(name => {
+          this.customTagList.push(name)
+        })
+        // // 再拼接自己添加的
         this.userTags.userTags.forEach(tag => {
-          this.customTagList.push(tag.name)
+            if (this.customTagList.indexOf(tag.name === -1)) {
+              this.customTagList.push(tag.name)
+            }
         })
         this.customTagTop = 300
         this.showCustomTag = false
+        console.log(this.customTagList)
       }
     }
   }

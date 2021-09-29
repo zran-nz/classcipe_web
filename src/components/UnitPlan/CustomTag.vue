@@ -13,9 +13,9 @@
                 <div class="skt-tag-item " v-for="tag in tagList" :key="tag.id" >
                   <a-tooltip :title="tag.parentName">
                     <a-tag
-                      :closable="customCategory.indexOf(tag.parentName)!== -1"
+                      :closable="customTagsList.indexOf(tag.parentName)!== -1"
                       @close="closeTag(tag)"
-                      :class="{'tag-item':true,'tag-disable':customCategory.indexOf(tag.parentName) === -1 }">
+                      :class="{'tag-item':true,'tag-disable':customTagsList.indexOf(tag.parentName) === -1 }">
                       {{ tag.name }}
                     </a-tag>
                   </a-tooltip>
@@ -32,7 +32,7 @@
             <a-col offset="0" span="24">
               <div>
                 <a-tabs
-                  :default-active-key="selectLabel"
+                  :activeKey="selectLabel"
                   tab-position="top"
                   @change="changeTab"
                 >
@@ -73,7 +73,7 @@
                           </div>
                         </div>
                         <div class="create-tag-wrapper tag-wrapper">
-                          <div class="skt-tag-create-line" @click="handleCreateTagByInput" v-show="!isShowBrowse && createTagName && createTagName.length >= 1">
+                          <div class="skt-tag-create-line" @click="handleCreateTagByInput" v-show="createTagName && createTagName.length >= 1">
                             <div class="create-tag-label">
                               Create
                             </div>
@@ -99,11 +99,11 @@
     </div>
 
     <a-modal
-      title="Tags Setting"
+      title="My tags"
       v-model="settingVisible"
       :footer="null"
       destroyOnClose
-      width="80%"
+      width="800px"
       :dialog-style="{ top: '20px' }">
       <div>
         <tag-setting @add-user-tag="handleAddUserTag"/>
@@ -153,7 +153,6 @@ export default {
     return {
       tagList: this.selectedTagsList,
       globalRootKey: '',
-      isShowBrowse: false,
       tagLoading: false,
       visible: true,
       settingVisible: false,
@@ -163,22 +162,19 @@ export default {
       createTagName: '',
       tagSearchList: [],
       userTagsMap: new Map(),
-      selectLabel: '',
-      customCategory: []
+      selectLabel: ''
     }
   },
   created () {
     this.debouncedSearchKnowledge = debounce(this.searchTag, 500)
-    this.customCategory = this.customTagsList
     this.handleUserTagsMap()
   },
   watch: {
     selectedTagsList () {
        this.tagList = this.selectedTagsList
     },
-    customTagsList (categorys, old) {
-      logger.info('new customTagsList', categorys)
-      this.customCategory = categorys
+    customTagsList () {
+      this.selectLabel = ''
       this.handleUserTagsMap()
     }
   },
@@ -217,12 +213,12 @@ export default {
     handleUserTagsMap () {
       this.mergeTags(this.userTags)
       this.$logger.info('mergeTags tags', this.userTagsMap)
-      this.selectLabel = ''
       this.userTagsMap.forEach((value, key) => {
         if (!this.selectLabel) {
           this.selectLabel = key
         }
       })
+      this.changeTab(this.selectLabel)
       this.filterKeyword()
     },
     mergeTags (result) {
@@ -230,12 +226,11 @@ export default {
       const myTags = result.userTags
       this.userTagsMap = new Map()
       // const categorys = ['Key words', 'Global interactions']
-      if (this.customCategory.length > 0) {
+      if (this.customTagsList.length > 0) {
         // 默认显示的tag，优先从个人库获取
-        this.customCategory.forEach(parent => {
+        this.customTagsList.forEach(parent => {
           this.userTagsMap.set(parent, new Set())
           const tagC = myTags.filter(tag => tag.name === parent)
-          logger.info('tagC', tagC)
           if (tagC.length > 0) {
             this.userTagsMap.set(parent, new Set(tagC[0].keywords))
           }
@@ -243,7 +238,6 @@ export default {
           if (tagCRecommend.length > 0) {
             // 合并
             const tags = new Set([...this.userTagsMap.get(parent), ...new Set(tagCRecommend[0].keywords)])
-            logger.info('tagCRecommend', tags)
             this.userTagsMap.set(parent, tags)
           }
         })
