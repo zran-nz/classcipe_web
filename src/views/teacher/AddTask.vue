@@ -16,158 +16,153 @@
         <a-row class="unit-content" v-if="!contentLoading" >
           <a-col span="24" class="main-content">
             <a-card :bordered="false" :body-style="{padding: '16px', display: 'flex', 'justify-content': 'center'}" class="card-wrapper">
-              <a-form-model :model="form" class="task-form-left my-form-wrapper">
-                <a-steps :current="currentActiveStepIndex" direction="vertical" @change="onChangeStep">
-                  <a-step title="Edit course info" :status="currentActiveStepIndex === 0 ? 'process':'wait'">
-                    <template v-if="currentActiveStepIndex === 0" slot="description">
-                      <div class="form-block" >
-                        <div class="header-action">
-                          <div class="header-action-item">
-                            <a-button @click="handleEditGoogleSlide" :style="{'display': 'flex', 'align-items': 'center', 'justify-content': 'center', 'padding': '20px 15px', 'border-radius': '5px'}" type="primary" >
-                              <img src="~@/assets/icons/task/path.png" class="btn-icon"/>
-                              <div class="btn-text">
-                                Edit my task in google slide
-                              </div>
-                            </a-button>
-                          </div>
-                          <div class="header-action-item">
-                            <a-button @click="handleStartSessionTags" :style="{'display': 'flex', 'align-items': 'center', 'justify-content': 'center', 'padding': '20px 15px', 'border-radius': '5px'}" type="primary" >
-                              <img src="~@/assets/icons/task/startTask.png" class="btn-icon"/>
-                              <div class="btn-text">
-                                Start a session
-                              </div>
-                            </a-button>
-                          </div>
+              <div class="task-form-left root-locate-form" ref="form" @click="focusInput($event)">
+                <a-form-model :model="form" class="my-form-wrapper" >
+                  <a-steps :current="currentActiveStepIndex" direction="vertical" @change="onChangeStep">
+                    <a-step title="Edit course info" :status="currentActiveStepIndex === 0 ? 'process':'wait'">
+                      <template v-if="currentActiveStepIndex === 0" slot="description">
+                        <div class="form-block" >
+                          <div class="header-action">
+                            <div class="header-action-item">
+                              <a-button @click="handleEditGoogleSlide" :style="{'display': 'flex', 'align-items': 'center', 'justify-content': 'center', 'padding': '20px 15px', 'border-radius': '5px'}" type="primary" >
+                                <img src="~@/assets/icons/task/path.png" class="btn-icon"/>
+                                <div class="btn-text">
+                                  Edit my task in google slide
+                                </div>
+                              </a-button>
+                            </div>
+                            <div class="header-action-item">
+                              <a-button @click="handleStartSessionTags" :style="{'display': 'flex', 'align-items': 'center', 'justify-content': 'center', 'padding': '20px 15px', 'border-radius': '5px'}" type="primary" >
+                                <img src="~@/assets/icons/task/startTask.png" class="btn-icon"/>
+                                <div class="btn-text">
+                                  Start a session
+                                </div>
+                              </a-button>
+                            </div>
 
-                          <div class="header-action-item">
-                            <a-button @click="handleStartSession('dash')" :style="{'display': 'flex', 'align-items': 'center', 'justify-content': 'center', 'padding': '20px 15px', 'border-radius': '5px'}" type="primary" >
-                              <img src="~@/assets/icons/task/startTask.png" class="btn-icon"/>
-                              <div class="btn-text">
-                                Start a dash
-                              </div>
-                            </a-button>
+                            <div class="header-action-item">
+                              <a-button @click="handleStartSession('dash')" :style="{'display': 'flex', 'align-items': 'center', 'justify-content': 'center', 'padding': '20px 15px', 'border-radius': '5px'}" type="primary" >
+                                <img src="~@/assets/icons/task/startTask.png" class="btn-icon"/>
+                                <div class="btn-text">
+                                  Start a dash
+                                </div>
+                              </a-button>
+                            </div>
                           </div>
                         </div>
-                      </div>
 
-                      <div class="form-block" >
-                        <a-form-item label="Task name" ref="name">
-                          <a-input v-model="form.name" placeholder="Enter Course Name" class="my-form-input"/>
-                        </a-form-item>
-                      </div>
+                        <div class="form-block" >
+                          <a-form-item label="Task name" ref="name">
+                            <a-input v-model="form.name" placeholder="Enter Course Name" class="my-form-input"/>
+                          </a-form-item>
+                        </div>
 
-                      <div class="form-block over-form-block" id="overview" >
-                        <a-form-model-item class="task-audio-line" label="Course Overview" ref="overview">
-                          <a-textarea v-model="form.overview" placeholder="Overview" allow-clear />
-                        </a-form-model-item>
-                      </div>
+                        <div class="form-block over-form-block" id="overview" >
+                          <a-form-model-item class="task-audio-line" label="Course Overview" ref="overview">
+                            <a-textarea v-model="form.overview" placeholder="Overview" allow-clear />
+                          </a-form-model-item>
+                        </div>
 
-                      <div class="form-block" >
-                        <a-form-model-item class="task-audio-line" label="Choose type" ref="taskType">
-                          <div class="self-type-wrapper" >
-                            <div class="self-field-label" >
-                              <div :class="{'task-type-item': true, 'green-active-task-type': form.taskType === 'FA'}" @click="handleSelectTaskType('FA')">FA</div>
-                              <div :class="{'task-type-item': true, 'red-active-task-type': form.taskType === 'SA'}" @click="handleSelectTaskType('SA')">SA</div>
+                        <div class="form-block taskType" >
+                          <a-form-model-item class="task-audio-line" label="Choose type" ref="taskType">
+                            <div class="self-type-wrapper" >
+                              <div class="self-field-label" >
+                                <div :class="{'task-type-item': true, 'green-active-task-type': form.taskType === 'FA'}" @click.stop.prevent="handleSelectTaskType('FA')">FA</div>
+                                <div :class="{'task-type-item': true, 'red-active-task-type': form.taskType === 'SA'}" @click.stop.prevent="handleSelectTaskType('SA')">SA</div>
+                              </div>
                             </div>
-                          <!--                          <div class="self-type-filter">-->
-                          <!--                            <a-select class="my-big-select" size="large" v-model="form.bloomCategories" placeholder="Choose the Bloom Taxonomy Categories" :allowClear="true" >-->
-                          <!--                              <a-select-option :value="item.value" v-for="(item, index) in initBlooms" :key="index" >-->
-                          <!--                                {{ item.title }}-->
-                          <!--                              </a-select-option>-->
-                          <!--                            </a-select>-->
-                          <!--                          </div>-->
-                          </div>
-                        </a-form-model-item>
-                      </div>
+                          </a-form-model-item>
+                        </div>
 
-                      <div class="form-block form-question" v-if="associateQuestionList.length > 0">
-                        <a-form-model-item label="Choose Key questions">
-                          <a-select
-                            size="large"
-                            class="my-big-select"
-                            v-model="form.questionIds"
-                            mode="multiple"
-                            placeholder="Choose Key questions"
-                            option-label-prop="label"
-                          >
-                            <a-select-option v-for="(item,index) in associateQuestionList" :value="item.id" :label="item.name" :key="index">
-                              <span class="question-options">
-                                {{ item.name }}
-                              </span>
-                              From Unit Plan({{ item.unitName }})
-                            </a-select-option>
-                          </a-select>
-                        </a-form-model-item>
-                      </div>
+                        <div class="form-block form-question" v-if="associateQuestionList.length > 0">
+                          <a-form-model-item label="Choose Key questions">
+                            <a-select
+                              size="large"
+                              class="my-big-select"
+                              v-model="form.questionIds"
+                              mode="multiple"
+                              placeholder="Choose Key questions"
+                              option-label-prop="label"
+                            >
+                              <a-select-option v-for="(item,index) in associateQuestionList" :value="item.id" :label="item.name" :key="index">
+                                <span class="question-options">
+                                  {{ item.name }}
+                                </span>
+                                From Unit Plan({{ item.unitName }})
+                              </a-select-option>
+                            </a-select>
+                          </a-form-model-item>
+                        </div>
 
-                      <div class="form-block" >
-                        <a-form-item label="Set assessment objectives" >
-                          <a-button type="primary" @click="handleSelectDescription">
-                            <div class="btn-text" style="line-height: 20px">
-                              Add assessment objectives
-                            </div>
-                          </a-button>
-                        </a-form-item>
+                        <div class="form-block" >
+                          <a-form-item label="Set assessment objectives" >
+                            <a-button type="primary" @click="handleSelectDescription">
+                              <div class="btn-text" style="line-height: 20px">
+                                Add assessment objectives
+                              </div>
+                            </a-button>
+                          </a-form-item>
 
-                        <!--knowledge tag-select -->
-                        <ui-learn-out ref="learnOut" :learn-outs="form.learnOuts" @remove-learn-outs="handleRemoveLearnOuts" />
-                      </div>
-                    </template>
-                  </a-step>
+                          <!--knowledge tag-select -->
+                          <ui-learn-out ref="learnOut" :learn-outs="form.learnOuts" @remove-learn-outs="handleRemoveLearnOuts" />
+                        </div>
+                      </template>
+                    </a-step>
 
-                  <a-step title="Edit your course slides" :status="currentActiveStepIndex === 1 ? 'process':'wait'">
-                    <template v-if="currentActiveStepIndex === 1" slot="description">
-                      <a-skeleton :loading="skeletonLoading" active>
-                        <div class="slide-select-wrapper" ref="slide">
-                          <div class="slide-select">
-                            <div class="slide-select-and-preview">
-                              <!--                            <div class="reset-edit-basic-info" >Edit course info</div>-->
-                              <div class="slide-select-action" v-show="!form.presentationId">
-                                <img src="~@/assets/icons/task/Teamwork-Pie-Chart@2x.png" />
-                                <div class="select-action">
-                                  <div class="modal-ensure-action-line">
-                                    <a-button class="action-item action-cancel" shape="round" @click="handleShowSelectMyContent">Select template</a-button>
-                                    <a-button class="action-ensure action-item" type="primary" shape="round" @click="handleCreateInGoogle">Create a new ppt in Google side</a-button>
+                    <a-step title="Edit your course slides" :status="currentActiveStepIndex === 1 ? 'process':'wait'">
+                      <template v-if="currentActiveStepIndex === 1" slot="description">
+                        <a-skeleton :loading="skeletonLoading" active>
+                          <div class="slide-select-wrapper" ref="slide">
+                            <div class="slide-select">
+                              <div class="slide-select-and-preview">
+                                <!--                            <div class="reset-edit-basic-info" >Edit course info</div>-->
+                                <div class="slide-select-action" v-show="!form.presentationId">
+                                  <img src="~@/assets/icons/task/Teamwork-Pie-Chart@2x.png" />
+                                  <div class="select-action">
+                                    <div class="modal-ensure-action-line">
+                                      <a-button class="action-item action-cancel" shape="round" @click="handleShowSelectMyContent">Select template</a-button>
+                                      <a-button class="action-ensure action-item" type="primary" shape="round" @click="handleCreateInGoogle">Create a new ppt in Google side</a-button>
+                                    </div>
                                   </div>
                                 </div>
-                              </div>
-                              <div class="slide-preview" v-show="form.presentationId && thumbnailList.length">
-                                <a-carousel arrows dots-class="slick-dots slick-thumb">
-                                  <a slot="customPaging" slot-scope="props">
-                                    <img :src="thumbnailList[props.i].contentUrl" />
-                                  </a>
-                                  <div v-for="(item,index) in thumbnailList" :key="index">
-                                    <img :src="item.contentUrl" />
-                                  </div>
-                                </a-carousel>
+                                <div class="slide-preview" v-show="form.presentationId && thumbnailList.length">
+                                  <a-carousel arrows dots-class="slick-dots slick-thumb">
+                                    <a slot="customPaging" slot-scope="props">
+                                      <img :src="thumbnailList[props.i].contentUrl" />
+                                    </a>
+                                    <div v-for="(item,index) in thumbnailList" :key="index">
+                                      <img :src="item.contentUrl" />
+                                    </div>
+                                  </a-carousel>
+                                </div>
                               </div>
                             </div>
                           </div>
+                        </a-skeleton>
+                      </template>
+                    </a-step>
+
+                    <a-step title="Link Task content" :status="currentActiveStepIndex === 2 ? 'process':'wait'">
+                      <template v-if="currentActiveStepIndex === 2" slot="description">
+                        <div class="form-block">
+                          <a-form-item label="Link Task content" class="link-plan-title">
+                            <a-button type="primary" :style="{'background-color': '#fff', 'color': '#000', 'border': '1px solid #D8D8D8'}" @click="handleAddLink">
+                              <div class="btn-text" style="line-height: 20px">
+                                + Link
+                              </div>
+                            </a-button>
+                          </a-form-item>
+                          <div class="common-link-wrapper">
+                            <common-link ref="commonLink" :from-id="this.taskId" :from-type="this.contentType.task"/>
+                          </div>
                         </div>
-                      </a-skeleton>
-                    </template>
-                  </a-step>
+                      </template>
+                    </a-step>
 
-                  <a-step title="Link Task content" :status="currentActiveStepIndex === 2 ? 'process':'wait'">
-                    <template v-if="currentActiveStepIndex === 2" slot="description">
-                      <div class="form-block">
-                        <a-form-item label="Link Task content" class="link-plan-title">
-                          <a-button type="primary" :style="{'background-color': '#fff', 'color': '#000', 'border': '1px solid #D8D8D8'}" @click="handleAddLink">
-                            <div class="btn-text" style="line-height: 20px">
-                              + Link
-                            </div>
-                          </a-button>
-                        </a-form-item>
-                        <div class="common-link-wrapper">
-                          <common-link ref="commonLink" :from-id="this.taskId" :from-type="this.contentType.task"/>
-                        </div>
-                      </div>
-                    </template>
-                  </a-step>
+                  </a-steps>
 
-                </a-steps>
-
-              </a-form-model>
+                </a-form-model>
+              </div>
 
               <div class="task-form-right">
 
@@ -252,8 +247,16 @@
                     </div>
                   </div>
                 </div>
-                <div :style="{'margin-top':customTagTop+'px'}" v-show="currentActiveStepIndex === 0" >
-                  <custom-tag :show-arrow="showCustomTag" ref="customTag" :selected-tags-list="form.customTags" @change-user-tags="handleChangeUserTags"></custom-tag>
+                <div v-if="!this.contentLoading && this.currentActiveStepIndex === 0" :style="{'width':'600px','position': 'absolute', 'top':customTagTop+'px'}">
+                  <custom-tag
+                    :show-arrow="showCustomTag"
+                    :user-tags="userTags"
+                    :custom-tags-list="customTagList"
+                    ref="customTag"
+                    :selected-tags-list="form.customTags"
+                    @reload-user-tags="loadUserTags"
+                    @change-add-keywords="handleChangeAddKeywords"
+                    @change-user-tags="handleChangeUserTags"></custom-tag>
                 </div>
               </div>
             </a-card>
@@ -631,7 +634,7 @@
   import { lessonHost, lessonStatus } from '@/const/googleSlide'
   import { StartLesson } from '@/api/lesson'
   import CollaborateContent from '@/components/Collaborate/CollaborateContent'
-  import { DICT_BLOOM_CATEGORY, DICT_TEMPLATE } from '@/const/common'
+  import { CustomTagType, DICT_BLOOM_CATEGORY, DICT_TEMPLATE } from '@/const/common'
   import { SubjectTree } from '@/api/subject'
   import { formatSubjectTree } from '@/utils/bizUtil'
   import ModalHeader from '@/components/Common/ModalHeader'
@@ -642,7 +645,7 @@
   import { LibraryEvent, LibraryEventBus } from '@/components/NewLibrary/LibraryEventBus'
   import NewBrowser from '@/components/NewLibrary/NewBrowser'
   import NewMyContent from '@/components/MyContent/NewMyContent'
-  import { GetTreeByKey } from '@/api/tag'
+  import { FindCustomTags, GetTreeByKey } from '@/api/tag'
 
   export default {
     name: 'AddTask',
@@ -759,6 +762,10 @@
         selectedSyncList: [],
         // 已选择的大纲知识点描述数据
         selectedCurriculumList: [],
+        // specific skill
+        selectedSpecificSkillList: [],
+        // century skill
+        selectedCenturySkillList: [],
         selectModel: SelectModel,
 
         editPPTMode: false,
@@ -775,7 +782,9 @@
         skeletonLoading: false,
         associateQuestionList: [],
         showCustomTag: false,
-        customTagTop: 0
+        customTagTop: 300,
+        customTagList: [],
+        userTags: {}
       }
     },
     computed: {
@@ -805,6 +814,7 @@
       LibraryEventBus.$on(LibraryEvent.ContentListSelectClick, this.handleDescriptionSelectClick)
       this.initData()
       this.getAssociate()
+      this.loadUserTags()
       this.initTemplateFilter()
     },
     beforeDestroy () {
@@ -989,7 +999,18 @@
       handleSelectTaskType (type) {
         this.$logger.info('handleSelectTaskType ' + type)
         this.form.taskType = type
-        this.focusInput('taskType')
+        this.customTagList = []
+        if (type === 'FA') {
+          CustomTagType.task.fa.forEach(name => {
+            this.customTagList.push(name)
+          })
+        } else {
+          CustomTagType.task.sa.forEach(name => {
+            this.customTagList.push(name)
+          })
+        }
+        this.customTagTop = 390
+        this.showCustomTag = true
       },
 
       goBack () {
@@ -1154,7 +1175,6 @@
           this.thumbnailList = []
           pageObjects.forEach(page => {
             this.thumbnailList.push({ contentUrl: page.contentUrl, id: page.pageObjectId })
-            this.$logger.info('current imgList ', this.imgList)
           })
           this.thumbnailListLoading = false
           this.skeletonLoading = false
@@ -1270,9 +1290,6 @@
         if (index !== -1) {
           this.form.tasks.splice(index, 1)
         }
-      },
-      handleChangeUserTags (tags) {
-        this.form.customTags = tags
       },
       handleStartSession (type) {
         this.$logger.info('handleStartSession', this.form)
@@ -1615,9 +1632,78 @@
         this.addRecomendLoading = true
         this.handleAddTemplate()
       },
-      focusInput (ref) {
-        this.customTagTop = this.$refs[ref].$el.offsetTop + 20
-        this.showCustomTag = true
+      loadUserTags () {
+        // this.$refs.customTag.tagLoading = true
+        FindCustomTags({}).then((response) => {
+          this.$logger.info('FindCustomTags response', response.result)
+          if (response.success) {
+            this.userTags = response.result
+            // 默认展示的tag分类
+            CustomTagType.task.default.forEach(name => {
+              this.customTagList.push(name)
+            })
+            // 再拼接自己添加的
+            this.userTags.userTags.forEach(tag => {
+              if (this.customTagList.indexOf(tag.name) === -1) {
+                this.customTagList.push(tag.name)
+              }
+            })
+          } else {
+            this.$message.error(response.message)
+          }
+          // this.$refs.customTag.tagLoading = false
+        })
+      },
+      focusInput (event) {
+        this.$logger.info('focusInput ', event.target)
+
+        // 设置一个父级定位专用的dom，设置class名称【root-locate-form】，
+        // 然后通过事件获取到当前元素，依次往上层查询父元素，累加偏离值，直到定位元素。
+        const eventDom = event.target
+        let formTop = eventDom.offsetTop
+        let currentDom = eventDom.offsetParent
+        const currentFocus = ''
+        this.customTagList = []
+        while (currentDom !== null) {
+          formTop += currentDom.offsetTop
+          currentDom = currentDom.offsetParent
+          // if(currentDom.classList.contains('div.task-type-item.green-active-task-type')) {
+          //   currentFocus = 'fa'
+          //   CustomTagType.task.fa.forEach(name => {
+          //     this.customTagList.push(name)
+          //   })
+          // }
+          if (currentDom.classList && currentDom.classList.contains('root-locate-form')) {
+            logger.info('classlist: ', currentDom.classList.toString())
+            break
+          }
+        }
+        // custom tag 自带了margin-top: 20px,这里减掉不然不对齐。
+        if (currentFocus) {
+          this.customTagTop = formTop - 20
+          this.showCustomTag = true
+        } else {
+          CustomTagType.task.default.forEach(name => {
+            this.customTagList.push(name)
+          })
+          // // 再拼接自己添加的
+          this.userTags.userTags.forEach(tag => {
+            if (this.customTagList.indexOf(tag.name === -1)) {
+              this.customTagList.push(tag.name)
+            }
+          })
+          this.customTagTop = 300
+          this.showCustomTag = false
+        }
+      },
+      handleChangeUserTags (tags) {
+        this.form.customTags = tags
+      },
+      handleChangeAddKeywords (tag) {
+        var index = this.userTags.userTags.findIndex(item => item.name === tag.parentName)
+        if (index > -1) {
+          this.userTags.userTags[index].keywords.push(tag.name)
+        }
       }
     }
   }
@@ -1761,7 +1847,8 @@
 
       .image-preview {
         img {
-          max-width: 100%;
+          width: 100%;
+          max-height: 250px;
         }
       }
 
@@ -3099,5 +3186,8 @@
 
   /deep/ .ant-steps-item-title{
     font-size:18px
+  }
+  .root-locate-form {
+    position: relative;
   }
 </style>

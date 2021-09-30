@@ -4,7 +4,9 @@ export const tagAPIUrl = {
   GetUserTags: '/classcipe/api/tag/getUserTags',
   UserTagAddOrUpdate: '/classcipe/api/tag/addOrUpdateUserTag',
   AddUserTagNew: '/classcipe/api/tag/addUserTagNew',
+  AddUserParentTag: '/classcipe/api/tag/addUserParentTag',
   UserTagDelete: '/classcipe/api/tag/userTagDelete',
+  UserTagDeleteNew: '/classcipe/api/tag/userTagDeleteNew',
   GetTreeByKey: '/classcipe/api/tag/getTreeByKey',
   GetGlobalTree: '/classcipe/api/tag/getTree',
   GetRootGlobalTag: '/classcipe/api/tag/getRootGlobalTag',
@@ -84,6 +86,17 @@ export function AddUserTagNew (parameter) {
   })
 }
 
+export function AddUserParentTag (parameter) {
+  return request({
+    url: tagAPIUrl.AddUserParentTag,
+    method: 'post',
+    data: parameter,
+    headers: {
+      'Content-Type': 'application/json;charset=UTF-8'
+    }
+  })
+}
+
 /**
  * @param parameter
  * @returns {AxiosPromise}
@@ -105,6 +118,17 @@ export function TagQueryById (parameter) {
 export function UserTagDelete (parameter) {
   return request({
     url: tagAPIUrl.UserTagDelete,
+    method: 'post',
+    data: parameter,
+    headers: {
+      'Content-Type': 'application/json;charset=UTF-8'
+    }
+  })
+}
+
+export function UserTagDeleteNew (parameter) {
+  return request({
+    url: tagAPIUrl.UserTagDeleteNew,
     method: 'post',
     data: parameter,
     headers: {

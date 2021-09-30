@@ -103,7 +103,8 @@
       v-model="settingVisible"
       :footer="null"
       destroyOnClose
-      width="800px"
+      :afterClose="refreshTag"
+      width="1000px"
       :dialog-style="{ top: '20px' }">
       <div>
         <tag-setting @add-user-tag="handleAddUserTag"/>
@@ -319,6 +320,9 @@ export default {
       // this.debouncedSearchKnowledge(this.inputTag)
       this.createTagName = this.inputTag
       this.filterKeyword()
+    },
+    refreshTag () {
+      this.$emit('reload-user-tags')
     }
 
   }

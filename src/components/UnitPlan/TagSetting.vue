@@ -15,7 +15,17 @@
                 @edit="onEdit"
                 @change="changeTab"
               >
-                <a-tab-pane v-for="tag in userTagsMap" :key="tag[0]" :tab="tag[0]" :closable="editTab">
+                <a-tab-pane v-for="(tag,index) in userTagsMap" :key="tag[0]" >
+                  <span slot="tab">
+                    <div v-if="editTabIndex === index">
+                      <a-input
+                        v-model="editTabName"
+                        placeholder="input tab name"
+                        @keyup.enter="handleTabInputConfirm(editTabName)"
+                      ></a-input>
+                    </div>
+                    <div v-if="editTabIndex !== index">{{ tag[0] }}<a-icon v-show="canDeleteTab" @click="deleteTab(tag[0])" type="close-circle" /></div>
+                  </span>
                   <div class="tab-content">
                     <a-col offset="0" :span="24">
                       <div class="tag-search-input">
@@ -39,10 +49,10 @@
                       <div class="skt-tag-list">
 
                         <div class="search-tag-wrapper tag-wrapper">
-                          <div class="skt-tag-item" v-for="(keyword,index) in tagSearchList" :key="index" >
+                          <div class="skt-tag-item" v-for="(keyword,kIndex) in tagSearchList" :key="kIndex" >
                             <a-tag
-                              draggable="true"
-                              @click="selectChooseTag(tag[0],keyword)"
+                              :closable="true"
+                              @close="closeTag(tag[0],keyword,$event)"
                               class="tag-item">
                               {{ keyword }}
                             </a-tag>
@@ -71,15 +81,70 @@
         </a-row>
       </div>
 
+      <div>
+        <a-button type="link" @click="canDeleteTab=!canDeleteTab">
+          Delete type
+        </a-button>
+      </div>
+
       <br />
     </div>
+    <a-modal
+      v-model="confirmVisible"
+      :footer="null"
+      destroyOnClose
+      width="600px"
+      :title="null"
+      @ok="confirmVisible = false"
+      @cancel="confirmVisible = false">
+      <div class="confirm-content-wrapper">
+        <div>
+          <a-result
+            status="error"
+            :title="deleteTagName ? 'Delete this tag':'Delete tag type'"
+          >
+            <p v-if="deleteTagName">
+              Are you sure you want to delete this tag?
+              This is permanent and can not be undone?
+            </p>
+            <p v-if="!deleteTagName">
+              Are you sure you want to delete this tag type?
+              After deletion, its sub-tags are deleted too.
+              This is permanent and cannot be undone.
+            </p>
+            <div class="desc">
+              <a-alert v-if="deleteTabName && !deleteTagName" :message="deleteTabName" type="info" />
+              <div class="confirm-tag-wrapper tag-wrapper">
+                <div v-if="deleteTabName && !deleteTagName" class="skt-tag-item" v-for="(keyword,index) in tagSearchList" :key="index" >
+                  <a-tag
+                    class="tag-item">
+                    {{ keyword }}
+                  </a-tag>
+                </div>
+                <div v-if="deleteTabName && deleteTagName" class="skt-tag-item" style="justify-content: center">
+                  <a-tag
+                    class="tag-item">
+                    {{ deleteTagName }}
+                  </a-tag>
+                </div>
+              </div>
+            </div>
+          </a-result>
+        </div>
+
+        <div class="modal-ensure-action-line-center">
+          <a-button class="action-item action-cancel" shape="round" @click="confirmVisible = false">Cancel</a-button>
+          <a-button class="action-ensure action-item" :loading="tagDeleteLoading" type="primary" shape="round" @click="handleEnsureDelete">Confirm</a-button>
+        </div>
+      </div>
+    </a-modal>
 
   </div>
 </template>
 
 <script>
 import * as logger from '@/utils/logger'
-import { AddUserTagNew, FindCustomTags } from '@/api/tag'
+import { AddUserTagNew, FindCustomTags, AddUserParentTag, UserTagDeleteNew } from '@/api/tag'
 
 const { debounce } = require('lodash-es')
 
@@ -97,14 +162,20 @@ export default {
   },
   data () {
     return {
-      editTab: true,
+      canDeleteTab: false,
       tagLoading: false,
       inputTag: '',
       tagName: '',
       createTagName: '',
       tagSearchList: [],
       userTagsMap: new Map(),
-      selectLabel: ''
+      selectLabel: '',
+      confirmVisible: false,
+      editTabIndex: -1,
+      editTabName: '',
+      deleteTabName: '',
+      deleteTagName: '',
+      tagDeleteLoading: false
     }
   },
   created () {
@@ -115,18 +186,22 @@ export default {
   },
   methods: {
     onEdit (targetKey, action) {
-
+      logger.info('action ', targetKey, action)
+      this[action](targetKey)
     },
     add () {
-      // const panes = this.panes
-      // const activeKey = `newTab${this.newTabIndex++}`
-      // panes.push({ title: 'New Tab', content: 'Content of new Tab', key: activeKey })
-      // this.panes = panes
-      // this.activeKey = activeKey
+      if (this.editTabIndex !== -1) {
+        return
+      }
+      const activeKey = `tab name_` + this.userTagsMap.size
+      this.editTabIndex = this.userTagsMap.size
+      this.editTabName = activeKey
+      this.userTagsMap.set(activeKey, [])
+      this.changeTab(activeKey)
     },
     remove (targetKey) {
-
       // this.selectLabel = activeKey
+      this.confirmVisible = true
     },
     changeTab (tabName) {
       this.selectLabel = tabName
@@ -137,12 +212,11 @@ export default {
     handleCancel () {
       this.visible = false
     },
-    closeTag (tag) {
-      console.log(tag)
-      this.tagList.splice(this.tagList.findIndex(item => item.name === tag.name), 1)
-      this.filterKeyword()
-      this.tagName = ''
-      // this.$message.success('Remove label successfully')
+    closeTag (parent, tag, event) {
+      event.preventDefault()
+      this.deleteTabName = parent
+      this.deleteTagName = tag
+      this.confirmVisible = true
     },
     selectTag (tag) {
       console.log(tag)
@@ -153,6 +227,7 @@ export default {
       }
     },
     handleUserTagsMap () {
+      this.userTagsMap = new Map()
       FindCustomTags({}).then((response) => {
         this.$logger.info('FindCustomTags response', response.result)
         if (response.success) {
@@ -165,7 +240,7 @@ export default {
               this.selectLabel = key
             }
           })
-          this.changeTab(this.selectLabel)
+          // this.changeTab(this.selectLabel)
           this.filterKeyword()
         } else {
           this.$message.error(response.message)
@@ -183,24 +258,10 @@ export default {
         this.tagSearchList = this.tagSearchList.filter(item => item.toLowerCase().indexOf(this.inputTag.toLowerCase()) > -1)
       }
     },
-    selectChooseTag (parent, tag) {
-      // this.tagList.push({
-      //   'parentName': parent,
-      //   'name': tag,
-      //   'id': this.tagList.length
-      // })
-      this.filterKeyword()
-    },
-    handleAddUserTag (tags, isAdd) {
-      // this.handleUserTagsMap()
-    },
-    handleTagItemDrop (item, event) {
-      console.log(item)
-    },
     handleCreateTagByInput () {
       this.$logger.info('skill handleCreateTagByInput ' + this.createTagName)
       const userTypeTags = this.userTagsMap.get(this.selectLabel)
-      if (userTypeTags.has(this.createTagName)) {
+      if (userTypeTags.indexOf(this.createTagName) > -1) {
         this.$message.warn('already exist same name tag')
       } else {
         var item = {
@@ -214,8 +275,7 @@ export default {
             item.id = response.result.id
             this.createTagName = ''
             this.inputTag = ''
-            this.userTagsMap.get(this.selectLabel).add(item.name)
-            this.changeTab(this.selectLabel)
+            this.handleUserTagsMap()
             this.$message.success('Add tag success')
             this.$emit('change-add-keywords', item)
           } else {
@@ -238,6 +298,51 @@ export default {
       // this.debouncedSearchKnowledge(this.inputTag)
       this.createTagName = this.inputTag
       this.filterKeyword()
+    },
+
+    handleEnsureDelete () {
+      this.tagDeleteLoading = true
+      UserTagDeleteNew({ parentName: this.deleteTabName, name: this.deleteTagName }).then((response) => {
+        this.$logger.info('add UserTagDeleteNew ', response.result)
+        if (response.success) {
+          this.editTabIndex = -1
+          if (!this.deleteTagName) {
+            this.selectLabel = ''
+          }
+          this.handleUserTagsMap()
+          this.$message.success('Delete success')
+        } else {
+          this.$message.error(response.message)
+        }
+        this.tagDeleteLoading = false
+        this.confirmVisible = false
+      })
+    },
+    deleteTab (tab) {
+        this.deleteTabName = tab
+        this.deleteTagName = ''
+        this.confirmVisible = true
+    },
+
+    handleTabInputConfirm (tag) {
+      if (!tag || !tag.trim()) {
+        this.$message.warn('Please input tag type name')
+        return
+      }
+      this.tagLoading = true
+      AddUserParentTag({ parentName: tag }).then((response) => {
+        this.$logger.info('add AddUserParentTag ', response.result)
+        if (response.success) {
+          this.editTabIndex = -1
+          this.selectLabel = tag
+          // this.userTagsMap = new Map()
+          this.handleUserTagsMap()
+          this.$message.success('Add tag type success')
+        } else {
+          this.$message.error(response.message)
+        }
+        this.tagLoading = false
+      })
     }
 
   }
@@ -432,7 +537,7 @@ export default {
   padding: 12px 10px;
 
 }
-/deep/ .ant-tag .anticon-close {
+/deep/ .tag-category .anticon-close {
   font-size: 14px;
   color: red;
   vertical-align: top;
@@ -441,4 +546,63 @@ export default {
   margin: 0 5%;
   width: 90%;
 }
+.modal-ensure-action-line-center{
+  display: flex;
+  justify-content: space-between;
+  width: 40%;
+  margin: 20px auto;
+}
+
+.confirm-tag-wrapper{
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    .tag-item {
+      background-color: rgba(21, 195, 154, 1);
+      color: #fff;
+      padding: 3px 6px;
+      cursor: pointer;
+
+      .tag-icon {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        img {
+          padding-right: 3px;
+          height: 12px;
+        }
+        img.search-icon {
+          height: 10px;
+        }
+      }
+    }
+    .skt-tag-item {
+      margin: 5px 10px 5px 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      vertical-align: middle;
+      cursor: pointer;
+      .tag-item {
+        cursor: pointer;
+        border-radius: 28px;
+        padding-left: 10px;
+        padding-right: 10px;
+        word-break:normal;
+        width:auto;
+        display:block;
+        white-space:pre-wrap;
+        word-wrap : break-word ;
+        overflow: hidden ;
+        padding-bottom: 3px;
+      }
+    }
+}
+/deep/ .ant-tabs-nav .ant-tabs-tab .anticon {
+  padding-left: 10px;
+  vertical-align: text-top;
+  color: red;
+}
+
 </style>
