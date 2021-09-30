@@ -11,7 +11,7 @@
         @collaborate="handleStartCollaborate"
       />
     </div>
-    <a-card :bordered="false" :bodyStyle="{ padding: '16px 24px', height: '100%', minHeight: '500px' }">
+    <a-card :bordered="false" :bodyStyle="{ padding: '16px 24px', height: '100%', minHeight: '800px' }">
       <a-row class="unit-content" v-if="!contentLoading">
         <!--        <a-col span="4" v-if="showSidebar">
           <associate-sidebar
