@@ -258,6 +258,7 @@
                   :custom-tags-list="customTagList"
                   ref="customTag"
                   :selected-tags-list="form.customTags"
+                  @reload-user-tags="loadUserTags"
                   @change-add-keywords="handleChangeAddKeywords"
                   @change-user-tags="handleChangeUserTags"></custom-tag>
               </div>
@@ -1451,7 +1452,6 @@ export default {
         })
         this.customTagTop = 300
         this.showCustomTag = false
-        console.log(this.customTagList)
       }
     }
   }
@@ -1553,6 +1553,7 @@ export default {
       img {
         /*max-width: 100%;*/
         max-height: 250px;
+        width: 100%;
       }
     }
 

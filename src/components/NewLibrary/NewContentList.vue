@@ -437,7 +437,7 @@ export default {
         .name-text {
           padding: 0 5px;
           box-sizing: border-box;
-          word-break: break-all;
+          word-break: break-word;
           white-space:normal;
         }
         .collapse-item{

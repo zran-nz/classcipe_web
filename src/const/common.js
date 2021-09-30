@@ -23,12 +23,12 @@ export const TagOriginType = {
 export const CustomTagType = {
   plan: {
     sdg: ['Key words'],
-    bigIdea: ['Universal Concept', 'Global interactions'],
+    bigIdea: ['Universal Concept'],
     default: ['Teaching strategies', 'Differentiated instructions']
   },
   task: {
     sa: ['Assessment type'],
-    fa: ['Bloom taxonomy', 'knowledge dimension'],
-    default: ['Teaching strategies', 'Differentiated instructions']
+    fa: ['Bloom Taxonomy', 'Knowledge dimension'],
+    default: ['Assessment purpose', 'Teaching strategies', 'Differentiated instructions']
   }
 }

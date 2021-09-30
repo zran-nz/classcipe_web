@@ -195,7 +195,7 @@ export default {
           overflow: hidden;
           white-space: nowrap;
           text-overflow: ellipsis;
-          word-break: break-all;
+          word-break: break-word;
         }
       }
 
