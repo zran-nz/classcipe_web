@@ -101,7 +101,7 @@
                 </div>
               </div>
               <div class="block-main-label">
-                Learning outcomes
+                Assessment objectives
               </div>
               <div class="overview-block">
                 <div class="learn-question-tag">
@@ -120,7 +120,7 @@
               </div>
               <template v-if="data.inquiry">
                 <div class="block-main-label">
-                  Direction of inquiry
+                  Big idea
                 </div>
                 <div class="inquiry-block-content">
                   <div class="inquiry">
@@ -171,7 +171,7 @@
             <template v-if="data && data.inquiry">
               <div class="detail-block">
                 <div class="block-main-label">
-                  Direction of inquiry / Staement of inquiry / Centeral idea / Enduring understanding
+                  Big idea / Staement of inquiry / Centeral idea / Enduring understanding
                 </div>
                 <div class="inquiry-block-content">
                   <div class="inquiry">

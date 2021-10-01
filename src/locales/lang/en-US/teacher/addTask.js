@@ -31,7 +31,7 @@ export default {
   'teacher.add-task.concepts': 'Concepts',
   'teacher.add-task.questions': 'Questions',
   'teacher.add-task.delete-questions': 'Delete Questions',
-  'teacher.add-task.expert-direction-of-inquiry': 'Direction of inquiry',
+  'teacher.add-task.expert-direction-of-inquiry': 'Big idea',
   'teacher.add-task.teacher-direction-of-inquiry': 'Statement of inquiry/Central idea/Enduring understanding',
   'teacher.add-task.expert-nth-key-question': 'Key question',
   'teacher.add-task.teacher-nth-key-question': 'Key question/line of inquiry',

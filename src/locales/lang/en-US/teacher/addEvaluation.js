@@ -30,7 +30,7 @@ export default {
   'teacher.add-evaluation.concepts': 'Concepts',
   'teacher.add-evaluation.questions': 'Questions',
   'teacher.add-evaluation.delete-questions': 'Delete Questions',
-  'teacher.add-evaluation.expert-direction-of-inquiry': 'Direction of inquiry',
+  'teacher.add-evaluation.expert-direction-of-inquiry': 'Big idea',
   'teacher.add-evaluation.teacher-direction-of-inquiry': 'Statement of inquiry/Central idea/Enduring understanding',
   'teacher.add-evaluation.expert-nth-key-question': 'Key question',
   'teacher.add-evaluation.teacher-nth-key-question': 'Key question/line of inquiry',

@@ -1,7 +1,7 @@
 export default {
   'teacher.unit-plan-preview.edit': 'Edit',
   'teacher.unit-plan-preview.scenario-description': 'Scenario description',
-  'teacher.unit-plan-preview.direction-of-inquiry': 'Direction of inquiry/Statement of inquiry/Central idea/Enduring understanding',
+  'teacher.unit-plan-preview.direction-of-inquiry': 'Big idea/Statement of inquiry/Central idea/Enduring understanding',
   'teacher.unit-plan-preview.line-of-inquiry': 'Line of inquiry',
   'teacher.unit-plan-preview.knowledge-description': 'knowledge description',
   'teacher.unit-plan-preview.material': 'material',
