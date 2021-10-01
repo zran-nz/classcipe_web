@@ -700,28 +700,34 @@ export default {
       if (this.currentItemType === 'sdgList') {
         this.$logger.info('init sdg keywords big idea list', treeItemData)
         if (!treeItemData.children.length) {
+          this.subTreeLoading = true
           ScenarioGetKeywordScenarios({ sdgId: treeItemData.id }).then(response => {
             this.$logger.info('init sdg keywords ScenarioGetKeywordScenarios response', response.result)
-            response.result.sdgKeyWords.forEach(sdgKeyword => {
-              treeItemData.children.push({
-                id: sdgKeyword.id,
-                name: sdgKeyword.name,
-                dataType: this.treeItemType,
-                children: []
+            if (response.result) {
+              const children = []
+              response.result.sdgKeyWords.forEach(sdgKeyword => {
+                children.push({
+                  id: sdgKeyword.id,
+                  name: sdgKeyword.name,
+                  children: []
+                })
               })
-            })
-            this.$logger.info('init sdg keywords list', treeItemData.children)
-            LibraryEventBus.$emit(LibraryEvent.ContentListUpdate, {
-              deep: this.defaultDeep,
-              dataType: this.treeItemType,
-              currentTreeData: this.treeItemData,
-              parentTreeData: this.treeCurrentParent,
-              contentList: treeItemData.children,
-              questionIndex: this.questionIndex
-            })
+              treeItemData.children = children
+              this.$logger.info('init sdg keywords list', treeItemData.children)
+              LibraryEventBus.$emit(LibraryEvent.ContentListUpdate, {
+                deep: this.defaultDeep,
+                dataType: this.treeItemType,
+                currentTreeData: this.treeItemData,
+                parentTreeData: this.treeCurrentParent,
+                contentList: treeItemData.children,
+                questionIndex: this.questionIndex
+              })
+              this.subTreeExpandStatus = true
+            } else {
+              this.subTreeExpandStatus = false
+            }
           }).finally(() => {
             this.subTreeLoading = false
-            this.subTreeExpandStatus = true
           })
         } else {
           LibraryEventBus.$emit(LibraryEvent.ContentListUpdate, {
@@ -745,14 +751,16 @@ export default {
           // sdg keyword name list
           QueryBigIdea({ keywords: treeItemData.name }).then(response => {
             this.$logger.info('QueryBigIdea response', response.result)
+            const children = []
             response.result.forEach(bigIdea => {
-              treeItemData.children.push({
+              children.push({
                 id: bigIdea,
                 name: bigIdea,
                 isBigIdea: true, // 标识是否是bigIdea
                 children: []
               })
             })
+            treeItemData.children = children
             this.$logger.info('sdg bigIdea list', treeItemData.children)
             LibraryEventBus.$emit(LibraryEvent.ContentListUpdate, {
               deep: this.defaultDeep,
@@ -762,6 +770,8 @@ export default {
               contentList: treeItemData.children,
               questionIndex: this.questionIndex
             })
+
+            // big idea由于是异步加载的
           }).finally(() => {
             this.subTreeLoading = false
             this.subTreeExpandStatus = true

@@ -420,7 +420,7 @@
             :select-mode="selectModel.syncData"
             question-index="_questionIndex_1"
             :sync-data="syncData"
-            :show-menu="[ NavigationType.sdg]"
+            :show-menu="[ NavigationType.sdg, NavigationType.specificSkills, NavigationType.centurySkills]"
             @select-big-idea="handleSelectListData"
             @select-sync="handleSelectListData"
             @select-curriculum="handleSelectCurriculum"
