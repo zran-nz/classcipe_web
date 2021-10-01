@@ -420,7 +420,8 @@
             :select-mode="selectModel.syncData"
             question-index="_questionIndex_1"
             :sync-data="syncData"
-            :show-menu="[NavigationType.centurySkills, NavigationType.specificSkills, NavigationType.learningOutcomes, NavigationType.sync]"
+            :show-menu="[ NavigationType.sdg]"
+            @select-big-idea="handleSelectListData"
             @select-sync="handleSelectListData"
             @select-curriculum="handleSelectCurriculum"
             @select-subject-specific-skill="handleSelectSubjectSpecificSkillListData"
@@ -611,6 +612,9 @@ export default {
       selectedSpecificSkillList: [],
       // century skill
       selectedCenturySkillList: [],
+
+      // BigIdeaList
+      selectedBigIdeaList: [],
       selectIdea: false,
       showCustomTag: false,
       customTagTop: 300,
@@ -1308,6 +1312,11 @@ export default {
       this.getAssociate()
     },
 
+    handleSelectBigIdeaData (data) {
+      this.$logger.info('handleSelectBigIdeaData', data)
+      this.selectedBigIdeaList = data
+    },
+
     // TODO 自动更新选择的sync 的数据knowledgeId和name列表
     handleSelectListData (data) {
       this.$logger.info('handleSelectListData', data)
@@ -1343,6 +1352,7 @@ export default {
         this.selectedCurriculumList,
         this.selectedSpecificSkillList,
         this.selectedCenturySkillList,
+        this.selectedBigIdeaList,
         this.selectedSyncList)
       this.selectedSyncList.forEach(data => {
         const filterLearnOuts = this.form.learnOuts.filter(item => item.knowledgeId === data.knowledgeId)

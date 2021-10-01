@@ -10,7 +10,9 @@ export const scenarioAPIUrl = {
   ScenarioDeleteBatch: '/classcipe/api/scenario/deleteBatch',
   ScenarioList: '/classcipe/api/scenario/list',
   ScenarioGetKeywordScenarios: '/classcipe/api/scenario/getKeywordScenarios',
-  ScenarioQueryContentByScenarioId: '/classcipe/api/scenario/queryContentByScenarioId'
+  ScenarioQueryContentByScenarioId: '/classcipe/api/scenario/queryContentByScenarioId',
+  QueryBigIdea: '/classcipe/api/scenario/queryBigIdea',
+  QueryContentByBigIdea: '/classcipe/api/scenario/queryContentByBigIdea'
 }
 
 /**
@@ -133,5 +135,37 @@ export function ScenarioQueryContentByScenarioId (parameter) {
     url: scenarioAPIUrl.ScenarioQueryContentByScenarioId,
     method: 'get',
     params: parameter
+  })
+}
+
+/**
+ * @param parameter
+ * @returns {AxiosPromise}
+ * @constructor
+ */
+export function QueryBigIdea (parameter) {
+  return request({
+    url: scenarioAPIUrl.QueryBigIdea,
+    method: 'post',
+    data: parameter,
+    headers: {
+      'Content-Type': 'application/json;charset=UTF-8'
+    }
+  })
+}
+
+/**
+ * @param parameter
+ * @returns {AxiosPromise}
+ * @constructor
+ */
+export function QueryContentByBigIdea (parameter) {
+  return request({
+    url: scenarioAPIUrl.QueryContentByBigIdea,
+    method: 'post',
+    data: parameter,
+    headers: {
+      'Content-Type': 'application/json;charset=UTF-8'
+    }
   })
 }

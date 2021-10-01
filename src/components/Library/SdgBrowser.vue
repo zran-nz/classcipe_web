@@ -40,7 +40,7 @@
       <!--     new sdg keywords description-->
       <div class="keyword-wrapper">
         <div class="keyword-list">
-          <div :class="{'keyword-item': true, 'kd-active-item': currentSdgKeywordScenario === 'keyword' && currentSdgKeywordScenarioId === keywordItem.id}" v-for="(keywordItem, kIndex) in sdgKeywordNameList" @click="scenarioQueryContentByKeywordId(keywordItem)" :key="kIndex">
+          <div :class="{'keyword-item': true, 'kd-active-item': currentSdgKeywordScenario === 'keyword' && currentSdgKeywordScenarioId === keywordItem.id}" v-for="(keywordItem, kIndex) in sdgKeywordNameList" @click="queryBigIdeaKeyword(keywordItem)" :key="kIndex">
             <!--            <img src="~@/assets/icons/library/tuijian@2x.png" class="keyword-icon"/>-->
             <span class="keyword-name">
               {{ keywordItem.name }}
@@ -54,12 +54,23 @@
       </div>
       <div class="description-wrapper">
         <div class="description-list">
-          <div :class="{'description-item': true, 'kd-active-item': currentSdgKeywordScenario === 'description' && currentSdgKeywordScenarioId === descriptionItem.id}" v-for="(descriptionItem, dIndex) in sdgDescriptionsList" @click="scenarioQueryContentByDescriptionId(descriptionItem)" :key="dIndex">
+          <div :class="{'description-item': true, 'kd-active-item': currentSdgKeywordScenario === 'description' && currentSdgKeywordScenarioId === descriptionItem.id}" v-for="(descriptionItem, dIndex) in sdgDescriptionsList" @click="queryBigIdeaDescription(descriptionItem)" :key="dIndex">
             {{ descriptionItem.name }}
           </div>
         </div>
       </div>
     </div>
+    <div class="browser-block-item-wrapper" :style="{width: blockWidth + 'px' , minWidth: blockWidth + 'px' }" >
+      <!--  big idea list -->
+      <div class="description-wrapper">
+        <div class="description-list">
+          <div :class="{'description-item': true, 'kd-active-item': currentSdgKeywordScenario === 'description' && currentSdgKeywordScenarioId === descriptionItem.id}" v-for="(descriptionItem, dIndex) in sdgDescriptionsList" @click="queryBigIdeaDescription(descriptionItem)" :key="dIndex">
+            {{ descriptionItem.name }}
+          </div>
+        </div>
+      </div>
+    </div>
+
     <div
       class="browser-block-item-wrapper"
       :style="{width: blockWidth + 'px' ,
@@ -184,7 +195,7 @@ import PuBuIcon from '@/assets/icons/library/pubu .svg?inline'
 import ListModeIcon from '@/assets/icons/library/liebiao .svg?inline'
 import DataCardView from '@/components/Library/DataCardView'
 import { typeMap } from '@/const/teacher'
-const { ScenarioQueryContentByScenarioId } = require('@/api/scenario')
+import { QueryBigIdea } from '@/api/scenario'
 const { ScenarioGetKeywordScenarios } = require('@/api/scenario')
 const { GetAllSdgs } = require('@/api/scenario')
 
@@ -275,28 +286,28 @@ export default {
       })
     },
 
-    scenarioQueryContentByDescriptionId (descriptionItem) {
+    queryBigIdeaDescription (descriptionItem) {
+      this.$logger.info('queryBigIdeaDescription', descriptionItem)
       this.dataListLoading = true
-      this.$logger.info('scenarioQueryContentByDescriptionId ' + descriptionItem.id)
       this.handleClickBlock(2, descriptionItem.name)
       this.currentSdgKeywordScenarioId = descriptionItem.id
       this.currentSdgKeywordScenario = 'description'
-      ScenarioQueryContentByScenarioId({ descriptionId: descriptionItem.id }).then(response => {
-        this.$logger.info('scenarioQueryContentByDescriptionId response', response.result)
+      QueryBigIdea({ description: descriptionItem.name }).then(response => {
+        this.$logger.info('queryBigIdeaDescription response', response.result)
         this.dataList = response.result
       }).finally(() => {
         this.dataListLoading = false
       })
     },
 
-    scenarioQueryContentByKeywordId (keywordsItem) {
+    queryBigIdeaKeyword (keywordsItem) {
+      this.$logger.info('queryBigIdeaKeyword', keywordsItem)
       this.dataListLoading = true
-      this.$logger.info('scenarioQueryContentByKeywordId ' + keywordsItem.id)
       this.handleClickBlock(2, keywordsItem.name)
       this.currentSdgKeywordScenarioId = keywordsItem.id
       this.currentSdgKeywordScenario = 'keyword'
-      ScenarioQueryContentByScenarioId({ keywordsId: keywordsItem.id }).then(response => {
-        this.$logger.info('scenarioQueryContentByKeywordId response', response.result)
+      QueryBigIdea({ keywords: keywordsItem.name }).then(response => {
+        this.$logger.info('queryBigIdeaKeyword response', response.result)
         this.dataList = response.result
       }).finally(() => {
         this.dataListLoading = false
