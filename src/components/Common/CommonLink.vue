@@ -69,9 +69,9 @@
                   <div class="name" @click="handleViewDetail(item)">
                     <a-tooltip placement="top">
                       <template slot="title">
-                        {{ item.name }}
+                        {{ item.name ? item.name : 'untitled' }}
                       </template>
-                      {{ item.name }}
+                      {{ item.name ? item.name : 'untitled' }}
                     </a-tooltip>
                   </div>
                 </div>
@@ -142,9 +142,9 @@
                   <div class="name" @click="handleViewDetail(item)">
                     <a-tooltip placement="top">
                       <template slot="title">
-                        {{ item.name }}
+                        {{ item.name ? item.name : 'untitled' }}
                       </template>
-                      {{ item.name }}
+                      {{ item.name ? item.name : 'untitled' }}
                     </a-tooltip>
                   </div>
                 </div>
@@ -174,7 +174,7 @@
         <new-my-content
           :from-type="fromType"
           :from-id="fromId"
-          :filter-type-list="[typeMap.task,typeMap.evaluation]"
+          :filter-type-list="[typeMap.evaluation]"
           :group-name-list="groupNameList"
           :default-group-name="groupNameList[0]"
           :mode="'common-link'"
@@ -297,6 +297,7 @@ export default {
         if (groupNameList.length) {
           this.groupNameList = groupNameList
         }
+        this.$emit('group-name-list-update')
       }).finally(() => {
         this.linkGroupLoading = false
       })

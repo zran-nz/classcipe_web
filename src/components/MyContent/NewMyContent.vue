@@ -402,7 +402,9 @@ export default {
       mySelectedList: [],
       mySelectedMap: new Map(),
 
-      selectedGroup: null
+      selectedGroup: null,
+
+      myGroupNameList: []
     }
   },
   watch: {
@@ -413,11 +415,18 @@ export default {
       this.pagination.total = 0
       this.pagination.pageSize = 8
       this.loadMyContent()
+    },
+    groupNameList (value) {
+      this.$logger.info('groupNameList', value)
     }
   },
   created () {
     this.$logger.info('NewMyContent filterTypeList', this.filterTypeList)
     this.$logger.info('NewMyContent groupNameList', this.groupNameList)
+    this.myGroupNameList = this.groupNameList
+    if (this.defaultGroupName) {
+      this.myGroupNameList.push(this.defaultGroupName)
+    }
     if (this.filterTypeList.length) {
       this.currentType = this.filterTypeList[0]
       this.currentTypeLabel = getLabelNameType(this.filterTypeList[0])

@@ -199,7 +199,7 @@
                           </a-button>
                         </a-form-item>
                         <div class="common-link-wrapper">
-                          <common-link ref="commonLink" :from-id="this.unitPlanId" :from-type="this.contentType['unit-plan']"/>
+                          <common-link ref="commonLink" :from-id="this.unitPlanId" :from-type="this.contentType['unit-plan']" @group-name-list-update="handleUpdateGroupNameList"/>
                         </div>
                       </div>
                     </template>
@@ -397,7 +397,7 @@
           <new-my-content
             :from-type="contentType['unit-plan']"
             :from-id="unitPlanId"
-            :filter-type-list="[contentType.task,contentType.evaluation]"
+            :filter-type-list="[contentType.evaluation]"
             :group-name-list="groupNameList"
             :default-group-name="'Untitled Term' + groupNameList.length + 1"
             :mode="'common-link'"
@@ -1299,6 +1299,11 @@ export default {
       })
     },
 
+    handleUpdateGroupNameList () {
+      this.$logger.info('handleUpdateGroupNameList')
+      this.getAssociate()
+    },
+
     // TODO 自动更新选择的sync 的数据knowledgeId和name列表
     handleSelectListData (data) {
       this.$logger.info('handleSelectListData', data)
@@ -1312,7 +1317,6 @@ export default {
 
     handleSelectSubjectSpecificSkillListData (data) {
       this.$logger.info('handleSelectSubjectSpecificSkillListData', data)
-      this.selectedSpecificSkillList = data
     },
 
     handleSelect21CenturySkillListData (data) {
