@@ -237,7 +237,14 @@
         destroyOnClose
         width="800px">
         <div>
-          <custom-tag :custom-tags-list="['ATL','Inquiry stage']" :selected-tags-list="sessionTags" @change-user-tags="handleSelectedSessionTags" />
+          <div>
+            <custom-tag
+              :user-tags="userTags"
+              :custom-tags-list="['class']"
+              :selected-tags-list="sessionTags"
+              ref="customTag"
+              @change-user-tags="handleSelectedSessionTags"></custom-tag>
+          </div>
         </div>
         <template slot="footer">
           <a-button key="back" @click="lessonSelectTagVisible=false">
@@ -272,6 +279,7 @@ import PubuSvg from '@/assets/svgIcon/myContent/pubu.svg?inline'
 
 import storage from 'store'
 import {
+  CustomTagType,
   SESSION_CURRENT_PAGE,
   SESSION_CURRENT_STATUS,
   SESSION_CURRENT_TYPE,
@@ -281,6 +289,7 @@ import {
 import CommonPreview from '@/components/Common/CommonPreview'
 import NoMoreResources from '@/components/Common/NoMoreResources'
 import ModalHeader from '@/components/Common/ModalHeader'
+import { FindCustomTags } from '@/api/tag'
 
 export default {
   name: 'CreatedByMe',
@@ -339,7 +348,8 @@ export default {
       lessonSelectTagVisible: false,
       sessionTags: [],
       sessionItem: {},
-      startLoading: false
+      startLoading: false,
+      userTags: {}
     }
   },
   locomputed: {
@@ -352,6 +362,7 @@ export default {
   created () {
     logger.info('teacher my content')
     this.loadMyContent()
+    this.loadUserTags()
   },
   methods: {
     toggleViewMode (viewMode) {
@@ -564,6 +575,28 @@ export default {
       this.sessionItem = item
       this.lessonSelectTagVisible = true
       this.sessionTags = []
+    },
+    loadUserTags () {
+      // this.$refs.customTag.tagLoading = true
+      FindCustomTags({}).then((response) => {
+        this.$logger.info('FindCustomTags response', response.result)
+        if (response.success) {
+          this.userTags = response.result
+          // 默认展示的tag分类
+          CustomTagType.task.default.forEach(name => {
+            this.customTagList.push(name)
+          })
+          // 再拼接自己添加的
+          this.userTags.userTags.forEach(tag => {
+            if (this.customTagList.indexOf(tag.name) === -1) {
+              this.customTagList.push(tag.name)
+            }
+          })
+        } else {
+          this.$message.error(response.message)
+        }
+        // this.$refs.customTag.tagLoading = false
+      })
     }
   }
 }

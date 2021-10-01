@@ -567,7 +567,14 @@
         destroyOnClose
         width="800px">
         <div>
-          <custom-tag :custom-tags-list="['ATL','Inquiry stage']" :selected-tags-list="sessionTags" @change-user-tags="handleSelectedSessionTags" />
+          <custom-tag
+            :user-tags="userTags"
+            :custom-tags-list="['class']"
+            @reload-user-tags="loadUserTags"
+            @change-add-keywords="handleChangeAddKeywords"
+            :selected-tags-list="sessionTags"
+            ref="customTag"
+            @change-user-tags="handleSelectedSessionTags"></custom-tag>
         </div>
         <template slot="footer">
           <a-button key="back" @click="taskSelectTagVisible=false">
