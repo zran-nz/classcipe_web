@@ -10,7 +10,7 @@
           <a-row>
             <a-col offset="0" span="24">
               <div class="skt-tag-list" >
-                <div class="skt-tag-item " v-for="tag in tagList" :key="tag.id" >
+                <div class="skt-tag-item " v-for="tag in tagList" :key="tag.name" >
                   <a-tooltip :title="tag.parentName">
                     <a-tag
                       :closable="customTagsList.indexOf(tag.parentName)!== -1"

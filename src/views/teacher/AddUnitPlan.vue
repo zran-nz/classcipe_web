@@ -1428,7 +1428,6 @@ export default {
     focusInput (event) {
       this.$logger.info('focusInput ', event.target)
 
-      if (event.target && event.target.offsetTop) {
         // 设置一个父级定位专用的dom，设置class名称【root-locate-form】，
         // 然后通过事件获取到当前元素，依次往上层查询父元素，累加偏离值，直到定位元素。
         const eventDom = event.target
@@ -1436,6 +1435,7 @@ export default {
         let currentDom = eventDom.offsetParent
         let currentFocus = ''
         this.customTagList = []
+        // console.log(currentDom.classList)
         while (currentDom !== null) {
           formTop += currentDom.offsetTop
           currentDom = currentDom.offsetParent
@@ -1474,7 +1474,6 @@ export default {
           this.showCustomTag = false
         }
       }
-    }
   }
 }
 </script>
