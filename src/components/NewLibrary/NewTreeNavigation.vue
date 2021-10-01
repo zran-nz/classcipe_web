@@ -5,6 +5,7 @@
       :tree-item-data="treeItemData"
       :tree-current-parent="null"
       :default-deep="0"
+      :class="{'browser-hide-menu': showMenu.indexOf(treeItemData.type) === -1}"
       :current-item-type="treeItemData.type === NavigationType.learningOutcomes ? 'subject' : // 如果当前是大纲，那么第一层数据是不区分层级的subject
         (treeItemData.type === NavigationType.sync ? 'sync' : // 如果是sync第一次是外部的同步数据列表
           (treeItemData.type === NavigationType.specificSkills ? 'subject' : ( // 如果是specificSkills，那么第一层数据是subject，注意subject只有一层
@@ -41,6 +42,10 @@ export default {
       default: null
     },
     syncData: {
+      type: Array,
+      default: () => []
+    },
+    showMenu: {
       type: Array,
       default: () => []
     }
@@ -172,5 +177,9 @@ export default {
   justify-content: flex-start;
   background-color: #fff;
   overflow: scroll;
+}
+
+.browser-hide-menu {
+  display: none;
 }
 </style>

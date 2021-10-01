@@ -9,6 +9,7 @@
           :select-mode="selectMode"
           :question-index="questionIndex"
           :sync-data="syncData"
+          :show-menu="showMenu"
         />
       </div>
       <div class="content-list">
@@ -48,6 +49,10 @@ export default {
     syncData: {
       type: Array,
       default: () => []
+    },
+    showMenu: {
+      type: Array,
+      default: () => []
     }
   },
   data () {
@@ -56,6 +61,7 @@ export default {
   },
   created () {
     this.$logger.info('NewBrowser selectMode', this.selectMode)
+    this.$logger.info('NewBrowser showMenu', this.showMenu)
   },
   mounted () {
   },

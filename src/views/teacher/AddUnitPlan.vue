@@ -415,11 +415,12 @@
         @ok="selectSyncDataVisible = false"
         @cancel="selectSyncDataVisible = false">
         <div class="link-content-wrapper">
-          <!-- 此处的questionIndex用于标识区分是哪个组件调用的，返回的事件数据中会带上，方便业务数据处理，可随意写，可忽略-->
+          <!-- 此处的questionIndex用于标识区分是哪个组件调用的，返回的事件数据中会带上，方便业务数据处理，可随意写，可忽略, show-menu中列出的类型才会显示-->
           <new-browser
             :select-mode="selectModel.syncData"
             question-index="_questionIndex_1"
             :sync-data="syncData"
+            :show-menu="[NavigationType.centurySkills, NavigationType.specificSkills, NavigationType.learningOutcomes, NavigationType.sync]"
             @select-sync="handleSelectListData"
             @select-curriculum="handleSelectCurriculum"
             @select-subject-specific-skill="handleSelectSubjectSpecificSkillListData"
@@ -476,6 +477,7 @@ import UiLearnOut from '@/components/UnitPlan/UiLearnOut'
 import CommonLink from '@/components/Common/CommonLink'
 import NewMyContent from '@/components/MyContent/NewMyContent'
 import { FindCustomTags } from '@/api/tag'
+import { NavigationType } from '@/components/NewLibrary/NavigationType'
 
 export default {
   name: 'AddUnitPlan',
@@ -613,7 +615,9 @@ export default {
       showCustomTag: false,
       customTagTop: 300,
       customTagList: [],
-      userTags: {}
+      userTags: {},
+
+      NavigationType: NavigationType
     }
   },
   watch: {
