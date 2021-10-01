@@ -10,6 +10,7 @@
           :question-index="questionIndex"
           :sync-data="syncData"
           :show-menu="showMenu"
+          :default-active-menu="defaultActiveMenu"
         />
       </div>
       <div class="content-list">
@@ -54,6 +55,10 @@ export default {
     showMenu: {
       type: Array,
       default: () => []
+    },
+    defaultActiveMenu: {
+      type: String,
+      default: null
     }
   },
   data () {

@@ -51,6 +51,10 @@ export default {
     showMenu: {
       type: Array,
       default: () => []
+    },
+    defaultActiveMenu: {
+      type: String,
+      default: null
     }
   },
   data () {
@@ -67,24 +71,25 @@ export default {
   created () {
     this.$logger.info('NewTreeNavigation selectMode', this.selectMode)
     const skillCategory = this.$store.getters.skillCategory
-    this.$logger.info('NewTreeNavigation skillCategory', skillCategory)
+    this.$logger.info('NewTreeNavigation skillCategory ', skillCategory)
+    this.$logger.info('NewTreeNavigation defaultActiveMenu ' + this.defaultActiveMenu)
     const curriculumData = {
       id: '1',
-      expandStatus: false,
+      expandStatus: NavigationType.learningOutcomes === this.defaultActiveMenu,
       type: NavigationType.learningOutcomes,
       name: skillCategory.length === 3 ? skillCategory[0] : 'Curriculum',
       children: [],
       parent: null
     }
     const sdgData = {
-      expandStatus: false,
+      expandStatus: NavigationType.sdg === this.defaultActiveMenu,
       type: NavigationType.sdg,
       name: 'Big ideas',
       children: [],
       parent: null
     }
     const syncData = {
-      expandStatus: false,
+      expandStatus: NavigationType.sync === this.defaultActiveMenu,
       type: NavigationType.sync,
       name: 'Sync assessment objectives with linked content',
       children: [],
@@ -133,7 +138,7 @@ export default {
         // subject specific skills 是mainSubject-year-knowledge
         const specificSkillsData = {
           id: '1',
-          expandStatus: false,
+          expandStatus: NavigationType.specificSkills === this.defaultActiveMenu,
           type: NavigationType.specificSkills,
           name: skillCategory[1],
           children: [],
@@ -148,7 +153,7 @@ export default {
         // 21 century skills 是year-knowledge
         const centurySkillsData = {
           id: '1',
-          expandStatus: false,
+          expandStatus: NavigationType.centurySkills === this.defaultActiveMenu,
           type: NavigationType.centurySkills,
           name: skillCategory[2],
           children: [],

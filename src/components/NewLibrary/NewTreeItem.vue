@@ -200,7 +200,7 @@ export default {
     }
   },
   created () {
-    this.expand = this.expandStatus
+    this.subTreeExpandStatus = this.treeItemData.expandStatus
     if (this.treeItemData && this.treeItemData.children) {
       this.hasSubTree = true
     }
