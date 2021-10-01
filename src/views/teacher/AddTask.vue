@@ -11,7 +11,7 @@
         @collaborate="handleStartCollaborate"
       />
     </div>
-    <a-card :bordered="false" :bodyStyle="{ padding: '16px 24px', height: '100%', minHeight: '800px' }">
+    <a-card :bordered="false" :bodyStyle="{ padding: '16px 24px 40px 24px', height: '100%', minHeight: '800px' }">
       <template v-if="mode === 'edit'">
         <a-row class="unit-content" v-if="!contentLoading" >
           <a-col span="24" class="main-content">
@@ -166,7 +166,7 @@
 
               <div class="task-form-right">
 
-                <div class="form-block-right" v-show="currentActiveStepIndex !== 1 && !showCustomTag" >
+                <div class="form-block-right" v-show="currentActiveStepIndex !== 1" >
                   <!-- image-->
                   <a-form-model-item class="img-wrapper">
                     <a-upload-dragger
