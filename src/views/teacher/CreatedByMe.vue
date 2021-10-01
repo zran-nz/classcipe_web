@@ -127,6 +127,39 @@
                                 <a-icon type="form" /> {{ $t('teacher.my-content.action-edit') }}
                               </a>
                             </a-menu-item>
+                            <a-menu-item>
+                              <a @click="handleDuplicateItem(item)">
+                                <a-icon type="copy" /> Duplicate
+                              </a>
+                            </a-menu-item>
+
+                            <!-- Task里面有teacher-pace, student-pace, previous session -->
+                            <template v-if="item.type === typeMap.task">
+                              <a-menu-item>
+                                <a @click="handleStartSessionTags(item)">
+                                  <a-icon type="copy" /> Teacher-pace
+                                </a>
+                              </a-menu-item>
+                              <a-menu-item>
+                                <a @click="handleStartSessionTags(item)">
+                                  <a-icon type="copy" /> Student-pace
+                                </a>
+                              </a-menu-item>
+                              <a-menu-item>
+                                <a @click="handleViewPreviewSession(item)">
+                                  <a-icon type="copy" /> Previous session
+                                </a>
+                              </a-menu-item>
+                            </template>
+
+                            <!-- Evaluation有Start evaluation -->
+                            <template v-if="item.type === typeMap.evaluation">
+                              <a-menu-item>
+                                <a @click="handleEvaluateItem(item)">
+                                  <a-icon type="copy" /> Start evaluation
+                                </a>
+                              </a-menu-item>
+                            </template>
                           </a-menu>
                         </a-dropdown>
                       </div>
@@ -184,7 +217,9 @@
                   </div>
                 </div>
                 <div class="cover-img" :style="{backgroundImage: 'url(' + item.image + ')'}"></div>
-                <a-card-meta :title="item.name ? item.name : 'Untitled'" :description="item.createTime | dayjs" @click="handleViewDetail(item)"></a-card-meta>
+                <a-card-meta class="my-card-meta-info" :title="item.name ? item.name : 'Untitled'" :description="item.createTime | dayjs" @click="handleViewDetail(item)">
+                  <content-type-icon :type="item.type" slot="avatar"></content-type-icon>
+                </a-card-meta>
               </a-card>
             </a-list-item>
           </a-list>
@@ -261,7 +296,7 @@
 
 <script>
 import * as logger from '@/utils/logger'
-import { deleteMyContentByType, FindMyContent, SaveSessonTags } from '@/api/teacher'
+import { deleteMyContentByType, Duplicate, FindMyContent, SaveSessonTags } from '@/api/teacher'
 import { ownerMap, statusMap, typeMap } from '@/const/teacher'
 import ContentStatusIcon from '@/components/Teacher/ContentStatusIcon'
 import ContentTypeIcon from '@/components/Teacher/ContentTypeIcon'
@@ -452,6 +487,14 @@ export default {
         })
       }
     },
+
+    handleDuplicateItem (item) {
+      this.$logger.info('handleDuplicateItem', item)
+      Duplicate({ id: item.id, type: item.type }).then((response) => {
+        this.$logger.info('Duplicate response', response)
+        this.loadMyContent()
+      })
+    },
     handlePrevious (item) {
       this.$router.push({
         path: '/teacher/my-class?slideId=' + item.presentationId
@@ -575,6 +618,10 @@ export default {
       this.sessionItem = item
       this.lessonSelectTagVisible = true
       this.sessionTags = []
+    },
+
+    handleEvaluateItem (item) {
+      this.$logger.info('handleEvaluateItem', item)
     },
     loadUserTags () {
       // this.$refs.customTag.tagLoading = true
@@ -1049,6 +1096,14 @@ a.delete-action {
     -webkit-transition: all 0.3s ease-in-out;
     transition: all 0.3s ease-in-out;
 
+  }
+}
+
+.my-card-meta-info {
+  margin-top: 10px;
+
+  .ant-card-meta-avatar {
+    padding-right: 0;
   }
 }
 
