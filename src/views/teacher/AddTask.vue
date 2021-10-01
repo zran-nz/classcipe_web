@@ -126,6 +126,34 @@
                                   </div>
                                 </div>
                                 <div class="slide-preview" v-show="form.presentationId && thumbnailList.length">
+                                  <div class="slide-hover-action-mask">
+                                    <div class="slide-hover-action">
+                                      <div class="modal-ensure-action-line">
+                                        <a-button
+                                          class="action-ensure action-item"
+                                          :style="{'display': 'flex', 'align-items': 'center', 'justify-content': 'center', 'padding': '18px 10px'}"
+                                          type="primary"
+                                          shape="round"
+                                          @click="handleShowSelectMyContent">
+                                          <img src="~@/assets/icons/task/template_icon.png" class="btn-icon"/>
+                                          <div class="btn-text">
+                                            Select template
+                                          </div>
+                                        </a-button>
+                                        <a-button
+                                          class="action-ensure action-item"
+                                          :style="{'display': 'flex', 'align-items': 'center', 'justify-content': 'center', 'padding': '18px 10px'}"
+                                          type="primary"
+                                          shape="round"
+                                          @click="handleCreateInGoogle">
+                                          <img src="~@/assets/icons/task/path.png" class="btn-icon"/>
+                                          <div class="btn-text">
+                                            Create a new ppt in Google side
+                                          </div>
+                                        </a-button>
+                                      </div>
+                                    </div>
+                                  </div>
                                   <a-carousel arrows dots-class="slick-dots slick-thumb">
                                     <a slot="customPaging" slot-scope="props">
                                       <img :src="thumbnailList[props.i].contentUrl" />
@@ -2732,7 +2760,7 @@
   }
 
   .btn-icon {
-    height: 20px;
+    height: 18px;
   }
 
   .btn-text {
@@ -2986,6 +3014,37 @@
 
         .slide-preview {
           border: 1px solid rgba(0, 0, 0, 0.1);
+          position: relative;
+          .slide-hover-action-mask {
+            display: none;
+            z-index: 100;
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.3);
+
+            .slide-hover-action {
+              position: absolute;
+              top: 50%;
+              left: 50%;
+              width: 500px;
+              margin-top: -30px;
+              margin-left: -250px;
+
+              .update-select-slide {
+
+              }
+            }
+          }
+
+          &:hover {
+            .slide-hover-action-mask {
+              display: block;
+            }
+          }
         }
       }
     }
