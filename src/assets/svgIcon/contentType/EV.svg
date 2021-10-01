@@ -1,6 +1,8 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="50" height="50" viewBox="0 0 50 50">
-  <g id="EV" transform="translate(19425 -10587)">
-    <circle id="椭圆_49" style="fill: #6e8eb2" data-name="椭圆 49" class="cls-1" cx="25" cy="25" r="25" transform="translate(-19425 10587)"/>
-    <text id="Ev-2" data-name="Ev" style="fill: #fff;font-size: 30px;font-family: FZY4JW--GB1-0, FZCuYuan-M03S;" class="cls-2" transform="translate(-19399.5 10622.5)"><tspan x="-13.828" y="0">Ev</tspan></text>
+  <g id="EV" transform="translate(19424.73 -10587)">
+    <circle id="椭圆_49" data-name="椭圆 49" style=" fill: #6e8eb2;" class="cls-1" cx="25" cy="25" r="25" transform="translate(-19424.73 10587)"/>
+    <text id="Eval" class="cls-2" style="fill: #fff;
+        font-size: 20px;
+        font-family: FZY4JW--GB1-0, FZCuYuan-M03S;" transform="translate(-19399.73 10621)"><tspan x="-17.109" y="0">Eval</tspan></text>
   </g>
 </svg>
