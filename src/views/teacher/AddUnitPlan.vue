@@ -1413,49 +1413,51 @@ export default {
     focusInput (event) {
       this.$logger.info('focusInput ', event.target)
 
-      // 设置一个父级定位专用的dom，设置class名称【root-locate-form】，
-      // 然后通过事件获取到当前元素，依次往上层查询父元素，累加偏离值，直到定位元素。
-      const eventDom = event.target
-      let formTop = eventDom.offsetTop
-      let currentDom = eventDom.offsetParent
-      let currentFocus = ''
-      this.customTagList = []
-      while (currentDom !== null) {
-        formTop += currentDom.offsetTop
-        currentDom = currentDom.offsetParent
-        if (currentDom.classList.contains('sdg-content-blocks')) {
-          currentFocus = 'sdg'
-          CustomTagType.plan.sdg.forEach(name => {
+      if (event.target && event.target.offsetTop) {
+        // 设置一个父级定位专用的dom，设置class名称【root-locate-form】，
+        // 然后通过事件获取到当前元素，依次往上层查询父元素，累加偏离值，直到定位元素。
+        const eventDom = event.target
+        let formTop = eventDom.offsetTop
+        let currentDom = eventDom.offsetParent
+        let currentFocus = ''
+        this.customTagList = []
+        while (currentDom !== null) {
+          formTop += currentDom.offsetTop
+          currentDom = currentDom.offsetParent
+          if (currentDom.classList.contains('sdg-content-blocks')) {
+            currentFocus = 'sdg'
+            CustomTagType.plan.sdg.forEach(name => {
+              this.customTagList.push(name)
+            })
+          } else if (currentDom.classList.contains('inquiry-form-block')) {
+            currentFocus = 'inquiry'
+            CustomTagType.plan.bigIdea.forEach(name => {
+              this.customTagList.push(name)
+            })
+          }
+          if (currentDom.classList && currentDom.classList.contains('root-locate-form')) {
+            console.log(currentDom.classList)
+            break
+          }
+        }
+        console.log(currentFocus)
+        // custom tag 自带了margin-top: 20px,这里减掉不然不对齐。
+        if (currentFocus) {
+          this.customTagTop = formTop - 20
+          this.showCustomTag = true
+        } else {
+          CustomTagType.plan.default.forEach(name => {
             this.customTagList.push(name)
           })
-        } else if (currentDom.classList.contains('inquiry-form-block')) {
-          currentFocus = 'inquiry'
-          CustomTagType.plan.bigIdea.forEach(name => {
-            this.customTagList.push(name)
-          })
-        }
-        if (currentDom.classList && currentDom.classList.contains('root-locate-form')) {
-          console.log(currentDom.classList)
-          break
-        }
-      }
-      console.log(currentFocus)
-      // custom tag 自带了margin-top: 20px,这里减掉不然不对齐。
-      if (currentFocus) {
-        this.customTagTop = formTop - 20
-        this.showCustomTag = true
-      } else {
-        CustomTagType.plan.default.forEach(name => {
-          this.customTagList.push(name)
-        })
-        // // 再拼接自己添加的
-        this.userTags.userTags.forEach(tag => {
+          // // 再拼接自己添加的
+          this.userTags.userTags.forEach(tag => {
             if (this.customTagList.indexOf(tag.name === -1)) {
               this.customTagList.push(tag.name)
             }
-        })
-        this.customTagTop = 300
-        this.showCustomTag = false
+          })
+          this.customTagTop = 300
+          this.showCustomTag = false
+        }
       }
     }
   }
