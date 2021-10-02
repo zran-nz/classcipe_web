@@ -225,7 +225,7 @@
 
 <script>
 import ContentTypeIcon from '@/components/Teacher/ContentTypeIcon'
-import { KnowledgeGetTree, KnowledgeQueryContentByDescriptionId, Get21Century } from '@/api/knowledge'
+import { KnowledgeQueryContentByDescriptionId, Get21Century } from '@/api/knowledge'
 import DirIcon from '@/components/Library/DirIcon'
 import NoMoreResources from '@/components/Common/NoMoreResources'
 import PuBuIcon from '@/assets/icons/library/pubu .svg?inline'
