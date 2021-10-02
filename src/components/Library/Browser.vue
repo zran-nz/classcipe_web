@@ -60,12 +60,6 @@
                 v-if="currentBrowserType === BrowserTypeMap.assessmentType"
                 @blockCollapse="handleBlockCollapse"
                 @previewDetail="handlePreviewDetail"/>
-              <!--大纲游览-->
-              <sdg-browser
-                :block-width="blockWidth"
-                v-if="currentBrowserType === BrowserTypeMap.sdg"
-                @blockCollapse="handleBlockCollapse"
-                @previewDetail="handlePreviewDetail"/>
               <general-capability-browser
                 :block-index="blockIndex"
                 :curriculum-id="currentCurriculumId"
@@ -78,6 +72,12 @@
                 :curriculum-id="currentCurriculumId"
                 :block-width="blockWidth"
                 v-if="currentBrowserType === BrowserTypeMap.specificSkills"
+                @blockCollapse="handleBlockCollapse"
+                @previewDetail="handlePreviewDetail"/>
+              <!--大纲游览-->
+              <sdg-browser
+                :block-width="blockWidth"
+                v-if="currentBrowserType === BrowserTypeMap.sdg"
                 @blockCollapse="handleBlockCollapse"
                 @previewDetail="handlePreviewDetail"/>
             </div>
@@ -167,9 +167,9 @@ export default {
       browserTypeList: [
         { type: 'curriculum', label: 'Curriculum' },
         { type: 'assessmentType', label: 'Assessment type' },
-        { type: 'sdg', label: 'Sustainable development goal' },
         { type: 'specificSkills', label: 'Specific Skills' },
-        { type: 'centurySkills', label: 'Century Skills' }
+        { type: 'centurySkills', label: 'Century Skills' },
+        { type: 'sdg', label: 'Big idea' }
       ],
       currentBrowserType: 'curriculum',
       BrowserTypeMap: BrowserTypeMap,
