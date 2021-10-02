@@ -628,8 +628,14 @@
             :select-mode="selectModel.syncData"
             question-index="_questionIndex_1"
             :sync-data="syncData"
+            :show-menu="[ NavigationType.specificSkills, NavigationType.centurySkills, NavigationType.learningOutcomes ]"
+            :default-active-menu="NavigationType.learningOutcomes"
+            @select-big-idea="handleSelectListData"
             @select-sync="handleSelectListData"
-            @select-curriculum="handleSelectCurriculum"/>
+            @select-curriculum="handleSelectCurriculum"
+            @select-subject-specific-skill="handleSelectSubjectSpecificSkillListData"
+            @select-century-skill="handleSelect21CenturySkillListData"
+          />
           <div class="modal-ensure-action-line-right">
             <a-button class="action-item action-cancel" shape="round" @click="handleCancelSelectData">Cancel</a-button>
             <a-button class="action-ensure action-item" type="primary" shape="round" @click="handleEnsureSelectData">Ok</a-button>
@@ -681,6 +687,7 @@
   import NewBrowser from '@/components/NewLibrary/NewBrowser'
   import NewMyContent from '@/components/MyContent/NewMyContent'
   import { FindCustomTags, GetTreeByKey } from '@/api/tag'
+  import { NavigationType } from '@/components/NewLibrary/NavigationType'
 
   export default {
     name: 'AddTask',
@@ -819,7 +826,8 @@
         showCustomTag: false,
         customTagTop: 300,
         customTagList: [],
-        userTags: {}
+        userTags: {},
+        NavigationType: NavigationType
       }
     },
     computed: {
@@ -1545,9 +1553,21 @@
         this.selectedCurriculumList = data
       },
 
+      handleSelectSubjectSpecificSkillListData (data) {
+        this.$logger.info('handleSelectSubjectSpecificSkillListData', data)
+      },
+
+      handleSelect21CenturySkillListData (data) {
+        this.$logger.info('handleSelect21CenturySkillListData', data)
+        this.selectedCenturySkillList = data
+      },
+
       // TODO 自动更新选择的sync 的数据knowledgeId和name列表
       handleCancelSelectData () {
         this.selectedSyncList = []
+        this.selectedCurriculumList = []
+        this.selectedSpecificSkillList = []
+        this.selectedCenturySkillList = []
         this.selectSyncDataVisible = false
       },
 
@@ -1557,8 +1577,9 @@
           this.selectedCurriculumList,
           this.selectedSpecificSkillList,
           this.selectedCenturySkillList,
+          this.selectedBigIdeaList,
           this.selectedSyncList)
-        this.selectedSyncList.forEach(data => {
+         this.selectedSyncList.forEach(data => {
           const filterLearnOuts = this.form.learnOuts.filter(item => item.knowledgeId === data.knowledgeId)
           if (filterLearnOuts.length > 0) {
             return

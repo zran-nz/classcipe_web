@@ -420,8 +420,8 @@
             :select-mode="selectModel.syncData"
             question-index="_questionIndex_1"
             :sync-data="syncData"
-            :show-menu="[ NavigationType.sdg, NavigationType.specificSkills, NavigationType.centurySkills, NavigationType.learningOutcomes ]"
-            :default-active-menu="NavigationType.sdg"
+            :show-menu="showMenuList"
+            :default-active-menu="defaultActiveMenu"
             @select-big-idea="handleSelectListData"
             @select-sync="handleSelectListData"
             @select-curriculum="handleSelectCurriculum"
@@ -621,8 +621,9 @@ export default {
       customTagTop: 300,
       customTagList: [],
       userTags: {},
-
-      NavigationType: NavigationType
+      NavigationType: NavigationType,
+      defaultActiveMenu: NavigationType.learningOutcomes,
+      showMenuList: [ NavigationType.sdg, NavigationType.specificSkills, NavigationType.centurySkills, NavigationType.learningOutcomes ]
     }
   },
   watch: {
@@ -1140,6 +1141,13 @@ export default {
     handleSelectDescription (selectIdea) {
       this.selectSyncDataVisible = true
       this.selectIdea = selectIdea
+      if (selectIdea) {
+        this.showMenuList = [NavigationType.sdg]
+        this.defaultActiveMenu = NavigationType.sdg
+      } else {
+        this.showMenuList = [ NavigationType.specificSkills, NavigationType.centurySkills, NavigationType.learningOutcomes ]
+        this.defaultActiveMenu = NavigationType.learningOutcomes
+      }
     },
     handleConfirmAssociate () {
       this.$logger.info('handleConfirmAssociate')
