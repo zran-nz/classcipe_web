@@ -46,6 +46,7 @@
               </div>
             </div>
             <div class="browser-detail">
+              <!--大纲游览-->
               <curriculum-browser
                 :block-index="blockIndex"
                 :curriculum-id="currentCurriculumId"
@@ -53,8 +54,18 @@
                 v-if="currentBrowserType === BrowserTypeMap.curriculum"
                 @blockCollapse="handleBlockCollapse"
                 @previewDetail="handlePreviewDetail"/>
-              <assessment-browser :curriculum-id="currentCurriculumId" :block-width="blockWidth" v-if="currentBrowserType === BrowserTypeMap.assessmentType" @blockCollapse="handleBlockCollapse" @previewDetail="handlePreviewDetail"/>
-              <sdg-browser :block-width="blockWidth" v-if="currentBrowserType === BrowserTypeMap.sdg" @blockCollapse="handleBlockCollapse" @previewDetail="handlePreviewDetail"/>
+              <assessment-browser
+                :curriculum-id="currentCurriculumId"
+                :block-width="blockWidth"
+                v-if="currentBrowserType === BrowserTypeMap.assessmentType"
+                @blockCollapse="handleBlockCollapse"
+                @previewDetail="handlePreviewDetail"/>
+              <!--大纲游览-->
+              <sdg-browser
+                :block-width="blockWidth"
+                v-if="currentBrowserType === BrowserTypeMap.sdg"
+                @blockCollapse="handleBlockCollapse"
+                @previewDetail="handlePreviewDetail"/>
             </div>
           </div>
         </div>

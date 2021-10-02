@@ -40,7 +40,7 @@
       <!--     new sdg keywords description-->
       <div class="keyword-wrapper">
         <div class="keyword-list">
-          <div :class="{'keyword-item': true, 'kd-active-item': currentSdgKeywordScenario === 'keyword' && currentSdgKeywordScenarioId === keywordItem.id}" v-for="(keywordItem, kIndex) in sdgKeywordNameList" @click="queryBigIdeaKeyword(keywordItem)" :key="kIndex">
+          <div :class="{'keyword-item': true, 'kd-active-item': currentSdgKeywordScenario === 'keyword' && currentSdgKeywordScenarioId === keywordItem.id}" v-for="(keywordItem, kIndex) in sdgKeywordNameList" @click="queryBigIdeaKeywords(keywordItem)" :key="kIndex">
             <!--            <img src="~@/assets/icons/library/tuijian@2x.png" class="keyword-icon"/>-->
             <span class="keyword-name">
               {{ keywordItem.name }}
@@ -64,8 +64,8 @@
       <!--  big idea list -->
       <div class="description-wrapper">
         <div class="description-list">
-          <div :class="{'description-item': true, 'kd-active-item': currentSdgKeywordScenario === 'description' && currentSdgKeywordScenarioId === descriptionItem.id}" v-for="(descriptionItem, dIndex) in sdgDescriptionsList" @click="queryBigIdeaDescription(descriptionItem)" :key="dIndex">
-            {{ descriptionItem.name }}
+          <div :class="{'description-item': true, 'kd-active-item': currentBigIdea === bigIdeaItem.name}" v-for="(bigIdeaItem, bIndex) in bigIdeaList" @click="queryContentByBigIdea(bigIdeaItem)" :key="bIndex">
+            {{ bigIdeaItem.name }}
           </div>
         </div>
       </div>
@@ -92,21 +92,25 @@
                   <a-menu-item @click="toggleType(0, $t('teacher.my-content.all-type'))">
                     <span>{{ $t('teacher.my-content.all-type') }}</span>
                   </a-menu-item>
-                  <a-menu-item @click="toggleType( typeMap['unit-plan'], $t('teacher.my-content.unit-plan-type'))">
-                    <span>{{ $t('teacher.my-content.unit-plan-type') }}</span>
-                  </a-menu-item>
-                  <a-menu-item @click="toggleType(typeMap.topic, $t('teacher.my-content.topics-type'))">
-                    <span>{{ $t('teacher.my-content.topics-type') }}</span>
-                  </a-menu-item>
+                  <template v-if="$store.getters.roles.indexOf('teacher') !== -1">
+                    <a-menu-item @click="toggleType( typeMap['unit-plan'], $t('teacher.my-content.unit-plan-type'))">
+                      <span>{{ $t('teacher.my-content.unit-plan-type') }}</span>
+                    </a-menu-item>
+                    <a-menu-item @click="toggleType(typeMap.evaluation, $t('teacher.my-content.evaluation-type'))">
+                      <span>{{ $t('teacher.my-content.evaluation-type') }}</span>
+                    </a-menu-item>
+                  </template>
                   <a-menu-item @click="toggleType(typeMap.task, $t('teacher.my-content.tasks-type') )">
                     <span>{{ $t('teacher.my-content.tasks-type') }}</span>
                   </a-menu-item>
                   <!--                  <a-menu-item @click="toggleType(typeMap.lesson, $t('teacher.my-content.lesson-type'))">
                     <span>{{ $t('teacher.my-content.lesson-type') }}</span>
                   </a-menu-item>-->
-                  <a-menu-item @click="toggleType(typeMap.evaluation, $t('teacher.my-content.evaluation-type'))">
-                    <span>{{ $t('teacher.my-content.evaluation-type') }}</span>
-                  </a-menu-item>
+                  <template v-if="$store.getters.roles.indexOf('expert') !== -1">
+                    <a-menu-item @click="toggleType(typeMap.topic, $t('teacher.my-content.topics-type'))">
+                      <span>{{ $t('teacher.my-content.topics-type') }}</span>
+                    </a-menu-item>
+                  </template>
                 </a-menu>
                 <a-button
                   style="padding: 0 10px;display:flex; align-items:center ;height: 35px;border-radius: 6px;background: rgba(245, 245, 245, 0.5);font-size:13px;border: 1px solid #BCBCBC;font-family: Inter-Bold;color: #182552;">
@@ -196,7 +200,7 @@ import ListModeIcon from '@/assets/icons/library/liebiao .svg?inline'
 import DataCardView from '@/components/Library/DataCardView'
 import { typeMap } from '@/const/teacher'
 import { QueryBigIdea } from '@/api/scenario'
-const { ScenarioGetKeywordScenarios } = require('@/api/scenario')
+const { ScenarioGetKeywordScenarios, QueryContentByBigIdea } = require('@/api/scenario')
 const { GetAllSdgs } = require('@/api/scenario')
 
 export default {
@@ -238,11 +242,15 @@ export default {
       currentDataId: null,
       dataListMode: 'list',
 
+      bigIdeaList: [],
+      currentBigIdea: null,
+
       currentTypeLabel: 'Choose type（S）of content',
       currentType: 0
     }
   },
   created () {
+    // sdg数据结构：sdg列表-keywords-big idea
     this.$logger.info('SdgBrowser blockWidth:' + this.blockWidth)
     this.getAllSdgs()
   },
@@ -294,13 +302,20 @@ export default {
       this.currentSdgKeywordScenario = 'description'
       QueryBigIdea({ description: descriptionItem.name }).then(response => {
         this.$logger.info('queryBigIdeaDescription response', response.result)
-        this.dataList = response.result
+        const list = []
+        response.result.forEach(bigIdea => {
+          list.push({
+            id: bigIdea,
+            name: bigIdea
+          })
+        })
+        this.bigIdeaList = list
       }).finally(() => {
         this.dataListLoading = false
       })
     },
 
-    queryBigIdeaKeyword (keywordsItem) {
+    queryBigIdeaKeywords (keywordsItem) {
       this.$logger.info('queryBigIdeaKeyword', keywordsItem)
       this.dataListLoading = true
       this.handleClickBlock(2, keywordsItem.name)
@@ -308,9 +323,27 @@ export default {
       this.currentSdgKeywordScenario = 'keyword'
       QueryBigIdea({ keywords: keywordsItem.name }).then(response => {
         this.$logger.info('queryBigIdeaKeyword response', response.result)
-        this.dataList = response.result
+        const list = []
+        response.result.forEach(bigIdea => {
+          list.push({
+            id: bigIdea,
+            name: bigIdea
+          })
+        })
+        this.bigIdeaList = list
       }).finally(() => {
         this.dataListLoading = false
+      })
+    },
+
+    queryContentByBigIdea (bigIdea) {
+      this.$logger.info('queryContentByBigIdea' + bigIdea.name)
+      this.currentBigIdea = bigIdea.name
+      QueryContentByBigIdea({
+        bigIdea: bigIdea.name
+      }).then((response) => {
+        this.$logger.info('QueryContentByBigIdea', response)
+        this.dataList = response.result
       })
     },
 
