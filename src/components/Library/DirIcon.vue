@@ -39,9 +39,6 @@ export default {
     return {
       typeMap: typeMap
     }
-  },
-  created () {
-    this.$logger.info('dir icon ' + this.contentType)
   }
 }
 </script>
