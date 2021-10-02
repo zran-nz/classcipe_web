@@ -105,7 +105,7 @@
       </div>
     </div>
     <!--      main knowledge list-->
-    <div class="browser-block-item browser-block-item-wrapper" :style="{width: blockWidth + 'px' , minWidth: blockWidth + 'px' }" v-for="(knowledge, deepIndex) in knowledges" :key="deepIndex">
+    <div class="browser-block-item browser-block-item-wrapper" :style="{width: blockWidth + 'px' , minWidth: blockWidth + 'px' }" :data-knowledge-len="knowledge.knowledgeList.length" v-for="(knowledge, deepIndex) in knowledges" :key="deepIndex">
       <div
         :class="{
           'browser-item': true,
@@ -138,40 +138,6 @@
         </div>
       </template>
     </div>
-    <!--      sub knowledge list-->
-    <!--    <div class="browser-block-item" :style="{width: blockWidth + 'px' , minWidth: blockWidth + 'px' }" >-->
-    <!--      <div-->
-    <!--        :class="{-->
-    <!--          'browser-item': true,-->
-    <!--          'odd-line': index % 2 === 0,-->
-    <!--          'active-line': currentSubKnowledgeId === subKnowledgeItem.id-->
-    <!--        }"-->
-    <!--        v-for="(subKnowledgeItem, index) in subKnowledgeList"-->
-    <!--        @click="handleSelectSubKnowledgeItem(subKnowledgeItem)"-->
-    <!--        :key="index">-->
-    <!--        <a-tooltip :mouseEnterDelay="1">-->
-    <!--          <template slot="title">-->
-    <!--            {{ subKnowledgeItem.name }}-->
-    <!--          </template>-->
-    <!--          <dir-icon dir-type="opened" v-if="currentSubKnowledgeId !== subKnowledgeItem.id"/>-->
-    <!--          <dir-icon dir-type="yellow" v-if="currentSubKnowledgeId === subKnowledgeItem.id"/>-->
-    <!--          {{ subKnowledgeItem.name }}-->
-    <!--        </a-tooltip>-->
-    <!--        <span class="arrow-item">-->
-    <!--          <a-icon type="right" />-->
-    <!--        </span>-->
-    <!--      </div>-->
-    <!--      <template v-if="!subKnowledgeList.length && !subKnowledgeListLoading">-->
-    <!--        <div class="no-data">-->
-    <!--          <no-more-resources />-->
-    <!--        </div>-->
-    <!--      </template>-->
-    <!--      <template v-if="subKnowledgeListLoading">-->
-    <!--        <div class="loading-wrapper">-->
-    <!--          <a-spin />-->
-    <!--        </div>-->
-    <!--      </template>-->
-    <!--    </div>-->
     <div
       class="browser-block-item-wrapper"
       :style="{width: blockWidth + 'px' ,
@@ -230,6 +196,7 @@
           </div>
         </div>
         <template v-if="dataListMode === 'list'">
+
           <div
             :class="{
               'browser-item': true,
@@ -244,7 +211,7 @@
               <template slot="title">
                 {{ dataItem.name }}
               </template>
-              <dir-icon :content-type="dataItem.type" />
+              <content-type-icon :type="dataItem.type" />
               <span class="data-name">
                 {{ dataItem.name }}
               </span>
@@ -500,25 +467,29 @@ export default {
       if (deepIndex + 1 === this.knowledgeDeep) {
         this.$logger.info('handleSelectSubKnowledgeItem', knowledgeItem)
         if (knowledgeItem.id !== this.knowledges[deepIndex].currentKnowledgeId) {
+          this.$logger.info('hit knowledgeQueryContentByDescriptionId', knowledgeItem.id, this.knowledges[deepIndex].currentKnowledgeId)
           this.knowledges[deepIndex].currentKnowledgeId = knowledgeItem.id
           this.dataList = []
           this.knowledgeQueryContentByDescriptionId(knowledgeItem.id)
+        } else {
+          this.$logger.info('skip knowledgeQueryContentByDescriptionId', knowledgeItem.id, this.knowledges[deepIndex].currentKnowledgeId)
         }
         this.handleClickBlock(this.subjectDeep + 1 + this.knowledgeDeep, knowledgeItem.name)
         return
       }
+      // 删除当前点击knowledges对应下标之后的所有后续元素（既下级列表），重新填充当前点击的元素的下级列表
+      this.knowledges.splice(deepIndex + 1)
       this.knowledges.push({
         knowledgeList: [],
         knowledgeListLoading: false,
         currentKnowledgeId: null
       })
       const nextIndex = deepIndex + 1
-      if (knowledgeItem.id !== this.knowledges[deepIndex].currentKnowledgeId) {
-        this.knowledges[deepIndex].currentKnowledgeId = knowledgeItem.id
-        this.knowledges[nextIndex].knowledgeListLoading = true
-        this.knowledges[nextIndex].knowledgeList = knowledgeItem.children
-        this.knowledges[nextIndex].knowledgeListLoading = false
-      }
+      this.knowledges[deepIndex].currentKnowledgeId = knowledgeItem.id
+      this.knowledges[nextIndex].knowledgeListLoading = true
+      this.knowledges[nextIndex].knowledgeList = knowledgeItem.children
+      this.knowledges[nextIndex].knowledgeListLoading = false
+
       this.$logger.info('knowledges', this.knowledges)
       this.handleClickBlock(this.subjectDeep + 2 + deepIndex, knowledgeItem.name)
     },
@@ -539,6 +510,7 @@ export default {
       KnowledgeQueryContentByDescriptionId({ descriptionId }).then(response => {
         this.$logger.info('KnowledgeQueryContentByDescriptionId response', response.result)
         this.dataList = response.result
+        this.$logger.info('dataList', response.result, this.dataList)
       }).finally(() => {
         this.dataListLoading = false
       })

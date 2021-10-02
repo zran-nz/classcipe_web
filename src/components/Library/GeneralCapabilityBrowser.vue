@@ -176,7 +176,7 @@
               <template slot="title">
                 {{ dataItem.name }}
               </template>
-              <dir-icon :content-type="dataItem.type" />
+              <content-type-icon :type="dataItem.type" />
               <span class="data-name">
                 {{ dataItem.name }}
               </span>
@@ -378,18 +378,19 @@ export default {
         this.handleClickBlock(this.subjectDeep + this.knowledgeDeep, knowledgeItem.name)
         return
       }
+      // 删除当前点击knowledges对应下标之后的所有后续元素（既下级列表），重新填充当前点击的元素的下级列表
+      this.knowledges.splice(deepIndex + 1)
       this.knowledges.push({
         knowledgeList: [],
         knowledgeListLoading: false,
         currentKnowledgeId: null
       })
       const nextIndex = deepIndex + 1
-      if (knowledgeItem.id !== this.knowledges[deepIndex].currentKnowledgeId) {
-        this.knowledges[deepIndex].currentKnowledgeId = knowledgeItem.id
-        this.knowledges[nextIndex].knowledgeListLoading = true
-        this.knowledges[nextIndex].knowledgeList = knowledgeItem.children
-        this.knowledges[nextIndex].knowledgeListLoading = false
-      }
+      this.knowledges[deepIndex].currentKnowledgeId = knowledgeItem.id
+      this.knowledges[nextIndex].knowledgeListLoading = true
+      this.knowledges[nextIndex].knowledgeList = knowledgeItem.children
+      this.knowledges[nextIndex].knowledgeListLoading = false
+
       this.$logger.info('knowledges', this.knowledges)
       this.handleClickBlock(this.subjectDeep + 1 + deepIndex, knowledgeItem.name)
     },
