@@ -64,7 +64,7 @@
       <!--  big idea list -->
       <div class="description-wrapper">
         <div class="description-list">
-          <div :class="{'description-item': true, 'kd-active-item': currentBigIdea === bigIdeaItem.name}" v-for="(bigIdeaItem, bIndex) in bigIdeaList" @click="queryContentByBigIdea(bigIdeaItem)" :key="bIndex">
+          <div :class="{'description-item': true, 'kd-active-item': currentBigIdea === bigIdeaItem.name}" v-for="(bigIdeaItem, bIndex) in bigIdeaList" @click="handleSelectBigIdeaItem(bigIdeaItem)" :key="bIndex">
             {{ bigIdeaItem.name }}
           </div>
         </div>
@@ -336,15 +336,20 @@ export default {
       })
     },
 
-    queryContentByBigIdea (bigIdea) {
-      this.$logger.info('queryContentByBigIdea' + bigIdea.name)
-      this.currentBigIdea = bigIdea.name
+    handleSelectBigIdeaItem (bigIdeaItem) {
+      this.$logger.info('handleSelectBigIdeaItem', bigIdeaItem)
+      this.currentBigIdea = bigIdeaItem.name
       QueryContentByBigIdea({
-        bigIdea: bigIdea.name
+        bigIdea: bigIdeaItem.name
       }).then((response) => {
         this.$logger.info('QueryContentByBigIdea', response)
-        this.dataList = response.result
+        if (response.result) {
+          this.dataList = response.result
+        } else {
+          this.$logger.info('no big idea content')
+        }
       })
+      this.handleClickBlock(3, bigIdeaItem.name)
     },
 
     handleSelectDataItem (dataItem) {
