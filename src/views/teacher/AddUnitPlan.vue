@@ -47,6 +47,7 @@
                       </div>-->
 
                       <div class="form-block">
+                        <comment-switch field-name="name" @switch="handleSwitchComment" class="my-comment-switch"/>
                         <a-form-item label="Course Name">
                           <a-input ref="name" v-model="form.name" placeholder="Enter Course Name" class="my-form-input"/>
                         </a-form-item>
@@ -208,8 +209,7 @@
               </a-form-model>
             </div>
             <div class="unit-plan-form-right">
-
-              <div class="form-block-right" v-if="!showCustomTag">
+              <div class="form-block-right" v-if="!showCustomTag && !showCollaborateCommentVisible">
                 <!-- image-->
                 <a-form-model-item class="img-wrapper" >
                   <a-upload-dragger
@@ -251,7 +251,11 @@
                 </a-form-model-item>
               </div>
 
-              <div v-if="!this.contentLoading" :style="{'width':'600px','position': 'absolute', 'top':customTagTop+'px'}">
+              <div class="collaborate-panel" v-if="showCollaborateCommentVisible" :style="{'width':'600px','position': 'absolute', 'top':collaborateTop+'px', 'z-index': 100}">
+                <collaborate-comment-panel :comment-list="currentCollaborateCommentList" />
+              </div>
+
+              <div v-if="!this.contentLoading && !showCollaborateCommentVisible" :style="{'width':'600px','position': 'absolute', 'top':customTagTop+'px', 'z-index': 50}">
                 <custom-tag
                   :show-arrow="showCustomTag"
                   :user-tags="userTags"
@@ -480,10 +484,14 @@ import CommonLink from '@/components/Common/CommonLink'
 import NewMyContent from '@/components/MyContent/NewMyContent'
 import { FindCustomTags } from '@/api/tag'
 import { NavigationType } from '@/components/NewLibrary/NavigationType'
+import CollaborateCommentPanel from '@/components/Collaborate/CollaborateCommentPanel'
+import CommentSwitch from '@/components/Collaborate/CommentSwitch'
 
 export default {
   name: 'AddUnitPlan',
   components: {
+    CommentSwitch,
+    CollaborateCommentPanel,
     NewMyContent,
     CommonLink,
     ReferPreview,
@@ -623,7 +631,62 @@ export default {
       userTags: {},
       NavigationType: NavigationType,
       defaultActiveMenu: NavigationType.learningOutcomes,
-      showMenuList: [ NavigationType.sdg, NavigationType.specificSkills, NavigationType.centurySkills, NavigationType.learningOutcomes ]
+      showMenuList: [ NavigationType.sdg, NavigationType.specificSkills, NavigationType.centurySkills, NavigationType.learningOutcomes ],
+
+      showCollaborateCommentVisible: false,
+      // TODO 测试mock数据，待删除
+      collaborateCommentList: [
+        {
+          id: '1',
+          fieldName: 'name', // 针对表单中哪个字段的评论
+          avatar: 'https://dcdkqlzgpl5ba.cloudfront.net/file/202106290118339914-avatar.png',
+          username: 'Xunwu Yang',
+          userId: '1392467808404684802',
+          createdTime: '2021-09-24 05:35:52',
+          content: '我认为这里不对噢，应该要我认为这里不对噢，应该要我认为这里不对噢，应该要我认为这里不对噢，应该要我认为这里不对噢，应该要...',
+          isDelete: false,
+          commentToId: null, // 当前评论是回复谁的
+          rootCommentId: null // 当然评论的根评论（最上层评论）的id
+        },
+        {
+          id: '2',
+          fieldName: 'name', // 针对表单中哪个字段的评论
+          avatar: 'https://dcdkqlzgpl5ba.cloudfront.net/file/202106290118339914-avatar.png',
+          username: 'Xunwu Wang',
+          userId: '',
+          createdTime: '2021-09-24 04:35:52',
+          content: '你觉得都是不对？我认为这里不对噢，应该要...',
+          isDelete: true,
+          commentToId: '1', // 当前评论是回复谁的
+          rootCommentId: '1' // 当然评论的根评论（最上层评论）的id
+        },
+        {
+          id: '3',
+          fieldName: 'name', // 针对表单中哪个字段的评论
+          avatar: 'https://dcdkqlzgpl5ba.cloudfront.net/file/202106290118339914-avatar.png',
+          username: 'Xunwu SDG',
+          userId: '',
+          createdTime: '2021-09-24 03:35:52',
+          content: '你应该要...',
+          isDelete: false,
+          commentToId: '2', // 当前评论是回复谁的
+          rootCommentId: '1' // 当然评论的根评论（最上层评论）的id
+        },
+
+        {
+          id: '2',
+          fieldName: 'name', // 针对表单中哪个字段的评论
+          avatar: 'https://dcdkqlzgpl5ba.cloudfront.net/file/202106290118339914-avatar.png',
+          username: 'Xunwu Yang',
+          userId: '1392467808404684802',
+          createdTime: '2021-09-24 05:35:52',
+          content: '我认为这里不对噢，应该要我认为这里不对噢，应该要我认为这里不对噢，应该要我认为这里不对噢，应该要我认为这里不对噢，应该要...',
+          isDelete: true,
+          commentToId: null, // 当前评论是回复谁的
+          rootCommentId: null // 当然评论的根评论（最上层评论）的id
+        }],
+      currentCollaborateCommentList: [],
+      collaborateTop: 0
     }
   },
   watch: {
@@ -1481,7 +1544,26 @@ export default {
           this.customTagTop = 300
           this.showCustomTag = false
         }
+    },
+
+    handleSwitchComment (data) {
+      this.$logger.info('handleSwitchComment', data)
+      if (this.showCollaborateCommentVisible) {
+        this.showCollaborateCommentVisible = false
+        this.currentCollaborateCommentList = []
+      } else {
+        const list = []
+        this.collaborateCommentList.forEach(item => {
+          if (item.fieldName === data.fieldName) {
+            list.push(item)
+          }
+        })
+        this.currentCollaborateCommentList = list
+        this.collaborateTop = data.top
+        this.showCollaborateCommentVisible = true
+        this.$logger.info('currentCollaborateCommentList', list)
       }
+    }
   }
 }
 </script>
@@ -2029,6 +2111,7 @@ export default {
 }
 
 .form-block {
+  position: relative;
   box-sizing: border-box;
   margin-bottom: 10px;
   border: 1px solid #fff;
@@ -2236,5 +2319,12 @@ export default {
 
 .root-locate-form {
   position: relative;
+}
+
+.my-comment-switch {
+  position: absolute;
+  right: 180px;
+  top: 0;
+  z-index: 200;
 }
 </style>

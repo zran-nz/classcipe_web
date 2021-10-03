@@ -7,7 +7,11 @@ export const userAPIUrl = {
   GetSharedNotReceived: '/classcipe/api/collaborate/getSharedNotReceived',
   GetFindSharedNotReceived: '/classcipe/api/collaborate/getFindSharedNotReceived',
   DeleteCollaborate: '/classcipe/api/collaborate/delete',
-  ReceiveCollaborate: '/classcipe/api/collaborate/receive'
+  ReceiveCollaborate: '/classcipe/api/collaborate/receive',
+  // TODO mock接口，待修改
+  GetCollaborateComment: '/classcipe/api/collaborate/GetCollaborateComment',
+  DeleteCollaborateCommentById: '/classcipe/api/collaborate/DeleteCollaborateCommentById',
+  AddCollaborateComment: '/classcipe/api/collaborate/AddCollaborateComment'
 }
 
 export function InviteCollaborate (parameter) {
