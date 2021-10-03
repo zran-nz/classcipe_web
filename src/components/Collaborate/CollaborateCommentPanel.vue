@@ -130,31 +130,44 @@ export default {
   },
   data () {
     return {
+      rawCommentList: [],
       formatCommentList: [],
 
       deleteCommentModalVisible: false,
       currentDeleteComment: null
     }
   },
+  watch: {
+    commentList (value) {
+      this.$logger.info('commentList update ', value)
+      this.rawCommentList = value
+      this.formatComment()
+    }
+  },
   created () {
     this.$logger.info('CollaborateCommentPanel commentList', this.commentList)
-    /**
-     * 格式化处理回复数据
-     * 按rootCommentId进行分组，为空的代表是一个评论组，
-     * 然后把下面的子评论(rootCommentId相同即为一组)追加到
-     * subCommentList数组中，按时间排序展示
-     */
-    // 过滤rootComment
-    const rootCommentMap = new Map()
-    this.commentList.forEach(item => {
-      const dataItem = Object.assign({}, item)
-      if (!dataItem.rootCommentId) {
-        dataItem.subCommentList = []
-        rootCommentMap.set(dataItem.id, dataItem)
-      }
-    })
-    // 追加下面的子讨论列表,按时间排序展示
-    this.commentList.forEach(item => {
+    this.rawCommentList = this.commentList
+    this.formatComment()
+  },
+  methods: {
+    formatComment () {
+      /**
+       * 格式化处理回复数据
+       * 按rootCommentId进行分组，为空的代表是一个评论组，
+       * 然后把下面的子评论(rootCommentId相同即为一组)追加到
+       * subCommentList数组中，按时间排序展示
+       */
+        // 过滤rootComment
+      const rootCommentMap = new Map()
+      this.rawCommentList.forEach(item => {
+        const dataItem = Object.assign({}, item)
+        if (!dataItem.rootCommentId) {
+          dataItem.subCommentList = []
+          rootCommentMap.set(dataItem.id, dataItem)
+        }
+      })
+      // 追加下面的子讨论列表,按时间排序展示
+      this.rawCommentList.forEach(item => {
         if (item.rootCommentId) {
           if (rootCommentMap.has(item.rootCommentId)) {
             const rootComment = rootCommentMap.get(item.rootCommentId)
@@ -164,15 +177,16 @@ export default {
             this.$logger.info('no exit rootCommentId ' + item.rootCommentId, rootCommentMap)
           }
         }
-    })
-    // map转为数组
-    for (const [rootCommentId, rootComment] of rootCommentMap.entries()) {
-      this.$logger.info('rootCommentId ' + rootCommentId, rootComment)
-      this.formatCommentList.push(rootComment)
-    }
-    this.$logger.info('formatCommentList', this.formatCommentList)
-  },
-  methods: {
+      })
+      // map转为数组
+      for (const [rootCommentId, rootComment] of rootCommentMap.entries()) {
+        this.$logger.info('rootCommentId ' + rootCommentId, rootComment)
+        this.formatCommentList.push(rootComment)
+      }
+      this.$logger.info('formatCommentList', this.formatCommentList)
+    },
+
+    // TODO 评论逻辑
     handleSend (data) {
       this.$logger.info('handleSend', data)
       if (!data) {
@@ -182,6 +196,7 @@ export default {
       }
     },
 
+    // TODO 删除逻辑
     handleDeleteComment (comment) {
       this.$logger.info('handleDeleteComment', comment)
       if (comment.hasOwnProperty('subCommentList')) {
@@ -209,7 +224,8 @@ export default {
 @import "~@/components/index.less";
 
 .collaborate-comment-panel {
-  background-color: #F7F8FF;
+  background-color: #fff;
+  box-shadow: 0px 6px 10px rgba(159, 159, 159, 0.16);
   padding: 20px;
   z-index: 100;
   .add-comment-wrapper {
@@ -248,6 +264,8 @@ export default {
   }
 
   .comment-record-wrapper {
+    margin-top: 10px;
+    background: rgba(245, 245, 245, 0.5);
     padding: 20px 15px;
     border-radius: 5px;
 

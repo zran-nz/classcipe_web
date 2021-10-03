@@ -17,6 +17,9 @@
     </a-col>
     <a-col span="12" class="unit-right-action">
       <a-space>
+        <div class="collaborate-comment" @click="handleViewComment">
+          <comment-icon class="active-icon"/>
+        </div>
         <a-button
           @click="handleSave"
           :loading="saving"
@@ -90,8 +93,13 @@
 </template>
 
 <script>
+
+import CommentIcon from '@/assets/icons/collaborate/comment.svg?inline'
 export default {
   name: 'CommonFormHeader',
+  components: {
+    CommentIcon
+  },
   props: {
     form: {
       type: Object,
@@ -138,6 +146,10 @@ export default {
     handleStartCollaborate () {
       this.$logger.info('handleStartCollaborate')
       this.$emit('collaborate')
+    },
+
+    handleViewComment () {
+      this.$emit('view-collaborate')
     }
   }
 }
@@ -184,6 +196,17 @@ export default {
     right: 10px;
     justify-content: flex-end;
     .my-form-header-btn{
+    }
+
+    .collaborate-comment {
+      display: flex;
+      cursor: pointer;
+      flex-direction: row;
+      align-items: center;
+      justify-content: center;
+      svg {
+        width: 30px;
+      }
     }
   }
 }

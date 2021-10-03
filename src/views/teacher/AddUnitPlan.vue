@@ -5,6 +5,7 @@
         ref="commonFormHeader"
         :form="form"
         :last-change-saved-time="lastChangeSavedTime"
+        @view-collaborate="handleViewCollaborate"
         @back="goBack"
         @save="handleSaveUnitPlan"
         @publish="handlePublishUnitPlan"
@@ -209,63 +210,73 @@
               </a-form-model>
             </div>
             <div class="unit-plan-form-right">
-              <div class="form-block-right" v-if="!showCustomTag && !showCollaborateCommentVisible">
-                <!-- image-->
-                <a-form-model-item class="img-wrapper" >
-                  <a-upload-dragger
-                    name="file"
-                    accept="image/png, image/jpeg"
-                    :showUploadList="false"
-                    :customRequest="handleUploadImage"
-                  >
-                    <div class="delete-img" @click="handleDeleteImage($event)" v-show="form.image">
-                      <a-icon type="close-circle" />
-                    </div>
-                    <template v-if="uploading">
-                      <div class="upload-container">
-                        <p class="ant-upload-drag-icon">
-                          <a-icon type="cloud-upload" />
-                        </p>
-                        <p class="ant-upload-text">
-                          <a-spin />
-                          <span class="uploading-tips">{{ $t('teacher.add-unit-plan.uploading') }}</span>
-                        </p>
-                      </div>
-                    </template>
-                    <template v-if="!uploading && form && form.image">
-                      <div class="image-preview">
-                        <img :src="form.image" alt="">
-                      </div>
-                    </template>
-                    <template v-if="!uploading && form && !form.image">
-                      <div class="upload-container">
-                        <p class="ant-upload-drag-icon">
-                          <img src="~@/assets/icons/lesson/upload_icon.png" class="upload-icon" />
-                        </p>
-                        <p class="ant-upload-text">
-                          {{ $t('teacher.add-unit-plan.upload-a-picture') }}
-                        </p>
-                      </div>
-                    </template>
-                  </a-upload-dragger>
-                </a-form-model-item>
-              </div>
-
-              <div class="collaborate-panel" v-if="showCollaborateCommentVisible" :style="{'width':'600px','position': 'absolute', 'top':collaborateTop+'px', 'z-index': 100}">
-                <collaborate-comment-panel :comment-list="currentCollaborateCommentList" />
-              </div>
-
-              <div v-if="!this.contentLoading && !showCollaborateCommentVisible" :style="{'width':'600px','position': 'absolute', 'top':customTagTop+'px', 'z-index': 50}">
-                <custom-tag
-                  :show-arrow="showCustomTag"
-                  :user-tags="userTags"
-                  :custom-tags-list="customTagList"
-                  ref="customTag"
-                  :selected-tags-list="form.customTags"
-                  @reload-user-tags="loadUserTags"
-                  @change-add-keywords="handleChangeAddKeywords"
-                  @change-user-tags="handleChangeUserTags"></custom-tag>
-              </div>
+              <!--              优先级 所有comment预览 > 字段comment > tag选择-->
+              <template v-if="showAllCollaborateCommentVisible">
+                <div class="collaborate-panel" :style="{'width':'600px','position': 'absolute', 'top': '0px', 'z-index': 100}">
+                  <collaborate-comment-view :comment-list="collaborateCommentList" />
+                </div>
+              </template>
+              <template v-else>
+                <template v-if="showCollaborateCommentVisible">
+                  <div class="collaborate-panel" :style="{'width':'600px','position': 'absolute', 'top':collaborateTop+'px', 'z-index': 100}">
+                    <collaborate-comment-panel :comment-list="currentCollaborateCommentList" />
+                  </div>
+                </template>
+                <template v-else>
+                  <div class="form-block-right" v-show="!showCustomTag">
+                    <!-- image-->
+                    <a-form-model-item class="img-wrapper" >
+                      <a-upload-dragger
+                        name="file"
+                        accept="image/png, image/jpeg"
+                        :showUploadList="false"
+                        :customRequest="handleUploadImage"
+                      >
+                        <div class="delete-img" @click="handleDeleteImage($event)" v-show="form.image">
+                          <a-icon type="close-circle" />
+                        </div>
+                        <template v-if="uploading">
+                          <div class="upload-container">
+                            <p class="ant-upload-drag-icon">
+                              <a-icon type="cloud-upload" />
+                            </p>
+                            <p class="ant-upload-text">
+                              <a-spin />
+                              <span class="uploading-tips">{{ $t('teacher.add-unit-plan.uploading') }}</span>
+                            </p>
+                          </div>
+                        </template>
+                        <template v-if="!uploading && form && form.image">
+                          <div class="image-preview">
+                            <img :src="form.image" alt="">
+                          </div>
+                        </template>
+                        <template v-if="!uploading && form && !form.image">
+                          <div class="upload-container">
+                            <p class="ant-upload-drag-icon">
+                              <img src="~@/assets/icons/lesson/upload_icon.png" class="upload-icon" />
+                            </p>
+                            <p class="ant-upload-text">
+                              {{ $t('teacher.add-unit-plan.upload-a-picture') }}
+                            </p>
+                          </div>
+                        </template>
+                      </a-upload-dragger>
+                    </a-form-model-item>
+                  </div>
+                  <div v-show="!this.contentLoading" :style="{'width':'600px','position': 'absolute', 'top':customTagTop+'px', 'z-index': 50}">
+                    <custom-tag
+                      :show-arrow="showCustomTag"
+                      :user-tags="userTags"
+                      :custom-tags-list="customTagList"
+                      ref="customTag"
+                      :selected-tags-list="form.customTags"
+                      @reload-user-tags="loadUserTags"
+                      @change-add-keywords="handleChangeAddKeywords"
+                      @change-user-tags="handleChangeUserTags"></custom-tag>
+                  </div>
+                </template>
+              </template>
             </div>
           </a-card>
         </a-col>
@@ -486,10 +497,12 @@ import { FindCustomTags } from '@/api/tag'
 import { NavigationType } from '@/components/NewLibrary/NavigationType'
 import CollaborateCommentPanel from '@/components/Collaborate/CollaborateCommentPanel'
 import CommentSwitch from '@/components/Collaborate/CommentSwitch'
+import CollaborateCommentView from '@/components/Collaborate/CollaborateCommentView'
 
 export default {
   name: 'AddUnitPlan',
   components: {
+    CollaborateCommentView,
     CommentSwitch,
     CollaborateCommentPanel,
     NewMyContent,
@@ -686,7 +699,8 @@ export default {
           rootCommentId: null // 当然评论的根评论（最上层评论）的id
         }],
       currentCollaborateCommentList: [],
-      collaborateTop: 0
+      collaborateTop: 0,
+      showAllCollaborateCommentVisible: false
     }
   },
   watch: {
@@ -1563,6 +1577,11 @@ export default {
         this.showCollaborateCommentVisible = true
         this.$logger.info('currentCollaborateCommentList', list)
       }
+    },
+
+    handleViewCollaborate () {
+      this.$logger.info('handleViewCollaborate')
+      this.showAllCollaborateCommentVisible = !this.showAllCollaborateCommentVisible
     }
   }
 }
