@@ -91,7 +91,7 @@
                     'browser-item': true,
                     'odd-line': index % 2 === 0,
                   }">
-                  <data-card-view :title="item.name" :created-time="item.createTime" :cover="item.image" />
+                  <data-card-view :title="item.name" :created-time="item.createTime" :cover="item.image" :content-type="item.type"/>
                   <div class="card-action-item">
                     <div class="action-left">
                       <div class="edit-item-icon" @click="handleEditItem(item.type, item)">

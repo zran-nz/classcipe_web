@@ -247,6 +247,7 @@
                   :cover="dataItem.image"
                   :title="dataItem.name"
                   :created-time="dataItem.createTime"
+                  :content-type="dataItem.type"
                 />
               </div>
             </div>

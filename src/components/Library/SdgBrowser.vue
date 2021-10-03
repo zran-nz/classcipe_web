@@ -143,7 +143,7 @@
               <template slot="title">
                 {{ dataItem.name }}
               </template>
-              <dir-icon :content-type="dataItem.type" />
+              <content-type-icon :type="dataItem.type" />
               <span class="data-name">
                 {{ dataItem.name }}
               </span>
@@ -170,6 +170,7 @@
                   :cover="dataItem.image"
                   :title="dataItem.name"
                   :created-time="dataItem.createTime"
+                  :content-type="dataItem.type"
                 />
               </div>
             </div>
