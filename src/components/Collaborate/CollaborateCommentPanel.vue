@@ -210,7 +210,7 @@ export default {
 
 .collaborate-comment-panel {
   background-color: #F7F8FF;
-  padding: 10px;
+  padding: 20px;
   z-index: 100;
   .add-comment-wrapper {
     padding: 20px 15px;
