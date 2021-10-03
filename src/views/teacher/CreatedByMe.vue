@@ -100,60 +100,51 @@
                   <div slot="actions">
                     <div class="action-wrapper">
                       <div class="preview-session-wrapper action-item-wrapper">
-                        <div class="session-btn" @click="handleViewPreviewSession(item)" v-if="item.type === typeMap['lesson'] || item.type === typeMap['task']">
+                        <div class="session-btn content-list-action-btn" @click="handleDeleteItem(item)">
                           <div class="session-btn-icon">
-                            <previous-sessions-svg />
+                            <a-icon type="delete" />
                           </div>
-                          <div class="session-btn-text">Previous sessions</div>
+                          <div class="session-btn-text">{{ $t('teacher.my-content.action-delete') }}</div>
                         </div>
                       </div>
                       <div class="start-session-wrapper action-item-wrapper">
-                        <div class="session-btn" @click="handleStartSessionTags(item)" v-if="item.type === typeMap['lesson'] || item.type === typeMap['task']">
+                        <div class="session-btn content-list-action-btn" @click="handleEditItem(item)">
                           <div class="session-btn-icon">
-                            <start-session-svg />
+                            <a-icon type="form" />
                           </div>
-                          <div class="session-btn-text">Start a session</div>
+                          <div class="session-btn-text"> {{ $t('teacher.my-content.action-edit') }}</div>
+                        </div>
+                      </div>
+                      <div class="start-session-wrapper action-item-wrapper">
+                        <div class="session-btn content-list-action-btn" @click="handleDuplicateItem(item)">
+                          <div class="session-btn-icon">
+                            <a-icon type="copy" />
+                          </div>
+                          <div class="session-btn-text"> Duplicate</div>
                         </div>
                       </div>
                       <div class="more-action-wrapper action-item-wrapper">
                         <a-dropdown>
                           <a-icon type="more" style="margin-right: 8px" />
                           <a-menu slot="overlay">
-                            <a-menu-item>
-                              <a-popconfirm :title="$t('teacher.my-content.action-delete') + '?'" ok-text="Yes" @confirm="handleDeleteItem(item)" cancel-text="No">
-                                <a href="#" class="delete-action">
-                                  <a-icon type="delete" /> {{ $t('teacher.my-content.action-delete') }}
-                                </a>
-                              </a-popconfirm>
-                            </a-menu-item>
-                            <a-menu-item>
-                              <a @click="handleEditItem(item)">
-                                <a-icon type="form" /> {{ $t('teacher.my-content.action-edit') }}
-                              </a>
-                            </a-menu-item>
-                            <a-menu-item>
-                              <a @click="handleDuplicateItem(item)">
-                                <a-icon type="copy" /> Duplicate
-                              </a>
-                            </a-menu-item>
-
                             <!-- Task里面有teacher-pace, student-pace, previous session -->
                             <template v-if="item.type === typeMap.task">
                               <a-menu-item>
                                 <a @click="handleStartSessionTags(item)">
-                                  <a-icon type="copy" /> Teacher-pace
+                                  <start-session-svg /> Teacher-pace
                                 </a>
                               </a-menu-item>
                               <a-menu-item>
                                 <a @click="handleStartSessionTags(item)">
-                                  <a-icon type="copy" /> Student-pace
+                                  <start-session-svg /> Student-pace
                                 </a>
                               </a-menu-item>
                               <a-menu-item>
                                 <a @click="handleViewPreviewSession(item)">
-                                  <a-icon type="copy" /> Previous session
+                                  <previous-sessions-svg /> Previous session
                                 </a>
                               </a-menu-item>
+
                             </template>
 
                             <!-- Evaluation有Start evaluation -->
@@ -207,13 +198,13 @@
                   </div>
                   <div class="action-item action-item-bottom" >
                     <div class="session-btn" @click.stop="handleEditItem(item)">
-                      <div class="session-btn-icon">
+                      <div class="session-btn-icon content-list-action-btn">
                         <edit-svg />
                       </div>
                       <div class="session-btn-text">Edit</div>
                     </div>
                     <div class="session-btn" @click.stop="handleViewPreviewSession(item)" v-if="item.type === typeMap['lesson'] || item.type === typeMap['task']">
-                      <div class="session-btn-icon">
+                      <div class="session-btn-icon content-list-action-btn">
                         <previous-sessions-svg />
                       </div>
                       <div class="session-btn-text">Previous</div>
@@ -388,7 +379,10 @@ export default {
       sessionTags: [],
       sessionItem: {},
       startLoading: false,
-      userTags: {}
+      userTags: {},
+
+      // 之前报错了，提示没这个字段，加一下。
+      customTagList: []
     }
   },
   locomputed: {
@@ -836,14 +830,15 @@ export default {
               align-items: center;
               justify-content: center;
               font-size: 13px;
-              svg {
-                height: 14px;
-                fill: #182552;
-                stroke: #182552;
-                stroke-width: 0.5px;
+              i {
+                svg {
+                  height: 14px;
+                  fill: #182552;
+                  stroke: #182552;
+                  stroke-width: 0.5px;
+                }
               }
             }
-
             .session-btn-text {
               font-size: 13px;
               padding-left: 7px;
@@ -856,10 +851,12 @@ export default {
             border-color: #15c39a;
             background: rgba(21, 195, 154, 0.1);
             .session-btn-icon {
-              svg {
-                fill: #15c39a;
-                stroke: #15c39a;
-                stroke-width: 0.5px;
+              i {
+                svg {
+                  fill: #15c39a;
+                  stroke: #15c39a;
+                  stroke-width: 0.5px;
+                }
               }
             }
 
