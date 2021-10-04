@@ -115,6 +115,7 @@
 
 import deleteIcon from '@/assets/icons/collaborate/delete.svg?inline'
 import InputWithButton from '@/components/Collaborate/InputWithButton'
+import { DeleteCollaborateCommentById, AddCollaborateComment } from '@/api/collaborate'
 
 export default {
   name: 'CollaborateCommentPanel',
@@ -186,23 +187,30 @@ export default {
       this.$logger.info('formatCommentList', this.formatCommentList)
     },
 
-    // TODO 评论逻辑
+    // TODO 评论提交逻辑
     handleSend (data) {
       this.$logger.info('handleSend', data)
       if (!data) {
         this.$message.warn('Please enter some comments!')
       } else {
-
+        AddCollaborateComment(data).then(response => {
+          this.$emit('update-comment')
+        })
       }
     },
 
     // TODO 删除逻辑
     handleDeleteComment (comment) {
       this.$logger.info('handleDeleteComment', comment)
+      this.currentDeleteComment = null
       if (comment.hasOwnProperty('subCommentList')) {
         this.deleteCommentModalVisible = true
+        this.currentDeleteComment = comment
       } else {
         // 非根评论，直接删除
+        DeleteCollaborateCommentById(comment).then(response => {
+          this.$emit('update-comment')
+        })
       }
     },
 
@@ -215,6 +223,10 @@ export default {
     handleEnsureDelete () {
       this.$logger.info('')
       this.deleteCommentModalVisible = false
+      DeleteCollaborateCommentById(this.currentDeleteComment).then(response => {
+        this.$emit('update-comment')
+        this.currentDeleteComment = null
+      })
     }
   }
 }

@@ -213,13 +213,23 @@
               <!--              优先级 所有comment预览 > 字段comment > tag选择-->
               <template v-if="showAllCollaborateCommentVisible">
                 <div class="collaborate-panel" :style="{'width':'600px','position': 'absolute', 'top': '0px', 'z-index': 100}">
-                  <collaborate-comment-view :comment-list="collaborateCommentList" />
+                  <div class="icon">
+                    <comment-icon />
+                  </div>
+                  <a-tabs default-active-key="1">
+                    <a-tab-pane key="1" tab="Comment">
+                      <collaborate-comment-view :comment-list="collaborateCommentList" @update-comment="handleUpdateCommentList"/>
+                    </a-tab-pane>
+                    <a-tab-pane key="2" tab="History" force-render>
+                      <collaborate-history :history-list="historyList" @restore="handleRestoreField"/>
+                    </a-tab-pane>
+                  </a-tabs>
                 </div>
               </template>
               <template v-else>
                 <template v-if="showCollaborateCommentVisible">
                   <div class="collaborate-panel" :style="{'width':'600px','position': 'absolute', 'top':collaborateTop+'px', 'z-index': 100}">
-                    <collaborate-comment-panel :comment-list="currentCollaborateCommentList" />
+                    <collaborate-comment-panel :comment-list="currentCollaborateCommentList" @update-comment="handleUpdateCommentList"/>
                   </div>
                 </template>
                 <template v-else>
@@ -494,14 +504,18 @@ import UiLearnOut from '@/components/UnitPlan/UiLearnOut'
 import CommonLink from '@/components/Common/CommonLink'
 import NewMyContent from '@/components/MyContent/NewMyContent'
 import { FindCustomTags } from '@/api/tag'
+import { GetCollaborateComment, GetCollaborateModifiedHistory } from '@/api/collaborate'
 import { NavigationType } from '@/components/NewLibrary/NavigationType'
 import CollaborateCommentPanel from '@/components/Collaborate/CollaborateCommentPanel'
 import CommentSwitch from '@/components/Collaborate/CommentSwitch'
 import CollaborateCommentView from '@/components/Collaborate/CollaborateCommentView'
+import commentIcon from '@/assets/icons/collaborate/comment.svg?inline'
+import CollaborateHistory from '@/components/Collaborate/CollaborateHistory'
 
 export default {
   name: 'AddUnitPlan',
   components: {
+    CollaborateHistory,
     CollaborateCommentView,
     CommentSwitch,
     CollaborateCommentPanel,
@@ -522,6 +536,7 @@ export default {
     RelevantTagSelector,
     AddKeywordTag,
     NewBrowser,
+    commentIcon,
     UiLearnOut
   },
   props: {
@@ -712,7 +727,59 @@ export default {
         }],
       currentCollaborateCommentList: [],
       collaborateTop: 0,
-      showAllCollaborateCommentVisible: false
+      showAllCollaborateCommentVisible: false,
+      // TODO mock数据待更新为接口请求
+      historyList: [
+        {
+          id: '1',
+          createdTime: '2021-09-24 05:35:52',
+          // 用户回复history数据的，每个元素针对一整个字段，直接用vue的this.$set强制设置对象属性值进行‘恢复’
+          historyData: [
+            {
+              createdBy: 'Xunwu Yang',
+              fieldName: 'name',
+              fieldDisplayName: 'Course Name',
+              data: 'this is restored name'
+            },
+            {
+              createdBy: 'Jack Ma',
+              fieldName: 'overview',
+              fieldDisplayName: 'Course Overview',
+              data: 'this is restored overview'
+            }
+          ]
+        },
+        {
+          id: '2',
+          createdTime: '2021-09-26 05:35:52',
+          // 用户回复history数据的，每个元素针对一整个字段，直接用vue的this.$set强制设置对象属性值进行‘恢复’
+          historyData: [
+            {
+              createdBy: 'Xunwu Yang',
+              fieldName: 'name',
+              fieldDisplayName: 'Course Name',
+              data: 'this is restored name'
+            },
+            {
+              createdBy: 'Jack Ma',
+              fieldName: 'overview',
+              fieldDisplayName: 'Course Overview',
+              data: 'this is restored overview'
+            },
+            {
+              createdBy: 'Jack Ma',
+              fieldName: 'questions',
+              fieldDisplayName: 'Big idea',
+              data: [
+                {
+                  id: '',
+                  name: ''
+                }
+              ]
+            }
+          ]
+        }
+      ]
     }
   },
   watch: {
@@ -751,6 +818,7 @@ export default {
     this.initData()
     this.getAssociate()
     this.loadUserTags()
+    this.loadCollaborateData()
     this.debouncedGetSdgByDescription = debounce(this.searchScenario, 300)
   },
   beforeDestroy () {
@@ -804,6 +872,20 @@ export default {
         this.$message.error(this.$t('teacher.add-unit-plan.init-data-failed'))
       }).finally(() => {
         this.referenceLoading = false
+      })
+    },
+
+    // 加载协作的评论和历史记录数据
+    loadCollaborateData () {
+      return Promise.all([
+          GetCollaborateModifiedHistory({ type: this.contentType['unit-plan'], id: this.form.id }),
+          GetCollaborateComment({ type: this.contentType['unit-plan'], id: this.form.id })
+      ]).then(response => {
+        this.$logger.info('GetCollaborateModifiedHistory', response[0])
+        // TODO 将历史记录数据‘格式’后填充到historyList数组中，大部分数据可以直接赋值，复杂字段要处理一下。
+
+        this.$logger.info('GetCollaborateComment', response[1])
+        // TODO 将写作点评数据‘格式’后填充到collaborateCommentList数组中
       })
     },
 
@@ -1575,6 +1657,7 @@ export default {
 
     handleSwitchComment (data) {
       this.$logger.info('handleSwitchComment', data)
+      this.showAllCollaborateCommentVisible = false
       if (this.showCollaborateCommentVisible) {
         this.showCollaborateCommentVisible = false
         this.currentCollaborateCommentList = []
@@ -1592,9 +1675,38 @@ export default {
       }
     },
 
+    // 每次点击都重新加载一下最新数据
     handleViewCollaborate () {
       this.$logger.info('handleViewCollaborate')
-      this.showAllCollaborateCommentVisible = !this.showAllCollaborateCommentVisible
+      this.showCollaborateCommentVisible = false
+      this.currentCollaborateCommentList = []
+      this.loadCollaborateData().then(() => {
+        this.$logger.info('loadCollaborateData loaded')
+      }).finally(() => {
+        this.showAllCollaborateCommentVisible = !this.showAllCollaborateCommentVisible
+      })
+    },
+
+    // TODO 发布评论后需要更新最新的评论列表
+    handleUpdateCommentList () {
+      this.$logger.info('handleUpdateCommentList')
+      this.loadCollaborateData().then(() => {
+        this.$logger.info('loadCollaborateData loaded')
+      }).finally(() => {
+
+      })
+    },
+
+    handleRestoreField (data) {
+      this.$logger.info('handleRestoreField', data, this.form)
+      if (data.historyData) {
+        data.historyData.forEach(dataItem => {
+          this.$logger.info('set ' + dataItem.fieldName, dataItem.data)
+          this.$set(this.form, dataItem.fieldName, dataItem.data)
+          this.$message.success('restore ' + dataItem.fieldDisplayName + ' success!')
+        })
+      }
+      this.$logger.info('after handleRestoreField', this.form)
     }
   }
 }
@@ -2358,5 +2470,21 @@ export default {
   right: 180px;
   top: 0;
   z-index: 200;
+}
+
+.collaborate-panel {
+  background-color: #fff;
+  box-shadow: 0px 6px 10px rgba(159, 159, 159, 0.16);
+  .icon {
+    padding: 10px 5px 0 15px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+
+    svg {
+      width: 30px;
+    }
+  }
 }
 </style>

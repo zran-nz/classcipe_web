@@ -11,7 +11,8 @@ export const userAPIUrl = {
   // TODO mock接口，待修改
   GetCollaborateComment: '/classcipe/api/collaborate/GetCollaborateComment',
   DeleteCollaborateCommentById: '/classcipe/api/collaborate/DeleteCollaborateCommentById',
-  AddCollaborateComment: '/classcipe/api/collaborate/AddCollaborateComment'
+  AddCollaborateComment: '/classcipe/api/collaborate/AddCollaborateComment',
+  GetCollaborateModifiedHistory: '/classcipe/api/collaborate/GetCollaborateModifiedHistory'
 }
 
 export function InviteCollaborate (parameter) {
@@ -73,6 +74,35 @@ export function DeleteCollaborate (parameter) {
 export function ReceiveCollaborate (parameter) {
   return request({
     url: userAPIUrl.ReceiveCollaborate,
+    method: 'post',
+    data: parameter
+  })
+}
+
+export function GetCollaborateComment (parameter) {
+  return request({
+    url: userAPIUrl.GetCollaborateComment,
+    method: 'post',
+    data: parameter
+  })
+}
+export function DeleteCollaborateCommentById (parameter) {
+  return request({
+    url: userAPIUrl.DeleteCollaborateCommentById,
+    method: 'post',
+    data: parameter
+  })
+}
+export function AddCollaborateComment (parameter) {
+  return request({
+    url: userAPIUrl.AddCollaborateComment,
+    method: 'post',
+    data: parameter
+  })
+}
+export function GetCollaborateModifiedHistory (parameter) {
+  return request({
+    url: userAPIUrl.GetCollaborateModifiedHistory,
     method: 'post',
     data: parameter
   })

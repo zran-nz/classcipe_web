@@ -1,8 +1,5 @@
 <template>
   <div class="all-collaborate-comment-view">
-    <div class="icon">
-      <comment-icon />
-    </div>
     <div class="filter-line">
       <div class="filter-name">
         <a-input v-model="filterName" size="large" placeholder="Search teacher name" @change="handleFilterNameChange"/>
@@ -127,13 +124,12 @@
 
 import deleteIcon from '@/assets/icons/collaborate/delete.svg?inline'
 import InputWithButton from '@/components/Collaborate/InputWithButton'
-import commentIcon from '@/assets/icons/collaborate/comment.svg?inline'
+import { DeleteCollaborateCommentById, AddCollaborateComment } from '@/api/collaborate'
 
 export default {
   name: 'CollaborateCommentView',
   components: {
     InputWithButton,
-    commentIcon,
     deleteIcon
   },
   props: {
@@ -203,23 +199,30 @@ export default {
       this.$logger.info('formatCommentList', this.formatCommentList)
     },
 
-    // TODO 评论逻辑
+    // TODO 评论提交逻辑
     handleSend (data) {
       this.$logger.info('handleSend', data)
       if (!data) {
         this.$message.warn('Please enter some comments!')
       } else {
-
+        AddCollaborateComment(data).then(response => {
+          this.$emit('update-comment')
+        })
       }
     },
 
     // TODO 删除逻辑
     handleDeleteComment (comment) {
       this.$logger.info('handleDeleteComment', comment)
+      this.currentDeleteComment = null
       if (comment.hasOwnProperty('subCommentList')) {
         this.deleteCommentModalVisible = true
+        this.currentDeleteComment = comment
       } else {
         // 非根评论，直接删除
+        DeleteCollaborateCommentById(comment).then(response => {
+          this.$emit('update-comment')
+        })
       }
     },
 
@@ -232,6 +235,10 @@ export default {
     handleEnsureDelete () {
       this.$logger.info('')
       this.deleteCommentModalVisible = false
+      DeleteCollaborateCommentById(this.currentDeleteComment).then(response => {
+        this.$emit('update-comment')
+        this.currentDeleteComment = null
+      })
     },
 
     handleFilterNameChange () {
@@ -302,21 +309,8 @@ export default {
 @import "~@/components/index.less";
 
 .all-collaborate-comment-view {
-  background-color: #fff;
-  box-shadow: 0px 6px 10px rgba(159, 159, 159, 0.16);
   padding: 20px;
   z-index: 100;
-  .icon {
-    margin-bottom: 10px;
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: flex-start;
-
-    svg {
-      width: 30px;
-    }
-  }
 
   .filter-line {
     display: flex;
