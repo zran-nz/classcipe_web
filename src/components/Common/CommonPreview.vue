@@ -65,21 +65,21 @@
       </a-row>
       <a-row class="data-info" v-if="viewMode === 'Detail'">
         <a-col class="right-detail" span="24" >
-          <div class="tag-detail-block">
-            <div class="info-tag">
-              <div class="info-tag-item" v-if="data.subjectNames" v-for="(subject, sIndex) in data.subjectNames" :key="'sIndex' + sIndex">
-                Subject / {{ subject }}
-              </div>
-              <div class="info-tag-item" v-if="data.gradeNames" v-for="(grade, gIndex) in data.gradeNames" :key="'gIndex' + gIndex">
-                Grade: {{ grade }}
-              </div>
-              <div class="info-tag-item" v-if="data.bloomCategoriesText">
-                {{ data.bloomCategoriesText }}
-              </div>
-            </div>
-          </div>
+          <!--          <div class="tag-detail-block">-->
+          <!--            <div class="info-tag">-->
+          <!--              <div class="info-tag-item" v-if="data.subjectNames" v-for="(subject, sIndex) in data.subjectNames" :key="'sIndex' + sIndex">-->
+          <!--                Subject / {{ subject }}-->
+          <!--              </div>-->
+          <!--              <div class="info-tag-item" v-if="data.gradeNames" v-for="(grade, gIndex) in data.gradeNames" :key="'gIndex' + gIndex">-->
+          <!--                Grade: {{ grade }}-->
+          <!--              </div>-->
+          <!--              <div class="info-tag-item" v-if="data.bloomCategoriesText">-->
+          <!--                {{ data.bloomCategoriesText }}-->
+          <!--              </div>-->
+          <!--            </div>-->
+          <!--          </div>-->
           <div class="sub-detail">
-            <div class="detail-block" v-if="data.overview">
+            <div class="detail-block">
               <div class="block-main-label">
                 Overview
               </div>
@@ -94,9 +94,11 @@
               <div class="overview-block">
                 <div class="custom-tags">
                   <div class="tag-item" v-for="(tag,tagIndex) in data.customTags" :key="'tagIndex' + tagIndex">
-                    <a-tag class="tag">
-                      {{ tag.name }}
-                    </a-tag>
+                    <a-tooltip :title="tag.parentName">
+                      <a-tag class="tag">
+                        {{ tag.name }}
+                      </a-tag>
+                    </a-tooltip>
                   </div>
                 </div>
               </div>
@@ -105,12 +107,12 @@
               </div>
               <div class="overview-block">
                 <div class="learn-question-tag">
-                  <template v-if="data.questions && data.questions.length">
+                  <template v-if="data.learnOuts && data.learnOuts.length">
                     <div class="keyword-block-content">
-                      <div class="content-list" v-if="data.questions && data.questions.length">
-                        <div class="content-item" v-for="(question,qIndex) in data.questions" :key="'qIndex' + qIndex">
-                          <div class="question" v-if="question && question.name">
-                            {{ question.name }}
+                      <div class="content-list" v-if="data.learnOuts && data.learnOuts.length">
+                        <div class="content-item" v-for="(learn,qIndex) in data.learnOuts" :key="'qIndex' + qIndex">
+                          <div class="question">
+                            {{ learn.name }}
                           </div>
                         </div>
                       </div>
@@ -171,7 +173,8 @@
             <template v-if="data && data.inquiry">
               <div class="detail-block">
                 <div class="block-main-label">
-                  Big idea / Staement of inquiry / Centeral idea / Enduring understanding
+                  Big idea
+                  <!--                  / Staement of inquiry / Centeral idea / Enduring understanding-->
                 </div>
                 <div class="inquiry-block-content">
                   <div class="inquiry">
@@ -192,37 +195,37 @@
                       <div class="question" v-if="question && question.name">
                         {{ question.name }}
                       </div>
-                      <div class="content-sub-list" v-if="question && question.knowledgeTags && question.knowledgeTags.length">
-                        <div class="content-sub-item" v-for="(knowledgeTag, kIndex) in question.knowledgeTags" :key="'kIndex' + kIndex">
-                          <div class="sub-title">
-                            <div class="sub-title-name">
-                              {{ knowledgeTag.description }}
-                              <div class="subject-name" v-if="knowledgeTag.subSubjectName">
-                                {{ knowledgeTag.subSubjectName }}
-                              </div>
-                            </div>
-                            <div class="sub-detail">
-                              <a-tag class="tag">
-                                {{ knowledgeTag.name }}
-                              </a-tag>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                      <div class="content-sub-list" v-if="question && question.skillTags&& question.skillTags.length">
-                        <div class="content-sub-item" v-for="(skillTag, sIndex) in question.skillTags" :key="'sIndex' + sIndex">
-                          <div class="sub-title">
-                            <div class="sub-title-name">
-                              {{ skillTag.description }}
-                            </div>
-                            <div class="sub-detail">
-                              <a-tag class="tag">
-                                {{ skillTag.name }}
-                              </a-tag>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
+                      <!--                      <div class="content-sub-list" v-if="question && question.knowledgeTags && question.knowledgeTags.length">-->
+                      <!--                        <div class="content-sub-item" v-for="(knowledgeTag, kIndex) in question.knowledgeTags" :key="'kIndex' + kIndex">-->
+                      <!--                          <div class="sub-title">-->
+                      <!--                            <div class="sub-title-name">-->
+                      <!--                              {{ knowledgeTag.description }}-->
+                      <!--                              <div class="subject-name" v-if="knowledgeTag.subSubjectName">-->
+                      <!--                                {{ knowledgeTag.subSubjectName }}-->
+                      <!--                              </div>-->
+                      <!--                            </div>-->
+                      <!--                            <div class="sub-detail">-->
+                      <!--                              <a-tag class="tag">-->
+                      <!--                                {{ knowledgeTag.name }}-->
+                      <!--                              </a-tag>-->
+                      <!--                            </div>-->
+                      <!--                          </div>-->
+                      <!--                        </div>-->
+                      <!--                      </div>-->
+                      <!--                      <div class="content-sub-list" v-if="question && question.skillTags&& question.skillTags.length">-->
+                      <!--                        <div class="content-sub-item" v-for="(skillTag, sIndex) in question.skillTags" :key="'sIndex' + sIndex">-->
+                      <!--                          <div class="sub-title">-->
+                      <!--                            <div class="sub-title-name">-->
+                      <!--                              {{ skillTag.description }}-->
+                      <!--                            </div>-->
+                      <!--                            <div class="sub-detail">-->
+                      <!--                              <a-tag class="tag">-->
+                      <!--                                {{ skillTag.name }}-->
+                      <!--                              </a-tag>-->
+                      <!--                            </div>-->
+                      <!--                          </div>-->
+                      <!--                        </div>-->
+                      <!--                      </div>-->
                     </div>
                   </div>
                 </div>
@@ -647,6 +650,7 @@ export default {
           align-items: flex-start;
 
           .info-tag-item {
+            cursor: pointer;
             padding: 5px 15px;
             background: #fafafa;
             margin-bottom: 8px;

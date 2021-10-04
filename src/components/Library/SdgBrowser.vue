@@ -20,9 +20,9 @@
             <dir-icon dir-type="opened" v-if="currentSdgId === sdgItem.id"/>
             {{ sdgItem.name }}
           </a-tooltip>
-          <span class="arrow-item">
-            <a-icon type="right" />
-          </span>
+          <!--          <span class="arrow-item">-->
+          <!--            <a-icon type="right" />-->
+          <!--          </span>-->
         </div>
         <template v-if="!sdgList.length && !sdgListLoading">
           <div class="no-data">
@@ -151,9 +151,9 @@
                 {{ dataItem.createTime | dayjs }}
               </span>
             </a-tooltip>
-            <span class="arrow-item">
-              <a-icon type="more" />
-            </span>
+            <!--            <span class="arrow-item">-->
+            <!--              <a-icon type="more" />-->
+            <!--            </span>-->
           </div>
         </template>
         <template v-if="dataListMode === 'card'">

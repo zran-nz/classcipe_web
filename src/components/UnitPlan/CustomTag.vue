@@ -339,11 +339,11 @@ export default {
   position: relative;
   .header-triangle{
     display: block;
-    left: -40px;
-    top: 15px;
+    left: -30px;
+    top: 6px;
     border-style: solid;
     position: absolute;
-    border-width: 15px 40px 20px 0px;
+    border-width: 25px 40px 25px 0px;
     border-color: transparent #15c39a transparent transparent;
   }
   .cover-card  /deep/ .ant-card-body{

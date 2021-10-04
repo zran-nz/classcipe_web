@@ -19,9 +19,9 @@
           <dir-icon dir-type="opened" v-if="currentMainSubjectId === mainSubjectItem.id"/>
           {{ mainSubjectItem.name }}
         </a-tooltip>
-        <span class="arrow-item">
-          <a-icon type="right" />
-        </span>
+        <!--        <span class="arrow-item">-->
+        <!--          <a-icon type="right" />-->
+        <!--        </span>-->
       </div>
       <template v-if="!mainSubjectList.length && !mainSubjectListLoading">
         <div class="no-data">
@@ -88,9 +88,9 @@
             <dir-icon dir-type="opened" v-if="currentGradeId === gradeItem.id"/>
             {{ gradeItem.name }}
           </a-tooltip>
-          <span class="arrow-item">
-            <a-icon type="right" />
-          </span>
+          <!--          <span class="arrow-item">-->
+          <!--            <a-icon type="right" />-->
+          <!--          </span>-->
         </div>
         <template v-if="!gradeList.length && !gradeListLoading">
           <div class="no-data">
@@ -219,9 +219,9 @@
                 {{ dataItem.createTime | dayjs }}
               </span>
             </a-tooltip>
-            <span class="arrow-item">
-              <a-icon type="more" />
-            </span>
+            <!--            <span class="arrow-item">-->
+            <!--              <a-icon type="more" />-->
+            <!--            </span>-->
           </div>
         </template>
         <template v-if="dataListMode === 'card'">

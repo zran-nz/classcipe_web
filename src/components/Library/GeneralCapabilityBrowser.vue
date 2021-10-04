@@ -20,9 +20,9 @@
             <dir-icon dir-type="opened" v-if="currentGradeId === gradeItem.id"/>
             {{ gradeItem.name }}
           </a-tooltip>
-          <span class="arrow-item">
-            <a-icon type="right" />
-          </span>
+          <!--          <span class="arrow-item">-->
+          <!--            <a-icon type="right" />-->
+          <!--          </span>-->
         </div>
         <template v-if="!gradeList.length && !gradeListLoading">
           <div class="no-data">

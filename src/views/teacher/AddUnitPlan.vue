@@ -12,7 +12,7 @@
         @collaborate="handleStartCollaborate"
       />
     </div>
-    <a-card :bordered="false" :bodyStyle="{ padding: '16px 24px', height: '100%', minHeight: '800px' }">
+    <a-card :bordered="false" :bodyStyle="{ padding: '16px 24px', height: '100%', minHeight: '1200px' }">
       <a-row class="unit-content" v-if="!contentLoading">
         <!--        <a-col span="4" v-if="showSidebar">
           <associate-sidebar
@@ -25,7 +25,7 @@
             :show-create="true"/>
         </a-col>-->
         <a-col span="24" class="main-content">
-          <a-card :bordered="false" :body-style="{padding: '16px', display: 'flex', 'justify-content': 'space-between'}" class="card-wrapper">
+          <a-card :bordered="false" :body-style="{padding: '16px', display: 'flex', 'justify-content': 'center'}" class="card-wrapper">
             <div class="unit-plan-form-left root-locate-form" ref="form" @click="focusInput($event)">
               <a-form-model :model="form" class="my-form-wrapper">
                 <a-steps :current="currentActiveStepIndex" direction="vertical" @change="onChangeStep">
@@ -50,7 +50,7 @@
                       <div class="form-block">
                         <comment-switch field-name="name" @switch="handleSwitchComment" class="my-comment-switch"/>
                         <a-form-item label="Course Name">
-                          <a-input ref="name" v-model="form.name" placeholder="Enter Course Name" class="my-form-input"/>
+                          <a-input v-model="form.name" placeholder="Enter Course Name" class="my-form-input"/>
                         </a-form-item>
                       </div>
 
@@ -1567,7 +1567,6 @@ export default {
         })
       })
       const selectList = this.selectedCurriculumList.concat(this.selectedSpecificSkillList).concat(this.selectedCenturySkillList)
-      console.log(selectList)
       if (this.selectIdea) {
         if (this.selectedBigIdeaList.length > 0) {
           this.form.inquiry = this.selectedBigIdeaList[0].bigIdea
@@ -1583,7 +1582,7 @@ export default {
         this.form.learnOuts.push({
           knowledgeId: data.knowledgeData.id,
           name: data.knowledgeData.name,
-          tagType: data.tagType
+          tagType: data.knowledgeData.tagType
         })
       })
       this.$logger.info('this.form.learnOuts', this.form.learnOuts)
@@ -1899,7 +1898,7 @@ export default {
           display: block;
           position: absolute;
           text-align: center;
-          right:-10px;
+          right:-40px;
           top: 0;
           line-height: 40px;
           width: 40px;
@@ -2276,14 +2275,14 @@ export default {
   padding-right: 10px;
 }
 
-.form-block {
-  position: relative;
-  box-sizing: border-box;
-  margin-bottom: 10px;
-  border: 1px solid #fff;
-  padding: 10px 150px 10px 10px;
-  border-radius: 3px;
-}
+//.form-block {
+  //position: relative;
+  //box-sizing: border-box;
+  //margin-bottom: 10px;
+  //border: 1px solid #fff;
+  //padding: 10px 150px 10px 10px;
+  //border-radius: 3px;
+//}
 
 .subject-grade-wrapper {
   display: flex;
@@ -2297,7 +2296,8 @@ export default {
 }
 
 .form-block {
-  width: 800px;
+  width: 600px;
+  margin-bottom: 10px;
   .refer-action {
     .refer-text {
       font-family: Inter-Bold;
@@ -2452,7 +2452,7 @@ export default {
 .delete-icon {
   transition: all 0.2s ease-in;
   position: absolute;
-  right: -10px;
+  right: -50px;
   top: 0px;
   line-height: 40px;
   width: 40px;
@@ -2468,9 +2468,9 @@ export default {
 }
 .browse{
   font-size: 20px;
-  padding: 10px 5px;
+  padding: 0px 5px;
   position: absolute;
-  right: 155px;
+  right: 0px;
   top: 50px;
   cursor: pointer;
   display: flex;
@@ -2489,8 +2489,8 @@ export default {
 
 .my-comment-switch {
   position: absolute;
-  right: 180px;
-  top: 0;
+  right: 40px;
+  top: 28px;
   z-index: 200;
 }
 

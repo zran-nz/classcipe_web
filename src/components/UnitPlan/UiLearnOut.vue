@@ -11,6 +11,7 @@
                   {{ k.name }}
                 </div>
                 <div
+                  v-if="k.tagType != TagType.century"
                   class="actions">
                   <span class="add-action" @click.stop.prevent="handleAddTag(k)">
                     <img src="~@/assets/icons/tag/add.png"/>
@@ -62,6 +63,7 @@
   import * as logger from '@/utils/logger'
   import NoMoreResources from '@/components/Common/NoMoreResources'
   import LearnOutAddTag from '@/components/UnitPlan/LearnOutAddTag'
+  import { TagType } from '@/const/common'
 
   export default {
     name: 'UiLearnOut',
@@ -88,7 +90,8 @@
         KnowledgeList: [],
         addTagVisible: false,
         knowledge: {},
-        tags: []
+        tags: [],
+        TagType: TagType
       }
     },
     created () {
@@ -99,6 +102,9 @@
     },
     methods: {
       handleActiveDescription (index) {
+        if (this.KnowledgeList[index].tagType === TagType.century) {
+          return
+        }
         if (!this.KnowledgeList[index].tagListVisible) {
           this.KnowledgeList[index].tagListVisible = true
         } else {
@@ -118,6 +124,9 @@
         this.$emit('remove-learn-outs', data)
       },
       handleAddTag (knowLedge) {
+        if (knowLedge.tagType === TagType.century) {
+          return
+        }
         this.knowledge = knowLedge
         this.addTagVisible = true
       },
@@ -138,10 +147,11 @@
 
   .skt-description-list-wrapper {
     .skt-description-list {
-      display: flex;
-      flex-direction: row;
-      align-items: center;
-      justify-content: flex-start;
+      //display: flex;
+      //flex-direction: row;
+      //align-items: center;
+      //justify-content: flex-start;
+      position: relative;
        &:hover{
         .delete-action {
           display: block;
@@ -154,7 +164,7 @@
         border: 1px solid #f9f9f9;
       }
       .skt-description-tag-item {
-        width: 700px;
+        width: 610px;
         background: #FFFFFF;
         border: 1px solid #15C39A;
         box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.16);
@@ -245,7 +255,8 @@
       }
       .delete-action {
         position: absolute;
-        right: -40px;
+        right: -50px;
+        top:5px;
         display: none;
         cursor: pointer;
         height: 40px;

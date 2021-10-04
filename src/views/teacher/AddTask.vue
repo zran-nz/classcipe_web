@@ -5,13 +5,14 @@
         ref="commonFormHeader"
         :form="form"
         :last-change-saved-time="lastChangeSavedTime"
+        @view-collaborate="handleViewCollaborate"
         @back="goBack"
         @save="handleSaveTask"
         @publish="handlePublishTask"
         @collaborate="handleStartCollaborate"
       />
     </div>
-    <a-card :bordered="false" :bodyStyle="{ padding: '16px 24px 40px 24px', height: '100%', minHeight: '800px' }">
+    <a-card :bordered="false" :bodyStyle="{ padding: '16px 24px 40px 24px', height: '100%', minHeight: '1000px' }">
       <template v-if="mode === 'edit'">
         <a-row class="unit-content" v-if="!contentLoading" >
           <a-col span="24" class="main-content">
@@ -52,7 +53,7 @@
                         </div>
 
                         <div class="form-block" >
-                          <a-form-item label="Task name" ref="name">
+                          <a-form-item label="Task name" >
                             <a-input v-model="form.name" placeholder="Enter Course Name" class="my-form-input"/>
                           </a-form-item>
                         </div>
@@ -194,98 +195,122 @@
 
               <div class="task-form-right">
 
-                <div class="form-block-right" v-show="currentActiveStepIndex !== 1" >
-                  <!-- image-->
-                  <a-form-model-item class="img-wrapper">
-                    <a-upload-dragger
-                      name="file"
-                      accept="image/png, image/jpeg"
-                      :showUploadList="false"
-                      :customRequest="handleUploadImage"
-                    >
-                      <div class="delete-img" @click="handleDeleteImage($event)" v-show="form.image">
-                        <a-icon type="close-circle" />
-                      </div>
-                      <template v-if="uploading">
-                        <div class="upload-container">
-                          <p class="ant-upload-drag-icon">
-                            <a-icon type="cloud-upload" />
-                          </p>
-                          <p class="ant-upload-text">
-                            <a-spin />
-                            <span class="uploading-tips">{{ $t('teacher.add-unit-plan.uploading') }}</span>
-                          </p>
-                        </div>
-                      </template>
-                      <template v-if="!uploading && form && form.image">
-                        <div class="image-preview">
-                          <img :src="form.image" alt="">
-                        </div>
-                      </template>
-                      <template v-if="!uploading && form && !form.image">
-                        <div class="upload-container">
-                          <p class="ant-upload-drag-icon">
-                            <img src="~@/assets/icons/lesson/upload_icon.png" class="upload-icon" />
-                          </p>
-                          <p class="ant-upload-text">
-                            {{ $t('teacher.add-unit-plan.upload-a-picture') }}
-                          </p>
-                        </div>
-                      </template>
-                    </a-upload-dragger>
-                  </a-form-model-item>
-                </div>
-                <div class="recomend-loading" v-if="recomendListLoading">
-                  <a-spin size="large" />
-                </div>
-                <div class="form-block-right" v-show="!form.presentationId && currentActiveStepIndex === 1" v-if="!recomendListLoading">
-                  <div class="right-title">Teaching Tips</div>
-                  <div class="slide-preview-list">
-                    <div class="slide-preview-item" v-for="(template, rIndex) in recommendTemplateList" :key="rIndex">
-                      <div class="mask-cover">
-                        <div class="mask-actions">
-                          <div class="action-item action-item-center">
-                            <!--                            <div class="session-btn session-btn-left">-->
-                            <!--                              <div class="session-btn-text">Preview</div>-->
-                            <!--                            </div>-->
-                            <div class="session-btn session-btn-right" v-if="!addRecomendLoading">
-                              <div class="session-btn-text" @click="selectRecommendTemplate(template)">Add as slide</div>
+                <template v-if="showAllCollaborateCommentVisible">
+                  <div class="collaborate-panel" :style="{'width':'600px','position': 'absolute', 'top': '0px', 'z-index': 100}">
+                    <div class="icon">
+                      <comment-icon />
+                    </div>
+                    <a-tabs default-active-key="1">
+                      <a-tab-pane key="1" tab="Comment">
+                        <collaborate-comment-view :comment-list="collaborateCommentList" @update-comment="handleUpdateCommentList"/>
+                      </a-tab-pane>
+                      <a-tab-pane key="2" tab="History" force-render>
+                        <collaborate-history :history-list="historyList" @restore="handleRestoreField"/>
+                      </a-tab-pane>
+                    </a-tabs>
+                  </div>
+                </template>
+                <template v-else>
+                  <template v-if="showCollaborateCommentVisible">
+                    <div class="collaborate-panel" :style="{'width':'600px','position': 'absolute', 'top':collaborateTop+'px', 'z-index': 100}">
+                      <collaborate-comment-panel :comment-list="currentCollaborateCommentList" @update-comment="handleUpdateCommentList"/>
+                    </div>
+                  </template>
+                  <template v-else>
+                    <div class="form-block-right" v-show="currentActiveStepIndex !== 1" >
+                      <!-- image-->
+                      <a-form-model-item class="img-wrapper">
+                        <a-upload-dragger
+                          name="file"
+                          accept="image/png, image/jpeg"
+                          :showUploadList="false"
+                          :customRequest="handleUploadImage"
+                        >
+                          <div class="delete-img" @click="handleDeleteImage($event)" v-show="form.image">
+                            <a-icon type="close-circle" />
+                          </div>
+                          <template v-if="uploading">
+                            <div class="upload-container">
+                              <p class="ant-upload-drag-icon">
+                                <a-icon type="cloud-upload" />
+                              </p>
+                              <p class="ant-upload-text">
+                                <a-spin />
+                                <span class="uploading-tips">{{ $t('teacher.add-unit-plan.uploading') }}</span>
+                              </p>
+                            </div>
+                          </template>
+                          <template v-if="!uploading && form && form.image">
+                            <div class="image-preview">
+                              <img :src="form.image" alt="">
+                            </div>
+                          </template>
+                          <template v-if="!uploading && form && !form.image">
+                            <div class="upload-container">
+                              <p class="ant-upload-drag-icon">
+                                <img src="~@/assets/icons/lesson/upload_icon.png" class="upload-icon" />
+                              </p>
+                              <p class="ant-upload-text">
+                                {{ $t('teacher.add-unit-plan.upload-a-picture') }}
+                              </p>
+                            </div>
+                          </template>
+                        </a-upload-dragger>
+                      </a-form-model-item>
+                    </div>
+                    <div class="recomend-loading" v-if="recomendListLoading">
+                      <a-spin size="large" />
+                    </div>
+                    <div class="form-block-right" v-show="!form.presentationId && currentActiveStepIndex === 1" v-if="!recomendListLoading">
+                      <div class="right-title">Teaching Tips</div>
+                      <div class="slide-preview-list">
+                        <div class="slide-preview-item" v-for="(template, rIndex) in recommendTemplateList" :key="rIndex">
+                          <div class="mask-cover">
+                            <div class="mask-actions">
+                              <div class="action-item action-item-center">
+                                <!--                            <div class="session-btn session-btn-left">-->
+                                <!--                              <div class="session-btn-text">Preview</div>-->
+                                <!--                            </div>-->
+                                <div class="session-btn session-btn-right" v-if="!addRecomendLoading">
+                                  <div class="session-btn-text" @click="selectRecommendTemplate(template)">Add as slide</div>
+                                </div>
+                              </div>
                             </div>
                           </div>
+                          <a-carousel arrows>
+                            <div
+                              slot="prevArrow"
+                              class="custom-slick-arrow"
+                              style="left: 10px;zIndex: 1"
+                            >
+                              <a-icon type="left-circle" />
+                            </div>
+                            <div slot="nextArrow" class="custom-slick-arrow" style="right: 10px">
+                              <a-icon type="right-circle" />
+                            </div>
+                            <div v-for="(item,index) in template.images" :key="index">
+                              <img :src="item" />
+                            </div>
+                          </a-carousel>
+                          <a-row v-if="template.introduce" class="slide-desc" :title="template.introduce">
+                            {{ template.introduce }}
+                          </a-row>
                         </div>
                       </div>
-                      <a-carousel arrows>
-                        <div
-                          slot="prevArrow"
-                          class="custom-slick-arrow"
-                          style="left: 10px;zIndex: 1"
-                        >
-                          <a-icon type="left-circle" />
-                        </div>
-                        <div slot="nextArrow" class="custom-slick-arrow" style="right: 10px">
-                          <a-icon type="right-circle" />
-                        </div>
-                        <div v-for="(item,index) in template.images" :key="index">
-                          <img :src="item" />
-                        </div>
-                      </a-carousel>
-                      <a-row v-if="template.introduce" class="slide-desc" :title="template.introduce">
-                        {{ template.introduce }}
-                      </a-row>
                     </div>
-                  </div>
-                </div>
-                <div v-if="!this.contentLoading && this.currentActiveStepIndex === 0" :style="{'width':'600px','position': 'absolute', 'top':customTagTop+'px'}">
-                  <custom-tag
-                    :show-arrow="showCustomTag"
-                    :user-tags="userTags"
-                    :custom-tags-list="customTagList"
-                    ref="customTag"
-                    :selected-tags-list="form.customTags"
-                    @reload-user-tags="loadUserTags"
-                    @change-add-keywords="handleChangeAddKeywords"
-                    @change-user-tags="handleChangeUserTags"></custom-tag>
-                </div>
+                    <div v-if="!this.contentLoading && this.currentActiveStepIndex !== 1" :style="{'width':'600px','position': 'absolute', 'top':customTagTop+'px'}">
+                      <custom-tag
+                        :show-arrow="showCustomTag"
+                        :user-tags="userTags"
+                        :custom-tags-list="customTagList"
+                        ref="customTag"
+                        :selected-tags-list="form.customTags"
+                        @reload-user-tags="loadUserTags"
+                        @change-add-keywords="handleChangeAddKeywords"
+                        @change-user-tags="handleChangeUserTags"></custom-tag>
+                    </div>
+                  </template>
+                </template>
               </div>
             </a-card>
           </a-col>
@@ -321,7 +346,20 @@
           </div>
         </div>
       </template>
-      <collaborate-content ref="collaborate"/>
+      <a-modal
+        v-model="showCollaborateModalVisible"
+        :footer="null"
+        :maskClosable="false"
+        :closable="true"
+        destroyOnClose
+        width="800px">
+        <collaborate-content
+          :content-id="taskId"
+          :main-content="collaborateContent"
+          :content-type="contentType.task"
+          @finished="showCollaborateModalVisible = false"
+          v-if="showCollaborateModalVisible"/>
+      </a-modal>
       <a-modal
         v-model="selectAddContentTypeVisible"
         :footer="null"
@@ -688,10 +726,20 @@
   import NewMyContent from '@/components/MyContent/NewMyContent'
   import { FindCustomTags, GetTreeByKey } from '@/api/tag'
   import { NavigationType } from '@/components/NewLibrary/NavigationType'
+  import { GetCollaborateComment, GetCollaborateModifiedHistory } from '@/api/collaborate'
+  import CollaborateCommentPanel from '@/components/Collaborate/CollaborateCommentPanel'
+  import CommentSwitch from '@/components/Collaborate/CommentSwitch'
+  import CollaborateCommentView from '@/components/Collaborate/CollaborateCommentView'
+  import commentIcon from '@/assets/icons/collaborate/comment.svg?inline'
+  import CollaborateHistory from '@/components/Collaborate/CollaborateHistory'
 
   export default {
     name: 'AddTask',
     components: {
+      CollaborateHistory,
+      CollaborateCommentView,
+      CommentSwitch,
+      CollaborateCommentPanel,
       CommonFormHeader,
       NewBrowser,
       NewMyContent,
@@ -710,7 +758,8 @@
       Collaborate,
       AssociateSidebar,
       CollaborateContent,
-      CustomTag
+      CustomTag,
+      commentIcon
     },
     props: {
       taskId: {
@@ -827,7 +876,130 @@
         customTagTop: 300,
         customTagList: [],
         userTags: {},
-        NavigationType: NavigationType
+        NavigationType: NavigationType,
+        showCollaborateCommentVisible: false,
+
+        showCollaborateModalVisible: false,
+        collaborateContent: null,
+
+        // TODO mock数据待更新为接口请求（loadCollaborateData方法中的GetCollaborateComment)
+        collaborateCommentList: [
+          {
+            id: '1',
+            fieldName: 'name', // 针对表单中哪个字段的评论
+            avatar: 'https://dcdkqlzgpl5ba.cloudfront.net/file/202106290118339914-avatar.png',
+            username: 'Xunwu Yang',
+            userId: '1392467808404684802',
+            createdTime: '2021-09-24 05:35:52',
+            content: '我认为这里不对噢，应该要我认为这里不对噢，应该要我认为这里不对噢，应该要我认为这里不对噢，应该要我认为这里不对噢，应该要...',
+            isDelete: false,
+            commentToId: null, // 当前评论是回复谁的
+            rootCommentId: null // 当然评论的根评论（最上层评论）的id
+          },
+          {
+            id: '2',
+            fieldName: 'name', // 针对表单中哪个字段的评论
+            avatar: 'https://dcdkqlzgpl5ba.cloudfront.net/file/202106290118339914-avatar.png',
+            username: 'Xunwu Wang',
+            userId: '',
+            createdTime: '2021-09-24 04:35:52',
+            content: '你觉得都是不对？我认为这里不对噢，应该要...',
+            isDelete: true,
+            commentToId: '1', // 当前评论是回复谁的
+            rootCommentId: '1' // 当然评论的根评论（最上层评论）的id
+          },
+          {
+            id: '3',
+            fieldName: 'name', // 针对表单中哪个字段的评论
+            avatar: 'https://dcdkqlzgpl5ba.cloudfront.net/file/202106290118339914-avatar.png',
+            username: 'Xunwu SDG',
+            userId: '',
+            createdTime: '2021-09-24 03:35:52',
+            content: '你应该要...',
+            isDelete: false,
+            commentToId: '2', // 当前评论是回复谁的
+            rootCommentId: '1' // 当然评论的根评论（最上层评论）的id
+          },
+          {
+            id: '5',
+            fieldName: 'name', // 针对表单中哪个字段的评论
+            avatar: 'https://dcdkqlzgpl5ba.cloudfront.net/file/202106290118339914-avatar.png',
+            username: 'Xunwu zgp',
+            userId: '',
+            createdTime: '2021-09-24 03:35:52',
+            content: '哈哈',
+            isDelete: false,
+            commentToId: '3', // 当前评论是回复谁的
+            rootCommentId: '1' // 当然评论的根评论（最上层评论）的id
+          },
+
+          {
+            id: '4',
+            fieldName: 'name', // 针对表单中哪个字段的评论
+            avatar: 'https://dcdkqlzgpl5ba.cloudfront.net/file/202106290118339914-avatar.png',
+            username: 'Xunwu Yang',
+            userId: '1392467808404684802',
+            createdTime: '2021-09-24 05:35:52',
+            content: '2我认为这里不对噢，应该要我认为这里不对噢，应该要我认为这里不对噢，应该要我认为这里不对噢，应该要我认为这里不对噢，应该要...',
+            isDelete: false,
+            commentToId: null, // 当前评论是回复谁的
+            rootCommentId: null // 当然评论的根评论（最上层评论）的id
+          }],
+        currentCollaborateCommentList: [],
+        collaborateTop: 0,
+        showAllCollaborateCommentVisible: false,
+        // TODO mock数据待更新为接口请求（loadCollaborateData方法中的GetCollaborateModifiedHistory)
+        historyList: [
+          {
+            id: '1',
+            createdTime: '2021-09-24 05:35:52',
+            // 用户回复history数据的，每个元素针对一整个字段，直接用vue的this.$set强制设置对象属性值进行‘恢复’
+            historyData: [
+              {
+                createdBy: 'Xunwu Yang',
+                fieldName: 'name',
+                fieldDisplayName: 'Course Name',
+                data: 'this is restored name'
+              },
+              {
+                createdBy: 'Jack Ma',
+                fieldName: 'overview',
+                fieldDisplayName: 'Course Overview',
+                data: 'this is restored overview'
+              }
+            ]
+          },
+          {
+            id: '2',
+            createdTime: '2021-09-26 05:35:52',
+            // 用户回复history数据的，每个元素针对一整个字段，直接用vue的this.$set强制设置对象属性值进行‘恢复’
+            historyData: [
+              {
+                createdBy: 'Xunwu Yang',
+                fieldName: 'name',
+                fieldDisplayName: 'Course Name',
+                data: 'this is restored name'
+              },
+              {
+                createdBy: 'Jack Ma',
+                fieldName: 'overview',
+                fieldDisplayName: 'Course Overview',
+                data: 'this is restored overview'
+              },
+              {
+                createdBy: 'Jack Ma',
+                fieldName: 'questions',
+                fieldDisplayName: 'Big idea',
+                data: [
+                  {
+                    id: '',
+                    name: ''
+                  }
+                ]
+              }
+            ]
+          }
+        ]
       }
     },
     computed: {
@@ -1395,7 +1567,8 @@
       },
       handleStartCollaborate () {
         this.$logger.info('handleStartCollaborate')
-        this.$refs.collaborate.startCollaborateModal(Object.assign({}, this.form), this.form.id, this.contentType.task)
+        this.collaborateContent = Object.assign({}, this.form)
+        this.showCollaborateModalVisible = true
       },
       handleUploadImage (data) {
         logger.info('handleUploadImage', data)
@@ -1624,6 +1797,20 @@
       handleSelectDescription () {
         this.selectSyncDataVisible = true
       },
+      // 加载协作的评论和历史记录数据
+      loadCollaborateData () {
+        return Promise.all([
+          GetCollaborateModifiedHistory({ type: this.contentType.task, id: this.form.id }),
+          GetCollaborateComment({ type: this.contentType.task, id: this.form.id })
+        ]).then(response => {
+          this.$logger.info('GetCollaborateModifiedHistory', response[0])
+          // TODO 将历史记录数据‘格式’后填充到historyList数组中，大部分数据可以直接赋值，复杂字段要处理一下,这样handleRestoreField()方法就可以直接赋值了。
+
+          this.$logger.info('GetCollaborateComment', response[1])
+          // TODO 将写作点评数据‘格式’后填充到collaborateCommentList数组中
+        })
+      },
+
       handleSyncData () {
         this.$logger.info(' handleSyncData')
         GetReferOutcomes({
@@ -1760,6 +1947,63 @@
         if (index > -1) {
           this.userTags.userTags[index].keywords.push(tag.name)
         }
+      },
+
+      // 切换当前的字段的点评数据，从总的collaborateCommentList筛选初当前字段相关的点评数据
+      handleSwitchComment (data) {
+        this.$logger.info('handleSwitchComment', data)
+        this.showAllCollaborateCommentVisible = false
+        if (this.showCollaborateCommentVisible) {
+          this.showCollaborateCommentVisible = false
+          this.currentCollaborateCommentList = []
+        } else {
+          const list = []
+          this.collaborateCommentList.forEach(item => {
+            if (item.fieldName === data.fieldName) {
+              list.push(item)
+            }
+          })
+          this.currentCollaborateCommentList = list
+          this.collaborateTop = data.top
+          this.showCollaborateCommentVisible = true
+          this.$logger.info('currentCollaborateCommentList', list)
+        }
+      },
+
+      // 每次点击都重新加载一下最新数据
+      handleViewCollaborate () {
+        this.$logger.info('handleViewCollaborate')
+        this.showCollaborateCommentVisible = false
+        this.currentCollaborateCommentList = []
+        this.loadCollaborateData().then(() => {
+          this.$logger.info('loadCollaborateData loaded')
+        }).finally(() => {
+          this.showAllCollaborateCommentVisible = !this.showAllCollaborateCommentVisible
+        })
+      },
+
+      // TODO 发布评论后需要更新最新的评论列表,刷新数据
+      handleUpdateCommentList () {
+        this.$logger.info('handleUpdateCommentList')
+        this.loadCollaborateData().then(() => {
+          this.$logger.info('loadCollaborateData loaded')
+        }).finally(() => {
+
+        })
+      },
+
+      // historyData以及在接口请求的相应逻辑中正对数据进行‘格式’，
+      // 这样在这里就可以直接this.$set设置字段的数据
+      handleRestoreField (data) {
+        this.$logger.info('handleRestoreField', data, this.form)
+        if (data.historyData) {
+          data.historyData.forEach(dataItem => {
+            this.$logger.info('set ' + dataItem.fieldName, dataItem.data)
+            this.$set(this.form, dataItem.fieldName, dataItem.data)
+            this.$message.success('restore ' + dataItem.fieldDisplayName + ' success!')
+          })
+        }
+        this.$logger.info('after handleRestoreField', this.form)
       }
     }
   }
@@ -3276,5 +3520,27 @@
   }
   .root-locate-form {
     position: relative;
+  }
+  .my-comment-switch {
+    position: absolute;
+    right: 40px;
+    top: 28px;
+    z-index: 200;
+  }
+
+  .collaborate-panel {
+    background-color: #fff;
+    box-shadow: 0px 6px 10px rgba(159, 159, 159, 0.16);
+    .icon {
+      padding: 10px 5px 0 15px;
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      justify-content: flex-start;
+
+      svg {
+        width: 30px;
+      }
+    }
   }
 </style>

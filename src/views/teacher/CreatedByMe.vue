@@ -100,12 +100,14 @@
                   <div slot="actions">
                     <div class="action-wrapper">
                       <div class="preview-session-wrapper action-item-wrapper">
-                        <div class="session-btn content-list-action-btn" @click="handleDeleteItem(item)">
-                          <div class="session-btn-icon">
-                            <a-icon type="delete" />
+                        <a-popconfirm :title="$t('teacher.my-content.action-delete') + '?'" ok-text="Yes" @confirm="handleDeleteItem(item)" cancel-text="No">
+                          <div class="session-btn content-list-action-btn">
+                            <div class="session-btn-icon">
+                              <a-icon type="delete" />
+                            </div>
+                            <div class="session-btn-text">{{ $t('teacher.my-content.action-delete') }}</div>
                           </div>
-                          <div class="session-btn-text">{{ $t('teacher.my-content.action-delete') }}</div>
-                        </div>
+                        </a-popconfirm>
                       </div>
                       <div class="start-session-wrapper action-item-wrapper">
                         <div class="session-btn content-list-action-btn" @click="handleEditItem(item)">
@@ -123,7 +125,7 @@
                           <div class="session-btn-text"> Duplicate</div>
                         </div>
                       </div>
-                      <div class="more-action-wrapper action-item-wrapper">
+                      <div class="more-action-wrapper action-item-wrapper" v-if="item.type !== typeMap['unit-plan']">
                         <a-dropdown>
                           <a-icon type="more" style="margin-right: 8px" />
                           <a-menu slot="overlay">
@@ -202,6 +204,12 @@
                         <edit-svg />
                       </div>
                       <div class="session-btn-text">Edit</div>
+                    </div>
+                    <div class="session-btn" @click.stop="handleDuplicateItem(item)">
+                      <div class="session-btn-icon content-list-action-btn">
+                        <copy-svg />
+                      </div>
+                      <div class="session-btn-text">Duplicate</div>
                     </div>
                     <div class="session-btn" @click.stop="handleViewPreviewSession(item)" v-if="item.type === typeMap['lesson'] || item.type === typeMap['task']">
                       <div class="session-btn-icon content-list-action-btn">
@@ -301,6 +309,7 @@ import TvSvg from '@/assets/icons/lesson/tv.svg?inline'
 import EvaluationSvg from '@/assets/icons/common/evaluation.svg?inline'
 import PreviousSessionsSvg from '@/assets/icons/common/PreviousSessions.svg?inline'
 import EditSvg from '@/assets/icons/common/Edit.svg?inline'
+import CopySvg from '@/assets/icons/common/copy.svg?inline'
 import StartSessionSvg from '@/assets/icons/common/StartSession.svg?inline'
 import ClassList from '@/components/Teacher/ClassList'
 import CustomTag from '@/components/UnitPlan/CustomTag'
@@ -336,6 +345,7 @@ export default {
     CustomTag,
     ModalHeader,
     EditSvg,
+    CopySvg,
     LiebiaoSvg,
     PubuSvg
   },
@@ -488,9 +498,17 @@ export default {
 
     handleDuplicateItem (item) {
       this.$logger.info('handleDuplicateItem', item)
-      Duplicate({ id: item.id, type: item.type }).then((response) => {
-        this.$logger.info('Duplicate response', response)
-        this.loadMyContent()
+      this.$confirm({
+        title: 'Confirm duplicate',
+        content: 'Are you sure to duplicate ' + item.name + ' ?"',
+        centered: true,
+        onOk: () => {
+          this.loading = true
+          Duplicate({ id: item.id, type: item.type }).then((response) => {
+            this.$logger.info('Duplicate response', response)
+            this.loadMyContent()
+          })
+        }
       })
     },
     handlePrevious (item) {

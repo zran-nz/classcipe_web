@@ -9,7 +9,8 @@ export const DICT_BLOOM_CATEGORY = 'bloom_categories'
 
 export const TagType = {
   'knowledge': 1,
-  'skill': 2
+  'skill': 2,
+  'century': 3
 }
 
 export const TagOriginType = {
