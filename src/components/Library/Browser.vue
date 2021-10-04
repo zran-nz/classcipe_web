@@ -131,7 +131,7 @@ const BrowserTypeMap = {
 }
 
 const BrowserTypeLabelMap = {
-  curriculum: 'Curriculum',
+  curriculum: 'Learning outcomes',
   assessmentType: 'Assessment type',
   sdg: 'Big idea',
   specificSkills: 'Subject Specific Skills',
@@ -166,7 +166,7 @@ export default {
       curriculumOptions: [],
       navPath: [],
       browserTypeList: [
-        { type: 'curriculum', label: 'Curriculum' },
+        { type: 'curriculum', label: 'Learning outcomes' },
         { type: 'assessmentType', label: 'Assessment type' },
         { type: 'specificSkills', label: 'Subject Specific Skills' },
         { type: 'centurySkills', label: 'Century Skills' },
