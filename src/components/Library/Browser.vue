@@ -133,7 +133,7 @@ const BrowserTypeMap = {
 const BrowserTypeLabelMap = {
   curriculum: 'Curriculum',
   sdg: 'Sustainable development goal',
-  specificSkills: 'Specific Skills',
+  specificSkills: 'Subject Specific Skills',
   centurySkills: 'Century Skills'
 }
 
