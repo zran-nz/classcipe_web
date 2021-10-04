@@ -169,7 +169,7 @@ export default {
         { type: 'curriculum', label: 'Learning outcomes' },
         { type: 'assessmentType', label: 'Assessment type' },
         { type: 'specificSkills', label: 'Subject Specific Skills' },
-        { type: 'centurySkills', label: 'Century Skills' },
+        { type: 'centurySkills', label: '21st Century Skills' },
         { type: 'sdg', label: 'Big idea' }
       ],
       currentBrowserType: 'curriculum',
