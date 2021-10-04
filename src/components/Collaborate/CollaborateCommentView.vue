@@ -141,6 +141,7 @@ export default {
   data () {
     return {
       rawCommentList: [],
+      rootCommentMap: new Map(),
       formatCommentList: [],
 
       deleteCommentModalVisible: false,
@@ -171,28 +172,28 @@ export default {
        * subCommentList数组中，按时间排序展示
        */
         // 过滤rootComment
-      const rootCommentMap = new Map()
+      this.rootCommentMap = new Map()
       this.rawCommentList.forEach(item => {
         const dataItem = Object.assign({}, item)
         if (!dataItem.rootCommentId) {
           dataItem.subCommentList = []
-          rootCommentMap.set(dataItem.id, dataItem)
+          this.rootCommentMap.set(dataItem.id, dataItem)
         }
       })
       // 追加下面的子讨论列表,按时间排序展示
       this.rawCommentList.forEach(item => {
         if (item.rootCommentId) {
-          if (rootCommentMap.has(item.rootCommentId)) {
-            const rootComment = rootCommentMap.get(item.rootCommentId)
+          if (this.rootCommentMap.has(item.rootCommentId)) {
+            const rootComment = this.rootCommentMap.get(item.rootCommentId)
             rootComment.subCommentList.push(item)
             rootComment.subCommentList = rootComment.subCommentList.sort((i, j) => i.createdTime < j.createdTime)
           } else {
-            this.$logger.info('no exit rootCommentId ' + item.rootCommentId, rootCommentMap)
+            this.$logger.info('no exit rootCommentId ' + item.rootCommentId, this.rootCommentMap)
           }
         }
       })
       // map转为数组
-      for (const [rootCommentId, rootComment] of rootCommentMap.entries()) {
+      for (const [rootCommentId, rootComment] of this.rootCommentMap.entries()) {
         this.$logger.info('rootCommentId ' + rootCommentId, rootComment)
         this.formatCommentList.push(rootComment)
       }
@@ -241,8 +242,48 @@ export default {
       })
     },
 
+    // 按姓名过滤评论
     handleFilterNameChange () {
-      this.$logger.info('handleFilterNameChange', this.filterName)
+      this.$logger.info('handleFilterNameChange', this.filterName, this.rootCommentMap)
+      this.formatCommentList = []
+      if (this.currentType === 0) {
+        for (const [rootCommentId, rootComment] of this.rootCommentMap.entries()) {
+          this.$logger.info('rootCommentId ' + rootCommentId, rootComment)
+          let isInvolvedMe = false
+          if (rootComment.username && rootComment.username.toLowerCase().indexOf(this.filterName.toLowerCase()) !== -1) {
+            isInvolvedMe = true
+          } else {
+            rootComment.subCommentList.forEach(item => {
+              if (item.username && item.username.toLowerCase().indexOf(this.filterName.toLowerCase()) !== -1) {
+                isInvolvedMe = true
+              }
+            })
+          }
+
+          if (isInvolvedMe) {
+            this.formatCommentList.push(rootComment)
+          }
+        }
+      } else {
+        for (const [rootCommentId, rootComment] of this.rootCommentMap.entries()) {
+          this.$logger.info('rootCommentId ' + rootCommentId, rootComment)
+          let isInvolvedMe = false
+          if (rootComment.userId === this.$store.getters.userInfo.id && (rootComment.username && rootComment.username.toLowerCase().indexOf(this.filterName.toLowerCase()) !== -1)) {
+            isInvolvedMe = true
+          } else {
+            rootComment.subCommentList.forEach(item => {
+              if (item.userId === this.$store.getters.userInfo.id && (item.username && item.username.toLowerCase().indexOf(this.filterName.toLowerCase()) !== -1)) {
+                isInvolvedMe = true
+              }
+            })
+          }
+
+          if (isInvolvedMe) {
+            this.formatCommentList.push(rootComment)
+          }
+        }
+        this.$logger.info('formatCommentList', this.formatCommentList)
+      }
     },
 
     toggleType (type, label) {
@@ -260,28 +301,28 @@ export default {
          * subCommentList数组中，按时间排序展示
          */
           // 过滤rootComment
-        const rootCommentMap = new Map()
+        this.rootCommentMap = new Map()
         this.rawCommentList.forEach(item => {
           const dataItem = Object.assign({}, item)
           if (!dataItem.rootCommentId) {
             dataItem.subCommentList = []
-            rootCommentMap.set(dataItem.id, dataItem)
+            this.rootCommentMap.set(dataItem.id, dataItem)
           }
         })
         // 追加下面的子讨论列表,按时间排序展示
         this.rawCommentList.forEach(item => {
           if (item.rootCommentId) {
-            if (rootCommentMap.has(item.rootCommentId)) {
-              const rootComment = rootCommentMap.get(item.rootCommentId)
+            if (this.rootCommentMap.has(item.rootCommentId)) {
+              const rootComment = this.rootCommentMap.get(item.rootCommentId)
               rootComment.subCommentList.push(item)
               rootComment.subCommentList = rootComment.subCommentList.sort((i, j) => i.createdTime < j.createdTime)
             } else {
-              this.$logger.info('no exit rootCommentId ' + item.rootCommentId, rootCommentMap)
+              this.$logger.info('no exit rootCommentId ' + item.rootCommentId, this.rootCommentMap)
             }
           }
         })
         // map转为数组
-        for (const [rootCommentId, rootComment] of rootCommentMap.entries()) {
+        for (const [rootCommentId, rootComment] of this.rootCommentMap.entries()) {
           this.$logger.info('rootCommentId ' + rootCommentId, rootComment)
           let isInvolvedMe = false
           if (rootComment.userId === this.$store.getters.userInfo.id) {
