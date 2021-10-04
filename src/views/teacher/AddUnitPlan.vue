@@ -437,7 +437,7 @@
             :sync-data="syncData"
             :show-menu="showMenuList"
             :default-active-menu="defaultActiveMenu"
-            @select-big-idea="handleSelectListData"
+            @select-big-idea="handleSelectBigIdeaData"
             @select-sync="handleSelectListData"
             @select-curriculum="handleSelectCurriculum"
             @select-subject-specific-skill="handleSelectSubjectSpecificSkillListData"
@@ -685,16 +685,28 @@ export default {
           commentToId: '2', // 当前评论是回复谁的
           rootCommentId: '1' // 当然评论的根评论（最上层评论）的id
         },
+        {
+          id: '5',
+          fieldName: 'name', // 针对表单中哪个字段的评论
+          avatar: 'https://dcdkqlzgpl5ba.cloudfront.net/file/202106290118339914-avatar.png',
+          username: 'Xunwu zgp',
+          userId: '',
+          createdTime: '2021-09-24 03:35:52',
+          content: '哈哈',
+          isDelete: false,
+          commentToId: '3', // 当前评论是回复谁的
+          rootCommentId: '1' // 当然评论的根评论（最上层评论）的id
+        },
 
         {
-          id: '2',
+          id: '4',
           fieldName: 'name', // 针对表单中哪个字段的评论
           avatar: 'https://dcdkqlzgpl5ba.cloudfront.net/file/202106290118339914-avatar.png',
           username: 'Xunwu Yang',
           userId: '1392467808404684802',
           createdTime: '2021-09-24 05:35:52',
-          content: '我认为这里不对噢，应该要我认为这里不对噢，应该要我认为这里不对噢，应该要我认为这里不对噢，应该要我认为这里不对噢，应该要...',
-          isDelete: true,
+          content: '2我认为这里不对噢，应该要我认为这里不对噢，应该要我认为这里不对噢，应该要我认为这里不对噢，应该要我认为这里不对噢，应该要...',
+          isDelete: false,
           commentToId: null, // 当前评论是回复谁的
           rootCommentId: null // 当然评论的根评论（最上层评论）的id
         }],
@@ -1415,6 +1427,7 @@ export default {
     },
 
     handleSelectSubjectSpecificSkillListData (data) {
+      this.selectedSpecificSkillList = data
       this.$logger.info('handleSelectSubjectSpecificSkillListData', data)
     },
 
@@ -1455,8 +1468,8 @@ export default {
       const selectList = this.selectedCurriculumList.concat(this.selectedSpecificSkillList).concat(this.selectedCenturySkillList)
       console.log(selectList)
       if (this.selectIdea) {
-        if (selectList.length > 0) {
-          this.form.inquiry = selectList[0].knowledgeData.name
+        if (this.selectedBigIdeaList.length > 0) {
+          this.form.inquiry = this.selectedBigIdeaList[0].bigIdea
         }
         this.selectSyncDataVisible = false
         return
