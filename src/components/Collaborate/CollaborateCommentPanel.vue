@@ -151,13 +151,13 @@ export default {
     this.formatComment()
   },
   methods: {
+    /**
+     * 格式化处理回复数据
+     * 按rootCommentId进行分组，为空的代表是一个评论组，
+     * 然后把下面的子评论(rootCommentId相同即为一组)追加到
+     * subCommentList数组中，按时间排序展示
+     */
     formatComment () {
-      /**
-       * 格式化处理回复数据
-       * 按rootCommentId进行分组，为空的代表是一个评论组，
-       * 然后把下面的子评论(rootCommentId相同即为一组)追加到
-       * subCommentList数组中，按时间排序展示
-       */
         // 过滤rootComment
       const rootCommentMap = new Map()
       this.rawCommentList.forEach(item => {
@@ -188,6 +188,15 @@ export default {
     },
 
     // TODO 评论提交逻辑
+    /**
+     * 1、评论分两种一种是新建，一种是回复。根据rootCommentId是否为null判断，如果当前
+     * 是新增的评论那么rootCommentId为null，如果是回复他人的commentToId、rootCommentId
+     * 不为空，且下面所有的回复的rootCommentId都相同，代表在一个评论下面的追加回复。
+     * 2、如果有isDelete为true那么显示【该评论已被删除】,不展示数据。
+     * 3、后台数据过来后按照rootCommentId为null的数据分组，然后把其他数据追加到各个分组下面，
+     * 参考formatComment()逻辑
+     * @param data
+     */
     handleSend (data) {
       this.$logger.info('handleSend', data)
       if (!data) {

@@ -662,7 +662,7 @@ export default {
       showMenuList: [ NavigationType.sdg, NavigationType.specificSkills, NavigationType.centurySkills, NavigationType.learningOutcomes ],
 
       showCollaborateCommentVisible: false,
-      // TODO 测试mock数据，待删除
+      // TODO mock数据待更新为接口请求（loadCollaborateData方法中的GetCollaborateComment)
       collaborateCommentList: [
         {
           id: '1',
@@ -728,7 +728,7 @@ export default {
       currentCollaborateCommentList: [],
       collaborateTop: 0,
       showAllCollaborateCommentVisible: false,
-      // TODO mock数据待更新为接口请求
+      // TODO mock数据待更新为接口请求（loadCollaborateData方法中的GetCollaborateModifiedHistory)
       historyList: [
         {
           id: '1',
@@ -882,7 +882,7 @@ export default {
           GetCollaborateComment({ type: this.contentType['unit-plan'], id: this.form.id })
       ]).then(response => {
         this.$logger.info('GetCollaborateModifiedHistory', response[0])
-        // TODO 将历史记录数据‘格式’后填充到historyList数组中，大部分数据可以直接赋值，复杂字段要处理一下。
+        // TODO 将历史记录数据‘格式’后填充到historyList数组中，大部分数据可以直接赋值，复杂字段要处理一下,这样handleRestoreField()方法就可以直接赋值了。
 
         this.$logger.info('GetCollaborateComment', response[1])
         // TODO 将写作点评数据‘格式’后填充到collaborateCommentList数组中
@@ -1655,6 +1655,7 @@ export default {
         }
     },
 
+    // 切换当前的字段的点评数据，从总的collaborateCommentList筛选初当前字段相关的点评数据
     handleSwitchComment (data) {
       this.$logger.info('handleSwitchComment', data)
       this.showAllCollaborateCommentVisible = false
@@ -1687,7 +1688,7 @@ export default {
       })
     },
 
-    // TODO 发布评论后需要更新最新的评论列表
+    // TODO 发布评论后需要更新最新的评论列表,刷新数据
     handleUpdateCommentList () {
       this.$logger.info('handleUpdateCommentList')
       this.loadCollaborateData().then(() => {
@@ -1697,6 +1698,8 @@ export default {
       })
     },
 
+    // historyData以及在接口请求的相应逻辑中正对数据进行‘格式’，
+    // 这样在这里就可以直接this.$set设置字段的数据
     handleRestoreField (data) {
       this.$logger.info('handleRestoreField', data, this.form)
       if (data.historyData) {
