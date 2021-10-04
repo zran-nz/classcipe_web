@@ -292,7 +292,21 @@
         </a-col>
       </a-row>
 
-      <collaborate-content ref="collaborate"/>
+      <a-modal
+        v-model="showCollaborateModalVisible"
+        :footer="null"
+        :maskClosable="false"
+        :closable="true"
+        destroyOnClose
+        width="800px">
+        <collaborate-content
+          :content-id="unitPlanId"
+          :main-content="collaborateContent"
+          :content-type="contentType['unit-plan']"
+          @finished="showCollaborateModalVisible = false"
+          v-if="showCollaborateModalVisible"/>
+      </a-modal>
+
       <a-modal
         v-model="selectAddContentTypeVisible"
         :footer="null"
@@ -662,6 +676,10 @@ export default {
       showMenuList: [ NavigationType.sdg, NavigationType.specificSkills, NavigationType.centurySkills, NavigationType.learningOutcomes ],
 
       showCollaborateCommentVisible: false,
+
+      showCollaborateModalVisible: false,
+      collaborateContent: null,
+
       // TODO mock数据待更新为接口请求（loadCollaborateData方法中的GetCollaborateComment)
       collaborateCommentList: [
         {
@@ -1307,7 +1325,8 @@ export default {
     },
     handleStartCollaborate () {
       this.$logger.info('handleStartCollaborate')
-      this.$refs.collaborate.startCollaborateModal(Object.assign({}, this.form), this.form.id, this.contentType['unit-plan'])
+      this.collaborateContent = Object.assign({}, this.form)
+      this.showCollaborateModalVisible = true
     },
     handleSelectDescription (selectIdea) {
       this.selectSyncDataVisible = true

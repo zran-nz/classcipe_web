@@ -1,6 +1,10 @@
 <template>
   <div class="collaborate-content">
     <div class="collaborate-content-wrapper">
+      <div class="previous">
+        <a-button type="primary" @click="handlePrevious">< Previous</a-button>
+      </div>
+      <div class="choose-content">Choose the content</div>
       <a-skeleton :loading="skeletonLoading" active>
         <div class="content-list">
           <a-list size="large" :data-source="collaborateContentList" :loading="loading">
@@ -10,7 +14,7 @@
                 <content-type-icon :type="item.type" />
 
                 <span class="name-content">
-                  {{ item.name }}
+                  {{ item.name ? item.name : 'Untitled' }}
                 </span>
               </span>
 
@@ -18,31 +22,13 @@
                 <span class="update-time" >
                   {{ item.updateTime || item.createTime | dayjs }}
                 </span>
-                <span class="status">
-                  <template v-if="item.status === 0">Draft</template>
-                  <template v-if="item.status === 1">Published</template>
-                </span>
                 <div class="action" >
                   <div slot="actions">
                     <div class="action-wrapper">
-                      <div class="action-item" @click="handleAddToEditor(item.id)">
+                      <div class="action-item" @click="handleAddContent(item.id)">
                         <div class="active-status-icon">
-                          <img src="~@/assets/icons/collaborate/round.png" v-if="selectedEditorContentIdList.indexOf(item.id) === -1"/>
-                          <a-icon theme="filled" type="check-circle" v-if="selectedEditorContentIdList.indexOf(item.id) !== -1" />
-                        </div>
-                        <div class="action-name">Editor</div>
-                        <div class="active-icon">
-                          <img src="~@/assets/icons/collaborate/editor.png" />
-                        </div>
-                      </div>
-                      <div class="action-item" @click="handleAddToViewer(item.id)">
-                        <div class="active-status-icon">
-                          <img src="~@/assets/icons/collaborate/round.png" v-if="selectedViewerContentIdList.indexOf(item.id) === -1"/>
-                          <a-icon theme="filled" type="check-circle" v-if="selectedViewerContentIdList.indexOf(item.id) !== -1" />
-                        </div>
-                        <div class="action-name">Viewer</div>
-                        <div class="active-icon">
-                          <img src="~@/assets/icons/collaborate/viewer.png" />
+                          <img src="~@/assets/icons/collaborate/round.png" v-if="selectedContentIdList.indexOf(item.id) === -1"/>
+                          <a-icon theme="filled" type="check-circle" v-if="selectedContentIdList.indexOf(item.id) !== -1" />
                         </div>
                       </div>
                     </div>
@@ -53,8 +39,11 @@
           </a-list>
         </div>
       </a-skeleton>
+      <div class="message-wrapper">
+        <a-textarea v-model="inviteMessage" placeholder="Entre message" aria-placeholder="Entre message" class="my-textarea" />
+      </div>
       <div class="action-line">
-        <a-button class="button-item" type="primary" shape="round" @click="handleEnsureSelect"> Select User</a-button>
+        <a-button class="button-item" type="primary" shape="round" @click="handleEnsureSelect"> Confirm </a-button>
       </div>
 
       <a-drawer
@@ -132,9 +121,9 @@ export default {
       previewType: '',
 
       typeMap: typeMap,
+      inviteMessage: null,
 
-      selectedViewerContentIdList: [],
-      selectedEditorContentIdList: []
+      selectedContentIdList: []
     }
   },
   created () {
@@ -147,6 +136,7 @@ export default {
     loadAssociateContent () {
       this.$logger.info('loadAssociateContent' + this.contentId + ' type ' + this.contentType)
       this.loading = true
+      this.selectedContentIdList = []
       GetAssociate({
         id: this.contentId,
         type: this.contentType
@@ -158,13 +148,6 @@ export default {
           collaborateContentList.push(...owner)
         }
         this.collaborateContentList = collaborateContentList
-
-        this.selectedViewerContentIdList = []
-        this.selectedEditorContentIdList = []
-        this.collaborateContentList.forEach(cItem => {
-          // this.selectedViewerContentIdList.push(cItem.id)
-          this.selectedEditorContentIdList.push(cItem.id)
-        })
         this.$logger.info('collaborateContentList', this.collaborateContentList)
       }).then(() => {
         logger.info('get favorite ' + this.materialId)
@@ -183,6 +166,11 @@ export default {
       this.previewVisible = true
     },
 
+    handlePrevious () {
+      this.$logger.info('handlePrevious')
+      this.$emit('go-previous')
+    },
+
     handlePreviewClose () {
       logger.info('handlePreviewClose')
       this.previewCurrentId = ''
@@ -190,59 +178,35 @@ export default {
       this.previewVisible = false
     },
 
-    handleAddToEditor (id) {
+    handleAddContent (id) {
       this.$logger.info('handleAddToEditor ' + id)
-      const index = this.selectedEditorContentIdList.indexOf(id)
+      const index = this.selectedContentIdList.indexOf(id)
       if (index !== -1) {
-        this.selectedEditorContentIdList.splice(index, 1)
+        this.selectedContentIdList.splice(index, 1)
       } else {
-        this.selectedEditorContentIdList.push(id)
-        if (this.selectedViewerContentIdList.indexOf(id) > -1) {
-          this.selectedViewerContentIdList.splice(this.selectedViewerContentIdList.indexOf(id), 1)
-        }
+        this.selectedContentIdList.push(id)
       }
-      this.$logger.info('selectedEditorContentIdList ', this.selectedEditorContentIdList)
-    },
-
-    handleAddToViewer (id) {
-      this.$logger.info('handleAddToViewer ' + id)
-      const index = this.selectedViewerContentIdList.indexOf(id)
-      if (index !== -1) {
-        this.selectedViewerContentIdList.splice(index, 1)
-      } else {
-        this.selectedViewerContentIdList.push(id)
-        if (this.selectedEditorContentIdList.indexOf(id) > -1) {
-          this.selectedEditorContentIdList.splice(this.selectedEditorContentIdList.indexOf(id), 1)
-        }
-      }
-      this.$logger.info('selectedViewerContentIdList ', this.selectedViewerContentIdList)
+      this.$logger.info('selectedContentIdList ', this.selectedContentIdList)
     },
 
     handleEnsureSelect () {
-      this.$logger.info('handleEnsureSelect', this.selectedViewerContentIdList, this.selectedEditorContentIdList)
-      if (this.selectedEditorContentIdList.length === 0 && this.selectedViewerContentIdList.length === 0) {
+      this.$logger.info('handleEnsureSelect', this.selectedContentIdList)
+      if (this.selectedContentIdList.length === 0) {
         this.$message.warn('please select content!')
       } else {
-        const selectedViewerContentList = []
-        const selectedEditorContentList = []
-        this.selectedViewerContentIdList.forEach(id => {
+        const selectedContentList = []
+
+        this.selectedContentIdList.forEach(id => {
           const item = this.collaborateContentList.find(it => it.id === id)
-          selectedViewerContentList.push({
+          selectedContentList.push({
             id: id,
             type: item.type
           })
         })
-        this.selectedEditorContentIdList.forEach(id => {
-          const item = this.collaborateContentList.find(it => it.id === id)
-          selectedEditorContentList.push({
-            id: id,
-            type: item.type
-          })
-        })
-        this.$logger.info('event data', selectedViewerContentList, selectedEditorContentList)
+        this.$logger.info('event data', selectedContentList)
         this.$emit('selected', {
-          selectedViewerContentList,
-          selectedEditorContentList
+          selectedContentList,
+          message: this.inviteMessage
         })
       }
     }
@@ -385,5 +349,11 @@ a.delete-action {
   .button-item {
     margin-left: 10px;
   }
+}
+
+.choose-content {
+  margin: 10px 0 5px 0;
+  line-height: 24px;
+  color: #000;
 }
 </style>
