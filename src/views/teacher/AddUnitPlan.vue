@@ -48,13 +48,14 @@
                       </div>-->
 
                       <div class="form-block">
-                        <comment-switch field-name="name" @switch="handleSwitchComment" class="my-comment-switch"/>
+                        <comment-switch field-name="name" :is-active="showCollaborateCommentVisible && currentFieldName === 'name'" @switch="handleSwitchComment" class="my-comment-switch"/>
                         <a-form-item label="Course Name">
                           <a-input v-model="form.name" placeholder="Enter Course Name" class="my-form-input"/>
                         </a-form-item>
                       </div>
 
                       <div class="form-block over-form-block" id="overview">
+                        <comment-switch field-name="overview" :is-active="showCollaborateCommentVisible && currentFieldName === 'overview'" @switch="handleSwitchComment" class="my-comment-switch"/>
                         <a-form-model-item class="task-audio-line" label="Course Overview">
                           <a-textarea class="overview" v-model="form.overview" placeholder="Overview" allow-clear />
                           <!--        <div class="audio-wrapper" v-if="form.audioUrl">
@@ -73,14 +74,15 @@
                       </div>
 
                       <div class="form-block inquiry-form-block" id="inquiry">
+                        <comment-switch field-name="inquiry" :is-active="showCollaborateCommentVisible && currentFieldName === 'inquiry'" @switch="handleSwitchComment" class="my-comment-switch"/>
                         <!--                <a-divider />-->
-                        <a-form-item label="Big idea* (Or statement of inquiry / Enduring understanding)" >
+                        <a-form-item label="Big idea* (Or statement of inquiry / Enduring understanding)" class="bigIdea" >
                           <a-input
                             v-model="form.inquiry"
                             :placeholder="$store.getters.currentRole === 'teacher' ? $t('teacher.add-unit-plan.teacher-direction-of-inquiry') : $t('teacher.add-unit-plan.expert-direction-of-inquiry')"
                             class="my-form-input inquiry"/>
                         </a-form-item>
-                        <a-tooltip title="Browse" @click="handleSelectDescription(true)">
+                        <a-tooltip title="Browse" @click.stop="handleSelectDescription(true)">
                           <span class="browse">
                             <a-icon type="appstore" theme="twoTone" twoToneColor="rgba(21, 195, 154, 1)" />
                           </span>
@@ -89,6 +91,7 @@
 
                       <!--            real-life-scenario-->
                       <div class="form-block ">
+                        <comment-switch field-name="sdg" :is-active="showCollaborateCommentVisible && currentFieldName === 'sdg'" @switch="handleSwitchComment" class="my-comment-switch" style="top:40px"/>
                         <a-divider>Teach Goal</a-divider>
                         <a-row>
                           <a-col span="24">
@@ -155,6 +158,7 @@
                       </div>
 
                       <div class="form-block">
+                        <comment-switch field-name="question" :is-active="showCollaborateCommentVisible && currentFieldName === 'question'" @switch="handleSwitchComment" class="my-comment-switch"/>
                         <a-form-item label="Key question/line of inquiry">
                           <div class="form-input-item" v-for="(question, index) in form.questions" :key="index">
                             <a-input
@@ -176,6 +180,7 @@
                       </div>
 
                       <div class="form-block">
+                        <comment-switch field-name="assessment" :is-active="showCollaborateCommentVisible && currentFieldName === 'assessment'" @switch="handleSwitchComment" class="my-comment-switch"/>
                         <a-form-item label="Set assessment objectives" >
                           <a-button type="primary" @click="handleSelectDescription(false)">
                             <div class="btn-text" style="line-height: 20px">
@@ -229,7 +234,7 @@
               <template v-else>
                 <template v-if="showCollaborateCommentVisible">
                   <div class="collaborate-panel" :style="{'width':'600px','position': 'absolute', 'top':collaborateTop+'px', 'z-index': 100}">
-                    <collaborate-comment-panel :comment-list="currentCollaborateCommentList" @update-comment="handleUpdateCommentList"/>
+                    <collaborate-comment-panel :source-id="unitPlanId" :source-type="contentType['unit-plan']" :field-name="currentFieldName" :comment-list="currentCollaborateCommentList" @update-comment="handleUpdateCommentList"/>
                   </div>
                 </template>
                 <template v-else>
@@ -436,7 +441,7 @@
           <new-my-content
             :from-type="contentType['unit-plan']"
             :from-id="unitPlanId"
-            :filter-type-list="[contentType.evaluation]"
+            :filter-type-list="[contentType.task,contentType.evaluation]"
             :group-name-list="groupNameList"
             :default-group-name="'Untitled Term' + groupNameList.length + 1"
             :mode="'common-link'"
@@ -679,125 +684,15 @@ export default {
 
       showCollaborateModalVisible: false,
       collaborateContent: null,
+      currentFieldName: {},
 
       // TODO mock数据待更新为接口请求（loadCollaborateData方法中的GetCollaborateComment)
-      collaborateCommentList: [
-        {
-          id: '1',
-          fieldName: 'name', // 针对表单中哪个字段的评论
-          avatar: 'https://dcdkqlzgpl5ba.cloudfront.net/file/202106290118339914-avatar.png',
-          username: 'Xunwu Yang',
-          userId: '1392467808404684802',
-          createdTime: '2021-09-24 05:35:52',
-          content: '我认为这里不对噢，应该要我认为这里不对噢，应该要我认为这里不对噢，应该要我认为这里不对噢，应该要我认为这里不对噢，应该要...',
-          isDelete: false,
-          commentToId: null, // 当前评论是回复谁的
-          rootCommentId: null // 当然评论的根评论（最上层评论）的id
-        },
-        {
-          id: '2',
-          fieldName: 'name', // 针对表单中哪个字段的评论
-          avatar: 'https://dcdkqlzgpl5ba.cloudfront.net/file/202106290118339914-avatar.png',
-          username: 'Xunwu Wang',
-          userId: '',
-          createdTime: '2021-09-24 04:35:52',
-          content: '你觉得都是不对？我认为这里不对噢，应该要...',
-          isDelete: true,
-          commentToId: '1', // 当前评论是回复谁的
-          rootCommentId: '1' // 当然评论的根评论（最上层评论）的id
-        },
-        {
-          id: '3',
-          fieldName: 'name', // 针对表单中哪个字段的评论
-          avatar: 'https://dcdkqlzgpl5ba.cloudfront.net/file/202106290118339914-avatar.png',
-          username: 'Xunwu SDG',
-          userId: '',
-          createdTime: '2021-09-24 03:35:52',
-          content: '你应该要...',
-          isDelete: false,
-          commentToId: '2', // 当前评论是回复谁的
-          rootCommentId: '1' // 当然评论的根评论（最上层评论）的id
-        },
-        {
-          id: '5',
-          fieldName: 'name', // 针对表单中哪个字段的评论
-          avatar: 'https://dcdkqlzgpl5ba.cloudfront.net/file/202106290118339914-avatar.png',
-          username: 'Xunwu zgp',
-          userId: '',
-          createdTime: '2021-09-24 03:35:52',
-          content: '哈哈',
-          isDelete: false,
-          commentToId: '3', // 当前评论是回复谁的
-          rootCommentId: '1' // 当然评论的根评论（最上层评论）的id
-        },
-
-        {
-          id: '4',
-          fieldName: 'name', // 针对表单中哪个字段的评论
-          avatar: 'https://dcdkqlzgpl5ba.cloudfront.net/file/202106290118339914-avatar.png',
-          username: 'Xunwu Yang',
-          userId: '1392467808404684802',
-          createdTime: '2021-09-24 05:35:52',
-          content: '2我认为这里不对噢，应该要我认为这里不对噢，应该要我认为这里不对噢，应该要我认为这里不对噢，应该要我认为这里不对噢，应该要...',
-          isDelete: false,
-          commentToId: null, // 当前评论是回复谁的
-          rootCommentId: null // 当然评论的根评论（最上层评论）的id
-        }],
+      collaborateCommentList: [],
       currentCollaborateCommentList: [],
       collaborateTop: 0,
       showAllCollaborateCommentVisible: false,
       // TODO mock数据待更新为接口请求（loadCollaborateData方法中的GetCollaborateModifiedHistory)
-      historyList: [
-        {
-          id: '1',
-          createdTime: '2021-09-24 05:35:52',
-          // 用户回复history数据的，每个元素针对一整个字段，直接用vue的this.$set强制设置对象属性值进行‘恢复’
-          historyData: [
-            {
-              createdBy: 'Xunwu Yang',
-              fieldName: 'name',
-              fieldDisplayName: 'Course Name',
-              data: 'this is restored name'
-            },
-            {
-              createdBy: 'Jack Ma',
-              fieldName: 'overview',
-              fieldDisplayName: 'Course Overview',
-              data: 'this is restored overview'
-            }
-          ]
-        },
-        {
-          id: '2',
-          createdTime: '2021-09-26 05:35:52',
-          // 用户回复history数据的，每个元素针对一整个字段，直接用vue的this.$set强制设置对象属性值进行‘恢复’
-          historyData: [
-            {
-              createdBy: 'Xunwu Yang',
-              fieldName: 'name',
-              fieldDisplayName: 'Course Name',
-              data: 'this is restored name'
-            },
-            {
-              createdBy: 'Jack Ma',
-              fieldName: 'overview',
-              fieldDisplayName: 'Course Overview',
-              data: 'this is restored overview'
-            },
-            {
-              createdBy: 'Jack Ma',
-              fieldName: 'questions',
-              fieldDisplayName: 'Big idea',
-              data: [
-                {
-                  id: '',
-                  name: ''
-                }
-              ]
-            }
-          ]
-        }
-      ]
+      historyList: []
     }
   },
   watch: {
@@ -836,7 +731,6 @@ export default {
     this.initData()
     this.getAssociate()
     this.loadUserTags()
-    this.loadCollaborateData()
     this.debouncedGetSdgByDescription = debounce(this.searchScenario, 300)
   },
   beforeDestroy () {
@@ -896,14 +790,21 @@ export default {
     // 加载协作的评论和历史记录数据
     loadCollaborateData () {
       return Promise.all([
-          GetCollaborateModifiedHistory({ type: this.contentType['unit-plan'], id: this.form.id }),
-          GetCollaborateComment({ type: this.contentType['unit-plan'], id: this.form.id })
+          GetCollaborateModifiedHistory({ sourceType: this.contentType['unit-plan'], sourceId: this.form.id }),
+          GetCollaborateComment({ sourceType: this.contentType['unit-plan'], sourceId: this.form.id })
       ]).then(response => {
-        this.$logger.info('GetCollaborateModifiedHistory', response[0])
         // TODO 将历史记录数据‘格式’后填充到historyList数组中，大部分数据可以直接赋值，复杂字段要处理一下,这样handleRestoreField()方法就可以直接赋值了。
-
-        this.$logger.info('GetCollaborateComment', response[1])
+        this.historyList = []
+        this.$logger.info('GetCollaborateModifiedHistory', response[0])
+        if (!response[0].code) {
+          this.historyList = response[0].result
+        }
         // TODO 将写作点评数据‘格式’后填充到collaborateCommentList数组中
+        this.collaborateCommentList = []
+        this.$logger.info('GetCollaborateComment', response[1])
+        if (!response[1].code) {
+          this.collaborateCommentList = response[1].result
+        }
       })
     },
 
@@ -949,6 +850,7 @@ export default {
         }
       }).finally(() => {
         this.contentLoading = false
+        this.loadCollaborateData()
       })
     },
 
@@ -1086,8 +988,6 @@ export default {
 
     handleSaveUnitPlan () {
       logger.info('handleSaveUnitPlan', this.form, this.sdgDataObj, this.questionDataObj)
-      console.log(this.$refs.customTag.tagList)
-
       const unitPlanData = {
         image: this.form.image,
         inquiry: this.form.inquiry,
@@ -1642,7 +1542,7 @@ export default {
             CustomTagType.plan.sdg.forEach(name => {
               this.customTagList.push(name)
             })
-          } else if (currentDom.classList.contains('inquiry-form-block')) {
+          } else if (currentDom.classList.contains('bigIdea')) {
             currentFocus = 'inquiry'
             CustomTagType.plan.bigIdea.forEach(name => {
               this.customTagList.push(name)
@@ -1658,6 +1558,8 @@ export default {
         if (currentFocus) {
           this.customTagTop = formTop - 20
           this.showCustomTag = true
+          this.showCollaborateCommentVisible = false
+          this.showAllCollaborateCommentVisible = false
         } else {
           CustomTagType.plan.default.forEach(name => {
             this.customTagList.push(name)
@@ -1676,22 +1578,20 @@ export default {
     // 切换当前的字段的点评数据，从总的collaborateCommentList筛选初当前字段相关的点评数据
     handleSwitchComment (data) {
       this.$logger.info('handleSwitchComment', data)
+      this.currentFieldName = data.fieldName
       this.showAllCollaborateCommentVisible = false
-      if (this.showCollaborateCommentVisible) {
-        this.showCollaborateCommentVisible = false
-        this.currentCollaborateCommentList = []
-      } else {
-        const list = []
-        this.collaborateCommentList.forEach(item => {
-          if (item.fieldName === data.fieldName) {
-            list.push(item)
-          }
-        })
-        this.currentCollaborateCommentList = list
-        this.collaborateTop = data.top
-        this.showCollaborateCommentVisible = true
-        this.$logger.info('currentCollaborateCommentList', list)
-      }
+      this.showCustomTag = false
+      this.currentCollaborateCommentList = []
+      const list = []
+      this.collaborateCommentList.forEach(item => {
+        if (item.fieldName === data.fieldName) {
+          list.push(item)
+        }
+      })
+      this.currentCollaborateCommentList = list
+      this.collaborateTop = data.top
+      this.showCollaborateCommentVisible = true
+      this.$logger.info('currentCollaborateCommentList', list)
     },
 
     // 每次点击都重新加载一下最新数据
@@ -1709,10 +1609,18 @@ export default {
     // TODO 发布评论后需要更新最新的评论列表,刷新数据
     handleUpdateCommentList () {
       this.$logger.info('handleUpdateCommentList')
+      this.currentCollaborateCommentList = []
       this.loadCollaborateData().then(() => {
         this.$logger.info('loadCollaborateData loaded')
       }).finally(() => {
-
+        const list = []
+        this.collaborateCommentList.forEach(item => {
+          if (item.fieldName === this.currentFieldName) {
+            list.push(item)
+          }
+        })
+        this.currentCollaborateCommentList = list
+        this.$logger.info('currentCollaborateCommentList', list)
       })
     },
 
@@ -1722,8 +1630,14 @@ export default {
       this.$logger.info('handleRestoreField', data, this.form)
       if (data.historyData) {
         data.historyData.forEach(dataItem => {
-          this.$logger.info('set ' + dataItem.fieldName, dataItem.data)
-          this.$set(this.form, dataItem.fieldName, dataItem.data)
+          this.$logger.info('set ' + dataItem.fieldName, dataItem.data[1])
+          if (Array.isArray(dataItem.data[1])) {
+            dataItem.data[1].forEach((item, index) => {
+              this.$set(this.form[dataItem.fieldName], index, dataItem.data[1][index])
+            })
+          } else {
+            this.$set(this.form, dataItem.fieldName, dataItem.data[1])
+          }
           this.$message.success('restore ' + dataItem.fieldDisplayName + ' success!')
         })
       }
@@ -2298,6 +2212,12 @@ export default {
 .form-block {
   width: 600px;
   margin-bottom: 10px;
+  position: relative;
+  &:hover {
+    .my-comment-switch {
+      display: block;
+    }
+  }
   .refer-action {
     .refer-text {
       font-family: Inter-Bold;
@@ -2488,9 +2408,10 @@ export default {
 }
 
 .my-comment-switch {
+  display: none;
   position: absolute;
-  right: 40px;
-  top: 28px;
+  right: -10px;
+  top: -5px;
   z-index: 200;
 }
 

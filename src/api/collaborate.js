@@ -9,10 +9,10 @@ export const userAPIUrl = {
   DeleteCollaborate: '/classcipe/api/collaborate/delete',
   ReceiveCollaborate: '/classcipe/api/collaborate/receive',
   // TODO mock接口，待修改
-  GetCollaborateComment: '/classcipe/api/collaborate/GetCollaborateComment',
-  DeleteCollaborateCommentById: '/classcipe/api/collaborate/DeleteCollaborateCommentById',
-  AddCollaborateComment: '/classcipe/api/collaborate/AddCollaborateComment',
-  GetCollaborateModifiedHistory: '/classcipe/api/collaborate/GetCollaborateModifiedHistory'
+  GetCollaborateComment: '/classcipe/api/editMessage/queryMessage',
+  DeleteCollaborateCommentById: '/classcipe/api/editMessage/delete',
+  AddCollaborateComment: '/classcipe/api/editMessage/addMessage',
+  GetCollaborateModifiedHistory: '/classcipe/api/editMessage/queryHistory'
 }
 
 export function InviteCollaborate (parameter) {
@@ -88,7 +88,7 @@ export function GetCollaborateComment (parameter) {
 }
 export function DeleteCollaborateCommentById (parameter) {
   return request({
-    url: userAPIUrl.DeleteCollaborateCommentById,
+    url: userAPIUrl.DeleteCollaborateCommentById + '?id=' + parameter.id,
     method: 'post',
     data: parameter
   })

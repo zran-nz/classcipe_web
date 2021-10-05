@@ -268,11 +268,11 @@ export default {
         for (const [rootCommentId, rootComment] of this.rootCommentMap.entries()) {
           this.$logger.info('rootCommentId ' + rootCommentId, rootComment)
           let isInvolvedMe = false
-          if (rootComment.userId === this.$store.getters.userInfo.id && (rootComment.username && rootComment.username.toLowerCase().indexOf(this.filterName.toLowerCase()) !== -1)) {
+          if (rootComment.username === this.$store.getters.userInfo.username && (rootComment.username && rootComment.username.toLowerCase().indexOf(this.filterName.toLowerCase()) !== -1)) {
             isInvolvedMe = true
           } else {
             rootComment.subCommentList.forEach(item => {
-              if (item.userId === this.$store.getters.userInfo.id && (item.username && item.username.toLowerCase().indexOf(this.filterName.toLowerCase()) !== -1)) {
+              if (item.username === this.$store.getters.userInfo.username && (item.username && item.username.toLowerCase().indexOf(this.filterName.toLowerCase()) !== -1)) {
                 isInvolvedMe = true
               }
             })
@@ -325,11 +325,11 @@ export default {
         for (const [rootCommentId, rootComment] of this.rootCommentMap.entries()) {
           this.$logger.info('rootCommentId ' + rootCommentId, rootComment)
           let isInvolvedMe = false
-          if (rootComment.userId === this.$store.getters.userInfo.id) {
+          if (rootComment.username === this.$store.getters.userInfo.username) {
             isInvolvedMe = true
           } else {
             rootComment.subCommentList.forEach(item => {
-              if (item.userId === this.$store.getters.userInfo.id) {
+              if (item.username === this.$store.getters.userInfo.username) {
                 isInvolvedMe = true
               }
             })

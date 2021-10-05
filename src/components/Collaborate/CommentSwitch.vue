@@ -23,11 +23,20 @@ export default {
     fieldName: {
       type: String,
       required: true
+    },
+    isActive: {
+      type: Boolean,
+      required: false
     }
   },
   data () {
     return {
-      activeStatus: false
+      activeStatus: this.isActive
+    }
+  },
+  watch: {
+    isActive (value) {
+      this.activeStatus = value
     }
   },
   methods: {

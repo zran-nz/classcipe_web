@@ -125,7 +125,7 @@
                           <div class="session-btn-text"> Duplicate</div>
                         </div>
                       </div>
-                      <div class="more-action-wrapper action-item-wrapper" v-if="item.type !== typeMap['unit-plan']">
+                      <div class="more-action-wrapper action-item-wrapper" >
                         <a-dropdown>
                           <a-icon type="more" style="margin-right: 8px" />
                           <a-menu slot="overlay">

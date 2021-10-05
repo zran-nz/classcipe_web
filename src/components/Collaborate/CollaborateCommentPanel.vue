@@ -19,7 +19,7 @@
       <div class="record-list" v-for="(commentItem, cIndex) in formatCommentList" :key="cIndex">
         <div class="record-item">
           <template v-if="!commentItem.isDelete">
-            <div class="record-action" v-show="commentItem.userId === $store.getters.userInfo.id">
+            <div class="record-action" v-show="commentItem.username === $store.getters.userInfo.username">
               <div class="record-delete" @click="handleDeleteComment(commentItem)">
                 <delete-icon />
               </div>
@@ -127,6 +127,18 @@ export default {
     commentList: {
       type: Array,
       default: () => []
+    },
+    sourceId: {
+      type: String,
+      default: null
+    },
+    sourceType: {
+      type: Number,
+      default: null
+    },
+    fieldName: {
+      type: String,
+      default: null
     }
   },
   data () {
@@ -159,6 +171,7 @@ export default {
      */
     formatComment () {
         // 过滤rootComment
+      this.formatCommentList = []
       const rootCommentMap = new Map()
       this.rawCommentList.forEach(item => {
         const dataItem = Object.assign({}, item)
@@ -198,6 +211,14 @@ export default {
      * @param data
      */
     handleSend (data) {
+      if (!data.inputValue) {
+        return
+      }
+      if (this.fieldName) {
+        data.fieldName = this.fieldName
+      }
+      data.sourceId = this.sourceId
+      data.sourceType = this.sourceType
       this.$logger.info('handleSend', data)
       if (!data) {
         this.$message.warn('Please enter some comments!')

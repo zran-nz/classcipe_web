@@ -13,12 +13,12 @@
                     <input v-model="defaultGroupName" class="group-name-input"/>
                   </div>
                 </div>
-                <div class="group-edit-icon" @click="handleToggleEditDefaultGroupName">
+                <div class="group-edit-icon" @click="handleToggleEditDefaultGroupName" v-if="canEdit">
                   <a-icon type="edit" v-if="defaultGroupNameEditMode === 'view'"/>
                   <a-icon type="check" v-if="defaultGroupNameEditMode === 'edit'"/>
                 </div>
               </div>
-              <div class="group-right-info">
+              <div class="group-right-info" v-if="canEdit">
                 <div class="group-action">
                   <a-button type="primary" @click="handleDefaultGroupLink" :style="{'background-color': '#fff', 'color': '#000', 'border': 'none'}">
                     <div class="btn-text" style="line-height: 20px">
@@ -45,12 +45,12 @@
                     <input v-model="linkGroup.group" class="group-name-input"/>
                   </div>
                 </div>
-                <div class="group-edit-icon" @click="handleToggleEditGroupName(linkGroup)">
+                <div class="group-edit-icon" @click="handleToggleEditGroupName(linkGroup)" v-if="canEdit">
                   <a-icon type="edit" v-if="!linkGroup.editing"/>
                   <a-icon type="check" v-if="linkGroup.editing"/>
                 </div>
               </div>
-              <div class="group-right-info">
+              <div class="group-right-info" v-if="canEdit">
                 <div class="group-action">
                   <a-button type="primary" @click="handleLinkGroup(linkGroup)" :style="{'background-color': '#fff', 'color': '#000', 'border': 'none'}">
                     <div class="btn-text" style="line-height: 20px">
@@ -81,7 +81,7 @@
                     <template v-if="item.status === 0">Draft</template>
                     <template v-if="item.status === 1">Published</template>
                   </div>
-                  <div class="more-action-wrapper action-item-wrapper">
+                  <div class="more-action-wrapper action-item-wrapper" v-if="canEdit">
                     <a-dropdown>
                       <a-icon type="more" style="margin-right: 8px" />
                       <a-menu slot="overlay">
@@ -174,7 +174,7 @@
         <new-my-content
           :from-type="fromType"
           :from-id="fromId"
-          :filter-type-list="[typeMap.evaluation]"
+          :filter-type-list="subFilterTypeList"
           :group-name-list="groupNameList"
           :default-group-name="groupNameList[0]"
           :mode="'common-link'"
@@ -235,6 +235,10 @@ export default {
     filterType: {
       type: Number,
       default: 0
+    },
+    canEdit: {
+      type: Boolean,
+      default: true
     }
   },
   data () {
@@ -256,11 +260,17 @@ export default {
       typeMap: typeMap,
       previewVisible: false,
       previewCurrentId: '',
-      previewType: ''
+      previewType: '',
+      subFilterTypeList: [typeMap.evaluation]
     }
   },
   created () {
     this.$logger.info('load CommonLink with id[' + this.fromId + '] fromType[' + this.fromType + ']')
+    if (this.fromType === typeMap['unit-plan']) {
+      this.subFilterTypeList = [typeMap.task, typeMap.evaluation]
+    } else if (this.filterType === typeMap.task) {
+      this.subFilterTypeList = [typeMap.evaluation]
+    }
     this.getAssociate()
   },
   methods: {

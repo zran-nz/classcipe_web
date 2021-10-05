@@ -53,18 +53,21 @@
                         </div>
 
                         <div class="form-block" >
+                          <comment-switch field-name="name" :is-active="showCollaborateCommentVisible && currentFieldName === 'name'" @switch="handleSwitchComment" class="my-comment-switch"/>
                           <a-form-item label="Task name" >
                             <a-input v-model="form.name" placeholder="Enter Course Name" class="my-form-input"/>
                           </a-form-item>
                         </div>
 
                         <div class="form-block over-form-block" id="overview" >
+                          <comment-switch field-name="overview" :is-active="showCollaborateCommentVisible && currentFieldName === 'overview'" @switch="handleSwitchComment" class="my-comment-switch"/>
                           <a-form-model-item class="task-audio-line" label="Course Overview" ref="overview">
                             <a-textarea v-model="form.overview" placeholder="Overview" allow-clear />
                           </a-form-model-item>
                         </div>
 
                         <div class="form-block taskType" >
+                          <comment-switch field-name="taskType" :is-active="showCollaborateCommentVisible && currentFieldName === 'taskType'" @switch="handleSwitchComment" class="my-comment-switch"/>
                           <a-form-model-item class="task-audio-line" label="Choose type" ref="taskType">
                             <div class="self-type-wrapper" >
                               <div class="self-field-label" >
@@ -76,6 +79,7 @@
                         </div>
 
                         <div class="form-block form-question" v-if="associateQuestionList.length > 0">
+                          <comment-switch field-name="questions" :is-active="showCollaborateCommentVisible && currentFieldName === 'questions'" @switch="handleSwitchComment" class="my-comment-switch"/>
                           <a-form-model-item label="Choose Key questions">
                             <a-select
                               size="large"
@@ -96,6 +100,7 @@
                         </div>
 
                         <div class="form-block" >
+                          <comment-switch field-name="assessment" :is-active="showCollaborateCommentVisible && currentFieldName === 'assessment'" @switch="handleSwitchComment" class="my-comment-switch"/>
                           <a-form-item label="Set assessment objectives" >
                             <a-button type="primary" @click="handleSelectDescription">
                               <div class="btn-text" style="line-height: 20px">
@@ -213,7 +218,7 @@
                 <template v-else>
                   <template v-if="showCollaborateCommentVisible">
                     <div class="collaborate-panel" :style="{'width':'600px','position': 'absolute', 'top':collaborateTop+'px', 'z-index': 100}">
-                      <collaborate-comment-panel :comment-list="currentCollaborateCommentList" @update-comment="handleUpdateCommentList"/>
+                      <collaborate-comment-panel :source-id="taskId" :source-type="contentType.task" :field-name="currentFieldName" :comment-list="currentCollaborateCommentList" @update-comment="handleUpdateCommentList"/>
                     </div>
                   </template>
                   <template v-else>
@@ -881,125 +886,14 @@
 
         showCollaborateModalVisible: false,
         collaborateContent: null,
-
+        currentFieldName: {},
         // TODO mock数据待更新为接口请求（loadCollaborateData方法中的GetCollaborateComment)
-        collaborateCommentList: [
-          {
-            id: '1',
-            fieldName: 'name', // 针对表单中哪个字段的评论
-            avatar: 'https://dcdkqlzgpl5ba.cloudfront.net/file/202106290118339914-avatar.png',
-            username: 'Xunwu Yang',
-            userId: '1392467808404684802',
-            createdTime: '2021-09-24 05:35:52',
-            content: '我认为这里不对噢，应该要我认为这里不对噢，应该要我认为这里不对噢，应该要我认为这里不对噢，应该要我认为这里不对噢，应该要...',
-            isDelete: false,
-            commentToId: null, // 当前评论是回复谁的
-            rootCommentId: null // 当然评论的根评论（最上层评论）的id
-          },
-          {
-            id: '2',
-            fieldName: 'name', // 针对表单中哪个字段的评论
-            avatar: 'https://dcdkqlzgpl5ba.cloudfront.net/file/202106290118339914-avatar.png',
-            username: 'Xunwu Wang',
-            userId: '',
-            createdTime: '2021-09-24 04:35:52',
-            content: '你觉得都是不对？我认为这里不对噢，应该要...',
-            isDelete: true,
-            commentToId: '1', // 当前评论是回复谁的
-            rootCommentId: '1' // 当然评论的根评论（最上层评论）的id
-          },
-          {
-            id: '3',
-            fieldName: 'name', // 针对表单中哪个字段的评论
-            avatar: 'https://dcdkqlzgpl5ba.cloudfront.net/file/202106290118339914-avatar.png',
-            username: 'Xunwu SDG',
-            userId: '',
-            createdTime: '2021-09-24 03:35:52',
-            content: '你应该要...',
-            isDelete: false,
-            commentToId: '2', // 当前评论是回复谁的
-            rootCommentId: '1' // 当然评论的根评论（最上层评论）的id
-          },
-          {
-            id: '5',
-            fieldName: 'name', // 针对表单中哪个字段的评论
-            avatar: 'https://dcdkqlzgpl5ba.cloudfront.net/file/202106290118339914-avatar.png',
-            username: 'Xunwu zgp',
-            userId: '',
-            createdTime: '2021-09-24 03:35:52',
-            content: '哈哈',
-            isDelete: false,
-            commentToId: '3', // 当前评论是回复谁的
-            rootCommentId: '1' // 当然评论的根评论（最上层评论）的id
-          },
-
-          {
-            id: '4',
-            fieldName: 'name', // 针对表单中哪个字段的评论
-            avatar: 'https://dcdkqlzgpl5ba.cloudfront.net/file/202106290118339914-avatar.png',
-            username: 'Xunwu Yang',
-            userId: '1392467808404684802',
-            createdTime: '2021-09-24 05:35:52',
-            content: '2我认为这里不对噢，应该要我认为这里不对噢，应该要我认为这里不对噢，应该要我认为这里不对噢，应该要我认为这里不对噢，应该要...',
-            isDelete: false,
-            commentToId: null, // 当前评论是回复谁的
-            rootCommentId: null // 当然评论的根评论（最上层评论）的id
-          }],
+        collaborateCommentList: [],
         currentCollaborateCommentList: [],
         collaborateTop: 0,
         showAllCollaborateCommentVisible: false,
         // TODO mock数据待更新为接口请求（loadCollaborateData方法中的GetCollaborateModifiedHistory)
-        historyList: [
-          {
-            id: '1',
-            createdTime: '2021-09-24 05:35:52',
-            // 用户回复history数据的，每个元素针对一整个字段，直接用vue的this.$set强制设置对象属性值进行‘恢复’
-            historyData: [
-              {
-                createdBy: 'Xunwu Yang',
-                fieldName: 'name',
-                fieldDisplayName: 'Course Name',
-                data: 'this is restored name'
-              },
-              {
-                createdBy: 'Jack Ma',
-                fieldName: 'overview',
-                fieldDisplayName: 'Course Overview',
-                data: 'this is restored overview'
-              }
-            ]
-          },
-          {
-            id: '2',
-            createdTime: '2021-09-26 05:35:52',
-            // 用户回复history数据的，每个元素针对一整个字段，直接用vue的this.$set强制设置对象属性值进行‘恢复’
-            historyData: [
-              {
-                createdBy: 'Xunwu Yang',
-                fieldName: 'name',
-                fieldDisplayName: 'Course Name',
-                data: 'this is restored name'
-              },
-              {
-                createdBy: 'Jack Ma',
-                fieldName: 'overview',
-                fieldDisplayName: 'Course Overview',
-                data: 'this is restored overview'
-              },
-              {
-                createdBy: 'Jack Ma',
-                fieldName: 'questions',
-                fieldDisplayName: 'Big idea',
-                data: [
-                  {
-                    id: '',
-                    name: ''
-                  }
-                ]
-              }
-            ]
-          }
-        ]
+        historyList: []
       }
     },
     computed: {
@@ -1136,7 +1030,7 @@
           // }
         }).finally(() => {
           this.contentLoading = false
-
+          this.loadCollaborateData()
           if (this.form.presentationId) {
             this.loadThumbnail()
           }
@@ -1224,6 +1118,8 @@
             this.customTagList.push(name)
           })
         }
+        this.showAllCollaborateCommentVisible = false
+        this.showCollaborateCommentVisible = false
         this.customTagTop = 390
         this.showCustomTag = true
       },
@@ -1800,14 +1696,21 @@
       // 加载协作的评论和历史记录数据
       loadCollaborateData () {
         return Promise.all([
-          GetCollaborateModifiedHistory({ type: this.contentType.task, id: this.form.id }),
-          GetCollaborateComment({ type: this.contentType.task, id: this.form.id })
+          GetCollaborateModifiedHistory({ sourceType: this.contentType.task, sourceId: this.form.id }),
+          GetCollaborateComment({ sourceType: this.contentType.task, sourceId: this.form.id })
         ]).then(response => {
-          this.$logger.info('GetCollaborateModifiedHistory', response[0])
           // TODO 将历史记录数据‘格式’后填充到historyList数组中，大部分数据可以直接赋值，复杂字段要处理一下,这样handleRestoreField()方法就可以直接赋值了。
-
-          this.$logger.info('GetCollaborateComment', response[1])
+          this.historyList = []
+          this.$logger.info('GetCollaborateModifiedHistory', response[0])
+          if (!response[0].code) {
+            this.historyList = response[0].result
+          }
           // TODO 将写作点评数据‘格式’后填充到collaborateCommentList数组中
+          this.collaborateCommentList = []
+          this.$logger.info('GetCollaborateComment', response[1])
+          if (!response[1].code) {
+            this.collaborateCommentList = response[1].result
+          }
         })
       },
 
@@ -1952,22 +1855,20 @@
       // 切换当前的字段的点评数据，从总的collaborateCommentList筛选初当前字段相关的点评数据
       handleSwitchComment (data) {
         this.$logger.info('handleSwitchComment', data)
+        this.currentFieldName = data.fieldName
         this.showAllCollaborateCommentVisible = false
-        if (this.showCollaborateCommentVisible) {
-          this.showCollaborateCommentVisible = false
-          this.currentCollaborateCommentList = []
-        } else {
-          const list = []
-          this.collaborateCommentList.forEach(item => {
-            if (item.fieldName === data.fieldName) {
-              list.push(item)
-            }
-          })
-          this.currentCollaborateCommentList = list
-          this.collaborateTop = data.top
-          this.showCollaborateCommentVisible = true
-          this.$logger.info('currentCollaborateCommentList', list)
-        }
+        this.showCustomTag = false
+        this.currentCollaborateCommentList = []
+        const list = []
+        this.collaborateCommentList.forEach(item => {
+          if (item.fieldName === data.fieldName) {
+            list.push(item)
+          }
+        })
+        this.currentCollaborateCommentList = list
+        this.collaborateTop = data.top
+        this.showCollaborateCommentVisible = true
+        this.$logger.info('currentCollaborateCommentList', list)
       },
 
       // 每次点击都重新加载一下最新数据
@@ -1985,10 +1886,18 @@
       // TODO 发布评论后需要更新最新的评论列表,刷新数据
       handleUpdateCommentList () {
         this.$logger.info('handleUpdateCommentList')
+        this.currentCollaborateCommentList = []
         this.loadCollaborateData().then(() => {
           this.$logger.info('loadCollaborateData loaded')
         }).finally(() => {
-
+          const list = []
+          this.collaborateCommentList.forEach(item => {
+            if (item.fieldName === this.currentFieldName) {
+              list.push(item)
+            }
+          })
+          this.currentCollaborateCommentList = list
+          this.$logger.info('currentCollaborateCommentList', list)
         })
       },
 
@@ -1998,8 +1907,14 @@
         this.$logger.info('handleRestoreField', data, this.form)
         if (data.historyData) {
           data.historyData.forEach(dataItem => {
-            this.$logger.info('set ' + dataItem.fieldName, dataItem.data)
-            this.$set(this.form, dataItem.fieldName, dataItem.data)
+            this.$logger.info('set ' + dataItem.fieldName, dataItem.data[1])
+            if (Array.isArray(dataItem.data[1])) {
+              dataItem.data[1].forEach((item, index) => {
+                this.$set(this.form[dataItem.fieldName], index, dataItem.data[1][index])
+              })
+            } else {
+              this.$set(this.form, dataItem.fieldName, dataItem.data[1])
+            }
             this.$message.success('restore ' + dataItem.fieldDisplayName + ' success!')
           })
         }
@@ -3044,8 +2959,14 @@
   }
 
   .form-block {
+    position: relative;
     margin-bottom: 35px;
     width: 600px;
+    &:hover {
+      .my-comment-switch {
+        display: block;
+      }
+    }
     /deep/ .ant-form-item label{
       font-size: 16px;
       font-weight: 500;
@@ -3522,9 +3443,10 @@
     position: relative;
   }
   .my-comment-switch {
+    display: none;
     position: absolute;
-    right: 40px;
-    top: 28px;
+    right: -10px;
+    top: -5px;
     z-index: 200;
   }
 

@@ -267,8 +267,8 @@
           </template>
         </a-col>
       </a-row>
-      <div class="associate-info" v-if="type === typeMap['unit-plan'] || type === typeMap.topic">
-        <common-associate-preview :id="id" :content-type="type"/>
+      <div class="associate-info">
+        <common-link :can-edit="false" ref="commonLink" :from-id="id" :from-type="type"/>
       </div>
     </template>
   </div>
@@ -282,6 +282,7 @@ import CommonAssociatePreview from '@/components/Common/CommonAssociatePreview'
 import { TemplatesGetPresentation, TemplatesGetPublishedPresentation } from '@/api/template'
 import EvaluationPreview from '@/components/Evaluation/EvaluationPreview'
 import EvaluationTablePreview from '@/components/Evaluation/EvaluationTablePreview'
+import CommonLink from '@/components/Common/CommonLink'
 const { formatLocalUTC } = require('@/utils/util')
 const { UnitPlanQueryById } = require('@/api/unitPlan')
 const { LessonQueryById } = require('@/api/myLesson')
@@ -292,7 +293,7 @@ const { TopicQueryById } = require('@/api/topic')
 
 export default {
   name: 'CommonPreview',
-  components: { EvaluationTablePreview, EvaluationPreview, CommonAssociatePreview, NoMoreResources },
+  components: { EvaluationTablePreview, EvaluationPreview, CommonAssociatePreview, NoMoreResources, CommonLink },
   props: {
     id: {
       type: String,
@@ -1268,5 +1269,8 @@ export default {
     //  background:#15c39a;
     //}
   }
+}
+.associate-info{
+  padding: 10px 5px 10px 5px;
 }
 </style>
