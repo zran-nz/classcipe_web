@@ -310,6 +310,8 @@ export default {
     background: rgba(245, 245, 245, 0.5);
     padding: 20px 15px;
     border-radius: 5px;
+    max-height: 1000px;
+    overflow-y: auto;
 
     .record-list {
       margin-top: 10px;

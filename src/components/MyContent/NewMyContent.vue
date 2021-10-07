@@ -402,9 +402,7 @@ export default {
       mySelectedList: [],
       mySelectedMap: new Map(),
 
-      selectedGroup: null,
-
-      myGroupNameList: []
+      selectedGroup: null
     }
   },
   watch: {
@@ -423,10 +421,6 @@ export default {
   created () {
     this.$logger.info('NewMyContent filterTypeList', this.filterTypeList)
     this.$logger.info('NewMyContent groupNameList', this.groupNameList)
-    this.myGroupNameList = this.groupNameList
-    if (this.defaultGroupName) {
-      this.myGroupNameList.push(this.defaultGroupName)
-    }
     if (this.filterTypeList.length) {
       this.currentType = this.filterTypeList[0]
       this.currentTypeLabel = getLabelNameType(this.filterTypeList[0])

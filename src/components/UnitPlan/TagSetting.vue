@@ -20,7 +20,8 @@
                     <div v-if="editTabIndex === index">
                       <a-input
                         v-model="editTabName"
-                        placeholder="input tab name"
+                        placeholder="Enter tag category name"
+                        id="input"
                         @keyup.enter="handleTabInputConfirm(editTabName)"
                       ></a-input>
                     </div>
@@ -38,9 +39,6 @@
                           @search="searchTag"
                           @keyup="searchTag" >
                           <a-icon slot="prefix" type="plus-circle" :style="{ fontSize: '16px', color: '#15c39a','margin-right':'5px' }" />
-                          <a-button slot="enterButton">
-                            Add
-                          </a-button>
                         </a-input-search>
                       </div>
                     </a-col>
@@ -75,6 +73,7 @@
                     </div>
                   </div>
                 </a-tab-pane>
+                <!--                <a-icon slot="tabBarExtraContent" type="plus" style="cursor: pointer"/>-->
               </a-tabs>
             </div>
           </a-col>
@@ -121,7 +120,7 @@
                     {{ keyword }}
                   </a-tag>
                 </div>
-                <div v-if="deleteTabName && deleteTagName" class="skt-tag-item" style="justify-content: center">
+                <div v-if="deleteTabName && deleteTagName" class="skt-tag-item" style="margin: 10px auto">
                   <a-tag
                     class="tag-item">
                     {{ deleteTagName }}
@@ -193,11 +192,17 @@ export default {
       if (this.editTabIndex !== -1) {
         return
       }
-      const activeKey = `tab name_` + this.userTagsMap.size
+      let activeKey = `Enter tag category name`
+      if (this.userTagsMap.has(activeKey)) {
+        activeKey = activeKey + '-1'
+      }
       this.editTabIndex = this.userTagsMap.size
       this.editTabName = activeKey
       this.userTagsMap.set(activeKey, [])
       this.changeTab(activeKey)
+      setTimeout(function () {
+        document.getElementById('input').focus()
+      }, 500)
     },
     remove (targetKey) {
       // this.selectLabel = activeKey
@@ -558,6 +563,7 @@ export default {
     display: flex;
     flex-direction: row;
     flex-wrap: wrap;
+    margin-top: 10px;
     .tag-item {
       background-color: rgba(21, 195, 154, 1);
       color: #fff;

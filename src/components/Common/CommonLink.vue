@@ -176,7 +176,7 @@
           :from-id="fromId"
           :filter-type-list="subFilterTypeList"
           :group-name-list="groupNameList"
-          :default-group-name="groupNameList[0]"
+          :default-group-name="subDefaultGroupName"
           :mode="'common-link'"
           @cancel="selectLinkContentVisible = false"
           @ensure="handleEnsureSelectedLink"/>
@@ -252,7 +252,7 @@ export default {
       ownerLinkGroupList: [],
       othersLinkGroupList: [],
       groupNameList: ['Untitled Term'],
-
+      subDefaultGroupName: ['Untitled Term'],
       // 当前点击的groupId
       currentGroupId: null,
 
@@ -332,6 +332,7 @@ export default {
 
     handleLinkGroup (group) {
       this.$logger.info('handleLinkGroup', group)
+      this.subDefaultGroupName = group.group
       this.selectLinkContentVisible = true
     },
 

@@ -207,7 +207,7 @@
                     </div>
                     <div class="session-btn" @click.stop="handleDuplicateItem(item)">
                       <div class="session-btn-icon content-list-action-btn">
-                        <copy-svg />
+                        <a-icon type="copy" />
                       </div>
                       <div class="session-btn-text">Duplicate</div>
                     </div>

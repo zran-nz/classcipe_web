@@ -11,7 +11,7 @@
                   {{ k.name }}
                 </div>
                 <div
-                  v-if="k.tagType != TagType.century"
+                  v-if="k.tagType == TagType.knowledge"
                   class="actions">
                   <span class="add-action" @click.stop.prevent="handleAddTag(k)">
                     <img src="~@/assets/icons/tag/add.png"/>
@@ -102,7 +102,7 @@
     },
     methods: {
       handleActiveDescription (index) {
-        if (this.KnowledgeList[index].tagType === TagType.century) {
+        if (this.KnowledgeList[index].tagType !== TagType.knowledge) {
           return
         }
         if (!this.KnowledgeList[index].tagListVisible) {
@@ -124,7 +124,7 @@
         this.$emit('remove-learn-outs', data)
       },
       handleAddTag (knowLedge) {
-        if (knowLedge.tagType === TagType.century) {
+        if (knowLedge.tagType !== TagType.knowledge) {
           return
         }
         this.knowledge = knowLedge
@@ -136,6 +136,8 @@
       },
       handleEnsureTags (tags) {
         this.knowledge.tags = tags
+        const index = this.KnowledgeList.findIndex(item => item.knowledgeId === this.knowledge.knowledgeId)
+        this.KnowledgeList[index].tagListVisible = true
       }
     }
   }

@@ -49,9 +49,9 @@
                             @search="searchTag"
                             @keyup="searchTag" >
                             <a-icon slot="prefix" type="plus-circle" :style="{ fontSize: '16px', color: '#15c39a','margin-right':'5px' }" />
-                            <a-button slot="enterButton">
-                              Add
-                            </a-button>
+                            <!--                            <a-button slot="enterButton">-->
+                            <!--                              Add-->
+                            <!--                            </a-button>-->
                           </a-input-search>
                         </div>
                       </a-col>

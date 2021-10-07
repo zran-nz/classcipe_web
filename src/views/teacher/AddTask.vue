@@ -201,7 +201,7 @@
               <div class="task-form-right">
 
                 <template v-if="showAllCollaborateCommentVisible">
-                  <div class="collaborate-panel" :style="{'width':'600px','position': 'absolute', 'top': '0px', 'z-index': 100}">
+                  <div class="collaborate-panel" :style="{'width':'600px', 'margin-top': '0px', 'z-index': 100}">
                     <div class="icon">
                       <comment-icon />
                     </div>
@@ -217,7 +217,7 @@
                 </template>
                 <template v-else>
                   <template v-if="showCollaborateCommentVisible">
-                    <div class="collaborate-panel" :style="{'width':'600px','position': 'absolute', 'top':collaborateTop+'px', 'z-index': 100}">
+                    <div class="collaborate-panel" :style="{'width':'600px', 'margin-top':collaborateTop+'px', 'z-index': 100}">
                       <collaborate-comment-panel :source-id="taskId" :source-type="contentType.task" :field-name="currentFieldName" :comment-list="currentCollaborateCommentList" @update-comment="handleUpdateCommentList"/>
                     </div>
                   </template>
@@ -1171,6 +1171,10 @@
                 return item.presentationId
               })
             }).then(response => {
+              if (!response.success) {
+                this.$message.error(response.message)
+                return
+              }
               this.$logger.info('handleAddTemplate response', response.result)
               this.form.id = response.result.id
               this.form.presentationId = response.result.presentationId
@@ -1180,11 +1184,11 @@
               this.$router.replace({
                 path: '/teacher/add-task/' + response.result.id
               })
+              this.viewInGoogleSlideVisible = true
             }).finally(() => {
               this.templateLoading = false
               this.creating = false
               this.selectedMyContentVisible = false
-              this.viewInGoogleSlideVisible = true
               this.addRecomendLoading = false
               hideLoading()
               // this.loadThumbnail()
@@ -1734,6 +1738,12 @@
           if (current === 1 && !this.form.presentationId) {
             this.loadRecommendThumbnail()
           }
+          setTimeout(function () {
+              const returnEle = document.querySelector('.ant-layout-content')
+              if (returnEle) {
+                returnEle.scrollIntoView(true) // true 是默认的
+              }
+          }, 100)
         }
       },
 
@@ -1907,13 +1917,13 @@
         this.$logger.info('handleRestoreField', data, this.form)
         if (data.historyData) {
           data.historyData.forEach(dataItem => {
-            this.$logger.info('set ' + dataItem.fieldName, dataItem.data[1])
-            if (Array.isArray(dataItem.data[1])) {
-              dataItem.data[1].forEach((item, index) => {
-                this.$set(this.form[dataItem.fieldName], index, dataItem.data[1][index])
+            this.$logger.info('set ' + dataItem.fieldName, dataItem.data[0])
+            if (Array.isArray(dataItem.data[0])) {
+              dataItem.data[0].forEach((item, index) => {
+                this.$set(this.form[dataItem.fieldName], index, dataItem.data[0][index])
               })
             } else {
-              this.$set(this.form, dataItem.fieldName, dataItem.data[1])
+              this.$set(this.form, dataItem.fieldName, dataItem.data[0])
             }
             this.$message.success('restore ' + dataItem.fieldDisplayName + ' success!')
           })
