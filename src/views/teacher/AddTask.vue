@@ -429,52 +429,123 @@
         :footer="null"
         :title="null"
         destroyOnClose
-        width="80%"
+        :dialog-style="{ top: '20px' }"
+        width="90%"
         :closable="true"
         @ok="selectedMyContentVisible = false">
         <a-tabs class="template-tabs">
           <a-tab-pane key="1" tab="Teaching Templates">
             <div class="select-template-wrapper">
               <div class="template-select-header">
-                <div class="filter-row">
-                  <div class="ant-form-item-label">Learning Experience:</div>
-                  <div class="row-select">
-                    <a-cascader
-                      class="row-cascader"
-                      :fieldNames="{ label: 'name', value: 'id', children: 'children' }"
-                      v-model="filterLearn"
-                      :options="learnExperienceList"
-                      :show-search="{ filterSearch }"
-                      change-on-select
-                      @change="selectFilter"/>
-                  </div>
-                </div>
-                <div class="filter-row">
-                  <div class="ant-form-item-label">Assessment:</div>
-                  <div class="row-select">
-                    <a-cascader
-                      class="row-cascader"
-                      :fieldNames="{ label: 'name', value: 'id', children: 'children' }"
-                      v-model="filterAssessments"
-                      :options="assessmentsList"
-                      :show-search="{ filterSearch }"
-                      change-on-select
-                      @change="selectFilter"/>
-                  </div>
-                </div>
-                <div class="filter-row">
-                  <div class="ant-form-item-label">21 century skills:</div>
-                  <div class="row-select">
-                    <a-cascader
-                      class="row-cascader"
-                      :fieldNames="{ label: 'name', value: 'id', children: 'children' }"
-                      v-model="filterCentury"
-                      :options="centuryList"
-                      :show-search="{ filterSearch }"
-                      change-on-select
-                      @change="selectFilter" />
-                  </div>
-                </div>
+                <a-row>
+                  <a-col :span="5">
+                    <div class="filter-row">
+                      <div class="ant-form-item-label">Learning Experience:</div>
+                      <a-button type="link" class="clear-all">
+                        Clear all
+                      </a-button>
+                      <div class="row-select">
+                        <div v-for="(item ,index) in templateFilterCondition(templateType.Learning,'')" :key="index">
+                          <a-row>
+                            <h4>{{ item.name }}</h4>
+                          </a-row>
+                          <a-checkbox-group>
+                            <a-row v-for="(child,cIndex) in item.children" :key="cIndex">
+                              <a-col :span="24">
+                                <a-checkbox :value="child.id">
+                                  {{ child.name }}
+                                </a-checkbox>
+                              </a-col>
+                            </a-row>
+                          </a-checkbox-group>
+                        </div>
+                      </div>
+                    </div>
+                  </a-col>
+                  <a-col :span="8">
+                    <div class="filter-row">
+                      <div class="ant-form-item-label">Assessment:</div>
+                      <a-button type="link" class="clear-all">
+                        Clear all
+                      </a-button>
+                      <a-row>
+                        <a-col :span="12">
+                          <div class="row-select">
+                            <span class="sub-category">Knowledge focus </span>
+                            <div v-for="(item ,index) in templateFilterCondition(templateType.Assessments,'Knowledge focus')" :key="index">
+                              <a-row>
+                                <h4>{{ item.name }}</h4>
+                              </a-row>
+                              <a-checkbox-group>
+                                <a-row v-for="(child,cIndex) in item.children" :key="cIndex">
+                                  <a-col :span="24">
+                                    <a-checkbox :value="child.id">
+                                      {{ child.name }}
+                                    </a-checkbox>
+                                  </a-col>
+                                </a-row>
+                              </a-checkbox-group>
+                            </div>
+                          </div>
+                        </a-col>
+                        <a-col :span="12">
+                          <div class="row-select">
+                            <span class="sub-category">Skill focus</span>
+                            <div v-for="(item ,index) in templateFilterCondition(templateType.Assessments,'Skill focus')" :key="index">
+                              <a-row>
+                                <h4>{{ item.name }}</h4>
+                              </a-row>
+                              <a-checkbox-group>
+                                <a-row v-for="(child,cIndex) in item.children" :key="cIndex">
+                                  <a-col :span="24">
+                                    <a-checkbox :value="child.id">
+                                      {{ child.name }}
+                                    </a-checkbox>
+                                  </a-col>
+                                </a-row>
+                              </a-checkbox-group>
+                            </div>
+                          </div>
+                        </a-col>
+                      </a-row>
+                    </div>
+                  </a-col>
+                  <a-col :span="11">
+                    <div class="filter-row" style="overflow: auto">
+                      <div class="ant-form-item-label">21 century skills:</div>
+                      <a-button type="link" class="clear-all">
+                        Clear all
+                      </a-button>
+                      <a-row class="row-select" style="min-width: 700px">
+                        <a-col :span="12" v-for="(item ,index) in templateFilterCondition(templateType.Century,'')" :key="index">
+                          <a-row>
+                            <h4>{{ item.name }}</h4>
+                          </a-row>
+                          <a-checkbox-group>
+                            <a-row v-for="(child,cIndex) in item.children" :key="cIndex">
+                              <a-col :span="24">
+                                <a-checkbox :value="child.id">
+                                  {{ child.name }}
+                                </a-checkbox>
+                                <div class="subChild" style="padding-left: 20px">
+                                  <a-checkbox-group>
+                                    <a-row v-if="child.children.length > 0" v-for="(subChild,subIndex) in child.children" :key="subIndex">
+                                      <a-col :span="24">
+                                        <a-checkbox :value="subChild.id">
+                                          {{ subChild.name }}
+                                        </a-checkbox>
+                                      </a-col>
+                                    </a-row>
+                                  </a-checkbox-group>
+                                </div>
+                              </a-col>
+                            </a-row>
+                          </a-checkbox-group>
+                        </a-col>
+                      </a-row>
+                    </div>
+                  </a-col>
+                </a-row>
               </div>
               <div class="template-list-wrapper">
                 <div class="template-list" v-if="!templateLoading">
@@ -718,7 +789,7 @@
   import { lessonHost, lessonStatus } from '@/const/googleSlide'
   import { StartLesson } from '@/api/lesson'
   import CollaborateContent from '@/components/Collaborate/CollaborateContent'
-  import { CustomTagType, DICT_BLOOM_CATEGORY, DICT_TEMPLATE } from '@/const/common'
+  import { CustomTagType, DICT_BLOOM_CATEGORY, DICT_TEMPLATE, TemplateType } from '@/const/common'
   import { SubjectTree } from '@/api/subject'
   import { formatSubjectTree } from '@/utils/bizUtil'
   import ModalHeader from '@/components/Common/ModalHeader'
@@ -779,7 +850,7 @@
         referenceLoading: false,
         contentType: typeMap,
         templateTypeMap: TemplateTypeMap,
-
+        templateType: TemplateType,
         creating: false,
 
         leftAddExpandStatus: false,
@@ -821,7 +892,7 @@
         audioUrl: null,
 
         selectedTaskIdList: [],
-        selectedMyContentVisible: false,
+        selectedMyContentVisible: true,
         selectedMyContentKeyList: [],
         selectedMyContentList: [],
         selectedMyContentInfoMap: new Map(),
@@ -910,7 +981,6 @@
         this.selectedTemplateList.forEach(item => {
           list.push(item.id)
         })
-
         return list
       }
     },
@@ -996,13 +1066,13 @@
           if (response.success) {
             this.treeItemData = response.result.children
             this.treeItemData.forEach(item => {
-              if (item.name === 'Learning experience') {
+              if (item.name === TemplateType.Learning) {
                 this.learnExperienceList = item.children
               }
-              if (item.name === 'Assessments') {
+              if (item.name === TemplateType.Assessments) {
                 this.assessmentsList = item.children
               }
-              if (item.name === '21 century skills') {
+              if (item.name === TemplateType.Century) {
                 this.centuryList = item.children
               }
             })
@@ -1929,6 +1999,22 @@
           })
         }
         this.$logger.info('after handleRestoreField', this.form)
+      },
+      templateFilterCondition (category1, category2) {
+        let list = []
+        if (category1 === TemplateType.Learning) {
+          list = this.learnExperienceList
+        } else if (category1 === TemplateType.Assessments) {
+          list = this.assessmentsList
+        } else if (category1 === TemplateType.Century) {
+          list = this.centuryList
+        }
+        if (!category2) {
+          return list
+        }
+        const resultList = list.filter(item => item.name === category2)
+        logger.info('templateFilterCondition ', resultList)
+        return resultList.length > 0 ? resultList[0].children : []
       }
     }
   }
@@ -2281,26 +2367,30 @@
       opacity: 1;
       border-radius: 4px;
       padding: 10px ;
-      display: flex;
-      flex-direction: column;
       .filter-row{
-        align-items: center;
-        justify-content: center;
-        padding: 5px;
-        display: flex;
+        position: relative;
+        margin-left: 10px;
         width: 100%;
         .ant-form-item-label{
-          width: 20%;
           font-weight: bold;
           line-height: 24px;
           color: #11142D;
         }
-        .row-select{
-          width: 60%;
-          margin-left: 10px;
+        .clear-all{
+          position: absolute;
+          right: 3px;
+          top: -3px;
         }
-        .row-cascader{
-          width: 90%;
+        .row-select{
+          .sub-category{
+            line-height: 24px;
+            color: #D3D3D3;
+          }
+          margin: 5px;
+          border: 1px solid #E4E4E4;
+          padding: 5px 15px;
+          max-height: 250px;
+          overflow: auto;
         }
       }
 
@@ -2630,7 +2720,7 @@
 
   *::-webkit-scrollbar {
     width: 3px;
-    height: 0;
+    height: 10px;
   }
   *::-webkit-scrollbar-track {
     border-radius: 1px;

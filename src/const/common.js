@@ -21,6 +21,12 @@ export const TagOriginType = {
   Extension: 'Extension'
 }
 
+export const TemplateType = {
+  Learning: 'Learning experience',
+  Assessments: 'Assessments',
+  Century: '21 century skills'
+}
+
 export const CustomTagType = {
   plan: {
     sdg: ['Key words'],

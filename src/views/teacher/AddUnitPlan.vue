@@ -1638,6 +1638,8 @@ export default {
         data.historyData.forEach(dataItem => {
           this.$logger.info('set ' + dataItem.fieldName, dataItem.data[0])
           if (Array.isArray(dataItem.data[0])) {
+            // 清空数组
+            this.form[dataItem.fieldName].splice(0, this.form[dataItem.fieldName].length)
             dataItem.data[0].forEach((item, index) => {
               this.$set(this.form[dataItem.fieldName], index, dataItem.data[0][index])
             })

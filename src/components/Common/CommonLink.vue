@@ -356,6 +356,9 @@ export default {
       linkGroup.editing = !linkGroup.editing
     },
     handleViewDetail (item) {
+      if (!this.canEdit) {
+        return
+      }
       logger.info('handleViewDetail', item)
       this.previewCurrentId = item.id
       this.previewType = item.type
