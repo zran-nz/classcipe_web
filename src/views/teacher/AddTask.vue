@@ -441,23 +441,21 @@
                   <a-col :span="5">
                     <div class="filter-row">
                       <div class="ant-form-item-label">Learning Experience:</div>
-                      <a-button type="link" class="clear-all">
+                      <a-button type="link" class="clear-all" @click="clearFilter(templateType.Learning)">
                         Clear all
                       </a-button>
                       <div class="row-select">
-                        <div v-for="(item ,index) in templateFilterCondition(templateType.Learning,'')" :key="index">
+                        <div class="sub-select" v-for="(item ,index) in templateFilterCondition(templateType.Learning,'')" :key="index">
                           <a-row>
                             <h4>{{ item.name }}</h4>
                           </a-row>
-                          <a-checkbox-group>
-                            <a-row v-for="(child,cIndex) in item.children" :key="cIndex">
-                              <a-col :span="24">
-                                <a-checkbox :value="child.id">
-                                  {{ child.name }}
-                                </a-checkbox>
-                              </a-col>
-                            </a-row>
-                          </a-checkbox-group>
+                          <a-row v-for="(child,cIndex) in item.children" :key="cIndex">
+                            <a-col :span="24">
+                              <a-checkbox :value="child.id" @change="onChangeCheckBox($event,templateType.Learning)" :checked="filterLearn.indexOf(child.id) > -1 ? true: false">
+                                {{ child.name }}
+                              </a-checkbox>
+                            </a-col>
+                          </a-row>
                         </div>
                       </div>
                     </div>
@@ -465,45 +463,41 @@
                   <a-col :span="8">
                     <div class="filter-row">
                       <div class="ant-form-item-label">Assessment:</div>
-                      <a-button type="link" class="clear-all">
+                      <a-button type="link" class="clear-all" @click="clearFilter(templateType.Assessments)">
                         Clear all
                       </a-button>
                       <a-row>
                         <a-col :span="12">
                           <div class="row-select">
                             <span class="sub-category">Knowledge focus </span>
-                            <div v-for="(item ,index) in templateFilterCondition(templateType.Assessments,'Knowledge focus')" :key="index">
+                            <div class="sub-select" v-for="(item ,index) in templateFilterCondition(templateType.Assessments,'Knowledge focus')" :key="index">
                               <a-row>
                                 <h4>{{ item.name }}</h4>
                               </a-row>
-                              <a-checkbox-group>
-                                <a-row v-for="(child,cIndex) in item.children" :key="cIndex">
-                                  <a-col :span="24">
-                                    <a-checkbox :value="child.id">
-                                      {{ child.name }}
-                                    </a-checkbox>
-                                  </a-col>
-                                </a-row>
-                              </a-checkbox-group>
+                              <a-row v-for="(child,cIndex) in item.children" :key="cIndex">
+                                <a-col :span="24">
+                                  <a-checkbox :value="child.id" @change="onChangeCheckBox($event,templateType.Assessments)" :checked="filterAssessments.indexOf(child.id) > -1 ? true: false">
+                                    {{ child.name }}
+                                  </a-checkbox>
+                                </a-col>
+                              </a-row>
                             </div>
                           </div>
                         </a-col>
                         <a-col :span="12">
                           <div class="row-select">
                             <span class="sub-category">Skill focus</span>
-                            <div v-for="(item ,index) in templateFilterCondition(templateType.Assessments,'Skill focus')" :key="index">
+                            <div class="sub-select" v-for="(item ,index) in templateFilterCondition(templateType.Assessments,'Skill focus')" :key="index">
                               <a-row>
                                 <h4>{{ item.name }}</h4>
                               </a-row>
-                              <a-checkbox-group>
-                                <a-row v-for="(child,cIndex) in item.children" :key="cIndex">
-                                  <a-col :span="24">
-                                    <a-checkbox :value="child.id">
-                                      {{ child.name }}
-                                    </a-checkbox>
-                                  </a-col>
-                                </a-row>
-                              </a-checkbox-group>
+                              <a-row v-for="(child,cIndex) in item.children" :key="cIndex">
+                                <a-col :span="24">
+                                  <a-checkbox :value="child.id" @change="onChangeCheckBox($event,templateType.Assessments)" :checked="filterAssessments.indexOf(child.id) > -1 ? true: false">
+                                    {{ child.name }}
+                                  </a-checkbox>
+                                </a-col>
+                              </a-row>
                             </div>
                           </div>
                         </a-col>
@@ -513,34 +507,55 @@
                   <a-col :span="11">
                     <div class="filter-row" style="overflow: auto">
                       <div class="ant-form-item-label">21 century skills:</div>
-                      <a-button type="link" class="clear-all">
+                      <a-button type="link" class="clear-all" @click="clearFilter(templateType.Century)">
                         Clear all
                       </a-button>
-                      <a-row class="row-select" style="min-width: 700px">
-                        <a-col :span="12" v-for="(item ,index) in templateFilterCondition(templateType.Century,'')" :key="index">
-                          <a-row>
-                            <h4>{{ item.name }}</h4>
-                          </a-row>
-                          <a-checkbox-group>
+                      <a-row class="row-select" style="min-width: 700px" >
+                        <a-col :span="12">
+                          <a-col class="sub-select" v-if="index < 2" :span="24" v-for="(item ,index) in templateFilterCondition(templateType.Century,'')" :key="index">
+                            <a-row>
+                              <h4>{{ item.name }}</h4>
+                            </a-row>
                             <a-row v-for="(child,cIndex) in item.children" :key="cIndex">
                               <a-col :span="24">
-                                <a-checkbox :value="child.id">
+                                <a-checkbox :value="child.id" @change="onChangeCheckBox($event,templateType.Century)" :checked="filterCentury.indexOf(child.id) > -1 ? true: false">
                                   {{ child.name }}
                                 </a-checkbox>
-                                <div class="subChild" style="padding-left: 20px">
-                                  <a-checkbox-group>
-                                    <a-row v-if="child.children.length > 0" v-for="(subChild,subIndex) in child.children" :key="subIndex">
-                                      <a-col :span="24">
-                                        <a-checkbox :value="subChild.id">
-                                          {{ subChild.name }}
-                                        </a-checkbox>
-                                      </a-col>
-                                    </a-row>
-                                  </a-checkbox-group>
+                                <div class="sub-child" >
+                                  <a-row v-if="child.children.length > 0" v-for="(subChild,subIndex) in child.children" :key="subIndex">
+                                    <a-col :span="24">
+                                      <a-checkbox :value="subChild.id" @change="onChangeCheckBox($event,templateType.Century,child.id)" :checked="filterCentury.indexOf(subChild.id) > -1 ? true: false">
+                                        {{ subChild.name }}
+                                      </a-checkbox>
+                                    </a-col>
+                                  </a-row>
                                 </div>
                               </a-col>
                             </a-row>
-                          </a-checkbox-group>
+                          </a-col>
+                        </a-col>
+                        <a-col :span="12">
+                          <a-col class="sub-select" v-if="index >= 2" :span="24" v-for="(item ,index) in templateFilterCondition(templateType.Century,'')" :key="index">
+                            <a-row>
+                              <h4>{{ item.name }}</h4>
+                            </a-row>
+                            <a-row v-for="(child,cIndex) in item.children" :key="cIndex">
+                              <a-col :span="24">
+                                <a-checkbox :value="child.id" @change="onChangeCheckBox($event,templateType.Century)" :checked="filterCentury.indexOf(child.id) > -1 ? true: false">
+                                  {{ child.name }}
+                                </a-checkbox>
+                                <div class="sub-child" >
+                                  <a-row v-if="child.children.length > 0" v-for="(subChild,subIndex) in child.children" :key="subIndex">
+                                    <a-col :span="24">
+                                      <a-checkbox :value="subChild.id" @change="onChangeCheckBox($event,templateType.Century,child.id)" :checked="filterCentury.indexOf(subChild.id) > -1 ? true: false">
+                                        {{ subChild.name }}
+                                      </a-checkbox>
+                                    </a-col>
+                                  </a-row>
+                                </div>
+                              </a-col>
+                            </a-row>
+                          </a-col>
                         </a-col>
                       </a-row>
                     </div>
@@ -944,6 +959,7 @@
         filterAssessments: [],
         centuryList: [],
         filterCentury: [],
+        filterParentMap: new Map(),
         recomendListLoading: false,
         addRecomendLoading: false,
         skeletonLoading: false,
@@ -1844,7 +1860,7 @@
         FilterTemplates({
             filterLearn: this.filterLearn,
             filterAssessments: this.filterAssessments,
-            filterCentury: this.filterCentury
+            filterCentury: this.getFilterParams(this.filterCentury)
         }).then(response => {
           this.$logger.info('handleToggleTemplateType ', response)
           this.templateList = response.result
@@ -2015,6 +2031,63 @@
         const resultList = list.filter(item => item.name === category2)
         logger.info('templateFilterCondition ', resultList)
         return resultList.length > 0 ? resultList[0].children : []
+      },
+      onChangeCheckBox (e, category, parentId) {
+        logger.info('onChangeCheckBox ', e, category, parentId)
+        logger.info('filterLearn ', this.filterLearn)
+        const id = e.target.value
+        if (category === TemplateType.Learning) {
+          if (this.filterLearn.indexOf(id) === -1) {
+            this.filterLearn.push(id)
+          } else {
+            this.filterLearn.splice(this.filterLearn.indexOf(id), 1)
+          }
+        } else if (category === TemplateType.Assessments) {
+          if (this.filterAssessments.indexOf(id) === -1) {
+            this.filterAssessments.push(id)
+          } else {
+            this.filterAssessments.splice(this.filterAssessments.indexOf(id), 1)
+          }
+        } else if (category === TemplateType.Century) {
+          if (this.filterCentury.indexOf(id) === -1) {
+            this.filterCentury.push(id)
+            // if (parentId && this.filterCentury.indexOf(parentId) === -1) {
+            //   this.filterCentury.push(parentId)
+            // }
+          } else {
+            this.filterCentury.splice(this.filterCentury.indexOf(id), 1)
+          }
+        }
+        // 如果选中的是子类 父id要从筛选条件中去除，记录关系
+        if (parentId) {
+          this.filterParentMap.set(id, parentId)
+        }
+        this.selectFilter()
+      },
+      clearFilter (category) {
+        if (category === TemplateType.Learning) {
+          this.filterLearn = []
+        } else if (category === TemplateType.Assessments) {
+          this.filterAssessments = []
+        } else if (category === TemplateType.Century) {
+          this.filterCentury = []
+        }
+        this.selectFilter()
+      },
+      getFilterParams (list) {
+        if (list.length === 0) {
+          return []
+        }
+        var resList = [...list]
+        list.forEach(id => {
+          if (this.filterParentMap.has(id)) {
+             const pId = this.filterParentMap.get(id)
+             if (resList.indexOf(pId) > -1) {
+               resList.splice(resList.indexOf(pId), 1)
+             }
+          }
+        })
+        return resList
       }
     }
   }
@@ -2385,6 +2458,12 @@
           .sub-category{
             line-height: 24px;
             color: #D3D3D3;
+          }
+          .sub-select{
+            margin-bottom: 10px;
+          }
+          .sub-child{
+            padding-left: 20px;
           }
           margin: 5px;
           border: 1px solid #E4E4E4;
