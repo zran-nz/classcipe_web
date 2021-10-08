@@ -207,7 +207,7 @@
                     </div>
                     <a-tabs default-active-key="1">
                       <a-tab-pane key="1" tab="Comment">
-                        <collaborate-comment-view :comment-list="collaborateCommentList" @update-comment="handleUpdateCommentList"/>
+                        <collaborate-comment-view :source-id="taskId" :source-type="contentType.task" :comment-list="collaborateCommentList" @update-comment="handleUpdateCommentList"/>
                       </a-tab-pane>
                       <a-tab-pane key="2" tab="History" force-render>
                         <collaborate-history :history-list="historyList" @restore="handleRestoreField"/>

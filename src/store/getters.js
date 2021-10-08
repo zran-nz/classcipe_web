@@ -23,7 +23,8 @@ const getters = {
   defaultRouter: state => state.user.currentRole === 'expert' ? defaultExpertRouter : defaultTeacherRouter,
   sharedCount: state => state.user.sharedCount,
   sharedFindCount: state => state.user.sharedFindCount,
-  skillCategory: state => state.user.skillCategory
+  skillCategory: state => state.user.skillCategory,
+  disableQuestion: state => state.user.disableQuestion
 }
 
 export default getters

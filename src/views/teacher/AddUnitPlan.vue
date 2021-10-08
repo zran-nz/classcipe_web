@@ -157,9 +157,15 @@
                           @click="handleAddMoreSdg"></a-button>
                       </div>
 
-                      <div class="form-block">
+                      <div class="form-block" v-if="!$store.getters.userInfo.disableQuestion">
                         <comment-switch field-name="question" :is-active="showCollaborateCommentVisible && currentFieldName === 'question'" @switch="handleSwitchComment" class="my-comment-switch"/>
-                        <a-form-item label="Key question/line of inquiry">
+                        <a-form-item>
+                          <span slot="label">
+                            Key question/line of inquiry
+                            <a-tooltip title="Set key question/line of inquiry">
+                              <a-icon type="exclamation-circle" style="color: #15c39a;cursor: pointer;font-size: 18px" @click="questionSettingVisible=true" />
+                            </a-tooltip>
+                          </span>
                           <div class="form-input-item" v-for="(question, index) in form.questions" :key="index">
                             <a-input
                               v-model="question.name"
@@ -223,7 +229,7 @@
                   </div>
                   <a-tabs default-active-key="1">
                     <a-tab-pane key="1" tab="Comment">
-                      <collaborate-comment-view :comment-list="collaborateCommentList" @update-comment="handleUpdateCommentList"/>
+                      <collaborate-comment-view :source-id="unitPlanId" :source-type="contentType['unit-plan']" :comment-list="collaborateCommentList" @update-comment="handleUpdateCommentList"/>
                     </a-tab-pane>
                     <a-tab-pane key="2" tab="History" force-render>
                       <collaborate-history :history-list="historyList" @restore="handleRestoreField"/>
@@ -479,6 +485,25 @@
         </div>
       </a-modal>
 
+      <a-modal
+        v-model="questionSettingVisible"
+        :footer="null"
+        destroyOnClose
+        width="600px"
+        title="Set key question/line of inquiry">
+        <div class="ensure-setting-modal">
+          <div class="tips">
+            <p>We understand that for some countries, "key questions/line of inquiry" is not required in Unit plan so you have the option to turn it off. You won't see that section once it's off.</p><p>
+            </p><p style="color: red">You might turn it on or change in your account setting If you need the section in future.</p>
+          </div>
+          <a-switch default-checked @change="onChangeSwitch"/> <span style="color: red ;font-family: Inter-Bold;font-size: 15px;">Key question/line of inquiry</span>
+          <div class="modal-ensure-action-line-center">
+            <a-button class="action-item action-cancel" shape="round" @click="questionSettingVisible=false">Cancel</a-button>
+            <a-button class="action-ensure action-item" type="primary" shape="round" @click="handQuestionSetting">Confirm</a-button>
+          </div>
+        </div>
+      </a-modal>
+
       <a-skeleton :loading="contentLoading" active>
       </a-skeleton>
     </a-card>
@@ -530,6 +555,7 @@ import CommentSwitch from '@/components/Collaborate/CommentSwitch'
 import CollaborateCommentView from '@/components/Collaborate/CollaborateCommentView'
 import commentIcon from '@/assets/icons/collaborate/comment.svg?inline'
 import CollaborateHistory from '@/components/Collaborate/CollaborateHistory'
+import { UserSetting } from '@/api/user'
 
 export default {
   name: 'AddUnitPlan',
@@ -692,7 +718,9 @@ export default {
       collaborateTop: 0,
       showAllCollaborateCommentVisible: false,
       // TODO mock数据待更新为接口请求（loadCollaborateData方法中的GetCollaborateModifiedHistory)
-      historyList: []
+      historyList: [],
+      questionSettingVisible: false,
+      disableQuestion: true
     }
   },
   watch: {
@@ -1531,54 +1559,57 @@ export default {
     },
     focusInput (event) {
       this.$logger.info('focusInput ', event.target)
-
         // 设置一个父级定位专用的dom，设置class名称【root-locate-form】，
         // 然后通过事件获取到当前元素，依次往上层查询父元素，累加偏离值，直到定位元素。
-        const eventDom = event.target
-        let formTop = eventDom.offsetTop
-        let currentDom = eventDom.offsetParent
-        let currentFocus = ''
-        this.customTagList = []
-        // console.log(currentDom.classList)
-        while (currentDom !== null) {
-          formTop += currentDom.offsetTop
-          currentDom = currentDom.offsetParent
-          if (currentDom.classList.contains('sdg-content-blocks')) {
-            currentFocus = 'sdg'
-            CustomTagType.plan.sdg.forEach(name => {
-              this.customTagList.push(name)
-            })
-          } else if (currentDom.classList.contains('bigIdea')) {
-            currentFocus = 'inquiry'
-            CustomTagType.plan.bigIdea.forEach(name => {
-              this.customTagList.push(name)
-            })
-          }
-          if (currentDom.classList && currentDom.classList.contains('root-locate-form')) {
-            console.log(currentDom.classList)
-            break
-          }
-        }
-        console.log(currentFocus)
-        // custom tag 自带了margin-top: 20px,这里减掉不然不对齐。
-        if (currentFocus) {
-          this.customTagTop = formTop - 20
-          this.showCustomTag = true
-          this.showCollaborateCommentVisible = false
-          this.showAllCollaborateCommentVisible = false
-        } else {
-          CustomTagType.plan.default.forEach(name => {
-            this.customTagList.push(name)
-          })
-          // // 再拼接自己添加的
-          this.userTags.userTags.forEach(tag => {
-            if (this.customTagList.indexOf(tag.name === -1)) {
-              this.customTagList.push(tag.name)
+        try {
+          const eventDom = event.target
+          let formTop = eventDom.offsetTop
+          let currentDom = eventDom.offsetParent
+          let currentFocus = ''
+          this.customTagList = []
+          // console.log(currentDom.classList)
+          while (currentDom !== null) {
+            formTop += currentDom.offsetTop
+            currentDom = currentDom.offsetParent
+            if (currentDom.classList.contains('sdg-content-blocks')) {
+              currentFocus = 'sdg'
+              CustomTagType.plan.sdg.forEach(name => {
+                this.customTagList.push(name)
+              })
+            } else if (currentDom.classList.contains('bigIdea')) {
+              currentFocus = 'inquiry'
+              CustomTagType.plan.bigIdea.forEach(name => {
+                this.customTagList.push(name)
+              })
             }
-          })
-          this.customTagTop = 300
-          this.showCustomTag = false
-        }
+            if (currentDom.classList && currentDom.classList.contains('root-locate-form')) {
+              console.log(currentDom.classList)
+              break
+            }
+          }
+          console.log(currentFocus)
+          // custom tag 自带了margin-top: 20px,这里减掉不然不对齐。
+          if (currentFocus) {
+            this.customTagTop = formTop - 20
+            this.showCustomTag = true
+            this.showCollaborateCommentVisible = false
+            this.showAllCollaborateCommentVisible = false
+          } else {
+            CustomTagType.plan.default.forEach(name => {
+              this.customTagList.push(name)
+            })
+            // // 再拼接自己添加的
+            this.userTags.userTags.forEach(tag => {
+              if (this.customTagList.indexOf(tag.name === -1)) {
+                this.customTagList.push(tag.name)
+              }
+            })
+            this.customTagTop = 300
+            this.showCustomTag = false
+          }
+        } catch (e) {
+        console.log(e)
+      }
     },
 
     // 切换当前的字段的点评数据，从总的collaborateCommentList筛选初当前字段相关的点评数据
@@ -1650,6 +1681,23 @@ export default {
         })
       }
       this.$logger.info('after handleRestoreField', this.form)
+    },
+    handQuestionSetting () {
+      UserSetting({
+        disableQuestion: this.disableQuestion
+      }).then((response) => {
+        this.$logger.info('UserSetting', response.result)
+        if (response.success) {
+          this.$store.dispatch('GetInfo')
+        } else {
+          this.$message.error(response.message)
+        }
+      }).finally(() => {
+        this.questionSettingVisible = false
+      })
+    },
+    onChangeSwitch (checked) {
+      this.disableQuestion = !checked
     }
   }
 }
@@ -2436,6 +2484,24 @@ export default {
     svg {
       width: 30px;
     }
+  }
+}
+
+.ensure-setting-modal {
+  padding: 20px;
+  .tips {
+    margin-bottom: 20px;
+    font-family: Inter-Bold;
+    font-size: 15px;
+    color: #474747;
+  }
+
+  .modal-ensure-action-line-center {
+    width: 40%;
+    display: flex;
+    justify-content: space-between;
+    margin: 0px auto;
+    margin-top: 40px;
   }
 }
 </style>

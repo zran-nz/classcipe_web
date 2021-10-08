@@ -15,7 +15,7 @@
     <template v-if="!replyMode">
       <a-input class="my-padding-input" v-model="value" size="large"> </a-input>
     </template>
-    <a-button class="my-send-btn" size="small" type="primary" @click="handleSendEvent">Send</a-button>
+    <a-button :loading="sendLoading" class="my-send-btn" size="small" type="primary" @click="handleSendEvent">Send</a-button>
   </div>
 </template>
 
@@ -38,17 +38,25 @@ export default {
   },
   data () {
     return {
-      value: null
+      value: null,
+      sendLoading: false
     }
   },
   methods: {
     handleSendEvent () {
       // 触发事件是把extra数据带回，方便外部区分处理逻辑。
       this.$logger.info('trigger send ' + this.value)
+      if (!this.value) {
+        return
+      }
+      this.sendLoading = true
       this.$emit('send', {
         inputValue: this.value,
         extra: this.extra
       })
+      setTimeout(() => {
+        this.sendLoading = false
+      }, 1000)
     }
   }
 }

@@ -28,7 +28,7 @@
       <div class="record-list" v-for="(commentItem, cIndex) in formatCommentList" :key="cIndex">
         <div class="record-item">
           <template v-if="!commentItem.isDelete">
-            <div class="record-action" v-show="commentItem.userId === $store.getters.userInfo.id">
+            <div class="record-action" v-show="commentItem.username === $store.getters.userInfo.username">
               <div class="record-delete" @click="handleDeleteComment(commentItem)">
                 <delete-icon />
               </div>
@@ -136,6 +136,14 @@ export default {
     commentList: {
       type: Array,
       default: () => []
+    },
+    sourceId: {
+      type: String,
+      default: null
+    },
+    sourceType: {
+      type: Number,
+      default: null
     }
   },
   data () {
@@ -172,6 +180,7 @@ export default {
        * subCommentList数组中，按时间排序展示
        */
         // 过滤rootComment
+      this.formatCommentList = []
       this.rootCommentMap = new Map()
       this.rawCommentList.forEach(item => {
         const dataItem = Object.assign({}, item)
@@ -203,6 +212,8 @@ export default {
     // TODO 评论提交逻辑
     handleSend (data) {
       this.$logger.info('handleSend', data)
+      data.sourceId = this.sourceId
+      data.sourceType = this.sourceType
       if (!data) {
         this.$message.warn('Please enter some comments!')
       } else {

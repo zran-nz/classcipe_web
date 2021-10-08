@@ -20,7 +20,8 @@ const user = {
     info: {},
     sharedCount: 0,
     sharedFindCount: 0,
-    skillCategory: []
+    skillCategory: [],
+    disableQuestion: false
   },
 
   mutations: {
@@ -64,6 +65,9 @@ const user = {
     },
     SET_SKILL_CATEGORY: (state, skillCategory) => {
       state.skillCategory = skillCategory
+    },
+    SET_DISABLED_QUESTION: (state, disableQuestion) => {
+      state.disableQuestion = disableQuestion
     }
   },
 
@@ -115,6 +119,7 @@ const user = {
           commit('SET_SKILL_CATEGORY', result.skillCategory)
           commit('SET_CURRENT_ROLE', result.currentRole)
           commit('SET_IS_ADD_PREFERENCE', result.isAddPreference)
+          commit('SET_DISABLED_QUESTION', result.disableQuestion)
           storage.set(CURRENT_ROLE, result.currentRole)
           storage.set(IS_ADD_PREFERENCE, result.isAddPreference)
           storage.set(USER_INFO, result)
