@@ -907,7 +907,7 @@
         audioUrl: null,
 
         selectedTaskIdList: [],
-        selectedMyContentVisible: true,
+        selectedMyContentVisible: false,
         selectedMyContentKeyList: [],
         selectedMyContentList: [],
         selectedMyContentInfoMap: new Map(),
