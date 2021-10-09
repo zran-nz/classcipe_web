@@ -22,7 +22,7 @@
       <div class="footer">
         <div class="links">
           <a href="https://www.classcipe.com" target="_blank">Help</a>
-          <a href="https://www.classcipe.com/policy.html" target="_blank">Privacy</a>
+          <a href="https://www.classcipe.com/policy.html" target="_blank">Privacy Policy</a>
           <a href="https://www.classcipe.com/term.html" target="_blank">Terms</a>
         </div>
         <div class="copyright">

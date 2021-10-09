@@ -43,7 +43,7 @@
         <a-textarea v-model="inviteMessage" placeholder="Entre message" aria-placeholder="Entre message" class="my-textarea" />
       </div>
       <div class="action-line">
-        <a-button class="button-item" type="primary" shape="round" @click="handleEnsureSelect"> Confirm </a-button>
+        <a-button :disabled="selectedContentIdList.length === 0" class="button-item" type="primary" shape="round" @click="handleEnsureSelect"> Confirm </a-button>
       </div>
 
       <a-drawer
@@ -129,6 +129,7 @@ export default {
   created () {
     logger.info('Collaborate contentId ' + this.contentId + ' type ' + this.contentType, this.mainContent)
     this.loadAssociateContent()
+    this.selectedContentIdList.push(this.contentId)
   },
   mounted () {
   },
@@ -145,7 +146,9 @@ export default {
         const collaborateContentList = [this.mainContent]
         const owner = response.result.owner
         if (owner) {
-          collaborateContentList.push(...owner)
+          owner.forEach(group => {
+            collaborateContentList.push(...group.contents)
+          })
         }
         this.collaborateContentList = collaborateContentList
         this.$logger.info('collaborateContentList', this.collaborateContentList)
