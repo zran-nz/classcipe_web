@@ -720,7 +720,7 @@ export default {
       // TODO mock数据待更新为接口请求（loadCollaborateData方法中的GetCollaborateModifiedHistory)
       historyList: [],
       questionSettingVisible: false,
-      disableQuestion: true
+      disableQuestion: false
     }
   },
   watch: {
