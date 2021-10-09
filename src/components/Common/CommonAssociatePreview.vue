@@ -17,9 +17,9 @@
                 <div :class="{'mode-item': true, 'skill-active-mode' : activeContentType === typeMap.task}" @click="handleSelectContentType(typeMap.task)">
                   {{ $t('teacher.unit-plan-preview.task') }}
                 </div>
-                <div :class="{'mode-item': true, 'knowledge-active-mode' : activeContentType === typeMap.lesson}" @click="handleSelectContentType(typeMap.lesson)">
-                  {{ $t('teacher.unit-plan-preview.lesson') }}
-                </div>
+                <!--                <div :class="{'mode-item': true, 'knowledge-active-mode' : activeContentType === typeMap.lesson}" @click="handleSelectContentType(typeMap.lesson)">-->
+                <!--                  {{ $t('teacher.unit-plan-preview.lesson') }}-->
+                <!--                </div>-->
                 <div :class="{'mode-item': true, 'general-active-mode' : activeContentType === typeMap.evaluation}" @click="handleSelectContentType(typeMap.evaluation)">
                   {{ $t('teacher.unit-plan-preview.evaluation') }}
                 </div>
@@ -57,7 +57,7 @@
                   <div class="item-name">
                     <dir-icon :content-type="item.type" />
                     <span class="data-name" @click="handleClickTitle(item)">
-                      {{ item.name }}
+                      {{ item.name ? item.name : 'Untitled' }}
                     </span>
                   </div>
                   <div class="arrow-item">
@@ -91,7 +91,7 @@
                     'browser-item': true,
                     'odd-line': index % 2 === 0,
                   }">
-                  <data-card-view :title="item.name" :created-time="item.createTime" :cover="item.image" />
+                  <data-card-view :title="item.name" :created-time="item.createTime" :cover="item.image" :content-type="item.type"/>
                   <div class="card-action-item">
                     <div class="action-left">
                       <div class="edit-item-icon" @click="handleEditItem(item.type, item)">
@@ -192,7 +192,7 @@ export default {
       }).then((response) => {
         logger.info('GetAssociate ', response)
         this.associateData = response.result
-        this.currentAssociateList = this.associateData[this.activeUserType]
+        this.handleUserTypeChange()
       }).then(() => {
         logger.info('get favorite ' + this.id)
       }).finally(() => {
@@ -215,9 +215,17 @@ export default {
       this.previewType = null
     },
 
-    handleUserTypeChange (e) {
+    handleUserTypeChange () {
       logger.info('handleUserTypeChange ' + this.activeUserType)
-      this.currentAssociateList = this.associateData[this.activeUserType]
+      const rawList = this.associateData[this.activeUserType]
+      this.currentAssociateList = []
+      rawList.forEach(item => {
+        if (item.contents && item.contents.length) {
+          item.contents.forEach(contentItem => {
+            this.currentAssociateList.push(contentItem)
+          })
+        }
+      })
       logger.info('currentAssociateList', this.currentAssociateList)
     },
 

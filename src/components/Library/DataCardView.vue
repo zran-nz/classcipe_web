@@ -3,7 +3,10 @@
     <div class="card-cover" :style="{backgroundImage: 'url(' + cover + ')' }"></div>
     <div :class="{'card-info': true, 'active-item': activeFlag}">
       <div class="card-title">
-        {{ title }}
+        <div class="type-icon">
+          <content-type-icon :type="contentType" />
+        </div>
+        <div class="title-text">{{ title }}</div>
       </div>
       <div class="card-time">
         {{ createdTime | dayjs }}
@@ -13,8 +16,10 @@
 </template>
 
 <script>
+import ContentTypeIcon from '@/components/Teacher/ContentTypeIcon'
 export default {
   name: 'DataCardView',
+  components: { ContentTypeIcon },
   props: {
     cover: {
       type: String,
@@ -31,6 +36,10 @@ export default {
     activeFlag: {
       type: Boolean,
       default: false
+    },
+    contentType: {
+      type: Number,
+      required: true
     }
   },
   created () {
@@ -59,6 +68,10 @@ export default {
     padding: 10px;
 
     .card-title {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      justify-content: flex-start;
       width: 100%;
       overflow: hidden;
       white-space: nowrap;
@@ -68,6 +81,11 @@ export default {
       font-size: 14px;
       font-family: Inter-Bold;
       line-height: 24px;
+
+      .type-icon {
+        width: 30px;
+        margin-right: 5px;
+      }
     }
 
     .card-time {
@@ -77,6 +95,7 @@ export default {
       line-height: 24px;
       color: #000000;
       opacity: 0.5;
+      padding-left: 35px;
     }
   }
 

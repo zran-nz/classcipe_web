@@ -46,6 +46,7 @@
               </div>
             </div>
             <div class="browser-detail">
+              <!--大纲游览-->
               <curriculum-browser
                 :block-index="blockIndex"
                 :curriculum-id="currentCurriculumId"
@@ -53,8 +54,32 @@
                 v-if="currentBrowserType === BrowserTypeMap.curriculum"
                 @blockCollapse="handleBlockCollapse"
                 @previewDetail="handlePreviewDetail"/>
-              <assessment-browser :curriculum-id="currentCurriculumId" :block-width="blockWidth" v-if="currentBrowserType === BrowserTypeMap.assessmentType" @blockCollapse="handleBlockCollapse" @previewDetail="handlePreviewDetail"/>
-              <sdg-browser :block-width="blockWidth" v-if="currentBrowserType === BrowserTypeMap.sdg" @blockCollapse="handleBlockCollapse" @previewDetail="handlePreviewDetail"/>
+              <assessment-browser
+                :curriculum-id="currentCurriculumId"
+                :block-width="blockWidth"
+                v-if="currentBrowserType === BrowserTypeMap.assessmentType"
+                @blockCollapse="handleBlockCollapse"
+                @previewDetail="handlePreviewDetail"/>
+              <general-capability-browser
+                :block-index="blockIndex"
+                :curriculum-id="currentCurriculumId"
+                :block-width="blockWidth"
+                v-if="currentBrowserType === BrowserTypeMap.centurySkills"
+                @blockCollapse="handleBlockCollapse"
+                @previewDetail="handlePreviewDetail"/>
+              <subject-specific-browser
+                :block-index="blockIndex"
+                :curriculum-id="currentCurriculumId"
+                :block-width="blockWidth"
+                v-if="currentBrowserType === BrowserTypeMap.specificSkills"
+                @blockCollapse="handleBlockCollapse"
+                @previewDetail="handlePreviewDetail"/>
+              <!--大纲游览-->
+              <sdg-browser
+                :block-width="blockWidth"
+                v-if="currentBrowserType === BrowserTypeMap.sdg"
+                @blockCollapse="handleBlockCollapse"
+                @previewDetail="handlePreviewDetail"/>
             </div>
           </div>
         </div>
@@ -91,21 +116,33 @@ import NoMoreResources from '@/components/Common/NoMoreResources'
 import CommonPreview from '@/components/Common/CommonPreview'
 import AssessmentBrowser from './AssessmentBrowser'
 import BackSvg from '@/assets/svgIcon/library/back_btn.svg?inline'
+import GeneralCapabilityBrowser from '@/components/Library/GeneralCapabilityBrowser'
+import SubjectSpecificBrowser from '@/components/Library/SubjectSpecificBrowser'
 
 const BrowserTypeMap = {
   curriculum: 'curriculum',
-  sdg: 'sdg',
-  assessmentType: 'assessmentType'
+  assessmentType: 'assessmentType',
+  // 数据层级结构：mainsubject-year-knowledge
+  specificSkills: 'specificSkills',
+  // 数据层级结构：year-knowledge
+  centurySkills: 'centurySkills',
+  // sdg数据结构：sdg列表-keywords-big idea
+  sdg: 'sdg'
 }
 
 const BrowserTypeLabelMap = {
-  curriculum: 'Curriculum',
-  sdg: 'Sustainable development goal'
+  curriculum: 'Learning outcomes',
+  assessmentType: 'Assessment type',
+  sdg: 'Big idea',
+  specificSkills: 'Subject Specific Skills',
+  centurySkills: 'Century Skills'
 }
 
 export default {
   name: 'Browser',
   components: {
+    SubjectSpecificBrowser,
+    GeneralCapabilityBrowser,
     AssessmentBrowser,
     CommonPreview,
     NoMoreResources,
@@ -129,9 +166,11 @@ export default {
       curriculumOptions: [],
       navPath: [],
       browserTypeList: [
-        { type: 'curriculum', label: 'Curriculum' },
+        { type: 'curriculum', label: 'Learning outcomes' },
         { type: 'assessmentType', label: 'Assessment type' },
-        { type: 'sdg', label: 'Sustainable development goal' }
+        { type: 'specificSkills', label: 'Subject Specific Skills' },
+        { type: 'centurySkills', label: '21st Century Skills' },
+        { type: 'sdg', label: 'Big idea' }
       ],
       currentBrowserType: 'curriculum',
       BrowserTypeMap: BrowserTypeMap,

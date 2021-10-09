@@ -1,225 +1,288 @@
 <template>
-  <div>
-    <a-card>
-      <div class="skt-tag-wrapper" >
-        <!--      skt-tag-list-->
-        <a-row>
-          <a-col offset="0" :span="24">
-            <div class="tag-search-input">
-              <a-input-search
-                v-model="inputTag"
-                size="large"
-                placeholder="Search for the category you need"
-                class="search-input"
-                @search="handleKeyup"
-                @keyup="handleKeyup" />
-            </div>
-          </a-col>
-        </a-row>
-
-        <div class="skt-tag-wrapper" v-show="tagSearchList.length || createTagName">
-          <!--      skt-tag-list-->
-          <a-row>
-            <a-col offset="0" :span="24">
-              <div class="skt-tag-list new-color">
-                <div class="skt-tag-item" v-for="(tag,index) in tagSearchList" :key="index" >
-                  <a-tag
-                    draggable="true"
-                    @click="selectChooseTag(index,tag)"
-                    color="green"
-                    class="tag-item">
-                    {{ tag.name }}
-                  </a-tag>
-                </div>
-                <div class="skt-tag-create-line" v-show="createTagName && createTagName.length >= 1">
-                  <div class="create-tag-label">
-                    Create
-                  </div>
-                  <div class="create-tag">
-                    <a-tag class="tag-item" color="orange">
-                      {{ createTagName }}
-                    </a-tag>
-                    <a-icon type="plus-circle" @click="handleCreateTagByInput"/>
-                  </div>
-                </div>
-              </div>
-            </a-col>
-          </a-row>
-        </div>
-
-        <a-row>
-          <div class="content-list-wrapper">
-            <div class="content-header">
-              <div class="title" >
-                Choose from system recommendation
-              </div>
-            </div>
-            <div class="content-list">
-              <template v-if="globalTagLables.length > 0">
-                <div class="skt-tag-list">
-                  <div class="skt-tag-item" v-if="selectedGlobalLabels.indexOf(tag.name) > -1" v-for="tag in globalTagLables" :key="tag.id" >
-                    <a-tag
-                      @click="selectGlobalTag(tag)"
-                      :class="{'tag-item': true, 'active': selectedGlobalLabels.indexOf(tag.name) > -1}" >
-                      {{ tag.name }}
-                    </a-tag>
-                    <div class="icon-wrapper" v-if="selectedGlobalLabels.indexOf(tag.name) > -1">
-                      <a-icon :style="{ fontSize: '18px', color: '#ffffff' }" type="check-circle" class="checked-icon" />
-                    </div>
-                  </div>
-                  <div class="skt-tag-item" v-if="selectedGlobalLabels.indexOf(tag.name) === -1" v-for="tag in globalTagLables" :key="tag.id" >
-                    <a-tag
-                      @click="selectGlobalTag(tag)"
-                      class="tag-item">
-                      {{ tag.name }}
-                    </a-tag>
-                  </div>
-                </div>
-              </template>
-              <template v-else>
-                <div class="content-empty" >
-                  <no-more-resources />
-                </div>
-              </template>
-            </div>
-
-          </div>
-        </a-row>
-
-        <a-row>
-          <div class="content-list-wrapper">
-            <div class="content-header">
-              <div class="title" >
-                Categories created by me
-              </div>
-            </div>
-            <div class="content-list">
-              <template v-if="userTags.length > 0" >
-                <a-row v-for="root in userTags" :key="root.id" v-if="!root.isGlobal">
-                  <div class="skt-tag-list">
-                    <div class="skt-tag-item">
-                      <a-tag
-                        color="orange"
-                        class="tag-item-yellow" >
-                        {{ root.name }}
-                      </a-tag>
-                      <div class="delete-icon-wrapper">
-                        <a-icon type="close-circle" @click="removeTag(root)" style="color: #fff" />
-                      </div>
-
-                    </div>
-                    <div class="skt-tag-item" v-for="tag in root.keywords" :key="tag.id" >
-                      <a-tag
-                        color="green">
-                        {{ tag.name }}
-                      </a-tag>
-                      <a-icon class="delete-icon-sub" type="close-circle" @click="removeTag(tag)" style="color: #f5222d" />
-                    </div>
-                  </div>
-                </a-row>
-              </template>
-              <template v-else>
-                <div class="content-empty" >
-                  <no-more-resources />
-                </div>
-              </template>
-            </div>
-
-          </div>
-        </a-row>
-
-      </div>
+  <div class="custom-tag">
+    <div>
 
       <a-spin v-show="tagLoading" class="spin-loading"/>
 
-    </a-card></div>
+      <div class="tag-category" v-show="!userTagsMap.length">
+        <a-row>
+          <a-col offset="0" span="24">
+            <div>
+              <a-tabs
+                :activeKey="selectLabel"
+                tab-position="top"
+                type="editable-card"
+                @edit="onEdit"
+                @change="changeTab"
+              >
+                <a-tab-pane v-for="(tag,index) in userTagsMap" :key="tag[0]" >
+                  <span slot="tab">
+                    <div v-if="editTabIndex === index">
+                      <a-input
+                        v-model="editTabName"
+                        placeholder="Enter tag category name"
+                        id="input"
+                        @keyup.enter="handleTabInputConfirm(editTabName)"
+                      ></a-input>
+                    </div>
+                    <div v-if="editTabIndex !== index">{{ tag[0] }}<a-icon v-show="canDeleteTab" @click="deleteTab(tag[0])" type="close-circle" /></div>
+                  </span>
+                  <div class="tab-content">
+                    <a-col offset="0" :span="24">
+                      <div class="tag-search-input">
+                        <a-input-search
+                          v-model="inputTag"
+                          size="large"
+                          placeholder="Add tags"
+                          class="search-input"
+                          @keyup.enter.native="handleKeyup"
+                          @search="searchTag"
+                          @keyup="searchTag" >
+                          <a-icon slot="prefix" type="plus-circle" :style="{ fontSize: '16px', color: '#15c39a','margin-right':'5px' }" />
+                        </a-input-search>
+                      </div>
+                    </a-col>
+                    <div class="skt-tag-wrapper" v-show="tagSearchList.length || createTagName">
+                      <!--      skt-tag-list-->
+                      <div class="skt-tag-list">
+
+                        <div class="search-tag-wrapper tag-wrapper">
+                          <div class="skt-tag-item" v-for="(keyword,kIndex) in tagSearchList" :key="kIndex" >
+                            <a-tag
+                              :closable="true"
+                              @close="closeTag(tag[0],keyword,$event)"
+                              class="tag-item">
+                              {{ keyword }}
+                            </a-tag>
+                          </div>
+                        </div>
+                        <div class="create-tag-wrapper tag-wrapper">
+                          <div class="skt-tag-create-line" @click="handleCreateTagByInput" v-show="createTagName && createTagName.length >= 1">
+                            <div class="create-tag-label">
+                              Create
+                            </div>
+                            <div class="create-tag">
+                              <a-tag class="created-tag-item">
+                                {{ createTagName }}
+                              </a-tag>
+                            <!--                    <a-icon type="plus-circle" @click="handleCreateTagByInput"/>-->
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </a-tab-pane>
+                <!--                <a-icon slot="tabBarExtraContent" type="plus" style="cursor: pointer"/>-->
+              </a-tabs>
+            </div>
+          </a-col>
+        </a-row>
+      </div>
+
+      <div>
+        <a-button type="link" @click="canDeleteTab=!canDeleteTab">
+          Delete type
+        </a-button>
+      </div>
+
+      <br />
+    </div>
+    <a-modal
+      v-model="confirmVisible"
+      :footer="null"
+      destroyOnClose
+      width="600px"
+      :title="null"
+      @ok="confirmVisible = false"
+      @cancel="confirmVisible = false">
+      <div class="confirm-content-wrapper">
+        <div>
+          <a-result
+            status="error"
+            :title="deleteTagName ? 'Delete this tag':'Delete tag type'"
+          >
+            <p v-if="deleteTagName">
+              Are you sure you want to delete this tag?
+              This is permanent and can not be undone?
+            </p>
+            <p v-if="!deleteTagName">
+              Are you sure you want to delete this tag type?
+              After deletion, its sub-tags are deleted too.
+              This is permanent and cannot be undone.
+            </p>
+            <div class="desc">
+              <a-alert v-if="deleteTabName && !deleteTagName" :message="deleteTabName" type="info" />
+              <div class="confirm-tag-wrapper tag-wrapper">
+                <div v-if="deleteTabName && !deleteTagName" class="skt-tag-item" v-for="(keyword,index) in tagSearchList" :key="index" >
+                  <a-tag
+                    class="tag-item">
+                    {{ keyword }}
+                  </a-tag>
+                </div>
+                <div v-if="deleteTabName && deleteTagName" class="skt-tag-item" style="margin: 10px auto">
+                  <a-tag
+                    class="tag-item">
+                    {{ deleteTagName }}
+                  </a-tag>
+                </div>
+              </div>
+            </div>
+          </a-result>
+        </div>
+
+        <div class="modal-ensure-action-line-center">
+          <a-button class="action-item action-cancel" shape="round" @click="confirmVisible = false">Cancel</a-button>
+          <a-button class="action-ensure action-item" :loading="tagDeleteLoading" type="primary" shape="round" @click="handleEnsureDelete">Confirm</a-button>
+        </div>
+      </div>
+    </a-modal>
+
+  </div>
 </template>
 
 <script>
-  // import * as logger from '@/utils/logger'
-  import { GetRootGlobalTag, GetUserTags, UserTagAddOrUpdate, UserTagDelete } from '../../api/tag'
-import NoMoreResources from '@/components/Common/NoMoreResources'
-  // const { debounce } = require('lodash-es')
+import * as logger from '@/utils/logger'
+import { AddUserTagNew, FindCustomTags, AddUserParentTag, UserTagDeleteNew } from '@/api/tag'
+
+const { debounce } = require('lodash-es')
 
 export default {
   name: 'TagSetting',
   components: {
-    NoMoreResources
   },
   props: {
-  },
-  data () {
-    return {
-      createTagName: '',
-      tagSearchList: [],
-      tagLoading: false,
-      inputTag: '',
-      selectedGlobalLabels: [],
-      globalTagLables: [],
-      userTags: []
-    }
-  },
-  computed: {
-  },
-  created () {
-    // this.debouncedSearchKnowledge = debounce(this.searchTag, 500)
-    this.tagLoading = true
-    GetRootGlobalTag().then((response) => {
-      this.$logger.info('GetRootGlobalTag response', response.result)
-      if (response.success) {
-        this.globalTagLables = response.result
-      } else {
-        this.$message.error(response.message)
-      }
-    })
 
-    GetUserTags().then((response) => {
-      this.$logger.info('GetUserTags response', response.result)
-      if (response.success) {
-        this.userTags = response.result
-        this.userTags.forEach(item => {
-          if (item.isGlobal) {
-            this.selectedGlobalLabels.push(item.name)
-          }
-        })
-      } else {
-        this.$message.error(response.message)
-      }
-      this.tagLoading = false
-    })
   },
   mounted () {
   },
+  destroyed () {
+
+  },
+  data () {
+    return {
+      canDeleteTab: false,
+      tagLoading: false,
+      inputTag: '',
+      tagName: '',
+      createTagName: '',
+      tagSearchList: [],
+      userTagsMap: new Map(),
+      selectLabel: '',
+      confirmVisible: false,
+      editTabIndex: -1,
+      editTabName: '',
+      deleteTabName: '',
+      deleteTagName: '',
+      tagDeleteLoading: false
+    }
+  },
+  created () {
+    this.debouncedSearchKnowledge = debounce(this.searchTag, 500)
+    this.handleUserTagsMap()
+  },
+  watch: {
+  },
   methods: {
-    handleKeyup () {
-      this.$logger.info('tag handleKeyup ', this.inputTag)
-      // this.debouncedSearchKnowledge(this.inputTag)
-      this.createTagName = this.inputTag
+    onEdit (targetKey, action) {
+      logger.info('action ', targetKey, action)
+      this[action](targetKey)
     },
-    searchTag (keyword) {
-      // logger.info('tag searchTag', keyword)
-      // this.filterKeyword()
+    add () {
+      if (this.editTabIndex !== -1) {
+        return
+      }
+      let activeKey = `Enter tag category name`
+      if (this.userTagsMap.has(activeKey)) {
+        activeKey = activeKey + '-1'
+      }
+      this.editTabIndex = this.userTagsMap.size
+      this.editTabName = activeKey
+      this.userTagsMap.set(activeKey, [])
+      this.changeTab(activeKey)
+      setTimeout(function () {
+        document.getElementById('input').focus()
+      }, 500)
+    },
+    remove (targetKey) {
+      // this.selectLabel = activeKey
+      this.confirmVisible = true
+    },
+    changeTab (tabName) {
+      this.selectLabel = tabName
+      this.filterKeyword()
+    },
+    handleOk () {
+    },
+    handleCancel () {
+      this.visible = false
+    },
+    closeTag (parent, tag, event) {
+      event.preventDefault()
+      this.deleteTabName = parent
+      this.deleteTagName = tag
+      this.confirmVisible = true
+    },
+    selectTag (tag) {
+      console.log(tag)
+      if (this.tagName === tag.name) {
+        this.tagName = ''
+      } else {
+        this.tagName = tag.name
+      }
+    },
+    handleUserTagsMap () {
+      this.userTagsMap = new Map()
+      FindCustomTags({}).then((response) => {
+        this.$logger.info('FindCustomTags response', response.result)
+        if (response.success) {
+          response.result.userTags.forEach(tag => {
+            this.userTagsMap.set(tag.name, tag.keywords)
+          })
+          this.$logger.info('userTagsMap', this.userTagsMap)
+          this.userTagsMap.forEach((value, key) => {
+            if (!this.selectLabel) {
+              this.selectLabel = key
+            }
+          })
+          // this.changeTab(this.selectLabel)
+          this.filterKeyword()
+        } else {
+          this.$message.error(response.message)
+        }
+      })
+    },
+    filterKeyword () {
+      this.tagSearchList = []
+      const keywords = this.userTagsMap.get(this.selectLabel)
+      if (!keywords) {
+        return
+      }
+      this.tagSearchList = Array.from(keywords)
+      if (this.inputTag) {
+        this.tagSearchList = this.tagSearchList.filter(item => item.toLowerCase().indexOf(this.inputTag.toLowerCase()) > -1)
+      }
     },
     handleCreateTagByInput () {
       this.$logger.info('skill handleCreateTagByInput ' + this.createTagName)
-      const userTypeTags = this.userTags.filter(item => item.name === this.createTagName)
-      if (userTypeTags.length > 0) {
-        this.$message.warn('already exist same name label')
+      const userTypeTags = this.userTagsMap.get(this.selectLabel)
+      if (userTypeTags.indexOf(this.createTagName) > -1) {
+        this.$message.warn('already exist same name tag')
       } else {
         var item = {
           name: this.createTagName,
-          isGlobal: false
+          parentName: this.selectLabel
         }
         this.tagLoading = true
-        UserTagAddOrUpdate(item).then((response) => {
-          this.$logger.info('add UserTagAddOrUpdate ', response.result)
+        AddUserTagNew(item).then((response) => {
+          this.$logger.info('add AddUserTagNew ', response.result)
           if (response.success) {
             item.id = response.result.id
             this.createTagName = ''
             this.inputTag = ''
-            this.userTags.unshift(item)
+            this.handleUserTagsMap()
             this.$message.success('Add tag success')
-            this.$emit('add-user-tag', item, true)
+            this.$emit('change-add-keywords', item)
           } else {
             this.$message.error(response.message)
           }
@@ -227,254 +290,325 @@ export default {
         })
       }
     },
-    selectChooseTag (index, tag) {
-      this.tagList.push(tag)
+
+    handleKeyup () {
+      this.$logger.info('tag handleKeyup ', this.inputTag)
+      this.debouncedSearchKnowledge(this.inputTag)
+      this.createTagName = this.inputTag
+      this.handleCreateTagByInput()
     },
-    selectGlobalTag (tag) {
-      var index = this.selectedGlobalLabels.indexOf(tag.name)
-      if (index > -1) {
-        this.selectedGlobalLabels.splice(index, 1)
-        UserTagDelete({ name: tag.name, isGlobal: true }).then((response) => {
-          this.$message.success('Remove tag success')
-          this.$emit('add-user-tag', tag, false)
-        })
-      } else {
-        this.selectedGlobalLabels.push(tag.name)
-        this.tagLoading = true
-        UserTagAddOrUpdate({ name: tag.name, isGlobal: true }).then((response) => {
-          if (response.success) {
-            this.$message.success('Add tag success')
-            this.$emit('add-user-tag', tag, true)
-          } else {
-            this.$message.error(response.message)
+
+    searchTag (keyword) {
+      logger.info('tag searchTag', keyword)
+      // this.debouncedSearchKnowledge(this.inputTag)
+      this.createTagName = this.inputTag
+      this.filterKeyword()
+    },
+
+    handleEnsureDelete () {
+      this.tagDeleteLoading = true
+      UserTagDeleteNew({ parentName: this.deleteTabName, name: this.deleteTagName }).then((response) => {
+        this.$logger.info('add UserTagDeleteNew ', response.result)
+        if (response.success) {
+          this.editTabIndex = -1
+          if (!this.deleteTagName) {
+            this.selectLabel = ''
           }
-          this.tagLoading = false
-        })
-      }
-    },
-    removeTag (tag) {
-      this.$confirm({
-        content: `Whether to delete the current label ?`,
-        onOk: () => {
-          this.tagLoading = true
-          UserTagDelete({ id: tag.id }).then((response) => {
-            this.$logger.info('UserTagDelete response', response.result)
-            if (response.success) {
-              GetUserTags().then((response) => {
-                if (response.success) {
-                  this.userTags = response.result
-                }
-                this.tagLoading = false
-                this.$message.success(response.message)
-                this.$emit('add-user-tag', tag, true)
-              })
-            } else {
-              this.$message.error(response.message)
-            }
-          })
+          this.handleUserTagsMap()
+          this.$message.success('Delete success')
+        } else {
+          this.$message.error(response.message)
         }
+        this.tagDeleteLoading = false
+        this.confirmVisible = false
+      })
+    },
+    deleteTab (tab) {
+        this.deleteTabName = tab
+        this.deleteTagName = ''
+        this.confirmVisible = true
+    },
+
+    handleTabInputConfirm (tag) {
+      if (!tag || !tag.trim()) {
+        this.$message.warn('Please input tag type name')
+        return
+      }
+      this.tagLoading = true
+      AddUserParentTag({ parentName: tag }).then((response) => {
+        this.$logger.info('add AddUserParentTag ', response.result)
+        if (response.success) {
+          this.editTabIndex = -1
+          this.selectLabel = tag
+          // this.userTagsMap = new Map()
+          this.handleUserTagsMap()
+          this.$message.success('Add tag type success')
+        } else {
+          this.$message.error(response.message)
+        }
+        this.tagLoading = false
       })
     }
+
   }
+
 }
 </script>
 
 <style lang="less" scoped>
 
 @import "~@/components/index.less";
+.custom-tag {
+  //border: 1px solid #e8e8e8;
+  box-sizing: border-box;
+  margin-top: 20px;
 
-.spin-loading {
-  margin-top: -100px;
-  margin-left: 40%;
-  width: 100px;
-}
-.skt-tag-wrapper {
-
-  .title{
-    margin: 0;
-    color: rgba(0, 0, 0, 0.85);
-    font-weight: 500;
-    font-size: 16px;
-    line-height: 22px;
-    word-wrap: break-word;
-    padding: 20px 20px 10px 0px;
+  .tag-category {
+    min-height: 480px;
+    border-radius: 6px;
+    .ant-radio-button-wrapper{
+      margin-bottom: 10px;
+    }
   }
-  .skt-tag-list {
-    background-color: #e7f9f5;
-    padding: 5px 10px;
-    /*border: 1px dashed #ccc;*/
+
+  .skt-tag-wrapper {
+    margin-top: 10px;
+    height: 400px;
+    .skt-tag-list {
+      top:10px;
+      max-height: 380px;
+      overflow-y: auto;
+      padding: 20px 10px 5px 10px;
+      background: rgba(255, 255, 255, 1);
+      border: 1px solid #D8D8D8;
+      display: flex;
+      flex-direction: row;
+      flex-wrap: wrap;
+      box-shadow: 0px 6px 10px rgba(91, 91, 91, 0.16);
+      position: relative;
+
+      .tag-wrapper {
+        width: 100%;
+        margin-bottom: 10px;
+        display: flex;
+        flex-direction: row;
+        flex-wrap: wrap;
+        padding: 10px;
+        background: rgba(21, 195, 154, 0.1);
+        .create-tag {
+          margin-right: 5px;
+          .created-tag-item {
+            cursor: pointer;
+            margin: 0 3px;
+            padding: 3px 6px;
+            border-radius: 18px;
+            font-family: Inter-Bold;
+            background-color: rgba(21, 195, 154, 0.1);
+            color: rgba(21, 195, 154, 1);
+            border: 1px solid rgba(21, 195, 154, 1);
+          }
+        }
+        .tag-item {
+          background-color: rgba(21, 195, 154, 1);
+          color: #fff;
+          padding: 3px 6px;
+          cursor: pointer;
+
+          .tag-icon {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            img {
+              padding-right: 3px;
+              height: 12px;
+            }
+            img.search-icon {
+              height: 10px;
+            }
+          }
+        }
+      }
+
+      .create-tag-wrapper {
+        //background-color: rgba(250, 250, 250, 1);
+        padding: 0 10px;
+        width: 100%;
+      }
+
+      .skt-tag-item {
+        margin: 5px 10px 5px 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        vertical-align: middle;
+        cursor: pointer;
+        .tag-item {
+          cursor: pointer;
+          border-radius: 28px;
+          padding-left: 10px;
+          padding-right: 10px;
+          word-break:normal;
+          width:auto;
+          display:block;
+          white-space:pre-wrap;
+          word-wrap : break-word ;
+          overflow: hidden ;
+          padding-bottom: 3px;
+        }
+      }
+
+      .skt-tag-create-line {
+        cursor: pointer;
+        width: 100%;
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: flex-start;
+        padding: 5px 0;
+        &:hover {
+          background: rgba(0, 0, 0, 5%)
+        }
+
+        .create-tag-label {
+          cursor: pointer;
+          font-size: 14px;
+          padding-right: 5px;
+          padding-left: 5px;
+          color: #000;
+        }
+
+        .create-tag {
+          cursor:pointer;
+          display: flex;
+          flex-direction: row;
+          align-items: center;
+        }
+      }
+    }
+  }
+
+  .tag-search-input {
+    margin-top: 20px;
+    .browse{
+      padding: 10px 5px;
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      justify-content: flex-start;
+      border-radius: 6px;
+    }
+    .btn-icon {
+      height: 18px;
+      width: 18px;
+    }
+    .btn-text {
+      padding: 0 5px;
+    }
+    /deep/ .ant-input-search .ant-input-lg{
+      padding-left: 35px;
+    }
+  }
+  .spin-loading{
+    top: 300px;
+    margin-left: 40%;
+    position: absolute;
+    z-index: 9999;
+  }
+
+  position: relative;
+  //border: 1px dotted #fff;
+  //&:hover {
+  //  border: 1px dotted @link-hover-color;
+  //  box-sizing: border-box;
+  //}
+}
+
+.category-tag {
+  cursor: pointer;
+  padding: 3px 10px;
+  border-radius: 18px;
+  font-family: Inter-Bold;
+  background-color: #FFBB00;
+  color: #fff;
+  margin: 0 10px 10px 0;
+  border: 1px solid rgba(255, 187, 0, 1);
+  &.active{
+    background-color: #15c39a;
+    border: 1px solid #15c39a;
+  }
+}
+/deep/ .ant-tabs-nav .ant-tabs-tab {
+  margin: 0 10px 0 0;
+  padding: 12px 10px;
+
+}
+/deep/ .tag-category .anticon-close {
+  font-size: 14px;
+  color: red;
+  vertical-align: top;
+}
+.tab-content{
+  margin: 0 5%;
+  width: 90%;
+}
+.modal-ensure-action-line-center{
+  display: flex;
+  justify-content: space-between;
+  width: 40%;
+  margin: 20px auto;
+}
+
+.confirm-tag-wrapper{
+    width: 100%;
     display: flex;
     flex-direction: row;
     flex-wrap: wrap;
+    margin-top: 10px;
+    .tag-item {
+      background-color: rgba(21, 195, 154, 1);
+      color: #fff;
+      padding: 3px 6px;
+      cursor: pointer;
 
+      .tag-icon {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        img {
+          padding-right: 3px;
+          height: 12px;
+        }
+        img.search-icon {
+          height: 10px;
+        }
+      }
+    }
     .skt-tag-item {
-      margin: 8px 10px 8px 0;
+      margin: 5px 10px 5px 0;
       display: flex;
       justify-content: center;
       align-items: center;
       vertical-align: middle;
       cursor: pointer;
-      position: relative;
-
-      .delete-icon-wrapper {
-        position: absolute;
-        display: flex;
-        flex-direction: row;
-        align-items: center;
-        right: 0;
-        justify-content: center;
-        top: -5px;
-        width: 18px;
-        height: 18px;
-        color: #fff;
-        background-color: #f5222d;
-        border-radius: 50%;
-      }
-      .delete-icon-sub{
-        position: absolute;
-        right: 0;
-        top: 0;
-      }
       .tag-item {
         cursor: pointer;
-        border-radius: 10px;
-        word-break: normal;
-        width: auto;
-        display: block;
-        white-space: pre-wrap;
-        word-wrap: break-word;
-        overflow: hidden;
-        padding-bottom: 3px;
-        font-size: 15px;
-        border: 1px solid #D8D8D8;
-        box-shadow: 0px 6px 10px rgba(91, 91, 91, 0.16);
-        opacity: 1;
-        border-radius: 6px;
-        background-color: rgba(21, 195, 154, 0.1);
-        color: rgba(21, 195, 154, 1);
-        border: 1px solid rgba(21, 195, 154, 1);
-      }
-      .tag-item-yellow{
-        background-color: #fff9d3;
-        border-radius: 15px;
-        word-break: normal;
-        width: auto;
-        display: block;
-        white-space: pre-wrap;
-        word-wrap: break-word;
-        overflow: hidden;
-        padding: 6px;
-        font-size: 18px;
-
-        &:hover {
-          border: 1px solid @primary-color;
-          background-color: fade(@outline-color, 10%);
-        }
-      }
-
-      .ant-tag{
-        cursor: pointer;
-        border-radius: 15px;
-        word-break: normal;
-        width: auto;
-        display: block;
-        white-space: pre-wrap;
-        word-wrap: break-word;
-        overflow: hidden;
-        padding: 5px;
-        font-size: 14px;
-        &:hover {
-          border: 1px solid @primary-color;
-          font-color: @primary-color;
-        }
-      }
-    }
-
-    .skt-tag-create-line {
-      width: 100%;
-      display: flex;
-      flex-direction: row;
-      align-items: center;
-      justify-content: flex-start;
-      padding: 5px 0;
-
-      .create-tag-label {
-        font-size: 14px;
+        border-radius: 28px;
+        padding-left: 10px;
         padding-right: 10px;
-        color: @text-color-secondary;
-      }
-
-      .create-tag {
-        display: flex;
-        flex-direction: row;
-        align-items: center;
-
-        .tag-item {
-          background-color: #fff9d3;
-          border-radius: 15px;
-          word-break: normal;
-          width: auto;
-          display: block;
-          white-space: pre-wrap;
-          word-wrap: break-word;
-          overflow: hidden;
-          padding: 5px;
-          font-size: 16px;
-        }
-
-        i {
-          font-size: 18px;
-          color: @text-color-secondary;
-        }
+        word-break:normal;
+        width:auto;
+        display:block;
+        white-space:pre-wrap;
+        word-wrap : break-word ;
+        overflow: hidden ;
+        padding-bottom: 3px;
       }
     }
-  }
-
-  .content-list-wrapper{
-    .skt-tag-item{
-      position: relative;
-      .active{
-        background-color: rgba(255, 187, 0, 1) !important;
-        border:1px solid rgba(255, 187, 0, 1) !important;
-        color: #fff;
-      }
-      .icon-wrapper {
-        position: absolute;
-        display: flex;
-        flex-direction: row;
-        align-items: center;
-        right: 0;
-        justify-content: center;
-        top: -5px;
-        width: 18px;
-        height: 18px;
-        background-color: rgba(255, 187, 0, 1);
-        border-radius: 50%;
-      }
-    }
-
-  }
 }
-
-.content-list {
-  display: flex;
-  width: 100%;
-  flex-wrap: wrap;
-  background-color: #e7f9f5;
-  .ant-row{
-    width: 100%;
-  }
-}
-
-.content-empty {
-  width: 100%;
-  padding: 30px 0;
-  display: flex;
-  flex-direction: row;
-  text-align: center;
-  justify-content: center;
-  align-items: center;
-  margin: auto
+/deep/ .ant-tabs-nav .ant-tabs-tab .anticon {
+  padding-left: 10px;
+  vertical-align: text-top;
+  color: red;
 }
 
 </style>

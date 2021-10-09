@@ -3,14 +3,18 @@ import request from '@/utils/request'
 export const tagAPIUrl = {
   GetUserTags: '/classcipe/api/tag/getUserTags',
   UserTagAddOrUpdate: '/classcipe/api/tag/addOrUpdateUserTag',
+  AddUserTagNew: '/classcipe/api/tag/addUserTagNew',
+  AddUserParentTag: '/classcipe/api/tag/addUserParentTag',
   UserTagDelete: '/classcipe/api/tag/userTagDelete',
+  UserTagDeleteNew: '/classcipe/api/tag/userTagDeleteNew',
   GetTreeByKey: '/classcipe/api/tag/getTreeByKey',
   GetGlobalTree: '/classcipe/api/tag/getTree',
   GetRootGlobalTag: '/classcipe/api/tag/getRootGlobalTag',
   GetGlobalTagKeywords: '/classcipe/api/tag/getTagKeywords',
   TagQueryById: '/classcipe/api/tag/queryById',
   TagDelete: '/classcipe/api/tag/delete',
-  TagDeleteBatch: '/classcipe/api/tag/deleteBatch'
+  TagDeleteBatch: '/classcipe/api/tag/deleteBatch',
+  FindCustomTags: '/classcipe/api/tag/findCustomTags'
 }
 
 /**
@@ -71,6 +75,33 @@ export function UserTagAddOrUpdate (parameter) {
  * @returns {AxiosPromise}
  * @constructor
  */
+export function AddUserTagNew (parameter) {
+  return request({
+    url: tagAPIUrl.AddUserTagNew,
+    method: 'post',
+    data: parameter,
+    headers: {
+      'Content-Type': 'application/json;charset=UTF-8'
+    }
+  })
+}
+
+export function AddUserParentTag (parameter) {
+  return request({
+    url: tagAPIUrl.AddUserParentTag,
+    method: 'post',
+    data: parameter,
+    headers: {
+      'Content-Type': 'application/json;charset=UTF-8'
+    }
+  })
+}
+
+/**
+ * @param parameter
+ * @returns {AxiosPromise}
+ * @constructor
+ */
 export function TagQueryById (parameter) {
   return request({
     url: tagAPIUrl.TagQueryById,
@@ -87,6 +118,28 @@ export function TagQueryById (parameter) {
 export function UserTagDelete (parameter) {
   return request({
     url: tagAPIUrl.UserTagDelete,
+    method: 'post',
+    data: parameter,
+    headers: {
+      'Content-Type': 'application/json;charset=UTF-8'
+    }
+  })
+}
+
+export function UserTagDeleteNew (parameter) {
+  return request({
+    url: tagAPIUrl.UserTagDeleteNew,
+    method: 'post',
+    data: parameter,
+    headers: {
+      'Content-Type': 'application/json;charset=UTF-8'
+    }
+  })
+}
+
+export function FindCustomTags (parameter) {
+  return request({
+    url: tagAPIUrl.FindCustomTags,
     method: 'post',
     data: parameter,
     headers: {

@@ -5,256 +5,317 @@
         ref="commonFormHeader"
         :form="form"
         :last-change-saved-time="lastChangeSavedTime"
+        @view-collaborate="handleViewCollaborate"
         @back="goBack"
         @save="handleSaveTask"
         @publish="handlePublishTask"
         @collaborate="handleStartCollaborate"
       />
     </div>
-    <a-card :bordered="false" :bodyStyle="{ padding: '16px 24px', height: '100%', minHeight: '500px' }">
+    <a-card :bordered="false" :bodyStyle="{ padding: '16px 24px 40px 24px', height: '100%', minHeight: '1000px' }">
       <template v-if="mode === 'edit'">
         <a-row class="unit-content" v-if="!contentLoading" >
           <a-col span="24" class="main-content">
-            <a-card :bordered="false" :body-style="{padding: '16px', display: 'flex', 'justify-content': 'center'}" class="card-wrapper">
-              <a-form-model :model="form" class="task-form-left my-form-wrapper">
-                <a-steps :current="currentActiveStepIndex" direction="vertical" @change="onChangeStep">
-                  <a-step title="Edit course info" :status="currentActiveStepIndex === 0 ? 'process':'wait'">
-                    <template v-if="currentActiveStepIndex === 0" slot="description">
-                      <div class="form-block" >
-                        <div class="header-action">
-                          <div class="header-action-item">
-                            <a-button @click="handleEditGoogleSlide" :style="{'display': 'flex', 'align-items': 'center', 'justify-content': 'center', 'padding': '20px 15px', 'border-radius': '5px'}" type="primary" >
-                              <img src="~@/assets/icons/task/path.png" class="btn-icon"/>
-                              <div class="btn-text">
-                                Edit my task in google slide
-                              </div>
-                            </a-button>
-                          </div>
-                          <div class="header-action-item">
-                            <a-button @click="handleStartSessionTags" :style="{'display': 'flex', 'align-items': 'center', 'justify-content': 'center', 'padding': '20px 15px', 'border-radius': '5px'}" type="primary" >
-                              <img src="~@/assets/icons/task/startTask.png" class="btn-icon"/>
-                              <div class="btn-text">
-                                Start a session
-                              </div>
-                            </a-button>
-                          </div>
+            <a-card :bordered="false" :body-style="{padding: '16px', display: 'flex', 'justify-content': 'space-between'}" class="card-wrapper">
+              <div class="task-form-left root-locate-form" ref="form" @click="focusInput($event)">
+                <a-form-model :model="form" class="my-form-wrapper" >
+                  <a-steps :current="currentActiveStepIndex" direction="vertical" @change="onChangeStep">
+                    <a-step title="Edit course info" :status="currentActiveStepIndex === 0 ? 'process':'wait'">
+                      <template v-if="currentActiveStepIndex === 0" slot="description">
+                        <div class="form-block" >
+                          <div class="header-action">
+                            <div class="header-action-item">
+                              <a-button @click="handleEditGoogleSlide" :style="{'display': 'flex', 'align-items': 'center', 'justify-content': 'center', 'padding': '20px 15px', 'border-radius': '5px'}" type="primary" >
+                                <img src="~@/assets/icons/task/path.png" class="btn-icon"/>
+                                <div class="btn-text">
+                                  Edit my task in google slide
+                                </div>
+                              </a-button>
+                            </div>
+                            <div class="header-action-item">
+                              <a-button @click="handleStartSessionTags" :style="{'display': 'flex', 'align-items': 'center', 'justify-content': 'center', 'padding': '20px 15px', 'border-radius': '5px'}" type="primary" >
+                                <img src="~@/assets/icons/task/startTask.png" class="btn-icon"/>
+                                <div class="btn-text">
+                                  Start a session
+                                </div>
+                              </a-button>
+                            </div>
 
-                          <div class="header-action-item">
-                            <a-button @click="handleStartSession('dash')" :style="{'display': 'flex', 'align-items': 'center', 'justify-content': 'center', 'padding': '20px 15px', 'border-radius': '5px'}" type="primary" >
-                              <img src="~@/assets/icons/task/startTask.png" class="btn-icon"/>
-                              <div class="btn-text">
-                                Start a dash
-                              </div>
-                            </a-button>
+                            <div class="header-action-item">
+                              <a-button @click="handleStartSession('dash')" :style="{'display': 'flex', 'align-items': 'center', 'justify-content': 'center', 'padding': '20px 15px', 'border-radius': '5px'}" type="primary" >
+                                <img src="~@/assets/icons/task/startTask.png" class="btn-icon"/>
+                                <div class="btn-text">
+                                  Start a dash
+                                </div>
+                              </a-button>
+                            </div>
                           </div>
                         </div>
-                      </div>
 
-                      <div class="form-block" >
-                        <a-form-item label="Task name" ref="name">
-                          <a-input v-model="form.name" placeholder="Enter Course Name" class="my-form-input"/>
-                        </a-form-item>
-                      </div>
+                        <div class="form-block" >
+                          <comment-switch field-name="name" :is-active="showCollaborateCommentVisible && currentFieldName === 'name'" @switch="handleSwitchComment" class="my-comment-switch"/>
+                          <a-form-item label="Task name" >
+                            <a-input v-model="form.name" placeholder="Enter Course Name" class="my-form-input"/>
+                          </a-form-item>
+                        </div>
 
-                      <div class="form-block over-form-block" id="overview" >
-                        <a-form-model-item class="task-audio-line" label="Course Overview" ref="overview">
-                          <a-textarea v-model="form.overview" placeholder="Overview" allow-clear />
-                        </a-form-model-item>
-                      </div>
+                        <div class="form-block over-form-block" id="overview" >
+                          <comment-switch field-name="overview" :is-active="showCollaborateCommentVisible && currentFieldName === 'overview'" @switch="handleSwitchComment" class="my-comment-switch"/>
+                          <a-form-model-item class="task-audio-line" label="Course Overview" ref="overview">
+                            <a-textarea v-model="form.overview" placeholder="Overview" allow-clear />
+                          </a-form-model-item>
+                        </div>
 
-                      <div class="form-block" >
-                        <a-form-model-item class="task-audio-line" label="Choose type" ref="taskType">
-                          <div class="self-type-wrapper" >
-                            <div class="self-field-label" >
-                              <div :class="{'task-type-item': true, 'green-active-task-type': form.taskType === 'FA'}" @click="handleSelectTaskType('FA')">FA</div>
-                              <div :class="{'task-type-item': true, 'red-active-task-type': form.taskType === 'SA'}" @click="handleSelectTaskType('SA')">SA</div>
+                        <div class="form-block taskType" >
+                          <comment-switch field-name="taskType" :is-active="showCollaborateCommentVisible && currentFieldName === 'taskType'" @switch="handleSwitchComment" class="my-comment-switch"/>
+                          <a-form-model-item class="task-audio-line" label="Choose type" ref="taskType">
+                            <div class="self-type-wrapper" >
+                              <div class="self-field-label" >
+                                <div :class="{'task-type-item': true, 'green-active-task-type': form.taskType === 'FA'}" @click.stop.prevent="handleSelectTaskType('FA')">FA</div>
+                                <div :class="{'task-type-item': true, 'red-active-task-type': form.taskType === 'SA'}" @click.stop.prevent="handleSelectTaskType('SA')">SA</div>
+                              </div>
                             </div>
-                          <!--                          <div class="self-type-filter">-->
-                          <!--                            <a-select class="my-big-select" size="large" v-model="form.bloomCategories" placeholder="Choose the Bloom Taxonomy Categories" :allowClear="true" >-->
-                          <!--                              <a-select-option :value="item.value" v-for="(item, index) in initBlooms" :key="index" >-->
-                          <!--                                {{ item.title }}-->
-                          <!--                              </a-select-option>-->
-                          <!--                            </a-select>-->
-                          <!--                          </div>-->
-                          </div>
-                        </a-form-model-item>
-                      </div>
+                          </a-form-model-item>
+                        </div>
 
-                      <div class="form-block form-question" v-if="associateQuestionList.length > 0">
-                        <a-form-model-item label="Choose Key questions">
-                          <a-select
-                            size="large"
-                            class="my-big-select"
-                            v-model="form.questionIds"
-                            mode="multiple"
-                            placeholder="Choose Key questions"
-                            option-label-prop="label"
-                          >
-                            <a-select-option v-for="(item,index) in associateQuestionList" :value="item.id" :label="item.name" :key="index">
-                              <span class="question-options">
-                                {{ item.name }}
-                              </span>
-                              From Unit Plan({{ item.unitName }})
-                            </a-select-option>
-                          </a-select>
-                        </a-form-model-item>
-                      </div>
+                        <div class="form-block form-question" v-if="associateQuestionList.length > 0">
+                          <comment-switch field-name="questions" :is-active="showCollaborateCommentVisible && currentFieldName === 'questions'" @switch="handleSwitchComment" class="my-comment-switch"/>
+                          <a-form-model-item label="Choose Key questions">
+                            <a-select
+                              size="large"
+                              class="my-big-select"
+                              v-model="form.questionIds"
+                              mode="multiple"
+                              placeholder="Choose Key questions"
+                              option-label-prop="label"
+                            >
+                              <a-select-option v-for="(item,index) in associateQuestionList" :value="item.id" :label="item.name" :key="index">
+                                <span class="question-options">
+                                  {{ item.name }}
+                                </span>
+                                From Unit Plan({{ item.unitName }})
+                              </a-select-option>
+                            </a-select>
+                          </a-form-model-item>
+                        </div>
 
-                      <div class="form-block" >
-                        <a-form-item label="Set assessment objectives" >
-                          <a-button type="primary" @click="handleSelectDescription">
-                            <div class="btn-text" style="line-height: 20px">
-                              Add assessment objectives
-                            </div>
-                          </a-button>
-                        </a-form-item>
+                        <div class="form-block" >
+                          <comment-switch field-name="assessment" :is-active="showCollaborateCommentVisible && currentFieldName === 'assessment'" @switch="handleSwitchComment" class="my-comment-switch"/>
+                          <a-form-item label="Set assessment objectives" >
+                            <a-button type="primary" @click="handleSelectDescription">
+                              <div class="btn-text" style="line-height: 20px">
+                                Add assessment objectives
+                              </div>
+                            </a-button>
+                          </a-form-item>
 
-                        <!--knowledge tag-select -->
-                        <ui-learn-out ref="learnOut" :learn-outs="form.learnOuts" @remove-learn-outs="handleRemoveLearnOuts" />
-                      </div>
-                    </template>
-                  </a-step>
+                          <!--knowledge tag-select -->
+                          <ui-learn-out ref="learnOut" :learn-outs="form.learnOuts" @remove-learn-outs="handleRemoveLearnOuts" />
+                        </div>
+                      </template>
+                    </a-step>
 
-                  <a-step title="Edit your course slides" :status="currentActiveStepIndex === 1 ? 'process':'wait'">
-                    <template v-if="currentActiveStepIndex === 1" slot="description">
-                      <a-skeleton :loading="skeletonLoading" active>
-                        <div class="slide-select-wrapper" ref="slide">
-                          <div class="slide-select">
-                            <div class="slide-select-and-preview">
-                              <!--                            <div class="reset-edit-basic-info" >Edit course info</div>-->
-                              <div class="slide-select-action" v-show="!form.presentationId">
-                                <img src="~@/assets/icons/task/Teamwork-Pie-Chart@2x.png" />
-                                <div class="select-action">
-                                  <div class="modal-ensure-action-line">
-                                    <a-button class="action-item action-cancel" shape="round" @click="handleShowSelectMyContent">Select template</a-button>
-                                    <a-button class="action-ensure action-item" type="primary" shape="round" @click="handleCreateInGoogle">Create a new ppt in Google side</a-button>
+                    <a-step title="Edit your course slides" :status="currentActiveStepIndex === 1 ? 'process':'wait'">
+                      <template v-if="currentActiveStepIndex === 1" slot="description">
+                        <a-skeleton :loading="skeletonLoading" active>
+                          <div class="slide-select-wrapper" ref="slide">
+                            <div class="slide-select">
+                              <div class="slide-select-and-preview">
+                                <!--                            <div class="reset-edit-basic-info" >Edit course info</div>-->
+                                <div class="slide-select-action" v-show="!form.presentationId">
+                                  <img src="~@/assets/icons/task/Teamwork-Pie-Chart@2x.png" />
+                                  <div class="select-action">
+                                    <div class="modal-ensure-action-line">
+                                      <a-button class="action-item action-cancel" shape="round" @click="handleShowSelectMyContent">Select template</a-button>
+                                      <a-button class="action-ensure action-item" type="primary" shape="round" @click="handleCreateInGoogle">Create a new ppt in Google side</a-button>
+                                    </div>
                                   </div>
                                 </div>
-                              </div>
-                              <div class="slide-preview" v-show="form.presentationId && thumbnailList.length">
-                                <a-carousel arrows dots-class="slick-dots slick-thumb">
-                                  <a slot="customPaging" slot-scope="props">
-                                    <img :src="thumbnailList[props.i].contentUrl" />
-                                  </a>
-                                  <div v-for="(item,index) in thumbnailList" :key="index">
-                                    <img :src="item.contentUrl" />
+                                <div class="slide-preview" v-show="form.presentationId && thumbnailList.length">
+                                  <div class="slide-hover-action-mask">
+                                    <div class="slide-hover-action">
+                                      <div class="modal-ensure-action-line">
+                                        <a-button
+                                          class="action-ensure action-item"
+                                          :style="{'display': 'flex', 'align-items': 'center', 'justify-content': 'center', 'padding': '18px 10px'}"
+                                          type="primary"
+                                          shape="round"
+                                          @click="handleShowSelectMyContent">
+                                          <img src="~@/assets/icons/task/template_icon.png" class="btn-icon"/>
+                                          <div class="btn-text">
+                                            Select template
+                                          </div>
+                                        </a-button>
+                                        <a-button
+                                          class="action-ensure action-item"
+                                          :style="{'display': 'flex', 'align-items': 'center', 'justify-content': 'center', 'padding': '18px 10px'}"
+                                          type="primary"
+                                          shape="round"
+                                          @click="handleCreateInGoogle">
+                                          <img src="~@/assets/icons/task/path.png" class="btn-icon"/>
+                                          <div class="btn-text">
+                                            Create a new ppt in Google side
+                                          </div>
+                                        </a-button>
+                                      </div>
+                                    </div>
                                   </div>
-                                </a-carousel>
+                                  <a-carousel arrows dots-class="slick-dots slick-thumb">
+                                    <a slot="customPaging" slot-scope="props">
+                                      <img :src="thumbnailList[props.i].contentUrl" />
+                                    </a>
+                                    <div v-for="(item,index) in thumbnailList" :key="index">
+                                      <img :src="item.contentUrl" />
+                                    </div>
+                                  </a-carousel>
+                                </div>
                               </div>
                             </div>
                           </div>
+                        </a-skeleton>
+                      </template>
+                    </a-step>
+
+                    <a-step title="Link Task content" :status="currentActiveStepIndex === 2 ? 'process':'wait'">
+                      <template v-if="currentActiveStepIndex === 2" slot="description">
+                        <div class="form-block">
+                          <a-form-item label="Link Task content" class="link-plan-title">
+                            <a-button type="primary" :style="{'background-color': '#fff', 'color': '#000', 'border': '1px solid #D8D8D8'}" @click="handleAddLink">
+                              <div class="btn-text" style="line-height: 20px">
+                                + Link
+                              </div>
+                            </a-button>
+                          </a-form-item>
+                          <div class="common-link-wrapper">
+                            <common-link ref="commonLink" :from-id="this.taskId" :from-type="this.contentType.task"/>
+                          </div>
                         </div>
-                      </a-skeleton>
-                    </template>
-                  </a-step>
+                      </template>
+                    </a-step>
 
-                  <a-step title="Link Task content" :status="currentActiveStepIndex === 2 ? 'process':'wait'">
-                    <template v-if="currentActiveStepIndex === 2" slot="description">
-                      <div class="form-block">
-                        <a-form-item label="Link Task content" class="link-plan-title">
-                          <a-button type="primary" :style="{'background-color': '#fff', 'color': '#000', 'border': '1px solid #D8D8D8'}" @click="handleAddLink">
-                            <div class="btn-text" style="line-height: 20px">
-                              + Link
-                            </div>
-                          </a-button>
-                        </a-form-item>
-                        <div class="common-link-wrapper">
-                          <common-link ref="commonLink" :from-id="this.taskId" :from-type="this.contentType.task"/>
-                        </div>
-                      </div>
-                    </template>
-                  </a-step>
+                  </a-steps>
 
-                </a-steps>
-
-              </a-form-model>
+                </a-form-model>
+              </div>
 
               <div class="task-form-right">
 
-                <div class="form-block-right" v-show="currentActiveStepIndex !== 1 && !showCustomTag" >
-                  <!-- image-->
-                  <a-form-model-item class="img-wrapper">
-                    <a-upload-dragger
-                      name="file"
-                      accept="image/png, image/jpeg"
-                      :showUploadList="false"
-                      :customRequest="handleUploadImage"
-                    >
-                      <div class="delete-img" @click="handleDeleteImage($event)" v-show="form.image">
-                        <a-icon type="close-circle" />
-                      </div>
-                      <template v-if="uploading">
-                        <div class="upload-container">
-                          <p class="ant-upload-drag-icon">
-                            <a-icon type="cloud-upload" />
-                          </p>
-                          <p class="ant-upload-text">
-                            <a-spin />
-                            <span class="uploading-tips">{{ $t('teacher.add-unit-plan.uploading') }}</span>
-                          </p>
-                        </div>
-                      </template>
-                      <template v-if="!uploading && form && form.image">
-                        <div class="image-preview">
-                          <img :src="form.image" alt="">
-                        </div>
-                      </template>
-                      <template v-if="!uploading && form && !form.image">
-                        <div class="upload-container">
-                          <p class="ant-upload-drag-icon">
-                            <img src="~@/assets/icons/lesson/upload_icon.png" class="upload-icon" />
-                          </p>
-                          <p class="ant-upload-text">
-                            {{ $t('teacher.add-unit-plan.upload-a-picture') }}
-                          </p>
-                        </div>
-                      </template>
-                    </a-upload-dragger>
-                  </a-form-model-item>
-                </div>
-                <div class="recomend-loading" v-if="recomendListLoading">
-                  <a-spin size="large" />
-                </div>
-                <div class="form-block-right" v-show="!form.presentationId && currentActiveStepIndex === 1" v-if="!recomendListLoading">
-                  <div class="right-title">Teaching Tips</div>
-                  <div class="slide-preview-list">
-                    <div class="slide-preview-item" v-for="(template, rIndex) in recommendTemplateList" :key="rIndex">
-                      <div class="mask-cover">
-                        <div class="mask-actions">
-                          <div class="action-item action-item-center">
-                            <!--                            <div class="session-btn session-btn-left">-->
-                            <!--                              <div class="session-btn-text">Preview</div>-->
-                            <!--                            </div>-->
-                            <div class="session-btn session-btn-right" v-if="!addRecomendLoading">
-                              <div class="session-btn-text" @click="selectRecommendTemplate(template)">Add as slide</div>
+                <template v-if="showAllCollaborateCommentVisible">
+                  <div class="collaborate-panel" :style="{'width':'600px', 'margin-top': '0px', 'z-index': 100}">
+                    <div class="icon">
+                      <comment-icon />
+                    </div>
+                    <a-tabs default-active-key="1">
+                      <a-tab-pane key="1" tab="Comment">
+                        <collaborate-comment-view :source-id="taskId" :source-type="contentType.task" :comment-list="collaborateCommentList" @update-comment="handleUpdateCommentList"/>
+                      </a-tab-pane>
+                      <a-tab-pane key="2" tab="History" force-render>
+                        <collaborate-history :history-list="historyList" @restore="handleRestoreField"/>
+                      </a-tab-pane>
+                    </a-tabs>
+                  </div>
+                </template>
+                <template v-else>
+                  <template v-if="showCollaborateCommentVisible">
+                    <div class="collaborate-panel" :style="{'width':'600px', 'margin-top':collaborateTop+'px', 'z-index': 100}">
+                      <collaborate-comment-panel :source-id="taskId" :source-type="contentType.task" :field-name="currentFieldName" :comment-list="currentCollaborateCommentList" @update-comment="handleUpdateCommentList"/>
+                    </div>
+                  </template>
+                  <template v-else>
+                    <div class="form-block-right" v-show="currentActiveStepIndex !== 1" >
+                      <!-- image-->
+                      <a-form-model-item class="img-wrapper">
+                        <a-upload-dragger
+                          name="file"
+                          accept="image/png, image/jpeg"
+                          :showUploadList="false"
+                          :customRequest="handleUploadImage"
+                        >
+                          <div class="delete-img" @click="handleDeleteImage($event)" v-show="form.image">
+                            <a-icon type="close-circle" />
+                          </div>
+                          <template v-if="uploading">
+                            <div class="upload-container">
+                              <p class="ant-upload-drag-icon">
+                                <a-icon type="cloud-upload" />
+                              </p>
+                              <p class="ant-upload-text">
+                                <a-spin />
+                                <span class="uploading-tips">{{ $t('teacher.add-unit-plan.uploading') }}</span>
+                              </p>
+                            </div>
+                          </template>
+                          <template v-if="!uploading && form && form.image">
+                            <div class="image-preview">
+                              <img :src="form.image" alt="">
+                            </div>
+                          </template>
+                          <template v-if="!uploading && form && !form.image">
+                            <div class="upload-container">
+                              <p class="ant-upload-drag-icon">
+                                <img src="~@/assets/icons/lesson/upload_icon.png" class="upload-icon" />
+                              </p>
+                              <p class="ant-upload-text">
+                                {{ $t('teacher.add-unit-plan.upload-a-picture') }}
+                              </p>
+                            </div>
+                          </template>
+                        </a-upload-dragger>
+                      </a-form-model-item>
+                    </div>
+                    <div class="recomend-loading" v-if="recomendListLoading">
+                      <a-spin size="large" />
+                    </div>
+                    <div class="form-block-right" v-show="!form.presentationId && currentActiveStepIndex === 1" v-if="!recomendListLoading">
+                      <div class="right-title">Teaching Tips</div>
+                      <div class="slide-preview-list">
+                        <div class="slide-preview-item" v-for="(template, rIndex) in recommendTemplateList" :key="rIndex">
+                          <div class="mask-cover">
+                            <div class="mask-actions">
+                              <div class="action-item action-item-center">
+                                <!--                            <div class="session-btn session-btn-left">-->
+                                <!--                              <div class="session-btn-text">Preview</div>-->
+                                <!--                            </div>-->
+                                <div class="session-btn session-btn-right" v-if="!addRecomendLoading">
+                                  <div class="session-btn-text" @click="selectRecommendTemplate(template)">Add as slide</div>
+                                </div>
+                              </div>
                             </div>
                           </div>
+                          <a-carousel arrows>
+                            <div
+                              slot="prevArrow"
+                              class="custom-slick-arrow"
+                              style="left: 10px;zIndex: 1"
+                            >
+                              <a-icon type="left-circle" />
+                            </div>
+                            <div slot="nextArrow" class="custom-slick-arrow" style="right: 10px">
+                              <a-icon type="right-circle" />
+                            </div>
+                            <div v-for="(item,index) in template.images" :key="index">
+                              <img :src="item" />
+                            </div>
+                          </a-carousel>
+                          <a-row v-if="template.introduce" class="slide-desc" :title="template.introduce">
+                            {{ template.introduce }}
+                          </a-row>
                         </div>
                       </div>
-                      <a-carousel arrows>
-                        <div
-                          slot="prevArrow"
-                          class="custom-slick-arrow"
-                          style="left: 10px;zIndex: 1"
-                        >
-                          <a-icon type="left-circle" />
-                        </div>
-                        <div slot="nextArrow" class="custom-slick-arrow" style="right: 10px">
-                          <a-icon type="right-circle" />
-                        </div>
-                        <div v-for="(item,index) in template.images" :key="index">
-                          <img :src="item" />
-                        </div>
-                      </a-carousel>
-                      <a-row v-if="template.introduce" class="slide-desc" :title="template.introduce">
-                        {{ template.introduce }}
-                      </a-row>
                     </div>
-                  </div>
-                </div>
-                <div :style="{'margin-top':customTagTop+'px'}" v-show="currentActiveStepIndex === 0" >
-                  <custom-tag :show-arrow="showCustomTag" ref="customTag" :selected-tags-list="form.customTags" @change-user-tags="handleChangeUserTags"></custom-tag>
-                </div>
+                    <div v-if="!this.contentLoading && this.currentActiveStepIndex !== 1" :style="{'width':'600px','position': 'absolute', 'top':customTagTop+'px'}">
+                      <custom-tag
+                        :show-arrow="showCustomTag"
+                        :user-tags="userTags"
+                        :custom-tags-list="customTagList"
+                        ref="customTag"
+                        :selected-tags-list="form.customTags"
+                        @reload-user-tags="loadUserTags"
+                        @change-add-keywords="handleChangeAddKeywords"
+                        @change-user-tags="handleChangeUserTags"></custom-tag>
+                    </div>
+                  </template>
+                </template>
               </div>
             </a-card>
           </a-col>
@@ -290,7 +351,20 @@
           </div>
         </div>
       </template>
-      <collaborate-content ref="collaborate"/>
+      <a-modal
+        v-model="showCollaborateModalVisible"
+        :footer="null"
+        :maskClosable="false"
+        :closable="true"
+        destroyOnClose
+        width="800px">
+        <collaborate-content
+          :content-id="taskId"
+          :main-content="collaborateContent"
+          :content-type="contentType.task"
+          @finished="showCollaborateModalVisible = false"
+          v-if="showCollaborateModalVisible"/>
+      </a-modal>
       <a-modal
         v-model="selectAddContentTypeVisible"
         :footer="null"
@@ -355,52 +429,138 @@
         :footer="null"
         :title="null"
         destroyOnClose
-        width="80%"
+        :dialog-style="{ top: '20px' }"
+        width="90%"
         :closable="true"
         @ok="selectedMyContentVisible = false">
         <a-tabs class="template-tabs">
           <a-tab-pane key="1" tab="Teaching Templates">
             <div class="select-template-wrapper">
               <div class="template-select-header">
-                <div class="filter-row">
-                  <div class="ant-form-item-label">Learning Experience:</div>
-                  <div class="row-select">
-                    <a-cascader
-                      class="row-cascader"
-                      :fieldNames="{ label: 'name', value: 'id', children: 'children' }"
-                      v-model="filterLearn"
-                      :options="learnExperienceList"
-                      :show-search="{ filterSearch }"
-                      change-on-select
-                      @change="selectFilter"/>
-                  </div>
-                </div>
-                <div class="filter-row">
-                  <div class="ant-form-item-label">Assessment:</div>
-                  <div class="row-select">
-                    <a-cascader
-                      class="row-cascader"
-                      :fieldNames="{ label: 'name', value: 'id', children: 'children' }"
-                      v-model="filterAssessments"
-                      :options="assessmentsList"
-                      :show-search="{ filterSearch }"
-                      change-on-select
-                      @change="selectFilter"/>
-                  </div>
-                </div>
-                <div class="filter-row">
-                  <div class="ant-form-item-label">21 century skills:</div>
-                  <div class="row-select">
-                    <a-cascader
-                      class="row-cascader"
-                      :fieldNames="{ label: 'name', value: 'id', children: 'children' }"
-                      v-model="filterCentury"
-                      :options="centuryList"
-                      :show-search="{ filterSearch }"
-                      change-on-select
-                      @change="selectFilter" />
-                  </div>
-                </div>
+                <a-row>
+                  <a-col :span="5">
+                    <div class="filter-row">
+                      <div class="ant-form-item-label">Learning Experience:</div>
+                      <a-button type="link" class="clear-all" @click="clearFilter(templateType.Learning)">
+                        Clear all
+                      </a-button>
+                      <div class="row-select">
+                        <div class="sub-select" v-for="(item ,index) in templateFilterCondition(templateType.Learning,'')" :key="index">
+                          <a-row>
+                            <h4>{{ item.name }}</h4>
+                          </a-row>
+                          <a-row v-for="(child,cIndex) in item.children" :key="cIndex">
+                            <a-col :span="24">
+                              <a-checkbox :value="child.id" @change="onChangeCheckBox($event,templateType.Learning)" :checked="filterLearn.indexOf(child.id) > -1 ? true: false">
+                                {{ child.name }}
+                              </a-checkbox>
+                            </a-col>
+                          </a-row>
+                        </div>
+                      </div>
+                    </div>
+                  </a-col>
+                  <a-col :span="8">
+                    <div class="filter-row">
+                      <div class="ant-form-item-label">Assessment:</div>
+                      <a-button type="link" class="clear-all" @click="clearFilter(templateType.Assessments)">
+                        Clear all
+                      </a-button>
+                      <a-row>
+                        <a-col :span="12">
+                          <div class="row-select">
+                            <span class="sub-category">Knowledge focus </span>
+                            <div class="sub-select" v-for="(item ,index) in templateFilterCondition(templateType.Assessments,'Knowledge focus')" :key="index">
+                              <a-row>
+                                <h4>{{ item.name }}</h4>
+                              </a-row>
+                              <a-row v-for="(child,cIndex) in item.children" :key="cIndex">
+                                <a-col :span="24">
+                                  <a-checkbox :value="child.id" @change="onChangeCheckBox($event,templateType.Assessments)" :checked="filterAssessments.indexOf(child.id) > -1 ? true: false">
+                                    {{ child.name }}
+                                  </a-checkbox>
+                                </a-col>
+                              </a-row>
+                            </div>
+                          </div>
+                        </a-col>
+                        <a-col :span="12">
+                          <div class="row-select">
+                            <span class="sub-category">Skill focus</span>
+                            <div class="sub-select" v-for="(item ,index) in templateFilterCondition(templateType.Assessments,'Skill focus')" :key="index">
+                              <a-row>
+                                <h4>{{ item.name }}</h4>
+                              </a-row>
+                              <a-row v-for="(child,cIndex) in item.children" :key="cIndex">
+                                <a-col :span="24">
+                                  <a-checkbox :value="child.id" @change="onChangeCheckBox($event,templateType.Assessments)" :checked="filterAssessments.indexOf(child.id) > -1 ? true: false">
+                                    {{ child.name }}
+                                  </a-checkbox>
+                                </a-col>
+                              </a-row>
+                            </div>
+                          </div>
+                        </a-col>
+                      </a-row>
+                    </div>
+                  </a-col>
+                  <a-col :span="11">
+                    <div class="filter-row" style="overflow: auto">
+                      <div class="ant-form-item-label">21 century skills:</div>
+                      <a-button type="link" class="clear-all" @click="clearFilter(templateType.Century)">
+                        Clear all
+                      </a-button>
+                      <a-row class="row-select" style="min-width: 700px" >
+                        <a-col :span="12">
+                          <a-col class="sub-select" v-if="index < 2" :span="24" v-for="(item ,index) in templateFilterCondition(templateType.Century,'')" :key="index">
+                            <a-row>
+                              <h4>{{ item.name }}</h4>
+                            </a-row>
+                            <a-row v-for="(child,cIndex) in item.children" :key="cIndex">
+                              <a-col :span="24">
+                                <a-checkbox :value="child.id" @change="onChangeCheckBox($event,templateType.Century)" :checked="filterCentury.indexOf(child.id) > -1 ? true: false">
+                                  {{ child.name }}
+                                </a-checkbox>
+                                <div class="sub-child" >
+                                  <a-row v-if="child.children.length > 0" v-for="(subChild,subIndex) in child.children" :key="subIndex">
+                                    <a-col :span="24">
+                                      <a-checkbox :value="subChild.id" @change="onChangeCheckBox($event,templateType.Century,child.id)" :checked="filterCentury.indexOf(subChild.id) > -1 ? true: false">
+                                        {{ subChild.name }}
+                                      </a-checkbox>
+                                    </a-col>
+                                  </a-row>
+                                </div>
+                              </a-col>
+                            </a-row>
+                          </a-col>
+                        </a-col>
+                        <a-col :span="12">
+                          <a-col class="sub-select" v-if="index >= 2" :span="24" v-for="(item ,index) in templateFilterCondition(templateType.Century,'')" :key="index">
+                            <a-row>
+                              <h4>{{ item.name }}</h4>
+                            </a-row>
+                            <a-row v-for="(child,cIndex) in item.children" :key="cIndex">
+                              <a-col :span="24">
+                                <a-checkbox :value="child.id" @change="onChangeCheckBox($event,templateType.Century)" :checked="filterCentury.indexOf(child.id) > -1 ? true: false">
+                                  {{ child.name }}
+                                </a-checkbox>
+                                <div class="sub-child" >
+                                  <a-row v-if="child.children.length > 0" v-for="(subChild,subIndex) in child.children" :key="subIndex">
+                                    <a-col :span="24">
+                                      <a-checkbox :value="subChild.id" @change="onChangeCheckBox($event,templateType.Century,child.id)" :checked="filterCentury.indexOf(subChild.id) > -1 ? true: false">
+                                        {{ subChild.name }}
+                                      </a-checkbox>
+                                    </a-col>
+                                  </a-row>
+                                </div>
+                              </a-col>
+                            </a-row>
+                          </a-col>
+                        </a-col>
+                      </a-row>
+                    </div>
+                  </a-col>
+                </a-row>
               </div>
               <div class="template-list-wrapper">
                 <div class="template-list" v-if="!templateLoading">
@@ -564,7 +724,14 @@
         destroyOnClose
         width="800px">
         <div>
-          <custom-tag :custom-tags-list="['ATL','Inquiry stage']" :selected-tags-list="sessionTags" @change-user-tags="handleSelectedSessionTags" />
+          <custom-tag
+            :user-tags="userTags"
+            :custom-tags-list="['class']"
+            @reload-user-tags="loadUserTags"
+            @change-add-keywords="handleChangeAddKeywords"
+            :selected-tags-list="sessionTags"
+            ref="customTag"
+            @change-user-tags="handleSelectedSessionTags"></custom-tag>
         </div>
         <template slot="footer">
           <a-button key="back" @click="taskSelectTagVisible=false">
@@ -590,8 +757,14 @@
             :select-mode="selectModel.syncData"
             question-index="_questionIndex_1"
             :sync-data="syncData"
+            :show-menu="[ NavigationType.specificSkills, NavigationType.centurySkills, NavigationType.learningOutcomes ]"
+            :default-active-menu="NavigationType.learningOutcomes"
+            @select-big-idea="handleSelectListData"
             @select-sync="handleSelectListData"
-            @select-curriculum="handleSelectCurriculum"/>
+            @select-curriculum="handleSelectCurriculum"
+            @select-subject-specific-skill="handleSelectSubjectSpecificSkillListData"
+            @select-century-skill="handleSelect21CenturySkillListData"
+          />
           <div class="modal-ensure-action-line-right">
             <a-button class="action-item action-cancel" shape="round" @click="handleCancelSelectData">Cancel</a-button>
             <a-button class="action-ensure action-item" type="primary" shape="round" @click="handleEnsureSelectData">Ok</a-button>
@@ -631,7 +804,7 @@
   import { lessonHost, lessonStatus } from '@/const/googleSlide'
   import { StartLesson } from '@/api/lesson'
   import CollaborateContent from '@/components/Collaborate/CollaborateContent'
-  import { DICT_BLOOM_CATEGORY, DICT_TEMPLATE } from '@/const/common'
+  import { CustomTagType, DICT_BLOOM_CATEGORY, DICT_TEMPLATE, TemplateType } from '@/const/common'
   import { SubjectTree } from '@/api/subject'
   import { formatSubjectTree } from '@/utils/bizUtil'
   import ModalHeader from '@/components/Common/ModalHeader'
@@ -642,11 +815,22 @@
   import { LibraryEvent, LibraryEventBus } from '@/components/NewLibrary/LibraryEventBus'
   import NewBrowser from '@/components/NewLibrary/NewBrowser'
   import NewMyContent from '@/components/MyContent/NewMyContent'
-  import { GetTreeByKey } from '@/api/tag'
+  import { FindCustomTags, GetTreeByKey } from '@/api/tag'
+  import { NavigationType } from '@/components/NewLibrary/NavigationType'
+  import { GetCollaborateComment, GetCollaborateModifiedHistory } from '@/api/collaborate'
+  import CollaborateCommentPanel from '@/components/Collaborate/CollaborateCommentPanel'
+  import CommentSwitch from '@/components/Collaborate/CommentSwitch'
+  import CollaborateCommentView from '@/components/Collaborate/CollaborateCommentView'
+  import commentIcon from '@/assets/icons/collaborate/comment.svg?inline'
+  import CollaborateHistory from '@/components/Collaborate/CollaborateHistory'
 
   export default {
     name: 'AddTask',
     components: {
+      CollaborateHistory,
+      CollaborateCommentView,
+      CommentSwitch,
+      CollaborateCommentPanel,
       CommonFormHeader,
       NewBrowser,
       NewMyContent,
@@ -665,7 +849,8 @@
       Collaborate,
       AssociateSidebar,
       CollaborateContent,
-      CustomTag
+      CustomTag,
+      commentIcon
     },
     props: {
       taskId: {
@@ -680,7 +865,7 @@
         referenceLoading: false,
         contentType: typeMap,
         templateTypeMap: TemplateTypeMap,
-
+        templateType: TemplateType,
         creating: false,
 
         leftAddExpandStatus: false,
@@ -759,6 +944,10 @@
         selectedSyncList: [],
         // 已选择的大纲知识点描述数据
         selectedCurriculumList: [],
+        // specific skill
+        selectedSpecificSkillList: [],
+        // century skill
+        selectedCenturySkillList: [],
         selectModel: SelectModel,
 
         editPPTMode: false,
@@ -770,12 +959,28 @@
         filterAssessments: [],
         centuryList: [],
         filterCentury: [],
+        filterParentMap: new Map(),
         recomendListLoading: false,
         addRecomendLoading: false,
         skeletonLoading: false,
         associateQuestionList: [],
         showCustomTag: false,
-        customTagTop: 0
+        customTagTop: 300,
+        customTagList: [],
+        userTags: {},
+        NavigationType: NavigationType,
+        showCollaborateCommentVisible: false,
+
+        showCollaborateModalVisible: false,
+        collaborateContent: null,
+        currentFieldName: {},
+        // TODO mock数据待更新为接口请求（loadCollaborateData方法中的GetCollaborateComment)
+        collaborateCommentList: [],
+        currentCollaborateCommentList: [],
+        collaborateTop: 0,
+        showAllCollaborateCommentVisible: false,
+        // TODO mock数据待更新为接口请求（loadCollaborateData方法中的GetCollaborateModifiedHistory)
+        historyList: []
       }
     },
     computed: {
@@ -792,7 +997,6 @@
         this.selectedTemplateList.forEach(item => {
           list.push(item.id)
         })
-
         return list
       }
     },
@@ -805,6 +1009,7 @@
       LibraryEventBus.$on(LibraryEvent.ContentListSelectClick, this.handleDescriptionSelectClick)
       this.initData()
       this.getAssociate()
+      this.loadUserTags()
       this.initTemplateFilter()
     },
     beforeDestroy () {
@@ -877,13 +1082,13 @@
           if (response.success) {
             this.treeItemData = response.result.children
             this.treeItemData.forEach(item => {
-              if (item.name === 'Learning experience') {
+              if (item.name === TemplateType.Learning) {
                 this.learnExperienceList = item.children
               }
-              if (item.name === 'Assessments') {
+              if (item.name === TemplateType.Assessments) {
                 this.assessmentsList = item.children
               }
-              if (item.name === '21 century skills') {
+              if (item.name === TemplateType.Century) {
                 this.centuryList = item.children
               }
             })
@@ -911,7 +1116,7 @@
           // }
         }).finally(() => {
           this.contentLoading = false
-
+          this.loadCollaborateData()
           if (this.form.presentationId) {
             this.loadThumbnail()
           }
@@ -989,7 +1194,20 @@
       handleSelectTaskType (type) {
         this.$logger.info('handleSelectTaskType ' + type)
         this.form.taskType = type
-        this.focusInput('taskType')
+        this.customTagList = []
+        if (type === 'FA') {
+          CustomTagType.task.fa.forEach(name => {
+            this.customTagList.push(name)
+          })
+        } else {
+          CustomTagType.task.sa.forEach(name => {
+            this.customTagList.push(name)
+          })
+        }
+        this.showAllCollaborateCommentVisible = false
+        this.showCollaborateCommentVisible = false
+        this.customTagTop = 390
+        this.showCustomTag = true
       },
 
       goBack () {
@@ -1039,6 +1257,10 @@
                 return item.presentationId
               })
             }).then(response => {
+              if (!response.success) {
+                this.$message.error(response.message)
+                return
+              }
               this.$logger.info('handleAddTemplate response', response.result)
               this.form.id = response.result.id
               this.form.presentationId = response.result.presentationId
@@ -1048,11 +1270,11 @@
               this.$router.replace({
                 path: '/teacher/add-task/' + response.result.id
               })
+              this.viewInGoogleSlideVisible = true
             }).finally(() => {
               this.templateLoading = false
               this.creating = false
               this.selectedMyContentVisible = false
-              this.viewInGoogleSlideVisible = true
               this.addRecomendLoading = false
               hideLoading()
               // this.loadThumbnail()
@@ -1154,7 +1376,6 @@
           this.thumbnailList = []
           pageObjects.forEach(page => {
             this.thumbnailList.push({ contentUrl: page.contentUrl, id: page.pageObjectId })
-            this.$logger.info('current imgList ', this.imgList)
           })
           this.thumbnailListLoading = false
           this.skeletonLoading = false
@@ -1271,9 +1492,6 @@
           this.form.tasks.splice(index, 1)
         }
       },
-      handleChangeUserTags (tags) {
-        this.form.customTags = tags
-      },
       handleStartSession (type) {
         this.$logger.info('handleStartSession', this.form)
         if (this.form.presentationId) {
@@ -1335,7 +1553,8 @@
       },
       handleStartCollaborate () {
         this.$logger.info('handleStartCollaborate')
-        this.$refs.collaborate.startCollaborateModal(Object.assign({}, this.form), this.form.id, this.contentType.task)
+        this.collaborateContent = Object.assign({}, this.form)
+        this.showCollaborateModalVisible = true
       },
       handleUploadImage (data) {
         logger.info('handleUploadImage', data)
@@ -1493,9 +1712,21 @@
         this.selectedCurriculumList = data
       },
 
+      handleSelectSubjectSpecificSkillListData (data) {
+        this.$logger.info('handleSelectSubjectSpecificSkillListData', data)
+      },
+
+      handleSelect21CenturySkillListData (data) {
+        this.$logger.info('handleSelect21CenturySkillListData', data)
+        this.selectedCenturySkillList = data
+      },
+
       // TODO 自动更新选择的sync 的数据knowledgeId和name列表
       handleCancelSelectData () {
         this.selectedSyncList = []
+        this.selectedCurriculumList = []
+        this.selectedSpecificSkillList = []
+        this.selectedCenturySkillList = []
         this.selectSyncDataVisible = false
       },
 
@@ -1505,8 +1736,9 @@
           this.selectedCurriculumList,
           this.selectedSpecificSkillList,
           this.selectedCenturySkillList,
+          this.selectedBigIdeaList,
           this.selectedSyncList)
-        this.selectedSyncList.forEach(data => {
+         this.selectedSyncList.forEach(data => {
           const filterLearnOuts = this.form.learnOuts.filter(item => item.knowledgeId === data.knowledgeId)
           if (filterLearnOuts.length > 0) {
             return
@@ -1551,6 +1783,27 @@
       handleSelectDescription () {
         this.selectSyncDataVisible = true
       },
+      // 加载协作的评论和历史记录数据
+      loadCollaborateData () {
+        return Promise.all([
+          GetCollaborateModifiedHistory({ sourceType: this.contentType.task, sourceId: this.form.id }),
+          GetCollaborateComment({ sourceType: this.contentType.task, sourceId: this.form.id })
+        ]).then(response => {
+          // TODO 将历史记录数据‘格式’后填充到historyList数组中，大部分数据可以直接赋值，复杂字段要处理一下,这样handleRestoreField()方法就可以直接赋值了。
+          this.historyList = []
+          this.$logger.info('GetCollaborateModifiedHistory', response[0])
+          if (!response[0].code) {
+            this.historyList = response[0].result
+          }
+          // TODO 将写作点评数据‘格式’后填充到collaborateCommentList数组中
+          this.collaborateCommentList = []
+          this.$logger.info('GetCollaborateComment', response[1])
+          if (!response[1].code) {
+            this.collaborateCommentList = response[1].result
+          }
+        })
+      },
+
       handleSyncData () {
         this.$logger.info(' handleSyncData')
         GetReferOutcomes({
@@ -1571,6 +1824,12 @@
           if (current === 1 && !this.form.presentationId) {
             this.loadRecommendThumbnail()
           }
+          setTimeout(function () {
+              const returnEle = document.querySelector('.ant-layout-content')
+              if (returnEle) {
+                returnEle.scrollIntoView(true) // true 是默认的
+              }
+          }, 100)
         }
       },
 
@@ -1601,7 +1860,7 @@
         FilterTemplates({
             filterLearn: this.filterLearn,
             filterAssessments: this.filterAssessments,
-            filterCentury: this.filterCentury
+            filterCentury: this.getFilterParams(this.filterCentury)
         }).then(response => {
           this.$logger.info('handleToggleTemplateType ', response)
           this.templateList = response.result
@@ -1615,9 +1874,220 @@
         this.addRecomendLoading = true
         this.handleAddTemplate()
       },
-      focusInput (ref) {
-        this.customTagTop = this.$refs[ref].$el.offsetTop + 20
-        this.showCustomTag = true
+      loadUserTags () {
+        // this.$refs.customTag.tagLoading = true
+        FindCustomTags({}).then((response) => {
+          this.$logger.info('FindCustomTags response', response.result)
+          if (response.success) {
+            this.userTags = response.result
+            // 默认展示的tag分类
+            CustomTagType.task.default.forEach(name => {
+              this.customTagList.push(name)
+            })
+            // 再拼接自己添加的
+            this.userTags.userTags.forEach(tag => {
+              if (this.customTagList.indexOf(tag.name) === -1) {
+                this.customTagList.push(tag.name)
+              }
+            })
+          } else {
+            this.$message.error(response.message)
+          }
+          // this.$refs.customTag.tagLoading = false
+        })
+      },
+      focusInput (event) {
+        this.$logger.info('focusInput ', event.target)
+
+        // 设置一个父级定位专用的dom，设置class名称【root-locate-form】，
+        // 然后通过事件获取到当前元素，依次往上层查询父元素，累加偏离值，直到定位元素。
+        const eventDom = event.target
+        let formTop = eventDom.offsetTop
+        let currentDom = eventDom.offsetParent
+        const currentFocus = ''
+        this.customTagList = []
+        while (currentDom !== null) {
+          formTop += currentDom.offsetTop
+          currentDom = currentDom.offsetParent
+          // if(currentDom.classList.contains('div.task-type-item.green-active-task-type')) {
+          //   currentFocus = 'fa'
+          //   CustomTagType.task.fa.forEach(name => {
+          //     this.customTagList.push(name)
+          //   })
+          // }
+          if (currentDom.classList && currentDom.classList.contains('root-locate-form')) {
+            logger.info('classlist: ', currentDom.classList.toString())
+            break
+          }
+        }
+        // custom tag 自带了margin-top: 20px,这里减掉不然不对齐。
+        if (currentFocus) {
+          this.customTagTop = formTop - 20
+          this.showCustomTag = true
+        } else {
+          CustomTagType.task.default.forEach(name => {
+            this.customTagList.push(name)
+          })
+          // // 再拼接自己添加的
+          this.userTags.userTags.forEach(tag => {
+            if (this.customTagList.indexOf(tag.name === -1)) {
+              this.customTagList.push(tag.name)
+            }
+          })
+          this.customTagTop = 300
+          this.showCustomTag = false
+        }
+      },
+      handleChangeUserTags (tags) {
+        this.form.customTags = tags
+      },
+      handleChangeAddKeywords (tag) {
+        var index = this.userTags.userTags.findIndex(item => item.name === tag.parentName)
+        if (index > -1) {
+          this.userTags.userTags[index].keywords.push(tag.name)
+        }
+      },
+
+      // 切换当前的字段的点评数据，从总的collaborateCommentList筛选初当前字段相关的点评数据
+      handleSwitchComment (data) {
+        this.$logger.info('handleSwitchComment', data)
+        this.currentFieldName = data.fieldName
+        this.showAllCollaborateCommentVisible = false
+        this.showCustomTag = false
+        this.currentCollaborateCommentList = []
+        const list = []
+        this.collaborateCommentList.forEach(item => {
+          if (item.fieldName === data.fieldName) {
+            list.push(item)
+          }
+        })
+        this.currentCollaborateCommentList = list
+        this.collaborateTop = data.top
+        this.showCollaborateCommentVisible = true
+        this.$logger.info('currentCollaborateCommentList', list)
+      },
+
+      // 每次点击都重新加载一下最新数据
+      handleViewCollaborate () {
+        this.$logger.info('handleViewCollaborate')
+        this.showCollaborateCommentVisible = false
+        this.currentCollaborateCommentList = []
+        this.loadCollaborateData().then(() => {
+          this.$logger.info('loadCollaborateData loaded')
+        }).finally(() => {
+          this.showAllCollaborateCommentVisible = !this.showAllCollaborateCommentVisible
+        })
+      },
+
+      // TODO 发布评论后需要更新最新的评论列表,刷新数据
+      handleUpdateCommentList () {
+        this.$logger.info('handleUpdateCommentList')
+        this.currentCollaborateCommentList = []
+        this.loadCollaborateData().then(() => {
+          this.$logger.info('loadCollaborateData loaded')
+        }).finally(() => {
+          const list = []
+          this.collaborateCommentList.forEach(item => {
+            if (item.fieldName === this.currentFieldName) {
+              list.push(item)
+            }
+          })
+          this.currentCollaborateCommentList = list
+          this.$logger.info('currentCollaborateCommentList', list)
+        })
+      },
+
+      // historyData以及在接口请求的相应逻辑中正对数据进行‘格式’，
+      // 这样在这里就可以直接this.$set设置字段的数据
+      handleRestoreField (data) {
+        this.$logger.info('handleRestoreField', data, this.form)
+        if (data.historyData) {
+          data.historyData.forEach(dataItem => {
+            this.$logger.info('set ' + dataItem.fieldName, dataItem.data[0])
+            if (Array.isArray(dataItem.data[0])) {
+              dataItem.data[0].forEach((item, index) => {
+                this.$set(this.form[dataItem.fieldName], index, dataItem.data[0][index])
+              })
+            } else {
+              this.$set(this.form, dataItem.fieldName, dataItem.data[0])
+            }
+            this.$message.success('restore ' + dataItem.fieldDisplayName + ' success!')
+          })
+        }
+        this.$logger.info('after handleRestoreField', this.form)
+      },
+      templateFilterCondition (category1, category2) {
+        let list = []
+        if (category1 === TemplateType.Learning) {
+          list = this.learnExperienceList
+        } else if (category1 === TemplateType.Assessments) {
+          list = this.assessmentsList
+        } else if (category1 === TemplateType.Century) {
+          list = this.centuryList
+        }
+        if (!category2) {
+          return list
+        }
+        const resultList = list.filter(item => item.name === category2)
+        logger.info('templateFilterCondition ', resultList)
+        return resultList.length > 0 ? resultList[0].children : []
+      },
+      onChangeCheckBox (e, category, parentId) {
+        logger.info('onChangeCheckBox ', e, category, parentId)
+        logger.info('filterLearn ', this.filterLearn)
+        const id = e.target.value
+        if (category === TemplateType.Learning) {
+          if (this.filterLearn.indexOf(id) === -1) {
+            this.filterLearn.push(id)
+          } else {
+            this.filterLearn.splice(this.filterLearn.indexOf(id), 1)
+          }
+        } else if (category === TemplateType.Assessments) {
+          if (this.filterAssessments.indexOf(id) === -1) {
+            this.filterAssessments.push(id)
+          } else {
+            this.filterAssessments.splice(this.filterAssessments.indexOf(id), 1)
+          }
+        } else if (category === TemplateType.Century) {
+          if (this.filterCentury.indexOf(id) === -1) {
+            this.filterCentury.push(id)
+            // if (parentId && this.filterCentury.indexOf(parentId) === -1) {
+            //   this.filterCentury.push(parentId)
+            // }
+          } else {
+            this.filterCentury.splice(this.filterCentury.indexOf(id), 1)
+          }
+        }
+        // 如果选中的是子类 父id要从筛选条件中去除，记录关系
+        if (parentId) {
+          this.filterParentMap.set(id, parentId)
+        }
+        this.selectFilter()
+      },
+      clearFilter (category) {
+        if (category === TemplateType.Learning) {
+          this.filterLearn = []
+        } else if (category === TemplateType.Assessments) {
+          this.filterAssessments = []
+        } else if (category === TemplateType.Century) {
+          this.filterCentury = []
+        }
+        this.selectFilter()
+      },
+      getFilterParams (list) {
+        if (list.length === 0) {
+          return []
+        }
+        var resList = [...list]
+        list.forEach(id => {
+          if (this.filterParentMap.has(id)) {
+             const pId = this.filterParentMap.get(id)
+             if (resList.indexOf(pId) > -1) {
+               resList.splice(resList.indexOf(pId), 1)
+             }
+          }
+        })
+        return resList
       }
     }
   }
@@ -1761,7 +2231,8 @@
 
       .image-preview {
         img {
-          max-width: 100%;
+          width: 100%;
+          max-height: 250px;
         }
       }
 
@@ -1969,26 +2440,36 @@
       opacity: 1;
       border-radius: 4px;
       padding: 10px ;
-      display: flex;
-      flex-direction: column;
       .filter-row{
-        align-items: center;
-        justify-content: center;
-        padding: 5px;
-        display: flex;
+        position: relative;
+        margin-left: 10px;
         width: 100%;
         .ant-form-item-label{
-          width: 20%;
           font-weight: bold;
           line-height: 24px;
           color: #11142D;
         }
-        .row-select{
-          width: 60%;
-          margin-left: 10px;
+        .clear-all{
+          position: absolute;
+          right: 3px;
+          top: -3px;
         }
-        .row-cascader{
-          width: 90%;
+        .row-select{
+          .sub-category{
+            line-height: 24px;
+            color: #D3D3D3;
+          }
+          .sub-select{
+            margin-bottom: 10px;
+          }
+          .sub-child{
+            padding-left: 20px;
+          }
+          margin: 5px;
+          border: 1px solid #E4E4E4;
+          padding: 5px 15px;
+          max-height: 250px;
+          overflow: auto;
         }
       }
 
@@ -2318,7 +2799,7 @@
 
   *::-webkit-scrollbar {
     width: 3px;
-    height: 0;
+    height: 10px;
   }
   *::-webkit-scrollbar-track {
     border-radius: 1px;
@@ -2638,7 +3119,7 @@
   }
 
   .btn-icon {
-    height: 20px;
+    height: 18px;
   }
 
   .btn-text {
@@ -2657,8 +3138,14 @@
   }
 
   .form-block {
+    position: relative;
     margin-bottom: 35px;
     width: 600px;
+    &:hover {
+      .my-comment-switch {
+        display: block;
+      }
+    }
     /deep/ .ant-form-item label{
       font-size: 16px;
       font-weight: 500;
@@ -2892,6 +3379,37 @@
 
         .slide-preview {
           border: 1px solid rgba(0, 0, 0, 0.1);
+          position: relative;
+          .slide-hover-action-mask {
+            display: none;
+            z-index: 100;
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.3);
+
+            .slide-hover-action {
+              position: absolute;
+              top: 50%;
+              left: 50%;
+              width: 500px;
+              margin-top: -30px;
+              margin-left: -250px;
+
+              .update-select-slide {
+
+              }
+            }
+          }
+
+          &:hover {
+            .slide-hover-action-mask {
+              display: block;
+            }
+          }
         }
       }
     }
@@ -3099,5 +3617,31 @@
 
   /deep/ .ant-steps-item-title{
     font-size:18px
+  }
+  .root-locate-form {
+    position: relative;
+  }
+  .my-comment-switch {
+    display: none;
+    position: absolute;
+    right: -10px;
+    top: -5px;
+    z-index: 200;
+  }
+
+  .collaborate-panel {
+    background-color: #fff;
+    box-shadow: 0px 6px 10px rgba(159, 159, 159, 0.16);
+    .icon {
+      padding: 10px 5px 0 15px;
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      justify-content: flex-start;
+
+      svg {
+        width: 30px;
+      }
+    }
   }
 </style>

@@ -14,8 +14,9 @@
                    'selected-line': currentDataType === NavigationType.sync ? (selectedKnowledgeIdList.indexOf(item.knowledgeId) !== -1) : (
                      currentDataType === NavigationType.learningOutcomes ? (selectedCurriculumIdList.indexOf(item.id) !== -1) : (
                        currentDataType === NavigationType.specificSkills ? (selectedSubjectSpecificSkillIdList.indexOf(item.id) !== -1) : (
-                         currentDataType === NavigationType.centurySkills ? (selected21CenturySkillIdList.indexOf(item.id) !== -1) : false)
-                     ))}"
+                         currentDataType === NavigationType.centurySkills ? (selected21CenturySkillIdList.indexOf(item.id) !== -1) : (
+                           currentDataType === NavigationType.sdg ? (selectedBigIdeaList.indexOf(item.id) !== -1) : false
+                         ))))}"
           v-for="(item,index) in contentDataList"
           :key="index">
           <div class="name" :style="{width: nameWidth + 'px'}" @click="handleContentListItemClick(item)">
@@ -39,7 +40,7 @@
                 <a-icon class="collapse-icon" type="down" />
               </div>
             </a-tooltip>
-            <div class="action-icon" v-if="item.hasOwnProperty('froms') ? selectedKnowledgeIdList.indexOf(item.knowledgeId) !== -1 : selectedCurriculumIdList.indexOf(item.id) !== -1">
+            <div class="action-icon">
               <img src="~@/assets/icons/lesson/selected.png"/>
             </div>
           </div>
@@ -111,6 +112,9 @@ export default {
 
       selectedSubjectSpecificSkillIdList: [],
       selectedSubjectSpecificSkillIdMap: new Map(),
+
+      // big idea为纯文字
+      selectedBigIdeaList: [],
       currentDataType: 'none'
     }
   },
@@ -305,6 +309,35 @@ export default {
             this.$logger.info('current is grade, skip empty children item!', eventData)
           }
         }
+      } else if (this.currentDataType === NavigationType.sdg) {
+        // sdg数据结构：sdg列表-keywords-big idea
+        if (!item.hasOwnProperty('isBigIdea')) {
+          // 如果有子列表，表示还未到最后一层description，通知左侧导航栏更新同步层级
+          const eventData = {
+            item,
+            dataType: this.currentDataType,
+            parent: this.parent,
+            eventType: 'syncDir'
+          }
+          LibraryEventBus.$emit(LibraryEvent.ContentListItemClick, eventData)
+          this.$logger.info('BigIdea $emit sync eventData', eventData)
+        } else {
+          const index = this.selectedBigIdeaList.indexOf(item.id)
+          if (index !== -1) {
+            this.selectedBigIdeaList.splice(index, 1)
+          } else {
+            this.selectedBigIdeaList.push(item.id)
+          }
+          const selectedList = []
+          this.selectedBigIdeaList.forEach(bigIdea => {
+            selectedList.push({
+              dataType: this.currentDataType,
+              bigIdea
+            })
+          })
+          this.$emit('select-big-idea', selectedList)
+          this.$logger.info('select-big-idea', this.selectedBigIdeaList)
+        }
       }
     },
     handlePreviewClose () {
@@ -384,6 +417,10 @@ export default {
       background-color: #F8F8F8;
     }
 
+    .action-icon {
+      display: none;
+    }
+
     .selected-line {
       background-color: fade(@outline-color, 10%);
       color: @text-color;
@@ -392,6 +429,7 @@ export default {
       position: relative;
 
       .action-icon {
+        display: block;
         position: absolute;
         right: 5px;
         top: 50%;
@@ -437,7 +475,7 @@ export default {
         .name-text {
           padding: 0 5px;
           box-sizing: border-box;
-          word-break: break-all;
+          word-break: break-word;
           white-space:normal;
         }
         .collapse-item{

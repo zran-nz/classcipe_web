@@ -413,6 +413,9 @@ export default {
       this.pagination.total = 0
       this.pagination.pageSize = 8
       this.loadMyContent()
+    },
+    groupNameList (value) {
+      this.$logger.info('groupNameList', value)
     }
   },
   created () {

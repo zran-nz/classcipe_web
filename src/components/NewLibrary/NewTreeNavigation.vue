@@ -5,10 +5,13 @@
       :tree-item-data="treeItemData"
       :tree-current-parent="null"
       :default-deep="0"
+      :class="{'browser-hide-menu': showMenu.indexOf(treeItemData.type) === -1}"
       :current-item-type="treeItemData.type === NavigationType.learningOutcomes ? 'subject' : // 如果当前是大纲，那么第一层数据是不区分层级的subject
         (treeItemData.type === NavigationType.sync ? 'sync' : // 如果是sync第一次是外部的同步数据列表
           (treeItemData.type === NavigationType.specificSkills ? 'subject' : ( // 如果是specificSkills，那么第一层数据是subject，注意subject只有一层
-            (treeItemData.type === NavigationType.centurySkills ? 'grade' : 'none' // 如果是centurySkills，那么第一层数据是grade年级列表
+            (treeItemData.type === NavigationType.centurySkills ? 'grade' : ( // 如果是centurySkills，那么第一层数据是grade年级列表
+              treeItemData.type === NavigationType.sdg ? 'sdg' : 'none' // 如果是sdg，那么第一层数据是sdg列表, 结构：sdg列表-keywords-big idea
+            )
             ))))"
       :select-mode="selectMode"
       :question-index="questionIndex"
@@ -24,6 +27,7 @@
 import NewTreeItem from '@/components/NewLibrary/NewTreeItem'
 import { NavigationType } from '@/components/NewLibrary/NavigationType'
 const { GetMyGrades } = require('@/api/teacher')
+const { GetAllSdgs } = require('@/api/scenario')
 const { SubjectTree } = require('@/api/subject')
 
 export default {
@@ -43,6 +47,14 @@ export default {
     syncData: {
       type: Array,
       default: () => []
+    },
+    showMenu: {
+      type: Array,
+      default: () => []
+    },
+    defaultActiveMenu: {
+      type: String,
+      default: null
     }
   },
   data () {
@@ -59,17 +71,25 @@ export default {
   created () {
     this.$logger.info('NewTreeNavigation selectMode', this.selectMode)
     const skillCategory = this.$store.getters.skillCategory
-    this.$logger.info('NewTreeNavigation skillCategory', skillCategory)
+    this.$logger.info('NewTreeNavigation skillCategory ', skillCategory)
+    this.$logger.info('NewTreeNavigation defaultActiveMenu ' + this.defaultActiveMenu)
     const curriculumData = {
       id: '1',
-      expandStatus: true,
+      expandStatus: NavigationType.learningOutcomes === this.defaultActiveMenu,
       type: NavigationType.learningOutcomes,
       name: skillCategory.length === 3 ? skillCategory[0] : 'Curriculum',
       children: [],
       parent: null
     }
+    const sdgData = {
+      expandStatus: NavigationType.sdg === this.defaultActiveMenu,
+      type: NavigationType.sdg,
+      name: 'Big ideas',
+      children: [],
+      parent: null
+    }
     const syncData = {
-      expandStatus: true,
+      expandStatus: NavigationType.sync === this.defaultActiveMenu,
       type: NavigationType.sync,
       name: 'Sync assessment objectives with linked content',
       children: [],
@@ -84,7 +104,8 @@ export default {
     }
     Promise.all([
       SubjectTree({ curriculumId: this.$store.getters.bindCurriculum }),
-      GetMyGrades()
+      GetMyGrades(),
+      GetAllSdgs()
     ]).then((initDataResponse) => {
       this.$logger.info('initData done', initDataResponse)
 
@@ -102,13 +123,22 @@ export default {
         // 兼容新的任意层级,任意一个层级下一层都会可能是gradeList
         this.addGradeListProperty(curriculumData.children)
       }
+
+      // GetAllSdgs
+      this.$logger.info('GetAllSdgs Response ', initDataResponse[1])
+      if (!initDataResponse[2].code) {
+        this.sdgList = initDataResponse[2].result
+        this.sdgList.forEach(item => { item.children = [] })
+        sdgData.children = this.sdgList
+      }
     }).finally(() => {
       this.treeDataList.push(curriculumData)
+      this.treeDataList.push(sdgData)
       if (skillCategory.length === 3) {
         // subject specific skills 是mainSubject-year-knowledge
         const specificSkillsData = {
           id: '1',
-          expandStatus: true,
+          expandStatus: NavigationType.specificSkills === this.defaultActiveMenu,
           type: NavigationType.specificSkills,
           name: skillCategory[1],
           children: [],
@@ -123,7 +153,7 @@ export default {
         // 21 century skills 是year-knowledge
         const centurySkillsData = {
           id: '1',
-          expandStatus: true,
+          expandStatus: NavigationType.centurySkills === this.defaultActiveMenu,
           type: NavigationType.centurySkills,
           name: skillCategory[2],
           children: [],
@@ -172,5 +202,9 @@ export default {
   justify-content: flex-start;
   background-color: #fff;
   overflow: scroll;
+}
+
+.browser-hide-menu {
+  display: none;
 }
 </style>

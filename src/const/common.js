@@ -9,7 +9,8 @@ export const DICT_BLOOM_CATEGORY = 'bloom_categories'
 
 export const TagType = {
   'knowledge': 1,
-  'skill': 2
+  'skill': 2,
+  'century': 3
 }
 
 export const TagOriginType = {
@@ -18,4 +19,23 @@ export const TagOriginType = {
   Description: 'Description',
   Create: 'Create',
   Extension: 'Extension'
+}
+
+export const TemplateType = {
+  Learning: 'Learning experience',
+  Assessments: 'Assessments',
+  Century: '21 century skills'
+}
+
+export const CustomTagType = {
+  plan: {
+    sdg: ['Key words'],
+    bigIdea: ['Universal Concept'],
+    default: ['Teaching strategies', 'Differentiated instructions']
+  },
+  task: {
+    sa: ['Assessment type'],
+    fa: ['Bloom Taxonomy', 'Knowledge dimension'],
+    default: ['Assessment purpose', 'Teaching strategies', 'Differentiated instructions']
+  }
 }

@@ -5,13 +5,14 @@
         ref="commonFormHeader"
         :form="form"
         :last-change-saved-time="lastChangeSavedTime"
+        @view-collaborate="handleViewCollaborate"
         @back="goBack"
         @save="handleSaveUnitPlan"
         @publish="handlePublishUnitPlan"
         @collaborate="handleStartCollaborate"
       />
     </div>
-    <a-card :bordered="false" :bodyStyle="{ padding: '16px 24px', height: '100%', minHeight: '500px' }">
+    <a-card :bordered="false" :bodyStyle="{ padding: '16px 24px', height: '100%', minHeight: '1200px' }">
       <a-row class="unit-content" v-if="!contentLoading">
         <!--        <a-col span="4" v-if="showSidebar">
           <associate-sidebar
@@ -47,12 +48,14 @@
                       </div>-->
 
                       <div class="form-block">
+                        <comment-switch field-name="name" :is-active="showCollaborateCommentVisible && currentFieldName === 'name'" @switch="handleSwitchComment" class="my-comment-switch"/>
                         <a-form-item label="Course Name">
-                          <a-input ref="name" v-model="form.name" placeholder="Enter Course Name" class="my-form-input"/>
+                          <a-input v-model="form.name" placeholder="Enter Course Name" class="my-form-input"/>
                         </a-form-item>
                       </div>
 
                       <div class="form-block over-form-block" id="overview">
+                        <comment-switch field-name="overview" :is-active="showCollaborateCommentVisible && currentFieldName === 'overview'" @switch="handleSwitchComment" class="my-comment-switch"/>
                         <a-form-model-item class="task-audio-line" label="Course Overview">
                           <a-textarea class="overview" v-model="form.overview" placeholder="Overview" allow-clear />
                           <!--        <div class="audio-wrapper" v-if="form.audioUrl">
@@ -71,14 +74,15 @@
                       </div>
 
                       <div class="form-block inquiry-form-block" id="inquiry">
+                        <comment-switch field-name="inquiry" :is-active="showCollaborateCommentVisible && currentFieldName === 'inquiry'" @switch="handleSwitchComment" class="my-comment-switch"/>
                         <!--                <a-divider />-->
-                        <a-form-item label="Big idea* (Or statement of inquiry / Enduring understanding)" >
+                        <a-form-item label="Big idea* (Or statement of inquiry / Enduring understanding)" class="bigIdea" >
                           <a-input
                             v-model="form.inquiry"
                             :placeholder="$store.getters.currentRole === 'teacher' ? $t('teacher.add-unit-plan.teacher-direction-of-inquiry') : $t('teacher.add-unit-plan.expert-direction-of-inquiry')"
                             class="my-form-input inquiry"/>
                         </a-form-item>
-                        <a-tooltip title="Browse" @click="handleSelectDescription(true)">
+                        <a-tooltip title="Browse" @click.stop="handleSelectDescription(true)">
                           <span class="browse">
                             <a-icon type="appstore" theme="twoTone" twoToneColor="rgba(21, 195, 154, 1)" />
                           </span>
@@ -87,6 +91,7 @@
 
                       <!--            real-life-scenario-->
                       <div class="form-block ">
+                        <comment-switch field-name="sdg" :is-active="showCollaborateCommentVisible && currentFieldName === 'sdg'" @switch="handleSwitchComment" class="my-comment-switch" style="top:40px"/>
                         <a-divider>Teach Goal</a-divider>
                         <a-row>
                           <a-col span="24">
@@ -152,8 +157,15 @@
                           @click="handleAddMoreSdg"></a-button>
                       </div>
 
-                      <div class="form-block">
-                        <a-form-item label="Key question/line of inquiry">
+                      <div class="form-block" v-if="!$store.getters.userInfo.disableQuestion">
+                        <comment-switch field-name="question" :is-active="showCollaborateCommentVisible && currentFieldName === 'question'" @switch="handleSwitchComment" class="my-comment-switch"/>
+                        <a-form-item>
+                          <span slot="label">
+                            Key question/line of inquiry
+                            <a-tooltip title="Set key question/line of inquiry">
+                              <a-icon type="exclamation-circle" style="color: #15c39a;cursor: pointer;font-size: 18px" @click="questionSettingVisible=true" />
+                            </a-tooltip>
+                          </span>
                           <div class="form-input-item" v-for="(question, index) in form.questions" :key="index">
                             <a-input
                               v-model="question.name"
@@ -174,6 +186,7 @@
                       </div>
 
                       <div class="form-block">
+                        <comment-switch field-name="assessment" :is-active="showCollaborateCommentVisible && currentFieldName === 'assessment'" @switch="handleSwitchComment" class="my-comment-switch"/>
                         <a-form-item label="Set assessment objectives" >
                           <a-button type="primary" @click="handleSelectDescription(false)">
                             <div class="btn-text" style="line-height: 20px">
@@ -199,7 +212,7 @@
                           </a-button>
                         </a-form-item>
                         <div class="common-link-wrapper">
-                          <common-link ref="commonLink" :from-id="this.unitPlanId" :from-type="this.contentType['unit-plan']"/>
+                          <common-link ref="commonLink" :from-id="this.unitPlanId" :from-type="this.contentType['unit-plan']" @group-name-list-update="handleUpdateGroupNameList"/>
                         </div>
                       </div>
                     </template>
@@ -208,58 +221,103 @@
               </a-form-model>
             </div>
             <div class="unit-plan-form-right">
-
-              <div class="form-block-right" v-if="!showCustomTag">
-                <!-- image-->
-                <a-form-model-item class="img-wrapper" >
-                  <a-upload-dragger
-                    name="file"
-                    accept="image/png, image/jpeg"
-                    :showUploadList="false"
-                    :customRequest="handleUploadImage"
-                  >
-                    <div class="delete-img" @click="handleDeleteImage($event)" v-show="form.image">
-                      <a-icon type="close-circle" />
-                    </div>
-                    <template v-if="uploading">
-                      <div class="upload-container">
-                        <p class="ant-upload-drag-icon">
-                          <a-icon type="cloud-upload" />
-                        </p>
-                        <p class="ant-upload-text">
-                          <a-spin />
-                          <span class="uploading-tips">{{ $t('teacher.add-unit-plan.uploading') }}</span>
-                        </p>
-                      </div>
-                    </template>
-                    <template v-if="!uploading && form && form.image">
-                      <div class="image-preview">
-                        <img :src="form.image" alt="">
-                      </div>
-                    </template>
-                    <template v-if="!uploading && form && !form.image">
-                      <div class="upload-container">
-                        <p class="ant-upload-drag-icon">
-                          <img src="~@/assets/icons/lesson/upload_icon.png" class="upload-icon" />
-                        </p>
-                        <p class="ant-upload-text">
-                          {{ $t('teacher.add-unit-plan.upload-a-picture') }}
-                        </p>
-                      </div>
-                    </template>
-                  </a-upload-dragger>
-                </a-form-model-item>
-              </div>
-
-              <div :style="{'width':'600px','position': 'absolute', 'top':customTagTop+'px'}" >
-                <custom-tag :show-arrow="showCustomTag" ref="customTag" :selected-tags-list="form.customTags" @change-user-tags="handleChangeUserTags"></custom-tag>
-              </div>
+              <!--              优先级 所有comment预览 > 字段comment > tag选择-->
+              <template v-if="showAllCollaborateCommentVisible">
+                <div class="collaborate-panel" :style="{'width':'600px', 'margin-top': '0px', 'z-index': 100}">
+                  <div class="icon">
+                    <comment-icon />
+                  </div>
+                  <a-tabs default-active-key="1">
+                    <a-tab-pane key="1" tab="Comment">
+                      <collaborate-comment-view :source-id="unitPlanId" :source-type="contentType['unit-plan']" :comment-list="collaborateCommentList" @update-comment="handleUpdateCommentList"/>
+                    </a-tab-pane>
+                    <a-tab-pane key="2" tab="History" force-render>
+                      <collaborate-history :history-list="historyList" @restore="handleRestoreField"/>
+                    </a-tab-pane>
+                  </a-tabs>
+                </div>
+              </template>
+              <template v-else>
+                <template v-if="showCollaborateCommentVisible">
+                  <div class="collaborate-panel" :style="{'width':'600px', 'margin-top':collaborateTop+'px', 'z-index': 100}">
+                    <collaborate-comment-panel :source-id="unitPlanId" :source-type="contentType['unit-plan']" :field-name="currentFieldName" :comment-list="currentCollaborateCommentList" @update-comment="handleUpdateCommentList"/>
+                  </div>
+                </template>
+                <template v-else>
+                  <div class="form-block-right" >
+                    <!-- image-->
+                    <a-form-model-item class="img-wrapper" >
+                      <a-upload-dragger
+                        name="file"
+                        accept="image/png, image/jpeg"
+                        :showUploadList="false"
+                        :customRequest="handleUploadImage"
+                      >
+                        <div class="delete-img" @click="handleDeleteImage($event)" v-show="form.image">
+                          <a-icon type="close-circle" />
+                        </div>
+                        <template v-if="uploading">
+                          <div class="upload-container">
+                            <p class="ant-upload-drag-icon">
+                              <a-icon type="cloud-upload" />
+                            </p>
+                            <p class="ant-upload-text">
+                              <a-spin />
+                              <span class="uploading-tips">{{ $t('teacher.add-unit-plan.uploading') }}</span>
+                            </p>
+                          </div>
+                        </template>
+                        <template v-if="!uploading && form && form.image">
+                          <div class="image-preview">
+                            <img :src="form.image" alt="">
+                          </div>
+                        </template>
+                        <template v-if="!uploading && form && !form.image">
+                          <div class="upload-container">
+                            <p class="ant-upload-drag-icon">
+                              <img src="~@/assets/icons/lesson/upload_icon.png" class="upload-icon" />
+                            </p>
+                            <p class="ant-upload-text">
+                              {{ $t('teacher.add-unit-plan.upload-a-picture') }}
+                            </p>
+                          </div>
+                        </template>
+                      </a-upload-dragger>
+                    </a-form-model-item>
+                  </div>
+                  <div v-show="!this.contentLoading" :style="{'width':'600px','position': 'absolute', 'top':customTagTop+'px', 'z-index': 50}">
+                    <custom-tag
+                      :show-arrow="showCustomTag"
+                      :user-tags="userTags"
+                      :custom-tags-list="customTagList"
+                      ref="customTag"
+                      :selected-tags-list="form.customTags"
+                      @reload-user-tags="loadUserTags"
+                      @change-add-keywords="handleChangeAddKeywords"
+                      @change-user-tags="handleChangeUserTags"></custom-tag>
+                  </div>
+                </template>
+              </template>
             </div>
           </a-card>
         </a-col>
       </a-row>
 
-      <collaborate-content ref="collaborate"/>
+      <a-modal
+        v-model="showCollaborateModalVisible"
+        :footer="null"
+        :maskClosable="false"
+        :closable="true"
+        destroyOnClose
+        width="800px">
+        <collaborate-content
+          :content-id="unitPlanId"
+          :main-content="collaborateContent"
+          :content-type="contentType['unit-plan']"
+          @finished="showCollaborateModalVisible = false"
+          v-if="showCollaborateModalVisible"/>
+      </a-modal>
+
       <a-modal
         v-model="selectAddContentTypeVisible"
         :footer="null"
@@ -407,11 +465,14 @@
         @ok="selectSyncDataVisible = false"
         @cancel="selectSyncDataVisible = false">
         <div class="link-content-wrapper">
-          <!-- 此处的questionIndex用于标识区分是哪个组件调用的，返回的事件数据中会带上，方便业务数据处理，可随意写，可忽略-->
+          <!-- 此处的questionIndex用于标识区分是哪个组件调用的，返回的事件数据中会带上，方便业务数据处理，可随意写，可忽略, show-menu中列出的类型才会显示-->
           <new-browser
             :select-mode="selectModel.syncData"
             question-index="_questionIndex_1"
             :sync-data="syncData"
+            :show-menu="showMenuList"
+            :default-active-menu="defaultActiveMenu"
+            @select-big-idea="handleSelectBigIdeaData"
             @select-sync="handleSelectListData"
             @select-curriculum="handleSelectCurriculum"
             @select-subject-specific-skill="handleSelectSubjectSpecificSkillListData"
@@ -420,6 +481,25 @@
           <div class="modal-ensure-action-line-right">
             <a-button class="action-item action-cancel" shape="round" @click="handleCancelSelectData">Cancel</a-button>
             <a-button class="action-ensure action-item" type="primary" shape="round" @click="handleEnsureSelectData">Ok</a-button>
+          </div>
+        </div>
+      </a-modal>
+
+      <a-modal
+        v-model="questionSettingVisible"
+        :footer="null"
+        destroyOnClose
+        width="600px"
+        title="Set key question/line of inquiry">
+        <div class="ensure-setting-modal">
+          <div class="tips">
+            <p>We understand that for some countries, "key questions/line of inquiry" is not required in Unit plan so you have the option to turn it off. You won't see that section once it's off.</p><p>
+            </p><p style="color: red">You might turn it on or change in your account setting If you need the section in future.</p>
+          </div>
+          <a-switch default-checked @change="onChangeSwitch"/> <span style="color: red ;font-family: Inter-Bold;font-size: 15px;">Key question/line of inquiry</span>
+          <div class="modal-ensure-action-line-center">
+            <a-button class="action-item action-cancel" shape="round" @click="questionSettingVisible=false">Cancel</a-button>
+            <a-button class="action-ensure action-item" type="primary" shape="round" @click="handQuestionSetting">Confirm</a-button>
           </div>
         </div>
       </a-modal>
@@ -434,6 +514,7 @@
 import * as logger from '@/utils/logger'
 import ContentTypeIcon from '@/components/Teacher/ContentTypeIcon'
 import { typeMap } from '@/const/teacher'
+import { CustomTagType } from '@/const/common'
 import { commonAPIUrl } from '@/api/common'
 import { GetAllSdgs, ScenarioSearch } from '@/api/scenario'
 import { debounce } from 'lodash-es'
@@ -466,10 +547,23 @@ import ReferPreview from '@/components/UnitPlanRefer/ReferPreview'
 import UiLearnOut from '@/components/UnitPlan/UiLearnOut'
 import CommonLink from '@/components/Common/CommonLink'
 import NewMyContent from '@/components/MyContent/NewMyContent'
+import { FindCustomTags } from '@/api/tag'
+import { GetCollaborateComment, GetCollaborateModifiedHistory } from '@/api/collaborate'
+import { NavigationType } from '@/components/NewLibrary/NavigationType'
+import CollaborateCommentPanel from '@/components/Collaborate/CollaborateCommentPanel'
+import CommentSwitch from '@/components/Collaborate/CommentSwitch'
+import CollaborateCommentView from '@/components/Collaborate/CollaborateCommentView'
+import commentIcon from '@/assets/icons/collaborate/comment.svg?inline'
+import CollaborateHistory from '@/components/Collaborate/CollaborateHistory'
+import { UserSetting } from '@/api/user'
 
 export default {
   name: 'AddUnitPlan',
   components: {
+    CollaborateHistory,
+    CollaborateCommentView,
+    CommentSwitch,
+    CollaborateCommentPanel,
     NewMyContent,
     CommonLink,
     ReferPreview,
@@ -487,6 +581,7 @@ export default {
     RelevantTagSelector,
     AddKeywordTag,
     NewBrowser,
+    commentIcon,
     UiLearnOut
   },
   props: {
@@ -599,9 +694,33 @@ export default {
       selectedSpecificSkillList: [],
       // century skill
       selectedCenturySkillList: [],
+
+      // BigIdeaList
+      selectedBigIdeaList: [],
       selectIdea: false,
       showCustomTag: false,
-      customTagTop: 300
+      customTagTop: 300,
+      customTagList: [],
+      userTags: {},
+      NavigationType: NavigationType,
+      defaultActiveMenu: NavigationType.learningOutcomes,
+      showMenuList: [ NavigationType.sdg, NavigationType.specificSkills, NavigationType.centurySkills, NavigationType.learningOutcomes ],
+
+      showCollaborateCommentVisible: false,
+
+      showCollaborateModalVisible: false,
+      collaborateContent: null,
+      currentFieldName: {},
+
+      // TODO mock数据待更新为接口请求（loadCollaborateData方法中的GetCollaborateComment)
+      collaborateCommentList: [],
+      currentCollaborateCommentList: [],
+      collaborateTop: 0,
+      showAllCollaborateCommentVisible: false,
+      // TODO mock数据待更新为接口请求（loadCollaborateData方法中的GetCollaborateModifiedHistory)
+      historyList: [],
+      questionSettingVisible: false,
+      disableQuestion: true
     }
   },
   watch: {
@@ -639,6 +758,7 @@ export default {
     LibraryEventBus.$on(LibraryEvent.ContentListSelectClick, this.handleDescriptionSelectClick)
     this.initData()
     this.getAssociate()
+    this.loadUserTags()
     this.debouncedGetSdgByDescription = debounce(this.searchScenario, 300)
   },
   beforeDestroy () {
@@ -695,6 +815,27 @@ export default {
       })
     },
 
+    // 加载协作的评论和历史记录数据
+    loadCollaborateData () {
+      return Promise.all([
+          GetCollaborateModifiedHistory({ sourceType: this.contentType['unit-plan'], sourceId: this.form.id }),
+          GetCollaborateComment({ sourceType: this.contentType['unit-plan'], sourceId: this.form.id })
+      ]).then(response => {
+        // TODO 将历史记录数据‘格式’后填充到historyList数组中，大部分数据可以直接赋值，复杂字段要处理一下,这样handleRestoreField()方法就可以直接赋值了。
+        this.historyList = []
+        this.$logger.info('GetCollaborateModifiedHistory', response[0])
+        if (!response[0].code) {
+          this.historyList = response[0].result
+        }
+        // TODO 将写作点评数据‘格式’后填充到collaborateCommentList数组中
+        this.collaborateCommentList = []
+        this.$logger.info('GetCollaborateComment', response[1])
+        if (!response[1].code) {
+          this.collaborateCommentList = response[1].result
+        }
+      })
+    },
+
     handleSyncData () {
       this.$logger.info(' handleSyncData')
       GetReferOutcomes({
@@ -737,6 +878,7 @@ export default {
         }
       }).finally(() => {
         this.contentLoading = false
+        this.loadCollaborateData()
       })
     },
 
@@ -874,8 +1016,6 @@ export default {
 
     handleSaveUnitPlan () {
       logger.info('handleSaveUnitPlan', this.form, this.sdgDataObj, this.questionDataObj)
-      console.log(this.$refs.customTag.tagList)
-
       const unitPlanData = {
         image: this.form.image,
         inquiry: this.form.inquiry,
@@ -1054,6 +1194,12 @@ export default {
     handleChangeUserTags (tags) {
       this.form.customTags = tags
     },
+    handleChangeAddKeywords (tag) {
+      var index = this.userTags.userTags.findIndex(item => item.name === tag.parentName)
+      if (index > -1) {
+        this.userTags.userTags[index].keywords.push(tag.name)
+      }
+    },
     handleAudioResult (data) {
       logger.info('handleAudioResult', data)
       this.currentUploading = true
@@ -1107,11 +1253,19 @@ export default {
     },
     handleStartCollaborate () {
       this.$logger.info('handleStartCollaborate')
-      this.$refs.collaborate.startCollaborateModal(Object.assign({}, this.form), this.form.id, this.contentType['unit-plan'])
+      this.collaborateContent = Object.assign({}, this.form)
+      this.showCollaborateModalVisible = true
     },
     handleSelectDescription (selectIdea) {
       this.selectSyncDataVisible = true
       this.selectIdea = selectIdea
+      if (selectIdea) {
+        this.showMenuList = [NavigationType.sdg]
+        this.defaultActiveMenu = NavigationType.sdg
+      } else {
+        this.showMenuList = [ NavigationType.specificSkills, NavigationType.centurySkills, NavigationType.learningOutcomes ]
+        this.defaultActiveMenu = NavigationType.learningOutcomes
+      }
     },
     handleConfirmAssociate () {
       this.$logger.info('handleConfirmAssociate')
@@ -1280,6 +1434,16 @@ export default {
       })
     },
 
+    handleUpdateGroupNameList () {
+      this.$logger.info('handleUpdateGroupNameList')
+      this.getAssociate()
+    },
+
+    handleSelectBigIdeaData (data) {
+      this.$logger.info('handleSelectBigIdeaData', data)
+      this.selectedBigIdeaList = data
+    },
+
     // TODO 自动更新选择的sync 的数据knowledgeId和name列表
     handleSelectListData (data) {
       this.$logger.info('handleSelectListData', data)
@@ -1292,8 +1456,8 @@ export default {
     },
 
     handleSelectSubjectSpecificSkillListData (data) {
-      this.$logger.info('handleSelectSubjectSpecificSkillListData', data)
       this.selectedSpecificSkillList = data
+      this.$logger.info('handleSelectSubjectSpecificSkillListData', data)
     },
 
     handleSelect21CenturySkillListData (data) {
@@ -1316,6 +1480,7 @@ export default {
         this.selectedCurriculumList,
         this.selectedSpecificSkillList,
         this.selectedCenturySkillList,
+        this.selectedBigIdeaList,
         this.selectedSyncList)
       this.selectedSyncList.forEach(data => {
         const filterLearnOuts = this.form.learnOuts.filter(item => item.knowledgeId === data.knowledgeId)
@@ -1330,10 +1495,9 @@ export default {
         })
       })
       const selectList = this.selectedCurriculumList.concat(this.selectedSpecificSkillList).concat(this.selectedCenturySkillList)
-      console.log(selectList)
       if (this.selectIdea) {
-        if (selectList.length > 0) {
-          this.form.inquiry = selectList[0].knowledgeData.name
+        if (this.selectedBigIdeaList.length > 0) {
+          this.form.inquiry = this.selectedBigIdeaList[0].bigIdea
         }
         this.selectSyncDataVisible = false
         return
@@ -1346,7 +1510,7 @@ export default {
         this.form.learnOuts.push({
           knowledgeId: data.knowledgeData.id,
           name: data.knowledgeData.name,
-          tagType: data.tagType
+          tagType: data.knowledgeData.tagType
         })
       })
       this.$logger.info('this.form.learnOuts', this.form.learnOuts)
@@ -1363,39 +1527,177 @@ export default {
       console.log('onChange:', current)
       if (typeof current === 'number') {
         this.currentActiveStepIndex = current
+        setTimeout(function () {
+            const returnEle = document.querySelector('.ant-layout-content')
+            if (returnEle) {
+              returnEle.scrollIntoView(true) // true 是默认的
+            }
+        }, 100)
       }
+    },
+    loadUserTags () {
+      // this.$refs.customTag.tagLoading = true
+      FindCustomTags({}).then((response) => {
+        this.$logger.info('FindCustomTags response', response.result)
+        if (response.success) {
+          this.userTags = response.result
+          // 默认展示的tag分类
+          CustomTagType.plan.default.forEach(name => {
+            this.customTagList.push(name)
+          })
+          // 再拼接自己添加的
+          this.userTags.userTags.forEach(tag => {
+            if (this.customTagList.indexOf(tag.name) === -1) {
+              this.customTagList.push(tag.name)
+            }
+          })
+        } else {
+          this.$message.error(response.message)
+        }
+        // this.$refs.customTag.tagLoading = false
+      })
     },
     focusInput (event) {
       this.$logger.info('focusInput ', event.target)
+        // 设置一个父级定位专用的dom，设置class名称【root-locate-form】，
+        // 然后通过事件获取到当前元素，依次往上层查询父元素，累加偏离值，直到定位元素。
+        try {
+          const eventDom = event.target
+          let formTop = eventDom.offsetTop
+          let currentDom = eventDom.offsetParent
+          let currentFocus = ''
+          this.customTagList = []
+          // console.log(currentDom.classList)
+          while (currentDom !== null) {
+            formTop += currentDom.offsetTop
+            currentDom = currentDom.offsetParent
+            if (currentDom.classList.contains('sdg-content-blocks')) {
+              currentFocus = 'sdg'
+              CustomTagType.plan.sdg.forEach(name => {
+                this.customTagList.push(name)
+              })
+            } else if (currentDom.classList.contains('bigIdea')) {
+              currentFocus = 'inquiry'
+              CustomTagType.plan.bigIdea.forEach(name => {
+                this.customTagList.push(name)
+              })
+            }
+            if (currentDom.classList && currentDom.classList.contains('root-locate-form')) {
+              console.log(currentDom.classList)
+              break
+            }
+          }
+          console.log(currentFocus)
+          // custom tag 自带了margin-top: 20px,这里减掉不然不对齐。
+          if (currentFocus) {
+            this.customTagTop = formTop - 20
+            this.showCustomTag = true
+            this.showCollaborateCommentVisible = false
+            this.showAllCollaborateCommentVisible = false
+          } else {
+            CustomTagType.plan.default.forEach(name => {
+              this.customTagList.push(name)
+            })
+            // // 再拼接自己添加的
+            this.userTags.userTags.forEach(tag => {
+              if (this.customTagList.indexOf(tag.name === -1)) {
+                this.customTagList.push(tag.name)
+              }
+            })
+            this.customTagTop = 300
+            this.showCustomTag = false
+          }
+        } catch (e) {
+        console.log(e)
+      }
+    },
 
-      // 设置一个父级定位专用的dom，设置class名称【root-locate-form】，
-      // 然后通过事件获取到当前元素，依次往上层查询父元素，累加偏离值，直到定位元素。
-      const eventDom = event.target
-      let formTop = eventDom.offsetTop
-      let currentDom = eventDom.offsetParent
-      let currentFocus = ''
-      while (currentDom !== null) {
-        formTop += currentDom.offsetTop
-        currentDom = currentDom.offsetParent
-        if (currentDom.classList.contains('sdg-content-blocks')) {
-          currentFocus = 'sdg'
-        } else if (currentDom.classList.contains('inquiry-form-block')) {
-          currentFocus = 'inquiry'
+    // 切换当前的字段的点评数据，从总的collaborateCommentList筛选初当前字段相关的点评数据
+    handleSwitchComment (data) {
+      this.$logger.info('handleSwitchComment', data)
+      this.currentFieldName = data.fieldName
+      this.showAllCollaborateCommentVisible = false
+      this.showCustomTag = false
+      this.currentCollaborateCommentList = []
+      const list = []
+      this.collaborateCommentList.forEach(item => {
+        if (item.fieldName === data.fieldName) {
+          list.push(item)
         }
-        if (currentDom.classList && currentDom.classList.contains('root-locate-form')) {
-          console.log(currentDom.classList)
-          break
+      })
+      this.currentCollaborateCommentList = list
+      this.collaborateTop = data.top
+      this.showCollaborateCommentVisible = true
+      this.$logger.info('currentCollaborateCommentList', list)
+    },
+
+    // 每次点击都重新加载一下最新数据
+    handleViewCollaborate () {
+      this.$logger.info('handleViewCollaborate')
+      this.showCollaborateCommentVisible = false
+      this.currentCollaborateCommentList = []
+      this.loadCollaborateData().then(() => {
+        this.$logger.info('loadCollaborateData loaded')
+      }).finally(() => {
+        this.showAllCollaborateCommentVisible = !this.showAllCollaborateCommentVisible
+      })
+    },
+
+    // TODO 发布评论后需要更新最新的评论列表,刷新数据
+    handleUpdateCommentList () {
+      this.$logger.info('handleUpdateCommentList')
+      this.currentCollaborateCommentList = []
+      this.loadCollaborateData().then(() => {
+        this.$logger.info('loadCollaborateData loaded')
+      }).finally(() => {
+        const list = []
+        this.collaborateCommentList.forEach(item => {
+          if (item.fieldName === this.currentFieldName) {
+            list.push(item)
+          }
+        })
+        this.currentCollaborateCommentList = list
+        this.$logger.info('currentCollaborateCommentList', list)
+      })
+    },
+
+    // historyData以及在接口请求的相应逻辑中正对数据进行‘格式’，
+    // 这样在这里就可以直接this.$set设置字段的数据
+    handleRestoreField (data) {
+      this.$logger.info('handleRestoreField', data, this.form)
+      if (data.historyData) {
+        data.historyData.forEach(dataItem => {
+          this.$logger.info('set ' + dataItem.fieldName, dataItem.data[0])
+          if (Array.isArray(dataItem.data[0])) {
+            // 清空数组
+            this.form[dataItem.fieldName].splice(0, this.form[dataItem.fieldName].length)
+            dataItem.data[0].forEach((item, index) => {
+              this.$set(this.form[dataItem.fieldName], index, dataItem.data[0][index])
+            })
+          } else {
+            this.$set(this.form, dataItem.fieldName, dataItem.data[0])
+          }
+          this.$message.success('restore ' + dataItem.fieldDisplayName + ' success!')
+        })
+      }
+      this.$logger.info('after handleRestoreField', this.form)
+    },
+    handQuestionSetting () {
+      UserSetting({
+        disableQuestion: this.disableQuestion
+      }).then((response) => {
+        this.$logger.info('UserSetting', response.result)
+        if (response.success) {
+          this.$store.dispatch('GetInfo')
+        } else {
+          this.$message.error(response.message)
         }
-      }
-      console.log(currentFocus)
-      // custom tag 自带了margin-top: 20px,这里减掉不然不对齐。
-      if (currentFocus) {
-        this.customTagTop = formTop - 20
-        this.showCustomTag = true
-      } else {
-        this.customTagTop = 300
-        this.showCustomTag = false
-      }
+      }).finally(() => {
+        this.questionSettingVisible = false
+      })
+    },
+    onChangeSwitch (checked) {
+      this.disableQuestion = !checked
     }
   }
 }
@@ -1496,6 +1798,7 @@ export default {
       img {
         /*max-width: 100%;*/
         max-height: 250px;
+        width: 100%;
       }
     }
 
@@ -1565,7 +1868,7 @@ export default {
           display: block;
           position: absolute;
           text-align: center;
-          right:-10px;
+          right:-40px;
           top: 0;
           line-height: 40px;
           width: 40px;
@@ -1942,13 +2245,14 @@ export default {
   padding-right: 10px;
 }
 
-.form-block {
-  box-sizing: border-box;
-  margin-bottom: 10px;
-  border: 1px solid #fff;
-  padding: 10px 150px 10px 10px;
-  border-radius: 3px;
-}
+//.form-block {
+  //position: relative;
+  //box-sizing: border-box;
+  //margin-bottom: 10px;
+  //border: 1px solid #fff;
+  //padding: 10px 150px 10px 10px;
+  //border-radius: 3px;
+//}
 
 .subject-grade-wrapper {
   display: flex;
@@ -1962,7 +2266,14 @@ export default {
 }
 
 .form-block {
-  width: 800px;
+  width: 600px;
+  margin-bottom: 10px;
+  position: relative;
+  &:hover {
+    .my-comment-switch {
+      display: block;
+    }
+  }
   .refer-action {
     .refer-text {
       font-family: Inter-Bold;
@@ -2117,7 +2428,7 @@ export default {
 .delete-icon {
   transition: all 0.2s ease-in;
   position: absolute;
-  right: -10px;
+  right: -50px;
   top: 0px;
   line-height: 40px;
   width: 40px;
@@ -2133,9 +2444,9 @@ export default {
 }
 .browse{
   font-size: 20px;
-  padding: 10px 5px;
+  padding: 0px 5px;
   position: absolute;
-  right: 155px;
+  right: 0px;
   top: 50px;
   cursor: pointer;
   display: flex;
@@ -2150,5 +2461,47 @@ export default {
 
 .root-locate-form {
   position: relative;
+}
+
+.my-comment-switch {
+  display: none;
+  position: absolute;
+  right: -10px;
+  top: -5px;
+  z-index: 200;
+}
+
+.collaborate-panel {
+  background-color: #fff;
+  box-shadow: 0px 6px 10px rgba(159, 159, 159, 0.16);
+  .icon {
+    padding: 10px 5px 0 15px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+
+    svg {
+      width: 30px;
+    }
+  }
+}
+
+.ensure-setting-modal {
+  padding: 20px;
+  .tips {
+    margin-bottom: 20px;
+    font-family: Inter-Bold;
+    font-size: 15px;
+    color: #474747;
+  }
+
+  .modal-ensure-action-line-center {
+    width: 40%;
+    display: flex;
+    justify-content: space-between;
+    margin: 0px auto;
+    margin-top: 40px;
+  }
 }
 </style>

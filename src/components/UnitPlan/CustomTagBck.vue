@@ -10,12 +10,13 @@
           <a-row>
             <a-col offset="0" span="24">
               <div class="skt-tag-list" >
-                <div class="skt-tag-item " v-for="tag in tagList" :key="tag.name" >
+                <div class="skt-tag-item " v-for="tag in tagList" :key="tag.id" >
                   <a-tooltip :title="tag.parentName">
                     <a-tag
-                      :closable="customTagsList.indexOf(tag.parentName)!== -1"
+                      :closable="true"
                       @close="closeTag(tag)"
-                      :class="{'tag-item':true,'tag-disable':customTagsList.indexOf(tag.parentName) === -1 }">
+                      :color="tagName === tag.name ? 'orange': 'green'"
+                      class="tag-item">
                       {{ tag.name }}
                     </a-tag>
                   </a-tooltip>
@@ -27,31 +28,30 @@
 
         <a-spin v-show="tagLoading" class="spin-loading"/>
 
-        <div class="tag-category" v-show="!userTagsMap.length">
+        <div class="tag-category" v-show="userTags">
           <a-row>
             <a-col offset="0" span="24">
               <div>
                 <a-tabs
-                  :activeKey="selectLabel"
+                  default-active-key="1"
                   tab-position="top"
                   @change="changeTab"
                 >
-                  <a-tab-pane v-for="tag in userTagsMap" :key="tag[0]" :tab="tag[0]">
+                  <a-tab-pane v-for="(label,index) in userTags" :key="index" :tab="label.name">
                     <a-row>
                       <a-col offset="0" :span="24">
                         <div class="tag-search-input">
                           <a-input-search
                             v-model="inputTag"
                             size="large"
-                            placeholder="Add tags"
+                            placeholder=" + Add tags"
                             class="search-input"
                             @keyup.enter.native="handleKeyup"
                             @search="searchTag"
                             @keyup="searchTag" >
-                            <a-icon slot="prefix" type="plus-circle" :style="{ fontSize: '16px', color: '#15c39a','margin-right':'5px' }" />
-                            <!--                            <a-button slot="enterButton">-->
-                            <!--                              Add-->
-                            <!--                            </a-button>-->
+                            <a-button slot="enterButton">
+                              Add
+                            </a-button>
                           </a-input-search>
                         </div>
                       </a-col>
@@ -63,17 +63,18 @@
                       <div class="skt-tag-list">
 
                         <div class="search-tag-wrapper tag-wrapper">
-                          <div class="skt-tag-item" v-for="(keyword,index) in tagSearchList" :key="index" >
+                          <div class="skt-tag-item" v-for="(tag,index) in tagSearchList" :key="index" >
                             <a-tag
                               draggable="true"
-                              @click="selectChooseTag(tag[0],keyword)"
+                              @dragstart="handleTagItemDragStart(tag, $event)"
+                              @click="selectChooseTag(index,tag)"
                               class="tag-item">
-                              {{ keyword }}
+                              {{ tag.name }}
                             </a-tag>
                           </div>
                         </div>
                         <div class="create-tag-wrapper tag-wrapper">
-                          <div class="skt-tag-create-line" @click="handleCreateTagByInput" v-show="createTagName && createTagName.length >= 1">
+                          <div class="skt-tag-create-line" @click="handleCreateTagByInput" v-show="!isShowBrowse && createTagName && createTagName.length >= 1">
                             <div class="create-tag-label">
                               Create
                             </div>
@@ -99,12 +100,11 @@
     </div>
 
     <a-modal
-      title="My tags"
+      title="Tags Setting"
       v-model="settingVisible"
       :footer="null"
       destroyOnClose
-      :afterClose="refreshTag"
-      width="1000px"
+      width="80%"
       :dialog-style="{ top: '20px' }">
       <div>
         <tag-setting @add-user-tag="handleAddUserTag"/>
@@ -118,7 +118,8 @@
 import * as logger from '@/utils/logger'
 import TagBrowser from '@/components/UnitPlan/TagBrowser'
 import TagSetting from '@/components/UnitPlan/TagSetting'
-import { AddUserTagNew } from '@/api/tag'
+import { GetUserTags } from '@/api/tag'
+import { UserTagAddOrUpdate } from '../../api/tag'
 
 const { debounce } = require('lodash-es')
 
@@ -131,10 +132,6 @@ export default {
     selectedTagsList: {
       type: Array,
       default: () => []
-    },
-    userTags: {
-      type: Object,
-      required: true
     },
     customTagsList: {
       type: Array,
@@ -154,6 +151,7 @@ export default {
     return {
       tagList: this.selectedTagsList,
       globalRootKey: '',
+      isShowBrowse: false,
       tagLoading: false,
       visible: true,
       settingVisible: false,
@@ -162,26 +160,25 @@ export default {
       tagName: '',
       createTagName: '',
       tagSearchList: [],
-      userTagsMap: new Map(),
-      selectLabel: ''
+      userTags: [],
+      selectLabel: '',
+      selectLabelName: ''
     }
   },
   created () {
     this.debouncedSearchKnowledge = debounce(this.searchTag, 500)
-    this.handleUserTagsMap()
+    this.loadUserTags()
   },
   watch: {
     selectedTagsList () {
-       this.tagList = this.selectedTagsList
-    },
-    customTagsList () {
-      this.selectLabel = ''
-      this.handleUserTagsMap()
+      this.tagList = this.selectedTagsList
     }
   },
   methods: {
-    changeTab (tabName) {
-      this.selectLabel = tabName
+    changeTab (tabIndex) {
+      const label = this.userTags[tabIndex]
+      this.selectLabel = label.id
+      this.selectLabelName = label.name
       this.filterKeyword()
     },
     handleOk () {
@@ -196,8 +193,7 @@ export default {
       this.browseVisible = true
     },
     closeTag (tag) {
-      console.log(tag)
-      this.tagList.splice(this.tagList.findIndex(item => item.name === tag.name), 1)
+      this.tagList = this.tagList.filter(item => item.name !== tag.name)
       this.filterKeyword()
       this.tagName = ''
       // this.$message.success('Remove label successfully')
@@ -211,65 +207,67 @@ export default {
         this.tagName = tag.name
       }
     },
-    handleUserTagsMap () {
-      this.mergeTags(this.userTags)
-      this.$logger.info('mergeTags tags', this.userTagsMap)
-      this.userTagsMap.forEach((value, key) => {
-        if (!this.selectLabel) {
-          this.selectLabel = key
+    loadUserTags () {
+      this.tagLoading = true
+      GetUserTags({ defaultTags: this.customTagsList.join(',') }).then((response) => {
+        this.$logger.info('GetUserTags response', response.result)
+        if (response.success) {
+          this.userTags = response.result
+          if (this.userTags.length > 0) {
+            this.selectLabel = this.userTags[0].id
+            this.selectLabelName = this.userTags[0].name
+            this.tagSearchList = this.userTags[0].keywords
+          }
+          this.filterKeyword()
+        } else {
+          this.$message.error(response.message)
         }
+        this.tagLoading = false
       })
-      this.changeTab(this.selectLabel)
-      this.filterKeyword()
     },
-    mergeTags (result) {
-      const recommendTags = result.recommends
-      const myTags = result.userTags
-      this.userTagsMap = new Map()
-      // const categorys = ['Key words', 'Global interactions']
-      if (this.customTagsList.length > 0) {
-        // 默认显示的tag，优先从个人库获取
-        this.customTagsList.forEach(parent => {
-          this.userTagsMap.set(parent, new Set())
-          const tagC = myTags.filter(tag => tag.name === parent)
-          if (tagC.length > 0) {
-            this.userTagsMap.set(parent, new Set(tagC[0].keywords))
-          }
-          const tagCRecommend = recommendTags.filter(tag => tag.name === parent)
-          if (tagCRecommend.length > 0) {
-            // 合并
-            const tags = new Set([...this.userTagsMap.get(parent), ...new Set(tagCRecommend[0].keywords)])
-            this.userTagsMap.set(parent, tags)
-          }
-        })
-      }
-    },
-    filterKeyword () {
-      this.tagSearchList = []
-      const keywords = this.userTagsMap.get(this.selectLabel)
-      if (!keywords) {
+    filterKeyword (tag) {
+      const userTypeTags = this.userTags.filter(item => item.id === this.selectLabel)
+      if (userTypeTags.length === 0) {
         return
       }
       const tagListNames = []
       this.tagList.forEach(item => {
         tagListNames.push(item.name)
       })
-      this.tagSearchList = Array.from(keywords)
-      this.tagSearchList = this.tagSearchList.filter(name => tagListNames.indexOf(name) === -1)
+      const keywords = userTypeTags[0].keywords
+      if (tag) {
+        keywords.push(tag)
+      }
+      this.tagSearchList = keywords.filter(item => tagListNames.indexOf(item.name) === -1)
       if (this.inputTag) {
-        this.tagSearchList = this.tagSearchList.filter(item => item.toLowerCase().indexOf(this.inputTag.toLowerCase()) > -1)
+        this.tagSearchList = this.tagSearchList.filter(item => item.name.toLowerCase().indexOf(this.inputTag.toLowerCase()) > -1)
       }
     },
-    selectChooseTag (parent, tag) {
-        this.tagList.push({
-          'parentName': parent,
-          'name': tag,
-          'id': this.tagList.length
-        })
-        this.filterKeyword()
+    selectChooseTag (index, tag) {
+      tag.parentName = this.selectLabelName
+      this.tagList.push(tag)
+      this.filterKeyword()
+    },
+    handleTagItemDragStart (tag, event) {
+      this.$logger.info('skill handleTagItemDragStart', tag, event)
+      event.dataTransfer.setData('tag', JSON.stringify(tag))
+    },
+    handleAddGlobalTag (tags) {
+      this.tagList = tags
+      this.$emit('change-user-tags', this.tagList)
+    },
+    handleGlobalLabel (label, isAdd) {
+      if (isAdd) {
+        label.isGlobal = true
+        this.userTags.push(label)
+      } else {
+        var index = this.userTags.findIndex(item => (item.isGlobal && item.name === label.name))
+        this.userTags.splice(index, 1)
+      }
+      this.$emit('change-user-tags', this.tagList)
     },
     handleAddUserTag (tags, isAdd) {
-       // this.handleUserTagsMap()
+      this.loadUserTags()
     },
     handleTagItemDrop (item, event) {
       console.log(item)
@@ -277,29 +275,29 @@ export default {
     handleCreateTagByInput () {
       this.$logger.info('skill handleCreateTagByInput ' + this.createTagName)
       const existTag = this.tagList.find(item => item.name === this.createTagName)
-      const userTypeTags = this.userTagsMap.get(this.selectLabel)
-      if (!userTypeTags) {
-        this.$message.warn('Please click tab')
+      const userTypeTags = this.userTags.filter(item => item.id === this.selectLabel)
+      if (userTypeTags.length === 0) {
+        this.$message.warn('Please click Tags setting')
         return
       }
-      if (existTag || userTypeTags.has(this.createTagName)) {
+      var existTag2 = userTypeTags[0].keywords.find(item => item.name === this.createTagName)
+      if (existTag || existTag2) {
         this.$message.warn('already exist same name tag')
       } else {
         var item = {
           name: this.createTagName,
-          parentName: this.selectLabel
+          parentId: this.selectLabel,
+          isGlobal: userTypeTags[0].isGlobal
         }
         this.tagLoading = true
-        AddUserTagNew(item).then((response) => {
-          this.$logger.info('add AddUserTagNew ', response.result)
+        UserTagAddOrUpdate(item).then((response) => {
+          this.$logger.info('add UserTagAddOrUpdate ', response.result)
           if (response.success) {
             item.id = response.result.id
             this.createTagName = ''
             this.inputTag = ''
-            this.userTagsMap.get(this.selectLabel).add(item.name)
-            this.changeTab(this.selectLabel)
+            this.filterKeyword(item)
             this.$message.success('Add tag success')
-            this.$emit('change-add-keywords', item)
           } else {
             this.$message.error(response.message)
           }
@@ -320,9 +318,6 @@ export default {
       // this.debouncedSearchKnowledge(this.inputTag)
       this.createTagName = this.inputTag
       this.filterKeyword()
-    },
-    refreshTag () {
-      this.$emit('reload-user-tags')
     }
 
   }
@@ -339,11 +334,11 @@ export default {
   position: relative;
   .header-triangle{
     display: block;
-    left: -30px;
-    top: 6px;
+    left: -40px;
+    top: 15px;
     border-style: solid;
     position: absolute;
-    border-width: 25px 40px 25px 0px;
+    border-width: 15px 40px 20px 0px;
     border-color: transparent #15c39a transparent transparent;
   }
   .cover-card  /deep/ .ant-card-body{
@@ -362,56 +357,45 @@ export default {
   margin-top: 20px;
   .tag-select-wrapper{
     margin: 10px 0px 10px 0px;
-      .skt-tag-list {
-        max-height: 300px;
-        overflow-y: auto;
-        padding: 5px 10px;
-        background-color: #e7f9f5;
-        //border: 1px solid #D8D8D8;
+    .skt-tag-list {
+      padding: 5px 10px;
+      background-color: #e7f9f5;
+      //border: 1px solid #D8D8D8;
+      display: flex;
+      flex-direction: row;
+      flex-wrap: wrap;
+      box-shadow: 0px 6px 10px rgba(91, 91, 91, 0.16);
+      position: relative;
+
+      .skt-tag-item {
+        margin: 8px 10px 8px 0;
         display: flex;
-        flex-direction: row;
-        flex-wrap: wrap;
-        box-shadow: 0px 6px 10px rgba(91, 91, 91, 0.16);
-        position: relative;
+        justify-content: center;
+        align-items: center;
+        vertical-align: middle;
+        cursor: pointer;
 
-        .skt-tag-item {
-          margin: 8px 10px 8px 0;
-          display: flex;
-          justify-content: center;
-          align-items: center;
-          vertical-align: middle;
+        .tag-item {
           cursor: pointer;
-
-          .tag-item {
-            cursor: pointer;
-            border-radius: 10px;
-            word-break: normal;
-            width: auto;
-            display: block;
-            white-space: pre-wrap;
-            word-wrap: break-word;
-            overflow: hidden;
-            padding: 4px 4px 6px 4px;
-            font-size: 15px;
-            border: 1px solid #D8D8D8;
-            box-shadow: 0px 6px 10px rgba(91, 91, 91, 0.16);
-            opacity: 1;
-            border-radius: 10px;
-            background-color: rgba(21, 195, 154, 0.1);
-            color: #15c39a;
-            border: 1px solid #15c39a;
-          }
-          .tag-disable {
-            color: rgba(0, 0, 0, .25);
-            background-color: #f5f5f5;
-            border-color: #d9d9d9;
-            text-shadow: none;
-            box-shadow: none;
-            cursor: not-allowed;
-          }
+          border-radius: 10px;
+          word-break: normal;
+          width: auto;
+          display: block;
+          white-space: pre-wrap;
+          word-wrap: break-word;
+          overflow: hidden;
+          padding: 4px 4px 6px 4px;
+          font-size: 15px;
+          border: 1px solid #D8D8D8;
+          box-shadow: 0px 6px 10px rgba(91, 91, 91, 0.16);
+          opacity: 1;
+          border-radius: 10px;
+          background-color: rgba(21, 195, 154, 0.1);
+          color: #15c39a;
+          border: 1px solid #15c39a;
         }
-
       }
+    }
   }
   .skt-tag-wrapper {
     margin-top: 10px;
@@ -568,15 +552,10 @@ export default {
     .btn-text {
       padding: 0 5px;
     }
-    /deep/ .ant-input-search .ant-input-lg{
-      padding-left: 35px;
-    }
   }
   .spin-loading{
-    top: 300px;
+    margin-top: 50px;
     margin-left: 40%;
-    position: absolute;
-    z-index: 9999;
   }
 
   position: relative;
@@ -605,10 +584,5 @@ export default {
   margin: 0 10px 0 0;
   padding: 12px 10px;
 
-}
-/deep/ .ant-tag .anticon-close {
-  font-size: 14px;
-  color: red;
-  vertical-align: top;
 }
 </style>

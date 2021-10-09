@@ -9,10 +9,13 @@
           :select-mode="selectMode"
           :question-index="questionIndex"
           :sync-data="syncData"
+          :show-menu="showMenu"
+          :default-active-menu="defaultActiveMenu"
         />
       </div>
       <div class="content-list">
         <new-content-list
+          @select-big-idea="handleSelectBigIdeaData"
           @select-sync="handleSelectListData"
           @select-curriculum="handleSelectCurriculumListData"
           @select-subject-specific-skill="handleSelectSubjectSpecificSkillListData"
@@ -48,6 +51,14 @@ export default {
     syncData: {
       type: Array,
       default: () => []
+    },
+    showMenu: {
+      type: Array,
+      default: () => []
+    },
+    defaultActiveMenu: {
+      type: String,
+      default: null
     }
   },
   data () {
@@ -56,6 +67,7 @@ export default {
   },
   created () {
     this.$logger.info('NewBrowser selectMode', this.selectMode)
+    this.$logger.info('NewBrowser showMenu', this.showMenu)
   },
   mounted () {
   },
@@ -80,6 +92,11 @@ export default {
     handleSelect21CenturySkillListData (data) {
       this.$logger.info('NewBrowser handleSelect21CenturySkillListData', data)
       this.$emit('select-century-skill', data)
+    },
+
+    handleSelectBigIdeaData (data) {
+      this.$logger.info('NewBrowser handleSelectBigIdeaData', data)
+      this.$emit('select-big-idea', data)
     }
   }
 }

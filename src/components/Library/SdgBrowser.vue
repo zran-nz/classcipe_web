@@ -20,9 +20,9 @@
             <dir-icon dir-type="opened" v-if="currentSdgId === sdgItem.id"/>
             {{ sdgItem.name }}
           </a-tooltip>
-          <span class="arrow-item">
-            <a-icon type="right" />
-          </span>
+          <!--          <span class="arrow-item">-->
+          <!--            <a-icon type="right" />-->
+          <!--          </span>-->
         </div>
         <template v-if="!sdgList.length && !sdgListLoading">
           <div class="no-data">
@@ -40,7 +40,7 @@
       <!--     new sdg keywords description-->
       <div class="keyword-wrapper">
         <div class="keyword-list">
-          <div :class="{'keyword-item': true, 'kd-active-item': currentSdgKeywordScenario === 'keyword' && currentSdgKeywordScenarioId === keywordItem.id}" v-for="(keywordItem, kIndex) in sdgKeywordNameList" @click="scenarioQueryContentByKeywordId(keywordItem)" :key="kIndex">
+          <div :class="{'keyword-item': true, 'kd-active-item': currentSdgKeywordScenario === 'keyword' && currentSdgKeywordScenarioId === keywordItem.id}" v-for="(keywordItem, kIndex) in sdgKeywordNameList" @click="queryBigIdeaKeywords(keywordItem)" :key="kIndex">
             <!--            <img src="~@/assets/icons/library/tuijian@2x.png" class="keyword-icon"/>-->
             <span class="keyword-name">
               {{ keywordItem.name }}
@@ -54,12 +54,23 @@
       </div>
       <div class="description-wrapper">
         <div class="description-list">
-          <div :class="{'description-item': true, 'kd-active-item': currentSdgKeywordScenario === 'description' && currentSdgKeywordScenarioId === descriptionItem.id}" v-for="(descriptionItem, dIndex) in sdgDescriptionsList" @click="scenarioQueryContentByDescriptionId(descriptionItem)" :key="dIndex">
+          <div :class="{'description-item': true, 'kd-active-item': currentSdgKeywordScenario === 'description' && currentSdgKeywordScenarioId === descriptionItem.id}" v-for="(descriptionItem, dIndex) in sdgDescriptionsList" @click="queryBigIdeaDescription(descriptionItem)" :key="dIndex">
             {{ descriptionItem.name }}
           </div>
         </div>
       </div>
     </div>
+    <div class="browser-block-item-wrapper" :style="{width: blockWidth + 'px' , minWidth: blockWidth + 'px' }" >
+      <!--  big idea list -->
+      <div class="description-wrapper">
+        <div class="description-list">
+          <div :class="{'description-item': true, 'kd-active-item': currentBigIdea === bigIdeaItem.name}" v-for="(bigIdeaItem, bIndex) in bigIdeaList" @click="handleSelectBigIdeaItem(bigIdeaItem)" :key="bIndex">
+            {{ bigIdeaItem.name }}
+          </div>
+        </div>
+      </div>
+    </div>
+
     <div
       class="browser-block-item-wrapper"
       :style="{width: blockWidth + 'px' ,
@@ -81,21 +92,25 @@
                   <a-menu-item @click="toggleType(0, $t('teacher.my-content.all-type'))">
                     <span>{{ $t('teacher.my-content.all-type') }}</span>
                   </a-menu-item>
-                  <a-menu-item @click="toggleType( typeMap['unit-plan'], $t('teacher.my-content.unit-plan-type'))">
-                    <span>{{ $t('teacher.my-content.unit-plan-type') }}</span>
-                  </a-menu-item>
-                  <a-menu-item @click="toggleType(typeMap.topic, $t('teacher.my-content.topics-type'))">
-                    <span>{{ $t('teacher.my-content.topics-type') }}</span>
-                  </a-menu-item>
+                  <template v-if="$store.getters.roles.indexOf('teacher') !== -1">
+                    <a-menu-item @click="toggleType( typeMap['unit-plan'], $t('teacher.my-content.unit-plan-type'))">
+                      <span>{{ $t('teacher.my-content.unit-plan-type') }}</span>
+                    </a-menu-item>
+                    <a-menu-item @click="toggleType(typeMap.evaluation, $t('teacher.my-content.evaluation-type'))">
+                      <span>{{ $t('teacher.my-content.evaluation-type') }}</span>
+                    </a-menu-item>
+                  </template>
                   <a-menu-item @click="toggleType(typeMap.task, $t('teacher.my-content.tasks-type') )">
                     <span>{{ $t('teacher.my-content.tasks-type') }}</span>
                   </a-menu-item>
                   <!--                  <a-menu-item @click="toggleType(typeMap.lesson, $t('teacher.my-content.lesson-type'))">
                     <span>{{ $t('teacher.my-content.lesson-type') }}</span>
                   </a-menu-item>-->
-                  <a-menu-item @click="toggleType(typeMap.evaluation, $t('teacher.my-content.evaluation-type'))">
-                    <span>{{ $t('teacher.my-content.evaluation-type') }}</span>
-                  </a-menu-item>
+                  <template v-if="$store.getters.roles.indexOf('expert') !== -1">
+                    <a-menu-item @click="toggleType(typeMap.topic, $t('teacher.my-content.topics-type'))">
+                      <span>{{ $t('teacher.my-content.topics-type') }}</span>
+                    </a-menu-item>
+                  </template>
                 </a-menu>
                 <a-button
                   style="padding: 0 10px;display:flex; align-items:center ;height: 35px;border-radius: 6px;background: rgba(245, 245, 245, 0.5);font-size:13px;border: 1px solid #BCBCBC;font-family: Inter-Bold;color: #182552;">
@@ -128,7 +143,7 @@
               <template slot="title">
                 {{ dataItem.name }}
               </template>
-              <dir-icon :content-type="dataItem.type" />
+              <content-type-icon :type="dataItem.type" />
               <span class="data-name">
                 {{ dataItem.name }}
               </span>
@@ -136,9 +151,9 @@
                 {{ dataItem.createTime | dayjs }}
               </span>
             </a-tooltip>
-            <span class="arrow-item">
-              <a-icon type="more" />
-            </span>
+            <!--            <span class="arrow-item">-->
+            <!--              <a-icon type="more" />-->
+            <!--            </span>-->
           </div>
         </template>
         <template v-if="dataListMode === 'card'">
@@ -155,6 +170,7 @@
                   :cover="dataItem.image"
                   :title="dataItem.name"
                   :created-time="dataItem.createTime"
+                  :content-type="dataItem.type"
                 />
               </div>
             </div>
@@ -184,8 +200,8 @@ import PuBuIcon from '@/assets/icons/library/pubu .svg?inline'
 import ListModeIcon from '@/assets/icons/library/liebiao .svg?inline'
 import DataCardView from '@/components/Library/DataCardView'
 import { typeMap } from '@/const/teacher'
-const { ScenarioQueryContentByScenarioId } = require('@/api/scenario')
-const { ScenarioGetKeywordScenarios } = require('@/api/scenario')
+import { QueryBigIdea } from '@/api/scenario'
+const { ScenarioGetKeywordScenarios, QueryContentByBigIdea } = require('@/api/scenario')
 const { GetAllSdgs } = require('@/api/scenario')
 
 export default {
@@ -227,11 +243,15 @@ export default {
       currentDataId: null,
       dataListMode: 'list',
 
+      bigIdeaList: [],
+      currentBigIdea: null,
+
       currentTypeLabel: 'Choose type（S）of content',
       currentType: 0
     }
   },
   created () {
+    // sdg数据结构：sdg列表-keywords-big idea
     this.$logger.info('SdgBrowser blockWidth:' + this.blockWidth)
     this.getAllSdgs()
   },
@@ -275,32 +295,62 @@ export default {
       })
     },
 
-    scenarioQueryContentByDescriptionId (descriptionItem) {
+    queryBigIdeaDescription (descriptionItem) {
+      this.$logger.info('queryBigIdeaDescription', descriptionItem)
       this.dataListLoading = true
-      this.$logger.info('scenarioQueryContentByDescriptionId ' + descriptionItem.id)
       this.handleClickBlock(2, descriptionItem.name)
       this.currentSdgKeywordScenarioId = descriptionItem.id
       this.currentSdgKeywordScenario = 'description'
-      ScenarioQueryContentByScenarioId({ descriptionId: descriptionItem.id }).then(response => {
-        this.$logger.info('scenarioQueryContentByDescriptionId response', response.result)
-        this.dataList = response.result
+      QueryBigIdea({ description: descriptionItem.name }).then(response => {
+        this.$logger.info('queryBigIdeaDescription response', response.result)
+        const list = []
+        response.result.forEach(bigIdea => {
+          list.push({
+            id: bigIdea,
+            name: bigIdea
+          })
+        })
+        this.bigIdeaList = list
       }).finally(() => {
         this.dataListLoading = false
       })
     },
 
-    scenarioQueryContentByKeywordId (keywordsItem) {
+    queryBigIdeaKeywords (keywordsItem) {
+      this.$logger.info('queryBigIdeaKeyword', keywordsItem)
       this.dataListLoading = true
-      this.$logger.info('scenarioQueryContentByKeywordId ' + keywordsItem.id)
       this.handleClickBlock(2, keywordsItem.name)
       this.currentSdgKeywordScenarioId = keywordsItem.id
       this.currentSdgKeywordScenario = 'keyword'
-      ScenarioQueryContentByScenarioId({ keywordsId: keywordsItem.id }).then(response => {
-        this.$logger.info('scenarioQueryContentByKeywordId response', response.result)
-        this.dataList = response.result
+      QueryBigIdea({ keywords: keywordsItem.name }).then(response => {
+        this.$logger.info('queryBigIdeaKeyword response', response.result)
+        const list = []
+        response.result.forEach(bigIdea => {
+          list.push({
+            id: bigIdea,
+            name: bigIdea
+          })
+        })
+        this.bigIdeaList = list
       }).finally(() => {
         this.dataListLoading = false
       })
+    },
+
+    handleSelectBigIdeaItem (bigIdeaItem) {
+      this.$logger.info('handleSelectBigIdeaItem', bigIdeaItem)
+      this.currentBigIdea = bigIdeaItem.name
+      QueryContentByBigIdea({
+        bigIdea: bigIdeaItem.name
+      }).then((response) => {
+        this.$logger.info('QueryContentByBigIdea', response)
+        if (response.result) {
+          this.dataList = response.result
+        } else {
+          this.$logger.info('no big idea content')
+        }
+      })
+      this.handleClickBlock(3, bigIdeaItem.name)
     },
 
     handleSelectDataItem (dataItem) {

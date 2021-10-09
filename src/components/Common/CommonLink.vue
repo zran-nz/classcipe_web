@@ -13,12 +13,12 @@
                     <input v-model="defaultGroupName" class="group-name-input"/>
                   </div>
                 </div>
-                <div class="group-edit-icon" @click="handleToggleEditDefaultGroupName">
+                <div class="group-edit-icon" @click="handleToggleEditDefaultGroupName" v-if="canEdit">
                   <a-icon type="edit" v-if="defaultGroupNameEditMode === 'view'"/>
                   <a-icon type="check" v-if="defaultGroupNameEditMode === 'edit'"/>
                 </div>
               </div>
-              <div class="group-right-info">
+              <div class="group-right-info" v-if="canEdit">
                 <div class="group-action">
                   <a-button type="primary" @click="handleDefaultGroupLink" :style="{'background-color': '#fff', 'color': '#000', 'border': 'none'}">
                     <div class="btn-text" style="line-height: 20px">
@@ -45,12 +45,12 @@
                     <input v-model="linkGroup.group" class="group-name-input"/>
                   </div>
                 </div>
-                <div class="group-edit-icon" @click="handleToggleEditGroupName(linkGroup)">
+                <div class="group-edit-icon" @click="handleToggleEditGroupName(linkGroup)" v-if="canEdit">
                   <a-icon type="edit" v-if="!linkGroup.editing"/>
                   <a-icon type="check" v-if="linkGroup.editing"/>
                 </div>
               </div>
-              <div class="group-right-info">
+              <div class="group-right-info" v-if="canEdit">
                 <div class="group-action">
                   <a-button type="primary" @click="handleLinkGroup(linkGroup)" :style="{'background-color': '#fff', 'color': '#000', 'border': 'none'}">
                     <div class="btn-text" style="line-height: 20px">
@@ -69,9 +69,9 @@
                   <div class="name" @click="handleViewDetail(item)">
                     <a-tooltip placement="top">
                       <template slot="title">
-                        {{ item.name }}
+                        {{ item.name ? item.name : 'untitled' }}
                       </template>
-                      {{ item.name }}
+                      {{ item.name ? item.name : 'untitled' }}
                     </a-tooltip>
                   </div>
                 </div>
@@ -81,7 +81,7 @@
                     <template v-if="item.status === 0">Draft</template>
                     <template v-if="item.status === 1">Published</template>
                   </div>
-                  <div class="more-action-wrapper action-item-wrapper">
+                  <div class="more-action-wrapper action-item-wrapper" v-if="canEdit">
                     <a-dropdown>
                       <a-icon type="more" style="margin-right: 8px" />
                       <a-menu slot="overlay">
@@ -142,9 +142,9 @@
                   <div class="name" @click="handleViewDetail(item)">
                     <a-tooltip placement="top">
                       <template slot="title">
-                        {{ item.name }}
+                        {{ item.name ? item.name : 'untitled' }}
                       </template>
-                      {{ item.name }}
+                      {{ item.name ? item.name : 'untitled' }}
                     </a-tooltip>
                   </div>
                 </div>
@@ -174,9 +174,9 @@
         <new-my-content
           :from-type="fromType"
           :from-id="fromId"
-          :filter-type-list="[typeMap.task,typeMap.evaluation]"
+          :filter-type-list="subFilterTypeList"
           :group-name-list="groupNameList"
-          :default-group-name="groupNameList[0]"
+          :default-group-name="subDefaultGroupName"
           :mode="'common-link'"
           @cancel="selectLinkContentVisible = false"
           @ensure="handleEnsureSelectedLink"/>
@@ -235,6 +235,10 @@ export default {
     filterType: {
       type: Number,
       default: 0
+    },
+    canEdit: {
+      type: Boolean,
+      default: true
     }
   },
   data () {
@@ -248,7 +252,7 @@ export default {
       ownerLinkGroupList: [],
       othersLinkGroupList: [],
       groupNameList: ['Untitled Term'],
-
+      subDefaultGroupName: ['Untitled Term'],
       // 当前点击的groupId
       currentGroupId: null,
 
@@ -256,11 +260,17 @@ export default {
       typeMap: typeMap,
       previewVisible: false,
       previewCurrentId: '',
-      previewType: ''
+      previewType: '',
+      subFilterTypeList: [typeMap.evaluation]
     }
   },
   created () {
     this.$logger.info('load CommonLink with id[' + this.fromId + '] fromType[' + this.fromType + ']')
+    if (this.fromType === typeMap['unit-plan']) {
+      this.subFilterTypeList = [typeMap.task, typeMap.evaluation]
+    } else if (this.filterType === typeMap.task) {
+      this.subFilterTypeList = [typeMap.evaluation]
+    }
     this.getAssociate()
   },
   methods: {
@@ -297,6 +307,7 @@ export default {
         if (groupNameList.length) {
           this.groupNameList = groupNameList
         }
+        this.$emit('group-name-list-update')
       }).finally(() => {
         this.linkGroupLoading = false
       })
@@ -321,6 +332,7 @@ export default {
 
     handleLinkGroup (group) {
       this.$logger.info('handleLinkGroup', group)
+      this.subDefaultGroupName = group.group
       this.selectLinkContentVisible = true
     },
 
@@ -344,6 +356,9 @@ export default {
       linkGroup.editing = !linkGroup.editing
     },
     handleViewDetail (item) {
+      if (!this.canEdit) {
+        return
+      }
       logger.info('handleViewDetail', item)
       this.previewCurrentId = item.id
       this.previewType = item.type

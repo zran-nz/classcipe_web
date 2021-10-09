@@ -6,7 +6,8 @@ export const userAPIUrl = {
   AddUserCollaborate: '/classcipe/api/collaborate/addOrUpdate',
   GetCollaborateUsers: '/classcipe/api/collaborate/getCollaborateUsers',
   GetShared: '/classcipe/api/collaborate/getShared',
-  DeleteSharedByIdAndType: '/classcipe/api/collaborate/deleteByIdAndType'
+  DeleteSharedByIdAndType: '/classcipe/api/collaborate/deleteByIdAndType',
+  UserSetting: '/classcipe/sys/user/setting'
 }
 
 /**
@@ -76,5 +77,16 @@ export function DeleteSharedByIdAndType (parameter) {
     url: userAPIUrl.DeleteSharedByIdAndType,
     method: 'post',
     data: parameter
+  })
+}
+
+export function UserSetting (parameter) {
+  return request({
+    url: userAPIUrl.UserSetting,
+    method: 'post',
+    data: parameter,
+    headers: {
+      'Content-Type': 'application/json;charset=UTF-8'
+    }
   })
 }

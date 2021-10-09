@@ -19,9 +19,9 @@
           <dir-icon dir-type="opened" v-if="currentMainSubjectId === mainSubjectItem.id"/>
           {{ mainSubjectItem.name }}
         </a-tooltip>
-        <span class="arrow-item">
-          <a-icon type="right"/>
-        </span>
+        <!--        <span class="arrow-item">-->
+        <!--          <a-icon type="right"/>-->
+        <!--        </span>-->
       </div>
       <template v-if="!mainSubjectList.length && !mainSubjectListLoading">
         <div class="no-data">
@@ -126,9 +126,9 @@
           <dir-icon dir-type="opened" v-if="currentSubKnowledgeId === subKnowledgeItem.id"/>
           {{ subKnowledgeItem.name }}
         </a-tooltip>
-        <span class="arrow-item">
-          <a-icon type="right" />
-        </span>
+        <!--        <span class="arrow-item">-->
+        <!--          <a-icon type="right" />-->
+        <!--        </span>-->
       </div>
       <template v-if="!subKnowledgeList.length && !subKnowledgeListLoading">
         <div class="no-data">
@@ -163,21 +163,25 @@
                   <a-menu-item @click="toggleType(0, $t('teacher.my-content.all-type'))">
                     <span>{{ $t('teacher.my-content.all-type') }}</span>
                   </a-menu-item>
-                  <a-menu-item @click="toggleType( typeMap['unit-plan'], $t('teacher.my-content.unit-plan-type'))">
-                    <span>{{ $t('teacher.my-content.unit-plan-type') }}</span>
-                  </a-menu-item>
-                  <a-menu-item @click="toggleType(typeMap.topic, $t('teacher.my-content.topics-type'))">
-                    <span>{{ $t('teacher.my-content.topics-type') }}</span>
-                  </a-menu-item>
+                  <template v-if="$store.getters.roles.indexOf('teacher') !== -1">
+                    <a-menu-item @click="toggleType( typeMap['unit-plan'], $t('teacher.my-content.unit-plan-type'))">
+                      <span>{{ $t('teacher.my-content.unit-plan-type') }}</span>
+                    </a-menu-item>
+                    <a-menu-item @click="toggleType(typeMap.evaluation, $t('teacher.my-content.evaluation-type'))">
+                      <span>{{ $t('teacher.my-content.evaluation-type') }}</span>
+                    </a-menu-item>
+                  </template>
                   <a-menu-item @click="toggleType(typeMap.task, $t('teacher.my-content.tasks-type') )">
                     <span>{{ $t('teacher.my-content.tasks-type') }}</span>
                   </a-menu-item>
                   <!--                  <a-menu-item @click="toggleType(typeMap.lesson, $t('teacher.my-content.lesson-type'))">
                     <span>{{ $t('teacher.my-content.lesson-type') }}</span>
                   </a-menu-item>-->
-                  <a-menu-item @click="toggleType(typeMap.evaluation, $t('teacher.my-content.evaluation-type'))">
-                    <span>{{ $t('teacher.my-content.evaluation-type') }}</span>
-                  </a-menu-item>
+                  <template v-if="$store.getters.roles.indexOf('expert') !== -1">
+                    <a-menu-item @click="toggleType(typeMap.topic, $t('teacher.my-content.topics-type'))">
+                      <span>{{ $t('teacher.my-content.topics-type') }}</span>
+                    </a-menu-item>
+                  </template>
                 </a-menu>
                 <a-button
                   style="padding: 0 10px;display:flex; align-items:center ;height: 35px;border-radius: 6px;background: rgba(245, 245, 245, 0.5);font-size:13px;border: 1px solid #BCBCBC;font-family: Inter-Bold;color: #182552;">
@@ -224,9 +228,9 @@
                 {{ dataItem.createTime | dayjs }}
               </span>
             </a-tooltip>
-            <span class="arrow-item">
-              <a-icon type="more"/>
-            </span>
+            <!--            <span class="arrow-item">-->
+            <!--              <a-icon type="more"/>-->
+            <!--            </span>-->
           </div>
         </template>
         <template v-if="dataListMode === 'card'">
@@ -243,6 +247,7 @@
                   :cover="dataItem.image"
                   :title="dataItem.name"
                   :created-time="dataItem.createTime"
+                  :content-type="dataItem.type"
                 />
               </div>
             </div>

@@ -39,7 +39,7 @@
 
               <div class="triangle"></div>
 
-              <a-tooltip title=" double click the tag to show relevant learning outcomes from curriculum.">
+              <a-tooltip title=" double click the tag to show relevant assessment objectives from curriculum.">
                 <div
                   v-if="searchTagList && searchTagList.length"
                   :class="{
@@ -79,7 +79,7 @@
                   </template>
                 </div>
               </a-tooltip>
-              <a-tooltip title=" double click the tag to show relevant learning outcomes from curriculum.">
+              <a-tooltip title=" double click the tag to show relevant assessment objectives from curriculum.">
                 <div
                   v-if="recommendTagList && recommendTagList.length"
                   :class="{

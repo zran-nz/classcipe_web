@@ -31,7 +31,7 @@ export default {
   'teacher.add-lesson.concepts': 'Concepts',
   'teacher.add-lesson.questions': 'Questions',
   'teacher.add-lesson.delete-questions': 'Delete Questions',
-  'teacher.add-lesson.expert-direction-of-inquiry': 'Direction of inquiry',
+  'teacher.add-lesson.expert-direction-of-inquiry': 'Big idea',
   'teacher.add-lesson.teacher-direction-of-inquiry': 'Statement of inquiry/Central idea/Enduring understanding',
   'teacher.add-lesson.expert-nth-key-question': 'Key question',
   'teacher.add-lesson.teacher-nth-key-question': 'Key question/line of inquiry',

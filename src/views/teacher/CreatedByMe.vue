@@ -29,21 +29,25 @@
               <a-menu-item @click="toggleType('all-type', $t('teacher.my-content.all-type'))">
                 <span>{{ $t('teacher.my-content.all-type') }}</span>
               </a-menu-item>
-              <a-menu-item @click="toggleType('unit-plan', $t('teacher.my-content.unit-plan-type'))">
-                <span>{{ $t('teacher.my-content.unit-plan-type') }}</span>
-              </a-menu-item>
-              <a-menu-item @click="toggleType('topic', $t('teacher.my-content.topics-type'))">
-                <span>{{ $t('teacher.my-content.topics-type') }}</span>
-              </a-menu-item>
+              <template v-if="$store.getters.roles.indexOf('teacher') !== -1">
+                <a-menu-item @click="toggleType('unit-plan', $t('teacher.my-content.unit-plan-type'))">
+                  <span>{{ $t('teacher.my-content.unit-plan-type') }}</span>
+                </a-menu-item>
+                <a-menu-item @click="toggleType('evaluation', $t('teacher.my-content.evaluation-type'))">
+                  <span>{{ $t('teacher.my-content.evaluation-type') }}</span>
+                </a-menu-item>
+              </template>
+              <template v-if="$store.getters.roles.indexOf('expert') !== -1">
+                <a-menu-item @click="toggleType('topic', $t('teacher.my-content.topics-type'))">
+                  <span>{{ $t('teacher.my-content.topics-type') }}</span>
+                </a-menu-item>
+              </template>
               <a-menu-item @click="toggleType('task', $t('teacher.my-content.tasks-type') )">
                 <span>{{ $t('teacher.my-content.tasks-type') }}</span>
               </a-menu-item>
               <!--              <a-menu-item @click="toggleType('lesson', $t('teacher.my-content.lesson-type'))">
                 <span>{{ $t('teacher.my-content.lesson-type') }}</span>
               </a-menu-item>-->
-              <a-menu-item @click="toggleType('evaluation', $t('teacher.my-content.evaluation-type'))">
-                <span>{{ $t('teacher.my-content.evaluation-type') }}</span>
-              </a-menu-item>
             </a-menu>
             <a-button
               class="type-filter-button"
@@ -96,37 +100,63 @@
                   <div slot="actions">
                     <div class="action-wrapper">
                       <div class="preview-session-wrapper action-item-wrapper">
-                        <div class="session-btn" @click="handleViewPreviewSession(item)" v-if="item.type === typeMap['lesson'] || item.type === typeMap['task']">
-                          <div class="session-btn-icon">
-                            <previous-sessions-svg />
+                        <a-popconfirm :title="$t('teacher.my-content.action-delete') + '?'" ok-text="Yes" @confirm="handleDeleteItem(item)" cancel-text="No">
+                          <div class="session-btn content-list-action-btn">
+                            <div class="session-btn-icon">
+                              <a-icon type="delete" />
+                            </div>
+                            <div class="session-btn-text">{{ $t('teacher.my-content.action-delete') }}</div>
                           </div>
-                          <div class="session-btn-text">Previous sessions</div>
+                        </a-popconfirm>
+                      </div>
+                      <div class="start-session-wrapper action-item-wrapper">
+                        <div class="session-btn content-list-action-btn" @click="handleEditItem(item)">
+                          <div class="session-btn-icon">
+                            <a-icon type="form" />
+                          </div>
+                          <div class="session-btn-text"> {{ $t('teacher.my-content.action-edit') }}</div>
                         </div>
                       </div>
                       <div class="start-session-wrapper action-item-wrapper">
-                        <div class="session-btn" @click="handleStartSessionTags(item)" v-if="item.type === typeMap['lesson'] || item.type === typeMap['task']">
+                        <div class="session-btn content-list-action-btn" @click="handleDuplicateItem(item)">
                           <div class="session-btn-icon">
-                            <start-session-svg />
+                            <a-icon type="copy" />
                           </div>
-                          <div class="session-btn-text">Start a session</div>
+                          <div class="session-btn-text"> Duplicate</div>
                         </div>
                       </div>
-                      <div class="more-action-wrapper action-item-wrapper">
+                      <div class="more-action-wrapper action-item-wrapper" >
                         <a-dropdown>
                           <a-icon type="more" style="margin-right: 8px" />
                           <a-menu slot="overlay">
-                            <a-menu-item>
-                              <a-popconfirm :title="$t('teacher.my-content.action-delete') + '?'" ok-text="Yes" @confirm="handleDeleteItem(item)" cancel-text="No">
-                                <a href="#" class="delete-action">
-                                  <a-icon type="delete" /> {{ $t('teacher.my-content.action-delete') }}
+                            <!-- Task里面有teacher-pace, student-pace, previous session -->
+                            <template v-if="item.type === typeMap.task">
+                              <a-menu-item>
+                                <a @click="handleStartSessionTags(item)">
+                                  <start-session-svg /> Teacher-pace
                                 </a>
-                              </a-popconfirm>
-                            </a-menu-item>
-                            <a-menu-item>
-                              <a @click="handleEditItem(item)">
-                                <a-icon type="form" /> {{ $t('teacher.my-content.action-edit') }}
-                              </a>
-                            </a-menu-item>
+                              </a-menu-item>
+                              <a-menu-item>
+                                <a @click="handleStartSessionTags(item)">
+                                  <start-session-svg /> Student-pace
+                                </a>
+                              </a-menu-item>
+                              <a-menu-item>
+                                <a @click="handleViewPreviewSession(item)">
+                                  <previous-sessions-svg /> Previous session
+                                </a>
+                              </a-menu-item>
+
+                            </template>
+
+                            <!-- Evaluation有Start evaluation -->
+                            <template v-if="item.type === typeMap.evaluation">
+                              <a-menu-item>
+                                <a @click="handleEvaluateItem(item)">
+                                  <a-icon type="copy" /> Start evaluation
+                                </a>
+                              </a-menu-item>
+                            </template>
                           </a-menu>
                         </a-dropdown>
                       </div>
@@ -170,13 +200,19 @@
                   </div>
                   <div class="action-item action-item-bottom" >
                     <div class="session-btn" @click.stop="handleEditItem(item)">
-                      <div class="session-btn-icon">
+                      <div class="session-btn-icon content-list-action-btn">
                         <edit-svg />
                       </div>
                       <div class="session-btn-text">Edit</div>
                     </div>
+                    <div class="session-btn" @click.stop="handleDuplicateItem(item)">
+                      <div class="session-btn-icon content-list-action-btn">
+                        <a-icon type="copy" />
+                      </div>
+                      <div class="session-btn-text">Duplicate</div>
+                    </div>
                     <div class="session-btn" @click.stop="handleViewPreviewSession(item)" v-if="item.type === typeMap['lesson'] || item.type === typeMap['task']">
-                      <div class="session-btn-icon">
+                      <div class="session-btn-icon content-list-action-btn">
                         <previous-sessions-svg />
                       </div>
                       <div class="session-btn-text">Previous</div>
@@ -184,7 +220,9 @@
                   </div>
                 </div>
                 <div class="cover-img" :style="{backgroundImage: 'url(' + item.image + ')'}"></div>
-                <a-card-meta :title="item.name ? item.name : 'Untitled'" :description="item.createTime | dayjs" @click="handleViewDetail(item)"></a-card-meta>
+                <a-card-meta class="my-card-meta-info" :title="item.name ? item.name : 'Untitled'" :description="item.createTime | dayjs" @click="handleViewDetail(item)">
+                  <content-type-icon :type="item.type" slot="avatar"></content-type-icon>
+                </a-card-meta>
               </a-card>
             </a-list-item>
           </a-list>
@@ -237,7 +275,14 @@
         destroyOnClose
         width="800px">
         <div>
-          <custom-tag :custom-tags-list="['ATL','Inquiry stage']" :selected-tags-list="sessionTags" @change-user-tags="handleSelectedSessionTags" />
+          <div>
+            <custom-tag
+              :user-tags="userTags"
+              :custom-tags-list="['class']"
+              :selected-tags-list="sessionTags"
+              ref="customTag"
+              @change-user-tags="handleSelectedSessionTags"></custom-tag>
+          </div>
         </div>
         <template slot="footer">
           <a-button key="back" @click="lessonSelectTagVisible=false">
@@ -254,7 +299,7 @@
 
 <script>
 import * as logger from '@/utils/logger'
-import { deleteMyContentByType, FindMyContent, SaveSessonTags } from '@/api/teacher'
+import { deleteMyContentByType, Duplicate, FindMyContent, SaveSessonTags } from '@/api/teacher'
 import { ownerMap, statusMap, typeMap } from '@/const/teacher'
 import ContentStatusIcon from '@/components/Teacher/ContentStatusIcon'
 import ContentTypeIcon from '@/components/Teacher/ContentTypeIcon'
@@ -264,6 +309,7 @@ import TvSvg from '@/assets/icons/lesson/tv.svg?inline'
 import EvaluationSvg from '@/assets/icons/common/evaluation.svg?inline'
 import PreviousSessionsSvg from '@/assets/icons/common/PreviousSessions.svg?inline'
 import EditSvg from '@/assets/icons/common/Edit.svg?inline'
+import CopySvg from '@/assets/icons/common/copy.svg?inline'
 import StartSessionSvg from '@/assets/icons/common/StartSession.svg?inline'
 import ClassList from '@/components/Teacher/ClassList'
 import CustomTag from '@/components/UnitPlan/CustomTag'
@@ -272,6 +318,7 @@ import PubuSvg from '@/assets/svgIcon/myContent/pubu.svg?inline'
 
 import storage from 'store'
 import {
+  CustomTagType,
   SESSION_CURRENT_PAGE,
   SESSION_CURRENT_STATUS,
   SESSION_CURRENT_TYPE,
@@ -281,6 +328,7 @@ import {
 import CommonPreview from '@/components/Common/CommonPreview'
 import NoMoreResources from '@/components/Common/NoMoreResources'
 import ModalHeader from '@/components/Common/ModalHeader'
+import { FindCustomTags } from '@/api/tag'
 
 export default {
   name: 'CreatedByMe',
@@ -297,6 +345,7 @@ export default {
     CustomTag,
     ModalHeader,
     EditSvg,
+    CopySvg,
     LiebiaoSvg,
     PubuSvg
   },
@@ -339,7 +388,11 @@ export default {
       lessonSelectTagVisible: false,
       sessionTags: [],
       sessionItem: {},
-      startLoading: false
+      startLoading: false,
+      userTags: {},
+
+      // 之前报错了，提示没这个字段，加一下。
+      customTagList: []
     }
   },
   locomputed: {
@@ -352,6 +405,7 @@ export default {
   created () {
     logger.info('teacher my content')
     this.loadMyContent()
+    this.loadUserTags()
   },
   methods: {
     toggleViewMode (viewMode) {
@@ -440,6 +494,22 @@ export default {
           path: '/teacher/evaluation-redirect/' + item.id
         })
       }
+    },
+
+    handleDuplicateItem (item) {
+      this.$logger.info('handleDuplicateItem', item)
+      this.$confirm({
+        title: 'Confirm duplicate',
+        content: 'Are you sure to duplicate ' + item.name + ' ?"',
+        centered: true,
+        onOk: () => {
+          this.loading = true
+          Duplicate({ id: item.id, type: item.type }).then((response) => {
+            this.$logger.info('Duplicate response', response)
+            this.loadMyContent()
+          })
+        }
+      })
     },
     handlePrevious (item) {
       this.$router.push({
@@ -564,6 +634,32 @@ export default {
       this.sessionItem = item
       this.lessonSelectTagVisible = true
       this.sessionTags = []
+    },
+
+    handleEvaluateItem (item) {
+      this.$logger.info('handleEvaluateItem', item)
+    },
+    loadUserTags () {
+      // this.$refs.customTag.tagLoading = true
+      FindCustomTags({}).then((response) => {
+        this.$logger.info('FindCustomTags response', response.result)
+        if (response.success) {
+          this.userTags = response.result
+          // 默认展示的tag分类
+          CustomTagType.task.default.forEach(name => {
+            this.customTagList.push(name)
+          })
+          // 再拼接自己添加的
+          this.userTags.userTags.forEach(tag => {
+            if (this.customTagList.indexOf(tag.name) === -1) {
+              this.customTagList.push(tag.name)
+            }
+          })
+        } else {
+          this.$message.error(response.message)
+        }
+        // this.$refs.customTag.tagLoading = false
+      })
     }
   }
 }
@@ -752,14 +848,15 @@ export default {
               align-items: center;
               justify-content: center;
               font-size: 13px;
-              svg {
-                height: 14px;
-                fill: #182552;
-                stroke: #182552;
-                stroke-width: 0.5px;
+              i {
+                svg {
+                  height: 14px;
+                  fill: #182552;
+                  stroke: #182552;
+                  stroke-width: 0.5px;
+                }
               }
             }
-
             .session-btn-text {
               font-size: 13px;
               padding-left: 7px;
@@ -772,10 +869,12 @@ export default {
             border-color: #15c39a;
             background: rgba(21, 195, 154, 0.1);
             .session-btn-icon {
-              svg {
-                fill: #15c39a;
-                stroke: #15c39a;
-                stroke-width: 0.5px;
+              i {
+                svg {
+                  fill: #15c39a;
+                  stroke: #15c39a;
+                  stroke-width: 0.5px;
+                }
               }
             }
 
@@ -1016,6 +1115,14 @@ a.delete-action {
     -webkit-transition: all 0.3s ease-in-out;
     transition: all 0.3s ease-in-out;
 
+  }
+}
+
+.my-card-meta-info {
+  margin-top: 10px;
+
+  .ant-card-meta-avatar {
+    padding-right: 0;
   }
 }
 

@@ -4,6 +4,7 @@
       <third-login-button icon="googleIcon" :label="$t('user.login.loginWithGoogle')" @click.native="thirdSignIn('google')"/>
     </div>
   </div>
+
 </template>
 
 <script>
@@ -117,8 +118,8 @@ export default {
     requestFailed (err) {
       this.isLoginError = true
       this.$notification['error']({
-        message: '错误',
-        description: ((err.response || {}).data || {}).message || '请求出现错误，请稍后再试',
+        message: 'error',
+        description: ((err.response || {}).data || {}).message || 'Error',
         duration: 4
       })
     }
@@ -179,5 +180,6 @@ export default {
       float: right;
     }
   }
+
 }
 </style>

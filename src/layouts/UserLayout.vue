@@ -18,6 +18,17 @@
 
         <router-view />
       </div>
+
+      <div class="footer">
+        <div class="links">
+          <a href="https://www.classcipe.com" target="_blank">Help</a>
+          <a href="https://www.classcipe.com/policy.html" target="_blank">Privacy</a>
+          <a href="https://www.classcipe.com/term.html" target="_blank">Terms</a>
+        </div>
+        <div class="copyright">
+          Copyright &copy; 2021 Classcipe. All rights reserved <a href="https://my.classcipe.com" target="_blank"></a>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -129,37 +140,37 @@ export default {
         width: 368px;
         margin: 0 auto;
       }
-
-      .footer {
-        // position: absolute;
-        width: 100%;
-        bottom: 0;
-        padding: 0 16px;
-        margin: 48px 0 24px;
-        text-align: center;
-
-        .links {
-          margin-bottom: 8px;
-          font-size: 14px;
-          a {
-            color: rgba(0, 0, 0, 0.45);
-            transition: all 0.3s;
-            &:not(:last-child) {
-              margin-right: 40px;
-            }
-          }
-        }
-        .copyright {
-          color: rgba(0, 0, 0, 0.45);
-          font-size: 14px;
-        }
-      }
     }
 
     a {
       text-decoration: none;
     }
 
+  }
+
+  .footer {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 40px;
+    margin:  0 auto;
+    min-width: 260px;
+    text-align: center;
+    .links {
+      margin-bottom: 8px;
+      font-size: 14px;
+      a {
+        color: #15c39a;
+        transition: all 0.3s;
+        &:not(:last-child) {
+          margin-right: 40px;
+        }
+      }
+    }
+    .copyright {
+      color: rgba(0, 0, 0, 0.45);
+      font-size: 14px;
+    }
   }
 }
 </style>
