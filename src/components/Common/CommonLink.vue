@@ -61,7 +61,7 @@
               </div>
             </div>
             <div class="group-body">
-              <draggable v-model="ownerLinkGroupList[lIndex].contents" group="site" animation="300" @end="handleDragEnd">
+              <draggable v-model="ownerLinkGroupList[lIndex].contents" group="site" animation="300" @end="handleDragEnd" :disabled="!canEdit">
                 <transition-group>
                   <div class="group-link-item" v-for="item in linkGroup.contents" :key="item.id">
                     <div class="left-info">
