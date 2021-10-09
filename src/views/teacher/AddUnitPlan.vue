@@ -25,7 +25,7 @@
             :show-create="true"/>
         </a-col>-->
         <a-col span="24" class="main-content">
-          <a-card :bordered="false" :body-style="{padding: '16px', display: 'flex', 'justify-content': 'center'}" class="card-wrapper">
+          <a-card :bordered="false" :body-style="{padding: '16px', display: 'flex', 'justify-content': 'space-between'}" class="card-wrapper">
             <div class="unit-plan-form-left root-locate-form" ref="form" @click="focusInput($event)">
               <a-form-model :model="form" class="my-form-wrapper">
                 <a-steps :current="currentActiveStepIndex" direction="vertical" @change="onChangeStep">
