@@ -500,7 +500,7 @@ export default {
       this.$logger.info('handleDuplicateItem', item)
       this.$confirm({
         title: 'Confirm duplicate',
-        content: 'Are you sure to duplicate ' + item.name + ' ?"',
+        content: 'Are you sure to duplicate ' + item.name + ' ?',
         centered: true,
         onOk: () => {
           this.loading = true

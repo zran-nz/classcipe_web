@@ -1767,7 +1767,7 @@
           this.form.learnOuts.push({
             knowledgeId: data.knowledgeData.id,
             name: data.knowledgeData.name,
-            tagType: data.tagType
+            tagType: data.knowledgeData.tagType
           })
         })
         this.$logger.info('this.form.learnOuts', this.form.learnOuts)

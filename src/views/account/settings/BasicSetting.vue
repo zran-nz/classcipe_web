@@ -162,6 +162,16 @@
           </div>
         </div>
 
+        <div class="profile-item-line" v-if="$store.getters.currentRole === 'teacher'">
+          <div class="profile-label">
+            <span class="label-txt">Key question/<br>line of inquiry :</span>
+          </div>
+
+          <div class="profile-text profile-data">
+            <a-switch :checked="!disableQuestion" @change="onChangeSwitch"/>
+          </div>
+        </div>
+
       </a-col></a-row>
 
     <a-row v-show="!loading">
@@ -193,7 +203,7 @@
 <script>
 import AvatarModal from './AvatarModal'
 import * as logger from '@/utils/logger'
-import { editUser } from '@/api/user'
+import { editUser, UserSetting } from '@/api/user'
 import {
   addPreference,
   getAllAreas,
@@ -202,7 +212,7 @@ import {
   getAllSubjectsByCurriculumId,
   getAllSubjectsByParentId, getCustomizedTags
 } from '@/api/preference'
-import TagSetting from '../../../components/UnitPlan/TagSetting'
+import TagSetting from '@/components/UnitPlan/TagSetting'
 
 export default {
   name: 'BasicSetting',
@@ -248,7 +258,8 @@ export default {
 
       loading: true,
       editMode: false,
-      settingVisible: false
+      settingVisible: false,
+      disableQuestion: this.$store.getters.disableQuestion
     }
   },
   watch: {
@@ -550,6 +561,20 @@ export default {
     },
     handleSetting () {
       this.settingVisible = true
+    },
+    onChangeSwitch (checked) {
+      this.disableQuestion = !checked
+      UserSetting({
+        disableQuestion: this.disableQuestion
+      }).then((response) => {
+        this.$logger.info('UserSetting', response.result)
+        if (response.success) {
+          this.$store.dispatch('GetInfo')
+        } else {
+          this.$message.error(response.message)
+        }
+      }).finally(() => {
+      })
     }
   }
 }
@@ -655,7 +680,7 @@ export default {
   margin-bottom: 20px;
 
   .profile-label {
-    width: 150px;
+    width: 200px;
     font-weight: 500;
     display: flex;
     flex-direction: row;
