@@ -20,9 +20,9 @@
               <div class="task-form-left root-locate-form" ref="form" @click="focusInput($event)">
                 <a-form-model :model="form" class="my-form-wrapper" >
                   <a-steps :current="currentActiveStepIndex" direction="vertical" @change="onChangeStep">
-                    <a-step title="Edit course info" :status="currentActiveStepIndex === 0 ? 'process':'wait'">
+                    <a-step class="step-1" title="Edit course info" :status="currentActiveStepIndex === 0 ? 'process':'wait'">
                       <template v-if="currentActiveStepIndex === 0" slot="description">
-                        <div class="form-block" >
+                        <!--                        <div class="form-block" >
                           <div class="header-action">
                             <div class="header-action-item">
                               <a-button @click="handleEditGoogleSlide" :style="{'display': 'flex', 'align-items': 'center', 'justify-content': 'center', 'padding': '20px 15px', 'border-radius': '5px'}" type="primary" >
@@ -50,7 +50,7 @@
                               </a-button>
                             </div>
                           </div>
-                        </div>
+                        </div>-->
 
                         <div class="form-block" >
                           <comment-switch field-name="name" :is-active="showCollaborateCommentVisible && currentFieldName === 'name'" @switch="handleSwitchComment" class="my-comment-switch"/>
@@ -433,7 +433,7 @@
         width="90%"
         :closable="true"
         @ok="selectedMyContentVisible = false">
-        <a-tabs class="template-tabs">
+        <a-tabs class="template-tabs" >
           <a-tab-pane key="1" tab="Teaching Templates">
             <div class="select-template-wrapper">
               <div class="template-select-header">
@@ -511,6 +511,11 @@
                         Clear all
                       </a-button>
                       <a-row class="row-select" style="min-width: 700px" >
+                        <a-row>
+                          <a-tabs :activeKey="selectYearTab" @change="handleTabYearChange" tab-position="top" size="small" :tabBarGutter="1" >
+                            <a-tab-pane v-for="(tag) in centuryTagMap" :key="tag[0]" :tab="tag[0]" />
+                          </a-tabs>
+                        </a-row>
                         <a-col :span="12">
                           <a-col class="sub-select" v-if="index < 2" :span="24" v-for="(item ,index) in templateFilterCondition(templateType.Century,'')" :key="index">
                             <a-row>
@@ -525,7 +530,7 @@
                                   <a-row v-if="child.children.length > 0" v-for="(subChild,subIndex) in child.children" :key="subIndex">
                                     <a-col :span="24">
                                       <a-checkbox :value="subChild.id" @change="onChangeCheckBox($event,templateType.Century,child.id)" :checked="filterCentury.indexOf(subChild.id) > -1 ? true: false">
-                                        {{ subChild.name }}
+                                        <a-tooltip placement="top" :title="filterGradeTips(subChild)"> {{ subChild.name }}  </a-tooltip>
                                       </a-checkbox>
                                     </a-col>
                                   </a-row>
@@ -548,7 +553,7 @@
                                   <a-row v-if="child.children.length > 0" v-for="(subChild,subIndex) in child.children" :key="subIndex">
                                     <a-col :span="24">
                                       <a-checkbox :value="subChild.id" @change="onChangeCheckBox($event,templateType.Century,child.id)" :checked="filterCentury.indexOf(subChild.id) > -1 ? true: false">
-                                        {{ subChild.name }}
+                                        <a-tooltip placement="top" :title="filterGradeTips(subChild)"> {{ subChild.name }}  </a-tooltip>
                                       </a-checkbox>
                                     </a-col>
                                   </a-row>
@@ -815,7 +820,7 @@
   import { LibraryEvent, LibraryEventBus } from '@/components/NewLibrary/LibraryEventBus'
   import NewBrowser from '@/components/NewLibrary/NewBrowser'
   import NewMyContent from '@/components/MyContent/NewMyContent'
-  import { FindCustomTags, GetTreeByKey } from '@/api/tag'
+  import { FindCustomTags, GetTagYearTips, GetTreeByKey } from '@/api/tag'
   import { NavigationType } from '@/components/NewLibrary/NavigationType'
   import { GetCollaborateComment, GetCollaborateModifiedHistory } from '@/api/collaborate'
   import CollaborateCommentPanel from '@/components/Collaborate/CollaborateCommentPanel'
@@ -980,7 +985,9 @@
         collaborateTop: 0,
         showAllCollaborateCommentVisible: false,
         // TODO mock数据待更新为接口请求（loadCollaborateData方法中的GetCollaborateModifiedHistory)
-        historyList: []
+        historyList: [],
+        centuryTagMap: new Map(),
+        selectYearTab: ''
       }
     },
     computed: {
@@ -998,6 +1005,15 @@
           list.push(item.id)
         })
         return list
+      },
+      filterGradeTips () {
+        return function (item) {
+          if (!this.selectYearTab) {
+            return item.name
+          }
+          const filerList = this.centuryTagMap.get(this.selectYearTab).filter(tag => tag.tagId === item.id)
+          return filerList.length > 0 ? filerList[0].tooltip : ''
+        }
       }
     },
     created () {
@@ -1011,6 +1027,7 @@
       this.getAssociate()
       this.loadUserTags()
       this.initTemplateFilter()
+      this.GetTagYearTips()
     },
     beforeDestroy () {
       MyContentEventBus.$off(MyContentEvent.LinkToMyContentItem, this.handleLinkMyContent)
@@ -1195,18 +1212,12 @@
         this.$logger.info('handleSelectTaskType ' + type)
         this.form.taskType = type
         this.customTagList = []
-        if (type === 'FA') {
-          CustomTagType.task.fa.forEach(name => {
-            this.customTagList.push(name)
-          })
-        } else {
-          CustomTagType.task.sa.forEach(name => {
-            this.customTagList.push(name)
-          })
-        }
+        CustomTagType.task.safa.forEach(name => {
+          this.customTagList.push(name)
+        })
         this.showAllCollaborateCommentVisible = false
         this.showCollaborateCommentVisible = false
-        this.customTagTop = 390
+        this.customTagTop = 310
         this.showCustomTag = true
       },
 
@@ -1713,6 +1724,7 @@
       },
 
       handleSelectSubjectSpecificSkillListData (data) {
+        this.selectedSpecificSkillList = data
         this.$logger.info('handleSelectSubjectSpecificSkillListData', data)
       },
 
@@ -1833,18 +1845,6 @@
         }
       },
 
-      handleToggleSlideMode () {
-        this.$logger.info('handleToggleSlideMode')
-        this.currentActiveStepIndex = 1
-        if (!this.editPPTMode) {
-          this.editPPTMode = true
-          this.$refs.slide.scrollIntoView({
-            block: 'start',
-            behavior: 'smooth'
-          })
-        }
-      },
-
       handleCreateInGoogle () {
         this.$logger.info('handleCreateInGoogle')
         window.open('https://docs.google.com/presentation', '_blank')
@@ -1898,6 +1898,10 @@
       },
       focusInput (event) {
         this.$logger.info('focusInput ', event.target)
+        // let isEditBase = false
+        // if (typeof event.target.className === 'string' && event.target.className.indexOf('ant-input') > -1) {
+        //   isEditBase= true
+        // }
 
         // 设置一个父级定位专用的dom，设置class名称【root-locate-form】，
         // 然后通过事件获取到当前元素，依次往上层查询父元素，累加偏离值，直到定位元素。
@@ -1925,6 +1929,11 @@
           this.customTagTop = formTop - 20
           this.showCustomTag = true
         } else {
+          // if(isEditBase){
+          //   CustomTagType.task.base.forEach(name => {
+          //     this.customTagList.push(name)
+          //   })
+          // }
           CustomTagType.task.default.forEach(name => {
             this.customTagList.push(name)
           })
@@ -2088,6 +2097,29 @@
           }
         })
         return resList
+      },
+      GetTagYearTips () {
+        GetTagYearTips().then((response) => {
+          this.$logger.info('GetTagYearTips response', response.result)
+          if (response.success) {
+            const tagYears = response.result
+            tagYears.forEach(tag => {
+              if (!this.centuryTagMap.has(tag.yearName)) {
+                this.centuryTagMap.set(tag.yearName, [])
+              }
+              this.centuryTagMap.get(tag.yearName).push(tag)
+            })
+            if (tagYears.length > 0) {
+              this.selectYearTab = tagYears[0].yearName
+            }
+          } else {
+            this.$message.error(response.message)
+          }
+          this.$logger.info('centuryTagMap ', this.centuryTagMap)
+        })
+      },
+      handleTabYearChange (activeKey) {
+        this.selectYearTab = activeKey
       }
     }
   }
@@ -3327,13 +3359,15 @@
     .slide-form-block {
     }
   }
-  .template-tabs /deep/ .ant-tabs-nav-scroll{
-    display: flex;
-    flex-direction: row;
-    width: 100%;
-    justify-content: center;
-    font-weight: bold;
-    line-height: 24px;
+  .template-tabs{
+    /deep/ .ant-tabs-nav-scroll{
+      margin: 0 auto;
+      text-align: center;
+    }
+    .filter-row /deep/ .ant-tabs-nav-scroll{
+      margin: 0 auto;
+      text-align: left;
+    }
   }
 
   .slide-select-wrapper {

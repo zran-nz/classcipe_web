@@ -30,12 +30,12 @@ export const TemplateType = {
 export const CustomTagType = {
   plan: {
     sdg: ['Key words'],
-    bigIdea: ['Universal Concept'],
+    bigIdea: ['Key words', 'Global context', 'Universal Concept'],
     default: ['Teaching strategies', 'Differentiated instructions']
   },
   task: {
-    sa: ['Assessment type'],
-    fa: ['Bloom Taxonomy', 'Knowledge dimension'],
-    default: ['Assessment purpose', 'Teaching strategies', 'Differentiated instructions']
+    safa: ['The Arts-Assessment types', 'Science-Assessment types'],
+    base: ['Assessment purpose'],
+    default: ['Teaching strategies', 'Differentiated instructions', 'Bloom Taxonomy', 'Knowledge dimension']
   }
 }

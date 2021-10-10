@@ -1541,10 +1541,10 @@ export default {
         this.$logger.info('FindCustomTags response', response.result)
         if (response.success) {
           this.userTags = response.result
-          // 默认展示的tag分类
-          CustomTagType.plan.default.forEach(name => {
-            this.customTagList.push(name)
-          })
+          // // 默认展示的tag分类
+          // CustomTagType.plan.default.forEach(name => {
+          //   this.customTagList.push(name)
+          // })
           // 再拼接自己添加的
           this.userTags.userTags.forEach(tag => {
             if (this.customTagList.indexOf(tag.name) === -1) {
@@ -1571,12 +1571,12 @@ export default {
           while (currentDom !== null) {
             formTop += currentDom.offsetTop
             currentDom = currentDom.offsetParent
-            if (currentDom.classList.contains('sdg-content-blocks')) {
+            /* if (currentDom.classList.contains('sdg-content-blocks')) {
               currentFocus = 'sdg'
               CustomTagType.plan.sdg.forEach(name => {
                 this.customTagList.push(name)
               })
-            } else if (currentDom.classList.contains('bigIdea')) {
+            } else */ if (currentDom.classList.contains('bigIdea')) {
               currentFocus = 'inquiry'
               CustomTagType.plan.bigIdea.forEach(name => {
                 this.customTagList.push(name)
@@ -1595,9 +1595,9 @@ export default {
             this.showCollaborateCommentVisible = false
             this.showAllCollaborateCommentVisible = false
           } else {
-            CustomTagType.plan.default.forEach(name => {
-              this.customTagList.push(name)
-            })
+            // CustomTagType.plan.default.forEach(name => {
+            //   this.customTagList.push(name)
+            // })
             // // 再拼接自己添加的
             this.userTags.userTags.forEach(tag => {
               if (this.customTagList.indexOf(tag.name === -1)) {

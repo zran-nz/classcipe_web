@@ -1,11 +1,12 @@
 <template>
   <a-row class="common-form-header">
-    <a-col span="12">
+    <a-col span="14">
       <a-space>
         <span class="back-icon">
           <a-icon type="left" />
         </span>
         <a-button class="nav-back-btn" type="link" @click="handleBack">{{ $t('teacher.add-lesson.back') }}</a-button>
+        <span> <content-type-icon :type="form.type" /></span>
         <span class="unit-last-change-time" v-if="lastChangeSavedTime">
           <span class="unit-nav-title">
             {{ form.name }}
@@ -15,7 +16,7 @@
         </span>
       </a-space>
     </a-col>
-    <a-col span="12" class="unit-right-action">
+    <a-col span="10" class="unit-right-action">
       <a-space>
         <div class="collaborate-comment" @click="handleViewComment">
           <comment-icon class="active-icon"/>
@@ -95,10 +96,11 @@
 <script>
 
 import CommentIcon from '@/assets/icons/collaborate/comment.svg?inline'
+import ContentTypeIcon from '@/components/Teacher/ContentTypeIcon'
 export default {
   name: 'CommonFormHeader',
   components: {
-    CommentIcon
+    CommentIcon, ContentTypeIcon
   },
   props: {
     form: {
@@ -181,6 +183,12 @@ export default {
     font-family: Inter-Bold;
     line-height: 24px;
     color: #182552;
+    max-width: 450px;
+    display: inline-block;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    vertical-align: middle;
   }
 
   .unit-last-change-time {
