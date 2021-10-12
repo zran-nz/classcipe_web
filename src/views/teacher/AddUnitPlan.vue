@@ -1615,6 +1615,12 @@ export default {
     // 切换当前的字段的点评数据，从总的collaborateCommentList筛选初当前字段相关的点评数据
     handleSwitchComment (data) {
       this.$logger.info('handleSwitchComment', data)
+      if (!data.activeStatus) {
+        // 关闭
+        this.showCollaborateCommentVisible = false
+        this.showCustomTag = true
+        return
+      }
       this.currentFieldName = data.fieldName
       this.showAllCollaborateCommentVisible = false
       this.showCustomTag = false

@@ -303,7 +303,7 @@
                         </div>
                       </div>
                     </div>
-                    <div v-if="!this.contentLoading && this.currentActiveStepIndex !== 1" :style="{'width':'600px','position': 'absolute', 'top':customTagTop+'px'}">
+                    <div v-if="!this.contentLoading && this.currentActiveStepIndex !== 1" :style="{'width':'600px', 'margin-top':customTagTop+'px'}">
                       <custom-tag
                         :show-arrow="showCustomTag"
                         :user-tags="userTags"
@@ -970,7 +970,7 @@
         skeletonLoading: false,
         associateQuestionList: [],
         showCustomTag: false,
-        customTagTop: 300,
+        customTagTop: 20,
         customTagList: [],
         userTags: {},
         NavigationType: NavigationType,
@@ -1217,7 +1217,7 @@
         })
         this.showAllCollaborateCommentVisible = false
         this.showCollaborateCommentVisible = false
-        this.customTagTop = 310
+        this.customTagTop = 60
         this.showCustomTag = true
       },
 
@@ -1943,7 +1943,7 @@
               this.customTagList.push(tag.name)
             }
           })
-          this.customTagTop = 300
+          this.customTagTop = 20
           this.showCustomTag = false
         }
       },
@@ -1960,6 +1960,12 @@
       // 切换当前的字段的点评数据，从总的collaborateCommentList筛选初当前字段相关的点评数据
       handleSwitchComment (data) {
         this.$logger.info('handleSwitchComment', data)
+        if (!data.activeStatus) {
+          // 关闭
+          this.showCollaborateCommentVisible = false
+          this.showCustomTag = true
+          return
+        }
         this.currentFieldName = data.fieldName
         this.showAllCollaborateCommentVisible = false
         this.showCustomTag = false

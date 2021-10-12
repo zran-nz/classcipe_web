@@ -11,7 +11,7 @@
                   {{ k.name }}
                 </div>
                 <div
-                  v-if="k.tagType == TagType.knowledge"
+                  v-if="k.tagType == TagType.knowledge || k.tagType == TagType.century"
                   class="actions">
                   <span class="add-action" @click.stop.prevent="handleAddTag(k)">
                     <img src="~@/assets/icons/tag/add.png"/>
@@ -44,7 +44,7 @@
       v-model="addTagVisible"
       :footer="null"
       destroyOnClose
-      width="1000px">
+      width="800px">
       <div class="my-modal-title" slot="title">
         Add tag
       </div>
@@ -53,6 +53,37 @@
         <a-button class="action-item action-cancel" shape="round" @click="addTagVisible = false">Cancel</a-button>
         <a-button class="action-ensure action-item" type="primary" shape="round" @click="handleEnsureSelectData">Confirm</a-button>
       </div>-->
+    </a-modal>
+
+    <a-modal
+      v-model="centuryTagVisible"
+      :footer="null"
+      destroyOnClose
+      width="1000px"
+      title="Add tag">
+      <div class="ensure-setting-modal">
+        <div class="tips">
+          <p>
+            {{ knowledge.name }}
+          </p>
+        </div>
+        <div>
+          <div class="row-cascader" v-for="(tag,index) in centuryTagList" :key="index">
+            <a-cascader
+              style="width: 900px"
+              :fieldNames="{ label: 'name', value: 'name', children: 'children' }"
+              v-model="centuryTagList[index]"
+              :options="centuryList"
+              change-on-select/>
+            <a-button type="link" v-if="centuryTagList.length > 1" icon="minus" size="large" @click="handleRemoveCenturyTag(index)"></a-button>
+          </div>
+          <a-button type="link" icon="plus-circle" size="large" @click="handleAddCenturyTag()"></a-button>
+        </div>
+        <div class="modal-ensure-action-line-center">
+          <a-button class="action-item action-cancel" shape="round" @click="centuryTagVisible=false">Cancel</a-button>
+          <a-button class="action-ensure action-item" type="primary" shape="round" @click="handleEnsureCenturyTags">Confirm</a-button>
+        </div>
+      </div>
     </a-modal>
 
   </div>
@@ -64,6 +95,7 @@
   import NoMoreResources from '@/components/Common/NoMoreResources'
   import LearnOutAddTag from '@/components/UnitPlan/LearnOutAddTag'
   import { TagType } from '@/const/common'
+  import { getAll21Century } from '@/api/knowledge'
 
   export default {
     name: 'UiLearnOut',
@@ -89,20 +121,25 @@
       return {
         KnowledgeList: [],
         addTagVisible: false,
+        centuryTagVisible: false,
+        centuryTagList: [],
         knowledge: {},
         tags: [],
-        TagType: TagType
+        TagType: TagType,
+        centuryList: []
       }
     },
     created () {
       this.KnowledgeList = this.learnOuts
       logger.info('KnowledgeList ', this.KnowledgeList)
+      this.get21century()
     },
     watch: {
     },
     methods: {
       handleActiveDescription (index) {
-        if (this.KnowledgeList[index].tagType !== TagType.knowledge) {
+        if (this.KnowledgeList[index].tagType !== TagType.knowledge &&
+          this.KnowledgeList[index].tagType !== TagType.century) {
           return
         }
         if (!this.KnowledgeList[index].tagListVisible) {
@@ -124,11 +161,16 @@
         this.$emit('remove-learn-outs', data)
       },
       handleAddTag (knowLedge) {
-        if (knowLedge.tagType !== TagType.knowledge) {
-          return
+        logger.info('handleAddTag ', knowLedge)
+        if (knowLedge.tagType === TagType.knowledge) {
+          this.knowledge = knowLedge
+          this.addTagVisible = true
+        } else if (knowLedge.tagType === TagType.century) {
+          this.knowledge = knowLedge
+          this.centuryTagList = []
+          this.centuryTagList.push([])
+          this.centuryTagVisible = true
         }
-        this.knowledge = knowLedge
-        this.addTagVisible = true
       },
       handleEnsureSelectData () {
         this.addTagVisible = false
@@ -138,10 +180,53 @@
         this.knowledge.tags = tags
         const index = this.KnowledgeList.findIndex(item => item.knowledgeId === this.knowledge.knowledgeId)
         this.KnowledgeList[index].tagListVisible = true
+      },
+      handleEnsureCenturyTags () {
+        logger.info('handleEnsureCenturyTags ', this.centuryTagList)
+        if (this.centuryTagList[0].length === 0) {
+          this.$message.error('Please select tags')
+          return
+        }
+
+        this.centuryTagList.forEach(item => {
+          if (!this.knowledge.tags) {
+            this.knowledge.tags = []
+          }
+          if (this.knowledge.tags.indexOf(item[item.length - 1]) === -1) {
+            this.knowledge.tags.push(item[item.length - 1])
+          }
+          logger.info('this.knowledge.tags ', this.knowledge.tags)
+        })
+        this.centuryTagVisible = false
+        this.knowledge.tagListVisible = true
+      },
+      handleRemoveCenturyTag (index) {
+        logger.info('handleRemoveCenturyTag ', index)
+        this.centuryTagList.splice(index, 1)
+      },
+      handleAddCenturyTag () {
+        this.centuryTagList.push([])
+      },
+      get21century () {
+        getAll21Century({
+        }).then((response) => {
+          this.$logger.info('getAll21Century response', response)
+          if (response.success) {
+             this.centuryList = response.result
+          }
+        }).finally(() => {
+          this.subTreeLoading = false
+        })
       }
     }
   }
 </script>
+
+<style>
+.ant-cascader-menu{
+  max-width: 300px;
+}
+</style>
 
 <style lang="less" scoped>
 
@@ -302,4 +387,22 @@
     }
   }
 
+  .ensure-setting-modal {
+    margin-bottom: 30px;
+    .tips {
+      text-align: center;
+      margin-bottom: 20px;
+      font-family: Inter-Bold;
+      font-size: 15px;
+      color: #474747;
+    }
+
+    .modal-ensure-action-line-center {
+      width: 40%;
+      display: flex;
+      justify-content: space-between;
+      margin: 0px auto;
+      margin-top: 40px;
+    }
+  }
 </style>
