@@ -161,18 +161,21 @@
                         <comment-switch field-name="question" :is-active="showCollaborateCommentVisible && currentFieldName === 'question'" @switch="handleSwitchComment" class="my-comment-switch"/>
                         <a-form-item>
                           <span slot="label">
-                            Key question/line of inquiry
                             <a-tooltip title="Set key question/line of inquiry">
                               <a-icon type="exclamation-circle" style="color: #15c39a;cursor: pointer;font-size: 18px" @click="questionSettingVisible=true" />
                             </a-tooltip>
+                            Key question/line of inquiry
                           </span>
+
+                          <div class="question-more"><a-button type="link">more</a-button></div>
+
                           <div class="recommend-question">
                             <a-icon type="close" class="close-icon"/>
                             <div class="recommend-box">
-                              <span class="title">Recommend:</span>
+                              <span class="title"><a-icon style="width: 25px" type="question-circle" />Recommend:</span>
                               <ul class="recommend-ul">
-                                <li>Establish a set of  in the horizontal space defined by  (abbreviated col)</li>
-                                <li>The column grid  grid system is a s range spans. For example</li>
+                                <li>Establish a set of  in the horizontal space defined by  (abbreviated col)<a-button class="add-question" type="link">add</a-button></li>
+                                <li>The column grid  grid column grid  grid system is a s range spanscolumn grid  grid system is a s range spanssystem is a s range spans. For example<a-button class="add-question" type="link">add</a-button></li>
                               </ul>
                             </div>
                           </div>
@@ -2578,9 +2581,18 @@ export default {
     line-height: 25px;
     cursor: pointer;
     list-style-type: circle;
+    .add-question{
+      float: right;
+    }
     &:hover{
       color: #15c39a;
     }
   }
+}
+.question-more{
+  top: -40px;
+  left: 500px;
+  position: absolute;
+  cursor: pointer;
 }
 </style>
