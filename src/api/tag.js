@@ -15,7 +15,19 @@ export const tagAPIUrl = {
   TagDelete: '/classcipe/api/tag/delete',
   TagDeleteBatch: '/classcipe/api/tag/deleteBatch',
   FindCustomTags: '/classcipe/api/tag/findCustomTags',
-  GetTagYearTips: '/classcipe/api/tag/getTagYearTips'
+  GetTagYearTips: '/classcipe/api/tag/getTagYearTips',
+  QuerySourceTagByCategory: '/classcipe/api/tag/querySourceTagByParent'
+}
+
+export function QuerySourceTagByCategory (parameter) {
+  return request({
+    url: tagAPIUrl.QuerySourceTagByCategory,
+    method: 'post',
+    data: parameter,
+    headers: {
+      'Content-Type': 'application/json;charset=UTF-8'
+    }
+  })
 }
 
 /**

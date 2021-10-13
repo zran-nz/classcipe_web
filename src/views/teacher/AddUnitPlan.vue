@@ -82,7 +82,7 @@
                             :placeholder="$store.getters.currentRole === 'teacher' ? $t('teacher.add-unit-plan.teacher-direction-of-inquiry') : $t('teacher.add-unit-plan.expert-direction-of-inquiry')"
                             class="my-form-input inquiry"/>
                         </a-form-item>
-                        <a-tooltip title="Browse" @click.stop="handleSelectDescription(true)">
+                        <a-tooltip title="Browse" @click.stop="selectBigIdeaDataVisible=true">
                           <span class="browse">
                             <a-icon type="appstore" theme="twoTone" twoToneColor="rgba(21, 195, 154, 1)" />
                           </span>
@@ -504,6 +504,25 @@
         </div>
       </a-modal>
 
+      <a-modal
+        v-model="selectBigIdeaDataVisible"
+        :footer="null"
+        destroyOnClose
+        width="70%"
+        title="Browse big idea"
+        @ok="selectBigIdeaDataVisible = false"
+        @cancel="selectBigIdeaDataVisible = false">
+        <div class="link-content-wrapper">
+          <BigIdeaBrowse>
+
+          </BigIdeaBrowse>
+
+          <div class="modal-ensure-action-line-right">
+            <a-button class="action-item action-cancel" shape="round" @click="handleCancelSelectData">Cancel</a-button>
+            <a-button class="action-ensure action-item" type="primary" shape="round" @click="handleEnsureSelectData">Ok</a-button>
+          </div>
+        </div>
+      </a-modal>
       <a-skeleton :loading="contentLoading" active>
       </a-skeleton>
     </a-card>
@@ -556,6 +575,7 @@ import CollaborateCommentView from '@/components/Collaborate/CollaborateCommentV
 import commentIcon from '@/assets/icons/collaborate/comment.svg?inline'
 import CollaborateHistory from '@/components/Collaborate/CollaborateHistory'
 import { UserSetting } from '@/api/user'
+import BigIdeaBrowse from '@/components/UnitPlan/BigIdeaBrowse'
 
 export default {
   name: 'AddUnitPlan',
@@ -582,7 +602,8 @@ export default {
     AddKeywordTag,
     NewBrowser,
     commentIcon,
-    UiLearnOut
+    UiLearnOut,
+    BigIdeaBrowse
   },
   props: {
     unitPlanId: {
@@ -720,7 +741,8 @@ export default {
       // TODO mock数据待更新为接口请求（loadCollaborateData方法中的GetCollaborateModifiedHistory)
       historyList: [],
       questionSettingVisible: false,
-      disableQuestion: false
+      disableQuestion: false,
+      selectBigIdeaDataVisible: true
     }
   },
   watch: {
