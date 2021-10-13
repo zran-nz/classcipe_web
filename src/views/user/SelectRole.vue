@@ -32,7 +32,9 @@
         </div>
       </div>
       <div class="warn">
+        <p>  <a-checkbox v-model="isCheck" ></a-checkbox> By registering, you agree to the Terms of Service and Privacy Policy.</p>
         <a-alert message="Please select a role!" type="warning" v-show="showWarn"/>
+        <a-alert message="Please agree to the Terms of Service and Privacy Policy!" type="warning" v-if="!isCheck"/>
       </div>
       <div class="actions">
         <a-button type="primary" block @click="goNext">
@@ -58,8 +60,10 @@ export default {
   data () {
     return {
       showWarn: false,
+      checkWarn: false,
       selectedRole: '',
-      currentStep: 0
+      currentStep: 0,
+      isCheck: true
     }
   },
   created () {
@@ -70,6 +74,9 @@ export default {
       this.showWarn = false
     },
     goNext () {
+      if (!this.isCheck) {
+        this.checkWarn = true
+      }
       if (!!this.selectedRole && !!this.selectedRole.trim()) {
         this.$store.dispatch('ChangeRole', { role: this.selectedRole }).then(() => {
           if (this.$store.getters.isAddPreference) {
@@ -99,12 +106,13 @@ export default {
 
   .card-wrapper {
     width: 850px;
+    min-height: 650px;
     display: flex;
     justify-content: center;
     flex-direction: column;
     align-items: center;
     background: #fff;
-    padding: 50px 25px;
+    padding: 30px 25px;
     box-sizing: border-box;
 
     .card-steps {
@@ -115,7 +123,7 @@ export default {
     .warn {
       width: 640px;
       padding: 15px 0;
-      height: 70px;
+      height: 110px;
       box-sizing: border-box;
     }
 

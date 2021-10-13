@@ -166,6 +166,16 @@
                               <a-icon type="exclamation-circle" style="color: #15c39a;cursor: pointer;font-size: 18px" @click="questionSettingVisible=true" />
                             </a-tooltip>
                           </span>
+                          <div class="recommend-question">
+                            <a-icon type="close" class="close-icon"/>
+                            <div class="recommend-box">
+                              <span class="title">Recommend:</span>
+                              <ul class="recommend-ul">
+                                <li>Establish a set of  in the horizontal space defined by  (abbreviated col)</li>
+                                <li>The column grid  grid system is a s range spans. For example</li>
+                              </ul>
+                            </div>
+                          </div>
                           <div class="form-input-item" v-for="(question, index) in form.questions" :key="index">
                             <a-input
                               v-model="question.name"
@@ -513,13 +523,13 @@
         @ok="selectBigIdeaDataVisible = false"
         @cancel="selectBigIdeaDataVisible = false">
         <div class="link-content-wrapper">
-          <BigIdeaBrowse>
+          <BigIdeaBrowse @handle-select="handleSelectBigIdeaData">
 
           </BigIdeaBrowse>
 
           <div class="modal-ensure-action-line-right">
-            <a-button class="action-item action-cancel" shape="round" @click="handleCancelSelectData">Cancel</a-button>
-            <a-button class="action-ensure action-item" type="primary" shape="round" @click="handleEnsureSelectData">Ok</a-button>
+            <a-button class="action-item action-cancel" shape="round" @click="selectBigIdeaDataVisible=false">Cancel</a-button>
+            <a-button class="action-ensure action-item" type="primary" shape="round" @click="handleEnsureSelectBigIdeaData">Ok</a-button>
           </div>
         </div>
       </a-modal>
@@ -742,7 +752,9 @@ export default {
       historyList: [],
       questionSettingVisible: false,
       disableQuestion: false,
-      selectBigIdeaDataVisible: true
+      selectBigIdeaDataVisible: false,
+      selectNewBigIdea: '',
+      recommendQuestionList: ['Racing car sprays burning fuel into crowd.', 'Japanese princess to wed commone']
     }
   },
   watch: {
@@ -1462,6 +1474,10 @@ export default {
     },
 
     handleSelectBigIdeaData (data) {
+      if (typeof data === 'string') {
+        this.selectNewBigIdea = data
+        return
+      }
       this.$logger.info('handleSelectBigIdeaData', data)
       this.selectedBigIdeaList = data
     },
@@ -1726,6 +1742,14 @@ export default {
     },
     onChangeSwitch (checked) {
       this.disableQuestion = !checked
+    },
+    handleEnsureSelectBigIdeaData () {
+      if (!this.selectNewBigIdea) {
+        this.$message.error('Please select a big idea')
+        return
+      }
+      this.form.inquiry = this.selectNewBigIdea
+      this.selectBigIdeaDataVisible = false
     }
   }
 }
@@ -2530,6 +2554,33 @@ export default {
     justify-content: space-between;
     margin: 0px auto;
     margin-top: 40px;
+  }
+}
+
+.recommend-question{
+  background: rgba(245, 245, 245, 0.5);
+  margin-bottom: 6px;
+  position: relative;
+  .close-icon{
+    position: absolute;
+    right: 10px;
+    top: 10px;
+    cursor: pointer;
+  }
+  .recommend-box{
+    padding: 10px;
+    .title{
+      font-size: 16px;
+      font-weight: bold;
+    }
+  }
+  .recommend-ul li{
+    line-height: 25px;
+    cursor: pointer;
+    list-style-type: circle;
+    &:hover{
+      color: #15c39a;
+    }
   }
 }
 </style>

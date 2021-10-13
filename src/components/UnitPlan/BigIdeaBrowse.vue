@@ -2,12 +2,21 @@
   <div class="big-idea">
 
     <a-row class="row-wrapper">
-      <a-col span="11" class="col-wrapper">
+      <a-col span="6" class="col-wrapper">
         <div>
-          <div>
+          <a-list bordered :data-source="subjectList" style="border: none">
+            <a-list-item slot="renderItem" slot-scope="item" :class="{'list-item-selected':subjectIds.indexOf(item.id) > -1}" @click="selectSubject(item.id)">
+              {{ item.name }}
+            </a-list-item>
+          </a-list>
+        </div>
+      </a-col>
+
+      <a-col span="9" class="col-wrapper">
+        <div>
+          <div class="col-input-serach">
             <a-input-search
               v-model="inputTag"
-              size="large"
               placeholder="Add tags"
               class="search-input"
               @search="searchTag"
@@ -30,7 +39,7 @@
             <div class="keyword-wrapper" v-for="(item,index) in keywordLetterList" :key="index">
               <div class="title"><h4>{{ item.letter }}</h4></div>
               <div class="keyword-list">
-                <div v-for="(name,index) in item.content" :key="index" :class="{'keyword-item': true, 'kd-active-item': true}" @click="queryBigIdeaKeywords(name)">
+                <div v-for="name in item.content" :key="name" :class="{'keyword-item': true, 'kd-active-item': true}" @click="queryBigIdeaKeywords(name)">
                   <span class="keyword-name">
                     {{ name }}
                   </span>
@@ -43,26 +52,17 @@
         </div>
       </a-col>
 
-      <a-col span="11" class="col-wrapper">
+      <a-col span="9" class="col-wrapper">
         <div>
+
           <div class="select-item">
-            <a-select
-              size="large"
-              v-model="subjectIds"
-              mode="multiple"
-              placeholder="All Subject"
-              class="subject-item"
-              style="width: 100%">
-              <a-select-opt-group v-for="subjectOptGroup in subjectTree" :key="subjectOptGroup.id">
-                <span slot="label">{{ subjectOptGroup.name }}</span>
-                <a-select-option
-                  :value="subjectOption.id"
-                  v-for="subjectOption in subjectOptGroup.children"
-                  :key="subjectOption.id">{{ subjectOption.name }}
-                </a-select-option>
-              </a-select-opt-group>
+            <a-select v-model="selectedConcept" mode="multiple" class="multiple-select" placeholder="All Concept" >
+              <a-select-option :value="concept" v-for="(concept, gIndex) in conceptList" :key="gIndex">
+                {{ concept }}
+              </a-select-option>
             </a-select>
           </div>
+
           <!--  big idea list -->
           <div class="description-wrapper">
             <div class="description-list">
@@ -78,6 +78,7 @@
 
     <a-spin v-show="tagLoading" class="keyword-loading"/>
     <a-spin v-show="bigLoading" class="big-loading"/>
+
   </div>
 </template>
 
@@ -118,7 +119,10 @@ export default {
       inputTag: '',
       tagName: '',
       subjectTree: [],
+      subjectList: [],
       subjectIds: [],
+      conceptList: [],
+      selectedConcept: [],
       alphabet: ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q',
         'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z']
     }
@@ -130,7 +134,15 @@ export default {
     SubjectTree({ curriculumId: this.$store.getters.bindCurriculum }).then(res => {
       this.$logger.info('SubjectTree response', res.result)
       if (res.success) {
+        this.subjectList = [{ name: 'All Subject', id: '' }]
         this.subjectTree = res.result
+        this.subjectTree.forEach(item => {
+          if (item.children.length > 0) {
+            item.children.forEach(child => {
+              this.subjectList.push(child)
+            })
+          }
+        })
       }
     }).finally(() => {
     })
@@ -144,6 +156,9 @@ export default {
     },
     QuerySourceTagByCategory () {
       this.tagLoading = true
+      if (this.subjectIds.length === 1 && !this.subjectIds[0]) {
+        this.subjectIds = []
+      }
       QuerySourceTagByCategory({ category: TAG_CATGORY_KEYWORDS, searchKey: this.inputTag }).then(response => {
         this.$logger.info('QuerySourceTagByCategory response', response.result)
         if (response.success) {
@@ -171,6 +186,9 @@ export default {
     },
     QueryBigIdea () {
       this.bigLoading = true
+      if (this.subjectIds.length === 1 && !this.subjectIds[0]) {
+        this.subjectIds = []
+      }
       QueryBigIdea({ keywords: this.selectedKeywords, subjectIds: this.subjectIds }).then(response => {
         this.$logger.info('QueryBigIdea response', response.result)
         if (response.success) {
@@ -180,12 +198,9 @@ export default {
         this.bigLoading = false
       })
     },
-
-    handleOk () {
-
-    },
     selectBigIdea (bigIdea) {
       this.selectedBigIdea = bigIdea
+      this.$emit('handle-select', bigIdea)
     },
     handleAddUserTag (tags, isAdd) {
       // this.handleUserTagsMap()
@@ -193,6 +208,12 @@ export default {
     searchTag () {
       logger.info('tag searchTag', this.inputTag)
       this.QuerySourceTagByCategory()
+    },
+    selectSubject (subjectId) {
+      this.subjectIds = []
+      this.subjectIds.push(subjectId)
+      this.queryBigIdeaKeywords()
+      this.QueryBigIdea()
     }
 
   }
@@ -234,13 +255,15 @@ export default {
       -webkit-box-shadow: inset 0 0 10px rgba(0,0,0,0.2);
     }
   }
-.search-input{
-  /deep/ .ant-input{
-    border-top: none;
-    border-left: none;
-    border-right: none
+.col-input-serach{
+  padding: 10px;
+  padding-bottom: 0px;
+  text-align: center;
+  .search-input{
+   width: 80%;
   }
 }
+
 .keyword-wrapper {
   padding: 15px 15px 0 15px;
   box-sizing: border-box;
@@ -335,14 +358,35 @@ export default {
   width: 100px;
 }
 .select-item{
-   /deep/ .ant-select-selection--multiple {
-     background: none;
-    border-radius: none;
-    border-top: none;
-    border-top: none;
-    border-top: none;
-    cursor: pointer;
-    z-index: 9999;
+  padding: 10px;
+  padding-bottom: 0px;
+  .multiple-select{
+    width: 50%;
+  }
+}
+/deep/ .ant-list-bordered{
+  .ant-list-item{
+    border-bottom: 1px solid #e8e8e8;
+    &:hover {
+      cursor: pointer;
+      color: #15c39a;
+      background-color: rgba(21, 195, 154, 0.1);
+      border-color: #15c39a;
+      box-shadow: 2px 4px 6px rgba(21, 195, 154, 0.2);
+    }
+  }
+  .ant-list-header{
+    &:hover {
+      cursor: pointer;
+      color: #15c39a;
+      background-color: rgba(21, 195, 154, 0.1);
+      border-color: #15c39a;
+      box-shadow: 2px 4px 6px rgba(21, 195, 154, 0.2);
+    }
+  }
+  .list-item-selected{
+    color: #15c39a;
+    background-color: rgba(21, 195, 154, 0.1);
   }
 }
 </style>
