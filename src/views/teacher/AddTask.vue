@@ -199,21 +199,22 @@
               </div>
 
               <div class="task-form-right">
-
                 <template v-if="showAllCollaborateCommentVisible">
-                  <div class="collaborate-panel" :style="{'width':'600px', 'margin-top': '0px', 'z-index': 100}">
-                    <div class="icon">
-                      <comment-icon />
+                  <a-skeleton :loading="showHistoryLoading" active>
+                    <div class="collaborate-panel" :style="{'width':'600px', 'margin-top': '0px', 'z-index': 100}">
+                      <div class="icon">
+                        <comment-icon />
+                      </div>
+                      <a-tabs default-active-key="1">
+                        <a-tab-pane key="1" tab="Comment">
+                          <collaborate-comment-view :source-id="taskId" :source-type="contentType.task" :comment-list="collaborateCommentList" @update-comment="handleUpdateCommentList"/>
+                        </a-tab-pane>
+                        <a-tab-pane key="2" tab="History" force-render>
+                          <collaborate-history :history-list="historyList" @restore="handleRestoreField"/>
+                        </a-tab-pane>
+                      </a-tabs>
                     </div>
-                    <a-tabs default-active-key="1">
-                      <a-tab-pane key="1" tab="Comment">
-                        <collaborate-comment-view :source-id="taskId" :source-type="contentType.task" :comment-list="collaborateCommentList" @update-comment="handleUpdateCommentList"/>
-                      </a-tab-pane>
-                      <a-tab-pane key="2" tab="History" force-render>
-                        <collaborate-history :history-list="historyList" @restore="handleRestoreField"/>
-                      </a-tab-pane>
-                    </a-tabs>
-                  </div>
+                  </a-skeleton>
                 </template>
                 <template v-else>
                   <template v-if="showCollaborateCommentVisible">
@@ -987,7 +988,8 @@
         // TODO mock数据待更新为接口请求（loadCollaborateData方法中的GetCollaborateModifiedHistory)
         historyList: [],
         centuryTagMap: new Map(),
-        selectYearTab: ''
+        selectYearTab: '',
+        showHistoryLoading: false
       }
     },
     computed: {
@@ -1984,13 +1986,15 @@
 
       // 每次点击都重新加载一下最新数据
       handleViewCollaborate () {
+        this.showHistoryLoading = true
         this.$logger.info('handleViewCollaborate')
         this.showCollaborateCommentVisible = false
         this.currentCollaborateCommentList = []
+        this.showAllCollaborateCommentVisible = !this.showAllCollaborateCommentVisible
         this.loadCollaborateData().then(() => {
           this.$logger.info('loadCollaborateData loaded')
         }).finally(() => {
-          this.showAllCollaborateCommentVisible = !this.showAllCollaborateCommentVisible
+          this.showHistoryLoading = false
         })
       },
 
@@ -3645,7 +3649,6 @@
     justify-content: center;
     align-items: center;
   }
-
   .question-options {
     width: 100%;
     display: block;

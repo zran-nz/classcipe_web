@@ -236,19 +236,21 @@
             <div class="unit-plan-form-right">
               <!--              优先级 所有comment预览 > 字段comment > tag选择-->
               <template v-if="showAllCollaborateCommentVisible">
-                <div class="collaborate-panel" :style="{'width':'600px', 'margin-top': '0px', 'z-index': 100}">
-                  <div class="icon">
-                    <comment-icon />
+                <a-skeleton :loading="showHistoryLoading" active>
+                  <div class="collaborate-panel" :style="{'width':'600px', 'margin-top': '0px', 'z-index': 100}">
+                    <div class="icon">
+                      <comment-icon />
+                    </div>
+                    <a-tabs default-active-key="1">
+                      <a-tab-pane key="1" tab="Comment">
+                        <collaborate-comment-view :source-id="unitPlanId" :source-type="contentType['unit-plan']" :comment-list="collaborateCommentList" @update-comment="handleUpdateCommentList"/>
+                      </a-tab-pane>
+                      <a-tab-pane key="2" tab="History" force-render>
+                        <collaborate-history :history-list="historyList" @restore="handleRestoreField"/>
+                      </a-tab-pane>
+                    </a-tabs>
                   </div>
-                  <a-tabs default-active-key="1">
-                    <a-tab-pane key="1" tab="Comment">
-                      <collaborate-comment-view :source-id="unitPlanId" :source-type="contentType['unit-plan']" :comment-list="collaborateCommentList" @update-comment="handleUpdateCommentList"/>
-                    </a-tab-pane>
-                    <a-tab-pane key="2" tab="History" force-render>
-                      <collaborate-history :history-list="historyList" @restore="handleRestoreField"/>
-                    </a-tab-pane>
-                  </a-tabs>
-                </div>
+                </a-skeleton>
               </template>
               <template v-else>
                 <template v-if="showCollaborateCommentVisible">
@@ -757,7 +759,8 @@ export default {
       disableQuestion: false,
       selectBigIdeaDataVisible: false,
       selectNewBigIdea: '',
-      recommendQuestionList: ['Racing car sprays burning fuel into crowd.', 'Japanese princess to wed commone']
+      recommendQuestionList: ['Racing car sprays burning fuel into crowd.', 'Japanese princess to wed commone'],
+      showHistoryLoading: false
     }
   },
   watch: {
@@ -1681,12 +1684,14 @@ export default {
     // 每次点击都重新加载一下最新数据
     handleViewCollaborate () {
       this.$logger.info('handleViewCollaborate')
+      this.showAllCollaborateCommentVisible = !this.showAllCollaborateCommentVisible
       this.showCollaborateCommentVisible = false
       this.currentCollaborateCommentList = []
+      this.showHistoryLoading = true
       this.loadCollaborateData().then(() => {
         this.$logger.info('loadCollaborateData loaded')
       }).finally(() => {
-        this.showAllCollaborateCommentVisible = !this.showAllCollaborateCommentVisible
+        this.showHistoryLoading = false
       })
     },
 
