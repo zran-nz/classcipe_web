@@ -4,7 +4,7 @@
     <a-row class="row-wrapper">
       <a-col span="6" class="col-wrapper">
         <div>
-          <a-list bordered :data-source="subjectList" style="border: none">
+          <a-list bordered :data-source="subjectList" style="border: none" >
             <a-list-item slot="renderItem" slot-scope="item" :class="{'list-item-selected':subjectIds.indexOf(item.id) > -1}" @click="selectSubject(item.id)">
               {{ item.name }}
             </a-list-item>
@@ -56,7 +56,7 @@
         <div>
 
           <div class="select-item">
-            <a-select v-model="selectedConcept" mode="multiple" class="multiple-select" placeholder="All Concept" >
+            <a-select v-model="selectedConcept" mode="multiple" class="multiple-select" placeholder="All Concept" :showArrow="true">
               <a-select-option :value="concept" v-for="(concept, gIndex) in conceptList" :key="gIndex">
                 {{ concept }}
               </a-select-option>

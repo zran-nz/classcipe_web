@@ -167,15 +167,14 @@
                             Key question/line of inquiry
                           </span>
 
-                          <div class="question-more"><a-button type="link">more</a-button></div>
+                          <div class="question-more"><a-button type="link" >more</a-button></div>
 
-                          <div class="recommend-question">
-                            <a-icon type="close" class="close-icon"/>
+                          <div class="recommend-question" v-if="showRecommendQuestion">
+                            <a-icon type="close" class="close-icon" @click.stop="hideRecommendQuestion=true" />
                             <div class="recommend-box">
                               <span class="title"><a-icon style="width: 25px" type="question-circle" />Recommend:</span>
                               <ul class="recommend-ul">
-                                <li>Establish a set of  in the horizontal space defined by  (abbreviated col)<a-button class="add-question" type="link">add</a-button></li>
-                                <li>The column grid  grid column grid  grid system is a s range spanscolumn grid  grid system is a s range spanssystem is a s range spans. For example<a-button class="add-question" type="link">add</a-button></li>
+                                <li v-if="rqIndex < 3 && selectQuestion.indexOf(item.name) === -1" v-for="(item,rqIndex) in recommendQuestionList" :key="rqIndex">{{ item.name }}<a-button @click.stop="handerInsertQuestion(item)" class="add-question" type="link">add</a-button></li>
                               </ul>
                             </div>
                           </div>
@@ -591,6 +590,7 @@ import commentIcon from '@/assets/icons/collaborate/comment.svg?inline'
 import CollaborateHistory from '@/components/Collaborate/CollaborateHistory'
 import { UserSetting } from '@/api/user'
 import BigIdeaBrowse from '@/components/UnitPlan/BigIdeaBrowse'
+import { FindQuestionsByBigIdea } from '@/api/question'
 
 export default {
   name: 'AddUnitPlan',
@@ -759,8 +759,9 @@ export default {
       disableQuestion: false,
       selectBigIdeaDataVisible: false,
       selectNewBigIdea: '',
-      recommendQuestionList: ['Racing car sprays burning fuel into crowd.', 'Japanese princess to wed commone'],
-      showHistoryLoading: false
+      recommendQuestionList: [],
+      showHistoryLoading: false,
+      hideRecommendQuestion: false
     }
   },
   watch: {
@@ -772,6 +773,14 @@ export default {
       } else {
         this.showSidebar = true
       }
+    },
+    'form.inquiry': function (value) {
+      this.$logger.info('watch form.inquiry change ' + value)
+      if (this.hideRecommendQuestion) {
+        return
+      }
+      this.$logger.info('get recommend question ' + value)
+      this.findQuestionsByBigIdea(value)
     }
   },
   computed: {
@@ -788,6 +797,29 @@ export default {
       this.form.scenarios.forEach(item => sdgList.push(item.sdgId))
       console.log(sdgList)
       return sdgList
+    },
+    showRecommendQuestion () {
+      if (this.hideRecommendQuestion) {
+        return false
+      }
+      if (!this.form.inquiry) {
+        return false
+      }
+      // if (this.form.questions.length > 1) {
+      //   return false
+      // }
+      // if (this.form.questions.length === 1 && !this.form.questions[0]) {
+      //   return false
+      // }
+      if (this.recommendQuestionList.length === 0) {
+        return false
+      }
+      return true
+    },
+    selectQuestion () {
+     return this.form.questions.map(item => {
+        return item.name
+      })
     }
   },
   created () {
@@ -800,6 +832,7 @@ export default {
     this.getAssociate()
     this.loadUserTags()
     this.debouncedGetSdgByDescription = debounce(this.searchScenario, 300)
+    this.findQuestionsByBigIdea = debounce(this.findQuestionsByBigIdea, 800)
   },
   beforeDestroy () {
     MyContentEventBus.$off(MyContentEvent.ToggleSelectContentItem, this.handleToggleSelectContentItem)
@@ -1758,6 +1791,36 @@ export default {
       }
       this.form.inquiry = this.selectNewBigIdea
       this.selectBigIdeaDataVisible = false
+    },
+    findQuestionsByBigIdea (bigIdea) {
+      if (!bigIdea) {
+        return
+      }
+      FindQuestionsByBigIdea({ bigIdea: bigIdea }).then(response => {
+        logger.info('FindQuestionsByBigIdea ', response)
+        this.recommendQuestionList = []
+        if (response.success) {
+          const formQuestion = this.form.questions.map(item => {
+            return item.name
+          })
+          this.recommendQuestionList = response.result.filter(item => formQuestion.indexOf(item.name) === -1)
+        }
+      }).finally({
+
+      })
+    },
+    handerInsertQuestion (question) {
+      const formQuestion = this.form.questions.map(item => {
+        return item.name
+      })
+      if (formQuestion.indexOf(question.name) > -1) {
+        this.$message.warning('Question is existed')
+        return
+      }
+      if (this.form.questions.length === 1 && !this.form.questions[0].name) {
+        this.form.questions = []
+      }
+      this.form.questions.push(question)
     }
   }
 }
@@ -2587,7 +2650,7 @@ export default {
     cursor: pointer;
     list-style-type: circle;
     .add-question{
-      float: right;
+      //float: right;
     }
     &:hover{
       color: #15c39a;

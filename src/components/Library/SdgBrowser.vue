@@ -2,6 +2,22 @@
   <div class="browser-block">
     <div class="browser-block-item-wrapper">
       <div class="browser-block-item" :style="{width: blockWidth + 'px' , minWidth: blockWidth + 'px' }">
+
+        <div class="filter-block" >
+          <div class="switch-type-wrapper">
+            <a-select
+              v-model="selectedSubect"
+              class="filter-select"
+              placeholder="Select Subject"
+              :showArrow="true"
+              mode="multiple"
+              style="width: 250px">
+              <a-select-option :value="item.id" v-for="(item, index) in subjectList" :key="index" >
+                {{ item.name }}
+              </a-select-option>
+            </a-select>
+          </div>
+        </div>
         <!--      sdg list-->
         <div
           :class="{
@@ -37,21 +53,37 @@
       </div>
     </div>
     <div class="browser-block-item-wrapper" :style="{width: blockWidth + 'px' , minWidth: blockWidth + 'px' }" >
-      <!--     new sdg keywords description-->
-      <div class="keyword-wrapper">
-        <div class="keyword-list">
-          <div :class="{'keyword-item': true, 'kd-active-item': currentSdgKeywordScenario === 'keyword' && currentSdgKeywordScenarioId === keywordItem.id}" v-for="(keywordItem, kIndex) in sdgKeywordNameList" @click="queryBigIdeaKeywords(keywordItem)" :key="kIndex">
-            <!--            <img src="~@/assets/icons/library/tuijian@2x.png" class="keyword-icon"/>-->
-            <span class="keyword-name">
-              {{ keywordItem.name }}
-            </span>
-            <a-icon
-              type="check-circle"
-              theme="filled"
-              v-if="currentSdgKeywordScenario === 'keyword' && currentSdgKeywordScenarioId === keywordItem.id" />
-          </div>
+      <div class="filter-block">
+        <div>
+          <a-select v-model="selectedSubect" class="filter-select" placeholder="Select Concept" :showArrow="true" mode="multiple">
+            <a-select-option :value="item.id" v-for="(item, index) in subjectList" :key="index" >
+              {{ item.name }}
+            </a-select-option>
+          </a-select>
+
+          <a-select v-model="selectedSubect" class="filter-select" placeholder="Select Keywords" >
+            <a-select-option :value="item.name" v-for="(item, index) in sdgKeywordNameList" :key="index" >
+              {{ item.name }}
+            </a-select-option>
+          </a-select>
+
         </div>
       </div>
+      <!--     new sdg keywords description-->
+      <!--      <div class="keyword-wrapper">-->
+      <!--        <div class="keyword-list">-->
+      <!--          <div :class="{'keyword-item': true, 'kd-active-item': currentSdgKeywordScenario === 'keyword' && currentSdgKeywordScenarioId === keywordItem.id}" v-for="(keywordItem, kIndex) in sdgKeywordNameList" @click="queryBigIdeaKeywords(keywordItem)" :key="kIndex">-->
+      <!--            &lt;!&ndash;            <img src="~@/assets/icons/library/tuijian@2x.png" class="keyword-icon"/>&ndash;&gt;-->
+      <!--            <span class="keyword-name">-->
+      <!--              {{ keywordItem.name }}-->
+      <!--            </span>-->
+      <!--            <a-icon-->
+      <!--              type="check-circle"-->
+      <!--              theme="filled"-->
+      <!--              v-if="currentSdgKeywordScenario === 'keyword' && currentSdgKeywordScenarioId === keywordItem.id" />-->
+      <!--          </div>-->
+      <!--        </div>-->
+      <!--      </div>-->
       <div class="description-wrapper">
         <div class="description-list">
           <div :class="{'description-item': true, 'kd-active-item': currentSdgKeywordScenario === 'description' && currentSdgKeywordScenarioId === descriptionItem.id}" v-for="(descriptionItem, dIndex) in sdgDescriptionsList" @click="queryBigIdeaDescription(descriptionItem)" :key="dIndex">
@@ -201,6 +233,7 @@ import ListModeIcon from '@/assets/icons/library/liebiao .svg?inline'
 import DataCardView from '@/components/Library/DataCardView'
 import { typeMap } from '@/const/teacher'
 import { QueryBigIdea } from '@/api/scenario'
+import { SubjectTree } from '@/api/subject'
 const { ScenarioGetKeywordScenarios, QueryContentByBigIdea } = require('@/api/scenario')
 const { GetAllSdgs } = require('@/api/scenario')
 
@@ -247,13 +280,16 @@ export default {
       currentBigIdea: null,
 
       currentTypeLabel: 'Choose type（S）of content',
-      currentType: 0
+      currentType: 0,
+      selectedSubect: [],
+      subjectList: []
     }
   },
   created () {
     // sdg数据结构：sdg列表-keywords-big idea
     this.$logger.info('SdgBrowser blockWidth:' + this.blockWidth)
     this.getAllSdgs()
+    this.getSubjectTree()
   },
   methods: {
     getAllSdgs () {
@@ -266,6 +302,20 @@ export default {
           }
       }).finally(() => {
         this.sdgListLoading = false
+      })
+    },
+    getSubjectTree () {
+      SubjectTree({ curriculumId: this.$store.getters.bindCurriculum }).then(response => {
+        this.$logger.info('getSubjectTree response', response.result)
+        this.subjectTree = response.result
+        this.subjectTree.forEach(item => {
+          if (item.children.length > 0) {
+            item.children.forEach(child => {
+              this.subjectList.push(child)
+            })
+          }
+        })
+      }).finally(() => {
       })
     },
     handleSelectSdgItem (sdgItem) {
@@ -712,6 +762,18 @@ export default {
       background-color: rgba(21, 195, 154, 0.1);
       border-color: #15c39a;
       box-shadow: 2px 4px 6px rgba(21, 195, 154, 0.2);
+    }
+  }
+}
+
+.filter-block{
+  margin: 5px;
+  .filter-select{
+    cursor: pointer;
+    margin: 5px;
+    min-width: 150px;
+    /deep/ .ant-select-selection--multiple{
+      cursor: pointer;
     }
   }
 }
