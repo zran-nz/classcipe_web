@@ -99,16 +99,40 @@
                 <div class="action">
                   <div slot="actions">
                     <div class="action-wrapper">
-                      <div class="preview-session-wrapper action-item-wrapper">
-                        <a-popconfirm :title="$t('teacher.my-content.action-delete') + '?'" ok-text="Yes" @confirm="handleDeleteItem(item)" cancel-text="No">
-                          <div class="session-btn content-list-action-btn">
+
+                      <!-- Evaluation: 外置Start evaluation，Edit，折叠Delete, Duplicate-->
+
+                      <template v-if="item.type === typeMap.evaluation">
+                        <div class="start-session-wrapper action-item-wrapper">
+                          <div class="session-btn content-list-action-btn" @click="handleEvaluateItem(item)">
                             <div class="session-btn-icon">
-                              <a-icon type="delete" />
+                              <a-icon type="copy" />
                             </div>
-                            <div class="session-btn-text">{{ $t('teacher.my-content.action-delete') }}</div>
+                            <div class="session-btn-text"> Start evaluation</div>
                           </div>
-                        </a-popconfirm>
-                      </div>
+                        </div>
+                      </template>
+                      <!-- Task: 外置teacher-pace, student-pace, Edit, 折叠Delete, Duplicate, Previous session-->
+                      <template v-if="item.type === typeMap.task">
+                        <div class="start-session-wrapper action-item-wrapper">
+                          <div class="session-btn content-list-action-btn" @click="handleEvaluateItem(item)">
+                            <div class="session-btn-icon">
+                              <start-session-svg />
+                            </div>
+                            <div class="session-btn-text"> Teacher-pace</div>
+                          </div>
+                        </div>
+                        <div class="start-session-wrapper action-item-wrapper">
+                          <div class="session-btn content-list-action-btn" @click="handleEvaluateItem(item)">
+                            <div class="session-btn-icon">
+                              <start-session-svg />
+                            </div>
+                            <div class="session-btn-text"> Student-pace</div>
+                          </div>
+                        </div>
+                      </template>
+                      <!-- Unit plan:外置Edit，折叠Delete, Duplicate-->
+
                       <div class="start-session-wrapper action-item-wrapper">
                         <div class="session-btn content-list-action-btn" @click="handleEditItem(item)">
                           <div class="session-btn-icon">
@@ -117,52 +141,36 @@
                           <div class="session-btn-text"> {{ $t('teacher.my-content.action-edit') }}</div>
                         </div>
                       </div>
-                      <div class="start-session-wrapper action-item-wrapper">
-                        <div class="session-btn content-list-action-btn" @click="handleDuplicateItem(item)">
-                          <div class="session-btn-icon">
-                            <a-icon type="copy" />
-                          </div>
-                          <div class="session-btn-text"> Duplicate</div>
-                        </div>
-                      </div>
                       <div class="more-action-wrapper action-item-wrapper" >
                         <a-dropdown>
                           <a-icon type="more" style="margin-right: 8px" />
                           <a-menu slot="overlay">
+                            <a-menu-item>
+                              <a-popconfirm :title="$t('teacher.my-content.action-delete') + '?'" ok-text="Yes" @confirm="handleDeleteItem(item)" cancel-text="No">
+                                <a>
+                                  <a-icon type="delete" theme="filled" /> {{ $t('teacher.my-content.action-delete') }}
+                                </a>
+                              </a-popconfirm>
+                            </a-menu-item>
+                            <a-menu-item>
+                              <a @click="handleDuplicateItem(item)">
+                                <a-icon type="copy" /> Duplicate
+                              </a>
+                            </a-menu-item>
                             <!-- Task里面有teacher-pace, student-pace, previous session -->
                             <template v-if="item.type === typeMap.task">
-                              <a-menu-item>
-                                <a @click="handleStartSessionTags(item)">
-                                  <start-session-svg /> Teacher-pace
-                                </a>
-                              </a-menu-item>
-                              <a-menu-item>
-                                <a @click="handleStartSessionTags(item)">
-                                  <start-session-svg /> Student-pace
-                                </a>
-                              </a-menu-item>
                               <a-menu-item>
                                 <a @click="handleViewPreviewSession(item)">
                                   <previous-sessions-svg /> Previous session
                                 </a>
                               </a-menu-item>
-
                             </template>
 
-                            <!-- Evaluation有Start evaluation -->
-                            <template v-if="item.type === typeMap.evaluation">
-                              <a-menu-item>
-                                <a @click="handleEvaluateItem(item)">
-                                  <a-icon type="copy" /> Start evaluation
-                                </a>
-                              </a-menu-item>
-                            </template>
                           </a-menu>
                         </a-dropdown>
                       </div>
                     </div>
                   </div></div></span>
-
             </a-list-item>
           </a-list>
           <a-list
@@ -689,10 +697,6 @@ export default {
   cursor: pointer;
 }
 
-.my-list-item:hover {
-  box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.16);
-}
-
 .my-content {
   padding: 0 15px 25px 15px;
   .filter-line {
@@ -775,127 +779,147 @@ export default {
   }
 
   .content-wrapper {
-    min-width: 800px;
+    min-width: 1100px;
     .content-list {
-      min-width: 800px;
-      .content-info-left {
-        cursor: pointer;
-        display: flex;
-        justify-content: flex-start;
-        align-items: center;
+      min-width: 1100px;
+      .my-list-item {
+        overflow: hidden;
+        .content-info-left {
+          cursor: pointer;
+          display: flex;
+          justify-content: flex-start;
+          align-items: center;
 
-        .status-icon-item {
-          font-size: 18px;
-          width: 40px;
+          .status-icon-item {
+            font-size: 18px;
+            width: 40px;
+          }
+
+          &:hover {
+            color: @primary-color;
+          }
+        }
+        .content-info-right {
+          cursor: pointer;
+          display: flex;
+          justify-content: flex-end;
+          align-items: center;
+
+          .update-time {
+            width: 130px;
+            color: #11142D;
+            font-size: 13px;
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+          }
+          .status {
+            font-family: Inter-Bold;
+            line-height: 24px;
+            color: #11142D;
+            width: 70px;
+          }
+        }
+        .action {
+          width: 380px;
         }
 
-        &:hover {
-          color: @primary-color;
-        }
-      }
-      .content-info-right {
-        cursor: pointer;
-        display: flex;
-        justify-content: flex-end;
-        align-items: center;
-
-        .update-time {
-          width: 150px;
-          color: #11142D;
-          font-size: 13px;
-          overflow: hidden;
-          white-space: nowrap;
-          text-overflow: ellipsis;
-        }
-        .status {
-          font-family: Inter-Bold;
-          line-height: 24px;
-          color: #11142D;
-          width: 80px;
-        }
-      }
-      .action {
-        width: 360px;
-      }
-
-      .action-wrapper {
-        display: flex;
-        flex-direction: row;
-        align-items: center;
-        justify-content: flex-end;
-
-        .action-item-wrapper {
+        .action-wrapper {
+          height: 33px;
           display: flex;
           flex-direction: row;
           align-items: center;
-          justify-content: center;
-          margin-left: 5px;
+          justify-content: flex-end;
 
-          .session-btn {
-            display: flex;
-            border-radius: 32px;
+          .action-item-wrapper {
+            display: none;
             flex-direction: row;
             align-items: center;
             justify-content: center;
-            padding: 6px 13px;
-            background: rgba(245, 245, 245, 0.5);
-            opacity: 1;
-            border: 1px solid rgba(188, 188, 188, 1);
+            margin-left: 5px;
 
-            .session-btn-icon {
+            .session-btn {
               display: flex;
+              border-radius: 32px;
               flex-direction: row;
               align-items: center;
               justify-content: center;
-              font-size: 13px;
-              i {
-                svg {
-                  height: 14px;
-                  fill: #182552;
-                  stroke: #182552;
-                  stroke-width: 0.5px;
+              padding: 6px 13px;
+              background: rgba(245, 245, 245, 0.5);
+              opacity: 1;
+              border: 1px solid rgba(188, 188, 188, 1);
+
+              .session-btn-icon {
+                display: flex;
+                flex-direction: row;
+                align-items: center;
+                justify-content: center;
+                font-size: 13px;
+                i {
+                  svg {
+                    height: 14px;
+                    fill: #182552;
+                    stroke: #182552;
+                    stroke-width: 0.5px;
+                  }
                 }
               }
+              .session-btn-text {
+                font-size: 13px;
+                padding-left: 7px;
+                font-family: Inter-Bold;
+                color: #182552;
+              }
             }
-            .session-btn-text {
-              font-size: 13px;
-              padding-left: 7px;
-              font-family: Inter-Bold;
-              color: #182552;
-            }
-          }
 
-          .session-btn:hover {
-            border-color: #15c39a;
-            background: rgba(21, 195, 154, 0.1);
-            .session-btn-icon {
-              i {
+            .session-btn:hover {
+              border-color: #15c39a;
+              background: rgba(21, 195, 154, 0.1);
+              .session-btn-icon {
+                i {
+                  svg {
+                    fill: #15c39a;
+                    stroke: #15c39a;
+                    stroke-width: 0.5px;
+                  }
+                }
+
                 svg {
                   fill: #15c39a;
                   stroke: #15c39a;
                   stroke-width: 0.5px;
                 }
               }
-            }
 
-            .session-btn-text {
-              display: inline-block;
-              color: #15C39A;
+              .session-btn-text {
+                display: inline-block;
+                color: #15C39A;
+              }
             }
           }
         }
-      }
 
-      .name-content {
-        text-align: left;
-        font-family: Inter-Bold;
-        line-height: 24px;
-        color: #11142D;
-        display: inline-block;
-        max-width: 450px;
-        overflow: hidden;
-        white-space: nowrap;
-        text-overflow: ellipsis;
+        .name-content {
+          padding-left: 5px;
+          text-align: left;
+          font-family: Inter-Bold;
+          line-height: 24px;
+          color: #11142D;
+          display: inline-block;
+          max-width: 400px;
+          overflow: hidden;
+          white-space: nowrap;
+          text-overflow: ellipsis;
+        }
+
+        &:hover {
+          box-shadow: 3px 3px 3px rgba(0, 0, 0, 0.10);
+          .action-wrapper {
+            .action-item-wrapper {
+              display: flex;
+            }
+          }
+        }
       }
     }
   }
