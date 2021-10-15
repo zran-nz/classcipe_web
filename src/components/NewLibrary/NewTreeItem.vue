@@ -346,7 +346,7 @@ export default {
       } else {
         // 选择大纲判断是否已经到底了
         if (this.currentItemType === 'subject') {
-          if (treeItemData.children === undefined || !treeItemData.Fchildren.length) {
+          if (treeItemData.children === undefined || !treeItemData.children.length) {
             this.subTreeLoading = true
             if (!treeItemData.gradeList.length) {
               treeItemData.gradeList = []
