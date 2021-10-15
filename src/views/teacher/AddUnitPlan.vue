@@ -1524,6 +1524,7 @@ export default {
       this.$logger.info('handleSelectBigIdeaData', data)
       this.selectedBigIdeaList = data
     },
+    // TODO 选择的assessment数据
     handleSelectAssessmentType (data) {
       this.$logger.info('handleSelectAssessmentType', data)
       this.selectedAssessmentList = data
