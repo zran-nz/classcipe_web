@@ -217,7 +217,7 @@ export default {
 
     handleDashboard (item) {
       this.$logger.info('handleDashboard', item)
-      window.open(lessonHost + 'd/' + item.class_id, '_blank', 'height=700, width=1200, top=100, left= 100 toolbar=no, menubar=no, scrollbars=no, location=no, status=no')
+      window.open(lessonHost + 'd/' + item.class_id, '_blank')
     },
 
     handleEditEvaluationRubric (item) {
