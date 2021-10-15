@@ -222,15 +222,12 @@
   }
 </script>
 
-<style>
-.ant-cascader-menu{
-  max-width: 300px;
-}
-</style>
-
 <style lang="less" scoped>
-
   @import "~@/components/index.less";
+
+  .ant-cascader-menu{
+    max-width: 300px;
+  }
 
   .skt-description-list-wrapper {
     .skt-description-list {
@@ -273,6 +270,7 @@
           cursor: pointer;
           width: 90%;
           padding-right: 10px;
+          line-height: 22px;
           position: relative;
           .description-txt {
             padding: 10px;

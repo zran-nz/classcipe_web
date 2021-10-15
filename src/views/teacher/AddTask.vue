@@ -22,35 +22,6 @@
                   <a-steps :current="currentActiveStepIndex" direction="vertical" @change="onChangeStep">
                     <a-step class="step-1" title="Edit course info" :status="currentActiveStepIndex === 0 ? 'process':'wait'">
                       <template v-if="currentActiveStepIndex === 0" slot="description">
-                        <!--                        <div class="form-block" >
-                          <div class="header-action">
-                            <div class="header-action-item">
-                              <a-button @click="handleEditGoogleSlide" :style="{'display': 'flex', 'align-items': 'center', 'justify-content': 'center', 'padding': '20px 15px', 'border-radius': '5px'}" type="primary" >
-                                <img src="~@/assets/icons/task/path.png" class="btn-icon"/>
-                                <div class="btn-text">
-                                  Edit my task in google slide
-                                </div>
-                              </a-button>
-                            </div>
-                            <div class="header-action-item">
-                              <a-button @click="handleStartSessionTags" :style="{'display': 'flex', 'align-items': 'center', 'justify-content': 'center', 'padding': '20px 15px', 'border-radius': '5px'}" type="primary" >
-                                <img src="~@/assets/icons/task/startTask.png" class="btn-icon"/>
-                                <div class="btn-text">
-                                  Start a session
-                                </div>
-                              </a-button>
-                            </div>
-
-                            <div class="header-action-item">
-                              <a-button @click="handleStartSession('dash')" :style="{'display': 'flex', 'align-items': 'center', 'justify-content': 'center', 'padding': '20px 15px', 'border-radius': '5px'}" type="primary" >
-                                <img src="~@/assets/icons/task/startTask.png" class="btn-icon"/>
-                                <div class="btn-text">
-                                  Start a dash
-                                </div>
-                              </a-button>
-                            </div>
-                          </div>
-                        </div>-->
 
                         <div class="form-block" >
                           <comment-switch field-name="name" :is-active="showCollaborateCommentVisible && currentFieldName === 'name'" @switch="handleSwitchComment" class="my-comment-switch"/>
@@ -343,8 +314,8 @@
               <a-spin size="large" />
             </div>
             <div class="thumbnail-task-list">
-              <div class="thumbnail-task-item" v-if="selectedPageIdList.length > 0">
-                <task-form :select-ids="selectedPageIdList" :task-id="taskId" :task-prefix="'task_' + taskIndex + '_'" @finish-task="handleFinishTask" />
+              <div class="thumbnail-task-item" v-if="selectedPageIdList.length > 0 && currentTaskFormData">
+                <task-form :parent-form-data="currentTaskFormData" :select-ids="selectedPageIdList" :task-id="taskId" :task-prefix="'task_' + taskIndex + '_'" @finish-task="handleFinishTask" />
               </div>
               <div class="task-preview-list">
                 <div class="task-preview" v-for="(task, index) in subTasks" :key="index">
@@ -354,6 +325,12 @@
                   <!--                  </div>-->
                 </div>
               </div>
+            </div>
+          </div>
+          <div class="no-data-slide-form-block" v-show="!form.presentationId">
+            <no-more-resources tips="The slide has not been created" />
+            <div class="go-to-create">
+              <a-button type="primary" @click="handleGotoEditMode">Back</a-button>
             </div>
           </div>
         </div>
@@ -835,10 +812,12 @@
   import CollaborateCommentView from '@/components/Collaborate/CollaborateCommentView'
   import commentIcon from '@/assets/icons/collaborate/comment.svg?inline'
   import CollaborateHistory from '@/components/Collaborate/CollaborateHistory'
+  import NoMoreResources from '@/components/Common/NoMoreResources'
 
   export default {
     name: 'AddTask',
     components: {
+      NoMoreResources,
       CollaborateHistory,
       CollaborateCommentView,
       CommentSwitch,
@@ -868,11 +847,14 @@
       taskId: {
         type: String,
         default: null
+      },
+      mode: {
+        type: String,
+        default: 'edit'
       }
     },
     data () {
       return {
-        mode: 'edit',
         contentLoading: true,
         referenceLoading: false,
         contentType: typeMap,
@@ -995,7 +977,10 @@
         historyList: [],
         centuryTagMap: new Map(),
         selectYearTab: '',
-        showHistoryLoading: false
+        showHistoryLoading: false,
+
+        // 复制当前表单数据，给选择slide创建task用‘pick-task-slide’
+        currentTaskFormData: null
       }
     },
     computed: {
@@ -1025,7 +1010,7 @@
       }
     },
     created () {
-      logger.info('add task created ' + this.taskId + ' ' + this.$route.path)
+      logger.info('add task created ' + this.taskId + ' ' + this.$route.path + ' mode: ' + this.mode)
 
       // 初始化关联事件处理
       MyContentEventBus.$on(MyContentEvent.LinkToMyContentItem, this.handleLinkMyContent)
@@ -1145,6 +1130,10 @@
           this.loadCollaborateData()
           if (this.form.presentationId) {
             this.loadThumbnail()
+          }
+
+          if (this.mode === 'pick-task-slide') {
+            this.currentTaskFormData = Object.assign({}, this.form)
           }
         })
       },
@@ -1370,7 +1359,6 @@
             this.form.presentationId = response.result.presentationId
             this.presentationLink = response.result.presentationLink
             this.selectTemplateVisible = false
-            this.mode = 'edit'
             this.viewInGoogleSlideVisible = true
             this.$router.replace({
               path: '/teacher/task-redirect/' + response.result.id
@@ -1610,14 +1598,27 @@
 
       handleAddTaskWithSlide () {
         this.$logger.info('handleAddTaskWithSlide')
-        this.mode = 'pick-task-slide'
         this.selectedSlideVisible = false
+        this.currentTaskFormData = Object.assign({}, this.form)
+        this.$router.push({
+          path: '/teacher/add-task/' + this.taskId + '/pick-task-slide'
+        })
+        this.$logger.info('currentTaskFormData', this.currentTaskFormData)
+      },
+
+      handleGotoEditMode () {
+        this.$logger.info('handleGotoEditMode')
+        this.$router.push({
+          path: '/teacher/add-task/' + this.taskId + '/edit'
+        })
       },
 
       handleCancelPickTaskSlide () {
         this.$logger.info('handleCancelPickTaskSlide')
         this.selectedSlideVisible = false
-        this.mode = 'edit'
+        this.$router.push({
+          path: '/teacher/add-task/' + this.taskId + '/edit'
+        })
       },
       handleSelectedSessionTags (tags) {
         this.sessionTags = tags
@@ -2937,10 +2938,9 @@
   }
 
   .preview-list {
-    height: 520px;
     overflow-y: scroll;
     width: 100%;
-    height: 360px;
+    max-height: 360px;
     overflow-y: scroll;
     display: flex;
     flex-direction: row;
@@ -2958,7 +2958,7 @@
       width: 225px;
       height: 160px;
       border-radius: 5px;
-      margin: 10px 5px 5px 10px;
+      margin: 10px 5px 10px 10px;
       border: 1px solid #eee;
       box-shadow: 0 4px 4px 4px #eee;
 
@@ -3027,12 +3027,18 @@
   }
 
   .thumbnail-task-list {
+    padding: 15px;
     width: 600px;
+    box-sizing: border-box;
     margin: auto;
     display: flex;
     flex-direction: column;
     .task-preview-list {
       position: relative;
+
+      .task-preview {
+        padding: 5px;
+      }
       .task-delete {
         position: absolute;
         right: -30px;
@@ -3707,6 +3713,16 @@
     align-items: center;
     img {
       margin-right: 5px;
+    }
+  }
+
+  .no-data-slide-form-block {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    .go-to-create {
+      margin-top: 10px;
     }
   }
 </style>
