@@ -190,40 +190,49 @@
                       <a-menu slot="overlay">
                         <a-menu-item>
                           <a-popconfirm :title="$t('teacher.my-content.action-delete') + '?'" ok-text="Yes" @confirm="handleDeleteItem(item)" cancel-text="No">
-                            <a href="#" class="delete-action">
-                              <a-icon type="delete" /> {{ $t('teacher.my-content.action-delete') }}
+                            <a>
+                              <a-icon type="delete" theme="filled" /> {{ $t('teacher.my-content.action-delete') }}
                             </a>
                           </a-popconfirm>
                         </a-menu-item>
+                        <a-menu-item>
+                          <a @click="handleDuplicateItem(item)">
+                            <a-icon type="copy" /> Duplicate
+                          </a>
+                        </a-menu-item>
+                        <!-- Task里面有teacher-pace, student-pace, previous session -->
+                        <template v-if="item.type === typeMap.task">
+                          <a-menu-item>
+                            <a @click="handleViewPreviewSession(item)">
+                              <previous-sessions-svg /> Previous session
+                            </a>
+                          </a-menu-item>
+                        </template>
                       </a-menu>
                     </a-dropdown>
                   </div>
                   <div class="action-item action-item-center">
-                    <div class="session-btn session-btn-left" @click.stop="handleStartSessionTags(item)" v-if="item.type === typeMap['lesson'] || item.type === typeMap['task']" >
-                      <div class="session-btn-text">Teacher presenting</div>
+                    <div class="session-btn session-btn-left" @click.stop="handleStartSessionTags(item)" v-if="item.type === typeMap['task']" >
+                      <div class="session-btn-text">Teacher-pace</div>
                     </div>
-                    <div class="session-btn session-btn-right" @click.stop="handleStartSessionTags(item)" v-if="item.type === typeMap['lesson'] || item.type === typeMap['task']">
-                      <div class="session-btn-text">Student-Paced</div>
+                    <div class="session-btn session-btn-right" @click.stop="handleStartSessionTags(item)" v-if="item.type === typeMap['task']">
+                      <div class="session-btn-text">Student-pace</div>
                     </div>
                   </div>
                   <div class="action-item action-item-bottom" >
+                    <template v-if="item.type === typeMap.evaluation">
+                      <div class="session-btn" @click.stop="handleEvaluateItem(item)">
+                        <div class="session-btn-icon content-list-action-btn">
+                          <a-icon type="copy" />
+                        </div>
+                        <div class="session-btn-text">Start evaluation</div>
+                      </div>
+                    </template>
                     <div class="session-btn" @click.stop="handleEditItem(item)">
                       <div class="session-btn-icon content-list-action-btn">
                         <edit-svg />
                       </div>
                       <div class="session-btn-text">Edit</div>
-                    </div>
-                    <div class="session-btn" @click.stop="handleDuplicateItem(item)">
-                      <div class="session-btn-icon content-list-action-btn">
-                        <a-icon type="copy" />
-                      </div>
-                      <div class="session-btn-text">Duplicate</div>
-                    </div>
-                    <div class="session-btn" @click.stop="handleViewPreviewSession(item)" v-if="item.type === typeMap['lesson'] || item.type === typeMap['task']">
-                      <div class="session-btn-icon content-list-action-btn">
-                        <previous-sessions-svg />
-                      </div>
-                      <div class="session-btn-text">Previous</div>
                     </div>
                   </div>
                 </div>
@@ -1112,7 +1121,6 @@ a.delete-action {
         }
 
         .session-btn-text {
-          display: none;
           font-size: 13px;
           padding-left: 7px;
           font-family: Inter-Bold;
