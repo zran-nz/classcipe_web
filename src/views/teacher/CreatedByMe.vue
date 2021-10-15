@@ -334,7 +334,7 @@ import PreviousSessionsSvg from '@/assets/icons/common/PreviousSessions.svg?inli
 import EditSvg from '@/assets/icons/common/Edit.svg?inline'
 import CopySvg from '@/assets/icons/common/copy.svg?inline'
 import Bianji from '@/assets/icons/common/Bianji.svg?inline'
-import StartEvaluation from '@/assets/icons/common/StartSession.svg?inline'
+import StartEvaluation from '@/assets/icons/common/StartEvaluation.svg?inline'
 import StartSessionSvg from '@/assets/icons/common/StartSession.svg?inline'
 import TeacherPresenting from '@/assets/icons/common/TeacherPresenting.svg?inline'
 import StudentPace from '@/assets/icons/common/StudentPace.svg?inline'
