@@ -15,7 +15,9 @@
                      currentDataType === NavigationType.learningOutcomes ? (selectedCurriculumIdList.indexOf(item.id) !== -1) : (
                        currentDataType === NavigationType.specificSkills ? (selectedSubjectSpecificSkillIdList.indexOf(item.id) !== -1) : (
                          currentDataType === NavigationType.centurySkills ? (selected21CenturySkillIdList.indexOf(item.id) !== -1) : (
-                           currentDataType === NavigationType.sdg ? (selectedBigIdeaList.indexOf(item.id) !== -1) : false
+                           currentDataType === NavigationType.sdg ? (selectedBigIdeaList.indexOf(item.id) !== -1) : (
+                             currentDataType === NavigationType.assessmentType ? (selectedAssessmentIdList.indexOf(item.id) !== -1) : false
+                           )
                          ))))}"
           v-for="(item,index) in contentDataList"
           :key="index">
@@ -112,6 +114,9 @@ export default {
 
       selectedSubjectSpecificSkillIdList: [],
       selectedSubjectSpecificSkillIdMap: new Map(),
+
+      selectedAssessmentIdList: [],
+      selectedAssessmentMap: new Map(),
 
       // big idea为纯文字
       selectedBigIdeaList: [],
@@ -337,6 +342,52 @@ export default {
           })
           this.$emit('select-big-idea', selectedList)
           this.$logger.info('select-big-idea', this.selectedBigIdeaList)
+        }
+      } else if (this.currentDataType === NavigationType.assessmentType) {
+        // assessmentType 是mainSubject-year-assessmentType-knowledge
+        // asseeement的grade下面有两层，所以根据数据字段中特定的标识字段判断是否为knowledge(QueryKnowledgesByAssessmentTypeId、GetAssessmentTypeList的时候标识的
+        if (!item.hasOwnProperty('isKnowledge') || (item.gradeList && item.gradeList.length)) {
+          // 如果有子列表，表示还未到最后一层knowledge，通知左侧导航栏更新同步层级
+          LibraryEventBus.$emit(LibraryEvent.ContentListItemClick, {
+            item,
+            dataType: this.currentDataType,
+            parent: this.parent,
+            eventType: 'syncDir'
+          })
+          this.$logger.info('$emit sync')
+        } else {
+          // 有的时候grade下面没数据，需要排除一下grade
+          if (!item.hasOwnProperty('isGrade')) {
+            // 最后一列，字列表无需让导航栏更新，导航栏不显示最后一层description。通过事件类型区分。 ContentListItemClick
+            const index = this.selectedAssessmentIdList.indexOf(item.id)
+            if (index !== -1) {
+              this.selectedAssessmentIdList.splice(index, 1)
+              this.selectedAssessmentMap.delete(item.id)
+            } else {
+              this.selectedAssessmentIdList.push(item.id)
+              this.selectedAssessmentMap.set(item.id, item)
+            }
+            const selectedList = []
+            this.selectedAssessmentIdList.forEach(assessmentId => {
+              selectedList.push({
+                dataType: this.currentDataType,
+                assessmentId: assessmentId,
+                assessmentData: this.selectedAssessmentMap.get(assessmentId)
+              })
+            })
+            this.$emit('select-assessmentType', selectedList)
+            this.$logger.info('selectedAssessmentMap', this.selectedAssessmentMap)
+          } else {
+            // grade下层为空
+            const eventData = {
+              item,
+              dataType: this.currentDataType,
+              parent: this.parent,
+              eventType: 'syncDir'
+            }
+            LibraryEventBus.$emit(LibraryEvent.ContentListItemClick, eventData)
+            this.$logger.info('current is grade, skip empty children item!', eventData)
+          }
         }
       }
     },

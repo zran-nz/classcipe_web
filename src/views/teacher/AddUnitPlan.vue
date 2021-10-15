@@ -486,6 +486,7 @@
             :sync-data="syncData"
             :show-menu="showMenuList"
             :default-active-menu="defaultActiveMenu"
+            @select-assessmentType="handleSelectAssessmentType"
             @select-big-idea="handleSelectBigIdeaData"
             @select-sync="handleSelectListData"
             @select-curriculum="handleSelectCurriculum"
@@ -733,6 +734,9 @@ export default {
 
       // BigIdeaList
       selectedBigIdeaList: [],
+
+      selectedAssessmentList: [],
+
       selectIdea: false,
       showCustomTag: false,
       customTagTop: 300,
@@ -740,7 +744,7 @@ export default {
       userTags: {},
       NavigationType: NavigationType,
       defaultActiveMenu: NavigationType.learningOutcomes,
-      showMenuList: [ NavigationType.sdg, NavigationType.specificSkills, NavigationType.centurySkills, NavigationType.learningOutcomes ],
+      showMenuList: [ NavigationType.sdg, NavigationType.specificSkills, NavigationType.centurySkills, NavigationType.learningOutcomes, NavigationType.assessmentType ],
 
       showCollaborateCommentVisible: false,
 
@@ -799,8 +803,6 @@ export default {
       return sdgList
     },
     showRecommendQuestion () {
-      // TODO 删除
-      return true
       if (this.hideRecommendQuestion) {
         return false
       }
@@ -1338,7 +1340,7 @@ export default {
         this.showMenuList = [NavigationType.sdg]
         this.defaultActiveMenu = NavigationType.sdg
       } else {
-        this.showMenuList = [ NavigationType.specificSkills, NavigationType.centurySkills, NavigationType.learningOutcomes ]
+        this.showMenuList = [ NavigationType.specificSkills, NavigationType.centurySkills, NavigationType.learningOutcomes, NavigationType.assessmentType ]
         this.defaultActiveMenu = NavigationType.learningOutcomes
       }
     },
@@ -1522,6 +1524,10 @@ export default {
       this.$logger.info('handleSelectBigIdeaData', data)
       this.selectedBigIdeaList = data
     },
+    handleSelectAssessmentType (data) {
+      this.$logger.info('handleSelectAssessmentType', data)
+      this.selectedAssessmentList = data
+    },
 
     // TODO 自动更新选择的sync 的数据knowledgeId和name列表
     handleSelectListData (data) {
@@ -1550,6 +1556,7 @@ export default {
       this.selectedCurriculumList = []
       this.selectedSpecificSkillList = []
       this.selectedCenturySkillList = []
+      this.selectedAssessmentList = []
       this.selectSyncDataVisible = false
     },
 
@@ -1560,6 +1567,7 @@ export default {
         this.selectedSpecificSkillList,
         this.selectedCenturySkillList,
         this.selectedBigIdeaList,
+        this.selectedAssessmentList,
         this.selectedSyncList)
       this.selectedSyncList.forEach(data => {
         const filterLearnOuts = this.form.learnOuts.filter(item => item.knowledgeId === data.knowledgeId)
