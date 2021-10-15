@@ -389,6 +389,7 @@ export default {
         const requestData = {
           author: this.$store.getters.email,
           slide_id: item.presentationId,
+          copy_from: item.copyFromSlide,
           file_name: item.name ? item.name : 'Unnamed',
           status: lessonStatus.studentPaced,
           redirect_url: null
