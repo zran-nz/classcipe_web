@@ -115,7 +115,7 @@
                       <!-- Task: 外置teacher-pace, student-pace, Edit, 折叠Delete, Duplicate, Previous session-->
                       <template v-if="item.type === typeMap.task">
                         <div class="start-session-wrapper action-item-wrapper">
-                          <div class="session-btn content-list-action-btn" @click="handleEvaluateItem(item)">
+                          <div class="session-btn content-list-action-btn" @click="handleStartSessionTags(item)">
                             <div class="session-btn-icon">
                               <teacher-presenting />
                             </div>
@@ -123,7 +123,7 @@
                           </div>
                         </div>
                         <div class="start-session-wrapper action-item-wrapper">
-                          <div class="session-btn content-list-action-btn" @click="handleEvaluateItem(item)">
+                          <div class="session-btn content-list-action-btn" @click="handleStartSessionTags(item)">
                             <div class="session-btn-icon">
                               <student-pace />
                             </div>
