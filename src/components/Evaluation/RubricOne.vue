@@ -137,7 +137,16 @@
 
     <a-modal v-model="selectCurriculumVisible" @ok="handleEnsureSelect" destroyOnClose width="80%" :dialog-style="{ top: '20px' }">
       <div class="associate-library">
-        <new-browser :select-mode="selectModel.knowledgeDescription" question-index="evaluation_"/>
+        <new-browser
+          :select-mode="selectModel.knowledgeDescription"
+          :show-menu="showMenuList"
+          :default-active-menu="defaultActiveMenu"
+          @select-big-idea="handleSelectBigIdeaData"
+          @select-sync="handleSelectListData"
+          @select-curriculum="handleSelectCurriculum"
+          @select-subject-specific-skill="handleSelectSubjectSpecificSkillListData"
+          @select-century-skill="handleSelect21CenturySkillListData"
+          question-index="evaluation_"/>
       </div>
     </a-modal>
 
@@ -164,6 +173,7 @@ import { SelectModel } from '@/components/NewLibrary/SelectModel'
 import draggable from 'vuedraggable'
 import NewBrowser from '@/components/NewLibrary/NewBrowser'
 import AddKeywordTag from '@/components/Evaluation/AddKeywordTag'
+import { NavigationType } from '@/components/NewLibrary/NavigationType'
 const { GetMyGrades } = require('@/api/teacher')
 
 export default {
@@ -201,6 +211,8 @@ export default {
       selfHeaderAddIndex: 1,
       headers: [],
       list: [],
+      defaultActiveMenu: NavigationType.learningOutcomes,
+      showMenuList: [ NavigationType.sdg, NavigationType.specificSkills, NavigationType.centurySkills, NavigationType.learningOutcomes ],
 
       selectCurriculumVisible: false,
       selectKnowledgeTagVisible: false,
@@ -220,7 +232,23 @@ export default {
       currentSelectLine: null,
       addTagItem: null,
       activeItemKey: [],
-      gradeIdMapName: new Map()
+      gradeIdMapName: new Map(),
+
+      syncData: [],
+      selectNewBigIdea: '',
+      selectSyncDataVisible: false,
+      selectedSyncList: [],
+
+      // 已选择的大纲知识点描述数据
+      selectedCurriculumList: [],
+
+      // specific skill
+      selectedSpecificSkillList: [],
+      // century skill
+      selectedCenturySkillList: [],
+
+      // BigIdeaList
+      selectedBigIdeaList: []
     }
   },
   created () {
@@ -518,6 +546,45 @@ export default {
       this.$emit('add-evidence', {
         index: lIndex, data: item
       })
+    },
+
+    handleSelectBigIdeaData (data) {
+      if (typeof data === 'string') {
+        this.selectNewBigIdea = data
+        return
+      }
+      this.$logger.info('handleSelectBigIdeaData', data)
+      this.selectedBigIdeaList = data
+    },
+
+    // TODO 自动更新选择的sync 的数据knowledgeId和name列表
+    handleSelectListData (data) {
+      this.$logger.info('handleSelectListData', data)
+      this.selectedSyncList = data
+    },
+
+    handleSelectCurriculum (data) {
+      this.$logger.info('handleSelectCurriculum', data)
+      this.selectedCurriculumList = data
+    },
+
+    handleSelectSubjectSpecificSkillListData (data) {
+      this.selectedSpecificSkillList = data
+      this.$logger.info('handleSelectSubjectSpecificSkillListData', data)
+    },
+
+    handleSelect21CenturySkillListData (data) {
+      this.$logger.info('handleSelect21CenturySkillListData', data)
+      this.selectedCenturySkillList = data
+    },
+
+    // TODO 自动更新选择的sync 的数据knowledgeId和name列表
+    handleCancelSelectData () {
+      this.selectedSyncList = []
+      this.selectedCurriculumList = []
+      this.selectedSpecificSkillList = []
+      this.selectedCenturySkillList = []
+      this.selectSyncDataVisible = false
     }
   }
 }
