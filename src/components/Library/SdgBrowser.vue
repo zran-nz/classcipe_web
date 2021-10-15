@@ -61,7 +61,7 @@
             </a-select-option>
           </a-select>
 
-          <a-select v-model="selectedSubect" class="filter-select" placeholder="Select Keywords" >
+          <a-select v-model="currentSdgKeywordName" class="filter-select" placeholder="Select Keywords" >
             <a-select-option :value="item.name" v-for="(item, index) in sdgKeywordNameList" :key="index" >
               {{ item.name }}
             </a-select-option>
@@ -84,16 +84,13 @@
       <!--          </div>-->
       <!--        </div>-->
       <!--      </div>-->
-      <div class="description-wrapper">
+      <!--      <div class="description-wrapper">
         <div class="description-list">
           <div :class="{'description-item': true, 'kd-active-item': currentSdgKeywordScenario === 'description' && currentSdgKeywordScenarioId === descriptionItem.id}" v-for="(descriptionItem, dIndex) in sdgDescriptionsList" @click="queryBigIdeaDescription(descriptionItem)" :key="dIndex">
             {{ descriptionItem.name }}
           </div>
         </div>
-      </div>
-    </div>
-    <div class="browser-block-item-wrapper" :style="{width: blockWidth + 'px' , minWidth: blockWidth + 'px' }" >
-      <!--  big idea list -->
+      </div>-->
       <div class="description-wrapper">
         <div class="description-list">
           <div :class="{'description-item': true, 'kd-active-item': currentBigIdea === bigIdeaItem.name}" v-for="(bigIdeaItem, bIndex) in bigIdeaList" @click="handleSelectBigIdeaItem(bigIdeaItem)" :key="bIndex">
@@ -102,6 +99,16 @@
         </div>
       </div>
     </div>
+    <!--    <div class="browser-block-item-wrapper" :style="{width: blockWidth + 'px' , minWidth: blockWidth + 'px' }" >-->
+    <!--      &lt;!&ndash;  big idea list &ndash;&gt;-->
+    <!--      <div class="description-wrapper">-->
+    <!--        <div class="description-list">-->
+    <!--          <div :class="{'description-item': true, 'kd-active-item': currentBigIdea === bigIdeaItem.name}" v-for="(bigIdeaItem, bIndex) in bigIdeaList" @click="handleSelectBigIdeaItem(bigIdeaItem)" :key="bIndex">-->
+    <!--            {{ bigIdeaItem.name }}-->
+    <!--          </div>-->
+    <!--        </div>-->
+    <!--      </div>-->
+    <!--    </div>-->
 
     <div
       class="browser-block-item-wrapper"
@@ -325,6 +332,7 @@ export default {
         this.sdgKeywordNameList = []
         this.currentSdgKeywordName = null
         this.scenarioGetKeywordScenarios(sdgItem.id)
+        this.queryBigIdea()
         this.handleClickBlock(1, sdgItem.name)
       }
     },
@@ -353,6 +361,24 @@ export default {
       this.currentSdgKeywordScenario = 'description'
       QueryBigIdea({ description: descriptionItem.name }).then(response => {
         this.$logger.info('queryBigIdeaDescription response', response.result)
+        const list = []
+        response.result.forEach(bigIdea => {
+          list.push({
+            id: bigIdea,
+            name: bigIdea
+          })
+        })
+        this.bigIdeaList = list
+      }).finally(() => {
+        this.dataListLoading = false
+      })
+    },
+
+    queryBigIdea () {
+      this.dataListLoading = true
+      this.$logger.info('queryBigIdeaKeyword')
+      QueryBigIdea({ keywords: this.currentSdgKeywordName, 'sdgId': this.currentSdgId }).then(response => {
+        this.$logger.info('queryBigIdeaKeyword response', response.result)
         const list = []
         response.result.forEach(bigIdea => {
           list.push({
@@ -400,7 +426,7 @@ export default {
           this.$logger.info('no big idea content')
         }
       })
-      this.handleClickBlock(3, bigIdeaItem.name)
+      this.handleClickBlock(2, bigIdeaItem.name)
     },
 
     handleSelectDataItem (dataItem) {
