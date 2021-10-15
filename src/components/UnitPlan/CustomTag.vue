@@ -276,13 +276,10 @@ export default {
     },
     handleCreateTagByInput () {
       this.$logger.info('skill handleCreateTagByInput ' + this.createTagName)
-      const existTag = this.tagList.find(item => item.name === this.createTagName)
-      const userTypeTags = this.userTagsMap.get(this.selectLabel)
-      if (!userTypeTags) {
-        this.$message.warn('Please click tab')
-        return
-      }
-      if (existTag || userTypeTags.has(this.createTagName)) {
+      const existTag = this.tagList.find(item => item.name.toLowerCase() === this.createTagName.toLowerCase())
+      const userTypeTags = Array.from(this.userTagsMap.get(this.selectLabel))
+      const existTag2 = userTypeTags.filter(name => name.toLocaleString() === this.createTagName.toLowerCase()).length > 0
+      if (existTag || existTag2) {
         this.$message.warn('already exist same name tag')
       } else {
         var item = {

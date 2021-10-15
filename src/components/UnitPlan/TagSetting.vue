@@ -1,5 +1,5 @@
 <template>
-  <div class="custom-tag">
+  <div class="custom-tag" @click="handleEnsureInput($event)">
     <div>
 
       <a-spin v-show="tagLoading" class="spin-loading"/>
@@ -19,8 +19,9 @@
                   <span slot="tab">
                     <div v-if="editTabIndex === index">
                       <a-input
+                        class="my-tag-input"
                         v-model="editTabName"
-                        placeholder="Enter tag category name"
+                        placeholder="Name your category"
                         id="input"
                         @keyup.enter="handleTabInputConfirm(editTabName)"
                       ></a-input>
@@ -174,7 +175,10 @@ export default {
       editTabName: '',
       deleteTabName: '',
       deleteTagName: '',
-      tagDeleteLoading: false
+      tagDeleteLoading: false,
+
+      // 允许通过点击空白处确认输入
+      allowClickEnsureInput: false
     }
   },
   created () {
@@ -192,7 +196,7 @@ export default {
       if (this.editTabIndex !== -1) {
         return
       }
-      let activeKey = `Enter tag category name`
+      let activeKey = `Name your category`
       if (this.userTagsMap.has(activeKey)) {
         activeKey = activeKey + '-1'
       }
@@ -203,6 +207,10 @@ export default {
       setTimeout(function () {
         document.getElementById('input').focus()
       }, 500)
+
+      setTimeout(() => {
+        this.allowClickEnsureInput = true
+      }, 1000)
     },
     remove (targetKey) {
       // this.selectLabel = activeKey
@@ -329,7 +337,16 @@ export default {
         this.confirmVisible = true
     },
 
+    // 如果正在编辑中，那么点击其他空白地方，自动保存当前编辑内容。和键盘按下Enter效果一样
+    handleEnsureInput (event) {
+      this.$logger.info('handleEnsureInput ' + this.editTabName)
+      console.log(event)
+      if (!event.target.classList.contains('my-tag-input') && this.editTabIndex !== -1 && this.allowClickEnsureInput) {
+       this.handleTabInputConfirm(this.editTabName)
+      }
+    },
     handleTabInputConfirm (tag) {
+      this.allowClickEnsureInput = false
       if (!tag || !tag.trim()) {
         this.$message.warn('Please input tag type name')
         return

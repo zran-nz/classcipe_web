@@ -43,5 +43,9 @@ export default {
       width: 150px;
     }
   }
+
+  .tips {
+    line-height: 24px;
+  }
 }
 </style>

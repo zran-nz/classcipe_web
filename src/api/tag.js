@@ -14,7 +14,20 @@ export const tagAPIUrl = {
   TagQueryById: '/classcipe/api/tag/queryById',
   TagDelete: '/classcipe/api/tag/delete',
   TagDeleteBatch: '/classcipe/api/tag/deleteBatch',
-  FindCustomTags: '/classcipe/api/tag/findCustomTags'
+  FindCustomTags: '/classcipe/api/tag/findCustomTags',
+  GetTagYearTips: '/classcipe/api/tag/getTagYearTips',
+  QuerySourceTagByCategory: '/classcipe/api/tag/querySourceTagByParent'
+}
+
+export function QuerySourceTagByCategory (parameter) {
+  return request({
+    url: tagAPIUrl.QuerySourceTagByCategory,
+    method: 'post',
+    data: parameter,
+    headers: {
+      'Content-Type': 'application/json;charset=UTF-8'
+    }
+  })
 }
 
 /**
@@ -33,6 +46,14 @@ export function GetRootGlobalTag (parameter) {
 export function GetTreeByKey (parameter) {
   return request({
     url: tagAPIUrl.GetTreeByKey,
+    method: 'get',
+    params: parameter
+  })
+}
+
+export function GetTagYearTips (parameter) {
+  return request({
+    url: tagAPIUrl.GetTagYearTips,
     method: 'get',
     params: parameter
   })

@@ -7,6 +7,8 @@ export const NavigationType = {
   centurySkills: 'centurySkills',
   // sdg数据结构：sdg列表-keywords-big idea
   sdg: 'sdg',
+  // assessmentType
+  assessmentType: 'assessmentType',
   // 同步其他人link后的数据
   sync: 'sync'
 }

@@ -8,7 +8,7 @@
       :class="{'browser-hide-menu': showMenu.indexOf(treeItemData.type) === -1}"
       :current-item-type="treeItemData.type === NavigationType.learningOutcomes ? 'subject' : // 如果当前是大纲，那么第一层数据是不区分层级的subject
         (treeItemData.type === NavigationType.sync ? 'sync' : // 如果是sync第一次是外部的同步数据列表
-          (treeItemData.type === NavigationType.specificSkills ? 'subject' : ( // 如果是specificSkills，那么第一层数据是subject，注意subject只有一层
+          ((treeItemData.type === NavigationType.specificSkills || treeItemData.type === NavigationType.assessmentType) ? 'subject' : ( // 如果是specificSkills或assessmentType，那么第一层数据是subject，注意subject只有一层
             (treeItemData.type === NavigationType.centurySkills ? 'grade' : ( // 如果是centurySkills，那么第一层数据是grade年级列表
               treeItemData.type === NavigationType.sdg ? 'sdg' : 'none' // 如果是sdg，那么第一层数据是sdg列表, 结构：sdg列表-keywords-big idea
             )
@@ -148,7 +148,21 @@ export default {
         curriculumData.children.forEach(subjectItem => {
           specificSkillsData.children.push(Object.assign({}, subjectItem))
         })
-        this.treeDataList.push(specificSkillsData)
+
+        // assessmentTypeData 是mainSubject-year-knowledge
+        const assessmentTypeData = {
+          id: '1',
+          expandStatus: NavigationType.assessmentType === this.defaultActiveMenu,
+          type: NavigationType.assessmentType,
+          name: 'Assessment type',
+          children: [],
+          parent: null
+        }
+        // 从大纲数据中复制一份数据，assessmentTypeData也只用mainSubject既第一层
+        curriculumData.children.forEach(subjectItem => {
+          assessmentTypeData.children.push(Object.assign({}, subjectItem))
+        })
+        this.treeDataList.push(assessmentTypeData)
 
         // 21 century skills 是year-knowledge
         const centurySkillsData = {

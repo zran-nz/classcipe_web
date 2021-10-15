@@ -86,7 +86,7 @@ export const asyncRouterMap = [
             meta: { title: 'menu.my-class', keepAlive: true, permission: ['expert', 'teacher'] }
           },
           {
-            path: '/teacher/add-task/:taskId?',
+            path: '/teacher/add-task/:taskId?/:mode?', // mode:edit 编辑模式 pick-task-slide:选择slide创建task模式
             name: 'AddTask',
             props: true,
             component: () => import('@/views/teacher/AddTask'),

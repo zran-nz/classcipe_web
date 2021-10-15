@@ -55,8 +55,23 @@
             :odd="odd ? index % 2 === 1 : index % 2 === 0 "
             :key="index"/>
         </template>
+        <template v-if="subItemType === 'assessmentType'">
+          <new-tree-item
+            :grade-list="gradeList"
+            :tree-current-parent="subTreeParent"
+            :tree-item-data="treeItem"
+            :current-item-type="subItemType"
+            :select-mode="selectMode"
+            :question-index="questionIndex"
+            :tree-item-type="treeItemType"
+            :default-deep="(defaultDeep + 1)"
+            :default-expand-status="treeItem.expandStatus"
+            v-for="(treeItem, index) in treeItemData.children"
+            :odd="odd ? index % 2 === 1 : index % 2 === 0 "
+            :key="index"/>
+        </template>
         <!-- knowledge 下级列表不展示最后一级-->
-        <template v-if="subItemType === 'knowledge' && (treeItemData.children.length && treeItemData.children[0].children.length)">
+        <template v-if="subItemType === 'knowledge' && (treeItemData.children.length !== 0 && treeItemData.children[0] && treeItemData.children[0].children && treeItemData.children[0].children.length)">
           <new-tree-item
             :grade-list="gradeList"
             :tree-current-parent="subTreeParent"
@@ -112,8 +127,8 @@
 import { LibraryEventBus } from '@/components/NewLibrary/LibraryEventBus'
 import { NavigationType } from '@/components/NewLibrary/NavigationType'
 import { QueryBigIdea, ScenarioGetKeywordScenarios } from '@/api/scenario'
+import { GetAssessmentTypeList, QueryKnowledgesByAssessmentTypeId, KnowledgeQueryContentByDescriptionId } from '@/api/knowledge'
 const { LibraryEvent } = require('@/components/NewLibrary/LibraryEventBus')
-const { KnowledgeQueryContentByDescriptionId } = require('@/api/knowledge')
 const { KnowledgeGetTree, Get21Century } = require('@/api/knowledge')
 
 const ExpandStatus = {
@@ -260,6 +275,17 @@ export default {
       } else if (this.currentItemType === 'sdgIdea') {
         this.subItemType = 'sdgIdeaItem'
       }
+    } else if (this.treeItemType === NavigationType.assessmentType) {
+      // assessmentType 是mainSubject-year-assessmentLabel-knowledge
+      if (this.currentItemType === 'subject') {
+        this.subItemType = 'grade'
+      } else if (this.currentItemType === 'grade') {
+        this.subItemType = 'assessmentType'
+      } else if (this.currentItemType === 'assessmentType') {
+        if (this.treeItemData.children.length) {
+          this.subItemType = 'knowledge'
+        }
+      }
     }
     LibraryEventBus.$on(LibraryEvent.ContentListItemClick, this.handleContentListItemClick)
   },
@@ -281,6 +307,8 @@ export default {
         this.handleExpandCenturySkillTreeItem(treeItemData)
       } else if (this.treeItemType === NavigationType.sdg) {
         this.handleExpandSdgTreeItem(treeItemData)
+      } else if (this.treeItemType === NavigationType.assessmentType) {
+        this.handleExpandAssessmentTypeTreeItem(treeItemData)
       }
     },
 
@@ -318,7 +346,7 @@ export default {
       } else {
         // 选择大纲判断是否已经到底了
         if (this.currentItemType === 'subject') {
-          if (treeItemData.children === undefined || !treeItemData.children.length) {
+          if (treeItemData.children === undefined || !treeItemData.Fchildren.length) {
             this.subTreeLoading = true
             if (!treeItemData.gradeList.length) {
               treeItemData.gradeList = []
@@ -566,6 +594,149 @@ export default {
             // knowledge 最后一级别，所有的下面都是knowledge
             this.subItemType = 'knowledge'
           }
+        }
+
+        this.subTreeLoading = false
+      }
+      this.$logger.info('handleExpandCurriculumTreeItem handle finish!')
+    },
+
+    // subject specific skills 是mainSubject-year-assessmentType-knowledge
+    handleExpandAssessmentTypeTreeItem (treeItemData) {
+      this.$logger.info('handleExpandAssessmentTypeTreeItem data ', treeItemData, ' children ', treeItemData.children, ' deep ' + this.defaultDeep)
+      if (this.defaultDeep === 0) {
+        // 直接展开第一层mainSubject
+        this.subTreeExpandStatus = true
+        LibraryEventBus.$emit(LibraryEvent.ContentListUpdate, {
+          deep: this.defaultDeep,
+          dataType: this.treeItemType,
+          currentTreeData: this.treeItemData,
+          parentTreeData: this.treeCurrentParent,
+          contentList: treeItemData.children,
+          questionIndex: this.questionIndex
+        })
+        this.subItemType = 'subject'
+        this.subTreeLoading = false
+        this.hasSubTree = true
+      } else {
+        if (this.currentItemType === 'subject') {
+          this.subTreeLoading = true
+          this.subTreeExpandStatus = true
+          if (!treeItemData.gradeList.length) {
+            treeItemData.gradeList = []
+            this.gradeList.forEach(item => {
+              item.children = []
+              item.isGrade = true
+              treeItemData.children.push(Object.assign({}, item))
+              treeItemData.gradeList.push(Object.assign({}, item))
+            })
+            this.$logger.info('add gradeList ', treeItemData)
+          } else {
+            this.$logger.info('use old gradeList ', treeItemData)
+          }
+          LibraryEventBus.$emit(LibraryEvent.ContentListUpdate, {
+            deep: this.defaultDeep,
+            dataType: this.treeItemType,
+            currentTreeData: this.treeItemData,
+            parentTreeData: this.treeCurrentParent,
+            gradeList: treeItemData.contentList,
+            contentList: treeItemData.gradeList,
+            questionIndex: this.questionIndex
+          })
+          this.subItemType = 'grade'
+          this.hasSubTree = true
+        }
+
+        // 判断年级判断是否已经有assessmentType了
+        if (this.currentItemType === 'grade') {
+          this.$logger.info('assessmentType grade')
+          if (!treeItemData.children.length) {
+            this.subTreeLoading = true
+            const gradeId = treeItemData.id
+            const subjectId = this.treeCurrentParent.id
+            this.$logger.info('assessmentType gradeId ' + gradeId + ' subjectId ' + subjectId)
+            GetAssessmentTypeList({
+              gradeId,
+              subjectId
+            }).then((response) => {
+              this.$logger.info('assessmentType response', response)
+              response.result.forEach(item => {
+                item.children = []
+                item.isAssessmentType = true
+              })
+              this.$logger.info('assessmentType response.result', response.result)
+              treeItemData.children = response.result
+              LibraryEventBus.$emit(LibraryEvent.ContentListUpdate, {
+                deep: this.defaultDeep,
+                dataType: this.treeItemType,
+                currentTreeData: this.treeItemData,
+                parentTreeData: this.treeCurrentParent,
+                contentList: treeItemData.children,
+                questionIndex: this.questionIndex
+              })
+              this.$logger.info('assessmentType children', treeItemData.children)
+            }).finally(() => {
+              this.subTreeLoading = false
+              this.subTreeExpandStatus = true
+            })
+          } else {
+            LibraryEventBus.$emit(LibraryEvent.ContentListUpdate, {
+              deep: this.defaultDeep,
+              dataType: this.treeItemType,
+              currentTreeData: this.treeItemData,
+              parentTreeData: this.treeCurrentParent,
+              contentList: treeItemData.children,
+              questionIndex: this.questionIndex
+            })
+            this.subTreeLoading = false
+            this.subTreeExpandStatus = true
+          }
+          // grade下一层assessmentType
+          this.subItemType = 'assessmentType'
+        }
+
+        // 加载assessmentType的列表
+        if (this.currentItemType === 'assessmentType') {
+          this.$logger.info('assessmentType QueryKnowledgesByAssessmentTypeId', this.selectMode)
+
+          if (treeItemData.children === undefined || !treeItemData.children.length) {
+            this.$logger.info('assessmentType knowledge bottom')
+            this.subTreeLoading = true
+            const gradeId = this.treeCurrentParent.id
+            QueryKnowledgesByAssessmentTypeId({ assessmentTypeId: this.treeItemData.id, gradeId: gradeId }).then(response => {
+              this.$logger.info('QueryKnowledgesByAssessmentTypeId response', response.result)
+              response.result.forEach(item => {
+                item.children = []
+                item.isKnowledge = true
+              })
+              LibraryEventBus.$emit(LibraryEvent.ContentListUpdate, {
+                dataType: this.treeItemType,
+                currentTreeData: this.treeItemData,
+                parentTreeData: this.treeCurrentParent,
+                contentList: response.result,
+                questionIndex: this.questionIndex
+              })
+            }).finally(() => {
+              this.subTreeLoading = false
+              this.subTreeExpandStatus = true
+            })
+          } else {
+            this.subTreeExpandStatus = true
+            LibraryEventBus.$emit(LibraryEvent.ContentListUpdate, {
+              deep: this.defaultDeep,
+              dataType: this.treeItemType,
+              currentTreeData: this.treeItemData,
+              parentTreeData: this.treeCurrentParent,
+              contentList: treeItemData.children,
+              questionIndex: this.questionIndex
+            })
+          }
+          // assessmentType下面都是knowledge
+          this.subItemType = 'knowledge'
+        }
+
+        if (this.currentItemType === 'knowledge') {
+          this.$logger.info('assessmentType currentItemType knowledge', treeItemData)
         }
 
         this.subTreeLoading = false
