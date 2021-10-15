@@ -117,6 +117,12 @@
 
                     <a-step title="Edit your course slides" :status="currentActiveStepIndex === 1 ? 'process':'wait'">
                       <template v-if="currentActiveStepIndex === 1" slot="description">
+                        <div class="edit-in-slide">
+                          <a-button class="action-ensure action-item edit-slide" type="primary" shape="round" @click="handleOpenGoogleSlide(presentationLink)">
+                            <img src="~@/assets/icons/task/path.png" class="btn-icon"/>
+                            Edit In Google Slide
+                          </a-button>
+                        </div>
                         <a-skeleton :loading="skeletonLoading" active>
                           <div class="slide-select-wrapper" ref="slide">
                             <div class="slide-select">
@@ -1129,10 +1135,11 @@
           const taskData = response.result
           this.form = taskData
           this.form.bloomCategories = this.form.bloomCategories ? this.form.bloomCategories : undefined // 为了展示placeholder
-          // if (!this.form.presentationId) {
-          //   // 未成功绑定ppt
-          //   this.handleShowSelectMyContent()
-          // }
+          if (this.form.presentationId) {
+            // 绑定google slide 的编辑链接
+            this.presentationLink = 'https://docs.google.com/presentation/d/' + this.form.presentationId + '/edit?taskId=' + this.taskId
+            this.$logger.info('presentationLink ' + this.presentationLink)
+          }
         }).finally(() => {
           this.contentLoading = false
           this.loadCollaborateData()
@@ -1302,8 +1309,7 @@
 
       handleOpenGoogleSlide (slideUrl) {
         this.$logger.info('handleOpenGoogleSlide ' + slideUrl)
-        // window.open(slideUrl, '_blank')
-        window.location.href = slideUrl
+        window.open(slideUrl, '_blank')
       },
 
       handleViewDetail (item) {
@@ -3380,6 +3386,14 @@
     }
   }
 
+  .edit-in-slide {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-end;
+    margin-bottom: 10px;
+    margin-right: 50px;
+  }
   .slide-select-wrapper {
     display: flex;
     flex-direction: row;
@@ -3685,6 +3699,14 @@
       svg {
         width: 30px;
       }
+    }
+  }
+
+  .edit-slide {
+    display: flex;
+    align-items: center;
+    img {
+      margin-right: 5px;
     }
   }
 </style>
