@@ -2937,10 +2937,11 @@
   }
 
   .preview-list {
-    margin-top: 20px;
     height: 520px;
     overflow-y: scroll;
     width: 100%;
+    height: 360px;
+    overflow-y: scroll;
     display: flex;
     flex-direction: row;
     justify-content: flex-start;
@@ -2949,7 +2950,6 @@
     border: 1px solid #D8D8D8;
     opacity: 1;
     border-radius: 4px;
-    padding: 15px 15px 0 15px;
     .preview-item-cover {
       background-position: center center;
       background-size: cover;
@@ -2958,7 +2958,7 @@
       width: 225px;
       height: 160px;
       border-radius: 5px;
-      margin: 0 5px 5px 10px;
+      margin: 10px 5px 5px 10px;
       border: 1px solid #eee;
       box-shadow: 0 4px 4px 4px #eee;
 
@@ -3369,7 +3369,7 @@
   }
 
   .pick-task-slide-wrapper {
-    width: 1000px;
+    width: 970px;
     margin: auto;
 
     .slide-form-block {
