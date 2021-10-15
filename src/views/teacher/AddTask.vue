@@ -178,7 +178,7 @@
               <div class="task-form-right">
                 <template v-if="showAllCollaborateCommentVisible">
                   <a-skeleton :loading="showHistoryLoading" active>
-                    <div class="collaborate-panel" :style="{'width':'600px', 'margin-top': '0px', 'z-index': 100}">
+                    <div class="collaborate-panel" :style="{'width':'600px', 'margin-top': '0px', 'z-index': 100, 'padding': '10px'}">
                       <div class="icon">
                         <comment-icon />
                       </div>
@@ -195,7 +195,7 @@
                 </template>
                 <template v-else>
                   <template v-if="showCollaborateCommentVisible">
-                    <div class="collaborate-panel" :style="{'width':'600px', 'margin-top':collaborateTop+'px', 'z-index': 100}">
+                    <div class="collaborate-panel" :style="{'width':'600px', 'margin-top':collaborateTop+'px', 'z-index': 100, 'padding': '10px'}">
                       <collaborate-comment-panel :source-id="taskId" :source-type="contentType.task" :field-name="currentFieldName" :comment-list="currentCollaborateCommentList" @update-comment="handleUpdateCommentList"/>
                     </div>
                   </template>
@@ -2037,8 +2037,8 @@
             } else {
               this.$set(this.form, dataItem.fieldName, dataItem.data[0])
             }
-            this.$message.success('restore ' + dataItem.fieldDisplayName + ' success!')
           })
+          this.$message.success('restore success!')
         }
         this.$logger.info('after handleRestoreField', this.form)
       },

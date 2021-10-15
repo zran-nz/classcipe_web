@@ -25,7 +25,7 @@
             :show-create="true"/>
         </a-col>-->
         <a-col span="24" class="main-content">
-          <a-card :bordered="false" :body-style="{padding: '16px', display: 'flex', 'justify-content': 'space-between'}" class="card-wrapper">
+          <a-card :bordered="false" :body-style="{'min-width': '1350px', padding: '16px', display: 'flex', 'justify-content': 'space-between'}" class="card-wrapper">
             <div class="unit-plan-form-left root-locate-form" ref="form" @click="focusInput($event)">
               <a-form-model :model="form" class="my-form-wrapper">
                 <a-steps :current="currentActiveStepIndex" direction="vertical" @change="onChangeStep">
@@ -236,7 +236,7 @@
               <!--              优先级 所有comment预览 > 字段comment > tag选择-->
               <template v-if="showAllCollaborateCommentVisible">
                 <a-skeleton :loading="showHistoryLoading" active>
-                  <div class="collaborate-panel" :style="{'width':'600px', 'margin-top': '0px', 'z-index': 100}">
+                  <div class="collaborate-panel" :style="{'width':'600px', 'margin-top': '0px', 'z-index': 100, 'padding': '10px'}">
                     <div class="icon">
                       <comment-icon />
                     </div>
@@ -253,7 +253,7 @@
               </template>
               <template v-else>
                 <template v-if="showCollaborateCommentVisible">
-                  <div class="collaborate-panel" :style="{'width':'600px', 'margin-top':collaborateTop+'px', 'z-index': 100}">
+                  <div class="collaborate-panel" :style="{'width':'600px', 'margin-top':collaborateTop+'px', 'z-index': 100, 'padding': '10px'}">
                     <collaborate-comment-panel :source-id="unitPlanId" :source-type="contentType['unit-plan']" :field-name="currentFieldName" :comment-list="currentCollaborateCommentList" @update-comment="handleUpdateCommentList"/>
                   </div>
                 </template>
@@ -799,6 +799,8 @@ export default {
       return sdgList
     },
     showRecommendQuestion () {
+      // TODO 删除
+      return true
       if (this.hideRecommendQuestion) {
         return false
       }
@@ -1762,8 +1764,8 @@ export default {
           } else {
             this.$set(this.form, dataItem.fieldName, dataItem.data[0])
           }
-          this.$message.success('restore ' + dataItem.fieldDisplayName + ' success!')
         })
+        this.$message.success('restore success!')
       }
       this.$logger.info('after handleRestoreField', this.form)
     },
