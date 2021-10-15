@@ -106,7 +106,7 @@
                         <div class="start-session-wrapper action-item-wrapper">
                           <div class="session-btn content-list-action-btn" @click="handleEvaluateItem(item)">
                             <div class="session-btn-icon">
-                              <a-icon type="copy" />
+                              <start-evaluation />
                             </div>
                             <div class="session-btn-text"> Start evaluation</div>
                           </div>
@@ -117,7 +117,7 @@
                         <div class="start-session-wrapper action-item-wrapper">
                           <div class="session-btn content-list-action-btn" @click="handleEvaluateItem(item)">
                             <div class="session-btn-icon">
-                              <start-session-svg />
+                              <teacher-presenting />
                             </div>
                             <div class="session-btn-text"> Teacher-pace</div>
                           </div>
@@ -125,7 +125,7 @@
                         <div class="start-session-wrapper action-item-wrapper">
                           <div class="session-btn content-list-action-btn" @click="handleEvaluateItem(item)">
                             <div class="session-btn-icon">
-                              <start-session-svg />
+                              <student-pace />
                             </div>
                             <div class="session-btn-text"> Student-pace</div>
                           </div>
@@ -136,7 +136,7 @@
                       <div class="start-session-wrapper action-item-wrapper">
                         <div class="session-btn content-list-action-btn" @click="handleEditItem(item)">
                           <div class="session-btn-icon">
-                            <a-icon type="form" />
+                            <bianji />
                           </div>
                           <div class="session-btn-text"> {{ $t('teacher.my-content.action-edit') }}</div>
                         </div>
@@ -213,24 +213,30 @@
                   </div>
                   <div class="action-item action-item-center">
                     <div class="session-btn session-btn-left" @click.stop="handleStartSessionTags(item)" v-if="item.type === typeMap['task']" >
-                      <div class="session-btn-text">Teacher-pace</div>
+                      <div class="session-btn-text">
+                        <teacher-presenting />
+                        Teacher-pace
+                      </div>
                     </div>
                     <div class="session-btn session-btn-right" @click.stop="handleStartSessionTags(item)" v-if="item.type === typeMap['task']">
-                      <div class="session-btn-text">Student-pace</div>
+                      <div class="session-btn-text">
+                        <student-pace />
+                        Student-pace
+                      </div>
                     </div>
                   </div>
                   <div class="action-item action-item-bottom" >
                     <template v-if="item.type === typeMap.evaluation">
                       <div class="session-btn" @click.stop="handleEvaluateItem(item)">
                         <div class="session-btn-icon content-list-action-btn">
-                          <a-icon type="copy" />
+                          <start-evaluation />
                         </div>
                         <div class="session-btn-text">Start evaluation</div>
                       </div>
                     </template>
                     <div class="session-btn" @click.stop="handleEditItem(item)">
                       <div class="session-btn-icon content-list-action-btn">
-                        <edit-svg />
+                        <bianji />
                       </div>
                       <div class="session-btn-text">Edit</div>
                     </div>
@@ -327,7 +333,11 @@ import EvaluationSvg from '@/assets/icons/common/evaluation.svg?inline'
 import PreviousSessionsSvg from '@/assets/icons/common/PreviousSessions.svg?inline'
 import EditSvg from '@/assets/icons/common/Edit.svg?inline'
 import CopySvg from '@/assets/icons/common/copy.svg?inline'
+import Bianji from '@/assets/icons/common/Bianji.svg?inline'
+import StartEvaluation from '@/assets/icons/common/StartSession.svg?inline'
 import StartSessionSvg from '@/assets/icons/common/StartSession.svg?inline'
+import TeacherPresenting from '@/assets/icons/common/TeacherPresenting.svg?inline'
+import StudentPace from '@/assets/icons/common/StudentPace.svg?inline'
 import ClassList from '@/components/Teacher/ClassList'
 import CustomTag from '@/components/UnitPlan/CustomTag'
 import LiebiaoSvg from '@/assets/svgIcon/myContent/liebiao.svg?inline'
@@ -358,7 +368,11 @@ export default {
     TvSvg,
     EvaluationSvg,
     PreviousSessionsSvg,
+    StartEvaluation,
     StartSessionSvg,
+    Bianji,
+    TeacherPresenting,
+    StudentPace,
     CustomTag,
     ModalHeader,
     EditSvg,
@@ -830,7 +844,7 @@ export default {
           }
         }
         .action {
-          width: 380px;
+          width: 400px;
         }
 
         .action-wrapper {
@@ -878,6 +892,8 @@ export default {
                 padding-left: 7px;
                 font-family: Inter-Bold;
                 color: #182552;
+                display: flex;
+                align-items: center;
               }
             }
 
@@ -1066,6 +1082,11 @@ a.delete-action {
           line-height: 24px;
           color: #FFFFFF;
           opacity: 1;
+          display: flex;
+          align-items: center;
+          svg {
+            margin-right: 5px;
+          }
         }
       }
 
@@ -1084,6 +1105,12 @@ a.delete-action {
           line-height: 24px;
           color: #FFFFFF;
           opacity: 1;
+          display: flex;
+          align-items: center;
+
+          svg {
+            margin-right: 5px;
+          }
         }
       }
     }
