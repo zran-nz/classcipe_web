@@ -12,47 +12,52 @@
     <template slot="content">
       <a-spin :spinning="loading">
         <a-tabs>
-          <a-tab-pane tab="Message" key="1">
-            <a-list>
+          <a-tab-pane tab="Notification" key="1" >
+            <template v-if="announcement1.length === 0" >
+              <div class="no-data">
+                <no-more-resources tips="No notification"/>
+              </div>
+            </template>
+            <a-list v-if="announcement1.length > 0">
               <a-list-item class="content-item" :key="index" v-for="(record, index) in announcement1">
                 <a-list-item-meta :title="record.titile" :description="record.sendTime| dayjs" @click="showAnnouncement(record)">
-                  <a-avatar style="background-color: white" slot="avatar" src="https://gw.alipayobjects.com/zos/rmsportal/ThXAXghbEsBCCSDihZxY.png"/>
+                  <img class="message-icon" slot="avatar" src="~@/assets/icons/header/message.png"/>
                 </a-list-item-meta>
               </a-list-item>
 
-              <!--              <a-list-item @click="goPage()" class="content-item">-->
-              <!--                <a-list-item-meta title="你收到了 14 份新周报" description="一年前">-->
-              <!--                  <a-avatar style="background-color: white" slot="avatar" src="https://gw.alipayobjects.com/zos/rmsportal/ThXAXghbEsBCCSDihZxY.png"/>-->
-              <!--                </a-list-item-meta>-->
+              <!--              &lt;!&ndash;              <a-list-item @click="goPage()" class="content-item">&ndash;&gt;-->
+              <!--              &lt;!&ndash;                <a-list-item-meta title="你收到了 14 份新周报" description="一年前">&ndash;&gt;-->
+              <!--              &lt;!&ndash;                  <a-avatar style="background-color: white" slot="avatar" src="https://gw.alipayobjects.com/zos/rmsportal/ThXAXghbEsBCCSDihZxY.png"/>&ndash;&gt;-->
+              <!--              &lt;!&ndash;                </a-list-item-meta>&ndash;&gt;-->
+              <!--              &lt;!&ndash;              </a-list-item>&ndash;&gt;-->
+              <!--              &lt;!&ndash;              <a-list-item>&ndash;&gt;-->
+              <!--              &lt;!&ndash;                <a-list-item-meta title="你推荐的 曲妮妮 已通过第三轮面试" description="一年前">&ndash;&gt;-->
+              <!--              &lt;!&ndash;                  <a-avatar style="background-color: white" slot="avatar" src="https://gw.alipayobjects.com/zos/rmsportal/OKJXDXrmkNshAMvwtvhu.png"/>&ndash;&gt;-->
+              <!--              &lt;!&ndash;                </a-list-item-meta>&ndash;&gt;-->
+              <!--              &lt;!&ndash;              </a-list-item>&ndash;&gt;-->
+              <!--              &lt;!&ndash;              <a-list-item>&ndash;&gt;-->
+              <!--              &lt;!&ndash;                <a-list-item-meta title="这种模板可以区分多种通知类型" description="一年前">&ndash;&gt;-->
+              <!--              &lt;!&ndash;                  <a-avatar style="background-color: white" slot="avatar" src="https://gw.alipayobjects.com/zos/rmsportal/kISTdvpyTAhtGxpovNWd.png"/>&ndash;&gt;-->
+              <!--              &lt;!&ndash;                </a-list-item-meta>&ndash;&gt;-->
+              <!--              &lt;!&ndash;              </a-list-item>&ndash;&gt;-->
+              <!--              <div style="margin-top: 5px;text-align: center">-->
+              <!--                <a-button @click="goPage()" type="dashed" block>Show More</a-button>-->
+              <!--              </div>-->
+              <!--            </a-list>-->
+
+              <!--          <a-tab-pane tab="Notification" key="2">-->
+              <!--            <a-list>-->
+              <!--              <a-list-item :key="index" v-for="(record, index) in announcement2">-->
+              <!--                <div style="margin-left: 5%;width: 80%">-->
+              <!--                  <p><a @click="showAnnouncement(record)">{{ record.titile }}</a></p>-->
+              <!--                  <p style="color: rgba(0,0,0,.45);margin-bottom: 0px">{{ record.createTime }} release</p>-->
+              <!--                </div>-->
+              <!--                &lt;!&ndash;                <div style="text-align: right">&ndash;&gt;-->
+              <!--                &lt;!&ndash;                  <a-tag @click="showAnnouncement(record)" v-if="record.priority === 'L'" color="blue">一般消息</a-tag>&ndash;&gt;-->
+              <!--                &lt;!&ndash;                  <a-tag @click="showAnnouncement(record)" v-if="record.priority === 'M'" color="orange">重要消息</a-tag>&ndash;&gt;-->
+              <!--                &lt;!&ndash;                  <a-tag @click="showAnnouncement(record)" v-if="record.priority === 'H'" color="red">紧急消息</a-tag>&ndash;&gt;-->
+              <!--                &lt;!&ndash;                </div>&ndash;&gt;-->
               <!--              </a-list-item>-->
-              <!--              <a-list-item>-->
-              <!--                <a-list-item-meta title="你推荐的 曲妮妮 已通过第三轮面试" description="一年前">-->
-              <!--                  <a-avatar style="background-color: white" slot="avatar" src="https://gw.alipayobjects.com/zos/rmsportal/OKJXDXrmkNshAMvwtvhu.png"/>-->
-              <!--                </a-list-item-meta>-->
-              <!--              </a-list-item>-->
-              <!--              <a-list-item>-->
-              <!--                <a-list-item-meta title="这种模板可以区分多种通知类型" description="一年前">-->
-              <!--                  <a-avatar style="background-color: white" slot="avatar" src="https://gw.alipayobjects.com/zos/rmsportal/kISTdvpyTAhtGxpovNWd.png"/>-->
-              <!--                </a-list-item-meta>-->
-              <!--              </a-list-item>-->
-              <div style="margin-top: 5px;text-align: center">
-                <a-button @click="goPage()" type="dashed" block>Show More</a-button>
-              </div>
-            </a-list>
-          </a-tab-pane>
-          <a-tab-pane tab="Notification" key="2">
-            <a-list>
-              <a-list-item :key="index" v-for="(record, index) in announcement2">
-                <div style="margin-left: 5%;width: 80%">
-                  <p><a @click="showAnnouncement(record)">{{ record.titile }}</a></p>
-                  <p style="color: rgba(0,0,0,.45);margin-bottom: 0px">{{ record.createTime }} release</p>
-                </div>
-                <!--                <div style="text-align: right">-->
-                <!--                  <a-tag @click="showAnnouncement(record)" v-if="record.priority === 'L'" color="blue">一般消息</a-tag>-->
-                <!--                  <a-tag @click="showAnnouncement(record)" v-if="record.priority === 'M'" color="orange">重要消息</a-tag>-->
-                <!--                  <a-tag @click="showAnnouncement(record)" v-if="record.priority === 'H'" color="red">紧急消息</a-tag>-->
-                <!--                </div>-->
-              </a-list-item>
               <div style="margin-top: 5px;text-align: center">
                 <a-button @click="goPage()" type="dashed" block>Show More</a-button>
               </div>
@@ -75,6 +80,7 @@ import * as logger from '@/utils/logger'
 import { EditCementSend, ListCementByUser, NoticeQueryById } from '@/api/notice'
 import DynamicNotice from '@/components/NoticeIcon/DynamicNotice'
 import { RECEIVE_MSG } from '../../store/mutation-types'
+import NoMoreResources from '@/components/Common/NoMoreResources'
 
 export default {
   name: 'HeaderNotice',
@@ -96,7 +102,7 @@ export default {
     }
   },
   components: {
-    DynamicNotice
+    DynamicNotice, NoMoreResources
   },
   computed: {
     msgTotal () {
@@ -272,15 +278,29 @@ export default {
 .content-item{
   cursor: pointer;
 }
-  .header-notice{
-    display: inline-block;
-    transition: all 0.3s;
-    padding: 0px 16px;
-    cursor: pointer;
-    vertical-align: middle;
+.header-notice{
+  display: inline-block;
+  transition: all 0.3s;
+  padding: 0px 16px;
+  cursor: pointer;
+  vertical-align: middle;
 
-    span {
-      vertical-align: initial;
-    }
+  span {
+    vertical-align: initial;
   }
+}
+.message-icon{
+  width: 40px;
+  height: 40px;
+  line-height: 40px;
+  border-radius: 50%;
+}
+.no-data {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 60%;
+  margin: auto;
+}
 </style>

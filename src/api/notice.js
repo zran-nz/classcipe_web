@@ -3,7 +3,8 @@ import request from '@/utils/request'
 export const noticeAPIUrl = {
   listCementByUser: '/classcipe/sys/annountCement/listByUser',
   editCementSend: '/classcipe/sys/sysAnnouncementSend/editByAnntIdAndUserId',
-  NoticeQueryById: '/classcipe/sys/annountCement/queryById'
+  NoticeQueryById: '/classcipe/sys/annountCement/queryById',
+  listByMessage: '/classcipe/sys/annountCement/listByMessage'
 }
 
 export function EditCementSend (parameter) {
@@ -28,6 +29,14 @@ export function ListCementByUser (parameter) {
 export function NoticeQueryById (parameter) {
   return request({
     url: noticeAPIUrl.queryById,
+    method: 'get',
+    params: parameter
+  })
+}
+
+export function ListByMessage (parameter) {
+  return request({
+    url: noticeAPIUrl.listByMessage,
     method: 'get',
     params: parameter
   })
