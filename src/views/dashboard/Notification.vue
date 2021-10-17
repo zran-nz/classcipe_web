@@ -15,7 +15,7 @@
           :class="{'my-list-item': true}">
           <div slot="extra" >{{ item.sendTime| dayjs }}</div>
           <a-list-item-meta :description="item.msgContent">
-            <a slot="title" :href="item.href">{{ item.titile }}</a>
+            <a slot="title" @click="handleViewItem(item)">{{ item.titile }}</a>
             <img class="message-icon" slot="avatar" src="~@/assets/icons/header/message.png"/>
           </a-list-item-meta>
           <a-button type="primary" @click="handleView(item)">View details</a-button>
@@ -28,7 +28,8 @@
 <script>
 import { baseMixin } from '@/store/app-mixin'
 import * as logger from '@/utils/logger'
-import { NoticeQueryById, ListByMessage } from '@/api/notice'
+import { ListByMessage } from '@/api/notice'
+import { NotificationTypeMap } from '@/views/dashboard/NotificationTypeMap'
 
 const directionType = {
   horizontal: 'horizontal',
@@ -85,15 +86,18 @@ export default {
         }
       })
     },
+    // TODO 根据不同的通知类型，进行不同的操作。collaborate跳转协作页面，其他通知跳转消息详情等等。
     handleView (key, data) {
-      this.$notification.close(key)
-      var id = data.msgId
-      NoticeQueryById({ id: id }).then((res) => {
-        if (res.success) {
-          var record = res.result
-          this.showAnnouncement(record)
-        }
-      })
+      this.$logger.info('handleView ' + key, data)
+      if (data.type === NotificationTypeMap.collaborate) {
+        this.$router.push({
+          path: ''
+        })
+      } else {
+        this.$router.push({
+          path: '/notification-detail/' + data.id
+        })
+      }
     }
   }
 }

@@ -21,43 +21,13 @@
             <a-list v-if="announcement1.length > 0">
               <a-list-item class="content-item" :key="index" v-for="(record, index) in announcement1">
                 <a-list-item-meta :title="record.titile" :description="record.sendTime| dayjs" @click="showAnnouncement(record)">
-                  <img class="message-icon" slot="avatar" src="~@/assets/icons/header/message.png"/>
+                  <!-- TODO 是触发消息的用户头像 -->
+                  <img class="message-icon" slot="avatar" :src="record.avatar ? record.avatar : ''"/>
+                  <div class="my-read-status" slot="extra">
+                    <div class="read-flag-dot"></div>
+                  </div>
                 </a-list-item-meta>
               </a-list-item>
-
-              <!--              &lt;!&ndash;              <a-list-item @click="goPage()" class="content-item">&ndash;&gt;-->
-              <!--              &lt;!&ndash;                <a-list-item-meta title="你收到了 14 份新周报" description="一年前">&ndash;&gt;-->
-              <!--              &lt;!&ndash;                  <a-avatar style="background-color: white" slot="avatar" src="https://gw.alipayobjects.com/zos/rmsportal/ThXAXghbEsBCCSDihZxY.png"/>&ndash;&gt;-->
-              <!--              &lt;!&ndash;                </a-list-item-meta>&ndash;&gt;-->
-              <!--              &lt;!&ndash;              </a-list-item>&ndash;&gt;-->
-              <!--              &lt;!&ndash;              <a-list-item>&ndash;&gt;-->
-              <!--              &lt;!&ndash;                <a-list-item-meta title="你推荐的 曲妮妮 已通过第三轮面试" description="一年前">&ndash;&gt;-->
-              <!--              &lt;!&ndash;                  <a-avatar style="background-color: white" slot="avatar" src="https://gw.alipayobjects.com/zos/rmsportal/OKJXDXrmkNshAMvwtvhu.png"/>&ndash;&gt;-->
-              <!--              &lt;!&ndash;                </a-list-item-meta>&ndash;&gt;-->
-              <!--              &lt;!&ndash;              </a-list-item>&ndash;&gt;-->
-              <!--              &lt;!&ndash;              <a-list-item>&ndash;&gt;-->
-              <!--              &lt;!&ndash;                <a-list-item-meta title="这种模板可以区分多种通知类型" description="一年前">&ndash;&gt;-->
-              <!--              &lt;!&ndash;                  <a-avatar style="background-color: white" slot="avatar" src="https://gw.alipayobjects.com/zos/rmsportal/kISTdvpyTAhtGxpovNWd.png"/>&ndash;&gt;-->
-              <!--              &lt;!&ndash;                </a-list-item-meta>&ndash;&gt;-->
-              <!--              &lt;!&ndash;              </a-list-item>&ndash;&gt;-->
-              <!--              <div style="margin-top: 5px;text-align: center">-->
-              <!--                <a-button @click="goPage()" type="dashed" block>Show More</a-button>-->
-              <!--              </div>-->
-              <!--            </a-list>-->
-
-              <!--          <a-tab-pane tab="Notification" key="2">-->
-              <!--            <a-list>-->
-              <!--              <a-list-item :key="index" v-for="(record, index) in announcement2">-->
-              <!--                <div style="margin-left: 5%;width: 80%">-->
-              <!--                  <p><a @click="showAnnouncement(record)">{{ record.titile }}</a></p>-->
-              <!--                  <p style="color: rgba(0,0,0,.45);margin-bottom: 0px">{{ record.createTime }} release</p>-->
-              <!--                </div>-->
-              <!--                &lt;!&ndash;                <div style="text-align: right">&ndash;&gt;-->
-              <!--                &lt;!&ndash;                  <a-tag @click="showAnnouncement(record)" v-if="record.priority === 'L'" color="blue">一般消息</a-tag>&ndash;&gt;-->
-              <!--                &lt;!&ndash;                  <a-tag @click="showAnnouncement(record)" v-if="record.priority === 'M'" color="orange">重要消息</a-tag>&ndash;&gt;-->
-              <!--                &lt;!&ndash;                  <a-tag @click="showAnnouncement(record)" v-if="record.priority === 'H'" color="red">紧急消息</a-tag>&ndash;&gt;-->
-              <!--                &lt;!&ndash;                </div>&ndash;&gt;-->
-              <!--              </a-list-item>-->
               <div style="margin-top: 5px;text-align: center">
                 <a-button @click="goPage()" type="dashed" block>Show More</a-button>
               </div>
@@ -77,7 +47,7 @@
 
 <script>
 import * as logger from '@/utils/logger'
-import { EditCementSend, ListCementByUser, NoticeQueryById } from '@/api/notice'
+import { EditCementSend, ListCementByUser } from '@/api/notice'
 import DynamicNotice from '@/components/NoticeIcon/DynamicNotice'
 import { RECEIVE_MSG } from '../../store/mutation-types'
 import NoMoreResources from '@/components/Common/NoMoreResources'
@@ -94,9 +64,6 @@ export default {
       msg1Count: '0',
       msg2Count: '0',
       stopTimer: false,
-      websock: null,
-      lockReconnect: false,
-      heartCheck: null,
       formData: {},
       openPath: ''
     }
@@ -111,6 +78,8 @@ export default {
   },
   mounted () {
     this.loadData()
+    // 轮询消息
+    this.timerFun()
   },
   watch: {
     '$store.state.app.receiveMsg': function (newValue) {
@@ -158,17 +127,15 @@ export default {
           if (res.success) {
             this.announcement1 = res.result.anntMsgList
             this.msg1Count = res.result.anntMsgTotal
-            // this.msg1Title = '通知(' + res.result.anntMsgTotal + ')'
             this.announcement2 = res.result.sysMsgList
             this.msg2Count = res.result.sysMsgTotal
-            // this.msg2Title = '系统消息(' + res.result.sysMsgTotal + ')'
             this.$store.commit('SET_SHARED_COUNT', res.result.collaborate ? res.result.collaborate : 0)
             this.$store.commit('SET_SHARED_FIND_COUNT', res.result.collaborateFind ? res.result.collaborateFind : 0)
           }
         }).catch(error => {
-          logger.info('系统消息通知异常', error)// 这行打印permissionName is undefined
+          logger.error('系统消息通知异常', error)
           this.stopTimer = true
-          logger.info('清理timer')
+          logger.error('清理timer')
         })
       } catch (err) {
         this.stopTimer = true
@@ -204,41 +171,8 @@ export default {
         this.goPage()
       }
     },
-    modalFormOk () {
-    },
     handleHoverChange (visible) {
       this.visible = visible
-    },
-    openNotification (data) {
-      var text = data.msgTxt
-      const key = `open${Date.now()}`
-      this.$notification.open({
-        message: 'Notification',
-        placement: 'bottomRight',
-        description: text,
-        key,
-        btn: (h) => {
-          return h('a-button', {
-            props: {
-              type: 'primary',
-              size: 'small'
-            },
-            on: {
-              click: () => this.showDetail(key, data)
-            }
-          }, '查看详情')
-        }
-      })
-    },
-    showDetail (key, data) {
-      this.$notification.close(key)
-      var id = data.msgId
-      NoticeQueryById({ id: id }).then((res) => {
-        if (res.success) {
-          var record = res.result
-          this.showAnnouncement(record)
-        }
-      })
     }
   }
 }
@@ -302,5 +236,21 @@ export default {
   align-items: center;
   height: 60%;
   margin: auto;
+}
+
+.content-item {
+  position: relative;
+}
+
+.my-read-status {
+  position: absolute;
+  right: 10px;
+  top: 10px;
+}
+.read-flag-dot {
+  height: 10px;
+  width: 10px;
+  border-radius: 10px;
+  background-color: #07AB84;
 }
 </style>
