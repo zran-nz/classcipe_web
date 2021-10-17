@@ -13,7 +13,12 @@
           key="item.id"
           slot-scope="item"
           :class="{'my-list-item': true, 'my-notification-list-item': true}">
-          <div slot="extra" class="my-extra-time">{{ item.sendTime| dayjs }}</div>
+          <div slot="extra" class="my-extra-time">
+            <div class="send-time">{{ item.sendTime| dayjs }}</div>
+            <div class="read-status">
+              <div class="read-flag-dot" v-if="!item.readFlag"></div>
+            </div>
+          </div>
           <a-list-item-meta :description="item.msgContent" @click="handleViewItem(item)">
             <a slot="title">{{ item.title }}</a>
             <img class="message-icon" slot="avatar" src="~@/assets/icons/header/message.png"/>
@@ -118,6 +123,8 @@ export default {
         } else {
           this.$message.error(res.message)
         }
+      }).finally(() => {
+        this.loading = false
       })
     },
 
@@ -180,11 +187,27 @@ export default {
   cursor: pointer;
 
   .my-extra-time {
+    display: flex;
+    flex-direction: column;
+    width: 300px;
     position: absolute;
     right: 40px;
     line-height: 24px;
     color: #B2B2B2;
     top: 10px;
+    .send-time {
+      position: absolute;
+      right: 0px;
+      line-height: 24px;
+      color: #B2B2B2;
+      top: 0px;
+    }
+
+    .read-status {
+      position: absolute;
+      right: -40px;
+      top: -5px;
+    }
   }
   .message-icon {
     width: 35px;
@@ -207,5 +230,12 @@ export default {
     font-family: Inter-Bold;
     color: #11142D;
   }
+}
+
+.read-flag-dot {
+  height: 10px;
+  width: 10px;
+  border-radius: 10px;
+  background-color: rgba(21, 195, 154, 1);
 }
 </style>
