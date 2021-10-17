@@ -136,42 +136,98 @@
               <div class="filter-icon">
                 <filter-icon />
               </div>
-              <a-dropdown>
-                <a-menu slot="overlay">
-                  <a-menu-item disabled>
-                    <span>{{ $t('teacher.my-content.choose-types-of-content') }}</span>
-                  </a-menu-item>
-                  <a-menu-item @click="toggleType(0, $t('teacher.my-content.all-type'))">
-                    <span>{{ $t('teacher.my-content.all-type') }}</span>
-                  </a-menu-item>
-                  <template v-if="$store.getters.roles.indexOf('teacher') !== -1">
-                    <a-menu-item @click="toggleType( typeMap['unit-plan'], $t('teacher.my-content.unit-plan-type'))">
-                      <span>{{ $t('teacher.my-content.unit-plan-type') }}</span>
+              <div class="content-filter-list">
+                <a-dropdown class="filter-dropdown-item">
+                  <a-menu slot="overlay">
+                    <a-menu-item disabled>
+                      <span>Choose type(s)of content</span>
                     </a-menu-item>
-                    <a-menu-item @click="toggleType(typeMap.evaluation, $t('teacher.my-content.evaluation-type'))">
-                      <span>{{ $t('teacher.my-content.evaluation-type') }}</span>
+                    <a-menu-item @click="toggleType(0, $t('teacher.my-content.all-type'))">
+                      <span>{{ $t('teacher.my-content.all-type') }}</span>
                     </a-menu-item>
-                  </template>
-                  <a-menu-item @click="toggleType(typeMap.task, $t('teacher.my-content.tasks-type') )">
-                    <span>{{ $t('teacher.my-content.tasks-type') }}</span>
-                  </a-menu-item>
-                  <!--                  <a-menu-item @click="toggleType(typeMap.lesson, $t('teacher.my-content.lesson-type'))">
-                    <span>{{ $t('teacher.my-content.lesson-type') }}</span>
-                  </a-menu-item>-->
-                  <template v-if="$store.getters.roles.indexOf('expert') !== -1">
-                    <a-menu-item @click="toggleType(typeMap.topic, $t('teacher.my-content.topics-type'))">
-                      <span>{{ $t('teacher.my-content.topics-type') }}</span>
+                    <template v-if="$store.getters.roles.indexOf('teacher') !== -1">
+                      <a-menu-item @click="toggleType( typeMap['unit-plan'], $t('teacher.my-content.unit-plan-type'))">
+                        <span>{{ $t('teacher.my-content.unit-plan-type') }}</span>
+                      </a-menu-item>
+                      <a-menu-item @click="toggleType(typeMap.evaluation, $t('teacher.my-content.evaluation-type'))">
+                        <span>{{ $t('teacher.my-content.evaluation-type') }}</span>
+                      </a-menu-item>
+                    </template>
+                    <a-menu-item @click="toggleType(typeMap.task, $t('teacher.my-content.tasks-type') )">
+                      <span>{{ $t('teacher.my-content.tasks-type') }}</span>
                     </a-menu-item>
-                  </template>
-                </a-menu>
-                <a-button
-                  style="padding: 0 10px;display:flex; align-items:center ;height: 35px;border-radius: 6px;background: rgba(245, 245, 245, 0.5);font-size:13px;border: 1px solid #BCBCBC;font-family: Inter-Bold;color: #182552;">
-                  <span v-if="currentTypeLabel">{{ currentTypeLabel }}</span> <span v-else>Choose type(s)of content</span>
-                  <a-icon type="caret-down" /> </a-button>
-              </a-dropdown>
-              <div :class="{ 'sa-fa': true, 'sa-active': saActive}">
-                <div @click="saActive = !saActive">SA</div>
+                    <!--                  <a-menu-item @click="toggleType(typeMap.lesson, $t('teacher.my-content.lesson-type'))">
+                      <span>{{ $t('teacher.my-content.lesson-type') }}</span>
+                    </a-menu-item>-->
+                    <template v-if="$store.getters.roles.indexOf('expert') !== -1">
+                      <a-menu-item @click="toggleType(typeMap.topic, $t('teacher.my-content.topics-type'))">
+                        <span>{{ $t('teacher.my-content.topics-type') }}</span>
+                      </a-menu-item>
+                    </template>
+                  </a-menu>
+                  <a-button
+                    style="padding: 0 10px;
+                  display:flex; align-items:center ;
+                  border-color: #F3F3F3;
+                  box-shadow: none;
+                  height: 35px;border-radius: 2px;background: #F3F3F3;font-size:13px;
+                  font-family: Inter-Bold;color: #182552;">
+                    <span v-if="currentTypeLabel">{{ currentTypeLabel }}</span> <span v-else>Choose type(s)of content</span>
+                    <a-icon type="caret-down" /> </a-button>
+                </a-dropdown>
+                <a-dropdown class="filter-dropdown-item">
+                  <a-menu slot="overlay">
+                    <a-menu-item disabled>
+                      <span>All Concept</span>
+                    </a-menu-item>
+                    <a-menu-item @click="toggleConceptType(1, 'Concept1')">
+                      <span>Concept1</span>
+                    </a-menu-item>
+                    <a-menu-item @click="toggleConceptType(2, 'Concept2')">
+                      <span>Concept1</span>
+                    </a-menu-item>
+                    <a-menu-item @click="toggleConceptType(3, 'Concept3')">
+                      <span>Concept1</span>
+                    </a-menu-item>
+                  </a-menu>
+                  <a-button
+                    style="padding: 0 10px;
+                  display:flex; align-items:center ;
+                  border-color: #f3f3f3;
+                  box-shadow: none;
+                  height: 35px;border-radius: 2px;background: #f3f3f3;font-size:13px;
+                  font-family: Inter-Bold;color: #182552;">
+                    <span v-if="currentConceptTypeLabel">{{ currentConceptTypeLabel }}</span> <span v-else>All concept</span>
+                    <a-icon type="caret-down" /> </a-button>
+                </a-dropdown>
+
+                <a-dropdown class="filter-dropdown-item">
+                  <a-menu slot="overlay">
+                    <a-menu-item disabled>
+                      <span>SA</span>
+                    </a-menu-item>
+                    <a-menu-item @click="toggleSAType(1, 'Sa1')">
+                      <span>Sa1</span>
+                    </a-menu-item>
+                    <a-menu-item @click="toggleSAType(2, 'SA2')">
+                      <span>SA2</span>
+                    </a-menu-item>
+                    <a-menu-item @click="toggleSAType(3, 'SA3')">
+                      <span>SA3</span>
+                    </a-menu-item>
+                  </a-menu>
+                  <a-button
+                    style="padding: 0 10px;
+                  display:flex; align-items:center ;
+                  border-color: #f3f3f3;
+                  box-shadow: none;
+                  height: 35px;border-radius: 2px;background: #f3f3f3;font-size:13px;
+                  font-family: Inter-Bold;color: #182552;">
+                    <span v-if="currentSATypeLabel">{{ currentSATypeLabel }}</span> <span v-else>SA</span>
+                    <a-icon type="caret-down" /> </a-button>
+                </a-dropdown>
               </div>
+
             </div>
             <div class="switch-icon">
               <div :class="{'icon-item': true, 'active-icon': dataListMode === 'list'}" @click="handleToggleDataListMode('list')">
@@ -308,13 +364,17 @@ export default {
       bigIdeaList: [],
       currentBigIdea: null,
 
-      currentTypeLabel: 'Choose type（S）of content',
+      currentTypeLabel: 'Choose type(s)of content',
       currentType: 0,
       selectedSubect: [],
       subjectList: [],
 
       keywordSearchText: '',
-      saActive: false
+      currentConceptTypeLabel: 'All concept',
+      currentConceptType: 0,
+
+      currentSaLabel: 'SA',
+      currentSaType: 0
     }
   },
   created () {
@@ -474,6 +534,18 @@ export default {
       this.$logger.info('toggleType ' + type + ' label ' + label)
       this.currentType = type
       this.currentTypeLabel = label
+    },
+
+    toggleConceptType (type, label) {
+      this.$logger.info('toggleConceptType ' + type + ' label ' + label)
+      this.currentConceptType = type
+      this.currentConceptTypeLabel = label
+    },
+
+    toggleSAType (type, label) {
+      this.$logger.info('toggleSAType ' + type + ' label ' + label)
+      this.currentSAType = type
+      this.currentSATypeLabel = label
     }
   }
 }
@@ -620,6 +692,15 @@ export default {
               margin-right: 10px;
               svg {
                 height: 20px;
+              }
+            }
+
+            .content-filter-list {
+              display: flex;
+              align-items: center;
+              flex-direction: row;
+              .filter-dropdown-item {
+                margin-right: 10px;
               }
             }
           }
