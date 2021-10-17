@@ -33,7 +33,7 @@
               <!--// TODO 不同的消息类型不同的处理按钮逻辑-->
               <template v-if="notificationData.type === notificationTypeMap.collaborate">
                 <div class="action-item">
-                  <a-button class="gray-btn" :style="{'background': ' #E5E5E5', 'color': '#000000'}" shape="round" @click="handleRefuseCollaborate">Refuse</a-button>
+                  <a-button class="gray-btn" :style="{'background': '#E5E5E5', 'border-color': '#E5E5E5', 'color': '#000000'}" shape="round" @click="handleRefuseCollaborate">Refuse</a-button>
                 </div>
                 <div class="action-item">
                   <a-button type="primary" shape="round" @click="handleAcceptCollaborate">Accept</a-button>
@@ -41,7 +41,7 @@
               </template>
               <template v-if="notificationData.type === notificationTypeMap.star">
                 <div class="action-item">
-                  <a-button class="gray-btn" :style="{'background': ' #E5E5E5', 'border-color': '#E5E5E5', 'color': '#000000'}" shape="round" @click="handleRefuseCollaborate">Refuse</a-button>
+                  <a-button class="gray-btn" :style="{'background': '#E5E5E5', 'border-color': '#E5E5E5', 'color': '#000000'}" shape="round" @click="handleRefuseCollaborate">Refuse</a-button>
                 </div>
                 <div class="action-item">
                   <a-button type="primary" shape="round" @click="handleAcceptCollaborate">Accept</a-button>
@@ -159,6 +159,7 @@ export default {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
+  min-height: 400px;
   .top {
     padding: 0 0 10px 0;
     .left-wrapper {
@@ -189,7 +190,6 @@ export default {
   }
 
   .main-body {
-    min-height: 200px;
     background-color: #fafafa;
     opacity: 1;
     border-radius: 4px;
