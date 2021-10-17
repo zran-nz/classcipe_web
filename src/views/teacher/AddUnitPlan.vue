@@ -1583,6 +1583,7 @@ export default {
         })
       })
       const selectList = this.selectedCurriculumList.concat(this.selectedSpecificSkillList).concat(this.selectedCenturySkillList)
+        .concat(this.selectedAssessmentList)
       if (this.selectIdea) {
         if (this.selectedBigIdeaList.length > 0) {
           this.form.inquiry = this.selectedBigIdeaList[0].bigIdea
