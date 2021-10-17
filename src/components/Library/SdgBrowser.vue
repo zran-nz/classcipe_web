@@ -4,18 +4,22 @@
       <div class="browser-block-item" :style="{width: blockWidth + 'px' , minWidth: blockWidth + 'px' }">
 
         <div class="filter-block" >
-          <div class="switch-type-wrapper">
-            <a-select
-              v-model="selectedSubect"
-              class="filter-select"
-              placeholder="Select Subject"
-              :showArrow="true"
-              mode="multiple"
-              style="width: 250px">
-              <a-select-option :value="item.id" v-for="(item, index) in subjectList" :key="index" >
-                {{ item.name }}
-              </a-select-option>
-            </a-select>
+          <div class="filter-block-content">
+            <div class="filter-icon">
+              <filter-icon />
+            </div>
+            <div class="switch-type-wrapper library-select">
+              <a-select
+                v-model="selectedSubect"
+                class="filter-select library-filter-select"
+                placeholder="Select Subject"
+                :showArrow="true"
+                mode="multiple">
+                <a-select-option :value="item.id" v-for="(item, index) in subjectList" :key="index" >
+                  {{ item.name }}
+                </a-select-option>
+              </a-select>
+            </div>
           </div>
         </div>
         <!--      sdg list-->
@@ -54,19 +58,25 @@
     </div>
     <div class="browser-block-item-wrapper" :style="{width: blockWidth + 'px' , minWidth: blockWidth + 'px' }" >
       <div class="filter-block">
-        <div>
-          <a-select v-model="selectedSubect" class="filter-select" placeholder="Select Concept" :showArrow="true" mode="multiple">
-            <a-select-option :value="item.id" v-for="(item, index) in subjectList" :key="index" >
-              {{ item.name }}
-            </a-select-option>
-          </a-select>
-
-          <a-select v-model="currentSdgKeywordName" class="filter-select" placeholder="Select Keywords" >
-            <a-select-option :value="item.name" v-for="(item, index) in sdgKeywordNameList" :key="index" >
-              {{ item.name }}
-            </a-select-option>
-          </a-select>
-
+        <div class="filter-block-content">
+          <div class="filter-icon">
+            <filter-icon />
+          </div>
+          <div class="filter-list">
+            <a-select v-model="currentSdgKeywordName" class="filter-select  library-filter-select" placeholder="Select Keywords" >
+              <a-select-option :value="item.name" v-for="(item, index) in sdgKeywordNameList" :key="index" >
+                {{ item.name }}
+              </a-select-option>
+            </a-select>
+            <div class="keyword-search search-box">
+              <a-input
+                placeholder="Search key word"
+                v-model="keywordSearchText"
+                class="my-nav-search">
+                <sousuo-icon-svg slot="prefix"/>
+              </a-input>
+            </div>
+          </div>
         </div>
       </div>
       <!--     new sdg keywords description-->
@@ -93,7 +103,7 @@
       </div>-->
       <div class="description-wrapper">
         <div class="description-list">
-          <div :class="{'description-item': true, 'kd-active-item': currentBigIdea === bigIdeaItem.name}" v-for="(bigIdeaItem, bIndex) in bigIdeaList" @click="handleSelectBigIdeaItem(bigIdeaItem)" :key="bIndex">
+          <div :class="{'description-item': true, 'kd-active-item': currentBigIdea === bigIdeaItem.name}" v-for="(bigIdeaItem, bIndex) in bigIdeaList" @click="handleSelectBigIdeaItem(bigIdeaItem)" :key="bIndex" v-if="keywordSearchText ? bigIdeaItem.name && bigIdeaItem.name.indexOf(keywordSearchText) !== -1 : true">
             {{ bigIdeaItem.name }}
           </div>
         </div>
@@ -123,6 +133,9 @@
         <div class="switch-type-wrapper">
           <div class="switch-type">
             <div class="switch-label">
+              <div class="filter-icon">
+                <filter-icon />
+              </div>
               <a-dropdown>
                 <a-menu slot="overlay">
                   <a-menu-item disabled>
@@ -156,6 +169,9 @@
                   <span v-if="currentTypeLabel">{{ currentTypeLabel }}</span> <span v-else>Choose type(s)of content</span>
                   <a-icon type="caret-down" /> </a-button>
               </a-dropdown>
+              <div :class="{ 'sa-fa': true, 'sa-active': saActive}">
+                <div @click="saActive = !saActive">SA</div>
+              </div>
             </div>
             <div class="switch-icon">
               <div :class="{'icon-item': true, 'active-icon': dataListMode === 'list'}" @click="handleToggleDataListMode('list')">
@@ -237,10 +253,13 @@ import DirIcon from '@/components/Library/DirIcon'
 import NoMoreResources from '@/components/Common/NoMoreResources'
 import PuBuIcon from '@/assets/icons/library/pubu .svg?inline'
 import ListModeIcon from '@/assets/icons/library/liebiao .svg?inline'
+import FilterIcon from '@/assets/svgIcon/library/shaixuan.svg?inline'
+import SearchIcon from '@/assets/svgIcon/library/sousuo.svg?inline'
 import DataCardView from '@/components/Library/DataCardView'
 import { typeMap } from '@/const/teacher'
 import { QueryBigIdea } from '@/api/scenario'
 import { SubjectTree } from '@/api/subject'
+import SousuoIconSvg from '@/assets/icons/header/sousuo.svg?inline'
 const { ScenarioGetKeywordScenarios, QueryContentByBigIdea } = require('@/api/scenario')
 const { GetAllSdgs } = require('@/api/scenario')
 
@@ -253,7 +272,10 @@ export default {
     DirIcon,
     PuBuIcon,
     ListModeIcon,
-    DataCardView
+    FilterIcon,
+    SearchIcon,
+    DataCardView,
+    SousuoIconSvg
   },
   props: {
     blockWidth: {
@@ -289,7 +311,10 @@ export default {
       currentTypeLabel: 'Choose type（S）of content',
       currentType: 0,
       selectedSubect: [],
-      subjectList: []
+      subjectList: [],
+
+      keywordSearchText: '',
+      saActive: false
     }
   },
   created () {
@@ -588,6 +613,15 @@ export default {
             font-family: Inter-Bold;
             line-height: 20px;
             color: rgba(24, 37, 82, 1);
+            display: flex;
+            align-items: center;
+            flex-direction: row;
+            .filter-icon {
+              margin-right: 10px;
+              svg {
+                height: 20px;
+              }
+            }
           }
 
           .switch-icon {
@@ -614,6 +648,10 @@ export default {
             }
           }
         }
+      }
+
+      .library-select {
+
       }
       .browser-item {
         line-height: 20px;
@@ -793,14 +831,77 @@ export default {
 }
 
 .filter-block{
-  margin: 5px;
-  .filter-select{
-    cursor: pointer;
-    margin: 5px;
-    min-width: 150px;
-    /deep/ .ant-select-selection--multiple{
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  padding: 8px 15px 15px 15px;
+
+  .filter-block-content {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    border: 1px solid #ddd;
+    opacity: 1;
+    border-radius: 4px;
+    width: 100%;
+    padding: 5px 10px;
+    .filter-icon {
+      margin-right: 5px;
+      svg {
+        height: 20px;
+      }
+    }
+    .filter-list {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      flex-wrap: wrap;
+      width: 100%;
+      justify-content: space-between;
+    }
+    .filter-select{
       cursor: pointer;
+      margin: 5px;
+      min-width: 150px;
+      /deep/ .ant-select-selection--multiple{
+        cursor: pointer;
+      }
     }
   }
+}
+
+.library-filter-select {
+  background: #F3F3F3;
+}
+
+.keyword-search {
+  margin: 5px;
+  .my-nav-search {
+
+    svg {
+      fill: rgba(188, 188, 188, 1);
+    }
+    input {
+
+    }
+  }
+}
+
+.sa-fa {
+  cursor: pointer;
+  padding: 3px 15px;
+  background: #F5F5F5;
+  border: 1px solid #BCBCBC;
+  opacity: 1;
+  font-size: 13px;
+  font-family: Inter-Bold;
+  color: #182552;
+  margin-left: 10px;
+  border-radius: 3px;
+}
+
+.sa-active {
+  color: #fff;
+  background-color: #07AB84;
 }
 </style>
