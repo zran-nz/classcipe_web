@@ -1,56 +1,66 @@
 <template>
-  <div class="notification-detail">
-    <div class="top">
-      <div class="left-wrapper">
-        <div class="back">
-          <div class="back-icon">
-            <back-icon-svg />
+  <a-card :bordered="false">
+    <div class="notification-detail">
+      <div class="top">
+        <div class="left-wrapper">
+          <div class="back" @click="handleGoBack">
+            <div class="back-icon">
+              <img src="~@/assets/svgIcon/notification/back.png" />
+            </div>
+            <div class="back-text">
+              Back
+            </div>
           </div>
-          <div class="back-text">
-            Back
+        </div>
+      </div>
+      <div class="main-body">
+        <div class="header-line">
+          <div class="user-info">
+            <div class="avatar-wrapper">
+              <img :src="notificationData.avatar" />
+            </div>
+            <div class="post-info">
+              <div class="post-by">
+                {{ notificationData.postBy }}
+              </div>
+              <div class="post-time">
+                {{ notificationData.sendTime | dayjs }}
+              </div>
+            </div>
+          </div>
+          <div class="action-btn-wrapper">
+            <div class="action-btn-list">
+              <!--// TODO 不同的消息类型不同的处理按钮逻辑-->
+              <template v-if="notificationData.type === notificationTypeMap.collaborate">
+                <div class="action-item">
+                  <a-button class="gray-btn" :style="{'background': ' #E5E5E5', 'color': '#000000'}" shape="round" @click="handleRefuseCollaborate">Refuse</a-button>
+                </div>
+                <div class="action-item">
+                  <a-button type="primary" shape="round" @click="handleAcceptCollaborate">Accept</a-button>
+                </div>
+              </template>
+              <template v-if="notificationData.type === notificationTypeMap.star">
+                <div class="action-item">
+                  <a-button class="gray-btn" :style="{'background': ' #E5E5E5', 'border-color': '#E5E5E5', 'color': '#000000'}" shape="round" @click="handleRefuseCollaborate">Refuse</a-button>
+                </div>
+                <div class="action-item">
+                  <a-button type="primary" shape="round" @click="handleAcceptCollaborate">Accept</a-button>
+                </div>
+              </template>
+            </div>
+          </div>
+        </div>
+        <div class="content-body">
+          <div class="content-title">
+            {{ notificationData.title }}
+          </div>
+          <div class="content-detail">
+            {{ notificationData.msgContent }}
           </div>
         </div>
       </div>
     </div>
-    <div class="main-body">
-      <div class="header-line">
-        <div class="user-info">
-          <div class="avatar-wrapper">
-            <img :src="avatar" />
-          </div>
-          <div class="post-info">
-            <div class="post-by">
-              {{ notificationData.postBy }}
-            </div>
-            <div class="post-time">
-              {{ notificationData.postTime | dayjs }}
-            </div>
-          </div>
-        </div>
-        <div class="action-btn-wrapper">
-          <div class="action-btn-list">
-            <!--// TODO 不同的消息类型不同的处理按钮逻辑-->
-            <template v-if="notificationData.notificationType === notificationTypeMap.collaborate">
-              <div class="action-item">
-                <a-button class="gray-btn" :style="{'background': ' #E5E5E5', 'color': '#000000'}" shape="round" @click="handleRefuseCollaborate">Refuse</a-button>
-              </div>
-              <div class="action-item">
-                <a-button type="primary" shape="round" @click="handleAcceptCollaborate">Accept</a-button>
-              </div>
-            </template>
-          </div>
-        </div>
-      </div>
-      <div class="content-body">
-        <div class="content-title">
-          {{ notificationData.title }}
-        </div>
-        <div class="content-detail">
-          {{ notificationData.detail }}
-        </div>
-      </div>
-    </div>
-  </div>
+  </a-card>
 </template>
 
 <script>
@@ -81,7 +91,30 @@ export default {
   },
     created () {
       this.$logger.info('loadMessageData ' + this.id)
-      this.loadMessageData()
+      // 测试数据，待删除
+      const data = [{
+        id: 0,
+        avatar: 'https://dcdkqlzgpl5ba.cloudfront.net/file/202106290118339914-avatar.png',
+        readFlag: 0, // 已读状态
+        type: NotificationTypeMap.collaborate, // 消息类型
+        title: '测试，邀请你参加协作表单',
+        msgContent: 'I had heard tales of Stanley being formidable and demanding, so I was slightly on guard already. “I know,” I said, still rather taken aback. “I’m Scottish!” During the previous year, I had auditioned on tape four or five times for his new film Eyes Wide Shut. It was for a role that appeared in only one scene, with only a few minutes’ time. Finally, I was offered the part, or actually, asked were I to be offered it, would I be available. And were I available, would I accept the role? I said yes I was and yes I would, and so I did. This was Stanley Kubrick. The genius. I couldn’t pass up the chance to work with such a legend.',
+        sendTime: '2021-10-11 12:43:23',
+        postBy: 'xunwu'
+      },
+        {
+          id: 1,
+          avatar: 'https://dcdkqlzgpl5ba.cloudfront.net/file/202106290118339914-avatar.png',
+          readFlag: 0, // 已读状态
+          type: NotificationTypeMap.star, // 消息类型
+          title: '测试，你的文件被xxx点赞了',
+          msgContent: 'Finally the day came, and I found myself on set. By then, the film had been shooting for over a year and would eventually hold the record for the world’s longest continuous film shoot, coming in at 400 days! So, things were pretty well into their stride by the time I rolled up as a new boy, and here the director was already seemingly angry with me for being Scottish.',
+          sendTime: '2021-10-11 12:43:23',
+          postBy: 'xunwu'
+        }]
+      this.notificationData = data[parseInt(this.id)]
+      this.$logger.info('notificationData ', this.notificationData)
+      // this.loadMessageData()
     },
     methods: {
       loadMessageData () {
@@ -105,6 +138,15 @@ export default {
       // TODO 处理拒绝按钮逻辑
       handleAcceptCollaborate () {
 
+      },
+
+      handleGoBack () {
+        if (window.history.length <= 1) {
+          this.$router.replace({ path: '/notification' })
+          return false
+        } else {
+          this.$router.go(-1)
+        }
       }
     }
 }
@@ -114,29 +156,30 @@ export default {
 @import "~@/components/index.less";
 
 .notification-detail {
-  padding: 15px;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
   .top {
-    padding: 5px 0 10px 0;
+    padding: 0 0 10px 0;
     .left-wrapper {
       .back {
+        cursor: pointer;
         display: flex;
         flex-direction: row;
         align-items: center;
         justify-content: flex-start;
 
         .back-icon {
-          height: 30px;
+          img {
+            width: 50px;
+          }
         }
 
         .back-text {
           height: 26px;
           font-size: 18px;
           font-family: Arial;
-          font-weight: 900;
-          line-height: 20px;
+          font-weight: 600;
           color: #808191;
           opacity: 1;
           margin-left: 10px;
@@ -146,45 +189,48 @@ export default {
   }
 
   .main-body {
+    min-height: 200px;
+    background-color: #fafafa;
+    opacity: 1;
+    border-radius: 4px;
+    padding: 10px;
     display: flex;
     flex-direction: column;
     align-items: flex-start;
     .header-line {
+      display: flex;
       padding-bottom: 10px;
       flex-direction: row;
       align-items: center;
       justify-content: flex-start;
       .user-info {
+        display: flex;
         flex-direction: row;
         align-items: center;
         justify-content: flex-start;
 
         .avatar-wrapper {
           img {
-            height: 40px;
-            border-radius: 40px;
+            height: 45px;
+            border-radius: 45px;
           }
         }
 
         .post-info {
-          margin-left: 5px;
+          margin-left: 10px;
           display: flex;
           flex-direction: column;
 
           .post-by {
-            height: 26px;
-            font-size: 18px;
+            font-size: 19px;
             font-family: Arial;
-            font-weight: 900;
-            line-height: 20px;
+            font-weight: 600;
             color: #363636;
           }
 
           .post-time {
-            height: 19px;
-            font-size: 14px;
+            font-size: 12px;
             font-family: Inter-Bold;
-            line-height: 24px;
             color: #B2B2B2;
             opacity: 1;
           }
@@ -192,8 +238,9 @@ export default {
       }
 
       .action-btn-wrapper {
-        margin-left: 20px;
+        margin-left: 30px;
         .action-btn-list {
+          display: flex;
           flex-direction: row;
           align-items: center;
           justify-content: flex-start;
@@ -208,21 +255,20 @@ export default {
       display: flex;
       flex-direction: column;
       .content-title {
-        height: 26px;
+        padding: 10px 0;
         font-size: 18px;
         font-family: Arial;
         font-weight: 900;
-        line-height: 20px;
         color: #363636;
       }
 
       .content-body {
         font-size: 14px;
         font-family: Inter-Bold;
-        line-height: 26px;
         color: #11142D;
       }
     }
   }
 }
+
 </style>

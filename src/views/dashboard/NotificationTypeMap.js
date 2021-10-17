@@ -1,3 +1,4 @@
 export const NotificationTypeMap = {
-  collaborate: 'collaborate'
+  collaborate: 'collaborate',
+  star: 'star'
 }
