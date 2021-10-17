@@ -1085,6 +1085,8 @@ a.delete-action {
           opacity: 1;
           display: flex;
           align-items: center;
+          display: flex;
+          align-items: center;
           svg {
             margin-right: 5px;
           }
@@ -1149,6 +1151,8 @@ a.delete-action {
         }
 
         .session-btn-text {
+          transition: all 0.3s ease-in-out;
+          display: none;
           font-size: 13px;
           padding-left: 7px;
           font-family: Inter-Bold;
