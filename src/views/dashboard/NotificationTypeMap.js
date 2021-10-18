@@ -1,4 +1,8 @@
 export const NotificationTypeMap = {
-  collaborate: 'collaborate',
-  star: 'star'
+  collaborateInvite: 'collaborateInvite',
+  collaborateRejected: 'collaborateRejected',
+  collaborateAccepted: 'collaborateAccepted',
+  mentioned: 'mentioned',
+  replied: 'replied',
+  favorites: 'star'
 }

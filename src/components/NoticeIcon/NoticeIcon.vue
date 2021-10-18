@@ -20,12 +20,12 @@
             </template>
             <a-list v-if="announcement1.length > 0">
               <a-list-item class="content-item" :key="index" v-for="(record, index) in announcement1">
-                <a-list-item-meta :title="record.title" :description="record.sendTime| dayjs" @click="viewNotification(record)">
+                <a-list-item-meta :title="record.titile" :description="record.sendTime| dayjs" @click="viewNotification(record)">
                   <!-- TODO 是触发消息的用户头像 -->
-                  <img class="message-icon" slot="avatar" :src="record.avatar ? record.avatar : ''"/>
+                  <img class="message-icon" slot="avatar" :src="record.avatar ? record.avatar : 'https://dcdkqlzgpl5ba.cloudfront.net/file/202106290118339914-avatar.png'"/>
                 </a-list-item-meta>
                 <div class="my-read-status" slot="extra">
-                  <div class="read-flag-dot" v-if="!record.readFlag"></div>
+                  <div class="read-flag-dot"></div>
                 </div>
               </a-list-item>
               <div style="margin-top: 5px;text-align: center">
@@ -37,21 +37,18 @@
       </a-spin>
     </template>
     <span class="header-notice" ref="noticeRef" >
-      <a-badge :count="msgTotal" >
+      <a-badge :count="msg1Count" >
         <a-icon type="mail" theme="filled" :style="{ fontSize: '18px' }" :class="{'icon-active': routeActive, 'icon-inactive': !routeActive}" />
       </a-badge>
     </span>
-    <dynamic-notice ref="showDynamNotice" :path="openPath" :formData="formData"/>
   </a-popover>
 </template>
 
 <script>
 import * as logger from '@/utils/logger'
-import { EditCementSend, ListCementByUser } from '@/api/notice'
-import DynamicNotice from '@/components/NoticeIcon/DynamicNotice'
+import { ListCementByUser } from '@/api/notice'
 import { RECEIVE_MSG } from '../../store/mutation-types'
 import NoMoreResources from '@/components/Common/NoMoreResources'
-import { NotificationTypeMap } from '@/views/dashboard/NotificationTypeMap'
 export default {
   name: 'HeaderNotice',
   data () {
@@ -69,7 +66,7 @@ export default {
     }
   },
   components: {
-    DynamicNotice, NoMoreResources
+    NoMoreResources
   },
   computed: {
     msgTotal () {
@@ -79,7 +76,7 @@ export default {
   mounted () {
     this.loadData()
     // 轮询消息
-    this.timerFun()
+    // this.timerFun()
   },
   watch: {
     '$store.state.app.receiveMsg': function (newValue) {
@@ -89,19 +86,19 @@ export default {
       }
     },
     '$route.path' (toPath) {
-      logger.debug('icon route change ' + toPath)
-      if (this.announcement1.length === 0) {
-        return
-      }
-      this.announcement1.forEach(item => {
-        if (item.openPage === toPath) {
-          EditCementSend({ anntId: item.id }).then((res) => {
-            if (res.success) {
-              this.loadData()
-            }
-          })
-        }
-      })
+      // logger.debug('icon route change ' + toPath)
+      // if (this.announcement1.length === 0) {
+      //
+      // }
+      // this.announcement1.forEach(item => {
+      //   if (item.openPage === toPath) {
+      //     EditCementSend({ anntId: item.id }).then((res) => {
+      //       if (res.success) {
+      //         this.loadData()
+      //       }
+      //     })
+      //   }
+      // })
     }
   },
   methods: {
@@ -127,30 +124,6 @@ export default {
           if (res.success) {
             this.announcement1 = res.result.anntMsgList
             this.msg1Count = res.result.anntMsgTotal
-            // TODO 演示假数据，待删除
-            this.announcement1 = [
-              {
-                id: 0,
-                avatar: 'https://dcdkqlzgpl5ba.cloudfront.net/file/202106290118339914-avatar.png',
-                readFlag: 0, // 已读状态
-                type: NotificationTypeMap.collaborate, // 消息类型
-                title: '测试，邀请你参加协作表单',
-                msgContent: 'I had heard tales of Stanley being formidable and demanding, so I was slightly on guard already. “I know,” I said, still rather taken aback. “I’m Scottish!” During the previous year, I had auditioned on tape four or five times for his new film Eyes Wide Shut. It was for a role that appeared in only one scene, with only a few minutes’ time. Finally, I was offered the part, or actually, asked were I to be offered it, would I be available. And were I available, would I accept the role? I said yes I was and yes I would, and so I did. This was Stanley Kubrick. The genius. I couldn’t pass up the chance to work with such a legend.',
-                sendTime: '2021-10-11 12:43:23',
-                postBy: 'xunwu'
-              },
-              {
-                id: 1,
-                avatar: 'https://dcdkqlzgpl5ba.cloudfront.net/file/202106290118339914-avatar.png',
-                readFlag: 0, // 已读状态
-                type: NotificationTypeMap.star, // 消息类型
-                title: '测试，你的文件被xxx点赞了',
-                msgContent: 'Finally the day came, and I found myself on set. By then, the film had been shooting for over a year and would eventually hold the record for the world’s longest continuous film shoot, coming in at 400 days! So, things were pretty well into their stride by the time I rolled up as a new boy, and here the director was already seemingly angry with me for being Scottish.',
-                sendTime: '2021-10-11 12:43:23',
-                postBy: 'xunwu'
-              }
-            ]
-            this.msg1Count = this.announcement1.length
             // this.announcement2 = res.result.sysMsgList
             // this.msg2Count = res.result.sysMsgTotal
             this.$store.commit('SET_SHARED_COUNT', res.result.collaborate ? res.result.collaborate : 0)
@@ -178,10 +151,26 @@ export default {
     },
     viewNotification (record) {
       this.$logger.info('viewNotification', record)
+      // 到详情页
+      this.handleHoverChange(false)
       this.$router.push({
         path: '/notification-detail/' + record.id
       })
     },
+    // showAnnouncement (record) {
+    //   this.visible = false
+    //   if (record.openType === 'url') {
+    //     this.openPath = record.openPage
+    //     this.formData = { id: record.busId }
+    //     this.$router.push({ path: record.openPage })
+    //   } else if (record.openType === 'component') {
+    //     this.openPath = record.openPage
+    //     this.formData = { id: record.busId }
+    //     this.$refs.showDynamNotice.detail(record.openPage)
+    //   } else {
+    //     this.goPage()
+    //   }
+    // },
     handleHoverChange (visible) {
       this.visible = visible
     }

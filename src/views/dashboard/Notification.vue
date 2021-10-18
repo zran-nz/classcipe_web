@@ -16,16 +16,16 @@
           <div slot="extra" class="my-extra-time">
             <div class="send-time">{{ item.sendTime| dayjs }}</div>
             <div class="read-status">
-              <div class="read-flag-dot" v-if="!item.readFlag"></div>
+              <div class="read-flag-dot" v-if="item.readFlag === '0'"></div>
             </div>
           </div>
           <a-list-item-meta :description="item.msgContent" @click="handleViewItem(item)">
-            <a slot="title">{{ item.title }}</a>
+            <a slot="title">{{ item.titile }}</a>
             <img class="message-icon" slot="avatar" src="~@/assets/icons/header/message.png"/>
           </a-list-item-meta>
           <div class="action-bar">
             <!--// TODO 不同的消息类型不同的处理按钮逻辑-->
-            <template v-if="item.type === notificationTypeMap.collaborate">
+            <template v-if="item.busType === notificationTypeMap.collaborateInvite">
               <div class="action-item">
                 <a-button class="gray-btn" :style="{'background': ' #E5E5E5', 'border-color': '#E5E5E5', 'color': '#000000'}" shape="round" @click="handleRefuseCollaborate">Refuse</a-button>
               </div>
@@ -89,29 +89,6 @@ export default {
         logger.info('ListByMessage ', res)
         this.loading = false
         if (res.success) {
-          // TODO 演示假数据，待删除
-          res.result.records = [
-            {
-              id: 0,
-              avatar: 'https://dcdkqlzgpl5ba.cloudfront.net/file/202106290118339914-avatar.png',
-              readFlag: 0, // 已读状态
-              type: NotificationTypeMap.collaborate, // 消息类型
-              title: '测试，邀请你参加协作表单',
-              msgContent: 'I had heard tales of Stanley being formidable and demanding, so I was slightly on guard already. “I know,” I said, still rather taken aback. “I’m Scottish!” During the previous year, I had auditioned on tape four or five times for his new film Eyes Wide Shut. It was for a role that appeared in only one scene, with only a few minutes’ time. Finally, I was offered the part, or actually, asked were I to be offered it, would I be available. And were I available, would I accept the role? I said yes I was and yes I would, and so I did. This was Stanley Kubrick. The genius. I couldn’t pass up the chance to work with such a legend.',
-              sendTime: '2021-10-11 12:43:23'
-            },
-            {
-              id: 1,
-              avatar: 'https://dcdkqlzgpl5ba.cloudfront.net/file/202106290118339914-avatar.png',
-              readFlag: 0, // 已读状态
-              type: NotificationTypeMap.star, // 消息类型
-              title: '测试，你的文件被xxx点赞了',
-              msgContent: 'Finally the day came, and I found myself on set. By then, the film had been shooting for over a year and would eventually hold the record for the world’s longest continuous film shoot, coming in at 400 days! So, things were pretty well into their stride by the time I rolled up as a new boy, and here the director was already seemingly angry with me for being Scottish.',
-              sendTime: '2021-10-11 12:43:23'
-            }
-          ]
-          res.result.total = 2
-          res.result.current = 0
           if (res.result.records && res.result.records.length) {
             this.messageList = res.result.records
             this.pagination.total = res.result.total

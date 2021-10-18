@@ -31,15 +31,7 @@
           <div class="action-btn-wrapper">
             <div class="action-btn-list">
               <!--// TODO 不同的消息类型不同的处理按钮逻辑-->
-              <template v-if="notificationData.type === notificationTypeMap.collaborate">
-                <div class="action-item">
-                  <a-button class="gray-btn" :style="{'background': '#E5E5E5', 'border-color': '#E5E5E5', 'color': '#000000'}" shape="round" @click="handleRefuseCollaborate">Refuse</a-button>
-                </div>
-                <div class="action-item">
-                  <a-button type="primary" shape="round" @click="handleAcceptCollaborate">Accept</a-button>
-                </div>
-              </template>
-              <template v-if="notificationData.type === notificationTypeMap.star">
+              <template v-if="notificationData.busType === notificationTypeMap.collaborateInvite">
                 <div class="action-item">
                   <a-button class="gray-btn" :style="{'background': '#E5E5E5', 'border-color': '#E5E5E5', 'color': '#000000'}" shape="round" @click="handleRefuseCollaborate">Refuse</a-button>
                 </div>
@@ -52,7 +44,7 @@
         </div>
         <div class="content-body">
           <div class="content-title">
-            {{ notificationData.title }}
+            {{ notificationData.titile }}
           </div>
           <div class="content-detail">
             {{ notificationData.msgContent }}
@@ -66,7 +58,8 @@
 <script>
 import backIconSvg from '@/assets/svgIcon/notification/back.svg?inline'
 import { NotificationTypeMap } from '@/views/dashboard/NotificationTypeMap'
-import { NoticeQueryById } from '@/api/notice'
+import { EditCementSend, NoticeQueryById } from '@/api/notice'
+import { RECEIVE_MSG } from '@/store/mutation-types'
 export default {
   name: 'NotificationDetail',
   components: {
@@ -78,43 +71,17 @@ export default {
       required: true
     }
   },
+
+  watch: { $route (to, from) { this.loadMessageData() } },
   data () {
     return {
-      notificationData: {
-        avatar: null,
-        postBy: null,
-        postTime: '2021-10-12 12:34:24',
-        notificationType: NotificationTypeMap.collaborate
-      },
+      notificationData: {},
       notificationTypeMap: NotificationTypeMap
     }
   },
     created () {
       this.$logger.info('loadMessageData ' + this.id)
-      // 测试数据，待删除
-      const data = [{
-        id: 0,
-        avatar: 'https://dcdkqlzgpl5ba.cloudfront.net/file/202106290118339914-avatar.png',
-        readFlag: 0, // 已读状态
-        type: NotificationTypeMap.collaborate, // 消息类型
-        title: '测试，邀请你参加协作表单',
-        msgContent: 'I had heard tales of Stanley being formidable and demanding, so I was slightly on guard already. “I know,” I said, still rather taken aback. “I’m Scottish!” During the previous year, I had auditioned on tape four or five times for his new film Eyes Wide Shut. It was for a role that appeared in only one scene, with only a few minutes’ time. Finally, I was offered the part, or actually, asked were I to be offered it, would I be available. And were I available, would I accept the role? I said yes I was and yes I would, and so I did. This was Stanley Kubrick. The genius. I couldn’t pass up the chance to work with such a legend.',
-        sendTime: '2021-10-11 12:43:23',
-        postBy: 'xunwu'
-      },
-        {
-          id: 1,
-          avatar: 'https://dcdkqlzgpl5ba.cloudfront.net/file/202106290118339914-avatar.png',
-          readFlag: 0, // 已读状态
-          type: NotificationTypeMap.star, // 消息类型
-          title: '测试，你的文件被xxx点赞了',
-          msgContent: 'Finally the day came, and I found myself on set. By then, the film had been shooting for over a year and would eventually hold the record for the world’s longest continuous film shoot, coming in at 400 days! So, things were pretty well into their stride by the time I rolled up as a new boy, and here the director was already seemingly angry with me for being Scottish.',
-          sendTime: '2021-10-11 12:43:23',
-          postBy: 'xunwu'
-        }]
-      this.notificationData = data[parseInt(this.id)]
-      this.$logger.info('notificationData ', this.notificationData)
-      // this.loadMessageData()
+      this.loadMessageData()
     },
     methods: {
       loadMessageData () {
@@ -126,6 +93,11 @@ export default {
             this.notificationData = res.result
           } else {
             this.$message.error(res.message)
+          }
+        }).finally(() => {
+          if (this.notificationData.readFlag === '0') {
+            EditCementSend({ anntId: this.id })
+            this.$store.commit(RECEIVE_MSG, true)
           }
         })
       },
@@ -141,12 +113,8 @@ export default {
       },
 
       handleGoBack () {
-        if (window.history.length <= 1) {
-          this.$router.replace({ path: '/notification' })
-          return false
-        } else {
-          this.$router.go(-1)
-        }
+        this.$router.replace({ path: '/notification' })
+        return false
       }
     }
 }
