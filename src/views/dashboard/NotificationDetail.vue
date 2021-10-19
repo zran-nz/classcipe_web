@@ -31,18 +31,18 @@
           <div class="action-btn-wrapper">
             <div class="action-btn-list">
               <!--// TODO 不同的消息类型不同的处理按钮逻辑-->
-              <template v-if="notificationData.busType === notificationTypeMap.collaborateInvite">
+              <template v-if="notificationData.busType === notificationTypeMap.collaborateInvite && notificationData.busFlag === '0'">
                 <div class="action-item">
-                  <a-button class="gray-btn" :style="{'background': '#E5E5E5', 'border-color': '#E5E5E5', 'color': '#000000'}" shape="round" @click="handleRefuseCollaborate">Refuse</a-button>
+                  <a-button class="gray-btn" :loading="refuseLoading" :style="{'background': '#E5E5E5', 'border-color': '#E5E5E5', 'color': '#000000'}" shape="round" @click="handleRefuseCollaborate">Refuse</a-button>
                 </div>
                 <div class="action-item">
-                  <a-button type="primary" shape="round" @click="handleAcceptCollaborate">Accept</a-button>
+                  <a-button type="primary" :loading="acceptLoading" shape="round" @click="handleAcceptCollaborate">Accept</a-button>
                 </div>
               </template>
             </div>
           </div>
         </div>
-        <div class="content-body">
+        <div class="content-body" style="cursor: pointer" @click="showAnnouncement">
           <div class="content-title">
             {{ notificationData.titile }}
           </div>
@@ -60,6 +60,8 @@ import backIconSvg from '@/assets/svgIcon/notification/back.svg?inline'
 import { NotificationTypeMap } from '@/views/dashboard/NotificationTypeMap'
 import { EditCementSend, NoticeQueryById } from '@/api/notice'
 import { RECEIVE_MSG } from '@/store/mutation-types'
+import { DeleteCollaborate, ReceiveCollaborate } from '@/api/collaborate'
+import * as logger from '@/utils/logger'
 export default {
   name: 'NotificationDetail',
   components: {
@@ -76,7 +78,10 @@ export default {
   data () {
     return {
       notificationData: {},
-      notificationTypeMap: NotificationTypeMap
+      notificationTypeMap: NotificationTypeMap,
+      acceptLoading: false,
+      refuseLoading: false
+
     }
   },
     created () {
@@ -96,25 +101,62 @@ export default {
           }
         }).finally(() => {
           if (this.notificationData.readFlag === '0') {
-            EditCementSend({ anntId: this.id })
-            this.$store.commit(RECEIVE_MSG, true)
+            EditCementSend({ anntId: this.id }).then(() => {
+              this.$store.commit(RECEIVE_MSG, true)
+            })
           }
+        })
+      },
+
+      // TODO 处理拒绝按钮逻辑
+      handleAcceptCollaborate () {
+        this.$logger.info('handleAcceptCollaborate', this.notificationData)
+        this.acceptLoading = true
+        ReceiveCollaborate({ id: this.notificationData.busId }).then(res => {
+          logger.info('ReceiveCollaborate', res)
+          this.$message.success('collaborate success')
+        }).then(() => {
+          this.acceptLoading = false
+        }).finally(() => {
+          this.loadMessageData()
         })
       },
 
       // TODO 处理按钮逻辑
       handleRefuseCollaborate () {
-
+        this.$logger.info('handleRefuseCollaborate', this.notificationData)
+        this.refuseLoading = true
+        DeleteCollaborate({ id: this.notificationData.busId }).then(res => {
+          logger.info('handleRefuseCollaborate', res)
+        }).then(() => {
+          this.loadMessageData()
+        }).finally(() => {
+          this.refuseLoading = false
+        })
       },
 
-      // TODO 处理拒绝按钮逻辑
-      handleAcceptCollaborate () {
-
+      handleLinkItem (item, event) {
+        logger.info('handleLinkItem', item)
+        event.preventDefault()
+        event.stopPropagation()
+        const index = this.mySelectedList.indexOf(item.id)
+        if (index !== -1) {
+          this.mySelectedList.splice(index, 1)
+        } else {
+          this.mySelectedList.push(item.id)
+        }
       },
 
       handleGoBack () {
         this.$router.replace({ path: '/notification' })
         return false
+      },
+      showAnnouncement () {
+        if (this.notificationData.openType === 'url') {
+          this.openPath = this.notificationData.openPage
+          this.formData = { id: this.notificationData.busId }
+          this.$router.push({ path: this.notificationData.openPage })
+        }
       }
     }
 }

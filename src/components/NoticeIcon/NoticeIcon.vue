@@ -157,20 +157,7 @@ export default {
         path: '/notification-detail/' + record.id
       })
     },
-    // showAnnouncement (record) {
-    //   this.visible = false
-    //   if (record.openType === 'url') {
-    //     this.openPath = record.openPage
-    //     this.formData = { id: record.busId }
-    //     this.$router.push({ path: record.openPage })
-    //   } else if (record.openType === 'component') {
-    //     this.openPath = record.openPage
-    //     this.formData = { id: record.busId }
-    //     this.$refs.showDynamNotice.detail(record.openPage)
-    //   } else {
-    //     this.goPage()
-    //   }
-    // },
+
     handleHoverChange (visible) {
       this.visible = visible
     }
