@@ -371,8 +371,8 @@ export default {
             this.selectedAssessmentIdList.forEach(assessmentId => {
               selectedList.push({
                 dataType: this.currentDataType,
-                assessmentId: assessmentId,
-                assessmentData: this.selectedAssessmentMap.get(assessmentId)
+                knowledgeId: assessmentId,
+                knowledgeData: this.selectedAssessmentMap.get(assessmentId)
               })
             })
             this.$emit('select-assessmentType', selectedList)

@@ -69,7 +69,7 @@
             <!--                {{ item.name }}-->
             <!--              </a-select-option>-->
             <!--            </a-select>-->
-            <a-select v-model="selectedConcept" class="filter-select  library-filter-select" placeholder="All Concept" >
+            <a-select v-model="selectedConcept" class="filter-select  library-filter-select" placeholder="All Concept" :allowClear="true" >
               <a-select-option :value="name" v-for="(name, index) in conceptList" :key="index" >
                 {{ name }}
               </a-select-option>

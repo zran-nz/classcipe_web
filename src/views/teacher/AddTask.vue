@@ -746,9 +746,9 @@
             :select-mode="selectModel.syncData"
             question-index="_questionIndex_1"
             :sync-data="syncData"
-            :show-menu="[ NavigationType.specificSkills, NavigationType.centurySkills, NavigationType.learningOutcomes ]"
+            :show-menu="[ NavigationType.specificSkills, NavigationType.centurySkills, NavigationType.learningOutcomes, NavigationType.assessmentType ]"
             :default-active-menu="NavigationType.learningOutcomes"
-            @select-big-idea="handleSelectListData"
+            @select-assessmentType="handleSelectAssessmentType"
             @select-sync="handleSelectListData"
             @select-curriculum="handleSelectCurriculum"
             @select-subject-specific-skill="handleSelectSubjectSpecificSkillListData"
@@ -942,6 +942,7 @@
         selectedSpecificSkillList: [],
         // century skill
         selectedCenturySkillList: [],
+        selectedAssessmentList: [],
         selectModel: SelectModel,
 
         editPPTMode: false,
@@ -1721,6 +1722,12 @@
         })
       },
 
+      // TODO 选择的assessment数据
+      handleSelectAssessmentType (data) {
+        this.$logger.info('handleSelectAssessmentType', data)
+        this.selectedAssessmentList = data
+      },
+
       // TODO 自动更新选择的sync 的数据knowledgeId和name列表
       handleSelectListData (data) {
         this.$logger.info('handleSelectListData', data)
@@ -1748,6 +1755,7 @@
         this.selectedCurriculumList = []
         this.selectedSpecificSkillList = []
         this.selectedCenturySkillList = []
+        this.selectedAssessmentList = []
         this.selectSyncDataVisible = false
       },
 
@@ -1758,8 +1766,9 @@
           this.selectedSpecificSkillList,
           this.selectedCenturySkillList,
           this.selectedBigIdeaList,
+          this.selectedAssessmentList,
           this.selectedSyncList)
-         this.selectedSyncList.forEach(data => {
+        this.selectedSyncList.forEach(data => {
           const filterLearnOuts = this.form.learnOuts.filter(item => item.knowledgeId === data.knowledgeId)
           if (filterLearnOuts.length > 0) {
             return
@@ -1772,14 +1781,7 @@
           })
         })
         const selectList = this.selectedCurriculumList.concat(this.selectedSpecificSkillList).concat(this.selectedCenturySkillList)
-        console.log(selectList)
-        if (this.selectIdea) {
-          if (selectList.length > 0) {
-            this.form.inquiry = selectList[0].knowledgeData.name
-          }
-          this.selectSyncDataVisible = false
-          return
-        }
+          .concat(this.selectedAssessmentList)
         selectList.forEach(data => {
           const filterLearnOuts = this.form.learnOuts.filter(item => item.knowledgeId === data.knowledgeId)
           if (filterLearnOuts.length > 0) {
