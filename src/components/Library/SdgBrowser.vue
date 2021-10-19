@@ -10,6 +10,7 @@
             </div>
             <div class="switch-type-wrapper library-select">
               <a-select
+                @change="changeSubject"
                 v-model="selectedSubect"
                 class="filter-select library-filter-select"
                 placeholder="Select Subject"
@@ -56,16 +57,21 @@
         </template>
       </div>
     </div>
-    <div class="browser-block-item-wrapper" :style="{width: blockWidth + 'px' , minWidth: blockWidth + 'px' }" >
+    <div class="browser-block-item-wrapper browser-block-item" :style="{width: blockWidth + 'px' , minWidth: blockWidth + 'px' }" >
       <div class="filter-block">
         <div class="filter-block-content">
           <div class="filter-icon">
             <filter-icon />
           </div>
           <div class="filter-list">
-            <a-select v-model="currentSdgKeywordName" class="filter-select  library-filter-select" placeholder="Select Keywords" >
-              <a-select-option :value="item.name" v-for="(item, index) in sdgKeywordNameList" :key="index" >
-                {{ item.name }}
+            <!--            <a-select v-model="currentSdgKeywordName" class="filter-select  library-filter-select" placeholder="Select Keywords" >-->
+            <!--              <a-select-option :value="item.name" v-for="(item, index) in sdgKeywordNameList" :key="index" >-->
+            <!--                {{ item.name }}-->
+            <!--              </a-select-option>-->
+            <!--            </a-select>-->
+            <a-select v-model="selectedConcept" class="filter-select  library-filter-select" placeholder="All Concept" >
+              <a-select-option :value="name" v-for="(name, index) in conceptList" :key="index" >
+                {{ name }}
               </a-select-option>
             </a-select>
             <div class="keyword-search search-box">
@@ -108,6 +114,18 @@
           </div>
         </div>
       </div>
+
+      <template v-if="!bigIdeaList.length && !bigIdeaLoading">
+        <div class="no-data">
+          <no-more-resources />
+        </div>
+      </template>
+      <template v-if="bigIdeaLoading">
+        <div class="loading-wrapper">
+          <a-spin />
+        </div>
+      </template>
+
     </div>
     <!--    <div class="browser-block-item-wrapper" :style="{width: blockWidth + 'px' , minWidth: blockWidth + 'px' }" >-->
     <!--      &lt;!&ndash;  big idea list &ndash;&gt;-->
@@ -203,17 +221,11 @@
 
                 <a-dropdown class="filter-dropdown-item">
                   <a-menu slot="overlay">
-                    <a-menu-item disabled>
+                    <a-menu-item @click="toggleSAType(1, 'SA')">
                       <span>SA</span>
                     </a-menu-item>
-                    <a-menu-item @click="toggleSAType(1, 'Sa1')">
-                      <span>Sa1</span>
-                    </a-menu-item>
-                    <a-menu-item @click="toggleSAType(2, 'SA2')">
-                      <span>SA2</span>
-                    </a-menu-item>
-                    <a-menu-item @click="toggleSAType(3, 'SA3')">
-                      <span>SA3</span>
+                    <a-menu-item @click="toggleSAType(2, 'FA')">
+                      <span>FA</span>
                     </a-menu-item>
                   </a-menu>
                   <a-button
@@ -223,7 +235,7 @@
                   box-shadow: none;
                   height: 35px;border-radius: 2px;background: #f3f3f3;font-size:13px;
                   font-family: Inter-Bold;color: #182552;">
-                    <span v-if="currentSATypeLabel">{{ currentSATypeLabel }}</span> <span v-else>SA</span>
+                    <span>{{ currentSaFaLabel }}</span>
                     <a-icon type="caret-down" /> </a-button>
                 </a-dropdown>
               </div>
@@ -313,7 +325,7 @@ import FilterIcon from '@/assets/svgIcon/library/shaixuan.svg?inline'
 import SearchIcon from '@/assets/svgIcon/library/sousuo.svg?inline'
 import DataCardView from '@/components/Library/DataCardView'
 import { typeMap } from '@/const/teacher'
-import { QueryBigIdea } from '@/api/scenario'
+import { QueryBigIdea, QueryTagsBySubjectIds } from '@/api/scenario'
 import { SubjectTree } from '@/api/subject'
 import SousuoIconSvg from '@/assets/icons/header/sousuo.svg?inline'
 const { ScenarioGetKeywordScenarios, QueryContentByBigIdea } = require('@/api/scenario')
@@ -343,7 +355,7 @@ export default {
     return {
       typeMap: typeMap,
       sdgList: [],
-      sdgListLoading: true,
+      sdgListLoading: false,
       currentSdgId: null,
 
       sdgKeywordNameList: [],
@@ -363,6 +375,7 @@ export default {
 
       bigIdeaList: [],
       currentBigIdea: null,
+      bigIdeaLoading: false,
 
       currentTypeLabel: 'Choose type(s)of content',
       currentType: 0,
@@ -372,9 +385,11 @@ export default {
       keywordSearchText: '',
       currentConceptTypeLabel: 'All concept',
       currentConceptType: 0,
+      conceptList: [],
+      selectedConcept: undefined,
 
-      currentSaLabel: 'SA',
-      currentSaType: 0
+      currentSaFaLabel: 'SA|FA',
+      currentSaFaType: 0
     }
   },
   created () {
@@ -416,8 +431,9 @@ export default {
         this.currentSdgId = sdgItem.id
         this.sdgKeywordNameList = []
         this.currentSdgKeywordName = null
-        this.scenarioGetKeywordScenarios(sdgItem.id)
+        // this.scenarioGetKeywordScenarios(sdgItem.id)
         this.queryBigIdea()
+        this.queryTagsBySubjectIds()
         this.handleClickBlock(1, sdgItem.name)
       }
     },
@@ -460,9 +476,9 @@ export default {
     },
 
     queryBigIdea () {
-      this.dataListLoading = true
+      this.bigIdeaLoading = true
       this.$logger.info('queryBigIdeaKeyword')
-      QueryBigIdea({ keywords: this.currentSdgKeywordName, 'sdgId': this.currentSdgId }).then(response => {
+      QueryBigIdea({ keywords: this.currentSdgKeywordName, 'sdgId': this.currentSdgId, 'subjectIds': this.selectedSubect }).then(response => {
         this.$logger.info('queryBigIdeaKeyword response', response.result)
         const list = []
         response.result.forEach(bigIdea => {
@@ -473,10 +489,20 @@ export default {
         })
         this.bigIdeaList = list
       }).finally(() => {
-        this.dataListLoading = false
+        this.bigIdeaLoading = false
       })
     },
-
+    queryTagsBySubjectIds () {
+      this.$logger.info('queryTagsBySubjectIds')
+      QueryTagsBySubjectIds({ 'subjectIds': this.selectedSubect }).then(response => {
+        this.$logger.info('queryTagsBySubjectIds response', response.result)
+        if (response.success) {
+          this.conceptList = response.result['Universal Concept']
+          this.sdgKeywordNameList = response.result['Key words']
+        }
+      }).finally(() => {
+      })
+    },
     queryBigIdeaKeywords (keywordsItem) {
       this.$logger.info('queryBigIdeaKeyword', keywordsItem)
       this.dataListLoading = true
@@ -544,8 +570,12 @@ export default {
 
     toggleSAType (type, label) {
       this.$logger.info('toggleSAType ' + type + ' label ' + label)
-      this.currentSAType = type
-      this.currentSATypeLabel = label
+      this.currentSaFaType = type
+      this.currentSaFaLabel = label
+    },
+    changeSubject () {
+      this.queryTagsBySubjectIds()
+      this.queryBigIdea()
     }
   }
 }
@@ -699,6 +729,7 @@ export default {
               display: flex;
               align-items: center;
               flex-direction: row;
+              flex-wrap: wrap;
               .filter-dropdown-item {
                 margin-right: 10px;
               }
