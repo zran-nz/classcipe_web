@@ -12,6 +12,7 @@
     </div>
 
     <avatar-modal ref="modal" @ok="setAvatar" v-show="!loading"/>
+
     <a-row :gutter="[16, 16]" v-show="!loading">
       <a-col span="16" :style="{ minHeight: '180px' }" class="username-line">
         <div class="ant-upload-preview" @click="$refs.modal.edit(1)">
@@ -21,12 +22,16 @@
           </div>
           <img :src="userInfo.avatar"/>
         </div>
-        <div class="user-name">
-          <h1 v-if="!editMode">{{ userInfo.nickname }}</h1>
-          <div class="edit-user-name" v-if="editMode">
-            <a-input v-model="userInfo.tempNickname" size="large" :maxLength="80"/>
+        <div style="width: 100%">
+          <div class="user-name">
+            <h1 v-if="!editMode">{{ userInfo.nickname }}</h1>
+            <div class="edit-user-name" v-if="editMode">
+              <a-input v-model="userInfo.tempNickname" size="large" :maxLength="80"/>
+            </div>
           </div>
+          <a-icon type="profile" style="margin-left: 30px" />&nbsp&nbsp{{ userInfo.email }}
         </div>
+
       </a-col>
 
     </a-row>
@@ -231,6 +236,7 @@ export default {
         avatar: '',
         nickname: '',
         tempNickname: '',
+        email: this.$store.getters.email,
         currentRole: '',
         createTime: null,
         curriculumId: this.$store.getters.bindCurriculum,

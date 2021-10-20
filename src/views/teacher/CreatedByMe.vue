@@ -585,7 +585,7 @@ export default {
           author: this.$store.getters.email,
           slide_id: item.presentationId,
           copy_from: item.copyFromSlide,
-          file_name: item.name,
+          file_name: item.name ? item.name : 'Unnamed',
           status: lessonStatus.studentPaced,
           redirect_url: null
         }
@@ -803,9 +803,9 @@ export default {
   }
 
   .content-wrapper {
-    min-width: 1100px;
+    min-width: 900px;
     .content-list {
-      min-width: 1100px;
+      min-width: 900px;
       .my-list-item {
         overflow: hidden;
         .content-info-left {
@@ -1085,6 +1085,8 @@ a.delete-action {
           opacity: 1;
           display: flex;
           align-items: center;
+          display: flex;
+          align-items: center;
           svg {
             margin-right: 5px;
           }
@@ -1149,6 +1151,8 @@ a.delete-action {
         }
 
         .session-btn-text {
+          transition: all 0.3s ease-in-out;
+          display: none;
           font-size: 13px;
           padding-left: 7px;
           font-family: Inter-Bold;

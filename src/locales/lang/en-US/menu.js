@@ -29,6 +29,7 @@ export default {
     'menu.dashboard.monitor': 'Monitor',
     'menu.dashboard.workplace': 'Workplace',
     'menu.notification': 'Notification',
+    'menu.notification-detail': 'Notification Detail',
     'menu.search': 'Search Result',
     'menu.form': 'Form',
     'menu.form.basic-form': 'Basic Form',

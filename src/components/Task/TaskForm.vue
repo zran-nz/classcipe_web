@@ -299,6 +299,9 @@ export default {
     selectIds (value) {
       this.$logger.info('selectPageObjectIds update', value)
       this.form.selectPageObjectIds = value
+    },
+    parentFormData (v) {
+     this.form.image = v.image
     }
   },
   created () {

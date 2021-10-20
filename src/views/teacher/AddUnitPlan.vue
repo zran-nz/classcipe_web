@@ -200,7 +200,7 @@
                       <div class="form-block">
                         <comment-switch field-name="assessment" :is-active="showCollaborateCommentVisible && currentFieldName === 'assessment'" @switch="handleSwitchComment" class="my-comment-switch"/>
                         <a-form-item label="Set assessment objectives" >
-                          <a-button type="primary" @click="handleSelectDescription(false)">
+                          <a-button type="primary" @click="handleSelectDescription()">
                             <div class="btn-text" style="line-height: 20px">
                               Add assessment objectives
                             </div>
@@ -487,7 +487,6 @@
             :show-menu="showMenuList"
             :default-active-menu="defaultActiveMenu"
             @select-assessmentType="handleSelectAssessmentType"
-            @select-big-idea="handleSelectBigIdeaData"
             @select-sync="handleSelectListData"
             @select-curriculum="handleSelectCurriculum"
             @select-subject-specific-skill="handleSelectSubjectSpecificSkillListData"
@@ -744,7 +743,7 @@ export default {
       userTags: {},
       NavigationType: NavigationType,
       defaultActiveMenu: NavigationType.learningOutcomes,
-      showMenuList: [ NavigationType.sdg, NavigationType.specificSkills, NavigationType.centurySkills, NavigationType.learningOutcomes, NavigationType.assessmentType ],
+      showMenuList: [ NavigationType.specificSkills, NavigationType.centurySkills, NavigationType.learningOutcomes, NavigationType.assessmentType ],
 
       showCollaborateCommentVisible: false,
 
@@ -1333,16 +1332,10 @@ export default {
       this.collaborateContent = Object.assign({}, this.form)
       this.showCollaborateModalVisible = true
     },
-    handleSelectDescription (selectIdea) {
+    handleSelectDescription () {
       this.selectSyncDataVisible = true
-      this.selectIdea = selectIdea
-      if (selectIdea) {
-        this.showMenuList = [NavigationType.sdg]
-        this.defaultActiveMenu = NavigationType.sdg
-      } else {
-        this.showMenuList = [ NavigationType.specificSkills, NavigationType.centurySkills, NavigationType.learningOutcomes, NavigationType.assessmentType ]
-        this.defaultActiveMenu = NavigationType.learningOutcomes
-      }
+      this.showMenuList = [ NavigationType.specificSkills, NavigationType.centurySkills, NavigationType.learningOutcomes, NavigationType.assessmentType ]
+      this.defaultActiveMenu = NavigationType.learningOutcomes
     },
     handleConfirmAssociate () {
       this.$logger.info('handleConfirmAssociate')
@@ -1517,12 +1510,7 @@ export default {
     },
 
     handleSelectBigIdeaData (data) {
-      if (typeof data === 'string') {
         this.selectNewBigIdea = data
-        return
-      }
-      this.$logger.info('handleSelectBigIdeaData', data)
-      this.selectedBigIdeaList = data
     },
     // TODO 选择的assessment数据
     handleSelectAssessmentType (data) {
@@ -1583,6 +1571,7 @@ export default {
         })
       })
       const selectList = this.selectedCurriculumList.concat(this.selectedSpecificSkillList).concat(this.selectedCenturySkillList)
+        .concat(this.selectedAssessmentList)
       if (this.selectIdea) {
         if (this.selectedBigIdeaList.length > 0) {
           this.form.inquiry = this.selectedBigIdeaList[0].bigIdea

@@ -20,44 +20,14 @@
             </template>
             <a-list v-if="announcement1.length > 0">
               <a-list-item class="content-item" :key="index" v-for="(record, index) in announcement1">
-                <a-list-item-meta :title="record.titile" :description="record.sendTime| dayjs" @click="showAnnouncement(record)">
-                  <img class="message-icon" slot="avatar" src="~@/assets/icons/header/message.png"/>
+                <a-list-item-meta :title="record.titile" :description="record.sendTime| dayjs" @click="viewNotification(record)">
+                  <!-- TODO 是触发消息的用户头像 -->
+                  <img class="message-icon" slot="avatar" :src="record.avatar ? record.avatar : 'https://dcdkqlzgpl5ba.cloudfront.net/file/202106290118339914-avatar.png'"/>
                 </a-list-item-meta>
+                <div class="my-read-status" slot="extra">
+                  <div class="read-flag-dot"></div>
+                </div>
               </a-list-item>
-
-              <!--              &lt;!&ndash;              <a-list-item @click="goPage()" class="content-item">&ndash;&gt;-->
-              <!--              &lt;!&ndash;                <a-list-item-meta title="你收到了 14 份新周报" description="一年前">&ndash;&gt;-->
-              <!--              &lt;!&ndash;                  <a-avatar style="background-color: white" slot="avatar" src="https://gw.alipayobjects.com/zos/rmsportal/ThXAXghbEsBCCSDihZxY.png"/>&ndash;&gt;-->
-              <!--              &lt;!&ndash;                </a-list-item-meta>&ndash;&gt;-->
-              <!--              &lt;!&ndash;              </a-list-item>&ndash;&gt;-->
-              <!--              &lt;!&ndash;              <a-list-item>&ndash;&gt;-->
-              <!--              &lt;!&ndash;                <a-list-item-meta title="你推荐的 曲妮妮 已通过第三轮面试" description="一年前">&ndash;&gt;-->
-              <!--              &lt;!&ndash;                  <a-avatar style="background-color: white" slot="avatar" src="https://gw.alipayobjects.com/zos/rmsportal/OKJXDXrmkNshAMvwtvhu.png"/>&ndash;&gt;-->
-              <!--              &lt;!&ndash;                </a-list-item-meta>&ndash;&gt;-->
-              <!--              &lt;!&ndash;              </a-list-item>&ndash;&gt;-->
-              <!--              &lt;!&ndash;              <a-list-item>&ndash;&gt;-->
-              <!--              &lt;!&ndash;                <a-list-item-meta title="这种模板可以区分多种通知类型" description="一年前">&ndash;&gt;-->
-              <!--              &lt;!&ndash;                  <a-avatar style="background-color: white" slot="avatar" src="https://gw.alipayobjects.com/zos/rmsportal/kISTdvpyTAhtGxpovNWd.png"/>&ndash;&gt;-->
-              <!--              &lt;!&ndash;                </a-list-item-meta>&ndash;&gt;-->
-              <!--              &lt;!&ndash;              </a-list-item>&ndash;&gt;-->
-              <!--              <div style="margin-top: 5px;text-align: center">-->
-              <!--                <a-button @click="goPage()" type="dashed" block>Show More</a-button>-->
-              <!--              </div>-->
-              <!--            </a-list>-->
-
-              <!--          <a-tab-pane tab="Notification" key="2">-->
-              <!--            <a-list>-->
-              <!--              <a-list-item :key="index" v-for="(record, index) in announcement2">-->
-              <!--                <div style="margin-left: 5%;width: 80%">-->
-              <!--                  <p><a @click="showAnnouncement(record)">{{ record.titile }}</a></p>-->
-              <!--                  <p style="color: rgba(0,0,0,.45);margin-bottom: 0px">{{ record.createTime }} release</p>-->
-              <!--                </div>-->
-              <!--                &lt;!&ndash;                <div style="text-align: right">&ndash;&gt;-->
-              <!--                &lt;!&ndash;                  <a-tag @click="showAnnouncement(record)" v-if="record.priority === 'L'" color="blue">一般消息</a-tag>&ndash;&gt;-->
-              <!--                &lt;!&ndash;                  <a-tag @click="showAnnouncement(record)" v-if="record.priority === 'M'" color="orange">重要消息</a-tag>&ndash;&gt;-->
-              <!--                &lt;!&ndash;                  <a-tag @click="showAnnouncement(record)" v-if="record.priority === 'H'" color="red">紧急消息</a-tag>&ndash;&gt;-->
-              <!--                &lt;!&ndash;                </div>&ndash;&gt;-->
-              <!--              </a-list-item>-->
               <div style="margin-top: 5px;text-align: center">
                 <a-button @click="goPage()" type="dashed" block>Show More</a-button>
               </div>
@@ -67,21 +37,18 @@
       </a-spin>
     </template>
     <span class="header-notice" ref="noticeRef" >
-      <a-badge :count="msgTotal" >
+      <a-badge :count="msg1Count" >
         <a-icon type="mail" theme="filled" :style="{ fontSize: '18px' }" :class="{'icon-active': routeActive, 'icon-inactive': !routeActive}" />
       </a-badge>
     </span>
-    <dynamic-notice ref="showDynamNotice" :path="openPath" :formData="formData"/>
   </a-popover>
 </template>
 
 <script>
 import * as logger from '@/utils/logger'
-import { EditCementSend, ListCementByUser, NoticeQueryById } from '@/api/notice'
-import DynamicNotice from '@/components/NoticeIcon/DynamicNotice'
+import { ListCementByUser } from '@/api/notice'
 import { RECEIVE_MSG } from '../../store/mutation-types'
 import NoMoreResources from '@/components/Common/NoMoreResources'
-
 export default {
   name: 'HeaderNotice',
   data () {
@@ -94,15 +61,12 @@ export default {
       msg1Count: '0',
       msg2Count: '0',
       stopTimer: false,
-      websock: null,
-      lockReconnect: false,
-      heartCheck: null,
       formData: {},
       openPath: ''
     }
   },
   components: {
-    DynamicNotice, NoMoreResources
+    NoMoreResources
   },
   computed: {
     msgTotal () {
@@ -111,6 +75,8 @@ export default {
   },
   mounted () {
     this.loadData()
+    // 轮询消息
+    // this.timerFun()
   },
   watch: {
     '$store.state.app.receiveMsg': function (newValue) {
@@ -120,19 +86,19 @@ export default {
       }
     },
     '$route.path' (toPath) {
-      logger.debug('icon route change ' + toPath)
-      if (this.announcement1.length === 0) {
-        return
-      }
-      this.announcement1.forEach(item => {
-        if (item.openPage === toPath) {
-          EditCementSend({ anntId: item.id }).then((res) => {
-            if (res.success) {
-              this.loadData()
-            }
-          })
-        }
-      })
+      // logger.debug('icon route change ' + toPath)
+      // if (this.announcement1.length === 0) {
+      //
+      // }
+      // this.announcement1.forEach(item => {
+      //   if (item.openPage === toPath) {
+      //     EditCementSend({ anntId: item.id }).then((res) => {
+      //       if (res.success) {
+      //         this.loadData()
+      //       }
+      //     })
+      //   }
+      // })
     }
   },
   methods: {
@@ -158,17 +124,15 @@ export default {
           if (res.success) {
             this.announcement1 = res.result.anntMsgList
             this.msg1Count = res.result.anntMsgTotal
-            // this.msg1Title = '通知(' + res.result.anntMsgTotal + ')'
-            this.announcement2 = res.result.sysMsgList
-            this.msg2Count = res.result.sysMsgTotal
-            // this.msg2Title = '系统消息(' + res.result.sysMsgTotal + ')'
+            // this.announcement2 = res.result.sysMsgList
+            // this.msg2Count = res.result.sysMsgTotal
             this.$store.commit('SET_SHARED_COUNT', res.result.collaborate ? res.result.collaborate : 0)
             this.$store.commit('SET_SHARED_FIND_COUNT', res.result.collaborateFind ? res.result.collaborateFind : 0)
           }
         }).catch(error => {
-          logger.info('系统消息通知异常', error)// 这行打印permissionName is undefined
+          logger.error('系统消息通知异常', error)
           this.stopTimer = true
-          logger.info('清理timer')
+          logger.error('清理timer')
         })
       } catch (err) {
         this.stopTimer = true
@@ -185,60 +149,17 @@ export default {
         this.loadding = false
       }, 200)
     },
-    showAnnouncement (record) {
-      EditCementSend({ anntId: record.id }).then((res) => {
-        if (res.success) {
-          this.loadData()
-        }
+    viewNotification (record) {
+      this.$logger.info('viewNotification', record)
+      // 到详情页
+      this.handleHoverChange(false)
+      this.$router.push({
+        path: '/notification-detail/' + record.id
       })
-      this.visible = false
-      if (record.openType === 'url') {
-        this.openPath = record.openPage
-        this.formData = { id: record.busId }
-        this.$router.push({ path: record.openPage })
-      } else if (record.openType === 'component') {
-        this.openPath = record.openPage
-        this.formData = { id: record.busId }
-        this.$refs.showDynamNotice.detail(record.openPage)
-      } else {
-        this.goPage()
-      }
     },
-    modalFormOk () {
-    },
+
     handleHoverChange (visible) {
       this.visible = visible
-    },
-    openNotification (data) {
-      var text = data.msgTxt
-      const key = `open${Date.now()}`
-      this.$notification.open({
-        message: 'Notification',
-        placement: 'bottomRight',
-        description: text,
-        key,
-        btn: (h) => {
-          return h('a-button', {
-            props: {
-              type: 'primary',
-              size: 'small'
-            },
-            on: {
-              click: () => this.showDetail(key, data)
-            }
-          }, '查看详情')
-        }
-      })
-    },
-    showDetail (key, data) {
-      this.$notification.close(key)
-      var id = data.msgId
-      NoticeQueryById({ id: id }).then((res) => {
-        if (res.success) {
-          var record = res.result
-          this.showAnnouncement(record)
-        }
-      })
     }
   }
 }
@@ -302,5 +223,21 @@ export default {
   align-items: center;
   height: 60%;
   margin: auto;
+}
+
+.content-item {
+  position: relative;
+}
+
+.my-read-status {
+  position: absolute;
+  right: 10px;
+  top: 10px;
+}
+.read-flag-dot {
+  height: 10px;
+  width: 10px;
+  border-radius: 10px;
+  background-color: rgba(21, 195, 154, 1);
 }
 </style>

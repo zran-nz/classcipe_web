@@ -28,7 +28,7 @@ export function ListCementByUser (parameter) {
 
 export function NoticeQueryById (parameter) {
   return request({
-    url: noticeAPIUrl.queryById,
+    url: noticeAPIUrl.NoticeQueryById,
     method: 'get',
     params: parameter
   })
