@@ -314,7 +314,7 @@
               <a-spin size="large" />
             </div>
             <div class="thumbnail-task-list">
-              <div class="thumbnail-task-item" v-if="selectedPageIdList.length > 0 && currentTaskFormData">
+              <div class="thumbnail-task-item" v-if="currentTaskFormData">
                 <task-form :parent-form-data="currentTaskFormData" :select-ids="selectedPageIdList" :task-id="taskId" :task-prefix="'task_' + taskIndex + '_'" @finish-task="handleFinishTask" />
               </div>
               <div class="task-preview-list">
@@ -1410,6 +1410,16 @@
           this.selectedPageIdList.splice(index, 1)
         } else {
           this.selectedPageIdList.push(thumbnail.id)
+        }
+        // 处理sub task封面
+        if (this.currentTaskFormData && this.selectedPageIdList.length > 0) {
+          const pageId = this.thumbnailList.filter(item => this.selectedPageIdList.indexOf(item.id) > -1)[0].id
+          const selectPage = this.thumbnailList.filter(item => item.id === pageId)
+          if (selectPage.length > 0) {
+            this.currentTaskFormData = {}
+            this.currentTaskFormData = Object.assign({}, this.form)
+            this.currentTaskFormData.image = selectPage[0].contentUrl
+          }
         }
       },
 

@@ -803,9 +803,9 @@ export default {
   }
 
   .content-wrapper {
-    min-width: 1100px;
+    min-width: 900px;
     .content-list {
-      min-width: 1100px;
+      min-width: 900px;
       .my-list-item {
         overflow: hidden;
         .content-info-left {
