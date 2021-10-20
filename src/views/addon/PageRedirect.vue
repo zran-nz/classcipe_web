@@ -7,6 +7,7 @@
   import storage from 'store'
   import { ACCESS_TOKEN } from '@/store/mutation-types'
   import { typeMap } from '@/const/teacher'
+  import { SESSION_ACTIVE_KEY } from '@/const/common'
 
   export default {
   name: 'PageRedirect',
@@ -24,11 +25,8 @@
     }
     if (token) {
       storage.set(ACCESS_TOKEN, token)
-      if (parseInt(this.sourceType) === typeMap.lesson) {
-          this.$router.push({ path: '/teacher/add-lesson/' + this.id })
-      } else if (parseInt(this.sourceType) === typeMap.task) {
-        this.$router.push('/teacher/add-task/' + this.id)
-      }
+      window.sessionStorage.setItem(SESSION_ACTIVE_KEY, token)
+      this.$router.push('/teacher/add-task/' + this.id)
     } else {
       this.$router.push({ path: '/user/login' })
     }
