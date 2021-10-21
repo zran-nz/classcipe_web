@@ -9,7 +9,7 @@ import storage from 'store'
 import { ACCESS_TOKEN } from '@/store/mutation-types'
 import { SESSION_ACTIVE_KEY } from '@/const/common'
 
-  export default {
+export default {
   name: 'PageRedirect',
   components: {
   },
@@ -59,7 +59,7 @@ import { SESSION_ACTIVE_KEY } from '@/const/common'
 </script>
 
 <style lang="less" scoped>
-  .preview-detail{
-    /*margin: 0 auto;*/
-  }
+.preview-detail{
+  /*margin: 0 auto;*/
+}
 </style>
