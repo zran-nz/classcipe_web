@@ -11,7 +11,6 @@ export default {
   name: 'AuthCheck',
   created () {
     this.$logger.info('AuthCheck loaded!')
-
     // 没有session 数据，尝试验证token，如果失效那么重新登录
     this.$store.dispatch('GetInfo').then((data) => {
       this.$logger.info('AuthCheck token valid, go to path', data)
