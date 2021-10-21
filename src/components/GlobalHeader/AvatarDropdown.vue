@@ -1,5 +1,5 @@
 <template>
-  <a-dropdown v-if="currentUser && currentUser.nickname" placement="bottomRight">
+  <a-dropdown v-if="currentUser && currentUser.username" placement="bottomRight">
     <span class="ant-pro-account-avatar">
       <span class="avatar-name">{{ currentUser.currentRole.substr(0, 1).toUpperCase() + currentUser.currentRole.substr(1) }}</span>
       <a-avatar size="small" :src="currentUser.avatar" class="antd-pro-global-header-index-avatar" v-if="currentUser.avatar"/>
