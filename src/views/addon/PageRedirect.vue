@@ -27,6 +27,7 @@ import { SESSION_ACTIVE_KEY } from '@/const/common'
       storage.set(ACCESS_TOKEN, token)
       window.sessionStorage.setItem(SESSION_ACTIVE_KEY, token)
     }
+
     this.$logger.info('AuthCheck loaded!')
     // 没有session 数据，尝试验证token，如果失效那么重新登录
     this.$store.dispatch('GetInfo').then((data) => {
