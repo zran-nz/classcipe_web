@@ -28,6 +28,7 @@ export default {
       storage.set(ACCESS_TOKEN, token)
       window.sessionStorage.setItem(SESSION_ACTIVE_KEY, token)
     }
+
     if (store.getters.roles.length === 0) {
         this.$store.dispatch('GetInfo').then((data) => {
           this.$router.push('/teacher/add-task/' + this.id)
