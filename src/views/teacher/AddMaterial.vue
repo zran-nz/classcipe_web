@@ -225,7 +225,7 @@
                     {{ $t('teacher.add-unit-plan.or') }}
                   </a-divider>
                   <div class="action-item-column">
-                    <vue-record-audio mode="press" @result="handleAudioResult" />
+                    <!--                    <vue-record-audio mode="press" @result="handleAudioResult" />-->
                     <div class="action-tips">
                       {{ $t('teacher.add-unit-plan.record-your-voice') }}
                     </div>
