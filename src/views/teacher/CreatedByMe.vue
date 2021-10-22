@@ -99,70 +99,78 @@
                 <div class="action">
                   <div slot="actions">
                     <div class="action-wrapper">
-                      <div class="preview-session-wrapper action-item-wrapper">
-                        <a-popconfirm :title="$t('teacher.my-content.action-delete') + '?'" ok-text="Yes" @confirm="handleDeleteItem(item)" cancel-text="No">
-                          <div class="session-btn content-list-action-btn">
+
+                      <!-- Evaluation: 外置Start evaluation，Edit，折叠Delete, Duplicate-->
+
+                      <template v-if="item.type === typeMap.evaluation">
+                        <div class="start-session-wrapper action-item-wrapper">
+                          <div class="session-btn content-list-action-btn" @click="handleEvaluateItem(item)">
                             <div class="session-btn-icon">
-                              <a-icon type="delete" />
+                              <start-evaluation />
                             </div>
-                            <div class="session-btn-text">{{ $t('teacher.my-content.action-delete') }}</div>
+                            <div class="session-btn-text"> Start evaluation</div>
                           </div>
-                        </a-popconfirm>
-                      </div>
+                        </div>
+                      </template>
+                      <!-- Task: 外置teacher-pace, student-pace, Edit, 折叠Delete, Duplicate, Previous session-->
+                      <template v-if="item.type === typeMap.task">
+                        <div class="start-session-wrapper action-item-wrapper">
+                          <div class="session-btn content-list-action-btn" @click="handleStartSessionTags(item)">
+                            <div class="session-btn-icon">
+                              <teacher-presenting />
+                            </div>
+                            <div class="session-btn-text"> Teacher-pace</div>
+                          </div>
+                        </div>
+                        <div class="start-session-wrapper action-item-wrapper">
+                          <div class="session-btn content-list-action-btn" @click="handleStartSessionTags(item)">
+                            <div class="session-btn-icon">
+                              <student-pace />
+                            </div>
+                            <div class="session-btn-text"> Student-pace</div>
+                          </div>
+                        </div>
+                      </template>
+                      <!-- Unit plan:外置Edit，折叠Delete, Duplicate-->
+
                       <div class="start-session-wrapper action-item-wrapper">
                         <div class="session-btn content-list-action-btn" @click="handleEditItem(item)">
                           <div class="session-btn-icon">
-                            <a-icon type="form" />
+                            <bianji />
                           </div>
                           <div class="session-btn-text"> {{ $t('teacher.my-content.action-edit') }}</div>
-                        </div>
-                      </div>
-                      <div class="start-session-wrapper action-item-wrapper">
-                        <div class="session-btn content-list-action-btn" @click="handleDuplicateItem(item)">
-                          <div class="session-btn-icon">
-                            <a-icon type="copy" />
-                          </div>
-                          <div class="session-btn-text"> Duplicate</div>
                         </div>
                       </div>
                       <div class="more-action-wrapper action-item-wrapper" >
                         <a-dropdown>
                           <a-icon type="more" style="margin-right: 8px" />
                           <a-menu slot="overlay">
+                            <a-menu-item>
+                              <a-popconfirm :title="$t('teacher.my-content.action-delete') + '?'" ok-text="Yes" @confirm="handleDeleteItem(item)" cancel-text="No">
+                                <a>
+                                  <a-icon type="delete" theme="filled" /> {{ $t('teacher.my-content.action-delete') }}
+                                </a>
+                              </a-popconfirm>
+                            </a-menu-item>
+                            <a-menu-item>
+                              <a @click="handleDuplicateItem(item)">
+                                <a-icon type="copy" /> Duplicate
+                              </a>
+                            </a-menu-item>
                             <!-- Task里面有teacher-pace, student-pace, previous session -->
                             <template v-if="item.type === typeMap.task">
-                              <a-menu-item>
-                                <a @click="handleStartSessionTags(item)">
-                                  <start-session-svg /> Teacher-pace
-                                </a>
-                              </a-menu-item>
-                              <a-menu-item>
-                                <a @click="handleStartSessionTags(item)">
-                                  <start-session-svg /> Student-pace
-                                </a>
-                              </a-menu-item>
                               <a-menu-item>
                                 <a @click="handleViewPreviewSession(item)">
                                   <previous-sessions-svg /> Previous session
                                 </a>
                               </a-menu-item>
-
                             </template>
 
-                            <!-- Evaluation有Start evaluation -->
-                            <template v-if="item.type === typeMap.evaluation">
-                              <a-menu-item>
-                                <a @click="handleEvaluateItem(item)">
-                                  <a-icon type="copy" /> Start evaluation
-                                </a>
-                              </a-menu-item>
-                            </template>
                           </a-menu>
                         </a-dropdown>
                       </div>
                     </div>
                   </div></div></span>
-
             </a-list-item>
           </a-list>
           <a-list
@@ -182,40 +190,55 @@
                       <a-menu slot="overlay">
                         <a-menu-item>
                           <a-popconfirm :title="$t('teacher.my-content.action-delete') + '?'" ok-text="Yes" @confirm="handleDeleteItem(item)" cancel-text="No">
-                            <a href="#" class="delete-action">
-                              <a-icon type="delete" /> {{ $t('teacher.my-content.action-delete') }}
+                            <a>
+                              <a-icon type="delete" theme="filled" /> {{ $t('teacher.my-content.action-delete') }}
                             </a>
                           </a-popconfirm>
                         </a-menu-item>
+                        <a-menu-item>
+                          <a @click="handleDuplicateItem(item)">
+                            <a-icon type="copy" /> Duplicate
+                          </a>
+                        </a-menu-item>
+                        <!-- Task里面有teacher-pace, student-pace, previous session -->
+                        <template v-if="item.type === typeMap.task">
+                          <a-menu-item>
+                            <a @click="handleViewPreviewSession(item)">
+                              <previous-sessions-svg /> Previous session
+                            </a>
+                          </a-menu-item>
+                        </template>
                       </a-menu>
                     </a-dropdown>
                   </div>
                   <div class="action-item action-item-center">
-                    <div class="session-btn session-btn-left" @click.stop="handleStartSessionTags(item)" v-if="item.type === typeMap['lesson'] || item.type === typeMap['task']" >
-                      <div class="session-btn-text">Teacher presenting</div>
+                    <div class="session-btn session-btn-left" @click.stop="handleStartSessionTags(item)" v-if="item.type === typeMap['task']" >
+                      <div class="session-btn-text">
+                        <teacher-presenting />
+                        Teacher-pace
+                      </div>
                     </div>
-                    <div class="session-btn session-btn-right" @click.stop="handleStartSessionTags(item)" v-if="item.type === typeMap['lesson'] || item.type === typeMap['task']">
-                      <div class="session-btn-text">Student-Paced</div>
+                    <div class="session-btn session-btn-right" @click.stop="handleStartSessionTags(item)" v-if="item.type === typeMap['task']">
+                      <div class="session-btn-text">
+                        <student-pace />
+                        Student-pace
+                      </div>
                     </div>
                   </div>
                   <div class="action-item action-item-bottom" >
+                    <template v-if="item.type === typeMap.evaluation">
+                      <div class="session-btn" @click.stop="handleEvaluateItem(item)">
+                        <div class="session-btn-icon content-list-action-btn">
+                          <start-evaluation />
+                        </div>
+                        <div class="session-btn-text">Start evaluation</div>
+                      </div>
+                    </template>
                     <div class="session-btn" @click.stop="handleEditItem(item)">
                       <div class="session-btn-icon content-list-action-btn">
-                        <edit-svg />
+                        <bianji />
                       </div>
                       <div class="session-btn-text">Edit</div>
-                    </div>
-                    <div class="session-btn" @click.stop="handleDuplicateItem(item)">
-                      <div class="session-btn-icon content-list-action-btn">
-                        <a-icon type="copy" />
-                      </div>
-                      <div class="session-btn-text">Duplicate</div>
-                    </div>
-                    <div class="session-btn" @click.stop="handleViewPreviewSession(item)" v-if="item.type === typeMap['lesson'] || item.type === typeMap['task']">
-                      <div class="session-btn-icon content-list-action-btn">
-                        <previous-sessions-svg />
-                      </div>
-                      <div class="session-btn-text">Previous</div>
                     </div>
                   </div>
                 </div>
@@ -310,7 +333,11 @@ import EvaluationSvg from '@/assets/icons/common/evaluation.svg?inline'
 import PreviousSessionsSvg from '@/assets/icons/common/PreviousSessions.svg?inline'
 import EditSvg from '@/assets/icons/common/Edit.svg?inline'
 import CopySvg from '@/assets/icons/common/copy.svg?inline'
+import Bianji from '@/assets/icons/common/Bianji.svg?inline'
+import StartEvaluation from '@/assets/icons/common/StartEvaluation.svg?inline'
 import StartSessionSvg from '@/assets/icons/common/StartSession.svg?inline'
+import TeacherPresenting from '@/assets/icons/common/TeacherPresenting.svg?inline'
+import StudentPace from '@/assets/icons/common/StudentPace.svg?inline'
 import ClassList from '@/components/Teacher/ClassList'
 import CustomTag from '@/components/UnitPlan/CustomTag'
 import LiebiaoSvg from '@/assets/svgIcon/myContent/liebiao.svg?inline'
@@ -341,7 +368,11 @@ export default {
     TvSvg,
     EvaluationSvg,
     PreviousSessionsSvg,
+    StartEvaluation,
     StartSessionSvg,
+    Bianji,
+    TeacherPresenting,
+    StudentPace,
     CustomTag,
     ModalHeader,
     EditSvg,
@@ -500,7 +531,7 @@ export default {
       this.$logger.info('handleDuplicateItem', item)
       this.$confirm({
         title: 'Confirm duplicate',
-        content: 'Are you sure to duplicate ' + item.name + ' ?"',
+        content: 'Are you sure to duplicate ' + item.name + ' ?',
         centered: true,
         onOk: () => {
           this.loading = true
@@ -553,7 +584,8 @@ export default {
         const requestData = {
           author: this.$store.getters.email,
           slide_id: item.presentationId,
-          file_name: item.name,
+          copy_from: item.copyFromSlide,
+          file_name: item.name ? item.name : 'Unnamed',
           status: lessonStatus.studentPaced,
           redirect_url: null
         }
@@ -611,7 +643,7 @@ export default {
             // const targetUrl = lessonHost + 'slide_id=' + item.presentationId + '&class_id=' + res.data.class_id + '&direct=true&currentPage=0&type=dashboard'
             const targetUrl = lessonHost + 'd/' + res.data.class_id
             this.$logger.info('try open ' + targetUrl)
-            window.open(targetUrl, '_blank', 'height=700, width=1200, top=100, left= 100 toolbar=no, menubar=no, scrollbars=no, location=no, status=no')
+            window.open(targetUrl, '_blank')
           } else {
             this.$message.warn('StartLesson Failed! ' + res.message)
           }
@@ -687,10 +719,6 @@ export default {
   padding: 15px 10px;
   margin-bottom: 15px;
   cursor: pointer;
-}
-
-.my-list-item:hover {
-  box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.16);
 }
 
 .my-content {
@@ -775,127 +803,149 @@ export default {
   }
 
   .content-wrapper {
-    min-width: 800px;
+    min-width: 900px;
     .content-list {
-      min-width: 800px;
-      .content-info-left {
-        cursor: pointer;
-        display: flex;
-        justify-content: flex-start;
-        align-items: center;
+      min-width: 900px;
+      .my-list-item {
+        overflow: hidden;
+        .content-info-left {
+          cursor: pointer;
+          display: flex;
+          justify-content: flex-start;
+          align-items: center;
 
-        .status-icon-item {
-          font-size: 18px;
-          width: 40px;
+          .status-icon-item {
+            font-size: 18px;
+            width: 40px;
+          }
+
+          &:hover {
+            color: @primary-color;
+          }
+        }
+        .content-info-right {
+          cursor: pointer;
+          display: flex;
+          justify-content: flex-end;
+          align-items: center;
+
+          .update-time {
+            width: 130px;
+            color: #11142D;
+            font-size: 13px;
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+          }
+          .status {
+            font-family: Inter-Bold;
+            line-height: 24px;
+            color: #11142D;
+            width: 70px;
+          }
+        }
+        .action {
+          width: 400px;
         }
 
-        &:hover {
-          color: @primary-color;
-        }
-      }
-      .content-info-right {
-        cursor: pointer;
-        display: flex;
-        justify-content: flex-end;
-        align-items: center;
-
-        .update-time {
-          width: 150px;
-          color: #11142D;
-          font-size: 13px;
-          overflow: hidden;
-          white-space: nowrap;
-          text-overflow: ellipsis;
-        }
-        .status {
-          font-family: Inter-Bold;
-          line-height: 24px;
-          color: #11142D;
-          width: 80px;
-        }
-      }
-      .action {
-        width: 360px;
-      }
-
-      .action-wrapper {
-        display: flex;
-        flex-direction: row;
-        align-items: center;
-        justify-content: flex-end;
-
-        .action-item-wrapper {
+        .action-wrapper {
+          height: 33px;
           display: flex;
           flex-direction: row;
           align-items: center;
-          justify-content: center;
-          margin-left: 5px;
+          justify-content: flex-end;
 
-          .session-btn {
-            display: flex;
-            border-radius: 32px;
+          .action-item-wrapper {
+            display: none;
             flex-direction: row;
             align-items: center;
             justify-content: center;
-            padding: 6px 13px;
-            background: rgba(245, 245, 245, 0.5);
-            opacity: 1;
-            border: 1px solid rgba(188, 188, 188, 1);
+            margin-left: 5px;
 
-            .session-btn-icon {
+            .session-btn {
               display: flex;
+              border-radius: 32px;
               flex-direction: row;
               align-items: center;
               justify-content: center;
-              font-size: 13px;
-              i {
-                svg {
-                  height: 14px;
-                  fill: #182552;
-                  stroke: #182552;
-                  stroke-width: 0.5px;
+              padding: 6px 13px;
+              background: rgba(245, 245, 245, 0.5);
+              opacity: 1;
+              border: 1px solid rgba(188, 188, 188, 1);
+
+              .session-btn-icon {
+                display: flex;
+                flex-direction: row;
+                align-items: center;
+                justify-content: center;
+                font-size: 13px;
+                i {
+                  svg {
+                    height: 14px;
+                    fill: #182552;
+                    stroke: #182552;
+                    stroke-width: 0.5px;
+                  }
                 }
               }
+              .session-btn-text {
+                font-size: 13px;
+                padding-left: 7px;
+                font-family: Inter-Bold;
+                color: #182552;
+                display: flex;
+                align-items: center;
+              }
             }
-            .session-btn-text {
-              font-size: 13px;
-              padding-left: 7px;
-              font-family: Inter-Bold;
-              color: #182552;
-            }
-          }
 
-          .session-btn:hover {
-            border-color: #15c39a;
-            background: rgba(21, 195, 154, 0.1);
-            .session-btn-icon {
-              i {
+            .session-btn:hover {
+              border-color: #15c39a;
+              background: rgba(21, 195, 154, 0.1);
+              .session-btn-icon {
+                i {
+                  svg {
+                    fill: #15c39a;
+                    stroke: #15c39a;
+                    stroke-width: 0.5px;
+                  }
+                }
+
                 svg {
                   fill: #15c39a;
                   stroke: #15c39a;
                   stroke-width: 0.5px;
                 }
               }
-            }
 
-            .session-btn-text {
-              display: inline-block;
-              color: #15C39A;
+              .session-btn-text {
+                display: inline-block;
+                color: #15C39A;
+              }
             }
           }
         }
-      }
 
-      .name-content {
-        text-align: left;
-        font-family: Inter-Bold;
-        line-height: 24px;
-        color: #11142D;
-        display: inline-block;
-        max-width: 450px;
-        overflow: hidden;
-        white-space: nowrap;
-        text-overflow: ellipsis;
+        .name-content {
+          padding-left: 5px;
+          text-align: left;
+          font-family: Inter-Bold;
+          line-height: 24px;
+          color: #11142D;
+          display: inline-block;
+          max-width: 400px;
+          overflow: hidden;
+          white-space: nowrap;
+          text-overflow: ellipsis;
+        }
+
+        &:hover {
+          box-shadow: 3px 3px 3px rgba(0, 0, 0, 0.10);
+          .action-wrapper {
+            .action-item-wrapper {
+              display: flex;
+            }
+          }
+        }
       }
     }
   }
@@ -1033,6 +1083,13 @@ a.delete-action {
           line-height: 24px;
           color: #FFFFFF;
           opacity: 1;
+          display: flex;
+          align-items: center;
+          display: flex;
+          align-items: center;
+          svg {
+            margin-right: 5px;
+          }
         }
       }
 
@@ -1051,6 +1108,12 @@ a.delete-action {
           line-height: 24px;
           color: #FFFFFF;
           opacity: 1;
+          display: flex;
+          align-items: center;
+
+          svg {
+            margin-right: 5px;
+          }
         }
       }
     }
@@ -1088,6 +1151,7 @@ a.delete-action {
         }
 
         .session-btn-text {
+          transition: all 0.3s ease-in-out;
           display: none;
           font-size: 13px;
           padding-left: 7px;

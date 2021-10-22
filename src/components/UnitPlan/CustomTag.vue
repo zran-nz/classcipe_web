@@ -10,7 +10,7 @@
           <a-row>
             <a-col offset="0" span="24">
               <div class="skt-tag-list" >
-                <div class="skt-tag-item " v-for="tag in tagList" :key="tag.name" >
+                <div class="skt-tag-item " v-for="tag in showTagList" :key="tag.name" >
                   <a-tooltip :title="tag.parentName">
                     <a-tag
                       :closable="customTagsList.indexOf(tag.parentName)!== -1"
@@ -170,6 +170,18 @@ export default {
     this.debouncedSearchKnowledge = debounce(this.searchTag, 500)
     this.handleUserTagsMap()
   },
+  computed: {
+    showTagList: function () {
+       const showList = []
+       this.tagList.forEach(item => {
+         if (this.customTagsList.indexOf(item.parentName) > -1) {
+           showList.push(item)
+         }
+       })
+      const lastList = this.tagList.filter(item => showList.indexOf(item) === -1)
+      return showList.concat(lastList)
+    }
+  },
   watch: {
     selectedTagsList () {
        this.tagList = this.selectedTagsList
@@ -261,7 +273,7 @@ export default {
       }
     },
     selectChooseTag (parent, tag) {
-        this.tagList.push({
+        this.tagList.unshift({
           'parentName': parent,
           'name': tag,
           'id': this.tagList.length
@@ -276,13 +288,10 @@ export default {
     },
     handleCreateTagByInput () {
       this.$logger.info('skill handleCreateTagByInput ' + this.createTagName)
-      const existTag = this.tagList.find(item => item.name === this.createTagName)
-      const userTypeTags = this.userTagsMap.get(this.selectLabel)
-      if (!userTypeTags) {
-        this.$message.warn('Please click tab')
-        return
-      }
-      if (existTag || userTypeTags.has(this.createTagName)) {
+      const existTag = this.tagList.find(item => item.name.toLowerCase() === this.createTagName.toLowerCase())
+      const userTypeTags = Array.from(this.userTagsMap.get(this.selectLabel))
+      const existTag2 = userTypeTags.filter(name => name.toLocaleString() === this.createTagName.toLowerCase()).length > 0
+      if (existTag || existTag2) {
         this.$message.warn('already exist same name tag')
       } else {
         var item = {

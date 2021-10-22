@@ -5,7 +5,8 @@ export const questionAPIUrl = {
   QuestionQueryById: '/classcipe/api/question/queryById',
   QuestionDelete: '/classcipe/api/question/delete',
   QuestionDeleteBatch: '/classcipe/api/question/deleteBatch',
-  QuestionList: '/classcipe/api/question/list'
+  QuestionList: '/classcipe/api/question/list',
+  FindQuestionsByBigIdea: '/classcipe/api/question/findQuestionsByBigIdea'
 }
 
 /**
@@ -79,5 +80,16 @@ export function QuestionList (parameter) {
     url: questionAPIUrl.QuestionList,
     method: 'get',
     params: parameter
+  })
+}
+
+export function FindQuestionsByBigIdea (parameter) {
+  return request({
+    url: questionAPIUrl.FindQuestionsByBigIdea,
+    method: 'post',
+    data: parameter,
+    headers: {
+      'Content-Type': 'application/json;charset=UTF-8'
+    }
   })
 }

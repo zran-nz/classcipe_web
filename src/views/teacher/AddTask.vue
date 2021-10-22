@@ -20,37 +20,8 @@
               <div class="task-form-left root-locate-form" ref="form" @click="focusInput($event)">
                 <a-form-model :model="form" class="my-form-wrapper" >
                   <a-steps :current="currentActiveStepIndex" direction="vertical" @change="onChangeStep">
-                    <a-step title="Edit course info" :status="currentActiveStepIndex === 0 ? 'process':'wait'">
+                    <a-step class="step-1" title="Edit course info" :status="currentActiveStepIndex === 0 ? 'process':'wait'">
                       <template v-if="currentActiveStepIndex === 0" slot="description">
-                        <div class="form-block" >
-                          <div class="header-action">
-                            <div class="header-action-item">
-                              <a-button @click="handleEditGoogleSlide" :style="{'display': 'flex', 'align-items': 'center', 'justify-content': 'center', 'padding': '20px 15px', 'border-radius': '5px'}" type="primary" >
-                                <img src="~@/assets/icons/task/path.png" class="btn-icon"/>
-                                <div class="btn-text">
-                                  Edit my task in google slide
-                                </div>
-                              </a-button>
-                            </div>
-                            <div class="header-action-item">
-                              <a-button @click="handleStartSessionTags" :style="{'display': 'flex', 'align-items': 'center', 'justify-content': 'center', 'padding': '20px 15px', 'border-radius': '5px'}" type="primary" >
-                                <img src="~@/assets/icons/task/startTask.png" class="btn-icon"/>
-                                <div class="btn-text">
-                                  Start a session
-                                </div>
-                              </a-button>
-                            </div>
-
-                            <div class="header-action-item">
-                              <a-button @click="handleStartSession('dash')" :style="{'display': 'flex', 'align-items': 'center', 'justify-content': 'center', 'padding': '20px 15px', 'border-radius': '5px'}" type="primary" >
-                                <img src="~@/assets/icons/task/startTask.png" class="btn-icon"/>
-                                <div class="btn-text">
-                                  Start a dash
-                                </div>
-                              </a-button>
-                            </div>
-                          </div>
-                        </div>
 
                         <div class="form-block" >
                           <comment-switch field-name="name" :is-active="showCollaborateCommentVisible && currentFieldName === 'name'" @switch="handleSwitchComment" class="my-comment-switch"/>
@@ -117,6 +88,12 @@
 
                     <a-step title="Edit your course slides" :status="currentActiveStepIndex === 1 ? 'process':'wait'">
                       <template v-if="currentActiveStepIndex === 1" slot="description">
+                        <div class="edit-in-slide">
+                          <a-button class="action-ensure action-item edit-slide" type="primary" shape="round" @click="handleOpenGoogleSlide(presentationLink)">
+                            <img src="~@/assets/icons/task/path.png" class="btn-icon"/>
+                            Edit In Google Slide
+                          </a-button>
+                        </div>
                         <a-skeleton :loading="skeletonLoading" active>
                           <div class="slide-select-wrapper" ref="slide">
                             <div class="slide-select">
@@ -199,25 +176,26 @@
               </div>
 
               <div class="task-form-right">
-
                 <template v-if="showAllCollaborateCommentVisible">
-                  <div class="collaborate-panel" :style="{'width':'600px', 'margin-top': '0px', 'z-index': 100}">
-                    <div class="icon">
-                      <comment-icon />
+                  <a-skeleton :loading="showHistoryLoading" active>
+                    <div class="collaborate-panel" :style="{'width':'600px', 'margin-top': '0px', 'z-index': 100, 'padding': '10px'}">
+                      <div class="icon">
+                        <comment-icon />
+                      </div>
+                      <a-tabs default-active-key="1">
+                        <a-tab-pane key="1" tab="Comment">
+                          <collaborate-comment-view :source-id="taskId" :source-type="contentType.task" :comment-list="collaborateCommentList" @update-comment="handleUpdateCommentList"/>
+                        </a-tab-pane>
+                        <a-tab-pane key="2" tab="History" force-render>
+                          <collaborate-history :history-list="historyList" @restore="handleRestoreField"/>
+                        </a-tab-pane>
+                      </a-tabs>
                     </div>
-                    <a-tabs default-active-key="1">
-                      <a-tab-pane key="1" tab="Comment">
-                        <collaborate-comment-view :source-id="taskId" :source-type="contentType.task" :comment-list="collaborateCommentList" @update-comment="handleUpdateCommentList"/>
-                      </a-tab-pane>
-                      <a-tab-pane key="2" tab="History" force-render>
-                        <collaborate-history :history-list="historyList" @restore="handleRestoreField"/>
-                      </a-tab-pane>
-                    </a-tabs>
-                  </div>
+                  </a-skeleton>
                 </template>
                 <template v-else>
                   <template v-if="showCollaborateCommentVisible">
-                    <div class="collaborate-panel" :style="{'width':'600px', 'margin-top':collaborateTop+'px', 'z-index': 100}">
+                    <div class="collaborate-panel" :style="{'width':'600px', 'margin-top':collaborateTop+'px', 'z-index': 100, 'padding': '10px'}">
                       <collaborate-comment-panel :source-id="taskId" :source-type="contentType.task" :field-name="currentFieldName" :comment-list="currentCollaborateCommentList" @update-comment="handleUpdateCommentList"/>
                     </div>
                   </template>
@@ -303,7 +281,7 @@
                         </div>
                       </div>
                     </div>
-                    <div v-if="!this.contentLoading && this.currentActiveStepIndex !== 1" :style="{'width':'600px','position': 'absolute', 'top':customTagTop+'px'}">
+                    <div v-if="!this.contentLoading && this.currentActiveStepIndex !== 1" :style="{'width':'600px', 'margin-top':customTagTop+'px'}">
                       <custom-tag
                         :show-arrow="showCustomTag"
                         :user-tags="userTags"
@@ -336,8 +314,8 @@
               <a-spin size="large" />
             </div>
             <div class="thumbnail-task-list">
-              <div class="thumbnail-task-item" v-if="selectedPageIdList.length > 0">
-                <task-form :select-ids="selectedPageIdList" :task-id="taskId" :task-prefix="'task_' + taskIndex + '_'" @finish-task="handleFinishTask" />
+              <div class="thumbnail-task-item" v-if="currentTaskFormData">
+                <task-form :parent-form-data="currentTaskFormData" :select-ids="selectedPageIdList" :task-id="taskId" :task-prefix="'task_' + taskIndex + '_'" @finish-task="handleFinishTask" />
               </div>
               <div class="task-preview-list">
                 <div class="task-preview" v-for="(task, index) in subTasks" :key="index">
@@ -347,6 +325,12 @@
                   <!--                  </div>-->
                 </div>
               </div>
+            </div>
+          </div>
+          <div class="no-data-slide-form-block" v-show="!form.presentationId">
+            <no-more-resources tips="The slide has not been created" />
+            <div class="go-to-create">
+              <a-button type="primary" @click="handleGotoEditMode">Back</a-button>
             </div>
           </div>
         </div>
@@ -433,7 +417,7 @@
         width="90%"
         :closable="true"
         @ok="selectedMyContentVisible = false">
-        <a-tabs class="template-tabs">
+        <a-tabs class="template-tabs" >
           <a-tab-pane key="1" tab="Teaching Templates">
             <div class="select-template-wrapper">
               <div class="template-select-header">
@@ -511,6 +495,11 @@
                         Clear all
                       </a-button>
                       <a-row class="row-select" style="min-width: 700px" >
+                        <a-row>
+                          <a-tabs :activeKey="selectYearTab" @change="handleTabYearChange" tab-position="top" size="small" :tabBarGutter="1" >
+                            <a-tab-pane v-for="(tag) in centuryTagMap" :key="tag[0]" :tab="tag[0]" />
+                          </a-tabs>
+                        </a-row>
                         <a-col :span="12">
                           <a-col class="sub-select" v-if="index < 2" :span="24" v-for="(item ,index) in templateFilterCondition(templateType.Century,'')" :key="index">
                             <a-row>
@@ -525,7 +514,7 @@
                                   <a-row v-if="child.children.length > 0" v-for="(subChild,subIndex) in child.children" :key="subIndex">
                                     <a-col :span="24">
                                       <a-checkbox :value="subChild.id" @change="onChangeCheckBox($event,templateType.Century,child.id)" :checked="filterCentury.indexOf(subChild.id) > -1 ? true: false">
-                                        {{ subChild.name }}
+                                        <a-tooltip placement="top" :title="filterGradeTips(subChild)"> {{ subChild.name }}  </a-tooltip>
                                       </a-checkbox>
                                     </a-col>
                                   </a-row>
@@ -548,7 +537,7 @@
                                   <a-row v-if="child.children.length > 0" v-for="(subChild,subIndex) in child.children" :key="subIndex">
                                     <a-col :span="24">
                                       <a-checkbox :value="subChild.id" @change="onChangeCheckBox($event,templateType.Century,child.id)" :checked="filterCentury.indexOf(subChild.id) > -1 ? true: false">
-                                        {{ subChild.name }}
+                                        <a-tooltip placement="top" :title="filterGradeTips(subChild)"> {{ subChild.name }}  </a-tooltip>
                                       </a-checkbox>
                                     </a-col>
                                   </a-row>
@@ -636,7 +625,7 @@
             {{ $t('teacher.add-unit-plan.or') }}
           </a-divider>
           <div class="action-item-column">
-            <vue-record-audio mode="press" @result="handleAudioResult" />
+            <!--            <vue-record-audio mode="press" @result="handleAudioResult" />-->
             <div class="action-tips">
               {{ $t('teacher.add-unit-plan.record-your-voice') }}
             </div>
@@ -757,9 +746,9 @@
             :select-mode="selectModel.syncData"
             question-index="_questionIndex_1"
             :sync-data="syncData"
-            :show-menu="[ NavigationType.specificSkills, NavigationType.centurySkills, NavigationType.learningOutcomes ]"
+            :show-menu="[ NavigationType.specificSkills, NavigationType.centurySkills, NavigationType.learningOutcomes, NavigationType.assessmentType ]"
             :default-active-menu="NavigationType.learningOutcomes"
-            @select-big-idea="handleSelectListData"
+            @select-assessmentType="handleSelectAssessmentType"
             @select-sync="handleSelectListData"
             @select-curriculum="handleSelectCurriculum"
             @select-subject-specific-skill="handleSelectSubjectSpecificSkillListData"
@@ -815,7 +804,7 @@
   import { LibraryEvent, LibraryEventBus } from '@/components/NewLibrary/LibraryEventBus'
   import NewBrowser from '@/components/NewLibrary/NewBrowser'
   import NewMyContent from '@/components/MyContent/NewMyContent'
-  import { FindCustomTags, GetTreeByKey } from '@/api/tag'
+  import { FindCustomTags, GetTagYearTips, GetTreeByKey } from '@/api/tag'
   import { NavigationType } from '@/components/NewLibrary/NavigationType'
   import { GetCollaborateComment, GetCollaborateModifiedHistory } from '@/api/collaborate'
   import CollaborateCommentPanel from '@/components/Collaborate/CollaborateCommentPanel'
@@ -823,10 +812,12 @@
   import CollaborateCommentView from '@/components/Collaborate/CollaborateCommentView'
   import commentIcon from '@/assets/icons/collaborate/comment.svg?inline'
   import CollaborateHistory from '@/components/Collaborate/CollaborateHistory'
+  import NoMoreResources from '@/components/Common/NoMoreResources'
 
   export default {
     name: 'AddTask',
     components: {
+      NoMoreResources,
       CollaborateHistory,
       CollaborateCommentView,
       CommentSwitch,
@@ -856,11 +847,14 @@
       taskId: {
         type: String,
         default: null
+      },
+      mode: {
+        type: String,
+        default: 'edit'
       }
     },
     data () {
       return {
-        mode: 'edit',
         contentLoading: true,
         referenceLoading: false,
         contentType: typeMap,
@@ -948,6 +942,7 @@
         selectedSpecificSkillList: [],
         // century skill
         selectedCenturySkillList: [],
+        selectedAssessmentList: [],
         selectModel: SelectModel,
 
         editPPTMode: false,
@@ -965,7 +960,7 @@
         skeletonLoading: false,
         associateQuestionList: [],
         showCustomTag: false,
-        customTagTop: 300,
+        customTagTop: 20,
         customTagList: [],
         userTags: {},
         NavigationType: NavigationType,
@@ -980,7 +975,13 @@
         collaborateTop: 0,
         showAllCollaborateCommentVisible: false,
         // TODO mock数据待更新为接口请求（loadCollaborateData方法中的GetCollaborateModifiedHistory)
-        historyList: []
+        historyList: [],
+        centuryTagMap: new Map(),
+        selectYearTab: '',
+        showHistoryLoading: false,
+
+        // 复制当前表单数据，给选择slide创建task用‘pick-task-slide’
+        currentTaskFormData: null
       }
     },
     computed: {
@@ -998,10 +999,19 @@
           list.push(item.id)
         })
         return list
+      },
+      filterGradeTips () {
+        return function (item) {
+          if (!this.selectYearTab) {
+            return item.name
+          }
+          const filerList = this.centuryTagMap.get(this.selectYearTab).filter(tag => tag.tagId === item.id)
+          return filerList.length > 0 ? filerList[0].tooltip : ''
+        }
       }
     },
     created () {
-      logger.info('add task created ' + this.taskId + ' ' + this.$route.path)
+      logger.info('add task created ' + this.taskId + ' ' + this.$route.path + ' mode: ' + this.mode)
 
       // 初始化关联事件处理
       MyContentEventBus.$on(MyContentEvent.LinkToMyContentItem, this.handleLinkMyContent)
@@ -1011,6 +1021,7 @@
       this.getAssociate()
       this.loadUserTags()
       this.initTemplateFilter()
+      this.GetTagYearTips()
     },
     beforeDestroy () {
       MyContentEventBus.$off(MyContentEvent.LinkToMyContentItem, this.handleLinkMyContent)
@@ -1110,15 +1121,20 @@
           const taskData = response.result
           this.form = taskData
           this.form.bloomCategories = this.form.bloomCategories ? this.form.bloomCategories : undefined // 为了展示placeholder
-          // if (!this.form.presentationId) {
-          //   // 未成功绑定ppt
-          //   this.handleShowSelectMyContent()
-          // }
+          if (this.form.presentationId) {
+            // 绑定google slide 的编辑链接
+            this.presentationLink = 'https://docs.google.com/presentation/d/' + this.form.presentationId + '/edit?taskId=' + this.taskId
+            this.$logger.info('presentationLink ' + this.presentationLink)
+          }
         }).finally(() => {
           this.contentLoading = false
           this.loadCollaborateData()
           if (this.form.presentationId) {
             this.loadThumbnail()
+          }
+
+          if (this.mode === 'pick-task-slide') {
+            this.currentTaskFormData = Object.assign({}, this.form)
           }
         })
       },
@@ -1195,18 +1211,12 @@
         this.$logger.info('handleSelectTaskType ' + type)
         this.form.taskType = type
         this.customTagList = []
-        if (type === 'FA') {
-          CustomTagType.task.fa.forEach(name => {
-            this.customTagList.push(name)
-          })
-        } else {
-          CustomTagType.task.sa.forEach(name => {
-            this.customTagList.push(name)
-          })
-        }
+        CustomTagType.task.safa.forEach(name => {
+          this.customTagList.push(name)
+        })
         this.showAllCollaborateCommentVisible = false
         this.showCollaborateCommentVisible = false
-        this.customTagTop = 390
+        this.customTagTop = 60
         this.showCustomTag = true
       },
 
@@ -1289,8 +1299,7 @@
 
       handleOpenGoogleSlide (slideUrl) {
         this.$logger.info('handleOpenGoogleSlide ' + slideUrl)
-        // window.open(slideUrl, '_blank')
-        window.location.href = slideUrl
+        window.open(slideUrl, '_blank')
       },
 
       handleViewDetail (item) {
@@ -1351,7 +1360,6 @@
             this.form.presentationId = response.result.presentationId
             this.presentationLink = response.result.presentationLink
             this.selectTemplateVisible = false
-            this.mode = 'edit'
             this.viewInGoogleSlideVisible = true
             this.$router.replace({
               path: '/teacher/task-redirect/' + response.result.id
@@ -1402,6 +1410,16 @@
           this.selectedPageIdList.splice(index, 1)
         } else {
           this.selectedPageIdList.push(thumbnail.id)
+        }
+        // 处理sub task封面
+        if (this.currentTaskFormData && this.selectedPageIdList.length > 0) {
+          const pageId = this.thumbnailList.filter(item => this.selectedPageIdList.indexOf(item.id) > -1)[0].id
+          const selectPage = this.thumbnailList.filter(item => item.id === pageId)
+          if (selectPage.length > 0) {
+            this.currentTaskFormData = {}
+            this.currentTaskFormData = Object.assign({}, this.form)
+            this.currentTaskFormData.image = selectPage[0].contentUrl
+          }
         }
       },
 
@@ -1591,14 +1609,27 @@
 
       handleAddTaskWithSlide () {
         this.$logger.info('handleAddTaskWithSlide')
-        this.mode = 'pick-task-slide'
         this.selectedSlideVisible = false
+        this.currentTaskFormData = Object.assign({}, this.form)
+        this.$router.push({
+          path: '/teacher/add-task/' + this.taskId + '/pick-task-slide'
+        })
+        this.$logger.info('currentTaskFormData', this.currentTaskFormData)
+      },
+
+      handleGotoEditMode () {
+        this.$logger.info('handleGotoEditMode')
+        this.$router.push({
+          path: '/teacher/add-task/' + this.taskId + '/edit'
+        })
       },
 
       handleCancelPickTaskSlide () {
         this.$logger.info('handleCancelPickTaskSlide')
         this.selectedSlideVisible = false
-        this.mode = 'edit'
+        this.$router.push({
+          path: '/teacher/add-task/' + this.taskId + '/edit'
+        })
       },
       handleSelectedSessionTags (tags) {
         this.sessionTags = tags
@@ -1701,6 +1732,12 @@
         })
       },
 
+      // TODO 选择的assessment数据
+      handleSelectAssessmentType (data) {
+        this.$logger.info('handleSelectAssessmentType', data)
+        this.selectedAssessmentList = data
+      },
+
       // TODO 自动更新选择的sync 的数据knowledgeId和name列表
       handleSelectListData (data) {
         this.$logger.info('handleSelectListData', data)
@@ -1713,6 +1750,7 @@
       },
 
       handleSelectSubjectSpecificSkillListData (data) {
+        this.selectedSpecificSkillList = data
         this.$logger.info('handleSelectSubjectSpecificSkillListData', data)
       },
 
@@ -1727,6 +1765,7 @@
         this.selectedCurriculumList = []
         this.selectedSpecificSkillList = []
         this.selectedCenturySkillList = []
+        this.selectedAssessmentList = []
         this.selectSyncDataVisible = false
       },
 
@@ -1737,8 +1776,9 @@
           this.selectedSpecificSkillList,
           this.selectedCenturySkillList,
           this.selectedBigIdeaList,
+          this.selectedAssessmentList,
           this.selectedSyncList)
-         this.selectedSyncList.forEach(data => {
+        this.selectedSyncList.forEach(data => {
           const filterLearnOuts = this.form.learnOuts.filter(item => item.knowledgeId === data.knowledgeId)
           if (filterLearnOuts.length > 0) {
             return
@@ -1751,14 +1791,7 @@
           })
         })
         const selectList = this.selectedCurriculumList.concat(this.selectedSpecificSkillList).concat(this.selectedCenturySkillList)
-        console.log(selectList)
-        if (this.selectIdea) {
-          if (selectList.length > 0) {
-            this.form.inquiry = selectList[0].knowledgeData.name
-          }
-          this.selectSyncDataVisible = false
-          return
-        }
+          .concat(this.selectedAssessmentList)
         selectList.forEach(data => {
           const filterLearnOuts = this.form.learnOuts.filter(item => item.knowledgeId === data.knowledgeId)
           if (filterLearnOuts.length > 0) {
@@ -1767,7 +1800,7 @@
           this.form.learnOuts.push({
             knowledgeId: data.knowledgeData.id,
             name: data.knowledgeData.name,
-            tagType: data.tagType
+            tagType: data.knowledgeData.tagType
           })
         })
         this.$logger.info('this.form.learnOuts', this.form.learnOuts)
@@ -1833,18 +1866,6 @@
         }
       },
 
-      handleToggleSlideMode () {
-        this.$logger.info('handleToggleSlideMode')
-        this.currentActiveStepIndex = 1
-        if (!this.editPPTMode) {
-          this.editPPTMode = true
-          this.$refs.slide.scrollIntoView({
-            block: 'start',
-            behavior: 'smooth'
-          })
-        }
-      },
-
       handleCreateInGoogle () {
         this.$logger.info('handleCreateInGoogle')
         window.open('https://docs.google.com/presentation', '_blank')
@@ -1898,6 +1919,10 @@
       },
       focusInput (event) {
         this.$logger.info('focusInput ', event.target)
+        // let isEditBase = false
+        // if (typeof event.target.className === 'string' && event.target.className.indexOf('ant-input') > -1) {
+        //   isEditBase= true
+        // }
 
         // 设置一个父级定位专用的dom，设置class名称【root-locate-form】，
         // 然后通过事件获取到当前元素，依次往上层查询父元素，累加偏离值，直到定位元素。
@@ -1925,6 +1950,11 @@
           this.customTagTop = formTop - 20
           this.showCustomTag = true
         } else {
+          // if(isEditBase){
+          //   CustomTagType.task.base.forEach(name => {
+          //     this.customTagList.push(name)
+          //   })
+          // }
           CustomTagType.task.default.forEach(name => {
             this.customTagList.push(name)
           })
@@ -1934,7 +1964,7 @@
               this.customTagList.push(tag.name)
             }
           })
-          this.customTagTop = 300
+          this.customTagTop = 20
           this.showCustomTag = false
         }
       },
@@ -1951,6 +1981,12 @@
       // 切换当前的字段的点评数据，从总的collaborateCommentList筛选初当前字段相关的点评数据
       handleSwitchComment (data) {
         this.$logger.info('handleSwitchComment', data)
+        if (!data.activeStatus) {
+          // 关闭
+          this.showCollaborateCommentVisible = false
+          this.showCustomTag = true
+          return
+        }
         this.currentFieldName = data.fieldName
         this.showAllCollaborateCommentVisible = false
         this.showCustomTag = false
@@ -1969,13 +2005,15 @@
 
       // 每次点击都重新加载一下最新数据
       handleViewCollaborate () {
+        this.showHistoryLoading = true
         this.$logger.info('handleViewCollaborate')
         this.showCollaborateCommentVisible = false
         this.currentCollaborateCommentList = []
+        this.showAllCollaborateCommentVisible = !this.showAllCollaborateCommentVisible
         this.loadCollaborateData().then(() => {
           this.$logger.info('loadCollaborateData loaded')
         }).finally(() => {
-          this.showAllCollaborateCommentVisible = !this.showAllCollaborateCommentVisible
+          this.showHistoryLoading = false
         })
       },
 
@@ -2011,8 +2049,8 @@
             } else {
               this.$set(this.form, dataItem.fieldName, dataItem.data[0])
             }
-            this.$message.success('restore ' + dataItem.fieldDisplayName + ' success!')
           })
+          this.$message.success('restore success!')
         }
         this.$logger.info('after handleRestoreField', this.form)
       },
@@ -2088,6 +2126,29 @@
           }
         })
         return resList
+      },
+      GetTagYearTips () {
+        GetTagYearTips().then((response) => {
+          this.$logger.info('GetTagYearTips response', response.result)
+          if (response.success) {
+            const tagYears = response.result
+            tagYears.forEach(tag => {
+              if (!this.centuryTagMap.has(tag.yearName)) {
+                this.centuryTagMap.set(tag.yearName, [])
+              }
+              this.centuryTagMap.get(tag.yearName).push(tag)
+            })
+            if (tagYears.length > 0) {
+              this.selectYearTab = tagYears[0].yearName
+            }
+          } else {
+            this.$message.error(response.message)
+          }
+          this.$logger.info('centuryTagMap ', this.centuryTagMap)
+        })
+      },
+      handleTabYearChange (activeKey) {
+        this.selectYearTab = activeKey
       }
     }
   }
@@ -2889,10 +2950,10 @@
   }
 
   .preview-list {
-    margin-top: 20px;
-    height: 520px;
     overflow-y: scroll;
     width: 100%;
+    max-height: 360px;
+    overflow-y: scroll;
     display: flex;
     flex-direction: row;
     justify-content: flex-start;
@@ -2901,7 +2962,6 @@
     border: 1px solid #D8D8D8;
     opacity: 1;
     border-radius: 4px;
-    padding: 15px 15px 0 15px;
     .preview-item-cover {
       background-position: center center;
       background-size: cover;
@@ -2910,7 +2970,7 @@
       width: 225px;
       height: 160px;
       border-radius: 5px;
-      margin: 0 5px 5px 10px;
+      margin: 10px 5px 10px 10px;
       border: 1px solid #eee;
       box-shadow: 0 4px 4px 4px #eee;
 
@@ -2979,12 +3039,18 @@
   }
 
   .thumbnail-task-list {
+    padding: 15px;
     width: 600px;
+    box-sizing: border-box;
     margin: auto;
     display: flex;
     flex-direction: column;
     .task-preview-list {
       position: relative;
+
+      .task-preview {
+        padding: 5px;
+      }
       .task-delete {
         position: absolute;
         right: -30px;
@@ -3321,21 +3387,31 @@
   }
 
   .pick-task-slide-wrapper {
-    width: 1000px;
+    width: 970px;
     margin: auto;
 
     .slide-form-block {
     }
   }
-  .template-tabs /deep/ .ant-tabs-nav-scroll{
-    display: flex;
-    flex-direction: row;
-    width: 100%;
-    justify-content: center;
-    font-weight: bold;
-    line-height: 24px;
+  .template-tabs{
+    /deep/ .ant-tabs-nav-scroll{
+      margin: 0 auto;
+      text-align: center;
+    }
+    .filter-row /deep/ .ant-tabs-nav-scroll{
+      margin: 0 auto;
+      text-align: left;
+    }
   }
 
+  .edit-in-slide {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-end;
+    margin-bottom: 10px;
+    margin-right: 50px;
+  }
   .slide-select-wrapper {
     display: flex;
     flex-direction: row;
@@ -3605,7 +3681,6 @@
     justify-content: center;
     align-items: center;
   }
-
   .question-options {
     width: 100%;
     display: block;
@@ -3642,6 +3717,24 @@
       svg {
         width: 30px;
       }
+    }
+  }
+
+  .edit-slide {
+    display: flex;
+    align-items: center;
+    img {
+      margin-right: 5px;
+    }
+  }
+
+  .no-data-slide-form-block {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    .go-to-create {
+      margin-top: 10px;
     }
   }
 </style>

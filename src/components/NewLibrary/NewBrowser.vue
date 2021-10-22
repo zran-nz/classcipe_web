@@ -20,6 +20,7 @@
           @select-curriculum="handleSelectCurriculumListData"
           @select-subject-specific-skill="handleSelectSubjectSpecificSkillListData"
           @select-century-skill="handleSelect21CenturySkillListData"
+          @select-assessmentType="handleSelectAssessmentType"
         />
       </div>
     </div>
@@ -93,7 +94,11 @@ export default {
       this.$logger.info('NewBrowser handleSelect21CenturySkillListData', data)
       this.$emit('select-century-skill', data)
     },
-
+    // assessment type
+    handleSelectAssessmentType (data) {
+      this.$logger.info('NewBrowser handleSelectAssessmentType', data)
+      this.$emit('select-assessmentType', data)
+    },
     handleSelectBigIdeaData (data) {
       this.$logger.info('NewBrowser handleSelectBigIdeaData', data)
       this.$emit('select-big-idea', data)

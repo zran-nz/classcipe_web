@@ -61,50 +61,55 @@
               </div>
             </div>
             <div class="group-body">
-              <div class="group-link-item" v-for="(item,index) in linkGroup.contents" :key="index">
-                <div class="left-info">
-                  <div class="icon">
-                    <content-type-icon :type="item.type"/>
-                  </div>
-                  <div class="name" @click="handleViewDetail(item)">
-                    <a-tooltip placement="top">
-                      <template slot="title">
-                        {{ item.name ? item.name : 'untitled' }}
-                      </template>
-                      {{ item.name ? item.name : 'untitled' }}
-                    </a-tooltip>
-                  </div>
-                </div>
-                <div class="right-info">
-                  <div class="date">{{ item.createTime | dayjs }}</div>
-                  <div class="status">
-                    <template v-if="item.status === 0">Draft</template>
-                    <template v-if="item.status === 1">Published</template>
-                  </div>
-                  <div class="more-action-wrapper action-item-wrapper" v-if="canEdit">
-                    <a-dropdown>
-                      <a-icon type="more" style="margin-right: 8px" />
-                      <a-menu slot="overlay">
-                        <a-menu-item>
-                          <a-popconfirm :title="$t('teacher.my-content.action-delete') + '?'" ok-text="Yes" @confirm="handleDeleteLinkItem(item)" cancel-text="No">
-                            <a href="#" class="delete-action">
-                              <a-icon type="delete" /> {{ $t('teacher.my-content.action-delete') }}
-                            </a>
-                          </a-popconfirm>
-                        </a-menu-item>
-                        <a-menu-item>
-                          <a @click="handleEditLinkItem(item)">
-                            <a-icon type="form" /> {{ $t('teacher.my-content.action-edit') }}
-                          </a>
-                        </a-menu-item>
-                      </a-menu>
-                    </a-dropdown>
-                  </div>
-                </div>
+              <draggable v-model="ownerLinkGroupList[lIndex].contents" group="site" animation="300" @end="handleDragEnd" :disabled="!canEdit">
+                <transition-group>
+                  <div class="group-link-item" v-for="item in linkGroup.contents" :key="item.id">
+                    <div class="left-info">
+                      <div class="icon">
+                        <content-type-icon :type="item.type"/>
+                      </div>
+                      <div class="name" @click="handleViewDetail(item)">
+                        <a-tooltip placement="top">
+                          <template slot="title">
+                            {{ item.name ? item.name : 'untitled' }}
+                          </template>
+                          {{ item.name ? item.name : 'untitled' }}
+                        </a-tooltip>
+                      </div>
+                    </div>
+                    <div class="right-info">
+                      <div class="date">{{ item.createTime | dayjs }}</div>
+                      <div class="status">
+                        <template v-if="item.status === 0">Draft</template>
+                        <template v-if="item.status === 1">Published</template>
+                      </div>
+                      <div class="more-action-wrapper action-item-wrapper" v-if="canEdit">
+                        <a-dropdown>
+                          <a-icon type="more" style="margin-right: 8px" />
+                          <a-menu slot="overlay">
+                            <a-menu-item>
+                              <a-popconfirm :title="$t('teacher.my-content.action-delete') + '?'" ok-text="Yes" @confirm="handleDeleteLinkItem(item)" cancel-text="No">
+                                <a href="#" class="delete-action">
+                                  <a-icon type="delete" /> {{ $t('teacher.my-content.action-delete') }}
+                                </a>
+                              </a-popconfirm>
+                            </a-menu-item>
+                            <a-menu-item>
+                              <a @click="handleEditLinkItem(item)">
+                                <a-icon type="form" /> {{ $t('teacher.my-content.action-edit') }}
+                              </a>
+                            </a-menu-item>
+                          </a-menu>
+                        </a-dropdown>
+                      </div>
+                    </div>
 
-              </div>
+                  </div>
+                </transition-group>
+              </draggable>
             </div>
           </div>
+
         </div>
       </template>
       <template v-if="othersLinkGroupList.length && !linkGroupLoading">
@@ -219,10 +224,11 @@ import ContentTypeIcon from '@/components/Teacher/ContentTypeIcon'
 import * as logger from '@/utils/logger'
 import CommonPreview from '@/components/Common/CommonPreview'
 import { AssociateCancel } from '../../api/teacher'
+import draggable from 'vuedraggable'
 
 export default {
   name: 'CommonLink',
-  components: { ContentTypeIcon, NewMyContent, MyContentSelector, CommonPreview },
+  components: { ContentTypeIcon, NewMyContent, MyContentSelector, CommonPreview, draggable },
   props: {
     fromType: {
       type: Number,
@@ -392,8 +398,24 @@ export default {
         // 刷新子组件的关联数据
         this.getAssociate()
       })
+    },
+    handleDragEnd () {
+      logger.info('handleDragEnd ', this.ownerLinkGroupList)
+      this.ownerLinkGroupList.forEach(linkGroup => {
+        const ids = []
+        linkGroup.contents.forEach(item => {
+          ids.push(item.id)
+        })
+        AddOrSaveGroupName({
+          fromId: this.fromId,
+          fromType: this.fromType,
+          groupName: linkGroup.group,
+          ids: ids
+        }).then(response => {
+          this.$logger.info('AddOrSaveGroupName', response)
+        })
+      })
     }
-
   }
 }
 </script>
@@ -479,6 +501,10 @@ export default {
               align-items: center;
               .icon {
                 width: 40px;
+              }
+              &:hover{
+                background-color: #fdfdfd;
+                cursor: move;
               }
 
               .name {

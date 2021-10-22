@@ -569,3 +569,53 @@ ol {
     }
   }
 }
+
+.library-filter-select {
+  .ant-select-selection {
+    background: #F3F3F3;
+    border: none !important;
+    color: #333;
+    box-shadow: none;
+
+    .ant-select-selection__placeholder {
+      font-family: Inter-Bold;
+      line-height: 24px;
+      color: #182552;
+    }
+    &:active {
+      border: none !important;
+      box-shadow: none;
+    }
+  }
+
+  .ant-select-selection-selected-value {
+    white-space: normal;
+  }
+
+  .ant-select-selection__rendered > ul > li {
+    border-radius: 24px;
+  }
+}
+
+.keyword-search {
+  .ant-input:focus {
+    border-color: #BCBCBC;
+    box-shadow: none;
+  }
+
+  .ant-input {
+    border: 1px solid #BCBCBC;
+    box-shadow: none;
+    background-color: rgba(245, 245, 245, 0.5);
+
+    &:hover {
+      border: 1px solid #BCBCBC;
+      box-shadow: none;
+    }
+  }
+
+  .ant-input:not {
+    border: 1px solid #BCBCBC;
+    box-shadow: none;
+  }
+}

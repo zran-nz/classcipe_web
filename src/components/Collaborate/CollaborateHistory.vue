@@ -64,6 +64,8 @@ export default {
 
 .collaborate-history {
   padding: 0 20px 20px 20px;
+  max-height: 1000px;
+  overflow-y: auto;
   z-index: 100;
   .history-list {
     .history-item {

@@ -7,6 +7,8 @@ export const SESSION_CURRENT_TYPE_LABEL = 'currentTypeLabel'
 export const DICT_TEMPLATE = 'ppt_template'
 export const DICT_BLOOM_CATEGORY = 'bloom_categories'
 
+export const TAG_CATGORY_KEYWORDS = 'Key words'
+
 export const TagType = {
   'knowledge': 1,
   'skill': 2,
@@ -29,13 +31,13 @@ export const TemplateType = {
 
 export const CustomTagType = {
   plan: {
-    sdg: ['Key words'],
-    bigIdea: ['Universal Concept'],
+    sdg: [TAG_CATGORY_KEYWORDS],
+    bigIdea: ['Key words', 'Global context', 'Universal Concept'],
     default: ['Teaching strategies', 'Differentiated instructions']
   },
   task: {
-    sa: ['Assessment type'],
-    fa: ['Bloom Taxonomy', 'Knowledge dimension'],
-    default: ['Assessment purpose', 'Teaching strategies', 'Differentiated instructions']
+    safa: ['The Arts-Assessment types', 'Science-Assessment types'],
+    base: ['Assessment purpose'],
+    default: ['Teaching strategies', 'Differentiated instructions', 'Bloom Taxonomy', 'Knowledge dimension']
   }
 }

@@ -27,12 +27,11 @@
               style="right: 10px">
               <a-icon type="right-circle" />
             </div>
-            <div v-if="!loading && !imgList.length" class="no-preview-img">
-              <a-empty>
-              </a-empty>
+            <div v-if="!loading && !thumbnailList.length" class="no-preview-img">
+              <no-more-resources />
             </div>
-            <div class="preview-img-item" v-for="(img,index) in imgList" :key="index">
-              <div class="preview-block" :style="{backgroundImage: 'url(' + img + ')' }" :data-img="img"></div>
+            <div class="preview-img-item" v-for="(thumbnail,index) in thumbnailList" :key="index">
+              <div class="preview-block" :style="{backgroundImage: 'url(' + thumbnail.contentUrl + ')' }" :data-img="thumbnail"></div>
             </div>
           </a-carousel>
         </a-col>
@@ -95,10 +94,12 @@
 <script>
 import * as logger from '@/utils/logger'
 import { TemplatesGetPresentation } from '@/api/template'
+import NoMoreResources from '@/components/Common/NoMoreResources'
 const { TaskQueryById } = require('@/api/task')
 
 export default {
   name: 'TaskPreview',
+  components: { NoMoreResources },
   props: {
     taskId: {
       type: String,
@@ -113,7 +114,7 @@ export default {
     return {
       loading: true,
       task: null,
-      imgList: [],
+      thumbnailList: [],
 
       tagColorList: [
         'pink',
@@ -152,19 +153,23 @@ export default {
     },
 
     loadThumbnail () {
-      this.$logger.info('TaskPreview loadThumbnail ' + this.task.presentationId, this.task.selectPageObjectIds)
-      TemplatesGetPresentation({
-        presentationId: this.task.presentationId
-      }).then(response => {
-        this.loading = false
-        this.$logger.info('task loadThumbnail response', response.result)
-        const pageObjects = response.result.pageObjects
-        this.imgList = []
-        pageObjects.forEach(page => {
-          this.imgList.push(page.contentUrl)
+      this.$logger.info('loadThumbnail ' + this.task.presentationId)
+      if (this.task.presentationId) {
+        TemplatesGetPresentation({
+          presentationId: this.task.presentationId
+        }).then(response => {
+          this.$logger.info('loadThumbnail response', response.result)
+          const pageObjects = response.result.pageObjects
+          this.thumbnailList = []
+          pageObjects.forEach(page => {
+            this.thumbnailList.push({ contentUrl: page.contentUrl, id: page.pageObjectId })
+          })
+        }).finally(() => {
+          this.loading = false
         })
-        this.$logger.info('current imgList ', this.imgList)
-      })
+      } else {
+        this.loading = false
+      }
     },
 
     handleSelectContentType (contentType) {

@@ -12,6 +12,7 @@
     </div>
 
     <avatar-modal ref="modal" @ok="setAvatar" v-show="!loading"/>
+
     <a-row :gutter="[16, 16]" v-show="!loading">
       <a-col span="16" :style="{ minHeight: '180px' }" class="username-line">
         <div class="ant-upload-preview" @click="$refs.modal.edit(1)">
@@ -21,12 +22,16 @@
           </div>
           <img :src="userInfo.avatar"/>
         </div>
-        <div class="user-name">
-          <h1 v-if="!editMode">{{ userInfo.nickname }}</h1>
-          <div class="edit-user-name" v-if="editMode">
-            <a-input v-model="userInfo.tempNickname" size="large" :maxLength="80"/>
+        <div style="width: 100%">
+          <div class="user-name">
+            <h1 v-if="!editMode">{{ userInfo.nickname }}</h1>
+            <div class="edit-user-name" v-if="editMode">
+              <a-input v-model="userInfo.tempNickname" size="large" :maxLength="80"/>
+            </div>
           </div>
+          <a-icon type="profile" style="margin-left: 30px" />&nbsp&nbsp{{ userInfo.email }}
         </div>
+
       </a-col>
 
     </a-row>
@@ -162,6 +167,16 @@
           </div>
         </div>
 
+        <div class="profile-item-line" v-if="$store.getters.currentRole === 'teacher'">
+          <div class="profile-label">
+            <span class="label-txt">Key question/<br>line of inquiry :</span>
+          </div>
+
+          <div class="profile-text profile-data">
+            <a-switch :checked="!disableQuestion" @change="onChangeSwitch"/>
+          </div>
+        </div>
+
       </a-col></a-row>
 
     <a-row v-show="!loading">
@@ -193,7 +208,7 @@
 <script>
 import AvatarModal from './AvatarModal'
 import * as logger from '@/utils/logger'
-import { editUser } from '@/api/user'
+import { editUser, UserSetting } from '@/api/user'
 import {
   addPreference,
   getAllAreas,
@@ -202,7 +217,7 @@ import {
   getAllSubjectsByCurriculumId,
   getAllSubjectsByParentId, getCustomizedTags
 } from '@/api/preference'
-import TagSetting from '../../../components/UnitPlan/TagSetting'
+import TagSetting from '@/components/UnitPlan/TagSetting'
 
 export default {
   name: 'BasicSetting',
@@ -221,6 +236,7 @@ export default {
         avatar: '',
         nickname: '',
         tempNickname: '',
+        email: this.$store.getters.email,
         currentRole: '',
         createTime: null,
         curriculumId: this.$store.getters.bindCurriculum,
@@ -248,7 +264,8 @@ export default {
 
       loading: true,
       editMode: false,
-      settingVisible: false
+      settingVisible: false,
+      disableQuestion: this.$store.getters.disableQuestion
     }
   },
   watch: {
@@ -550,6 +567,20 @@ export default {
     },
     handleSetting () {
       this.settingVisible = true
+    },
+    onChangeSwitch (checked) {
+      this.disableQuestion = !checked
+      UserSetting({
+        disableQuestion: this.disableQuestion
+      }).then((response) => {
+        this.$logger.info('UserSetting', response.result)
+        if (response.success) {
+          this.$store.dispatch('GetInfo')
+        } else {
+          this.$message.error(response.message)
+        }
+      }).finally(() => {
+      })
     }
   }
 }
@@ -655,7 +686,7 @@ export default {
   margin-bottom: 20px;
 
   .profile-label {
-    width: 150px;
+    width: 200px;
     font-weight: 500;
     display: flex;
     flex-direction: row;

@@ -12,7 +12,8 @@ export const scenarioAPIUrl = {
   ScenarioGetKeywordScenarios: '/classcipe/api/scenario/getKeywordScenarios',
   ScenarioQueryContentByScenarioId: '/classcipe/api/scenario/queryContentByScenarioId',
   QueryBigIdea: '/classcipe/api/scenario/queryBigIdea',
-  QueryContentByBigIdea: '/classcipe/api/scenario/queryContentByBigIdea'
+  QueryContentByBigIdea: '/classcipe/api/scenario/queryContentByBigIdea',
+  QueryTagsBySubjectIds: '/classcipe/api/scenario/queryTagsBySubjectIds'
 }
 
 /**
@@ -162,6 +163,17 @@ export function QueryBigIdea (parameter) {
 export function QueryContentByBigIdea (parameter) {
   return request({
     url: scenarioAPIUrl.QueryContentByBigIdea,
+    method: 'post',
+    data: parameter,
+    headers: {
+      'Content-Type': 'application/json;charset=UTF-8'
+    }
+  })
+}
+
+export function QueryTagsBySubjectIds (parameter) {
+  return request({
+    url: scenarioAPIUrl.QueryTagsBySubjectIds,
     method: 'post',
     data: parameter,
     headers: {

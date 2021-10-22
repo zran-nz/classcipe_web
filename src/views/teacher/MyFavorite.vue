@@ -389,6 +389,7 @@ export default {
         const requestData = {
           author: this.$store.getters.email,
           slide_id: item.presentationId,
+          copy_from: item.copyFromSlide,
           file_name: item.name ? item.name : 'Unnamed',
           status: lessonStatus.studentPaced,
           redirect_url: null
@@ -429,7 +430,7 @@ export default {
             // const targetUrl = lessonHost + 'slide_id=' + item.presentationId + '&class_id=' + res.data.class_id + '&direct=true&currentPage=0&type=dashboard'
             const targetUrl = lessonHost + 't/' + res.data.class_id
             this.$logger.info('try open ' + targetUrl)
-            window.open(targetUrl, '_blank', 'height=700, width=1200, top=100, left= 100 toolbar=no, menubar=no, scrollbars=no, location=no, status=no')
+            window.open(targetUrl, '_blank')
           } else {
             this.$message.warn('StartLesson Failed! ' + res.message)
           }

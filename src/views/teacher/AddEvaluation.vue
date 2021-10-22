@@ -65,7 +65,6 @@
           </div>
         </a-col>
       </a-row>
-      <collaborate-content ref="collaborate"/>
       <a-modal
         v-model="selectLinkContentVisible"
         :footer="null"

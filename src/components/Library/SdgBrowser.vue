@@ -2,6 +2,27 @@
   <div class="browser-block">
     <div class="browser-block-item-wrapper">
       <div class="browser-block-item" :style="{width: blockWidth + 'px' , minWidth: blockWidth + 'px' }">
+
+        <div class="filter-block" >
+          <div class="filter-block-content">
+            <div class="filter-icon">
+              <filter-icon />
+            </div>
+            <div class="switch-type-wrapper library-select">
+              <a-select
+                @change="changeSubject"
+                v-model="selectedSubect"
+                class="filter-select library-filter-select"
+                placeholder="Select Subject"
+                :showArrow="true"
+                mode="multiple">
+                <a-select-option :value="item.id" v-for="(item, index) in subjectList" :key="index" >
+                  {{ item.name }}
+                </a-select-option>
+              </a-select>
+            </div>
+          </div>
+        </div>
         <!--      sdg list-->
         <div
           :class="{
@@ -36,40 +57,86 @@
         </template>
       </div>
     </div>
-    <div class="browser-block-item-wrapper" :style="{width: blockWidth + 'px' , minWidth: blockWidth + 'px' }" >
-      <!--     new sdg keywords description-->
-      <div class="keyword-wrapper">
-        <div class="keyword-list">
-          <div :class="{'keyword-item': true, 'kd-active-item': currentSdgKeywordScenario === 'keyword' && currentSdgKeywordScenarioId === keywordItem.id}" v-for="(keywordItem, kIndex) in sdgKeywordNameList" @click="queryBigIdeaKeywords(keywordItem)" :key="kIndex">
-            <!--            <img src="~@/assets/icons/library/tuijian@2x.png" class="keyword-icon"/>-->
-            <span class="keyword-name">
-              {{ keywordItem.name }}
-            </span>
-            <a-icon
-              type="check-circle"
-              theme="filled"
-              v-if="currentSdgKeywordScenario === 'keyword' && currentSdgKeywordScenarioId === keywordItem.id" />
+    <div class="browser-block-item-wrapper browser-block-item" :style="{width: blockWidth + 'px' , minWidth: blockWidth + 'px' }" >
+      <div class="filter-block">
+        <div class="filter-block-content">
+          <div class="filter-icon">
+            <filter-icon />
+          </div>
+          <div class="filter-list">
+            <!--            <a-select v-model="currentSdgKeywordName" class="filter-select  library-filter-select" placeholder="Select Keywords" >-->
+            <!--              <a-select-option :value="item.name" v-for="(item, index) in sdgKeywordNameList" :key="index" >-->
+            <!--                {{ item.name }}-->
+            <!--              </a-select-option>-->
+            <!--            </a-select>-->
+            <a-select v-model="selectedConcept" class="filter-select  library-filter-select" placeholder="All Concept" :allowClear="true" >
+              <a-select-option :value="name" v-for="(name, index) in conceptList" :key="index" >
+                {{ name }}
+              </a-select-option>
+            </a-select>
+            <div class="keyword-search search-box">
+              <a-input
+                placeholder="Search key word"
+                v-model="keywordSearchText"
+                class="my-nav-search">
+                <sousuo-icon-svg slot="prefix"/>
+              </a-input>
+            </div>
           </div>
         </div>
       </div>
-      <div class="description-wrapper">
+      <!--     new sdg keywords description-->
+      <!--      <div class="keyword-wrapper">-->
+      <!--        <div class="keyword-list">-->
+      <!--          <div :class="{'keyword-item': true, 'kd-active-item': currentSdgKeywordScenario === 'keyword' && currentSdgKeywordScenarioId === keywordItem.id}" v-for="(keywordItem, kIndex) in sdgKeywordNameList" @click="queryBigIdeaKeywords(keywordItem)" :key="kIndex">-->
+      <!--            &lt;!&ndash;            <img src="~@/assets/icons/library/tuijian@2x.png" class="keyword-icon"/>&ndash;&gt;-->
+      <!--            <span class="keyword-name">-->
+      <!--              {{ keywordItem.name }}-->
+      <!--            </span>-->
+      <!--            <a-icon-->
+      <!--              type="check-circle"-->
+      <!--              theme="filled"-->
+      <!--              v-if="currentSdgKeywordScenario === 'keyword' && currentSdgKeywordScenarioId === keywordItem.id" />-->
+      <!--          </div>-->
+      <!--        </div>-->
+      <!--      </div>-->
+      <!--      <div class="description-wrapper">
         <div class="description-list">
           <div :class="{'description-item': true, 'kd-active-item': currentSdgKeywordScenario === 'description' && currentSdgKeywordScenarioId === descriptionItem.id}" v-for="(descriptionItem, dIndex) in sdgDescriptionsList" @click="queryBigIdeaDescription(descriptionItem)" :key="dIndex">
             {{ descriptionItem.name }}
           </div>
         </div>
-      </div>
-    </div>
-    <div class="browser-block-item-wrapper" :style="{width: blockWidth + 'px' , minWidth: blockWidth + 'px' }" >
-      <!--  big idea list -->
+      </div>-->
       <div class="description-wrapper">
         <div class="description-list">
-          <div :class="{'description-item': true, 'kd-active-item': currentBigIdea === bigIdeaItem.name}" v-for="(bigIdeaItem, bIndex) in bigIdeaList" @click="handleSelectBigIdeaItem(bigIdeaItem)" :key="bIndex">
+          <div :class="{'description-item': true, 'kd-active-item': currentBigIdea === bigIdeaItem.name}" v-for="(bigIdeaItem, bIndex) in bigIdeaList" @click="handleSelectBigIdeaItem(bigIdeaItem)" :key="bIndex" v-if="keywordSearchText ? bigIdeaItem.name && bigIdeaItem.name.indexOf(keywordSearchText) !== -1 : true">
             {{ bigIdeaItem.name }}
           </div>
         </div>
       </div>
+
+      <template v-if="!bigIdeaList.length && !bigIdeaLoading">
+        <div class="no-data">
+          <no-more-resources />
+        </div>
+      </template>
+      <template v-if="bigIdeaLoading">
+        <div class="loading-wrapper">
+          <a-spin />
+        </div>
+      </template>
+
     </div>
+    <!--    <div class="browser-block-item-wrapper" :style="{width: blockWidth + 'px' , minWidth: blockWidth + 'px' }" >-->
+    <!--      &lt;!&ndash;  big idea list &ndash;&gt;-->
+    <!--      <div class="description-wrapper">-->
+    <!--        <div class="description-list">-->
+    <!--          <div :class="{'description-item': true, 'kd-active-item': currentBigIdea === bigIdeaItem.name}" v-for="(bigIdeaItem, bIndex) in bigIdeaList" @click="handleSelectBigIdeaItem(bigIdeaItem)" :key="bIndex">-->
+    <!--            {{ bigIdeaItem.name }}-->
+    <!--          </div>-->
+    <!--        </div>-->
+    <!--      </div>-->
+    <!--    </div>-->
 
     <div
       class="browser-block-item-wrapper"
@@ -84,39 +151,89 @@
         <div class="switch-type-wrapper">
           <div class="switch-type">
             <div class="switch-label">
-              <a-dropdown>
-                <a-menu slot="overlay">
-                  <a-menu-item disabled>
-                    <span>{{ $t('teacher.my-content.choose-types-of-content') }}</span>
-                  </a-menu-item>
-                  <a-menu-item @click="toggleType(0, $t('teacher.my-content.all-type'))">
-                    <span>{{ $t('teacher.my-content.all-type') }}</span>
-                  </a-menu-item>
-                  <template v-if="$store.getters.roles.indexOf('teacher') !== -1">
-                    <a-menu-item @click="toggleType( typeMap['unit-plan'], $t('teacher.my-content.unit-plan-type'))">
-                      <span>{{ $t('teacher.my-content.unit-plan-type') }}</span>
+              <div class="filter-icon">
+                <filter-icon />
+              </div>
+              <div class="content-filter-list">
+                <a-dropdown class="filter-dropdown-item">
+                  <a-menu slot="overlay">
+                    <a-menu-item disabled>
+                      <span>Choose type(s)of content</span>
                     </a-menu-item>
-                    <a-menu-item @click="toggleType(typeMap.evaluation, $t('teacher.my-content.evaluation-type'))">
-                      <span>{{ $t('teacher.my-content.evaluation-type') }}</span>
+                    <a-menu-item @click="toggleType(0, $t('teacher.my-content.all-type'))">
+                      <span>{{ $t('teacher.my-content.all-type') }}</span>
                     </a-menu-item>
-                  </template>
-                  <a-menu-item @click="toggleType(typeMap.task, $t('teacher.my-content.tasks-type') )">
-                    <span>{{ $t('teacher.my-content.tasks-type') }}</span>
-                  </a-menu-item>
-                  <!--                  <a-menu-item @click="toggleType(typeMap.lesson, $t('teacher.my-content.lesson-type'))">
-                    <span>{{ $t('teacher.my-content.lesson-type') }}</span>
-                  </a-menu-item>-->
-                  <template v-if="$store.getters.roles.indexOf('expert') !== -1">
-                    <a-menu-item @click="toggleType(typeMap.topic, $t('teacher.my-content.topics-type'))">
-                      <span>{{ $t('teacher.my-content.topics-type') }}</span>
+                    <template v-if="$store.getters.roles.indexOf('teacher') !== -1">
+                      <a-menu-item @click="toggleType( typeMap['unit-plan'], $t('teacher.my-content.unit-plan-type'))">
+                        <span>{{ $t('teacher.my-content.unit-plan-type') }}</span>
+                      </a-menu-item>
+                      <a-menu-item @click="toggleType(typeMap.evaluation, $t('teacher.my-content.evaluation-type'))">
+                        <span>{{ $t('teacher.my-content.evaluation-type') }}</span>
+                      </a-menu-item>
+                    </template>
+                    <a-menu-item @click="toggleType(typeMap.task, $t('teacher.my-content.tasks-type') )">
+                      <span>{{ $t('teacher.my-content.tasks-type') }}</span>
                     </a-menu-item>
-                  </template>
-                </a-menu>
-                <a-button
-                  style="padding: 0 10px;display:flex; align-items:center ;height: 35px;border-radius: 6px;background: rgba(245, 245, 245, 0.5);font-size:13px;border: 1px solid #BCBCBC;font-family: Inter-Bold;color: #182552;">
-                  <span v-if="currentTypeLabel">{{ currentTypeLabel }}</span> <span v-else>Choose type(s)of content</span>
-                  <a-icon type="caret-down" /> </a-button>
-              </a-dropdown>
+                    <!--                  <a-menu-item @click="toggleType(typeMap.lesson, $t('teacher.my-content.lesson-type'))">
+                      <span>{{ $t('teacher.my-content.lesson-type') }}</span>
+                    </a-menu-item>-->
+                    <template v-if="$store.getters.roles.indexOf('expert') !== -1">
+                      <a-menu-item @click="toggleType(typeMap.topic, $t('teacher.my-content.topics-type'))">
+                        <span>{{ $t('teacher.my-content.topics-type') }}</span>
+                      </a-menu-item>
+                    </template>
+                  </a-menu>
+                  <a-button
+                    style="padding: 0 10px;
+                  display:flex; align-items:center ;
+                  border-color: #F3F3F3;
+                  box-shadow: none;
+                  height: 35px;border-radius: 2px;background: #F3F3F3;font-size:13px;
+                  font-family: Inter-Bold;color: #182552;">
+                    <span v-if="currentTypeLabel">{{ currentTypeLabel }}</span> <span v-else>Choose type(s)of content</span>
+                    <a-icon type="caret-down" /> </a-button>
+                </a-dropdown>
+                <a-dropdown class="filter-dropdown-item">
+                  <a-menu slot="overlay">
+                    <a-menu-item disabled>
+                      <span>All Concept</span>
+                    </a-menu-item>
+                    <a-menu-item @click="toggleConceptType(name)" v-for="(name,index) in conceptList" :key="index">
+                      <span>{{ name }}</span>
+                    </a-menu-item>
+                  </a-menu>
+                  <a-button
+                    style="padding: 0 10px;
+                  display:flex; align-items:center ;
+                  border-color: #f3f3f3;
+                  box-shadow: none;
+                  height: 35px;border-radius: 2px;background: #f3f3f3;font-size:13px;
+                  font-family: Inter-Bold;color: #182552;">
+                    <span v-if="currentConceptTypeLabel">{{ currentConceptTypeLabel }}</span> <span v-else>All concept</span>
+                    <a-icon type="caret-down" /> </a-button>
+                </a-dropdown>
+
+                <a-dropdown class="filter-dropdown-item">
+                  <a-menu slot="overlay">
+                    <a-menu-item @click="toggleSAType(1, 'SA')">
+                      <span>SA</span>
+                    </a-menu-item>
+                    <a-menu-item @click="toggleSAType(2, 'FA')">
+                      <span>FA</span>
+                    </a-menu-item>
+                  </a-menu>
+                  <a-button
+                    style="padding: 0 10px;
+                  display:flex; align-items:center ;
+                  border-color: #f3f3f3;
+                  box-shadow: none;
+                  height: 35px;border-radius: 2px;background: #f3f3f3;font-size:13px;
+                  font-family: Inter-Bold;color: #182552;">
+                    <span>{{ currentSaFaLabel }}</span>
+                    <a-icon type="caret-down" /> </a-button>
+                </a-dropdown>
+              </div>
+
             </div>
             <div class="switch-icon">
               <div :class="{'icon-item': true, 'active-icon': dataListMode === 'list'}" @click="handleToggleDataListMode('list')">
@@ -198,9 +315,13 @@ import DirIcon from '@/components/Library/DirIcon'
 import NoMoreResources from '@/components/Common/NoMoreResources'
 import PuBuIcon from '@/assets/icons/library/pubu .svg?inline'
 import ListModeIcon from '@/assets/icons/library/liebiao .svg?inline'
+import FilterIcon from '@/assets/svgIcon/library/shaixuan.svg?inline'
+import SearchIcon from '@/assets/svgIcon/library/sousuo.svg?inline'
 import DataCardView from '@/components/Library/DataCardView'
 import { typeMap } from '@/const/teacher'
-import { QueryBigIdea } from '@/api/scenario'
+import { QueryBigIdea, QueryTagsBySubjectIds } from '@/api/scenario'
+import { SubjectTree } from '@/api/subject'
+import SousuoIconSvg from '@/assets/icons/header/sousuo.svg?inline'
 const { ScenarioGetKeywordScenarios, QueryContentByBigIdea } = require('@/api/scenario')
 const { GetAllSdgs } = require('@/api/scenario')
 
@@ -213,7 +334,10 @@ export default {
     DirIcon,
     PuBuIcon,
     ListModeIcon,
-    DataCardView
+    FilterIcon,
+    SearchIcon,
+    DataCardView,
+    SousuoIconSvg
   },
   props: {
     blockWidth: {
@@ -225,7 +349,7 @@ export default {
     return {
       typeMap: typeMap,
       sdgList: [],
-      sdgListLoading: true,
+      sdgListLoading: false,
       currentSdgId: null,
 
       sdgKeywordNameList: [],
@@ -245,15 +369,28 @@ export default {
 
       bigIdeaList: [],
       currentBigIdea: null,
+      bigIdeaLoading: false,
 
-      currentTypeLabel: 'Choose type（S）of content',
-      currentType: 0
+      currentTypeLabel: 'Choose type(s)of content',
+      currentType: 0,
+      selectedSubect: [],
+      subjectList: [],
+
+      keywordSearchText: '',
+      currentConceptTypeLabel: 'All concept',
+      currentConceptType: 0,
+      conceptList: [],
+      selectedConcept: undefined,
+
+      currentSaFaLabel: 'SA|FA',
+      currentSaFaType: 0
     }
   },
   created () {
     // sdg数据结构：sdg列表-keywords-big idea
     this.$logger.info('SdgBrowser blockWidth:' + this.blockWidth)
     this.getAllSdgs()
+    this.getSubjectTree()
   },
   methods: {
     getAllSdgs () {
@@ -268,13 +405,29 @@ export default {
         this.sdgListLoading = false
       })
     },
+    getSubjectTree () {
+      SubjectTree({ curriculumId: this.$store.getters.bindCurriculum }).then(response => {
+        this.$logger.info('getSubjectTree response', response.result)
+        this.subjectTree = response.result
+        this.subjectTree.forEach(item => {
+          if (item.children.length > 0) {
+            item.children.forEach(child => {
+              this.subjectList.push(child)
+            })
+          }
+        })
+      }).finally(() => {
+      })
+    },
     handleSelectSdgItem (sdgItem) {
       this.$logger.info('handleSelectSdgItem ', sdgItem, this.currentSdgId)
       if (sdgItem.id !== this.currentSdgId) {
         this.currentSdgId = sdgItem.id
         this.sdgKeywordNameList = []
         this.currentSdgKeywordName = null
-        this.scenarioGetKeywordScenarios(sdgItem.id)
+        // this.scenarioGetKeywordScenarios(sdgItem.id)
+        this.queryBigIdea()
+        this.queryTagsBySubjectIds()
         this.handleClickBlock(1, sdgItem.name)
       }
     },
@@ -316,6 +469,34 @@ export default {
       })
     },
 
+    queryBigIdea () {
+      this.bigIdeaLoading = true
+      this.$logger.info('queryBigIdeaKeyword')
+      QueryBigIdea({ keywords: this.currentSdgKeywordName, 'sdgId': this.currentSdgId, 'subjectIds': this.selectedSubect }).then(response => {
+        this.$logger.info('queryBigIdeaKeyword response', response.result)
+        const list = []
+        response.result.forEach(bigIdea => {
+          list.push({
+            id: bigIdea,
+            name: bigIdea
+          })
+        })
+        this.bigIdeaList = list
+      }).finally(() => {
+        this.bigIdeaLoading = false
+      })
+    },
+    queryTagsBySubjectIds () {
+      this.$logger.info('queryTagsBySubjectIds')
+      QueryTagsBySubjectIds({ 'subjectIds': this.selectedSubect }).then(response => {
+        this.$logger.info('queryTagsBySubjectIds response', response.result)
+        if (response.success) {
+          this.conceptList = response.result['Universal Concept']
+          this.sdgKeywordNameList = response.result['Key words']
+        }
+      }).finally(() => {
+      })
+    },
     queryBigIdeaKeywords (keywordsItem) {
       this.$logger.info('queryBigIdeaKeyword', keywordsItem)
       this.dataListLoading = true
@@ -350,7 +531,7 @@ export default {
           this.$logger.info('no big idea content')
         }
       })
-      this.handleClickBlock(3, bigIdeaItem.name)
+      this.handleClickBlock(2, bigIdeaItem.name)
     },
 
     handleSelectDataItem (dataItem) {
@@ -373,6 +554,22 @@ export default {
       this.$logger.info('toggleType ' + type + ' label ' + label)
       this.currentType = type
       this.currentTypeLabel = label
+    },
+
+    toggleConceptType (label) {
+      this.$logger.info('toggleConceptType ', label)
+      this.currentConceptType = label
+      this.currentConceptTypeLabel = label
+    },
+
+    toggleSAType (type, label) {
+      this.$logger.info('toggleSAType ' + type + ' label ' + label)
+      this.currentSaFaType = type
+      this.currentSaFaLabel = label
+    },
+    changeSubject () {
+      this.queryTagsBySubjectIds()
+      this.queryBigIdea()
     }
   }
 }
@@ -512,6 +709,25 @@ export default {
             font-family: Inter-Bold;
             line-height: 20px;
             color: rgba(24, 37, 82, 1);
+            display: flex;
+            align-items: center;
+            flex-direction: row;
+            .filter-icon {
+              margin-right: 10px;
+              svg {
+                height: 20px;
+              }
+            }
+
+            .content-filter-list {
+              display: flex;
+              align-items: center;
+              flex-direction: row;
+              flex-wrap: wrap;
+              .filter-dropdown-item {
+                margin-right: 10px;
+              }
+            }
           }
 
           .switch-icon {
@@ -538,6 +754,10 @@ export default {
             }
           }
         }
+      }
+
+      .library-select {
+
       }
       .browser-item {
         line-height: 20px;
@@ -714,5 +934,80 @@ export default {
       box-shadow: 2px 4px 6px rgba(21, 195, 154, 0.2);
     }
   }
+}
+
+.filter-block{
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  padding: 8px 15px 15px 15px;
+
+  .filter-block-content {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    border: 1px solid #ddd;
+    opacity: 1;
+    border-radius: 4px;
+    width: 100%;
+    padding: 5px 10px;
+    .filter-icon {
+      margin-right: 5px;
+      svg {
+        height: 20px;
+      }
+    }
+    .filter-list {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      flex-wrap: wrap;
+      width: 100%;
+      justify-content: space-between;
+    }
+    .filter-select{
+      cursor: pointer;
+      margin: 5px;
+      min-width: 150px;
+      /deep/ .ant-select-selection--multiple{
+        cursor: pointer;
+      }
+    }
+  }
+}
+
+.library-filter-select {
+  background: #F3F3F3;
+}
+
+.keyword-search {
+  margin: 5px;
+  .my-nav-search {
+
+    svg {
+      fill: rgba(188, 188, 188, 1);
+    }
+    input {
+
+    }
+  }
+}
+
+.sa-fa {
+  cursor: pointer;
+  padding: 3px 15px;
+  background: #F5F5F5;
+  border: 1px solid #BCBCBC;
+  opacity: 1;
+  font-size: 13px;
+  font-family: Inter-Bold;
+  color: #182552;
+  margin-left: 10px;
+  border-radius: 3px;
+}
+
+.sa-active {
+  color: #fff;
+  background-color: #07AB84;
 }
 </style>
