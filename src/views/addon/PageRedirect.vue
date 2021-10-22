@@ -28,6 +28,13 @@ export default {
       window.sessionStorage.setItem(SESSION_ACTIVE_KEY, token)
     }
     this.$router.push('/teacher/add-task/' + this.id)
+    // if (!oldSession) {
+    //   this.$store.dispatch('GetInfo').then((data) => {
+    //     this.$router.push('/teacher/add-task/' + this.id)
+    //   })
+    // } else {
+    //   this.$router.push('/teacher/add-task/' + this.id)
+    // }
   },
   props: {
     id: {
