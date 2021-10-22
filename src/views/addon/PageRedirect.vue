@@ -27,7 +27,6 @@ export default {
       storage.set(ACCESS_TOKEN, token)
       window.sessionStorage.setItem(SESSION_ACTIVE_KEY, token)
     }
-
     this.$router.push('/teacher/add-task/' + this.id)
   },
   props: {
