@@ -198,14 +198,8 @@
                     <a-menu-item disabled>
                       <span>All Concept</span>
                     </a-menu-item>
-                    <a-menu-item @click="toggleConceptType(1, 'Concept1')">
-                      <span>Concept1</span>
-                    </a-menu-item>
-                    <a-menu-item @click="toggleConceptType(2, 'Concept2')">
-                      <span>Concept1</span>
-                    </a-menu-item>
-                    <a-menu-item @click="toggleConceptType(3, 'Concept3')">
-                      <span>Concept1</span>
+                    <a-menu-item @click="toggleConceptType(name)" v-for="(name,index) in conceptList" :key="index">
+                      <span>{{ name }}</span>
                     </a-menu-item>
                   </a-menu>
                   <a-button
@@ -562,9 +556,9 @@ export default {
       this.currentTypeLabel = label
     },
 
-    toggleConceptType (type, label) {
-      this.$logger.info('toggleConceptType ' + type + ' label ' + label)
-      this.currentConceptType = type
+    toggleConceptType (label) {
+      this.$logger.info('toggleConceptType ', label)
+      this.currentConceptType = label
       this.currentConceptTypeLabel = label
     },
 

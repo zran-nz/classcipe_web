@@ -23,7 +23,11 @@ router.beforeEach((to, from, next) => {
 
   /* has token */
   logger.info('router', to)
-  if (storage.get(ACCESS_TOKEN) && to.path !== authCheckPath) {
+  if (allowList.includes(to.name)) {
+    // 在免登录名单，直接进入
+    logger.info('allowList ', to.name)
+    next()
+  } else if (storage.get(ACCESS_TOKEN) && to.path !== authCheckPath) {
     const sessionActive = window.sessionStorage.getItem(SESSION_ACTIVE_KEY)
     logger.info('sessionActive check', sessionActive)
     if (sessionActive) {
@@ -96,15 +100,9 @@ router.beforeEach((to, from, next) => {
       next({ path: authCheckPath, query: { redirect: to.fullPath } })
     }
   } else {
-    if (allowList.includes(to.name)) {
-      // 在免登录名单，直接进入
-      logger.info('allowList ', to.name)
-      next()
-    } else {
       next({ path: loginRoutePath, query: { redirect: to.fullPath } })
       NProgress.done() // if current page is login will not trigger afterEach hook, so manually handle it
     }
-  }
 })
 
 router.afterEach(() => {
