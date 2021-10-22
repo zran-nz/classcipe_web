@@ -8,6 +8,7 @@
 import storage from 'store'
 import { ACCESS_TOKEN } from '@/store/mutation-types'
 import { SESSION_ACTIVE_KEY } from '@/const/common'
+import store from '@/store'
 
 export default {
   name: 'PageRedirect',
@@ -27,7 +28,13 @@ export default {
       storage.set(ACCESS_TOKEN, token)
       window.sessionStorage.setItem(SESSION_ACTIVE_KEY, token)
     }
-    this.$router.push('/teacher/add-task/' + this.id)
+    if (store.getters.roles.length === 0) {
+        this.$store.dispatch('GetInfo').then((data) => {
+          this.$router.push('/teacher/add-task/' + this.id)
+        })
+    } else {
+      this.$router.push('/teacher/add-task/' + this.id)
+    }
   },
   props: {
     id: {
