@@ -167,7 +167,7 @@
                             Key question/line of inquiry
                           </span>
 
-                          <div class="question-more"><a-button type="link" >more</a-button></div>
+                          <div class="question-more"><a-button @click="questionMoreVisible=true" type="link" >more</a-button></div>
 
                           <div class="recommend-question" v-if="showRecommendQuestion">
                             <a-icon type="close" class="close-icon" @click.stop="hideRecommendQuestion=true" />
@@ -537,6 +537,24 @@
           </div>
         </div>
       </a-modal>
+
+      <a-modal
+        v-model="questionMoreVisible"
+        :footer="null"
+        destroyOnClose
+        width="900px"
+        title="Browse key question"
+        @ok="questionMoreVisible = false"
+        @cancel="questionMoreVisible = false">
+        <div class="link-content-wrapper">
+          <QuestionBrowse :big-idea="form.inquiry" :question-list="form.questions" @select-question="handleSelectQuestion"></QuestionBrowse>
+
+          <div class="modal-ensure-action-line-right">
+            <a-button class="action-item action-cancel" shape="round" @click="questionMoreVisible=false">Cancel</a-button>
+            <a-button class="action-ensure action-item" type="primary" shape="round" @click="handleEnsureSelectQuestionData">Ok</a-button>
+          </div>
+        </div>
+      </a-modal>
       <a-skeleton :loading="contentLoading" active>
       </a-skeleton>
     </a-card>
@@ -591,10 +609,12 @@ import CollaborateHistory from '@/components/Collaborate/CollaborateHistory'
 import { UserSetting } from '@/api/user'
 import BigIdeaBrowse from '@/components/UnitPlan/BigIdeaBrowse'
 import { FindQuestionsByBigIdea } from '@/api/question'
+import QuestionBrowse from '@/components/UnitPlan/QuestionBrowse'
 
 export default {
   name: 'AddUnitPlan',
   components: {
+    QuestionBrowse,
     CollaborateHistory,
     CollaborateCommentView,
     CommentSwitch,
@@ -640,16 +660,6 @@ export default {
       showAddAudioVisible: false,
       currentUploading: false,
       audioUrl: null,
-
-      selectedMyContentInfoItem: {},
-      // 待选择的unit plan中的描述标签
-      relevantQuestionList: [],
-      showRelevantQuestionVisible: false,
-      relevantSelectedQuestionList: [],
-      relevantSelectedUnitPlan: {},
-
-      subKnowledgeId2InfoMap: new Map(),
-      descriptionId2InfoMap: new Map(),
 
       labelCol: { span: 4 },
       wrapperCol: { span: 18 },
@@ -764,7 +774,9 @@ export default {
       selectNewBigIdea: '',
       recommendQuestionList: [],
       showHistoryLoading: false,
-      hideRecommendQuestion: false
+      hideRecommendQuestion: false,
+      questionMoreVisible: false,
+      selectedQuestionList: []
     }
   },
   watch: {
@@ -828,7 +840,6 @@ export default {
   created () {
     logger.info('unitPlanId ' + this.unitPlanId + ' ' + this.$route.path)
     // 初始化关联事件处理
-    MyContentEventBus.$on(MyContentEvent.ToggleSelectContentItem, this.handleToggleSelectContentItem)
     MyContentEventBus.$on(MyContentEvent.ReferContentItem, this.handleReferItem)
     LibraryEventBus.$on(LibraryEvent.ContentListSelectClick, this.handleDescriptionSelectClick)
     this.initData()
@@ -838,7 +849,6 @@ export default {
     this.findQuestionsByBigIdea = debounce(this.findQuestionsByBigIdea, 800)
   },
   beforeDestroy () {
-    MyContentEventBus.$off(MyContentEvent.ToggleSelectContentItem, this.handleToggleSelectContentItem)
     MyContentEventBus.$off(MyContentEvent.ReferContentItem, this.handleReferItem)
     LibraryEventBus.$off(LibraryEvent.ContentListSelectClick, this.handleDescriptionSelectClick)
     // logger.debug('beforeDestroy, try save!')
@@ -1248,11 +1258,6 @@ export default {
       } else {
         this.$logger.info('add loading')
       }
-    },
-
-    handleToggleSelectContentItem (data) {
-      this.$logger.info('handleToggleSelectContentItem', data)
-      this.selectedMyContentInfoItem = data
     },
 
     goBack () {
@@ -1821,6 +1826,22 @@ export default {
         this.form.questions = []
       }
       this.form.questions.push(question)
+    },
+    handleSelectQuestion (questions) {
+      logger.info('handleSelectQuestion ', questions)
+      this.selectedQuestionList = questions
+    },
+    handleEnsureSelectQuestionData () {
+      logger.info('handleEnsureSelectQuestionData ', this.selectedQuestionList)
+      const formQuestion = this.form.questions.map(item => {
+        return item.name
+      })
+      this.selectedQuestionList.forEach(q => {
+        if (formQuestion.indexOf(q) === -1) {
+          this.form.questions.push({ 'name': q })
+        }
+      })
+      this.questionMoreVisible = false
     }
   }
 }

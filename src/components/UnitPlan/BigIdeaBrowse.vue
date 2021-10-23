@@ -56,7 +56,13 @@
         <div>
 
           <div class="select-item">
-            <a-select v-model="selectedConcept" mode="multiple" class="multiple-select" placeholder="All Concept" :showArrow="true">
+            <a-select
+              @change="QueryBigIdea"
+              v-model="selectedConcept"
+              mode="multiple"
+              class="multiple-select"
+              placeholder="All Concept"
+              :showArrow="true">
               <a-select-option :value="concept" v-for="(concept, gIndex) in conceptList" :key="gIndex">
                 {{ concept }}
               </a-select-option>
@@ -88,7 +94,7 @@ import TagBrowser from '@/components/UnitPlan/TagBrowser'
 import { QuerySourceTagByCategory } from '@/api/tag'
 import { TAG_CATGORY_KEYWORDS } from '@/const/common'
 import { SubjectTree } from '@/api/subject'
-import { QueryBigIdea } from '@/api/scenario'
+import { QueryBigIdea, QueryTagsBySubjectIds } from '@/api/scenario'
 
 const { debounce } = require('lodash-es')
 
@@ -189,13 +195,28 @@ export default {
       if (this.subjectIds.length === 1 && !this.subjectIds[0]) {
         this.subjectIds = []
       }
-      QueryBigIdea({ keywords: this.selectedKeywords, subjectIds: this.subjectIds }).then(response => {
+      QueryBigIdea({ keywords: this.selectedKeywords, subjectIds: this.subjectIds, concepts: this.selectedConcept }).then(response => {
         this.$logger.info('QueryBigIdea response', response.result)
         if (response.success) {
           this.bigIdeaList = response.result
         }
       }).finally(() => {
         this.bigLoading = false
+      })
+    },
+    queryTagsBySubjectIds () {
+      this.$logger.info('queryTagsBySubjectIds')
+      if (this.subjectIds.length === 1 && !this.subjectIds[0]) {
+        this.subjectIds = []
+      }
+      QueryTagsBySubjectIds({ 'subjectIds': this.subjectIds }).then(response => {
+        this.$logger.info('queryTagsBySubjectIds response', response.result)
+        if (response.success) {
+          this.conceptList = response.result['Universal Concept']
+          this.keywordList = response.result['Key words']
+        }
+      }).finally(() => {
+        this.getLettersList()
       })
     },
     selectBigIdea (bigIdea) {
@@ -212,7 +233,7 @@ export default {
     selectSubject (subjectId) {
       this.subjectIds = []
       this.subjectIds.push(subjectId)
-      this.queryBigIdeaKeywords()
+      this.queryTagsBySubjectIds()
       this.QueryBigIdea()
     }
 
