@@ -577,7 +577,7 @@ import { formatSubjectTree } from '@/utils/bizUtil'
 import NewUiClickableKnowledgeTag from '@/components/UnitPlan/NewUiClickableKnowledgeTag'
 import NewClickableSkillTag from '@/components/UnitPlan/NewClickableSkillTag'
 import SkillTag from '@/components/UnitPlan/SkillTag'
-import { ChangeStatus, UnitPlanAddOrUpdate, UnitPlanQueryById } from '@/api/unitPlan'
+import { UnitPlanAddOrUpdate, UnitPlanQueryById } from '@/api/unitPlan'
 import { formatLocalUTC } from '@/utils/util'
 import MyContentSelector from '@/components/MyContent/MyContentSelector'
 import AssociateSidebar from '@/components/Associate/AssociateSidebar'
@@ -1139,10 +1139,8 @@ export default {
         id: this.unitPlanId,
         status: 1
       })
-      ChangeStatus({
-        id: this.unitPlanId,
-        status: 1
-      }).then(() => {
+      this.form.status = 1
+      UnitPlanAddOrUpdate(this.form).then(() => {
         this.$message.success(this.$t('teacher.add-unit-plan.publish-success'))
         this.form.status = 1
         this.$refs.commonFormHeader.publishing = false

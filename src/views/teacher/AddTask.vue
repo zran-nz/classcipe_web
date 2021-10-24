@@ -771,7 +771,7 @@
   import * as logger from '@/utils/logger'
   import ContentTypeIcon from '@/components/Teacher/ContentTypeIcon'
   import { typeMap } from '@/const/teacher'
-  import { UpdateContentStatus, GetMyGrades, Associate, SaveSessonTags, GetAssociate, GetReferOutcomes } from '@/api/teacher'
+  import { GetMyGrades, Associate, SaveSessonTags, GetAssociate, GetReferOutcomes } from '@/api/teacher'
   import InputSearch from '@/components/UnitPlan/InputSearch'
   import SdgTagInput from '@/components/UnitPlan/SdgTagInput'
   import SkillTag from '@/components/UnitPlan/SkillTag'
@@ -1166,9 +1166,9 @@
         if (this.taskId) {
           taskData.id = this.taskId
         }
-        if (this.form.presentationId) {
-          this.loadThumbnail()
-        }
+        // if (this.form.presentationId) {
+        //   this.loadThumbnail()
+        // }
         logger.info('basic taskData', taskData)
         logger.info('question taskData', taskData)
         TaskAddOrUpdate(taskData).then((response) => {
@@ -1189,13 +1189,10 @@
           id: this.taskId,
           status: 1
         })
-
+        const taskData = Object.assign({}, this.form)
+        taskData.status = 1
         this.publishing = true
-        UpdateContentStatus({
-          id: this.taskId,
-          status: 1,
-          type: this.contentType.task
-        }).then(response => {
+        TaskAddOrUpdate(taskData).then(response => {
           this.$logger.info('UpdateContentStatus response', response)
           // this.$message.success('Publish success')
           this.form.status = 1
