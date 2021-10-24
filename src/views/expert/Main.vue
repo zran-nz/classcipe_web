@@ -6,38 +6,41 @@
           <div class="nav-bar-wrapper">
             <div :class="{'nav-bar-item': true, 'selected-nav-bar' : selectedKey === '/expert/main/created-by-me'}">
               <router-link to="/expert/main/created-by-me">
-                <a-icon type="container" :theme="selectedKey === '/expert/main/created-by-me' ? 'filled': 'outlined'"/>
+                <created-by-me-svg />
                 {{ $t('teacher.main.created-by-me') }}
               </router-link>
             </div>
             <div :class="{'nav-bar-item': true, 'selected-nav-bar' : selectedKey === '/expert/main/my-favorite'}">
               <router-link to="/expert/main/my-favorite">
-                <a-icon type="like" :theme="selectedKey === '/expert/main/my-favorite' ? 'filled': 'outlined'" />
+                <my-favorite-svg />
                 {{ $t('teacher.main.my-favorite') }}
               </router-link>
             </div>
-            <div :class="{'nav-bar-item': true, 'selected-nav-bar' : selectedKey === '/expert/main/shared'}">
+            <div :class="{'nav-bar-item': true, 'nav-bar-item-split': true, 'selected-nav-bar' : selectedKey === '/expert/main/shared'}">
               <router-link to="/expert/main/shared">
-                <a-icon type="share-alt"/>
+                <a-badge :count="$store.getters.sharedCount">
+                  <shared-svg />
+                </a-badge>
                 {{ $t('teacher.main.shared') }}
               </router-link>
             </div>
-            <a-divider />
             <div :class="{'nav-bar-item': true, 'selected-nav-bar' : selectedKey === '/expert/main/discover'}">
               <router-link to="/expert/main/discover">
-                <a-icon type="compass" :theme="selectedKey === '/expert/main/discover' ? 'filled': 'outlined'" />
+                <a-badge :count="$store.getters.sharedFindCount">
+                  <discover-svg />
+                </a-badge>
                 {{ $t('teacher.main.discover') }}
               </router-link>
             </div>
             <div :class="{'nav-bar-item': true, 'selected-nav-bar' : selectedKey === '/expert/main/subscribes'}">
               <router-link to="/expert/main/subscribes">
-                <a-icon type="star" :theme="selectedKey === '/expert/main/subscribes' ? 'filled': 'outlined'" />
+                <subscribes-svg />
                 {{ $t('teacher.main.subscribes') }}
               </router-link>
             </div>
             <div :class="{'nav-bar-item': true, 'selected-nav-bar' : selectedKey === '/expert/main/popular'}">
-              <router-link to="/expert/main/popular">F
-                <a-icon type="alert" :theme="selectedKey === '/expert/main/popular' ? 'filled': 'outlined'" />
+              <router-link to="/expert/main/popular">
+                <popular-svg />
                 {{ $t('teacher.main.popular') }}
               </router-link>
             </div>
@@ -54,11 +57,23 @@
 <script>
 import { PageHeaderWrapper } from '@ant-design-vue/pro-layout'
 import * as logger from '@/utils/logger'
+import CreatedByMeSvg from '@/assets/svgIcon/myContent/Created_by_me.svg?inline'
+import DiscoverSvg from '@/assets/svgIcon/myContent/Discover.svg?inline'
+import MyFavoriteSvg from '@/assets/svgIcon/myContent/My_favorite.svg?inline'
+import PopularSvg from '@/assets/svgIcon/myContent/Popular.svg?inline'
+import SharedSvg from '@/assets/svgIcon/myContent/Shared.svg?inline'
+import SubscribesSvg from '@/assets/svgIcon/myContent/Subscribes.svg?inline'
 
 export default {
   name: 'Main',
   components: {
-    PageHeaderWrapper
+    PageHeaderWrapper,
+    CreatedByMeSvg,
+    DiscoverSvg,
+    MyFavoriteSvg,
+    PopularSvg,
+    SharedSvg,
+    SubscribesSvg
   },
   data () {
     return {
@@ -84,8 +99,20 @@ export default {
 }
 </script>
 
-<style lang="less" scoped>
+<style lang="css">
+.nav-bar-left .ant-badge-count {
+  right: 5px;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 3px;
+  color: #fff;
+  font-size: 10px;
+  line-height: 16px;
+  border-radius: 10px;
+}
+</style>
 
+<style lang="less" scoped>
 @black: #000;
 @primary-color: #15c39a;
 @text-color-secondary: fade(@black, 45%);
@@ -103,40 +130,48 @@ export default {
 
 .nav-bar-left {
   height: 100%;
-  border-right: 1px solid #e8e8e8;
   box-sizing: border-box;
+  margin-top: 70px;
+  padding-right: 5px;
   .nav-bar-wrapper {
     .nav-bar-item {
-      margin: 10px 0;
-      font-weight: bold;
-      font-size: 16px;
+      font-family: Inter-Bold;
+      font-size: 14px;
       cursor: pointer;
+      background-image: url("~@/assets/icons/myContent/Rectangle@2x.png");
+      background-repeat: repeat;
+      background-size: cover;
 
       a {
-        display: inline-block;
-        height: 50px;
+        display: flex;
+        align-items: center;
+        width: 100%;
         line-height: 30px;
-        border-radius: 25px;
         padding: 10px 20px;
-        color: @text-color-secondary;
-        &:hover {
-          color: @primary-color;
+        color: #000000;
+
+        svg {
+          width: 50px;
         }
       }
 
       &:hover {
+        background: #EDF1F5;
         a {
-          background-color: fade(@primary-color, 10%);
           color: @primary-color;
         }
       }
     }
 
+    .nav-bar-item-split {
+      margin-bottom: 20px;
+    }
+
     .selected-nav-bar {
+      background: #EDF1F5;
       a {
-        background-color: fade(@primary-color, 10%);
         color: @primary-color;
-        border-radius: 25px;
+        font-weight: bold;
       }
     }
   }

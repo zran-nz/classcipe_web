@@ -36,6 +36,7 @@
 
 <script>
 import { Modal } from 'ant-design-vue'
+import { SESSION_CURRENT_PAGE, SESSION_CURRENT_TYPE, SESSION_CURRENT_TYPE_LABEL } from '@/const/common'
 
 export default {
   name: 'AvatarDropdown',
@@ -51,6 +52,10 @@ export default {
   },
   methods: {
     switchRole () {
+      // del cache
+      sessionStorage.removeItem(SESSION_CURRENT_PAGE)
+      sessionStorage.removeItem(SESSION_CURRENT_TYPE_LABEL)
+      sessionStorage.removeItem(SESSION_CURRENT_TYPE)
       if (this.currentUser.currentRole === 'expert') {
         this.$emit('switch-role', 'teacher')
       } else {
