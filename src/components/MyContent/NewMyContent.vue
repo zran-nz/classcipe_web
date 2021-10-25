@@ -659,7 +659,7 @@ export default {
         const postData = {
           fromId: this.fromId,
           fromType: this.fromType,
-          groupName: this.selectedGroup,
+          groupName: this.selectedGroup.length > 0 ? this.selectedGroup[0] : '',
           otherContents: []
         }
 
