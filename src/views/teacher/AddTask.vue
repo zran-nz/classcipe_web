@@ -12,12 +12,12 @@
         @collaborate="handleStartCollaborate"
       />
     </div>
-    <a-card :bordered="false" :bodyStyle="{ padding: '16px 24px 40px 24px', height: '100%', minHeight: '1000px' }">
+    <a-card :bordered="false" :bodyStyle="{ padding: '16px 24px 40px 24px', height: '100%', minHeight: '1000px',minWidth:'1200px' }">
       <template v-if="mode === 'edit'">
         <a-row class="unit-content" v-if="!contentLoading" >
           <a-col span="24" class="main-content">
             <a-card :bordered="false" :body-style="{padding: '16px', display: 'flex', 'justify-content': 'space-between'}" class="card-wrapper">
-              <div class="task-form-left root-locate-form" ref="form" @click="focusInput($event)">
+              <div class="task-form-left root-locate-form" ref="form" @click="focusInput($event)" :style="{'width':leftWidth}">
                 <a-form-model :model="form" class="my-form-wrapper" >
                   <a-steps :current="currentActiveStepIndex" direction="vertical" @change="onChangeStep">
                     <a-step class="step-1" title="Edit course info" :status="currentActiveStepIndex === 0 ? 'process':'wait'">
@@ -33,7 +33,7 @@
                         <div class="form-block over-form-block" id="overview" >
                           <comment-switch field-name="overview" :is-active="showCollaborateCommentVisible && currentFieldName === 'overview'" @switch="handleSwitchComment" class="my-comment-switch"/>
                           <a-form-model-item class="task-audio-line" label="Course Overview" ref="overview">
-                            <a-textarea v-model="form.overview" placeholder="Overview" allow-clear />
+                            <a-textarea v-model="form.overview" placeholder="Overview" allow-clear class="my-form-input" />
                           </a-form-model-item>
                         </div>
 
@@ -49,7 +49,7 @@
                           </a-form-model-item>
                         </div>
 
-                        <div class="form-block form-question" v-if="associateQuestionList.length > 0">
+                        <div class="form-block form-question" v-if="associateQuestionList.length > 0 && form.taskType === 'FA'">
                           <comment-switch field-name="questions" :is-active="showCollaborateCommentVisible && currentFieldName === 'questions'" @switch="handleSwitchComment" class="my-comment-switch"/>
                           <a-form-model-item label="Choose Key questions">
                             <a-select
@@ -175,10 +175,10 @@
                 </a-form-model>
               </div>
 
-              <div class="task-form-right">
+              <div class="task-form-right" :style="{'width':rightWidth}">
                 <template v-if="showAllCollaborateCommentVisible">
                   <a-skeleton :loading="showHistoryLoading" active>
-                    <div class="collaborate-panel" :style="{'width':'600px', 'margin-top': '0px', 'z-index': 100, 'padding': '10px'}">
+                    <div class="collaborate-panel" :style="{'width':rightWidth, 'margin-top': '0px', 'z-index': 100, 'padding': '10px'}">
                       <div class="icon">
                         <comment-icon />
                       </div>
@@ -195,7 +195,7 @@
                 </template>
                 <template v-else>
                   <template v-if="showCollaborateCommentVisible">
-                    <div class="collaborate-panel" :style="{'width':'600px', 'margin-top':collaborateTop+'px', 'z-index': 100, 'padding': '10px'}">
+                    <div class="collaborate-panel" :style="{'width':rightWidth, 'margin-top':collaborateTop+'px', 'z-index': 100, 'padding': '10px'}">
                       <collaborate-comment-panel :source-id="taskId" :source-type="contentType.task" :field-name="currentFieldName" :comment-list="currentCollaborateCommentList" @update-comment="handleUpdateCommentList"/>
                     </div>
                   </template>
@@ -281,7 +281,7 @@
                         </div>
                       </div>
                     </div>
-                    <div v-if="!this.contentLoading && this.currentActiveStepIndex !== 1" :style="{'width':'600px', 'margin-top':customTagTop+'px'}">
+                    <div v-if="!this.contentLoading && this.currentActiveStepIndex !== 1" :style="{'width':rightWidth, 'margin-top':customTagTop+'px'}">
                       <custom-tag
                         :show-arrow="showCustomTag"
                         :user-tags="userTags"
@@ -981,7 +981,9 @@
         showHistoryLoading: false,
 
         // 复制当前表单数据，给选择slide创建task用‘pick-task-slide’
-        currentTaskFormData: null
+        currentTaskFormData: null,
+        rightWidth: '600px',
+        leftWidth: '700px'
       }
     },
     computed: {
@@ -1010,9 +1012,14 @@
         }
       }
     },
+    mounted () {
+      this.resetWidth()
+      window.onresize = () => {
+        this.resetWidth()
+      }
+    },
     created () {
       logger.info('add task created ' + this.taskId + ' ' + this.$route.path + ' mode: ' + this.mode)
-
       // 初始化关联事件处理
       MyContentEventBus.$on(MyContentEvent.LinkToMyContentItem, this.handleLinkMyContent)
       MyContentEventBus.$on(MyContentEvent.ToggleSelectContentItem, this.handleToggleSelectContentItem)
@@ -2146,6 +2153,15 @@
       },
       handleTabYearChange (activeKey) {
         this.selectYearTab = activeKey
+      },
+      resetWidth () {
+        if (document.body.clientWidth < 1400) {
+          this.rightWidth = '500px'
+          this.leftWidth = '550px'
+        } else {
+          this.rightWidth = '600px'
+          this.leftWidth = '700px'
+        }
       }
     }
   }
@@ -2250,16 +2266,11 @@
     .main-content {
 
       .card-wrapper{
-        .task-form-left {
-          width: 700px;
-        }
 
         .task-form-right {
-          width: 600px;
           .form-block-right{
             .img-wrapper {
               position: relative;
-              width: 600px;
             }
             .right-title{
               font-size: 16px;
@@ -2386,7 +2397,6 @@
 
       .img-wrapper {
         position: relative;
-        width: 600px;
       }
       .delete-img {
         position: absolute;
@@ -3000,7 +3010,7 @@
   }
   .task-audio-line {
     position: relative;
-    width: 600px;
+    //width: 600px;
     .task-audio {
       position: absolute;
       right: -55px;
@@ -3203,7 +3213,6 @@
   .form-block {
     position: relative;
     margin-bottom: 35px;
-    width: 600px;
     &:hover {
       .my-comment-switch {
         display: block;
@@ -3703,7 +3712,7 @@
 
   .collaborate-panel {
     background-color: #fff;
-    box-shadow: 0px 6px 10px rgba(159, 159, 159, 0.16);
+    //box-shadow: 0px 6px 10px rgba(159, 159, 159, 0.16);
     .icon {
       padding: 10px 5px 0 15px;
       display: flex;
