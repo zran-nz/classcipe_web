@@ -167,6 +167,13 @@ export const asyncRouterMap = [
             name: 'UnitPlanRedirect',
             component: () => import('@/views/teacher/UnitPlanRedirect'),
             meta: { title: 'menu.teacher.unit-plan', keepAlive: true, permission: ['expert', 'teacher'] }
+          },
+          {
+            path: '/teacher/class-evaluation/:taskId/:classId',
+            name: 'ClassEvaluation',
+            props: true,
+            component: () => import('@/views/teacher/ClassSessionEvaluation'),
+            meta: { title: 'menu.evaluations', keepAlive: true, permission: ['expert', 'teacher'] }
           }
           // {
           //   path: '/teacher/unit-plan-material-redirect/:unitPlanId/:materialId',

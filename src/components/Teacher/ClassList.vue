@@ -58,7 +58,7 @@
             <a-popover placement="rightTop" trigger="click">
               <template slot="content">
                 <div class="class-more-icon-panel">
-                  <div class="class-more-item" @click="handleReviewEvaluation(classItem)">
+                  <div class="class-more-item" @click="handleReviewEditEvaluation(classItem)">
                     <div class="class-action-icon">
                       <evaluate-icon />
                     </div>
@@ -204,16 +204,11 @@ export default {
       window.open(lessonHost + 'd/' + item.class_id, '_blank')
     },
 
-    handleReviewEvaluation (item) {
-      this.$logger.info('handleReviewEvaluation', item, this.classData)
-      if (item.evaluationId) {
-        // window.open('/teacher/start-evaluation/' + item.evaluationId + '/' + item.class_id, '_blank')
-        // review & evaluation现在是弹出层进行操作
-        this.reviewEvaluationVisible = true
-        this.currentReviewEvaluationSessionItem = item
-      } else {
-        this.$message.warn('Please associate evaluation first!')
-      }
+    handleReviewEditEvaluation (item) {
+      this.$logger.info('handleReviewEditEvaluation', item, this.classData)
+      this.$router.push({
+        path: `/teacher/class-evaluation/${this.classData.id}/${item.class_id}`
+      })
     },
     handleArchiveSession (item) {
       this.$logger.info('handleArchiveSession', item)
@@ -472,7 +467,7 @@ export default {
 }
 
 .loading {
-  padding: 40px;
+  padding: 250px;
   display: flex;
   align-items: center;
   justify-content: center;
