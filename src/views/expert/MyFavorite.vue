@@ -392,7 +392,9 @@ export default {
             // const targetUrl = lessonHost + 'slide_id=' + item.presentationId + '&class_id=' + res.data.class_id + '&type=classroom'
             const targetUrl = lessonHost + 't/' + res.data.class_id
             this.$logger.info('try open ' + targetUrl)
-            window.open(targetUrl, '_blank')
+            // window.open(targetUrl, '_blank')
+            // 课堂那边需要点击返回回到表单，改成location.href跳转
+            window.location.href = targetUrl
           } else {
             this.$message.warn('StartLesson Failed! ' + res.message)
           }
@@ -420,7 +422,9 @@ export default {
             // const targetUrl = lessonHost + 'slide_id=' + item.presentationId + '&class_id=' + res.data.class_id + '&direct=true&currentPage=0&type=dashboard'
             const targetUrl = lessonHost + 't/' + res.data.class_id
             this.$logger.info('try open ' + targetUrl)
-            window.open(targetUrl, '_blank')
+            // window.open(targetUrl, '_blank')
+            // 课堂那边需要点击返回回到表单，改成location.href跳转
+            window.location.href = targetUrl
           } else {
             this.$message.warn('StartLesson Failed! ' + res.message)
           }

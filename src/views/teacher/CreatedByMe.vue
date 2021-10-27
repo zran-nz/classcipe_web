@@ -100,18 +100,6 @@
                   <div slot="actions">
                     <div class="action-wrapper">
 
-                      <!-- Evaluation: 外置Start evaluation，Edit，折叠Delete, Duplicate-->
-
-                      <template v-if="item.type === typeMap.evaluation">
-                        <div class="start-session-wrapper action-item-wrapper">
-                          <div class="session-btn content-list-action-btn" @click="handleEvaluateItem(item)">
-                            <div class="session-btn-icon">
-                              <start-evaluation />
-                            </div>
-                            <div class="session-btn-text"> Start evaluation</div>
-                          </div>
-                        </div>
-                      </template>
                       <!-- Task: 外置teacher-pace, student-pace, Edit, 折叠Delete, Duplicate, Previous session-->
                       <template v-if="item.type === typeMap.task">
                         <div class="start-session-wrapper action-item-wrapper">
@@ -226,14 +214,6 @@
                     </div>
                   </div>
                   <div class="action-item action-item-bottom" >
-                    <template v-if="item.type === typeMap.evaluation">
-                      <div class="session-btn" @click.stop="handleEvaluateItem(item)">
-                        <div class="session-btn-icon content-list-action-btn">
-                          <start-evaluation />
-                        </div>
-                        <div class="session-btn-text">Start evaluation</div>
-                      </div>
-                    </template>
                     <div class="session-btn" @click.stop="handleEditItem(item)">
                       <div class="session-btn-icon content-list-action-btn">
                         <bianji />
@@ -282,7 +262,7 @@
         :title="null"
         :closable="false"
         destroyOnClose
-        width="800px">
+        width="900px">
         <modal-header @close="viewPreviewSessionVisible = false"/>
         <div class="preview-session-wrapper">
           <class-list :slide-id="currentPreviewLesson.presentationId" :classData="currentPreviewLesson" v-if="currentPreviewLesson && currentPreviewLesson.presentationId"/>
@@ -612,7 +592,9 @@ export default {
               // const targetUrl = lessonHost + 'slide_id=' + item.presentationId + '&class_id=' + res.data.class_id + '&type=classroom'
               const targetUrl = lessonHost + 't/' + res.data.class_id
               this.$logger.info('try open ' + targetUrl)
-              window.open(targetUrl, '_blank')
+              // window.open(targetUrl, '_blank')
+              // 课堂那边需要点击返回回到表单，改成location.href跳转
+              window.location.href = targetUrl
             })
           } else {
             this.$message.warn('StartLesson Failed! ' + res.message)
@@ -643,7 +625,9 @@ export default {
             // const targetUrl = lessonHost + 'slide_id=' + item.presentationId + '&class_id=' + res.data.class_id + '&direct=true&currentPage=0&type=dashboard'
             const targetUrl = lessonHost + 'd/' + res.data.class_id
             this.$logger.info('try open ' + targetUrl)
-            window.open(targetUrl, '_blank')
+            // window.open(targetUrl, '_blank')
+            // 课堂那边需要点击返回回到表单，改成location.href跳转
+            window.location.href = targetUrl
           } else {
             this.$message.warn('StartLesson Failed! ' + res.message)
           }

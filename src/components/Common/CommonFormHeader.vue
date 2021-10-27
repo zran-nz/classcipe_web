@@ -1,24 +1,40 @@
 <template>
   <a-row class="common-form-header">
-    <a-col span="14">
+    <a-col span="17">
       <a-space>
         <span class="back-icon">
           <a-icon type="left" />
         </span>
         <a-button class="nav-back-btn" type="link" @click="handleBack">{{ $t('teacher.add-lesson.back') }}</a-button>
         <span> <content-type-icon :type="form.type" /></span>
-        <span class="unit-last-change-time" v-if="lastChangeSavedTime">
-          <span class="unit-nav-title">
-            {{ form.name }}
+        <template v-if="form.type === typeMap.classSessionEvaluation">
+          <div class="edit-form-name">
+            <div class="form-name">
+              <template v-if="!editFormNameMode">{{ formName }}</template>
+              <template v-else-if="editFormNameMode">
+                <a-input v-model="formName" :maxLength="240" @keyup.enter="handleEnsureNewFormName"/>
+              </template>
+            </div>
+            <div class="edit-icon" @click="editFormNameMode = true">
+              <img src="~@/assets/svgIcon/evaluation/bianji.png" />
+            </div>
+            <div class="class-name">{{ form.className }}</div>
+          </div>
+        </template>
+        <template v-if="form.type !== typeMap.classSessionEvaluation">
+          <span class="unit-last-change-time" v-if="lastChangeSavedTime">
+            <span class="unit-nav-title">
+              {{ form.name }}
+            </span>
+            <a-divider type="vertical" v-if="!!form.name" />
+            {{ $t('teacher.add-lesson.last-change-saved-at-time', {time: lastChangeSavedTime}) }}
           </span>
-          <a-divider type="vertical" v-if="!!form.name" />
-          {{ $t('teacher.add-lesson.last-change-saved-at-time', {time: lastChangeSavedTime}) }}
-        </span>
+        </template>
       </a-space>
     </a-col>
-    <a-col span="10" class="unit-right-action">
+    <a-col span="7" class="unit-right-action">
       <a-space>
-        <div class="collaborate-comment" @click="handleViewComment">
+        <div class="collaborate-comment" @click="handleViewComment" v-if="form.type !== typeMap.classSessionEvaluation">
           <comment-icon class="active-icon"/>
         </div>
         <a-button
@@ -97,10 +113,14 @@
 
 import CommentIcon from '@/assets/icons/collaborate/comment.svg?inline'
 import ContentTypeIcon from '@/components/Teacher/ContentTypeIcon'
+import { typeMap } from '@/const/teacher'
+import EditIcon from '@/assets/svgIcon/evaluation/bianji.svg?inline'
 export default {
   name: 'CommonFormHeader',
   components: {
-    CommentIcon, ContentTypeIcon
+    CommentIcon,
+    ContentTypeIcon,
+    EditIcon
   },
   props: {
     form: {
@@ -119,7 +139,10 @@ export default {
   data () {
     return {
       publishing: false,
-      saving: false
+      saving: false,
+      typeMap: typeMap,
+      editFormNameMode: false,
+      formName: ''
     }
   },
   computed: {
@@ -129,6 +152,9 @@ export default {
   },
   created () {
     this.$logger.info('form header name:' + this.form.name + ' lastChangeSavedTime:' + this.lastChangeSavedTime)
+    if (this.form && this.form.name) {
+      this.formName = this.form.name
+    }
   },
   methods: {
     handleBack () {
@@ -152,6 +178,19 @@ export default {
 
     handleViewComment () {
       this.$emit('view-collaborate')
+    },
+    handleEnsureNewFormName () {
+      this.$logger.info('handleEnsureNewFormName ' + this.formName)
+      this.editFormNameMode = false
+      if (!this.formName) {
+        this.formName = this.form.name
+        this.$message.warn('Name cannot be empty!')
+      } else {
+        const data = Object.assign({}, this.form)
+        data.name = this.formName
+        this.$emit('update-form', data)
+      }
+      this.$logger.info('editFormNameMode' + this.editFormNameMode)
     }
   }
 }
@@ -236,5 +275,33 @@ export default {
   line-height: 24px;
   color: #15C39A;
   padding-left: 5px;
+}
+
+.edit-form-name {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+ .edit-icon {
+   margin-left: 10px;
+   margin-right: 30px;
+   cursor: pointer;
+   img {
+     width: 17px;
+   }
+ }
+  .class-name {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 5px 15px;
+    background: #E7E7E7;
+    opacity: 1;
+    min-width: 60px;
+    border-radius: 30px;
+    font-size: 14px;
+    font-family: Inter-Bold;
+    line-height: 24px;
+    color: #11142D;
+  }
 }
 </style>

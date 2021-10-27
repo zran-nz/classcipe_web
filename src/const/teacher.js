@@ -17,7 +17,8 @@ export const typeMap = {
   'material': 3,
   'task': 4,
   'lesson': 5,
-  'evaluation': 6
+  'evaluation': 6,
+  'classSessionEvaluation': 7
 }
 
 export function getLabelNameType (type) {
