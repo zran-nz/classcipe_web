@@ -115,22 +115,104 @@
           </div>
           <div class="form-table-content">
             <div class="table-content">
-              <div class="comment">
-                <div class="summary-input">
-                  <a-textarea v-model="form.comment" placeholder="Write a comment" aria-placeholder="Write a comment" class="my-textarea" />
+              <div class="form-table-item" v-for="(table,tIdx) in formTableList" :key="tIdx">
+                <div class="form-table-item-content" v-show="table.tableName === currentActiveFormTable">
+                  <div class="comment">
+                    <div class="summary-input">
+                      <a-textarea v-model="table.comment" placeholder="Write a comment" aria-placeholder="Write a comment" class="my-textarea" />
+                    </div>
+                  </div>
+                  <div class="form-table-detail">
+                    <rubric-one
+                      :description-list="table.evaluationTableList"
+                      :init-raw-headers="table.initRawHeaders"
+                      :init-raw-data="table.initRawData"
+                      :allow-add-column="true"
+                    />
+                  </div>
                 </div>
-              </div>
-              <div class="form-table-detail">
-                <rubric-one
-                  ref="rubric"
-                  mode="evaluate"
-                />
               </div>
             </div>
           </div>
         </div>
       </div>
     </a-card>
+
+    <a-modal
+      v-model="selectRubricVisible"
+      :footer="null"
+      :maskClosable="false"
+      :closable="false"
+      width="900px"
+      destroyOnClose>
+      <modal-header @close="selectRubricVisible = false"/>
+      <div class="rubric">
+        <div class="rubric-header">
+          <div class="my-modal-header">
+            Add form
+          </div>
+        </div>
+        <div class="select-type">
+          <a-radio-group name="radioGroup" default-value="create" v-model="rubricType">
+            <a-radio value="create">
+              Create
+            </a-radio>
+            <a-radio value="select">
+              Select an existing
+            </a-radio>
+          </a-radio-group>
+        </div>
+        <template v-if="rubricType === 'create'">
+          <div class="select-rubric-wrapper">
+            <div class="table-name">
+              <div class="form-name">Form title</div>
+              <div class="form-input">
+                <a-input v-model="newTableName" aria-placeholder="Form 1"/>
+              </div>
+            </div>
+            <div class="rubric-content">
+              <div
+                :class="{
+                  'rubric-item': true,
+                  'active-rubric': tableMode === 1
+                }"
+                @click="handleSelectRubric(1)"
+              >
+                <div class="rubric-preview">
+                  <img src="~@/assets/icons/evaluation/rubric1.png" alt="rubric">
+                </div>
+                <div class="rubric-active-icon">
+                  <a-icon type="check-circle" theme="filled"/>
+                </div>
+              </div>
+              <div
+                :class="{
+                  'rubric-item': true,
+                  'active-rubric': tableMode === 2
+                }"
+                @click="handleSelectRubric(2)"
+              >
+                <div class="rubric-preview">
+                  <img src="~@/assets/icons/evaluation/rubric2.png" alt="rubric">
+                </div>
+                <div class="rubric-active-icon">
+                  <a-icon type="check-circle" theme="filled"/>
+                </div>
+              </div>
+            </div>
+            <div class="select-rubric-action">
+              <a-button shape="round" class="my-rubric-btn" style="width: 80px;background-color: #F5F5F5; border-color:#F5F5F5;box-shadow: none; color: #000000 " type="primary" @click="handleCancelSelectRubric">Cancel</a-button>
+              <a-button shape="round" class="my-rubric-btn" style="width: 80px;" type="primary" @click="handleEnsureSelectRubric">Confirm</a-button>
+            </div>
+          </div>
+        </template>
+        <template v-if="rubricType === 'select'">
+          <div class="select-rubric-wrapper">
+
+          </div>
+        </template>
+      </div>
+    </a-modal>
   </div>
 </template>
 
@@ -146,6 +228,7 @@ import TeacherIcon from '@/assets/svgIcon/evaluation/TeacherIcon.svg?inline'
 import GroupIcon from '@/assets/svgIcon/evaluation/qunzu.svg?inline'
 import ArrowDown from '@/assets/svgIcon/evaluation/arrow_down.svg?inline'
 import ArrowTop from '@/assets/svgIcon/evaluation/arrow_top.svg?inline'
+import ModalHeader from '@/components/Common/ModalHeader'
 
 export default {
   name: 'ClassSessionEvaluation',
@@ -158,7 +241,8 @@ export default {
     TeacherIcon,
     GroupIcon,
     ArrowDown,
-    ArrowTop
+    ArrowTop,
+    ModalHeader
   },
   props: {
     taskId: {
@@ -187,7 +271,6 @@ export default {
       currentActiveFormTable: '21 century skill',
       form: { // 基础表单数据
         name: 'Untitled Evaluation',
-        comment: null,
         updateTime: '2021-10-28 12:43:12',
         className: 'class6',
         type: 7, // TODO Evaluation 新增表单类型 classSessionEvaluation:7
@@ -196,11 +279,21 @@ export default {
       formTableList: [
         {
           tableName: '21 century skill',
-          tableData: []
+          comment: null,
+          tableData: {
+            evaluationTableList: [],
+            initRawHeaders: [],
+            initRawData: []
+          }
         },
         {
           tableName: 'Form',
-          tableData: []
+          comment: null,
+          tableData: {
+            evaluationTableList: [],
+            initRawHeaders: [],
+            initRawData: []
+          }
         }
       ], // 评估表格数据
       classGroup: [
@@ -264,7 +357,12 @@ export default {
       selectedStudentNameList: [],
 
       groupNum: 3,
-      studentNum: 20
+      studentNum: 20,
+
+      selectRubricVisible: false,
+      tableMode: 1,
+      rubricType: 'create',
+      newTableName: ''
     }
   },
   created () {
@@ -312,6 +410,33 @@ export default {
     },
 
     handleAddFormTable () {
+      this.$logger.info('handleAddFormTable')
+      this.newTableName = 'Form' + (this.formTableList.length + 1)
+      this.selectRubricVisible = true
+    },
+
+    handleCancelSelectRubric () {
+      this.$logger.info('handleCancelSelectRubric ' + this.tableMode)
+      this.selectRubricVisible = false
+    },
+
+    handleEnsureSelectRubric () {
+      this.$logger.info('handleEnsureSelectRubric ' + this.tableMode)
+      if (this.tableMode !== 0) {
+        this.selectRubricVisible = false
+        const newFormTable = {
+          tableName: 'Form' + (this.formTableList.length + 1),
+          comment: null,
+          tableData: {
+            evaluationTableList: [],
+            initRawHeaders: [],
+            initRawData: []
+          }
+        }
+        this.formTableList.push(newFormTable)
+      } else {
+        this.$message.warn('Choose rubric format!')
+      }
     },
 
     goBack () {
@@ -333,6 +458,11 @@ export default {
     handleUpdateForm (data) {
       this.$logger.info('handleUpdateForm', data)
       this.form.name = data.name
+    },
+
+    handleSelectRubric (tableMode) {
+      this.$logger.info('handleSelectRubric ' + tableMode)
+      this.tableMode = tableMode
     }
   }
 }
@@ -566,4 +696,129 @@ export default {
   }
 }
 
+.rubric {
+  display: flex;
+  flex-direction: column;
+
+  .rubric-header {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    .my-modal-header {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      font-family: Inter-Bold;
+      height: 37px;
+      font-size: 26px;
+      font-family: Arial;
+      font-weight: 900;
+      line-height: 0px;
+      color: #070707;
+      opacity: 1;
+    }
+    margin-bottom: 15px;
+  }
+  .select-rubric-wrapper {
+    margin-top: 20px;
+    padding-bottom: 20px;
+    display: flex;
+    min-height: 200px;
+    flex-direction: column;
+
+    .table-name {
+      margin-bottom: 10px;
+      display: flex;
+      flex-direction: column;
+      .form-name {
+        padding: 5px 0;
+        font-size: 14px;
+        font-family: Arial;
+        font-weight: 400;
+        line-height: 16px;
+        color: #070707;
+      }
+    }
+
+    .rubric-content {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 30px;
+      margin-top: 20px;
+
+      .rubric-item {
+        display: flex;
+        width: 48%;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        background: #FFFFFF;
+        border-radius: 6px;
+        position: relative;
+        .rubric-preview {
+          border-radius: 6px;
+          padding: 35px 10px 20px 10px;
+          box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.16);
+          opacity: 1;
+          border-radius: 6px;
+          display: flex;
+          flex-direction: row;
+          align-items: center;
+          justify-content: center;
+          img {
+            width: 80%;
+            margin: 0;
+            outline: none;
+          }
+        }
+
+        .rubric-active-icon {
+          position: absolute;
+          top: 8px;
+          left: 20px;
+          opacity: 0;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+        }
+      }
+
+      .active-rubric {
+        font-size: 20px;
+        font-weight: bold;
+        color: @primary-color;
+
+        .rubric-active-icon {
+          opacity: 1;
+        }
+      }
+    }
+  }
+}
+.select-rubric-action {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+
+  .my-rubric-btn {
+    margin: 0 20px;
+  }
+}
+
+.rubric-wrapper {
+  box-sizing: border-box;
+  max-width: 100%;
+  overflow-x: auto;
+  padding: 0 40px 20px 20px;
+  .rubric-name {
+    width: 300px;
+    margin-bottom: 15px;
+    input {
+      border-radius: 3px;
+    }
+  }
+}
 </style>
