@@ -115,10 +115,17 @@
           </div>
           <div class="form-table-content">
             <div class="table-content">
-              <rubric-one
-                ref="rubric"
-                mode="evaluate"
-              />
+              <div class="comment">
+                <div class="summary-input">
+                  <a-textarea v-model="form.comment" placeholder="Write a comment" aria-placeholder="Write a comment" class="my-textarea" />
+                </div>
+              </div>
+              <div class="form-table-detail">
+                <rubric-one
+                  ref="rubric"
+                  mode="evaluate"
+                />
+              </div>
             </div>
           </div>
         </div>
@@ -531,6 +538,17 @@ export default {
 
     .form-table-content {
       width: calc(100% - 250px);
+      padding: 0 20px;
+
+      .table-content {
+        .comment {
+          margin-bottom: 20px;
+        }
+
+        .form-table-detail {
+          overflow-x: scroll;
+        }
+      }
     }
   }
 }
