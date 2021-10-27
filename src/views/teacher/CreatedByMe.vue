@@ -100,18 +100,6 @@
                   <div slot="actions">
                     <div class="action-wrapper">
 
-                      <!-- Evaluation: 外置Start evaluation，Edit，折叠Delete, Duplicate-->
-
-                      <template v-if="item.type === typeMap.evaluation">
-                        <div class="start-session-wrapper action-item-wrapper">
-                          <div class="session-btn content-list-action-btn" @click="handleEvaluateItem(item)">
-                            <div class="session-btn-icon">
-                              <start-evaluation />
-                            </div>
-                            <div class="session-btn-text"> Start evaluation</div>
-                          </div>
-                        </div>
-                      </template>
                       <!-- Task: 外置teacher-pace, student-pace, Edit, 折叠Delete, Duplicate, Previous session-->
                       <template v-if="item.type === typeMap.task">
                         <div class="start-session-wrapper action-item-wrapper">
@@ -226,14 +214,6 @@
                     </div>
                   </div>
                   <div class="action-item action-item-bottom" >
-                    <template v-if="item.type === typeMap.evaluation">
-                      <div class="session-btn" @click.stop="handleEvaluateItem(item)">
-                        <div class="session-btn-icon content-list-action-btn">
-                          <start-evaluation />
-                        </div>
-                        <div class="session-btn-text">Start evaluation</div>
-                      </div>
-                    </template>
                     <div class="session-btn" @click.stop="handleEditItem(item)">
                       <div class="session-btn-icon content-list-action-btn">
                         <bianji />
