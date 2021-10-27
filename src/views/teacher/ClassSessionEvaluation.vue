@@ -59,6 +59,7 @@ export default {
         name: 'Untitled Evaluation',
         updateTime: '2021-10-28 12:43:12',
         className: 'class6',
+        type: 7, // TODO Evaluation 新增表单类型 classSessionEvaluation:7
         createBy: 'yangxunwu@gmail.com'
       },
       formTableData: [], // 评估表格数据
