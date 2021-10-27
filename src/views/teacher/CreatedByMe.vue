@@ -262,7 +262,7 @@
         :title="null"
         :closable="false"
         destroyOnClose
-        width="800px">
+        width="900px">
         <modal-header @close="viewPreviewSessionVisible = false"/>
         <div class="preview-session-wrapper">
           <class-list :slide-id="currentPreviewLesson.presentationId" :classData="currentPreviewLesson" v-if="currentPreviewLesson && currentPreviewLesson.presentationId"/>
