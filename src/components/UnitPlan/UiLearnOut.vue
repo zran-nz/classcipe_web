@@ -7,6 +7,9 @@
           <a-col span="24">
             <div class="skt-description-list" v-for="(k,index) in KnowledgeList" :key="index">
               <div class="skt-description-tag-item skt-description-tag-item-top-fixed" @click="handleActiveDescription(index)">
+                <a-breadcrumb separator=">">
+                  <a-breadcrumb-item v-for="item in dealPath(k.path)" :key="item">{{ item }}</a-breadcrumb-item>
+                </a-breadcrumb>
                 <div class="skt-description" @dblclick="handleAddTag(k)">
                   {{ k.name }}
                 </div>
@@ -116,6 +119,14 @@
 
     },
     computed: {
+      dealPath () {
+        return (path) => {
+          if (!path) {
+            return path
+          }
+          return path.split('>')
+        }
+      }
     },
     data () {
       return {

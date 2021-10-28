@@ -216,14 +216,14 @@
 
 <script>
 
-import { GetAssociate, AddOrSaveGroupName } from '@/api/teacher'
+import { GetAssociate, AddOrSaveGroupName, AssociateCancel } from '@/api/teacher'
 import MyContentSelector from '@/components/MyContent/MyContentSelector'
 import NewMyContent from '@/components/MyContent/NewMyContent'
 import { typeMap } from '@/const/teacher'
 import ContentTypeIcon from '@/components/Teacher/ContentTypeIcon'
 import * as logger from '@/utils/logger'
 import CommonPreview from '@/components/Common/CommonPreview'
-import { AssociateCancel } from '../../api/teacher'
+
 import draggable from 'vuedraggable'
 
 export default {

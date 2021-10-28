@@ -1791,7 +1791,8 @@
             knowledgeId: data.knowledgeId,
             name: data.name,
             tags: data.tags,
-            tagType: data.tagType
+            tagType: data.tagType,
+            path: data.path
           })
         })
         const selectList = this.selectedCurriculumList.concat(this.selectedSpecificSkillList).concat(this.selectedCenturySkillList)
@@ -1804,7 +1805,8 @@
           this.form.learnOuts.push({
             knowledgeId: data.knowledgeData.id,
             name: data.knowledgeData.name,
-            tagType: data.knowledgeData.tagType
+            tagType: data.knowledgeData.tagType,
+            path: data.knowledgeData.path
           })
         })
         this.$logger.info('this.form.learnOuts', this.form.learnOuts)
