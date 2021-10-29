@@ -2684,4 +2684,7 @@ export default {
   position: absolute;
   cursor: pointer;
 }
+/deep/ .ant-breadcrumb > span:last-child {
+  color: rgba(0, 0, 0, 0.45);
+}
 </style>

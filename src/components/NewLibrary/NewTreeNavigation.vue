@@ -137,7 +137,7 @@ export default {
       if (skillCategory.length === 3) {
         // subject specific skills 是mainSubject-year-knowledge
         const specificSkillsData = {
-          id: '1',
+          id: '3',
           expandStatus: NavigationType.specificSkills === this.defaultActiveMenu,
           type: NavigationType.specificSkills,
           name: skillCategory[1],
@@ -148,10 +148,11 @@ export default {
         curriculumData.children.forEach(subjectItem => {
           specificSkillsData.children.push(Object.assign({}, subjectItem))
         })
+        this.treeDataList.push(specificSkillsData)
 
         // assessmentTypeData 是mainSubject-year-knowledge
         const assessmentTypeData = {
-          id: '1',
+          id: '4',
           expandStatus: NavigationType.assessmentType === this.defaultActiveMenu,
           type: NavigationType.assessmentType,
           name: 'Assessment type',
@@ -166,7 +167,7 @@ export default {
 
         // 21 century skills 是year-knowledge
         const centurySkillsData = {
-          id: '1',
+          id: '5',
           expandStatus: NavigationType.centurySkills === this.defaultActiveMenu,
           type: NavigationType.centurySkills,
           name: skillCategory[2],
