@@ -206,7 +206,7 @@
         </a-col>
         <a-col span="22">
           <div class="detail-wrapper" v-if="previewCurrentId && previewType">
-            <common-preview :id="previewCurrentId" :type="previewType" />
+            <common-preview-no-link :id="previewCurrentId" :type="previewType" />
           </div>
         </a-col>
       </a-row>
@@ -222,13 +222,13 @@ import NewMyContent from '@/components/MyContent/NewMyContent'
 import { typeMap } from '@/const/teacher'
 import ContentTypeIcon from '@/components/Teacher/ContentTypeIcon'
 import * as logger from '@/utils/logger'
-import CommonPreview from '@/components/Common/CommonPreview'
+import CommonPreviewNoLink from '@/components/Common/CommonPreviewNoLink'
 
 import draggable from 'vuedraggable'
 
 export default {
   name: 'CommonLink',
-  components: { ContentTypeIcon, NewMyContent, MyContentSelector, CommonPreview, draggable },
+  components: { ContentTypeIcon, NewMyContent, MyContentSelector, CommonPreviewNoLink, draggable },
   props: {
     fromType: {
       type: Number,
