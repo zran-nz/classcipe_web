@@ -49,34 +49,16 @@
                   </a-tooltip>
                 </span>
               </div>
-              <div class="block-title" v-if="task.audioUrl">
-                <audio :src="task.audioUrl" controls />
-              </div>
               <div class="block-content">
-                <div class="content-list" v-if="task.suggestingTag">
+                <div class="content-list" v-if="task.customTags && task.customTags.length">
                   <div class="label">
-                    knowledge Tags
+                    customTags
                   </div>
                   <div class="content-sub-list">
-                    <div class="content-sub-item" v-for="(knowledgeTag, kIndex) in task.suggestingTag.knowledgeTags" :key="kIndex">
+                    <div class="content-sub-item" v-for="(customTag, kIndex) in task.customTags" :key="kIndex">
                       <div class="sub-title">
-                        {{ kIndex + 1 }}、{{ knowledgeTag.description }}
-                        <span class="subject-name">{{ knowledgeTag.subSubjectName }}</span>
                         <a-tag :color="tagColorList[kIndex % tagColorList.length]">
-                          {{ knowledgeTag.name }}
-                        </a-tag>
-                      </div>
-                    </div>
-                  </div>
-                  <div class="label">
-                    skill Tags
-                  </div>
-                  <div class="content-sub-list">
-                    <div class="content-sub-item" v-for="(skillTag, sIndex) in task.suggestingTag.skillTags" :key="sIndex">
-                      <div class="sub-title">
-                        {{ sIndex + 1 }}、{{ skillTag.description }}
-                        <a-tag :color="tagColorList[sIndex % tagColorList.length]">
-                          {{ skillTag.name }}
+                          {{ customTag.name }}
                         </a-tag>
                       </div>
                     </div>
@@ -302,6 +284,11 @@ export default {
 
         .block-content {
           padding: 10px;
+          .cover {
+            img {
+              height: 150px;
+            }
+          }
           .content-list {
             .label {
               font-weight: 500;
@@ -341,14 +328,11 @@ export default {
                 padding: 5px 0;
                 background-color: #f9f9f9;
                 margin-bottom: 10px;
-                .subject-name {
-                  cursor: pointer;
-                  color: @primary-color;
-                  padding: 0 10px;
-                  line-height: 30px;
-                  border-radius: 30px;
-                  margin: 0 10px;
-                  background-color: fade(@outline-color, 20%);
+                display: flex;
+                flex-direction: row;
+                align-items: center;
+                .content-sub-item {
+                  margin: 0 5px 5px 0;
                 }
               }
             }
@@ -371,6 +355,18 @@ export default {
     /deep/ .right-button {
       border-radius: 0 16px 16px 0 ;
     }
+  }
+}
+
+.content-sub-list {
+  padding: 5px 0;
+  background-color: #f9f9f9;
+  margin-bottom: 10px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  .content-sub-item {
+    margin: 0 5px 5px 5px;
   }
 }
 </style>

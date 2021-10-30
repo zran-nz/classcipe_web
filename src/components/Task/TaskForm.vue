@@ -1,7 +1,7 @@
 <template>
   <div class="task-form-wrapper">
     <a-row class="unit-content">
-      <a-col class="main-content">
+      <a-col span="10" class="main-content">
         <a-form-model :model="form" class="my-form-wrapper">
           <div class="form-block-wrapper">
 
@@ -111,6 +111,17 @@
             </a-form-model-item></div>
         </a-form-model>
       </a-col>
+      <a-col offset="2" span="12" class="sub-task-custom-tag">
+        <custom-tag
+          :show-arrow="showCustomTag"
+          :user-tags="userTags"
+          :custom-tags-list="customTagList"
+          ref="subcustomTag"
+          :selected-tags-list="form.customTags"
+          @reload-user-tags="loadUserTags"
+          @change-add-keywords="handleChangeAddKeywords"
+          @change-user-tags="handleChangeUserTags"></custom-tag>
+      </a-col>
     </a-row>
     <a-modal
       v-model="selectSyncDataVisible"
@@ -159,11 +170,12 @@ import { commonAPIUrl, GetDictItems } from '@/api/common'
 import { SubjectTree } from '@/api/subject'
 import { formatSubjectTree } from '@/utils/bizUtil'
 import { DICT_BLOOM_CATEGORY, CustomTagType } from '@/const/common'
-import CustomTag from '@/components/UnitPlan/CustomTag'
+import { FindCustomTags } from '@/api/tag'
 import UiLearnOut from '@/components/UnitPlan/UiLearnOut'
 import { SelectModel } from '@/components/NewLibrary/SelectModel'
 import { NavigationType } from '@/components/NewLibrary/NavigationType'
 import NewBrowser from '@/components/NewLibrary/NewBrowser'
+import CustomTag from '@/components/UnitPlan/CustomTag'
 const { SpliteTask } = require('@/api/task')
 
 export default {
@@ -274,7 +286,12 @@ export default {
       selectedSpecificSkillList: [],
       // century skill
       selectedCenturySkillList: [],
-      uploading: false
+      uploading: false,
+
+      showCustomTag: true,
+      sessionTags: [],
+      customTagList: [],
+      userTags: {}
     }
   },
   computed: {
@@ -309,11 +326,9 @@ export default {
     this.questionPrefix = '' + this.taskPrefix + '__question_'
     const formData = Object.assign({}, this.parentFormData)
     formData.id = null
-    formData.name = ''
-    formData.overview = ''
     formData.selectPageObjectIds = []
     formData.__taskId = '__taskId_' + this.taskPrefix
-    this.$logger.info('parentFormData', formData)
+    this.$logger.info('TaskForm parentFormData', formData)
     this.form = formData
     this.$logger.info('questionPrefix ' + this.questionPrefix)
     this.$logger.info('questionDataObj ', this.questionDataObj)
@@ -345,6 +360,8 @@ export default {
           this.initBlooms = response.result
         }
       })
+
+      this.loadUserTags()
     },
 
     handleSaveTask () {
@@ -494,6 +511,41 @@ export default {
       e.stopPropagation()
       e.preventDefault()
       this.form.image = null
+    },
+
+    loadUserTags () {
+      // this.$refs.customTag.tagLoading = true
+      FindCustomTags({}).then((response) => {
+        this.$logger.info('FindCustomTags response', response.result)
+        if (response.success) {
+          this.userTags = response.result
+          // 默认展示的tag分类
+          CustomTagType.task.default.forEach(name => {
+            this.customTagList.push(name)
+          })
+          // 再拼接自己添加的
+          this.userTags.userTags.forEach(tag => {
+            if (this.customTagList.indexOf(tag.name) === -1) {
+              this.customTagList.push(tag.name)
+            }
+          })
+        } else {
+          this.$message.error(response.message)
+        }
+        // this.$refs.customTag.tagLoading = false
+      })
+    },
+
+    handleChangeAddKeywords (tag) {
+      var index = this.userTags.userTags.findIndex(item => item.name === tag.parentName)
+      if (index > -1) {
+        this.userTags.userTags[index].keywords.push(tag.name)
+      }
+    },
+
+    handleSelectedSessionTags (tags) {
+      this.sessionTags = tags
+      this.$logger.info('handleSelectedSessionTags', tags)
     }
   }
 }

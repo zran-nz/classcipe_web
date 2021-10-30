@@ -3049,7 +3049,6 @@
 
   .thumbnail-task-list {
     padding: 15px;
-    width: 600px;
     box-sizing: border-box;
     margin: auto;
     display: flex;
@@ -3395,7 +3394,7 @@
   }
 
   .pick-task-slide-wrapper {
-    width: 970px;
+    width: 1400px;
     margin: auto;
 
     .slide-form-block {
