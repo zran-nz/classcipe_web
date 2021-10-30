@@ -257,12 +257,7 @@ import { StartLesson } from '@/api/lesson'
 import storage from 'store'
 import ModalHeader from '@/components/Common/ModalHeader'
 import {
-  CustomTagType,
-  SESSION_CURRENT_PAGE,
-  SESSION_CURRENT_STATUS,
-  SESSION_CURRENT_TYPE,
-  SESSION_CURRENT_TYPE_LABEL,
-  SESSION_VIEW_MODE
+  CustomTagType
 } from '@/const/common'
 import CommonPreview from '@/components/Common/CommonPreview'
 import { FindCustomTags } from '@/api/tag'
@@ -324,14 +319,14 @@ export default {
         onChange: page => {
           logger.info('pagination onChange', page)
           this.pageNo = page
-          sessionStorage.setItem(SESSION_CURRENT_PAGE, page)
           this.loadMyContent()
         },
         showTotal: total => `Total ${total} items`,
         total: 0,
-        pageSize: 16
+        pageSize: 15
       },
-      pageNo: sessionStorage.getItem(SESSION_CURRENT_PAGE) ? sessionStorage.getItem(SESSION_CURRENT_PAGE) : 1,
+      pageNo: 1,
+
       viewMode: storage.get(SESSION_VIEW_MODE) ? storage.get(SESSION_VIEW_MODE) : 'list',
       typeMap: typeMap
     }
@@ -341,11 +336,12 @@ export default {
   created () {
     logger.info('teacher my content')
     this.loadMyContent()
+    this.loadUserTags()
   },
   methods: {
     toggleViewMode (viewMode) {
       this.$logger.info('viewMode', viewMode)
-      storage.set(SESSION_VIEW_MODE, viewMode)
+      storage.set(VIEW_MODE, viewMode)
       this.viewMode = viewMode
     },
     loadMyContent () {
