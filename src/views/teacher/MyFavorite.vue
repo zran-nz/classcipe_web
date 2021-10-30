@@ -426,19 +426,12 @@ export default {
       logger.info('toggleStatus ' + status + ' label ' + label)
       this.currentStatus = status
       this.currentStatusLabel = label
-      this.pageNo = 1
-      sessionStorage.setItem(SESSION_CURRENT_STATUS, status)
-      sessionStorage.setItem(SESSION_CURRENT_PAGE, this.pageNo)
       this.loadMyContent()
     },
     toggleType (type, label) {
       logger.info('toggleType ' + type + ' label ' + label)
       this.currentType = type
       this.currentTypeLabel = label
-      this.pageNo = 1
-      sessionStorage.setItem(SESSION_CURRENT_PAGE, this.pageNo)
-      sessionStorage.setItem(SESSION_CURRENT_TYPE_LABEL, label)
-      sessionStorage.setItem(SESSION_CURRENT_TYPE, type)
       this.loadMyContent()
     },
     toggleOwner (owner, label) {
