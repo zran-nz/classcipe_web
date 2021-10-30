@@ -304,10 +304,10 @@ export default {
         this.$logger.info('formatted owner', response.result.owner)
         this.$logger.info('formatted others', response.result.others)
         this.$logger.info('formatted groupNameList', groupNameList)
-        this.ownerLinkGroupList = response.result.owner
+        this.ownerLinkGroupList = response.result.owner.reverse()
         this.othersLinkGroupList = []
         response.result.others.forEach(item => {
-          this.othersLinkGroupList.push(...item.contents)
+          this.othersLinkGroupList.unshift(...item.contents)
         })
         // this.othersLinkGroupList = response.result.others
         if (groupNameList.length) {

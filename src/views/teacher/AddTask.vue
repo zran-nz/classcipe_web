@@ -157,9 +157,9 @@
                       <template v-if="currentActiveStepIndex === 2" slot="description">
                         <div class="form-block">
                           <a-form-item label="Link Task content" class="link-plan-title">
-                            <a-button type="primary" :style="{'background-color': '#fff', 'color': '#000', 'border': '1px solid #D8D8D8'}" @click="handleAddLink">
+                            <a-button type="primary" :style="{'background-color': '#fff', 'color': '#000', 'border': '1px solid #D8D8D8'}" @click="handleAddTerm">
                               <div class="btn-text" style="line-height: 20px">
-                                + Link
+                                + Add term
                               </div>
                             </a-button>
                           </a-form-item>
@@ -382,8 +382,9 @@
             :from-id="taskId"
             :filter-type-list="[contentType.evaluation]"
             :group-name-list="groupNameList"
-            :default-group-name="'Untitled Term' + groupNameList.length + 1"
+            :default-group-name="newTermName"
             :mode="'common-link'"
+            :group-name-mode="groupNameMode"
             @cancel="selectLinkContentVisible = false"
             @ensure="handleEnsureSelectedLink"/>
         </div>
@@ -983,7 +984,9 @@
         // 复制当前表单数据，给选择slide创建task用‘pick-task-slide’
         currentTaskFormData: null,
         rightWidth: '600px',
-        leftWidth: '700px'
+        leftWidth: '700px',
+        groupNameMode: 'input', // input、select,
+        newTermName: 'Untitled Term'
       }
     },
     computed: {
@@ -1675,14 +1678,15 @@
           this.$logger.info('add loading')
         }
       },
-      handleAddLink () {
-        this.$logger.info('handleAddLink', this.groupNameList)
+      handleAddTerm () {
+        this.$logger.info('handleAddTerm', this.groupNameList)
 
         // 如果第一部分有内容，点击link激活step 到第二部分，否则提示先输入第一部分表单内容
         if (this.form.name ||
           this.form.overview ||
           this.form.questions.length) {
           this.currentActiveStepIndex = 1
+          this.groupNameMode = 'input'
           this.selectLinkContentVisible = true
           // 添加link
         } else {
@@ -1730,6 +1734,7 @@
           if (this.groupNameList.length > 0 || this.groupNameListOther.length > 0) {
             this.handleSyncData()
           }
+          this.newTermName = 'Untitled Term_' + (this.groupNameList.length)
           this.$logger.info('AddTask GetAssociate formatted groupNameList', this.groupNameList, this.groupNameListOther)
         }).finally(() => {
           this.linkGroupLoading = false

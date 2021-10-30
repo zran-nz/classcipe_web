@@ -247,12 +247,18 @@
               </div>
             </div>
           </a-list>
-          <div class="choose-label">Choose</div>
-          <a-select :default-value="defaultGroupName" style="width: 100%" v-model="selectedGroup">
-            <a-select-option :value="groupName" v-for="(groupName, gIndex) in groupNameList" :key="gIndex">
-              {{ groupName }}
-            </a-select-option>
-          </a-select>
+          <template v-if="groupNameMode === 'select'">
+            <div class="choose-label">Choose</div>
+            <a-select :default-value="defaultGroupName" style="width: 100%" v-model="selectedGroup">
+              <a-select-option :value="groupName" v-for="(groupName, gIndex) in groupNameList" :key="gIndex">
+                {{ groupName }}
+              </a-select-option>
+            </a-select>
+          </template>
+          <template v-if="groupNameMode === 'input'">
+            <div class="choose-label">Group name</div>
+            <a-input v-model="groupName" />
+          </template>
           <div class="modal-ensure-action-line">
             <a-button class="action-item action-cancel" shape="round" @click="handleCancel">Cancel</a-button>
             <a-button class="action-ensure action-item" type="primary" shape="round" @click="handleEnsure">Ok</a-button>
@@ -360,6 +366,10 @@ export default {
     groupNameList: {
       type: Array,
       required: true
+    },
+    groupNameMode: {
+      type: String,
+      default: 'select'
     }
   },
   data () {
@@ -402,7 +412,8 @@ export default {
       mySelectedList: [],
       mySelectedMap: new Map(),
 
-      selectedGroup: null
+      selectedGroup: null,
+      groupName: null
     }
   },
   watch: {
@@ -428,6 +439,7 @@ export default {
     this.$logger.info('currentTypeLabel ' + this.currentTypeLabel)
     this.mySelectedList = this.selectedList
     this.selectedGroup = this.defaultGroupName
+    this.groupName = this.defaultGroupName
     this.loadMyContent()
   },
   methods: {
@@ -649,17 +661,20 @@ export default {
     },
 
     handleEnsure () {
-      this.$logger.info('handleEnsure ' + this.selectedGroup, this.groupNameList, this.mySelectedMap)
+      this.$logger.info('handleEnsure add group associate' + this.selectedGroup, this.groupNameList, this.mySelectedMap, this.groupName)
       if (!this.mySelectedMap.size) {
         this.$message.warn('No my content be selected!')
-      } else if (!this.selectedGroup) {
+      } else if ((this.groupNameMode === 'select' && !this.selectedGroup)) {
         this.$message.warn('No group be selected!')
+      } else if (this.groupNameMode === 'input' && !this.groupName) {
+        this.$message.warn('group name is empty!')
       } else {
         // 开始关联数据
+        const groupName = this.groupNameMode === 'input' ? this.groupName : (this.selectedGroup.length > 0 ? this.selectedGroup : '')
         const postData = {
           fromId: this.fromId,
           fromType: this.fromType,
-          groupName: this.selectedGroup.length > 0 ? this.selectedGroup[0] : '',
+          groupName: groupName,
           otherContents: []
         }
 
