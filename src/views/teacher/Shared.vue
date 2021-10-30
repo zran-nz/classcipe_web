@@ -503,6 +503,8 @@
         pageNo: 1,
 
         typeMap: typeMap,
+        viewPreviewSessionVisible: false,
+        classList: [],
         viewMode: storage.get(VIEW_MODE) ? storage.get(VIEW_MODE) : 'list',
         lessonSelectTagVisible: false,
         sharedNotReceivedList: [],

@@ -240,6 +240,47 @@
           </a-col>
         </a-row>
       </a-drawer>
+
+      <a-modal
+        v-model="viewPreviewSessionVisible"
+        :footer="null"
+        :title="null"
+        :closable="false"
+        destroyOnClose
+        width="900px">
+        <modal-header @close="viewPreviewSessionVisible = false"/>
+        <div class="preview-session-wrapper">
+          <class-list :slide-id="currentPreviewLesson.presentationId" :classData="currentPreviewLesson" v-if="currentPreviewLesson && currentPreviewLesson.presentationId"/>
+          <no-more-resources tips="Not exist previous sessions" v-else/>
+        </div>
+      </a-modal>
+
+      <a-modal
+        title="Add session tags"
+        v-model="lessonSelectTagVisible"
+        :maskClosable="false"
+        :closable="true"
+        destroyOnClose
+        width="800px">
+        <div>
+          <div>
+            <custom-tag
+              :user-tags="userTags"
+              :custom-tags-list="['class']"
+              :selected-tags-list="sessionTags"
+              ref="customTag"
+              @change-user-tags="handleSelectedSessionTags"></custom-tag>
+          </div>
+        </div>
+        <template slot="footer">
+          <a-button key="back" @click="lessonSelectTagVisible=false">
+            Cancel
+          </a-button>
+          <a-button key="submit" type="primary" :loading="startLoading" @click="handleStartSession()">
+            Start
+          </a-button>
+        </template>
+      </a-modal>
     </div>
   </div>
 </template>
@@ -263,7 +304,7 @@ import CommonPreview from '@/components/Common/CommonPreview'
 import { FindCustomTags } from '@/api/tag'
 import LiebiaoSvg from '@/assets/svgIcon/myContent/liebiao.svg?inline'
 import PubuSvg from '@/assets/svgIcon/myContent/pubu.svg?inline'
-
+import { VIEW_MODE } from '@/store/mutation-types'
 import EvaluationSvg from '@/assets/icons/common/evaluation.svg?inline'
 import PreviousSessionsSvg from '@/assets/icons/common/PreviousSessions.svg?inline'
 import EditSvg from '@/assets/icons/common/Edit.svg?inline'
@@ -314,6 +355,7 @@ export default {
       previewVisible: false,
       previewCurrentId: '',
       previewType: '',
+      currentPreviewLesson: null,
 
       pagination: {
         onChange: page => {
@@ -327,8 +369,19 @@ export default {
       },
       pageNo: 1,
 
-      viewMode: storage.get(SESSION_VIEW_MODE) ? storage.get(SESSION_VIEW_MODE) : 'list',
-      typeMap: typeMap
+      viewMode: storage.get(VIEW_MODE) ? storage.get(VIEW_MODE) : 'list',
+      typeMap: typeMap,
+
+      viewPreviewSessionVisible: false,
+      PPTCommentPreviewVisible: false,
+      classList: [],
+      lessonSelectTagVisible: false,
+      sessionTags: [],
+      sessionItem: {},
+      startLoading: false,
+      userTags: {},
+
+      customTagList: []
     }
   },
   computed: {
