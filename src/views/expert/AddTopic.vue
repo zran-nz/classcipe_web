@@ -217,9 +217,9 @@
                     <template slot="description" v-if="currentActiveStepIndex === 1">
                       <div class="form-block">
                         <a-form-item label="Link Topic content" class="link-plan-title">
-                          <a-button type="primary" :style="{'background-color': '#fff', 'color': '#000', 'border': '1px solid #D8D8D8'}" @click="handleAddLink">
+                          <a-button type="primary" :style="{'background-color': '#fff', 'color': '#000', 'border': '1px solid #D8D8D8'}" @click="handleAddTerm">
                             <div class="btn-text" style="line-height: 20px">
-                              + Link
+                              + Add term
                             </div>
                           </a-button>
                         </a-form-item>
@@ -463,8 +463,9 @@
             :from-id="topicId"
             :filter-type-list="[contentType.task]"
             :group-name-list="groupNameList"
-            :default-group-name="'Untitled Term' + groupNameList.length + 1"
+            :default-group-name="newTermName"
             :mode="'common-link'"
+            :group-name-mode="groupNameMode"
             @cancel="selectLinkContentVisible = false"
             @ensure="handleEnsureSelectedLink"/>
         </div>
@@ -776,7 +777,10 @@ export default {
       showHistoryLoading: false,
       hideRecommendQuestion: false,
       questionMoreVisible: false,
-      selectedQuestionList: []
+      selectedQuestionList: [],
+
+      groupNameMode: 'input', // input、select,
+      newTermName: 'Untitled Term'
     }
   },
   watch: {
@@ -1454,8 +1458,8 @@ export default {
       }
     },
 
-    handleAddLink () {
-      this.$logger.info('handleAddLink', this.groupNameList)
+    handleAddTerm () {
+      this.$logger.info('handleAddTerm', this.groupNameList)
 
       // 如果第一部分有内容，点击link激活step 到第二部分，否则提示先输入第一部分表单内容
       if (this.form.name ||
@@ -1464,6 +1468,7 @@ export default {
         this.form.scenarios.length ||
         this.form.questions.length) {
         this.currentActiveStepIndex = 1
+        this.groupNameMode = 'input'
         this.selectLinkContentVisible = true
         // 添加link
       } else {
@@ -1501,6 +1506,7 @@ export default {
         if (this.groupNameList.length > 0 || this.groupNameListOther.length > 0) {
           this.handleSyncData()
         }
+        this.newTermName = 'Untitled Term_' + (this.groupNameList.length)
         this.$logger.info('AddTopic GetAssociate formatted groupNameList', this.groupNameList, this.groupNameListOther)
       }).finally(() => {
         this.linkGroupLoading = false

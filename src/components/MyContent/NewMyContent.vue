@@ -321,8 +321,8 @@ import { TopicAddOrUpdate } from '@/api/topic'
 export default {
   name: 'NewMyContent',
   components: {
-    CommonPreview,
     ContentStatusIcon,
+    CommonPreview,
     ContentTypeIcon,
     UnitPlanPreview,
     MaterialPreview,
