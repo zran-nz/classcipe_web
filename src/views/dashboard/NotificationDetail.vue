@@ -200,6 +200,7 @@ export default {
   }
 
   .main-body {
+    width: 100%;
     background-color: #fafafa;
     opacity: 1;
     border-radius: 4px;

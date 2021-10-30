@@ -2,17 +2,6 @@
   <div class="my-content">
     <div class="filter-line">
       <div class="status-tab">
-        <!--        <span :class="{'status-item': true, 'active-status-item': currentStatus === 'all-status'}" @click="toggleStatus('all-status', $t('teacher.my-content.all-status'))">-->
-        <!--          {{ $t('teacher.my-content.all-status') }}-->
-        <!--        </span>-->
-        <!--        <a-divider type="vertical" />-->
-        <!--        <span :class="{'status-item': true, 'active-status-item': currentStatus === 'published'}" @click="toggleStatus('published', $t('teacher.my-content.published-status'))">-->
-        <!--          {{ $t('teacher.my-content.published-status') }}-->
-        <!--        </span>-->
-        <!--        <a-divider type="vertical" />-->
-        <!--        <span :class="{'status-item': true, 'active-status-item': currentStatus === 'draft'}" @click="toggleStatus('draft', $t('teacher.my-content.draft-status'))">-->
-        <!--          {{ $t('teacher.my-content.draft-status') }}-->
-        <!--        </span>-->
       </div>
       <div class="type-owner">
         <div class="type-filter">
@@ -24,50 +13,63 @@
               <a-menu-item @click="toggleType('all-type', $t('teacher.my-content.all-type'))">
                 <span>{{ $t('teacher.my-content.all-type') }}</span>
               </a-menu-item>
-              <a-menu-item @click="toggleType('topic', $t('teacher.my-content.topics-type') )">
-                <span>{{ $t('teacher.my-content.topics-type') }}</span>
-              </a-menu-item>
-              <a-menu-item @click="toggleType('unit-plan', $t('teacher.my-content.unit-plan-type'))">
-                <span>{{ $t('teacher.my-content.unit-plan-type') }}</span>
-              </a-menu-item>
+              <template v-if="$store.getters.roles.indexOf('teacher') !== -1">
+                <a-menu-item @click="toggleType('unit-plan', $t('teacher.my-content.unit-plan-type'))">
+                  <span>{{ $t('teacher.my-content.unit-plan-type') }}</span>
+                </a-menu-item>
+                <a-menu-item @click="toggleType('evaluation', $t('teacher.my-content.evaluation-type'))">
+                  <span>{{ $t('teacher.my-content.evaluation-type') }}</span>
+                </a-menu-item>
+              </template>
+              <template v-if="$store.getters.roles.indexOf('expert') !== -1">
+                <a-menu-item @click="toggleType('topic', $t('teacher.my-content.topics-type'))">
+                  <span>{{ $t('teacher.my-content.topics-type') }}</span>
+                </a-menu-item>
+              </template>
               <a-menu-item @click="toggleType('task', $t('teacher.my-content.tasks-type') )">
                 <span>{{ $t('teacher.my-content.tasks-type') }}</span>
               </a-menu-item>
               <!--              <a-menu-item @click="toggleType('lesson', $t('teacher.my-content.lesson-type'))">
                 <span>{{ $t('teacher.my-content.lesson-type') }}</span>
               </a-menu-item>-->
-              <a-menu-item @click="toggleType('evaluation', $t('teacher.my-content.evaluation-type'))">
-                <span>{{ $t('teacher.my-content.evaluation-type') }}</span>
-              </a-menu-item>
             </a-menu>
             <a-button
-              style="padding: 0 20px;display:flex; box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.16);align-items:center ;height: 40px;border-radius: 6px;background: #FFFFFF;border: 1px solid #eee;font-family: Inter-Bold;color: #182552;"> Choose type(s)of content <a-icon type="caret-down" /> </a-button>
+              class="type-filter-button"
+              style="padding: 0 20px;display:flex; align-items:center ;height: 40px;border-radius: 6px;background: #FFFFFF;font-family: Inter-Bold;color: #182552;">
+              <span v-if="currentTypeLabel">{{ currentTypeLabel }}</span> <span v-else>Choose type(s)of content</span>
+              <a-icon type="caret-down" /> </a-button>
           </a-dropdown>
         </div>
         <div class="view-mode-toggle">
           <div class="view-mode">
             <div :class="{'view-mode-item': true, 'active-view': viewMode === 'img'}" @click="toggleViewMode('img')">
-              <a-icon type="appstore" theme="filled" v-if="viewMode === 'img'"/>
-              <a-icon type="appstore" v-if="viewMode === 'list'"/>
+              <pubu-svg />
             </div>
             <div :class="{'view-mode-item': true, 'active-view': viewMode === 'list'}" @click="toggleViewMode('list')">
-              <a-icon type="unordered-list"/>
+              <liebiao-svg />
             </div>
-          </div></div>
+          </div>
+        </div>
 
       </div>
     </div>
     <div class="content-wrapper">
       <a-skeleton :loading="skeletonLoading" active>
         <div class="content-list">
-          <a-list size="large" :pagination="pagination" :data-source="myContentList" :loading="loading" v-if="viewMode === 'list'">
+          <a-list
+            size="large"
+            :pagination="pagination"
+            :data-source="myContentList"
+            :loading="loading"
+            v-if="viewMode === 'list'"
+          >
             <a-list-item class="my-list-item" slot="renderItem" key="item.key" slot-scope="item">
 
               <span class="content-info-left" @click="handleViewDetail(item)">
                 <content-type-icon :type="item.type" />
 
                 <span class="name-content">
-                  {{ item.name }}
+                  {{ item.name ? item.name : 'Unnamed' }}
                 </span>
               </span>
 
@@ -75,54 +77,73 @@
                 <span class="update-time" >
                   {{ item.updateTime || item.createTime | dayjs }}
                 </span>
+                <span class="status">
+                  <template v-if="item.status === 0">Draft</template>
+                  <template v-if="item.status === 1">Published</template>
+                </span>
                 <div class="action">
                   <div slot="actions">
                     <div class="action-wrapper">
-                      <div class="action-item">
-                        <a-popconfirm :title="$t('teacher.my-content.action-delete') + '?'" ok-text="Yes" @confirm="handleDeleteItem(item)" cancel-text="No">
-                          <a href="#" class="delete-action">
-                            <a-icon type="delete" /> {{ $t('teacher.my-content.action-delete') }}
-                          </a>
-                        </a-popconfirm>
-                      </div>
-                      <div class="action-item">
-                        <a @click="handleEditItem(item)">
-                          <a-icon type="form" /> {{ $t('teacher.my-content.action-edit') }}
-                        </a>
-                      </div>
-                      <!--                    <div class="action-item" v-if="item.type === typeMap['evaluation']">
-                        <a-dropdown>
-                          <a-icon type="more" style="margin-right: 8px" />
-                          <a-menu slot="overlay">
-                            <a-menu-item>
-                              <a @click="handleEvaluation(item)">
-                                {{ $t('teacher.my-content.start-evaluation') }}
-                              </a>
-                            </a-menu-item>
-                          </a-menu>
-                        </a-dropdown>
-                      </div>
-                      <div class="action-item" v-if="item.type === typeMap['lesson'] || item.type === typeMap['task']">
-                        <a-dropdown>
-                          <a-icon type="more" style="margin-right: 8px" />
-                          <a-menu slot="overlay">
-                            <a-menu-item>
-                              <a @click="handleStartSession(item)">
-                                {{ $t('teacher.my-content.action-session-new') }}
-                              </a>
-                            </a-menu-item>
-                            <a-menu-item>
-                              <a @click="handleViewPreviewSession(item)">
-                                {{ $t('teacher.my-content.action-session-previous') }}
-                              </a>
-                            </a-menu-item>
-                          </a-menu>
-                        </a-dropdown>
-                      </div>-->
 
+                      <!-- Task: 外置teacher-pace, student-pace, Edit, 折叠Delete, Duplicate, Previous session-->
+                      <template v-if="item.type === typeMap.task">
+                        <div class="start-session-wrapper action-item-wrapper">
+                          <div class="session-btn content-list-action-btn" @click="handleStartSessionTags(item)">
+                            <div class="session-btn-icon">
+                              <teacher-presenting />
+                            </div>
+                            <div class="session-btn-text"> Teacher-pace</div>
+                          </div>
+                        </div>
+                        <div class="start-session-wrapper action-item-wrapper">
+                          <div class="session-btn content-list-action-btn" @click="handleStartSessionTags(item)">
+                            <div class="session-btn-icon">
+                              <student-pace />
+                            </div>
+                            <div class="session-btn-text"> Student-pace</div>
+                          </div>
+                        </div>
+                      </template>
+                      <!-- Unit plan:外置Edit，折叠Delete, Duplicate-->
+
+                      <div class="start-session-wrapper action-item-wrapper">
+                        <div class="session-btn content-list-action-btn" @click="handleEditItem(item)">
+                          <div class="session-btn-icon">
+                            <bianji />
+                          </div>
+                          <div class="session-btn-text"> {{ $t('teacher.my-content.action-edit') }}</div>
+                        </div>
+                      </div>
+                      <div class="more-action-wrapper action-item-wrapper" >
+                        <a-dropdown>
+                          <a-icon type="more" style="margin-right: 8px" />
+                          <a-menu slot="overlay">
+                            <a-menu-item>
+                              <a-popconfirm :title="$t('teacher.my-content.action-delete') + '?'" ok-text="Yes" @confirm="handleDeleteItem(item)" cancel-text="No">
+                                <a>
+                                  <a-icon type="delete" theme="filled" /> {{ $t('teacher.my-content.action-delete') }}
+                                </a>
+                              </a-popconfirm>
+                            </a-menu-item>
+                            <a-menu-item>
+                              <a @click="handleDuplicateItem(item)">
+                                <a-icon type="copy" /> Duplicate
+                              </a>
+                            </a-menu-item>
+                            <!-- Task里面有teacher-pace, student-pace, previous session -->
+                            <template v-if="item.type === typeMap.task">
+                              <a-menu-item>
+                                <a @click="handleViewPreviewSession(item)">
+                                  <previous-sessions-svg /> Previous session
+                                </a>
+                              </a-menu-item>
+                            </template>
+
+                          </a-menu>
+                        </a-dropdown>
+                      </div>
                     </div>
                   </div></div></span>
-
             </a-list-item>
           </a-list>
           <a-list
@@ -133,57 +154,63 @@
             :loading="loading"
             v-if="viewMode === 'img'">
             <a-list-item slot="renderItem" key="item.key" slot-scope="item">
-              <a-card class="cover-card">
-                <div
-                  @click="handleViewDetail(item)"
-                  class="cover-image"
-                  slot="cover"
-                  :style="{backgroundImage: 'url(' + item.image + ')' }"
-                ></div>
-                <a-card-meta :title="item.name" :description="item.createTime | dayjs" @click="handleViewDetail(item)"></a-card-meta>
-                <template slot="actions" class="ant-card-actions">
-                  <div class="action-item">
-                    <a-popconfirm :title="$t('teacher.my-content.action-delete') + '?'" ok-text="Yes" @confirm="handleDeleteItem(item)" cancel-text="No">
-                      <a href="#" class="delete-action">
-                        <a-icon type="delete" /> {{ $t('teacher.my-content.action-delete') }}
-                      </a>
-                    </a-popconfirm>
-                  </div>
-                  <div class="action-item">
-                    <a @click="handleEditItem(item)">
-                      <a-icon type="form" /> {{ $t('teacher.my-content.action-edit') }}
-                    </a>
-                  </div>
-                  <!--          <div class="action-item" v-if="item.type === typeMap['evaluation']">
+              <a-card class="cover-card" @click="handleViewDetail(item)">
+                <div class="mask"></div>
+                <div class="mask-actions">
+                  <div class="action-item action-item-top">
                     <a-dropdown>
-                      <a-icon type="more" style="margin-right: 8px" />
+                      <a-icon type="more" style="margin-right: 8px" class="more-icon" />
                       <a-menu slot="overlay">
                         <a-menu-item>
-                          <a @click="handleEvaluation(item)">
-                            {{ $t('teacher.my-content.start-evaluation') }}
+                          <a-popconfirm :title="$t('teacher.my-content.action-delete') + '?'" ok-text="Yes" @confirm="handleDeleteItem(item)" cancel-text="No">
+                            <a>
+                              <a-icon type="delete" theme="filled" /> {{ $t('teacher.my-content.action-delete') }}
+                            </a>
+                          </a-popconfirm>
+                        </a-menu-item>
+                        <a-menu-item>
+                          <a @click="handleDuplicateItem(item)">
+                            <a-icon type="copy" /> Duplicate
                           </a>
                         </a-menu-item>
+                        <!-- Task里面有teacher-pace, student-pace, previous session -->
+                        <template v-if="item.type === typeMap.task">
+                          <a-menu-item>
+                            <a @click="handleViewPreviewSession(item)">
+                              <previous-sessions-svg /> Previous session
+                            </a>
+                          </a-menu-item>
+                        </template>
                       </a-menu>
                     </a-dropdown>
                   </div>
-                  <div class="action-item" v-if="item.type === typeMap['lesson'] || item.type === typeMap['task']">
-                    <a-dropdown>
-                      <a-icon type="more" style="margin-right: 8px" />
-                      <a-menu slot="overlay">
-                        <a-menu-item>
-                          <a @click="handleStartSession(item)">
-                            {{ $t('teacher.my-content.action-session-new') }}
-                          </a>
-                        </a-menu-item>
-                        <a-menu-item>
-                          <a @click="handleViewPreviewSession(item)">
-                            {{ $t('teacher.my-content.action-session-previous') }}
-                          </a>
-                        </a-menu-item>
-                      </a-menu>
-                    </a-dropdown>
-                  </div>-->
-                </template>
+                  <div class="action-item action-item-center">
+                    <div class="session-btn session-btn-left" @click.stop="handleStartSessionTags(item)" v-if="item.type === typeMap['task']" >
+                      <div class="session-btn-text">
+                        <teacher-presenting />
+                        Teacher-pace
+                      </div>
+                    </div>
+                    <div class="session-btn session-btn-right" @click.stop="handleStartSessionTags(item)" v-if="item.type === typeMap['task']">
+                      <div class="session-btn-text">
+                        <student-pace />
+                        Student-pace
+                      </div>
+                    </div>
+                  </div>
+                  <div class="action-item action-item-bottom" >
+                    <div class="session-btn" @click.stop="handleEditItem(item)">
+                      <div class="session-btn-icon content-list-action-btn">
+                        <bianji />
+                      </div>
+                      <div class="session-btn-text">Edit</div>
+                    </div>
+                  </div>
+                </div>
+                <div class="cover-img" :style="{backgroundImage: 'url(' + item.image + ')'}"></div>
+                <a-card-meta class="my-card-meta-info" :title="item.name ? item.name : 'Untitled'" :description="item.createTime | dayjs" @click="handleViewDetail(item)">
+                  <content-type-icon :type="item.type" slot="avatar"></content-type-icon>
+                </a-card-meta>
               </a-card>
             </a-list-item>
           </a-list>
@@ -219,17 +246,40 @@
 
 <script>
 import * as logger from '@/utils/logger'
-import UnitPlanPreview from '@/components/UnitPlan/UnitPlanPreview'
+import { Duplicate, SaveSessonTags } from '@/api/teacher'
 import { typeMap } from '@/const/teacher'
 import ContentStatusIcon from '@/components/Teacher/ContentStatusIcon'
 import ContentTypeIcon from '@/components/Teacher/ContentTypeIcon'
 import { FavoritesGetMyFavorites, FavoritesDelete } from '@/api/favorites'
 import TvSvg from '@/assets/icons/lesson/tv.svg?inline'
 import { lessonStatus, lessonHost } from '@/const/googleSlide'
-import { StartLesson, getMyClasses } from '@/api/lesson'
+import { StartLesson } from '@/api/lesson'
 import storage from 'store'
-import { VIEW_MODE } from '@/store/mutation-types'
+import ModalHeader from '@/components/Common/ModalHeader'
+import {
+  CustomTagType,
+  SESSION_CURRENT_PAGE,
+  SESSION_CURRENT_STATUS,
+  SESSION_CURRENT_TYPE,
+  SESSION_CURRENT_TYPE_LABEL,
+  SESSION_VIEW_MODE
+} from '@/const/common'
 import CommonPreview from '@/components/Common/CommonPreview'
+import { FindCustomTags } from '@/api/tag'
+import LiebiaoSvg from '@/assets/svgIcon/myContent/liebiao.svg?inline'
+import PubuSvg from '@/assets/svgIcon/myContent/pubu.svg?inline'
+
+import EvaluationSvg from '@/assets/icons/common/evaluation.svg?inline'
+import PreviousSessionsSvg from '@/assets/icons/common/PreviousSessions.svg?inline'
+import EditSvg from '@/assets/icons/common/Edit.svg?inline'
+import CopySvg from '@/assets/icons/common/copy.svg?inline'
+import Bianji from '@/assets/icons/common/Bianji.svg?inline'
+import StartEvaluation from '@/assets/icons/common/StartEvaluation.svg?inline'
+import StartSessionSvg from '@/assets/icons/common/StartSession.svg?inline'
+import TeacherPresenting from '@/assets/icons/common/TeacherPresenting.svg?inline'
+import StudentPace from '@/assets/icons/common/StudentPace.svg?inline'
+import ClassList from '@/components/Teacher/ClassList'
+import CustomTag from '@/components/UnitPlan/CustomTag'
 
 export default {
   name: 'MyFavorite',
@@ -237,8 +287,21 @@ export default {
     CommonPreview,
     ContentStatusIcon,
     ContentTypeIcon,
-    UnitPlanPreview,
-    TvSvg
+    ModalHeader,
+    TvSvg,
+    Bianji,
+    TeacherPresenting,
+    EvaluationSvg,
+    StartSessionSvg,
+    PreviousSessionsSvg,
+    StartEvaluation,
+    ClassList,
+    StudentPace,
+    CustomTag,
+    EditSvg,
+    CopySvg,
+    LiebiaoSvg,
+    PubuSvg
   },
   data () {
     return {
@@ -261,15 +324,16 @@ export default {
         onChange: page => {
           logger.info('pagination onChange', page)
           this.pageNo = page
+          sessionStorage.setItem(SESSION_CURRENT_PAGE, page)
           this.loadMyContent()
         },
         showTotal: total => `Total ${total} items`,
         total: 0,
-        pageSize: 15
+        pageSize: 16
       },
-      pageNo: 1,
-      typeMap: typeMap,
-      viewMode: storage.get(VIEW_MODE) ? storage.get(VIEW_MODE) : 'list'
+      pageNo: sessionStorage.getItem(SESSION_CURRENT_PAGE) ? sessionStorage.getItem(SESSION_CURRENT_PAGE) : 1,
+      viewMode: storage.get(SESSION_VIEW_MODE) ? storage.get(SESSION_VIEW_MODE) : 'list',
+      typeMap: typeMap
     }
   },
   computed: {
@@ -281,7 +345,7 @@ export default {
   methods: {
     toggleViewMode (viewMode) {
       this.$logger.info('viewMode', viewMode)
-      storage.set(VIEW_MODE, viewMode)
+      storage.set(SESSION_VIEW_MODE, viewMode)
       this.viewMode = viewMode
     },
     loadMyContent () {
@@ -313,12 +377,19 @@ export default {
       logger.info('toggleStatus ' + status + ' label ' + label)
       this.currentStatus = status
       this.currentStatusLabel = label
+      this.pageNo = 1
+      sessionStorage.setItem(SESSION_CURRENT_STATUS, status)
+      sessionStorage.setItem(SESSION_CURRENT_PAGE, this.pageNo)
       this.loadMyContent()
     },
     toggleType (type, label) {
       logger.info('toggleType ' + type + ' label ' + label)
       this.currentType = type
       this.currentTypeLabel = label
+      this.pageNo = 1
+      sessionStorage.setItem(SESSION_CURRENT_PAGE, this.pageNo)
+      sessionStorage.setItem(SESSION_CURRENT_TYPE_LABEL, label)
+      sessionStorage.setItem(SESSION_CURRENT_TYPE, type)
       this.loadMyContent()
     },
     toggleOwner (owner, label) {
@@ -356,13 +427,31 @@ export default {
         })
       }
     },
+
+    handleDuplicateItem (item) {
+      this.$logger.info('handleDuplicateItem', item)
+      this.$confirm({
+        title: 'Confirm duplicate',
+        content: 'Are you sure to duplicate ' + item.name + ' ?',
+        centered: true,
+        onOk: () => {
+          this.loading = true
+          Duplicate({ id: item.id, type: item.type }).then((response) => {
+            this.$logger.info('Duplicate response', response)
+            this.loadMyContent()
+          })
+        }
+      })
+    },
+    handlePrevious (item) {
+      this.$router.push({
+        path: '/teacher/my-class?slideId=' + item.presentationId
+      })
+    },
     handleDeleteItem (item) {
       logger.info('handleDeleteItem', item)
-      FavoritesDelete({
-        sourceId: item.id,
-        sourceType: item.type
-      }).then(res => {
-        logger.info('FavoritesDelete', res)
+      FavoritesDelete(item).then(res => {
+        logger.info('DeleteMyContentByType', res)
       }).then(() => {
         this.loadMyContent()
       })
@@ -383,7 +472,14 @@ export default {
       })
     },
 
-    handleTeacherProjecting (item) {
+    handleStartSession () {
+      this.$logger.info('selected sessionTags', this.sessionTags)
+      if (this.sessionTags.length === 0) {
+        this.$message.warn('Please add session tags')
+        return
+      }
+      this.startLoading = true
+      const item = this.sessionItem
       this.$logger.info('handleStartSession', item)
       if (item.presentationId) {
         const requestData = {
@@ -399,18 +495,36 @@ export default {
         StartLesson(requestData).then(res => {
           this.$logger.info('StartLesson res', res)
           if (res.code === 'ok') {
-            // const targetUrl = lessonHost + 'slide_id=' + item.presentationId + '&class_id=' + res.data.class_id + '&type=classroom'
-            const targetUrl = lessonHost + 't/' + res.data.class_id
-            this.$logger.info('try open ' + targetUrl)
-            // window.open(targetUrl, '_blank')
-            // 课堂那边需要点击返回回到表单，改成location.href跳转
-            window.location.href = targetUrl
+            const dataTags = []
+            this.sessionTags.forEach(tag => {
+              dataTags.push({
+                'name': tag.name,
+                'parentId': tag.parentId,
+                'isGlobal': tag.isGlobal ? 1 : 0,
+                'classId': res.data.class_id,
+                'presentationId': item.presentationId,
+                'sourceId': item.id,
+                'sourceType': item.type
+              })
+            })
+            SaveSessonTags(dataTags).then(() => {
+              this.startLoading = false
+              this.lessonSelectTagVisible = false
+              // const targetUrl = lessonHost + 'slide_id=' + item.presentationId + '&class_id=' + res.data.class_id + '&type=classroom'
+              const targetUrl = lessonHost + 't/' + res.data.class_id
+              this.$logger.info('try open ' + targetUrl)
+              // window.open(targetUrl, '_blank')
+              // 课堂那边需要点击返回回到表单，改成location.href跳转
+              window.location.href = targetUrl
+            })
           } else {
             this.$message.warn('StartLesson Failed! ' + res.message)
+            this.startLoading = false
           }
         })
       } else {
         this.$message.warn('This record is not bound to PPT!')
+        this.startLoading = false
       }
     },
 
@@ -430,7 +544,7 @@ export default {
           this.$logger.info('StartLesson res', res)
           if (res.code === 'ok') {
             // const targetUrl = lessonHost + 'slide_id=' + item.presentationId + '&class_id=' + res.data.class_id + '&direct=true&currentPage=0&type=dashboard'
-            const targetUrl = lessonHost + 't/' + res.data.class_id
+            const targetUrl = lessonHost + 'd/' + res.data.class_id
             this.$logger.info('try open ' + targetUrl)
             // window.open(targetUrl, '_blank')
             // 课堂那边需要点击返回回到表单，改成location.href跳转
@@ -444,24 +558,45 @@ export default {
       }
     },
 
-    handleEditEvaluationRubric (item) {
-      this.$logger.info('handleEditEvaluationRubric', item)
-      getMyClasses({ limit: 100, cursor: 0, slide_id: item.presentationId }).then(response => {
-        this.$logger.info('', response)
-      })
+    handleViewPreviewSession (item) {
+      this.$logger.info('handleViewPreviewSession', item)
+      this.currentPreviewLesson = item
+      this.viewPreviewSessionVisible = true
+    },
+    handleSelectedSessionTags (tags) {
+      this.sessionTags = tags
+      this.$logger.info('handleSelectedSessionTags', tags)
+    },
+    handleStartSessionTags (item) {
+      this.sessionItem = item
+      this.lessonSelectTagVisible = true
+      this.sessionTags = []
     },
 
-    handleEnableStudentEvaluation (item) {
-      this.$logger.info('handleEnableStudentEvaluation', item)
+    handleEvaluateItem (item) {
+      this.$logger.info('handleEvaluateItem', item)
     },
-    handleReviewEvaluation (item) {
-      this.$logger.info('handleReviewEvaluation', item)
-    },
-    handleEnablePeerEvaluation (item) {
-      this.$logger.info('handleEnablePeerEvaluation', item)
-    },
-    handleArchiveSession (item) {
-      this.$logger.info('handleArchiveSession', item)
+    loadUserTags () {
+      // this.$refs.customTag.tagLoading = true
+      FindCustomTags({}).then((response) => {
+        this.$logger.info('FindCustomTags response', response.result)
+        if (response.success) {
+          this.userTags = response.result
+          // 默认展示的tag分类
+          CustomTagType.task.default.forEach(name => {
+            this.customTagList.push(name)
+          })
+          // 再拼接自己添加的
+          this.userTags.userTags.forEach(tag => {
+            if (this.customTagList.indexOf(tag.name) === -1) {
+              this.customTagList.push(tag.name)
+            }
+          })
+        } else {
+          this.$message.error(response.message)
+        }
+        // this.$refs.customTag.tagLoading = false
+      })
     }
   }
 }
@@ -480,12 +615,14 @@ export default {
 }
 
 .my-list-item {
-  box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.16);
+  min-width: 800px;
   opacity: 1;
+  width: 100%;
   border-radius: 4px;
   background: #FFFFFF;
-  padding: 12px 10px;
+  padding: 15px 10px;
   margin-bottom: 15px;
+  cursor: pointer;
 }
 
 .my-content {
@@ -536,6 +673,10 @@ export default {
               align-items: center;
               justify-content: center;
               width: 90px;
+
+              &:hover {
+                background: #EDF1F5;
+              }
             }
 
             .skill-active-mode {
@@ -566,69 +707,149 @@ export default {
   }
 
   .content-wrapper {
+    min-width: 900px;
     .content-list {
-      .content-info-left {
-        cursor: pointer;
-        display: flex;
-        justify-content: flex-start;
-        align-items: center;
+      min-width: 900px;
+      .my-list-item {
+        overflow: hidden;
+        .content-info-left {
+          cursor: pointer;
+          display: flex;
+          justify-content: flex-start;
+          align-items: center;
 
-        .status-icon-item {
-          font-size: 18px;
-          width: 40px;
+          .status-icon-item {
+            font-size: 18px;
+            width: 40px;
+          }
+
+          &:hover {
+            color: @primary-color;
+          }
+        }
+        .content-info-right {
+          cursor: pointer;
+          display: flex;
+          justify-content: flex-end;
+          align-items: center;
+
+          .update-time {
+            width: 130px;
+            color: #11142D;
+            font-size: 13px;
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+          }
+          .status {
+            font-family: Inter-Bold;
+            line-height: 24px;
+            color: #11142D;
+            width: 70px;
+          }
+        }
+        .action {
+          width: 400px;
         }
 
-        &:hover {
-          color: @primary-color;
-        }
-      }
-      .content-info-right {
-        cursor: pointer;
-        display: flex;
-        justify-content: flex-end;
-        align-items: center;
+        .action-wrapper {
+          height: 33px;
+          display: flex;
+          flex-direction: row;
+          align-items: center;
+          justify-content: flex-end;
 
-        .update-time {
-          width: 150px;
+          .action-item-wrapper {
+            display: none;
+            flex-direction: row;
+            align-items: center;
+            justify-content: center;
+            margin-left: 5px;
+
+            .session-btn {
+              display: flex;
+              border-radius: 32px;
+              flex-direction: row;
+              align-items: center;
+              justify-content: center;
+              padding: 6px 13px;
+              background: rgba(245, 245, 245, 0.5);
+              opacity: 1;
+              border: 1px solid rgba(188, 188, 188, 1);
+
+              .session-btn-icon {
+                display: flex;
+                flex-direction: row;
+                align-items: center;
+                justify-content: center;
+                font-size: 13px;
+                i {
+                  svg {
+                    height: 14px;
+                    fill: #182552;
+                    stroke: #182552;
+                    stroke-width: 0.5px;
+                  }
+                }
+              }
+              .session-btn-text {
+                font-size: 13px;
+                padding-left: 7px;
+                font-family: Inter-Bold;
+                color: #182552;
+                display: flex;
+                align-items: center;
+              }
+            }
+
+            .session-btn:hover {
+              border-color: #15c39a;
+              background: rgba(21, 195, 154, 0.1);
+              .session-btn-icon {
+                i {
+                  svg {
+                    fill: #15c39a;
+                    stroke: #15c39a;
+                    stroke-width: 0.5px;
+                  }
+                }
+
+                svg {
+                  fill: #15c39a;
+                  stroke: #15c39a;
+                  stroke-width: 0.5px;
+                }
+              }
+
+              .session-btn-text {
+                display: inline-block;
+                color: #15C39A;
+              }
+            }
+          }
+        }
+
+        .name-content {
+          padding-left: 5px;
+          text-align: left;
+          font-family: Inter-Bold;
+          line-height: 24px;
           color: #11142D;
-          font-size: 13px;
+          display: inline-block;
+          max-width: 400px;
           overflow: hidden;
           white-space: nowrap;
           text-overflow: ellipsis;
         }
-        .status {
-          font-family: Inter-Bold;
-          line-height: 24px;
-          color: #11142D;
-          width: 80px;
-        }
-      }
-      .action {
-        width: 200px;
-      }
 
-      .action-wrapper {
-        display: flex;
-        flex-direction: row;
-        align-items: center;
-        justify-content: flex-start;
-        .action-item {
-          display: inline;
-          margin-left: 20px;
-          user-select: none;
+        &:hover {
+          box-shadow: 3px 3px 3px rgba(0, 0, 0, 0.10);
+          .action-wrapper {
+            .action-item-wrapper {
+              display: flex;
+            }
+          }
         }
-      }
-
-      .name-content {
-        text-align: left;
-        font-family: Inter-Bold;
-        line-height: 24px;
-        color: #11142D;
-        display: inline-block;
-        max-width: 450px;
-        overflow: hidden;
-        white-space: nowrap;
-        text-overflow: ellipsis;
       }
     }
   }
@@ -645,13 +866,16 @@ a.delete-action {
   align-items: center;
   margin-right: 10px;
   background: #FFFFFF;
-  border: 1px solid #F7F8FF;
-  box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.16);
+  border: 1px solid #D8D8D8;
   opacity: 1;
   border-radius: 6px;
   height: 40px;
   padding: 0px 15px;
   margin-left: 20px;
+
+  &:hover {
+    border: 1px solid #15c39a;
+  }
   .view-mode {
     display: flex;
     flex-direction: row;
@@ -663,30 +887,211 @@ a.delete-action {
       font-size: 20px;
       padding-left: 5px;
       margin: 0 3px;
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+
+      svg {
+        height: 22px;
+      }
     }
 
     .active-view {
-      i {
-        color: @primary-color;
+      svg {
+        fill: @primary-color;
       }
     }
   }
 }
 
-.cover-image {
-  height: 150px;
-  background-size: cover;
-  background-position: center center;
-  background-repeat: no-repeat;
-  border-bottom: 1px solid #eee;
-  -webkit-transition: all 0.3s ease-in-out;
-  transition: all 0.3s ease-in-out;
-  &:hover {
-    background-size: 110%;
-    background-position: center;
+.cover-card{
+  background: #FFFFFF;
+  opacity: 1;
+  border-radius: 6px;
+  border: none;
+
+  .cover-img {
+    width: 100%;
+    min-height: 160px;
+    background-position: center center;
     background-repeat: no-repeat;
-    box-shadow: 0 0 2px 1px @primary-color;
+    background-size: cover;
+    margin-bottom: 10px;
   }
+  &:hover {
+    box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.16);
+    .mask-actions{
+      display: block;
+    }
+    .mask{
+      opacity: 0.3;
+    }
+  }
+  .mask-actions{
+    margin:-10px;
+    height: 100%;
+    width: 100%;
+    position: absolute;
+    flex-direction: column;
+    display: none;
+    .action-item{
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: space-around;
+    }
+    .action-item-top{
+      height: 20px;
+      flex-direction: row;
+      justify-content: flex-end;
+      padding-top: 15px;
+      i{
+        width: 25px;
+        font-size: 20px;
+        color: rgba(255, 255, 255, 1);
+        display: flex;
+        flex-direction: row;
+        justify-content: flex-end;
+      }
+    }
+    .action-item-center{
+      min-height: 150px;
+      .session-btn{
+        margin:15px
+      }
+      .session-btn-left {
+        width: 160px;
+        height: 40px;
+        background: #15C39A;
+        opacity: 1;
+        border-radius: 20px;
+        justify-content: center;
+        display: flex;
+        padding: 6px 13px;
+        .session-btn-text {
+          font-size: 12px;
+          font-family: Inter-Bold;
+          line-height: 24px;
+          color: #FFFFFF;
+          opacity: 1;
+          display: flex;
+          align-items: center;
+          display: flex;
+          align-items: center;
+          svg {
+            margin-right: 5px;
+          }
+        }
+      }
+
+      .session-btn-right {
+        width: 160px;
+        height: 40px;
+        background: #182552;
+        opacity: 1;
+        border-radius: 20px;
+        display: flex;
+        justify-content: center;
+        padding: 6px 13px;
+        .session-btn-text {
+          font-size: 12px;
+          font-family: Inter-Bold;
+          line-height: 24px;
+          color: #FFFFFF;
+          opacity: 1;
+          display: flex;
+          align-items: center;
+
+          svg {
+            margin-right: 5px;
+          }
+        }
+      }
+    }
+    .action-item-bottom{
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      justify-content: space-around;
+      .session-btn {
+        height: 33px;
+        width: auto;
+        display: flex;
+        border-radius: 32px;
+        flex-direction: row;
+        align-items: center;
+        justify-content: center;
+        padding: 6px 10px;
+        transition: all 0.3s ease-in-out;
+        background: rgba(245, 245, 245, 1);
+        box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.16);
+        opacity: 1;
+        border: 1px solid rgba(188, 188, 188, 1);
+        .session-btn-icon {
+          display: flex;
+          flex-direction: row;
+          align-items: center;
+          justify-content: center;
+          font-size: 13px;
+          svg {
+            height: 14px;
+            fill: #182552;
+            stroke: #182552;
+            stroke-width: 0.5px;
+          }
+        }
+
+        .session-btn-text {
+          transition: all 0.3s ease-in-out;
+          display: none;
+          font-size: 13px;
+          padding-left: 7px;
+          font-family: Inter-Bold;
+          color: #182552;
+        }
+      }
+
+      .session-btn:hover {
+        .session-btn-text {
+          display: inline-block;
+        }
+      }
+    }
+  }
+
+  img {
+    width: 100%;
+    height: 160px;
+    padding: 5px 10px;
+    background-size: cover;
+    background-position: center center;
+    background-repeat: no-repeat;
+    //border-bottom: 1px solid #eee;
+    -webkit-transition: all 0.3s ease-in-out;
+    transition: all 0.3s ease-in-out;
+
+  }
+}
+
+.my-card-meta-info {
+  margin-top: 10px;
+
+  .ant-card-meta-avatar {
+    padding-right: 0;
+  }
+}
+
+.mask {
+  height: 100%;
+  width: 100%;
+  opacity: 0;
+  margin:-10px;
+  position: absolute;
+  cursor: pointer;
+  transition: opacity 0.8s;
+  background: #0A1C32;
+  border-radius: 6px;
 }
 
 </style>

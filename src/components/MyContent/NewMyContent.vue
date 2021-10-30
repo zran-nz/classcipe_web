@@ -250,8 +250,8 @@
           <template v-if="groupNameMode === 'select'">
             <div class="choose-label">Choose</div>
             <a-select :default-value="defaultGroupName" style="width: 100%" v-model="selectedGroup">
-              <a-select-option :value="groupName" v-for="(groupName, gIndex) in groupNameList" :key="gIndex">
-                {{ groupName }}
+              <a-select-option :value="groupNameItem" v-for="(groupNameItem, gIndex) in groupNameList" :key="gIndex">
+                {{ groupNameItem }}
               </a-select-option>
             </a-select>
           </template>

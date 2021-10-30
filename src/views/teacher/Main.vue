@@ -10,18 +10,18 @@
                 {{ $t('teacher.main.created-by-me') }}
               </router-link>
             </div>
-            <div :class="{'nav-bar-item': true, 'selected-nav-bar' : selectedKey === '/teacher/main/my-favorite'}">
-              <router-link to="/teacher/main/my-favorite">
-                <my-favorite-svg />
-                {{ $t('teacher.main.my-favorite') }}
-              </router-link>
-            </div>
-            <div :class="{'nav-bar-item': true, 'nav-bar-item-split': true, 'selected-nav-bar' : selectedKey === '/teacher/main/shared'}">
+            <div :class="{'nav-bar-item': true, 'selected-nav-bar': true, 'selected-nav-bar' : selectedKey === '/teacher/main/shared'}">
               <router-link to="/teacher/main/shared">
                 <a-badge :count="$store.getters.sharedCount">
                   <shared-svg />
                 </a-badge>
                 {{ $t('teacher.main.shared') }}
+              </router-link>
+            </div>
+            <div :class="{'nav-bar-item': true, 'nav-bar-item-split': true, 'selected-nav-bar' : selectedKey === '/teacher/main/my-favorite'}">
+              <router-link to="/teacher/main/my-favorite">
+                <my-favorite-svg />
+                {{ $t('teacher.main.my-favorite') }}
               </router-link>
             </div>
             <div :class="{'nav-bar-item': true, 'selected-nav-bar' : selectedKey === '/teacher/main/discover'}">
