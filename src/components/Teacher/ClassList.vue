@@ -22,13 +22,13 @@
           <div class="class-number">
             <div class="class-number-detail">
               <a-tooltip>
-                <template v-if="Math.random() > 0.5">
+                <template v-if="classItem.evaluationId">
                   <template slot="title">
-                    20/42, 20 students have been evaluated
+                    {{ classItem.answerCount }}/{{ classItem.formCount }} have been evaluated
                   </template>
                   <div class="class-number-item">
-                    <div class="active-num">20</div> /
-                    <div class="total-num">42</div>
+                    <div class="active-num">{{ classItem.answerCount }}</div> /
+                    <div class="total-num">{{ classItem.formCount }}</div>
                   </div>
                 </template>
                 <template v-else>
@@ -83,6 +83,11 @@
           </div>
         </div>
       </div>
+      <template v-if="!data.length && !loading">
+        <div class="no-data">
+          <no-more-resources tips="No previous session" />
+        </div>
+      </template>
       <div class="loading" v-if="loading">
         <a-spin />
       </div>
@@ -97,7 +102,7 @@
       @ok="reviewEvaluationVisible = false"
       @cancel="reviewEvaluationVisible = false">
       <div class="review-evaluation-wrapper" v-if="currentReviewEvaluationSessionItem">
-        <review-evaluation :class-id="currentReviewEvaluationSessionItem.class_id" :slide-id="classData.presentationId" :evaluation-id="currentReviewEvaluationSessionItem.evaluationId" />
+        <review-evaluation :class-id="currentReviewEvaluationSessionItem.classId" :slide-id="classData.presentationId" :evaluation-id="currentReviewEvaluationSessionItem.evaluationId" />
       </div>
     </a-modal>
 
@@ -127,10 +132,12 @@ import { lessonHost } from '@/const/googleSlide'
 import ReviewEvaluation from '@/components/Evaluation/ReviewEvaluation'
 import ArchiveSessionIcon from '@/assets/svgIcon/evaluation/ArchiveSession.svg?inline'
 import EvaluateIcon from '@/assets/svgIcon/evaluation/Evaluate.svg?inline'
+import NoMoreResources from '@/components/Common/NoMoreResources'
 
 export default {
   name: 'ClassList',
   components: {
+    NoMoreResources,
     ReviewEvaluation,
     TvSvg,
     PptCommentPreview,
@@ -179,16 +186,16 @@ export default {
       FindMyClasses({ limit, slideId }).then(response => {
         logger.info('FindMyClasses', response.result.data)
         if (response.success) {
-          response.result.data.records.forEach((item) => {
+          response.result.forEach((item) => {
             item.date = item.date * 1000
           })
           if (limit) {
-            this.data = this.data.concat(response.result.data.records)
+            this.data = this.data.concat(response.result)
           } else {
-            this.data = response.result.data.records
+            this.data = response.result
           }
         }
-        this.total = response.result.data.total
+        this.total = response.result.length
         logger.info(' data', this.data)
         this.loading = false
       })
@@ -196,18 +203,18 @@ export default {
 
     handleTeacherProjecting (item) {
       this.$logger.info('handleStartSession', item)
-      window.open(lessonHost + 't/' + item.class_id, '_blank')
+      window.open(lessonHost + 't/' + item.classId, '_blank')
     },
 
     handleDashboard (item) {
       this.$logger.info('handleDashboard', item)
-      window.open(lessonHost + 'd/' + item.class_id, '_blank')
+      window.open(lessonHost + 'd/' + item.classId, '_blank')
     },
 
     handleReviewEditEvaluation (item) {
       this.$logger.info('handleReviewEditEvaluation', item, this.classData)
       this.$router.push({
-        path: `/teacher/class-evaluation/${this.classData.id}/${item.class_id}`
+        path: `/teacher/class-evaluation/${this.classData.id}/${item.classId}`
       })
     },
     handleArchiveSession (item) {
