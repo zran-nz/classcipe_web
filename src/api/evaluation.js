@@ -8,7 +8,8 @@ export const evaluationAPIUrl = {
   deleteBatch: '/classcipe/api/evaluation/deleteBatch',
   list: '/classcipe/api/evaluation/list',
   queryById: '/classcipe/api/evaluation/queryById',
-  findMyClasses: '/classcipe/api/evaluation/findMyClasses'
+  findMyClasses: '/classcipe/api/evaluation/findMyClasses',
+  GetSessionEvaluationByClassId: '/classcipe/api/evaluation/getSessionEvaluationByClassId'
 }
 
 /**
@@ -60,5 +61,13 @@ export function FindMyClasses (parameter) {
     url: evaluationAPIUrl.findMyClasses,
     method: 'post',
     data: parameter
+  })
+}
+
+export function GetSessionEvaluationByClassId (parameter) {
+  return request({
+    url: evaluationAPIUrl.GetSessionEvaluationByClassId,
+    method: 'get',
+    params: parameter
   })
 }

@@ -229,6 +229,7 @@ import GroupIcon from '@/assets/svgIcon/evaluation/qunzu.svg?inline'
 import ArrowDown from '@/assets/svgIcon/evaluation/arrow_down.svg?inline'
 import ArrowTop from '@/assets/svgIcon/evaluation/arrow_top.svg?inline'
 import ModalHeader from '@/components/Common/ModalHeader'
+import { GetSessionEvaluationByClassId } from '@/api/evaluation'
 
 export default {
   name: 'ClassSessionEvaluation',
@@ -270,12 +271,13 @@ export default {
       isExistFormTable: false, // 是否已经添加过表格
       currentActiveFormTable: '21 century skill',
       form: { // 基础表单数据
-        name: 'Untitled Evaluation',
-        updateTime: '2021-10-28 12:43:12',
-        className: 'class6',
+        name: '',
+        updateTime: '',
+        className: '',
         type: 7, // TODO Evaluation 新增表单类型 classSessionEvaluation:7
-        createBy: 'yangxunwu@gmail.com'
-      },
+        createBy: 'yangxunwu@gmail.com',
+        forms: [] // 对应formTableList
+    },
       formTableList: [
         {
           tableName: '21 century skill',
@@ -373,7 +375,16 @@ export default {
     loadEvaluationData () {
       this.$logger.info('loadEvaluationData')
       // TODO Evaluation 根据当前的taskId、班级classId查询对应的评估数据：班级分组、评估表单数据、自评他评数据
-      this.loading = false
+      // GetSessionEvaluationByClassId({ id: this.classId }).then(response => {
+      //   this.$logger.info('GetSessionEvaluationByClassId response', response.result)
+      //   if (response.result.evaluation) {
+      //     this.form = response.evaluation
+      //     this.formTableList = response.evaluation.forms
+      //     this.classGroup = response.evaluation.groups
+      //   }
+      // }).finally(() => {
+      //   this.loading = false
+      // })
     },
 
     handleActiveTable (idx, tableItem) {
