@@ -3,21 +3,43 @@
 
     <a-row class="row-wrapper">
 
-      <a-transfer
-        :data-source="showList"
-        :titles="['Key question', 'Selected question']"
-        :target-keys="targetKeys"
-        :selected-keys="selectedKeys"
-        :render="item => item.title"
-        :operations="['Add', 'Remove']"
-        @change="handleChange"
-        @selectChange="handleSelectChange"
-        @scroll="handleScroll"
-        :list-style="{
-          width: '350px',
-          height: '400px',
-        }"
-      />
+      <a-col span="12" class="col-wrapper">
+        <div>
+          <div class="row-filter">
+            <div><h3><a-icon type="bulb" />Recommend</h3></div>
+            <div class="keyword-search">
+              <a-input
+                @keyup="handleKeySearch"
+                placeholder="Search key word"
+                v-model="keywordSearchText"
+                class="my-nav-search">
+                <sousuo-icon-svg slot="prefix"/>
+              </a-input>
+            </div>
+          </div>
+
+          <a-list bordered :data-source="showQuestionList">
+            <a-list-item slot="renderItem" slot-scope="item" class="row" @click="selectItem(item)">
+              {{ item }}
+            </a-list-item>
+          </a-list>
+        </div>
+
+      </a-col>
+
+      <a-col span="12" class="col-wrapper" style="margin-left: 10px">
+        <div>
+          <h3><a-icon type="select" />Selected</h3>
+          <a-list bordered :data-source="selectQuestionList">
+            <a-list-item slot="renderItem" slot-scope="item,index">
+              {{ item }}
+              <div slot="extra" class="extra-remove" @click="removeItem(index)">
+                <a-icon type="close" />
+              </div>
+            </a-list-item>
+          </a-list>
+        </div>
+      </a-col>
 
     </a-row>
 
@@ -29,10 +51,12 @@
 
 import { FindQuestionsByBigIdea } from '@/api/question'
 import * as logger from '@/utils/logger'
+import SousuoIconSvg from '@/assets/icons/header/sousuo.svg?inline'
 
 export default {
   name: 'QuestionBrowse',
   components: {
+    SousuoIconSvg
   },
   props: {
     questionList: {
@@ -44,6 +68,22 @@ export default {
       default: ''
     }
   },
+  computed: {
+    showQuestionList () {
+       const result = []
+       const lastQuestionList = this.AllQuestionList.filter(item => this.selectQuestionList.indexOf(item) === -1)
+       if (this.keywordSearchText) {
+         lastQuestionList.forEach(item => {
+           if (item.toLowerCase().indexOf(this.keywordSearchText.toLowerCase()) > -1) {
+             result.push(item)
+           }
+         })
+         return result
+       } else {
+         return lastQuestionList
+       }
+    }
+  },
   mounted () {
   },
   destroyed () {
@@ -52,33 +92,32 @@ export default {
   data () {
     return {
       AllQuestionList: [],
+      keywordSearchText: '',
       showList: [],
-      targetKeys: [],
-      selectedKeys: [],
+      selectQuestionList: [],
       loading: false
     }
   },
   created () {
     this.showList = []
+    this.questionList.forEach(item => {
+      if (item.name) {
+        this.selectQuestionList.push(item.name)
+      }
+    })
+
     this.loading = true
     FindQuestionsByBigIdea({ bigIdea: this.bigIdea }).then(response => {
       logger.info('FindQuestionsByBigIdea ', response)
       this.AllQuestionList = []
       if (response.success) {
-        this.AllQuestionList = response.result
-        this.AllQuestionList.forEach(q => {
-          this.showList.push({
-            key: q.name,
-            title: q.name,
-            description: q.name,
-            disabled: false
-          })
+        response.result.forEach(item => {
+          if (this.AllQuestionList.indexOf(item.name) === -1) {
+            this.AllQuestionList.push(item.name)
+          }
         })
       }
     }).finally(() => {
-      this.questionList.forEach(item => {
-        this.targetKeys.push(item.name)
-      })
       this.loading = false
     })
   },
@@ -87,16 +126,23 @@ export default {
   },
   methods: {
     handleChange (nextTargetKeys, direction, moveKeys) {
-      this.targetKeys = nextTargetKeys
-      console.log('targetKeys: ', nextTargetKeys)
-      console.log('direction: ', direction)
-      console.log('moveKeys: ', moveKeys)
-      this.$emit('select-question', this.targetKeys)
+      // this.targetKeys = nextTargetKeys
+      // console.log('targetKeys: ', nextTargetKeys)
+      // console.log('direction: ', direction)
+      // console.log('moveKeys: ', moveKeys)
+      // this.$emit('select-question', this.targetKeys)
     },
-    handleSelectChange (sourceSelectedKeys, targetSelectedKeys) {
-      this.selectedKeys = [...sourceSelectedKeys, ...targetSelectedKeys]
-      console.log('sourceSelectedKeys: ', sourceSelectedKeys)
-      console.log('targetSelectedKeys: ', targetSelectedKeys)
+    selectItem (item) {
+      this.selectQuestionList.push(item)
+      this.$emit('select-question', this.selectQuestionList)
+    },
+
+    removeItem (index) {
+      this.selectQuestionList.splice(index, 1)
+      this.$emit('select-question', this.selectQuestionList)
+    },
+    handleKeySearch () {
+
     },
     handleScroll (direction, e) {
       // console.log('direction:', direction)
@@ -117,12 +163,31 @@ export default {
     justify-content: space-between;
     margin: 20px;
     .col-wrapper{
-      border: 1px solid #e8e8e8;
-      box-sizing: border-box;
+      .row-filter{
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+      }
+      //border: 1px solid #e8e8e8;
+      //box-sizing: border-box;
       min-height: 500px;
       .content-list{
         max-height: 500px;
         overflow-y: auto;
+      }
+      .extra-remove{
+        cursor: pointer;
+        &:hover {
+          color: red;
+        }
+      }
+      .row{
+        cursor: pointer;
+        &:hover {
+          color: #15c39a;
+          background-color: rgba(21, 195, 154, 0.1);
+          border-color: #15c39a;
+        }
       }
     }
 
@@ -150,5 +215,17 @@ export default {
   margin-top: -20px;
   margin-left: -50px;
   width: 100px;
+}
+.keyword-search {
+  margin-top: -5px;
+  margin-right: 5px;
+  .my-nav-search {
+    svg {
+      fill: rgba(188, 188, 188, 1);
+    }
+    input {
+
+    }
+  }
 }
 </style>

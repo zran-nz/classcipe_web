@@ -8,7 +8,7 @@
         <a-col span="24" class="action-header-toggle">
           <a-radio-group v-model="viewMode" button-style="solid" @change="handleViewModeChange">
             <a-radio-button value="Detail" class="left-button">
-              Detail
+              Info
             </a-radio-button>
             <a-radio-button value="Preview" class="right-button">
               Preview

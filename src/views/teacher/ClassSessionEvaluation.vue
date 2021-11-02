@@ -271,13 +271,13 @@ export default {
       isExistFormTable: false, // 是否已经添加过表格
       currentActiveFormTable: '21 century skill',
       form: { // 基础表单数据
-        name: '',
+        name: 'test evaluation',
         updateTime: '',
-        className: '',
+        className: 'class 6',
         type: 7, // TODO Evaluation 新增表单类型 classSessionEvaluation:7
         createBy: 'yangxunwu@gmail.com',
         forms: [] // 对应formTableList
-    },
+      },
       formTableList: [
         {
           tableName: '21 century skill',
@@ -374,17 +374,18 @@ export default {
   methods: {
     loadEvaluationData () {
       this.$logger.info('loadEvaluationData')
+      this.loading = false
       // TODO Evaluation 根据当前的taskId、班级classId查询对应的评估数据：班级分组、评估表单数据、自评他评数据
-      // GetSessionEvaluationByClassId({ id: this.classId }).then(response => {
-      //   this.$logger.info('GetSessionEvaluationByClassId response', response.result)
-      //   if (response.result.evaluation) {
-      //     this.form = response.evaluation
-      //     this.formTableList = response.evaluation.forms
-      //     this.classGroup = response.evaluation.groups
-      //   }
-      // }).finally(() => {
-      //   this.loading = false
-      // })
+      GetSessionEvaluationByClassId({ classId: this.classId }).then(response => {
+        this.$logger.info('GetSessionEvaluationByClassId response', response.result)
+        if (response.result.evaluation) {
+          // this.form = response.evaluation
+          // this.formTableList = response.evaluation.forms
+          // this.classGroup = response.evaluation.groups
+        }
+      }).finally(() => {
+        this.loading = false
+      })
     },
 
     handleActiveTable (idx, tableItem) {

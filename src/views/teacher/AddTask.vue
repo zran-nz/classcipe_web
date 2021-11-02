@@ -1186,6 +1186,7 @@
           if (response.success) {
             this.restoreTask(response.result.id, false)
             this.$message.success(this.$t('teacher.add-task.save-success'))
+            this.$router.push({ path: '/teacher/main/created-by-me' })
           } else {
             this.$message.error(response.message)
           }
@@ -1194,22 +1195,26 @@
           this.$refs.commonFormHeader.saving = false
         })
       },
-      handlePublishTask () {
+      handlePublishTask (status) {
         logger.info('handlePublishTask', {
           id: this.taskId,
-          status: 1
+          status: status
         })
         const taskData = Object.assign({}, this.form)
-        taskData.status = 1
+        taskData.status = status
         this.publishing = true
         TaskAddOrUpdate(taskData).then(response => {
           this.$logger.info('UpdateContentStatus response', response)
           // this.$message.success('Publish success')
-          this.form.status = 1
-          this.selectedSlideVisible = true
+          this.form.status = status
         }).then(() => {
-          this.$message.success(this.$t('teacher.add-task.publish-success'))
-          this.form.status = 1
+          if (status === 1) {
+            this.selectedSlideVisible = true
+            this.$message.success(this.$t('teacher.add-task.publish-success'))
+          } else {
+            this.$message.success('Unpublish Success')
+          }
+          this.form.status = status
           this.$refs.commonFormHeader.publishing = false
         })
       },
@@ -2307,7 +2312,7 @@
 
       .image-preview {
         img {
-          width: 100%;
+          /*width: 100%;*/
           max-height: 250px;
         }
       }

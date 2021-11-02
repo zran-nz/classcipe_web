@@ -172,7 +172,9 @@
                           <div class="recommend-question" v-if="showRecommendQuestion">
                             <a-icon type="close" class="close-icon" @click.stop="hideRecommendQuestion=true" />
                             <div class="recommend-box">
-                              <span class="title"><a-icon style="width: 25px" type="question-circle" />Recommend:</span>
+                              <a-tooltip title="You can add the key questions relevant to the big idea you chose above">
+                                <span class="title"><a-icon style="width: 25px" type="question-circle" />Recommend:</span>
+                              </a-tooltip>
                               <ul class="recommend-ul">
                                 <li v-if="rqIndex < 3 && selectQuestion.indexOf(item.name) === -1" v-for="(item,rqIndex) in recommendQuestionList" :key="rqIndex">{{ item.name }}<a-button @click.stop="handerInsertQuestion(item)" class="add-question" type="link">add</a-button></li>
                               </ul>
@@ -550,7 +552,7 @@
         <div class="link-content-wrapper">
           <QuestionBrowse :big-idea="form.inquiry" :question-list="form.questions" @select-question="handleSelectQuestion"></QuestionBrowse>
 
-          <div class="modal-ensure-action-line-right">
+          <div class="modal-ensure-action-line-right" style="justify-content: center">
             <a-button class="action-item action-cancel" shape="round" @click="questionMoreVisible=false">Cancel</a-button>
             <a-button class="action-ensure action-item" type="primary" shape="round" @click="handleEnsureSelectQuestionData">Ok</a-button>
           </div>
@@ -1131,6 +1133,7 @@ export default {
         if (response.success) {
           this.restoreUnitPlan(response.result.id, false)
           this.$message.success(this.$t('teacher.add-unit-plan.save-success'))
+          this.$router.push({ path: '/teacher/main/created-by-me' })
         } else {
           this.$message.error(response.message)
         }
@@ -1138,15 +1141,19 @@ export default {
         this.$refs.commonFormHeader.saving = false
       })
     },
-    handlePublishUnitPlan () {
+    handlePublishUnitPlan (status) {
       logger.info('handlePublishUnitPlan', {
         id: this.unitPlanId,
-        status: 1
+        status: status
       })
-      this.form.status = 1
+      this.form.status = status
       UnitPlanAddOrUpdate(this.form).then(() => {
-        this.$message.success(this.$t('teacher.add-unit-plan.publish-success'))
-        this.form.status = 1
+        if (status === 1) {
+          this.$message.success(this.$t('teacher.add-unit-plan.publish-success'))
+        } else {
+          this.$message.success('Unpublish Success')
+        }
+        this.form.status = status
         this.$refs.commonFormHeader.publishing = false
       })
     },
@@ -1814,7 +1821,13 @@ export default {
           const formQuestion = this.form.questions.map(item => {
             return item.name
           })
-          this.recommendQuestionList = response.result.filter(item => formQuestion.indexOf(item.name) === -1)
+          response.result.forEach(item => {
+            if (formQuestion.indexOf(item.name) === -1) {
+              if (this.recommendQuestionList.filter(q => q.name === item.name).length === 0) {
+                this.recommendQuestionList.push(item)
+              }
+            }
+          })
         }
       }).finally({
 
@@ -1946,9 +1959,8 @@ export default {
   .main-content {
     .image-preview {
       img {
-        /*max-width: 100%;*/
         max-height: 250px;
-        width: 100%;
+        /*width: 100%;*/
       }
     }
 

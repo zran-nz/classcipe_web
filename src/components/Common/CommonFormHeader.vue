@@ -60,7 +60,7 @@
           </div>
         </a-button>
         <a-button
-          v-if="isOwner"
+          v-if="isOwner && form.status === 0"
           :loading="publishing"
           class="my-form-header-btn"
           style="{
@@ -74,7 +74,7 @@
             border-radius: 20px;
             padding: 15px 20px;
           }"
-          @click="handlePublish" >
+          @click="handlePublish(1)" >
           <div class="btn-icon">
             <img src="~@/assets/icons/common/form/fabu@2x.png" />
           </div>
@@ -82,6 +82,31 @@
             Publish
           </div>
         </a-button>
+
+        <a-button
+          v-if="isOwner && form.status === 1"
+          :loading="publishing"
+          class="my-form-header-btn"
+          style="{
+            width: 120px;
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: center;
+             background: rgba(21, 195, 154, 0.08);
+            border: 1px solid #15C39A;
+            border-radius: 20px;
+            padding: 15px 20px;
+          }"
+          @click="handlePublish(0)" >
+          <div class="btn-icon">
+            <a-icon style="font-size: 16px" theme="filled" type="down-square" />
+          </div>
+          <div class="btn-text">
+            Unpublish
+          </div>
+        </a-button>
+
         <a-button
           v-if="showCollaborate && isOwner"
           class="my-form-header-btn"
@@ -166,10 +191,10 @@ export default {
       this.$logger.info('handleSave')
       this.$emit('save')
     },
-    handlePublish () {
+    handlePublish (status) {
       this.publishing = true
       this.$logger.info('handlePublish')
-      this.$emit('publish')
+      this.$emit('publish', status)
     },
     handleStartCollaborate () {
       this.$logger.info('handleStartCollaborate')
