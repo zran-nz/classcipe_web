@@ -271,6 +271,18 @@
       </a-modal>
 
       <a-modal
+        v-model="oldSelectSessionVisible"
+        :footer="null"
+        :title="null"
+        :closable="true"
+        destroyOnClose
+        width="900px">
+        <div>
+          <old-session-list :session-list="sessionList" />
+        </div>
+      </a-modal>
+
+      <a-modal
         title="Add session tags"
         v-model="lessonSelectTagVisible"
         :maskClosable="false"
@@ -336,10 +348,13 @@ import CommonPreview from '@/components/Common/CommonPreview'
 import NoMoreResources from '@/components/Common/NoMoreResources'
 import ModalHeader from '@/components/Common/ModalHeader'
 import { FindCustomTags } from '@/api/tag'
+import OldSessionList from '@/components/Teacher/OldSessionList'
+import { FindMyClasses } from '@/api/evaluation'
 
 export default {
   name: 'CreatedByMe',
   components: {
+    OldSessionList,
     NoMoreResources,
     CommonPreview,
     ClassList,
@@ -403,7 +418,9 @@ export default {
       userTags: {},
 
       // 之前报错了，提示没这个字段，加一下。
-      customTagList: []
+      customTagList: [],
+      oldSelectSessionVisible: false,
+      sessionList: []
     }
   },
   locomputed: {
@@ -647,8 +664,26 @@ export default {
       this.$logger.info('handleSelectedSessionTags', tags)
     },
     handleStartSessionTags (item) {
+      console.log(item)
       this.sessionItem = item
-      this.lessonSelectTagVisible = true
+      // this.lessonSelectTagVisible = true
+      if (!item.presentationId) {
+        this.$message.warn('This Task is not bound to PPT!')
+      }
+      logger.info('loadTeacherClasses  slideId:' + item.presentationId)
+      this.loading = true
+      this.sessionList = []
+      FindMyClasses({ slideId: item.presentationId }).then(response => {
+        logger.info('findMyClasses', response.result.data)
+        if (response.success) {
+          this.sessionList = response.result
+        }
+        this.loading = false
+      }).finally(() => {
+        if (this.sessionList.length > 0) {
+          this.oldSelectSessionVisible = true
+        }
+      })
       this.sessionTags = []
     },
 
