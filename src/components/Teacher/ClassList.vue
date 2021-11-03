@@ -7,16 +7,17 @@
             <img src="~@/assets/icons/myClass/class_icon.png" />
           </div>
           <div class="class-name">
-            <div class="class-name-text">{{ classItem.class_name }}</div>
-            <div class="class-tag">
-              <div class="class-tag-list">
-                <div class="class-tag-item" :key="tIndex" v-for="(tagName, tIndex) in classItem.tags">
-                  <a-tag :color="colorList[tIndex % colorList.length]" class="my-class-tag">
-                    {{ tagName }}
-                  </a-tag>
-                </div>
-              </div>
-            </div>
+            <div class="class-name-text">{{ classItem.className }}</div>
+            <!--            <div class="class-name-text">{{ classItem.className }}</div>-->
+            <!--            <div class="class-tag">-->
+            <!--              <div class="class-tag-list">-->
+            <!--                <div class="class-tag-item" :key="tIndex" v-for="(tagName, tIndex) in classItem.tags">-->
+            <!--                  <a-tag :color="colorList[tIndex % colorList.length]" class="my-class-tag">-->
+            <!--                    {{ tagName }}-->
+            <!--                  </a-tag>-->
+            <!--                </div>-->
+            <!--              </div>-->
+            <!--            </div>-->
           </div>
           <div class="class-date">{{ classItem.date | formatDate }}</div>
           <div class="class-number">

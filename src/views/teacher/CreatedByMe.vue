@@ -278,7 +278,7 @@
         destroyOnClose
         width="900px">
         <div>
-          <old-session-list :session-list="sessionList" />
+          <old-session-list :session-list="sessionList" @start-new-session="handleStartSession" @cancel="oldSelectSessionVisible=false" />
         </div>
       </a-modal>
 
@@ -314,7 +314,7 @@
 
 <script>
 import * as logger from '@/utils/logger'
-import { deleteMyContentByType, Duplicate, FindMyContent, SaveSessonTags } from '@/api/teacher'
+import { deleteMyContentByType, Duplicate, FindMyContent } from '@/api/teacher'
 import { ownerMap, statusMap, typeMap } from '@/const/teacher'
 import ContentStatusIcon from '@/components/Teacher/ContentStatusIcon'
 import ContentTypeIcon from '@/components/Teacher/ContentTypeIcon'
@@ -569,11 +569,11 @@ export default {
     },
 
     handleStartSession () {
-      this.$logger.info('selected sessionTags', this.sessionTags)
-      if (this.sessionTags.length === 0) {
-        this.$message.warn('Please add session tags')
-        return
-      }
+      // this.$logger.info('selected sessionTags', this.sessionTags)
+      // if (this.sessionTags.length === 0) {
+      //   this.$message.warn('Please add session tags')
+      //   return
+      // }
       this.startLoading = true
       const item = this.sessionItem
       this.$logger.info('handleStartSession', item)
@@ -591,28 +591,13 @@ export default {
         StartLesson(requestData).then(res => {
           this.$logger.info('StartLesson res', res)
           if (res.code === 'ok') {
-            const dataTags = []
-            this.sessionTags.forEach(tag => {
-              dataTags.push({
-                'name': tag.name,
-                'parentId': tag.parentId,
-                'isGlobal': tag.isGlobal ? 1 : 0,
-                'classId': res.data.class_id,
-                'presentationId': item.presentationId,
-                'sourceId': item.id,
-                'sourceType': item.type
-              })
-            })
-            SaveSessonTags(dataTags).then(() => {
-              this.startLoading = false
-              this.lessonSelectTagVisible = false
-              // const targetUrl = lessonHost + 'slide_id=' + item.presentationId + '&class_id=' + res.data.class_id + '&type=classroom'
-              const targetUrl = lessonHost + 't/' + res.data.class_id
-              this.$logger.info('try open ' + targetUrl)
-              // window.open(targetUrl, '_blank')
-              // 课堂那边需要点击返回回到表单，改成location.href跳转
-              window.location.href = targetUrl
-            })
+            this.startLoading = false
+            this.lessonSelectTagVisible = false
+            const targetUrl = lessonHost + 't/' + res.data.class_id
+            this.$logger.info('try open ' + targetUrl)
+            // window.open(targetUrl, '_blank')
+            // 课堂那边需要点击返回回到表单，改成location.href跳转
+            window.location.href = targetUrl
           } else {
             this.$message.warn('StartLesson Failed! ' + res.message)
             this.startLoading = false
@@ -682,6 +667,8 @@ export default {
       }).finally(() => {
         if (this.sessionList.length > 0) {
           this.oldSelectSessionVisible = true
+        } else {
+          this.handleStartSession()
         }
       })
       this.sessionTags = []

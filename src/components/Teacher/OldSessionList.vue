@@ -11,7 +11,7 @@
         you can start a new session or check the previous sessions
       </div>
       <div class="header-action-item">
-        <a-button class="button" @click="handleReviewEditEvaluation" type="primary" >
+        <a-button class="button" :loading="startLoading" @click="handleStartSession" type="primary" >
           <div class="btn-text">
             Start a new session
           </div>
@@ -68,9 +68,11 @@ export default {
   data () {
     return {
       loading: false,
+      startLoading: false,
       typeMap: typeMap,
       reviewEvaluationVisible: false,
       currentReviewEvaluationSessionItem: null,
+      selectedRowKeys: [],
       columns: [
         {
           title: 'Date',
@@ -116,10 +118,22 @@ export default {
       this.selectedRowKeys = selectedRowKeys
     },
     handleEnsureSelectData () {
-
+      if (!this.selectedRowKeys || this.selectedRowKeys.length === 0) {
+        this.$message.warn('Please select a record')
+        return
+      }
+      const targetUrl = lessonHost + 't/' + this.sessionList[this.selectedRowKeys[0]].classId
+      this.$logger.info('try open ' + targetUrl)
+      // window.open(targetUrl, '_blank')
+      // 课堂那边需要点击返回回到表单，改成location.href跳转
+      window.location.href = targetUrl
     },
     handleCancelSelectData () {
-
+      this.$emit('cancel')
+    },
+    handleStartSession () {
+      this.startLoading = true
+      this.$emit('start-new-session')
     },
 
     handleTeacherProjecting (item) {
@@ -130,16 +144,6 @@ export default {
     handleDashboard (item) {
       this.$logger.info('handleDashboard', item)
       window.open(lessonHost + 'd/' + item.classId, '_blank')
-    },
-
-    handleReviewEditEvaluation (item) {
-      this.$logger.info('handleReviewEditEvaluation', item, this.classData)
-      this.$router.push({
-        path: `/teacher/class-evaluation/${this.classData.id}/${item.classId}`
-      })
-    },
-    handleArchiveSession (item) {
-      this.$logger.info('handleArchiveSession', item)
     }
   }
 }
@@ -147,6 +151,11 @@ export default {
 
 <style lang="less" scoped>
 .old-session{
+  /deep/ .anticon-loading{
+    position: absolute;
+    top: 10px;
+    left: 30px;
+  }
 
   .session-header {
     display: flex;
@@ -252,7 +261,7 @@ export default {
     font-size: 20px;
     font-family: Arial;
     font-weight: 100;
-    line-height: 5px
+    line-height: 0px
   }
 }
 
