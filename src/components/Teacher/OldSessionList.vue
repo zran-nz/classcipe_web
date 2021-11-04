@@ -24,8 +24,12 @@
     <div class="my-class-list">
       <div class="class-list-wrapper">
         <a-table :columns="columns" :data-source="data" :pagination="false" :row-selection="rowSelection" >
-          <span slot="expireDay" slot-scope="text">{{ text * 1000 | dayjs1 }} </span>
-          <span slot="dateTime" slot-scope="text">{{ text * 1000 | dayjs }}</span>
+          <span slot="dateTime" slot-scope="text">{{ text * 1000 | dayjs1 }} </span>
+          <span slot="expireDay" slot-scope="text, record">
+            <span v-if="record.responseLimitMode === 0">No expire time</span>
+            <span v-if="record.responseLimitMode === 1">{{ record.responseLimitTime * 1000 | dayjs1 }}</span>
+            <span v-if="record.responseLimitMode === 2">{{ (record.date + record.responseLimitTime) * 1000 | dayjs1 }}</span>
+          </span>
         </a-table>
         <div class="loading" v-if="loading">
           <a-spin />

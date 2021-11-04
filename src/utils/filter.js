@@ -18,7 +18,7 @@ Vue.filter('dayjs', function (dataStr, pattern = 'YYYY-MM-DD HH:mm:ss') {
   return ''
 })
 
-Vue.filter('dayjs1', function (dataStr, pattern = 'dddd, mm h:mm a') {
+Vue.filter('dayjs1', function (dataStr, pattern = 'LLL') {
   if (dataStr) {
     return moment.utc(dataStr).local().format(pattern)
   }
