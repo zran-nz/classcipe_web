@@ -5,7 +5,8 @@
         <div class="header-icon" >
           <img src="~@/assets/icons/task/destop.png" />
         </div>
-        <div class="title">Teacher presenting mode</div>
+        <div class="title" v-if="mode === 1">Teacher presenting mode</div>
+        <div class="title" v-if="mode === 2">Student presenting mode</div>
       </div>
       <div class="description">
         you can start a new session or check the previous sessions
@@ -67,6 +68,10 @@ export default {
       default: () => {
         return []
       }
+    },
+    mode: {
+      type: Number,
+      default: 1
     }
   },
   data () {

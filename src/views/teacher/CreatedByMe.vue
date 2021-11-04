@@ -103,7 +103,7 @@
                       <!-- Task: 外置teacher-pace, student-pace, Edit, 折叠Delete, Duplicate, Previous session-->
                       <template v-if="item.type === typeMap.task">
                         <div class="start-session-wrapper action-item-wrapper">
-                          <div class="session-btn content-list-action-btn" @click="handleStartSessionTags(item)">
+                          <div class="session-btn content-list-action-btn" @click="handleStartSessionHistory(item,1)">
                             <div class="session-btn-icon">
                               <teacher-presenting />
                             </div>
@@ -111,7 +111,7 @@
                           </div>
                         </div>
                         <div class="start-session-wrapper action-item-wrapper">
-                          <div class="session-btn content-list-action-btn" @click="handleStartSessionTags(item)">
+                          <div class="session-btn content-list-action-btn" @click="handleStartSessionHistory(item,2)">
                             <div class="session-btn-icon">
                               <student-pace />
                             </div>
@@ -200,13 +200,13 @@
                     </a-dropdown>
                   </div>
                   <div class="action-item action-item-center">
-                    <div class="session-btn session-btn-left" @click.stop="handleStartSessionTags(item)" v-if="item.type === typeMap['task']" >
+                    <div class="session-btn session-btn-left" @click.stop="handleStartSessionHistory(item,1)" v-if="item.type === typeMap['task']" >
                       <div class="session-btn-text">
                         <teacher-presenting />
                         Teacher-pace
                       </div>
                     </div>
-                    <div class="session-btn session-btn-right" @click.stop="handleStartSessionTags(item)" v-if="item.type === typeMap['task']">
+                    <div class="session-btn session-btn-right" @click.stop="handleStartSessionHistory(item,2)" v-if="item.type === typeMap['task']">
                       <div class="session-btn-text">
                         <student-pace />
                         Student-pace
@@ -278,7 +278,7 @@
         destroyOnClose
         width="900px">
         <div>
-          <old-session-list :session-list="sessionList" @start-new-session="handleStartSession" @cancel="oldSelectSessionVisible=false" />
+          <old-session-list :session-list="sessionList" @start-new-session="handleStartSession" @cancel="oldSelectSessionVisible=false" :mode="sessionMode" />
         </div>
       </a-modal>
 
@@ -420,7 +420,8 @@ export default {
       // 之前报错了，提示没这个字段，加一下。
       customTagList: [],
       oldSelectSessionVisible: false,
-      sessionList: []
+      sessionList: [],
+      sessionMode: 1
     }
   },
   locomputed: {
@@ -648,8 +649,9 @@ export default {
       this.sessionTags = tags
       this.$logger.info('handleSelectedSessionTags', tags)
     },
-    handleStartSessionTags (item) {
+    handleStartSessionHistory (item, mode) {
       console.log(item)
+      this.sessionMode = mode
       this.sessionItem = item
       // this.lessonSelectTagVisible = true
       if (!item.presentationId) {
