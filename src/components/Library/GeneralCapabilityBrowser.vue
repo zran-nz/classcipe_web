@@ -305,6 +305,7 @@ export default {
         if (this.gradeList.length) {
           this.currentGradeId = this.gradeList[0].id
           this.get21CenturyKnowledge(this.currentGradeId)
+          this.handleClickBlock(1, this.gradeList[0].name)
         } else {
           this.$logger.warn('grade list is empty')
         }
