@@ -1032,6 +1032,9 @@
       this.loadUserTags()
       this.initTemplateFilter()
       this.GetTagYearTips()
+
+      // 恢复step
+      this.currentActiveStepIndex = this.getSessionStep()
     },
     beforeDestroy () {
       MyContentEventBus.$off(MyContentEvent.LinkToMyContentItem, this.handleLinkMyContent)
@@ -1690,10 +1693,9 @@
         if (this.form.name ||
           this.form.overview ||
           this.form.questions.length) {
-          this.currentActiveStepIndex = 1
           this.groupNameMode = 'input'
           this.selectLinkContentVisible = true
-          // 添加link
+          this.setSessionStep(1)
         } else {
           this.$message.warn('Course info is empty, please fill the form first!')
         }
@@ -1867,9 +1869,9 @@
       },
 
       onChangeStep (current) {
-        console.log('onChange:', current)
+        console.log('onChange: setSessionStep', current)
         if (typeof current === 'number') {
-          this.currentActiveStepIndex = current
+          this.setSessionStep(current)
           if (current === 1 && !this.form.presentationId) {
             this.loadRecommendThumbnail()
           }
@@ -2173,6 +2175,19 @@
         } else {
           this.rightWidth = '600px'
           this.leftWidth = '700px'
+        }
+      },
+
+      setSessionStep (step) {
+        this.currentActiveStepIndex = step
+        sessionStorage.setItem('task-step-' + this.taskId, step)
+      },
+      getSessionStep () {
+        const oldStep = sessionStorage.getItem('task-step-' + this.taskId)
+        if (oldStep !== null) {
+          return parseInt(oldStep)
+        } else {
+          return 0
         }
       }
     }

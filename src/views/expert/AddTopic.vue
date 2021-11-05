@@ -851,6 +851,8 @@ export default {
     this.loadUserTags()
     this.debouncedGetSdgByDescription = debounce(this.searchScenario, 300)
     this.findQuestionsByBigIdea = debounce(this.findQuestionsByBigIdea, 800)
+    // 恢复step
+    this.currentActiveStepIndex = this.getSessionStep()
   },
   beforeDestroy () {
     MyContentEventBus.$off(MyContentEvent.ReferContentItem, this.handleReferItem)
@@ -1467,10 +1469,10 @@ export default {
         this.form.inquiry ||
         this.form.scenarios.length ||
         this.form.questions.length) {
-        this.currentActiveStepIndex = 1
         this.groupNameMode = 'input'
         this.selectLinkContentVisible = true
         // 添加link
+        this.setSessionStep(1)
       } else {
         this.$message.warn('Course info is empty, please fill the form first!')
       }
@@ -1614,7 +1616,7 @@ export default {
     onChangeStep (current) {
       console.log('onChange:', current)
       if (typeof current === 'number') {
-        this.currentActiveStepIndex = current
+        this.setSessionStep(current)
         setTimeout(function () {
           const returnEle = document.querySelector('.ant-layout-content')
           if (returnEle) {
@@ -1848,6 +1850,18 @@ export default {
         }
       })
       this.questionMoreVisible = false
+    },
+    setSessionStep (step) {
+      this.currentActiveStepIndex = step
+      sessionStorage.setItem('unit-plan-step-' + this.unitPlanId, step)
+    },
+    getSessionStep () {
+      const oldStep = sessionStorage.getItem('unit-plan-step-' + this.unitPlanId)
+      if (oldStep !== null) {
+        return parseInt(oldStep)
+      } else {
+        return 0
+      }
     }
   }
 }
