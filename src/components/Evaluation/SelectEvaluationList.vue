@@ -184,8 +184,12 @@ export default {
 
     handleEnsure () {
       this.$logger.info('handleEnsure')
+      const list = []
+      this.mySelectedList.forEach(item => {
+        list.push(item.split('-')[1])
+      })
       const data = {
-        evaluationIdList: this.mySelectedList
+        evaluationIdList: list
       }
       this.$emit('selected', data)
     }
