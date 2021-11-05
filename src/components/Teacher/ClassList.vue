@@ -119,104 +119,6 @@
         <ppt-comment-preview :slide-id="slideId" :class-id="currentClassId" v-if="slideId"/>
       </div>
     </a-modal>
-
-    <a-modal
-      v-model="selectEvaluationFormVisible"
-      :footer="null"
-      :title="null"
-      destroyOnClose
-    >
-      <div class="evaluation-select">
-        <div class="evaluation-select-header">
-          <div class="evaluation-icon">
-            <evaluate-icon />
-          </div>
-          <div class="evaluation-title">
-            <h2>Evaluation</h2>
-          </div>
-        </div>
-        <div class="evaluation-select-body">
-          <div class="select-type">
-            <div class="select-type-item" @click="handleSelectType('exist')">
-              <div :class="{'type-item': true, 'selected-type': selectType === 'exist'}">
-                <div class="select-icon">
-                  <exist-type-icon />
-                </div>
-                <div class="select-label">
-                  <div class="label-title">
-                    Evaluation
-                  </div>
-                  <div class="label-name">
-                    Reuse existing
-                  </div>
-                </div>
-                <div class="active-icon" v-if="selectType === 'exist'">
-                  <active-icon />
-                </div>
-              </div>
-            </div>
-            <div class="select-type-item" @click="handleSelectType('create')">
-              <div :class="{'type-item': true, 'selected-type': selectType === 'create'}">
-                <div class="select-icon">
-                  <create-type-icon />
-                </div>
-                <div class="select-label">
-                  <div class="label-title">
-                    Evaluation
-                  </div>
-                  <div class="label-name">
-                    Create new
-                  </div>
-                </div>
-                <div class="active-icon" v-if="selectType === 'create'">
-                  <active-icon />
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="select-detail">
-            <template v-if="selectType === 'exist'">
-              <div class="switch-type-wrapper">
-                <div class="switch-type">
-                  <div class="switch-label">
-                    <a-dropdown :trigger="['click']">
-                      <a-menu slot="overlay">
-                        <a-menu-item disabled>
-                          <span>Select the evaluation form</span>
-                        </a-menu-item>
-                        <a-menu-item class="my-menu-item" @click="handleSelectItem(item)" v-for="(item, eIndex) in existEvaluationList" :key="eIndex">
-                          <span>{{ item.name ? item.name : 'untitled' }}</span>
-                        </a-menu-item>
-                      </a-menu>
-                      <a-button
-                        style="padding: 5px 10px;
-                        display:flex; width: 100%;
-                        word-wrap: normal;
-                        align-items:center;
-                        border-radius: 4px;
-                        background: rgba(245, 245, 245, 0.5);
-                        font-size:13px;
-                        height: 35px;
-                        border: 1px solid #BCBCBC;
-                        font-family: Inter-Bold;
-                        color: #182552;">
-                        <span class="btn-text" v-if="selectExistName">{{ selectExistName }}</span> <span
-                          v-else>Select the evaluation form</span>
-                        <a-icon type="caret-down"/>
-                      </a-button>
-                    </a-dropdown>
-                  </div>
-                </div>
-              </div>
-            </template>
-          </div>
-          <div class="modal-ensure-action-line-center">
-            <a-button class="action-ensure action-item" type="primary" shape="round" @click="handleEnsure">Start</a-button>
-          </div>
-        </div>
-      </div>
-    </a-modal>
-
   </div>
 </template>
 
@@ -224,17 +126,14 @@
 import { FindMyClasses } from '@/api/evaluation'
 import TvSvg from '@/assets/icons/lesson/tv.svg?inline'
 import * as logger from '@/utils/logger'
-import { ownerMap, statusMap, typeMap } from '@/const/teacher'
-import { FindMyContent } from '@/api/teacher'
+import { typeMap } from '@/const/teacher'
+
 import PptCommentPreview from '@/components/Teacher/PptCommentPreview'
 import { lessonHost } from '@/const/googleSlide'
 import ReviewEvaluation from '@/components/Evaluation/ReviewEvaluation'
 import ArchiveSessionIcon from '@/assets/svgIcon/evaluation/ArchiveSession.svg?inline'
 import EvaluateIcon from '@/assets/svgIcon/evaluation/Evaluate.svg?inline'
 import NoMoreResources from '@/components/Common/NoMoreResources'
-import ActiveIcon from '@/assets/svgIcon/evaluation/classList/active.svg?inline'
-import CreateTypeIcon from '@/assets/svgIcon/evaluation/classList/create.svg?inline'
-import ExistTypeIcon from '@/assets/svgIcon/evaluation/classList/exist.svg?inline'
 
 export default {
   name: 'ClassList',
@@ -244,10 +143,7 @@ export default {
     TvSvg,
     PptCommentPreview,
     ArchiveSessionIcon,
-    EvaluateIcon,
-    ActiveIcon,
-    CreateTypeIcon,
-    ExistTypeIcon
+    EvaluateIcon
   },
   props: {
     slideId: {
@@ -276,12 +172,6 @@ export default {
       reviewEvaluationVisible: false,
       currentReviewEvaluationSessionItem: null,
 
-      existEvaluationList: [],
-      selectEvaluationFormVisible: false,
-      selectType: 'exist', // 选择已有-exist 新建-create
-      selectExistId: null,
-      selectExistName: null,
-
       // TODO 新增tag接口
       tagList: ['Content tag', 'Content tag', 'Content tag'],
       colorList: [ 'pink', 'red', 'orange', 'green', 'purple', 'cyan', 'blue' ]
@@ -289,7 +179,6 @@ export default {
   },
   created () {
     this.loadTeacherClasses(this.pageSize, this.slideId)
-    this.loadEvaluationList()
   },
   methods: {
     loadTeacherClasses (limit, slideId) {
@@ -323,61 +212,14 @@ export default {
       window.open(lessonHost + 'd/' + item.classId, '_blank')
     },
 
-    loadEvaluationList () {
-      FindMyContent({
-        owner: ownerMap['owner-by-me'],
-        status: statusMap['all-status'],
-        types: [typeMap.evaluation],
-        pageNo: 1,
-        pageSize: 10000,
-        searchKey: ''
-      }).then(res => {
-        logger.info('loadEvaluationList', res)
-        if (res.result && res.result.records && res.result.records.length) {
-          res.result.records.forEach((record, index) => {
-            record.key = index
-          })
-          this.existEvaluationList = res.result.records
-        } else {
-          this.existEvaluationList = []
-        }
-        logger.info('existEvaluationList', this.existEvaluationList)
-      })
-    },
     handleReviewEditEvaluation (item) {
       this.$logger.info('handleReviewEditEvaluation', item, this.classData)
-      if (!item.evaluationId) {
-        this.currentSelectEvaluationItem = item
-        this.selectEvaluationFormVisible = true
-      } else {
-        this.$router.push({
-          path: `/teacher/class-evaluation/${this.classData.id}/${this.currentSelectEvaluationItem.classId}`
-        })
-      }
+      this.$router.push({
+        path: `/teacher/class-evaluation/${this.classData.id}/${item.classId}`
+      })
     },
     handleArchiveSession (item) {
       this.$logger.info('handleArchiveSession', item)
-    },
-    handleSelectItem (item) {
-      this.$logger.info('handleSelectItem', item)
-      this.selectExistName = item.name
-      this.selectExistId = item.id
-    },
-    handleSelectType (type) {
-      this.$logger.info('handleSelectType ' + type)
-      this.selectType = type
-    },
-
-    handleEnsure () {
-      this.$logger.info('handleEnsure')
-      this.selectEvaluationFormVisible = false
-      if (this.selectType === 'create') {
-        this.$router.push({
-          path: `/teacher/class-evaluation/${this.classData.id}/${this.currentSelectEvaluationItem.classId}`
-        })
-      } else {
-        // TODO 使用现有的evaluation数据
-      }
     }
   }
 }
@@ -646,150 +488,5 @@ export default {
 
 .no-data {
   padding: 100px;
-}
-
-.switch-type-wrapper {
-  text-align: center;
-  width: 100%;
-
-  .switch-type {
-    display: flex;
-    width: 100%;
-    flex-direction: row;
-    align-items: center;
-    justify-content: space-between;
-    opacity: 1;
-    border-radius: 6px;
-
-    padding: 12px 5px;
-
-    .switch-label {
-      font-size: 14px;
-      font-family: Inter-Bold;
-      line-height: 20px;
-      width: 90%;
-      color: rgba(24, 37, 82, 1);
-    }
-
-    .switch-icon {
-      display: flex;
-      flex-direction: row;
-      align-items: center;
-      justify-content: center;
-
-      .icon-item {
-        margin-left: 10px;
-        display: flex;
-        flex-direction: row;
-        align-items: center;
-
-        svg {
-          width: 22px;
-          color: rgba(24, 37, 82, 1);
-        }
-      }
-
-      .active-icon {
-        svg {
-          color: rgba(21, 195, 154, 1);
-        }
-      }
-    }
-  }
-}
-
-.my-dropdown {
-  max-height: 300px;
-}
-
-.evaluation-select {
-  display: flex;
-  flex-direction: column;
-
-  .evaluation-select-header {
-    padding: 10px 0 0 0;
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    margin-bottom: 10px;
-    .evaluation-icon {
-      svg {
-        width: 35px;
-        height: 35px;
-      }
-    }
-
-    .evaluation-title {
-      padding-left: 10px;
-      h2 {
-        font-weight: bold;
-      }
-    }
-  }
-
-  .evaluation-select-body {
-    padding-left: 45px;
-    .select-type {
-      display: flex;
-      flex-direction: row;
-      align-items: center;
-      .select-type-item {
-        margin-right: 20px;
-        border-radius: 11px;
-        border: 1px solid #E4E4E4;
-        background-color: #FFFFFF;
-        .type-item {
-          padding: 10px;
-          position: relative;
-          display: flex;
-          flex-direction: row;
-          align-items: center;
-
-          .select-label {
-            padding-left: 10px;
-            padding-right: 5px;
-            display: flex;
-            flex-direction: column;
-            .label-title {
-              font-size: 12px;
-              line-height: 16px;
-              font-family: PingFang SC;
-              color: #9A9D9F;
-            }
-            .label-name {
-              font-size: 18px;
-              font-family: Bahnschrift;
-              font-weight: 400;
-              line-height: 16px;
-              color: #070707;
-            }
-          }
-
-          .active-icon {
-            position: absolute;
-            top: -1px;
-            right: -1px;
-          }
-        }
-      }
-    }
-
-    .select-detail {
-      min-height: 100px;
-      padding: 10px 0;
-    }
-  }
-}
-
-.btn-text {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  word-break: break-all;
-  white-space: nowrap;
-}
-
-.modal-ensure-action-line-center {
-  text-align: center;
-  padding-bottom: 10px;
 }
 </style>
