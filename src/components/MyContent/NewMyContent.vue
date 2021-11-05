@@ -287,7 +287,7 @@
             <a-col span="21">
               <div class="detail-wrapper">
                 <div class="preview-detail" v-if="previewCurrentId && previewType">
-                  <common-preview :id="previewCurrentId" :type="previewType"/>
+                  <common-preview-no-link :id="previewCurrentId" :type="previewType"/>
                 </div>
               </div>
             </a-col>
@@ -309,7 +309,6 @@ import ContentStatusIcon from '@/components/Teacher/ContentStatusIcon'
 import ContentTypeIcon from '@/components/Teacher/ContentTypeIcon'
 import { MyContentEventBus, MyContentEvent } from '@/components/MyContent/MyContentEventBus'
 import DisplayMode from '@/components/MyContent/DisplayMode'
-import CommonPreview from '@/components/Common/CommonPreview'
 import NoMoreResources from '@/components/Common/NoMoreResources'
 import PuBuIcon from '@/assets/icons/library/pubu .svg?inline'
 import ListModeIcon from '@/assets/icons/library/liebiao .svg?inline'
@@ -317,12 +316,13 @@ import { EvaluationAddOrUpdate } from '@/api/evaluation'
 import { TaskAddOrUpdate } from '@/api/task'
 import { UnitPlanAddOrUpdate } from '@/api/unitPlan'
 import { TopicAddOrUpdate } from '@/api/topic'
+import CommonPreviewNoLink from '@/components/Common/CommonPreviewNoLink'
 
 export default {
   name: 'NewMyContent',
   components: {
+    CommonPreviewNoLink,
     ContentStatusIcon,
-    CommonPreview,
     ContentTypeIcon,
     UnitPlanPreview,
     MaterialPreview,
