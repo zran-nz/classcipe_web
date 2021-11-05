@@ -272,7 +272,9 @@
         <modal-header @close="viewPreviewSessionVisible = false"/>
         <div class="preview-session-wrapper">
           <class-list :slide-id="currentPreviewLesson.presentationId" :classData="currentPreviewLesson" v-if="currentPreviewLesson && currentPreviewLesson.presentationId"/>
-          <no-more-resources tips="Not exist previous sessions" v-else/>
+          <div class="no-session" v-else>
+            <no-more-resources tips="Not exist previous sessions"/>
+          </div>
         </div>
       </a-modal>
 
@@ -1201,6 +1203,14 @@ a.delete-action {
 
   .ant-card-meta-avatar {
     padding-right: 0;
+  }
+}
+
+.preview-session-wrapper {
+  min-height: 300px;
+
+  .no-session {
+    padding: 100px;
   }
 }
 

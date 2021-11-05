@@ -485,4 +485,8 @@ export default {
     text-align: center;
   }
 }
+
+.no-data {
+  padding: 100px;
+}
 </style>
