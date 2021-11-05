@@ -2,17 +2,6 @@
   <div class="my-content">
     <div class="filter-line">
       <div class="status-tab">
-        <!--        <span :class="{'status-item': true, 'active-status-item': currentStatus === 'all-status'}" @click="toggleStatus('all-status', $t('teacher.my-content.all-status'))">-->
-        <!--          {{ $t('teacher.my-content.all-status') }}-->
-        <!--        </span>-->
-        <!--        <a-divider type="vertical" />-->
-        <!--        <span :class="{'status-item': true, 'active-status-item': currentStatus === 'published'}" @click="toggleStatus('published', $t('teacher.my-content.published-status'))">-->
-        <!--          {{ $t('teacher.my-content.published-status') }}-->
-        <!--        </span>-->
-        <!--        <a-divider type="vertical" />-->
-        <!--        <span :class="{'status-item': true, 'active-status-item': currentStatus === 'draft'}" @click="toggleStatus('draft', $t('teacher.my-content.draft-status'))">-->
-        <!--          {{ $t('teacher.my-content.draft-status') }}-->
-        <!--        </span>-->
       </div>
       <div class="type-owner">
         <div class="type-filter">

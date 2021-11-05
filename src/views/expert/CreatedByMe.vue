@@ -240,6 +240,12 @@
                       </div>
                       <div class="session-btn-text">Edit</div>
                     </div>
+                    <div class="session-btn" @click.stop="handleViewDetail(item)">
+                      <div class="session-btn-icon content-list-action-btn">
+                        <a-icon type="eye" theme="filled" />
+                      </div>
+                      <div class="session-btn-text">Preview</div>
+                    </div>
                   </div>
                 </div>
                 <div class="cover-img" :style="{backgroundImage: 'url(' + item.image + ')'}"></div>
