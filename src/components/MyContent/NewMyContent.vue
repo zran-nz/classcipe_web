@@ -63,6 +63,20 @@
         <a-icon type="check" class="create-new-icon" v-if="createNewNameMode === 'input'" @click="handleEnsureCreate"/>
       </div>
     </div>
+    <div class="group-label">
+      <template v-if="groupNameMode === 'select'">
+        <div class="choose-label">Choose</div>
+        <a-select :default-value="defaultGroupName" style="width: 100%" v-model="selectedGroup">
+          <a-select-option :value="groupNameItem" v-for="(groupNameItem, gIndex) in groupNameList" :key="gIndex">
+            {{ groupNameItem }}
+          </a-select-option>
+        </a-select>
+      </template>
+      <template v-if="groupNameMode === 'input'">
+        <div class="choose-label">Group name</div>
+        <a-input v-model="groupName" />
+      </template>
+    </div>
     <div class="content-wrapper">
       <a-skeleton :loading="skeletonLoading" active>
         <div class="content-list">
@@ -252,18 +266,6 @@
               </div>
             </div>
           </a-list>
-          <template v-if="groupNameMode === 'select'">
-            <div class="choose-label">Choose</div>
-            <a-select :default-value="defaultGroupName" style="width: 100%" v-model="selectedGroup">
-              <a-select-option :value="groupNameItem" v-for="(groupNameItem, gIndex) in groupNameList" :key="gIndex">
-                {{ groupNameItem }}
-              </a-select-option>
-            </a-select>
-          </template>
-          <template v-if="groupNameMode === 'input'">
-            <div class="choose-label">Group name</div>
-            <a-input v-model="groupName" />
-          </template>
           <div class="modal-ensure-action-line">
             <a-button class="action-item action-cancel" shape="round" @click="handleCancel">Cancel</a-button>
             <a-button class="action-ensure action-item" type="primary" shape="round" @click="handleEnsure">Ok</a-button>
@@ -1321,6 +1323,14 @@ a.delete-action {
     padding-bottom: 10px;
     color: #000000;
     font-family: Inter-Bold;
+  }
+}
+
+.group-label {
+  margin-bottom: 15px;
+
+  .choose-label {
+    padding-bottom: 3px;
   }
 }
 </style>
