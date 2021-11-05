@@ -155,10 +155,10 @@
         <div class="select-type">
           <a-radio-group name="radioGroup" default-value="create" v-model="rubricType">
             <a-radio value="create">
-              Create
+              Add new form
             </a-radio>
             <a-radio value="select">
-              Select an existing
+              Choose from Content by me
             </a-radio>
           </a-radio-group>
         </div>
@@ -169,6 +169,10 @@
               <div class="form-input">
                 <a-input v-model="newTableName" aria-placeholder="Form 1"/>
               </div>
+            </div>
+            <div class="rubric-type-name">
+              <span :class="{'active-rubric': tableMode === 1}">* 21 Century skills</span>
+              <span :class="{'active-rubric': tableMode === 2}">* Rubric format</span>
             </div>
             <div class="rubric-content">
               <div
@@ -208,7 +212,9 @@
         </template>
         <template v-if="rubricType === 'select'">
           <div class="select-rubric-wrapper">
+            <div class="evaluation-list">
 
+            </div>
           </div>
         </template>
       </div>
@@ -709,6 +715,7 @@ export default {
 }
 
 .rubric {
+  padding: 0 10px;
   display: flex;
   flex-direction: column;
 
@@ -745,11 +752,31 @@ export default {
       flex-direction: column;
       .form-name {
         padding: 5px 0;
-        font-size: 14px;
         font-family: Arial;
-        font-weight: 400;
+        font-weight: 500;
         line-height: 16px;
         color: #070707;
+      }
+    }
+
+    .rubric-type-name {
+      margin-top: 10px;
+      padding: 5px 0;
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      span  {
+        margin-right: 15px;
+        height: 21px;
+        font-family: Inter-Bold;
+        line-height: 24px;
+        color: #070707;
+        &.active-rubric {
+          height: 21px;
+          font-family: Inter-Bold;
+          line-height: 24px;
+          color: #FF3355;
+        }
       }
     }
 
@@ -759,9 +786,10 @@ export default {
       align-items: center;
       justify-content: space-between;
       margin-bottom: 30px;
-      margin-top: 20px;
+      margin-top: 10px;
 
       .rubric-item {
+        border: 1px solid #fff;
         display: flex;
         width: 48%;
         flex-direction: column;
@@ -802,6 +830,7 @@ export default {
         font-size: 20px;
         font-weight: bold;
         color: @primary-color;
+        border: 1px solid #15C39A;
 
         .rubric-active-icon {
           opacity: 1;
