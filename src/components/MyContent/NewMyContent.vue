@@ -91,8 +91,8 @@
               <span class="content-info-left">
                 <content-type-icon :type="item.type"/>
 
-                <span class="name-content">
-                  <span class="name-text" @click="handleViewDetail(item, $event)">
+                <span class="name-content" @click="handleViewDetail(item, $event)">
+                  <span class="name-text" >
                     {{ item.name ? item.name : 'Untitled' }}
                   </span>
                 </span>
@@ -107,6 +107,11 @@
                   {{ item.updateTime || item.createTime | dayjs }}
                 </span>
                 <div class="action">
+                  <div class="action-wrapper">
+                    <div class="action-item" @click="handleViewDetail(item, $event)">
+                      <span class="btn-text">Preview</span>
+                    </div>
+                  </div>
                   <div slot="actions" v-if="mode === displayMode.Link">
                     <div class="action-wrapper">
                       <div class="action-item">
@@ -971,9 +976,15 @@ export default {
         justify-content: center;
 
         .action-item {
-          display: inline;
+          display: flex;
+          flex-direction: row;
+          align-items: center;
           margin-right: 10px;
           user-select: none;
+
+          .btn-text {
+            padding: 0 5px;
+          }
 
           .link-item {
             display: flex;
@@ -1049,7 +1060,7 @@ export default {
         text-align: left;
         padding-left: 5px;
         display: inline-block;
-        width: 400px;
+        width: 360px;
         overflow: hidden;
         white-space: nowrap;
         text-overflow: ellipsis;
