@@ -68,8 +68,10 @@
                       <img src="~@/assets/icons/myContent/bianji@2x.png" />
                     </div>
                     <div class="star-it" @click="handleFavorite(item)">
-                      <img src="~@/assets/icons/common/preview/star_gray.png" v-if="!item.isFavorite" />
-                      <img src="~@/assets/icons/common/preview/star_yellow.png" v-if="item.isFavorite" />
+                      <template v-if="item.createBy !== $store.getters.userInfo.email">
+                        <img src="~@/assets/icons/common/preview/star_gray.png" v-if="!item.isFavorite" />
+                        <img src="~@/assets/icons/common/preview/star_yellow.png" v-if="item.isFavorite" />
+                      </template>
                     </div>
                     <div class="edit-it" @click="handleEditItem(item.type, item)">
                       <a-icon type="more" />
@@ -97,10 +99,12 @@
                       <div class="edit-item-icon" @click="handleEditItem(item.type, item)">
                         <img src="~@/assets/icons/myContent/bianji@2x.png" />
                       </div>
-                      <div class="star-it" @click="handleFavorite(item)">
-                        <img src="~@/assets/icons/common/preview/star_gray.png" v-if="!item.isFavorite" />
-                        <img src="~@/assets/icons/common/preview/star_yellow.png" v-if="item.isFavorite" />
-                      </div>
+                      <template v-if="item.createBy !== $store.getters.userInfo.email">
+                        <div class="star-it" @click="handleFavorite(item)">
+                          <img src="~@/assets/icons/common/preview/star_gray.png" v-if="!item.isFavorite" />
+                          <img src="~@/assets/icons/common/preview/star_yellow.png" v-if="item.isFavorite" />
+                        </div>
+                      </template>
                     </div>
                     <div class="action-right">
                       <div class="edit-it" @click="handleEditItem(item.type, item)">

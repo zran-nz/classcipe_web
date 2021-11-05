@@ -24,8 +24,10 @@
             </div>
             <div v-if="canEdit" class="action-item">
               <div class="star">
-                <img src="~@/assets/icons/common/preview/star_gray.png" @click="handleFavorite(data)" v-if="!data.isFavorite"/>
-                <img src="~@/assets/icons/common/preview/star_yellow.png" @click="handleFavorite(data)" v-if="data.isFavorite"/>
+                <template v-if="data.createBy !== $store.getters.userInfo.email">
+                  <img src="~@/assets/icons/common/preview/star_gray.png" @click="handleFavorite(data)" v-if="!data.isFavorite"/>
+                  <img src="~@/assets/icons/common/preview/star_yellow.png" @click="handleFavorite(data)" v-if="data.isFavorite"/>
+                </template>
               </div>
               <div class="edit" v-if="permissionEdit">
                 <a-button type="primary" shape="round" @click="handleEditItem(data)">
