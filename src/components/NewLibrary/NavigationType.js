@@ -11,4 +11,5 @@ export const NavigationType = {
   assessmentType: 'assessmentType',
   // 同步其他人link后的数据
   sync: 'sync'
+  // 二十一世纪大纲
 }

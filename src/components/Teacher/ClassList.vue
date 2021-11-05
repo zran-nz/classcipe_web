@@ -204,7 +204,7 @@ export default {
 
     handleTeacherProjecting (item) {
       this.$logger.info('handleStartSession', item)
-      window.open(lessonHost + 't/' + item.classId, '_blank')
+      window.open(lessonHost + 'd/' + item.classId, '_blank')
     },
 
     handleDashboard (item) {

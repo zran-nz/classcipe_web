@@ -131,7 +131,7 @@ export default {
         this.$message.warn('Please select a record')
         return
       }
-      const targetUrl = lessonHost + 't/' + this.sessionList[this.selectedRowKeys[0]].classId
+      const targetUrl = lessonHost + 'd/' + this.sessionList[this.selectedRowKeys[0]].classId
       this.$logger.info('try open ' + targetUrl)
       // window.open(targetUrl, '_blank')
       // 课堂那边需要点击返回回到表单，改成location.href跳转
@@ -147,7 +147,7 @@ export default {
 
     handleTeacherProjecting (item) {
       this.$logger.info('handleStartSession', item)
-      window.open(lessonHost + 't/' + item.classId, '_blank')
+      window.open(lessonHost + 'd/' + item.classId, '_blank')
     },
 
     handleDashboard (item) {

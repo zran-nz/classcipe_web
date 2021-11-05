@@ -1569,7 +1569,7 @@
                   this.startLoading = false
                   this.taskSelectTagVisible = false
                   // const targetUrl = lessonHost + 'slide_id=' + this.form.presentationId + '&class_id=' + res.data.class_id + '&type=classroom'
-                  const targetUrl = lessonHost + 't/' + res.data.class_id
+                  const targetUrl = lessonHost + 'd/' + res.data.class_id
                   this.$logger.info('try open ' + targetUrl)
                   window.open(targetUrl, '_blank')
                 })

@@ -616,7 +616,7 @@ export default {
               this.startLoading = false
               this.lessonSelectTagVisible = false
               // const targetUrl = lessonHost + 'slide_id=' + item.presentationId + '&class_id=' + res.data.class_id + '&type=classroom'
-              const targetUrl = lessonHost + 't/' + res.data.class_id
+              const targetUrl = lessonHost + 'd/' + res.data.class_id
               this.$logger.info('try open ' + targetUrl)
               // window.open(targetUrl, '_blank')
               // 课堂那边需要点击返回回到表单，改成location.href跳转
