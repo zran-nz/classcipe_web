@@ -7,7 +7,7 @@
         </span>
         <a-button class="nav-back-btn" type="link" @click="handleBack">{{ $t('teacher.add-lesson.back') }}</a-button>
         <span> <content-type-icon :type="form.type" /></span>
-        <template v-if="form.type === typeMap.classSessionEvaluation">
+        <template v-if="form.hasOwnProperty('evaluation') && form.hasOwnProperty('groups')">
           <div class="edit-form-name">
             <div class="form-name">
               <template v-if="!editFormNameMode">{{ formName }}</template>
@@ -21,7 +21,7 @@
             <!--            <div class="class-name">{{ form.className }}</div>-->
           </div>
         </template>
-        <template v-if="form.type !== typeMap.classSessionEvaluation">
+        <template v-if="form.hasOwnProperty('evaluation') && form.hasOwnProperty('groups')">
           <span class="unit-last-change-time" v-if="lastChangeSavedTime">
             <span class="unit-nav-title">
               {{ form.name }}
@@ -34,7 +34,7 @@
     </a-col>
     <a-col span="7" class="unit-right-action">
       <a-space>
-        <div class="collaborate-comment" @click="handleViewComment" v-if="form.type !== typeMap.classSessionEvaluation">
+        <div class="collaborate-comment" @click="handleViewComment" v-if="!form.hasOwnProperty('evaluation') && !form.hasOwnProperty('groups')">
           <comment-icon class="active-icon"/>
         </div>
         <a-button

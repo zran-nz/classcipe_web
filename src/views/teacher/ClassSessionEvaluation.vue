@@ -48,14 +48,22 @@
             </div>
           </div>
         </div>
-        <div class="form-table-tabs">
+        <div class="form-table-tabs" v-show="forms.length > 0">
           <div
             :class="{'form-table-item': true,
-                     'active-table': currentActiveFormTable === tableItem.tableName}"
-            v-for="(tableItem, idx) in formTableList"
-            @click="handleActiveTable(idx, tableItem)"
+                     'active-table': currentActiveFormId === formItem.id}"
+            v-for="(formItem, idx) in forms"
+            @click="handleActiveForm(idx, formItem)"
             :key="idx">
-            {{ tableItem.tableName }}
+            <div class="form-title">{{ formItem.title }}</div>
+            <a-dropdown :trigger="['click']" v-show="currentActiveFormId === formItem.id">
+              <a class="ant-dropdown-link" @click="e => e.preventDefault()">
+                <arrow-down />
+              </a>
+              <a-menu-item>
+
+              </a-menu-item>
+            </a-dropdown>
           </div>
         </div>
         <div class="body">
@@ -63,21 +71,21 @@
             <div class="class-student-wrapper">
               <div class="info-bar">
                 <div class="info-bar-item">
-                  {{ groupNum }} groups {{ studentNum }} students
+                  {{ groupNum }} groups {{ memberNum }} students
                 </div>
               </div>
               <div class="group-list-wrapper">
-                <div :class="{'group-item': true, 'selected-group': selectedGroupList.indexOf(group.groupName) !== -1}" v-for="(group, gIdx) in classGroup" :key="gIdx">
+                <div :class="{'group-item': true, 'selected-group': selectedGroupIdList.indexOf(group.id) !== -1}" v-for="(group, gIdx) in groups" :key="gIdx">
                   <div class="group-item-info" @click="handleSelectGroup(group)">
                     <div class="group-left">
                       <div class="group-icon">
                         <group-icon />
                       </div>
                       <div class="group-name">
-                        {{ group.groupName }} ({{ group.groupStudents.length }})
+                        {{ group.name }} ({{ group.members.length }})
                       </div>
                       <div class="group-select-status">
-                        <template v-if="selectedGroupList.indexOf(group.groupName) !== -1">
+                        <template v-if="selectedGroupIdList.indexOf(group.id) !== -1">
                           <a-icon type="check-circle" style="{color: #07AB84}" theme="filled" class="my-selected-icon"/>
                         </template>
                       </div>
@@ -95,15 +103,15 @@
                   </div>
                   <div class="group-student-list" v-show="group.expand">
                     <div class="student-list">
-                      <div :class="{'list-item': true, 'selected-student': selectedStudentEmailList.indexOf(student.studentEmail) !== -1}" v-for="(student, sIndex) in group.groupStudents" :key="sIndex" @click="handleClickStudent(student)">
+                      <div :class="{'list-item': true, 'selected-student': selectedMemberIdList.indexOf(member.userId) !== -1}" v-for="(member, sIndex) in group.members" :key="sIndex" @click="handleClickMember(member)">
                         <div class="student-avatar">
-                          <img :src="student.studentAvatar" alt="" v-if="student.studentAvatar" />
-                          <img slot="prefix" src="~@/assets/icons/evaluation/default_avatar.png" alt="" v-if="!student.studentAvatar" />
+                          <img :src="member.avatar" alt="" v-if="member.avatar" />
+                          <img slot="prefix" src="~@/assets/icons/evaluation/default_avatar.png" alt="" v-if="!member.avatar" />
                         </div>
-                        <div class="student-name" :data-email="student.studentEmail">
-                          {{ student.studentName }}
+                        <div class="student-name" :data-email="member.userId">
+                          {{ member.userId }}
                         </div>
-                        <div class="select-status-icon" v-if="(selectedStudentEmailList.indexOf(student.studentEmail) !== -1) || selectedGroupList.indexOf(group.groupName) !== -1">
+                        <div class="select-status-icon" v-if="(selectedMemberIdList.indexOf(member.userId) !== -1) || selectedGroupIdList.indexOf(group.id) !== -1">
                           <a-icon type="check-circle" style="{color: #07AB84}" theme="filled" class="my-selected-icon"/>
                         </div>
                       </div>
@@ -115,18 +123,18 @@
           </div>
           <div class="form-table-content">
             <div class="table-content">
-              <div class="form-table-item" v-for="(table,tIdx) in formTableList" :key="tIdx">
-                <div class="form-table-item-content" v-show="table.tableName === currentActiveFormTable">
+              <div class="form-table-item" v-for="(formItem,tIdx) in forms" :key="tIdx">
+                <div class="form-table-item-content" v-show="formItem.id === currentActiveFormId">
                   <div class="comment">
                     <div class="summary-input">
-                      <a-textarea v-model="table.comment" placeholder="Write a comment" aria-placeholder="Write a comment" class="my-textarea" />
+                      <a-textarea v-model="formItem.comment" placeholder="Write a comment" aria-placeholder="Write a comment" class="my-textarea" />
                     </div>
                   </div>
                   <div class="form-table-detail">
                     <rubric-one
-                      :description-list="table.evaluationTableList"
-                      :init-raw-headers="table.initRawHeaders"
-                      :init-raw-data="table.initRawData"
+                      :description-list="formItem.evaluationTableList"
+                      :init-raw-headers="formItem.initRawHeaders"
+                      :init-raw-data="formItem.initRawData"
                       :allow-add-column="true"
                     />
                   </div>
@@ -171,8 +179,8 @@
               </div>
             </div>
             <div class="rubric-type-name">
-              <span :class="{'active-rubric': tableMode === 1}">* 21 Century skills</span>
-              <span :class="{'active-rubric': tableMode === 2}">* Rubric format</span>
+              <span :class="{'active-rubric': tableMode === 1}">* Rubric format</span>
+              <span :class="{'active-rubric': tableMode === 2}">* 21 Century skills</span>
             </div>
             <div class="rubric-content">
               <div
@@ -183,7 +191,7 @@
                 @click="handleSelectRubric(1)"
               >
                 <div class="rubric-preview">
-                  <img src="~@/assets/icons/evaluation/rubric1.png" alt="rubric">
+                  <img src="~@/assets/icons/evaluation/rubric2.png" alt="rubric">
                 </div>
                 <div class="rubric-active-icon">
                   <a-icon type="check-circle" theme="filled"/>
@@ -197,7 +205,7 @@
                 @click="handleSelectRubric(2)"
               >
                 <div class="rubric-preview">
-                  <img src="~@/assets/icons/evaluation/rubric2.png" alt="rubric">
+                  <img src="~@/assets/icons/evaluation/rubric1.png" alt="rubric">
                 </div>
                 <div class="rubric-active-icon">
                   <a-icon type="check-circle" theme="filled"/>
@@ -213,7 +221,7 @@
         <template v-if="rubricType === 'select'">
           <div class="select-rubric-wrapper">
             <div class="evaluation-list">
-
+              <select-evaluation-list :task-id="taskId" :class-id="classId" @cancel="selectRubricVisible = false" @selected="handleEnsureSelectEvaluation"/>
             </div>
           </div>
         </template>
@@ -235,11 +243,13 @@ import GroupIcon from '@/assets/svgIcon/evaluation/qunzu.svg?inline'
 import ArrowDown from '@/assets/svgIcon/evaluation/arrow_down.svg?inline'
 import ArrowTop from '@/assets/svgIcon/evaluation/arrow_top.svg?inline'
 import ModalHeader from '@/components/Common/ModalHeader'
-import { GetSessionEvaluationByClassId } from '@/api/evaluation'
+import { GetSessionEvaluationByClassId, EvaluationQueryByIds } from '@/api/evaluation'
+import SelectEvaluationList from '@/components/Evaluation/SelectEvaluationList'
 
 export default {
   name: 'ClassSessionEvaluation',
   components: {
+    SelectEvaluationList,
     RubricOne,
     CommonFormHeader,
     GrayIcon,
@@ -263,9 +273,9 @@ export default {
   },
   computed: {
     lastChangeSavedTime () {
-      const time = this.form.updateTime || this.form.createTime
+      const time = (this.form && this.form.evaluation && (this.form.evaluation.updateTime || this.form.evaluation.createTime))
       if (time) {
-        return formatLocalUTC(this.form.updateTime || this.form.createTime)
+        return formatLocalUTC(this.form.evaluation.updateTime || this.form.evaluation.createTime)
       } else {
         return ''
       }
@@ -275,97 +285,25 @@ export default {
     return {
       loading: true,
       isExistFormTable: false, // 是否已经添加过表格
-      currentActiveFormTable: '21 century skill',
+      currentActiveFormId: null,
       form: { // 基础表单数据
+        classId: '',
         name: 'test evaluation',
-        updateTime: '',
-        className: 'class 6',
-        type: 7, // TODO Evaluation 新增表单类型 classSessionEvaluation:7
-        createBy: 'yangxunwu@gmail.com',
-        forms: [] // 对应formTableList
+        evaluation: null,
+        className: 'untitled class',
+        forms: [],
+        groups: []
       },
-      formTableList: [
-        {
-          tableName: '21 century skill',
-          comment: null,
-          tableData: {
-            evaluationTableList: [],
-            initRawHeaders: [],
-            initRawData: []
-          }
-        },
-        {
-          tableName: 'Form',
-          comment: null,
-          tableData: {
-            evaluationTableList: [],
-            initRawHeaders: [],
-            initRawData: []
-          }
-        }
-      ], // 评估表格数据
-      classGroup: [
-        {
-          groupId: 1,
-          groupName: '小组1',
-          selectedStatus: false,
-          expand: false,
-          groupStudents: [
-            {
-              studentName: 'xunwu1',
-              studentEmail: 'xunwu1',
-              studentAvatar: '',
-              alreadyEvaluatedFormTable: [] // 已经评估过了的表格的
-            },
-            {
-              studentName: 'xunwu2',
-              studentEmail: 'xunwu2',
-              studentAvatar: '',
-              alreadyEvaluatedFormTable: [] // 已经评估过了的表格的
-            },
-            {
-              studentName: 'xunwu3',
-              studentEmail: 'xunwu3',
-              studentAvatar: '',
-              alreadyEvaluatedFormTable: [] // 已经评估过了的表格的
-            },
-            {
-              studentName: 'xunwu4',
-              studentEmail: 'xunwu4',
-              studentAvatar: '',
-              alreadyEvaluatedFormTable: [] // 已经评估过了的表格的
-            },
-            {
-              studentName: 'xunwu5',
-              studentEmail: 'xunwu5',
-              studentAvatar: '',
-              alreadyEvaluatedFormTable: [] // 已经评估过了的表格的
-            }
-          ]
-        },
-        {
-          groupId: 2,
-          groupName: '小组2',
-          selectedStatus: false,
-          expand: false,
-          groupStudents: [
-            {
-              studentName: 'xiaoming',
-              studentEmail: 'xiaoming',
-              studentAvatar: '',
-              alreadyEvaluatedFormTable: [] // 已经评估过了的表格的
-            }
-          ]
-        }
-      ], // 班级分组信息
+      forms: [], // 评估表格数据
+      groups: [], // 班级分组信息
 
-      selectedGroupList: [],
+      selectedGroupIdList: [],
       studentList: [],
-      selectedStudentEmailList: [],
+      selectedMemberIdList: [],
       selectedStudentNameList: [],
 
-      groupNum: 3,
-      studentNum: 20,
+      groupNum: 0,
+      memberNum: 0,
 
       selectRubricVisible: false,
       tableMode: 1,
@@ -381,42 +319,60 @@ export default {
     loadEvaluationData () {
       this.$logger.info('loadEvaluationData')
       this.loading = false
-      // TODO Evaluation 根据当前的taskId、班级classId查询对应的评估数据：班级分组、评估表单数据、自评他评数据
       GetSessionEvaluationByClassId({ classId: this.classId }).then(response => {
         this.$logger.info('GetSessionEvaluationByClassId response', response.result)
         if (response.result.evaluation) {
+          this.groups = [
+            {
+              'classId': '1',
+              'id': 1,
+              'members': [
+                {
+                  'groupId': 1,
+                  'id': 1,
+                  'userId': 'xunwu'
+                }
+              ],
+              'name': 'Group'
+            }
+          ]
           // this.form = response.evaluation
-          // this.formTableList = response.evaluation.forms
-          // this.classGroup = response.evaluation.groups
+          // this.forms = response.evaluation.forms
+          // this.groups = response.evaluation.groups
+          this.groupNum = this.groups.length
+          this.memberNum = 0
+          this.groups.forEach(group => {
+            this.memberNum = this.memberNum + group.members.length
+          })
         }
       }).finally(() => {
         this.loading = false
       })
     },
 
-    handleActiveTable (idx, tableItem) {
-      this.$logger.info('handleActiveTable ' + idx, tableItem)
-      if (this.currentActiveFormTable !== tableItem.tableName) {
-        this.currentActiveFormTable = tableItem.tableName
+    handleActiveForm (idx, formItem) {
+      this.$logger.info('handleActiveForm ' + idx, formItem)
+      if (this.currentActiveFormId !== formItem.id) {
+        this.currentActiveFormId = formItem.id
       }
     },
-    handleClickStudent (student) {
-      this.$logger.info('handleClickStudent', student)
-      const index = this.selectedStudentEmailList.indexOf(student.studentEmail)
+    handleClickMember (member) {
+      this.$logger.info('handleClickMember', member)
+      const index = this.selectedMemberIdList.indexOf(member.userId)
       if (index === -1) {
-        this.selectedStudentEmailList.push(student.studentEmail)
+        this.selectedMemberIdList.push(member.userId)
       } else {
-        this.selectedStudentEmailList.splice(index, 1)
+        this.selectedMemberIdList.splice(index, 1)
       }
     },
 
     handleSelectGroup (group) {
       this.$logger.info('handleSelectGroup', group)
-      const index = this.selectedGroupList.indexOf(group.groupName)
+      const index = this.selectedGroupIdList.indexOf(group.groupName)
       if (index === -1) {
-        this.selectedGroupList.push(group.groupName)
+        this.selectedGroupIdList.push(group.groupName)
       } else {
-        this.selectedGroupList.splice(index, 1)
+        this.selectedGroupIdList.splice(index, 1)
       }
     },
 
@@ -429,7 +385,8 @@ export default {
 
     handleAddFormTable () {
       this.$logger.info('handleAddFormTable')
-      this.newTableName = 'Form' + (this.formTableList.length + 1)
+      const count = this.forms.length + 1
+      this.newTableName = this.tableMode === 2 ? '21 Century skills ' + count : 'Form ' + count
       this.selectRubricVisible = true
     },
 
@@ -442,19 +399,68 @@ export default {
       this.$logger.info('handleEnsureSelectRubric ' + this.tableMode)
       if (this.tableMode !== 0) {
         this.selectRubricVisible = false
-        const newFormTable = {
-          tableName: 'Form' + (this.formTableList.length + 1),
-          comment: null,
-          tableData: {
-            evaluationTableList: [],
-            initRawHeaders: [],
-            initRawData: []
-          }
+        const existFormTitleList = []
+        const existFormIdList = []
+        this.forms.forEach(item => {
+          existFormTitleList.push(item.title)
+          existFormIdList.push(item.id)
+        })
+
+        // 给还未保存的表格生成一个唯一的名称和自定义id，自定义id在提交时需要删掉
+        let count = this.forms.length + 1
+        let selfTitle = this.newTableName ? this.newTableName : (this.tableMode === 2 ? '21 Century skills ' + count : 'Form ' + count)
+        let selfId = 'ext_' + Math.random(1000000000, 9999999999)
+        while (existFormTitleList.indexOf(selfTitle) !== -1) {
+          count++
+          selfTitle = this.tableMode === 2 ? '21 Century skills ' + count : 'Form ' + count
         }
-        this.formTableList.push(newFormTable)
+
+        while (existFormIdList.indexOf(selfId) !== -1) {
+          count++
+          selfId = 'ext_' + Math.random(1000000000, 9999999999)
+        }
+
+        if (this.tableMode === 1) {
+          const newFormTable = {
+            title: selfTitle,
+            formType: '1',
+            comment: null,
+            id: selfId,
+            tableData: {
+              evaluationTableList: [],
+              initRawHeaders: [],
+              initRawData: []
+            }
+          }
+          this.forms.push(newFormTable)
+        } else if (this.tableMode === 2) {
+          const newFormTable = {
+            title: selfTitle,
+            formType: '2',
+            comment: null,
+            id: selfId,
+            tableData: {
+              evaluationTableList: [],
+              initRawHeaders: [],
+              initRawData: []
+            }
+          }
+          // 21 centry需要固定自定义结构，且不允许修改标结构
+          this.forms.push(newFormTable)
+          this.currentActiveFormId = newFormTable.id
+        }
       } else {
         this.$message.warn('Choose rubric format!')
       }
+    },
+
+    handleEnsureSelectEvaluation (data) {
+      this.$logger.info('handleEnsureSelectEvaluation', data)
+      const evaluationIdList = data.evaluationIdList
+      EvaluationQueryByIds({ ids: evaluationIdList }).then((response) => {
+        this.$logger.info('EvaluationQueryByIds', response)
+        // TODO evaluation 处理合并evaluation
+      })
     },
 
     goBack () {
@@ -523,13 +529,17 @@ export default {
     justify-content: flex-start;
     border-bottom: 1px solid #E7E7E7;
     margin-top: 10px;
+    min-height: 33px;
     .form-table-item {
       padding: 5px 15px;
       cursor: pointer;
       font-family: Arial;
       font-weight: 400;
       line-height: 20px;
-      text-align: center;
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      justify-content: flex-start;
       color: #070707;
       border-bottom: 3px solid #fff;
     }
@@ -741,7 +751,7 @@ export default {
   }
   .select-rubric-wrapper {
     margin-top: 20px;
-    padding-bottom: 20px;
+    padding-bottom: 15px;
     display: flex;
     min-height: 200px;
     flex-direction: column;

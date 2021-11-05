@@ -8,6 +8,7 @@ export const evaluationAPIUrl = {
   deleteBatch: '/classcipe/api/evaluation/deleteBatch',
   list: '/classcipe/api/evaluation/list',
   queryById: '/classcipe/api/evaluation/queryById',
+  queryByIds: '/classcipe/api/evaluation/queryByIds',
   findMyClasses: '/classcipe/api/evaluation/findMyClasses',
   GetSessionEvaluationByClassId: '/classcipe/api/evaluation/getSessionEvaluationByClassId'
 }
@@ -38,6 +39,19 @@ export function EvaluationQueryById (parameter) {
     url: evaluationAPIUrl.queryById,
     method: 'get',
     params: parameter
+  })
+}
+
+/**
+ * @param parameter
+ * @returns {AxiosPromise}
+ * @constructor
+ */
+export function EvaluationQueryByIds (parameter) {
+  return request({
+    url: evaluationAPIUrl.queryByIds,
+    method: 'post',
+    data: parameter
   })
 }
 
