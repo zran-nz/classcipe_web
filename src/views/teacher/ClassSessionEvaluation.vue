@@ -55,15 +55,23 @@
             v-for="(formItem, idx) in forms"
             @click="handleActiveForm(idx, formItem)"
             :key="idx">
-            <div class="form-title">{{ formItem.title }}</div>
-            <a-dropdown :trigger="['click']" v-show="currentActiveFormId === formItem.id">
-              <a class="ant-dropdown-link" @click="e => e.preventDefault()">
-                <arrow-down />
-              </a>
-              <a-menu-item>
 
-              </a-menu-item>
-            </a-dropdown>
+            <div class="action-icon">
+              <a-dropdown :trigger="['click']">
+                <div class="form-title-item">
+                  <div class="form-title">{{ formItem.title }} </div>
+                  <a-icon type="down" />
+                </div>
+                <a-menu slot="overlay">
+                  <a-menu-item key="0">
+                    <a href="#">Student Evaluation</a>
+                  </a-menu-item>
+                  <a-menu-item key="1">
+                    <a href="#">Peer Evaluation</a>
+                  </a-menu-item>
+                </a-menu>
+              </a-dropdown>
+            </div>
           </div>
         </div>
         <div class="body">
@@ -542,6 +550,9 @@ export default {
       justify-content: flex-start;
       color: #070707;
       border-bottom: 3px solid #fff;
+      .action-icon {
+        margin-left: 8px;
+      }
     }
     .active-table {
       border-bottom: 3px solid #07AB84 !important;
@@ -870,6 +881,15 @@ export default {
     input {
       border-radius: 3px;
     }
+  }
+}
+
+.form-title-item {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  .form-title {
+    margin-right: 8px;
   }
 }
 </style>
