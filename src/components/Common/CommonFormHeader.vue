@@ -18,7 +18,7 @@
             <div class="edit-icon" @click="editFormNameMode = true">
               <img src="~@/assets/svgIcon/evaluation/bianji.png" />
             </div>
-            <div class="class-name">{{ form.className }}</div>
+            <!--            <div class="class-name">{{ form.className }}</div>-->
           </div>
         </template>
         <template v-if="form.type !== typeMap.classSessionEvaluation">
