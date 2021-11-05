@@ -46,26 +46,10 @@
             :key="lIndex + '-' + header.type"
             @dblclick="handleDbClickBodyItem(item, header)">
             <template v-if="item.hasOwnProperty(header.type)">
-              <!--              Level-->
-              <template v-if="header.type === 'level'">
+              <!--              Criteria-->
+              <template v-if="header.type === 'criteria'">
                 <template v-if="item[header.type]">
                   <div class="level">
-                    {{ item[header.type] }}
-                  </div>
-                </template>
-              </template>
-              <!--              main_subject-->
-              <template v-else-if="header.type === 'main_subject'">
-                <template v-if="item[header.type]">
-                  <div class="main_subject">
-                    {{ item[header.type] }}
-                  </div>
-                </template>
-              </template>
-              <!--              main_subject-->
-              <template v-else-if="header.type === 'sub_subject'">
-                <template v-if="item[header.type]">
-                  <div class="sub_subject">
                     {{ item[header.type] }}
                   </div>
                 </template>
@@ -77,30 +61,6 @@
                     {{ item[header.type] }}
                   </div>
                 </template>
-              </template>
-              <!--              标签内容-->
-              <template v-else-if="header.type === 'keywords'">
-                <div class="tag-list">
-                  <div class="tag-item" v-for="(tag, tIndex) in item[header.type]" :key="tIndex">
-                    <a-tag :closable="mode !== 'evaluate' && mode !== 'preview'" @close="handleCloseTag(item, tag, $event)" :color="tagColorList[tIndex % tagColorList.length]">{{ tag }}</a-tag>
-                  </div>
-                  <div class="tag-item add-tag" v-if="(item['description'] || item['level']) && mode !== 'evaluate' && mode !== 'preview'">
-                    <span class="add-tag-icon" @click="showAddNewTagInput(item)">
-                      <a-icon type="plus-circle"/>
-                      <span>Add keywords</span>
-                    </span>
-                  </div>
-                </div>
-              </template>
-              <!--              标签内容-->
-              <template v-else>
-                <a-textarea type="text" v-model="item[header.type]" :data-type="header.type" class="ext-input" v-if="mode !== 'evaluate' && mode !== 'preview'"/>
-                <div class="evaluation-item" v-if="mode === 'evaluate'" @click="toggleCheckedItem(lIndex, header.type)">
-                  {{ item[header.type] }}
-                  <div class="checked-flag" v-if="activeItemKey.indexOf(lIndex + '-' + header.type) !== -1">
-                    <a-icon type="check" />
-                  </div>
-                </div>
               </template>
             </template>
 
@@ -117,11 +77,11 @@
               </div>
             </template>
 
-            <template v-if="hIndex === headers.length - 1 && mode === 'evaluate'">
+            <template v-if="hIndex === headers.length - 1">
               <div class="add-evidence" @click="handleAddEvidenceLine(lIndex, item)">
                 <img src="~@/assets/icons/evaluation/tianjia@2x.png" />
                 <div class="add-text">
-                  Add Evidence
+                  <add-icon />
                 </div>
               </div>
             </template>
@@ -149,20 +109,6 @@
           question-index="evaluation_"/>
       </div>
     </a-modal>
-
-    <a-modal
-      v-model="selectKnowledgeTagVisible"
-      :footer="null"
-      :maskClosable="false"
-      destroyOnClose
-      title="Add keywords">
-      <div class="add-tag-wrapper">
-        <add-keyword-tag :current-tag="addTagItem" @add-tag="handleAddNewTag" @remove-tag="handleRemoveTag"/>
-      </div>
-      <div class="add-tag-action">
-        <a-button type="primary" @click="handleEnsureAddTag">Ok</a-button>
-      </div>
-    </a-modal>
   </div>
 </template>
 
@@ -172,22 +118,19 @@ import { LibraryEvent, LibraryEventBus } from '@/components/NewLibrary/LibraryEv
 import { SelectModel } from '@/components/NewLibrary/SelectModel'
 import draggable from 'vuedraggable'
 import NewBrowser from '@/components/NewLibrary/NewBrowser'
-import AddKeywordTag from '@/components/Evaluation/AddKeywordTag'
 import { NavigationType } from '@/components/NewLibrary/NavigationType'
+import EvaluationFormType from '@/components/Evaluation/EvaluationFormType'
+import AddIcon from '@/assets/svgIcon/evaluation/form/tianjia.svg'
 const { GetMyGrades } = require('@/api/teacher')
 
 export default {
   name: 'RubricOne',
   components: {
-    AddKeywordTag,
+    AddIcon,
     draggable,
     NewBrowser
   },
   props: {
-    descriptionList: {
-      type: Array,
-      default: () => []
-    },
     initRawData: {
       type: Array,
       default: () => []
@@ -200,9 +143,9 @@ export default {
       type: String,
       default: null
     },
-    allowAddColumn: {
-      type: Boolean,
-      default: false
+    formType: {
+      type: Number,
+      required: true
     }
   },
   data () {
@@ -227,54 +170,35 @@ export default {
         'purple'
       ],
 
-      descriptionTagList: [],
-      subKnowledgeId2InfoMap: new Map(),
       currentSelectLine: null,
       addTagItem: null,
       activeItemKey: [],
       gradeIdMapName: new Map(),
 
-      syncData: [],
-      selectNewBigIdea: '',
-      selectSyncDataVisible: false,
-      selectedSyncList: [],
-
       // 已选择的大纲知识点描述数据
-      selectedCurriculumList: [],
-
-      // specific skill
-      selectedSpecificSkillList: [],
-      // century skill
-      selectedCenturySkillList: [],
-
-      // BigIdeaList
-      selectedBigIdeaList: []
+      selectedDescriptionList: []
     }
   },
   created () {
-    this.$logger.info('RubricOne created ' + this.mode + ' allowAddColumn ' + this.allowAddColumn, this.descriptionList, this.initRawHeaders, this.initRawData)
+    this.$logger.info('RubricOne created ' + this.mode + ' allowAddColumn ', this.initRawHeaders, this.initRawData)
     if (this.initRawHeaders.length) {
       this.headers = this.initRawHeaders
     } else {
-      if (this.allowAddColumn) {
+      if (this.formType === EvaluationFormType.Rubric) {
         this.headers = [
-          { label: 'Criteria', previewLabel: 'Criteria', type: 'description', editable: false, required: true },
-          { label: 'Key words', previewLabel: 'Key words', type: 'keywords', editable: false, required: true },
-          { label: 'Level title', previewLabel: 'Level title', type: 'user_ext_0', editable: false, required: false }
+          { label: 'Criteria', previewLabel: 'Criteria', type: 'criteria', editable: false, required: true },
+          { label: '1-2', previewLabel: '1-2', type: 'indicator', editable: true, required: false },
+          { label: '3-4', previewLabel: '3-4', type: 'indicator', editable: true, required: false },
+          { label: 'Evidence', previewLabel: 'Evidence', type: 'evidence', editable: false, required: true }
         ]
-      } else {
+      } else if (this.formType === EvaluationFormType.CenturySkills) {
         this.headers = [
-          { label: 'Level', previewLabel: 'Key words', type: 'level', editable: false, required: true },
-          { label: 'Criteria(curriculum)', previewLabel: 'Criteria(curriculum)', type: 'main_subject', editable: false, required: true },
-          { label: 'Strands(curriculum)', previewLabel: 'Strands(curriculum)', type: 'sub_subject', editable: false, required: true },
-          { label: 'Key words', previewLabel: 'Key words', type: 'keywords', editable: false, required: true },
-          { label: 'Specific Indicator', previewLabel: 'Specific Indicator', type: 'indicator', editable: false, required: true }
+          { label: 'Criteria', previewLabel: 'Criteria', type: 'criteria', editable: false, required: true },
+          { label: 'Description', previewLabel: 'Description', type: 'description', editable: false, required: true },
+          { label: 'Task specific indicators', previewLabel: 'Task specific indicators', type: 'indicator', editable: false, required: true },
+          { label: 'Evidence', previewLabel: 'Evidence', type: 'evidence', editable: false, required: true }
         ]
       }
-
-      this.headers.push(
-        { label: 'Evidence', previewLabel: 'Evidence', type: 'evidence', editable: false, required: false }
-      )
     }
 
     GetMyGrades().then((response) => {
@@ -296,76 +220,11 @@ export default {
     LibraryEventBus.$off(LibraryEvent.ContentListSelectClick, this.handleContentListSelectClick)
     this.$logger.info('off NewClickableKnowledgeTag ContentListSelectClick handler')
   },
-  watch: {
-    descriptionList (newDescriptionList) {
-      this.$logger.info('descriptionList change', newDescriptionList)
-      newDescriptionList.forEach(item => {
-        const existObject = this.list.find(lineItem => lineItem.description === item.description)
-        if (existObject) {
-          if (existObject.keywords && existObject.keywords.length) {
-            if (item.tagList && item.tagList.length) {
-              item.tagList.forEach(keyword => {
-                if (existObject.keywords.indexOf(keyword) === -1) {
-                  existObject.keywords.push(keyword)
-                }
-              })
-            }
-          }
-        } else {
-          const newItem = {
-            description: item.description,
-            keywords: item.tagList,
-            type: item.type
-          }
-          this.headers.forEach(header => {
-            if (!header.required) {
-              newItem[header.type] = null
-            }
-          })
-          if (item.evidence) {
-            newItem.evidence = item.evidence
-          }
-          // TODO fix rubric对evidence字段处理
-          this.$logger.info('add list new description', newItem, item)
-          this.list.push(newItem)
-        }
-      })
-      this.$logger.info('after update list', this.list)
-    },
-    initRawHeaders (newList) {
-      this.$logger.info('initRawHeaders change', newList)
-      if (newList.length) {
-        this.headers = newList
-      }
-    },
-    initRawData (newList) {
-      this.$logger.info('initRawData change', newList)
-      if (newList.length) {
-        this.$logger.info('after initRawData', newList)
-        this.list = newList
-      }
-    }
-  },
   methods: {
     handleContentListSelectClick (data) {
       if (data.questionIndex === 'evaluation_') {
         this.$logger.info('evaluation handleContentListSelectClick hit', data)
-        const tagIndex = this.descriptionTagList.findIndex(tItem => tItem.subKnowledgeId === data.subKnowledgeId)
-        if (tagIndex === -1) {
-          this.subKnowledgeId2InfoMap.set(data.subKnowledgeId, {
-            ...data
-          })
-          this.descriptionTagList.push({
-            subKnowledgeId: data.subKnowledgeId,
-            tagList: [],
-            _updateTimestamp: 0
-          })
-        } else {
-          this.descriptionTagList.splice(tagIndex, 1)
-          this.$logger.info('remove evaluation', this.descriptionList)
-        }
         LibraryEventBus.$emit(LibraryEvent.ContentListSelectedListUpdate, { id: data.subKnowledgeId })
-        this.$logger.info('evaluation subKnowledgeId2InfoMap[' + data.subKnowledgeId + ']', this.subKnowledgeId2InfoMap.get(data.subKnowledgeId))
       }
     },
     handleEditHeader (header) {
@@ -470,65 +329,8 @@ export default {
     },
 
     handleEnsureSelect () {
-      this.$logger.info('handleEnsureSelect', this.descriptionTagList)
+      this.$logger.info('handleEnsureSelect')
       this.selectCurriculumVisible = false
-      this.descriptionTagList.forEach(item => {
-        const data = this.subKnowledgeId2InfoMap.get(item.subKnowledgeId)
-        this.$logger.info('subKnowledgeId ' + item.subKnowledgeId, data)
-        const existObject = this.list.find(item => item.description === data.description)
-        if (existObject) {
-          if (existObject.keywords && existObject.keywords.length) {
-            item.tagList.forEach(keyword => {
-              if (existObject.keywords.indexOf(keyword) === -1) {
-                existObject.keywords.push(keyword)
-              }
-            })
-          }
-        } else {
-          const newItem = {}
-          if (this.allowAddColumn) {
-            newItem.type = 'knowledge'
-            newItem.description = data.description
-            newItem.keywords = data.tagList ? data.tagList : []
-          } else {
-            newItem.level = this.gradeIdMapName.get(data.gradeId)
-            newItem.main_subject = data.mainSubjectName
-            newItem.sub_subject = data.subSubjectName
-            newItem.description = data.description
-            newItem.indicator = null
-            newItem.keywords = data.tagList ? data.tagList : []
-          }
-          this.headers.forEach(header => {
-            if (!header.required) {
-              newItem[header.type] = null
-            }
-          })
-          this.$logger.info('add list new description', newItem)
-          this.list.push(newItem)
-        }
-      })
-      this.list = this.list.filter(item => item !== this.currentSelectLine)
-    },
-
-    handleAddNewTag (item) {
-      this.$logger.info('handleAddNewTag', item)
-      this.addTagItem.keywords.push(item.tagName)
-    },
-
-    handleRemoveTag (item) {
-      this.$logger.info('handleRemoveTag', item)
-      this.addTagItem.keywords.splice(this.addTagItem.keywords.indexOf(item))
-    },
-
-    showAddNewTagInput (item) {
-      this.$logger.info('showAddNewTagInput', item)
-      this.selectKnowledgeTagVisible = true
-      this.addTagItem = item
-    },
-
-    handleEnsureAddTag () {
-      this.$logger.info('handleEnsureAddTag')
-      this.selectKnowledgeTagVisible = false
     },
 
     toggleCheckedItem (lIndex, type) {

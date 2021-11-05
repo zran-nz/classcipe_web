@@ -140,9 +140,9 @@
                   </div>
                   <div class="form-table-detail">
                     <rubric-one
-                      :description-list="formItem.evaluationTableList"
                       :init-raw-headers="formItem.initRawHeaders"
                       :init-raw-data="formItem.initRawData"
+                      :form-type="formItem.formType"
                       :allow-add-column="true"
                     />
                   </div>
@@ -187,14 +187,14 @@
               </div>
             </div>
             <div class="rubric-type-name">
-              <span :class="{'active-rubric': tableMode === 1}">* Rubric format</span>
-              <span :class="{'active-rubric': tableMode === 2}">* 21 Century skills</span>
+              <span :class="{'active-rubric': newFormType === evaluationFormType.Rubric}">* Rubric format</span>
+              <span :class="{'active-rubric': newFormType === evaluationFormType.CenturySkills}">* 21 Century skills</span>
             </div>
             <div class="rubric-content">
               <div
                 :class="{
                   'rubric-item': true,
-                  'active-rubric': tableMode === 1
+                  'active-rubric': newFormType === evaluationFormType.Rubric
                 }"
                 @click="handleSelectRubric(1)"
               >
@@ -208,7 +208,7 @@
               <div
                 :class="{
                   'rubric-item': true,
-                  'active-rubric': tableMode === 2
+                  'active-rubric': newFormType === evaluationFormType.CenturySkills
                 }"
                 @click="handleSelectRubric(2)"
               >
@@ -253,6 +253,7 @@ import ArrowTop from '@/assets/svgIcon/evaluation/arrow_top.svg?inline'
 import ModalHeader from '@/components/Common/ModalHeader'
 import { GetSessionEvaluationByClassId, EvaluationQueryByIds } from '@/api/evaluation'
 import SelectEvaluationList from '@/components/Evaluation/SelectEvaluationList'
+import EvaluationFormType from '@/components/Evaluation/EvaluationFormType'
 
 export default {
   name: 'ClassSessionEvaluation',
@@ -309,12 +310,13 @@ export default {
       studentList: [],
       selectedMemberIdList: [],
       selectedStudentNameList: [],
+      evaluationFormType: EvaluationFormType,
 
       groupNum: 0,
       memberNum: 0,
 
       selectRubricVisible: false,
-      tableMode: 1,
+      newFormType: EvaluationFormType.CenturySkills,
       rubricType: 'create',
       newTableName: ''
     }
@@ -354,6 +356,9 @@ export default {
           })
         }
       }).finally(() => {
+        if (!this.forms || this.forms.length === 0) {
+          this.selectRubricVisible = true
+        }
         this.loading = false
       })
     },
@@ -394,18 +399,18 @@ export default {
     handleAddFormTable () {
       this.$logger.info('handleAddFormTable')
       const count = this.forms.length + 1
-      this.newTableName = this.tableMode === 2 ? '21 Century skills ' + count : 'Form ' + count
+      this.newTableName = 'Form ' + count
       this.selectRubricVisible = true
     },
 
     handleCancelSelectRubric () {
-      this.$logger.info('handleCancelSelectRubric ' + this.tableMode)
+      this.$logger.info('handleCancelSelectRubric ' + this.newFormType)
       this.selectRubricVisible = false
     },
 
     handleEnsureSelectRubric () {
-      this.$logger.info('handleEnsureSelectRubric ' + this.tableMode)
-      if (this.tableMode !== 0) {
+      this.$logger.info('handleEnsureSelectRubric ' + this.newFormType)
+      if (this.newFormType !== 0) {
         this.selectRubricVisible = false
         const existFormTitleList = []
         const existFormIdList = []
@@ -416,11 +421,11 @@ export default {
 
         // 给还未保存的表格生成一个唯一的名称和自定义id，自定义id在提交时需要删掉
         let count = this.forms.length + 1
-        let selfTitle = this.newTableName ? this.newTableName : (this.tableMode === 2 ? '21 Century skills ' + count : 'Form ' + count)
+        let selfTitle = this.newTableName ? this.newTableName : 'Form ' + count
         let selfId = 'ext_' + Math.random(1000000000, 9999999999)
         while (existFormTitleList.indexOf(selfTitle) !== -1) {
           count++
-          selfTitle = this.tableMode === 2 ? '21 Century skills ' + count : 'Form ' + count
+          selfTitle = 'Form ' + count
         }
 
         while (existFormIdList.indexOf(selfId) !== -1) {
@@ -428,7 +433,7 @@ export default {
           selfId = 'ext_' + Math.random(1000000000, 9999999999)
         }
 
-        if (this.tableMode === 1) {
+        if (this.newFormType === this.evaluationFormType.Rubric) {
           const newFormTable = {
             title: selfTitle,
             formType: '1',
@@ -441,7 +446,7 @@ export default {
             }
           }
           this.forms.push(newFormTable)
-        } else if (this.tableMode === 2) {
+        } else if (this.newFormType === this.evaluationFormType.CenturySkills) {
           const newFormTable = {
             title: selfTitle,
             formType: '2',
@@ -492,9 +497,9 @@ export default {
       this.form.name = data.name
     },
 
-    handleSelectRubric (tableMode) {
-      this.$logger.info('handleSelectRubric ' + tableMode)
-      this.tableMode = tableMode
+    handleSelectRubric (newFormType) {
+      this.$logger.info('handleSelectRubric ' + newFormType)
+      this.newFormType = newFormType
     }
   }
 }
