@@ -62,7 +62,7 @@
 
               <!-- 21 Century Criteria-->
               <template v-if="header.type === headerType.Criteria">
-                <template v-if="formType === tableType.CenturySkills">
+                <template v-if="formType === tableType.CenturySkills || formType === tableType.Rubric">
                   <template v-if="!item[headerType.Criteria] || !item[headerType.Criteria].name">
                     <div class="data-item add-criteria" @click="handleAddCriteria(header, item, $event)">
                       <add-opacity-icon />
@@ -84,7 +84,7 @@
                     </div>
                   </template>
                 </template>
-                <template v-if="formType === tableType.Rubric">
+                <template v-if="formType === tableType.Rubric_2">
                   <div class="indicator-input">
                     <a-textarea style="height: 100%" placeholder="Enter Criteria" class="my-text-input" v-model="item[headerType.Criteria].name" @blur="handleUpdateField(header, item)"/>
                   </div>
@@ -548,28 +548,17 @@ export default {
       if (this.formType === this.tableType.CenturySkills) {
         if (this.selectedCriteriaDescriptionList.length >= 1) {
           // 如果只选择了一个，使用第一个填充当前行数据
+          this.headers.forEach(header => {
+            if (this.currentSelectLine[header.type] || !this.currentSelectLine[header.type]) {
+              this.currentSelectLine[header.type].name = null
+            }
+          })
           this.currentSelectLine[this.headerType.Criteria] = {
             name: this.selectedCriteriaDescriptionList[0].criteriaList[0],
             criteriaList: this.selectedCriteriaDescriptionList[0].criteriaList.slice(1)
           }
           this.currentSelectLine[this.headerType.Description] = {
             name: this.selectedCriteriaDescriptionList[0].descriptionName
-          }
-
-          this.currentSelectLine[this.headerType.Indicators] = {
-            name: null
-          }
-          this.currentSelectLine[this.headerType.Novice] = {
-            name: null
-          }
-          this.currentSelectLine[this.headerType.Learner] = {
-            name: null
-          }
-          this.currentSelectLine[this.headerType.Practitoner] = {
-            name: null
-          }
-          this.currentSelectLine[this.headerType.Expert] = {
-            name: null
           }
 
           this.$logger.info('update currentSelectLine with criteria data ', this.currentSelectLine)
@@ -580,7 +569,11 @@ export default {
               if (index > 0) {
                 const newLineItem = {}
                 this.headers.forEach(header => {
-                  newLineItem[header.type] = null
+                  if (newLineItem[header.type] || !newLineItem[header.type].name) {
+                    newLineItem[header.type] = {
+                      name: null
+                    }
+                  }
                 })
                 newLineItem[this.headerType.Criteria] = {
                   name: item.criteriaList[0],
@@ -592,20 +585,45 @@ export default {
                   userInputText: null
                 }
 
-                newLineItem[this.headerType.Indicators] = {
-                  name: null
+                newLineItem[this.headerType.Evidence] = {
+                  num: 0,
+                  selectedList: []
                 }
-                newLineItem[this.headerType.Novice] = {
-                  name: null
-                }
-                newLineItem[this.headerType.Learner] = {
-                  name: null
-                }
-                newLineItem[this.headerType.Practitoner] = {
-                  name: null
-                }
-                newLineItem[this.headerType.Expert] = {
-                  name: null
+
+                this.list.push(newLineItem)
+                this.$logger.info('add new line with criteria data ', newLineItem)
+              }
+            })
+          }
+        }
+      } else if (this.formType === this.tableType.Rubric) {
+        if (this.selectedCriteriaDescriptionList.length >= 1) {
+          // 如果只选择了一个，使用第一个填充当前行数据
+          this.headers.forEach(header => {
+            if (this.currentSelectLine[header.type] || !this.currentSelectLine[header.type]) {
+              this.currentSelectLine[header.type].name = null
+            }
+          })
+          this.currentSelectLine[this.headerType.Criteria] = {
+            name: this.selectedCriteriaDescriptionList[0].criteriaList[0],
+            criteriaList: this.selectedCriteriaDescriptionList[0].criteriaList.slice(1)
+          }
+
+          this.$logger.info('update currentSelectLine with criteria data ', this.currentSelectLine)
+
+          // 如果多选，从第二个元素开始新建行填充数据
+          if (this.selectedCriteriaDescriptionList.length > 1) {
+            this.selectedCriteriaDescriptionList.forEach((item, index) => {
+              if (index > 0) {
+                const newLineItem = {}
+                this.headers.forEach(header => {
+                  newLineItem[header.type] = {
+                    name: null
+                  }
+                })
+                newLineItem[this.headerType.Criteria] = {
+                  name: item.criteriaList[0],
+                  criteriaList: item.criteriaList.slice(1)
                 }
 
                 newLineItem[this.headerType.Evidence] = {
