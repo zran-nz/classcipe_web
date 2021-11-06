@@ -10,16 +10,15 @@
             </div>
             <!-- 表头文本-->
             <div @click="handleEditHeader(header)" class="label-text">
-              <template v-if="mode === tableMode.Edit && header.editable">
-                <a-tooltip :mouseEnterDelay="0.5" placement="top">
+
+              <span class="header-label">{{ header.label }}</span>
+              <template v-if="header.type === headerType.Indicators">
+                <a-tooltip placement="top">
                   <template slot="title">
-                    Click the header to edit
+                    Students are introduced to the skills, and can watch others performing it(observation)
                   </template>
-                  {{ header.label }}
+                  <question-icon />
                 </a-tooltip>
-              </template>
-              <template v-else>
-                {{ header.label }}
               </template>
             </div>
             <!-- 编辑状态下的输入框-->
@@ -63,13 +62,13 @@
               <!--              Criteria-->
               <template v-if="header.type === headerType.Criteria">
                 <template v-if="!item[headerType.Criteria] || !item[headerType.Criteria].name">
-                  <div class="add-criteria" @click="handleAddCriteria(header, item, $event)">
+                  <div class="data-item add-criteria" @click="handleAddCriteria(header, item, $event)">
                     <add-opacity-icon />
                     <div class="add-text">Click to choose the objectives</div>
                   </div>
                 </template>
                 <template v-else>
-                  <div class="criteria-data">
+                  <div class="data-item criteria-data">
                     <div class="criteria-name">
                       {{ item[headerType.Criteria].name }}
                     </div>
@@ -86,14 +85,16 @@
 
               <!-- Description-->
               <template v-if="header.type === headerType.Description">
-                <template v-if="item[headerType.Description]">
-                  <div class="description-data">
-                    {{ item[headerType.Description].name }}
-                  </div>
-                  <div class="sub-user-input" v-if="item[headerType.Description].userInputText">
-                    {{ item[headerType.Description].userInputText }}
-                  </div>
-                </template>
+                <div class="data-item">
+                  <template v-if="item[headerType.Description]">
+                    <div class="description-data">
+                      {{ item[headerType.Description].name }}
+                    </div>
+                    <div class="sub-user-input" v-if="item[headerType.Description].userInputText">
+                      {{ item[headerType.Description].userInputText }}
+                    </div>
+                  </template>
+                </div>
                 <div class="description-input" v-if="mode === tableMode.Edit">
                   <a-textarea placeholder="Enter custom description" :autosize="{ minRows: 1, maxRows: 3 }" v-model="item[headerType.Description].userInputText" @blur="handleUpdateDescription(header, item)"/>
                 </div>
@@ -263,6 +264,8 @@ export default {
 
     if (this.initRawData.length) {
       this.list = this.initRawData
+    } else {
+      this.handleAddNewLine()
     }
     LibraryEventBus.$on(LibraryEvent.ContentListSelectClick, this.handleContentListSelectClick)
   },
@@ -390,7 +393,7 @@ export default {
         }
 
         newLineItem[this.headerType.Evidence] = {
-          num: 1,
+          num: 0,
           selectedList: []
         }
       }
@@ -561,11 +564,24 @@ export default {
             padding: 5px 10px;
             font-weight: 300;
             color: #fff;
+            display: flex;
+            align-items: center;
             line-height: 25px;
             vertical-align: middle;
             cursor: pointer;
             z-index: 50;
             font-family: Inter-Bold;
+
+            .header-label {
+              padding: 0 5px;
+              font-weight: 300;
+              color: #fff;
+              display: flex;
+              align-items: center;
+              line-height: 25px;
+              vertical-align: middle;
+              cursor: pointer;
+            }
           }
 
           .label-input {
@@ -637,7 +653,6 @@ export default {
             max-width: 400px;
             min-width: 140px;
             height: 35px;
-            padding: 10px;
             font-size: 12px;
             font-family: Inter-Bold;
             line-height: 16px;
@@ -647,6 +662,9 @@ export default {
             border-right: 1px solid rgba(216, 216, 216, 1);
             border-bottom: 1px solid rgba(216, 216, 216, 1);
 
+            .data-item {
+              padding: 10px;
+            }
             .add-criteria {
               cursor: pointer;
               user-select: none;
