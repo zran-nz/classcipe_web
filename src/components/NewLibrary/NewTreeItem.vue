@@ -424,6 +424,9 @@ export default {
               subjectId
             }).then((response) => {
               this.$logger.info('KnowledgeGetTree response', response)
+              response.result.forEach(rItem => {
+                rItem.gradeId = this.treeItemData.name
+              }) // 把年级带上，evaluation 选择description时用到)
               treeItemData.children = response.result
               LibraryEventBus.$emit(LibraryEvent.ContentListUpdate, {
                 deep: this.defaultDeep,
@@ -476,6 +479,11 @@ export default {
               this.subTreeExpandStatus = true
             })
           } else {
+            if (treeItemData.gradeId) {
+              treeItemData.children.forEach(rItem => {
+                rItem.gradeId = treeItemData.gradeId
+              })
+            }
             LibraryEventBus.$emit(LibraryEvent.ContentListUpdate, {
               deep: this.defaultDeep,
               dataType: this.treeItemType,

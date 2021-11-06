@@ -85,8 +85,10 @@
                   </template>
                 </template>
                 <template v-if="formType === tableType.Rubric_2">
-                  <div class="indicator-input">
-                    <a-textarea style="height: 100%" placeholder="Enter Criteria" class="my-text-input" v-model="item[headerType.Criteria].name" @blur="handleUpdateField(header, item)"/>
+                  <div class="data-item criteria-data">
+                    <div class="criteria-name">
+                      {{ item[headerType.Criteria].name }}
+                    </div>
                   </div>
                 </template>
               </template>
@@ -641,6 +643,9 @@ export default {
           this.currentSelectLine[this.headerType.Description] = {
             name: this.selectedRubricDescriptionList[0].name
           }
+          this.currentSelectLine[this.headerType.Criteria] = {
+            name: this.selectedRubricDescriptionList[0].grade
+          }
 
           this.$logger.info('update currentSelectLine description with criteria data ', this.currentSelectLine)
 
@@ -656,6 +661,9 @@ export default {
                 })
                 newLineItem[this.headerType.Description] = {
                   name: descriptionItem.name
+                }
+                newLineItem[this.headerType.Criteria] = {
+                  name: descriptionItem.grade
                 }
 
                 newLineItem[this.headerType.Evidence] = {
@@ -736,7 +744,8 @@ export default {
       const descriptionList = []
       data.forEach(dataItem => {
         const descriptionItem = {
-          name: dataItem.knowledgeData.name
+          name: dataItem.knowledgeData.name,
+          grade: dataItem.knowledgeData.gradeId
         }
 
         descriptionList.push(descriptionItem)
