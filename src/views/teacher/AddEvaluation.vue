@@ -31,7 +31,7 @@
                     <a-input v-model="form.name" aria-placeholder="Name of the evaluation" placeholder="Name of the evaluation"/>
                   </div>
                   <div class="rubric-item">
-                    <rubric-one
+                    <evaluation-table
                       ref="rubric"
                       :description-list="evaluationTableList"
                       :init-raw-headers="initRawHeaders"
@@ -210,7 +210,7 @@ import MyContentSelector from '@/components/MyContent/MyContentSelector'
 import RelevantTagSelector from '@/components/UnitPlan/RelevantTagSelector'
 import { TemplateTypeMap } from '@/const/template'
 import DisplayMode from '@/components/MyContent/DisplayMode'
-import RubricOne from '@/components/Evaluation/RubricOne'
+import EvaluationTable from '@/components/Evaluation/EvaluationTable'
 import AssociateSidebar from '@/components/Associate/AssociateSidebar'
 import Collaborate from '@/components/UnitPlan/Collaborate'
 import CollaborateContent from '@/components/Collaborate/CollaborateContent'
@@ -228,7 +228,7 @@ export default {
   name: 'AddEvaluation',
   components: {
     CommonFormHeader,
-    RubricOne,
+    EvaluationTable,
     ContentTypeIcon,
     InputSearch,
     MyContentSelector,

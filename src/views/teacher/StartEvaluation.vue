@@ -31,7 +31,7 @@ import MyContentSelector from '@/components/MyContent/MyContentSelector'
 import RelevantTagSelector from '@/components/UnitPlan/RelevantTagSelector'
 import { TemplateTypeMap } from '@/const/template'
 import DisplayMode from '@/components/MyContent/DisplayMode'
-import RubricOne from '@/components/Evaluation/RubricOne'
+import EvaluationTable from '@/components/Evaluation/EvaluationTable'
 import CommonFormHeader from '@/components/Common/CommonFormHeader'
 import { GetStudents } from '@/api/lesson'
 import { commonAPIUrl } from '@/api/common'
@@ -51,7 +51,7 @@ export default {
   components: {
     StartEvaluationView,
     PptSlideView,
-    RubricOne,
+    EvaluationTable,
     ContentTypeIcon,
     InputSearch,
     CommonFormHeader,

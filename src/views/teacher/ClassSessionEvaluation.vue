@@ -139,11 +139,11 @@
                     </div>
                   </div>
                   <div class="form-table-detail">
-                    <rubric-one
+                    <evaluation-table
                       :init-raw-headers="formItem.initRawHeaders"
                       :init-raw-data="formItem.initRawData"
                       :form-type="formItem.formType"
-                      :allow-add-column="true"
+                      :mode="EvaluationTableMode.Edit"
                     />
                   </div>
                 </div>
@@ -187,16 +187,16 @@
               </div>
             </div>
             <div class="rubric-type-name">
-              <span :class="{'active-rubric': newFormType === evaluationFormType.Rubric}">* Rubric format</span>
-              <span :class="{'active-rubric': newFormType === evaluationFormType.CenturySkills}">* 21 Century skills</span>
+              <span :class="{'active-rubric': newFormType === EvaluationTableType.Rubric}">* Rubric format</span>
+              <span :class="{'active-rubric': newFormType === EvaluationTableType.CenturySkills}">* 21 Century skills</span>
             </div>
             <div class="rubric-content">
               <div
                 :class="{
                   'rubric-item': true,
-                  'active-rubric': newFormType === evaluationFormType.Rubric
+                  'active-rubric': newFormType === EvaluationTableType.Rubric
                 }"
-                @click="handleSelectRubric(1)"
+                @click="handleSelectRubric(EvaluationTableType.Rubric)"
               >
                 <div class="rubric-preview">
                   <img src="~@/assets/icons/evaluation/rubric2.png" alt="rubric">
@@ -208,9 +208,9 @@
               <div
                 :class="{
                   'rubric-item': true,
-                  'active-rubric': newFormType === evaluationFormType.CenturySkills
+                  'active-rubric': newFormType === EvaluationTableType.CenturySkills
                 }"
-                @click="handleSelectRubric(2)"
+                @click="handleSelectRubric(EvaluationTableType.CenturySkills)"
               >
                 <div class="rubric-preview">
                   <img src="~@/assets/icons/evaluation/rubric1.png" alt="rubric">
@@ -241,7 +241,7 @@
 <script>
 
 import { formatLocalUTC } from '@/utils/util'
-import RubricOne from '@/components/Evaluation/RubricOne'
+import EvaluationTable from '@/components/Evaluation/EvaluationTable'
 import CommonFormHeader from '@/components/Common/CommonFormHeader'
 import GrayIcon from '@/assets/svgIcon/evaluation/GrayIcon.svg?inline'
 import PeerIcon from '@/assets/svgIcon/evaluation/PeerIcon.svg?inline'
@@ -253,13 +253,14 @@ import ArrowTop from '@/assets/svgIcon/evaluation/arrow_top.svg?inline'
 import ModalHeader from '@/components/Common/ModalHeader'
 import { GetSessionEvaluationByClassId, EvaluationQueryByIds } from '@/api/evaluation'
 import SelectEvaluationList from '@/components/Evaluation/SelectEvaluationList'
-import EvaluationFormType from '@/components/Evaluation/EvaluationFormType'
+import EvaluationTableType from '@/components/Evaluation/EvaluationTableType'
+import EvaluationTableMode from '@/components/Evaluation/EvaluationTableMode'
 
 export default {
   name: 'ClassSessionEvaluation',
   components: {
     SelectEvaluationList,
-    RubricOne,
+    EvaluationTable,
     CommonFormHeader,
     GrayIcon,
     PeerIcon,
@@ -310,13 +311,14 @@ export default {
       studentList: [],
       selectedMemberIdList: [],
       selectedStudentNameList: [],
-      evaluationFormType: EvaluationFormType,
+      EvaluationTableType: EvaluationTableType,
+      EvaluationTableMode: EvaluationTableMode,
 
       groupNum: 0,
       memberNum: 0,
 
       selectRubricVisible: false,
-      newFormType: EvaluationFormType.CenturySkills,
+      newFormType: EvaluationTableType.CenturySkills,
       rubricType: 'create',
       newTableName: ''
     }
@@ -410,7 +412,7 @@ export default {
 
     handleEnsureSelectRubric () {
       this.$logger.info('handleEnsureSelectRubric ' + this.newFormType)
-      if (this.newFormType !== 0) {
+      if (this.newFormType) {
         this.selectRubricVisible = false
         const existFormTitleList = []
         const existFormIdList = []
@@ -433,35 +435,20 @@ export default {
           selfId = 'ext_' + Math.random(1000000000, 9999999999)
         }
 
-        if (this.newFormType === this.evaluationFormType.Rubric) {
-          const newFormTable = {
-            title: selfTitle,
-            formType: '1',
-            comment: null,
-            id: selfId,
-            tableData: {
-              evaluationTableList: [],
-              initRawHeaders: [],
-              initRawData: []
-            }
+        const newFormTable = {
+          title: selfTitle,
+          formType: this.newFormType,
+          comment: null,
+          id: selfId,
+          tableData: {
+            evaluationTableList: [],
+            initRawHeaders: [],
+            initRawData: []
           }
-          this.forms.push(newFormTable)
-        } else if (this.newFormType === this.evaluationFormType.CenturySkills) {
-          const newFormTable = {
-            title: selfTitle,
-            formType: '2',
-            comment: null,
-            id: selfId,
-            tableData: {
-              evaluationTableList: [],
-              initRawHeaders: [],
-              initRawData: []
-            }
-          }
-          // 21 centry需要固定自定义结构，且不允许修改标结构
-          this.forms.push(newFormTable)
-          this.currentActiveFormId = newFormTable.id
         }
+        this.$logger.info('newFormTable', newFormTable)
+        this.forms.push(newFormTable)
+        this.currentActiveFormId = newFormTable.id
       } else {
         this.$message.warn('Choose rubric format!')
       }
@@ -498,7 +485,7 @@ export default {
     },
 
     handleSelectRubric (newFormType) {
-      this.$logger.info('handleSelectRubric ' + newFormType)
+      this.$logger.info('handleSelectRubric newFormType ' + newFormType)
       this.newFormType = newFormType
     }
   }

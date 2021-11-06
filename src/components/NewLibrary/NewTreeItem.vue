@@ -117,6 +117,21 @@
             :odd="odd ? index % 2 === 1 : index % 2 === 0 "
             :key="index"/>
         </template>
+        <template v-if="subItemType === 'all21Century'">
+          <new-tree-item
+            :grade-list="gradeList"
+            :tree-current-parent="subTreeParent"
+            :tree-item-data="treeItem"
+            :current-item-type="subItemType"
+            :select-mode="selectMode"
+            :question-index="questionIndex"
+            :tree-item-type="treeItemType"
+            :default-deep="(defaultDeep + 1)"
+            :default-expand-status="treeItem.expandStatus"
+            v-for="(treeItem, index) in treeItemData.children"
+            :odd="odd ? index % 2 === 1 : index % 2 === 0 "
+            :key="index"/>
+        </template>
       </div>
     </template>
   </div>
@@ -206,6 +221,8 @@ export default {
           this.hasSubTree = true
         } else if (this.currentItemType === 'sdgKnowledge') {
           this.hasSubTree = true
+        } else if (this.currentItemType === 'all21Century' && (this.treeItemData.children.length && this.treeItemData.children[0].children.length)) { // evaluation选择用
+          this.hasSubTree = true
         } else {
           this.hasSubTree = false
         }
@@ -286,6 +303,12 @@ export default {
           this.subItemType = 'knowledge'
         }
       }
+    } else if (this.treeItemType === NavigationType.assessmentType) {
+      if (this.treeItemData.children.length) {
+        this.subItemType = 'all21Century'
+      } else {
+        this.subItemType = 'all21CenturyDescription'
+      }
     }
     LibraryEventBus.$on(LibraryEvent.ContentListItemClick, this.handleContentListItemClick)
   },
@@ -309,6 +332,8 @@ export default {
         this.handleExpandSdgTreeItem(treeItemData)
       } else if (this.treeItemType === NavigationType.assessmentType) {
         this.handleExpandAssessmentTypeTreeItem(treeItemData)
+      } else if (this.treeItemType === NavigationType.all21Century) {
+        this.handleExpandAll21CenturyTypeTreeItem(treeItemData)
       }
     },
 
@@ -742,6 +767,54 @@ export default {
         this.subTreeLoading = false
       }
       this.$logger.info('handleExpandCurriculumTreeItem handle finish!')
+    },
+
+    // All21Century直接遍历children
+    handleExpandAll21CenturyTypeTreeItem (treeItemData) {
+      if (this.defaultDeep === 0) {
+        // 直接展开第一层
+        this.subTreeExpandStatus = true
+        LibraryEventBus.$emit(LibraryEvent.ContentListUpdate, {
+          deep: this.defaultDeep,
+          dataType: this.treeItemType,
+          currentTreeData: this.treeItemData,
+          parentTreeData: this.treeCurrentParent,
+          contentList: treeItemData.children,
+          questionIndex: this.questionIndex
+        })
+        this.subItemType = 'all21Century'
+        this.subTreeLoading = false
+        this.hasSubTree = true
+      } else {
+        this.subTreeLoading = true
+        this.subTreeExpandStatus = true
+
+        if (this.treeItemData.children.length && this.treeItemData.children[0].children.length) {
+          this.subItemType = 'all21Century'
+          this.hasSubTree = true
+          LibraryEventBus.$emit(LibraryEvent.ContentListUpdate, {
+            deep: this.defaultDeep,
+            dataType: this.treeItemType,
+            currentTreeData: this.treeItemData,
+            parentTreeData: this.treeCurrentParent,
+            contentList: treeItemData.children,
+            questionIndex: this.questionIndex
+          })
+        } else {
+          this.subItemType = 'all21CenturyDescription'
+          this.hasSubTree = true
+          LibraryEventBus.$emit(LibraryEvent.ContentListUpdate, {
+            deep: this.defaultDeep,
+            dataType: this.treeItemType,
+            currentTreeData: this.treeItemData,
+            parentTreeData: this.treeCurrentParent,
+            contentList: treeItemData.children,
+            questionIndex: this.questionIndex
+          })
+          this.$logger.info('reach description', treeItemData)
+        }
+        this.subTreeLoading = false
+      }
     },
 
     // 21 century skills 是year-knowledge

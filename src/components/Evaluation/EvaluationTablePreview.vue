@@ -6,7 +6,7 @@
     <template v-else>
       <a-row class="top-info" :gutter="[16,24]">
         <a-col span="24">
-          <rubric-one ref="rubric" :description-list="evaluationTableList" :init-raw-headers="initRawHeaders" :init-raw-data="initRawData" mode="preview"/>
+          <evaluation-table ref="rubric" :description-list="evaluationTableList" :init-raw-headers="initRawHeaders" :init-raw-data="initRawData" mode="preview"/>
         </a-col>
       </a-row>
     </template>
@@ -22,12 +22,12 @@ import { EvaluationQueryById } from '@/api/evaluation'
 import { formatLocalUTC } from '@/utils/util'
 import MyContentSelector from '@/components/MyContent/MyContentSelector'
 import RelevantTagSelector from '@/components/UnitPlan/RelevantTagSelector'
-import RubricOne from '@/components/Evaluation/RubricOne'
+import EvaluationTable from '@/components/Evaluation/EvaluationTable'
 
 export default {
   name: 'EvaluationTablePreview',
   components: {
-    RubricOne,
+    EvaluationTable,
     ContentTypeIcon,
     InputSearch,
     MyContentSelector,

@@ -16,7 +16,9 @@
                        currentDataType === NavigationType.specificSkills ? (selectedSubjectSpecificSkillIdList.indexOf(item.id) !== -1) : (
                          currentDataType === NavigationType.centurySkills ? (selected21CenturySkillIdList.indexOf(item.id) !== -1) : (
                            currentDataType === NavigationType.sdg ? (selectedBigIdeaList.indexOf(item.id) !== -1) : (
-                             currentDataType === NavigationType.assessmentType ? (selectedAssessmentIdList.indexOf(item.id) !== -1) : false
+                             currentDataType === NavigationType.assessmentType ? (selectedAssessmentIdList.indexOf(item.id) !== -1) : (
+                               currentDataType === NavigationType.all21Century ? (selectedAll21CenturyIdList.indexOf(item.id) !== -1) : false
+                             )
                            )
                          ))))}"
           v-for="(item,index) in contentDataList"
@@ -117,6 +119,9 @@ export default {
 
       selectedAssessmentIdList: [],
       selectedAssessmentMap: new Map(),
+
+      selectedAll21CenturyIdList: [],
+      selectedAll21CenturyMap: new Map(),
 
       // big idea为纯文字
       selectedBigIdeaList: [],
@@ -388,6 +393,37 @@ export default {
             LibraryEventBus.$emit(LibraryEvent.ContentListItemClick, eventData)
             this.$logger.info('current is grade, skip empty children item!', eventData)
           }
+        }
+      } else if (this.currentDataType === NavigationType.all21Century) {
+        // all 21 century skills 直接遍历children
+        if (item.children.length) {
+          // 如果有子列表，表示还未到最后一层description，通知左侧导航栏更新同步层级
+          LibraryEventBus.$emit(LibraryEvent.ContentListItemClick, {
+            item,
+            dataType: this.currentDataType,
+            parent: this.parent,
+            eventType: 'syncDir'
+          })
+          this.$logger.info('$emit sync')
+        } else {
+          const index = this.selectedAll21CenturyIdList.indexOf(item.id)
+          if (index !== -1) {
+            this.selectedAll21CenturyIdList.splice(index, 1)
+            this.selectedAll21CenturyMap.delete(item.id)
+          } else {
+            this.selectedAll21CenturyIdList.push(item.id)
+            this.selectedAll21CenturyMap.set(item.id, item)
+          }
+          const selectedList = []
+          this.selectedAll21CenturyIdList.forEach(all21Century => {
+            selectedList.push({
+              dataType: this.currentDataType,
+              all21Century,
+              item
+            })
+          })
+          this.$emit('select-all-21-century', selectedList)
+          this.$logger.info('select-all-21-century', selectedList)
         }
       }
     },
