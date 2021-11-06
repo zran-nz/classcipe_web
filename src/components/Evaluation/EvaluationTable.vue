@@ -71,7 +71,7 @@
                   </template>
                   <template v-else>
                     <div class="data-item criteria-data">
-                      <div class="criteria-name">
+                      <div class="criteria-name" @dblclick="handleAddCriteria(header, item, $event)">
                         {{ item[headerType.Criteria].name }}
                       </div>
                       <div class="criteria-list">
@@ -91,71 +91,84 @@
                 </template>
               </template>
 
-              <!-- Description-->
+              <!-- Description rubric_2的description支持选择-->
               <template v-if="header.type === headerType.Description">
-                <div class="data-item">
-                  <div class="description-data">
-                    <template v-if="item[headerType.Description].userInputText">
-                      {{ item[headerType.Description].userInputText }}
-                    </template>
-                    <template v-else>
-                      {{ item[headerType.Description].name }}
-                    </template>
+                <template v-if="formType === tableType.Rubric_2">
+                  <template v-if="!item[headerType.Description] || !item[headerType.Description].name">
+                    <div class="data-item add-criteria" @click="handleAddDescription(header, item, $event)">
+                      <add-opacity-icon />
+                      <div class="add-text">Click to choose the objectives</div>
+                    </div>
+                  </template>
+                  <template v-else>
+                    <div class="data-item criteria-data" @dblclick="handleAddDescription(header, item, $event)">
+                      <div class="criteria-name">
+                        {{ item[headerType.Description].name }}
+                      </div>
+                    </div>
+                  </template>
+                </template>
+                <template v-if="formType === tableType.CenturySkills">
+                  <div class="data-item">
+                    <div class="description-data">
+                      <template v-if="item[headerType.Description].userInputText">
+                        {{ item[headerType.Description].userInputText }}
+                      </template>
+                      <template v-else>
+                        {{ item[headerType.Description].name }}
+                      </template>
+                    </div>
+                    <div class="sub-user-input" @click="handleClickEnterDescription(header, item)">
+                      Enter comment
+                    </div>
                   </div>
-                  <div class="sub-user-input" @click="handleClickEnterDescription(header, item)">
-                    Enter comment
-                  </div>
-                </div>
-                <div class="description-input" v-if="mode === tableMode.Edit">
+                </template>
+              </template>
+            </template>
 
-                </div>
-              </template>
+            <!-- Indicators-->
+            <template v-if="header.type === headerType.Indicators">
+              <div class="indicator-input">
+                <a-textarea style="height: 100%" placeholder="Enter task specific indicators" class="my-text-input" v-model="item[headerType.Indicators].name" @blur="handleUpdateField(header, item)"/>
+              </div>
+            </template>
+            <template v-if="header.type === headerType.Novice">
+              <div class="indicator-input">
+                <a-textarea style="height: 100%" placeholder="Enter" class="my-text-input" v-model="item[headerType.Novice].name" @blur="handleUpdateField(header, item)"/>
+              </div>
+            </template>
+            <template v-if="header.type === headerType.Learner">
+              <div class="indicator-input">
+                <a-textarea style="height: 100%" placeholder="Enter" class="my-text-input" v-model="item[headerType.Learner].name" @blur="handleUpdateField(header, item)"/>
+              </div>
+            </template>
+            <template v-if="header.type === headerType.Practitoner">
+              <div class="indicator-input">
+                <a-textarea style="height: 100%" placeholder="Enter" class="my-text-input" v-model="item[headerType.Practitoner].name" @blur="handleUpdateField(header, item)"/>
+              </div>
+            </template>
+            <template v-if="header.type === headerType.Expert">
+              <div class="indicator-input">
+                <a-textarea style="height: 100%" placeholder="Enter" class="my-text-input" v-model="item[headerType.Expert].name" @blur="handleUpdateField(header, item)"/>
+              </div>
+            </template>
 
-              <!-- Indicators-->
-              <template v-if="header.type === headerType.Indicators">
-                <div class="indicator-input">
-                  <a-textarea style="height: 100%" placeholder="Enter task specific indicators" class="my-text-input" v-model="item[headerType.Indicators].name" @blur="handleUpdateField(header, item)"/>
-                </div>
-              </template>
-              <template v-if="header.type === headerType.Novice">
-                <div class="indicator-input">
-                  <a-textarea style="height: 100%" placeholder="Enter" class="my-text-input" v-model="item[headerType.Novice].name" @blur="handleUpdateField(header, item)"/>
-                </div>
-              </template>
-              <template v-if="header.type === headerType.Learner">
-                <div class="indicator-input">
-                  <a-textarea style="height: 100%" placeholder="Enter" class="my-text-input" v-model="item[headerType.Learner].name" @blur="handleUpdateField(header, item)"/>
-                </div>
-              </template>
-              <template v-if="header.type === headerType.Practitoner">
-                <div class="indicator-input">
-                  <a-textarea style="height: 100%" placeholder="Enter" class="my-text-input" v-model="item[headerType.Practitoner].name" @blur="handleUpdateField(header, item)"/>
-                </div>
-              </template>
-              <template v-if="header.type === headerType.Expert">
-                <div class="indicator-input">
-                  <a-textarea style="height: 100%" placeholder="Enter" class="my-text-input" v-model="item[headerType.Expert].name" @blur="handleUpdateField(header, item)"/>
-                </div>
-              </template>
+            <!-- UserDefine-->
+            <template v-if="header.type.startsWith(headerType.UserDefine)">
+              <div class="indicator-input">
+                <a-textarea style="height: 100%" placeholder="Enter" class="my-text-input" v-model="item[header.type].name" @blur="handleUpdateField(header, item)"/>
+              </div>
+            </template>
 
-              <!-- UserDefine-->
-              <template v-if="header.type.startsWith(headerType.UserDefine)">
-                <div class="indicator-input">
-                  <a-textarea style="height: 100%" placeholder="Enter" class="my-text-input" v-model="item[header.type].name" @blur="handleUpdateField(header, item)"/>
+            <!-- Evidence-->
+            <template v-if="header.type === headerType.Evidence">
+              <div class="evidence-data">
+                <div :class="{'evidence-info': true, 'exist-evidence': item[headerType.Evidence].num}" @click="handleAddEvidenceLine(lIndex, item)">
+                  <add-icon v-show="!item[headerType.Evidence].num"/>
+                  <add-small-green-icon v-show="item[headerType.Evidence].num"/>
+                  <div class="evidence-num">( {{ item[headerType.Evidence].num ? item[headerType.Evidence].num : 0 }} )</div>
                 </div>
-              </template>
-
-              <!-- Evidence-->
-              <template v-if="header.type === headerType.Evidence">
-                <div class="evidence-data">
-                  <div :class="{'evidence-info': true, 'exist-evidence': item[headerType.Evidence].num}" @click="handleAddEvidenceLine(lIndex, item)">
-                    <add-icon v-show="!item[headerType.Evidence].num"/>
-                    <add-small-green-icon v-show="item[headerType.Evidence].num"/>
-                    <div class="evidence-num">( {{ item[headerType.Evidence].num ? item[headerType.Evidence].num : 0 }} )</div>
-                  </div>
-                </div>
-              </template>
-
+              </div>
             </template>
 
             <template v-if="hIndex === headers.length - 1 && mode === tableMode.Edit">
@@ -466,26 +479,6 @@ export default {
           criteriaList: []
         }
 
-        newLineItem[this.headerType.Description] = {
-          name: null
-        }
-
-        newLineItem[this.headerType.Indicators] = {
-          name: null
-        }
-        newLineItem[this.headerType.Novice] = {
-          name: null
-        }
-        newLineItem[this.headerType.Learner] = {
-          name: null
-        }
-        newLineItem[this.headerType.Practitoner] = {
-          name: null
-        }
-        newLineItem[this.headerType.Expert] = {
-          name: null
-        }
-
         newLineItem[this.headerType.Evidence] = {
           num: 0,
           selectedList: []
@@ -495,18 +488,6 @@ export default {
           selectedList: []
         }
       } else if (this.formType === this.tableType.Rubric) {
-        newLineItem[this.headerType.Criteria] = {
-          name: null
-        }
-
-        newLineItem[this.headerType.UserDefine + 1] = {
-          name: null
-        }
-
-        newLineItem[this.headerType.UserDefine + 2] = {
-          name: null
-        }
-
         newLineItem[this.headerType.Evidence] = {
           num: 0,
           selectedList: []
@@ -537,6 +518,17 @@ export default {
       event.preventDefault()
       event.stopPropagation()
       this.$logger.info('handleAddCriteria', header, item)
+      this.showMenuList = [NavigationType.all21Century]
+      this.selectCurriculumVisible = true
+      this.currentSelectHeader = header
+      this.currentSelectLine = item
+    },
+
+    handleAddDescription (header, item, event) {
+      event.preventDefault()
+      event.stopPropagation()
+      this.$logger.info('handleAddDescription', header, item)
+      this.showMenuList = [NavigationType.learningOutcomes]
       this.selectCurriculumVisible = true
       this.currentSelectHeader = header
       this.currentSelectLine = item
@@ -569,10 +561,8 @@ export default {
               if (index > 0) {
                 const newLineItem = {}
                 this.headers.forEach(header => {
-                  if (newLineItem[header.type] || !newLineItem[header.type].name) {
-                    newLineItem[header.type] = {
-                      name: null
-                    }
+                  newLineItem[header.type] = {
+                    name: null
                   }
                 })
                 newLineItem[this.headerType.Criteria] = {
@@ -590,8 +580,8 @@ export default {
                   selectedList: []
                 }
 
+                this.$logger.info('CenturySkills add new line with criteria data ', newLineItem)
                 this.list.push(newLineItem)
-                this.$logger.info('add new line with criteria data ', newLineItem)
               }
             })
           }
@@ -631,8 +621,8 @@ export default {
                   selectedList: []
                 }
 
+                this.$logger.info('Rubric add new line with criteria data ', newLineItem)
                 this.list.push(newLineItem)
-                this.$logger.info('add new line with criteria data ', newLineItem)
               }
             })
           }
