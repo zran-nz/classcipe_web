@@ -86,31 +86,34 @@
               <!-- Description-->
               <template v-if="header.type === headerType.Description">
                 <div class="data-item">
-                  <template v-if="item[headerType.Description]">
-                    <div class="description-data">
-                      {{ item[headerType.Description].name }}
-                    </div>
-                    <div class="sub-user-input" v-if="item[headerType.Description].userInputText">
+                  <div class="description-data">
+                    <template v-if="item[headerType.Description].userInputText">
                       {{ item[headerType.Description].userInputText }}
-                    </div>
-                  </template>
+                    </template>
+                    <template v-else>
+                      {{ item[headerType.Description].name }}
+                    </template>
+                  </div>
+                  <div class="sub-user-input" @click="handleClickEnterDescription(header, item)">
+                    Enter comment
+                  </div>
                 </div>
                 <div class="description-input" v-if="mode === tableMode.Edit">
-                  <a-textarea placeholder="Enter custom description" :autosize="{ minRows: 1, maxRows: 3 }" v-model="item[headerType.Description].userInputText" @blur="handleUpdateDescription(header, item)"/>
+
                 </div>
               </template>
 
               <!-- Indicators-->
               <template v-if="header.type === headerType.Indicators">
                 <div class="indicator-input">
-                  <a-textarea :autosize="{ minRows: 3, maxRows: 6 }" v-model="item[headerType.Indicators].name" @blur="handleUpdateField(header, item)"/>
+                  <a-textarea style="height: 100%" placeholder="Enter task specific indicators" class="my-text-input" v-model="item[headerType.Indicators].name" @blur="handleUpdateField(header, item)"/>
                 </div>
               </template>
 
               <!-- UserDefine-->
               <template v-if="header.type === headerType.UserDefine">
                 <div class="indicator-input">
-                  <a-textarea :autosize="{ minRows: 3, maxRows: 6 }" v-model="item[headerType.UserDefine].name" @blur="handleUpdateField(header, item)"/>
+                  <a-textarea style="height: 100%" placeholder="Enter task specific indicators" class="my-text-input" v-model="item[headerType.UserDefine].name" @blur="handleUpdateField(header, item)"/>
                 </div>
               </template>
 
@@ -159,6 +162,40 @@
           question-index="evaluation_"/>
       </div>
     </a-modal>
+
+    <a-modal
+      v-model="inputDescriptionVisible"
+      :footer="null"
+      :maskClosable="false"
+      :closable="false"
+      width="700px"
+      destroyOnClose>
+      <modal-header @close="inputDescriptionVisible = false"/>
+      <div class="rubric">
+        <div class="rubric-header">
+          <div class="my-modal-header">
+            Enter comment
+          </div>
+        </div>
+        <div class="description-text">
+          <div class="old-description" v-if="currentEnterDescriptionLine">
+            {{ currentEnterDescriptionLine[headerType.Description].name }}
+          </div>
+        </div>
+        <div class="description-input">
+          <a-textarea
+            placeholder="Enter Comment or Description"
+            :autosize="{ minRows: 3, maxRows: 6 }"
+            v-model="inputDescription"
+            @blur="handleUpdateDescription"/>
+        </div>
+        <div class="select-rubric-action">
+          <a-button shape="round" class="my-rubric-btn" style="width: 80px;background-color: #F5F5F5; border-color:#F5F5F5;box-shadow: none; color: #000000 " type="primary" @click="handleCancelDescription">Cancel</a-button>
+          <a-button shape="round" class="my-rubric-btn" style="width: 80px;" type="primary" @click="handleEnsureDescription">Confirm</a-button>
+        </div>
+      </div>
+    </a-modal>
+
   </div>
 </template>
 
@@ -177,6 +214,7 @@ import AddSmallGreenIcon from '@/assets/svgIcon/evaluation/form/tianjia_small_gr
 import AddGreenIcon from '@/assets/svgIcon/evaluation/form/tianjia_green.svg?inline'
 import AddOpacityIcon from '@/assets/svgIcon/evaluation/form/tianjia_opacity.svg?inline'
 import QuestionIcon from '@/assets/svgIcon/evaluation/form/question.svg?inline'
+import ModalHeader from '@/components/Common/ModalHeader'
 
 export default {
   name: 'EvaluationTable',
@@ -186,6 +224,7 @@ export default {
     AddOpacityIcon,
     AddGreenIcon,
     QuestionIcon,
+    ModalHeader,
     draggable,
     NewBrowser
   },
@@ -236,7 +275,11 @@ export default {
       tableMode: EvaluationTableMode,
       headerType: EvaluationTableHeader,
 
-      selectedCriteriaDescriptionList: []
+      selectedCriteriaDescriptionList: [],
+
+      inputDescriptionVisible: false,
+      inputDescription: null,
+      currentEnterDescriptionLine: null
     }
   },
   created () {
@@ -489,6 +532,28 @@ export default {
       this.$logger.info('handleUpdateField', header, item)
     },
 
+    handleClickEnterDescription (header, item) {
+      this.$logger.info('handleClickEnterDescription', header, item)
+      this.inputDescription = item[this.headerType.Description].userInputText
+      this.currentEnterDescriptionLine = item
+      this.inputDescriptionVisible = true
+    },
+
+    handleEnsureDescription () {
+      this.$logger.info('handleEnsureDescription ' + this.inputDescription)
+      this.currentEnterDescriptionLine[this.headerType.Description].userInputText = this.inputDescription
+      this.inputDescriptionVisible = false
+      this.currentEnterDescriptionLine = null
+      this.inputDescription = null
+    },
+
+    handleCancelDescription () {
+      this.$logger.info('handleEnsureDescription ' + this.inputDescription)
+      this.currentEnterDescriptionLine = null
+      this.inputDescription = null
+      this.inputDescriptionVisible = false
+    },
+
     handleAddEvidenceLine (lIndex, item) {
       this.$logger.info('handleAddEvidenceLine', lIndex, item)
       this.$emit('add-evidence', {
@@ -665,6 +730,10 @@ export default {
             .data-item {
               padding: 10px;
             }
+
+            .indicator-input {
+              height: 100%;
+            }
             .add-criteria {
               cursor: pointer;
               user-select: none;
@@ -708,6 +777,8 @@ export default {
             }
 
             .sub-user-input {
+              display: inline-block;
+              cursor: pointer;
               background: #E7E7E7;
               opacity: 1;
               padding: 3px 10px;
@@ -894,6 +965,58 @@ export default {
       color: @primary-color;
     }
   }
+}
+
+.rubric {
+  padding: 0 10px;
+  display: flex;
+  flex-direction: column;
+
+  .rubric-header {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    .my-modal-header {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      font-family: Inter-Bold;
+      height: 37px;
+      font-size: 26px;
+      font-family: Arial;
+      font-weight: 900;
+      line-height: 0px;
+      color: #070707;
+      opacity: 1;
+    }
+    margin-bottom: 15px;
+  }
+
+  .description-text {
+    padding-top: 20px;
+    padding-bottom: 30px;
+    .old-description {
+      font-size: 14px;
+      font-family: Inter-Bold;
+      line-height: 30px;
+      color: #11142D;
+    }
+  }
+}
+
+.select-rubric-action {
+  padding: 40px 0 20px 0;
+  text-align: center;
+  margin: auto;
+
+  .my-rubric-btn {
+    margin: 0 10px;
+  }
+}
+
+.my-text-input {
+  border: none;
 }
 
 </style>
