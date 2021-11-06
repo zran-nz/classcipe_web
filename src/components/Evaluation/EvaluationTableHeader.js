@@ -4,6 +4,10 @@ const EvaluationTableHeader = {
   Description: 'description',
   Indicators: 'indicators',
   Evidence: 'evidence',
+  Novice: 'novice',
+  Learner: 'learner',
+  Practitoner: 'practitoner',
+  Expert: 'expert',
   UserDefine: 'user_define_' // 用戶自定的表头，示例：user_define__1、user_define__2
 }
 

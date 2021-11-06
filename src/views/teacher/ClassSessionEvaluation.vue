@@ -64,10 +64,13 @@
                 </div>
                 <a-menu slot="overlay">
                   <a-menu-item key="0">
-                    <a href="#">Student Evaluation</a>
+                    <a href="#">Student Eval</a>
                   </a-menu-item>
                   <a-menu-item key="1">
-                    <a href="#">Peer Evaluation</a>
+                    <a href="#">Peer Eval</a>
+                  </a-menu-item>
+                  <a-menu-item key="2">
+                    <a href="#" @click="handleDeleteForm(formItem)"><a-icon type="delete" /> Delete</a>
                   </a-menu-item>
                 </a-menu>
               </a-dropdown>
@@ -187,11 +190,12 @@
               </div>
             </div>
             <div class="rubric-type-name">
-              <span :class="{'active-rubric': newFormType === EvaluationTableType.Rubric}">* Rubric format</span>
-              <span :class="{'active-rubric': newFormType === EvaluationTableType.CenturySkills}">* 21 Century skills</span>
+              <span :class="{'active-rubric': newFormType === EvaluationTableType.Rubric || newFormType === EvaluationTableType.Rubric_2}" @click="newFormType = EvaluationTableType.Rubric">* Rubric format</span>
+              <span :class="{'active-rubric': newFormType === EvaluationTableType.CenturySkills}" @click="newFormType= EvaluationTableType.CenturySkills">* 21 Century skills</span>
             </div>
             <div class="rubric-content">
               <div
+                v-show="newFormType === EvaluationTableType.Rubric || newFormType === EvaluationTableType.Rubric_2"
                 :class="{
                   'rubric-item': true,
                   'active-rubric': newFormType === EvaluationTableType.Rubric
@@ -206,6 +210,23 @@
                 </div>
               </div>
               <div
+                v-show="newFormType === EvaluationTableType.Rubric || newFormType === EvaluationTableType.Rubric_2"
+                :class="{
+                  'rubric-item': true,
+                  'active-rubric': newFormType === EvaluationTableType.Rubric_2
+                }"
+                @click="handleSelectRubric(EvaluationTableType.Rubric_2)"
+              >
+                <div class="rubric-preview">
+                  <img src="~@/assets/icons/evaluation/rubric1.png" alt="rubric">
+                </div>
+                <div class="rubric-active-icon">
+                  <a-icon type="check-circle" theme="filled"/>
+                </div>
+              </div>
+
+              <div
+                v-show="newFormType === EvaluationTableType.CenturySkills"
                 :class="{
                   'rubric-item': true,
                   'active-rubric': newFormType === EvaluationTableType.CenturySkills
@@ -487,6 +508,17 @@ export default {
     handleSelectRubric (newFormType) {
       this.$logger.info('handleSelectRubric newFormType ' + newFormType)
       this.newFormType = newFormType
+    },
+
+    handleDeleteForm (formItem) {
+      this.$logger.info('handleDeleteForm', formItem)
+      const forms = []
+      this.forms.forEach(form => {
+        if (form.id !== formItem.id) {
+          forms.push(form)
+        }
+      })
+      this.forms = forms
     }
   }
 }
@@ -778,6 +810,8 @@ export default {
       display: flex;
       flex-direction: row;
       align-items: center;
+      cursor: pointer;
+      user-select: none;
       span  {
         margin-right: 15px;
         height: 21px;
@@ -800,6 +834,7 @@ export default {
       justify-content: space-between;
       margin-bottom: 30px;
       margin-top: 10px;
+      min-height: 210px;
 
       .rubric-item {
         border: 1px solid #fff;

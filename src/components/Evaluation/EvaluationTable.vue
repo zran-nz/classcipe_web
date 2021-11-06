@@ -117,6 +117,26 @@
                   <a-textarea style="height: 100%" placeholder="Enter task specific indicators" class="my-text-input" v-model="item[headerType.Indicators].name" @blur="handleUpdateField(header, item)"/>
                 </div>
               </template>
+              <template v-if="header.type === headerType.Novice">
+                <div class="indicator-input">
+                  <a-textarea style="height: 100%" placeholder="Enter" class="my-text-input" v-model="item[headerType.Novice].name" @blur="handleUpdateField(header, item)"/>
+                </div>
+              </template>
+              <template v-if="header.type === headerType.Learner">
+                <div class="indicator-input">
+                  <a-textarea style="height: 100%" placeholder="Enter" class="my-text-input" v-model="item[headerType.Learner].name" @blur="handleUpdateField(header, item)"/>
+                </div>
+              </template>
+              <template v-if="header.type === headerType.Practitoner">
+                <div class="indicator-input">
+                  <a-textarea style="height: 100%" placeholder="Enter" class="my-text-input" v-model="item[headerType.Practitoner].name" @blur="handleUpdateField(header, item)"/>
+                </div>
+              </template>
+              <template v-if="header.type === headerType.Expert">
+                <div class="indicator-input">
+                  <a-textarea style="height: 100%" placeholder="Enter" class="my-text-input" v-model="item[headerType.Expert].name" @blur="handleUpdateField(header, item)"/>
+                </div>
+              </template>
 
               <!-- UserDefine-->
               <template v-if="header.type.startsWith(headerType.UserDefine)">
@@ -302,11 +322,22 @@ export default {
           { label: '3-4', previewLabel: '3-4', type: EvaluationTableHeader.UserDefine + 2, editable: true, editing: false, required: false },
           { label: 'Evidence', previewLabel: 'Evidence', type: EvaluationTableHeader.Evidence, editable: false, editing: false, required: true }
         ]
+      } else if (this.formType === EvaluationTableType.Rubric_2) {
+        this.headers = [
+          { label: 'Criteria', previewLabel: 'Criteria', type: EvaluationTableHeader.Criteria, editable: false, editing: false, required: true },
+          { label: 'Description', previewLabel: 'Description', type: EvaluationTableHeader.Description, editable: false, editing: false, required: true },
+          { label: 'Task specific indicators', previewLabel: 'Task specific indicators', type: EvaluationTableHeader.Indicators, editable: false, editing: false, required: true },
+          { label: 'Evidence', previewLabel: 'Evidence', type: EvaluationTableHeader.Evidence, editable: false, editing: false, required: true }
+        ]
       } else if (this.formType === EvaluationTableType.CenturySkills) {
         this.headers = [
           { label: 'Criteria', previewLabel: 'Criteria', type: EvaluationTableHeader.Criteria, editable: false, editing: false, required: true },
           { label: 'Description', previewLabel: 'Description', type: EvaluationTableHeader.Description, editable: false, editing: false, required: true },
           { label: 'Task specific indicators', previewLabel: 'Task specific indicators', type: EvaluationTableHeader.Indicators, editable: false, editing: false, required: true },
+          { label: 'Novice', previewLabel: 'Novice', type: EvaluationTableHeader.Novice, editable: false, editing: false, required: true },
+          { label: 'Learner', previewLabel: 'Learner', type: EvaluationTableHeader.Learner, editable: false, editing: false, required: true },
+          { label: 'Practitoner', previewLabel: 'Practitoner', type: EvaluationTableHeader.Practitoner, editable: false, editing: false, required: true },
+          { label: 'Expert', previewLabel: 'Expert', type: EvaluationTableHeader.Expert, editable: false, editing: false, required: true },
           { label: 'Evidence', previewLabel: 'Evidence', type: EvaluationTableHeader.Evidence, editable: false, editing: false, required: true }
         ]
       }
@@ -442,7 +473,23 @@ export default {
         newLineItem[this.headerType.Indicators] = {
           name: null
         }
+        newLineItem[this.headerType.Indicators] = {
+          name: null
+        }
+        newLineItem[this.headerType.Indicators] = {
+          name: null
+        }
+        newLineItem[this.headerType.Indicators] = {
+          name: null
+        }
+        newLineItem[this.headerType.Indicators] = {
+          name: null
+        }
 
+        newLineItem[this.headerType.Evidence] = {
+          num: 0,
+          selectedList: []
+        }
         newLineItem[this.headerType.Evidence] = {
           num: 0,
           selectedList: []
