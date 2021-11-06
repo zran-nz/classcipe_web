@@ -473,16 +473,16 @@ export default {
         newLineItem[this.headerType.Indicators] = {
           name: null
         }
-        newLineItem[this.headerType.Indicators] = {
+        newLineItem[this.headerType.Novice] = {
           name: null
         }
-        newLineItem[this.headerType.Indicators] = {
+        newLineItem[this.headerType.Learner] = {
           name: null
         }
-        newLineItem[this.headerType.Indicators] = {
+        newLineItem[this.headerType.Practitoner] = {
           name: null
         }
-        newLineItem[this.headerType.Indicators] = {
+        newLineItem[this.headerType.Expert] = {
           name: null
         }
 
@@ -556,6 +556,22 @@ export default {
             name: this.selectedCriteriaDescriptionList[0].descriptionName
           }
 
+          this.currentSelectLine[this.headerType.Indicators] = {
+            name: null
+          }
+          this.currentSelectLine[this.headerType.Novice] = {
+            name: null
+          }
+          this.currentSelectLine[this.headerType.Learner] = {
+            name: null
+          }
+          this.currentSelectLine[this.headerType.Practitoner] = {
+            name: null
+          }
+          this.currentSelectLine[this.headerType.Expert] = {
+            name: null
+          }
+
           this.$logger.info('update currentSelectLine with criteria data ', this.currentSelectLine)
 
           // 如果多选，从第二个元素开始新建行填充数据
@@ -577,6 +593,18 @@ export default {
                 }
 
                 newLineItem[this.headerType.Indicators] = {
+                  name: null
+                }
+                newLineItem[this.headerType.Novice] = {
+                  name: null
+                }
+                newLineItem[this.headerType.Learner] = {
+                  name: null
+                }
+                newLineItem[this.headerType.Practitoner] = {
+                  name: null
+                }
+                newLineItem[this.headerType.Expert] = {
                   name: null
                 }
 
