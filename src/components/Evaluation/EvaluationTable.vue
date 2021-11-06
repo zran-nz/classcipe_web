@@ -24,7 +24,7 @@
             <!-- 编辑状态下的输入框-->
             <template v-if="header.editing && mode === tableMode.Edit">
               <div class="label-input">
-                <input v-model="header.label" @blur="handleUpdateHeader(header)" class="header-input-item"/>
+                <input v-model="header.label" @blur="handleUpdateHeader(header)" @keyup.enter="handleUpdateHeader(header)" class="header-input-item"/>
               </div>
             </template>
             <!-- 表头删除图标-->
@@ -59,26 +59,34 @@
             :key="lIndex + '-' + header.type"
             @dblclick="handleDbClickBodyItem(item, header)">
             <template v-if="item.hasOwnProperty(header.type)">
-              <!--              Criteria-->
+
+              <!-- 21 Century Criteria-->
               <template v-if="header.type === headerType.Criteria">
-                <template v-if="!item[headerType.Criteria] || !item[headerType.Criteria].name">
-                  <div class="data-item add-criteria" @click="handleAddCriteria(header, item, $event)">
-                    <add-opacity-icon />
-                    <div class="add-text">Click to choose the objectives</div>
-                  </div>
-                </template>
-                <template v-else>
-                  <div class="data-item criteria-data">
-                    <div class="criteria-name">
-                      {{ item[headerType.Criteria].name }}
+                <template v-if="formType === tableType.CenturySkills">
+                  <template v-if="!item[headerType.Criteria] || !item[headerType.Criteria].name">
+                    <div class="data-item add-criteria" @click="handleAddCriteria(header, item, $event)">
+                      <add-opacity-icon />
+                      <div class="add-text">Click to choose the objectives</div>
                     </div>
-                    <div class="criteria-list">
-                      <div class="criteria-parent" v-for="(criteriaParentItem, cIdx) in item[headerType.Criteria].criteriaList" :key="cIdx">
-                        <div class="criteria-parent-item">
-                          {{ criteriaParentItem }}
+                  </template>
+                  <template v-else>
+                    <div class="data-item criteria-data">
+                      <div class="criteria-name">
+                        {{ item[headerType.Criteria].name }}
+                      </div>
+                      <div class="criteria-list">
+                        <div class="criteria-parent" v-for="(criteriaParentItem, cIdx) in item[headerType.Criteria].criteriaList" :key="cIdx">
+                          <div class="criteria-parent-item">
+                            {{ criteriaParentItem }}
+                          </div>
                         </div>
                       </div>
                     </div>
+                  </template>
+                </template>
+                <template v-if="formType === tableType.Rubric">
+                  <div class="indicator-input">
+                    <a-textarea style="height: 100%" placeholder="Enter Criteria" class="my-text-input" v-model="item[headerType.Criteria].name" @blur="handleUpdateField(header, item)"/>
                   </div>
                 </template>
               </template>
@@ -111,19 +119,19 @@
               </template>
 
               <!-- UserDefine-->
-              <template v-if="header.type === headerType.UserDefine">
+              <template v-if="header.type.startsWith(headerType.UserDefine)">
                 <div class="indicator-input">
-                  <a-textarea style="height: 100%" placeholder="Enter task specific indicators" class="my-text-input" v-model="item[headerType.UserDefine].name" @blur="handleUpdateField(header, item)"/>
+                  <a-textarea style="height: 100%" placeholder="Enter" class="my-text-input" v-model="item[header.type].name" @blur="handleUpdateField(header, item)"/>
                 </div>
               </template>
 
               <!-- Evidence-->
               <template v-if="header.type === headerType.Evidence">
                 <div class="evidence-data">
-                  <div :class="{'evidence-info': true, 'exist-evidence': item[headerType.Evidence].num}">
+                  <div :class="{'evidence-info': true, 'exist-evidence': item[headerType.Evidence].num}" @click="handleAddEvidenceLine(lIndex, item)">
                     <add-icon v-show="!item[headerType.Evidence].num"/>
                     <add-small-green-icon v-show="item[headerType.Evidence].num"/>
-                    <div class="evidence-num">( {{ item[headerType.Evidence].num }} )</div>
+                    <div class="evidence-num">( {{ item[headerType.Evidence].num ? item[headerType.Evidence].num : 0 }} )</div>
                   </div>
                 </div>
               </template>
@@ -171,7 +179,7 @@
       width="700px"
       destroyOnClose>
       <modal-header @close="inputDescriptionVisible = false"/>
-      <div class="rubric">
+      <div class="rubric-modal">
         <div class="rubric-header">
           <div class="my-modal-header">
             Enter comment
@@ -290,8 +298,8 @@ export default {
       if (this.formType === EvaluationTableType.Rubric) {
         this.headers = [
           { label: 'Criteria', previewLabel: 'Criteria', type: EvaluationTableHeader.Criteria, editable: false, editing: false, required: true },
-          { label: '1-2', previewLabel: '1-2', type: EvaluationTableHeader.Indicators, editable: true, editing: false, required: false },
-          { label: '3-4', previewLabel: '3-4', type: EvaluationTableHeader.Indicators, editable: true, editing: false, required: false },
+          { label: '1-2', previewLabel: '1-2', type: EvaluationTableHeader.UserDefine + 1, editable: true, editing: false, required: false },
+          { label: '3-4', previewLabel: '3-4', type: EvaluationTableHeader.UserDefine + 2, editable: true, editing: false, required: false },
           { label: 'Evidence', previewLabel: 'Evidence', type: EvaluationTableHeader.Evidence, editable: false, editing: false, required: true }
         ]
       } else if (this.formType === EvaluationTableType.CenturySkills) {
@@ -432,6 +440,23 @@ export default {
         }
 
         newLineItem[this.headerType.Indicators] = {
+          name: null
+        }
+
+        newLineItem[this.headerType.Evidence] = {
+          num: 0,
+          selectedList: []
+        }
+      } else if (this.formType === this.tableType.Rubric) {
+        newLineItem[this.headerType.Criteria] = {
+          name: null
+        }
+
+        newLineItem[this.headerType.UserDefine + 1] = {
+          name: null
+        }
+
+        newLineItem[this.headerType.UserDefine + 2] = {
           name: null
         }
 
@@ -797,6 +822,7 @@ export default {
               align-items: center;
               justify-content: center;
               .evidence-info {
+                cursor: pointer;
                 display: flex;
                 flex-direction: row;
                 align-items: center;
@@ -967,7 +993,7 @@ export default {
   }
 }
 
-.rubric {
+.rubric-modal {
   padding: 0 10px;
   display: flex;
   flex-direction: column;
