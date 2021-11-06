@@ -200,6 +200,7 @@
           :show-menu="showMenuList"
           :default-active-menu="defaultActiveMenu"
           @select-all-21-century="handleSelectAll21CenturyListData"
+          @select-curriculum="handleSelectDescriptionListData"
           question-index="evaluation_"/>
       </div>
     </a-modal>
@@ -317,6 +318,7 @@ export default {
       headerType: EvaluationTableHeader,
 
       selectedCriteriaDescriptionList: [],
+      selectedRubricDescriptionList: [],
 
       inputDescriptionVisible: false,
       inputDescription: null,
@@ -534,8 +536,8 @@ export default {
       this.currentSelectLine = item
     },
 
-    handleEnsureSelectCriteria (data) {
-      this.$logger.info('handleEnsureSelectCriteria', data)
+    handleEnsureSelectCriteria () {
+      this.$logger.info('handleEnsureSelectCriteria')
       this.selectCurriculumVisible = false
       if (this.formType === this.tableType.CenturySkills) {
         if (this.selectedCriteriaDescriptionList.length >= 1) {
@@ -627,6 +629,46 @@ export default {
             })
           }
         }
+      } else if (this.formType === this.tableType.Rubric_2) {
+        this.$logger.info('tableType.Rubric', this.selectedRubricDescriptionList)
+        if (this.selectedRubricDescriptionList.length >= 1) {
+          // 如果只选择了一个，使用第一个填充当前行数据
+          this.headers.forEach(header => {
+            if (this.currentSelectLine[header.type] || !this.currentSelectLine[header.type]) {
+              this.currentSelectLine[header.type].name = null
+            }
+          })
+          this.currentSelectLine[this.headerType.Description] = {
+            name: this.selectedRubricDescriptionList[0].name
+          }
+
+          this.$logger.info('update currentSelectLine description with criteria data ', this.currentSelectLine)
+
+          // 如果多选，从第二个元素开始新建行填充数据
+          if (this.selectedRubricDescriptionList.length > 1) {
+            this.selectedRubricDescriptionList.forEach((descriptionItem, index) => {
+              if (index > 0) {
+                const newLineItem = {}
+                this.headers.forEach(header => {
+                  newLineItem[header.type] = {
+                    name: null
+                  }
+                })
+                newLineItem[this.headerType.Description] = {
+                  name: descriptionItem.name
+                }
+
+                newLineItem[this.headerType.Evidence] = {
+                  num: 0,
+                  selectedList: []
+                }
+
+                this.$logger.info('Rubric description add new line with criteria data ', newLineItem)
+                this.list.push(newLineItem)
+              }
+            })
+          }
+        }
       } else {
         this.$logger.info('rubric form no allow select')
       }
@@ -687,6 +729,20 @@ export default {
       })
       this.selectedCriteriaDescriptionList = descriptionList
       this.$logger.info('selectedCriteriaDescriptionList ', descriptionList)
+    },
+
+    handleSelectDescriptionListData  (data) {
+      this.$logger.info('EvaluationTable handleSelectDescriptionListData', data)
+      const descriptionList = []
+      data.forEach(dataItem => {
+        const descriptionItem = {
+          name: dataItem.knowledgeData.name
+        }
+
+        descriptionList.push(descriptionItem)
+      })
+      this.selectedRubricDescriptionList = descriptionList
+      this.$logger.info('handleSelectDescriptionListData ', descriptionList)
     },
 
     handleCancelSelectData () {
