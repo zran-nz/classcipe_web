@@ -319,9 +319,9 @@ export default {
       currentActiveFormId: null,
       form: { // 基础表单数据
         classId: '',
-        name: 'test evaluation',
+        name: '',
         evaluation: null,
-        className: 'untitled class',
+        className: '',
         forms: [],
         groups: []
       },
@@ -354,30 +354,28 @@ export default {
       this.loading = false
       GetSessionEvaluationByClassId({ classId: this.classId }).then(response => {
         this.$logger.info('GetSessionEvaluationByClassId response', response.result)
-        if (response.result.evaluation) {
-          this.groups = [
-            {
-              'classId': '1',
-              'id': 1,
-              'members': [
-                {
-                  'groupId': 1,
-                  'id': 1,
-                  'userId': 'xunwu'
-                }
-              ],
-              'name': 'Group'
-            }
-          ]
-          // this.form = response.evaluation
-          // this.forms = response.evaluation.forms
-          // this.groups = response.evaluation.groups
-          this.groupNum = this.groups.length
-          this.memberNum = 0
-          this.groups.forEach(group => {
-            this.memberNum = this.memberNum + group.members.length
-          })
-        }
+        this.groups = [
+          {
+            'classId': '1',
+            'id': 1,
+            'members': [
+              {
+                'groupId': 1,
+                'id': 1,
+                'userId': 'xunwu'
+              }
+            ],
+            'name': 'Group'
+          }
+        ]
+        // this.form = response.evaluation
+        // this.forms = response.evaluation.forms
+        // this.groups = response.evaluation.groups
+        this.groupNum = this.groups.length
+        this.memberNum = 0
+        this.groups.forEach(group => {
+          this.memberNum = this.memberNum + group.members.length
+        })
       }).finally(() => {
         if (!this.forms || this.forms.length === 0) {
           this.selectRubricVisible = true
@@ -496,7 +494,9 @@ export default {
         this.$router.push({ path: '/teacher/main/created-by-me' })
       }, 500)
     },
-    handleSaveEvaluation () {},
+    handleSaveEvaluation () {
+      this.$logger.info('handleSaveEvaluation', this.forms)
+    },
     handlePublishEvaluation () {},
 
     // 修改表头数据处理

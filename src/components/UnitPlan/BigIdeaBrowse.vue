@@ -5,7 +5,7 @@
       <a-col span="6" class="col-wrapper">
         <div>
           <a-list bordered :data-source="subjectList" style="border: none" >
-            <a-list-item slot="renderItem" slot-scope="item" :class="{'list-item-selected':subjectIds.indexOf(item.id) > -1}" @click="selectSubject(item.id)">
+            <a-list-item slot="renderItem" slot-scope="item" :class="{'list-item-selected':subjectId === item.id}" @click="selectSubject(item.id)">
               {{ item.name }}
             </a-list-item>
           </a-list>
@@ -28,7 +28,7 @@
             <div class="keyword-wrapper">
               <div class="title"><h4>Hot</h4></div>
               <div class="keyword-list">
-                <div v-for="(hot,index) in keywordHotList" :key="index" :class="{'keyword-item': true, 'kd-active-item': true}" @click="queryBigIdeaKeywords(hot)">
+                <div v-for="(hot,index) in showHotList" :key="index" :class="{'keyword-item': true, 'kd-active-item': true}" @click="queryBigIdeaKeywords(hot)">
                   <span class="keyword-name">
                     {{ hot }}
                   </span>
@@ -111,6 +111,15 @@ export default {
   destroyed () {
 
   },
+  computed: {
+    showHotList: function () {
+      if (!this.subjectId) {
+        return this.keywordHotList
+      } else {
+        return this.keywordHotList.filter(item => this.keywordList.indexOf(item) !== -1)
+      }
+    }
+  },
   data () {
     return {
       keywordList: [],
@@ -127,6 +136,7 @@ export default {
       subjectTree: [],
       subjectList: [],
       subjectIds: [],
+      subjectId: '',
       conceptList: [],
       selectedConcept: [],
       alphabet: ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q',
@@ -143,11 +153,12 @@ export default {
         this.subjectList = [{ name: 'All Subject', id: '' }]
         this.subjectTree = res.result
         this.subjectTree.forEach(item => {
-          if (item.children.length > 0) {
-            item.children.forEach(child => {
-              this.subjectList.push(child)
-            })
-          }
+          this.subjectList.push(item)
+          // if (item.children.length > 0) {
+          //   item.children.forEach(child => {
+          //     this.subjectList.push(child)
+          //   })
+          // }
         })
       }
     }).finally(() => {
@@ -192,6 +203,7 @@ export default {
     },
     QueryBigIdea () {
       this.bigLoading = true
+      this.bigIdeaList = []
       if (this.subjectIds.length === 1 && !this.subjectIds[0]) {
         this.subjectIds = []
       }
@@ -202,15 +214,18 @@ export default {
         }
       }).finally(() => {
         this.bigLoading = false
+          QueryTagsBySubjectIds({ 'mainSubjectId': this.subjectId, keywords: this.selectedKeywords }).then(response => {
+            this.$logger.info('queryTagsByMainSubjectId response', response.result)
+            if (response.success) {
+              this.conceptList = response.result['Universal Concept']
+            }
       })
+    })
     },
     queryTagsBySubjectIds () {
       this.$logger.info('queryTagsBySubjectIds')
-      if (this.subjectIds.length === 1 && !this.subjectIds[0]) {
-        this.subjectIds = []
-      }
-      QueryTagsBySubjectIds({ 'subjectIds': this.subjectIds }).then(response => {
-        this.$logger.info('queryTagsBySubjectIds response', response.result)
+      QueryTagsBySubjectIds({ 'mainSubjectId': this.subjectId }).then(response => {
+        this.$logger.info('queryTagsByMainSubjectId response', response.result)
         if (response.success) {
           this.conceptList = response.result['Universal Concept']
           this.keywordList = response.result['Key words']
@@ -231,8 +246,7 @@ export default {
       this.QuerySourceTagByCategory()
     },
     selectSubject (subjectId) {
-      this.subjectIds = []
-      this.subjectIds.push(subjectId)
+      this.subjectId = subjectId
       this.queryTagsBySubjectIds()
       this.QueryBigIdea()
     }

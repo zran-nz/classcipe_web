@@ -183,13 +183,11 @@
 import * as logger from '@/utils/logger'
 import ContentTypeIcon from '@/components/Teacher/ContentTypeIcon'
 import { typeMap } from '@/const/teacher'
-import { UpdateContentStatus, GetAssociate } from '@/api/teacher'
+import { UpdateContentStatus } from '@/api/teacher'
 import InputSearch from '@/components/UnitPlan/InputSearch'
 import { TemplatesGetTemplates } from '@/api/template'
 import { MyContentEventBus, MyContentEvent } from '@/components/MyContent/MyContentEventBus'
 import { EvaluationQueryById, EvaluationAddOrUpdate } from '@/api/evaluation'
-import { TaskQueryById } from '@/api/task'
-import { LessonQueryById } from '@/api/myLesson'
 import { formatLocalUTC } from '@/utils/util'
 import MyContentSelector from '@/components/MyContent/MyContentSelector'
 import RelevantTagSelector from '@/components/UnitPlan/RelevantTagSelector'
@@ -201,14 +199,6 @@ import { GetStudents } from '@/api/lesson'
 import { commonAPIUrl } from '@/api/common'
 import PptSlideView from '@/components/Evaluation/PptSlideView'
 import NoMoreResources from '@/components/Common/NoMoreResources'
-
-const TagOriginType = {
-  Origin: 'Origin',
-  Search: 'Search',
-  Description: 'Description',
-  Create: 'Create',
-  Extension: 'Extension'
-}
 
 export default {
   name: 'StartEvaluationView',
@@ -265,18 +255,6 @@ export default {
         createTime: '',
         updateTime: ''
       },
-
-      // 关联信息
-      ownerAssociateData: [],
-      othersAssociateData: [],
-
-      // 待选择的unit plan中的描述标签
-      relevantQuestionList: [],
-      showRelevantQuestionVisible: false,
-      relevantSelectedQuestionList: [],
-
-      subKnowledgeId2InfoMap: new Map(),
-      descriptionId2InfoMap: new Map(),
       showAddAudioVisible: false,
       currentUploading: false,
       audioUrl: null,
@@ -391,116 +369,6 @@ export default {
         this.$logger.info(this.classId + ' GetStudents', response)
         this.studentList = response.data
       })
-    },
-
-    loadAssociate () {
-      GetAssociate({
-        id: this.evaluationId,
-        type: this.contentType.evaluation
-      }).then(response => {
-        this.$logger.info('GetAssociate response', response)
-        const associate = response.result
-        this.ownerAssociateData = associate.owner
-        this.othersAssociateData = associate.others
-        this.$logger.info('ownerAssociateData ', this.ownerAssociateData, 'othersAssociateData', this.othersAssociateData)
-      })
-    },
-
-    loadRelevantTagInfo (item) {
-      this.$logger.info('loadRelevantTagInfo', item)
-      this.showRelevantQuestionVisible = false
-      if (item.type === this.contentType.task) {
-        TaskQueryById({ id: item.id }).then(response => {
-          this.$logger.info('loadRelevantTagInfo LessonQueryById ' + item.id, response)
-          const data = response.result
-          this.formatRelevantData(data)
-        })
-      }
-
-      if (item.type === this.contentType.lesson) {
-        LessonQueryById({ id: item.id }).then(response => {
-          this.$logger.info('loadRelevantTagInfo UnitPlanQueryById ' + item.id, response)
-          const data = response.result
-          this.formatRelevantData(data)
-        })
-      }
-    },
-
-    formatRelevantData (data) {
-      this.$logger.info('formatRelevantData', data)
-      if (data.suggestingTag && (data.suggestingTag.knowledgeTags.length || data.suggestingTag.skillTags.length)) {
-        const questionMap = new Map()
-        const relevantTagList = []
-
-        // 处理knowledge tags
-        const knowledgeTagMap = new Map()
-        const knowledgeTagList = []
-        data.suggestingTag.knowledgeTags.forEach(item => {
-          if (!!item.subKnowledgeId && item.curriculumId === this.$store.getters.bindCurriculum) {
-            if (!knowledgeTagMap.has(item.subKnowledgeId)) {
-              knowledgeTagMap.set(item.subKnowledgeId, [])
-              this.subKnowledgeId2InfoMap.set(item.subKnowledgeId, {
-                ...item
-              })
-            }
-
-            const tagList = knowledgeTagMap.get(item.subKnowledgeId)
-            tagList.push({
-              ...item,
-              type: TagOriginType.Origin
-            })
-            knowledgeTagMap.set(item.subKnowledgeId, tagList)
-          }
-        })
-        for (const [id, tagList] of knowledgeTagMap) {
-          knowledgeTagList.push({
-            id: tagList[0].id,
-            tagList,
-            info: this.subKnowledgeId2InfoMap.get(id)
-          })
-        }
-
-        // 处理skill tags
-        const skillTagMap = new Map()
-        const skillTagList = []
-        data.suggestingTag.skillTags.forEach(item => {
-          if (!!item.descriptionId && item.curriculumId === this.$store.getters.bindCurriculum) {
-            if (!skillTagMap.has(item.descriptionId)) {
-              skillTagMap.set(item.descriptionId, [])
-              this.descriptionId2InfoMap.set(item.descriptionId, {
-                ...item
-              })
-            }
-
-            const tagList = skillTagMap.get(item.descriptionId)
-            tagList.push({
-              ...item,
-              type: TagOriginType.Origin
-            })
-            skillTagMap.set(item.descriptionId, tagList)
-          }
-        })
-        for (const [id, tagList] of skillTagMap) {
-          skillTagList.push({
-            id: tagList[0].id,
-            tagList,
-            info: this.descriptionId2InfoMap.get(id)
-          })
-        }
-
-        relevantTagList.push({
-          questionName: 'Select from the relevant ',
-          questionId: 1,
-          skillTagList,
-          knowledgeTagList
-        })
-        questionMap.clear()
-
-        this.relevantQuestionList = relevantTagList
-        this.$logger.info('relevantQuestionList', this.relevantQuestionList)
-      } else {
-        this.$logger.warn('formatRelevantData data empty')
-      }
     },
 
     handleSaveEvaluation () {

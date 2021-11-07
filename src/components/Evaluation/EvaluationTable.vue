@@ -62,7 +62,7 @@
 
               <!-- 21 Century Criteria-->
               <template v-if="header.type === headerType.Criteria">
-                <template v-if="formType === tableType.CenturySkills || formType === tableType.Rubric">
+                <template v-if="formType === tableType.CenturySkills">
                   <template v-if="!item[headerType.Criteria] || !item[headerType.Criteria].name">
                     <div class="data-item add-criteria" @click="handleAddCriteria(header, item, $event)">
                       <add-opacity-icon />
@@ -80,6 +80,21 @@
                             {{ criteriaParentItem }}
                           </div>
                         </div>
+                      </div>
+                    </div>
+                  </template>
+                </template>
+                <template v-if="formType === tableType.Rubric">
+                  <template v-if="!item[headerType.Criteria] || !item[headerType.Criteria].name">
+                    <div class="data-item add-criteria" @click="handleAddDescription(header, item, $event)">
+                      <add-opacity-icon />
+                      <div class="add-text">Click to choose the objectives</div>
+                    </div>
+                  </template>
+                  <template v-else>
+                    <div class="data-item criteria-data" @dblclick="handleAddDescription(header, item, $event)">
+                      <div class="criteria-name">
+                        {{ item[headerType.Criteria].name }}
                       </div>
                     </div>
                   </template>
@@ -591,7 +606,7 @@ export default {
           }
         }
       } else if (this.formType === this.tableType.Rubric) {
-        if (this.selectedCriteriaDescriptionList.length >= 1) {
+        if (this.selectedRubricDescriptionList.length >= 1) {
           // 如果只选择了一个，使用第一个填充当前行数据
           this.headers.forEach(header => {
             if (this.currentSelectLine[header.type] || !this.currentSelectLine[header.type]) {
@@ -599,15 +614,14 @@ export default {
             }
           })
           this.currentSelectLine[this.headerType.Criteria] = {
-            name: this.selectedCriteriaDescriptionList[0].criteriaList[0],
-            criteriaList: this.selectedCriteriaDescriptionList[0].criteriaList.slice(1)
+            name: this.selectedRubricDescriptionList[0].name
           }
 
           this.$logger.info('update currentSelectLine with criteria data ', this.currentSelectLine)
 
           // 如果多选，从第二个元素开始新建行填充数据
-          if (this.selectedCriteriaDescriptionList.length > 1) {
-            this.selectedCriteriaDescriptionList.forEach((item, index) => {
+          if (this.selectedRubricDescriptionList.length > 1) {
+            this.selectedRubricDescriptionList.forEach((descriptionItem, index) => {
               if (index > 0) {
                 const newLineItem = {}
                 this.headers.forEach(header => {
@@ -616,8 +630,7 @@ export default {
                   }
                 })
                 newLineItem[this.headerType.Criteria] = {
-                  name: item.criteriaList[0],
-                  criteriaList: item.criteriaList.slice(1)
+                  name: descriptionItem.name
                 }
 
                 newLineItem[this.headerType.Evidence] = {
