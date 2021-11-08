@@ -1659,6 +1659,9 @@ export default {
         this.customTagList = []
         // console.log(currentDom.classList)
         while (currentDom !== null) {
+          if (!currentDom.offsetTop) {
+            break
+          }
           formTop += currentDom.offsetTop
           currentDom = currentDom.offsetParent
           /* if (currentDom.classList.contains('sdg-content-blocks')) {

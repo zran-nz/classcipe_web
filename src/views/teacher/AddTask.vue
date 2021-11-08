@@ -1950,6 +1950,9 @@
         const currentFocus = ''
         this.customTagList = []
         while (currentDom !== null) {
+          if (!currentDom.offsetTop) {
+            break
+          }
           formTop += currentDom.offsetTop
           currentDom = currentDom.offsetParent
           // if(currentDom.classList.contains('div.task-type-item.green-active-task-type')) {
