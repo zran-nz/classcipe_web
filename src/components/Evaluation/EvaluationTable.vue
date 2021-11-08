@@ -461,8 +461,9 @@ export default {
 
       // 初始化对应列的数据
       const oldList = JSON.parse(JSON.stringify(this.list))
+      console.log(oldList)
       oldList.forEach(item => {
-        item[headerItem.type] = null
+        item[headerItem.type] = { name: null }
       })
       this.list = oldList
       this.$logger.info('after update list', this.list)
@@ -506,7 +507,7 @@ export default {
           num: 0,
           selectedList: []
         }
-      } else if (this.formType === this.tableType.Rubric) {
+      } else if (this.formType === this.tableType.Rubric || this.formType === this.tableType.Rubric_2) {
         newLineItem[this.headerType.Evidence] = {
           num: 0,
           selectedList: []

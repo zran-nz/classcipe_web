@@ -496,6 +496,7 @@ export default {
     },
     handleSaveEvaluation () {
       this.$logger.info('handleSaveEvaluation', this.forms)
+      this.$refs.commonFormHeader.saving = false
     },
     handlePublishEvaluation () {},
 
