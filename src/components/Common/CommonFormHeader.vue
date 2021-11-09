@@ -21,7 +21,7 @@
             <!--            <div class="class-name">{{ form.className }}</div>-->
           </div>
         </template>
-        <template v-if="form.hasOwnProperty('evaluation') && form.hasOwnProperty('groups')">
+        <template v-if="form.type !== typeMap.evaluation">
           <span class="unit-last-change-time" v-if="lastChangeSavedTime">
             <span class="unit-nav-title">
               {{ form.name }}
