@@ -172,9 +172,13 @@
       :footer="null"
       destroyOnClose
       width="800px">
-      <div class="my-modal-title" slot="title">
+      <div class="my-modal-title" slot="title" v-if="fromType === typeMap.task">
+        Link Evaluation Form(s)
+      </div>
+      <div class="my-modal-title" slot="title" v-else>
         Link my content
       </div>
+
       <div class="link-content-wrapper">
         <new-my-content
           :from-type="fromType"

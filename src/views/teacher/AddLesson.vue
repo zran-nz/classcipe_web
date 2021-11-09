@@ -239,7 +239,7 @@
         v-model="viewInGoogleSlideVisible"
         :footer="null"
         destroyOnClose
-        title="Create Success"
+        title="Created Successfully"
         @ok="viewInGoogleSlideVisible = false"
         @cancel="viewInGoogleSlideVisible = false">
         <div class="view-in-google-slider">
@@ -248,7 +248,7 @@
               <a :href="presentationLink" target="_blank">{{ presentationLink }}</a>
             </div>
             <div class="view-action">
-              <a-button type="primary" @click="handleOpenGoogleSlide(presentationLink)">Edit In Google Slide</a-button>
+              <a-button type="primary" @click="handleOpenGoogleSlide(presentationLink)">Edit in Google Slides</a-button>
             </div>
           </div>
         </div>
@@ -322,7 +322,7 @@
                 <a-button @click="handleAddTemplate" :style="{'display': 'flex', 'align-items': 'center', 'justify-content': 'center', 'padding': '10px'}" shape="round" type="primary" :loading="creating">
                   <img src="~@/assets/icons/lesson/path.png" class="btn-icon"/>
                   <div class="btn-text">
-                    Create the task in google slide
+                    Create the task in Google Slides
                   </div>
                 </a-button>
               </div>

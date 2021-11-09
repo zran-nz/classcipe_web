@@ -16,7 +16,7 @@ export default {
   'teacher.add-lesson.image': 'Image',
   'teacher.add-lesson.choose-a-template': 'Choose a template',
   'teacher.add-lesson.choose-my-content': 'My Content',
-  'teacher.add-lesson.upload-a-picture': 'Upload a picture',
+  'teacher.add-lesson.upload-a-picture': 'Upload a Cover Image',
   'teacher.add-lesson.upload-material': 'Upload your material',
   'teacher.add-lesson.click-to-upload': 'Click to upload',
   'teacher.add-lesson.real-life-scenario': 'Sustainable development goal',

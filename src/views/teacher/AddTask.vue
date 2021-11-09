@@ -20,26 +20,26 @@
               <div class="task-form-left root-locate-form" ref="form" @click="focusInput($event)" :style="{'width':leftWidth}">
                 <a-form-model :model="form" class="my-form-wrapper" >
                   <a-steps :current="currentActiveStepIndex" direction="vertical" @change="onChangeStep">
-                    <a-step class="step-1" title="Edit course info" :status="currentActiveStepIndex === 0 ? 'process':'wait'">
+                    <a-step class="step-1" title="Edit Task Info" :status="currentActiveStepIndex === 0 ? 'process':'wait'">
                       <template v-if="currentActiveStepIndex === 0" slot="description">
 
                         <div class="form-block" >
                           <comment-switch field-name="name" :is-active="showCollaborateCommentVisible && currentFieldName === 'name'" @switch="handleSwitchComment" class="my-comment-switch"/>
                           <a-form-item label="Task name" >
-                            <a-input v-model="form.name" placeholder="Enter Course Name" class="my-form-input"/>
+                            <a-input v-model="form.name" placeholder="Enter Task Name" class="my-form-input"/>
                           </a-form-item>
                         </div>
 
                         <div class="form-block over-form-block" id="overview" >
                           <comment-switch field-name="overview" :is-active="showCollaborateCommentVisible && currentFieldName === 'overview'" @switch="handleSwitchComment" class="my-comment-switch"/>
-                          <a-form-model-item class="task-audio-line" label="Course Overview" ref="overview">
+                          <a-form-model-item class="task-audio-line" label="Task Overview" ref="overview">
                             <a-textarea v-model="form.overview" placeholder="Overview" allow-clear />
                           </a-form-model-item>
                         </div>
 
                         <div class="form-block taskType" >
                           <comment-switch field-name="taskType" :is-active="showCollaborateCommentVisible && currentFieldName === 'taskType'" @switch="handleSwitchComment" class="my-comment-switch"/>
-                          <a-form-model-item class="task-audio-line" label="Choose type" ref="taskType">
+                          <a-form-model-item class="task-audio-line" label="Choose Task Type(Formative Assessment/ Summative Assessment)" ref="taskType">
                             <div class="self-type-wrapper" >
                               <div class="self-field-label" >
                                 <div :class="{'task-type-item': true, 'green-active-task-type': form.taskType === 'FA'}" @click.stop.prevent="handleSelectTaskType('FA')">FA</div>
@@ -91,14 +91,14 @@
                         <div class="edit-in-slide">
                           <a-button class="action-ensure action-item edit-slide" type="primary" shape="round" @click="handleOpenGoogleSlide(presentationLink)">
                             <img src="~@/assets/icons/task/path.png" class="btn-icon"/>
-                            Edit In Google Slide
+                            Edit in Google Slides
                           </a-button>
                         </div>
                         <a-skeleton :loading="skeletonLoading" active>
                           <div class="slide-select-wrapper" ref="slide">
                             <div class="slide-select">
                               <div class="slide-select-and-preview">
-                                <!--                            <div class="reset-edit-basic-info" >Edit course info</div>-->
+                                <!--                            <div class="reset-edit-basic-info" >Edit Task Info</div>-->
                                 <div class="slide-select-action" v-show="!form.presentationId">
                                   <img src="~@/assets/icons/task/Teamwork-Pie-Chart@2x.png" />
                                   <div class="select-action">
@@ -153,10 +153,10 @@
                       </template>
                     </a-step>
 
-                    <a-step title="Link Task content" :status="currentActiveStepIndex === 2 ? 'process':'wait'">
+                    <a-step title="Link Evaluation Form(s)" :status="currentActiveStepIndex === 2 ? 'process':'wait'">
                       <template v-if="currentActiveStepIndex === 2" slot="description">
                         <div class="form-block">
-                          <a-form-item label="Link Task content" class="link-plan-title">
+                          <a-form-item label="Link Evaluation Form(s)" class="link-plan-title">
                             <a-button type="primary" :style="{'background-color': '#fff', 'color': '#000', 'border': '1px solid #D8D8D8'}" @click="handleAddTerm">
                               <div class="btn-text" style="line-height: 20px">
                                 + Add term
@@ -374,7 +374,7 @@
         destroyOnClose
         width="800px">
         <div class="my-modal-title" slot="title">
-          Link my content
+          Link Evaluation Form(s)
         </div>
         <div class="link-content-wrapper">
           <new-my-content
@@ -394,7 +394,7 @@
         v-model="viewInGoogleSlideVisible"
         :footer="null"
         destroyOnClose
-        title="Create Success"
+        title="Created Successfully"
         @ok="viewInGoogleSlideVisible = false"
         @cancel="viewInGoogleSlideVisible = false">
         <div class="view-in-google-slider">
@@ -403,7 +403,7 @@
               <a :href="presentationLink" target="_blank">{{ presentationLink }}</a>
             </div>
             <div class="view-action">
-              <a-button type="primary" @click="handleOpenGoogleSlide(presentationLink)">Edit In Google Slide</a-button>
+              <a-button type="primary" @click="handleOpenGoogleSlide(presentationLink)">Edit in Google Slides</a-button>
             </div>
           </div>
         </div>
@@ -580,7 +580,7 @@
                 <a-button @click="handleAddTemplate" :style="{'display': 'flex', 'align-items': 'center', 'justify-content': 'center', 'padding': '10px'}" shape="round" type="primary" :loading="creating">
                   <img src="~@/assets/icons/task/path.png" class="btn-icon"/>
                   <div class="btn-text">
-                    Create the task in google slide
+                    Create the task in Google Slides
                   </div>
                 </a-button>
               </div>
@@ -1697,7 +1697,7 @@
           this.selectLinkContentVisible = true
           this.setSessionStep(1)
         } else {
-          this.$message.warn('Course info is empty, please fill the form first!')
+          this.$message.warn('Task Info is empty, please fill the form first!')
         }
       },
       handleEnsureSelectedLink (data) {

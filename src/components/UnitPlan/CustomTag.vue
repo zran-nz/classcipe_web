@@ -43,7 +43,7 @@
                           <a-input-search
                             v-model="inputTag"
                             size="large"
-                            placeholder="Add tags"
+                            placeholder="Create Tags"
                             class="search-input"
                             @keyup.enter.native="handleKeyup"
                             @search="searchTag"

@@ -1,6 +1,6 @@
 <template>
   <div class="my-content">
-    <div class="created-type-filter">
+    <!--    <div class="created-type-filter">
       <a-dropdown>
         <a-menu slot="overlay">
           <a-menu-item @click="handleToggleType('All')">
@@ -23,7 +23,7 @@
           <a-icon type="caret-down"/>
         </a-button>
       </a-dropdown>
-    </div>
+    </div>-->
     <div class="display-type-toggle">
       <div
         :class="{'display-type-item': true,
@@ -56,7 +56,7 @@
     </div>
     <div class="create-new-action">
       <div class="create-action" @click="handleCreateNew">
-        Create new {{ currentTypeLabel }}
+        Create New {{ currentTypeLabel }}
       </div>
       <div class="create-new-input">
         <input type="text" placeholder="Input name" v-model="createNewName" v-if="createNewNameMode === 'input'">

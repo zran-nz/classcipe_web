@@ -16,7 +16,7 @@ export default {
   'teacher.add-task.overview': 'Overview',
   'teacher.add-task.image': 'Image',
   'teacher.add-task.choose-a-template': 'Choose a template',
-  'teacher.add-task.upload-a-picture': 'Upload a picture',
+  'teacher.add-task.upload-a-picture': 'Upload a Cover Image',
   'teacher.add-task.upload-material': 'Upload your material',
   'teacher.add-task.click-to-upload': 'Click to upload',
   'teacher.add-task.real-life-scenario': 'Sustainable development goal',

@@ -544,7 +544,7 @@
         :footer="null"
         destroyOnClose
         width="900px"
-        title="Browse key question"
+        title="Browse key questions"
         @ok="questionMoreVisible = false"
         @cancel="questionMoreVisible = false">
         <div class="link-content-wrapper">

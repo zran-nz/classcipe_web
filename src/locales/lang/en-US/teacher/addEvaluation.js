@@ -15,7 +15,7 @@ export default {
   'teacher.add-evaluation.overview': 'Overview',
   'teacher.add-evaluation.image': 'Image',
   'teacher.add-evaluation.choose-a-template': 'Choose a template',
-  'teacher.add-evaluation.upload-a-picture': 'Upload a picture',
+  'teacher.add-evaluation.upload-a-picture': 'Upload a Cover Image',
   'teacher.add-evaluation.upload-material': 'Upload your material',
   'teacher.add-evaluation.click-to-upload': 'Click to upload',
   'teacher.add-evaluation.real-life-scenario': 'Sustainable development goal',

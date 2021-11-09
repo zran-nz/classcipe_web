@@ -13,7 +13,7 @@ export default {
   'teacher.add-unit-plan.add-to-this-unit-plan': 'add to this unit plan',
   'teacher.add-unit-plan.unit-name': 'Unit plan name',
   'teacher.add-unit-plan.image': 'Image',
-  'teacher.add-unit-plan.upload-a-picture': 'Upload a picture',
+  'teacher.add-unit-plan.upload-a-picture': 'Upload a Cover Image',
   'teacher.add-unit-plan.upload-material': 'Upload your material',
   'teacher.add-unit-plan.click-to-upload': 'Click to upload',
   'teacher.add-unit-plan.real-life-scenario': 'Sustainable development goal',

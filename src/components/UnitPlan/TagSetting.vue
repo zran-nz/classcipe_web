@@ -14,6 +14,7 @@
                 type="editable-card"
                 @edit="onEdit"
                 @change="changeTab"
+                hide-add
               >
                 <a-tab-pane v-for="(tag,index) in userTagsMap" :key="tag[0]" >
                   <span slot="tab">
@@ -34,7 +35,7 @@
                         <a-input-search
                           v-model="inputTag"
                           size="large"
-                          placeholder="Add tags"
+                          placeholder="Create Tags"
                           class="search-input"
                           @keyup.enter.native="handleKeyup"
                           @search="searchTag"
@@ -74,7 +75,11 @@
                     </div>
                   </div>
                 </a-tab-pane>
-                <!--                <a-icon slot="tabBarExtraContent" type="plus" style="cursor: pointer"/>-->
+                <div slot="tabBarExtraContent">
+                  <a-tooltip placement="top" title="Create Category">
+                    <a-icon type="plus" style="cursor: pointer" @click="add"/>
+                  </a-tooltip>
+                </div>
               </a-tabs>
             </div>
           </a-col>
@@ -83,7 +88,7 @@
 
       <div>
         <a-button type="link" @click="canDeleteTab=!canDeleteTab">
-          Delete type
+          Delete Category
         </a-button>
       </div>
 

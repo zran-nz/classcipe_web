@@ -173,7 +173,7 @@
                             <a-icon type="close" class="close-icon" @click.stop="hideRecommendQuestion=true" />
                             <div class="recommend-box">
                               <a-tooltip title="You can add the key questions relevant to the big idea you chose above">
-                                <span class="title"><a-icon style="width: 25px" type="question-circle" />Recommend:</span>
+                                <span class="title"><a-icon style="width: 25px" type="question-circle" />Recommended:</span>
                               </a-tooltip>
                               <ul class="recommend-ul">
                                 <li v-if="rqIndex < 3 && selectQuestion.indexOf(item.name) === -1" v-for="(item,rqIndex) in recommendQuestionList" :key="rqIndex">{{ item.name }}<a-button @click.stop="handerInsertQuestion(item)" class="add-question" type="link">add</a-button></li>
@@ -546,7 +546,7 @@
         :footer="null"
         destroyOnClose
         width="900px"
-        title="Browse key question"
+        title="Browse key questions"
         @ok="questionMoreVisible = false"
         @cancel="questionMoreVisible = false">
         <div class="link-content-wrapper">
@@ -1661,26 +1661,29 @@ export default {
       // 然后通过事件获取到当前元素，依次往上层查询父元素，累加偏离值，直到定位元素。
       const eventDom = event.target
       let formTop = eventDom.offsetTop ? eventDom.offsetTop : 0
-      let currentDom = eventDom.offsetParent ? eventDom.offsetTop : 0
+      let currentDom = eventDom.offsetParent
       let currentFocus = ''
       this.customTagList = []
-      // console.log(currentDom.classList)
+      console.log(currentDom)
       while (currentDom !== null) {
-        formTop += currentDom.offsetTop
-        currentDom = currentDom.offsetParent
+        formTop += (currentDom ? currentDom.offsetTop : 0)
+        currentDom = currentDom ? currentDom.offsetParent : undefined
+        if (!currentDom) {
+          break
+        }
         /* if (currentDom.classList.contains('sdg-content-blocks')) {
           currentFocus = 'sdg'
           CustomTagType.plan.sdg.forEach(name => {
             this.customTagList.push(name)
           })
         } else */
-        if (currentDom.classList.contains('bigIdea')) {
+        if (currentDom && currentDom.classList.contains('bigIdea')) {
           currentFocus = 'inquiry'
           CustomTagType.plan.bigIdea.forEach(name => {
             this.customTagList.push(name)
           })
         }
-        if (currentDom.classList && currentDom.classList.contains('root-locate-form')) {
+        if (currentDom && currentDom.classList.contains('root-locate-form')) {
           console.log(currentDom.classList)
           break
         }
