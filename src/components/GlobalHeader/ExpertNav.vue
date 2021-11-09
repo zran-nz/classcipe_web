@@ -50,7 +50,7 @@
             </a-menu-item>-->
             <a-menu-item>
               <router-link to="/teacher/task-redirect">
-                {{ $t('menu.tasks') }}
+                {{ $t('menu.task') }}
               </router-link>
             </a-menu-item>
           </a-menu>

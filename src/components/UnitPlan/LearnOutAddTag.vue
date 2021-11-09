@@ -60,7 +60,7 @@
               <div
                 class="skt-tag-create-line"
                 @click="handleCreateTagByInput"
-                v-show="inputTag && inputTag.length >= 1">
+                v-show="tagSearchList.indexOf(inputTag) === -1 && inputTag && inputTag.length >= 1">
                 <div class="create-tag-label">
                   Create
                 </div>

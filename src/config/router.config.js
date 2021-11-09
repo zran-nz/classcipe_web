@@ -97,35 +97,35 @@ export const asyncRouterMap = [
             name: 'AddTask',
             props: true,
             component: () => import('@/views/teacher/AddTask'),
-            meta: { title: 'menu.tasks', keepAlive: true, permission: ['expert', 'teacher'] }
+            meta: { title: 'menu.task', keepAlive: true, permission: ['expert', 'teacher'] }
           },
           {
             path: '/teacher/task-redirect/:taskId?/:parentId?',
             name: 'TaskRedirect',
             props: true,
             component: () => import('@/views/teacher/TaskRedirect'),
-            meta: { title: 'menu.tasks', keepAlive: true, permission: ['expert', 'teacher'] }
+            meta: { title: 'menu.task', keepAlive: true, permission: ['expert', 'teacher'] }
           },
           {
             path: '/teacher/add-evaluation/:evaluationId?/:mode?',
             name: 'AddEvaluation',
             props: true,
             component: () => import('@/views/teacher/AddEvaluation'),
-            meta: { title: 'menu.evaluations', keepAlive: true, permission: ['expert', 'teacher'] }
+            meta: { title: 'menu.evaluation', keepAlive: true, permission: ['expert', 'teacher'] }
           },
           {
             path: '/teacher/start-evaluation/:evaluationId/:classId',
             name: 'StartEvaluation',
             props: true,
             component: () => import('@/views/teacher/StartEvaluation'),
-            meta: { title: 'menu.evaluations', keepAlive: true, permission: ['expert', 'teacher'] }
+            meta: { title: 'menu.evaluation', keepAlive: true, permission: ['expert', 'teacher'] }
           },
           {
             path: '/teacher/evaluation-redirect/:evaluationId?',
             name: 'EvaluationRedirect',
             props: true,
             component: () => import('@/views/teacher/EvaluationRedirect'),
-            meta: { title: 'menu.evaluations', keepAlive: true, permission: ['expert', 'teacher'] }
+            meta: { title: 'menu.evaluation', keepAlive: true, permission: ['expert', 'teacher'] }
           },
           {
             path: '/teacher/topics-from-experts',
@@ -173,7 +173,7 @@ export const asyncRouterMap = [
             name: 'ClassEvaluation',
             props: true,
             component: () => import('@/views/teacher/ClassSessionEvaluation'),
-            meta: { title: 'menu.evaluations', keepAlive: true, permission: ['expert', 'teacher'] }
+            meta: { title: 'menu.evaluation', keepAlive: true, permission: ['expert', 'teacher'] }
           }
           // {
           //   path: '/teacher/unit-plan-material-redirect/:unitPlanId/:materialId',

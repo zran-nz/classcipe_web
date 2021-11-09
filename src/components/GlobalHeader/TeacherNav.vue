@@ -46,12 +46,12 @@
           <a-menu slot="overlay">
             <a-menu-item>
               <a @click="goToUnitPlan">
-                {{ $t('menu.unit-plans') }}
+                {{ $t('menu.unit-plan') }}
               </a>
             </a-menu-item>
             <a-menu-item>
               <router-link to="/teacher/task-redirect">
-                {{ $t('menu.tasks') }}
+                {{ $t('menu.task') }}
               </router-link>
             </a-menu-item>
             <!--            <a-menu-item>
@@ -61,12 +61,12 @@
             </a-menu-item>-->
             <a-menu-item>
               <router-link to="/teacher/evaluation-redirect">
-                {{ $t('menu.evaluations') }}
+                {{ $t('menu.evaluation') }}
               </router-link>
             </a-menu-item>
           </a-menu>
           <a-button
-            style="padding: 0 20px;display:flex; box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.16);align-items:center ;height: 32px;border-radius: 6px;background: #FFFFFF;border: 1px solid #eee;font-family: Inter-Bold;color: #182552;"> Create Unit <a-icon type="caret-down" /> </a-button>
+            style="padding: 0 20px;display:flex; box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.16);align-items:center ;height: 32px;border-radius: 6px;background: #FFFFFF;border: 1px solid #eee;font-family: Inter-Bold;color: #182552;"> Create New <a-icon type="caret-down" /> </a-button>
         </a-dropdown>
       </div>
       <a-menu mode="horizontal" theme="dark" :defaultSelectedKeys="defaultSelectedKeys" :selectedKeys="selectedKeys">

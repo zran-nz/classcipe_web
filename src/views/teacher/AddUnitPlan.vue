@@ -29,7 +29,7 @@
             <div class="unit-plan-form-left root-locate-form" ref="form" @click="focusInput($event)">
               <a-form-model :model="form" class="my-form-wrapper">
                 <a-steps :current="currentActiveStepIndex" direction="vertical" @change="onChangeStep">
-                  <a-step title="Edit course info" :status="currentActiveStepIndex === 0 ? 'process':'wait'">
+                  <a-step title="Edit Unit plan" :status="currentActiveStepIndex === 0 ? 'process':'wait'">
                     <template slot="description" v-if="currentActiveStepIndex === 0">
                       <!--                      <div class="form-block">
                         <div class="refer-action row-flex-right">
@@ -49,14 +49,14 @@
 
                       <div class="form-block">
                         <comment-switch field-name="name" :is-active="showCollaborateCommentVisible && currentFieldName === 'name'" @switch="handleSwitchComment" class="my-comment-switch"/>
-                        <a-form-item label="Course Name">
-                          <a-input v-model="form.name" placeholder="Enter Course Name" class="my-form-input"/>
+                        <a-form-item label="Unit Name">
+                          <a-input v-model="form.name" placeholder="Enter Unit Name" class="my-form-input"/>
                         </a-form-item>
                       </div>
 
                       <div class="form-block over-form-block" id="overview">
                         <comment-switch field-name="overview" :is-active="showCollaborateCommentVisible && currentFieldName === 'overview'" @switch="handleSwitchComment" class="my-comment-switch"/>
-                        <a-form-model-item class="task-audio-line" label="Course Overview">
+                        <a-form-model-item class="task-audio-line" label="Unit Overview">
                           <a-textarea class="overview" v-model="form.overview" placeholder="Overview" allow-clear />
                           <!--        <div class="audio-wrapper" v-if="form.audioUrl">
                             <audio :src="form.audioUrl" controls />
@@ -76,7 +76,7 @@
                       <div class="form-block inquiry-form-block" id="inquiry">
                         <comment-switch field-name="inquiry" :is-active="showCollaborateCommentVisible && currentFieldName === 'inquiry'" @switch="handleSwitchComment" class="my-comment-switch"/>
                         <!--                <a-divider />-->
-                        <a-form-item label="Big idea* (Or statement of inquiry / Enduring understanding)" class="bigIdea" >
+                        <a-form-item label="Big Idea" class="bigIdea" >
                           <a-input
                             v-model="form.inquiry"
                             :placeholder="$store.getters.currentRole === 'teacher' ? $t('teacher.add-unit-plan.teacher-direction-of-inquiry') : $t('teacher.add-unit-plan.expert-direction-of-inquiry')"
@@ -92,11 +92,11 @@
                       <!--            real-life-scenario-->
                       <div class="form-block ">
                         <comment-switch field-name="sdg" :is-active="showCollaborateCommentVisible && currentFieldName === 'sdg'" @switch="handleSwitchComment" class="my-comment-switch" style="top:40px"/>
-                        <a-divider>Teach Goal</a-divider>
+                        <a-divider>Teach Goals</a-divider>
                         <a-row>
                           <a-col span="24">
                             <div class="form-block-title">
-                              Choose the relevant UN sustainable development goal
+                              UN Sustainable Development Goal(s)
                             </div>
                           </a-col>
                         </a-row>
@@ -161,10 +161,10 @@
                         <comment-switch field-name="question" :is-active="showCollaborateCommentVisible && currentFieldName === 'question'" @switch="handleSwitchComment" class="my-comment-switch"/>
                         <a-form-item>
                           <span slot="label">
-                            <a-tooltip title="Set key question/line of inquiry">
+                            <a-tooltip title="Set key question/Line of inquiry">
                               <a-icon type="exclamation-circle" style="color: #15c39a;cursor: pointer;font-size: 18px" @click="questionSettingVisible=true" />
                             </a-tooltip>
-                            Key question/line of inquiry
+                            Key question/Line of inquiry
                           </span>
 
                           <div class="question-more"><a-button @click="questionMoreVisible=true" type="link" >more</a-button></div>
@@ -1657,59 +1657,53 @@ export default {
     },
     focusInput (event) {
       this.$logger.info('focusInput ', event.target)
-        // 设置一个父级定位专用的dom，设置class名称【root-locate-form】，
-        // 然后通过事件获取到当前元素，依次往上层查询父元素，累加偏离值，直到定位元素。
-        try {
-          const eventDom = event.target
-          let formTop = eventDom.offsetTop
-          let currentDom = eventDom.offsetParent
-          let currentFocus = ''
-          this.customTagList = []
-          // console.log(currentDom.classList)
-          while (currentDom !== null) {
-            if (!currentDom.offsetTop) {
-              break
-            }
-            formTop += currentDom.offsetTop
-            currentDom = currentDom.offsetParent
-            /* if (currentDom.classList.contains('sdg-content-blocks')) {
-              currentFocus = 'sdg'
-              CustomTagType.plan.sdg.forEach(name => {
-                this.customTagList.push(name)
-              })
-            } else */ if (currentDom.classList.contains('bigIdea')) {
-              currentFocus = 'inquiry'
-              CustomTagType.plan.bigIdea.forEach(name => {
-                this.customTagList.push(name)
-              })
-            }
-            if (currentDom.classList && currentDom.classList.contains('root-locate-form')) {
-              console.log(currentDom.classList)
-              break
-            }
+      // 设置一个父级定位专用的dom，设置class名称【root-locate-form】，
+      // 然后通过事件获取到当前元素，依次往上层查询父元素，累加偏离值，直到定位元素。
+      const eventDom = event.target
+      let formTop = eventDom.offsetTop ? eventDom.offsetTop : 0
+      let currentDom = eventDom.offsetParent ? eventDom.offsetTop : 0
+      let currentFocus = ''
+      this.customTagList = []
+      // console.log(currentDom.classList)
+      while (currentDom !== null) {
+        formTop += currentDom.offsetTop
+        currentDom = currentDom.offsetParent
+        /* if (currentDom.classList.contains('sdg-content-blocks')) {
+          currentFocus = 'sdg'
+          CustomTagType.plan.sdg.forEach(name => {
+            this.customTagList.push(name)
+          })
+        } else */
+        if (currentDom.classList.contains('bigIdea')) {
+          currentFocus = 'inquiry'
+          CustomTagType.plan.bigIdea.forEach(name => {
+            this.customTagList.push(name)
+          })
+        }
+        if (currentDom.classList && currentDom.classList.contains('root-locate-form')) {
+          console.log(currentDom.classList)
+          break
+        }
+      }
+      console.log(currentFocus)
+      // custom tag 自带了margin-top: 20px,这里减掉不然不对齐。
+      if (currentFocus) {
+        this.customTagTop = formTop - 20
+        this.showCustomTag = true
+        this.showCollaborateCommentVisible = false
+        this.showAllCollaborateCommentVisible = false
+      } else {
+        // CustomTagType.plan.default.forEach(name => {
+        //   this.customTagList.push(name)
+        // })
+        // // 再拼接自己添加的
+        this.userTags.userTags.forEach(tag => {
+          if (this.customTagList.indexOf(tag.name === -1)) {
+            this.customTagList.push(tag.name)
           }
-          console.log(currentFocus)
-          // custom tag 自带了margin-top: 20px,这里减掉不然不对齐。
-          if (currentFocus) {
-            this.customTagTop = formTop - 20
-            this.showCustomTag = true
-            this.showCollaborateCommentVisible = false
-            this.showAllCollaborateCommentVisible = false
-          } else {
-            // CustomTagType.plan.default.forEach(name => {
-            //   this.customTagList.push(name)
-            // })
-            // // 再拼接自己添加的
-            this.userTags.userTags.forEach(tag => {
-              if (this.customTagList.indexOf(tag.name === -1)) {
-                this.customTagList.push(tag.name)
-              }
-            })
-            this.customTagTop = 300
-            this.showCustomTag = false
-          }
-        } catch (e) {
-        console.log(e)
+        })
+        this.customTagTop = 300
+        this.showCustomTag = false
       }
     },
 

@@ -33,7 +33,7 @@
                         <div class="form-block over-form-block" id="overview" >
                           <comment-switch field-name="overview" :is-active="showCollaborateCommentVisible && currentFieldName === 'overview'" @switch="handleSwitchComment" class="my-comment-switch"/>
                           <a-form-model-item class="task-audio-line" label="Course Overview" ref="overview">
-                            <a-textarea v-model="form.overview" placeholder="Overview" allow-clear class="my-form-input" />
+                            <a-textarea v-model="form.overview" placeholder="Overview" allow-clear />
                           </a-form-model-item>
                         </div>
 
@@ -1950,9 +1950,6 @@
         const currentFocus = ''
         this.customTagList = []
         while (currentDom !== null) {
-          if (!currentDom.offsetTop) {
-            break
-          }
           formTop += currentDom.offsetTop
           currentDom = currentDom.offsetParent
           // if(currentDom.classList.contains('div.task-type-item.green-active-task-type')) {

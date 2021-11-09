@@ -3,7 +3,7 @@ export default {
   'teacher.my-content.published-status': 'Published',
   'teacher.my-content.draft-status': 'Personal',
   'teacher.my-content.choose-types-of-content': 'Choose type(s) of content',
-  'teacher.my-content.all-type': 'All type',
+  'teacher.my-content.all-type': 'All types',
   'teacher.my-content.topics-type': 'Topics',
   'teacher.my-content.materials-type': 'Materials',
   'teacher.my-content.tasks-type': 'Tasks',

@@ -1,7 +1,7 @@
 <template>
   <div class="custom-tag">
     <div>
-      <a-card class="cover-card" :head-style="{background:'#15c39a',color:'#fff'}" title="Tags your content" :bordered="false">
+      <a-card class="cover-card" :head-style="{background:'#15c39a',color:'#fff'}" title="Tag your content" :bordered="false">
         <a v-if="showArrow" class="header-triangle"></a>
         <a-button class="setting-button" slot="extra" href="#" @click="handleSetting">My tags <a-icon type="edit" /></a-button>
 
