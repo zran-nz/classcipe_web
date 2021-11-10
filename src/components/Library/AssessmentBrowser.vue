@@ -279,6 +279,7 @@
   import DataCardView from '@/components/Library/DataCardView'
   import { typeMap } from '@/const/teacher'
   import { GetGradesByCurriculumId } from '@/api/preference'
+  import { SubjectType } from '@/const/common'
   const { SubjectTree } = require('@/api/subject')
 
   export default {
@@ -368,7 +369,7 @@
         this.mainSubjectListLoading = true
         SubjectTree({ curriculumId: this.curriculumId }).then(response => {
           this.$logger.info('getSubjectTree response', response.result)
-          this.mainSubjectList = response.result
+          this.mainSubjectList = response.result.filter(item => item.subjectType === SubjectType.Skill || item.subjectType === SubjectType.LearnAndSkill)
           if (this.mainSubjectList && this.mainSubjectList.length) {
             this.handleSelectMainSubjectItem(this.mainSubjectList[0])
           }

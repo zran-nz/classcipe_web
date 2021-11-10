@@ -29,6 +29,7 @@
 import NewTreeItem from '@/components/NewLibrary/NewTreeItem'
 import { NavigationType } from '@/components/NewLibrary/NavigationType'
 import { getAll21Century } from '@/api/knowledge'
+import { SubjectType } from '@/const/common'
 const { GetMyGrades } = require('@/api/teacher')
 const { GetAllSdgs } = require('@/api/scenario')
 const { SubjectTree } = require('@/api/subject')
@@ -131,9 +132,10 @@ export default {
       this.$logger.info('SubjectTree Response ', initDataResponse[0])
       if (!initDataResponse[0].code) {
         this.subjectTree = initDataResponse[0].result
-        curriculumData.children = initDataResponse[0].result
+        // subjectType=1 大纲subject
+        curriculumData.children = initDataResponse[0].result.filter(sub => sub.subjectType === SubjectType.Learn || sub.subjectType === SubjectType.LearnAndSkill)
         // 兼容新的任意层级,任意一个层级下一层都会可能是gradeList
-        this.addGradeListProperty(curriculumData.children)
+        this.addGradeListProperty(this.subjectTree)
       }
 
       // GetAllSdgs
@@ -165,9 +167,11 @@ export default {
           children: [],
           parent: null
         }
-        // 从大纲数据中复制一份数据，只用mainSubject既第一层
-        curriculumData.children.forEach(subjectItem => {
-          specificSkillsData.children.push(Object.assign({}, subjectItem))
+        // 从大纲数据中复制一份数据，只用mainSubject既第一层 且subjectType=2
+        this.subjectTree.forEach(subjectItem => {
+          if (subjectItem.subjectType === SubjectType.Skill || subjectItem.subjectType === SubjectType.LearnAndSkill) {
+            specificSkillsData.children.push(Object.assign({}, subjectItem))
+          }
         })
         this.treeDataList.push(specificSkillsData)
 
@@ -181,8 +185,10 @@ export default {
           parent: null
         }
         // 从大纲数据中复制一份数据，assessmentTypeData也只用mainSubject既第一层
-        curriculumData.children.forEach(subjectItem => {
-          assessmentTypeData.children.push(Object.assign({}, subjectItem))
+        this.subjectTree.forEach(subjectItem => {
+          if (subjectItem.subjectType === SubjectType.Skill || subjectItem.subjectType === SubjectType.LearnAndSkill) {
+            assessmentTypeData.children.push(Object.assign({}, subjectItem))
+          }
         })
         this.treeDataList.push(assessmentTypeData)
 

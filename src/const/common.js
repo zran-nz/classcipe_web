@@ -15,6 +15,12 @@ export const TagType = {
   'century': 3
 }
 
+export const SubjectType = {
+  'Learn': 1,
+  'Skill': 2,
+  'LearnAndSkill': 3
+}
+
 export const TagOriginType = {
   Origin: 'Origin',
   Search: 'Search',
