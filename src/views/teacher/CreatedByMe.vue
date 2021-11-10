@@ -829,6 +829,7 @@ export default {
           display: flex;
           justify-content: flex-start;
           align-items: center;
+          width: calc(100% - 600px);
 
           .status-icon-item {
             font-size: 18px;
