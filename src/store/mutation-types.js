@@ -20,6 +20,7 @@ export const DOWNLOAD_URL = 'download_url'
 export const RECEIVE_MSG = 'receive_msg'
 
 export const VIEW_MODE = 'view_mode'
+export const GRADE_COMMON = 'grade_common'
 
 export const CONTENT_WIDTH_TYPE = {
   Fluid: 'Fluid',

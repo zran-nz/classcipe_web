@@ -30,6 +30,8 @@ import NewTreeItem from '@/components/NewLibrary/NewTreeItem'
 import { NavigationType } from '@/components/NewLibrary/NavigationType'
 import { getAll21Century } from '@/api/knowledge'
 import { SubjectType } from '@/const/common'
+import storage from 'store'
+import { GRADE_COMMON, VIEW_MODE } from '@/store/mutation-types'
 const { GetMyGrades } = require('@/api/teacher')
 const { GetAllSdgs } = require('@/api/scenario')
 const { SubjectTree } = require('@/api/subject')
@@ -126,6 +128,13 @@ export default {
       this.$logger.info('GetMyGrades Response ', initDataResponse[1])
       if (!initDataResponse[1].code) {
         this.gradeList = initDataResponse[1].result
+        // 将grade名称和21century grade名称对应起来
+        const gradeJson = {}
+        this.gradeList.forEach(grade => {
+          if (!gradeJson[grade.centuryName]) gradeJson[grade.centuryName] = []
+          gradeJson[grade.centuryName].push(grade.name)
+        })
+        storage.set(GRADE_COMMON, gradeJson)
       }
 
       // SubjectTree

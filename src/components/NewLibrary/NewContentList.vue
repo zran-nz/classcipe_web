@@ -34,6 +34,7 @@
             </div>
             <a-tooltip placement="top" >
               <template slot="title" v-if="item.hasOwnProperty('froms')">{{ item.froms }}</template>
+              <template slot="title" v-if="item.gradeNames.length > 0">{{ item.gradeNames | gradeFormat }}</template>
               <div class="name-text">
                 {{ item.name || item.description }}
               </div>
