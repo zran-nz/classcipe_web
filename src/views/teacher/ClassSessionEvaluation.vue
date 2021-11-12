@@ -213,6 +213,9 @@
                 <div class="rubric-preview">
                   <img src="~@/assets/icons/evaluation/rubric2.png" alt="rubric">
                 </div>
+                <div class="rubric-label">
+                  Used for IB PYP, New Zealand, Australia curriculum
+                </div>
                 <div class="rubric-active-icon">
                   <a-icon type="check-circle" theme="filled"/>
                 </div>
@@ -227,6 +230,9 @@
               >
                 <div class="rubric-preview">
                   <img src="~@/assets/icons/evaluation/rubric1.png" alt="rubric">
+                </div>
+                <div class="rubric-label">
+                  Used for IB MYP
                 </div>
                 <div class="rubric-active-icon">
                   <a-icon type="check-circle" theme="filled"/>
@@ -375,7 +381,12 @@ export default {
 
       currentEditingTitle: null,
       currentFormItem: null,
-      formTableMode: null
+      formTableMode: null,
+
+      studentEvaluationData: [], // 所有学生的评价数据
+      allSelectedMemberIdList: [], // 当前所有选中的学生的id, 当评价数据被修改时，当前的选中学生的对应表单的评价数据会被修改。
+      currentActiveStudentId: null,
+      currentActiveStudentData: null
     }
   },
   created () {
@@ -437,6 +448,11 @@ export default {
         }
         this.loading = false
       })
+    },
+
+    // 加载学生的评价数据，可见范围：老师（他评、老师评价、自评）、自己（自评、老师评价）、他人（他评）
+    loadStudentEvaluationData () {
+      this.$logger.info('loadStudentEvaluationData')
     },
 
     handleActiveForm (idx, formItem) {
@@ -1068,5 +1084,11 @@ export default {
 
 .no-form-tips {
   padding: 100px 0;
+}
+
+.rubric-label {
+  font-size: 14px;
+  line-height: 50px;
+  font-weight: bold;
 }
 </style>
