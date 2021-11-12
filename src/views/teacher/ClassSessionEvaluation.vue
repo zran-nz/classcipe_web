@@ -112,7 +112,7 @@
                   </div>
                   <div class="group-student-list" v-show="group.expand">
                     <div class="student-list">
-                      <div :class="{'list-item': true, 'selected-student': selectedMemberIdList.indexOf(member.userId) !== -1}" v-for="(member, sIndex) in group.members" :key="sIndex" @click="handleClickMember(member)">
+                      <div :class="{'list-item': true, 'selected-student': currentActiveStudentId === member.userId}" v-for="(member, sIndex) in group.members" :key="sIndex" @click="handleClickMember(member)">
                         <div class="student-avatar">
                           <img :src="member.studentAvatar" alt="" v-if="member.studentAvatar" />
                           <img slot="prefix" src="~@/assets/icons/evaluation/default_avatar.png" alt="" v-if="!member.studentAvatar" />
@@ -136,7 +136,7 @@
             </div>
           </div>
           <div class="form-table-content">
-            <div class="table-content">
+            <div class="table-content" v-show="currentActiveStudentId">
               <div class="form-table-item" v-for="(formItem,tIdx) in forms" :key="tIdx">
                 <div class="form-table-item-content" v-show="formItem.id === currentActiveFormId">
                   <div class="comment" v-show="formTableMode === EvaluationTableMode.TeacherEvaluate">
@@ -153,6 +153,7 @@
                       :form-type="formItem.formType"
                       :form-table-mode="formTableMode"
                       :form-body-data="formBodyData"
+                      @update-evaluation="handleUpdateEvaluate"
                     />
                   </div>
                 </div>
@@ -160,6 +161,9 @@
             </div>
             <div class="no-form-tips" v-show="forms.length === 0 && loading === false">
               <no-more-resources tips="The evaluation form has not been created!"/>
+            </div>
+            <div class="no-form-tips" v-show="!currentActiveStudentId && loading === false ">
+              <no-more-resources tips="Please select a student first!"/>
             </div>
           </div>
         </div>
@@ -393,7 +397,6 @@ export default {
       formTableMode: null,
 
       studentEvaluateData: {}, // 所有学生的评价数据对象，通过vue.$set设置属性，方便遍历对应的学生及表单数据
-      allSelectedMemberIdList: [], // 当前所有选中的学生的id, 当评价数据被修改时，当前的选中学生的对应表单的评价数据会被修改。
       currentActiveStudentId: null
     }
   },
@@ -405,7 +408,7 @@ export default {
   methods: {
     initData () {
       this.$logger.info('initData')
-      this.loading = false
+      this.loading = true
       GetSessionEvaluationByClassId({ classId: this.classId }).then(response => {
         this.$logger.info('init data response', response)
         // 加载班级信息数据
@@ -444,6 +447,7 @@ export default {
 
         this.$logger.info('allStudentUserIdList', allStudentUserIdList)
         // 初始化评估数据，构造遍历所有学生的评价数据对象，更具对象索引到具体表单的某一行的点评数据
+        // studentEvaluateData[学生Id][表单Id][列Id] = 列数据
         if (allStudentUserIdList.length && this.forms.length) {
           const studentEvaluateData = {}
           allStudentUserIdList.forEach(studentId => {
@@ -453,8 +457,16 @@ export default {
               formItem.initRawData.forEach(rowItem => {
                 studentEvaluateData[studentId][formItem.id][rowItem.rowId] = {
                   teacherEvaluation: null, // 老师评价
+                  teacherName: null, // 老师评价
+                  teacherEmail: null, // 老师评价
+
                   peerEvaluation: null, // 他人评价
-                  studentEvaluation: null // 学生自评
+                  peerName: null, // 他人评价
+                  peerEmail: null, // 他人评价
+
+                  studentEvaluation: null, // 学生自评
+                  studentName: null, // 学生自评
+                  studentEmail: null // 学生自评
                 }
               })
             })
@@ -464,7 +476,6 @@ export default {
           this.studentEvaluateData = studentEvaluateData
           // 默认选中第一个学生的第一个评估表格
           this.currentActiveStudentId = allStudentUserIdList[0]
-          this.allSelectedMemberIdList.push(this.currentActiveStudentId)
           this.selectedMemberIdList.push(this.currentActiveStudentId)
           this.currentActiveFormId = this.forms[0].id
           this.$logger.info('currentActiveFormId ' + this.currentActiveFormId + ' currentActiveStudentId ' + this.currentActiveStudentId)
@@ -494,7 +505,7 @@ export default {
         this.currentActiveStudentId = member.userId
       } else {
         this.selectedMemberIdList.splice(index, 1)
-        if (member.userId === this.currentActiveStudentId && this.selectedMemberIdList.length) {
+        if (this.selectedMemberIdList.length) {
           this.currentActiveStudentId = this.selectedMemberIdList[0]
         } else {
           this.currentActiveStudentId = null
@@ -700,6 +711,62 @@ export default {
     handleToggleMenuVisible (formItem) {
       this.$logger.info('handleToggleMenuVisible', formItem)
       formItem.menuVisible = !formItem.menuVisible
+    },
+
+    handleUpdateEvaluate (data) {
+      this.$logger.info('handleUpdateEvaluate', data)
+      this.$logger.info('before update studentEvaluateData', this.studentEvaluateData)
+      // 更新当前选中的所有学生的对应的form的rowId的数据为对应列
+      const allSelectedStudentUserId = []
+      this.selectedMemberIdList.forEach(userId => {
+        if (allSelectedStudentUserId.indexOf(userId) === -1) {
+          allSelectedStudentUserId.push(userId)
+        }
+      })
+      this.groups.forEach(group => {
+        if (this.selectedGroupIdList.indexOf(group.id) !== -1) {
+          group.members.forEach(member => {
+            if (allSelectedStudentUserId.indexOf(member.userId) === -1) {
+              allSelectedStudentUserId.push(member.userId)
+            }
+          })
+        }
+      })
+      this.$logger.info('all selected member userId ', allSelectedStudentUserId)
+      allSelectedStudentUserId.forEach(userId => {
+          if (data.evaluationMode === EvaluationTableMode.TeacherEvaluate) {
+            this.studentEvaluateData[userId][data.formId][data.rowId].teacherEmail = data.value
+            this.studentEvaluateData[userId][data.formId][data.rowId].teacherName = data.value
+            if (this.studentEvaluateData[userId][data.formId][data.rowId].teacherEvaluation === data.value) {
+              this.studentEvaluateData[userId][data.formId][data.rowId].teacherEvaluation = ''
+            } else {
+              this.studentEvaluateData[userId][data.formId][data.rowId].teacherEvaluation = data.value
+            }
+          } else if (data.evaluationMode === EvaluationTableMode.StudentEvaluate) {
+            this.studentEvaluateData[userId][data.formId][data.rowId].studentEvaluation = data.value
+            this.studentEvaluateData[userId][data.formId][data.rowId].studentEmail = data.value
+            this.studentEvaluateData[userId][data.formId][data.rowId].studentrName = data.value
+
+            if (this.studentEvaluateData[userId][data.formId][data.rowId].studentEvaluation === data.value) {
+              this.studentEvaluateData[userId][data.formId][data.rowId].studentEvaluation = ''
+            } else {
+              this.studentEvaluateData[userId][data.formId][data.rowId].studentEvaluation = data.value
+            }
+          } else if (data.evaluationMode === EvaluationTableMode.PeerEvaluate) {
+            this.studentEvaluateData[userId][data.formId][data.rowId].peerEvaluation = data.value
+            this.studentEvaluateData[userId][data.formId][data.rowId].peerEmail = data.value
+            this.studentEvaluateData[userId][data.formId][data.rowId].peerName = data.value
+
+            if (this.studentEvaluateData[userId][data.formId][data.rowId].peerEvaluation === data.value) {
+              this.studentEvaluateData[userId][data.formId][data.rowId].peerEvaluation = ''
+            } else {
+              this.studentEvaluateData[userId][data.formId][data.rowId].peerEvaluation = data.value
+            }
+          }
+          this.$logger.info('set ' + userId + ' formId ' + data.formId + ' row ' + data.rowId, this.studentEvaluateData[userId][data.formId][data.rowId])
+      })
+
+      this.$logger.info('after update studentEvaluateData', this.studentEvaluateData)
     }
   }
 }

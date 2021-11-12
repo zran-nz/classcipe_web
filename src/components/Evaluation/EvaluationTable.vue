@@ -256,31 +256,57 @@
               </template>
             </template>
 
-            <template v-if="mode !== tableMode.Edit">
+            <!-- 老师可以看到所有的评估数据，学生自评可以看到自己的和教师的，他评只能看到自己的-->
+            <template v-if="mode === tableMode.TeacherEvaluate || mode === tableMode.StudentEvaluate || mode === tableMode.PeerEvaluate">
               <!-- Indicators-->
               <template v-if="header.type === headerType.Indicators">
                 <div class="indicator-data">
                   {{ item[headerType.Indicators].name }}
+                </div>
+                <div class="selected-icon" >
+                  <teacher-icon v-if="formBodyData && formBodyData[item.rowId] && formBodyData[item.rowId].teacherEvaluation === header.type && (currentEvaluateMode === tableMode.TeacherEvaluate || currentEvaluateMode === tableMode.StudentEvaluate)"/>
+                  <student-icon v-if="formBodyData && formBodyData[item.rowId] && formBodyData[item.rowId].studentEvaluation === header.type && (currentEvaluateMode === tableMode.TeacherEvaluate || currentEvaluateMode === tableMode.StudentEvaluate)"/>
+                  <peer-icon v-if="formBodyData && formBodyData[item.rowId] && formBodyData[item.rowId].peerEvaluation === header.type && (currentEvaluateMode === tableMode.TeacherEvaluate || currentEvaluateMode === tableMode.PeerEvaluate)"/>
                 </div>
               </template>
               <template v-if="header.type === headerType.Novice">
                 <div class="indicator-data">
                   {{ item[headerType.Novice].name }}
                 </div>
+                <div class="selected-icon">
+                  <teacher-icon v-if="formBodyData && formBodyData[item.rowId] && formBodyData[item.rowId].teacherEvaluation === header.type && (currentEvaluateMode === tableMode.TeacherEvaluate || currentEvaluateMode === tableMode.StudentEvaluate)"/>
+                  <student-icon v-if="formBodyData && formBodyData[item.rowId] && formBodyData[item.rowId].studentEvaluation === header.type && (currentEvaluateMode === tableMode.TeacherEvaluate || currentEvaluateMode === tableMode.StudentEvaluate)"/>
+                  <peer-icon v-if="formBodyData && formBodyData[item.rowId] && formBodyData[item.rowId].peerEvaluation === header.type && (currentEvaluateMode === tableMode.TeacherEvaluate || currentEvaluateMode === tableMode.PeerEvaluate)"/>
+                </div>
               </template>
               <template v-if="header.type === headerType.Learner">
                 <div class="indicator-data">
                   {{ item[headerType.Learner].name }}
+                </div>
+                <div class="selected-icon" >
+                  <teacher-icon v-if="formBodyData && formBodyData[item.rowId] && formBodyData[item.rowId].teacherEvaluation === header.type && (currentEvaluateMode === tableMode.TeacherEvaluate || currentEvaluateMode === tableMode.StudentEvaluate)"/>
+                  <student-icon v-if="formBodyData && formBodyData[item.rowId] && formBodyData[item.rowId].studentEvaluation === header.type && (currentEvaluateMode === tableMode.TeacherEvaluate || currentEvaluateMode === tableMode.StudentEvaluate)"/>
+                  <peer-icon v-if="formBodyData && formBodyData[item.rowId] && formBodyData[item.rowId].peerEvaluation === header.type && (currentEvaluateMode === tableMode.TeacherEvaluate || currentEvaluateMode === tableMode.PeerEvaluate)"/>
                 </div>
               </template>
               <template v-if="header.type === headerType.Practitoner">
                 <div class="indicator-data">
                   {{ item[headerType.Practitoner].name }}
                 </div>
+                <div class="selected-icon">
+                  <teacher-icon v-if="formBodyData && formBodyData[item.rowId] && formBodyData[item.rowId].teacherEvaluation === header.type && (currentEvaluateMode === tableMode.TeacherEvaluate || currentEvaluateMode === tableMode.StudentEvaluate)"/>
+                  <student-icon v-if="formBodyData && formBodyData[item.rowId] && formBodyData[item.rowId].studentEvaluation === header.type && (currentEvaluateMode === tableMode.TeacherEvaluate || currentEvaluateMode === tableMode.StudentEvaluate)"/>
+                  <peer-icon v-if="formBodyData && formBodyData[item.rowId] && formBodyData[item.rowId].peerEvaluation === header.type && (currentEvaluateMode === tableMode.TeacherEvaluate || currentEvaluateMode === tableMode.PeerEvaluate)"/>
+                </div>
               </template>
               <template v-if="header.type === headerType.Expert">
                 <div class="indicator-data">
                   {{ item[headerType.Expert].name }}
+                </div>
+                <div class="selected-icon" >
+                  <teacher-icon v-if="formBodyData && formBodyData[item.rowId] && formBodyData[item.rowId].teacherEvaluation === header.type && (currentEvaluateMode === tableMode.TeacherEvaluate || currentEvaluateMode === tableMode.StudentEvaluate)"/>
+                  <student-icon v-if="formBodyData && formBodyData[item.rowId] && formBodyData[item.rowId].studentEvaluation === header.type && (currentEvaluateMode === tableMode.TeacherEvaluate || currentEvaluateMode === tableMode.StudentEvaluate)"/>
+                  <peer-icon v-if="formBodyData && formBodyData[item.rowId] && formBodyData[item.rowId].peerEvaluation === header.type && (currentEvaluateMode === tableMode.TeacherEvaluate || currentEvaluateMode === tableMode.PeerEvaluate)"/>
                 </div>
               </template>
 
@@ -288,6 +314,11 @@
               <template v-if="header.type.startsWith(headerType.UserDefine)">
                 <div class="indicator-data">
                   {{ item[header.type].name }}
+                </div>
+                <div class="selected-icon" >
+                  <teacher-icon v-if="formBodyData && formBodyData[item.rowId] && formBodyData[item.rowId].teacherEvaluation === header.type && (currentEvaluateMode === tableMode.TeacherEvaluate || currentEvaluateMode === tableMode.StudentEvaluate)"/>
+                  <student-icon v-if="formBodyData && formBodyData[item.rowId] && formBodyData[item.rowId].studentEvaluation === header.type && (currentEvaluateMode === tableMode.TeacherEvaluate || currentEvaluateMode === tableMode.StudentEvaluate)"/>
+                  <peer-icon v-if="formBodyData && formBodyData[item.rowId] && formBodyData[item.rowId].peerEvaluation === header.type && (currentEvaluateMode === tableMode.TeacherEvaluate || currentEvaluateMode === tableMode.PeerEvaluate)"/>
                 </div>
               </template>
             </template>
@@ -389,6 +420,9 @@ import AddGreenIcon from '@/assets/svgIcon/evaluation/form/tianjia_green.svg?inl
 import AddOpacityIcon from '@/assets/svgIcon/evaluation/form/tianjia_opacity.svg?inline'
 import QuestionIcon from '@/assets/svgIcon/evaluation/form/question.svg?inline'
 import ModalHeader from '@/components/Common/ModalHeader'
+import PeerIcon from '@/assets/svgIcon/evaluation/PeerIcon.svg?inline'
+import StudentIcon from '@/assets/svgIcon/evaluation/StudentIcon.svg?inline'
+import TeacherIcon from '@/assets/svgIcon/evaluation/TeacherIcon.svg?inline'
 
 export default {
   name: 'EvaluationTable',
@@ -400,7 +434,10 @@ export default {
     QuestionIcon,
     ModalHeader,
     draggable,
-    NewBrowser
+    NewBrowser,
+    StudentIcon,
+    PeerIcon,
+    TeacherIcon
   },
   props: {
     initRawData: {
@@ -424,7 +461,8 @@ export default {
       required: true
     },
     formBodyData: {
-      type: Object
+      type: Object,
+      default: () => null
     }
   },
   data () {
@@ -462,12 +500,18 @@ export default {
 
       inputDescriptionVisible: false,
       inputDescription: null,
-      currentEnterDescriptionLine: null
+      currentEnterDescriptionLine: null,
+      currentEvaluateMode: EvaluationTableMode.TeacherEvaluate // 评价模式
     }
   },
   created () {
     this.$logger.info('[' + this.formTableMode + '] EvaluationTable created ' + this.formTableMode + ' formType ' + this.formType, 'initRawHeaders', this.initRawHeaders, 'initRawData', this.initRawData, ' formBodyData', this.formBodyData)
     this.mode = this.formTableMode
+    if (this.$store.getters.userInfo.roles.indexOf('teacher') !== -1) {
+      this.currentEvaluateMode = EvaluationTableMode.TeacherEvaluate
+    } else {
+      // TODO evaluation 学生评价、自评模式
+    }
     if (this.initRawHeaders.length) {
       this.headers = this.initRawHeaders
     } else {
@@ -659,7 +703,15 @@ export default {
     },
 
     handleClickBodyItem (item, header) {
-      this.$logger.info('[' + this.mode + '] handleClickBodyItem ' + header.label, item)
+      this.$logger.info('[' + this.mode + '][' + this.currentEvaluateMode + '] handleClickBodyItem ' + header.label, item)
+      this.$emit('update-evaluation', {
+        formId: this.formId,
+        evaluationMode: this.currentEvaluateMode,
+        rowId: item.rowId,
+        value: header.type, // 评价所选的列
+        evaluateUserEmail: this.$store.getters.userInfo.email,
+        evaluateUserName: this.$store.getters.userInfo.nickname
+      })
     },
 
     handleAddCriteria  (header, item, event) {
@@ -1064,7 +1116,7 @@ export default {
             position: relative;
             max-width: 400px;
             min-width: 140px;
-            height: 35px;
+            min-height: 100px;
             font-size: 12px;
             font-family: Inter-Bold;
             line-height: 16px;
@@ -1073,12 +1125,18 @@ export default {
             box-sizing: border-box;
             border-right: 1px solid rgba(216, 216, 216, 1);
             border-bottom: 1px solid rgba(216, 216, 216, 1);
+            vertical-align: top;
 
-            .data-item, .indicator-data {
+            .data-item {
               padding: 10px;
               cursor: pointer;
               min-height: 50px;
             }
+
+           .indicator-data {
+            padding: 10px;
+            cursor: pointer;
+          }
 
             .indicator-input {
               height: 100%;
@@ -1368,4 +1426,10 @@ export default {
   border: none;
 }
 
+.selected-icon {
+  padding: 5px 15px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
 </style>
