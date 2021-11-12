@@ -422,6 +422,9 @@ export default {
     formType: {
       type: Number,
       required: true
+    },
+    formBodyData: {
+      type: Object
     }
   },
   data () {
@@ -463,7 +466,7 @@ export default {
     }
   },
   created () {
-    this.$logger.info('[' + this.formTableMode + '] EvaluationTable created ' + this.formTableMode + ' formType ' + this.formType, 'initRawHeaders', this.initRawHeaders, 'initRawData', this.initRawData)
+    this.$logger.info('[' + this.formTableMode + '] EvaluationTable created ' + this.formTableMode + ' formType ' + this.formType, 'initRawHeaders', this.initRawHeaders, 'initRawData', this.initRawData, ' formBodyData', this.formBodyData)
     this.mode = this.formTableMode
     if (this.initRawHeaders.length) {
       this.headers = this.initRawHeaders

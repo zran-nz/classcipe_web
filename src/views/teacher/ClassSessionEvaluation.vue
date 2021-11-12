@@ -152,6 +152,7 @@
                       :init-raw-data="formItem.initRawData"
                       :form-type="formItem.formType"
                       :form-table-mode="formTableMode"
+                      :form-body-data="formBodyData"
                     />
                   </div>
                 </div>
@@ -330,6 +331,15 @@ export default {
       } else {
         return ''
       }
+    },
+
+    formBodyData () {
+      if (this.currentActiveStudentId && this.currentActiveFormId && this.studentEvaluateData) {
+        return this.studentEvaluateData[this.currentActiveStudentId][this.currentActiveFormId]
+      } else {
+        this.$logger.info('no formBodyData currentActiveFormId ' + this.currentActiveFormId + ' currentActiveStudentId ' + this.currentActiveStudentId, ' studentEvaluateData ', this.studentEvaluateData)
+        return null
+      }
     }
   },
   data () {
@@ -382,10 +392,9 @@ export default {
       currentFormItem: null,
       formTableMode: null,
 
-      studentEvaluationData: {}, // 所有学生的评价数据对象，通过vue.$set设置属性，方便遍历对应的学生及表单数据
+      studentEvaluateData: {}, // 所有学生的评价数据对象，通过vue.$set设置属性，方便遍历对应的学生及表单数据
       allSelectedMemberIdList: [], // 当前所有选中的学生的id, 当评价数据被修改时，当前的选中学生的对应表单的评价数据会被修改。
-      currentActiveStudentId: null,
-      currentActiveStudentData: null
+      currentActiveStudentId: null
     }
   },
   created () {
@@ -452,7 +461,7 @@ export default {
           })
 
           this.$logger.info('studentEvaluateData init finished ', studentEvaluateData)
-
+          this.studentEvaluateData = studentEvaluateData
           // 默认选中第一个学生的第一个评估表格
           this.currentActiveStudentId = allStudentUserIdList[0]
           this.allSelectedMemberIdList.push(this.currentActiveStudentId)
@@ -491,6 +500,7 @@ export default {
           this.currentActiveStudentId = null
         }
       }
+      this.$logger.info('currentActiveFormId ' + this.currentActiveFormId + ' currentActiveStudentId ' + this.currentActiveStudentId)
     },
 
     handleSelectGroup (group) {
