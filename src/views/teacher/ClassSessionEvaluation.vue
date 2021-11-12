@@ -290,8 +290,14 @@
       @close="evidenceSelectVisible = false"
     >
       <div class="add-evaluation-evidence-wrapper">
-        <div class="slide-preview">
-          <ppt-slide-view :class-id="classId" :slide-id="classInfo.slideId" mode="add-evidence" />
+        <div class="slide-preview" v-if="currentEvidenceItem">
+          <ppt-slide-view
+            :selected-id-list="currentEvidenceItem.evidence.selectedList"
+            :class-id="classId"
+            :slide-id="classInfo.slideId"
+            mode="add-evidence"
+            @ensure-evidence-finish="handleEnsureEvidenceFinish"
+            @add-evidence-finish="handleAddEvidenceFinish"/>
           <template v-if="!classInfo || !classInfo.slideId">
             <no-more-resources tips="no slide" />
           </template>
@@ -425,7 +431,9 @@ export default {
       currentActiveStudentId: null,
 
       allStudentUserIdList: [],
-      evidenceSelectVisible: false
+      evidenceSelectVisible: false,
+
+      currentEvidenceItem: null
     }
   },
   created () {
@@ -838,6 +846,19 @@ export default {
     handleAddEvidence (data) {
       this.$logger.info('handleAddEvidence', data)
       this.evidenceSelectVisible = true
+      this.currentEvidenceItem = data.data
+    },
+
+    handleAddEvidenceFinish (data) {
+      this.$logger.info('handleAddEvidenceFinish', data)
+      this.evidenceSelectVisible = false
+    },
+
+    handleEnsureEvidenceFinish (data) {
+      this.$logger.info('handleEnsureEvidenceFinish', data)
+      this.currentEvidenceItem.evidence.selectedList = data.data
+      this.currentEvidenceItem.evidence.num = data.data.length
+      this.evidenceSelectVisible = false
     }
   }
 }

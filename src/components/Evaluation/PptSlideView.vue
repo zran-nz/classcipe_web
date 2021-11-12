@@ -8,7 +8,6 @@
       </div>
       <a-space>
         <a-button shape="round" type="primary" @click="handleEnsureEvidence">Ensure</a-button>
-        <a-button shape="round" type="primary">Session details</a-button>
       </a-space>
     </div>
     <div class="slide-header">
