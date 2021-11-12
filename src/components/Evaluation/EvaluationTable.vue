@@ -2,10 +2,12 @@
   <div class="rubric">
     <table class="rubric-table">
       <thead>
-        <draggable v-model="headers" tag="tr" class="table-header" @end="handleDragEnd">
+
+        <!--编辑允许修改变动-->
+        <draggable v-model="headers" tag="tr" class="table-header" @end="handleDragEnd" v-if="mode === this.tableMode.Edit">
           <th v-for="(header, hIndex) in headers" class="header-item" :key="header.type">
             <!-- 编辑图标-->
-            <div class="edit-icon" @click="handleEditHeader(header)" v-if="header.editable && mode === tableMode.Edit">
+            <div class="edit-icon" @click="handleEditHeader(header)" v-if="header.editable">
               <img src="~@/assets/icons/evaluation/edit.png" class="link-icon"/>
             </div>
             <!-- 表头文本-->
@@ -50,13 +52,13 @@
 
             </div>
             <!-- 编辑状态下的输入框-->
-            <template v-if="header.editing && mode === tableMode.Edit">
+            <template v-if="header.editing">
               <div class="label-input">
                 <input v-model="header.label" @blur="handleUpdateHeader(header)" @keyup.enter="handleUpdateHeader(header)" class="header-input-item"/>
               </div>
             </template>
             <!-- 表头删除图标-->
-            <div class="remove-header" v-if="header.type.startsWith(headerType.UserDefine) && mode === tableMode.Edit">
+            <div class="remove-header" v-if="header.type.startsWith(headerType.UserDefine)">
               <a-popconfirm :title="'Remove Header ?'" class="rubric-delete-popconfirm" ok-text="Yes" @confirm="handleRemoveHeader(header)" cancel-text="No">
                 <template slot="icon">
                   <div class="rubric-big-delete">
@@ -67,7 +69,7 @@
               </a-popconfirm>
             </div>
             <!-- 最后一列后显示添加列的图标, 21世纪不允许修改表头-->
-            <template v-if="hIndex === headers.length - 1 && mode === tableMode.Edit && formType !== tableType.CenturySkills">
+            <template v-if="hIndex === headers.length - 1 && formType !== tableType.CenturySkills">
               <div class="add-more-header">
                 <a-tooltip title="Add new column">
                   <a-icon type="plus-circle" @click="handleAddNewHeader"/>
@@ -76,6 +78,53 @@
             </template>
           </th>
         </draggable>
+
+        <!--预览和评估模式下不允许修改变动-->
+        <tr class="table-header" v-if="mode !== this.tableMode.Edit">
+          <th v-for="(header) in headers" class="header-item" :key="header.type">
+            <!-- 表头文本-->
+            <div class="label-text">
+
+              <span class="header-label">{{ header.label }}</span>
+              <template v-if="header.type === headerType.Novice">
+                <a-tooltip placement="top">
+                  <template slot="title">
+                    Students are introduced to the skills, and can watch others performing it(observation)
+                  </template>
+                  <question-icon />
+                </a-tooltip>
+              </template>
+
+              <template v-if="header.type === headerType.Learner">
+                <a-tooltip placement="top">
+                  <template slot="title">
+                    Students copy others who use the skill and use the skill with scaffolding and guidance(emulation)
+                  </template>
+                  <question-icon />
+                </a-tooltip>
+              </template>
+
+              <template v-if="header.type === headerType.Practitoner">
+                <a-tooltip placement="top">
+                  <template slot="title">
+                    Students employ the skill confidently and effectively(demonstration)
+                  </template>
+                  <question-icon />
+                </a-tooltip>
+              </template>
+
+              <template v-if="header.type === headerType.Expert">
+                <a-tooltip placement="top">
+                  <template slot="title">
+                    Students can show others how to use the skill and accurately assess how effectively the skill is used(self-regulation)
+                  </template>
+                  <question-icon />
+                </a-tooltip>
+              </template>
+
+            </div>
+          </th>
+        </tr>
       </thead>
 
       <tbody class="table-body">
@@ -85,7 +134,7 @@
             class="body-item"
             :data-type="header.type"
             :key="lIndex + '-' + header.type"
-            @dblclick="handleDbClickBodyItem(item, header)">
+            @click="handleClickBodyItem(item, header)">
             <template v-if="item.hasOwnProperty(header.type)">
 
               <!-- 21 Century Criteria-->
@@ -324,9 +373,9 @@ export default {
       type: Array,
       default: () => []
     },
-    mode: {
+    formTableMode: {
       type: String,
-      default: null
+      default: EvaluationTableMode.Edit
     },
     formType: {
       type: Number,
@@ -341,6 +390,7 @@ export default {
       list: [],
       defaultActiveMenu: NavigationType.learningOutcomes,
       showMenuList: [ NavigationType.all21Century ],
+      mode: null,
 
       selectCurriculumVisible: false,
       selectKnowledgeTagVisible: false,
@@ -371,7 +421,8 @@ export default {
     }
   },
   created () {
-    this.$logger.info('EvaluationTable created ' + this.mode + ' formType ' + this.formType, 'initRawHeaders', this.initRawHeaders, 'initRawData', this.initRawData)
+    this.$logger.info('[' + this.formTableMode + '] EvaluationTable created ' + this.formTableMode + ' formType ' + this.formType, 'initRawHeaders', this.initRawHeaders, 'initRawData', this.initRawData)
+    this.mode = this.formTableMode
     if (this.initRawHeaders.length) {
       this.headers = this.initRawHeaders
     } else {
@@ -401,7 +452,7 @@ export default {
         ]
       }
     }
-    this.$logger.info('form headers ', this.headers)
+    this.$logger.info('[' + this.mode + '] form headers ', this.headers)
 
     if (this.initRawData.length) {
       this.list = this.initRawData
@@ -412,19 +463,19 @@ export default {
   },
   destroyed () {
     LibraryEventBus.$off(LibraryEvent.ContentListSelectClick, this.handleContentListSelectClick)
-    this.$logger.info('off NewClickableKnowledgeTag ContentListSelectClick handler')
+    this.$logger.info('[' + this.mode + '] off NewClickableKnowledgeTag ContentListSelectClick handler')
   },
   methods: {
 
     handleContentListSelectClick (data) {
       if (data.questionIndex === 'evaluation_') {
-        this.$logger.info('evaluation handleContentListSelectClick hit', data)
+        this.$logger.info('[' + this.mode + '] evaluation handleContentListSelectClick hit', data)
         LibraryEventBus.$emit(LibraryEvent.ContentListSelectedListUpdate, { id: data.subKnowledgeId })
       }
     },
 
     handleEditHeader (header) {
-      this.$logger.info('handleEditHeader', header)
+      this.$logger.info('[' + this.mode + '] handleEditHeader', header)
       if (header.editable) {
         this.headers.forEach(item => {
           if (item.label.length === 0) {
@@ -442,12 +493,12 @@ export default {
           }
         })
       } else {
-        this.$logger.info('current header not editable', header)
+        this.$logger.info('[' + this.mode + '] current header not editable', header)
       }
     },
 
     handleUpdateHeader (header) {
-      this.$logger.info('handleUpdateHeader', header)
+      this.$logger.info('[' + this.mode + '] handleUpdateHeader', header)
 
       // 如果没输入表头，重置为默认表头
       this.headers.forEach(item => {
@@ -463,7 +514,7 @@ export default {
     },
 
     handleAddNewHeader () {
-      this.$logger.info('handleAddNewHeader this.selfHeaderTypeIndex ' + this.selfHeaderAddIndex)
+      this.$logger.info('[' + this.mode + '] handleAddNewHeader this.selfHeaderTypeIndex ' + this.selfHeaderAddIndex)
 
       // 重新生成一个唯一的表头类型，示例：user_define__1、user_define__2
       let userDefineHeaderType = this.headerType.UserDefine + this.selfHeaderAddIndex
@@ -493,12 +544,12 @@ export default {
         item[headerItem.type] = { name: null }
       })
       this.list = oldList
-      this.$logger.info('after update list', this.list)
+      this.$logger.info('[' + this.mode + '] after update list', this.list)
       this.selfHeaderAddIndex++
     },
 
     handleRemoveHeader (header) {
-      this.$logger.info('handleRemoveHeader ', header)
+      this.$logger.info('[' + this.mode + '] handleRemoveHeader ', header)
       const index = this.headers.findIndex(item => item.type === header.type)
       if (index !== -1) {
         this.headers.splice(index, 1)
@@ -508,11 +559,11 @@ export default {
         delete item[header.type]
       })
       this.list = oldList
-      this.$logger.info('after delete column update list', this.list)
+      this.$logger.info('[' + this.mode + '] after delete column update list', this.list)
     },
 
     handleAddNewLine () {
-      this.$logger.info('handleAddNewLine ')
+      this.$logger.info('[' + this.mode + '] handleAddNewLine ')
       const newLineItem = {}
       this.headers.forEach(header => {
         newLineItem[header.type] = {
@@ -540,49 +591,51 @@ export default {
           selectedList: []
         }
       }
-      this.$logger.info('init new line ', newLineItem)
+      this.$logger.info('[' + this.mode + '] init new line ', newLineItem)
       this.list.push(newLineItem)
     },
 
     handleDragEnd () {
-      this.$logger.info('handleDragEnd', this.headers)
+      this.$logger.info('[' + this.mode + '] handleDragEnd', this.headers)
     },
 
     handleDeleteLine (deleteLine) {
-      this.$logger.info('handleDeleteLine', deleteLine)
-      this.list = this.list.filter(item => item !== deleteLine)
+      this.$logger.info('[' + this.mode + '] handleDeleteLine', deleteLine)
+      if (this.mode === EvaluationTableMode.Edit) {
+        this.list = this.list.filter(item => item !== deleteLine)
+      }
     },
 
-    handleDbClickBodyItem (item, header) {
-      this.$logger.info('handleDbClickBodyItem', item, header)
-      if ((header.type === 'description' || header.type === 'level') && this.mode !== 'evaluate' && this.mode !== 'preview') {
-        this.selectCurriculumVisible = true
-        this.currentSelectLine = item
-      }
+    handleClickBodyItem (item, header) {
+      this.$logger.info('[' + this.mode + '] handleClickBodyItem', item, header)
     },
 
     handleAddCriteria  (header, item, event) {
       event.preventDefault()
       event.stopPropagation()
-      this.$logger.info('handleAddCriteria', header, item)
-      this.showMenuList = [NavigationType.all21Century]
-      this.selectCurriculumVisible = true
-      this.currentSelectHeader = header
-      this.currentSelectLine = item
+      this.$logger.info('[' + this.mode + '] handleAddCriteria', header, item)
+      if (this.mode === EvaluationTableMode.Edit) {
+        this.showMenuList = [NavigationType.all21Century]
+        this.selectCurriculumVisible = true
+        this.currentSelectHeader = header
+        this.currentSelectLine = item
+      }
     },
 
     handleAddDescription (header, item, event) {
       event.preventDefault()
       event.stopPropagation()
-      this.$logger.info('handleAddDescription', header, item)
-      this.showMenuList = [NavigationType.learningOutcomes]
-      this.selectCurriculumVisible = true
-      this.currentSelectHeader = header
-      this.currentSelectLine = item
+      if (this.mode === EvaluationTableMode.Edit) {
+        this.$logger.info('[' + this.mode + '] handleAddDescription', header, item)
+        this.showMenuList = [NavigationType.learningOutcomes]
+        this.selectCurriculumVisible = true
+        this.currentSelectHeader = header
+        this.currentSelectLine = item
+      }
     },
 
     handleEnsureSelectCriteria () {
-      this.$logger.info('handleEnsureSelectCriteria')
+      this.$logger.info('[' + this.mode + '] handleEnsureSelectCriteria')
       this.selectCurriculumVisible = false
       if (this.formType === this.tableType.CenturySkills) {
         if (this.selectedCriteriaDescriptionList.length >= 1) {
@@ -600,7 +653,7 @@ export default {
             name: this.selectedCriteriaDescriptionList[0].descriptionName
           }
 
-          this.$logger.info('update currentSelectLine with criteria data ', this.currentSelectLine)
+          this.$logger.info('[' + this.mode + '] update currentSelectLine with criteria data ', this.currentSelectLine)
 
           // 如果多选，从第二个元素开始新建行填充数据
           if (this.selectedCriteriaDescriptionList.length > 1) {
@@ -627,7 +680,7 @@ export default {
                   selectedList: []
                 }
 
-                this.$logger.info('CenturySkills add new line with criteria data ', newLineItem)
+                this.$logger.info('[' + this.mode + '] CenturySkills add new line with criteria data ', newLineItem)
                 this.list.push(newLineItem)
               }
             })
@@ -645,7 +698,7 @@ export default {
             name: this.selectedRubricDescriptionList[0].name
           }
 
-          this.$logger.info('update currentSelectLine with criteria data ', this.currentSelectLine)
+          this.$logger.info('[' + this.mode + '] update currentSelectLine with criteria data ', this.currentSelectLine)
 
           // 如果多选，从第二个元素开始新建行填充数据
           if (this.selectedRubricDescriptionList.length > 1) {
@@ -666,14 +719,14 @@ export default {
                   selectedList: []
                 }
 
-                this.$logger.info('Rubric add new line with criteria data ', newLineItem)
+                this.$logger.info('[' + this.mode + '] Rubric add new line with criteria data ', newLineItem)
                 this.list.push(newLineItem)
               }
             })
           }
         }
       } else if (this.formType === this.tableType.Rubric_2) {
-        this.$logger.info('tableType.Rubric', this.selectedRubricDescriptionList)
+        this.$logger.info('[' + this.mode + '] tableType.Rubric', this.selectedRubricDescriptionList)
         if (this.selectedRubricDescriptionList.length >= 1) {
           // 如果只选择了一个，使用第一个填充当前行数据
           this.headers.forEach(header => {
@@ -688,7 +741,7 @@ export default {
             name: this.selectedRubricDescriptionList[0].grade
           }
 
-          this.$logger.info('update currentSelectLine description with criteria data ', this.currentSelectLine)
+          this.$logger.info('[' + this.mode + '] update currentSelectLine description with criteria data ', this.currentSelectLine)
 
           // 如果多选，从第二个元素开始新建行填充数据
           if (this.selectedRubricDescriptionList.length > 1) {
@@ -712,34 +765,34 @@ export default {
                   selectedList: []
                 }
 
-                this.$logger.info('Rubric description add new line with criteria data ', newLineItem)
+                this.$logger.info('[' + this.mode + '] Rubric description add new line with criteria data ', newLineItem)
                 this.list.push(newLineItem)
               }
             })
           }
         }
       } else {
-        this.$logger.info('rubric form no allow select')
+        this.$logger.info('[' + this.mode + '] rubric form no allow select')
       }
     },
 
     handleUpdateDescription (header, item) {
-      this.$logger.info('handleUpdateDescription', header, item)
+      this.$logger.info('[' + this.mode + '] handleUpdateDescription', header, item)
     },
 
     handleUpdateField (header, item) {
-      this.$logger.info('handleUpdateField', header, item)
+      this.$logger.info('[' + this.mode + '] handleUpdateField', header, item)
     },
 
     handleClickEnterDescription (header, item) {
-      this.$logger.info('handleClickEnterDescription', header, item)
+      this.$logger.info('[' + this.mode + '] handleClickEnterDescription', header, item)
       this.inputDescription = item[this.headerType.Description].userInputText
       this.currentEnterDescriptionLine = item
       this.inputDescriptionVisible = true
     },
 
     handleEnsureDescription () {
-      this.$logger.info('handleEnsureDescription ' + this.inputDescription)
+      this.$logger.info('[' + this.mode + '] handleEnsureDescription ' + this.inputDescription)
       this.currentEnterDescriptionLine[this.headerType.Description].userInputText = this.inputDescription
       this.inputDescriptionVisible = false
       this.currentEnterDescriptionLine = null
@@ -747,20 +800,20 @@ export default {
     },
 
     handleCancelDescription () {
-      this.$logger.info('handleEnsureDescription ' + this.inputDescription)
+      this.$logger.info('[' + this.mode + '] handleEnsureDescription ' + this.inputDescription)
       this.currentEnterDescriptionLine = null
       this.inputDescription = null
       this.inputDescriptionVisible = false
     },
 
     handleAddEvidenceLine (lIndex, item) {
-      this.$logger.info('handleAddEvidenceLine', lIndex, item)
+      this.$logger.info('[' + this.mode + '] handleAddEvidenceLine', lIndex, item)
       this.$emit('add-evidence', {
         index: lIndex, data: item
       })
     },
     handleSelectAll21CenturyListData (data) {
-      this.$logger.info('EvaluationTable handleSelectAll21CenturyListData', data)
+      this.$logger.info('[' + this.mode + '] EvaluationTable handleSelectAll21CenturyListData', data)
       const descriptionList = []
       data.forEach(dataItem => {
         const item = dataItem.item
@@ -777,11 +830,11 @@ export default {
         descriptionList.push(descriptionItem)
       })
       this.selectedCriteriaDescriptionList = descriptionList
-      this.$logger.info('selectedCriteriaDescriptionList ', descriptionList)
+      this.$logger.info('[' + this.mode + '] selectedCriteriaDescriptionList ', descriptionList)
     },
 
     handleSelectDescriptionListData  (data) {
-      this.$logger.info('EvaluationTable handleSelectDescriptionListData', data)
+      this.$logger.info('[' + this.mode + '] EvaluationTable handleSelectDescriptionListData', data)
       const descriptionList = []
       data.forEach(dataItem => {
         const descriptionItem = {
@@ -792,7 +845,7 @@ export default {
         descriptionList.push(descriptionItem)
       })
       this.selectedRubricDescriptionList = descriptionList
-      this.$logger.info('handleSelectDescriptionListData ', descriptionList)
+      this.$logger.info('[' + this.mode + '] handleSelectDescriptionListData ', descriptionList)
     },
 
     handleCancelSelectData () {

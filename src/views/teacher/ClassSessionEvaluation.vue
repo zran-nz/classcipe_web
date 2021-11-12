@@ -57,20 +57,20 @@
             :key="idx">
 
             <div class="action-icon" v-show="formItem.titleEditing === false">
-              <a-dropdown :trigger="['click']">
+              <a-dropdown :trigger="['click']" :visible="formItem.menuVisible">
                 <div class="form-title-item">
                   <div class="form-title" @dblclick="handleEditFormTitle(formItem)">{{ formItem.title }} </div>
-                  <a-icon type="down" />
+                  <a-icon type="down" @click="handleToggleMenuVisible(formItem)"/>
                 </div>
                 <a-menu slot="overlay">
                   <a-menu-item key="0">
-                    <a href="#">Student Eval</a>
+                    <div class="menu-icon"><a-switch size="small" v-model="formItem.studentEvaluation" @click="handleToggleStudentEvaluation(formItem)" /></div> Student Eval
                   </a-menu-item>
                   <a-menu-item key="1">
-                    <a href="#">Peer Eval</a>
+                    <div class="menu-icon"><a-switch size="small" v-model="formItem.peerEvaluation" @click="handleTogglePeerEvaluation(formItem)"/></div> Peer Eval
                   </a-menu-item>
                   <a-menu-item key="2">
-                    <a href="#" @click="handleDeleteForm(formItem)"><a-icon type="delete" /> Delete</a>
+                    <div class="menu-icon"><a-icon type="delete" /></div><a href="#" @click="handleDeleteForm(formItem)"> Delete</a>
                   </a-menu-item>
                 </a-menu>
               </a-dropdown>
@@ -149,7 +149,7 @@
                       :init-raw-headers="formItem.initRawHeaders"
                       :init-raw-data="formItem.initRawData"
                       :form-type="formItem.formType"
-                      :mode="EvaluationTableMode.Edit"
+                      :form-table-mode="formTableMode"
                     />
                   </div>
                 </div>
@@ -303,6 +303,10 @@ export default {
     classId: {
       type: String,
       required: true
+    },
+    mode: {
+      type: String,
+      default: EvaluationTableMode.Edit
     }
   },
   computed: {
@@ -347,11 +351,13 @@ export default {
       newTableName: '',
 
       currentEditingTitle: null,
-      currentFormItem: null
+      currentFormItem: null,
+      formTableMode: null
     }
   },
   created () {
-    this.$logger.info('created ClassSessionEvaluation classId' + this.classId + ' taskId ' + this.taskId)
+    this.$logger.info('[' + this.formTableMode + '] created ClassSessionEvaluation classId' + this.classId + ' taskId ' + this.taskId)
+    this.formTableMode = this.mode
     this.loadEvaluationData()
   },
   methods: {
@@ -464,6 +470,9 @@ export default {
           title: selfTitle,
           titleEditing: false,
           formType: this.newFormType,
+          studentEvaluation: false,
+          peerEvaluation: false,
+          menuVisible: false,
           comment: null,
           id: selfId,
           tableData: {
@@ -551,6 +560,21 @@ export default {
         }
       })
       this.forms = forms
+    },
+
+    handleToggleStudentEvaluation (formItem) {
+      this.$logger.info('handleToggleStudentEvaluation', formItem)
+      formItem.menuVisible = !formItem.menuVisible
+    },
+
+    handleTogglePeerEvaluation (formItem) {
+      this.$logger.info('handleTogglePeerEvaluation', formItem)
+      formItem.menuVisible = !formItem.menuVisible
+    },
+
+    handleToggleMenuVisible (formItem) {
+      this.$logger.info('handleToggleMenuVisible', formItem)
+      formItem.menuVisible = !formItem.menuVisible
     }
   }
 }
@@ -956,5 +980,17 @@ export default {
 
 .my-title-input {
 
+}
+
+.ant-dropdown-menu-item {
+  display: flex;
+  flex-direction: row;
+}
+
+.menu-icon {
+  width: 35px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 </style>

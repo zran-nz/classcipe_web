@@ -1,8 +1,8 @@
 const EvaluationTableMode = {
-  Edit: 'Edit',
-  Preview: 'Preview',
-  StudentEvaluate: 'StudentEvaluate',
-  TeacherEvaluate: 'TeacherEvaluate'
+  Edit: 'edit',
+  Preview: 'preview',
+  StudentEvaluate: 'student-evaluate',
+  TeacherEvaluate: 'teacher-evaluate'
 }
 
 export default EvaluationTableMode
