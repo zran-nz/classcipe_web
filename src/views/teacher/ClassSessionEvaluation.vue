@@ -280,7 +280,7 @@ import GroupIcon from '@/assets/svgIcon/evaluation/qunzu.svg?inline'
 import ArrowDown from '@/assets/svgIcon/evaluation/arrow_down.svg?inline'
 import ArrowTop from '@/assets/svgIcon/evaluation/arrow_top.svg?inline'
 import ModalHeader from '@/components/Common/ModalHeader'
-import { GetSessionEvaluationByClassId, EvaluationQueryByIds } from '@/api/evaluation'
+import { GetSessionEvaluationByClassId, EvaluationQueryByIds, EvaluationQueryById, EvaluationAddOrUpdate } from '@/api/evaluation'
 import SelectEvaluationList from '@/components/Evaluation/SelectEvaluationList'
 import EvaluationTableType from '@/components/Evaluation/EvaluationTableType'
 import EvaluationTableMode from '@/components/Evaluation/EvaluationTableMode'
@@ -381,15 +381,22 @@ export default {
   created () {
     this.$logger.info('[' + this.formTableMode + '] created ClassSessionEvaluation classId' + this.classId + ' taskId ' + this.taskId)
     this.formTableMode = this.mode
-    this.loadEvaluationData()
+    this.initData()
   },
   methods: {
-    loadEvaluationData () {
-      this.$logger.info('loadEvaluationData')
+
+    initData () {
+      this.$logger.info('initData')
       this.loading = false
-      GetSessionEvaluationByClassId({ classId: this.classId }).then(response => {
-        this.$logger.info('GetSessionEvaluationByClassId response', response.result)
-        const data = response.result
+      Promise.all([
+        GetSessionEvaluationByClassId({ classId: this.classId }),
+        // TODO Evaluation 修改为查询表格数据接口
+        EvaluationQueryById({ id: this.taskId, taskId: this.taskId, classId: this.classId })
+      ]).then(response => {
+        this.$logger.info('init data response', response)
+        // 加载班级信息数据
+        this.$logger.info('GetSessionEvaluationByClassId response', response[0].result)
+        const data = response[0].result
         this.classInfo = data.classInfo
 
         // 表单数据赋值
@@ -399,9 +406,31 @@ export default {
           group.expand = false
         })
         this.groups = data.groups
+
+        // 加载表格数据
+        this.$logger.info('GetSessionEvaluationByClassId response', response[1].result)
+        // TODO Evaluation 修改为表格数据，取消mock数据
+        const rawFormData = { 'formDataList': [{ 'formId': 'ext_0.4525127213541382', 'formType': 3, 'title': 'CenturySkills 1', 'headers': '[{"label":"Criteria","previewLabel":"Criteria","type":"criteria","editable":false,"editing":false,"required":true},{"label":"Description","previewLabel":"Description","type":"description","editable":false,"editing":false,"required":true},{"label":"Novice","previewLabel":"Novice","type":"novice","editable":false,"editing":false,"required":true},{"label":"Learner","previewLabel":"Learner","type":"learner","editable":false,"editing":false,"required":true},{"label":"Practitoner","previewLabel":"Practitoner","type":"practitoner","editable":false,"editing":false,"required":true},{"label":"Expert","previewLabel":"Expert","type":"expert","editable":false,"editing":false,"required":true},{"label":"Evidence","previewLabel":"Evidence","type":"evidence","editable":false,"editing":false,"required":true}]', 'body': '[{"criteria":{"name":"Communicate effectively","criteriaList":["Broad communication skills","Communication"]},"description":{"name":"identify positive ways to initiate, join and interrupt conversations with adults and peers"},"novice":{"name":null},"learner":{"name":null},"practitoner":{"name":null},"expert":{"name":null},"evidence":{"num":0,"selectedList":[],"name":null}},{"criteria":{"name":"Communicate effectively","criteriaList":["Broad communication skills","Communication"]},"description":{"name":"identify and explain factors that influence effective communication in a variety of situations","userInputText":null},"novice":{"name":null},"learner":{"name":null},"practitoner":{"name":null},"expert":{"name":null},"evidence":{"num":0,"selectedList":[]}}]', 'peerEvaluation': false, 'studentEvaluation': false }, { 'formId': 'ext_0.7513811284029117', 'formType': 2, 'title': 'Rubric two 2', 'headers': '[{"label":"Criteria","previewLabel":"Criteria","type":"criteria","editable":false,"editing":false,"required":true},{"label":"Description","previewLabel":"Description","type":"description","editable":false,"editing":false,"required":true},{"label":"Task specific indicators","previewLabel":"Task specific indicators","type":"indicators","editable":false,"editing":false,"required":true},{"label":"Evidence","previewLabel":"Evidence","type":"evidence","editable":false,"editing":false,"required":true}]', 'body': '[{"criteria":{"name":"Year 1"},"description":{"name":"exploring different habitats in the local environment such as the beach, bush and backyard"},"indicators":{"name":null},"evidence":{"num":0,"selectedList":[],"name":null}},{"criteria":{"name":"Year 1"},"description":{"name":"exploring what happens when habitats change and some living things can no longer have their needs met"},"indicators":{"name":null},"evidence":{"num":0,"selectedList":[]}},{"criteria":{"name":"Year 2"},"description":{"name":"recognizing that living things have predictable characteristics at different stages of development"},"indicators":{"name":null},"evidence":{"num":0,"selectedList":[]}}]', 'peerEvaluation': false, 'studentEvaluation': false }] }
+        this.$logger.info('rawFormData', rawFormData)
+        rawFormData.formDataList.forEach(formItem => {
+            this.forms.push({
+              title: formItem.title,
+              titleEditing: false,
+              formType: formItem.formType,
+              studentEvaluation: formItem.studentEvaluation,
+              peerEvaluation: formItem.peerEvaluation,
+              menuVisible: false,
+              id: formItem.formId,
+              initRawHeaders: JSON.parse(formItem.headers),
+              initRawData: JSON.parse(formItem.body)
+            })
+        })
+        this.$logger.info('forms', this.forms)
       }).finally(() => {
         if ((!this.forms || this.forms.length === 0) && this.mode === EvaluationTableMode.Edit) {
           this.selectRubricVisible = true
+        } else {
+          this.currentActiveFormId = this.forms[0].id
         }
         this.loading = false
       })
@@ -540,7 +569,7 @@ export default {
     },
     handleSaveEvaluation () {
       this.$logger.info('handleSaveEvaluation', this.forms)
-      this.$refs.commonFormHeader.saving = false
+      this.$refs.commonFormHeader.saving = true
 
       // 获取所有的表格结构（表头+表内容）
       const formDataList = []
@@ -549,6 +578,7 @@ export default {
         this.forms.forEach(formItem => {
           if (formItem.id === tableData.formId) {
             const formData = {
+              formId: formItem.id,
               formType: formItem.formType,
               title: formItem.title,
               headers: JSON.stringify(tableData.headers),
@@ -561,6 +591,21 @@ export default {
         })
       })
       this.$logger.info('formDataList', formDataList)
+
+      if (formDataList.length === 0) {
+        this.$message.error('Please add at least one form!')
+        this.$refs.commonFormHeader.saving = false
+        return false
+      } else {
+        // TODO Evaluation 修改为提交表格数据接口
+        EvaluationAddOrUpdate({
+          formDataList: formDataList
+        }).then((response) => {
+          this.$logger.info('EvaluationAddOrUpdate', response)
+          this.$message.success('Save successfully!')
+          this.$refs.commonFormHeader.saving = false
+        })
+      }
     },
     handlePublishEvaluation () {},
 

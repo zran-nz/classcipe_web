@@ -1,19 +1,5 @@
 <template>
   <div class="rubric">
-    <a-radio-group v-model="mode" >
-      <a-radio :value="tableMode.Preview">
-        Preview
-      </a-radio>
-      <a-radio :value="tableMode.Edit">
-        Edit
-      </a-radio>
-      <a-radio :value="tableMode.TeacherEvaluate">
-        TeacherEvaluate
-      </a-radio>
-      <a-radio :value="tableMode.StudentEvaluate">
-        StudentEvaluate
-      </a-radio>
-    </a-radio-group>
     <table class="rubric-table">
       <thead>
 
