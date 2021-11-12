@@ -157,7 +157,7 @@
                 </div>
               </div>
             </div>
-            <div class="no-form-tips">
+            <div class="no-form-tips" v-show="forms.length === 0 && loading === false">
               <no-more-resources tips="The evaluation form has not been created!"/>
             </div>
           </div>
