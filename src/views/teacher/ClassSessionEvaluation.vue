@@ -382,7 +382,7 @@ export default {
       currentFormItem: null,
       formTableMode: null,
 
-      studentEvaluationData: [], // 所有学生的评价数据
+      studentEvaluationData: {}, // 所有学生的评价数据对象，通过vue.$set设置属性，方便遍历对应的学生及表单数据
       allSelectedMemberIdList: [], // 当前所有选中的学生的id, 当评价数据被修改时，当前的选中学生的对应表单的评价数据会被修改。
       currentActiveStudentId: null,
       currentActiveStudentData: null
@@ -401,14 +401,21 @@ export default {
         this.$logger.info('init data response', response)
         // 加载班级信息数据
         this.$logger.info('GetSessionEvaluationByClassId response', response.result)
+        // 所有的学生id用于遍历构造学生评价数据 "对象"
+        const allStudentUserIdList = []
+
         const data = response.result
         this.classInfo = data.classInfo
         data.groups.forEach(group => {
-          group.expand = false
+          group.expand = true // 默认分组展开显示
+          group.members.forEach(member => {
+            allStudentUserIdList.push(member.userId)
+          })
         })
         this.groups = data.groups
         if (data.evaluation) {
           this.form = data.evaluation
+
           data.evaluation.forms.forEach(formItem => {
               this.forms.push({
                 title: formItem.title,
@@ -421,24 +428,47 @@ export default {
                 initRawHeaders: JSON.parse(formItem.initRawHeaders),
                 initRawData: JSON.parse(formItem.initRawData)
               })
-            })
+          })
+
           this.$logger.info('forms', this.forms)
         }
+
+        this.$logger.info('allStudentUserIdList', allStudentUserIdList)
+        // 初始化评估数据，构造遍历所有学生的评价数据对象，更具对象索引到具体表单的某一行的点评数据
+        if (allStudentUserIdList.length && this.forms.length) {
+          const studentEvaluateData = {}
+          allStudentUserIdList.forEach(studentId => {
+            studentEvaluateData[studentId] = {}
+            this.forms.forEach(formItem => {
+              studentEvaluateData[studentId][formItem.id] = {}
+              formItem.initRawData.forEach(rowItem => {
+                studentEvaluateData[studentId][formItem.id][rowItem.rowId] = {
+                  teacherEvaluation: null, // 老师评价
+                  peerEvaluation: null, // 他人评价
+                  studentEvaluation: null // 学生自评
+                }
+              })
+            })
+          })
+
+          this.$logger.info('studentEvaluateData init finished ', studentEvaluateData)
+
+          // 默认选中第一个学生的第一个评估表格
+          this.currentActiveStudentId = allStudentUserIdList[0]
+          this.allSelectedMemberIdList.push(this.currentActiveStudentId)
+          this.selectedMemberIdList.push(this.currentActiveStudentId)
+          this.currentActiveFormId = this.forms[0].id
+          this.$logger.info('currentActiveFormId ' + this.currentActiveFormId + ' currentActiveStudentId ' + this.currentActiveStudentId)
+        }
+
         // 表单数据赋值
         this.form.className = this.classInfo.className
       }).finally(() => {
         if ((!this.forms || this.forms.length === 0) && this.mode === EvaluationTableMode.Edit) {
           this.selectRubricVisible = true
-        } else {
-          this.currentActiveFormId = this.forms[0].id
         }
         this.loading = false
       })
-    },
-
-    // 加载学生的评价数据，可见范围：老师（他评、老师评价、自评）、自己（自评、老师评价）、他人（他评）
-    loadStudentEvaluationData () {
-      this.$logger.info('loadStudentEvaluationData')
     },
 
     handleActiveForm (idx, formItem) {
@@ -452,8 +482,14 @@ export default {
       const index = this.selectedMemberIdList.indexOf(member.userId)
       if (index === -1) {
         this.selectedMemberIdList.push(member.userId)
+        this.currentActiveStudentId = member.userId
       } else {
         this.selectedMemberIdList.splice(index, 1)
+        if (member.userId === this.currentActiveStudentId && this.selectedMemberIdList.length) {
+          this.currentActiveStudentId = this.selectedMemberIdList[0]
+        } else {
+          this.currentActiveStudentId = null
+        }
       }
     },
 
