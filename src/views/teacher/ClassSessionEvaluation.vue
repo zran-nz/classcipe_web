@@ -51,7 +51,7 @@
         <div class="form-table-tabs" v-show="forms.length > 0">
           <div
             :class="{'form-table-item': true,
-                     'active-table': currentActiveFormId === formItem.id}"
+                     'active-table': currentActiveFormId === formItem.formId}"
             v-for="(formItem, idx) in forms"
             @click="handleActiveForm(idx, formItem)"
             :key="idx">
@@ -138,7 +138,7 @@
           <div class="form-table-content">
             <div class="table-content" v-if="mode === EvaluationTableMode.Edit || (currentActiveStudentId && !loading)">
               <div class="form-table-item" v-for="(formItem,tIdx) in forms" :key="tIdx">
-                <div class="form-table-item-content" v-show="formItem.id === currentActiveFormId">
+                <div class="form-table-item-content" v-show="formItem.formId === currentActiveFormId">
                   <div class="comment" v-show="formTableMode === EvaluationTableMode.TeacherEvaluate">
                     <div class="summary-input">
                       <a-textarea v-model="formItem.comment" placeholder="Write a comment" aria-placeholder="Write a comment" class="my-textarea" />
@@ -159,12 +159,16 @@
                 </div>
               </div>
             </div>
-            <div class="no-form-tips" v-show="forms.length === 0 && !loading">
-              <no-more-resources tips="The evaluation form has not been created!"/>
-            </div>
-            <div class="no-form-tips" v-show="mode !== EvaluationTableMode.Preview && mode !== EvaluationTableMode.Edit && !currentActiveStudentId && !loading">
-              <no-more-resources tips="Please select a student first!"/>
-            </div>
+            <template v-if="forms.length === 0 && !loading">
+              <div class="no-form-tips">
+                <no-more-resources tips="The evaluation form has not been created!"/>
+              </div>
+            </template>
+            <template v-else-if="mode !== EvaluationTableMode.Preview && mode !== EvaluationTableMode.Edit && !currentActiveStudentId && !loading">
+              <div class="no-form-tips">
+                <no-more-resources tips="Please select a student first!"/>
+              </div>
+            </template>
           </div>
         </div>
       </div>
@@ -450,12 +454,18 @@ export default {
           }
 
           this.$logger.info('forms', this.forms)
+
+          // forms为空那么数据已经失效
+          if (!this.forms.length) {
+            data.evaluation.studentEvaluateData = null
+          }
         }
 
         this.$logger.info('allStudentUserIdList', allStudentUserIdList)
         this.allStudentUserIdList = allStudentUserIdList
+
         // 初始化评估数据，构造遍历所有学生的评价数据对象，更具对象索引到具体表单的某一行的点评数据
-        if (data.evaluation && data.evaluation.studentEvaluateData) {
+        if (data.evaluation && data.evaluation.studentEvaluateData && data.evaluation.studentEvaluateData !== '{}') {
           this.studentEvaluateData = JSON.parse(data.evaluation.studentEvaluateData)
           if (allStudentUserIdList.length) {
             this.currentActiveStudentId = allStudentUserIdList[0]
@@ -468,11 +478,11 @@ export default {
           allStudentUserIdList.forEach(studentId => {
             studentEvaluateData[studentId] = {}
             this.forms.forEach(formItem => {
-              studentEvaluateData[studentId][formItem.id] = {
+              studentEvaluateData[studentId][formItem.formId] = {
                 comment: null
               }
               formItem.initRawData.forEach(rowItem => {
-                studentEvaluateData[studentId][formItem.id][rowItem.rowId] = {
+                studentEvaluateData[studentId][formItem.formId][rowItem.rowId] = {
                   teacherEvaluation: null, // 老师评价
                   teacherName: null, // 老师评价
                   teacherEmail: null, // 老师评价
@@ -510,8 +520,8 @@ export default {
 
     handleActiveForm (idx, formItem) {
       this.$logger.info('handleActiveForm ' + idx, formItem)
-      if (this.currentActiveFormId !== formItem.id) {
-        this.currentActiveFormId = formItem.id
+      if (this.currentActiveFormId !== formItem.formId) {
+        this.currentActiveFormId = formItem.formId
       }
     },
     handleClickMember (member) {
@@ -569,7 +579,7 @@ export default {
         const existFormIdList = []
         this.forms.forEach(item => {
           existFormTitleList.push(item.title)
-          existFormIdList.push(item.id)
+          existFormIdList.push(item.formId)
         })
 
         // 给还未保存的表格生成一个唯一的名称和自定义id，自定义id在提交时需要删掉
@@ -603,7 +613,7 @@ export default {
         }
         this.$logger.info('newFormTable', newFormTable)
         this.forms.push(newFormTable)
-        this.currentActiveFormId = newFormTable.id
+        this.currentActiveFormId = newFormTable.formId
       } else {
         this.$message.warn('Choose rubric format!')
       }
@@ -714,15 +724,15 @@ export default {
       this.$logger.info('handleDeleteForm', formItem)
       const forms = []
       this.forms.forEach(form => {
-        if (form.id !== formItem.id) {
+        if (form.formId !== formItem.formId) {
           forms.push(form)
         }
       })
 
       this.allStudentUserIdList.forEach(studentId => {
-        this.$delete(this.studentEvaluateData[studentId], formItem.id)
+        this.$delete(this.studentEvaluateData[studentId], formItem.formId)
       })
-      this.$logger.info('after delete ' + formItem.id, this.studentEvaluateData)
+      this.$logger.info('after delete ' + formItem.formId, this.studentEvaluateData)
     },
 
     handleToggleStudentEvaluation (formItem) {
@@ -765,8 +775,8 @@ export default {
         this.$logger.info(data.evaluationMode + ' studentEvaluateData ' + userId, this.studentEvaluateData[userId])
         this.$logger.info(data.evaluationMode + ' studentEvaluateData ' + userId + ' formId ' + data.formId, this.studentEvaluateData[userId][data.formId])
           if (data.evaluationMode === EvaluationTableMode.TeacherEvaluate) {
-            this.studentEvaluateData[userId][data.formId][data.rowId].teacherEmail = data.value
-            this.studentEvaluateData[userId][data.formId][data.rowId].teacherName = data.value
+            this.studentEvaluateData[userId][data.formId][data.rowId].teacherEmail = data.evaluateUserEmail
+            this.studentEvaluateData[userId][data.formId][data.rowId].teacherName = data.evaluateUserName
             // 点击选中，再点一次取消选中
             if (this.studentEvaluateData[userId][data.formId][data.rowId].teacherEvaluation === data.value) {
               this.studentEvaluateData[userId][data.formId][data.rowId].teacherEvaluation = ''
@@ -774,9 +784,8 @@ export default {
               this.studentEvaluateData[userId][data.formId][data.rowId].teacherEvaluation = data.value
             }
           } else if (data.evaluationMode === EvaluationTableMode.StudentEvaluate) {
-            this.studentEvaluateData[userId][data.formId][data.rowId].studentEvaluation = data.value
-            this.studentEvaluateData[userId][data.formId][data.rowId].studentEmail = data.value
-            this.studentEvaluateData[userId][data.formId][data.rowId].studentrName = data.value
+            this.studentEvaluateData[userId][data.formId][data.rowId].studentEmail = data.evaluateUserEmail
+            this.studentEvaluateData[userId][data.formId][data.rowId].studentName = data.evaluateUserName
 
             if (this.studentEvaluateData[userId][data.formId][data.rowId].studentEvaluation === data.value) {
               this.studentEvaluateData[userId][data.formId][data.rowId].studentEvaluation = ''
@@ -784,9 +793,8 @@ export default {
               this.studentEvaluateData[userId][data.formId][data.rowId].studentEvaluation = data.value
             }
           } else if (data.evaluationMode === EvaluationTableMode.PeerEvaluate) {
-            this.studentEvaluateData[userId][data.formId][data.rowId].peerEvaluation = data.value
-            this.studentEvaluateData[userId][data.formId][data.rowId].peerEmail = data.value
-            this.studentEvaluateData[userId][data.formId][data.rowId].peerName = data.value
+            this.studentEvaluateData[userId][data.formId][data.rowId].peerEmail = data.evaluateUserEmail
+            this.studentEvaluateData[userId][data.formId][data.rowId].peerName = data.evaluateUserName
 
             if (this.studentEvaluateData[userId][data.formId][data.rowId].peerEvaluation === data.value) {
               this.studentEvaluateData[userId][data.formId][data.rowId].peerEvaluation = ''
@@ -794,7 +802,7 @@ export default {
               this.studentEvaluateData[userId][data.formId][data.rowId].peerEvaluation = data.value
             }
           }
-          this.$logger.info('set ' + userId + ' formId ' + data.formId + ' row ' + data.rowId, this.studentEvaluateData[userId][data.formId][data.rowId])
+          this.$logger.info('set ' + userId + ' formId ' + data.formId + ' row ' + data.rowId, this.studentEvaluateData[userId][data.formId][data.rowId], 'data', data)
       })
 
       this.$logger.info('after update studentEvaluateData', this.studentEvaluateData)

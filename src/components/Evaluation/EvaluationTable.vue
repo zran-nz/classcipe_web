@@ -505,12 +505,19 @@ export default {
     }
   },
   created () {
-    this.$logger.info('[' + this.formTableMode + '] EvaluationTable created ' + this.formTableMode + ' formType ' + this.formType, 'initRawHeaders', this.initRawHeaders, 'initRawData', this.initRawData, ' formBodyData', this.formBodyData)
+    this.$logger.info('[' + this.mode + '] EvaluationTable created formTableMode: ' + this.formTableMode + ' formType ' + this.formType, 'initRawHeaders', this.initRawHeaders, 'initRawData', this.initRawData, ' formBodyData', this.formBodyData)
     this.mode = this.formTableMode
-    if (this.$store.getters.userInfo.roles.indexOf('teacher') !== -1) {
+    if (this.formTableMode === EvaluationTableMode.TeacherEvaluate && this.$store.getters.userInfo.roles.indexOf('teacher') !== -1) {
       this.currentEvaluateMode = EvaluationTableMode.TeacherEvaluate
     } else {
-      // TODO evaluation 学生评价、自评模式
+      if (this.formTableMode === EvaluationTableMode.StudentEvaluate) {
+        this.currentEvaluateMode = EvaluationTableMode.StudentEvaluate
+      } else if (this.formTableMode === EvaluationTableMode.PeerEvaluate) {
+        this.currentEvaluateMode = EvaluationTableMode.PeerEvaluate
+      } else {
+        this.$logger.info('current formTableMode illegal ' + this.formTableMode)
+      }
+      this.$logger.info('current currentEvaluateMode ' + this.currentEvaluateMode)
     }
     if (this.initRawHeaders.length) {
       this.headers = this.initRawHeaders
@@ -1431,5 +1438,9 @@ export default {
   display: flex;
   align-items: center;
   justify-content: center;
+
+  svg {
+    margin: 0 5px;
+  }
 }
 </style>
