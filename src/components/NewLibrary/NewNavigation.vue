@@ -43,14 +43,12 @@ export default {
     handleContentListUpdate (data) {
       this.$logger.info('handleContentListUpdate', data)
       const currentTreeItem = Object.assign({}, data)
-      this.$logger.info('NewNavigation handleContentListUpdate ', currentTreeItem)
       const navPathObjList = [currentTreeItem.parentTreeData, currentTreeItem.currentTreeData]
       let parentItem = currentTreeItem.parentTreeData
       while (parentItem && parentItem.parent) {
         navPathObjList.unshift(Object.assign({}, parentItem.parent))
         parentItem = parentItem.parent
       }
-      this.$logger.info('nav path list', navPathObjList)
       this.navPath = navPathObjList
     },
 

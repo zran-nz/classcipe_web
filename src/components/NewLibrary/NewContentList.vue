@@ -187,7 +187,7 @@ export default {
         this.$logger.info('selectedKnowledgeIdNameMap', this.selectedKnowledgeIdNameMap)
       } else if (this.currentDataType === NavigationType.learningOutcomes) {
         // 同步更新点击大纲描述数据
-        if (item.children.length || (item.gradeList && item.gradeList.length)) {
+        if (item.children.length || (item.gradeList && item.gradeList.length) || item.hasOwnProperty('gradeList')) {
           // 如果有子列表，表示还未到最后一层description，通知左侧导航栏更新同步层级
           LibraryEventBus.$emit(LibraryEvent.ContentListItemClick, {
             item,
