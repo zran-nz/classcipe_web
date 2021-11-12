@@ -621,13 +621,15 @@ export default {
 
     handleEditFormTitle (formItem) {
       this.$logger.info('handleEditFormTitle', formItem)
-      if (this.currentFormItem) {
-        this.currentFormItem.titleEditing = false
-        this.currentFormItem = null
+      if (this.mode === EvaluationTableMode.Edit) {
+        if (this.currentFormItem) {
+          this.currentFormItem.titleEditing = false
+          this.currentFormItem = null
+        }
+        this.currentEditingTitle = formItem.title
+        formItem.titleEditing = true
+        this.currentFormItem = formItem
       }
-      this.currentEditingTitle = formItem.title
-      formItem.titleEditing = true
-      this.currentFormItem = formItem
     },
 
     handleEnsureUpdateFormTitle () {
@@ -747,7 +749,9 @@ export default {
 
     handleToggleMenuVisible (formItem) {
       this.$logger.info('handleToggleMenuVisible', formItem)
-      formItem.menuVisible = !formItem.menuVisible
+      if (this.mode === EvaluationTableMode.Edit) {
+        formItem.menuVisible = !formItem.menuVisible
+      }
     },
 
     handleUpdateEvaluate (data) {
