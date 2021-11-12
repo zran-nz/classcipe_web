@@ -1123,7 +1123,7 @@ export default {
             position: relative;
             max-width: 400px;
             min-width: 140px;
-            min-height: 100px;
+            height: 100px;
             font-size: 12px;
             font-family: Inter-Bold;
             line-height: 16px;
