@@ -656,7 +656,7 @@ export default {
     },
 
     handleClickBodyItem (item, header) {
-      this.$logger.info('[' + this.mode + '] handleClickBodyItem', item, header)
+      this.$logger.info('[' + this.mode + '] handleClickBodyItem ' + header.label, item)
     },
 
     handleAddCriteria  (header, item, event) {
@@ -919,9 +919,9 @@ export default {
     },
 
     generateRowId () {
-      let rowId = 'row_' + Math.random(100000000, 999999999)
+      let rowId = 'row_' + Math.random()
       while (this.list.findIndex(item => item.rowId === rowId) !== -1) {
-        rowId = 'row_' + Math.random(100000000, 999999999)
+        rowId = 'row_' + Math.random()
       }
       this.$logger.info('generateRowId ' + rowId)
       return rowId
@@ -1071,7 +1071,7 @@ export default {
             border-right: 1px solid rgba(216, 216, 216, 1);
             border-bottom: 1px solid rgba(216, 216, 216, 1);
 
-            .data-item {
+            .data-item, .indicator-data {
               padding: 10px;
               cursor: pointer;
               min-height: 50px;
