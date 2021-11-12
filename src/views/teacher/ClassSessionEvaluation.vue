@@ -551,7 +551,7 @@ export default {
       const evaluationIdList = data.evaluationIdList
       EvaluationQueryByIds({ ids: evaluationIdList }).then((response) => {
         this.$logger.info('EvaluationQueryByIds', response)
-        // TODO evaluation 处理合并evaluation
+        // TODO Evaluation 选择拷贝evaluation表格后，处理合并evaluation
       })
     },
 
