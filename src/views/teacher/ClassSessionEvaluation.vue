@@ -356,7 +356,8 @@ export default {
         name: '',
         className: '',
         forms: [],
-        groups: []
+        groups: [],
+        studentEvaluateData: null
       },
 
       // 班级信息
@@ -448,7 +449,10 @@ export default {
         this.$logger.info('allStudentUserIdList', allStudentUserIdList)
         // 初始化评估数据，构造遍历所有学生的评价数据对象，更具对象索引到具体表单的某一行的点评数据
         // studentEvaluateData[学生Id][表单Id][列Id] = 列数据
-        if (allStudentUserIdList.length && this.forms.length) {
+        if (data.evaluation.studentEvaluateData) {
+          this.form.studentEvaluateData = JSON.parse(data.evaluation.studentEvaluateData)
+          this.$logger.info('restore studentEvaluateData', this.form.studentEvaluateData)
+        } else if (allStudentUserIdList.length && this.forms.length) {
           const studentEvaluateData = {}
           allStudentUserIdList.forEach(studentId => {
             studentEvaluateData[studentId] = {}
@@ -655,6 +659,10 @@ export default {
       this.$logger.info('formDataList', formDataList, 'this.form', this.form, 'this.classId', this.classId)
       this.form.classId = this.classId
       this.form.forms = formDataList
+      this.form.studentEvaluateData = JSON.stringify(this.studentEvaluateData)
+
+      // 获取评估数据
+      this.$logger.info('studentEvaluateData ', this.studentEvaluateData)
       if (formDataList.length === 0) {
         this.$message.error('Please add at least one form!')
         this.$refs.commonFormHeader.saving = false
