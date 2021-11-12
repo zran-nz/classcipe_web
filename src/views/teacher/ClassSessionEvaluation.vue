@@ -17,7 +17,7 @@
         <div class="header">
           <div class="left-action">
             <div class="add-btn">
-              <a-button type="primary" @click="handleAddFormTable">
+              <a-button type="primary" @click="handleAddFormTable" v-show="mode === EvaluationTableMode.Edit">
                 <div class="btn-content">
                   <a-icon type="plus-circle" />
                   <span class="btn-text">
@@ -139,13 +139,15 @@
             <div class="table-content">
               <div class="form-table-item" v-for="(formItem,tIdx) in forms" :key="tIdx">
                 <div class="form-table-item-content" v-show="formItem.id === currentActiveFormId">
-                  <div class="comment">
+                  <div class="comment" v-show="formTableMode === EvaluationTableMode.TeacherEvaluate">
                     <div class="summary-input">
                       <a-textarea v-model="formItem.comment" placeholder="Write a comment" aria-placeholder="Write a comment" class="my-textarea" />
                     </div>
                   </div>
                   <div class="form-table-detail">
                     <evaluation-table
+                      ref="evaluationTable"
+                      :form-id="formItem.id"
                       :init-raw-headers="formItem.initRawHeaders"
                       :init-raw-data="formItem.initRawData"
                       :form-type="formItem.formType"
@@ -154,6 +156,9 @@
                   </div>
                 </div>
               </div>
+            </div>
+            <div class="no-form-tips">
+              <no-more-resources tips="The evaluation form has not been created!"/>
             </div>
           </div>
         </div>
@@ -279,10 +284,12 @@ import { GetSessionEvaluationByClassId, EvaluationQueryByIds } from '@/api/evalu
 import SelectEvaluationList from '@/components/Evaluation/SelectEvaluationList'
 import EvaluationTableType from '@/components/Evaluation/EvaluationTableType'
 import EvaluationTableMode from '@/components/Evaluation/EvaluationTableMode'
+import NoMoreResources from '@/components/Common/NoMoreResources'
 
 export default {
   name: 'ClassSessionEvaluation',
   components: {
+    NoMoreResources,
     SelectEvaluationList,
     EvaluationTable,
     CommonFormHeader,
@@ -393,7 +400,7 @@ export default {
         })
         this.groups = data.groups
       }).finally(() => {
-        if (!this.forms || this.forms.length === 0) {
+        if ((!this.forms || this.forms.length === 0) && this.mode === EvaluationTableMode.Edit) {
           this.selectRubricVisible = true
         }
         this.loading = false
@@ -481,7 +488,6 @@ export default {
           comment: null,
           id: selfId,
           tableData: {
-            evaluationTableList: [],
             initRawHeaders: [],
             initRawData: []
           }
@@ -535,6 +541,26 @@ export default {
     handleSaveEvaluation () {
       this.$logger.info('handleSaveEvaluation', this.forms)
       this.$refs.commonFormHeader.saving = false
+
+      // 获取所有的表格结构（表头+表内容）
+      const formDataList = []
+      this.$refs.evaluationTable.forEach(tableItem => {
+        const tableData = tableItem.getTableStructData()
+        this.forms.forEach(formItem => {
+          if (formItem.id === tableData.formId) {
+            const formData = {
+              formType: formItem.formType,
+              title: formItem.title,
+              headers: JSON.stringify(tableData.headers),
+              body: JSON.stringify(tableData.list),
+              peerEvaluation: formItem.peerEvaluation,
+              studentEvaluation: formItem.studentEvaluation
+            }
+            formDataList.push(formData)
+          }
+        })
+      })
+      this.$logger.info('formDataList', formDataList)
     },
     handlePublishEvaluation () {},
 
@@ -814,7 +840,6 @@ export default {
 }
 
 .rubric {
-  padding: 0 10px;
   display: flex;
   flex-direction: column;
 
@@ -990,5 +1015,9 @@ export default {
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+.no-form-tips {
+  padding: 100px 0;
 }
 </style>

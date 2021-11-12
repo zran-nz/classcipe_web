@@ -425,6 +425,10 @@ export default {
       type: Array,
       default: () => []
     },
+    formId: {
+      type: String,
+      required: true
+    },
     formTableMode: {
       type: String,
       default: EvaluationTableMode.Edit
@@ -438,8 +442,8 @@ export default {
     return {
       selectModel: SelectModel,
       selfHeaderAddIndex: 1,
-      headers: [],
-      list: [],
+      headers: [], // 表头
+      list: [], // 表结构数据
       defaultActiveMenu: NavigationType.learningOutcomes,
       showMenuList: [ NavigationType.all21Century ],
       mode: null,
@@ -905,6 +909,15 @@ export default {
     },
 
     handleCancelSelectData () {
+    },
+
+    getTableStructData () {
+      this.$logger.info('getTableStructData', this.headers, this.list)
+      return {
+        headers: this.headers,
+        list: this.list,
+        formId: this.formId
+      }
     }
   }
 }
@@ -1219,7 +1232,6 @@ export default {
   }
 
 .add-new-line {
-  margin-top: 10px;
   display: flex;
   flex-direction: row;
   justify-content: flex-start;

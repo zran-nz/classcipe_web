@@ -18,7 +18,7 @@
             <div class="edit-icon" @click="editFormNameMode = true">
               <img src="~@/assets/svgIcon/evaluation/bianji.png" />
             </div>
-            <!--            <div class="class-name">{{ form.className }}</div>-->
+            <div class="class-name">{{ form.className ? form.className : 'Untitled' }}</div>
           </div>
         </template>
         <template v-if="form.type !== typeMap.evaluation">
@@ -318,6 +318,8 @@ export default {
     display: flex;
     align-items: center;
     justify-content: center;
+    user-select: none;
+    cursor: pointer;
     padding: 5px 15px;
     background: #E7E7E7;
     opacity: 1;
