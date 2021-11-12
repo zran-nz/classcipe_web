@@ -410,9 +410,11 @@ export default {
         // 加载表格数据
         this.$logger.info('GetSessionEvaluationByClassId response', response[1].result)
         // TODO Evaluation 修改为表格数据，取消mock数据
-        const rawFormData = { 'formDataList': [{ 'formId': 'ext_0.4525127213541382', 'formType': 3, 'title': 'CenturySkills 1', 'headers': '[{"label":"Criteria","previewLabel":"Criteria","type":"criteria","editable":false,"editing":false,"required":true},{"label":"Description","previewLabel":"Description","type":"description","editable":false,"editing":false,"required":true},{"label":"Novice","previewLabel":"Novice","type":"novice","editable":false,"editing":false,"required":true},{"label":"Learner","previewLabel":"Learner","type":"learner","editable":false,"editing":false,"required":true},{"label":"Practitoner","previewLabel":"Practitoner","type":"practitoner","editable":false,"editing":false,"required":true},{"label":"Expert","previewLabel":"Expert","type":"expert","editable":false,"editing":false,"required":true},{"label":"Evidence","previewLabel":"Evidence","type":"evidence","editable":false,"editing":false,"required":true}]', 'body': '[{"criteria":{"name":"Communicate effectively","criteriaList":["Broad communication skills","Communication"]},"description":{"name":"identify positive ways to initiate, join and interrupt conversations with adults and peers"},"novice":{"name":null},"learner":{"name":null},"practitoner":{"name":null},"expert":{"name":null},"evidence":{"num":0,"selectedList":[],"name":null}},{"criteria":{"name":"Communicate effectively","criteriaList":["Broad communication skills","Communication"]},"description":{"name":"identify and explain factors that influence effective communication in a variety of situations","userInputText":null},"novice":{"name":null},"learner":{"name":null},"practitoner":{"name":null},"expert":{"name":null},"evidence":{"num":0,"selectedList":[]}}]', 'peerEvaluation': false, 'studentEvaluation': false }, { 'formId': 'ext_0.7513811284029117', 'formType': 2, 'title': 'Rubric two 2', 'headers': '[{"label":"Criteria","previewLabel":"Criteria","type":"criteria","editable":false,"editing":false,"required":true},{"label":"Description","previewLabel":"Description","type":"description","editable":false,"editing":false,"required":true},{"label":"Task specific indicators","previewLabel":"Task specific indicators","type":"indicators","editable":false,"editing":false,"required":true},{"label":"Evidence","previewLabel":"Evidence","type":"evidence","editable":false,"editing":false,"required":true}]', 'body': '[{"criteria":{"name":"Year 1"},"description":{"name":"exploring different habitats in the local environment such as the beach, bush and backyard"},"indicators":{"name":null},"evidence":{"num":0,"selectedList":[],"name":null}},{"criteria":{"name":"Year 1"},"description":{"name":"exploring what happens when habitats change and some living things can no longer have their needs met"},"indicators":{"name":null},"evidence":{"num":0,"selectedList":[]}},{"criteria":{"name":"Year 2"},"description":{"name":"recognizing that living things have predictable characteristics at different stages of development"},"indicators":{"name":null},"evidence":{"num":0,"selectedList":[]}}]', 'peerEvaluation': false, 'studentEvaluation': false }] }
-        this.$logger.info('rawFormData', rawFormData)
-        rawFormData.formDataList.forEach(formItem => {
+        let formDataList = window.localStorage.getItem('evaluationData')
+        this.$logger.info('rawFormData', formDataList)
+        if (formDataList) {
+          formDataList = JSON.parse(formDataList)
+          formDataList.forEach(formItem => {
             this.forms.push({
               title: formItem.title,
               titleEditing: false,
@@ -424,7 +426,8 @@ export default {
               initRawHeaders: JSON.parse(formItem.headers),
               initRawData: JSON.parse(formItem.body)
             })
-        })
+          })
+        }
         this.$logger.info('forms', this.forms)
       }).finally(() => {
         if ((!this.forms || this.forms.length === 0) && this.mode === EvaluationTableMode.Edit) {
@@ -598,6 +601,7 @@ export default {
         return false
       } else {
         // TODO Evaluation 修改为提交表格数据接口
+        window.localStorage.setItem('evaluationData', JSON.stringify(formDataList))
         EvaluationAddOrUpdate({
           formDataList: formDataList
         }).then((response) => {

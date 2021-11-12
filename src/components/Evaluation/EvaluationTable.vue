@@ -607,30 +607,37 @@ export default {
     handleAddNewLine () {
       this.$logger.info('[' + this.mode + '] handleAddNewLine ')
       const newLineItem = {}
+      const rowId = this.generateRowId()
+      newLineItem.rowId = rowId
       this.headers.forEach(header => {
         newLineItem[header.type] = {
-          name: null
+          name: null,
+          rowId
         }
       })
 
       if (this.formType === this.tableType.CenturySkills) {
         newLineItem[this.headerType.Criteria] = {
           name: null,
-          criteriaList: []
+          criteriaList: [],
+          rowId
         }
 
         newLineItem[this.headerType.Evidence] = {
           num: 0,
-          selectedList: []
+          selectedList: [],
+          rowId
         }
         newLineItem[this.headerType.Evidence] = {
           num: 0,
-          selectedList: []
+          selectedList: [],
+          rowId
         }
       } else if (this.formType === this.tableType.Rubric || this.formType === this.tableType.Rubric_2) {
         newLineItem[this.headerType.Evidence] = {
           num: 0,
-          selectedList: []
+          selectedList: [],
+          rowId
         }
       }
       this.$logger.info('[' + this.mode + '] init new line ', newLineItem)
@@ -682,17 +689,14 @@ export default {
       if (this.formType === this.tableType.CenturySkills) {
         if (this.selectedCriteriaDescriptionList.length >= 1) {
           // 如果只选择了一个，使用第一个填充当前行数据
-          this.headers.forEach(header => {
-            if (this.currentSelectLine[header.type] || !this.currentSelectLine[header.type]) {
-              this.currentSelectLine[header.type].name = null
-            }
-          })
           this.currentSelectLine[this.headerType.Criteria] = {
             name: this.selectedCriteriaDescriptionList[0].criteriaList[0],
-            criteriaList: this.selectedCriteriaDescriptionList[0].criteriaList.slice(1)
+            criteriaList: this.selectedCriteriaDescriptionList[0].criteriaList.slice(1),
+            rowId: this.currentSelectLine.rowId
           }
           this.currentSelectLine[this.headerType.Description] = {
-            name: this.selectedCriteriaDescriptionList[0].descriptionName
+            name: this.selectedCriteriaDescriptionList[0].descriptionName,
+            rowId: this.currentSelectLine.rowId
           }
 
           this.$logger.info('[' + this.mode + '] update currentSelectLine with criteria data ', this.currentSelectLine)
@@ -702,24 +706,30 @@ export default {
             this.selectedCriteriaDescriptionList.forEach((item, index) => {
               if (index > 0) {
                 const newLineItem = {}
+                const rowId = this.generateRowId()
+                newLineItem.rowId = rowId
                 this.headers.forEach(header => {
                   newLineItem[header.type] = {
-                    name: null
+                    name: null,
+                    rowId
                   }
                 })
                 newLineItem[this.headerType.Criteria] = {
                   name: item.criteriaList[0],
-                  criteriaList: item.criteriaList.slice(1)
+                  criteriaList: item.criteriaList.slice(1),
+                  rowId
                 }
 
                 newLineItem[this.headerType.Description] = {
                   name: item.descriptionName,
-                  userInputText: null
+                  userInputText: null,
+                  rowId
                 }
 
                 newLineItem[this.headerType.Evidence] = {
                   num: 0,
-                  selectedList: []
+                  selectedList: [],
+                  rowId
                 }
 
                 this.$logger.info('[' + this.mode + '] CenturySkills add new line with criteria data ', newLineItem)
@@ -731,13 +741,9 @@ export default {
       } else if (this.formType === this.tableType.Rubric) {
         if (this.selectedRubricDescriptionList.length >= 1) {
           // 如果只选择了一个，使用第一个填充当前行数据
-          this.headers.forEach(header => {
-            if (this.currentSelectLine[header.type] || !this.currentSelectLine[header.type]) {
-              this.currentSelectLine[header.type].name = null
-            }
-          })
           this.currentSelectLine[this.headerType.Criteria] = {
-            name: this.selectedRubricDescriptionList[0].name
+            name: this.selectedRubricDescriptionList[0].name,
+            rowId: this.currentSelectLine.rowId
           }
 
           this.$logger.info('[' + this.mode + '] update currentSelectLine with criteria data ', this.currentSelectLine)
@@ -747,18 +753,22 @@ export default {
             this.selectedRubricDescriptionList.forEach((descriptionItem, index) => {
               if (index > 0) {
                 const newLineItem = {}
+                const rowId = this.generateRowId()
                 this.headers.forEach(header => {
                   newLineItem[header.type] = {
-                    name: null
+                    name: null,
+                    rowId
                   }
                 })
                 newLineItem[this.headerType.Criteria] = {
-                  name: descriptionItem.name
+                  name: descriptionItem.name,
+                  rowId
                 }
 
                 newLineItem[this.headerType.Evidence] = {
                   num: 0,
-                  selectedList: []
+                  selectedList: [],
+                  rowId
                 }
 
                 this.$logger.info('[' + this.mode + '] Rubric add new line with criteria data ', newLineItem)
@@ -771,16 +781,13 @@ export default {
         this.$logger.info('[' + this.mode + '] tableType.Rubric', this.selectedRubricDescriptionList)
         if (this.selectedRubricDescriptionList.length >= 1) {
           // 如果只选择了一个，使用第一个填充当前行数据
-          this.headers.forEach(header => {
-            if (this.currentSelectLine[header.type] || !this.currentSelectLine[header.type]) {
-              this.currentSelectLine[header.type].name = null
-            }
-          })
           this.currentSelectLine[this.headerType.Description] = {
-            name: this.selectedRubricDescriptionList[0].name
+            name: this.selectedRubricDescriptionList[0].name,
+            rowId: this.currentSelectLine.rowId
           }
           this.currentSelectLine[this.headerType.Criteria] = {
-            name: this.selectedRubricDescriptionList[0].grade
+            name: this.selectedRubricDescriptionList[0].grade,
+            rowId: this.currentSelectLine.rowId
           }
 
           this.$logger.info('[' + this.mode + '] update currentSelectLine description with criteria data ', this.currentSelectLine)
@@ -790,21 +797,26 @@ export default {
             this.selectedRubricDescriptionList.forEach((descriptionItem, index) => {
               if (index > 0) {
                 const newLineItem = {}
+                const rowId = this.generateRowId()
                 this.headers.forEach(header => {
                   newLineItem[header.type] = {
-                    name: null
+                    name: null,
+                    rowId
                   }
                 })
                 newLineItem[this.headerType.Description] = {
-                  name: descriptionItem.name
+                  name: descriptionItem.name,
+                  rowId
                 }
                 newLineItem[this.headerType.Criteria] = {
-                  name: descriptionItem.grade
+                  name: descriptionItem.grade,
+                  rowId
                 }
 
                 newLineItem[this.headerType.Evidence] = {
                   num: 0,
-                  selectedList: []
+                  selectedList: [],
+                  rowId
                 }
 
                 this.$logger.info('[' + this.mode + '] Rubric description add new line with criteria data ', newLineItem)
@@ -904,6 +916,15 @@ export default {
         list: this.list,
         formId: this.formId
       }
+    },
+
+    generateRowId () {
+      let rowId = 'row_' + Math.random(100000000, 999999999)
+      while (this.list.findIndex(item => item.rowId === rowId) !== -1) {
+        rowId = 'row_' + Math.random(100000000, 999999999)
+      }
+      this.$logger.info('generateRowId ' + rowId)
+      return rowId
     }
   }
 }
