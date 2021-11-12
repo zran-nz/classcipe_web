@@ -407,8 +407,8 @@ export default {
           group.expand = false
         })
         this.groups = data.groups
-        this.form = data.evaluation
         if (data.evaluation) {
+          this.form = data.evaluation
           data.evaluation.forms.forEach(formItem => {
               this.forms.push({
                 title: formItem.title,
@@ -595,7 +595,7 @@ export default {
           }
         })
       })
-      this.$logger.info('formDataList', formDataList)
+      this.$logger.info('formDataList', formDataList, 'this.form', this.form, 'this.classId', this.classId)
       this.form.classId = this.classId
       this.form.forms = formDataList
       if (formDataList.length === 0) {
