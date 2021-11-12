@@ -356,8 +356,7 @@ export default {
         name: '',
         className: '',
         forms: [],
-        groups: [],
-        studentEvaluateData: null
+        groups: []
       },
 
       // 班级信息
@@ -443,16 +442,24 @@ export default {
               })
           })
 
+          if (this.forms.length) {
+            this.currentActiveFormId = this.forms[0].id
+          }
+
           this.$logger.info('forms', this.forms)
         }
 
         this.$logger.info('allStudentUserIdList', allStudentUserIdList)
         // 初始化评估数据，构造遍历所有学生的评价数据对象，更具对象索引到具体表单的某一行的点评数据
-        // studentEvaluateData[学生Id][表单Id][列Id] = 列数据
         if (data.evaluation.studentEvaluateData) {
-          this.form.studentEvaluateData = JSON.parse(data.evaluation.studentEvaluateData)
-          this.$logger.info('restore studentEvaluateData', this.form.studentEvaluateData)
+          this.studentEvaluateData = JSON.parse(data.evaluation.studentEvaluateData)
+          if (allStudentUserIdList.length) {
+            this.currentActiveStudentId = allStudentUserIdList[0]
+            this.selectedMemberIdList.push(this.currentActiveStudentId)
+          }
+          this.$logger.info('restore studentEvaluateData', this.studentEvaluateData)
         } else if (allStudentUserIdList.length && this.forms.length) {
+          // studentEvaluateData[学生Id][表单Id][列Id] = 列数据
           const studentEvaluateData = {}
           allStudentUserIdList.forEach(studentId => {
             studentEvaluateData[studentId] = {}
@@ -478,10 +485,10 @@ export default {
 
           this.$logger.info('studentEvaluateData init finished ', studentEvaluateData)
           this.studentEvaluateData = studentEvaluateData
+
           // 默认选中第一个学生的第一个评估表格
           this.currentActiveStudentId = allStudentUserIdList[0]
           this.selectedMemberIdList.push(this.currentActiveStudentId)
-          this.currentActiveFormId = this.forms[0].id
           this.$logger.info('currentActiveFormId ' + this.currentActiveFormId + ' currentActiveStudentId ' + this.currentActiveStudentId)
         }
 
@@ -741,10 +748,14 @@ export default {
         }
       })
       this.$logger.info('all selected member userId ', allSelectedStudentUserId)
+      // 遍历所有当前选中的用户，设置对应的选中的用-对应的表单-对应的行-对应的列-对应的评估数据
       allSelectedStudentUserId.forEach(userId => {
+        this.$logger.info(data.evaluationMode + ' studentEvaluateData ' + userId, this.studentEvaluateData[userId])
+        this.$logger.info(data.evaluationMode + ' studentEvaluateData ' + userId + ' formId ' + data.formId, this.studentEvaluateData[userId][data.formId])
           if (data.evaluationMode === EvaluationTableMode.TeacherEvaluate) {
             this.studentEvaluateData[userId][data.formId][data.rowId].teacherEmail = data.value
             this.studentEvaluateData[userId][data.formId][data.rowId].teacherName = data.value
+            // 点击选中，再点一次取消选中
             if (this.studentEvaluateData[userId][data.formId][data.rowId].teacherEvaluation === data.value) {
               this.studentEvaluateData[userId][data.formId][data.rowId].teacherEvaluation = ''
             } else {
