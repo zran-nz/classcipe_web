@@ -760,6 +760,7 @@ export default {
           allSelectedStudentUserId.push(userId)
         }
       })
+
       this.groups.forEach(group => {
         if (this.selectedGroupIdList.indexOf(group.id) !== -1) {
           group.members.forEach(member => {
