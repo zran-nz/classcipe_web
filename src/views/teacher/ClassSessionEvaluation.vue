@@ -543,9 +543,9 @@ export default {
 
     handleSelectGroup (group) {
       this.$logger.info('handleSelectGroup', group)
-      const index = this.selectedGroupIdList.indexOf(group.groupName)
+      const index = this.selectedGroupIdList.indexOf(group.id)
       if (index === -1) {
-        this.selectedGroupIdList.push(group.groupName)
+        this.selectedGroupIdList.push(group.id)
       } else {
         this.selectedGroupIdList.splice(index, 1)
       }
