@@ -31,7 +31,7 @@ import { NavigationType } from '@/components/NewLibrary/NavigationType'
 import { getAll21Century } from '@/api/knowledge'
 import { SubjectType } from '@/const/common'
 import storage from 'store'
-import { GRADE_COMMON, VIEW_MODE } from '@/store/mutation-types'
+import { GRADE_COMMON } from '@/store/mutation-types'
 const { GetMyGrades } = require('@/api/teacher')
 const { GetAllSdgs } = require('@/api/scenario')
 const { SubjectTree } = require('@/api/subject')

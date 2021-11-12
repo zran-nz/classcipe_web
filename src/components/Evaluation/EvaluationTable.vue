@@ -12,7 +12,7 @@
             <div @click="handleEditHeader(header)" class="label-text">
 
               <span class="header-label">{{ header.label }}</span>
-              <template v-if="header.type === headerType.Indicators">
+              <template v-if="header.type === headerType.Novice">
                 <a-tooltip placement="top">
                   <template slot="title">
                     Students are introduced to the skills, and can watch others performing it(observation)
@@ -20,6 +20,34 @@
                   <question-icon />
                 </a-tooltip>
               </template>
+
+              <template v-if="header.type === headerType.Learner">
+                <a-tooltip placement="top">
+                  <template slot="title">
+                    Students copy others who use the skill and use the skill with scaffolding and guidance(emulation)
+                  </template>
+                  <question-icon />
+                </a-tooltip>
+              </template>
+
+              <template v-if="header.type === headerType.Practitoner">
+                <a-tooltip placement="top">
+                  <template slot="title">
+                    Students employ the skill confidently and effectively(demonstration)
+                  </template>
+                  <question-icon />
+                </a-tooltip>
+              </template>
+
+              <template v-if="header.type === headerType.Expert">
+                <a-tooltip placement="top">
+                  <template slot="title">
+                    Students can show others how to use the skill and accurately assess how effectively the skill is used(self-regulation)
+                  </template>
+                  <question-icon />
+                </a-tooltip>
+              </template>
+
             </div>
             <!-- 编辑状态下的输入框-->
             <template v-if="header.editing && mode === tableMode.Edit">
@@ -350,8 +378,8 @@ export default {
       if (this.formType === EvaluationTableType.Rubric) {
         this.headers = [
           { label: 'Criteria', previewLabel: 'Criteria', type: EvaluationTableHeader.Criteria, editable: false, editing: false, required: true },
-          { label: '1-2', previewLabel: '1-2', type: EvaluationTableHeader.UserDefine + 1, editable: true, editing: false, required: false },
-          { label: '3-4', previewLabel: '3-4', type: EvaluationTableHeader.UserDefine + 2, editable: true, editing: false, required: false },
+          { label: 'Unnamed Level 1', previewLabel: 'Unnamed Level 1', type: EvaluationTableHeader.UserDefine + 1, editable: true, editing: false, required: false },
+          { label: 'Unnamed Level 2', previewLabel: 'Unnamed Level 2', type: EvaluationTableHeader.UserDefine + 2, editable: true, editing: false, required: false },
           { label: 'Evidence', previewLabel: 'Evidence', type: EvaluationTableHeader.Evidence, editable: false, editing: false, required: true }
         ]
       } else if (this.formType === EvaluationTableType.Rubric_2) {
@@ -365,7 +393,6 @@ export default {
         this.headers = [
           { label: 'Criteria', previewLabel: 'Criteria', type: EvaluationTableHeader.Criteria, editable: false, editing: false, required: true },
           { label: 'Description', previewLabel: 'Description', type: EvaluationTableHeader.Description, editable: false, editing: false, required: true },
-          { label: 'Task specific indicators', previewLabel: 'Task specific indicators', type: EvaluationTableHeader.Indicators, editable: false, editing: false, required: true },
           { label: 'Novice', previewLabel: 'Novice', type: EvaluationTableHeader.Novice, editable: false, editing: false, required: true },
           { label: 'Learner', previewLabel: 'Learner', type: EvaluationTableHeader.Learner, editable: false, editing: false, required: true },
           { label: 'Practitoner', previewLabel: 'Practitoner', type: EvaluationTableHeader.Practitoner, editable: false, editing: false, required: true },
@@ -449,8 +476,8 @@ export default {
 
       // 新增表头
       const headerItem = {
-        label: 'Unnamed',
-        previewLabel: 'Unnamed',
+        label: 'Unnamed Level ' + this.selfHeaderAddIndex,
+        previewLabel: 'Unnamed Level ' + this.selfHeaderAddIndex,
         type: userDefineHeaderType,
         editable: true,
         editing: false

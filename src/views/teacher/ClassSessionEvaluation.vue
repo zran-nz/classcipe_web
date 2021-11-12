@@ -56,10 +56,10 @@
             @click="handleActiveForm(idx, formItem)"
             :key="idx">
 
-            <div class="action-icon">
+            <div class="action-icon" v-show="formItem.titleEditing === false">
               <a-dropdown :trigger="['click']">
                 <div class="form-title-item">
-                  <div class="form-title">{{ formItem.title }} </div>
+                  <div class="form-title" @dblclick="handleEditFormTitle(formItem)">{{ formItem.title }} </div>
                   <a-icon type="down" />
                 </div>
                 <a-menu slot="overlay">
@@ -74,6 +74,9 @@
                   </a-menu-item>
                 </a-menu>
               </a-dropdown>
+            </div>
+            <div class="editing-title" v-show="formItem.titleEditing === true">
+              <a-input v-model="currentEditingTitle" class="my-title-input" @blur="handleEnsureUpdateFormTitle" @keyup.enter="handleEnsureUpdateFormTitle"/>
             </div>
           </div>
         </div>
@@ -341,7 +344,10 @@ export default {
       selectRubricVisible: false,
       newFormType: EvaluationTableType.CenturySkills,
       rubricType: 'create',
-      newTableName: ''
+      newTableName: '',
+
+      currentEditingTitle: null,
+      currentFormItem: null
     }
   },
   created () {
@@ -456,6 +462,7 @@ export default {
 
         const newFormTable = {
           title: selfTitle,
+          titleEditing: false,
           formType: this.newFormType,
           comment: null,
           id: selfId,
@@ -471,6 +478,23 @@ export default {
       } else {
         this.$message.warn('Choose rubric format!')
       }
+    },
+
+    handleEditFormTitle (formItem) {
+      this.$logger.info('handleEditFormTitle', formItem)
+      if (this.currentFormItem) {
+        this.currentFormItem.titleEditing = false
+        this.currentFormItem = null
+      }
+      this.currentEditingTitle = formItem.title
+      formItem.titleEditing = true
+      this.currentFormItem = formItem
+    },
+
+    handleEnsureUpdateFormTitle () {
+      this.$logger.info('handleEnsureUpdateFormTitle', this.currentEditingTitle)
+      this.currentFormItem.title = this.currentEditingTitle
+      this.currentFormItem.titleEditing = false
     },
 
     handleEnsureSelectEvaluation (data) {
@@ -509,6 +533,13 @@ export default {
     handleSelectRubric (newFormType) {
       this.$logger.info('handleSelectRubric newFormType ' + newFormType)
       this.newFormType = newFormType
+      if (newFormType === EvaluationTableType.Rubric) {
+        this.newTableName = 'Rubric one ' + (this.forms.length + 1)
+      } else if (newFormType === EvaluationTableType.Rubric_2) {
+        this.newTableName = 'Rubric two ' + (this.forms.length + 1)
+      } else if (newFormType === EvaluationTableType.CenturySkills) {
+        this.newTableName = 'CenturySkills ' + (this.forms.length + 1)
+      }
     },
 
     handleDeleteForm (formItem) {
@@ -913,11 +944,17 @@ export default {
 }
 
 .form-title-item {
+  line-height: 32px;
   display: flex;
   align-items: center;
   justify-content: center;
   .form-title {
+    user-select: none;
     margin-right: 8px;
   }
+}
+
+.my-title-input {
+
 }
 </style>
