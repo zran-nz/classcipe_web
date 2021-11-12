@@ -34,7 +34,7 @@
             </div>
             <a-tooltip placement="top" >
               <template slot="title" v-if="item.hasOwnProperty('froms')">{{ item.froms }}</template>
-              <template slot="title" v-if="item.gradeNames.length > 0">{{ item.gradeNames | gradeFormat }}</template>
+              <template slot="title" v-if="item.gradeNames && item.gradeNames.length > 0">{{ item.gradeNames | gradeFormat }}</template>
               <div class="name-text">
                 {{ item.name || item.description }}
               </div>
@@ -83,7 +83,6 @@ import UnitPlanPreview from '@/components/UnitPlan/UnitPlanPreview'
 import MaterialPreview from '@/components/Material/MaterialPreview'
 import { typeMap } from '@/const/teacher'
 import { NavigationType } from '@/components/NewLibrary/NavigationType'
-import _ from 'lodash-es'
 
 export default {
   name: 'NewContentList',

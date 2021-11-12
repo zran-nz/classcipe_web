@@ -69,7 +69,7 @@
             <!--                {{ item.name }}-->
             <!--              </a-select-option>-->
             <!--            </a-select>-->
-            <a-select v-model="selectedConcept" class="filter-select  library-filter-select" placeholder="All Concept" :allowClear="true" >
+            <a-select v-model="selectedConcept" class="filter-select  library-filter-select" placeholder="Universal Concept" :allowClear="true" >
               <a-select-option :value="name" v-for="(name, index) in conceptList" :key="index" >
                 {{ name }}
               </a-select-option>
@@ -196,7 +196,7 @@
                 <a-dropdown class="filter-dropdown-item">
                   <a-menu slot="overlay">
                     <a-menu-item disabled>
-                      <span>All Concept</span>
+                      <span>Universal Concept</span>
                     </a-menu-item>
                     <a-menu-item @click="toggleConceptType(name)" v-for="(name,index) in conceptList" :key="index">
                       <span>{{ name }}</span>
@@ -209,7 +209,7 @@
                   box-shadow: none;
                   height: 35px;border-radius: 2px;background: #f3f3f3;font-size:13px;
                   font-family: Inter-Bold;color: #182552;">
-                    <span v-if="currentConceptTypeLabel">{{ currentConceptTypeLabel }}</span> <span v-else>All concept</span>
+                    <span v-if="currentConceptTypeLabel">{{ currentConceptTypeLabel }}</span> <span v-else>Universal Concept</span>
                     <a-icon type="caret-down" /> </a-button>
                 </a-dropdown>
 
@@ -377,7 +377,7 @@ export default {
       subjectList: [],
 
       keywordSearchText: '',
-      currentConceptTypeLabel: 'All concept',
+      currentConceptTypeLabel: 'Universal Concept',
       currentConceptType: 0,
       conceptList: [],
       selectedConcept: undefined,
@@ -410,11 +410,7 @@ export default {
         this.$logger.info('getSubjectTree response', response.result)
         this.subjectTree = response.result
         this.subjectTree.forEach(item => {
-          if (item.children.length > 0) {
-            item.children.forEach(child => {
-              this.subjectList.push(child)
-            })
-          }
+          this.subjectList.push(item)
         })
       }).finally(() => {
       })
@@ -968,7 +964,7 @@ export default {
     .filter-select{
       cursor: pointer;
       margin: 5px;
-      min-width: 150px;
+      min-width: 180px;
       /deep/ .ant-select-selection--multiple{
         cursor: pointer;
       }

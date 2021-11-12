@@ -7,12 +7,12 @@
         </span>
         <a-button class="nav-back-btn" type="link" @click="handleBack">{{ $t('teacher.add-lesson.back') }}</a-button>
         <span> <content-type-icon :type="form.type" /></span>
-        <template v-if="form.hasOwnProperty('evaluation') && form.hasOwnProperty('groups')">
+        <template v-if="form.type === typeMap.evaluation">
           <div class="edit-form-name">
             <div class="form-name">
-              <template v-if="!editFormNameMode">{{ formName }}</template>
-              <template v-else-if="editFormNameMode">
-                <a-input v-model="formName" :maxLength="240" @keyup.enter="handleEnsureNewFormName"/>
+              <template v-if="!editFormNameMode">{{ form.name }}</template>
+              <template v-else>
+                <a-input v-model="form.name" :maxLength="240" @keyup.enter="handleEnsureNewFormName"/>
               </template>
             </div>
             <div class="edit-icon" @click="editFormNameMode = true">
@@ -205,14 +205,13 @@ export default {
       this.$emit('view-collaborate')
     },
     handleEnsureNewFormName () {
-      this.$logger.info('handleEnsureNewFormName ' + this.formName)
+      this.$logger.info('handleEnsureNewFormName ' + this.form.name)
       this.editFormNameMode = false
-      if (!this.formName) {
-        this.formName = this.form.name
+      if (!this.form.name) {
         this.$message.warn('Name cannot be empty!')
       } else {
         const data = Object.assign({}, this.form)
-        data.name = this.formName
+        data.name = this.form.name
         this.$emit('update-form', data)
       }
       this.$logger.info('editFormNameMode' + this.editFormNameMode)

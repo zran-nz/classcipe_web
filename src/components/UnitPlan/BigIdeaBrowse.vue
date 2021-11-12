@@ -61,7 +61,7 @@
               v-model="selectedConcept"
               mode="multiple"
               class="multiple-select"
-              placeholder="All Concept"
+              placeholder="Universal Concept"
               :showArrow="true">
               <a-select-option :value="concept" v-for="(concept, gIndex) in conceptList" :key="gIndex">
                 {{ concept }}

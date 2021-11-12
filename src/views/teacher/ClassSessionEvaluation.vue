@@ -280,7 +280,7 @@ import GroupIcon from '@/assets/svgIcon/evaluation/qunzu.svg?inline'
 import ArrowDown from '@/assets/svgIcon/evaluation/arrow_down.svg?inline'
 import ArrowTop from '@/assets/svgIcon/evaluation/arrow_top.svg?inline'
 import ModalHeader from '@/components/Common/ModalHeader'
-import { GetSessionEvaluationByClassId, EvaluationQueryByIds, EvaluationQueryById, EvaluationAddOrUpdate } from '@/api/evaluation'
+import { EvaluationAddOrUpdate, EvaluationQueryByIds, GetSessionEvaluationByClassId } from '@/api/evaluation'
 import SelectEvaluationList from '@/components/Evaluation/SelectEvaluationList'
 import EvaluationTableType from '@/components/Evaluation/EvaluationTableType'
 import EvaluationTableMode from '@/components/Evaluation/EvaluationTableMode'
@@ -334,7 +334,6 @@ export default {
       form: { // 基础表单数据
         classId: '',
         name: '',
-        evaluation: null,
         className: '',
         forms: [],
         groups: []
@@ -384,51 +383,38 @@ export default {
     this.initData()
   },
   methods: {
-
     initData () {
       this.$logger.info('initData')
       this.loading = false
-      Promise.all([
-        GetSessionEvaluationByClassId({ classId: this.classId }),
-        // TODO Evaluation 修改为查询表格数据接口
-        EvaluationQueryById({ id: this.taskId, taskId: this.taskId, classId: this.classId })
-      ]).then(response => {
+      GetSessionEvaluationByClassId({ classId: this.classId }).then(response => {
         this.$logger.info('init data response', response)
         // 加载班级信息数据
-        this.$logger.info('GetSessionEvaluationByClassId response', response[0].result)
-        const data = response[0].result
+        this.$logger.info('GetSessionEvaluationByClassId response', response.result)
+        const data = response.result
         this.classInfo = data.classInfo
-
-        // 表单数据赋值
-        this.form.className = this.classInfo.className
-        this.form.evaluation = this.classInfo.evaluation
         data.groups.forEach(group => {
           group.expand = false
         })
         this.groups = data.groups
-
-        // 加载表格数据
-        this.$logger.info('GetSessionEvaluationByClassId response', response[1].result)
-        // TODO Evaluation 修改为表格数据，取消mock数据
-        let formDataList = window.localStorage.getItem('evaluationData')
-        this.$logger.info('rawFormData', formDataList)
-        if (formDataList) {
-          formDataList = JSON.parse(formDataList)
-          formDataList.forEach(formItem => {
-            this.forms.push({
-              title: formItem.title,
-              titleEditing: false,
-              formType: formItem.formType,
-              studentEvaluation: formItem.studentEvaluation,
-              peerEvaluation: formItem.peerEvaluation,
-              menuVisible: false,
-              id: formItem.formId,
-              initRawHeaders: JSON.parse(formItem.headers),
-              initRawData: JSON.parse(formItem.body)
+        this.form = data.evaluation
+        if (data.evaluation) {
+          data.evaluation.forms.forEach(formItem => {
+              this.forms.push({
+                title: formItem.title,
+                titleEditing: false,
+                formType: formItem.formType,
+                studentEvaluation: formItem.studentEvaluation,
+                peerEvaluation: formItem.peerEvaluation,
+                menuVisible: false,
+                id: formItem.id,
+                initRawHeaders: JSON.parse(formItem.initRawHeaders),
+                initRawData: JSON.parse(formItem.initRawData)
+              })
             })
-          })
+          this.$logger.info('forms', this.forms)
         }
-        this.$logger.info('forms', this.forms)
+        // 表单数据赋值
+        this.form.className = this.classInfo.className
       }).finally(() => {
         if ((!this.forms || this.forms.length === 0) && this.mode === EvaluationTableMode.Edit) {
           this.selectRubricVisible = true
@@ -584,8 +570,8 @@ export default {
               formId: formItem.id,
               formType: formItem.formType,
               title: formItem.title,
-              headers: JSON.stringify(tableData.headers),
-              body: JSON.stringify(tableData.list),
+              initRawHeaders: JSON.stringify(tableData.headers),
+              initRawData: JSON.stringify(tableData.list),
               peerEvaluation: formItem.peerEvaluation,
               studentEvaluation: formItem.studentEvaluation
             }
@@ -594,17 +580,14 @@ export default {
         })
       })
       this.$logger.info('formDataList', formDataList)
-
+      this.form.classId = this.classId
+      this.form.forms = formDataList
       if (formDataList.length === 0) {
         this.$message.error('Please add at least one form!')
         this.$refs.commonFormHeader.saving = false
         return false
       } else {
-        // TODO Evaluation 修改为提交表格数据接口
-        window.localStorage.setItem('evaluationData', JSON.stringify(formDataList))
-        EvaluationAddOrUpdate({
-          formDataList: formDataList
-        }).then((response) => {
+        EvaluationAddOrUpdate(this.form).then((response) => {
           this.$logger.info('EvaluationAddOrUpdate', response)
           this.$message.success('Save successfully!')
           this.$refs.commonFormHeader.saving = false
