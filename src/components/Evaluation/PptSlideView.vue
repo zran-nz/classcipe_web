@@ -99,7 +99,7 @@ export default {
     },
     slideId: {
       type: String,
-      default: '1tfhTKkxPXsgfh_9mYZUVqHQn_1up1sAOln5PHiRXmj4'
+      required: true
     },
     classId: {
       type: String,

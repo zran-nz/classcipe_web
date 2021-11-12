@@ -154,6 +154,7 @@
                       :form-table-mode="formTableMode"
                       :form-body-data="formBodyData"
                       @update-evaluation="handleUpdateEvaluate"
+                      @add-evidence="handleAddEvidence"
                     />
                   </div>
                 </div>
@@ -279,6 +280,24 @@
         </template>
       </div>
     </a-modal>
+
+    <a-drawer
+      destroyOnClose
+      placement="right"
+      width="820px"
+      :closable="false"
+      :visible="evidenceSelectVisible"
+      @close="evidenceSelectVisible = false"
+    >
+      <div class="add-evaluation-evidence-wrapper">
+        <div class="slide-preview">
+          <ppt-slide-view :class-id="classId" :slide-id="classInfo.slideId" mode="add-evidence" />
+          <template v-if="!classInfo || !classInfo.slideId">
+            <no-more-resources tips="no slide" />
+          </template>
+        </div>
+      </div>
+    </a-drawer>
   </div>
 </template>
 
@@ -300,10 +319,12 @@ import SelectEvaluationList from '@/components/Evaluation/SelectEvaluationList'
 import EvaluationTableType from '@/components/Evaluation/EvaluationTableType'
 import EvaluationTableMode from '@/components/Evaluation/EvaluationTableMode'
 import NoMoreResources from '@/components/Common/NoMoreResources'
+import PptSlideView from '@/components/Evaluation/PptSlideView'
 
 export default {
   name: 'ClassSessionEvaluation',
   components: {
+    PptSlideView,
     NoMoreResources,
     SelectEvaluationList,
     EvaluationTable,
@@ -403,7 +424,8 @@ export default {
       studentEvaluateData: {}, // 所有学生的评价数据对象，通过vue.$set设置属性，方便遍历对应的学生及表单数据
       currentActiveStudentId: null,
 
-      allStudentUserIdList: []
+      allStudentUserIdList: [],
+      evidenceSelectVisible: false
     }
   },
   created () {
@@ -811,6 +833,11 @@ export default {
       })
 
       this.$logger.info('after update studentEvaluateData', this.studentEvaluateData)
+    },
+
+    handleAddEvidence (data) {
+      this.$logger.info('handleAddEvidence', data)
+      this.evidenceSelectVisible = true
     }
   }
 }

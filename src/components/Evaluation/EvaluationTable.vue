@@ -326,7 +326,7 @@
             <!-- Evidence-->
             <template v-if="header.type === headerType.Evidence">
               <div class="evidence-data">
-                <div :class="{'evidence-info': true, 'exist-evidence': item[headerType.Evidence].num}" @click="handleAddEvidenceLine(lIndex, item)" v-show="mode === tableMode.TeacherEvaluate">
+                <div :class="{'evidence-info': true, 'exist-evidence': item[headerType.Evidence].num}" @click="handleAddEvidenceLine(lIndex, item, $event)" v-show="mode === tableMode.TeacherEvaluate">
                   <add-icon v-show="!item[headerType.Evidence].num"/>
                   <add-small-green-icon v-show="item[headerType.Evidence].num"/>
                   <div class="evidence-num">( {{ item[headerType.Evidence].num ? item[headerType.Evidence].num : 0 }} )</div>
@@ -711,14 +711,21 @@ export default {
 
     handleClickBodyItem (item, header) {
       this.$logger.info('[' + this.mode + '][' + this.currentEvaluateMode + '] handleClickBodyItem ' + header.label, item)
-      this.$emit('update-evaluation', {
-        formId: this.formId,
-        evaluationMode: this.currentEvaluateMode,
-        rowId: item.rowId,
-        value: header.type, // 评价所选的列
-        evaluateUserEmail: this.$store.getters.userInfo.email,
-        evaluateUserName: this.$store.getters.userInfo.nickname
-      })
+      if ([EvaluationTableHeader.Indicators,
+        EvaluationTableHeader.Novice,
+        EvaluationTableHeader.Learner,
+        EvaluationTableHeader.Practitoner,
+        EvaluationTableHeader.Expert,
+        EvaluationTableHeader.UserDefine].indexOf(header.type) !== -1) {
+        this.$emit('update-evaluation', {
+          formId: this.formId,
+          evaluationMode: this.currentEvaluateMode,
+          rowId: item.rowId,
+          value: header.type, // 评价所选的列
+          evaluateUserEmail: this.$store.getters.userInfo.email,
+          evaluateUserName: this.$store.getters.userInfo.nickname
+        })
+      }
     },
 
     handleAddCriteria  (header, item, event) {
@@ -926,7 +933,9 @@ export default {
       this.inputDescriptionVisible = false
     },
 
-    handleAddEvidenceLine (lIndex, item) {
+    handleAddEvidenceLine (lIndex, item, event) {
+      event.stopPropagation()
+      event.preventDefault()
       this.$logger.info('[' + this.mode + '] handleAddEvidenceLine', lIndex, item)
       this.$emit('add-evidence', {
         index: lIndex, data: item
@@ -1210,6 +1219,7 @@ export default {
               flex-direction: row;
               align-items: center;
               justify-content: center;
+              height: 100%;
               .evidence-info {
                 cursor: pointer;
                 display: flex;
