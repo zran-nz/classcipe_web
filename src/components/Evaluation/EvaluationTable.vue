@@ -326,11 +326,13 @@
             <!-- Evidence-->
             <template v-if="header.type === headerType.Evidence">
               <div class="evidence-data">
-                <div :class="{'evidence-info': true, 'exist-evidence': item[headerType.Evidence].num}" @click="handleAddEvidenceLine(lIndex, item, $event)" v-show="mode === tableMode.TeacherEvaluate">
-                  <add-icon v-show="!item[headerType.Evidence].num"/>
-                  <add-small-green-icon v-show="item[headerType.Evidence].num"/>
-                  <div class="evidence-num">( {{ item[headerType.Evidence].num ? item[headerType.Evidence].num : 0 }} )</div>
-                </div>
+                <template v-if="formBodyData && formBodyData[item.rowId] && formBodyData[item.rowId].evidenceIdList">
+                  <div :class="{'evidence-info': true, 'exist-evidence': item[headerType.Evidence].num}" @click="handleAddEvidenceLine(lIndex, item, $event)" v-show="mode === tableMode.TeacherEvaluate">
+                    <add-icon v-show="!formBodyData[item.rowId].evidenceIdList.length"/>
+                    <add-small-green-icon v-show="formBodyData[item.rowId].evidenceIdList.length"/>
+                    <div class="evidence-num">( {{ formBodyData[item.rowId].evidenceIdList.length ? formBodyData[item.rowId].evidenceIdList.length : 0 }} )</div>
+                  </div>
+                </template>
               </div>
             </template>
 
@@ -505,7 +507,7 @@ export default {
     }
   },
   created () {
-    this.$logger.info('[' + this.mode + '] EvaluationTable created formTableMode: ' + this.formTableMode + ' formType ' + this.formType, 'initRawHeaders', this.initRawHeaders, 'initRawData', this.initRawData, ' formBodyData', this.formBodyData)
+    this.$logger.info('[' + this.formTableMode + '] EvaluationTable created formType ' + this.formType, 'initRawHeaders', this.initRawHeaders, 'initRawData', this.initRawData, ' formBodyData', this.formBodyData)
     this.mode = this.formTableMode
     if (this.formTableMode === EvaluationTableMode.TeacherEvaluate && this.$store.getters.userInfo.roles.indexOf('teacher') !== -1) {
       this.currentEvaluateMode = EvaluationTableMode.TeacherEvaluate
@@ -710,13 +712,13 @@ export default {
     },
 
     handleClickBodyItem (item, header) {
-      this.$logger.info('[' + this.mode + '][' + this.currentEvaluateMode + '] handleClickBodyItem ' + header.label, item)
+      this.$logger.info('[' + this.mode + '][' + this.currentEvaluateMode + '] handleClickBodyItem ' + header.label, item, 'header', header)
       if ([EvaluationTableHeader.Indicators,
         EvaluationTableHeader.Novice,
         EvaluationTableHeader.Learner,
         EvaluationTableHeader.Practitoner,
         EvaluationTableHeader.Expert,
-        EvaluationTableHeader.UserDefine].indexOf(header.type) !== -1) {
+        EvaluationTableHeader.UserDefine].indexOf(header.type) !== -1 || header.type.startsWith(EvaluationTableHeader.UserDefine)) {
         this.$emit('update-evaluation', {
           formId: this.formId,
           evaluationMode: this.currentEvaluateMode,

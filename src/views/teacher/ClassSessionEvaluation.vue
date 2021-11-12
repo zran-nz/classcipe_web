@@ -136,7 +136,7 @@
             </div>
           </div>
           <div class="form-table-content">
-            <div class="table-content" v-if="mode === EvaluationTableMode.Edit || (currentActiveStudentId && !loading)">
+            <div class="table-content" v-show="mode === EvaluationTableMode.Edit || (currentActiveStudentId && !loading)">
               <div class="form-table-item" v-for="(formItem,tIdx) in forms" :key="tIdx">
                 <div class="form-table-item-content" v-show="formItem.formId === currentActiveFormId">
                   <div class="comment" v-show="formTableMode === EvaluationTableMode.TeacherEvaluate">
@@ -495,7 +495,21 @@ export default {
         this.allStudentUserIdList = allStudentUserIdList
 
         // 初始化评估数据，构造遍历所有学生的评价数据对象，更具对象索引到具体表单的某一行的点评数据
-        if (data.evaluation && data.evaluation.studentEvaluateData && data.evaluation.studentEvaluateData !== '{}') {
+        let isEmptyStudentEvaluateData = false
+        if (data.evaluation && data.evaluation.studentEvaluateData) {
+          const evaluateDataObj = JSON.parse(data.evaluation.studentEvaluateData)
+          const userIds = Object.keys(evaluateDataObj)
+          userIds.forEach(userId => {
+            if (evaluateDataObj.hasOwnProperty(userId) && Object.keys(evaluateDataObj[userId]).length === 0) {
+              isEmptyStudentEvaluateData = true
+            }
+          })
+        } else {
+          isEmptyStudentEvaluateData = true
+        }
+        this.$logger.info('isEmptyStudentEvaluateData ' + isEmptyStudentEvaluateData, data.evaluation)
+
+        if (!isEmptyStudentEvaluateData) {
           this.studentEvaluateData = JSON.parse(data.evaluation.studentEvaluateData)
           if (allStudentUserIdList.length) {
             this.currentActiveStudentId = allStudentUserIdList[0]
@@ -523,7 +537,9 @@ export default {
 
                   studentEvaluation: null, // 学生自评
                   studentName: null, // 学生自评
-                  studentEmail: null // 学生自评
+                  studentEmail: null, // 学生自评
+
+                  evidenceIdList: [] // ppt证据pageId列表
                 }
               })
             })
@@ -697,6 +713,7 @@ export default {
       const formDataList = []
       this.$refs.evaluationTable.forEach(tableItem => {
         const tableData = tableItem.getTableStructData()
+        this.$logger.info('getTableStructData ', tableData)
         this.forms.forEach(formItem => {
           if (formItem.formId === tableData.formId) {
             const formData = {
@@ -760,11 +777,14 @@ export default {
           forms.push(form)
         }
       })
+      this.forms = forms
 
       this.allStudentUserIdList.forEach(studentId => {
         this.$delete(this.studentEvaluateData[studentId], formItem.formId)
       })
+
       this.$logger.info('after delete ' + formItem.formId, this.studentEvaluateData)
+      this.$logger.info('after delete forms' + formItem.formId, this.forms)
     },
 
     handleToggleStudentEvaluation (formItem) {
@@ -856,8 +876,31 @@ export default {
 
     handleEnsureEvidenceFinish (data) {
       this.$logger.info('handleEnsureEvidenceFinish', data)
-      this.currentEvidenceItem.evidence.selectedList = data.data
-      this.currentEvidenceItem.evidence.num = data.data.length
+      // 给当前所有被选中的学生的对应rowId的evidence都加数据
+      const rowId = this.currentEvidenceItem.rowId
+      // 更新当前选中的所有学生的对应的form的rowId的数据为对应列
+      const allSelectedStudentUserId = []
+      this.selectedMemberIdList.forEach(userId => {
+        if (allSelectedStudentUserId.indexOf(userId) === -1) {
+          allSelectedStudentUserId.push(userId)
+        }
+      })
+
+      this.groups.forEach(group => {
+        if (this.selectedGroupIdList.indexOf(group.id) !== -1) {
+          group.members.forEach(member => {
+            if (allSelectedStudentUserId.indexOf(member.userId) === -1) {
+              allSelectedStudentUserId.push(member.userId)
+            }
+          })
+        }
+      })
+      this.$logger.info('all selected member userId ', allSelectedStudentUserId)
+      // 遍历所有当前选中的用户，设置对应的选中的用-对应的表单-对应的行-对应的列-对应的evidence数据
+      allSelectedStudentUserId.forEach(userId => {
+        this.$logger.info('evidence row', this.studentEvaluateData[userId][this.currentActiveFormId][rowId])
+        this.studentEvaluateData[userId][this.currentActiveFormId][rowId].evidenceIdList = data.data
+      })
       this.evidenceSelectVisible = false
     }
   }
