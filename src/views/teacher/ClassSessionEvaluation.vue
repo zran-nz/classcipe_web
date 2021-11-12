@@ -136,7 +136,7 @@
             </div>
           </div>
           <div class="form-table-content">
-            <div class="table-content" v-show="currentActiveStudentId">
+            <div class="table-content" v-if="mode === EvaluationTableMode.Edit || (currentActiveStudentId && !loading)">
               <div class="form-table-item" v-for="(formItem,tIdx) in forms" :key="tIdx">
                 <div class="form-table-item-content" v-show="formItem.id === currentActiveFormId">
                   <div class="comment" v-show="formTableMode === EvaluationTableMode.TeacherEvaluate">
@@ -147,7 +147,7 @@
                   <div class="form-table-detail">
                     <evaluation-table
                       ref="evaluationTable"
-                      :form-id="formItem.id"
+                      :form-id="formItem.formId"
                       :init-raw-headers="formItem.initRawHeaders"
                       :init-raw-data="formItem.initRawData"
                       :form-type="formItem.formType"
@@ -159,10 +159,10 @@
                 </div>
               </div>
             </div>
-            <div class="no-form-tips" v-show="forms.length === 0 && loading === false">
+            <div class="no-form-tips" v-show="forms.length === 0 && !loading">
               <no-more-resources tips="The evaluation form has not been created!"/>
             </div>
-            <div class="no-form-tips" v-show="!currentActiveStudentId && loading === false ">
+            <div class="no-form-tips" v-show="mode !== EvaluationTableMode.Preview && mode !== EvaluationTableMode.Edit && !currentActiveStudentId && !loading">
               <no-more-resources tips="Please select a student first!"/>
             </div>
           </div>
@@ -390,14 +390,16 @@ export default {
       selectRubricVisible: false,
       newFormType: EvaluationTableType.CenturySkills,
       rubricType: 'create',
-      newTableName: '',
+      newTableName: 'Evaluation Form',
 
       currentEditingTitle: null,
       currentFormItem: null,
       formTableMode: null,
 
       studentEvaluateData: {}, // 所有学生的评价数据对象，通过vue.$set设置属性，方便遍历对应的学生及表单数据
-      currentActiveStudentId: null
+      currentActiveStudentId: null,
+
+      allStudentUserIdList: []
     }
   },
   created () {
@@ -437,21 +439,23 @@ export default {
                 peerEvaluation: formItem.peerEvaluation,
                 menuVisible: false,
                 id: formItem.id,
+                formId: formItem.formId,
                 initRawHeaders: JSON.parse(formItem.initRawHeaders),
                 initRawData: JSON.parse(formItem.initRawData)
               })
           })
 
           if (this.forms.length) {
-            this.currentActiveFormId = this.forms[0].id
+            this.currentActiveFormId = this.forms[0].formId
           }
 
           this.$logger.info('forms', this.forms)
         }
 
         this.$logger.info('allStudentUserIdList', allStudentUserIdList)
+        this.allStudentUserIdList = allStudentUserIdList
         // 初始化评估数据，构造遍历所有学生的评价数据对象，更具对象索引到具体表单的某一行的点评数据
-        if (data.evaluation.studentEvaluateData) {
+        if (data.evaluation && data.evaluation.studentEvaluateData) {
           this.studentEvaluateData = JSON.parse(data.evaluation.studentEvaluateData)
           if (allStudentUserIdList.length) {
             this.currentActiveStudentId = allStudentUserIdList[0]
@@ -464,7 +468,9 @@ export default {
           allStudentUserIdList.forEach(studentId => {
             studentEvaluateData[studentId] = {}
             this.forms.forEach(formItem => {
-              studentEvaluateData[studentId][formItem.id] = {}
+              studentEvaluateData[studentId][formItem.id] = {
+                comment: null
+              }
               formItem.initRawData.forEach(rowItem => {
                 studentEvaluateData[studentId][formItem.id][rowItem.rowId] = {
                   teacherEvaluation: null, // 老师评价
@@ -588,7 +594,8 @@ export default {
           peerEvaluation: false,
           menuVisible: false,
           comment: null,
-          id: selfId,
+          id: null,
+          formId: selfId,
           tableData: {
             initRawHeaders: [],
             initRawData: []
@@ -649,9 +656,10 @@ export default {
       this.$refs.evaluationTable.forEach(tableItem => {
         const tableData = tableItem.getTableStructData()
         this.forms.forEach(formItem => {
-          if (formItem.id === tableData.formId) {
+          if (formItem.formId === tableData.formId) {
             const formData = {
-              formId: formItem.id,
+              id: formItem.id,
+              formId: formItem.formId,
               formType: formItem.formType,
               title: formItem.title,
               initRawHeaders: JSON.stringify(tableData.headers),
@@ -710,7 +718,11 @@ export default {
           forms.push(form)
         }
       })
-      this.forms = forms
+
+      this.allStudentUserIdList.forEach(studentId => {
+        this.$delete(this.studentEvaluateData[studentId], formItem.id)
+      })
+      this.$logger.info('after delete ' + formItem.id, this.studentEvaluateData)
     },
 
     handleToggleStudentEvaluation (formItem) {
