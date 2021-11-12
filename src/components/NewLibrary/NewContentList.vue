@@ -83,6 +83,7 @@ import UnitPlanPreview from '@/components/UnitPlan/UnitPlanPreview'
 import MaterialPreview from '@/components/Material/MaterialPreview'
 import { typeMap } from '@/const/teacher'
 import { NavigationType } from '@/components/NewLibrary/NavigationType'
+import _ from 'lodash-es'
 
 export default {
   name: 'NewContentList',
@@ -420,7 +421,7 @@ export default {
             selectedList.push({
               dataType: this.currentDataType,
               all21Century,
-              item
+              item: this.selectedAll21CenturyMap.get(all21Century)
             })
           })
           this.$emit('select-all-21-century', selectedList)
