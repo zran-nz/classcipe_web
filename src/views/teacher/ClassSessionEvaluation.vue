@@ -83,11 +83,6 @@
         <div class="body">
           <div class="class-group">
             <div class="class-student-wrapper">
-              <div class="info-bar">
-                <div class="info-bar-item">
-                  {{ groupNum }} groups {{ memberNum }} students
-                </div>
-              </div>
               <div class="group-list-wrapper">
                 <div :class="{'group-item': true, 'selected-group': selectedGroupIdList.indexOf(group.id) !== -1}" v-for="(group, gIdx) in groups" :key="gIdx">
                   <div class="group-item-info" @click="handleSelectGroup(group)">
@@ -119,11 +114,16 @@
                     <div class="student-list">
                       <div :class="{'list-item': true, 'selected-student': selectedMemberIdList.indexOf(member.userId) !== -1}" v-for="(member, sIndex) in group.members" :key="sIndex" @click="handleClickMember(member)">
                         <div class="student-avatar">
-                          <img :src="member.avatar" alt="" v-if="member.avatar" />
-                          <img slot="prefix" src="~@/assets/icons/evaluation/default_avatar.png" alt="" v-if="!member.avatar" />
+                          <img :src="member.studentAvatar" alt="" v-if="member.studentAvatar" />
+                          <img slot="prefix" src="~@/assets/icons/evaluation/default_avatar.png" alt="" v-if="!member.studentAvatar" />
                         </div>
-                        <div class="student-name" :data-email="member.userId">
-                          {{ member.userId }}
+                        <div class="student-name" :data-email="member.email">
+                          <a-tooltip placement="top" :mouseEnterDelay="1">
+                            <template slot="title">
+                              {{ member.realName }}
+                            </template>
+                            {{ member.realName }}
+                          </a-tooltip>
                         </div>
                         <div class="select-status-icon" v-if="(selectedMemberIdList.indexOf(member.userId) !== -1) || selectedGroupIdList.indexOf(group.id) !== -1">
                           <a-icon type="check-circle" style="{color: #07AB84}" theme="filled" class="my-selected-icon"/>
@@ -189,7 +189,7 @@
             <div class="table-name">
               <div class="form-name">Form title</div>
               <div class="form-input">
-                <a-input v-model="newTableName" aria-placeholder="Form 1"/>
+                <a-input v-model="newTableName" :placeholder="newTableName"/>
               </div>
             </div>
             <div class="rubric-type-name">
@@ -332,6 +332,22 @@ export default {
         forms: [],
         groups: []
       },
+
+      // 班级信息
+      classInfo: {
+        classId: null,
+        author: null, // 'yangxunwu@gmail.com',
+        date: null, // 1636085002,
+        status: null, // 'close',
+        className: null, // '测试 课堂',
+        type: null, // 'slide',
+        fileName: null, // 'Untitled task',
+        slideId: null, // '17kZYJTQTX6rOIhXhisTaE_5ocYILbTJfegW0QUzOnI0',
+        lockPage: null, // null,
+        responseLimitMode: null, // 1,
+        responseLimitTime: null, // 1638201600,
+        copyFrom: null // null
+      },
       forms: [], // 评估表格数据
       groups: [], // 班级分组信息
 
@@ -366,28 +382,16 @@ export default {
       this.loading = false
       GetSessionEvaluationByClassId({ classId: this.classId }).then(response => {
         this.$logger.info('GetSessionEvaluationByClassId response', response.result)
-        this.groups = [
-          {
-            'classId': '1',
-            'id': 1,
-            'members': [
-              {
-                'groupId': 1,
-                'id': 1,
-                'userId': 'xunwu'
-              }
-            ],
-            'name': 'Group'
-          }
-        ]
-        // this.form = response.evaluation
-        // this.forms = response.evaluation.forms
-        // this.groups = response.evaluation.groups
-        this.groupNum = this.groups.length
-        this.memberNum = 0
-        this.groups.forEach(group => {
-          this.memberNum = this.memberNum + group.members.length
+        const data = response.result
+        this.classInfo = data.classInfo
+
+        // 表单数据赋值
+        this.form.className = this.classInfo.className
+        this.form.evaluation = this.classInfo.evaluation
+        data.groups.forEach(group => {
+          group.expand = false
         })
+        this.groups = data.groups
       }).finally(() => {
         if (!this.forms || this.forms.length === 0) {
           this.selectRubricVisible = true
@@ -432,7 +436,8 @@ export default {
     handleAddFormTable () {
       this.$logger.info('handleAddFormTable')
       const count = this.forms.length + 1
-      this.newTableName = 'Form ' + count
+      this.newTableName = 'Rubric one ' + count
+      this.newFormType = EvaluationTableType.Rubric
       this.selectRubricVisible = true
     },
 
@@ -646,25 +651,13 @@ export default {
     align-items: flex-start;
 
     .class-group {
-      width: 250px;
+      width: 280px;
       .class-student-wrapper {
         height: 539px;
         background: #FFFFFF;
         border: 1px solid #dadada;
         opacity: 1;
         border-radius: 0px 0px 4px 4px;
-        .info-bar {
-          margin-bottom: 3px;
-          .info-bar-item {
-            padding: 10px 0 10px 0;
-            cursor: pointer;
-            font-family: Inter-Bold;
-            font-size: 12px;
-            color: #999;
-            text-align: center;
-          }
-          box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.1);
-        }
 
         .group-list-wrapper {
           height: 503px;
@@ -678,7 +671,7 @@ export default {
           }
           &::-webkit-scrollbar-track {
             border-radius: 3px;
-            background: rgba(0,0,0,0.00);
+            background: rgba(0,0,0,0.01);
             -webkit-box-shadow: inset 0 0 5px rgba(0,0,0,0.01);
           }
           /* 滚动条滑块 */
@@ -767,6 +760,11 @@ export default {
                     font-family: Inter-Bold;
                     line-height: 24px;
                     color: #11142D;
+                    width: 190px;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                    word-break: break-all;
+                    white-space: nowrap;
                   }
                   .select-status-icon {
                     position: absolute;
@@ -786,7 +784,7 @@ export default {
     }
 
     .form-table-content {
-      width: calc(100% - 250px);
+      width: calc(100% - 280px);
       padding: 0 20px;
 
       .table-content {
