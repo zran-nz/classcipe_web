@@ -499,16 +499,19 @@ export default {
         if (data.evaluation && data.evaluation.studentEvaluateData) {
           const evaluateDataObj = JSON.parse(data.evaluation.studentEvaluateData)
           const userIds = Object.keys(evaluateDataObj)
-          userIds.forEach(userId => {
-            if (evaluateDataObj.hasOwnProperty(userId) && Object.keys(evaluateDataObj[userId]).length === 0) {
-              isEmptyStudentEvaluateData = true
-            }
-          })
+          if (userIds.length === 0) {
+            isEmptyStudentEvaluateData = true
+          } else {
+            userIds.forEach(userId => {
+              if (evaluateDataObj.hasOwnProperty(userId) && Object.keys(evaluateDataObj[userId]).length === 0) {
+                isEmptyStudentEvaluateData = true
+              }
+            })
+          }
         } else {
           isEmptyStudentEvaluateData = true
         }
         this.$logger.info('isEmptyStudentEvaluateData ' + isEmptyStudentEvaluateData, data.evaluation)
-
         if (!isEmptyStudentEvaluateData) {
           this.studentEvaluateData = JSON.parse(data.evaluation.studentEvaluateData)
           if (allStudentUserIdList.length) {

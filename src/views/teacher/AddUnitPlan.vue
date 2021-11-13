@@ -218,7 +218,7 @@
                   <a-step title="Link Plan content">
                     <template slot="description" v-if="currentActiveStepIndex === 1">
                       <div class="form-block">
-                        <a-form-item label="Link Plan content" class="link-plan-title">
+                        <a-form-item label="Add task(s)" class="link-plan-title">
                           <a-button type="primary" :style="{'background-color': '#fff', 'color': '#000', 'border': '1px solid #D8D8D8'}" @click="handleAddTerm">
                             <div class="btn-text" style="line-height: 20px">
                               + Add term

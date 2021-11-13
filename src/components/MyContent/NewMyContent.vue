@@ -65,7 +65,7 @@
     </div>
     <div class="group-label">
       <template v-if="groupNameMode === 'select'">
-        <div class="choose-label">Choose</div>
+        <div class="choose-label">Choose term</div>
         <a-select :default-value="defaultGroupName" style="width: 100%" v-model="selectedGroup">
           <a-select-option :value="groupNameItem" v-for="(groupNameItem, gIndex) in groupNameList" :key="gIndex">
             {{ groupNameItem }}

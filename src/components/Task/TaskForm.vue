@@ -291,7 +291,8 @@ export default {
       showCustomTag: true,
       sessionTags: [],
       customTagList: [],
-      userTags: {}
+      userTags: {},
+      taskNum: 1
     }
   },
   computed: {
@@ -328,6 +329,7 @@ export default {
     formData.id = null
     formData.selectPageObjectIds = []
     formData.__taskId = '__taskId_' + this.taskPrefix
+    formData.name = formData.name ? (formData.name + ' sub task' + this.taskNum) : 'sub task' + this.taskNum
     this.$logger.info('TaskForm parentFormData', formData)
     this.form = formData
     this.$logger.info('questionPrefix ' + this.questionPrefix)
@@ -382,6 +384,8 @@ export default {
           this.$message.success('Add another task success')
           taskData.id = response.result.id
           this.$emit('finish-task', taskData)
+          this.taskNum = this.taskNum + 1
+          this.form.name = this.parentFormData.name ? (this.parentFormData.name + ' sub task' + this.taskNum) : 'sub task' + this.taskNum
         } else {
           this.$message.error(response.message)
         }

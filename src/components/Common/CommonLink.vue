@@ -71,7 +71,7 @@
                       <div class="name" @click="handleViewDetail(item)">
                         <a-tooltip placement="top">
                           <template slot="title">
-                            {{ item.name ? item.name : 'untitled' }}
+                            Click and drag tasks to move between
                           </template>
                           {{ item.name ? item.name : 'untitled' }}
                         </a-tooltip>

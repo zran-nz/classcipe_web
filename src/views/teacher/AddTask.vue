@@ -680,7 +680,7 @@
         <div class="select-slide-wrapper">
           <modal-header @close="selectedSlideVisible = false" :white="true"/>
           <div class="modal-title">
-            Great news!
+            Congratulations! You have published your content successfully!
           </div>
           <div class="main-tips">
             <div class="left-img">
