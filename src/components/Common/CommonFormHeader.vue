@@ -34,7 +34,7 @@
     </a-col>
     <a-col span="7" class="unit-right-action">
       <a-space>
-        <div class="collaborate-comment" @click="handleViewComment" v-if="form.type === typeMap.evaluation">
+        <div class="collaborate-comment" @click="handleViewComment" v-if="form.type !== typeMap.evaluation">
           <comment-icon class="active-icon"/>
         </div>
         <a-button
