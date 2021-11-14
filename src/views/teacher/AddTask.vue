@@ -554,7 +554,43 @@
               </div>
               <div class="template-list-wrapper">
                 <div class="template-list" v-if="!templateLoading">
-                  <div :class="{'template-item': true, 'template-item-active': template.id && selectedTemplateIdList.indexOf(template.id) !== -1 }" v-for="(template,index) in templateList" :key="index" @click="handleSelectTemplate(template)">
+                  <div :class="{'template-item': true, 'template-item-active': template.id && selectedTemplateIdList.indexOf(template.id) !== -1 }" v-for="(template,index) in templateList" :key="index">
+                    <div class="template-hover-action-mask">
+                      <div class="template-hover-action">
+                        <div class="modal-ensure-action-line">
+                          <a-button
+                            class="action-ensure action-item"
+                            shape="round"
+                          >
+                            <a-icon type="eye" theme="filled"/>
+                            <div class="btn-text">
+                              Preview
+                            </div>
+                          </a-button>
+                          <a-button
+                            v-if="selectedTemplateIdList.indexOf(template.id) === -1"
+                            class="action-ensure action-item"
+                            shape="round"
+                            @click="handleSelectTemplate(template)">
+                            <img src="~@/assets/icons/tag/add.png" class="btn-icon"/>
+                            <div class="btn-text">
+                              Add
+                            </div>
+                          </a-button>
+                          <a-button
+                            v-else
+                            class="action-ensure action-item"
+                            shape="round"
+                            @click="handleSelectTemplate(template)"
+                          >
+                            <a-icon type="minus-circle" theme="filled"/>
+                            <div class="btn-text">
+                              Remove
+                            </div>
+                          </a-button>
+                        </div>
+                      </div>
+                    </div>
                     <div class="template-cover" :style="{backgroundImage: 'url(' + template.cover + ')'}">
                     </div>
                     <div class="template-info">
@@ -778,7 +814,7 @@
   import SkillTag from '@/components/UnitPlan/SkillTag'
   import { FilterTemplates, TemplatesGetPresentation, recommendTemplates } from '@/api/template'
   import { MyContentEventBus, MyContentEvent } from '@/components/MyContent/MyContentEventBus'
-  import { TaskCreateTaskPPT, TaskQueryById, TaskAddOrUpdate } from '@/api/task'
+  import { TaskCreateNewTaskPPT, TaskQueryById, TaskAddOrUpdate } from '@/api/task'
   import { SelectModel } from '@/components/NewLibrary/SelectModel'
   import { formatLocalUTC } from '@/utils/util'
   import { commonAPIUrl, GetDictItems } from '@/api/common'
@@ -1274,7 +1310,7 @@
         if (!this.creating) {
           if (this.selectedTemplateList.length) {
             this.creating = true
-            TaskCreateTaskPPT({
+            TaskCreateNewTaskPPT({
               taskId: this.taskId ? this.taskId : '',
               name: this.form.name ? this.form.name : 'Unnamed Task',
               overview: this.form.overview,
@@ -1362,7 +1398,7 @@
         this.$logger.info('handleCreateTask')
         if (!this.creating) {
           this.creating = true
-          TaskCreateTaskPPT({
+          TaskCreateNewTaskPPT({
             taskId: this.taskId ? this.taskId : '',
             taskIds: this.selectedTaskIdList,
             name: this.form.name ? this.form.name : 'Unnamed Task',
@@ -2774,6 +2810,39 @@
               border-radius: 4px;
               font-family: Inter-Bold;
               color: #000000;
+            }
+          }
+          .template-hover-action-mask {
+            display: none;
+            z-index: 100;
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.3);
+            .template-hover-action{
+              width: 100%;
+              top:30%
+            }
+
+            .action-item {
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              padding: 6px 13px;
+              background: rgba(0, 0, 0, 0.45);
+              opacity: 1;
+              border: 1px solid rgba(188, 188, 188, 1);
+            }
+            .template-hover-action {
+              position: absolute;
+            }
+          }
+           &:hover {
+            .template-hover-action-mask {
+              display: block;
             }
           }
         }

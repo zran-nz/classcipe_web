@@ -2,6 +2,7 @@ import request from '@/utils/request'
 
 export const taskAPIUrl = {
   createTaskPPT: '/classcipe/api/task/createTaskPPT',
+  createNewTaskPPT: '/classcipe/api/task/createNewTaskPPT',
   addOrUpdate: '/classcipe/api/task/addOrUpdate',
   delete: '/classcipe/api/task/delete',
   deleteBatch: '/classcipe/api/task/deleteBatch',
@@ -18,6 +19,17 @@ export const taskAPIUrl = {
 export function TaskCreateTaskPPT (parameter) {
   return request({
     url: taskAPIUrl.createTaskPPT,
+    method: 'post',
+    data: parameter,
+    headers: {
+      'Content-Type': 'application/json;charset=UTF-8'
+    }
+  })
+}
+
+export function TaskCreateNewTaskPPT (parameter) {
+  return request({
+    url: taskAPIUrl.createNewTaskPPT,
     method: 'post',
     data: parameter,
     headers: {
