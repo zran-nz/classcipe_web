@@ -74,7 +74,7 @@
           <div class="row-cascader" v-for="(tag,index) in centuryTagList" :key="index">
             <a-cascader
               style="width: 900px"
-              :fieldNames="{ label: 'name', value: 'name', children: 'children' }"
+              :fieldNames="{ label: 'name', value: 'name', children: 'children'}"
               v-model="centuryTagList[index]"
               :options="centuryList"
               change-on-select/>
@@ -218,12 +218,23 @@
       handleAddCenturyTag () {
         this.centuryTagList.push([])
       },
+      treeForeach (tree, func) {
+        tree.forEach(data => {
+          data.children && this.treeForeach(data.children, func) // 遍历子树
+          func(data)
+        })
+      },
       get21century () {
         getAll21Century({
         }).then((response) => {
           this.$logger.info('getAll21Century response', response)
           if (response.success) {
              this.centuryList = response.result
+             this.treeForeach(this.centuryList, node => {
+               if (node.children.length === 0) {
+                 node.title = this.$options.filters['gradeFormat'](node.gradeNames)
+               }
+             })
           }
         }).finally(() => {
           this.subTreeLoading = false

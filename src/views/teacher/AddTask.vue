@@ -561,6 +561,7 @@
                           <a-button
                             class="action-ensure action-item"
                             shape="round"
+                            @click="handlePreviewTemplate(template)"
                           >
                             <a-icon type="eye" theme="filled"/>
                             <div class="btn-text">
@@ -572,7 +573,7 @@
                             class="action-ensure action-item"
                             shape="round"
                             @click="handleSelectTemplate(template)">
-                            <img src="~@/assets/icons/tag/add.png" class="btn-icon"/>
+                            <a-icon type="plus-circle" theme="filled"/>
                             <div class="btn-text">
                               Add
                             </div>
@@ -798,6 +799,20 @@
         </div>
       </a-modal>
 
+      <a-modal
+        v-model="previewTemplateVisible"
+        :footer="null"
+        destroyOnClose
+        width="1000px"
+        :zIndex="2000"
+        :title="null"
+        @ok="previewTemplateVisible = false"
+        @cancel="previewTemplateVisible = false">
+        <div class="link-content-wrapper">
+          <template-preview :template="previewTemplate" :selected-template-id-list="selectedTemplateIdList" @handle-select="handleSelectPreviewTemplate"></template-preview>
+        </div>
+      </a-modal>
+
       <a-skeleton :loading="contentLoading" active>
       </a-skeleton>
     </a-card>
@@ -850,10 +865,12 @@
   import commentIcon from '@/assets/icons/collaborate/comment.svg?inline'
   import CollaborateHistory from '@/components/Collaborate/CollaborateHistory'
   import NoMoreResources from '@/components/Common/NoMoreResources'
+  import TemplatePreview from '@/components/Task/TemplatePreview'
 
   export default {
     name: 'AddTask',
     components: {
+      TemplatePreview,
       NoMoreResources,
       CollaborateHistory,
       CollaborateCommentView,
@@ -1022,7 +1039,9 @@
         rightWidth: '600px',
         leftWidth: '700px',
         groupNameMode: 'input', // input、select,
-        newTermName: 'Untitled Term'
+        newTermName: 'Untitled Term',
+        previewTemplate: {},
+        previewTemplateVisible: false
       }
     },
     computed: {
@@ -2225,6 +2244,16 @@
         } else {
           return 0
         }
+      },
+      handlePreviewTemplate (template) {
+        this.$logger.info('handlePreviewTemplate ', template)
+        this.previewTemplateVisible = true
+        this.previewTemplate = template
+      },
+      handleSelectPreviewTemplate (template) {
+        this.$logger.info('handleSelectPreviewTemplate ', template)
+        this.handleSelectTemplate(template)
+        this.previewTemplateVisible = false
       }
     }
   }
@@ -3769,7 +3798,7 @@
       color: #fff;
     }
     .anticon{
-      color: #15c39a;
+      color: fade(@black, 45%);
       font-size: 20px;
     }
   }
