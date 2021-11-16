@@ -1,24 +1,40 @@
 <template>
-  <div class="my-unit-plan-preview">
+  <div class="preview-preview">
     <a-row class="action-header">
       <a-col span="24" class="action-header-toggle">
         {{ templateData.name }}
       </a-col>
     </a-row>
     <a-row class="top-header">
-      <a-col span="24">
-        <div class="icon-group">
-          <div class="icon">
+      <a-col class="material-row" >
+        <div class="icon-group" v-if="!loadingClass" @click="materialVisible=true">
+          <div class="icon" v-if="currentPageElements.indexOf(fileTypeMap.txt) !== -1">
             <text-type-svg />
             <div class="icon-text">Text</div>
           </div>
-          <div class="icon">
+          <div class="icon" v-if="currentPageElements.indexOf(fileTypeMap.img) !== -1">
             <image-type-svg />
             <div class="icon-text">Image</div>
           </div>
-          <div class="icon">
+          <div class="icon" v-if="currentPageElements.indexOf(fileTypeMap.video) !== -1">
             <video-type-svg />
             <div class="icon-text">Video</div>
+          </div>
+          <div class="icon" v-if="currentPageElements.indexOf(fileTypeMap.audio) !== -1">
+            <audio-type-svg />
+            <div class="icon-text">Audio</div>
+          </div>
+          <div class="icon" v-if="currentPageElements.indexOf(fileTypeMap.youtube) !== -1">
+            <youtube-type-svg />
+            <div class="icon-text">Youtube</div>
+          </div>
+          <div class="icon" v-if="currentPageElements.indexOf(fileTypeMap.pdf) !== -1">
+            <pdf-type-svg />
+            <div class="icon-text">PDF</div>
+          </div>
+          <div class="icon" v-if="currentPageElements.indexOf(fileTypeMap.website) !== -1">
+            <url-type-svg />
+            <div class="icon-text">Website</div>
           </div>
         </div>
       </a-col>
@@ -28,7 +44,7 @@
         <!--        <a-spin v-show="slideLoading" class="spin-loading"/>-->
         <!-- lesson task img list-->
         <a-col span="24">
-          <div v-if="!loading && !imgList.length" class="no-preview-img">
+          <div v-if="!imgList.length" class="no-preview-img">
             <no-more-resources />
           </div>
         </a-col>
@@ -77,6 +93,83 @@
         </a-col>
       </a-col>
     </a-row>
+
+    <a-modal
+      v-model="materialVisible"
+      :footer="null"
+      destroyOnClose
+      width="800px"
+      :zIndex="3000"
+      title="My Materials"
+      @ok="materialVisible = false"
+      @cancel="materialVisible = false">
+      <div class="material-preview">
+        <a-row class="title-header">
+          <a-col span="24" class="action-header-toggle title-line">
+            <div class="title">
+              <!--              <span> |</span>-->
+              <span class="title-name">Video :</span>
+              <span class="title-size">3</span>
+            </div>
+            <div class="title">
+              <span class="title-split"> |</span>
+              <span class="title-name">Audio :</span>
+              <span class="title-size">3</span>
+            </div>
+            <div class="title">
+              <span class="title-split"> |</span>
+              <span class="title-name">Pdf :</span>
+              <span class="title-size">3</span>
+            </div>
+            <div class="title">
+              <span class="title-split"> |</span>
+              <span class="title-name">Image :</span>
+              <span class="title-size">3</span>
+            </div>
+          </a-col>
+        </a-row>
+        <a-row class="preview-data-info" >
+          <div class="content-wrapper">
+            <div class="content-list">
+              <a-list size="large" :data-source="currentPageElementLists">
+                <a-list-item slot="renderItem" key="item.key" slot-scope="item" class="my-list-item">
+
+                  <material-type-icon :type="item.type" class="icon-content"/>
+
+                  <span class="name-content" :title="item.tip">
+                    <span class="name-text">
+                      {{ item.tip }}
+                    </span>
+                  </span>
+
+                  <span class="page-content">
+                    <span class="name-text">
+                      Page  {{ currentImgIndex + 1 }}
+                    </span>
+                  </span>
+
+                  <div class="action" >
+                    <a-button
+                      class="action-ensure action-item"
+                      shape="round"
+                      v-if="item.type !== 'tip'"
+                      @click="handlePreviewMaterial(item)"
+                    >
+                      <a-icon type="eye" theme="filled"/>
+                      <div class="btn-text">
+                        Preview
+                      </div>
+                    </a-button>
+                  </div>
+                </a-list-item>
+              </a-list>
+            </div>
+
+          </div>
+        </a-row>
+      </div>
+
+    </a-modal>
   </div>
 </template>
 
@@ -86,14 +179,26 @@ import TextTypeSvg from '@/assets/icons/material/text.svg?inline'
 import ImageTypeSvg from '@/assets/icons/material/image.svg?inline'
 import VideoTypeSvg from '@/assets/icons/material/video.svg?inline'
 import AudioTypeSvg from '@/assets/icons/material/audio.svg?inline'
+import YoutubeTypeSvg from '@/assets/icons/material/youtube.svg?inline'
+import PdfTypeSvg from '@/assets/icons/material/pdf.svg?inline'
+import UrlTypeSvg from '@/assets/icons/material/url.svg?inline'
+import { QueryByClassInfoSlideId } from '@/api/classroom'
+import { fileTypeMap } from '@/const/material'
+import MaterialTypeIcon from '@/components/Task/MaterialTypeIcon'
 
 export default {
   name: 'TemplatePreview',
-  components: { NoMoreResources,
+  components: {
+    MaterialTypeIcon,
+    NoMoreResources,
     TextTypeSvg,
     ImageTypeSvg,
     VideoTypeSvg,
-    AudioTypeSvg },
+    AudioTypeSvg,
+    YoutubeTypeSvg,
+    PdfTypeSvg,
+    UrlTypeSvg
+  },
   props: {
     template: {
       type: Object,
@@ -105,6 +210,46 @@ export default {
     }
   },
   computed: {
+    currentPageElements () {
+      const showMenuList = []
+      const currentPageId = this.templateData.pageObjectIds[this.currentImgIndex]
+      console.log(currentPageId)
+      this.elementsList.forEach(e => {
+        if (currentPageId === e.pageId) {
+          const data = JSON.parse(e.data)
+          if (data.type === 'iframe') {
+            showMenuList.push(fileTypeMap.youtube)
+          } else if (data.type === 'image') {
+            showMenuList.push(fileTypeMap.img)
+          } else if (data.type === 'audio') {
+            showMenuList.push(fileTypeMap.audio)
+          } else if (data.type === 'text') {
+            showMenuList.push(fileTypeMap.txt)
+          } else if (data.type === 'video') {
+            showMenuList.push(fileTypeMap.video)
+          } else if (data.type === 'pdf') {
+            showMenuList.push(fileTypeMap.pdf)
+          } else if (data.type === 'website') {
+            showMenuList.push(fileTypeMap.link)
+          }
+        }
+      })
+      console.log(showMenuList)
+      return showMenuList
+    },
+    currentPageElementLists () {
+      const pageElementsList = []
+      const currentPageId = this.templateData.pageObjectIds[this.currentImgIndex]
+      console.log(currentPageId)
+      this.elementsList.forEach(e => {
+        if (currentPageId === e.pageId) {
+            const data = JSON.parse(e.data)
+            pageElementsList.push(data)
+        }
+      })
+      console.log(pageElementsList)
+      return pageElementsList
+    }
   },
   mounted () {
 
@@ -112,18 +257,35 @@ export default {
   data () {
     return {
       templateData: {},
-      loading: true,
+      loading: false,
+      loadingClass: false,
       data: null,
       imgList: [],
       subPreviewVisible: false,
-      currentImgIndex: 0
+      currentImgIndex: 0,
+      elementsList: [],
+      showMenuList: [],
+      fileTypeMap: fileTypeMap,
+      materialVisible: false
     }
   },
   created () {
     this.templateData = this.template
     this.imgList = this.templateData.images
+    this.getClassInfo()
   },
   methods: {
+    getClassInfo () {
+      this.loadingClass = true
+      QueryByClassInfoSlideId({ slideId: '1QYhaBEgKJB2juAwHiuE8i24rM-91dkF4RvRDwhuQ3Xw' }).then(response => {
+        this.$logger.info('QueryByClassInfoSlideId ', response)
+        if (response.success) {
+          this.elementsList = response.result.relements
+        }
+      }).finally(() => {
+        this.loadingClass = false
+      })
+    },
     handleGotoImgIndex (index) {
       this.$logger.info('handleGotoImgIndex ' + index)
       this.currentImgIndex = index
@@ -132,6 +294,12 @@ export default {
     handleSelectTemplate () {
       this.$logger.info('handleSelectTemplate ' + this.template.name)
       this.$emit('handle-select', this.template)
+    },
+    handlePreviewMaterial (item) {
+      this.$logger.info('handlePreviewMaterial ' + item)
+      if (item.type !== 'tip') {
+        window.open(item.url, '_blank')
+      }
     }
   }
 }
@@ -140,13 +308,17 @@ export default {
 <style lang="less" scoped>
 @import "~@/components/index.less";
 
-.my-unit-plan-preview {
+.preview-preview {
   padding: 10px 16px;
 
   .top-header {
     position: relative;
     color: rgba(0, 0, 0, 0.65);
     background: #fff;
+    .material-row{
+      width: fit-content;
+      margin: 0 auto;
+    }
     .icon-group{
       display: flex;
       flex-direction: row;
@@ -155,13 +327,12 @@ export default {
       justify-content: center;
       align-items: center;
       margin:10px auto;
-      width: 200px;
       border: 1px solid #ddd;
       border-radius: 6px;
       .icon {
         width: 50px;
         height: 50px;
-        margin:8px;
+        margin:10px;
         border: 1px solid #ddd;
         border-radius: 6px;
         background: #fafafa;
@@ -278,6 +449,99 @@ export default {
       border-radius: 0 16px 16px 0 ;
     }
   }
+}
+
+.material-preview {
+  padding: 5px 16px;
+
+  .title-header {
+    width:70%;
+    position: relative;
+    color: rgba(0, 0, 0, 0.65);
+    background: #fff;
+    .title-line {
+      padding: 5px 0;
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      justify-content: space-between;
+      .title-split{
+        margin: 0px 20px;
+      }
+      .title-size{
+        color: rgba(21, 195, 154, 1)
+      }
+      .title-name {
+        overflow-x: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        word-break: break-all;
+        font-family: Inter-Bold;
+        font-size: 15px;
+        font-weight: bold;
+        color: #182552;
+        padding-right: 10px;
+        box-sizing: border-box;
+      }
+    }
+  }
+
+  .content-wrapper {
+    .content-list {
+      margin-top: 10px;
+      width:100%;
+      /deep/ .ant-list-item {width:100%}
+
+      .action-item {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 6px 13px;
+        opacity: 1;
+        .btn-text{
+          padding-left: 4px;
+        }
+      }
+      .action-icon {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: flex-end;
+        padding: 0 10px;
+        width: 80px;
+        box-sizing: border-box;
+        img {
+          height: 18px;
+        }
+      }
+      .icon-content{
+        width:70px;
+      }
+      .page-content {
+        text-align: left;
+        padding-left: 5px;
+        display: inline-block;
+        width: 100px;
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        font-family: Inter-Bold;
+        color: #11142D;
+      }
+      .name-content {
+        text-align: left;
+        padding-left: 5px;
+        display: inline-block;
+        width: 300px;
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        font-family: Inter-Bold;
+        color: #11142D;
+      }
+    }
+  }
+
 }
 
 /deep/ .left-button {

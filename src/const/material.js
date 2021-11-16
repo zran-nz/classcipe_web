@@ -12,6 +12,8 @@ export const fileTypeMap = {
   link: 3,
   audio: 4,
   txt: 5,
+  youtube: 6,
+  pdf: 7,
   other: 0
 }
 
