@@ -7,7 +7,7 @@
     </a-row>
     <a-row class="top-header">
       <a-col class="material-row" >
-        <div class="icon-group" v-if="!loadingClass" @click="materialVisible=true">
+        <div class="icon-group" @click="materialVisible=true">
           <div class="icon" v-if="currentPageElements.indexOf(fileTypeMap.txt) !== -1">
             <text-type-svg />
             <div class="icon-text">Text</div>
@@ -106,25 +106,35 @@
       <div class="material-preview">
         <a-row class="title-header">
           <a-col span="24" class="action-header-toggle title-line">
-            <div class="title">
+            <div class="title" v-if="computerSize('video') > 0">
               <!--              <span> |</span>-->
               <span class="title-name">Video :</span>
-              <span class="title-size">3</span>
+              <span class="title-size">{{ computerSize('video') }}</span>
             </div>
-            <div class="title">
+            <div class="title" v-if="computerSize('audio') > 0">
               <span class="title-split"> |</span>
               <span class="title-name">Audio :</span>
-              <span class="title-size">3</span>
+              <span class="title-size">{{ computerSize('audio') }}</span>
             </div>
-            <div class="title">
+            <div class="title" v-if="computerSize('pdf') > 0">
               <span class="title-split"> |</span>
               <span class="title-name">Pdf :</span>
-              <span class="title-size">3</span>
+              <span class="title-size">{{ computerSize('pdf') }}</span>
             </div>
-            <div class="title">
+            <div class="title" v-if="computerSize('image') > 0">
               <span class="title-split"> |</span>
               <span class="title-name">Image :</span>
-              <span class="title-size">3</span>
+              <span class="title-size">{{ computerSize('image') }}</span>
+            </div>
+            <div class="title" v-if="computerSize('iframe') > 0">
+              <span class="title-split"> |</span>
+              <span class="title-name">Youtube :</span>
+              <span class="title-size">{{ computerSize('iframe') }}</span>
+            </div>
+            <div class="title" v-if="computerSize('website') > 0">
+              <span class="title-split"> |</span>
+              <span class="title-name">Website :</span>
+              <span class="title-size">{{ computerSize('website') }}</span>
             </div>
           </a-col>
         </a-row>
@@ -136,9 +146,9 @@
 
                   <material-type-icon :type="item.type" class="icon-content"/>
 
-                  <span class="name-content" :title="item.tip">
+                  <span class="name-content" :title="item.tip || item.url">
                     <span class="name-text">
-                      {{ item.tip }}
+                      {{ item.tip || item.url }}
                     </span>
                   </span>
 
@@ -300,6 +310,19 @@ export default {
       if (item.type !== 'tip') {
         window.open(item.url, '_blank')
       }
+    },
+    computerSize (type) {
+        var size = 0
+        const currentPageId = this.templateData.pageObjectIds[this.currentImgIndex]
+        this.elementsList.forEach(e => {
+          if (currentPageId === e.pageId) {
+            const data = JSON.parse(e.data)
+            if (data.type === type) {
+              size++
+            }
+          }
+        })
+        return size
     }
   }
 }

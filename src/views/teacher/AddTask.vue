@@ -109,42 +109,29 @@
                                   </div>
                                 </div>
                                 <div class="slide-preview" v-show="form.presentationId && thumbnailList.length">
-                                  <div class="slide-hover-action-mask">
-                                    <div class="slide-hover-action">
-                                      <div class="modal-ensure-action-line">
-                                        <a-button
-                                          class="action-ensure action-item"
-                                          :style="{'display': 'flex', 'align-items': 'center', 'justify-content': 'center', 'padding': '18px 10px'}"
-                                          type="primary"
-                                          shape="round"
-                                          @click="handleShowSelectMyContent">
-                                          <img src="~@/assets/icons/task/template_icon.png" class="btn-icon"/>
-                                          <div class="btn-text">
-                                            Select template
-                                          </div>
-                                        </a-button>
-                                        <a-button
-                                          class="action-ensure action-item"
-                                          :style="{'display': 'flex', 'align-items': 'center', 'justify-content': 'center', 'padding': '18px 10px'}"
-                                          type="primary"
-                                          shape="round"
-                                          @click="handleCreateInGoogle">
-                                          <img src="~@/assets/icons/task/path.png" class="btn-icon"/>
-                                          <div class="btn-text">
-                                            Create a new ppt in Google side
-                                          </div>
-                                        </a-button>
-                                      </div>
+                                  <a-carousel ref="carousel" arrows >
+                                    <div slot="prevArrow" class="custom-slick-arrow" style="left: 10px;zIndex: 1" >
+                                      <a-icon type="left-circle"/>
                                     </div>
-                                  </div>
-                                  <a-carousel arrows dots-class="slick-dots slick-thumb">
-                                    <a slot="customPaging" slot-scope="props">
-                                      <img :src="thumbnailList[props.i].contentUrl" />
-                                    </a>
+                                    <div slot="nextArrow" class="custom-slick-arrow" style="right: 10px" >
+                                      <a-icon type="right-circle" />
+                                    </div>
                                     <div v-for="(item,index) in thumbnailList" :key="index">
                                       <img :src="item.contentUrl" />
                                     </div>
                                   </a-carousel>
+                                  <div class="page-info" v-if="thumbnailList && thumbnailList.length">
+                                    {{ currentImgIndex + 1 }} / {{ thumbnailList.length }}
+                                  </div>
+                                  <div class="carousel-page">
+                                    <div class="img-list-wrapper">
+                                      <div class="img-list">
+                                        <div class="img-item" v-for="(item,index) in thumbnailList" :key="'index' + index" @click="handleGotoImgIndex(index)">
+                                          <img :src="item.contentUrl" />
+                                        </div>
+                                      </div>
+                                    </div>
+                                  </div>
                                 </div>
                               </div>
                             </div>
@@ -244,7 +231,7 @@
                     <div class="recomend-loading" v-if="recomendListLoading">
                       <a-spin size="large" />
                     </div>
-                    <div class="form-block-right" v-show="!form.presentationId && currentActiveStepIndex === 1" v-if="!recomendListLoading">
+                    <div class="form-block-right" v-show="currentActiveStepIndex === 1" v-if="!recomendListLoading">
                       <div class="right-title">Teaching Tips</div>
                       <div class="slide-preview-list">
                         <div class="slide-preview-item" v-for="(template, rIndex) in recommendTemplateList" :key="rIndex">
@@ -261,11 +248,7 @@
                             </div>
                           </div>
                           <a-carousel arrows>
-                            <div
-                              slot="prevArrow"
-                              class="custom-slick-arrow"
-                              style="left: 10px;zIndex: 1"
-                            >
+                            <div slot="prevArrow" class="custom-slick-arrow" style="left: 10px;zIndex: 1" >
                               <a-icon type="left-circle" />
                             </div>
                             <div slot="nextArrow" class="custom-slick-arrow" style="right: 10px">
@@ -1041,7 +1024,8 @@
         groupNameMode: 'input', // input、select,
         newTermName: 'Untitled Term',
         previewTemplate: {},
-        previewTemplateVisible: false
+        previewTemplateVisible: false,
+        currentImgIndex: 0
       }
     },
     computed: {
@@ -1927,7 +1911,7 @@
         console.log('onChange: setSessionStep', current)
         if (typeof current === 'number') {
           this.setSessionStep(current)
-          if (current === 1 && !this.form.presentationId) {
+          if (this.form.presentationId) {
             this.loadRecommendThumbnail()
           }
           setTimeout(function () {
@@ -2000,13 +1984,17 @@
         // 设置一个父级定位专用的dom，设置class名称【root-locate-form】，
         // 然后通过事件获取到当前元素，依次往上层查询父元素，累加偏离值，直到定位元素。
         const eventDom = event.target
-        let formTop = eventDom.offsetTop
+        let formTop = eventDom.offsetTop ? eventDom.offsetTop : 0
         let currentDom = eventDom.offsetParent
         const currentFocus = ''
         this.customTagList = []
+        console.log(currentDom)
         while (currentDom !== null) {
-          formTop += currentDom.offsetTop
-          currentDom = currentDom.offsetParent
+          formTop += (currentDom ? currentDom.offsetTop : 0)
+          currentDom = currentDom ? currentDom.offsetParent : undefined
+          if (!currentDom) {
+            break
+          }
           // if(currentDom.classList.contains('div.task-type-item.green-active-task-type')) {
           //   currentFocus = 'fa'
           //   CustomTagType.task.fa.forEach(name => {
@@ -2254,6 +2242,21 @@
         this.$logger.info('handleSelectPreviewTemplate ', template)
         this.handleSelectTemplate(template)
         this.previewTemplateVisible = false
+      },
+      handleGotoImgIndex (index) {
+        this.$logger.info('handleGotoImgIndex ' + index)
+        this.currentImgIndex = index
+        this.$refs.carousel.goTo(index)
+      },
+      alterGoto (page) {
+        this.$logger.info('alterGoto ' + page)
+        if (this.currentImgIndex === 0 && page === -1) {
+          this.currentImgIndex = this.thumbnailList.length - 1
+        } else if (this.currentImgIndex === this.thumbnailList.length - 1 && page === 1) {
+          this.currentImgIndex = 0
+        } else {
+          this.currentImgIndex = this.currentImgIndex + page
+        }
       }
     }
   }
@@ -3540,7 +3543,7 @@
     align-items: center;
     justify-content: flex-end;
     margin-bottom: 10px;
-    margin-right: 50px;
+    margin-right: 10px;
   }
   .slide-select-wrapper {
     display: flex;
@@ -3548,12 +3551,29 @@
     justify-content: space-between;
     align-items: flex-start;
     position: relative;
+    /deep/ .ant-carousel .slick-slide img{
+      width:650px;
+    }
+    /deep/ .ant-carousel{
+      .custom-slick-arrow:before {
+        display: none;
+      }
+      .custom-slick-arrow:hover {
+        opacity: 0.5;
+      }
+      .slick-slide h3 {
+        color: #fff;
+      }
+      .anticon{
+        color: fade(@black, 45%);
+        font-size: 30px;
+      }
+    }
     .slide-select {
-      width: 600px;
       background: #fff;
       position: relative;
       .slide-select-and-preview {
-        width: 600px;
+        width: 650px;
         min-height: 400px;
 
         .reset-edit-basic-info {
@@ -3619,7 +3639,6 @@
         }
       }
     }
-
     .slide-recommend {
       width: 600px;
       padding: 0 20px;
@@ -3627,72 +3646,48 @@
     }
   }
 
-  .ant-carousel {
-
-    z-index: 50;
-    /deep/ .slick-dots {
-      height: auto;
-    }
-
-    /deep/ .slick-slide img {
-      border: 5px solid #fff;
-      display: block;
-      margin: auto;
-      max-width: 80%;
-    }
-
-    /deep/ .slick-thumb {
-      padding-bottom: 10px;
-      overflow-x: scroll;
-      flex-direction: row;
-      align-items: center;
-      bottom: -70px;
-      white-space:nowrap;
-
-      &::-webkit-scrollbar {
-        width: 5px;
-        height: 5px;
-      }
-      &::-webkit-scrollbar-track {
-        border-radius: 3px;
-        background: rgba(0,0,0,0.00);
-        -webkit-box-shadow: inset 0 0 5px rgba(0,0,0,0.08);
-      }
-      /* 滚动条滑块 */
-      &::-webkit-scrollbar-thumb {
-        border-radius: 5px;
-        background: rgba(0,0,0,0.12);
-        -webkit-box-shadow: inset 0 0 10px rgba(0,0,0,0.2);
-      }
-    }
-
-    /deep/ .slick-thumb li {
-      width: 60px;
-      height: 45px;
-    }
-
-    /deep/ .slick-thumb li img {
-      width: 100%;
-      height: 100%;
-      filter: grayscale(100%);
-      border: 1px solid #fff;
-    }
-
-    /deep/ .slick-thumb li.slick-active img {
-      filter: grayscale(0%);
-      border: 1px solid #15c39a;
-    }
-  }
-
   .slide-preview-list {
-    max-height: 700px;
+    max-height: 1000px;
     overflow-y: scroll;
     width: 400px;
+    margin:0 auto;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: flex-start;
-
+    /deep/ .ant-carousel{
+      .slick-slide {
+        text-align: center;
+        height: 200px;
+        line-height: 200px;
+        background: #364d79;
+        overflow: hidden;
+      }
+      .slick-slide img{
+        width:100%;
+      }
+      custom-slick-arrow {
+        width: 25px;
+        height: 25px;
+        font-size: 25px;
+        color: #fff;
+        background-color: rgba(31, 45, 61, 0.11);
+        opacity: 0.3;
+      }
+      .custom-slick-arrow:before {
+        display: none;
+      }
+      .custom-slick-arrow:hover {
+        opacity: 0.5;
+      }
+      .slick-slide h3 {
+        color: #fff;
+      }
+      .anticon{
+        color: fade(@black, 45%);
+        font-size: 20px;
+      }
+    }
     .slide-preview-item {
       position: relative;
       margin-bottom: 10px;
@@ -3772,36 +3767,6 @@
       overflow: hidden;
     }
   }
-  .ant-carousel{
-    .slick-slide {
-      text-align: center;
-      height: 200px;
-      line-height: 200px;
-      background: #364d79;
-      overflow: hidden;
-    }
-    custom-slick-arrow {
-      width: 25px;
-      height: 25px;
-      font-size: 25px;
-      color: #fff;
-      background-color: rgba(31, 45, 61, 0.11);
-      opacity: 0.3;
-    }
-    .custom-slick-arrow:before {
-      display: none;
-    }
-    .custom-slick-arrow:hover {
-      opacity: 0.5;
-    }
-    .slick-slide h3 {
-      color: #fff;
-    }
-    .anticon{
-      color: fade(@black, 45%);
-      font-size: 20px;
-    }
-  }
   .recomend-loading {
     min-height: 200px;
     margin-top: 200px;
@@ -3869,5 +3834,78 @@
   }
   /deep/ .ant-breadcrumb > span:last-child {
     color: rgba(0, 0, 0, 0.45);
+  }
+
+  .page-info {
+    position: absolute;
+    right: 10px;
+    bottom: 10px;
+    background: #E4E4E4;
+    padding: 1px 10px;
+    border-radius: 20px;
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    align-items: center;
+    .page-num-tag {
+      display: inline;
+      background: rgba(228, 228, 228, 0.5);
+      padding: 1px 10px;
+      border-radius: 16px;
+      font-size: 8px;
+      font-family: Segoe UI;
+      font-weight: 400;
+      color: #808191;
+    }
+  }
+
+  .carousel-page {
+    display: flex;
+    height: 110px;
+    width: 100%;
+    overflow-x: scroll;
+    overflow-y: hidden;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+
+    &::-webkit-scrollbar {
+      width: 5px;
+      height: 5px;
+    }
+    &::-webkit-scrollbar-track {
+      border-radius: 3px;
+      background: rgba(0,0,0,0.00);
+      -webkit-box-shadow: inset 0 0 5px rgba(0,0,0,0.08);
+    }
+    /* 滚动条滑块 */
+    &::-webkit-scrollbar-thumb {
+      border-radius: 5px;
+      background: rgba(0,0,0,0.12);
+      -webkit-box-shadow: inset 0 0 10px rgba(0,0,0,0.2);
+    }
+    .img-list-wrapper {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      width: 100%;
+      .img-list {
+        cursor: pointer;
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+        align-items: flex-start;
+        .img-item {
+          height: 80px;
+          border: 1px solid #ddd;
+          box-shadow: 0 4px 8px 0 rgba(31, 33, 44, 10%);
+          margin: 0 10px;
+          img {
+            height: 100%;
+          }
+        }
+      }
+    }
   }
 </style>
