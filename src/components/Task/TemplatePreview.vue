@@ -103,82 +103,7 @@
       title="My Materials"
       @ok="materialVisible = false"
       @cancel="materialVisible = false">
-      <div class="material-preview">
-        <a-row class="title-header">
-          <a-col span="24" class="action-header-toggle title-line">
-            <div class="title" v-if="computerSize('video') > 0">
-              <!--              <span> |</span>-->
-              <span class="title-name">Video :</span>
-              <span class="title-size">{{ computerSize('video') }}</span>
-            </div>
-            <div class="title" v-if="computerSize('audio') > 0">
-              <span class="title-split"> |</span>
-              <span class="title-name">Audio :</span>
-              <span class="title-size">{{ computerSize('audio') }}</span>
-            </div>
-            <div class="title" v-if="computerSize('pdf') > 0">
-              <span class="title-split"> |</span>
-              <span class="title-name">Pdf :</span>
-              <span class="title-size">{{ computerSize('pdf') }}</span>
-            </div>
-            <div class="title" v-if="computerSize('image') > 0">
-              <span class="title-split"> |</span>
-              <span class="title-name">Image :</span>
-              <span class="title-size">{{ computerSize('image') }}</span>
-            </div>
-            <div class="title" v-if="computerSize('iframe') > 0">
-              <span class="title-split"> |</span>
-              <span class="title-name">Youtube :</span>
-              <span class="title-size">{{ computerSize('iframe') }}</span>
-            </div>
-            <div class="title" v-if="computerSize('website') > 0">
-              <span class="title-split"> |</span>
-              <span class="title-name">Website :</span>
-              <span class="title-size">{{ computerSize('website') }}</span>
-            </div>
-          </a-col>
-        </a-row>
-        <a-row class="preview-data-info" >
-          <div class="content-wrapper">
-            <div class="content-list">
-              <a-list size="large" :data-source="currentPageElementLists">
-                <a-list-item slot="renderItem" key="item.key" slot-scope="item" class="my-list-item">
-
-                  <material-type-icon :type="item.type" class="icon-content"/>
-
-                  <span class="name-content" :title="item.tip || item.url">
-                    <span class="name-text">
-                      {{ item.tip || item.url }}
-                    </span>
-                  </span>
-
-                  <span class="page-content">
-                    <span class="name-text">
-                      Page  {{ currentImgIndex + 1 }}
-                    </span>
-                  </span>
-
-                  <div class="action" >
-                    <a-button
-                      class="action-ensure action-item"
-                      shape="round"
-                      v-if="item.type !== 'tip'"
-                      @click="handlePreviewMaterial(item)"
-                    >
-                      <a-icon type="eye" theme="filled"/>
-                      <div class="btn-text">
-                        Preview
-                      </div>
-                    </a-button>
-                  </div>
-                </a-list-item>
-              </a-list>
-            </div>
-
-          </div>
-        </a-row>
-      </div>
-
+      <task-material-preview :current-page-element-lists="currentPageElementLists" :current-page-index="currentImgIndex"></task-material-preview>
     </a-modal>
   </div>
 </template>
@@ -195,10 +120,12 @@ import UrlTypeSvg from '@/assets/icons/material/url.svg?inline'
 import { QueryByClassInfoSlideId } from '@/api/classroom'
 import { fileTypeMap } from '@/const/material'
 import MaterialTypeIcon from '@/components/Task/MaterialTypeIcon'
+import TaskMaterialPreview from '@/components/Task/TaskMaterialPreview'
 
 export default {
   name: 'TemplatePreview',
   components: {
+    TaskMaterialPreview,
     MaterialTypeIcon,
     NoMoreResources,
     TextTypeSvg,
@@ -287,7 +214,7 @@ export default {
   methods: {
     getClassInfo () {
       this.loadingClass = true
-      QueryByClassInfoSlideId({ slideId: '1QYhaBEgKJB2juAwHiuE8i24rM-91dkF4RvRDwhuQ3Xw' }).then(response => {
+      QueryByClassInfoSlideId({ slideId: this.templateData.presentationId }).then(response => {
         this.$logger.info('QueryByClassInfoSlideId ', response)
         if (response.success) {
           this.elementsList = response.result.relements

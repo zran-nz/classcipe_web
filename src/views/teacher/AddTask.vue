@@ -89,12 +89,58 @@
                     <a-step title="Edit your course slides" :status="currentActiveStepIndex === 1 ? 'process':'wait'">
                       <template v-if="currentActiveStepIndex === 1" slot="description">
                         <div class="edit-in-slide">
+                          <a-button
+                            v-if="form.pluginInit"
+                            class="action-ensure action-item edit-slide"
+                            type="primary"
+                            shape="round"
+                            @click="handleShowSelectMyContent"
+                            style="margin-right: 200px">
+                            <img style="font-size: 20px" src="~@/assets/icons/task/material.png" class="btn-icon"/>
+                            My Material
+                          </a-button>
+                          <a-button class="action-ensure action-item edit-slide" type="primary" shape="round" @click="handleShowSelectMyContent" style="margin-right: 10px">
+                            Select template
+                          </a-button>
                           <a-button class="action-ensure action-item edit-slide" type="primary" shape="round" @click="handleOpenGoogleSlide(presentationLink)">
-                            <img src="~@/assets/icons/task/path.png" class="btn-icon"/>
                             Edit in Google Slides
                           </a-button>
                         </div>
-                        <a-skeleton :loading="skeletonLoading" active>
+                        <div class="template-selected" v-if="!form.pluginInit">
+                          <div class="template-list" v-if="!templateLoading">
+                            <div :class="{'template-item': true }" v-for="(template,index) in selectedTaskTemplateList" :key="index">
+                              <div class="template-hover-action-mask">
+                                <div class="template-hover-action">
+                                  <div class="modal-ensure-action-line">
+                                    <a-button class="action-ensure action-item" shape="round" @click="handlePreviewTemplate(template)">
+                                      <a-icon type="eye" theme="filled"/>
+                                      <div class="btn-text">
+                                        Preview
+                                      </div>
+                                    </a-button>
+                                    <a-button class="action-ensure action-item" shape="round" @click="handleSelectTemplate(template)">
+                                      <a-icon type="minus-circle" theme="filled"/>
+                                      <div class="btn-text">
+                                        Remove
+                                      </div>
+                                    </a-button>
+                                  </div>
+                                </div>
+                              </div>
+                              <div class="template-cover" :style="{backgroundImage: 'url(' + template.cover + ')'}">
+                              </div>
+                              <div class="template-info">
+                                <div class="template-name">{{ template.name }}</div>
+                                <div class="template-intro" v-show="template.introduce">{{ template.introduce }}</div>
+                              </div>
+                              <div class="template-select-icon" v-if="template.id && selectedTemplateIdList.indexOf(template.id) !== -1">
+                                <img src="~@/assets/icons/task/selected.png" v-if="template.id && selectedTemplateIdList.indexOf(template.id) !== -1 "/>
+                              </div>
+                            </div>
+                          </div>
+
+                        </div>
+                        <a-skeleton :loading="skeletonLoading" active v-if="form.pluginInit">
                           <div class="slide-select-wrapper" ref="slide">
                             <div class="slide-select">
                               <div class="slide-select-and-preview">
@@ -1025,7 +1071,8 @@
         newTermName: 'Untitled Term',
         previewTemplate: {},
         previewTemplateVisible: false,
-        currentImgIndex: 0
+        currentImgIndex: 0,
+        taskSelectedIdTemplateIds: []
       }
     },
     computed: {
@@ -1041,6 +1088,18 @@
         const list = []
         this.selectedTemplateList.forEach(item => {
           list.push(item.id)
+        })
+        return list
+      },
+      selectedTaskTemplateList () {
+        const list = []
+        if (this.taskSelectedIdTemplateIds.length === 0) {
+          return list
+        }
+        this.templateList.forEach(item => {
+          if (this.taskSelectedIdTemplateIds.indexOf(item.id) > -1) {
+            list.push(item)
+          }
         })
         return list
       },
@@ -1173,6 +1232,9 @@
           const taskData = response.result
           this.form = taskData
           this.form.bloomCategories = this.form.bloomCategories ? this.form.bloomCategories : undefined // 为了展示placeholder
+          this.taskSelectedIdTemplateIds = this.form.selectedTemplateList.map(item => {
+            return item.id
+          })
           if (this.form.presentationId) {
             // 绑定google slide 的编辑链接
             this.presentationLink = 'https://docs.google.com/presentation/d/' + this.form.presentationId + '/edit?taskId=' + this.taskId
@@ -1911,7 +1973,7 @@
         console.log('onChange: setSessionStep', current)
         if (typeof current === 'number') {
           this.setSessionStep(current)
-          if (this.form.presentationId) {
+          if (this.recommendTemplateList.length === 0) {
             this.loadRecommendThumbnail()
           }
           setTimeout(function () {
@@ -1947,10 +2009,13 @@
         })
       },
       selectRecommendTemplate (template) {
-        this.selectedTemplateList = []
-        this.selectedTemplateList.push(template)
-        this.addRecomendLoading = true
-        this.handleAddTemplate()
+        if (this.taskSelectedIdTemplateIds.indexOf(template.id) === -1) {
+          this.taskSelectedIdTemplateIds.push(template.id)
+        }
+        // this.selectedTemplateList = []
+        // this.selectedTemplateList.push(template)
+        // this.addRecomendLoading = true
+        // this.handleAddTemplate()
       },
       loadUserTags () {
         // this.$refs.customTag.tagLoading = true
@@ -3542,8 +3607,8 @@
     flex-direction: row;
     align-items: center;
     justify-content: flex-end;
-    margin-bottom: 10px;
-    margin-right: 10px;
+    margin-bottom: 20px;
+    margin-top: 20px;
   }
   .slide-select-wrapper {
     display: flex;
@@ -3649,6 +3714,7 @@
   .slide-preview-list {
     max-height: 1000px;
     overflow-y: scroll;
+    overflow-x: hidden;
     width: 400px;
     margin:0 auto;
     display: flex;
@@ -3690,7 +3756,7 @@
     }
     .slide-preview-item {
       position: relative;
-      margin-bottom: 10px;
+      margin: 15px;
       width: 400px;
       &:hover {
         .mask-cover .mask-actions{
@@ -3905,6 +3971,131 @@
             height: 100%;
           }
         }
+      }
+    }
+  }
+  .template-selected {
+    overflow-y: auto;
+    background: rgba(228, 228, 228, 0.2);
+    border: 1px solid #D8D8D8;
+    opacity: 1;
+    border-radius: 4px;
+    padding: 20px;
+    max-height: 500px;
+
+    .template-list {
+      display: flex;
+      flex-direction: row;
+      align-items: flex-start;
+      justify-content: flex-start;
+      flex-wrap: wrap;
+
+      .template-item {
+        background-size: cover;
+        margin-right: 1%;
+        margin-left: 1%;
+        margin-bottom: 20px;
+        box-sizing: border-box;
+        width: 45%;
+        box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.16);
+        background: #FFFFFF;
+        border: 1px solid #E8E8E8;
+        border-radius: 4px;
+        position: relative;
+
+        .template-select-icon {
+          z-index: 50;
+          position: absolute;
+          right: 5px;
+          top: 5px;
+          img {
+            height: 18px;
+          }
+        }
+
+        .template-cover {
+          background-size: 100% 100%;
+          height: 150px;
+          border-radius: 4px;
+          width: 100%;
+          background-color: #ddd;
+          box-sizing: border-box;
+          padding: 0;
+        }
+
+        .template-info {
+          padding: 10px;
+          display: flex;
+          position: relative;
+          flex-direction: column;
+          justify-content: flex-start;
+
+          .template-name {
+            font-weight: 500;
+            font-size: 14px;
+            z-index: 10;
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+            word-break: break-all;
+            padding: 10px 0;
+            min-height: 40px;
+          }
+          .template-intro {
+            min-height: 30px;
+            z-index: 10;
+            padding: 5px;
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+            word-break: break-all;
+            color: rgba(0,0,0,.45);
+            font-size: 12px;
+            background: rgba(244, 244, 244, 0.5);
+            border-radius: 4px;
+            font-family: Inter-Bold;
+            color: #000000;
+          }
+        }
+        .template-hover-action-mask {
+          display: none;
+          z-index: 100;
+          position: absolute;
+          cursor: pointer;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background: rgba(0, 0, 0, 0.3);
+          .template-hover-action{
+            width: 100%;
+            top:30%
+          }
+
+          .action-item {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 6px 13px;
+            background: rgba(0, 0, 0, 0.45);
+            opacity: 1;
+            border: 1px solid rgba(188, 188, 188, 1);
+          }
+          .template-hover-action {
+            position: absolute;
+          }
+        }
+        &:hover {
+          .template-hover-action-mask {
+            display: block;
+          }
+        }
+      }
+
+      .template-item-active {
+        border: 1px solid #15C39A;
+        box-shadow: 0px 3px 6px rgba(21, 195, 154, 0.16);
+        opacity: 1;
       }
     }
   }
