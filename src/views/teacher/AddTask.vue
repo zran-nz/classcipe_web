@@ -88,7 +88,7 @@
 
                     <a-step title="Edit your course slides" :status="currentActiveStepIndex === 1 ? 'process':'wait'">
                       <template v-if="currentActiveStepIndex === 1" slot="description">
-                        <div class="edit-in-slide">
+                        <div class="edit-in-slide" v-show="form.presentationId">
                           <a-button
                             v-if="form.pluginInit"
                             class="action-ensure action-item edit-slide"
@@ -106,7 +106,7 @@
                             Edit in Google Slides
                           </a-button>
                         </div>
-                        <div class="template-selected" v-if="!form.pluginInit">
+                        <div class="template-selected" v-if="showTemplateSelected">
                           <div class="template-list" v-if="!templateLoading">
                             <div :class="{'template-item': true }" v-for="(template,index) in selectedTaskTemplateList" :key="index">
                               <div class="template-hover-action-mask">
@@ -118,7 +118,7 @@
                                         Preview
                                       </div>
                                     </a-button>
-                                    <a-button class="action-ensure action-item" shape="round" @click="handleSelectTemplate(template)">
+                                    <a-button class="action-ensure action-item" shape="round" @click="removeSelectTemplate(template)">
                                       <a-icon type="minus-circle" theme="filled"/>
                                       <div class="btn-text">
                                         Remove
@@ -133,14 +133,14 @@
                                 <div class="template-name">{{ template.name }}</div>
                                 <div class="template-intro" v-show="template.introduce">{{ template.introduce }}</div>
                               </div>
-                              <div class="template-select-icon" v-if="template.id && selectedTemplateIdList.indexOf(template.id) !== -1">
-                                <img src="~@/assets/icons/task/selected.png" v-if="template.id && selectedTemplateIdList.indexOf(template.id) !== -1 "/>
+                              <div class="template-select-icon" >
+                                <img src="~@/assets/icons/task/selected.png"/>
                               </div>
                             </div>
                           </div>
 
                         </div>
-                        <a-skeleton :loading="skeletonLoading" active v-if="form.pluginInit">
+                        <a-skeleton :loading="skeletonLoading" active >
                           <div class="slide-select-wrapper" ref="slide">
                             <div class="slide-select">
                               <div class="slide-select-and-preview">
@@ -154,7 +154,7 @@
                                     </div>
                                   </div>
                                 </div>
-                                <div class="slide-preview" v-show="form.presentationId && thumbnailList.length">
+                                <div class="slide-preview" v-show="!showTemplateSelected && form.presentationId && thumbnailList.length">
                                   <a-carousel ref="carousel" arrows >
                                     <div slot="prevArrow" class="custom-slick-arrow" style="left: 10px;zIndex: 1" >
                                       <a-icon type="left-circle"/>
@@ -266,9 +266,9 @@
                               <p class="ant-upload-drag-icon">
                                 <img src="~@/assets/icons/lesson/upload_icon.png" class="upload-icon" />
                               </p>
-                              <p class="ant-upload-text">
-                                {{ $t('teacher.add-unit-plan.upload-a-picture') }}
-                              </p>
+                              <!--                              <p class="ant-upload-text">-->
+                              <!--                                {{ $t('teacher.add-unit-plan.upload-a-picture') }}-->
+                              <!--                              </p>-->
                             </div>
                           </template>
                         </a-upload-dragger>
@@ -280,7 +280,7 @@
                     <div class="form-block-right" v-show="currentActiveStepIndex === 1" v-if="!recomendListLoading">
                       <div class="right-title">Teaching Tips</div>
                       <div class="slide-preview-list">
-                        <div class="slide-preview-item" v-for="(template, rIndex) in recommendTemplateList" :key="rIndex">
+                        <div class="slide-preview-item" v-for="(template, rIndex) in filterRecommendTemplateList" :key="rIndex">
                           <div class="mask-cover">
                             <div class="mask-actions">
                               <div class="action-item action-item-center">
@@ -1072,7 +1072,8 @@
         previewTemplate: {},
         previewTemplateVisible: false,
         currentImgIndex: 0,
-        taskSelectedIdTemplateIds: []
+        taskSelectedIdTemplateIds: [],
+        showTaskSelected: false
       }
     },
     computed: {
@@ -1103,6 +1104,15 @@
         })
         return list
       },
+      filterRecommendTemplateList () {
+        const list = []
+        this.recommendTemplateList.forEach(item => {
+          if (this.taskSelectedIdTemplateIds.indexOf(item.id) === -1) {
+            list.push(item)
+          }
+        })
+        return list
+      },
       filterGradeTips () {
         return function (item) {
           if (!this.selectYearTab) {
@@ -1111,6 +1121,12 @@
           const filerList = this.centuryTagMap.get(this.selectYearTab).filter(tag => tag.tagId === item.id)
           return filerList.length > 0 ? filerList[0].tooltip : ''
         }
+      },
+      showTemplateSelected () {
+        if (this.showTaskSelected) {
+          return this.showTaskSelected
+        }
+        return !this.form.pluginInit && this.form.presentationId
       }
     },
     mounted () {
@@ -1246,7 +1262,11 @@
           if (this.form.presentationId) {
             this.loadThumbnail()
           }
-
+          if (!this.form.pluginInit) {
+            if (this.recommendTemplateList.length === 0) {
+              this.loadRecommendThumbnail()
+            }
+          }
           if (this.mode === 'pick-task-slide') {
             this.currentTaskFormData = Object.assign({}, this.form)
           }
@@ -1371,9 +1391,20 @@
 
       handleAddTemplate () {
         this.$logger.info('handleAddTemplate ', this.selectedTemplateList)
-        const hideLoading = this.$message.loading('Creating ppt in Google side...', 0)
+        // 已经存在ppt
+        if (this.form.presentationId) {
+          this.selectedTemplateList.forEach(item => {
+            if (this.taskSelectedIdTemplateIds.indexOf(item.id) === -1) {
+              this.taskSelectedIdTemplateIds.push(item.id)
+            }
+          })
+          this.showTaskSelected = true
+          this.selectedMyContentVisible = false
+          return
+        }
         if (!this.creating) {
           if (this.selectedTemplateList.length) {
+            const hideLoading = this.$message.loading('Creating ppt in Google side...', 0)
             this.creating = true
             TaskCreateNewTaskPPT({
               taskId: this.taskId ? this.taskId : '',
@@ -1396,7 +1427,7 @@
               this.$router.replace({
                 path: '/teacher/add-task/' + response.result.id
               })
-              this.viewInGoogleSlideVisible = true
+              this.$message.success('Created Successfully in Google Slides')
             }).finally(() => {
               this.templateLoading = false
               this.creating = false
@@ -1476,10 +1507,11 @@
             this.form.presentationId = response.result.presentationId
             this.presentationLink = response.result.presentationLink
             this.selectTemplateVisible = false
-            this.viewInGoogleSlideVisible = true
+            // this.viewInGoogleSlideVisible = true
             this.$router.replace({
               path: '/teacher/task-redirect/' + response.result.id
             })
+            this.$message.success('Created Successfully in Google Slides')
           }).finally(() => {
             this.creating = false
             this.selectedMyContentVisible = false
@@ -2012,6 +2044,7 @@
         if (this.taskSelectedIdTemplateIds.indexOf(template.id) === -1) {
           this.taskSelectedIdTemplateIds.push(template.id)
         }
+        this.showTaskSelected = true
         // this.selectedTemplateList = []
         // this.selectedTemplateList.push(template)
         // this.addRecomendLoading = true
@@ -2312,6 +2345,13 @@
         this.$logger.info('handleGotoImgIndex ' + index)
         this.currentImgIndex = index
         this.$refs.carousel.goTo(index)
+      },
+      removeSelectTemplate (template) {
+        this.$logger.info('removeSelectTemplate ', template)
+        var index = this.taskSelectedIdTemplateIds.findIndex(id => id === template.id)
+        if (index > -1) {
+          this.taskSelectedIdTemplateIds.splice(index, 1)
+        }
       },
       alterGoto (page) {
         this.$logger.info('alterGoto ' + page)
@@ -3639,7 +3679,7 @@
       position: relative;
       .slide-select-and-preview {
         width: 650px;
-        min-height: 400px;
+        //min-height: 400px;
 
         .reset-edit-basic-info {
           z-index: 100;

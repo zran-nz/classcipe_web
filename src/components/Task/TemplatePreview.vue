@@ -32,7 +32,7 @@
             <pdf-type-svg />
             <div class="icon-text">PDF</div>
           </div>
-          <div class="icon" v-if="currentPageElements.indexOf(fileTypeMap.website) !== -1">
+          <div class="icon" v-if="currentPageElements.indexOf(fileTypeMap.link) !== -1">
             <url-type-svg />
             <div class="icon-text">Website</div>
           </div>
