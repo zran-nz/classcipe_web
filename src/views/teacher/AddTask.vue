@@ -108,7 +108,7 @@
                         </div>
                         <div class="template-selected" v-if="showTemplateSelected">
                           <div class="template-list" v-if="!templateLoading">
-                            <div :class="{'template-item': true }" v-for="(template,index) in selectedTaskTemplateList" :key="index">
+                            <div :class="{'template-item': true }" v-for="(template,index) in selectedTemplateList" :key="index">
                               <div class="template-hover-action-mask">
                                 <div class="template-hover-action">
                                   <div class="modal-ensure-action-line">
@@ -583,7 +583,7 @@
               </div>
               <div class="template-list-wrapper">
                 <div class="template-list" v-if="!templateLoading">
-                  <div :class="{'template-item': true, 'template-item-active': template.id && selectedTemplateIdList.indexOf(template.id) !== -1 }" v-for="(template,index) in templateList" :key="index">
+                  <div :class="{'template-item': true, 'template-item-active': template.id && selectedTemplateIdList.indexOf(template.id) !== -1 }" v-for="(template,index) in (onlyShowSelected ? selectedTemplateList : templateList)" :key="index">
                     <div class="template-hover-action-mask">
                       <div class="template-hover-action">
                         <div class="modal-ensure-action-line">
@@ -643,11 +643,29 @@
                 <div class="create-loading" v-if="creating">
                   <a-spin />
                 </div>
-                <div style="position: absolute;left:20px"><a-radio v-model="onlyShowSelected" @change="onChangeShowSelected">Only selected template</a-radio></div>
-                <a-button @click="handleAddTemplate" :style="{'display': 'flex', 'align-items': 'center', 'justify-content': 'center', 'padding': '10px'}" shape="round" type="primary" :loading="creating">
+                <div style="position: absolute;left:20px"><a-radio :checked="onlyShowSelected" @click="onChangeShowSelected">Only selected template</a-radio></div>
+                <a-button
+                  v-if="!form.presentationId"
+                  @click="handleAddTemplate"
+                  :style="{'display': 'flex', 'align-items': 'center', 'justify-content': 'center', 'padding': '10px'}"
+                  shape="round"
+                  type="primary"
+                  :loading="creating">
                   <img src="~@/assets/icons/task/path.png" class="btn-icon"/>
                   <div class="btn-text">
                     Create the task in Google Slides
+                  </div>
+                </a-button>
+                <a-button
+                  v-if="form.presentationId"
+                  @click="handleSelectedTemplate"
+                  :style="{'display': 'flex', 'align-items': 'center', 'justify-content': 'center', 'padding': '10px'}"
+                  shape="round"
+                  type="primary"
+                  :loading="creating">
+                  <img src="~@/assets/icons/task/path.png" class="btn-icon"/>
+                  <div class="btn-text">
+                    Save selected templates
                   </div>
                 </a-button>
               </div>
@@ -1073,7 +1091,6 @@
         previewTemplate: {},
         previewTemplateVisible: false,
         currentImgIndex: 0,
-        taskSelectedIdTemplateIds: [],
         showTaskSelected: false,
         onlyShowSelected: false
       }
@@ -1094,22 +1111,13 @@
         })
         return list
       },
-      selectedTaskTemplateList () {
-        const list = []
-        if (this.taskSelectedIdTemplateIds.length === 0) {
-          return list
-        }
-        this.templateList.forEach(item => {
-          if (this.taskSelectedIdTemplateIds.indexOf(item.id) > -1) {
-            list.push(item)
-          }
-        })
-        return list
-      },
       filterRecommendTemplateList () {
         const list = []
+        const selectedIds = this.selectedTemplateList.map(template => {
+          return template.id
+        })
         this.recommendTemplateList.forEach(item => {
-          if (this.taskSelectedIdTemplateIds.indexOf(item.id) === -1) {
+          if (selectedIds.indexOf(item.id) === -1) {
             list.push(item)
           }
         })
@@ -1250,9 +1258,7 @@
           const taskData = response.result
           this.form = taskData
           this.form.bloomCategories = this.form.bloomCategories ? this.form.bloomCategories : undefined // 为了展示placeholder
-          this.taskSelectedIdTemplateIds = this.form.selectedTemplateList.map(item => {
-            return item.id
-          })
+          this.selectedTemplateList = this.form.selectedTemplateList
           if (this.form.presentationId) {
             // 绑定google slide 的编辑链接
             this.presentationLink = 'https://docs.google.com/presentation/d/' + this.form.presentationId + '/edit?taskId=' + this.taskId
@@ -1302,6 +1308,7 @@
         if (this.taskId) {
           taskData.id = this.taskId
         }
+        taskData.selectedTemplateList = this.selectedTemplateList
         // if (this.form.presentationId) {
         //   this.loadThumbnail()
         // }
@@ -1377,7 +1384,6 @@
         this.selectedTaskIdList = []
         this.selectedMyContentList = []
         this.selectedMyContentVisible = true
-        this.selectedTemplateList = []
         this.templateLoading = false
       },
 
@@ -1393,17 +1399,6 @@
 
       handleAddTemplate () {
         this.$logger.info('handleAddTemplate ', this.selectedTemplateList)
-        // 已经存在ppt
-        if (this.form.presentationId) {
-          this.selectedTemplateList.forEach(item => {
-            if (this.taskSelectedIdTemplateIds.indexOf(item.id) === -1) {
-              this.taskSelectedIdTemplateIds.push(item.id)
-            }
-          })
-          this.showTaskSelected = true
-          this.selectedMyContentVisible = false
-          return
-        }
         if (!this.creating) {
           if (this.selectedTemplateList.length) {
             const hideLoading = this.$message.loading('Creating ppt in Google side...', 0)
@@ -1489,7 +1484,22 @@
             this.selectedTaskIdList.push(keyArr[1])
           }
         })
-        this.handleCreateTask()
+        if (this.form.presentationId) {
+          // 已经存在ppt
+          if (this.form.presentationId) {
+            this.selectedMyContentList.forEach(item => {
+              if (this.selectedTemplateIdList.indexOf(item.id) === -1) {
+                // task和template图片字段不一致
+                item.cover = item.image
+                this.selectedTemplateList.push(item)
+              }
+            })
+            this.showTaskSelected = true
+            this.selectedMyContentVisible = false
+          }
+        } else {
+          this.handleCreateTask()
+        }
       },
 
       handleCreateTask () {
@@ -2043,14 +2053,17 @@
         })
       },
       selectRecommendTemplate (template) {
-        if (this.taskSelectedIdTemplateIds.indexOf(template.id) === -1) {
-          this.taskSelectedIdTemplateIds.push(template.id)
+        if (!this.form.presentationId) {
+          this.selectedTemplateList = []
+          this.selectedTemplateList.push(template)
+          this.addRecomendLoading = true
+          this.handleAddTemplate()
+        } else {
+          if (this.selectedTemplateIdList.indexOf(template.id) === -1) {
+            this.selectedTemplateList.push(template)
+          }
+          this.showTaskSelected = true
         }
-        this.showTaskSelected = true
-        // this.selectedTemplateList = []
-        // this.selectedTemplateList.push(template)
-        // this.addRecomendLoading = true
-        // this.handleAddTemplate()
       },
       loadUserTags () {
         // this.$refs.customTag.tagLoading = true
@@ -2350,13 +2363,18 @@
       },
       removeSelectTemplate (template) {
         this.$logger.info('removeSelectTemplate ', template)
-        var index = this.taskSelectedIdTemplateIds.findIndex(id => id === template.id)
+        var index = this.selectedTemplateList.findIndex(item => item.id === template.id)
         if (index > -1) {
-          this.taskSelectedIdTemplateIds.splice(index, 1)
+          this.selectedTemplateList.splice(index, 1)
         }
       },
       onChangeShowSelected (e) {
-        this.onlyShowSelected = e.target.value
+        this.onlyShowSelected = !this.onlyShowSelected
+      },
+      handleSelectedTemplate () {
+        this.$logger.info('handleSelectedTemplate ', this.handleSelectedTemplate)
+        this.showTaskSelected = true
+        this.selectedMyContentVisible = false
       },
       alterGoto (page) {
         this.$logger.info('alterGoto ' + page)
@@ -3816,7 +3834,7 @@
           left: 10%;
           position: absolute;
           flex-direction: column;
-          z-index: 9999;
+          z-index: 10;
           display: none;
           .action-item{
             cursor: pointer;
@@ -3826,7 +3844,9 @@
             justify-content: space-around;
           }
           .action-item-center{
-            min-height: 150px;
+            //min-height: 150px;
+            margin-top: 80px;
+            z-index:0;
             .session-btn{
               margin:15px
             }
