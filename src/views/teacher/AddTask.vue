@@ -643,6 +643,7 @@
                 <div class="create-loading" v-if="creating">
                   <a-spin />
                 </div>
+                <div style="position: absolute;left:20px"><a-radio v-model="onlyShowSelected" @change="onChangeShowSelected">Only selected template</a-radio></div>
                 <a-button @click="handleAddTemplate" :style="{'display': 'flex', 'align-items': 'center', 'justify-content': 'center', 'padding': '10px'}" shape="round" type="primary" :loading="creating">
                   <img src="~@/assets/icons/task/path.png" class="btn-icon"/>
                   <div class="btn-text">
@@ -1073,7 +1074,8 @@
         previewTemplateVisible: false,
         currentImgIndex: 0,
         taskSelectedIdTemplateIds: [],
-        showTaskSelected: false
+        showTaskSelected: false,
+        onlyShowSelected: false
       }
     },
     computed: {
@@ -1542,7 +1544,7 @@
       loadRecommendThumbnail () {
         this.$logger.info('loadRecommendThumbnail')
         this.recomendListLoading = true
-        recommendTemplates({}).then(response => {
+        recommendTemplates({ taskId: this.taskId }).then(response => {
           logger.info('loadRecommendThumbnail res:', response.result)
           if (response.success) {
             this.recommendTemplateList = response.result
@@ -2352,6 +2354,9 @@
         if (index > -1) {
           this.taskSelectedIdTemplateIds.splice(index, 1)
         }
+      },
+      onChangeShowSelected (e) {
+        this.onlyShowSelected = e.target.value
       },
       alterGoto (page) {
         this.$logger.info('alterGoto ' + page)
