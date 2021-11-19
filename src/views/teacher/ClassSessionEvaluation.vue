@@ -739,7 +739,7 @@ export default {
 
         if (this.mode === EvaluationTableMode.StudentEvaluate) {
           this.$logger.info('StudentEvaluate try fix currentActiveStudentId ' + this.$store.getters.userInfo.email, 'allStudentUserIdList', this.allStudentUserIdList)
-          // TODO 删除
+          // TODO 删除 130b44d6c58de03828b05eabf9f94dc4 改成 userInfo.email
           // if (this.allStudentUserIdList.indexOf(this.$store.getters.userInfo.email) === -1) {
           if (this.allStudentUserIdList.indexOf('130b44d6c58de03828b05eabf9f94dc4') === -1) {
             this.$logger.info('current use email ' + (this.$store.getters.userInfo.email) + ' not exist in ', this.allStudentUserIdList, ' cannot student evaluate')
@@ -747,11 +747,11 @@ export default {
               content: 'You are not in the student list of the current class and cannot evaluate !'
             })
           } else {
-            this.currentActiveStudentId = this.$store.getters.userInfo.email
+            this.currentActiveStudentId = '130b44d6c58de03828b05eabf9f94dc4'
             this.selectedMemberIdList = [this.$store.getters.userInfo.email]
           }
 
-          this.currentActiveStudentId = this.$store.getters.userInfo.email
+          this.currentActiveStudentId = '130b44d6c58de03828b05eabf9f94dc4'
           this.selectedMemberIdList = [this.currentActiveStudentId]
         }
 
@@ -1283,6 +1283,7 @@ export default {
         } else if (this.mode === EvaluationTableMode.TeacherEvaluate) {
           this.studentEvaluateData[userId][this.currentActiveFormId][rowId].evidenceIdList = data.data
         }
+        this.$logger.info('evidence update user id ' + userId + ' row ' + rowId + ' data', this.studentEvaluateData[userId][this.currentActiveFormId][rowId])
       })
       this.evidenceSelectVisible = false
     },

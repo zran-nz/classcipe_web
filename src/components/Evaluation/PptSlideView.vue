@@ -163,7 +163,7 @@ export default {
     }
   },
   created () {
-    this.$logger.info('PptSlideView' + this.slideId + ' classId ' + this.classId)
+    this.$logger.info('PptSlideView' + this.slideId + ' classId ' + this.classId, 'selectedIdList', this.selectedIdList, 'selectedIdStudentList', this.selectedIdStudentList)
     this.selectedSlidePageIdList = this.selectedIdList
     this.selectedStudentSlidePageIdList = this.selectedIdStudentList
     this.loadData()
