@@ -197,10 +197,10 @@
                         <a-icon type="setting" />
                         <a-menu slot="overlay">
                           <a-menu-item key="0">
-                            <div class="menu-icon"><a-switch size="small" v-model="formItem.studentEvaluation" @click="handleToggleStudentEvaluation(formItem)" /></div> Student Eval
+                            <div class="menu-icon"><a-switch size="small" v-model="formItem.se" @click="handleToggleStudentEvaluation(formItem)" /></div> Student Eval
                           </a-menu-item>
                           <a-menu-item key="1">
-                            <div class="menu-icon"><a-switch size="small" v-model="formItem.peerEvaluation" @click="handleTogglePeerEvaluation(formItem)"/></div> Peer Eval
+                            <div class="menu-icon"><a-switch size="small" v-model="formItem.pe" @click="handleTogglePeerEvaluation(formItem)"/></div> Peer Eval
                           </a-menu-item>
                         </a-menu>
                       </a-dropdown>
@@ -605,8 +605,8 @@ export default {
                 title: formItem.title,
                 titleEditing: false,
                 formType: formItem.formType,
-                studentEvaluation: formItem.studentEvaluation,
-                peerEvaluation: formItem.peerEvaluation,
+                se: formItem.se,
+                pe: formItem.pe,
                 menuVisible: false,
                 id: formItem.id,
                 formId: formItem.formId,
@@ -879,8 +879,8 @@ export default {
           title: selfTitle,
           titleEditing: false,
           formType: this.newFormType,
-          studentEvaluation: false,
-          peerEvaluation: false,
+          se: 0,
+          pe: 0,
           menuVisible: false,
           comment: null,
           id: null,
@@ -957,8 +957,8 @@ export default {
               title: formItem.title,
               initRawHeaders: JSON.stringify(tableData.headers),
               initRawData: JSON.stringify(tableData.list),
-              peerEvaluation: formItem.peerEvaluation,
-              studentEvaluation: formItem.studentEvaluation
+              pe: formItem.pe,
+              se: formItem.se
             }
             formDataList.push(formData)
           }
@@ -976,67 +976,69 @@ export default {
         this.formSaving = false
         return false
       } else {
-        EvaluationAddOrUpdate(this.form).then((response) => {
-          this.$logger.info('EvaluationAddOrUpdate', response)
-          this.$message.success('Save successfully!')
-          this.formSaving = false
-        }).then(() => {
-          let currentForm = this.forms.filter(item => item.formId === this.currentActiveFormId)
-          this.$logger.info('currentForm', currentForm)
-          if (currentForm.length) {
-            currentForm = currentForm[0]
-          } else {
-            currentForm = null
-          }
-          if (this.mode === EvaluationTableMode.TeacherEvaluate && currentForm && (currentForm.peerEvaluation || currentForm.studentEvaluation)) {
-            GetSessionEvaluationByClassId({ classId: this.classId }).then(response => {
-              this.$logger.info('after EvaluationAddOrUpdate GetSessionEvaluationByClassId', response)
+        if (this.showEvaluationNoticeVisible === false) {
+          EvaluationAddOrUpdate(this.form).then((response) => {
+            this.$logger.info('EvaluationAddOrUpdate', response)
+            this.$message.success('Save successfully!')
+            this.formSaving = false
+          }).then(() => {
+            let currentForm = this.forms.filter(item => item.formId === this.currentActiveFormId)
+            this.$logger.info('currentForm', currentForm)
+            if (currentForm.length) {
+              currentForm = currentForm[0]
+            } else {
+              currentForm = null
+            }
+            if (this.mode === EvaluationTableMode.TeacherEvaluate && currentForm && (currentForm.pe || currentForm.se)) {
+              GetSessionEvaluationByClassId({ classId: this.classId }).then(response => {
+                this.$logger.info('after EvaluationAddOrUpdate GetSessionEvaluationByClassId', response)
 
-              const data = response.result
-              if (data.evaluation && data.evaluation.studentEvaluateData) {
-                const evaluateDataObj = JSON.parse(data.evaluation.studentEvaluateData)
-                const userIds = Object.keys(evaluateDataObj)
+                const data = response.result
+                if (data.evaluation && data.evaluation.studentEvaluateData) {
+                  const evaluateDataObj = JSON.parse(data.evaluation.studentEvaluateData)
+                  const userIds = Object.keys(evaluateDataObj)
 
-                this.studentEvaluateIdList = []
-                this.peerEvaluateIdList = []
-                const studentEvaluateIdList = []
-                const peerEvaluateIdList = []
+                  this.studentEvaluateIdList = []
+                  this.peerEvaluateIdList = []
+                  const studentEvaluateIdList = []
+                  const peerEvaluateIdList = []
 
-                userIds.forEach(userId => {
-                  this.$logger.info('userId ' + userId, evaluateDataObj[userId])
-                  const studentData = evaluateDataObj[userId]
-                  const formData = studentData[this.currentActiveFormId]
-                  this.$logger.info('user form data', formData)
+                  userIds.forEach(userId => {
+                    this.$logger.info('userId ' + userId, evaluateDataObj[userId])
+                    const studentData = evaluateDataObj[userId]
+                    const formData = studentData[this.currentActiveFormId]
+                    this.$logger.info('user form data', formData)
 
-                  // 统计是否自评
-                  const rowKeys = Object.keys(formData)
-                  rowKeys.forEach(rowId => {
-                    if (rowId.startsWith('row_')) {
-                      // 如果学生有过自评
-                      if (studentEvaluateIdList.indexOf(userId) === -1 && !!formData[rowId].studentEvaluation) {
-                        studentEvaluateIdList.push(userId)
+                    // 统计是否自评
+                    const rowKeys = Object.keys(formData)
+                    rowKeys.forEach(rowId => {
+                      if (rowId.startsWith('row_')) {
+                        // 如果学生有过自评
+                        if (studentEvaluateIdList.indexOf(userId) === -1 && !!formData[rowId].studentEvaluation) {
+                          studentEvaluateIdList.push(userId)
+                        }
+                        // 如果学生有被他评，记录下他评的邮箱
+                        if (peerEvaluateIdList.indexOf(userId) === -1 && !!formData[rowId].peerEvaluation) {
+                          peerEvaluateIdList.push(formData[rowId].peerEmail)
+                        }
                       }
-                      // 如果学生有被他评，记录下他评的邮箱
-                      if (peerEvaluateIdList.indexOf(userId) === -1 && !!formData[rowId].peerEvaluation) {
-                        peerEvaluateIdList.push(formData[rowId].peerEmail)
-                      }
-                    }
+                    })
                   })
-                })
 
-                this.$logger.info('studentEvaluateIdList', studentEvaluateIdList, 'peerEvaluateIdList', peerEvaluateIdList)
-                this.studentEvaluateIdList = studentEvaluateIdList
-                this.peerEvaluateIdList = peerEvaluateIdList
-                this.showEvaluationNoticeVisible = true
-              }
-            })
-          }
-        })
+                  this.$logger.info('studentEvaluateIdList', studentEvaluateIdList, 'peerEvaluateIdList', peerEvaluateIdList)
+                  this.studentEvaluateIdList = studentEvaluateIdList
+                  this.peerEvaluateIdList = peerEvaluateIdList
+                  this.showEvaluationNoticeVisible = true
+                }
+              })
+            }
+          })
+        }
       }
     },
 
     handleContinueToEdit () {
-      this.$logger.info('handleContinueToEdit', data)
+      this.$logger.info('handleContinueToEdit')
       this.showEvaluationNoticeVisible = false
       this.handleToggleMode()
     },
