@@ -187,7 +187,7 @@
                             Save
                           </template>
                           <template v-if="mode !== EvaluationTableMode.Edit && mode !== EvaluationTableMode.Preview">
-                            Submmit
+                            Submit
                           </template>
                         </div>
                       </a-button>
@@ -544,6 +544,9 @@ export default {
     this.$logger.info('[' + this.formTableMode + '] created ClassSessionEvaluation classId' + this.classId + ' taskId ' + this.taskId)
     this.formTableMode = this.mode
     this.initData()
+
+    // 每次打开第一次提示多选模式
+    window.sessionStorage.removeItem('multiConfirmVisible')
   },
   methods: {
     initData () {
@@ -618,7 +621,7 @@ export default {
         this.$logger.info('isEmptyStudentEvaluateData ' + isEmptyStudentEvaluateData, data.evaluation)
         if (!isEmptyStudentEvaluateData) {
           this.studentEvaluateData = JSON.parse(data.evaluation.studentEvaluateData)
-          if (allStudentUserIdList.length) {
+          if (allStudentUserIdList.length && (this.mode !== EvaluationTableMode.Edit && this.formTableMode === EvaluationTableMode.Preview)) {
             this.currentActiveStudentId = allStudentUserIdList[0]
             this.selectedMemberIdList.push(this.currentActiveStudentId)
           }
@@ -655,10 +658,12 @@ export default {
           this.$logger.info('studentEvaluateData init finished ', studentEvaluateData)
           this.studentEvaluateData = studentEvaluateData
 
-          // 默认选中第一个学生的第一个评估表格
-          this.currentActiveStudentId = allStudentUserIdList[0]
-          this.selectedMemberIdList.push(this.currentActiveStudentId)
-          this.$logger.info('currentActiveFormId ' + this.currentActiveFormId + ' currentActiveStudentId ' + this.currentActiveStudentId)
+          if (this.mode !== EvaluationTableMode.Edit && this.formTableMode === EvaluationTableMode.Preview) {
+            // 默认选中第一个学生的第一个评估表格
+            this.currentActiveStudentId = allStudentUserIdList[0]
+            this.selectedMemberIdList.push(this.currentActiveStudentId)
+            this.$logger.info('currentActiveFormId ' + this.currentActiveFormId + ' currentActiveStudentId ' + this.currentActiveStudentId)
+          }
         }
 
         // 表单数据赋值
@@ -679,6 +684,11 @@ export default {
     },
     handleClickMember (group, member) {
       this.$logger.info('handleClickMember', 'group', group, 'member', member, 'selectedMemberIdList', this.selectedMemberIdList)
+      if (this.mode === EvaluationTableMode.Preview || this.mode === EvaluationTableMode.Edit) {
+        this.$logger.info('current mode ' + this.mode + ' ignore it!')
+        return
+      }
+
       const index = this.selectedMemberIdList.indexOf(member.userId)
       this.$logger.info('handleClickMember index ' + index)
       if (index === -1) {
@@ -730,6 +740,10 @@ export default {
     // 只允许选择一个小组
     handleSelectGroup (group) {
       this.$logger.info('handleSelectGroup', group)
+      if (this.mode === EvaluationTableMode.Preview || this.mode === EvaluationTableMode.Edit) {
+        this.$logger.info('current mode ' + this.mode + ' ignore it!')
+        return
+      }
       const index = this.selectedGroupIdList.indexOf(group.id)
       if (index === -1) {
         this.selectedGroupIdList = [group.id]
@@ -1090,18 +1104,14 @@ export default {
             this.$confirm({
               content: 'Are you sure to switch to edit mode ?',
               onOk: () => {
-                this.$router.push({
-                  path: '/teacher/class-evaluation/' + this.taskId + '/' + this.classId + '/edit'
-                })
+                window.location.pathname = '/teacher/class-evaluation/' + this.taskId + '/' + this.classId + '/edit'
               }
             })
           } else {
             this.$confirm({
               content: 'Are you sure to switch to evaluate mode ?',
               onOk: () => {
-                this.$router.push({
-                  path: '/teacher/class-evaluation/' + this.taskId + '/' + this.classId + '/teacher-evaluate'
-                })
+                window.location.pathname = '/teacher/class-evaluation/' + this.taskId + '/' + this.classId + '/teacher-evaluate'
               }
             })
           }

@@ -20,29 +20,6 @@
             <!--            </div>-->
           </div>
           <div class="class-date">{{ classItem.date | formatDate }}</div>
-          <div class="class-number">
-            <div class="class-number-detail">
-              <a-tooltip>
-                <template v-if="classItem.evaluationId">
-                  <template slot="title">
-                    {{ classItem.answerCount }}/{{ classItem.formCount }} have been evaluated
-                  </template>
-                  <div class="class-number-item">
-                    <div class="active-num">{{ classItem.answerCount }}</div> /
-                    <div class="total-num">{{ classItem.formCount }}</div>
-                  </div>
-                </template>
-                <template v-else>
-                  <template slot="title">
-                    Not evaluated
-                  </template>
-                  <div class="class-number-item" >
-                    <div class="no-evaluate">Not evaluated</div>
-                  </div>
-                </template>
-              </a-tooltip>
-            </div>
-          </div>
           <div class="class-action">
             <div class="icon-action">
               <a-tooltip>
@@ -324,72 +301,6 @@ export default {
           color: #aaa;
           text-align: right;
           padding-right: 20px;
-        }
-
-        .class-number {
-          padding: 0 5px;
-          width: 150px;
-          .class-number-detail {
-            display: flex;
-            width: 120px;
-            align-items: center;
-            justify-content: flex-start;
-            .class-number-item {
-              width: 120px;
-              cursor: pointer;
-              display: flex;
-              flex-direction: row;
-              align-items: center;
-              justify-content: center;
-              background: rgba(245, 245, 245, 0.5);
-              border: 1px solid #d4cdcd;
-              opacity: 1;
-              font-size: 13px;
-              border-radius: 6px;
-              padding: 3px 10px;
-            }
-
-            .class-number-item {
-              .active-num {
-                padding: 0 3px;
-                font-family: Inter-Bold;
-                line-height: 24px;
-                color: #15C39A;
-              }
-
-              .total-num {
-                padding: 0 3px;
-                font-family: Inter-Bold;
-                line-height: 24px;
-                color: #11142D;
-              }
-
-              .no-evaluate {
-                color: #11142D;
-                padding: 0 3px;
-                font-family: Inter-Bold;
-                line-height: 24px;
-              }
-            }
-
-            .class-number-item:hover {
-              background: #15C39A;
-              border: 1px solid #15C39A;
-              color: #fff;
-
-              .active-num {
-                color: #fff;
-              }
-
-              .total-num {
-                color: #fff;
-              }
-
-              .no-evaluate {
-                color: #fff;
-              }
-            }
-          }
         }
 
         .class-action {
