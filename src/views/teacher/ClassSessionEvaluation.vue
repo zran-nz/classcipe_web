@@ -207,8 +207,8 @@
                     </div>
                   </div>
                   <div class="comment" v-show="formTableMode === EvaluationTableMode.TeacherEvaluate">
-                    <div class="summary-input">
-                      <a-textarea v-model="formItem.comment" placeholder="Write a comment" aria-placeholder="Write a comment" class="my-textarea" />
+                    <div class="summary-input" v-if="currentActiveFormId && currentActiveStudentId">
+                      <a-textarea v-model="studentEvaluateData[currentActiveStudentId][currentActiveFormId].comment" placeholder="Write a comment" aria-placeholder="Write a comment" @keyup="handleUpdateComment(studentEvaluateData[currentActiveStudentId][currentActiveFormId].comment)" class="my-textarea" />
                     </div>
                   </div>
                   <div class="form-table-detail">
@@ -501,10 +501,10 @@ export default {
     currentActiveFormId (formId) {
       this.$logger.info('update currentActiveFormId ' + formId)
       // 判断当前的formId是否是允许他评
-      if (this.mode === EvaluationTableMode.PeerEvaluate) {
+      if (this.mode === EvaluationTableMode.PeerEvaluate && formId && this.studentEvaluateData) {
         this.allowPeerEvaluate = true
         this.allStudentUserIdList.forEach(studentId => {
-          const currentFormData = this.studentEvaluateData[studentId][this.currentActiveFormId]
+          const currentFormData = this.studentEvaluateData[studentId][formId]
           const rowIdList = Object.keys(currentFormData)
           rowIdList.forEach(rowId => {
             const rowData = currentFormData[rowId]
@@ -1028,10 +1028,10 @@ export default {
       this.$logger.info('formDataList', formDataList, 'this.form', this.form, 'this.classId', this.classId)
       this.form.classId = this.classId
       this.form.forms = formDataList
+      // 获取评估数据
+      this.$logger.info('!!!!!!!!!!!!!!!!!! studentEvaluateData !!!!!!!!!!!', this.studentEvaluateData)
       this.form.studentEvaluateData = JSON.stringify(this.studentEvaluateData)
 
-      // 获取评估数据
-      this.$logger.info('studentEvaluateData ', this.studentEvaluateData)
       if (formDataList.length === 0) {
         this.$message.error('Please add at least one form!')
         this.formSaving = false
@@ -1306,6 +1306,37 @@ export default {
         }
       } else {
         this.$logger.info('role no permission', this.$store.getters.roles)
+      }
+    },
+
+    handleUpdateComment (comment) {
+      this.$logger.info('handleUpdateComment')
+      if (this.mode === EvaluationTableMode.TeacherEvaluate) {
+        // 更新当前选中的所有学生的对应的form的comment的数据为对应列
+        const allSelectedStudentUserId = []
+        this.selectedMemberIdList.forEach(userId => {
+          if (allSelectedStudentUserId.indexOf(userId) === -1) {
+            allSelectedStudentUserId.push(userId)
+          }
+        })
+
+        this.groups.forEach(group => {
+          if (this.selectedGroupIdList.indexOf(group.id) !== -1) {
+            group.members.forEach(member => {
+              if (allSelectedStudentUserId.indexOf(member.userId) === -1) {
+                allSelectedStudentUserId.push(member.userId)
+              }
+            })
+          }
+        })
+        this.$logger.info('all selected member userId ', allSelectedStudentUserId)
+        // 遍历所有当前选中的用户，设置对应的选中的用-对应的表单-对应的行-对应的列-对应的评估数据
+        allSelectedStudentUserId.forEach(userId => {
+          if (userId !== this.currentActiveStudentId) {
+            this.studentEvaluateData[userId][this.currentActiveFormId].comment = comment
+            this.$logger.info('update ' + userId + ' form ' + this.currentActiveFormId + ' comment' + comment, this.studentEvaluateData[userId][this.currentActiveFormId])
+          }
+        })
       }
     }
   }

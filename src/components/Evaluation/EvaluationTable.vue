@@ -333,7 +333,7 @@
             <template v-if="header.type === headerType.Evidence">
               <div class="evidence-data">
                 <template v-if="formBodyData && formBodyData[item.rowId] && formBodyData[item.rowId].evidenceIdList">
-                  <div :class="{'evidence-info': true, 'exist-evidence': item[headerType.Evidence].num}" @click="handleAddEvidenceLine(lIndex, item, $event)" v-show="mode === tableMode.TeacherEvaluate">
+                  <div :class="{'evidence-info': true, 'exist-evidence': item[headerType.Evidence].num}" @click="handleAddEvidenceLine(lIndex, item, $event)" v-show="mode === tableMode.TeacherEvaluate || mode === tableMode.StudentEvaluate">
                     <add-icon v-show="!formBodyData[item.rowId].evidenceIdList.length"/>
                     <add-small-green-icon v-show="formBodyData[item.rowId].evidenceIdList.length"/>
                     <div class="evidence-num">( {{ formBodyData[item.rowId].evidenceIdList.length ? formBodyData[item.rowId].evidenceIdList.length : 0 }} )</div>
