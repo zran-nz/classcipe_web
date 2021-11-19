@@ -139,7 +139,7 @@
                     </div>
                     <div class="form-action">
                       <a-button
-                        v-if="isTeacher"
+                        v-if="isTeacher && (mode === EvaluationTableMode.Edit || mode === EvaluationTableMode.TeacherEvaluate)"
                         @click="handleToggleMode"
                         class="my-form-header-btn"
                         style="{
@@ -193,7 +193,7 @@
                       </a-button>
                     </div>
                     <div class="form-setting">
-                      <a-dropdown placement="bottomRight">
+                      <a-dropdown placement="bottomRight" v-if="isTeacher && (mode === EvaluationTableMode.Edit || mode === EvaluationTableMode.TeacherEvaluate)">
                         <a-icon type="setting" />
                         <a-menu slot="overlay">
                           <a-menu-item key="0">
@@ -372,6 +372,31 @@
       </div>
     </a-modal>
 
+    <a-modal
+      :visible="showEvaluationNoticeVisible"
+      :footer="null"
+      :maskClosable="false"
+      :closable="false"
+      destroyOnClose>
+      <div class="edit-notice">
+        <div class="notice-title">
+          <h2>Notice</h2>
+        </div>
+        <div class="edit-tips">
+          <div class="self-evaluation-notice">
+            There are {{ allStudentUserIdList.length - studentEvaluateIdList.length }} students who haven't completed the self-evaluation.
+          </div>
+          <div class="peer-evaluation-notice">
+            There are {{ allStudentUserIdList.length - peerEvaluateIdList.length }} students who haven't completed peer-evaluation.
+          </div>
+        </div>
+        <div class="modal-ensure-action-line-right">
+          <a-button class="action-item action-cancel" shape="round" @click="handleContinueToEdit">Continue to edit</a-button>
+          <a-button class="action-ensure action-item" type="primary" shape="round" @click="handleSaveEvaluation">Save</a-button>
+        </div>
+      </div>
+    </a-modal>
+
     <a-drawer
       destroyOnClose
       placement="right"
@@ -537,7 +562,11 @@ export default {
       // 多选模式提示
       showMultiSelectedConfirm: false,
 
-      formSaving: false
+      formSaving: false,
+
+      showEvaluationNoticeVisible: false,
+      studentEvaluateIdList: [],
+      peerEvaluateIdList: []
     }
   },
   created () {
@@ -672,6 +701,23 @@ export default {
         if ((!this.forms || this.forms.length === 0) && this.mode === EvaluationTableMode.Edit) {
           this.selectRubricVisible = true
         }
+
+        if (this.mode === EvaluationTableMode.StudentEvaluate) {
+          this.$logger.info('StudentEvaluate try fix currentActiveStudentId ' + this.$store.getters.userInfo.email, 'allStudentUserIdList', this.allStudentUserIdList)
+          if (this.allStudentUserIdList.indexOf(this.$store.getters.userInfo.email) === -1) {
+            this.$logger.info('current use email ' + (this.$store.getters.userInfo.email) + ' not exist in ', this.allStudentUserIdList, ' cannot student evaluate')
+            this.$confirm({
+              content: 'You are not in the student list of the current class and cannot evaluate !'
+            })
+          } else {
+            this.currentActiveStudentId = this.$store.getters.userInfo.email
+            this.selectedMemberIdList = [this.$store.getters.userInfo.email]
+          }
+
+          // TODO 写死ID
+          this.currentActiveStudentId = '130b44d6c58de03828b05eabf9f94dc4'
+          this.selectedMemberIdList = [this.currentActiveStudentId]
+        }
         this.loading = false
       })
     },
@@ -684,98 +730,104 @@ export default {
     },
     handleClickMember (group, member) {
       this.$logger.info('handleClickMember', 'group', group, 'member', member, 'selectedMemberIdList', this.selectedMemberIdList)
-      if (this.mode === EvaluationTableMode.Preview || this.mode === EvaluationTableMode.Edit) {
-        this.$logger.info('current mode ' + this.mode + ' ignore it!')
-        return
-      }
-
-      const index = this.selectedMemberIdList.indexOf(member.userId)
-      this.$logger.info('handleClickMember index ' + index)
-      if (index === -1) {
-        // 添加操作，只保留当前组内的选中人员，筛选掉其他小组人员
-        const memberIdList = [member.userId]
-        group.members.forEach(member => {
-          if (this.selectedMemberIdList.indexOf(member.userId) !== -1 && memberIdList.indexOf(member.userId) === -1) {
-            memberIdList.push(member.userId)
-          }
-        })
-        this.selectedMemberIdList = memberIdList
-        this.currentActiveStudentId = member.userId
-
-        // 如果当前操作的组与选中的组不是一个组，取消选中的组
-        if (this.selectedGroupIdList.indexOf(group.id) === -1) {
-          this.selectedGroupIdList = []
-        }
-
-        // 当从单选到多选，提示老师当前正在对多个学生进行评估数据会覆盖
-        if (this.selectedMemberIdList.length === 2) {
-          const memberNameList = []
+      // 只允许老师和他评选择其他人
+      if (this.mode === EvaluationTableMode.TeacherEvaluate || this.mode === EvaluationTableMode.PeerEvaluate) {
+        const index = this.selectedMemberIdList.indexOf(member.userId)
+        this.$logger.info('handleClickMember index ' + index)
+        if (index === -1) {
+          // 添加操作，只保留当前组内的选中人员，筛选掉其他小组人员
+          const memberIdList = [member.userId]
           group.members.forEach(member => {
-            if (this.selectedMemberIdList.indexOf(member.userId) !== -1) {
-              memberNameList.push(member.realName)
+            if (this.selectedMemberIdList.indexOf(member.userId) !== -1 && memberIdList.indexOf(member.userId) === -1) {
+              memberIdList.push(member.userId)
             }
           })
-          this.selectedMemberNameList = memberNameList
-          const confirmVisible = window.sessionStorage.getItem('multiConfirmVisible')
-          this.$logger.info('confirmVisible ' + confirmVisible)
-          if (!confirmVisible) {
-            this.showMultiSelectedConfirm = true
+          this.selectedMemberIdList = memberIdList
+          this.currentActiveStudentId = member.userId
+
+          // 如果当前操作的组与选中的组不是一个组，取消选中的组
+          if (this.selectedGroupIdList.indexOf(group.id) === -1) {
+            this.selectedGroupIdList = []
+          }
+
+          // 当从单选到多选，提示老师当前正在对多个学生进行评估数据会覆盖
+          if (this.selectedMemberIdList.length === 2) {
+            const memberNameList = []
+            group.members.forEach(member => {
+              if (this.selectedMemberIdList.indexOf(member.userId) !== -1) {
+                memberNameList.push(member.realName)
+              }
+            })
+            this.selectedMemberNameList = memberNameList
+            const confirmVisible = window.sessionStorage.getItem('multiConfirmVisible')
+            this.$logger.info('confirmVisible ' + confirmVisible)
+            if (!confirmVisible) {
+              this.showMultiSelectedConfirm = true
+            }
+          }
+        } else {
+          // 取消操作
+          const newSelectedMemberIdList = []
+          this.selectedMemberIdList.forEach(memberId => {
+            if (memberId !== member.userId) {
+              newSelectedMemberIdList.push(memberId)
+            }
+          })
+          this.selectedMemberIdList = newSelectedMemberIdList
+          if (this.selectedMemberIdList.length) {
+            this.currentActiveStudentId = this.selectedMemberIdList[0]
+          } else {
+            this.currentActiveStudentId = null
           }
         }
+        this.currentActiveGroupId = group.id
+        this.$logger.info('currentActiveGroupId ' + this.currentActiveFormId + ' selectedMemberIdList ', this.selectedMemberIdList)
       } else {
-        // 取消操作
-        const newSelectedMemberIdList = []
-        this.selectedMemberIdList.forEach(memberId => {
-          if (memberId !== member.userId) {
-            newSelectedMemberIdList.push(memberId)
-          }
-        })
-        this.selectedMemberIdList = newSelectedMemberIdList
-        this.currentActiveStudentId = null
+        this.$logger.info('current mode ' + this.mode + ' ignore it!')
       }
-      this.currentActiveGroupId = group.id
-      this.$logger.info('currentActiveGroupId ' + this.currentActiveFormId + ' selectedMemberIdList ', this.selectedMemberIdList)
     },
 
     // 只允许选择一个小组
     handleSelectGroup (group) {
       this.$logger.info('handleSelectGroup', group)
-      if (this.mode === EvaluationTableMode.Preview || this.mode === EvaluationTableMode.Edit) {
-        this.$logger.info('current mode ' + this.mode + ' ignore it!')
-        return
-      }
-      const index = this.selectedGroupIdList.indexOf(group.id)
-      if (index === -1) {
-        this.selectedGroupIdList = [group.id]
 
-        // 添加操作，只保留当前组内的选中人员，筛选掉其他小组人员
-        const memberIdList = []
-        const memberNameList = []
-        group.members.forEach(member => {
-          memberIdList.push(member.userId)
-          memberNameList.push(member.realName)
-        })
+      // 只允许老师和他评选择小组
+      if (this.mode === EvaluationTableMode.TeacherEvaluate || this.mode === EvaluationTableMode.PeerEvaluate) {
+        const index = this.selectedGroupIdList.indexOf(group.id)
+        if (index === -1) {
+          this.selectedGroupIdList = [group.id]
 
-        this.selectedMemberNameList = memberNameList
-        this.selectedMemberIdList = memberIdList
+          // 添加操作，只保留当前组内的选中人员，筛选掉其他小组人员
+          const memberIdList = []
+          const memberNameList = []
+          group.members.forEach(member => {
+            memberIdList.push(member.userId)
+            memberNameList.push(member.realName)
+          })
 
-        if (this.selectedMemberNameList.length > 1) {
-          const confirmVisible = window.sessionStorage.getItem('multiConfirmVisible')
-          this.$logger.info('confirmVisible ' + confirmVisible)
-          if (!confirmVisible) {
-            this.showMultiSelectedConfirm = true
+          this.selectedMemberNameList = memberNameList
+          this.selectedMemberIdList = memberIdList
+
+          if (this.selectedMemberNameList.length > 1) {
+            const confirmVisible = window.sessionStorage.getItem('multiConfirmVisible')
+            this.$logger.info('confirmVisible ' + confirmVisible)
+            if (!confirmVisible) {
+              this.showMultiSelectedConfirm = true
+            }
           }
+          this.currentActiveStudentId = this.selectedMemberNameList[0]
+          this.currentActiveGroupId = group.id
+        } else {
+          // 取消小组选择时，把已选择人员清空
+          this.selectedMemberIdList = []
+          this.selectedGroupIdList = []
+          this.currentActiveStudentId = null
+          this.currentActiveGroupId = null
         }
-        this.currentActiveStudentId = this.selectedMemberNameList[0]
-        this.currentActiveGroupId = group.id
+        this.$logger.info('handleSelectGroup selectedMemberIdList', this.selectedMemberIdList)
       } else {
-        // 取消小组选择时，把已选择人员清空
-        this.selectedMemberIdList = []
-        this.selectedGroupIdList = []
-        this.currentActiveStudentId = null
-        this.currentActiveGroupId = null
+        this.$logger.info('current mode ' + this.mode + ' ignore it!')
       }
-      this.$logger.info('handleSelectGroup selectedMemberIdList', this.selectedMemberIdList)
     },
 
     handleToggleGroupExpand (group, event) {
@@ -889,6 +941,7 @@ export default {
     handleSaveEvaluation () {
       this.$logger.info('handleSaveEvaluation', this.forms)
       this.formSaving = true
+      this.showEvaluationNoticeVisible = false
 
       // 获取所有的表格结构（表头+表内容）
       const formDataList = []
@@ -927,9 +980,67 @@ export default {
           this.$logger.info('EvaluationAddOrUpdate', response)
           this.$message.success('Save successfully!')
           this.formSaving = false
+        }).then(() => {
+          let currentForm = this.forms.filter(item => item.formId === this.currentActiveFormId)
+          this.$logger.info('currentForm', currentForm)
+          if (currentForm.length) {
+            currentForm = currentForm[0]
+          } else {
+            currentForm = null
+          }
+          if (this.mode === EvaluationTableMode.TeacherEvaluate && currentForm && (currentForm.peerEvaluation || currentForm.studentEvaluation)) {
+            GetSessionEvaluationByClassId({ classId: this.classId }).then(response => {
+              this.$logger.info('after EvaluationAddOrUpdate GetSessionEvaluationByClassId', response)
+
+              const data = response.result
+              if (data.evaluation && data.evaluation.studentEvaluateData) {
+                const evaluateDataObj = JSON.parse(data.evaluation.studentEvaluateData)
+                const userIds = Object.keys(evaluateDataObj)
+
+                this.studentEvaluateIdList = []
+                this.peerEvaluateIdList = []
+                const studentEvaluateIdList = []
+                const peerEvaluateIdList = []
+
+                userIds.forEach(userId => {
+                  this.$logger.info('userId ' + userId, evaluateDataObj[userId])
+                  const studentData = evaluateDataObj[userId]
+                  const formData = studentData[this.currentActiveFormId]
+                  this.$logger.info('user form data', formData)
+
+                  // 统计是否自评
+                  const rowKeys = Object.keys(formData)
+                  rowKeys.forEach(rowId => {
+                    if (rowId.startsWith('row_')) {
+                      // 如果学生有过自评
+                      if (studentEvaluateIdList.indexOf(userId) === -1 && !!formData[rowId].studentEvaluation) {
+                        studentEvaluateIdList.push(userId)
+                      }
+                      // 如果学生有被他评，记录下他评的邮箱
+                      if (peerEvaluateIdList.indexOf(userId) === -1 && !!formData[rowId].peerEvaluation) {
+                        peerEvaluateIdList.push(formData[rowId].peerEmail)
+                      }
+                    }
+                  })
+                })
+
+                this.$logger.info('studentEvaluateIdList', studentEvaluateIdList, 'peerEvaluateIdList', peerEvaluateIdList)
+                this.studentEvaluateIdList = studentEvaluateIdList
+                this.peerEvaluateIdList = peerEvaluateIdList
+                this.showEvaluationNoticeVisible = true
+              }
+            })
+          }
         })
       }
     },
+
+    handleContinueToEdit () {
+      this.$logger.info('handleContinueToEdit', data)
+      this.showEvaluationNoticeVisible = false
+      this.handleToggleMode()
+    },
+
     handlePublishEvaluation () {},
 
     // 修改表头数据处理
@@ -1634,6 +1745,18 @@ export default {
     margin-right: 10px;
     height: 15px;
     width: 15px;
+  }
+}
+
+.notice-title {
+  padding: 30px 0 10px 0;
+  text-align: center;
+}
+
+.edit-tips {
+  .self-evaluation-notice, .peer-evaluation-notice {
+    line-height: 30px;
+    font-family: Inter-Bold;
   }
 }
 
