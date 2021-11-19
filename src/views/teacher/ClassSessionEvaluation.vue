@@ -497,6 +497,26 @@ export default {
       return this.$store.getters && this.$store.getters.roles && this.$store.getters.roles.includes('teacher')
     }
   },
+  watch: {
+    currentActiveFormId (formId) {
+      this.$logger.info('update currentActiveFormId ' + formId)
+      // 判断当前的formId是否是允许他评
+      if (this.mode === EvaluationTableMode.PeerEvaluate) {
+        this.allowPeerEvaluate = true
+        this.allStudentUserIdList.forEach(studentId => {
+          const currentFormData = this.studentEvaluateData[studentId][this.currentActiveFormId]
+          const rowIdList = Object.keys(currentFormData)
+          rowIdList.forEach(rowId => {
+            const rowData = currentFormData[rowId]
+            if (rowData && rowData.peerEmail && this.currentUserGroupUserIdList.indexOf(rowData.peerEmail) !== -1) {
+              this.$logger.info('student ' + studentId + ' row ' + rowId + ' has peerEvaluation')
+              this.allowPeerEvaluate = false
+            }
+          })
+        })
+      }
+    }
+  },
   data () {
     return {
       loading: true,
@@ -566,7 +586,12 @@ export default {
 
       showEvaluationNoticeVisible: false,
       studentEvaluateIdList: [],
-      peerEvaluateIdList: []
+      peerEvaluateIdList: [],
+
+      // 当前用户所在组，他评用
+      currentUserGroupId: null,
+      currentUserGroupUserIdList: [],
+      allowPeerEvaluate: false
     }
   },
   created () {
@@ -594,6 +619,13 @@ export default {
           group.expand = true // 默认分组展开显示
           group.members.forEach(member => {
             allStudentUserIdList.push(member.userId)
+
+            // if (member.userId === this.$store.getters.userInfo.email) {
+            if (member.userId === '130b44d6c58de03828b05eabf9f94dc4') {
+              this.currentUserGroupId = group.id
+              this.currentUserGroupUserIdList = group.members.map(member => member.userId)
+              this.$logger.info('currentUserGroupId' + this.currentUserGroupId, 'currentUserGroupUserIdList', this.currentUserGroupUserIdList)
+            }
           })
         })
         this.groups = data.groups
@@ -714,9 +746,25 @@ export default {
             this.selectedMemberIdList = [this.$store.getters.userInfo.email]
           }
 
-          // TODO 写死ID
-          this.currentActiveStudentId = '130b44d6c58de03828b05eabf9f94dc4'
+          this.currentActiveStudentId = this.$store.getters.userInfo.email
           this.selectedMemberIdList = [this.currentActiveStudentId]
+        }
+
+        // 检查是否以及评估过了，有过评估数据不允许再评估。查找PeerEmail字段中是否有在currentUserGroupUserIdList中存在，有代表有过评估
+        if (this.mode === EvaluationTableMode.PeerEvaluate) {
+          this.allowPeerEvaluate = true
+          this.allStudentUserIdList.forEach(studentId => {
+            const currentFormData = this.studentEvaluateData[studentId][this.currentActiveFormId]
+            const rowIdList = Object.keys(currentFormData)
+            rowIdList.forEach(rowId => {
+              const rowData = currentFormData[rowId]
+              this.$logger.info('currentFormData', currentFormData, 'rowId', rowData)
+              if (rowData && rowData.peerEmail && this.currentUserGroupUserIdList.indexOf(rowData.peerEmail) !== -1) {
+                this.$logger.info('student ' + studentId + ' row ' + rowId + ' has peerEvaluation')
+                this.allowPeerEvaluate = false
+              }
+            })
+          })
         }
         this.loading = false
       })
@@ -732,56 +780,63 @@ export default {
       this.$logger.info('handleClickMember', 'group', group, 'member', member, 'selectedMemberIdList', this.selectedMemberIdList)
       // 只允许老师和他评选择其他人
       if (this.mode === EvaluationTableMode.TeacherEvaluate || this.mode === EvaluationTableMode.PeerEvaluate) {
-        const index = this.selectedMemberIdList.indexOf(member.userId)
-        this.$logger.info('handleClickMember index ' + index)
-        if (index === -1) {
-          // 添加操作，只保留当前组内的选中人员，筛选掉其他小组人员
-          const memberIdList = [member.userId]
-          group.members.forEach(member => {
-            if (this.selectedMemberIdList.indexOf(member.userId) !== -1 && memberIdList.indexOf(member.userId) === -1) {
-              memberIdList.push(member.userId)
-            }
-          })
-          this.selectedMemberIdList = memberIdList
-          this.currentActiveStudentId = member.userId
-
-          // 如果当前操作的组与选中的组不是一个组，取消选中的组
-          if (this.selectedGroupIdList.indexOf(group.id) === -1) {
-            this.selectedGroupIdList = []
-          }
-
-          // 当从单选到多选，提示老师当前正在对多个学生进行评估数据会覆盖
-          if (this.selectedMemberIdList.length === 2) {
-            const memberNameList = []
+        // 不可评估自己所在小组
+        if (this.mode === EvaluationTableMode.PeerEvaluate && this.currentUserGroupUserIdList.indexOf(member.userId) !== -1) {
+          this.$message.warn('You are not allowed to evaluate your group member!')
+        } else if (this.mode === EvaluationTableMode.PeerEvaluate && !this.allowPeerEvaluate) {
+          this.$message.warn('You have evaluated!')
+        } else {
+          const index = this.selectedMemberIdList.indexOf(member.userId)
+          this.$logger.info('handleClickMember index ' + index)
+          if (index === -1) {
+            // 添加操作，只保留当前组内的选中人员，筛选掉其他小组人员
+            const memberIdList = [member.userId]
             group.members.forEach(member => {
-              if (this.selectedMemberIdList.indexOf(member.userId) !== -1) {
-                memberNameList.push(member.realName)
+              if (this.selectedMemberIdList.indexOf(member.userId) !== -1 && memberIdList.indexOf(member.userId) === -1) {
+                memberIdList.push(member.userId)
               }
             })
-            this.selectedMemberNameList = memberNameList
-            const confirmVisible = window.sessionStorage.getItem('multiConfirmVisible')
-            this.$logger.info('confirmVisible ' + confirmVisible)
-            if (!confirmVisible) {
-              this.showMultiSelectedConfirm = true
+            this.selectedMemberIdList = memberIdList
+            this.currentActiveStudentId = member.userId
+
+            // 如果当前操作的组与选中的组不是一个组，取消选中的组
+            if (this.selectedGroupIdList.indexOf(group.id) === -1) {
+              this.selectedGroupIdList = []
             }
-          }
-        } else {
-          // 取消操作
-          const newSelectedMemberIdList = []
-          this.selectedMemberIdList.forEach(memberId => {
-            if (memberId !== member.userId) {
-              newSelectedMemberIdList.push(memberId)
+
+            // 当从单选到多选，提示老师当前正在对多个学生进行评估数据会覆盖
+            if (this.selectedMemberIdList.length === 2) {
+              const memberNameList = []
+              group.members.forEach(member => {
+                if (this.selectedMemberIdList.indexOf(member.userId) !== -1) {
+                  memberNameList.push(member.realName)
+                }
+              })
+              this.selectedMemberNameList = memberNameList
+              const confirmVisible = window.sessionStorage.getItem('multiConfirmVisible')
+              this.$logger.info('confirmVisible ' + confirmVisible)
+              if (!confirmVisible) {
+                this.showMultiSelectedConfirm = true
+              }
             }
-          })
-          this.selectedMemberIdList = newSelectedMemberIdList
-          if (this.selectedMemberIdList.length) {
-            this.currentActiveStudentId = this.selectedMemberIdList[0]
           } else {
-            this.currentActiveStudentId = null
+            // 取消操作
+            const newSelectedMemberIdList = []
+            this.selectedMemberIdList.forEach(memberId => {
+              if (memberId !== member.userId) {
+                newSelectedMemberIdList.push(memberId)
+              }
+            })
+            this.selectedMemberIdList = newSelectedMemberIdList
+            if (this.selectedMemberIdList.length) {
+              this.currentActiveStudentId = this.selectedMemberIdList[0]
+            } else {
+              this.currentActiveStudentId = null
+            }
           }
+          this.currentActiveGroupId = group.id
+          this.$logger.info('currentActiveGroupId ' + this.currentActiveFormId + ' selectedMemberIdList ', this.selectedMemberIdList)
         }
-        this.currentActiveGroupId = group.id
-        this.$logger.info('currentActiveGroupId ' + this.currentActiveFormId + ' selectedMemberIdList ', this.selectedMemberIdList)
       } else {
         this.$logger.info('current mode ' + this.mode + ' ignore it!')
       }
@@ -793,38 +848,44 @@ export default {
 
       // 只允许老师和他评选择小组
       if (this.mode === EvaluationTableMode.TeacherEvaluate || this.mode === EvaluationTableMode.PeerEvaluate) {
-        const index = this.selectedGroupIdList.indexOf(group.id)
-        if (index === -1) {
-          this.selectedGroupIdList = [group.id]
-
-          // 添加操作，只保留当前组内的选中人员，筛选掉其他小组人员
-          const memberIdList = []
-          const memberNameList = []
-          group.members.forEach(member => {
-            memberIdList.push(member.userId)
-            memberNameList.push(member.realName)
-          })
-
-          this.selectedMemberNameList = memberNameList
-          this.selectedMemberIdList = memberIdList
-
-          if (this.selectedMemberNameList.length > 1) {
-            const confirmVisible = window.sessionStorage.getItem('multiConfirmVisible')
-            this.$logger.info('confirmVisible ' + confirmVisible)
-            if (!confirmVisible) {
-              this.showMultiSelectedConfirm = true
-            }
-          }
-          this.currentActiveStudentId = this.selectedMemberNameList[0]
-          this.currentActiveGroupId = group.id
+        if (this.mode === EvaluationTableMode.PeerEvaluate && group.id === this.currentUserGroupId) {
+          this.$message.warn('You are not allowed to evaluate your group!')
+        } else if (this.mode === EvaluationTableMode.PeerEvaluate && !this.allowPeerEvaluate) {
+          this.$message.warn('You have evaluated!')
         } else {
-          // 取消小组选择时，把已选择人员清空
-          this.selectedMemberIdList = []
-          this.selectedGroupIdList = []
-          this.currentActiveStudentId = null
-          this.currentActiveGroupId = null
+          const index = this.selectedGroupIdList.indexOf(group.id)
+          if (index === -1) {
+            this.selectedGroupIdList = [group.id]
+
+            // 添加操作，只保留当前组内的选中人员，筛选掉其他小组人员
+            const memberIdList = []
+            const memberNameList = []
+            group.members.forEach(member => {
+              memberIdList.push(member.userId)
+              memberNameList.push(member.realName)
+            })
+
+            this.selectedMemberNameList = memberNameList
+            this.selectedMemberIdList = memberIdList
+
+            if (this.selectedMemberNameList.length > 1) {
+              const confirmVisible = window.sessionStorage.getItem('multiConfirmVisible')
+              this.$logger.info('confirmVisible ' + confirmVisible)
+              if (!confirmVisible) {
+                this.showMultiSelectedConfirm = true
+              }
+            }
+            this.currentActiveStudentId = this.selectedMemberNameList[0]
+            this.currentActiveGroupId = group.id
+          } else {
+            // 取消小组选择时，把已选择人员清空
+            this.selectedMemberIdList = []
+            this.selectedGroupIdList = []
+            this.currentActiveStudentId = null
+            this.currentActiveGroupId = null
+          }
+          this.$logger.info('handleSelectGroup selectedMemberIdList', this.selectedMemberIdList)
         }
-        this.$logger.info('handleSelectGroup selectedMemberIdList', this.selectedMemberIdList)
       } else {
         this.$logger.info('current mode ' + this.mode + ' ignore it!')
       }
