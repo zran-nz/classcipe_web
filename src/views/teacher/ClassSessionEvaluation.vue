@@ -85,7 +85,7 @@
                   <div class="group-student-list" v-show="group.expand">
                     <div class="student-list">
                       <div
-                        :class="{'list-item': true, 'selected-student': currentActiveStudentId === member.userId}"
+                        :class="{'list-item': true, 'selected-student': currentActiveStudentId === member.userId, 'heartbeat': ((studentEvaluateIdList.length || peerEvaluateIdList.length) && studentEvaluateIdList.indexOf(member.userId) === -1 && peerEvaluateIdList.indexOf(member.userId) === -1)}"
                         v-for="(member, sIndex) in group.members"
                         :key="sIndex"
                         :data-member-id="member.userId"
@@ -392,7 +392,7 @@
         </div>
         <div class="modal-ensure-action-line-right">
           <a-button class="action-item action-cancel" shape="round" @click="handleContinueToEdit">Continue to edit</a-button>
-          <a-button class="action-ensure action-item" type="primary" shape="round" @click="handleSaveEvaluation">Save</a-button>
+          <a-button class="action-ensure action-item" type="primary" shape="round" @click="handleSaveCurrentEvaluation">Save</a-button>
         </div>
       </div>
     </a-modal>
@@ -976,71 +976,85 @@ export default {
         this.formSaving = false
         return false
       } else {
-        if (this.showEvaluationNoticeVisible === false) {
-          EvaluationAddOrUpdate(this.form).then((response) => {
-            this.$logger.info('EvaluationAddOrUpdate', response)
-            this.$message.success('Save successfully!')
-            this.formSaving = false
-          }).then(() => {
-            let currentForm = this.forms.filter(item => item.formId === this.currentActiveFormId)
-            this.$logger.info('currentForm', currentForm)
-            if (currentForm.length) {
-              currentForm = currentForm[0]
-            } else {
-              currentForm = null
-            }
-            if (this.mode === EvaluationTableMode.TeacherEvaluate && currentForm && (currentForm.pe || currentForm.se)) {
-              GetSessionEvaluationByClassId({ classId: this.classId }).then(response => {
-                this.$logger.info('after EvaluationAddOrUpdate GetSessionEvaluationByClassId', response)
+        EvaluationAddOrUpdate(this.form).then((response) => {
+          this.$logger.info('EvaluationAddOrUpdate', response)
+          this.$message.success('Save successfully!')
+          this.formSaving = false
+        }).then(() => {
+          let currentForm = this.forms.filter(item => item.formId === this.currentActiveFormId)
+          this.$logger.info('currentForm', currentForm)
+          if (currentForm.length) {
+            currentForm = currentForm[0]
+          } else {
+            currentForm = null
+          }
+          if (this.mode === EvaluationTableMode.TeacherEvaluate && currentForm && (currentForm.pe || currentForm.se)) {
+            GetSessionEvaluationByClassId({ classId: this.classId }).then(response => {
+              this.$logger.info('after EvaluationAddOrUpdate GetSessionEvaluationByClassId', response)
 
-                const data = response.result
-                if (data.evaluation && data.evaluation.studentEvaluateData) {
-                  const evaluateDataObj = JSON.parse(data.evaluation.studentEvaluateData)
-                  const userIds = Object.keys(evaluateDataObj)
+              const data = response.result
+              if (data.evaluation && data.evaluation.studentEvaluateData) {
+                const evaluateDataObj = JSON.parse(data.evaluation.studentEvaluateData)
+                const userIds = Object.keys(evaluateDataObj)
 
-                  this.studentEvaluateIdList = []
-                  this.peerEvaluateIdList = []
-                  const studentEvaluateIdList = []
-                  const peerEvaluateIdList = []
+                this.studentEvaluateIdList = []
+                this.peerEvaluateIdList = []
+                const studentEvaluateIdList = []
+                const peerEvaluateIdList = []
 
-                  userIds.forEach(userId => {
-                    this.$logger.info('userId ' + userId, evaluateDataObj[userId])
-                    const studentData = evaluateDataObj[userId]
-                    const formData = studentData[this.currentActiveFormId]
-                    this.$logger.info('user form data', formData)
+                userIds.forEach(userId => {
+                  this.$logger.info('userId ' + userId, evaluateDataObj[userId])
+                  const studentData = evaluateDataObj[userId]
+                  const formData = studentData[this.currentActiveFormId]
+                  this.$logger.info('user form data', formData)
 
-                    // 统计是否自评
-                    const rowKeys = Object.keys(formData)
-                    rowKeys.forEach(rowId => {
-                      if (rowId.startsWith('row_')) {
-                        // 如果学生有过自评
-                        if (studentEvaluateIdList.indexOf(userId) === -1 && !!formData[rowId].studentEvaluation) {
-                          studentEvaluateIdList.push(userId)
-                        }
-                        // 如果学生有被他评，记录下他评的邮箱
-                        if (peerEvaluateIdList.indexOf(userId) === -1 && !!formData[rowId].peerEvaluation) {
-                          peerEvaluateIdList.push(formData[rowId].peerEmail)
-                        }
+                  // 统计是否自评
+                  const rowKeys = Object.keys(formData)
+                  rowKeys.forEach(rowId => {
+                    if (rowId.startsWith('row_')) {
+                      // 如果学生有过自评
+                      if (studentEvaluateIdList.indexOf(userId) === -1 && !!formData[rowId].studentEvaluation) {
+                        studentEvaluateIdList.push(userId)
                       }
-                    })
+                      // 如果学生有被他评，记录下他评的邮箱
+                      if (peerEvaluateIdList.indexOf(userId) === -1 && !!formData[rowId].peerEvaluation) {
+                        peerEvaluateIdList.push(formData[rowId].peerEmail)
+                      }
+                    }
                   })
+                })
 
-                  this.$logger.info('studentEvaluateIdList', studentEvaluateIdList, 'peerEvaluateIdList', peerEvaluateIdList)
-                  this.studentEvaluateIdList = studentEvaluateIdList
-                  this.peerEvaluateIdList = peerEvaluateIdList
-                  this.showEvaluationNoticeVisible = true
-                }
-              })
-            }
-          })
-        }
+                this.$logger.info('studentEvaluateIdList', studentEvaluateIdList, 'peerEvaluateIdList', peerEvaluateIdList)
+                this.studentEvaluateIdList = studentEvaluateIdList
+                this.peerEvaluateIdList = peerEvaluateIdList
+                this.showEvaluationNoticeVisible = true
+              }
+            })
+          }
+        })
       }
+    },
+
+    handleSaveCurrentEvaluation () {
+      this.$logger.info('handleSaveCurrentEvaluation')
+      this.showEvaluationNoticeVisible = false
+      setTimeout(() => {
+        this.studentEvaluateIdList = []
+        this.peerEvaluateIdList = []
+        this.$logger.info('studentEvaluateIdList', this.studentEvaluateIdList, 'peerEvaluateIdList', this.peerEvaluateIdList)
+      }, 5000)
     },
 
     handleContinueToEdit () {
       this.$logger.info('handleContinueToEdit')
       this.showEvaluationNoticeVisible = false
       this.handleToggleMode()
+
+      setTimeout(() => {
+        this.studentEvaluateIdList = []
+        this.peerEvaluateIdList = []
+        this.$logger.info('studentEvaluateIdList', this.studentEvaluateIdList, 'peerEvaluateIdList', this.peerEvaluateIdList)
+      }, 5000)
     },
 
     handlePublishEvaluation () {},
@@ -1759,6 +1773,36 @@ export default {
   .self-evaluation-notice, .peer-evaluation-notice {
     line-height: 30px;
     font-family: Inter-Bold;
+  }
+}
+
+.heartbeat {
+  animation: breathing 0.8s ease-out infinite normal;
+  background: rgba(21, 195, 154, 0.3);
+}
+
+@keyframes breathing {
+  0% {
+
+    opacity: 1;
+  }
+
+  25% {
+
+    opacity: 0.8;
+  }
+
+  50% {
+
+    opacity: 0.5;
+  }
+
+  75% {
+    opacity: 0.8;
+  }
+
+  100% {
+    opacity: 1;
   }
 }
 
