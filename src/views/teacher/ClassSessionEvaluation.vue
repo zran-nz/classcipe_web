@@ -27,53 +27,25 @@
               </a-button>
             </div>
           </div>
-          <div class="right-icon">
-            <div class="icon-type-item">
-              <div class="icon-item">
-                <teacher-icon />
-              </div>
-              <div class="label">Teacher</div>
-            </div>
-            <div class="icon-type-item">
-              <div class="icon-item">
-                <student-icon />
-              </div>
-              <div class="label">Student</div>
-            </div>
-            <div class="icon-type-item">
-              <div class="icon-item">
-                <peer-icon />
-              </div>
-              <div class="label">Peer</div>
-            </div>
-          </div>
         </div>
         <div class="form-table-tabs" v-show="forms.length > 0">
           <div
             :class="{'form-table-item': true,
                      'active-table': currentActiveFormId === formItem.formId}"
             v-for="(formItem, idx) in forms"
+            :data-form-id="formItem.formId"
             @click="handleActiveForm(idx, formItem)"
             :key="idx">
 
             <div class="action-icon" v-show="formItem.titleEditing === false">
-              <a-dropdown :trigger="['click']" :visible="formItem.menuVisible">
-                <div class="form-title-item">
-                  <div class="form-title" @dblclick="handleEditFormTitle(formItem)">{{ formItem.title }} </div>
-                  <a-icon type="down" @click="handleToggleMenuVisible(formItem)"/>
+              <div class="form-title-item">
+                <div class="form-title" @dblclick="handleEditFormTitle(formItem)">{{ formItem.title }} </div>
+                <div class="form-delete-icon">
+                  <a-popconfirm title="Delete this form ?" ok-text="Yes" @confirm="handleDeleteForm(formItem)" cancel-text="No">
+                    <a-icon type="delete" />
+                  </a-popconfirm>
                 </div>
-                <a-menu slot="overlay">
-                  <a-menu-item key="0">
-                    <div class="menu-icon"><a-switch size="small" v-model="formItem.studentEvaluation" @click="handleToggleStudentEvaluation(formItem)" /></div> Student Eval
-                  </a-menu-item>
-                  <a-menu-item key="1">
-                    <div class="menu-icon"><a-switch size="small" v-model="formItem.peerEvaluation" @click="handleTogglePeerEvaluation(formItem)"/></div> Peer Eval
-                  </a-menu-item>
-                  <a-menu-item key="2">
-                    <div class="menu-icon"><a-icon type="delete" /></div><a href="#" @click="handleDeleteForm(formItem)"> Delete</a>
-                  </a-menu-item>
-                </a-menu>
-              </a-dropdown>
+              </div>
             </div>
             <div class="editing-title" v-show="formItem.titleEditing === true">
               <a-input v-model="currentEditingTitle" class="my-title-input" @blur="handleEnsureUpdateFormTitle" @keyup.enter="handleEnsureUpdateFormTitle"/>
@@ -84,7 +56,7 @@
           <div class="class-group">
             <div class="class-student-wrapper">
               <div class="group-list-wrapper">
-                <div :class="{'group-item': true, 'selected-group': selectedGroupIdList.indexOf(group.id) !== -1}" v-for="(group, gIdx) in groups" :key="gIdx">
+                <div :class="{'group-item': true, 'selected-group': selectedGroupIdList.indexOf(group.id) !== -1}" v-for="(group, gIdx) in groups" :key="gIdx" :data-group-id="group.id">
                   <div class="group-item-info" @click="handleSelectGroup(group)">
                     <div class="group-left">
                       <div class="group-icon">
@@ -112,7 +84,12 @@
                   </div>
                   <div class="group-student-list" v-show="group.expand">
                     <div class="student-list">
-                      <div :class="{'list-item': true, 'selected-student': currentActiveStudentId === member.userId}" v-for="(member, sIndex) in group.members" :key="sIndex" @click="handleClickMember(member)">
+                      <div
+                        :class="{'list-item': true, 'selected-student': currentActiveStudentId === member.userId}"
+                        v-for="(member, sIndex) in group.members"
+                        :key="sIndex"
+                        :data-member-id="member.userId"
+                        @click="handleClickMember(group, member)">
                         <div class="student-avatar">
                           <img :src="member.studentAvatar" alt="" v-if="member.studentAvatar" />
                           <img slot="prefix" src="~@/assets/icons/evaluation/default_avatar.png" alt="" v-if="!member.studentAvatar" />
@@ -125,7 +102,7 @@
                             {{ member.realName }}
                           </a-tooltip>
                         </div>
-                        <div class="select-status-icon" v-if="(selectedMemberIdList.indexOf(member.userId) !== -1) || selectedGroupIdList.indexOf(group.id) !== -1">
+                        <div class="select-status-icon" v-if="selectedMemberIdList.indexOf(member.userId) !== -1">
                           <a-icon type="check-circle" style="{color: #07AB84}" theme="filled" class="my-selected-icon"/>
                         </div>
                       </div>
@@ -139,6 +116,96 @@
             <div class="table-content" v-show="mode === EvaluationTableMode.Edit || (currentActiveStudentId && !loading)">
               <div class="form-table-item" v-for="(formItem,tIdx) in forms" :key="tIdx">
                 <div class="form-table-item-content" v-show="formItem.formId === currentActiveFormId">
+                  <div class="form-header-line">
+                    <div class="right-icon">
+                      <div class="icon-type-item">
+                        <div class="icon-item">
+                          <teacher-icon />
+                        </div>
+                        <div class="label">Teacher</div>
+                      </div>
+                      <div class="icon-type-item">
+                        <div class="icon-item">
+                          <student-icon />
+                        </div>
+                        <div class="label">Student</div>
+                      </div>
+                      <div class="icon-type-item">
+                        <div class="icon-item">
+                          <peer-icon />
+                        </div>
+                        <div class="label">Peer</div>
+                      </div>
+                    </div>
+                    <div class="form-action">
+                      <a-button
+                        v-if="isTeacher"
+                        @click="handleToggleMode"
+                        class="my-form-header-btn"
+                        style="{
+                              width: 120px;
+                              display: flex;
+                              flex-direction: row;
+                              align-items: center;
+                              justify-content: center;
+                              background: rgba(21, 195, 154, 0.08);
+                              border: 1px solid #15C39A;
+                              border-radius: 20px;
+                              padding: 15px 20px;
+                            }">
+                        <div class="btn-icon">
+                          <img src="~@/assets/icons/common/form/baocun@2x.png" />
+                        </div>
+                        <div class="btn-text">
+                          <template v-if="mode=== EvaluationTableMode.Edit">
+                            Evaluating
+                          </template>
+                          <template v-if="mode !== EvaluationTableMode.Edit && mode !== EvaluationTableMode.Preview">
+                            Editing
+                          </template>
+                        </div>
+                      </a-button>
+                      <a-button
+                        class="my-form-header-btn"
+                        style="{
+                            width: 120px;
+                            display: flex;
+                            flex-direction: row;
+                            align-items: center;
+                            justify-content: center;
+                             background: rgba(21, 195, 154, 0.08);
+                            border: 1px solid #15C39A;
+                            border-radius: 20px;
+                            padding: 15px 20px;
+                          }"
+                        @click="handleSaveEvaluation" >
+                        <div class="btn-icon">
+                          <img src="~@/assets/icons/common/form/fabu@2x.png" />
+                        </div>
+                        <div class="btn-text">
+                          <template v-if="mode=== EvaluationTableMode.Edit">
+                            Save
+                          </template>
+                          <template v-if="mode !== EvaluationTableMode.Edit && mode !== EvaluationTableMode.Preview">
+                            Submit
+                          </template>
+                        </div>
+                      </a-button>
+                    </div>
+                    <div class="form-setting">
+                      <a-dropdown placement="bottomRight">
+                        <a-icon type="setting" />
+                        <a-menu slot="overlay">
+                          <a-menu-item key="0">
+                            <div class="menu-icon"><a-switch size="small" v-model="formItem.studentEvaluation" @click="handleToggleStudentEvaluation(formItem)" /></div> Student Eval
+                          </a-menu-item>
+                          <a-menu-item key="1">
+                            <div class="menu-icon"><a-switch size="small" v-model="formItem.peerEvaluation" @click="handleTogglePeerEvaluation(formItem)"/></div> Peer Eval
+                          </a-menu-item>
+                        </a-menu>
+                      </a-dropdown>
+                    </div>
+                  </div>
                   <div class="comment" v-show="formTableMode === EvaluationTableMode.TeacherEvaluate">
                     <div class="summary-input">
                       <a-textarea v-model="formItem.comment" placeholder="Write a comment" aria-placeholder="Write a comment" class="my-textarea" />
@@ -281,6 +348,30 @@
       </div>
     </a-modal>
 
+    <a-modal
+      :visible="showMultiSelectedConfirm"
+      :footer="null"
+      :maskClosable="false"
+      :closable="false"
+      destroyOnClose>
+      <modal-header @close="handleCloseMultiConfirm"/>
+      <div class="multi-selected-tips">
+        <div class="selected-tips">
+          You have selected
+          <div class="selected-user-list">
+            <div class="selected-student-name"v-for="(memberName, mIndex) in selectedMemberNameList" :key="mIndex">
+              {{ memberName }}
+            </div>
+          </div>
+          The change(s) you make will apply to all of their evaluation results.
+          Please select only one student if you want to evaluate student individually.
+        </div>
+        <div class="modal-ensure-action-line-right" style="justify-content: center">
+          <a-button class="action-ensure action-item" type="primary" shape="round" @click="handleCloseMultiConfirm">Ok</a-button>
+        </div>
+      </div>
+    </a-modal>
+
     <a-drawer
       destroyOnClose
       placement="right"
@@ -375,6 +466,10 @@ export default {
         this.$logger.info('no formBodyData currentActiveFormId ' + this.currentActiveFormId + ' currentActiveStudentId ' + this.currentActiveStudentId, ' studentEvaluateData ', this.studentEvaluateData)
         return null
       }
+    },
+
+    isTeacher () {
+      return this.$store.getters && this.$store.getters.roles && this.$store.getters.roles.includes('teacher')
     }
   },
   data () {
@@ -411,6 +506,7 @@ export default {
       selectedGroupIdList: [],
       studentList: [],
       selectedMemberIdList: [],
+      selectedMemberNameList: [],
       selectedStudentNameList: [],
       EvaluationTableType: EvaluationTableType,
       EvaluationTableMode: EvaluationTableMode,
@@ -433,13 +529,24 @@ export default {
       allStudentUserIdList: [],
       evidenceSelectVisible: false,
 
-      currentEvidenceItem: null
+      currentEvidenceItem: null,
+
+      // 当前正在操作的小组id
+      currentActiveGroupId: null,
+
+      // 多选模式提示
+      showMultiSelectedConfirm: false,
+
+      formSaving: false
     }
   },
   created () {
     this.$logger.info('[' + this.formTableMode + '] created ClassSessionEvaluation classId' + this.classId + ' taskId ' + this.taskId)
     this.formTableMode = this.mode
     this.initData()
+
+    // 每次打开第一次提示多选模式
+    window.sessionStorage.removeItem('multiConfirmVisible')
   },
   methods: {
     initData () {
@@ -514,7 +621,7 @@ export default {
         this.$logger.info('isEmptyStudentEvaluateData ' + isEmptyStudentEvaluateData, data.evaluation)
         if (!isEmptyStudentEvaluateData) {
           this.studentEvaluateData = JSON.parse(data.evaluation.studentEvaluateData)
-          if (allStudentUserIdList.length) {
+          if (allStudentUserIdList.length && (this.mode !== EvaluationTableMode.Edit && this.formTableMode === EvaluationTableMode.Preview)) {
             this.currentActiveStudentId = allStudentUserIdList[0]
             this.selectedMemberIdList.push(this.currentActiveStudentId)
           }
@@ -551,10 +658,12 @@ export default {
           this.$logger.info('studentEvaluateData init finished ', studentEvaluateData)
           this.studentEvaluateData = studentEvaluateData
 
-          // 默认选中第一个学生的第一个评估表格
-          this.currentActiveStudentId = allStudentUserIdList[0]
-          this.selectedMemberIdList.push(this.currentActiveStudentId)
-          this.$logger.info('currentActiveFormId ' + this.currentActiveFormId + ' currentActiveStudentId ' + this.currentActiveStudentId)
+          if (this.mode !== EvaluationTableMode.Edit && this.formTableMode === EvaluationTableMode.Preview) {
+            // 默认选中第一个学生的第一个评估表格
+            this.currentActiveStudentId = allStudentUserIdList[0]
+            this.selectedMemberIdList.push(this.currentActiveStudentId)
+            this.$logger.info('currentActiveFormId ' + this.currentActiveFormId + ' currentActiveStudentId ' + this.currentActiveStudentId)
+          }
         }
 
         // 表单数据赋值
@@ -573,31 +682,100 @@ export default {
         this.currentActiveFormId = formItem.formId
       }
     },
-    handleClickMember (member) {
-      this.$logger.info('handleClickMember', member)
-      const index = this.selectedMemberIdList.indexOf(member.userId)
-      if (index === -1) {
-        this.selectedMemberIdList.push(member.userId)
-        this.currentActiveStudentId = member.userId
-      } else {
-        this.selectedMemberIdList.splice(index, 1)
-        if (this.selectedMemberIdList.length) {
-          this.currentActiveStudentId = this.selectedMemberIdList[0]
-        } else {
-          this.currentActiveStudentId = null
-        }
+    handleClickMember (group, member) {
+      this.$logger.info('handleClickMember', 'group', group, 'member', member, 'selectedMemberIdList', this.selectedMemberIdList)
+      if (this.mode === EvaluationTableMode.Preview || this.mode === EvaluationTableMode.Edit) {
+        this.$logger.info('current mode ' + this.mode + ' ignore it!')
+        return
       }
-      this.$logger.info('currentActiveFormId ' + this.currentActiveFormId + ' currentActiveStudentId ' + this.currentActiveStudentId)
+
+      const index = this.selectedMemberIdList.indexOf(member.userId)
+      this.$logger.info('handleClickMember index ' + index)
+      if (index === -1) {
+        // 添加操作，只保留当前组内的选中人员，筛选掉其他小组人员
+        const memberIdList = [member.userId]
+        group.members.forEach(member => {
+          if (this.selectedMemberIdList.indexOf(member.userId) !== -1 && memberIdList.indexOf(member.userId) === -1) {
+            memberIdList.push(member.userId)
+          }
+        })
+        this.selectedMemberIdList = memberIdList
+        this.currentActiveStudentId = member.userId
+
+        // 如果当前操作的组与选中的组不是一个组，取消选中的组
+        if (this.selectedGroupIdList.indexOf(group.id) === -1) {
+          this.selectedGroupIdList = []
+        }
+
+        // 当从单选到多选，提示老师当前正在对多个学生进行评估数据会覆盖
+        if (this.selectedMemberIdList.length === 2) {
+          const memberNameList = []
+          group.members.forEach(member => {
+            if (this.selectedMemberIdList.indexOf(member.userId) !== -1) {
+              memberNameList.push(member.realName)
+            }
+          })
+          this.selectedMemberNameList = memberNameList
+          const confirmVisible = window.sessionStorage.getItem('multiConfirmVisible')
+          this.$logger.info('confirmVisible ' + confirmVisible)
+          if (!confirmVisible) {
+            this.showMultiSelectedConfirm = true
+          }
+        }
+      } else {
+        // 取消操作
+        const newSelectedMemberIdList = []
+        this.selectedMemberIdList.forEach(memberId => {
+          if (memberId !== member.userId) {
+            newSelectedMemberIdList.push(memberId)
+          }
+        })
+        this.selectedMemberIdList = newSelectedMemberIdList
+        this.currentActiveStudentId = null
+      }
+      this.currentActiveGroupId = group.id
+      this.$logger.info('currentActiveGroupId ' + this.currentActiveFormId + ' selectedMemberIdList ', this.selectedMemberIdList)
     },
 
+    // 只允许选择一个小组
     handleSelectGroup (group) {
       this.$logger.info('handleSelectGroup', group)
+      if (this.mode === EvaluationTableMode.Preview || this.mode === EvaluationTableMode.Edit) {
+        this.$logger.info('current mode ' + this.mode + ' ignore it!')
+        return
+      }
       const index = this.selectedGroupIdList.indexOf(group.id)
       if (index === -1) {
-        this.selectedGroupIdList.push(group.id)
+        this.selectedGroupIdList = [group.id]
+
+        // 添加操作，只保留当前组内的选中人员，筛选掉其他小组人员
+        const memberIdList = []
+        const memberNameList = []
+        group.members.forEach(member => {
+          memberIdList.push(member.userId)
+          memberNameList.push(member.realName)
+        })
+
+        this.selectedMemberNameList = memberNameList
+        this.selectedMemberIdList = memberIdList
+
+        if (this.selectedMemberNameList.length > 1) {
+          const confirmVisible = window.sessionStorage.getItem('multiConfirmVisible')
+          this.$logger.info('confirmVisible ' + confirmVisible)
+          if (!confirmVisible) {
+            this.showMultiSelectedConfirm = true
+          }
+        }
+        this.currentActiveStudentId = this.selectedMemberNameList[0]
+        this.currentActiveGroupId = group.id
       } else {
-        this.selectedGroupIdList.splice(index, 1)
+        // 取消小组选择时，把已选择人员清空
+        this.selectedMemberIdList = []
+        this.selectedGroupIdList = []
+        this.currentActiveStudentId = null
+        this.currentActiveGroupId = null
       }
+      this.$logger.info('handleSelectGroup selectedMemberIdList', this.selectedMemberIdList)
     },
 
     handleToggleGroupExpand (group, event) {
@@ -710,13 +888,13 @@ export default {
     },
     handleSaveEvaluation () {
       this.$logger.info('handleSaveEvaluation', this.forms)
-      this.$refs.commonFormHeader.saving = true
+      this.formSaving = true
 
       // 获取所有的表格结构（表头+表内容）
       const formDataList = []
       this.$refs.evaluationTable.forEach(tableItem => {
         const tableData = tableItem.getTableStructData()
-        this.$logger.info('getTableStructData ', tableData)
+        this.$logger.info('getTableStructData ', tableData, 'header', tableData.headers, 'row list', tableData.list)
         this.forms.forEach(formItem => {
           if (formItem.formId === tableData.formId) {
             const formData = {
@@ -742,13 +920,13 @@ export default {
       this.$logger.info('studentEvaluateData ', this.studentEvaluateData)
       if (formDataList.length === 0) {
         this.$message.error('Please add at least one form!')
-        this.$refs.commonFormHeader.saving = false
+        this.formSaving = false
         return false
       } else {
         EvaluationAddOrUpdate(this.form).then((response) => {
           this.$logger.info('EvaluationAddOrUpdate', response)
           this.$message.success('Save successfully!')
-          this.$refs.commonFormHeader.saving = false
+          this.formSaving = false
         })
       }
     },
@@ -810,28 +988,32 @@ export default {
     handleUpdateEvaluate (data) {
       this.$logger.info('handleUpdateEvaluate', data)
       this.$logger.info('before update studentEvaluateData', this.studentEvaluateData)
-      // 更新当前选中的所有学生的对应的form的rowId的数据为对应列
-      const allSelectedStudentUserId = []
-      this.selectedMemberIdList.forEach(userId => {
-        if (allSelectedStudentUserId.indexOf(userId) === -1) {
-          allSelectedStudentUserId.push(userId)
-        }
-      })
+      if (this.mode === EvaluationTableMode.TeacherEvaluate ||
+        this.mode === EvaluationTableMode.StudentEvaluate ||
+        this.mode === EvaluationTableMode.PeerEvaluate) {
+        // 更新当前选中的所有学生的对应的form的rowId的数据为对应列
+        const allSelectedStudentUserId = []
+        this.selectedMemberIdList.forEach(userId => {
+          if (allSelectedStudentUserId.indexOf(userId) === -1) {
+            allSelectedStudentUserId.push(userId)
+          }
+        })
 
-      this.groups.forEach(group => {
-        if (this.selectedGroupIdList.indexOf(group.id) !== -1) {
-          group.members.forEach(member => {
-            if (allSelectedStudentUserId.indexOf(member.userId) === -1) {
-              allSelectedStudentUserId.push(member.userId)
-            }
-          })
-        }
-      })
-      this.$logger.info('all selected member userId ', allSelectedStudentUserId)
-      // 遍历所有当前选中的用户，设置对应的选中的用-对应的表单-对应的行-对应的列-对应的评估数据
-      allSelectedStudentUserId.forEach(userId => {
-        this.$logger.info(data.evaluationMode + ' studentEvaluateData ' + userId, this.studentEvaluateData[userId])
-        this.$logger.info(data.evaluationMode + ' studentEvaluateData ' + userId + ' formId ' + data.formId, this.studentEvaluateData[userId][data.formId])
+        this.groups.forEach(group => {
+          if (this.selectedGroupIdList.indexOf(group.id) !== -1) {
+            group.members.forEach(member => {
+              if (allSelectedStudentUserId.indexOf(member.userId) === -1) {
+                allSelectedStudentUserId.push(member.userId)
+              }
+            })
+          }
+        })
+        this.$logger.info('all selected member userId ', allSelectedStudentUserId)
+        // 遍历所有当前选中的用户，设置对应的选中的用-对应的表单-对应的行-对应的列-对应的评估数据
+        allSelectedStudentUserId.forEach(userId => {
+          this.$logger.info(data.evaluationMode + ' studentEvaluateData userId ' + userId, this.studentEvaluateData[userId])
+          this.$logger.info(data.evaluationMode + ' studentEvaluateData formId ' + data.formId, this.studentEvaluateData[userId][data.formId])
+          this.$logger.info(data.evaluationMode + ' studentEvaluateData rowId ' + data.rowId, this.studentEvaluateData[userId][data.formId][data.rowId])
           if (data.evaluationMode === EvaluationTableMode.TeacherEvaluate) {
             this.studentEvaluateData[userId][data.formId][data.rowId].teacherEmail = data.evaluateUserEmail
             this.studentEvaluateData[userId][data.formId][data.rowId].teacherName = data.evaluateUserName
@@ -861,7 +1043,8 @@ export default {
             }
           }
           this.$logger.info('set ' + userId + ' formId ' + data.formId + ' row ' + data.rowId, this.studentEvaluateData[userId][data.formId][data.rowId], 'data', data)
-      })
+        })
+      }
 
       this.$logger.info('after update studentEvaluateData', this.studentEvaluateData)
     },
@@ -905,6 +1088,37 @@ export default {
         this.studentEvaluateData[userId][this.currentActiveFormId][rowId].evidenceIdList = data.data
       })
       this.evidenceSelectVisible = false
+    },
+
+    handleCloseMultiConfirm () {
+      this.$logger.info('handleCloseMultiConfirm')
+      this.showMultiSelectedConfirm = false
+      window.sessionStorage.setItem('multiConfirmVisible', 'hidden')
+    },
+
+    handleToggleMode () {
+      this.$logger.info('handleToggleMode')
+      if (this.$store.getters.roles.indexOf('teacher') !== -1) {
+        if (this.mode !== EvaluationTableMode.Preview) {
+          if (this.mode !== EvaluationTableMode.Edit) {
+            this.$confirm({
+              content: 'Are you sure to switch to edit mode ?',
+              onOk: () => {
+                window.location.pathname = '/teacher/class-evaluation/' + this.taskId + '/' + this.classId + '/edit'
+              }
+            })
+          } else {
+            this.$confirm({
+              content: 'Are you sure to switch to evaluate mode ?',
+              onOk: () => {
+                window.location.pathname = '/teacher/class-evaluation/' + this.taskId + '/' + this.classId + '/teacher-evaluate'
+              }
+            })
+          }
+        }
+      } else {
+        this.$logger.info('role no permission', this.$store.getters.roles)
+      }
     }
   }
 }
@@ -1015,7 +1229,7 @@ export default {
               flex-direction: row;
               align-items: center;
               justify-content: space-between;
-              padding: 13px 15px;
+              padding: 13px 15px 13px 25px;
               cursor: pointer;
 
               &:hover {
@@ -1062,7 +1276,7 @@ export default {
                 flex-direction: column;
                 .list-item {
                   cursor: pointer;
-                  padding: 13px 30px 13px 15px;
+                  padding: 13px 30px 13px 35px;
                   user-select: none;
                   display: flex;
                   flex-direction: row;
@@ -1085,7 +1299,7 @@ export default {
                     font-family: Inter-Bold;
                     line-height: 24px;
                     color: #11142D;
-                    width: 190px;
+                    width: 180px;
                     overflow: hidden;
                     text-overflow: ellipsis;
                     word-break: break-all;
@@ -1294,9 +1508,20 @@ export default {
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-direction: row;
   .form-title {
     user-select: none;
     margin-right: 8px;
+  }
+
+  .form-delete-icon {
+    opacity: 0;
+  }
+
+  &:hover {
+    .form-delete-icon {
+      opacity: 1;
+    }
   }
 }
 
@@ -1325,4 +1550,91 @@ export default {
   line-height: 50px;
   font-weight: bold;
 }
+
+.multi-selected-tips {
+  padding: 30px 20px 0  20px;
+
+  .selected-user-list {
+    padding: 5px 0;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+    flex-wrap: wrap;
+    .selected-student-name {
+      word-break: keep-all;
+      margin-right: 5px;
+      margin-bottom: 5px;
+      font-weight: bold;
+      text-overflow: ellipsis;
+      font-family: Inter-Bold;
+      background-color: #ddd;
+      cursor: pointer;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 13px;
+      color: #000000;
+    }
+  }
+}
+
+.form-header-line {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-end;
+  align-items: center;
+  padding-bottom: 20px;
+
+  .right-icon {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+
+    .icon-type-item {
+      user-select: none;
+      display: flex;
+      align-items: center;
+      flex-direction: row;
+      margin-left: 20px;
+
+      .icon-item {
+        svg {
+          width: 25px;
+        }
+      }
+      .label {
+        padding: 0 5px;
+        font-size: 13px;
+        font-family: Arial;
+        font-weight: 400;
+        line-height: 0px;
+        color: #070707;
+      }
+    }
+  }
+
+  .form-action {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    flex-direction: row;
+    .my-form-header-btn {
+      margin: 0 5px;
+    }
+  }
+}
+
+.btn-icon {
+  height: 20px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  img {
+    margin-right: 10px;
+    height: 15px;
+    width: 15px;
+  }
+}
+
 </style>

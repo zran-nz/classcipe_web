@@ -4,8 +4,13 @@
       <thead>
 
         <!--编辑允许修改变动-->
-        <draggable v-model="headers" tag="tr" class="table-header" @end="handleDragEnd" v-if="mode === this.tableMode.Edit">
-          <th v-for="(header, hIndex) in headers" class="header-item" :key="header.type">
+        <draggable
+          v-model="headers"
+          tag="tr"
+          class="table-header"
+          @end="handleDragEnd"
+          v-if="mode === this.tableMode.Edit">
+          <th v-for="(header, hIndex) in headers" class="header-item" :key="header.type" :data-header-type="header.type">
             <!-- 编辑图标-->
             <div class="edit-icon" @click="handleEditHeader(header)" v-if="header.editable">
               <img src="~@/assets/icons/evaluation/edit.png" class="link-icon"/>
@@ -81,7 +86,7 @@
 
         <!--预览和评估模式下不允许修改变动-->
         <tr class="table-header" v-if="mode !== this.tableMode.Edit">
-          <th v-for="(header) in headers" class="header-item" :key="header.type">
+          <th v-for="(header) in headers" class="header-item" :key="header.type" :data-header-type="header.type">
             <!-- 表头文本-->
             <div class="label-text">
 
@@ -128,13 +133,14 @@
       </thead>
 
       <tbody class="table-body">
-        <tr v-for="(item, lIndex) in list" class="body-line" :key="lIndex">
+        <tr v-for="(item, lIndex) in list" class="body-line" :key="lIndex" :data-row-id="item.rowId">
           <td
             v-for="(header, hIndex) in headers"
             class="body-item"
-            :data-type="header.type"
             :key="lIndex + '-' + header.type"
-            @click="handleClickBodyItem(item, header)">
+            @click="handleClickBodyItem(item, header)"
+            :data-row-id="item.rowId"
+            :data-header-type="header.type">
             <template v-if="item.hasOwnProperty(header.type)">
 
               <!-- 21 Century Criteria-->
@@ -802,7 +808,7 @@ export default {
                   selectedList: [],
                   rowId
                 }
-
+                newLineItem.rowId = rowId
                 this.$logger.info('[' + this.mode + '] CenturySkills add new line with criteria data ', newLineItem)
                 this.list.push(newLineItem)
               }
@@ -841,6 +847,7 @@ export default {
                   selectedList: [],
                   rowId
                 }
+                newLineItem.rowId = rowId
 
                 this.$logger.info('[' + this.mode + '] Rubric add new line with criteria data ', newLineItem)
                 this.list.push(newLineItem)
@@ -889,6 +896,7 @@ export default {
                   selectedList: [],
                   rowId
                 }
+                newLineItem.rowId = rowId
 
                 this.$logger.info('[' + this.mode + '] Rubric description add new line with criteria data ', newLineItem)
                 this.list.push(newLineItem)
