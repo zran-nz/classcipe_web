@@ -53,6 +53,7 @@
             :class="{'form-table-item': true,
                      'active-table': currentActiveFormId === formItem.formId}"
             v-for="(formItem, idx) in forms"
+            :data-form-id="formItem.formId"
             @click="handleActiveForm(idx, formItem)"
             :key="idx">
 
@@ -84,7 +85,7 @@
           <div class="class-group">
             <div class="class-student-wrapper">
               <div class="group-list-wrapper">
-                <div :class="{'group-item': true, 'selected-group': selectedGroupIdList.indexOf(group.id) !== -1}" v-for="(group, gIdx) in groups" :key="gIdx">
+                <div :class="{'group-item': true, 'selected-group': selectedGroupIdList.indexOf(group.id) !== -1}" v-for="(group, gIdx) in groups" :key="gIdx" :data-group-id="group.id">
                   <div class="group-item-info" @click="handleSelectGroup(group)">
                     <div class="group-left">
                       <div class="group-icon">
@@ -112,7 +113,12 @@
                   </div>
                   <div class="group-student-list" v-show="group.expand">
                     <div class="student-list">
-                      <div :class="{'list-item': true, 'selected-student': currentActiveStudentId === member.userId}" v-for="(member, sIndex) in group.members" :key="sIndex" @click="handleClickMember(group, member)">
+                      <div
+                        :class="{'list-item': true, 'selected-student': currentActiveStudentId === member.userId}"
+                        v-for="(member, sIndex) in group.members"
+                        :key="sIndex"
+                        :data-member-id="member.userId"
+                        @click="handleClickMember(group, member)">
                         <div class="student-avatar">
                           <img :src="member.studentAvatar" alt="" v-if="member.studentAvatar" />
                           <img slot="prefix" src="~@/assets/icons/evaluation/default_avatar.png" alt="" v-if="!member.studentAvatar" />
@@ -282,12 +288,12 @@
     </a-modal>
 
     <a-modal
-      v-model="showMultiSelectedConfirm"
+      :visible="showMultiSelectedConfirm"
       :footer="null"
       :maskClosable="false"
       :closable="false"
       destroyOnClose>
-      <modal-header @close="showMultiSelectedConfirm = false"/>
+      <modal-header @close="handleCloseMultiConfirm"/>
       <div class="multi-selected-tips">
         <div class="rubric-header">
           You have selected
@@ -300,7 +306,7 @@
           Please select only one student if you want to evaluate student individually.
         </div>
         <div class="modal-ensure-action-line-right" style="justify-content: center">
-          <a-button class="action-ensure action-item" type="primary" shape="round" @click="showMultiSelectedConfirm = false">Ok</a-button>
+          <a-button class="action-ensure action-item" type="primary" shape="round" @click="handleCloseMultiConfirm">Ok</a-button>
         </div>
       </div>
     </a-modal>
@@ -633,7 +639,11 @@ export default {
             }
           })
           this.selectedMemberNameList = memberNameList
-          this.showMultiSelectedConfirm = true
+          const confirmVisible = window.sessionStorage.getItem('multiConfirmVisible')
+          this.$logger.info('confirmVisible ' + confirmVisible)
+          if (!confirmVisible) {
+            this.showMultiSelectedConfirm = true
+          }
         }
       } else {
         // 取消操作
@@ -644,11 +654,7 @@ export default {
           }
         })
         this.selectedMemberIdList = newSelectedMemberIdList
-        if (this.selectedMemberIdList.length) {
-          this.currentActiveStudentId = this.selectedMemberIdList[0]
-        } else {
-          this.currentActiveStudentId = null
-        }
+        this.currentActiveStudentId = null
       }
       this.currentActiveGroupId = group.id
       this.$logger.info('currentActiveGroupId ' + this.currentActiveFormId + ' selectedMemberIdList ', this.selectedMemberIdList)
@@ -673,7 +679,11 @@ export default {
         this.selectedMemberIdList = memberIdList
 
         if (this.selectedMemberNameList.length > 1) {
-          this.showMultiSelectedConfirm = true
+          const confirmVisible = window.sessionStorage.getItem('multiConfirmVisible')
+          this.$logger.info('confirmVisible ' + confirmVisible)
+          if (!confirmVisible) {
+            this.showMultiSelectedConfirm = true
+          }
         }
         this.currentActiveStudentId = this.selectedMemberNameList[0]
         this.currentActiveGroupId = group.id
@@ -803,7 +813,7 @@ export default {
       const formDataList = []
       this.$refs.evaluationTable.forEach(tableItem => {
         const tableData = tableItem.getTableStructData()
-        this.$logger.info('getTableStructData ', tableData)
+        this.$logger.info('getTableStructData ', tableData, 'header', tableData.headers, 'row list', tableData.list)
         this.forms.forEach(formItem => {
           if (formItem.formId === tableData.formId) {
             const formData = {
@@ -897,28 +907,32 @@ export default {
     handleUpdateEvaluate (data) {
       this.$logger.info('handleUpdateEvaluate', data)
       this.$logger.info('before update studentEvaluateData', this.studentEvaluateData)
-      // 更新当前选中的所有学生的对应的form的rowId的数据为对应列
-      const allSelectedStudentUserId = []
-      this.selectedMemberIdList.forEach(userId => {
-        if (allSelectedStudentUserId.indexOf(userId) === -1) {
-          allSelectedStudentUserId.push(userId)
-        }
-      })
+      if (this.mode === EvaluationTableMode.TeacherEvaluate ||
+        this.mode === EvaluationTableMode.StudentEvaluate ||
+        this.mode === EvaluationTableMode.PeerEvaluate) {
+        // 更新当前选中的所有学生的对应的form的rowId的数据为对应列
+        const allSelectedStudentUserId = []
+        this.selectedMemberIdList.forEach(userId => {
+          if (allSelectedStudentUserId.indexOf(userId) === -1) {
+            allSelectedStudentUserId.push(userId)
+          }
+        })
 
-      this.groups.forEach(group => {
-        if (this.selectedGroupIdList.indexOf(group.id) !== -1) {
-          group.members.forEach(member => {
-            if (allSelectedStudentUserId.indexOf(member.userId) === -1) {
-              allSelectedStudentUserId.push(member.userId)
-            }
-          })
-        }
-      })
-      this.$logger.info('all selected member userId ', allSelectedStudentUserId)
-      // 遍历所有当前选中的用户，设置对应的选中的用-对应的表单-对应的行-对应的列-对应的评估数据
-      allSelectedStudentUserId.forEach(userId => {
-        this.$logger.info(data.evaluationMode + ' studentEvaluateData ' + userId, this.studentEvaluateData[userId])
-        this.$logger.info(data.evaluationMode + ' studentEvaluateData ' + userId + ' formId ' + data.formId, this.studentEvaluateData[userId][data.formId])
+        this.groups.forEach(group => {
+          if (this.selectedGroupIdList.indexOf(group.id) !== -1) {
+            group.members.forEach(member => {
+              if (allSelectedStudentUserId.indexOf(member.userId) === -1) {
+                allSelectedStudentUserId.push(member.userId)
+              }
+            })
+          }
+        })
+        this.$logger.info('all selected member userId ', allSelectedStudentUserId)
+        // 遍历所有当前选中的用户，设置对应的选中的用-对应的表单-对应的行-对应的列-对应的评估数据
+        allSelectedStudentUserId.forEach(userId => {
+          this.$logger.info(data.evaluationMode + ' studentEvaluateData userId ' + userId, this.studentEvaluateData[userId])
+          this.$logger.info(data.evaluationMode + ' studentEvaluateData formId ' + data.formId, this.studentEvaluateData[userId][data.formId])
+          this.$logger.info(data.evaluationMode + ' studentEvaluateData rowId ' + data.rowId, this.studentEvaluateData[userId][data.formId][data.rowId])
           if (data.evaluationMode === EvaluationTableMode.TeacherEvaluate) {
             this.studentEvaluateData[userId][data.formId][data.rowId].teacherEmail = data.evaluateUserEmail
             this.studentEvaluateData[userId][data.formId][data.rowId].teacherName = data.evaluateUserName
@@ -948,7 +962,8 @@ export default {
             }
           }
           this.$logger.info('set ' + userId + ' formId ' + data.formId + ' row ' + data.rowId, this.studentEvaluateData[userId][data.formId][data.rowId], 'data', data)
-      })
+        })
+      }
 
       this.$logger.info('after update studentEvaluateData', this.studentEvaluateData)
     },
@@ -992,6 +1007,12 @@ export default {
         this.studentEvaluateData[userId][this.currentActiveFormId][rowId].evidenceIdList = data.data
       })
       this.evidenceSelectVisible = false
+    },
+
+    handleCloseMultiConfirm () {
+      this.$logger.info('handleCloseMultiConfirm')
+      this.showMultiSelectedConfirm = false
+      window.sessionStorage.setItem('multiConfirmVisible', 'hidden')
     }
   }
 }
