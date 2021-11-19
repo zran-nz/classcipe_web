@@ -356,13 +356,13 @@
       destroyOnClose>
       <modal-header @close="handleCloseMultiConfirm"/>
       <div class="multi-selected-tips">
-        <div class="rubric-header">
+        <div class="selected-tips">
           You have selected
-          <span v-for="(memberName, mIndex) in selectedMemberNameList" :key="mIndex">
-            <span class="selected-student-name">{{ memberName }}</span>
-            <template v-if="mIndex !== selectedMemberNameList.length - 1">、
-            </template>
-          </span>
+          <div class="selected-user-list">
+            <div class="selected-student-name"v-for="(memberName, mIndex) in selectedMemberNameList" :key="mIndex">
+              {{ memberName }}
+            </div>
+          </div>
           The change(s) you make will apply to all of their evaluation results.
           Please select only one student if you want to evaluate student individually.
         </div>
@@ -1554,19 +1554,27 @@ export default {
 .multi-selected-tips {
   padding: 30px 20px 0  20px;
 
-  .selected-student-name {
-    word-break: keep-all;
-    margin: 3px;
-    font-weight: bold;
-    text-overflow: ellipsis;
-    font-family: Inter-Bold;
-    background-color: #ddd;
-    cursor: pointer;
-    padding: 3px 5px;
-    line-height: 30px;
-    border-radius: 4px;
-    font-size: 13px;
-    color: #000000;
+  .selected-user-list {
+    padding: 5px 0;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+    flex-wrap: wrap;
+    .selected-student-name {
+      word-break: keep-all;
+      margin-right: 5px;
+      margin-bottom: 5px;
+      font-weight: bold;
+      text-overflow: ellipsis;
+      font-family: Inter-Bold;
+      background-color: #ddd;
+      cursor: pointer;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 13px;
+      color: #000000;
+    }
   }
 }
 
