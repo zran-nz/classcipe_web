@@ -409,9 +409,10 @@
         <div class="slide-preview" v-if="currentEvidenceItem">
           <ppt-slide-view
             :selected-id-list="currentEvidenceItem.evidence.selectedList"
+            :selected-id-student-list="currentEvidenceItem.evidence.selectedStudentList"
             :class-id="classId"
             :slide-id="classInfo.slideId"
-            mode="add-evidence"
+            :mode="mode"
             @ensure-evidence-finish="handleEnsureEvidenceFinish"
             @add-evidence-finish="handleAddEvidenceFinish"/>
           <template v-if="!classInfo || !classInfo.slideId">
@@ -621,6 +622,7 @@ export default {
             allStudentUserIdList.push(member.userId)
 
             // if (member.userId === this.$store.getters.userInfo.email) {
+            // TODO 删除
             if (member.userId === '130b44d6c58de03828b05eabf9f94dc4') {
               this.currentUserGroupId = group.id
               this.currentUserGroupUserIdList = group.members.map(member => member.userId)
@@ -710,7 +712,8 @@ export default {
                   studentName: null, // 学生自评
                   studentEmail: null, // 学生自评
 
-                  evidenceIdList: [] // ppt证据pageId列表
+                  evidenceIdList: [], // ppt证据pageId列表
+                  evidenceIdStudentList: [] // ppt证据pageId列表-学生选择
                 }
               })
             })
@@ -736,7 +739,9 @@ export default {
 
         if (this.mode === EvaluationTableMode.StudentEvaluate) {
           this.$logger.info('StudentEvaluate try fix currentActiveStudentId ' + this.$store.getters.userInfo.email, 'allStudentUserIdList', this.allStudentUserIdList)
-          if (this.allStudentUserIdList.indexOf(this.$store.getters.userInfo.email) === -1) {
+          // TODO 删除
+          // if (this.allStudentUserIdList.indexOf(this.$store.getters.userInfo.email) === -1) {
+          if (this.allStudentUserIdList.indexOf('130b44d6c58de03828b05eabf9f94dc4') === -1) {
             this.$logger.info('current use email ' + (this.$store.getters.userInfo.email) + ' not exist in ', this.allStudentUserIdList, ' cannot student evaluate')
             this.$confirm({
               content: 'You are not in the student list of the current class and cannot evaluate !'
@@ -1273,7 +1278,11 @@ export default {
       // 遍历所有当前选中的用户，设置对应的选中的用-对应的表单-对应的行-对应的列-对应的evidence数据
       allSelectedStudentUserId.forEach(userId => {
         this.$logger.info('evidence row', this.studentEvaluateData[userId][this.currentActiveFormId][rowId])
-        this.studentEvaluateData[userId][this.currentActiveFormId][rowId].evidenceIdList = data.data
+        if (this.mode === EvaluationTableMode.StudentEvaluate) {
+          this.studentEvaluateData[userId][this.currentActiveFormId][rowId].evidenceIdStudentList = data.data
+        } else if (this.mode === EvaluationTableMode.TeacherEvaluate) {
+          this.studentEvaluateData[userId][this.currentActiveFormId][rowId].evidenceIdList = data.data
+        }
       })
       this.evidenceSelectVisible = false
     },

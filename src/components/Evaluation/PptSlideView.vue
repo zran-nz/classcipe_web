@@ -16,7 +16,7 @@
       <div class="slide-header-item">Comments/Score</div>
     </div>
     <div class="slide-content-list" v-if="!loading">
-      <div :class="{'slide-comment-item': true, 'active-slide-item': selectedSlidePageIdList.indexOf(slideItem.pageObjectId) !== -1}" v-for="(slideItem, sIndex) in slideDataList" :key="sIndex" @click="handleAddSlideItem(slideItem)">
+      <div :class="{'slide-comment-item': true, 'active-slide-item': selectedSlidePageIdList.indexOf(slideItem.pageObjectId) !== -1 || selectedStudentSlidePageIdList.indexOf(slideItem.pageObjectId) !== -1}" v-for="(slideItem, sIndex) in slideDataList" :key="sIndex" @click="handleAddSlideItem(slideItem)">
         <div class="slide-img">
           <img :src="slideItem.contentUrl" :data-url="slideItem.contentUrl" @click="handleClickImg($event)">
         </div>
@@ -43,6 +43,14 @@
           </div>
         </div>
         <div class="slide-comment">
+          <div class="selected-icon">
+            <div class="icon-item" v-if="selectedSlidePageIdList.indexOf(slideItem.pageObjectId) !== -1">
+              <teacher-icon />
+            </div>
+            <div class="icon-item" v-if="selectedStudentSlidePageIdList.indexOf(slideItem.pageObjectId) !== -1">
+              <student-icon />
+            </div>
+          </div>
           <div class="data-list">
             <div class="data-item" v-for="(data, rIndex) in slideItem.commentList" :key="rIndex">
               <template v-if="data.type === 'audio'">
@@ -55,26 +63,51 @@
           </div>
         </div>
         <div class="action-item">
-          <template v-if="selectedSlidePageIdList.indexOf(slideItem.pageObjectId) !== -1">
-            <div class="action-btn-delete">
-              <div class="action-icon">
-                <img src="~@/assets/icons/evaluation/shanchu@2x.png" alt="">
+          <template v-if="mode === EvaluationTableMode.TeacherEvaluate">
+            <template v-if="(selectedSlidePageIdList.indexOf(slideItem.pageObjectId) !== -1)">
+              <div class="action-btn-delete">
+                <div class="action-icon">
+                  <img src="~@/assets/icons/evaluation/shanchu@2x.png" alt="">
+                </div>
+                <div class="text">
+                  Delete
+                </div>
               </div>
-              <div class="text">
-                Delete
+            </template>
+            <template v-if="selectedSlidePageIdList.indexOf(slideItem.pageObjectId) === -1">
+              <div class="action-btn-add">
+                <div class="action-icon">
+                  <img src="~@/assets/icons/evaluation/tianjia@2x.png" alt="">
+                </div>
+                <div class="text">
+                  Add
+                </div>
               </div>
-            </div>
+            </template>
           </template>
-          <template v-if="selectedSlidePageIdList.indexOf(slideItem.pageObjectId) === -1">
-            <div class="action-btn-add">
-              <div class="action-icon">
-                <img src="~@/assets/icons/evaluation/tianjia@2x.png" alt="">
+          <template v-if="mode === EvaluationTableMode.StudentEvaluate">
+            <template v-if="selectedStudentSlidePageIdList.indexOf(slideItem.pageObjectId) !== -1">
+              <div class="action-btn-delete">
+                <div class="action-icon">
+                  <img src="~@/assets/icons/evaluation/shanchu@2x.png" alt="">
+                </div>
+                <div class="text">
+                  Delete
+                </div>
               </div>
-              <div class="text">
-                Add
+            </template>
+            <template v-if="selectedStudentSlidePageIdList.indexOf(slideItem.pageObjectId) === -1">
+              <div class="action-btn-add">
+                <div class="action-icon">
+                  <img src="~@/assets/icons/evaluation/tianjia@2x.png" alt="">
+                </div>
+                <div class="text">
+                  Add
+                </div>
               </div>
-            </div>
+            </template>
           </template>
+
         </div>
       </div>
     </div>
@@ -88,13 +121,19 @@
 
 import { GetStudentResponse } from '@/api/lesson'
 import { TemplatesGetPresentation } from '@/api/template'
+import EvaluationTableMode from '@/components/Evaluation/EvaluationTableMode'
+import StudentIcon from '@/assets/svgIcon/evaluation/StudentIcon.svg?inline'
+import TeacherIcon from '@/assets/svgIcon/evaluation/TeacherIcon.svg?inline'
 
 export default {
   name: 'PptSlideView',
+  components: {
+    StudentIcon,
+    TeacherIcon
+  },
   props: {
     mode: {
-      type: String,
-      default: 'view' // view或者add-evidence
+      type: String
     },
     slideId: {
       type: String,
@@ -107,12 +146,18 @@ export default {
     selectedIdList: {
       type: Array,
       default: () => []
+    },
+    selectedIdStudentList: {
+      type: Array,
+      default: () => []
     }
   },
   data () {
     return {
       loading: true,
+      EvaluationTableMode: EvaluationTableMode,
       selectedSlidePageIdList: [],
+      selectedStudentSlidePageIdList: [],
       rawSlideDataMap: new Map(),
       slideDataList: []
     }
@@ -120,6 +165,7 @@ export default {
   created () {
     this.$logger.info('PptSlideView' + this.slideId + ' classId ' + this.classId)
     this.selectedSlidePageIdList = this.selectedIdList
+    this.selectedStudentSlidePageIdList = this.selectedIdStudentList
     this.loadData()
   },
   methods: {
@@ -196,11 +242,20 @@ export default {
 
     handleAddSlideItem (slideItem) {
       this.$logger.info('handleAddPageId', slideItem)
-      const index = this.selectedSlidePageIdList.indexOf(slideItem.pageId)
-      if (index !== -1) {
-        this.selectedSlidePageIdList.splice(index, 1)
-      } else {
-        this.selectedSlidePageIdList.push(slideItem.pageId)
+      if (this.mode === EvaluationTableMode.TeacherEvaluate) {
+        const index = this.selectedSlidePageIdList.indexOf(slideItem.pageId)
+        if (index !== -1) {
+          this.selectedSlidePageIdList.splice(index, 1)
+        } else {
+          this.selectedSlidePageIdList.push(slideItem.pageId)
+        }
+      } else if (this.mode === EvaluationTableMode.StudentEvaluate) {
+        const index = this.selectedStudentSlidePageIdList.indexOf(slideItem.pageId)
+        if (index !== -1) {
+          this.selectedStudentSlidePageIdList.splice(index, 1)
+        } else {
+          this.selectedStudentSlidePageIdList.push(slideItem.pageId)
+        }
       }
     },
 
@@ -210,13 +265,13 @@ export default {
     },
 
     handleAddEvidenceClose () {
-      this.$logger.info('handleAddEvidenceClose')
-      this.$emit('add-evidence-finish', { data: this.selectedSlidePageIdList })
+      this.$logger.info('handleAddEvidenceClose ' + this.mode, this.mode === EvaluationTableMode.TeacherEvaluate ? this.selectedSlidePageIdList : this.selectedStudentSlidePageIdList)
+      this.$emit('add-evidence-finish', { mode: this.mode, data: this.mode === EvaluationTableMode.TeacherEvaluate ? this.selectedSlidePageIdList : this.selectedStudentSlidePageIdList })
     },
 
     handleEnsureEvidence () {
-      this.$logger.info('handleEnsureEvidence', this.selectedSlidePageIdList)
-      this.$emit('ensure-evidence-finish', { data: this.selectedSlidePageIdList })
+      this.$logger.info('handleEnsureEvidence ' + this.mode, this.mode === EvaluationTableMode.TeacherEvaluate ? this.selectedSlidePageIdList : this.selectedStudentSlidePageIdList)
+      this.$emit('ensure-evidence-finish', { mode: this.mode, data: this.mode === EvaluationTableMode.TeacherEvaluate ? this.selectedSlidePageIdList : this.selectedStudentSlidePageIdList })
     }
   }
 }
@@ -285,6 +340,7 @@ export default {
           background: #fff;
           width: 200px;
           .data-item {
+            position: relative;
             padding: 5px;
             width: 200px;
             display: flex;
@@ -315,6 +371,7 @@ export default {
       }
 
       .slide-comment {
+        position: relative;
         padding: 10px;
         background: #FFF;
         .data-list {
@@ -432,6 +489,22 @@ export default {
       img {
         height: 50px;
       }
+    }
+  }
+}
+
+.selected-icon {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-end;
+  align-items: center;
+  position: absolute;
+  right: -5px;
+  top: -5px;
+  .icon-item {
+    margin-right: 5px;
+    svg {
+      width: 20px;
     }
   }
 }
