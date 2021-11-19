@@ -27,26 +27,6 @@
               </a-button>
             </div>
           </div>
-          <div class="right-icon">
-            <div class="icon-type-item">
-              <div class="icon-item">
-                <teacher-icon />
-              </div>
-              <div class="label">Teacher</div>
-            </div>
-            <div class="icon-type-item">
-              <div class="icon-item">
-                <student-icon />
-              </div>
-              <div class="label">Student</div>
-            </div>
-            <div class="icon-type-item">
-              <div class="icon-item">
-                <peer-icon />
-              </div>
-              <div class="label">Peer</div>
-            </div>
-          </div>
         </div>
         <div class="form-table-tabs" v-show="forms.length > 0">
           <div
@@ -58,23 +38,14 @@
             :key="idx">
 
             <div class="action-icon" v-show="formItem.titleEditing === false">
-              <a-dropdown :trigger="['click']" :visible="formItem.menuVisible">
-                <div class="form-title-item">
-                  <div class="form-title" @dblclick="handleEditFormTitle(formItem)">{{ formItem.title }} </div>
-                  <a-icon type="down" @click="handleToggleMenuVisible(formItem)"/>
+              <div class="form-title-item">
+                <div class="form-title" @dblclick="handleEditFormTitle(formItem)">{{ formItem.title }} </div>
+                <div class="form-delete-icon">
+                  <a-popconfirm title="Delete this form ?" ok-text="Yes" @confirm="handleDeleteForm(formItem)" cancel-text="No">
+                    <a-icon type="delete" />
+                  </a-popconfirm>
                 </div>
-                <a-menu slot="overlay">
-                  <a-menu-item key="0">
-                    <div class="menu-icon"><a-switch size="small" v-model="formItem.studentEvaluation" @click="handleToggleStudentEvaluation(formItem)" /></div> Student Eval
-                  </a-menu-item>
-                  <a-menu-item key="1">
-                    <div class="menu-icon"><a-switch size="small" v-model="formItem.peerEvaluation" @click="handleTogglePeerEvaluation(formItem)"/></div> Peer Eval
-                  </a-menu-item>
-                  <a-menu-item key="2">
-                    <div class="menu-icon"><a-icon type="delete" /></div><a href="#" @click="handleDeleteForm(formItem)"> Delete</a>
-                  </a-menu-item>
-                </a-menu>
-              </a-dropdown>
+              </div>
             </div>
             <div class="editing-title" v-show="formItem.titleEditing === true">
               <a-input v-model="currentEditingTitle" class="my-title-input" @blur="handleEnsureUpdateFormTitle" @keyup.enter="handleEnsureUpdateFormTitle"/>
@@ -145,6 +116,95 @@
             <div class="table-content" v-show="mode === EvaluationTableMode.Edit || (currentActiveStudentId && !loading)">
               <div class="form-table-item" v-for="(formItem,tIdx) in forms" :key="tIdx">
                 <div class="form-table-item-content" v-show="formItem.formId === currentActiveFormId">
+                  <div class="form-header-line">
+                    <div class="right-icon">
+                      <div class="icon-type-item">
+                        <div class="icon-item">
+                          <teacher-icon />
+                        </div>
+                        <div class="label">Teacher</div>
+                      </div>
+                      <div class="icon-type-item">
+                        <div class="icon-item">
+                          <student-icon />
+                        </div>
+                        <div class="label">Student</div>
+                      </div>
+                      <div class="icon-type-item">
+                        <div class="icon-item">
+                          <peer-icon />
+                        </div>
+                        <div class="label">Peer</div>
+                      </div>
+                    </div>
+                    <div class="form-action">
+                      <a-button
+                        @click="handleToggleMode"
+                        class="my-form-header-btn"
+                        style="{
+                              width: 120px;
+                              display: flex;
+                              flex-direction: row;
+                              align-items: center;
+                              justify-content: center;
+                              background: rgba(21, 195, 154, 0.08);
+                              border: 1px solid #15C39A;
+                              border-radius: 20px;
+                              padding: 15px 20px;
+                            }">
+                        <div class="btn-icon">
+                          <img src="~@/assets/icons/common/form/baocun@2x.png" />
+                        </div>
+                        <div class="btn-text">
+                          <template v-if="mode=== EvaluationTableMode.Edit">
+                            Evaluating
+                          </template>
+                          <template v-if="mode !== EvaluationTableMode.Edit && mode !== EvaluationTableMode.Preview">
+                            Editing
+                          </template>
+                        </div>
+                      </a-button>
+                      <a-button
+                        class="my-form-header-btn"
+                        style="{
+                            width: 120px;
+                            display: flex;
+                            flex-direction: row;
+                            align-items: center;
+                            justify-content: center;
+                             background: rgba(21, 195, 154, 0.08);
+                            border: 1px solid #15C39A;
+                            border-radius: 20px;
+                            padding: 15px 20px;
+                          }"
+                        @click="handleSaveEvaluation" >
+                        <div class="btn-icon">
+                          <img src="~@/assets/icons/common/form/fabu@2x.png" />
+                        </div>
+                        <div class="btn-text">
+                          <template v-if="mode=== EvaluationTableMode.Edit">
+                            Save
+                          </template>
+                          <template v-if="mode !== EvaluationTableMode.Edit && mode !== EvaluationTableMode.Preview">
+                            Submmit
+                          </template>
+                        </div>
+                      </a-button>
+                    </div>
+                    <div class="form-setting">
+                      <a-dropdown placement="bottomRight">
+                        <a-icon type="setting" />
+                        <a-menu slot="overlay">
+                          <a-menu-item key="0">
+                            <div class="menu-icon"><a-switch size="small" v-model="formItem.studentEvaluation" @click="handleToggleStudentEvaluation(formItem)" /></div> Student Eval
+                          </a-menu-item>
+                          <a-menu-item key="1">
+                            <div class="menu-icon"><a-switch size="small" v-model="formItem.peerEvaluation" @click="handleTogglePeerEvaluation(formItem)"/></div> Peer Eval
+                          </a-menu-item>
+                        </a-menu>
+                      </a-dropdown>
+                    </div>
+                  </div>
                   <div class="comment" v-show="formTableMode === EvaluationTableMode.TeacherEvaluate">
                     <div class="summary-input">
                       <a-textarea v-model="formItem.comment" placeholder="Write a comment" aria-placeholder="Write a comment" class="my-textarea" />
@@ -470,7 +530,9 @@ export default {
       currentActiveGroupId: null,
 
       // 多选模式提示
-      showMultiSelectedConfirm: false
+      showMultiSelectedConfirm: false,
+
+      formSaving: false
     }
   },
   created () {
@@ -807,7 +869,7 @@ export default {
     },
     handleSaveEvaluation () {
       this.$logger.info('handleSaveEvaluation', this.forms)
-      this.$refs.commonFormHeader.saving = true
+      this.formSaving = true
 
       // 获取所有的表格结构（表头+表内容）
       const formDataList = []
@@ -839,13 +901,13 @@ export default {
       this.$logger.info('studentEvaluateData ', this.studentEvaluateData)
       if (formDataList.length === 0) {
         this.$message.error('Please add at least one form!')
-        this.$refs.commonFormHeader.saving = false
+        this.formSaving = false
         return false
       } else {
         EvaluationAddOrUpdate(this.form).then((response) => {
           this.$logger.info('EvaluationAddOrUpdate', response)
           this.$message.success('Save successfully!')
-          this.$refs.commonFormHeader.saving = false
+          this.formSaving = false
         })
       }
     },
@@ -1013,6 +1075,35 @@ export default {
       this.$logger.info('handleCloseMultiConfirm')
       this.showMultiSelectedConfirm = false
       window.sessionStorage.setItem('multiConfirmVisible', 'hidden')
+    },
+
+    handleToggleMode () {
+      this.$logger.info('handleToggleMode')
+      if (this.$store.getters.roles.indexOf('teacher') !== -1) {
+        if (this.mode !== EvaluationTableMode.Preview) {
+          if (this.mode !== EvaluationTableMode.Edit) {
+            this.$confirm({
+              content: 'Are you sure to switch to edit mode ?',
+              onOk: () => {
+                this.$router.push({
+                  path: '/teacher/class-evaluation/' + this.taskId + '/' + this.classId + '/edit'
+                })
+              }
+            })
+          } else {
+            this.$confirm({
+              content: 'Are you sure to switch to evaluate mode ?',
+              onOk: () => {
+                this.$router.push({
+                  path: '/teacher/class-evaluation/' + this.taskId + '/' + this.classId + '/teacher-evaluate'
+                })
+              }
+            })
+          }
+        }
+      } else {
+        this.$logger.info('role no permission', this.$store.getters.roles)
+      }
     }
   }
 }
@@ -1402,9 +1493,20 @@ export default {
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-direction: row;
   .form-title {
     user-select: none;
     margin-right: 8px;
+  }
+
+  .form-delete-icon {
+    opacity: 0;
+  }
+
+  &:hover {
+    .form-delete-icon {
+      opacity: 1;
+    }
   }
 }
 
@@ -1452,4 +1554,64 @@ export default {
     color: #000000;
   }
 }
+
+.form-header-line {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-end;
+  align-items: center;
+  padding-bottom: 20px;
+
+  .right-icon {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+
+    .icon-type-item {
+      user-select: none;
+      display: flex;
+      align-items: center;
+      flex-direction: row;
+      margin-left: 20px;
+
+      .icon-item {
+        svg {
+          width: 25px;
+        }
+      }
+      .label {
+        padding: 0 5px;
+        font-size: 13px;
+        font-family: Arial;
+        font-weight: 400;
+        line-height: 0px;
+        color: #070707;
+      }
+    }
+  }
+
+  .form-action {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    flex-direction: row;
+    .my-form-header-btn {
+      margin: 0 10px;
+    }
+  }
+}
+
+.btn-icon {
+  height: 20px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  img {
+    margin-right: 10px;
+    height: 15px;
+    width: 15px;
+  }
+}
+
 </style>
