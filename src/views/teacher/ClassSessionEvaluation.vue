@@ -139,6 +139,7 @@
                     </div>
                     <div class="form-action">
                       <a-button
+                        v-if="isTeacher"
                         @click="handleToggleMode"
                         class="my-form-header-btn"
                         style="{
@@ -465,6 +466,10 @@ export default {
         this.$logger.info('no formBodyData currentActiveFormId ' + this.currentActiveFormId + ' currentActiveStudentId ' + this.currentActiveStudentId, ' studentEvaluateData ', this.studentEvaluateData)
         return null
       }
+    },
+
+    isTeacher () {
+      return this.$store.getters && this.$store.getters.roles && this.$store.getters.roles.includes('teacher')
     }
   },
   data () {
@@ -1596,7 +1601,7 @@ export default {
     justify-content: flex-end;
     flex-direction: row;
     .my-form-header-btn {
-      margin: 0 10px;
+      margin: 0 5px;
     }
   }
 }
