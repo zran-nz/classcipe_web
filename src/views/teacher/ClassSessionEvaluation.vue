@@ -112,7 +112,7 @@
                   </div>
                   <div class="group-student-list" v-show="group.expand">
                     <div class="student-list">
-                      <div :class="{'list-item': true, 'selected-student': currentActiveStudentId === member.userId}" v-for="(member, sIndex) in group.members" :key="sIndex" @click="handleClickMember(member)">
+                      <div :class="{'list-item': true, 'selected-student': currentActiveStudentId === member.userId}" v-for="(member, sIndex) in group.members" :key="sIndex" @click="handleClickMember(group, member)">
                         <div class="student-avatar">
                           <img :src="member.studentAvatar" alt="" v-if="member.studentAvatar" />
                           <img slot="prefix" src="~@/assets/icons/evaluation/default_avatar.png" alt="" v-if="!member.studentAvatar" />
@@ -125,7 +125,7 @@
                             {{ member.realName }}
                           </a-tooltip>
                         </div>
-                        <div class="select-status-icon" v-if="(selectedMemberIdList.indexOf(member.userId) !== -1) || selectedGroupIdList.indexOf(group.id) !== -1">
+                        <div class="select-status-icon" v-if="selectedMemberIdList.indexOf(member.userId) !== -1">
                           <a-icon type="check-circle" style="{color: #07AB84}" theme="filled" class="my-selected-icon"/>
                         </div>
                       </div>
@@ -281,6 +281,30 @@
       </div>
     </a-modal>
 
+    <a-modal
+      v-model="showMultiSelectedConfirm"
+      :footer="null"
+      :maskClosable="false"
+      :closable="false"
+      destroyOnClose>
+      <modal-header @close="showMultiSelectedConfirm = false"/>
+      <div class="multi-selected-tips">
+        <div class="rubric-header">
+          You have selected
+          <span v-for="(memberName, mIndex) in selectedMemberNameList" :key="mIndex">
+            <span class="selected-student-name">{{ memberName }}</span>
+            <template v-if="mIndex !== selectedMemberNameList.length - 1">、
+            </template>
+          </span>
+          The change(s) you make will apply to all of their evaluation results.
+          Please select only one student if you want to evaluate student individually.
+        </div>
+        <div class="modal-ensure-action-line-right" style="justify-content: center">
+          <a-button class="action-ensure action-item" type="primary" shape="round" @click="showMultiSelectedConfirm = false">Ok</a-button>
+        </div>
+      </div>
+    </a-modal>
+
     <a-drawer
       destroyOnClose
       placement="right"
@@ -411,6 +435,7 @@ export default {
       selectedGroupIdList: [],
       studentList: [],
       selectedMemberIdList: [],
+      selectedMemberNameList: [],
       selectedStudentNameList: [],
       EvaluationTableType: EvaluationTableType,
       EvaluationTableMode: EvaluationTableMode,
@@ -433,7 +458,13 @@ export default {
       allStudentUserIdList: [],
       evidenceSelectVisible: false,
 
-      currentEvidenceItem: null
+      currentEvidenceItem: null,
+
+      // 当前正在操作的小组id
+      currentActiveGroupId: null,
+
+      // 多选模式提示
+      showMultiSelectedConfirm: false
     }
   },
   created () {
@@ -573,31 +604,87 @@ export default {
         this.currentActiveFormId = formItem.formId
       }
     },
-    handleClickMember (member) {
-      this.$logger.info('handleClickMember', member)
+    handleClickMember (group, member) {
+      this.$logger.info('handleClickMember', 'group', group, 'member', member, 'selectedMemberIdList', this.selectedMemberIdList)
       const index = this.selectedMemberIdList.indexOf(member.userId)
+      this.$logger.info('handleClickMember index ' + index)
       if (index === -1) {
-        this.selectedMemberIdList.push(member.userId)
+        // 添加操作，只保留当前组内的选中人员，筛选掉其他小组人员
+        const memberIdList = [member.userId]
+        group.members.forEach(member => {
+          if (this.selectedMemberIdList.indexOf(member.userId) !== -1 && memberIdList.indexOf(member.userId) === -1) {
+            memberIdList.push(member.userId)
+          }
+        })
+        this.selectedMemberIdList = memberIdList
         this.currentActiveStudentId = member.userId
+
+        // 如果当前操作的组与选中的组不是一个组，取消选中的组
+        if (this.selectedGroupIdList.indexOf(group.id) === -1) {
+          this.selectedGroupIdList = []
+        }
+
+        // 当从单选到多选，提示老师当前正在对多个学生进行评估数据会覆盖
+        if (this.selectedMemberIdList.length === 2) {
+          const memberNameList = []
+          group.members.forEach(member => {
+            if (this.selectedMemberIdList.indexOf(member.userId) !== -1) {
+              memberNameList.push(member.realName)
+            }
+          })
+          this.selectedMemberNameList = memberNameList
+          this.showMultiSelectedConfirm = true
+        }
       } else {
-        this.selectedMemberIdList.splice(index, 1)
+        // 取消操作
+        const newSelectedMemberIdList = []
+        this.selectedMemberIdList.forEach(memberId => {
+          if (memberId !== member.userId) {
+            newSelectedMemberIdList.push(memberId)
+          }
+        })
+        this.selectedMemberIdList = newSelectedMemberIdList
         if (this.selectedMemberIdList.length) {
           this.currentActiveStudentId = this.selectedMemberIdList[0]
         } else {
           this.currentActiveStudentId = null
         }
       }
-      this.$logger.info('currentActiveFormId ' + this.currentActiveFormId + ' currentActiveStudentId ' + this.currentActiveStudentId)
+      this.currentActiveGroupId = group.id
+      this.$logger.info('currentActiveGroupId ' + this.currentActiveFormId + ' selectedMemberIdList ', this.selectedMemberIdList)
     },
 
+    // 只允许选择一个小组
     handleSelectGroup (group) {
       this.$logger.info('handleSelectGroup', group)
       const index = this.selectedGroupIdList.indexOf(group.id)
       if (index === -1) {
-        this.selectedGroupIdList.push(group.id)
+        this.selectedGroupIdList = [group.id]
+
+        // 添加操作，只保留当前组内的选中人员，筛选掉其他小组人员
+        const memberIdList = []
+        const memberNameList = []
+        group.members.forEach(member => {
+          memberIdList.push(member.userId)
+          memberNameList.push(member.realName)
+        })
+
+        this.selectedMemberNameList = memberNameList
+        this.selectedMemberIdList = memberIdList
+
+        if (this.selectedMemberNameList.length > 1) {
+          this.showMultiSelectedConfirm = true
+        }
+        this.currentActiveStudentId = this.selectedMemberNameList[0]
+        this.currentActiveGroupId = group.id
       } else {
-        this.selectedGroupIdList.splice(index, 1)
+        // 取消小组选择时，把已选择人员清空
+        this.selectedMemberIdList = []
+        this.selectedGroupIdList = []
+        this.currentActiveStudentId = null
+        this.currentActiveGroupId = null
       }
+      this.$logger.info('handleSelectGroup selectedMemberIdList', this.selectedMemberIdList)
     },
 
     handleToggleGroupExpand (group, event) {
@@ -1015,7 +1102,7 @@ export default {
               flex-direction: row;
               align-items: center;
               justify-content: space-between;
-              padding: 13px 15px;
+              padding: 13px 15px 13px 25px;
               cursor: pointer;
 
               &:hover {
@@ -1062,7 +1149,7 @@ export default {
                 flex-direction: column;
                 .list-item {
                   cursor: pointer;
-                  padding: 13px 30px 13px 15px;
+                  padding: 13px 30px 13px 35px;
                   user-select: none;
                   display: flex;
                   flex-direction: row;
@@ -1085,7 +1172,7 @@ export default {
                     font-family: Inter-Bold;
                     line-height: 24px;
                     color: #11142D;
-                    width: 190px;
+                    width: 180px;
                     overflow: hidden;
                     text-overflow: ellipsis;
                     word-break: break-all;
@@ -1324,5 +1411,24 @@ export default {
   font-size: 14px;
   line-height: 50px;
   font-weight: bold;
+}
+
+.multi-selected-tips {
+  padding: 30px 20px 0  20px;
+
+  .selected-student-name {
+    word-break: keep-all;
+    margin: 3px;
+    font-weight: bold;
+    text-overflow: ellipsis;
+    font-family: Inter-Bold;
+    background-color: #ddd;
+    cursor: pointer;
+    padding: 3px 5px;
+    line-height: 30px;
+    border-radius: 4px;
+    font-size: 13px;
+    color: #000000;
+  }
 }
 </style>
