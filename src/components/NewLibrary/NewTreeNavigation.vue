@@ -179,7 +179,7 @@ export default {
         // 从大纲数据中复制一份数据，只用mainSubject既第一层 且subjectType=2
         this.subjectTree.forEach(subjectItem => {
           if (subjectItem.subjectType === SubjectType.Skill || subjectItem.subjectType === SubjectType.LearnAndSkill) {
-            specificSkillsData.children.push(Object.assign({}, subjectItem))
+            specificSkillsData.children.push(JSON.parse(JSON.stringify(subjectItem)))
           }
         })
         this.treeDataList.push(specificSkillsData)
@@ -196,7 +196,7 @@ export default {
         // 从大纲数据中复制一份数据，assessmentTypeData也只用mainSubject既第一层
         this.subjectTree.forEach(subjectItem => {
           if (subjectItem.subjectType === SubjectType.Skill || subjectItem.subjectType === SubjectType.LearnAndSkill) {
-            assessmentTypeData.children.push(Object.assign({}, subjectItem))
+            assessmentTypeData.children.push(JSON.parse(JSON.stringify(subjectItem)))
           }
         })
         this.treeDataList.push(assessmentTypeData)
