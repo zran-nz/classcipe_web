@@ -318,7 +318,7 @@ export default {
         },
         showTotal: total => `Total ${total} items`,
         total: 0,
-        pageSize: 9
+        pageSize: 10
       },
       pageNo: 1,
 

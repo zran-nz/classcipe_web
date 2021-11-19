@@ -21,6 +21,14 @@ export const SubjectType = {
   'LearnAndSkill': 3
 }
 
+export const CurriculumType = {
+  AU: 1,
+  NZ: 2,
+  IGCSE: 7,
+  Cambridge: 8,
+  IB: 9
+}
+
 export const TagOriginType = {
   Origin: 'Origin',
   Search: 'Search',

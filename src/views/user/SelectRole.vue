@@ -32,13 +32,13 @@
         </div>
       </div>
       <div class="warn">
-        <p>  <a-checkbox v-model="isCheck" ></a-checkbox> By registering, you agree to the Terms of Service and Privacy Policy.</p>
+        <p>  <a-checkbox v-model="isCheck" ></a-checkbox> By registering, you agree to the <a href="https://www.classcipe.com/term.html">Terms of Service</a> and <a href="https://www.classcipe.com/policy.html">Privacy Policy</a>.</p>
         <a-alert message="Please select a role!" type="warning" v-show="showWarn"/>
         <a-alert message="Please agree to the Terms of Service and Privacy Policy!" type="warning" v-if="!isCheck"/>
       </div>
       <div class="actions">
         <a-button type="primary" block @click="goNext">
-          next step >
+          Next >
         </a-button>
       </div>
     </div>
@@ -97,6 +97,9 @@ export default {
 
 <style lang="less" scoped>
 @import "~@/components/index.less";
+a{
+  color:#0e71eb
+}
 .main-content {
   margin-top: 30px;
   display: flex;

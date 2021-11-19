@@ -94,7 +94,7 @@
                             class="action-ensure action-item edit-slide"
                             type="primary"
                             shape="round"
-                            @click="handleShowSelectMyContent"
+                            @click="materialVisible=true"
                             style="margin-right: 200px">
                             <img style="font-size: 20px" src="~@/assets/icons/task/material.png" class="btn-icon"/>
                             My Material
@@ -189,7 +189,7 @@
                     <a-step title="Link Evaluation Form(s)" :status="currentActiveStepIndex === 2 ? 'process':'wait'">
                       <template v-if="currentActiveStepIndex === 2" slot="description">
                         <div class="form-block">
-                          <a-form-item label="Link Evaluation Form(s)" class="link-plan-title">
+                          <a-form-item class="link-plan-title">
                             <a-button type="primary" :style="{'background-color': '#fff', 'color': '#000', 'border': '1px solid #D8D8D8'}" @click="handleAddTerm">
                               <div class="btn-text" style="line-height: 20px">
                                 + Add term
@@ -861,6 +861,18 @@
         </div>
       </a-modal>
 
+      <a-modal
+        v-model="materialVisible"
+        :footer="null"
+        destroyOnClose
+        width="800px"
+        :zIndex="3000"
+        title="My Materials"
+        @ok="materialVisible = false"
+        @cancel="materialVisible = false">
+        <task-material-preview :task-form="form" :current-page-index="currentImgIndex"></task-material-preview>
+      </a-modal>
+
       <a-skeleton :loading="contentLoading" active>
       </a-skeleton>
     </a-card>
@@ -914,6 +926,7 @@
   import CollaborateHistory from '@/components/Collaborate/CollaborateHistory'
   import NoMoreResources from '@/components/Common/NoMoreResources'
   import TemplatePreview from '@/components/Task/TemplatePreview'
+  import TaskMaterialPreview from '@/components/Task/TaskMaterialPreview'
 
   export default {
     name: 'AddTask',
@@ -943,7 +956,8 @@
       AssociateSidebar,
       CollaborateContent,
       CustomTag,
-      commentIcon
+      commentIcon,
+      TaskMaterialPreview
     },
     props: {
       taskId: {
@@ -1092,7 +1106,8 @@
         previewTemplateVisible: false,
         currentImgIndex: 0,
         showTaskSelected: false,
-        onlyShowSelected: false
+        onlyShowSelected: false,
+        materialVisible: false
       }
     },
     computed: {

@@ -100,7 +100,7 @@
                             <div class="session-btn-icon">
                               <student-pace />
                             </div>
-                            <div class="session-btn-text"> Student-pace</div>
+                            <div class="session-btn-text"> Student-paced</div>
                           </div>
                         </div>
                       </template>
@@ -188,7 +188,7 @@
                     <div class="session-btn session-btn-left" @click.stop="handleStartSessionTags(item)" v-if="item.type === typeMap['task']" >
                       <div class="session-btn-text">
                         <teacher-presenting />
-                        Teacher-pace
+                        Teacher-paced
                       </div>
                     </div>
                     <div class="session-btn session-btn-right" @click.stop="handleStartSessionTags(item)" v-if="item.type === typeMap['task']">
@@ -765,6 +765,7 @@ export default {
           display: flex;
           justify-content: flex-start;
           align-items: center;
+          width: calc(100% - 600px);
 
           .status-icon-item {
             font-size: 18px;
@@ -782,7 +783,7 @@ export default {
           align-items: center;
 
           .update-time {
-            width: 130px;
+            width: 140px;
             color: #11142D;
             font-size: 13px;
             overflow: hidden;

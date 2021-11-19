@@ -107,7 +107,7 @@
                             <div class="session-btn-icon">
                               <teacher-presenting />
                             </div>
-                            <div class="session-btn-text"> Teacher-pace</div>
+                            <div class="session-btn-text"> Teacher-paced</div>
                           </div>
                         </div>
                         <div class="start-session-wrapper action-item-wrapper">
@@ -115,7 +115,7 @@
                             <div class="session-btn-icon">
                               <student-pace />
                             </div>
-                            <div class="session-btn-text"> Student-pace</div>
+                            <div class="session-btn-text"> Student-paced</div>
                           </div>
                         </div>
                       </template>
@@ -847,7 +847,7 @@ export default {
           align-items: center;
 
           .update-time {
-            width: 130px;
+            width: 140px;
             color: #11142D;
             font-size: 13px;
             overflow: hidden;

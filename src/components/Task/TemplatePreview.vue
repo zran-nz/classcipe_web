@@ -1,110 +1,114 @@
 <template>
   <div class="preview-preview">
-    <a-row class="action-header">
-      <a-col span="24" class="action-header-toggle">
-        {{ templateData.name }}
-      </a-col>
-    </a-row>
-    <a-row class="top-header">
-      <a-col class="material-row" >
-        <div class="icon-group" @click="materialVisible=true">
-          <div class="icon" v-if="currentPageElements.indexOf(fileTypeMap.txt) !== -1">
-            <text-type-svg />
-            <div class="icon-text">Text</div>
-          </div>
-          <div class="icon" v-if="currentPageElements.indexOf(fileTypeMap.img) !== -1">
-            <image-type-svg />
-            <div class="icon-text">Image</div>
-          </div>
-          <div class="icon" v-if="currentPageElements.indexOf(fileTypeMap.video) !== -1">
-            <video-type-svg />
-            <div class="icon-text">Video</div>
-          </div>
-          <div class="icon" v-if="currentPageElements.indexOf(fileTypeMap.audio) !== -1">
-            <audio-type-svg />
-            <div class="icon-text">Audio</div>
-          </div>
-          <div class="icon" v-if="currentPageElements.indexOf(fileTypeMap.youtube) !== -1">
-            <youtube-type-svg />
-            <div class="icon-text">Youtube</div>
-          </div>
-          <div class="icon" v-if="currentPageElements.indexOf(fileTypeMap.pdf) !== -1">
-            <pdf-type-svg />
-            <div class="icon-text">PDF</div>
-          </div>
-          <div class="icon" v-if="currentPageElements.indexOf(fileTypeMap.link) !== -1">
-            <url-type-svg />
-            <div class="icon-text">Website</div>
-          </div>
-        </div>
-      </a-col>
-    </a-row>
-    <a-row class="preview-data-info" >
-      <a-col class="slide-preview" span="24" >
-        <!--        <a-spin v-show="slideLoading" class="spin-loading"/>-->
-        <!-- lesson task img list-->
-        <a-col span="24">
-          <div v-if="!imgList.length" class="no-preview-img">
-            <no-more-resources />
+    <template v-if="loading">
+      <a-skeleton active />
+    </template>
+    <template v-else>
+      <a-row class="action-header">
+        <a-col span="24" class="action-header-toggle">
+          {{ templateData.name }}
+        </a-col>
+      </a-row>
+      <a-row class="top-header">
+        <a-col class="material-row" >
+          <div class="icon-group" @click="materialVisible=true">
+            <div class="icon" v-if="currentPageElements.indexOf(fileTypeMap.txt) !== -1">
+              <text-type-svg />
+              <div class="icon-text">Text</div>
+            </div>
+            <div class="icon" v-if="currentPageElements.indexOf(fileTypeMap.img) !== -1">
+              <image-type-svg />
+              <div class="icon-text">Image</div>
+            </div>
+            <div class="icon" v-if="currentPageElements.indexOf(fileTypeMap.video) !== -1">
+              <video-type-svg />
+              <div class="icon-text">Video</div>
+            </div>
+            <div class="icon" v-if="currentPageElements.indexOf(fileTypeMap.audio) !== -1">
+              <audio-type-svg />
+              <div class="icon-text">Audio</div>
+            </div>
+            <div class="icon" v-if="currentPageElements.indexOf(fileTypeMap.youtube) !== -1">
+              <youtube-type-svg />
+              <div class="icon-text">Youtube</div>
+            </div>
+            <div class="icon" v-if="currentPageElements.indexOf(fileTypeMap.pdf) !== -1">
+              <pdf-type-svg />
+              <div class="icon-text">PDF</div>
+            </div>
+            <div class="icon" v-if="currentPageElements.indexOf(fileTypeMap.link) !== -1">
+              <url-type-svg />
+              <div class="icon-text">Website</div>
+            </div>
           </div>
         </a-col>
-        <a-col class="left-preview" span="24" style="display:flex;flex-direction:row">
-          <div class="left-preview-left" style="display:flex">
-            <a-carousel ref="carousel" v-if="imgList.length" class="my-carousel">
-              <div v-for="(img,cIndex) in imgList" :key="'cIndex' + cIndex">
-                <img :src="img" />
-              </div>
-            </a-carousel>
-            <div class="page-info" v-if="imgList && imgList.length">
-              {{ currentImgIndex + 1 }} / {{ imgList.length }}
+      </a-row>
+      <a-row class="preview-data-info" >
+        <a-col class="slide-preview" span="24" >
+          <!--        <a-spin v-show="slideLoading" class="spin-loading"/>-->
+          <!-- lesson task img list-->
+          <a-col span="24">
+            <div v-if="!imgList.length" class="no-preview-img">
+              <no-more-resources />
             </div>
-            <a-button
-              class="action-ensure action-item"
-              type="primary"
-              shape="round"
-              @click="handleSelectTemplate()"
-              v-if="selectedTemplateIdList.indexOf(template.id) === -1">
-              <a-icon type="plus-circle" class="btn-icon"/>
-              <div class="btn-text">
-                Add
-              </div>
-            </a-button>
-            <a-button
-              v-else
-              class="action-ensure action-item"
-              shape="round"
-              type="primary"
-              @click="handleSelectTemplate()">
-              <a-icon type="minus-circle" class="btn-icon"/>
-              <div class="btn-text">
-                Remove
-              </div>
-            </a-button>
-          </div>
-          <div class="carousel-page">
-            <div class="img-list-wrapper">
-              <div class="img-list">
-                <div class="img-item" v-for="(img,index) in imgList" :key="'index' + index" @click="handleGotoImgIndex(index)">
+          </a-col>
+          <a-col class="left-preview" span="24" style="display:flex;flex-direction:row">
+            <div class="left-preview-left" style="display:flex">
+              <a-carousel ref="carousel" v-if="imgList.length" class="my-carousel">
+                <div v-for="(img,cIndex) in imgList" :key="'cIndex' + cIndex">
                   <img :src="img" />
+                </div>
+              </a-carousel>
+              <div class="page-info" v-if="imgList && imgList.length">
+                {{ currentImgIndex + 1 }} / {{ imgList.length }}
+              </div>
+              <a-button
+                class="action-ensure action-item"
+                type="primary"
+                shape="round"
+                @click="handleSelectTemplate()"
+                v-if="selectedTemplateIdList.indexOf(template.id) === -1">
+                <a-icon type="plus-circle" class="btn-icon"/>
+                <div class="btn-text">
+                  Add
+                </div>
+              </a-button>
+              <a-button
+                v-else
+                class="action-ensure action-item"
+                shape="round"
+                type="primary"
+                @click="handleSelectTemplate()">
+                <a-icon type="minus-circle" class="btn-icon"/>
+                <div class="btn-text">
+                  Remove
+                </div>
+              </a-button>
+            </div>
+            <div class="carousel-page">
+              <div class="img-list-wrapper">
+                <div class="img-list">
+                  <div class="img-item" v-for="(img,index) in imgList" :key="'index' + index" @click="handleGotoImgIndex(index)">
+                    <img :src="img" />
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
+          </a-col>
         </a-col>
-      </a-col>
-    </a-row>
-
-    <a-modal
-      v-model="materialVisible"
-      :footer="null"
-      destroyOnClose
-      width="800px"
-      :zIndex="3000"
-      title="My Materials"
-      @ok="materialVisible = false"
-      @cancel="materialVisible = false">
-      <task-material-preview :current-page-element-lists="currentPageElementLists" :current-page-index="currentImgIndex"></task-material-preview>
-    </a-modal>
+      </a-row>
+      <a-modal
+        v-model="materialVisible"
+        :footer="null"
+        destroyOnClose
+        width="800px"
+        :zIndex="3000"
+        title="My Materials"
+        @ok="materialVisible = false"
+        @cancel="materialVisible = false">
+        <task-material-preview :current-page-element-lists="currentPageElementLists" :current-page-index="currentImgIndex"></task-material-preview>
+      </a-modal>
+    </template>
   </div>
 </template>
 
@@ -121,6 +125,8 @@ import { QueryByClassInfoSlideId } from '@/api/classroom'
 import { fileTypeMap } from '@/const/material'
 import MaterialTypeIcon from '@/components/Task/MaterialTypeIcon'
 import TaskMaterialPreview from '@/components/Task/TaskMaterialPreview'
+import { typeMap } from '@/const/teacher'
+import { TemplatesGetPresentation } from '@/api/template'
 
 export default {
   name: 'TemplatePreview',
@@ -194,7 +200,7 @@ export default {
   data () {
     return {
       templateData: {},
-      loading: false,
+      loading: true,
       loadingClass: false,
       data: null,
       imgList: [],
@@ -208,8 +214,30 @@ export default {
   },
   created () {
     this.templateData = this.template
-    this.imgList = this.templateData.images
-    this.getClassInfo()
+    this.$logger.info('templateData ', this.templateData)
+    if (this.templateData.type === typeMap.task) {
+      this.loading = true
+      TemplatesGetPresentation({
+        presentationId: this.templateData.presentationId
+      }).then(response => {
+        this.$logger.info('task loadThumbnail response', response.result)
+        const pageObjects = response.result.pageObjects
+        this.imgList = []
+        this.templateData.pageObjectIds = []
+        pageObjects.forEach(page => {
+          this.templateData.pageObjectIds.push(page.id)
+          this.imgList.push(page.contentUrl)
+          this.$logger.info('current imgList ', this.imgList)
+        })
+      }).finally(() => {
+        this.loading = false
+        this.getClassInfo()
+      })
+    } else {
+      this.loading = false
+      this.imgList = this.templateData.images
+      this.getClassInfo()
+    }
   },
   methods: {
     getClassInfo () {

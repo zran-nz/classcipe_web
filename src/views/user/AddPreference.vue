@@ -42,20 +42,17 @@
           :label-col="labelCol"
           :wrapper-col="wrapperCol"
           v-if="$store.getters.currentRole === 'teacher'">
-          <a-form-model-item label="curriculum" prop="curriculumId">
+          <a-form-model-item label="Curriculum" prop="curriculumId">
             <a-select v-model="teacherForm.curriculumId" placeholder="Please select curriculum">
               <a-select-option :value="curriculumOption.id" v-for="curriculumOption in curriculumOptions" :key="curriculumOption.id" @click.native="handleSelectCurriculumOption(curriculumOption)">{{ curriculumOption.name }}</a-select-option>
             </a-select>
           </a-form-model-item>
-          <a-form-model-item label="subject" prop="subjectIds">
+          <a-form-model-item label="Subject" prop="subjectIds">
             <a-select v-model="teacherForm.subjectIds" mode="multiple">
-              <a-select-opt-group v-for="subjectOptGroup in subjectOptions" :key="subjectOptGroup.optGroupId">
-                <span slot="label">{{ subjectOptGroup.optGroupName }}</span>
-                <a-select-option :value="subjectOption.id" v-for="subjectOption in subjectOptGroup.options" :key="subjectOption.id">{{ subjectOption.name }}</a-select-option>
-              </a-select-opt-group>
+              <a-select-option :value="subject.id" v-if="subject.subjectType === subjectType.Learn || subject.subjectType === subjectType.LearnAndSkill" v-for="subject in subjectOptions" :key="subject.id">{{ subject.name }}</a-select-option>
             </a-select>
           </a-form-model-item>
-          <a-form-model-item label="grade" prop="gradeIds">
+          <a-form-model-item label="Grade" prop="gradeIds">
             <a-select v-model="teacherForm.gradeIds" placeholder="Please select grade" mode="multiple">
               <a-select-option :value="gradeOption.id" v-for="gradeOption in gradeOptions" :key="gradeOption.id">{{ gradeOption.name }}</a-select-option>
             </a-select>
@@ -80,15 +77,9 @@
 
 <script>
 import { defaultExpertRouter, defaultTeacherRouter, selectRoleRouter } from '@/config/router.config'
-import {
-  addPreference,
-  getAllAreas,
-  getAllCurriculums,
-  GetGradesByCurriculumId,
-  getAllSubjectsByCurriculumId,
-  getAllSubjectsByParentId
-} from '@/api/preference'
+import { addPreference, getAllCurriculums, getAllSubjectsByCurriculumId, GetGradesByCurriculumId } from '@/api/preference'
 import * as logger from '@/utils/logger'
+import { CurriculumType, SubjectType } from '@/const/common'
 
 export default {
   name: 'AddPreference',
@@ -142,7 +133,8 @@ export default {
       currentCurriculum: null,
       curriculumOptions: [],
       subjectOptions: [],
-      gradeOptions: []
+      gradeOptions: [],
+      subjectType: SubjectType
     }
   },
   created () {
@@ -157,11 +149,15 @@ export default {
   methods: {
     initOptions () {
       if (this.$store.getters.currentRole === 'expert') {
-        getAllAreas().then((response) => {
-          logger.info('getAllAreas', response)
+        // 取IB学科下面的大学科
+        getAllSubjectsByCurriculumId({ curriculumId: CurriculumType.IB }).then(response => {
           this.areaOptions = response.result
-          logger.info('areaOptions', this.areaOptions)
         })
+        // getAllAreas().then((response) => {
+        //   logger.info('getAllAreas', response)
+        //   this.areaOptions = response.result
+        //   logger.info('areaOptions', this.areaOptions)
+        // })
       } else if (this.$store.getters.currentRole === 'teacher') {
         getAllCurriculums().then((response) => {
           logger.info('getAllCurriculums', response)
@@ -192,37 +188,7 @@ export default {
       this.teacherForm.gradeIds = []
       getAllSubjectsByCurriculumId({ curriculumId }).then(response => {
         logger.info('subjectOptions', response.result)
-        this.subjectOptions = []
-        response.result.forEach(subject => {
-          this.subjectOptions.push({
-            optGroupName: subject.name,
-            optGroupNId: subject.id,
-            options: []
-          })
-
-          getAllSubjectsByParentId({ parentId: subject.id }).then(sResponse => {
-            logger.info('getAllSubjectsByParentId ' + subject.id, sResponse)
-            const options = []
-            sResponse.result.forEach(option => {
-              options.push({
-                name: option.name,
-                id: option.id
-              })
-            })
-            if (options.length) {
-              const optGroups = this.subjectOptions.filter(optGroup => optGroup.optGroupNId === subject.id)
-              if (optGroups && optGroups.length) {
-                optGroups[0].options = options
-                logger.info('add subject ' + subject.name + ' options', options)
-                logger.info('subjectOptions ', this.subjectOptions)
-              } else {
-                logger.warn('not find subject group', subject)
-              }
-            } else {
-              logger.info('subject ' + subject.name + ' not options')
-            }
-          })
-        })
+        this.subjectOptions = response.result
       })
 
       GetGradesByCurriculumId({ curriculumId }).then((response) => {

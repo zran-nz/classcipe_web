@@ -125,14 +125,7 @@
           </div>
           <div class="profile-input profile-data" v-if="editMode">
             <a-select v-model="userInfo.subjectIds" mode="multiple">
-              <a-select-opt-group v-for="subjectOptGroup in subjectOptions" :key="subjectOptGroup.optGroupId">
-                <span slot="label">{{ subjectOptGroup.optGroupName }}</span>
-                <a-select-option
-                  :value="subjectOption.id"
-                  v-for="subjectOption in subjectOptGroup.options"
-                  :key="subjectOption.id">{{ subjectOption.name }}
-                </a-select-option>
-              </a-select-opt-group>
+              <a-select-option :value="subject.id" v-if="subject.subjectType === subjectType.Learn || subject.subjectType === subjectType.LearnAndSkill" v-for="subject in subjectOptions" :key="subject.id">{{ subject.name }}</a-select-option>
             </a-select>
           </div>
         </div>
@@ -211,13 +204,13 @@ import * as logger from '@/utils/logger'
 import { editUser, UserSetting } from '@/api/user'
 import {
   addPreference,
-  getAllAreas,
   getAllCurriculums,
-  GetGradesByCurriculumId,
   getAllSubjectsByCurriculumId,
-  getAllSubjectsByParentId, getCustomizedTags
+  getCustomizedTags,
+  GetGradesByCurriculumId
 } from '@/api/preference'
 import TagSetting from '@/components/UnitPlan/TagSetting'
+import { CurriculumType, SubjectType } from '@/const/common'
 
 export default {
   name: 'BasicSetting',
@@ -265,7 +258,8 @@ export default {
       loading: true,
       editMode: false,
       settingVisible: false,
-      disableQuestion: this.$store.getters.disableQuestion
+      disableQuestion: this.$store.getters.disableQuestion,
+      subjectType: SubjectType
     }
   },
   watch: {
@@ -334,42 +328,13 @@ export default {
 
           if (!response[2].code) {
             logger.info('SubjectTree response', response[2])
-            this.subjectOptions = []
-            response[2].result.forEach(subject => {
-              this.subjectOptions.push({
-                optGroupName: subject.name,
-                optGroupNId: subject.id,
-                options: []
-              })
-
-              getAllSubjectsByParentId({ parentId: subject.id }).then(sResponse => {
-                logger.info('getAllSubjectsByParentId ' + subject.id, sResponse)
-                const options = []
-                sResponse.result.forEach(option => {
-                  options.push({
-                    name: option.name,
-                    id: option.id
-                  })
-
-                  if (this.userInfo.subjectIds.indexOf(option.id) !== -1) {
-                    this.userInfo.subjectNameList.push(subject.name + '-' + option.name)
-                  } else {
-                    this.$logger.info('subject id ' + option.id + ' dont exist in ', this.userInfo.subjectIds)
-                  }
-                })
-                if (options.length) {
-                  const optGroups = this.subjectOptions.filter(optGroup => optGroup.optGroupNId === subject.id)
-                  if (optGroups && optGroups.length) {
-                    optGroups[0].options = options
-                    logger.info('add subject ' + subject.name + ' options', options)
-                    logger.info('subjectOptions ', this.subjectOptions)
-                  } else {
-                    logger.warn('not find subject group', subject)
-                  }
-                } else {
-                  logger.info('subject ' + subject.name + ' not options')
-                }
-              })
+            this.subjectOptions = response[2].result
+            this.subjectOptions.forEach(option => {
+              if (this.userInfo.subjectIds.indexOf(option.id) !== -1) {
+                this.userInfo.subjectNameList.push(option.name)
+              } else {
+                this.$logger.info('subject id ' + option.id + ' dont exist in ', this.userInfo.subjectIds)
+              }
             })
           }
 
@@ -387,36 +352,23 @@ export default {
         }).finally(() => {
         })
       } else {
-        Promise.all([
-          getAllAreas()
-        ]).then(response => {
-          this.$logger.info('init data', response)
-
-          if (!response[0].code) {
-            logger.info('getAllAreas', response[0])
-            this.areaOptions = response[0].result
-            logger.info('areaOptions', this.areaOptions)
-            this.areaOptions.forEach(item => {
-              if (this.userInfo.areaIds.indexOf(item.id) !== -1) {
-                this.userInfo.areaNameList.push(item.name)
-                this.currentArea = item
-
-                if (item.name === 'Others') {
-                  this.userInfo.tempOthers = (this.userInfo.others && this.userInfo.others.length) ? this.userInfo.others[0] : null
-                }
-              }
+        getAllSubjectsByCurriculumId({ curriculumId: CurriculumType.IB }).then(response => {
+          this.areaOptions = response.result
+          this.areaOptions.forEach(item => {
+            if (this.userInfo.areaIds.indexOf(item.id) !== -1) {
+              this.userInfo.areaNameList.push(item.name)
+              this.currentArea = item
 
               if (item.name === 'Others') {
-                this.otherAreaId = item.id
+                this.userInfo.tempOthers = (this.userInfo.others && this.userInfo.others.length) ? this.userInfo.others[0] : null
               }
-            })
-          }
+            }
 
-          this.loading = false
-        }).catch(err => {
-          this.$message.error(err)
-        }).finally(() => {
-        })
+            if (item.name === 'Others') {
+              this.otherAreaId = item.id
+            }
+          })
+        }).finally(() => { this.loading = false })
       }
     },
 
@@ -440,41 +392,7 @@ export default {
       this.userInfo.gradeIds = []
       getAllSubjectsByCurriculumId({ curriculumId }).then(response => {
         logger.info('subjectOptions', response.result)
-        this.subjectOptions = []
-        response.result.forEach(subject => {
-          this.subjectOptions.push({
-            optGroupName: subject.name,
-            optGroupNId: subject.id,
-            options: []
-          })
-
-          getAllSubjectsByParentId({ parentId: subject.id }).then(sResponse => {
-            logger.info('getAllSubjectsByParentId ' + subject.id, sResponse)
-            const options = []
-            sResponse.result.forEach(option => {
-              options.push({
-                name: option.name,
-                id: option.id
-              })
-
-              if (this.userInfo.subjectIds.indexOf(option.id) !== -1) {
-                this.userInfo.subjectNameList.push(option.name)
-              }
-            })
-            if (options.length) {
-              const optGroups = this.subjectOptions.filter(optGroup => optGroup.optGroupNId === subject.id)
-              if (optGroups && optGroups.length) {
-                optGroups[0].options = options
-                logger.info('add subject ' + subject.name + ' options', options)
-                logger.info('subjectOptions ', this.subjectOptions)
-              } else {
-                logger.warn('not find subject group', subject)
-              }
-            } else {
-              logger.info('subject ' + subject.name + ' not options')
-            }
-          })
-        })
+        this.subjectOptions = response.result
       })
 
       GetGradesByCurriculumId({ curriculumId }).then((response) => {

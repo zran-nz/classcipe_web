@@ -73,7 +73,7 @@
         </a-select>
       </template>
       <template v-if="groupNameMode === 'input'">
-        <div class="choose-label">Group name</div>
+        <div class="choose-label">Term name</div>
         <a-input v-model="groupName" />
       </template>
     </div>
@@ -405,7 +405,7 @@ export default {
         },
         showTotal: total => `Total ${total} items`,
         total: 0,
-        pageSize: 9
+        pageSize: 10
       },
       pageNo: 1,
 

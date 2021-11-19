@@ -2623,7 +2623,7 @@ export default {
   font-size: 20px;
   padding: 0px 5px;
   position: absolute;
-  right: 0px;
+  right: -30px;
   top: 50px;
   cursor: pointer;
   display: flex;
