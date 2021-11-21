@@ -10,7 +10,7 @@
           class="table-header"
           @end="handleDragEnd"
           v-if="mode === this.tableMode.Edit">
-          <th v-for="(header, hIndex) in headers" class="header-item" :key="header.type" :data-header-type="header.type">
+          <th v-for="(header, hIndex) in headers" :class="{'header-item': true, 'preview-mode': formTableMode === tableMode.Preview}" :key="header.type" :data-header-type="header.type" :data-header-mode="formTableMode">
             <!-- 编辑图标-->
             <div class="edit-icon" @click="handleEditHeader(header)" v-if="header.editable">
               <img src="~@/assets/icons/evaluation/edit.png" class="link-icon"/>
@@ -86,7 +86,7 @@
 
         <!--预览和评估模式下不允许修改变动-->
         <tr class="table-header" v-if="mode !== this.tableMode.Edit">
-          <th v-for="(header) in headers" class="header-item" :key="header.type" :data-header-type="header.type">
+          <th v-for="(header) in headers" :class="{'header-item': true, 'preview-mode': formTableMode === tableMode.Preview}" :key="header.type" :data-header-type="header.type" :data-header-mode="formTableMode">
             <!-- 表头文本-->
             <div class="label-text">
 
@@ -1035,6 +1035,7 @@ export default {
             display: flex;
           }
         }
+
         .header-item {
           position: relative;
           box-sizing: border-box;
@@ -1113,6 +1114,10 @@ export default {
               height: 30px;
             }
           }
+        }
+
+        .preview-mode {
+          min-width: 50px;
         }
 
         .header-item:last-child {

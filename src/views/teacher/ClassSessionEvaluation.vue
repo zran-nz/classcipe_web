@@ -986,10 +986,139 @@ export default {
     handleEnsureSelectEvaluation (data) {
       this.$logger.info('handleEnsureSelectEvaluation', data)
       const evaluationIdList = data.evaluationIdList
-      EvaluationQueryByIds({ ids: evaluationIdList }).then((response) => {
-        this.$logger.info('EvaluationQueryByIds', response)
-        // TODO Evaluation 选择拷贝evaluation表格后，处理合并evaluation
-      })
+      const refFormList = data.selectedFormList
+
+      if (evaluationIdList && evaluationIdList.length) {
+        EvaluationQueryByIds({ ids: evaluationIdList }).then((response) => {
+          this.$logger.info('EvaluationQueryByIds', response)
+          const evaluationList = response.result
+          evaluationList.forEach(evaluationItem => {
+            evaluationItem.forms.forEach(formItem => {
+              const index = refFormList.findIndex(item => item.formId === formItem.formId)
+              if (index === -1) {
+                if (formItem.initRawHeaders && typeof formItem.initRawHeaders === 'string') {
+                  formItem.initRawHeaders = JSON.parse(formItem.initRawHeaders)
+                  formItem.initRawData = JSON.parse(formItem.initRawData)
+                }
+                refFormList.push(formItem)
+              }
+            })
+          })
+
+          const existFormIdList = []
+          this.forms.forEach(item => {
+            existFormIdList.push(item.formId)
+          })
+
+          // 重新生成formId，删除表格的Id字段
+          let count = this.forms.length + 1
+          let selfId = 'ext_' + Math.random(1000000000, 9999999999)
+
+          refFormList.forEach(formItem => {
+            while (existFormIdList.indexOf(selfId) !== -1) {
+              count++
+              selfId = 'ext_' + Math.random(1000000000, 9999999999)
+            }
+            existFormIdList.push(selfId)
+            formItem.id = null
+            formItem.formId = selfId
+            formItem.title = 'evaluation of task/session ' + count
+          })
+
+          // 处理新增表单
+          this.allStudentUserIdList.forEach(studentId => {
+            refFormList.forEach(formItem => {
+              let formData = {}
+              formData = {
+                comment: null
+              }
+              formItem.initRawData.forEach(rowItem => {
+                formData[rowItem.rowId] = {
+                  teacherEvaluation: null, // 老师评价
+                  teacherName: null, // 老师评价
+                  teacherEmail: null, // 老师评价
+
+                  peerEvaluation: null, // 他人评价
+                  peerName: null, // 他人评价
+                  peerEmail: null, // 他人评价
+
+                  studentEvaluation: null, // 学生自评
+                  studentName: null, // 学生自评
+                  studentEmail: null, // 学生自评
+
+                  evidenceIdList: [], // ppt证据pageId列表
+                  evidenceIdStudentList: [] // ppt证据pageId列表-学生选择
+                }
+              })
+              this.$set(this.studentEvaluateData[studentId], formItem.formId, formData)
+              this.$logger.info('formId ' + formItem.formId, this.studentEvaluateData[studentId])
+            })
+          })
+
+          refFormList.forEach(formItem => {
+            this.forms.push(formItem)
+            this.$logger.info('forms add ' + formItem.formId, formItem)
+          })
+          this.$logger.info('forms', this.forms)
+        })
+      } else if (refFormList.length) {
+        const existFormIdList = []
+        this.forms.forEach(item => {
+          existFormIdList.push(item.formId)
+        })
+
+        // 重新生成formId，删除表格的Id字段
+        let count = this.forms.length + 1
+        let selfId = 'ext_' + Math.random(1000000000, 9999999999)
+
+        refFormList.forEach(formItem => {
+          while (existFormIdList.indexOf(selfId) !== -1) {
+            count++
+            selfId = 'ext_' + Math.random(1000000000, 9999999999)
+          }
+          existFormIdList.push(selfId)
+          formItem.id = null
+          formItem.formId = selfId
+          formItem.title = 'evaluation of task/session ' + count
+        })
+
+        // 处理新增表单
+        this.allStudentUserIdList.forEach(studentId => {
+          refFormList.forEach(formItem => {
+            let formData = {}
+            formData = {
+              comment: null
+            }
+            formItem.initRawData.forEach(rowItem => {
+              formData[rowItem.rowId] = {
+                teacherEvaluation: null, // 老师评价
+                teacherName: null, // 老师评价
+                teacherEmail: null, // 老师评价
+
+                peerEvaluation: null, // 他人评价
+                peerName: null, // 他人评价
+                peerEmail: null, // 他人评价
+
+                studentEvaluation: null, // 学生自评
+                studentName: null, // 学生自评
+                studentEmail: null, // 学生自评
+
+                evidenceIdList: [], // ppt证据pageId列表
+                evidenceIdStudentList: [] // ppt证据pageId列表-学生选择
+              }
+            })
+            this.$set(this.studentEvaluateData[studentId], formItem.formId, formData)
+            this.$logger.info('formId ' + formItem.formId, this.studentEvaluateData[studentId])
+          })
+        })
+
+        refFormList.forEach(formItem => {
+          this.forms.push(formItem)
+          this.$logger.info('forms add ' + formItem.formId, formItem)
+        })
+        this.$logger.info('forms', this.forms)
+      }
+      this.selectRubricVisible = false
     },
 
     goBack () {

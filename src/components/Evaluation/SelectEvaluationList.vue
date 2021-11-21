@@ -55,8 +55,21 @@
                   </div>
                 </span>
               </div>
-              <div class="my-list-expand" v-show="item.expand">
-
+              <div class="my-list-expand" v-show="item.expand && item.forms.length">
+                <div class="form-list">
+                  <div :class="{'form-item': true, 'form-item-active': selectedFormIdList.indexOf(formItem.formId) !== -1}" v-for="(formItem, fIndex) in item.forms" :key="fIndex">
+                    <div class="form-mask" @click="handleAddFormItem(formItem)">
+                    </div>
+                    <evaluation-table
+                      ref="evaluationTable"
+                      :form-id="formItem.formId"
+                      :init-raw-headers="formItem.initRawHeaders"
+                      :init-raw-data="formItem.initRawData"
+                      :form-type="formItem.formType"
+                      :form-table-mode="EvaluationTableMode.Preview"
+                    />
+                  </div>
+                </div>
               </div>
             </a-list-item>
           </a-list>
@@ -79,6 +92,9 @@ import DisplayMode from '@/components/MyContent/DisplayMode'
 import NoMoreResources from '@/components/Common/NoMoreResources'
 import ArrowTop from '@/assets/svgIcon/evaluation/select/jiantoushang.svg?inline'
 import ArrowDown from '@/assets/svgIcon/evaluation/select/jiantouxia.svg?inline'
+import { EvaluationQueryByIds } from '@/api/evaluation'
+import EvaluationTableMode from '@/components/Evaluation/EvaluationTableMode'
+import EvaluationTable from '@/components/Evaluation/EvaluationTable'
 
 export default {
   name: 'SelectEvaluationList',
@@ -86,7 +102,8 @@ export default {
     ContentTypeIcon,
     NoMoreResources,
     ArrowTop,
-    ArrowDown
+    ArrowDown,
+    EvaluationTable
   },
   props: {
     taskId: {
@@ -105,6 +122,7 @@ export default {
       loadFailed: false,
       myContentList: [],
       displayMode: DisplayMode,
+      EvaluationTableMode: EvaluationTableMode,
 
       pagination: {
         onChange: page => {
@@ -121,7 +139,10 @@ export default {
       typeMap: typeMap,
 
       mySelectedList: [],
-      mySelectedMap: new Map()
+      mySelectedMap: new Map(),
+
+      selectedFormIdList: [],
+      selectedFormList: []
     }
   },
   created () {
@@ -143,6 +164,10 @@ export default {
           res.result.records.forEach((record, index) => {
             record.key = index
             record.expand = false
+          })
+          const list = res.result.records
+          list.forEach(item => {
+            item.forms = []
           })
           this.myContentList = res.result.records
           this.pagination.total = res.result.total
@@ -175,6 +200,32 @@ export default {
 
     handleToggleSelect (item) {
       logger.info('handleToggleSelect', item)
+      if (item.expand) {
+        EvaluationQueryByIds({ ids: [item.id] }).then((response) => {
+          this.$logger.info('handleToggleSelect EvaluationQueryByIds ' + item.id, response)
+          const forms = []
+          response.result.forEach(evaluationItem => {
+            evaluationItem.forms.forEach(formItem => {
+              forms.push({
+                title: formItem.title,
+                titleEditing: false,
+                formType: formItem.formType,
+                se: formItem.se,
+                pe: formItem.pe,
+                menuVisible: false,
+                id: formItem.id,
+                formId: formItem.formId,
+                initRawHeaders: JSON.parse(formItem.initRawHeaders),
+                initRawData: JSON.parse(formItem.initRawData)
+              })
+            })
+          })
+          item.forms = forms
+          if (item.forms.length === 0) {
+            this.$message.warn('The current evaluation form has not been created')
+          }
+        })
+      }
     },
 
     handleCancel () {
@@ -189,9 +240,25 @@ export default {
         list.push(item.split('-')[1])
       })
       const data = {
-        evaluationIdList: list
+        evaluationIdList: list,
+        selectedFormList: this.selectedFormList
       }
       this.$emit('selected', data)
+    },
+
+    handleAddFormItem (formItem) {
+      logger.info('handleAddFormItem', formItem)
+      const index = this.selectedFormList.findIndex(item => item.formId === formItem.formId)
+      if (index !== -1) {
+        this.selectedFormList.splice(index, 1)
+      } else {
+        this.selectedFormList.push(formItem)
+      }
+      const selectedFormIdList = []
+      this.selectedFormList.forEach(item => {
+        selectedFormIdList.push(item.formId)
+      })
+      this.selectedFormIdList = selectedFormIdList
     }
   }
 }
@@ -384,6 +451,44 @@ export default {
         font-family: Inter-Bold;
         color: #11142D;
       }
+    }
+  }
+}
+
+.my-list-expand {
+  width: 100%;
+
+  .form-list {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    overflow-x: scroll;
+
+    .form-item {
+      position: relative;
+      border: 2px solid #fff;
+      padding: 15px;
+      margin: 10px 15px 10px 0;
+    }
+
+    .form-mask {
+      z-index: 150;
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 0;
+      bottom: 0;
+      opacity: 0;
+
+      .form-checked {
+        position: absolute;
+        left: 5px;
+        top: 5px;
+      }
+    }
+
+    .form-item-active {
+      border: 2px solid #15C39A;
     }
   }
 }
