@@ -57,7 +57,7 @@
               <img src="~@/assets/icons/common/form/baocun@2x.png" />
             </div>
             <div class="btn-text">
-              Save
+              Save & Exit
             </div>
           </a-button>
           <a-button
@@ -80,7 +80,7 @@
               <img src="~@/assets/icons/common/form/fabu@2x.png" />
             </div>
             <div class="btn-text">
-              Publish
+              Save & Publish
             </div>
           </a-button>
 

@@ -219,7 +219,7 @@
                       </template>
                     </div>
                     <div class="sub-user-input" @click="handleClickEnterDescription(header, item)" v-show="mode === tableMode.Edit">
-                      Enter comment
+                      Enter task specific description
                     </div>
                   </div>
                 </template>
@@ -387,7 +387,7 @@
       <div class="rubric-modal">
         <div class="rubric-header">
           <div class="my-modal-header">
-            Enter comment
+            The specific description you entered will be shown to students instead of the curriculum description
           </div>
         </div>
         <div class="description-text">
@@ -397,7 +397,7 @@
         </div>
         <div class="description-input">
           <a-textarea
-            placeholder="Enter Comment or Description"
+            placeholder="Enter task specific description"
             :autosize="{ minRows: 3, maxRows: 6 }"
             v-model="inputDescription"
             @blur="handleUpdateDescription"/>
@@ -1418,17 +1418,12 @@ export default {
     align-items: center;
     justify-content: center;
     .my-modal-header {
-      display: flex;
-      flex-direction: row;
-      align-items: center;
       font-family: Inter-Bold;
-      height: 37px;
-      font-size: 26px;
-      font-family: Arial;
-      font-weight: 900;
-      line-height: 0px;
+      font-size: 20px;
+      font-weight: 600;
       color: #070707;
       opacity: 1;
+      word-break: break-all;
     }
     margin-bottom: 15px;
   }
