@@ -1,19 +1,8 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="21" height="21" viewBox="0 0 21 21">
-  <defs>
-    <style>
-      .cls-1 {
-        fill: #0c9;
-        stroke: #0c9;
-      }
-
-      .cls-2 {
-        fill: #fff;
-        stroke: #fff;
-      }
-    </style>
-  </defs>
-  <g id="tianjia_鼠标移入" transform="translate(-770.887 -365.211)">
-    <path id="路径_565" data-name="路径 565" class="cls-1" d="M10,0A10,10,0,1,1,0,10,10,10,0,0,1,10,0Z" transform="translate(771.387 365.711)"/>
-    <path id="路径_564" data-name="路径 564" class="cls-2" d="M24.763,25.285V22.073h3.212a.536.536,0,0,0,0-1.071H24.763V17.79a.536.536,0,0,0-1.071,0V21H20.48a.536.536,0,0,0,0,1.071h3.212v3.212a.536.536,0,1,0,1.071.046q0-.023,0-.046Z" transform="translate(757.159 354.15)"/>
+<svg xmlns="http://www.w3.org/2000/svg" width="27" height="27" viewBox="0 0 27 27">
+  <g transform="translate(-770.887 -365.211)">
+    <path class="a" d="M13,0A13,13,0,1,1,0,13,13,13,0,0,1,13,0Z" transform="translate(771.387 365.711)"/>
+    <path class="b"
+          d="M26.2,27.687V23.511h4.176a.7.7,0,0,0,0-1.392H26.2V17.944a.7.7,0,0,0-1.392,0V22.12H20.634a.7.7,0,0,0,0,1.392H24.81v4.176a.7.7,0,1,0,1.392.06q0-.03,0-.06Z"
+          transform="translate(758.882 355.865)"/>
   </g>
 </svg>
