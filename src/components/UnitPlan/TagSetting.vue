@@ -59,7 +59,7 @@
                           </div>
                         </div>
                         <div class="create-tag-wrapper tag-wrapper">
-                          <div class="skt-tag-create-line" @click="handleCreateTagByInput" v-show="createTagName && createTagName.length >= 1">
+                          <div class="skt-tag-create-line" @click="handleCreateTagByInput" v-show="!tagIsExist(createTagName,tagSearchList) && createTagName && createTagName.length >= 1">
                             <div class="create-tag-label">
                               Create
                             </div>
@@ -150,11 +150,13 @@
 <script>
 import * as logger from '@/utils/logger'
 import { AddUserTagNew, FindCustomTags, AddUserParentTag, UserTagDeleteNew } from '@/api/tag'
+import { UtilMixin } from '@/utils/UtilMixin'
 
 const { debounce } = require('lodash-es')
 
 export default {
   name: 'TagSetting',
+  mixins: [UtilMixin],
   components: {
   },
   props: {
@@ -371,7 +373,6 @@ export default {
         this.tagLoading = false
       })
     }
-
   }
 
 }

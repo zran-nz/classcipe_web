@@ -60,7 +60,7 @@
               <div
                 class="skt-tag-create-line"
                 @click="handleCreateTagByInput"
-                v-show="tagSearchList.indexOf(inputTag) === -1 && inputTag && inputTag.length >= 1">
+                v-show="!tagIsExist(inputTag,tagSearchList) && inputTag && inputTag.length >= 1">
                 <div class="create-tag-label">
                   Create
                 </div>
@@ -120,12 +120,14 @@
 <script>
 import * as logger from '@/utils/logger'
 import { FindRecommendByKnowledgeId } from '@/api/knowledge'
+import { UtilMixin } from '@/utils/UtilMixin'
 
 const { debounce } = require('lodash-es')
 
 export default {
   name: 'LearnOutAddTag',
   components: {},
+  mixins: [UtilMixin],
   computed: {
   },
   props: {
