@@ -278,7 +278,7 @@
                       <a-spin size="large" />
                     </div>
                     <div class="form-block-right" v-show="currentActiveStepIndex === 1" v-if="!recomendListLoading">
-                      <div class="right-title">Teaching Tips</div>
+                      <div class="right-title">Recommended</div>
                       <div class="slide-preview-list">
                         <div class="slide-preview-item" v-for="(template, rIndex) in filterRecommendTemplateList" :key="rIndex">
                           <div class="mask-cover">
