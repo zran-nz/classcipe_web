@@ -221,7 +221,7 @@
                             <div class="session-btn-icon">
                               <teacher-presenting />
                             </div>
-                            <div class="session-btn-text"> Teacher-pace</div>
+                            <div class="session-btn-text"> Teacher-paced</div>
                           </div>
                         </div>
                         <div class="start-session-wrapper action-item-wrapper">
@@ -317,7 +317,7 @@
                     <div class="session-btn session-btn-left" @click.stop="handleStartSessionTags(item.content)" v-if="item.content.type === typeMap['task']" >
                       <div class="session-btn-text">
                         <teacher-presenting />
-                        Teacher-pace
+                        Teacher-paced
                       </div>
                     </div>
                     <div class="session-btn session-btn-right" @click.stop="handleStartSessionTags(item.content)" v-if="item.content.type === typeMap['task']">

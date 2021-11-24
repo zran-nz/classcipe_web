@@ -352,7 +352,7 @@ export default {
         }).finally(() => {
         })
       } else {
-        getAllSubjectsByCurriculumId({ curriculumId: CurriculumType.IB }).then(response => {
+        getAllSubjectsByCurriculumId({ curriculumId: CurriculumType.Cambridge }).then(response => {
           this.areaOptions = response.result
           this.areaOptions.forEach(item => {
             if (this.userInfo.areaIds.indexOf(item.id) !== -1) {

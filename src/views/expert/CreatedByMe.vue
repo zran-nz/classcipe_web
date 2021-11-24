@@ -215,13 +215,13 @@
                     <div class="session-btn session-btn-left" @click.stop="handleStartSessionTags(item)" v-if="item.type === typeMap['task']" >
                       <div class="session-btn-text">
                         <teacher-presenting />
-                        Teacher-pace
+                        Teacher-paced
                       </div>
                     </div>
                     <div class="session-btn session-btn-right" @click.stop="handleStartSessionTags(item)" v-if="item.type === typeMap['task']">
                       <div class="session-btn-text">
                         <student-pace />
-                        Student-pace
+                        Student-paced
                       </div>
                     </div>
                   </div>

@@ -92,7 +92,7 @@
                       <!--            real-life-scenario-->
                       <div class="form-block ">
                         <comment-switch field-name="sdg" :is-active="showCollaborateCommentVisible && currentFieldName === 'sdg'" @switch="handleSwitchComment" class="my-comment-switch" style="top:40px"/>
-                        <a-divider>Teach Goals</a-divider>
+                        <a-divider>Teaching goals</a-divider>
                         <a-row>
                           <a-col span="24">
                             <div class="form-block-title">

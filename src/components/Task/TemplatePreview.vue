@@ -192,6 +192,15 @@ export default {
       })
       console.log(pageElementsList)
       return pageElementsList
+    },
+    computerSize (type) {
+      var size = 0
+      this.elementsList.forEach(data => {
+        if (data.type === type) {
+          size++
+        }
+      })
+      return size
     }
   },
   mounted () {

@@ -29,7 +29,7 @@
             <div class="unit-plan-form-left root-locate-form" ref="form" @click="focusInput($event)">
               <a-form-model :model="form" class="my-form-wrapper">
                 <a-steps :current="currentActiveStepIndex" direction="vertical" @change="onChangeStep">
-                  <a-step title="Edit course info" :status="currentActiveStepIndex === 0 ? 'process':'wait'">
+                  <a-step title="Edit topic name" :status="currentActiveStepIndex === 0 ? 'process':'wait'">
                     <template slot="description" v-if="currentActiveStepIndex === 0">
                       <!--                      <div class="form-block">
                         <div class="refer-action row-flex-right">
@@ -49,14 +49,14 @@
 
                       <div class="form-block">
                         <comment-switch field-name="name" :is-active="showCollaborateCommentVisible && currentFieldName === 'name'" @switch="handleSwitchComment" class="my-comment-switch"/>
-                        <a-form-item label="Course Name">
-                          <a-input v-model="form.name" placeholder="Enter Course Name" class="my-form-input"/>
+                        <a-form-item label="Topic Name">
+                          <a-input v-model="form.name" placeholder="Enter Topic Name" class="my-form-input"/>
                         </a-form-item>
                       </div>
 
                       <div class="form-block over-form-block" id="overview">
                         <comment-switch field-name="overview" :is-active="showCollaborateCommentVisible && currentFieldName === 'overview'" @switch="handleSwitchComment" class="my-comment-switch"/>
-                        <a-form-model-item class="task-audio-line" label="Course Overview">
+                        <a-form-model-item class="task-audio-line" label="Topic Overview">
                           <a-textarea class="overview" v-model="form.overview" placeholder="Overview" allow-clear />
                           <!--        <div class="audio-wrapper" v-if="form.audioUrl">
                             <audio :src="form.audioUrl" controls />
@@ -172,7 +172,7 @@
                           <div class="recommend-question" v-if="showRecommendQuestion">
                             <a-icon type="close" class="close-icon" @click.stop="hideRecommendQuestion=true" />
                             <div class="recommend-box">
-                              <span class="title"><a-icon style="width: 25px" type="question-circle" />Recommend:</span>
+                              <span class="title"><a-icon style="width: 25px" type="question-circle" />Recommended:</span>
                               <ul class="recommend-ul">
                                 <li v-if="rqIndex < 3 && selectQuestion.indexOf(item.name) === -1" v-for="(item,rqIndex) in recommendQuestionList" :key="rqIndex">{{ item.name }}<a-button @click.stop="handerInsertQuestion(item)" class="add-question" type="link">add</a-button></li>
                               </ul>
@@ -213,10 +213,10 @@
 
                     </template>
                   </a-step>
-                  <a-step title="Link Topic content">
+                  <a-step title="Add Task(s) to this Topic">
                     <template slot="description" v-if="currentActiveStepIndex === 1">
                       <div class="form-block">
-                        <a-form-item label="Link Topic content" class="link-plan-title">
+                        <a-form-item class="link-plan-title">
                           <a-button type="primary" :style="{'background-color': '#fff', 'color': '#000', 'border': '1px solid #D8D8D8'}" @click="handleAddTerm">
                             <div class="btn-text" style="line-height: 20px">
                               + Add term

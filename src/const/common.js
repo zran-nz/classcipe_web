@@ -26,7 +26,8 @@ export const CurriculumType = {
   NZ: 2,
   IGCSE: 7,
   Cambridge: 8,
-  IB: 9
+  IBPYP: 4,
+  IBMYP: 5
 }
 
 export const TagOriginType = {

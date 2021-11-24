@@ -86,7 +86,7 @@
                       </template>
                     </a-step>
 
-                    <a-step title="Edit your course slides" :status="currentActiveStepIndex === 1 ? 'process':'wait'">
+                    <a-step title=" Edit task slides" :status="currentActiveStepIndex === 1 ? 'process':'wait'">
                       <template v-if="currentActiveStepIndex === 1" slot="description">
                         <div class="edit-in-slide" v-show="form.presentationId">
                           <a-button

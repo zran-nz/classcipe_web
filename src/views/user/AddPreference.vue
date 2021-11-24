@@ -150,7 +150,7 @@ export default {
     initOptions () {
       if (this.$store.getters.currentRole === 'expert') {
         // 取IB学科下面的大学科
-        getAllSubjectsByCurriculumId({ curriculumId: CurriculumType.IB }).then(response => {
+        getAllSubjectsByCurriculumId({ curriculumId: CurriculumType.Cambridge }).then(response => {
           this.areaOptions = response.result
         })
         // getAllAreas().then((response) => {

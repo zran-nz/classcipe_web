@@ -92,7 +92,7 @@
                             <div class="session-btn-icon">
                               <teacher-presenting />
                             </div>
-                            <div class="session-btn-text"> Teacher-pace</div>
+                            <div class="session-btn-text"> Teacher-paced</div>
                           </div>
                         </div>
                         <div class="start-session-wrapper action-item-wrapper">
