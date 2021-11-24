@@ -120,7 +120,7 @@
 <script>
 import * as logger from '@/utils/logger'
 import { FindRecommendByKnowledgeId } from '@/api/knowledge'
-import { UtilMixin } from '@/utils/UtilMixin'
+import { UtilMixin } from '@/mixins/UtilMixin'
 
 const { debounce } = require('lodash-es')
 

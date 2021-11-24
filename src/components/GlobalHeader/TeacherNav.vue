@@ -17,15 +17,17 @@
             </router-link>
           </a-menu-item>
           <a-menu-item key="/teacher/managing">
-            <div class="nav-item">
-              <div class="nav-icon">
-                <manage-icon-svg />
+            <router-link to="/teacher/managing/skill">
+              <div class="nav-item">
+                <div class="nav-icon">
+                  <manage-icon-svg />
+                </div>
+                <div class="nav-label">
+                  Managing
+                </div>
+                <div class="nav-button-border"></div>
               </div>
-              <div class="nav-label">
-                Managing
-              </div>
-              <div class="nav-button-border"></div>
-            </div>
+            </router-link>
           </a-menu-item>
         </a-menu>
       </div>

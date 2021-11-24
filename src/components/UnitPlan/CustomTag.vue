@@ -119,7 +119,7 @@ import * as logger from '@/utils/logger'
 import TagBrowser from '@/components/UnitPlan/TagBrowser'
 import TagSetting from '@/components/UnitPlan/TagSetting'
 import { AddUserTagNew } from '@/api/tag'
-import { UtilMixin } from '@/utils/UtilMixin'
+import { UtilMixin } from '@/mixins/UtilMixin'
 
 const { debounce } = require('lodash-es')
 

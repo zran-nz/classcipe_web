@@ -11,6 +11,8 @@ export default {
     'menu.my-class': 'My Class',
     'menu.library': 'Library',
     'menu.library.center': 'Library',
+    'menu.managing': 'Managing',
+    'menu.managing.skill': 'Managing skills',
     'menu.my-content': 'MyContent',
     'menu.my-favorite': 'My Favorite',
     'menu.subscribe': 'Subscribe',

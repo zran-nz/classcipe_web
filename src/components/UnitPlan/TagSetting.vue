@@ -150,7 +150,7 @@
 <script>
 import * as logger from '@/utils/logger'
 import { AddUserTagNew, FindCustomTags, AddUserParentTag, UserTagDeleteNew } from '@/api/tag'
-import { UtilMixin } from '@/utils/UtilMixin'
+import { UtilMixin } from '@/mixins/UtilMixin'
 
 const { debounce } = require('lodash-es')
 

@@ -5,6 +5,7 @@ export default {
     'menu.my-class': '我的班级',
     'menu.library': 'Library',
     'menu.library.center': 'Library',
+    'menu.managing': 'Managing',
     'menu.my-content': '我的内容',
     'menu.my-content.center': '我的内容',
     'menu.teacher.unit-plan': '添加单元计划',
