@@ -109,7 +109,7 @@ export function getPermissions (parameter) {
 export function saveService (parameter) {
   return axios({
     url: api.service,
-    method: parameter.id == 0 ? 'post' : 'post',
+    method: parameter.id === 0 ? 'post' : 'post',
     data: parameter
   })
 }
@@ -187,8 +187,8 @@ export function getFileAccessHttpUrl (avatar, subStr) {
     if (avatar && avatar.startsWith(subStr)) {
       return avatar
     } else {
-      if (avatar &&　avatar.length > 0 && avatar.indexOf('[') == -1) {
-        return window._CONFIG['staticDomainURL'] + '/' + avatar
+      if (avatar && avatar.length > 0 && avatar.indexOf('[') === -1) {
+        return process.env.VUE_APP_LESSON_API_BASE_URL + '/classcipe/' + avatar
       }
     }
   } catch (err) {

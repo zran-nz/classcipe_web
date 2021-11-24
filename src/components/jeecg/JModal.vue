@@ -53,9 +53,15 @@
   export default {
     name: 'JModal',
     props: {
-      title: String,
+      title: {
+        type: String,
+        default: ''
+      },
       // 可使用 .sync 修饰符
-      visible: Boolean,
+      visible: {
+        type: Boolean,
+        default: false
+      },
       // 是否全屏弹窗，当全屏时无论如何都会禁止 body 滚动。可使用 .sync 修饰符
       fullscreen: {
         type: Boolean,

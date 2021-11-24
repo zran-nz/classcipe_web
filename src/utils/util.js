@@ -138,7 +138,7 @@ export function filterObj (obj) {
 
   for (const key in obj) {
     if (obj.hasOwnProperty(key) &&
-      (obj[key] == null || obj[key] == undefined || obj[key] === '')) {
+      (obj[key] == null || obj[key] === undefined || obj[key] === '')) {
       delete obj[key]
     }
   }

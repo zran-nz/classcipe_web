@@ -5,41 +5,42 @@
       <a-form layout="inline" @keyup.enter.native="searchQuery">
         <a-row :gutter="24">
 
+          <a-col :xl="6" :lg="7" :md="8" :sm="24">
+            <a-form-item label="Subject">
+              <a-select :allowClear="true" v-model="queryParam.subjectId" placeholder="Please select subject" >
+                <a-select-opt-group v-for="subject in subjectList" :key="subject.id">
+                  <span slot="label">{{ subject.name }}</span>
+                  <a-select-option
+                    :value="child.id"
+                    v-for="child in subject.children"
+                    :key="child.id">{{ child.name }}
+                  </a-select-option>
+                </a-select-opt-group>
+              </a-select>
+            </a-form-item>
+          </a-col>
+
+          <a-col :xl="6" :lg="7" :md="8" :sm="24">
+            <a-form-item label="Grade">
+              <a-select mode="multiple" :allowClear="true" v-model="queryParam.gradeIds" placeholder="Please select grade" >
+                <a-select-option :value="item.id" :key="item.id" v-for="item in gradeAllList">{{ item.name }}</a-select-option>
+              </a-select>
+            </a-form-item>
+          </a-col>
+
           <!--          <a-col :xl="6" :lg="7" :md="8" :sm="24">-->
-          <!--            <a-form-item label="Subject">-->
-          <!--              <j-tree-select-->
-          <!--                ref="subjectTree"-->
-          <!--                placeholder="请选择subject"-->
-          <!--                v-model="queryParam.subjectId"-->
-          <!--                dict="cc_subject,name,id"-->
-          <!--                pidField="parent_id"-->
-          <!--                pidValue="0"-->
-          <!--                :rootSelectable="true"-->
-          <!--                hasChildField="has_child"-->
-          <!--                :condition="condition"-->
-          <!--              />-->
+          <!--            <a-form-item label="Assessment Type">-->
+          <!--              <a-select mode="multiple" :allowClear="true" v-model="queryParam.assessmentNames"  placeholder="请选择Assessment Type" >-->
+          <!--                <a-select-option  :value="name" :key="name" v-for="name in assessmentNameList">{{name}}</a-select-option>-->
+          <!--              </a-select>-->
           <!--            </a-form-item>-->
           <!--          </a-col>-->
 
-          <template v-if="toggleSearchStatus">
-
-            <a-col :xl="6" :lg="7" :md="8" :sm="24">
-              <a-form-item label="Grade">
-                <a-select mode="multiple" :allowClear="true" v-model="queryParam.gradeIds" placeholder="请选择grade" >
-                  <a-select-option :value="item.id" :key="item.id" v-for="item in gradeList">{{ item.name }}</a-select-option>
-                </a-select>
-              </a-form-item>
-            </a-col>
-
-            <a-col :xl="6" :lg="7" :md="8" :sm="24">
-              <a-form-item label="Assessment Type">
-                <a-select mode="multiple" :allowClear="true" v-model="queryParam.assessmentNames" placeholder="请选择Assessment Type" >
-                  <a-select-option :value="name" :key="name" v-for="name in assessmentNameList">{{ name }}</a-select-option>
-                </a-select>
-              </a-form-item>
-            </a-col>
-
-          </template>
+          <a-col :xl="6" :lg="7" :md="8" :sm="24">
+            <span style="float: left;overflow: hidden;" class="table-page-search-submitButtons">
+              <a-button type="primary" @click="searchQuery" icon="search">Search</a-button>
+            </span>
+          </a-col>
 
         </a-row>
       </a-form>
@@ -224,7 +225,8 @@ export default {
       loadParent: false,
       superFieldList: [],
       curriculumType: CurriculumType,
-      importLoadingText: 'Upload'
+      importLoadingText: 'Upload',
+      baseUrl: process.env.VUE_APP_API_BASE_URL
     }
   },
   created () {
@@ -258,7 +260,7 @@ export default {
 },
   computed: {
     importCommonExcelUrl () {
-      return process.env.VUE_APP_API_BASE_URL + `/${this.url.importCommonExcelUrl}`
+      return this.baseUrl + `/classcipe/${this.url.importCommonExcelUrl}`
     },
     tableProps () {
       const _this = this
@@ -266,6 +268,7 @@ export default {
         // 列表项是否可选择
         rowSelection: {
           selectedRowKeys: _this.selectedRowKeys,
+          // eslint-disable-next-line no-return-assign
           onChange: (selectedRowKeys) => _this.selectedRowKeys = selectedRowKeys
         }
       }
@@ -273,7 +276,7 @@ export default {
   },
   methods: {
     handleAdd: function () {
-      this.$refs.modalForm.add({ 'curriculumId': this.queryParam.curriculumId, 'subjectId': this.queryParam.subjectId })
+      this.$refs.modalForm.add({ 'subjectId': this.queryParam.subjectId })
       this.$refs.modalForm.title = 'Add'
       this.$refs.modalForm.disableSubmit = false
     },
@@ -378,7 +381,7 @@ export default {
       if (result) {
         return result.map(item => {
           // 判断是否标记了带有子节点
-          if (item[this.hasChildrenField] == '1') {
+          if (item[this.hasChildrenField] === '1') {
             const loadChild = { id: item.id + '_loadChild', name: 'loading...', isLoading: true }
             item.children = [loadChild]
           }
@@ -450,7 +453,7 @@ export default {
     downloadTemplate () {
       const link = document.createElement('a')
       link.style.display = 'none'
-      const url = process.env.VUE_APP_API_BASE_URL + '/classcipe/excel/knowledge_template_example.xlsx'
+      const url = this.baseUrl + '/classcipe/excel/knowledge_template_example.xlsx'
       link.href = url
       document.body.appendChild(link)
       link.click()

@@ -28,6 +28,7 @@
     props: {
       value: {
         type: String,
+        default: '',
         required: false
       },
       placeholder: {
@@ -111,7 +112,7 @@
     },
     methods: {
       loadItemByCode () {
-        if (!this.value || this.value == '0') {
+        if (!this.value || this.value === '0') {
           this.treeValue = null
         } else {
           getAction(`${this.view}${this.dict}`, { key: this.value }).then(res => {
@@ -159,12 +160,12 @@
             if (res.success) {
               for (const i of res.result) {
                 i.value = i.key
-                if (i.leaf == false) {
+                if (i.leaf === false) {
                   i.isLeaf = false
                   if (!this.rootSelectable) {
                     i.selectable = false
                   }
-                } else if (i.leaf == true) {
+                } else if (i.leaf === true) {
                   i.isLeaf = true
                   if (!this.rootSelectable) {
                     i.selectable = true
@@ -181,8 +182,8 @@
       addChildren (pid, children, treeArray) {
         if (treeArray && treeArray.length > 0) {
           for (const item of treeArray) {
-            if (item.key == pid) {
-              if (!children || children.length == 0) {
+            if (item.key === pid) {
+              if (!children || children.length === 0) {
                 item.isLeaf = true
               } else {
                 item.children = children
@@ -208,13 +209,13 @@
           if (res.success && res.result) {
             for (const i of res.result) {
               i.value = i.key
-              if (i.leaf == false) {
+              if (i.leaf === false) {
                 i.isLeaf = false
                 // 只能选叶子节点
                 if (!this.rootSelectable) {
                   i.selectable = false
                 }
-              } else if (i.leaf == true) {
+              } else if (i.leaf === true) {
                 i.isLeaf = true
                 // 只能选叶子节点
                 if (!this.rootSelectable) {
@@ -258,10 +259,12 @@
                 resolve()
               } else {
                 this.$message.error('Json error!')
+                // eslint-disable-next-line prefer-promise-reject-errors
                 reject()
               }
             } catch (e) {
               this.$message.error('Json error!')
+              // eslint-disable-next-line prefer-promise-reject-errors
               reject()
             }
           }

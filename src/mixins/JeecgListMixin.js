@@ -20,7 +20,7 @@ export const JeecgListMixin = {
         pageSize: 10,
         pageSizeOptions: ['10', '20', '30'],
         showTotal: (total, range) => {
-          return range[0] + '-' + range[1] + ' Total' + total + 'items'
+          return 'Total ' + total + ' items'
         },
         showQuickJumper: true,
         showSizeChanger: true,

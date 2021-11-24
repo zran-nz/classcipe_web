@@ -133,7 +133,8 @@ export default {
   },
   props: {
     mode: {
-      type: String
+      type: String,
+      default: ''
     },
     slideId: {
       type: String,
