@@ -8,14 +8,7 @@
           <a-col :xl="6" :lg="7" :md="8" :sm="24">
             <a-form-item label="Subject">
               <a-select :allowClear="true" v-model="queryParam.subjectId" placeholder="Please select subject" >
-                <a-select-opt-group v-for="subject in subjectList" :key="subject.id">
-                  <span slot="label">{{ subject.name }}</span>
-                  <a-select-option
-                    :value="child.id"
-                    v-for="child in subject.children"
-                    :key="child.id">{{ child.name }}
-                  </a-select-option>
-                </a-select-opt-group>
+                <a-select-option v-if="item.subjectType === subjectType.Skill || item.subjectType === subjectType.LearnAndSkill" :value="item.id" :key="item.id" v-for="item in subjectList">{{ item.name }}</a-select-option>
               </a-select>
             </a-form-item>
           </a-col>
@@ -144,7 +137,7 @@ import KnowledgeModal from './modules/KnowledgeModal'
 import KnowledgeTagList from './KnowledgeTagList'
 import { filterObj } from '@/utils/util'
 import { GetGradesByCurriculumId } from '@/api/preference'
-import { CurriculumType, TagType } from '@/const/common'
+import { CurriculumType, SubjectType, TagType } from '@/const/common'
 import JTreeSelect from '@/components/jeecg/JTreeSelect'
 import { SubjectTree } from '@/api/subject'
 
@@ -164,6 +157,7 @@ export default {
       gradeAllList: [],
       assessmentNameList: [],
       description: 'Skill Manage',
+      subjectType: SubjectType,
       // 表头
       columns: [
         {

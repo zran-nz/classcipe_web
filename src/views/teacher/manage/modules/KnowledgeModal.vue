@@ -13,14 +13,7 @@
 
         <a-form-model-item label="Subject" :labelCol="labelCol" :wrapperCol="wrapperCol" prop="subjectId">
           <a-select v-model="model.subjectId" placeholder="Please select subject" >
-            <a-select-opt-group v-for="subject in subjectList" :key="subject.id">
-              <span slot="label">{{ subject.name }}</span>
-              <a-select-option
-                :value="child.id"
-                v-for="child in subject.children"
-                :key="child.id">{{ child.name }}
-              </a-select-option>
-            </a-select-opt-group>
+            <a-select-option v-if="item.subjectType === subjectType.Skill || item.subjectType === subjectType.LearnAndSkill" :value="item.id" :key="item.id" v-for="item in subjectList">{{ item.name }}</a-select-option>
           </a-select>
         </a-form-model-item>
 
@@ -58,7 +51,7 @@
 import { httpAction } from '@/api/manage'
 import JModal from '@/components/jeecg/JModal'
 import JTreeSelect from '@/components/jeecg/JTreeSelect'
-import { TagType } from '@/const/common'
+import { SubjectType, TagType } from '@/const/common'
 export default {
   name: 'KnowledgeModal',
   components: {
@@ -106,7 +99,8 @@ export default {
         edit: '/classcipe/api/knowledge/addOrUpdate'
       },
       expandedRowKeys: [],
-      pidField: 'parentId'
+      pidField: 'parentId',
+      subjectType: SubjectType
 
     }
   },
