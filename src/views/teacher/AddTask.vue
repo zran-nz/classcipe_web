@@ -278,7 +278,7 @@
                       <a-spin size="large" />
                     </div>
                     <div class="form-block-right" v-show="currentActiveStepIndex === 1" v-if="!recomendListLoading">
-                      <div class="right-title">Teaching Tips</div>
+                      <div class="right-title">Recommended</div>
                       <div class="slide-preview-list">
                         <div class="slide-preview-item" v-for="(template, rIndex) in filterRecommendTemplateList" :key="rIndex">
                           <div class="mask-cover">
@@ -443,13 +443,29 @@
         :footer="null"
         :title="null"
         destroyOnClose
-        :dialog-style="{ top: '20px' }"
+        :dialog-style="{ top: '10px' }"
         width="90%"
         :closable="true"
         @ok="selectedMyContentVisible = false">
         <a-tabs class="template-tabs" >
           <a-tab-pane key="1" tab="Teaching Templates">
             <div class="select-template-wrapper">
+              <div class="template-show-filter">
+                <div class="icon" style="height:20px">
+                  <a-tooltip title="Expand filter" placement="right">
+                    <img
+                      v-if="!showTemplateFilter"
+                      src="~@/assets/icons/tag/add.png"
+                      @click="showTemplateFilter = !showTemplateFilter">
+                  </a-tooltip>
+                  <a-tooltip title="Collapse filter" placement="right">
+                    <img
+                      v-if="showTemplateFilter"
+                      src="~@/assets/icons/task/toggle.png"
+                      @click="showTemplateFilter = !showTemplateFilter">
+                  </a-tooltip>
+                </div>
+              </div>
               <div class="template-select-header">
                 <a-row>
                   <a-col :span="5">
@@ -458,7 +474,7 @@
                       <a-button type="link" class="clear-all" @click="clearFilter(templateType.Learning)">
                         Clear all
                       </a-button>
-                      <div class="row-select">
+                      <div class="row-select" v-if="showTemplateFilter">
                         <div class="sub-select" v-for="(item ,index) in templateFilterCondition(templateType.Learning,'')" :key="index">
                           <a-row>
                             <h4>{{ item.name }}</h4>
@@ -480,7 +496,7 @@
                       <a-button type="link" class="clear-all" @click="clearFilter(templateType.Assessments)">
                         Clear all
                       </a-button>
-                      <a-row>
+                      <a-row v-if="showTemplateFilter">
                         <a-col :span="12">
                           <div class="row-select">
                             <span class="sub-category">Knowledge focus </span>
@@ -524,7 +540,7 @@
                       <a-button type="link" class="clear-all" @click="clearFilter(templateType.Century)">
                         Clear all
                       </a-button>
-                      <a-row class="row-select" style="min-width: 700px" >
+                      <a-row v-if="showTemplateFilter" class="row-select" style="min-width: 700px" >
                         <a-row>
                           <a-tabs :activeKey="selectYearTab" @change="handleTabYearChange" tab-position="top" size="small" :tabBarGutter="1" >
                             <a-tab-pane v-for="(tag) in centuryTagMap" :key="tag[0]" :tab="tag[0]" />
@@ -1107,7 +1123,8 @@
         currentImgIndex: 0,
         showTaskSelected: false,
         onlyShowSelected: false,
-        materialVisible: false
+        materialVisible: false,
+        showTemplateFilter: false
       }
     },
     computed: {
@@ -2739,6 +2756,17 @@
     cursor: pointer;
     user-select: none;
     flex-direction: column;
+    .template-show-filter{
+      position:relative;
+      img{
+        height: 25px;
+        width: 25px;
+        position: absolute;
+        top: -10px;
+        left: 5px;
+        cursor: pointer;
+      }
+    }
 
     .template-select-header {
       background: rgba(255, 255, 255, 0.2);

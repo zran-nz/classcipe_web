@@ -1,6 +1,6 @@
 <template>
   <a-card :bordered="false" title="Notification">
-    <a slot="extra" href="#" @click="handleMarkRead">Mark as read</a>
+    <a slot="extra" href="#" @click="markAlertVisible = true">Mark as read</a>
     <div>
       <a-list
         item-layout="vertical"
@@ -46,6 +46,38 @@
         </a-list-item>
       </a-list>
     </div>
+
+    <a-modal
+      v-model="markAlertVisible"
+      :footer="null"
+      :title="null"
+      destroyOnClose
+      width="700px"
+      :closable="false">
+      <div class="alert-wrapper">
+        <div class="modal-title">
+          Mark as read
+        </div>
+        <div class="main-tips">
+          <div class="img">
+            <img src="~@/assets/icons/header/mark_alert.png" alt=""/>
+          </div>
+          <div class="description">
+            Are you sure you want to mark all unread messages as read?
+          </div>
+        </div>
+        <div class="alert-action row-flex-center">
+          <div class="slide-btn-wrapper">
+            <a-button @click="markAlertVisible = false" style="background: #D7D9D9;border: 1px solid #D7D9D9;border-radius: 25px;color: #000;" class="btn-item btn-item-no " type="primary">
+              Cancel
+            </a-button>
+            <a-button @click="handleMarkRead" style="background: #15C39A;;border: 1px solid #15C39A;border-radius: 25px;color: #fff;" class="btn-item btn-item-yes" type="primary">
+              Confirm
+            </a-button>
+          </div>
+        </div>
+      </div>
+    </a-modal>
   </a-card>
 </template>
 
@@ -86,7 +118,8 @@ export default {
       mySelectedList: [],
       showSelect: false,
       acceptLoading: false,
-      refuseLoading: false
+      refuseLoading: false,
+      markAlertVisible: false
     }
   },
   computed: {
@@ -180,6 +213,7 @@ export default {
           this.loadMessageData()
         })
       }
+      this.markAlertVisible = false
     }
   }
 }
@@ -288,4 +322,57 @@ export default {
   border-radius: 10px;
   background-color: rgba(21, 195, 154, 1);
 }
+
+.alert-wrapper {
+  padding: 20px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+
+  .modal-title {
+    margin: 5px auto;
+    display: flex;
+    width: 186px;
+    font-size: 20px;
+    font-family: Arial;
+    font-weight: 900;
+    line-height: 20px;
+    color: #070707;
+    opacity: 1;
+  }
+
+  .main-tips {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+     img {
+      width: 300px;
+      height: 200px;
+      margin: 20px;
+    }
+    .description{
+      margin: 10px;
+      font-size: 15px;
+      font-family: Inter-Bold;
+      line-height: 32px;
+      color: #474747;
+    }
+  }
+
+  .row-flex-center {
+    margin-top: 30px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    flex-wrap: wrap;
+    justify-content: center;
+    .btn-item{
+      margin:0px 10px;
+    }
+  }
+}
+
 </style>
