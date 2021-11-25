@@ -12,7 +12,10 @@ export const TAG_CATGORY_KEYWORDS = 'Key words'
 export const TagType = {
   'knowledge': 1,
   'skill': 2,
-  'century': 3
+  'century': 3,
+  'common': 4,
+  'idu': 5,
+  'ibSkill': 6
 }
 
 export const SubjectType = {

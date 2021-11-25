@@ -286,7 +286,7 @@ export default {
       const params = this.getQueryParams()
       params.hasQuery = 'true'
       params.curriculumId = this.$store.getters.bindCurriculum
-      params.tagType = TagType.skill
+      params.tagType = TagType.ibSkill
       postAction(this.url.list, params).then(res => {
         if (res.success) {
           const result = res.result
