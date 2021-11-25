@@ -1,6 +1,5 @@
-
 import { filterObj } from '@/utils/util'
-import { deleteAction, getAction, downFile, getFileAccessHttpUrl } from '@/api/manage'
+import { deleteAction, downFile, getAction, getFileAccessHttpUrl, postAction } from '@/api/manage'
 import Vue from 'vue'
 import store from '@/store'
 import { Modal } from 'ant-design-vue'
@@ -168,7 +167,7 @@ export const JeecgListMixin = {
           content: 'Do you want to delete the selected data?',
           onOk: function () {
             that.loading = true
-            deleteAction(that.url.deleteBatch, { ids: ids }).then((res) => {
+            postAction(that.url.deleteBatch, { ids: ids }).then((res) => {
               if (res.success) {
                 // 重新计算分页问题
                 that.reCalculatePage(that.selectedRowKeys.length)
