@@ -1351,7 +1351,7 @@
           if (response.success) {
             this.restoreTask(response.result.id, false)
             this.$message.success(this.$t('teacher.add-task.save-success'))
-            this.$router.push({ path: '/teacher/main/created-by-me' })
+            this.goBack()
           } else {
             this.$message.error(response.message)
           }
@@ -1398,7 +1398,12 @@
       },
 
       goBack () {
-        this.$router.push({ path: '/teacher/main/created-by-me' })
+        if (this.$store.getters.currentRole === 'teacher') {
+          this.$router.push({ path: '/teacher/main/created-by-me' })
+        } else {
+          this.$router.push({ path: '/expert/main/created-by-me' })
+        }
+
         // if (window.history.length <= 1) {
         //   this.$router.push({ path: '/teacher/main/created-by-me' })
         //   return false

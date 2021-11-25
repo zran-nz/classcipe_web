@@ -1136,7 +1136,7 @@ export default {
         if (response.success) {
           this.restoreUnitPlan(response.result.id, false)
           this.$message.success(this.$t('teacher.add-unit-plan.save-success'))
-          this.$router.push({ path: '/teacher/main/created-by-me' })
+          this.goBack()
         } else {
           this.$message.error(response.message)
         }
@@ -1273,16 +1273,11 @@ export default {
     },
 
     goBack () {
-      if (window.history.length <= 1) {
+      if (this.$store.getters.currentRole === 'teacher') {
         this.$router.push({ path: '/teacher/main/created-by-me' })
-        return false
       } else {
-        this.$router.go(-1)
+        this.$router.push({ path: '/expert/main/created-by-me' })
       }
-
-      setTimeout(() => {
-        this.$router.push({ path: '/teacher/main/created-by-me' })
-      }, 500)
     },
     handleChangeUserTags (tags) {
       this.form.customTags = tags

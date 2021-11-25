@@ -224,13 +224,13 @@ export const asyncRouterMap = [
               {
                 path: '/expert/main/created-by-me',
                 name: 'CreatedByMe',
-                component: () => import('@/views/expert/CreatedByMe'),
+                component: () => import('@/views/teacher/CreatedByMe'),
                 meta: { title: 'menu.my-content', keepAlive: true, permission: ['expert', 'teacher'] }
               },
               {
                 path: '/expert/main/my-favorite',
                 name: 'MyFavorite',
-                component: () => import('@/views/expert/MyFavorite'),
+                component: () => import('@/views/teacher/MyFavorite'),
                 meta: { title: 'menu.my-favorite', keepAlive: true, permission: ['expert', 'teacher'] }
               },
               {

@@ -29,19 +29,19 @@
               <a-menu-item @click="toggleType('all-type', $t('teacher.my-content.all-type'))">
                 <span>{{ $t('teacher.my-content.all-type') }}</span>
               </a-menu-item>
+              <a-menu-item @click="toggleType('unit-plan', $t('teacher.my-content.unit-plan-type'))">
+                <span>{{ $t('teacher.my-content.unit-plan-type') }}</span>
+              </a-menu-item>
               <template v-if="$store.getters.roles.indexOf('teacher') !== -1">
-                <a-menu-item @click="toggleType('unit-plan', $t('teacher.my-content.unit-plan-type'))">
-                  <span>{{ $t('teacher.my-content.unit-plan-type') }}</span>
-                </a-menu-item>
                 <a-menu-item @click="toggleType('evaluation', $t('teacher.my-content.evaluation-type'))">
                   <span>{{ $t('teacher.my-content.evaluation-type') }}</span>
                 </a-menu-item>
               </template>
-              <template v-if="$store.getters.roles.indexOf('expert') !== -1">
+              <!--              <template v-if="$store.getters.roles.indexOf('expert') !== -1">
                 <a-menu-item @click="toggleType('topic', $t('teacher.my-content.topics-type'))">
                   <span>{{ $t('teacher.my-content.topics-type') }}</span>
                 </a-menu-item>
-              </template>
+              </template>-->
               <a-menu-item @click="toggleType('task', $t('teacher.my-content.tasks-type') )">
                 <span>{{ $t('teacher.my-content.tasks-type') }}</span>
               </a-menu-item>
