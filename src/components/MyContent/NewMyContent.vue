@@ -695,7 +695,7 @@ export default {
 
         this.$logger.info('associate data', postData)
         Associate(postData).then((response) => {
-          this.$message.success('Success!')
+          this.$message.success('Associate successfully!')
           this.$emit('ensure', postData)
         })
       }

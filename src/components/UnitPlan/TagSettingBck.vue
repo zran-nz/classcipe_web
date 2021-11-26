@@ -218,7 +218,7 @@ export default {
             this.createTagName = ''
             this.inputTag = ''
             this.userTags.unshift(item)
-            this.$message.success('Add tag success')
+            this.$message.success('Add tag successfully')
             this.$emit('add-user-tag', item, true)
           } else {
             this.$message.error(response.message)
@@ -235,7 +235,7 @@ export default {
       if (index > -1) {
         this.selectedGlobalLabels.splice(index, 1)
         UserTagDelete({ name: tag.name, isGlobal: true }).then((response) => {
-          this.$message.success('Remove tag success')
+          this.$message.success('Remove tag successfully')
           this.$emit('add-user-tag', tag, false)
         })
       } else {
@@ -243,7 +243,7 @@ export default {
         this.tagLoading = true
         UserTagAddOrUpdate({ name: tag.name, isGlobal: true }).then((response) => {
           if (response.success) {
-            this.$message.success('Add tag success')
+            this.$message.success('Add tag successfully')
             this.$emit('add-user-tag', tag, true)
           } else {
             this.$message.error(response.message)

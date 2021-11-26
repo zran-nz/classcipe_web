@@ -182,7 +182,7 @@ export default {
       this.acceptLoading = true
       ReceiveCollaborate({ id: item.busId }).then(res => {
         logger.info('ReceiveCollaborate', res)
-        this.$message.success('collaborate success')
+        this.$message.success('collaborate successfully')
       }).then(() => {
         EditCementSend({ anntId: item.id }).then(() => {
           this.$store.commit(RECEIVE_MSG, true)

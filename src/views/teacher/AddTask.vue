@@ -1381,7 +1381,7 @@
             this.selectedSlideVisible = true
             this.$message.success(this.$t('teacher.add-task.publish-success'))
           } else {
-            this.$message.success('Unpublish Success')
+            this.$message.success('Unpublish successfully')
           }
           this.form.status = status
           this.$refs.commonFormHeader.publishing = false
@@ -2268,7 +2268,7 @@
               this.$set(this.form, dataItem.fieldName, dataItem.data[0])
             }
           })
-          this.$message.success('restore success!')
+          this.$message.success('restore successfully!')
         }
         this.$logger.info('after handleRestoreField', this.form)
       },

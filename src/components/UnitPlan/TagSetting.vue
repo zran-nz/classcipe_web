@@ -296,7 +296,7 @@ export default {
             this.createTagName = ''
             this.inputTag = ''
             this.handleUserTagsMap()
-            this.$message.success('Add tag success')
+            this.$message.success('Add tag successfully')
             this.$emit('change-add-keywords', item)
           } else {
             this.$message.error(response.message)
@@ -330,7 +330,7 @@ export default {
             this.selectLabel = ''
           }
           this.handleUserTagsMap()
-          this.$message.success('Delete success')
+          this.$message.success('Delete successfully')
         } else {
           this.$message.error(response.message)
         }
@@ -366,7 +366,7 @@ export default {
           this.selectLabel = tag
           // this.userTagsMap = new Map()
           this.handleUserTagsMap()
-          this.$message.success('Add tag type success')
+          this.$message.success('Add tag type successfully')
         } else {
           this.$message.error(response.message)
         }

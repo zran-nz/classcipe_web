@@ -1780,7 +1780,7 @@ export default {
             this.$set(this.form, dataItem.fieldName, dataItem.data[0])
           }
         })
-        this.$message.success('restore success!')
+        this.$message.success('restore successfully!')
       }
       this.$logger.info('after handleRestoreField', this.form)
     },

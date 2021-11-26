@@ -654,7 +654,7 @@ export default {
         name: this.createdKnowledgeTag
       }).then(response => {
         logger.info('handleAssociate KnowledgeAddOrUpdateTag', response)
-        this.$message.success('success')
+        this.$message.success('add successfully')
         this.refreshKnowledgeTags(response.result.id)
         this.mode = this.modeType.select
         this.inputTag = ''

@@ -1164,7 +1164,7 @@ export default {
         if (status === 1) {
           this.$message.success(this.$t('teacher.add-unit-plan.publish-success'))
         } else {
-          this.$message.success('Unpublish Success')
+          this.$message.success('Unpublish successfully')
         }
         this.form.status = status
         this.$refs.commonFormHeader.publishing = false
@@ -1444,7 +1444,7 @@ export default {
       }).then(response => {
         this.$logger.info('Associate response ', response)
         // 刷新子组件的关联数据
-        this.$message.success('success!')
+        this.$message.success('associate successfully!')
       })
     },
     showSelectLinkContentVisible () {
@@ -1794,7 +1794,7 @@ export default {
             this.$set(this.form, dataItem.fieldName, dataItem.data[0])
           }
         })
-        this.$message.success('restore success!')
+        this.$message.success('restore successfully!')
       }
       this.$logger.info('after handleRestoreField', this.form)
     },

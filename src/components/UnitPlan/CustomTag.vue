@@ -312,7 +312,7 @@ export default {
             this.inputTag = ''
             this.userTagsMap.get(this.selectLabel).add(item.name)
             this.changeTab(this.selectLabel)
-            this.$message.success('Add tag success')
+            this.$message.success('Add tag successfully')
             this.$emit('change-add-keywords', item)
           } else {
             this.$message.error(response.message)
