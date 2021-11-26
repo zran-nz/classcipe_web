@@ -404,6 +404,7 @@ export default {
     }
 
     .main-tree-content {
+      width: 1064px;
       z-index: 150;
       position: absolute;
       transition: all 200ms ease-in;
