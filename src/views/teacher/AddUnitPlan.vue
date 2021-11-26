@@ -756,7 +756,12 @@ export default {
       userTags: {},
       NavigationType: NavigationType,
       defaultActiveMenu: NavigationType.learningOutcomes,
-      showMenuList: [ NavigationType.specificSkills, NavigationType.centurySkills, NavigationType.learningOutcomes, NavigationType.assessmentType ],
+      showMenuList: [ NavigationType.specificSkills,
+        NavigationType.centurySkills,
+        NavigationType.learningOutcomes,
+        NavigationType.assessmentType,
+        NavigationType.all21Century, NavigationType.sdg, NavigationType.sync
+      ],
 
       showCollaborateCommentVisible: false,
 
@@ -1346,7 +1351,12 @@ export default {
     },
     handleSelectDescription () {
       this.selectSyncDataVisible = true
-      this.showMenuList = [ NavigationType.specificSkills, NavigationType.centurySkills, NavigationType.learningOutcomes, NavigationType.assessmentType ]
+      this.showMenuList = [ NavigationType.specificSkills,
+        NavigationType.centurySkills,
+        NavigationType.learningOutcomes,
+        NavigationType.assessmentType,
+        NavigationType.all21Century, NavigationType.sdg, NavigationType.sync
+      ]
       this.defaultActiveMenu = NavigationType.learningOutcomes
     },
     handleConfirmAssociate () {

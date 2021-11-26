@@ -5,7 +5,7 @@
     <unit-svg :style="{height: size}" v-else-if="type === typeMap['unit-plan']"/>
     <to-svg :style="{ height: size}" v-else-if="type === typeMap.topic"/>
     <ev-svg :style="{height: size}" v-else-if="type === typeMap.evaluation"/>
-    <!--    <a-icon type="question-circle" :style="{fontSize: '25px'}" v-else/>-->
+    <a-icon type="question-circle" :style="{fontSize: '25px'}" v-else/>
   </div>
 </template>
 

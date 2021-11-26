@@ -439,6 +439,148 @@ export default {
       this.previewCurrentId = data.id
       this.previewType = data.type
       this.previewVisible = true
+    },
+    handleRemoveSelected (item) {
+      this.$logger.info('Content List handleRemoveSelected ' + item.dataType, item)
+
+      if (item.dataType === NavigationType.sync) {
+        const index = this.selectedKnowledgeIdList.indexOf(item.knowledgeData.id)
+        if (index !== -1) {
+          this.selectedKnowledgeIdList.splice(index, 1)
+          this.selectedKnowledgeIdNameMap.delete(item.knowledgeId)
+        } else {
+          this.selectedKnowledgeIdList.push(item.knowledgeId)
+          this.selectedKnowledgeIdNameMap.set(item.knowledgeId, item.name, item.tagType, item.tags)
+        }
+        const selectedList = []
+        this.selectedKnowledgeIdList.forEach(knowledgeId => {
+          selectedList.push({
+            dataType: this.currentDataType,
+            knowledgeId: knowledgeId,
+            name: this.selectedKnowledgeIdNameMap.get(knowledgeId),
+            tagType: item.tagType,
+            tags: item.tags
+          })
+        })
+        this.$emit('select-sync', selectedList)
+      } else if (item.dataType === NavigationType.learningOutcomes) {
+        const index = this.selectedCurriculumIdList.indexOf(item.knowledgeData.id)
+        if (index !== -1) {
+          this.selectedCurriculumIdList.splice(index, 1)
+          this.selectedCurriculumMap.delete(item.id)
+        } else {
+          this.selectedCurriculumIdList.push(item.id)
+          this.selectedCurriculumMap.set(item.id, item)
+        }
+        const selectedList = []
+        this.selectedCurriculumIdList.forEach(knowledgeId => {
+          selectedList.push({
+            dataType: this.currentDataType,
+            knowledgeId: knowledgeId,
+            knowledgeData: this.selectedCurriculumMap.get(knowledgeId)
+          })
+        })
+        this.$emit('select-curriculum', selectedList)
+      } else if (item.dataType === NavigationType.specificSkills) {
+        // subject specific skills 是mainSubject-year-knowledge
+        if (item.children.length || (item.gradeList && item.gradeList.length)) {
+          // 如果有子列表，表示还未到最后一层knowledge，通知左侧导航栏更新同步层级
+          LibraryEventBus.$emit(LibraryEvent.ContentListItemClick, {
+            item,
+            dataType: this.currentDataType,
+            parent: this.parent,
+            eventType: 'syncDir'
+          })
+          this.$logger.info('$emit sync')
+        } else {
+          const index = this.selectedSubjectSpecificSkillIdList.indexOf(item.knowledgeData.id)
+          if (index !== -1) {
+            this.selectedSubjectSpecificSkillIdList.splice(index, 1)
+            this.selectedSubjectSpecificSkillIdMap.delete(item.id)
+          } else {
+            this.selectedSubjectSpecificSkillIdList.push(item.id)
+            this.selectedSubjectSpecificSkillIdMap.set(item.id, item)
+          }
+          const selectedList = []
+          this.selectedSubjectSpecificSkillIdList.forEach(knowledgeId => {
+            selectedList.push({
+              dataType: this.currentDataType,
+              knowledgeId: knowledgeId,
+              knowledgeData: this.selectedSubjectSpecificSkillIdMap.get(knowledgeId)
+            })
+          })
+          this.$emit('select-subject-specific-skill', selectedList)
+        }
+      } else if (item.dataType === NavigationType.centurySkills) {
+        const index = this.selected21CenturySkillIdList.indexOf(item.knowledgeData.id)
+        if (index !== -1) {
+          this.selected21CenturySkillIdList.splice(index, 1)
+          this.selected21CenturySkillIdMap.delete(item.id)
+        } else {
+          this.selected21CenturySkillIdList.push(item.id)
+          this.selected21CenturySkillIdMap.set(item.id, item)
+        }
+        const selectedList = []
+        this.selected21CenturySkillIdList.forEach(knowledgeId => {
+          selectedList.push({
+            dataType: this.currentDataType,
+            knowledgeId: knowledgeId,
+            knowledgeData: this.selected21CenturySkillIdMap.get(knowledgeId)
+          })
+        })
+        this.$emit('select-century-skill', selectedList)
+      } else if (item.dataType === NavigationType.sdg) {
+        const index = this.selectedBigIdeaList.indexOf(item.bigIdea)
+        if (index !== -1) {
+          this.selectedBigIdeaList.splice(index, 1)
+        } else {
+          this.selectedBigIdeaList.push(item.id)
+        }
+        const selectedList = []
+        this.selectedBigIdeaList.forEach(bigIdea => {
+          selectedList.push({
+            dataType: this.currentDataType,
+            bigIdea
+          })
+        })
+        this.$emit('select-big-idea', selectedList)
+      } else if (item.dataType === NavigationType.assessmentType) {
+        const index = this.selectedAssessmentIdList.indexOf(item.knowledgeData.id)
+        if (index !== -1) {
+          this.selectedAssessmentIdList.splice(index, 1)
+          this.selectedAssessmentMap.delete(item.id)
+        } else {
+          this.selectedAssessmentIdList.push(item.id)
+          this.selectedAssessmentMap.set(item.id, item)
+        }
+        const selectedList = []
+        this.selectedAssessmentIdList.forEach(assessmentId => {
+          selectedList.push({
+            dataType: this.currentDataType,
+            knowledgeId: assessmentId,
+            knowledgeData: this.selectedAssessmentMap.get(assessmentId)
+          })
+        })
+        this.$emit('select-assessmentType', selectedList)
+      } else if (item.dataType === NavigationType.all21Century) {
+        const index = this.selectedAll21CenturyIdList.indexOf(item.knowledgeData.id)
+        if (index !== -1) {
+          this.selectedAll21CenturyIdList.splice(index, 1)
+          this.selectedAll21CenturyMap.delete(item.id)
+        } else {
+          this.selectedAll21CenturyIdList.push(item.id)
+          this.selectedAll21CenturyMap.set(item.id, item)
+        }
+        const selectedList = []
+        this.selectedAll21CenturyIdList.forEach(all21Century => {
+          selectedList.push({
+            dataType: this.currentDataType,
+            all21Century,
+            item: this.selectedAll21CenturyMap.get(all21Century)
+          })
+        })
+        this.$emit('select-all-21-century', selectedList)
+      }
     }
   },
   destroyed () {
@@ -485,6 +627,7 @@ export default {
     }
   }
   .content-list {
+    background-color: #fff;
     flex: 1;
     overflow-y: scroll;
     overflow-x: hidden;
