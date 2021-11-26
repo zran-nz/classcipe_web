@@ -1,5 +1,5 @@
 <template>
-  <div class="my-full-form-wrapper">
+  <div class="my-full-form-wrapper" id="formRoot">
     <div class="form-header">
       <common-form-header
         ref="commonFormHeader"
@@ -141,7 +141,7 @@
 
                         </div>
                         <a-skeleton :loading="skeletonLoading" active >
-                          <div class="slide-select-wrapper" ref="slide">
+                          <div class="slide-select-wrapper" ref="slide" id="templateSelected">
                             <div class="slide-select">
                               <div class="slide-select-and-preview">
                                 <!--                            <div class="reset-edit-basic-info" >Edit Task Info</div>-->
@@ -209,6 +209,14 @@
               </div>
 
               <div class="task-form-right" :style="{'width':rightWidth}">
+
+                <!--购物车效果截图 -->
+                <div class="slide-animate-cover" id="slide-animate" v-show="currentSlideCoverImgSrc">
+                  <img
+                    id="slide-animate-img"
+                    :src="currentSlideCoverImgSrc"
+                    class="slide-animate-item" />
+                </div>
                 <template v-if="showAllCollaborateCommentVisible">
                   <a-skeleton :loading="showHistoryLoading" active>
                     <div class="collaborate-panel" :style="{'width':rightWidth, 'margin-top': '0px', 'z-index': 100, 'padding': '10px'}">
@@ -287,8 +295,8 @@
                                 <!--                            <div class="session-btn session-btn-left">-->
                                 <!--                              <div class="session-btn-text">Preview</div>-->
                                 <!--                            </div>-->
-                                <div class="session-btn session-btn-right" v-if="!addRecomendLoading">
-                                  <div class="session-btn-text" @click="selectRecommendTemplate(template)">Add as slide</div>
+                                <div class="session-btn session-btn-right" v-if="!addRecomendLoading" @click="selectRecommendTemplate(template, rIndex, $event)">
+                                  <div class="session-btn-text">Add as slide</div>
                                 </div>
                               </div>
                             </div>
@@ -1128,7 +1136,9 @@
         showTaskSelected: false,
         onlyShowSelected: false,
         materialVisible: false,
-        showTemplateFilter: false
+        showTemplateFilter: false,
+
+        currentSlideCoverImgSrc: null
       }
     },
     computed: {
@@ -2099,8 +2109,38 @@
           this.templateLoading = false
         })
       },
-      selectRecommendTemplate (template) {
+      selectRecommendTemplate (template, rIndex, event) {
         this.$logger.info('selectRecommendTemplate', template)
+
+        // 计算元素位置，然后添加动画
+        this.currentSlideCoverImgSrc = template.images[0]
+        this.$nextTick(() => {
+          const slideAnimateDom = document.getElementById('slide-animate')
+          const slideAnimateImgDom = document.getElementById('slide-animate-img')
+          const imgDomPos = slideAnimateDom.getBoundingClientRect()
+          const containerDomPos = document.getElementById('templateSelected').getBoundingClientRect()
+          const buttonPos = event.target.getBoundingClientRect()
+
+          console.log('buttonPos y ' + buttonPos.y + ' containerDomPos ' + containerDomPos.y + ' img y ' + imgDomPos.y + ' distY ' + (buttonPos.y - containerDomPos.y - containerDomPos.height / 2))
+          const offsetX = -(buttonPos.left + buttonPos.width / 2 - (containerDomPos.left + containerDomPos.width / 2))
+          const offsetY = -(buttonPos.y - containerDomPos.y - containerDomPos.height * 0.8)
+          console.log('offsetX: ' + offsetX + ' offsetY: ' + offsetY)
+
+          // slide截图出现与初始定位
+          slideAnimateDom.style.left = buttonPos.left + buttonPos.width / 2 - 200 + 'px'
+          slideAnimateDom.style.top = buttonPos.top + buttonPos.height / 2 - 100 + 'px'
+          slideAnimateDom.style.display = 'block'
+
+          // 开始动画
+          slideAnimateDom.style.transform = 'translateX(' + offsetX + 'px)'
+          slideAnimateImgDom.style.transform = 'translateY(' + offsetY + 'px) scale(0.1)'
+          setTimeout(() => {
+            this.currentSlideCoverImgSrc = null
+            slideAnimateDom.style.transform = 'translateX(0px)'
+            slideAnimateImgDom.style.transform = 'translateY(0px) scale(1)'
+          }, 600)
+        })
+
         if (!this.form.presentationId) {
           this.selectedTemplateList = []
           this.selectedTemplateList.push(template)
@@ -2539,6 +2579,7 @@
       .card-wrapper{
 
         .task-form-right {
+          overflow: visible;
           .form-block-right{
             .img-wrapper {
               position: relative;
@@ -2879,7 +2920,6 @@
               opacity: 1;
               font-weight: bold;
               color: #FF3355;
-              opacity: 1;
             }
           }
         }
@@ -4233,4 +4273,28 @@
     font-weight: 500;
     color: #333;
   }
+
+  .slide-animate-cover {
+    width: 400px;
+    height: 200px;
+    position: fixed;
+    transition: transform .6s;
+    transform: translateX(0px);
+  }
+  .slide-animate-cover > img {
+    transform: translateY(0px);
+    transform: scale(1);
+    width: 400px;
+    height: 200px;
+    transition: transform .6s;
+  }
+  .slide-animate-cover {
+    transition-timing-function: linear;
+    opacity: 0.8;
+  }
+  .slide-animate-cover > img {
+    transition-timing-function: cubic-bezier(.55,0,.85,.36);
+    outline: 1px solid #D8D8D8;
+  }
+
 </style>

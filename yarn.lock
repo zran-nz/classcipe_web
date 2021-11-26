@@ -11668,11 +11668,6 @@ vue-i18n@^8.17.4:
   resolved "https://registry.nlark.com/vue-i18n/download/vue-i18n-8.24.4.tgz#b158614c1df7db183d9cadddbb73e1d540269492"
   integrity sha1-sVhhTB332xg9nK3du3Ph1UAmlJI=
 
-vue-infinite-scroll@^2.0.2:
-  version "2.0.2"
-  resolved "https://registry.npmjs.org/vue-infinite-scroll/-/vue-infinite-scroll-2.0.2.tgz#ca37a91fe92ee0ad3b74acf8682c00917144b711"
-  integrity sha512-n+YghR059YmciANGJh9SsNWRi1YZEBVlODtmnb/12zI+4R72QZSWd+EuZ5mW6auEo/yaJXgxzwsuhvALVnm73A==
-
 vue-jest@^3.0.5:
   version "3.0.7"
   resolved "https://registry.nlark.com/vue-jest/download/vue-jest-3.0.7.tgz#a6d29758a5cb4d750f5d1242212be39be4296a33"
