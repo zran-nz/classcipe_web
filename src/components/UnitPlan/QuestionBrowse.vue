@@ -6,7 +6,7 @@
       <a-col span="12" class="col-wrapper">
         <div>
           <div class="row-filter">
-            <div><h3><a-icon type="bulb" />Recommend</h3></div>
+            <div><h3><a-icon type="bulb" />Recommended</h3></div>
             <div class="keyword-search">
               <a-input
                 @keyup="handleKeySearch"
