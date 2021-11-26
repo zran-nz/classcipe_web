@@ -86,7 +86,7 @@
                       </template>
                     </a-step>
 
-                    <a-step title=" Edit task slides" :status="currentActiveStepIndex === 1 ? 'process':'wait'">
+                    <a-step title=" Edit task slides" :status="currentActiveStepIndex === 1 ? 'process':'wait'" id="templateSelected">
                       <template v-if="currentActiveStepIndex === 1" slot="description">
                         <div class="edit-in-slide" v-show="form.presentationId">
                           <a-button
@@ -141,7 +141,7 @@
 
                         </div>
                         <a-skeleton :loading="skeletonLoading" active >
-                          <div class="slide-select-wrapper" ref="slide" id="templateSelected">
+                          <div class="slide-select-wrapper" ref="slide">
                             <div class="slide-select">
                               <div class="slide-select-and-preview">
                                 <!--                            <div class="reset-edit-basic-info" >Edit Task Info</div>-->
@@ -2121,9 +2121,10 @@
           const containerDomPos = document.getElementById('templateSelected').getBoundingClientRect()
           const buttonPos = event.target.getBoundingClientRect()
 
-          console.log('buttonPos y ' + buttonPos.y + ' containerDomPos ' + containerDomPos.y + ' img y ' + imgDomPos.y + ' distY ' + (buttonPos.y - containerDomPos.y - containerDomPos.height / 2))
+          console.log(containerDomPos)
+          console.log('buttonPos y ' + buttonPos.y + ' containerDomPos y ' + containerDomPos.y + ' containerDomPos h ' + containerDomPos.height + ' img y ' + imgDomPos.y + ' distY ' + (buttonPos.y - containerDomPos.y - containerDomPos.height / 2))
           const offsetX = -(buttonPos.left + buttonPos.width / 2 - (containerDomPos.left + containerDomPos.width / 2))
-          const offsetY = -(buttonPos.y - containerDomPos.y - containerDomPos.height * 0.8)
+          const offsetY = -(event.clientY - (containerDomPos.y + containerDomPos.height / 2))
           console.log('offsetX: ' + offsetX + ' offsetY: ' + offsetY)
 
           // slide截图出现与初始定位
@@ -2138,20 +2139,20 @@
             this.currentSlideCoverImgSrc = null
             slideAnimateDom.style.transform = 'translateX(0px)'
             slideAnimateImgDom.style.transform = 'translateY(0px) scale(1)'
+
+            if (!this.form.presentationId) {
+              this.selectedTemplateList = []
+              this.selectedTemplateList.push(template)
+              this.addRecomendLoading = true
+              this.handleAddTemplate()
+            } else {
+              if (this.selectedTemplateIdList.indexOf(template.id) === -1) {
+                this.selectedTemplateList.push(template)
+              }
+              this.showTaskSelected = true
+            }
           }, 600)
         })
-
-        if (!this.form.presentationId) {
-          this.selectedTemplateList = []
-          this.selectedTemplateList.push(template)
-          this.addRecomendLoading = true
-          this.handleAddTemplate()
-        } else {
-          if (this.selectedTemplateIdList.indexOf(template.id) === -1) {
-            this.selectedTemplateList.push(template)
-          }
-          this.showTaskSelected = true
-        }
       },
       loadUserTags () {
         // this.$refs.customTag.tagLoading = true
