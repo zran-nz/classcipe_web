@@ -56,6 +56,6 @@ export const CustomTagType = {
   task: {
     safa: ['The Arts-Assessment types', 'Science-Assessment types'],
     base: ['Assessment purpose'],
-    default: ['Teaching strategies', 'Differentiated instructions', 'Bloom Taxonomy', 'Knowledge dimension']
+    default: ['Teaching strategies', 'Differentiated instructions', 'Bloom\'s Taxonomy', 'Knowledge Dimensions']
   }
 }

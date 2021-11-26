@@ -150,7 +150,7 @@
                                   <div class="select-action">
                                     <div class="modal-ensure-action-line">
                                       <a-button class="action-item action-cancel" shape="round" @click="handleShowSelectMyContent">Select template</a-button>
-                                      <a-button class="action-ensure action-item" type="primary" shape="round" @click="handleCreateInGoogle">Create a new ppt in Google side</a-button>
+                                      <a-button class="action-ensure action-item" type="primary" shape="round" @click="handleCreateInGoogle">Create a new ppt in Google Slide</a-button>
                                     </div>
                                   </div>
                                 </div>
