@@ -475,7 +475,8 @@
         v-model="selectSyncDataVisible"
         :footer="null"
         destroyOnClose
-        width="80%"
+        width="1200px"
+        :dialog-style="{ top: '20px' }"
         :title="null"
         @ok="selectSyncDataVisible = false"
         @cancel="selectSyncDataVisible = false">
@@ -1779,7 +1780,7 @@ export default {
             this.$set(this.form, dataItem.fieldName, dataItem.data[0])
           }
         })
-        this.$message.success('restore success!')
+        this.$message.success('restore successfully!')
       }
       this.$logger.info('after handleRestoreField', this.form)
     },

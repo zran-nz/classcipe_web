@@ -114,7 +114,7 @@ export default {
         this.acceptLoading = true
         ReceiveCollaborate({ id: this.notificationData.busId }).then(res => {
           logger.info('ReceiveCollaborate', res)
-          this.$message.success('collaborate success')
+          this.$message.success('collaborate successfully')
         }).then(() => {
           this.acceptLoading = false
         }).finally(() => {

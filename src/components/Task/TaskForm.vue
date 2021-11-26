@@ -127,7 +127,8 @@
       v-model="selectSyncDataVisible"
       :footer="null"
       destroyOnClose
-      width="80%"
+      width="1200px"
+      :dialog-style="{ top: '20px' }"
       :title="null"
       @ok="selectSyncDataVisible = false"
       @cancel="selectSyncDataVisible = false">
@@ -381,7 +382,7 @@ export default {
       SpliteTask(SpliteTaskData).then((response) => {
         this.$logger.info('SpliteTask ', response.result)
         if (response.success) {
-          this.$message.success('Add another task success')
+          this.$message.success('Add another task successfully')
           taskData.id = response.result.id
           this.$emit('finish-task', taskData)
           this.taskNum = this.taskNum + 1

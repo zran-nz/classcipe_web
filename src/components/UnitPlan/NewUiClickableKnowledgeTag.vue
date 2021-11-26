@@ -301,7 +301,12 @@
           </div>
         </div>
       </a-modal>
-      <a-modal v-model="associateLibraryVisible" @ok="handleEnsureAssociate" destroyOnClose width="80%" :dialog-style="{ top: '20px' }">
+      <a-modal
+        v-model="associateLibraryVisible"
+        @ok="handleEnsureAssociate"
+        destroyOnClose
+        width="1200px"
+        :dialog-style="{ top: '20px' }">
         <div class="associate-library">
           <new-browser :select-mode="selectModel.knowledgeDescription" :question-index="questionIndex"/>
         </div>

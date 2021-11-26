@@ -260,7 +260,7 @@ export default {
         this.nameSessionRecord.class_name = ''
         this.nameSessionRecord.class_id = ''
         this.loadTeacherClasses(this.data.length)
-        this.$message.success('name session success!')
+        this.$message.success('name session successfully!')
       })
     },
 

@@ -64,17 +64,20 @@
       </div>
     </div>
     <div class="group-label">
-      <template v-if="groupNameMode === 'select'">
-        <div class="choose-label">Choose term</div>
-        <a-select :default-value="defaultGroupName" style="width: 100%" v-model="selectedGroup">
-          <a-select-option :value="groupNameItem" v-for="(groupNameItem, gIndex) in groupNameList" :key="gIndex">
-            {{ groupNameItem }}
-          </a-select-option>
-        </a-select>
-      </template>
-      <template v-if="groupNameMode === 'input'">
-        <div class="choose-label">Term name</div>
-        <a-input v-model="groupName" />
+      <!-- unit plan下才有term概念,task不显示对应的操作和term名称-->
+      <template v-if="fromType === typeMap[&quot;unit-plan&quot;]">
+        <template v-if="groupNameMode === 'select'">
+          <div class="choose-label">Choose term</div>
+          <a-select :default-value="defaultGroupName" style="width: 100%" v-model="selectedGroup">
+            <a-select-option :value="groupNameItem" v-for="(groupNameItem, gIndex) in groupNameList" :key="gIndex">
+              {{ groupNameItem }}
+            </a-select-option>
+          </a-select>
+        </template>
+        <template v-if="groupNameMode === 'input'">
+          <div class="choose-label">Term name</div>
+          <a-input v-model="groupName" />
+        </template>
       </template>
     </div>
     <div class="content-wrapper">
@@ -446,7 +449,7 @@ export default {
     this.$logger.info('currentTypeLabel ' + this.currentTypeLabel)
     this.mySelectedList = this.selectedList
     this.selectedGroup = this.defaultGroupName
-    this.groupName = this.defaultGroupName
+    this.groupName = (this.groupNameList.length ? this.groupNameList[0] : this.defaultGroupName) // task下只有一个默认隐藏的分组,所以默认选第一个
     this.loadMyContent()
   },
   methods: {
@@ -695,7 +698,7 @@ export default {
 
         this.$logger.info('associate data', postData)
         Associate(postData).then((response) => {
-          this.$message.success('Success!')
+          this.$message.success('Associate successfully!')
           this.$emit('ensure', postData)
         })
       }

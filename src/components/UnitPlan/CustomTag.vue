@@ -62,6 +62,9 @@
                       <!--      skt-tag-list-->
                       <div class="skt-tag-list">
 
+                        <div class="tag-title">
+                          Tags added :
+                        </div>
                         <div class="search-tag-wrapper tag-wrapper">
                           <div class="skt-tag-item" v-for="(keyword,index) in tagSearchList" :key="index" >
                             <a-tag
@@ -309,7 +312,7 @@ export default {
             this.inputTag = ''
             this.userTagsMap.get(this.selectLabel).add(item.name)
             this.changeTab(this.selectLabel)
-            this.$message.success('Add tag success')
+            this.$message.success('Add tag successfully')
             this.$emit('change-add-keywords', item)
           } else {
             this.$message.error(response.message)
@@ -621,5 +624,13 @@ export default {
   font-size: 14px;
   color: red;
   vertical-align: top;
+}
+
+.tag-title {
+  font-family: Inter-Bold;
+  display: block;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 30px;
 }
 </style>

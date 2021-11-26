@@ -791,7 +791,7 @@
         this.$logger.info('handleCollaborate', item)
         ReceiveCollaborate({ id: item.id }).then(res => {
           logger.info('ReceiveCollaborate', res)
-          this.$message.success('collaborate success')
+          this.$message.success('collaborate successfully')
         }).then(() => {
           this.loadMyContent()
         })

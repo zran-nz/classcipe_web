@@ -297,7 +297,7 @@ export default {
             this.createTagName = ''
             this.inputTag = ''
             this.filterKeyword(item)
-            this.$message.success('Add tag success')
+            this.$message.success('Add tag successfully')
           } else {
             this.$message.error(response.message)
           }

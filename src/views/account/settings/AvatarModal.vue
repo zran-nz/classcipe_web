@@ -145,7 +145,7 @@ export default {
       setTimeout(() => {
         vm.confirmLoading = false
         vm.close()
-        vm.$message.success('update avatar success!')
+        vm.$message.success('update avatar successfully!')
       }, 2000)
     },
 

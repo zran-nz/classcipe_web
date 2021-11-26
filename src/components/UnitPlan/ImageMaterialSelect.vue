@@ -136,7 +136,7 @@ export default {
       setTimeout(() => {
         vm.confirmLoading = false
         vm.close()
-        vm.$message.success('update success!')
+        vm.$message.success('update successfully!')
       }, 2000)
     },
 

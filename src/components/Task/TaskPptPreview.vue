@@ -62,28 +62,6 @@
               <div class="page-info" v-if="imgList && imgList.length">
                 {{ currentImgIndex + 1 }} / {{ imgList.length }}
               </div>
-              <a-button
-                class="action-ensure action-item"
-                type="primary"
-                shape="round"
-                @click="handleSelectTemplate()"
-                v-if="selectedTemplateIdList.indexOf(template.id) === -1">
-                <a-icon type="plus-circle" class="btn-icon"/>
-                <div class="btn-text">
-                  Add
-                </div>
-              </a-button>
-              <a-button
-                v-else
-                class="action-ensure action-item"
-                shape="round"
-                type="primary"
-                @click="handleSelectTemplate()">
-                <a-icon type="minus-circle" class="btn-icon"/>
-                <div class="btn-text">
-                  Remove
-                </div>
-              </a-button>
             </div>
             <div class="carousel-page">
               <div class="img-list-wrapper">
@@ -125,8 +103,6 @@ import { QueryByClassInfoSlideId } from '@/api/classroom'
 import { fileTypeMap } from '@/const/material'
 import MaterialTypeIcon from '@/components/Task/MaterialTypeIcon'
 import TaskMaterialPreview from '@/components/Task/TaskMaterialPreview'
-import { typeMap } from '@/const/teacher'
-import { TemplatesGetPresentation } from '@/api/template'
 
 export default {
   name: 'TaskPptPreview',
@@ -146,12 +122,16 @@ export default {
     taskForm: {
       type: Object,
       default: () => null
+    },
+    thumbnailList: {
+      type: Array,
+      default: () => []
     }
   },
   computed: {
     currentPageElements () {
       const showMenuList = []
-      const currentPageId = this.taskForm.pageObjectIds[this.currentImgIndex]
+      const currentPageId = this.thumbnailList[this.currentImgIndex]
       console.log(currentPageId)
       this.elementsList.forEach(e => {
         if (currentPageId === e.pageId) {
@@ -178,12 +158,12 @@ export default {
     },
     currentPageElementLists () {
       const pageElementsList = []
-      const currentPageId = this.taskForm.pageObjectIds[this.currentImgIndex]
+      const currentPageId = this.thumbnailList[this.currentImgIndex]
       console.log(currentPageId)
       this.elementsList.forEach(e => {
         if (currentPageId === e.pageId) {
-            const data = JSON.parse(e.data)
-            pageElementsList.push(data)
+          const data = JSON.parse(e.data)
+          pageElementsList.push(data)
         }
       })
       console.log(pageElementsList)
@@ -195,7 +175,7 @@ export default {
   },
   data () {
     return {
-      loading: true,
+      loading: false,
       loadingClass: false,
       data: null,
       imgList: [],
@@ -209,6 +189,11 @@ export default {
   },
   created () {
     this.$logger.info('taskForm ', this.taskForm)
+    this.imgList = []
+    this.thumbnailList.forEach(item => {
+      this.imgList.push(item.contentUrl)
+    })
+    this.getClassInfo()
   },
   methods: {
     getClassInfo () {
@@ -238,17 +223,17 @@ export default {
       }
     },
     computerSize (type) {
-        var size = 0
-        const currentPageId = this.taskForm.pageObjectIds[this.currentImgIndex]
-        this.elementsList.forEach(e => {
-          if (currentPageId === e.pageId) {
-            const data = JSON.parse(e.data)
-            if (data.type === type) {
-              size++
-            }
+      var size = 0
+      const currentPageId = this.thumbnailList[this.currentImgIndex]
+      this.elementsList.forEach(e => {
+        if (currentPageId === e.pageId) {
+          const data = JSON.parse(e.data)
+          if (data.type === type) {
+            size++
           }
-        })
-        return size
+        }
+      })
+      return size
     }
   }
 }

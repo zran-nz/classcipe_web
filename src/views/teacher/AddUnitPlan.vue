@@ -185,7 +185,7 @@
                               v-model="question.name"
                               class="my-form-input"
                               :placeholder="$store.getters.currentRole === 'teacher' ? $t('teacher.add-unit-plan.teacher-nth-key-question') : $t('teacher.add-unit-plan.expert-nth-key-question')"/>
-                            <div class="delete-icon" @click="handleRemoveQuestion(index)" v-show="form.questions.length > 1">
+                            <div class="delete-icon" @click="handleRemoveQuestion(index)">
                               <a-icon type="delete" :style="{ fontSize: '20px' }" />
                             </div>
                           </div>
@@ -477,7 +477,8 @@
         v-model="selectSyncDataVisible"
         :footer="null"
         destroyOnClose
-        width="80%"
+        width="1200px"
+        :dialog-style="{ top: '20px' }"
         :title="null"
         @ok="selectSyncDataVisible = false"
         @cancel="selectSyncDataVisible = false">
@@ -1093,7 +1094,11 @@ export default {
     },
     handleRemoveQuestion (index) {
       logger.info('handleRemoveQuestion ', index)
-      this.form.questions.splice(index, 1)
+      if (this.form.questions.length === 1) {
+        this.form.questions[index].name = ''
+      } else {
+        this.form.questions.splice(index, 1)
+      }
     },
 
     handleRemoveSkillTag (data) {
@@ -1159,7 +1164,7 @@ export default {
         if (status === 1) {
           this.$message.success(this.$t('teacher.add-unit-plan.publish-success'))
         } else {
-          this.$message.success('Unpublish Success')
+          this.$message.success('Unpublish successfully')
         }
         this.form.status = status
         this.$refs.commonFormHeader.publishing = false
@@ -1439,7 +1444,7 @@ export default {
       }).then(response => {
         this.$logger.info('Associate response ', response)
         // 刷新子组件的关联数据
-        this.$message.success('success!')
+        this.$message.success('associate successfully!')
       })
     },
     showSelectLinkContentVisible () {
@@ -1789,7 +1794,7 @@ export default {
             this.$set(this.form, dataItem.fieldName, dataItem.data[0])
           }
         })
-        this.$message.success('restore success!')
+        this.$message.success('restore successfully!')
       }
       this.$logger.info('after handleRestoreField', this.form)
     },

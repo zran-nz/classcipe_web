@@ -270,7 +270,7 @@ import CardList from '@/views/list/CardList'
 import DataCardView from '@/components/Library/DataCardView'
 import { typeMap } from '@/const/teacher'
 import { GetGradesByCurriculumId } from '@/api/preference'
-import { SubjectType } from '@/const/common'
+import { SubjectType, TagType } from '@/const/common'
 const { SubjectTree } = require('@/api/subject')
 
 export default {
@@ -446,7 +446,8 @@ export default {
       this.$logger.info('grade:' + this.currentGradeId + ', subjectId:' + this.currentSubSubjectId)
       KnowledgeGetTree({
         gradeId: this.currentGradeId,
-        subjectId: this.hasChildSubject ? this.currentSubSubjectId : this.currentMainSubjectId
+        subjectId: this.hasChildSubject ? this.currentSubSubjectId : this.currentMainSubjectId,
+        tagType: TagType.knowledge
       }).then((response) => {
         this.$logger.info('KnowledgeGetTree response', response)
         this.mainKnowledgeList = response.result

@@ -364,7 +364,12 @@
       </div>
     </div>
 
-    <a-modal v-model="selectCurriculumVisible" @ok="handleEnsureSelectCriteria" destroyOnClose width="80%" :dialog-style="{ top: '20px' }">
+    <a-modal
+      v-model="selectCurriculumVisible"
+      @ok="handleEnsureSelectCriteria"
+      destroyOnClose
+      width="1200px"
+      :dialog-style="{ top: '20px' }">
       <div class="associate-library">
         <new-browser
           :select-mode="selectModel.knowledgeDescription"
@@ -533,8 +538,9 @@ export default {
       if (this.formType === EvaluationTableType.Rubric) {
         this.headers = [
           { label: 'Criteria', previewLabel: 'Criteria', type: EvaluationTableHeader.Criteria, editable: false, editing: false, required: true },
-          { label: 'Unnamed Level 1', previewLabel: 'Unnamed Level 1', type: EvaluationTableHeader.UserDefine + 1, editable: true, editing: false, required: false },
-          { label: 'Unnamed Level 2', previewLabel: 'Unnamed Level 2', type: EvaluationTableHeader.UserDefine + 2, editable: true, editing: false, required: false },
+          { label: 'Achievement Level', previewLabel: 'Achievement Level', type: EvaluationTableHeader.AchievementLevel, editable: false, editing: false, required: true },
+          { label: 'Level descriptor', previewLabel: 'Level descriptor', type: EvaluationTableHeader.LevelDescriptor, editable: false, editing: false, required: true },
+          { label: 'Task specific indicators', previewLabel: 'Task specific indicators', type: EvaluationTableHeader.Indicators, editable: false, editing: false, required: true },
           { label: 'Evidence', previewLabel: 'Evidence', type: EvaluationTableHeader.Evidence, editable: false, editing: false, required: true }
         ]
       } else if (this.formType === EvaluationTableType.Rubric_2) {

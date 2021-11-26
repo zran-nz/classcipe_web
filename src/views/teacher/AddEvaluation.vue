@@ -157,7 +157,7 @@
                 @click="handleSelectRubric(EvaluationTableType.Rubric)"
               >
                 <div class="rubric-preview">
-                  <img src="~@/assets/icons/evaluation/rubric2.png" alt="rubric">
+                  <img src="~@/assets/icons/evaluation/rubric1.png" alt="rubric">
                 </div>
                 <div class="rubric-active-icon">
                   <a-icon type="check-circle" theme="filled"/>
@@ -172,7 +172,7 @@
                 @click="handleSelectRubric(EvaluationTableType.Rubric_2)"
               >
                 <div class="rubric-preview">
-                  <img src="~@/assets/icons/evaluation/rubric1.png" alt="rubric">
+                  <img src="~@/assets/icons/evaluation/rubric2.png" alt="rubric">
                 </div>
                 <div class="rubric-active-icon">
                   <a-icon type="check-circle" theme="filled"/>
@@ -188,7 +188,7 @@
                 @click="handleSelectRubric(EvaluationTableType.CenturySkills)"
               >
                 <div class="rubric-preview">
-                  <img src="~@/assets/icons/evaluation/rubric1.png" alt="rubric">
+                  <img src="~@/assets/icons/evaluation/rubric2.png" alt="rubric">
                 </div>
                 <div class="rubric-active-icon">
                   <a-icon type="check-circle" theme="filled"/>

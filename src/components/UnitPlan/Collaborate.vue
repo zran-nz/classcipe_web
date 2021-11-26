@@ -84,7 +84,7 @@ export default {
       AddUserCollaborate(data).then((response) => {
         this.$logger.info('AddUserCollaborate response', response.result)
         if (response.success) {
-           this.$message.success('Add Collaborate Success')
+           this.$message.success('Add Collaborate successfully')
            this.handleClose()
         } else {
           this.$message.error(response.message)

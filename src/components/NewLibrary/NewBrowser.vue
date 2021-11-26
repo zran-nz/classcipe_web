@@ -90,8 +90,23 @@
               </div>
             </div>
 
+            <div
+              class="content-item selected-line"
+              v-for="(item, aIndex) in selectedKnowledgeList"
+              :key="'sync-' + aIndex">
+              <div class="name">
+                <div class="name-text">
+                  {{ item.name }}
+                </div>
+                <div class="action-icon" @click="handleRemoveSelected(item)">
+                  <a-icon type="close-circle" style="color: #07AB84; font-size: 16px;" />
+                </div>
+              </div>
+            </div>
+
           </div>
         </div>
+        <div class="selected-toggle-mask" v-show="!expandedListFlag" @click="expandedListFlag = !expandedListFlag"></div>
         <div class="expand-icon" @click="expandedListFlag = !expandedListFlag" :style="{'left': (!expandedListFlag ? 30 : 695) + 'px'}">
           <template v-if="expandedListFlag">
             <a-icon type="double-left" style="font-size: 20px; color: #07AB84"/>
@@ -102,6 +117,7 @@
         </div>
       </div>
       <div class="main-tree-content" :style="{'left': (expandedListFlag ? 765 : 100) + 'px'}">
+        <div class="selected-toggle-mask" @click="expandedListFlag = !expandedListFlag" v-show="expandedListFlag"></div>
         <div class="tree-navigation">
           <new-tree-navigation
             :select-mode="selectMode"
@@ -390,6 +406,7 @@ export default {
     }
 
     .main-tree-content {
+      width: 1048px;
       z-index: 150;
       position: absolute;
       transition: all 200ms ease-in;
@@ -431,5 +448,15 @@ export default {
     background: rgba(0,0,0,0.12);
     -webkit-box-shadow: inset 0 0 10px rgba(0,0,0,0.2);
   }
+}
+
+.selected-toggle-mask {
+  z-index: 250;
+  position: absolute;
+  left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  opacity: 0;
 }
 </style>
