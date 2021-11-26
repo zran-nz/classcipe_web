@@ -90,6 +90,20 @@
               </div>
             </div>
 
+            <div
+              class="content-item selected-line"
+              v-for="(item, aIndex) in selectedKnowledgeList"
+              :key="'sync-' + aIndex">
+              <div class="name">
+                <div class="name-text">
+                  {{ item.name }}
+                </div>
+                <div class="action-icon" @click="handleRemoveSelected(item)">
+                  <a-icon type="close-circle" style="color: #07AB84; font-size: 16px;" />
+                </div>
+              </div>
+            </div>
+
           </div>
         </div>
         <div class="expand-icon" @click="expandedListFlag = !expandedListFlag" :style="{'left': (!expandedListFlag ? 30 : 695) + 'px'}">
