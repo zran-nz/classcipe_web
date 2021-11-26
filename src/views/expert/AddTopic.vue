@@ -475,7 +475,8 @@
         v-model="selectSyncDataVisible"
         :footer="null"
         destroyOnClose
-        width="80%"
+        width="1200px"
+        :dialog-style="{ top: '20px' }"
         :title="null"
         @ok="selectSyncDataVisible = false"
         @cancel="selectSyncDataVisible = false">
