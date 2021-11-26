@@ -150,7 +150,7 @@
                                   <div class="select-action">
                                     <div class="modal-ensure-action-line">
                                       <a-button class="action-item action-cancel" shape="round" @click="handleShowSelectMyContent">Select template</a-button>
-                                      <a-button class="action-ensure action-item" type="primary" shape="round" @click="handleCreateInGoogle">Create a new ppt in Google Slide</a-button>
+                                      <a-button class="action-ensure action-item" type="primary" shape="round" :loading="creating" @click="handleCreateInGoogle">Create a new ppt in Google Slide</a-button>
                                     </div>
                                   </div>
                                 </div>
@@ -1168,6 +1168,9 @@
         if (this.showTaskSelected) {
           return this.showTaskSelected
         }
+        if (this.selectedTemplateList.length === 0) {
+          return false
+        }
         return !this.form.pluginInit && this.form.presentationId
       }
     },
@@ -1541,6 +1544,7 @@
 
       handleCreateTask () {
         this.$logger.info('handleCreateTask')
+        const hideLoading = this.$message.loading('Creating ppt in Google side...', 0)
         if (!this.creating) {
           this.creating = true
           TaskCreateNewTaskPPT({
@@ -1565,6 +1569,7 @@
             this.creating = false
             this.selectedMyContentVisible = false
             this.loadThumbnail()
+            hideLoading()
           })
         }
       },
@@ -2068,7 +2073,8 @@
 
       handleCreateInGoogle () {
         this.$logger.info('handleCreateInGoogle')
-        window.open('https://docs.google.com/presentation', '_blank')
+        this.handleCreateTask()
+        // window.open('https://docs.google.com/presentation', '_blank')
       },
       filterSearch (inputValue, path) {
         return path.some(option => option.name.toLowerCase().indexOf(inputValue.toLowerCase()) > -1)
