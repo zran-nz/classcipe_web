@@ -185,7 +185,7 @@
                               v-model="question.name"
                               class="my-form-input"
                               :placeholder="$store.getters.currentRole === 'teacher' ? $t('teacher.add-unit-plan.teacher-nth-key-question') : $t('teacher.add-unit-plan.expert-nth-key-question')"/>
-                            <div class="delete-icon" @click="handleRemoveQuestion(index)" v-show="form.questions.length > 1">
+                            <div class="delete-icon" @click="handleRemoveQuestion(index)">
                               <a-icon type="delete" :style="{ fontSize: '20px' }" />
                             </div>
                           </div>
@@ -1094,7 +1094,11 @@ export default {
     },
     handleRemoveQuestion (index) {
       logger.info('handleRemoveQuestion ', index)
-      this.form.questions.splice(index, 1)
+      if (this.form.questions.length === 1) {
+        this.form.questions[index].name = ''
+      } else {
+        this.form.questions.splice(index, 1)
+      }
     },
 
     handleRemoveSkillTag (data) {
