@@ -307,6 +307,9 @@
                           <a-row v-if="template.introduce" class="slide-desc" :title="template.introduce">
                             {{ template.introduce }}
                           </a-row>
+                          <div class="recommend-slide-name">
+                            {{ template.name }}
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -4218,5 +4221,15 @@
         opacity: 1;
       }
     }
+  }
+
+  .recommend-slide-name {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    line-height: 40px;
+    font-family: Inter-Bold;
+    font-weight: 500;
+    color: #333;
   }
 </style>
