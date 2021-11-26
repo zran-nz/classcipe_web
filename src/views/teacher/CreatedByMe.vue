@@ -847,7 +847,7 @@ export default {
           align-items: center;
 
           .update-time {
-            width: 160px;
+            width: 170px;
             color: #11142D;
             font-size: 13px;
             overflow: hidden;
