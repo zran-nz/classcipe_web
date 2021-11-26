@@ -12,15 +12,15 @@
           <a-icon type="user" />
           {{ $t('menu.account.profile') }}
         </a-menu-item>
-        <a-menu-item v-if="menu" key="center" @click="switchRole">
-          <a-icon type="setting" />
-          <template v-if="currentUser.currentRole === &quot;expert&quot;">
-            {{ $t('menu.account.switchToTeacher') }}
-          </template>
-          <template v-if="currentUser.currentRole === &quot;teacher&quot;">
-            {{ $t('menu.account.switchToExpert') }}
-          </template>
-        </a-menu-item>
+        <!--        <a-menu-item v-if="menu" key="center" @click="switchRole">-->
+        <!--          <a-icon type="setting" />-->
+        <!--          <template v-if="currentUser.currentRole === &quot;expert&quot;">-->
+        <!--            {{ $t('menu.account.switchToTeacher') }}-->
+        <!--          </template>-->
+        <!--          <template v-if="currentUser.currentRole === &quot;teacher&quot;">-->
+        <!--            {{ $t('menu.account.switchToExpert') }}-->
+        <!--          </template>-->
+        <!--        </a-menu-item>-->
         <a-menu-divider v-if="menu" />
         <a-menu-item key="logout" @click="handleLogout">
           <a-icon type="logout" />
