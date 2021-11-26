@@ -283,12 +283,12 @@
                 v-show="newFormType === EvaluationTableType.Rubric || newFormType === EvaluationTableType.Rubric_2"
                 :class="{
                   'rubric-item': true,
-                  'active-rubric': newFormType === EvaluationTableType.Rubric
+                  'active-rubric': newFormType === EvaluationTableType.Rubric_2
                 }"
-                @click="handleSelectRubric(EvaluationTableType.Rubric)"
+                @click="handleSelectRubric(EvaluationTableType.Rubric_2)"
               >
                 <div class="rubric-preview">
-                  <img src="~@/assets/icons/evaluation/rubric1.png" alt="rubric">
+                  <img src="~@/assets/icons/evaluation/rubric2.png" alt="rubric">
                 </div>
                 <div class="rubric-label">
                   Used for IB PYP, New Zealand, Australia curriculum
@@ -301,12 +301,12 @@
                 v-show="newFormType === EvaluationTableType.Rubric || newFormType === EvaluationTableType.Rubric_2"
                 :class="{
                   'rubric-item': true,
-                  'active-rubric': newFormType === EvaluationTableType.Rubric_2
+                  'active-rubric': newFormType === EvaluationTableType.Rubric
                 }"
-                @click="handleSelectRubric(EvaluationTableType.Rubric_2)"
+                @click="handleSelectRubric(EvaluationTableType.Rubric)"
               >
                 <div class="rubric-preview">
-                  <img src="~@/assets/icons/evaluation/rubric2.png" alt="rubric">
+                  <img src="~@/assets/icons/evaluation/rubric1.png" alt="rubric">
                 </div>
                 <div class="rubric-label">
                   Used for IB MYP
@@ -325,7 +325,7 @@
                 @click="handleSelectRubric(EvaluationTableType.CenturySkills)"
               >
                 <div class="rubric-preview">
-                  <img src="~@/assets/icons/evaluation/rubric1.png" alt="rubric">
+                  <img src="~@/assets/icons/evaluation/rubric2.png" alt="rubric">
                 </div>
                 <div class="rubric-active-icon">
                   <a-icon type="check-circle" theme="filled"/>
