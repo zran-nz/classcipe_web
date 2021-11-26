@@ -24,7 +24,8 @@ const getters = {
   sharedCount: state => state.user.sharedCount,
   sharedFindCount: state => state.user.sharedFindCount,
   skillCategory: state => state.user.skillCategory,
-  disableQuestion: state => state.user.disableQuestion
+  disableQuestion: state => state.user.disableQuestion,
+  school: state => state.user.school
 }
 
 export default getters

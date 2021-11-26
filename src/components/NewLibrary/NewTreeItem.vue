@@ -555,6 +555,7 @@ export default {
             this.subTreeLoading = true
             const gradeId = treeItemData.id
             const subjectId = this.treeCurrentParent.id
+            console.log(treeItemData)
             this.$logger.info('knowledgeTree gradeId ' + gradeId + ' subjectId ' + subjectId)
             KnowledgeGetTree({
               gradeId,

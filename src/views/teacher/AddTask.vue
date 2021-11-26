@@ -94,7 +94,7 @@
                             class="action-ensure action-item edit-slide"
                             type="primary"
                             shape="round"
-                            @click="materialVisible=true"
+                            @click="taskPptPreviewVisible=true"
                             style="margin-right: 200px">
                             <img style="font-size: 20px" src="~@/assets/icons/task/material.png" class="btn-icon"/>
                             My Material
@@ -890,15 +890,17 @@
       </a-modal>
 
       <a-modal
-        v-model="materialVisible"
+        v-model="taskPptPreviewVisible"
         :footer="null"
         destroyOnClose
-        width="800px"
-        :zIndex="3000"
-        title="My Materials"
-        @ok="materialVisible = false"
-        @cancel="materialVisible = false">
-        <task-material-preview :task-form="form" :current-page-index="currentImgIndex"></task-material-preview>
+        width="1000px"
+        :zIndex="2000"
+        :title="null"
+        @ok="taskPptPreviewVisible = false"
+        @cancel="taskPptPreviewVisible = false">
+        <div class="link-content-wrapper">
+          <task-ppt-preview :thumbnail-list="thumbnailList" :task-form="form" @handle-select="handleSelectPreviewTemplate"></task-ppt-preview>
+        </div>
       </a-modal>
 
       <a-skeleton :loading="contentLoading" active>
@@ -955,10 +957,12 @@
   import NoMoreResources from '@/components/Common/NoMoreResources'
   import TemplatePreview from '@/components/Task/TemplatePreview'
   import TaskMaterialPreview from '@/components/Task/TaskMaterialPreview'
+  import TaskPptPreview from '@/components/Task/TaskPptPreview'
 
   export default {
     name: 'AddTask',
     components: {
+      TaskPptPreview,
       TemplatePreview,
       NoMoreResources,
       CollaborateHistory,
@@ -1135,9 +1139,8 @@
         currentImgIndex: 0,
         showTaskSelected: false,
         onlyShowSelected: false,
-        materialVisible: false,
+        taskPptPreviewVisible: false,
         showTemplateFilter: false,
-
         currentSlideCoverImgSrc: null
       }
     },

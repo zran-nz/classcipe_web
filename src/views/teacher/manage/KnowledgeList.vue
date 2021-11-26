@@ -50,7 +50,7 @@
         :multiple="false"
         :headers="tokenHeader"
         :data="{'curriculumId':queryParam.curriculumId}"
-        :action="importCommonExcelUrl"
+        :action="importIBSkillExcelUrl"
         @change="handleMyImportExcelCommon">
         <a-button :loading="importLoading" type="primary" icon="import">{{ importLoadingText }}</a-button>
       </a-upload>
@@ -210,7 +210,7 @@ export default {
         deleteBatch: '/classcipe/api/knowledge/deleteBatch',
         exportXlsUrl: '/classcipe/api/knowledge/exportXls',
         importExcelUrl: '/classcipe/api/knowledge/importExcel',
-        importCommonExcelUrl: '/classcipe/api/knowledge/importCommonExcel'
+        importIBSkillExcelUrl: '/classcipe/api/knowledge/importIBSkillExcel'
       },
       expandedRowKeys: [],
       hasChildrenField: 'hasChild',
@@ -253,8 +253,8 @@ export default {
   })
 },
   computed: {
-    importCommonExcelUrl () {
-      return this.baseUrl + `/classcipe/${this.url.importCommonExcelUrl}`
+    importIBSkillExcelUrl () {
+      return this.baseUrl + `${this.url.importIBSkillExcelUrl}`
     },
     tableProps () {
       const _this = this

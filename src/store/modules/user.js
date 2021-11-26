@@ -21,7 +21,8 @@ const user = {
     sharedCount: 0,
     sharedFindCount: 0,
     skillCategory: [],
-    disableQuestion: false
+    disableQuestion: false,
+    school: ''
   },
 
   mutations: {
