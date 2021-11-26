@@ -2100,6 +2100,7 @@
         })
       },
       selectRecommendTemplate (template) {
+        this.$logger.info('selectRecommendTemplate', template)
         if (!this.form.presentationId) {
           this.selectedTemplateList = []
           this.selectedTemplateList.push(template)
