@@ -288,7 +288,7 @@
                 @click="handleSelectRubric(EvaluationTableType.Rubric)"
               >
                 <div class="rubric-preview">
-                  <img src="~@/assets/icons/evaluation/rubric2.png" alt="rubric">
+                  <img src="~@/assets/icons/evaluation/rubric1.png" alt="rubric">
                 </div>
                 <div class="rubric-label">
                   Used for IB PYP, New Zealand, Australia curriculum
@@ -306,7 +306,7 @@
                 @click="handleSelectRubric(EvaluationTableType.Rubric_2)"
               >
                 <div class="rubric-preview">
-                  <img src="~@/assets/icons/evaluation/rubric1.png" alt="rubric">
+                  <img src="~@/assets/icons/evaluation/rubric2.png" alt="rubric">
                 </div>
                 <div class="rubric-label">
                   Used for IB MYP
