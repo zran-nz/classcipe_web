@@ -192,7 +192,7 @@
                           <a-form-item class="link-plan-title">
                             <a-button type="primary" :style="{'background-color': '#fff', 'color': '#000', 'border': '1px solid #D8D8D8'}" @click="handleAddTerm">
                               <div class="btn-text" style="line-height: 20px">
-                                + Add term
+                                + Add
                               </div>
                             </a-button>
                           </a-form-item>
