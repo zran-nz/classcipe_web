@@ -39,16 +39,21 @@
           <div class="group-item">
             <div class="group-header">
               <div class="group-left-info">
-                <div class="group-name">
-                  <div class="group-name-text" v-if="!linkGroup.editing">{{ linkGroup.group ? linkGroup.group : 'Untitled Term' }}</div>
-                  <div class="group-name-input" v-if="linkGroup.editing">
-                    <input v-model="linkGroup.group" class="group-name-input"/>
+                <!-- unit plan下才有term概念,task不显示对应的操作和term名称-->
+                <template v-if="fromType === typeMap[&quot;unit-plan&quot;]">
+                  <div class="group-name">
+                    <div class="group-name-text" v-if="!linkGroup.editing">
+                      {{ linkGroup.group ? linkGroup.group : 'Untitled Term' }}
+                    </div>
+                    <div class="group-name-input" v-if="linkGroup.editing">
+                      <input v-model="linkGroup.group" class="group-name-input"/>
+                    </div>
                   </div>
-                </div>
-                <div class="group-edit-icon" @click="handleToggleEditGroupName(linkGroup)" v-if="canEdit">
-                  <a-icon type="edit" v-if="!linkGroup.editing"/>
-                  <a-icon type="check" v-if="linkGroup.editing"/>
-                </div>
+                  <div class="group-edit-icon" @click="handleToggleEditGroupName(linkGroup)" v-if="canEdit">
+                    <a-icon type="edit" v-if="!linkGroup.editing"/>
+                    <a-icon type="check" v-if="linkGroup.editing"/>
+                  </div>
+                </template>
               </div>
               <div class="group-right-info" v-if="canEdit">
                 <div class="group-action">

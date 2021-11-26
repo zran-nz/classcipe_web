@@ -412,7 +412,7 @@
           <new-my-content
             :from-type="contentType.task"
             :from-id="taskId"
-            :filter-type-list="[contentType.evaluation]"
+            :filter-type-list="[contentType.evaluation, ]"
             :group-name-list="groupNameList"
             :default-group-name="newTermName"
             :mode="'common-link'"
