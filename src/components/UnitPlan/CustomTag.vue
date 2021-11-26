@@ -62,6 +62,9 @@
                       <!--      skt-tag-list-->
                       <div class="skt-tag-list">
 
+                        <div class="tag-title">
+                          Tags added :
+                        </div>
                         <div class="search-tag-wrapper tag-wrapper">
                           <div class="skt-tag-item" v-for="(keyword,index) in tagSearchList" :key="index" >
                             <a-tag
@@ -621,5 +624,13 @@ export default {
   font-size: 14px;
   color: red;
   vertical-align: top;
+}
+
+.tag-title {
+  font-family: Inter-Bold;
+  display: block;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 30px;
 }
 </style>
