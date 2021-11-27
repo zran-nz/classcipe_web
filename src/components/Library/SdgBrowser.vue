@@ -825,7 +825,7 @@ export default {
           justify-content: center;
           .card-item {
             width: 100%;
-            border: 1px solid #15C39A;
+            //border: 1px solid #15C39A;
             box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.16);
             opacity: 1;
             border-radius: 6px;

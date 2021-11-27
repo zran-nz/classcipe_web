@@ -162,46 +162,46 @@
                   {{ item.createTime | dayjs }}
                 </div>
               </div>
-              <div class="item-action-wrapper">
-                <div v-show="mode === displayMode.Link">
-                  <div class="action-wrapper">
-                    <div class="action-item">
-                      <a-popconfirm :title="'Link this content to my Unit' + '?'" ok-text="Yes" @confirm="handleLinkItem(item, $event)" cancel-text="No">
-                        <span>
-                          <a-icon type="form" /> Link
-                        </span>
-                      </a-popconfirm>
-                    </div>
-                  </div>
-                </div>
-                <!-- refer mode -->
-                <div v-show="mode === displayMode.Refer">
-                  <div class="action-wrapper">
-                    <div class="action-item refer-item">
-                      <a-button class="refer-btn" type="primary" @click="handleReferItem(item, $event)">
-                        <img src="~@/assets/icons/myContent/refer_white.png" class="btn-icon btn-icon-white"/>
-                        <img src="~@/assets/icons/myContent/refer_color.png" class="btn-icon btn-icon-color"/>
-                        <div class="btn-text">
-                          Refer
-                        </div>
-                      </a-button>
-                    </div>
-                  </div>
-                </div>
-                <!-- refer mode -->
-                <div v-show="mode === displayMode.Evaluation">
-                  <div class="action-wrapper">
-                    <div class="action-item">
-                      <a-popconfirm :title="'Link ?'" ok-text="Yes" @confirm="handleLinkItem(item, $event)" cancel-text="No">
-                        <div class="link-item">
-                          <img src="~@/assets/icons/myContent/link-icon.png" class="link-icon"/>
-                          {{ 'Link this evaluation to this ' + (item.type === typeMap.task ? 'task' : (item.type === typeMap.lesson ? 'lesson' : '')) }}
-                        </div>
-                      </a-popconfirm>
-                    </div>
-                  </div>
-                </div>
-              </div>
+              <!--              <div class="item-action-wrapper">-->
+              <!--                <div v-show="mode === displayMode.Link">-->
+              <!--                  <div class="action-wrapper">-->
+              <!--                    <div class="action-item">-->
+              <!--                      <a-popconfirm :title="'Link this content to my Unit' + '?'" ok-text="Yes" @confirm="handleLinkItem(item, $event)" cancel-text="No">-->
+              <!--                        <span>-->
+              <!--                          <a-icon type="form" /> Link-->
+              <!--                        </span>-->
+              <!--                      </a-popconfirm>-->
+              <!--                    </div>-->
+              <!--                  </div>-->
+              <!--                </div>-->
+              <!--                &lt;!&ndash; refer mode &ndash;&gt;-->
+              <!--                <div v-show="mode === displayMode.Refer">-->
+              <!--                  <div class="action-wrapper">-->
+              <!--                    <div class="action-item refer-item">-->
+              <!--                      <a-button class="refer-btn" type="primary" @click="handleReferItem(item, $event)">-->
+              <!--                        <img src="~@/assets/icons/myContent/refer_white.png" class="btn-icon btn-icon-white"/>-->
+              <!--                        <img src="~@/assets/icons/myContent/refer_color.png" class="btn-icon btn-icon-color"/>-->
+              <!--                        <div class="btn-text">-->
+              <!--                          Refer-->
+              <!--                        </div>-->
+              <!--                      </a-button>-->
+              <!--                    </div>-->
+              <!--                  </div>-->
+              <!--                </div>-->
+              <!--                &lt;!&ndash; refer mode &ndash;&gt;-->
+              <!--                <div v-show="mode === displayMode.Evaluation">-->
+              <!--                  <div class="action-wrapper">-->
+              <!--                    <div class="action-item">-->
+              <!--                      <a-popconfirm :title="'Link ?'" ok-text="Yes" @confirm="handleLinkItem(item, $event)" cancel-text="No">-->
+              <!--                        <div class="link-item">-->
+              <!--                          <img src="~@/assets/icons/myContent/link-icon.png" class="link-icon"/>-->
+              <!--                          {{ 'Link this evaluation to this ' + (item.type === typeMap.task ? 'task' : (item.type === typeMap.lesson ? 'lesson' : '')) }}-->
+              <!--                        </div>-->
+              <!--                      </a-popconfirm>-->
+              <!--                    </div>-->
+              <!--                  </div>-->
+              <!--                </div>-->
+              <!--              </div>-->
               <div class="card-action-icon">
                 <img src="~@/assets/icons/lesson/selected.png" v-if="selectedList.indexOf(item.type + '-' + item.id) !== -1"/>
               </div>
@@ -318,13 +318,13 @@ export default {
         },
         showTotal: total => `Total ${total} items`,
         total: 0,
-        pageSize: 10
+        pageSize: 12
       },
       pageNo: 1,
 
       typeMap: typeMap,
 
-      dataListMode: 'list'
+      dataListMode: 'card'
     }
   },
   watch: {
@@ -484,7 +484,7 @@ export default {
 .ant-list-item {
   padding: 0;
   position: relative;
-  width: 200px;
+  width: 23%;
 }
 
 .my-list-item {
@@ -748,6 +748,9 @@ export default {
         font-family: Inter-Bold;
         color: #11142D;
       }
+      /deep/ .ant-list-items{
+        justify-content:space-between;
+      }
     }
   }
 }
@@ -821,7 +824,7 @@ a.delete-action {
   overflow: hidden;
   box-sizing: border-box;
   margin: 0 15px 15px 0;
-  width: 264px;
+  width: 23%;
   position: relative;
   user-select: none;
   background: #FFFFFF;
@@ -845,7 +848,7 @@ a.delete-action {
       border: none;
       outline: none;
       height: 150px;
-      width: 250px;
+      width: 100%;
       background-size: cover;
       background-repeat: no-repeat;
       background-position: center center;
@@ -859,6 +862,7 @@ a.delete-action {
     padding: 10px;
     display: flex;
     flex-direction: column;
+    cursor: pointer;
 
     .page-info {
       display: flex;
