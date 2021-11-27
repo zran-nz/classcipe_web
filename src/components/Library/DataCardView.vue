@@ -54,12 +54,12 @@ export default {
 .data-card-view {
   background: #FFFFFF;
   opacity: 1;
-  height: 220px;
+  height: 200px;
   width: 100%;
   box-sizing: border-box;
 
   .card-cover {
-    height: 150px;
+    height: 130px;
     background-size: cover;
     background-position: center center;
   }
@@ -81,6 +81,11 @@ export default {
       font-size: 14px;
       font-family: Inter-Bold;
       line-height: 24px;
+      .title-text {
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+      }
 
       .type-icon {
         width: 30px;
@@ -95,7 +100,9 @@ export default {
       line-height: 24px;
       color: #000000;
       opacity: 0.5;
-      padding-left: 35px;
+      padding-left: 5px;
+      white-space: nowrap;
+      text-overflow: ellipsis;
     }
   }
 

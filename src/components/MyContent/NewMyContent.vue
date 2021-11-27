@@ -60,7 +60,8 @@
       </div>
       <div class="create-new-input">
         <input type="text" placeholder="Input name" v-model="createNewName" v-if="createNewNameMode === 'input'">
-        <a-icon type="check" class="create-new-icon" v-if="createNewNameMode === 'input'" @click="handleEnsureCreate"/>
+        <a-icon type="check" class="create-new-icon" v-if="createNewNameMode === 'input' && !createLoading" @click="handleEnsureCreate"/>
+        <a-icon type="loading" class="create-new-icon" v-if="createLoading" />
       </div>
     </div>
     <div class="group-label">
@@ -386,6 +387,7 @@ export default {
     return {
       skeletonLoading: true,
       loading: true,
+      createLoading: false,
       loadFailed: false,
       myContentList: [],
       displayMode: DisplayMode,
@@ -620,6 +622,7 @@ export default {
     handleEnsureCreate () {
       this.$logger.info('handleEnsureCreate ' + this.currentType + ' ' + this.createNewName)
       if (this.createNewName) {
+        this.createLoading = true
         if (this.currentType === this.typeMap.evaluation) {
           EvaluationAddOrUpdate({
             name: this.createNewName
@@ -629,6 +632,7 @@ export default {
           }).finally(() => {
             this.createNewNameMode = 'hide'
             this.createNewName = ''
+            this.createLoading = false
           })
         } else if (this.currentType === this.typeMap.task) {
           TaskAddOrUpdate({
@@ -639,6 +643,7 @@ export default {
           }).finally(() => {
             this.createNewNameMode = 'hide'
             this.createNewName = ''
+            this.createLoading = false
           })
         } else if (this.currentType === this.typeMap['unit-plan']) {
           UnitPlanAddOrUpdate({
@@ -649,6 +654,7 @@ export default {
           }).finally(() => {
             this.createNewNameMode = 'hide'
             this.createNewName = ''
+            this.createLoading = false
           })
         } else if (this.currentType === this.typeMap.topic) {
           TopicAddOrUpdate({
@@ -659,6 +665,7 @@ export default {
           }).finally(() => {
             this.createNewNameMode = 'hide'
             this.createNewName = ''
+            this.createLoading = false
           })
         }
       } else {
