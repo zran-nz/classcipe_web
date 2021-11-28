@@ -1383,11 +1383,11 @@ export default {
           logger.info('TaskQueryById ' + taskId, response.result)
           const taskData = response.result
           this.form = taskData
-          this.form.showSelect = taskData.showSelect ? taskData.showSelect : false
+          this.form.showSelected = taskData.showSelected ? taskData.showSelected : false
           this.form.bloomCategories = this.form.bloomCategories ? this.form.bloomCategories : undefined // 为了展示placeholder
           this.selectedTemplateList = this.form.selectedTemplateList
           if (this.selectedTemplateList.length === 0) {
-            this.form.showSelect = false
+            this.form.showSelected = false
           }
         }).finally(() => {
           this.contentLoading = false
