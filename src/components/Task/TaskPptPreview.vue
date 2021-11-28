@@ -62,6 +62,41 @@
               <div class="page-info" v-if="imgList && imgList.length">
                 {{ currentImgIndex + 1 }} / {{ imgList.length }}
               </div>
+              <div class="plugin-tags" v-if="currentPageItem">
+                <a-row class="tag-row">
+                  <span class="tag-item" v-if="currentPageItem.data.bloomLevel">
+                    <span class="tag-title">Bloom level:</span>
+                    <span class="tag-value" style="color:#F16A39">{{ currentPageItem.data.bloomLevel }}</span>
+                  </span>
+                  <span class="tag-item" v-if="currentPageItem.data.knowledgeLevel">
+                    <span class="tag-title">Knowledge:</span>
+                    <span class="tag-value" style="color:#F16A39">{{ currentPageItem.data.knowledgeLevel }}</span>
+                  </span>
+                </a-row>
+                <a-row class="tag-row">
+                  <span class="tag-item" v-if="currentPageItem.data.verbs">
+                    <span class="tag-title">Verbs:</span>
+                    <span class="tag-value" v-for="(v,index) in currentPageItem.data.verbs" :key="index" style="color:#15C39A">{{ v }}</span>
+                  </span>
+                  <span class="tag-item" v-if="currentPageTips">
+                    <span class="tag-title">Tips added:</span>
+                    <span class="tag-value" style="color:#0054FF">{{ currentPageTips.tip }}</span>
+                  </span>
+                </a-row>
+                <a-row class="tag-row">
+                  <span class="tag-item">
+                    <span class="tag-title">learning outcomes:</span>
+                    <span class="tag-value" v-for="(learn,index) in currentPageItem.data.learnOuts" :key="index" style="color:#00BCF2">
+                      <a-tooltip :title="learn.path" :overlayStyle="{ 'z-index': '3000'}">{{ learn.name }} </a-tooltip>
+                    </span>
+                  </span>
+                </a-row>
+                <a-row class="tag-row">
+                  <span class="tag-item">
+                    <span class="tag-title">This is a <span>{{ currentPageItem.type }}</span> slide</span>
+                  </span>
+                </a-row>
+              </div>
             </div>
             <div class="carousel-page">
               <div class="img-list-wrapper">
@@ -131,8 +166,7 @@ export default {
   computed: {
     currentPageElements () {
       const showMenuList = []
-      const currentPageId = this.thumbnailList[this.currentImgIndex]
-      console.log(currentPageId)
+      const currentPageId = this.thumbnailList[this.currentImgIndex].id
       this.elementsList.forEach(e => {
         if (currentPageId === e.pageId) {
           const data = JSON.parse(e.data)
@@ -158,16 +192,34 @@ export default {
     },
     currentPageElementLists () {
       const pageElementsList = []
-      const currentPageId = this.thumbnailList[this.currentImgIndex]
-      console.log(currentPageId)
+      // const currentPageId = 'g1018d7b0139_0_0'
+      const currentPageId = this.thumbnailList[this.currentImgIndex].id
       this.elementsList.forEach(e => {
         if (currentPageId === e.pageId) {
             const data = JSON.parse(e.data)
             pageElementsList.push(data)
         }
       })
-      console.log(pageElementsList)
       return pageElementsList
+    },
+    currentPageItem () {
+      const currentPageId = this.thumbnailList[this.currentImgIndex].id
+      const pageItemsList = []
+      this.itemsList.forEach(e => {
+        if (currentPageId === e.pageId) {
+          const data = JSON.parse(e.data)
+          pageItemsList.push(data)
+        }
+      })
+      return pageItemsList.length > 0 ? pageItemsList[0] : ''
+    },
+    currentPageTips () {
+      const tipList = this.currentPageElementLists.filter(item => item.type === 'tip')
+      console.log(this.currentPageElementLists)
+      if (tipList) {
+        return tipList[0]
+      }
+      return ''
     }
   },
   mounted () {
@@ -182,6 +234,7 @@ export default {
       subPreviewVisible: false,
       currentImgIndex: 0,
       elementsList: [],
+      itemsList: [],
       showMenuList: [],
       fileTypeMap: fileTypeMap,
       materialVisible: false
@@ -189,8 +242,10 @@ export default {
   },
   created () {
     this.$logger.info('taskForm ', this.taskForm)
+    this.$logger.info('thumbnailList ', this.thumbnailList)
     this.imgList = []
     this.thumbnailList.forEach(item => {
+      // item.id = 'SLIDES_API1068190746_49' // test
       this.imgList.push(item.contentUrl)
     })
     this.getClassInfo()
@@ -199,9 +254,11 @@ export default {
     getClassInfo () {
       this.loadingClass = true
       QueryByClassInfoSlideId({ slideId: this.taskForm.presentationId }).then(response => {
+      // QueryByClassInfoSlideId({ slideId: '1X9fE0m4j4Ey5BvSxof_a0bVxTDNaDfadJTlhkXmyikk' }).then(response => {
         this.$logger.info('QueryByClassInfoSlideId ', response)
         if (response.success) {
           this.elementsList = response.result.relements
+          this.itemsList = response.result.items
         }
       }).finally(() => {
         this.loadingClass = false
@@ -224,7 +281,7 @@ export default {
     },
     computerSize (type) {
         var size = 0
-        const currentPageId = this.thumbnailList[this.currentImgIndex]
+        const currentPageId = this.thumbnailList[this.currentImgIndex].id
         this.elementsList.forEach(e => {
           if (currentPageId === e.pageId) {
             const data = JSON.parse(e.data)
@@ -350,6 +407,31 @@ export default {
     .left-preview-left{
       display: flex;
       flex-direction: column;
+      position: relative;
+      .plugin-tags{
+        height: 100px;
+        width: 740px;
+        overflow-y:auto;
+        background-color:#F7F7F7;
+        font-size: 12px;
+        font-family: Segoe UI;
+        .tag-row{
+          margin: 5px;
+        }
+        .tag-item{
+          margin-left: 15px;
+        }
+        .tag-title{
+          font-weight: 400;
+          line-height: 0px;
+          color: #808191;
+          opacity: 1;
+        }
+        .tag-value{
+          margin-left: 10px;
+          //max-width: 200px;
+        }
+      }
     }
     .action-item {
       display: flex;
@@ -827,11 +909,13 @@ export default {
 }
 
 .page-info {
-  margin-top: 50px;
   background: #E4E4E4;
   padding: 1px 10px;
   border-radius: 20px;
   width:80px;
+  position: absolute;
+  right: 10px;
+  bottom: 120px;
   text-align: center;
   .page-num-tag {
     display: inline;

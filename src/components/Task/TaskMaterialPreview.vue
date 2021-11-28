@@ -13,27 +13,27 @@
               <span class="title-size">{{ computerSize('video') }}</span>
             </div>
             <div class="title" v-if="computerSize('audio') > 0">
-              <span class="title-split"> |</span>
+              <span class="title-split" v-if="!filterType"> |</span>
               <span class="title-name">Audio :</span>
               <span class="title-size">{{ computerSize('audio') }}</span>
             </div>
             <div class="title" v-if="computerSize('pdf') > 0">
-              <span class="title-split"> |</span>
+              <span class="title-split" v-if="!filterType"> |</span>
               <span class="title-name">Pdf :</span>
               <span class="title-size">{{ computerSize('pdf') }}</span>
             </div>
             <div class="title" v-if="computerSize('image') > 0">
-              <span class="title-split"> |</span>
+              <span class="title-split" v-if="!filterType"> |</span>
               <span class="title-name">Image :</span>
               <span class="title-size">{{ computerSize('image') }}</span>
             </div>
             <div class="title" v-if="computerSize('iframe') > 0">
-              <span class="title-split"> |</span>
+              <span class="title-split" v-if="!filterType"> |</span>
               <span class="title-name">Youtube :</span>
               <span class="title-size">{{ computerSize('iframe') }}</span>
             </div>
             <div class="title" v-if="computerSize('website') > 0">
-              <span class="title-split"> |</span>
+              <span class="title-split" v-if="!filterType"> |</span>
               <span class="title-name">Website :</span>
               <span class="title-size">{{ computerSize('website') }}</span>
             </div>
@@ -95,7 +95,6 @@ import PdfTypeSvg from '@/assets/icons/material/pdf.svg?inline'
 import UrlTypeSvg from '@/assets/icons/material/url.svg?inline'
 import { fileTypeMap } from '@/const/material'
 import MaterialTypeIcon from '@/components/Task/MaterialTypeIcon'
-import { QueryByClassInfoSlideId } from '@/api/classroom'
 
 export default {
   name: 'TaskMaterialPreview',
@@ -119,9 +118,9 @@ export default {
       type: Number,
       default: 0
     },
-    taskForm: {
-      type: Object,
-      default: null
+    filterType: {
+      type: String,
+      default: ''
     }
   },
   computed: {
@@ -140,30 +139,13 @@ export default {
   },
   created () {
     this.$logger.info('currentPageElementLists ', this.currentPageElementLists)
-    this.elementsList = this.currentPageElementLists
-    if (this.elementsList.length === 0 && this.taskForm) {
-      this.getClassInfo()
+    if (this.filterType) {
+      this.elementsList = this.currentPageElementLists.filter(item => item.type === this.filterType)
+    } else {
+      this.elementsList = this.currentPageElementLists
     }
   },
   methods: {
-    getClassInfo () {
-      this.loadingClass = true
-      QueryByClassInfoSlideId({ slideId: this.taskForm.presentationId }).then(response => {
-        this.$logger.info('QueryByClassInfoSlideId ', response)
-        this.elementsList = []
-        if (response.success) {
-          const currentPageId = this.form.pageObjectIds.split(',')[this.currentImgIndex]
-          response.result.relements.forEach(e => {
-            if (currentPageId === e.pageId) {
-              const data = JSON.parse(e.data)
-              this.elementsList.push(data)
-            }
-          })
-        }
-      }).finally(() => {
-        this.loadingClass = false
-      })
-    },
     handleGotoImgIndex (index) {
       this.$logger.info('handleGotoImgIndex ' + index)
       this.currentImgIndex = index

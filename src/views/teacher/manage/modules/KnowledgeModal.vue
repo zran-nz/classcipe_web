@@ -120,7 +120,7 @@ export default {
       console.log(record)
       this.gradeListAll = this.gradeList
       this.model = Object.assign({}, record)
-      this.condition = JSON.stringify({ 'curriculum_id': this.model.curriculumId, 'subject_id': this.model.subjectId, 'tag_type': TagType.skill, 'del_flag': 0 })
+      this.condition = JSON.stringify({ 'curriculum_id': this.model.curriculumId, 'subject_id': this.model.subjectId, 'tag_type': TagType.ibSkill, 'del_flag': 0 })
       this.visible = true
     },
     close () {

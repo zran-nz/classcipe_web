@@ -88,25 +88,58 @@
 
                     <a-step title=" Edit task slides" :status="currentActiveStepIndex === 1 ? 'process':'wait'" id="templateSelected">
                       <template v-if="currentActiveStepIndex === 1" slot="description">
-                        <div class="edit-in-slide" v-show="form.presentationId">
-                          <a-button
-                            v-if="form.pluginInit"
-                            class="action-ensure action-item edit-slide"
-                            type="primary"
-                            shape="round"
-                            @click="taskPptPreviewVisible=true"
-                            style="margin-right: 200px">
-                            <img style="font-size: 20px" src="~@/assets/icons/task/material.png" class="btn-icon"/>
-                            My Material
-                          </a-button>
+                        <div class="edit-in-slide">
                           <a-button class="action-ensure action-item edit-slide" type="primary" shape="round" @click="handleShowSelectMyContent" style="margin-right: 10px">
-                            Select template
+                            Select slide(s)
                           </a-button>
-                          <a-button class="action-ensure action-item edit-slide" type="primary" shape="round" @click="handleOpenGoogleSlide(presentationLink)">
-                            Edit in Google Slides
+                          <a-button class="action-ensure action-item edit-slide" :loading="creating" type="primary" shape="round" @click="handleEditGoogleSlide()">
+                            Edit google slide(s)
                           </a-button>
+                          <a-tooltip placement="top" title="Select slide(s) on/off">
+                            <a-switch
+                              class="slide-switch"
+                              :disabled="form.selectedTemplateList.length === 0"
+                              checked-children="On"
+                              un-checked-children="Off"
+                              v-model="form.showSelected"
+                              @click="changeSelected" />
+                          </a-tooltip>
                         </div>
-                        <div class="template-selected" v-if="showTemplateSelected">
+                        <div class="top-icon-groups" v-if="Object.keys(currentPageMaterial).length > 0 && !form.showSelected">
+                          <a-col class="material-row" >
+                            <div class="icon-group">
+                              <div class="icon" v-if="currentPageMaterial.hasOwnProperty('text')" @click="showPluginMaterial('text')">
+                                <text-type-svg />
+                                <div class="icon-text">Text</div>
+                              </div>
+                              <div class="icon" v-if="currentPageMaterial.hasOwnProperty('image')" @click="showPluginMaterial('image')">
+                                <image-type-svg />
+                                <div class="icon-text">Image</div>
+                              </div>
+                              <div class="icon" v-if="currentPageMaterial.hasOwnProperty('video')" @click="showPluginMaterial('video')">
+                                <video-type-svg />
+                                <div class="icon-text">Video</div>
+                              </div>
+                              <div class="icon" v-if="currentPageMaterial.hasOwnProperty('audio')" @click="showPluginMaterial('audio')">
+                                <audio-type-svg />
+                                <div class="icon-text">Audio</div>
+                              </div>
+                              <div class="icon" v-if="currentPageMaterial.hasOwnProperty('iframe')" @click="showPluginMaterial('iframe')">
+                                <youtube-type-svg />
+                                <div class="icon-text">Youtube</div>
+                              </div>
+                              <div class="icon" v-if="currentPageMaterial.hasOwnProperty('pdf')" @click="showPluginMaterial('pdf')">
+                                <pdf-type-svg />
+                                <div class="icon-text">PDF</div>
+                              </div>
+                              <div class="icon" v-if="currentPageMaterial.hasOwnProperty('website')" @click="showPluginMaterial('website')">
+                                <url-type-svg />
+                                <div class="icon-text">Website</div>
+                              </div>
+                            </div>
+                          </a-col>
+                        </div>
+                        <div class="template-selected" v-if="form.showSelected">
                           <div class="template-list" v-if="!templateLoading">
                             <div :class="{'template-item': true }" v-for="(template,index) in selectedTemplateList" :key="index">
                               <div class="template-hover-action-mask">
@@ -138,34 +171,62 @@
                               </div>
                             </div>
                           </div>
-
                         </div>
                         <a-skeleton :loading="skeletonLoading" active >
-                          <div class="slide-select-wrapper" ref="slide">
+                          <div class="slide-select-wrapper" ref="slide" v-if="!form.showSelected">
                             <div class="slide-select">
                               <div class="slide-select-and-preview">
                                 <!--                            <div class="reset-edit-basic-info" >Edit Task Info</div>-->
                                 <div class="slide-select-action" v-show="!form.presentationId">
-                                  <img src="~@/assets/icons/task/Teamwork-Pie-Chart@2x.png" />
-                                  <div class="select-action">
-                                    <div class="modal-ensure-action-line">
-                                      <a-button class="action-item action-cancel" shape="round" @click="handleShowSelectMyContent">Select template</a-button>
-                                      <a-button class="action-ensure action-item" type="primary" shape="round" :loading="creating" @click="handleCreateInGoogle">Create a new ppt in Google Slide</a-button>
-                                    </div>
-                                  </div>
+                                  <img src="https://dcdkqlzgpl5ba.cloudfront.net/file/202111271330492511-Welcome_slide.png" />
                                 </div>
-                                <div class="slide-preview" v-show="!showTemplateSelected && form.presentationId && thumbnailList.length">
-                                  <a-carousel ref="carousel" arrows >
-                                    <div slot="prevArrow" class="custom-slick-arrow" style="left: 10px;zIndex: 1" >
+                                <div class="slide-preview" v-show="!form.showSelected && form.presentationId && thumbnailList.length">
+                                  <a-carousel ref="carousel" arrows :after-change="onChangePage">
+                                    <div slot="prevArrow" class="custom-slick-arrow" style="left: 10px;zIndex: 9" >
                                       <a-icon type="left-circle"/>
                                     </div>
-                                    <div slot="nextArrow" class="custom-slick-arrow" style="right: 10px" >
+                                    <div slot="nextArrow" class="custom-slick-arrow" style="right: 10px;zIndex: 9" >
                                       <a-icon type="right-circle" />
                                     </div>
                                     <div v-for="(item,index) in thumbnailList" :key="index">
                                       <img :src="item.contentUrl" />
                                     </div>
                                   </a-carousel>
+                                  <div class="plugin-tags" v-if="currentPageItem">
+                                    <a-row class="tag-row">
+                                      <span class="tag-item" v-if="currentPageItem.data.bloomLevel">
+                                        <span class="tag-title">Bloom level:</span>
+                                        <span class="tag-value" style="color:#F16A39">{{ currentPageItem.data.bloomLevel }}</span>
+                                      </span>
+                                      <span class="tag-item" v-if="currentPageItem.data.knowledgeLevel">
+                                        <span class="tag-title">Knowledge:</span>
+                                        <span class="tag-value" style="color:#F16A39">{{ currentPageItem.data.knowledgeLevel }}</span>
+                                      </span>
+                                    </a-row>
+                                    <a-row class="tag-row">
+                                      <span class="tag-item" v-if="currentPageItem.data.verbs">
+                                        <span class="tag-title">Verbs:</span>
+                                        <span class="tag-value" v-for="(v,index) in currentPageItem.data.verbs" :key="index" style="color:#15C39A">{{ v }}</span>
+                                      </span>
+                                      <span class="tag-item" v-if="currentPageTips">
+                                        <span class="tag-title">Tips added:</span>
+                                        <span class="tag-value" style="color:#0054FF">{{ currentPageTips.tip }}</span>
+                                      </span>
+                                    </a-row>
+                                    <a-row class="tag-row">
+                                      <span class="tag-item">
+                                        <span class="tag-title">learning outcomes:</span>
+                                        <span class="tag-value" v-for="(learn,index) in currentPageItem.data.learnOuts" :key="index" style="color:#00BCF2">
+                                          <a-tooltip :title="learn.path" :overlayStyle="{ 'z-index': '3000'}">{{ learn.name }} </a-tooltip>
+                                        </span>
+                                      </span>
+                                    </a-row>
+                                    <a-row class="tag-row">
+                                      <span class="tag-item">
+                                        <span class="tag-title">This is a <span>{{ currentPageItem.type }}</span> slide</span>
+                                      </span>
+                                    </a-row>
+                                  </div>
                                   <div class="page-info" v-if="thumbnailList && thumbnailList.length">
                                     {{ currentImgIndex + 1 }} / {{ thumbnailList.length }}
                                   </div>
@@ -289,23 +350,48 @@
                       <div class="right-title">Recommended</div>
                       <div class="slide-preview-list">
                         <div class="slide-preview-item" v-for="(template, rIndex) in filterRecommendTemplateList" :key="rIndex">
-                          <div class="mask-cover">
-                            <div class="mask-actions">
-                              <div class="action-item action-item-center">
-                                <!--                            <div class="session-btn session-btn-left">-->
-                                <!--                              <div class="session-btn-text">Preview</div>-->
-                                <!--                            </div>-->
-                                <div class="session-btn session-btn-right" v-if="!addRecomendLoading" @click="selectRecommendTemplate(template, rIndex, $event)">
-                                  <div class="session-btn-text">Add as slide</div>
-                                </div>
+                          <div class="template-hover-action-mask">
+                            <div class="template-hover-action">
+                              <div class="modal-ensure-action-line">
+                                <a-button
+                                  class="action-ensure action-item"
+                                  shape="round"
+                                  @click="handlePreviewTemplate(template)"
+                                >
+                                  <a-icon type="eye" theme="filled"/>
+                                  <div class="btn-text">
+                                    Preview
+                                  </div>
+                                </a-button>
+                                <a-button
+                                  v-if="selectedTemplateIdList.indexOf(template.id) === -1"
+                                  class="action-ensure action-item"
+                                  shape="round"
+                                  @click="selectRecommendTemplate(template, rIndex, $event)">
+                                  <a-icon type="plus-circle" theme="filled"/>
+                                  <div class="btn-text">
+                                    Add
+                                  </div>
+                                </a-button>
+                                <a-button
+                                  v-else
+                                  class="action-ensure action-item"
+                                  shape="round"
+                                  @click="handleSelectTemplate(template)"
+                                >
+                                  <a-icon type="minus-circle" theme="filled"/>
+                                  <div class="btn-text">
+                                    Remove
+                                  </div>
+                                </a-button>
                               </div>
                             </div>
                           </div>
                           <a-carousel arrows>
-                            <div slot="prevArrow" class="custom-slick-arrow" style="left: 10px;zIndex: 1" >
+                            <div slot="prevArrow" class="custom-slick-arrow" style="left: 10px;zIndex: 100" >
                               <a-icon type="left-circle" />
                             </div>
-                            <div slot="nextArrow" class="custom-slick-arrow" style="right: 10px">
+                            <div slot="nextArrow" class="custom-slick-arrow" style="right: 10px;zIndex: 100">
                               <a-icon type="right-circle" />
                             </div>
                             <div v-for="(item,index) in template.images" :key="index">
@@ -360,9 +446,6 @@
               <div class="task-preview-list">
                 <div class="task-preview" v-for="(task, index) in subTasks" :key="index">
                   <task-preview :task-id="task.id" />
-                  <!--                  <div class="task-delete" @click="handleTaskDelete(task)">-->
-                  <!--                    <a-icon type="delete" />-->
-                  <!--                  </div>-->
                 </div>
               </div>
             </div>
@@ -443,7 +526,7 @@
               <a :href="presentationLink" target="_blank">{{ presentationLink }}</a>
             </div>
             <div class="view-action">
-              <a-button type="primary" @click="handleOpenGoogleSlide(presentationLink)">Edit in Google Slides</a-button>
+              <a-button type="primary" @click="handleEditGoogleSlide()">Edit in Google Slides</a-button>
             </div>
           </div>
         </div>
@@ -903,6 +986,18 @@
         </div>
       </a-modal>
 
+      <a-modal
+        v-model="materialVisible"
+        :footer="null"
+        destroyOnClose
+        width="800px"
+        :zIndex="3000"
+        title="My Materials"
+        @ok="materialVisible = false"
+        @cancel="materialVisible = false">
+        <task-material-preview :current-page-element-lists="currentPageElementLists" :filter-type="filterMaterialType" :current-page-index="currentImgIndex"></task-material-preview>
+      </a-modal>
+
       <a-skeleton :loading="contentLoading" active>
       </a-skeleton>
     </a-card>
@@ -910,56 +1005,56 @@
 </template>
 
 <script>
-  import * as logger from '@/utils/logger'
-  import ContentTypeIcon from '@/components/Teacher/ContentTypeIcon'
-  import { typeMap } from '@/const/teacher'
-  import { GetMyGrades, Associate, SaveSessonTags, GetAssociate, GetReferOutcomes } from '@/api/teacher'
-  import InputSearch from '@/components/UnitPlan/InputSearch'
-  import SdgTagInput from '@/components/UnitPlan/SdgTagInput'
-  import SkillTag from '@/components/UnitPlan/SkillTag'
-  import { FilterTemplates, TemplatesGetPresentation, recommendTemplates } from '@/api/template'
-  import { MyContentEventBus, MyContentEvent } from '@/components/MyContent/MyContentEventBus'
-  import { TaskCreateNewTaskPPT, TaskQueryById, TaskAddOrUpdate } from '@/api/task'
-  import { SelectModel } from '@/components/NewLibrary/SelectModel'
-  import { formatLocalUTC } from '@/utils/util'
-  import { commonAPIUrl, GetDictItems } from '@/api/common'
-  import MyContentSelector from '@/components/MyContent/MyContentSelector'
-  import RelevantTagSelector from '@/components/UnitPlan/RelevantTagSelector'
-  import { TemplateTypeMap } from '@/const/template'
-  import TaskForm from '@/components/Task/TaskForm'
-  import TaskPreview from '@/components/Task/TaskPreview'
-  import Collaborate from '@/components/UnitPlan/Collaborate'
-  import AssociateSidebar from '@/components/Associate/AssociateSidebar'
-  import CustomTag from '@/components/UnitPlan/CustomTag'
-  import NewUiClickableKnowledgeTag from '@/components/UnitPlan/NewUiClickableKnowledgeTag'
-  import { lessonHost, lessonStatus } from '@/const/googleSlide'
-  import { StartLesson } from '@/api/lesson'
-  import CollaborateContent from '@/components/Collaborate/CollaborateContent'
-  import { CustomTagType, DICT_BLOOM_CATEGORY, DICT_TEMPLATE, TemplateType } from '@/const/common'
-  import { SubjectTree } from '@/api/subject'
-  import { formatSubjectTree } from '@/utils/bizUtil'
-  import ModalHeader from '@/components/Common/ModalHeader'
-  import CommonFormHeader from '@/components/Common/CommonFormHeader'
-  import { EvaluationAddOrUpdate } from '@/api/evaluation'
-  import CommonLink from '@/components/Common/CommonLink'
-  import UiLearnOut from '@/components/UnitPlan/UiLearnOut'
-  import { LibraryEvent, LibraryEventBus } from '@/components/NewLibrary/LibraryEventBus'
-  import NewBrowser from '@/components/NewLibrary/NewBrowser'
-  import NewMyContent from '@/components/MyContent/NewMyContent'
-  import { FindCustomTags, GetTagYearTips, GetTreeByKey } from '@/api/tag'
-  import { NavigationType } from '@/components/NewLibrary/NavigationType'
-  import { GetCollaborateComment, GetCollaborateModifiedHistory } from '@/api/collaborate'
-  import CollaborateCommentPanel from '@/components/Collaborate/CollaborateCommentPanel'
-  import CommentSwitch from '@/components/Collaborate/CommentSwitch'
-  import CollaborateCommentView from '@/components/Collaborate/CollaborateCommentView'
-  import commentIcon from '@/assets/icons/collaborate/comment.svg?inline'
-  import CollaborateHistory from '@/components/Collaborate/CollaborateHistory'
-  import NoMoreResources from '@/components/Common/NoMoreResources'
-  import TemplatePreview from '@/components/Task/TemplatePreview'
-  import TaskMaterialPreview from '@/components/Task/TaskMaterialPreview'
-  import TaskPptPreview from '@/components/Task/TaskPptPreview'
-
-  export default {
+import * as logger from '@/utils/logger'
+import ContentTypeIcon from '@/components/Teacher/ContentTypeIcon'
+import { typeMap } from '@/const/teacher'
+import { Associate, GetAssociate, GetReferOutcomes, SaveSessonTags } from '@/api/teacher'
+import InputSearch from '@/components/UnitPlan/InputSearch'
+import SdgTagInput from '@/components/UnitPlan/SdgTagInput'
+import SkillTag from '@/components/UnitPlan/SkillTag'
+import { FilterTemplates, recommendTemplates, TemplatesGetPresentation } from '@/api/template'
+import { MyContentEvent, MyContentEventBus } from '@/components/MyContent/MyContentEventBus'
+import { TaskAddOrUpdate, TaskCreateNewTaskPPT, TaskQueryById } from '@/api/task'
+import { SelectModel } from '@/components/NewLibrary/SelectModel'
+import { formatLocalUTC } from '@/utils/util'
+import { commonAPIUrl } from '@/api/common'
+import MyContentSelector from '@/components/MyContent/MyContentSelector'
+import RelevantTagSelector from '@/components/UnitPlan/RelevantTagSelector'
+import { TemplateTypeMap } from '@/const/template'
+import TaskForm from '@/components/Task/TaskForm'
+import TaskPreview from '@/components/Task/TaskPreview'
+import Collaborate from '@/components/UnitPlan/Collaborate'
+import AssociateSidebar from '@/components/Associate/AssociateSidebar'
+import CustomTag from '@/components/UnitPlan/CustomTag'
+import NewUiClickableKnowledgeTag from '@/components/UnitPlan/NewUiClickableKnowledgeTag'
+import { lessonHost, lessonStatus } from '@/const/googleSlide'
+import { StartLesson } from '@/api/lesson'
+import CollaborateContent from '@/components/Collaborate/CollaborateContent'
+import { CustomTagType, TemplateType } from '@/const/common'
+// import { SubjectTree } from '@/api/subject'
+// import { formatSubjectTree } from '@/utils/bizUtil'
+import ModalHeader from '@/components/Common/ModalHeader'
+import CommonFormHeader from '@/components/Common/CommonFormHeader'
+import { EvaluationAddOrUpdate } from '@/api/evaluation'
+import CommonLink from '@/components/Common/CommonLink'
+import UiLearnOut from '@/components/UnitPlan/UiLearnOut'
+import { LibraryEvent, LibraryEventBus } from '@/components/NewLibrary/LibraryEventBus'
+import NewBrowser from '@/components/NewLibrary/NewBrowser'
+import NewMyContent from '@/components/MyContent/NewMyContent'
+import { FindCustomTags, GetTagYearTips, GetTreeByKey } from '@/api/tag'
+import { NavigationType } from '@/components/NewLibrary/NavigationType'
+import { GetCollaborateComment, GetCollaborateModifiedHistory } from '@/api/collaborate'
+import CollaborateCommentPanel from '@/components/Collaborate/CollaborateCommentPanel'
+import CommentSwitch from '@/components/Collaborate/CommentSwitch'
+import CollaborateCommentView from '@/components/Collaborate/CollaborateCommentView'
+import commentIcon from '@/assets/icons/collaborate/comment.svg?inline'
+import CollaborateHistory from '@/components/Collaborate/CollaborateHistory'
+import NoMoreResources from '@/components/Common/NoMoreResources'
+import TemplatePreview from '@/components/Task/TemplatePreview'
+import TaskMaterialPreview from '@/components/Task/TaskMaterialPreview'
+import TaskPptPreview from '@/components/Task/TaskPptPreview'
+import { PptPreviewMixin } from '@/mixins/PptPreviewMixin'
+export default {
     name: 'AddTask',
     components: {
       TaskPptPreview,
@@ -991,6 +1086,7 @@
       commentIcon,
       TaskMaterialPreview
     },
+    mixins: [PptPreviewMixin],
     props: {
       taskId: {
         type: String,
@@ -1015,8 +1111,6 @@
         viewInGoogleSlideVisible: false,
         selectTemplateVisible: false,
         showAddAudioVisible: false,
-
-        presentationLink: null,
         form: {
           id: null,
           image: '',
@@ -1032,12 +1126,13 @@
           subjectIds: [],
           gradeIds: [],
           bloomCategories: '',
-          learnOuts: []
+          learnOuts: [],
+          showSelect: false
         },
         // Grades
-        gradeList: [],
+        // gradeList: [],
         // SubjectTree
-        subjectTree: [],
+        // subjectTree: [],
 
         currentTemplateType: TemplateTypeMap['visible-thinking-tool'],
         currentBloomCategory: '',
@@ -1137,7 +1232,6 @@
         previewTemplate: {},
         previewTemplateVisible: false,
         currentImgIndex: 0,
-        showTaskSelected: false,
         onlyShowSelected: false,
         taskPptPreviewVisible: false,
         showTemplateFilter: false,
@@ -1181,14 +1275,8 @@
           return filerList.length > 0 ? filerList[0].tooltip : ''
         }
       },
-      showTemplateSelected () {
-        if (this.showTaskSelected) {
-          return this.showTaskSelected
-        }
-        if (this.selectedTemplateList.length === 0) {
-          return false
-        }
-        return !this.form.pluginInit && this.form.presentationId
+      presentationLink () {
+        return 'https://docs.google.com/presentation/d/' + this.form.presentationId + '/edit'
       }
     },
     mounted () {
@@ -1223,31 +1311,30 @@
       initData () {
         logger.info('initData doing...')
         Promise.all([
-          GetMyGrades(),
-          FilterTemplates({}),
-          SubjectTree({ curriculumId: this.$store.getters.bindCurriculum })
+          // GetMyGrades(),
+          FilterTemplates({})
+          // SubjectTree({ curriculumId: this.$store.getters.bindCurriculum })
         ]).then((response) => {
           this.$logger.info('add task initData done', response)
 
-          // GetMyGrades
+          // // GetMyGrades
+          // if (!response[0].code) {
+          //   this.$logger.info('GetMyGrades', response[0].result)
+          //   this.gradeList = response[0].result
+          // }
+
           if (!response[0].code) {
-            this.$logger.info('GetMyGrades', response[0].result)
-            this.gradeList = response[0].result
+            this.$logger.info('template list', response[0].result)
+            this.templateList = response[0].result
           }
-
-          if (!response[1].code) {
-            this.$logger.info('template list', response[1].result)
-            this.templateList = response[1].result
-          }
-
-          // SubjectTree
-          if (!response[2].code) {
-            logger.info('SubjectTree', response[2].result)
-            let subjectTree = response[2].result
-            subjectTree = formatSubjectTree(subjectTree)
-            this.subjectTree = subjectTree
-            logger.info('after format subjectTree', subjectTree)
-          }
+          // // SubjectTree
+          // if (!response[1].code) {
+          //   logger.info('SubjectTree', response[1].result)
+          //   let subjectTree = response[1].result
+          //   subjectTree = formatSubjectTree(subjectTree)
+          //   this.subjectTree = subjectTree
+          //   logger.info('after format subjectTree', subjectTree)
+          // }
         }).then(() => {
           if (this.taskId) {
             this.$logger.info('restore task data ' + this.taskId)
@@ -1260,19 +1347,6 @@
           this.$message.error(this.$t('teacher.add-task.init-data-failed'))
         }).finally(() => {
           this.referenceLoading = false
-        })
-
-        GetDictItems(DICT_TEMPLATE).then(response => {
-          if (response.success) {
-            logger.info('DICT_TEMPLATE', response.result)
-            this.initTemplates = response.result
-          }
-        })
-        GetDictItems(DICT_BLOOM_CATEGORY).then(response => {
-          if (response.success) {
-            logger.info('DICT_BLOOM_CATEGORY', response.result)
-            this.initBlooms = response.result
-          }
         })
       },
 
@@ -1309,23 +1383,19 @@
           logger.info('TaskQueryById ' + taskId, response.result)
           const taskData = response.result
           this.form = taskData
+          this.form.showSelect = taskData.showSelect ? taskData.showSelect : false
           this.form.bloomCategories = this.form.bloomCategories ? this.form.bloomCategories : undefined // 为了展示placeholder
           this.selectedTemplateList = this.form.selectedTemplateList
-          if (this.form.presentationId) {
-            // 绑定google slide 的编辑链接
-            this.presentationLink = 'https://docs.google.com/presentation/d/' + this.form.presentationId + '/edit?taskId=' + this.taskId
-            this.$logger.info('presentationLink ' + this.presentationLink)
+          if (this.selectedTemplateList.length === 0) {
+            this.form.showSelect = false
           }
         }).finally(() => {
           this.contentLoading = false
           this.loadCollaborateData()
           if (this.form.presentationId) {
             this.loadThumbnail()
-          }
-          if (!this.form.pluginInit) {
-            if (this.recommendTemplateList.length === 0) {
-              this.loadRecommendThumbnail()
-            }
+            this.getClassInfo(this.form.presentationId)
+            this.loadRecommendThumbnail()
           }
           if (this.mode === 'pick-task-slide') {
             this.currentTaskFormData = Object.assign({}, this.form)
@@ -1447,10 +1517,14 @@
       handleSelectTemplate (template) {
         this.$logger.info('handleSelectTemplate ', template)
         const index = this.selectedTemplateList.findIndex(item => item.id === template.id)
+        this.form.showSelected = true
         if (index !== -1) {
           this.selectedTemplateList.splice(index, 1)
         } else {
           this.selectedTemplateList.push(template)
+        }
+        if (this.selectedTemplateList.length === 0) {
+          this.form.showSelected = false
         }
       },
 
@@ -1475,7 +1549,6 @@
               this.$logger.info('handleAddTemplate response', response.result)
               this.form.id = response.result.id
               this.form.presentationId = response.result.presentationId
-              this.presentationLink = response.result.presentationLink
               this.selectTemplateVisible = false
               this.restoreTask(this.form.id, false)
               this.$router.replace({
@@ -1496,11 +1569,6 @@
         } else {
           this.$logger.info('creating wait...')
         }
-      },
-
-      handleOpenGoogleSlide (slideUrl) {
-        this.$logger.info('handleOpenGoogleSlide ' + slideUrl)
-        window.open(slideUrl, '_blank')
       },
 
       handleViewDetail (item) {
@@ -1541,22 +1609,14 @@
             this.selectedTaskIdList.push(keyArr[1])
           }
         })
-        if (this.form.presentationId) {
-          // 已经存在ppt
-          if (this.form.presentationId) {
-            this.selectedMyContentList.forEach(item => {
-              if (this.selectedTemplateIdList.indexOf(item.id) === -1) {
-                // task和template图片字段不一致
-                item.cover = item.image
-                this.selectedTemplateList.push(item)
-              }
-            })
-            this.showTaskSelected = true
-            this.selectedMyContentVisible = false
+        this.selectedMyContentList.forEach(item => {
+          if (this.selectedTemplateIdList.indexOf(item.id) === -1) {
+            // task和template图片字段不一致
+            item.cover = item.image
+            this.selectedTemplateList.push(item)
           }
-        } else {
-          this.handleCreateTask()
-        }
+        })
+        this.selectedMyContentVisible = false
       },
 
       handleCreateTask () {
@@ -1575,13 +1635,13 @@
             this.selectedMyContentVisible = false
             this.form.id = response.result.id
             this.form.presentationId = response.result.presentationId
-            this.presentationLink = response.result.presentationLink
             this.selectTemplateVisible = false
             // this.viewInGoogleSlideVisible = true
             this.$router.replace({
               path: '/teacher/task-redirect/' + response.result.id
             })
             this.$message.success('Created Successfully in Google Slides')
+            window.open('https://docs.google.com/presentation/d/' + this.form.presentationId)
           }).finally(() => {
             this.creating = false
             this.selectedMyContentVisible = false
@@ -1820,9 +1880,9 @@
       handleEditGoogleSlide () {
         this.$logger.info('handleEditGoogleSlide', this.form.presentationId)
         if (this.form.presentationId) {
-          window.open('https://docs.google.com/presentation/d/' + this.form.presentationId)
+          window.open(this.presentationLink, '_blank')
         } else {
-          this.$message.warn('please create slide first!')
+          this.handleCreateTask()
         }
       },
 
@@ -2114,6 +2174,7 @@
       },
       selectRecommendTemplate (template, rIndex, event) {
         this.$logger.info('selectRecommendTemplate', template)
+        this.form.showSelected = true
 
         // 计算元素位置，然后添加动画
         this.currentSlideCoverImgSrc = template.images[0]
@@ -2152,7 +2213,6 @@
               if (this.selectedTemplateIdList.indexOf(template.id) === -1) {
                 this.selectedTemplateList.push(template)
               }
-              this.showTaskSelected = true
             }
           }, 600)
         })
@@ -2459,24 +2519,23 @@
         if (index > -1) {
           this.selectedTemplateList.splice(index, 1)
         }
+        if (this.selectedTemplateList.length === 0) {
+          this.form.showSelected = false
+        }
       },
       onChangeShowSelected (e) {
         this.onlyShowSelected = !this.onlyShowSelected
       },
       handleSelectedTemplate () {
         this.$logger.info('handleSelectedTemplate ', this.handleSelectedTemplate)
-        this.showTaskSelected = true
         this.selectedMyContentVisible = false
       },
-      alterGoto (page) {
-        this.$logger.info('alterGoto ' + page)
-        if (this.currentImgIndex === 0 && page === -1) {
-          this.currentImgIndex = this.thumbnailList.length - 1
-        } else if (this.currentImgIndex === this.thumbnailList.length - 1 && page === 1) {
-          this.currentImgIndex = 0
-        } else {
-          this.currentImgIndex = this.currentImgIndex + page
-        }
+      changeSelected (checked) {
+        this.$logger.info('changeSelected ', checked)
+        this.form.showSelected = checked
+      },
+      onChangePage (page) {
+        this.currentImgIndex = page
       }
     }
   }
@@ -3775,6 +3834,113 @@
     justify-content: flex-end;
     margin-bottom: 20px;
     margin-top: 20px;
+    .slide-switch{
+      margin-left: 10px;
+      height: 30px;
+      font-size: 14px;
+    }
+    /deep/ .ant-switch-loading-icon, .ant-switch::after {
+      position: absolute;
+      top: 5px;
+      left: 4px;
+    }
+    /deep/ .ant-switch-inner{
+      font-size: 14px;
+    }
+    /deep/ .ant-switch-checked::after {
+      margin-left: 40px;
+    }
+    /deep/ .ant-btn-round {
+      height: 30px;
+      padding: 0px 10px;
+      font-size: 14px;
+      border-radius: 32px;
+    }
+  }
+  .top-icon-groups {
+    position: relative;
+    color: rgba(0, 0, 0, 0.65);
+    background: #fff;
+    margin-top: -15px;
+    .icon-group{
+      display: flex;
+      flex-direction: row;
+      flex-wrap: nowrap;
+      flex-basis: auto;
+      justify-content: flex-start;
+      align-items: center;
+      .icon {
+        width: 50px;
+        height: 50px;
+        margin:10px;
+        border: 1px solid #ddd;
+        border-radius: 6px;
+        background: #fafafa;
+        display: flex;
+        flex-direction: column;
+        font-weight: bold;
+        padding:2px;
+        cursor: pointer;
+        align-items: center;
+        .icon-text {
+          display: flex;
+          font-size: 12px;
+        }
+        svg {
+          display: flex;
+          width: 32px;
+          height: 32px;
+        }
+      }
+    }
+
+    .title-line {
+      padding: 5px 0;
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      justify-content: space-between;
+      .name {
+        width: 70%;
+        overflow-x: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        word-break: break-all;
+        font-family: Inter-Bold;
+        font-size: 15px;
+        font-weight: bold;
+        color: #182552;
+        padding-right: 10px;
+        box-sizing: border-box;
+      }
+
+      .action-item {
+        display: flex;
+        width: 30%;
+        flex-direction: row;
+        align-items: center;
+        justify-content: flex-end;
+
+        .star {
+          img {
+            width: 22px;
+          }
+        }
+
+        .edit {
+          margin-left: 15px;
+          .button-content {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            .edit-icon {
+              padding-left: 5px;
+              width: 18px;
+            }
+          }
+        }
+      }
+    }
   }
   .slide-select-wrapper {
     display: flex;
@@ -3824,13 +3990,8 @@
         .slide-select-action {
           height: 400px;
           width: 600px;
-          align-items: center;
-          display: flex;
-          flex-direction: column;
-          justify-content: center;
-
           img {
-            height: 150px;
+            width:100%
           }
         }
 
@@ -3896,7 +4057,7 @@
         overflow: hidden;
       }
       .slick-slide img{
-        width:100%;
+        width:400px;
       }
       custom-slick-arrow {
         width: 25px;
@@ -3924,72 +4085,38 @@
       position: relative;
       margin: 15px;
       width: 400px;
-      &:hover {
-        .mask-cover .mask-actions{
-          display: block;
+      .template-hover-action-mask {
+        display: none;
+        z-index: 100;
+        position: absolute;
+        cursor: pointer;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.3);
+        .template-hover-action{
+          width: 100%;
+          top:30%
+        }
+
+        .action-item {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          padding: 6px 13px;
+          background: rgba(0, 0, 0, 0.45);
+          opacity: 1;
+          border: 1px solid rgba(188, 188, 188, 1);
+        }
+        .template-hover-action {
+          position: absolute;
         }
       }
-
-      .mask-cover{
-        .mask-actions{
-          height: 100%;
-          width: 80%;
-          left: 10%;
-          position: absolute;
-          flex-direction: column;
-          z-index: 10;
-          display: none;
-          .action-item{
-            cursor: pointer;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: space-around;
-          }
-          .action-item-center{
-            //min-height: 150px;
-            margin-top: 80px;
-            z-index:0;
-            .session-btn{
-              margin:15px
-            }
-            .session-btn-left {
-              width: 160px;
-              height: 40px;
-              background: #15C39A;
-              opacity: 1;
-              border-radius: 20px;
-              justify-content: center;
-              display: flex;
-              padding: 6px 13px;
-              .session-btn-text {
-                font-size: 12px;
-                font-family: Inter-Bold;
-                line-height: 24px;
-                color: #FFFFFF;
-                opacity: 1;
-              }
-            }
-            .session-btn-right {
-              width: 160px;
-              height: 40px;
-              background: #182552;
-              opacity: 1;
-              border-radius: 20px;
-              display: flex;
-              justify-content: center;
-              padding: 6px 13px;
-              .session-btn-text {
-                font-size: 12px;
-                font-family: Inter-Bold;
-                line-height: 24px;
-                color: #FFFFFF;
-                opacity: 1;
-              }
-            }
-          }
+      &:hover {
+        .template-hover-action-mask {
+          display: block;
         }
-
       }
 
     }
@@ -4299,6 +4426,30 @@
   .slide-animate-cover > img {
     transition-timing-function: cubic-bezier(.55,0,.85,.36);
     outline: 1px solid #D8D8D8;
+  }
+  .plugin-tags{
+    height: 100px;
+    width: 650px;
+    overflow-y:auto;
+    background-color:#F7F7F7;
+    font-size: 12px;
+    font-family: Segoe UI;
+    .tag-row{
+      margin: 5px;
+    }
+    .tag-item{
+      margin-left: 15px;
+    }
+    .tag-title{
+      font-weight: 400;
+      line-height: 0px;
+      color: #808191;
+      opacity: 1;
+    }
+    .tag-value{
+      margin-left: 10px;
+      //max-width: 200px;
+    }
   }
 
 </style>

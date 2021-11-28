@@ -169,7 +169,7 @@
             :loading="loading"
             v-if="viewMode === 'img'">
             <a-list-item slot="renderItem" key="item.key" slot-scope="item">
-              <a-card class="cover-card" @click="handleViewDetail(item)">
+              <a-card class="cover-card" >
                 <div class="mask"></div>
                 <div class="mask-actions">
                   <div class="action-item action-item-top">
