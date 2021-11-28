@@ -757,12 +757,7 @@ export default {
       userTags: {},
       NavigationType: NavigationType,
       defaultActiveMenu: NavigationType.learningOutcomes,
-      showMenuList: [ NavigationType.specificSkills,
-        NavigationType.centurySkills,
-        NavigationType.learningOutcomes,
-        NavigationType.assessmentType,
-        NavigationType.all21Century, NavigationType.sdg, NavigationType.sync
-      ],
+      showMenuList: [ NavigationType.specificSkills, NavigationType.centurySkills, NavigationType.learningOutcomes, NavigationType.assessmentType ],
 
       showCollaborateCommentVisible: false,
 
