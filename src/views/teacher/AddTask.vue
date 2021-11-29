@@ -335,9 +335,9 @@
                               <p class="ant-upload-drag-icon">
                                 <img src="~@/assets/icons/lesson/upload_icon.png" class="upload-icon" />
                               </p>
-                              <!--                              <p class="ant-upload-text">-->
-                              <!--                                {{ $t('teacher.add-unit-plan.upload-a-picture') }}-->
-                              <!--                              </p>-->
+                              <p class="ant-upload-text">
+                                {{ $t('teacher.add-unit-plan.upload-a-picture') }}
+                              </p>
                             </div>
                           </template>
                         </a-upload-dragger>
@@ -542,7 +542,7 @@
         :closable="true"
         @ok="selectedMyContentVisible = false">
         <a-tabs class="template-tabs" >
-          <a-tab-pane key="1" tab="Teaching Templates">
+          <a-tab-pane key="1" tab="Slide template(s)">
             <div class="select-template-wrapper">
               <div class="template-show-filter">
                 <div class="icon" style="height:20px">
@@ -792,7 +792,7 @@
             </div>
             <div class="action-line">
               <!--              <a-button @click="handleCancelSelectedMyContent" class="button-item">Cancel</a-button>-->
-              <a-button @click="handleConfirmSelectedMyContent" type="primary" class="button-item" :loading="creating">Confirm</a-button>
+              <a-button @click="handleConfirmSelectedMyContent" type="primary" shape="round" class="button-item" :loading="creating"> Save selected contents</a-button>
             </div>
           </a-tab-pane>
         </a-tabs>
@@ -1617,6 +1617,11 @@ export default {
           }
         })
         this.selectedMyContentVisible = false
+        if (this.selectedTemplateIdList.length > 0) {
+          this.form.showSelected = true
+        } else {
+          this.form.showSelected = false
+        }
       },
 
       handleCreateTask () {
@@ -2122,7 +2127,7 @@ export default {
       handleSyncData () {
         this.$logger.info(' handleSyncData')
         GetReferOutcomes({
-          id: this.unitPlanId,
+          id: this.taskId,
           type: this.contentType.task
         }).then(response => {
           this.$logger.info('getReferOutcomes response', response)
@@ -3277,14 +3282,14 @@ export default {
     flex-direction: row;
     justify-content: flex-end;
     align-items: center;
-    margin-top: 20px;
+    //margin-top: 20px;
     .button-item {
       margin-left: 10px;
     }
   }
 
   *::-webkit-scrollbar {
-    width: 3px;
+    width: 5px;
     height: 10px;
   }
   *::-webkit-scrollbar-track {

@@ -11,32 +11,32 @@
       </a-row>
       <a-row class="top-header">
         <a-col class="material-row" >
-          <div class="icon-group" @click="materialVisible=true">
-            <div class="icon" v-if="currentPageElements.indexOf(fileTypeMap.txt) !== -1">
+          <div class="icon-group">
+            <div class="icon" v-if="currentPageMaterial.hasOwnProperty('text')" @click="showPluginMaterial('text')">
               <text-type-svg />
               <div class="icon-text">Text</div>
             </div>
-            <div class="icon" v-if="currentPageElements.indexOf(fileTypeMap.img) !== -1">
+            <div class="icon" v-if="currentPageMaterial.hasOwnProperty('image')" @click="showPluginMaterial('image')">
               <image-type-svg />
               <div class="icon-text">Image</div>
             </div>
-            <div class="icon" v-if="currentPageElements.indexOf(fileTypeMap.video) !== -1">
+            <div class="icon" v-if="currentPageMaterial.hasOwnProperty('video')" @click="showPluginMaterial('video')">
               <video-type-svg />
               <div class="icon-text">Video</div>
             </div>
-            <div class="icon" v-if="currentPageElements.indexOf(fileTypeMap.audio) !== -1">
+            <div class="icon" v-if="currentPageMaterial.hasOwnProperty('audio')" @click="showPluginMaterial('audio')">
               <audio-type-svg />
               <div class="icon-text">Audio</div>
             </div>
-            <div class="icon" v-if="currentPageElements.indexOf(fileTypeMap.youtube) !== -1">
+            <div class="icon" v-if="currentPageMaterial.hasOwnProperty('iframe')" @click="showPluginMaterial('iframe')">
               <youtube-type-svg />
               <div class="icon-text">Youtube</div>
             </div>
-            <div class="icon" v-if="currentPageElements.indexOf(fileTypeMap.pdf) !== -1">
+            <div class="icon" v-if="currentPageMaterial.hasOwnProperty('pdf')" @click="showPluginMaterial('pdf')">
               <pdf-type-svg />
               <div class="icon-text">PDF</div>
             </div>
-            <div class="icon" v-if="currentPageElements.indexOf(fileTypeMap.link) !== -1">
+            <div class="icon" v-if="currentPageMaterial.hasOwnProperty('website')" @click="showPluginMaterial('website')">
               <url-type-svg />
               <div class="icon-text">Website</div>
             </div>
@@ -48,19 +48,54 @@
           <!--        <a-spin v-show="slideLoading" class="spin-loading"/>-->
           <!-- lesson task img list-->
           <a-col span="24">
-            <div v-if="!imgList.length" class="no-preview-img">
+            <div v-if="!thumbnailList.length" class="no-preview-img">
               <no-more-resources />
             </div>
           </a-col>
           <a-col class="left-preview" span="24" style="display:flex;flex-direction:row">
             <div class="left-preview-left" style="display:flex">
-              <a-carousel ref="carousel" v-if="imgList.length" class="my-carousel">
-                <div v-for="(img,cIndex) in imgList" :key="'cIndex' + cIndex">
-                  <img :src="img" />
+              <a-carousel ref="carousel" v-if="thumbnailList.length" class="my-carousel">
+                <div v-for="(item,cIndex) in thumbnailList" :key="'cIndex' + cIndex">
+                  <img :src="item.contentUrl" />
                 </div>
               </a-carousel>
-              <div class="page-info" v-if="imgList && imgList.length">
-                {{ currentImgIndex + 1 }} / {{ imgList.length }}
+              <div class="plugin-tags" v-if="currentPageItem">
+                <a-row class="tag-row">
+                  <span class="tag-item" v-if="currentPageItem.data.bloomLevel">
+                    <span class="tag-title">Bloom level:</span>
+                    <span class="tag-value" style="color:#F16A39">{{ currentPageItem.data.bloomLevel }}</span>
+                  </span>
+                  <span class="tag-item" v-if="currentPageItem.data.knowledgeLevel">
+                    <span class="tag-title">Knowledge:</span>
+                    <span class="tag-value" style="color:#F16A39">{{ currentPageItem.data.knowledgeLevel }}</span>
+                  </span>
+                </a-row>
+                <a-row class="tag-row">
+                  <span class="tag-item" v-if="currentPageItem.data.verbs">
+                    <span class="tag-title">Verbs:</span>
+                    <span class="tag-value" v-for="(v,index) in currentPageItem.data.verbs" :key="index" style="color:#15C39A">{{ v }}</span>
+                  </span>
+                  <span class="tag-item" v-if="currentPageTips">
+                    <span class="tag-title">Tips added:</span>
+                    <span class="tag-value" style="color:#0054FF">{{ currentPageTips.tip }}</span>
+                  </span>
+                </a-row>
+                <a-row class="tag-row">
+                  <span class="tag-item">
+                    <span class="tag-title">learning outcomes:</span>
+                    <span class="tag-value" v-for="(learn,index) in currentPageItem.data.learnOuts" :key="index" style="color:#00BCF2">
+                      <a-tooltip :title="learn.path" :overlayStyle="{ 'z-index': '3000'}">{{ learn.name }} </a-tooltip>
+                    </span>
+                  </span>
+                </a-row>
+                <a-row class="tag-row">
+                  <span class="tag-item">
+                    <span class="tag-title">This is a <span>{{ currentPageItem.type }}</span> slide</span>
+                  </span>
+                </a-row>
+              </div>
+              <div class="page-info" v-if="thumbnailList && thumbnailList.length">
+                {{ currentImgIndex + 1 }} / {{ thumbnailList.length }}
               </div>
               <a-button
                 class="action-ensure action-item"
@@ -88,8 +123,8 @@
             <div class="carousel-page">
               <div class="img-list-wrapper">
                 <div class="img-list">
-                  <div class="img-item" v-for="(img,index) in imgList" :key="'index' + index" @click="handleGotoImgIndex(index)">
-                    <img :src="img" />
+                  <div class="img-item" v-for="(item,index) in thumbnailList" :key="'index' + index" @click="handleGotoImgIndex(index)">
+                    <img :src="item.contentUrl" />
                   </div>
                 </div>
               </div>
@@ -97,6 +132,7 @@
           </a-col>
         </a-col>
       </a-row>
+
       <a-modal
         v-model="materialVisible"
         :footer="null"
@@ -121,12 +157,11 @@ import AudioTypeSvg from '@/assets/icons/material/audio.svg?inline'
 import YoutubeTypeSvg from '@/assets/icons/material/youtube.svg?inline'
 import PdfTypeSvg from '@/assets/icons/material/pdf.svg?inline'
 import UrlTypeSvg from '@/assets/icons/material/url.svg?inline'
-import { QueryByClassInfoSlideId } from '@/api/classroom'
-import { fileTypeMap } from '@/const/material'
 import MaterialTypeIcon from '@/components/Task/MaterialTypeIcon'
 import TaskMaterialPreview from '@/components/Task/TaskMaterialPreview'
 import { typeMap } from '@/const/teacher'
 import { TemplatesGetPresentation } from '@/api/template'
+import { PptPreviewMixin } from '@/mixins/PptPreviewMixin'
 
 export default {
   name: 'TemplatePreview',
@@ -153,46 +188,6 @@ export default {
     }
   },
   computed: {
-    currentPageElements () {
-      const showMenuList = []
-      const currentPageId = this.templateData.pageObjectIds[this.currentImgIndex]
-      console.log(currentPageId)
-      this.elementsList.forEach(e => {
-        if (currentPageId === e.pageId) {
-          const data = JSON.parse(e.data)
-          if (data.type === 'iframe') {
-            showMenuList.push(fileTypeMap.youtube)
-          } else if (data.type === 'image') {
-            showMenuList.push(fileTypeMap.img)
-          } else if (data.type === 'audio') {
-            showMenuList.push(fileTypeMap.audio)
-          } else if (data.type === 'text') {
-            showMenuList.push(fileTypeMap.txt)
-          } else if (data.type === 'video') {
-            showMenuList.push(fileTypeMap.video)
-          } else if (data.type === 'pdf') {
-            showMenuList.push(fileTypeMap.pdf)
-          } else if (data.type === 'website') {
-            showMenuList.push(fileTypeMap.link)
-          }
-        }
-      })
-      console.log(showMenuList)
-      return showMenuList
-    },
-    currentPageElementLists () {
-      const pageElementsList = []
-      const currentPageId = this.templateData.pageObjectIds[this.currentImgIndex]
-      console.log(currentPageId)
-      this.elementsList.forEach(e => {
-        if (currentPageId === e.pageId) {
-            const data = JSON.parse(e.data)
-            pageElementsList.push(data)
-        }
-      })
-      console.log(pageElementsList)
-      return pageElementsList
-    }
   },
   mounted () {
 
@@ -203,15 +198,10 @@ export default {
       loading: true,
       loadingClass: false,
       data: null,
-      imgList: [],
-      subPreviewVisible: false,
-      currentImgIndex: 0,
-      elementsList: [],
-      showMenuList: [],
-      fileTypeMap: fileTypeMap,
-      materialVisible: false
+      subPreviewVisible: false
     }
   },
+  mixins: [PptPreviewMixin],
   created () {
     this.templateData = this.template
     this.$logger.info('templateData ', this.templateData)
@@ -222,35 +212,25 @@ export default {
       }).then(response => {
         this.$logger.info('task loadThumbnail response', response.result)
         const pageObjects = response.result.pageObjects
-        this.imgList = []
         this.templateData.pageObjectIds = []
         pageObjects.forEach(page => {
           this.templateData.pageObjectIds.push(page.id)
-          this.imgList.push(page.contentUrl)
-          this.$logger.info('current imgList ', this.imgList)
+          this.thumbnailList.push({ contentUrl: page.contentUrl, id: page.pageObjectId })
+          this.$logger.info('current thumbnailList ', this.thumbnailList)
         })
       }).finally(() => {
         this.loading = false
-        this.getClassInfo()
+        this.getClassInfo(this.templateData.presentationId)
       })
     } else {
       this.loading = false
-      this.imgList = this.templateData.images
-      this.getClassInfo()
+      this.templateData.images.forEach((image, index) => {
+        this.thumbnailList.push({ contentUrl: image, id: this.templateData.pageObjectIds[index] })
+      })
+      this.getClassInfo(this.templateData.presentationId)
     }
   },
   methods: {
-    getClassInfo () {
-      this.loadingClass = true
-      QueryByClassInfoSlideId({ slideId: this.templateData.presentationId }).then(response => {
-        this.$logger.info('QueryByClassInfoSlideId ', response)
-        if (response.success) {
-          this.elementsList = response.result.relements
-        }
-      }).finally(() => {
-        this.loadingClass = false
-      })
-    },
     handleGotoImgIndex (index) {
       this.$logger.info('handleGotoImgIndex ' + index)
       this.currentImgIndex = index
@@ -265,19 +245,6 @@ export default {
       if (item.type !== 'tip') {
         window.open(item.url, '_blank')
       }
-    },
-    computerSize (type) {
-        var size = 0
-        const currentPageId = this.templateData.pageObjectIds[this.currentImgIndex]
-        this.elementsList.forEach(e => {
-          if (currentPageId === e.pageId) {
-            const data = JSON.parse(e.data)
-            if (data.type === type) {
-              size++
-            }
-          }
-        })
-        return size
     }
   }
 }
@@ -871,7 +838,7 @@ export default {
 }
 
 .page-info {
-  margin-top: 50px;
+  margin-top: 30px;
   background: #E4E4E4;
   padding: 1px 10px;
   border-radius: 20px;
@@ -899,5 +866,30 @@ export default {
 }
 .associate-info{
   padding: 10px 5px 10px 5px;
+}
+
+.plugin-tags{
+  height: 100px;
+  width: 740px;
+  overflow-y:auto;
+  background-color:#F7F7F7;
+  font-size: 12px;
+  font-family: Segoe UI;
+  .tag-row{
+    margin: 5px;
+  }
+  .tag-item{
+    margin-left: 15px;
+  }
+  .tag-title{
+    font-weight: 400;
+    line-height: 0px;
+    color: #808191;
+    opacity: 1;
+  }
+  .tag-value{
+    margin-left: 10px;
+    //max-width: 200px;
+  }
 }
 </style>

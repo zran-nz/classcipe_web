@@ -18,53 +18,53 @@
           </div>
         </div>
       </div>
-      <!--      <div class="type-owner">-->
-      <!--        <a-space>-->
-      <!--          <div class="type-filter" v-show="mode !== 'refer'">-->
-      <!--            <a-dropdown>-->
-      <!--              <a-menu slot="overlay">-->
-      <!--                <a-menu-item disabled>-->
-      <!--                  <span>{{ $t('teacher.my-content.choose-types-of-content') }}</span>-->
-      <!--                </a-menu-item>-->
-      <!--                <a-menu-item @click="toggleType('', $t('teacher.my-content.all-type'))" >-->
-      <!--                  <span>{{ $t('teacher.my-content.all-type') }}</span>-->
-      <!--                </a-menu-item>-->
-      <!--                <a-menu-item @click="toggleType('topic', $t('teacher.my-content.topics-type') )" v-if="filterTypeList.indexOf('topic') !== -1">-->
-      <!--                  <span>{{ $t('teacher.my-content.topics-type') }}</span>-->
-      <!--                </a-menu-item>-->
-      <!--                <a-menu-item @click="toggleType('material', $t('teacher.my-content.materials-type'))" v-if="filterTypeList.indexOf('material') !== -1">-->
-      <!--                  <span>{{ $t('teacher.my-content.materials-type') }}</span>-->
-      <!--                </a-menu-item>-->
-      <!--                <a-menu-item @click="toggleType('unit-plan', $t('teacher.my-content.unit-plan-type'))" v-if="filterTypeList.indexOf('unit-plan') !== -1">-->
-      <!--                  <span>{{ $t('teacher.my-content.unit-plan-type') }}</span>-->
-      <!--                </a-menu-item>-->
-      <!--                <a-menu-item @click="toggleType('task', $t('teacher.my-content.tasks-type') )" v-if="filterTypeList.indexOf('task') !== -1">-->
-      <!--                  <span>{{ $t('teacher.my-content.tasks-type') }}</span>-->
-      <!--                </a-menu-item>-->
-      <!--                &lt;!&ndash;                <a-menu-item @click="toggleType('lesson', $t('teacher.my-content.lesson-type'))" v-if="filterTypeList.indexOf('lesson') !== -1">-->
-      <!--                  <span>{{ $t('teacher.my-content.lesson-type') }}</span>-->
-      <!--                </a-menu-item>&ndash;&gt;-->
-      <!--                <a-menu-item @click="toggleType('evaluation', $t('teacher.my-content.evaluation-type'))" v-if="filterTypeList.indexOf('evaluation') !== -1">-->
-      <!--                  <span>{{ $t('teacher.my-content.evaluation-type') }}</span>-->
-      <!--                </a-menu-item>-->
-      <!--              </a-menu>-->
-      <!--              <a-button-->
-      <!--                class="type-filter-button"-->
-      <!--                style="padding: 0 20px;display:flex; align-items:center ;height: 40px;border-radius: 6px;background: #FFFFFF;font-family: Inter-Bold;color: #182552;">-->
-      <!--                {{ currentTypeLabel }} <a-icon type="caret-down" />-->
-      <!--              </a-button>-->
-      <!--            </a-dropdown>-->
-      <!--          </div>-->
-      <!--          <div class="switch-icon">-->
-      <!--            <div :class="{'icon-item': true, 'active-icon': dataListMode === 'list'}" @click="handleToggleDataListMode('list')">-->
-      <!--              <liebiao-svg />-->
-      <!--            </div>-->
-      <!--            <div :class="{'icon-item': true, 'active-icon': dataListMode === 'card'}" @click="handleToggleDataListMode('card')">-->
-      <!--              <pubu-svg />-->
-      <!--            </div>-->
-      <!--          </div>-->
-      <!--        </a-space>-->
-      <!--      </div>-->
+      <div class="type-owner">
+        <a-space>
+          <div class="type-filter" v-show="mode !== 'refer'">
+            <a-dropdown>
+              <a-menu slot="overlay">
+                <a-menu-item disabled>
+                  <span>{{ $t('teacher.my-content.choose-types-of-content') }}</span>
+                </a-menu-item>
+                <a-menu-item @click="toggleType('', $t('teacher.my-content.all-type'))" >
+                  <span>{{ $t('teacher.my-content.all-type') }}</span>
+                </a-menu-item>
+                <a-menu-item @click="toggleType('topic', $t('teacher.my-content.topics-type') )" v-if="filterTypeList.indexOf('topic') !== -1">
+                  <span>{{ $t('teacher.my-content.topics-type') }}</span>
+                </a-menu-item>
+                <a-menu-item @click="toggleType('material', $t('teacher.my-content.materials-type'))" v-if="filterTypeList.indexOf('material') !== -1">
+                  <span>{{ $t('teacher.my-content.materials-type') }}</span>
+                </a-menu-item>
+                <a-menu-item @click="toggleType('unit-plan', $t('teacher.my-content.unit-plan-type'))" v-if="filterTypeList.indexOf('unit-plan') !== -1">
+                  <span>{{ $t('teacher.my-content.unit-plan-type') }}</span>
+                </a-menu-item>
+                <a-menu-item @click="toggleType('task', $t('teacher.my-content.tasks-type') )" v-if="filterTypeList.indexOf('task') !== -1">
+                  <span>{{ $t('teacher.my-content.tasks-type') }}</span>
+                </a-menu-item>
+                <!--                <a-menu-item @click="toggleType('lesson', $t('teacher.my-content.lesson-type'))" v-if="filterTypeList.indexOf('lesson') !== -1">
+                  <span>{{ $t('teacher.my-content.lesson-type') }}</span>
+                </a-menu-item>-->
+                <a-menu-item @click="toggleType('evaluation', $t('teacher.my-content.evaluation-type'))" v-if="filterTypeList.indexOf('evaluation') !== -1">
+                  <span>{{ $t('teacher.my-content.evaluation-type') }}</span>
+                </a-menu-item>
+              </a-menu>
+              <a-button
+                class="type-filter-button"
+                style="padding: 0 20px;display:flex; align-items:center ;height: 40px;border-radius: 6px;background: #FFFFFF;font-family: Inter-Bold;color: #182552;">
+                {{ currentTypeLabel }} <a-icon type="caret-down" />
+              </a-button>
+            </a-dropdown>
+          </div>
+          <div class="switch-icon">
+            <div :class="{'icon-item': true, 'active-icon': dataListMode === 'list'}" @click="handleToggleDataListMode('list')">
+              <liebiao-svg />
+            </div>
+            <div :class="{'icon-item': true, 'active-icon': dataListMode === 'card'}" @click="handleToggleDataListMode('card')">
+              <pubu-svg />
+            </div>
+          </div>
+        </a-space>
+      </div>
     </div>
     <div class="content-wrapper">
       <a-skeleton :loading="skeletonLoading" active>
@@ -141,52 +141,12 @@
             :data-source="myContentList"
             :loading="loading"
             v-if="dataListMode === 'card'">
-            <div slot="renderItem" key="item.key" class="my-card-list-item" slot-scope="item" >
-
-              <div class="ppt-preview-wrapper">
-                <div class="template-hover-action-mask">
-                  <div class="template-hover-action">
-                    <div class="modal-ensure-action-line">
-                      <a-button
-                        class="action-ensure action-item"
-                        shape="round"
-                        @click="handlePreviewTemplate(item)"
-                      >
-                        <a-icon type="eye" theme="filled"/>
-                        <div class="btn-text">
-                          Preview
-                        </div>
-                      </a-button>
-                      <a-button
-                        v-if="selectedList.indexOf(item.type + '-' + item.id) === -1"
-                        class="action-ensure action-item"
-                        shape="round"
-                        @click="handleToggleSelect(item)">
-                        <a-icon type="plus-circle" theme="filled"/>
-                        <div class="btn-text">
-                          Add
-                        </div>
-                      </a-button>
-                      <a-button
-                        v-else
-                        class="action-ensure action-item"
-                        shape="round"
-                        @click="handleToggleSelect(item)"
-                      >
-                        <a-icon type="minus-circle" theme="filled"/>
-                        <div class="btn-text">
-                          Remove
-                        </div>
-                      </a-button>
-                    </div>
-                  </div>
-                </div>
-                <div class="cover-img-wrapper">
-                  <div
-                    class="cover-image"
-                    :style="{backgroundImage: 'url(' + item.image + ')' }"
-                  >
-                  </div>
+            <div slot="renderItem" key="item.key" class="my-card-list-item" slot-scope="item" @click="handleToggleSelect(item)">
+              <div class="cover-img-wrapper">
+                <div
+                  class="cover-image"
+                  :style="{backgroundImage: 'url(' + item.image + ')' }"
+                >
                 </div>
               </div>
               <div class="item-intro">
@@ -278,19 +238,6 @@
           </a-row>
         </div>
       </a-drawer>
-      <a-modal
-        v-model="previewTemplateVisible"
-        :footer="null"
-        destroyOnClose
-        width="1000px"
-        :zIndex="2000"
-        :title="null"
-        @ok="previewTemplateVisible = false"
-        @cancel="previewTemplateVisible = false">
-        <div class="link-content-wrapper">
-          <template-preview :template="previewTemplate" :selected-template-id-list="selectedList" @handle-select="handleToggleSelect"></template-preview>
-        </div>
-      </a-modal>
     </div>
   </div>
 </template>
@@ -310,7 +257,6 @@ import CommonPreview from '@/components/Common/CommonPreview'
 import NoMoreResources from '@/components/Common/NoMoreResources'
 import LiebiaoSvg from '@/assets/svgIcon/myContent/liebiao.svg?inline'
 import PubuSvg from '@/assets/svgIcon/myContent/pubu.svg?inline'
-import TemplatePreview from '@/components/Task/TemplatePreview'
 
 export default {
   name: 'MyContentCreatedByMe',
@@ -322,8 +268,7 @@ export default {
     MaterialPreview,
     NoMoreResources,
     PubuSvg,
-    LiebiaoSvg,
-    TemplatePreview
+    LiebiaoSvg
   },
   props: {
     filterTypeList: {
@@ -373,15 +318,13 @@ export default {
         },
         showTotal: total => `Total ${total} items`,
         total: 0,
-        pageSize: 100
+        pageSize: 12
       },
       pageNo: 1,
 
       typeMap: typeMap,
 
-      dataListMode: 'card',
-      previewTemplate: {},
-      previewTemplateVisible: false
+      dataListMode: 'card'
     }
   },
   watch: {
@@ -390,7 +333,7 @@ export default {
       this.pageNo = 1
       this.myContentList = []
       this.pagination.total = 0
-      this.pagination.pageSize = 100
+      this.pagination.pageSize = 8
       this.loadMyContent()
     }
   },
@@ -435,8 +378,7 @@ export default {
         types: this.currentType ? [typeMap[this.currentType]] : typeList,
         pageNo: this.pageNo,
         pageSize: this.pagination.pageSize,
-        currentId: this.currentId,
-        slideStatus: 1
+        currentId: this.currentId
       }).then(res => {
         logger.info('getMyContent', res)
         if (res.result && res.result.records && res.result.records.length) {
@@ -517,7 +459,6 @@ export default {
     handleToggleSelect (item) {
       logger.info('handleToggleSelect', item)
       MyContentEventBus.$emit(MyContentEvent.ToggleSelectContentItem, { ...item })
-      this.previewTemplateVisible = false
     },
 
     handlePreviewClose () {
@@ -532,11 +473,6 @@ export default {
       event.preventDefault()
       event.stopPropagation()
       MyContentEventBus.$emit(MyContentEvent.ReferContentItem, { item })
-    },
-    handlePreviewTemplate (template) {
-      this.$logger.info('handlePreviewTemplate ', template)
-      this.previewTemplateVisible = true
-      this.previewTemplate = template
     }
   }
 }
@@ -816,25 +752,6 @@ export default {
         justify-content:space-between;
       }
     }
-    /deep/ .ant-spin-container{
-      max-height: 600px;
-      overflow-y: auto;
-      &::-webkit-scrollbar {
-        width: 5px;
-        height: 5px;
-      }
-      &::-webkit-scrollbar-track {
-        border-radius: 3px;
-        background: rgba(0,0,0,0.00);
-        -webkit-box-shadow: inset 0 0 5px rgba(0,0,0,0.08);
-      }
-      /* 滚动条滑块 */
-      &::-webkit-scrollbar-thumb {
-        border-radius: 5px;
-        background: rgba(0,0,0,0.12);
-        -webkit-box-shadow: inset 0 0 10px rgba(0,0,0,0.2);
-      }
-    }
   }
 }
 
@@ -921,43 +838,6 @@ a.delete-action {
     background-position: center;
     background-repeat: no-repeat;
     box-shadow: 0 0 2px 1px @primary-color;
-  }
-
-  .ppt-preview-wrapper {
-    position: relative;
-    .template-hover-action-mask {
-      display: none;
-      z-index: 100;
-      position: absolute;
-      cursor: pointer;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: rgba(0, 0, 0, 0.3);
-      .template-hover-action{
-        width: 100%;
-        top:30%
-      }
-
-      .action-item {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        padding: 6px 13px;
-        background: rgba(0, 0, 0, 0.45);
-        opacity: 1;
-        border: 1px solid rgba(188, 188, 188, 1);
-      }
-      .template-hover-action {
-        position: absolute;
-      }
-    }
-    &:hover {
-      .template-hover-action-mask {
-        display: block;
-      }
-    }
   }
 
   .cover-img-wrapper {

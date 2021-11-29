@@ -76,7 +76,7 @@
 </template>
 
 <script>
-import { defaultExpertRouter, defaultTeacherRouter, selectRoleRouter } from '@/config/router.config'
+import { defaultTeacherRouter, selectRoleRouter } from '@/config/router.config'
 import { addPreference, getAllCurriculums, getAllSubjectsByCurriculumId, GetGradesByCurriculumId } from '@/api/preference'
 import * as logger from '@/utils/logger'
 import { CurriculumType, SubjectType } from '@/const/common'
@@ -208,7 +208,8 @@ export default {
             }
             addPreference(submitData).then(response => {
               this.$store.dispatch('GetInfo').then(() => {
-                this.$router.push(this.$store.getters.currentRole === 'expert' ? defaultExpertRouter : defaultTeacherRouter)
+                // this.$router.push(this.$store.getters.currentRole === 'expert' ? defaultExpertRouter : defaultTeacherRouter)
+                this.$router.push(defaultTeacherRouter)
               })
             })
           } else {
@@ -222,7 +223,7 @@ export default {
             logger.info('save teacher', this.teacherForm)
             addPreference(this.teacherForm).then(response => {
               this.$store.dispatch('GetInfo').then(() => {
-                this.$router.push(this.$store.getters.defaultRouter)
+                this.$router.push(defaultTeacherRouter)
               })
             })
           } else {
