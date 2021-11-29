@@ -461,13 +461,17 @@ export default {
         searchKey: this.$route.query.searchKey ? this.$route.query.searchKey : ''
       }).then(res => {
         logger.info('getMyContent', res)
-        if (res.result && res.result.records && res.result.records.length) {
+        if (res.success) {
           res.result.records.forEach((record, index) => {
             record.key = index
           })
           this.myContentList = res.result.records
           this.pagination.total = res.result.total
           this.pagination.current = res.result.current
+          if (res.result.records.length === 0 && this.pagination.total > 0) {
+            this.pageNo = res.result.pages
+            this.loadMyContent()
+          }
         } else {
           this.myContentList = []
           this.pagination.total = 0
