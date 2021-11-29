@@ -189,13 +189,13 @@
                   </div>
                 </div>
               </div>
-              <div class="item-intro">
+              <div class="item-intro" @click="handleViewDetail(item, $event)">
                 <div class="page-info">
                   <span class="page-num-tag">
                     1/1
                   </span>
                 </div>
-                <div class="main-title" @click="handleViewDetail(item, $event)">
+                <div class="main-title" >
                   {{ item.name ? item.name : 'Untitled' }}
                 </div>
                 <div class="sub-title">

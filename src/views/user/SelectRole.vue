@@ -48,7 +48,7 @@
 <script>
 import ContributorSvg from '@/assets/icons/role/contributor.svg?inline'
 import TeacherSvg from '@/assets/icons/role/teacher.svg?inline'
-import { addPreferenceRouter } from '@/config/router.config'
+import { addPreferenceRouter, defaultTeacherRouter } from '@/config/router.config'
 import * as logger from '@/utils/logger'
 
 export default {
@@ -81,7 +81,8 @@ export default {
         this.$store.dispatch('ChangeRole', { role: this.selectedRole }).then(() => {
           if (this.$store.getters.isAddPreference) {
             logger.info('go to defaultRouter' + this.$store.getters.defaultRouter)
-            this.$router.push(this.$store.getters.defaultRouter)
+            // this.$router.push(this.$store.getters.defaultRouter)
+            this.$router.push(defaultTeacherRouter)
           } else {
             logger.info('go to addPreferenceRouter')
             this.$router.push(addPreferenceRouter)
