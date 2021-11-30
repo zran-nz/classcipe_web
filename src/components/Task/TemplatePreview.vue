@@ -97,28 +97,28 @@
               <div class="page-info" v-if="thumbnailList && thumbnailList.length">
                 {{ currentImgIndex + 1 }} / {{ thumbnailList.length }}
               </div>
-              <a-button
-                class="action-ensure action-item"
-                type="primary"
-                shape="round"
-                @click="handleSelectTemplate()"
-                v-if="selectedTemplateIdList.indexOf(template.id) === -1">
-                <a-icon type="plus-circle" class="btn-icon"/>
-                <div class="btn-text">
-                  Add
-                </div>
-              </a-button>
-              <a-button
-                v-else
-                class="action-ensure action-item"
-                shape="round"
-                type="primary"
-                @click="handleSelectTemplate()">
-                <a-icon type="minus-circle" class="btn-icon"/>
-                <div class="btn-text">
-                  Remove
-                </div>
-              </a-button>
+              <!--              <a-button-->
+              <!--                class="action-ensure action-item"-->
+              <!--                type="primary"-->
+              <!--                shape="round"-->
+              <!--                @click="handleSelectTemplate()"-->
+              <!--                v-if="selectedTemplateIdList.indexOf(template.id) === -1">-->
+              <!--                <a-icon type="plus-circle" class="btn-icon"/>-->
+              <!--                <div class="btn-text">-->
+              <!--                  Add-->
+              <!--                </div>-->
+              <!--              </a-button>-->
+              <!--              <a-button-->
+              <!--                v-else-->
+              <!--                class="action-ensure action-item"-->
+              <!--                shape="round"-->
+              <!--                type="primary"-->
+              <!--                @click="handleSelectTemplate()">-->
+              <!--                <a-icon type="minus-circle" class="btn-icon"/>-->
+              <!--                <div class="btn-text">-->
+              <!--                  Remove-->
+              <!--                </div>-->
+              <!--              </a-button>-->
             </div>
             <div class="carousel-page">
               <div class="img-list-wrapper">

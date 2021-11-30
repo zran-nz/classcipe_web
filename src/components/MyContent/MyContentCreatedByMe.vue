@@ -70,7 +70,7 @@
       <a-skeleton :loading="skeletonLoading" active>
         <div class="content-list">
           <a-list size="large" :pagination="pagination" :data-source="myContentList" :loading="loading" v-if="dataListMode === 'list'">
-            <a-list-item slot="renderItem" key="item.key" slot-scope="item" :class="{'my-list-item': true, 'active-item': selectedList.indexOf(item.type + '-' + item.id) !== -1}" @click="handleToggleSelect(item)">
+            <a-list-item slot="renderItem" key="item.key" slot-scope="item" :class="{'my-list-item': true, 'active-item': selectedList.indexOf(item.id) !== -1}" @click="handleToggleSelect(item,$event)">
 
               <span class="content-info-left" >
                 <content-type-icon :type="item.type"/>
@@ -129,7 +129,7 @@
                   </div>
                 </div>
               </span>
-              <div class="action-icon" v-if="selectedList.indexOf(item.type + '-' + item.id) !== -1" v-show="mode !== 'refer'">
+              <div class="action-icon" v-if="selectedList.indexOf(item.id) !== -1" v-show="mode !== 'refer'">
                 <img src="~@/assets/icons/lesson/selected.png"/>
               </div>
             </a-list-item>
@@ -158,10 +158,10 @@
                         </div>
                       </a-button>
                       <a-button
-                        v-if="selectedList.indexOf(item.type + '-' + item.id) === -1"
+                        v-if="selectedList.indexOf(item.id) === -1"
                         class="action-ensure action-item"
                         shape="round"
-                        @click="handleToggleSelect(item)">
+                        @click="handleToggleSelect(item,$event)">
                         <a-icon type="plus-circle" theme="filled"/>
                         <div class="btn-text">
                           Add
@@ -171,7 +171,7 @@
                         v-else
                         class="action-ensure action-item"
                         shape="round"
-                        @click="handleToggleSelect(item)"
+                        @click="handleToggleSelect(item,$event)"
                       >
                         <a-icon type="minus-circle" theme="filled"/>
                         <div class="btn-text">
@@ -192,7 +192,7 @@
               <div class="item-intro" @click="handleViewDetail(item, $event)">
                 <div class="page-info">
                   <span class="page-num-tag">
-                    1/1
+                    1/{{ countPptSize(item.pageObjectIds) }}
                   </span>
                 </div>
                 <div class="main-title" >
@@ -243,7 +243,7 @@
               <!--                </div>-->
               <!--              </div>-->
               <div class="card-action-icon">
-                <img src="~@/assets/icons/lesson/selected.png" v-if="selectedList.indexOf(item.type + '-' + item.id) !== -1"/>
+                <img src="~@/assets/icons/lesson/selected.png" v-if="selectedList.indexOf(item.id) !== -1"/>
               </div>
             </div>
           </a-list>
@@ -256,6 +256,7 @@
         placement="right"
         width="700px"
         :closable="false"
+        :z-index="4000"
         :visible="previewVisible"
         @close="handlePreviewClose"
       >
@@ -394,6 +395,16 @@ export default {
       this.loadMyContent()
     }
   },
+  computed: {
+    countPptSize () {
+      return function (pageObjectIds) {
+        if (!pageObjectIds) {
+          return 0
+        }
+        return pageObjectIds.split(',').length
+      }
+    }
+  },
   created () {
     logger.info('teacher my content filter type ', this.filterTypeList)
     // if (this.filterTypeList) {
@@ -514,9 +525,9 @@ export default {
       this.previewVisible = true
     },
 
-    handleToggleSelect (item) {
-      logger.info('handleToggleSelect', item)
-      MyContentEventBus.$emit(MyContentEvent.ToggleSelectContentItem, { ...item })
+    handleToggleSelect (item, event) {
+      logger.info('handleToggleSelect', item, event)
+      MyContentEventBus.$emit(MyContentEvent.ToggleSelectContentItem, item, event)
       this.previewTemplateVisible = false
     },
 

@@ -160,7 +160,7 @@
                                   </div>
                                 </div>
                               </div>
-                              <div class="template-cover" :style="{backgroundImage: 'url(' + template.cover + ')'}">
+                              <div class="template-cover" :style="{backgroundImage: 'url(' + (template.cover ? template.cover : template.image) + ')'}">
                               </div>
                               <div class="template-info">
                                 <div class="template-name">{{ template.name }}</div>
@@ -377,7 +377,7 @@
                                   v-else
                                   class="action-ensure action-item"
                                   shape="round"
-                                  @click="handleSelectTemplate(template)"
+                                  @click="handleRemoveTemplate(template)"
                                 >
                                   <a-icon type="minus-circle" theme="filled"/>
                                   <div class="btn-text">
@@ -536,9 +536,12 @@
         v-model="selectedMyContentVisible"
         :footer="null"
         :title="null"
+        :zIndex="2000"
+        :mask="false"
+        :maskClosable="false"
         destroyOnClose
-        :dialog-style="{ top: '10px' }"
-        width="90%"
+        :dialog-style="{ top: '10px','margin-left':selectedTemplateMarginLeft,'transition': '0.8s' }"
+        :width="selectedTemplateMadelWidth"
         :closable="true"
         @ok="selectedMyContentVisible = false">
         <a-tabs class="template-tabs" >
@@ -649,14 +652,14 @@
                           </a-row>
                           <a-row v-for="(child,cIndex) in item.children" :key="cIndex">
                             <a-col :span="24" class="first-child">
-                              <a-checkbox :value="child.id" @change="onChangeCheckBox($event,templateType.Century)" :checked="filterCentury.indexOf(child.id) > -1 ? true: false">
+                              <a-checkbox :value="child.id" @change="onChangeCheckBox($event,templateType.Century,child)" :checked="filterCentury.indexOf(child.id) > -1 ? true: false">
                                 {{ child.name }}
                               </a-checkbox>
                               <div class="sub-child" >
                                 <a-row v-if="child.children.length > 0" v-for="(subChild,subIndex) in child.children" :key="subIndex">
                                   <a-col :span="24" class="sub-child-child">
-                                    <a-checkbox :value="subChild.id" @change="onChangeCheckBox($event,templateType.Century,child.id)" :checked="filterCentury.indexOf(subChild.id) > -1 ? true: false">
-                                      <a-tooltip placement="top" :title="filterGradeTips(subChild)"> {{ subChild.name }}  </a-tooltip>
+                                    <a-checkbox :value="subChild.id" @change="onChangeCheckBox($event,templateType.Century,child)" :checked="filterCentury.indexOf(subChild.id) > -1 ? true: false">
+                                      <a-tooltip placement="right" :overlayStyle="{ 'z-index': '3000'}" :title="filterGradeTips(subChild)"> {{ subChild.name }}  </a-tooltip>
                                     </a-checkbox>
                                   </a-col>
                                 </a-row>
@@ -678,7 +681,7 @@
                               <div class="sub-child" >
                                 <a-row v-if="child.children.length > 0" v-for="(subChild,subIndex) in child.children" :key="subIndex">
                                   <a-col class="sub-child-child" :span="24">
-                                    <a-checkbox :value="subChild.id" @change="onChangeCheckBox($event,templateType.Century,child.id)" :checked="filterCentury.indexOf(subChild.id) > -1 ? true: false">
+                                    <a-checkbox :value="subChild.id" @change="onChangeCheckBox($event,templateType.Century,child)" :checked="filterCentury.indexOf(subChild.id) > -1 ? true: false">
                                       <a-tooltip placement="top" :title="filterGradeTips(subChild)"> {{ subChild.name }}  </a-tooltip>
                                     </a-checkbox>
                                   </a-col>
@@ -694,7 +697,14 @@
               </div>
               <div class="template-list-wrapper">
                 <div class="template-list" v-if="!templateLoading">
-                  <div :class="{'template-item': true, 'template-item-active': template.id && selectedTemplateIdList.indexOf(template.id) !== -1 }" v-for="(template,index) in (onlyShowSelected ? selectedTemplateList : templateList)" :key="index">
+                  <!--购物车效果截图 -->
+                  <!--                  <div class="slide-animate-cover" id="slide-animate-drawer" v-show="currentSlideCoverImgSrc">-->
+                  <!--                    <img-->
+                  <!--                      id="slide-animate-img-drawer"-->
+                  <!--                      :src="currentSlideCoverImgSrc"-->
+                  <!--                      class="slide-animate-item" />-->
+                  <!--                  </div>-->
+                  <div :class="{'template-item': true, 'template-item-active': template.id && drawerSelectedTemplateIds.indexOf(template.id) !== -1 }" v-for="(template,index) in templateList" :key="index">
                     <div class="template-hover-action-mask">
                       <div class="template-hover-action">
                         <div class="modal-ensure-action-line">
@@ -709,10 +719,10 @@
                             </div>
                           </a-button>
                           <a-button
-                            v-if="selectedTemplateIdList.indexOf(template.id) === -1"
+                            v-if="drawerSelectedTemplateIds.indexOf(template.id) === -1"
                             class="action-ensure action-item"
                             shape="round"
-                            @click="handleSelectTemplate(template)">
+                            @click="handleSelectTemplateMadelAnimate(template, $event)">
                             <a-icon type="plus-circle" theme="filled"/>
                             <div class="btn-text">
                               Add
@@ -722,7 +732,7 @@
                             v-else
                             class="action-ensure action-item"
                             shape="round"
-                            @click="handleSelectTemplate(template)"
+                            @click="handleSelectTemplateMadel(template)"
                           >
                             <a-icon type="minus-circle" theme="filled"/>
                             <div class="btn-text">
@@ -732,14 +742,14 @@
                         </div>
                       </div>
                     </div>
-                    <div class="template-cover" :style="{backgroundImage: 'url(' + template.cover + ')'}">
+                    <div class="template-cover" :style="{backgroundImage: 'url(' + (template.cover ? template.cover : template.image) + ')'}">
                     </div>
                     <div class="template-info">
                       <div class="template-name">{{ template.name }}</div>
                       <div class="template-intro">{{ template.introduce }}</div>
                     </div>
-                    <div class="template-select-icon" v-if="template.id && selectedTemplateIdList.indexOf(template.id) !== -1">
-                      <img src="~@/assets/icons/task/selected.png" v-if="template.id && selectedTemplateIdList.indexOf(template.id) !== -1 "/>
+                    <div class="template-select-icon" v-if="template.id && drawerSelectedTemplateIds.indexOf(template.id) !== -1">
+                      <img src="~@/assets/icons/task/selected.png" v-if="template.id && drawerSelectedTemplateIds.indexOf(template.id) !== -1 "/>
                     </div>
                   </div>
                 </div>
@@ -750,36 +760,36 @@
                   <a-spin />
                 </div>
               </div>
-              <div class="template-action">
-                <div class="create-loading" v-if="creating">
-                  <a-spin />
-                </div>
-                <div style="position: absolute;left:20px"><a-radio :checked="onlyShowSelected" @click="onChangeShowSelected">Only selected template</a-radio></div>
-                <a-button
-                  v-if="!form.presentationId"
-                  @click="handleAddTemplate"
-                  :style="{'display': 'flex', 'align-items': 'center', 'justify-content': 'center', 'padding': '10px'}"
-                  shape="round"
-                  type="primary"
-                  :loading="creating">
-                  <img src="~@/assets/icons/task/path.png" class="btn-icon"/>
-                  <div class="btn-text">
-                    Create the task in Google Slides
-                  </div>
-                </a-button>
-                <a-button
-                  v-if="form.presentationId"
-                  @click="handleSelectedTemplate"
-                  :style="{'display': 'flex', 'align-items': 'center', 'justify-content': 'center', 'padding': '10px'}"
-                  shape="round"
-                  type="primary"
-                  :loading="creating">
-                  <img src="~@/assets/icons/task/path.png" class="btn-icon"/>
-                  <div class="btn-text">
-                    Save selected templates
-                  </div>
-                </a-button>
-              </div>
+              <!--              <div class="template-action">-->
+              <!--                <div class="create-loading" v-if="creating">-->
+              <!--                  <a-spin />-->
+              <!--                </div>-->
+              <!--                <div style="position: absolute;left:20px"><a-radio :checked="onlyShowSelected" @click="onChangeShowSelected">Only selected template</a-radio></div>-->
+              <!--                <a-button-->
+              <!--                  v-if="!form.presentationId"-->
+              <!--                  @click="handleAddTemplate"-->
+              <!--                  :style="{'display': 'flex', 'align-items': 'center', 'justify-content': 'center', 'padding': '10px'}"-->
+              <!--                  shape="round"-->
+              <!--                  type="primary"-->
+              <!--                  :loading="creating">-->
+              <!--                  <img src="~@/assets/icons/task/path.png" class="btn-icon"/>-->
+              <!--                  <div class="btn-text">-->
+              <!--                    Create the task in Google Slides-->
+              <!--                  </div>-->
+              <!--                </a-button>-->
+              <!--                <a-button-->
+              <!--                  v-if="form.presentationId"-->
+              <!--                  @click="handleSelectedTemplate"-->
+              <!--                  :style="{'display': 'flex', 'align-items': 'center', 'justify-content': 'center', 'padding': '10px'}"-->
+              <!--                  shape="round"-->
+              <!--                  type="primary"-->
+              <!--                  :loading="creating">-->
+              <!--                  <img src="~@/assets/icons/task/path.png" class="btn-icon"/>-->
+              <!--                  <div class="btn-text">-->
+              <!--                    Save selected templates-->
+              <!--                  </div>-->
+              <!--                </a-button>-->
+              <!--              </div>-->
             </div>
           </a-tab-pane>
           <a-tab-pane key="2" tab="My content">
@@ -787,17 +797,73 @@
               <my-content-selector
                 :current-id="taskId"
                 :filter-type-list="['task']"
-                :selected-list="selectedMyContentKeyList"
+                :selected-list="drawerSelectedTemplateIds"
                 mode="select"
               />
             </div>
-            <div class="action-line">
-              <!--              <a-button @click="handleCancelSelectedMyContent" class="button-item">Cancel</a-button>-->
-              <a-button @click="handleConfirmSelectedMyContent" type="primary" shape="round" class="button-item" :loading="creating"> Save selected contents</a-button>
-            </div>
+            <!--            <div class="action-line">-->
+            <!--              &lt;!&ndash;              <a-button @click="handleCancelSelectedMyContent" class="button-item">Cancel</a-button>&ndash;&gt;-->
+            <!--              <a-button @click="handleConfirmSelectedMyContent" type="primary" shape="round" class="button-item" :loading="creating"> Save selected contents</a-button>-->
+            <!--            </div>-->
           </a-tab-pane>
         </a-tabs>
       </a-modal>
+
+      <a-drawer
+        id="drawerTemplateSelected"
+        destroyOnClose
+        placement="right"
+        :closable="true"
+        style="width: 20%"
+        width="100%"
+        :zIndex="selectedTemplateDrawerZindex"
+        :mask="false"
+        :bodyStyle="{padding:'10px'}"
+        :visible="selectedTemplateDrawerVisible"
+        :title="'Selected slides (' + drawerSelectedTemplateList.length + ')'"
+        @close="handleSelectDrawerClose"
+      >
+        <div class="drawer-wrapper-row" >
+
+          <div class="drawer-template-selected">
+            <div class="drawer-template-list">
+              <div :class="{'template-item': true }" v-for="(template,index) in drawerSelectedTemplateList" :key="index">
+                <div class="template-hover-action-mask">
+                  <span class="delete-action" style="position: absolute;right: 0;" @click="handleSelectTemplateMadel(template)">
+                    <img src="~@/assets/icons/tag/delete.png" width="50">
+                  </span>
+                  <div class="template-hover-action">
+                    <div class="modal-ensure-action-line">
+                      <a-button class="action-ensure action-item" shape="round" @click="handlePreviewTemplate(template)">
+                        <a-icon type="eye" theme="filled"/>
+                        <div class="btn-text">
+                          Preview
+                        </div>
+                      </a-button>
+                    </div>
+                  </div>
+                </div>
+                <div class="template-cover" :style="{backgroundImage: 'url(' + (template.cover ? template.cover : template.image) + ')'}">
+                </div>
+                <div class="template-info">
+                  <div class="template-name">{{ template.name }}</div>
+                  <div class="template-intro" v-show="template.introduce">{{ template.introduce }}</div>
+                </div>
+                <div class="template-select-icon" >
+                  <img src="~@/assets/icons/task/selected.png"/>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <div class="drawer-action">
+          <a-button type="primary" shape="round" @click="handleSelectDrawerSave()">
+            Save
+          </a-button>
+        </div>
+      </a-drawer>
 
       <a-modal
         v-model="showAddAudioVisible"
@@ -1233,11 +1299,15 @@ export default {
         previewTemplate: {},
         previewTemplateVisible: false,
         currentImgIndex: 0,
-        onlyShowSelected: false,
         taskPptPreviewVisible: false,
         showTemplateFilter: false,
         currentSlideCoverImgSrc: null,
-        filterType: undefined
+        filterType: undefined,
+        selectedTemplateMadelWidth: '90%',
+        selectedTemplateMarginLeft: '5%',
+        selectedTemplateDrawerVisible: false,
+        selectedTemplateDrawerZindex: 3000,
+        drawerSelectedTemplateList: []
       }
     },
     computed: {
@@ -1252,6 +1322,13 @@ export default {
       selectedTemplateIdList () {
         const list = []
         this.selectedTemplateList.forEach(item => {
+          list.push(item.id)
+        })
+        return list
+      },
+      drawerSelectedTemplateIds () {
+        const list = []
+        this.drawerSelectedTemplateList.forEach(item => {
           list.push(item.id)
         })
         return list
@@ -1412,16 +1489,22 @@ export default {
         this.loadRelevantTagInfo(data.item)
       },
 
-      handleToggleSelectContentItem (data) {
-        this.$logger.info('handleToggleSelectContentItem', data)
-        const key = data.type + '-' + data.id
-        const index = this.selectedMyContentKeyList.indexOf(key)
-        if (index !== -1) {
-          this.selectedMyContentKeyList.splice(index, 1)
+      handleToggleSelectContentItem (data, event) {
+        this.$logger.info('handleToggleSelectContentItem', data, event)
+        if (this.drawerSelectedTemplateIds.indexOf(data.id) === -1) {
+          this.handleSelectTemplateMadelAnimate(data, event)
         } else {
-          this.selectedMyContentKeyList.push(key)
+          this.handleSelectTemplateMadel(data)
         }
-        this.selectedMyContentInfoMap.set(key, data)
+
+        // const key = data.type + '-' + data.id
+        // const index = this.selectedMyContentKeyList.indexOf(key)
+        // if (index !== -1) {
+        //   this.selectedMyContentKeyList.splice(index, 1)
+        // } else {
+        //   this.selectedMyContentKeyList.push(key)
+        // }
+        // this.selectedMyContentInfoMap.set(key, data)
       },
 
       handleSaveTask () {
@@ -1514,19 +1597,78 @@ export default {
         this.selectedMyContentList = []
         this.selectedMyContentVisible = true
         this.templateLoading = false
+        this.drawerSelectedTemplateList = []
+        this.selectedTemplateList.forEach(item => {
+          this.drawerSelectedTemplateList.push(item)
+        })
       },
 
-      handleSelectTemplate (template) {
-        this.$logger.info('handleSelectTemplate ', template)
+      handleRemoveTemplate (template) {
+        this.$logger.info('handleRemoveTemplate ', template)
         const index = this.selectedTemplateList.findIndex(item => item.id === template.id)
         this.form.showSelected = true
         if (index !== -1) {
           this.selectedTemplateList.splice(index, 1)
-        } else {
-          this.selectedTemplateList.push(template)
         }
-        if (this.selectedTemplateList.length === 0) {
-          this.form.showSelected = false
+      },
+
+      handleSelectTemplateMadelAnimate (template, event) {
+        this.$logger.info('handleSelectTemplateMadelAnimate ', template)
+        this.selectedTemplateMarginLeft = '0px'
+        this.selectedTemplateMadelWidth = '80%'
+        this.selectedTemplateDrawerVisible = true
+        this.selectedTemplateDrawerZindex = 3000
+        this.form.showSelected = true
+        this.$logger.info('event', event)
+        this.form.showSelected = true
+
+        // 计算元素位置，然后添加动画
+        this.currentSlideCoverImgSrc = template.cover ? template.cover : template.image
+        this.$nextTick(() => {
+          const slideAnimateDom = document.getElementById('slide-animate')
+          const slideAnimateImgDom = document.getElementById('slide-animate-img')
+          const imgDomPos = slideAnimateDom.getBoundingClientRect()
+          const containerDomPos = document.getElementById('drawerTemplateSelected').getBoundingClientRect()
+          const buttonPos = event.target.getBoundingClientRect()
+
+          console.log(containerDomPos)
+          console.log('buttonPos y ' + buttonPos.y + ' containerDomPos y ' + containerDomPos.y + ' containerDomPos h ' + containerDomPos.height + ' img y ' + imgDomPos.y + ' distY ' + (buttonPos.y - containerDomPos.y - containerDomPos.height / 2))
+          const offsetX = -(buttonPos.left + buttonPos.width / 2 - (containerDomPos.left + containerDomPos.width / 2))
+          const offsetY = -(event.clientY - (containerDomPos.y + containerDomPos.height / 2))
+          console.log('offsetX: ' + offsetX + ' offsetY: ' + offsetY)
+
+          // slide截图出现与初始定位
+          slideAnimateDom.style.left = buttonPos.left + buttonPos.width / 2 - 200 + 'px'
+          slideAnimateDom.style.top = buttonPos.top + buttonPos.height / 2 - 100 + 'px'
+          slideAnimateDom.style.display = 'block'
+
+          // 开始动画
+          slideAnimateDom.style.transform = 'translateX(' + offsetX + 'px)'
+          slideAnimateImgDom.style.transform = 'translateY(' + offsetY + 'px) scale(0.1)'
+          setTimeout(() => {
+            this.currentSlideCoverImgSrc = null
+            slideAnimateDom.style.transform = 'translateX(0px)'
+            slideAnimateImgDom.style.transform = 'translateY(0px) scale(1)'
+
+            if (this.drawerSelectedTemplateIds.indexOf(template.id) === -1) {
+              this.drawerSelectedTemplateList.unshift(template)
+            }
+          }, 600)
+        })
+      },
+
+      handleSelectTemplateMadel (template) {
+        this.$logger.info('handleSelectTemplateMadel ', template)
+        this.selectedTemplateMarginLeft = '0px'
+        this.selectedTemplateMadelWidth = '80%'
+        this.selectedTemplateDrawerVisible = true
+        this.selectedTemplateDrawerZindex = 3000
+        const index = this.drawerSelectedTemplateList.findIndex(item => item.id === template.id)
+        this.form.showSelected = true
+        if (index !== -1) {
+          this.drawerSelectedTemplateList.splice(index, 1)
+        } else {
+          this.drawerSelectedTemplateList.unshift(template)
         }
       },
 
@@ -1615,7 +1757,7 @@ export default {
           if (this.selectedTemplateIdList.indexOf(item.id) === -1) {
             // task和template图片字段不一致
             item.cover = item.image
-            this.selectedTemplateList.push(item)
+            this.selectedTemplateList.unshift(item)
           }
         })
         this.selectedMyContentVisible = false
@@ -2169,6 +2311,7 @@ export default {
         this.templateLoading = true
         this.selectedTemplateList = []
         FilterTemplates({
+            filterCategoryType: this.filterType,
             filterLearn: this.filterLearn,
             filterAssessments: this.filterAssessments,
             filterCentury: this.getFilterParams(this.filterCentury)
@@ -2213,12 +2356,12 @@ export default {
 
             if (!this.form.presentationId) {
               this.selectedTemplateList = []
-              this.selectedTemplateList.push(template)
+              this.selectedTemplateList.unshift(template)
               this.addRecomendLoading = true
               this.handleAddTemplate()
             } else {
               if (this.selectedTemplateIdList.indexOf(template.id) === -1) {
-                this.selectedTemplateList.push(template)
+                this.selectedTemplateList.unshift(template)
               }
             }
           }, 600)
@@ -2403,8 +2546,8 @@ export default {
         logger.info('templateFilterCondition ', resultList)
         return resultList.length > 0 ? resultList[0].children : []
       },
-      onChangeCheckBox (e, category, parentId) {
-        logger.info('onChangeCheckBox ', e, category, parentId)
+      onChangeCheckBox (e, category, parent) {
+        logger.info('onChangeCheckBox ', e, category, parent)
         logger.info('filterLearn ', this.filterLearn)
         const id = e.target.value
         if (category === TemplateType.Learning) {
@@ -2428,10 +2571,22 @@ export default {
           } else {
             this.filterCentury.splice(this.filterCentury.indexOf(id), 1)
           }
+          // child设置
+          if (parent.id === id) {
+             parent.children.forEach(child => {
+               if (e.target.checked) {
+                 if (this.filterCentury.indexOf(child.id) === -1) {
+                   this.filterCentury.push(child.id)
+                 }
+               } else {
+                   this.filterCentury.splice(this.filterCentury.indexOf(child.id), 1)
+               }
+             })
+          }
         }
         // 如果选中的是子类 父id要从筛选条件中去除，记录关系
-        if (parentId) {
-          this.filterParentMap.set(id, parentId)
+        if (parent) {
+          this.filterParentMap.set(id, parent.id)
         }
         this.selectFilter()
       },
@@ -2512,7 +2667,7 @@ export default {
       },
       handleSelectPreviewTemplate (template) {
         this.$logger.info('handleSelectPreviewTemplate ', template)
-        this.handleSelectTemplate(template)
+        this.handleSelectTemplateMadel(template)
         this.previewTemplateVisible = false
       },
       handleGotoImgIndex (index) {
@@ -2530,9 +2685,6 @@ export default {
           this.form.showSelected = false
         }
       },
-      onChangeShowSelected (e) {
-        this.onlyShowSelected = !this.onlyShowSelected
-      },
       handleSelectedTemplate () {
         this.$logger.info('handleSelectedTemplate ', this.handleSelectedTemplate)
         this.selectedMyContentVisible = false
@@ -2546,11 +2698,30 @@ export default {
       },
       changeFilterType (e) {
         this.showTemplateFilter = true
+        this.selectFilter()
       },
       toggleUpFilter () {
         this.showTemplateFilter = false
         // this.clearFilter()
         this.filterType = ''
+      },
+      handleSelectDrawerClose () {
+        this.selectedTemplateMarginLeft = '5%'
+        this.selectedTemplateMadelWidth = '90%'
+        this.selectedTemplateDrawerVisible = false
+        this.selectedTemplateDrawerZindex = 1000
+      },
+      handleSelectDrawerSave () {
+        this.selectedTemplateMarginLeft = '5%'
+        this.selectedTemplateMadelWidth = '90%'
+        this.selectedTemplateDrawerZindex = 1000
+        this.selectedTemplateDrawerVisible = false
+        this.selectedMyContentVisible = false
+        this.selectedTemplateList = this.drawerSelectedTemplateList
+        // to do insert
+        if (this.selectedTemplateList.length === 0) {
+          this.form.showSelected = false
+        }
       }
     }
   }
@@ -2891,6 +3062,7 @@ export default {
     cursor: pointer;
     user-select: none;
     flex-direction: column;
+    margin-bottom: 40px;
     .template-show-filter{
       position:relative;
       img{
@@ -4328,7 +4500,7 @@ export default {
       display: flex;
       flex-direction: row;
       align-items: flex-start;
-      justify-content: flex-start;
+      justify-content: space-between;
       flex-wrap: wrap;
 
       .template-item {
@@ -4457,6 +4629,7 @@ export default {
     position: fixed;
     transition: transform .6s;
     transform: translateX(0px);
+    z-index:10000;
   }
   .slide-animate-cover > img {
     transform: translateY(0px);
@@ -4464,14 +4637,17 @@ export default {
     width: 400px;
     height: 200px;
     transition: transform .6s;
+    z-index:10000;
   }
   .slide-animate-cover {
     transition-timing-function: linear;
     opacity: 0.8;
+    z-index:10000;
   }
   .slide-animate-cover > img {
     transition-timing-function: cubic-bezier(.55,0,.85,.36);
     outline: 1px solid #D8D8D8;
+    z-index:10000;
   }
   .plugin-tags{
     height: 100px;
@@ -4496,6 +4672,146 @@ export default {
       margin-left: 10px;
       //max-width: 200px;
     }
+  }
+  .drawer-wrapper-row{
+
+    .drawer-template-selected {
+      overflow-y: auto;
+      //background: rgba(228, 228, 228, 0.2);
+      border: 1px solid #D8D8D8;
+      opacity: 1;
+      border-radius: 4px;
+      padding: 10px;
+      height: auto;
+
+      .drawer-template-list {
+        display: flex;
+        flex-direction: row;
+        align-items: flex-start;
+        justify-content: flex-start;
+        flex-wrap: wrap;
+
+        .template-item {
+          background-size: cover;
+          margin: 0px 5px;
+          margin-bottom: 20px;
+          box-sizing: border-box;
+          width: 100%;
+          box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.16);
+          background: #FFFFFF;
+          border: 1px solid #E8E8E8;
+          border-radius: 4px;
+          position: relative;
+
+          .template-select-icon {
+            z-index: 50;
+            position: absolute;
+            right: 5px;
+            bottom: 5px;
+            img {
+              height: 18px;
+            }
+          }
+
+          .template-cover {
+            background-size: 100% 100%;
+            height: 150px;
+            border-radius: 4px;
+            width: 100%;
+            background-color: #ddd;
+            box-sizing: border-box;
+            padding: 0;
+          }
+
+          .template-info {
+            padding: 10px;
+            display: flex;
+            position: relative;
+            flex-direction: column;
+            justify-content: flex-start;
+
+            .template-name {
+              font-weight: 500;
+              font-size: 14px;
+              z-index: 10;
+              overflow: hidden;
+              white-space: nowrap;
+              text-overflow: ellipsis;
+              word-break: break-all;
+              padding: 10px 0;
+              min-height: 40px;
+            }
+            .template-intro {
+              min-height: 30px;
+              z-index: 10;
+              padding: 5px;
+              overflow: hidden;
+              white-space: nowrap;
+              text-overflow: ellipsis;
+              word-break: break-all;
+              color: rgba(0,0,0,.45);
+              font-size: 12px;
+              background: rgba(244, 244, 244, 0.5);
+              border-radius: 4px;
+              font-family: Inter-Bold;
+              color: #000000;
+            }
+          }
+          .template-hover-action-mask {
+            display: none;
+            z-index: 100;
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.3);
+            .template-hover-action{
+              width: 100%;
+              top:30%
+            }
+
+            .action-item {
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              padding: 6px 13px;
+              background: rgba(0, 0, 0, 0.45);
+              opacity: 1;
+              border: 1px solid rgba(188, 188, 188, 1);
+            }
+            .template-hover-action {
+              position: absolute;
+            }
+          }
+          &:hover {
+            .template-hover-action-mask {
+              display: block;
+            }
+          }
+        }
+
+        .template-item-active {
+          border: 1px solid #15C39A;
+          box-shadow: 0px 3px 6px rgba(21, 195, 154, 0.16);
+          opacity: 1;
+        }
+      }
+    }
+
+  }
+  .drawer-action{
+    position: absolute;
+    z-index:9999;
+    bottom: 0px;
+    width: 100%;
+    border-top: 1px solid rgb(232, 232, 232);
+    padding: 10px 16px;
+    text-align: right;
+    left: 0px;
+    background: rgb(255, 255, 255);
+    border-radius: 0px 0px 4px 4px;
   }
 
 </style>
