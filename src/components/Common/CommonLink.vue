@@ -40,7 +40,7 @@
             <div class="group-header">
               <div class="group-left-info">
                 <!-- unit plan下才有term概念,task不显示对应的操作和term名称-->
-                <template v-if="fromType === typeMap[&quot;unit-plan&quot;]">
+                <template v-if="fromType === typeMap['unit-plan']">
                   <div class="group-name">
                     <div class="group-name-text" v-if="!linkGroup.editing">
                       {{ linkGroup.group ? linkGroup.group : 'Untitled Term' }}
@@ -52,6 +52,13 @@
                   <div class="group-edit-icon" @click="handleToggleEditGroupName(linkGroup)" v-if="canEdit">
                     <a-icon type="edit" v-if="!linkGroup.editing"/>
                     <a-icon type="check" v-if="linkGroup.editing"/>
+                  </div>
+                </template>
+                <template v-if="fromType === typeMap.task">
+                  <div class="group-name">
+                    <div class="group-name-text">
+                      Linked evaluation(s)
+                    </div>
                   </div>
                 </template>
               </div>
@@ -123,7 +130,8 @@
             <div class="group-header">
               <div class="group-left-info">
                 <div class="group-name">
-                  <div class="group-name-text" >Linked by others</div>
+                  <div class="group-name-text" v-if="fromType === typeMap['unit-plan']">Linked by others</div>
+                  <div class="group-name-text" v-if="fromType === typeMap.task" >Relevant Unit plan(s)</div>
                   <!--                  <div class="group-name-input" v-if="linkGroup.editing">-->
                   <!--                    <input v-model="linkGroup.group" class="group-name-input"/>-->
                   <!--                  </div>-->
@@ -175,6 +183,7 @@
     <a-modal
       v-model="selectLinkContentVisible"
       :footer="null"
+      :dialog-style="{ top: '50px'}"
       destroyOnClose
       width="800px">
       <div class="my-modal-title" slot="title" v-if="fromType === typeMap.task">
@@ -191,6 +200,7 @@
           :filter-type-list="subFilterTypeList"
           :group-name-list="groupNameList"
           :default-group-name="subDefaultGroupName"
+          :selected-list="selectedList"
           :mode="'common-link'"
           @cancel="selectLinkContentVisible = false"
           @ensure="handleEnsureSelectedLink"/>
@@ -276,7 +286,8 @@ export default {
       previewVisible: false,
       previewCurrentId: '',
       previewType: '',
-      subFilterTypeList: [typeMap.evaluation]
+      subFilterTypeList: [typeMap.evaluation],
+      selectedList: []
     }
   },
   created () {
@@ -315,6 +326,12 @@ export default {
         this.$logger.info('formatted groupNameList', groupNameList)
         this.ownerLinkGroupList = response.result.owner.reverse()
         this.othersLinkGroupList = []
+        this.selectedList = []
+        this.ownerLinkGroupList.forEach(group => {
+           group.contents.forEach(content => {
+             this.selectedList.push(content.type + '-' + content.id)
+           })
+        })
         response.result.others.forEach(item => {
           this.othersLinkGroupList.unshift(...item.contents)
         })

@@ -157,8 +157,8 @@
                           @click="handleAddMoreSdg"></a-button>
                       </div>
 
-                      <div class="form-block" v-if="!$store.getters.userInfo.disableQuestion">
-                        <comment-switch field-name="question" :is-active="showCollaborateCommentVisible && currentFieldName === 'question'" @switch="handleSwitchComment" class="my-comment-switch"/>
+                      <div :class="{'form-block': true, 'form-block-disabled' : $store.getters.userInfo.disableQuestion}">
+                        <comment-switch v-if="!$store.getters.userInfo.disableQuestion" field-name="question" :is-active="showCollaborateCommentVisible && currentFieldName === 'question'" @switch="handleSwitchComment" class="my-comment-switch"/>
                         <a-form-item>
                           <span slot="label">
                             <a-tooltip title="Set key question/Line of inquiry">
@@ -166,31 +166,32 @@
                             </a-tooltip>
                             Key question/Line of inquiry
                           </span>
-
-                          <div class="question-more"><a-button @click="questionMoreVisible=true" type="link" >more</a-button></div>
-
-                          <div class="recommend-question" v-if="showRecommendQuestion">
-                            <a-icon type="close" class="close-icon" @click.stop="hideRecommendQuestion=true" />
-                            <div class="recommend-box">
-                              <a-tooltip title="You can add the key questions relevant to the big idea you chose above">
-                                <span class="title"><a-icon style="width: 25px" type="question-circle" />Recommended:</span>
-                              </a-tooltip>
-                              <ul class="recommend-ul">
-                                <li v-if="rqIndex < 3 && selectQuestion.indexOf(item.name) === -1" v-for="(item,rqIndex) in recommendQuestionList" :key="rqIndex">{{ item.name }}<a-button @click.stop="handerInsertQuestion(item)" class="add-question" type="link">add</a-button></li>
-                              </ul>
+                          <div v-if="!$store.getters.userInfo.disableQuestion">
+                            <div class="question-more"><a-button @click="questionMoreVisible=true" type="link" >more</a-button></div>
+                            <div class="recommend-question" v-if="showRecommendQuestion">
+                              <a-icon type="close" class="close-icon" @click.stop="hideRecommendQuestion=true" />
+                              <div class="recommend-box">
+                                <a-tooltip title="You can add the key questions relevant to the big idea you chose above">
+                                  <span class="title"><a-icon style="width: 25px" type="question-circle" />Recommended:</span>
+                                </a-tooltip>
+                                <ul class="recommend-ul">
+                                  <li v-if="rqIndex < 3 && selectQuestion.indexOf(item.name) === -1" v-for="(item,rqIndex) in recommendQuestionList" :key="rqIndex">{{ item.name }}<a-button @click.stop="handerInsertQuestion(item)" class="add-question" type="link">add</a-button></li>
+                                </ul>
+                              </div>
                             </div>
-                          </div>
-                          <div class="form-input-item" v-for="(question, index) in form.questions" :key="index">
-                            <a-input
-                              v-model="question.name"
-                              class="my-form-input"
-                              :placeholder="$store.getters.currentRole === 'teacher' ? $t('teacher.add-unit-plan.teacher-nth-key-question') : $t('teacher.add-unit-plan.expert-nth-key-question')"/>
-                            <div class="delete-icon" @click="handleRemoveQuestion(index)">
-                              <a-icon type="delete" :style="{ fontSize: '20px' }" />
+                            <div class="form-input-item" v-for="(question, index) in form.questions" :key="index">
+                              <a-input
+                                v-model="question.name"
+                                class="my-form-input"
+                                :placeholder="$store.getters.currentRole === 'teacher' ? $t('teacher.add-unit-plan.teacher-nth-key-question') : $t('teacher.add-unit-plan.expert-nth-key-question')"/>
+                              <div class="delete-icon" @click="handleRemoveQuestion(index)">
+                                <a-icon type="delete" :style="{ fontSize: '20px' }" />
+                              </div>
                             </div>
                           </div>
                         </a-form-item>
                         <a-button
+                          v-if="!$store.getters.userInfo.disableQuestion"
                           class="add-button"
                           style="top:-40px;"
                           type="link"
@@ -514,7 +515,7 @@
             <p>We understand that for some countries, "key questions/line of inquiry" is not required in Unit plan so you have the option to turn it off. You won't see that section once it's off.</p><p>
             </p><p style="color: red">You might turn it on or change in your account setting If you need the section in future.</p>
           </div>
-          <a-switch default-checked @change="onChangeSwitch"/> <span style="color: red ;font-family: Inter-Bold;font-size: 15px;">Key question/line of inquiry</span>
+          <a-switch v-model="disableQuestion" @change="onChangeSwitch"/> <span style="color: red ;font-family: Inter-Bold;font-size: 15px;">Key question/line of inquiry</span>
           <div class="modal-ensure-action-line-center">
             <a-button class="action-item action-cancel" shape="round" @click="questionSettingVisible=false">Cancel</a-button>
             <a-button class="action-ensure action-item" type="primary" shape="round" @click="handQuestionSetting">Confirm</a-button>
@@ -1795,7 +1796,7 @@ export default {
     },
     handQuestionSetting () {
       UserSetting({
-        disableQuestion: this.disableQuestion
+        disableQuestion: !this.disableQuestion
       }).then((response) => {
         this.$logger.info('UserSetting', response.result)
         if (response.success) {
@@ -1808,7 +1809,7 @@ export default {
       })
     },
     onChangeSwitch (checked) {
-      this.disableQuestion = !checked
+      this.disableQuestion = checked
     },
     handleEnsureSelectBigIdeaData () {
       if (!this.selectNewBigIdea) {
@@ -2724,5 +2725,9 @@ export default {
 }
 /deep/ .ant-breadcrumb > span:last-child {
   color: rgba(0, 0, 0, 0.45);
+}
+.form-block-disabled{
+  background-color: #f5f5f5;
+  cursor: not-allowed;
 }
 </style>

@@ -192,7 +192,7 @@
               <div class="item-intro" @click="handleViewDetail(item, $event)">
                 <div class="page-info">
                   <span class="page-num-tag">
-                    1/{{ countPptSize(item.pageObjectIds) }}
+                    1/{{ item.pageObjectIds.length }}
                   </span>
                 </div>
                 <div class="main-title" >

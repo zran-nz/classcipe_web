@@ -43,8 +43,14 @@
           <div class="profile-label">
             <span class="label-txt">Role : </span>
           </div>
-          <div class="profile-text profile-data">
+          <div class="profile-text profile-data" v-if="!editMode">
             {{ userInfo.currentRole.substr(0, 1).toUpperCase() + userInfo.currentRole.substr(1) }}
+          </div>
+          <div class="profile-input profile-data" v-if="editMode">
+            <a-select v-model="userInfo.currentRole" placeholder="Please role">
+              <a-select-option value="teacher">teacher</a-select-option>
+              <a-select-option value="expert">expert</a-select-option>
+            </a-select>
           </div>
         </div>
 
@@ -160,15 +166,15 @@
           </div>
         </div>
 
-        <div class="profile-item-line" v-if="$store.getters.currentRole === 'teacher'">
-          <div class="profile-label">
-            <span class="label-txt">Key question/<br>line of inquiry :</span>
-          </div>
+        <!--        <div class="profile-item-line" v-if="$store.getters.currentRole === 'teacher'">-->
+        <!--          <div class="profile-label">-->
+        <!--            <span class="label-txt">Key question/<br>line of inquiry :</span>-->
+        <!--          </div>-->
 
-          <div class="profile-text profile-data">
-            <a-switch :checked="!disableQuestion" @change="onChangeSwitch"/>
-          </div>
-        </div>
+        <!--          <div class="profile-text profile-data">-->
+        <!--            <a-switch :checked="!disableQuestion" @change="onChangeSwitch"/>-->
+        <!--          </div>-->
+        <!--        </div>-->
 
       </a-col></a-row>
 
@@ -450,7 +456,8 @@ export default {
         const userData = {
           avatar: this.userInfo.avatar,
           nickname: this.userInfo.tempNickname,
-          id: this.$store.getters.userInfo.id
+          id: this.$store.getters.userInfo.id,
+          currentRole: this.userInfo.currentRole
         }
 
         this.$logger.info('update preference and edit user post data', postData, userData)

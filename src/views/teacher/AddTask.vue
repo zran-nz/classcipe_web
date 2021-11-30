@@ -247,7 +247,7 @@
                       </template>
                     </a-step>
 
-                    <a-step title="Link Evaluation Form(s)" :status="currentActiveStepIndex === 2 ? 'process':'wait'">
+                    <a-step title="Link relevant content" :status="currentActiveStepIndex === 2 ? 'process':'wait'">
                       <template v-if="currentActiveStepIndex === 2" slot="description">
                         <div class="form-block">
                           <a-form-item class="link-plan-title">

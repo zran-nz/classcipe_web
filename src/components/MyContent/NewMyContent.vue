@@ -449,6 +449,7 @@ export default {
       this.currentTypeLabel = getLabelNameType(this.filterTypeList[0])
     }
     this.$logger.info('currentTypeLabel ' + this.currentTypeLabel)
+    this.$logger.info('NewMyContent selectedList', this.selectedList)
     this.mySelectedList = this.selectedList
     this.selectedGroup = this.defaultGroupName
     this.groupName = (this.groupNameList.length ? this.groupNameList[0] : this.defaultGroupName) // task下只有一个默认隐藏的分组,所以默认选第一个
