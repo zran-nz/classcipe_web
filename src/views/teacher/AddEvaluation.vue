@@ -51,7 +51,7 @@
         <div class="form-table-tabs" v-show="forms.length > 0">
           <div
             :class="{'form-table-item': true,
-                     'active-table': currentActiveFormId === formItem.id}"
+                     'active-table': currentActiveFormId === formItem.formId}"
             v-for="(formItem, idx) in forms"
             @click="handleActiveForm(idx, formItem)"
             :key="idx">
@@ -84,7 +84,7 @@
           <div class="form-table-content">
             <div class="table-content">
               <div class="form-table-item" v-for="(formItem,tIdx) in forms" :key="tIdx">
-                <div class="form-table-item-content" v-show="formItem.id === currentActiveFormId">
+                <div class="form-table-item-content" v-show="formItem.formId === currentActiveFormId">
                   <div class="comment" v-show="formTableMode === EvaluationTableMode.TeacherEvaluate">
                     <div class="summary-input">
                       <a-textarea v-model="formItem.comment" placeholder="Write a comment" aria-placeholder="Write a comment" class="my-textarea" />
@@ -93,7 +93,7 @@
                   <div class="form-table-detail">
                     <evaluation-table
                       ref="evaluationTable"
-                      :form-id="formItem.id"
+                      :form-id="formItem.formId"
                       :init-raw-headers="formItem.initRawHeaders"
                       :init-raw-data="formItem.initRawData"
                       :form-type="formItem.formType"
@@ -204,7 +204,7 @@
         <template v-if="rubricType === 'select'">
           <div class="select-rubric-wrapper">
             <div class="evaluation-list">
-              <select-evaluation-list :task-id="taskId" :class-id="classId" @cancel="selectRubricVisible = false" @selected="handleEnsureSelectEvaluation"/>
+              <select-evaluation-list @cancel="selectRubricVisible = false" @selected="handleEnsureSelectEvaluation"/>
             </div>
           </div>
         </template>
@@ -301,7 +301,7 @@ export default {
   },
   created () {
     this.$logger.info('[' + this.formTableMode + '] created Evaluation evaluationId' + this.evaluationId)
-    this.formTableMode = this.mode
+    this.formTableMode = EvaluationTableMode.Edit
     this.initData()
   },
   methods: {
@@ -319,20 +319,21 @@ export default {
             title: formItem.title,
             titleEditing: false,
             formType: formItem.formType,
-            studentEvaluation: formItem.studentEvaluation,
-            peerEvaluation: formItem.peerEvaluation,
+            se: formItem.se,
+            pe: formItem.pe,
             menuVisible: false,
             id: formItem.id,
+            formId: formItem.formId,
             initRawHeaders: JSON.parse(formItem.initRawHeaders),
             initRawData: JSON.parse(formItem.initRawData)
           })
         })
         this.$logger.info('forms', this.forms)
       }).finally(() => {
-        if ((!this.forms || this.forms.length === 0) && this.mode === EvaluationTableMode.Edit) {
+        if ((this.forms.length === 0) && this.mode === EvaluationTableMode.Edit) {
           this.selectRubricVisible = true
         } else {
-          this.currentActiveFormId = this.forms[0].id
+          this.currentActiveFormId = this.forms[0].formId
         }
         this.loading = false
       })
@@ -340,8 +341,8 @@ export default {
 
     handleActiveForm (idx, formItem) {
       this.$logger.info('handleActiveForm ' + idx, formItem)
-      if (this.currentActiveFormId !== formItem.id) {
-        this.currentActiveFormId = formItem.id
+      if (this.currentActiveFormId !== formItem.formId) {
+        this.currentActiveFormId = formItem.formId
       }
     },
     handleClickMember (member) {
@@ -392,7 +393,7 @@ export default {
         const existFormIdList = []
         this.forms.forEach(item => {
           existFormTitleList.push(item.title)
-          existFormIdList.push(item.id)
+          existFormIdList.push(item.formId)
         })
 
         // 给还未保存的表格生成一个唯一的名称和自定义id，自定义id在提交时需要删掉
@@ -425,7 +426,7 @@ export default {
         }
         this.$logger.info('newFormTable', newFormTable)
         this.forms.push(newFormTable)
-        this.currentActiveFormId = newFormTable.id
+        this.currentActiveFormId = newFormTable.formId
       } else {
         this.$message.warn('Choose rubric format!')
       }
@@ -451,10 +452,79 @@ export default {
     handleEnsureSelectEvaluation (data) {
       this.$logger.info('handleEnsureSelectEvaluation', data)
       const evaluationIdList = data.evaluationIdList
-      EvaluationQueryByIds({ ids: evaluationIdList }).then((response) => {
-        this.$logger.info('EvaluationQueryByIds', response)
-        // TODO Evaluation 选择拷贝evaluation表格后，处理合并evaluation
-      })
+      const refFormList = data.selectedFormList
+
+      if (evaluationIdList && evaluationIdList.length) {
+        EvaluationQueryByIds({ ids: evaluationIdList }).then((response) => {
+          this.$logger.info('EvaluationQueryByIds', response)
+          const evaluationList = response.result
+          evaluationList.forEach(evaluationItem => {
+            evaluationItem.forms.forEach(formItem => {
+              const index = refFormList.findIndex(item => item.formId === formItem.formId)
+              if (index === -1) {
+                if (formItem.initRawHeaders && typeof formItem.initRawHeaders === 'string') {
+                  formItem.initRawHeaders = JSON.parse(formItem.initRawHeaders)
+                  formItem.initRawData = JSON.parse(formItem.initRawData)
+                }
+                refFormList.push(formItem)
+              }
+            })
+          })
+
+          const existFormIdList = []
+          this.forms.forEach(item => {
+            existFormIdList.push(item.formId)
+          })
+
+          // 重新生成formId，删除表格的Id字段
+          let count = this.forms.length + 1
+          let selfId = 'ext_' + Math.random(1000000000, 9999999999)
+
+          refFormList.forEach(formItem => {
+            while (existFormIdList.indexOf(selfId) !== -1) {
+              count++
+              selfId = 'ext_' + Math.random(1000000000, 9999999999)
+            }
+            existFormIdList.push(selfId)
+            formItem.id = null
+            formItem.formId = selfId
+            formItem.title = 'evaluation of task/session ' + count
+          })
+
+          refFormList.forEach(formItem => {
+            this.forms.push(formItem)
+            this.$logger.info('forms add ' + formItem.formId, formItem)
+          })
+          this.$logger.info('forms', this.forms)
+        })
+      } else if (refFormList.length) {
+        const existFormIdList = []
+        this.forms.forEach(item => {
+          existFormIdList.push(item.formId)
+        })
+
+        // 重新生成formId，删除表格的Id字段
+        let count = this.forms.length + 1
+        let selfId = 'ext_' + Math.random(1000000000, 9999999999)
+
+        refFormList.forEach(formItem => {
+          while (existFormIdList.indexOf(selfId) !== -1) {
+            count++
+            selfId = 'ext_' + Math.random(1000000000, 9999999999)
+          }
+          existFormIdList.push(selfId)
+          formItem.id = null
+          formItem.formId = selfId
+          formItem.title = 'evaluation of task/session ' + count
+        })
+
+        refFormList.forEach(formItem => {
+          this.forms.push(formItem)
+          this.$logger.info('forms add ' + formItem.formId, formItem)
+        })
+        this.$logger.info('forms', this.forms)
+      }
+      this.selectRubricVisible = false
     },
 
     goBack () {
@@ -478,15 +548,16 @@ export default {
       this.$refs.evaluationTable.forEach(tableItem => {
         const tableData = tableItem.getTableStructData()
         this.forms.forEach(formItem => {
-          if (formItem.id === tableData.formId) {
+          if (formItem.formId === tableData.formId) {
             const formData = {
-              formId: formItem.id,
+              id: formItem.id,
+              formId: formItem.formId,
               formType: formItem.formType,
               title: formItem.title,
               initRawHeaders: JSON.stringify(tableData.headers),
               initRawData: JSON.stringify(tableData.list),
-              peerEvaluation: formItem.peerEvaluation,
-              studentEvaluation: formItem.studentEvaluation
+              pe: formItem.pe,
+              se: formItem.se
             }
             formDataList.push(formData)
           }

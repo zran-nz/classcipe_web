@@ -37,12 +37,11 @@
         <div class="collaborate-comment" @click="handleViewComment" v-if="form.type !== typeMap.evaluation">
           <comment-icon class="active-icon"/>
         </div>
-        <template v-if="form.type !== typeMap.evaluation">
-          <a-button
-            @click="handleSave"
-            :loading="saving"
-            class="my-form-header-btn"
-            style="{
+        <a-button
+          @click="handleSave"
+          :loading="saving"
+          class="my-form-header-btn"
+          style="{
             width: 120px;
             display: flex;
             flex-direction: row;
@@ -53,18 +52,18 @@
             border-radius: 20px;
             padding: 15px 20px;
           }">
-            <div class="btn-icon">
-              <img src="~@/assets/icons/common/form/baocun@2x.png" />
-            </div>
-            <div class="btn-text">
-              Save & Exit
-            </div>
-          </a-button>
-          <a-button
-            v-if="isOwner && form.status === 0"
-            :loading="publishing"
-            class="my-form-header-btn"
-            style="{
+          <div class="btn-icon">
+            <img src="~@/assets/icons/common/form/baocun@2x.png" />
+          </div>
+          <div class="btn-text">
+            Save & Exit
+          </div>
+        </a-button>
+        <a-button
+          v-if="isOwner && form.status === 0"
+          :loading="publishing"
+          class="my-form-header-btn"
+          style="{
             width: 120px;
             display: flex;
             flex-direction: row;
@@ -75,20 +74,20 @@
             border-radius: 20px;
             padding: 15px 20px;
           }"
-            @click="handlePublish(1)" >
-            <div class="btn-icon">
-              <img src="~@/assets/icons/common/form/fabu@2x.png" />
-            </div>
-            <div class="btn-text">
-              Save & Publish
-            </div>
-          </a-button>
+          @click="handlePublish(1)" >
+          <div class="btn-icon">
+            <img src="~@/assets/icons/common/form/fabu@2x.png" />
+          </div>
+          <div class="btn-text">
+            Save & Publish
+          </div>
+        </a-button>
 
-          <a-button
-            v-if="isOwner && form.status === 1"
-            :loading="publishing"
-            class="my-form-header-btn"
-            style="{
+        <a-button
+          v-if="isOwner && form.status === 1"
+          :loading="publishing"
+          class="my-form-header-btn"
+          style="{
             width: 120px;
             display: flex;
             flex-direction: row;
@@ -99,19 +98,19 @@
             border-radius: 20px;
             padding: 15px 20px;
           }"
-            @click="handlePublish(0)" >
-            <div class="btn-icon">
-              <a-icon style="font-size: 16px" theme="filled" type="down-square" />
-            </div>
-            <div class="btn-text">
-              Unpublish
-            </div>
-          </a-button>
+          @click="handlePublish(0)" >
+          <div class="btn-icon">
+            <a-icon style="font-size: 16px" theme="filled" type="down-square" />
+          </div>
+          <div class="btn-text">
+            Unpublish
+          </div>
+        </a-button>
 
-          <a-button
-            v-if="showCollaborate && isOwner"
-            class="my-form-header-btn"
-            style="{
+        <a-button
+          v-if="showCollaborate && isOwner"
+          class="my-form-header-btn"
+          style="{
             width: 120px;
             display: flex;
             flex-direction: row;
@@ -122,15 +121,14 @@
             border-radius: 20px;
             padding: 15px 20px;
           }"
-            @click="handleStartCollaborate">
-            <div class="btn-icon">
-              <img src="~@/assets/icons/common/form/fengxiang@2x.png" />
-            </div>
-            <div class="btn-text">
-              Collaborate
-            </div>
-          </a-button>
-        </template>
+          @click="handleStartCollaborate">
+          <div class="btn-icon">
+            <img src="~@/assets/icons/common/form/fengxiang@2x.png" />
+          </div>
+          <div class="btn-text">
+            Collaborate
+          </div>
+        </a-button>
       </a-space>
     </a-col>
   </a-row>

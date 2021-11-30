@@ -31,7 +31,7 @@ export default {
      EvaluationAddOrUpdate(data).then((response) => {
         this.$logger.info('EvaluationAddOrUpdate response', response.result)
         if (response.success) {
-          this.$router.replace('/teacher/add-evaluation/' + response.result.id + '/create')
+          this.$router.replace('/teacher/add-evaluation/' + response.result.id + '/edit')
         } else {
           this.$message.error(response.message)
         }
