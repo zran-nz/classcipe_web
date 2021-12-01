@@ -120,7 +120,7 @@
         <div class="select-type">
           <a-radio-group name="radioGroup" default-value="create" v-model="rubricType">
             <a-radio value="create">
-              Add new form
+              Add new rubric
             </a-radio>
             <a-radio value="select">
               Choose from Content by me
@@ -130,16 +130,38 @@
         <template v-if="rubricType === 'create'">
           <div class="select-rubric-wrapper">
             <div class="table-name">
-              <div class="form-name">Form title</div>
+              <div class="form-name">Rubric title</div>
               <div class="form-input">
                 <a-input v-model="newTableName" :placeholder="newTableName"/>
               </div>
             </div>
             <div class="rubric-type-name">
-              <span :class="{'active-rubric': newFormType === EvaluationTableType.Rubric || newFormType === EvaluationTableType.Rubric_2}" @click="newFormType = EvaluationTableType.Rubric">* Rubric format</span>
-              <span :class="{'active-rubric': newFormType === EvaluationTableType.CenturySkills}" @click="newFormType= EvaluationTableType.CenturySkills">* 21 Century skills</span>
+              <span :class="{'active-rubric': newFormType === EvaluationTableType.Rubric || newFormType === EvaluationTableType.Rubric_2}" @click="newFormType = EvaluationTableType.Rubric">* Rubric format
+                <span class="active-icon"><a-icon type="check-circle" /></span>
+              </span>
+              <span :class="{'active-rubric': newFormType === EvaluationTableType.CenturySkills}" @click="newFormType= EvaluationTableType.CenturySkills">* 21 Century skills
+                <span class="active-icon"><a-icon type="check-circle" /></span>
+              </span>
             </div>
             <div class="rubric-content">
+              <div
+                v-show="newFormType === EvaluationTableType.Rubric || newFormType === EvaluationTableType.Rubric_2"
+                :class="{
+                  'rubric-item': true,
+                  'active-rubric': newFormType === EvaluationTableType.Rubric_2
+                }"
+                @click="handleSelectRubric(EvaluationTableType.Rubric_2)"
+              >
+                <div class="rubric-preview">
+                  <img src="~@/assets/icons/evaluation/rubric2.png" alt="rubric">
+                </div>
+                <div class="rubric-label">
+                  Used for IB PYP, New Zealand, Australia curriculum
+                </div>
+                <div class="rubric-active-icon">
+                  <a-icon type="check-circle" theme="filled"/>
+                </div>
+              </div>
               <div
                 v-show="newFormType === EvaluationTableType.Rubric || newFormType === EvaluationTableType.Rubric_2"
                 :class="{
@@ -151,20 +173,8 @@
                 <div class="rubric-preview">
                   <img src="~@/assets/icons/evaluation/rubric1.png" alt="rubric">
                 </div>
-                <div class="rubric-active-icon">
-                  <a-icon type="check-circle" theme="filled"/>
-                </div>
-              </div>
-              <div
-                v-show="newFormType === EvaluationTableType.Rubric || newFormType === EvaluationTableType.Rubric_2"
-                :class="{
-                  'rubric-item': true,
-                  'active-rubric': newFormType === EvaluationTableType.Rubric_2
-                }"
-                @click="handleSelectRubric(EvaluationTableType.Rubric_2)"
-              >
-                <div class="rubric-preview">
-                  <img src="~@/assets/icons/evaluation/rubric2.png" alt="rubric">
+                <div class="rubric-label">
+                  Used for IB MYP
                 </div>
                 <div class="rubric-active-icon">
                   <a-icon type="check-circle" theme="filled"/>
@@ -196,12 +206,13 @@
         <template v-if="rubricType === 'select'">
           <div class="select-rubric-wrapper">
             <div class="evaluation-list">
-              <select-evaluation-list @cancel="selectRubricVisible = false" @selected="handleEnsureSelectEvaluation"/>
+              <select-evaluation-list :task-id="taskId" :class-id="classId" @cancel="selectRubricVisible = false" @selected="handleEnsureSelectEvaluation"/>
             </div>
           </div>
         </template>
       </div>
     </a-modal>
+
   </div>
 </template>
 
@@ -394,11 +405,11 @@ export default {
 
         // 给还未保存的表格生成一个唯一的名称和自定义id，自定义id在提交时需要删掉
         let count = this.forms.length + 1
-        let selfTitle = this.newTableName ? this.newTableName : 'Form ' + count
+        let selfTitle = this.newTableName ? this.newTableName : 'Rubric ' + count
         let selfId = 'ext_' + Math.random(1000000000, 9999999999)
         while (existFormTitleList.indexOf(selfTitle) !== -1) {
           count++
-          selfTitle = 'Form ' + count
+          selfTitle = 'Rubric ' + count
         }
 
         while (existFormIdList.indexOf(selfId) !== -1) {
@@ -956,11 +967,21 @@ export default {
         font-family: Inter-Bold;
         line-height: 24px;
         color: #070707;
+
+        .active-icon {
+          opacity: 0;
+        }
         &.active-rubric {
           height: 21px;
           font-family: Inter-Bold;
           line-height: 24px;
           color: #FF3355;
+
+          .active-icon {
+            opacity: 1;
+            font-size: 20px;
+            color: #07AB84;
+          }
         }
       }
     }
@@ -1090,4 +1111,11 @@ export default {
 .no-form-tips {
   padding: 100px 0;
 }
+
+.rubric-label {
+  font-size: 14px;
+  line-height: 50px;
+  font-weight: bold;
+}
+
 </style>
