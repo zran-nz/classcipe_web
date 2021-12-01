@@ -196,8 +196,8 @@ export default {
       const currentPageId = this.thumbnailList[this.currentImgIndex].id
       this.elementsList.forEach(e => {
         if (currentPageId === e.pageId) {
-            const data = JSON.parse(e.data)
-            pageElementsList.push(data)
+          const data = JSON.parse(e.data)
+          pageElementsList.push(data)
         }
       })
       return pageElementsList
@@ -278,22 +278,7 @@ export default {
       if (item.type !== 'tip') {
         window.open(item.url, '_blank')
       }
-    },
-    computerSize (type) {
-        var size = 0
-        const currentPageId = this.thumbnailList[this.currentImgIndex].id
-        this.elementsList.forEach(e => {
-          if (currentPageId === e.pageId) {
-            const data = JSON.parse(e.data)
-            if (data.type === type) {
-              size++
-            }
-          }
-        })
-        return size
     }
-  }
-}
 </script>
 
 <style lang="less" scoped>
