@@ -254,7 +254,7 @@ export default {
     getClassInfo () {
       this.loadingClass = true
       QueryByClassInfoSlideId({ slideId: this.taskForm.presentationId }).then(response => {
-      // QueryByClassInfoSlideId({ slideId: '1X9fE0m4j4Ey5BvSxof_a0bVxTDNaDfadJTlhkXmyikk' }).then(response => {
+        // QueryByClassInfoSlideId({ slideId: '1X9fE0m4j4Ey5BvSxof_a0bVxTDNaDfadJTlhkXmyikk' }).then(response => {
         this.$logger.info('QueryByClassInfoSlideId ', response)
         if (response.success) {
           this.elementsList = response.result.relements
@@ -278,7 +278,22 @@ export default {
       if (item.type !== 'tip') {
         window.open(item.url, '_blank')
       }
+    },
+    computerSize (type) {
+      var size = 0
+      const currentPageId = this.thumbnailList[this.currentImgIndex].id
+      this.elementsList.forEach(e => {
+        if (currentPageId === e.pageId) {
+          const data = JSON.parse(e.data)
+          if (data.type === type) {
+            size++
+          }
+        }
+      })
+      return size
     }
+  }
+}
 </script>
 
 <style lang="less" scoped>
