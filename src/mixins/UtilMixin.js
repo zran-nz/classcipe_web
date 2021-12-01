@@ -13,6 +13,9 @@ export const UtilMixin = {
      */
     tagIsExist (createTagName, tagSearchList) {
       return tagSearchList.filter(item => item.toLowerCase() === createTagName.toLowerCase()).length > 0
+    },
+    tagNameIsExist (createTagName, showTagList) {
+      return showTagList.filter(item => item.name.toLowerCase() === createTagName.toLowerCase()).length > 0
     }
   }
 

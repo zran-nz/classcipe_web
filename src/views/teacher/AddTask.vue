@@ -1030,26 +1030,12 @@
         :footer="null"
         destroyOnClose
         width="1000px"
-        :zIndex="2000"
+        :zIndex="4000"
         :title="null"
         @ok="previewTemplateVisible = false"
         @cancel="previewTemplateVisible = false">
         <div class="link-content-wrapper">
           <template-preview :template="previewTemplate" :selected-template-id-list="selectedTemplateIdList" @handle-select="handleSelectPreviewTemplate"></template-preview>
-        </div>
-      </a-modal>
-
-      <a-modal
-        v-model="taskPptPreviewVisible"
-        :footer="null"
-        destroyOnClose
-        width="1000px"
-        :zIndex="2000"
-        :title="null"
-        @ok="taskPptPreviewVisible = false"
-        @cancel="taskPptPreviewVisible = false">
-        <div class="link-content-wrapper">
-          <task-ppt-preview :thumbnail-list="thumbnailList" :task-form="form" @handle-select="handleSelectPreviewTemplate"></task-ppt-preview>
         </div>
       </a-modal>
 
@@ -1299,7 +1285,6 @@ export default {
       previewTemplate: {},
       previewTemplateVisible: false,
       currentImgIndex: 0,
-      taskPptPreviewVisible: false,
       showTemplateFilter: false,
       currentSlideCoverImgSrc: null,
       filterType: undefined,

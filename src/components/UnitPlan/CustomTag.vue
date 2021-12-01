@@ -76,7 +76,7 @@
                           </div>
                         </div>
                         <div class="create-tag-wrapper tag-wrapper">
-                          <div class="skt-tag-create-line" @click="handleCreateTagByInput" v-show="!tagIsExist(createTagName,tagSearchList) && createTagName && createTagName.length >= 1">
+                          <div class="skt-tag-create-line" @click="handleCreateTagByInput" v-show="!tagNameIsExist(createTagName,showTagList) && !tagIsExist(createTagName,tagSearchList) && createTagName && createTagName.length >= 1">
                             <div class="create-tag-label">
                               Create
                             </div>
