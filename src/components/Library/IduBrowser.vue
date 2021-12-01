@@ -226,7 +226,7 @@
 
 <script>
 import ContentTypeIcon from '@/components/Teacher/ContentTypeIcon'
-import { KnowledgeGetTree, KnowledgeQueryContentByDescriptionId } from '@/api/knowledge'
+import { GetIBIduList, KnowledgeQueryContentByDescriptionId } from '@/api/knowledge'
 import DirIcon from '@/components/Library/DirIcon'
 import NoMoreResources from '@/components/Common/NoMoreResources'
 import PuBuIcon from '@/assets/icons/library/pubu .svg?inline'
@@ -235,7 +235,7 @@ import CardList from '@/views/list/CardList'
 import DataCardView from '@/components/Library/DataCardView'
 import { typeMap } from '@/const/teacher'
 import { GetGradesByCurriculumId } from '@/api/preference'
-import { SubjectType, TagType } from '@/const/common'
+import { SubjectType } from '@/const/common'
 const { SubjectTree } = require('@/api/subject')
 
 export default {
@@ -371,10 +371,8 @@ export default {
       }
       this.knowledges.push(knowledgeItem)
       this.$logger.info('grade:' + this.currentGradeId + ', currentMainSubjectId:' + this.currentMainSubjectId)
-      KnowledgeGetTree({
-        gradeId: this.currentGradeId,
-        subjectId: this.currentMainSubjectId,
-        tagType: TagType.skill
+      GetIBIduList({
+        gradeId: this.currentGradeId
       }).then((response) => {
         this.$logger.info('KnowledgeGetTree response', response)
         this.mainKnowledgeList = response.result
