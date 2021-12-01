@@ -53,27 +53,19 @@
             :class="{'form-table-item': true,
                      'active-table': currentActiveFormId === formItem.formId}"
             v-for="(formItem, idx) in forms"
+            :data-form-id="formItem.formId"
             @click="handleActiveForm(idx, formItem)"
             :key="idx">
 
             <div class="action-icon" v-show="formItem.titleEditing === false">
-              <a-dropdown :trigger="['click']" :visible="formItem.menuVisible">
-                <div class="form-title-item">
-                  <div class="form-title" @dblclick="handleEditFormTitle(formItem)">{{ formItem.title }} </div>
-                  <a-icon type="down" @click="handleToggleMenuVisible(formItem)"/>
+              <div class="form-title-item">
+                <div class="form-title" @dblclick="handleEditFormTitle(formItem)">{{ formItem.title }} </div>
+                <div class="form-delete-icon">
+                  <a-popconfirm title="Delete this form ?" ok-text="Yes" @confirm="handleDeleteForm(formItem)" cancel-text="No">
+                    <a-icon type="delete" />
+                  </a-popconfirm>
                 </div>
-                <a-menu slot="overlay">
-                  <a-menu-item key="0">
-                    <div class="menu-icon"><a-switch size="small" v-model="formItem.studentEvaluation" @click="handleToggleStudentEvaluation(formItem)" /></div> Student Eval
-                  </a-menu-item>
-                  <a-menu-item key="1">
-                    <div class="menu-icon"><a-switch size="small" v-model="formItem.peerEvaluation" @click="handleTogglePeerEvaluation(formItem)"/></div> Peer Eval
-                  </a-menu-item>
-                  <a-menu-item key="2">
-                    <div class="menu-icon"><a-icon type="delete" /></div><a href="#" @click="handleDeleteForm(formItem)"> Delete</a>
-                  </a-menu-item>
-                </a-menu>
-              </a-dropdown>
+              </div>
             </div>
             <div class="editing-title" v-show="formItem.titleEditing === true">
               <a-input v-model="currentEditingTitle" class="my-title-input" @blur="handleEnsureUpdateFormTitle" @keyup.enter="handleEnsureUpdateFormTitle"/>
@@ -275,7 +267,8 @@ export default {
       currentActiveFormId: null,
       form: { // 基础表单数据
         name: '',
-        forms: []
+        forms: [],
+        status: 0
       },
       forms: [], // 评估表格数据
 
@@ -296,7 +289,10 @@ export default {
 
       currentEditingTitle: null,
       currentFormItem: null,
-      formTableMode: null
+      formTableMode: null,
+
+      saving: false,
+      publishing: false
     }
   },
   created () {
@@ -414,11 +410,12 @@ export default {
           title: selfTitle,
           titleEditing: false,
           formType: this.newFormType,
-          studentEvaluation: false,
-          peerEvaluation: false,
+          se: 0,
+          pe: 0,
           menuVisible: false,
           comment: null,
-          id: selfId,
+          id: null,
+          formId: selfId,
           tableData: {
             initRawHeaders: [],
             initRawData: []
@@ -572,12 +569,59 @@ export default {
       } else {
         EvaluationAddOrUpdate(this.form).then((response) => {
           this.$logger.info('EvaluationAddOrUpdate', response)
-          this.$message.success('Save successfully!')
           this.$refs.commonFormHeader.saving = false
+          if (response.success) {
+            this.$message.success('Save successfully!')
+            this.goBack()
+          } else {
+            this.$message.error(response.message)
+          }
         })
       }
     },
-    handlePublishEvaluation () {},
+    handlePublishEvaluation (status) {
+      this.$logger.info('handleSaveEvaluation status ' + status, this.forms)
+      this.$refs.commonFormHeader.publishing = true
+
+      // 获取所有的表格结构（表头+表内容）
+      const formDataList = []
+      this.$refs.evaluationTable.forEach(tableItem => {
+        const tableData = tableItem.getTableStructData()
+        this.forms.forEach(formItem => {
+          if (formItem.formId === tableData.formId) {
+            const formData = {
+              id: formItem.id,
+              formId: formItem.formId,
+              formType: formItem.formType,
+              title: formItem.title,
+              initRawHeaders: JSON.stringify(tableData.headers),
+              initRawData: JSON.stringify(tableData.list),
+              pe: formItem.pe,
+              se: formItem.se
+            }
+            formDataList.push(formData)
+          }
+        })
+      })
+      this.$logger.info('formDataList', formDataList)
+      this.form.forms = formDataList
+      this.form.status = status
+      if (formDataList.length === 0) {
+        this.$message.error('Please add at least one form!')
+        this.$refs.commonFormHeader.publishing = false
+        return false
+      } else {
+        EvaluationAddOrUpdate(this.form).then((response) => {
+          this.$logger.info('EvaluationAddOrUpdate', response)
+          if (status === 1) {
+            this.$message.success(this.$t('teacher.add-unit-plan.publish-success'))
+          } else {
+            this.$message.success('Unpublish successfully')
+          }
+          this.$refs.commonFormHeader.publishing = false
+        })
+      }
+    },
 
     // 修改表头数据处理
     handleUpdateForm (data) {
@@ -1010,9 +1054,20 @@ export default {
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-direction: row;
   .form-title {
     user-select: none;
     margin-right: 8px;
+  }
+
+  .form-delete-icon {
+    opacity: 0;
+  }
+
+  &:hover {
+    .form-delete-icon {
+      opacity: 1;
+    }
   }
 }
 
