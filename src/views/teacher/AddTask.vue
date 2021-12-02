@@ -98,7 +98,7 @@
                           <a-tooltip placement="top" title="Select slide(s) on/off">
                             <a-switch
                               class="slide-switch"
-                              :disabled="form.selectedTemplateList.length === 0"
+                              :disabled="selectedTemplateIdList.length === 0"
                               checked-children="On"
                               un-checked-children="Off"
                               v-model="form.showSelected"

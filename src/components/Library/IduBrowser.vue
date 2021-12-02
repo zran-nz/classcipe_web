@@ -1,39 +1,39 @@
 <template>
   <div class="browser-block">
     <!--      mainSubject list-->
-    <div class="browser-block-item" :style="{width: blockWidth + 'px' , minWidth: blockWidth + 'px' }">
-      <div
-        :class="{
-          'browser-item': true,
-          'odd-line': index % 2 === 0,
-          'active-line': currentMainSubjectId === mainSubjectItem.id
-        }"
-        v-for="(mainSubjectItem, index) in mainSubjectList"
-        @click="handleSelectMainSubjectItem(mainSubjectItem)"
-        :key="index">
-        <a-tooltip :mouseEnterDelay="1">
-          <template slot="title">
-            {{ mainSubjectItem.name }}
-          </template>
-          <dir-icon dir-type="blue" v-if="currentMainSubjectId !== mainSubjectItem.id"/>
-          <dir-icon dir-type="opened" v-if="currentMainSubjectId === mainSubjectItem.id"/>
-          {{ mainSubjectItem.name }}
-        </a-tooltip>
-        <span class="arrow-item">
-          <a-icon type="right" />
-        </span>
-      </div>
-      <template v-if="!mainSubjectList.length && !mainSubjectListLoading">
-        <div class="no-data">
-          <no-more-resources />
-        </div>
-      </template>
-      <template v-if="mainSubjectListLoading">
-        <div class="loading-wrapper">
-          <a-spin />
-        </div>
-      </template>
-    </div>
+    <!--    <div class="browser-block-item" :style="{width: blockWidth + 'px' , minWidth: blockWidth + 'px' }">-->
+    <!--      <div-->
+    <!--        :class="{-->
+    <!--          'browser-item': true,-->
+    <!--          'odd-line': index % 2 === 0,-->
+    <!--          'active-line': currentMainSubjectId === mainSubjectItem.id-->
+    <!--        }"-->
+    <!--        v-for="(mainSubjectItem, index) in mainSubjectList"-->
+    <!--        @click="handleSelectMainSubjectItem(mainSubjectItem)"-->
+    <!--        :key="index">-->
+    <!--        <a-tooltip :mouseEnterDelay="1">-->
+    <!--          <template slot="title">-->
+    <!--            {{ mainSubjectItem.name }}-->
+    <!--          </template>-->
+    <!--          <dir-icon dir-type="blue" v-if="currentMainSubjectId !== mainSubjectItem.id"/>-->
+    <!--          <dir-icon dir-type="opened" v-if="currentMainSubjectId === mainSubjectItem.id"/>-->
+    <!--          {{ mainSubjectItem.name }}-->
+    <!--        </a-tooltip>-->
+    <!--        <span class="arrow-item">-->
+    <!--          <a-icon type="right" />-->
+    <!--        </span>-->
+    <!--      </div>-->
+    <!--      <template v-if="!mainSubjectList.length && !mainSubjectListLoading">-->
+    <!--        <div class="no-data">-->
+    <!--          <no-more-resources />-->
+    <!--        </div>-->
+    <!--      </template>-->
+    <!--      <template v-if="mainSubjectListLoading">-->
+    <!--        <div class="loading-wrapper">-->
+    <!--          <a-spin />-->
+    <!--        </div>-->
+    <!--      </template>-->
+    <!--    </div>-->
     <!--      main grade list-->
     <div class="browser-block-item-wrapper">
       <div class="browser-block-item" :style="{width: blockWidth + 'px' , minWidth: blockWidth + 'px' }">
@@ -235,8 +235,7 @@ import CardList from '@/views/list/CardList'
 import DataCardView from '@/components/Library/DataCardView'
 import { typeMap } from '@/const/teacher'
 import { GetGradesByCurriculumId } from '@/api/preference'
-import { SubjectType } from '@/const/common'
-const { SubjectTree } = require('@/api/subject')
+// const { SubjectTree } = require('@/api/subject')
 
 export default {
   // 数据层级结构：mainsubject-year-knowledge
@@ -300,7 +299,7 @@ export default {
   },
   created () {
     this.$logger.info('CurriculumBrowser blockWidth:' + this.blockWidth)
-    this.getSubjectTree()
+    // this.getSubjectTree()
     this.getGradesByCurriculumId(this.curriculumId)
   },
   methods: {
@@ -309,6 +308,9 @@ export default {
       GetGradesByCurriculumId({ curriculumId: curriculumId }).then(response => {
         this.$logger.info('GetGradesByCurriculumId', response.result)
         this.gradeList = response.result
+        if (this.gradeList && this.gradeList.length) {
+          this.handleSelectGradeItem(this.gradeList[0])
+        }
       })
     },
 
@@ -316,20 +318,20 @@ export default {
       this.mainSubjectList = []
       this.knowledges = []
       this.dataList = []
-      this.getSubjectTree()
+      // this.getSubjectTree()
     },
-    getSubjectTree () {
-      this.mainSubjectListLoading = true
-      SubjectTree({ curriculumId: this.curriculumId }).then(response => {
-        this.$logger.info('getSubjectTree response', response.result)
-        this.mainSubjectList = response.result.filter(item => item.subjectType === SubjectType.Skill || item.subjectType === SubjectType.LearnAndSkill)
-        if (this.mainSubjectList && this.mainSubjectList.length) {
-          this.handleSelectMainSubjectItem(this.mainSubjectList[0])
-        }
-      }).finally(() => {
-        this.mainSubjectListLoading = false
-      })
-    },
+    // getSubjectTree () {
+    //   this.mainSubjectListLoading = true
+    //   SubjectTree({ curriculumId: this.curriculumId }).then(response => {
+    //     this.$logger.info('getSubjectTree response', response.result)
+    //     this.mainSubjectList = response.result.filter(item => item.subjectType === SubjectType.Skill || item.subjectType === SubjectType.LearnAndSkill)
+    //     if (this.mainSubjectList && this.mainSubjectList.length) {
+    //       this.handleSelectMainSubjectItem(this.mainSubjectList[0])
+    //     }
+    //   }).finally(() => {
+    //     this.mainSubjectListLoading = false
+    //   })
+    // },
     handleSelectMainSubjectItem (mainSubjectItem) {
       this.hasChildSubject = true
       this.subjectDeep = 2
@@ -346,9 +348,10 @@ export default {
       this.$logger.info('handleSelectGradeItem ', gradeItem)
       if (gradeItem.id !== this.currentGradeId) {
         this.currentGradeId = gradeItem.id
+        this.handleClickBlock(this.blockIndex, gradeItem.name)
         this.getKnowledgeTree()
       }
-      this.handleClickBlock(this.subjectDeep, gradeItem.name)
+      // this.handleClickBlock(3, gradeItem.name)
     },
 
     getKnowledgeDeep (obj, k) {
@@ -399,7 +402,7 @@ export default {
           this.dataList = []
           this.knowledgeQueryContentByDescriptionId(knowledgeItem.id)
         }
-        this.handleClickBlock(this.subjectDeep + this.knowledgeDeep, knowledgeItem.name)
+        this.handleClickBlock(1 + this.knowledgeDeep, knowledgeItem.name)
         return
       }
       // 删除当前点击knowledges对应下标之后的所有后续元素（既下级列表），重新填充当前点击的元素的下级列表
@@ -416,7 +419,7 @@ export default {
       this.knowledges[nextIndex].knowledgeListLoading = false
 
       this.$logger.info('knowledges', this.knowledges)
-      this.handleClickBlock(this.subjectDeep + 1 + deepIndex, knowledgeItem.name)
+      this.handleClickBlock(1 + deepIndex, knowledgeItem.name)
     },
 
     handleSelectSubKnowledgeItem (subKnowledgeItem) {

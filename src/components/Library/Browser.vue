@@ -35,7 +35,7 @@
           <div class="browser-table-wrapper" :style="{left: -browserMarginLeft + 'px'}">
             <div class="browser-table">
               <div class="browser-type-list">
-                <div :class="{'browser-type': true, 'odd-line': index % 2 === 0, 'active-line': currentBrowserType === browserTypeItem.type}" v-for="(browserTypeItem, index) in browserTypeList" :key="index" @click="toggleBrowserType(browserTypeItem)">
+                <div :class="{'browser-type': true, 'odd-line': index % 2 === 0, 'active-line': currentBrowserType === browserTypeItem.type}" v-for="(browserTypeItem, index) in (currentCurriculumId == curriculumType.IBMYP ? browserTypeListForIbMpy : browserTypeList)" :key="index" @click="toggleBrowserType(browserTypeItem)">
                   <dir-icon dir-type="blue" v-if="currentBrowserType !== browserTypeItem.type"/>
                   <dir-icon dir-type="opened" v-if="currentBrowserType === browserTypeItem.type"/>
                   {{ browserTypeItem.label }}
@@ -74,13 +74,13 @@
                 v-if="currentBrowserType === BrowserTypeMap.specificSkills"
                 @blockCollapse="handleBlockCollapse"
                 @previewDetail="handlePreviewDetail"/>
-              <!--              <idu-browser-->
-              <!--                :block-index="blockIndex"-->
-              <!--                :curriculum-id="currentCurriculumId"-->
-              <!--                :block-width="blockWidth"-->
-              <!--                v-if="currentBrowserType === BrowserTypeMap.idu"-->
-              <!--                @blockCollapse="handleBlockCollapse"-->
-              <!--                @previewDetail="handlePreviewDetail"/>-->
+              <idu-browser
+                :block-index="blockIndex"
+                :curriculum-id="currentCurriculumId"
+                :block-width="blockWidth"
+                v-if="currentBrowserType === BrowserTypeMap.idu"
+                @blockCollapse="handleBlockCollapse"
+                @previewDetail="handlePreviewDetail"/>
               <!--大纲游览-->
               <sdg-browser
                 :block-width="blockWidth"
@@ -177,6 +177,14 @@ export default {
       currentCurriculumId: this.$store.getters.bindCurriculum ? this.$store.getters.bindCurriculum : '1',
       curriculumOptions: [],
       navPath: [],
+      browserTypeListForIbMpy: [
+        { type: 'curriculum', label: 'Learning outcomes' },
+        { type: 'assessmentType', label: 'Assessment type' },
+        { type: 'specificSkills', label: 'Subject Specific Skills' },
+        { type: 'idu', label: 'IDU' },
+        { type: 'centurySkills', label: '21st Century Skills' },
+        { type: 'sdg', label: 'Big idea' }
+      ],
       browserTypeList: [
         { type: 'curriculum', label: 'Learning outcomes' },
         { type: 'assessmentType', label: 'Assessment type' },
