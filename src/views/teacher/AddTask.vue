@@ -428,6 +428,9 @@
       <template v-if="mode === 'pick-task-slide'">
 
         <div class="pick-task-slide-wrapper">
+          <div class="pick-task-slide-title">
+            <h2>Pick slide(s)</h2>
+          </div>
           <div class="slide-form-block" v-show="form.presentationId">
             <div class="preview-list" v-if="!thumbnailListLoading">
               <div :class="{'preview-item-cover': true, 'preview-item-cover-active': selectedPageIdList.indexOf(item.id) !== -1}" :style="{backgroundImage: 'url(' + item.contentUrl + ')'}" v-for="(item,index) in thumbnailList" :key="index" @click="handleToggleThumbnail(item)">
