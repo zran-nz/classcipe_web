@@ -195,13 +195,13 @@
               <template v-if="header.type === headerType.Description">
                 <template v-if="formType === tableType.Rubric_2">
                   <template v-if="!item[headerType.Description] || !item[headerType.Description].name">
-                    <div class="data-item add-criteria" @click="handleAddDescription(header, item, $event)" v-show="mode === tableMode.Edit">
+                    <div class="data-item add-criteria" @click="handleAddCriteria(header, item, $event)" v-show="mode === tableMode.Edit">
                       <add-opacity-icon />
                       <div class="add-text">Click to choose the objectives</div>
                     </div>
                   </template>
                   <template v-else>
-                    <div class="data-item criteria-data" @dblclick="handleAddDescription(header, item, $event)">
+                    <div class="data-item criteria-data" @dblclick="handleAddCriteria(header, item, $event)">
                       <div class="criteria-name">
                         {{ item[headerType.Description].name }}
                       </div>
@@ -550,15 +550,31 @@ export default {
           { label: 'Evidence', previewLabel: 'Evidence', type: EvaluationTableHeader.Evidence, editable: false, editing: false, required: true }
         ]
       } else if (this.formType === EvaluationTableType.CenturySkills) {
-        this.headers = [
-          { label: 'Criteria', previewLabel: 'Criteria', type: EvaluationTableHeader.Criteria, editable: false, editing: false, required: true },
-          { label: 'Description', previewLabel: 'Description', type: EvaluationTableHeader.Description, editable: false, editing: false, required: true },
-          { label: 'Novice', previewLabel: 'Novice', type: EvaluationTableHeader.Novice, editable: false, editing: false, required: true },
-          { label: 'Learner', previewLabel: 'Learner', type: EvaluationTableHeader.Learner, editable: false, editing: false, required: true },
-          { label: 'Practitoner', previewLabel: 'Practitoner', type: EvaluationTableHeader.Practitoner, editable: false, editing: false, required: true },
-          { label: 'Expert', previewLabel: 'Expert', type: EvaluationTableHeader.Expert, editable: false, editing: false, required: true },
-          { label: 'Evidence', previewLabel: 'Evidence', type: EvaluationTableHeader.Evidence, editable: false, editing: false, required: true }
-        ]
+        /**
+         *  第三种表需要针对NZ和AU用户在最左侧添加一列命名为Criteria
+            Cambridge/IB/IGCSE的用户只看到第二列，点击后看到21st century skills数据入口
+         */
+        const bindCurriculum = parseInt(this.$store.getters.bindCurriculum)
+        if (bindCurriculum === 1 || bindCurriculum === 2) {
+          this.headers = [
+            { label: 'Criteria', previewLabel: 'Criteria', type: EvaluationTableHeader.Criteria, editable: false, editing: false, required: true },
+            { label: '21st century skills', previewLabel: '21st century skills', type: EvaluationTableHeader.Description, editable: false, editing: false, required: true },
+            { label: 'Novice', previewLabel: 'Novice', type: EvaluationTableHeader.Novice, editable: false, editing: false, required: true },
+            { label: 'Learner', previewLabel: 'Learner', type: EvaluationTableHeader.Learner, editable: false, editing: false, required: true },
+            { label: 'Practitoner', previewLabel: 'Practitoner', type: EvaluationTableHeader.Practitoner, editable: false, editing: false, required: true },
+            { label: 'Expert', previewLabel: 'Expert', type: EvaluationTableHeader.Expert, editable: false, editing: false, required: true },
+            { label: 'Evidence', previewLabel: 'Evidence', type: EvaluationTableHeader.Evidence, editable: false, editing: false, required: true }
+          ]
+        } else {
+          this.headers = [
+            { label: '21st century skills', previewLabel: '21st century skills', type: EvaluationTableHeader.Description, editable: false, editing: false, required: true },
+            { label: 'Novice', previewLabel: 'Novice', type: EvaluationTableHeader.Novice, editable: false, editing: false, required: true },
+            { label: 'Learner', previewLabel: 'Learner', type: EvaluationTableHeader.Learner, editable: false, editing: false, required: true },
+            { label: 'Practitoner', previewLabel: 'Practitoner', type: EvaluationTableHeader.Practitoner, editable: false, editing: false, required: true },
+            { label: 'Expert', previewLabel: 'Expert', type: EvaluationTableHeader.Expert, editable: false, editing: false, required: true },
+            { label: 'Evidence', previewLabel: 'Evidence', type: EvaluationTableHeader.Evidence, editable: false, editing: false, required: true }
+          ]
+        }
       }
     }
     this.$logger.info('[' + this.mode + '] form headers ', this.headers)
@@ -749,21 +765,43 @@ export default {
       event.stopPropagation()
       this.$logger.info('[' + this.mode + '] handleAddCriteria', header, item)
       if (this.mode === EvaluationTableMode.Edit) {
-        this.defaultActiveMenu = NavigationType.centurySkills
-        this.showMenuList = [NavigationType.centurySkills]
-        this.selectCurriculumVisible = true
-        this.currentSelectHeader = header
-        this.currentSelectLine = item
-      }
-    },
-
-    handleAddDescription (header, item, event) {
-      event.preventDefault()
-      event.stopPropagation()
-      if (this.mode === EvaluationTableMode.Edit) {
-        this.$logger.info('[' + this.mode + '] handleAddDescription', header, item)
-        this.defaultActiveMenu = NavigationType.learningOutcomes
-        this.showMenuList = [NavigationType.learningOutcomes]
+        if (this.formType === this.tableType.Rubric_2) {
+          /**
+           * 第一种评估表能看到
+           Learning outcomes
+           Subject specific skills
+           Assessment types
+           */
+          this.showMenuList = [NavigationType.learningOutcomes, NavigationType.specificSkills, NavigationType.assessmentType]
+          this.defaultActiveMenu = NavigationType.learningOutcomes
+        } else if (this.formType === this.tableType.Rubric) {
+          /**
+           * 第二种能看到IB大纲下的
+           * Subject specific skills，及IDU
+           */
+          this.showMenuList = [NavigationType.specificSkills, NavigationType.idu]
+          this.defaultActiveMenu = NavigationType.specificSkills
+        } else if (this.formType === this.tableType.CenturySkills) {
+          /**
+           *  第三种表需要针对NZ和AU用户在最左侧添加一列命名为Criteria
+           Cambridge/IB/IGCSE的用户只看到第二列，点击后看到21st century skills数据入口
+           NZ和AU的用户在第一列criteria列点击后看到
+           NZ-Key competencies
+           AU-General capabilities的入口，然后在第二列点击后看到21st century skills数据入口
+           */
+          if (header.type === this.headerType.Description) {
+            this.showMenuList = [NavigationType.centurySkills]
+          } else if (header.type === this.headerType.Criteria) {
+            const bindCurriculum = parseInt(this.$store.getters.bindCurriculum)
+            if (bindCurriculum === 1) {
+              this.showMenuList = [NavigationType.AUGeneralCapabilities]
+              this.defaultActiveMenu = NavigationType.AUGeneralCapabilities
+            } else if (bindCurriculum === 2) {
+              this.showMenuList = [NavigationType.NZKeyCompetencies]
+              this.defaultActiveMenu = NavigationType.NZKeyCompetencies
+            }
+          }
+        }
         this.selectCurriculumVisible = true
         this.currentSelectHeader = header
         this.currentSelectLine = item
