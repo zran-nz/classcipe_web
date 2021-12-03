@@ -109,6 +109,9 @@
                     </div>
                   </div>
                 </div>
+                <div class="no-group-tips">
+                  <no-more-resources v-if="groups.length === 0 && !loading" tips="No group exist"/>
+                </div>
               </div>
             </div>
           </div>
@@ -453,6 +456,8 @@ import EvaluationTableType from '@/components/Evaluation/EvaluationTableType'
 import EvaluationTableMode from '@/components/Evaluation/EvaluationTableMode'
 import NoMoreResources from '@/components/Common/NoMoreResources'
 import PptSlideView from '@/components/Evaluation/PptSlideView'
+import { GetAssociate } from '@/api/teacher'
+import { typeMap } from '@/const/teacher'
 
 export default {
   name: 'ClassSessionEvaluation',
@@ -602,7 +607,10 @@ export default {
       // 当前用户所在组，他评用
       currentUserGroupId: null,
       currentUserGroupUserIdList: [],
-      allowPeerEvaluate: false
+      allowPeerEvaluate: false,
+
+      typeMap: typeMap,
+      taskForms: []
     }
   },
   created () {
@@ -617,6 +625,65 @@ export default {
     initData () {
       this.$logger.info('initData')
       this.loading = true
+
+      // 加载task关联的evaluation表单数据
+      this.$logger.info('ClassSessionEvaluation GetAssociate taskId ' + this.taskId)
+      const associateEvaluationIdList = []
+      GetAssociate({
+        id: this.taskId,
+        type: this.typeMap.task
+      }).then(response => {
+        this.$logger.info('ClassSessionEvaluation GetAssociate response', response)
+        response.result.owner.forEach(item => {
+          item.contents.forEach(content => {
+            if (content.type === typeMap.evaluation) {
+              associateEvaluationIdList.push(content.id)
+            }
+          })
+        })
+
+        response.result.others.forEach(item => {
+          item.contents.forEach(content => {
+            if (content.type === typeMap.evaluation) {
+              associateEvaluationIdList.push(content.id)
+            }
+          })
+        })
+      }).finally(() => {
+        this.$logger.info('associateEvaluationIdList ', associateEvaluationIdList)
+
+        if (associateEvaluationIdList.length) {
+          const forms = []
+          EvaluationQueryByIds({ ids: associateEvaluationIdList }).then((response) => {
+            this.$logger.info('associateEvaluationIdList EvaluationQueryByIds ', response)
+            response.result.forEach(evaluationItem => {
+              evaluationItem.forms.forEach(formItem => {
+                forms.push({
+                  title: formItem.title,
+                  titleEditing: false,
+                  formType: formItem.formType,
+                  se: formItem.se,
+                  pe: formItem.pe,
+                  menuVisible: false,
+                  id: null,
+                  formId: formItem.formId,
+                  initRawHeaders: JSON.parse(formItem.initRawHeaders),
+                  initRawData: JSON.parse(formItem.initRawData)
+                })
+              })
+            })
+          }).then(() => {
+            this.taskForms = forms
+            this.$logger.info('taskForms', this.taskForms)
+            this.loadClassSessionEvaluationData()
+          })
+        } else {
+          this.loadClassSessionEvaluationData()
+        }
+      })
+    },
+
+    loadClassSessionEvaluationData () {
       GetSessionEvaluationByClassId({ classId: this.classId }).then(response => {
         this.$logger.info('init data response', response)
         // 加载班级信息数据
@@ -645,23 +712,19 @@ export default {
           this.form = data.evaluation
 
           data.evaluation.forms.forEach(formItem => {
-              this.forms.push({
-                title: formItem.title,
-                titleEditing: false,
-                formType: formItem.formType,
-                se: formItem.se,
-                pe: formItem.pe,
-                menuVisible: false,
-                id: formItem.id,
-                formId: formItem.formId,
-                initRawHeaders: JSON.parse(formItem.initRawHeaders),
-                initRawData: JSON.parse(formItem.initRawData)
-              })
+            this.forms.push({
+              title: formItem.title,
+              titleEditing: false,
+              formType: formItem.formType,
+              se: formItem.se,
+              pe: formItem.pe,
+              menuVisible: false,
+              id: formItem.id,
+              formId: formItem.formId,
+              initRawHeaders: JSON.parse(formItem.initRawHeaders),
+              initRawData: JSON.parse(formItem.initRawData)
+            })
           })
-
-          if (this.forms.length) {
-            this.currentActiveFormId = this.forms[0].formId
-          }
 
           this.$logger.info('forms', this.forms)
 
@@ -669,6 +732,15 @@ export default {
           if (!this.forms.length) {
             data.evaluation.studentEvaluateData = null
           }
+        }
+
+        if (!this.forms.length) {
+          this.forms = this.taskForms
+          this.$logger.info('forms empty, use task forms as forms', this.forms)
+        }
+
+        if (this.forms.length) {
+          this.currentActiveFormId = this.forms[0].formId
         }
 
         this.$logger.info('allStudentUserIdList', allStudentUserIdList)
@@ -2160,6 +2232,10 @@ export default {
       }
     }
   }
+}
+
+.no-group-tips {
+  margin-top: 100px;
 }
 
 </style>
