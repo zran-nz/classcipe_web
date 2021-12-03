@@ -560,12 +560,21 @@ export default {
       currentEnterDescriptionLine: null,
       currentEvaluateMode: EvaluationTableMode.TeacherEvaluate, // 评价模式,
 
-      disabledDraggable: false
+      disabledDraggable: false,
+
+      evaluateStudentId: null, // 当前正在评估的学生id
+      evaluateStudentName: null // 当前正在评估的学生姓名
     }
   },
   created () {
     this.$logger.info('[' + this.formTableMode + '] EvaluationTable created formType ' + this.formType, 'initRawHeaders', this.initRawHeaders, 'initRawData', this.initRawData, ' formBodyData', this.formBodyData)
     this.mode = this.formTableMode
+
+    const params = new URLSearchParams(document.location.search)
+    this.evaluateStudentId = params.get('student-id')
+    this.evaluateStudentName = params.get('student-name')
+    this.$logger.info('evaluateStudentId ' + this.evaluateStudentId + ' evaluateStudentName ' + this.evaluateStudentName)
+
     if (this.formTableMode === EvaluationTableMode.TeacherEvaluate && this.$store.getters.userInfo.roles.indexOf('teacher') !== -1) {
       this.currentEvaluateMode = EvaluationTableMode.TeacherEvaluate
     } else {
@@ -791,8 +800,8 @@ export default {
           evaluationMode: this.currentEvaluateMode,
           rowId: item.rowId,
           value: header.type, // 评价所选的列
-          evaluateUserEmail: this.$store.getters.userInfo.email,
-          evaluateUserName: this.$store.getters.userInfo.nickname
+          evaluateUserEmail: this.mode === EvaluationTableMode.TeacherEvaluate ? this.$store.getters.userInfo.email : this.evaluateStudentId,
+          evaluateUserName: this.mode === EvaluationTableMode.TeacherEvaluate ? this.$store.getters.userInfo.nickname : this.evaluateStudentName
         })
       }
     },

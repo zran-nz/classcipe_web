@@ -610,14 +610,22 @@ export default {
       allowPeerEvaluate: false,
 
       typeMap: typeMap,
-      taskForms: []
+      taskForms: [],
+
+      evaluateStudentId: null, // 当前正在评估的学生id
+      evaluateStudentName: null // 当前正在评估的学生姓名
     }
   },
   created () {
     this.$logger.info('[' + this.formTableMode + '] created ClassSessionEvaluation classId' + this.classId + ' taskId ' + this.taskId)
     this.formTableMode = this.mode
-    this.initData()
 
+    const params = new URLSearchParams(document.location.search)
+    this.evaluateStudentId = params.get('student-id')
+    this.evaluateStudentName = params.get('student-name')
+    this.$logger.info('evaluateStudentId ' + this.evaluateStudentId + ' evaluateStudentName ' + this.evaluateStudentName)
+
+    this.initData()
     // 每次打开第一次提示多选模式
     window.sessionStorage.removeItem('multiConfirmVisible')
   },
@@ -698,10 +706,7 @@ export default {
           group.expand = true // 默认分组展开显示
           group.members.forEach(member => {
             allStudentUserIdList.push(member.userId)
-
-            // if (member.userId === this.$store.getters.userInfo.email) {
-            // TODO 删除
-            if (member.userId === '130b44d6c58de03828b05eabf9f94dc4') {
+            if (member.userId === this.evaluateStudentId) {
               this.currentUserGroupId = group.id
               this.currentUserGroupUserIdList = group.members.map(member => member.userId)
               this.$logger.info('currentUserGroupId' + this.currentUserGroupId, 'currentUserGroupUserIdList', this.currentUserGroupUserIdList)
@@ -821,21 +826,19 @@ export default {
         }
 
         if (this.mode === EvaluationTableMode.StudentEvaluate) {
-          this.$logger.info('StudentEvaluate try fix currentActiveStudentId ' + this.$store.getters.userInfo.email, 'allStudentUserIdList', this.allStudentUserIdList)
-          // TODO 删除 130b44d6c58de03828b05eabf9f94dc4 改成 userInfo.email
-          // if (this.allStudentUserIdList.indexOf(this.$store.getters.userInfo.email) === -1) {
-          if (this.allStudentUserIdList.indexOf('130b44d6c58de03828b05eabf9f94dc4') === -1) {
-            this.$logger.info('current use email ' + (this.$store.getters.userInfo.email) + ' not exist in ', this.allStudentUserIdList, ' cannot student evaluate')
+          this.$logger.info('StudentEvaluate try fix currentActiveStudentId ' + this.evaluateStudentId, 'allStudentUserIdList', this.allStudentUserIdList)
+          if (this.allStudentUserIdList.indexOf(this.evaluateStudentId) === -1) {
+            this.$logger.info('current use email ' + (this.evaluateStudentId) + ' not exist in ', this.allStudentUserIdList, ' cannot student evaluate')
             this.$confirm({
               content: 'You are not in the student list of the current class and cannot evaluate !'
             })
           } else {
-            this.currentActiveStudentId = '130b44d6c58de03828b05eabf9f94dc4'
-            this.selectedMemberIdList = [this.$store.getters.userInfo.email]
+            this.currentActiveStudentId = this.evaluateStudentId
+            this.selectedMemberIdList = [this.evaluateStudentId]
           }
 
-          this.currentActiveStudentId = '130b44d6c58de03828b05eabf9f94dc4'
-          this.selectedMemberIdList = [this.currentActiveStudentId]
+          this.currentActiveStudentId = this.evaluateStudentId
+          this.selectedMemberIdList = [this.evaluateStudentId]
         }
 
         // 检查是否以及评估过了，有过评估数据不允许再评估。查找PeerEmail字段中是否有在currentUserGroupUserIdList中存在，有代表有过评估
@@ -873,6 +876,7 @@ export default {
           this.$message.warn('You are not allowed to evaluate your group member!')
         } else if (this.mode === EvaluationTableMode.PeerEvaluate && !this.allowPeerEvaluate) {
           this.$message.warn('You have evaluated!')
+          this.currentActiveStudentId = member.userId
         } else {
           const index = this.selectedMemberIdList.indexOf(member.userId)
           this.$logger.info('handleClickMember index ' + index)
