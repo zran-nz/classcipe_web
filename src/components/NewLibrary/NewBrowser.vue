@@ -35,7 +35,7 @@
             </div>
           </div>
         </div>
-        <a-divider />
+        <a-divider v-if="recommendData.length"/>
         <div class="selected-list">
           <div class="content-list">
             <div
