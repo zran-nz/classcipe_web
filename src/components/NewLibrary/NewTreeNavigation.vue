@@ -328,7 +328,6 @@ export default {
 @import "~@/components/index.less";
 
 .new-tree-navigation {
-  height: 100%;
   width: 100%;
   display: flex;
   flex-direction: column;
@@ -336,6 +335,7 @@ export default {
   background-color: #fff;
   overflow: scroll;
   position: relative;
+  min-height: 400px;
 }
 
 .loading-spin {
