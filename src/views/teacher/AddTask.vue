@@ -1558,11 +1558,7 @@ export default {
       },
 
       goBack () {
-        if (this.$store.getters.currentRole === 'teacher') {
-          this.$router.push({ path: '/teacher/main/created-by-me' })
-        } else {
-          this.$router.push({ path: '/expert/main/created-by-me' })
-        }
+        this.$router.push({ path: '/teacher/main/created-by-me' })
 
         // if (window.history.length <= 1) {
         //   this.$router.push({ path: '/teacher/main/created-by-me' })
