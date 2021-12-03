@@ -212,7 +212,7 @@
         <template v-if="rubricType === 'select'">
           <div class="select-rubric-wrapper">
             <div class="evaluation-list">
-              <select-evaluation-list :class-id="classId" @cancel="selectRubricVisible = false" @selected="handleEnsureSelectEvaluation"/>
+              <select-evaluation-list @cancel="selectRubricVisible = false" @selected="handleEnsureSelectEvaluation"/>
             </div>
           </div>
         </template>
@@ -477,6 +477,7 @@ export default {
               const index = refFormList.findIndex(item => item.formId === formItem.formId)
               if (index === -1) {
                 if (formItem.initRawHeaders && typeof formItem.initRawHeaders === 'string') {
+                  formItem.name = evaluationItem.name
                   formItem.initRawHeaders = JSON.parse(formItem.initRawHeaders)
                   formItem.initRawData = JSON.parse(formItem.initRawData)
                 }
@@ -502,7 +503,7 @@ export default {
             existFormIdList.push(selfId)
             formItem.id = null
             formItem.formId = selfId
-            formItem.title = 'evaluation of task/session ' + count
+            formItem.title = 'evaluation of ' + (formItem.name ? formItem.name : 'Untitled')
           })
 
           refFormList.forEach(formItem => {
