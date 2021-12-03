@@ -12,7 +12,12 @@
           v-if="mode === this.tableMode.Edit">
           <th
             v-for="(header, hIndex) in headers"
-            :class="{'header-item': true, 'preview-mode': formTableMode === tableMode.Preview}"
+            :class="{'header-item': true, 'preview-mode': formTableMode === tableMode.Preview, 'min-header-width': [
+              headerType.Novice,
+              headerType.Learner,
+              headerType.Practitoner,
+              headerType.Expert,
+            ].indexOf(header.type) !== -1}"
             :key="header.type"
             :data-header-type="header.type"
             :data-header-mode="formTableMode"
@@ -171,13 +176,6 @@
                       <div class="criteria-name" @dblclick="handleAddCriteria(header, item, $event)">
                         {{ item[headerType.Criteria].name }}
                       </div>
-                      <!--                      <div class="criteria-list">-->
-                      <!--                        <div class="criteria-parent" v-for="(criteriaParentItem, cIdx) in item[headerType.Criteria].criteriaList" :key="cIdx">-->
-                      <!--                          <div class="criteria-parent-item">-->
-                      <!--                            {{ criteriaParentItem }}-->
-                      <!--                          </div>-->
-                      <!--                        </div>-->
-                      <!--                      </div>-->
                     </div>
                   </template>
                 </template>
@@ -1200,7 +1198,7 @@ export default {
           border-right: 1px solid #999;
           border-bottom: 1px solid #999;
           padding: 0;
-          min-width: 200px;
+          min-width: 100px;
           max-width: 400px;
           overflow: hidden;
 
@@ -1274,6 +1272,7 @@ export default {
           }
 
           .add-header-item {
+            background-color: #15C39A;
             position: absolute;
             right: 60px;
             top: 50%;
@@ -1353,6 +1352,9 @@ export default {
 
             .indicator-input {
               height: 100%;
+              textarea {
+                display: none;
+              }
             }
             .add-criteria {
               cursor: pointer;
@@ -1646,7 +1648,7 @@ export default {
   }
 }
 
-.add-more-header-item {
-
+.min-header-width {
+  width: 100px;
 }
 </style>
