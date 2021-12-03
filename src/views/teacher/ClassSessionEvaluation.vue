@@ -115,8 +115,8 @@
               </div>
             </div>
           </div>
-          <div class="form-table-content">
-            <div class="table-content" v-show="mode === EvaluationTableMode.Edit || (currentActiveStudentId && !loading)">
+          <div class="form-table-content" :data-mode="mode" >
+            <div class="table-content" v-show="(currentActiveStudentId || mode === EvaluationTableMode.Edit) && !loading">
               <div class="form-table-item" v-for="(formItem,tIdx) in forms" :key="tIdx">
                 <div class="form-table-item-content" v-show="formItem.formId === currentActiveFormId">
                   <div class="form-header-line">
@@ -661,6 +661,7 @@ export default {
                 forms.push({
                   title: formItem.title,
                   titleEditing: false,
+                  comment: null,
                   formType: formItem.formType,
                   se: formItem.se,
                   pe: formItem.pe,
@@ -988,8 +989,8 @@ export default {
     handleAddFormTable () {
       this.$logger.info('handleAddFormTable')
       const count = this.forms.length + 1
-      this.newTableName = 'Rubric one ' + count
-      this.newFormType = EvaluationTableType.Rubric
+      this.newTableName = 'Rubric ' + count
+      this.newFormType = EvaluationTableType.Rubric_2
       this.selectRubricVisible = true
     },
 
@@ -1397,9 +1398,9 @@ export default {
       this.$logger.info('handleSelectRubric newFormType ' + newFormType)
       this.newFormType = newFormType
       if (newFormType === EvaluationTableType.Rubric) {
-        this.newTableName = 'Rubric one ' + (this.forms.length + 1)
+        this.newTableName = 'Rubric ' + (this.forms.length + 1)
       } else if (newFormType === EvaluationTableType.Rubric_2) {
-        this.newTableName = 'Rubric two ' + (this.forms.length + 1)
+        this.newTableName = 'Rubric ' + (this.forms.length + 1)
       } else if (newFormType === EvaluationTableType.CenturySkills) {
         this.newTableName = 'CenturySkills ' + (this.forms.length + 1)
       }

@@ -277,6 +277,28 @@
 
             <!-- 老师可以看到所有的评估数据，学生自评可以看到自己的和教师的，他评只能看到自己的-->
             <template v-if="mode === tableMode.TeacherEvaluate || mode === tableMode.StudentEvaluate || mode === tableMode.PeerEvaluate">
+              <!-- AchievementLevel-->
+              <template v-if="header.type === headerType.AchievementLevel">
+                <div class="indicator-data">
+                  {{ item[headerType.Indicators].name }}
+                </div>
+                <div class="selected-icon" >
+                  <teacher-icon v-if="formBodyData && formBodyData[item.rowId] && formBodyData[item.rowId].teacherEvaluation === header.type && (currentEvaluateMode === tableMode.TeacherEvaluate || currentEvaluateMode === tableMode.StudentEvaluate)"/>
+                  <student-icon v-if="formBodyData && formBodyData[item.rowId] && formBodyData[item.rowId].studentEvaluation === header.type && (currentEvaluateMode === tableMode.TeacherEvaluate || currentEvaluateMode === tableMode.StudentEvaluate)"/>
+                  <peer-icon v-if="formBodyData && formBodyData[item.rowId] && formBodyData[item.rowId].peerEvaluation === header.type && (currentEvaluateMode === tableMode.TeacherEvaluate || currentEvaluateMode === tableMode.PeerEvaluate)"/>
+                </div>
+              </template>
+              <!-- LevelDescriptor-->
+              <template v-if="header.type === headerType.LevelDescriptor">
+                <div class="indicator-data">
+                  {{ item[headerType.Indicators].name }}
+                </div>
+                <div class="selected-icon" >
+                  <teacher-icon v-if="formBodyData && formBodyData[item.rowId] && formBodyData[item.rowId].teacherEvaluation === header.type && (currentEvaluateMode === tableMode.TeacherEvaluate || currentEvaluateMode === tableMode.StudentEvaluate)"/>
+                  <student-icon v-if="formBodyData && formBodyData[item.rowId] && formBodyData[item.rowId].studentEvaluation === header.type && (currentEvaluateMode === tableMode.TeacherEvaluate || currentEvaluateMode === tableMode.StudentEvaluate)"/>
+                  <peer-icon v-if="formBodyData && formBodyData[item.rowId] && formBodyData[item.rowId].peerEvaluation === header.type && (currentEvaluateMode === tableMode.TeacherEvaluate || currentEvaluateMode === tableMode.PeerEvaluate)"/>
+                </div>
+              </template>
               <!-- Indicators-->
               <template v-if="header.type === headerType.Indicators">
                 <div class="indicator-data">
@@ -649,8 +671,6 @@ export default {
     },
 
     handleUpdateHeader () {
-      this.$logger.info('[' + this.mode + '] handleUpdateHeader')
-
       // 如果没输入表头，重置为默认表头
       this.headers.forEach(item => {
         if (item.label.length === 0) {
@@ -663,7 +683,6 @@ export default {
         item.editing = false
       })
       this.disabledDraggable = false
-      this.$logger.info('enable Draggable')
     },
 
     handleAddNewHeader (hIndex) {
@@ -763,6 +782,8 @@ export default {
         EvaluationTableHeader.Novice,
         EvaluationTableHeader.Learner,
         EvaluationTableHeader.Practitoner,
+        EvaluationTableHeader.AchievementLevel,
+        EvaluationTableHeader.LevelDescriptor,
         EvaluationTableHeader.Expert,
         EvaluationTableHeader.UserDefine].indexOf(header.type) !== -1 || header.type.startsWith(EvaluationTableHeader.UserDefine)) {
         this.$emit('update-evaluation', {
