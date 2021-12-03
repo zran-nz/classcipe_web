@@ -68,6 +68,15 @@
                 <input v-model="header.label" @blur="handleUpdateHeader(header)" @keyup.enter="handleUpdateHeader(header)" class="header-input-item"/>
               </div>
             </template>
+
+            <template v-if="formType !== tableType.CenturySkills">
+              <div class="add-header-item">
+                <a-tooltip title="Add new level">
+                  <a-icon type="plus-circle" @click="handleAddNewHeader(hIndex)"/>
+                </a-tooltip>
+              </div>
+            </template>
+
             <!-- 表头删除图标-->
             <div class="remove-header" v-if="header.type.startsWith(headerType.UserDefine)">
               <a-popconfirm :title="'Remove Header ?'" class="rubric-delete-popconfirm" ok-text="Yes" @confirm="handleRemoveHeader(header)" cancel-text="No">
@@ -79,14 +88,7 @@
                 <img src="~@/assets/icons/evaluation/delete.png" class="link-icon"/>
               </a-popconfirm>
             </div>
-            <!-- 最后一列后显示添加列的图标, 21世纪不允许修改表头-->
-            <template v-if="hIndex === headers.length - 1 && formType !== tableType.CenturySkills">
-              <div class="add-more-header">
-                <a-tooltip title="Add new column">
-                  <a-icon type="plus-circle" @click="handleAddNewHeader"/>
-                </a-tooltip>
-              </div>
-            </template>
+
           </th>
         </draggable>
 
@@ -659,8 +661,8 @@ export default {
       })
     },
 
-    handleAddNewHeader () {
-      this.$logger.info('[' + this.mode + '] handleAddNewHeader this.selfHeaderTypeIndex ' + this.selfHeaderAddIndex)
+    handleAddNewHeader (hIndex) {
+      this.$logger.info('[' + this.mode + '] handleAddNewHeader this.selfHeaderTypeIndex ' + this.selfHeaderAddIndex + ' hIndex ' + hIndex)
 
       // 重新生成一个唯一的表头类型，示例：user_define__1、user_define__2
       let userDefineHeaderType = this.headerType.UserDefine + this.selfHeaderAddIndex
@@ -681,7 +683,7 @@ export default {
       }
 
       // 默认倒数第二列新增，最后一列为evidence
-      this.headers.splice(this.headers.length - 1, 0, headerItem)
+      this.headers.splice(hIndex + 1, 0, headerItem)
 
       // 初始化对应列的数据
       const oldList = JSON.parse(JSON.stringify(this.list))
@@ -1270,6 +1272,19 @@ export default {
               height: 30px;
             }
           }
+
+          .add-header-item {
+            position: absolute;
+            right: 60px;
+            top: 50%;
+            margin-top: -13px;
+            color: #fff;
+            font-size: 19px;
+            display: none;
+            img {
+              height: 30px;
+            }
+          }
         }
 
         .preview-mode {
@@ -1282,6 +1297,11 @@ export default {
 
         .header-item:hover {
           .remove-header {
+            display: block;
+            cursor: pointer;
+          }
+
+          .add-header-item {
             display: block;
             cursor: pointer;
           }
@@ -1624,5 +1644,9 @@ export default {
   svg {
     margin: 0 5px;
   }
+}
+
+.add-more-header-item {
+
 }
 </style>
