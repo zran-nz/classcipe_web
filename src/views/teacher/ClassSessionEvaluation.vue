@@ -1495,6 +1495,7 @@ export default {
     handleUpdateHeader (header) {
       this.$logger.info('ClassSessionEvaluation handleUpdateHeader')
       this.$refs.evaluationTable.forEach(tableItem => { tableItem.handleUpdateHeader() })
+      this.$refs.commonFormHeader.handleEnsureNewFormName()
     }
   }
 }
