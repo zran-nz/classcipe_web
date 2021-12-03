@@ -270,7 +270,7 @@
         </a-col>
       </a-row>
       <div class="associate-info">
-        <common-link :can-edit="false" ref="commonLink" :from-id="id" :from-type="type"/>
+        <common-link :can-edit="data.createBy === $store.getters.email" ref="commonLink" :from-id="id" :from-type="type"/>
       </div>
     </template>
   </div>

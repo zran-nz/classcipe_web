@@ -35,7 +35,7 @@
       <!--        </div>-->
       <!--      </template>-->
       <template v-if="ownerLinkGroupList.length && !linkGroupLoading">
-        <div class="link-group" v-for="(linkGroup, lIndex) in ownerLinkGroupList" :key="lIndex">
+        <div class="link-group" v-for="(linkGroup, lIndex) in ownerLinkGroupList" :key="lIndex" data-group="ownerLinkGroupList">
           <div class="group-item">
             <div class="group-header">
               <div class="group-left-info">
@@ -125,7 +125,7 @@
         </div>
       </template>
       <template v-if="othersLinkGroupList.length && !linkGroupLoading">
-        <div class="link-group">
+        <div class="link-group" data-group="othersLinkGroupList">
           <div class="group-item">
             <div class="group-header">
               <div class="group-left-info">
