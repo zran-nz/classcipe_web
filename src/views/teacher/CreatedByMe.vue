@@ -596,7 +596,7 @@ export default {
           slide_id: item.presentationId,
           copy_from: item.copyFromSlide,
           file_name: item.name ? item.name : 'Unnamed',
-          status: lessonStatus.studentPaced,
+          status: this.sessionMode === 1 ? lessonStatus.live : lessonStatus.studentPaced,
           redirect_url: null
         }
 
