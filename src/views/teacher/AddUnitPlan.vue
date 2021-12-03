@@ -1352,8 +1352,7 @@ export default {
       this.showMenuList = [ NavigationType.specificSkills,
         NavigationType.centurySkills,
         NavigationType.learningOutcomes,
-        NavigationType.assessmentType,
-        NavigationType.all21Century, NavigationType.sdg, NavigationType.sync
+        NavigationType.assessmentType
       ]
       this.defaultActiveMenu = NavigationType.learningOutcomes
     },

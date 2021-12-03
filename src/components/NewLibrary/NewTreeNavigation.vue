@@ -11,7 +11,9 @@
           ((treeItemData.type === NavigationType.specificSkills || treeItemData.type === NavigationType.assessmentType) ? 'subject' : ( // 如果是specificSkills或assessmentType，那么第一层数据是subject，注意subject只有一层
             (treeItemData.type === NavigationType.centurySkills ? 'grade' : ( // 如果是centurySkills，那么第一层数据是grade年级列表
               treeItemData.type === NavigationType.sdg ? 'sdg' : ( // 如果是sdg，那么第一层数据是sdg列表, 结构：sdg列表-keywords-big idea
-                treeItemData.type === NavigationType.all21Century ? 'all21Century' : 'none' // 如果是all21Century，那么直接遍历children
+                treeItemData.type === NavigationType.all21Century ? 'all21Century' : (
+                  treeItemData.type === NavigationType.idu ? 'grade' : 'none'
+                ) // 如果是all21Century，那么直接遍历children
               )
             )
             ))))"
@@ -27,8 +29,9 @@
 
 <script>
 import NewTreeItem from '@/components/NewLibrary/NewTreeItem'
-import { NavigationType } from '@/components/NewLibrary/NavigationType'
 import { getAll21Century } from '@/api/knowledge'
+import { NavigationType } from '@/components/NewLibrary/NavigationType'
+
 import { SubjectType } from '@/const/common'
 import storage from 'store'
 import { GRADE_COMMON } from '@/store/mutation-types'
@@ -223,6 +226,28 @@ export default {
         this.treeDataList.push(all21CenturyData)
 
         this.$logger.info('after handle treeDataList', this.treeDataList)
+      }
+
+       // ib大纲显示IDU
+      this.$logger.info('ib大纲显示IDU ' + (parseInt(this.$store.getters.bindCurriculum) === 5))
+      if (parseInt(this.$store.getters.bindCurriculum) === 5) {
+        // iduData 是year-idu list
+        const iduData = {
+          id: '6',
+          expandStatus: NavigationType.idu === this.defaultActiveMenu,
+          type: NavigationType.idu,
+          name: 'IDU',
+          children: [],
+          gradeList: [],
+          parent: null
+        }
+        this.gradeList.forEach(gradeItem => {
+          gradeItem.isGrade = true
+          gradeItem.children = []
+          iduData.gradeList.push(JSON.parse(JSON.stringify(gradeItem)))
+          iduData.children.push(JSON.parse(JSON.stringify(gradeItem)))
+        })
+        this.treeDataList.push(iduData)
       }
       this.loaded = true
     })

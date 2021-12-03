@@ -136,12 +136,18 @@
               </div>
             </div>
             <div class="rubric-type-name">
-              <span :class="{'active-rubric': newFormType === EvaluationTableType.Rubric || newFormType === EvaluationTableType.Rubric_2}" @click="newFormType = EvaluationTableType.Rubric">* Rubric format
-                <span class="active-icon"><a-icon type="check-circle" /></span>
-              </span>
-              <span :class="{'active-rubric': newFormType === EvaluationTableType.CenturySkills}" @click="newFormType= EvaluationTableType.CenturySkills">* 21 Century skills
-                <span class="active-icon"><a-icon type="check-circle" /></span>
-              </span>
+              <div class="toggle-mode-type-wrapper">
+                <div class="toggle-mode-type">
+                  <div class="toggle-mode">
+                    <div :class="{'mode-item': true, 'skill-active-mode' : newFormType === EvaluationTableType.Rubric || newFormType === EvaluationTableType.Rubric_2}" @click="handleToggleFormType(EvaluationTableType.Rubric)">
+                      Standard rubrics
+                    </div>
+                    <div :class="{'mode-item': true, 'knowledge-active-mode' : newFormType === EvaluationTableType.CenturySkills}" @click="handleToggleFormType(EvaluationTableType.CenturySkills)">
+                      21st century skills rubric
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
             <div class="rubric-content">
               <div
@@ -199,14 +205,14 @@
             </div>
             <div class="select-rubric-action">
               <a-button shape="round" class="my-rubric-btn" style="width: 80px;background-color: #F5F5F5; border-color:#F5F5F5;box-shadow: none; color: #000000 " type="primary" @click="handleCancelSelectRubric">Cancel</a-button>
-              <a-button shape="round" class="my-rubric-btn" style="width: 80px;" type="primary" @click="handleEnsureSelectRubric">Confirm</a-button>
+              <a-button shape="round" class="my-rubric-btn" style="width: 80px;" type="primary" @click="handleEnsureSelectRubric">Insert</a-button>
             </div>
           </div>
         </template>
         <template v-if="rubricType === 'select'">
           <div class="select-rubric-wrapper">
             <div class="evaluation-list">
-              <select-evaluation-list :task-id="taskId" :class-id="classId" @cancel="selectRubricVisible = false" @selected="handleEnsureSelectEvaluation"/>
+              <select-evaluation-list :class-id="classId" @cancel="selectRubricVisible = false" @selected="handleEnsureSelectEvaluation"/>
             </div>
           </div>
         </template>
@@ -676,6 +682,9 @@ export default {
     handleToggleMenuVisible (formItem) {
       this.$logger.info('handleToggleMenuVisible', formItem)
       formItem.menuVisible = !formItem.menuVisible
+    },
+    handleToggleFormType (formType) {
+      this.newFormType = formType
     }
   }
 }
@@ -1118,4 +1127,48 @@ export default {
   font-weight: bold;
 }
 
+.toggle-mode-type-wrapper {
+  box-sizing: border-box;
+  .toggle-mode-type {
+    height: 40px;
+    display: inline-block;
+    border-radius: 40px;
+    background: rgba(228, 228, 228, 0.5);
+
+    .toggle-mode {
+      border-radius: 40px;
+      height: 40px;
+      display: flex;
+      flex-direction: row;
+      font-size: 14px;
+
+      .mode-item {
+        padding: 0 15px;
+        font-size: 12px;
+        height: 40px;
+        color: rgba(17, 20, 45, 1);
+        border-radius: 40px;
+        font-family: Inter-Bold;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .skill-active-mode {
+        color: #fff;
+        background: rgba(21, 195, 154, 1);
+      }
+
+      .knowledge-active-mode {
+        color: #fff;
+        background: rgba(21, 195, 154, 1);
+      }
+
+      .general-active-mode {
+        color: #fff;
+        background: rgba(21, 195, 154, 1);
+      }
+    }
+  }
+}
 </style>

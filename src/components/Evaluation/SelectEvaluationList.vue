@@ -108,11 +108,13 @@ export default {
   props: {
     taskId: {
       type: String,
-      required: false
+      required: false,
+      default: null
     },
     classId: {
       type: String,
-      required: false
+      required: false,
+      default: null
     }
   },
   data () {
