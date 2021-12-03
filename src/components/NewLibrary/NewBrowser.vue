@@ -5,7 +5,7 @@
     </div>
     <div class="main">
       <div class="selected-content">
-        <div class="recommend-description">
+        <div class="recommend-description" v-if="recommendData.length">
           <div class="recommend-title">
             <h3>Recommended assessment objectives</h3>
           </div>
