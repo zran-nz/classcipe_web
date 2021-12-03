@@ -1030,26 +1030,12 @@
         :footer="null"
         destroyOnClose
         width="1000px"
-        :zIndex="2000"
+        :zIndex="4000"
         :title="null"
         @ok="previewTemplateVisible = false"
         @cancel="previewTemplateVisible = false">
         <div class="link-content-wrapper">
           <template-preview :template="previewTemplate" :selected-template-id-list="selectedTemplateIdList" @handle-select="handleSelectPreviewTemplate"></template-preview>
-        </div>
-      </a-modal>
-
-      <a-modal
-        v-model="taskPptPreviewVisible"
-        :footer="null"
-        destroyOnClose
-        width="1000px"
-        :zIndex="2000"
-        :title="null"
-        @ok="taskPptPreviewVisible = false"
-        @cancel="taskPptPreviewVisible = false">
-        <div class="link-content-wrapper">
-          <task-ppt-preview :thumbnail-list="thumbnailList" :task-form="form" @handle-select="handleSelectPreviewTemplate"></task-ppt-preview>
         </div>
       </a-modal>
 
@@ -1299,7 +1285,6 @@ export default {
       previewTemplate: {},
       previewTemplateVisible: false,
       currentImgIndex: 0,
-      taskPptPreviewVisible: false,
       showTemplateFilter: false,
       currentSlideCoverImgSrc: null,
       filterType: undefined,
@@ -1573,11 +1558,7 @@ export default {
     },
 
     goBack () {
-      if (this.$store.getters.currentRole === 'teacher') {
-        this.$router.push({ path: '/teacher/main/created-by-me' })
-      } else {
-        this.$router.push({ path: '/expert/main/created-by-me' })
-      }
+      this.$router.push({ path: '/teacher/main/created-by-me' })
 
       // if (window.history.length <= 1) {
       //   this.$router.push({ path: '/teacher/main/created-by-me' })
@@ -2353,16 +2334,8 @@ export default {
           this.currentSlideCoverImgSrc = null
           slideAnimateDom.style.transform = 'translateX(0px)'
           slideAnimateImgDom.style.transform = 'translateY(0px) scale(1)'
-
-          if (!this.form.presentationId) {
-            this.selectedTemplateList = []
+          if (this.selectedTemplateIdList.indexOf(template.id) === -1) {
             this.selectedTemplateList.unshift(template)
-            this.addRecomendLoading = true
-            this.handleAddTemplate()
-          } else {
-            if (this.selectedTemplateIdList.indexOf(template.id) === -1) {
-              this.selectedTemplateList.unshift(template)
-            }
           }
         }, 600)
       })

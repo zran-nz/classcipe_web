@@ -259,7 +259,7 @@
         <div class="select-type">
           <a-radio-group name="radioGroup" default-value="create" v-model="rubricType">
             <a-radio value="create">
-              Add new form
+              Add new rubric
             </a-radio>
             <a-radio value="select">
               Choose from Content by me
@@ -269,14 +269,24 @@
         <template v-if="rubricType === 'create'">
           <div class="select-rubric-wrapper">
             <div class="table-name">
-              <div class="form-name">Form title</div>
+              <div class="form-name">Rubric title</div>
               <div class="form-input">
                 <a-input v-model="newTableName" :placeholder="newTableName"/>
               </div>
             </div>
             <div class="rubric-type-name">
-              <span :class="{'active-rubric': newFormType === EvaluationTableType.Rubric || newFormType === EvaluationTableType.Rubric_2}" @click="newFormType = EvaluationTableType.Rubric">* Rubric format</span>
-              <span :class="{'active-rubric': newFormType === EvaluationTableType.CenturySkills}" @click="newFormType= EvaluationTableType.CenturySkills">* 21 Century skills</span>
+              <div class="toggle-mode-type-wrapper">
+                <div class="toggle-mode-type">
+                  <div class="toggle-mode">
+                    <div :class="{'mode-item': true, 'skill-active-mode' : newFormType === EvaluationTableType.Rubric || newFormType === EvaluationTableType.Rubric_2}" @click="handleToggleFormType(EvaluationTableType.Rubric)">
+                      Standard rubrics
+                    </div>
+                    <div :class="{'mode-item': true, 'knowledge-active-mode' : newFormType === EvaluationTableType.CenturySkills}" @click="handleToggleFormType(EvaluationTableType.CenturySkills)">
+                      21st century skills rubric
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
             <div class="rubric-content">
               <div
@@ -929,11 +939,11 @@ export default {
 
         // 给还未保存的表格生成一个唯一的名称和自定义id，自定义id在提交时需要删掉
         let count = this.forms.length + 1
-        let selfTitle = this.newTableName ? this.newTableName : 'Form ' + count
+        let selfTitle = this.newTableName ? this.newTableName : 'Rubric ' + count
         let selfId = 'ext_' + Math.random(1000000000, 9999999999)
         while (existFormTitleList.indexOf(selfTitle) !== -1) {
           count++
-          selfTitle = 'Form ' + count
+          selfTitle = 'Rubric ' + count
         }
 
         while (existFormIdList.indexOf(selfId) !== -1) {
@@ -1477,6 +1487,9 @@ export default {
           }
         })
       }
+    },
+    handleToggleFormType (formType) {
+      this.newFormType = formType
     }
   }
 }
@@ -1768,11 +1781,21 @@ export default {
         font-family: Inter-Bold;
         line-height: 24px;
         color: #070707;
+
+        .active-icon {
+          opacity: 0;
+        }
         &.active-rubric {
           height: 21px;
           font-family: Inter-Bold;
           line-height: 24px;
           color: #FF3355;
+
+          .active-icon {
+            opacity: 1;
+            font-size: 20px;
+            color: #07AB84;
+          }
         }
       }
     }
@@ -2034,6 +2057,51 @@ export default {
 
   100% {
     opacity: 1;
+  }
+}
+
+.toggle-mode-type-wrapper {
+  box-sizing: border-box;
+  .toggle-mode-type {
+    height: 40px;
+    display: inline-block;
+    border-radius: 40px;
+    background: rgba(228, 228, 228, 0.5);
+
+    .toggle-mode {
+      border-radius: 40px;
+      height: 40px;
+      display: flex;
+      flex-direction: row;
+      font-size: 14px;
+
+      .mode-item {
+        padding: 0 15px;
+        font-size: 12px;
+        height: 40px;
+        color: rgba(17, 20, 45, 1);
+        border-radius: 40px;
+        font-family: Inter-Bold;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .skill-active-mode {
+        color: #fff;
+        background: rgba(21, 195, 154, 1);
+      }
+
+      .knowledge-active-mode {
+        color: #fff;
+        background: rgba(21, 195, 154, 1);
+      }
+
+      .general-active-mode {
+        color: #fff;
+        background: rgba(21, 195, 154, 1);
+      }
+    }
   }
 }
 

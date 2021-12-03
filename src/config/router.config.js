@@ -462,7 +462,8 @@ export const defaultTeacherRouter = '/teacher/main/created-by-me'
  * default expert main router
  * @type {string}
  */
-export const defaultExpertRouter = '/expert/main/created-by-me'
+// export const defaultExpertRouter = '/expert/main/created-by-me'
+export const defaultExpertRouter = '/teacher/main/created-by-me'
 
 /**
  * select role router

@@ -17,7 +17,9 @@
                          currentDataType === NavigationType.centurySkills ? (selected21CenturySkillIdList.indexOf(item.id) !== -1) : (
                            currentDataType === NavigationType.sdg ? (selectedBigIdeaList.indexOf(item.id) !== -1) : (
                              currentDataType === NavigationType.assessmentType ? (selectedAssessmentIdList.indexOf(item.id) !== -1) : (
-                               currentDataType === NavigationType.all21Century ? (selectedAll21CenturyIdList.indexOf(item.id) !== -1) : false
+                               currentDataType === NavigationType.all21Century ? (selectedAll21CenturyIdList.indexOf(item.id) !== -1) : (
+                                 currentDataType === NavigationType.idu ? (selectedIDUIdList.indexOf(item.id) !== -1) : false
+                               )
                              )
                            )
                          ))))}"
@@ -123,6 +125,9 @@ export default {
 
       selectedAll21CenturyIdList: [],
       selectedAll21CenturyMap: new Map(),
+
+      selectedIDUIdList: [],
+      selectedIDUMap: new Map(),
 
       // big idea为纯文字
       selectedBigIdeaList: [],
@@ -426,6 +431,37 @@ export default {
           this.$emit('select-all-21-century', selectedList)
           this.$logger.info('select-all-21-century', selectedList)
         }
+      } else if (this.currentDataType === NavigationType.idu) {
+        if (!item.hasOwnProperty('isGrade')) {
+          const index = this.selectedIDUIdList.indexOf(item.id)
+          if (index !== -1) {
+            this.selectedIDUIdList.splice(index, 1)
+            this.selectedIDUMap.delete(item.id)
+          } else {
+            this.selectedIDUIdList.push(item.id)
+            this.selectedIDUMap.set(item.id, item)
+          }
+          const selectedList = []
+          this.selectedIDUIdList.forEach(iduId => {
+            selectedList.push({
+              dataType: this.currentDataType,
+              knowledgeId: iduId,
+              knowledgeData: this.selectedIDUMap.get(iduId)
+            })
+          })
+          this.$emit('select-idu', selectedList)
+          this.$logger.info('selectedIDUMap', this.selectedIDUMap)
+        } else {
+          // grade下层为空
+          const eventData = {
+            item,
+            dataType: this.currentDataType,
+            parent: this.parent,
+            eventType: 'syncDir'
+          }
+          LibraryEventBus.$emit(LibraryEvent.ContentListItemClick, eventData)
+          this.$logger.info('current is grade, skip empty children item!', eventData)
+        }
       }
     },
     handlePreviewClose () {
@@ -534,6 +570,21 @@ export default {
         })
         this.$emit('select-assessmentType', selectedList)
       } else if (item.dataType === NavigationType.all21Century) {
+        const index = this.selectedAll21CenturyIdList.indexOf(item.item.id)
+        if (index !== -1) {
+          this.selectedAll21CenturyIdList.splice(index, 1)
+          this.selectedAll21CenturyMap.delete(item.item.id)
+        }
+        const selectedList = []
+        this.selectedAll21CenturyIdList.forEach(all21Century => {
+          selectedList.push({
+            dataType: item.dataType,
+            all21Century,
+            item: this.selectedAll21CenturyMap.get(all21Century)
+          })
+        })
+        this.$emit('select-all-21-century', selectedList)
+      } else if (item.dataType === NavigationType.idu) {
         const index = this.selectedAll21CenturyIdList.indexOf(item.item.id)
         if (index !== -1) {
           this.selectedAll21CenturyIdList.splice(index, 1)

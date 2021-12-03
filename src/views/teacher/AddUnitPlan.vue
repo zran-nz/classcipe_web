@@ -518,7 +518,7 @@
           <a-switch v-model="disableQuestion" @change="onChangeSwitch"/> <span style="color: red ;font-family: Inter-Bold;font-size: 15px;">Key question/line of inquiry</span>
           <div class="modal-ensure-action-line-center">
             <a-button class="action-item action-cancel" shape="round" @click="questionSettingVisible=false">Cancel</a-button>
-            <a-button class="action-ensure action-item" type="primary" shape="round" @click="handQuestionSetting">Confirm</a-button>
+            <a-button class="action-ensure action-item" :loading="confirmLoading" type="primary" shape="round" @click="handQuestionSetting">Confirm</a-button>
           </div>
         </div>
       </a-modal>
@@ -775,6 +775,7 @@ export default {
       historyList: [],
       questionSettingVisible: false,
       disableQuestion: false,
+      confirmLoading: false,
       selectBigIdeaDataVisible: false,
       selectNewBigIdea: '',
       recommendQuestionList: [],
@@ -1279,11 +1280,7 @@ export default {
     },
 
     goBack () {
-      if (this.$store.getters.currentRole === 'teacher') {
-        this.$router.push({ path: '/teacher/main/created-by-me' })
-      } else {
-        this.$router.push({ path: '/expert/main/created-by-me' })
-      }
+      this.$router.push({ path: '/teacher/main/created-by-me' })
     },
     handleChangeUserTags (tags) {
       this.form.customTags = tags
@@ -1355,8 +1352,7 @@ export default {
       this.showMenuList = [ NavigationType.specificSkills,
         NavigationType.centurySkills,
         NavigationType.learningOutcomes,
-        NavigationType.assessmentType,
-        NavigationType.all21Century, NavigationType.sdg, NavigationType.sync
+        NavigationType.assessmentType
       ]
       this.defaultActiveMenu = NavigationType.learningOutcomes
     },
@@ -1795,6 +1791,7 @@ export default {
       this.$logger.info('after handleRestoreField', this.form)
     },
     handQuestionSetting () {
+      this.confirmLoading = true
       UserSetting({
         disableQuestion: !this.disableQuestion
       }).then((response) => {
@@ -1806,6 +1803,7 @@ export default {
         }
       }).finally(() => {
         this.questionSettingVisible = false
+        this.confirmLoading = false
       })
     },
     onChangeSwitch (checked) {

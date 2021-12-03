@@ -16,7 +16,8 @@ export const knowledgeAPIUrl = {
   QueryContentByAssessmentTypeId: '/classcipe/api/knowledgeAssessmentType/queryContentByAssessmentTypeId',
   QueryKnowledgesByAssessmentTypeId: '/classcipe/api/knowledgeAssessmentType/queryKnowledgesByAssessmentTypeId',
   Get21Century: '/classcipe/api/knowledge/get21Century',
-  getAll21Century: '/classcipe/api/knowledge/getAll21Century'
+  getAll21Century: '/classcipe/api/knowledge/getAll21Century',
+  GetIBIduList: '/classcipe/api/knowledge/getIBIduList'
 }
 
 /**
@@ -210,6 +211,14 @@ export function Get21Century (parameter) {
 export function getAll21Century (parameter) {
   return request({
     url: knowledgeAPIUrl.getAll21Century,
+    method: 'get',
+    params: parameter
+  })
+}
+
+export function GetIBIduList (parameter) {
+  return request({
+    url: knowledgeAPIUrl.GetIBIduList,
     method: 'get',
     params: parameter
   })

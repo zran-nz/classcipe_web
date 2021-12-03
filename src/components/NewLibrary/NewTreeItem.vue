@@ -142,7 +142,8 @@
 import { LibraryEventBus } from '@/components/NewLibrary/LibraryEventBus'
 import { NavigationType } from '@/components/NewLibrary/NavigationType'
 import { QueryBigIdea, ScenarioGetKeywordScenarios } from '@/api/scenario'
-import { GetAssessmentTypeList, QueryKnowledgesByAssessmentTypeId, KnowledgeQueryContentByDescriptionId } from '@/api/knowledge'
+import { GetAssessmentTypeList, QueryKnowledgesByAssessmentTypeId, KnowledgeQueryContentByDescriptionId, GetIBIduList } from '@/api/knowledge'
+
 const { LibraryEvent } = require('@/components/NewLibrary/LibraryEventBus')
 const { KnowledgeGetTree, Get21Century } = require('@/api/knowledge')
 
@@ -309,6 +310,10 @@ export default {
       } else {
         this.subItemType = 'all21CenturyDescription'
       }
+    } else if (this.treeItemType === NavigationType.idu) {
+      if (this.currentItemType === 'grade') {
+        this.subItemType = 'knowledge'
+      }
     }
     LibraryEventBus.$on(LibraryEvent.ContentListItemClick, this.handleContentListItemClick)
   },
@@ -334,6 +339,8 @@ export default {
         this.handleExpandAssessmentTypeTreeItem(treeItemData)
       } else if (this.treeItemType === NavigationType.all21Century) {
         this.handleExpandAll21CenturyTypeTreeItem(treeItemData)
+      } else if (this.treeItemType === NavigationType.idu) {
+        this.handleExpandIduTypeTreeItem(treeItemData)
       }
     },
 
@@ -821,6 +828,81 @@ export default {
             questionIndex: this.questionIndex
           })
           this.$logger.info('reach description', treeItemData)
+        }
+        this.subTreeLoading = false
+      }
+    },
+
+    // All21Century直接遍历children
+    handleExpandIduTypeTreeItem (treeItemData) {
+      this.$logger.info('handleExpandIduTypeTreeItem defaultDeep = ' + this.defaultDeep, treeItemData)
+      if (this.defaultDeep === 0) {
+        // 直接展开第一层
+        this.subTreeExpandStatus = true
+        LibraryEventBus.$emit(LibraryEvent.ContentListUpdate, {
+          deep: this.defaultDeep,
+          dataType: this.treeItemType,
+          currentTreeData: this.treeItemData,
+          parentTreeData: this.treeCurrentParent,
+          contentList: treeItemData.children,
+          questionIndex: this.questionIndex
+        })
+        this.subItemType = 'grade'
+        this.subTreeLoading = false
+        this.hasSubTree = true
+      } else {
+        this.subTreeLoading = true
+        this.subTreeExpandStatus = true
+
+        if (this.treeItemData.children.length) {
+          this.subItemType = 'iduList'
+          this.hasSubTree = true
+          LibraryEventBus.$emit(LibraryEvent.ContentListUpdate, {
+            deep: this.defaultDeep,
+            dataType: this.treeItemType,
+            currentTreeData: this.treeItemData,
+            parentTreeData: this.treeCurrentParent,
+            contentList: treeItemData.children,
+            questionIndex: this.questionIndex
+          })
+        } else {
+          if (treeItemData.children.length) {
+            this.subItemType = 'iduList'
+            this.hasSubTree = true
+            LibraryEventBus.$emit(LibraryEvent.ContentListUpdate, {
+              deep: this.defaultDeep,
+              dataType: this.treeItemType,
+              currentTreeData: this.treeItemData,
+              parentTreeData: this.treeCurrentParent,
+              contentList: treeItemData.children,
+              questionIndex: this.questionIndex
+            })
+          } else {
+            const gradeId = treeItemData.id
+            GetIBIduList({
+              gradeId
+            }).then(response => {
+              this.$logger.info('GetIBIduList response', response)
+              if (response.result) {
+                treeItemData.children = response.result
+                LibraryEventBus.$emit(LibraryEvent.ContentListUpdate, {
+                  deep: this.defaultDeep,
+                  dataType: this.treeItemType,
+                  currentTreeData: this.treeItemData,
+                  parentTreeData: this.treeCurrentParent,
+                  contentList: treeItemData.children,
+                  questionIndex: this.questionIndex
+                })
+                this.$logger.info('GetIBIduList', treeItemData.children)
+                this.subTreeExpandStatus = true
+              } else {
+                this.subTreeExpandStatus = false
+              }
+            }).finally(() => {
+              this.subTreeLoading = false
+              this.subItemType = 'iduList'
+            })
+          }
         }
         this.subTreeLoading = false
       }

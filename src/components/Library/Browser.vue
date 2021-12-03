@@ -35,7 +35,7 @@
           <div class="browser-table-wrapper" :style="{left: -browserMarginLeft + 'px'}">
             <div class="browser-table">
               <div class="browser-type-list">
-                <div :class="{'browser-type': true, 'odd-line': index % 2 === 0, 'active-line': currentBrowserType === browserTypeItem.type}" v-for="(browserTypeItem, index) in browserTypeList" :key="index" @click="toggleBrowserType(browserTypeItem)">
+                <div :class="{'browser-type': true, 'odd-line': index % 2 === 0, 'active-line': currentBrowserType === browserTypeItem.type}" v-for="(browserTypeItem, index) in (currentCurriculumId == curriculumType.IBMYP ? browserTypeListForIbMpy : browserTypeList)" :key="index" @click="toggleBrowserType(browserTypeItem)">
                   <dir-icon dir-type="blue" v-if="currentBrowserType !== browserTypeItem.type"/>
                   <dir-icon dir-type="opened" v-if="currentBrowserType === browserTypeItem.type"/>
                   {{ browserTypeItem.label }}
@@ -72,6 +72,13 @@
                 :curriculum-id="currentCurriculumId"
                 :block-width="blockWidth"
                 v-if="currentBrowserType === BrowserTypeMap.specificSkills"
+                @blockCollapse="handleBlockCollapse"
+                @previewDetail="handlePreviewDetail"/>
+              <idu-browser
+                :block-index="blockIndex"
+                :curriculum-id="currentCurriculumId"
+                :block-width="blockWidth"
+                v-if="currentBrowserType === BrowserTypeMap.idu"
                 @blockCollapse="handleBlockCollapse"
                 @previewDetail="handlePreviewDetail"/>
               <!--大纲游览-->
@@ -118,6 +125,8 @@ import AssessmentBrowser from './AssessmentBrowser'
 import BackSvg from '@/assets/svgIcon/library/back_btn.svg?inline'
 import GeneralCapabilityBrowser from '@/components/Library/GeneralCapabilityBrowser'
 import SubjectSpecificBrowser from '@/components/Library/SubjectSpecificBrowser'
+import IduBrowser from '@/components/Library/IduBrowser'
+import { CurriculumType } from '@/const/common'
 
 const BrowserTypeMap = {
   curriculum: 'curriculum',
@@ -127,7 +136,8 @@ const BrowserTypeMap = {
   // 数据层级结构：year-knowledge
   centurySkills: 'centurySkills',
   // sdg数据结构：sdg列表-keywords-big idea
-  sdg: 'sdg'
+  sdg: 'sdg',
+  idu: 'idu'
 }
 
 const BrowserTypeLabelMap = {
@@ -135,7 +145,8 @@ const BrowserTypeLabelMap = {
   assessmentType: 'Assessment type',
   sdg: 'Big idea',
   specificSkills: 'Subject Specific Skills',
-  centurySkills: 'Century Skills'
+  centurySkills: 'Century Skills',
+  idu: 'IDU'
 }
 
 export default {
@@ -152,7 +163,8 @@ export default {
     UnitPlanPreview,
     MaterialPreview,
     DirIcon,
-    BackSvg
+    BackSvg,
+    IduBrowser
   },
   props: {
     browserType: {
@@ -165,6 +177,14 @@ export default {
       currentCurriculumId: this.$store.getters.bindCurriculum ? this.$store.getters.bindCurriculum : '1',
       curriculumOptions: [],
       navPath: [],
+      browserTypeListForIbMpy: [
+        { type: 'curriculum', label: 'Learning outcomes' },
+        { type: 'assessmentType', label: 'Assessment type' },
+        { type: 'specificSkills', label: 'Subject Specific Skills' },
+        { type: 'idu', label: 'IDU' },
+        { type: 'centurySkills', label: '21st Century Skills' },
+        { type: 'sdg', label: 'Big idea' }
+      ],
       browserTypeList: [
         { type: 'curriculum', label: 'Learning outcomes' },
         { type: 'assessmentType', label: 'Assessment type' },
@@ -187,7 +207,8 @@ export default {
       typeMap: typeMap,
 
       headerTop: '64px',
-      libraryDetailTop: '126px'
+      libraryDetailTop: '126px',
+      curriculumType: CurriculumType
     }
   },
   created () {

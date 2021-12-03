@@ -169,13 +169,13 @@
                 </template>
                 <template v-if="formType === tableType.Rubric">
                   <template v-if="!item[headerType.Criteria] || !item[headerType.Criteria].name">
-                    <div class="data-item add-criteria" @click="handleAddDescription(header, item, $event)" v-show="mode === tableMode.Edit">
+                    <div class="data-item add-criteria" @click="handleAddCriteria(header, item, $event)" v-show="mode === tableMode.Edit">
                       <add-opacity-icon />
                       <div class="add-text">Click to choose the objectives</div>
                     </div>
                   </template>
                   <template v-else>
-                    <div class="data-item criteria-data" @dblclick="handleAddDescription(header, item, $event)">
+                    <div class="data-item criteria-data" @dblclick="handleAddCriteria(header, item, $event)">
                       <div class="criteria-name">
                         {{ item[headerType.Criteria].name }}
                       </div>
@@ -485,7 +485,7 @@ export default {
       headers: [], // 表头
       list: [], // 表结构数据
       defaultActiveMenu: NavigationType.learningOutcomes,
-      showMenuList: [ NavigationType.all21Century ],
+      showMenuList: [ NavigationType.centurySkills ],
       mode: null,
 
       selectCurriculumVisible: false,
@@ -545,9 +545,8 @@ export default {
         ]
       } else if (this.formType === EvaluationTableType.Rubric_2) {
         this.headers = [
-          { label: 'Criteria', previewLabel: 'Criteria', type: EvaluationTableHeader.Criteria, editable: false, editing: false, required: true },
           { label: 'Description', previewLabel: 'Description', type: EvaluationTableHeader.Description, editable: false, editing: false, required: true },
-          { label: 'Task specific indicators', previewLabel: 'Task specific indicators', type: EvaluationTableHeader.Indicators, editable: false, editing: false, required: true },
+          { label: 'Unnamed level', previewLabel: 'Unnamed level', type: EvaluationTableHeader.Indicators, editable: true, editing: false, required: false },
           { label: 'Evidence', previewLabel: 'Evidence', type: EvaluationTableHeader.Evidence, editable: false, editing: false, required: true }
         ]
       } else if (this.formType === EvaluationTableType.CenturySkills) {
@@ -750,7 +749,8 @@ export default {
       event.stopPropagation()
       this.$logger.info('[' + this.mode + '] handleAddCriteria', header, item)
       if (this.mode === EvaluationTableMode.Edit) {
-        this.showMenuList = [NavigationType.all21Century]
+        this.defaultActiveMenu = NavigationType.centurySkills
+        this.showMenuList = [NavigationType.centurySkills]
         this.selectCurriculumVisible = true
         this.currentSelectHeader = header
         this.currentSelectLine = item
@@ -762,6 +762,7 @@ export default {
       event.stopPropagation()
       if (this.mode === EvaluationTableMode.Edit) {
         this.$logger.info('[' + this.mode + '] handleAddDescription', header, item)
+        this.defaultActiveMenu = NavigationType.learningOutcomes
         this.showMenuList = [NavigationType.learningOutcomes]
         this.selectCurriculumVisible = true
         this.currentSelectHeader = header
