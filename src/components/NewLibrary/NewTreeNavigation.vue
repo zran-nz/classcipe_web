@@ -1,6 +1,7 @@
 <template>
   <div class="new-tree-navigation">
     <new-tree-item
+      v-show="loaded"
       :grade-list="gradeList"
       :tree-item-data="treeItemData"
       :tree-current-parent="null"
@@ -24,6 +25,9 @@
       :odd="index % 2 === 1"
       v-for="(treeItemData, index) in treeDataList"
       :key="index"/>
+    <div class="loading-spin">
+      <a-spin v-show="!loaded" />
+    </div>
   </div>
 </template>
 
@@ -324,11 +328,28 @@ export default {
 @import "~@/components/index.less";
 
 .new-tree-navigation {
+  height: 100%;
+  width: 100%;
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
   background-color: #fff;
   overflow: scroll;
+  position: relative;
+}
+
+.loading-spin {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  margin-left: -20px;
+  text-align: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: -20px;
+  height: 40px;
+  width: 40px;
 }
 
 .browser-hide-menu {
