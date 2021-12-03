@@ -1,5 +1,5 @@
 <template>
-  <div class="my-full-form-wrapper">
+  <div class="my-full-form-wrapper" @click="handleUpdateHeader">
     <div class="form-header">
       <common-form-header
         ref="commonFormHeader"
@@ -1490,6 +1490,11 @@ export default {
     },
     handleToggleFormType (formType) {
       this.newFormType = formType
+    },
+
+    handleUpdateHeader (header) {
+      this.$logger.info('ClassSessionEvaluation handleUpdateHeader')
+      this.$refs.evaluationTable.forEach(tableItem => { tableItem.handleUpdateHeader() })
     }
   }
 }

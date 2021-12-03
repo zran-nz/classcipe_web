@@ -273,7 +273,7 @@ export default {
           this.subItemType = 'knowledge'
         }
       }
-    } else if (this.treeItemType === NavigationType.centurySkills) {
+    } else if (this.treeItemType === NavigationType.centurySkills || this.treeItemType === NavigationType.NZKeyCompetencies || this.treeItemType === NavigationType.AUGeneralCapabilities) {
       // 21 century skills 是year-knowledge
       if (this.currentItemType === 'grade') {
         this.subItemType = 'knowledge'
@@ -331,7 +331,7 @@ export default {
         this.handleExpandSyncDataList(treeItemData)
       } else if (this.treeItemType === NavigationType.specificSkills) {
         this.handleExpandSpecificSkillTreeItem(treeItemData)
-      } else if (this.treeItemType === NavigationType.centurySkills) {
+      } else if (this.treeItemType === NavigationType.centurySkills || this.treeItemType === NavigationType.NZKeyCompetencies || this.treeItemType === NavigationType.AUGeneralCapabilities) {
         this.handleExpandCenturySkillTreeItem(treeItemData)
       } else if (this.treeItemType === NavigationType.sdg) {
         this.handleExpandSdgTreeItem(treeItemData)
