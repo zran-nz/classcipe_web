@@ -8,7 +8,7 @@
         :last-change-saved-time="lastChangeSavedTime"
         @update-form="handleUpdateForm"
         @back="goBack"
-        @save="handleSaveEvaluation"
+        @save="handleSaveAndBackEvaluation"
         @publish="handlePublishEvaluation"
       />
     </div>
@@ -1235,6 +1235,57 @@ export default {
                 this.showEvaluationNoticeVisible = true
               }
             })
+          }
+        })
+      }
+    },
+
+    handleSaveAndBackEvaluation () {
+      this.$logger.info('handleSaveAndBackEvaluation', this.forms)
+      this.formSaving = true
+      this.showEvaluationNoticeVisible = false
+
+      // 获取所有的表格结构（表头+表内容）
+      const formDataList = []
+      this.$refs.evaluationTable.forEach(tableItem => {
+        const tableData = tableItem.getTableStructData()
+        this.$logger.info('getTableStructData ', tableData, 'header', tableData.headers, 'row list', tableData.list)
+        this.forms.forEach(formItem => {
+          if (formItem.formId === tableData.formId) {
+            const formData = {
+              id: formItem.id,
+              formId: formItem.formId,
+              formType: formItem.formType,
+              title: formItem.title,
+              initRawHeaders: JSON.stringify(tableData.headers),
+              initRawData: JSON.stringify(tableData.list),
+              pe: formItem.pe,
+              se: formItem.se
+            }
+            formDataList.push(formData)
+          }
+        })
+      })
+      this.$logger.info('formDataList', formDataList, 'this.form', this.form, 'this.classId', this.classId)
+      this.form.classId = this.classId
+      this.form.forms = formDataList
+      // 获取评估数据
+      this.$logger.info('!!!!!!!!!!!!!!!!!! studentEvaluateData !!!!!!!!!!!', this.studentEvaluateData)
+      this.form.studentEvaluateData = JSON.stringify(this.studentEvaluateData)
+
+      if (formDataList.length === 0) {
+        this.$message.error('Please add at least one form!')
+        this.formSaving = false
+        return false
+      } else {
+        EvaluationAddOrUpdate(this.form).then((response) => {
+          this.$logger.info('EvaluationAddOrUpdate', response)
+          if (response.success) {
+            this.$message.success('Save successfully!')
+            this.formSaving = false
+            this.goBack()
+          } else {
+            this.$message.error(response.message)
           }
         })
       }

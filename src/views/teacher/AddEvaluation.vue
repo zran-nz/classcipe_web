@@ -539,6 +539,9 @@ export default {
         })
         this.$logger.info('forms', this.forms)
       }
+      if (this.forms.length) {
+        this.currentActiveFormId = this.forms[0].formId
+      }
       this.selectRubricVisible = false
     },
 
