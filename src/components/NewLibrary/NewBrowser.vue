@@ -137,6 +137,7 @@
             @select-century-skill="handleSelect21CenturySkillListData"
             @select-all-21-century="handleSelectAll21CenturyListData"
             @select-assessmentType="handleSelectAssessmentType"
+            @select-idu="handleSelectIdu"
           />
         </div>
       </div>
@@ -190,6 +191,7 @@ export default {
       selected21CenturySkillList: [],
       selectedSubjectSpecificSkillList: [],
       selectedAssessmentList: [],
+      selectedIduList: [],
       selectedAll21CenturyList: [],
       selectedBigIdeaList: []
     }
@@ -237,6 +239,12 @@ export default {
       this.$logger.info('NewBrowser handleSelectAssessmentType', data)
       this.selectedAssessmentList = data
       this.$emit('select-assessmentType', data)
+    },
+
+    handleSelectIdu (data) {
+      this.$logger.info('NewBrowser handleSelectIdu', data)
+      this.selectedIduList = data
+      this.$emit('select-idu', data)
     },
     handleSelectBigIdeaData (data) {
       this.$logger.info('NewBrowser handleSelectBigIdeaData', data)

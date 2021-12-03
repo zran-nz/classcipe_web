@@ -267,27 +267,23 @@ export default {
         this.$logger.info('after handle treeDataList', this.treeDataList)
       }
 
-       // ib大纲显示IDU
-      this.$logger.info('ib大纲显示IDU ' + (parseInt(this.$store.getters.bindCurriculum) === 5))
-      if (parseInt(this.$store.getters.bindCurriculum) === 5) {
-        // iduData 是year-idu list
-        const iduData = {
-          id: '6',
-          expandStatus: NavigationType.idu === this.defaultActiveMenu,
-          type: NavigationType.idu,
-          name: 'IDU',
-          children: [],
-          gradeList: [],
-          parent: null
-        }
-        this.gradeList.forEach(gradeItem => {
-          gradeItem.isGrade = true
-          gradeItem.children = []
-          iduData.gradeList.push(JSON.parse(JSON.stringify(gradeItem)))
-          iduData.children.push(JSON.parse(JSON.stringify(gradeItem)))
-        })
-        this.treeDataList.push(iduData)
+      // iduData 是year-idu list
+      const iduData = {
+        id: '6',
+        expandStatus: NavigationType.idu === this.defaultActiveMenu,
+        type: NavigationType.idu,
+        name: 'IDU',
+        children: [],
+        gradeList: [],
+        parent: null
       }
+      this.gradeList.forEach(gradeItem => {
+        gradeItem.isGrade = true
+        gradeItem.children = []
+        iduData.gradeList.push(JSON.parse(JSON.stringify(gradeItem)))
+        iduData.children.push(JSON.parse(JSON.stringify(gradeItem)))
+      })
+      this.treeDataList.push(iduData)
       this.loaded = true
     })
   },
