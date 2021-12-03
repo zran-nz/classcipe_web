@@ -98,7 +98,7 @@
                           <a-tooltip placement="top" title="Select slide(s) on/off">
                             <a-switch
                               class="slide-switch"
-                              :disabled="selectedTemplateIdList.length === 0"
+                              :disabled="form.selectedTemplateList.length === 0"
                               checked-children="On"
                               un-checked-children="Off"
                               v-model="form.showSelected"
@@ -428,9 +428,6 @@
       <template v-if="mode === 'pick-task-slide'">
 
         <div class="pick-task-slide-wrapper">
-          <div class="pick-task-slide-title">
-            <h2>Pick slide(s)</h2>
-          </div>
           <div class="slide-form-block" v-show="form.presentationId">
             <div class="preview-list" v-if="!thumbnailListLoading">
               <div :class="{'preview-item-cover': true, 'preview-item-cover-active': selectedPageIdList.indexOf(item.id) !== -1}" :style="{backgroundImage: 'url(' + item.contentUrl + ')'}" v-for="(item,index) in thumbnailList" :key="index" @click="handleToggleThumbnail(item)">
@@ -2337,16 +2334,8 @@ export default {
             this.currentSlideCoverImgSrc = null
             slideAnimateDom.style.transform = 'translateX(0px)'
             slideAnimateImgDom.style.transform = 'translateY(0px) scale(1)'
-
-            if (!this.form.presentationId) {
-              this.selectedTemplateList = []
+            if (this.selectedTemplateIdList.indexOf(template.id) === -1) {
               this.selectedTemplateList.unshift(template)
-              this.addRecomendLoading = true
-              this.handleAddTemplate()
-            } else {
-              if (this.selectedTemplateIdList.indexOf(template.id) === -1) {
-                this.selectedTemplateList.unshift(template)
-              }
             }
           }, 600)
         })
