@@ -1,5 +1,5 @@
 <template>
-  <div class="rubric">
+  <div class="rubric" @click="handleUpdateHeader">
     <table class="rubric-table">
       <thead>
 
@@ -7,6 +7,7 @@
         <draggable
           v-model="headers"
           tag="tr"
+          :disabled="disabledDraggable"
           class="table-header"
           @end="handleDragEnd"
           v-if="mode === this.tableMode.Edit">
@@ -23,11 +24,11 @@
             :data-header-mode="formTableMode"
             v-if="!(header.type === headerType.Evidence && !(mode === tableMode.TeacherEvaluate || mode === tableMode.StudentEvaluate))">
             <!-- 编辑图标-->
-            <div class="edit-icon" @click="handleEditHeader(header)" v-if="header.editable">
+            <div class="edit-icon" @click.stop="handleEditHeader(header, $event)" v-if="header.editable">
               <img src="~@/assets/icons/evaluation/edit.png" class="link-icon"/>
             </div>
             <!-- 表头文本-->
-            <div @click="handleEditHeader(header)" class="label-text">
+            <div @click.stop="handleEditHeader(header)" class="label-text">
 
               <span class="header-label">{{ header.label }}</span>
               <template v-if="header.type === headerType.Novice">
@@ -70,7 +71,7 @@
             <!-- 编辑状态下的输入框-->
             <template v-if="header.editing">
               <div class="label-input">
-                <input v-model="header.label" @blur="handleUpdateHeader(header)" @keyup.enter="handleUpdateHeader(header)" class="header-input-item"/>
+                <input v-model="header.label" @click.stop @blur="handleUpdateHeader" @keyup.enter="handleUpdateHeader" class="header-input-item"/>
               </div>
             </template>
 
@@ -535,7 +536,9 @@ export default {
       inputDescriptionVisible: false,
       inputDescription: null,
       currentEnterDescriptionLine: null,
-      currentEvaluateMode: EvaluationTableMode.TeacherEvaluate // 评价模式
+      currentEvaluateMode: EvaluationTableMode.TeacherEvaluate, // 评价模式,
+
+      disabledDraggable: false
     }
   },
   created () {
@@ -621,6 +624,8 @@ export default {
     },
 
     handleEditHeader (header) {
+      this.disabledDraggable = true
+      this.$logger.info('disabled Draggable')
       this.$logger.info('[' + this.mode + '] handleEditHeader', header)
       if (header.editable) {
         this.headers.forEach(item => {
@@ -643,8 +648,8 @@ export default {
       }
     },
 
-    handleUpdateHeader (header) {
-      this.$logger.info('[' + this.mode + '] handleUpdateHeader', header)
+    handleUpdateHeader () {
+      this.$logger.info('[' + this.mode + '] handleUpdateHeader')
 
       // 如果没输入表头，重置为默认表头
       this.headers.forEach(item => {
@@ -657,6 +662,8 @@ export default {
       this.headers.forEach(item => {
         item.editing = false
       })
+      this.disabledDraggable = false
+      this.$logger.info('enable Draggable')
     },
 
     handleAddNewHeader (hIndex) {
