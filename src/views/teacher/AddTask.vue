@@ -969,6 +969,43 @@
       </a-modal>
 
       <a-modal
+        class="my-slide-pick-modal"
+        v-model="selectedSlideVisibleFromSave"
+        :footer="null"
+        :title="null"
+        destroyOnClose
+        width="700px"
+        :closable="false">
+        <div class="select-slide-wrapper">
+          <modal-header @close="selectedSlideVisibleFromSave = false" :white="true"/>
+          <div class="modal-title">
+            Congratulations! You have published your content successfully!
+          </div>
+          <div class="main-tips">
+            <div class="left-img">
+              <img src="~@/assets/icons/task/woniu.png" />
+            </div>
+            <div class="right-img-text">
+              <img src="~@/assets/icons/task/quote.png" />
+              <div class="img-text">
+                Pick slides to create a brilliant task and use it in your future tasks or share with global educators
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="slide-action row-flex-center">
+          <div class="slide-btn-wrapper">
+            <a-button @click="goBack" style="background: #D7D9D9;border: 1px solid #D7D9D9;border-radius: 25px;color: #000;" class="slide-btn-item slide-btn-item-no " type="primary">
+              Not this time
+            </a-button>
+            <a-button @click="handleAddTaskWithSlide" style="background: #15C39A;;border: 1px solid #15C39A;border-radius: 25px;color: #fff;" class="slide-btn-item slide-btn-item-yes" type="primary">
+              Pick now
+            </a-button>
+          </div>
+        </div>
+      </a-modal>
+
+      <a-modal
         title="Add session tags"
         v-model="taskSelectTagVisible"
         :maskClosable="false"
@@ -1292,7 +1329,9 @@ export default {
         selectedTemplateMarginLeft: '5%',
         selectedTemplateDrawerVisible: false,
         selectedTemplateDrawerZindex: 3000,
-        drawerSelectedTemplateList: []
+        drawerSelectedTemplateList: [],
+
+        selectedSlideVisibleFromSave: false // 点击保存时，是否显示选择slide的弹窗，此处不去选择slide直接goBack
       }
     },
     computed: {
@@ -1511,7 +1550,7 @@ export default {
           if (response.success) {
             this.restoreTask(response.result.id, false)
             this.$message.success(this.$t('teacher.add-task.save-success'))
-            this.goBack()
+            this.selectedSlideVisibleFromSave = true
           } else {
             this.$message.error(response.message)
           }
@@ -2019,6 +2058,7 @@ export default {
       handleAddTaskWithSlide () {
         this.$logger.info('handleAddTaskWithSlide')
         this.selectedSlideVisible = false
+        this.selectedSlideVisibleFromSave = false
         this.currentTaskFormData = Object.assign({}, this.form)
         this.$router.push({
           path: '/teacher/add-task/' + this.taskId + '/pick-task-slide'
