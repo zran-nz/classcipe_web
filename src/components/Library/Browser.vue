@@ -146,7 +146,7 @@ const BrowserTypeLabelMap = {
   sdg: 'Big idea',
   specificSkills: 'Subject Specific Skills',
   centurySkills: 'Century Skills',
-  idu: 'IDU'
+  idu: 'Integrated Subject Skill'
 }
 
 export default {
@@ -181,7 +181,7 @@ export default {
         { type: 'curriculum', label: 'Learning outcomes' },
         { type: 'assessmentType', label: 'Assessment type' },
         { type: 'specificSkills', label: 'Subject Specific Skills' },
-        { type: 'idu', label: 'IDU' },
+        { type: 'idu', label: 'Integrated Subject Skill' },
         { type: 'centurySkills', label: '21st Century Skills' },
         { type: 'sdg', label: 'Big idea' }
       ],

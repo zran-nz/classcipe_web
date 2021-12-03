@@ -678,7 +678,7 @@
                           </a-row>
                           <a-row v-for="(child,cIndex) in item.children" :key="cIndex">
                             <a-col :span="24" class="first-child">
-                              <a-checkbox :value="child.id" @change="onChangeCheckBox($event,templateType.Century)" :checked="filterCentury.indexOf(child.id) > -1 ? true: false">
+                              <a-checkbox :value="child.id" @change="onChangeCheckBox($event,templateType.Century,child)" :checked="filterCentury.indexOf(child.id) > -1 ? true: false">
                                 {{ child.name }}
                               </a-checkbox>
                               <div class="sub-child" >
@@ -1590,9 +1590,15 @@ export default {
         this.$logger.info('handleSelectTaskType ' + type)
         this.form.taskType = type
         this.customTagList = []
-        CustomTagType.task.safa.forEach(name => {
-          this.customTagList.push(name)
-        })
+        if (type === 'FA') {
+          CustomTagType.task.fa.forEach(name => {
+            this.customTagList.push(name)
+          })
+        } else {
+          CustomTagType.task.sa.forEach(name => {
+            this.customTagList.push(name)
+          })
+        }
         this.showAllCollaborateCommentVisible = false
         this.showCollaborateCommentVisible = false
         this.customTagTop = 60
