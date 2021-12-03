@@ -10,7 +10,13 @@
           class="table-header"
           @end="handleDragEnd"
           v-if="mode === this.tableMode.Edit">
-          <th v-for="(header, hIndex) in headers" :class="{'header-item': true, 'preview-mode': formTableMode === tableMode.Preview}" :key="header.type" :data-header-type="header.type" :data-header-mode="formTableMode">
+          <th
+            v-for="(header, hIndex) in headers"
+            :class="{'header-item': true, 'preview-mode': formTableMode === tableMode.Preview}"
+            :key="header.type"
+            :data-header-type="header.type"
+            :data-header-mode="formTableMode"
+            v-if="!(header.type === headerType.Evidence && !(mode === tableMode.TeacherEvaluate || mode === tableMode.StudentEvaluate))">
             <!-- 编辑图标-->
             <div class="edit-icon" @click="handleEditHeader(header)" v-if="header.editable">
               <img src="~@/assets/icons/evaluation/edit.png" class="link-icon"/>
@@ -86,7 +92,13 @@
 
         <!--预览和评估模式下不允许修改变动-->
         <tr class="table-header" v-if="mode !== this.tableMode.Edit">
-          <th v-for="(header) in headers" :class="{'header-item': true, 'preview-mode': formTableMode === tableMode.Preview}" :key="header.type" :data-header-type="header.type" :data-header-mode="formTableMode">
+          <th
+            v-for="(header) in headers"
+            :class="{'header-item': true, 'preview-mode': formTableMode === tableMode.Preview}"
+            :key="header.type"
+            v-if="!(header.type === headerType.Evidence && !(mode === tableMode.TeacherEvaluate || mode === tableMode.StudentEvaluate))"
+            :data-header-type="header.type"
+            :data-header-mode="formTableMode">
             <!-- 表头文本-->
             <div class="label-text">
 
@@ -126,7 +138,6 @@
                   <question-icon />
                 </a-tooltip>
               </template>
-
             </div>
           </th>
         </tr>
@@ -139,6 +150,7 @@
             class="body-item"
             :key="lIndex + '-' + header.type"
             @click="handleClickBodyItem(item, header)"
+            v-if="!(header.type === headerType.Evidence && !(mode === tableMode.TeacherEvaluate || mode === tableMode.StudentEvaluate))"
             :data-row-id="item.rowId"
             :data-header-type="header.type">
             <template v-if="item.hasOwnProperty(header.type)">
@@ -329,8 +341,8 @@
               </template>
             </template>
 
-            <!-- Evidence-->
-            <template v-if="header.type === headerType.Evidence">
+            <!-- Evidence 仅在评估模式下显示-->
+            <template v-if="header.type === headerType.Evidence && (mode === tableMode.TeacherEvaluate || mode === tableMode.StudentEvaluate || mode === tableMode.PeerEvaluate)">
               <div class="evidence-data">
                 <template v-if="formBodyData && formBodyData[item.rowId] && formBodyData[item.rowId].evidenceIdList">
                   <div :class="{'evidence-info': true, 'exist-evidence': item[headerType.Evidence].num}" @click="handleAddEvidenceLine(lIndex, item, $event)" v-show="mode === tableMode.TeacherEvaluate || mode === tableMode.StudentEvaluate">
