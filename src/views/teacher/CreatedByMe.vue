@@ -610,7 +610,22 @@ export default {
             this.$logger.info('try open ' + targetUrl)
             // window.open(targetUrl, '_blank')
             // 课堂那边需要点击返回回到表单，改成location.href跳转
-            window.location.href = targetUrl
+            const url = lessonHost + 't/' + res.data.class_id
+            var windowObjectReference
+            var strWindowFeatures = 'width=1200,height=750,menubar=yes,location=yes,resizable=yes,scrollbars=true,status=true,top=100,left=200'
+            windowObjectReference = window.open(
+              'about:blank',
+              '_blank',
+              strWindowFeatures
+            )
+            if (this.sessionMode === 1) {
+              windowObjectReference.location = url
+              setTimeout(function () {
+                window.location.href = targetUrl
+              }, 1000)
+            } else {
+              window.location.href = targetUrl
+            }
           } else {
             this.$message.warn('StartLesson Failed! ' + res.message)
             this.startLoading = false
