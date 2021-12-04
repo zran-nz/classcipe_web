@@ -5,6 +5,37 @@
     </div>
     <div class="main">
       <div class="selected-content">
+        <div class="recommend-description" v-if="recommendData.length">
+          <div class="recommend-title">
+            <h3>Recommended assessment objectives</h3>
+          </div>
+          <div class="recommend-detail">
+            <div class="recommend-list" v-for="(recommendData, rIndex) in recommendData" :key="rIndex">
+              <div class="recommend-from">
+                From : <h4>{{ recommendData.fromName }}</h4>
+              </div>
+              <div
+                class="recommend-item"
+                v-for="(recommendItem, rI) in recommendData.list"
+                :key="'ri-' + rI"
+                @click="handleAddRecommend(recommendItem)"
+                :data-id="recommendItem.id">
+                <a-tooltip class="my-tooltip">
+                  <template slot="title">
+                    {{ recommendItem.path }}
+                  </template>
+                  <div :class="{'left-icon': true, 'active-left-icon': selectedRecommendIdList.indexOf(recommendItem.knowledgeId) !== -1}">
+                    <a-icon type="check-circle" style="color: #07AB84; font-size: 16px;" class="recommend-selected" />
+                  </div>
+                  <div class="right-name">
+                    {{ recommendItem.name }}
+                  </div>
+                </a-tooltip>
+              </div>
+            </div>
+          </div>
+        </div>
+        <a-divider v-if="recommendData.length"/>
         <div class="selected-list">
           <div class="content-list">
             <div
@@ -104,6 +135,20 @@
               </div>
             </div>
 
+            <div
+              class="content-item selected-line"
+              v-for="(item, aIndex) in selectedRecommendList"
+              :key="'rec-' + aIndex">
+              <div class="name">
+                <div class="name-text">
+                  {{ item.name }}
+                </div>
+                <div class="action-icon" @click="handleRemoveSelectedRecommend(item)">
+                  <a-icon type="close-circle" style="color: #07AB84; font-size: 16px;" />
+                </div>
+              </div>
+            </div>
+
           </div>
         </div>
         <div class="selected-toggle-mask" v-show="!expandedListFlag" @click="expandedListFlag = !expandedListFlag"></div>
@@ -137,6 +182,7 @@
             @select-century-skill="handleSelect21CenturySkillListData"
             @select-all-21-century="handleSelectAll21CenturyListData"
             @select-assessmentType="handleSelectAssessmentType"
+            @select-idu="handleSelectIdu"
           />
         </div>
       </div>
@@ -179,6 +225,10 @@ export default {
     defaultActiveMenu: {
       type: String,
       default: null
+    },
+    recommendData: {
+      type: Array,
+      default: () => []
     }
   },
   data () {
@@ -190,13 +240,17 @@ export default {
       selected21CenturySkillList: [],
       selectedSubjectSpecificSkillList: [],
       selectedAssessmentList: [],
+      selectedIduList: [],
       selectedAll21CenturyList: [],
-      selectedBigIdeaList: []
+      selectedBigIdeaList: [],
+      selectedRecommendList: [],
+      selectedRecommendIdList: []
     }
   },
   created () {
     this.$logger.info('NewBrowser selectMode', this.selectMode)
     this.$logger.info('NewBrowser showMenu', this.showMenu)
+    this.$logger.info('recommendData', this.recommendData)
   },
   mounted () {
   },
@@ -238,6 +292,13 @@ export default {
       this.selectedAssessmentList = data
       this.$emit('select-assessmentType', data)
     },
+
+    handleSelectIdu (data) {
+      this.$logger.info('NewBrowser handleSelectIdu', data)
+      this.selectedIduList = data
+      this.$emit('select-idu', data)
+    },
+
     handleSelectBigIdeaData (data) {
       this.$logger.info('NewBrowser handleSelectBigIdeaData', data)
       this.selectedBigIdeaList = data
@@ -247,6 +308,26 @@ export default {
     handleRemoveSelected (item) {
       this.$logger.info('NewBrowser handleRemoveSelected', item)
       this.$refs['contentList'].handleRemoveSelected(item)
+    },
+
+    handleRemoveSelectedRecommend (recommendItem) {
+      this.$logger.info('NewBrowser handleRemoveSelected recommendItem', recommendItem)
+      this.handleAddRecommend(recommendItem)
+    },
+
+    handleAddRecommend (recommendItem) {
+      this.$logger.info('NewBrowser handleAddRecommend', recommendItem)
+      const existIndex = this.selectedRecommendList.findIndex(item => item.knowledgeId === recommendItem.knowledgeId)
+      const existIdIndex = this.selectedRecommendIdList.findIndex(item => item === recommendItem.knowledgeId)
+      if (existIndex !== -1) {
+        this.selectedRecommendList.splice(existIndex, 1)
+        this.selectedRecommendIdList.splice(existIdIndex, 1)
+      } else {
+        this.selectedRecommendList.push(recommendItem)
+        this.selectedRecommendIdList.push(recommendItem.knowledgeId)
+      }
+      this.$emit('select-recommend', this.selectedRecommendList)
+      this.$logger.info('after NewBrowser handleAddRecommend', this.selectedRecommendList, this.selectedRecommendIdList)
     }
   }
 }
@@ -458,5 +539,62 @@ export default {
   right: 0;
   bottom: 0;
   opacity: 0;
+}
+
+.recommend-description {
+
+  .recommend-title {
+    padding: 5px 10px;
+  }
+
+  .recommend-detail {
+    padding: 0 10px;
+    .recommend-list {
+      .recommend-from {
+        font-size: 14px;
+        cursor: pointer;
+
+        h4 {
+          display: inline-block;
+        }
+      }
+
+      .recommend-item {
+        background-color: #F8F8F8;
+        margin-bottom: 10px;
+        span {
+          font-size: 13px;
+          cursor: pointer;
+          display: flex;
+          flex-direction: row;
+          justify-content: flex-start;
+          align-items: flex-start;
+          line-height: 35px;
+
+          .left-icon {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 35px;
+            text-align: center;
+            opacity: 0;
+          }
+
+          .active-left-icon {
+            opacity: 1;
+          }
+
+          .right-name {
+            display: flex;
+            flex-direction: row;
+            justify-content: flex-start;
+            align-items: flex-start;
+          }
+        }
+      }
+    }
+  }
 }
 </style>

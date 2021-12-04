@@ -17,7 +17,7 @@
         <a-row class="unit-content" v-if="!contentLoading" >
           <a-col span="24" class="main-content">
             <a-card :bordered="false" :body-style="{padding: '16px', display: 'flex', 'justify-content': 'space-between'}" class="card-wrapper">
-              <div class="task-form-left root-locate-form" ref="form" @click="focusInput($event)" :style="{'width':leftWidth}">
+              <div class="task-form-left root-locate-form" ref="form" @click="focusInput($event)" :style="{'width':leftWidth + 'px'}">
                 <a-form-model :model="form" class="my-form-wrapper" >
                   <a-steps :current="currentActiveStepIndex" direction="vertical" @change="onChangeStep">
                     <a-step class="step-1" title="Edit Task Info" :status="currentActiveStepIndex === 0 ? 'process':'wait'">
@@ -180,7 +180,7 @@
                                 <div class="slide-select-action" v-show="!form.presentationId">
                                   <img src="https://dcdkqlzgpl5ba.cloudfront.net/file/202111271330492511-Welcome_slide.png" />
                                 </div>
-                                <div class="slide-preview" v-show="!form.showSelected && form.presentationId && thumbnailList.length">
+                                <div class="slide-preview" :style="{'width':(leftWidth- 50) + 'px'}" v-show="!form.showSelected && form.presentationId && thumbnailList.length">
                                   <a-carousel ref="carousel" arrows :after-change="onChangePage">
                                     <div slot="prevArrow" class="custom-slick-arrow" style="left: 10px;zIndex: 9" >
                                       <a-icon type="left-circle"/>
@@ -269,7 +269,7 @@
                 </a-form-model>
               </div>
 
-              <div class="task-form-right" :style="{'width':rightWidth}">
+              <div class="task-form-right" :style="{'width':rightWidth + 'px'}">
 
                 <!--购物车效果截图 -->
                 <div class="slide-animate-cover" id="slide-animate" v-show="currentSlideCoverImgSrc">
@@ -280,7 +280,7 @@
                 </div>
                 <template v-if="showAllCollaborateCommentVisible">
                   <a-skeleton :loading="showHistoryLoading" active>
-                    <div class="collaborate-panel" :style="{'width':rightWidth, 'margin-top': '0px', 'z-index': 100, 'padding': '10px'}">
+                    <div class="collaborate-panel" :style="{'width':rightWidth + 'px', 'margin-top': '0px', 'z-index': 100, 'padding': '10px'}">
                       <div class="icon">
                         <comment-icon />
                       </div>
@@ -297,7 +297,7 @@
                 </template>
                 <template v-else>
                   <template v-if="showCollaborateCommentVisible">
-                    <div class="collaborate-panel" :style="{'width':rightWidth, 'margin-top':collaborateTop+'px', 'z-index': 100, 'padding': '10px'}">
+                    <div class="collaborate-panel" :style="{'width':rightWidth + 'px', 'margin-top':collaborateTop+'px', 'z-index': 100, 'padding': '10px'}">
                       <collaborate-comment-panel :source-id="taskId" :source-type="contentType.task" :field-name="currentFieldName" :comment-list="currentCollaborateCommentList" @update-comment="handleUpdateCommentList"/>
                     </div>
                   </template>
@@ -407,7 +407,7 @@
                         </div>
                       </div>
                     </div>
-                    <div v-if="!this.contentLoading && this.currentActiveStepIndex !== 1" :style="{'width':rightWidth, 'margin-top':customTagTop+'px'}">
+                    <div v-if="!this.contentLoading && this.currentActiveStepIndex !== 1" :style="{'width':rightWidth+'px', 'margin-top':customTagTop+'px'}">
                       <custom-tag
                         :show-arrow="showCustomTag"
                         :user-tags="userTags"
@@ -428,6 +428,9 @@
       <template v-if="mode === 'pick-task-slide'">
 
         <div class="pick-task-slide-wrapper">
+          <div class="pick-task-slide-title">
+            <h2>Pick slide(s)</h2>
+          </div>
           <div class="slide-form-block" v-show="form.presentationId">
             <div class="preview-list" v-if="!thumbnailListLoading">
               <div :class="{'preview-item-cover': true, 'preview-item-cover-active': selectedPageIdList.indexOf(item.id) !== -1}" :style="{backgroundImage: 'url(' + item.contentUrl + ')'}" v-for="(item,index) in thumbnailList" :key="index" @click="handleToggleThumbnail(item)">
@@ -675,7 +678,7 @@
                           </a-row>
                           <a-row v-for="(child,cIndex) in item.children" :key="cIndex">
                             <a-col :span="24" class="first-child">
-                              <a-checkbox :value="child.id" @change="onChangeCheckBox($event,templateType.Century)" :checked="filterCentury.indexOf(child.id) > -1 ? true: false">
+                              <a-checkbox :value="child.id" @change="onChangeCheckBox($event,templateType.Century,child)" :checked="filterCentury.indexOf(child.id) > -1 ? true: false">
                                 {{ child.name }}
                               </a-checkbox>
                               <div class="sub-child" >
@@ -969,6 +972,43 @@
       </a-modal>
 
       <a-modal
+        class="my-slide-pick-modal"
+        v-model="selectedSlideVisibleFromSave"
+        :footer="null"
+        :title="null"
+        destroyOnClose
+        width="700px"
+        :closable="false">
+        <div class="select-slide-wrapper">
+          <modal-header @close="selectedSlideVisibleFromSave = false" :white="true"/>
+          <div class="modal-title">
+            Congratulations! You have published your content successfully!
+          </div>
+          <div class="main-tips">
+            <div class="left-img">
+              <img src="~@/assets/icons/task/woniu.png" />
+            </div>
+            <div class="right-img-text">
+              <img src="~@/assets/icons/task/quote.png" />
+              <div class="img-text">
+                Pick slides to create a brilliant task and use it in your future tasks or share with global educators
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="slide-action row-flex-center">
+          <div class="slide-btn-wrapper">
+            <a-button @click="goBack" style="background: #D7D9D9;border: 1px solid #D7D9D9;border-radius: 25px;color: #000;" class="slide-btn-item slide-btn-item-no " type="primary">
+              Not this time
+            </a-button>
+            <a-button @click="handleAddTaskWithSlide" style="background: #15C39A;;border: 1px solid #15C39A;border-radius: 25px;color: #fff;" class="slide-btn-item slide-btn-item-yes" type="primary">
+              Pick now
+            </a-button>
+          </div>
+        </div>
+      </a-modal>
+
+      <a-modal
         title="Add session tags"
         v-model="taskSelectTagVisible"
         :maskClosable="false"
@@ -1012,6 +1052,7 @@
             :sync-data="syncData"
             :show-menu="[ NavigationType.specificSkills, NavigationType.centurySkills, NavigationType.learningOutcomes, NavigationType.assessmentType ]"
             :default-active-menu="NavigationType.learningOutcomes"
+            :recommend-data="recommendData"
             @select-assessmentType="handleSelectAssessmentType"
             @select-sync="handleSelectListData"
             @select-curriculum="handleSelectCurriculum"
@@ -1278,8 +1319,8 @@ export default {
 
       // 复制当前表单数据，给选择slide创建task用‘pick-task-slide’
       currentTaskFormData: null,
-      rightWidth: '600px',
-      leftWidth: '700px',
+      rightWidth: 600,
+      leftWidth: 700,
       groupNameMode: 'input', // input、select,
       newTermName: 'Untitled Term',
       previewTemplate: {},
@@ -1292,7 +1333,11 @@ export default {
       selectedTemplateMarginLeft: '5%',
       selectedTemplateDrawerVisible: false,
       selectedTemplateDrawerZindex: 3000,
-      drawerSelectedTemplateList: []
+      drawerSelectedTemplateList: [],
+
+      selectedSlideVisibleFromSave: false, // 点击保存时，是否显示选择slide的弹窗，此处不去选择slide直接goBack
+
+      recommendData: []
     }
   },
   computed: {
@@ -1511,7 +1556,7 @@ export default {
         if (response.success) {
           this.restoreTask(response.result.id, false)
           this.$message.success(this.$t('teacher.add-task.save-success'))
-          this.goBack()
+          this.selectedSlideVisibleFromSave = true
         } else {
           this.$message.error(response.message)
         }
@@ -1548,9 +1593,15 @@ export default {
       this.$logger.info('handleSelectTaskType ' + type)
       this.form.taskType = type
       this.customTagList = []
-      CustomTagType.task.safa.forEach(name => {
-        this.customTagList.push(name)
-      })
+      if (type === 'FA') {
+        CustomTagType.task.fa.forEach(name => {
+          this.customTagList.push(name)
+        })
+      } else {
+        CustomTagType.task.sa.forEach(name => {
+          this.customTagList.push(name)
+        })
+      }
       this.showAllCollaborateCommentVisible = false
       this.showCollaborateCommentVisible = false
       this.customTagTop = 60
@@ -2019,6 +2070,7 @@ export default {
     handleAddTaskWithSlide () {
       this.$logger.info('handleAddTaskWithSlide')
       this.selectedSlideVisible = false
+      this.selectedSlideVisibleFromSave = false
       this.currentTaskFormData = Object.assign({}, this.form)
       this.$router.push({
         path: '/teacher/add-task/' + this.taskId + '/pick-task-slide'
@@ -2226,6 +2278,11 @@ export default {
       }
     },
     handleSelectDescription () {
+      this.recommendData = [{
+        fromName: this.form.name,
+        list: JSON.parse(JSON.stringify(this.form.learnOuts))
+      }]
+      this.$logger.info('handleSelectDescription recommendData', this.recommendData)
       this.selectSyncDataVisible = true
     },
     // 加载协作的评论和历史记录数据
@@ -2613,11 +2670,11 @@ export default {
     },
     resetWidth () {
       if (document.body.clientWidth < 1400) {
-        this.rightWidth = '500px'
-        this.leftWidth = '550px'
+        this.rightWidth = 500
+        this.leftWidth = 550
       } else {
-        this.rightWidth = '600px'
-        this.leftWidth = '700px'
+        this.rightWidth = 600
+        this.leftWidth = 700
       }
     },
 
@@ -4140,7 +4197,7 @@ export default {
   align-items: flex-start;
   position: relative;
   /deep/ .ant-carousel .slick-slide img{
-    width:650px;
+    width:100%;
   }
   /deep/ .ant-carousel{
     .custom-slick-arrow:before {
@@ -4161,7 +4218,7 @@ export default {
     background: #fff;
     position: relative;
     .slide-select-and-preview {
-      width: 650px;
+      width:100%;
       //min-height: 400px;
 
       .reset-edit-basic-info {

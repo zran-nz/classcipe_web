@@ -1,5 +1,5 @@
 <template>
-  <div class="my-full-form-wrapper">
+  <div class="my-full-form-wrapper" @click="handleUpdateHeader">
     <div class="form-header">
       <common-form-header
         ref="commonFormHeader"
@@ -8,7 +8,7 @@
         :last-change-saved-time="lastChangeSavedTime"
         @update-form="handleUpdateForm"
         @back="goBack"
-        @save="handleSaveEvaluation"
+        @save="handleSaveAndBackEvaluation"
         @publish="handlePublishEvaluation"
       />
     </div>
@@ -109,11 +109,14 @@
                     </div>
                   </div>
                 </div>
+                <div class="no-group-tips">
+                  <no-more-resources v-if="groups.length === 0 && !loading" tips="No group exist"/>
+                </div>
               </div>
             </div>
           </div>
-          <div class="form-table-content">
-            <div class="table-content" v-show="mode === EvaluationTableMode.Edit || (currentActiveStudentId && !loading)">
+          <div class="form-table-content" :data-mode="mode" >
+            <div class="table-content" v-show="(currentActiveStudentId || mode === EvaluationTableMode.Edit) && !loading">
               <div class="form-table-item" v-for="(formItem,tIdx) in forms" :key="tIdx">
                 <div class="form-table-item-content" v-show="formItem.formId === currentActiveFormId">
                   <div class="form-header-line">
@@ -453,6 +456,8 @@ import EvaluationTableType from '@/components/Evaluation/EvaluationTableType'
 import EvaluationTableMode from '@/components/Evaluation/EvaluationTableMode'
 import NoMoreResources from '@/components/Common/NoMoreResources'
 import PptSlideView from '@/components/Evaluation/PptSlideView'
+import { GetAssociate } from '@/api/teacher'
+import { typeMap } from '@/const/teacher'
 
 export default {
   name: 'ClassSessionEvaluation',
@@ -602,14 +607,25 @@ export default {
       // 当前用户所在组，他评用
       currentUserGroupId: null,
       currentUserGroupUserIdList: [],
-      allowPeerEvaluate: false
+      allowPeerEvaluate: false,
+
+      typeMap: typeMap,
+      taskForms: [],
+
+      evaluateStudentId: null, // 当前正在评估的学生id
+      evaluateStudentName: null // 当前正在评估的学生姓名
     }
   },
   created () {
     this.$logger.info('[' + this.formTableMode + '] created ClassSessionEvaluation classId' + this.classId + ' taskId ' + this.taskId)
     this.formTableMode = this.mode
-    this.initData()
 
+    const params = new URLSearchParams(document.location.search)
+    this.evaluateStudentId = params.get('student-id')
+    this.evaluateStudentName = params.get('student-name')
+    this.$logger.info('evaluateStudentId ' + this.evaluateStudentId + ' evaluateStudentName ' + this.evaluateStudentName)
+
+    this.initData()
     // 每次打开第一次提示多选模式
     window.sessionStorage.removeItem('multiConfirmVisible')
   },
@@ -617,6 +633,66 @@ export default {
     initData () {
       this.$logger.info('initData')
       this.loading = true
+
+      // 加载task关联的evaluation表单数据
+      this.$logger.info('ClassSessionEvaluation GetAssociate taskId ' + this.taskId)
+      const associateEvaluationIdList = []
+      GetAssociate({
+        id: this.taskId,
+        type: this.typeMap.task
+      }).then(response => {
+        this.$logger.info('ClassSessionEvaluation GetAssociate response', response)
+        response.result.owner.forEach(item => {
+          item.contents.forEach(content => {
+            if (content.type === typeMap.evaluation) {
+              associateEvaluationIdList.push(content.id)
+            }
+          })
+        })
+
+        response.result.others.forEach(item => {
+          item.contents.forEach(content => {
+            if (content.type === typeMap.evaluation) {
+              associateEvaluationIdList.push(content.id)
+            }
+          })
+        })
+      }).finally(() => {
+        this.$logger.info('associateEvaluationIdList ', associateEvaluationIdList)
+
+        if (associateEvaluationIdList.length) {
+          const forms = []
+          EvaluationQueryByIds({ ids: associateEvaluationIdList }).then((response) => {
+            this.$logger.info('associateEvaluationIdList EvaluationQueryByIds ', response)
+            response.result.forEach(evaluationItem => {
+              evaluationItem.forms.forEach(formItem => {
+                forms.push({
+                  title: formItem.title,
+                  titleEditing: false,
+                  comment: null,
+                  formType: formItem.formType,
+                  se: formItem.se,
+                  pe: formItem.pe,
+                  menuVisible: false,
+                  id: null,
+                  formId: formItem.formId,
+                  initRawHeaders: JSON.parse(formItem.initRawHeaders),
+                  initRawData: JSON.parse(formItem.initRawData)
+                })
+              })
+            })
+          }).then(() => {
+            this.taskForms = forms
+            this.$logger.info('taskForms', this.taskForms)
+            this.loadClassSessionEvaluationData()
+          })
+        } else {
+          this.loadClassSessionEvaluationData()
+        }
+      })
+    },
+
+    loadClassSessionEvaluationData () {
       GetSessionEvaluationByClassId({ classId: this.classId }).then(response => {
         this.$logger.info('init data response', response)
         // 加载班级信息数据
@@ -630,10 +706,7 @@ export default {
           group.expand = true // 默认分组展开显示
           group.members.forEach(member => {
             allStudentUserIdList.push(member.userId)
-
-            // if (member.userId === this.$store.getters.userInfo.email) {
-            // TODO 删除
-            if (member.userId === '130b44d6c58de03828b05eabf9f94dc4') {
+            if (member.userId === this.evaluateStudentId) {
               this.currentUserGroupId = group.id
               this.currentUserGroupUserIdList = group.members.map(member => member.userId)
               this.$logger.info('currentUserGroupId' + this.currentUserGroupId, 'currentUserGroupUserIdList', this.currentUserGroupUserIdList)
@@ -645,23 +718,19 @@ export default {
           this.form = data.evaluation
 
           data.evaluation.forms.forEach(formItem => {
-              this.forms.push({
-                title: formItem.title,
-                titleEditing: false,
-                formType: formItem.formType,
-                se: formItem.se,
-                pe: formItem.pe,
-                menuVisible: false,
-                id: formItem.id,
-                formId: formItem.formId,
-                initRawHeaders: JSON.parse(formItem.initRawHeaders),
-                initRawData: JSON.parse(formItem.initRawData)
-              })
+            this.forms.push({
+              title: formItem.title,
+              titleEditing: false,
+              formType: formItem.formType,
+              se: formItem.se,
+              pe: formItem.pe,
+              menuVisible: false,
+              id: formItem.id,
+              formId: formItem.formId,
+              initRawHeaders: JSON.parse(formItem.initRawHeaders),
+              initRawData: JSON.parse(formItem.initRawData)
+            })
           })
-
-          if (this.forms.length) {
-            this.currentActiveFormId = this.forms[0].formId
-          }
 
           this.$logger.info('forms', this.forms)
 
@@ -669,6 +738,15 @@ export default {
           if (!this.forms.length) {
             data.evaluation.studentEvaluateData = null
           }
+        }
+
+        if (!this.forms.length) {
+          this.forms = this.taskForms
+          this.$logger.info('forms empty, use task forms as forms', this.forms)
+        }
+
+        if (this.forms.length) {
+          this.currentActiveFormId = this.forms[0].formId
         }
 
         this.$logger.info('allStudentUserIdList', allStudentUserIdList)
@@ -748,21 +826,19 @@ export default {
         }
 
         if (this.mode === EvaluationTableMode.StudentEvaluate) {
-          this.$logger.info('StudentEvaluate try fix currentActiveStudentId ' + this.$store.getters.userInfo.email, 'allStudentUserIdList', this.allStudentUserIdList)
-          // TODO 删除 130b44d6c58de03828b05eabf9f94dc4 改成 userInfo.email
-          // if (this.allStudentUserIdList.indexOf(this.$store.getters.userInfo.email) === -1) {
-          if (this.allStudentUserIdList.indexOf('130b44d6c58de03828b05eabf9f94dc4') === -1) {
-            this.$logger.info('current use email ' + (this.$store.getters.userInfo.email) + ' not exist in ', this.allStudentUserIdList, ' cannot student evaluate')
+          this.$logger.info('StudentEvaluate try fix currentActiveStudentId ' + this.evaluateStudentId, 'allStudentUserIdList', this.allStudentUserIdList)
+          if (this.allStudentUserIdList.indexOf(this.evaluateStudentId) === -1) {
+            this.$logger.info('current use email ' + (this.evaluateStudentId) + ' not exist in ', this.allStudentUserIdList, ' cannot student evaluate')
             this.$confirm({
               content: 'You are not in the student list of the current class and cannot evaluate !'
             })
           } else {
-            this.currentActiveStudentId = '130b44d6c58de03828b05eabf9f94dc4'
-            this.selectedMemberIdList = [this.$store.getters.userInfo.email]
+            this.currentActiveStudentId = this.evaluateStudentId
+            this.selectedMemberIdList = [this.evaluateStudentId]
           }
 
-          this.currentActiveStudentId = '130b44d6c58de03828b05eabf9f94dc4'
-          this.selectedMemberIdList = [this.currentActiveStudentId]
+          this.currentActiveStudentId = this.evaluateStudentId
+          this.selectedMemberIdList = [this.evaluateStudentId]
         }
 
         // 检查是否以及评估过了，有过评估数据不允许再评估。查找PeerEmail字段中是否有在currentUserGroupUserIdList中存在，有代表有过评估
@@ -800,6 +876,7 @@ export default {
           this.$message.warn('You are not allowed to evaluate your group member!')
         } else if (this.mode === EvaluationTableMode.PeerEvaluate && !this.allowPeerEvaluate) {
           this.$message.warn('You have evaluated!')
+          this.currentActiveStudentId = member.userId
         } else {
           const index = this.selectedMemberIdList.indexOf(member.userId)
           this.$logger.info('handleClickMember index ' + index)
@@ -916,8 +993,8 @@ export default {
     handleAddFormTable () {
       this.$logger.info('handleAddFormTable')
       const count = this.forms.length + 1
-      this.newTableName = 'Rubric one ' + count
-      this.newFormType = EvaluationTableType.Rubric
+      this.newTableName = 'Rubric ' + count
+      this.newFormType = EvaluationTableType.Rubric_2
       this.selectRubricVisible = true
     },
 
@@ -1240,6 +1317,57 @@ export default {
       }
     },
 
+    handleSaveAndBackEvaluation () {
+      this.$logger.info('handleSaveAndBackEvaluation', this.forms)
+      this.formSaving = true
+      this.showEvaluationNoticeVisible = false
+
+      // 获取所有的表格结构（表头+表内容）
+      const formDataList = []
+      this.$refs.evaluationTable.forEach(tableItem => {
+        const tableData = tableItem.getTableStructData()
+        this.$logger.info('getTableStructData ', tableData, 'header', tableData.headers, 'row list', tableData.list)
+        this.forms.forEach(formItem => {
+          if (formItem.formId === tableData.formId) {
+            const formData = {
+              id: formItem.id,
+              formId: formItem.formId,
+              formType: formItem.formType,
+              title: formItem.title,
+              initRawHeaders: JSON.stringify(tableData.headers),
+              initRawData: JSON.stringify(tableData.list),
+              pe: formItem.pe,
+              se: formItem.se
+            }
+            formDataList.push(formData)
+          }
+        })
+      })
+      this.$logger.info('formDataList', formDataList, 'this.form', this.form, 'this.classId', this.classId)
+      this.form.classId = this.classId
+      this.form.forms = formDataList
+      // 获取评估数据
+      this.$logger.info('!!!!!!!!!!!!!!!!!! studentEvaluateData !!!!!!!!!!!', this.studentEvaluateData)
+      this.form.studentEvaluateData = JSON.stringify(this.studentEvaluateData)
+
+      if (formDataList.length === 0) {
+        this.$message.error('Please add at least one form!')
+        this.formSaving = false
+        return false
+      } else {
+        EvaluationAddOrUpdate(this.form).then((response) => {
+          this.$logger.info('EvaluationAddOrUpdate', response)
+          if (response.success) {
+            this.$message.success('Save successfully!')
+            this.formSaving = false
+            this.goBack()
+          } else {
+            this.$message.error(response.message)
+          }
+        })
+      }
+    },
+
     handleSaveCurrentEvaluation () {
       this.$logger.info('handleSaveCurrentEvaluation')
       this.showEvaluationNoticeVisible = false
@@ -1274,9 +1402,9 @@ export default {
       this.$logger.info('handleSelectRubric newFormType ' + newFormType)
       this.newFormType = newFormType
       if (newFormType === EvaluationTableType.Rubric) {
-        this.newTableName = 'Rubric one ' + (this.forms.length + 1)
+        this.newTableName = 'Rubric ' + (this.forms.length + 1)
       } else if (newFormType === EvaluationTableType.Rubric_2) {
-        this.newTableName = 'Rubric two ' + (this.forms.length + 1)
+        this.newTableName = 'Rubric ' + (this.forms.length + 1)
       } else if (newFormType === EvaluationTableType.CenturySkills) {
         this.newTableName = 'CenturySkills ' + (this.forms.length + 1)
       }
@@ -1490,6 +1618,12 @@ export default {
     },
     handleToggleFormType (formType) {
       this.newFormType = formType
+    },
+
+    handleUpdateHeader (header) {
+      this.$logger.info('ClassSessionEvaluation handleUpdateHeader')
+      this.$refs.evaluationTable.forEach(tableItem => { tableItem.handleUpdateHeader() })
+      this.$refs.commonFormHeader.handleEnsureNewFormName()
     }
   }
 }
@@ -2103,6 +2237,10 @@ export default {
       }
     }
   }
+}
+
+.no-group-tips {
+  margin-top: 100px;
 }
 
 </style>

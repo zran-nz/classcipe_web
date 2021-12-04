@@ -264,7 +264,7 @@
             <!-- evaluation preview-->
           </template>
           <!-- evaluation-->
-          <template v-if="type === typeMap.evaluation && data.table && data.table.length">
+          <template v-if="type === typeMap.evaluation">
             <evaluation-table-preview :evaluation-id="data.id" />
           </template>
         </a-col>

@@ -1,6 +1,7 @@
 <template>
   <div class="new-tree-navigation">
     <new-tree-item
+      v-show="loaded"
       :grade-list="gradeList"
       :tree-item-data="treeItemData"
       :tree-current-parent="null"
@@ -9,7 +10,7 @@
       :current-item-type="treeItemData.type === NavigationType.learningOutcomes ? 'subject' : // 如果当前是大纲，那么第一层数据是不区分层级的subject
         (treeItemData.type === NavigationType.sync ? 'sync' : // 如果是sync第一次是外部的同步数据列表
           ((treeItemData.type === NavigationType.specificSkills || treeItemData.type === NavigationType.assessmentType) ? 'subject' : ( // 如果是specificSkills或assessmentType，那么第一层数据是subject，注意subject只有一层
-            (treeItemData.type === NavigationType.centurySkills ? 'grade' : ( // 如果是centurySkills，那么第一层数据是grade年级列表
+            ((treeItemData.type === NavigationType.centurySkills || NavigationType.AUGeneralCapabilities || NavigationType.NZKeyCompetencies) ? 'grade' : ( // 如果是centurySkills，那么第一层数据是grade年级列表
               treeItemData.type === NavigationType.sdg ? 'sdg' : ( // 如果是sdg，那么第一层数据是sdg列表, 结构：sdg列表-keywords-big idea
                 treeItemData.type === NavigationType.all21Century ? 'all21Century' : (
                   treeItemData.type === NavigationType.idu ? 'grade' : 'none'
@@ -24,6 +25,9 @@
       :odd="index % 2 === 1"
       v-for="(treeItemData, index) in treeDataList"
       :key="index"/>
+    <div class="loading-spin">
+      <a-spin v-show="!loaded" />
+    </div>
   </div>
 </template>
 
@@ -222,21 +226,16 @@ export default {
         })
         this.treeDataList.push(centurySkillsData)
 
-        // evaluation 表格选择用
-        this.treeDataList.push(all21CenturyData)
-
-        this.$logger.info('after handle treeDataList', this.treeDataList)
-      }
-
-       // ib大纲显示IDU
-      this.$logger.info('ib大纲显示IDU ' + (parseInt(this.$store.getters.bindCurriculum) === 5))
-      if (parseInt(this.$store.getters.bindCurriculum) === 5) {
-        // iduData 是year-idu list
-        const iduData = {
-          id: '6',
-          expandStatus: NavigationType.idu === this.defaultActiveMenu,
-          type: NavigationType.idu,
-          name: 'IDU',
+        /**
+         *  NZ和AU对21 century叫法不同NZ-Key competencies、AU-General capabilities，内容逻辑一样
+         *  NZKeyCompetencies: 'NZ-Key competencies',
+         *   AUGeneralCapabilities: 'AU-General capabilities',
+         */
+        const nZKeyCompetenciesData = {
+          id: '51',
+          expandStatus: NavigationType.NZKeyCompetencies === this.defaultActiveMenu,
+          type: NavigationType.NZKeyCompetencies,
+          name: 'NZ-Key competencies',
           children: [],
           gradeList: [],
           parent: null
@@ -244,11 +243,51 @@ export default {
         this.gradeList.forEach(gradeItem => {
           gradeItem.isGrade = true
           gradeItem.children = []
-          iduData.gradeList.push(JSON.parse(JSON.stringify(gradeItem)))
-          iduData.children.push(JSON.parse(JSON.stringify(gradeItem)))
+          nZKeyCompetenciesData.gradeList.push(JSON.parse(JSON.stringify(gradeItem)))
+          nZKeyCompetenciesData.children.push(JSON.parse(JSON.stringify(gradeItem)))
         })
-        this.treeDataList.push(iduData)
+        this.treeDataList.push(nZKeyCompetenciesData)
+
+        const aUGeneralCapabilities = {
+          id: '52',
+          expandStatus: NavigationType.AUGeneralCapabilities === this.defaultActiveMenu,
+          type: NavigationType.AUGeneralCapabilities,
+          name: 'AU-General capabilities',
+          children: [],
+          gradeList: [],
+          parent: null
+        }
+        this.gradeList.forEach(gradeItem => {
+          gradeItem.isGrade = true
+          gradeItem.children = []
+          aUGeneralCapabilities.gradeList.push(JSON.parse(JSON.stringify(gradeItem)))
+          aUGeneralCapabilities.children.push(JSON.parse(JSON.stringify(gradeItem)))
+        })
+        this.treeDataList.push(aUGeneralCapabilities)
+
+        // evaluation 表格选择用
+        this.treeDataList.push(all21CenturyData)
+
+        this.$logger.info('after handle treeDataList', this.treeDataList)
       }
+
+      // iduData 是year-idu list
+      const iduData = {
+        id: '6',
+        expandStatus: NavigationType.idu === this.defaultActiveMenu,
+        type: NavigationType.idu,
+        name: 'IDU',
+        children: [],
+        gradeList: [],
+        parent: null
+      }
+      this.gradeList.forEach(gradeItem => {
+        gradeItem.isGrade = true
+        gradeItem.children = []
+        iduData.gradeList.push(JSON.parse(JSON.stringify(gradeItem)))
+        iduData.children.push(JSON.parse(JSON.stringify(gradeItem)))
+      })
+      this.treeDataList.push(iduData)
       this.loaded = true
     })
   },
@@ -289,11 +328,28 @@ export default {
 @import "~@/components/index.less";
 
 .new-tree-navigation {
+  width: 100%;
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
   background-color: #fff;
   overflow: scroll;
+  position: relative;
+  min-height: 400px;
+}
+
+.loading-spin {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  margin-left: -20px;
+  text-align: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: -20px;
+  height: 40px;
+  width: 40px;
 }
 
 .browser-hide-menu {

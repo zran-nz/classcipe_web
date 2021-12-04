@@ -14,7 +14,9 @@
                    'selected-line': currentDataType === NavigationType.sync ? (selectedKnowledgeIdList.indexOf(item.knowledgeId) !== -1) : (
                      currentDataType === NavigationType.learningOutcomes ? (selectedCurriculumIdList.indexOf(item.id) !== -1) : (
                        currentDataType === NavigationType.specificSkills ? (selectedSubjectSpecificSkillIdList.indexOf(item.id) !== -1) : (
-                         currentDataType === NavigationType.centurySkills ? (selected21CenturySkillIdList.indexOf(item.id) !== -1) : (
+                         (currentDataType === NavigationType.centurySkills ||
+                           currentDataType === NavigationType.AUGeneralCapabilities ||
+                           currentDataType === NavigationType.NZKeyCompetencies) ? (selected21CenturySkillIdList.indexOf(item.id) !== -1) : (
                            currentDataType === NavigationType.sdg ? (selectedBigIdeaList.indexOf(item.id) !== -1) : (
                              currentDataType === NavigationType.assessmentType ? (selectedAssessmentIdList.indexOf(item.id) !== -1) : (
                                currentDataType === NavigationType.all21Century ? (selectedAll21CenturyIdList.indexOf(item.id) !== -1) : (
@@ -280,7 +282,7 @@ export default {
             this.$logger.info('current is grade, skip empty children item!', eventData)
           }
         }
-      } else if (this.currentDataType === NavigationType.centurySkills) {
+      } else if (this.currentDataType === NavigationType.centurySkills || this.currentDataType === NavigationType.AUGeneralCapabilities || this.currentDataType === NavigationType.NZKeyCompetencies) {
         // 21 century skills 是year-knowledge
         if (item.children.length || (item.gradeList && item.gradeList.length)) {
           // 如果有子列表，表示还未到最后一层description，通知左侧导航栏更新同步层级
@@ -526,7 +528,7 @@ export default {
           })
         })
         this.$emit('select-subject-specific-skill', selectedList)
-      } else if (item.dataType === NavigationType.centurySkills) {
+      } else if (item.dataType === NavigationType.centurySkills || item.dataType === NavigationType.AUGeneralCapabilities || item.dataType === NavigationType.NZKeyCompetencies) {
         const index = this.selected21CenturySkillIdList.indexOf(item.knowledgeData.id)
         if (index !== -1) {
           this.selected21CenturySkillIdList.splice(index, 1)

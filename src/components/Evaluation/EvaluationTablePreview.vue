@@ -6,7 +6,16 @@
     <template v-else>
       <a-row class="top-info" :gutter="[16,24]">
         <a-col span="24">
-          <evaluation-table ref="rubric" :description-list="evaluationTableList" :init-raw-headers="initRawHeaders" :init-raw-data="initRawData" mode="preview"/>
+          <div :class="{'form-item': true, 'form-item-active': true}" v-for="(formItem, fIndex) in forms" :key="fIndex">
+            <evaluation-table
+              ref="evaluationTable"
+              :form-id="formItem.formId"
+              :init-raw-headers="formItem.initRawHeaders"
+              :init-raw-data="formItem.initRawData"
+              :form-type="formItem.formType"
+              :form-table-mode="EvaluationTableMode.Preview"
+            />
+          </div>
         </a-col>
       </a-row>
     </template>
@@ -18,11 +27,12 @@
 import * as logger from '@/utils/logger'
 import ContentTypeIcon from '@/components/Teacher/ContentTypeIcon'
 import InputSearch from '@/components/UnitPlan/InputSearch'
-import { EvaluationQueryById } from '@/api/evaluation'
+import { EvaluationQueryByIds } from '@/api/evaluation'
 import { formatLocalUTC } from '@/utils/util'
 import MyContentSelector from '@/components/MyContent/MyContentSelector'
 import RelevantTagSelector from '@/components/UnitPlan/RelevantTagSelector'
 import EvaluationTable from '@/components/Evaluation/EvaluationTable'
+import EvaluationTableMode from '@/components/Evaluation/EvaluationTableMode'
 
 export default {
   name: 'EvaluationTablePreview',
@@ -42,20 +52,12 @@ export default {
   data () {
     return {
       loading: true,
-      form: {
-        id: null,
-        name: '',
-        status: 0,
-        selfType: 0,
-        table: [],
-        tableMode: 0,
-        createTime: '',
-        updateTime: ''
-      },
+      forms: [],
       evaluationTableList: [],
       initRawHeaders: [],
       initRawData: [],
-      selfType: false
+      selfType: false,
+      EvaluationTableMode: EvaluationTableMode
     }
   },
   computed: {
@@ -69,69 +71,34 @@ export default {
     }
   },
   created () {
-    logger.info('AddEvaluation created ' + this.evaluationId)
-    this.form.id = this.evaluationId
+    logger.info('EvaluationTablePreview created ' + this.evaluationId)
     this.initData()
   },
   methods: {
     initData () {
       logger.info('initData doing...')
-      EvaluationQueryById({ id: this.evaluationId }).then(response => {
-        this.$logger.info('EvaluationQueryById response', response.result)
-        const evaluationData = response.result
-        this.form.name = evaluationData.name
-        this.form.id = evaluationData.id
-        this.form.selfType = evaluationData.selfType
-        this.selfType = evaluationData.selfType === 2
-        this.form.tableMode = evaluationData.tableMode
-        this.form.createTime = evaluationData.createTime
-        this.form.updateTime = evaluationData.updateTime
-        if (evaluationData.table.length) {
-          const headers = evaluationData.table.splice(0, 1)[0]
-          this.$logger.info('headers ', headers)
-          const formatHeaders = []
-          headers.forEach(header => {
-            this.$logger.info('header ', header)
-            if (!header.itemType.startsWith('user_ext')) {
-              formatHeaders.push({
-                label: header.itemName,
-                previewLabel: header.itemName,
-                type: header.itemType,
-                editable: false,
-                required: true
-              })
-            } else {
-              formatHeaders.push({
-                label: header.itemName,
-                previewLabel: header.itemName,
-                type: header.itemType,
-                editable: false,
-                required: false
-              })
-            }
-          })
-          this.$logger.info('formatHeaders', formatHeaders)
-          if (formatHeaders.length) {
-            this.initRawHeaders = formatHeaders
-          }
-
-          const bodyList = evaluationData.table
-          const initRawData = []
-          this.$logger.info('bodyList ', bodyList)
-          bodyList.forEach(lineData => {
-            const line = {}
-            lineData.forEach(lineItem => {
-              if (!lineItem.itemType.startsWith('keywords')) {
-                line[lineItem.itemType] = lineItem.itemName
-              } else {
-                line[lineItem.itemType] = lineItem.itemName ? JSON.parse(lineItem.itemName) : []
-              }
+      EvaluationQueryByIds({ ids: [this.evaluationId] }).then((response) => {
+        this.$logger.info('handleToggleSelect EvaluationQueryByIds ' + this.evaluationId, response)
+        const forms = []
+        response.result.forEach(evaluationItem => {
+          evaluationItem.forms.forEach(formItem => {
+            forms.push({
+              title: formItem.title,
+              titleEditing: false,
+              formType: formItem.formType,
+              se: formItem.se,
+              pe: formItem.pe,
+              menuVisible: false,
+              id: formItem.id,
+              formId: formItem.formId,
+              initRawHeaders: JSON.parse(formItem.initRawHeaders),
+              initRawData: JSON.parse(formItem.initRawData)
             })
-
-            initRawData.push(line)
           })
-          this.$logger.info('initRawData', initRawData)
-          this.initRawData = initRawData
+        })
+        this.forms = forms
+        if (this.forms.length === 0) {
+          this.$message.warn('The current evaluation form has not been created')
         }
       }).finally(() => {
         this.loading = false
@@ -834,5 +801,9 @@ export default {
       padding: 0 10px;
     }
   }
+}
+
+.form-item {
+  overflow-y: scroll;
 }
 </style>
