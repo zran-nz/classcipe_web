@@ -17,7 +17,7 @@
         <a-row class="unit-content" v-if="!contentLoading" >
           <a-col span="24" class="main-content">
             <a-card :bordered="false" :body-style="{padding: '16px', display: 'flex', 'justify-content': 'space-between'}" class="card-wrapper">
-              <div class="task-form-left root-locate-form" ref="form" @click="focusInput($event)" :style="{'width':leftWidth}">
+              <div class="task-form-left root-locate-form" ref="form" @click="focusInput($event)" :style="{'width':leftWidth + 'px'}">
                 <a-form-model :model="form" class="my-form-wrapper" >
                   <a-steps :current="currentActiveStepIndex" direction="vertical" @change="onChangeStep">
                     <a-step class="step-1" title="Edit Task Info" :status="currentActiveStepIndex === 0 ? 'process':'wait'">
@@ -180,7 +180,7 @@
                                 <div class="slide-select-action" v-show="!form.presentationId">
                                   <img src="https://dcdkqlzgpl5ba.cloudfront.net/file/202111271330492511-Welcome_slide.png" />
                                 </div>
-                                <div class="slide-preview" v-show="!form.showSelected && form.presentationId && thumbnailList.length">
+                                <div class="slide-preview" :style="{'width':(leftWidth- 50) + 'px'}" v-show="!form.showSelected && form.presentationId && thumbnailList.length">
                                   <a-carousel ref="carousel" arrows :after-change="onChangePage">
                                     <div slot="prevArrow" class="custom-slick-arrow" style="left: 10px;zIndex: 9" >
                                       <a-icon type="left-circle"/>
@@ -269,7 +269,7 @@
                 </a-form-model>
               </div>
 
-              <div class="task-form-right" :style="{'width':rightWidth}">
+              <div class="task-form-right" :style="{'width':rightWidth + 'px'}">
 
                 <!--购物车效果截图 -->
                 <div class="slide-animate-cover" id="slide-animate" v-show="currentSlideCoverImgSrc">
@@ -280,7 +280,7 @@
                 </div>
                 <template v-if="showAllCollaborateCommentVisible">
                   <a-skeleton :loading="showHistoryLoading" active>
-                    <div class="collaborate-panel" :style="{'width':rightWidth, 'margin-top': '0px', 'z-index': 100, 'padding': '10px'}">
+                    <div class="collaborate-panel" :style="{'width':rightWidth + 'px', 'margin-top': '0px', 'z-index': 100, 'padding': '10px'}">
                       <div class="icon">
                         <comment-icon />
                       </div>
@@ -297,7 +297,7 @@
                 </template>
                 <template v-else>
                   <template v-if="showCollaborateCommentVisible">
-                    <div class="collaborate-panel" :style="{'width':rightWidth, 'margin-top':collaborateTop+'px', 'z-index': 100, 'padding': '10px'}">
+                    <div class="collaborate-panel" :style="{'width':rightWidth + 'px', 'margin-top':collaborateTop+'px', 'z-index': 100, 'padding': '10px'}">
                       <collaborate-comment-panel :source-id="taskId" :source-type="contentType.task" :field-name="currentFieldName" :comment-list="currentCollaborateCommentList" @update-comment="handleUpdateCommentList"/>
                     </div>
                   </template>
@@ -407,7 +407,7 @@
                         </div>
                       </div>
                     </div>
-                    <div v-if="!this.contentLoading && this.currentActiveStepIndex !== 1" :style="{'width':rightWidth, 'margin-top':customTagTop+'px'}">
+                    <div v-if="!this.contentLoading && this.currentActiveStepIndex !== 1" :style="{'width':rightWidth+'px', 'margin-top':customTagTop+'px'}">
                       <custom-tag
                         :show-arrow="showCustomTag"
                         :user-tags="userTags"
@@ -1319,8 +1319,8 @@ export default {
 
         // 复制当前表单数据，给选择slide创建task用‘pick-task-slide’
         currentTaskFormData: null,
-        rightWidth: '600px',
-        leftWidth: '700px',
+        rightWidth: 600,
+        leftWidth: 700,
         groupNameMode: 'input', // input、select,
         newTermName: 'Untitled Term',
         previewTemplate: {},
@@ -2670,11 +2670,11 @@ export default {
       },
       resetWidth () {
         if (document.body.clientWidth < 1400) {
-          this.rightWidth = '500px'
-          this.leftWidth = '550px'
+          this.rightWidth = 500
+          this.leftWidth = 550
         } else {
-          this.rightWidth = '600px'
-          this.leftWidth = '700px'
+          this.rightWidth = 600
+          this.leftWidth = 700
         }
       },
 
@@ -4197,7 +4197,7 @@ export default {
     align-items: flex-start;
     position: relative;
     /deep/ .ant-carousel .slick-slide img{
-      width:650px;
+      width:100%;
     }
     /deep/ .ant-carousel{
       .custom-slick-arrow:before {
@@ -4218,7 +4218,7 @@ export default {
       background: #fff;
       position: relative;
       .slide-select-and-preview {
-        width: 650px;
+        width:100%;
         //min-height: 400px;
 
         .reset-edit-basic-info {
