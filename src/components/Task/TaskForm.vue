@@ -139,11 +139,13 @@
           question-index="_questionIndex_1"
           :show-menu="[ NavigationType.specificSkills, NavigationType.centurySkills, NavigationType.learningOutcomes ]"
           :default-active-menu="NavigationType.learningOutcomes"
+          :recommend-data="recommendData"
           @select-big-idea="handleSelectListData"
           @select-sync="handleSelectListData"
           @select-curriculum="handleSelectCurriculum"
           @select-subject-specific-skill="handleSelectSubjectSpecificSkillListData"
           @select-century-skill="handleSelect21CenturySkillListData"
+          @select-recommend="handleSelectRecommendData"
         />
         <div class="modal-ensure-action-line-right">
           <a-button class="action-item action-cancel" shape="round" @click="handleCancelSelectData">Cancel</a-button>
@@ -287,13 +289,17 @@ export default {
       selectedSpecificSkillList: [],
       // century skill
       selectedCenturySkillList: [],
+      selectedRecommendList: [],
       uploading: false,
 
       showCustomTag: true,
       sessionTags: [],
       customTagList: [],
       userTags: {},
-      taskNum: 1
+      taskNum: 1,
+
+      parentData: null,
+      recommendData: []
     }
   },
   computed: {
@@ -326,7 +332,8 @@ export default {
   created () {
     logger.info('add task created ' + this.taskId + ' ' + this.$route.path)
     this.questionPrefix = '' + this.taskPrefix + '__question_'
-    const formData = Object.assign({}, this.parentFormData)
+    this.parentData = JSON.parse(JSON.stringify(this.parentFormData))
+    const formData = JSON.parse(JSON.stringify(this.parentFormData))
     formData.id = null
     formData.selectPageObjectIds = []
     formData.__taskId = '__taskId_' + this.taskPrefix
@@ -431,6 +438,11 @@ export default {
       this.selectedCenturySkillList = data
     },
 
+    handleSelectRecommendData (data) {
+      this.$logger.info('handleSelectRecommendData')
+      this.selectedRecommendList = data
+    },
+
     // TODO 自动更新选择的sync 的数据knowledgeId和name列表
     handleCancelSelectData () {
       this.selectedSyncList = []
@@ -447,6 +459,7 @@ export default {
         this.selectedSpecificSkillList,
         this.selectedCenturySkillList,
         this.selectedBigIdeaList,
+        this.selectedRecommendList,
         this.selectedSyncList)
       this.selectedSyncList.forEach(data => {
         const filterLearnOuts = this.form.learnOuts.filter(item => item.knowledgeId === data.knowledgeId)
@@ -474,12 +487,18 @@ export default {
         if (filterLearnOuts.length > 0) {
           return
         }
-        this.form.learnOuts.push({
-          knowledgeId: data.knowledgeData.id,
-          name: data.knowledgeData.name,
-          tagType: data.knowledgeData.tagType
-        })
+        if (data.knowledgeData) {
+          this.form.learnOuts.push({
+            knowledgeId: data.knowledgeData.id,
+            name: data.knowledgeData.name,
+            tagType: data.knowledgeData.tagType
+          })
+        }
       })
+      this.selectedRecommendList.forEach(item => {
+        this.form.learnOuts.push(item)
+      })
+
       this.$logger.info('this.form.learnOuts', this.form.learnOuts)
       this.selectSyncDataVisible = false
     },
@@ -491,6 +510,11 @@ export default {
       }
     },
     handleSelectDescription () {
+      this.recommendData = [{
+        fromName: this.parentData.name,
+        list: JSON.parse(JSON.stringify(this.parentData.learnOuts))
+      }]
+      this.$logger.info('handleSelectDescription recommendData', this.recommendData)
       this.selectSyncDataVisible = true
     },
 

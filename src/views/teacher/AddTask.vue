@@ -1052,6 +1052,7 @@
             :sync-data="syncData"
             :show-menu="[ NavigationType.specificSkills, NavigationType.centurySkills, NavigationType.learningOutcomes, NavigationType.assessmentType ]"
             :default-active-menu="NavigationType.learningOutcomes"
+            :recommend-data="recommendData"
             @select-assessmentType="handleSelectAssessmentType"
             @select-sync="handleSelectListData"
             @select-curriculum="handleSelectCurriculum"
@@ -1334,7 +1335,9 @@ export default {
         selectedTemplateDrawerZindex: 3000,
         drawerSelectedTemplateList: [],
 
-        selectedSlideVisibleFromSave: false // 点击保存时，是否显示选择slide的弹窗，此处不去选择slide直接goBack
+        selectedSlideVisibleFromSave: false, // 点击保存时，是否显示选择slide的弹窗，此处不去选择slide直接goBack
+
+        recommendData: []
       }
     },
     computed: {
@@ -2275,6 +2278,11 @@ export default {
         }
       },
       handleSelectDescription () {
+        this.recommendData = [{
+          fromName: this.form.name,
+          list: JSON.parse(JSON.stringify(this.form.learnOuts))
+        }]
+        this.$logger.info('handleSelectDescription recommendData', this.recommendData)
         this.selectSyncDataVisible = true
       },
       // 加载协作的评论和历史记录数据
