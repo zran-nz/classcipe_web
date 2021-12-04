@@ -613,12 +613,12 @@ export default {
             const url = lessonHost + 't/' + res.data.class_id
             var windowObjectReference
             var strWindowFeatures = 'width=1200,height=750,menubar=yes,location=yes,resizable=yes,scrollbars=true,status=true,top=100,left=200'
-            windowObjectReference = window.open(
-              'about:blank',
-              '_blank',
-              strWindowFeatures
-            )
             if (this.sessionMode === 1) {
+              windowObjectReference = window.open(
+                'about:blank',
+                '_blank',
+                strWindowFeatures
+              )
               windowObjectReference.location = url
               setTimeout(function () {
                 window.location.href = targetUrl
