@@ -545,7 +545,7 @@
         destroyOnClose
         :dialog-style="{ top: '10px','margin-left':selectedTemplateMarginLeft,'transition': '0.8s' }"
         :width="selectedTemplateMadelWidth"
-        :closable="true"
+        :closable="!selectedTemplateDrawerVisible"
         @ok="selectedMyContentVisible = false">
         <a-tabs class="template-tabs" >
           <a-tab-pane key="1" tab="Slide template(s)">
@@ -603,42 +603,55 @@
                   </div>
                 </a-row>
                 <a-row v-if="filterType == 2 && showTemplateFilter">
-                  <div class="filter-row">
-                    <a-row >
-                      <div class="row-select">
-                        <a-col :span="12">
-                          <span class="sub-category">Knowledge focus </span>
-                          <div class="sub-select" v-for="(item ,index) in templateFilterCondition(templateType.Assessments,'Knowledge focus')" :key="index">
-                            <a-row>
-                              <h4>{{ item.name }}</h4>
-                            </a-row>
-                            <div class="sub-items">
-                              <div class="sub-item" v-for="(child,cIndex) in item.children" :key="cIndex">
-                                <a-checkbox :value="child.id" @change="onChangeCheckBox($event,templateType.Assessments)" :checked="filterAssessments.indexOf(child.id) > -1 ? true: false">
-                                  {{ child.name }}
-                                </a-checkbox>
+                  <a-tabs v-model="filterAssessmentsType" :defaultActiveKey="filterAssessmentsType" @change="changeFilterType" :tabBarGutter="3" tabPosition="left" :tabBarStyle="{margin:'10px 20px'}">
+                    <a-tab-pane key="1" tab="Knowledge focus" >
+                      <div class="filter-row">
+                        <a-row >
+                          <div class="row-select">
+                            <a-col :span="24">
+                              <!--                          <span class="sub-category">Knowledge focus </span>-->
+                              <div class="sub-select" v-for="(item ,index) in templateFilterCondition(templateType.Assessments,'Knowledge focus')" :key="index">
+                                <a-row>
+                                  <h4>{{ item.name }}</h4>
+                                </a-row>
+                                <div class="sub-items">
+                                  <div class="sub-item" v-for="(child,cIndex) in item.children" :key="cIndex">
+                                    <a-checkbox :value="child.id" @change="onChangeCheckBox($event,templateType.Assessments)" :checked="filterAssessments.indexOf(child.id) > -1 ? true: false">
+                                      {{ child.name }}
+                                    </a-checkbox>
+                                  </div>
+                                </div>
                               </div>
-                            </div>
+                            </a-col>
                           </div>
-                        </a-col>
-                        <a-col :span="12">
-                          <span class="sub-category">Skill focus</span>
-                          <div class="sub-select" v-for="(item ,index) in templateFilterCondition(templateType.Assessments,'Skill focus')" :key="index">
-                            <a-row>
-                              <h4>{{ item.name }}</h4>
-                            </a-row>
-                            <div class="sub-items">
-                              <div class="sub-item" v-for="(child,cIndex) in item.children" :key="cIndex">
-                                <a-checkbox :value="child.id" @change="onChangeCheckBox($event,templateType.Assessments)" :checked="filterAssessments.indexOf(child.id) > -1 ? true: false">
-                                  {{ child.name }}
-                                </a-checkbox>
-                              </div>
-                            </div>
-                          </div>
-                        </a-col>
+                        </a-row>
                       </div>
-                    </a-row>
-                  </div>
+                    </a-tab-pane>
+                    <a-tab-pane key="2" tab="Skill focus" force-render>
+                      <div class="filter-row">
+                        <a-row >
+                          <div class="row-select">
+                            <a-col :span="24">
+                              <!--                          <span class="sub-category">Skill focus</span>-->
+                              <div class="sub-select" v-for="(item ,index) in templateFilterCondition(templateType.Assessments,'Skill focus')" :key="index">
+                                <a-row>
+                                  <h4>{{ item.name }}</h4>
+                                </a-row>
+                                <div class="sub-items">
+                                  <div class="sub-item" v-for="(child,cIndex) in item.children" :key="cIndex">
+                                    <a-checkbox :value="child.id" @change="onChangeCheckBox($event,templateType.Assessments)" :checked="filterAssessments.indexOf(child.id) > -1 ? true: false">
+                                      {{ child.name }}
+                                    </a-checkbox>
+                                  </div>
+                                </div>
+                              </div>
+                            </a-col>
+                          </div>
+                        </a-row>
+                      </div>
+                    </a-tab-pane>
+                  </a-tabs>
+
                 </a-row>
                 <a-row v-if="filterType == 3 && showTemplateFilter">
                   <div class="filter-row">
@@ -1329,6 +1342,7 @@ export default {
         showTemplateFilter: false,
         currentSlideCoverImgSrc: null,
         filterType: undefined,
+        filterAssessmentsType:'1',
         selectedTemplateMadelWidth: '90%',
         selectedTemplateMarginLeft: '5%',
         selectedTemplateDrawerVisible: false,
@@ -2345,13 +2359,13 @@ export default {
       },
       selectFilter (data) {
         this.$logger.info('selectFilter', data)
-        this.$logger.info('filterLearn', this.filterLearn)
+        this.$logger.info('filterType', this.filterType)
         this.templateLoading = true
         this.selectedTemplateList = []
         FilterTemplates({
             filterCategoryType: this.filterType,
             filterLearn: this.filterLearn,
-            filterAssessments: this.filterAssessments,
+            filterAssessments: this.getFilterAssessmentsParams(this.filterAssessments),
             filterCentury: this.getFilterParams(this.filterCentury)
         }).then(response => {
           this.$logger.info('handleToggleTemplateType ', response)
@@ -2645,6 +2659,37 @@ export default {
         })
         return resList
       },
+      getFilterAssessmentsParams (list) {
+        if (list.length === 0) {
+          return []
+        }
+        var resList = []
+        if(!this.filterAssessmentsType){
+          return list
+        }
+        if(this.assessmentsList.length !== 2){
+          return list
+        }
+        if(this.filterAssessmentsType == '1'){
+          this.assessmentsList[0].children.forEach(parent => {
+            parent.children.forEach(child => {
+                if(list.indexOf(child.id) !== -1){
+                  resList.push(child.id)
+                }
+            })
+          })
+        }else{
+          this.assessmentsList[1].children.forEach(parent => {
+            parent.children.forEach(child => {
+              if(list.indexOf(child.id) !== -1){
+                resList.push(child.id)
+              }
+            })
+          })
+        }
+        console.log(resList)
+        return resList
+      },
       GetTagYearTips () {
         GetTagYearTips().then((response) => {
           this.$logger.info('GetTagYearTips response', response.result)
@@ -2740,6 +2785,9 @@ export default {
         this.selectedTemplateMadelWidth = '90%'
         this.selectedTemplateDrawerVisible = false
         this.selectedTemplateDrawerZindex = 1000
+        if(this.selectedTemplateIdList.length === 0){
+          this.form.showSelected = false
+        }
       },
       handleSelectDrawerSave () {
         this.selectedTemplateMarginLeft = '5%'
