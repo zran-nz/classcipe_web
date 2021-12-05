@@ -40,7 +40,7 @@
             <div class="action-icon" v-show="formItem.titleEditing === false">
               <div class="form-title-item">
                 <div class="form-title" @dblclick="handleEditFormTitle(formItem)">{{ formItem.title }} </div>
-                <div class="form-delete-icon">
+                <div class="form-delete-icon" v-show="mode === EvaluationTableMode.Edit">
                   <a-popconfirm title="Delete this form ?" ok-text="Yes" @confirm="handleDeleteForm(formItem)" cancel-text="No">
                     <a-icon type="delete" />
                   </a-popconfirm>
@@ -613,7 +613,9 @@ export default {
       taskForms: [],
 
       evaluateStudentId: null, // 当前正在评估的学生id
-      evaluateStudentName: null // 当前正在评估的学生姓名
+      evaluateStudentName: null, // 当前正在评估的学生姓名
+
+      isEmptyStudentEvaluateData: false
     }
   },
   created () {
@@ -769,6 +771,8 @@ export default {
         } else {
           isEmptyStudentEvaluateData = true
         }
+
+        this.isEmptyStudentEvaluateData = isEmptyStudentEvaluateData
         this.$logger.info('isEmptyStudentEvaluateData ' + isEmptyStudentEvaluateData, data.evaluation)
         if (!isEmptyStudentEvaluateData) {
           this.studentEvaluateData = JSON.parse(data.evaluation.studentEvaluateData)
@@ -1222,149 +1226,310 @@ export default {
     },
     handleSaveEvaluation () {
       this.$logger.info('handleSaveEvaluation', this.forms)
-      this.formSaving = true
-      this.showEvaluationNoticeVisible = false
 
-      // 获取所有的表格结构（表头+表内容）
-      const formDataList = []
-      this.$refs.evaluationTable.forEach(tableItem => {
-        const tableData = tableItem.getTableStructData()
-        this.$logger.info('getTableStructData ', tableData, 'header', tableData.headers, 'row list', tableData.list)
-        this.forms.forEach(formItem => {
-          if (formItem.formId === tableData.formId) {
-            const formData = {
-              id: formItem.id,
-              formId: formItem.formId,
-              formType: formItem.formType,
-              title: formItem.title,
-              initRawHeaders: JSON.stringify(tableData.headers),
-              initRawData: JSON.stringify(tableData.list),
-              pe: formItem.pe,
-              se: formItem.se
-            }
-            formDataList.push(formData)
-          }
-        })
-      })
-      this.$logger.info('formDataList', formDataList, 'this.form', this.form, 'this.classId', this.classId)
-      this.form.classId = this.classId
-      this.form.forms = formDataList
-      // 获取评估数据
-      this.$logger.info('!!!!!!!!!!!!!!!!!! studentEvaluateData !!!!!!!!!!!', this.studentEvaluateData)
-      this.form.studentEvaluateData = JSON.stringify(this.studentEvaluateData)
+      if (!this.isEmptyStudentEvaluateData && this.mode === EvaluationTableMode.Edit) {
+        this.$info({
+          title: 'Notice',
+          content: 'After modifying the form, all student evaluation data will be cleared',
+          onOk: () => {
+            this.formSaving = true
+            this.showEvaluationNoticeVisible = false
 
-      if (formDataList.length === 0) {
-        this.$message.error('Please add at least one form!')
-        this.formSaving = false
-        return false
-      } else {
-        EvaluationAddOrUpdate(this.form).then((response) => {
-          this.$logger.info('EvaluationAddOrUpdate', response)
-          this.$message.success('Save successfully!')
-          this.formSaving = false
-        }).then(() => {
-          let currentForm = this.forms.filter(item => item.formId === this.currentActiveFormId)
-          this.$logger.info('currentForm', currentForm)
-          if (currentForm.length) {
-            currentForm = currentForm[0]
-          } else {
-            currentForm = null
-          }
-          if (this.mode === EvaluationTableMode.TeacherEvaluate && currentForm && (currentForm.pe || currentForm.se)) {
-            GetSessionEvaluationByClassId({ classId: this.classId }).then(response => {
-              this.$logger.info('after EvaluationAddOrUpdate GetSessionEvaluationByClassId', response)
+            // 获取所有的表格结构（表头+表内容）
+            const formDataList = []
+            this.$refs.evaluationTable.forEach(tableItem => {
+              const tableData = tableItem.getTableStructData()
+              this.$logger.info('getTableStructData ', tableData, 'header', tableData.headers, 'row list', tableData.list)
+              this.forms.forEach(formItem => {
+                if (formItem.formId === tableData.formId) {
+                  const formData = {
+                    id: formItem.id,
+                    formId: formItem.formId,
+                    formType: formItem.formType,
+                    title: formItem.title,
+                    initRawHeaders: JSON.stringify(tableData.headers),
+                    initRawData: JSON.stringify(tableData.list),
+                    pe: formItem.pe,
+                    se: formItem.se
+                  }
+                  formDataList.push(formData)
+                }
+              })
+            })
+            this.$logger.info('formDataList', formDataList, 'this.form', this.form, 'this.classId', this.classId)
+            this.form.classId = this.classId
+            this.form.forms = formDataList
+            // 获取评估数据
+            this.$logger.info('!!!!!!!!!!!!!!!!!! studentEvaluateData !!!!!!!!!!!', this.studentEvaluateData)
+            this.form.studentEvaluateData = '{}'
 
-              const data = response.result
-              if (data.evaluation && data.evaluation.studentEvaluateData) {
-                const evaluateDataObj = JSON.parse(data.evaluation.studentEvaluateData)
-                const userIds = Object.keys(evaluateDataObj)
+            if (formDataList.length === 0) {
+              this.$message.error('Please add at least one form!')
+              this.formSaving = false
+              return false
+            } else {
+              EvaluationAddOrUpdate(this.form).then((response) => {
+                this.$logger.info('EvaluationAddOrUpdate', response)
+                this.$message.success('Save successfully!')
+                this.formSaving = false
+              }).then(() => {
+                let currentForm = this.forms.filter(item => item.formId === this.currentActiveFormId)
+                this.$logger.info('currentForm', currentForm)
+                if (currentForm.length) {
+                  currentForm = currentForm[0]
+                } else {
+                  currentForm = null
+                }
+                if (this.mode === EvaluationTableMode.TeacherEvaluate && currentForm && (currentForm.pe || currentForm.se)) {
+                  GetSessionEvaluationByClassId({ classId: this.classId }).then(response => {
+                    this.$logger.info('after EvaluationAddOrUpdate GetSessionEvaluationByClassId', response)
 
-                this.studentEvaluateIdList = []
-                this.peerEvaluateIdList = []
-                const studentEvaluateIdList = []
-                const peerEvaluateIdList = []
+                    const data = response.result
+                    if (data.evaluation && data.evaluation.studentEvaluateData) {
+                      const evaluateDataObj = JSON.parse(data.evaluation.studentEvaluateData)
+                      const userIds = Object.keys(evaluateDataObj)
 
-                userIds.forEach(userId => {
-                  this.$logger.info('userId ' + userId, evaluateDataObj[userId])
-                  const studentData = evaluateDataObj[userId]
-                  const formData = studentData[this.currentActiveFormId]
-                  this.$logger.info('user form data', formData)
+                      this.studentEvaluateIdList = []
+                      this.peerEvaluateIdList = []
+                      const studentEvaluateIdList = []
+                      const peerEvaluateIdList = []
 
-                  // 统计是否自评
-                  const rowKeys = Object.keys(formData)
-                  rowKeys.forEach(rowId => {
-                    if (rowId.startsWith('row_')) {
-                      // 如果学生有过自评
-                      if (studentEvaluateIdList.indexOf(userId) === -1 && !!formData[rowId].studentEvaluation) {
-                        studentEvaluateIdList.push(userId)
-                      }
-                      // 如果学生有被他评，记录下他评的邮箱
-                      if (peerEvaluateIdList.indexOf(userId) === -1 && !!formData[rowId].peerEvaluation) {
-                        peerEvaluateIdList.push(formData[rowId].peerEmail)
-                      }
+                      userIds.forEach(userId => {
+                        this.$logger.info('userId ' + userId, evaluateDataObj[userId])
+                        const studentData = evaluateDataObj[userId]
+                        const formData = studentData[this.currentActiveFormId]
+                        this.$logger.info('user form data', formData)
+
+                        // 统计是否自评
+                        const rowKeys = Object.keys(formData)
+                        rowKeys.forEach(rowId => {
+                          if (rowId.startsWith('row_')) {
+                            // 如果学生有过自评
+                            if (studentEvaluateIdList.indexOf(userId) === -1 && !!formData[rowId].studentEvaluation) {
+                              studentEvaluateIdList.push(userId)
+                            }
+                            // 如果学生有被他评，记录下他评的邮箱
+                            if (peerEvaluateIdList.indexOf(userId) === -1 && !!formData[rowId].peerEvaluation) {
+                              peerEvaluateIdList.push(formData[rowId].peerEmail)
+                            }
+                          }
+                        })
+                      })
+
+                      this.$logger.info('studentEvaluateIdList', studentEvaluateIdList, 'peerEvaluateIdList', peerEvaluateIdList)
+                      this.studentEvaluateIdList = studentEvaluateIdList
+                      this.peerEvaluateIdList = peerEvaluateIdList
+                      this.showEvaluationNoticeVisible = true
                     }
                   })
-                })
-
-                this.$logger.info('studentEvaluateIdList', studentEvaluateIdList, 'peerEvaluateIdList', peerEvaluateIdList)
-                this.studentEvaluateIdList = studentEvaluateIdList
-                this.peerEvaluateIdList = peerEvaluateIdList
-                this.showEvaluationNoticeVisible = true
-              }
-            })
+                }
+              })
+            }
           }
         })
+      } else {
+        this.formSaving = true
+        this.showEvaluationNoticeVisible = false
+
+        // 获取所有的表格结构（表头+表内容）
+        const formDataList = []
+        this.$refs.evaluationTable.forEach(tableItem => {
+          const tableData = tableItem.getTableStructData()
+          this.$logger.info('getTableStructData ', tableData, 'header', tableData.headers, 'row list', tableData.list)
+          this.forms.forEach(formItem => {
+            if (formItem.formId === tableData.formId) {
+              const formData = {
+                id: formItem.id,
+                formId: formItem.formId,
+                formType: formItem.formType,
+                title: formItem.title,
+                initRawHeaders: JSON.stringify(tableData.headers),
+                initRawData: JSON.stringify(tableData.list),
+                pe: formItem.pe,
+                se: formItem.se
+              }
+              formDataList.push(formData)
+            }
+          })
+        })
+        this.$logger.info('formDataList', formDataList, 'this.form', this.form, 'this.classId', this.classId)
+        this.form.classId = this.classId
+        this.form.forms = formDataList
+        // 获取评估数据
+        this.$logger.info('!!!!!!!!!!!!!!!!!! studentEvaluateData !!!!!!!!!!!', this.studentEvaluateData)
+        this.form.studentEvaluateData = JSON.stringify(this.studentEvaluateData)
+
+        if (formDataList.length === 0) {
+          this.$message.error('Please add at least one form!')
+          this.formSaving = false
+          return false
+        } else {
+          EvaluationAddOrUpdate(this.form).then((response) => {
+            this.$logger.info('EvaluationAddOrUpdate', response)
+            this.$message.success('Save successfully!')
+            this.formSaving = false
+          }).then(() => {
+            let currentForm = this.forms.filter(item => item.formId === this.currentActiveFormId)
+            this.$logger.info('currentForm', currentForm)
+            if (currentForm.length) {
+              currentForm = currentForm[0]
+            } else {
+              currentForm = null
+            }
+            if (this.mode === EvaluationTableMode.TeacherEvaluate && currentForm && (currentForm.pe || currentForm.se)) {
+              GetSessionEvaluationByClassId({ classId: this.classId }).then(response => {
+                this.$logger.info('after EvaluationAddOrUpdate GetSessionEvaluationByClassId', response)
+
+                const data = response.result
+                if (data.evaluation && data.evaluation.studentEvaluateData) {
+                  const evaluateDataObj = JSON.parse(data.evaluation.studentEvaluateData)
+                  const userIds = Object.keys(evaluateDataObj)
+
+                  this.studentEvaluateIdList = []
+                  this.peerEvaluateIdList = []
+                  const studentEvaluateIdList = []
+                  const peerEvaluateIdList = []
+
+                  userIds.forEach(userId => {
+                    this.$logger.info('userId ' + userId, evaluateDataObj[userId])
+                    const studentData = evaluateDataObj[userId]
+                    const formData = studentData[this.currentActiveFormId]
+                    this.$logger.info('user form data', formData)
+
+                    // 统计是否自评
+                    const rowKeys = Object.keys(formData)
+                    rowKeys.forEach(rowId => {
+                      if (rowId.startsWith('row_')) {
+                        // 如果学生有过自评
+                        if (studentEvaluateIdList.indexOf(userId) === -1 && !!formData[rowId].studentEvaluation) {
+                          studentEvaluateIdList.push(userId)
+                        }
+                        // 如果学生有被他评，记录下他评的邮箱
+                        if (peerEvaluateIdList.indexOf(userId) === -1 && !!formData[rowId].peerEvaluation) {
+                          peerEvaluateIdList.push(formData[rowId].peerEmail)
+                        }
+                      }
+                    })
+                  })
+
+                  this.$logger.info('studentEvaluateIdList', studentEvaluateIdList, 'peerEvaluateIdList', peerEvaluateIdList)
+                  this.studentEvaluateIdList = studentEvaluateIdList
+                  this.peerEvaluateIdList = peerEvaluateIdList
+                  this.showEvaluationNoticeVisible = true
+                }
+              })
+            }
+          })
+        }
       }
     },
 
     handleSaveAndBackEvaluation () {
       this.$logger.info('handleSaveAndBackEvaluation', this.forms)
-      this.formSaving = true
-      this.showEvaluationNoticeVisible = false
 
-      // 获取所有的表格结构（表头+表内容）
-      const formDataList = []
-      this.$refs.evaluationTable.forEach(tableItem => {
-        const tableData = tableItem.getTableStructData()
-        this.$logger.info('getTableStructData ', tableData, 'header', tableData.headers, 'row list', tableData.list)
-        this.forms.forEach(formItem => {
-          if (formItem.formId === tableData.formId) {
-            const formData = {
-              id: formItem.id,
-              formId: formItem.formId,
-              formType: formItem.formType,
-              title: formItem.title,
-              initRawHeaders: JSON.stringify(tableData.headers),
-              initRawData: JSON.stringify(tableData.list),
-              pe: formItem.pe,
-              se: formItem.se
+      if (!this.isEmptyStudentEvaluateData && this.mode === EvaluationTableMode.Edit) {
+        this.$info({
+          title: 'Notice',
+          content: 'After modifying the form, all student evaluation data will be cleared',
+          onOk: () => {
+            this.$logger.info('handleSaveAndBackEvaluation onOk')
+            this.formSaving = true
+            this.showEvaluationNoticeVisible = false
+
+            // 获取所有的表格结构（表头+表内容）
+            const formDataList = []
+            this.$refs.evaluationTable.forEach(tableItem => {
+              const tableData = tableItem.getTableStructData()
+              this.$logger.info('getTableStructData ', tableData, 'header', tableData.headers, 'row list', tableData.list)
+              this.forms.forEach(formItem => {
+                if (formItem.formId === tableData.formId) {
+                  const formData = {
+                    id: formItem.id,
+                    formId: formItem.formId,
+                    formType: formItem.formType,
+                    title: formItem.title,
+                    initRawHeaders: JSON.stringify(tableData.headers),
+                    initRawData: JSON.stringify(tableData.list),
+                    pe: formItem.pe,
+                    se: formItem.se
+                  }
+                  formDataList.push(formData)
+                }
+              })
+            })
+            this.$logger.info('formDataList', formDataList, 'this.form', this.form, 'this.classId', this.classId)
+            this.form.classId = this.classId
+            this.form.forms = formDataList
+            // 获取评估数据
+            this.$logger.info('!!!!!!!!!!!!!!!!!! studentEvaluateData !!!!!!!!!!!', this.studentEvaluateData)
+            this.form.studentEvaluateData = '{}'
+
+            if (formDataList.length === 0) {
+              this.$message.error('Please add at least one form!')
+              this.formSaving = false
+              return false
+            } else {
+              EvaluationAddOrUpdate(this.form).then((response) => {
+                this.$logger.info('EvaluationAddOrUpdate', response)
+                if (response.success) {
+                  this.$message.success('Save successfully!')
+                  this.formSaving = false
+                  this.goBack()
+                } else {
+                  this.$message.error(response.message)
+                }
+              })
             }
-            formDataList.push(formData)
           }
         })
-      })
-      this.$logger.info('formDataList', formDataList, 'this.form', this.form, 'this.classId', this.classId)
-      this.form.classId = this.classId
-      this.form.forms = formDataList
-      // 获取评估数据
-      this.$logger.info('!!!!!!!!!!!!!!!!!! studentEvaluateData !!!!!!!!!!!', this.studentEvaluateData)
-      this.form.studentEvaluateData = JSON.stringify(this.studentEvaluateData)
-
-      if (formDataList.length === 0) {
-        this.$message.error('Please add at least one form!')
-        this.formSaving = false
-        return false
       } else {
-        EvaluationAddOrUpdate(this.form).then((response) => {
-          this.$logger.info('EvaluationAddOrUpdate', response)
-          if (response.success) {
-            this.$message.success('Save successfully!')
-            this.formSaving = false
-            this.goBack()
-          } else {
-            this.$message.error(response.message)
-          }
+        this.formSaving = true
+        this.showEvaluationNoticeVisible = false
+
+        // 获取所有的表格结构（表头+表内容）
+        const formDataList = []
+        this.$refs.evaluationTable.forEach(tableItem => {
+          const tableData = tableItem.getTableStructData()
+          this.$logger.info('getTableStructData ', tableData, 'header', tableData.headers, 'row list', tableData.list)
+          this.forms.forEach(formItem => {
+            if (formItem.formId === tableData.formId) {
+              const formData = {
+                id: formItem.id,
+                formId: formItem.formId,
+                formType: formItem.formType,
+                title: formItem.title,
+                initRawHeaders: JSON.stringify(tableData.headers),
+                initRawData: JSON.stringify(tableData.list),
+                pe: formItem.pe,
+                se: formItem.se
+              }
+              formDataList.push(formData)
+            }
+          })
         })
+        this.$logger.info('formDataList', formDataList, 'this.form', this.form, 'this.classId', this.classId)
+        this.form.classId = this.classId
+        this.form.forms = formDataList
+        // 获取评估数据
+        this.$logger.info('!!!!!!!!!!!!!!!!!! studentEvaluateData !!!!!!!!!!!', this.studentEvaluateData)
+        this.form.studentEvaluateData = JSON.stringify(this.studentEvaluateData)
+
+        if (formDataList.length === 0) {
+          this.$message.error('Please add at least one form!')
+          this.formSaving = false
+          return false
+        } else {
+          EvaluationAddOrUpdate(this.form).then((response) => {
+            this.$logger.info('EvaluationAddOrUpdate', response)
+            if (response.success) {
+              this.$message.success('Save successfully!')
+              this.formSaving = false
+              this.goBack()
+            } else {
+              this.$message.error(response.message)
+            }
+          })
+        }
       }
     },
 
