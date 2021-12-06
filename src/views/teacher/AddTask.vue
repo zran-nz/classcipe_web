@@ -109,32 +109,46 @@
                           <a-col class="material-row" >
                             <div class="icon-group">
                               <div class="icon" v-if="currentPageMaterial.hasOwnProperty('text')" @click="showPluginMaterial('text')">
-                                <text-type-svg />
-                                <div class="icon-text">Text</div>
+                                <a-badge :count="showMaterialSize('text')" >
+                                  <text-type-svg />
+                                  <div class="icon-text">Text</div>
+                                </a-badge>
                               </div>
                               <div class="icon" v-if="currentPageMaterial.hasOwnProperty('image')" @click="showPluginMaterial('image')">
-                                <image-type-svg />
-                                <div class="icon-text">Image</div>
+                                <a-badge :count="showMaterialSize('image')" >
+                                  <image-type-svg />
+                                  <div class="icon-text">Image</div>
+                                </a-badge>
                               </div>
                               <div class="icon" v-if="currentPageMaterial.hasOwnProperty('video')" @click="showPluginMaterial('video')">
-                                <video-type-svg />
-                                <div class="icon-text">Video</div>
+                                <a-badge :count="showMaterialSize('video')" >
+                                  <video-type-svg />
+                                  <div class="icon-text">Video</div>
+                                </a-badge>
                               </div>
                               <div class="icon" v-if="currentPageMaterial.hasOwnProperty('audio')" @click="showPluginMaterial('audio')">
-                                <audio-type-svg />
-                                <div class="icon-text">Audio</div>
+                                <a-badge :count="showMaterialSize('audio')" >
+                                  <audio-type-svg />
+                                  <div class="icon-text">Audio</div>
+                                </a-badge>
                               </div>
                               <div class="icon" v-if="currentPageMaterial.hasOwnProperty('iframe')" @click="showPluginMaterial('iframe')">
-                                <youtube-type-svg />
-                                <div class="icon-text">Youtube</div>
+                                <a-badge :count="showMaterialSize('iframe')" >
+                                  <youtube-type-svg />
+                                  <div class="icon-text">Youtube</div>
+                                </a-badge>
                               </div>
                               <div class="icon" v-if="currentPageMaterial.hasOwnProperty('pdf')" @click="showPluginMaterial('pdf')">
-                                <pdf-type-svg />
-                                <div class="icon-text">PDF</div>
+                                <a-badge :count="showMaterialSize('pdf')" >
+                                  <pdf-type-svg />
+                                  <div class="icon-text">PDF</div>
+                                </a-badge>
                               </div>
                               <div class="icon" v-if="currentPageMaterial.hasOwnProperty('website')" @click="showPluginMaterial('website')">
-                                <url-type-svg />
-                                <div class="icon-text">Website</div>
+                                <a-badge :count="showMaterialSize('website')" >
+                                  <url-type-svg />
+                                  <div class="icon-text">Website</div>
+                                </a-badge>
                               </div>
                             </div>
                           </a-col>
@@ -603,7 +617,13 @@
                   </div>
                 </a-row>
                 <a-row v-if="filterType == 2 && showTemplateFilter">
-                  <a-tabs v-model="filterAssessmentsType" :defaultActiveKey="filterAssessmentsType" @change="changeFilterType" :tabBarGutter="3" tabPosition="left" :tabBarStyle="{margin:'10px 20px'}">
+                  <a-tabs
+                    v-model="filterAssessmentsType"
+                    :defaultActiveKey="filterAssessmentsType"
+                    @change="changeFilterType"
+                    :tabBarGutter="3"
+                    tabPosition="left"
+                    :tabBarStyle="{margin:'10px 20px'}">
                     <a-tab-pane key="1" tab="Knowledge focus" >
                       <div class="filter-row">
                         <a-row >
@@ -1105,6 +1125,18 @@
         <task-material-preview :current-page-element-lists="currentPageElementLists" :filter-type="filterMaterialType" :current-page-index="currentImgIndex"></task-material-preview>
       </a-modal>
 
+      <a-modal
+        v-model="mediaVisible"
+        :footer="null"
+        destroyOnClose
+        width="900px"
+        :zIndex="3000"
+        :title="null"
+        @ok="mediaVisible = false"
+        @cancel="mediaVisible = false">
+        <media-preview :media-list="mediaList" :material-type="filterMaterialType"></media-preview>
+      </a-modal>
+
       <a-skeleton :loading="contentLoading" active>
       </a-skeleton>
     </a-card>
@@ -1161,6 +1193,7 @@ import TemplatePreview from '@/components/Task/TemplatePreview'
 import TaskMaterialPreview from '@/components/Task/TaskMaterialPreview'
 import TaskPptPreview from '@/components/Task/TaskPptPreview'
 import { PptPreviewMixin } from '@/mixins/PptPreviewMixin'
+import MediaPreview from '@/components/Task/MediaPreview'
 export default {
     name: 'AddTask',
     components: {
@@ -1191,7 +1224,8 @@ export default {
       CollaborateContent,
       CustomTag,
       commentIcon,
-      TaskMaterialPreview
+      TaskMaterialPreview,
+      MediaPreview
     },
     mixins: [PptPreviewMixin],
     props: {
@@ -1342,7 +1376,7 @@ export default {
         showTemplateFilter: false,
         currentSlideCoverImgSrc: null,
         filterType: undefined,
-        filterAssessmentsType:'1',
+        filterAssessmentsType: '1',
         selectedTemplateMadelWidth: '90%',
         selectedTemplateMarginLeft: '5%',
         selectedTemplateDrawerVisible: false,
@@ -2664,24 +2698,24 @@ export default {
           return []
         }
         var resList = []
-        if(!this.filterAssessmentsType){
+        if (!this.filterAssessmentsType) {
           return list
         }
-        if(this.assessmentsList.length !== 2){
+        if (this.assessmentsList.length !== 2) {
           return list
         }
-        if(this.filterAssessmentsType == '1'){
+        if (this.filterAssessmentsType === '1') {
           this.assessmentsList[0].children.forEach(parent => {
             parent.children.forEach(child => {
-                if(list.indexOf(child.id) !== -1){
+                if (list.indexOf(child.id) !== -1) {
                   resList.push(child.id)
                 }
             })
           })
-        }else{
+        } else {
           this.assessmentsList[1].children.forEach(parent => {
             parent.children.forEach(child => {
-              if(list.indexOf(child.id) !== -1){
+              if (list.indexOf(child.id) !== -1) {
                 resList.push(child.id)
               }
             })
@@ -2785,7 +2819,7 @@ export default {
         this.selectedTemplateMadelWidth = '90%'
         this.selectedTemplateDrawerVisible = false
         this.selectedTemplateDrawerZindex = 1000
-        if(this.selectedTemplateIdList.length === 0){
+        if (this.selectedTemplateIdList.length === 0) {
           this.form.showSelected = false
         }
       },
