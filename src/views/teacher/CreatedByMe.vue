@@ -418,7 +418,7 @@ export default {
       viewPreviewSessionVisible: false,
       PPTCommentPreviewVisible: false,
       classList: [],
-      viewMode: storage.get(SESSION_VIEW_MODE) ? storage.get(SESSION_VIEW_MODE) : 'list',
+      viewMode: storage.get(SESSION_VIEW_MODE) ? storage.get(SESSION_VIEW_MODE) : 'img',
       lessonSelectTagVisible: false,
       sessionTags: [],
       sessionItem: {},
