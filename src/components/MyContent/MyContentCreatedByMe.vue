@@ -254,7 +254,7 @@
       <a-drawer
         destroyOnClose
         placement="right"
-        width="700px"
+        width="800px"
         :closable="false"
         :z-index="4000"
         :visible="previewVisible"

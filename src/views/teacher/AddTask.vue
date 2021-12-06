@@ -2802,9 +2802,6 @@ export default {
         this.$logger.info('changeSelected ', checked)
         this.form.showSelected = checked
       },
-      onChangePage (page) {
-        this.currentImgIndex = page
-      },
       changeFilterType (e) {
         this.showTemplateFilter = true
         this.selectFilter()

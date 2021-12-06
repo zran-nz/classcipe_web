@@ -177,6 +177,9 @@ export const PptPreviewMixin = {
         }
       })
       return size
+    },
+    onChangePage (page) {
+      this.currentImgIndex = page
     }
   }
 
