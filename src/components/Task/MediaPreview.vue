@@ -59,7 +59,7 @@
               </div>
               <div v-for="(item,cIndex) in mediaList" :key="'cIndex' + cIndex">
                 <div style="height:400px">
-                  <img v-if="item.type == 'image'" :src="item.url" :preview="cIndex" />
+                  <img v-if="item.type == 'image'" :src="item.url" :preview="0" />
                   <video v-if="item.type == 'video'" :src="item.url" controls />
                   <audio v-if="item.type == 'audio'" :src="item.url" controls />
                   <iframe

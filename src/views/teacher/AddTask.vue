@@ -108,48 +108,48 @@
                         <div class="top-icon-groups" v-if="Object.keys(currentPageMaterial).length > 0 && !form.showSelected">
                           <a-col class="material-row" >
                             <div class="icon-group">
-                              <div class="icon" v-if="currentPageMaterial.hasOwnProperty('text')" @click="showPluginMaterial('text')">
-                                <a-badge :count="showMaterialSize('text')" >
+                              <a-badge :count="showMaterialSize('text')"  v-if="currentPageMaterial.hasOwnProperty('text')">
+                              <div class="icon" @click="showPluginMaterial('text')">
                                   <text-type-svg />
                                   <div class="icon-text">Text</div>
-                                </a-badge>
                               </div>
-                              <div class="icon" v-if="currentPageMaterial.hasOwnProperty('image')" @click="showPluginMaterial('image')">
-                                <a-badge :count="showMaterialSize('image')" >
+                              </a-badge>
+                              <a-badge :count="showMaterialSize('image')" v-if="currentPageMaterial.hasOwnProperty('image')">
+                              <div class="icon"  @click="showPluginMaterial('image')">
                                   <image-type-svg />
                                   <div class="icon-text">Image</div>
-                                </a-badge>
                               </div>
-                              <div class="icon" v-if="currentPageMaterial.hasOwnProperty('video')" @click="showPluginMaterial('video')">
-                                <a-badge :count="showMaterialSize('video')" >
+                              </a-badge>
+                              <a-badge :count="showMaterialSize('video')" v-if="currentPageMaterial.hasOwnProperty('video')">
+                              <div class="icon"  @click="showPluginMaterial('video')">
                                   <video-type-svg />
                                   <div class="icon-text">Video</div>
-                                </a-badge>
                               </div>
-                              <div class="icon" v-if="currentPageMaterial.hasOwnProperty('audio')" @click="showPluginMaterial('audio')">
-                                <a-badge :count="showMaterialSize('audio')" >
+                              </a-badge>
+                              <a-badge :count="showMaterialSize('audio')" v-if="currentPageMaterial.hasOwnProperty('audio')">
+                              <div class="icon"  @click="showPluginMaterial('audio')">
                                   <audio-type-svg />
                                   <div class="icon-text">Audio</div>
-                                </a-badge>
                               </div>
-                              <div class="icon" v-if="currentPageMaterial.hasOwnProperty('iframe')" @click="showPluginMaterial('iframe')">
-                                <a-badge :count="showMaterialSize('iframe')" >
+                              </a-badge>
+                              <a-badge :count="showMaterialSize('iframe')" v-if="currentPageMaterial.hasOwnProperty('iframe')">
+                              <div class="icon"  @click="showPluginMaterial('iframe')">
                                   <youtube-type-svg />
                                   <div class="icon-text">Youtube</div>
-                                </a-badge>
                               </div>
-                              <div class="icon" v-if="currentPageMaterial.hasOwnProperty('pdf')" @click="showPluginMaterial('pdf')">
-                                <a-badge :count="showMaterialSize('pdf')" >
+                              </a-badge>
+                              <a-badge :count="showMaterialSize('pdf')" v-if="currentPageMaterial.hasOwnProperty('pdf')" >
+                              <div class="icon" @click="showPluginMaterial('pdf')">
                                   <pdf-type-svg />
                                   <div class="icon-text">PDF</div>
-                                </a-badge>
                               </div>
-                              <div class="icon" v-if="currentPageMaterial.hasOwnProperty('website')" @click="showPluginMaterial('website')">
-                                <a-badge :count="showMaterialSize('website')" >
+                              </a-badge>
+                              <a-badge :count="showMaterialSize('website')" v-if="currentPageMaterial.hasOwnProperty('website')">
+                              <div class="icon"  @click="showPluginMaterial('website')">
                                   <url-type-svg />
                                   <div class="icon-text">Website</div>
-                                </a-badge>
                               </div>
+                              </a-badge>
                             </div>
                           </a-col>
                         </div>
@@ -4199,6 +4199,10 @@ export default {
       flex-basis: auto;
       justify-content: flex-start;
       align-items: center;
+      /deep/ .ant-badge-count{
+        top:10px;
+        right:12px;
+      }
       .icon {
         width: 50px;
         height: 50px;
