@@ -16,7 +16,7 @@
               </div>
             </router-link>
           </a-menu-item>
-          <a-menu-item key="/teacher/managing" v-if="$store.getters.userInfo.school">
+          <a-menu-item key="/teacher/managing" v-if="$store.getters.userInfo.schoolRole === 'admin'">
             <router-link to="/teacher/managing/skill">
               <div class="nav-item">
                 <div class="nav-icon">

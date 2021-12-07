@@ -607,7 +607,7 @@
                         </a-row>
                         <div class="sub-items">
                           <div class="sub-item" v-for="(child,cIndex) in item.children" :key="cIndex">
-                            <a-checkbox :value="child.id" @change="onChangeCheckBox($event,templateType.Learning)" :checked="filterLearn.indexOf(child.id) > -1 ? true: false">
+                            <a-checkbox :value="child.id" @change="onChangeCheckBox($event,templateType.Learning,item)" :checked="filterLearn.indexOf(child.id) > -1 ? true: false">
                               {{ child.name }}
                             </a-checkbox>
                           </div>
@@ -630,18 +630,18 @@
                           <div class="row-select">
                             <a-col :span="24">
                               <!--                          <span class="sub-category">Knowledge focus </span>-->
-                              <div class="sub-select" v-for="(item ,index) in templateFilterCondition(templateType.Assessments,'Knowledge focus')" :key="index">
+                              <a-radio-group  :name="item.name" class="sub-select" v-for="(item ,index) in templateFilterCondition(templateType.Assessments,'Knowledge focus')" :key="index">
                                 <a-row>
                                   <h4>{{ item.name }}</h4>
                                 </a-row>
                                 <div class="sub-items">
                                   <div class="sub-item" v-for="(child,cIndex) in item.children" :key="cIndex">
-                                    <a-checkbox :value="child.id" @change="onChangeCheckBox($event,templateType.Assessments)" :checked="filterAssessments.indexOf(child.id) > -1 ? true: false">
+                                    <a-radio :value="child.id" @change="onChangeCheckBox($event,templateType.Assessments)" :checked="filterAssessments.indexOf(child.id) > -1 ? true: false">
                                       {{ child.name }}
-                                    </a-checkbox>
+                                    </a-radio>
                                   </div>
                                 </div>
-                              </div>
+                              </a-radio-group>
                             </a-col>
                           </div>
                         </a-row>
@@ -2635,6 +2635,7 @@ export default {
             this.filterLearn.splice(this.filterLearn.indexOf(id), 1)
           }
         } else if (category === TemplateType.Assessments) {
+          //单选，去除同parent其他值
           if (this.filterAssessments.indexOf(id) === -1) {
             this.filterAssessments.push(id)
           } else {
