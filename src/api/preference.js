@@ -7,6 +7,7 @@ const preferenceApi = {
   GetAllSubjectsByParentId: '/classcipe/api/subject/getAllSubjectsByParentId',
   GetAllGrades: '/classcipe/api/grade/getAllGrades',
   GetGradesByCurriculumId: '/classcipe/api/grade/getGradesByCurriculumId',
+  GetLibraryGrades: '/classcipe/api/grade/getLibraryGrades',
   AddPreference: '/classcipe/sys/addPreference',
   GetCustomizedTags: '/classcipe/api/tag/getTree'
 }
@@ -51,6 +52,14 @@ export function getAllGrades () {
 export function GetGradesByCurriculumId (parameter) {
   return request({
     url: preferenceApi.GetGradesByCurriculumId,
+    method: 'get',
+    params: parameter
+  })
+}
+
+export function GetLibraryGrades (parameter) {
+  return request({
+    url: preferenceApi.GetLibraryGrades,
     method: 'get',
     params: parameter
   })
