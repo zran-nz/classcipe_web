@@ -108,47 +108,47 @@
                         <div class="top-icon-groups" v-if="Object.keys(currentPageMaterial).length > 0 && !form.showSelected">
                           <a-col class="material-row" >
                             <div class="icon-group">
-                              <a-badge :count="showMaterialSize('text')"  v-if="currentPageMaterial.hasOwnProperty('text')">
-                              <div class="icon" @click="showPluginMaterial('text')">
+                              <a-badge :count="showMaterialSize('text')" v-if="currentPageMaterial.hasOwnProperty('text')">
+                                <div class="icon" @click="showPluginMaterial('text')">
                                   <text-type-svg />
                                   <div class="icon-text">Text</div>
-                              </div>
+                                </div>
                               </a-badge>
                               <a-badge :count="showMaterialSize('image')" v-if="currentPageMaterial.hasOwnProperty('image')">
-                              <div class="icon"  @click="showPluginMaterial('image')">
+                                <div class="icon" @click="showPluginMaterial('image')">
                                   <image-type-svg />
                                   <div class="icon-text">Image</div>
-                              </div>
+                                </div>
                               </a-badge>
                               <a-badge :count="showMaterialSize('video')" v-if="currentPageMaterial.hasOwnProperty('video')">
-                              <div class="icon"  @click="showPluginMaterial('video')">
+                                <div class="icon" @click="showPluginMaterial('video')">
                                   <video-type-svg />
                                   <div class="icon-text">Video</div>
-                              </div>
+                                </div>
                               </a-badge>
                               <a-badge :count="showMaterialSize('audio')" v-if="currentPageMaterial.hasOwnProperty('audio')">
-                              <div class="icon"  @click="showPluginMaterial('audio')">
+                                <div class="icon" @click="showPluginMaterial('audio')">
                                   <audio-type-svg />
                                   <div class="icon-text">Audio</div>
-                              </div>
+                                </div>
                               </a-badge>
                               <a-badge :count="showMaterialSize('iframe')" v-if="currentPageMaterial.hasOwnProperty('iframe')">
-                              <div class="icon"  @click="showPluginMaterial('iframe')">
+                                <div class="icon" @click="showPluginMaterial('iframe')">
                                   <youtube-type-svg />
                                   <div class="icon-text">Youtube</div>
-                              </div>
+                                </div>
                               </a-badge>
                               <a-badge :count="showMaterialSize('pdf')" v-if="currentPageMaterial.hasOwnProperty('pdf')" >
-                              <div class="icon" @click="showPluginMaterial('pdf')">
+                                <div class="icon" @click="showPluginMaterial('pdf')">
                                   <pdf-type-svg />
                                   <div class="icon-text">PDF</div>
-                              </div>
+                                </div>
                               </a-badge>
                               <a-badge :count="showMaterialSize('website')" v-if="currentPageMaterial.hasOwnProperty('website')">
-                              <div class="icon"  @click="showPluginMaterial('website')">
+                                <div class="icon" @click="showPluginMaterial('website')">
                                   <url-type-svg />
                                   <div class="icon-text">Website</div>
-                              </div>
+                                </div>
                               </a-badge>
                             </div>
                           </a-col>
@@ -630,13 +630,13 @@
                           <div class="row-select">
                             <a-col :span="24">
                               <!--                          <span class="sub-category">Knowledge focus </span>-->
-                              <a-radio-group  :name="item.name" class="sub-select" v-for="(item ,index) in templateFilterCondition(templateType.Assessments,'Knowledge focus')" :key="index">
+                              <a-radio-group v-model="item.tooltip" :name="item.name" class="sub-select" v-for="(item ,index) in templateFilterCondition(templateType.Assessments,'Knowledge focus')" :key="index">
                                 <a-row>
                                   <h4>{{ item.name }}</h4>
                                 </a-row>
                                 <div class="sub-items">
                                   <div class="sub-item" v-for="(child,cIndex) in item.children" :key="cIndex">
-                                    <a-radio :value="child.id" @change="onChangeCheckBox($event,templateType.Assessments)" :checked="filterAssessments.indexOf(child.id) > -1 ? true: false">
+                                    <a-radio :value="child.id" @change="onChangeCheckBox($event,templateType.Assessments,item)">
                                       {{ child.name }}
                                     </a-radio>
                                   </div>
@@ -653,18 +653,18 @@
                           <div class="row-select">
                             <a-col :span="24">
                               <!--                          <span class="sub-category">Skill focus</span>-->
-                              <div class="sub-select" v-for="(item ,index) in templateFilterCondition(templateType.Assessments,'Skill focus')" :key="index">
+                              <a-radio-group v-model="item.tooltip" :name="item.name" class="sub-select" v-for="(item ,index) in templateFilterCondition(templateType.Assessments,'Skill focus')" :key="index">
                                 <a-row>
                                   <h4>{{ item.name }}</h4>
                                 </a-row>
                                 <div class="sub-items">
                                   <div class="sub-item" v-for="(child,cIndex) in item.children" :key="cIndex">
-                                    <a-checkbox :value="child.id" @change="onChangeCheckBox($event,templateType.Assessments)" :checked="filterAssessments.indexOf(child.id) > -1 ? true: false">
+                                    <a-radio :value="child.id" @change="onChangeCheckBox($event,templateType.Assessments,item)">
                                       {{ child.name }}
-                                    </a-checkbox>
+                                    </a-radio>
                                   </div>
                                 </div>
-                              </div>
+                              </a-radio-group>
                             </a-col>
                           </div>
                         </a-row>
@@ -1385,7 +1385,8 @@ export default {
 
         selectedSlideVisibleFromSave: false, // 点击保存时，是否显示选择slide的弹窗，此处不去选择slide直接goBack
 
-        recommendData: []
+        recommendData: [],
+        assessmentRadioModel: ''
       }
     },
     computed: {
@@ -2395,7 +2396,6 @@ export default {
         this.$logger.info('selectFilter', data)
         this.$logger.info('filterType', this.filterType)
         this.templateLoading = true
-        this.selectedTemplateList = []
         FilterTemplates({
             filterCategoryType: this.filterType,
             filterLearn: this.filterLearn,
@@ -2635,12 +2635,13 @@ export default {
             this.filterLearn.splice(this.filterLearn.indexOf(id), 1)
           }
         } else if (category === TemplateType.Assessments) {
-          //单选，去除同parent其他值
-          if (this.filterAssessments.indexOf(id) === -1) {
-            this.filterAssessments.push(id)
-          } else {
-            this.filterAssessments.splice(this.filterAssessments.indexOf(id), 1)
-          }
+          // 单选，去除同parent其他值
+          parent.children.forEach(item => {
+            if (this.filterAssessments.indexOf(item.id) !== -1) {
+              this.filterAssessments.splice(this.filterAssessments.indexOf(item.id), 1)
+            }
+          })
+          this.filterAssessments.push(id)
         } else if (category === TemplateType.Century) {
           if (this.filterCentury.indexOf(id) === -1) {
             this.filterCentury.push(id)
@@ -2674,6 +2675,11 @@ export default {
           this.filterLearn = []
         } else if (this.filterType === 2) {
           this.filterAssessments = []
+          this.assessmentsList.forEach(parent => {
+            parent.children.forEach(child => {
+              child.tooltip = ''
+            })
+          })
         } else if (this.filterType === 3) {
           this.filterCentury = []
         }

@@ -196,32 +196,32 @@
             <div v-if="Object.keys(currentPageMaterial).length > 0" class="top-icon-groups">
               <a-col class="material-row" >
                 <div class="icon-group">
-                  <a-badge :count="showMaterialSize('text')"  v-if="currentPageMaterial.hasOwnProperty('text')">
+                  <a-badge :count="showMaterialSize('text')" v-if="currentPageMaterial.hasOwnProperty('text')">
                     <div class="icon" @click="showPluginMaterial('text')">
                       <text-type-svg />
                       <div class="icon-text">Text</div>
                     </div>
                   </a-badge>
                   <a-badge :count="showMaterialSize('image')" v-if="currentPageMaterial.hasOwnProperty('image')">
-                    <div class="icon"  @click="showPluginMaterial('image')">
+                    <div class="icon" @click="showPluginMaterial('image')">
                       <image-type-svg />
                       <div class="icon-text">Image</div>
                     </div>
                   </a-badge>
                   <a-badge :count="showMaterialSize('video')" v-if="currentPageMaterial.hasOwnProperty('video')">
-                    <div class="icon"  @click="showPluginMaterial('video')">
+                    <div class="icon" @click="showPluginMaterial('video')">
                       <video-type-svg />
                       <div class="icon-text">Video</div>
                     </div>
                   </a-badge>
                   <a-badge :count="showMaterialSize('audio')" v-if="currentPageMaterial.hasOwnProperty('audio')">
-                    <div class="icon"  @click="showPluginMaterial('audio')">
+                    <div class="icon" @click="showPluginMaterial('audio')">
                       <audio-type-svg />
                       <div class="icon-text">Audio</div>
                     </div>
                   </a-badge>
                   <a-badge :count="showMaterialSize('iframe')" v-if="currentPageMaterial.hasOwnProperty('iframe')">
-                    <div class="icon"  @click="showPluginMaterial('iframe')">
+                    <div class="icon" @click="showPluginMaterial('iframe')">
                       <youtube-type-svg />
                       <div class="icon-text">Youtube</div>
                     </div>
@@ -233,7 +233,7 @@
                     </div>
                   </a-badge>
                   <a-badge :count="showMaterialSize('website')" v-if="currentPageMaterial.hasOwnProperty('website')">
-                    <div class="icon"  @click="showPluginMaterial('website')">
+                    <div class="icon" @click="showPluginMaterial('website')">
                       <url-type-svg />
                       <div class="icon-text">Website</div>
                     </div>
@@ -260,37 +260,37 @@
                       </a-carousel>
                       <div class="plugin-tags" v-if="currentPageItem">
                         <a-row class="tag-row">
-                                      <span class="tag-item" v-if="currentPageItem.data.bloomLevel">
-                                        <span class="tag-title">Bloom level:</span>
-                                        <span class="tag-value" style="color:#F16A39">{{ currentPageItem.data.bloomLevel }}</span>
-                                      </span>
+                          <span class="tag-item" v-if="currentPageItem.data.bloomLevel">
+                            <span class="tag-title">Bloom level:</span>
+                            <span class="tag-value" style="color:#F16A39">{{ currentPageItem.data.bloomLevel }}</span>
+                          </span>
                           <span class="tag-item" v-if="currentPageItem.data.knowledgeLevel">
-                                        <span class="tag-title">Knowledge:</span>
-                                        <span class="tag-value" style="color:#F16A39">{{ currentPageItem.data.knowledgeLevel }}</span>
-                                      </span>
+                            <span class="tag-title">Knowledge:</span>
+                            <span class="tag-value" style="color:#F16A39">{{ currentPageItem.data.knowledgeLevel }}</span>
+                          </span>
                         </a-row>
                         <a-row class="tag-row">
-                                      <span class="tag-item" v-if="currentPageItem.data.verbs">
-                                        <span class="tag-title">Verbs:</span>
-                                        <span class="tag-value" v-for="(v,index) in currentPageItem.data.verbs" :key="index" style="color:#15C39A">{{ v }}</span>
-                                      </span>
+                          <span class="tag-item" v-if="currentPageItem.data.verbs">
+                            <span class="tag-title">Verbs:</span>
+                            <span class="tag-value" v-for="(v,index) in currentPageItem.data.verbs" :key="index" style="color:#15C39A">{{ v }}</span>
+                          </span>
                           <span class="tag-item" v-if="currentPageTips">
-                                        <span class="tag-title">Tips added:</span>
-                                        <span class="tag-value" style="color:#0054FF">{{ currentPageTips.tip }}</span>
-                                      </span>
+                            <span class="tag-title">Tips added:</span>
+                            <span class="tag-value" style="color:#0054FF">{{ currentPageTips.tip }}</span>
+                          </span>
                         </a-row>
                         <a-row class="tag-row">
-                                      <span class="tag-item">
-                                        <span class="tag-title">learning outcomes:</span>
-                                        <span class="tag-value" v-for="(learn,index) in currentPageItem.data.learnOuts" :key="index" style="color:#00BCF2">
-                                          <a-tooltip :title="learn.path" :overlayStyle="{ 'z-index': '3000'}">{{ learn.name }} </a-tooltip>
-                                        </span>
-                                      </span>
+                          <span class="tag-item">
+                            <span class="tag-title">learning outcomes:</span>
+                            <span class="tag-value" v-for="(learn,index) in currentPageItem.data.learnOuts" :key="index" style="color:#00BCF2">
+                              <a-tooltip :title="learn.path" :overlayStyle="{ 'z-index': '3000'}">{{ learn.name }} </a-tooltip>
+                            </span>
+                          </span>
                         </a-row>
                         <a-row class="tag-row">
-                                      <span class="tag-item">
-                                        <span class="tag-title">This is a <span>{{ currentPageItem.type }}</span> slide</span>
-                                      </span>
+                          <span class="tag-item">
+                            <span class="tag-title">This is a <span>{{ currentPageItem.type }}</span> slide</span>
+                          </span>
                         </a-row>
                       </div>
                       <div class="page-info" v-if="imgList && imgList.length">
@@ -360,6 +360,9 @@ import { TemplatesGetPresentation, TemplatesGetPublishedPresentation } from '@/a
 import EvaluationPreview from '@/components/Evaluation/EvaluationPreview'
 import EvaluationTablePreview from '@/components/Evaluation/EvaluationTablePreview'
 import CommonLink from '@/components/Common/CommonLink'
+import { PptPreviewMixin } from '@/mixins/PptPreviewMixin'
+import MediaPreview from '@/components/Task/MediaPreview'
+import TaskMaterialPreview from '@/components/Task/TaskMaterialPreview'
 const { formatLocalUTC } = require('@/utils/util')
 const { UnitPlanQueryById } = require('@/api/unitPlan')
 const { LessonQueryById } = require('@/api/myLesson')
@@ -367,9 +370,6 @@ const { TaskQueryById } = require('@/api/task')
 const { EvaluationQueryById } = require('@/api/evaluation')
 const { FavoritesAdd } = require('@/api/favorites')
 const { TopicQueryById } = require('@/api/topic')
-import { PptPreviewMixin } from '@/mixins/PptPreviewMixin'
-import MediaPreview from '@/components/Task/MediaPreview'
-import TaskMaterialPreview from '@/components/Task/TaskMaterialPreview'
 
 export default {
   name: 'CommonPreview',

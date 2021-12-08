@@ -23,7 +23,7 @@ const user = {
     skillCategory: [],
     disableQuestion: false,
     school: '',
-    schoolRole:''
+    schoolRole: ''
   },
 
   mutations: {
