@@ -97,7 +97,7 @@
               key="item.key"
               slot-scope="item"
               :class="{'my-list-item': true, 'active-item': mySelectedList.indexOf(item.type + '-' + item.id) !== -1}"
-              @click="handleToggleSelect(item)">
+            >
 
               <div class="select-block" @click="handleLinkItem(item, $event)">
                 <a-icon
@@ -207,8 +207,7 @@
               slot="renderItem"
               key="item.key"
               class="my-card-list-item"
-              slot-scope="item"
-              @click="handleToggleSelect(item)">
+              slot-scope="item">
               <div class="cover-img-wrapper">
                 <div
                   class="cover-image"
@@ -598,7 +597,7 @@ export default {
 
     handleToggleSelect (item) {
       logger.info('handleToggleSelect', item)
-      MyContentEventBus.$emit(MyContentEvent.ToggleSelectContentItem, { ...item })
+      // MyContentEventBus.$emit(MyContentEvent.ToggleSelectContentItem, { ...item })
     },
 
     handlePreviewClose () {

@@ -12,34 +12,48 @@
       <a-row class="top-header">
         <a-col class="material-row" >
           <div class="icon-group">
-            <div class="icon" v-if="currentPageMaterial.hasOwnProperty('text')" @click="showPluginMaterial('text')">
-              <text-type-svg />
-              <div class="icon-text">Text</div>
-            </div>
-            <div class="icon" v-if="currentPageMaterial.hasOwnProperty('image')" @click="showPluginMaterial('image')">
-              <image-type-svg />
-              <div class="icon-text">Image</div>
-            </div>
-            <div class="icon" v-if="currentPageMaterial.hasOwnProperty('video')" @click="showPluginMaterial('video')">
-              <video-type-svg />
-              <div class="icon-text">Video</div>
-            </div>
-            <div class="icon" v-if="currentPageMaterial.hasOwnProperty('audio')" @click="showPluginMaterial('audio')">
-              <audio-type-svg />
-              <div class="icon-text">Audio</div>
-            </div>
-            <div class="icon" v-if="currentPageMaterial.hasOwnProperty('iframe')" @click="showPluginMaterial('iframe')">
-              <youtube-type-svg />
-              <div class="icon-text">Youtube</div>
-            </div>
-            <div class="icon" v-if="currentPageMaterial.hasOwnProperty('pdf')" @click="showPluginMaterial('pdf')">
-              <pdf-type-svg />
-              <div class="icon-text">PDF</div>
-            </div>
-            <div class="icon" v-if="currentPageMaterial.hasOwnProperty('website')" @click="showPluginMaterial('website')">
-              <url-type-svg />
-              <div class="icon-text">Website</div>
-            </div>
+            <a-badge :count="showMaterialSize('text')" v-if="currentPageMaterial.hasOwnProperty('text')">
+              <div class="icon" @click="showPluginMaterial('text')">
+                <text-type-svg />
+                <div class="icon-text">Text</div>
+              </div>
+            </a-badge>
+            <a-badge :count="showMaterialSize('image')" v-if="currentPageMaterial.hasOwnProperty('image')">
+              <div class="icon" @click="showPluginMaterial('image')">
+                <image-type-svg />
+                <div class="icon-text">Image</div>
+              </div>
+            </a-badge>
+            <a-badge :count="showMaterialSize('video')" v-if="currentPageMaterial.hasOwnProperty('video')">
+              <div class="icon" @click="showPluginMaterial('video')">
+                <video-type-svg />
+                <div class="icon-text">Video</div>
+              </div>
+            </a-badge>
+            <a-badge :count="showMaterialSize('audio')" v-if="currentPageMaterial.hasOwnProperty('audio')">
+              <div class="icon" @click="showPluginMaterial('audio')">
+                <audio-type-svg />
+                <div class="icon-text">Audio</div>
+              </div>
+            </a-badge>
+            <a-badge :count="showMaterialSize('iframe')" v-if="currentPageMaterial.hasOwnProperty('iframe')">
+              <div class="icon" @click="showPluginMaterial('iframe')">
+                <youtube-type-svg />
+                <div class="icon-text">Youtube</div>
+              </div>
+            </a-badge>
+            <a-badge :count="showMaterialSize('pdf')" v-if="currentPageMaterial.hasOwnProperty('pdf')" >
+              <div class="icon" @click="showPluginMaterial('pdf')">
+                <pdf-type-svg />
+                <div class="icon-text">PDF</div>
+              </div>
+            </a-badge>
+            <a-badge :count="showMaterialSize('website')" v-if="currentPageMaterial.hasOwnProperty('website')">
+              <div class="icon" @click="showPluginMaterial('website')">
+                <url-type-svg />
+                <div class="icon-text">Website</div>
+              </div>
+            </a-badge>
           </div>
         </a-col>
       </a-row>
@@ -138,11 +152,23 @@
         :footer="null"
         destroyOnClose
         width="800px"
-        :zIndex="3000"
+        :zIndex="6000"
         title="My Materials"
         @ok="materialVisible = false"
         @cancel="materialVisible = false">
-        <task-material-preview :current-page-element-lists="currentPageElementLists" :current-page-index="currentImgIndex"></task-material-preview>
+        <task-material-preview :current-page-element-lists="currentPageElementLists" :filter-type="filterMaterialType" :current-page-index="currentImgIndex"></task-material-preview>
+      </a-modal>
+
+      <a-modal
+        v-model="mediaVisible"
+        :footer="null"
+        destroyOnClose
+        width="900px"
+        :zIndex="5000"
+        :title="null"
+        @ok="mediaVisible = false"
+        @cancel="mediaVisible = false">
+        <media-preview :media-list="mediaList" :material-type="filterMaterialType"></media-preview>
       </a-modal>
     </template>
   </div>
@@ -162,6 +188,7 @@ import TaskMaterialPreview from '@/components/Task/TaskMaterialPreview'
 import { typeMap } from '@/const/teacher'
 import { TemplatesGetPresentation } from '@/api/template'
 import { PptPreviewMixin } from '@/mixins/PptPreviewMixin'
+import MediaPreview from "@/components/Task/MediaPreview";
 
 export default {
   name: 'TemplatePreview',
@@ -175,7 +202,8 @@ export default {
     AudioTypeSvg,
     YoutubeTypeSvg,
     PdfTypeSvg,
-    UrlTypeSvg
+    UrlTypeSvg,
+    MediaPreview
   },
   props: {
     template: {
@@ -274,6 +302,10 @@ export default {
       margin:10px auto;
       border: 1px solid #ddd;
       border-radius: 6px;
+      /deep/ .ant-badge-count{
+        top:10px;
+        right:12px;
+      };
       .icon {
         width: 50px;
         height: 50px;
