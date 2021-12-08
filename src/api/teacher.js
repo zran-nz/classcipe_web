@@ -19,7 +19,8 @@ export const teacherAPIUrl = {
   saveSessonTags: '/classcipe/api/sessonTags/addBatch',
   AddOrSaveGroupName: '/classcipe/api/teacher/addOrSaveGroupName',
   GetReferOutcomes: '/classcipe/api/teacher/getReferOutcomes',
-  Duplicate: '/classcipe/api/teacher/content/duplicate'
+  Duplicate: '/classcipe/api/teacher/content/duplicate',
+  Rename: '/classcipe/api/teacher/content/rename'
 }
 
 /**
@@ -205,6 +206,17 @@ export function GetReferOutcomes (parameter) {
 export function Duplicate (parameter) {
   return request({
     url: teacherAPIUrl.Duplicate,
+    method: 'post',
+    data: parameter,
+    headers: {
+      'Content-Type': 'application/json;charset=UTF-8'
+    }
+  })
+}
+
+export function Rename (parameter) {
+  return request({
+    url: teacherAPIUrl.Rename,
     method: 'post',
     data: parameter,
     headers: {

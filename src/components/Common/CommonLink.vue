@@ -185,7 +185,7 @@
       :footer="null"
       :dialog-style="{ top: '50px'}"
       destroyOnClose
-      width="800px">
+      width="900px">
       <div class="my-modal-title" slot="title" v-if="fromType === typeMap.task">
         Link Evaluation Form(s)
       </div>

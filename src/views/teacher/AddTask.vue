@@ -512,7 +512,7 @@
         v-model="selectLinkContentVisible"
         :footer="null"
         destroyOnClose
-        width="800px">
+        width="900px">
         <div class="my-modal-title" slot="title">
           Link Evaluation Form(s)
         </div>
@@ -1385,8 +1385,7 @@ export default {
 
         selectedSlideVisibleFromSave: false, // 点击保存时，是否显示选择slide的弹窗，此处不去选择slide直接goBack
 
-        recommendData: [],
-        assessmentRadioModel: ''
+        recommendData: []
       }
     },
     computed: {

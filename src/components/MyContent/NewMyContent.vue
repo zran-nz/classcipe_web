@@ -55,14 +55,16 @@
       </div>
     </div>
     <div class="create-new-action">
-      <div class="create-action" @click="handleCreateNew">
-        Create New {{ currentTypeLabel }}
+      <div class="create-action" >
+        <a-button type="primary" shape="round" icon="plus" :loading="createLoading" @click="handleEnsureCreate">
+          Create New {{ currentTypeLabel }}
+        </a-button>
       </div>
-      <div class="create-new-input">
-        <input type="text" placeholder="Input name" v-model="createNewName" v-if="createNewNameMode === 'input'">
-        <a-icon type="check" class="create-new-icon" v-if="createNewNameMode === 'input' && !createLoading" @click="handleEnsureCreate"/>
-        <a-icon type="loading" class="create-new-icon" v-if="createLoading" />
-      </div>
+      <!--      <div class="create-new-input">-->
+      <!--        <input type="text" placeholder="Input name" v-model="createNewName" v-if="createNewNameMode === 'input'">-->
+      <!--        <a-icon type="check" class="create-new-icon" v-if="createNewNameMode === 'input' && !createLoading" @click="handleEnsureCreate"/>-->
+      <!--        <a-icon type="loading" class="create-new-icon" v-if="createLoading" />-->
+      <!--      </div>-->
     </div>
     <div class="group-label">
       <!-- unit plan下才有term概念,task不显示对应的操作和term名称-->
@@ -109,10 +111,21 @@
               <span class="content-info-left">
                 <content-type-icon :type="item.type"/>
 
-                <span class="name-content" @click="handleViewDetail(item, $event)">
-                  <span class="name-text" >
-                    {{ item.name ? item.name : 'Untitled' }}
-                  </span>
+                <span class="name-content" >
+                  <a-input
+                    ref="inputRef"
+                    @blur="handleConfirmName(item)"
+                    @pressEnter="handleConfirmName(item)"
+                    size="large"
+                    v-if="editId === item.id && createNewNameMode === 'input'"
+                    type="text"
+                    placeholder="Input name"
+                    v-model="createNewName" />
+                  <a-tooltip title="Rename" v-else>
+                    <span class="name-text" @click="handleRename(item)">
+                      {{ item.name ? item.name : 'Untitled' }}
+                    </span>
+                  </a-tooltip>
                 </span>
               </span>
 
@@ -128,6 +141,9 @@
                   <div class="action-wrapper">
                     <div class="action-item" @click="handleViewDetail(item, $event)">
                       <span class="btn-text">Preview</span>
+                    </div>
+                    <div class="action-item" @click="handleEditItem(item)">
+                      <span class="btn-text">Edit</span>
                     </div>
                   </div>
                   <div slot="actions" v-if="mode === displayMode.Link">
@@ -272,7 +288,7 @@
           </a-list>
           <div class="modal-ensure-action-line">
             <a-button class="action-item action-cancel" shape="round" @click="handleCancel">Cancel</a-button>
-            <a-button class="action-ensure action-item" type="primary" shape="round" @click="handleEnsure">Ok</a-button>
+            <a-button class="action-ensure action-item" type="primary" shape="round" :loading="ensureLoading" @click="handleEnsure">Ok</a-button>
           </div>
         </div>
 
@@ -313,7 +329,7 @@
 import * as logger from '@/utils/logger'
 import UnitPlanPreview from '@/components/UnitPlan/UnitPlanPreview'
 import MaterialPreview from '@/components/Material/MaterialPreview'
-import { FindMyContent, Associate } from '@/api/teacher'
+import { FindMyContent, Associate, Rename } from '@/api/teacher'
 import { FavoritesGetMyFavorites } from '@/api/favorites'
 import { ownerMap, typeMap, getLabelNameType } from '@/const/teacher'
 import ContentStatusIcon from '@/components/Teacher/ContentStatusIcon'
@@ -425,7 +441,9 @@ export default {
       mySelectedMap: new Map(),
 
       selectedGroup: null,
-      groupName: null
+      groupName: null,
+      editId: '',
+      ensureLoading: false
     }
   },
   watch: {
@@ -504,6 +522,11 @@ export default {
       }).finally(() => {
         this.loading = false
         this.skeletonLoading = false
+        this.$nextTick(() => {
+          if (this.$refs.inputRef) {
+            this.$refs.inputRef.focus()
+          }
+        })
       })
     },
 
@@ -614,63 +637,62 @@ export default {
 
     handleCreateNew () {
       this.$logger.info('handleCreateNew')
-      if (this.createNewNameMode === 'hide') {
-        this.createNewName = ''
-      }
-      this.createNewNameMode = this.createNewNameMode === 'input' ? 'hide' : 'input'
+      // if (this.createNewNameMode === 'hide') {
+      //   this.createNewName = ''
+      // }
+      // this.createNewNameMode = this.createNewNameMode === 'input' ? 'hide' : 'input'
     },
 
     handleEnsureCreate () {
       this.$logger.info('handleEnsureCreate ' + this.currentType + ' ' + this.createNewName)
-      if (this.createNewName) {
-        this.createLoading = true
-        if (this.currentType === this.typeMap.evaluation) {
-          EvaluationAddOrUpdate({
-            name: this.createNewName
-          }).then((response) => {
-            this.$logger.info('EvaluationAddOrUpdate response', response)
-            this.loadMyContent()
-          }).finally(() => {
-            this.createNewNameMode = 'hide'
-            this.createNewName = ''
-            this.createLoading = false
-          })
-        } else if (this.currentType === this.typeMap.task) {
-          TaskAddOrUpdate({
-            name: this.createNewName
-          }).then((response) => {
-            this.$logger.info('TaskAddOrUpdate response', response)
-            this.loadMyContent()
-          }).finally(() => {
-            this.createNewNameMode = 'hide'
-            this.createNewName = ''
-            this.createLoading = false
-          })
-        } else if (this.currentType === this.typeMap['unit-plan']) {
-          UnitPlanAddOrUpdate({
-            name: this.createNewName
-          }).then((response) => {
-            this.$logger.info('UnitPlanAddOrUpdate response', response)
-            this.loadMyContent()
-          }).finally(() => {
-            this.createNewNameMode = 'hide'
-            this.createNewName = ''
-            this.createLoading = false
-          })
-        } else if (this.currentType === this.typeMap.topic) {
-          TopicAddOrUpdate({
-            name: this.createNewName
-          }).then((response) => {
-            this.$logger.info('TopicAddOrUpdate response', response)
-            this.loadMyContent()
-          }).finally(() => {
-            this.createNewNameMode = 'hide'
-            this.createNewName = ''
-            this.createLoading = false
-          })
-        }
-      } else {
-        this.$message.warn('Name is empty!')
+      this.createLoading = true
+      this.createNewName = ''
+      if (this.currentType === this.typeMap.evaluation) {
+        EvaluationAddOrUpdate({
+          name: this.createNewName
+        }).then((response) => {
+          this.$logger.info('EvaluationAddOrUpdate response', response)
+          this.editId = response.result.id
+          this.createNewNameMode = 'input'
+          const itemId = this.typeMap.evaluation + '-' + this.editId
+          this.mySelectedList.push(itemId)
+          this.mySelectedMap.set(itemId, { id: this.editId, type: this.typeMap.evaluation })
+          this.loadMyContent()
+        }).finally(() => {
+          this.createLoading = false
+        })
+      } else if (this.currentType === this.typeMap.task) {
+        TaskAddOrUpdate({
+          name: this.createNewName
+        }).then((response) => {
+          this.$logger.info('TaskAddOrUpdate response', response)
+          this.editId = response.result.id
+          this.createNewNameMode = 'input'
+          const itemId = this.typeMap.task + '-' + this.editId
+          this.mySelectedList.push(itemId)
+          this.mySelectedMap.set(itemId, { id: this.editId, type: this.typeMap.task })
+          this.loadMyContent()
+        }).finally(() => {
+          this.createLoading = false
+        })
+      } else if (this.currentType === this.typeMap['unit-plan']) {
+        UnitPlanAddOrUpdate({
+          name: this.createNewName
+        }).then((response) => {
+          this.$logger.info('UnitPlanAddOrUpdate response', response)
+          this.loadMyContent()
+        }).finally(() => {
+          this.createLoading = false
+        })
+      } else if (this.currentType === this.typeMap.topic) {
+        TopicAddOrUpdate({
+          name: this.createNewName
+        }).then((response) => {
+          this.$logger.info('TopicAddOrUpdate response', response)
+          this.loadMyContent()
+        }).finally(() => {
+          this.createLoading = false
+        })
       }
     },
 
@@ -705,11 +727,58 @@ export default {
         }
 
         this.$logger.info('associate data', postData)
+        this.ensureLoading = true
         Associate(postData).then((response) => {
           this.$message.success('Associate successfully!')
           this.$emit('ensure', postData)
+        }).finally(() => { this.ensureLoading = false })
+      }
+    },
+    handleEditItem (item) {
+      logger.info('handleEditItem', item)
+      if (item.type === typeMap['unit-plan']) {
+        window.open('/teacher/unit-plan-redirect/' + item.id
+          , '_blank')
+      } else if (item.type === typeMap['topic']) {
+        window.open('/expert/topic-redirect/' + item.id
+          , '_blank')
+      } else if (item.type === typeMap['material']) {
+        window.open('/teacher/add-material/' + item.id
+          , '_blank')
+      } else if (item.type === typeMap.task) {
+        window.open('/teacher/task-redirect/' + item.id
+          , '_blank')
+      } else if (item.type === typeMap.lesson) {
+        window.open('/teacher/lesson-redirect/' + item.id
+          , '_blank')
+      } else if (item.type === typeMap.evaluation) {
+        window.open('/teacher/evaluation-redirect/' + item.id
+          , '_blank')
+      }
+    },
+    handleConfirmName (item) {
+      this.createNewNameMode = 'hide'
+      if (item.name !== this.createNewName) {
+        item.name = this.createNewName
+        Rename({
+          id: item.id,
+          type: item.type,
+          name: this.createNewName
+        }).then((response) => {
+          this.$logger.info('Rename response', response)
+          if (!response.success) {
+            this.$message.error(response.message)
+          }
         })
       }
+    },
+    handleRename (item) {
+      this.editId = item.id
+      this.createNewNameMode = 'input'
+      this.createNewName = item.name
+      this.$nextTick(() => {
+        this.$refs.inputRef.focus()
+      })
     }
   }
 }
@@ -849,7 +918,6 @@ export default {
       padding-right: 5px;
       margin-right: 10px;
       font-family: Inter-Bold;
-      font-weight: bold;
       color: #000;
     }
 
@@ -868,8 +936,8 @@ export default {
       display: inline-block;
       margin: 15px 15px 15px 0;
       border-radius: 20px;
-      border: 1px solid #D8D8D8;
-      padding: 5px 10px;
+      //border: 1px solid #D8D8D8;
+      //padding: 5px 10px;
       font-family: Inter-Bold;
       color: #000;
     }
@@ -1079,6 +1147,15 @@ export default {
         text-overflow: ellipsis;
         font-family: Inter-Bold;
         color: #11142D;
+        .name-text{
+          &:hover {
+            background-color: #fff;
+            background-image: none;
+            border: 1px solid #d9d9d9;
+            border-radius: 2px;
+            transition: all 0.3s;
+          }
+        }
       }
     }
   }

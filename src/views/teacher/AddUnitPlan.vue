@@ -456,7 +456,7 @@
         v-model="selectLinkContentVisible"
         :footer="null"
         destroyOnClose
-        width="800px">
+        width="900px">
         <div class="my-modal-title" slot="title">
           Link my content
         </div>
