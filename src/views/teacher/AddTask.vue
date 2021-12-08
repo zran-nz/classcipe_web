@@ -17,7 +17,7 @@
         <a-row class="unit-content" v-if="!contentLoading" >
           <a-col span="24" class="main-content">
             <a-card :bordered="false" :body-style="{padding: '16px', display: 'flex', 'justify-content': 'space-between'}" class="card-wrapper">
-              <div class="task-form-left root-locate-form" ref="form" @click="focusInput($event)" :style="{'width':leftWidth}">
+              <div class="task-form-left root-locate-form" ref="form" @click="focusInput($event)" :style="{'width':leftWidth + 'px'}">
                 <a-form-model :model="form" class="my-form-wrapper" >
                   <a-steps :current="currentActiveStepIndex" direction="vertical" @change="onChangeStep">
                     <a-step class="step-1" title="Edit Task Info" :status="currentActiveStepIndex === 0 ? 'process':'wait'">
@@ -108,34 +108,48 @@
                         <div class="top-icon-groups" v-if="Object.keys(currentPageMaterial).length > 0 && !form.showSelected">
                           <a-col class="material-row" >
                             <div class="icon-group">
-                              <div class="icon" v-if="currentPageMaterial.hasOwnProperty('text')" @click="showPluginMaterial('text')">
-                                <text-type-svg />
-                                <div class="icon-text">Text</div>
-                              </div>
-                              <div class="icon" v-if="currentPageMaterial.hasOwnProperty('image')" @click="showPluginMaterial('image')">
-                                <image-type-svg />
-                                <div class="icon-text">Image</div>
-                              </div>
-                              <div class="icon" v-if="currentPageMaterial.hasOwnProperty('video')" @click="showPluginMaterial('video')">
-                                <video-type-svg />
-                                <div class="icon-text">Video</div>
-                              </div>
-                              <div class="icon" v-if="currentPageMaterial.hasOwnProperty('audio')" @click="showPluginMaterial('audio')">
-                                <audio-type-svg />
-                                <div class="icon-text">Audio</div>
-                              </div>
-                              <div class="icon" v-if="currentPageMaterial.hasOwnProperty('iframe')" @click="showPluginMaterial('iframe')">
-                                <youtube-type-svg />
-                                <div class="icon-text">Youtube</div>
-                              </div>
-                              <div class="icon" v-if="currentPageMaterial.hasOwnProperty('pdf')" @click="showPluginMaterial('pdf')">
-                                <pdf-type-svg />
-                                <div class="icon-text">PDF</div>
-                              </div>
-                              <div class="icon" v-if="currentPageMaterial.hasOwnProperty('website')" @click="showPluginMaterial('website')">
-                                <url-type-svg />
-                                <div class="icon-text">Website</div>
-                              </div>
+                              <a-badge :count="showMaterialSize('text')" v-if="currentPageMaterial.hasOwnProperty('text')">
+                                <div class="icon" @click="showPluginMaterial('text')">
+                                  <text-type-svg />
+                                  <div class="icon-text">Text</div>
+                                </div>
+                              </a-badge>
+                              <a-badge :count="showMaterialSize('image')" v-if="currentPageMaterial.hasOwnProperty('image')">
+                                <div class="icon" @click="showPluginMaterial('image')">
+                                  <image-type-svg />
+                                  <div class="icon-text">Image</div>
+                                </div>
+                              </a-badge>
+                              <a-badge :count="showMaterialSize('video')" v-if="currentPageMaterial.hasOwnProperty('video')">
+                                <div class="icon" @click="showPluginMaterial('video')">
+                                  <video-type-svg />
+                                  <div class="icon-text">Video</div>
+                                </div>
+                              </a-badge>
+                              <a-badge :count="showMaterialSize('audio')" v-if="currentPageMaterial.hasOwnProperty('audio')">
+                                <div class="icon" @click="showPluginMaterial('audio')">
+                                  <audio-type-svg />
+                                  <div class="icon-text">Audio</div>
+                                </div>
+                              </a-badge>
+                              <a-badge :count="showMaterialSize('iframe')" v-if="currentPageMaterial.hasOwnProperty('iframe')">
+                                <div class="icon" @click="showPluginMaterial('iframe')">
+                                  <youtube-type-svg />
+                                  <div class="icon-text">Youtube</div>
+                                </div>
+                              </a-badge>
+                              <a-badge :count="showMaterialSize('pdf')" v-if="currentPageMaterial.hasOwnProperty('pdf')" >
+                                <div class="icon" @click="showPluginMaterial('pdf')">
+                                  <pdf-type-svg />
+                                  <div class="icon-text">PDF</div>
+                                </div>
+                              </a-badge>
+                              <a-badge :count="showMaterialSize('website')" v-if="currentPageMaterial.hasOwnProperty('website')">
+                                <div class="icon" @click="showPluginMaterial('website')">
+                                  <url-type-svg />
+                                  <div class="icon-text">Website</div>
+                                </div>
+                              </a-badge>
                             </div>
                           </a-col>
                         </div>
@@ -180,7 +194,7 @@
                                 <div class="slide-select-action" v-show="!form.presentationId">
                                   <img src="https://dcdkqlzgpl5ba.cloudfront.net/file/202111271330492511-Welcome_slide.png" />
                                 </div>
-                                <div class="slide-preview" v-show="!form.showSelected && form.presentationId && thumbnailList.length">
+                                <div class="slide-preview" :style="{'width':(leftWidth- 50) + 'px'}" v-show="!form.showSelected && form.presentationId && thumbnailList.length">
                                   <a-carousel ref="carousel" arrows :after-change="onChangePage">
                                     <div slot="prevArrow" class="custom-slick-arrow" style="left: 10px;zIndex: 9" >
                                       <a-icon type="left-circle"/>
@@ -269,7 +283,7 @@
                 </a-form-model>
               </div>
 
-              <div class="task-form-right" :style="{'width':rightWidth}">
+              <div class="task-form-right" :style="{'width':rightWidth + 'px'}">
 
                 <!--购物车效果截图 -->
                 <div class="slide-animate-cover" id="slide-animate" v-show="currentSlideCoverImgSrc">
@@ -280,7 +294,7 @@
                 </div>
                 <template v-if="showAllCollaborateCommentVisible">
                   <a-skeleton :loading="showHistoryLoading" active>
-                    <div class="collaborate-panel" :style="{'width':rightWidth, 'margin-top': '0px', 'z-index': 100, 'padding': '10px'}">
+                    <div class="collaborate-panel" :style="{'width':rightWidth + 'px', 'margin-top': '0px', 'z-index': 100, 'padding': '10px'}">
                       <div class="icon">
                         <comment-icon />
                       </div>
@@ -297,7 +311,7 @@
                 </template>
                 <template v-else>
                   <template v-if="showCollaborateCommentVisible">
-                    <div class="collaborate-panel" :style="{'width':rightWidth, 'margin-top':collaborateTop+'px', 'z-index': 100, 'padding': '10px'}">
+                    <div class="collaborate-panel" :style="{'width':rightWidth + 'px', 'margin-top':collaborateTop+'px', 'z-index': 100, 'padding': '10px'}">
                       <collaborate-comment-panel :source-id="taskId" :source-type="contentType.task" :field-name="currentFieldName" :comment-list="currentCollaborateCommentList" @update-comment="handleUpdateCommentList"/>
                     </div>
                   </template>
@@ -407,7 +421,7 @@
                         </div>
                       </div>
                     </div>
-                    <div v-if="!this.contentLoading && this.currentActiveStepIndex !== 1" :style="{'width':rightWidth, 'margin-top':customTagTop+'px'}">
+                    <div v-if="!this.contentLoading && this.currentActiveStepIndex !== 1" :style="{'width':rightWidth+'px', 'margin-top':customTagTop+'px'}">
                       <custom-tag
                         :show-arrow="showCustomTag"
                         :user-tags="userTags"
@@ -428,6 +442,9 @@
       <template v-if="mode === 'pick-task-slide'">
 
         <div class="pick-task-slide-wrapper">
+          <div class="pick-task-slide-title">
+            <h2>Pick slide(s)</h2>
+          </div>
           <div class="slide-form-block" v-show="form.presentationId">
             <div class="preview-list" v-if="!thumbnailListLoading">
               <div :class="{'preview-item-cover': true, 'preview-item-cover-active': selectedPageIdList.indexOf(item.id) !== -1}" :style="{backgroundImage: 'url(' + item.contentUrl + ')'}" v-for="(item,index) in thumbnailList" :key="index" @click="handleToggleThumbnail(item)">
@@ -542,7 +559,7 @@
         destroyOnClose
         :dialog-style="{ top: '10px','margin-left':selectedTemplateMarginLeft,'transition': '0.8s' }"
         :width="selectedTemplateMadelWidth"
-        :closable="true"
+        :closable="!selectedTemplateDrawerVisible"
         @ok="selectedMyContentVisible = false">
         <a-tabs class="template-tabs" >
           <a-tab-pane key="1" tab="Slide template(s)">
@@ -590,7 +607,7 @@
                         </a-row>
                         <div class="sub-items">
                           <div class="sub-item" v-for="(child,cIndex) in item.children" :key="cIndex">
-                            <a-checkbox :value="child.id" @change="onChangeCheckBox($event,templateType.Learning)" :checked="filterLearn.indexOf(child.id) > -1 ? true: false">
+                            <a-checkbox :value="child.id" @change="onChangeCheckBox($event,templateType.Learning,item)" :checked="filterLearn.indexOf(child.id) > -1 ? true: false">
                               {{ child.name }}
                             </a-checkbox>
                           </div>
@@ -600,42 +617,61 @@
                   </div>
                 </a-row>
                 <a-row v-if="filterType == 2 && showTemplateFilter">
-                  <div class="filter-row">
-                    <a-row >
-                      <div class="row-select">
-                        <a-col :span="12">
-                          <span class="sub-category">Knowledge focus </span>
-                          <div class="sub-select" v-for="(item ,index) in templateFilterCondition(templateType.Assessments,'Knowledge focus')" :key="index">
-                            <a-row>
-                              <h4>{{ item.name }}</h4>
-                            </a-row>
-                            <div class="sub-items">
-                              <div class="sub-item" v-for="(child,cIndex) in item.children" :key="cIndex">
-                                <a-checkbox :value="child.id" @change="onChangeCheckBox($event,templateType.Assessments)" :checked="filterAssessments.indexOf(child.id) > -1 ? true: false">
-                                  {{ child.name }}
-                                </a-checkbox>
-                              </div>
-                            </div>
+                  <a-tabs
+                    v-model="filterAssessmentsType"
+                    :defaultActiveKey="filterAssessmentsType"
+                    @change="changeFilterType"
+                    :tabBarGutter="3"
+                    tabPosition="left"
+                    :tabBarStyle="{margin:'10px 20px'}">
+                    <a-tab-pane key="1" tab="Knowledge focus" >
+                      <div class="filter-row">
+                        <a-row >
+                          <div class="row-select">
+                            <a-col :span="24">
+                              <!--                          <span class="sub-category">Knowledge focus </span>-->
+                              <a-radio-group v-model="item.tooltip" :name="item.name" class="sub-select" v-for="(item ,index) in templateFilterCondition(templateType.Assessments,'Knowledge focus')" :key="index">
+                                <a-row>
+                                  <h4>{{ item.name }}</h4>
+                                </a-row>
+                                <div class="sub-items">
+                                  <div class="sub-item" v-for="(child,cIndex) in item.children" :key="cIndex">
+                                    <a-radio :value="child.id" @change="onChangeCheckBox($event,templateType.Assessments,item)">
+                                      {{ child.name }}
+                                    </a-radio>
+                                  </div>
+                                </div>
+                              </a-radio-group>
+                            </a-col>
                           </div>
-                        </a-col>
-                        <a-col :span="12">
-                          <span class="sub-category">Skill focus</span>
-                          <div class="sub-select" v-for="(item ,index) in templateFilterCondition(templateType.Assessments,'Skill focus')" :key="index">
-                            <a-row>
-                              <h4>{{ item.name }}</h4>
-                            </a-row>
-                            <div class="sub-items">
-                              <div class="sub-item" v-for="(child,cIndex) in item.children" :key="cIndex">
-                                <a-checkbox :value="child.id" @change="onChangeCheckBox($event,templateType.Assessments)" :checked="filterAssessments.indexOf(child.id) > -1 ? true: false">
-                                  {{ child.name }}
-                                </a-checkbox>
-                              </div>
-                            </div>
-                          </div>
-                        </a-col>
+                        </a-row>
                       </div>
-                    </a-row>
-                  </div>
+                    </a-tab-pane>
+                    <a-tab-pane key="2" tab="Skill focus" force-render>
+                      <div class="filter-row">
+                        <a-row >
+                          <div class="row-select">
+                            <a-col :span="24">
+                              <!--                          <span class="sub-category">Skill focus</span>-->
+                              <a-radio-group v-model="item.tooltip" :name="item.name" class="sub-select" v-for="(item ,index) in templateFilterCondition(templateType.Assessments,'Skill focus')" :key="index">
+                                <a-row>
+                                  <h4>{{ item.name }}</h4>
+                                </a-row>
+                                <div class="sub-items">
+                                  <div class="sub-item" v-for="(child,cIndex) in item.children" :key="cIndex">
+                                    <a-radio :value="child.id" @change="onChangeCheckBox($event,templateType.Assessments,item)">
+                                      {{ child.name }}
+                                    </a-radio>
+                                  </div>
+                                </div>
+                              </a-radio-group>
+                            </a-col>
+                          </div>
+                        </a-row>
+                      </div>
+                    </a-tab-pane>
+                  </a-tabs>
+
                 </a-row>
                 <a-row v-if="filterType == 3 && showTemplateFilter">
                   <div class="filter-row">
@@ -675,7 +711,7 @@
                           </a-row>
                           <a-row v-for="(child,cIndex) in item.children" :key="cIndex">
                             <a-col :span="24" class="first-child">
-                              <a-checkbox :value="child.id" @change="onChangeCheckBox($event,templateType.Century)" :checked="filterCentury.indexOf(child.id) > -1 ? true: false">
+                              <a-checkbox :value="child.id" @change="onChangeCheckBox($event,templateType.Century,child)" :checked="filterCentury.indexOf(child.id) > -1 ? true: false">
                                 {{ child.name }}
                               </a-checkbox>
                               <div class="sub-child" >
@@ -969,6 +1005,43 @@
       </a-modal>
 
       <a-modal
+        class="my-slide-pick-modal"
+        v-model="selectedSlideVisibleFromSave"
+        :footer="null"
+        :title="null"
+        destroyOnClose
+        width="700px"
+        :closable="false">
+        <div class="select-slide-wrapper">
+          <modal-header @close="selectedSlideVisibleFromSave = false" :white="true"/>
+          <div class="modal-title">
+            Congratulations! You have published your content successfully!
+          </div>
+          <div class="main-tips">
+            <div class="left-img">
+              <img src="~@/assets/icons/task/woniu.png" />
+            </div>
+            <div class="right-img-text">
+              <img src="~@/assets/icons/task/quote.png" />
+              <div class="img-text">
+                Pick slides to create a brilliant task and use it in your future tasks or share with global educators
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="slide-action row-flex-center">
+          <div class="slide-btn-wrapper">
+            <a-button @click="goBack" style="background: #D7D9D9;border: 1px solid #D7D9D9;border-radius: 25px;color: #000;" class="slide-btn-item slide-btn-item-no " type="primary">
+              Not this time
+            </a-button>
+            <a-button @click="handleAddTaskWithSlide" style="background: #15C39A;;border: 1px solid #15C39A;border-radius: 25px;color: #fff;" class="slide-btn-item slide-btn-item-yes" type="primary">
+              Pick now
+            </a-button>
+          </div>
+        </div>
+      </a-modal>
+
+      <a-modal
         title="Add session tags"
         v-model="taskSelectTagVisible"
         :maskClosable="false"
@@ -1012,6 +1085,7 @@
             :sync-data="syncData"
             :show-menu="[ NavigationType.specificSkills, NavigationType.centurySkills, NavigationType.learningOutcomes, NavigationType.assessmentType ]"
             :default-active-menu="NavigationType.learningOutcomes"
+            :recommend-data="recommendData"
             @select-assessmentType="handleSelectAssessmentType"
             @select-sync="handleSelectListData"
             @select-curriculum="handleSelectCurriculum"
@@ -1049,6 +1123,18 @@
         @ok="materialVisible = false"
         @cancel="materialVisible = false">
         <task-material-preview :current-page-element-lists="currentPageElementLists" :filter-type="filterMaterialType" :current-page-index="currentImgIndex"></task-material-preview>
+      </a-modal>
+
+      <a-modal
+        v-model="mediaVisible"
+        :footer="null"
+        destroyOnClose
+        width="900px"
+        :zIndex="3000"
+        :title="null"
+        @ok="mediaVisible = false"
+        @cancel="mediaVisible = false">
+        <media-preview :media-list="mediaList" :material-type="filterMaterialType"></media-preview>
       </a-modal>
 
       <a-skeleton :loading="contentLoading" active>
@@ -1107,6 +1193,7 @@ import TemplatePreview from '@/components/Task/TemplatePreview'
 import TaskMaterialPreview from '@/components/Task/TaskMaterialPreview'
 import TaskPptPreview from '@/components/Task/TaskPptPreview'
 import { PptPreviewMixin } from '@/mixins/PptPreviewMixin'
+import MediaPreview from '@/components/Task/MediaPreview'
 export default {
   name: 'AddTask',
   components: {
@@ -1137,7 +1224,8 @@ export default {
     CollaborateContent,
     CustomTag,
     commentIcon,
-    TaskMaterialPreview
+    TaskMaterialPreview,
+    MediaPreview
   },
   mixins: [PptPreviewMixin],
   props: {
@@ -1278,8 +1366,8 @@ export default {
 
       // 复制当前表单数据，给选择slide创建task用‘pick-task-slide’
       currentTaskFormData: null,
-      rightWidth: '600px',
-      leftWidth: '700px',
+      rightWidth: 600,
+      leftWidth: 700,
       groupNameMode: 'input', // input、select,
       newTermName: 'Untitled Term',
       previewTemplate: {},
@@ -1288,11 +1376,17 @@ export default {
       showTemplateFilter: false,
       currentSlideCoverImgSrc: null,
       filterType: undefined,
+      filterAssessmentsType: '1',
       selectedTemplateMadelWidth: '90%',
       selectedTemplateMarginLeft: '5%',
       selectedTemplateDrawerVisible: false,
       selectedTemplateDrawerZindex: 3000,
-      drawerSelectedTemplateList: []
+      drawerSelectedTemplateList: [],
+
+      selectedSlideVisibleFromSave: false, // 点击保存时，是否显示选择slide的弹窗，此处不去选择slide直接goBack
+
+      recommendData: [],
+      assessmentRadioModel: ''
     }
   },
   computed: {
@@ -1511,7 +1605,7 @@ export default {
         if (response.success) {
           this.restoreTask(response.result.id, false)
           this.$message.success(this.$t('teacher.add-task.save-success'))
-          this.goBack()
+          this.selectedSlideVisibleFromSave = true
         } else {
           this.$message.error(response.message)
         }
@@ -1548,9 +1642,15 @@ export default {
       this.$logger.info('handleSelectTaskType ' + type)
       this.form.taskType = type
       this.customTagList = []
-      CustomTagType.task.safa.forEach(name => {
-        this.customTagList.push(name)
-      })
+      if (type === 'FA') {
+        CustomTagType.task.fa.forEach(name => {
+          this.customTagList.push(name)
+        })
+      } else {
+        CustomTagType.task.sa.forEach(name => {
+          this.customTagList.push(name)
+        })
+      }
       this.showAllCollaborateCommentVisible = false
       this.showCollaborateCommentVisible = false
       this.customTagTop = 60
@@ -2019,6 +2119,7 @@ export default {
     handleAddTaskWithSlide () {
       this.$logger.info('handleAddTaskWithSlide')
       this.selectedSlideVisible = false
+      this.selectedSlideVisibleFromSave = false
       this.currentTaskFormData = Object.assign({}, this.form)
       this.$router.push({
         path: '/teacher/add-task/' + this.taskId + '/pick-task-slide'
@@ -2226,6 +2327,11 @@ export default {
       }
     },
     handleSelectDescription () {
+      this.recommendData = [{
+        fromName: this.form.name,
+        list: JSON.parse(JSON.stringify(this.form.learnOuts))
+      }]
+      this.$logger.info('handleSelectDescription recommendData', this.recommendData)
       this.selectSyncDataVisible = true
     },
     // 加载协作的评论和历史记录数据
@@ -2288,13 +2394,12 @@ export default {
     },
     selectFilter (data) {
       this.$logger.info('selectFilter', data)
-      this.$logger.info('filterLearn', this.filterLearn)
+      this.$logger.info('filterType', this.filterType)
       this.templateLoading = true
-      this.selectedTemplateList = []
       FilterTemplates({
         filterCategoryType: this.filterType,
         filterLearn: this.filterLearn,
-        filterAssessments: this.filterAssessments,
+        filterAssessments: this.getFilterAssessmentsParams(this.filterAssessments),
         filterCentury: this.getFilterParams(this.filterCentury)
       }).then(response => {
         this.$logger.info('handleToggleTemplateType ', response)
@@ -2530,11 +2635,13 @@ export default {
           this.filterLearn.splice(this.filterLearn.indexOf(id), 1)
         }
       } else if (category === TemplateType.Assessments) {
-        if (this.filterAssessments.indexOf(id) === -1) {
-          this.filterAssessments.push(id)
-        } else {
-          this.filterAssessments.splice(this.filterAssessments.indexOf(id), 1)
-        }
+        // 单选，去除同parent其他值
+        parent.children.forEach(item => {
+          if (this.filterAssessments.indexOf(item.id) !== -1) {
+            this.filterAssessments.splice(this.filterAssessments.indexOf(item.id), 1)
+          }
+        })
+        this.filterAssessments.push(id)
       } else if (category === TemplateType.Century) {
         if (this.filterCentury.indexOf(id) === -1) {
           this.filterCentury.push(id)
@@ -2568,6 +2675,11 @@ export default {
         this.filterLearn = []
       } else if (this.filterType === 2) {
         this.filterAssessments = []
+        this.assessmentsList.forEach(parent => {
+          parent.children.forEach(child => {
+            child.tooltip = ''
+          })
+        })
       } else if (this.filterType === 3) {
         this.filterCentury = []
       }
@@ -2586,6 +2698,37 @@ export default {
           }
         }
       })
+      return resList
+    },
+    getFilterAssessmentsParams (list) {
+      if (list.length === 0) {
+        return []
+      }
+      var resList = []
+      if (!this.filterAssessmentsType) {
+        return list
+      }
+      if (this.assessmentsList.length !== 2) {
+        return list
+      }
+      if (this.filterAssessmentsType === '1') {
+        this.assessmentsList[0].children.forEach(parent => {
+          parent.children.forEach(child => {
+            if (list.indexOf(child.id) !== -1) {
+              resList.push(child.id)
+            }
+          })
+        })
+      } else {
+        this.assessmentsList[1].children.forEach(parent => {
+          parent.children.forEach(child => {
+            if (list.indexOf(child.id) !== -1) {
+              resList.push(child.id)
+            }
+          })
+        })
+      }
+      console.log(resList)
       return resList
     },
     GetTagYearTips () {
@@ -2613,11 +2756,11 @@ export default {
     },
     resetWidth () {
       if (document.body.clientWidth < 1400) {
-        this.rightWidth = '500px'
-        this.leftWidth = '550px'
+        this.rightWidth = 500
+        this.leftWidth = 550
       } else {
-        this.rightWidth = '600px'
-        this.leftWidth = '700px'
+        this.rightWidth = 600
+        this.leftWidth = 700
       }
     },
 
@@ -2666,9 +2809,6 @@ export default {
       this.$logger.info('changeSelected ', checked)
       this.form.showSelected = checked
     },
-    onChangePage (page) {
-      this.currentImgIndex = page
-    },
     changeFilterType (e) {
       this.showTemplateFilter = true
       this.selectFilter()
@@ -2683,6 +2823,9 @@ export default {
       this.selectedTemplateMadelWidth = '90%'
       this.selectedTemplateDrawerVisible = false
       this.selectedTemplateDrawerZindex = 1000
+      if (this.selectedTemplateIdList.length === 0) {
+        this.form.showSelected = false
+      }
     },
     handleSelectDrawerSave () {
       this.selectedTemplateMarginLeft = '5%'
@@ -4060,6 +4203,10 @@ export default {
     flex-basis: auto;
     justify-content: flex-start;
     align-items: center;
+    /deep/ .ant-badge-count{
+      top:10px;
+      right:12px;
+    }
     .icon {
       width: 50px;
       height: 50px;
@@ -4140,7 +4287,7 @@ export default {
   align-items: flex-start;
   position: relative;
   /deep/ .ant-carousel .slick-slide img{
-    width:650px;
+    width:100%;
   }
   /deep/ .ant-carousel{
     .custom-slick-arrow:before {
@@ -4161,7 +4308,7 @@ export default {
     background: #fff;
     position: relative;
     .slide-select-and-preview {
-      width: 650px;
+      width:100%;
       //min-height: 400px;
 
       .reset-edit-basic-info {

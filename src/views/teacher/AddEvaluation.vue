@@ -1,5 +1,5 @@
 <template>
-  <div class="my-full-form-wrapper">
+  <div class="my-full-form-wrapper" @click="handleUpdateHeader">
     <div class="form-header">
       <common-form-header
         ref="commonFormHeader"
@@ -212,7 +212,7 @@
         <template v-if="rubricType === 'select'">
           <div class="select-rubric-wrapper">
             <div class="evaluation-list">
-              <select-evaluation-list :class-id="classId" @cancel="selectRubricVisible = false" @selected="handleEnsureSelectEvaluation"/>
+              <select-evaluation-list @cancel="selectRubricVisible = false" @selected="handleEnsureSelectEvaluation"/>
             </div>
           </div>
         </template>
@@ -477,6 +477,7 @@ export default {
               const index = refFormList.findIndex(item => item.formId === formItem.formId)
               if (index === -1) {
                 if (formItem.initRawHeaders && typeof formItem.initRawHeaders === 'string') {
+                  formItem.name = evaluationItem.name
                   formItem.initRawHeaders = JSON.parse(formItem.initRawHeaders)
                   formItem.initRawData = JSON.parse(formItem.initRawData)
                 }
@@ -502,7 +503,7 @@ export default {
             existFormIdList.push(selfId)
             formItem.id = null
             formItem.formId = selfId
-            formItem.title = 'evaluation of task/session ' + count
+            formItem.title = 'evaluation of ' + (formItem.name ? formItem.name : 'Untitled')
           })
 
           refFormList.forEach(formItem => {
@@ -537,6 +538,9 @@ export default {
           this.$logger.info('forms add ' + formItem.formId, formItem)
         })
         this.$logger.info('forms', this.forms)
+      }
+      if (this.forms.length) {
+        this.currentActiveFormId = this.forms[0].formId
       }
       this.selectRubricVisible = false
     },
@@ -685,6 +689,11 @@ export default {
     },
     handleToggleFormType (formType) {
       this.newFormType = formType
+    },
+    handleUpdateHeader (header) {
+      this.$logger.info('AddEvaluation handleUpdateHeader')
+      this.$refs.evaluationTable.forEach(tableItem => { tableItem.handleUpdateHeader() })
+      this.$refs.commonFormHeader.handleEnsureNewFormName()
     }
   }
 }

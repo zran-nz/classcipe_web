@@ -44,7 +44,7 @@ import {
   Steps,
   Cascader,
   message,
-  notification, Switch, Rate, Collapse, Transfer
+  notification, Switch, Rate, Collapse
 } from 'ant-design-vue'
 import Viser from 'viser-vue'
 
@@ -104,7 +104,6 @@ Vue.use(TreeSelect)
 Vue.use(Tree)
 Vue.use(Steps)
 Vue.use(Cascader)
-Vue.use(Transfer)
 
 Vue.prototype.$confirm = Modal.confirm
 Vue.prototype.$message = message

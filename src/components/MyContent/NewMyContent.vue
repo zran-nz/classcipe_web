@@ -281,7 +281,7 @@
       <a-drawer
         destroyOnClose
         placement="right"
-        width="700px"
+        width="800px"
         :closable="false"
         :visible="previewVisible"
         @close="handlePreviewClose"

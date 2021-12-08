@@ -158,13 +158,13 @@ export default {
       }
     },
     computerSize (type) {
-        var size = 0
-        this.elementsList.forEach(data => {
-            if (data.type === type) {
-              size++
-            }
-        })
-        return size
+      var size = 0
+      this.elementsList.forEach(data => {
+        if (data.type === type) {
+          size++
+        }
+      })
+      return size
     }
   }
 }

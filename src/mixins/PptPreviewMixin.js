@@ -28,6 +28,8 @@ export const PptPreviewMixin = {
       thumbnailList: [],
       fileTypeMap: fileTypeMap,
       materialVisible: false,
+      mediaVisible: false,
+      mediaList: [],
       filterMaterialType: ''
     }
   },
@@ -141,13 +143,26 @@ export const PptPreviewMixin = {
     showPluginMaterial (type) {
       const data = this.currentPageMaterial[type]
       this.$logger.info('showPluginMaterial ', data)
-      if (data.length === 1) {
-        if (data[0].type !== 'tip') {
-          window.open(data[0].url, '_blank')
+      if (type === 'text' || type === 'website' || type === 'pdf') {
+        if (data.length > 1) {
+          this.filterMaterialType = type
+          this.materialVisible = true
+        } else {
+          if (data[0].type !== 'tip') {
+            window.open(data[0].url, '_blank')
+          }
         }
       } else {
+        this.mediaList = data
         this.filterMaterialType = type
-        this.materialVisible = true
+        this.mediaVisible = true
+      }
+    },
+    showMaterialSize (type) {
+      if (this.currentPageMaterial[type].length > 1) {
+        return this.currentPageMaterial[type].length
+      } else {
+        return 0
       }
     },
     computerSize (type) {
@@ -162,6 +177,9 @@ export const PptPreviewMixin = {
         }
       })
       return size
+    },
+    onChangePage (page) {
+      this.currentImgIndex = page
     }
   }
 

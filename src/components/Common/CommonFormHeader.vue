@@ -10,15 +10,15 @@
         <template v-if="form.type === typeMap.evaluation">
           <div class="edit-form-name">
             <div class="form-name">
-              <template v-if="!editFormNameMode">{{ form.name }}</template>
+              <template v-if="!editFormNameMode">{{ form.name ? form.name : 'Untitled' }}</template>
               <template v-else>
-                <a-input v-model="form.name" :maxLength="240" @keyup.enter="handleEnsureNewFormName"/>
+                <a-input v-model="formName" :maxLength="240" @keyup.enter="handleEnsureNewFormName" @click.stop/>
               </template>
             </div>
-            <div class="edit-icon" @click="editFormNameMode = true">
+            <div class="edit-icon" @click.stop="editFormNameMode = !editFormNameMode" :data-editFormNameMode="editFormNameMode ? 'true': 'false'">
               <img src="~@/assets/svgIcon/evaluation/bianji.png" />
             </div>
-            <div class="class-name">{{ form.className ? form.className : 'Untitled' }}</div>
+            <div class="class-name" v-if="form.studentEvaluateData">{{ form.className ? form.className : 'Untitled className' }}</div>
           </div>
         </template>
         <template v-if="form.type !== typeMap.evaluation">
@@ -207,14 +207,12 @@ export default {
     handleEnsureNewFormName () {
       this.$logger.info('handleEnsureNewFormName ' + this.form.name)
       this.editFormNameMode = false
-      if (!this.form.name) {
-        this.$message.warn('Name cannot be empty!')
-      } else {
+      if (this.formName && this.formName !== this.form.name) {
         const data = Object.assign({}, this.form)
-        data.name = this.form.name
+        data.name = this.formName
         this.$emit('update-form', data)
       }
-      this.$logger.info('editFormNameMode' + this.editFormNameMode)
+      this.$logger.info('editFormNameMode ' + this.editFormNameMode)
     }
   }
 }

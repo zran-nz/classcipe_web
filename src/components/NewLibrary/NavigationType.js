@@ -5,6 +5,10 @@ export const NavigationType = {
   specificSkills: 'specificSkills',
   // 数据层级结构：year-knowledge
   centurySkills: 'centurySkills',
+  // NZ和AU对21 century叫法不同NZ-Key competencies、AU-General capabilities，内容逻辑一样
+  NZKeyCompetencies: 'NZ-Key competencies',
+  AUGeneralCapabilities: 'AU-General capabilities',
+
   // sdg数据结构：sdg列表-keywords-big idea
   sdg: 'sdg',
   // assessmentType

@@ -269,7 +269,7 @@ import ListModeIcon from '@/assets/icons/library/liebiao .svg?inline'
 import CardList from '@/views/list/CardList'
 import DataCardView from '@/components/Library/DataCardView'
 import { typeMap } from '@/const/teacher'
-import { GetGradesByCurriculumId } from '@/api/preference'
+import { GetGradesByCurriculumId, GetLibraryGrades } from '@/api/preference'
 import { SubjectType, TagType } from '@/const/common'
 const { SubjectTree } = require('@/api/subject')
 
@@ -349,7 +349,7 @@ export default {
   created () {
     this.$logger.info('CurriculumBrowser blockWidth:' + this.blockWidth)
     this.getSubjectTree()
-    this.getGradesByCurriculumId(this.curriculumId)
+    // this.getGradesByCurriculumId(this.curriculumId)
   },
   methods: {
 
@@ -357,6 +357,16 @@ export default {
       GetGradesByCurriculumId({ curriculumId: curriculumId }).then(response => {
         this.$logger.info('GetGradesByCurriculumId', response.result)
         this.gradeList = response.result
+      })
+    },
+    GetLibraryGrades (curriculumId, subjectId, type) {
+      this.gradeListLoading = true
+      this.gradeList = []
+      GetLibraryGrades({ curriculumId: curriculumId, subjectId: subjectId, type: type }).then(response => {
+        this.$logger.info('GetLibraryGrades', response.result)
+        this.gradeList = response.result
+      }).finally(() => {
+        this.gradeListLoading = false
       })
     },
 
@@ -411,6 +421,8 @@ export default {
         this.currentSubSubjectId = subSubjectItem.id
         this.currentGradeId = null
         this.knowledges = []
+        // 过滤年级
+        this.GetLibraryGrades(this.curriculumId, this.currentSubSubjectId, TagType.knowledge)
       }
       this.handleClickBlock(2, subSubjectItem.name)
     },

@@ -16,6 +16,7 @@ import themePluginConfig from '../config/themePluginConfig'
 // import './mock'
 
 import bootstrap from './core/bootstrap'
+import 'vue-photo-preview/dist/skin.css'
 import './core/lazy_use' // use lazy load components
 import './permission' // permission control
 import './utils/filter' // global filter
@@ -27,6 +28,9 @@ import Moment from 'moment'
 import * as logger from '@/utils/logger'
 
 // import VueRecord from '@codekraft-studio/vue-record'
+import preview from 'vue-photo-preview'
+
+Vue.use(preview, { maxSpreadZoom: 4 })
 
 Vue.use(FormModel)
 
