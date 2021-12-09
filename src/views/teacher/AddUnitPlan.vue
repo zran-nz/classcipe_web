@@ -54,23 +54,48 @@
                         </a-form-item>
                       </div>
 
-                      <div class="form-block over-form-block" id="overview">
+                      <div class="form-block over-form-block overview" id="overview">
                         <comment-switch field-name="overview" :is-active="showCollaborateCommentVisible && currentFieldName === 'overview'" @switch="handleSwitchComment" class="my-comment-switch"/>
                         <a-form-model-item class="task-audio-line" label="Unit Overview">
                           <a-textarea class="overview" v-model="form.overview" placeholder="Overview" allow-clear />
-                          <!--        <div class="audio-wrapper" v-if="form.audioUrl">
-                            <audio :src="form.audioUrl" controls />
-                            <span @click="form.audioUrl = null"><a-icon type="delete" /></span>
-                          </div>
-                          <a-tooltip>
-                            <template slot="title">
-                              Voice input
-                            </template>
-                            <div class="task-audio" @click="handleAddAudioOverview">
-                              <img src="~@/assets/icons/lesson/microphone.png" />
-                            </div>
-                          </a-tooltip>-->
+
+                          <a-button type="primary" ghost class="overview-toggle" @click="showTaskDetails = !showTaskDetails">
+                            Assessment task details
+                            <a-icon type="up" v-if="showTaskDetails"/>
+                            <a-icon type="down" v-else/>
+                          </a-button>
+
                         </a-form-model-item>
+
+                        <Collapse>
+                          <div class="overview-task-details" v-if="showTaskDetails" >
+                            <a-textarea class="overview-summarize" v-model="form.summarize" placeholder="Add content to summarize your assessment tasks" allow-clear />
+                            <h4>This Unit is made up of <code>{{ associateTaskList.length }}</code> tasks</h4>
+                            <div class="task-item" v-for="(task,index) in associateTaskList" :key="index">
+                              <p><code>{{ task.name }}</code> focuses on "<code>{{ task.overview }}</code>".
+                                This task applies teaching strategies of  "<span v-if="tag.parentName === 'Teaching strategies'" v-for="(tag,tIndex) in task.customTags" :key="tIndex"><a-tag :color="tagColorList[tIndex % tagColorList.length]">{{ tag.name }}</a-tag></span>"
+                                and uses differentiated instructions of  "<span v-if="tag.parentName === 'Differentiated instructions'" v-for="(tag,tIndex) in task.customTags" :key="tIndex"><a-tag :color="tagColorList[tIndex % tagColorList.length]">{{ tag.name }}</a-tag></span>"
+                                to achieve assessment objectives listed below:</p>
+                              <a-list size="small" bordered :data-source="task.learnOuts" v-if="task.learnOuts.length > 0">
+                                <a-list-item slot="renderItem" slot-scope="learn">
+                                  <a-tooltip :title="learn.path" placement="top">
+                                    {{ learn.name }}
+                                  </a-tooltip>
+                                </a-list-item>
+                              </a-list>
+                              <div class="task-action-edit">
+                                <a-button
+                                  shape="round"
+                                  type="link"
+                                  size="small"
+                                  slot="extra"
+                                  href="#"
+                                  @click="handleEditTask(task)"><a-icon type="edit" /></a-button>
+                              </div>
+                            </div>
+                          </div>
+                        </Collapse>
+
                       </div>
 
                       <div class="form-block inquiry-form-block" id="inquiry">
@@ -615,6 +640,7 @@ import { UserSetting } from '@/api/user'
 import BigIdeaBrowse from '@/components/UnitPlan/BigIdeaBrowse'
 import { FindQuestionsByBigIdea } from '@/api/question'
 import QuestionBrowse from '@/components/UnitPlan/QuestionBrowse'
+import Collapse from '@/utils/collapse.js'
 
 export default {
   name: 'AddUnitPlan',
@@ -643,7 +669,8 @@ export default {
     NewBrowser,
     commentIcon,
     UiLearnOut,
-    BigIdeaBrowse
+    BigIdeaBrowse,
+    Collapse
   },
   props: {
     unitPlanId: {
@@ -698,7 +725,8 @@ export default {
         customTags: [],
         overview: '',
         subjectIds: [],
-        gradeIds: []
+        gradeIds: [],
+        summarize: ''
       },
 
       uploading: false,
@@ -785,7 +813,19 @@ export default {
       selectedQuestionList: [],
 
       groupNameMode: 'input', // input、select,
-      newTermName: 'Untitled category'
+      newTermName: 'Untitled category',
+      showTaskDetails: false,
+      associateTaskList: [],
+      tagColorList: [
+        'pink',
+        'orange',
+        'green',
+        'cyan',
+        'blue',
+        'red',
+        'purple'
+      ]
+>>>>>>> 4ddff3f8d6fbc35a19d67c88dc1dec5b27808138
     }
   },
   watch: {
@@ -842,6 +882,11 @@ export default {
     },
     selectQuestion () {
      return this.form.questions.map(item => {
+        return item.name
+      })
+    },
+    getTaskTags () {
+      return this.form.questions.map(item => {
         return item.name
       })
     }
@@ -1130,7 +1175,8 @@ export default {
         overview: this.form.overview,
         subjectIds: this.form.subjectIds,
         gradeIds: this.form.gradeIds,
-        learnOuts: this.form.learnOuts
+        learnOuts: this.form.learnOuts,
+        summarize: this.form.summarize
       }
 
       if (this.unitPlanId) {
@@ -1509,6 +1555,9 @@ export default {
           if (this.groupNameList.indexOf(item.group) === -1) {
             this.groupNameList.push(item.group)
           }
+          item.contents.forEach(content => {
+            this.associateTaskList.push(content)
+          })
         })
         response.result.others.forEach(item => {
           if (this.groupNameListOther.indexOf(item.group) === -1) {
@@ -1880,6 +1929,10 @@ export default {
       } else {
         return 0
       }
+    },
+    handleEditTask (item) {
+      window.open('/teacher/task-redirect/' + item.id
+        , '_blank')
     }
   }
 }
@@ -2578,6 +2631,40 @@ export default {
   .over-form-block {
     border: 1px solid #15C39A !important;
   }
+  .overview-toggle{
+    color:#15c39a;
+    float: right;
+    margin:5px 0px;
+    line-height: 20px;
+    border-radius: 5px;
+    &:hover {
+      background-color: fade(@outline-color, 20%);
+      color: @primary-color;
+    }
+  }
+  .overview-task-details{
+    //border: 1px solid #15C39A !important;
+    margin:10px 0px;
+    margin-bottom:30px;
+    .task-item{
+      line-height:25px;
+      //border: 1px solid #e8e8e8;
+      border: 1px solid #15c39a;
+      padding: 10px;;
+      margin-top: 5px;
+      border-radius: 5px;
+      .task-action-edit{
+        height: 20px;
+        margin-top: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: right;
+      }
+      /deep/ .ant-tag{
+        border-radius: 5px;
+      }
+    }
+  }
 }
 
 .sdg {
@@ -2727,5 +2814,17 @@ export default {
 .form-block-disabled{
   background-color: #f5f5f5;
   cursor: not-allowed;
+}
+/deep/  textarea{
+  border-radius: 5px;
+}
+code{
+  margin: 0 1px;
+  background: #f2f4f5;
+  padding: .2em .4em;
+  border-radius: 3px;
+  font-size: .9em;
+  border: 1px solid #eee;
+  color: rgba(0, 0, 0, 0.85);
 }
 </style>

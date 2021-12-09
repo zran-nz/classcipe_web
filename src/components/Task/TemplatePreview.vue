@@ -188,7 +188,7 @@ import TaskMaterialPreview from '@/components/Task/TaskMaterialPreview'
 import { typeMap } from '@/const/teacher'
 import { TemplatesGetPresentation } from '@/api/template'
 import { PptPreviewMixin } from '@/mixins/PptPreviewMixin'
-import MediaPreview from "@/components/Task/MediaPreview";
+import MediaPreview from '@/components/Task/MediaPreview'
 
 export default {
   name: 'TemplatePreview',
