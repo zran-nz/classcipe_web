@@ -70,7 +70,7 @@
       <!-- unit plan下才有term概念,task不显示对应的操作和term名称-->
       <template v-if="fromType === typeMap[&quot;unit-plan&quot;]">
         <template v-if="groupNameMode === 'select'">
-          <div class="choose-label">Choose term</div>
+          <div class="choose-label">Choose category</div>
           <a-select :default-value="defaultGroupName" style="width: 100%" v-model="selectedGroup">
             <a-select-option :value="groupNameItem" v-for="(groupNameItem, gIndex) in groupNameList" :key="gIndex">
               {{ groupNameItem }}
@@ -78,7 +78,7 @@
           </a-select>
         </template>
         <template v-if="groupNameMode === 'input'">
-          <div class="choose-label">Term name</div>
+          <div class="choose-label">Category name</div>
           <a-input v-model="groupName" />
         </template>
       </template>

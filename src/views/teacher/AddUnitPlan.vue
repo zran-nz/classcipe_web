@@ -76,7 +76,7 @@
                       <div class="form-block inquiry-form-block" id="inquiry">
                         <comment-switch field-name="inquiry" :is-active="showCollaborateCommentVisible && currentFieldName === 'inquiry'" @switch="handleSwitchComment" class="my-comment-switch"/>
                         <!--                <a-divider />-->
-                        <a-form-item label="Big Idea" class="bigIdea" >
+                        <a-form-item label="Big Idea/ Statement of Inquiry/ Central Idea" class="bigIdea" >
                           <a-input
                             v-model="form.inquiry"
                             :placeholder="$store.getters.currentRole === 'teacher' ? $t('teacher.add-unit-plan.teacher-direction-of-inquiry') : $t('teacher.add-unit-plan.expert-direction-of-inquiry')"
@@ -164,7 +164,7 @@
                             <a-tooltip title="Set key question/Line of inquiry">
                               <a-icon type="exclamation-circle" style="color: #15c39a;cursor: pointer;font-size: 18px" @click="questionSettingVisible=true" />
                             </a-tooltip>
-                            Key question/Line of inquiry
+                            Key question(s) / Line(s) of inquiry
                           </span>
                           <div v-if="!$store.getters.userInfo.disableQuestion">
                             <div class="question-more"><a-button @click="questionMoreVisible=true" type="link" >more</a-button></div>
@@ -222,7 +222,7 @@
                         <a-form-item label="Add task(s)" class="link-plan-title">
                           <a-button type="primary" :style="{'background-color': '#fff', 'color': '#000', 'border': '1px solid #D8D8D8'}" @click="handleAddTerm">
                             <div class="btn-text" style="line-height: 20px">
-                              + Add term
+                              + Add category
                             </div>
                           </a-button>
                         </a-form-item>
@@ -509,13 +509,13 @@
         :footer="null"
         destroyOnClose
         width="600px"
-        title="Set key question/line of inquiry">
+        title="Set key question(s) / Line(s) of inquiry">
         <div class="ensure-setting-modal">
           <div class="tips">
             <p>We understand that for some countries, "key questions/line of inquiry" is not required in Unit plan so you have the option to turn it off. You won't see that section once it's off.</p><p>
             </p><p style="color: red">You might turn it on or change in your account setting If you need the section in future.</p>
           </div>
-          <a-switch v-model="disableQuestion" @change="onChangeSwitch"/> <span style="color: red ;font-family: Inter-Bold;font-size: 15px;">Key question/line of inquiry</span>
+          <a-switch v-model="disableQuestion" @change="onChangeSwitch"/> <span style="color: red ;font-family: Inter-Bold;font-size: 15px;"> Key question(s) / Line(s) of inquiry</span>
           <div class="modal-ensure-action-line-center">
             <a-button class="action-item action-cancel" shape="round" @click="questionSettingVisible=false">Cancel</a-button>
             <a-button class="action-ensure action-item" :loading="confirmLoading" type="primary" shape="round" @click="handQuestionSetting">Confirm</a-button>
@@ -785,7 +785,7 @@ export default {
       selectedQuestionList: [],
 
       groupNameMode: 'input', // input、select,
-      newTermName: 'Untitled Term'
+      newTermName: 'Untitled category'
     }
   },
   watch: {
@@ -1518,7 +1518,7 @@ export default {
         if (this.groupNameList.length > 0 || this.groupNameListOther.length > 0) {
           this.handleSyncData()
         }
-        this.newTermName = 'Untitled Term_' + (this.groupNameList.length)
+        this.newTermName = 'Untitled category_' + (this.groupNameList.length)
         this.$logger.info('AddUnitPlan GetAssociate formatted groupNameList', this.groupNameList, this.groupNameListOther)
       }).finally(() => {
         this.linkGroupLoading = false

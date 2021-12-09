@@ -32,8 +32,8 @@
 
                         <div class="form-block over-form-block" id="overview" >
                           <comment-switch field-name="overview" :is-active="showCollaborateCommentVisible && currentFieldName === 'overview'" @switch="handleSwitchComment" class="my-comment-switch"/>
-                          <a-form-model-item class="task-audio-line" label="Task Overview" ref="overview">
-                            <a-textarea v-model="form.overview" placeholder="Overview" allow-clear />
+                          <a-form-model-item class="task-audio-line" label="Task details" ref="overview">
+                            <a-textarea v-model="form.overview" placeholder="Details" allow-clear />
                           </a-form-model-item>
                         </div>
 
@@ -1369,7 +1369,7 @@ export default {
         rightWidth: 600,
         leftWidth: 700,
         groupNameMode: 'input', // input、select,
-        newTermName: 'Untitled Term',
+        newTermName: 'Untitled category',
         previewTemplate: {},
         previewTemplateVisible: false,
         currentImgIndex: 0,
@@ -2235,7 +2235,7 @@ export default {
           if (this.groupNameList.length > 0 || this.groupNameListOther.length > 0) {
             this.handleSyncData()
           }
-          this.newTermName = 'Untitled Term_' + (this.groupNameList.length)
+          this.newTermName = 'Untitled category_' + (this.groupNameList.length)
           this.$logger.info('AddTask GetAssociate formatted groupNameList', this.groupNameList, this.groupNameListOther)
         }).finally(() => {
           this.linkGroupLoading = false

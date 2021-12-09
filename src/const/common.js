@@ -54,8 +54,8 @@ export const CustomTagType = {
     default: ['Teaching strategies', 'Differentiated instructions']
   },
   task: {
-    sa: ['Teaching strategies', 'Differentiated instructions', 'The Arts-Assessment types', 'Science-Assessment types', 'Bloom\'s Taxonomy', 'Knowledge Dimensions'],
-    fa: ['Teaching strategies', 'Differentiated instructions', 'The Arts-Assessment types', 'Science-Assessment types'],
+    sa: ['Teaching strategies', 'Differentiated instructions', 'The Arts-Assessment types', 'Science-Assessment types'],
+    fa: ['Bloom\'s Taxonomy', 'Knowledge Dimensions','Teaching strategies', 'Differentiated instructions', 'The Arts-Assessment types', 'Science-Assessment types'],
     base: ['Assessment purpose'],
     default: ['Teaching strategies', 'Differentiated instructions', 'Bloom\'s Taxonomy', 'Knowledge Dimensions']
   }

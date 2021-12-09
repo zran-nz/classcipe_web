@@ -43,7 +43,7 @@
                 <template v-if="fromType === typeMap['unit-plan']">
                   <div class="group-name">
                     <div class="group-name-text" v-if="!linkGroup.editing">
-                      {{ linkGroup.group ? linkGroup.group : 'Untitled Term' }}
+                      {{ linkGroup.group ? linkGroup.group : 'Untitled category ' }}
                     </div>
                     <div class="group-name-input" v-if="linkGroup.editing">
                       <input v-model="linkGroup.group" class="group-name-input"/>
@@ -83,7 +83,7 @@
                       <div class="name" @click="handleViewDetail(item)">
                         <a-tooltip placement="top">
                           <template slot="title">
-                            Click and drag tasks to move between terms
+                            Click and drag tasks to move between categorys
                           </template>
                           {{ item.name ? item.name : 'untitled' }}
                         </a-tooltip>
@@ -269,15 +269,15 @@ export default {
   data () {
     return {
       // 初次加载显示一个默认的空link面板
-      defaultGroupName: 'Untitled Term',
+      defaultGroupName: 'Untitled category',
       defaultGroupNameEditMode: 'view',
       defaultGroupOtherContents: [],
 
       linkGroupLoading: true,
       ownerLinkGroupList: [],
       othersLinkGroupList: [],
-      groupNameList: ['Untitled Term'],
-      subDefaultGroupName: ['Untitled Term'],
+      groupNameList: ['Untitled category'],
+      subDefaultGroupName: ['Untitled category'],
       // 当前点击的groupId
       currentGroupId: null,
 

@@ -283,7 +283,7 @@
             :from-id="taskId"
             :filter-type-list="[contentType.evaluation]"
             :group-name-list="groupNameList"
-            :default-group-name="'Untitled Term' + groupNameList.length + 1"
+            :default-group-name="'Untitled category' + groupNameList.length + 1"
             :mode="'common-link'"
             @cancel="selectLinkContentVisible = false"
             @ensure="handleEnsureSelectedLink"/>
