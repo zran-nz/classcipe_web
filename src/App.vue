@@ -41,7 +41,7 @@
         this.heartCheck.reset().start()
       },
       websocketOnerror: function (e) {
-        logger.info('WebSocket connect error')
+        logger.info('WebSocket connect error', e)
         this.reconnect()
       },
       websocketOnmessage: function (e) {
@@ -66,7 +66,7 @@
       websocketOnclose: function (e) {
         logger.info('connection closed (' + e + ')')
         if (e) {
-          logger.info('connection closed (' + e.code + ')')
+          logger.info('connection closed (' + e.code + ')', e)
         }
         this.reconnect()
       },
