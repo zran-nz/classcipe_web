@@ -33,7 +33,7 @@
       </a-space>
     </a-col>
     <a-col span="7" class="unit-right-action">
-      <a-space>
+      <a-space v-show="!hiddenRightButton">
         <div class="collaborate-comment" @click="handleViewComment" v-if="form.type !== typeMap.evaluation">
           <comment-icon class="active-icon"/>
         </div>
@@ -159,6 +159,10 @@ export default {
     showCollaborate: {
       type: Boolean,
       default: true
+    },
+    hiddenRightButton: {
+      type: Boolean,
+      default: false
     }
   },
   data () {
