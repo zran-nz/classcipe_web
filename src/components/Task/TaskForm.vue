@@ -540,7 +540,7 @@ export default {
         list: JSON.parse(JSON.stringify(this.parentData.learnOuts))
       }]
       this.$logger.info('parentData.learnOuts', this.parentData.learnOuts)
-      this.parentData.learnOuts.forEach(item => {
+      this.form.learnOuts.forEach(item => {
         if (item.knowledgeId) {
           this.selectedIdList.push(item.knowledgeId)
         } else {
@@ -554,9 +554,9 @@ export default {
         this.selectedPageItemData.forEach(item => {
             item.data.learnOuts.forEach(data => {
               const exist = pageItemLearnOuts.find(item => data.knowledgeId === item.knowledgeId)
-              this.$logger.info('add pageItemLearnOuts', data, exist)
+              this.$logger.info('add pageItemLearnOuts', data, 'existed ', !!exist)
               if (data.knowledgeId && !exist) {
-                this.selectedIdList.push(item.knowledgeId)
+                this.selectedIdList.push(data.knowledgeId)
                 pageItemLearnOuts.push(data)
               } else {
                 if (exist) {

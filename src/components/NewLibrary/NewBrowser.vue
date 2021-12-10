@@ -34,11 +34,11 @@
                 <h4>From : {{ recommendDataItem.fromTypeName }} / {{ recommendDataItem.fromName }}</h4>
               </div>
               <div
-                :class="{'recommend-item': true, 'my-selected-item': mySelectedIdList.indexOf(recommendDataItem.id) !== -1}"
+                :class="{'recommend-item': true, 'my-selected-item': mySelectedIdList.indexOf(recommendDataItem.knowledgeId) !== -1}"
                 v-for="(recommendItem, rI) in recommendDataItem.list"
                 :key="'ri-' + rI"
                 @click="handleAddRecommend(recommendItem)"
-                :data-id="recommendItem.knowledgeId"
+                :data-knowledgeId="recommendItem.knowledgeId"
                 :data-recommend-item="JSON.stringify(recommendItem)">
                 <a-tooltip class="my-tooltip">
                   <template slot="title">
@@ -326,14 +326,12 @@ export default {
       this.$logger.info('NewBrowser handleSelectListData', data)
       this.selectedKnowledgeList = data
       this.$emit('select-sync', data)
-      this.updateSelectedIdList()
     },
     // curriculum
     handleSelectCurriculumListData (data) {
       this.$logger.info('NewBrowser handleSelectCurriculumListData', data)
       this.selectedCurriculumList = data
       this.$emit('select-curriculum', data)
-      this.updateSelectedIdList()
     },
 
     // subject-specific-skill
@@ -341,7 +339,6 @@ export default {
       this.$logger.info('NewBrowser handleSelectSubjectSpecificSkillListData', data)
       this.selectedSubjectSpecificSkillList = data
       this.$emit('select-subject-specific-skill', data)
-      this.updateSelectedIdList()
     },
 
     // century-skill
@@ -349,35 +346,30 @@ export default {
       this.$logger.info('NewBrowser handleSelect21CenturySkillListData', data)
       this.selected21CenturySkillList = data
       this.$emit('select-century-skill', data)
-      this.updateSelectedIdList()
     },
 
     handleSelectAll21CenturyListData (data) {
       this.$logger.info('NewBrowser handleSelectAll21CenturyListData', data)
       this.selectedAll21CenturyList = data
       this.$emit('select-all-21-century', data)
-      this.updateSelectedIdList()
     },
     // assessment type
     handleSelectAssessmentType (data) {
       this.$logger.info('NewBrowser handleSelectAssessmentType', data)
       this.selectedAssessmentList = data
       this.$emit('select-assessmentType', data)
-      this.updateSelectedIdList()
-    },
+},
 
     handleSelectIdu (data) {
       this.$logger.info('NewBrowser handleSelectIdu', data)
       this.selectedIduList = data
       this.$emit('select-idu', data)
-      this.updateSelectedIdList()
     },
 
     handleSelectBigIdeaData (data) {
       this.$logger.info('NewBrowser handleSelectBigIdeaData', data)
       this.selectedBigIdeaList = data
       this.$emit('select-big-idea', data)
-      this.updateSelectedIdList()
     },
 
     handleRemoveSelected (item) {
@@ -403,44 +395,6 @@ export default {
       }
       this.$emit('select-recommend', this.selectedRecommendList)
       this.$logger.info('after NewBrowser handleAddRecommend', this.selectedRecommendList, this.selectedRecommendIdList)
-    },
-
-    updateSelectedIdList (data) {
-      this.$logger.info('NewBrowser updateSelectedIdList', data)
-
-      this.mySelectedIdList = this.selectedIdList
-      this.selectedKnowledgeList.forEach(item => {
-        this.mySelectedIdList.push(item.knowledgeId)
-      })
-
-      this.selectedCurriculumList.forEach(item => {
-        this.mySelectedIdList.push(item.knowledgeId)
-      })
-
-      this.selectedSubjectSpecificSkillList.forEach(item => {
-        this.mySelectedIdList.push(item.knowledgeId)
-      })
-
-      this.selected21CenturySkillList.forEach(item => {
-        this.mySelectedIdList.push(item.knowledgeId)
-      })
-
-      this.selectedAll21CenturyList.forEach(item => {
-        this.mySelectedIdList.push(item.knowledgeId)
-      })
-
-      this.selectedAssessmentList.forEach(item => {
-        this.mySelectedIdList.push(item.knowledgeId)
-      })
-
-      this.selectedIduList.forEach(item => {
-        this.mySelectedIdList.push(item.knowledgeId)
-      })
-
-      this.selectedBigIdeaList.forEach(item => {
-        this.mySelectedIdList.push(item.bigIdea)
-      })
-      this.$logger.info('mySelectedIdList', this.mySelectedIdList)
     }
   }
 }
@@ -729,7 +683,7 @@ export default {
 }
 
 .my-curriculum-select {
-  min-width: 60px;
+  min-width: 100px;
   display: flex;
   flex-direction: row;
   align-items: center;

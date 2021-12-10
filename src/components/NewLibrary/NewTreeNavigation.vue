@@ -93,7 +93,7 @@ export default {
       this.sdgList = []
       this.subjectTree = []
       this.gradeList = []
-      // this.initData()
+      this.initData()
     }
   },
   created () {
