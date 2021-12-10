@@ -1,39 +1,6 @@
 <template>
   <div class="common-link">
     <div class="link-group-wrapper">
-      <!--      <template v-if="!ownerLinkGroupList.length && !linkGroupLoading">-->
-      <!--        &lt;!&ndash; 初次加载显示一个默认的空link面板&ndash;&gt;-->
-      <!--        <div class="link-group">-->
-      <!--          <div class="group-item">-->
-      <!--            <div class="group-header">-->
-      <!--              <div class="group-left-info">-->
-      <!--                <div class="group-name">-->
-      <!--                  <div class="group-name-text" v-if="defaultGroupNameEditMode === 'view'">{{ defaultGroupName ? defaultGroupName : 'Untitled Term' }}</div>-->
-      <!--                  <div class="group-name-input" v-if="defaultGroupNameEditMode === 'edit'">-->
-      <!--                    <input v-model="defaultGroupName" class="group-name-input"/>-->
-      <!--                  </div>-->
-      <!--                </div>-->
-      <!--                <div class="group-edit-icon" @click="handleToggleEditDefaultGroupName" v-if="canEdit">-->
-      <!--                  <a-icon type="edit" v-if="defaultGroupNameEditMode === 'view'"/>-->
-      <!--                  <a-icon type="check" v-if="defaultGroupNameEditMode === 'edit'"/>-->
-      <!--                </div>-->
-      <!--              </div>-->
-      <!--              <div class="group-right-info" v-if="canEdit">-->
-      <!--                <div class="group-action">-->
-      <!--                  <a-button type="primary" @click="handleDefaultGroupLink" :style="{'background-color': '#fff', 'color': '#000', 'border': 'none'}">-->
-      <!--                    <div class="btn-text" style="line-height: 20px">-->
-      <!--                      + Link-->
-      <!--                    </div>-->
-      <!--                  </a-button>-->
-      <!--                </div>-->
-      <!--              </div>-->
-      <!--            </div>-->
-      <!--            <div class="group-body">-->
-      <!--              <div class="group-link-item"></div>-->
-      <!--            </div>-->
-      <!--          </div>-->
-      <!--        </div>-->
-      <!--      </template>-->
       <template v-if="ownerLinkGroupList.length && !linkGroupLoading">
         <div class="link-group" v-for="(linkGroup, lIndex) in ownerLinkGroupList" :key="lIndex" data-group="ownerLinkGroupList">
           <div class="group-item">
@@ -43,7 +10,7 @@
                 <template v-if="fromType === typeMap['unit-plan']">
                   <div class="group-name">
                     <div class="group-name-text" v-if="!linkGroup.editing">
-                      {{ linkGroup.group ? linkGroup.group : 'Untitled Term' }}
+                      {{ linkGroup.group ? linkGroup.group : 'Untitled category ' }}
                     </div>
                     <div class="group-name-input" v-if="linkGroup.editing">
                       <input v-model="linkGroup.group" class="group-name-input"/>
@@ -83,7 +50,7 @@
                       <div class="name" @click="handleViewDetail(item)">
                         <a-tooltip placement="top">
                           <template slot="title">
-                            Click and drag tasks to move between terms
+                            Click and drag tasks to move between categorys
                           </template>
                           {{ item.name ? item.name : 'untitled' }}
                         </a-tooltip>
@@ -185,7 +152,7 @@
       :footer="null"
       :dialog-style="{ top: '50px'}"
       destroyOnClose
-      width="800px">
+      width="900px">
       <div class="my-modal-title" slot="title" v-if="fromType === typeMap.task">
         Link Evaluation Form(s)
       </div>
@@ -269,15 +236,15 @@ export default {
   data () {
     return {
       // 初次加载显示一个默认的空link面板
-      defaultGroupName: 'Untitled Term',
+      defaultGroupName: 'Untitled category',
       defaultGroupNameEditMode: 'view',
       defaultGroupOtherContents: [],
 
       linkGroupLoading: true,
       ownerLinkGroupList: [],
       othersLinkGroupList: [],
-      groupNameList: ['Untitled Term'],
-      subDefaultGroupName: ['Untitled Term'],
+      groupNameList: ['Untitled category'],
+      subDefaultGroupName: ['Untitled category'],
       // 当前点击的groupId
       currentGroupId: null,
 

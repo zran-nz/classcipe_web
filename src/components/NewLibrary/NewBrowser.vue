@@ -10,13 +10,13 @@
             <h3>Recommended assessment objectives</h3>
           </div>
           <div class="recommend-detail">
-            <div class="recommend-list" v-for="(recommendData, rIndex) in recommendData" :key="rIndex">
+            <div class="recommend-list" v-for="(recommendDataItem, rIndex) in recommendData" :key="rIndex">
               <div class="recommend-from">
-                From : <h4>{{ recommendData.fromName }}</h4>
+                From : <h4>{{ recommendDataItem.fromName }}</h4>
               </div>
               <div
                 class="recommend-item"
-                v-for="(recommendItem, rI) in recommendData.list"
+                v-for="(recommendItem, rI) in recommendDataItem.list"
                 :key="'ri-' + rI"
                 @click="handleAddRecommend(recommendItem)"
                 :data-id="recommendItem.id">

@@ -32,18 +32,22 @@
 
                         <div class="form-block over-form-block" id="overview" >
                           <comment-switch field-name="overview" :is-active="showCollaborateCommentVisible && currentFieldName === 'overview'" @switch="handleSwitchComment" class="my-comment-switch"/>
-                          <a-form-model-item class="task-audio-line" label="Task Overview" ref="overview">
-                            <a-textarea v-model="form.overview" placeholder="Overview" allow-clear />
+                          <a-form-model-item class="task-audio-line" label="Task details" ref="overview">
+                            <a-textarea v-model="form.overview" placeholder="Details" allow-clear />
                           </a-form-model-item>
                         </div>
 
                         <div class="form-block taskType" >
                           <comment-switch field-name="taskType" :is-active="showCollaborateCommentVisible && currentFieldName === 'taskType'" @switch="handleSwitchComment" class="my-comment-switch"/>
-                          <a-form-model-item class="task-audio-line" label="Choose Task Type(Formative Assessment/ Summative Assessment)" ref="taskType">
+                          <a-form-model-item class="task-audio-line" ref="taskType" :colon="false">
+                            <div slot="label" >
+                              Choose Task Type(<span style="font-size: 13px">Formative Assessment/ Summative Assessment/ Activity</span>):
+                            </div>
                             <div class="self-type-wrapper" >
                               <div class="self-field-label" >
                                 <div :class="{'task-type-item': true, 'green-active-task-type': form.taskType === 'FA'}" @click.stop.prevent="handleSelectTaskType('FA')">FA</div>
                                 <div :class="{'task-type-item': true, 'red-active-task-type': form.taskType === 'SA'}" @click.stop.prevent="handleSelectTaskType('SA')">SA</div>
+                                <div :class="{'task-type-item': true, 'task-type-activity': true,'blue-active-task-type': form.taskType === 'Activity'}" @click.stop.prevent="handleSelectTaskType('Activity')">Activity</div>
                               </div>
                             </div>
                           </a-form-model-item>
@@ -342,6 +346,11 @@
                           <template v-if="!uploading && form && form.image">
                             <div class="image-preview">
                               <img :src="form.image" alt="">
+                              <div class="upload-text-mask">
+                                <div class="upload-text">
+                                  <a-button shape="round" type="primary">Upload a cover image</a-button>
+                                </div>
+                              </div>
                             </div>
                           </template>
                           <template v-if="!uploading && form && !form.image">
@@ -350,7 +359,7 @@
                                 <img src="~@/assets/icons/lesson/upload_icon.png" class="upload-icon" />
                               </p>
                               <p class="ant-upload-text">
-                                {{ $t('teacher.add-unit-plan.upload-a-picture') }}
+                                Upload a cover image
                               </p>
                             </div>
                           </template>
@@ -512,7 +521,7 @@
         v-model="selectLinkContentVisible"
         :footer="null"
         destroyOnClose
-        width="800px">
+        width="900px">
         <div class="my-modal-title" slot="title">
           Link Evaluation Form(s)
         </div>
@@ -1369,7 +1378,7 @@ export default {
       rightWidth: 600,
       leftWidth: 700,
       groupNameMode: 'input', // input、select,
-      newTermName: 'Untitled Term',
+      newTermName: 'Untitled category',
       previewTemplate: {},
       previewTemplateVisible: false,
       currentImgIndex: 0,
@@ -1385,8 +1394,7 @@ export default {
 
       selectedSlideVisibleFromSave: false, // 点击保存时，是否显示选择slide的弹窗，此处不去选择slide直接goBack
 
-      recommendData: [],
-      assessmentRadioModel: ''
+      recommendData: []
     }
   },
   computed: {
@@ -1646,8 +1654,12 @@ export default {
         CustomTagType.task.fa.forEach(name => {
           this.customTagList.push(name)
         })
-      } else {
+      } else if (type === 'SA') {
         CustomTagType.task.sa.forEach(name => {
+          this.customTagList.push(name)
+        })
+      } else if (type === 'Activity') {
+        CustomTagType.task.activity.forEach(name => {
           this.customTagList.push(name)
         })
       }
@@ -2236,7 +2248,7 @@ export default {
         if (this.groupNameList.length > 0 || this.groupNameListOther.length > 0) {
           this.handleSyncData()
         }
-        this.newTermName = 'Untitled Term_' + (this.groupNameList.length)
+        this.newTermName = 'Untitled category_' + (this.groupNameList.length)
         this.$logger.info('AddTask GetAssociate formatted groupNameList', this.groupNameList, this.groupNameListOther)
       }).finally(() => {
         this.linkGroupLoading = false
@@ -2976,9 +2988,36 @@ export default {
     }
 
     .image-preview {
+      position: relative;
       img {
         /*width: 100%;*/
         max-height: 250px;
+      }
+
+      .upload-text-mask {
+        display: none;
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: rgba(0, 0, 0, 0.2);
+
+        .upload-text {
+          width: 200px;
+          text-align: center;
+          position: absolute;
+          top: 50%;
+          left: 50%;
+          margin-left: -100px;
+          margin-top: -20px;
+        }
+      }
+
+      &:hover {
+        .upload-text-mask {
+          display: block;
+        }
       }
     }
 
@@ -3269,65 +3308,6 @@ export default {
         line-height: 24px;
         color: #182552;
         opacity: 1;
-      }
-    }
-
-    .filter-wrapper {
-      display: flex;
-      flex-direction: column;
-      box-sizing: border-box;
-      .first-filter-line {
-        display: flex;
-        flex-direction: row;
-        align-items: flex-start;
-        justify-content: flex-start;
-        position: relative;
-        margin-bottom: 10px;
-        .task-type {
-          min-width: 100px;
-          display: flex;
-          flex-direction: row;
-          align-items: center;
-          justify-content: center;
-          .task-type-item {
-            margin-right: 10px;
-            width: 33px;
-            height: 33px;
-            border-radius: 33px;
-            border: 2px solid #ddd;
-            font-weight: bold;
-            display: flex;
-            color: #bbb;
-            align-items: center;
-            justify-content: center;
-          }
-
-          .green-active-task-type {
-            background: rgba(21, 195, 154, 0.1);
-            border: 2px solid #15C39A;
-            border-radius: 50%;
-            font-weight: bold;
-            color: #15C39A;
-          }
-
-          .red-active-task-type {
-            background: rgba(255, 51, 85, 0.1);
-            border: 2px solid #FF3355;
-            border-radius: 50%;
-            opacity: 1;
-            font-weight: bold;
-            color: #FF3355;
-          }
-        }
-      }
-
-      .second-filter-line {
-        padding-left: 100px;
-        display: flex;
-        flex-direction: row;
-        align-items: center;
-        justify-content: flex-start;
-        position: relative;
       }
     }
     .template-type-list {
@@ -3984,7 +3964,7 @@ export default {
   align-items: center;
   justify-content: flex-start;
   .self-field-label {
-    width: 100px;
+    width: 180px;
     display: flex;
     flex-direction: row;
     align-items: center;
@@ -4000,6 +3980,10 @@ export default {
       color: #bbb;
       align-items: center;
       justify-content: center;
+    }
+    .task-type-activity{
+      width: 70px;
+      border-radius: 50px;
     }
 
     .green-active-task-type {
@@ -4018,6 +4002,14 @@ export default {
       font-weight: bold;
       color: #FF3355;
       opacity: 1;
+    }
+    .blue-active-task-type {
+      background: rgb(230, 247, 255);
+      border: 2px solid rgb(145, 213, 255);
+      border-radius: 50px;
+      opacity: 1;
+      font-weight: bold;
+      color: rgb(24, 144, 255);
     }
   }
 
