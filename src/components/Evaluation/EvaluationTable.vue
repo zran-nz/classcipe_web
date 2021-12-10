@@ -23,10 +23,6 @@
             :data-header-type="header.type"
             :data-header-mode="formTableMode"
             v-if="!(header.type === headerType.Evidence && !(mode === tableMode.TeacherEvaluate || mode === tableMode.StudentEvaluate))">
-            <!-- 编辑图标-->
-            <div class="edit-icon" @click.stop="handleEditHeader(header, $event)" v-if="header.editable">
-              <img src="~@/assets/icons/evaluation/edit.png" class="link-icon"/>
-            </div>
             <!-- 表头文本-->
             <div @click.stop="handleEditHeader(header)" class="label-text">
 
@@ -1298,7 +1294,7 @@ export default {
 
           .remove-header {
             position: absolute;
-            right: 27px;
+            right: 0px;
             top: 50%;
             margin-top: -13px;
             color: red;
@@ -1311,7 +1307,7 @@ export default {
           .add-header-item {
             background-color: #15C39A;
             position: absolute;
-            right: 60px;
+            right: 30px;
             top: 50%;
             margin-top: -13px;
             color: #fff;
