@@ -1162,6 +1162,7 @@
             @select-curriculum="handleSelectCurriculum"
             @select-subject-specific-skill="handleSelectSubjectSpecificSkillListData"
             @select-century-skill="handleSelect21CenturySkillListData"
+            @select-idu="handleSelectIdu"
           />
           <div class="modal-ensure-action-line-right">
             <a-button class="action-item action-cancel" shape="round" @click="handleCancelSelectData">Cancel</a-button>
@@ -1402,6 +1403,8 @@ export default {
         selectedCenturySkillList: [],
         selectedAssessmentList: [],
         selectModel: SelectModel,
+
+        selectedIduList: [],
 
         editPPTMode: false,
 
@@ -2364,6 +2367,11 @@ export default {
         this.selectedCenturySkillList = data
       },
 
+      handleSelectIdu (data) {
+        this.$logger.info('handleSelectIdu', data)
+        this.selectedIduList = data
+      },
+
       // TODO 自动更新选择的sync 的数据knowledgeId和name列表
       handleCancelSelectData () {
         this.selectedSyncList = []
@@ -2371,6 +2379,7 @@ export default {
         this.selectedSpecificSkillList = []
         this.selectedCenturySkillList = []
         this.selectedAssessmentList = []
+        this.selectedIduList = []
         this.selectSyncDataVisible = false
       },
 
@@ -2382,6 +2391,7 @@ export default {
           this.selectedCenturySkillList,
           this.selectedBigIdeaList,
           this.selectedAssessmentList,
+          this.selectedIduList,
           this.selectedSyncList)
         this.selectedSyncList.forEach(data => {
           const filterLearnOuts = this.form.learnOuts.filter(item => item.knowledgeId === data.knowledgeId)
@@ -2394,6 +2404,20 @@ export default {
             tags: data.tags,
             tagType: data.tagType,
             path: data.path
+          })
+        })
+
+        this.selectedIduList.forEach(data => {
+          const filterLearnOuts = this.form.learnOuts.filter(item => item.knowledgeId === data.id)
+          if (filterLearnOuts.length > 0) {
+            return
+          }
+          this.form.learnOuts.push({
+            knowledgeId: data.knowledgeData.id,
+            name: data.knowledgeData.name,
+            tagType: data.knowledgeData.tagType,
+            path: data.knowledgeData.path,
+            tags: data.tags
           })
         })
         const selectList = this.selectedCurriculumList.concat(this.selectedSpecificSkillList).concat(this.selectedCenturySkillList)
