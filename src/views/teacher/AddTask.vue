@@ -1154,7 +1154,7 @@
             :select-mode="selectModel.syncData"
             question-index="_questionIndex_1"
             :sync-data="syncData"
-            :show-menu="[ NavigationType.specificSkills, NavigationType.centurySkills, NavigationType.learningOutcomes, NavigationType.assessmentType ]"
+            :show-menu="[ NavigationType.specificSkills, NavigationType.centurySkills, NavigationType.learningOutcomes, NavigationType.assessmentType, NavigationType.idu ]"
             :default-active-menu="NavigationType.learningOutcomes"
             :recommend-data="recommendData"
             @select-assessmentType="handleSelectAssessmentType"

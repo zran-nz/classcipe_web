@@ -787,7 +787,7 @@ export default {
       userTags: {},
       NavigationType: NavigationType,
       defaultActiveMenu: NavigationType.learningOutcomes,
-      showMenuList: [ NavigationType.specificSkills, NavigationType.centurySkills, NavigationType.learningOutcomes, NavigationType.assessmentType ],
+      showMenuList: [ NavigationType.specificSkills, NavigationType.centurySkills, NavigationType.learningOutcomes, NavigationType.assessmentType, NavigationType.idu],
 
       showCollaborateCommentVisible: false,
 
@@ -1398,7 +1398,8 @@ export default {
       this.showMenuList = [ NavigationType.specificSkills,
         NavigationType.centurySkills,
         NavigationType.learningOutcomes,
-        NavigationType.assessmentType
+        NavigationType.assessmentType,
+        NavigationType.idu
       ]
       this.defaultActiveMenu = NavigationType.learningOutcomes
     },

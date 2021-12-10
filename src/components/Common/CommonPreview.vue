@@ -1572,7 +1572,4 @@ export default {
   align-items: center;
 }
 
-.plugin-tags {
-  height: 100px;
-}
 </style>
