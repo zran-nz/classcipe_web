@@ -68,6 +68,10 @@ export default {
     defaultActiveMenu: {
       type: String,
       default: null
+    },
+    defaultCurriculumId: {
+      type: String,
+      default: null
     }
   },
   data () {
@@ -81,217 +85,233 @@ export default {
       gradeList: []
     }
   },
+  watch: {
+    defaultCurriculumId (val) {
+      this.$logger.info('defaultCurriculumId change ' + val)
+      this.loaded = false
+      this.treeDataList = []
+      this.sdgList = []
+      this.subjectTree = []
+      this.gradeList = []
+      // this.initData()
+    }
+  },
   created () {
     this.$logger.info('NewTreeNavigation selectMode', this.selectMode)
-    const skillCategory = this.$store.getters.skillCategory
-    this.$logger.info('NewTreeNavigation skillCategory ', skillCategory)
-    this.$logger.info('NewTreeNavigation defaultActiveMenu ' + this.defaultActiveMenu)
-    const curriculumData = {
-      id: '1',
-      expandStatus: NavigationType.learningOutcomes === this.defaultActiveMenu,
-      type: NavigationType.learningOutcomes,
-      name: skillCategory.length === 3 ? skillCategory[0] : 'Curriculum',
-      children: [],
-      parent: null
-    }
-    const sdgData = {
-      expandStatus: NavigationType.sdg === this.defaultActiveMenu,
-      type: NavigationType.sdg,
-      name: 'Big ideas',
-      children: [],
-      parent: null
-    }
-    const syncData = {
-      expandStatus: NavigationType.sync === this.defaultActiveMenu,
-      type: NavigationType.sync,
-      name: 'Sync assessment objectives with linked content',
-      children: [],
-      parent: null
-    }
-    const all21CenturyData = {
-      id: '1',
-      expandStatus: NavigationType.all21Century === this.defaultActiveMenu,
-      type: NavigationType.all21Century,
-      name: 'all21Century',
-      children: [],
-      parent: null
-    }
-    if (this.syncData && this.syncData.length) {
-      syncData.children = this.syncData
-      this.treeDataList.push(syncData)
-      this.$logger.info('syncData treeDataList', this.treeDataList)
-    } else {
-      this.$logger.info('no sync data, ignore it')
-    }
-    Promise.all([
-      SubjectTree({ curriculumId: this.$store.getters.bindCurriculum }),
-      GetMyGrades(),
-      GetAllSdgs(),
-      getAll21Century()
-    ]).then((initDataResponse) => {
-      this.$logger.info('initData done', initDataResponse)
-
-      // GetMyGrades
-      this.$logger.info('GetMyGrades Response ', initDataResponse[1])
-      if (!initDataResponse[1].code) {
-        this.gradeList = initDataResponse[1].result
-        // 将grade名称和21century grade名称对应起来
-        const gradeJson = {}
-        this.gradeList.forEach(grade => {
-          if (!gradeJson[grade.centuryName]) gradeJson[grade.centuryName] = []
-          gradeJson[grade.centuryName].push(grade.name)
-        })
-        storage.set(GRADE_COMMON, gradeJson)
-      }
-
-      // SubjectTree
-      this.$logger.info('SubjectTree Response ', initDataResponse[0])
-      if (!initDataResponse[0].code) {
-        this.subjectTree = initDataResponse[0].result
-        // subjectType=1 大纲subject
-        curriculumData.children = initDataResponse[0].result.filter(sub => sub.subjectType === SubjectType.Learn || sub.subjectType === SubjectType.LearnAndSkill)
-        // 兼容新的任意层级,任意一个层级下一层都会可能是gradeList
-        this.addGradeListProperty(this.subjectTree)
-      }
-
-      // GetAllSdgs
-      this.$logger.info('GetAllSdgs Response ', initDataResponse[2])
-      if (!initDataResponse[2].code) {
-        this.sdgList = initDataResponse[2].result
-        this.sdgList.forEach(item => { item.children = [] })
-        sdgData.children = this.sdgList
-      }
-
-      // getAll21Century
-      this.$logger.info('getAll21Century Response ', initDataResponse[3])
-      if (!initDataResponse[3].code) {
-        const list = initDataResponse[3].result
-        this.addParentObjListProperty(list, null)
-        all21CenturyData.children = list
-        this.$logger.info('all21CenturyData addParentObjListProperty', all21CenturyData)
-      }
-    }).finally(() => {
-      this.treeDataList.push(curriculumData)
-      this.treeDataList.push(sdgData)
-      if (skillCategory.length === 3) {
-        // subject specific skills 是mainSubject-year-knowledge
-        const specificSkillsData = {
-          id: '3',
-          expandStatus: NavigationType.specificSkills === this.defaultActiveMenu,
-          type: NavigationType.specificSkills,
-          name: skillCategory[1],
-          children: [],
-          parent: null
-        }
-        // 从大纲数据中复制一份数据，只用mainSubject既第一层 且subjectType=2
-        this.subjectTree.forEach(subjectItem => {
-          if (subjectItem.subjectType === SubjectType.Skill || subjectItem.subjectType === SubjectType.LearnAndSkill) {
-            specificSkillsData.children.push(JSON.parse(JSON.stringify(subjectItem)))
-          }
-        })
-        this.treeDataList.push(specificSkillsData)
-
-        // assessmentTypeData 是mainSubject-year-knowledge
-        const assessmentTypeData = {
-          id: '4',
-          expandStatus: NavigationType.assessmentType === this.defaultActiveMenu,
-          type: NavigationType.assessmentType,
-          name: 'Assessment type',
-          children: [],
-          parent: null
-        }
-        // 从大纲数据中复制一份数据，assessmentTypeData也只用mainSubject既第一层
-        this.subjectTree.forEach(subjectItem => {
-          if (subjectItem.subjectType === SubjectType.Skill || subjectItem.subjectType === SubjectType.LearnAndSkill) {
-            assessmentTypeData.children.push(JSON.parse(JSON.stringify(subjectItem)))
-          }
-        })
-        this.treeDataList.push(assessmentTypeData)
-
-        // 21 century skills 是year-knowledge
-        const centurySkillsData = {
-          id: '5',
-          expandStatus: NavigationType.centurySkills === this.defaultActiveMenu,
-          type: NavigationType.centurySkills,
-          name: skillCategory[2],
-          children: [],
-          gradeList: [],
-          parent: null
-        }
-        this.gradeList.forEach(gradeItem => {
-          gradeItem.isGrade = true
-          gradeItem.children = []
-          centurySkillsData.gradeList.push(Object.assign({}, gradeItem))
-          centurySkillsData.children.push(Object.assign({}, gradeItem))
-        })
-        this.treeDataList.push(centurySkillsData)
-
-        /**
-         *  NZ和AU对21 century叫法不同NZ-Key competencies、AU-General capabilities，内容逻辑一样
-         *  NZKeyCompetencies: 'NZ-Key competencies',
-         *   AUGeneralCapabilities: 'AU-General capabilities',
-         */
-        const nZKeyCompetenciesData = {
-          id: '51',
-          expandStatus: NavigationType.NZKeyCompetencies === this.defaultActiveMenu,
-          type: NavigationType.NZKeyCompetencies,
-          name: 'NZ-Key competencies',
-          children: [],
-          gradeList: [],
-          parent: null
-        }
-        this.gradeList.forEach(gradeItem => {
-          gradeItem.isGrade = true
-          gradeItem.children = []
-          nZKeyCompetenciesData.gradeList.push(JSON.parse(JSON.stringify(gradeItem)))
-          nZKeyCompetenciesData.children.push(JSON.parse(JSON.stringify(gradeItem)))
-        })
-        this.treeDataList.push(nZKeyCompetenciesData)
-
-        const aUGeneralCapabilities = {
-          id: '52',
-          expandStatus: NavigationType.AUGeneralCapabilities === this.defaultActiveMenu,
-          type: NavigationType.AUGeneralCapabilities,
-          name: 'AU-General capabilities',
-          children: [],
-          gradeList: [],
-          parent: null
-        }
-        this.gradeList.forEach(gradeItem => {
-          gradeItem.isGrade = true
-          gradeItem.children = []
-          aUGeneralCapabilities.gradeList.push(JSON.parse(JSON.stringify(gradeItem)))
-          aUGeneralCapabilities.children.push(JSON.parse(JSON.stringify(gradeItem)))
-        })
-        this.treeDataList.push(aUGeneralCapabilities)
-
-        // evaluation 表格选择用
-        this.treeDataList.push(all21CenturyData)
-
-        this.$logger.info('after handle treeDataList', this.treeDataList)
-      }
-
-      // iduData 是year-idu list
-      const iduData = {
-        id: '6',
-        expandStatus: NavigationType.idu === this.defaultActiveMenu,
-        type: NavigationType.idu,
-        name: 'Integrated Subject Skill',
-        children: [],
-        gradeList: [],
-        parent: null
-      }
-      this.gradeList.forEach(gradeItem => {
-        gradeItem.isGrade = true
-        gradeItem.children = []
-        iduData.gradeList.push(JSON.parse(JSON.stringify(gradeItem)))
-        iduData.children.push(JSON.parse(JSON.stringify(gradeItem)))
-      })
-      this.treeDataList.push(iduData)
-      this.loaded = true
-    })
+    this.initData()
   },
   methods: {
+    initData () {
+      const skillCategory = this.$store.getters.skillCategory
+      this.$logger.info('NewTreeNavigation skillCategory ', skillCategory)
+      this.$logger.info('NewTreeNavigation defaultActiveMenu ' + this.defaultActiveMenu)
+      const curriculumData = {
+        id: '1',
+        expandStatus: NavigationType.learningOutcomes === this.defaultActiveMenu,
+        type: NavigationType.learningOutcomes,
+        name: skillCategory.length === 3 ? skillCategory[0] : 'Curriculum',
+        children: [],
+        parent: null
+      }
+      const sdgData = {
+        expandStatus: NavigationType.sdg === this.defaultActiveMenu,
+        type: NavigationType.sdg,
+        name: 'Big ideas',
+        children: [],
+        parent: null
+      }
+      const syncData = {
+        expandStatus: NavigationType.sync === this.defaultActiveMenu,
+        type: NavigationType.sync,
+        name: 'Sync assessment objectives with linked content',
+        children: [],
+        parent: null
+      }
+      const all21CenturyData = {
+        id: '1',
+        expandStatus: NavigationType.all21Century === this.defaultActiveMenu,
+        type: NavigationType.all21Century,
+        name: 'all21Century',
+        children: [],
+        parent: null
+      }
+      if (this.syncData && this.syncData.length) {
+        syncData.children = this.syncData
+        this.treeDataList.push(syncData)
+        this.$logger.info('syncData treeDataList', this.treeDataList)
+      } else {
+        this.$logger.info('no sync data, ignore it')
+      }
+      Promise.all([
+        SubjectTree({ curriculumId: this.defaultCurriculumId ? this.defaultCurriculumId : this.$store.getters.bindCurriculum }),
+        GetMyGrades(),
+        GetAllSdgs(),
+        getAll21Century()
+      ]).then((initDataResponse) => {
+        this.$logger.info('initData done', initDataResponse)
+
+        // GetMyGrades
+        this.$logger.info('GetMyGrades Response ', initDataResponse[1])
+        if (!initDataResponse[1].code) {
+          this.gradeList = initDataResponse[1].result
+          // 将grade名称和21century grade名称对应起来
+          const gradeJson = {}
+          this.gradeList.forEach(grade => {
+            if (!gradeJson[grade.centuryName]) gradeJson[grade.centuryName] = []
+            gradeJson[grade.centuryName].push(grade.name)
+          })
+          storage.set(GRADE_COMMON, gradeJson)
+        }
+
+        // SubjectTree
+        this.$logger.info('SubjectTree Response ', initDataResponse[0])
+        if (!initDataResponse[0].code) {
+          this.subjectTree = initDataResponse[0].result
+          // subjectType=1 大纲subject
+          curriculumData.children = initDataResponse[0].result.filter(sub => sub.subjectType === SubjectType.Learn || sub.subjectType === SubjectType.LearnAndSkill)
+          // 兼容新的任意层级,任意一个层级下一层都会可能是gradeList
+          this.addGradeListProperty(this.subjectTree)
+        }
+
+        // GetAllSdgs
+        this.$logger.info('GetAllSdgs Response ', initDataResponse[2])
+        if (!initDataResponse[2].code) {
+          this.sdgList = initDataResponse[2].result
+          this.sdgList.forEach(item => { item.children = [] })
+          sdgData.children = this.sdgList
+        }
+
+        // getAll21Century
+        this.$logger.info('getAll21Century Response ', initDataResponse[3])
+        if (!initDataResponse[3].code) {
+          const list = initDataResponse[3].result
+          this.addParentObjListProperty(list, null)
+          all21CenturyData.children = list
+          this.$logger.info('all21CenturyData addParentObjListProperty', all21CenturyData)
+        }
+      }).finally(() => {
+        this.treeDataList.push(curriculumData)
+        this.treeDataList.push(sdgData)
+        if (skillCategory.length === 3) {
+          // subject specific skills 是mainSubject-year-knowledge
+          const specificSkillsData = {
+            id: '3',
+            expandStatus: NavigationType.specificSkills === this.defaultActiveMenu,
+            type: NavigationType.specificSkills,
+            name: skillCategory[1],
+            children: [],
+            parent: null
+          }
+          // 从大纲数据中复制一份数据，只用mainSubject既第一层 且subjectType=2
+          this.subjectTree.forEach(subjectItem => {
+            if (subjectItem.subjectType === SubjectType.Skill || subjectItem.subjectType === SubjectType.LearnAndSkill) {
+              specificSkillsData.children.push(JSON.parse(JSON.stringify(subjectItem)))
+            }
+          })
+          this.treeDataList.push(specificSkillsData)
+
+          // assessmentTypeData 是mainSubject-year-knowledge
+          const assessmentTypeData = {
+            id: '4',
+            expandStatus: NavigationType.assessmentType === this.defaultActiveMenu,
+            type: NavigationType.assessmentType,
+            name: 'Assessment type',
+            children: [],
+            parent: null
+          }
+          // 从大纲数据中复制一份数据，assessmentTypeData也只用mainSubject既第一层
+          this.subjectTree.forEach(subjectItem => {
+            if (subjectItem.subjectType === SubjectType.Skill || subjectItem.subjectType === SubjectType.LearnAndSkill) {
+              assessmentTypeData.children.push(JSON.parse(JSON.stringify(subjectItem)))
+            }
+          })
+          this.treeDataList.push(assessmentTypeData)
+
+          // 21 century skills 是year-knowledge
+          const centurySkillsData = {
+            id: '5',
+            expandStatus: NavigationType.centurySkills === this.defaultActiveMenu,
+            type: NavigationType.centurySkills,
+            name: skillCategory[2],
+            children: [],
+            gradeList: [],
+            parent: null
+          }
+          this.gradeList.forEach(gradeItem => {
+            gradeItem.isGrade = true
+            gradeItem.children = []
+            centurySkillsData.gradeList.push(Object.assign({}, gradeItem))
+            centurySkillsData.children.push(Object.assign({}, gradeItem))
+          })
+          this.treeDataList.push(centurySkillsData)
+
+          /**
+           *  NZ和AU对21 century叫法不同NZ-Key competencies、AU-General capabilities，内容逻辑一样
+           *  NZKeyCompetencies: 'NZ-Key competencies',
+           *   AUGeneralCapabilities: 'AU-General capabilities',
+           */
+          const nZKeyCompetenciesData = {
+            id: '51',
+            expandStatus: NavigationType.NZKeyCompetencies === this.defaultActiveMenu,
+            type: NavigationType.NZKeyCompetencies,
+            name: 'NZ-Key competencies',
+            children: [],
+            gradeList: [],
+            parent: null
+          }
+          this.gradeList.forEach(gradeItem => {
+            gradeItem.isGrade = true
+            gradeItem.children = []
+            nZKeyCompetenciesData.gradeList.push(JSON.parse(JSON.stringify(gradeItem)))
+            nZKeyCompetenciesData.children.push(JSON.parse(JSON.stringify(gradeItem)))
+          })
+          this.treeDataList.push(nZKeyCompetenciesData)
+
+          const aUGeneralCapabilities = {
+            id: '52',
+            expandStatus: NavigationType.AUGeneralCapabilities === this.defaultActiveMenu,
+            type: NavigationType.AUGeneralCapabilities,
+            name: 'AU-General capabilities',
+            children: [],
+            gradeList: [],
+            parent: null
+          }
+          this.gradeList.forEach(gradeItem => {
+            gradeItem.isGrade = true
+            gradeItem.children = []
+            aUGeneralCapabilities.gradeList.push(JSON.parse(JSON.stringify(gradeItem)))
+            aUGeneralCapabilities.children.push(JSON.parse(JSON.stringify(gradeItem)))
+          })
+          this.treeDataList.push(aUGeneralCapabilities)
+
+          // evaluation 表格选择用
+          this.treeDataList.push(all21CenturyData)
+
+          this.$logger.info('after handle treeDataList', this.treeDataList)
+        }
+
+        // iduData 是year-idu list
+        if (this.defaultCurriculumId === 5 || this.defaultCurriculumId === 6) {
+          const iduData = {
+            id: '6',
+            expandStatus: NavigationType.idu === this.defaultActiveMenu,
+            type: NavigationType.idu,
+            name: 'Integrated Subject Skill',
+            children: [],
+            gradeList: [],
+            parent: null
+          }
+          this.gradeList.forEach(gradeItem => {
+            gradeItem.isGrade = true
+            gradeItem.children = []
+            iduData.gradeList.push(JSON.parse(JSON.stringify(gradeItem)))
+            iduData.children.push(JSON.parse(JSON.stringify(gradeItem)))
+          })
+          this.treeDataList.push(iduData)
+        }
+        this.loaded = true
+      })
+    },
     // 给任意层级的数据先增加gradeList属性，然后直接给vue进行监测数据更新。避免数据操作过程中加数据，太麻烦
     addGradeListProperty (list) {
       list.forEach(item => {

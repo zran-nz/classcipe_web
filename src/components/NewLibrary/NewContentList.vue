@@ -587,20 +587,24 @@ export default {
         })
         this.$emit('select-all-21-century', selectedList)
       } else if (item.dataType === NavigationType.idu) {
-        const index = this.selectedAll21CenturyIdList.indexOf(item.item.id)
+        const index = this.selectedIDUIdList.indexOf(item.id)
         if (index !== -1) {
-          this.selectedAll21CenturyIdList.splice(index, 1)
-          this.selectedAll21CenturyMap.delete(item.item.id)
+          this.selectedIDUIdList.splice(index, 1)
+          this.selectedIDUMap.delete(item.id)
+        } else {
+          this.selectedIDUIdList.push(item.id)
+          this.selectedIDUMap.set(item.id, item)
         }
         const selectedList = []
-        this.selectedAll21CenturyIdList.forEach(all21Century => {
+        this.selectedIDUIdList.forEach(iduId => {
           selectedList.push({
-            dataType: item.dataType,
-            all21Century,
-            item: this.selectedAll21CenturyMap.get(all21Century)
+            dataType: this.currentDataType,
+            knowledgeId: iduId,
+            knowledgeData: this.selectedIDUMap.get(iduId)
           })
         })
-        this.$emit('select-all-21-century', selectedList)
+        this.$emit('select-idu', selectedList)
+        this.$logger.info('selectedIDUMap', this.selectedIDUMap)
       }
     }
   },

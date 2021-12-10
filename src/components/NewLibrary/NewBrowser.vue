@@ -1,7 +1,26 @@
 <template>
   <div class="new-library" id="new-library">
     <div class="navigation">
-      <new-navigation />
+      <div class="select-curriculum">
+        <div class="my-curriculum-select">
+          <a-select
+            v-if="curriculumOptions.length"
+            @change="handleCurriculumChange"
+            v-model="currentCurriculumId"
+            :default-value="$store.getters.bindCurriculum"
+            class="select-curriculum">
+            <a-select-option v-for="(curriculum,index) in curriculumOptions" :value="curriculum.id" :key="index">
+              {{ curriculum.name }}
+            </a-select-option>
+            <div class="arrow-self" slot="suffixIcon">
+              <img src="~@/assets/icons/library/arrow.png" />
+            </div>
+          </a-select>
+        </div>
+      </div>
+      <div class="navigation-item">
+        <new-navigation />
+      </div>
     </div>
     <div class="main">
       <div class="selected-content">
@@ -12,10 +31,10 @@
           <div class="recommend-detail">
             <div class="recommend-list" v-for="(recommendDataItem, rIndex) in recommendData" :key="rIndex">
               <div class="recommend-from">
-                <h4>From : {{ recommendDataItem.fromName }}</h4>
+                <h4>From : {{ recommendDataItem.fromTypeName }} / {{ recommendDataItem.fromName }}</h4>
               </div>
               <div
-                class="recommend-item"
+                :class="{'recommend-item': true, 'my-selected-item': mySelectedIdList.indexOf(recommendDataItem.id) !== -1}"
                 v-for="(recommendItem, rI) in recommendDataItem.list"
                 :key="'ri-' + rI"
                 @click="handleAddRecommend(recommendItem)"
@@ -39,7 +58,7 @@
         <div class="selected-list">
           <div class="content-list">
             <div
-              class="content-item selected-line"
+              :class="{'content-item': true, 'selected-line': true, 'my-selected-item': mySelectedIdList.indexOf(item.knowledgeId) !== -1}"
               v-for="(item, kIndex) in selectedCurriculumList"
               :key="'curr-' + kIndex">
               <div class="name">
@@ -52,7 +71,7 @@
               </div>
             </div>
             <div
-              class="content-item selected-line"
+              :class="{'content-item': true, 'selected-line': true, 'my-selected-item': mySelectedIdList.indexOf(item.knowledgeId) !== -1}"
               v-for="(item, sIndex) in selectedSubjectSpecificSkillList"
               :key="'sub-' + sIndex">
               <div class="name">
@@ -66,7 +85,7 @@
             </div>
 
             <div
-              class="content-item selected-line"
+              :class="{'content-item': true, 'selected-line': true, 'my-selected-item': mySelectedIdList.indexOf(item.knowledgeId) !== -1}"
               v-for="(item, aIndex) in selectedAssessmentList"
               :key="'assessment-' + aIndex">
               <div class="name">
@@ -80,7 +99,7 @@
             </div>
 
             <div
-              class="content-item selected-line"
+              :class="{'content-item': true, 'selected-line': true, 'my-selected-item': mySelectedIdList.indexOf(item.knowledgeId) !== -1}"
               v-for="(item, aIndex) in selected21CenturySkillList"
               :key="'21-' + aIndex">
               <div class="name">
@@ -94,7 +113,7 @@
             </div>
 
             <div
-              class="content-item selected-line"
+              :class="{'content-item': true, 'selected-line': true, 'my-selected-item': mySelectedIdList.indexOf(item.bigIdea) !== -1}"
               v-for="(item, aIndex) in selectedBigIdeaList"
               :key="'big-' + aIndex">
               <div class="name">
@@ -108,7 +127,7 @@
             </div>
 
             <div
-              class="content-item selected-line"
+              :class="{'content-item': true, 'selected-line': true, 'my-selected-item': mySelectedIdList.indexOf(item.knowledgeId) !== -1}"
               v-for="(item, aIndex) in selectedAll21CenturyList"
               :key="'all-21-' + aIndex">
               <div class="name">
@@ -122,7 +141,7 @@
             </div>
 
             <div
-              class="content-item selected-line"
+              :class="{'content-item': true, 'selected-line': true, 'my-selected-item': mySelectedIdList.indexOf(item.knowledgeId) !== -1}"
               v-for="(item, aIndex) in selectedKnowledgeList"
               :key="'sync-' + aIndex">
               <div class="name">
@@ -136,7 +155,7 @@
             </div>
 
             <div
-              class="content-item selected-line"
+              :class="{'content-item': true, 'selected-line': true, 'my-selected-item': mySelectedIdList.indexOf(item.knowledgeId) !== -1}"
               v-for="(item, aIndex) in selectedRecommendList"
               :key="'rec-' + aIndex">
               <div class="name">
@@ -150,7 +169,7 @@
             </div>
 
             <div
-              class="content-item selected-line"
+              :class="{'content-item': true, 'selected-line': true, 'my-selected-item': mySelectedIdList.indexOf(item.knowledgeId) !== -1}"
               v-for="(item, aIndex) in selectedIduList"
               :key="'idu-' + aIndex">
               <div class="name">
@@ -184,6 +203,7 @@
             :sync-data="syncData"
             :show-menu="showMenu"
             :default-active-menu="defaultActiveMenu"
+            :default-curriculum-id="defaultCurriculumId"
           />
         </div>
         <div class="content-list" v-show="!expandedListFlag">
@@ -210,6 +230,10 @@ import NewNavigation from '@/components/NewLibrary/NewNavigation'
 import NewContentList from '@/components/NewLibrary/NewContentList'
 import NewTreeNavigation from '@/components/NewLibrary/NewTreeNavigation'
 import ContentTypeIcon from '@/components/Teacher/ContentTypeIcon'
+import { UtilMixin } from '@/mixins/UtilMixin'
+import {
+  getAllCurriculums
+} from '@/api/preference'
 
 export default {
   name: 'NewBrowser',
@@ -243,8 +267,13 @@ export default {
     recommendData: {
       type: Array,
       default: () => []
+    },
+    selectedIdList: {
+      type: Array,
+      default: () => []
     }
   },
+  mixins: [UtilMixin],
   data () {
     return {
       expandedListFlag: false,
@@ -258,27 +287,52 @@ export default {
       selectedAll21CenturyList: [],
       selectedBigIdeaList: [],
       selectedRecommendList: [],
-      selectedRecommendIdList: []
+      selectedRecommendIdList: [],
+
+      currentCurriculumId: this.$store.getters.bindCurriculum ? this.$store.getters.bindCurriculum : '1',
+      defaultCurriculumId: this.$store.getters.bindCurriculum ? this.$store.getters.bindCurriculum : '1',
+      curriculumOptions: [],
+      mySelectedIdList: [] // 所有已选择的id和类型
+    }
+  },
+  watch: {
+    currentCurriculumId (val) {
+      this.$logger.info('NewBrowser change currentCurriculumId to ' + val)
+      this.defaultCurriculumId = val
     }
   },
   created () {
     this.$logger.info('NewBrowser selectMode', this.selectMode)
     this.$logger.info('NewBrowser showMenu', this.showMenu)
     this.$logger.info('recommendData', this.recommendData)
-  },
-  mounted () {
+    this.$logger.info('selectedIdList', this.selectedIdList)
+    this.mySelectedIdList = this.selectedIdList
+
+    getAllCurriculums().then((response) => {
+      this.$logger.info('getAllCurriculums', response)
+      this.curriculumOptions = response.result
+      this.$logger.info('getAllCurriculums', this.curriculumOptions)
+    })
   },
   methods: {
+
+    handleCurriculumChange (value) {
+      this.$logger.info('handleCurriculumChange ' + value)
+      this.currentCurriculumId = value
+    },
+
     handleSelectListData (data) {
       this.$logger.info('NewBrowser handleSelectListData', data)
       this.selectedKnowledgeList = data
       this.$emit('select-sync', data)
+      this.updateSelectedIdList()
     },
     // curriculum
     handleSelectCurriculumListData (data) {
       this.$logger.info('NewBrowser handleSelectCurriculumListData', data)
       this.selectedCurriculumList = data
       this.$emit('select-curriculum', data)
+      this.updateSelectedIdList()
     },
 
     // subject-specific-skill
@@ -286,6 +340,7 @@ export default {
       this.$logger.info('NewBrowser handleSelectSubjectSpecificSkillListData', data)
       this.selectedSubjectSpecificSkillList = data
       this.$emit('select-subject-specific-skill', data)
+      this.updateSelectedIdList()
     },
 
     // century-skill
@@ -293,30 +348,35 @@ export default {
       this.$logger.info('NewBrowser handleSelect21CenturySkillListData', data)
       this.selected21CenturySkillList = data
       this.$emit('select-century-skill', data)
+      this.updateSelectedIdList()
     },
 
     handleSelectAll21CenturyListData (data) {
       this.$logger.info('NewBrowser handleSelectAll21CenturyListData', data)
       this.selectedAll21CenturyList = data
       this.$emit('select-all-21-century', data)
+      this.updateSelectedIdList()
     },
     // assessment type
     handleSelectAssessmentType (data) {
       this.$logger.info('NewBrowser handleSelectAssessmentType', data)
       this.selectedAssessmentList = data
       this.$emit('select-assessmentType', data)
+      this.updateSelectedIdList()
     },
 
     handleSelectIdu (data) {
       this.$logger.info('NewBrowser handleSelectIdu', data)
       this.selectedIduList = data
       this.$emit('select-idu', data)
+      this.updateSelectedIdList()
     },
 
     handleSelectBigIdeaData (data) {
       this.$logger.info('NewBrowser handleSelectBigIdeaData', data)
       this.selectedBigIdeaList = data
       this.$emit('select-big-idea', data)
+      this.updateSelectedIdList()
     },
 
     handleRemoveSelected (item) {
@@ -342,6 +402,44 @@ export default {
       }
       this.$emit('select-recommend', this.selectedRecommendList)
       this.$logger.info('after NewBrowser handleAddRecommend', this.selectedRecommendList, this.selectedRecommendIdList)
+    },
+
+    updateSelectedIdList (data) {
+      this.$logger.info('NewBrowser updateSelectedIdList', data)
+
+      this.mySelectedIdList = this.selectedIdList
+      this.selectedKnowledgeList.forEach(item => {
+        this.mySelectedIdList.push(item.knowledgeId)
+      })
+
+      this.selectedCurriculumList.forEach(item => {
+        this.mySelectedIdList.push(item.knowledgeId)
+      })
+
+      this.selectedSubjectSpecificSkillList.forEach(item => {
+        this.mySelectedIdList.push(item.knowledgeId)
+      })
+
+      this.selected21CenturySkillList.forEach(item => {
+        this.mySelectedIdList.push(item.knowledgeId)
+      })
+
+      this.selectedAll21CenturyList.forEach(item => {
+        this.mySelectedIdList.push(item.knowledgeId)
+      })
+
+      this.selectedAssessmentList.forEach(item => {
+        this.mySelectedIdList.push(item.knowledgeId)
+      })
+
+      this.selectedIduList.forEach(item => {
+        this.mySelectedIdList.push(item.knowledgeId)
+      })
+
+      this.selectedBigIdeaList.forEach(item => {
+        this.mySelectedIdList.push(item.bigIdea)
+      })
+      this.$logger.info('mySelectedIdList', this.mySelectedIdList)
     }
   }
 }
@@ -352,7 +450,14 @@ export default {
 @import "~@/components/index.less";
 
 .new-library {
-  .navigation {}
+  .navigation {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: center;
+    padding-bottom: 10px;
+  }
+
   .main {
     border: 1px solid #e9e9e9;
     overflow-y: hidden;
@@ -594,11 +699,9 @@ export default {
           line-height: 35px;
 
           .left-icon {
-            display: flex;
-            flex-direction: row;
-            align-items: center;
-            justify-content: center;
+            display: block;
             width: 40px;
+            min-width: 40px;
             height: 35px;
             text-align: center;
             opacity: 0;
@@ -617,6 +720,20 @@ export default {
         }
       }
     }
+  }
+}
+
+.my-selected-item {
+  color: #ddd;
+}
+
+.my-curriculum-select {
+  min-width: 60px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  .select-curriculum-tips{
+    color: #aaa;
   }
 }
 </style>

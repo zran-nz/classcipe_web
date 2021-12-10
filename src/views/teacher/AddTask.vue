@@ -476,6 +476,7 @@
                 <task-form
                   :parent-form-data="currentTaskFormData"
                   :select-ids="selectedPageIdList"
+                  :selected-page-item-data="selectedPageItemData"
                   :task-id="taskId"
                   :task-prefix="'task_' + taskIndex + '_'"
                   @add-sub-task="handleAddSubTask" />
@@ -1157,6 +1158,7 @@
             :show-menu="[NavigationType.specificSkills, NavigationType.centurySkills, NavigationType.learningOutcomes, NavigationType.assessmentType, NavigationType.idu ]"
             :default-active-menu="NavigationType.learningOutcomes"
             :recommend-data="recommendData"
+            :selected-id="selectedIdList"
             @select-assessmentType="handleSelectAssessmentType"
             @select-sync="handleSelectListData"
             @select-curriculum="handleSelectCurriculum"
@@ -1266,6 +1268,7 @@ import TaskMaterialPreview from '@/components/Task/TaskMaterialPreview'
 import TaskPptPreview from '@/components/Task/TaskPptPreview'
 import { PptPreviewMixin } from '@/mixins/PptPreviewMixin'
 import MediaPreview from '@/components/Task/MediaPreview'
+import { UtilMixin } from '@/mixins/UtilMixin'
 const { SplitTask } = require('@/api/task')
 
 export default {
@@ -1301,7 +1304,7 @@ export default {
       TaskMaterialPreview,
       MediaPreview
     },
-    mixins: [PptPreviewMixin],
+    mixins: [PptPreviewMixin, UtilMixin],
     props: {
       taskId: {
         type: String,
@@ -1465,7 +1468,10 @@ export default {
         recommendData: [],
 
         subTaskSaving: false,
-        subTaskPublishing: false
+        subTaskPublishing: false,
+
+        selectedPageItemData: [],
+        selectedIdList: [] // browser中已经选择的id列表
       }
     },
     computed: {
@@ -1997,15 +2003,32 @@ export default {
 
       handleToggleThumbnail (thumbnail) {
         this.$logger.info('handleToggleThumbnail', thumbnail)
-        const index = this.selectedPageIdList.indexOf(thumbnail.id)
-        const contentUrlIndex = this.selectedPageImageList.indexOf(thumbnail.contentUrl)
+        const pageId = thumbnail.id
+        const index = this.selectedPageIdList.indexOf(pageId)
         if (index !== -1) {
           this.selectedPageIdList.splice(index, 1)
-          this.selectedPageImageList.splice(contentUrlIndex, 1)
         } else {
           this.selectedPageIdList.push(thumbnail.id)
+        }
+
+        const contentUrlIndex = this.selectedPageImageList.indexOf(thumbnail.contentUrl)
+        if (contentUrlIndex !== -1) {
+          this.selectedPageImageList.splice(contentUrlIndex, 1)
+        } else {
           this.selectedPageImageList.push(thumbnail.contentUrl)
         }
+
+        const pageDataIndex = this.selectedPageItemData.findIndex(item => item.pageId === pageId)
+        const pageData = this.getTargetPageItemData(pageId)
+        this.$logger.info('pageData', pageData)
+        if (pageDataIndex !== -1) {
+            this.selectedPageItemData.splice(pageDataIndex, 1)
+        } else if (pageData) {
+            pageData.pageId = pageId
+            this.selectedPageItemData.push(pageData)
+        }
+        this.$logger.info('selectedPageItemData', this.selectedPageItemData)
+
         // 处理sub task封面
         if (this.currentTaskFormData && this.selectedPageIdList.length > 0) {
           const pageId = this.thumbnailList.filter(item => this.selectedPageIdList.indexOf(item.id) > -1)[0].id
@@ -2097,6 +2120,8 @@ export default {
           this.$logger.info('add sub task', task)
           this.subTasks.push(task)
           this.selectedPageIdList = []
+          this.selectedPageImageList = []
+          this.selectedPageItemData = []
           this.taskIndex++
           this.$logger.info('after add tasks ', this.form.tasks)
         } else {
@@ -2447,6 +2472,7 @@ export default {
       handleSelectDescription () {
         this.recommendData = [{
           fromName: this.form.name,
+          fromTypeName: this.type2Name[this.contentType.task],
           list: JSON.parse(JSON.stringify(this.form.learnOuts))
         }]
         this.$logger.info('handleSelectDescription recommendData', this.recommendData)
@@ -4904,7 +4930,7 @@ export default {
   }
   .plugin-tags{
     height: 100px;
-    width: 100%;
+    width: 650px;
     overflow-y:auto;
     background-color:#F7F7F7;
     font-size: 12px;

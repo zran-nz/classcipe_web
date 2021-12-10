@@ -180,6 +180,16 @@ export const PptPreviewMixin = {
     },
     onChangePage (page) {
       this.currentImgIndex = page
+    },
+
+    getTargetPageItemData (pageId) {
+      let data = null
+      this.itemsList.forEach(e => {
+        if (pageId === e.pageId) {
+          data = JSON.parse(e.data)
+        }
+      })
+      return data
     }
   }
 

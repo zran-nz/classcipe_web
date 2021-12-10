@@ -188,6 +188,36 @@ ol {
   }
 }
 
+
+.my-curriculum-select {
+  .ant-select-selection {
+    background: #eaeaea;
+    border: none;
+    color: rgba(24, 37, 82, 0.91);
+    position: relative;
+    .ant-select-arrow {
+      position: absolute;
+      right: 8px;
+      top: 15px;
+      .arrow-self {
+        padding: 0 3px;
+        img {
+          height: 9px;
+        }
+      }
+    }
+  }
+
+  .ant-select-selection--single .ant-select-selection__rendered {
+    margin-right: 40px;
+  }
+
+  .ant-select-focused .ant-select-selection, .ant-select-selection:focus, .ant-select-selection:active {
+    -webkit-box-shadow: none;
+    box-shadow: none;
+  }
+}
+
 .ant-modal-content {
   border-radius: 6px;
 }

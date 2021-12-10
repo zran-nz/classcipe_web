@@ -137,9 +137,13 @@
         <new-browser
           :select-mode="selectModel.syncData"
           question-index="_questionIndex_1"
-          :show-menu="[ NavigationType.specificSkills, NavigationType.centurySkills, NavigationType.learningOutcomes ]"
+          :show-menu="[ NavigationType.specificSkills,
+                        NavigationType.centurySkills,
+                        NavigationType.learningOutcomes,
+                        NavigationType.idu,]"
           :default-active-menu="NavigationType.learningOutcomes"
           :recommend-data="recommendData"
+          :selected-id-list="selectedIdList"
           @select-big-idea="handleSelectListData"
           @select-sync="handleSelectListData"
           @select-curriculum="handleSelectCurriculum"
@@ -179,6 +183,7 @@ import { SelectModel } from '@/components/NewLibrary/SelectModel'
 import { NavigationType } from '@/components/NewLibrary/NavigationType'
 import NewBrowser from '@/components/NewLibrary/NewBrowser'
 import CustomTag from '@/components/UnitPlan/CustomTag'
+import { UtilMixin } from '@/mixins/UtilMixin'
 
 export default {
   name: 'TaskForm',
@@ -213,8 +218,15 @@ export default {
     parentFormData: {
       type: Object,
       required: true
+    },
+    selectedPageItemData: {
+      type: Array,
+      default: () => {
+        return []
+      }
     }
   },
+  mixins: [UtilMixin],
   data () {
     return {
       contentType: typeMap,
@@ -289,6 +301,7 @@ export default {
       // century skill
       selectedCenturySkillList: [],
       selectedRecommendList: [],
+      selectedIduList: [],
       uploading: false,
 
       showCustomTag: true,
@@ -298,7 +311,8 @@ export default {
       taskNum: 1,
 
       parentData: null,
-      recommendData: []
+      recommendData: [],
+      selectedIdList: []
     }
   },
   computed: {
@@ -339,6 +353,7 @@ export default {
     formData.__taskId = '__taskId_' + this.taskPrefix
     formData.name = formData.name ? (formData.name + ' sub task' + this.taskNum) : 'sub task' + this.taskNum
     this.$logger.info('TaskForm parentFormData', formData)
+    this.$logger.info('TaskForm selectedPageItemData', this.selectedPageItemData)
     this.form = formData
     this.$logger.info('questionPrefix ' + this.questionPrefix)
     this.$logger.info('questionDataObj ', this.questionDataObj)
@@ -443,6 +458,7 @@ export default {
       this.selectedCurriculumList = []
       this.selectedSpecificSkillList = []
       this.selectedCenturySkillList = []
+      this.selectedIduList = []
       this.selectSyncDataVisible = false
     },
 
@@ -465,6 +481,19 @@ export default {
           name: data.name,
           tags: data.tags,
           tagType: data.tagType
+        })
+      })
+      this.selectedIduList.forEach(data => {
+        const filterLearnOuts = this.form.learnOuts.filter(item => item.knowledgeId === data.id)
+        if (filterLearnOuts.length > 0) {
+          return
+        }
+        this.form.learnOuts.push({
+          knowledgeId: data.knowledgeData.id,
+          name: data.knowledgeData.name,
+          tagType: data.knowledgeData.tagType,
+          path: data.knowledgeData.path,
+          tags: data.tags
         })
       })
       const selectList = this.selectedCurriculumList.concat(this.selectedSpecificSkillList).concat(this.selectedCenturySkillList)
@@ -504,10 +533,42 @@ export default {
       }
     },
     handleSelectDescription () {
+      this.selectedIdList = []
       this.recommendData = [{
         fromName: this.parentData.name,
+        fromTypeName: this.type2Name[this.contentType.task],
         list: JSON.parse(JSON.stringify(this.parentData.learnOuts))
       }]
+      this.$logger.info('parentData.learnOuts', this.parentData.learnOuts)
+      this.parentData.learnOuts.forEach(item => {
+        if (item.id || item.knowledgeId) {
+          this.selectedIdList.push(item.knowledgeId ? item.knowledgeId : item.id)
+        } else {
+          this.$logger.info('parentData selected id not exist ', item)
+        }
+      })
+      if (this.selectedPageItemData.length) {
+        this.$logger.info('selectedPageItemData exist ', this.selectedPageItemData)
+        const pageItemLearnOuts = []
+        this.selectedPageItemData.forEach(item => {
+            item.data.learnOuts.forEach(data => {
+              pageItemLearnOuts.push(data)
+              this.$logger.info('add pageItemLearnOuts', data)
+              if (data.id || data.knowledgeId) {
+                this.selectedIdList.push(item.knowledgeId ? item.knowledgeId : item.id)
+              } else {
+                this.$logger.info('selected id not exist ', data)
+              }
+            })
+        })
+        this.recommendData.push({
+          fromName: 'Google Slide',
+          fromTypeName: 'Google Slide',
+          list: pageItemLearnOuts
+        })
+      } else {
+        this.$logger.info('selectedPageItemData empty!', this.selectedPageItemData)
+      }
       this.$logger.info('handleSelectDescription recommendData', this.recommendData)
       this.selectSyncDataVisible = true
     },

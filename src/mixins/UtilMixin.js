@@ -1,6 +1,26 @@
 export const UtilMixin = {
   data () {
-    return {}
+    return {
+      type2Name: {
+        1: 'Topic',
+        2: 'Unit Plan',
+        3: 'Material',
+        4: 'Task',
+        5: 'Lesson',
+        6: 'Evaluation'
+      },
+
+      browserDataType: {
+        'bigIdea': 'bigIdea',
+        'sync': 'sync',
+        'curriculum': 'curriculum',
+        'subjectSpecificSkill': 'subjectSpecificSkill',
+        'centurySkill': 'centurySkill',
+        'all21Century': 'all21Century',
+        'assessmentType': 'assessmentType',
+        'idu': 'idu'
+      }
+    }
   },
   created () {
 
