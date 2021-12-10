@@ -1559,6 +1559,8 @@ export default {
 
     getAssociate () {
       this.$logger.info('AddUnitPlan GetAssociate id[' + this.unitPlanId + '] fromType[' + this.contentType['unit-plan'] + ']')
+      this.associateUnitPlanIdList = []
+      this.associateTaskIdList = []
       GetAssociate({
         id: this.unitPlanId,
         type: this.contentType['unit-plan']
@@ -1572,6 +1574,14 @@ export default {
           }
           item.contents.forEach(content => {
             this.associateTaskList.push(content)
+
+            if (content.type === this.typeMap['unit-plan']) {
+              this.associateUnitPlanIdList.push(content.id)
+            }
+
+            if (content.type === this.typeMap.task) {
+              this.associateTaskIdList.push(content.id)
+            }
           })
         })
         response.result.others.forEach(item => {
@@ -1586,7 +1596,12 @@ export default {
         this.$logger.info('AddUnitPlan GetAssociate formatted groupNameList', this.groupNameList, this.groupNameListOther)
       }).finally(() => {
         this.linkGroupLoading = false
+        this.loadRefLearnOuts()
       })
+    },
+
+    loadRefLearnOuts () {
+
     },
 
     handleUpdateGroupNameList () {

@@ -1506,7 +1506,10 @@ export default {
 
         selectedPageItemData: [],
         pptTitle: '',
-        selectedIdList: [] // browser中已经选择的id列表
+        selectedIdList: [], // browser中已经选择的id列表
+
+        associateUnitPlanIdList: [],
+        associateTaskIdList: []
       }
     },
     computed: {
@@ -2378,7 +2381,8 @@ export default {
 
       getAssociate () {
         this.$logger.info('AddTask GetAssociate id[' + this.taskId + '] fromType[' + this.contentType.task + ']')
-        const associateUnitPlanIdList = []
+        this.associateUnitPlanIdList = []
+        this.associateTaskIdList = []
         GetAssociate({
           id: this.taskId,
           type: this.contentType.task
@@ -2397,14 +2401,18 @@ export default {
             }
             item.contents.forEach(content => {
               console.log(content)
-              if (content.type === typeMap['unit-plan']) {
-                associateUnitPlanIdList.push(content.id)
+              if (content.type === this.typeMap['unit-plan']) {
+                this.associateUnitPlanIdList.push(content.id)
                 content.questions.forEach(question => {
                   this.associateQuestionList.push({
                     ...question,
                     unitName: content.name
                   })
                 })
+              }
+
+              if (content.type === this.typeMap.task) {
+                this.associateTaskIdList.push(content.id)
               }
             })
           })
@@ -2413,10 +2421,16 @@ export default {
           }
           this.newTermName = 'Untitled category_' + (this.groupNameList.length)
           this.$logger.info('AddTask GetAssociate formatted groupNameList', this.groupNameList, this.groupNameListOther)
-          this.$logger.info('associateUnitPlanIdList', associateUnitPlanIdList)
+          this.$logger.info('associateUnitPlanIdList', this.associateUnitPlanIdList)
+          this.$logger.info('associateTaskIdList', this.associateTaskIdList)
         }).finally(() => {
           this.linkGroupLoading = false
+          this.loadRefLearnOuts()
         })
+      },
+
+      loadRefLearnOuts () {
+
       },
 
       // TODO 选择的assessment数据
