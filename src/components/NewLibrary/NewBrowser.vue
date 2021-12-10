@@ -38,7 +38,8 @@
                 v-for="(recommendItem, rI) in recommendDataItem.list"
                 :key="'ri-' + rI"
                 @click="handleAddRecommend(recommendItem)"
-                :data-id="recommendItem.id">
+                :data-id="recommendItem.knowledgeId"
+                :data-recommend-item="JSON.stringify(recommendItem)">
                 <a-tooltip class="my-tooltip">
                   <template slot="title">
                     {{ recommendItem.path }}

@@ -541,23 +541,29 @@ export default {
       }]
       this.$logger.info('parentData.learnOuts', this.parentData.learnOuts)
       this.parentData.learnOuts.forEach(item => {
-        if (item.id || item.knowledgeId) {
-          this.selectedIdList.push(item.knowledgeId ? item.knowledgeId : item.id)
+        if (item.knowledgeId) {
+          this.selectedIdList.push(item.knowledgeId)
         } else {
           this.$logger.info('parentData selected id not exist ', item)
         }
       })
+      this.$logger.info('selectedPageItemData', this.selectedPageItemData)
       if (this.selectedPageItemData.length) {
         this.$logger.info('selectedPageItemData exist ', this.selectedPageItemData)
         const pageItemLearnOuts = []
         this.selectedPageItemData.forEach(item => {
             item.data.learnOuts.forEach(data => {
-              pageItemLearnOuts.push(data)
-              this.$logger.info('add pageItemLearnOuts', data)
-              if (data.id || data.knowledgeId) {
-                this.selectedIdList.push(item.knowledgeId ? item.knowledgeId : item.id)
+              const exist = pageItemLearnOuts.find(item => data.knowledgeId === item.knowledgeId)
+              this.$logger.info('add pageItemLearnOuts', data, exist)
+              if (data.knowledgeId && !exist) {
+                this.selectedIdList.push(item.knowledgeId)
+                pageItemLearnOuts.push(data)
               } else {
-                this.$logger.info('selected id not exist ', data)
+                if (exist) {
+                  this.$logger.info('selected id existed ', data)
+                } else {
+                  this.$logger.info('selected id not exist ', data)
+                }
               }
             })
         })
