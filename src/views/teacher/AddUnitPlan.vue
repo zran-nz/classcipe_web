@@ -825,7 +825,6 @@ export default {
         'red',
         'purple'
       ]
->>>>>>> 4ddff3f8d6fbc35a19d67c88dc1dec5b27808138
     }
   },
   watch: {
