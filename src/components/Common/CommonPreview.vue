@@ -1453,6 +1453,7 @@ export default {
   position: relative;
   color: rgba(0, 0, 0, 0.65);
   background: #fff;
+  height:70px;
   .icon-group{
     display: flex;
     flex-direction: row;
