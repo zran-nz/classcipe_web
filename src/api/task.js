@@ -8,7 +8,7 @@ export const taskAPIUrl = {
   deleteBatch: '/classcipe/api/task/deleteBatch',
   list: '/classcipe/api/task/list',
   queryById: '/classcipe/api/task/queryById',
-  spliteTask: '/classcipe/api/task/spliteTask'
+  splitTask: '/classcipe/api/task/spliteTask'
 }
 
 /**
@@ -54,9 +54,9 @@ export function TaskAddOrUpdate (parameter) {
   })
 }
 
-export function SpliteTask (parameter) {
+export function SplitTask (parameter) {
   return request({
-    url: taskAPIUrl.spliteTask,
+    url: taskAPIUrl.splitTask,
     method: 'post',
     data: parameter,
     headers: {

@@ -12,7 +12,7 @@
           <div class="recommend-detail">
             <div class="recommend-list" v-for="(recommendDataItem, rIndex) in recommendData" :key="rIndex">
               <div class="recommend-from">
-                From : <h4>{{ recommendDataItem.fromName }}</h4>
+                <h4>From : {{ recommendDataItem.fromName }}</h4>
               </div>
               <div
                 class="recommend-item"
@@ -144,6 +144,20 @@
                   {{ item.name }}
                 </div>
                 <div class="action-icon" @click="handleRemoveSelectedRecommend(item)">
+                  <a-icon type="close-circle" style="color: #07AB84; font-size: 16px;" />
+                </div>
+              </div>
+            </div>
+
+            <div
+              class="content-item selected-line"
+              v-for="(item, aIndex) in selectedIduList"
+              :key="'idu-' + aIndex">
+              <div class="name">
+                <div class="name-text">
+                  {{ item.knowledgeData.name }}
+                </div>
+                <div class="action-icon" @click="handleRemoveSelected(item)">
                   <a-icon type="close-circle" style="color: #07AB84; font-size: 16px;" />
                 </div>
               </div>
@@ -542,25 +556,33 @@ export default {
 }
 
 .recommend-description {
+  background-color: rgba(253, 238, 218, 0.5);
 
   .recommend-title {
     padding: 5px 10px;
+    h3 {
+      color: #000000;
+      font-weight: bold;
+      font-family: Inter-Bold;
+    }
   }
 
   .recommend-detail {
-    padding: 0 10px;
+    padding: 0 10px 10px 10px;
     .recommend-list {
       .recommend-from {
         font-size: 14px;
         cursor: pointer;
 
         h4 {
+          color: #000000;
+          font-weight: bold;
           display: inline-block;
         }
       }
 
       .recommend-item {
-        background-color: #F8F8F8;
+        background-color: rgba(255, 187, 0, 0.1);
         margin-bottom: 10px;
         span {
           font-size: 13px;

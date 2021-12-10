@@ -276,7 +276,7 @@ export default {
         id: '6',
         expandStatus: NavigationType.idu === this.defaultActiveMenu,
         type: NavigationType.idu,
-        name: 'IDU',
+        name: 'Integrated Subject Skill',
         children: [],
         gradeList: [],
         parent: null
