@@ -5,6 +5,7 @@
         ref="commonFormHeader"
         :form="form"
         :last-change-saved-time="lastChangeSavedTime"
+        :hidden-right-button="mode === 'pick-task-slide'"
         @view-collaborate="handleViewCollaborate"
         @back="goBack"
         @save="handleSaveTask"
@@ -456,7 +457,12 @@
           </div>
           <div class="slide-form-block" v-show="form.presentationId">
             <div class="preview-list" v-if="!thumbnailListLoading">
-              <div :class="{'preview-item-cover': true, 'preview-item-cover-active': selectedPageIdList.indexOf(item.id) !== -1}" :style="{backgroundImage: 'url(' + item.contentUrl + ')'}" v-for="(item,index) in thumbnailList" :key="index" @click="handleToggleThumbnail(item)">
+              <div
+                :class="{'preview-item-cover': true, 'preview-item-cover-active': selectedPageIdList.indexOf(item.id) !== -1}"
+                :style="{backgroundImage: 'url(' + item.contentUrl + ')'}"
+                v-for="(item,index) in thumbnailList"
+                :key="index"
+                @click="handleToggleThumbnail(item)">
                 <div class="template-select-icon" v-if="selectedPageIdList.indexOf(item.id) !== -1">
                   <img src="~@/assets/icons/task/selected.png"/>
                 </div>
@@ -467,16 +473,72 @@
             </div>
             <div class="thumbnail-task-list">
               <div class="thumbnail-task-item" v-if="currentTaskFormData">
-                <task-form :parent-form-data="currentTaskFormData" :select-ids="selectedPageIdList" :task-id="taskId" :task-prefix="'task_' + taskIndex + '_'" @finish-task="handleFinishTask" />
+                <task-form
+                  :parent-form-data="currentTaskFormData"
+                  :select-ids="selectedPageIdList"
+                  :task-id="taskId"
+                  :task-prefix="'task_' + taskIndex + '_'"
+                  @add-sub-task="handleAddSubTask" />
               </div>
               <div class="task-preview-list">
                 <div class="task-preview" v-for="(task, index) in subTasks" :key="index">
-                  <task-preview :task-id="task.id" />
+                  <task-preview :task-data="task" @delete-sub-task="handleDeleteSubTask" />
+                </div>
+              </div>
+              <a-divider />
+              <div class="sub-task-save">
+                <div class="sub-task-save-action">
+                  <a-space v-show="subTasks.length">
+                    <a-button
+                      @click="handleSaveSubTask(0)"
+                      :loading="subTaskSaving"
+                      class="my-form-header-btn"
+                      style="{
+            width: 120px;
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: center;
+            background: rgba(21, 195, 154, 0.08);
+            border: 1px solid #15C39A;
+            border-radius: 20px;
+            padding: 15px 20px;
+          }">
+                      <div class="btn-icon">
+                        <img src="~@/assets/icons/common/form/baocun@2x.png" />
+                      </div>
+                      <div class="btn-text">
+                        Save & Exit
+                      </div>
+                    </a-button>
+                    <a-button
+                      :loading="subTaskPublishing"
+                      class="my-form-header-btn"
+                      style="{
+            width: 120px;
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: center;
+             background: rgba(21, 195, 154, 0.08);
+            border: 1px solid #15C39A;
+            border-radius: 20px;
+            padding: 15px 20px;
+          }"
+                      @click="handleSaveSubTask(1)" >
+                      <div class="btn-icon">
+                        <img src="~@/assets/icons/common/form/fabu@2x.png" />
+                      </div>
+                      <div class="btn-text">
+                        Save & Publish
+                      </div>
+                    </a-button>
+                  </a-space>
                 </div>
               </div>
             </div>
           </div>
-          <div class="no-data-slide-form-block" v-show="!form.presentationId">
+          <div class="no-data-slide-form-block" v-show="!contentLoading && !form.presentationId">
             <no-more-resources tips="The slide has not been created" />
             <div class="go-to-create">
               <a-button type="primary" @click="handleGotoEditMode">Back</a-button>
@@ -1203,6 +1265,8 @@ import TaskMaterialPreview from '@/components/Task/TaskMaterialPreview'
 import TaskPptPreview from '@/components/Task/TaskPptPreview'
 import { PptPreviewMixin } from '@/mixins/PptPreviewMixin'
 import MediaPreview from '@/components/Task/MediaPreview'
+const { SplitTask } = require('@/api/task')
+
 export default {
     name: 'AddTask',
     components: {
@@ -1305,6 +1369,7 @@ export default {
         pageObjectIds: [],
         thumbnailList: [],
         selectedPageIdList: [],
+        selectedPageImageList: [],
         subTasks: [],
 
         thumbnailListLoading: false,
@@ -1394,7 +1459,10 @@ export default {
 
         selectedSlideVisibleFromSave: false, // 点击保存时，是否显示选择slide的弹窗，此处不去选择slide直接goBack
 
-        recommendData: []
+        recommendData: [],
+
+        subTaskSaving: false,
+        subTaskPublishing: false
       }
     },
     computed: {
@@ -1927,10 +1995,13 @@ export default {
       handleToggleThumbnail (thumbnail) {
         this.$logger.info('handleToggleThumbnail', thumbnail)
         const index = this.selectedPageIdList.indexOf(thumbnail.id)
+        const contentUrlIndex = this.selectedPageImageList.indexOf(thumbnail.contentUrl)
         if (index !== -1) {
           this.selectedPageIdList.splice(index, 1)
+          this.selectedPageImageList.splice(contentUrlIndex, 1)
         } else {
           this.selectedPageIdList.push(thumbnail.id)
+          this.selectedPageImageList.push(thumbnail.contentUrl)
         }
         // 处理sub task封面
         if (this.currentTaskFormData && this.selectedPageIdList.length > 0) {
@@ -2010,18 +2081,29 @@ export default {
         this.$logger.info('handleAddAnotherTask')
       },
 
-      handleFinishTask (data) {
-        this.$logger.info('handleFinishTask', data)
-        const task = Object.assign({
-          presentationId: this.form.presentationId,
-          selectPageObjectIds: this.selectedPageIdList,
-          taskId: this.form.id
-        }, data)
-        this.$logger.info('new task', task)
-        this.subTasks.push(task)
-        this.selectedPageIdList = []
-        this.taskIndex++
-        this.$logger.info('after add tasks ', this.form.tasks)
+      handleAddSubTask (data) {
+        this.$logger.info('handleAddSubTask', data)
+        if (this.selectedPageIdList.length) {
+          const task = Object.assign({
+            _uid: '' + Math.random(), // 随机生成一个id方便后面删除
+            presentationId: this.form.presentationId,
+            selectPageObjectIds: this.selectedPageIdList,
+            selectPageImages: this.selectedPageImageList,
+            taskId: this.form.id
+          }, data)
+          this.$logger.info('add sub task', task)
+          this.subTasks.push(task)
+          this.selectedPageIdList = []
+          this.taskIndex++
+          this.$logger.info('after add tasks ', this.form.tasks)
+        } else {
+          this.$message.warn('Please select at least one slide!')
+        }
+      },
+
+      handleDeleteSubTask (data) {
+        this.$logger.info('handleDeleteSubTask data', data)
+        this.subTasks = this.subTasks.filter(item => item._uid !== data._uid)
       },
 
       handleTaskDelete (task) {
@@ -2850,6 +2932,40 @@ export default {
         if (this.selectedTemplateList.length === 0) {
           this.form.showSelected = false
         }
+      },
+
+      handleSaveSubTask (status) {
+        this.$logger.info('handleSaveSubTask status ' + status, this.subTasks)
+        if (status) {
+          this.subTaskPublishing = true
+        } else {
+          this.subTaskSaving = true
+        }
+        const postData = {
+          taskId: this.taskId,
+          subTasks: []
+        }
+        this.subTasks.forEach(taskItem => {
+          taskItem.subTask.selectPageObjectIds = taskItem.selectPageObjectIds
+          taskItem.subTask.status = status
+          postData.subTasks.push(taskItem.subTask)
+        })
+        this.$logger.info('handleSaveSubTask postData', postData)
+        SplitTask(postData).then(response => {
+            this.$logger.info('handleSaveSubTask response', response)
+            if (response.success) {
+              this.$message.success('add successfully')
+              // 保存并退出
+              if (!status) {
+                this.$router.go(-1)
+              }
+            } else {
+              this.$message.error(response.message)
+            }
+        }).finally(() => {
+          this.subTaskPublishing = false
+          this.subTaskSaving = false
+        })
       }
     }
   }
@@ -4922,6 +5038,25 @@ export default {
     left: 0px;
     background: rgb(255, 255, 255);
     border-radius: 0px 0px 4px 4px;
+  }
+
+  .sub-task-save {
+    margin-top: 50px;
+    text-align: center;
+    .sub-task-save-action {
+        height: 50px;
+    }
+  }
+  .btn-icon {
+    height: 20px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    img {
+      height: 15px;
+      width: 15px;
+    }
   }
 
 </style>

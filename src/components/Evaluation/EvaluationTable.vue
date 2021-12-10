@@ -373,7 +373,7 @@
               </div>
             </template>
 
-            <template v-if="hIndex === headers.length - 1 && mode === tableMode.Edit">
+            <template v-if="hIndex === headers.length - 2 && mode === tableMode.Edit">
               <div class="add-more-header">
                 <a-popconfirm :title="'Delete this line ?'" class="rubric-delete-popconfirm" ok-text="Yes" @confirm="handleDeleteLine(item)" cancel-text="No">
                   <template slot="icon">
@@ -1212,6 +1212,7 @@ export default {
     .rubric-table {
       margin-bottom: 10px;
       table-layout: fixed;
+      margin-right: 30px;
 
       .table-header {
         border-top: 1px solid #15C39A;
