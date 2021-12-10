@@ -24,26 +24,26 @@
                 {{ $t('teacher.main.my-favorite') }}
               </router-link>
             </div>
-            <div :class="{'nav-bar-item': true, 'selected-nav-bar' : selectedKey === '/teacher/main/discover'}">
-              <router-link to="/teacher/main/discover">
-                <a-badge :count="$store.getters.sharedFindCount">
-                  <discover-svg />
-                </a-badge>
-                {{ $t('teacher.main.discover') }}
-              </router-link>
-            </div>
-            <div :class="{'nav-bar-item': true, 'selected-nav-bar' : selectedKey === '/teacher/main/subscribes'}">
-              <router-link to="/teacher/main/subscribes">
-                <subscribes-svg />
-                {{ $t('teacher.main.subscribes') }}
-              </router-link>
-            </div>
-            <div :class="{'nav-bar-item': true, 'selected-nav-bar' : selectedKey === '/teacher/main/popular'}">
-              <router-link to="/teacher/main/popular">
-                <popular-svg />
-                {{ $t('teacher.main.popular') }}
-              </router-link>
-            </div>
+            <!--            <div :class="{'nav-bar-item': true, 'selected-nav-bar' : selectedKey === '/teacher/main/discover'}">-->
+            <!--              <router-link to="/teacher/main/discover">-->
+            <!--                <a-badge :count="$store.getters.sharedFindCount">-->
+            <!--                  <discover-svg />-->
+            <!--                </a-badge>-->
+            <!--                {{ $t('teacher.main.discover') }}-->
+            <!--              </router-link>-->
+            <!--            </div>-->
+            <!--            <div :class="{'nav-bar-item': true, 'selected-nav-bar' : selectedKey === '/teacher/main/subscribes'}">-->
+            <!--              <router-link to="/teacher/main/subscribes">-->
+            <!--                <subscribes-svg />-->
+            <!--                {{ $t('teacher.main.subscribes') }}-->
+            <!--              </router-link>-->
+            <!--            </div>-->
+            <!--            <div :class="{'nav-bar-item': true, 'selected-nav-bar' : selectedKey === '/teacher/main/popular'}">-->
+            <!--              <router-link to="/teacher/main/popular">-->
+            <!--                <popular-svg />-->
+            <!--                {{ $t('teacher.main.popular') }}-->
+            <!--              </router-link>-->
+            <!--            </div>-->
           </div>
         </div>
       </a-layout-sider>
