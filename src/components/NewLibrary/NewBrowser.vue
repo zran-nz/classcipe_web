@@ -44,9 +44,16 @@
                   <template slot="title">
                     {{ recommendItem.path }}
                   </template>
-                  <div :class="{'left-icon': true, 'active-left-icon': selectedRecommendIdList.indexOf(recommendItem.knowledgeId) !== -1}">
-                    <a-icon type="check-circle" style="color: #07AB84; font-size: 16px;" class="recommend-selected" />
+                  <div class="select-block">
+                    <a-icon
+                      class="select-block-icon"
+                      type="border"
+                      v-if="selectedRecommendIdList.indexOf(recommendItem.knowledgeId) === -1"/>
+                    <div class="selected-icon" v-if="selectedRecommendIdList.indexOf(recommendItem.knowledgeId) !== -1">
+                      <img src="~@/assets/icons/lesson/selected.png"/>
+                    </div>
                   </div>
+
                   <div class="right-name">
                     {{ recommendItem.name }}
                   </div>
@@ -55,11 +62,10 @@
             </div>
           </div>
         </div>
-        <a-divider v-if="recommendData.length"/>
         <div class="selected-list">
           <div class="content-list">
             <div
-              :class="{'content-item': true, 'selected-line': true, 'my-selected-item': mySelectedIdList.indexOf(item.knowledgeId) !== -1}"
+              :class="{'content-item': true, 'selected-line': true}"
               v-for="(item, kIndex) in selectedCurriculumList"
               :key="'curr-' + kIndex">
               <div class="name">
@@ -72,7 +78,7 @@
               </div>
             </div>
             <div
-              :class="{'content-item': true, 'selected-line': true, 'my-selected-item': mySelectedIdList.indexOf(item.knowledgeId) !== -1}"
+              :class="{'content-item': true, 'selected-line': true}"
               v-for="(item, sIndex) in selectedSubjectSpecificSkillList"
               :key="'sub-' + sIndex">
               <div class="name">
@@ -86,7 +92,7 @@
             </div>
 
             <div
-              :class="{'content-item': true, 'selected-line': true, 'my-selected-item': mySelectedIdList.indexOf(item.knowledgeId) !== -1}"
+              :class="{'content-item': true, 'selected-line': true}"
               v-for="(item, aIndex) in selectedAssessmentList"
               :key="'assessment-' + aIndex">
               <div class="name">
@@ -100,7 +106,7 @@
             </div>
 
             <div
-              :class="{'content-item': true, 'selected-line': true, 'my-selected-item': mySelectedIdList.indexOf(item.knowledgeId) !== -1}"
+              :class="{'content-item': true, 'selected-line': true}"
               v-for="(item, aIndex) in selected21CenturySkillList"
               :key="'21-' + aIndex">
               <div class="name">
@@ -128,7 +134,7 @@
             </div>
 
             <div
-              :class="{'content-item': true, 'selected-line': true, 'my-selected-item': mySelectedIdList.indexOf(item.knowledgeId) !== -1}"
+              :class="{'content-item': true, 'selected-line': true}"
               v-for="(item, aIndex) in selectedAll21CenturyList"
               :key="'all-21-' + aIndex">
               <div class="name">
@@ -142,7 +148,7 @@
             </div>
 
             <div
-              :class="{'content-item': true, 'selected-line': true, 'my-selected-item': mySelectedIdList.indexOf(item.knowledgeId) !== -1}"
+              :class="{'content-item': true, 'selected-line': true}"
               v-for="(item, aIndex) in selectedKnowledgeList"
               :key="'sync-' + aIndex">
               <div class="name">
@@ -156,7 +162,7 @@
             </div>
 
             <div
-              :class="{'content-item': true, 'selected-line': true, 'my-selected-item': mySelectedIdList.indexOf(item.knowledgeId) !== -1}"
+              :class="{'content-item': true, 'selected-line': true}"
               v-for="(item, aIndex) in selectedRecommendList"
               :key="'rec-' + aIndex">
               <div class="name">
@@ -170,7 +176,7 @@
             </div>
 
             <div
-              :class="{'content-item': true, 'selected-line': true, 'my-selected-item': mySelectedIdList.indexOf(item.knowledgeId) !== -1}"
+              :class="{'content-item': true, 'selected-line': true}"
               v-for="(item, aIndex) in selectedIduList"
               :key="'idu-' + aIndex">
               <div class="name">
@@ -432,8 +438,8 @@ export default {
       background-color: #fff;
 
       .selected-list {
+        padding: 15px 0;
         z-index: 100;
-
         overflow: scroll;
         .content-list {
           flex: 1;
@@ -651,19 +657,18 @@ export default {
           flex-direction: row;
           justify-content: flex-start;
           align-items: flex-start;
-          line-height: 35px;
+          line-height: 40px;
 
           .left-icon {
-            display: block;
             width: 40px;
             min-width: 40px;
             height: 35px;
             text-align: center;
-            opacity: 0;
+            display: none;
           }
 
           .active-left-icon {
-            opacity: 1;
+            display: none;
           }
 
           .right-name {
@@ -689,6 +694,28 @@ export default {
   align-items: center;
   .select-curriculum-tips{
     color: #aaa;
+  }
+}
+
+.select-block {
+  cursor: pointer;
+  display: flex;
+  height: 40px;
+  width: 40px;
+  min-width: 40px;
+  justify-content: center;
+  align-items: center;
+
+  .select-block-icon {
+    color: #ccc;
+    font-size: 20px;
+    cursor: pointer;
+  }
+
+  .selected-icon {
+    img {
+      width: 20px;
+    }
   }
 }
 </style>
