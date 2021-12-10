@@ -2,7 +2,7 @@
   <div class="common-link">
     <div class="link-group-wrapper">
       <template v-if="ownerLinkGroupList.length && !linkGroupLoading">
-        <div class="link-group" v-for="(linkGroup, lIndex) in ownerLinkGroupList" :key="lIndex" data-group="ownerLinkGroupList">
+        <div class="link-group" v-for="(linkGroup, lIndex) in ownerLinkGroupList" :key="lIndex" :data-group="JSON.stringify(ownerLinkGroupList)">
           <div class="group-item">
             <div class="group-header">
               <div class="group-left-info">
@@ -21,10 +21,10 @@
                     <a-icon type="check" v-if="linkGroup.editing"/>
                   </div>
                 </template>
-                <template v-if="fromType === typeMap.task">
+                <template>
                   <div class="group-name">
                     <div class="group-name-text">
-                      Linked evaluation(s)
+                      {{ linkGroup.group }}
                     </div>
                   </div>
                 </template>
@@ -153,11 +153,8 @@
       :dialog-style="{ top: '50px'}"
       destroyOnClose
       width="900px">
-      <div class="my-modal-title" slot="title" v-if="fromType === typeMap.task">
-        Link Evaluation Form(s)
-      </div>
-      <div class="my-modal-title" slot="title" v-else>
-        Link my content
+      <div class="my-modal-title" slot="title">
+        {{ linkTitle }}
       </div>
 
       <div class="link-content-wrapper">
@@ -165,6 +162,8 @@
           :from-type="fromType"
           :from-id="fromId"
           :filter-type-list="subFilterTypeList"
+          :show-create="showCreate"
+          :show-tabs="showTabs"
           :group-name-list="groupNameList"
           :default-group-name="subDefaultGroupName"
           :selected-list="selectedList"
@@ -254,15 +253,19 @@ export default {
       previewCurrentId: '',
       previewType: '',
       subFilterTypeList: [typeMap.evaluation],
-      selectedList: []
+      selectedList: [],
+
+      showCreate: true,
+      showTabs: true,
+      linkTitle: 'Link Content'
     }
   },
   created () {
     this.$logger.info('load CommonLink with id[' + this.fromId + '] fromType[' + this.fromType + ']')
     if (this.fromType === typeMap['unit-plan']) {
-      this.subFilterTypeList = [typeMap.task, typeMap.evaluation]
+      this.subFilterTypeList = [typeMap.task]
     } else if (this.filterType === typeMap.task) {
-      this.subFilterTypeList = [typeMap.evaluation]
+      this.subFilterTypeList = [typeMap.evaluation, typeMap['unit-plan']]
     }
     this.getAssociate()
   },
@@ -291,7 +294,7 @@ export default {
         this.$logger.info('formatted owner', response.result.owner)
         this.$logger.info('formatted others', response.result.others)
         this.$logger.info('formatted groupNameList', groupNameList)
-        this.ownerLinkGroupList = response.result.owner.reverse()
+        this.ownerLinkGroupList = response.result.owner.sort((a, b) => a.group.indexOf('Unit Plan') !== -1 ? -1 : 1)
         this.othersLinkGroupList = []
         this.selectedList = []
         this.ownerLinkGroupList.forEach(group => {
@@ -299,10 +302,11 @@ export default {
              this.selectedList.push(content.type + '-' + content.id)
            })
         })
+        this.$logger.info('ownerLinkGroupList', this.ownerLinkGroupList)
         response.result.others.forEach(item => {
           this.othersLinkGroupList.unshift(...item.contents)
         })
-        // this.othersLinkGroupList = response.result.others
+        this.$logger.info('othersLinkGroupList', this.othersLinkGroupList)
         if (groupNameList.length) {
           this.groupNameList = groupNameList
         }
@@ -333,6 +337,23 @@ export default {
       this.$logger.info('handleLinkGroup', group)
       this.subDefaultGroupName = group.group
       this.selectLinkContentVisible = true
+      if (group.group.trim() === 'Linked evaluation(s)') {
+        this.subFilterTypeList = [typeMap.evaluation]
+        this.showCreate = false
+        this.showTabs = false
+        this.linkTitle = 'Link Assessment rubric(s)'
+      } else if (group.group.trim() === 'Relevant Unit Plan(s)') {
+        this.subFilterTypeList = [typeMap['unit-plan']]
+        this.showCreate = true
+        this.showTabs = false
+        this.linkTitle = 'Link Unit Plan'
+      } else {
+        if (this.fromType === typeMap['unit-plan']) {
+          this.subFilterTypeList = [typeMap.task]
+        } else if (this.filterType === typeMap.task) {
+          this.subFilterTypeList = [typeMap.evaluation, typeMap['unit-plan']]
+        }
+      }
     },
 
     handleToggleEditGroupName (linkGroup) {

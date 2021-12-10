@@ -24,7 +24,7 @@
         </a-button>
       </a-dropdown>
     </div>-->
-    <div class="display-type-toggle">
+    <div class="display-type-toggle" v-if="showTabs">
       <div
         :class="{'display-type-item': true,
                  'active-display-type': currentType === typeMap.topic}"
@@ -54,7 +54,7 @@
         {{ $t('teacher.my-content.evaluation-type') }}
       </div>
     </div>
-    <div class="create-new-action">
+    <div class="create-new-action" v-if="showCreate">
       <div class="create-action" >
         <a-button type="primary" shape="round" icon="plus" :loading="createLoading" @click="handleEnsureCreate">
           Create New {{ currentTypeLabel }}
@@ -402,6 +402,14 @@ export default {
     groupNameMode: {
       type: String,
       default: 'select'
+    },
+    showTabs: {
+      type: Boolean,
+      default: true
+    },
+    showCreate: {
+      type: Boolean,
+      default: true
     }
   },
   data () {
@@ -475,7 +483,7 @@ export default {
     this.$logger.info('NewMyContent selectedList', this.selectedList)
     this.mySelectedList = this.selectedList
     this.selectedGroup = this.defaultGroupName
-    this.groupName = (this.groupNameList.length ? this.groupNameList[0] : this.defaultGroupName) // task下只有一个默认隐藏的分组,所以默认选第一个
+    this.groupName = this.defaultGroupName // task下只有一个默认隐藏的分组,所以默认选第一个
     this.loadMyContent()
   },
   methods: {

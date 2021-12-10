@@ -270,11 +270,18 @@
                       <template v-if="currentActiveStepIndex === 2" slot="description">
                         <div class="form-block">
                           <a-form-item class="link-plan-title">
-                            <a-button type="primary" :style="{'background-color': '#fff', 'color': '#000', 'border': '1px solid #D8D8D8'}" @click="handleAddTerm">
-                              <div class="btn-text" style="line-height: 20px">
-                                + Add
-                              </div>
-                            </a-button>
+                            <a-space>
+                              <a-button type="primary" :style="{'background-color': '#fff', 'color': '#000', 'border': '1px solid #D8D8D8'}" @click="handleAddUnitPlanTerm">
+                                <div class="btn-text" style="line-height: 20px">
+                                  + Link Unit plan
+                                </div>
+                              </a-button>
+                              <a-button type="primary" :style="{'background-color': '#fff', 'color': '#000', 'border': '1px solid #D8D8D8'}" @click="handleAddTerm">
+                                <div class="btn-text" style="line-height: 20px">
+                                  + Add rubric
+                                </div>
+                              </a-button>
+                            </a-space>
                           </a-form-item>
                           <div class="common-link-wrapper">
                             <common-link ref="commonLink" :from-id="this.taskId" :from-type="this.contentType.task"/>
@@ -582,20 +589,45 @@
         </div>
       </a-modal>
       <a-modal
-        v-model="selectLinkContentVisible"
+        v-model="selectLinkUnitPlanContentVisible"
         :footer="null"
         destroyOnClose
         width="900px">
         <div class="my-modal-title" slot="title">
-          Link Evaluation Form(s)
+          Link Unit Plan
         </div>
         <div class="link-content-wrapper">
           <new-my-content
             :from-type="contentType.task"
             :from-id="taskId"
-            :filter-type-list="[contentType.evaluation, ]"
+            :filter-type-list="[contentType['unit-plan']]"
             :group-name-list="groupNameList"
-            :default-group-name="newTermName"
+            default-group-name="Relevant Unit Plan(s)"
+            :show-tabs="false"
+            :show-create="false"
+            :mode="'common-link'"
+            :group-name-mode="groupNameMode"
+            @cancel="selectLinkUnitPlanContentVisible = false"
+            @ensure="handleEnsureSelectedLink"/>
+        </div>
+      </a-modal>
+
+      <a-modal
+        v-model="selectLinkContentVisible"
+        :footer="null"
+        destroyOnClose
+        width="900px">
+        <div class="my-modal-title" slot="title">
+          Link Assessment rubric(s)
+        </div>
+        <div class="link-content-wrapper">
+          <new-my-content
+            :from-type="contentType.task"
+            :from-id="taskId"
+            :filter-type-list="[contentType.evaluation]"
+            :group-name-list="groupNameList"
+            default-group-name="Linked evaluation(s)"
+            :show-tabs="false"
             :mode="'common-link'"
             :group-name-mode="groupNameMode"
             @cancel="selectLinkContentVisible = false"
@@ -1327,6 +1359,7 @@ export default {
 
         leftAddExpandStatus: false,
         selectLinkContentVisible: false,
+        selectLinkUnitPlanContentVisible: false,
         viewInGoogleSlideVisible: false,
         selectTemplateVisible: false,
         showAddAudioVisible: false,
@@ -2306,13 +2339,27 @@ export default {
           this.$logger.info('add loading')
         }
       },
+      handleAddUnitPlanTerm () {
+        this.$logger.info('handleAddUnitPlanTerm', this.groupNameList)
+
+        // 如果第一部分有内容，点击link激活step 到第二部分，否则提示先输入第一部分表单内容
+        if (this.form.name ||
+          this.form.overview ||
+          (this.form.questions && this.form.questions.length)) {
+          this.groupNameMode = 'input'
+          this.selectLinkUnitPlanContentVisible = true
+          this.setSessionStep(1)
+        } else {
+          this.$message.warn('Task Info is empty, please fill the form first!')
+        }
+      },
       handleAddTerm () {
         this.$logger.info('handleAddTerm', this.groupNameList)
 
         // 如果第一部分有内容，点击link激活step 到第二部分，否则提示先输入第一部分表单内容
         if (this.form.name ||
           this.form.overview ||
-          this.form.questions.length) {
+          (this.form.questions && this.form.questions.length)) {
           this.groupNameMode = 'input'
           this.selectLinkContentVisible = true
           this.setSessionStep(1)
@@ -2322,6 +2369,7 @@ export default {
       },
       handleEnsureSelectedLink (data) {
         this.$logger.info('handleEnsureSelectedLink', data)
+        this.selectLinkUnitPlanContentVisible = false
         this.selectLinkContentVisible = false
         this.getAssociate()
         // 刷新组件内的列表
