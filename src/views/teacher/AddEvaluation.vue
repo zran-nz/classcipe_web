@@ -492,12 +492,10 @@ export default {
           })
 
           // 重新生成formId，删除表格的Id字段
-          let count = this.forms.length + 1
           let selfId = 'ext_' + Math.random(1000000000, 9999999999)
 
           refFormList.forEach(formItem => {
             while (existFormIdList.indexOf(selfId) !== -1) {
-              count++
               selfId = 'ext_' + Math.random(1000000000, 9999999999)
             }
             existFormIdList.push(selfId)
