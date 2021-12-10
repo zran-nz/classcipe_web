@@ -516,6 +516,8 @@
             :sync-data="syncData"
             :show-menu="showMenuList"
             :default-active-menu="defaultActiveMenu"
+            :recommend-data="recommendData"
+            :selected-id="selectedIdList"
             @select-assessmentType="handleSelectAssessmentType"
             @select-sync="handleSelectListData"
             @select-curriculum="handleSelectCurriculum"
@@ -642,6 +644,7 @@ import BigIdeaBrowse from '@/components/UnitPlan/BigIdeaBrowse'
 import { FindQuestionsByBigIdea } from '@/api/question'
 import QuestionBrowse from '@/components/UnitPlan/QuestionBrowse'
 import Collapse from '@/utils/collapse.js'
+import { UtilMixin } from '@/mixins/UtilMixin'
 
 export default {
   name: 'AddUnitPlan',
@@ -679,6 +682,7 @@ export default {
       default: null
     }
   },
+  mixins: [UtilMixin],
   data () {
     return {
       showCollaborateVisible: false,
@@ -827,7 +831,10 @@ export default {
         'blue',
         'red',
         'purple'
-      ]
+      ],
+
+      recommendData: [],
+      selectedIdList: []
     }
   },
   watch: {
@@ -1403,6 +1410,11 @@ export default {
         NavigationType.assessmentType,
         NavigationType.idu
       ]
+      this.recommendData = [{
+        fromName: this.form.name,
+        fromTypeName: this.type2Name[this.contentType['unit-plan']],
+        list: JSON.parse(JSON.stringify(this.form.learnOuts))
+      }]
       this.defaultActiveMenu = NavigationType.learningOutcomes
     },
     handleConfirmAssociate () {
