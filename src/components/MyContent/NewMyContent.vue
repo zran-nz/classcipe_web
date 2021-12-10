@@ -116,7 +116,7 @@
                     ref="inputRef"
                     @blur="handleConfirmName(item)"
                     @pressEnter="handleConfirmName(item)"
-                    size="large"
+                    size="small"
                     v-if="editId === item.id && createNewNameMode === 'input'"
                     type="text"
                     placeholder="Input name"
@@ -1147,6 +1147,8 @@ export default {
         font-family: Inter-Bold;
         color: #11142D;
         .name-text{
+          padding-left: 7px;
+          border: 1px solid #ffffff;
           &:hover {
             background-color: #fff;
             background-image: none;
