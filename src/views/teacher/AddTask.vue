@@ -39,11 +39,15 @@
 
                         <div class="form-block taskType" >
                           <comment-switch field-name="taskType" :is-active="showCollaborateCommentVisible && currentFieldName === 'taskType'" @switch="handleSwitchComment" class="my-comment-switch"/>
-                          <a-form-model-item class="task-audio-line" label="Choose Task Type(Formative Assessment/ Summative Assessment)" ref="taskType">
+                          <a-form-model-item class="task-audio-line" ref="taskType" :colon="false">
+                            <div slot="label" >
+                              Choose Task Type(<span style="font-size: 13px">Formative Assessment/ Summative Assessment/ Activity</span>):
+                            </div>
                             <div class="self-type-wrapper" >
                               <div class="self-field-label" >
                                 <div :class="{'task-type-item': true, 'green-active-task-type': form.taskType === 'FA'}" @click.stop.prevent="handleSelectTaskType('FA')">FA</div>
                                 <div :class="{'task-type-item': true, 'red-active-task-type': form.taskType === 'SA'}" @click.stop.prevent="handleSelectTaskType('SA')">SA</div>
+                                <div :class="{'task-type-item': true, 'task-type-activity': true,'blue-active-task-type': form.taskType === 'Activity'}" @click.stop.prevent="handleSelectTaskType('Activity')">Activity</div>
                               </div>
                             </div>
                           </a-form-model-item>
@@ -1650,8 +1654,12 @@ export default {
           CustomTagType.task.fa.forEach(name => {
             this.customTagList.push(name)
           })
-        } else {
+        } else if (type === 'SA') {
           CustomTagType.task.sa.forEach(name => {
+            this.customTagList.push(name)
+          })
+        } else if (type === 'Activity') {
+          CustomTagType.task.activity.forEach(name => {
             this.customTagList.push(name)
           })
         }
@@ -3302,65 +3310,6 @@ export default {
           opacity: 1;
         }
       }
-
-      .filter-wrapper {
-        display: flex;
-        flex-direction: column;
-        box-sizing: border-box;
-        .first-filter-line {
-          display: flex;
-          flex-direction: row;
-          align-items: flex-start;
-          justify-content: flex-start;
-          position: relative;
-          margin-bottom: 10px;
-          .task-type {
-            min-width: 100px;
-            display: flex;
-            flex-direction: row;
-            align-items: center;
-            justify-content: center;
-            .task-type-item {
-              margin-right: 10px;
-              width: 33px;
-              height: 33px;
-              border-radius: 33px;
-              border: 2px solid #ddd;
-              font-weight: bold;
-              display: flex;
-              color: #bbb;
-              align-items: center;
-              justify-content: center;
-            }
-
-            .green-active-task-type {
-              background: rgba(21, 195, 154, 0.1);
-              border: 2px solid #15C39A;
-              border-radius: 50%;
-              font-weight: bold;
-              color: #15C39A;
-            }
-
-            .red-active-task-type {
-              background: rgba(255, 51, 85, 0.1);
-              border: 2px solid #FF3355;
-              border-radius: 50%;
-              opacity: 1;
-              font-weight: bold;
-              color: #FF3355;
-            }
-          }
-        }
-
-        .second-filter-line {
-          padding-left: 100px;
-          display: flex;
-          flex-direction: row;
-          align-items: center;
-          justify-content: flex-start;
-          position: relative;
-        }
-      }
       .template-type-list {
         display: inline-block;
         flex-direction: row;
@@ -4015,7 +3964,7 @@ export default {
     align-items: center;
     justify-content: flex-start;
     .self-field-label {
-      width: 100px;
+      width: 180px;
       display: flex;
       flex-direction: row;
       align-items: center;
@@ -4031,6 +3980,10 @@ export default {
         color: #bbb;
         align-items: center;
         justify-content: center;
+      }
+      .task-type-activity{
+        width: 70px;
+        border-radius: 50px;
       }
 
       .green-active-task-type {
@@ -4049,6 +4002,14 @@ export default {
         font-weight: bold;
         color: #FF3355;
         opacity: 1;
+      }
+      .blue-active-task-type {
+        background: rgb(230, 247, 255);
+        border: 2px solid rgb(145, 213, 255);
+        border-radius: 50px;
+        opacity: 1;
+        font-weight: bold;
+        color: rgb(24, 144, 255);
       }
     }
 
