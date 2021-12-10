@@ -4904,7 +4904,7 @@ export default {
   }
   .plugin-tags{
     height: 100px;
-    width: 650px;
+    width: 100%;
     overflow-y:auto;
     background-color:#F7F7F7;
     font-size: 12px;
