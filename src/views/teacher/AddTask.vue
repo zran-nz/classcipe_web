@@ -478,6 +478,7 @@
                   :select-ids="selectedPageIdList"
                   :selected-page-item-data="selectedPageItemData"
                   :task-id="taskId"
+                  :ppt-title="pptTitle"
                   :task-prefix="'task_' + taskIndex + '_'"
                   @add-sub-task="handleAddSubTask" />
               </div>
@@ -1471,6 +1472,7 @@ export default {
         subTaskPublishing: false,
 
         selectedPageItemData: [],
+        pptTitle: '',
         selectedIdList: [] // browser中已经选择的id列表
       }
     },
@@ -1979,6 +1981,7 @@ export default {
         }).then(response => {
           this.$logger.info('loadThumbnail response', response.result)
           const pageObjects = response.result.pageObjects
+          this.pptTitle = response.result.title
           this.thumbnailList = []
           pageObjects.forEach(page => {
             this.thumbnailList.push({ contentUrl: page.contentUrl, id: page.pageObjectId })
@@ -2327,6 +2330,7 @@ export default {
 
       getAssociate () {
         this.$logger.info('AddTask GetAssociate id[' + this.taskId + '] fromType[' + this.contentType.task + ']')
+        const associateUnitPlanIdList = []
         GetAssociate({
           id: this.taskId,
           type: this.contentType.task
@@ -2346,6 +2350,7 @@ export default {
             item.contents.forEach(content => {
               console.log(content)
               if (content.type === typeMap['unit-plan']) {
+                associateUnitPlanIdList.push(content.id)
                 content.questions.forEach(question => {
                   this.associateQuestionList.push({
                     ...question,
@@ -2360,6 +2365,7 @@ export default {
           }
           this.newTermName = 'Untitled category_' + (this.groupNameList.length)
           this.$logger.info('AddTask GetAssociate formatted groupNameList', this.groupNameList, this.groupNameListOther)
+          this.$logger.info('associateUnitPlanIdList', associateUnitPlanIdList)
         }).finally(() => {
           this.linkGroupLoading = false
         })

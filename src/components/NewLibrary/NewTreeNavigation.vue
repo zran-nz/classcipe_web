@@ -40,7 +40,6 @@ import { SubjectType } from '@/const/common'
 import storage from 'store'
 import { GRADE_COMMON } from '@/store/mutation-types'
 import { GetGradesByCurriculumId } from '@/api/preference'
-const { GetMyGrades } = require('@/api/teacher')
 const { GetAllSdgs } = require('@/api/scenario')
 const { SubjectTree } = require('@/api/subject')
 
@@ -251,7 +250,7 @@ export default {
            *  NZKeyCompetencies: 'NZ-Key competencies',
            *   AUGeneralCapabilities: 'AU-General capabilities',
            */
-          if (this.defaultCurriculumId == 2) {
+          if (parseInt(this.defaultCurriculumId) === 2) {
             const nZKeyCompetenciesData = {
               id: '51',
               expandStatus: NavigationType.NZKeyCompetencies === this.defaultActiveMenu,
@@ -270,7 +269,7 @@ export default {
             this.treeDataList.push(nZKeyCompetenciesData)
           }
 
-          if (this.defaultCurriculumId == 1) {
+          if (parseInt(this.defaultCurriculumId) === 1) {
             const aUGeneralCapabilities = {
               id: '52',
               expandStatus: NavigationType.AUGeneralCapabilities === this.defaultActiveMenu,
@@ -296,7 +295,7 @@ export default {
         }
 
         // IB大纲4、5
-        if (this.defaultCurriculumId == 4 || this.defaultCurriculumId == 5) {
+        if (parseInt(this.defaultCurriculumId) === 4 || parseInt(this.defaultCurriculumId) === 5) {
           // iduData 是year-idu list
           const iduData = {
             id: '6',

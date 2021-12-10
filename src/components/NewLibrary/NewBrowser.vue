@@ -34,15 +34,16 @@
                 <h4>From : {{ recommendDataItem.fromTypeName }} / {{ recommendDataItem.fromName }}</h4>
               </div>
               <div
-                :class="{'recommend-item': true, 'my-selected-item': mySelectedIdList.indexOf(recommendDataItem.knowledgeId) !== -1}"
+                :class="{'recommend-item': true, 'my-selected-item': selectedRecommendIdList.indexOf(recommendItem.knowledgeId) !== -1,
+                         'disabled-select-item': mySelectedIdList.indexOf(recommendItem.knowledgeId) !== -1}"
                 v-for="(recommendItem, rI) in recommendDataItem.list"
                 :key="'ri-' + rI"
                 @click="handleAddRecommend(recommendItem)"
-                :data-knowledgeId="recommendItem.knowledgeId"
-                :data-recommend-item="JSON.stringify(recommendItem)">
+                :data-knowledge-id="recommendItem.knowledgeId"
+                :data-selected-id-list="mySelectedIdList">
                 <a-tooltip class="my-tooltip">
                   <template slot="title">
-                    {{ recommendItem.path }}
+                    {{ recommendItem.newPathName }}
                   </template>
                   <div class="select-block">
                     <a-icon
@@ -72,8 +73,11 @@
                 <div class="name-text">
                   {{ item.knowledgeData.name }}
                 </div>
-                <div class="action-icon" @click="handleRemoveSelected(item)">
-                  <a-icon type="close-circle" style="color: #07AB84; font-size: 16px;" />
+                <div class="action-icon">
+                  <img src="~@/assets/icons/lesson/selected.png"/>
+                </div>
+                <div class="action-icon-right" @click="handleRemoveSelected(item)">
+                  <img src="~@/assets/icons/evaluation/delete.png"/>
                 </div>
               </div>
             </div>
@@ -85,8 +89,11 @@
                 <div class="name-text">
                   {{ item.knowledgeData.name }}
                 </div>
-                <div class="action-icon" @click="handleRemoveSelected(item)">
-                  <a-icon type="close-circle" style="color: #07AB84; font-size: 16px;" />
+                <div class="action-icon">
+                  <img src="~@/assets/icons/lesson/selected.png"/>
+                </div>
+                <div class="action-icon-right" @click="handleRemoveSelected(item)">
+                  <img src="~@/assets/icons/evaluation/delete.png"/>
                 </div>
               </div>
             </div>
@@ -99,8 +106,11 @@
                 <div class="name-text">
                   {{ item.knowledgeData.name }}
                 </div>
-                <div class="action-icon" @click="handleRemoveSelected(item)">
-                  <a-icon type="close-circle" style="color: #07AB84; font-size: 16px;" />
+                <div class="action-icon">
+                  <img src="~@/assets/icons/lesson/selected.png"/>
+                </div>
+                <div class="action-icon-right" @click="handleRemoveSelected(item)">
+                  <img src="~@/assets/icons/evaluation/delete.png"/>
                 </div>
               </div>
             </div>
@@ -113,8 +123,11 @@
                 <div class="name-text">
                   {{ item.knowledgeData.name }}
                 </div>
-                <div class="action-icon" @click="handleRemoveSelected(item)">
-                  <a-icon type="close-circle" style="color: #07AB84; font-size: 16px;" />
+                <div class="action-icon">
+                  <img src="~@/assets/icons/lesson/selected.png"/>
+                </div>
+                <div class="action-icon-right" @click="handleRemoveSelected(item)">
+                  <img src="~@/assets/icons/evaluation/delete.png"/>
                 </div>
               </div>
             </div>
@@ -127,8 +140,11 @@
                 <div class="name-text">
                   {{ item.bigIdea }}
                 </div>
-                <div class="action-icon" @click="handleRemoveSelected(item)">
-                  <a-icon type="close-circle" style="color: #07AB84; font-size: 16px;" />
+                <div class="action-icon">
+                  <img src="~@/assets/icons/lesson/selected.png"/>
+                </div>
+                <div class="action-icon-right" @click="handleRemoveSelected(item)">
+                  <img src="~@/assets/icons/evaluation/delete.png"/>
                 </div>
               </div>
             </div>
@@ -141,8 +157,11 @@
                 <div class="name-text">
                   {{ item.item.name }}
                 </div>
-                <div class="action-icon" @click="handleRemoveSelected(item)">
-                  <a-icon type="close-circle" style="color: #07AB84; font-size: 16px;" />
+                <div class="action-icon">
+                  <img src="~@/assets/icons/lesson/selected.png"/>
+                </div>
+                <div class="action-icon-right" @click="handleRemoveSelected(item)">
+                  <img src="~@/assets/icons/evaluation/delete.png"/>
                 </div>
               </div>
             </div>
@@ -155,22 +174,11 @@
                 <div class="name-text">
                   {{ item.name }}
                 </div>
-                <div class="action-icon" @click="handleRemoveSelected(item)">
-                  <a-icon type="close-circle" style="color: #07AB84; font-size: 16px;" />
+                <div class="action-icon">
+                  <img src="~@/assets/icons/lesson/selected.png"/>
                 </div>
-              </div>
-            </div>
-
-            <div
-              :class="{'content-item': true, 'selected-line': true}"
-              v-for="(item, aIndex) in selectedRecommendList"
-              :key="'rec-' + aIndex">
-              <div class="name">
-                <div class="name-text">
-                  {{ item.name }}
-                </div>
-                <div class="action-icon" @click="handleRemoveSelectedRecommend(item)">
-                  <a-icon type="close-circle" style="color: #07AB84; font-size: 16px;" />
+                <div class="action-icon-right" @click="handleRemoveSelected(item)">
+                  <img src="~@/assets/icons/evaluation/delete.png"/>
                 </div>
               </div>
             </div>
@@ -183,8 +191,11 @@
                 <div class="name-text">
                   {{ item.knowledgeData.name }}
                 </div>
-                <div class="action-icon" @click="handleRemoveSelected(item)">
-                  <a-icon type="close-circle" style="color: #07AB84; font-size: 16px;" />
+                <div class="action-icon" >
+                  <img src="~@/assets/icons/lesson/selected.png"/>
+                </div>
+                <div class="action-icon-right" @click="handleRemoveSelected(item)">
+                  <img src="~@/assets/icons/evaluation/delete.png"/>
                 </div>
               </div>
             </div>
@@ -383,24 +394,21 @@ export default {
       this.$refs['contentList'].handleRemoveSelected(item)
     },
 
-    handleRemoveSelectedRecommend (recommendItem) {
-      this.$logger.info('NewBrowser handleRemoveSelected recommendItem', recommendItem)
-      this.handleAddRecommend(recommendItem)
-    },
-
     handleAddRecommend (recommendItem) {
-      this.$logger.info('NewBrowser handleAddRecommend', recommendItem)
-      const existIndex = this.selectedRecommendList.findIndex(item => item.knowledgeId === recommendItem.knowledgeId)
-      const existIdIndex = this.selectedRecommendIdList.findIndex(item => item === recommendItem.knowledgeId)
-      if (existIndex !== -1) {
-        this.selectedRecommendList.splice(existIndex, 1)
-        this.selectedRecommendIdList.splice(existIdIndex, 1)
-      } else {
-        this.selectedRecommendList.push(recommendItem)
-        this.selectedRecommendIdList.push(recommendItem.knowledgeId)
+      this.$logger.info('NewBrowser handleAddRecommend', recommendItem, 'this.mySelectedIdList.indexOf(recommendItem.knowledgeId)', this.mySelectedIdList.indexOf(recommendItem.knowledgeId))
+      if (this.mySelectedIdList.indexOf(recommendItem.knowledgeId) === -1) {
+        const existIndex = this.selectedRecommendList.findIndex(item => item.knowledgeId === recommendItem.knowledgeId)
+        const existIdIndex = this.selectedRecommendIdList.findIndex(item => item === recommendItem.knowledgeId)
+        if (existIndex !== -1) {
+          this.selectedRecommendList.splice(existIndex, 1)
+          this.selectedRecommendIdList.splice(existIdIndex, 1)
+        } else {
+          this.selectedRecommendList.push(recommendItem)
+          this.selectedRecommendIdList.push(recommendItem.knowledgeId)
+        }
+        this.$emit('select-recommend', this.selectedRecommendList)
+        this.$logger.info('after NewBrowser handleAddRecommend', this.selectedRecommendList, this.selectedRecommendIdList)
       }
-      this.$emit('select-recommend', this.selectedRecommendList)
-      this.$logger.info('after NewBrowser handleAddRecommend', this.selectedRecommendList, this.selectedRecommendIdList)
     }
   }
 }
@@ -438,7 +446,7 @@ export default {
       background-color: #fff;
 
       .selected-list {
-        padding: 15px 0;
+        padding: 10px 5px;
         z-index: 100;
         overflow: scroll;
         .content-list {
@@ -466,11 +474,32 @@ export default {
             position: relative;
 
             .action-icon {
-              display: block;
+              position: absolute;
+              left: 10px;
+              top: 50%;
+              margin-top: -10px;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+
+              img {
+                width: 20px;
+                height: 20px;
+              }
+            }
+
+            .action-icon-right {
               position: absolute;
               right: 5px;
               top: 50%;
-              margin-top: -10px;
+              margin-top: -20px;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+
+              img {
+                width: 40px;
+              }
             }
           }
 
@@ -488,7 +517,8 @@ export default {
             padding: 10px;
             margin: 3px;
             position: relative;
-            background-color: #F8F8F8;
+            border: 1px solid @primary-color;
+            background-color: #5fc9b04a !important;
 
             .name {
               cursor: pointer;
@@ -496,7 +526,8 @@ export default {
               flex-direction: row;
               align-items: flex-start;
               word-break: break-all;
-              padding: 0 10px;
+              padding-left: 25px;
+              padding-right: 25px;
               width: 100%;
               .icon {
                 .file-dir-icon {
@@ -650,6 +681,8 @@ export default {
       .recommend-item {
         background-color: rgba(255, 187, 0, 0.1);
         margin-bottom: 10px;
+        box-sizing: content-box;
+        border: 1px solid rgba(255, 187, 0, 0.1);
         span {
           font-size: 13px;
           cursor: pointer;
@@ -684,7 +717,8 @@ export default {
 }
 
 .my-selected-item {
-  color: #ddd;
+  border: 1px solid @primary-color;
+  background-color: #5fc9b04a !important;
 }
 
 .my-curriculum-select {
@@ -717,5 +751,9 @@ export default {
       width: 20px;
     }
   }
+}
+
+.disabled-select-item {
+  color: #D8D8D8;
 }
 </style>

@@ -204,6 +204,10 @@ export default {
       type: String,
       default: ''
     },
+    pptTitle: {
+      type: String,
+      default: ''
+    },
     selectIds: {
       type: Array,
       default: () => {
@@ -534,10 +538,15 @@ export default {
     },
     handleSelectDescription () {
       this.selectedIdList = []
+      const learnOutsListData = JSON.parse(JSON.stringify(this.parentData.learnOuts))
+      learnOutsListData.forEach(item => {
+        item.newPath = item.path.split('>')
+        item.newPathName = item.newPath.slice(0, 4).join('>')
+      })
       this.recommendData = [{
         fromName: this.parentData.name,
         fromTypeName: this.type2Name[this.contentType.task],
-        list: JSON.parse(JSON.stringify(this.parentData.learnOuts))
+        list: learnOutsListData
       }]
       this.$logger.info('parentData.learnOuts', this.parentData.learnOuts)
       this.form.learnOuts.forEach(item => {
@@ -556,7 +565,10 @@ export default {
               const exist = pageItemLearnOuts.find(item => data.knowledgeId === item.knowledgeId)
               this.$logger.info('add pageItemLearnOuts', data, 'existed ', !!exist)
               if (data.knowledgeId && !exist) {
-                this.selectedIdList.push(data.knowledgeId)
+                if (data && data.path) {
+                  data.newPath = data.path.split('>')
+                  data.newPathName = data.newPath.slice(0, 4).join('>')
+                }
                 pageItemLearnOuts.push(data)
               } else {
                 if (exist) {
@@ -568,8 +580,8 @@ export default {
             })
         })
         this.recommendData.push({
-          fromName: 'Google Slide',
-          fromTypeName: 'Google Slide',
+          fromName: this.pptTitle,
+          fromTypeName: 'PPT',
           list: pageItemLearnOuts
         })
       } else {
