@@ -342,6 +342,11 @@
                           <template v-if="!uploading && form && form.image">
                             <div class="image-preview">
                               <img :src="form.image" alt="">
+                              <div class="upload-text-mask">
+                                <div class="upload-text">
+                                  <a-button shape="round" type="primary">Upload a cover image</a-button>
+                                </div>
+                              </div>
                             </div>
                           </template>
                           <template v-if="!uploading && form && !form.image">
@@ -350,7 +355,7 @@
                                 <img src="~@/assets/icons/lesson/upload_icon.png" class="upload-icon" />
                               </p>
                               <p class="ant-upload-text">
-                                {{ $t('teacher.add-unit-plan.upload-a-picture') }}
+                                Upload a cover image
                               </p>
                             </div>
                           </template>
@@ -2975,9 +2980,36 @@ export default {
       }
 
       .image-preview {
+        position: relative;
         img {
           /*width: 100%;*/
           max-height: 250px;
+        }
+
+        .upload-text-mask {
+          display: none;
+          position: absolute;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background-color: rgba(0, 0, 0, 0.2);
+
+          .upload-text {
+            width: 200px;
+            text-align: center;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            margin-left: -100px;
+            margin-top: -20px;
+          }
+        }
+
+        &:hover {
+          .upload-text-mask {
+            display: block;
+          }
         }
       }
 
