@@ -96,10 +96,10 @@
                 </a-form-item>
 
                 <!--knowledge tag-select -->
-                <ui-learn-out ref="learnOut" :learn-outs="form.learnOuts" @remove-learn-outs="handleRemoveLearnOuts" />
+                <ui-learn-out ref="learnOut" :learn-outs="form.learnOuts" @remove-learn-outs="handleRemoveLearnOuts" v-if="form.learnOuts.length" />
               </div>
               <div class="form-block task-action-line">
-                <a-button :loading="loadSaving" :style="{'display': 'flex', 'align-items': 'center', 'background' : '#15C39A', 'color': '#fff', 'justify-content': 'center', 'padding': '20px 15px', 'border-radius': '5px'}" @click="handleSaveTask">
+                <a-button :loading="loadSaving" :style="{'display': 'flex', 'align-items': 'center', 'background' : '#15C39A', 'color': '#fff', 'justify-content': 'center', 'padding': '20px 15px', 'border-radius': '5px', 'margin-top': '30px'}" @click="handleAddSubTask">
                   <div class="btn-icon">
                     <img src="~@/assets/icons/task/taskAdd.png" />
                   </div>
@@ -179,7 +179,6 @@ import { SelectModel } from '@/components/NewLibrary/SelectModel'
 import { NavigationType } from '@/components/NewLibrary/NavigationType'
 import NewBrowser from '@/components/NewLibrary/NewBrowser'
 import CustomTag from '@/components/UnitPlan/CustomTag'
-const { SpliteTask } = require('@/api/task')
 
 export default {
   name: 'TaskForm',
@@ -336,6 +335,7 @@ export default {
     const formData = JSON.parse(JSON.stringify(this.parentFormData))
     formData.id = null
     formData.selectPageObjectIds = []
+    formData.learnOuts = []
     formData.__taskId = '__taskId_' + this.taskPrefix
     formData.name = formData.name ? (formData.name + ' sub task' + this.taskNum) : 'sub task' + this.taskNum
     this.$logger.info('TaskForm parentFormData', formData)
@@ -374,38 +374,32 @@ export default {
       this.loadUserTags()
     },
 
-    handleSaveTask () {
-      logger.info('handleSaveTask', this.form)
-
-      const taskData = Object.assign({}, this.form)
-
+    // 此处只是添加到外层的数组中，并未保存。
+    handleAddSubTask () {
+      logger.info('handleAddSubTask', this.form)
+      const taskData = JSON.parse(JSON.stringify(this.form))
       taskData.selectPageObjectIds = this.form.selectPageObjectIds
-      logger.info('finish taskData', taskData)
-      const SpliteTaskData = {
+      const SubTaskData = {
         'taskId': this.taskId,
         'subTask': taskData
       }
-      this.loadSaving = true
-      SpliteTask(SpliteTaskData).then((response) => {
-        this.$logger.info('SpliteTask ', response.result)
-        if (response.success) {
-          this.$message.success('Add another task successfully')
-          taskData.id = response.result.id
-          this.$emit('finish-task', taskData)
-          this.taskNum = this.taskNum + 1
-          this.form.name = this.parentFormData.name ? (this.parentFormData.name + ' sub task' + this.taskNum) : 'sub task' + this.taskNum
-        } else {
-          this.$message.error(response.message)
-        }
-        this.loadSaving = false
-      })
+      logger.info('add-sub-task', taskData)
+      this.$emit('add-sub-task', SubTaskData)
+      this.form.name = ''
+      this.form.overview = ''
+      this.form.image = ''
+      this.form.selectPageObjectIds = []
+      this.form.learnOuts = []
     },
 
     handleSelectTaskType (type) {
-      this.$logger.info('handleSelectTaskType ' + type)
+      this.$logger.info('handleSelectTaskType ' + type, 'CustomTagType.task', CustomTagType.task)
       this.form.taskType = type
       this.customTagList = []
-      CustomTagType.task.safa.forEach(name => {
+      CustomTagType.task.sa.forEach(name => {
+        this.customTagList.push(name)
+      })
+      CustomTagType.task.fa.forEach(name => {
         this.customTagList.push(name)
       })
       this.showAllCollaborateCommentVisible = false
