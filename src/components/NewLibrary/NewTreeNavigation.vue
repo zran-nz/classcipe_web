@@ -39,6 +39,7 @@ import { NavigationType } from '@/components/NewLibrary/NavigationType'
 import { SubjectType } from '@/const/common'
 import storage from 'store'
 import { GRADE_COMMON } from '@/store/mutation-types'
+import { GetGradesByCurriculumId } from '@/api/preference'
 const { GetMyGrades } = require('@/api/teacher')
 const { GetAllSdgs } = require('@/api/scenario')
 const { SubjectTree } = require('@/api/subject')
@@ -144,7 +145,7 @@ export default {
       }
       Promise.all([
         SubjectTree({ curriculumId: this.defaultCurriculumId ? this.defaultCurriculumId : this.$store.getters.bindCurriculum }),
-        GetMyGrades(),
+        GetGradesByCurriculumId({ curriculumId: this.defaultCurriculumId ? this.defaultCurriculumId : this.$store.getters.bindCurriculum }),
         GetAllSdgs(),
         getAll21Century()
       ]).then((initDataResponse) => {
@@ -250,39 +251,43 @@ export default {
            *  NZKeyCompetencies: 'NZ-Key competencies',
            *   AUGeneralCapabilities: 'AU-General capabilities',
            */
-          const nZKeyCompetenciesData = {
-            id: '51',
-            expandStatus: NavigationType.NZKeyCompetencies === this.defaultActiveMenu,
-            type: NavigationType.NZKeyCompetencies,
-            name: 'NZ-Key competencies',
-            children: [],
-            gradeList: [],
-            parent: null
+          if (this.defaultCurriculumId == 2) {
+            const nZKeyCompetenciesData = {
+              id: '51',
+              expandStatus: NavigationType.NZKeyCompetencies === this.defaultActiveMenu,
+              type: NavigationType.NZKeyCompetencies,
+              name: 'NZ-Key competencies',
+              children: [],
+              gradeList: [],
+              parent: null
+            }
+            this.gradeList.forEach(gradeItem => {
+              gradeItem.isGrade = true
+              gradeItem.children = []
+              nZKeyCompetenciesData.gradeList.push(JSON.parse(JSON.stringify(gradeItem)))
+              nZKeyCompetenciesData.children.push(JSON.parse(JSON.stringify(gradeItem)))
+            })
+            this.treeDataList.push(nZKeyCompetenciesData)
           }
-          this.gradeList.forEach(gradeItem => {
-            gradeItem.isGrade = true
-            gradeItem.children = []
-            nZKeyCompetenciesData.gradeList.push(JSON.parse(JSON.stringify(gradeItem)))
-            nZKeyCompetenciesData.children.push(JSON.parse(JSON.stringify(gradeItem)))
-          })
-          this.treeDataList.push(nZKeyCompetenciesData)
 
-          const aUGeneralCapabilities = {
-            id: '52',
-            expandStatus: NavigationType.AUGeneralCapabilities === this.defaultActiveMenu,
-            type: NavigationType.AUGeneralCapabilities,
-            name: 'AU-General capabilities',
-            children: [],
-            gradeList: [],
-            parent: null
+          if (this.defaultCurriculumId == 1) {
+            const aUGeneralCapabilities = {
+              id: '52',
+              expandStatus: NavigationType.AUGeneralCapabilities === this.defaultActiveMenu,
+              type: NavigationType.AUGeneralCapabilities,
+              name: 'AU-General capabilities',
+              children: [],
+              gradeList: [],
+              parent: null
+            }
+            this.gradeList.forEach(gradeItem => {
+              gradeItem.isGrade = true
+              gradeItem.children = []
+              aUGeneralCapabilities.gradeList.push(JSON.parse(JSON.stringify(gradeItem)))
+              aUGeneralCapabilities.children.push(JSON.parse(JSON.stringify(gradeItem)))
+            })
+            this.treeDataList.push(aUGeneralCapabilities)
           }
-          this.gradeList.forEach(gradeItem => {
-            gradeItem.isGrade = true
-            gradeItem.children = []
-            aUGeneralCapabilities.gradeList.push(JSON.parse(JSON.stringify(gradeItem)))
-            aUGeneralCapabilities.children.push(JSON.parse(JSON.stringify(gradeItem)))
-          })
-          this.treeDataList.push(aUGeneralCapabilities)
 
           // evaluation 表格选择用
           this.treeDataList.push(all21CenturyData)
@@ -290,8 +295,9 @@ export default {
           this.$logger.info('after handle treeDataList', this.treeDataList)
         }
 
-        // iduData 是year-idu list
-        if (this.defaultCurriculumId === 5 || this.defaultCurriculumId === 6) {
+        // IB大纲4、5
+        if (this.defaultCurriculumId == 4 || this.defaultCurriculumId == 5) {
+          // iduData 是year-idu list
           const iduData = {
             id: '6',
             expandStatus: NavigationType.idu === this.defaultActiveMenu,
