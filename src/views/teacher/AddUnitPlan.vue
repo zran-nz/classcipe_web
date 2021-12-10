@@ -56,16 +56,17 @@
 
                       <div class="form-block over-form-block overview" id="overview">
                         <comment-switch field-name="overview" :is-active="showCollaborateCommentVisible && currentFieldName === 'overview'" @switch="handleSwitchComment" class="my-comment-switch"/>
-                        <a-form-model-item class="task-audio-line" label="Unit Overview">
-                          <a-textarea class="overview" v-model="form.overview" placeholder="Overview" allow-clear />
+                        <!-- 暂时隐藏Unit overview模块-->
+                        <!--                        <a-form-model-item class="task-audio-line" label="Unit Overview">-->
+                        <!--                          <a-textarea class="overview" v-model="form.overview" placeholder="Overview" allow-clear />-->
 
-                          <a-button type="primary" ghost class="overview-toggle" @click="showTaskDetails = !showTaskDetails">
-                            Assessment task details
-                            <a-icon type="up" v-if="showTaskDetails"/>
-                            <a-icon type="down" v-else/>
-                          </a-button>
+                        <!--                          <a-button type="primary" ghost class="overview-toggle" @click="showTaskDetails = !showTaskDetails">-->
+                        <!--                            Assessment task details-->
+                        <!--                            <a-icon type="up" v-if="showTaskDetails"/>-->
+                        <!--                            <a-icon type="down" v-else/>-->
+                        <!--                          </a-button>-->
 
-                        </a-form-model-item>
+                        <!--                        </a-form-model-item>-->
 
                         <Collapse>
                           <div class="overview-task-details" v-if="showTaskDetails" >
