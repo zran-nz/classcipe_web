@@ -96,7 +96,7 @@
                 </a-row>
                 <a-row class="tag-row">
                   <span class="tag-item">
-                    <span class="tag-title">learning outcomes:</span>
+                    <span class="tag-title">Assessment objective(s):</span>
                     <span class="tag-value" v-for="(learn,index) in currentPageItem.data.learnOuts" :key="index" style="color:#00BCF2">
                       <a-tooltip :title="learn.path" :overlayStyle="{ 'z-index': '3000'}">{{ learn.name }} </a-tooltip>
                     </span>
@@ -906,12 +906,13 @@ export default {
   overflow-y:auto;
   background-color:#F7F7F7;
   font-size: 12px;
+  padding-left: 15px;
   font-family: Segoe UI;
   .tag-row{
     margin: 5px;
   }
   .tag-item{
-    margin-left: 15px;
+    //margin-left: 15px;
   }
   .tag-title{
     font-weight: 400;
