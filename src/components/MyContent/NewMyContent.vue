@@ -287,7 +287,13 @@
           </a-list>
           <div class="modal-ensure-action-line">
             <a-button class="action-item action-cancel" shape="round" @click="handleCancel">Cancel</a-button>
-            <a-button class="action-ensure action-item" type="primary" shape="round" :loading="ensureLoading" @click="handleEnsure">Ok</a-button>
+            <a-button
+              class="action-ensure action-item"
+              type="primary"
+              shape="round"
+              :disabled="!mySelectedList.length"
+              :loading="ensureLoading"
+              @click="handleEnsure">Ok</a-button>
           </div>
         </div>
 
@@ -702,7 +708,7 @@ export default {
     handleEnsure () {
       this.$logger.info('handleEnsure add group associate' + this.selectedGroup, this.groupNameList, this.mySelectedMap, this.groupName)
       if (!this.mySelectedMap.size) {
-        this.$message.warn('No my content be selected!')
+        // this.$message.warn('No my content be selected!')
       } else if ((this.groupNameMode === 'select' && !this.selectedGroup)) {
         this.$message.warn('No group be selected!')
       } else if (this.groupNameMode === 'input' && !this.groupName) {
