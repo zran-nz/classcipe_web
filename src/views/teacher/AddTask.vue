@@ -110,7 +110,7 @@
                               @click="changeSelected" />
                           </a-tooltip>
                         </div>
-                        <div class="top-icon-groups" v-if="Object.keys(currentPageMaterial).length > 0 && !form.showSelected">
+                        <div class="top-icon-groups" v-if="!form.showSelected">
                           <a-col class="material-row" >
                             <div class="icon-group">
                               <a-badge :count="showMaterialSize('text')" v-if="currentPageMaterial.hasOwnProperty('text')">
@@ -1154,7 +1154,7 @@
             :select-mode="selectModel.syncData"
             question-index="_questionIndex_1"
             :sync-data="syncData"
-            :show-menu="[ NavigationType.specificSkills, NavigationType.centurySkills, NavigationType.learningOutcomes, NavigationType.assessmentType, NavigationType.idu ]"
+            :show-menu="[NavigationType.specificSkills, NavigationType.centurySkills, NavigationType.learningOutcomes, NavigationType.assessmentType, NavigationType.idu ]"
             :default-active-menu="NavigationType.learningOutcomes"
             :recommend-data="recommendData"
             @select-assessmentType="handleSelectAssessmentType"
@@ -4303,6 +4303,7 @@ export default {
     position: relative;
     color: rgba(0, 0, 0, 0.65);
     background: #fff;
+    height:70px;
     margin-top: -15px;
     .icon-group{
       display: flex;
@@ -4887,6 +4888,9 @@ export default {
     font-family: Segoe UI;
     .tag-row{
       margin: 5px;
+      .tag-item{
+        margin-right: 15px;
+      }
     }
     .tag-title{
       font-weight: 400;

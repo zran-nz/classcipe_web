@@ -787,7 +787,7 @@ export default {
       userTags: {},
       NavigationType: NavigationType,
       defaultActiveMenu: NavigationType.learningOutcomes,
-      showMenuList: [ NavigationType.specificSkills, NavigationType.centurySkills, NavigationType.learningOutcomes, NavigationType.assessmentType, NavigationType.idu],
+      showMenuList: [NavigationType.specificSkills, NavigationType.centurySkills, NavigationType.learningOutcomes, NavigationType.assessmentType, NavigationType.idu],
 
       showCollaborateCommentVisible: false,
 
@@ -1395,7 +1395,7 @@ export default {
     },
     handleSelectDescription () {
       this.selectSyncDataVisible = true
-      this.showMenuList = [ NavigationType.specificSkills,
+      this.showMenuList = [NavigationType.specificSkills,
         NavigationType.centurySkills,
         NavigationType.learningOutcomes,
         NavigationType.assessmentType,
