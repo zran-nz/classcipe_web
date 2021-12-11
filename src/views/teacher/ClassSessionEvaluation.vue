@@ -804,6 +804,8 @@ export default {
                   studentName: null, // 学生自评
                   studentEmail: null, // 学生自评
 
+                  data: null, // subLevel数据
+
                   evidenceIdList: [], // ppt证据pageId列表
                   evidenceIdStudentList: [] // ppt证据pageId列表-学生选择
                 }
@@ -1137,6 +1139,8 @@ export default {
                   studentName: null, // 学生自评
                   studentEmail: null, // 学生自评
 
+                  data: null,
+
                   evidenceIdList: [], // ppt证据pageId列表
                   evidenceIdStudentList: [] // ppt证据pageId列表-学生选择
                 }
@@ -1193,6 +1197,8 @@ export default {
                 studentEvaluation: null, // 学生自评
                 studentName: null, // 学生自评
                 studentEmail: null, // 学生自评
+
+                data: null,
 
                 evidenceIdList: [], // ppt证据pageId列表
                 evidenceIdStudentList: [] // ppt证据pageId列表-学生选择
@@ -1642,6 +1648,7 @@ export default {
           if (data.evaluationMode === EvaluationTableMode.TeacherEvaluate) {
             this.studentEvaluateData[userId][data.formId][data.rowId].teacherEmail = data.evaluateUserEmail
             this.studentEvaluateData[userId][data.formId][data.rowId].teacherName = data.evaluateUserName
+            this.studentEvaluateData[userId][data.formId][data.rowId].data = data.data
             // 点击选中，再点一次取消选中
             if (this.studentEvaluateData[userId][data.formId][data.rowId].teacherEvaluation === data.value) {
               this.studentEvaluateData[userId][data.formId][data.rowId].teacherEvaluation = ''
@@ -1651,6 +1658,7 @@ export default {
           } else if (data.evaluationMode === EvaluationTableMode.StudentEvaluate) {
             this.studentEvaluateData[userId][data.formId][data.rowId].studentEmail = data.evaluateUserEmail
             this.studentEvaluateData[userId][data.formId][data.rowId].studentName = data.evaluateUserName
+            this.studentEvaluateData[userId][data.formId][data.rowId].data = data.data
 
             if (this.studentEvaluateData[userId][data.formId][data.rowId].studentEvaluation === data.value) {
               this.studentEvaluateData[userId][data.formId][data.rowId].studentEvaluation = ''
@@ -1660,6 +1668,7 @@ export default {
           } else if (data.evaluationMode === EvaluationTableMode.PeerEvaluate) {
             this.studentEvaluateData[userId][data.formId][data.rowId].peerEmail = data.evaluateUserEmail
             this.studentEvaluateData[userId][data.formId][data.rowId].peerName = data.evaluateUserName
+            this.studentEvaluateData[userId][data.formId][data.rowId].data = data.data
 
             if (this.studentEvaluateData[userId][data.formId][data.rowId].peerEvaluation === data.value) {
               this.studentEvaluateData[userId][data.formId][data.rowId].peerEvaluation = ''
