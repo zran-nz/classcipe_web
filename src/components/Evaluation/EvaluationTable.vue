@@ -238,7 +238,7 @@
             <template v-if="mode === tableMode.Edit">
               <!-- Indicators-->
               <template v-if="header.type === headerType.Indicators">
-                <div class="indicator-input">
+                <div class="my-indicator-input">
                   <a-textarea style="height: 100%" placeholder="Enter task specific indicators" class="my-text-input" v-model="item[headerType.Indicators].name" @blur="handleUpdateField(header, item)"/>
                 </div>
               </template>
@@ -322,7 +322,8 @@
               <div
                 class="selected-icon"
                 v-if="header.type !== headerType.AchievementLevel &&
-                  header.type !== headerType.LevelDescriptor">
+                  header.type !== headerType.LevelDescriptor &&
+                  header.type !== headerType.Indicators">
                 <teacher-icon v-if="formBodyData && formBodyData[item.rowId] && formBodyData[item.rowId].teacherEvaluation === header.type && (currentEvaluateMode === tableMode.TeacherEvaluate || currentEvaluateMode === tableMode.StudentEvaluate)"/>
                 <student-icon v-if="formBodyData && formBodyData[item.rowId] && formBodyData[item.rowId].studentEvaluation === header.type && (currentEvaluateMode === tableMode.TeacherEvaluate || currentEvaluateMode === tableMode.StudentEvaluate)"/>
                 <peer-icon v-if="formBodyData && formBodyData[item.rowId] && formBodyData[item.rowId].peerEvaluation === header.type && (currentEvaluateMode === tableMode.TeacherEvaluate || currentEvaluateMode === tableMode.PeerEvaluate)"/>
@@ -330,7 +331,7 @@
             </template>
             <!-- LevelDescriptor-->
             <template v-if="header.type === headerType.LevelDescriptor">
-              <div class="sub-level-data">
+              <div class="sub-level-data" @click.stop="">
                 <div class="sub-level-desc">
                   <div class="sub-level-desc-item" v-for="(subLevel, sIndex) in item[headerType.AchievementLevel].subLevelDescription" :key="sIndex">
                     <a-tooltip placement="topLeft">
@@ -356,11 +357,11 @@
                 <div class="indicator-data">
                   {{ item[headerType.Indicators].name }}
                 </div>
-                <div class="selected-icon" >
-                  <teacher-icon v-if="formBodyData && formBodyData[item.rowId] && formBodyData[item.rowId].teacherEvaluation === header.type && (currentEvaluateMode === tableMode.TeacherEvaluate || currentEvaluateMode === tableMode.StudentEvaluate)"/>
-                  <student-icon v-if="formBodyData && formBodyData[item.rowId] && formBodyData[item.rowId].studentEvaluation === header.type && (currentEvaluateMode === tableMode.TeacherEvaluate || currentEvaluateMode === tableMode.StudentEvaluate)"/>
-                  <peer-icon v-if="formBodyData && formBodyData[item.rowId] && formBodyData[item.rowId].peerEvaluation === header.type && (currentEvaluateMode === tableMode.TeacherEvaluate || currentEvaluateMode === tableMode.PeerEvaluate)"/>
-                </div>
+                <!--                <div class="selected-icon" >-->
+                <!--                  <teacher-icon v-if="formBodyData && formBodyData[item.rowId] && formBodyData[item.rowId].teacherEvaluation === header.type && (currentEvaluateMode === tableMode.TeacherEvaluate || currentEvaluateMode === tableMode.StudentEvaluate)"/>-->
+                <!--                  <student-icon v-if="formBodyData && formBodyData[item.rowId] && formBodyData[item.rowId].studentEvaluation === header.type && (currentEvaluateMode === tableMode.TeacherEvaluate || currentEvaluateMode === tableMode.StudentEvaluate)"/>-->
+                <!--                  <peer-icon v-if="formBodyData && formBodyData[item.rowId] && formBodyData[item.rowId].peerEvaluation === header.type && (currentEvaluateMode === tableMode.TeacherEvaluate || currentEvaluateMode === tableMode.PeerEvaluate)"/>-->
+                <!--                </div>-->
               </template>
               <template v-if="header.type === headerType.Novice">
                 <div class="indicator-data">
@@ -1356,7 +1357,7 @@ export default {
           border-right: 1px solid #999;
           border-bottom: 1px solid #999;
           padding: 0;
-          min-width: 100px;
+          min-width: 180px;
           max-width: 400px;
           overflow: hidden;
 
@@ -1518,6 +1519,10 @@ export default {
               textarea {
                 display: none;
               }
+            }
+
+            .my-indicator-input {
+              height: 100%;
             }
             .add-criteria {
               cursor: pointer;
