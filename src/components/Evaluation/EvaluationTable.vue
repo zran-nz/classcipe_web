@@ -218,19 +218,19 @@
                   </template>
                 </template>
                 <template v-if="formType === tableType.CenturySkills">
-                  <template v-if="!item[headerType.Description] || !item[headerType.Description].name">
-                    <div class="data-item add-criteria" @click="handleAddCriteria(header, item, $event)" v-show="mode === tableMode.Edit">
-                      <add-opacity-icon />
-                      <div class="add-text">Click to choose the objectives</div>
+                  <!--                  <template v-if="!item[headerType.Description] || !item[headerType.Description].name">-->
+                  <!--                    <div class="data-item add-criteria" @click="handleAddCriteria(header, item, $event)" v-show="mode === tableMode.Edit">-->
+                  <!--                      <add-opacity-icon />-->
+                  <!--                      <div class="add-text">Click to choose the objectives</div>-->
+                  <!--                    </div>-->
+                  <!--                  </template>-->
+                  <!--                  <template v-else>-->
+                  <div class="data-item criteria-data">
+                    <div class="criteria-name">
+                      {{ item[headerType.Description].name }}
                     </div>
-                  </template>
-                  <template v-else>
-                    <div class="data-item criteria-data" @dblclick="handleAddCriteria(header, item, $event)">
-                      <div class="criteria-name">
-                        {{ item[headerType.Description].name }}
-                      </div>
-                    </div>
-                  </template>
+                  </div>
+                  <!--                  </template>-->
                 </template>
               </template>
             </template>
@@ -666,7 +666,8 @@ export default {
         if (bindCurriculum === 1 || bindCurriculum === 2) {
           this.headers = [
             { label: 'Criteria', previewLabel: 'Criteria', type: EvaluationTableHeader.Criteria, editable: false, editing: false, required: true },
-            { label: '21st century skills', previewLabel: '21st century skills', type: EvaluationTableHeader.Description, editable: false, editing: false, required: true },
+            { label: '21st century skills', previewLabel: '21st century skills', type: EvaluationTableHeader.Criteria, editable: false, editing: false, required: true },
+            { label: 'Description', previewLabel: 'Description', type: EvaluationTableHeader.Description, editable: false, editing: false, required: true },
             { label: 'Novice', previewLabel: 'Novice', type: EvaluationTableHeader.Novice, editable: false, editing: false, required: true },
             { label: 'Learner', previewLabel: 'Learner', type: EvaluationTableHeader.Learner, editable: false, editing: false, required: true },
             { label: 'Practitoner', previewLabel: 'Practitoner', type: EvaluationTableHeader.Practitoner, editable: false, editing: false, required: true },
@@ -675,7 +676,8 @@ export default {
           ]
         } else {
           this.headers = [
-            { label: '21st century skills', previewLabel: '21st century skills', type: EvaluationTableHeader.Description, editable: false, editing: false, required: true },
+            { label: '21st century skills', previewLabel: '21st century skills', type: EvaluationTableHeader.Criteria, editable: false, editing: false, required: true },
+            { label: 'Description', previewLabel: 'Description', type: EvaluationTableHeader.Description, editable: false, editing: false, required: true },
             { label: 'Novice', previewLabel: 'Novice', type: EvaluationTableHeader.Novice, editable: false, editing: false, required: true },
             { label: 'Learner', previewLabel: 'Learner', type: EvaluationTableHeader.Learner, editable: false, editing: false, required: true },
             { label: 'Practitoner', previewLabel: 'Practitoner', type: EvaluationTableHeader.Practitoner, editable: false, editing: false, required: true },
