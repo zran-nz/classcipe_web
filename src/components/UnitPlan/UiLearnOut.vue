@@ -270,7 +270,7 @@
         border: 1px solid #f9f9f9;
       }
       .skt-description-tag-item {
-        width: 610px;
+        width: 100%;
         background: #FFFFFF;
         border: 1px solid #15C39A;
         box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.16);
@@ -362,13 +362,13 @@
       }
       .delete-action {
         position: absolute;
-        left: 610px;
-        top:10px;
+        top:0px;
+        right: 0px;
         display: none;
         cursor: pointer;
-        height: 40px;
+        height: 35px;
         img {
-          width: 40px;
+          width: 35px;
         }
       }
     }
