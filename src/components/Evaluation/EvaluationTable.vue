@@ -1865,7 +1865,6 @@ export default {
     white-space: nowrap;
     text-overflow: ellipsis;
     vertical-align: middle;
-    width: 380px;
     align-items: center;
     height: 40px;
     line-height: 40px;
@@ -1877,7 +1876,6 @@ export default {
       white-space: nowrap;
       text-overflow: ellipsis;
       vertical-align: middle;
-      width: 380px;
     }
   }
 }
