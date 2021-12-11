@@ -1843,7 +1843,7 @@ export default {
         justify-content: center;
         padding: 0 3px;
         font-size: 18px;
-        color: #999999;
+        color: #ccc;
 
         img {
           width: 20px;
@@ -1865,12 +1865,20 @@ export default {
     white-space: nowrap;
     text-overflow: ellipsis;
     vertical-align: middle;
-    width: 420px;
+    width: 380px;
     align-items: center;
     height: 40px;
     line-height: 40px;
     border-bottom: 1px solid #D8D8D8;
     padding: 0 10px;
+
+    span {
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      vertical-align: middle;
+      width: 380px;
+    }
   }
 }
 
