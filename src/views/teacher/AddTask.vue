@@ -1254,7 +1254,7 @@
 import * as logger from '@/utils/logger'
 import ContentTypeIcon from '@/components/Teacher/ContentTypeIcon'
 import { typeMap } from '@/const/teacher'
-import { Associate, GetAssociate, GetReferOutcomes, SaveSessonTags } from '@/api/teacher'
+import { Associate, FindSourceOutcomes, GetAssociate, GetReferOutcomes, SaveSessonTags } from '@/api/teacher'
 import InputSearch from '@/components/UnitPlan/InputSearch'
 import SdgTagInput from '@/components/UnitPlan/SdgTagInput'
 import SkillTag from '@/components/UnitPlan/SkillTag'
@@ -2401,7 +2401,7 @@ export default {
             }
             item.contents.forEach(content => {
               console.log(content)
-              if (content.type === this.typeMap['unit-plan']) {
+              if (content.type === this.contentType['unit-plan']) {
                 this.associateUnitPlanIdList.push(content.id)
                 content.questions.forEach(question => {
                   this.associateQuestionList.push({
@@ -2411,7 +2411,7 @@ export default {
                 })
               }
 
-              if (content.type === this.typeMap.task) {
+              if (content.type === this.contentType.task) {
                 this.associateTaskIdList.push(content.id)
               }
             })
@@ -2425,12 +2425,20 @@ export default {
           this.$logger.info('associateTaskIdList', this.associateTaskIdList)
         }).finally(() => {
           this.linkGroupLoading = false
-          this.loadRefLearnOuts()
+
+          if (this.associateUnitPlanIdList.length > 0) {
+            this.loadRefLearnOuts()
+          }
         })
       },
 
       loadRefLearnOuts () {
+        FindSourceOutcomes({
+          type: this.contentType['unit-plan'],
+          ids: this.associateUnitPlanIdList
+        }).then(response => {
 
+        })
       },
 
       // TODO 选择的assessment数据

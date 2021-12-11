@@ -56,17 +56,16 @@
 
                       <div class="form-block over-form-block overview" id="overview">
                         <comment-switch field-name="overview" :is-active="showCollaborateCommentVisible && currentFieldName === 'overview'" @switch="handleSwitchComment" class="my-comment-switch"/>
-                        <!--                         暂时隐藏Unit overview模块-->
-                        <!--                              <a-form-model-item class="task-audio-line" label="Unit Overview">-->
-                        <!--                                <a-textarea class="overview" v-model="form.overview" placeholder="Overview" allow-clear />-->
+                        <!-- 暂时隐藏Unit overview模块-->
+                        <a-form-model-item class="task-audio-line" label="Unit Overview">
+                          <a-textarea class="overview" v-model="form.overview" placeholder="Overview" allow-clear />
 
-                        <!--                                <a-button type="primary" ghost class="overview-toggle" @click="showTaskDetails = !showTaskDetails">-->
-                        <!--                                  Assessment task details-->
-                        <!--                                  <a-icon type="up" v-if="showTaskDetails"/>-->
-                        <!--                                  <a-icon type="down" v-else/>-->
-                        <!--                                </a-button>-->
-
-                        <!--                              </a-form-model-item>-->
+                          <a-button type="primary" ghost class="overview-toggle" @click="showTaskDetails = !showTaskDetails">
+                            Assessment task details
+                            <a-icon type="up" v-if="showTaskDetails"/>
+                            <a-icon type="down" v-else/>
+                          </a-button>
+                        </a-form-model-item>
                         <Collapse>
                           <div class="overview-task-details" v-if="showTaskDetails" >
                             <a-textarea class="overview-summarize" v-model="form.summarize" placeholder="Add content to summarize your assessment tasks" allow-clear />
@@ -1575,11 +1574,11 @@ export default {
           item.contents.forEach(content => {
             this.associateTaskList.push(content)
 
-            if (content.type === this.typeMap['unit-plan']) {
+            if (content.type === this.contentType['unit-plan']) {
               this.associateUnitPlanIdList.push(content.id)
             }
 
-            if (content.type === this.typeMap.task) {
+            if (content.type === this.contentType.task) {
               this.associateTaskIdList.push(content.id)
             }
           })

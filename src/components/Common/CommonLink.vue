@@ -13,7 +13,11 @@
                       {{ linkGroup.group ? linkGroup.group : 'Untitled category ' }}
                     </div>
                     <div class="group-name-input" v-if="linkGroup.editing">
-                      <input v-model="linkGroup.group" class="group-name-input"/>
+                      <a-input
+                        v-model="linkGroup.group"
+                        class="group-name-input"
+                        @blur="handleToggleEditGroupName(linkGroup)"
+                        @pressEnter="handleToggleEditGroupName(linkGroup)"/>
                     </div>
                   </div>
                   <div class="group-edit-icon" @click="handleToggleEditGroupName(linkGroup)" v-if="canEdit">
@@ -21,7 +25,7 @@
                     <a-icon type="check" v-if="linkGroup.editing"/>
                   </div>
                 </template>
-                <template>
+                <template v-else>
                   <div class="group-name">
                     <div class="group-name-text">
                       {{ linkGroup.group }}
@@ -40,7 +44,7 @@
               </div>
             </div>
             <div class="group-body">
-              <draggable v-model="ownerLinkGroupList[lIndex].contents" group="site" animation="300" @end="handleDragEnd" :disabled="!canEdit">
+              <draggable v-model="ownerLinkGroupList[lIndex].contents" group="site" animation="300" @end="handleDragEnd" :disabled="!canEdit || fromType === typeMap.task">
                 <transition-group>
                   <div class="group-link-item" v-for="item in linkGroup.contents" :key="item.id">
                     <div class="left-info">
@@ -97,8 +101,8 @@
             <div class="group-header">
               <div class="group-left-info">
                 <div class="group-name">
-                  <div class="group-name-text" v-if="fromType === typeMap['unit-plan']">Linked by others</div>
-                  <div class="group-name-text" v-if="fromType === typeMap.task" >Relevant Unit plan(s)</div>
+                  <div class="group-name-text">Linked by others</div>
+                  <!--                  <div class="group-name-text" v-if="fromType === typeMap.task" >Relevant Unit plan(s)</div>-->
                   <!--                  <div class="group-name-input" v-if="linkGroup.editing">-->
                   <!--                    <input v-model="linkGroup.group" class="group-name-input"/>-->
                   <!--                  </div>-->
@@ -263,7 +267,7 @@ export default {
   created () {
     this.$logger.info('load CommonLink with id[' + this.fromId + '] fromType[' + this.fromType + ']')
     if (this.fromType === typeMap['unit-plan']) {
-      this.subFilterTypeList = [typeMap.task]
+      this.subFilterTypeList = [typeMap.task, typeMap.evaluation]
     } else if (this.filterType === typeMap.task) {
       this.subFilterTypeList = [typeMap.evaluation, typeMap['unit-plan']]
     }
@@ -349,7 +353,7 @@ export default {
         this.linkTitle = 'Link Unit Plan'
       } else {
         if (this.fromType === typeMap['unit-plan']) {
-          this.subFilterTypeList = [typeMap.task]
+          this.subFilterTypeList = [typeMap.task, typeMap.evaluation]
         } else if (this.filterType === typeMap.task) {
           this.subFilterTypeList = [typeMap.evaluation, typeMap['unit-plan']]
         }
@@ -359,6 +363,7 @@ export default {
     handleToggleEditGroupName (linkGroup) {
       this.$logger.info('handleToggleEditGroupName', linkGroup)
       if (linkGroup.editing) {
+        linkGroup.editing = false
         const ids = []
         linkGroup.contents.forEach(item => {
           ids.push(item.id)
@@ -370,10 +375,12 @@ export default {
           ids: ids
         }).then(response => {
           this.$logger.info('AddOrSaveGroupName', response)
-          this.getAssociate()
+          // this.getAssociate()
+          linkGroup.editing = false
         })
+      } else {
+        linkGroup.editing = true
       }
-      linkGroup.editing = !linkGroup.editing
     },
     handleViewDetail (item) {
       if (!this.canEdit) {
