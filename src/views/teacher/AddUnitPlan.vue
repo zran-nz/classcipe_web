@@ -54,6 +54,22 @@
                         </a-form-item>
                       </div>
 
+                      <div class="form-block grade-time">
+                        <!--   <comment-switch field-name="name" :is-active="showCollaborateCommentVisible && currentFieldName === 'name'" @switch="handleSwitchComment" class="my-comment-switch"/>-->
+                        <a-form-item label="Grade level" style="width:26%">
+                          <a-select size="large" v-model="form.gradeId" class="my-big-select" placeholder="Select a grade">
+                            <a-select-option v-for="(grade,index) in gradeList" :value="grade.id" :key="index">
+                              {{ grade.name }}
+                            </a-select-option>
+                          </a-select>
+                        </a-form-item>
+                        <a-form-item class="range-time" label="Start Date" style="width:70%">
+                          <a-range-picker v-model="rangeDate" size="large" format="LLL" :show-time="{ format: 'HH:mm' }" style="width:100%">
+                            <a-icon slot="suffixIcon" type="calendar" />
+                          </a-range-picker>
+                        </a-form-item>
+                      </div>
+
                       <div class="form-block over-form-block overview" id="overview">
                         <comment-switch field-name="overview" :is-active="showCollaborateCommentVisible && currentFieldName === 'overview'" @switch="handleSwitchComment" class="my-comment-switch"/>
                         <!-- 暂时隐藏Unit overview模块-->
@@ -644,6 +660,7 @@ import { FindQuestionsByBigIdea } from '@/api/question'
 import QuestionBrowse from '@/components/UnitPlan/QuestionBrowse'
 import Collapse from '@/utils/collapse.js'
 import { UtilMixin } from '@/mixins/UtilMixin'
+import moment from 'moment'
 
 export default {
   name: 'AddUnitPlan',
@@ -730,9 +747,12 @@ export default {
         overview: '',
         subjectIds: [],
         gradeIds: [],
-        summarize: ''
+        summarize: '',
+        startDate: '',
+        endDate: '',
+        gradeId: undefined
       },
-
+      rangeDate: [],
       uploading: false,
       sdgList: [],
 
@@ -1023,6 +1043,13 @@ export default {
             }
           })
         }
+        if (!unitPlanData.gradeId) {
+          unitPlanData.gradeId = undefined
+        }
+        if (unitPlanData.startDate && unitPlanData.endDate) {
+          this.rangeDate.push(moment.utc(unitPlanData.startDate).local())
+          this.rangeDate.push(moment.utc(unitPlanData.endDate).local())
+        }
         this.form = unitPlanData
         if (unitPlanData.questions.length === 0) {
           this.form.questions.push({ 'name': '' })
@@ -1171,27 +1198,17 @@ export default {
 
     handleSaveUnitPlan () {
       logger.info('handleSaveUnitPlan', this.form, this.sdgDataObj, this.questionDataObj)
-      const unitPlanData = {
-        image: this.form.image,
-        inquiry: this.form.inquiry,
-        name: this.form.name,
-        status: this.form.status,
-        subjects: this.form.subjects,
-        scenarios: this.form.scenarios,
-        questions: this.form.questions,
-        customTags: this.form.customTags,
-        overview: this.form.overview,
-        subjectIds: this.form.subjectIds,
-        gradeIds: this.form.gradeIds,
-        learnOuts: this.form.learnOuts,
-        summarize: this.form.summarize
+      const unitPlanData = Object.assign({}, this.form)
+      if (this.rangeDate.length === 2) {
+        const startDate = this.rangeDate[0].clone()
+        const endDate = this.rangeDate[1].clone()
+        unitPlanData.startDate = startDate.utc().format('YYYY-MM-DD HH:mm:ss')
+        unitPlanData.endDate = endDate.utc().format('YYYY-MM-DD HH:mm:ss')
       }
-
       if (this.unitPlanId) {
         unitPlanData.id = this.unitPlanId
       }
       logger.info('basic unitPlanData', unitPlanData)
-      logger.info('question unitPlanData', unitPlanData)
       UnitPlanAddOrUpdate(unitPlanData).then((response) => {
         logger.info('UnitPlanAddOrUpdate', response.result)
         if (response.success) {
@@ -1202,7 +1219,7 @@ export default {
           this.$message.error(response.message)
         }
       }).then(() => {
-        this.$refs.commonFormHeader.saving = false
+        // this.$refs.commonFormHeader.saving = false
       })
     },
     handlePublishUnitPlan (status) {
@@ -1983,6 +2000,9 @@ export default {
     handleEditTask (item) {
       window.open('/teacher/task-redirect/' + item.id
         , '_blank')
+    },
+    onChangeDate () {
+
     }
   }
 }
@@ -2876,5 +2896,17 @@ code{
   font-size: .9em;
   border: 1px solid #eee;
   color: rgba(0, 0, 0, 0.85);
+}
+.grade-time{
+  display: flex;
+  justify-content:space-between;
+  .range-time{
+    /deep/ .ant-input{
+      border-radius: 4px;
+      font-size:13px;
+      width:100%;
+      padding: 6px 7px;
+    }
+  }
 }
 </style>

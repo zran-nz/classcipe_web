@@ -31,6 +31,22 @@
                           </a-form-item>
                         </div>
 
+                        <div class="form-block grade-time">
+                          <!--   <comment-switch field-name="name" :is-active="showCollaborateCommentVisible && currentFieldName === 'name'" @switch="handleSwitchComment" class="my-comment-switch"/>-->
+                          <a-form-item label="Grade level" style="width:26%">
+                            <a-select size="large" v-model="form.gradeId" class="my-big-select" placeholder="Select a grade">
+                              <a-select-option v-for="(grade,index) in gradeList" :value="grade.id" :key="index">
+                                {{ grade.name }}
+                              </a-select-option>
+                            </a-select>
+                          </a-form-item>
+                          <a-form-item class="range-time" label="Start Date" style="width:70%">
+                            <a-range-picker v-model="rangeDate" size="large" format="LLL" :show-time="{ format: 'HH:mm' }" style="width:100%">
+                              <a-icon slot="suffixIcon" type="calendar" />
+                            </a-range-picker>
+                          </a-form-item>
+                        </div>
+
                         <div class="form-block over-form-block" id="overview" >
                           <comment-switch field-name="overview" :is-active="showCollaborateCommentVisible && currentFieldName === 'overview'" @switch="handleSwitchComment" class="my-comment-switch"/>
                           <a-form-model-item class="task-audio-line" label="Task details" ref="overview">
@@ -1254,7 +1270,7 @@
 import * as logger from '@/utils/logger'
 import ContentTypeIcon from '@/components/Teacher/ContentTypeIcon'
 import { typeMap } from '@/const/teacher'
-import { Associate, FindSourceOutcomes, GetAssociate, GetReferOutcomes, SaveSessonTags } from '@/api/teacher'
+import { Associate, FindSourceOutcomes, GetAssociate, GetMyGrades, GetReferOutcomes, SaveSessonTags } from '@/api/teacher'
 import InputSearch from '@/components/UnitPlan/InputSearch'
 import SdgTagInput from '@/components/UnitPlan/SdgTagInput'
 import SkillTag from '@/components/UnitPlan/SkillTag'
@@ -1302,6 +1318,7 @@ import TaskPptPreview from '@/components/Task/TaskPptPreview'
 import { PptPreviewMixin } from '@/mixins/PptPreviewMixin'
 import MediaPreview from '@/components/Task/MediaPreview'
 import { UtilMixin } from '@/mixins/UtilMixin'
+import moment from 'moment'
 const { SplitTask } = require('@/api/task')
 
 export default {
@@ -1379,10 +1396,14 @@ export default {
           gradeIds: [],
           bloomCategories: '',
           learnOuts: [],
-          showSelect: false
+          showSelect: false,
+          startDate: '',
+          endDate: '',
+          gradeId: undefined
         },
+        rangeDate: [],
         // Grades
-        // gradeList: [],
+        gradeList: [],
         // SubjectTree
         // subjectTree: [],
 
@@ -1592,21 +1613,21 @@ export default {
       initData () {
         logger.info('initData doing...')
         Promise.all([
-          // GetMyGrades(),
+          GetMyGrades(),
           FilterTemplates({})
           // SubjectTree({ curriculumId: this.$store.getters.bindCurriculum })
         ]).then((response) => {
           this.$logger.info('add task initData done', response)
 
-          // // GetMyGrades
-          // if (!response[0].code) {
-          //   this.$logger.info('GetMyGrades', response[0].result)
-          //   this.gradeList = response[0].result
-          // }
-
+          // GetMyGrades
           if (!response[0].code) {
-            this.$logger.info('template list', response[0].result)
-            this.templateList = response[0].result
+            this.$logger.info('GetMyGrades', response[0].result)
+            this.gradeList = response[0].result
+          }
+
+          if (!response[1].code) {
+            this.$logger.info('template list', response[1].result)
+            this.templateList = response[1].result
           }
           // // SubjectTree
           // if (!response[1].code) {
@@ -1670,6 +1691,13 @@ export default {
           if (this.selectedTemplateList.length === 0) {
             this.form.showSelected = false
           }
+          if (!taskData.gradeId) {
+            this.form.gradeId = undefined
+          }
+          if (taskData.startDate && taskData.endDate) {
+            this.rangeDate.push(moment.utc(taskData.startDate).local())
+            this.rangeDate.push(moment.utc(taskData.endDate).local())
+          }
         }).finally(() => {
           this.contentLoading = false
           this.loadCollaborateData()
@@ -1713,7 +1741,12 @@ export default {
         logger.info('handleSaveTask', this.form, this.questionDataObj)
 
         const taskData = Object.assign({}, this.form)
-
+        if (this.rangeDate.length === 2) {
+          const startDate = this.rangeDate[0].clone()
+          const endDate = this.rangeDate[1].clone()
+          taskData.startDate = startDate.utc().format('YYYY-MM-DD HH:mm:ss')
+          taskData.endDate = endDate.utc().format('YYYY-MM-DD HH:mm:ss')
+        }
         if (this.taskId) {
           taskData.id = this.taskId
         }
@@ -5188,5 +5221,16 @@ export default {
       width: 15px;
     }
   }
-
+  .grade-time{
+    display: flex;
+    justify-content:space-between;
+    .range-time{
+      /deep/ .ant-input{
+        border-radius: 4px;
+        font-size:13px;
+        width:100%;
+        padding: 6px 7px;
+      }
+    }
+  }
 </style>
