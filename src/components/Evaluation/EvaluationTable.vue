@@ -161,6 +161,13 @@
 
               <!-- 21 Century Criteria-->
               <template v-if="header.type === headerType.Criteria">
+                <template v-if="formType === tableType.CenturySkills">
+                  <div class="data-item criteria-data">
+                    <div class="criteria-name">
+                      {{ item[headerType.Criteria].name }}
+                    </div>
+                  </div>
+                </template>
                 <template v-if="formType === tableType.Rubric">
                   <template v-if="!item[headerType.Criteria] || !item[headerType.Criteria].name">
                     <div class="data-item add-criteria" @click="handleAddCriteria(header, item, $event)" v-show="mode === tableMode.Edit">
@@ -983,50 +990,19 @@ export default {
            AU-General capabilities的入口，然后在第二列点击后看到21st century skills数据入口
            */
           const header = Object.assign(this.currentSelectHeader)
-          if (header.type === this.headerType.Criteria) {
-            this.currentSelectLine[this.headerType.Criteria] = {
-              name: selectedList[0].name,
-              rowId: this.currentSelectLine.rowId
-            }
-
-            this.$logger.info('[' + this.mode + '] update currentSelectLine with criteria data ', this.currentSelectLine)
-
-            // 如果多选，从第二个元素开始新建行填充数据
-            if (selectedList.length > 1) {
-              selectedList.forEach((item, index) => {
-                if (index > 0) {
-                  const newLineItem = {}
-                  const rowId = this.generateRowId()
-                  newLineItem.rowId = rowId
-                  this.headers.forEach(header => {
-                    newLineItem[header.type] = {
-                      name: null,
-                      rowId
-                    }
-                  })
-
-                  newLineItem[this.headerType.Criteria] = {
-                    name: item.name,
-                    rowId
-                  }
-
-                  newLineItem[this.headerType.Evidence] = {
-                    num: 0,
-                    selectedList: [],
-                    selectedStudentList: [],
-                    rowId
-                  }
-                  newLineItem.rowId = rowId
-                  this.$logger.info('[' + this.mode + '] CenturySkills add new line with criteria data ', newLineItem)
-                  this.list.push(newLineItem)
-                }
-              })
-            }
-          } else if (header.type === this.headerType.Description) {
+          if (header.type === this.headerType.Description) {
             this.currentSelectLine[this.headerType.Description] = {
               name: selectedList[0].name,
               rowId: this.currentSelectLine.rowId,
               parentNameList: selectedList[0].parentNameList
+            }
+
+            const bindCurriculum = parseInt(this.$store.getters.bindCurriculum)
+            if (bindCurriculum === 1 || bindCurriculum === 2) {
+              this.currentSelectLine[this.headerType.Criteria] = {
+                name: selectedList[0].name,
+                rowId: this.currentSelectLine.rowId
+              }
             }
 
             this.$logger.info('[' + this.mode + '] update currentSelectLine with criteria data ', this.currentSelectLine)
@@ -1048,6 +1024,13 @@ export default {
                     name: item.name,
                     rowId,
                     parentNameList: item.parentNameList
+                  }
+
+                  if (bindCurriculum === 1 || bindCurriculum === 2) {
+                    newLineItem[this.headerType.Criteria] = {
+                      name: item.name,
+                      rowId: newLineItem.rowId
+                    }
                   }
 
                   newLineItem[this.headerType.Evidence] = {
