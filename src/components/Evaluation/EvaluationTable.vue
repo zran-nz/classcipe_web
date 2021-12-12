@@ -151,7 +151,7 @@
         <tr v-for="(item, lIndex) in list" class="body-line" :key="lIndex" :data-row-id="item.rowId">
           <td
             v-for="(header, hIndex) in headers"
-            class="body-item"
+            :class="{'body-item': true, 'big-body-item': formType === tableType.CenturySkills && header.type === headerType.Description}"
             :key="lIndex + '-' + header.type"
             @click="handleClickBodyItem(item, header)"
             v-if="!(header.type === headerType.Evidence && !(mode === tableMode.TeacherEvaluate || mode === tableMode.StudentEvaluate))"
@@ -161,21 +161,6 @@
 
               <!-- 21 Century Criteria-->
               <template v-if="header.type === headerType.Criteria">
-                <template v-if="formType === tableType.CenturySkills">
-                  <template v-if="!item[headerType.Criteria] || !item[headerType.Criteria].name">
-                    <div class="data-item add-criteria" @click="handleAddCriteria(header, item, $event)" v-show="mode === tableMode.Edit">
-                      <add-opacity-icon />
-                      <div class="add-text">Click to choose the objectives</div>
-                    </div>
-                  </template>
-                  <template v-else>
-                    <div class="data-item criteria-data">
-                      <div class="criteria-name" @dblclick="handleAddCriteria(header, item, $event)">
-                        {{ item[headerType.Criteria].name }}
-                      </div>
-                    </div>
-                  </template>
-                </template>
                 <template v-if="formType === tableType.Rubric">
                   <template v-if="!item[headerType.Criteria] || !item[headerType.Criteria].name">
                     <div class="data-item add-criteria" @click="handleAddCriteria(header, item, $event)" v-show="mode === tableMode.Edit">
@@ -218,19 +203,31 @@
                   </template>
                 </template>
                 <template v-if="formType === tableType.CenturySkills">
-                  <!--                  <template v-if="!item[headerType.Description] || !item[headerType.Description].name">-->
-                  <!--                    <div class="data-item add-criteria" @click="handleAddCriteria(header, item, $event)" v-show="mode === tableMode.Edit">-->
-                  <!--                      <add-opacity-icon />-->
-                  <!--                      <div class="add-text">Click to choose the objectives</div>-->
-                  <!--                    </div>-->
-                  <!--                  </template>-->
-                  <!--                  <template v-else>-->
-                  <div class="data-item criteria-data">
-                    <div class="criteria-name">
-                      {{ item[headerType.Description].name }}
+                  <template v-if="!item[headerType.Description] || !item[headerType.Description].name">
+                    <div class="data-item add-criteria" @click="handleAddCriteria(header, item, $event)" v-show="mode === tableMode.Edit">
+                      <add-opacity-icon />
+                      <div class="add-text">Click to choose the objectives</div>
                     </div>
-                  </div>
-                  <!--                  </template>-->
+                  </template>
+                  <template v-else>
+                    <div class="data-item criteria-data">
+                      <div class="criteria-name my-century-criteria" @dblclick="handleAddCriteria(header, item, $event)">
+                        <div class="criteria-left-name-list">
+                          <div :class="{'criteria-left-name-item': true, 'first-left-name': nIndex === 0, 'no-first-name': nIndex > 0}" v-for="(name, nIndex) in item[headerType.Description].parentNameList" :key="nIndex">
+                            {{ name }}
+                          </div>
+                        </div>
+                        <div class="criteria-right-description">
+                          <div class="description-name">
+                            {{ item[headerType.Description].userInputText ? item[headerType.Description].userInputText : item[headerType.Description].name }}
+                          </div>
+                          <span class="edit-description" @click.stop="handleClickEnterCriteriaDescription(header, item)">
+                            Please enter explanation for students to understand
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </template>
                 </template>
               </template>
             </template>
@@ -666,8 +663,7 @@ export default {
         if (bindCurriculum === 1 || bindCurriculum === 2) {
           this.headers = [
             { label: 'Criteria', previewLabel: 'Criteria', type: EvaluationTableHeader.Criteria, editable: false, editing: false, required: true },
-            { label: '21st century skills', previewLabel: '21st century skills', type: EvaluationTableHeader.Criteria, editable: false, editing: false, required: true },
-            { label: 'Description', previewLabel: 'Description', type: EvaluationTableHeader.Description, editable: false, editing: false, required: true },
+            { label: '21st century skills', previewLabel: '21st century skills', type: EvaluationTableHeader.Description, editable: false, editing: false, required: true },
             { label: 'Novice', previewLabel: 'Novice', type: EvaluationTableHeader.Novice, editable: false, editing: false, required: true },
             { label: 'Learner', previewLabel: 'Learner', type: EvaluationTableHeader.Learner, editable: false, editing: false, required: true },
             { label: 'Practitoner', previewLabel: 'Practitoner', type: EvaluationTableHeader.Practitoner, editable: false, editing: false, required: true },
@@ -676,8 +672,7 @@ export default {
           ]
         } else {
           this.headers = [
-            { label: '21st century skills', previewLabel: '21st century skills', type: EvaluationTableHeader.Criteria, editable: false, editing: false, required: true },
-            { label: 'Description', previewLabel: 'Description', type: EvaluationTableHeader.Description, editable: false, editing: false, required: true },
+            { label: '21st century skills', previewLabel: '21st century skills', type: EvaluationTableHeader.Description, editable: false, editing: false, required: true },
             { label: 'Novice', previewLabel: 'Novice', type: EvaluationTableHeader.Novice, editable: false, editing: false, required: true },
             { label: 'Learner', previewLabel: 'Learner', type: EvaluationTableHeader.Learner, editable: false, editing: false, required: true },
             { label: 'Practitoner', previewLabel: 'Practitoner', type: EvaluationTableHeader.Practitoner, editable: false, editing: false, required: true },
@@ -811,6 +806,12 @@ export default {
       })
 
       if (this.formType === this.tableType.CenturySkills) {
+        newLineItem[this.headerType.Description] = {
+          name: null,
+          rowId,
+          parentNameList: []
+        }
+
         newLineItem[this.headerType.Evidence] = {
           num: 0,
           selectedList: [],
@@ -987,6 +988,7 @@ export default {
               name: selectedList[0].name,
               rowId: this.currentSelectLine.rowId
             }
+
             this.$logger.info('[' + this.mode + '] update currentSelectLine with criteria data ', this.currentSelectLine)
 
             // 如果多选，从第二个元素开始新建行填充数据
@@ -1002,6 +1004,7 @@ export default {
                       rowId
                     }
                   })
+
                   newLineItem[this.headerType.Criteria] = {
                     name: item.name,
                     rowId
@@ -1022,8 +1025,10 @@ export default {
           } else if (header.type === this.headerType.Description) {
             this.currentSelectLine[this.headerType.Description] = {
               name: selectedList[0].name,
-              rowId: this.currentSelectLine.rowId
+              rowId: this.currentSelectLine.rowId,
+              parentNameList: selectedList[0].parentNameList
             }
+
             this.$logger.info('[' + this.mode + '] update currentSelectLine with criteria data ', this.currentSelectLine)
 
             // 如果多选，从第二个元素开始新建行填充数据
@@ -1041,7 +1046,8 @@ export default {
                   })
                   newLineItem[this.headerType.Description] = {
                     name: item.name,
-                    rowId
+                    rowId,
+                    parentNameList: item.parentNameList
                   }
 
                   newLineItem[this.headerType.Evidence] = {
@@ -1173,8 +1179,8 @@ export default {
       this.$logger.info('[' + this.mode + '] handleUpdateField', header, item)
     },
 
-    handleClickEnterDescription (header, item) {
-      this.$logger.info('[' + this.mode + '] handleClickEnterDescription', header, item)
+    handleClickEnterCriteriaDescription (header, item) {
+      this.$logger.info('[' + this.mode + '] handleClickEnterCriteriaDescription', header, item)
       if (this.mode === EvaluationTableMode.Edit) {
         this.inputDescription = item[this.headerType.Description].userInputText
         this.currentEnterDescriptionLine = item
@@ -1272,8 +1278,16 @@ export default {
       this.$logger.info('[' + this.mode + '] EvaluationTable handleSelectCurriculumListData', data)
       const descriptionList = []
       data.forEach(dataItem => {
+        const parentNameList = []
+        let parent = dataItem.knowledgeData.originParent
+        let count = 3
+        while (parent && count-- > 0) {
+          parentNameList.push(parent.name)
+          parent = parent.originParent
+        }
         const descriptionItem = {
-          name: dataItem.knowledgeData.name
+          name: dataItem.knowledgeData.name,
+          parentNameList: parentNameList
         }
 
         descriptionList.push(descriptionItem)
@@ -1360,7 +1374,6 @@ export default {
           border-bottom: 1px solid #999;
           padding: 0;
           min-width: 180px;
-          max-width: 400px;
           overflow: hidden;
 
           .edit-icon {
@@ -1629,6 +1642,9 @@ export default {
             }
           }
 
+          .big-body-item {
+            max-width: 600px !important;
+          }
           .body-item:last-child {
             overflow: visible;
           }
@@ -1884,6 +1900,53 @@ export default {
       text-overflow: ellipsis;
       vertical-align: middle;
     }
+  }
+}
+
+.my-century-criteria {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+
+  .criteria-left-name-list {
+    display: flex;
+    flex-direction: column;
+    padding: 0 10px;
+    .criteria-left-name-item {
+      width: 180px;
+      display: flex;
+      flex-direction: row;
+      flex-wrap: nowrap;
+      padding: 0 8px;
+      margin: 3px 0;
+    }
+
+    .no-first-name {
+      background: #15C39A;
+      color: #fff;
+      opacity: 1;
+      border-radius: 4px;
+    }
+  }
+
+  .criteria-right-description {
+      width: 350px;
+      display: flex;
+      flex-direction: column;
+      .edit-description {
+        margin: 5px 0;
+        text-align: center;
+        display: inline-block;
+        font-size: 12px;
+        background: #E7E7E7;
+        opacity: 1;
+        border-radius: 4px;
+        padding: 3px;
+        font-family: Inter-Bold;
+        line-height: 20px;
+        color: #989898;
+        opacity: 1;
+      }
   }
 }
 
