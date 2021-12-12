@@ -56,14 +56,14 @@
 
                       <div class="form-block grade-time">
                         <!--   <comment-switch field-name="name" :is-active="showCollaborateCommentVisible && currentFieldName === 'name'" @switch="handleSwitchComment" class="my-comment-switch"/>-->
-                        <a-form-item label="Grade level" style="width:26%">
+                        <a-form-item label="Grade level" style="width:26%;margin-bottom: 0px;">
                           <a-select size="large" v-model="form.gradeId" class="my-big-select" placeholder="Select a grade">
                             <a-select-option v-for="(grade,index) in gradeList" :value="grade.id" :key="index">
                               {{ grade.name }}
                             </a-select-option>
                           </a-select>
                         </a-form-item>
-                        <a-form-item class="range-time" label="Start Date" style="width:70%">
+                        <a-form-item class="range-time" label="Start Date" style="width:70%;margin-bottom: 0px;">
                           <a-range-picker v-model="rangeDate" size="large" format="LLL" :show-time="{ format: 'HH:mm' }" style="width:100%">
                             <a-icon slot="suffixIcon" type="calendar" />
                           </a-range-picker>

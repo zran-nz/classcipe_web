@@ -76,21 +76,21 @@
               <div class="plugin-tags" v-if="currentPageItem">
                 <a-row class="tag-row">
                   <span class="tag-item" v-if="currentPageItem.data.bloomLevel">
-                    <span class="tag-title">Bloom level:</span>
+                    <span class="tag-title">Bloom's Taxonomy:</span>
                     <span class="tag-value" style="color:#F16A39">{{ currentPageItem.data.bloomLevel }}</span>
                   </span>
                   <span class="tag-item" v-if="currentPageItem.data.knowledgeLevel">
-                    <span class="tag-title">Knowledge:</span>
+                    <span class="tag-title">Knowledge dimension(s):</span>
                     <span class="tag-value" style="color:#F16A39">{{ currentPageItem.data.knowledgeLevel }}</span>
                   </span>
                 </a-row>
                 <a-row class="tag-row">
                   <span class="tag-item" v-if="currentPageItem.data.verbs">
-                    <span class="tag-title">Verbs:</span>
+                    <span class="tag-title">Command terms:</span>
                     <span class="tag-value" v-for="(v,index) in currentPageItem.data.verbs" :key="index" style="color:#15C39A">{{ v }}</span>
                   </span>
                   <span class="tag-item" v-if="currentPageTips">
-                    <span class="tag-title">Tips added:</span>
+                    <span class="tag-title">Tip added:</span>
                     <span class="tag-value" style="color:#0054FF">{{ currentPageTips.tip }}</span>
                   </span>
                 </a-row>

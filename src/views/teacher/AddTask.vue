@@ -33,14 +33,14 @@
 
                         <div class="form-block grade-time">
                           <!--   <comment-switch field-name="name" :is-active="showCollaborateCommentVisible && currentFieldName === 'name'" @switch="handleSwitchComment" class="my-comment-switch"/>-->
-                          <a-form-item label="Grade level" style="width:26%">
+                          <a-form-item label="Grade level" style="width:26%;margin-bottom: 0px;">
                             <a-select size="large" v-model="form.gradeId" class="my-big-select" placeholder="Select a grade">
                               <a-select-option v-for="(grade,index) in gradeList" :value="grade.id" :key="index">
                                 {{ grade.name }}
                               </a-select-option>
                             </a-select>
                           </a-form-item>
-                          <a-form-item class="range-time" label="Start Date" style="width:70%">
+                          <a-form-item class="range-time" label="Start Date" style="width:70%;margin-bottom: 0px;">
                             <a-range-picker v-model="rangeDate" size="large" format="LLL" :show-time="{ format: 'HH:mm' }" style="width:100%">
                               <a-icon slot="suffixIcon" type="calendar" />
                             </a-range-picker>
@@ -1813,7 +1813,7 @@ export default {
         }
         this.showAllCollaborateCommentVisible = false
         this.showCollaborateCommentVisible = false
-        this.customTagTop = 60
+        this.customTagTop = 200
         this.showCustomTag = true
       },
 
@@ -1855,7 +1855,7 @@ export default {
 
       handleSelectTemplateMadelAnimate (template, event) {
         this.$logger.info('handleSelectTemplateMadelAnimate ', template)
-        this.selectedTemplateMarginLeft = '0px'
+        this.selectedTemplateMarginLeft = '2%'
         this.selectedTemplateMadelWidth = '80%'
         this.selectedTemplateDrawerVisible = true
         this.selectedTemplateDrawerZindex = 3000
@@ -1900,7 +1900,7 @@ export default {
 
       handleSelectTemplateMadel (template) {
         this.$logger.info('handleSelectTemplateMadel ', template)
-        this.selectedTemplateMarginLeft = '0px'
+        this.selectedTemplateMarginLeft = '2%'
         this.selectedTemplateMadelWidth = '80%'
         this.selectedTemplateDrawerVisible = true
         this.selectedTemplateDrawerZindex = 3000
