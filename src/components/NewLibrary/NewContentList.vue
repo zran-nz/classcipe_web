@@ -168,7 +168,7 @@ export default {
     },
     handleContentListItemClick (item) {
       this.$logger.info(this.currentDataType + ': handleContentListItemClick current item: ', item, ' parent:', this.parent)
-
+      item.originParent = this.parent
       if (this.currentDataType === NavigationType.sync) {
         // 同步更新点击sync data数据，通过当前字段是否包含froms来区分sync和大纲描述
         this.$logger.info('handle sync handleContentListItemClick', item)
