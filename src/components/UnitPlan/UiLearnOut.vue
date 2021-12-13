@@ -2,43 +2,98 @@
   <div class="tag-ui">
     <a-col span="24">
 
-      <div class="skt-description-list-wrapper">
-        <a-row >
-          <a-col span="24">
-            <div class="skt-description-list" v-for="(k,index) in KnowledgeList" :key="index">
-              <div class="skt-description-tag-item skt-description-tag-item-top-fixed" @click="handleActiveDescription(index)">
-                <a-breadcrumb separator=">">
-                  <a-breadcrumb-item v-for="item in dealPath(k.path)" :key="item">{{ item }}</a-breadcrumb-item>
-                </a-breadcrumb>
-                <div class="skt-description" @dblclick="handleAddTag(k)">
-                  {{ k.name }}
-                </div>
-                <div
-                  v-if="k.tagType == TagType.knowledge || k.tagType == TagType.century"
-                  class="actions">
-                  <span class="add-action" @click.stop.prevent="handleAddTag(k)">
-                    <img src="~@/assets/icons/tag/add.png"/>
-                  </span>
-                  <span class="up-down">
-                    <a-icon type="up" v-if="k.tagListVisible"/>
-                    <a-icon type="down" v-else />
-                  </span>
-                </div>
-                <a-divider style="margin: 10px 0px" v-if="k.tagListVisible" />
-                <div class="skt-description-tag-list" v-if="k.tagListVisible">
-                  <div :class="{'tag-list-item': true,'skill-mode': true}" v-for="name in k.tags" :key="name">
-                    <a-tag class="tag-item" :closable="true" @close="handleDeleteTag(index,name)">{{ name }}</a-tag>
-                  </div>
+      <div class="objectives-wrapper">
+        <a-row class="objectives-wrapper-block" v-if="getKnowLedgeListType(TagType.knowledge).length > 0" >
+          <div class="title-item title-learnout">Learning outcomes</div>
+          <div class="objectives-list" v-for="(k,index) in getKnowLedgeListType(TagType.knowledge)" :key="index">
+            <div class="objectives-list-item objectives-list-item-learn objectives-list-item-top-fixed">
+              <a-breadcrumb separator=">">
+                <a-breadcrumb-item v-for="item in dealPath(k.path)" :key="item">{{ item }}</a-breadcrumb-item>
+              </a-breadcrumb>
+              <div class="skt-description" @dblclick="handleAddTag(k)">
+                {{ k.name }}
+              </div>
+              <!--              <div-->
+              <!--                v-if="k.tagType == TagType.knowledge || k.tagType == TagType.century"-->
+              <!--                class="actions">-->
+              <!--                <span class="add-action" @click.stop.prevent="handleAddTag(k)">-->
+              <!--                  <img src="~@/assets/icons/tag/add.png"/>-->
+              <!--                </span>-->
+              <!--                <span class="up-down">-->
+              <!--                  <a-icon type="up" v-if="k.tagListVisible"/>-->
+              <!--                  <a-icon type="down" v-else />-->
+              <!--                </span>-->
+              <!--              </div>-->
+              <!--              <a-divider style="margin: 10px 0px" v-if="k.tagListVisible" />-->
+              <!--              <div class="skt-description-tag-list" v-if="k.tagListVisible">-->
+              <!--                <div :class="{'tag-list-item': true,'skill-mode': true}" v-for="name in k.tags" :key="name">-->
+              <!--                  <a-tag class="tag-item" :closable="true" @close="handleDeleteTag(index,name)">{{ name }}</a-tag>-->
+              <!--                </div>-->
+              <!--              </div>-->
+            </div>
+            <a-popconfirm title="Delete?" ok-text="Yes" @confirm="handleDeleteKnowledgeItem(index)" cancel-text="No">
+              <span class="delete-action" >
+                <img src="~@/assets/icons/tag/delete.png"/>
+              </span>
+            </a-popconfirm>
+          </div>
+        </a-row>
+
+        <a-row class="objectives-wrapper-block" v-if="getKnowLedgeListType(TagType.skill).length > 0" >
+          <div class="title-item title-skill">Subject specific skills</div>
+          <div class="objectives-list" v-for="(k,index) in getKnowLedgeListType(TagType.skill)" :key="index">
+            <div class="objectives-list-item objectives-list-item-skill objectives-list-item-top-fixed">
+              <a-breadcrumb separator=">">
+                <a-breadcrumb-item v-for="item in dealPath(k.path)" :key="item">{{ item }}</a-breadcrumb-item>
+              </a-breadcrumb>
+              <div class="skt-description" @dblclick="handleAddTag(k)">
+                {{ k.name }}
+              </div>
+            </div>
+            <a-popconfirm title="Delete?" ok-text="Yes" @confirm="handleDeleteKnowledgeItem(index)" cancel-text="No">
+              <span class="delete-action" >
+                <img src="~@/assets/icons/tag/delete.png"/>
+              </span>
+            </a-popconfirm>
+          </div>
+        </a-row>
+
+        <a-row class="objectives-wrapper-block" v-if="getKnowLedgeListType(TagType.skill).century > 0" >
+          <div class="title-item title-21">21centruy skill</div>
+          <div class="objectives-list" v-for="(k,index) in getKnowLedgeListType(TagType.century)" :key="index">
+            <div class="objectives-list-item objectives-list-item-21 objectives-list-item-top-fixed">
+              <a-breadcrumb separator=">">
+                <a-breadcrumb-item v-for="item in dealPath(k.path)" :key="item">{{ item }}</a-breadcrumb-item>
+              </a-breadcrumb>
+              <div class="skt-description skt-description-21" @dblclick="handleAddTag(k)">
+                {{ k.name }}
+              </div>
+              <div
+                v-if="k.tagType == TagType.knowledge || k.tagType == TagType.century"
+                class="actions">
+                <span class="add-action" @click.stop.prevent="handleAddTag(k)">
+                  <img src="~@/assets/icons/tag/add.png"/>
+                </span>
+                <span class="up-down">
+                  <a-icon type="up" v-if="k.tagListVisible"/>
+                  <a-icon type="down" v-else />
+                </span>
+              </div>
+              <a-divider style="margin: 10px 0px" v-if="k.tagListVisible" />
+              <div class="skt-description-tag-list" v-if="k.tagListVisible">
+                <div :class="{'tag-list-item': true,'skill-mode': true}" v-for="name in k.tags" :key="name">
+                  <a-tag class="tag-item" :closable="true" @close="handleDeleteTag(index,name)">{{ name }}</a-tag>
                 </div>
               </div>
-              <a-popconfirm title="Delete?" ok-text="Yes" @confirm="handleDeleteKnowledgeItem(index)" cancel-text="No">
-                <span class="delete-action" >
-                  <img src="~@/assets/icons/tag/delete.png"/>
-                </span>
-              </a-popconfirm>
             </div>
-          </a-col>
+            <a-popconfirm title="Delete?" ok-text="Yes" @confirm="handleDeleteKnowledgeItem(index)" cancel-text="No">
+              <span class="delete-action" >
+                <img src="~@/assets/icons/tag/delete.png"/>
+              </span>
+            </a-popconfirm>
+          </div>
         </a-row>
+
       </div>
 
     </a-col>
@@ -52,7 +107,7 @@
         Add tag
       </div>
       <learn-out-add-tag @handle-select-tags="handleEnsureTags" :knowledge="knowledge" />
-      <!--      <div class="modal-ensure-action-line-right" style="justify-content: center">
+    <!--      <div class="modal-ensure-action-line-right" style="justify-content: center">
         <a-button class="action-item action-cancel" shape="round" @click="addTagVisible = false">Cancel</a-button>
         <a-button class="action-ensure action-item" type="primary" shape="round" @click="handleEnsureSelectData">Confirm</a-button>
       </div>-->
@@ -239,6 +294,13 @@
         }).finally(() => {
           this.subTreeLoading = false
         })
+      },
+      getKnowLedgeListType (type) {
+        if (type === TagType.skill) {
+          return this.KnowledgeList.filter(item => item.tagType === TagType.skill || item.tagType === TagType.ibSkill)
+        } else {
+          return this.KnowledgeList.filter(item => item.tagType === type)
+        }
       }
     }
   }
@@ -251,8 +313,28 @@
     max-width: 300px;
   }
 
-  .skt-description-list-wrapper {
-    .skt-description-list {
+  .objectives-wrapper {
+    .objectives-wrapper-block{
+      margin-bottom: 15px;
+      .title-item{
+        font-size: 20px;
+        font-family: Leelawadee UI;
+        font-weight: bold;
+        line-height: 24px;
+        opacity: 1;
+        margin-bottom: 10px;
+      }
+      .title-learnout{
+        color: #474747;
+      }
+      .title-skill{
+        color: #B1D1CC;
+      }
+      .title-21{
+        color: #92B2D1
+      }
+    }
+    .objectives-list {
       //display: flex;
       //flex-direction: row;
       //align-items: center;
@@ -269,10 +351,8 @@
         overflow-y: scroll;
         border: 1px solid #f9f9f9;
       }
-      .skt-description-tag-item {
+      .objectives-list-item {
         width: 100%;
-        background: #FFFFFF;
-        border: 1px solid #15C39A;
         box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.16);
         opacity: 1;
         border-radius: 4px;
@@ -284,13 +364,14 @@
         margin-bottom: 10px;
         padding: 10px;
         position: relative;
+        color: #000000;
         &:hover {
           color: @primary-color;
           border: 1px solid @primary-color !important;
         }
         .skt-description {
           cursor: pointer;
-          width: 90%;
+          width: 98%;
           padding-right: 10px;
           line-height: 22px;
           position: relative;
@@ -302,6 +383,9 @@
             display: inline-block;
             width: 100%;
           }
+        }
+        .skt-description-21{
+          width: 90%;
         }
 
         .skt-description-tag-list {
@@ -359,6 +443,24 @@
             margin-left: 8px;
           }
         }
+      }
+      .objectives-list-item-learn{
+        background: #FEF3E4;
+        border: 1px solid #EED1AA;
+        opacity: 1;
+        border-radius: 10px;
+      }
+      .objectives-list-item-skill{
+        background: #D4EBE7;
+        border: 1px solid #B1D1CC;
+        opacity: 1;
+        border-radius: 10px;
+      }
+      .objectives-list-item-21{
+        background: #D7E0E9;
+        border: 1px solid #92B2D1;
+        opacity: 1;
+        border-radius: 10px;
       }
       .delete-action {
         position: absolute;
