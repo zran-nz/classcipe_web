@@ -76,40 +76,40 @@
                         <a-form-model-item class="task-audio-line" label="Unit Overview">
                           <a-textarea class="overview" v-model="form.overview" placeholder="Overview" allow-clear />
 
-                          <a-button type="primary" ghost class="overview-toggle" @click="showTaskDetails = !showTaskDetails">
-                            Assessment task details
-                            <a-icon type="up" v-if="showTaskDetails"/>
-                            <a-icon type="down" v-else/>
-                          </a-button>
+                          <!--                          <a-button type="primary" ghost class="overview-toggle" @click="showTaskDetails = !showTaskDetails">-->
+                          <!--                            Assessment task details-->
+                          <!--                            <a-icon type="up" v-if="showTaskDetails"/>-->
+                          <!--                            <a-icon type="down" v-else/>-->
+                          <!--                          </a-button>-->
                         </a-form-model-item>
-                        <Collapse>
-                          <div class="overview-task-details" v-if="showTaskDetails" >
-                            <a-textarea class="overview-summarize" v-model="form.summarize" placeholder="Add content to summarize your assessment tasks" allow-clear />
-                            <h4>This Unit is made up of <code>{{ associateTaskList.length }}</code> tasks</h4>
-                            <div class="task-item" v-for="(task,index) in associateTaskList" :key="index">
-                              <p><code>{{ task.name }}</code> focuses on "<code>{{ task.overview }}</code>".
-                                This task applies teaching strategies of  "<span v-if="tag.parentName === 'Teaching strategies'" v-for="(tag,tIndex) in task.customTags" :key="tIndex"><a-tag :color="tagColorList[tIndex % tagColorList.length]">{{ tag.name }}</a-tag></span>"
-                                and uses differentiated instructions of  "<span v-if="tag.parentName === 'Differentiated instructions'" v-for="(tag,tIndex) in task.customTags" :key="tIndex"><a-tag :color="tagColorList[tIndex % tagColorList.length]">{{ tag.name }}</a-tag></span>"
-                                to achieve assessment objectives listed below:</p>
-                              <a-list size="small" bordered :data-source="task.learnOuts" v-if="task.learnOuts.length > 0">
-                                <a-list-item slot="renderItem" slot-scope="learn">
-                                  <a-tooltip :title="learn.path" placement="top">
-                                    {{ learn.name }}
-                                  </a-tooltip>
-                                </a-list-item>
-                              </a-list>
-                              <div class="task-action-edit">
-                                <a-button
-                                  shape="round"
-                                  type="link"
-                                  size="small"
-                                  slot="extra"
-                                  href="#"
-                                  @click="handleEditTask(task)"><a-icon type="edit" /></a-button>
-                              </div>
-                            </div>
-                          </div>
-                        </Collapse>
+                        <!--                        <Collapse>-->
+                        <!--                          <div class="overview-task-details" v-if="showTaskDetails" >-->
+                        <!--                            <a-textarea class="overview-summarize" v-model="form.summarize" placeholder="Add content to summarize your assessment tasks" allow-clear />-->
+                        <!--                            <h4>This Unit is made up of <code>{{ associateTaskList.length }}</code> tasks</h4>-->
+                        <!--                            <div class="task-item" v-for="(task,index) in associateTaskList" :key="index">-->
+                        <!--                              <p><code>{{ task.name }}</code> focuses on "<code>{{ task.overview }}</code>".-->
+                        <!--                                This task applies teaching strategies of  "<span v-if="tag.parentName === 'Teaching strategies'" v-for="(tag,tIndex) in task.customTags" :key="tIndex"><a-tag :color="tagColorList[tIndex % tagColorList.length]">{{ tag.name }}</a-tag></span>"-->
+                        <!--                                and uses differentiated instructions of  "<span v-if="tag.parentName === 'Differentiated instructions'" v-for="(tag,tIndex) in task.customTags" :key="tIndex"><a-tag :color="tagColorList[tIndex % tagColorList.length]">{{ tag.name }}</a-tag></span>"-->
+                        <!--                                to achieve assessment objectives listed below:</p>-->
+                        <!--                              <a-list size="small" bordered :data-source="task.learnOuts" v-if="task.learnOuts.length > 0">-->
+                        <!--                                <a-list-item slot="renderItem" slot-scope="learn">-->
+                        <!--                                  <a-tooltip :title="learn.path" placement="top">-->
+                        <!--                                    {{ learn.name }}-->
+                        <!--                                  </a-tooltip>-->
+                        <!--                                </a-list-item>-->
+                        <!--                              </a-list>-->
+                        <!--                              <div class="task-action-edit">-->
+                        <!--                                <a-button-->
+                        <!--                                  shape="round"-->
+                        <!--                                  type="link"-->
+                        <!--                                  size="small"-->
+                        <!--                                  slot="extra"-->
+                        <!--                                  href="#"-->
+                        <!--                                  @click="handleEditTask(task)"><a-icon type="edit" /></a-button>-->
+                        <!--                              </div>-->
+                        <!--                            </div>-->
+                        <!--                          </div>-->
+                        <!--                        </Collapse>-->
 
                       </div>
 
@@ -248,6 +248,12 @@
                               Add assessment objectives
                             </div>
                           </a-button>
+
+                          <a-button type="link" ghost class="assessment-task-button" @click="handleClickTaskDetail($event)">
+                            Assessment task details
+                            <a-icon type="right"/>
+                          </a-button>
+
                         </a-form-item>
 
                         <!--knowledge tag-select -->
@@ -360,8 +366,18 @@
                       @change-add-keywords="handleChangeAddKeywords"
                       @change-user-tags="handleChangeUserTags"></custom-tag>
                   </div>
+
+                  <template v-if="showTaskDetails && currentActiveStepIndex === 0">
+                    <div class="task-details-panel" :style="{'width':'600px','position': 'absolute', 'top':taskDetailsTop+'px', 'z-index': 200}">
+                      <Assessment-Task-Details>
+
+                      </Assessment-Task-Details>
+                    </div>
+                  </template>
+
                 </template>
               </template>
+
             </div>
           </a-card>
         </a-col>
@@ -668,10 +684,12 @@ import QuestionBrowse from '@/components/UnitPlan/QuestionBrowse'
 import Collapse from '@/utils/collapse.js'
 import { UtilMixin } from '@/mixins/UtilMixin'
 import moment from 'moment'
+import AssessmentTaskDetails from '@/components/UnitPlan/AssessmentTaskDetails'
 
 export default {
   name: 'AddUnitPlan',
   components: {
+    AssessmentTaskDetails,
     QuestionBrowse,
     CollaborateHistory,
     CollaborateCommentView,
@@ -848,7 +866,6 @@ export default {
 
       groupNameMode: 'input', // input、select,
       newTermName: 'Untitled category',
-      showTaskDetails: false,
       associateTaskList: [],
       tagColorList: [
         'pink',
@@ -861,7 +878,9 @@ export default {
       ],
 
       recommendData: [],
-      selectedIdList: []
+      selectedIdList: [],
+      taskDetailsTop: 0,
+      showTaskDetails: false
     }
   },
   watch: {
@@ -2009,8 +2028,22 @@ export default {
       window.open('/teacher/task-redirect/' + item.id
         , '_blank')
     },
-    onChangeDate () {
-
+    handleClickTaskDetail (e) {
+      this.$logger.info('handleClickTaskDetail', this.showTaskDetails)
+      this.showTaskDetails = !this.showTaskDetails
+      const eventDom = e.target
+      let formTop = eventDom.offsetTop
+      let currentDom = eventDom.offsetParent
+      while (currentDom !== null) {
+        formTop += currentDom.offsetTop
+        currentDom = currentDom.offsetParent
+        if (currentDom.classList && currentDom.classList.contains('root-locate-form')) {
+          console.log(currentDom.classList)
+          break
+        }
+      }
+      this.taskDetailsTop = formTop
+      console.log(this.taskDetailsTop)
     }
   }
 }
@@ -2916,5 +2949,15 @@ code{
       padding: 6px 7px;
     }
   }
+}
+.assessment-task-button{
+  border: none;
+  font-size: 18px;
+  font-family: Inter-Bold;
+  line-height: 24px;
+  color: #15C39A;
+  opacity: 1;
+  float: right;
+  margin-top: 5px;
 }
 </style>
