@@ -263,7 +263,7 @@
                       <div class="form-block" style="clear:both">
                         <comment-switch field-name="prior" :is-active="showCollaborateCommentVisible && currentFieldName === 'prior'" @switch="handleSwitchComment" class="my-comment-switch"/>
                         <a-form-model-item label="Prior learning experience">
-                          <a-textarea v-model="form.prior" placeholder="What are the approaches to find out what students already know? Tune in" allow-clear />
+                          <a-textarea v-model="form.prior" placeholder="What are the approaches to find out what students already knew?" allow-clear />
                         </a-form-model-item>
                       </div>
 
