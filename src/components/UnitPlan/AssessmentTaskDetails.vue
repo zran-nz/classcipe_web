@@ -16,15 +16,15 @@
       </div>
 
       <div class="tab1-details">
-        <div class="tab-item-block" v-if="task.type === contentType.task" v-for="(task,index) in associateTaskList" :key="index">
+        <div class="tab-item-block" v-for="(task,index) in associateTaskList" :key="index">
           <div class="tab1-item">
             <div class="left-card">
               <div class="time-top">
-                <span class="time-month">Now</span>
-                <span class="time-day">02</span>
+                <span class="time-month">{{ formatMonth(task) }}</span>
+                <span class="time-day">{{ formatDay(task) }}</span>
               </div>
               <div class="time-bottom">
-                Fri 15:20 pm
+                {{ formatTime(task) }}
               </div>
 
             </div>
@@ -33,7 +33,7 @@
                 <div class="center-title">
                   {{ task.name }}
                 </div>
-                <img class="go-icon" src="~@/assets/icons/unitplan/go.png" />
+                <img class="go-icon" src="~@/assets/icons/unitplan/go.png" @click="handleEditTask(task)" />
               </div>
               <div class="center-tags">
                 <div class="tag-list-item">
@@ -63,6 +63,7 @@
 import { UtilMixin } from '@/mixins/UtilMixin'
 import UiLearnOutSub from '@/components/UnitPlan/UiLearnOutSub'
 import { typeMap } from '@/const/teacher'
+import moment from 'moment'
 
 export default {
   name: 'AssessmentTaskDetails',
@@ -89,10 +90,36 @@ export default {
     }
   },
   created () {
-
+    this.$logger.info('associateTaskList ', this.associateTaskList)
   },
   computed: {
-
+    formatMonth () {
+      return function (task) {
+        let date = task.startDate
+        if (!date) {
+          date = task.createTime
+        }
+        return moment.utc(date).local().format('MMM')
+      }
+    },
+    formatDay () {
+      return function (task) {
+        let date = task.startDate
+        if (!date) {
+          date = task.createTime
+        }
+        return moment.utc(date).local().format('DD')
+      }
+    },
+    formatTime () {
+      return function (task) {
+        let date = task.startDate
+        if (!date) {
+          date = task.createTime
+        }
+        return moment.utc(date).local().format('ddd HH:mm a')
+      }
+    }
   },
   watch: {
     // selectedTagsList () {
@@ -108,6 +135,10 @@ export default {
       const index = this.associateTaskList.findIndex(item => item.id === task.id)
       task.showLearnOut = !task.showLearnOut
       this.$set(this.associateTaskList, index, task)
+    },
+    handleEditTask (item) {
+      window.open('/teacher/task-redirect/' + item.id
+        , '_blank')
     }
   }
 

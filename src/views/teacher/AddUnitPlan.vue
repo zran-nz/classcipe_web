@@ -249,10 +249,10 @@
                             </div>
                           </a-button>
 
-                          <a-button type="link" ghost class="assessment-task-button" @click="handleClickTaskDetail($event)">
-                            Assessment task details
-                            <a-icon type="right"/>
-                          </a-button>
+                          <!--                          <a-button type="link" ghost class="assessment-task-button" @click="handleClickTaskDetail($event)">-->
+                          <!--                            Assessment task details-->
+                          <!--                            <a-icon type="right"/>-->
+                          <!--                          </a-button>-->
 
                         </a-form-item>
 
@@ -1612,6 +1612,7 @@ export default {
       this.$logger.info('AddUnitPlan GetAssociate id[' + this.unitPlanId + '] fromType[' + this.contentType['unit-plan'] + ']')
       this.associateUnitPlanIdList = []
       this.associateTaskIdList = []
+      this.associateTaskList = []
       GetAssociate({
         id: this.unitPlanId,
         type: this.contentType['unit-plan']
@@ -1640,6 +1641,7 @@ export default {
             if (content.type === this.contentType.task) {
               this.associateTaskIdList.push(content.id)
               this.associateId2Name.set(content.id, content.name)
+              this.associateTaskList.push(content)
             }
           })
         })

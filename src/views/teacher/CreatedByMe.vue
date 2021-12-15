@@ -595,6 +595,7 @@ export default {
           author: this.$store.getters.email,
           slide_id: item.presentationId,
           copy_from: item.copyFromSlide,
+          revision_id: item.revisionId,
           file_name: item.name ? item.name : 'Unnamed',
           status: this.sessionMode === 1 ? lessonStatus.live : lessonStatus.studentPaced,
           redirect_url: null
