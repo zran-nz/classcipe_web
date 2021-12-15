@@ -8,10 +8,11 @@
     <div class="content-list">
       <template v-if="contentDataList && contentDataList.length">
         <div
+          :data-item-id="item.id"
           :class="{'content-item': true,
                    'odd-line': index % 2 === 0,'even-line': index % 2 === 1,
                    'active-line': currentId === item.id,
-                   'selected-line': currentDataType === NavigationType.sync ? (selectedKnowledgeIdList.indexOf(item.knowledgeId) !== -1) : (
+                   'selected-line': selectedIdList.indexOf(item.id) !== -1 ? true : (currentDataType === NavigationType.sync ? (selectedKnowledgeIdList.indexOf(item.knowledgeId) !== -1) : (
                      currentDataType === NavigationType.learningOutcomes ? (selectedCurriculumIdList.indexOf(item.id) !== -1) : (
                        currentDataType === NavigationType.specificSkills ? (selectedSubjectSpecificSkillIdList.indexOf(item.id) !== -1) : (
                          (currentDataType === NavigationType.centurySkills ||
@@ -24,7 +25,7 @@
                                )
                              )
                            )
-                         ))))}"
+                         )))))}"
           v-for="(item,index) in contentDataList"
           :key="index">
           <div class="name" :style="{width: nameWidth + 'px'}" @click="handleContentListItemClick(item)">
@@ -95,6 +96,12 @@ export default {
     UnitPlanPreview,
     MaterialPreview
   },
+  props: {
+    selectedList: {
+      type: Array,
+      default: () => []
+    }
+  },
   data () {
     return {
       currentId: null,
@@ -131,22 +138,49 @@ export default {
       selectedIDUIdList: [],
       selectedIDUMap: new Map(),
 
+      selectedIdList: [],
+      selectedMap: new Map(),
+
       // big idea为纯文字
       selectedBigIdeaList: [],
-      currentDataType: 'none'
+      currentDataType: 'none',
+
+      mySelectedList: []
     }
   },
-  computed: {
-  },
-  created () {
+  watch: {
+    selectedList (val) {
+      this.$logger.info('NewContentList selectedList change', val)
+      this.mySelectedList = val
+      this.selectedIdList = []
+      this.selectedMap.clear()
+      this.mySelectedList.forEach(item => {
+        this.selectedIdList.push(item.knowledgeId)
+        this.selectedMap.set(item.knowledgeId, item)
+      })
+    }
   },
   mounted () {
     LibraryEventBus.$on(LibraryEvent.ContentListUpdate, this.handleContentListUpdate)
     LibraryEventBus.$on(LibraryEvent.ContentListSelectedListUpdate, this.handleContentSelectedListUpdate)
     this.nameWidth = document.getElementById('new-library').getBoundingClientRect().width - 400
     this.$logger.info('nameWidth ' + this.nameWidth)
+    this.$logger.info('NewContentList selectedList', this.selectedList)
+    this.mySelectedList = this.selectedList
+    this.assignSelectedList()
   },
   methods: {
+    assignSelectedList () {
+      this.$logger.info('assignSelectedList', this.selectedList)
+      this.selectedIdList = []
+      this.selectedMap.clear()
+      this.selectedList.forEach(item => {
+        this.selectedIdList.push(item.knowledgeId)
+        this.selectedMap.set(item.knowledgeId, item)
+      })
+      this.$logger.info('assignSelectedList selectedIdList', this.selectedIdList)
+    },
+
     handleContentListUpdate (data) {
       this.$logger.info('handleContentListUpdate ', data)
       this.contentDataList = data.contentList
@@ -169,6 +203,18 @@ export default {
     handleContentListItemClick (item) {
       this.$logger.info(this.currentDataType + ': handleContentListItemClick current item: ', item, ' parent:', this.parent)
       item.originParent = this.parent
+
+      const index = this.selectedIdList.indexOf(item.id)
+      if (index !== -1) {
+        this.selectedIdList.splice(index, 1)
+        this.selectedMap.delete(item.id)
+        this.$logger.info('delete from selectedIdList', this.selectedIdList)
+        const mIndex = this.mySelectedList.findIndex(data => data.knowledgeId === item.id)
+        this.mySelectedList.splice(mIndex, 1)
+        this.$emit('update-selected-list', this.mySelectedList)
+        return
+      }
+
       if (this.currentDataType === NavigationType.sync) {
         // 同步更新点击sync data数据，通过当前字段是否包含froms来区分sync和大纲描述
         this.$logger.info('handle sync handleContentListItemClick', item)

@@ -201,6 +201,10 @@
       this.get21century()
     },
     watch: {
+      learnOuts (val) {
+        this.$logger.info('learnOuts change!', val)
+        this.knowledgeList = val
+      }
     },
     methods: {
       handleActiveDescription (type, k) {

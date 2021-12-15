@@ -1201,12 +1201,18 @@
         <div class="link-content-wrapper">
           <!-- 此处的questionIndex用于标识区分是哪个组件调用的，返回的事件数据中会带上，方便业务数据处理，可随意写，可忽略-->
           <new-browser
+            ref="newBrowser"
             :select-mode="selectModel.syncData"
             question-index="_questionIndex_1"
             :sync-data="syncData"
-            :show-menu="[NavigationType.specificSkills, NavigationType.centurySkills, NavigationType.learningOutcomes, NavigationType.assessmentType, NavigationType.idu ]"
+            :show-menu="[NavigationType.specificSkills,
+                         NavigationType.centurySkills,
+                         NavigationType.learningOutcomes,
+                         NavigationType.assessmentType,
+                         NavigationType.idu]"
             :default-active-menu="NavigationType.learningOutcomes"
             :recommend-data="recommendData"
+            :selected-list="selectedList"
             :selected-id="selectedIdList"
             @select-assessmentType="handleSelectAssessmentType"
             @select-sync="handleSelectListData"
@@ -1214,6 +1220,7 @@
             @select-subject-specific-skill="handleSelectSubjectSpecificSkillListData"
             @select-century-skill="handleSelect21CenturySkillListData"
             @select-idu="handleSelectIdu"
+            @select-recommend="handleSelectRecommend"
           />
           <div class="modal-ensure-action-line-right">
             <a-button class="action-item action-cancel" shape="round" @click="handleCancelSelectData">Cancel</a-button>
@@ -1463,6 +1470,7 @@ export default {
         selectModel: SelectModel,
 
         selectedIduList: [],
+        selectedRecommendList: [],
 
         editPPTMode: false,
 
@@ -1521,6 +1529,7 @@ export default {
         selectedSlideVisibleFromSave: false, // 点击保存时，是否显示选择slide的弹窗，此处不去选择slide直接goBack
 
         recommendData: [],
+        selectedList: [],
 
         subTaskSaving: false,
         subTaskPublishing: false,
@@ -1530,7 +1539,8 @@ export default {
         selectedIdList: [], // browser中已经选择的id列表
 
         associateUnitPlanIdList: [],
-        associateTaskIdList: []
+        associateTaskIdList: [],
+        associateId2Name: new Map()
       }
     },
     computed: {
@@ -2359,7 +2369,6 @@ export default {
               }).then(response => {
                 this.$logger.info('Associate response ', response)
                 // 刷新子组件的关联数据
-                this.$refs.associate.loadAssociateData()
               })
               this.addLoading = false
               this.$router.push({
@@ -2427,15 +2436,12 @@ export default {
             if (this.groupNameList.indexOf(item.group) === -1) {
               this.groupNameList.push(item.group)
             }
-          })
-          response.result.others.forEach(item => {
-            if (this.groupNameListOther.indexOf(item.group) === -1) {
-              this.groupNameListOther.push(item.group)
-            }
+
             item.contents.forEach(content => {
               console.log(content)
               if (content.type === this.contentType['unit-plan']) {
                 this.associateUnitPlanIdList.push(content.id)
+                this.associateId2Name.set(content.id, content.name)
                 content.questions.forEach(question => {
                   this.associateQuestionList.push({
                     ...question,
@@ -2446,6 +2452,30 @@ export default {
 
               if (content.type === this.contentType.task) {
                 this.associateTaskIdList.push(content.id)
+                this.associateId2Name.set(content.id, content.name)
+              }
+            })
+          })
+          response.result.others.forEach(item => {
+            if (this.groupNameListOther.indexOf(item.group) === -1) {
+              this.groupNameListOther.push(item.group)
+            }
+            item.contents.forEach(content => {
+              console.log(content)
+              if (content.type === this.contentType['unit-plan']) {
+                this.associateUnitPlanIdList.push(content.id)
+                this.associateId2Name.set(content.id, content.name)
+                content.questions.forEach(question => {
+                  this.associateQuestionList.push({
+                    ...question,
+                    unitName: content.name
+                  })
+                })
+              }
+
+              if (content.type === this.contentType.task) {
+                this.associateTaskIdList.push(content.id)
+                this.associateId2Name.set(content.id, content.name)
               }
             })
           })
@@ -2454,7 +2484,7 @@ export default {
           }
           this.newTermName = 'Untitled category_' + (this.groupNameList.length)
           this.$logger.info('AddTask GetAssociate formatted groupNameList', this.groupNameList, this.groupNameListOther)
-          this.$logger.info('associateUnitPlanIdList', this.associateUnitPlanIdList)
+          this.$logger.info('*******************associateUnitPlanIdList', this.associateUnitPlanIdList)
           this.$logger.info('associateTaskIdList', this.associateTaskIdList)
         }).finally(() => {
           this.linkGroupLoading = false
@@ -2470,7 +2500,24 @@ export default {
           type: this.contentType['unit-plan'],
           ids: this.associateUnitPlanIdList
         }).then(response => {
-
+          this.$logger.info('FindSourceOutcomes response', response)
+          const recommendMap = new Map()
+          response.result.forEach(item => {
+            if (recommendMap.has(item.fromId)) {
+              recommendMap.get(item.fromId).push(item)
+            } else {
+              recommendMap.set(item.fromId, [item])
+            }
+          })
+          this.recommendData = []
+          for (const value of recommendMap.values()) {
+            this.recommendData.push({
+              fromName: value[0].fromName,
+              fromTypeName: this.type2Name[value[0].fromType],
+              list: value
+            })
+          }
+          this.$logger.info('update recommendData ', this.recommendData)
         })
       },
 
@@ -2506,6 +2553,11 @@ export default {
         this.selectedIduList = data
       },
 
+      handleSelectRecommend (data) {
+        this.$logger.info('handleSelectRecommend', data)
+        this.selectedRecommendList = data
+      },
+
       // TODO 自动更新选择的sync 的数据knowledgeId和name列表
       handleCancelSelectData () {
         this.selectedSyncList = []
@@ -2514,6 +2566,7 @@ export default {
         this.selectedCenturySkillList = []
         this.selectedAssessmentList = []
         this.selectedIduList = []
+        this.selectedRecommendList = []
         this.selectSyncDataVisible = false
       },
 
@@ -2523,11 +2576,28 @@ export default {
           this.selectedCurriculumList,
           this.selectedSpecificSkillList,
           this.selectedCenturySkillList,
-          this.selectedBigIdeaList,
           this.selectedAssessmentList,
           this.selectedIduList,
+          this.selectedRecommendList,
           this.selectedSyncList)
+        this.$logger.info('mySelectedList', this.$refs.newBrowser.mySelectedList)
+        this.$logger.info('learnOuts', this.form.learnOuts)
+        this.form.learnOuts = this.$refs.newBrowser.mySelectedList
         this.selectedSyncList.forEach(data => {
+          const filterLearnOuts = this.form.learnOuts.filter(item => item.knowledgeId === data.knowledgeId)
+          if (filterLearnOuts.length > 0) {
+            return
+          }
+          this.form.learnOuts.push({
+            knowledgeId: data.knowledgeId,
+            name: data.name,
+            tags: data.tags,
+            tagType: data.tagType,
+            path: data.path
+          })
+        })
+
+        this.selectedRecommendList.forEach(data => {
           const filterLearnOuts = this.form.learnOuts.filter(item => item.knowledgeId === data.knowledgeId)
           if (filterLearnOuts.length > 0) {
             return
@@ -2570,6 +2640,7 @@ export default {
         })
         this.$logger.info('this.form.learnOuts', this.form.learnOuts)
         this.selectSyncDataVisible = false
+        this.handleCancelSelectData()
       },
       handleRemoveLearnOuts (data) {
         this.$logger.info('handleRemoveLearnOuts', data)
@@ -2579,12 +2650,16 @@ export default {
         }
       },
       handleSelectDescription () {
-        this.recommendData = [{
-          fromName: this.form.name,
-          fromTypeName: this.type2Name[this.contentType.task],
-          list: JSON.parse(JSON.stringify(this.form.learnOuts))
-        }]
-        this.$logger.info('handleSelectDescription recommendData', this.recommendData)
+        // 获取当前task关联的unit-plan的描述数据
+        this.selectedList = JSON.parse(JSON.stringify(this.form.learnOuts))
+        this.form.learnOuts.forEach(item => {
+          if (item.knowledgeId) {
+            this.selectedIdList.push(item.knowledgeId)
+          } else {
+            this.$logger.info('parentData selected id not exist ', item)
+          }
+        })
+        this.$logger.info('handleSelectDescription selectedList', this.selectedList, ' recommendData ', this.recommendData)
         this.selectSyncDataVisible = true
       },
       // 加载协作的评论和历史记录数据

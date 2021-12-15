@@ -43,7 +43,7 @@
                 :data-selected-id-list="mySelectedIdList">
                 <a-tooltip class="my-tooltip">
                   <template slot="title">
-                    {{ recommendItem.newPathName }}
+                    {{ recommendItem.path }}
                   </template>
                   <div class="select-block">
                     <a-icon
@@ -65,6 +65,22 @@
         </div>
         <div class="selected-list">
           <div class="content-list">
+            <div
+              :class="{'content-item': true, 'selected-line': true}"
+              v-for="(item, mIndex) in mySelectedList"
+              :key="'my-' + mIndex">
+              <div class="name">
+                <div class="name-text">
+                  {{ item.name }}
+                </div>
+                <div class="action-icon">
+                  <img src="~@/assets/icons/lesson/selected.png"/>
+                </div>
+                <div class="action-icon-right" @click="handleRemoveMySelected(item)">
+                  <img src="~@/assets/icons/evaluation/delete.png"/>
+                </div>
+              </div>
+            </div>
             <div
               :class="{'content-item': true, 'selected-line': true}"
               v-for="(item, kIndex) in selectedCurriculumList"
@@ -226,6 +242,7 @@
         </div>
         <div class="content-list" v-show="!expandedListFlag">
           <new-content-list
+            :selected-list="mySelectedList"
             ref="contentList"
             @select-big-idea="handleSelectBigIdeaData"
             @select-sync="handleSelectListData"
@@ -235,6 +252,7 @@
             @select-all-21-century="handleSelectAll21CenturyListData"
             @select-assessmentType="handleSelectAssessmentType"
             @select-idu="handleSelectIdu"
+            @update-selected-list="handleUpdateSelectedList"
           />
         </div>
       </div>
@@ -289,6 +307,10 @@ export default {
     selectedIdList: {
       type: Array,
       default: () => []
+    },
+    selectedList: {
+      type: Array,
+      default: () => []
     }
   },
   mixins: [UtilMixin],
@@ -311,6 +333,7 @@ export default {
       defaultCurriculumId: this.$store.getters.bindCurriculum ? this.$store.getters.bindCurriculum : '1',
       curriculumOptions: [],
       mySelectedIdList: [], // 所有已选择的id和类型
+      mySelectedList: [],
 
       isEmptyRecommend: true
     }
@@ -326,6 +349,7 @@ export default {
     this.$logger.info('NewBrowser showMenu', this.showMenu)
     this.$logger.info('recommendData', this.recommendData)
     this.$logger.info('selectedIdList', this.selectedIdList)
+    this.$logger.info('selectedList', this.selectedList)
     this.mySelectedIdList = this.selectedIdList
 
     getAllCurriculums().then((response) => {
@@ -334,9 +358,23 @@ export default {
       this.$logger.info('getAllCurriculums', this.curriculumOptions)
     })
 
+    const recommendIdList = []
     this.recommendData.forEach((item) => {
+      item.list.forEach(dataItem => {
+        recommendIdList.push(dataItem.knowledgeId)
+      })
       if (item.list.length > 0) {
         this.isEmptyRecommend = false
+      }
+    })
+
+    this.mySelectedList = []
+    this.selectedList.forEach(item => {
+      if (recommendIdList.indexOf(item.knowledgeId) === -1) {
+        this.mySelectedList.push(item)
+      } else {
+        this.selectedRecommendIdList.push(item.knowledgeId)
+        this.selectedRecommendList.push(item)
       }
     })
   },
@@ -402,6 +440,10 @@ export default {
       this.$refs['contentList'].handleRemoveSelected(item)
     },
 
+    handleUpdateSelectedList (data) {
+      this.$logger.info('NewBrowser handleUpdateSelectedList', data)
+      this.mySelectedList = data
+    },
     handleAddRecommend (recommendItem) {
       this.$logger.info('NewBrowser handleAddRecommend', recommendItem, 'this.mySelectedIdList.indexOf(recommendItem.knowledgeId)', this.mySelectedIdList.indexOf(recommendItem.knowledgeId))
       if (this.mySelectedIdList.indexOf(recommendItem.knowledgeId) === -1) {
@@ -416,6 +458,14 @@ export default {
         }
         this.$emit('select-recommend', this.selectedRecommendList)
         this.$logger.info('after NewBrowser handleAddRecommend', this.selectedRecommendList, this.selectedRecommendIdList)
+      }
+    },
+
+    handleRemoveMySelected (data) {
+      this.$logger.info('NewBrowser handleRemoveMySelected', data)
+      const index = this.mySelectedList.findIndex(item => (data.knowledgeId === item.knowledgeId))
+      if (index > -1) {
+        this.mySelectedList.splice(index, 1)
       }
     }
   }
