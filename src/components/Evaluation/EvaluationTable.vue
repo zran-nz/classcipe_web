@@ -162,11 +162,19 @@
               <!-- 21 Century Criteria-->
               <template v-if="header.type === headerType.Criteria">
                 <template v-if="formType === tableType.CenturySkills">
-                  <div class="data-item criteria-data">
-                    <div class="criteria-name">
-                      {{ item[headerType.Criteria].name }}
+                  <template v-if="!item[headerType.Criteria] || !item[headerType.Criteria].name">
+                    <div class="data-item add-criteria" @click.stop="handleAddCriteria(header, item, $event)" v-show="mode === tableMode.Edit">
+                      <add-opacity-icon />
+                      <div class="add-text">Click to choose the objectives</div>
                     </div>
-                  </div>
+                  </template>
+                  <template v-else>
+                    <div class="data-item criteria-data" @dblclick.stop="handleAddCriteria(header, item, $event)">
+                      <div class="criteria-name">
+                        {{ item[headerType.Criteria].name }}
+                      </div>
+                    </div>
+                  </template>
                 </template>
                 <template v-if="formType === tableType.Rubric">
                   <template v-if="!item[headerType.Criteria] || !item[headerType.Criteria].name">
@@ -996,16 +1004,7 @@ export default {
               rowId: this.currentSelectLine.rowId,
               parentNameList: selectedList[0].parentNameList
             }
-
-            const bindCurriculum = parseInt(this.$store.getters.bindCurriculum)
-            if (bindCurriculum === 1 || bindCurriculum === 2) {
-              this.currentSelectLine[this.headerType.Criteria] = {
-                name: selectedList[0].name,
-                rowId: this.currentSelectLine.rowId
-              }
-            }
-
-            this.$logger.info('[' + this.mode + '] update currentSelectLine with criteria data ', this.currentSelectLine)
+            this.$logger.info('[' + this.mode + '] update currentSelectLine with Description 1 data ', this.currentSelectLine)
 
             // 如果多选，从第二个元素开始新建行填充数据
             if (selectedList.length > 1) {
@@ -1026,11 +1025,48 @@ export default {
                     parentNameList: item.parentNameList
                   }
 
-                  if (bindCurriculum === 1 || bindCurriculum === 2) {
-                    newLineItem[this.headerType.Criteria] = {
-                      name: item.name,
-                      rowId: newLineItem.rowId
+                  newLineItem[this.headerType.Evidence] = {
+                    num: 0,
+                    selectedList: [],
+                    selectedStudentList: [],
+                    rowId
+                  }
+                  newLineItem.rowId = rowId
+                  this.$logger.info('[' + this.mode + '] CenturySkills add new line with Description data ', newLineItem)
+                  this.list.push(newLineItem)
+                }
+              })
+            }
+          } else if (header.type === this.headerType.Criteria) {
+            this.currentSelectLine[this.headerType.Criteria] = {
+              name: selectedList[0].name,
+              rowId: this.currentSelectLine.rowId
+            }
+
+            this.$logger.info('[' + this.mode + '] update currentSelectLine with criteria 1 data ', this.currentSelectLine)
+
+            // 如果多选，从第二个元素开始新建行填充数据
+            if (selectedList.length > 1) {
+              selectedList.forEach((item, index) => {
+                if (index > 0) {
+                  const newLineItem = {}
+                  const rowId = this.generateRowId()
+                  newLineItem.rowId = rowId
+                  this.headers.forEach(header => {
+                    newLineItem[header.type] = {
+                      name: null,
+                      rowId
                     }
+                  })
+                  newLineItem[this.headerType.Description] = {
+                    name: null,
+                    rowId,
+                    parentNameList: []
+                  }
+
+                  newLineItem[this.headerType.Criteria] = {
+                    name: item.name,
+                    rowId: newLineItem.rowId
                   }
 
                   newLineItem[this.headerType.Evidence] = {
@@ -1896,15 +1932,15 @@ export default {
     flex-direction: column;
     padding: 0 10px;
     .criteria-left-name-item {
-      width: 180px;
+      width: 220px;
       display: flex;
       flex-direction: row;
       flex-wrap: nowrap;
-      padding: 0 8px;
       margin: 3px 0;
     }
 
     .no-first-name {
+      padding: 0 8px;
       background: #15C39A;
       color: #fff;
       opacity: 1;
