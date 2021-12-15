@@ -548,12 +548,14 @@
         <div class="link-content-wrapper">
           <!-- 此处的questionIndex用于标识区分是哪个组件调用的，返回的事件数据中会带上，方便业务数据处理，可随意写，可忽略, show-menu中列出的类型才会显示-->
           <new-browser
+            ref="newBrowser"
             :select-mode="selectModel.syncData"
             question-index="_questionIndex_1"
             :sync-data="syncData"
             :show-menu="showMenuList"
             :default-active-menu="defaultActiveMenu"
             :recommend-data="recommendData"
+            :selected-list="selectedList"
             :selected-id="selectedIdList"
             @select-assessmentType="handleSelectAssessmentType"
             @select-sync="handleSelectListData"
@@ -561,6 +563,7 @@
             @select-subject-specific-skill="handleSelectSubjectSpecificSkillListData"
             @select-century-skill="handleSelect21CenturySkillListData"
             @select-idu="handleSelectIdu"
+            @select-recommend="handleSelectRecommend"
           />
           <div class="modal-ensure-action-line-right">
             <a-button class="action-item action-cancel" shape="round" @click="handleCancelSelectData">Cancel</a-button>
@@ -641,7 +644,7 @@ import { GetAllSdgs, ScenarioSearch } from '@/api/scenario'
 import { debounce } from 'lodash-es'
 import InputSearch from '@/components/UnitPlan/InputSearch'
 import SdgTagInput from '@/components/UnitPlan/SdgTagInput'
-import { GetMyGrades, Associate, GetAssociate, GetReferOutcomes } from '@/api/teacher'
+import { GetMyGrades, Associate, GetAssociate, GetReferOutcomes, FindSourceOutcomes } from '@/api/teacher'
 import { SubjectTree } from '@/api/subject'
 import { formatSubjectTree } from '@/utils/bizUtil'
 import NewUiClickableKnowledgeTag from '@/components/UnitPlan/NewUiClickableKnowledgeTag'
@@ -824,6 +827,7 @@ export default {
       selectedCenturySkillList: [],
       // idu
       selectedIduList: [],
+      selectedRecommendList: [],
 
       // BigIdeaList
       selectedBigIdeaList: [],
@@ -878,8 +882,13 @@ export default {
 
       recommendData: [],
       selectedIdList: [],
+      selectedList: [],
       taskDetailsTop: 0,
-      showTaskDetails: false
+      showTaskDetails: false,
+
+      associateUnitPlanIdList: [],
+      associateTaskIdList: [],
+      associateId2Name: new Map()
     }
   },
   watch: {
@@ -1218,10 +1227,6 @@ export default {
       this.$logger.info('after handleAddSkillTag questionDataObj ' + data.questionIndex, this.questionDataObj[data.questionIndex])
     },
 
-    autoSave () {
-
-    },
-
     handleSaveUnitPlan () {
       logger.info('handleSaveUnitPlan', this.form, this.sdgDataObj, this.questionDataObj)
       const unitPlanData = Object.assign({}, this.form)
@@ -1445,18 +1450,22 @@ export default {
       this.showCollaborateModalVisible = true
     },
     handleSelectDescription () {
-      this.selectSyncDataVisible = true
       this.showMenuList = [NavigationType.specificSkills,
         NavigationType.centurySkills,
         NavigationType.learningOutcomes,
         NavigationType.assessmentType,
         NavigationType.idu
       ]
-      this.recommendData = [{
-        fromName: this.form.name,
-        fromTypeName: this.type2Name[this.contentType['unit-plan']],
-        list: JSON.parse(JSON.stringify(this.form.learnOuts))
-      }]
+      this.selectedList = JSON.parse(JSON.stringify(this.form.learnOuts))
+      this.form.learnOuts.forEach(item => {
+        if (item.knowledgeId) {
+          this.selectedIdList.push(item.knowledgeId)
+        } else {
+          this.$logger.info('parentData selected id not exist ', item)
+        }
+      })
+      this.$logger.info('handleSelectDescription selectedList', this.selectedList, ' recommendData ', this.recommendData)
+      this.selectSyncDataVisible = true
       this.defaultActiveMenu = NavigationType.learningOutcomes
     },
     handleConfirmAssociate () {
@@ -1614,15 +1623,23 @@ export default {
           if (this.groupNameList.indexOf(item.group) === -1) {
             this.groupNameList.push(item.group)
           }
-          item.contents.forEach(content => {
-            this.associateTaskList.push(content)
 
+          item.contents.forEach(content => {
+            console.log(content)
             if (content.type === this.contentType['unit-plan']) {
               this.associateUnitPlanIdList.push(content.id)
+              this.associateId2Name.set(content.id, content.name)
+              content.questions.forEach(question => {
+                this.associateQuestionList.push({
+                  ...question,
+                  unitName: content.name
+                })
+              })
             }
 
             if (content.type === this.contentType.task) {
               this.associateTaskIdList.push(content.id)
+              this.associateId2Name.set(content.id, content.name)
             }
           })
         })
@@ -1630,20 +1647,96 @@ export default {
           if (this.groupNameListOther.indexOf(item.group) === -1) {
             this.groupNameListOther.push(item.group)
           }
+          item.contents.forEach(content => {
+            console.log(content)
+            if (content.type === this.contentType['unit-plan']) {
+              this.associateUnitPlanIdList.push(content.id)
+              this.associateId2Name.set(content.id, content.name)
+              content.questions.forEach(question => {
+                this.associateQuestionList.push({
+                  ...question,
+                  unitName: content.name
+                })
+              })
+            }
+
+            if (content.type === this.contentType.task) {
+              this.associateTaskIdList.push(content.id)
+              this.associateId2Name.set(content.id, content.name)
+            }
+          })
         })
         if (this.groupNameList.length > 0 || this.groupNameListOther.length > 0) {
           this.handleSyncData()
         }
         this.newTermName = 'Untitled category_' + (this.groupNameList.length)
-        this.$logger.info('AddUnitPlan GetAssociate formatted groupNameList', this.groupNameList, this.groupNameListOther)
+        this.$logger.info('AddTask GetAssociate formatted groupNameList', this.groupNameList, this.groupNameListOther)
+        this.$logger.info('*******************associateUnitPlanIdList', this.associateUnitPlanIdList)
+        this.$logger.info('*******************associateTaskIdList', this.associateTaskIdList)
+        this.$logger.info('associateTaskIdList', this.associateTaskIdList)
       }).finally(() => {
         this.linkGroupLoading = false
-        this.loadRefLearnOuts()
+
+        if (this.associateUnitPlanIdList.length > 0 || this.associateTaskIdList.length > 0) {
+          this.loadRefLearnOuts()
+        }
       })
     },
 
     loadRefLearnOuts () {
+      this.recommendData = []
+      if (this.associateUnitPlanIdList.length) {
+        FindSourceOutcomes({
+          type: this.contentType['unit-plan'],
+          ids: this.associateUnitPlanIdList
+        }).then(response => {
+          this.$logger.info('FindSourceOutcomes unit-plan response', response)
+          const recommendMap = new Map()
+          response.result.forEach(item => {
+            if (recommendMap.has(item.fromId)) {
+              recommendMap.get(item.fromId).push(item)
+            } else {
+              recommendMap.set(item.fromId, [item])
+            }
+          })
 
+          for (const value of recommendMap.values()) {
+            this.recommendData.push({
+              fromName: value[0].fromName,
+              fromTypeName: this.type2Name[value[0].fromType],
+              list: value
+            })
+          }
+          this.$logger.info('update unit-plan recommendData ', this.recommendData)
+        })
+      }
+
+      if (this.associateTaskIdList.length) {
+        this.recommendData = []
+        FindSourceOutcomes({
+          type: this.contentType.task,
+          ids: this.associateTaskIdList
+        }).then(response => {
+          this.$logger.info('FindSourceOutcomes task response', response)
+          const recommendMap = new Map()
+          response.result.forEach(item => {
+            if (recommendMap.has(item.fromId)) {
+              recommendMap.get(item.fromId).push(item)
+            } else {
+              recommendMap.set(item.fromId, [item])
+            }
+          })
+
+          for (const value of recommendMap.values()) {
+            this.recommendData.push({
+              fromName: value[0].fromName,
+              fromTypeName: this.type2Name[value[0].fromType],
+              list: value
+            })
+          }
+          this.$logger.info('update task recommendData ', this.recommendData)
+        })
+      }
     },
 
     handleUpdateGroupNameList () {
@@ -1686,6 +1779,11 @@ export default {
       this.selectedIduList = data
     },
 
+    handleSelectRecommend (data) {
+      this.$logger.info('handleSelectRecommend', data)
+      this.selectedRecommendList = data
+    },
+
     // TODO 自动更新选择的sync 的数据knowledgeId和name列表
     handleCancelSelectData () {
       this.selectedSyncList = []
@@ -1694,6 +1792,7 @@ export default {
       this.selectedCenturySkillList = []
       this.selectedAssessmentList = []
       this.selectedIduList = []
+      this.selectedRecommendList = []
       this.selectSyncDataVisible = false
     },
 
@@ -1707,6 +1806,15 @@ export default {
         this.selectedAssessmentList,
         this.selectedIduList,
         this.selectedSyncList)
+      this.$logger.info('mySelectedList', this.$refs.newBrowser.mySelectedList)
+      this.$logger.info('learnOuts', this.form.learnOuts)
+      this.form.learnOuts = this.$refs.newBrowser.mySelectedList
+      this.$refs.newBrowser.selectedRecommendList.forEach(item => {
+        const index = this.form.learnOuts.findIndex(dataItem => dataItem.knowledgeId === item.knowledgeId)
+        if (index === -1) {
+          this.form.learnOuts.push(item)
+        }
+      })
       this.selectedSyncList.forEach(data => {
         const filterLearnOuts = this.form.learnOuts.filter(item => item.knowledgeId === data.knowledgeId)
         if (filterLearnOuts.length > 0) {
@@ -1757,6 +1865,7 @@ export default {
       })
       this.$logger.info('this.form.learnOuts', this.form.learnOuts)
       this.selectSyncDataVisible = false
+      this.handleCancelSelectData()
     },
     handleRemoveLearnOuts (data) {
       this.$logger.info('handleRemoveLearnOuts', data)
