@@ -135,6 +135,7 @@
       <div class="link-content-wrapper">
         <!-- 此处的questionIndex用于标识区分是哪个组件调用的，返回的事件数据中会带上，方便业务数据处理，可随意写，可忽略-->
         <new-browser
+          ref="newBrowser"
           :select-mode="selectModel.syncData"
           question-index="_questionIndex_1"
           :show-menu="[ NavigationType.specificSkills,
@@ -143,7 +144,8 @@
                         NavigationType.idu,]"
           :default-active-menu="NavigationType.learningOutcomes"
           :recommend-data="recommendData"
-          :selected-id-list="selectedIdList"
+          :selected-list="selectedList"
+          :selected-id="selectedIdList"
           @select-big-idea="handleSelectListData"
           @select-sync="handleSelectListData"
           @select-curriculum="handleSelectCurriculum"
@@ -316,7 +318,9 @@ export default {
 
       parentData: null,
       recommendData: [],
-      selectedIdList: []
+      selectedIdList: [],
+
+      selectedList: []
     }
   },
   computed: {
@@ -463,6 +467,7 @@ export default {
       this.selectedSpecificSkillList = []
       this.selectedCenturySkillList = []
       this.selectedIduList = []
+      this.selectedRecommendList = []
       this.selectSyncDataVisible = false
     },
 
@@ -472,9 +477,19 @@ export default {
         this.selectedCurriculumList,
         this.selectedSpecificSkillList,
         this.selectedCenturySkillList,
-        this.selectedBigIdeaList,
+        this.selectedIduList,
         this.selectedRecommendList,
         this.selectedSyncList)
+      this.$logger.info('mySelectedList', this.$refs.newBrowser.mySelectedList)
+      this.$logger.info('learnOuts', this.form.learnOuts)
+      this.form.learnOuts = this.$refs.newBrowser.mySelectedList
+      this.$refs.newBrowser.selectedRecommendList.forEach(item => {
+        const index = this.form.learnOuts.findIndex(dataItem => dataItem.knowledgeId === item.knowledgeId)
+        if (index === -1) {
+          this.form.learnOuts.push(item)
+        }
+      })
+      this.$logger.info('learnOuts after selectedRecommendList', this.form.learnOuts)
       this.selectedSyncList.forEach(data => {
         const filterLearnOuts = this.form.learnOuts.filter(item => item.knowledgeId === data.knowledgeId)
         if (filterLearnOuts.length > 0) {
@@ -484,7 +499,8 @@ export default {
           knowledgeId: data.knowledgeId,
           name: data.name,
           tags: data.tags,
-          tagType: data.tagType
+          tagType: data.tagType,
+          path: data.path
         })
       })
       this.selectedIduList.forEach(data => {
@@ -522,12 +538,10 @@ export default {
           })
         }
       })
-      this.selectedRecommendList.forEach(item => {
-        this.form.learnOuts.push(item)
-      })
 
       this.$logger.info('this.form.learnOuts', this.form.learnOuts)
       this.selectSyncDataVisible = false
+      this.handleCancelSelectData()
     },
     handleRemoveLearnOuts (data) {
       this.$logger.info('handleRemoveLearnOuts', data)
@@ -543,6 +557,7 @@ export default {
         item.newPath = item.path.split('>')
         item.newPathName = item.newPath.slice(0, 4).join('>')
       })
+      this.selectedList = JSON.parse(JSON.stringify(this.form.learnOuts))
       this.recommendData = [{
         fromName: this.parentData.name,
         fromTypeName: this.type2Name[this.contentType.task],

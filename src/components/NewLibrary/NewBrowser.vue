@@ -377,6 +377,9 @@ export default {
         this.selectedRecommendList.push(item)
       }
     })
+    this.$logger.info('mySelectedList', this.mySelectedList)
+    this.$logger.info('selectedRecommendList', this.selectedRecommendList)
+    this.$logger.info('selectedRecommendIdList', this.selectedRecommendIdList)
   },
   methods: {
 
