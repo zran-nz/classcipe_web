@@ -24,7 +24,7 @@
     </div>
     <div class="main">
       <div class="selected-content">
-        <div class="recommend-description" v-if="recommendData.length">
+        <div class="recommend-description" v-if="!isEmptyRecommend" >
           <div class="recommend-title">
             <h3>Recommended assessment objectives</h3>
           </div>
@@ -310,7 +310,9 @@ export default {
       currentCurriculumId: this.$store.getters.bindCurriculum ? this.$store.getters.bindCurriculum : '1',
       defaultCurriculumId: this.$store.getters.bindCurriculum ? this.$store.getters.bindCurriculum : '1',
       curriculumOptions: [],
-      mySelectedIdList: [] // 所有已选择的id和类型
+      mySelectedIdList: [], // 所有已选择的id和类型
+
+      isEmptyRecommend: true
     }
   },
   watch: {
@@ -330,6 +332,12 @@ export default {
       this.$logger.info('getAllCurriculums', response)
       this.curriculumOptions = response.result
       this.$logger.info('getAllCurriculums', this.curriculumOptions)
+    })
+
+    this.recommendData.forEach((item) => {
+      if (item.list.length > 0) {
+        this.isEmptyRecommend = false
+      }
     })
   },
   methods: {
