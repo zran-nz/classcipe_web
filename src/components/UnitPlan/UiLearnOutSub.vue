@@ -10,15 +10,10 @@
               <a-breadcrumb separator=">">
                 <a-breadcrumb-item v-for="item in dealPath(k.path)" :key="item">{{ item }}</a-breadcrumb-item>
               </a-breadcrumb>
-              <div class="skt-description" @dblclick="handleAddTag(k)">
+              <div class="skt-description">
                 {{ k.name }}
               </div>
             </div>
-            <a-popconfirm title="Delete?" ok-text="Yes" @confirm="handleDeleteKnowledgeItem(k)" cancel-text="No">
-              <span class="delete-action" >
-                <img src="~@/assets/icons/tag/delete.png"/>
-              </span>
-            </a-popconfirm>
           </div>
         </a-row>
 
@@ -29,32 +24,10 @@
               <a-breadcrumb separator=">">
                 <a-breadcrumb-item v-for="item in dealPath(k.path)" :key="item">{{ item }}</a-breadcrumb-item>
               </a-breadcrumb>
-              <div class="skt-description" @dblclick="handleAddTag(k)">
+              <div class="skt-description">
                 {{ k.name }}
               </div>
-              <!--              <div-->
-              <!--                v-if="k.tagType == TagType.knowledge || k.tagType == TagType.century"-->
-              <!--                class="actions">-->
-              <!--                <span class="add-action" @click.stop.prevent="handleAddTag(k)">-->
-              <!--                  <img src="~@/assets/icons/tag/add.png"/>-->
-              <!--                </span>-->
-              <!--                <span class="up-down">-->
-              <!--                  <a-icon type="up" v-if="k.tagListVisible"/>-->
-              <!--                  <a-icon type="down" v-else />-->
-              <!--                </span>-->
-              <!--              </div>-->
-              <!--              <a-divider style="margin: 10px 0px" v-if="k.tagListVisible" />-->
-              <!--              <div class="skt-description-tag-list" v-if="k.tagListVisible">-->
-              <!--                <div :class="{'tag-list-item': true,'skill-mode': true}" v-for="name in k.tags" :key="name">-->
-              <!--                  <a-tag class="tag-item" :closable="true" @close="handleDeleteTag(index,name)">{{ name }}</a-tag>-->
-              <!--                </div>-->
-              <!--              </div>-->
             </div>
-            <a-popconfirm title="Delete?" ok-text="Yes" @confirm="handleDeleteKnowledgeItem(k)" cancel-text="No">
-              <span class="delete-action" >
-                <img src="~@/assets/icons/tag/delete.png"/>
-              </span>
-            </a-popconfirm>
           </div>
         </a-row>
 
@@ -65,19 +38,8 @@
               <a-breadcrumb separator=">">
                 <a-breadcrumb-item v-for="item in dealPath(k.path)" :key="item">{{ item }}</a-breadcrumb-item>
               </a-breadcrumb>
-              <div class="skt-description skt-description-21" @dblclick="handleAddTag(k)">
+              <div class="skt-description skt-description-21">
                 {{ k.name }}
-              </div>
-              <div
-                v-if="k.tagType === TagType.century"
-                class="actions">
-                <span class="add-action" @click.stop.prevent="handleAddTag(k)">
-                  <img src="~@/assets/icons/tag/add.png"/>
-                </span>
-                <span class="up-down">
-                  <a-icon type="up" v-if="k.tagListVisible"/>
-                  <a-icon type="down" v-else />
-                </span>
               </div>
               <a-divider style="margin: 10px 0px" v-if="k.tagListVisible" />
               <div class="skt-description-tag-list" v-if="k.tagListVisible">
@@ -86,11 +48,6 @@
                 </div>
               </div>
             </div>
-            <a-popconfirm title="Delete?" ok-text="Yes" @confirm="handleDeleteKnowledgeItem(k)" cancel-text="No">
-              <span class="delete-action" >
-                <img src="~@/assets/icons/tag/delete.png"/>
-              </span>
-            </a-popconfirm>
           </div>
         </a-row>
 
@@ -156,7 +113,7 @@
   import { getAll21Century } from '@/api/knowledge'
 
   export default {
-    name: 'UiLearnOut',
+    name: 'UiLearnOutSub',
     components: {
       LearnOutAddTag,
       NoMoreResources
@@ -321,12 +278,12 @@
 
   .objectives-wrapper {
     .objectives-wrapper-block{
-      margin-bottom: 15px;
+      margin-bottom: 10px;
       .title-item{
-        font-size: 20px;
+        font-size: 16px;
         //font-family: Leelawadee UI;
         font-weight: 500;
-        line-height: 24px;
+        line-height: 20px;
         opacity: 1;
         margin-bottom: 10px;
       }
@@ -521,9 +478,9 @@
     margin-bottom: 30px;
     .tips {
       text-align: center;
-      margin-bottom: 20px;
+      margin-bottom: 16px;
       font-family: Inter-Bold;
-      font-size: 15px;
+      font-size: 13px;
       color: #474747;
     }
 
