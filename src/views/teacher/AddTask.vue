@@ -2583,6 +2583,12 @@ export default {
         this.$logger.info('mySelectedList', this.$refs.newBrowser.mySelectedList)
         this.$logger.info('learnOuts', this.form.learnOuts)
         this.form.learnOuts = this.$refs.newBrowser.mySelectedList
+        this.$refs.newBrowser.selectedRecommendList.forEach(item => {
+          const index = this.form.learnOuts.findIndex(dataItem => dataItem.knowledgeId === item.knowledgeId)
+          if (index === -1) {
+            this.form.learnOuts.push(item)
+          }
+        })
         this.selectedSyncList.forEach(data => {
           const filterLearnOuts = this.form.learnOuts.filter(item => item.knowledgeId === data.knowledgeId)
           if (filterLearnOuts.length > 0) {
