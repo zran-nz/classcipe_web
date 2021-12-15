@@ -369,9 +369,8 @@
 
                   <template v-if="showTaskDetails && currentActiveStepIndex === 0">
                     <div class="task-details-panel" :style="{'width':'600px','position': 'absolute', 'top':taskDetailsTop+'px', 'z-index': 200}">
-                      <Assessment-Task-Details>
+                      <Assessment-Task-Details :associate-task-list="associateTaskList" />
 
-                      </Assessment-Task-Details>
                     </div>
                   </template>
 

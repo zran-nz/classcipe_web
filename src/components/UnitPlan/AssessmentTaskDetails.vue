@@ -16,115 +16,44 @@
       </div>
 
       <div class="tab1-details">
-        <div class="tab1-item">
-          <div class="left-card">
-          </div>
-          <div class="center-card">
-            <div class="title-image">
-              <div class="center-title">
-                Task 1 title Task 1 title Task 1 title Task 1 title
-                Task 1 title Task 1 titleTask 1 title Task 1 title
+        <div class="tab-item-block" v-if="task.type === contentType.task" v-for="(task,index) in associateTaskList" :key="index">
+          <div class="tab1-item">
+            <div class="left-card">
+              <div class="time-top">
+                <span class="time-month">Now</span>
+                <span class="time-day">02</span>
               </div>
-              <img class="go-icon" src="~@/assets/icons/unitplan/go.png" />
-            </div>
-            <div class="center-tags">
-              <div class="tag-list-item">
-                <a-tag class="tag-item" :closable="false">Formative</a-tag>
-              </div>
-              <div class="tag-list-item">
-                <a-tag class="tag-item" :closable="false">Formative Formative Formative</a-tag>
-              </div>
-              <div class="tag-list-item">
-                <a-tag class="tag-item" :closable="false">Formative</a-tag>
-              </div>
-              <div class="tag-list-item">
-                <a-tag class="tag-item" :closable="false">Formative</a-tag>
-              </div>
-              <div class="tag-list-item">
-                <a-tag class="tag-item" :closable="false">Formative</a-tag>
-              </div> <div class="tag-list-item">
-                <a-tag class="tag-item" :closable="false">Formative</a-tag>
-              </div>
-              <div class="tag-list-item">
-                <a-tag class="tag-item" :closable="false">Formative</a-tag>
+              <div class="time-bottom">
+                Fri 15:20 pm
               </div>
 
-              <div class="tag-list-item">
-                <a-tag class="tag-item" :closable="false">Formative</a-tag>
+            </div>
+            <div class="center-card">
+              <div class="title-image">
+                <div class="center-title">
+                  {{ task.name }}
+                </div>
+                <img class="go-icon" src="~@/assets/icons/unitplan/go.png" />
               </div>
-              <div class="tag-list-item">
-                <a-tag class="tag-item" :closable="false">Formative</a-tag>
-              </div>
-              <div class="tag-list-item">
-                <a-tag class="tag-item" :closable="false">Formative</a-tag>
+              <div class="center-tags">
+                <div class="tag-list-item">
+                  <a-tag v-if="task.taskType == 'FA'" class="tag-item" :closable="false">Formative</a-tag>
+                  <a-tag v-if="task.taskType == 'SA'" class="tag-item" :closable="false">Summative</a-tag>
+                  <a-tag v-if="task.taskType == 'Activity'" class="tag-item" :closable="false">Activity</a-tag>
+                </div>
               </div>
             </div>
+            <div class="right-card" @click="showTaskLearnOut(task)" >
+              <a-icon type="caret-down" v-if="!task.showLearnOut" />
+              <a-icon type="caret-up" v-if="task.showLearnOut" />
+            </div>
           </div>
-          <div class="right-card" >
-            <a-icon type="caret-down" />
+
+          <div class="learn-out" v-if="task.showLearnOut">
+            <ui-learn-out-sub :learn-outs="task.learnOuts" />
           </div>
         </div>
 
-        <div class="tab1-item">
-          <div class="left-card">
-          </div>
-          <div class="center-card">
-            <div class="title-image">
-              <div class="center-title">
-                Unnamed Unit Plan 123456789
-              </div>
-              <img class="go-icon" src="~@/assets/icons/unitplan/go.png" />
-            </div>
-            <div class="center-tags">
-              <div class="tag-list-item">
-                <a-tag class="tag-item" :closable="false">Formative</a-tag>
-              </div>
-              <div class="tag-list-item">
-                <a-tag class="tag-item" :closable="false">Formative Formative Formative</a-tag>
-              </div>
-            </div>
-          </div>
-          <div class="right-card" >
-            <a-icon type="caret-down" />
-          </div>
-        </div>
-
-        <div class="tab1-item">
-          <div class="left-card">
-          </div>
-          <div class="center-card">
-            <div class="title-image">
-              <div class="center-title">
-                Task 1 title Task 1 title Task 1 title Task 1 title
-                Task 1 title Task 1 titleTask 1 title Task 1 title
-              </div>
-              <img class="go-icon" src="~@/assets/icons/unitplan/go.png" />
-            </div>
-            <div class="center-tags">
-              <div class="tag-list-item">
-                <a-tag class="tag-item" :closable="false">Formative</a-tag>
-              </div>
-              <div class="tag-list-item">
-                <a-tag class="tag-item" :closable="false">Formative Formative Formative</a-tag>
-              </div>
-              <div class="tag-list-item">
-                <a-tag class="tag-item" :closable="false">Formative</a-tag>
-              </div>
-              <div class="tag-list-item">
-                <a-tag class="tag-item" :closable="false">Formative</a-tag>
-              </div>
-              <div class="tag-list-item">
-                <a-tag class="tag-item" :closable="false">Formative</a-tag>
-              </div>
-              <div class="tag-list-item">
-                <a-tag class="tag-item" :closable="false">Formative</a-tag>
-              </div>
-            </div>
-          </div>
-          <div class="right-card" >
-            <a-icon type="caret-down" />
-          </div>
-        </div>
       </div>
     </a-card>
   </div>
@@ -132,10 +61,13 @@
 
 <script>
 import { UtilMixin } from '@/mixins/UtilMixin'
+import UiLearnOutSub from '@/components/UnitPlan/UiLearnOutSub'
+import { typeMap } from '@/const/teacher'
 
 export default {
   name: 'AssessmentTaskDetails',
   components: {
+    UiLearnOutSub
   },
   mixins: [UtilMixin],
   props: {
@@ -152,7 +84,8 @@ export default {
   data () {
     return {
       loading: false,
-      tab: '1'
+      tab: '1',
+      contentType: typeMap
     }
   },
   created () {
@@ -169,8 +102,13 @@ export default {
   methods: {
     changeTab (tab) {
       this.tab = tab
+    },
+    showTaskLearnOut (task) {
+      this.$logger.info('showTaskLearnOut ', task)
+      const index = this.associateTaskList.findIndex(item => item.id === task.id)
+      task.showLearnOut = !task.showLearnOut
+      this.$set(this.associateTaskList, index, task)
     }
-
   }
 
 }
@@ -237,15 +175,23 @@ export default {
     display:flex;
     flex-direction: column;
     margin-top: 20px;
+    .tab-item-block{
+      display: flex;
+      flex-direction: column;
+      border: 1px solid #E1E1E1;
+      border-radius: 6px;
+      margin-bottom: 10px;
+      min-height:87px;
+    }
+    .learn-out{
+      margin:10px;
+    }
     .tab1-item{
       display:flex;
       width: 100%;
-      margin-bottom: 5px;
-      //height: 80px;
-      background: #FFFFFF;
-      border: 1px solid #E1E1E1;
+      //height: 87px;
+      //background: #FFFFFF;
       opacity: 1;
-      border-radius: 6px;
     }
     .left-card{
       margin: 5px;
@@ -253,6 +199,47 @@ export default {
       background: #F2F2F2;
       opacity: 1;
       border-radius: 4px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      .time-top{
+        width: 80px;
+        height: 50px;
+        background: #EC808D;
+        opacity: 1;
+        border-radius: 4px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        margin: 5px;
+        .time-month{
+          height: 19px;
+          font-size: 14px;
+          font-family: Leelawadee UI;
+          font-weight: bold;
+          line-height: 24px;
+          color: #FFFFFF;
+          opacity: 1;
+        }
+        .time-day{
+          font-size: 14px;
+          font-family: Inter-Bold;
+          line-height: 24px;
+          color: #FFFFFF;
+          opacity: 1;
+        }
+      }
+      .time-bottom{
+        //width: 66px;
+        //height: 16px;
+        font-size: 12px;
+        font-family: Inter-Bold;
+        line-height: 24px;
+        color: #474747;
+        opacity: 1;
+      }
     }
     .center-card{
       width: 70%;
@@ -265,7 +252,6 @@ export default {
           font-family: Inter-Bold;
           line-height: 20px;
           color: #474747;
-          font-size:13px;
         }
         .go-icon{
           width:20px;
