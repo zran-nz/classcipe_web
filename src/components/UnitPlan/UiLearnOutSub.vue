@@ -257,7 +257,7 @@
       },
       getknowledgeListType (type) {
         if (type === TagType.skill) {
-          return this.knowledgeList.filter(item => item.tagType === TagType.skill || item.tagType === TagType.ibSkill)
+          return this.knowledgeList.filter(item => item.tagType === TagType.skill || item.tagType === TagType.ibSkill || item.tagType === TagType.idu)
         } else if (type === TagType.century) {
           return this.knowledgeList.filter(item => item.tagType === TagType.century ||
             item.tagType === TagType.common || item.tagType === TagType.ibSkill)
