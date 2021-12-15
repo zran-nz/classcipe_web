@@ -15,7 +15,7 @@
         </div>
       </div>
 
-      <div class="tab1-details">
+      <div class="tab1-details" v-if="tab==='1'">
         <div class="tab-item-block" v-for="(task,index) in associateTaskList" :key="index">
           <div class="tab1-item">
             <div class="left-card">
@@ -54,6 +54,74 @@
           </div>
         </div>
 
+      </div>
+
+      <div class="tab2-details" v-if="tab==='2'">
+        <div class="tab2-title">
+          Learning experience/Student expectations
+        </div>
+        <div class="tab2-task-list">
+          <div class="task-card">
+            <div class="title-image">
+              <div class="center-title">
+                Task 1 title Task 1 title
+              </div>
+              <img class="go-icon" src="~@/assets/icons/unitplan/go.png" @click="handleEditTask(task)" />
+            </div>
+            <div class="overview">
+              details task details task details task details task details details task details
+              task details task details task detailstask details task
+            </div>
+          </div>
+          <div class="task-card">
+            <div class="title-image">
+              <div class="center-title">
+                Task 1 title Task 1 title
+              </div>
+              <img class="go-icon" src="~@/assets/icons/unitplan/go.png" @click="handleEditTask(task)" />
+            </div>
+            <div class="overview">
+              details task details task details task details task details details task details
+              task details task details task detailstask details task
+            </div>
+          </div>
+        </div>
+
+        <div class="tab2-title">
+          Teaching strategie
+        </div>
+        <div class="tab2-task-list">
+          <div class="task-card">
+            <div class="title-image">
+              <div class="center-title">
+                Task 1 title Task 1 title
+              </div>
+              <img class="go-icon" src="~@/assets/icons/unitplan/go.png" @click="handleEditTask(task)" />
+            </div>
+            <div class="overview">
+              details task details task details task details task details details task details
+              task details task details task detailstask details task
+            </div>
+          </div>
+        </div>
+
+        <div class="tab2-title">
+          Differentiate instructions
+        </div>
+        <div class="tab2-task-list">
+          <div class="task-card">
+            <div class="title-image">
+              <div class="center-title">
+                Task 1 title Task 1 title
+              </div>
+              <img class="go-icon" src="~@/assets/icons/unitplan/go.png" @click="handleEditTask(task)" />
+            </div>
+            <div class="overview">
+              details task details task details task details task details details task details
+              task details task details task detailstask details task
+            </div>
+          </div>
+        </div>
       </div>
     </a-card>
   </div>
@@ -337,6 +405,60 @@ export default {
       }
     }
 
+  }
+
+  .tab2-details {
+    display: flex;
+    flex-direction: column;
+    margin-top: 20px;
+    .tab2-title{
+      margin:10px;
+      font-size: 16px;
+      font-family: Inter-Bold;
+      line-height: 14px;
+      color: #15C39A;
+      opacity: 1;
+    }
+    .tab2-task-list{
+      .task-card{
+        background: #FFFFFF;
+        border: 1px solid #E1E1E1;
+        opacity: 1;
+        border-radius: 6px;
+        margin: 10px;
+        padding:10px;
+        display:flex;
+        flex-direction: column;
+        .title-image{
+          display: flex;
+          .center-title{
+            font-size: 16px;
+            font-family: Leelawadee UI;
+            font-weight: bold;
+            line-height: 24px;
+            color: #474747;
+            opacity: 1;
+          }
+          .go-icon{
+            width:20px;
+            height: 20px;
+            cursor: pointer;
+            margin-top: 2px;
+            margin-left: 10px;
+            &:hover{
+              color:#15C39A
+            }
+          }
+        }
+        .overflow{
+          font-size: 16px;
+          font-family: Inter-Bold;
+          line-height: 24px;
+          color: #474747;
+          opacity: 1;
+        }
+      }
+    }
   }
 
 }

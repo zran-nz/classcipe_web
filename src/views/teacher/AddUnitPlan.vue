@@ -249,10 +249,10 @@
                             </div>
                           </a-button>
 
-                          <!--                          <a-button type="link" ghost class="assessment-task-button" @click="handleClickTaskDetail($event)">-->
-                          <!--                            Assessment task details-->
-                          <!--                            <a-icon type="right"/>-->
-                          <!--                          </a-button>-->
+                          <a-button type="link" ghost class="assessment-task-button" @click="handleClickTaskDetail($event)">
+                            Assessment task details
+                            <a-icon type="right"/>
+                          </a-button>
 
                         </a-form-item>
 
