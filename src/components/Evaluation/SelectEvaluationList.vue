@@ -224,7 +224,7 @@ export default {
           })
           item.forms = forms
           if (item.forms.length === 0) {
-            this.$message.warn('The current evaluation form has not been created')
+            this.$message.warn('The current assessment tool form has not been created')
           }
         })
       }

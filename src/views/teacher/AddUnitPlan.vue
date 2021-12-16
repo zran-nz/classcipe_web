@@ -249,7 +249,7 @@
                             </div>
                           </a-button>
 
-                          <a-button type="link" ghost class="assessment-task-button" @click="handleClickTaskDetail($event)">
+                          <a-button type="link" ghost class="assessment-task-button" @click="handleClickTaskDetail($event)" >
                             Assessment task details
                             <a-icon type="right"/>
                           </a-button>
@@ -369,7 +369,7 @@
 
                   <template v-if="showTaskDetails && currentActiveStepIndex === 0">
                     <div class="task-details-panel" :style="{'width':'600px','position': 'absolute', 'top':taskDetailsTop+'px', 'z-index': 200}">
-                      <Assessment-Task-Details :associate-task-list="associateTaskList" />
+                      <Assessment-Task-Details :associate-task-list="associateTaskList" @hide-assessment-task="showTaskDetails = false"/>
 
                     </div>
                   </template>

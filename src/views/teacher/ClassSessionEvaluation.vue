@@ -376,7 +376,7 @@
               {{ memberName }}
             </div>
           </div>
-          The change(s) you make will apply to all of their evaluation results.
+          The change(s) you make will apply to all of their assessment tool results.
           Please select only one student if you want to evaluate student individually.
         </div>
         <div class="modal-ensure-action-line-right" style="justify-content: center">
@@ -397,10 +397,10 @@
         </div>
         <div class="edit-tips">
           <div class="self-evaluation-notice">
-            There are {{ allStudentUserIdList.length - studentEvaluateIdList.length }} students who haven't completed the self-evaluation.
+            There are {{ allStudentUserIdList.length - studentEvaluateIdList.length }} students who haven't completed the self-assessment tool.
           </div>
           <div class="peer-evaluation-notice">
-            There are {{ allStudentUserIdList.length - peerEvaluateIdList.length }} students who haven't completed peer-evaluation.
+            There are {{ allStudentUserIdList.length - peerEvaluateIdList.length }} students who haven't completed peer-assessment tool.
           </div>
         </div>
         <div class="modal-ensure-action-line-right">

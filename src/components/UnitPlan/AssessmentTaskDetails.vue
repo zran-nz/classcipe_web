@@ -2,8 +2,10 @@
   <div class="task-details">
     <a-card class="cover-card" >
       <div slot="title" class="assessment-task-button">
-        <a-icon type="left"/>
-        Assessment task details
+        <div @click="hideModel()" style="width:200px">
+          <a-icon type="left"/>
+          Assessment task details
+        </div>
       </div>
 
       <div class="tab-content">
@@ -33,7 +35,8 @@
                 <div class="center-title">
                   {{ task.name }}
                 </div>
-                <img class="go-icon" src="~@/assets/icons/unitplan/go.png" @click="handleEditTask(task)" />
+                <Go-Icon class="go-icon" @click="handleEditTask(task)" />
+                <!--                <img class="go-icon" src="~@/assets/icons/unitplan/go.png" @click="handleEditTask(task)" />-->
               </div>
               <div class="center-tags">
                 <div class="tag-list-item">
@@ -61,28 +64,15 @@
           Learning experience/Student expectations
         </div>
         <div class="tab2-task-list">
-          <div class="task-card">
+          <div class="task-card" v-for="(task,index) in associateTaskList" :key="index">
             <div class="title-image">
               <div class="center-title">
-                Task 1 title Task 1 title
+                {{ task.name }}
               </div>
-              <img class="go-icon" src="~@/assets/icons/unitplan/go.png" @click="handleEditTask(task)" />
+              <Go-Icon class="go-icon" @click="handleEditTask(task)" />
             </div>
             <div class="overview">
-              details task details task details task details task details details task details
-              task details task details task detailstask details task
-            </div>
-          </div>
-          <div class="task-card">
-            <div class="title-image">
-              <div class="center-title">
-                Task 1 title Task 1 title
-              </div>
-              <img class="go-icon" src="~@/assets/icons/unitplan/go.png" @click="handleEditTask(task)" />
-            </div>
-            <div class="overview">
-              details task details task details task details task details details task details
-              task details task details task detailstask details task
+              {{ task.overview }}
             </div>
           </div>
         </div>
@@ -91,16 +81,17 @@
           Teaching strategie
         </div>
         <div class="tab2-task-list">
-          <div class="task-card">
+          <div class="task-card" v-for="(task,index) in associateTaskList" :key="index">
             <div class="title-image">
               <div class="center-title">
-                Task 1 title Task 1 title
+                {{ task.name }}
               </div>
-              <img class="go-icon" src="~@/assets/icons/unitplan/go.png" @click="handleEditTask(task)" />
+              <Go-Icon class="go-icon" @click="handleEditTask(task)" />
             </div>
-            <div class="overview">
-              details task details task details task details task details details task details
-              task details task details task detailstask details task
+            <div class="task-tags">
+              <div class="tag-list-item">
+                <a-tag v-if="tag.parentName === 'Teaching strategies'" v-for="(tag,tIndex) in task.customTags" :key="tIndex" class="tag-item" :closable="false">{{ tag.name }}</a-tag>
+              </div>
             </div>
           </div>
         </div>
@@ -109,16 +100,17 @@
           Differentiate instructions
         </div>
         <div class="tab2-task-list">
-          <div class="task-card">
+          <div class="task-card" v-for="(task,index) in associateTaskList" :key="index">
             <div class="title-image">
               <div class="center-title">
-                Task 1 title Task 1 title
+                {{ task.name }}
               </div>
-              <img class="go-icon" src="~@/assets/icons/unitplan/go.png" @click="handleEditTask(task)" />
+              <Go-Icon class="go-icon" @click="handleEditTask(task)" />
             </div>
-            <div class="overview">
-              details task details task details task details task details details task details
-              task details task details task detailstask details task
+            <div class="task-tags">
+              <div class="tag-list-item">
+                <a-tag v-if="tag.parentName === 'Differentiated instructions'" v-for="(tag,tIndex) in task.customTags" :key="tIndex" class="tag-item" :closable="false">{{ tag.name }}</a-tag>
+              </div>
             </div>
           </div>
         </div>
@@ -132,11 +124,12 @@ import { UtilMixin } from '@/mixins/UtilMixin'
 import UiLearnOutSub from '@/components/UnitPlan/UiLearnOutSub'
 import { typeMap } from '@/const/teacher'
 import moment from 'moment'
+import GoIcon from '@/assets/icons/unitplan/go.svg?inline'
 
 export default {
   name: 'AssessmentTaskDetails',
   components: {
-    UiLearnOutSub
+    UiLearnOutSub, GoIcon
   },
   mixins: [UtilMixin],
   props: {
@@ -207,6 +200,9 @@ export default {
     handleEditTask (item) {
       window.open('/teacher/task-redirect/' + item.id
         , '_blank')
+    },
+    hideModel () {
+      this.$emit('hide-assessment-task')
     }
   }
 
@@ -353,8 +349,8 @@ export default {
           color: #474747;
         }
         .go-icon{
-          width:20px;
-          height: 20px;
+          width:30px;
+          //height: 20px;
           cursor: pointer;
           margin-top: 2px;
           margin-left: 10px;
@@ -440,8 +436,8 @@ export default {
             opacity: 1;
           }
           .go-icon{
-            width:20px;
-            height: 20px;
+            width:30px;
+            //height: 20px;
             cursor: pointer;
             margin-top: 2px;
             margin-left: 10px;
@@ -456,6 +452,33 @@ export default {
           line-height: 24px;
           color: #474747;
           opacity: 1;
+        }
+        .task-tags{
+          margin-top:10px;
+          margin-left: 5px;
+        }
+        .tag-list-item {
+          margin: 3px 1px 3px 0;
+          display: flex;
+          justify-content: flex-start;
+          align-items: center;
+          vertical-align: middle;
+          flex-wrap: wrap;
+          cursor: pointer;
+          .tag-item {
+            margin-bottom: 5px;
+            background:#15C39A;
+            cursor: pointer;
+            border-radius: 10px;
+            word-break:normal;
+            width:auto;
+            color: #FFFFFF;
+            display:block;
+            white-space:pre-wrap;
+            word-wrap : break-word ;
+            overflow: hidden ;
+            padding-bottom: 3px;
+          }
         }
       }
     }

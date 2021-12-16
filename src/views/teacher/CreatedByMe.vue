@@ -688,7 +688,7 @@ export default {
       logger.info('loadTeacherClasses  slideId:' + item.presentationId)
       this.loading = true
       this.sessionList = []
-      FindMyClasses({ slideId: item.presentationId }).then(response => {
+      FindMyClasses({ slideId: item.presentationId, lastVersion: true }).then(response => {
         logger.info('findMyClasses', response.result.data)
         if (response.success) {
           this.sessionList = response.result

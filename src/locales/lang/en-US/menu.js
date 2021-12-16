@@ -7,7 +7,7 @@ export default {
     'menu.materials': 'Materials',
     'menu.task': 'Task',
     'menu.lessons': 'Lessons',
-    'menu.evaluation': 'Evaluation',
+    'menu.evaluation': 'Assessment tool',
     'menu.my-class': 'My Class',
     'menu.library': 'Library',
     'menu.library.center': 'Library',

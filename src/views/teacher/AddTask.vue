@@ -642,7 +642,7 @@
             :from-id="taskId"
             :filter-type-list="[contentType.evaluation]"
             :group-name-list="groupNameList"
-            default-group-name="Linked evaluation(s)"
+            default-group-name="Linked assessment tool(s)"
             :show-tabs="false"
             :mode="'common-link'"
             :group-name-mode="groupNameMode"

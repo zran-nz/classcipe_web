@@ -34,6 +34,6 @@ export function getLabelNameType (type) {
     case typeMap.lesson:
       return 'Lesson'
     case typeMap.evaluation:
-      return 'Evaluation'
+      return 'Assessment tool'
   }
 }

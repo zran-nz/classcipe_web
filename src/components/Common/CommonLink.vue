@@ -341,7 +341,7 @@ export default {
       this.$logger.info('handleLinkGroup', group)
       this.subDefaultGroupName = group.group
       this.selectLinkContentVisible = true
-      if (group.group.trim() === 'Linked evaluation(s)') {
+      if (group.group.trim() === 'Linked assessment tool(s)') {
         this.subFilterTypeList = [typeMap.evaluation]
         this.showCreate = false
         this.showTabs = false
