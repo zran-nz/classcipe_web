@@ -1,27 +1,55 @@
 <template>
-  <div class="library-wrapper" ref="wrapper" data-version="v2">
+  <div class="library-wrapper" ref="wrapper" data-version="v2" @click="handleSearchInputBlur">
     <div class="nav-header" :style="{height: currentBrowserType === BrowserTypeMap.sdg ? '75px' : '127px'}">
       <div class="header-info">
         <div class="library-nav-bar">
           <navigation :path="navPath" @pathChange="handleNavPathChange"/>
         </div>
-        <div class="filter-line" v-if="currentBrowserType !== BrowserTypeMap.sdg">
-          <div class="curriculum-select">
-            <a-select
-              v-if="curriculumOptions.length"
-              @change="handleCurriculumChange"
-              v-model="currentCurriculumId"
-              :default-value="$store.getters.bindCurriculum"
-              class="select-curriculum">
-              <a-select-option v-for="(curriculum,index) in curriculumOptions" :value="curriculum.id" :key="index">
-                {{ curriculum.name }}
-              </a-select-option>
-              <div class="arrow-self" slot="suffixIcon">
-                <img src="~@/assets/icons/library/arrow.png" />
+        <div class="filter-line">
+          <div class="curriculum-filter-line">
+            <div class="curriculum-select">
+              <a-select
+                v-show="currentBrowserType !== BrowserTypeMap.sdg && curriculumOptions.length"
+                @change="handleCurriculumChange"
+                v-model="currentCurriculumId"
+                :default-value="$store.getters.bindCurriculum"
+                class="select-curriculum">
+                <a-select-option v-for="(curriculum,index) in curriculumOptions" :value="curriculum.id" :key="index">
+                  {{ curriculum.name }}
+                </a-select-option>
+                <div class="arrow-self" slot="suffixIcon">
+                  <img src="~@/assets/icons/library/arrow.png" />
+                </div>
+              </a-select>
+            </div>
+          </div>
+          <div class="search-bar-line">
+            <div class="search-input" @click.stop="">
+              <a-input
+                v-model="searchKeyword"
+                placeholder="Input search text"
+                @change="handleSearch"
+                @keyup.enter="handleSearch"
+                @focus="handleSearchFocus"
+                class="library-search-input">
+                <a-icon slot="prefix" type="search" />
+              </a-input>
+            </div>
+            <div class="search-result-wrapper" v-if="searchResultVisible">
+              <div class="search-result-list">
+                <div
+                  class="search-result-item"
+                  @click.stop="handleClickSearchResultItem(item)"
+                  v-for="(item, sIndex) in searchResultList"
+                  :key="sIndex"
+                  :data-from-type="item.fromType">
+                  {{ item.name }}
+                </div>
               </div>
-            </a-select>
+            </div>
           </div>
         </div>
+        <div class="search-bar"></div>
       </div>
     </div>
     <div class="library-detail-wrapper" :style="{top: currentBrowserType === BrowserTypeMap.sdg ? '74px' : '126px', height: currentBrowserType === BrowserTypeMap.sdg ? 'calc(100vh - 138px)': 'calc(100vh - 190px)'}">
@@ -127,6 +155,7 @@ import GeneralCapabilityBrowser from '@/components/LibraryV2/GeneralCapabilityBr
 import SubjectSpecificBrowser from '@/components/LibraryV2/SubjectSpecificBrowser'
 import IduBrowser from '@/components/LibraryV2/IduBrowser'
 import { CurriculumType } from '@/const/common'
+const { Search, QueryContents } = require('@/api/library')
 
 const BrowserTypeMap = {
   curriculum: 'curriculum',
@@ -208,7 +237,11 @@ export default {
 
       headerTop: '64px',
       libraryDetailTop: '126px',
-      curriculumType: CurriculumType
+      curriculumType: CurriculumType,
+
+      searchKeyword: null,
+      searchResultList: [],
+      searchResultVisible: false
     }
   },
   created () {
@@ -326,6 +359,42 @@ export default {
         path: this.browserTypeLabelMap[this.currentBrowserType],
         blockIndex: 0
       }]
+    },
+
+    handleSearch () {
+      this.$logger.info('handleSearch ' + this.searchKeyword)
+      if (this.searchKeyword) {
+        this.searchByKeyword(this.searchKeyword)
+      } else {
+        this.searchResultList = []
+      }
+    },
+
+    searchByKeyword (value) {
+      this.$logger.info('searchByKeyword ' + value)
+      Search({
+        curriculumId: this.currentCurriculumId,
+        key: value
+      }).then(response => {
+        this.$logger.info('searchByKeyword ' + value, response)
+        this.searchResultList = response.result
+      })
+    },
+
+    handleSearchFocus () {
+      this.$logger.info('handleSearchFocus')
+      this.searchResultList = []
+      this.searchResultVisible = true
+      this.handleSearch()
+    },
+
+    handleClickSearchResultItem (item) {
+      this.$logger.info('handleClickSearchResultItem ', item)
+    },
+
+    handleSearchInputBlur () {
+      this.$logger.info('handleSearchInputBlur')
+      this.searchResultVisible = false
     }
   }
 }
@@ -376,21 +445,81 @@ export default {
   .filter-line {
     padding: 0 0 20px;
     height: 52px;
-    .curriculum-select {
-      background: #eaebef;
-      display: inline-block;
-      position: relative;
-      border-radius: 3px;
-      /deep/ .ant-select-selection{
-        width: 150px;
-      }
-      .select-curriculum {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+
+    .curriculum-filter-line {
+      display: flex;
+      flex-direction: row;
+      width: 200px;
+      align-items: center;
+      .curriculum-select {
+        background: #eaebef;
+        display: inline-block;
         position: relative;
-        font-size: 14px;
-        font-family: Inter-Bold;
-        line-height: 24px;
-        opacity: 1;
         border-radius: 3px;
+        /deep/ .ant-select-selection{
+          width: 150px;
+        }
+        .select-curriculum {
+          position: relative;
+          font-size: 14px;
+          font-family: Inter-Bold;
+          line-height: 24px;
+          opacity: 1;
+          border-radius: 3px;
+        }
+      }
+    }
+
+    .search-bar-line {
+      width: calc(100% - 200px);
+      padding-left: 20px;
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      justify-content: flex-start;
+      position: relative;
+
+      .search-input {
+        width: 600px;
+      }
+
+      .search-result-wrapper {
+        position: absolute;
+        top: 40px;
+        box-shadow: 0 0 8px rgba(0, 0, 0, 0.16);
+        width: 600px;
+        background-color: #fff;
+        max-height: 350px;
+        overflow-y: scroll;
+
+        .search-result-item {
+          padding: 8px 10px;
+          cursor: pointer;
+          border-bottom: 1px solid #f6f6f6;
+          &:hover {
+            color: #15c39a;
+            background-color: #f6f6f6;
+          }
+        }
+
+        &::-webkit-scrollbar {
+          width: 5px;
+          height: 5px;
+        }
+        &::-webkit-scrollbar-track {
+          border-radius: 3px;
+          background: rgba(0,0,0,0.00);
+          -webkit-box-shadow: inset 0 0 5px rgba(0,0,0,0.01);
+        }
+        /* 滚动条滑块 */
+        &::-webkit-scrollbar-thumb {
+          border-radius: 5px;
+          background: rgba(0,0,0,0.12);
+          -webkit-box-shadow: inset 0 0 10px rgba(0,0,0,0.1);
+        }
       }
     }
   }
@@ -528,6 +657,10 @@ export default {
       }
     }
   }
+}
+
+.library-search-input {
+  border-radius: 20px;
 }
 
 </style>
