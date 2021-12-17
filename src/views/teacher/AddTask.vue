@@ -2296,6 +2296,10 @@ export default {
           .then((response) => {
             logger.info('handleUploadImage upload response:', response)
             this.form.image = this.$store.getters.downloadUrl + response.result
+            // 设置是否已经人工上传
+            if (this.form.presentationId) {
+              this.form.hasUploadImage = true
+            }
           }).catch(err => {
           logger.error('handleUploadImage error', err)
           this.$message.error(this.$t('teacher.add-unit-plan.upload-image-file-failed'))
@@ -2309,6 +2313,7 @@ export default {
         e.stopPropagation()
         e.preventDefault()
         this.form.image = null
+        this.form.hasUploadImage = false
       },
 
       handleEditGoogleSlide () {
@@ -3347,6 +3352,7 @@ export default {
         position: relative;
         img {
           /*width: 100%;*/
+          max-width: 100%;
           max-height: 250px;
         }
 
