@@ -18,7 +18,7 @@
           </a-select>
         </div>
       </div>
-      <div class="navigation-item">
+      <div class="navigation-item" :style="{'left': (expandedListFlag ? 785 : 125) + 'px', 'width': (expandedListFlag ? 380 : 1000) + 'px',}">
         <new-navigation />
       </div>
     </div>
@@ -226,6 +226,12 @@
           <template v-if="!expandedListFlag">
             <a-icon type="double-right" style="font-size: 20px; color: #07AB84"/>
           </template>
+        </div>
+        <div class="modal-ensure-action-line-center">
+          <a-space>
+            <a-button class="action-item action-cancel" shape="round" @click="handleCancelSelectData">Cancel</a-button>
+            <a-button class="action-ensure action-item" type="primary" shape="round" @click="handleEnsureSelectData">Ok</a-button>
+          </a-space>
         </div>
       </div>
       <div class="main-tree-content" :style="{'left': (expandedListFlag ? 765 : 100) + 'px'}">
@@ -470,6 +476,16 @@ export default {
       if (index > -1) {
         this.mySelectedList.splice(index, 1)
       }
+    },
+
+    handleCancelSelectData () {
+      this.$logger.info('NewBrowser handleCancelSelectData')
+      this.$emit('cancel-select')
+    },
+
+    handleEnsureSelectData () {
+      this.$logger.info('NewBrowser handleEnsureSelectData')
+      this.$emit('ensure-select')
     }
   }
 }
@@ -486,6 +502,12 @@ export default {
     justify-content: flex-start;
     align-items: center;
     padding-bottom: 10px;
+
+    .navigation-item {
+      top: 18px;
+      position: absolute;
+      transition: all 200ms ease-in;
+    }
   }
 
   .main {
@@ -499,6 +521,7 @@ export default {
     position: relative;
     .selected-content {
       z-index: 100;
+      padding-bottom: 50px;
       position: relative;
       width: 770px;
       flex-shrink: 0;
@@ -655,6 +678,16 @@ export default {
         margin-top: -10px;
         z-index: 200;
         transition: none;
+      }
+
+      .modal-ensure-action-line-center {
+        position: absolute;
+        width: 100%;
+        bottom: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 10px;
       }
     }
 

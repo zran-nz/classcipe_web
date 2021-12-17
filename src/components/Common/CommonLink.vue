@@ -21,7 +21,13 @@
                     </div>
                   </div>
                   <div class="group-edit-icon" @click="handleToggleEditGroupName(linkGroup)" v-if="canEdit">
-                    <a-icon type="edit" v-if="!linkGroup.editing"/>
+                    <a-tooltip>
+                      <template slot="title">
+                        Rename
+                      </template>
+                      <a-icon type="edit" v-if="!linkGroup.editing"/>
+                    </a-tooltip>
+
                     <a-icon type="check" v-if="linkGroup.editing"/>
                   </div>
                 </template>
