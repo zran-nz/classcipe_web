@@ -50,7 +50,7 @@
                     {{ item.name }}
                   </div>
                 </template>
-                <template v-else>
+                <template v-else-if="searchKeyword">
                   <div class="no-result">
                     No relevant data found!
                   </div>
