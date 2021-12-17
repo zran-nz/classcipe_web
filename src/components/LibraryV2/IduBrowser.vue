@@ -274,9 +274,6 @@ export default {
       GetGradesByCurriculumId({ curriculumId: curriculumId }).then(response => {
         this.$logger.info('GetGradesByCurriculumId', response.result)
         this.gradeList = response.result
-        if (this.gradeList && this.gradeList.length) {
-          this.handleSelectGradeItem(this.gradeList[0])
-        }
       })
     },
 

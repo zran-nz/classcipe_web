@@ -1,8 +1,8 @@
 <template>
-  <div class="browser-block">
+  <div class="browser-block" data-type="GeneralCapabilityBrowser">
     <!--      main grade list-->
     <div class="browser-block-item-wrapper">
-      <div class="browser-block-item" :style="{width: blockWidth + 'px' , minWidth: blockWidth + 'px' }">
+      <div class="browser-block-item" :style="{width: '25vw' , minWidth: '25vw' }">
         <div
           :class="{
             'browser-item': true,
@@ -37,7 +37,7 @@
       </div>
     </div>
     <!--      main knowledge list-->
-    <div class="browser-block-item browser-block-item-wrapper" :style="{width: blockWidth + 'px' , minWidth: blockWidth + 'px' }" v-for="(knowledge, deepIndex) in knowledges" :key="deepIndex">
+    <div class="browser-block-item browser-block-item-wrapper" :style="{width: '25vw' , minWidth: '25vw' }" v-for="(knowledge, deepIndex) in knowledges" :key="deepIndex">
       <div
         :class="{
           'browser-item': true,
@@ -71,7 +71,7 @@
       </template>
     </div>
     <!--      sub knowledge list-->
-    <!--    <div class="browser-block-item" :style="{width: blockWidth + 'px' , minWidth: blockWidth + 'px' }" >-->
+    <!--    <div class="browser-block-item" :style="{width: '25vw' , minWidth: '25vw' }" >-->
     <!--      <div-->
     <!--        :class="{-->
     <!--          'browser-item': true,-->
@@ -106,12 +106,12 @@
     <!--    </div>-->
     <div
       class="browser-block-item-wrapper"
-      :style="{width: blockWidth + 'px' ,
-               minWidth: blockWidth + 'px'}">
+      :style="{width: '25vw' ,
+               minWidth: '25vw'}">
       <div
         class="browser-block-item-last"
-        :style="{width: blockWidth + 'px' ,
-                 minWidth: blockWidth + 'px',
+        :style="{width: '25vw' ,
+                 minWidth: '25vw',
                  'flex-direction': dataListMode === 'list' ? 'column' : 'row'}">
         <!--   data item list-->
         <div class="switch-type-wrapper">
@@ -235,6 +235,7 @@ import CardList from '@/views/list/CardList'
 import DataCardView from '@/components/LibraryV2/DataCardView'
 import { typeMap } from '@/const/teacher'
 import { GetGradesByCurriculumId } from '@/api/preference'
+import { TagType } from '@/const/common'
 
 export default {
   name: 'GeneralCapabilityBrowser',
@@ -305,7 +306,6 @@ export default {
         if (this.gradeList.length) {
           this.currentGradeId = this.gradeList[0].id
           this.get21CenturyKnowledge(this.currentGradeId)
-          this.handleClickBlock(1, this.gradeList[0].name)
         } else {
           this.$logger.warn('grade list is empty')
         }
@@ -325,7 +325,7 @@ export default {
         this.currentGradeId = gradeItem.id
         this.get21CenturyKnowledge(gradeItem.id)
       }
-      this.handleClickBlock(this.subjectDeep, gradeItem.name)
+      this.handleClickBlock(this.subjectDeep + 1, gradeItem.name)
     },
 
     get21CenturyKnowledge (gradeId) {
@@ -394,7 +394,7 @@ export default {
       this.knowledges[nextIndex].knowledgeListLoading = false
 
       this.$logger.info('knowledges', this.knowledges)
-      this.handleClickBlock(this.subjectDeep + 1 + deepIndex, knowledgeItem.name)
+      this.handleClickBlock(this.subjectDeep + 2 + deepIndex, knowledgeItem.name)
     },
 
     knowledgeQueryContentByDescriptionId (descriptionId) {
@@ -416,6 +416,13 @@ export default {
 
     handleClickBlock (blockIndex, path) {
       this.$logger.info('handleClickBlock ' + blockIndex)
+      this.$emit('clickBlock', {
+        curriculumId: this.curriculumId,
+        gradeId: this.currentGradeId,
+        subjectId: this.currentSubSubjectId ? this.currentSubSubjectId : this.currentMainSubjectId,
+        knowledgeId: this.currentSubKnowledgeId ? this.currentSubKnowledgeId : this.currentKnowledgeId,
+        tagType: TagType.skill
+      })
       this.$emit('blockCollapse', { blockIndex, path })
     },
 

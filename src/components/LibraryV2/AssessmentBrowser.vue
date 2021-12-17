@@ -418,7 +418,7 @@
           gradeId: this.currentGradeId,
           subjectId: this.currentSubSubjectId ? this.currentSubSubjectId : this.currentMainSubjectId,
           knowledgeId: this.currentSubKnowledgeId ? this.currentSubKnowledgeId : this.currentKnowledgeId,
-          tagType: TagType.knowledge
+          tagType: TagType.assessment
         })
         this.$emit('blockCollapse', { blockIndex, path })
       },
@@ -456,16 +456,9 @@
         if (subKnowledgeItem.id !== this.currentSubKnowledgeId) {
           this.currentSubKnowledgeId = subKnowledgeItem.id
           this.dataList = []
-          // this.knowledgeQueryContentByDescriptionId(this.currentSubKnowledgeId)
+          this.knowledgeQueryContentByDescriptionId(this.currentSubKnowledgeId)
         }
-        this.$emit('clickBlock', {
-          curriculumId: this.curriculumId,
-          gradeId: this.currentGradeId,
-          subjectId: this.currentSubSubjectId ? this.currentSubSubjectId : this.currentMainSubjectId,
-          knowledgeId: subKnowledgeItem.id,
-          tagType: TagType.knowledge
-        })
-        // this.handleClickBlock(5, subKnowledgeItem.name)
+        this.handleClickBlock(4, subKnowledgeItem.name)
       },
 
       knowledgeQueryContentByDescriptionId (descriptionId) {
