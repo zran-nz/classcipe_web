@@ -2,7 +2,7 @@
   <div class="library-wrapper" ref="wrapper" data-version="v2" @click="handleSearchInputBlur">
     <div class="nav-header" :style="{height: currentBrowserType === BrowserTypeMap.sdg ? '75px' : '127px'}">
       <div class="header-info">
-        <div class="library-nav-bar">
+        <div class="library-nav-bar" :style="{opacity: searchResultVisible ? 0 : 1}">
           <navigation :path="navPath" @pathChange="handleNavPathChange"/>
         </div>
         <div class="filter-line">
@@ -445,6 +445,7 @@ export default {
     justify-content: flex-start;
     align-items: center;
     padding: 15px 0 10px 0;
+    transition: all 500ms ease-in-out;
 
     .curriculum-select {
       display: flex;
