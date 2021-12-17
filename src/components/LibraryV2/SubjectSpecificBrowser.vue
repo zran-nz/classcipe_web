@@ -1,7 +1,7 @@
 <template>
   <div class="browser-block">
     <!--      mainSubject list-->
-    <div class="browser-block-item" :style="{width: blockWidth + 'px' , minWidth: blockWidth + 'px' }">
+    <div class="browser-block-item" :style="{width: '25vw' , minWidth: '25vw' }">
       <div
         :class="{
           'browser-item': true,
@@ -36,7 +36,7 @@
     </div>
     <!--      main grade list-->
     <div class="browser-block-item-wrapper">
-      <div class="browser-block-item" :style="{width: blockWidth + 'px' , minWidth: blockWidth + 'px' }">
+      <div class="browser-block-item" :style="{width: '25vw' , minWidth: '25vw' }">
         <div
           :class="{
             'browser-item': true,
@@ -71,7 +71,7 @@
       </div>
     </div>
     <!--      main knowledge list-->
-    <div class="browser-block-item browser-block-item-wrapper" :style="{width: blockWidth + 'px' , minWidth: blockWidth + 'px' }" v-for="(knowledge, deepIndex) in knowledges" :key="deepIndex">
+    <div class="browser-block-item browser-block-item-wrapper" :style="{width: '25vw' , minWidth: '25vw' }" v-for="(knowledge, deepIndex) in knowledges" :key="deepIndex">
       <div
         :class="{
           'browser-item': true,
@@ -106,12 +106,12 @@
     </div>
     <div
       class="browser-block-item-wrapper"
-      :style="{width: blockWidth + 'px' ,
-               minWidth: blockWidth + 'px'}">
+      :style="{width: '25vw' ,
+               minWidth: '25vw'}">
       <div
         class="browser-block-item-last"
-        :style="{width: blockWidth + 'px' ,
-                 minWidth: blockWidth + 'px',
+        :style="{width: '25vw' ,
+                 minWidth: '25vw',
                  'flex-direction': dataListMode === 'list' ? 'column' : 'row'}">
         <!--   data item list-->
         <div class="switch-type-wrapper">
@@ -333,9 +333,6 @@ export default {
       SubjectTree({ curriculumId: this.curriculumId }).then(response => {
         this.$logger.info('getSubjectTree response', response.result)
         this.mainSubjectList = response.result.filter(item => item.subjectType === SubjectType.Skill || item.subjectType === SubjectType.LearnAndSkill)
-        if (this.mainSubjectList && this.mainSubjectList.length) {
-          this.handleSelectMainSubjectItem(this.mainSubjectList[0])
-        }
       }).finally(() => {
         this.mainSubjectListLoading = false
       })
@@ -351,7 +348,7 @@ export default {
         // 过滤年级
         this.GetLibraryGrades(this.curriculumId, this.currentMainSubjectId, TagType.skill)
       }
-      this.handleClickBlock(1, mainSubjectItem.name)
+      this.handleClickBlock(2, mainSubjectItem.name)
     },
 
     handleSelectGradeItem (gradeItem) {
@@ -360,7 +357,7 @@ export default {
         this.currentGradeId = gradeItem.id
         this.getKnowledgeTree()
       }
-      this.handleClickBlock(this.subjectDeep, gradeItem.name)
+      this.handleClickBlock(this.subjectDeep + 1, gradeItem.name)
     },
 
     getKnowledgeDeep (obj, k) {
@@ -413,7 +410,14 @@ export default {
           this.dataList = []
           this.knowledgeQueryContentByDescriptionId(knowledgeItem.id)
         }
-        this.handleClickBlock(this.subjectDeep + this.knowledgeDeep, knowledgeItem.name)
+        // 到达最底层knowledge
+        this.$emit('clickBlock', {
+          curriculumId: this.curriculumId,
+          gradeId: this.currentGradeId,
+          subjectId: this.currentSubSubjectId ? this.currentSubSubjectId : this.currentMainSubjectId,
+          knowledgeId: knowledgeItem.id,
+          tagType: TagType.skill
+        })
         return
       }
       // 删除当前点击knowledges对应下标之后的所有后续元素（既下级列表），重新填充当前点击的元素的下级列表
@@ -430,7 +434,7 @@ export default {
       this.knowledges[nextIndex].knowledgeListLoading = false
 
       this.$logger.info('knowledges', this.knowledges)
-      this.handleClickBlock(this.subjectDeep + 1 + deepIndex, knowledgeItem.name)
+      this.handleClickBlock(this.subjectDeep + 2 + deepIndex, knowledgeItem.name)
     },
 
     handleSelectSubKnowledgeItem (subKnowledgeItem) {
@@ -440,7 +444,7 @@ export default {
         this.dataList = []
         this.knowledgeQueryContentByDescriptionId(this.currentSubKnowledgeId)
       }
-      this.handleClickBlock(5, subKnowledgeItem.name)
+      this.handleClickBlock(6, subKnowledgeItem.name)
     },
 
     knowledgeQueryContentByDescriptionId (descriptionId) {
@@ -462,6 +466,13 @@ export default {
 
     handleClickBlock (blockIndex, path) {
       this.$logger.info('handleClickBlock ' + blockIndex)
+      this.$emit('clickBlock', {
+        curriculumId: this.curriculumId,
+        gradeId: this.currentGradeId,
+        subjectId: this.currentSubSubjectId ? this.currentSubSubjectId : this.currentMainSubjectId,
+        knowledgeId: this.currentSubKnowledgeId ? this.currentSubKnowledgeId : this.currentKnowledgeId,
+        tagType: TagType.knowledge
+      })
       this.$emit('blockCollapse', { blockIndex, path })
     },
 

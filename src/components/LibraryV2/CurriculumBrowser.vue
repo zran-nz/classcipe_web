@@ -361,14 +361,7 @@ export default {
         } else {
           this.$logger.info('skip knowledgeQueryContentByDescriptionId', knowledgeItem.id, this.knowledges[deepIndex].currentKnowledgeId)
         }
-        // 到达最底层knowledge
-        this.$emit('clickBlock', {
-          curriculumId: this.curriculumId,
-          gradeId: this.currentGradeId,
-          subjectId: this.currentSubSubjectId ? this.currentSubSubjectId : this.currentMainSubjectId,
-          knowledgeId: knowledgeItem.id,
-          tagType: TagType.knowledge
-        })
+        this.handleClickBlock(this.subjectDeep + 1 + this.knowledgeDeep, knowledgeItem.name)
         return
       }
       // 删除当前点击knowledges对应下标之后的所有后续元素（既下级列表），重新填充当前点击的元素的下级列表

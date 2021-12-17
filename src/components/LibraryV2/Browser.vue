@@ -68,6 +68,11 @@
                height: currentBrowserType === BrowserTypeMap.sdg ? 'calc(100vh - 138px)': 'calc(100vh - 190px)'}">
       <div class="library-detail-nav-wrapper" :style="{width: leftBrowserWidth}">
         <div class="library-content">
+          <div class="browser-action" v-if="hasLeftBlock && !expandedListFlag">
+            <div class="action-item" @click="handleViewLeft">
+              <back-svg style="width: 25vw"/>
+            </div>
+          </div>
           <div class="browser-table-wrapper" :style="{left: -browserMarginLeft + 'px'}">
             <div class="browser-table" style="width: 25vw">
               <div class="browser-type-list">
@@ -130,12 +135,12 @@
         </div>
       </div>
       <div class="library-detail-preview-wrapper" :style="{width: rightBrowserWidth}">
-        <div class="expand-icon" @click="handleExpandDetail" :style="{'left': (expandedListFlag ? -20 : -20 )+ 'px'}">
+        <div class="expand-icon" @click="handleExpandDetail" :style="{'left': '-20px'}">
           <template v-if="expandedListFlag">
-            <a-icon type="double-left" style="font-size: 20px; color: #07AB84"/>
+            <a-icon type="double-right" style="font-size: 20px; color: #07AB84"/>
           </template>
           <template v-if="!expandedListFlag">
-            <a-icon type="double-right" style="font-size: 20px; color: #07AB84"/>
+            <a-icon type="double-left" style="font-size: 20px; color: #07AB84"/>
           </template>
         </div>
         <div
@@ -367,7 +372,7 @@ export default {
       previewVisible: false,
       previewCurrentId: '',
       previewType: '',
-      blockIndex: 0,
+      blockIndex: 1,
       typeMap: typeMap,
 
       headerTop: '64px',
@@ -390,14 +395,14 @@ export default {
       currentType: 0,
       hasChildSubject: true,
 
-      expandedListFlag: true
+      expandedListFlag: false
     }
   },
   created () {
     this.currentBrowserType = this.browserType
     this.navPath.push({
       path: this.browserTypeLabelMap[this.currentBrowserType],
-      blockIndex: 0
+      blockIndex: 1
     })
 
     getAllCurriculums().then((response) => {
@@ -416,18 +421,18 @@ export default {
       if (browserTypeItem.type !== this.currentBrowserType) {
         this.currentBrowserType = browserTypeItem.type
         this.navPath = []
-        this.navPath.push({ blockIndex: 0, path: browserTypeItem.label })
+        this.navPath.push({ blockIndex: 1, path: browserTypeItem.label })
         this.$logger.info('reset and add path ' + browserTypeItem.label)
       }
     },
 
     handleBlockCollapse (data) {
-      this.$logger.info('handleBlockCollapse ' + data.blockIndex, data)
+      this.$logger.info('handleBlockCollapse data.blockIndex(' + data.blockIndex + ') this.blockIndex(' + this.blockIndex + ')', data)
       this.previewVisible = false
       if (this.blockIndex !== data.blockIndex) {
         if (data.blockIndex === 1) {
           this.blockIndex = data.blockIndex
-          this.hasLeftBlock = true
+          this.hasLeftBlock = false
           this.browserMarginLeft = (data.blockIndex - 1) * this.blockWidth
           this.$logger.info('browserMarginLeft ' + this.browserMarginLeft + ', hasLeftBlock:' + this.hasLeftBlock)
         } else {
@@ -466,6 +471,7 @@ export default {
       this.$logger.info('handleViewLeft ' + (this.blockIndex))
       if (this.blockIndex < 2) {
         this.hasLeftBlock = false
+        this.blockIndex = 1
         this.browserMarginLeft = 0
       } else {
         this.blockIndex = this.blockIndex - 1
@@ -540,7 +546,6 @@ export default {
     },
 
     handleSearchInputBlur () {
-      this.$logger.info('handleSearchInputBlur')
       this.searchResultVisible = false
     },
 
@@ -578,15 +583,28 @@ export default {
     },
 
     handleExpandDetail () {
+      this.$logger.info('handleExpandDetail ' + this.blockIndex + ' ' + this.expandedListFlag)
       if (this.expandedListFlag) {
-        this.leftBrowserWidth = '0vw'
-        this.rightBrowserWidth = '100vw'
-        this.expandedListFlag = false
-      } else {
         this.leftBrowserWidth = '50vw'
         this.rightBrowserWidth = '50vw'
+        this.expandedListFlag = false
+      } else {
+        this.leftBrowserWidth = '25vw'
+        this.rightBrowserWidth = '75vw'
         this.expandedListFlag = true
       }
+
+      this.$nextTick(() => {
+        this.$logger.info('handleExpandDetail nextTick ' + this.blockIndex + ' ' + this.expandedListFlag + ' left block ' + (this.blockIndex - 1))
+        if (this.blockIndex !== 1) {
+          if (this.expandedListFlag) {
+            this.browserMarginLeft = (this.blockIndex) * this.blockWidth
+          } else {
+            this.browserMarginLeft = (this.blockIndex - 1) * this.blockWidth
+          }
+        }
+        this.$logger.info('this.browserMarginLeft', this.browserMarginLeft)
+      })
     }
   }
 }
@@ -758,18 +776,19 @@ export default {
           left: 0;
           top: 0;
           bottom: 0;
-          width: 101px;
+          width: 25vw;
           box-sizing: border-box;
-          background-color: fade(@text-color-secondary, 50%);
+          background-color: fade(@text-color-secondary, 40%);
           z-index: 110;
           .action-item {
             position: absolute;
             top: 50%;
-            left: 50%;
-            width: 70px;
+            left: 0;
+            width: 25vw;
             text-align: center;
-            margin-top: -40px;
-            margin-left: -35px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
             color: #fff;
             font-size: 30px;
             cursor: pointer;
