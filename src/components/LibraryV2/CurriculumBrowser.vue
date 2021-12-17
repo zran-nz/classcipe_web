@@ -1,7 +1,7 @@
 <template>
   <div class="browser-block">
     <!--      mainSubject list-->
-    <div class="browser-block-item" :style="{width: blockWidth + 'px' , minWidth: blockWidth + 'px' }">
+    <div class="browser-block-item" :style="{width: '25vw' , minWidth: '25vw' }">
       <div
         :class="{
           'browser-item': true,
@@ -35,7 +35,7 @@
       </template>
     </div>
     <!--      subSubject list-->
-    <div class="browser-block-item" v-if="hasChildSubject" :style="{width: blockWidth + 'px' , minWidth: blockWidth + 'px' }" >
+    <div class="browser-block-item" v-if="hasChildSubject" :style="{width: '25vw' , minWidth: '25vw' }" >
       <div
         :class="{
           'browser-item': true,
@@ -70,7 +70,7 @@
     </div>
     <!--      main grade list-->
     <div class="browser-block-item-wrapper">
-      <div class="browser-block-item" :style="{width: blockWidth + 'px' , minWidth: blockWidth + 'px' }">
+      <div class="browser-block-item" :style="{width: '25vw' , minWidth: '25vw' }">
         <div
           :class="{
             'browser-item': true,
@@ -105,7 +105,7 @@
       </div>
     </div>
     <!--      main knowledge list-->
-    <div class="browser-block-item browser-block-item-wrapper" :style="{width: blockWidth + 'px' , minWidth: blockWidth + 'px' }" :data-knowledge-len="knowledge.knowledgeList.length" v-for="(knowledge, deepIndex) in knowledges" :key="deepIndex">
+    <div class="browser-block-item browser-block-item-wrapper" :style="{width: '25vw' , minWidth: '25vw' }" :data-knowledge-len="knowledge.knowledgeList.length" v-for="(knowledge, deepIndex) in knowledges" :key="deepIndex">
       <div
         :class="{
           'browser-item': true,
@@ -167,10 +167,6 @@ export default {
     DataCardView
   },
   props: {
-    blockWidth: {
-      type: Number,
-      default: 200
-    },
     curriculumId: {
       type: String,
       default: null
@@ -229,7 +225,6 @@ export default {
     }
   },
   created () {
-    this.$logger.info('CurriculumBrowser blockWidth:' + this.blockWidth)
     this.getSubjectTree()
     // this.getGradesByCurriculumId(this.curriculumId)
   },

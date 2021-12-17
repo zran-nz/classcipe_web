@@ -68,13 +68,8 @@
                height: currentBrowserType === BrowserTypeMap.sdg ? 'calc(100vh - 138px)': 'calc(100vh - 190px)'}">
       <div class="library-detail-nav-wrapper" :style="{width: leftBrowserWidth}">
         <div class="library-content">
-          <div class="browser-action" v-if="hasLeftBlock">
-            <div class="action-item" @click="handleViewLeft">
-              <back-svg style="width: 70px"/>
-            </div>
-          </div>
           <div class="browser-table-wrapper" :style="{left: -browserMarginLeft + 'px'}">
-            <div class="browser-table">
+            <div class="browser-table" style="width: 25vw">
               <div class="browser-type-list">
                 <div
                   :class="{
@@ -82,7 +77,7 @@
                     'odd-line': index % 2 === 0,
                     'active-line': currentBrowserType === browserTypeItem.type
                   }"
-                  v-for="(browserTypeItem, index) in (currentCurriculumId == curriculumType.IBMYP ? browserTypeListForIbMpy : browserTypeList)"
+                  v-for="(browserTypeItem, index) in (parseInt(currentCurriculumId) === parseInt(curriculumType.IBMYP) ? browserTypeListForIbMpy : browserTypeList)"
                   :key="index"
                   @click="toggleBrowserType(browserTypeItem)">
                   <dir-icon dir-type="blue" v-if="currentBrowserType !== browserTypeItem.type"/>
@@ -99,7 +94,6 @@
               <curriculum-browser
                 :block-index="blockIndex"
                 :curriculum-id="currentCurriculumId"
-                :block-width="blockWidth"
                 v-if="currentBrowserType === BrowserTypeMap.curriculum"
                 @clickBlock="handleClickBlock"
                 @blockCollapse="handleBlockCollapse"/>
@@ -251,16 +245,9 @@
                 </div>
               </div>
             </template>
-            <template v-if="!dataList.length && !dataListLoading">
-              <div class="no-data">
-                <no-more-resources />
-              </div>
-            </template>
-            <template>
-              <div class="loading-wrapper" v-if="dataListLoading">
-                <a-spin />
-              </div>
-            </template>
+            <div class="loading-wrapper" v-if="dataListLoading">
+              <a-spin />
+            </div>
           </div>
         </div>
         <div
@@ -396,8 +383,8 @@ export default {
       searchResultList: [],
       searchResultVisible: false,
       searching: false,
-      leftBrowserWidth: '60%',
-      rightBrowserWidth: '40%',
+      leftBrowserWidth: '50vw',
+      rightBrowserWidth: '50vw',
 
       dataList: [],
       dataListLoading: false,
@@ -408,9 +395,7 @@ export default {
       currentType: 0,
       hasChildSubject: true,
 
-      expandedListFlag: true,
-      oldLeftBrowserWidth: null,
-      oldRightBrowserWidth: null
+      expandedListFlag: true
     }
   },
   created () {
@@ -427,7 +412,7 @@ export default {
     })
   },
   mounted () {
-    this.blockWidth = this.$refs['wrapper'].getBoundingClientRect().width * 0.6 - 180
+    this.blockWidth = this.$refs['wrapper'].getBoundingClientRect().width / 4
     this.$logger.info('globalWidth ' + this.blockWidth)
   },
   methods: {
@@ -438,7 +423,6 @@ export default {
         this.navPath = []
         this.navPath.push({ blockIndex: 0, path: browserTypeItem.label })
         this.$logger.info('reset and add path ' + browserTypeItem.label)
-        this.blockWidth = this.$refs['wrapper'].getBoundingClientRect().width * 0.6 - 180
       }
     },
 
@@ -447,20 +431,14 @@ export default {
       this.previewVisible = false
       if (this.blockIndex !== data.blockIndex) {
         if (data.blockIndex === 1) {
-          this.rightBrowserWidth = '40%'
-          this.leftBrowserWidth = '60%'
           this.blockIndex = data.blockIndex
           this.hasLeftBlock = true
-          this.blockWidth = this.$refs['wrapper'].getBoundingClientRect().width * 0.6 - 180
-          this.browserMarginLeft = (data.blockIndex - 1) * this.blockWidth + 120
+          this.browserMarginLeft = (data.blockIndex - 1) * this.blockWidth
           this.$logger.info('browserMarginLeft ' + this.browserMarginLeft + ', hasLeftBlock:' + this.hasLeftBlock)
         } else {
-          this.rightBrowserWidth = '60%'
-          this.leftBrowserWidth = '40%'
           this.blockIndex = data.blockIndex
           this.hasLeftBlock = true
-          this.blockWidth = this.$refs['wrapper'].getBoundingClientRect().width * 0.4 - 100
-          this.browserMarginLeft = (data.blockIndex - 1) * this.blockWidth + 120
+          this.browserMarginLeft = (data.blockIndex - 1) * this.blockWidth
           this.$logger.info('browserMarginLeft ' + this.browserMarginLeft + ', hasLeftBlock:' + this.hasLeftBlock)
         }
       } else {
@@ -492,16 +470,12 @@ export default {
       this.previewVisible = false
       this.$logger.info('handleViewLeft ' + (this.blockIndex))
       if (this.blockIndex < 2) {
-        this.rightBrowserWidth = '40%'
-        this.leftBrowserWidth = '60%'
         this.hasLeftBlock = false
-        this.blockWidth = this.$refs['wrapper'].getBoundingClientRect().width * 0.6 - 180
         this.browserMarginLeft = 0
       } else {
         this.blockIndex = this.blockIndex - 1
         this.hasLeftBlock = true
-        this.blockWidth = this.$refs['wrapper'].getBoundingClientRect().width * 0.4 - 100
-        this.browserMarginLeft = (this.blockIndex - 1) * this.blockWidth + 120
+        this.browserMarginLeft = (this.blockIndex - 1) * this.blockWidth
       }
       const path = this.navPath.pop()
       this.$logger.info('remove path ' + path)
@@ -513,16 +487,12 @@ export default {
       this.previewVisible = false
       const blockIndex = data.blockIndex
       if (this.blockIndex < 2) {
-        this.rightBrowserWidth = '40%'
-        this.leftBrowserWidth = '60%'
         this.hasLeftBlock = false
-        this.blockWidth = this.$refs['wrapper'].getBoundingClientRect().width * 0.6 - 180
         this.browserMarginLeft = 0
       } else {
         this.blockIndex = this.blockIndex - 1
         this.hasLeftBlock = true
-        this.blockWidth = this.$refs['wrapper'].getBoundingClientRect().width * 0.4 - 100
-        this.browserMarginLeft = (this.blockIndex - 1) * this.blockWidth + 120
+        this.browserMarginLeft = (this.blockIndex - 1) * this.blockWidth
       }
       this.navPath = this.navPath.filter(item => item.blockIndex <= blockIndex)
       this.$logger.info('browserMarginLeft ' + this.browserMarginLeft + ', hasLeftBlock:' + this.hasLeftBlock)
@@ -614,14 +584,12 @@ export default {
 
     handleExpandDetail () {
       if (this.expandedListFlag) {
-        this.oldLeftBrowserWidth = this.leftBrowserWidth
-        this.oldRightBrowserWidth = this.rightBrowserWidth
-        this.leftBrowserWidth = '0%'
-        this.rightBrowserWidth = '100%'
+        this.leftBrowserWidth = '0vw'
+        this.rightBrowserWidth = '100vw'
         this.expandedListFlag = false
       } else {
-        this.leftBrowserWidth = this.oldLeftBrowserWidth
-        this.rightBrowserWidth = this.oldRightBrowserWidth
+        this.leftBrowserWidth = '50vw'
+        this.rightBrowserWidth = '50vw'
         this.expandedListFlag = true
       }
     }
@@ -783,6 +751,7 @@ export default {
       overflow: hidden;
       position: relative;
       z-index: 100;
+      width: 50%;
       .library-content {
         z-index: 250;
         overflow: hidden;
@@ -827,13 +796,14 @@ export default {
             box-sizing: border-box;
             display: flex;
             flex-direction: row;
+            width: 25%;
             .browser-type-list {
               display: flex;
               flex-direction: column;
-              width: 220px;
               box-sizing: border-box;
+              width: 100%;
               .browser-type {
-                padding: 10px;
+                padding: 10px 20px 10px 10px;
                 font-weight: 500;
                 cursor: pointer;
                 background: rgba(228, 228, 228, 0.2);
@@ -841,7 +811,6 @@ export default {
                 align-items: center;
                 flex-direction: row;
                 position: relative;
-                padding-right: 20px;
                 .arrow-item {
                   position: absolute;
                   right: 10px;
@@ -868,6 +837,7 @@ export default {
       }
     }
     .library-detail-preview-wrapper {
+      width: 50%;
       padding: 10px;
       transition: all 200ms ease-in-out;
       background: #fff;
@@ -966,7 +936,6 @@ export default {
   flex-wrap: wrap;
   justify-content: flex-start;
   box-sizing: border-box;
-  border-right: 1px solid #ddd;
 
   .switch-type-wrapper {
     padding: 20px;
@@ -1079,7 +1048,7 @@ export default {
     padding: 10px;
     .card-item-wrapper {
       cursor: pointer;
-      width: 50%;
+      width: 170px;
       padding: 10px;
       box-sizing: border-box;
       background: #FFFFFF;
