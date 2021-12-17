@@ -1,6 +1,6 @@
 <template>
   <div class="library-wrapper" ref="wrapper" data-version="v2" @click="handleSearchInputBlur">
-    <div class="nav-header" :style="{height: currentBrowserType === BrowserTypeMap.sdg ? '75px' : '127px'}">
+    <div class="nav-header" :style="{height: currentBrowserType === BrowserTypeMap.sdg ? '127px' : '127px'}">
       <div class="header-info">
         <div class="library-nav-bar" :style="{opacity: searchResultVisible ? 0 : 1}">
           <navigation :path="navPath" @pathChange="handleNavPathChange"/>
@@ -64,8 +64,8 @@
     </div>
     <div
       class="library-detail-wrapper"
-      :style="{top: currentBrowserType === BrowserTypeMap.sdg ? '74px' : '126px',
-               height: currentBrowserType === BrowserTypeMap.sdg ? 'calc(100vh - 138px)': 'calc(100vh - 190px)'}">
+      :style="{top: currentBrowserType === BrowserTypeMap.sdg ? '126px' : '126px',
+               height: currentBrowserType === BrowserTypeMap.sdg ? 'calc(100vh - 190px)': 'calc(100vh - 190px)'}">
       <div class="library-detail-nav-wrapper" :style="{width: leftBrowserWidth}">
         <div class="library-content">
           <div class="browser-action" v-if="hasLeftBlock && !expandedListFlag">

@@ -1,7 +1,7 @@
 <template>
-  <div class="browser-block">
+  <div class="browser-block" data-type="sdg">
     <div class="browser-block-item-wrapper">
-      <div class="browser-block-item" :style="{width: blockWidth + 'px' , minWidth: blockWidth + 'px' }">
+      <div class="browser-block-item" :style="{width: '25vw' , minWidth: '25vw' }">
 
         <div class="filter-block" >
           <div class="filter-block-content">
@@ -57,7 +57,7 @@
         </template>
       </div>
     </div>
-    <div class="browser-block-item-wrapper browser-block-item" :style="{width: blockWidth + 'px' , minWidth: blockWidth + 'px' }" >
+    <div class="browser-block-item-wrapper browser-block-item" :style="{width: '25vw' , minWidth: '25vw' }" >
       <div class="filter-block">
         <div class="filter-block-content">
           <div class="filter-icon">
@@ -127,7 +127,7 @@
       </template>
 
     </div>
-    <!--    <div class="browser-block-item-wrapper" :style="{width: blockWidth + 'px' , minWidth: blockWidth + 'px' }" >-->
+    <!--    <div class="browser-block-item-wrapper" :style="{width: '25vw' , minWidth: '25vw' }" >-->
     <!--      &lt;!&ndash;  big idea list &ndash;&gt;-->
     <!--      <div class="description-wrapper">-->
     <!--        <div class="description-list">-->
@@ -140,12 +140,12 @@
 
     <div
       class="browser-block-item-wrapper"
-      :style="{width: blockWidth + 'px' ,
-               minWidth: blockWidth + 'px'}">
+      :style="{width: '25vw' ,
+               minWidth: '25vw'}">
       <div
         class="browser-block-item-last"
-        :style="{width: blockWidth + 'px' ,
-                 minWidth: blockWidth + 'px',
+        :style="{width: '25vw' ,
+                 minWidth: '25vw',
                  'flex-direction': dataListMode === 'list' ? 'column' : 'row'}">
         <!--   data item list-->
         <div class="switch-type-wrapper">
