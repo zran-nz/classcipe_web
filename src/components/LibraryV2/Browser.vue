@@ -99,37 +99,32 @@
                 @blockCollapse="handleBlockCollapse"/>
               <assessment-browser
                 :curriculum-id="currentCurriculumId"
-                :block-width="blockWidth"
                 v-if="currentBrowserType === BrowserTypeMap.assessmentType"
-                @blockCollapse="handleBlockCollapse"
-                @previewDetail="handlePreviewDetail"/>
+                @clickBlock="handleClickBlock"
+                @blockCollapse="handleBlockCollapse"/>
               <general-capability-browser
                 :block-index="blockIndex"
                 :curriculum-id="currentCurriculumId"
-                :block-width="blockWidth"
                 v-if="currentBrowserType === BrowserTypeMap.centurySkills"
-                @blockCollapse="handleBlockCollapse"
-                @previewDetail="handlePreviewDetail"/>
+                @clickBlock="handleClickBlock"
+                @blockCollapse="handleBlockCollapse"/>
               <subject-specific-browser
                 :block-index="blockIndex"
                 :curriculum-id="currentCurriculumId"
-                :block-width="blockWidth"
                 v-if="currentBrowserType === BrowserTypeMap.specificSkills"
-                @blockCollapse="handleBlockCollapse"
-                @previewDetail="handlePreviewDetail"/>
+                @clickBlock="handleClickBlock"
+                @blockCollapse="handleBlockCollapse"/>
               <idu-browser
                 :block-index="blockIndex"
                 :curriculum-id="currentCurriculumId"
-                :block-width="blockWidth"
                 v-if="currentBrowserType === BrowserTypeMap.idu"
-                @blockCollapse="handleBlockCollapse"
-                @previewDetail="handlePreviewDetail"/>
+                @clickBlock="handleClickBlock"
+                @blockCollapse="handleBlockCollapse"/>
               <!--大纲游览-->
               <sdg-browser
-                :block-width="blockWidth"
                 v-if="currentBrowserType === BrowserTypeMap.sdg"
-                @blockCollapse="handleBlockCollapse"
-                @previewDetail="handlePreviewDetail"/>
+                @clickBlock="handleClickBlock"
+                @blockCollapse="handleBlockCollapse"/>
             </div>
           </div>
         </div>

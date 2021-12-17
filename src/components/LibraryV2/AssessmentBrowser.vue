@@ -1,7 +1,7 @@
 <template>
   <div class="browser-block">
     <!--      mainSubject list-->
-    <div class="browser-block-item" :style="{width: blockWidth + 'px' , minWidth: blockWidth + 'px' }">
+    <div class="browser-block-item" :style="{width: '25vw' , minWidth: '25vw' }">
       <div
         :class="{
           'browser-item': true,
@@ -36,7 +36,7 @@
     </div>
     <!--      main grade list-->
     <div class="browser-block-item-wrapper">
-      <div class="browser-block-item" :style="{width: blockWidth + 'px' , minWidth: blockWidth + 'px' }">
+      <div class="browser-block-item" :style="{width: '25vw' , minWidth: '25vw' }">
         <div
           :class="{
             'browser-item': true,
@@ -74,7 +74,7 @@
     <!--      assessment type list-->
     <div
       class="browser-block-item-wrapper browser-block-item"
-      :style="{width: blockWidth + 'px' , minWidth: blockWidth + 'px' }">
+      :style="{width: '25vw' , minWidth: '25vw' }">
       <!--     assessment type-->
       <div class="keyword-wrapper">
         <div class="keyword-list">
@@ -108,7 +108,7 @@
     </div>
 
     <!--      sub knowledge list-->
-    <div class="browser-block-item browser-block-item-wrapper" :style="{width: blockWidth + 'px' , minWidth: blockWidth + 'px' }" >
+    <div class="browser-block-item browser-block-item-wrapper" :style="{width: '25vw' , minWidth: '25vw' }" >
       <div
         :class="{
           'browser-item': true,
@@ -144,12 +144,12 @@
 
     <div
       class="browser-block-item-wrapper"
-      :style="{width: blockWidth + 'px' ,
-               minWidth: blockWidth + 'px'}">
+      :style="{width: '25vw' ,
+               minWidth: '25vw'}">
       <div
         class="browser-block-item-last"
-        :style="{width: blockWidth + 'px' ,
-                 minWidth: blockWidth + 'px',
+        :style="{width: '25vw' ,
+                 minWidth: '25vw',
                  'flex-direction': dataListMode === 'list' ? 'column' : 'row'}">
         <!--   data item list-->
         <div class="switch-type-wrapper">
@@ -279,7 +279,7 @@
   import DataCardView from '@/components/LibraryV2/DataCardView'
   import { typeMap } from '@/const/teacher'
   import { GetGradesByCurriculumId } from '@/api/preference'
-  import { SubjectType } from '@/const/common'
+  import { SubjectType, TagType } from '@/const/common'
   const { SubjectTree } = require('@/api/subject')
 
   export default {
@@ -370,21 +370,13 @@
         SubjectTree({ curriculumId: this.curriculumId }).then(response => {
           this.$logger.info('getSubjectTree response', response.result)
           this.mainSubjectList = response.result.filter(item => item.subjectType === SubjectType.Skill || item.subjectType === SubjectType.LearnAndSkill)
-          if (this.mainSubjectList && this.mainSubjectList.length) {
-            this.handleSelectMainSubjectItem(this.mainSubjectList[0])
-          }
         }).finally(() => {
           this.mainSubjectListLoading = false
         })
       },
       handleSelectMainSubjectItem (mainSubjectItem) {
         this.currentMainSubjectId = mainSubjectItem.id
-        this.handleClickBlock(1, mainSubjectItem.name)
-        if (this.currentGradeId) {
-          this.getAssessmentTypeList()
-          this.handleClickBlock(2, this.currentGradeName)
-        }
-        // this.handleClickBlock(3, this.)
+        this.handleClickBlock(2, mainSubjectItem.name)
       },
 
       handleSelectGradeItem (gradeItem) {
@@ -394,7 +386,7 @@
           this.currentGradeName = gradeItem.name
           this.getAssessmentTypeList()
         }
-        this.handleClickBlock(2, gradeItem.name)
+        this.handleClickBlock(3, gradeItem.name)
       },
 
       getAssessmentTypeList () {
@@ -421,6 +413,13 @@
 
       handleClickBlock (blockIndex, path) {
         this.$logger.info('handleClickBlock ' + blockIndex)
+        this.$emit('clickBlock', {
+          curriculumId: this.curriculumId,
+          gradeId: this.currentGradeId,
+          subjectId: this.currentSubSubjectId ? this.currentSubSubjectId : this.currentMainSubjectId,
+          knowledgeId: this.currentSubKnowledgeId ? this.currentSubKnowledgeId : this.currentKnowledgeId,
+          tagType: TagType.knowledge
+        })
         this.$emit('blockCollapse', { blockIndex, path })
       },
 
@@ -438,7 +437,7 @@
       queryContentByAssessment (assessmentItem) {
         this.subKnowledgeListLoading = true
         this.$logger.info('queryContentByAssessment ' + assessmentItem.id)
-        this.handleClickBlock(3, assessmentItem.name)
+        this.handleClickBlock(4, assessmentItem.name)
         this.currentAssessmentTypeId = assessmentItem.id
         QueryKnowledgesByAssessmentTypeId({
           assessmentTypeId: assessmentItem.id,
@@ -457,9 +456,16 @@
         if (subKnowledgeItem.id !== this.currentSubKnowledgeId) {
           this.currentSubKnowledgeId = subKnowledgeItem.id
           this.dataList = []
-          this.knowledgeQueryContentByDescriptionId(this.currentSubKnowledgeId)
+          // this.knowledgeQueryContentByDescriptionId(this.currentSubKnowledgeId)
         }
-        this.handleClickBlock(4, subKnowledgeItem.name)
+        this.$emit('clickBlock', {
+          curriculumId: this.curriculumId,
+          gradeId: this.currentGradeId,
+          subjectId: this.currentSubSubjectId ? this.currentSubSubjectId : this.currentMainSubjectId,
+          knowledgeId: subKnowledgeItem.id,
+          tagType: TagType.knowledge
+        })
+        // this.handleClickBlock(5, subKnowledgeItem.name)
       },
 
       knowledgeQueryContentByDescriptionId (descriptionId) {
