@@ -1,42 +1,7 @@
 <template>
   <div class="browser-block">
-    <!--      mainSubject list-->
-    <!--    <div class="browser-block-item" :style="{width: blockWidth + 'px' , minWidth: blockWidth + 'px' }">-->
-    <!--      <div-->
-    <!--        :class="{-->
-    <!--          'browser-item': true,-->
-    <!--          'odd-line': index % 2 === 0,-->
-    <!--          'active-line': currentMainSubjectId === mainSubjectItem.id-->
-    <!--        }"-->
-    <!--        v-for="(mainSubjectItem, index) in mainSubjectList"-->
-    <!--        @click="handleSelectMainSubjectItem(mainSubjectItem)"-->
-    <!--        :key="index">-->
-    <!--        <a-tooltip :mouseEnterDelay="1">-->
-    <!--          <template slot="title">-->
-    <!--            {{ mainSubjectItem.name }}-->
-    <!--          </template>-->
-    <!--          <dir-icon dir-type="blue" v-if="currentMainSubjectId !== mainSubjectItem.id"/>-->
-    <!--          <dir-icon dir-type="opened" v-if="currentMainSubjectId === mainSubjectItem.id"/>-->
-    <!--          {{ mainSubjectItem.name }}-->
-    <!--        </a-tooltip>-->
-    <!--        <span class="arrow-item">-->
-    <!--          <a-icon type="right" />-->
-    <!--        </span>-->
-    <!--      </div>-->
-    <!--      <template v-if="!mainSubjectList.length && !mainSubjectListLoading">-->
-    <!--        <div class="no-data">-->
-    <!--          <no-more-resources />-->
-    <!--        </div>-->
-    <!--      </template>-->
-    <!--      <template v-if="mainSubjectListLoading">-->
-    <!--        <div class="loading-wrapper">-->
-    <!--          <a-spin />-->
-    <!--        </div>-->
-    <!--      </template>-->
-    <!--    </div>-->
-    <!--      main grade list-->
     <div class="browser-block-item-wrapper">
-      <div class="browser-block-item" :style="{width: blockWidth + 'px' , minWidth: blockWidth + 'px' }">
+      <div class="browser-block-item" :style="{width: '25vw' , minWidth: '25vw' }">
         <div
           :class="{
             'browser-item': true,
@@ -71,7 +36,7 @@
       </div>
     </div>
     <!--      main knowledge list-->
-    <div class="browser-block-item browser-block-item-wrapper" :style="{width: blockWidth + 'px' , minWidth: blockWidth + 'px' }" v-for="(knowledge, deepIndex) in knowledges" :key="deepIndex">
+    <div class="browser-block-item browser-block-item-wrapper" :style="{width: '25vw' , minWidth: '25vw' }" v-for="(knowledge, deepIndex) in knowledges" :key="deepIndex">
       <div
         :class="{
           'browser-item': true,
@@ -106,12 +71,12 @@
     </div>
     <div
       class="browser-block-item-wrapper"
-      :style="{width: blockWidth + 'px' ,
-               minWidth: blockWidth + 'px'}">
+      :style="{width: '25vw' ,
+               minWidth: '25vw'}">
       <div
         class="browser-block-item-last"
-        :style="{width: blockWidth + 'px' ,
-                 minWidth: blockWidth + 'px',
+        :style="{width: '25vw' ,
+                 minWidth: '25vw',
                  'flex-direction': dataListMode === 'list' ? 'column' : 'row'}">
         <!--   data item list-->
         <div class="switch-type-wrapper">
@@ -235,7 +200,7 @@ import CardList from '@/views/list/CardList'
 import DataCardView from '@/components/LibraryV2/DataCardView'
 import { typeMap } from '@/const/teacher'
 import { GetGradesByCurriculumId } from '@/api/preference'
-// const { SubjectTree } = require('@/api/subject')
+import { TagType } from '@/const/common'
 
 export default {
   // 数据层级结构：mainsubject-year-knowledge
@@ -294,7 +259,8 @@ export default {
 
       currentTypeLabel: 'Choose type（S）of content',
       currentType: 0,
-      hasChildSubject: true
+      hasChildSubject: true,
+      currentSubKnowledgeId: null
     }
   },
   created () {
@@ -348,10 +314,9 @@ export default {
       this.$logger.info('handleSelectGradeItem ', gradeItem)
       if (gradeItem.id !== this.currentGradeId) {
         this.currentGradeId = gradeItem.id
-        this.handleClickBlock(this.blockIndex, gradeItem.name)
+        this.handleClickBlock(this.blockIndex + 1, gradeItem.name)
         this.getKnowledgeTree()
       }
-      // this.handleClickBlock(3, gradeItem.name)
     },
 
     getKnowledgeDeep (obj, k) {
@@ -394,6 +359,7 @@ export default {
 
     handleSelectKnowledgeItem (knowledgeItem, deepIndex) {
       this.$logger.info('handleSelectKnowledgeItem', knowledgeItem)
+      this.currentSubKnowledgeId = knowledgeItem.id
       this.knowledgeDeep = this.getKnowledgeDeep(knowledgeItem, deepIndex + 1)
       if (deepIndex + 1 === this.knowledgeDeep) {
         this.$logger.info('knowledgeQueryContentByDescriptionId', knowledgeItem)
@@ -451,6 +417,13 @@ export default {
 
     handleClickBlock (blockIndex, path) {
       this.$logger.info('handleClickBlock ' + blockIndex)
+      this.$emit('clickBlock', {
+        curriculumId: this.curriculumId,
+        gradeId: this.currentGradeId,
+        subjectId: this.currentMainSubjectId,
+        knowledgeId: this.currentSubKnowledgeId,
+        tagType: TagType.idu
+      })
       this.$emit('blockCollapse', { blockIndex, path })
     },
 
