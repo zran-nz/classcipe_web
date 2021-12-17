@@ -53,7 +53,7 @@
           </div>
           <div class="collaborate-user" v-show="selectedUserList.length">
             <div class="collaborate-title">
-              Collabrator
+              Collaborator
             </div>
             <div class="collaborate-user-list">
               <div class="user-item" v-for="(user,index) in selectedUserList" :key="index">

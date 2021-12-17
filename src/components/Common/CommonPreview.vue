@@ -70,7 +70,8 @@
           <div class="sub-detail">
             <div class="detail-block">
               <div class="block-main-label">
-                Overview
+                <template v-if="data.type === typeMap.task">Task details</template>
+                <template v-else>Overview</template>
               </div>
               <div class="overview-block">
                 <div class="view-text">

@@ -242,7 +242,7 @@ export default {
         .block-title {
           font-weight: 700;
           font-size: 16px;
-          padding: 10px;
+          padding: 10px 90px 10px 10px;
           background-color: #fafafa;
 
           audio {
@@ -316,11 +316,11 @@ export default {
 
       .delete-icon {
         position: absolute;
-        right: -100px;
-        top: 90px;
+        right: 10px;
+        top: 3px;
         cursor: pointer;
-        margin-top: -10px;
         color: #D01919;
+        background-color: #fafafa;
 
         img {
           width: 40px;
