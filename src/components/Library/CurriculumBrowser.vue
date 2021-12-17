@@ -595,7 +595,6 @@ export default {
       font-weight: 500;
       cursor: pointer;
       overflow: hidden;
-      //white-space: nowrap;
       text-overflow: ellipsis;
       word-break: break-word;
       user-select: none;
@@ -657,7 +656,7 @@ export default {
     }
   }
 
-    .browser-block-item-last {
+  .browser-block-item-last {
     position: relative;
     display: flex;
     flex-direction: column;

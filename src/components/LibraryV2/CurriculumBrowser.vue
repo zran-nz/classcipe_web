@@ -356,17 +356,41 @@ export default {
     },
 
     handleSelectKnowledgeItem (knowledgeItem, deepIndex) {
-      this.$logger.info('handleSelectKnowledgeItem', knowledgeItem)
-    },
-
-    handleSelectSubKnowledgeItem (subKnowledgeItem) {
-      this.$logger.info('handleSelectSubKnowledgeItem', subKnowledgeItem)
-      if (subKnowledgeItem.id !== this.currentSubKnowledgeId) {
-        this.currentSubKnowledgeId = subKnowledgeItem.id
-        this.dataList = []
-        this.knowledgeQueryContentByDescriptionId(this.currentSubKnowledgeId)
+      this.$logger.info('handleSelectKnowledgeItem', knowledgeItem, deepIndex)
+      this.knowledgeDeep = this.getKnowledgeDeep(knowledgeItem, deepIndex + 1)
+      if (deepIndex + 1 === this.knowledgeDeep) {
+        this.$logger.info('handleSelectSubKnowledgeItem', knowledgeItem)
+        if (knowledgeItem.id !== this.knowledges[deepIndex].currentKnowledgeId) {
+          this.$logger.info('hit knowledgeQueryContentByDescriptionId', knowledgeItem.id, this.knowledges[deepIndex].currentKnowledgeId)
+          this.knowledges[deepIndex].currentKnowledgeId = knowledgeItem.id
+        } else {
+          this.$logger.info('skip knowledgeQueryContentByDescriptionId', knowledgeItem.id, this.knowledges[deepIndex].currentKnowledgeId)
+        }
+        // 到达最底层knowledge
+        this.$emit('clickBlock', {
+          curriculumId: this.curriculumId,
+          gradeId: this.currentGradeId,
+          subjectId: this.currentSubSubjectId ? this.currentSubSubjectId : this.currentMainSubjectId,
+          knowledgeId: knowledgeItem.id,
+          tagType: TagType.knowledge
+        })
+        return
       }
-      this.handleClickBlock(5, subKnowledgeItem.name)
+      // 删除当前点击knowledges对应下标之后的所有后续元素（既下级列表），重新填充当前点击的元素的下级列表
+      this.knowledges.splice(deepIndex + 1)
+      this.knowledges.push({
+        knowledgeList: [],
+        knowledgeListLoading: false,
+        currentKnowledgeId: null
+      })
+      const nextIndex = deepIndex + 1
+      this.knowledges[deepIndex].currentKnowledgeId = knowledgeItem.id
+      this.knowledges[nextIndex].knowledgeListLoading = true
+      this.knowledges[nextIndex].knowledgeList = knowledgeItem.children
+      this.knowledges[nextIndex].knowledgeListLoading = false
+
+      this.$logger.info('knowledges', this.knowledges)
+      this.handleClickBlock(this.subjectDeep + 3 + deepIndex, knowledgeItem.name)
     },
 
     knowledgeQueryContentByDescriptionId (descriptionId) {
@@ -389,6 +413,13 @@ export default {
 
     handleClickBlock (blockIndex, path) {
       this.$logger.info('handleClickBlock ' + blockIndex)
+      this.$emit('clickBlock', {
+        curriculumId: this.curriculumId,
+        gradeId: this.currentGradeId,
+        subjectId: this.currentSubSubjectId ? this.currentSubSubjectId : this.currentMainSubjectId,
+        knowledgeId: this.currentSubKnowledgeId ? this.currentSubKnowledgeId : this.currentKnowledgeId,
+        tagType: TagType.knowledge
+      })
       this.$emit('blockCollapse', { blockIndex, path })
     },
 

@@ -101,8 +101,8 @@
                 :curriculum-id="currentCurriculumId"
                 :block-width="blockWidth"
                 v-if="currentBrowserType === BrowserTypeMap.curriculum"
-                @blockCollapse="handleBlockCollapse"
-                @previewDetail="handlePreviewDetail"/>
+                @clickBlock="handleClickBlock"
+                @blockCollapse="handleBlockCollapse"/>
               <assessment-browser
                 :curriculum-id="currentCurriculumId"
                 :block-width="blockWidth"
@@ -141,7 +141,132 @@
         </div>
       </div>
       <div class="library-detail-preview-wrapper" :style="{width: rightBrowserWidth}">
-        <div class="preview-info" v-if="previewVisible">
+        <div class="expand-icon" @click="handleExpandDetail" :style="{'left': (expandedListFlag ? -20 : 10 )+ 'px'}">
+          <template v-if="expandedListFlag">
+            <a-icon type="double-left" style="font-size: 20px; color: #07AB84"/>
+          </template>
+          <template v-if="!expandedListFlag">
+            <a-icon type="double-right" style="font-size: 20px; color: #07AB84"/>
+          </template>
+        </div>
+        <div
+          v-if="dataList.length"
+          class="browser-block-item-wrapper">
+          <div
+            class="browser-block-item-last"
+            :style="{'flex-direction': dataListMode === 'list' ? 'column' : 'row'}">
+            <!--   data item list-->
+            <div class="switch-type-wrapper">
+              <div class="switch-type">
+                <div class="switch-label">
+                  <a-dropdown>
+                    <a-menu slot="overlay">
+                      <a-menu-item disabled>
+                        <span>{{ $t('teacher.my-content.choose-types-of-content') }}</span>
+                      </a-menu-item>
+                      <a-menu-item @click="toggleType(0, $t('teacher.my-content.all-type'))">
+                        <span>{{ $t('teacher.my-content.all-type') }}</span>
+                      </a-menu-item>
+                      <template v-if="$store.getters.roles.indexOf('teacher') !== -1">
+                        <a-menu-item @click="toggleType( typeMap['unit-plan'], $t('teacher.my-content.unit-plan-type'))">
+                          <span>{{ $t('teacher.my-content.unit-plan-type') }}</span>
+                        </a-menu-item>
+                        <a-menu-item @click="toggleType(typeMap.evaluation, $t('teacher.my-content.evaluation-type'))">
+                          <span>{{ $t('teacher.my-content.evaluation-type') }}</span>
+                        </a-menu-item>
+                      </template>
+                      <a-menu-item @click="toggleType(typeMap.task, $t('teacher.my-content.tasks-type') )">
+                        <span>{{ $t('teacher.my-content.tasks-type') }}</span>
+                      </a-menu-item>
+                      <!--                  <a-menu-item @click="toggleType(typeMap.lesson, $t('teacher.my-content.lesson-type'))">
+                        <span>{{ $t('teacher.my-content.lesson-type') }}</span>
+                      </a-menu-item>-->
+                      <template v-if="$store.getters.roles.indexOf('expert') !== -1">
+                        <a-menu-item @click="toggleType(typeMap.topic, $t('teacher.my-content.topics-type'))">
+                          <span>{{ $t('teacher.my-content.topics-type') }}</span>
+                        </a-menu-item>
+                      </template>
+                    </a-menu>
+                    <a-button
+                      style="padding: 0 10px;display:flex; align-items:center ;height: 35px;border-radius: 6px;background: rgba(245, 245, 245, 0.5);font-size:13px;border: 1px solid #BCBCBC;font-family: Inter-Bold;color: #182552;">
+                      <span v-if="currentTypeLabel">{{ currentTypeLabel }}</span> <span v-else>Choose type(s)of content</span>
+                      <a-icon type="caret-down" /> </a-button>
+                  </a-dropdown>
+                </div>
+                <div class="switch-icon">
+                  <div :class="{'icon-item': true, 'active-icon': dataListMode === 'list'}" @click="handleToggleDataListMode('list')">
+                    <list-mode-icon />
+                  </div>
+                  <div :class="{'icon-item': true, 'active-icon': dataListMode === 'card'}" @click="handleToggleDataListMode('card')">
+                    <pu-bu-icon />
+                  </div>
+                </div>
+              </div>
+            </div>
+            <template v-if="dataListMode === 'list'">
+
+              <div
+                :class="{
+                  'browser-item': true,
+                  'odd-line': index % 2 === 0,
+                  'active-line': currentDataId === dataItem.id
+                }"
+                v-for="(dataItem, index) in dataList"
+                @click="handleSelectDataItem(dataItem)"
+                v-if="(currentType === 0 || dataItem.type === currentType)"
+                :key="index">
+                <a-tooltip :mouseEnterDelay="1">
+                  <template slot="title">
+                    {{ dataItem.name }}
+                  </template>
+                  <content-type-icon :type="dataItem.type" />
+                  <span class="data-name">
+                    {{ dataItem.name }}
+                  </span>
+                  <span class="data-time">
+                    {{ dataItem.createTime | dayjs }}
+                  </span>
+                </a-tooltip>
+                <!--            <span class="arrow-item">-->
+                <!--              <a-icon type="more" />-->
+                <!--            </span>-->
+              </div>
+            </template>
+            <template v-if="dataListMode === 'card'">
+              <div class="card-view-mode-wrapper" v-if="dataList.length">
+                <div
+                  class="card-item-wrapper"
+                  v-for="(dataItem, index) in dataList"
+                  @click="handleSelectDataItem(dataItem)"
+                  v-if="(currentType === 0 || dataItem.type === currentType)"
+                  :key="index">
+                  <div class="card-item">
+                    <data-card-view
+                      :active-flag="currentDataId === dataItem.id"
+                      :cover="dataItem.image"
+                      :title="dataItem.name"
+                      :created-time="dataItem.createTime"
+                      :content-type="dataItem.type"
+                    />
+                  </div>
+                </div>
+              </div>
+            </template>
+            <template v-if="!dataList.length && !dataListLoading">
+              <div class="no-data">
+                <no-more-resources />
+              </div>
+            </template>
+            <template>
+              <div class="loading-wrapper" v-if="dataListLoading">
+                <a-spin />
+              </div>
+            </template>
+          </div>
+        </div>
+        <div
+          class="preview-info"
+          v-if="previewVisible">
           <div class="preview-wrapper">
             <div class="preview-detail">
               <common-preview :id="previewCurrentId" :type="previewType" :is-library="true"/>
@@ -176,6 +301,10 @@ import GeneralCapabilityBrowser from '@/components/LibraryV2/GeneralCapabilityBr
 import SubjectSpecificBrowser from '@/components/LibraryV2/SubjectSpecificBrowser'
 import IduBrowser from '@/components/LibraryV2/IduBrowser'
 import { CurriculumType } from '@/const/common'
+import PuBuIcon from '@/assets/icons/library/pubu .svg?inline'
+import ListModeIcon from '@/assets/icons/library/liebiao .svg?inline'
+import ContentTypeIcon from '@/components/Teacher/ContentTypeIcon'
+import DataCardView from '@/components/Library/DataCardView'
 const { Search, QueryContents } = require('@/api/library')
 
 const BrowserTypeMap = {
@@ -214,7 +343,11 @@ export default {
     MaterialPreview,
     DirIcon,
     BackSvg,
-    IduBrowser
+    IduBrowser,
+    ContentTypeIcon,
+    PuBuIcon,
+    ListModeIcon,
+    DataCardView
   },
   props: {
     browserType: {
@@ -265,7 +398,20 @@ export default {
       searchResultVisible: false,
       searching: false,
       leftBrowserWidth: '60%',
-      rightBrowserWidth: '40%'
+      rightBrowserWidth: '40%',
+
+      dataList: [],
+      dataListLoading: false,
+      currentDataId: null,
+      dataListMode: 'list',
+
+      currentTypeLabel: 'Choose type（S）of content',
+      currentType: 0,
+      hasChildSubject: true,
+
+      expandedListFlag: true,
+      oldLeftBrowserWidth: null,
+      oldRightBrowserWidth: null
     }
   },
   created () {
@@ -432,6 +578,47 @@ export default {
     handleSearchInputBlur () {
       this.$logger.info('handleSearchInputBlur')
       this.searchResultVisible = false
+    },
+
+    handleClickBlock (data) {
+      this.$logger.info('handleClickBlock', data)
+      QueryContents(data).then(response => {
+        this.$logger.info('QueryContents response', response)
+        // TODO 待删除 测试数据
+        // this.dataList = response.result ? response.result : []
+        this.dataList = [{ 'id': '1466599633981091842', 'name': 'Unnamed Unit Plan', 'image': 'http://dcdkqlzgpl5ba.cloudfront.net/file/20210730045859200-education-5923312_640.png', 'status': 0, 'delFlag': 0, 'createBy': 'yangxunwu@gmail.com', 'createTime': '2021-12-03 02:46:16', 'updateTime': '2021-12-10 09:55:35', 'type': 2, 'presentationId': null, 'revisionId': null, 'copyFromSlide': null, 'pageIds': null, 'references': [], 'similarity': null, 'questions': [], 'learnOuts': [], 'customTags': [], 'taskType': null, 'startDate': null, 'endDate': null, 'isFavorite': false, 'groupName': null, 'pageObjectIds': [], 'overview': null }, { 'id': '1469225299138392066', 'name': '方法', 'image': 'https://dcdkqlzgpl5ba.cloudfront.net/ppt/20211210/tTUvanb0lXeaPNhpl0fuq6fsKcPqdYJkk3IM2ljlsX7bU7GGkPDDStZtlDaTxtPjQS3o4WpCTIXnotcd7Z0LgFBFcVUrGnGbWlmIuvYWCPq6PxOSqFzFZM0njU_ArV5QQdAPQKC8Bw75xUKe_iUk9E1ezgeaKW8L7uAI3K-sroeTVtGs6PlMg31zSjHxArMZ109PbWAjZObgcOdatO07IixvMsxcxPmI0AGch0EJfg=s800', 'status': 0, 'delFlag': 0, 'createBy': 'yangxunwu@gmail.com', 'createTime': '2021-12-10 08:39:43', 'updateTime': '2021-12-10 14:04:12', 'type': 4, 'presentationId': '1r8xes_Hsx_UXC7XsaSK5JZx-F95U2Iys-qDXea9pXL4', 'revisionId': 'qGcrWUpU4NBDFg', 'copyFromSlide': null, 'pageIds': null, 'references': [], 'similarity': null, 'questions': [], 'learnOuts': [], 'customTags': [], 'taskType': 'FA', 'startDate': null, 'endDate': null, 'isFavorite': false, 'groupName': null, 'pageObjectIds': [], 'overview': '111' }, { 'id': '1469325830515142657', 'name': 's', 'image': 'http://dcdkqlzgpl5ba.cloudfront.net/file/20210730045859200-education-5923312_640.png', 'status': 0, 'delFlag': 0, 'createBy': 'yangxunwu@gmail.com', 'createTime': '2021-12-10 15:19:11', 'updateTime': '2021-12-10 15:22:57', 'type': 4, 'presentationId': null, 'revisionId': null, 'copyFromSlide': null, 'pageIds': null, 'references': [], 'similarity': null, 'questions': [], 'learnOuts': [], 'customTags': [], 'taskType': 'FA', 'startDate': null, 'endDate': null, 'isFavorite': false, 'groupName': null, 'pageObjectIds': [], 'overview': 'ss' }, { 'id': '1445205072185192450', 'name': 'Unnamed Unit Plan 123456789', 'image': 'https://dcdkqlzgpl5ba.cloudfront.net/file/202110240412315516-QQ截图20210612213723.png', 'status': 1, 'delFlag': 0, 'createBy': 'nangezgp@gmail.com', 'createTime': '2021-10-05 01:51:54', 'updateTime': '2021-12-15 14:16:16', 'type': 2, 'presentationId': null, 'revisionId': null, 'copyFromSlide': null, 'pageIds': null, 'references': [], 'similarity': null, 'questions': [], 'learnOuts': [], 'customTags': [], 'taskType': null, 'startDate': '2021-12-01 13:12:22', 'endDate': '2022-01-31 13:12:22', 'isFavorite': false, 'groupName': null, 'pageObjectIds': [], 'overview': 'test overs 123456' }, { 'id': '1451114948203196418', 'name': 'test split yes', 'image': 'https://dcdkqlzgpl5ba.cloudfront.net/file/202112170245433700-Image20211209150147.png', 'status': 1, 'delFlag': 0, 'createBy': 'nangezgp@gmail.com', 'createTime': '2021-10-21 09:15:39', 'updateTime': '2021-12-17 05:09:58', 'type': 4, 'presentationId': '18Lc63Ib3gL5Ns5cWO8eQ5cfzX1Q8MX89Aj7sHwG76VY', 'revisionId': 'WrzyjHZdYhw0tg', 'copyFromSlide': null, 'pageIds': null, 'references': [], 'similarity': null, 'questions': [], 'learnOuts': [], 'customTags': [], 'taskType': 'SA', 'startDate': '2021-12-07 12:00:01', 'endDate': '2021-12-31 12:00:01', 'isFavorite': false, 'groupName': null, 'pageObjectIds': [], 'overview': 'test split yesii' }, { 'id': '1423565744526913537', 'name': 'has evaluation session', 'image': 'http://dcdkqlzgpl5ba.cloudfront.net/ppt/20211105/i2D12HP1nJLg6bRdHyxqXJGc57LopI9qAOvQA6SaMUUHbUzYNeXWX6Ln0UIV22b2pMrF0uHKGlLyQLg8w_kicFfpAWDD2el92yun6PT5Fn487_0QpM5V-bI4bpe24He4MPkwNpVTj9z3QNovVZ6Mw04A936nXSMgbDtVvEqMccTQMrmVaKq0ONZmQ46AY5RMw41yB5ypaxtI_qVWLCNJdd_PLScmjcBilCMagnv5=s800', 'status': 1, 'delFlag': 0, 'createBy': 'yangxunwu@gmail.com', 'createTime': '2021-08-06 08:44:57', 'updateTime': '2021-12-17 06:07:21', 'type': 4, 'presentationId': '17kZYJTQTX6rOIhXhisTaE_5ocYILbTJfegW0QUzOnI0', 'revisionId': 'iabWFZtixwA-iQ', 'copyFromSlide': null, 'pageIds': null, 'references': [], 'similarity': null, 'questions': [], 'learnOuts': [], 'customTags': [], 'taskType': 'FA', 'startDate': '2021-12-07 05:41:24', 'endDate': '2022-01-25 05:41:24', 'isFavorite': true, 'groupName': null, 'pageObjectIds': [], 'overview': 'overviewoverviewask details' }]
+      })
+    },
+
+    toggleType (type, label) {
+      this.$logger.info('toggleType ' + type + ' label ' + label)
+      this.currentType = type
+      this.currentTypeLabel = label
+    },
+
+    handleToggleDataListMode (mode) {
+      this.$logger.info('handleToggleDataListMode' + mode)
+      this.dataListMode = mode
+    },
+
+    handleSelectDataItem (dataItem) {
+      this.$logger.info('handleSelectDataItem ', dataItem)
+      this.currentDataId = dataItem.id
+      this.handlePreviewDetail(dataItem)
+    },
+
+    handleExpandDetail () {
+      if (this.expandedListFlag) {
+        this.oldLeftBrowserWidth = this.leftBrowserWidth
+        this.oldRightBrowserWidth = this.rightBrowserWidth
+        this.leftBrowserWidth = '0%'
+        this.rightBrowserWidth = '100%'
+        this.expandedListFlag = false
+      } else {
+        this.leftBrowserWidth = this.oldLeftBrowserWidth
+        this.rightBrowserWidth = this.oldRightBrowserWidth
+        this.expandedListFlag = true
+      }
     }
   }
 }
@@ -590,6 +777,7 @@ export default {
       transition: all 200ms ease-in-out;
       overflow: hidden;
       position: relative;
+      z-index: 100;
       .library-content {
         z-index: 250;
         overflow: hidden;
@@ -676,10 +864,38 @@ export default {
     }
     .library-detail-preview-wrapper {
       transition: all 200ms ease-in-out;
-      background-color: #bbb;
+      background: #fff;
       box-sizing: border-box;
-      padding: 16px;
-      overflow-y: scroll;
+      display: flex;
+      flex-direction: row;
+      border-left: 1px solid #ddd;
+      min-height: 600px;
+      position: relative;
+      flex: 1;
+      z-index: 100;
+
+      .expand-icon {
+        display: none;
+        background-color: #fff;
+        box-shadow: 0 0 3px 3px rgba(159, 159, 159, 0.26);
+        border-radius: 40px;
+        padding: 10px;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        position: absolute;
+        top: 50%;
+        left: 0;
+        margin-top: -10px;
+        z-index: 200;
+        transition: none;
+      }
+
+      &:hover {
+        .expand-icon {
+          display: flex;
+        }
+      }
 
       &::-webkit-scrollbar {
         width: 4px;
@@ -698,6 +914,7 @@ export default {
       }
 
       .preview-info {
+        width: 50%;
         background: #FFFFFF;
         border: 1px solid #D8D8D8;
         box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.16);
@@ -717,4 +934,189 @@ export default {
   }
 }
 
+.browser-block-item-wrapper {
+  overflow-y: scroll;
+  height: calc(100vh - 190px);
+  width: 50%;
+  box-sizing: border-box;
+
+  &::-webkit-scrollbar {
+    width: 4px;
+    height: 2px;
+  }
+  &::-webkit-scrollbar-track {
+    border-radius: 3px;
+    background: rgba(0,0,0,0.01);
+    -webkit-box-shadow: inset 0 0 5px rgba(0,0,0,0.01);
+  }
+  /* 滚动条滑块 */
+  &::-webkit-scrollbar-thumb {
+    border-radius: 3px;
+    background: rgba(0,0,0,0.1);
+    -webkit-box-shadow: inset 0 0 10px rgba(0,0,0,0.1);
+  }
+}
+
+.browser-block-item-last {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+  box-sizing: border-box;
+  border-right: 1px solid #ddd;
+
+  .switch-type-wrapper {
+    padding: 20px;
+    text-align: center;
+    width: 100%;
+
+    .switch-type {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      justify-content: space-between;
+      border: 1px solid #F7F8FF;
+      box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.16);
+      opacity: 1;
+      border-radius: 6px;
+
+      padding: 12px 12px;
+      width: 100%;
+
+      .switch-label {
+        font-size: 14px;
+        font-family: Inter-Bold;
+        line-height: 20px;
+        color: rgba(24, 37, 82, 1);
+      }
+
+      .switch-icon {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: center;
+
+        .icon-item {
+          margin-left: 10px;
+          display: flex;
+          flex-direction: row;
+          align-items: center;
+          svg {
+            width: 22px;
+            color: rgba(24, 37, 82, 1);
+          }
+        }
+
+        .active-icon {
+          svg {
+            color: rgba(21, 195, 154, 1);
+          }
+        }
+      }
+    }
+  }
+  .browser-item {
+    line-height: 20px;
+    padding: 10px 0 10px 10px;
+    font-weight: 500;
+    cursor: pointer;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    word-break: break-word;
+    user-select: none;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    background: rgba(228, 228, 228, 0.2);
+    width: 100%;
+    .arrow-item {
+      padding: 0 15px;
+      font-weight: bold;
+      width: 20px;
+      font-size: 20px;
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      justify-content: center;
+    }
+    span {
+      display: flex;
+      flex-direction: row;
+      justify-content: flex-start;
+      align-items: center;
+      width: calc(100% - 25px);
+      text-overflow: ellipsis;
+      word-break: break-word;
+      user-select: none;
+      overflow: hidden;
+
+      i {
+        padding-right: 5px;
+      }
+    }
+
+    .data-time {
+      text-align: right;
+      justify-content: flex-end;
+      padding-right: 10px;
+      font-size: 12px;
+    }
+
+    .status-icon-item {
+      display: inline;
+    }
+  }
+
+  .card-view-mode-wrapper {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    padding: 10px;
+    .card-item-wrapper {
+      cursor: pointer;
+      width: 50%;
+      padding: 10px;
+      box-sizing: border-box;
+      background: #FFFFFF;
+      display: flex;
+      flex-direction: row;
+      justify-content: center;
+      .card-item {
+        width: 100%;
+        //border: 1px solid #15C39A;
+        box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.16);
+        opacity: 1;
+        border-radius: 6px;
+      }
+    }
+  }
+
+  .odd-line {
+    background: rgba(228, 228, 228, 0.2);
+  }
+  .active-line {
+    background-color: rgba(21, 195, 154, 0.1);
+    color: #15c39a;
+  }
+  .loading-wrapper {
+    position: absolute;
+    width: 50px;
+    text-align: center;
+    top: 30%;
+    left: 50%;
+    margin-left: -25px;
+  }
+}
+
+.no-data {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 60%;
+  margin: auto;
+}
 </style>
