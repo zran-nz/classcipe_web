@@ -7,9 +7,9 @@
           <div class="title-item title-skill">Assessment objectives</div>
           <div class="objectives-list" v-for="(k,index) in getknowledgeListType(TagType.skill)" :key="index">
             <div class="objectives-list-item objectives-list-item-skill objectives-list-item-top-fixed">
-              <a-breadcrumb separator=">">
-                <a-breadcrumb-item v-for="item in dealPath(k.path)" :key="item">{{ item }}</a-breadcrumb-item>
-              </a-breadcrumb>
+              <!--              <a-breadcrumb separator=">">-->
+              <!--                <a-breadcrumb-item v-for="item in dealPath(k.path)" :key="item">{{ item }}</a-breadcrumb-item>-->
+              <!--              </a-breadcrumb>-->
               <div class="skt-description" @dblclick="handleAddTag(k)">
                 {{ k.name }}
               </div>
@@ -26,9 +26,9 @@
           <div class="title-item title-learnout">Learning outcomes</div>
           <div class="objectives-list" v-for="(k,index) in getknowledgeListType(TagType.knowledge)" :key="index">
             <div class="objectives-list-item objectives-list-item-learn objectives-list-item-top-fixed">
-              <a-breadcrumb separator=">">
-                <a-breadcrumb-item v-for="item in dealPath(k.path)" :key="item">{{ item }}</a-breadcrumb-item>
-              </a-breadcrumb>
+              <!--              <a-breadcrumb separator=">">-->
+              <!--                <a-breadcrumb-item v-for="item in dealPath(k.path)" :key="item">{{ item }}</a-breadcrumb-item>-->
+              <!--              </a-breadcrumb>-->
               <div class="skt-description" @dblclick="handleAddTag(k)">
                 {{ k.name }}
               </div>
@@ -62,9 +62,9 @@
           <div class="title-item title-21">21centruy skill</div>
           <div class="objectives-list" v-for="(k,index) in getknowledgeListType(TagType.century)" :key="index">
             <div class="objectives-list-item objectives-list-item-21 objectives-list-item-top-fixed" @click="handleActiveDescription(TagType.century,k)">
-              <a-breadcrumb separator=">">
-                <a-breadcrumb-item v-for="item in dealPath(k.path)" :key="item">{{ item }}</a-breadcrumb-item>
-              </a-breadcrumb>
+              <!--              <a-breadcrumb separator=">">-->
+              <!--                <a-breadcrumb-item v-for="item in dealPath(k.path)" :key="item">{{ item }}</a-breadcrumb-item>-->
+              <!--              </a-breadcrumb>-->
               <div class="skt-description skt-description-21" @dblclick="handleAddTag(k)">
                 {{ k.name }}
               </div>
