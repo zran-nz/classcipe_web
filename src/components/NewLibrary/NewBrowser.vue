@@ -227,6 +227,12 @@
             <a-icon type="double-right" style="font-size: 20px; color: #07AB84"/>
           </template>
         </div>
+        <div class="modal-ensure-action-line-center">
+          <a-space>
+            <a-button class="action-item action-cancel" shape="round" @click="handleCancelSelectData">Cancel</a-button>
+            <a-button class="action-ensure action-item" type="primary" shape="round" @click="handleEnsureSelectData">Ok</a-button>
+          </a-space>
+        </div>
       </div>
       <div class="main-tree-content" :style="{'left': (expandedListFlag ? 765 : 100) + 'px'}">
         <div class="selected-toggle-mask" @click="expandedListFlag = !expandedListFlag" v-show="expandedListFlag"></div>
@@ -470,6 +476,16 @@ export default {
       if (index > -1) {
         this.mySelectedList.splice(index, 1)
       }
+    },
+
+    handleCancelSelectData () {
+      this.$logger.info('NewBrowser handleCancelSelectData')
+      this.$emit('cancel-select')
+    },
+
+    handleEnsureSelectData () {
+      this.$logger.info('NewBrowser handleEnsureSelectData')
+      this.$emit('ensure-select')
     }
   }
 }
@@ -505,6 +521,7 @@ export default {
     position: relative;
     .selected-content {
       z-index: 100;
+      padding-bottom: 50px;
       position: relative;
       width: 770px;
       flex-shrink: 0;
@@ -661,6 +678,16 @@ export default {
         margin-top: -10px;
         z-index: 200;
         transition: none;
+      }
+
+      .modal-ensure-action-line-center {
+        position: absolute;
+        width: 100%;
+        bottom: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 10px;
       }
     }
 

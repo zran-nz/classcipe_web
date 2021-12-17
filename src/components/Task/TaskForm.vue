@@ -152,11 +152,9 @@
           @select-subject-specific-skill="handleSelectSubjectSpecificSkillListData"
           @select-century-skill="handleSelect21CenturySkillListData"
           @select-recommend="handleSelectRecommendData"
+          @cancel-select="handleCancelSelectData"
+          @ensure-select="handleEnsureSelectData"
         />
-        <div class="modal-ensure-action-line-right">
-          <a-button class="action-item action-cancel" shape="round" @click="handleCancelSelectData">Cancel</a-button>
-          <a-button class="action-ensure action-item" type="primary" shape="round" @click="handleEnsureSelectData">Ok</a-button>
-        </div>
       </div>
     </a-modal>
   </div>
