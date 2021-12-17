@@ -4141,7 +4141,7 @@ export default {
     flex-direction: column;
     .task-preview-list {
       position: relative;
-
+      width: 800px;
       .task-preview {
         padding: 5px;
       }
