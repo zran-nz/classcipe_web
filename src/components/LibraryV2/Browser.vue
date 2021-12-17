@@ -105,7 +105,6 @@
               <assessment-browser
                 :curriculum-id="currentCurriculumId"
                 v-if="currentBrowserType === BrowserTypeMap.assessmentType"
-                @clickBlock="handleClickBlock"
                 @blockCollapse="handleBlockCollapse"/>
               <general-capability-browser
                 :block-index="blockIndex"
@@ -424,6 +423,7 @@ export default {
         this.navPath.push({ blockIndex: 1, path: browserTypeItem.label })
         this.$logger.info('reset and add path ' + browserTypeItem.label)
       }
+      this.dataList = []
     },
 
     handleBlockCollapse (data) {
