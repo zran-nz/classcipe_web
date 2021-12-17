@@ -368,7 +368,7 @@
                   </div>
 
                   <template v-if="showTaskDetails && currentActiveStepIndex === 0">
-                    <div class="task-details-panel" :style="{'width':'600px','position': 'absolute', 'top':taskDetailsTop+'px', 'z-index': 200}">
+                    <div class="task-details-panel" :style="{'width':'600px', 'margin-top':taskDetailsTop+'px', 'z-index': 200}">
                       <Assessment-Task-Details :associate-task-list="associateTaskList" @hide-assessment-task="showTaskDetails = false"/>
 
                     </div>
@@ -2251,6 +2251,7 @@ export default {
     .image-preview {
       img {
         max-height: 250px;
+        max-width: 100%;
         /*width: 100%;*/
       }
     }
@@ -2791,7 +2792,7 @@ export default {
     width: 600px;
     .form-block-right{
       .img-wrapper {
-        position: relative;
+        position: absolute;
         width: 600px;
       }
       .delete-img {

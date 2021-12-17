@@ -56,64 +56,71 @@
             <ui-learn-out-sub :learn-outs="task.learnOuts" />
           </div>
         </div>
-
+        <template v-if="associateTaskList.length === 0">
+          <no-more-resources tips="no data!"/>
+        </template>
       </div>
 
       <div class="tab2-details" v-if="tab==='2'">
-        <div class="tab2-title">
-          Learning experience/Student expectations
-        </div>
-        <div class="tab2-task-list">
-          <div class="task-card" v-for="(task,index) in associateTaskList" :key="index">
-            <div class="title-image">
-              <div class="center-title">
-                {{ task.name }}
+        <template v-if="associateTaskList.length === 0">
+          <no-more-resources tips="no data!"/>
+        </template>
+        <template v-else>
+          <div class="tab2-title">
+            Learning experience/Student expectations
+          </div>
+          <div class="tab2-task-list">
+            <div class="task-card" v-for="(task,index) in associateTaskList" :key="index">
+              <div class="title-image">
+                <div class="center-title">
+                  {{ task.name }}
+                </div>
+                <Go-Icon class="go-icon" @click="handleEditTask(task)" />
               </div>
-              <Go-Icon class="go-icon" @click="handleEditTask(task)" />
-            </div>
-            <div class="overview">
-              {{ task.overview }}
+              <div class="overview">
+                {{ task.overview }}
+              </div>
             </div>
           </div>
-        </div>
 
-        <div class="tab2-title">
-          Teaching strategie
-        </div>
-        <div class="tab2-task-list">
-          <div class="task-card" v-for="(task,index) in associateTaskList" :key="index">
-            <div class="title-image">
-              <div class="center-title">
-                {{ task.name }}
+          <div class="tab2-title">
+            Teaching strategie
+          </div>
+          <div class="tab2-task-list">
+            <div class="task-card" v-for="(task,index) in associateTaskList" :key="index">
+              <div class="title-image">
+                <div class="center-title">
+                  {{ task.name }}
+                </div>
+                <Go-Icon class="go-icon" @click="handleEditTask(task)" />
               </div>
-              <Go-Icon class="go-icon" @click="handleEditTask(task)" />
-            </div>
-            <div class="task-tags">
-              <div class="tag-list-item">
-                <a-tag v-if="tag.parentName === 'Teaching strategies'" v-for="(tag,tIndex) in task.customTags" :key="tIndex" class="tag-item" :closable="false">{{ tag.name }}</a-tag>
+              <div class="task-tags">
+                <div class="tag-list-item">
+                  <a-tag v-if="tag.parentName === 'Teaching strategies'" v-for="(tag,tIndex) in task.customTags" :key="tIndex" class="tag-item" :closable="false">{{ tag.name }}</a-tag>
+                </div>
               </div>
             </div>
           </div>
-        </div>
 
-        <div class="tab2-title">
-          Differentiate instructions
-        </div>
-        <div class="tab2-task-list">
-          <div class="task-card" v-for="(task,index) in associateTaskList" :key="index">
-            <div class="title-image">
-              <div class="center-title">
-                {{ task.name }}
+          <div class="tab2-title">
+            Differentiate instructions
+          </div>
+          <div class="tab2-task-list">
+            <div class="task-card" v-for="(task,index) in associateTaskList" :key="index">
+              <div class="title-image">
+                <div class="center-title">
+                  {{ task.name }}
+                </div>
+                <Go-Icon class="go-icon" @click="handleEditTask(task)" />
               </div>
-              <Go-Icon class="go-icon" @click="handleEditTask(task)" />
-            </div>
-            <div class="task-tags">
-              <div class="tag-list-item">
-                <a-tag v-if="tag.parentName === 'Differentiated instructions'" v-for="(tag,tIndex) in task.customTags" :key="tIndex" class="tag-item" :closable="false">{{ tag.name }}</a-tag>
+              <div class="task-tags">
+                <div class="tag-list-item">
+                  <a-tag v-if="tag.parentName === 'Differentiated instructions'" v-for="(tag,tIndex) in task.customTags" :key="tIndex" class="tag-item" :closable="false">{{ tag.name }}</a-tag>
+                </div>
               </div>
             </div>
           </div>
-        </div>
+        </template>
       </div>
     </a-card>
   </div>
@@ -125,11 +132,14 @@ import UiLearnOutSub from '@/components/UnitPlan/UiLearnOutSub'
 import { typeMap } from '@/const/teacher'
 import moment from 'moment'
 import GoIcon from '@/assets/icons/unitplan/go.svg?inline'
+import NoMoreResources from '@/components/Common/NoMoreResources'
 
 export default {
   name: 'AssessmentTaskDetails',
   components: {
-    UiLearnOutSub, GoIcon
+    NoMoreResources,
+    UiLearnOutSub,
+GoIcon
   },
   mixins: [UtilMixin],
   props: {
