@@ -62,8 +62,11 @@
         <div class="search-bar"></div>
       </div>
     </div>
-    <div class="library-detail-wrapper" :style="{top: currentBrowserType === BrowserTypeMap.sdg ? '74px' : '126px', height: currentBrowserType === BrowserTypeMap.sdg ? 'calc(100vh - 138px)': 'calc(100vh - 190px)'}">
-      <div class="library-detail-nav-wrapper">
+    <div
+      class="library-detail-wrapper"
+      :style="{top: currentBrowserType === BrowserTypeMap.sdg ? '74px' : '126px',
+               height: currentBrowserType === BrowserTypeMap.sdg ? 'calc(100vh - 138px)': 'calc(100vh - 190px)'}">
+      <div class="library-detail-nav-wrapper" :style="{width: leftBrowserWidth}">
         <div class="library-content">
           <div class="browser-action" v-if="hasLeftBlock">
             <div class="action-item" @click="handleViewLeft">
@@ -73,7 +76,15 @@
           <div class="browser-table-wrapper" :style="{left: -browserMarginLeft + 'px'}">
             <div class="browser-table">
               <div class="browser-type-list">
-                <div :class="{'browser-type': true, 'odd-line': index % 2 === 0, 'active-line': currentBrowserType === browserTypeItem.type}" v-for="(browserTypeItem, index) in (currentCurriculumId == curriculumType.IBMYP ? browserTypeListForIbMpy : browserTypeList)" :key="index" @click="toggleBrowserType(browserTypeItem)">
+                <div
+                  :class="{
+                    'browser-type': true,
+                    'odd-line': index % 2 === 0,
+                    'active-line': currentBrowserType === browserTypeItem.type
+                  }"
+                  v-for="(browserTypeItem, index) in (currentCurriculumId == curriculumType.IBMYP ? browserTypeListForIbMpy : browserTypeList)"
+                  :key="index"
+                  @click="toggleBrowserType(browserTypeItem)">
                   <dir-icon dir-type="blue" v-if="currentBrowserType !== browserTypeItem.type"/>
                   <dir-icon dir-type="opened" v-if="currentBrowserType === browserTypeItem.type"/>
                   {{ browserTypeItem.label }}
@@ -129,7 +140,7 @@
           </div>
         </div>
       </div>
-      <div class="library-detail-preview-wrapper">
+      <div class="library-detail-preview-wrapper" :style="{width: rightBrowserWidth}">
         <div class="preview-info" v-if="previewVisible">
           <div class="preview-wrapper">
             <div class="preview-detail">
@@ -252,7 +263,9 @@ export default {
       searchKeyword: null,
       searchResultList: [],
       searchResultVisible: false,
-      searching: false
+      searching: false,
+      leftBrowserWidth: '60%',
+      rightBrowserWidth: '40%'
     }
   },
   created () {
@@ -269,7 +282,7 @@ export default {
     })
   },
   mounted () {
-    this.blockWidth = (this.$refs['wrapper'].getBoundingClientRect().width - 781) / 2.0
+    this.blockWidth = this.$refs['wrapper'].getBoundingClientRect().width * 0.6 - 180
     this.$logger.info('globalWidth ' + this.blockWidth)
   },
   methods: {
@@ -280,6 +293,7 @@ export default {
         this.navPath = []
         this.navPath.push({ blockIndex: 0, path: browserTypeItem.label })
         this.$logger.info('reset and add path ' + browserTypeItem.label)
+        this.blockWidth = this.$refs['wrapper'].getBoundingClientRect().width * 0.6 - 180
       }
     },
 
@@ -287,17 +301,23 @@ export default {
       this.$logger.info('handleBlockCollapse ' + data.blockIndex, data)
       this.previewVisible = false
       if (this.blockIndex !== data.blockIndex) {
-        this.blockIndex = data.blockIndex
-        if (this.blockIndex === 1) {
-          this.hasLeftBlock = false
-          this.browserMarginLeft = 0
-          this.blockWidth = (this.$refs['wrapper'].getBoundingClientRect().width - 781) / 2.0
-        } else {
+        if (data.blockIndex === 1) {
+          this.rightBrowserWidth = '40%'
+          this.leftBrowserWidth = '60%'
+          this.blockIndex = data.blockIndex
           this.hasLeftBlock = true
-          this.blockWidth = (this.$refs['wrapper'].getBoundingClientRect().width - 681) / 2.0
-          this.browserMarginLeft = (data.blockIndex - 1) * this.blockWidth + 100
+          this.blockWidth = this.$refs['wrapper'].getBoundingClientRect().width * 0.6 - 180
+          this.browserMarginLeft = (data.blockIndex - 1) * this.blockWidth + 120
+          this.$logger.info('browserMarginLeft ' + this.browserMarginLeft + ', hasLeftBlock:' + this.hasLeftBlock)
+        } else {
+          this.rightBrowserWidth = '60%'
+          this.leftBrowserWidth = '40%'
+          this.blockIndex = data.blockIndex
+          this.hasLeftBlock = true
+          this.blockWidth = this.$refs['wrapper'].getBoundingClientRect().width * 0.4 - 100
+          this.browserMarginLeft = (data.blockIndex - 1) * this.blockWidth + 120
+          this.$logger.info('browserMarginLeft ' + this.browserMarginLeft + ', hasLeftBlock:' + this.hasLeftBlock)
         }
-        this.$logger.info('browserMarginLeft ' + this.browserMarginLeft + ', hasLeftBlock:' + this.hasLeftBlock)
       } else {
         this.$logger.info('same block collapse')
       }
@@ -327,14 +347,16 @@ export default {
       this.previewVisible = false
       this.$logger.info('handleViewLeft ' + (this.blockIndex))
       if (this.blockIndex < 2) {
+        this.rightBrowserWidth = '40%'
+        this.leftBrowserWidth = '60%'
         this.hasLeftBlock = false
+        this.blockWidth = this.$refs['wrapper'].getBoundingClientRect().width * 0.6 - 180
         this.browserMarginLeft = 0
-        this.blockWidth = (this.$refs['wrapper'].getBoundingClientRect().width - 781) / 2.0
       } else {
         this.blockIndex = this.blockIndex - 1
         this.hasLeftBlock = true
-        this.blockWidth = (this.$refs['wrapper'].getBoundingClientRect().width - 681) / 2.0
-        this.browserMarginLeft = (this.blockIndex - 1) * this.blockWidth + 100
+        this.blockWidth = this.$refs['wrapper'].getBoundingClientRect().width * 0.4 - 100
+        this.browserMarginLeft = (this.blockIndex - 1) * this.blockWidth + 120
       }
       const path = this.navPath.pop()
       this.$logger.info('remove path ' + path)
@@ -345,16 +367,17 @@ export default {
       this.$logger.info('handleNavPathChange', data)
       this.previewVisible = false
       const blockIndex = data.blockIndex
-      if (blockIndex <= 2) {
-        this.blockIndex = blockIndex
+      if (this.blockIndex < 2) {
+        this.rightBrowserWidth = '40%'
+        this.leftBrowserWidth = '60%'
         this.hasLeftBlock = false
+        this.blockWidth = this.$refs['wrapper'].getBoundingClientRect().width * 0.6 - 180
         this.browserMarginLeft = 0
-        this.blockWidth = (this.$refs['wrapper'].getBoundingClientRect().width - 781) / 2.0
       } else {
-        this.blockIndex = blockIndex - 1
+        this.blockIndex = this.blockIndex - 1
         this.hasLeftBlock = true
-        this.blockWidth = (this.$refs['wrapper'].getBoundingClientRect().width - 681) / 2.0
-        this.browserMarginLeft = (this.blockIndex - 1) * this.blockWidth + 100
+        this.blockWidth = this.$refs['wrapper'].getBoundingClientRect().width * 0.4 - 100
+        this.browserMarginLeft = (this.blockIndex - 1) * this.blockWidth + 120
       }
       this.navPath = this.navPath.filter(item => item.blockIndex <= blockIndex)
       this.$logger.info('browserMarginLeft ' + this.browserMarginLeft + ', hasLeftBlock:' + this.hasLeftBlock)
@@ -445,7 +468,7 @@ export default {
     justify-content: flex-start;
     align-items: center;
     padding: 15px 0 10px 0;
-    transition: all 500ms ease-in-out;
+    transition: all 200ms ease-in-out;
 
     .curriculum-select {
       display: flex;
@@ -562,10 +585,11 @@ export default {
     overflow: hidden;
     display: flex;
     flex-direction: row;
+    flex: 1;
     .library-detail-nav-wrapper {
+      transition: all 200ms ease-in-out;
       overflow: hidden;
       position: relative;
-      width: calc(100% - 500px);
       .library-content {
         z-index: 250;
         overflow: hidden;
@@ -577,7 +601,7 @@ export default {
           left: 0;
           top: 0;
           bottom: 0;
-          width: 181px;
+          width: 101px;
           box-sizing: border-box;
           background-color: fade(@text-color-secondary, 50%);
           z-index: 110;
@@ -604,7 +628,7 @@ export default {
           overflow: hidden;
           box-sizing: border-box;
           position: absolute;
-          transition: all .3s ease-in;
+          transition: all .2s ease-in;
           z-index: 100;
           .browser-table {
             box-sizing: border-box;
@@ -613,10 +637,10 @@ export default {
             .browser-type-list {
               display: flex;
               flex-direction: column;
-              width: 280px;
+              width: 220px;
               box-sizing: border-box;
               .browser-type {
-                padding: 10px 20px;
+                padding: 10px;
                 font-weight: 500;
                 cursor: pointer;
                 background: rgba(228, 228, 228, 0.2);
@@ -651,7 +675,8 @@ export default {
       }
     }
     .library-detail-preview-wrapper {
-      width: 500px;
+      transition: all 200ms ease-in-out;
+      background-color: #bbb;
       box-sizing: border-box;
       padding: 16px;
       overflow-y: scroll;
@@ -685,15 +710,11 @@ export default {
         flex-direction: column;
         justify-content: center;
         align-items: center;
-        height: 60%;
+        height: 100%;
         margin: auto;
       }
     }
   }
-}
-
-.library-search-input {
-  border-radius: 20px;
 }
 
 </style>
