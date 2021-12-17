@@ -18,7 +18,7 @@
           </a-select>
         </div>
       </div>
-      <div class="navigation-item">
+      <div class="navigation-item" :style="{'left': (expandedListFlag ? 785 : 125) + 'px', 'width': (expandedListFlag ? 380 : 1000) + 'px',}">
         <new-navigation />
       </div>
     </div>
@@ -486,6 +486,12 @@ export default {
     justify-content: flex-start;
     align-items: center;
     padding-bottom: 10px;
+
+    .navigation-item {
+      top: 18px;
+      position: absolute;
+      transition: all 200ms ease-in;
+    }
   }
 
   .main {

@@ -78,8 +78,12 @@ export default {
   .nav-path {
     line-height: 25px;
     display: flex;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
     flex-direction: row;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    word-break: break-all;
     justify-content: flex-start;
     .nav-path-item {
       line-height: 25px;
