@@ -41,9 +41,6 @@
             <dir-icon dir-type="opened" v-if="currentSdgId === sdgItem.id"/>
             {{ sdgItem.name }}
           </a-tooltip>
-          <!--          <span class="arrow-item">-->
-          <!--            <a-icon type="right" />-->
-          <!--          </span>-->
         </div>
         <template v-if="!sdgList.length && !sdgListLoading">
           <div class="no-data">
@@ -64,11 +61,6 @@
             <filter-icon />
           </div>
           <div class="filter-list">
-            <!--            <a-select v-model="currentSdgKeywordName" class="filter-select  library-filter-select" placeholder="Select Keywords" >-->
-            <!--              <a-select-option :value="item.name" v-for="(item, index) in sdgKeywordNameList" :key="index" >-->
-            <!--                {{ item.name }}-->
-            <!--              </a-select-option>-->
-            <!--            </a-select>-->
             <a-select v-model="selectedConcept" class="filter-select  library-filter-select" placeholder="Universal Concept" :allowClear="true" >
               <a-select-option :value="name" v-for="(name, index) in conceptList" :key="index" >
                 {{ name }}
@@ -322,6 +314,7 @@ import { typeMap } from '@/const/teacher'
 import { QueryBigIdea, QueryTagsBySubjectIds } from '@/api/scenario'
 import { SubjectTree } from '@/api/subject'
 import SousuoIconSvg from '@/assets/icons/header/sousuo.svg?inline'
+import { TagType } from '@/const/common'
 const { ScenarioGetKeywordScenarios, QueryContentByBigIdea } = require('@/api/scenario')
 const { GetAllSdgs } = require('@/api/scenario')
 
@@ -424,7 +417,7 @@ export default {
         // this.scenarioGetKeywordScenarios(sdgItem.id)
         this.queryBigIdea()
         this.queryTagsBySubjectIds()
-        this.handleClickBlock(1, sdgItem.name)
+        this.handleClickBlock(2, sdgItem.name)
       }
     },
     scenarioGetKeywordScenarios (sdgId) {
@@ -447,7 +440,7 @@ export default {
     queryBigIdeaDescription (descriptionItem) {
       this.$logger.info('queryBigIdeaDescription', descriptionItem)
       this.dataListLoading = true
-      this.handleClickBlock(2, descriptionItem.name)
+      this.handleClickBlock(3, descriptionItem.name)
       this.currentSdgKeywordScenarioId = descriptionItem.id
       this.currentSdgKeywordScenario = 'description'
       QueryBigIdea({ description: descriptionItem.name }).then(response => {
@@ -496,7 +489,7 @@ export default {
     queryBigIdeaKeywords (keywordsItem) {
       this.$logger.info('queryBigIdeaKeyword', keywordsItem)
       this.dataListLoading = true
-      this.handleClickBlock(2, keywordsItem.name)
+      this.handleClickBlock(3, keywordsItem.name)
       this.currentSdgKeywordScenarioId = keywordsItem.id
       this.currentSdgKeywordScenario = 'keyword'
       QueryBigIdea({ keywords: keywordsItem.name }).then(response => {
@@ -527,7 +520,7 @@ export default {
           this.$logger.info('no big idea content')
         }
       })
-      this.handleClickBlock(2, bigIdeaItem.name)
+      this.handleClickBlock(3, bigIdeaItem.name)
     },
 
     handleSelectDataItem (dataItem) {
@@ -538,6 +531,13 @@ export default {
 
     handleClickBlock (blockIndex, path) {
       this.$logger.info('handleClickBlock ' + blockIndex)
+      this.$emit('clickBlock', {
+        curriculumId: this.curriculumId,
+        gradeId: this.currentGradeId,
+        subjectId: this.currentSubSubjectId ? this.currentSubSubjectId : this.currentMainSubjectId,
+        knowledgeId: this.currentSubKnowledgeId ? this.currentSubKnowledgeId : this.currentKnowledgeId,
+        tagType: TagType.knowledge
+      })
       this.$emit('blockCollapse', { blockIndex, path })
     },
 
@@ -664,12 +664,10 @@ export default {
         color: #15c39a;
       }
       .loading-wrapper {
-        position: absolute;
-        width: 50px;
-        text-align: center;
-        top: 30%;
-        left: 50%;
-        margin-left: -25px;
+        min-height: 400px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
       }
     }
 
@@ -841,12 +839,10 @@ export default {
         color: #15c39a;
       }
       .loading-wrapper {
-        position: absolute;
-        width: 50px;
-        text-align: center;
-        top: 30%;
-        left: 50%;
-        margin-left: -25px;
+        min-height: 400px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
       }
     }
   }

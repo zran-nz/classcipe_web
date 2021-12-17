@@ -1088,9 +1088,6 @@ export default {
   }
   .loading-wrapper {
     min-height: 400px;
-    width: 100%;
-    text-align: center;
-    height: 100%;
     display: flex;
     align-items: center;
     justify-content: center;
