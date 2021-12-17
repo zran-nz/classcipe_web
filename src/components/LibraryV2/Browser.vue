@@ -36,15 +36,25 @@
               </a-input>
             </div>
             <div class="search-result-wrapper" v-if="searchResultVisible">
-              <div class="search-result-list">
-                <div
-                  class="search-result-item"
-                  @click.stop="handleClickSearchResultItem(item)"
-                  v-for="(item, sIndex) in searchResultList"
-                  :key="sIndex"
-                  :data-from-type="item.fromType">
-                  {{ item.name }}
-                </div>
+              <div class="searching" v-if="searching">
+                <a-spin />
+              </div>
+              <div class="search-result-list" v-if="!searching">
+                <template v-if="searchResultList.length">
+                  <div
+                    class="search-result-item"
+                    @click.stop="handleClickSearchResultItem(item)"
+                    v-for="(item, sIndex) in searchResultList"
+                    :key="sIndex"
+                    :data-from-type="item.fromType">
+                    {{ item.name }}
+                  </div>
+                </template>
+                <template v-else>
+                  <div class="no-result">
+                    No relevant data found!
+                  </div>
+                </template>
               </div>
             </div>
           </div>
@@ -241,7 +251,8 @@ export default {
 
       searchKeyword: null,
       searchResultList: [],
-      searchResultVisible: false
+      searchResultVisible: false,
+      searching: false
     }
   },
   created () {
@@ -372,12 +383,15 @@ export default {
 
     searchByKeyword (value) {
       this.$logger.info('searchByKeyword ' + value)
+      this.searching = true
       Search({
         curriculumId: this.currentCurriculumId,
         key: value
       }).then(response => {
         this.$logger.info('searchByKeyword ' + value, response)
         this.searchResultList = response.result
+      }).finally(() => {
+        this.searching = false
       })
     },
 
@@ -494,6 +508,24 @@ export default {
         background-color: #fff;
         max-height: 350px;
         overflow-y: scroll;
+
+        .searching {
+          width: 100%;
+          height: 100px;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+        }
+
+        .no-result {
+          width: 100%;
+          height: 100px;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          line-height: 100px;
+          color: #aaa;
+        }
 
         .search-result-item {
           padding: 8px 10px;
