@@ -391,9 +391,6 @@ export default {
       GetAllSdgs().then(response => {
           this.$logger.info('GetAllSdgs response', response.result)
           this.sdgList = response.result
-          if (this.sdgList) {
-            this.handleSelectSdgItem(this.sdgList[0])
-          }
       }).finally(() => {
         this.sdgListLoading = false
       })
@@ -414,7 +411,6 @@ export default {
         this.currentSdgId = sdgItem.id
         this.sdgKeywordNameList = []
         this.currentSdgKeywordName = null
-        // this.scenarioGetKeywordScenarios(sdgItem.id)
         this.queryBigIdea()
         this.queryTagsBySubjectIds()
         this.handleClickBlock(2, sdgItem.name)
@@ -510,17 +506,17 @@ export default {
     handleSelectBigIdeaItem (bigIdeaItem) {
       this.$logger.info('handleSelectBigIdeaItem', bigIdeaItem)
       this.currentBigIdea = bigIdeaItem.name
-      QueryContentByBigIdea({
-        bigIdea: bigIdeaItem.name
-      }).then((response) => {
-        this.$logger.info('QueryContentByBigIdea', response)
-        if (response.result) {
-          this.dataList = response.result
-        } else {
-          this.$logger.info('no big idea content')
-        }
-      })
-      this.handleClickBlock(3, bigIdeaItem.name)
+      // QueryContentByBigIdea({
+      //   bigIdea: bigIdeaItem.name
+      // }).then((response) => {
+      //   this.$logger.info('QueryContentByBigIdea', response)
+      //   if (response.result) {
+      //     this.dataList = response.result
+      //   } else {
+      //     this.$logger.info('no big idea content')
+      //   }
+      // })
+      this.handleClickBlock(2, bigIdeaItem.name)
     },
 
     handleSelectDataItem (dataItem) {
@@ -533,10 +529,11 @@ export default {
       this.$logger.info('handleClickBlock ' + blockIndex)
       this.$emit('clickBlock', {
         curriculumId: this.curriculumId,
-        gradeId: this.currentGradeId,
-        subjectId: this.currentSubSubjectId ? this.currentSubSubjectId : this.currentMainSubjectId,
-        knowledgeId: this.currentSubKnowledgeId ? this.currentSubKnowledgeId : this.currentKnowledgeId,
-        tagType: TagType.knowledge
+        gradeId: null,
+        subjectId: null,
+        knowledgeId: null,
+        bigIdea: this.currentBigIdea,
+        tagType: TagType.bigIdea
       })
       this.$emit('blockCollapse', { blockIndex, path })
     },
@@ -720,6 +717,7 @@ export default {
               flex-wrap: wrap;
               .filter-dropdown-item {
                 margin-right: 10px;
+                margin-bottom: 5px;
               }
             }
           }
