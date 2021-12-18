@@ -489,16 +489,20 @@ export default {
     },
 
     handleNavPathChange (data) {
-      this.$logger.info('handleNavPathChange', data)
+      this.$logger.info('handleNavPathChange data.blockIndex(' + data.blockIndex + ') this.blockIndex(' + this.blockIndex + ')', data)
       this.previewVisible = false
       const blockIndex = data.blockIndex
-      if (this.blockIndex < 2) {
+      if (blockIndex === this.blockIndex) {
+        return
+      }
+      this.dataList = []
+      if (data.blockIndex < 2) {
         this.hasLeftBlock = false
         this.browserMarginLeft = 0
       } else {
         this.blockIndex = this.blockIndex - 1
         this.hasLeftBlock = true
-        this.browserMarginLeft = (this.blockIndex - 1) * this.blockWidth
+        this.browserMarginLeft = (data.blockIndex - 1) * this.blockWidth
       }
       this.navPath = this.navPath.filter(item => item.blockIndex <= blockIndex)
       this.$logger.info('browserMarginLeft ' + this.browserMarginLeft + ', hasLeftBlock:' + this.hasLeftBlock)
