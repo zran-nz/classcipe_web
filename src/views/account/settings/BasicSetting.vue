@@ -519,7 +519,7 @@ export default {
   min-height: 300px;
 
   .loading-wrapper {
-    min-height: 400px;
+    //min-height: 400px;
     display: flex;
     align-items: center;
     justify-content: center;
