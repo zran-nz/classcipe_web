@@ -355,7 +355,7 @@
                       </a-upload-dragger>
                     </a-form-model-item>
                   </div>
-                  <div v-show="!this.contentLoading" :style="{'width':'600px','position': 'absolute', 'top':customTagTop+'px', 'z-index': 50}">
+                  <div v-show="!this.contentLoading && !showTaskDetails" :style="{'width':'600px','position': 'absolute', 'top':customTagTop+'px', 'z-index': 50}">
                     <custom-tag
                       :show-arrow="showCustomTag"
                       :user-tags="userTags"
