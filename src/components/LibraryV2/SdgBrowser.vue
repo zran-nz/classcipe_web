@@ -506,16 +506,17 @@ export default {
     handleSelectBigIdeaItem (bigIdeaItem) {
       this.$logger.info('handleSelectBigIdeaItem', bigIdeaItem)
       this.currentBigIdea = bigIdeaItem.name
-      // QueryContentByBigIdea({
-      //   bigIdea: bigIdeaItem.name
-      // }).then((response) => {
-      //   this.$logger.info('QueryContentByBigIdea', response)
-      //   if (response.result) {
-      //     this.dataList = response.result
-      //   } else {
-      //     this.$logger.info('no big idea content')
-      //   }
-      // })
+      QueryContentByBigIdea({
+        bigIdea: bigIdeaItem.name
+      }).then((response) => {
+        this.$logger.info('QueryContentByBigIdea', response)
+        if (response.result) {
+          this.dataList = response.result
+          this.$emit('update-data-list', this.dataList)
+        } else {
+          this.$logger.info('no big idea content')
+        }
+      })
       this.handleClickBlock(2, bigIdeaItem.name)
     },
 

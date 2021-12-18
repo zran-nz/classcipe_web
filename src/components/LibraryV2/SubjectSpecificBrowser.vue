@@ -1,5 +1,5 @@
 <template>
-  <div class="browser-block">
+  <div class="browser-block" data-type="SubjectSpecificBrowser">
     <!--      mainSubject list-->
     <div class="browser-block-item" :style="{width: '25vw' , minWidth: '25vw' }">
       <div

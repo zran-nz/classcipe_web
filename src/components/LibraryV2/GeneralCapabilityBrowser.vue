@@ -370,6 +370,7 @@ export default {
     handleSelectKnowledgeItem (knowledgeItem, deepIndex) {
       this.$logger.info('handleSelectKnowledgeItem', knowledgeItem)
       this.knowledgeDeep = this.getKnowledgeDeep(knowledgeItem, deepIndex + 1)
+      this.currentKnowledgeId = knowledgeItem.id
       if (deepIndex + 1 === this.knowledgeDeep) {
         this.$logger.info('handleSelectSubKnowledgeItem last', knowledgeItem)
         if (knowledgeItem.id !== this.knowledges[deepIndex].currentKnowledgeId) {
@@ -420,7 +421,7 @@ export default {
         curriculumId: this.curriculumId,
         gradeId: this.currentGradeId,
         subjectId: this.currentSubSubjectId ? this.currentSubSubjectId : this.currentMainSubjectId,
-        knowledgeId: this.currentSubKnowledgeId ? this.currentSubKnowledgeId : this.currentKnowledgeId,
+        knowledgeId: this.currentKnowledgeId,
         tagType: TagType.skill
       })
       this.$emit('blockCollapse', { blockIndex, path })

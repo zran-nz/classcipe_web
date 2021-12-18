@@ -1,5 +1,5 @@
 <template>
-  <div class="browser-block">
+  <div class="browser-block" data-type="assessment">
     <!--      mainSubject list-->
     <div class="browser-block-item" :style="{width: '25vw' , minWidth: '25vw' }">
       <div
@@ -467,6 +467,7 @@
         KnowledgeQueryContentByDescriptionId({ descriptionId }).then(response => {
           this.$logger.info('KnowledgeQueryContentByDescriptionId response', response.result)
           this.dataList = response.result
+          this.$emit('update-data-list', this.dataList)
         }).finally(() => {
           this.dataListLoading = false
         })

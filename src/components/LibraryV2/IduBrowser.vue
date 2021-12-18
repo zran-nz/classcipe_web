@@ -1,5 +1,5 @@
 <template>
-  <div class="browser-block">
+  <div class="browser-block" data-type="idu">
     <div class="browser-block-item-wrapper">
       <div class="browser-block-item" :style="{width: '25vw' , minWidth: '25vw' }">
         <div

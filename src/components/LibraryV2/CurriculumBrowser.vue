@@ -1,5 +1,5 @@
 <template>
-  <div class="browser-block">
+  <div class="browser-block" data-type="curriculum">
     <!--      mainSubject list-->
     <div class="browser-block-item" :style="{width: '25vw' , minWidth: '25vw' }">
       <div
@@ -352,6 +352,7 @@ export default {
 
     handleSelectKnowledgeItem (knowledgeItem, deepIndex) {
       this.$logger.info('handleSelectKnowledgeItem', knowledgeItem, deepIndex)
+      this.currentKnowledgeId = knowledgeItem.id
       this.knowledgeDeep = this.getKnowledgeDeep(knowledgeItem, deepIndex + 1)
       if (deepIndex + 1 === this.knowledgeDeep) {
         this.$logger.info('handleSelectSubKnowledgeItem', knowledgeItem)
@@ -405,7 +406,7 @@ export default {
         curriculumId: this.curriculumId,
         gradeId: this.currentGradeId,
         subjectId: this.currentSubSubjectId ? this.currentSubSubjectId : this.currentMainSubjectId,
-        knowledgeId: this.currentSubKnowledgeId ? this.currentSubKnowledgeId : this.currentKnowledgeId,
+        knowledgeId: this.currentKnowledgeId,
         tagType: TagType.knowledge
       })
       this.$emit('blockCollapse', { blockIndex, path })

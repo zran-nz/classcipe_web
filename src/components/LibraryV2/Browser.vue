@@ -106,6 +106,7 @@
                 :curriculum-id="currentCurriculumId"
                 v-if="currentBrowserType === BrowserTypeMap.assessmentType"
                 @clickBlock="handleClickBlock"
+                @update-data-list="handleUpdateDataList"
                 @blockCollapse="handleBlockCollapse"/>
               <general-capability-browser
                 :block-index="blockIndex"
@@ -129,6 +130,7 @@
               <sdg-browser
                 v-if="currentBrowserType === BrowserTypeMap.sdg"
                 @clickBlock="handleClickBlock"
+                @update-data-list="handleUpdateDataList"
                 @blockCollapse="handleBlockCollapse"/>
             </div>
           </div>
@@ -425,6 +427,8 @@ export default {
         this.$logger.info('reset and add path ' + browserTypeItem.label)
       }
       this.dataList = []
+      this.dataListLoading = false
+      this.previewVisible = false
     },
 
     handleBlockCollapse (data) {
@@ -554,6 +558,7 @@ export default {
       this.$logger.info('handleClickBlock', data)
       this.dataList = []
       this.dataListLoading = true
+      this.previewVisible = false
       if (typeof data.tagType === 'number') {
         QueryContents(data).then(response => {
           this.$logger.info('QueryContents response', response)
@@ -563,7 +568,14 @@ export default {
         })
       } else {
         this.$logger.info('skip handleClickBlock', data)
+        this.dataListLoading = false
       }
+    },
+
+    handleUpdateDataList (data) {
+      this.$logger.info('handleUpdateDataList', data)
+      this.dataList = data
+      this.dataListLoading = false
     },
 
     toggleType (type, label) {
