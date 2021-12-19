@@ -312,15 +312,7 @@
               </div>
 
               <div class="task-form-right" :style="{'width':rightWidth + 'px'}">
-
-                <!--购物车效果截图 -->
-                <div class="slide-animate-cover" id="slide-animate" v-show="currentSlideCoverImgSrc">
-                  <img
-                    id="slide-animate-img"
-                    :src="currentSlideCoverImgSrc"
-                    class="slide-animate-item" />
-                </div>
-                <template v-if="showAllCollaborateCommentVisible">
+                <template v-if="showRightModule(rightModule.collaborate)">
                   <a-skeleton :loading="showHistoryLoading" active>
                     <div class="collaborate-panel" :style="{'width':rightWidth + 'px', 'margin-top': '0px', 'z-index': 100, 'padding': '10px'}">
                       <div class="icon">
@@ -337,135 +329,144 @@
                     </div>
                   </a-skeleton>
                 </template>
-                <template v-else>
-                  <template v-if="showCollaborateCommentVisible">
-                    <div class="collaborate-panel" :style="{'width':rightWidth + 'px', 'margin-top':collaborateTop+'px', 'z-index': 100, 'padding': '10px'}">
-                      <collaborate-comment-panel :source-id="taskId" :source-type="contentType.task" :field-name="currentFieldName" :comment-list="currentCollaborateCommentList" @update-comment="handleUpdateCommentList"/>
-                    </div>
-                  </template>
-                  <template v-else>
-                    <div class="form-block-right" v-show="currentActiveStepIndex !== 1" >
-                      <!-- image-->
-                      <a-form-model-item class="img-wrapper">
-                        <a-upload-dragger
-                          name="file"
-                          accept="image/png, image/jpeg"
-                          :showUploadList="false"
-                          :customRequest="handleUploadImage"
-                        >
-                          <div class="delete-img" @click="handleDeleteImage($event)" v-show="form.image">
-                            <a-icon type="close-circle" />
+                <template v-if="showRightModule(rightModule.collaborateComment)">
+                  <div class="collaborate-panel" :style="{'width':rightWidth + 'px', 'margin-top':collaborateTop+'px', 'z-index': 100, 'padding': '10px'}">
+                    <collaborate-comment-panel :source-id="taskId" :source-type="contentType.task" :field-name="currentFieldName" :comment-list="currentCollaborateCommentList" @update-comment="handleUpdateCommentList"/>
+                  </div>
+                </template>
+                <template v-if="showRightModule(rightModule.imageUpload) && currentActiveStepIndex !== 1">
+                  <div class="form-block-right" >
+                    <!-- image-->
+                    <a-form-model-item class="img-wrapper">
+                      <a-upload-dragger
+                        name="file"
+                        accept="image/png, image/jpeg"
+                        :showUploadList="false"
+                        :customRequest="handleUploadImage"
+                      >
+                        <div class="delete-img" @click="handleDeleteImage($event)" v-show="form.image">
+                          <a-icon type="close-circle" />
+                        </div>
+                        <template v-if="uploading">
+                          <div class="upload-container">
+                            <p class="ant-upload-drag-icon">
+                              <a-icon type="cloud-upload" />
+                            </p>
+                            <p class="ant-upload-text">
+                              <a-spin />
+                              <span class="uploading-tips">{{ $t('teacher.add-unit-plan.uploading') }}</span>
+                            </p>
                           </div>
-                          <template v-if="uploading">
-                            <div class="upload-container">
-                              <p class="ant-upload-drag-icon">
-                                <a-icon type="cloud-upload" />
-                              </p>
-                              <p class="ant-upload-text">
-                                <a-spin />
-                                <span class="uploading-tips">{{ $t('teacher.add-unit-plan.uploading') }}</span>
-                              </p>
+                        </template>
+                        <template v-if="!uploading && form && form.image">
+                          <div class="image-preview">
+                            <img :src="form.image" alt="">
+                            <div class="upload-text-mask">
+                              <div class="upload-text">
+                                <a-button shape="round" type="primary">Upload a cover image</a-button>
+                              </div>
                             </div>
-                          </template>
-                          <template v-if="!uploading && form && form.image">
-                            <div class="image-preview">
-                              <img :src="form.image" alt="">
-                              <div class="upload-text-mask">
-                                <div class="upload-text">
-                                  <a-button shape="round" type="primary">Upload a cover image</a-button>
+                          </div>
+                        </template>
+                        <template v-if="!uploading && form && !form.image">
+                          <div class="upload-container">
+                            <p class="ant-upload-drag-icon">
+                              <img src="~@/assets/icons/lesson/upload_icon.png" class="upload-icon" />
+                            </p>
+                            <p class="ant-upload-text">
+                              Upload a cover image
+                            </p>
+                          </div>
+                        </template>
+                      </a-upload-dragger>
+                    </a-form-model-item>
+                  </div>
+                </template>
+                <template v-if="showRightModule(rightModule.recommend) && currentActiveStepIndex == 1">
+                  <!--购物车效果截图 -->
+                  <div class="slide-animate-cover" id="slide-animate" v-show="currentSlideCoverImgSrc">
+                    <img
+                      id="slide-animate-img"
+                      :src="currentSlideCoverImgSrc"
+                      class="slide-animate-item" />
+                  </div>
+                  <div class="recomend-loading" v-if="recomendListLoading">
+                    <a-spin size="large" />
+                  </div>
+                  <div class="form-block-right" v-if="!recomendListLoading">
+                    <div class="right-title">Recommended</div>
+                    <div class="slide-preview-list">
+                      <div class="slide-preview-item" v-for="(template, rIndex) in filterRecommendTemplateList" :key="rIndex">
+                        <div class="template-hover-action-mask">
+                          <div class="template-hover-action">
+                            <div class="modal-ensure-action-line">
+                              <a-button
+                                class="action-ensure action-item"
+                                shape="round"
+                                @click="handlePreviewTemplate(template)"
+                              >
+                                <a-icon type="eye" theme="filled"/>
+                                <div class="btn-text">
+                                  Preview
                                 </div>
-                              </div>
-                            </div>
-                          </template>
-                          <template v-if="!uploading && form && !form.image">
-                            <div class="upload-container">
-                              <p class="ant-upload-drag-icon">
-                                <img src="~@/assets/icons/lesson/upload_icon.png" class="upload-icon" />
-                              </p>
-                              <p class="ant-upload-text">
-                                Upload a cover image
-                              </p>
-                            </div>
-                          </template>
-                        </a-upload-dragger>
-                      </a-form-model-item>
-                    </div>
-                    <div class="recomend-loading" v-if="recomendListLoading">
-                      <a-spin size="large" />
-                    </div>
-                    <div class="form-block-right" v-show="currentActiveStepIndex === 1" v-if="!recomendListLoading">
-                      <div class="right-title">Recommended</div>
-                      <div class="slide-preview-list">
-                        <div class="slide-preview-item" v-for="(template, rIndex) in filterRecommendTemplateList" :key="rIndex">
-                          <div class="template-hover-action-mask">
-                            <div class="template-hover-action">
-                              <div class="modal-ensure-action-line">
-                                <a-button
-                                  class="action-ensure action-item"
-                                  shape="round"
-                                  @click="handlePreviewTemplate(template)"
-                                >
-                                  <a-icon type="eye" theme="filled"/>
-                                  <div class="btn-text">
-                                    Preview
-                                  </div>
-                                </a-button>
-                                <a-button
-                                  v-if="selectedTemplateIdList.indexOf(template.id) === -1"
-                                  class="action-ensure action-item"
-                                  shape="round"
-                                  @click="selectRecommendTemplate(template, rIndex, $event)">
-                                  <a-icon type="plus-circle" theme="filled"/>
-                                  <div class="btn-text">
-                                    Add
-                                  </div>
-                                </a-button>
-                                <a-button
-                                  v-else
-                                  class="action-ensure action-item"
-                                  shape="round"
-                                  @click="handleRemoveTemplate(template)"
-                                >
-                                  <a-icon type="minus-circle" theme="filled"/>
-                                  <div class="btn-text">
-                                    Remove
-                                  </div>
-                                </a-button>
-                              </div>
+                              </a-button>
+                              <a-button
+                                v-if="selectedTemplateIdList.indexOf(template.id) === -1"
+                                class="action-ensure action-item"
+                                shape="round"
+                                @click="selectRecommendTemplate(template, rIndex, $event)">
+                                <a-icon type="plus-circle" theme="filled"/>
+                                <div class="btn-text">
+                                  Add
+                                </div>
+                              </a-button>
+                              <a-button
+                                v-else
+                                class="action-ensure action-item"
+                                shape="round"
+                                @click="handleRemoveTemplate(template)"
+                              >
+                                <a-icon type="minus-circle" theme="filled"/>
+                                <div class="btn-text">
+                                  Remove
+                                </div>
+                              </a-button>
                             </div>
                           </div>
-                          <a-carousel arrows>
-                            <div slot="prevArrow" class="custom-slick-arrow" style="left: 10px;zIndex: 100" >
-                              <a-icon type="left-circle" />
-                            </div>
-                            <div slot="nextArrow" class="custom-slick-arrow" style="right: 10px;zIndex: 100">
-                              <a-icon type="right-circle" />
-                            </div>
-                            <div v-for="(item,index) in template.images" :key="index">
-                              <img :src="item" />
-                            </div>
-                          </a-carousel>
-                          <a-row v-if="template.introduce" class="slide-desc" :title="template.introduce">
-                            {{ template.introduce }}
-                          </a-row>
-                          <div class="recommend-slide-name">
-                            {{ template.name }}
+                        </div>
+                        <a-carousel arrows>
+                          <div slot="prevArrow" class="custom-slick-arrow" style="left: 10px;zIndex: 100" >
+                            <a-icon type="left-circle" />
                           </div>
+                          <div slot="nextArrow" class="custom-slick-arrow" style="right: 10px;zIndex: 100">
+                            <a-icon type="right-circle" />
+                          </div>
+                          <div v-for="(item,index) in template.images" :key="index">
+                            <img :src="item" />
+                          </div>
+                        </a-carousel>
+                        <a-row v-if="template.introduce" class="slide-desc" :title="template.introduce">
+                          {{ template.introduce }}
+                        </a-row>
+                        <div class="recommend-slide-name">
+                          {{ template.name }}
                         </div>
                       </div>
                     </div>
-                    <div v-if="!this.contentLoading && this.currentActiveStepIndex !== 1" :style="{'width':rightWidth+'px', 'margin-top':customTagTop+'px'}">
-                      <custom-tag
-                        :show-arrow="showCustomTag"
-                        :user-tags="userTags"
-                        :custom-tags-list="customTagList"
-                        ref="customTag"
-                        :selected-tags-list="form.customTags"
-                        @reload-user-tags="loadUserTags"
-                        @change-add-keywords="handleChangeAddKeywords"
-                        @change-user-tags="handleChangeUserTags"></custom-tag>
-                    </div>
-                  </template>
+                  </div>
+                </template>
+                <template v-if="showRightModule(rightModule.customTag) && this.currentActiveStepIndex !== 1">
+                  <div v-if="!this.contentLoading" :style="{'width':rightWidth+'px', 'margin-top':customTagTop+'px'}">
+                    <custom-tag
+                      :show-arrow="showCustomTag"
+                      :user-tags="userTags"
+                      :custom-tags-list="customTagList"
+                      ref="customTag"
+                      :selected-tags-list="form.customTags"
+                      @reload-user-tags="loadUserTags"
+                      @change-add-keywords="handleChangeAddKeywords"
+                      @change-user-tags="handleChangeUserTags"></custom-tag>
+                  </div>
                 </template>
               </div>
             </a-card>
@@ -1324,6 +1325,7 @@ import { PptPreviewMixin } from '@/mixins/PptPreviewMixin'
 import MediaPreview from '@/components/Task/MediaPreview'
 import { UtilMixin } from '@/mixins/UtilMixin'
 import moment from 'moment'
+import { BaseEventMixin } from '@/mixins/BaseEvent'
 const { SplitTask } = require('@/api/task')
 
 export default {
@@ -1359,7 +1361,7 @@ export default {
       TaskMaterialPreview,
       MediaPreview
     },
-    mixins: [PptPreviewMixin, UtilMixin],
+    mixins: [PptPreviewMixin, UtilMixin, BaseEventMixin],
     props: {
       taskId: {
         type: String,
@@ -1819,9 +1821,8 @@ export default {
             this.customTagList.push(name)
           })
         }
-        this.showAllCollaborateCommentVisible = false
-        this.showCollaborateCommentVisible = false
-        this.customTagTop = 200
+        this.setRightModuleVisible(this.rightModule.customTag)
+        this.customTagTop = 450
         this.showCustomTag = true
       },
 
@@ -2840,6 +2841,7 @@ export default {
         if (currentFocus) {
           this.customTagTop = formTop - 20
           this.showCustomTag = true
+          this.setRightModuleVisible(this.rightModule.customTag)
         } else {
           // if(isEditBase){
           //   CustomTagType.task.base.forEach(name => {
@@ -2855,8 +2857,9 @@ export default {
               this.customTagList.push(tag.name)
             }
           })
-          this.customTagTop = 20
           this.showCustomTag = false
+          this.customTagTop = 20
+          // this.setRightModuleVisible()
         }
       },
       handleChangeUserTags (tags) {
@@ -2872,15 +2875,11 @@ export default {
       // 切换当前的字段的点评数据，从总的collaborateCommentList筛选初当前字段相关的点评数据
       handleSwitchComment (data) {
         this.$logger.info('handleSwitchComment', data)
+        this.setRightModuleVisible(this.rightModule.collaborateComment)
         if (!data.activeStatus) {
-          // 关闭
-          this.showCollaborateCommentVisible = false
-          this.showCustomTag = true
           return
         }
         this.currentFieldName = data.fieldName
-        this.showAllCollaborateCommentVisible = false
-        this.showCustomTag = false
         this.currentCollaborateCommentList = []
         const list = []
         this.collaborateCommentList.forEach(item => {
@@ -2890,7 +2889,6 @@ export default {
         })
         this.currentCollaborateCommentList = list
         this.collaborateTop = data.top
-        this.showCollaborateCommentVisible = true
         this.$logger.info('currentCollaborateCommentList', list)
       },
 
@@ -2898,9 +2896,14 @@ export default {
       handleViewCollaborate () {
         this.showHistoryLoading = true
         this.$logger.info('handleViewCollaborate')
-        this.showCollaborateCommentVisible = false
+        if (this.showModuleList.indexOf(this.rightModule.collaborate) !== -1) {
+          this.resetRightModuleVisible()
+        } else {
+          this.setRightModuleVisible(this.rightModule.collaborate)
+        }
+        // this.showCollaborateCommentVisible = false
         this.currentCollaborateCommentList = []
-        this.showAllCollaborateCommentVisible = !this.showAllCollaborateCommentVisible
+        // this.showAllCollaborateCommentVisible = !this.showAllCollaborateCommentVisible
         this.loadCollaborateData().then(() => {
           this.$logger.info('loadCollaborateData loaded')
         }).finally(() => {
