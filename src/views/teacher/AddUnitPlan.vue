@@ -308,7 +308,7 @@
                   </div>
                 </a-skeleton>
               </template>
-              <template v-if="showRightModule(rightModule.collaborateComment)">
+              <template v-if="showRightModule(rightModule.collaborateComment) && currentActiveStepIndex === 0">
                 <div class="collaborate-panel" :style="{'width':'600px', 'margin-top':collaborateTop+'px', 'z-index': 100, 'padding': '10px'}">
                   <collaborate-comment-panel :source-id="unitPlanId" :source-type="contentType['unit-plan']" :field-name="currentFieldName" :comment-list="currentCollaborateCommentList" @update-comment="handleUpdateCommentList"/>
                 </div>
@@ -1084,6 +1084,8 @@ export default {
       }).finally(() => {
         this.contentLoading = false
         this.loadCollaborateData()
+        // copy副本 为了判断数据变更
+        this.oldForm = JSON.parse(JSON.stringify(this.form))
       })
     },
 
@@ -1374,7 +1376,18 @@ export default {
     },
 
     goBack () {
-      this.$router.push({ path: '/teacher/main/created-by-me' })
+      if (JSON.stringify(this.form) !== JSON.stringify(this.oldForm)) {
+        var that = this
+        this.$confirm({
+          title: 'Alert',
+          content: 'Do you want to give up the editing?',
+          onOk: function () {
+            that.$router.push({ path: '/teacher/main/created-by-me' })
+          }
+        })
+      } else {
+        this.$router.push({ path: '/teacher/main/created-by-me' })
+      }
     },
     handleChangeUserTags (tags) {
       this.form.customTags = tags

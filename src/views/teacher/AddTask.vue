@@ -329,7 +329,7 @@
                     </div>
                   </a-skeleton>
                 </template>
-                <template v-if="showRightModule(rightModule.collaborateComment)">
+                <template v-if="showRightModule(rightModule.collaborateComment) && currentActiveStepIndex === 0">
                   <div class="collaborate-panel" :style="{'width':rightWidth + 'px', 'margin-top':collaborateTop+'px', 'z-index': 100, 'padding': '10px'}">
                     <collaborate-comment-panel :source-id="taskId" :source-type="contentType.task" :field-name="currentFieldName" :comment-list="currentCollaborateCommentList" @update-comment="handleUpdateCommentList"/>
                   </div>
@@ -1591,6 +1591,12 @@ export default {
         return 'https://docs.google.com/presentation/d/' + this.form.presentationId + '/edit'
       }
     },
+    watch: {
+      'selectedTemplateList': function (value) {
+        this.$logger.info('watch selectedTemplateList change ', value)
+        this.autoSave()
+      }
+    },
     mounted () {
       this.resetWidth()
       window.onresize = () => {
@@ -1719,6 +1725,8 @@ export default {
           if (this.mode === 'pick-task-slide') {
             this.currentTaskFormData = Object.assign({}, this.form)
           }
+          // copy副本 为了判断数据变更
+          this.oldForm = JSON.parse(JSON.stringify(this.form))
         })
       },
 
@@ -1827,18 +1835,18 @@ export default {
       },
 
       goBack () {
-        this.$router.push({ path: '/teacher/main/created-by-me' })
-
-        // if (window.history.length <= 1) {
-        //   this.$router.push({ path: '/teacher/main/created-by-me' })
-        //   return false
-        // } else {
-        //   this.$router.go(-1)
-        // }
-        //
-        // setTimeout(() => {
-        //   this.$router.push({ path: '/teacher/main/created-by-me' })
-        // }, 500)
+        if (JSON.stringify(this.form) !== JSON.stringify(this.oldForm)) {
+          var that = this
+          this.$confirm({
+            title: 'Alert',
+            content: 'Do you want to give up the editing?',
+            onOk: function () {
+              that.$router.push({ path: '/teacher/main/created-by-me' })
+            }
+          })
+        } else {
+          this.$router.push({ path: '/teacher/main/created-by-me' })
+        }
       },
 
       handleShowSelectMyContent () {
@@ -3105,6 +3113,7 @@ export default {
       },
 
       setSessionStep (step) {
+        this.resetRightModuleVisible()
         this.currentActiveStepIndex = step
         sessionStorage.setItem('task-step-' + this.taskId, step)
       },
@@ -3211,6 +3220,28 @@ export default {
         }).finally(() => {
           this.subTaskPublishing = false
           this.subTaskSaving = false
+        })
+      },
+      async autoSave () {
+        const taskData = Object.assign({}, this.form)
+        if (this.rangeDate.length === 2) {
+          const startDate = this.rangeDate[0].clone()
+          const endDate = this.rangeDate[1].clone()
+          taskData.startDate = startDate.utc().format('YYYY-MM-DD HH:mm:ss')
+          taskData.endDate = endDate.utc().format('YYYY-MM-DD HH:mm:ss')
+        }
+        if (this.taskId) {
+          taskData.id = this.taskId
+        }
+        taskData.selectedTemplateList = this.selectedTemplateList
+        logger.info('basic taskData', taskData)
+        TaskAddOrUpdate(taskData).then((response) => {
+          logger.info('TaskAddOrUpdate', response.result)
+          // if (response.success) {
+          //   this.restoreTask(response.result.id, false)
+          // }
+        }).finally(() => {
+
         })
       }
     }

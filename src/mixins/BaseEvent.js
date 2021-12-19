@@ -9,12 +9,18 @@ export const RightModule = {
 export const BaseEventMixin = {
   data () {
     return {
+      oldForm: {},
       rightModule: RightModule,
       showModuleList: [RightModule.imageUpload, RightModule.customTag, RightModule.recommend]
     }
   },
   created () {
-
+  },
+  mounted () {
+    window.addEventListener('beforeunload', (e) => this.beforeunloadHandler(e))
+  },
+  destroyed () {
+    window.removeEventListener('beforeunload', (e) => this.beforeunloadHandler(e))
   },
   computed: {
     showRightModule () {
@@ -44,6 +50,18 @@ export const BaseEventMixin = {
     },
     resetRightModuleVisible () {
       this.showModuleList = [RightModule.imageUpload, RightModule.customTag, RightModule.recommend]
+    },
+    beforeunloadHandler (event) {
+      // debugger
+      this.$logger.info('beforeunloadHandler ', this.$route.name)
+      if (this.$route.name === 'AddTask' || this.$route.name === 'UnitPlan') {
+        event = event || window.event
+        if (event) {
+          event.returnValue = 'alert'
+        }
+        // debugger
+        return 'alert'
+      }
     }
   }
 
