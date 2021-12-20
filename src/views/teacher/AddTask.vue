@@ -70,7 +70,7 @@
                           </a-form-model-item>
                         </div>
 
-                        <div class="form-block form-question" v-if="associateQuestionList.length > 0 && form.taskType === 'FA'">
+                        <div class="form-block form-question" v-if="associateQuestionList.length > 0">
                           <comment-switch field-name="questions" :is-active="showCollaborateCommentVisible && currentFieldName === 'questions'" @switch="handleSwitchComment" class="my-comment-switch"/>
                           <a-form-model-item label="Choose Key questions">
                             <a-select
