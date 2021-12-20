@@ -2250,7 +2250,7 @@ export default {
   .main-content {
     .image-preview {
       img {
-        max-height: 250px;
+        height: 250px;
         max-width: 100%;
         /*width: 100%;*/
       }
