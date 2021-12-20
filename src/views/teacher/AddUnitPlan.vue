@@ -48,14 +48,14 @@
                       </div>-->
 
                       <div class="form-block">
-                        <comment-switch field-name="name" :is-active="showCollaborateCommentVisible && currentFieldName === 'name'" @switch="handleSwitchComment" class="my-comment-switch"/>
+                        <comment-switch field-name="name" :is-active="currentFieldName === 'name'" @switch="handleSwitchComment" class="my-comment-switch"/>
                         <a-form-item label="Unit Name">
                           <a-input v-model="form.name" placeholder="Enter Unit Name" class="my-form-input"/>
                         </a-form-item>
                       </div>
 
                       <div class="form-block grade-time">
-                        <!--   <comment-switch field-name="name" :is-active="showCollaborateCommentVisible && currentFieldName === 'name'" @switch="handleSwitchComment" class="my-comment-switch"/>-->
+                        <!--   <comment-switch field-name="name" :is-active="currentFieldName === 'name'" @switch="handleSwitchComment" class="my-comment-switch"/>-->
                         <a-form-item label="Grade level" style="width:26%;margin-bottom: 0px;">
                           <a-select size="large" v-model="form.gradeId" class="my-big-select" placeholder="Select a grade">
                             <a-select-option v-for="(grade,index) in gradeList" :value="grade.id" :key="index">
@@ -70,51 +70,51 @@
                         </a-form-item>
                       </div>
 
-                      <div class="form-block over-form-block overview" id="overview">
-                        <comment-switch field-name="overview" :is-active="showCollaborateCommentVisible && currentFieldName === 'overview'" @switch="handleSwitchComment" class="my-comment-switch"/>
-                        <!-- 暂时隐藏Unit overview模块-->
-                        <a-form-model-item class="task-audio-line" label="Unit Overview">
-                          <a-textarea class="overview" v-model="form.overview" placeholder="Overview" allow-clear />
+                      <!--                      <div class="form-block over-form-block overview" id="overview">-->
+                      <!--                        <comment-switch field-name="overview" :is-active="showCollaborateCommentVisible && currentFieldName === 'overview'" @switch="handleSwitchComment" class="my-comment-switch"/>-->
+                      <!--                        &lt;!&ndash; 暂时隐藏Unit overview模块&ndash;&gt;-->
+                      <!--                        <a-form-model-item class="task-audio-line" label="Unit Overview">-->
+                      <!--                          <a-textarea class="overview" v-model="form.overview" placeholder="Overview" allow-clear />-->
 
-                          <!--                          <a-button type="primary" ghost class="overview-toggle" @click="showTaskDetails = !showTaskDetails">-->
-                          <!--                            Assessment task details-->
-                          <!--                            <a-icon type="up" v-if="showTaskDetails"/>-->
-                          <!--                            <a-icon type="down" v-else/>-->
-                          <!--                          </a-button>-->
-                        </a-form-model-item>
-                        <!--                        <Collapse>-->
-                        <!--                          <div class="overview-task-details" v-if="showTaskDetails" >-->
-                        <!--                            <a-textarea class="overview-summarize" v-model="form.summarize" placeholder="Add content to summarize your assessment tasks" allow-clear />-->
-                        <!--                            <h4>This Unit is made up of <code>{{ associateTaskList.length }}</code> tasks</h4>-->
-                        <!--                            <div class="task-item" v-for="(task,index) in associateTaskList" :key="index">-->
-                        <!--                              <p><code>{{ task.name }}</code> focuses on "<code>{{ task.overview }}</code>".-->
-                        <!--                                This task applies teaching strategies of  "<span v-if="tag.parentName === 'Teaching strategies'" v-for="(tag,tIndex) in task.customTags" :key="tIndex"><a-tag :color="tagColorList[tIndex % tagColorList.length]">{{ tag.name }}</a-tag></span>"-->
-                        <!--                                and uses differentiated instructions of  "<span v-if="tag.parentName === 'Differentiated instructions'" v-for="(tag,tIndex) in task.customTags" :key="tIndex"><a-tag :color="tagColorList[tIndex % tagColorList.length]">{{ tag.name }}</a-tag></span>"-->
-                        <!--                                to achieve assessment objectives listed below:</p>-->
-                        <!--                              <a-list size="small" bordered :data-source="task.learnOuts" v-if="task.learnOuts.length > 0">-->
-                        <!--                                <a-list-item slot="renderItem" slot-scope="learn">-->
-                        <!--                                  <a-tooltip :title="learn.path" placement="top">-->
-                        <!--                                    {{ learn.name }}-->
-                        <!--                                  </a-tooltip>-->
-                        <!--                                </a-list-item>-->
-                        <!--                              </a-list>-->
-                        <!--                              <div class="task-action-edit">-->
-                        <!--                                <a-button-->
-                        <!--                                  shape="round"-->
-                        <!--                                  type="link"-->
-                        <!--                                  size="small"-->
-                        <!--                                  slot="extra"-->
-                        <!--                                  href="#"-->
-                        <!--                                  @click="handleEditTask(task)"><a-icon type="edit" /></a-button>-->
-                        <!--                              </div>-->
-                        <!--                            </div>-->
-                        <!--                          </div>-->
-                        <!--                        </Collapse>-->
+                      <!--                          &lt;!&ndash;                          <a-button type="primary" ghost class="overview-toggle" @click="showTaskDetails = !showTaskDetails">&ndash;&gt;-->
+                      <!--                          &lt;!&ndash;                            Assessment task details&ndash;&gt;-->
+                      <!--                          &lt;!&ndash;                            <a-icon type="up" v-if="showTaskDetails"/>&ndash;&gt;-->
+                      <!--                          &lt;!&ndash;                            <a-icon type="down" v-else/>&ndash;&gt;-->
+                      <!--                          &lt;!&ndash;                          </a-button>&ndash;&gt;-->
+                      <!--                        </a-form-model-item>-->
+                      <!--                        &lt;!&ndash;                        <Collapse>&ndash;&gt;-->
+                      <!--                        &lt;!&ndash;                          <div class="overview-task-details" v-if="showTaskDetails" >&ndash;&gt;-->
+                      <!--                        &lt;!&ndash;                            <a-textarea class="overview-summarize" v-model="form.summarize" placeholder="Add content to summarize your assessment tasks" allow-clear />&ndash;&gt;-->
+                      <!--                        &lt;!&ndash;                            <h4>This Unit is made up of <code>{{ associateTaskList.length }}</code> tasks</h4>&ndash;&gt;-->
+                      <!--                        &lt;!&ndash;                            <div class="task-item" v-for="(task,index) in associateTaskList" :key="index">&ndash;&gt;-->
+                      <!--                        &lt;!&ndash;                              <p><code>{{ task.name }}</code> focuses on "<code>{{ task.overview }}</code>".&ndash;&gt;-->
+                      <!--                        &lt;!&ndash;                                This task applies teaching strategies of  "<span v-if="tag.parentName === 'Teaching strategies'" v-for="(tag,tIndex) in task.customTags" :key="tIndex"><a-tag :color="tagColorList[tIndex % tagColorList.length]">{{ tag.name }}</a-tag></span>"&ndash;&gt;-->
+                      <!--                        &lt;!&ndash;                                and uses differentiated instructions of  "<span v-if="tag.parentName === 'Differentiated instructions'" v-for="(tag,tIndex) in task.customTags" :key="tIndex"><a-tag :color="tagColorList[tIndex % tagColorList.length]">{{ tag.name }}</a-tag></span>"&ndash;&gt;-->
+                      <!--                        &lt;!&ndash;                                to achieve assessment objectives listed below:</p>&ndash;&gt;-->
+                      <!--                        &lt;!&ndash;                              <a-list size="small" bordered :data-source="task.learnOuts" v-if="task.learnOuts.length > 0">&ndash;&gt;-->
+                      <!--                        &lt;!&ndash;                                <a-list-item slot="renderItem" slot-scope="learn">&ndash;&gt;-->
+                      <!--                        &lt;!&ndash;                                  <a-tooltip :title="learn.path" placement="top">&ndash;&gt;-->
+                      <!--                        &lt;!&ndash;                                    {{ learn.name }}&ndash;&gt;-->
+                      <!--                        &lt;!&ndash;                                  </a-tooltip>&ndash;&gt;-->
+                      <!--                        &lt;!&ndash;                                </a-list-item>&ndash;&gt;-->
+                      <!--                        &lt;!&ndash;                              </a-list>&ndash;&gt;-->
+                      <!--                        &lt;!&ndash;                              <div class="task-action-edit">&ndash;&gt;-->
+                      <!--                        &lt;!&ndash;                                <a-button&ndash;&gt;-->
+                      <!--                        &lt;!&ndash;                                  shape="round"&ndash;&gt;-->
+                      <!--                        &lt;!&ndash;                                  type="link"&ndash;&gt;-->
+                      <!--                        &lt;!&ndash;                                  size="small"&ndash;&gt;-->
+                      <!--                        &lt;!&ndash;                                  slot="extra"&ndash;&gt;-->
+                      <!--                        &lt;!&ndash;                                  href="#"&ndash;&gt;-->
+                      <!--                        &lt;!&ndash;                                  @click="handleEditTask(task)"><a-icon type="edit" /></a-button>&ndash;&gt;-->
+                      <!--                        &lt;!&ndash;                              </div>&ndash;&gt;-->
+                      <!--                        &lt;!&ndash;                            </div>&ndash;&gt;-->
+                      <!--                        &lt;!&ndash;                          </div>&ndash;&gt;-->
+                      <!--                        &lt;!&ndash;                        </Collapse>&ndash;&gt;-->
 
-                      </div>
+                      <!--                      </div>-->
 
                       <div class="form-block inquiry-form-block" id="inquiry">
-                        <comment-switch field-name="inquiry" :is-active="showCollaborateCommentVisible && currentFieldName === 'inquiry'" @switch="handleSwitchComment" class="my-comment-switch"/>
+                        <comment-switch field-name="inquiry" :is-active="currentFieldName === 'inquiry'" @switch="handleSwitchComment" class="my-comment-switch"/>
                         <!--                <a-divider />-->
                         <a-form-item label="Big Idea/ Statement of Inquiry/ Central Idea" class="bigIdea" >
                           <a-input
@@ -131,7 +131,7 @@
 
                       <!--            real-life-scenario-->
                       <div class="form-block ">
-                        <comment-switch field-name="sdg" :is-active="showCollaborateCommentVisible && currentFieldName === 'sdg'" @switch="handleSwitchComment" class="my-comment-switch" style="top:40px"/>
+                        <comment-switch field-name="sdg" :is-active="currentFieldName === 'sdg'" @switch="handleSwitchComment" class="my-comment-switch" style="top:40px"/>
                         <a-divider>Teaching goals</a-divider>
                         <a-row>
                           <a-col span="24">
@@ -198,7 +198,7 @@
                       </div>
 
                       <div :class="{'form-block': true, 'form-block-disabled' : $store.getters.userInfo.disableQuestion}">
-                        <comment-switch v-if="!$store.getters.userInfo.disableQuestion" field-name="question" :is-active="showCollaborateCommentVisible && currentFieldName === 'question'" @switch="handleSwitchComment" class="my-comment-switch"/>
+                        <comment-switch v-if="!$store.getters.userInfo.disableQuestion" field-name="question" :is-active="currentFieldName === 'question'" @switch="handleSwitchComment" class="my-comment-switch"/>
                         <a-form-item>
                           <span slot="label">
                             <a-tooltip title="Set key question/Line of inquiry">
@@ -241,11 +241,11 @@
                       </div>
 
                       <div class="form-block">
-                        <comment-switch field-name="assessment" :is-active="showCollaborateCommentVisible && currentFieldName === 'assessment'" @switch="handleSwitchComment" class="my-comment-switch"/>
-                        <a-form-item label="Set assessment objectives" >
+                        <comment-switch field-name="assessment" :is-active="currentFieldName === 'assessment'" @switch="handleSwitchComment" class="my-comment-switch"/>
+                        <a-form-item label="Set learning outcomes" >
                           <a-button type="primary" @click="handleSelectDescription()">
                             <div class="btn-text" style="line-height: 20px">
-                              Add assessment objectives
+                              Add leaning outcomes
                             </div>
                           </a-button>
 
@@ -261,7 +261,7 @@
                       </div>
 
                       <div class="form-block" style="clear:both">
-                        <comment-switch field-name="prior" :is-active="showCollaborateCommentVisible && currentFieldName === 'prior'" @switch="handleSwitchComment" class="my-comment-switch"/>
+                        <comment-switch field-name="prior" :is-active="currentFieldName === 'prior'" @switch="handleSwitchComment" class="my-comment-switch"/>
                         <a-form-model-item label="Prior learning experience">
                           <a-textarea v-model="form.prior" placeholder="What are the approaches to find out what students already knew?" allow-clear />
                         </a-form-model-item>
@@ -288,9 +288,10 @@
                 </a-steps>
               </a-form-model>
             </div>
+
             <div class="unit-plan-form-right">
               <!--              优先级 所有comment预览 > 字段comment > tag选择-->
-              <template v-if="showAllCollaborateCommentVisible">
+              <template v-if="showRightModule(rightModule.collaborate)">
                 <a-skeleton :loading="showHistoryLoading" active>
                   <div class="collaborate-panel" :style="{'width':'600px', 'margin-top': '0px', 'z-index': 100, 'padding': '10px'}">
                     <div class="icon">
@@ -307,74 +308,71 @@
                   </div>
                 </a-skeleton>
               </template>
-              <template v-else>
-                <template v-if="showCollaborateCommentVisible">
-                  <div class="collaborate-panel" :style="{'width':'600px', 'margin-top':collaborateTop+'px', 'z-index': 100, 'padding': '10px'}">
-                    <collaborate-comment-panel :source-id="unitPlanId" :source-type="contentType['unit-plan']" :field-name="currentFieldName" :comment-list="currentCollaborateCommentList" @update-comment="handleUpdateCommentList"/>
-                  </div>
-                </template>
-                <template v-else>
-                  <div class="form-block-right" >
-                    <!-- image-->
-                    <a-form-model-item class="img-wrapper" >
-                      <a-upload-dragger
-                        name="file"
-                        accept="image/png, image/jpeg"
-                        :showUploadList="false"
-                        :customRequest="handleUploadImage"
-                      >
-                        <div class="delete-img" @click="handleDeleteImage($event)" v-show="form.image">
-                          <a-icon type="close-circle" />
+              <template v-if="showRightModule(rightModule.collaborateComment) && currentActiveStepIndex === 0">
+                <div class="collaborate-panel" :style="{'width':'600px', 'margin-top':collaborateTop+'px', 'z-index': 100, 'padding': '10px'}">
+                  <collaborate-comment-panel :source-id="unitPlanId" :source-type="contentType['unit-plan']" :field-name="currentFieldName" :comment-list="currentCollaborateCommentList" @update-comment="handleUpdateCommentList"/>
+                </div>
+              </template>
+              <template v-if="showRightModule(rightModule.imageUpload)">
+                <div class="form-block-right" >
+                  <!-- image-->
+                  <a-form-model-item class="img-wrapper" >
+                    <a-upload-dragger
+                      name="file"
+                      accept="image/png, image/jpeg"
+                      :showUploadList="false"
+                      :customRequest="handleUploadImage"
+                    >
+                      <div class="delete-img" @click="handleDeleteImage($event)" v-show="form.image">
+                        <a-icon type="close-circle" />
+                      </div>
+                      <template v-if="uploading">
+                        <div class="upload-container">
+                          <p class="ant-upload-drag-icon">
+                            <a-icon type="cloud-upload" />
+                          </p>
+                          <p class="ant-upload-text">
+                            <a-spin />
+                            <span class="uploading-tips">{{ $t('teacher.add-unit-plan.uploading') }}</span>
+                          </p>
                         </div>
-                        <template v-if="uploading">
-                          <div class="upload-container">
-                            <p class="ant-upload-drag-icon">
-                              <a-icon type="cloud-upload" />
-                            </p>
-                            <p class="ant-upload-text">
-                              <a-spin />
-                              <span class="uploading-tips">{{ $t('teacher.add-unit-plan.uploading') }}</span>
-                            </p>
-                          </div>
-                        </template>
-                        <template v-if="!uploading && form && form.image">
-                          <div class="image-preview">
-                            <img :src="form.image" alt="">
-                          </div>
-                        </template>
-                        <template v-if="!uploading && form && !form.image">
-                          <div class="upload-container">
-                            <p class="ant-upload-drag-icon">
-                              <img src="~@/assets/icons/lesson/upload_icon.png" class="upload-icon" />
-                            </p>
-                            <p class="ant-upload-text">
-                              {{ $t('teacher.add-unit-plan.upload-a-picture') }}
-                            </p>
-                          </div>
-                        </template>
-                      </a-upload-dragger>
-                    </a-form-model-item>
-                  </div>
-                  <div v-show="!this.contentLoading" :style="{'width':'600px','position': 'absolute', 'top':customTagTop+'px', 'z-index': 50}">
-                    <custom-tag
-                      :show-arrow="showCustomTag"
-                      :user-tags="userTags"
-                      :custom-tags-list="customTagList"
-                      ref="customTag"
-                      :selected-tags-list="form.customTags"
-                      @reload-user-tags="loadUserTags"
-                      @change-add-keywords="handleChangeAddKeywords"
-                      @change-user-tags="handleChangeUserTags"></custom-tag>
-                  </div>
-
-                  <template v-if="showTaskDetails && currentActiveStepIndex === 0">
-                    <div class="task-details-panel" :style="{'width':'600px', 'margin-top':taskDetailsTop+'px', 'z-index': 200}">
-                      <Assessment-Task-Details :associate-task-list="associateTaskList" @hide-assessment-task="showTaskDetails = false"/>
-
-                    </div>
-                  </template>
-
-                </template>
+                      </template>
+                      <template v-if="!uploading && form && form.image">
+                        <div class="image-preview">
+                          <img :src="form.image" alt="">
+                        </div>
+                      </template>
+                      <template v-if="!uploading && form && !form.image">
+                        <div class="upload-container">
+                          <p class="ant-upload-drag-icon">
+                            <img src="~@/assets/icons/lesson/upload_icon.png" class="upload-icon" />
+                          </p>
+                          <p class="ant-upload-text">
+                            {{ $t('teacher.add-unit-plan.upload-a-picture') }}
+                          </p>
+                        </div>
+                      </template>
+                    </a-upload-dragger>
+                  </a-form-model-item>
+                </div>
+              </template>
+              <template v-if="showRightModule(rightModule.customTag)">
+                <div v-show="!this.contentLoading" :style="{'width':'600px','position': 'absolute', 'top':customTagTop+'px', 'z-index': 50}">
+                  <custom-tag
+                    :show-arrow="showCustomTag"
+                    :user-tags="userTags"
+                    :custom-tags-list="customTagList"
+                    ref="customTag"
+                    :selected-tags-list="form.customTags"
+                    @reload-user-tags="loadUserTags"
+                    @change-add-keywords="handleChangeAddKeywords"
+                    @change-user-tags="handleChangeUserTags"></custom-tag>
+                </div>
+              </template>
+              <template v-if="showRightModule(rightModule.taskDetails) && currentActiveStepIndex === 0">
+                <div class="task-details-panel" :style="{'width':'600px', 'margin-top':taskDetailsTop+'px', 'z-index': 200}">
+                  <Assessment-Task-Details :associate-task-list="associateTaskList" @hide-assessment-task="resetRightModuleVisible()"/>
+                </div>
               </template>
 
             </div>
@@ -685,6 +683,7 @@ import Collapse from '@/utils/collapse.js'
 import { UtilMixin } from '@/mixins/UtilMixin'
 import moment from 'moment'
 import AssessmentTaskDetails from '@/components/UnitPlan/AssessmentTaskDetails'
+import { BaseEventMixin } from '@/mixins/BaseEvent'
 
 export default {
   name: 'AddUnitPlan',
@@ -723,7 +722,7 @@ export default {
       default: null
     }
   },
-  mixins: [UtilMixin],
+  mixins: [UtilMixin, BaseEventMixin],
   data () {
     return {
       showCollaborateVisible: false,
@@ -841,8 +840,6 @@ export default {
       defaultActiveMenu: NavigationType.learningOutcomes,
       showMenuList: [NavigationType.specificSkills, NavigationType.centurySkills, NavigationType.learningOutcomes, NavigationType.assessmentType, NavigationType.idu],
 
-      showCollaborateCommentVisible: false,
-
       showCollaborateModalVisible: false,
       collaborateContent: null,
       currentFieldName: {},
@@ -851,7 +848,6 @@ export default {
       collaborateCommentList: [],
       currentCollaborateCommentList: [],
       collaborateTop: 0,
-      showAllCollaborateCommentVisible: false,
       // TODO mock数据待更新为接口请求（loadCollaborateData方法中的GetCollaborateModifiedHistory)
       historyList: [],
       questionSettingVisible: false,
@@ -882,8 +878,6 @@ export default {
       selectedIdList: [],
       selectedList: [],
       taskDetailsTop: 0,
-      showTaskDetails: false,
-
       associateUnitPlanIdList: [],
       associateTaskIdList: [],
       associateId2Name: new Map()
@@ -1090,6 +1084,8 @@ export default {
       }).finally(() => {
         this.contentLoading = false
         this.loadCollaborateData()
+        // copy副本 为了判断数据变更
+        this.oldForm = JSON.parse(JSON.stringify(this.form))
       })
     },
 
@@ -1380,7 +1376,18 @@ export default {
     },
 
     goBack () {
-      this.$router.push({ path: '/teacher/main/created-by-me' })
+      if (JSON.stringify(this.form) !== JSON.stringify(this.oldForm)) {
+        var that = this
+        this.$confirm({
+          title: 'Alert',
+          content: 'Do you want to give up the editing?',
+          onOk: function () {
+            that.$router.push({ path: '/teacher/main/created-by-me' })
+          }
+        })
+      } else {
+        this.$router.push({ path: '/teacher/main/created-by-me' })
+      }
     },
     handleChangeUserTags (tags) {
       this.form.customTags = tags
@@ -1946,8 +1953,7 @@ export default {
       if (currentFocus) {
         this.customTagTop = formTop - 20
         this.showCustomTag = true
-        this.showCollaborateCommentVisible = false
-        this.showAllCollaborateCommentVisible = false
+        this.setRightModuleVisible(this.rightModule.customTag)
       } else {
         // CustomTagType.plan.default.forEach(name => {
         //   this.customTagList.push(name)
@@ -1958,23 +1964,21 @@ export default {
             this.customTagList.push(tag.name)
           }
         })
-        this.customTagTop = 300
         this.showCustomTag = false
+        this.customTagTop = 300
+        // this.setRightModuleVisible()
       }
     },
 
     // 切换当前的字段的点评数据，从总的collaborateCommentList筛选初当前字段相关的点评数据
     handleSwitchComment (data) {
       this.$logger.info('handleSwitchComment', data)
+      this.setRightModuleVisible(this.rightModule.collaborateComment)
       if (!data.activeStatus) {
         // 关闭
-        this.showCollaborateCommentVisible = false
-        this.showCustomTag = true
         return
       }
       this.currentFieldName = data.fieldName
-      this.showAllCollaborateCommentVisible = false
-      this.showCustomTag = false
       this.currentCollaborateCommentList = []
       const list = []
       this.collaborateCommentList.forEach(item => {
@@ -1984,15 +1988,20 @@ export default {
       })
       this.currentCollaborateCommentList = list
       this.collaborateTop = data.top
-      this.showCollaborateCommentVisible = true
+      // this.showCollaborateCommentVisible = true
       this.$logger.info('currentCollaborateCommentList', list)
     },
 
     // 每次点击都重新加载一下最新数据
     handleViewCollaborate () {
       this.$logger.info('handleViewCollaborate')
-      this.showAllCollaborateCommentVisible = !this.showAllCollaborateCommentVisible
-      this.showCollaborateCommentVisible = false
+      if (this.showModuleList.indexOf(this.rightModule.collaborate) !== -1) {
+        this.resetRightModuleVisible()
+      } else {
+        this.setRightModuleVisible(this.rightModule.collaborate)
+      }
+      // this.showAllCollaborateCommentVisible = !this.showAllCollaborateCommentVisible
+      // this.showCollaborateCommentVisible = false
       this.currentCollaborateCommentList = []
       this.showHistoryLoading = true
       this.loadCollaborateData().then(() => {
@@ -2138,7 +2147,8 @@ export default {
     },
     handleClickTaskDetail (e) {
       this.$logger.info('handleClickTaskDetail', this.showTaskDetails)
-      this.showTaskDetails = !this.showTaskDetails
+      this.setRightModuleVisible(this.rightModule.taskDetails)
+      // this.showTaskDetails = !this.showTaskDetails
       const eventDom = e.target
       let formTop = eventDom.offsetTop
       let currentDom = eventDom.offsetParent
@@ -2152,6 +2162,8 @@ export default {
       }
       this.taskDetailsTop = formTop
       console.log(this.taskDetailsTop)
+      e.preventDefault()
+      e.stopPropagation()
     }
   }
 }
@@ -2909,7 +2921,7 @@ export default {
   }
 }
 #inquiry{
-  margin-top: -10px;
+  //margin-top: -10px;
   position: relative;
 }
 

@@ -1,7 +1,7 @@
 <template>
-  <div class="browser-block">
+  <div class="browser-block" data-type="curriculum">
     <!--      mainSubject list-->
-    <div class="browser-block-item" :style="{width: blockWidth + 'px' , minWidth: blockWidth + 'px' }">
+    <div class="browser-block-item" :style="{width: '25vw' , minWidth: '25vw' }">
       <div
         :class="{
           'browser-item': true,
@@ -35,7 +35,7 @@
       </template>
     </div>
     <!--      subSubject list-->
-    <div class="browser-block-item" v-if="hasChildSubject" :style="{width: blockWidth + 'px' , minWidth: blockWidth + 'px' }" >
+    <div class="browser-block-item" v-if="hasChildSubject" :style="{width: '25vw' , minWidth: '25vw' }" >
       <div
         :class="{
           'browser-item': true,
@@ -70,7 +70,7 @@
     </div>
     <!--      main grade list-->
     <div class="browser-block-item-wrapper">
-      <div class="browser-block-item" :style="{width: blockWidth + 'px' , minWidth: blockWidth + 'px' }">
+      <div class="browser-block-item" :style="{width: '25vw' , minWidth: '25vw' }">
         <div
           :class="{
             'browser-item': true,
@@ -105,7 +105,7 @@
       </div>
     </div>
     <!--      main knowledge list-->
-    <div class="browser-block-item browser-block-item-wrapper" :style="{width: blockWidth + 'px' , minWidth: blockWidth + 'px' }" :data-knowledge-len="knowledge.knowledgeList.length" v-for="(knowledge, deepIndex) in knowledges" :key="deepIndex">
+    <div class="browser-block-item browser-block-item-wrapper" :style="{width: '25vw' , minWidth: '25vw' }" :data-knowledge-len="knowledge.knowledgeList.length" v-for="(knowledge, deepIndex) in knowledges" :key="deepIndex">
       <div
         :class="{
           'browser-item': true,
@@ -138,136 +138,18 @@
         </div>
       </template>
     </div>
-    <div
-      class="browser-block-item-wrapper"
-      :style="{width: blockWidth + 'px' ,
-               minWidth: blockWidth + 'px'}">
-      <div
-        class="browser-block-item-last"
-        :style="{width: blockWidth + 'px' ,
-                 minWidth: blockWidth + 'px',
-                 'flex-direction': dataListMode === 'list' ? 'column' : 'row'}">
-        <!--   data item list-->
-        <div class="switch-type-wrapper">
-          <div class="switch-type">
-            <div class="switch-label">
-              <a-dropdown>
-                <a-menu slot="overlay">
-                  <a-menu-item disabled>
-                    <span>{{ $t('teacher.my-content.choose-types-of-content') }}</span>
-                  </a-menu-item>
-                  <a-menu-item @click="toggleType(0, $t('teacher.my-content.all-type'))">
-                    <span>{{ $t('teacher.my-content.all-type') }}</span>
-                  </a-menu-item>
-                  <template v-if="$store.getters.roles.indexOf('teacher') !== -1">
-                    <a-menu-item @click="toggleType( typeMap['unit-plan'], $t('teacher.my-content.unit-plan-type'))">
-                      <span>{{ $t('teacher.my-content.unit-plan-type') }}</span>
-                    </a-menu-item>
-                    <a-menu-item @click="toggleType(typeMap.evaluation, $t('teacher.my-content.evaluation-type'))">
-                      <span>{{ $t('teacher.my-content.evaluation-type') }}</span>
-                    </a-menu-item>
-                  </template>
-                  <a-menu-item @click="toggleType(typeMap.task, $t('teacher.my-content.tasks-type') )">
-                    <span>{{ $t('teacher.my-content.tasks-type') }}</span>
-                  </a-menu-item>
-                  <!--                  <a-menu-item @click="toggleType(typeMap.lesson, $t('teacher.my-content.lesson-type'))">
-                    <span>{{ $t('teacher.my-content.lesson-type') }}</span>
-                  </a-menu-item>-->
-                  <template v-if="$store.getters.roles.indexOf('expert') !== -1">
-                    <a-menu-item @click="toggleType(typeMap.topic, $t('teacher.my-content.topics-type'))">
-                      <span>{{ $t('teacher.my-content.topics-type') }}</span>
-                    </a-menu-item>
-                  </template>
-                </a-menu>
-                <a-button
-                  style="padding: 0 10px;display:flex; align-items:center ;height: 35px;border-radius: 6px;background: rgba(245, 245, 245, 0.5);font-size:13px;border: 1px solid #BCBCBC;font-family: Inter-Bold;color: #182552;">
-                  <span v-if="currentTypeLabel">{{ currentTypeLabel }}</span> <span v-else>Choose type(s)of content</span>
-                  <a-icon type="caret-down" /> </a-button>
-              </a-dropdown>
-            </div>
-            <div class="switch-icon">
-              <div :class="{'icon-item': true, 'active-icon': dataListMode === 'list'}" @click="handleToggleDataListMode('list')">
-                <list-mode-icon />
-              </div>
-              <div :class="{'icon-item': true, 'active-icon': dataListMode === 'card'}" @click="handleToggleDataListMode('card')">
-                <pu-bu-icon />
-              </div>
-            </div>
-          </div>
-        </div>
-        <template v-if="dataListMode === 'list'">
-
-          <div
-            :class="{
-              'browser-item': true,
-              'odd-line': index % 2 === 0,
-              'active-line': currentDataId === dataItem.id
-            }"
-            v-for="(dataItem, index) in dataList"
-            @click="handleSelectDataItem(dataItem)"
-            v-if="(currentType === 0 || dataItem.type === currentType)"
-            :key="index">
-            <a-tooltip :mouseEnterDelay="1">
-              <template slot="title">
-                {{ dataItem.name }}
-              </template>
-              <content-type-icon :type="dataItem.type" />
-              <span class="data-name">
-                {{ dataItem.name }}
-              </span>
-              <span class="data-time">
-                {{ dataItem.createTime | dayjs }}
-              </span>
-            </a-tooltip>
-            <!--            <span class="arrow-item">-->
-            <!--              <a-icon type="more" />-->
-            <!--            </span>-->
-          </div>
-        </template>
-        <template v-if="dataListMode === 'card'">
-          <div class="card-view-mode-wrapper" v-if="dataList.length">
-            <div
-              class="card-item-wrapper"
-              v-for="(dataItem, index) in dataList"
-              @click="handleSelectDataItem(dataItem)"
-              v-if="(currentType === 0 || dataItem.type === currentType)"
-              :key="index">
-              <div class="card-item">
-                <data-card-view
-                  :active-flag="currentDataId === dataItem.id"
-                  :cover="dataItem.image"
-                  :title="dataItem.name"
-                  :created-time="dataItem.createTime"
-                  :content-type="dataItem.type"
-                />
-              </div>
-            </div>
-          </div>
-        </template>
-        <template v-if="!dataList.length && !dataListLoading">
-          <div class="no-data">
-            <no-more-resources />
-          </div>
-        </template>
-        <template>
-          <div class="loading-wrapper" v-if="dataListLoading">
-            <a-spin />
-          </div>
-        </template>
-      </div>
-    </div>
   </div>
 </template>
 
 <script>
 import ContentTypeIcon from '@/components/Teacher/ContentTypeIcon'
 import { KnowledgeGetTree, KnowledgeQueryContentByDescriptionId } from '@/api/knowledge'
-import DirIcon from '@/components/Library/DirIcon'
+import DirIcon from '@/components/LibraryV2/DirIcon'
 import NoMoreResources from '@/components/Common/NoMoreResources'
 import PuBuIcon from '@/assets/icons/library/pubu .svg?inline'
 import ListModeIcon from '@/assets/icons/library/liebiao .svg?inline'
 import CardList from '@/views/list/CardList'
-import DataCardView from '@/components/Library/DataCardView'
+import DataCardView from '@/components/LibraryV2/DataCardView'
 import { typeMap } from '@/const/teacher'
 import { GetGradesByCurriculumId, GetLibraryGrades } from '@/api/preference'
 import { SubjectType, TagType } from '@/const/common'
@@ -285,10 +167,6 @@ export default {
     DataCardView
   },
   props: {
-    blockWidth: {
-      type: Number,
-      default: 200
-    },
     curriculumId: {
       type: String,
       default: null
@@ -347,7 +225,6 @@ export default {
     }
   },
   created () {
-    this.$logger.info('CurriculumBrowser blockWidth:' + this.blockWidth)
     this.getSubjectTree()
     // this.getGradesByCurriculumId(this.curriculumId)
   },
@@ -382,9 +259,6 @@ export default {
       SubjectTree({ curriculumId: this.curriculumId }).then(response => {
         this.$logger.info('getSubjectTree response', response.result)
         this.mainSubjectList = response.result.filter(item => item.subjectType === SubjectType.Learn || item.subjectType === SubjectType.LearnAndSkill)
-        if (this.mainSubjectList && this.mainSubjectList.length) {
-          this.handleSelectMainSubjectItem(this.mainSubjectList[0])
-        }
       }).finally(() => {
         this.mainSubjectListLoading = false
       })
@@ -401,7 +275,7 @@ export default {
         this.currentSubSubjectId = null
         this.knowledges = []
         this.subjectDeep = 1
-        this.handleClickBlock(1, mainSubjectItem.name)
+        this.handleClickBlock(2, mainSubjectItem.name)
         return
       }
       if (mainSubjectItem.id !== this.currentMainSubjectId) {
@@ -412,7 +286,7 @@ export default {
         this.currentSubSubjectId = null
       }
       this.subSubjectListLoading = false
-      this.handleClickBlock(1, mainSubjectItem.name)
+      this.handleClickBlock(2, mainSubjectItem.name)
     },
 
     handleSelectSubSubjectItem (subSubjectItem) {
@@ -424,7 +298,7 @@ export default {
         // 过滤年级
         this.GetLibraryGrades(this.curriculumId, this.currentSubSubjectId, TagType.knowledge)
       }
-      this.handleClickBlock(2, subSubjectItem.name)
+      this.handleClickBlock(3, subSubjectItem.name)
     },
 
     handleSelectGradeItem (gradeItem) {
@@ -433,7 +307,7 @@ export default {
         this.currentGradeId = gradeItem.id
         this.getKnowledgeTree()
       }
-      this.handleClickBlock(this.subjectDeep + 1, gradeItem.name)
+      this.handleClickBlock(this.subjectDeep + 2, gradeItem.name)
     },
 
     getKnowledgeDeep (obj, k) {
@@ -477,15 +351,14 @@ export default {
     },
 
     handleSelectKnowledgeItem (knowledgeItem, deepIndex) {
-      this.$logger.info('handleSelectKnowledgeItem', knowledgeItem)
+      this.$logger.info('handleSelectKnowledgeItem', knowledgeItem, deepIndex)
+      this.currentKnowledgeId = knowledgeItem.id
       this.knowledgeDeep = this.getKnowledgeDeep(knowledgeItem, deepIndex + 1)
       if (deepIndex + 1 === this.knowledgeDeep) {
         this.$logger.info('handleSelectSubKnowledgeItem', knowledgeItem)
         if (knowledgeItem.id !== this.knowledges[deepIndex].currentKnowledgeId) {
           this.$logger.info('hit knowledgeQueryContentByDescriptionId', knowledgeItem.id, this.knowledges[deepIndex].currentKnowledgeId)
           this.knowledges[deepIndex].currentKnowledgeId = knowledgeItem.id
-          this.dataList = []
-          this.knowledgeQueryContentByDescriptionId(knowledgeItem.id)
         } else {
           this.$logger.info('skip knowledgeQueryContentByDescriptionId', knowledgeItem.id, this.knowledges[deepIndex].currentKnowledgeId)
         }
@@ -506,17 +379,7 @@ export default {
       this.knowledges[nextIndex].knowledgeListLoading = false
 
       this.$logger.info('knowledges', this.knowledges)
-      this.handleClickBlock(this.subjectDeep + 2 + deepIndex, knowledgeItem.name)
-    },
-
-    handleSelectSubKnowledgeItem (subKnowledgeItem) {
-      this.$logger.info('handleSelectSubKnowledgeItem', subKnowledgeItem)
-      if (subKnowledgeItem.id !== this.currentSubKnowledgeId) {
-        this.currentSubKnowledgeId = subKnowledgeItem.id
-        this.dataList = []
-        this.knowledgeQueryContentByDescriptionId(this.currentSubKnowledgeId)
-      }
-      this.handleClickBlock(5, subKnowledgeItem.name)
+      this.handleClickBlock(this.subjectDeep + 3 + deepIndex, knowledgeItem.name)
     },
 
     knowledgeQueryContentByDescriptionId (descriptionId) {
@@ -539,6 +402,13 @@ export default {
 
     handleClickBlock (blockIndex, path) {
       this.$logger.info('handleClickBlock ' + blockIndex)
+      this.$emit('clickBlock', {
+        curriculumId: this.curriculumId,
+        gradeId: this.currentGradeId,
+        subjectId: this.currentSubSubjectId ? this.currentSubSubjectId : this.currentMainSubjectId,
+        knowledgeId: this.currentKnowledgeId,
+        tagType: TagType.knowledge
+      })
       this.$emit('blockCollapse', { blockIndex, path })
     },
 
@@ -595,6 +465,7 @@ export default {
       font-weight: 500;
       cursor: pointer;
       overflow: hidden;
+      //white-space: nowrap;
       text-overflow: ellipsis;
       word-break: break-word;
       user-select: none;
@@ -654,7 +525,7 @@ export default {
     }
   }
 
-  .browser-block-item-last {
+    .browser-block-item-last {
     position: relative;
     display: flex;
     flex-direction: column;

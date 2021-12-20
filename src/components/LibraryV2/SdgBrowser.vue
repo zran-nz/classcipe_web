@@ -1,7 +1,7 @@
 <template>
-  <div class="browser-block">
+  <div class="browser-block" data-type="sdg">
     <div class="browser-block-item-wrapper">
-      <div class="browser-block-item" :style="{width: blockWidth + 'px' , minWidth: blockWidth + 'px' }">
+      <div class="browser-block-item" :style="{width: '25vw' , minWidth: '25vw' }">
 
         <div class="filter-block" >
           <div class="filter-block-content">
@@ -41,9 +41,6 @@
             <dir-icon dir-type="opened" v-if="currentSdgId === sdgItem.id"/>
             {{ sdgItem.name }}
           </a-tooltip>
-          <!--          <span class="arrow-item">-->
-          <!--            <a-icon type="right" />-->
-          <!--          </span>-->
         </div>
         <template v-if="!sdgList.length && !sdgListLoading">
           <div class="no-data">
@@ -57,18 +54,13 @@
         </template>
       </div>
     </div>
-    <div class="browser-block-item-wrapper browser-block-item" :style="{width: blockWidth + 'px' , minWidth: blockWidth + 'px' }" >
+    <div class="browser-block-item-wrapper browser-block-item" :style="{width: '25vw' , minWidth: '25vw' }" >
       <div class="filter-block">
         <div class="filter-block-content">
           <div class="filter-icon">
             <filter-icon />
           </div>
           <div class="filter-list">
-            <!--            <a-select v-model="currentSdgKeywordName" class="filter-select  library-filter-select" placeholder="Select Keywords" >-->
-            <!--              <a-select-option :value="item.name" v-for="(item, index) in sdgKeywordNameList" :key="index" >-->
-            <!--                {{ item.name }}-->
-            <!--              </a-select-option>-->
-            <!--            </a-select>-->
             <a-select v-model="selectedConcept" class="filter-select  library-filter-select" placeholder="Universal Concept" :allowClear="true" >
               <a-select-option :value="name" v-for="(name, index) in conceptList" :key="index" >
                 {{ name }}
@@ -127,7 +119,7 @@
       </template>
 
     </div>
-    <!--    <div class="browser-block-item-wrapper" :style="{width: blockWidth + 'px' , minWidth: blockWidth + 'px' }" >-->
+    <!--    <div class="browser-block-item-wrapper" :style="{width: '25vw' , minWidth: '25vw' }" >-->
     <!--      &lt;!&ndash;  big idea list &ndash;&gt;-->
     <!--      <div class="description-wrapper">-->
     <!--        <div class="description-list">-->
@@ -140,12 +132,12 @@
 
     <div
       class="browser-block-item-wrapper"
-      :style="{width: blockWidth + 'px' ,
-               minWidth: blockWidth + 'px'}">
+      :style="{width: '25vw' ,
+               minWidth: '25vw'}">
       <div
         class="browser-block-item-last"
-        :style="{width: blockWidth + 'px' ,
-                 minWidth: blockWidth + 'px',
+        :style="{width: '25vw' ,
+                 minWidth: '25vw',
                  'flex-direction': dataListMode === 'list' ? 'column' : 'row'}">
         <!--   data item list-->
         <div class="switch-type-wrapper">
@@ -311,17 +303,18 @@
 <script>
 import Navigation from './Navigation'
 import ContentTypeIcon from '@/components/Teacher/ContentTypeIcon'
-import DirIcon from '@/components/Library/DirIcon'
+import DirIcon from '@/components/LibraryV2/DirIcon'
 import NoMoreResources from '@/components/Common/NoMoreResources'
 import PuBuIcon from '@/assets/icons/library/pubu .svg?inline'
 import ListModeIcon from '@/assets/icons/library/liebiao .svg?inline'
 import FilterIcon from '@/assets/svgIcon/library/shaixuan.svg?inline'
 import SearchIcon from '@/assets/svgIcon/library/sousuo.svg?inline'
-import DataCardView from '@/components/Library/DataCardView'
+import DataCardView from '@/components/LibraryV2/DataCardView'
 import { typeMap } from '@/const/teacher'
 import { QueryBigIdea, QueryTagsBySubjectIds } from '@/api/scenario'
 import { SubjectTree } from '@/api/subject'
 import SousuoIconSvg from '@/assets/icons/header/sousuo.svg?inline'
+import { TagType } from '@/const/common'
 const { ScenarioGetKeywordScenarios, QueryContentByBigIdea } = require('@/api/scenario')
 const { GetAllSdgs } = require('@/api/scenario')
 
@@ -398,9 +391,6 @@ export default {
       GetAllSdgs().then(response => {
           this.$logger.info('GetAllSdgs response', response.result)
           this.sdgList = response.result
-          if (this.sdgList) {
-            this.handleSelectSdgItem(this.sdgList[0])
-          }
       }).finally(() => {
         this.sdgListLoading = false
       })
@@ -421,10 +411,9 @@ export default {
         this.currentSdgId = sdgItem.id
         this.sdgKeywordNameList = []
         this.currentSdgKeywordName = null
-        // this.scenarioGetKeywordScenarios(sdgItem.id)
         this.queryBigIdea()
         this.queryTagsBySubjectIds()
-        this.handleClickBlock(1, sdgItem.name)
+        this.handleClickBlock(2, sdgItem.name)
       }
     },
     scenarioGetKeywordScenarios (sdgId) {
@@ -447,7 +436,7 @@ export default {
     queryBigIdeaDescription (descriptionItem) {
       this.$logger.info('queryBigIdeaDescription', descriptionItem)
       this.dataListLoading = true
-      this.handleClickBlock(2, descriptionItem.name)
+      this.handleClickBlock(3, descriptionItem.name)
       this.currentSdgKeywordScenarioId = descriptionItem.id
       this.currentSdgKeywordScenario = 'description'
       QueryBigIdea({ description: descriptionItem.name }).then(response => {
@@ -496,7 +485,7 @@ export default {
     queryBigIdeaKeywords (keywordsItem) {
       this.$logger.info('queryBigIdeaKeyword', keywordsItem)
       this.dataListLoading = true
-      this.handleClickBlock(2, keywordsItem.name)
+      this.handleClickBlock(3, keywordsItem.name)
       this.currentSdgKeywordScenarioId = keywordsItem.id
       this.currentSdgKeywordScenario = 'keyword'
       QueryBigIdea({ keywords: keywordsItem.name }).then(response => {
@@ -523,6 +512,7 @@ export default {
         this.$logger.info('QueryContentByBigIdea', response)
         if (response.result) {
           this.dataList = response.result
+          this.$emit('update-data-list', this.dataList)
         } else {
           this.$logger.info('no big idea content')
         }
@@ -538,6 +528,14 @@ export default {
 
     handleClickBlock (blockIndex, path) {
       this.$logger.info('handleClickBlock ' + blockIndex)
+      this.$emit('clickBlock', {
+        curriculumId: this.curriculumId,
+        gradeId: null,
+        subjectId: null,
+        knowledgeId: null,
+        bigIdea: this.currentBigIdea,
+        tagType: TagType.bigIdea
+      })
       this.$emit('blockCollapse', { blockIndex, path })
     },
 
@@ -720,6 +718,7 @@ export default {
               flex-wrap: wrap;
               .filter-dropdown-item {
                 margin-right: 10px;
+                margin-bottom: 5px;
               }
             }
           }

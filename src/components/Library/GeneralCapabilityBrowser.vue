@@ -525,12 +525,10 @@ export default {
       color: #15c39a;
     }
     .loading-wrapper {
-      position: absolute;
-      width: 50px;
-      text-align: center;
-      top: 30%;
-      left: 50%;
-      margin-left: -25px;
+      min-height: 400px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
   }
 
@@ -679,12 +677,10 @@ export default {
       color: #15c39a;
     }
     .loading-wrapper {
-      position: absolute;
-      width: 50px;
-      text-align: center;
-      top: 30%;
-      left: 50%;
-      margin-left: -25px;
+      min-height: 400px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
   }
 }

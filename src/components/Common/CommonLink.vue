@@ -521,8 +521,11 @@ export default {
             align-items: center;
             justify-content: space-between;
             cursor: pointer;
+            flex: 1;
+            position: relative;
 
             .left-info {
+              z-index: 50;
               display: flex;
               flex-direction: row;
               align-items: center;
@@ -536,7 +539,6 @@ export default {
 
               .name {
                 color: #000;
-                width: 300px;
                 overflow: hidden;
                 white-space: nowrap;
                 text-overflow: ellipsis;
@@ -546,6 +548,11 @@ export default {
             }
 
             .right-info {
+              z-index: 100;
+              background-color: #fff;
+              position: absolute;
+              right: 0;
+              padding-left: 15px;
               display: flex;
               flex-direction: row;
               align-items: center;

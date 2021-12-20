@@ -144,3 +144,24 @@ export function filterObj (obj) {
   }
   return obj
 }
+
+// 对比两个对象的值是否完全相等 返回值 true/false
+export function isObjectValueEqual (a, b) {
+  // 取对象a和b的属性名
+  var aProps = Object.getOwnPropertyNames(a)
+  var bProps = Object.getOwnPropertyNames(b)
+  // 判断属性名的length是否一致
+  console.log(aProps.length + '--------' + bProps.length)
+  // if (aProps.length !== bProps.length) {
+  //   return false
+  // }
+  // 循环取出属性名，再判断属性值是否一致
+  for (var i = 0; i < aProps.length; i++) {
+    var propName = aProps[i]
+    console.log(a[propName] + '--------' + b[propName])
+    if (a[propName] !== b[propName]) {
+      return false
+    }
+  }
+  return true
+}

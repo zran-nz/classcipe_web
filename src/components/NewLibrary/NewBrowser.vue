@@ -227,7 +227,7 @@
             <a-icon type="double-right" style="font-size: 20px; color: #07AB84"/>
           </template>
         </div>
-        <div class="modal-ensure-action-line-center">
+        <div class="modal-ensure-action-line-center" v-show="hasSelectedContent">
           <a-space>
             <a-button class="action-item action-cancel" shape="round" @click="handleCancelSelectData">Cancel</a-button>
             <a-button class="action-ensure action-item" type="primary" shape="round" @click="handleEnsureSelectData">Ok</a-button>
@@ -342,6 +342,20 @@ export default {
       mySelectedList: [],
 
       isEmptyRecommend: true
+    }
+  },
+  computed: {
+    hasSelectedContent () {
+      return this.mySelectedList.length ||
+        this.selectedCurriculumList.length ||
+        this.selectedKnowledgeList.length ||
+        this.selected21CenturySkillList.length ||
+        this.selectedSubjectSpecificSkillList.length ||
+        this.selectedAssessmentList.length ||
+        this.selectedIduList.length ||
+        this.selectedAll21CenturyList.length ||
+        this.selectedBigIdeaList.length ||
+        this.selectedRecommendList.length
     }
   },
   watch: {
@@ -681,9 +695,7 @@ export default {
       }
 
       .modal-ensure-action-line-center {
-        position: absolute;
         width: 100%;
-        bottom: 0;
         display: flex;
         justify-content: center;
         align-items: center;

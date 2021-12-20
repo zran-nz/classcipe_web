@@ -136,8 +136,10 @@ export default {
       // window.open(targetUrl, '_blank')
       // 课堂那边需要点击返回回到表单，改成location.href跳转
       const url = lessonHost + 't/' + this.sessionList[this.selectedRowKeys[0]].classId
+      var height = document.documentElement.clientHeight * 0.7
+      var width = document.documentElement.clientWidth * 0.7
+      var strWindowFeatures = 'width=' + width + ',height=' + height + ',menubar=yes,location=yes,resizable=yes,scrollbars=true,status=true,top=100,left=200'
       var windowObjectReference
-      var strWindowFeatures = 'width=1200,height=750,menubar=yes,location=yes,resizable=yes,scrollbars=true,status=true,top=100,left=200'
       if (this.mode === 1) {
         windowObjectReference = window.open(
           'about:blank',
@@ -225,7 +227,7 @@ export default {
     .header-action-item {
       display: flex;
       justify-content: center;
-      margin: 30px;
+      margin: 10px;
       .button {
         height: 40px;
         background: #2DC9A4;
@@ -249,11 +251,10 @@ export default {
   opacity: 1;
   //border: 1px solid #D8D8D8;
   border-radius: 6px;
-  min-height: 300px;
-  max-height: 600px;
+  max-height: 300px;
   margin-top: 10px;
   margin-bottom: 15px;
-  overflow-y: scroll;
+  overflow-y: auto;
   background: rgba(255, 255, 255, 1);
 
   &::-webkit-scrollbar {
