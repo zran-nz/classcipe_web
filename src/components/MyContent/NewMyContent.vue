@@ -66,23 +66,6 @@
       <!--        <a-icon type="loading" class="create-new-icon" v-if="createLoading" />-->
       <!--      </div>-->
     </div>
-    <div class="group-label">
-      <!-- unit plan下才有term概念,task不显示对应的操作和term名称-->
-      <template v-if="fromType === typeMap[&quot;unit-plan&quot;]">
-        <template v-if="groupNameMode === 'select'">
-          <div class="choose-label">Choose category</div>
-          <a-select :default-value="defaultGroupName" style="width: 100%" v-model="selectedGroup">
-            <a-select-option :value="groupNameItem" v-for="(groupNameItem, gIndex) in groupNameList" :key="gIndex">
-              {{ groupNameItem }}
-            </a-select-option>
-          </a-select>
-        </template>
-        <template v-if="groupNameMode === 'input'">
-          <div class="choose-label">Category name</div>
-          <a-input v-model="groupName" />
-        </template>
-      </template>
-    </div>
     <div class="content-wrapper">
       <a-skeleton :loading="skeletonLoading" active>
         <div class="content-list">
@@ -285,6 +268,23 @@
               </div>
             </div>
           </a-list>
+          <div class="group-label">
+            <!-- unit plan下才有term概念,task不显示对应的操作和term名称-->
+            <template v-if="fromType === typeMap[&quot;unit-plan&quot;]">
+              <template v-if="groupNameMode === 'select'">
+                <div class="choose-label">Choose category</div>
+                <a-select :default-value="defaultGroupName" style="width: 100%" v-model="selectedGroup">
+                  <a-select-option :value="groupNameItem" v-for="(groupNameItem, gIndex) in groupNameList" :key="gIndex">
+                    {{ groupNameItem }}
+                  </a-select-option>
+                </a-select>
+              </template>
+              <template v-if="groupNameMode === 'input'">
+                <div class="choose-label">Category name</div>
+                <a-input v-model="groupName" />
+              </template>
+            </template>
+          </div>
           <div class="modal-ensure-action-line">
             <a-button class="action-item action-cancel" shape="round" @click="handleCancel">Cancel</a-button>
             <a-button
@@ -327,6 +327,7 @@
         </div>
       </a-drawer>
     </div>
+
   </div>
 </template>
 
@@ -719,8 +720,6 @@ export default {
         // this.$message.warn('No my content be selected!')
       } else if ((this.groupNameMode === 'select' && !this.selectedGroup)) {
         this.$message.warn('No group be selected!')
-      } else if (this.groupNameMode === 'input' && !this.groupName) {
-        this.$message.warn('group name is empty!')
       } else {
         // 开始关联数据
         const groupName = this.groupNameMode === 'input' ? this.groupName : (this.selectedGroup.length > 0 ? this.selectedGroup : '')

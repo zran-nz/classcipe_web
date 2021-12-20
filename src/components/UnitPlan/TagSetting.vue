@@ -205,7 +205,7 @@ export default {
       }
       let activeKey = `Name your category`
       if (this.userTagsMap.has(activeKey)) {
-        activeKey = activeKey + '-1'
+        activeKey = activeKey + '-' + this.userTagsMap.size
       }
       this.editTabIndex = this.userTagsMap.size
       this.editTabName = activeKey
