@@ -25,7 +25,16 @@ export const UtilMixin = {
   created () {
 
   },
-  computed: {},
+  computed: {
+    getWeek () {
+      if (this.rangeDate.length === 2) {
+        const week = (Math.abs(this.rangeDate[0].diff(this.rangeDate[1], 'days')) / 7).toFixed(1)
+        return week.replace('\\.0', '')
+      } else {
+        return ''
+      }
+    }
+  },
   methods: {
 
     /**

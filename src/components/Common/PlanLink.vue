@@ -15,11 +15,10 @@
                     <a-input
                       v-model="group.groupName"
                       class="group-name-input"
-                      @blur="handleToggleEditGroupName(group,lIndex)"
                       @pressEnter="handleToggleEditGroupName(group,lIndex)"/>
                   </div>
                 </div>
-                <div class="group-edit-icon" @click="handleToggleEditGroupName(group)" v-if="canEdit">
+                <div class="group-edit-icon" @click="handleToggleEditGroupName(group,lIndex)" v-if="canEdit">
                   <a-tooltip>
                     <template slot="title">
                       Rename
@@ -28,6 +27,13 @@
                   </a-tooltip>
                   <a-icon type="check" v-if="group.editing"/>
                 </div>
+
+                <a-popconfirm title="Delete group?" ok-text="Yes" @confirm="handleDeleteGroup(group)" cancel-text="No">
+                  <span class="delete-action" >
+                    <img src="~@/assets/icons/tag/delete.png"/>
+                  </span>
+                </a-popconfirm>
+
               </div>
               <div class="group-right-info" v-if="canEdit">
                 <div class="group-action">
@@ -150,7 +156,7 @@
     <a-modal
       v-model="selectLinkContentVisible"
       :footer="null"
-      :dialog-style="{ top: '50px'}"
+      :dialog-style="{ top: '0px'}"
       destroyOnClose
       width="900px">
       <div class="my-modal-title" slot="title">
@@ -201,7 +207,7 @@
 
 <script>
 
-import { GetAssociate, AddOrSaveGroupName, AssociateCancel } from '@/api/teacher'
+import { GetAssociate, AddOrSaveGroupName, AssociateCancel, SaveGroupItems, DeleteGroup } from '@/api/teacher'
 import MyContentSelector from '@/components/MyContent/MyContentSelector'
 import NewMyContent from '@/components/MyContent/NewMyContent'
 import { typeMap } from '@/const/teacher'
@@ -239,6 +245,15 @@ export default {
          result.push(group.groupName)
        })
       return result
+    },
+    selectedList () {
+      const list = []
+      this.ownerLinkGroupList.forEach(groupItem => {
+        groupItem.contents.forEach(content => {
+          list.push(content.type + '-' + content.id)
+        })
+      })
+      return list
     }
   },
   data () {
@@ -262,7 +277,6 @@ export default {
       previewCurrentId: '',
       previewType: '',
       subFilterTypeList: [typeMap.evaluation],
-      selectedList: [],
 
       showCreate: true,
       showTabs: true,
@@ -289,7 +303,6 @@ export default {
         this.$logger.info('formatted owner', response.result.owner)
         this.$logger.info('formatted others', response.result.others)
         this.othersLinkGroupList = []
-        this.selectedList = []
         this.ownerLinkGroupList = response.result.owner
         this.groups.forEach(item => {
           item.editing = false
@@ -298,9 +311,6 @@ export default {
             if (groupItem.group === item.groupName) {
               item.contents = groupItem.contents
             }
-            item.contents.forEach(content => {
-              this.selectedList.push(content.type + '-' + content.id)
-            })
           })
         })
         this.groups = this.groups.sort((a, b) => !a.groupName ? -1 : 1)
@@ -336,31 +346,18 @@ export default {
 
     handleLinkGroup (group) {
       this.$logger.info('handleLinkGroup', group)
-      this.subDefaultGroupName = group.group
+      this.subDefaultGroupName = group.groupName
       this.selectLinkContentVisible = true
-      if (group.group.trim() === 'Linked assessment tool(s)') {
-        this.subFilterTypeList = [typeMap.evaluation]
-        this.showCreate = false
-        this.showTabs = false
-        this.linkTitle = 'Link Assessment rubric(s)'
-      } else if (group.group.trim() === 'Relevant Unit Plan(s)') {
-        this.subFilterTypeList = [typeMap['unit-plan']]
-        this.showCreate = true
-        this.showTabs = false
-        this.linkTitle = 'Link Unit Plan'
-      } else {
-        if (this.fromType === typeMap['unit-plan']) {
-          this.subFilterTypeList = [typeMap.task]
-        } else if (this.filterType === typeMap.task) {
-          this.subFilterTypeList = [typeMap.evaluation, typeMap['unit-plan']]
-        }
+      if (this.fromType === typeMap['unit-plan']) {
+        this.subFilterTypeList = [typeMap.task]
+      } else if (this.filterType === typeMap.task) {
+        this.subFilterTypeList = [typeMap.evaluation, typeMap['unit-plan']]
       }
     },
 
     handleToggleEditGroupName (linkGroup, index) {
       this.$logger.info('handleToggleEditGroupName', linkGroup)
       if (linkGroup.editing) {
-        linkGroup.editing = false
         AddOrSaveGroupName({
           fromId: this.fromId,
           fromType: this.fromType,
@@ -368,6 +365,7 @@ export default {
           groupName: linkGroup.groupName
         }).then(response => {
           this.$logger.info('AddOrSaveGroupName', response)
+        }).finally(() => {
           // this.getAssociate()
           linkGroup.editing = false
           this.$set(this.groups, index, linkGroup)
@@ -376,6 +374,17 @@ export default {
         linkGroup.editing = true
         this.$set(this.groups, index, linkGroup)
       }
+    },
+    handleDeleteGroup (linkGroup) {
+      this.$logger.info('handleDeleteGroup', linkGroup)
+      DeleteGroup({
+        fromId: this.fromId,
+        fromType: this.fromType,
+        id: linkGroup.id
+      }).then(response => {
+        this.$logger.info('DeleteGroup', response)
+        this.getAssociate()
+      })
     },
     handleViewDetail (item) {
       if (!this.canEdit) {
@@ -417,20 +426,19 @@ export default {
     },
     handleDragEnd () {
       logger.info('handleDragEnd ', this.groups)
-      // this.ownerLinkGroupList.forEach(linkGroup => {
-      //   const ids = []
-      //   linkGroup.contents.forEach(item => {
-      //     ids.push(item.id)
-      //   })
-      //   AddOrSaveGroupName({
-      //     fromId: this.fromId,
-      //     fromType: this.fromType,
-      //     groupName: linkGroup.group,
-      //     ids: ids
-      //   }).then(response => {
-      //     this.$logger.info('AddOrSaveGroupName', response)
-      //   })
-      // })
+      this.groups.forEach((group, index) => {
+        this.$set(this.groups, index, group)
+      })
+
+      SaveGroupItems({
+        fromId: this.fromId,
+        fromType: this.fromType,
+        groups: this.groups
+      }).then(response => {
+        this.$logger.info('AddOrSaveGroupName', response)
+      }).finally(() => {
+        // this.getAssociate()
+      })
     }
   }
 }
@@ -499,6 +507,24 @@ export default {
 
             }
           }
+
+          position: relative;
+          &:hover{
+            .delete-action {
+              display: block;
+            }
+          }
+          .delete-action {
+            position: absolute;
+            top:5px;
+            right: -30px;
+            display: none;
+            cursor: pointer;
+            height: 35px;
+            img {
+              width: 35px;
+            }
+          }
         }
 
         .group-body {
@@ -564,6 +590,10 @@ export default {
 
 .my-modal-title {
   text-align: center;
+}
+/deep/ .ant-spin-nested-loading{
+  max-height:400px;
+  overflow-y: auto;
 }
 
 </style>

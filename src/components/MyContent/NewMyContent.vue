@@ -1435,4 +1435,9 @@ a.delete-action {
     padding-bottom: 3px;
   }
 }
+
+/deep/ .ant-spin-nested-loading{
+  max-height:400px;
+  overflow-y: auto;
+}
 </style>

@@ -63,7 +63,12 @@
                             </a-select-option>
                           </a-select>
                         </a-form-item>
-                        <a-form-item class="range-time" label="Start Date" style="width:70%;margin-bottom: 0px;">
+                        <a-form-item class="range-time" label="Start Date" style="width:70%;margin-bottom: 0px;position:relative">
+                          <div class="week-time" v-if="getWeek">
+                            <a-tag color="cyan" style="border-radius: 10px;font-size: 14px;">
+                              {{ getWeek }} weeks
+                            </a-tag>
+                          </div>
                           <a-range-picker v-model="rangeDate" size="large" format="LLL" :show-time="{ format: 'HH:mm' }" style="width:100%">
                             <a-icon slot="suffixIcon" type="calendar" />
                           </a-range-picker>
@@ -523,6 +528,7 @@
         v-model="selectLinkContentVisible"
         :footer="null"
         destroyOnClose
+        :dialog-style="{ top: '10px'}"
         width="900px">
         <div class="my-modal-title" slot="title">
           Link my content
@@ -534,6 +540,7 @@
             :filter-type-list="[contentType.task]"
             :group-name-list="groupNameList"
             :default-group-name="newTermName"
+            :selected-list="selectedTaskList"
             :mode="'common-link'"
             :group-name-mode="groupNameMode"
             @cancel="selectLinkContentVisible = false"
@@ -891,6 +898,7 @@ export default {
       recommendData: [],
       selectedIdList: [],
       selectedList: [],
+      selectedTaskList: [],
       taskDetailsTop: 0,
       associateUnitPlanIdList: [],
       associateTaskIdList: [],
@@ -1655,9 +1663,10 @@ export default {
         this.$logger.info('AddUnitPlan GetAssociate response', response)
         this.groupNameList = response.result.groups
         this.groupNameListOther = []
+        this.selectedTaskList = []
         response.result.owner.forEach(item => {
           item.contents.forEach(content => {
-            console.log(content)
+            this.selectedTaskList.push(content.type + '-' + content.id)
             if (content.type === this.contentType['unit-plan']) {
               this.associateUnitPlanIdList.push(content.id)
               this.associateId2Name.set(content.id, content.name)
@@ -3095,7 +3104,14 @@ code{
       width:100%;
       padding: 6px 7px;
     }
+    .week-time{
+      position: absolute;
+      /* width: 300px; */
+      top: -50px;
+      right: 0px
+    }
   }
+
 }
 .assessment-task-button{
   border: none;

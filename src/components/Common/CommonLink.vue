@@ -160,7 +160,7 @@
     <a-modal
       v-model="selectLinkContentVisible"
       :footer="null"
-      :dialog-style="{ top: '50px'}"
+      :dialog-style="{ top: '10px'}"
       destroyOnClose
       width="900px">
       <div class="my-modal-title" slot="title">
@@ -347,7 +347,7 @@ export default {
       this.$logger.info('handleLinkGroup', group)
       this.subDefaultGroupName = group.group
       this.selectLinkContentVisible = true
-      if (group.group.trim() === 'Linked assessment tool(s)') {
+      if (group.group.trim() === 'Linked assessment tool(s)' || group.group.trim() === 'Linked evaluation(s)') {
         this.subFilterTypeList = [typeMap.evaluation]
         this.showCreate = false
         this.showTabs = false
