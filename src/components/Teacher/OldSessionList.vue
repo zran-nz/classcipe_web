@@ -54,6 +54,8 @@ import { typeMap } from '@/const/teacher'
 import { lessonHost } from '@/const/googleSlide'
 import ArchiveSessionIcon from '@/assets/svgIcon/evaluation/ArchiveSession.svg?inline'
 import EvaluateIcon from '@/assets/svgIcon/evaluation/Evaluate.svg?inline'
+import storage from 'store'
+import { ACCESS_TOKEN } from '@/store/mutation-types'
 
 export default {
   name: 'OldSessionList',
@@ -131,7 +133,7 @@ export default {
         this.$message.warn('Please select a record')
         return
       }
-      const targetUrl = lessonHost + 'd/' + this.sessionList[this.selectedRowKeys[0]].classId
+      const targetUrl = lessonHost + 'd/' + this.sessionList[this.selectedRowKeys[0]].classId + '?token=' + storage.get(ACCESS_TOKEN)
       this.$logger.info('try open ' + targetUrl)
       // window.open(targetUrl, '_blank')
       // 课堂那边需要点击返回回到表单，改成location.href跳转

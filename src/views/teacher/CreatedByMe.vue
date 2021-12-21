@@ -359,6 +359,7 @@ import ModalHeader from '@/components/Common/ModalHeader'
 import { FindCustomTags } from '@/api/tag'
 import OldSessionList from '@/components/Teacher/OldSessionList'
 import { FindMyClasses } from '@/api/evaluation'
+import { ACCESS_TOKEN } from '@/store/mutation-types'
 
 export default {
   name: 'CreatedByMe',
@@ -608,7 +609,7 @@ export default {
           if (res.code === 'ok') {
             this.startLoading = false
             this.lessonSelectTagVisible = false
-            const targetUrl = lessonHost + 'd/' + res.data.class_id
+            const targetUrl = lessonHost + 'd/' + res.data.class_id + '?token=' + storage.get(ACCESS_TOKEN)
             this.$logger.info('try open ' + targetUrl)
             // window.open(targetUrl, '_blank')
             // 课堂那边需要点击返回回到表单，改成location.href跳转
