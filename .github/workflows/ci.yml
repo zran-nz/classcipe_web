@@ -57,7 +57,7 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
           registry: docker.pkg.github.com
-          repository: xnuwu/classcipe_web/frontend
+          repository: zran-nz/classcipe_web/frontend
           tags: develop
           tag_with_ref: true
       - name: Push Images to GitHub Packages (test)
@@ -67,7 +67,7 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
           registry: docker.pkg.github.com
-          repository: xnuwu/classcipe_web/frontend
+          repository: zran-nz/classcipe_web/frontend
           tags: test
           tag_with_ref: true
       - name: Push Images to GitHub Packages (prod)
@@ -77,7 +77,7 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
           registry: docker.pkg.github.com
-          repository: xnuwu/classcipe_web/frontend
+          repository: zran-nz/classcipe_web/frontend
           tags: production
           tag_with_ref: true
       - name: Deploy to develop server
