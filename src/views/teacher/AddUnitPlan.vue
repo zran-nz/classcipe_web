@@ -273,21 +273,14 @@
                     <template slot="description" v-if="currentActiveStepIndex === 1">
                       <div class="form-block">
                         <a-form-item label="Add task(s)" class="link-plan-title">
-                          <a-space>
-                            <a-button type="primary" :style="{'background-color': '#fff', 'color': '#000', 'border': '1px solid #D8D8D8'}" @click="handleAddTasks">
-                              <div class="btn-text" style="line-height: 20px">
-                                + Link Task(s)
-                              </div>
-                            </a-button>
-                            <a-button type="primary" class="addCategory" :loading="addCategoryLoading" :style="{'background-color': '#fff', 'color': '#000', 'border': '1px solid #D8D8D8'}" @click="handleAddTerm">
-                              <div class="btn-text" style="line-height: 20px">
-                                + Add category
-                              </div>
-                            </a-button>
-                          </a-space>
+                          <a-button type="primary" :style="{'background-color': '#fff', 'color': '#000', 'border': '1px solid #D8D8D8'}" @click="handleAddTerm">
+                            <div class="btn-text" style="line-height: 20px">
+                              + Add category
+                            </div>
+                          </a-button>
                         </a-form-item>
                         <div class="common-link-wrapper">
-                          <plan-link ref="planLink" :from-id="this.unitPlanId" :from-type="this.contentType['unit-plan']" @group-name-list-update="handleUpdateGroupNameList"/>
+                          <common-link ref="commonLink" :from-id="this.unitPlanId" :from-type="this.contentType['unit-plan']" @group-name-list-update="handleUpdateGroupNameList"/>
                         </div>
                       </div>
                     </template>
@@ -531,7 +524,7 @@
           <new-my-content
             :from-type="contentType['unit-plan']"
             :from-id="unitPlanId"
-            :filter-type-list="[contentType.task]"
+            :filter-type-list="[contentType.task,contentType.evaluation]"
             :group-name-list="groupNameList"
             :default-group-name="newTermName"
             :mode="'common-link'"
@@ -647,14 +640,7 @@ import { GetAllSdgs, ScenarioSearch } from '@/api/scenario'
 import { debounce } from 'lodash-es'
 import InputSearch from '@/components/UnitPlan/InputSearch'
 import SdgTagInput from '@/components/UnitPlan/SdgTagInput'
-import {
-  GetMyGrades,
-  Associate,
-  GetAssociate,
-  GetReferOutcomes,
-  FindSourceOutcomes,
-  AddOrSaveGroupName
-} from '@/api/teacher'
+import { GetMyGrades, Associate, GetAssociate, GetReferOutcomes, FindSourceOutcomes } from '@/api/teacher'
 import { SubjectTree } from '@/api/subject'
 import { formatSubjectTree } from '@/utils/bizUtil'
 import NewUiClickableKnowledgeTag from '@/components/UnitPlan/NewUiClickableKnowledgeTag'
@@ -679,7 +665,7 @@ import DisplayMode from '@/components/MyContent/DisplayMode'
 import { LibraryEvent, LibraryEventBus } from '@/components/NewLibrary/LibraryEventBus'
 import ReferPreview from '@/components/UnitPlanRefer/ReferPreview'
 import UiLearnOut from '@/components/UnitPlan/UiLearnOut'
-import PlanLink from '@/components/Common/PlanLink'
+import CommonLink from '@/components/Common/CommonLink'
 import NewMyContent from '@/components/MyContent/NewMyContent'
 import { FindCustomTags } from '@/api/tag'
 import { GetCollaborateComment, GetCollaborateModifiedHistory } from '@/api/collaborate'
@@ -709,7 +695,7 @@ export default {
     CommentSwitch,
     CollaborateCommentPanel,
     NewMyContent,
-    PlanLink,
+    CommonLink,
     ReferPreview,
     CollaborateContent,
     CommonFormHeader,
@@ -894,9 +880,7 @@ export default {
       taskDetailsTop: 0,
       associateUnitPlanIdList: [],
       associateTaskIdList: [],
-      associateId2Name: new Map(),
-      defaultGroupName: 'Untitled category',
-      addCategoryLoading: false
+      associateId2Name: new Map()
     }
   },
   watch: {
@@ -1255,7 +1239,7 @@ export default {
         if (response.success) {
           this.restoreUnitPlan(response.result.id, false)
           this.$message.success(this.$t('teacher.add-unit-plan.save-success'))
-          this.goBack()
+          this.$router.push({ path: '/teacher/main/created-by-me' })
         } else {
           this.$message.error(response.message)
         }
@@ -1603,8 +1587,9 @@ export default {
       }
     },
 
-    handleAddTasks () {
-      this.$logger.info('handleAddTasks', this.groupNameList)
+    handleAddTerm () {
+      this.$logger.info('handleAddTerm', this.groupNameList)
+
       // 如果第一部分有内容，点击link激活step 到第二部分，否则提示先输入第一部分表单内容
       if (this.form.name ||
         this.form.overview ||
@@ -1612,7 +1597,6 @@ export default {
         this.form.scenarios.length ||
         this.form.questions.length) {
         this.groupNameMode = 'input'
-        this.newTermName = ''
         this.selectLinkContentVisible = true
         this.setSessionStep(1)
         // 添加link
@@ -1621,26 +1605,12 @@ export default {
       }
     },
 
-    handleAddTerm () {
-      this.$logger.info('handleAddTerm', this.groupNameList)
-      this.addCategoryLoading = true
-      AddOrSaveGroupName({
-        fromId: this.unitPlanId,
-        fromType: this.contentType['unit-plan'],
-        groupName: this.defaultGroupName + '_' + this.groupNameList.length
-      }).then(response => {
-        this.$logger.info('AddOrSaveGroupName', response)
-        this.$refs.planLink.getAssociate()
-        this.addCategoryLoading = false
-      })
-    },
-
     handleEnsureSelectedLink (data) {
       this.$logger.info('handleEnsureSelectedLink', data)
       this.selectLinkContentVisible = false
       this.getAssociate()
       // 刷新组件内的列表
-      this.$refs.planLink.getAssociate()
+      this.$refs.commonLink.getAssociate()
     },
 
     getAssociate () {
@@ -1653,9 +1623,13 @@ export default {
         type: this.contentType['unit-plan']
       }).then(response => {
         this.$logger.info('AddUnitPlan GetAssociate response', response)
-        this.groupNameList = response.result.groups
+        this.groupNameList = []
         this.groupNameListOther = []
         response.result.owner.forEach(item => {
+          if (this.groupNameList.indexOf(item.group) === -1) {
+            this.groupNameList.push(item.group)
+          }
+
           item.contents.forEach(content => {
             console.log(content)
             if (content.type === this.contentType['unit-plan']) {
@@ -1699,7 +1673,7 @@ export default {
             }
           })
         })
-        if (this.groupNameListOther.length > 0) {
+        if (this.groupNameList.length > 0 || this.groupNameListOther.length > 0) {
           this.handleSyncData()
         }
         this.newTermName = 'Untitled category_' + (this.groupNameList.length)
@@ -3106,9 +3080,5 @@ code{
   opacity: 1;
   float: right;
   margin-top: 5px;
-}
-.addCategory /deep/ .anticon{
-  position: absolute;
-  left: 20px;
 }
 </style>
