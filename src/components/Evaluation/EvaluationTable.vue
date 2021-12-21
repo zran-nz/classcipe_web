@@ -921,7 +921,7 @@ export default {
           /**
            * 第一种评估表能看到
            Learning outcomes
-           Subject specific skills
+           Achievement objectives
            Assessment types
            */
           this.showMenuList = [NavigationType.learningOutcomes, NavigationType.specificSkills, NavigationType.assessmentType]
@@ -929,7 +929,7 @@ export default {
         } else if (this.formType === this.tableType.Rubric) {
           /**
            * 第二种能看到IB大纲下的
-           * Subject specific skills，及IDU
+           * Achievement objectives，及IDU
            */
           this.showMenuList = [NavigationType.specificSkills, NavigationType.idu]
           this.defaultActiveMenu = NavigationType.specificSkills

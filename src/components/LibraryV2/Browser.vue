@@ -311,7 +311,7 @@ const BrowserTypeLabelMap = {
   curriculum: 'Learning outcomes',
   assessmentType: 'Assessment type',
   sdg: 'Big idea',
-  specificSkills: 'Subject Specific Skills',
+  specificSkills: 'Achievement objectives',
   centurySkills: 'Century Skills',
   idu: 'Integrated Subject Skill'
 }
@@ -351,7 +351,7 @@ export default {
       browserTypeListForIbMpy: [
         { type: 'curriculum', label: 'Learning outcomes' },
         { type: 'assessmentType', label: 'Assessment type' },
-        { type: 'specificSkills', label: 'Subject Specific Skills' },
+        { type: 'specificSkills', label: 'Achievement objectives' },
         { type: 'idu', label: 'Integrated Subject Skill' },
         { type: 'centurySkills', label: '21st Century Skills' },
         { type: 'sdg', label: 'Big idea' }
@@ -359,7 +359,7 @@ export default {
       browserTypeList: [
         { type: 'curriculum', label: 'Learning outcomes' },
         { type: 'assessmentType', label: 'Assessment type' },
-        { type: 'specificSkills', label: 'Subject Specific Skills' },
+        { type: 'specificSkills', label: 'Achievement objectives' },
         { type: 'centurySkills', label: '21st Century Skills' },
         { type: 'sdg', label: 'Big idea' }
       ],

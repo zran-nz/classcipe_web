@@ -193,7 +193,7 @@ export default {
         this.treeDataList.push(curriculumData)
         this.treeDataList.push(sdgData)
         if (skillCategory.length === 3) {
-          // subject specific skills 是mainSubject-year-knowledge
+          // Achievement objectives 是mainSubject-year-knowledge
           const specificSkillsData = {
             id: '3',
             expandStatus: NavigationType.specificSkills === this.defaultActiveMenu,
@@ -210,22 +210,23 @@ export default {
           })
           this.treeDataList.push(specificSkillsData)
 
+          // 隐藏assessmentType
           // assessmentTypeData 是mainSubject-year-knowledge
-          const assessmentTypeData = {
-            id: '4',
-            expandStatus: NavigationType.assessmentType === this.defaultActiveMenu,
-            type: NavigationType.assessmentType,
-            name: 'Assessment type',
-            children: [],
-            parent: null
-          }
+          // const assessmentTypeData = {
+          //   id: '4',
+          //   expandStatus: NavigationType.assessmentType === this.defaultActiveMenu,
+          //   type: NavigationType.assessmentType,
+          //   name: 'Assessment type',
+          //   children: [],
+          //   parent: null
+          // }
           // 从大纲数据中复制一份数据，assessmentTypeData也只用mainSubject既第一层
-          this.subjectTree.forEach(subjectItem => {
-            if (subjectItem.subjectType === SubjectType.Skill || subjectItem.subjectType === SubjectType.LearnAndSkill) {
-              assessmentTypeData.children.push(JSON.parse(JSON.stringify(subjectItem)))
-            }
-          })
-          this.treeDataList.push(assessmentTypeData)
+          // this.subjectTree.forEach(subjectItem => {
+          //   if (subjectItem.subjectType === SubjectType.Skill || subjectItem.subjectType === SubjectType.LearnAndSkill) {
+          //     assessmentTypeData.children.push(JSON.parse(JSON.stringify(subjectItem)))
+          //   }
+          // })
+          // this.treeDataList.push(assessmentTypeData)
 
           // 21 century skills 是year-knowledge
           const centurySkillsData = {

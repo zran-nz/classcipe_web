@@ -284,7 +284,7 @@ export default {
           }
         }
       } else if (this.currentDataType === NavigationType.specificSkills) {
-        // subject specific skills 是mainSubject-year-knowledge
+        // Achievement objectives 是mainSubject-year-knowledge
         if (item.children.length || (item.gradeList && item.gradeList.length)) {
           // 如果有子列表，表示还未到最后一层knowledge，通知左侧导航栏更新同步层级
           LibraryEventBus.$emit(LibraryEvent.ContentListItemClick, {
