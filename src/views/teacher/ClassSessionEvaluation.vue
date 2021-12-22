@@ -1869,7 +1869,7 @@ export default {
     align-items: flex-start;
 
     .class-group {
-      width: 280px;
+      width: 200px;
       .class-student-wrapper {
         height: 539px;
         background: #FFFFFF;
@@ -1908,7 +1908,7 @@ export default {
               flex-direction: row;
               align-items: center;
               justify-content: space-between;
-              padding: 13px 15px 13px 25px;
+              padding: 10px;
               cursor: pointer;
 
               &:hover {
@@ -1955,7 +1955,7 @@ export default {
                 flex-direction: column;
                 .list-item {
                   cursor: pointer;
-                  padding: 13px 30px 13px 35px;
+                  padding: 10px;
                   user-select: none;
                   display: flex;
                   flex-direction: row;
@@ -1986,7 +1986,7 @@ export default {
                   }
                   .select-status-icon {
                     position: absolute;
-                    right: 15px;
+                    right: 5px;
                     top: 50%;
                     margin-top: -7.5px;
                     img {
@@ -2002,8 +2002,8 @@ export default {
     }
 
     .form-table-content {
-      width: calc(100% - 280px);
-      padding: 0 20px;
+      width: calc(100% - 220px);
+      padding: 0 0 0 20px;
 
       .table-content {
         .comment {

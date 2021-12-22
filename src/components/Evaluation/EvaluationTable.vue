@@ -1425,7 +1425,6 @@ export default {
           border-right: 1px solid #999;
           border-bottom: 1px solid #999;
           padding: 0;
-          min-width: 180px;
           overflow: hidden;
 
           .edit-icon {
@@ -1552,8 +1551,8 @@ export default {
         .body-line {
           .body-item {
             position: relative;
-            max-width: 400px;
-            min-width: 140px;
+            max-width: 300px;
+            min-width: 120px;
             height: 100px;
             font-size: 12px;
             font-family: Inter-Bold;
@@ -1566,7 +1565,7 @@ export default {
             vertical-align: top;
 
             .data-item {
-              padding: 10px;
+              padding: 5px;
               cursor: pointer;
               min-height: 50px;
             }
@@ -1965,7 +1964,7 @@ export default {
     flex-direction: column;
     padding: 0 10px;
     .criteria-left-name-item {
-      width: 220px;
+      width: 150px;
       display: flex;
       flex-direction: row;
       flex-wrap: nowrap;
@@ -1982,7 +1981,7 @@ export default {
   }
 
   .criteria-right-description {
-      width: 350px;
+      width: 200px;
       display: flex;
       flex-direction: column;
       .edit-description {
