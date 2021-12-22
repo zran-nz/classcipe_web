@@ -929,6 +929,28 @@ export default {
       this.findQuestionsByBigIdea(value)
     }
   },
+  beforeRouteLeave (to, from, next) {
+    if (JSON.stringify(this.form) !== JSON.stringify(this.oldForm)) {
+      var that = this
+      this.$confirm({
+        title: 'Alert',
+        okText: 'Save',
+        cancelText: 'No',
+        content: 'Do you want to save the changes?',
+        onOk: function () {
+          that.handleSaveUnitPlan()
+          setTimeout(() => {
+            next()
+          }, 500)
+        },
+        onCancel () {
+          next()
+        }
+      })
+    } else {
+      next()
+    }
+  },
   computed: {
     lastChangeSavedTime () {
       const time = this.form.updateTime || this.form.createTime
@@ -1419,8 +1441,16 @@ export default {
         var that = this
         this.$confirm({
           title: 'Alert',
-          content: 'Do you want to give up the editing?',
+          okText: 'Save',
+          cancelText: 'No',
+          content: 'Do you want to save the changes?',
           onOk: function () {
+            that.handleSaveUnitPlan()
+            setTimeout(() => {
+              that.$router.push({ path: '/teacher/main/created-by-me' })
+            }, 500)
+          },
+          onCancel () {
             that.$router.push({ path: '/teacher/main/created-by-me' })
           }
         })
