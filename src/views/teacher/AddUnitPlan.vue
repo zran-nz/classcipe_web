@@ -66,7 +66,7 @@
                         <a-form-item class="range-time" label="Start Date" style="width:70%;margin-bottom: 0px;position:relative">
                           <div class="week-time" v-if="getWeek">
                             <a-tag color="cyan" style="border-radius: 10px;font-size: 14px;">
-                              {{ getWeek }} weeks
+                              {{ getWeek }}
                             </a-tag>
                           </div>
                           <a-range-picker v-model="rangeDate" size="large" format="LLL" :show-time="{ format: 'HH:mm' }" style="width:100%">

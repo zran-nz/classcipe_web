@@ -28,8 +28,16 @@ export const UtilMixin = {
   computed: {
     getWeek () {
       if (this.rangeDate.length === 2) {
-        const week = (Math.abs(this.rangeDate[0].diff(this.rangeDate[1], 'days')) / 7).toFixed(1)
-        return week.replace('.0', '')
+        let str = ''
+        const week = Math.abs(parseInt(this.rangeDate[0].diff(this.rangeDate[1], 'days') / 7))
+        const day = Math.abs(this.rangeDate[0].diff(this.rangeDate[1], 'days')) % 7
+        if (week > 0) {
+          str += (week + ' weeks ')
+        }
+        if (day > 0) {
+          str += (day + ' days')
+        }
+        return str
       } else {
         return ''
       }

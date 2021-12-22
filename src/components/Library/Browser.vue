@@ -178,17 +178,17 @@ export default {
       curriculumOptions: [],
       navPath: [],
       browserTypeListForIbMpy: [
+        { type: 'specificSkills', label: 'Achievement objectives' },
         { type: 'curriculum', label: 'Learning outcomes' },
         { type: 'assessmentType', label: 'Assessment type' },
-        { type: 'specificSkills', label: 'Achievement objectives' },
         { type: 'idu', label: 'Integrated Subject Skill' },
         { type: 'centurySkills', label: '21st Century Skills' },
         { type: 'sdg', label: 'Big idea' }
       ],
       browserTypeList: [
+        { type: 'specificSkills', label: 'Achievement objectives' },
         { type: 'curriculum', label: 'Learning outcomes' },
         { type: 'assessmentType', label: 'Assessment type' },
-        { type: 'specificSkills', label: 'Achievement objectives' },
         { type: 'centurySkills', label: '21st Century Skills' },
         { type: 'sdg', label: 'Big idea' }
       ],

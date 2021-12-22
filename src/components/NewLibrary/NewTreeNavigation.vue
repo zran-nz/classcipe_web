@@ -208,7 +208,8 @@ export default {
               specificSkillsData.children.push(JSON.parse(JSON.stringify(subjectItem)))
             }
           })
-          this.treeDataList.push(specificSkillsData)
+          // skill放第一位
+          this.treeDataList.unshift(specificSkillsData)
 
           // 隐藏assessmentType
           // assessmentTypeData 是mainSubject-year-knowledge
