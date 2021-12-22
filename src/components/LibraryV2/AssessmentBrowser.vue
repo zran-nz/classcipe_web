@@ -273,7 +273,7 @@
   import { GetAssessmentTypeList, QueryKnowledgesByAssessmentTypeId, KnowledgeQueryContentByDescriptionId } from '@/api/knowledge'
   import DirIcon from '@/components/LibraryV2/DirIcon'
   import NoMoreResources from '@/components/Common/NoMoreResources'
-  import PuBuIcon from '@/assets/icons/library/pubu .svg?inline'
+  import PuBuIcon from '@/assets/icons/library/pubu.svg?inline'
   import ListModeIcon from '@/assets/icons/library/liebiao .svg?inline'
   import CardList from '@/views/list/CardList'
   import DataCardView from '@/components/LibraryV2/DataCardView'

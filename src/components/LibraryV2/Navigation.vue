@@ -83,7 +83,7 @@ export default {
 @import "~@/components/index.less";
 
 .library-nav-content {
-  padding: 10px 5px;
+  padding: 10px 0;
   cursor: pointer;
   .nav-path {
     display: flex;

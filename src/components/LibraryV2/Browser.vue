@@ -59,7 +59,18 @@
             </div>
           </div>
         </div>
-        <div class="search-bar"></div>
+        <div class="filter-bar">
+          <div class="filter-icon">
+            <div class="filter-item">
+              <filter-icon class="filter-icon" />
+              <filter-active-icon class="filter-active-icon"/>
+              <div class="filter-label">
+                Filter
+              </div>
+            </div>
+          </div>
+          <div class="filter-list"></div>
+        </div>
       </div>
     </div>
     <div
@@ -301,7 +312,9 @@ import GeneralCapabilityBrowser from '@/components/LibraryV2/GeneralCapabilityBr
 import SubjectSpecificBrowser from '@/components/LibraryV2/SubjectSpecificBrowser'
 import IduBrowser from '@/components/LibraryV2/IduBrowser'
 import { CurriculumType } from '@/const/common'
-import PuBuIcon from '@/assets/icons/library/pubu .svg?inline'
+import FilterIcon from '@/assets/libraryv2/filter.svg?inline'
+import FilterActiveIcon from '@/assets/libraryv2/filter_active.svg?inline'
+import PuBuIcon from '@/assets/icons/library/pubu.svg?inline'
 import ListModeIcon from '@/assets/icons/library/liebiao .svg?inline'
 import ContentTypeIcon from '@/components/Teacher/ContentTypeIcon'
 import DataCardView from '@/components/Library/DataCardView'
@@ -346,6 +359,8 @@ export default {
     IduBrowser,
     ContentTypeIcon,
     PuBuIcon,
+    FilterIcon,
+    FilterActiveIcon,
     ListModeIcon,
     DataCardView
   },
@@ -657,10 +672,16 @@ export default {
     box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.16);
     background: #FFFFFF;
     z-index: 200;
+
+    @media only screen and (max-width: 1600px) {
+      .header-info {
+        padding-left: 24px;
+        padding-right: 24px;
+      }
+    }
     .header-info {
       margin: auto;
-      padding-left: 10px;
-      padding-right: 10px;
+      max-width: 1600px;
     }
   }
 
@@ -669,7 +690,6 @@ export default {
     flex-direction: row;
     justify-content: flex-start;
     align-items: center;
-    padding: 15px 0 10px 0;
     transition: all 200ms ease-in-out;
 
     .curriculum-select {
@@ -683,8 +703,7 @@ export default {
   }
 
   .filter-line {
-    padding: 0 0 20px;
-    height: 52px;
+    margin-top: 5px;
     display: flex;
     flex-direction: row;
     align-items: center;
@@ -692,7 +711,6 @@ export default {
     .curriculum-filter-line {
       display: flex;
       flex-direction: row;
-      width: 200px;
       align-items: center;
       .curriculum-select {
         background: #eaebef;
@@ -723,7 +741,7 @@ export default {
       position: relative;
 
       .search-input {
-        width: 600px;
+        width: 100%;
       }
 
       .search-result-wrapper {
@@ -1132,5 +1150,35 @@ export default {
   align-items: center;
   height: 60%;
   margin: auto;
+}
+
+.filter-bar {
+  line-height: 35px;
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+
+  .filter-icon {
+    .filter-item {
+      color: #333;
+      .filter-active-icon {
+        display: none;
+      }
+      .filter-icon {
+        display: inline;
+      }
+
+      &:hover {
+        color: #38cfa6;
+        .filter-active-icon {
+          display: inline;
+        }
+
+        .filter-icon {
+          display: none;
+        }
+      }
+    }
+  }
 }
 </style>
