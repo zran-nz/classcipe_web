@@ -339,7 +339,7 @@ export default {
       dataList: [],
       dataListLoading: false,
       currentDataId: null,
-      dataListMode: 'list',
+      dataListMode: 'card',
 
       currentTypeLabel: 'Choose type（S）of content',
       currentType: 0,

@@ -268,25 +268,19 @@
         :title="null"
         :closable="false"
         destroyOnClose
+        :dialog-style="{ top: '30px' }"
         width="1000px">
         <modal-header title="Previous session" @close="viewPreviewSessionVisible = false" :white="true"/>
         <div class="preview-session-wrapper">
-          <a-tabs default-active-key="1">
+          <a-tabs default-active-key="1" @change="handleTabChange">
             <a-tab-pane key="1" tab="Active">
-              <a-input-search
-                class="preview-session-search"
-                placeholder="Find by session name or class name"
-                v-model="sessionName"
-                enter-button
-                @search="searchSession"
-                @change="searchSession"/>
-              <class-list :slide-id="currentPreviewLesson.presentationId" :classData="currentPreviewLesson" v-if="currentPreviewLesson && currentPreviewLesson.presentationId"/>
+              <class-list-table ref="classList1" :slide-id="currentPreviewLesson.presentationId" :classData="currentPreviewLesson" v-if="currentPreviewLesson && currentPreviewLesson.presentationId"/>
               <div class="no-session" v-else>
                 <no-more-resources tips="Not exist previous sessions"/>
               </div>
             </a-tab-pane>
             <a-tab-pane key="2" tab="Archived " force-render>
-              <class-list :slide-id="currentPreviewLesson.presentationId" :classData="currentPreviewLesson" v-if="currentPreviewLesson && currentPreviewLesson.presentationId"/>
+              <class-list-table ref="classList2" :slide-id="currentPreviewLesson.presentationId" :classData="currentPreviewLesson" v-if="currentPreviewLesson && currentPreviewLesson.presentationId" :active="false"/>
               <div class="no-session" v-else>
                 <no-more-resources tips="Not exist previous sessions"/>
               </div>
@@ -356,7 +350,7 @@ import StartEvaluation from '@/assets/icons/common/StartEvaluation.svg?inline'
 import StartSessionSvg from '@/assets/icons/common/StartSession.svg?inline'
 import TeacherPresenting from '@/assets/icons/common/TeacherPresenting.svg?inline'
 import StudentPace from '@/assets/icons/common/StudentPace.svg?inline'
-import ClassList from '@/components/Teacher/ClassList'
+import ClassListTable from '@/components/Teacher/ClassListTable'
 import CustomTag from '@/components/UnitPlan/CustomTag'
 import LiebiaoSvg from '@/assets/svgIcon/myContent/liebiao.svg?inline'
 import PubuSvg from '@/assets/svgIcon/myContent/pubu.svg?inline'
@@ -385,7 +379,7 @@ export default {
     OldSessionList,
     NoMoreResources,
     CommonPreview,
-    ClassList,
+    ClassListTable,
     ContentStatusIcon,
     ContentTypeIcon,
     TvSvg,
@@ -450,8 +444,7 @@ export default {
       customTagList: [],
       oldSelectSessionVisible: false,
       sessionList: [],
-      sessionMode: 1,
-      sessionName: ''
+      sessionMode: 1
     }
   },
   locomputed: {
@@ -753,8 +746,12 @@ export default {
         // this.$refs.customTag.tagLoading = false
       })
     },
-    searchSession () {
-
+    handleTabChange (tab) {
+      if (tab === 1) {
+        this.$refs.classList1.loadTeacherClasses(100, this.currentPreviewLesson.presentationId)
+      } else {
+        this.$refs.classList2.loadTeacherClasses(100, this.currentPreviewLesson.presentationId)
+      }
     }
   }
 }

@@ -358,7 +358,7 @@ export default {
       dataList: [],
       dataListLoading: false,
       currentDataId: null,
-      dataListMode: 'list',
+      dataListMode: 'card',
 
       bigIdeaList: [],
       currentBigIdea: null,
