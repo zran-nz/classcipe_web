@@ -6,7 +6,10 @@
       :tree-item-data="treeItemData"
       :tree-current-parent="null"
       :default-deep="0"
-      :class="{'browser-hide-menu': showMenu.indexOf(treeItemData.type) === -1}"
+      :class="{
+        'browser-hide-menu': showMenu.indexOf(treeItemData.type) === -1,
+        'tree-item-type' : true
+      }"
       :current-item-type="treeItemData.type === NavigationType.learningOutcomes ? 'subject' : // 如果当前是大纲，那么第一层数据是不区分层级的subject
         (treeItemData.type === NavigationType.sync ? 'sync' : // 如果是sync第一次是外部的同步数据列表
           ((treeItemData.type === NavigationType.specificSkills || treeItemData.type === NavigationType.assessmentType) ? 'subject' : ( // 如果是specificSkills或assessmentType，那么第一层数据是subject，注意subject只有一层
@@ -382,4 +385,33 @@ export default {
 .browser-hide-menu {
   display: none;
 }
+
+.tree-item-type:nth-child(1){
+  background-color: fade(@primary-color, 10%);
+}
+
+.tree-item-type:nth-child(2){
+  background-color: rgba(19, 194, 194, 0.2);
+}
+
+.tree-item-type:nth-child(3){
+  background-color: rgba(253, 238, 218, 0.2);
+}
+
+.tree-item-type:nth-child(4){
+  background-color: rgba(83, 196, 28, 0.2);
+}
+
+.tree-item-type:nth-child(5){
+  background-color: rgba(235, 47, 150, 0.2);
+}
+
+.tree-item-type:nth-child(6){
+  background-color: rgba(24, 144, 255, 0.2);
+}
+
+.tree-item-type:nth-child(7){
+  background-color: rgba(45, 183, 245, 0.2);
+}
+
 </style>

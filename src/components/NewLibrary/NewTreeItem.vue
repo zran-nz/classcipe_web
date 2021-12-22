@@ -1159,11 +1159,11 @@ export default {
 @import "~@/components/index.less";
 
 .even-line {
-  background-color: #ffffff;
+  //background-color: #ffffff;
 }
 
 .odd-line {
-  background-color: #F8F8F8;
+  //background-color: #F8F8F8;
 }
 
 .active-line {
@@ -1187,7 +1187,7 @@ export default {
     flex-direction: row;
     align-items: center;
     &:hover {
-      background-color: fade(@primary-color, 10%);
+      //background-color: fade(@primary-color, 10%);
     }
 
     .subtree-icon-wrapper {
@@ -1221,7 +1221,7 @@ export default {
       text-overflow: ellipsis;
       .display-label {
         font-weight: 500;
-        color: @text-color;
+        //color: @text-color;
       }
     }
   }
