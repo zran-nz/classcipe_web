@@ -51,7 +51,7 @@
           <div class="recommend-detail">
             <div class="recommend-list" v-for="(recommendDataItem, rIndex) in recommendData" :key="rIndex">
               <div class="recommend-from">
-                <h4>From : {{ recommendDataItem.fromTypeName }} / {{ recommendDataItem.fromName }}</h4>
+                <h4>From <span class="from-type-name">{{ recommendDataItem.fromTypeName }}</span> : {{ recommendDataItem.fromName }}</h4>
               </div>
               <div
                 :class="{'recommend-item': true, 'my-selected-item': selectedRecommendIdList.indexOf(recommendItem.knowledgeId) !== -1,
@@ -342,7 +342,7 @@ export default {
   mixins: [UtilMixin],
   data () {
     return {
-      expandedListFlag: false,
+      expandedListFlag: true,
       mainTreeContentLeft: 200,
       selectedCurriculumList: [],
       selectedKnowledgeList: [],
@@ -890,5 +890,11 @@ export default {
 
 .disabled-select-item {
   color: #D8D8D8;
+}
+
+.from-type-name {
+  color: #2DC9A4;
+  font-weight: bold;
+  display: inline-block;
 }
 </style>
