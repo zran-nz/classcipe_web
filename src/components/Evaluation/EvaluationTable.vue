@@ -289,7 +289,7 @@
                 <div class="sub-level-list">
                   <div class="sub-level-item" v-for="(subLevel, sIndex) in item[headerType.AchievementLevel].subLevelDescription" :key="sIndex">
                     <template v-if="mode === tableMode.Edit">
-                      <div class="start-index" >
+                      <div class="start-index" @click.stop="handleSwitchModeTips" >
                         <div class="select-block">
                           <a-icon
                             class="select-block-icon"
@@ -297,7 +297,7 @@
                         </div>
                         {{ subLevel.startIndex }}
                       </div>
-                      <div class="end-index">
+                      <div class="end-index" @click.stop="handleSwitchModeTips" v-show="subLevel.endIndex !== null" >
                         <div class="select-block">
                           <a-icon
                             class="select-block-icon"
@@ -317,7 +317,7 @@
                         </div>
                         {{ subLevel.startIndex }}
                       </div>
-                      <div class="end-index" @click.stop="handleClickSubLevelItem(item, header, subLevel.endIndex)">
+                      <div class="end-index" @click.stop="handleClickSubLevelItem(item, header, subLevel.endIndex)" v-show="subLevel.endIndex !== null" >
                         <div class="select-block">
                           <img src="~@/assets/icons/lesson/selected.png" v-if="formBodyData && formBodyData[item.rowId] && formBodyData[item.rowId].data === subLevel.endIndex"/>
                           <a-icon
@@ -912,6 +912,10 @@ export default {
       }
     },
 
+    handleSwitchModeTips () {
+      this.$message.warn('Please switch to evaluation mode first!')
+    },
+
     handleAddCriteria  (header, item, event) {
       event.preventDefault()
       event.stopPropagation()
@@ -1270,7 +1274,7 @@ export default {
           const indexRange = item[0]
           const indexRangeArray = indexRange.split('-')
           const startIndex = parseInt(indexRangeArray[0])
-          let endIndex = startIndex + 1
+          let endIndex = null
           if (indexRangeArray.length === 2) {
             endIndex = parseInt(indexRangeArray[1])
           }
