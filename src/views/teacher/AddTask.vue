@@ -2531,6 +2531,7 @@ export default {
           this.recommendData = []
           for (const value of recommendMap.values()) {
             this.recommendData.push({
+              fromId: value[0].fromId,
               fromName: value[0].fromName,
               fromTypeName: this.type2Name[value[0].fromType],
               list: value

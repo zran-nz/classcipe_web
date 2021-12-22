@@ -50,7 +50,7 @@
           </div>
           <div class="recommend-detail">
             <div class="recommend-list" v-for="(recommendDataItem, rIndex) in recommendData" :key="rIndex">
-              <div class="recommend-from">
+              <div class="recommend-from" :data-from-id="recommendDataItem.fromId">
                 <h4>From <span class="from-type-name">{{ recommendDataItem.fromTypeName }}</span> : {{ recommendDataItem.fromName }}</h4>
               </div>
               <div
