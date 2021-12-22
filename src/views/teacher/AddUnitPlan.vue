@@ -248,11 +248,13 @@
                       <div class="form-block">
                         <comment-switch field-name="assessment" :is-active="currentFieldName === 'assessment'" @switch="handleSwitchComment" class="my-comment-switch"/>
                         <a-form-item label="Set learning objectives" >
-                          <a-button type="primary" @click="handleSelectDescription()">
-                            <div class="btn-text" style="line-height: 20px">
-                              Add leaning objectives
-                            </div>
-                          </a-button>
+                          <a-badge :dot="hasExtraRecommend">
+                            <a-button type="primary" @click="handleSelectDescription()">
+                              <div class="btn-text" style="line-height: 20px">
+                                Add leaning objectives
+                              </div>
+                            </a-button>
+                          </a-badge>
 
                           <a-button type="link" ghost class="assessment-task-button" @click="handleClickTaskDetail($event)" >
                             Assessment task details
@@ -896,6 +898,7 @@ export default {
       ],
 
       recommendData: [],
+      recommendDataIdList: [],
       selectedIdList: [],
       selectedList: [],
       selectedTaskList: [],
@@ -968,6 +971,18 @@ export default {
       return this.form.questions.map(item => {
         return item.name
       })
+    },
+    hasExtraRecommend () {
+      this.$logger.info('-------------', this.form.learnOuts, this.recommendDataIdList)
+      let ret = false
+      this.form.learnOuts.forEach(item => {
+        if (this.recommendDataIdList.indexOf(item.knowledgeId) === -1) {
+          ret = true
+          this.$logger.info('------------learnOuts', item, ' not exist in ', this.recommendDataIdList)
+        }
+      })
+
+      return ret
     }
   },
   created () {
@@ -1727,6 +1742,7 @@ export default {
 
     loadRefLearnOuts () {
       this.recommendData = []
+      this.recommendDataIdList = []
       if (this.associateUnitPlanIdList.length) {
         FindSourceOutcomes({
           type: this.contentType['unit-plan'],
@@ -1740,6 +1756,7 @@ export default {
             } else {
               recommendMap.set(item.fromId, [item])
             }
+            this.recommendDataIdList.push(item.knowledgeId)
           })
 
           for (const value of recommendMap.values()) {
@@ -1751,6 +1768,7 @@ export default {
             })
           }
           this.$logger.info('update unit-plan recommendData ', this.recommendData)
+          this.$logger.info('************************update unit-plan recommendDataIdList ', this.recommendDataIdList)
         })
       }
 
@@ -1767,6 +1785,7 @@ export default {
             } else {
               recommendMap.set(item.fromId, [item])
             }
+            this.recommendDataIdList.push(item.knowledgeId)
           })
 
           for (const value of recommendMap.values()) {
@@ -1778,6 +1797,7 @@ export default {
             })
           }
           this.$logger.info('update task recommendData ', this.recommendData)
+          this.$logger.info('************************update unit-plan recommendDataIdList ', this.recommendDataIdList)
         })
       }
     },
