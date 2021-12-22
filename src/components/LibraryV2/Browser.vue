@@ -41,13 +41,28 @@
         </div>
         <div class="filter-bar">
           <div class="filter-icon">
-            <div class="filter-item">
-              <filter-icon class="filter-icon" />
-              <filter-active-icon class="filter-active-icon"/>
-              <div class="filter-label">
-                Filter
+            <a-popover trigger="click" placement="bottomLeft">
+              <template slot="content">
+                <search-filter
+                  @filter-config-update="handleUpdateFilterConfig"
+                  :filter-config="filterConfig"
+                  :age-options="filterAgeOptions"
+                  :subject-options="filterSubjectOptions"
+                  :type-options="filterTypeOptions"
+                  :teaching-strategy-options="filterTeachingStrategyOptions"
+                  :difference-instructions-options="filterDifferenceInstructionsOptions"
+                  :assessment-category-options="filterAssessmentCategoryOptions"
+                  :assessment-type-options="filterAssessmentTypeOptions"
+                />
+              </template>
+              <div class="filter-item">
+                <filter-icon class="filter-icon" />
+                <filter-active-icon class="filter-active-icon"/>
+                <div class="filter-label">
+                  Filter
+                </div>
               </div>
-            </div>
+            </a-popover>
           </div>
           <div class="filter-list">
             <div
@@ -422,6 +437,7 @@ import ListModeIcon from '@/assets/icons/library/liebiao .svg?inline'
 import ContentTypeIcon from '@/components/Teacher/ContentTypeIcon'
 import DataCardView from '@/components/Library/DataCardView'
 import { LibraryMode } from '@/components/LibraryV2/libraryMode'
+import SearchFilter from '@/components/LibraryV2/SearchFilter'
 const { Search, QueryContents, QueryKeyContents } = require('@/api/library')
 
 const BrowserTypeMap = {
@@ -448,6 +464,7 @@ const BrowserTypeLabelMap = {
 export default {
   name: 'Browser',
   components: {
+    SearchFilter,
     SubjectSpecificBrowser,
     GeneralCapabilityBrowser,
     AssessmentBrowser,
@@ -532,7 +549,85 @@ export default {
       searchResultList: [],
       libraryMode: LibraryMode.browserMode,
       LibraryMode: LibraryMode,
-      currentFromItem: null
+      currentFromItem: null,
+
+      // 当前选中的配置项
+      filterConfig: {
+        age: null,
+        subject: [],
+        type: [],
+        faSaActivityType: null,
+
+        teachingStrategy: [],
+        differenceInstructions: [],
+        assessmentCategory: [],
+        assessmentType: []
+      },
+
+      // TODO 选项列表数据，用API返回数据填充
+      filterSubjectOptions: [
+        { label: 'Math1', value: 'Math1' },
+        { label: 'Science', value: 'Science2' },
+        { label: 'Math3', value: 'Math3' },
+        { label: 'Art', value: 'Art4' },
+        { label: 'Science1', value: 'Science1' }
+      ],
+      filterAgeOptions: [
+        { label: 'All' },
+        { label: '5' },
+        { label: '6' },
+        { label: '7' },
+        { label: '8' }
+      ],
+      filterTypeOptions: [
+        { label: 'Unit Plan', value: 'Unit Plan' },
+        { label: 'Task', value: 'Task' },
+        { label: 'Assessment Tool', value: 'Assessment Tool' }
+      ],
+      filterTeachingStrategyOptions: [
+        { label: 'video', value: 'video1' },
+        { label: 'Guest speaker1', value: 'Guest speaker2' },
+        { label: 'Case studios2', value: 'Case studios3' },
+        { label: 'Role playing3', value: 'Role playing4' },
+        { label: 'Lecture discussion4', value: 'Lecture discussion5' },
+        { label: 'Guest speaker5', value: 'Guest speaker6' },
+        { label: 'Case studios6', value: 'Case studios7' },
+        { label: 'Role playing7', value: 'Role playing8' },
+        { label: 'Lecture discussion9', value: 'Lecture discussion9' }
+      ],
+      filterDifferenceInstructionsOptions: [
+        { label: 'Case studios', value: 'Case studios11' },
+        { label: 'Guest speaker1', value: 'Guest speaker2' },
+        { label: 'Case studios2', value: 'Case studios3' },
+        { label: 'Role playing3', value: 'Role playing4' },
+        { label: 'Lecture discussion4', value: 'Lecture discussion5' },
+        { label: 'Guest speaker5', value: 'Guest speaker6' },
+        { label: 'Case studios6', value: 'Case studios7' },
+        { label: 'Role playing7', value: 'Role playing8' },
+        { label: 'Lecture discussion9', value: 'Lecture discussion9' }
+      ],
+      filterAssessmentCategoryOptions: [
+        { label: 'Demonstrations', value: 'Demonstrations22' },
+        { label: 'Guest speaker1', value: 'Guest speaker2' },
+        { label: 'Case studios2', value: 'Case studios3' },
+        { label: 'Role playing3', value: 'Role playing4' },
+        { label: 'Lecture discussion4', value: 'Lecture discussion5' },
+        { label: 'Guest speaker5', value: 'Guest speaker6' },
+        { label: 'Case studios6', value: 'Case studios7' },
+        { label: 'Role playing7', value: 'Role playing8' },
+        { label: 'Lecture discussion9', value: 'Lecture discussion9' }
+      ],
+      filterAssessmentTypeOptions: [
+        { label: 'Small group work', value: 'Small group work11' },
+        { label: 'Guest speaker1', value: 'Guest speaker2' },
+        { label: 'Case studios2', value: 'Case studios3' },
+        { label: 'Role playing3', value: 'Role playing4' },
+        { label: 'Lecture discussion4', value: 'Lecture discussion5' },
+        { label: 'Guest speaker5', value: 'Guest speaker6' },
+        { label: 'Case studios6', value: 'Case studios7' },
+        { label: 'Role playing7', value: 'Role playing8' },
+        { label: 'Lecture discussion9', value: 'Lecture discussion9' }
+      ]
     }
   },
   created () {
@@ -784,6 +879,10 @@ export default {
       if (index !== -1) {
         this.filterList.splice(index, 1)
       }
+    },
+
+    handleUpdateFilterConfig (filter) {
+      this.$logger.info('handleUpdateFilterConfig', filter)
     }
   }
 }
@@ -1077,7 +1176,6 @@ export default {
   flex-wrap: wrap;
   justify-content: flex-start;
   box-sizing: border-box;
-  background: rgba(228, 228, 228, 0.2);
 
   .switch-type-wrapper {
     padding-right: 10px;
@@ -1191,7 +1289,7 @@ export default {
     justify-content: flex-start;
     .card-item-wrapper {
       cursor: pointer;
-      width: 170px;
+      width: 190px;
       padding: 10px;
       box-sizing: border-box;
       background: #FFFFFF;
@@ -1294,7 +1392,7 @@ export default {
   align-items: center;
   justify-content: flex-start;
   padding-left: 15px;
-  overflow: hidden;
+  overflow-y: hidden;
 
   .filter-list-item {
     color: #333;
