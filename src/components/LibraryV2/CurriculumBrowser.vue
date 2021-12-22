@@ -1,7 +1,7 @@
 <template>
   <div class="browser-block" data-type="curriculum">
     <!--      mainSubject list-->
-    <div class="browser-block-item" :style="{width: '25vw' , minWidth: '25vw' }">
+    <div class="browser-block-item" :style="{width: '15vw' , minWidth: '15vw' }">
       <div
         :class="{
           'browser-item': true,
@@ -35,7 +35,7 @@
       </template>
     </div>
     <!--      subSubject list-->
-    <div class="browser-block-item" v-if="hasChildSubject" :style="{width: '25vw' , minWidth: '25vw' }" >
+    <div class="browser-block-item" v-if="hasChildSubject" :style="{width: '15vw' , minWidth: '15vw' }" >
       <div
         :class="{
           'browser-item': true,
@@ -70,7 +70,7 @@
     </div>
     <!--      main grade list-->
     <div class="browser-block-item-wrapper">
-      <div class="browser-block-item" :style="{width: '25vw' , minWidth: '25vw' }">
+      <div class="browser-block-item" :style="{width: '15vw' , minWidth: '15vw' }">
         <div
           :class="{
             'browser-item': true,
@@ -105,7 +105,7 @@
       </div>
     </div>
     <!--      main knowledge list-->
-    <div class="browser-block-item browser-block-item-wrapper" :style="{width: '25vw' , minWidth: '25vw' }" :data-knowledge-len="knowledge.knowledgeList.length" v-for="(knowledge, deepIndex) in knowledges" :key="deepIndex">
+    <div class="browser-block-item browser-block-item-wrapper" :style="{width: '15vw' , minWidth: '15vw' }" :data-knowledge-len="knowledge.knowledgeList.length" v-for="(knowledge, deepIndex) in knowledges" :key="deepIndex">
       <div
         :class="{
           'browser-item': true,
@@ -146,7 +146,7 @@ import ContentTypeIcon from '@/components/Teacher/ContentTypeIcon'
 import { KnowledgeGetTree, KnowledgeQueryContentByDescriptionId } from '@/api/knowledge'
 import DirIcon from '@/components/LibraryV2/DirIcon'
 import NoMoreResources from '@/components/Common/NoMoreResources'
-import PuBuIcon from '@/assets/icons/library/pubu .svg?inline'
+import PuBuIcon from '@/assets/icons/library/pubu.svg?inline'
 import ListModeIcon from '@/assets/icons/library/liebiao .svg?inline'
 import CardList from '@/views/list/CardList'
 import DataCardView from '@/components/LibraryV2/DataCardView'
@@ -461,7 +461,7 @@ export default {
     border-right: 1px solid #ddd;
     .browser-item {
       line-height: 20px;
-      padding: 10px 15px 10px 20px;
+      padding: 10px 15px 10px 0px;
       font-weight: 500;
       cursor: pointer;
       overflow: hidden;

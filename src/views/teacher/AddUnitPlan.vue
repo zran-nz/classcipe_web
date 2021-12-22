@@ -371,7 +371,7 @@
                 </div>
               </template>
               <template v-if="showRightModule(rightModule.customTag)">
-                <div v-show="!this.contentLoading" :style="{'width':'600px','position': 'absolute', 'top':customTagTop+'px', 'z-index': 50}">
+                <div v-show="!this.contentLoading" :style="{'width':'400px','position': 'absolute', 'top':customTagTop+'px', 'z-index': 50}">
                   <custom-tag
                     :show-arrow="showCustomTag"
                     :user-tags="userTags"
@@ -2891,7 +2891,7 @@ export default {
     .form-block-right{
       .img-wrapper {
         position: absolute;
-        width: 600px;
+        width: 380px;
       }
       .delete-img {
         position: absolute;

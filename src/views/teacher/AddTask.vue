@@ -710,7 +710,6 @@
               <!--                </div>-->
               <!--              </div>-->
               <div class="template-select-header">
-                <Expend-Svg v-if="showTemplateFilter" title="Collapse filter" @click="toggleUpFilter()" class="toggle-up"></Expend-Svg>
                 <div class="group-filter">
                   <a-radio-group v-model="filterType" button-style="solid" @change="changeFilterType">
                     <a-radio-button :value="1">
@@ -859,6 +858,9 @@
                     </a-row>
                   </div>
                 </a-row>
+                <div class="expand-icon">
+                  <a-icon type="up-circle" theme="filled" v-if="showTemplateFilter" title="Collapse filter" @click="toggleUpFilter()" /> Close
+                </div>
               </div>
               <div class="template-list-wrapper">
                 <div class="template-list" v-if="!templateLoading">
@@ -3672,12 +3674,18 @@ export default {
       border-radius: 4px;
       padding: 10px ;
       position: relative;
-      .toggle-up{
-        position: absolute;
-        bottom: 4px;
-        left: 4px;
-        width:20px;
-        z-index:999
+      .expand-icon {
+        line-height: 30px;
+        font-size: 20px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+
+        i {
+          svg {
+            font-size: 23px;
+          }
+        }
       }
       .group-filter{
         margin-left: 15px;

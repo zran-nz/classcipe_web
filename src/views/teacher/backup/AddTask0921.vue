@@ -82,7 +82,7 @@
                         <a-form-item label="Set assessment objectives" >
                           <a-button type="primary" @click="handleSelectDescription">
                             <div class="btn-text" style="line-height: 20px">
-                              Add assessment objectives
+                              Add Learning Objectives
                             </div>
                           </a-button>
                         </a-form-item>

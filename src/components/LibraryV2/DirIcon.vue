@@ -47,7 +47,10 @@ export default {
 @import url('../index.less');
 
 .dir-icon {
-  padding: 0 10px 0 0;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   width: 40px;
 
   img {

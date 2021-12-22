@@ -151,7 +151,7 @@
 import * as logger from '@/utils/logger'
 import { typeMap } from '@/const/teacher'
 import ContentTypeIcon from '@/components/Teacher/ContentTypeIcon'
-import PuBuIcon from '@/assets/icons/library/pubu .svg?inline'
+import PuBuIcon from '@/assets/icons/library/pubu.svg?inline'
 import ListModeIcon from '@/assets/icons/library/liebiao .svg?inline'
 import DataCardView from '@/components/Library/DataCardView'
 import DirIcon from '@/components/Library/DirIcon'

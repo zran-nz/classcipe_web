@@ -93,7 +93,7 @@
                 </div>
               </div>
               <div class="block-main-label">
-                Assessment objectives
+                Learning Objectives
               </div>
               <div class="overview-block">
                 <div class="learn-question-tag">
@@ -282,7 +282,7 @@
                         </a-row>
                         <a-row class="tag-row">
                           <span class="tag-item">
-                            <span class="tag-title">Assessment objective(s):</span>
+                            <span class="tag-title">Learning Objectives:</span>
                             <span class="tag-value" v-for="(learn,index) in currentPageItem.data.learnOuts" :key="index" style="color:#00BCF2">
                               <a-tooltip :title="learn.path" :overlayStyle="{ 'z-index': '3000'}">{{ learn.name }} </a-tooltip>
                             </span>

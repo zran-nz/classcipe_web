@@ -105,7 +105,7 @@
                 </div>
               </div>
               <div class="block-main-label">
-                Assessment objectives
+                Learning Objectives
               </div>
               <div class="overview-block">
                 <div class="learn-question-tag">
