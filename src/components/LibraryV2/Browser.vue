@@ -1,9 +1,10 @@
 <template>
-  <div class="library-wrapper" ref="wrapper" data-version="v2" @click="handleSearchInputBlur">
-    <div class="nav-header" :style="{height: currentBrowserType === BrowserTypeMap.sdg ? '127px' : '127px'}">
+  <div class="library-wrapper" ref="wrapper" data-version="v2" @click="handleSearchKeyInputBlur">
+    <div class="nav-header" :style="{height: currentBrowserType === BrowserTypeMap.sdg ? '137px' : '137px'}">
       <div class="header-info">
-        <div class="library-nav-bar" :style="{opacity: searchResultVisible ? 0 : 1}">
-          <navigation :path="navPath" @pathChange="handleNavPathChange"/>
+        <div class="library-nav-bar" >
+          <navigation :path="navPath" @pathChange="handleNavPathChange" v-show="libraryMode === LibraryMode.browserMode"/>
+          <div class="go-browser" @click="goBrowserMode" v-show="libraryMode === LibraryMode.searchMode">< Back</div>
         </div>
         <div class="filter-line">
           <div class="curriculum-filter-line">
@@ -28,34 +29,13 @@
               <a-input
                 v-model="searchKeyword"
                 placeholder="Input search text"
-                @change="handleSearch"
-                @keyup.enter="handleSearch"
-                @focus="handleSearchFocus"
+                @change="handleSearchKey"
+                @keyup.enter="handleSearchKey"
+                @focus="handleSearchKeyFocus"
+                @blur="handleSearchKeyInputBlur"
                 class="library-search-input">
                 <a-icon slot="prefix" type="search" />
               </a-input>
-            </div>
-            <div class="search-result-wrapper" v-if="searchResultVisible">
-              <div class="searching" v-if="searching">
-                <a-spin />
-              </div>
-              <div class="search-result-list" v-if="!searching">
-                <template v-if="searchResultList.length">
-                  <div
-                    class="search-result-item"
-                    @click.stop="handleClickSearchResultItem(item)"
-                    v-for="(item, sIndex) in searchResultList"
-                    :key="sIndex"
-                    :data-from-type="item.fromType">
-                    {{ item.name }}
-                  </div>
-                </template>
-                <template v-else-if="searchKeyword">
-                  <div class="no-result">
-                    No relevant data found!
-                  </div>
-                </template>
-              </div>
             </div>
           </div>
         </div>
@@ -69,23 +49,36 @@
               </div>
             </div>
           </div>
-          <div class="filter-list"></div>
+          <div class="filter-list">
+            <div
+              :class="{
+                'filter-list-item': true,
+                'active-filter-list-item': filterItem === currentFromItem
+              }"
+              v-for="(filterItem, fIndex) in filterList"
+              :key="fIndex"
+              @click="handleActiveFilterItem(filterItem)"
+              :data-item="JSON.stringify(filterItem)">
+              {{ filterItem.name }}
+              <a-icon type="close-circle" theme="filled" class="filter-close" @click="handleRemoveFilterItem(item)"/>
+            </div>
+          </div>
         </div>
       </div>
     </div>
     <div
       class="library-detail-wrapper"
-      :style="{top: currentBrowserType === BrowserTypeMap.sdg ? '126px' : '126px',
-               height: currentBrowserType === BrowserTypeMap.sdg ? 'calc(100vh - 190px)': 'calc(100vh - 190px)'}">
+      :style="{top: currentBrowserType === BrowserTypeMap.sdg ? '136px' : '136px',
+               height: currentBrowserType === BrowserTypeMap.sdg ? 'calc(100vh - 200px)': 'calc(100vh - 200px)'}">
       <div class="library-detail-nav-wrapper" :style="{width: leftBrowserWidth}">
         <div class="library-content">
           <div class="browser-action" v-if="hasLeftBlock && !expandedListFlag">
             <div class="action-item" @click="handleViewLeft">
-              <back-svg style="width: '15vw'"/>
+              <back-svg style="width: 15vw"/>
             </div>
           </div>
           <div class="browser-table-wrapper" :style="{left: -browserMarginLeft + 'px'}">
-            <div class="browser-table" style="width: '15vw'">
+            <div class="browser-table" style="width: 15vw">
               <div class="browser-type-list">
                 <div
                   :class="{
@@ -264,6 +257,116 @@
           </div>
         </div>
       </div>
+      <div class="search-info" style="height: calc(100vh - 200px);" v-show="libraryMode === LibraryMode.searchMode">
+        <div
+          v-show="!searching"
+          class="browser-block-item-wrapper">
+          <div
+            class="browser-block-item-last"
+            :style="{'flex-direction': dataListMode === 'list' ? 'column' : 'row'}">
+            <!--   data item list-->
+            <div class="switch-type-wrapper" v-if="searchResultList.length">
+              <div class="switch-type">
+                <div class="switch-label">
+                  <a-dropdown>
+                    <a-menu slot="overlay">
+                      <a-menu-item disabled>
+                        <span>{{ $t('teacher.my-content.choose-types-of-content') }}</span>
+                      </a-menu-item>
+                      <a-menu-item @click="toggleType(0, $t('teacher.my-content.all-type'))">
+                        <span>{{ $t('teacher.my-content.all-type') }}</span>
+                      </a-menu-item>
+                      <template v-if="$store.getters.roles.indexOf('teacher') !== -1">
+                        <a-menu-item @click="toggleType( typeMap['unit-plan'], $t('teacher.my-content.unit-plan-type'))">
+                          <span>{{ $t('teacher.my-content.unit-plan-type') }}</span>
+                        </a-menu-item>
+                        <a-menu-item @click="toggleType(typeMap.evaluation, $t('teacher.my-content.evaluation-type'))">
+                          <span>{{ $t('teacher.my-content.evaluation-type') }}</span>
+                        </a-menu-item>
+                      </template>
+                      <a-menu-item @click="toggleType(typeMap.task, $t('teacher.my-content.tasks-type') )">
+                        <span>{{ $t('teacher.my-content.tasks-type') }}</span>
+                      </a-menu-item>
+                      <!--                  <a-menu-item @click="toggleType(typeMap.lesson, $t('teacher.my-content.lesson-type'))">
+                        <span>{{ $t('teacher.my-content.lesson-type') }}</span>
+                      </a-menu-item>-->
+                      <template v-if="$store.getters.roles.indexOf('expert') !== -1">
+                        <a-menu-item @click="toggleType(typeMap.topic, $t('teacher.my-content.topics-type'))">
+                          <span>{{ $t('teacher.my-content.topics-type') }}</span>
+                        </a-menu-item>
+                      </template>
+                    </a-menu>
+                    <a-button
+                      style="padding: 0 10px;display:flex; align-items:center ;height: 35px;border-radius: 6px;background: rgba(245, 245, 245, 0.5);font-size:13px;border: 1px solid #BCBCBC;font-family: Inter-Bold;color: #182552;">
+                      <span v-if="currentTypeLabel">{{ currentTypeLabel }}</span> <span v-else>Choose type(s)of content</span>
+                      <a-icon type="caret-down" /> </a-button>
+                  </a-dropdown>
+                </div>
+                <div class="switch-icon">
+                  <div :class="{'icon-item': true, 'active-icon': dataListMode === 'list'}" @click="handleToggleDataListMode('list')">
+                    <list-mode-icon />
+                  </div>
+                  <div :class="{'icon-item': true, 'active-icon': dataListMode === 'card'}" @click="handleToggleDataListMode('card')">
+                    <pu-bu-icon />
+                  </div>
+                </div>
+              </div>
+            </div>
+            <template v-if="dataListMode === 'list'">
+
+              <div
+                :class="{
+                  'browser-item': true,
+                  'odd-line': index % 2 === 0,
+                  'active-line': currentDataId === dataItem.id
+                }"
+                v-for="(dataItem, index) in searchResultList"
+                @click="handleSelectDataItem(dataItem)"
+                v-if="(currentType === 0 || dataItem.type === currentType)"
+                :key="index">
+                <a-tooltip :mouseEnterDelay="1">
+                  <template slot="title">
+                    {{ dataItem.name }}
+                  </template>
+                  <content-type-icon :type="dataItem.type" />
+                  <span class="data-name">
+                    {{ dataItem.name }}
+                  </span>
+                  <span class="data-time">
+                    {{ dataItem.createTime | dayjs }}
+                  </span>
+                </a-tooltip>
+                <!--            <span class="arrow-item">-->
+                <!--              <a-icon type="more" />-->
+                <!--            </span>-->
+              </div>
+            </template>
+            <template v-if="dataListMode === 'card'">
+              <div class="card-view-mode-wrapper" v-if="searchResultList.length">
+                <div
+                  class="card-item-wrapper"
+                  v-for="(dataItem, index) in searchResultList"
+                  @click="handleSelectDataItem(dataItem)"
+                  v-if="(currentType === 0 || dataItem.type === currentType)"
+                  :key="index">
+                  <div class="card-item">
+                    <data-card-view
+                      :active-flag="currentDataId === dataItem.id"
+                      :cover="dataItem.image"
+                      :title="dataItem.name"
+                      :created-time="dataItem.createTime"
+                      :content-type="dataItem.type"
+                    />
+                  </div>
+                </div>
+              </div>
+            </template>
+          </div>
+        </div>
+        <div class="loading-wrapper">
+          <a-spin v-if="searching"/>
+        </div>
+      </div>
     </div>
 
     <a-drawer
@@ -318,7 +421,8 @@ import PuBuIcon from '@/assets/icons/library/pubu.svg?inline'
 import ListModeIcon from '@/assets/icons/library/liebiao .svg?inline'
 import ContentTypeIcon from '@/components/Teacher/ContentTypeIcon'
 import DataCardView from '@/components/Library/DataCardView'
-const { Search, QueryContents } = require('@/api/library')
+import { LibraryMode } from '@/components/LibraryV2/libraryMode'
+const { Search, QueryContents, QueryKeyContents } = require('@/api/library')
 
 const BrowserTypeMap = {
   curriculum: 'curriculum',
@@ -409,8 +513,6 @@ export default {
       curriculumType: CurriculumType,
 
       searchKeyword: null,
-      searchResultList: [],
-      searchResultVisible: false,
       searching: false,
       leftBrowserWidth: '30vw',
       rightBrowserWidth: '70vw',
@@ -424,7 +526,13 @@ export default {
       currentType: 0,
       hasChildSubject: true,
 
-      expandedListFlag: false
+      expandedListFlag: false,
+
+      filterList: [],
+      searchResultList: [],
+      libraryMode: LibraryMode.browserMode,
+      LibraryMode: LibraryMode,
+      currentFromItem: null
     }
   },
   created () {
@@ -547,8 +655,8 @@ export default {
       }]
     },
 
-    handleSearch () {
-      this.$logger.info('handleSearch ' + this.searchKeyword)
+    handleSearchKey () {
+      this.$logger.info('handleSearchKey ' + this.searchKeyword)
       if (this.searchKeyword) {
         this.searchByKeyword(this.searchKeyword)
       } else {
@@ -564,25 +672,26 @@ export default {
         key: value
       }).then(response => {
         this.$logger.info('searchByKeyword ' + value, response)
-        this.searchResultList = response.result
+        this.filterList = response.result
       }).finally(() => {
         this.searching = false
       })
     },
 
-    handleSearchFocus () {
-      this.$logger.info('handleSearchFocus')
+    handleSearchKeyFocus () {
+      this.$logger.info('handleSearchKeyFocus')
       this.searchResultList = []
-      this.searchResultVisible = true
-      this.handleSearch()
+      this.libraryMode = LibraryMode.searchMode
+      this.handleSearchKey()
+    },
+    handleSearchKeyInputBlur () {
+      this.$logger.info('handleSearchKeyInputBlur')
     },
 
-    handleClickSearchResultItem (item) {
-      this.$logger.info('handleClickSearchResultItem ', item)
-    },
-
-    handleSearchInputBlur () {
-      this.searchResultVisible = false
+    goBrowserMode () {
+      this.$logger.info('goBrowserMode')
+      this.libraryMode = LibraryMode.browserMode
+      this.searchResultList = []
     },
 
     handleClickBlock (data) {
@@ -649,6 +758,32 @@ export default {
         }
         this.$logger.info('this.browserMarginLeft', this.browserMarginLeft)
       })
+    },
+
+    handleActiveFilterItem (item) {
+      this.$logger.info('handleActiveFilterItem ', item)
+      this.searchKeyword = item.name
+      this.currentFromItem = item
+      this.handleSearchByFromType(item)
+    },
+
+    handleSearchByFromType (item) {
+      this.$logger.info('handleSearchByFromType ', item)
+      this.searching = true
+      QueryKeyContents(item).then(response => {
+        this.$logger.info('QueryContents response', response)
+        this.searchResultList = response.result ? response.result : []
+      }).finally(() => {
+        this.searching = false
+      })
+    },
+
+    handleRemoveFilterItem (item) {
+      this.$logger.info('handleRemoveFilterItem ', item)
+      const index = this.filterList.findIndex(i => i.name === item.name && i.fromType === item.fromType)
+      if (index !== -1) {
+        this.filterList.splice(index, 1)
+      }
     }
   }
 }
@@ -671,7 +806,7 @@ export default {
     box-sizing: border-box;
     box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.16);
     background: #FFFFFF;
-    z-index: 200;
+    z-index: 250;
 
     @media only screen and (max-width: 1600px) {
       .header-info {
@@ -703,7 +838,6 @@ export default {
   }
 
   .filter-line {
-    margin-top: 5px;
     display: flex;
     flex-direction: row;
     align-items: center;
@@ -742,60 +876,6 @@ export default {
 
       .search-input {
         width: 100%;
-      }
-
-      .search-result-wrapper {
-        position: absolute;
-        top: 40px;
-        box-shadow: 0 0 8px rgba(0, 0, 0, 0.16);
-        width: 600px;
-        background-color: #fff;
-        max-height: 350px;
-        overflow-y: scroll;
-
-        .searching {
-          width: 100%;
-          height: 100px;
-          display: flex;
-          justify-content: center;
-          align-items: center;
-        }
-
-        .no-result {
-          width: 100%;
-          height: 100px;
-          display: flex;
-          justify-content: center;
-          align-items: center;
-          line-height: 100px;
-          color: #aaa;
-        }
-
-        .search-result-item {
-          padding: 8px 10px;
-          cursor: pointer;
-          border-bottom: 1px solid #f6f6f6;
-          &:hover {
-            color: #15c39a;
-            background-color: #f6f6f6;
-          }
-        }
-
-        &::-webkit-scrollbar {
-          width: 5px;
-          height: 5px;
-        }
-        &::-webkit-scrollbar-track {
-          border-radius: 3px;
-          background: rgba(0,0,0,0.00);
-          -webkit-box-shadow: inset 0 0 5px rgba(0,0,0,0.01);
-        }
-        /* 滚动条滑块 */
-        &::-webkit-scrollbar-thumb {
-          border-radius: 5px;
-          background: rgba(0,0,0,0.12);
-          -webkit-box-shadow: inset 0 0 10px rgba(0,0,0,0.1);
-        }
       }
     }
   }
@@ -997,12 +1077,14 @@ export default {
   flex-wrap: wrap;
   justify-content: flex-start;
   box-sizing: border-box;
+  background: rgba(228, 228, 228, 0.2);
 
   .switch-type-wrapper {
-    padding: 0;
-    text-align: center;
+    padding-right: 10px;
     width: 100%;
-    margin-bottom: 5px;
+    text-align: center;
+    display: flex;
+    justify-content: flex-end;
 
     .switch-type {
       display: flex;
@@ -1013,9 +1095,7 @@ export default {
       box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.16);
       opacity: 1;
       border-radius: 6px;
-
       padding: 5px 10px;
-      width: 100%;
 
       .switch-label {
         font-size: 14px;
@@ -1135,12 +1215,13 @@ export default {
     background-color: rgba(21, 195, 154, 0.1);
     color: #15c39a;
   }
-  .loading-wrapper {
-    min-height: 400px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
+}
+
+.loading-wrapper {
+  min-height: 400px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .no-data {
@@ -1153,14 +1234,32 @@ export default {
 }
 
 .filter-bar {
-  line-height: 35px;
+  padding: 10px 0;
+  height: 55px;
   display: flex;
   justify-content: flex-start;
   align-items: center;
 
   .filter-icon {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
     .filter-item {
       color: #333;
+      cursor: pointer;
+      display: flex;
+      justify-content: flex-start;
+      align-items: center;
+      background: #FFFFFF;
+      border: 1px solid #D3D3D3;
+      opacity: 1;
+      border-radius: 3px;
+      padding: 5px 15px;
+      white-space:nowrap;
+
+      svg {
+        height: 20px;
+      }
       .filter-active-icon {
         display: none;
       }
@@ -1170,6 +1269,7 @@ export default {
 
       &:hover {
         color: #38cfa6;
+        border: 1px solid #38cfa6;
         .filter-active-icon {
           display: inline;
         }
@@ -1178,7 +1278,82 @@ export default {
           display: none;
         }
       }
+
+      .filter-label {
+        font-family: Inter-Bold;
+        line-height: 20px;
+        padding-left: 8px;
+      }
     }
   }
+}
+
+.filter-list {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+  padding-left: 15px;
+  overflow: hidden;
+
+  .filter-list-item {
+    color: #333;
+    cursor: pointer;
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    background: #FFFFFF;
+    border: 1px solid #D3D3D3;
+    opacity: 1;
+    border-radius: 3px;
+    padding: 5px 15px;
+    position: relative;
+    margin-right: 15px;
+    white-space:nowrap;
+
+    .filter-close {
+      display: none;
+    }
+
+    &:hover {
+      color: #FFF;
+      border: 1px solid #38cfa6;
+      background-color: #15C39A;
+
+      .filter-close {
+        display: block;
+        background-color: #fff;
+        border: 1px solid #fff;
+        border-radius: 50%;
+        position: absolute;
+        right: -5px;
+        top: -5px;
+        color: red;
+      }
+    }
+  }
+
+  .active-filter-list-item {
+    color: #FFF;
+    border: 1px solid #38cfa6;
+    background-color: #15C39A;
+  }
+}
+
+.search-info {
+  position: absolute;
+  z-index: 200;
+  padding: 10px;
+  box-sizing: border-box;
+  background-color: #fff;
+  width: 100vw;
+}
+
+.go-browser {
+  line-height: 30px;
+  padding: 10px 0;
+  color: #38cfa6;
+  font-weight: Bold;
+  cursor: pointer;
 }
 </style>
