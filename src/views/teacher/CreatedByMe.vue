@@ -269,7 +269,7 @@
         :closable="false"
         destroyOnClose
         width="1000px">
-        <modal-header title="Previous session" @close="viewPreviewSessionVisible = false"/>
+        <modal-header title="Previous session" @close="viewPreviewSessionVisible = false" :white="true"/>
         <div class="preview-session-wrapper">
           <a-tabs default-active-key="1">
             <a-tab-pane key="1" tab="Active">

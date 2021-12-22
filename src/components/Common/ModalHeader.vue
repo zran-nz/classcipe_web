@@ -49,6 +49,7 @@ export default {
   align-items: center;
 }
 .close-icon {
+  cursor: pointer;
   padding: 0 10px 10px 0;
 }
 .close-icon img {
