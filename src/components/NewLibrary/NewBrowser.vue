@@ -1,24 +1,44 @@
 <template>
   <div class="new-library" id="new-library">
     <div class="navigation">
-      <div class="select-curriculum">
-        <div class="my-curriculum-select">
-          <a-select
-            v-if="curriculumOptions.length"
-            @change="handleCurriculumChange"
-            v-model="currentCurriculumId"
-            :default-value="$store.getters.bindCurriculum"
-            class="select-curriculum">
-            <a-select-option v-for="(curriculum,index) in curriculumOptions" :value="curriculum.id" :key="index">
-              {{ curriculum.name }}
-            </a-select-option>
-            <div class="arrow-self" slot="suffixIcon">
-              <img src="~@/assets/icons/library/arrow.png" />
-            </div>
-          </a-select>
+      <div class="navigation-item" v-show="!expandedListFlag" :style="{'left': (25) + 'px', 'width': (1000) + 'px',}">
+        <div class="select-curriculum">
+          <div class="my-curriculum-select">
+            <a-select
+              v-if="curriculumOptions.length"
+              @change="handleCurriculumChange"
+              v-model="currentCurriculumId"
+              :default-value="$store.getters.bindCurriculum"
+              class="select-curriculum">
+              <a-select-option v-for="(curriculum,index) in curriculumOptions" :value="curriculum.id" :key="index">
+                {{ curriculum.name }}
+              </a-select-option>
+              <div class="arrow-self" slot="suffixIcon">
+                <img src="~@/assets/icons/library/arrow.png" />
+              </div>
+            </a-select>
+          </div>
         </div>
+        <new-navigation />
       </div>
-      <div class="navigation-item" :style="{'left': (expandedListFlag ? 785 : 125) + 'px', 'width': (expandedListFlag ? 380 : 1000) + 'px',}">
+      <div class="navigation-item" v-show="expandedListFlag" :style="{'left': (790) + 'px', 'width': (370) + 'px',}">
+        <div class="select-curriculum">
+          <div class="my-curriculum-select">
+            <a-select
+              v-if="curriculumOptions.length"
+              @change="handleCurriculumChange"
+              v-model="currentCurriculumId"
+              :default-value="$store.getters.bindCurriculum"
+              class="select-curriculum">
+              <a-select-option v-for="(curriculum,index) in curriculumOptions" :value="curriculum.id" :key="index">
+                {{ curriculum.name }}
+              </a-select-option>
+              <div class="arrow-self" slot="suffixIcon">
+                <img src="~@/assets/icons/library/arrow.png" />
+              </div>
+            </a-select>
+          </div>
+        </div>
         <new-navigation />
       </div>
     </div>
@@ -516,10 +536,19 @@ export default {
     justify-content: flex-start;
     align-items: center;
     padding-bottom: 10px;
+    height: 45px;
 
     .navigation-item {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
       top: 18px;
       position: absolute;
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      word-break: break-word;
+      user-select: none;
       transition: all 200ms ease-in;
     }
   }
