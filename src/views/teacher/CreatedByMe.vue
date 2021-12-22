@@ -268,13 +268,30 @@
         :title="null"
         :closable="false"
         destroyOnClose
-        width="750px">
-        <modal-header @close="viewPreviewSessionVisible = false"/>
+        width="1000px">
+        <modal-header title="Previous session" @close="viewPreviewSessionVisible = false"/>
         <div class="preview-session-wrapper">
-          <class-list :slide-id="currentPreviewLesson.presentationId" :classData="currentPreviewLesson" v-if="currentPreviewLesson && currentPreviewLesson.presentationId"/>
-          <div class="no-session" v-else>
-            <no-more-resources tips="Not exist previous sessions"/>
-          </div>
+          <a-tabs default-active-key="1">
+            <a-tab-pane key="1" tab="Active">
+              <a-input-search
+                class="preview-session-search"
+                placeholder="Find by session name or class name"
+                v-model="sessionName"
+                enter-button
+                @search="searchSession"
+                @change="searchSession"/>
+              <class-list :slide-id="currentPreviewLesson.presentationId" :classData="currentPreviewLesson" v-if="currentPreviewLesson && currentPreviewLesson.presentationId"/>
+              <div class="no-session" v-else>
+                <no-more-resources tips="Not exist previous sessions"/>
+              </div>
+            </a-tab-pane>
+            <a-tab-pane key="2" tab="Archived " force-render>
+              <class-list :slide-id="currentPreviewLesson.presentationId" :classData="currentPreviewLesson" v-if="currentPreviewLesson && currentPreviewLesson.presentationId"/>
+              <div class="no-session" v-else>
+                <no-more-resources tips="Not exist previous sessions"/>
+              </div>
+            </a-tab-pane>
+          </a-tabs>
         </div>
       </a-modal>
 
@@ -343,6 +360,7 @@ import ClassList from '@/components/Teacher/ClassList'
 import CustomTag from '@/components/UnitPlan/CustomTag'
 import LiebiaoSvg from '@/assets/svgIcon/myContent/liebiao.svg?inline'
 import PubuSvg from '@/assets/svgIcon/myContent/pubu.svg?inline'
+import PSSvg from '@/assets/svgIcon/myContent/previous_session.svg?inline'
 
 import storage from 'store'
 import {
@@ -383,7 +401,8 @@ export default {
     EditSvg,
     CopySvg,
     LiebiaoSvg,
-    PubuSvg
+    PubuSvg,
+    PSSvg
   },
   data () {
     return {
@@ -431,7 +450,8 @@ export default {
       customTagList: [],
       oldSelectSessionVisible: false,
       sessionList: [],
-      sessionMode: 1
+      sessionMode: 1,
+      sessionName: ''
     }
   },
   locomputed: {
@@ -732,6 +752,9 @@ export default {
         }
         // this.$refs.customTag.tagLoading = false
       })
+    },
+    searchSession () {
+
     }
   }
 }
@@ -1232,6 +1255,10 @@ a.delete-action {
 
   .no-session {
     padding: 100px;
+  }
+  .preview-session-search{
+    margin: 10px;
+    width: 400px;
   }
 }
 

@@ -1606,6 +1606,28 @@ export default {
         this.autoSave()
       }
     },
+    beforeRouteLeave (to, from, next) {
+      if (JSON.stringify(this.form) !== JSON.stringify(this.oldForm)) {
+        var that = this
+        this.$confirm({
+          title: 'Alert',
+          okText: 'Save',
+          cancelText: 'No',
+          content: 'Do you want to save the changes?',
+          onOk: function () {
+            that.handleSaveTask()
+            setTimeout(() => {
+              next()
+            }, 500)
+          },
+          onCancel () {
+            next()
+          }
+        })
+      } else {
+        next()
+      }
+    },
     mounted () {
       this.resetWidth()
       window.onresize = () => {
@@ -1848,8 +1870,16 @@ export default {
           var that = this
           this.$confirm({
             title: 'Alert',
-            content: 'Do you want to give up the editing?',
+            okText: 'Save',
+            cancelText: 'No',
+            content: 'Do you want to save the changes?',
             onOk: function () {
+              that.handleSaveTask()
+              setTimeout(() => {
+                that.$router.push({ path: '/teacher/main/created-by-me' })
+              }, 500)
+            },
+            onCancel () {
               that.$router.push({ path: '/teacher/main/created-by-me' })
             }
           })

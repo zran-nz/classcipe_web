@@ -1,6 +1,7 @@
 <template>
   <div class="my-class-list">
     <div class="class-list-wrapper">
+
       <div class="class-list" v-if="!loading">
         <div class="list-item" v-for="(classItem, cIndex) in data" :key="cIndex">
           <div class="class-icon">
@@ -205,9 +206,9 @@ export default {
 <style lang="less" scoped>
 
 .my-class-list {
-  box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.08);
+  //box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.08);
   opacity: 1;
-  border: 1px solid #D8D8D8;
+  //border: 1px solid #D8D8D8;
   border-radius: 6px;
   height: 620px;
   margin-top: 10px;
@@ -238,7 +239,7 @@ export default {
       display: flex;
       flex-direction: column;
       .list-item {
-        padding: 15px;
+        padding: 10px;
         display: flex;
         flex-direction: row;
         align-items: center;

@@ -1,5 +1,6 @@
 <template>
   <div class="my-modal-header">
+    <div v-if="title" class="title">{{ title }}</div>
     <div class="close-icon" @click="handleClickClose">
       <img src="~@/assets/icons/common/close.png" v-if="!white" />
       <img src="~@/assets/icons/common/close_white.png" v-if="white"/>
@@ -14,6 +15,10 @@ export default {
     white: {
       type: Boolean,
       default: false
+    },
+    title: {
+      type: String,
+      default: ''
     }
   },
   methods: {
@@ -26,6 +31,16 @@ export default {
 </script>
 
 <style scoped>
+.title{
+  text-align: center;
+  display: flex;
+  /* justify-content: center; */
+  display: block;
+  width: 100%;
+  color: rgba(44, 42, 80, 1);
+  font-size: 20px;
+  font-family: FZCuYuan-M03S;
+}
 .my-modal-header {
   width: 100%;
   display: flex;
