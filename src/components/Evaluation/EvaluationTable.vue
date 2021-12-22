@@ -277,7 +277,7 @@
 
               <!-- UserDefine-->
               <template v-if="header.type.startsWith(headerType.UserDefine)">
-                <div class="indicator-input">
+                <div class="user-define-indicator-input">
                   <a-textarea style="height: 100%" placeholder="Enter" class="my-text-input" v-model="item[header.type].name" @blur="handleUpdateField(header, item)"/>
                 </div>
               </template>
@@ -1585,6 +1585,10 @@ export default {
               textarea {
                 display: none;
               }
+            }
+
+            .user-define-indicator-input {
+              height: 100%;
             }
 
             .my-indicator-input {
