@@ -1,7 +1,7 @@
 <template>
   <div class="browser-block" data-type="assessment">
     <!--      mainSubject list-->
-    <div class="browser-block-item" :style="{width: '25vw' , minWidth: '25vw' }">
+    <div class="browser-block-item" :style="{width: '15vw' , minWidth: '15vw' }">
       <div
         :class="{
           'browser-item': true,
@@ -36,7 +36,7 @@
     </div>
     <!--      main grade list-->
     <div class="browser-block-item-wrapper">
-      <div class="browser-block-item" :style="{width: '25vw' , minWidth: '25vw' }">
+      <div class="browser-block-item" :style="{width: '15vw' , minWidth: '15vw' }">
         <div
           :class="{
             'browser-item': true,
@@ -74,7 +74,7 @@
     <!--      assessment type list-->
     <div
       class="browser-block-item-wrapper browser-block-item"
-      :style="{width: '25vw' , minWidth: '25vw' }">
+      :style="{width: '15vw' , minWidth: '15vw' }">
       <!--     assessment type-->
       <div class="keyword-wrapper">
         <div class="keyword-list">
@@ -108,7 +108,7 @@
     </div>
 
     <!--      sub knowledge list-->
-    <div class="browser-block-item browser-block-item-wrapper" :style="{width: '25vw' , minWidth: '25vw' }" >
+    <div class="browser-block-item browser-block-item-wrapper" :style="{width: '15vw' , minWidth: '15vw' }" >
       <div
         :class="{
           'browser-item': true,
@@ -144,12 +144,12 @@
 
     <div
       class="browser-block-item-wrapper"
-      :style="{width: '25vw' ,
-               minWidth: '25vw'}">
+      :style="{width: '15vw' ,
+               minWidth: '15vw'}">
       <div
         class="browser-block-item-last"
-        :style="{width: '25vw' ,
-                 minWidth: '25vw',
+        :style="{width: '15vw' ,
+                 minWidth: '15vw',
                  'flex-direction': dataListMode === 'list' ? 'column' : 'row'}">
         <!--   data item list-->
         <div class="switch-type-wrapper">
@@ -517,7 +517,7 @@
 
       .browser-item {
         line-height: 20px;
-        padding: 10px 15px 10px 20px;
+        padding: 10px 15px 10px 0px;
         font-weight: 500;
         cursor: pointer;
         overflow: hidden;

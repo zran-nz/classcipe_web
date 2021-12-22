@@ -1,7 +1,7 @@
 <template>
   <div class="browser-block" data-type="idu">
     <div class="browser-block-item-wrapper">
-      <div class="browser-block-item" :style="{width: '25vw' , minWidth: '25vw' }">
+      <div class="browser-block-item" :style="{width: '15vw' , minWidth: '15vw' }">
         <div
           :class="{
             'browser-item': true,
@@ -36,7 +36,7 @@
       </div>
     </div>
     <!--      main knowledge list-->
-    <div class="browser-block-item browser-block-item-wrapper" :style="{width: '25vw' , minWidth: '25vw' }" v-for="(knowledge, deepIndex) in knowledges" :key="deepIndex">
+    <div class="browser-block-item browser-block-item-wrapper" :style="{width: '15vw' , minWidth: '15vw' }" v-for="(knowledge, deepIndex) in knowledges" :key="deepIndex">
       <div
         :class="{
           'browser-item': true,
@@ -71,12 +71,12 @@
     </div>
     <div
       class="browser-block-item-wrapper"
-      :style="{width: '25vw' ,
-               minWidth: '25vw'}">
+      :style="{width: '15vw' ,
+               minWidth: '15vw'}">
       <div
         class="browser-block-item-last"
-        :style="{width: '25vw' ,
-                 minWidth: '25vw',
+        :style="{width: '15vw' ,
+                 minWidth: '15vw',
                  'flex-direction': dataListMode === 'list' ? 'column' : 'row'}">
         <!--   data item list-->
         <div class="switch-type-wrapper">
@@ -473,7 +473,7 @@ export default {
     border-right: 1px solid #ddd;
     .browser-item {
       line-height: 20px;
-      padding: 10px 15px 10px 20px;
+      padding: 10px 15px 10px 10px;
       font-weight: 500;
       cursor: pointer;
       overflow: hidden;

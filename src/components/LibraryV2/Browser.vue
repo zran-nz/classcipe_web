@@ -70,11 +70,11 @@
         <div class="library-content">
           <div class="browser-action" v-if="hasLeftBlock && !expandedListFlag">
             <div class="action-item" @click="handleViewLeft">
-              <back-svg style="width: 25vw"/>
+              <back-svg style="width: '15vw'"/>
             </div>
           </div>
           <div class="browser-table-wrapper" :style="{left: -browserMarginLeft + 'px'}">
-            <div class="browser-table" style="width: 25vw">
+            <div class="browser-table" style="width: '15vw'">
               <div class="browser-type-list">
                 <div
                   :class="{
@@ -252,20 +252,32 @@
             </div>
           </div>
         </div>
-        <div
-          class="preview-info"
-          v-if="previewVisible">
-          <div class="preview-wrapper">
-            <div class="preview-detail">
-              <common-preview :id="previewCurrentId" :type="previewType" :is-library="true"/>
-            </div>
-          </div>
-        </div>
-        <div class="wait-data" v-if="!previewVisible">
-          <no-more-resources tips="" />
-        </div>
       </div>
     </div>
+
+    <a-drawer
+      destroyOnClose
+      placement="right"
+      :closable="false"
+      width="800px"
+      :visible="previewVisible"
+      @close="handlePreviewClose"
+    >
+      <a-row class="preview-wrapper-row">
+        <a-col span="2">
+          <div class="view-back" @click="handlePreviewClose">
+            <div class="back-icon">
+              <img src="~@/assets/icons/common/back.png" />
+            </div>
+          </div>
+        </a-col>
+        <a-col span="22">
+          <div class="detail-wrapper" v-if="previewCurrentId && previewType">
+            <common-preview :id="previewCurrentId" :type="previewType" :is-library="true"/>
+          </div>
+        </a-col>
+      </a-row>
+    </a-drawer>
   </div>
 </template>
 
@@ -385,8 +397,8 @@ export default {
       searchResultList: [],
       searchResultVisible: false,
       searching: false,
-      leftBrowserWidth: '50vw',
-      rightBrowserWidth: '50vw',
+      leftBrowserWidth: '30vw',
+      rightBrowserWidth: '70vw',
 
       dataList: [],
       dataListLoading: false,
@@ -414,7 +426,7 @@ export default {
     })
   },
   mounted () {
-    this.blockWidth = this.$refs['wrapper'].getBoundingClientRect().width / 4
+    this.blockWidth = this.$refs['wrapper'].getBoundingClientRect().width * 0.15
     this.$logger.info('globalWidth ' + this.blockWidth)
   },
   methods: {
@@ -602,12 +614,12 @@ export default {
     handleExpandDetail () {
       this.$logger.info('handleExpandDetail ' + this.blockIndex + ' ' + this.expandedListFlag)
       if (this.expandedListFlag) {
-        this.leftBrowserWidth = '50vw'
-        this.rightBrowserWidth = '50vw'
+        this.leftBrowserWidth = '30vw'
+        this.rightBrowserWidth = '70vw'
         this.expandedListFlag = false
       } else {
-        this.leftBrowserWidth = '25vw'
-        this.rightBrowserWidth = '75vw'
+        this.leftBrowserWidth = '15vw'
+        this.rightBrowserWidth = '85vw'
         this.expandedListFlag = true
       }
 
@@ -793,7 +805,7 @@ export default {
           left: 0;
           top: 0;
           bottom: 0;
-          width: 25vw;
+          width: 15vw;
           box-sizing: border-box;
           background-color: fade(@text-color-secondary, 40%);
           z-index: 110;
@@ -801,7 +813,7 @@ export default {
             position: absolute;
             top: 50%;
             left: 0;
-            width: 25vw;
+            width: 15vw;
             text-align: center;
             display: flex;
             justify-content: center;
@@ -827,14 +839,14 @@ export default {
             box-sizing: border-box;
             display: flex;
             flex-direction: row;
-            width: 25%;
+            width: 15vw;
             .browser-type-list {
               display: flex;
               flex-direction: column;
               box-sizing: border-box;
               width: 100%;
               .browser-type {
-                padding: 10px 20px 10px 10px;
+                padding: 10px 15px 10px 0;
                 font-weight: 500;
                 cursor: pointer;
                 background: rgba(228, 228, 228, 0.2);
@@ -844,7 +856,7 @@ export default {
                 position: relative;
                 .arrow-item {
                   position: absolute;
-                  right: 10px;
+                  right: 2px;
                 }
                 &:hover {
                   background: #EDF1F5;
@@ -868,7 +880,6 @@ export default {
       }
     }
     .library-detail-preview-wrapper {
-      width: 50%;
       padding: 10px;
       transition: all 200ms ease-in-out;
       background: #fff;
@@ -880,6 +891,7 @@ export default {
       position: relative;
       flex: 1;
       z-index: 100;
+      box-shadow: -3px 0 5px 0 rgba(31, 33, 44, 10%);
 
       .expand-icon {
         display: flex;
@@ -940,7 +952,7 @@ export default {
 .browser-block-item-wrapper {
   overflow-y: scroll;
   height: calc(100vh - 190px);
-  width: 50%;
+  width: 100%;
   box-sizing: border-box;
 
   &::-webkit-scrollbar {
@@ -969,9 +981,10 @@ export default {
   box-sizing: border-box;
 
   .switch-type-wrapper {
-    padding: 20px;
+    padding: 0;
     text-align: center;
     width: 100%;
+    margin-bottom: 5px;
 
     .switch-type {
       display: flex;
@@ -983,7 +996,7 @@ export default {
       opacity: 1;
       border-radius: 6px;
 
-      padding: 12px 12px;
+      padding: 5px 10px;
       width: 100%;
 
       .switch-label {
@@ -1077,6 +1090,7 @@ export default {
     flex-direction: row;
     flex-wrap: wrap;
     padding: 10px;
+    justify-content: flex-start;
     .card-item-wrapper {
       cursor: pointer;
       width: 170px;
