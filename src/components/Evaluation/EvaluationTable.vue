@@ -1337,8 +1337,37 @@ export default {
       this.$logger.info('[' + this.mode + '] EvaluationTable handleSelectIdu', data)
       const descriptionList = []
       data.forEach(dataItem => {
+        // 处理提取年级和描述数据:
+        const rawSubLevelList = dataItem.knowledgeData.subLevelDescripton
+        const newSubLevelList = []
+        rawSubLevelList.forEach(item => {
+          const indexRange = item[0]
+          // 兼容中英文的'-'号
+          let indexRangeArray = []
+          if (indexRange.indexOf('–') !== -1) {
+            indexRangeArray = indexRange.split('–')
+          } else if (indexRangeArray.indexOf('-') !== -1) {
+            indexRangeArray = indexRange.split('-')
+          } else {
+            indexRangeArray = [indexRange]
+          }
+          this.$logger.info('indexRangeArray', indexRangeArray, item)
+          const startIndex = parseInt(indexRangeArray[0])
+          let endIndex = null
+          if (indexRangeArray.length === 2) {
+            endIndex = parseInt(indexRangeArray[1])
+          }
+          const description = item[1]
+          newSubLevelList.push({
+            startIndex: startIndex,
+            endIndex: endIndex,
+            description: description
+          })
+        })
+        this.$logger.info('[' + this.mode + '] handle subLevel', rawSubLevelList, newSubLevelList)
         const descriptionItem = {
-          name: dataItem.knowledgeData.name
+          name: dataItem.knowledgeData.name,
+          subLevelDescription: newSubLevelList
         }
 
         descriptionList.push(descriptionItem)
