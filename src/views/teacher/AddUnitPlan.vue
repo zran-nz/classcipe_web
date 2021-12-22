@@ -247,10 +247,10 @@
 
                       <div class="form-block">
                         <comment-switch field-name="assessment" :is-active="currentFieldName === 'assessment'" @switch="handleSwitchComment" class="my-comment-switch"/>
-                        <a-form-item label="Set learning outcomes" >
+                        <a-form-item label="Set learning objectives" >
                           <a-button type="primary" @click="handleSelectDescription()">
                             <div class="btn-text" style="line-height: 20px">
-                              Add leaning outcomes
+                              Add leaning objectives
                             </div>
                           </a-button>
 
