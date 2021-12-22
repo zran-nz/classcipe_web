@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="50" height="50" viewBox="0 0 50 50">
   <g id="Unit" transform="translate(19612.5 -10592.175)">
     <circle id="椭圆_49" data-name="椭圆 49" cx="25" cy="25" r="25" transform="translate(-19612.5 10592.175)" fill="#b1d1ce"/>
-    <text id="U" transform="translate(-19587.5 10628.175)" fill="#fff" font-size="30" font-family="FZY4JW--GB1-0, FZCuYuan-M03S"><tspan x="-10.254" y="0">U</tspan></text>
+    <path id="路径_2074" data-name="路径 2074" d="M-9.082-8.437V-19.219a2.087,2.087,0,0,1,2.227-2.344,2.165,2.165,0,0,1,2.227,2.344V-8.672Q-4.395-3.984.059-3.75q4.1-.352,4.57-4.922V-19.219a2.087,2.087,0,0,1,2.227-2.344,2.165,2.165,0,0,1,2.227,2.344V-8.437Q8.379-.469.059.117-8.5-.352-9.082-8.437Z" transform="translate(-19587.418 10627.737)" fill="#fff"/>
   </g>
 </svg>

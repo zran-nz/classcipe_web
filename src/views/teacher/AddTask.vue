@@ -710,7 +710,7 @@
               <!--                </div>-->
               <!--              </div>-->
               <div class="template-select-header">
-                <img @click="toggleUpFilter()" title="Collapse filter" v-if="showTemplateFilter" class="toggle-up" src="~@/assets/icons/myClass/gengduo_color.png">
+                <Expend-Svg v-if="showTemplateFilter" title="Collapse filter" @click="toggleUpFilter()" class="toggle-up"></Expend-Svg>
                 <div class="group-filter">
                   <a-radio-group v-model="filterType" button-style="solid" @change="changeFilterType">
                     <a-radio-button :value="1">
@@ -747,16 +747,16 @@
                 </a-row>
                 <a-row v-if="filterType == 2 && showTemplateFilter">
                   <a-tabs
+                    class="assessments-tabs"
                     v-model="filterAssessmentsType"
                     :defaultActiveKey="filterAssessmentsType"
                     @change="changeFilterType"
                     :tabBarGutter="3"
-                    tabPosition="left"
                     :tabBarStyle="{margin:'10px 20px'}">
                     <a-tab-pane key="1" tab="Knowledge focus" >
                       <div class="filter-row">
                         <a-row >
-                          <div class="row-select">
+                          <div class="row-select row-select-assessments">
                             <a-col :span="24">
                               <!--                          <span class="sub-category">Knowledge focus </span>-->
                               <a-radio-group v-model="item.tooltip" :name="item.name" class="sub-select" v-for="(item ,index) in templateFilterCondition(templateType.Assessments,'Knowledge focus')" :key="index">
@@ -779,7 +779,7 @@
                     <a-tab-pane key="2" tab="Skill focus" force-render>
                       <div class="filter-row">
                         <a-row >
-                          <div class="row-select">
+                          <div class="row-select row-select-assessments">
                             <a-col :span="24">
                               <!--                          <span class="sub-category">Skill focus</span>-->
                               <a-radio-group v-model="item.tooltip" :name="item.name" class="sub-select" v-for="(item ,index) in templateFilterCondition(templateType.Assessments,'Skill focus')" :key="index">
@@ -1323,6 +1323,7 @@ import CollaborateCommentPanel from '@/components/Collaborate/CollaborateComment
 import CommentSwitch from '@/components/Collaborate/CommentSwitch'
 import CollaborateCommentView from '@/components/Collaborate/CollaborateCommentView'
 import commentIcon from '@/assets/icons/collaborate/comment.svg?inline'
+import ExpendSvg from '@/assets/icons/task/expend.svg?inline'
 import CollaborateHistory from '@/components/Collaborate/CollaborateHistory'
 import NoMoreResources from '@/components/Common/NoMoreResources'
 import TemplatePreview from '@/components/Task/TemplatePreview'
@@ -1366,7 +1367,8 @@ export default {
       CustomTag,
       commentIcon,
       TaskMaterialPreview,
-      MediaPreview
+      MediaPreview,
+      ExpendSvg
     },
     mixins: [PptPreviewMixin, UtilMixin, BaseEventMixin],
     props: {
@@ -3695,11 +3697,18 @@ export default {
               margin:3px;
             }
           }
-          margin: 5px;
+          margin: 5px 5px 10px 10px;
           border: 1px solid #E4E4E4;
           padding: 5px 15px;
           max-height: 250px;
           overflow: auto;
+        }
+
+        .row-select-assessments .sub-select {
+          width:100%;
+          .sub-items .sub-item{
+            width: 180px;
+          }
         }
       }
 
@@ -5365,6 +5374,12 @@ export default {
         top: -50px;
         right: 0px
       }
+    }
+  }
+  .assessments-tabs{
+    /deep/ .ant-tabs-nav-scroll {
+      text-align: left;
+
     }
   }
 </style>
