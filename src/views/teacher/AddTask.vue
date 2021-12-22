@@ -859,7 +859,7 @@
                   </div>
                 </a-row>
                 <div class="expand-icon">
-                  <a-icon type="up-circle" theme="filled" v-if="showTemplateFilter" title="Collapse filter" @click="toggleUpFilter()" />
+                  <a-icon type="up-circle" theme="filled" v-if="showTemplateFilter" title="Collapse filter" @click="toggleUpFilter()" /> Close
                 </div>
               </div>
               <div class="template-list-wrapper">
