@@ -1393,7 +1393,6 @@ export default {
   align-items: center;
   justify-content: flex-start;
   padding-left: 15px;
-  overflow-y: hidden;
 
   .filter-list-item {
     color: #333;
