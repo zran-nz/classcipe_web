@@ -143,14 +143,13 @@ export const PptPreviewMixin = {
       })
     },
     setTaskKnowAndBloomFormPPT () {
-      // const pageIds = this.thumbnailList.map((page) => {
-      //   return page.id
-      // })
-      // console.log(pageIds)
+      const pageIds = this.thumbnailList.map((page) => {
+        return page.id
+      })
       const blooms = []
       const dimensions = []
       this.itemsList.forEach(e => {
-        // if (pageIds.indexOf(e.pageId) !== -1) {
+        if (pageIds.indexOf(e.pageId) !== -1) {
           const json = JSON.parse(e.data)
           if (json.data && json.data.bloomLevel) {
             if (blooms.indexOf(json.data.bloomLevel) === -1) {
@@ -162,7 +161,7 @@ export const PptPreviewMixin = {
               dimensions.push(json.data.knowledgeLevel)
             }
           }
-        // }
+        }
       })
       if (blooms.length > 0) {
           this.setCustomTagByPPT(blooms, 'Bloom\'s Taxonomy')

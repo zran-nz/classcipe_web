@@ -858,8 +858,8 @@
                     </a-row>
                   </div>
                 </a-row>
-                <div class="expand-icon">
-                  <a-icon type="up-circle" theme="filled" v-if="showTemplateFilter" title="Collapse filter" @click="toggleUpFilter()" /> Close
+                <div class="expand-icon" v-if="showTemplateFilter" @click="toggleUpFilter()">
+                  <a-icon type="up-circle" theme="filled" title="Collapse filter" /> Close
                 </div>
               </div>
               <div class="template-list-wrapper">
@@ -1747,7 +1747,6 @@ export default {
           this.loadCollaborateData()
           if (this.form.presentationId) {
             this.loadThumbnail()
-            this.getClassInfo(this.form.presentationId)
             this.loadRecommendThumbnail()
           }
           if (this.mode === 'pick-task-slide') {
@@ -2091,6 +2090,8 @@ export default {
           })
           this.thumbnailListLoading = false
           this.skeletonLoading = false
+        }).finally(() => {
+          this.getClassInfo(this.form.presentationId)
         })
       },
 
@@ -3256,13 +3257,14 @@ export default {
       setCustomTagByPPT (nameList, parent) {
         nameList.forEach(name => {
           const res = this.form.customTags.filter(tag => tag.parentName === parent && name === tag.name)
-          if (!res) {
+          if (res.length === 0) {
             this.form.customTags.push({
               name: name,
               parentName: parent
             })
           }
         })
+        console.log(this.form.customTags)
       }
     }
   }
