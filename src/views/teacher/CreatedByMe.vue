@@ -274,7 +274,7 @@
         <div class="preview-session-wrapper">
           <a-tabs default-active-key="1" @change="handleTabChange">
             <a-tab-pane key="1" tab="Active">
-              <class-list-table ref="classList1" :slide-id="currentPreviewLesson.presentationId" :classData="currentPreviewLesson" v-if="currentPreviewLesson && currentPreviewLesson.presentationId"/>
+              <class-list-table ref="classList1" :slide-id="currentPreviewLesson.presentationId" :classData="currentPreviewLesson" v-if="currentPreviewLesson && currentPreviewLesson.presentationId" :active="true"/>
               <div class="no-session" v-else>
                 <no-more-resources tips="Not exist previous sessions"/>
               </div>
@@ -747,10 +747,10 @@ export default {
       })
     },
     handleTabChange (tab) {
-      if (tab === 1) {
-        this.$refs.classList1.loadTeacherClasses(100, this.currentPreviewLesson.presentationId)
+      if (tab === '1') {
+        this.$refs.classList1.loadTeacherClasses()
       } else {
-        this.$refs.classList2.loadTeacherClasses(100, this.currentPreviewLesson.presentationId)
+        this.$refs.classList2.loadTeacherClasses()
       }
     }
   }

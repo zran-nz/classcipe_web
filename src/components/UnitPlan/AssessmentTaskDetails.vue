@@ -47,13 +47,13 @@
               </div>
             </div>
             <div class="right-card" @click="showTaskLearnOut(task)" >
-              <a-icon type="caret-down" v-if="!task.showLearnOut" />
-              <a-icon type="caret-up" v-if="task.showLearnOut" />
+              <a-button shape="round" v-if="task.showLearnOut" type="link" icon="caret-up">Show objectives </a-button>
+              <a-button shape="round" v-if="!task.showLearnOut" type="link" icon="caret-down">Show objectives </a-button>
             </div>
           </div>
 
-          <div class="learn-out" v-if="task.showLearnOut">
-            <ui-learn-out-sub :learn-outs="task.learnOuts" />
+          <div class=" learn-out" v-if="task.showLearnOut">
+            <ui-learn-out-sub :learn-outs="task.learnOuts"/>
           </div>
         </div>
         <template v-if="associateTaskList.length === 0">
@@ -122,7 +122,7 @@
           </div>
         </template>
       </div>
-    </a-card>
+    </a-card></div></a-card>
   </div>
 </template>
 
@@ -248,7 +248,7 @@ GoIcon
   }
   .tab-content{
     display : flex;
-    width : 560px;
+    width : 94%;
     justify-content: center;
     margin:0 auto;
     cursor: pointer;
@@ -260,7 +260,7 @@ GoIcon
       justify-content: center;
       align-items: center;
       display:flex;
-      width: 280px;
+      width: 50%;
       height: 50px;
       background: #F2F2F2;
       opacity: 1;
@@ -374,7 +374,7 @@ GoIcon
     .right-card{
       display: flex;
       cursor: pointer;
-      font-size: 25px;
+      //font-size: 25px;
       justify-content: center;
       flex-direction: column;
       &:hover{

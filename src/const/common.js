@@ -53,7 +53,8 @@ export const CustomTagType = {
   plan: {
     sdg: [TAG_CATGORY_KEYWORDS],
     bigIdea: ['Key words', 'Global context', 'Universal Concept'],
-    default: ['Teaching strategies', 'Differentiated instructions']
+    default: ['Teaching strategies', 'Differentiated instructions'],
+    question: ['Knowledge Dimensions']
   },
   task: {
     sa: ['Teaching strategies', 'Differentiated instructions', 'The Arts-Assessment types', 'Science-Assessment types', 'Assessment as Learning', 'Assessment of Learning'],

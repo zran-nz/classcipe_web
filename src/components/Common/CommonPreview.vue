@@ -78,6 +78,22 @@
                   {{ data.overview }}
                 </div>
               </div>
+              <template v-if="data.type === typeMap.task && data.questionNames.length > 0">
+                <div class="block-main-label">
+                  Key question(s)/Line(s) of Inquiry
+                </div>
+                <div class="detail-block" style="margin:10px;">
+                  <div class="keyword-block-content">
+                    <div class="content-list">
+                      <div class="content-item" v-for="(question,qIndex) in data.questionNames" :key="qIndex">
+                        <div class="question" v-if="question">
+                          {{ question }}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </template>
               <div class="block-main-label">
                 Customized tags
               </div>
@@ -97,17 +113,9 @@
               </div>
               <div class="overview-block">
                 <div class="learn-question-tag">
-                  <template v-if="data.learnOuts && data.learnOuts.length">
-                    <div class="keyword-block-content">
-                      <div class="content-list" v-if="data.learnOuts && data.learnOuts.length">
-                        <div class="content-item" v-for="(learn,qIndex) in data.learnOuts" :key="'qIndex' + qIndex">
-                          <div class="question">
-                            {{ learn.name }}
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </template>
+                  <div class="learn-out" style="margin: 10px;">
+                    <ui-learn-out-sub :learn-outs="data.learnOuts" />
+                  </div>
                 </div>
               </div>
               <template v-if="data.inquiry">
@@ -176,7 +184,7 @@
 
             <template v-if="data && data.questions && data.questions.length">
               <div class="block-main-label">
-                Line of inquiry/Key question
+                Key question(s)/Line(s) of Inquiry
               </div>
               <div class="detail-block">
                 <div class="keyword-block-content">
@@ -364,6 +372,7 @@ import CommonLink from '@/components/Common/CommonLink'
 import { PptPreviewMixin } from '@/mixins/PptPreviewMixin'
 import MediaPreview from '@/components/Task/MediaPreview'
 import TaskMaterialPreview from '@/components/Task/TaskMaterialPreview'
+import UiLearnOutSub from '@/components/UnitPlan/UiLearnOutSub'
 const { formatLocalUTC } = require('@/utils/util')
 const { UnitPlanQueryById } = require('@/api/unitPlan')
 const { LessonQueryById } = require('@/api/myLesson')
@@ -375,6 +384,7 @@ const { TopicQueryById } = require('@/api/topic')
 export default {
   name: 'CommonPreview',
   components: {
+    UiLearnOutSub,
     EvaluationTablePreview,
     EvaluationPreview,
     CommonAssociatePreview,

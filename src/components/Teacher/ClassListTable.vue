@@ -7,6 +7,7 @@
         class="preview-session-search"
         placeholder="Find by session name or class name"
         v-model="sessionName"
+        @search="searchSession"
         enter-button/>
       <a-skeleton :loading="loading" active>
         <a-table
@@ -20,7 +21,7 @@
             <div class="class-icon">
               <img src="~@/assets/icons/myClass/class_icon.png" />
             </div>
-            {{ date | dayjs1 }}
+            {{ date * 1000 | dayjs1 }}
           </span>
 
           <span slot="className" slot-scope="className" class="flex-center">
@@ -29,9 +30,17 @@
             </div>
           </span>
 
-          <span slot="fileName" slot-scope="fileName" class="flex-center">
+          <span slot="fileName" slot-scope="text, record" class="flex-center">
             <div class="class-name">
-              <div class="class-name-text">{{ fileName }}</div>
+              <a-input
+                ref="inputRef"
+                @blur="handleConfirmName()"
+                @pressEnter="handleConfirmName()"
+                v-if="editItem.id === record.id"
+                type="text"
+                placeholder="Input new name"
+                v-model="createNewName" />
+              <div v-else class="class-name-text">{{ text }}</div>
             </div>
           </span>
 
@@ -74,7 +83,7 @@
                       </div>
                     </div>
 
-                    <div class="class-more-item" @click="handleArchiveSession(record)">
+                    <div class="class-more-item" @click="handleRenameSession(record)">
                       <div class="class-action-icon">
                         <Bianji />
                       </div>
@@ -90,7 +99,7 @@
               </a-popover>
             </div>
             <div v-else>
-              <a-button type="link" class="flex-center">
+              <a-button type="link" class="flex-center" @click="handleRestoreSession(record)">
                 Restore
               </a-button>
             </div>
@@ -140,7 +149,7 @@ import ArchiveSessionIcon from '@/assets/svgIcon/evaluation/ArchiveSession.svg?i
 import EvaluateIcon from '@/assets/svgIcon/evaluation/Evaluate.svg?inline'
 import NoMoreResources from '@/components/Common/NoMoreResources'
 import Bianji from '@/assets/icons/common/Bianji.svg?inline'
-import { ChangeClassStatus } from '@/api/classroom'
+import { AddOrUpdateClass, ChangeClassStatus } from '@/api/classroom'
 
 export default {
   name: 'ClassTableList',
@@ -169,6 +178,8 @@ export default {
   },
   data () {
     return {
+      editItem: {},
+      createNewName: '',
       sessionName: '',
       data: [],
       loading: true,
@@ -223,20 +234,17 @@ export default {
     }
   },
   created () {
-    this.loadTeacherClasses(this.pageSize, this.slideId)
+    this.loadTeacherClasses()
   },
   methods: {
-    loadTeacherClasses (limit, slideId) {
-      logger.info('loadTeacherClasses ' + ' limit:' + limit + ' slideId:' + slideId)
+    loadTeacherClasses () {
+      logger.info('loadTeacherClasses ' + ' limit:' + this.pageSize + ' slideId:' + this.slideId + ' searchKey:' + this.sessionName)
       this.loading = true
       this.data = []
-      FindMyClasses({ limit: limit, slideId: slideId, delFlag: this.active ? 0 : 1 }).then(response => {
+      FindMyClasses({ limit: this.pageSize, slideId: this.slideId, delFlag: this.active ? 0 : 1, searchKey: this.sessionName }).then(response => {
         logger.info('FindMyClasses', response.result.data)
         if (response.success) {
-          response.result.forEach((item) => {
-            item.date = item.date * 1000
-          })
-          if (limit) {
+          if (this.pageSize) {
             this.data = this.data.concat(response.result)
           } else {
             this.data = response.result
@@ -266,6 +274,7 @@ export default {
     },
     searchSession () {
       this.$logger.info('searchSession', this.sessionName)
+      this.loadTeacherClasses()
     },
     handleArchiveSession (item) {
       this.$logger.info('handleArchiveSession', item)
@@ -277,7 +286,39 @@ export default {
           ChangeClassStatus({ classId: item.classId, status: 1 }).then(response => {
             this.$logger.info('ChangeClassStatus', response)
           }).finally(() => {
-            this.loadTeacherClasses(this.pageSize, this.slideId)
+            this.loadTeacherClasses()
+          })
+        }
+      })
+    },
+    handleRenameSession (item) {
+      this.createNewName = ''
+      this.editItem = item
+    },
+    handleConfirmName () {
+      if (!this.createNewName) {
+        this.editItem = {}
+        this.createNewName = ''
+        return
+      }
+      this.editItem.fileName = this.createNewName
+      AddOrUpdateClass(this.editItem).then(response => {
+        this.editItem = {}
+        this.createNewName = ''
+        this.loadTeacherClasses()
+      })
+    },
+    handleRestoreSession (item) {
+      this.$logger.info('handleRestoreSession', item)
+      this.$confirm({
+        title: 'Confirm restore session',
+        content: 'Are you confirm restore this session ?',
+        centered: true,
+        onOk: () => {
+          ChangeClassStatus({ classId: item.classId, status: 0 }).then(response => {
+            this.$logger.info('ChangeClassStatus', response)
+          }).finally(() => {
+            this.loadTeacherClasses()
           })
         }
       })

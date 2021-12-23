@@ -11,12 +11,18 @@ export const BaseEventMixin = {
     return {
       oldForm: {},
       rightModule: RightModule,
-      showModuleList: [RightModule.imageUpload, RightModule.customTag, RightModule.recommend]
+      showModuleList: [RightModule.imageUpload, RightModule.customTag, RightModule.recommend],
+      rightWidth: 600,
+      leftWidth: 700
     }
   },
   created () {
   },
   mounted () {
+    this.resetWidth()
+    window.onresize = () => {
+      this.resetWidth()
+    }
     window.addEventListener('beforeunload', (e) => this.beforeunloadHandler(e))
   },
   destroyed () {
@@ -61,6 +67,15 @@ export const BaseEventMixin = {
         }
         // debugger
         return 'alert'
+      }
+    },
+    resetWidth () {
+      if (document.body.clientWidth < 1400) {
+        this.rightWidth = 500
+        this.leftWidth = 550
+      } else {
+        this.rightWidth = 600
+        this.leftWidth = 700
       }
     }
   }

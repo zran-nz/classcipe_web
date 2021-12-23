@@ -1,6 +1,6 @@
 <template>
   <div class="tag-ui">
-    <a-col span="24">
+    <a-col>
 
       <div class="objectives-wrapper">
         <a-row class="objectives-wrapper-block" v-if="getknowledgeListType(TagType.skill).length > 0" >

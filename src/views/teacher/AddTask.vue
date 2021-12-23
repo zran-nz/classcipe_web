@@ -69,7 +69,7 @@
                               <div class="self-field-label" >
                                 <div :class="{'task-type-item': true, 'green-active-task-type': form.taskType === 'FA'}" @click.stop.prevent="handleSelectTaskType('FA')">FA</div>
                                 <div :class="{'task-type-item': true, 'red-active-task-type': form.taskType === 'SA'}" @click.stop.prevent="handleSelectTaskType('SA')">SA</div>
-                                <div :class="{'task-type-item': true, 'task-type-activity': true,'blue-active-task-type': form.taskType === 'Activity'}" @click.stop.prevent="handleSelectTaskType('Activity')">Activity</div>
+                                <div :class="{'task-type-item': true, 'task-type-activity': true,'blue-active-task-type': form.taskType === 'Activity'}" @click.stop.prevent="handleSelectTaskType('Activity')"> <a-tooltip title="Teaching/Learning Activity" placement="top">Activity</a-tooltip></div>
                               </div>
                             </div>
                           </a-form-model-item>
@@ -1520,8 +1520,6 @@ export default {
 
         // 复制当前表单数据，给选择slide创建task用‘pick-task-slide’
         currentTaskFormData: null,
-        rightWidth: 600,
-        leftWidth: 700,
         groupNameMode: 'input', // input、select,
         newTermName: 'Untitled category',
         previewTemplate: {},
@@ -1631,10 +1629,7 @@ export default {
       }
     },
     mounted () {
-      this.resetWidth()
-      window.onresize = () => {
-        this.resetWidth()
-      }
+
     },
     created () {
       logger.info('add task created ' + this.taskId + ' ' + this.$route.path + ' mode: ' + this.mode)
@@ -1868,26 +1863,7 @@ export default {
       },
 
       goBack () {
-        if (JSON.stringify(this.form) !== JSON.stringify(this.oldForm)) {
-          var that = this
-          this.$confirm({
-            title: 'Alert',
-            okText: 'Save',
-            cancelText: 'No',
-            content: 'Do you want to save the changes?',
-            onOk: function () {
-              that.handleSaveTask()
-              setTimeout(() => {
-                that.$router.push({ path: '/teacher/main/created-by-me' })
-              }, 500)
-            },
-            onCancel () {
-              that.$router.push({ path: '/teacher/main/created-by-me' })
-            }
-          })
-        } else {
-          this.$router.push({ path: '/teacher/main/created-by-me' })
-        }
+        this.$router.push({ path: '/teacher/main/created-by-me' })
       },
 
       handleShowSelectMyContent () {
@@ -3143,15 +3119,6 @@ export default {
       },
       handleTabYearChange (activeKey) {
         this.selectYearTab = activeKey
-      },
-      resetWidth () {
-        if (document.body.clientWidth < 1400) {
-          this.rightWidth = 500
-          this.leftWidth = 550
-        } else {
-          this.rightWidth = 600
-          this.leftWidth = 700
-        }
       },
 
       setSessionStep (step) {

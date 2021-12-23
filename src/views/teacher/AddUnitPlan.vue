@@ -25,8 +25,8 @@
             :show-create="true"/>
         </a-col>-->
         <a-col span="24" class="main-content">
-          <a-card :bordered="false" :body-style="{'min-width': '1350px', padding: '16px', display: 'flex', 'justify-content': 'space-between'}" class="card-wrapper">
-            <div class="unit-plan-form-left root-locate-form" ref="form" @click="focusInput($event)">
+          <a-card :bordered="false" :body-style="{'min-width': '1200px', padding: '16px', display: 'flex', 'justify-content': 'space-between'}" class="card-wrapper">
+            <div class="unit-plan-form-left root-locate-form" ref="form" @click="focusInput($event)" :style="{'width':leftWidth + 'px'}">
               <a-form-model :model="form" class="my-form-wrapper">
                 <a-steps :current="currentActiveStepIndex" direction="vertical" @change="onChangeStep">
                   <a-step title="Edit Unit plan" :status="currentActiveStepIndex === 0 ? 'process':'wait'">
@@ -204,7 +204,7 @@
 
                       <div :class="{'form-block': true, 'form-block-disabled' : $store.getters.userInfo.disableQuestion}">
                         <comment-switch v-if="!$store.getters.userInfo.disableQuestion" field-name="question" :is-active="currentFieldName === 'question'" @switch="handleSwitchComment" class="my-comment-switch"/>
-                        <a-form-item>
+                        <a-form-item class="unit-question">
                           <span slot="label">
                             <a-tooltip title="Set key question/Line of inquiry">
                               <a-icon type="exclamation-circle" style="color: #15c39a;cursor: pointer;font-size: 18px" @click="questionSettingVisible=true" />
@@ -225,9 +225,9 @@
                               </div>
                             </div>
                             <div class="form-input-item" v-for="(question, index) in form.questions" :key="index">
-                              <a-input
+                              <a-textarea
                                 v-model="question.name"
-                                class="my-form-input"
+                                class="my-form-textarea"
                                 :placeholder="$store.getters.currentRole === 'teacher' ? $t('teacher.add-unit-plan.teacher-nth-key-question') : $t('teacher.add-unit-plan.expert-nth-key-question')"/>
                               <div class="delete-icon" @click="handleRemoveQuestion(index)">
                                 <a-icon type="delete" :style="{ fontSize: '20px' }" />
@@ -303,11 +303,11 @@
               </a-form-model>
             </div>
 
-            <div class="unit-plan-form-right">
+            <div class="unit-plan-form-right" :style="{'width':rightWidth + 'px'}">
               <!--              优先级 所有comment预览 > 字段comment > tag选择-->
               <template v-if="showRightModule(rightModule.collaborate)">
                 <a-skeleton :loading="showHistoryLoading" active>
-                  <div class="collaborate-panel" :style="{'width':'600px', 'margin-top': '0px', 'z-index': 100, 'padding': '10px'}">
+                  <div class="collaborate-panel" :style="{'width':rightWidth + 'px', 'margin-top': '0px', 'z-index': 100, 'padding': '10px'}">
                     <div class="icon">
                       <comment-icon />
                     </div>
@@ -323,12 +323,12 @@
                 </a-skeleton>
               </template>
               <template v-if="showRightModule(rightModule.collaborateComment) && currentActiveStepIndex === 0">
-                <div class="collaborate-panel" :style="{'width':'600px', 'margin-top':collaborateTop+'px', 'z-index': 100, 'padding': '10px'}">
+                <div class="collaborate-panel" :style="{'width':rightWidth + 'px', 'margin-top':collaborateTop+'px', 'z-index': 100, 'padding': '10px'}">
                   <collaborate-comment-panel :source-id="unitPlanId" :source-type="contentType['unit-plan']" :field-name="currentFieldName" :comment-list="currentCollaborateCommentList" @update-comment="handleUpdateCommentList"/>
                 </div>
               </template>
               <template v-if="showRightModule(rightModule.imageUpload)">
-                <div class="form-block-right" >
+                <div class="form-block-right" :style="{'width':rightWidth + 'px'}">
                   <!-- image-->
                   <a-form-model-item class="img-wrapper" >
                     <a-upload-dragger
@@ -371,7 +371,7 @@
                 </div>
               </template>
               <template v-if="showRightModule(rightModule.customTag)">
-                <div v-show="!this.contentLoading" :style="{'width':'400px','position': 'absolute', 'top':customTagTop+'px', 'z-index': 50}">
+                <div v-show="!this.contentLoading" :style="{'width':rightWidth+'px', 'margin-top':customTagTop+'px', 'z-index': 50}">
                   <custom-tag
                     :show-arrow="showCustomTag"
                     :user-tags="userTags"
@@ -384,7 +384,7 @@
                 </div>
               </template>
               <template v-if="showRightModule(rightModule.taskDetails) && currentActiveStepIndex === 0">
-                <div class="task-details-panel" :style="{'width':'600px', 'margin-top':taskDetailsTop+'px', 'z-index': 200}">
+                <div class="task-details-panel" :style="{'width':rightWidth + 'px', 'margin-top':taskDetailsTop+'px', 'z-index': 200}">
                   <Assessment-Task-Details :associate-task-list="associateTaskList" @hide-assessment-task="resetRightModuleVisible()"/>
                 </div>
               </template>
@@ -856,7 +856,7 @@ export default {
 
       selectIdea: false,
       showCustomTag: false,
-      customTagTop: 300,
+      customTagTop: 0,
       customTagList: [],
       userTags: {},
       NavigationType: NavigationType,
@@ -1437,26 +1437,7 @@ export default {
     },
 
     goBack () {
-      if (JSON.stringify(this.form) !== JSON.stringify(this.oldForm)) {
-        var that = this
-        this.$confirm({
-          title: 'Alert',
-          okText: 'Save',
-          cancelText: 'No',
-          content: 'Do you want to save the changes?',
-          onOk: function () {
-            that.handleSaveUnitPlan()
-            setTimeout(() => {
-              that.$router.push({ path: '/teacher/main/created-by-me' })
-            }, 500)
-          },
-          onCancel () {
-            that.$router.push({ path: '/teacher/main/created-by-me' })
-          }
-        })
-      } else {
-        this.$router.push({ path: '/teacher/main/created-by-me' })
-      }
+      this.$router.push({ path: '/teacher/main/created-by-me' })
     },
     handleChangeUserTags (tags) {
       this.form.customTags = tags
@@ -2028,6 +2009,11 @@ export default {
           CustomTagType.plan.bigIdea.forEach(name => {
             this.customTagList.push(name)
           })
+        } else if (currentDom && currentDom.classList.contains('unit-question')) {
+          currentFocus = 'question'
+          CustomTagType.plan.question.forEach(name => {
+            this.customTagList.push(name)
+          })
         }
         if (currentDom && currentDom.classList.contains('root-locate-form')) {
           console.log(currentDom.classList)
@@ -2051,8 +2037,9 @@ export default {
           }
         })
         this.showCustomTag = false
-        this.customTagTop = 300
-        // this.setRightModuleVisible()
+        this.customTagTop = 0
+        // this.showModuleList.push(RightModule.imageUpload)
+        this.setRightModuleVisible()
       }
     },
 
@@ -2448,7 +2435,7 @@ export default {
           padding: 0 5px;
         }
         .my-big-select{
-          width: 600px;
+          //width: 600px;
         }
       }
 
@@ -2495,7 +2482,7 @@ export default {
       }
     }
     .content-blocks {
-      width: 600px;
+      //width: 600px;
       position: relative;
       border: 1px dotted #fff;
       .scenario-description{
@@ -2690,7 +2677,7 @@ export default {
 
 .task-audio-line {
   position: relative;
-  width: 600px;
+  //width: 600px;
   .task-audio {
     position: absolute;
     right: -55px;
@@ -2818,7 +2805,6 @@ export default {
 }
 
 .form-block {
-  width: 600px;
   margin-bottom: 10px;
   position: relative;
   &:hover {
@@ -2882,16 +2868,14 @@ export default {
 .card-wrapper{
   .unit-plan-form-left {
     position: relative;
-    width: 700px;
   }
 
   .unit-plan-form-right {
     position: relative;
-    width: 600px;
     .form-block-right{
       .img-wrapper {
-        position: absolute;
-        width: 380px;
+        position: relative;
+        width:100%;
       }
       .delete-img {
         position: absolute;
@@ -2914,6 +2898,10 @@ export default {
 .form-input-item {
   margin-bottom: 20px;
   position: relative;
+}
+.my-form-textarea{
+  height:40px;
+  margin-bottom: 10px;
 }
 
 .preview-wrapper-row{
@@ -2989,7 +2977,7 @@ export default {
   .sdg-form-block {
     border: 1px solid #15C39A !important;
     .my-big-select{
-      width: 600px;
+      //width: 600px;
     }
   }
 
