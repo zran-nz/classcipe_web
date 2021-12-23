@@ -138,7 +138,38 @@ export const PptPreviewMixin = {
         }
       }).finally(() => {
         this.loadingClass = false
+        // 将ppt的Bloom和Knowledge dimension同步到task
+        this.setTaskKnowAndBloomFormPPT()
       })
+    },
+    setTaskKnowAndBloomFormPPT () {
+      // const pageIds = this.thumbnailList.map((page) => {
+      //   return page.id
+      // })
+      // console.log(pageIds)
+      const blooms = []
+      const dimensions = []
+      this.itemsList.forEach(e => {
+        // if (pageIds.indexOf(e.pageId) !== -1) {
+          const json = JSON.parse(e.data)
+          if (json.data && json.data.bloomLevel) {
+            if (blooms.indexOf(json.data.bloomLevel) === -1) {
+              blooms.push(json.data.bloomLevel)
+            }
+          }
+          if (json.data && json.data.knowledgeLevel) {
+            if (dimensions.indexOf(json.data.knowledgeLevel) === -1) {
+              dimensions.push(json.data.knowledgeLevel)
+            }
+          }
+        // }
+      })
+      if (blooms.length > 0) {
+          this.setCustomTagByPPT(blooms, 'Bloom\'s Taxonomy')
+      }
+      if (dimensions.length > 0) {
+        this.setCustomTagByPPT(dimensions, 'Knowledge Dimensions')
+      }
     },
     showPluginMaterial (type) {
       const data = this.currentPageMaterial[type]

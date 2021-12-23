@@ -3252,6 +3252,17 @@ export default {
         }).finally(() => {
 
         })
+      },
+      setCustomTagByPPT (nameList, parent) {
+        nameList.forEach(name => {
+          const res = this.form.customTags.filter(tag => tag.parentName === parent && name === tag.name)
+          if (!res) {
+            this.form.customTags.push({
+              name: name,
+              parentName: parent
+            })
+          }
+        })
       }
     }
   }
