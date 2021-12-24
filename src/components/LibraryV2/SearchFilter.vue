@@ -163,9 +163,9 @@ export default {
         subject: [],
         type: [],
         faSaActivityType: 1,
-        faTags: {},
-        saTags: {},
-        activityTags: {}
+        faTags: [],
+        saTags: [],
+        activityTags: []
       }
     }
   },
@@ -173,13 +173,13 @@ export default {
     this.$logger.info('SearchFilter created', this.filterConfig)
     this.filter = this.filterConfig
     this.filterSaOptions.forEach((option, index) => {
-      this.filter.faTags.append([])
+      this.filter.faTags.push([])
     })
     this.filterFaOptions.forEach((option, index) => {
-      this.filter.saTags.append([])
+      this.filter.saTags.push([])
     })
     this.filterActivityOptions.forEach((option, index) => {
-      this.filter.activityTags.append([])
+      this.filter.activityTags.push([])
     })
   },
   methods: {
