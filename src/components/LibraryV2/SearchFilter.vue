@@ -173,13 +173,13 @@ export default {
     this.$logger.info('SearchFilter created', this.filterConfig)
     this.filter = this.filterConfig
     this.filterSaOptions.forEach((option, index) => {
-      this.filter.faTags.push([])
+      this.filter.faTags.append([])
     })
     this.filterFaOptions.forEach((option, index) => {
-      this.filter.saTags.push([])
+      this.filter.saTags.append([])
     })
     this.filterActivityOptions.forEach((option, index) => {
-      this.filter.activityTags.push([])
+      this.filter.activityTags.append([])
     })
   },
   methods: {
