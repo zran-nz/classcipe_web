@@ -626,7 +626,7 @@ export default {
             this.$logger.info('try open ' + targetUrl)
             // window.open(targetUrl, '_blank')
             // 课堂那边需要点击返回回到表单，改成location.href跳转
-            const url = lessonHost + 't/' + res.data.class_id
+            const url = lessonHost + 't/' + res.data.class_id + '?token=' + storage.get(ACCESS_TOKEN)
             var windowObjectReference
             var height = document.documentElement.clientHeight * 0.7
             var width = document.documentElement.clientWidth * 0.7

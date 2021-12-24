@@ -44,7 +44,7 @@
             <a-popover
               trigger="click"
               placement="bottomLeft"
-              :overlayStyle="{ 'max-height': filterHeight + 'px', 'position': 'absolute','top':'190px','overflow-y': 'auto','background-color':'#fff',' background-clip':'padding-box',' border-radius':'2px','box-shadow':' 0 2px 8px rgb(0 0 0 / 15%'}">
+              :overlayStyle="{ 'max-height': filterHeight + 'px', 'position': 'absolute','top':'190px','overflow-y': 'auto',' background-clip':'padding-box',' border-radius':'2px','box-shadow':' 0 2px 8px rgb(0 0 0 / 15%'}">
               <template slot="content">
                 <search-filter
                   @filter-config-update="handleUpdateFilterConfig"
@@ -585,9 +585,9 @@ export default {
         { label: '8' }
       ],
       filterTypeOptions: [
-        { label: 'Unit Plan', value: 'Unit Plan' },
-        { label: 'Task', value: 'Task' },
-        { label: 'Assessment Tool', value: 'Assessment Tool' }
+        { label: 'Unit Plan', value: typeMap['unit-plan'] },
+        { label: 'Task', value: typeMap.task },
+        { label: 'Assessment Tool', value: typeMap.evaluation }
       ],
       filterSaOptions: [],
       filterFaOptions: [],
@@ -853,6 +853,31 @@ export default {
     searchByFilter (filter) {
       this.$logger.info('searchByFilter ', filter)
       filter.curriculumId = this.currentCurriculumId
+      filter.fa = []
+      filter.sa = []
+      filter.activity = []
+      filter.faTags.forEach(parent => {
+        parent.forEach(child => {
+          if (child) {
+            filter.fa.push(child)
+          }
+        })
+      })
+      filter.saTags.forEach(parent => {
+        parent.forEach(child => {
+          if (child) {
+            filter.sa.push(child)
+          }
+        })
+      })
+      filter.activityTags.forEach(parent => {
+        parent.forEach(child => {
+          if (child) {
+            filter.activity.push(child)
+          }
+        })
+      })
+
       this.searching = true
       QueryContentsFilter(filter).then(response => {
         this.$logger.info('QueryContentsFilter result : ', response)
@@ -1422,6 +1447,7 @@ export default {
   align-items: center;
   justify-content: flex-start;
   padding-left: 15px;
+  overflow-y: auto;
 
   .filter-list-item {
     color: #333;
@@ -1475,6 +1501,22 @@ export default {
     border: 1px solid #38cfa6;
     background-color: #15C39A;
   }
+}
+
+&::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+&::-webkit-scrollbar-track {
+  border-radius: 3px;
+  background: rgba(0,0,0,0.00);
+  -webkit-box-shadow: inset 0 0 5px rgba(0,0,0,0.01);
+}
+/* 滚动条滑块 */
+&::-webkit-scrollbar-thumb {
+  border-radius: 5px;
+  background: rgba(0,0,0,0.12);
+  -webkit-box-shadow: inset 0 0 10px rgba(0,0,0,0.01);
 }
 
 .search-info {

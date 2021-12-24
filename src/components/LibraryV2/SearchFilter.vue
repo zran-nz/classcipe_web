@@ -1,10 +1,14 @@
 <template>
   <div class="search-filter">
 
+    <a-button type="link" class="clear-all" @click="clearFilter()" style="position: absolute;right:0px">
+      Clear all
+    </a-button>
+
     <div class="filter-item">
       <div class="filter-label">Age</div>
       <div class="filter-option-list">
-        <a-select default-value="All" class="age-select" @change="updateFilterConfig" v-model="filter.age">
+        <a-select class="age-select" @change="updateFilterConfig" v-model="filter.age">
           <a-select-option :value="age.label" v-for="(age, aIndex) in ageOptions" :key="aIndex">
             {{ age.label }}
           </a-select-option>
@@ -56,7 +60,7 @@
       <div class="filter-option-list">
         <a-checkbox-group
           @change="updateFilterConfig"
-          v-model="filter.faTags[index]"
+          v-model="faTags[index]"
           :options="getGroupOptions(parent)"
         />
       </div>
@@ -67,7 +71,7 @@
       <div class="filter-option-list">
         <a-checkbox-group
           @change="updateFilterConfig"
-          v-model="filter.saTags[index]"
+          v-model="saTags[index]"
           :options="getGroupOptions(parent)"
         />
       </div>
@@ -77,44 +81,11 @@
       <div class="filter-option-list">
         <a-checkbox-group
           @change="updateFilterConfig"
-          v-model="filter.activityTags[index]"
+          v-model="activityTags[index]"
           :options="getGroupOptions(parent)"
         />
       </div>
     </div>
-
-    <!--    <div class="filter-item" v-if="filter.faSaActivityType === 2">-->
-    <!--      <div class="filter-label">Difference Instructions</div>-->
-    <!--      <div class="filter-option-list">-->
-    <!--        <a-checkbox-group-->
-    <!--          @change="updateFilterConfig"-->
-    <!--          v-model="filter.differenceInstructions"-->
-    <!--          :options="differenceInstructionsOptions"-->
-    <!--        />-->
-    <!--      </div>-->
-    <!--    </div>-->
-
-    <!--    <div class="filter-item" v-if="filter.faSaActivityType === 3">-->
-    <!--      <div class="filter-label">Assessment Category</div>-->
-    <!--      <div class="filter-option-list">-->
-    <!--        <a-checkbox-group-->
-    <!--          @change="updateFilterConfig"-->
-    <!--          v-model="filter.assessmentCategory"-->
-    <!--          :options="assessmentTypeOptions"-->
-    <!--        />-->
-    <!--      </div>-->
-    <!--    </div>-->
-
-    <!--    <div class="filter-item" v-if="filter.faSaActivityType === 'Activity'">-->
-    <!--      <div class="filter-label">Assessment Type</div>-->
-    <!--      <div class="filter-option-list">-->
-    <!--        <a-checkbox-group-->
-    <!--          @change="updateFilterConfig"-->
-    <!--          v-model="filter.assessmentType"-->
-    <!--          :options="assessmentTypeOptions"-->
-    <!--        />-->
-    <!--      </div>-->
-    <!--    </div>-->
 
   </div>
 </template>
@@ -158,32 +129,34 @@ export default {
   },
   data () {
     return {
+      faTags: [],
+      saTags: [],
+      activityTags: [],
       filter: {
-        age: null,
+        age: 'All',
         subject: [],
         type: [],
-        faSaActivityType: 1,
-        faTags: [],
-        saTags: [],
-        activityTags: []
+        faSaActivityType: ''
       }
     }
   },
   created () {
     this.$logger.info('SearchFilter created', this.filterConfig)
-    this.filter = this.filterConfig
     this.filterSaOptions.forEach((option, index) => {
-      this.filter.faTags.push([])
+      this.saTags.push([])
     })
     this.filterFaOptions.forEach((option, index) => {
-      this.filter.saTags.push([])
+      this.faTags.push([])
     })
     this.filterActivityOptions.forEach((option, index) => {
-      this.filter.activityTags.push([])
+      this.activityTags.push([])
     })
   },
   methods: {
     updateFilterConfig () {
+      this.filter.faTags = this.faTags
+      this.filter.saTags = this.saTags
+      this.filter.activityTags = this.activityTags
       this.$logger.info('updateFilterConfig', this.filter)
       this.$emit('filter-config-update', this.filter)
     },
@@ -193,6 +166,18 @@ export default {
         res.push({ label: keyword, value: keyword })
       })
       return res
+    },
+    clearFilter () {
+      this.filter = {
+        age: 'All',
+        subject: [],
+        type: [],
+        faSaActivityType: ''
+      }
+      this.faTags = []
+      this.saTags = []
+      this.activityTags = []
+      this.updateFilterConfig()
     }
   }
 }

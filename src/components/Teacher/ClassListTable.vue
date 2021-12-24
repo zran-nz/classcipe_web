@@ -150,6 +150,8 @@ import EvaluateIcon from '@/assets/svgIcon/evaluation/Evaluate.svg?inline'
 import NoMoreResources from '@/components/Common/NoMoreResources'
 import Bianji from '@/assets/icons/common/Bianji.svg?inline'
 import { AddOrUpdateClass, ChangeClassStatus } from '@/api/classroom'
+import storage from 'store'
+import { ACCESS_TOKEN } from '@/store/mutation-types'
 
 export default {
   name: 'ClassTableList',
@@ -258,7 +260,24 @@ export default {
 
     handleTeacherProjecting (item) {
       this.$logger.info('handleStartSession', item)
-      window.open(lessonHost + 'd/' + item.classId, '_blank')
+      const targetUrl = lessonHost + 'd/' + item.classId + '?token=' + storage.get(ACCESS_TOKEN)
+      this.$logger.info('try open ' + targetUrl)
+      // window.open(targetUrl, '_blank')
+      // 课堂那边需要点击返回回到表单，改成location.href跳转
+      const url = lessonHost + 't/' + item.classId + '?token=' + storage.get(ACCESS_TOKEN)
+      var height = document.documentElement.clientHeight * 0.7
+      var width = document.documentElement.clientWidth * 0.7
+      var strWindowFeatures = 'width=' + width + ',height=' + height + ',menubar=yes,location=yes,resizable=yes,scrollbars=true,status=true,top=100,left=200'
+      var windowObjectReference
+      windowObjectReference = window.open(
+        'about:blank',
+        '_blank',
+        strWindowFeatures
+      )
+      windowObjectReference.location = url
+      setTimeout(function () {
+        window.location.href = targetUrl
+      }, 1000)
     },
 
     handleDashboard (item) {
