@@ -41,7 +41,10 @@
         </div>
         <div class="filter-bar">
           <div class="filter-icon">
-            <a-popover trigger="click" placement="bottomLeft">
+            <a-popover
+              trigger="click"
+              placement="bottomLeft"
+              :overlayStyle="{ 'max-height': filterHeight + 'px', 'position': 'absolute','top':'190px','overflow-y': 'auto','background-color':'#fff',' background-clip':'padding-box',' border-radius':'2px','box-shadow':' 0 2px 8px rgb(0 0 0 / 15%'}">
               <template slot="content">
                 <search-filter
                   @filter-config-update="handleUpdateFilterConfig"
@@ -49,10 +52,9 @@
                   :age-options="filterAgeOptions"
                   :subject-options="filterSubjectOptions"
                   :type-options="filterTypeOptions"
-                  :teaching-strategy-options="filterTeachingStrategyOptions"
-                  :difference-instructions-options="filterDifferenceInstructionsOptions"
-                  :assessment-category-options="filterAssessmentCategoryOptions"
-                  :assessment-type-options="filterAssessmentTypeOptions"
+                  :filter-fa-options="filterFaOptions"
+                  :filter-sa-options="filterSaOptions"
+                  :filter-activity-options="filterActivityOptions"
                 />
               </template>
               <div class="filter-item">
@@ -74,8 +76,8 @@
               :key="fIndex"
               @click="handleActiveFilterItem(filterItem)"
               :data-item="JSON.stringify(filterItem)">
-              {{ filterItem.name }}
-              <a-icon type="close-circle" theme="filled" class="filter-close" @click="handleRemoveFilterItem(item)"/>
+              <a-tooltip :title="filterItem.name" placement="top"><span class="filter-keyword">{{ filterItem.name }}</span></a-tooltip>
+              <a-icon type="close-circle" theme="filled" class="filter-close" @click="handleRemoveFilterItem(filterItem)"/>
             </div>
           </div>
         </div>
@@ -419,7 +421,7 @@ import UnitPlanPreview from '@/components/UnitPlan/UnitPlanPreview'
 import MaterialPreview from '@/components/Material/MaterialPreview'
 import { typeMap } from '@/const/teacher'
 import {
-  getAllCurriculums
+  getAllCurriculums, GetGradesByCurriculumId
 } from '@/api/preference'
 import DirIcon from '@/components/LibraryV2/DirIcon'
 import NoMoreResources from '@/components/Common/NoMoreResources'
@@ -429,7 +431,7 @@ import BackSvg from '@/assets/svgIcon/library/back_btn.svg?inline'
 import GeneralCapabilityBrowser from '@/components/LibraryV2/GeneralCapabilityBrowser'
 import SubjectSpecificBrowser from '@/components/LibraryV2/SubjectSpecificBrowser'
 import IduBrowser from '@/components/LibraryV2/IduBrowser'
-import { CurriculumType } from '@/const/common'
+import { CurriculumType, CustomTagType } from '@/const/common'
 import FilterIcon from '@/assets/libraryv2/filter.svg?inline'
 import FilterActiveIcon from '@/assets/libraryv2/filter_active.svg?inline'
 import PuBuIcon from '@/assets/icons/library/pubu.svg?inline'
@@ -438,6 +440,9 @@ import ContentTypeIcon from '@/components/Teacher/ContentTypeIcon'
 import DataCardView from '@/components/Library/DataCardView'
 import { LibraryMode } from '@/components/LibraryV2/libraryMode'
 import SearchFilter from '@/components/LibraryV2/SearchFilter'
+import { QueryContentsFilter } from '@/api/library'
+import { SubjectTree } from '@/api/subject'
+import { FindCustomTags } from '@/api/tag'
 const { Search, QueryContents, QueryKeyContents } = require('@/api/library')
 
 const BrowserTypeMap = {
@@ -584,50 +589,10 @@ export default {
         { label: 'Task', value: 'Task' },
         { label: 'Assessment Tool', value: 'Assessment Tool' }
       ],
-      filterTeachingStrategyOptions: [
-        { label: 'video', value: 'video1' },
-        { label: 'Guest speaker1', value: 'Guest speaker2' },
-        { label: 'Case studios2', value: 'Case studios3' },
-        { label: 'Role playing3', value: 'Role playing4' },
-        { label: 'Lecture discussion4', value: 'Lecture discussion5' },
-        { label: 'Guest speaker5', value: 'Guest speaker6' },
-        { label: 'Case studios6', value: 'Case studios7' },
-        { label: 'Role playing7', value: 'Role playing8' },
-        { label: 'Lecture discussion9', value: 'Lecture discussion9' }
-      ],
-      filterDifferenceInstructionsOptions: [
-        { label: 'Case studios', value: 'Case studios11' },
-        { label: 'Guest speaker1', value: 'Guest speaker2' },
-        { label: 'Case studios2', value: 'Case studios3' },
-        { label: 'Role playing3', value: 'Role playing4' },
-        { label: 'Lecture discussion4', value: 'Lecture discussion5' },
-        { label: 'Guest speaker5', value: 'Guest speaker6' },
-        { label: 'Case studios6', value: 'Case studios7' },
-        { label: 'Role playing7', value: 'Role playing8' },
-        { label: 'Lecture discussion9', value: 'Lecture discussion9' }
-      ],
-      filterAssessmentCategoryOptions: [
-        { label: 'Demonstrations', value: 'Demonstrations22' },
-        { label: 'Guest speaker1', value: 'Guest speaker2' },
-        { label: 'Case studios2', value: 'Case studios3' },
-        { label: 'Role playing3', value: 'Role playing4' },
-        { label: 'Lecture discussion4', value: 'Lecture discussion5' },
-        { label: 'Guest speaker5', value: 'Guest speaker6' },
-        { label: 'Case studios6', value: 'Case studios7' },
-        { label: 'Role playing7', value: 'Role playing8' },
-        { label: 'Lecture discussion9', value: 'Lecture discussion9' }
-      ],
-      filterAssessmentTypeOptions: [
-        { label: 'Small group work', value: 'Small group work11' },
-        { label: 'Guest speaker1', value: 'Guest speaker2' },
-        { label: 'Case studios2', value: 'Case studios3' },
-        { label: 'Role playing3', value: 'Role playing4' },
-        { label: 'Lecture discussion4', value: 'Lecture discussion5' },
-        { label: 'Guest speaker5', value: 'Guest speaker6' },
-        { label: 'Case studios6', value: 'Case studios7' },
-        { label: 'Role playing7', value: 'Role playing8' },
-        { label: 'Lecture discussion9', value: 'Lecture discussion9' }
-      ]
+      filterSaOptions: [],
+      filterFaOptions: [],
+      filterActivityOptions: [],
+      filterHeight: 500
     }
   },
   created () {
@@ -641,10 +606,13 @@ export default {
       this.$logger.info('getAllCurriculums', response)
       this.curriculumOptions = response.result
       this.$logger.info('getAllCurriculums', this.curriculumOptions)
+    }).finally(() => {
+      this.getfilterOptions()
     })
   },
   mounted () {
     this.blockWidth = this.$refs['wrapper'].getBoundingClientRect().width * 0.15
+    this.filterHeight = document.documentElement.clientHeight - 200
     this.$logger.info('globalWidth ' + this.blockWidth)
   },
   methods: {
@@ -859,6 +827,7 @@ export default {
       this.$logger.info('handleActiveFilterItem ', item)
       this.searchKeyword = item.name
       this.currentFromItem = item
+      this.libraryMode = LibraryMode.searchMode
       this.handleSearchByFromType(item)
     },
 
@@ -881,9 +850,69 @@ export default {
       }
     },
 
+    searchByFilter (filter) {
+      this.$logger.info('searchByFilter ', filter)
+      filter.curriculumId = this.currentCurriculumId
+      this.searching = true
+      QueryContentsFilter(filter).then(response => {
+        this.$logger.info('QueryContentsFilter result : ', response)
+        this.searchResultList = response.result ? response.result : []
+      }).finally(() => {
+        this.searching = false
+      })
+    },
     handleUpdateFilterConfig (filter) {
       // TODO 根据配置更新请求参数
       this.$logger.info('handleUpdateFilterConfig', filter)
+      this.libraryMode = LibraryMode.searchMode
+      this.searchByFilter(filter)
+    },
+    getfilterOptions () {
+      SubjectTree({ curriculumId: this.currentCurriculumId }).then(response => {
+        this.$logger.info('getSubjectTree response', response.result)
+        this.filterSubjectOptions = []
+        response.result.forEach(subject => {
+          this.filterSubjectOptions.push({ label: subject.name, value: subject.id })
+        })
+      })
+      GetGradesByCurriculumId({ curriculumId: this.currentCurriculumId }).then(response => {
+        this.$logger.info('GetGradesByCurriculumId', response.result)
+        this.filterAgeOptions = [{ label: 'All' }]
+        response.result.forEach(grade => {
+          this.filterAgeOptions.push({ label: grade.age })
+        })
+      })
+      FindCustomTags({}).then((response) => {
+        this.$logger.info('FindCustomTags response', response.result)
+        if (response.success) {
+          this.filterSaOptions = []
+          this.filterFaOptions = []
+          this.filterActivityOptions = []
+          const recommends = response.result.recommends
+          // 默认展示的tag分类
+          CustomTagType.task.sa.forEach(name => {
+            recommends.forEach(parent => {
+              if (parent.name === name) {
+                this.filterSaOptions.push(parent)
+              }
+            })
+          })
+          CustomTagType.task.fa.forEach(name => {
+            recommends.forEach(parent => {
+              if (parent.name === name) {
+                this.filterFaOptions.push(parent)
+              }
+            })
+          })
+          CustomTagType.task.activity.forEach(name => {
+            recommends.forEach(parent => {
+              if (parent.name === name) {
+                this.filterActivityOptions.push(parent)
+              }
+            })
+          })
+        }
+      })
     }
   }
 }
@@ -1403,14 +1432,23 @@ export default {
     background: #FFFFFF;
     border: 1px solid #D3D3D3;
     opacity: 1;
-    border-radius: 3px;
+    border-radius: 6px;
     padding: 5px 15px;
     position: relative;
     margin-right: 15px;
-    white-space:nowrap;
 
+    .filter-keyword{
+      white-space:nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      max-width:200px;
+    }
     .filter-close {
       display: none;
+      position: absolute;
+      right: -5px;
+      top: -5px;
     }
 
     &:hover {
@@ -1419,6 +1457,7 @@ export default {
       background-color: #15C39A;
 
       .filter-close {
+        z-index:2000;
         display: block;
         background-color: #fff;
         border: 1px solid #fff;

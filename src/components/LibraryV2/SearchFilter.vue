@@ -1,10 +1,10 @@
 <template>
-  <div class="search-filter" @click="updateFilterConfig">
+  <div class="search-filter">
 
     <div class="filter-item">
       <div class="filter-label">Age</div>
       <div class="filter-option-list">
-        <a-select default-value="All" class="age-select">
+        <a-select default-value="All" class="age-select" @change="updateFilterConfig" v-model="filter.age">
           <a-select-option :value="age.label" v-for="(age, aIndex) in ageOptions" :key="aIndex">
             {{ age.label }}
           </a-select-option>
@@ -16,6 +16,7 @@
       <div class="filter-label">Subject</div>
       <div class="filter-option-list" >
         <a-checkbox-group
+          @change="updateFilterConfig"
           v-model="filter.subject"
           :options="subjectOptions"
         />
@@ -26,6 +27,7 @@
       <div class="filter-label">Type</div>
       <div class="filter-option-list">
         <a-checkbox-group
+          @change="updateFilterConfig"
           v-model="filter.type"
           :options="typeOptions"
         />
@@ -35,7 +37,7 @@
     <div class="filter-item filter-toggle">
       <div class="filter-label"></div>
       <div class="filter-toggle-list">
-        <a-radio-group name="radioGroup" :default-value="1" v-model="filter.faSaActivityType">
+        <a-radio-group name="radioGroup" :default-value="1" v-model="filter.faSaActivityType" @change="updateFilterConfig">
           <a-radio :value="1">
             FA
           </a-radio>
@@ -49,45 +51,70 @@
       </div>
     </div>
 
-    <div class="filter-item" v-if="filter.faSaActivityType === 1">
-      <div class="filter-label">Teaching Strategy</div>
+    <div class="filter-item" v-if="filter.faSaActivityType === 1" v-for="(parent,index) in filterFaOptions" :key="index">
+      <div class="filter-label">{{ parent.name }}</div>
       <div class="filter-option-list">
         <a-checkbox-group
-          v-model="filter.teachingStrategy"
-          :options="teachingStrategyOptions"
+          @change="updateFilterConfig"
+          v-model="filter.faTags[index]"
+          :options="getGroupOptions(parent)"
         />
       </div>
     </div>
 
-    <div class="filter-item" v-if="filter.faSaActivityType === 2">
-      <div class="filter-label">Teaching Strategy</div>
+    <div class="filter-item" v-if="filter.faSaActivityType === 2" v-for="(parent,index) in filterSaOptions" :key="index">
+      <div class="filter-label">{{ parent.name }}</div>
       <div class="filter-option-list">
         <a-checkbox-group
-          v-model="filter.differenceInstructions"
-          :options="differenceInstructionsOptions"
+          @change="updateFilterConfig"
+          v-model="filter.saTags[index]"
+          :options="getGroupOptions(parent)"
+        />
+      </div>
+    </div>
+    <div class="filter-item" v-if="filter.faSaActivityType === 3" v-for="(parent,index) in filterActivityOptions" :key="index">
+      <div class="filter-label">{{ parent.name }}</div>
+      <div class="filter-option-list">
+        <a-checkbox-group
+          @change="updateFilterConfig"
+          v-model="filter.activityTags[index]"
+          :options="getGroupOptions(parent)"
         />
       </div>
     </div>
 
-    <div class="filter-item" v-if="filter.faSaActivityType === 3">
-      <div class="filter-label">Assessment Category</div>
-      <div class="filter-option-list">
-        <a-checkbox-group
-          v-model="filter.assessmentCategory"
-          :options="assessmentTypeOptions"
-        />
-      </div>
-    </div>
+    <!--    <div class="filter-item" v-if="filter.faSaActivityType === 2">-->
+    <!--      <div class="filter-label">Difference Instructions</div>-->
+    <!--      <div class="filter-option-list">-->
+    <!--        <a-checkbox-group-->
+    <!--          @change="updateFilterConfig"-->
+    <!--          v-model="filter.differenceInstructions"-->
+    <!--          :options="differenceInstructionsOptions"-->
+    <!--        />-->
+    <!--      </div>-->
+    <!--    </div>-->
 
-    <div class="filter-item" v-if="filter.faSaActivityType === 'Activity'">
-      <div class="filter-label">Assessment Type</div>
-      <div class="filter-option-list">
-        <a-checkbox-group
-          v-model="filter.assessmentType"
-          :options="assessmentTypeOptions"
-        />
-      </div>
-    </div>
+    <!--    <div class="filter-item" v-if="filter.faSaActivityType === 3">-->
+    <!--      <div class="filter-label">Assessment Category</div>-->
+    <!--      <div class="filter-option-list">-->
+    <!--        <a-checkbox-group-->
+    <!--          @change="updateFilterConfig"-->
+    <!--          v-model="filter.assessmentCategory"-->
+    <!--          :options="assessmentTypeOptions"-->
+    <!--        />-->
+    <!--      </div>-->
+    <!--    </div>-->
+
+    <!--    <div class="filter-item" v-if="filter.faSaActivityType === 'Activity'">-->
+    <!--      <div class="filter-label">Assessment Type</div>-->
+    <!--      <div class="filter-option-list">-->
+    <!--        <a-checkbox-group-->
+    <!--          @change="updateFilterConfig"-->
+    <!--          v-model="filter.assessmentType"-->
+    <!--          :options="assessmentTypeOptions"-->
+    <!--        />-->
+    <!--      </div>-->
+    <!--    </div>-->
 
   </div>
 </template>
@@ -116,15 +143,15 @@ export default {
       type: Array,
       default: () => []
     },
-    differenceInstructionsOptions: {
+    filterSaOptions: {
       type: Array,
       default: () => []
     },
-    assessmentCategoryOptions: {
+    filterFaOptions: {
       type: Array,
       default: () => []
     },
-    assessmentTypeOptions: {
+    filterActivityOptions: {
       type: Array,
       default: () => []
     }
@@ -136,22 +163,36 @@ export default {
         subject: [],
         type: [],
         faSaActivityType: 1,
-
-        teachingStrategy: [],
-        differenceInstructions: [],
-        assessmentCategory: [],
-        assessmentType: []
+        faTags: {},
+        saTags: {},
+        activityTags: {}
       }
     }
   },
   created () {
     this.$logger.info('SearchFilter created', this.filterConfig)
     this.filter = this.filterConfig
+    this.filterSaOptions.forEach((option, index) => {
+      this.filter.faTags.push([])
+    })
+    this.filterFaOptions.forEach((option, index) => {
+      this.filter.saTags.push([])
+    })
+    this.filterActivityOptions.forEach((option, index) => {
+      this.filter.activityTags.push([])
+    })
   },
   methods: {
     updateFilterConfig () {
       this.$logger.info('updateFilterConfig', this.filter)
       this.$emit('filter-config-update', this.filter)
+    },
+    getGroupOptions (parent) {
+      var res = []
+      parent.keywords.forEach(keyword => {
+        res.push({ label: keyword, value: keyword })
+      })
+      return res
     }
   }
 }
@@ -186,4 +227,5 @@ export default {
     margin: 20px 0;
   }
 }
+
 </style>

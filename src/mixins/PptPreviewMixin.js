@@ -164,10 +164,14 @@ export const PptPreviewMixin = {
         }
       })
       if (blooms.length > 0) {
-          this.setCustomTagByPPT(blooms, 'Bloom\'s Taxonomy')
+          if (this.setCustomTagByPPT) {
+            this.setCustomTagByPPT(blooms, 'Bloom\'s Taxonomy')
+          }
       }
       if (dimensions.length > 0) {
-        this.setCustomTagByPPT(dimensions, 'Knowledge Dimensions')
+        if (this.setCustomTagByPPT) {
+          this.setCustomTagByPPT(dimensions, 'Knowledge Dimensions')
+        }
       }
     },
     showPluginMaterial (type) {
