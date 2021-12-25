@@ -1298,7 +1298,9 @@ export default {
       UnitPlanAddOrUpdate(unitPlanData).then((response) => {
         logger.info('UnitPlanAddOrUpdate', response.result)
         if (response.success) {
-          this.restoreUnitPlan(response.result.id, false)
+          // 为了保存提示去掉
+          this.oldForm = JSON.parse(JSON.stringify(this.form))
+          // this.restoreUnitPlan(response.result.id, false)
           this.$message.success(this.$t('teacher.add-unit-plan.save-success'))
           this.$router.push({ path: '/teacher/main/created-by-me' })
         } else {
