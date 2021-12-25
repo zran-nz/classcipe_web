@@ -359,6 +359,7 @@
               </div>
             </template>
             <template v-if="dataListMode === 'card'">
+              ssss
               <div class="card-view-mode-wrapper" v-if="searchResultList.length">
                 <div
                   class="card-item-wrapper"

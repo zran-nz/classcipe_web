@@ -422,7 +422,7 @@ export default {
         gradeId: this.currentGradeId,
         subjectId: this.currentSubSubjectId ? this.currentSubSubjectId : this.currentMainSubjectId,
         knowledgeId: this.currentKnowledgeId,
-        tagType: TagType.skill
+        tagType: TagType.century
       })
       this.$emit('blockCollapse', { blockIndex, path })
     },

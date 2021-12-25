@@ -416,6 +416,7 @@ export default {
 
     handleClickBlock (blockIndex, path) {
       this.$logger.info('handleClickBlock ' + blockIndex)
+      alert(blockIndex)
       this.$emit('blockCollapse', { blockIndex, path })
     },
 

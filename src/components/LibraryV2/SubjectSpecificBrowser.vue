@@ -235,7 +235,7 @@ import CardList from '@/views/list/CardList'
 import DataCardView from '@/components/LibraryV2/DataCardView'
 import { typeMap } from '@/const/teacher'
 import { GetGradesByCurriculumId, GetLibraryGrades } from '@/api/preference'
-import { SubjectType, TagType } from '@/const/common'
+import { CurriculumType, SubjectType, TagType } from '@/const/common'
 const { SubjectTree } = require('@/api/subject')
 
 export default {
@@ -471,7 +471,7 @@ export default {
         gradeId: this.currentGradeId,
         subjectId: this.currentSubSubjectId ? this.currentSubSubjectId : this.currentMainSubjectId,
         knowledgeId: this.currentSubKnowledgeId ? this.currentSubKnowledgeId : this.currentKnowledgeId,
-        tagType: TagType.knowledge
+        tagType: this.curriculumId === CurriculumType.IBPYP ? TagType.ibSkill : TagType.skill
       })
       this.$emit('blockCollapse', { blockIndex, path })
     },
