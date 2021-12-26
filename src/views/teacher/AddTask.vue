@@ -2082,15 +2082,21 @@ export default {
           presentationId: this.form.presentationId
         }).then(response => {
           this.$logger.info('loadThumbnail response', response.result)
-          const pageObjects = response.result.pageObjects
-          this.pptTitle = response.result.title
-          this.thumbnailList = []
-          pageObjects.forEach(page => {
-            this.thumbnailList.push({ contentUrl: page.contentUrl, id: page.pageObjectId })
-          })
+          if (response.success) {
+            const pageObjects = response.result.pageObjects
+            this.pptTitle = response.result.title
+            this.thumbnailList = []
+            pageObjects.forEach(page => {
+              this.thumbnailList.push({ contentUrl: page.contentUrl, id: page.pageObjectId })
+            })
+          } else if (!response.success && response.code === 404) {
+            // 文件被删除 todo
+          } else {
+            this.$message.error(response.message)
+          }
+        }).finally(() => {
           this.thumbnailListLoading = false
           this.skeletonLoading = false
-        }).finally(() => {
           this.getClassInfo(this.form.presentationId)
         })
       },
