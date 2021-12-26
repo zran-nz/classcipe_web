@@ -588,7 +588,7 @@ export default {
       selfHeaderAddIndex: 1,
       headers: [], // 表头
       list: [], // 表结构数据
-      defaultActiveMenu: NavigationType.learningOutcomes,
+      defaultActiveMenu: NavigationType.specificSkills,
       showMenuList: [ NavigationType.centurySkills ],
       mode: null,
 

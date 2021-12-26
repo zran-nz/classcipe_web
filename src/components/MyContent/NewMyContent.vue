@@ -446,7 +446,7 @@ export default {
 
       typeMap: typeMap,
 
-      dataListMode: 'card',
+      dataListMode: 'list',
       createdType: 'All',
       createNewName: '',
       createNewNameMode: 'hide',

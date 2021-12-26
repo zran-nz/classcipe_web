@@ -28,12 +28,6 @@
                   <a-icon type="check" v-if="group.editing"/>
                 </div>
 
-                <a-popconfirm title="Delete group?" ok-text="Yes" @confirm="handleDeleteGroup(group)" cancel-text="No">
-                  <span class="delete-action" >
-                    <img src="~@/assets/icons/tag/delete.png"/>
-                  </span>
-                </a-popconfirm>
-
               </div>
               <div class="group-right-info" v-if="canEdit">
                 <div class="group-action">
@@ -43,6 +37,11 @@
                     </div>
                   </a-button>
                 </div>
+                <a-popconfirm title="Delete group?" ok-text="Yes" @confirm="handleDeleteGroup(group)" cancel-text="No">
+                  <span class="delete-action" >
+                    <img src="~@/assets/icons/tag/delete.png"/>
+                  </span>
+                </a-popconfirm>
               </div>
             </div>
             <div class="group-body">
@@ -453,6 +452,7 @@ export default {
       margin-bottom: 25px;
       .group-item {
         .group-header {
+          margin-right: 25px;
           background-color: #C3EAFC;
           display: flex;
           border-top-left-radius: 4px;
@@ -516,7 +516,7 @@ export default {
           }
           .delete-action {
             position: absolute;
-            top:5px;
+            top:7px;
             right: -30px;
             display: none;
             cursor: pointer;
