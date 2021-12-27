@@ -52,7 +52,7 @@ export const TemplateType = {
 export const CustomTagType = {
   plan: {
     sdg: [TAG_CATGORY_KEYWORDS],
-    bigIdea: ['Key words', 'Global context', 'Universal Concept'],
+    bigIdea: ['Global Context', 'Key Concepts', 'Relevant Concepts'],
     default: ['Teaching strategies', 'Differentiated instructions'],
     question: ['Knowledge Dimensions']
   },

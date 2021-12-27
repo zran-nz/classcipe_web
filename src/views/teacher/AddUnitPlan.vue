@@ -1133,6 +1133,11 @@ export default {
         }
         if (!unitPlanData.gradeId) {
           unitPlanData.gradeId = undefined
+        } else {
+          // 年级在本国大纲不存在的情况
+          if (this.gradeList.filter(grade => grade.id === unitPlanData.gradeId).length === 0) {
+            this.form.gradeId = undefined
+          }
         }
         if (unitPlanData.startDate && unitPlanData.endDate) {
           this.rangeDate.push(moment.utc(unitPlanData.startDate).local())
