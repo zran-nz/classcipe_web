@@ -25,19 +25,20 @@
           </div>
           <div class="search-bar-line">
             <div class="search-input" @click.stop="">
-              <a-input
+              <a-input-search
+                placeholder="input search text"
+                :loading="searching"
                 v-model="searchKeyword"
-                placeholder="Input search text"
-                @change="handleSearchKey"
-                @keyup.enter="handleSearchKey"
-                @focus="handleSearchKeyFocus"
-                class="library-search-input">
-                <a-icon slot="prefix" type="search" />
-              </a-input>
-
+                class="library-search-input"
+                @click.native="handleSearchKeyFocus"
+                @keyup.native="handleSearchKeyFocus"
+                enter-button
+                @search="handleSearchKeyFocus" />
               <div class="search-result-wrapper" v-if="searchResultVisible">
                 <div class="searching" v-if="searching">
-                  <a-spin />
+                  <a-spin>
+                    <a-icon slot="indicator" type="loading" style="font-size: 24px" spin />
+                  </a-spin>
                 </div>
                 <div class="search-result-list" v-if="!searching">
                   <template v-if="searchResultList.length">
@@ -626,6 +627,7 @@ export default {
     },
     handleSearchKeyInputBlur () {
       this.$logger.info('handleSearchKeyInputBlur')
+      this.searchResultVisible = false
     },
 
     handleClickSearchResultItem (item) {
@@ -1109,7 +1111,7 @@ export default {
 }
 
 .switch-icon {
-  margin-left: 20px;
+  margin-left: 10px;
   display: flex;
   flex-direction: row;
   align-items: center;
@@ -1393,7 +1395,7 @@ export default {
   top: 40px;
   z-index: 150;
   box-shadow: 0 0 8px rgba(0, 0, 0, 0.16);
-  width: 100%;
+  width: calc(100% - 46px);
   background-color: #fff;
   max-height: 400px;
   overflow-y: scroll;

@@ -658,7 +658,18 @@ ol {
 
 .library-search-input {
   .ant-input {
-    border-radius: 20px;
+    color: #15c39a;
+    font-family: Inter-Bold;
+    border-radius: 32px;
+
+    &:focus {
+      box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.16);
+    }
+  }
+  .ant-input-group-addon {
+    button {
+      border-radius: 32px;
+    }
   }
 }
 
