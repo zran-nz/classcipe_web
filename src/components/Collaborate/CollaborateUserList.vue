@@ -7,13 +7,69 @@
       </div>
     </div>
     <div class="user-select-wrapper">
-      <template v-if="userSelectMode === 'invite'">
-        <div class="user-search-wrapper">
-          <div class="search-header">
-            <a-input-search placeholder="Invite teacher by email" v-model="userNameOrEmail" enter-button @search="searchUser" @change="searchUser"/>
+      <div class="user-search-wrapper">
+        <div class="search-header">
+          <a-input-group compact>
+            <a-input-search
+              size="large"
+              placeholder="Invite teacher by email"
+              v-model="userNameOrEmail"
+              @search="searchUser"
+              @change="searchUser">
+              <a-icon slot="prefix" type="search" />
+              <div slot="suffix"> </div>
+              <a-select slot="addonAfter" default-value="Edit" style="width: 80px;">
+                <a-select-option value="Edit">
+                  Edit
+                </a-select-option>
+                <a-select-option value="View">
+                  View
+                </a-select-option>
+              </a-select>
+            </a-input-search>
+
+          </a-input-group>
+
+        </div>
+
+        <div class="user-list" v-if="showUser">
+          <div class="user-item" v-for="(user,index) in userList" :key="index" v-if="userList.length">
+            <div class="user-avatar-email">
+              <div class="avatar">
+                <img :src="user.avatar" />
+              </div>
+              <div class="email">
+                {{ user.nickname }}
+              </div>
+            </div>
+            <div class="user-name">
+              {{ user.email }}
+            </div>
+            <div class="action" >
+              <div slot="actions">
+                <div class="action-wrapper">
+                  <div class="action-item" @click="handleAddToSelect(user)">
+                    <div class="active-status-icon">
+                      <img src="~@/assets/icons/collaborate/round.png" v-if="selectedEmailList.indexOf(user.email) === -1"/>
+                      <a-icon theme="filled" type="check-circle" v-if="selectedEmailList.indexOf(user.email) !== -1" />
+                    </div>
+                    <div class="action-name"> + Select</div>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
-          <div class="user-list">
-            <div class="user-item" v-for="(user,index) in userList" :key="index" v-if="userList.length">
+          <div class="empty-user" v-if="userList.length === 0 && selectedUserList.length === 0">
+            <no-more-resources tips="no user found!"/>
+          </div>
+        </div>
+
+        <div class="collaborate-user" v-if="selectedUserList.length && !showUser">
+          <div class="collaborate-title">
+            Collaborator
+          </div>
+          <div class="collaborate-user-list">
+            <div class="user-item" v-for="(user,index) in selectedUserList" :key="index">
               <div class="user-avatar-email">
                 <div class="avatar">
                   <img :src="user.avatar" />
@@ -28,60 +84,24 @@
               <div class="action" >
                 <div slot="actions">
                   <div class="action-wrapper">
-                    <div class="action-item" @click="handleAddToSelect(user)">
+                    <div class="action-item" @click="handleAddToEditor(user.email)">
                       <div class="active-status-icon">
-                        <img src="~@/assets/icons/collaborate/round.png" v-if="selectedEmailList.indexOf(user.email) === -1"/>
-                        <a-icon theme="filled" type="check-circle" v-if="selectedEmailList.indexOf(user.email) !== -1" />
+                        <img src="~@/assets/icons/collaborate/round.png" v-if="selectedEditorEmailList.indexOf(user.email) === -1"/>
+                        <a-icon theme="filled" type="check-circle" v-if="selectedEditorEmailList.indexOf(user.email) !== -1" />
                       </div>
-                      <div class="action-name"> + Select</div>
+                      <div class="action-name">Editor</div>
+                      <div class="active-icon">
+                        <img src="~@/assets/icons/collaborate/editor.png" />
+                      </div>
                     </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div class="empty-user" v-if="userList.length === 0 && selectedUserList.length === 0">
-              <no-more-resources tips="no user found!"/>
-            </div>
-          </div>
-          <div class="collaborate-user" v-show="selectedUserList.length">
-            <div class="collaborate-title">
-              Collaborator
-            </div>
-            <div class="collaborate-user-list">
-              <div class="user-item" v-for="(user,index) in selectedUserList" :key="index">
-                <div class="user-avatar-email">
-                  <div class="avatar">
-                    <img :src="user.avatar" />
-                  </div>
-                  <div class="email">
-                    {{ user.nickname }}
-                  </div>
-                </div>
-                <div class="user-name">
-                  {{ user.email }}
-                </div>
-                <div class="action" >
-                  <div slot="actions">
-                    <div class="action-wrapper">
-                      <div class="action-item" @click="handleAddToEditor(user.email)">
-                        <div class="active-status-icon">
-                          <img src="~@/assets/icons/collaborate/round.png" v-if="selectedEditorEmailList.indexOf(user.email) === -1"/>
-                          <a-icon theme="filled" type="check-circle" v-if="selectedEditorEmailList.indexOf(user.email) !== -1" />
-                        </div>
-                        <div class="action-name">Editor</div>
-                        <div class="active-icon">
-                          <img src="~@/assets/icons/collaborate/editor.png" />
-                        </div>
+                    <div class="action-item" @click="handleAddToViewer(user.email)">
+                      <div class="active-status-icon">
+                        <img src="~@/assets/icons/collaborate/round.png" v-if="selectedViewerEmailList.indexOf(user.email) === -1"/>
+                        <a-icon theme="filled" type="check-circle" v-if="selectedViewerEmailList.indexOf(user.email) !== -1" />
                       </div>
-                      <div class="action-item" @click="handleAddToViewer(user.email)">
-                        <div class="active-status-icon">
-                          <img src="~@/assets/icons/collaborate/round.png" v-if="selectedViewerEmailList.indexOf(user.email) === -1"/>
-                          <a-icon theme="filled" type="check-circle" v-if="selectedViewerEmailList.indexOf(user.email) !== -1" />
-                        </div>
-                        <div class="action-name">Viewer</div>
-                        <div class="active-icon">
-                          <img src="~@/assets/icons/collaborate/viewer.png" />
-                        </div>
+                      <div class="action-name">Viewer</div>
+                      <div class="active-icon">
+                        <img src="~@/assets/icons/collaborate/viewer.png" />
                       </div>
                     </div>
                   </div>
@@ -90,7 +110,17 @@
             </div>
           </div>
         </div>
-      </template>
+        <div class="no-collaborate-users" v-if="!showUser && selectedUserList.length === 0">
+          <div class="icon">
+            <img src="~@/assets/icons/collaborate/no_user.png" />
+          </div>
+          <div class="tips">
+            <a>
+              No collaborated users find
+            </a>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -103,7 +133,6 @@ export default {
   components: { NoMoreResources },
   data () {
     return {
-      userSelectMode: 'invite',
       userNameOrEmail: null,
 
       userList: [],
@@ -117,7 +146,8 @@ export default {
       publishMessage: null,
 
       inviteExperts: false,
-      inviteAll: false
+      inviteAll: false,
+      showUser: false
     }
   },
   methods: {
@@ -133,6 +163,7 @@ export default {
       if (!this.userNameOrEmail || this.userNameOrEmail.length < 3) {
         return
       }
+      this.showUser = true
       SearchUser({ name: this.userNameOrEmail }).then(response => {
         this.$logger.info('SearchUser response', response)
         this.userList = response.result
@@ -241,7 +272,8 @@ export default {
       margin: auto;
       width: 90%;
       border-radius: 4px;
-      padding: 15px 10px 5px 10px;
+      margin-bottom: 10px;
+      //padding: 15px 10px 5px 10px;
 
       .search-line {
         display: flex;
@@ -306,6 +338,11 @@ export default {
           width: 40%;
         }
       }
+
+      /deep/ .ant-input{
+        border-bottom-left-radius: 30px;
+        border-top-left-radius: 30px
+      }
     }
 
     .user-list {
@@ -314,7 +351,8 @@ export default {
       max-height: 380px;
       width: 90%;
       margin: auto;
-      overflow-y: scroll;
+      //overflow-y: scroll;
+      border: 1px solid #D8D8D8;
       flex-direction: column;
 
       &::-webkit-scrollbar {
@@ -541,91 +579,6 @@ export default {
     }
   }
 
-  .publish-wrapper {
-    background: rgba(255, 255, 255, 0.2);
-    border: 1px solid #eee;
-    opacity: 1;
-    border-radius: 4px;
-    min-height: 300px;
-    padding: 10px;
-    box-sizing: border-box;
-    .publish-tips {
-      margin-bottom: 25px;
-      padding: 15px 10px;
-      display: flex;
-      flex-direction: row;
-      align-items: center;
-      background: #FFFFFF;
-      box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.16);
-      opacity: 1;
-      border-radius: 4px;
-      .tips-icon {
-        img {
-          height: 30px;
-        }
-      }
-
-      .tips-text {
-        padding-left: 10px;
-        font-family: PingFang SC;
-        font-weight: 400;
-        color: #11142D;
-      }
-    }
-
-    .publish-message {
-      .my-publish-textarea {
-        background: rgba(245, 245, 245, 0.5);
-        border: 1px solid #eee;
-        outline: none;
-        box-shadow: none;
-        border-radius: 5px;
-        min-height: 150px;
-      }
-    }
-
-    .extra-action {
-      margin-top: 20px;
-
-      .extra-item {
-        margin-bottom: 10px;
-        display: flex;
-        flex-direction: row;
-        user-select: none;
-        align-items: center;
-
-        .extra-selected-icon {
-          color: #07AB84;
-          font-size: 17px;
-          width: 20px;
-          display: flex;
-          flex-direction: row;
-          align-items: center;
-
-          img {
-            height: 17px;
-          }
-        }
-
-        .extra-text {
-          padding-left: 5px;
-        }
-      }
-    }
-  }
-
-  .publish-action {
-    display: flex;
-    margin-top: 30px;
-    flex-direction: row;
-    align-items: center;
-    justify-content: center;
-
-    .button-item {
-      margin: 0 20px;
-    }
-  }
-
   .message-action-wrapper {
     height: 50px;
     display: flex;
@@ -634,6 +587,24 @@ export default {
     flex-direction: row;
     align-items: center;
     justify-content: center;
+  }
+}
+
+.no-collaborate-users {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  margin:20px;
+
+  .icon {
+    img {
+      width: 250px;
+    }
+  }
+
+  .tips {
+    line-height: 24px;
   }
 }
 

@@ -29,8 +29,10 @@ import * as logger from '@/utils/logger'
 
 // import VueRecord from '@codekraft-studio/vue-record'
 import preview from 'vue-photo-preview'
+import VueClipboard from 'vue-clipboard2'
 
 Vue.use(preview, { maxSpreadZoom: 4 })
+Vue.use(VueClipboard)
 
 Vue.use(FormModel)
 

@@ -240,9 +240,12 @@
                   </div>
                 </div>
                 <div class="cover-img" :style="{backgroundImage: 'url(' + item.image + ')'}"></div>
+
                 <a-card-meta class="my-card-meta-info" :title="item.name ? item.name : 'Untitled'" :description="item.createTime | dayjs" @click="handleViewDetail(item)">
                   <content-type-icon :type="item.type" slot="avatar"></content-type-icon>
                 </a-card-meta>
+
+                <collaborate-svg class="card-collaborate-icon-item" v-if="item.collaborates > 0"/>
               </a-card>
             </a-list-item>
           </a-list>
@@ -1097,6 +1100,13 @@ a.delete-action {
   opacity: 1;
   border-radius: 6px;
   border: none;
+  position:relative;
+  .card-collaborate-icon-item{
+    width:30px;
+    position: absolute;
+    right: 0;
+    bottom: 5px;
+  }
 
   .cover-img {
     width: 100%;
