@@ -4,7 +4,6 @@
       <div class="header-info">
         <div class="library-nav-bar" >
           <navigation :path="navPath" @pathChange="handleNavPathChange" v-show="libraryMode === LibraryMode.browserMode"/>
-          <div class="go-browser" @click="goBrowserMode" v-show="libraryMode === LibraryMode.searchMode">< Back</div>
         </div>
         <div class="filter-line">
           <div class="curriculum-filter-line">
@@ -36,6 +35,14 @@
                 class="library-search-input">
                 <a-icon slot="prefix" type="search" />
               </a-input>
+            </div>
+            <div class="switch-icon">
+              <div :class="{'icon-item': true, 'active-icon': dataListMode === 'list'}" @click="handleToggleDataListMode('list')">
+                <list-mode-icon />
+              </div>
+              <div :class="{'icon-item': true, 'active-icon': dataListMode === 'card'}" @click="handleToggleDataListMode('card')">
+                <pu-bu-icon />
+              </div>
             </div>
           </div>
         </div>
@@ -171,54 +178,6 @@
           <div
             class="browser-block-item-last"
             :style="{'flex-direction': dataListMode === 'list' ? 'column' : 'row'}">
-            <!--   data item list-->
-            <div class="switch-type-wrapper" v-if="dataList.length">
-              <div class="switch-type">
-                <div class="switch-label">
-                  <a-dropdown>
-                    <a-menu slot="overlay">
-                      <a-menu-item disabled>
-                        <span>{{ $t('teacher.my-content.choose-types-of-content') }}</span>
-                      </a-menu-item>
-                      <a-menu-item @click="toggleType(0, $t('teacher.my-content.all-type'))">
-                        <span>{{ $t('teacher.my-content.all-type') }}</span>
-                      </a-menu-item>
-                      <template v-if="$store.getters.roles.indexOf('teacher') !== -1">
-                        <a-menu-item @click="toggleType( typeMap['unit-plan'], $t('teacher.my-content.unit-plan-type'))">
-                          <span>{{ $t('teacher.my-content.unit-plan-type') }}</span>
-                        </a-menu-item>
-                        <a-menu-item @click="toggleType(typeMap.evaluation, $t('teacher.my-content.evaluation-type'))">
-                          <span>{{ $t('teacher.my-content.evaluation-type') }}</span>
-                        </a-menu-item>
-                      </template>
-                      <a-menu-item @click="toggleType(typeMap.task, $t('teacher.my-content.tasks-type') )">
-                        <span>{{ $t('teacher.my-content.tasks-type') }}</span>
-                      </a-menu-item>
-                      <!--                  <a-menu-item @click="toggleType(typeMap.lesson, $t('teacher.my-content.lesson-type'))">
-                        <span>{{ $t('teacher.my-content.lesson-type') }}</span>
-                      </a-menu-item>-->
-                      <template v-if="$store.getters.roles.indexOf('expert') !== -1">
-                        <a-menu-item @click="toggleType(typeMap.topic, $t('teacher.my-content.topics-type'))">
-                          <span>{{ $t('teacher.my-content.topics-type') }}</span>
-                        </a-menu-item>
-                      </template>
-                    </a-menu>
-                    <a-button
-                      style="padding: 0 10px;display:flex; align-items:center ;height: 35px;border-radius: 6px;background: rgba(245, 245, 245, 0.5);font-size:13px;border: 1px solid #BCBCBC;font-family: Inter-Bold;color: #182552;">
-                      <span v-if="currentTypeLabel">{{ currentTypeLabel }}</span> <span v-else>Choose type(s)of content</span>
-                      <a-icon type="caret-down" /> </a-button>
-                  </a-dropdown>
-                </div>
-                <div class="switch-icon">
-                  <div :class="{'icon-item': true, 'active-icon': dataListMode === 'list'}" @click="handleToggleDataListMode('list')">
-                    <list-mode-icon />
-                  </div>
-                  <div :class="{'icon-item': true, 'active-icon': dataListMode === 'card'}" @click="handleToggleDataListMode('card')">
-                    <pu-bu-icon />
-                  </div>
-                </div>
-              </div>
-            </div>
             <template v-if="dataListMode === 'list'">
 
               <div
@@ -272,116 +231,6 @@
               <a-spin />
             </div>
           </div>
-        </div>
-      </div>
-      <div class="search-info" style="height: calc(100vh - 200px);" v-show="libraryMode === LibraryMode.searchMode">
-        <div
-          v-show="!searching"
-          class="browser-block-item-wrapper">
-          <div
-            class="browser-block-item-last"
-            :style="{'flex-direction': dataListMode === 'list' ? 'column' : 'row'}">
-            <!--   data item list-->
-            <div class="switch-type-wrapper" v-if="searchResultList.length">
-              <div class="switch-type">
-                <div class="switch-label">
-                  <a-dropdown>
-                    <a-menu slot="overlay">
-                      <a-menu-item disabled>
-                        <span>{{ $t('teacher.my-content.choose-types-of-content') }}</span>
-                      </a-menu-item>
-                      <a-menu-item @click="toggleType(0, $t('teacher.my-content.all-type'))">
-                        <span>{{ $t('teacher.my-content.all-type') }}</span>
-                      </a-menu-item>
-                      <template v-if="$store.getters.roles.indexOf('teacher') !== -1">
-                        <a-menu-item @click="toggleType( typeMap['unit-plan'], $t('teacher.my-content.unit-plan-type'))">
-                          <span>{{ $t('teacher.my-content.unit-plan-type') }}</span>
-                        </a-menu-item>
-                        <a-menu-item @click="toggleType(typeMap.evaluation, $t('teacher.my-content.evaluation-type'))">
-                          <span>{{ $t('teacher.my-content.evaluation-type') }}</span>
-                        </a-menu-item>
-                      </template>
-                      <a-menu-item @click="toggleType(typeMap.task, $t('teacher.my-content.tasks-type') )">
-                        <span>{{ $t('teacher.my-content.tasks-type') }}</span>
-                      </a-menu-item>
-                      <!--                  <a-menu-item @click="toggleType(typeMap.lesson, $t('teacher.my-content.lesson-type'))">
-                        <span>{{ $t('teacher.my-content.lesson-type') }}</span>
-                      </a-menu-item>-->
-                      <template v-if="$store.getters.roles.indexOf('expert') !== -1">
-                        <a-menu-item @click="toggleType(typeMap.topic, $t('teacher.my-content.topics-type'))">
-                          <span>{{ $t('teacher.my-content.topics-type') }}</span>
-                        </a-menu-item>
-                      </template>
-                    </a-menu>
-                    <a-button
-                      style="padding: 0 10px;display:flex; align-items:center ;height: 35px;border-radius: 6px;background: rgba(245, 245, 245, 0.5);font-size:13px;border: 1px solid #BCBCBC;font-family: Inter-Bold;color: #182552;">
-                      <span v-if="currentTypeLabel">{{ currentTypeLabel }}</span> <span v-else>Choose type(s)of content</span>
-                      <a-icon type="caret-down" /> </a-button>
-                  </a-dropdown>
-                </div>
-                <div class="switch-icon">
-                  <div :class="{'icon-item': true, 'active-icon': dataListMode === 'list'}" @click="handleToggleDataListMode('list')">
-                    <list-mode-icon />
-                  </div>
-                  <div :class="{'icon-item': true, 'active-icon': dataListMode === 'card'}" @click="handleToggleDataListMode('card')">
-                    <pu-bu-icon />
-                  </div>
-                </div>
-              </div>
-            </div>
-            <template v-if="dataListMode === 'list'">
-
-              <div
-                :class="{
-                  'browser-item': true,
-                  'odd-line': index % 2 === 0,
-                  'active-line': currentDataId === dataItem.id
-                }"
-                v-for="(dataItem, index) in searchResultList"
-                @click="handleSelectDataItem(dataItem)"
-                v-if="(currentType === 0 || dataItem.type === currentType)"
-                :key="index">
-                <a-tooltip :mouseEnterDelay="1">
-                  <template slot="title">
-                    {{ dataItem.name }}
-                  </template>
-                  <content-type-icon :type="dataItem.type" />
-                  <span class="data-name">
-                    {{ dataItem.name }}
-                  </span>
-                  <span class="data-time">
-                    {{ dataItem.createTime | dayjs }}
-                  </span>
-                </a-tooltip>
-                <!--            <span class="arrow-item">-->
-                <!--              <a-icon type="more" />-->
-                <!--            </span>-->
-              </div>
-            </template>
-            <template v-if="dataListMode === 'card'">
-              <div class="card-view-mode-wrapper" v-if="searchResultList.length">
-                <div
-                  class="card-item-wrapper"
-                  v-for="(dataItem, index) in searchResultList"
-                  @click="handleSelectDataItem(dataItem)"
-                  v-if="(currentType === 0 || dataItem.type === currentType)"
-                  :key="index">
-                  <div class="card-item">
-                    <data-card-view
-                      :active-flag="currentDataId === dataItem.id"
-                      :cover="dataItem.image"
-                      :title="dataItem.name"
-                      :created-time="dataItem.createTime"
-                      :content-type="dataItem.type"
-                    />
-                  </div>
-                </div>
-              </div>
-            </template>
-          </div>
-        </div>
-        <div class="loading-wrapper">
-          <a-spin v-if="searching"/>
         </div>
       </div>
     </div>
@@ -980,6 +829,9 @@ export default {
     justify-content: flex-start;
     align-items: center;
     transition: all 200ms ease-in-out;
+    line-height: 30px;
+    height: 50px;
+    padding: 10px 0;
 
     .curriculum-select {
       display: flex;
@@ -994,6 +846,8 @@ export default {
   .filter-line {
     display: flex;
     flex-direction: row;
+    width: 100%;
+    justify-content: space-between;
     align-items: center;
 
     .curriculum-filter-line {
@@ -1020,7 +874,7 @@ export default {
     }
 
     .search-bar-line {
-      width: calc(100% - 200px);
+      width: 100%;
       padding-left: 20px;
       display: flex;
       flex-direction: row;
@@ -1224,6 +1078,32 @@ export default {
   }
 }
 
+.switch-icon {
+  margin-left: 20px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+
+  .icon-item {
+    cursor: pointer;
+    margin-left: 10px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    svg {
+      width: 22px;
+      color: rgba(24, 37, 82, 1);
+    }
+  }
+
+  .active-icon {
+    svg {
+      color: rgba(21, 195, 154, 1);
+    }
+  }
+}
+
 .browser-block-item-last {
   position: relative;
   display: flex;
@@ -1232,56 +1112,6 @@ export default {
   justify-content: flex-start;
   box-sizing: border-box;
 
-  .switch-type-wrapper {
-    padding-right: 10px;
-    width: 100%;
-    text-align: center;
-    display: flex;
-    justify-content: flex-end;
-
-    .switch-type {
-      display: flex;
-      flex-direction: row;
-      align-items: center;
-      justify-content: space-between;
-      border: 1px solid #F7F8FF;
-      box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.16);
-      opacity: 1;
-      border-radius: 6px;
-      padding: 5px 10px;
-
-      .switch-label {
-        font-size: 14px;
-        font-family: Inter-Bold;
-        line-height: 20px;
-        color: rgba(24, 37, 82, 1);
-      }
-
-      .switch-icon {
-        display: flex;
-        flex-direction: row;
-        align-items: center;
-        justify-content: center;
-
-        .icon-item {
-          margin-left: 10px;
-          display: flex;
-          flex-direction: row;
-          align-items: center;
-          svg {
-            width: 22px;
-            color: rgba(24, 37, 82, 1);
-          }
-        }
-
-        .active-icon {
-          svg {
-            color: rgba(21, 195, 154, 1);
-          }
-        }
-      }
-    }
-  }
   .browser-item {
     line-height: 20px;
     padding: 10px 0 10px 10px;
@@ -1447,7 +1277,6 @@ export default {
   align-items: center;
   justify-content: flex-start;
   padding-left: 15px;
-  overflow-y: auto;
 
   .filter-list-item {
     color: #333;
@@ -1526,13 +1355,5 @@ export default {
   box-sizing: border-box;
   background-color: #fff;
   width: 100vw;
-}
-
-.go-browser {
-  line-height: 30px;
-  padding: 10px 0;
-  color: #38cfa6;
-  font-weight: Bold;
-  cursor: pointer;
 }
 </style>
