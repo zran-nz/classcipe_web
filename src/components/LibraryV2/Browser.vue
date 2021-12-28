@@ -761,7 +761,7 @@ export default {
       this.searching = true
       QueryContentsFilter(filter).then(response => {
         this.$logger.info('QueryContentsFilter result : ', response)
-        this.searchResultList = response.result ? response.result : []
+        this.dataList = response.result ? response.result : []
       }).finally(() => {
         this.searching = false
       })
