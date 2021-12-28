@@ -2,8 +2,16 @@
   <div class="collaborate-user-list">
     <div class="toggle-header">
       <div class="toggle-mode-type-wrapper">
-        <div class="header-icon"><img src="~@/assets/icons/collaborate/group.png" /></div>
-        <div>Invite People</div>
+        <div class="toggle-mode-type">
+          <div class="toggle-mode">
+            <div :class="{'mode-item': true, 'skill-active-mode' : userSelectMode === 'invite'}" @click="handleToggleType('invite')">
+              Invite people I know
+            </div>
+            <div :class="{'mode-item': true, 'knowledge-active-mode' : userSelectMode === 'publish'}" @click="handleToggleType('publish')">
+              Publish to find collaborators
+            </div>
+          </div>
+        </div>
       </div>
     </div>
     <div class="user-select-wrapper">
@@ -90,7 +98,49 @@
             </div>
           </div>
         </div>
+        <div class="message-action-wrapper">
+          <a-button class="button-item" type="primary" shape="round" @click="handleEnsureSelect" v-show="selectedEmailList.length > 0"> Next</a-button>
+        </div>
       </template>
+      <!--      <template v-if="userSelectMode === 'publish'">-->
+      <!--        <div class="publish-wrapper">-->
+      <!--          <div class="publish-tips">-->
+      <!--            <div class="tips-icon">-->
+      <!--              <img src="~@/assets/icons/collaborate/quanqiu_jiaoyu@2x.png" />-->
+      <!--            </div>-->
+      <!--            <div class="tips-text">-->
+      <!--              We will recommend your selected content with global experts/educators to collaborate-->
+      <!--            </div>-->
+      <!--          </div>-->
+      <!--          <div class="publish-message">-->
+      <!--            <a-textarea v-model="publishMessage" :autosize="{ minRows: 6, maxRows: 12 }" class="my-publish-textarea" placeholder="Message to your collaborators" />-->
+      <!--          </div>-->
+      <!--          <div class="extra-action">-->
+      <!--            <div class="extra-item" @click="inviteExperts = !inviteExperts">-->
+      <!--              <div class="extra-selected-icon">-->
+      <!--                <img src="~@/assets/icons/collaborate/round.png" v-if="!inviteExperts"/>-->
+      <!--                <a-icon theme="filled" type="check-circle" v-if="inviteExperts" />-->
+      <!--              </div>-->
+      <!--              <div class="extra-text">Only invite experts/teachers specialized in this subject</div>-->
+      <!--            </div>-->
+      <!--            <div class="extra-item" @click="inviteAll = !inviteAll">-->
+      <!--              <div class="extra-selected-icon">-->
+      <!--                <img src="~@/assets/icons/collaborate/round.png" v-if="!inviteAll"/>-->
+      <!--                <a-icon theme="filled" type="check-circle" v-if="inviteAll" />-->
+      <!--              </div>-->
+      <!--              <div class="extra-text">Invite all</div>-->
+      <!--            </div>-->
+      <!--          </div>-->
+      <!--        </div>-->
+      <!--        <div class="publish-action">-->
+      <!--          <div class="action-item">-->
+      <!--            <a-button class="button-item" shape="round" @click="handleCancel"> Cancel</a-button>-->
+      <!--          </div>-->
+      <!--          <div class="action-item">-->
+      <!--            <a-button class="button-item" type="primary" shape="round" @click="handleEnsurePublishSelect"> Invite collaborators</a-button>-->
+      <!--          </div>-->
+      <!--        </div>-->
+      <!--      </template>-->
     </div>
   </div>
 </template>
@@ -202,32 +252,58 @@ export default {
 @import "~@/components/index.less";
 
 .collaborate-user-list {
-  margin-top: 5px;
+  margin-top: 10px;
 
   .toggle-header {
     display: flex;
     flex-direction: row;
     justify-content: center;
-    padding: 5px 0;
+    padding: 15px 0;
 
     .toggle-mode-type-wrapper {
       box-sizing: border-box;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      .header-icon{
-        img{
-          width:40px;
-          margin:5px;
+      .toggle-mode-type {
+        height: 40px;
+        display: inline-block;
+        border-radius: 40px;
+        background: rgba(228, 228, 228, 0.3);
+
+        .toggle-mode {
+          border-radius: 40px;
+          height: 40px;
+          display: flex;
+          flex-direction: row;
+          font-size: 14px;
+
+          .mode-item {
+            cursor: pointer;
+            padding: 0 15px;
+            font-size: 12px;
+            height: 40px;
+            color: rgba(17, 20, 45, 1);
+            border-radius: 40px;
+            font-family: Inter-Bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+          }
+
+          .skill-active-mode {
+            color: #fff;
+            background: rgba(21, 195, 154, 1);
+          }
+
+          .knowledge-active-mode {
+            color: #fff;
+            background: rgba(21, 195, 154, 1);
+          }
+
+          .general-active-mode {
+            color: #fff;
+            background: rgba(21, 195, 154, 1);
+          }
         }
       }
-      font-size: 16px;
-      font-family: Segoe UI;
-      font-weight: bold;
-      line-height: 20px;
-      color: #000000;
-      opacity: 1;
     }
   }
 

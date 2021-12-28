@@ -23,9 +23,9 @@
         <div class="type-filter">
           <a-dropdown>
             <a-menu slot="overlay">
-              <a-menu-item disabled>
-                <span>{{ $t('teacher.my-content.choose-types-of-content') }}</span>
-              </a-menu-item>
+              <!--              <a-menu-item disabled>-->
+              <!--                <span>{{ $t('teacher.my-content.choose-types-of-content') }}</span>-->
+              <!--              </a-menu-item>-->
               <a-menu-item @click="toggleType('all-type', $t('teacher.my-content.all-type'))">
                 <span>{{ $t('teacher.my-content.all-type') }}</span>
               </a-menu-item>
@@ -48,6 +48,12 @@
               <!--              <a-menu-item @click="toggleType('lesson', $t('teacher.my-content.lesson-type'))">
                 <span>{{ $t('teacher.my-content.lesson-type') }}</span>
               </a-menu-item>-->
+              <a-divider style="margin: 10px 0px;" />
+
+              <a-menu-item @click="toggleType('Collabrated', 'Collabrated')">
+                <span>Collabrated</span>
+              </a-menu-item>
+
             </a-menu>
             <a-button
               class="type-filter-button"
@@ -86,6 +92,11 @@
                 <span class="name-content">
                   {{ item.name ? item.name : 'Unnamed' }}
                 </span>
+
+                <span class="collaborate-icon-item" v-if="item.collaborates > 0">
+                  <collaborate-svg />
+                </span>
+
               </span>
 
               <span class="content-info-right">
@@ -355,6 +366,7 @@ import CustomTag from '@/components/UnitPlan/CustomTag'
 import LiebiaoSvg from '@/assets/svgIcon/myContent/liebiao.svg?inline'
 import PubuSvg from '@/assets/svgIcon/myContent/pubu.svg?inline'
 import PSSvg from '@/assets/svgIcon/myContent/previous_session.svg?inline'
+import CollaborateSvg from '@/assets/icons/collaborate/collaborate_group.svg?inline'
 
 import storage from 'store'
 import {
@@ -396,7 +408,8 @@ export default {
     CopySvg,
     LiebiaoSvg,
     PubuSvg,
-    PSSvg
+    PSSvg,
+    CollaborateSvg
   },
   data () {
     return {
@@ -470,7 +483,8 @@ export default {
       FindMyContent({
         owner: ownerMap[this.currentOwner],
         status: statusMap[this.currentStatus],
-        types: this.currentType !== 'all-type' ? [typeMap[this.currentType]] : [],
+        collabrated: this.currentType === 'Collabrated',
+        types: this.currentType === 'all-type' || this.currentType === 'Collabrated' ? [] : [typeMap[this.currentType]],
         pageNo: this.pageNo,
         pageSize: this.pagination.pageSize,
         searchKey: this.$route.query.searchKey ? this.$route.query.searchKey : ''
@@ -779,6 +793,15 @@ export default {
   padding: 15px 10px;
   margin-bottom: 15px;
   cursor: pointer;
+  .collaborate-icon-item{
+    width:30px;
+    height: 30px;
+    margin-left: 10px;
+    text-align: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
 }
 
 .my-content {
