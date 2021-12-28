@@ -31,10 +31,32 @@
                 @change="handleSearchKey"
                 @keyup.enter="handleSearchKey"
                 @focus="handleSearchKeyFocus"
-                @blur="handleSearchKeyInputBlur"
                 class="library-search-input">
                 <a-icon slot="prefix" type="search" />
               </a-input>
+
+              <div class="search-result-wrapper" v-if="searchResultVisible">
+                <div class="searching" v-if="searching">
+                  <a-spin />
+                </div>
+                <div class="search-result-list" v-if="!searching">
+                  <template v-if="searchResultList.length">
+                    <div
+                      class="search-result-item"
+                      @click.stop="handleClickSearchResultItem(item)"
+                      v-for="(item, sIndex) in searchResultList"
+                      :key="sIndex"
+                      :data-from-type="item.fromType">
+                      {{ item.name }}
+                    </div>
+                  </template>
+                  <template v-else-if="searchKeyword">
+                    <div class="no-result">
+                      No relevant data found!
+                    </div>
+                  </template>
+                </div>
+              </div>
             </div>
             <div class="switch-icon">
               <div :class="{'icon-item': true, 'active-icon': dataListMode === 'list'}" @click="handleToggleDataListMode('list')">
@@ -84,7 +106,7 @@
               @click="handleActiveFilterItem(filterItem)"
               :data-item="JSON.stringify(filterItem)">
               <a-tooltip :title="filterItem.name" placement="top"><span class="filter-keyword">{{ filterItem.name }}</span></a-tooltip>
-              <a-icon type="close-circle" theme="filled" class="filter-close" @click="handleRemoveFilterItem(filterItem)"/>
+              <!--              <a-icon type="close-circle" theme="filled" class="filter-close" @click="handleRemoveFilterItem(filterItem)"/>-->
             </div>
           </div>
         </div>
@@ -441,7 +463,9 @@ export default {
       filterSaOptions: [],
       filterFaOptions: [],
       filterActivityOptions: [],
-      filterHeight: 500
+      filterHeight: 500,
+
+      searchResultVisible: false
     }
   },
   created () {
@@ -569,6 +593,9 @@ export default {
 
     handleSearchKey () {
       this.$logger.info('handleSearchKey ' + this.searchKeyword)
+      this.leftBrowserWidth = '0vw'
+      this.rightBrowserWidth = '100vw'
+      this.expandedListFlag = true
       if (this.searchKeyword) {
         this.searchByKeyword(this.searchKeyword)
       } else {
@@ -584,7 +611,7 @@ export default {
         key: value
       }).then(response => {
         this.$logger.info('searchByKeyword ' + value, response)
-        this.filterList = response.result
+        this.searchResultList = response.result
       }).finally(() => {
         this.searching = false
       })
@@ -592,6 +619,7 @@ export default {
 
     handleSearchKeyFocus () {
       this.$logger.info('handleSearchKeyFocus')
+      this.searchResultVisible = true
       this.searchResultList = []
       this.libraryMode = LibraryMode.searchMode
       this.handleSearchKey()
@@ -600,10 +628,11 @@ export default {
       this.$logger.info('handleSearchKeyInputBlur')
     },
 
-    goBrowserMode () {
-      this.$logger.info('goBrowserMode')
-      this.libraryMode = LibraryMode.browserMode
-      this.searchResultList = []
+    handleClickSearchResultItem (item) {
+      this.$logger.info('handleClickSearchResultItem', item)
+      this.filterList = this.searchResultList
+      this.handleActiveFilterItem(item)
+      this.searchResultVisible = false
     },
 
     handleClickBlock (data) {
@@ -654,8 +683,8 @@ export default {
         this.rightBrowserWidth = '70vw'
         this.expandedListFlag = false
       } else {
-        this.leftBrowserWidth = '15vw'
-        this.rightBrowserWidth = '85vw'
+        this.leftBrowserWidth = '0vw'
+        this.rightBrowserWidth = '100vw'
         this.expandedListFlag = true
       }
 
@@ -685,7 +714,7 @@ export default {
       this.searching = true
       QueryKeyContents(item).then(response => {
         this.$logger.info('QueryContents response', response)
-        this.searchResultList = response.result ? response.result : []
+        this.dataList = response.result ? response.result : []
       }).finally(() => {
         this.searching = false
       })
@@ -884,6 +913,7 @@ export default {
 
       .search-input {
         width: 100%;
+        position: relative;
       }
     }
   }
@@ -1202,6 +1232,7 @@ export default {
 
 .loading-wrapper {
   min-height: 400px;
+  width: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1355,5 +1386,60 @@ export default {
   box-sizing: border-box;
   background-color: #fff;
   width: 100vw;
+}
+
+.search-result-wrapper {
+  position: absolute;
+  top: 40px;
+  z-index: 150;
+  box-shadow: 0 0 8px rgba(0, 0, 0, 0.16);
+  width: 100%;
+  background-color: #fff;
+  max-height: 400px;
+  overflow-y: scroll;
+
+  .searching {
+    width: 100%;
+    height: 100px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .no-result {
+    width: 100%;
+    height: 100px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    line-height: 100px;
+    color: #aaa;
+  }
+
+  .search-result-item {
+    padding: 8px 10px;
+    cursor: pointer;
+    border-bottom: 1px solid #f6f6f6;
+    &:hover {
+      color: #15c39a;
+      background-color: #f6f6f6;
+    }
+  }
+
+  &::-webkit-scrollbar {
+    width: 5px;
+    height: 5px;
+  }
+  &::-webkit-scrollbar-track {
+    border-radius: 3px;
+    background: rgba(0,0,0,0.00);
+    -webkit-box-shadow: inset 0 0 5px rgba(0,0,0,0.01);
+  }
+  /* 滚动条滑块 */
+  &::-webkit-scrollbar-thumb {
+    border-radius: 5px;
+    background: rgba(0,0,0,0.12);
+    -webkit-box-shadow: inset 0 0 10px rgba(0,0,0,0.1);
+  }
 }
 </style>

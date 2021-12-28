@@ -51,7 +51,7 @@ export default {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 40px;
+  min-width: 40px;
 
   img {
     width: 30px;
