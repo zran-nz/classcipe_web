@@ -12,7 +12,12 @@ export const userAPIUrl = {
   GetCollaborateComment: '/classcipe/api/editMessage/queryMessage',
   DeleteCollaborateCommentById: '/classcipe/api/editMessage/delete',
   AddCollaborateComment: '/classcipe/api/editMessage/addMessage',
-  GetCollaborateModifiedHistory: '/classcipe/api/editMessage/queryHistory'
+  GetCollaborateModifiedHistory: '/classcipe/api/editMessage/queryHistory',
+  // 新接口
+  QueryContentCollaborates: '/classcipe/api/collaborate/v2/queryContentCollaborates',
+  CollaboratesSearchUser: '/classcipe/api/collaborate/v2/searchUser',
+  CollaboratesInvite: '/classcipe/api/collaborate/v2/invite',
+  CollaboratesAgree: '/classcipe/api/collaborate/v2/agree'
 }
 
 export function InviteCollaborate (parameter) {
@@ -105,5 +110,43 @@ export function GetCollaborateModifiedHistory (parameter) {
     url: userAPIUrl.GetCollaborateModifiedHistory,
     method: 'post',
     data: parameter
+  })
+}
+
+export function QueryContentCollaborates (parameter) {
+  return request({
+    url: userAPIUrl.QueryContentCollaborates,
+    method: 'get',
+    params: parameter
+  })
+}
+
+export function CollaboratesSearchUser (parameter) {
+  return request({
+    url: userAPIUrl.CollaboratesSearchUser,
+    method: 'get',
+    params: parameter
+  })
+}
+
+export function CollaboratesInvite (parameter) {
+  return request({
+    url: userAPIUrl.CollaboratesInvite,
+    method: 'post',
+    data: parameter,
+    headers: {
+      'Content-Type': 'application/json;charset=UTF-8'
+    }
+  })
+}
+
+export function CollaboratesAgree (parameter) {
+  return request({
+    url: userAPIUrl.CollaboratesAgree,
+    method: 'post',
+    data: parameter,
+    headers: {
+      'Content-Type': 'application/json;charset=UTF-8'
+    }
   })
 }

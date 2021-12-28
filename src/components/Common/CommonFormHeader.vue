@@ -1,6 +1,6 @@
 <template>
   <a-row class="common-form-header">
-    <a-col span="17">
+    <a-col span="15">
       <a-space>
         <span class="back-icon">
           <a-icon type="left" />
@@ -32,8 +32,31 @@
         </template>
       </a-space>
     </a-col>
-    <a-col span="7" class="unit-right-action">
+    <a-col span="9" class="unit-right-action">
       <a-space v-show="!hiddenRightButton">
+        <div class="collaborate-users">
+          <a-dropdown v-if="collaborateUserList.length > 3">
+            <a class="ant-dropdown-link" >
+              Others <a-icon type="more" />
+            </a>
+            <a-menu slot="overlay">
+              <a-menu-item v-if="index > 2" v-for="(user,index) in collaborateUserList" :key="index">
+                <a-avatar size="small" class="user-item" :src="user.userAvatar" />
+                {{ user.userName }}
+              </a-menu-item>
+            </a-menu>
+          </a-dropdown>
+          <div v-if="index < 3" v-for="(user,index) in collaborateUserList" :key="index">
+            <a-tooltip :title="user.userName" placement="bottom">
+              <a-avatar size="small" class="user-item" :src="user.userAvatar" />
+            </a-tooltip>
+          </div>
+        </div>
+        <a-tooltip title="Collaborate">
+          <div class="collaborate-comment" @click="handleStartCollaborate">
+            <collaborate-user-icon class="active-icon"/>
+          </div>
+        </a-tooltip>
         <div class="collaborate-comment" @click="handleViewComment" v-if="form.type !== typeMap.evaluation">
           <comment-icon class="active-icon"/>
         </div>
@@ -107,28 +130,28 @@
           </div>
         </a-button>
 
-        <a-button
-          v-if="showCollaborate && isOwner"
-          class="my-form-header-btn"
-          style="{
-            width: 120px;
-            display: flex;
-            flex-direction: row;
-            align-items: center;
-            justify-content: center;
-              background: rgba(21, 195, 154, 0.08);
-            border: 1px solid #15C39A;
-            border-radius: 20px;
-            padding: 15px 20px;
-          }"
-          @click="handleStartCollaborate">
-          <div class="btn-icon">
-            <img src="~@/assets/icons/common/form/fengxiang@2x.png" />
-          </div>
-          <div class="btn-text">
-            Collaborate
-          </div>
-        </a-button>
+        <!--        <a-button-->
+        <!--          v-if="showCollaborate && isOwner"-->
+        <!--          class="my-form-header-btn"-->
+        <!--          style="{-->
+        <!--            width: 120px;-->
+        <!--            display: flex;-->
+        <!--            flex-direction: row;-->
+        <!--            align-items: center;-->
+        <!--            justify-content: center;-->
+        <!--              background: rgba(21, 195, 154, 0.08);-->
+        <!--            border: 1px solid #15C39A;-->
+        <!--            border-radius: 20px;-->
+        <!--            padding: 15px 20px;-->
+        <!--          }"-->
+        <!--          @click="handleStartCollaborate">-->
+        <!--          <div class="btn-icon">-->
+        <!--            <img src="~@/assets/icons/common/form/fengxiang@2x.png" />-->
+        <!--          </div>-->
+        <!--          <div class="btn-text">-->
+        <!--            Collaborate-->
+        <!--          </div>-->
+        <!--        </a-button>-->
       </a-space>
     </a-col>
   </a-row>
@@ -137,6 +160,7 @@
 <script>
 
 import CommentIcon from '@/assets/icons/collaborate/comment.svg?inline'
+import CollaborateUserIcon from '@/assets/icons/collaborate/collaborate_user.svg?inline'
 import ContentTypeIcon from '@/components/Teacher/ContentTypeIcon'
 import { typeMap } from '@/const/teacher'
 import EditIcon from '@/assets/svgIcon/evaluation/bianji.svg?inline'
@@ -145,12 +169,19 @@ export default {
   components: {
     CommentIcon,
     ContentTypeIcon,
-    EditIcon
+    EditIcon,
+    CollaborateUserIcon
   },
   props: {
     form: {
       type: Object,
       default: () => null
+    },
+    collaboratesUsers: {
+      type: Array,
+      default: () => {
+        return []
+      }
     },
     lastChangeSavedTime: {
       type: String,
@@ -171,7 +202,8 @@ export default {
       saving: false,
       typeMap: typeMap,
       editFormNameMode: false,
-      formName: ''
+      formName: '',
+      collaborateUserList: []
     }
   },
   computed: {
@@ -179,11 +211,17 @@ export default {
       return this.$store.getters.userInfo.email === this.form.createBy
     }
   },
+  watch: {
+    collaboratesUsers (val) {
+      this.collaborateUserList = val
+    }
+  },
   created () {
     this.$logger.info('form header name:' + this.form.name + ' lastChangeSavedTime:' + this.lastChangeSavedTime)
     if (this.form && this.form.name) {
       this.formName = this.form.name
     }
+    this.collaborateUserList = this.collaboratesUsers
   },
   methods: {
     handleBack () {
@@ -269,6 +307,13 @@ export default {
     right: 10px;
     justify-content: flex-end;
     .my-form-header-btn{
+
+    }
+    .collaborate-users{
+      display: flex;
+      .user-item{
+        margin:0px 4px;
+      }
     }
 
     .collaborate-comment {

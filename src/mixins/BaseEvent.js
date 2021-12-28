@@ -1,3 +1,5 @@
+import { QueryContentCollaborates } from '@/api/collaborate'
+
 export const RightModule = {
   'collaborate': 1,
   'collaborateComment': 2,
@@ -13,7 +15,8 @@ export const BaseEventMixin = {
       rightModule: RightModule,
       showModuleList: [RightModule.imageUpload, RightModule.customTag, RightModule.recommend],
       rightWidth: 600,
-      leftWidth: 700
+      leftWidth: 700,
+      collaborate: {}
     }
   },
   created () {
@@ -77,6 +80,15 @@ export const BaseEventMixin = {
         this.rightWidth = 600
         this.leftWidth = 700
       }
+    },
+    queryContentCollaborates (id, type) {
+      this.collaborate = {}
+      QueryContentCollaborates({ id: id, type: type }).then(response => {
+        this.$logger.info('QueryContentCollaborates response:', response)
+        if (response.success) {
+          this.collaborate = response.result
+        }
+      })
     }
   }
 

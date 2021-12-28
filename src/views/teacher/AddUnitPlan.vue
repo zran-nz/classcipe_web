@@ -4,6 +4,7 @@
       <common-form-header
         ref="commonFormHeader"
         :form="form"
+        :collaborates-users="collaborate.users"
         :last-change-saved-time="lastChangeSavedTime"
         @view-collaborate="handleViewCollaborate"
         @back="goBack"
@@ -1017,6 +1018,7 @@ export default {
     this.loadUserTags()
     this.debouncedGetSdgByDescription = debounce(this.searchScenario, 300)
     this.findQuestionsByBigIdea = debounce(this.findQuestionsByBigIdea, 800)
+    this.queryContentCollaborates(this.unitPlanId, this.contentType['unit-plan'])
 
     // 恢复step
     this.currentActiveStepIndex = this.getSessionStep()

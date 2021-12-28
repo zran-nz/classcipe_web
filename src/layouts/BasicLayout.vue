@@ -14,7 +14,7 @@
     -->
     <template v-slot:menuHeaderRender>
       <div class="home-nav" @click="goHome">
-        <img src="~@/assets/logo/logo-classicipe-round-transparent-with-name.png">
+        <img src="~@/assets/logo/logo.png">
         <h1>{{ title }}</h1>
       </div>
     </template>
