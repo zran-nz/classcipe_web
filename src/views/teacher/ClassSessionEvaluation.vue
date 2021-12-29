@@ -56,6 +56,32 @@
           <div class="class-group">
             <div class="class-student-wrapper">
               <div class="group-list-wrapper">
+                <div class="no-group-student-list">
+                  <div class="student-list">
+                    <div
+                      :class="{'list-item': true, 'selected-student': currentActiveStudentId === member.userId, 'heartbeat': ((studentEvaluateIdList.length || peerEvaluateIdList.length) && studentEvaluateIdList.indexOf(member.userId) === -1 && peerEvaluateIdList.indexOf(member.userId) === -1)}"
+                      v-for="(member, sIndex) in allNoGroupStudentUserList"
+                      :key="sIndex"
+                      :data-member-id="member.userId"
+                      @click="handleClickMember(null, member)">
+                      <div class="student-avatar">
+                        <img :src="member.studentAvatar" alt="" v-if="member.studentAvatar" />
+                        <img slot="prefix" src="~@/assets/icons/evaluation/default_avatar.png" alt="" v-if="!member.studentAvatar" />
+                      </div>
+                      <div class="student-name" :data-email="member.userId">
+                        <a-tooltip placement="top" :mouseEnterDelay="1">
+                          <template slot="title">
+                            {{ member.realName }}
+                          </template>
+                          {{ member.realName }}
+                        </a-tooltip>
+                      </div>
+                      <div class="select-status-icon" v-if="selectedMemberIdList.indexOf(member.userId) !== -1">
+                        <a-icon type="check-circle" style="{color: #07AB84}" theme="filled" class="my-selected-icon"/>
+                      </div>
+                    </div>
+                  </div>
+                </div>
                 <div :class="{'group-item': true, 'selected-group': selectedGroupIdList.indexOf(group.id) !== -1}" v-for="(group, gIdx) in groups" :key="gIdx" :data-group-id="group.id">
                   <div class="group-item-info" @click="handleSelectGroup(group)">
                     <div class="group-left">
@@ -110,7 +136,7 @@
                   </div>
                 </div>
                 <div class="no-group-tips">
-                  <no-more-resources v-if="groups.length === 0 && !loading" tips="No group exist"/>
+                  <no-more-resources v-if="allStudentUserList.length === 0 && !loading" tips="No student exist"/>
                 </div>
               </div>
             </div>
@@ -615,7 +641,11 @@ export default {
       evaluateStudentId: null, // 当前正在评估的学生id
       evaluateStudentName: null, // 当前正在评估的学生姓名
 
-      isEmptyStudentEvaluateData: false
+      isEmptyStudentEvaluateData: false,
+
+      allStudentUserList: [],
+      allNoGroupStudentUserIdList: [], // 所有未分组的学生邮箱列表
+      allNoGroupStudentUserList: [] // 所有未分组的学生列表
     }
   },
   created () {
@@ -700,14 +730,14 @@ export default {
         // 加载班级信息数据
         this.$logger.info('GetSessionEvaluationByClassId response', response.result)
         // 所有的学生id用于遍历构造学生评价数据 "对象"
-        const allStudentUserIdList = []
+        const allGroupStudentUserIdList = []
 
         const data = response.result
         this.classInfo = data.classInfo
         data.groups.forEach(group => {
           group.expand = true // 默认分组展开显示
           group.members.forEach(member => {
-            allStudentUserIdList.push(member.userId)
+            allGroupStudentUserIdList.push(member.userId)
             if (member.userId === this.evaluateStudentId) {
               this.currentUserGroupId = group.id
               this.currentUserGroupUserIdList = group.members.map(member => member.userId)
@@ -715,6 +745,29 @@ export default {
             }
           })
         })
+
+        // 遍历所有学生，找出不存在分组中的
+        this.allNoGroupStudentUserIdList = []
+        this.allNoGroupStudentUserList = []
+        if (data.classMembersVos && data.classMembersVos.length) {
+          data.classMembersVos.forEach(item => {
+            item.userId = item.email
+          })
+          this.$logger.info('formatted classMembersVos', data.classMembersVos)
+          data.classMembersVos.forEach(studentItem => {
+            if (allGroupStudentUserIdList.indexOf(studentItem.userId) === -1) {
+              this.allNoGroupStudentUserIdList.push(studentItem.userId)
+              this.allNoGroupStudentUserList.push(studentItem)
+            }
+          })
+          this.allStudentUserList = data.classMembersVos
+          this.allStudentUserList.forEach(studentItem => {
+            this.allStudentUserIdList.push(studentItem.userId)
+          })
+        }
+        this.$logger.info('allNoGroupStudentUserIdList', this.allNoGroupStudentUserIdList)
+
+        const allStudentUserIdList = this.allStudentUserIdList
         this.groups = data.groups
         if (data.evaluation) {
           this.form = data.evaluation
@@ -751,8 +804,7 @@ export default {
           this.currentActiveFormId = this.forms[0].formId
         }
 
-        this.$logger.info('allStudentUserIdList', allStudentUserIdList)
-        this.allStudentUserIdList = allStudentUserIdList
+        this.$logger.info('allStudentUserIdList', this.allStudentUserIdList)
 
         // 初始化评估数据，构造遍历所有学生的评价数据对象，更具对象索引到具体表单的某一行的点评数据
         let isEmptyStudentEvaluateData = false
@@ -818,7 +870,7 @@ export default {
 
           if (this.mode !== EvaluationTableMode.Edit && this.formTableMode === EvaluationTableMode.Preview) {
             // 默认选中第一个学生的第一个评估表格
-            this.currentActiveStudentId = allStudentUserIdList[0]
+            this.currentActiveStudentId = allGroupStudentUserIdList[0]
             this.selectedMemberIdList.push(this.currentActiveStudentId)
             this.$logger.info('currentActiveFormId ' + this.currentActiveFormId + ' currentActiveStudentId ' + this.currentActiveStudentId)
           }
@@ -832,7 +884,7 @@ export default {
         }
 
         if (this.mode === EvaluationTableMode.StudentEvaluate) {
-          this.$logger.info('StudentEvaluate try fix currentActiveStudentId ' + this.evaluateStudentId, 'allStudentUserIdList', this.allStudentUserIdList)
+          this.$logger.info('StudentEvaluate try fix currentActiveStudentId ' + this.evaluateStudentId, 'allGroupStudentUserIdList', this.allGroupStudentUserIdList)
           if (this.allStudentUserIdList.indexOf(this.evaluateStudentId) === -1) {
             this.$logger.info('current use email ' + (this.evaluateStudentId) + ' not exist in ', this.allStudentUserIdList, ' cannot student evaluate')
             this.$confirm({
@@ -876,17 +928,11 @@ export default {
     handleClickMember (group, member) {
       this.$logger.info('handleClickMember', 'group', group, 'member', member, 'selectedMemberIdList', this.selectedMemberIdList)
       // 只允许老师和他评选择其他人
-      if (this.mode === EvaluationTableMode.TeacherEvaluate || this.mode === EvaluationTableMode.PeerEvaluate) {
-        // 不可评估自己所在小组
-        if (this.mode === EvaluationTableMode.PeerEvaluate && this.currentUserGroupUserIdList.indexOf(member.userId) !== -1) {
-          this.$message.warn('You are not allowed to evaluate your group member!')
-        } else if (this.mode === EvaluationTableMode.PeerEvaluate && !this.allowPeerEvaluate) {
-          this.$message.warn('You have evaluated!')
-          this.currentActiveStudentId = member.userId
-        } else {
-          const index = this.selectedMemberIdList.indexOf(member.userId)
-          this.$logger.info('handleClickMember index ' + index)
-          if (index === -1) {
+      if (this.mode === EvaluationTableMode.TeacherEvaluate) {
+        const index = this.selectedMemberIdList.indexOf(member.userId)
+        this.$logger.info('handleClickMember index ' + index)
+        if (index === -1) {
+          if (group) {
             // 添加操作，只保留当前组内的选中人员，筛选掉其他小组人员
             const memberIdList = [member.userId]
             group.members.forEach(member => {
@@ -901,42 +947,51 @@ export default {
             if (this.selectedGroupIdList.indexOf(group.id) === -1) {
               this.selectedGroupIdList = []
             }
-
-            // 当从单选到多选，提示老师当前正在对多个学生进行评估数据会覆盖
-            if (this.selectedMemberIdList.length === 2) {
-              const memberNameList = []
-              group.members.forEach(member => {
-                if (this.selectedMemberIdList.indexOf(member.userId) !== -1) {
-                  memberNameList.push(member.realName)
-                }
-              })
-              this.selectedMemberNameList = memberNameList
-              const confirmVisible = window.sessionStorage.getItem('multiConfirmVisible')
-              this.$logger.info('confirmVisible ' + confirmVisible)
-              if (!confirmVisible) {
-                this.showMultiSelectedConfirm = true
-              }
-            }
+            this.currentActiveGroupId = group.id
           } else {
-            // 取消操作
-            const newSelectedMemberIdList = []
-            this.selectedMemberIdList.forEach(memberId => {
-              if (memberId !== member.userId) {
-                newSelectedMemberIdList.push(memberId)
+            this.selectedMemberIdList = [member.userId]
+            this.currentActiveStudentId = member.userId
+            this.selectedGroupIdList = []
+          }
+
+          // 当从单选到多选，提示老师当前正在对多个学生进行评估数据会覆盖
+          if (this.selectedMemberIdList.length === 2) {
+            const memberNameList = []
+            group.members.forEach(member => {
+              if (this.selectedMemberIdList.indexOf(member.userId) !== -1) {
+                memberNameList.push(member.realName)
               }
             })
-            this.selectedMemberIdList = newSelectedMemberIdList
-            if (this.selectedMemberIdList.length) {
-              this.currentActiveStudentId = this.selectedMemberIdList[0]
-            } else {
-              this.currentActiveStudentId = null
+            this.selectedMemberNameList = memberNameList
+            const confirmVisible = window.sessionStorage.getItem('multiConfirmVisible')
+            this.$logger.info('confirmVisible ' + confirmVisible)
+            if (!confirmVisible) {
+              this.showMultiSelectedConfirm = true
             }
           }
-          this.currentActiveGroupId = group.id
-          this.$logger.info('currentActiveGroupId ' + this.currentActiveFormId + ' selectedMemberIdList ', this.selectedMemberIdList)
+        } else {
+          // 取消操作
+          const newSelectedMemberIdList = []
+          this.selectedMemberIdList.forEach(memberId => {
+            if (memberId !== member.userId) {
+              newSelectedMemberIdList.push(memberId)
+            }
+          })
+          this.selectedMemberIdList = newSelectedMemberIdList
+          if (this.selectedMemberIdList.length) {
+            this.currentActiveStudentId = this.selectedMemberIdList[0]
+          } else {
+            this.currentActiveStudentId = null
+          }
         }
-      } else {
-        this.$logger.info('current mode ' + this.mode + ' ignore it!')
+        this.$logger.info('currentActiveGroupId ' + this.currentActiveFormId + ' selectedMemberIdList ', this.selectedMemberIdList)
+      } else if (this.mode === EvaluationTableMode.PeerEvaluate) {
+        if (!this.allowPeerEvaluate) {
+          this.$message.warn('You have evaluated!')
+          this.currentActiveStudentId = member.userId
+        } else if (!group || this.currentUserGroupUserIdList.indexOf(member.userId) !== -1) {
+            this.$message.warn('Not allowed to evaluate for this student!')
+          }
       }
     },
 
@@ -2415,6 +2470,54 @@ export default {
 
 .no-group-tips {
   margin-top: 100px;
+}
+
+.no-group-student-list {
+  .student-list {
+    display: flex;
+    flex-direction: column;
+    .list-item {
+      cursor: pointer;
+      padding: 10px;
+      user-select: none;
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      justify-content: flex-start;
+      position: relative;
+
+      &:hover {
+        background-color: #F7F8FF;
+      }
+
+      .student-avatar {
+        img {
+          width: 30px;
+        }
+      }
+
+      .student-name {
+        padding: 0 5px;
+        font-family: Inter-Bold;
+        line-height: 24px;
+        color: #11142D;
+        width: 180px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        word-break: break-all;
+        white-space: nowrap;
+      }
+      .select-status-icon {
+        position: absolute;
+        right: 5px;
+        top: 50%;
+        margin-top: -7.5px;
+        img {
+          height: 15px;
+        }
+      }
+    }
+  }
 }
 
 </style>
