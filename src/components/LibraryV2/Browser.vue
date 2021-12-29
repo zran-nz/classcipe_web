@@ -202,7 +202,7 @@
           <div
             class="browser-block-item-last"
             :style="{'flex-direction': dataListMode === 'list' ? 'column' : 'row'}">
-            <template v-if="dataListMode === 'list' && (!searching || !dataListLoading)">
+            <template v-if="dataListMode === 'list' && (!searching && !dataListLoading)">
 
               <div
                 :class="{
@@ -229,7 +229,7 @@
                 </a-tooltip>
               </div>
             </template>
-            <template v-if="dataListMode === 'card' && (!searching || !dataListLoading)">
+            <template v-if="dataListMode === 'card' && (!searching && !dataListLoading)">
               <div class="card-view-mode-wrapper" v-if="dataList.length">
                 <a-row :gutter="[16, 16]">
                   <template v-if="libraryMode === LibraryMode.searchMode || expandedListFlag === true">
@@ -264,11 +264,11 @@
                     <a-col
                       class="gutter-row"
                       :span="10"
-                      :xs="12"
+                      :xs="24"
                       :sm="12"
-                      :md="8"
+                      :md="12"
                       :lg="8"
-                      :xl="6"
+                      :xl="8"
                       :xxl="6"
                       v-for="(dataItem, index) in dataList"
                       v-if="(currentType === 0 || dataItem.type === currentType)"
