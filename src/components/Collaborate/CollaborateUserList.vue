@@ -179,10 +179,15 @@
 </template>
 
 <script>
-import { SearchUser } from '@/api/user'
 import NoMoreResources from '@/components/Common/NoMoreResources'
-import { CollaboratesInvite, CollaboratesUpdateLink, QueryContentCollaborates } from '@/api/collaborate'
+import {
+  CollaboratesInvite,
+  CollaboratesSearchUser,
+  CollaboratesUpdateLink,
+  QueryContentCollaborates
+} from '@/api/collaborate'
 import * as logger from '@/utils/logger'
+
 export default {
   name: 'CollaborateUserList',
   components: { NoMoreResources },
@@ -288,7 +293,7 @@ export default {
         return
       }
       var searchName = this.userNameOrEmail ? this.userNameOrEmail : ''
-      SearchUser({ name: searchName }).then(response => {
+      CollaboratesSearchUser({ name: searchName }).then(response => {
         this.$logger.info('SearchUser response', response)
         this.userList = response.result
       })

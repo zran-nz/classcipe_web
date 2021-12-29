@@ -11,7 +11,7 @@
               <!--                <a-breadcrumb-item v-for="item in dealPath(k.path)" :key="item">{{ item }}</a-breadcrumb-item>-->
               <!--              </a-breadcrumb>-->
               <div class="skt-description" @dblclick="handleAddTag(k)">
-                {{ k.name }}
+                <a-tooltip :title="k.path"> {{ k.name }}</a-tooltip>
               </div>
             </div>
             <a-popconfirm title="Delete?" ok-text="Yes" @confirm="handleDeleteKnowledgeItem(k)" cancel-text="No">
@@ -30,7 +30,7 @@
               <!--                <a-breadcrumb-item v-for="item in dealPath(k.path)" :key="item">{{ item }}</a-breadcrumb-item>-->
               <!--              </a-breadcrumb>-->
               <div class="skt-description" @dblclick="handleAddTag(k)">
-                {{ k.name }}
+                <a-tooltip :title="k.path"> {{ k.name }}</a-tooltip>
               </div>
               <!--              <div-->
               <!--                v-if="k.tagType == TagType.knowledge || k.tagType == TagType.century"-->
@@ -66,7 +66,7 @@
               <!--                <a-breadcrumb-item v-for="item in dealPath(k.path)" :key="item">{{ item }}</a-breadcrumb-item>-->
               <!--              </a-breadcrumb>-->
               <div class="skt-description skt-description-21" @dblclick="handleAddTag(k)">
-                {{ k.name }}
+                <a-tooltip :title="k.path"> {{ k.name }}</a-tooltip>
               </div>
               <div
                 v-if="k.tagType === TagType.century"

@@ -111,7 +111,7 @@
                           <ui-learn-out ref="learnOut" :learn-outs="form.learnOuts" @remove-learn-outs="handleRemoveLearnOuts" />
                         </div>
 
-                        <div class="form-block" >
+                        <div class="form-block" style="clear: both">
                           <div class="form-block-label">
                             <a-switch @change="handleMaterialListFlagChange" /> Material list
                           </div>

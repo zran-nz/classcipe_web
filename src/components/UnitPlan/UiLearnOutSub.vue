@@ -11,7 +11,7 @@
               <!--                <a-breadcrumb-item v-for="item in dealPath(k.path)" :key="item">{{ item }}</a-breadcrumb-item>-->
               <!--              </a-breadcrumb>-->
               <div class="skt-description">
-                {{ k.name }}
+                <a-tooltip :title="k.path"> {{ k.name }}</a-tooltip>
               </div>
             </div>
           </div>
@@ -25,7 +25,7 @@
               <!--                <a-breadcrumb-item v-for="item in dealPath(k.path)" :key="item">{{ item }}</a-breadcrumb-item>-->
               <!--              </a-breadcrumb>-->
               <div class="skt-description">
-                {{ k.name }}
+                <a-tooltip :title="k.path"> {{ k.name }}</a-tooltip>
               </div>
             </div>
           </div>
@@ -39,7 +39,7 @@
               <!--                <a-breadcrumb-item v-for="item in dealPath(k.path)" :key="item">{{ item }}</a-breadcrumb-item>-->
               <!--              </a-breadcrumb>-->
               <div class="skt-description skt-description-21">
-                {{ k.name }}
+                <a-tooltip :title="k.path"> {{ k.name }}</a-tooltip>
               </div>
               <a-divider style="margin: 10px 0px" v-if="k.tagListVisible" />
               <div class="skt-description-tag-list" v-if="k.tagListVisible">
