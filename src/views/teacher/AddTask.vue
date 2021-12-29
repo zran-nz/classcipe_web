@@ -4,6 +4,7 @@
       <common-form-header
         ref="commonFormHeader"
         :form="form"
+        :collaborates-users="collaborate.users"
         :last-change-saved-time="lastChangeSavedTime"
         :hidden-right-button="mode === 'pick-task-slide'"
         @view-collaborate="handleViewCollaborate"
@@ -584,11 +585,11 @@
         :closable="true"
         destroyOnClose
         width="800px">
-        <collaborate-content
+        <collaborate-user-list
           :content-id="taskId"
           :main-content="collaborateContent"
           :content-type="contentType.task"
-          @finished="showCollaborateModalVisible = false"
+          @confirmSelect="confirmSelectCollaborateUsers"
           v-if="showCollaborateModalVisible"/>
       </a-modal>
       <a-modal
@@ -1306,7 +1307,7 @@ import CustomTag from '@/components/UnitPlan/CustomTag'
 import NewUiClickableKnowledgeTag from '@/components/UnitPlan/NewUiClickableKnowledgeTag'
 import { lessonHost, lessonStatus } from '@/const/googleSlide'
 import { StartLesson } from '@/api/lesson'
-import CollaborateContent from '@/components/Collaborate/CollaborateContent'
+import CollaborateUserList from '@/components/Collaborate/CollaborateUserList'
 import { CustomTagType, TemplateType } from '@/const/common'
 // import { SubjectTree } from '@/api/subject'
 // import { formatSubjectTree } from '@/utils/bizUtil'
@@ -1365,7 +1366,7 @@ export default {
       RelevantTagSelector,
       Collaborate,
       AssociateSidebar,
-      CollaborateContent,
+      CollaborateUserList,
       CustomTag,
       commentIcon,
       TaskMaterialPreview,
@@ -1642,6 +1643,7 @@ export default {
       this.loadUserTags()
       this.initTemplateFilter()
       this.GetTagYearTips()
+      this.queryContentCollaborates(this.taskId, this.contentType.task)
 
       // 恢复step
       this.currentActiveStepIndex = this.getSessionStep()

@@ -89,6 +89,9 @@ export const BaseEventMixin = {
           this.collaborate = response.result
         }
       })
+    },
+    confirmSelectCollaborateUsers (data) {
+      this.collaborate = data
     }
   }
 

@@ -401,12 +401,12 @@
         :maskClosable="false"
         :closable="true"
         destroyOnClose
-        width="800px">
-        <collaborate-content
+        width="900px">
+        <collaborate-user-list
           :content-id="unitPlanId"
           :main-content="collaborateContent"
           :content-type="contentType['unit-plan']"
-          @finished="showCollaborateModalVisible = false"
+          @confirmSelect="confirmSelectCollaborateUsers"
           v-if="showCollaborateModalVisible"/>
       </a-modal>
 
@@ -681,7 +681,7 @@ import CustomTag from '../../components/UnitPlan/CustomTag'
 import { MyContentEvent, MyContentEventBus } from '@/components/MyContent/MyContentEventBus'
 import RelevantTagSelector from '@/components/UnitPlan/RelevantTagSelector'
 import AddKeywordTag from '@/components/Evaluation/AddKeywordTag'
-import CollaborateContent from '@/components/Collaborate/CollaborateContent'
+import CollaborateUserList from '@/components/Collaborate/CollaborateUserList'
 import CommonFormHeader from '@/components/Common/CommonFormHeader'
 import NewBrowser from '@/components/NewLibrary/NewBrowser'
 import { SelectModel } from '@/components/NewLibrary/SelectModel'
@@ -721,7 +721,7 @@ export default {
     NewMyContent,
     PlanLink,
     ReferPreview,
-    CollaborateContent,
+    CollaborateUserList,
     CommonFormHeader,
     ContentTypeIcon,
     InputSearch,
