@@ -110,6 +110,41 @@
                           <!--knowledge tag-select -->
                           <ui-learn-out ref="learnOut" :learn-outs="form.learnOuts" @remove-learn-outs="handleRemoveLearnOuts" />
                         </div>
+
+                        <div class="form-block" >
+                          <div class="form-block-label">
+                            <a-switch @change="handleMaterialListFlagChange" /> Material list
+                          </div>
+                          <div class="material-list">
+                            <div
+                              class="material-item"
+                              v-for="(materialItem, mIndex) in form.materialList"
+                              :key="mIndex">
+                              <a-row :gutter="[16,16]">
+                                <a-col span="8">
+                                  <a-input v-model="materialItem.name" aria-placeholder="Enter material name" placeholder="Enter material name"/>
+                                </a-col>
+                                <a-col span="14">
+                                  <a-tooltip placement="topLeft">
+                                    <template slot="title">
+                                      The link is provided to help other users or students prepare(purchase) the material for this task
+                                    </template>
+                                    <a-input v-model="materialItem.link" aria-placeholder="Enter URL" placeholder="Enter URL">
+                                      <a-icon slot="prefix" type="link" />
+                                    </a-input>
+                                  </a-tooltip>
+                                </a-col>
+                                <a-col span="2">
+                                  <div class="material-icon">
+                                    <a-icon type="plus-circle" :style="{ fontSize: '16px' }" v-if="mIndex === (form.materialList.length - 1)" @click="handleAddMaterial"/>
+                                    <img src="~@/assets/icons/evaluation/delete.png" v-if="mIndex < (form.materialList.length - 1)" class="delete-icon" @click="handleRemoveMaterialItem(materialItem, mIndex)"/>
+                                  </div>
+                                </a-col>
+                              </a-row>
+                            </div>
+                          </div>
+                        </div>
+
                       </template>
                     </a-step>
 
@@ -1418,7 +1453,8 @@ export default {
           showSelect: false,
           startDate: '',
           endDate: '',
-          gradeId: undefined
+          gradeId: undefined,
+          materialList: []
         },
         rangeDate: [],
         // Grades
@@ -1550,7 +1586,9 @@ export default {
 
         associateUnitPlanIdList: [],
         associateTaskIdList: [],
-        associateId2Name: new Map()
+        associateId2Name: new Map(),
+
+        materialListFlag: false
       }
     },
     computed: {
@@ -1730,6 +1768,10 @@ export default {
         }).then(response => {
           logger.info('TaskQueryById ' + taskId, response.result)
           const taskData = response.result
+          if (!taskData.materialList) {
+            taskData.materialList = []
+          }
+          this.materialListFlag = taskData.materialList.length > 0
           this.form = taskData
           this.form.showSelected = taskData.showSelected ? taskData.showSelected : false
           this.form.bloomCategories = this.form.bloomCategories ? this.form.bloomCategories : undefined // 为了展示placeholder
@@ -3278,6 +3320,31 @@ export default {
           }
         })
         console.log(this.form.customTags)
+      },
+
+      handleAddMaterial () {
+        this.form.materialList.push({
+          name: null,
+          link: null
+        })
+        this.$logger.info('handleAddMaterial', this.form.materialList)
+      },
+
+      handleRemoveMaterialItem (item, index) {
+        this.form.materialList = this.form.materialList.filter((it, idx) => idx !== index)
+        this.$logger.info('handleRemoveMaterialItem ', this.form.materialList)
+      },
+
+      handleMaterialListFlagChange (checked) {
+        this.$logger.info('handleMaterialListFlagChange ', checked)
+        if (checked) {
+          if (this.form.materialList.length === 0) {
+            this.handleAddMaterial()
+          }
+        } else {
+          this.form.materialList = []
+        }
+        this.materialListFlag = checked
       }
     }
   }
@@ -5412,5 +5479,27 @@ export default {
       text-align: left;
 
     }
+  }
+
+  .form-block-label {
+    font-family: Inter-Bold;
+    line-height: 24px;
+    color: #000000;
+  }
+
+  .material-list {
+    margin-top: 10px;
+  }
+
+  .material-icon {
+    height: 35px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .delete-icon {
+    width: 35px;
   }
 </style>

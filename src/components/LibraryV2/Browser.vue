@@ -48,7 +48,7 @@
                       v-for="(item, sIndex) in searchResultList"
                       :key="sIndex"
                       :data-from-type="item.fromType">
-                      {{ item.name }}
+                      <div v-html="item.tagName"></div>
                     </div>
                   </template>
                   <template v-else-if="searchKeyword">
@@ -98,16 +98,17 @@
           </div>
           <div class="filter-list">
             <div
+              id="filter-list"
               :class="{
                 'filter-list-item': true,
-                'active-filter-list-item': filterItem === currentFromItem
+                'active-filter-list-item': filterItem.name === currentFromItemName
               }"
               v-for="(filterItem, fIndex) in filterList"
               :key="fIndex"
+              v-show="fIndex < 10"
               @click="handleActiveFilterItem(filterItem)"
               :data-item="JSON.stringify(filterItem)">
-              <a-tooltip :title="filterItem.name" placement="top"><span class="filter-keyword">{{ filterItem.name }}</span></a-tooltip>
-              <!--              <a-icon type="close-circle" theme="filled" class="filter-close" @click="handleRemoveFilterItem(filterItem)"/>-->
+              <a-tooltip :title="filterItem.name" placement="topLeft"><span class="filter-keyword">{{ filterItem.name }}</span></a-tooltip>
             </div>
           </div>
         </div>
@@ -201,10 +202,11 @@
           <div
             class="browser-block-item-last"
             :style="{'flex-direction': dataListMode === 'list' ? 'column' : 'row'}">
-            <template v-if="dataListMode === 'list'">
+            <template v-if="dataListMode === 'list' && (!searching && !dataListLoading)">
 
               <div
                 :class="{
+                  'data-list-item': true,
                   'browser-item': true,
                   'odd-line': index % 2 === 0,
                   'active-line': currentDataId === dataItem.id
@@ -213,7 +215,7 @@
                 @click="handleSelectDataItem(dataItem)"
                 v-if="(currentType === 0 || dataItem.type === currentType)"
                 :key="index">
-                <a-tooltip :mouseEnterDelay="1">
+                <a-tooltip :mouseEnterDelay="1" placement="topLeft">
                   <template slot="title">
                     {{ dataItem.name }}
                   </template>
@@ -225,33 +227,76 @@
                     {{ dataItem.createTime | dayjs }}
                   </span>
                 </a-tooltip>
-                <!--            <span class="arrow-item">-->
-                <!--              <a-icon type="more" />-->
-                <!--            </span>-->
               </div>
             </template>
-            <template v-if="dataListMode === 'card'">
+            <template v-if="dataListMode === 'card' && (!searching && !dataListLoading)">
               <div class="card-view-mode-wrapper" v-if="dataList.length">
-                <div
-                  class="card-item-wrapper"
-                  v-for="(dataItem, index) in dataList"
-                  @click="handleSelectDataItem(dataItem)"
-                  v-if="(currentType === 0 || dataItem.type === currentType)"
-                  :key="index">
-                  <div class="card-item">
-                    <data-card-view
-                      :active-flag="currentDataId === dataItem.id"
-                      :cover="dataItem.image"
-                      :title="dataItem.name"
-                      :created-time="dataItem.createTime"
-                      :content-type="dataItem.type"
-                    />
-                  </div>
-                </div>
+                <a-row :gutter="[16, 16]">
+                  <template v-if="libraryMode === LibraryMode.searchMode || expandedListFlag === true">
+                    <a-col
+                      class="gutter-row"
+                      :span="10"
+                      :xs="12"
+                      :sm="12"
+                      :md="8"
+                      :lg="8"
+                      :xl="6"
+                      :xxl="4"
+                      v-for="(dataItem, index) in dataList"
+                      v-if="(currentType === 0 || dataItem.type === currentType)"
+                      :key="index">
+                      <div
+                        class="card-item-wrapper"
+                        @click="handleSelectDataItem(dataItem)">
+                        <div class="card-item">
+                          <data-card-view
+                            :active-flag="currentDataId === dataItem.id"
+                            :cover="dataItem.image"
+                            :title="dataItem.name"
+                            :created-time="dataItem.createTime"
+                            :content-type="dataItem.type"
+                          />
+                        </div>
+                      </div>
+                    </a-col>
+                  </template>
+                  <template v-else>
+                    <a-col
+                      class="gutter-row"
+                      :span="10"
+                      :xs="24"
+                      :sm="12"
+                      :md="12"
+                      :lg="8"
+                      :xl="8"
+                      :xxl="6"
+                      v-for="(dataItem, index) in dataList"
+                      v-if="(currentType === 0 || dataItem.type === currentType)"
+                      :key="index">
+                      <div
+                        class="card-item-wrapper"
+                        @click="handleSelectDataItem(dataItem)">
+                        <div class="card-item">
+                          <data-card-view
+                            :active-flag="currentDataId === dataItem.id"
+                            :cover="dataItem.image"
+                            :title="dataItem.name"
+                            :created-time="dataItem.createTime"
+                            :content-type="dataItem.type"
+                          />
+                        </div>
+                      </div>
+                    </a-col>
+                  </template>
+                </a-row>
               </div>
             </template>
-            <div class="loading-wrapper" v-if="dataListLoading">
-              <a-spin />
+            <div class="loading-wrapper" v-show="searching || dataListLoading">
+              <a-spin tip="searching..." />
+            </div>
+            <div class="loading-wrapper" v-show="!searching && !dataListLoading && dataList.length === 0">
+              <no-more-resources tips="The content you are searching for was not found." v-if="searchKeyword"/>
+              <no-more-resources tips="" v-else/>
             </div>
           </div>
         </div>
@@ -423,10 +468,11 @@ export default {
       expandedListFlag: false,
 
       filterList: [],
+      rawSearchResultList: [],
       searchResultList: [],
       libraryMode: LibraryMode.browserMode,
       LibraryMode: LibraryMode,
-      currentFromItem: null,
+      currentFromItemName: null,
 
       // 当前选中的配置项
       filterConfig: {
@@ -590,6 +636,10 @@ export default {
         path: this.browserTypeLabelMap[this.currentBrowserType],
         blockIndex: 0
       }]
+
+      if (this.libraryMode === LibraryMode.searchMode) {
+        this.handleSearchKey()
+      }
     },
 
     handleSearchKey () {
@@ -612,7 +662,21 @@ export default {
         key: value
       }).then(response => {
         this.$logger.info('searchByKeyword ' + value, response)
-        this.searchResultList = response.result
+        this.rawSearchResultList = response.result
+        const list = []
+        // 添加高亮标签
+        response.result.forEach(item => {
+          if (item.name) {
+            const tagItem = {
+              fromType: item.fromType,
+              name: item.name,
+              tagName: item.name.split(value).join('<span class="keyword-item">' + value + '</span>')
+            }
+            list.push(tagItem)
+          }
+        })
+        this.searchResultList = list
+        this.$logger.info('tag list item', this.searchResultList)
       }).finally(() => {
         this.searching = false
       })
@@ -632,7 +696,7 @@ export default {
 
     handleClickSearchResultItem (item) {
       this.$logger.info('handleClickSearchResultItem', item)
-      this.filterList = this.searchResultList
+      this.filterList = this.rawSearchResultList
       this.handleActiveFilterItem(item)
       this.searchResultVisible = false
     },
@@ -705,8 +769,9 @@ export default {
 
     handleActiveFilterItem (item) {
       this.$logger.info('handleActiveFilterItem ', item)
+      this.searching = true
       this.searchKeyword = item.name
-      this.currentFromItem = item
+      this.currentFromItemName = item.name
       this.libraryMode = LibraryMode.searchMode
       this.handleSearchByFromType(item)
     },
@@ -720,14 +785,6 @@ export default {
       }).finally(() => {
         this.searching = false
       })
-    },
-
-    handleRemoveFilterItem (item) {
-      this.$logger.info('handleRemoveFilterItem ', item)
-      const index = this.filterList.findIndex(i => i.name === item.name && i.fromType === item.fromType)
-      if (index !== -1) {
-        this.filterList.splice(index, 1)
-      }
     },
 
     searchByFilter (filter) {
@@ -885,6 +942,7 @@ export default {
       display: flex;
       flex-direction: row;
       align-items: center;
+      width: 150px;
       .curriculum-select {
         background: #eaebef;
         display: inline-block;
@@ -1199,15 +1257,9 @@ export default {
 
   .card-view-mode-wrapper {
     width: 100%;
-    display: flex;
-    flex-direction: row;
-    flex-wrap: wrap;
-    padding: 10px;
-    justify-content: flex-start;
+    padding: 10px 10px 25px 10px;
     .card-item-wrapper {
       cursor: pointer;
-      width: 190px;
-      padding: 10px;
       box-sizing: border-box;
       background: #FFFFFF;
       display: flex;
@@ -1309,7 +1361,10 @@ export default {
   flex-direction: row;
   align-items: center;
   justify-content: flex-start;
-  padding-left: 15px;
+  margin-left: 15px;
+  height: 33px;
+  overflow: hidden;
+  flex-wrap: wrap;
 
   .filter-list-item {
     color: #333;
@@ -1329,8 +1384,7 @@ export default {
       white-space:nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
-      white-space: nowrap;
-      max-width:200px;
+      max-width: 200px;
     }
     .filter-close {
       display: none;
@@ -1397,7 +1451,7 @@ export default {
   box-shadow: 0 0 8px rgba(0, 0, 0, 0.16);
   width: calc(100% - 46px);
   background-color: #fff;
-  max-height: 400px;
+  max-height: 450px;
   overflow-y: scroll;
 
   .searching {
@@ -1426,6 +1480,12 @@ export default {
       color: #15c39a;
       background-color: #f6f6f6;
     }
+
+    .keyword-item {
+      font-weight: bold;
+      color: #2DC9A4;
+      text-decoration: underline;
+    }
   }
 
   &::-webkit-scrollbar {
@@ -1444,4 +1504,13 @@ export default {
     -webkit-box-shadow: inset 0 0 10px rgba(0,0,0,0.1);
   }
 }
+
+.data-list-item {
+  &:hover {
+    .data-name {
+      text-decoration: underline;
+    }
+  }
+}
+
 </style>
