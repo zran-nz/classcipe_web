@@ -48,7 +48,7 @@
                       v-for="(item, sIndex) in searchResultList"
                       :key="sIndex"
                       :data-from-type="item.fromType">
-                      <div v-html="item.name"></div>
+                      <div v-html="item.tagName"></div>
                     </div>
                   </template>
                   <template v-else-if="searchKeyword">
@@ -101,7 +101,7 @@
               id="filter-list"
               :class="{
                 'filter-list-item': true,
-                'active-filter-list-item': filterItem === currentFromItem
+                'active-filter-list-item': filterItem.name === currentFromItemName
               }"
               v-for="(filterItem, fIndex) in filterList"
               :key="fIndex"
@@ -295,7 +295,8 @@
               <a-spin tip="searching..." />
             </div>
             <div class="loading-wrapper" v-show="!searching && !dataListLoading && dataList.length === 0">
-              <no-more-resources tips="The content you are searching for was not found." />
+              <no-more-resources tips="The content you are searching for was not found." v-if="searchKeyword"/>
+              <no-more-resources tips="" v-else/>
             </div>
           </div>
         </div>
@@ -471,7 +472,7 @@ export default {
       searchResultList: [],
       libraryMode: LibraryMode.browserMode,
       LibraryMode: LibraryMode,
-      currentFromItem: null,
+      currentFromItemName: null,
 
       // 当前选中的配置项
       filterConfig: {
@@ -635,6 +636,10 @@ export default {
         path: this.browserTypeLabelMap[this.currentBrowserType],
         blockIndex: 0
       }]
+
+      if (this.libraryMode === LibraryMode.searchMode) {
+        this.handleSearchKey()
+      }
     },
 
     handleSearchKey () {
@@ -664,8 +669,8 @@ export default {
           if (item.name) {
             const tagItem = {
               fromType: item.fromType,
-              rawName: item.name,
-              name: item.name.split(value).join('<span class="keyword-item">' + value + '</span>')
+              name: item.name,
+              tagName: item.name.split(value).join('<span class="keyword-item">' + value + '</span>')
             }
             list.push(tagItem)
           }
@@ -765,8 +770,8 @@ export default {
     handleActiveFilterItem (item) {
       this.$logger.info('handleActiveFilterItem ', item)
       this.searching = true
-      this.searchKeyword = item.rawName
-      this.currentFromItem = item
+      this.searchKeyword = item.name
+      this.currentFromItemName = item.name
       this.libraryMode = LibraryMode.searchMode
       this.handleSearchByFromType(item)
     },
