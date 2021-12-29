@@ -666,7 +666,7 @@ export default {
       } else if (this.formType === EvaluationTableType.Rubric_2) {
         this.headers = [
           { label: 'Description', previewLabel: 'Description', type: EvaluationTableHeader.Description, editable: false, editing: false, required: true },
-          { label: 'Unnamed level', previewLabel: 'Unnamed level', type: EvaluationTableHeader.Indicators, editable: true, editing: false, required: false },
+          { label: 'Unnamed level', previewLabel: 'Unnamed level', type: EvaluationTableHeader.UserDefine, editable: true, editing: false, required: false },
           { label: 'Evidence', previewLabel: 'Evidence', type: EvaluationTableHeader.Evidence, editable: false, editing: false, required: true }
         ]
       } else if (this.formType === EvaluationTableType.CenturySkills) {

@@ -34,6 +34,7 @@
                      'active-table': currentActiveFormId === formItem.formId}"
             v-for="(formItem, idx) in forms"
             :data-form-id="formItem.formId"
+            :data-form-type="formItem.formType"
             @click="handleActiveForm(idx, formItem)"
             :key="idx">
 
