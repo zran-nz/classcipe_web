@@ -113,7 +113,7 @@
 
                         <div class="form-block" style="clear: both">
                           <div class="form-block-label">
-                            <a-switch @change="handleMaterialListFlagChange" /> Material list
+                            <a-switch v-model="materialListFlag" @change="handleMaterialListFlagChange" /> Material list
                           </div>
                           <div class="material-list">
                             <div
