@@ -124,6 +124,7 @@ import { TemplatesGetPresentation } from '@/api/template'
 import EvaluationTableMode from '@/components/Evaluation/EvaluationTableMode'
 import StudentIcon from '@/assets/svgIcon/evaluation/StudentIcon.svg?inline'
 import TeacherIcon from '@/assets/svgIcon/evaluation/TeacherIcon.svg?inline'
+import { QueryByClassInfoSlideId } from '@/api/classroom'
 
 export default {
   name: 'PptSlideView',
@@ -160,7 +161,10 @@ export default {
       selectedSlidePageIdList: [],
       selectedStudentSlidePageIdList: [],
       rawSlideDataMap: new Map(),
-      slideDataList: []
+      slideDataList: [],
+
+      elementsList: [],
+      itemsList: []
     }
   },
   created () {
@@ -172,9 +176,12 @@ export default {
   methods: {
     loadData () {
       this.$logger.info('TemplatesGetPresentation')
-      TemplatesGetPresentation({ presentationId: this.slideId }).then(response => {
-        const pageObjects = response.result.pageObjects
-        this.$logger.info('TemplatesGetPresentation response', response)
+      Promise.all([
+        TemplatesGetPresentation({ presentationId: this.slideId }),
+        QueryByClassInfoSlideId({ slideId: this.slideId })
+      ]).then(response => {
+        const pageObjects = response[0].result.pageObjects
+        this.$logger.info('TemplatesGetPresentation response', response[0])
         if (pageObjects.length) {
           pageObjects.forEach(pItem => {
             pItem.responseList = []
@@ -187,6 +194,11 @@ export default {
         } else {
           this.loading = false
           this.$logger.info('loaded data', this.imgList, this.commentData)
+        }
+
+        if (response[1].success) {
+          this.elementsList = response[1].result.relements
+          this.itemsList = response[1].result.items
         }
       })
     },
