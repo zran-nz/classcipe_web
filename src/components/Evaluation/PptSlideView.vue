@@ -206,9 +206,6 @@
           </div>
         </div>
       </div>
-      <div class="loading">
-        <a-spin v-if="loading" />
-      </div>
 
       <a-modal
         v-model="materialVisible"
@@ -233,6 +230,9 @@
         @cancel="mediaVisible = false">
         <media-preview :media-list="mediaList" :material-type="filterMaterialType"></media-preview>
       </a-modal>
+    </div>
+    <div class="loading">
+      <a-spin v-if="loading" />
     </div>
   </div></template>
 
@@ -336,6 +336,7 @@ export default {
   },
   methods: {
     loadData () {
+      this.loading = true
       this.$logger.info('加载PPT数据 ' + this.classId + ' slideId ' + this.slideId)
       Promise.all([
         TemplatesGetPresentation({ presentationId: this.slideId }),
@@ -374,7 +375,6 @@ export default {
           const pageId = data.page_id
           const slideItem = this.rawSlideDataMap.get(pageId)
           if (slideItem) {
-            this.$logger.info('find slideItem comment' + data.page_id, data)
             slideItem.commentList.push({ ...data, user_id: item.user_id })
             this.rawSlideDataMap.set(pageId, slideItem)
           } else {
