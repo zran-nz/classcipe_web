@@ -2,59 +2,57 @@
   <div class="my-content">
     <div class="filter-line">
       <div class="status-tab">
+        <div class="toggle-mode-type-wrapper">
+          <div class="toggle-mode-type">
+            <div class="toggle-mode">
+              <div :class="{'mode-item': true, 'skill-active-mode' : currentStatus === 0}" @click="toggleStatus(0, 'All')">
+                All
+              </div>
+              <div :class="{'mode-item': true, 'knowledge-active-mode' : currentStatus === 1}" @click="toggleStatus(1, 'Collabrating')">
+                Collabrating
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
+
       <div class="type-owner">
         <div class="type-filter">
           <a-dropdown>
             <a-menu slot="overlay">
-              <a-menu-item disabled>
-                <span>{{ $t('teacher.my-content.choose-types-of-content') }}</span>
-              </a-menu-item>
-              <a-menu-item
-                @click="toggleType('all-type', $t('teacher.my-content.all-type'))"
-                v-show="$store.getters.currentRole === 'teacher'">
+              <!--              <a-menu-item disabled>-->
+              <!--                <span>{{ $t('teacher.my-content.choose-types-of-content') }}</span>-->
+              <!--              </a-menu-item>-->
+              <a-menu-item @click="toggleType('all-type', $t('teacher.my-content.all-type'))">
                 <span>{{ $t('teacher.my-content.all-type') }}</span>
               </a-menu-item>
-              <a-menu-item @click="toggleType('topic', $t('teacher.my-content.topics-type') )">
-                <span>{{ $t('teacher.my-content.topics-type') }}</span>
-              </a-menu-item>
-              <!--                <a-menu-item @click="toggleType('material', $t('teacher.my-content.materials-type'))">
-                <span>{{ $t('teacher.my-content.materials-type') }}</span>
-              </a-menu-item>-->
-              <a-menu-item
-                @click="toggleType('unit-plan', $t('teacher.my-content.unit-plan-type'))"
-                v-show="$store.getters.currentRole === 'teacher'">
+              <a-menu-item @click="toggleType('unit-plan', $t('teacher.my-content.unit-plan-type'))">
                 <span>{{ $t('teacher.my-content.unit-plan-type') }}</span>
               </a-menu-item>
+              <template v-if="$store.getters.roles.indexOf('teacher') !== -1">
+                <a-menu-item @click="toggleType('evaluation', $t('teacher.my-content.evaluation-type'))">
+                  <span>{{ $t('teacher.my-content.evaluation-type') }}</span>
+                </a-menu-item>
+              </template>
               <a-menu-item @click="toggleType('task', $t('teacher.my-content.tasks-type') )">
                 <span>{{ $t('teacher.my-content.tasks-type') }}</span>
               </a-menu-item>
-              <!--              <a-menu-item
-                @click="toggleType('lesson', $t('teacher.my-content.lesson-type'))"
-                v-show="$store.getters.currentRole === 'teacher'">
-                <span>{{ $t('teacher.my-content.lesson-type') }}</span>
-              </a-menu-item>-->
-              <a-menu-item
-                @click="toggleType('evaluation', $t('teacher.my-content.evaluation-type'))"
-                v-show="$store.getters.currentRole === 'teacher'">
-                <span>{{ $t('teacher.my-content.evaluation-type') }}</span>
-              </a-menu-item>
+
             </a-menu>
             <a-button
-              style="padding: 0 20px;display:flex; box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.16);align-items:center ;height: 40px;border-radius: 6px;background: #FFFFFF;border: 1px solid #eee;font-family: Inter-Bold;color: #182552;">
-              Choose type(s)of content
-              <a-icon type="caret-down"/>
-            </a-button>
+              class="type-filter-button"
+              style="padding: 0 20px;display:flex; align-items:center ;height: 40px;border-radius: 6px;background: #FFFFFF;font-family: Inter-Bold;color: #182552;">
+              <span v-if="currentTypeLabel">{{ currentTypeLabel }}</span> <span v-else>Choose type(s)of content</span>
+              <a-icon type="caret-down" /> </a-button>
           </a-dropdown>
         </div>
         <div class="view-mode-toggle">
           <div class="view-mode">
             <div :class="{'view-mode-item': true, 'active-view': viewMode === 'img'}" @click="toggleViewMode('img')">
-              <a-icon type="appstore" theme="filled" v-if="viewMode === 'img'"/>
-              <a-icon type="appstore" v-if="viewMode === 'list'"/>
+              <pubu-svg />
             </div>
             <div :class="{'view-mode-item': true, 'active-view': viewMode === 'list'}" @click="toggleViewMode('list')">
-              <a-icon type="unordered-list"/>
+              <liebiao-svg />
             </div>
           </div>
         </div>
@@ -62,128 +60,6 @@
     </div>
     <div class="content-wrapper">
       <a-skeleton :loading="skeletonLoading" active>
-        <div class="label-title-red">
-          <div class="label-icon">
-            <img src="~@/assets/icons/collaborate/invite.png" class="collaborate-icon"/>
-          </div>
-          <div class="label-text">Invitation received</div>
-        </div>
-        <div class="no-received-wrapper">
-          <template v-if="sharedNotReceivedList.length">
-            <div class="no-received-list" v-if="viewMode === 'list'">
-              <div class="no-received-my-list-item " v-for="(item,index) in sharedNotReceivedList" :key="index">
-                <div class="collaborate-item">
-                  <div class="message-wrapper">
-                    {{ item.message }}
-                  </div>
-                  <div class="collaborate-action-wrapper">
-                    <div class="collaborate-content-info" @click="handleViewDetail(item.content)">
-                      <div class="type-icon">
-                        <content-type-icon size="40px" :type="item.content.type"/>
-                      </div>
-                      <div class="name"> {{ item.content.name }}</div>
-                      <div class="time"> {{ item.createTime }}</div>
-                      <div class="author">
-                        {{ item.createBy }}
-                      </div>
-                    </div>
-                    <div class="collaborate-action">
-                      <div class="collaborate-action-item">
-                        <a-button
-                          class="button-item button-item-view"
-                          @click="handleCollaborate(item)">
-                          <img src="~@/assets/icons/collaborate/collaborate.png" class="collaborate-icon"/>
-                          <span
-                            class="btn-text">
-                            Collaborate
-                          </span>
-                        </a-button>
-                      </div>
-                      <div class="collaborate-action-item">
-                        <a-popconfirm
-                          :title="$t('teacher.my-content.action-delete') + '?'"
-                          ok-text="Yes"
-                          @confirm="handleDeleteCollaborate(item)"
-                          cancel-text="No">
-                          <a-button
-                            class="button-item button-item-delete">
-                            <img src="~@/assets/icons/collaborate/shanchu@2x.png" class="collaborate-icon"/>
-                            <span
-                              class="btn-text">
-                              Delete
-                            </span>
-                          </a-button>
-                        </a-popconfirm>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div class="no-received-card-list" v-if="viewMode === 'img'">
-              <div class="no-received-card-my-list-item" v-for="(item,index) in sharedNotReceivedList" :key="index">
-                <div class="card-collaborate-item">
-                  <div class="message-wrapper">
-                    {{ item.message }}
-                  </div>
-                  <div class="collaborate-action-wrapper">
-                    <div class="collaborate-content-info" @click="handleViewDetail(item.content)">
-                      <div class="type-icon">
-                        <content-type-icon size="40px" :type="item.content.type"/>
-                        <div class="name"> {{ item.content.name }}</div>
-                      </div>
-                      <div class="sub-info">
-                        <div class="time"> {{ item.createTime }}</div>
-                        <div class="author">
-                          {{ item.createBy }}
-                        </div>
-                      </div>
-                    </div>
-                    <div class="collaborate-action">
-                      <div class="collaborate-action-item">
-                        <a-button
-                          class="button-item button-item-view"
-                          @click="handleCollaborate(item)">
-                          <img src="~@/assets/icons/collaborate/collaborate.png" class="collaborate-icon"/>
-                          <span
-                            class="btn-text">
-                            Collaborate
-                          </span>
-                        </a-button>
-                      </div>
-                      <div class="collaborate-action-item">
-                        <a-popconfirm
-                          :title="$t('teacher.my-content.action-delete') + '?'"
-                          ok-text="Yes"
-                          @confirm="handleDeleteCollaborate(item)"
-                          cancel-text="No">
-                          <a-button
-                            class="button-item button-item-delete"
-                            style="">
-                            <img src="~@/assets/icons/collaborate/refuse.png" class="collaborate-icon"/>
-                            <span
-                              class="btn-text">
-                              Delete
-                            </span>
-                          </a-button>
-                        </a-popconfirm>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </template>
-          <div class="no-received-empty" v-if="sharedNotReceivedList.length === 0">
-            <no-more-resources tips="No Invitation received"/>
-          </div>
-        </div>
-        <div class="label-title-green">
-          <div class="label-icon">
-            <img src="~@/assets/icons/collaborate/Shared@2x.png" class="collaborate-icon"/>
-          </div>
-          <div class="label-text">Shared content</div>
-        </div>
         <div class="content-list">
           <a-list
             size="large"
@@ -200,24 +76,28 @@
                 <span class="name-content">
                   {{ item.content.name ? item.content.name : 'Unnamed' }}
                 </span>
+
               </span>
 
               <span class="content-info-right">
+
                 <span class="update-time" >
-                  {{ item.content.updateTime || item.content.createTime | dayjs }}
+                  {{ item.updateTime || item.createTime | dayjs }}
                 </span>
-                <span class="status">
-                  <template v-if="item.content.status === 0">Draft</template>
-                  <template v-if="item.content.status === 1">Published</template>
+
+                <span class="fromer">
+                  From {{ item.fromerUser }}
                 </span>
+
                 <div class="action">
                   <div slot="actions">
-                    <div class="action-wrapper">
+                    <!-- 接受并且同意协同-->
+                    <div class="action-wrapper" v-if="item.receiveStatus === 1 && item.agreeFlag === 1">
 
                       <!-- Task: 外置teacher-pace, student-pace, Edit, 折叠Delete, Duplicate, Previous session-->
                       <template v-if="item.content.type === typeMap.task">
                         <div class="start-session-wrapper action-item-wrapper">
-                          <div class="session-btn content-list-action-btn" @click="handleStartSessionTags(item.content)">
+                          <div class="session-btn content-list-action-btn" @click="handleStartSessionHistory(item,1)">
                             <div class="session-btn-icon">
                               <teacher-presenting />
                             </div>
@@ -225,7 +105,7 @@
                           </div>
                         </div>
                         <div class="start-session-wrapper action-item-wrapper">
-                          <div class="session-btn content-list-action-btn" @click="handleStartSessionTags(item.content)">
+                          <div class="session-btn content-list-action-btn" @click="handleStartSessionHistory(item,2)">
                             <div class="session-btn-icon">
                               <student-pace />
                             </div>
@@ -243,12 +123,13 @@
                           <div class="session-btn-text"> {{ $t('teacher.my-content.action-edit') }}</div>
                         </div>
                       </div>
+
                       <div class="more-action-wrapper action-item-wrapper" >
                         <a-dropdown>
                           <a-icon type="more" style="margin-right: 8px" />
                           <a-menu slot="overlay">
                             <a-menu-item>
-                              <a-popconfirm :title="$t('teacher.my-content.action-delete') + '?'" ok-text="Yes" @confirm="handleDeleteItem(item.content)" cancel-text="No">
+                              <a-popconfirm title="Delete collaborate?" ok-text="Yes" @confirm="handleDeleteItem(item)" cancel-text="No">
                                 <a>
                                   <a-icon type="delete" theme="filled" /> {{ $t('teacher.my-content.action-delete') }}
                                 </a>
@@ -272,7 +153,47 @@
                         </a-dropdown>
                       </div>
                     </div>
-                  </div></div></span>
+                    <div class="action-wrapper" v-else>
+                      <!--  邀请未接受状态-->
+                      <template v-if="item.receiveStatus === 0 ">
+                        <!--  需要审批的情况-->
+                        <template v-if="item.link && item.link.approveFlag">
+                          <div class="action-item-wrapper action-item-block-wrapper" >
+                            <div class="session-btn content-list-action-btn" @click="handleApply(item)">
+                              <div class="session-btn-text">Apply</div>
+                            </div>
+                          </div>
+                        </template>
+                        <template v-else>
+                          <div class="action-item-wrapper action-item-block-wrapper" >
+                            <div class="session-btn content-list-action-btn" @click="handleAccept(item,collaborateStatus.agree)">
+                              <div class="session-btn-text">Agree</div>
+                            </div>
+                          </div>
+                          <div class="action-item-wrapper action-item-block-wrapper">
+                            <div class="session-btn content-list-action-btn" @click="handleAccept(item,collaborateStatus.disAgree)">
+                              <div class="session-btn-text">Disagree</div>
+                            </div>
+                          </div>
+                        </template>
+                      </template>
+
+                      <!--  已接受拒绝状态-->
+                      <template v-else>
+                        <span v-if="item.agreeFlag === collaborateStatus.disAgree">
+                          Application was rejected
+                        </span>
+
+                        <span v-if="item.agreeFlag === collaborateStatus.apply">
+                          Applied
+                        </span>
+
+                      </template>
+
+                    </div>
+                  </div>
+                </div>
+              </span>
             </a-list-item>
           </a-list>
           <a-list
@@ -283,7 +204,7 @@
             :loading="loading"
             v-if="viewMode === 'img'">
             <a-list-item slot="renderItem" key="item.key" slot-scope="item">
-              <a-card class="cover-card" @click="handleViewDetail(item.content)">
+              <a-card class="cover-card" >
                 <div class="mask"></div>
                 <div class="mask-actions">
                   <div class="action-item action-item-top">
@@ -291,21 +212,21 @@
                       <a-icon type="more" style="margin-right: 8px" class="more-icon" />
                       <a-menu slot="overlay">
                         <a-menu-item>
-                          <a-popconfirm :title="$t('teacher.my-content.action-delete') + '?'" ok-text="Yes" @confirm="handleDeleteItem(item.content)" cancel-text="No">
+                          <a-popconfirm title="Delete collaborate?" ok-text="Yes" @confirm="handleDeleteItem(item)" cancel-text="No">
                             <a>
                               <a-icon type="delete" theme="filled" /> {{ $t('teacher.my-content.action-delete') }}
                             </a>
                           </a-popconfirm>
                         </a-menu-item>
                         <a-menu-item>
-                          <a @click="handleDuplicateItem(item.content)">
+                          <a @click="handleDuplicateItem(item)">
                             <a-icon type="copy" /> Duplicate
                           </a>
                         </a-menu-item>
                         <!-- Task里面有teacher-pace, student-pace, previous session -->
                         <template v-if="item.content.type === typeMap.task">
                           <a-menu-item>
-                            <a @click="handleViewPreviewSession(item.content)">
+                            <a @click="handleViewPreviewSession(item)">
                               <previous-sessions-svg /> Previous session
                             </a>
                           </a-menu-item>
@@ -314,13 +235,13 @@
                     </a-dropdown>
                   </div>
                   <div class="action-item action-item-center">
-                    <div class="session-btn session-btn-left" @click.stop="handleStartSessionTags(item.content)" v-if="item.content.type === typeMap['task']" >
+                    <div class="session-btn session-btn-left" @click.stop="handleStartSessionHistory(item,1)" v-if="item.content.type === typeMap['task']" >
                       <div class="session-btn-text">
                         <teacher-presenting />
                         Teacher-paced
                       </div>
                     </div>
-                    <div class="session-btn session-btn-right" @click.stop="handleStartSessionTags(item.content)" v-if="item.content.type === typeMap['task']">
+                    <div class="session-btn session-btn-right" @click.stop="handleStartSessionHistory(item,2)" v-if="item.content.type === typeMap['task']">
                       <div class="session-btn-text">
                         <student-pace />
                         Student-paced
@@ -343,9 +264,11 @@
                   </div>
                 </div>
                 <div class="cover-img" :style="{backgroundImage: 'url(' + item.content.image + ')'}"></div>
-                <a-card-meta class="my-card-meta-info" :title="item.content.name ? item.content.name : 'Untitled'" :description="item.content.createTime | dayjs" @click="handleViewDetail(item.content)">
+
+                <a-card-meta class="my-card-meta-info" :title="item.content.name ? item.content.name : 'Untitled'" :description="item.createTime | dayjs" @click="handleViewDetail(item)">
                   <content-type-icon :type="item.content.type" slot="avatar"></content-type-icon>
                 </a-card-meta>
+
               </a-card>
             </a-list-item>
           </a-list>
@@ -382,11 +305,37 @@
         :title="null"
         :closable="false"
         destroyOnClose
-        width="900px">
-        <modal-header @close="viewPreviewSessionVisible = false"/>
+        :dialog-style="{ top: '30px' }"
+        width="1000px">
+        <modal-header title="Previous session" @close="viewPreviewSessionVisible = false" :white="true"/>
         <div class="preview-session-wrapper">
-          <class-list :slide-id="currentPreviewLesson.presentationId" :classData="currentPreviewLesson" v-if="currentPreviewLesson && currentPreviewLesson.presentationId"/>
-          <no-more-resources tips="Not exist previous sessions" v-else/>
+          <a-tabs default-active-key="1" @change="handleTabChange">
+            <a-tab-pane key="1" tab="Active">
+              <class-list-table ref="classList1" :slide-id="currentPreviewLesson.presentationId" :classData="currentPreviewLesson" v-if="currentPreviewLesson && currentPreviewLesson.presentationId" :active="true"/>
+              <div class="no-session" v-else>
+                <no-more-resources tips="Not exist previous sessions"/>
+              </div>
+            </a-tab-pane>
+            <a-tab-pane key="2" tab="Archived " force-render>
+              <class-list-table ref="classList2" :slide-id="currentPreviewLesson.presentationId" :classData="currentPreviewLesson" v-if="currentPreviewLesson && currentPreviewLesson.presentationId" :active="false"/>
+              <div class="no-session" v-else>
+                <no-more-resources tips="Not exist previous sessions"/>
+              </div>
+            </a-tab-pane>
+          </a-tabs>
+        </div>
+      </a-modal>
+
+      <a-modal
+        v-model="oldSelectSessionVisible"
+        :footer="null"
+        :title="null"
+        :closable="true"
+        destroyOnClose
+        :dialog-style="{ top: '50px' }"
+        width="900px">
+        <div>
+          <old-session-list :session-list="sessionList" @start-new-session="handleStartSession" @cancel="oldSelectSessionVisible=false" :mode="sessionMode" />
         </div>
       </a-modal>
 
@@ -424,14 +373,17 @@
 
   import * as logger from '@/utils/logger'
   import { Duplicate, SaveSessonTags } from '@/api/teacher'
-  import { typeMap } from '@/const/teacher'
+  import { CollaborateStatus, typeMap } from '@/const/teacher'
   import ContentStatusIcon from '@/components/Teacher/ContentStatusIcon'
   import ContentTypeIcon from '@/components/Teacher/ContentTypeIcon'
-  import { DeleteCollaborate, GetShared, ReceiveCollaborate, GetSharedNotReceived } from '@/api/collaborate'
+  import {
+    DeleteCollaborate,
+    ReceiveCollaborate,
+    CollaboratesQueryShared, CollaboratesAgree
+  } from '@/api/collaborate'
   import { lessonStatus, lessonHost } from '@/const/googleSlide'
   import { StartLesson } from '@/api/lesson'
   import storage from 'store'
-  import { VIEW_MODE } from '@/store/mutation-types'
   import TvSvg from '@/assets/icons/lesson/tv.svg?inline'
   import EvaluationSvg from '@/assets/icons/common/evaluation.svg?inline'
   import PreviousSessionsSvg from '@/assets/icons/common/PreviousSessions.svg?inline'
@@ -442,25 +394,28 @@
   import StartSessionSvg from '@/assets/icons/common/StartSession.svg?inline'
   import TeacherPresenting from '@/assets/icons/common/TeacherPresenting.svg?inline'
   import StudentPace from '@/assets/icons/common/StudentPace.svg?inline'
-  import ClassList from '@/components/Teacher/ClassList'
   import CustomTag from '@/components/UnitPlan/CustomTag'
   import LiebiaoSvg from '@/assets/svgIcon/myContent/liebiao.svg?inline'
   import PubuSvg from '@/assets/svgIcon/myContent/pubu.svg?inline'
-
-  import {
-    CustomTagType
-  } from '@/const/common'
+  import { CustomTagType } from '@/const/common'
   import CommonPreview from '@/components/Common/CommonPreview'
   import NoMoreResources from '@/components/Common/NoMoreResources'
   import ModalHeader from '@/components/Common/ModalHeader'
   import { FindCustomTags } from '@/api/tag'
+  import OldSessionList from '@/components/Teacher/OldSessionList'
+  import ClassListTable from '@/components/Teacher/ClassListTable'
+  import PSSvg from '@/assets/svgIcon/myContent/previous_session.svg'
+  import CollaborateSvg from '@/assets/icons/collaborate/collaborate_group.svg'
+  import { FindMyClasses } from '@/api/evaluation'
+  export const SHARED_VIEW_MODE = 'view_mode_shared'
 
   export default {
     name: 'Shared',
     components: {
-      ClassList,
+      OldSessionList,
       NoMoreResources,
       CommonPreview,
+      ClassListTable,
       ContentStatusIcon,
       ContentTypeIcon,
       TvSvg,
@@ -476,7 +431,9 @@
       EditSvg,
       CopySvg,
       LiebiaoSvg,
-      PubuSvg
+      PubuSvg,
+      PSSvg,
+      CollaborateSvg
     },
     data () {
       return {
@@ -484,8 +441,8 @@
         loading: true,
         loadFailed: false,
         myContentList: [],
-        currentStatus: 'all-status',
-        currentStatusLabel: this.$t('teacher.my-content.all-status'),
+        currentStatus: 0,
+        currentStatusLabel: 'All',
         currentType: 'all-type',
         currentTypeLabel: this.$t('teacher.my-content.all-type'),
         currentOwner: 'all-owner',
@@ -509,19 +466,22 @@
         pageNo: 1,
 
         typeMap: typeMap,
+        collaborateStatus: CollaborateStatus,
         viewPreviewSessionVisible: false,
+        PPTCommentPreviewVisible: false,
         classList: [],
-        viewMode: storage.get(VIEW_MODE) ? storage.get(VIEW_MODE) : 'list',
+        viewMode: storage.get(SHARED_VIEW_MODE) ? storage.get(SHARED_VIEW_MODE) : 'list',
         lessonSelectTagVisible: false,
-        sharedNotReceivedList: [],
-
         sessionTags: [],
         sessionItem: {},
         startLoading: false,
         userTags: {},
 
         // 之前报错了，提示没这个字段，加一下。
-        customTagList: []
+        customTagList: [],
+        oldSelectSessionVisible: false,
+        sessionList: [],
+        sessionMode: 1
       }
     },
     computed: {},
@@ -533,36 +493,34 @@
     methods: {
       toggleViewMode (viewMode) {
         this.$logger.info('viewMode', viewMode)
-        storage.set(VIEW_MODE, viewMode)
+        storage.set(SHARED_VIEW_MODE, viewMode)
         this.viewMode = viewMode
       },
       loadMyContent () {
         this.loading = true
-        GetSharedNotReceived().then((response) => {
-          this.$logger.info('GetSharedNotReceived response', response)
-          this.sharedNotReceivedList = response.result
-        }).finally(() => {
-          this.loading = false
-          this.skeletonLoading = false
-        })
-        GetShared({
-          type: typeMap[this.currentType],
+        CollaboratesQueryShared({
+          collaborateStatus: this.currentStatus,
+          type: this.currentType === 'all-type' ? typeMap[this.currentType] : '',
           pageNo: this.pageNo,
-          pageSize: this.pagination.pageSize
+          pageSize: this.pagination.pageSize,
+          searchKey: ''
         }).then(res => {
-          logger.info('GetShared', res)
-          if (res.result && res.result.records && res.result.records.length) {
+          logger.info('CollaboratesQueryShared', res)
+          if (res.success) {
             res.result.records.forEach((record, index) => {
               record.key = index
             })
             this.myContentList = res.result.records
             this.pagination.total = res.result.total
             this.pagination.current = res.result.current
+            if (res.result.records.length === 0 && this.pagination.total > 0) {
+              this.pageNo = res.result.pages
+              this.loadMyContent()
+            }
           } else {
             this.myContentList = []
             this.pagination.total = 0
           }
-          logger.info('myContentList', this.myContentList)
         }).finally(() => {
           this.loading = false
           this.skeletonLoading = false
@@ -804,6 +762,61 @@
         }).then(() => {
           this.loadMyContent()
         })
+      },
+      handleTabChange (tab) {
+        if (tab === '1') {
+          this.$refs.classList1.loadTeacherClasses()
+        } else {
+          this.$refs.classList2.loadTeacherClasses()
+        }
+      },
+      handleStartSessionHistory (item, mode) {
+        console.log(item)
+        this.sessionMode = mode
+        this.sessionItem = item
+        // this.lessonSelectTagVisible = true
+        if (!item.presentationId) {
+          this.$message.warn('This Task is not bound to PPT!')
+        }
+        logger.info('loadTeacherClasses  slideId:' + item.presentationId)
+        this.loading = true
+        this.sessionList = []
+        FindMyClasses({ slideId: item.presentationId, lastVersion: true }).then(response => {
+          logger.info('findMyClasses', response.result.data)
+          if (response.success) {
+            this.sessionList = response.result
+          }
+          this.loading = false
+        }).finally(() => {
+          if (this.sessionList.length > 0) {
+            this.oldSelectSessionVisible = true
+          } else {
+            this.handleStartSession()
+          }
+        })
+        this.sessionTags = []
+      },
+      handleAccept (item, flag) {
+        this.$logger.info('handleAccept', item)
+        CollaboratesAgree({ id: item.id, agreeFlag: flag }).then(res => {
+          logger.info('handleApply', res)
+          if (flag === this.collaborateStatus.agree) {
+            this.$message.success('Agree successfully')
+          } else {
+            this.$message.success('Disagree successfully')
+          }
+        }).then(() => {
+          this.loadMyContent()
+        })
+      },
+      handleApply (item) {
+        this.$logger.info('handleApply', item)
+        CollaboratesAgree({ id: item.id, agreeFlag: this.collaborateStatus.apply }).then(res => {
+          logger.info('handleApply', res)
+          this.$message.success('Apply successfully')
+        }).then(() => {
+          this.loadMyContent()
+        })
       }
     }
   }
@@ -993,23 +1006,67 @@
       padding: 15px 0;
       display: flex;
       justify-content: space-between;
-
-      .status-item {
-        border-radius: @btn-border-radius-base;
+      .status-tab {
         cursor: pointer;
-        display: inline-block;
-        min-width: 50px;
-        text-align: center;
-        line-height: 28px;
-        padding: 0 15px;
-        color: @text-color;
-        font-size: @btn-font-size-sm;
-        font-weight: @btn-font-weight;
-      }
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        .toggle-mode-type-wrapper {
+          width: 280px;
+          box-sizing: border-box;
+          .toggle-mode-type {
+            height: 40px;
+            display: inline-block;
+            border-radius: 40px;
+            background: rgba(228, 228, 228, 0.3);
 
-      .active-status-item {
-        background: @primary-color;
-        color: #fff;
+            .toggle-mode {
+              border-radius: 40px;
+              height: 40px;
+              display: flex;
+              flex-direction: row;
+              font-size: 14px;
+
+              //.mode-item:first-child {
+              //  border-bottom-left-radius: 35px;
+              //  border-top-left-radius: 35px;
+              //}
+              //
+              //.mode-item:last-child {
+              //  border-bottom-right-radius: 35px;
+              //  border-top-right-radius: 35px;
+              //}
+
+              .mode-item {
+                padding: 0 8px;
+                font-size: 14px;
+                height: 40px;
+                color: rgba(17, 20, 45, 1);
+                border-radius: 30px;
+                font-family: Inter-Bold;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                width: 90px;
+              }
+
+              .skill-active-mode {
+                color: #fff;
+                background: rgba(21, 195, 154, 1);
+              }
+
+              .knowledge-active-mode {
+                color: #fff;
+                background: rgba(21, 195, 154, 1);
+              }
+
+              .general-active-mode {
+                color: #fff;
+                background: rgba(21, 195, 154, 1);
+              }
+            }
+          }
+        }
       }
 
       .type-owner {
@@ -1021,6 +1078,7 @@
     }
 
     .content-wrapper {
+      min-width: 900px;
       .content-list {
         min-width: 900px;
         .my-list-item {
@@ -1030,6 +1088,7 @@
             display: flex;
             justify-content: flex-start;
             align-items: center;
+            width: calc(100% - 650px);
 
             .status-icon-item {
               font-size: 18px;
@@ -1054,11 +1113,18 @@
               white-space: nowrap;
               text-overflow: ellipsis;
             }
-            .status {
+            //.status {
+            //  font-family: Inter-Bold;
+            //  line-height: 24px;
+            //  color: #11142D;
+            //  width: 70px;
+            //}
+            .fromer {
               font-family: Inter-Bold;
               line-height: 24px;
               color: #11142D;
-              width: 70px;
+              font-size: 13px;
+              width: 120px;
             }
           }
           .action {
@@ -1139,6 +1205,9 @@
                   color: #15C39A;
                 }
               }
+            }
+            .action-item-block-wrapper{
+              display: block;
             }
           }
 

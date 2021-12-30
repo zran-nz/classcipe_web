@@ -619,7 +619,7 @@
         :maskClosable="false"
         :closable="true"
         destroyOnClose
-        width="800px">
+        width="900px">
         <collaborate-user-list
           :content-id="taskId"
           :main-content="collaborateContent"

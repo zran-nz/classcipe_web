@@ -10,6 +10,13 @@ export const statusMap = {
   'published': 1
 }
 
+export const CollaborateStatus = {
+  'invite': 0,
+  'agree': 1,
+  'apply': 2,
+  'disAgree': -1
+}
+
 export const typeMap = {
   'all-type': undefined,
   'topic': 1,
