@@ -440,7 +440,7 @@
     <a-drawer
       destroyOnClose
       placement="right"
-      width="820px"
+      width="1020px"
       :closable="false"
       :visible="evidenceSelectVisible"
       @close="evidenceSelectVisible = false"
@@ -450,8 +450,8 @@
           <ppt-slide-view
             :selected-id-list="currentEvidenceItem.evidence.selectedList"
             :selected-id-student-list="currentEvidenceItem.evidence.selectedStudentList"
-            :class-id="classId"
-            :slide-id="classInfo.slideId"
+            class-id="a7546d95"
+            slide-id="1MnwiWnrA64NTTsYD15XH0jqZan99XkYu1NLmJtgG6ik"
             :mode="mode"
             @ensure-evidence-finish="handleEnsureEvidenceFinish"
             @add-evidence-finish="handleAddEvidenceFinish"/>
@@ -1740,9 +1740,13 @@ export default {
     },
 
     handleAddEvidence (data) {
-      this.$logger.info('handleAddEvidence', data)
-      this.evidenceSelectVisible = true
-      this.currentEvidenceItem = data.data
+      this.$logger.info('handleAddEvidence', data, this.selectedMemberIdList)
+      if (this.selectedMemberIdList.length === 1) {
+        this.evidenceSelectVisible = true
+        this.currentEvidenceItem = data.data
+      } else {
+        this.$message.warn('You can only add evidence for one student at a time, and now you\'ve selected ' + this.selectedMemberIdList.length + ' students')
+      }
     },
 
     handleAddEvidenceFinish (data) {

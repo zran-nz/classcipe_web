@@ -32,9 +32,9 @@ const errorHandler = (error) => {
 // request interceptor
 request.interceptors.request.use(config => {
   const token = storage.get(ACCESS_TOKEN)
-  // 如果 token 存在
+  // 如果 token 存在,且请求未主动设置token,则设置 token
   // 让每个请求携带自定义 token 请根据实际情况自行修改
-  if (token) {
+  if (token && !config.headers['X-Access-Token']) {
     config.headers['X-Access-Token'] = token
   } else {
     logger.info(ACCESS_TOKEN + ' no set')

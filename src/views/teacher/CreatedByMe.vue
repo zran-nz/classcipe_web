@@ -283,7 +283,7 @@
         :closable="false"
         destroyOnClose
         :dialog-style="{ top: '30px' }"
-        width="1000px">
+        width="1100px">
         <modal-header title="Previous session" @close="viewPreviewSessionVisible = false" :white="true"/>
         <div class="preview-session-wrapper">
           <a-tabs default-active-key="1" @change="handleTabChange">
