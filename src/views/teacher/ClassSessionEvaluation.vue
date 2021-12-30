@@ -440,7 +440,7 @@
     <a-drawer
       destroyOnClose
       placement="right"
-      width="820px"
+      width="1020px"
       :closable="false"
       :visible="evidenceSelectVisible"
       @close="evidenceSelectVisible = false"
