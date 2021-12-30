@@ -3087,7 +3087,7 @@ export default {
           }
         }
         // 如果选中的是子类 父id要从筛选条件中去除，记录关系
-        if (parent) {
+        if (parent && parent.children.length > 0) {
           this.filterParentMap.set(id, parent.id)
         }
         this.selectFilter()
@@ -3108,10 +3108,12 @@ export default {
         this.selectFilter()
       },
       getFilterParams (list) {
+        logger.info('getFilterParams ', list)
         if (list.length === 0) {
           return []
         }
         var resList = [...list]
+        console.log(this.filterParentMap)
         list.forEach(id => {
           if (this.filterParentMap.has(id)) {
              const pId = this.filterParentMap.get(id)
