@@ -123,10 +123,11 @@
                         <comment-switch field-name="inquiry" :is-active="currentFieldName === 'inquiry'" @switch="handleSwitchComment" class="my-comment-switch"/>
                         <!--                <a-divider />-->
                         <a-form-item label="Big Idea/ Statement of Inquiry/ Central Idea" class="bigIdea" >
-                          <a-input
+                          <a-textarea
+                            class="my-form-textarea inquiry"
                             v-model="form.inquiry"
                             :placeholder="$store.getters.currentRole === 'teacher' ? $t('teacher.add-unit-plan.teacher-direction-of-inquiry') : $t('teacher.add-unit-plan.expert-direction-of-inquiry')"
-                            class="my-form-input inquiry"/>
+                          />
                         </a-form-item>
                         <a-tooltip title="Browse" @click.stop="selectBigIdeaDataVisible=true">
                           <span class="browse">
@@ -931,7 +932,7 @@ export default {
     }
   },
   beforeRouteLeave (to, from, next) {
-    if (JSON.stringify(this.form) !== JSON.stringify(this.oldForm)) {
+    if (this.initCompleted && JSON.stringify(this.form) !== JSON.stringify(this.oldForm)) {
       var that = this
       this.$confirm({
         title: 'Alert',
@@ -1154,6 +1155,7 @@ export default {
         this.loadCollaborateData()
         // copy副本 为了判断数据变更
         this.oldForm = JSON.parse(JSON.stringify(this.form))
+        this.initCompleted = true
       })
     },
 
@@ -2993,6 +2995,7 @@ export default {
 }
 
 .inquiry {
+  width:96%;
   .inquiry-form-block {
     border: 1px solid #15C39A !important;
   }
@@ -3029,7 +3032,7 @@ export default {
   font-size: 20px;
   padding: 0px 5px;
   position: absolute;
-  right: -30px;
+  right: -5px;
   top: 50px;
   cursor: pointer;
   display: flex;

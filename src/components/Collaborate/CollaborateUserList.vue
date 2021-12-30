@@ -612,44 +612,34 @@ export default {
             flex-direction: row;
             align-items: center;
             justify-content: center;
-
             .action-item {
               display: flex;
               flex-direction: row;
+              justify-content: center;
               align-items: center;
-              margin-right: 10px;
+              padding: 0 10px;
               user-select: none;
 
-              .btn-text {
-                padding: 0 5px;
-              }
-
-              .link-item {
+              .active-status-icon {
                 display: flex;
                 flex-direction: row;
                 align-items: center;
-                justify-content: center;
-                padding: 5px 15px;
-                border-radius: 35px;
-                border: 1px solid #BCBCBC;
-                font-family: Inter-Bold;
-                color: #182552;
-                font-size: 13px;
-                background: rgba(228, 228, 228, 0.2);
-                transition: all 0.3s ease;
-
-                .link-icon {
-                  margin-right: 5px;
-                  width: 15px;
+                width: 20px;
+                img {
+                  height: 18px;
                 }
+
+                font-size: 15px;
+                color: rgba(21, 195, 154, 1);
+              }
+              .action-name {
+                padding: 0 5px;
               }
 
-              svg {
-                color: #182552;
-              }
-
-              .link-item:hover {
-                background: rgba(228, 228, 228, 0.5);
+              .active-icon {
+                img {
+                  height: 14px;
+                }
               }
             }
           }
@@ -762,7 +752,6 @@ export default {
                 align-items: center;
                 padding: 0 10px;
                 user-select: none;
-                margin-left: 10px;
 
                 .active-status-icon {
                   display: flex;
@@ -785,6 +774,9 @@ export default {
                     height: 14px;
                   }
                 }
+              }
+              .action-ensure{
+                margin-left:10px;
               }
             }
           }

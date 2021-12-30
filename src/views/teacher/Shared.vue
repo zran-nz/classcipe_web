@@ -181,11 +181,13 @@
                       <!--  已接受拒绝状态-->
                       <template v-else>
                         <span v-if="item.agreeFlag === collaborateStatus.disAgree">
-                          Application was rejected
+                          <a-tag color="red">
+                            Application was rejected
+                          </a-tag>
                         </span>
 
                         <span v-if="item.agreeFlag === collaborateStatus.apply">
-                          Applied
+                          <a-tag color="red">Applied </a-tag>
                         </span>
 
                       </template>
@@ -206,7 +208,7 @@
             <a-list-item slot="renderItem" key="item.key" slot-scope="item">
               <a-card class="cover-card" >
                 <div class="mask"></div>
-                <div class="mask-actions">
+                <div class="mask-actions" v-if="item.receiveStatus === 1 && item.agreeFlag === 1">
                   <div class="action-item action-item-top">
                     <a-dropdown>
                       <a-icon type="more" style="margin-right: 8px" class="more-icon" />
@@ -263,6 +265,70 @@
                     </div>
                   </div>
                 </div>
+                <div class="mask-actions" style="display: block" v-else>
+                  <!--  邀请未接受状态-->
+                  <template v-if="item.receiveStatus === 0 ">
+                    <!--  需要审批的情况-->
+                    <template v-if="item.link && item.link.approveFlag">
+
+                      <div class="action-item action-item-center">
+                        <div class="session-btn session-btn-left" @click.stop="handleApply(item)" >
+                          <div class="session-btn-text">
+                            Apply
+                          </div>
+                        </div>
+                      </div>
+
+                      <div class="action-item-wrapper action-item-block-wrapper" >
+                        <div class="session-btn content-list-action-btn" @click="handleApply(item)">
+                          <div class="session-btn-text">Apply</div>
+                        </div>
+                      </div>
+                    </template>
+                    <template v-else>
+                      <div class="action-item action-item-center">
+                        <div class="session-btn session-btn-left" style="margin-top: 30px;" @click.stop="handleAccept(item,collaborateStatus.agree)" >
+                          <div class="session-btn-text">
+                            Agree
+                          </div>
+                        </div>
+                        <div class="session-btn session-btn-right" style="background: #ffa39e;" @click.stop="handleAccept(item,collaborateStatus.disAgree)">
+                          <div class="session-btn-text">
+                            Disagree
+                          </div>
+                        </div>
+                      </div>
+                    </template>
+                  </template>
+
+                  <!--  已接受拒绝状态-->
+                  <template v-else>
+                    <div class="action-item action-item-top" v-if="item.agreeFlag === collaborateStatus.disAgree">
+                      <a-tag color="red">
+                        Application was rejected
+                      </a-tag>
+                    </div>
+
+                    <div class="action-item action-item-top" v-if="item.agreeFlag === collaborateStatus.apply">
+                      <div class="session-btn" >
+                        <a-tag color="red">
+                          Applied
+                        </a-tag>
+                      </div>
+                    </div>
+
+                  </template>
+
+                  <div class="action-item action-item-bottom" style="margin-top: 20px;">
+                    <div class="session-btn" @click.stop="handleViewDetail(item.content)">
+                      <div class="session-btn-icon content-list-action-btn">
+                        <a-icon type="eye" theme="filled" />
+                      </div>
+                      <div class="session-btn-text">Preview</div>
+                    </div>
+                  </div>
+                </div>
+
                 <div class="cover-img" :style="{backgroundImage: 'url(' + item.content.image + ')'}"></div>
 
                 <a-card-meta class="my-card-meta-info" :title="item.content.name ? item.content.name : 'Untitled'" :description="item.createTime | dayjs" @click="handleViewDetail(item)">
@@ -1047,7 +1113,7 @@
                 display: flex;
                 align-items: center;
                 justify-content: center;
-                width: 90px;
+                width: 120px;
               }
 
               .skill-active-mode {
