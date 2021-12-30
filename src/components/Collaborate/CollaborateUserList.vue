@@ -126,11 +126,22 @@
                     {{ user.userName }}
                   </div>
                   <div class="user-status">
-                    <span v-if="user.receiveStatus === 0">Not Accept</span>
+                    <span v-if="user.receiveStatus === 0">
+                      Waiting agree...
+                    </span>
+                    <span v-if="user.receiveStatus === 1 && user.agreeFlag === collaborateStatus.disAgree">
+                      Not Accept
+                    </span>
                   </div>
                   <div class="action" >
                     <div slot="actions">
-                      <div class="action-wrapper">
+                      <div v-if="user.agreeFlag === collaborateStatus.apply" >
+                        <div class="action-wrapper">
+                          <a-button class="action-item action-cancel" shape="round" @click="handleAccept(user,collaborateStatus.disAgree)">Disagree</a-button>
+                          <a-button class="action-ensure action-item" :loading="agreeLoading" type="primary" shape="round" @click="handleAccept(user,collaborateStatus.agree)">Agree</a-button>
+                        </div>
+                      </div>
+                      <div class="action-wrapper" v-else>
                         <a-select default-value="Edit" style="width: 100px;" v-model="user.permissions">
                           <a-select-option value="Edit">
                             Edit
@@ -181,12 +192,14 @@
 <script>
 import NoMoreResources from '@/components/Common/NoMoreResources'
 import {
+  CollaboratesAgree,
   CollaboratesInvite,
   CollaboratesSearchUser,
   CollaboratesUpdateLink,
   QueryContentCollaborates
 } from '@/api/collaborate'
 import * as logger from '@/utils/logger'
+import { CollaborateStatus } from '@/const/teacher'
 
 export default {
   name: 'CollaborateUserList',
@@ -245,7 +258,9 @@ export default {
       showUser: false,
       approveFlag: false,
       sendMessage: false,
-      permission: 'Edit'
+      permission: 'Edit',
+      collaborateStatus: CollaborateStatus,
+      agreeLoading: false
     }
   },
   created () {
@@ -375,6 +390,21 @@ export default {
       this.showUser = false
       this.selectedUserList = []
       this.userNameOrEmail = ''
+    },
+    handleAccept (item, flag) {
+      this.$logger.info('handleAccept', item)
+      this.agreeLoading = true
+      CollaboratesAgree({ id: item.id, agreeFlag: flag }).then(res => {
+        logger.info('handleApply', res)
+        if (flag === this.collaborateStatus.agree) {
+          this.$message.success('Agree successfully')
+        } else {
+          this.$message.success('Disagree successfully')
+        }
+      }).then(() => {
+        this.agreeLoading = false
+        this.queryContentCollaborates()
+      })
     }
   }
 }
@@ -582,34 +612,44 @@ export default {
             flex-direction: row;
             align-items: center;
             justify-content: center;
+
             .action-item {
               display: flex;
               flex-direction: row;
-              justify-content: center;
               align-items: center;
-              padding: 0 10px;
+              margin-right: 10px;
               user-select: none;
 
-              .active-status-icon {
-                display: flex;
-                flex-direction: row;
-                align-items: center;
-                width: 20px;
-                img {
-                  height: 18px;
-                }
-
-                font-size: 15px;
-                color: rgba(21, 195, 154, 1);
-              }
-              .action-name {
+              .btn-text {
                 padding: 0 5px;
               }
 
-              .active-icon {
-                img {
-                  height: 14px;
+              .link-item {
+                display: flex;
+                flex-direction: row;
+                align-items: center;
+                justify-content: center;
+                padding: 5px 15px;
+                border-radius: 35px;
+                border: 1px solid #BCBCBC;
+                font-family: Inter-Bold;
+                color: #182552;
+                font-size: 13px;
+                background: rgba(228, 228, 228, 0.2);
+                transition: all 0.3s ease;
+
+                .link-icon {
+                  margin-right: 5px;
+                  width: 15px;
                 }
+              }
+
+              svg {
+                color: #182552;
+              }
+
+              .link-item:hover {
+                background: rgba(228, 228, 228, 0.5);
               }
             }
           }
@@ -722,6 +762,7 @@ export default {
                 align-items: center;
                 padding: 0 10px;
                 user-select: none;
+                margin-left: 10px;
 
                 .active-status-icon {
                   display: flex;
