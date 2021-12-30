@@ -115,96 +115,126 @@
                 <student-icon />
               </div>
             </div>
-            <div class="data-list">
-              <div class="data-item" v-for="(data, rIndex) in slideItem.commentList" :key="rIndex">
-                <template v-if="data.type === 'audio'">
-                  <audio :src="data.link" controls />
-                </template>
-                <template v-if="data.type === 'video'">
-                  <video :src="data.link" controls/>
-                </template>
+            <div class="teacher-data" @click.stop="">
+              <div class="teacher-score">
+                <a-row :gutter="5" class="score-item">
+                  <a-col span="5">
+                    <h3 style="text-align: right">Score</h3>
+                  </a-col>
+                  <a-col span="16">
+                    <a-input
+                      placeholder="Max 10"
+                      type="number"
+                      min="0"
+                      max="10"
+                      v-model="slideItem.score"
+                      @keyup.native.stop="slideItem.score = slideItem.score > 10 ? 10 : slideItem.score"/>
+                  </a-col>
+                </a-row>
+                <div class="comment-list">
+                  <div class="comment-item" v-for="(commentItem, cIndex) in slideItem.commentList" :key="cIndex">
+                    <div class="comment-user-info">
+                      <div class="avatar">
+                        <img :src="commentItem.avatar" />
+                      </div>
+                      <div class="profile">
+                        <div class="name">{{ commentItem.createBy }}</div>
+                        <div class="time">{{ commentItem.createTime | formatDate }}</div>
+                      </div>
+                    </div>
+                    <div class="comment-detail">{{ commentItem.comment }}</div>
+                  </div>
+                </div>
+                <div class="comment-add">
+                  <div class="add-comment-wrapper">
+                    <div class="comment-input-wrapper">
+                      <div class="input">
+                        <input-with-button :extra="slideItem" @send="handleAddComment" />
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
-          </div>
-          <div class="action-item">
-            <template v-if="mode === EvaluationTableMode.TeacherEvaluate">
-              <template v-if="(selectedSlidePageIdList.indexOf(slideItem.pageObjectId) !== -1)">
-                <div class="action-btn-delete">
-                  <div class="action-icon">
-                    <img src="~@/assets/icons/evaluation/shanchu@2x.png" alt="">
+            <div class="action-item">
+              <template v-if="mode === EvaluationTableMode.TeacherEvaluate">
+                <template v-if="(selectedSlidePageIdList.indexOf(slideItem.pageObjectId) !== -1)">
+                  <div class="action-btn-delete">
+                    <div class="action-icon">
+                      <img src="~@/assets/icons/evaluation/shanchu@2x.png" alt="">
+                    </div>
+                    <div class="text">
+                      Delete
+                    </div>
                   </div>
-                  <div class="text">
-                    Delete
+                </template>
+                <template v-if="selectedSlidePageIdList.indexOf(slideItem.pageObjectId) === -1">
+                  <div class="action-btn-add">
+                    <div class="action-icon">
+                      <img src="~@/assets/icons/evaluation/tianjia@2x.png" alt="">
+                    </div>
+                    <div class="text">
+                      Add
+                    </div>
                   </div>
-                </div>
+                </template>
               </template>
-              <template v-if="selectedSlidePageIdList.indexOf(slideItem.pageObjectId) === -1">
-                <div class="action-btn-add">
-                  <div class="action-icon">
-                    <img src="~@/assets/icons/evaluation/tianjia@2x.png" alt="">
+              <template v-if="mode === EvaluationTableMode.StudentEvaluate">
+                <template v-if="selectedStudentSlidePageIdList.indexOf(slideItem.pageObjectId) !== -1">
+                  <div class="action-btn-delete">
+                    <div class="action-icon">
+                      <img src="~@/assets/icons/evaluation/shanchu@2x.png" alt="">
+                    </div>
+                    <div class="text">
+                      Delete
+                    </div>
                   </div>
-                  <div class="text">
-                    Add
+                </template>
+                <template v-if="selectedStudentSlidePageIdList.indexOf(slideItem.pageObjectId) === -1">
+                  <div class="action-btn-add">
+                    <div class="action-icon">
+                      <img src="~@/assets/icons/evaluation/tianjia@2x.png" alt="">
+                    </div>
+                    <div class="text">
+                      Add
+                    </div>
                   </div>
-                </div>
+                </template>
               </template>
-            </template>
-            <template v-if="mode === EvaluationTableMode.StudentEvaluate">
-              <template v-if="selectedStudentSlidePageIdList.indexOf(slideItem.pageObjectId) !== -1">
-                <div class="action-btn-delete">
-                  <div class="action-icon">
-                    <img src="~@/assets/icons/evaluation/shanchu@2x.png" alt="">
-                  </div>
-                  <div class="text">
-                    Delete
-                  </div>
-                </div>
-              </template>
-              <template v-if="selectedStudentSlidePageIdList.indexOf(slideItem.pageObjectId) === -1">
-                <div class="action-btn-add">
-                  <div class="action-icon">
-                    <img src="~@/assets/icons/evaluation/tianjia@2x.png" alt="">
-                  </div>
-                  <div class="text">
-                    Add
-                  </div>
-                </div>
-              </template>
-            </template>
 
+            </div>
           </div>
         </div>
       </div>
-    </div>
-    <div class="loading">
-      <a-spin v-if="loading" />
-    </div>
+      <div class="loading">
+        <a-spin v-if="loading" />
+      </div>
 
-    <a-modal
-      v-model="materialVisible"
-      :footer="null"
-      destroyOnClose
-      width="800px"
-      :zIndex="6000"
-      title="My Materials"
-      @ok="materialVisible = false"
-      @cancel="materialVisible = false">
-      <task-material-preview :current-page-element-lists="currentPageElementLists" :filter-type="filterMaterialType"></task-material-preview>
-    </a-modal>
+      <a-modal
+        v-model="materialVisible"
+        :footer="null"
+        destroyOnClose
+        width="800px"
+        :zIndex="6000"
+        title="My Materials"
+        @ok="materialVisible = false"
+        @cancel="materialVisible = false">
+        <task-material-preview :current-page-element-lists="currentPageElementLists" :filter-type="filterMaterialType"></task-material-preview>
+      </a-modal>
 
-    <a-modal
-      v-model="mediaVisible"
-      :footer="null"
-      destroyOnClose
-      width="900px"
-      :zIndex="5000"
-      :title="null"
-      @ok="mediaVisible = false"
-      @cancel="mediaVisible = false">
-      <media-preview :media-list="mediaList" :material-type="filterMaterialType"></media-preview>
-    </a-modal>
-  </div>
-</template>
+      <a-modal
+        v-model="mediaVisible"
+        :footer="null"
+        destroyOnClose
+        width="900px"
+        :zIndex="5000"
+        :title="null"
+        @ok="mediaVisible = false"
+        @cancel="mediaVisible = false">
+        <media-preview :media-list="mediaList" :material-type="filterMaterialType"></media-preview>
+      </a-modal>
+    </div>
+  </div></template>
 
 <script>
 
@@ -224,10 +254,12 @@ import AudioTypeSvg from '@/assets/icons/material/audio.svg?inline'
 import YoutubeTypeSvg from '@/assets/icons/material/youtube.svg?inline'
 import PdfTypeSvg from '@/assets/icons/material/pdf.svg?inline'
 import UrlTypeSvg from '@/assets/icons/material/url.svg?inline'
+import InputWithButton from '@/components/Collaborate/InputWithButton'
 
 export default {
   name: 'PptSlideView',
   components: {
+    InputWithButton,
     StudentIcon,
     TeacherIcon,
     MediaPreview,
@@ -286,10 +318,14 @@ export default {
   },
   computed: {
     studentScore () {
-      return 0
+      let score = 0
+      this.slideDataList.forEach(slideData => {
+        score += parseInt(slideData.score)
+      })
+      return score
     },
     totalScore () {
-      return 100
+      return this.slideDataList.length * 10
     }
   },
   created () {
@@ -376,7 +412,11 @@ export default {
               }
             }
           })
-          this.slideDataList.push({ ...value, pageId: key, material })
+          this.slideDataList.push({ ...value,
+            pageId: key,
+            material: material,
+            score: 0,
+            commentList: [] })
           if (value.commentList.length) {
             this.$logger.info('commentList have data' + JSON.stringify(value))
           }
@@ -455,6 +495,16 @@ export default {
     handleEnsureEvidence () {
       this.$logger.info('handleEnsureEvidence ' + this.mode, this.mode === EvaluationTableMode.TeacherEvaluate ? this.selectedSlidePageIdList : this.selectedStudentSlidePageIdList)
       this.$emit('ensure-evidence-finish', { mode: this.mode, data: this.mode === EvaluationTableMode.TeacherEvaluate ? this.selectedSlidePageIdList : this.selectedStudentSlidePageIdList })
+    },
+
+    handleAddComment (data) {
+      this.$logger.info('handleAddComment', data)
+      data.extra.commentList.push({
+        comment: data.inputValue,
+        avatar: this.$store.getters.avatar,
+        createBy: this.$store.state.user.name,
+        createTime: new Date().getTime()
+      })
     }
   }
 }
@@ -599,52 +649,82 @@ export default {
 
         .slide-comment {
           position: relative;
-          padding: 10px;
+          padding: 10px 0;
           background: #FFF;
-          .data-list {
-            min-height: 220px;
-            background: #fff;
-            width: 240px;
-            .data-item {
-              padding: 5px;
-              width: 180px;
-              display: flex;
-              flex-direction: column;
-              justify-content: center;
-              border-radius: 4px;
+          width: 265px;
+          .teacher-data {
+            width: 100%;
+            position: relative;
+            .teacher-score {
+              width: 100%;
+              min-height: 220px;
+              align-items: center;
+              justify-content: flex-start;
+              padding-bottom: 5px;
 
-              audio {
-                box-sizing: border-box;
-                height: 30px;
-                border: none;
-                outline: none;
-                width: 180px;
-              }
+              .comment-list {
+                padding: 5px 10px;
+                height: 140px;
+                overflow-y: scroll;
 
-              video {
-                box-sizing: border-box;
-                width: 180px;
-                border: none;
-                outline: none;
-              }
+                &::-webkit-scrollbar {
+                  width: 5px;
+                  height: 5px;
+                }
+                &::-webkit-scrollbar-track {
+                  border-radius: 3px;
+                  background: rgba(0,0,0,0.00);
+                  -webkit-box-shadow: inset 0 0 5px rgba(0,0,0,0.08);
+                }
+                /* 滚动条滑块 */
+                &::-webkit-scrollbar-thumb {
+                  border-radius: 5px;
+                  background: rgba(0,0,0,0.12);
+                  -webkit-box-shadow: inset 0 0 10px rgba(0,0,0,0.2);
+                }
+                .comment-item {
+                  margin: 5px 0;
+                  border-bottom: 1px solid #F3F3F3;
+                  .comment-user-info {
+                    display: flex;
+                    flex-direction: row;
+                    align-items: center;
+                    justify-content: flex-start;
 
-              img {
-                width: 180px;
-              }
+                    .avatar {
+                      img {
+                        width: 30px;
+                        border-radius: 30px;
+                      }
+                    }
+                    .profile {
+                      padding-left: 10px;
+                      .name {
+                        color: #000000;
+                        font-size: 13px;
+                      }
+                      .time {
+                        color: #ccc;
+                        font-size: 12px;
+                      }
+                    }
+                  }
 
-              .text {
-                font-family: Inter-Bold;
-                line-height: 24px;
-                color: #11142D;
-                font-size: 12px;
-                padding: 10px;
+                  .comment-detail {
+                    color: #000000;
+                    font-family: Inter-Bold;
+                    padding: 5px 5px 5px 40px;
+                  }
+                }
               }
             }
           }
         }
 
         .action-item {
-          margin-left: 30px;
+          position: absolute;
+          right: -105px;
+          top: 0;
 
           .action-btn-add {
             width: 80px;
@@ -869,5 +949,44 @@ export default {
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+.score-item {
+}
+
+.comment-add {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  box-shadow: 0px -3px 6px rgba(0, 0, 0, 0.16);
+}
+.add-comment-wrapper {
+  padding: 5px 10px;
+  background: #fff;
+  .comment-user-info {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: center;
+
+    .avatar {
+      img {
+        width: 35px;
+        border-radius: 50%;
+      }
+    }
+
+    .user-name {
+      padding-left: 10px;
+      font-family: Inter-Bold;
+      line-height: 24px;
+      color: #474747;
+    }
+  }
+
+  .comment-input-wrapper {
+    margin-top: 3px;
+  }
 }
 </style>
