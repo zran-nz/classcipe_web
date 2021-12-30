@@ -175,7 +175,7 @@ export default {
   },
   methods: {
     loadData () {
-      this.$logger.info('TemplatesGetPresentation')
+      this.$logger.info('加载PPT数据 ' + this.classId + ' slideId ' + this.slideId)
       Promise.all([
         TemplatesGetPresentation({ presentationId: this.slideId }),
         QueryByClassInfoSlideId({ slideId: this.slideId })
@@ -500,7 +500,8 @@ export default {
     margin-right: 10px;
     .back-icon {
       img {
-        height: 50px;
+        height: 60px;
+        padding-top: 10px;
       }
     }
   }
