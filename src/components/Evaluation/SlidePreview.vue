@@ -102,7 +102,30 @@ export default {
     width: 280px;
     height: 400px;
     overflow-y: scroll;
+    overflow-x: hidden;
     padding: 5px 10px;
+
+    .dot-item {
+      video {
+        width: 280px;
+      }
+    }
+
+    &::-webkit-scrollbar {
+      width: 4px;
+      height: 2px;
+    }
+    &::-webkit-scrollbar-track {
+      border-radius: 3px;
+      background: rgba(0,0,0,0.01);
+      -webkit-box-shadow: inset 0 0 5px rgba(0,0,0,0.01);
+    }
+    /* 滚动条滑块 */
+    &::-webkit-scrollbar-thumb {
+      border-radius: 3px;
+      background: rgba(0,0,0,0.1);
+      -webkit-box-shadow: inset 0 0 10px rgba(0,0,0,0.1);
+    }
   }
 }
 </style>
