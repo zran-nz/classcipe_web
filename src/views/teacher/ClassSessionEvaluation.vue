@@ -450,6 +450,7 @@
           <ppt-slide-view
             :selected-id-list="currentEvidenceItem.evidence.selectedList"
             :selected-id-student-list="currentEvidenceItem.evidence.selectedStudentList"
+            :form-id="currentActiveFormId"
             class-id="a7546d95"
             slide-id="1MnwiWnrA64NTTsYD15XH0jqZan99XkYu1NLmJtgG6ik"
             :mode="mode"
