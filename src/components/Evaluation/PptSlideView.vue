@@ -593,10 +593,9 @@ export default {
           padding: 10px;
           background: #FAFAFA;
           .data-list {
-            min-height: 100px;
             background: #fff;
             width: 300px;
-            max-height: 220px;
+            height: 220px;
             overflow-y: scroll;
             overflow-x: hidden;
 
