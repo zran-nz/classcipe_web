@@ -118,7 +118,7 @@
       class="library-detail-wrapper"
       :style="{top: currentBrowserType === BrowserTypeMap.sdg ? '136px' : '136px',
                height: currentBrowserType === BrowserTypeMap.sdg ? 'calc(100vh - 200px)': 'calc(100vh - 200px)'}">
-      <div class="library-detail-nav-wrapper" :style="{width: leftBrowserWidth}">
+      <div class="library-detail-nav-wrapper" :style="{width: leftBrowserWidth}" @click="libraryMode = LibraryMode.browserMode">
         <div class="library-content">
           <div class="browser-action" v-if="hasLeftBlock && !expandedListFlag">
             <div class="action-item" @click="handleViewLeft">
@@ -756,7 +756,7 @@ export default {
 
       this.$nextTick(() => {
         this.$logger.info('handleExpandDetail nextTick ' + this.blockIndex + ' ' + this.expandedListFlag + ' left block ' + (this.blockIndex - 1))
-        if (this.blockIndex !== 1) {
+        if (this.blockIndex !== 0) {
           if (this.expandedListFlag) {
             this.browserMarginLeft = (this.blockIndex) * this.blockWidth
           } else {
