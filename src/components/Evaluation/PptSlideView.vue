@@ -28,6 +28,7 @@
           'active-slide-item': selectedSlidePageIdList.indexOf(slideItem.pageObjectId) !== -1 || selectedStudentSlidePageIdList.indexOf(slideItem.pageObjectId) !== -1}"
         v-for="(slideItem, sIndex) in slideDataList"
         :key="sIndex"
+        :data-pageId="slideItem.pageId"
         @click="handleAddSlideItem(slideItem)">
         <div class="slide-header-label">
           <h3>Slide {{ sIndex + 1 }}</h3>
@@ -86,8 +87,15 @@
           </div>
           <div class="slide-response">
             <div class="data-list">
+              <div class="data-item">
+                <div class="comment-bg">
+                  <img :src="slideItem.contentUrl" class="cover">
+                  <img src="~@/assets/evaluation/evidence/expand.png" class="expand-icon" @click.stop="handleViewExpand(slideItem)"/>
+                </div>
+              </div>
+
               <div class="data-item" v-for="(data, rIndex) in slideItem.responseList" :key="rIndex">
-                <template v-if="data.responseData.type === 'media'">
+                <template v-if="data.itemData.type === 'media'">
                   <template v-if="data.responseData.content.mediaType === 'audio'">
                     <audio :src="data.responseData.content.link" controls />
                   </template>
@@ -99,8 +107,19 @@
                   <img :src="data.responseData.content" />
                 </template>
                 <template v-if="data.responseData.type === 'text'">
-                  <div class="text">
-                    {{ data.responseData.content }}
+                  {{ data.responseData.content }}
+                </template>
+                <template v-if="data.itemData && data.itemData.data && data.itemData.data.options">
+                  <div class="option-list" @click.stop="">
+                    <div class="option-item" v-for="(optionItem, oIndex) in data.itemData.data.options" :key="oIndex">
+                      <a-radio :checked="optionItem.isAnswer">{{ optionItem.text }}</a-radio>
+                      <span class="correct-option" v-if="optionItem.isAnswer">Correct answer</span>
+                    </div>
+                  </div>
+                </template>
+                <template v-if="data">
+                  <div class="point-data" @click.stop="">
+                    {{ data }}
                   </div>
                 </template>
               </div>
@@ -115,100 +134,143 @@
                 <student-icon />
               </div>
             </div>
-            <div class="data-list">
-              <div class="data-item" v-for="(data, rIndex) in slideItem.commentList" :key="rIndex">
-                <template v-if="data.type === 'audio'">
-                  <audio :src="data.link" controls />
-                </template>
-                <template v-if="data.type === 'video'">
-                  <video :src="data.link" controls/>
-                </template>
+            <div class="teacher-data" @click.stop="">
+              <div class="teacher-score">
+                <a-row :gutter="5" class="score-item">
+                  <a-col span="5">
+                    <h3 style="text-align: right">Score</h3>
+                  </a-col>
+                  <a-col span="16">
+                    <a-input
+                      placeholder="Max 10"
+                      type="number"
+                      min="0"
+                      max="10"
+                      v-model="slideItem.score"
+                      @keyup.native.stop="slideItem.score = slideItem.score > 10 ? 10 : slideItem.score"/>
+                  </a-col>
+                </a-row>
+                <div class="comment-list">
+                  <div class="comment-item" v-for="(commentItem, cIndex) in slideItem.teacherCommentList" :key="cIndex">
+                    <div class="comment-user-info">
+                      <div class="avatar">
+                        <img :src="commentItem.avatar" />
+                      </div>
+                      <div class="profile">
+                        <div class="name">{{ commentItem.createBy }}</div>
+                        <div class="time">{{ commentItem.createTime | formatDate }}</div>
+                      </div>
+                    </div>
+                    <div class="comment-detail">{{ commentItem.comment }}</div>
+                  </div>
+                </div>
+                <div class="comment-add">
+                  <div class="add-comment-wrapper">
+                    <div class="comment-input-wrapper">
+                      <div class="input">
+                        <input-with-button :extra="slideItem" @send="handleAddComment" />
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
-          </div>
-          <div class="action-item">
-            <template v-if="mode === EvaluationTableMode.TeacherEvaluate">
-              <template v-if="(selectedSlidePageIdList.indexOf(slideItem.pageObjectId) !== -1)">
-                <div class="action-btn-delete">
-                  <div class="action-icon">
-                    <img src="~@/assets/icons/evaluation/shanchu@2x.png" alt="">
+            <div class="action-item">
+              <template v-if="mode === EvaluationTableMode.TeacherEvaluate">
+                <template v-if="(selectedSlidePageIdList.indexOf(slideItem.pageObjectId) !== -1)">
+                  <div class="action-btn-delete">
+                    <div class="action-icon">
+                      <img src="~@/assets/icons/evaluation/shanchu@2x.png" alt="">
+                    </div>
+                    <div class="text">
+                      Delete
+                    </div>
                   </div>
-                  <div class="text">
-                    Delete
+                </template>
+                <template v-if="selectedSlidePageIdList.indexOf(slideItem.pageObjectId) === -1">
+                  <div class="action-btn-add">
+                    <div class="action-icon">
+                      <img src="~@/assets/icons/evaluation/tianjia@2x.png" alt="">
+                    </div>
+                    <div class="text">
+                      Add
+                    </div>
                   </div>
-                </div>
+                </template>
               </template>
-              <template v-if="selectedSlidePageIdList.indexOf(slideItem.pageObjectId) === -1">
-                <div class="action-btn-add">
-                  <div class="action-icon">
-                    <img src="~@/assets/icons/evaluation/tianjia@2x.png" alt="">
+              <template v-if="mode === EvaluationTableMode.StudentEvaluate">
+                <template v-if="selectedStudentSlidePageIdList.indexOf(slideItem.pageObjectId) !== -1">
+                  <div class="action-btn-delete">
+                    <div class="action-icon">
+                      <img src="~@/assets/icons/evaluation/shanchu@2x.png" alt="">
+                    </div>
+                    <div class="text">
+                      Delete
+                    </div>
                   </div>
-                  <div class="text">
-                    Add
+                </template>
+                <template v-if="selectedStudentSlidePageIdList.indexOf(slideItem.pageObjectId) === -1">
+                  <div class="action-btn-add">
+                    <div class="action-icon">
+                      <img src="~@/assets/icons/evaluation/tianjia@2x.png" alt="">
+                    </div>
+                    <div class="text">
+                      Add
+                    </div>
                   </div>
-                </div>
+                </template>
               </template>
-            </template>
-            <template v-if="mode === EvaluationTableMode.StudentEvaluate">
-              <template v-if="selectedStudentSlidePageIdList.indexOf(slideItem.pageObjectId) !== -1">
-                <div class="action-btn-delete">
-                  <div class="action-icon">
-                    <img src="~@/assets/icons/evaluation/shanchu@2x.png" alt="">
-                  </div>
-                  <div class="text">
-                    Delete
-                  </div>
-                </div>
-              </template>
-              <template v-if="selectedStudentSlidePageIdList.indexOf(slideItem.pageObjectId) === -1">
-                <div class="action-btn-add">
-                  <div class="action-icon">
-                    <img src="~@/assets/icons/evaluation/tianjia@2x.png" alt="">
-                  </div>
-                  <div class="text">
-                    Add
-                  </div>
-                </div>
-              </template>
-            </template>
 
+            </div>
           </div>
         </div>
       </div>
+
+      <a-modal
+        v-model="materialVisible"
+        :footer="null"
+        destroyOnClose
+        width="800px"
+        :zIndex="6000"
+        title="My Materials"
+        @ok="materialVisible = false"
+        @cancel="materialVisible = false">
+        <task-material-preview :current-page-element-lists="currentPageElementLists" :filter-type="filterMaterialType"></task-material-preview>
+      </a-modal>
+
+      <a-modal
+        v-model="mediaVisible"
+        :footer="null"
+        destroyOnClose
+        width="900px"
+        :zIndex="5000"
+        :title="null"
+        @ok="mediaVisible = false"
+        @cancel="mediaVisible = false">
+        <media-preview :media-list="mediaList" :material-type="filterMaterialType"></media-preview>
+      </a-modal>
+
+      <a-modal
+        v-model="viewSlideItemVisible"
+        :footer="null"
+        destroyOnClose
+        width="1000px"
+        :zIndex="5000"
+        :title="null"
+        @ok="viewSlideItemVisible = false"
+        @cancel="viewSlideItemVisible = false">
+        <slide-preview :slide-item="currentViewSlideItem" />
+      </a-modal>
     </div>
     <div class="loading">
       <a-spin v-if="loading" />
     </div>
-
-    <a-modal
-      v-model="materialVisible"
-      :footer="null"
-      destroyOnClose
-      width="800px"
-      :zIndex="6000"
-      title="My Materials"
-      @ok="materialVisible = false"
-      @cancel="materialVisible = false">
-      <task-material-preview :current-page-element-lists="currentPageElementLists" :filter-type="filterMaterialType"></task-material-preview>
-    </a-modal>
-
-    <a-modal
-      v-model="mediaVisible"
-      :footer="null"
-      destroyOnClose
-      width="900px"
-      :zIndex="5000"
-      :title="null"
-      @ok="mediaVisible = false"
-      @cancel="mediaVisible = false">
-      <media-preview :media-list="mediaList" :material-type="filterMaterialType"></media-preview>
-    </a-modal>
-  </div>
-</template>
+  </div></template>
 
 <script>
 
 import { GetStudentResponse } from '@/api/lesson'
+import { QuerySessionEvaluation } from '@/api/evaluation'
 import { TemplatesGetPresentation } from '@/api/template'
 import EvaluationTableMode from '@/components/Evaluation/EvaluationTableMode'
 import StudentIcon from '@/assets/svgIcon/evaluation/StudentIcon.svg?inline'
@@ -224,10 +286,14 @@ import AudioTypeSvg from '@/assets/icons/material/audio.svg?inline'
 import YoutubeTypeSvg from '@/assets/icons/material/youtube.svg?inline'
 import PdfTypeSvg from '@/assets/icons/material/pdf.svg?inline'
 import UrlTypeSvg from '@/assets/icons/material/url.svg?inline'
+import InputWithButton from '@/components/Collaborate/InputWithButton'
+import SlidePreview from '@/components/Evaluation/SlidePreview'
 
 export default {
   name: 'PptSlideView',
   components: {
+    SlidePreview,
+    InputWithButton,
     StudentIcon,
     TeacherIcon,
     MediaPreview,
@@ -248,6 +314,10 @@ export default {
     slideId: {
       type: String,
       required: true
+    },
+    formId: {
+      type: String,
+      default: null
     },
     classId: {
       type: String,
@@ -281,15 +351,21 @@ export default {
       mediaVisible: false,
       filterMaterialType: null,
       currentPageElementLists: [],
-      mediaList: []
+      mediaList: [],
+      currentViewSlideItem: null,
+      viewSlideItemVisible: false
     }
   },
   computed: {
     studentScore () {
-      return 0
+      let score = 0
+      this.slideDataList.forEach(slideData => {
+        score += parseInt(slideData.score)
+      })
+      return score
     },
     totalScore () {
-      return 100
+      return this.slideDataList.length * 10
     }
   },
   created () {
@@ -300,25 +376,31 @@ export default {
   },
   methods: {
     loadData () {
+      this.loading = true
       this.$logger.info('加载PPT数据 ' + this.classId + ' slideId ' + this.slideId)
       Promise.all([
         TemplatesGetPresentation({ presentationId: this.slideId }),
-        QueryByClassInfoSlideId({ slideId: this.slideId })
+        QueryByClassInfoSlideId({ slideId: this.slideId }),
+        QuerySessionEvaluation({ classId: this.classId, evaluationId: this.formId })
       ]).then(response => {
-        const pageObjects = response[0].result.pageObjects
-        this.$logger.info('TemplatesGetPresentation response', response[0])
-        if (pageObjects.length) {
-          pageObjects.forEach(pItem => {
-            pItem.responseList = []
-            pItem.commentList = []
-            if (pItem.pageObjectId) {
-              this.rawSlideDataMap.set(pItem.pageObjectId, pItem)
-            }
-          })
-          this.loadStudentData()
+        this.$logger.info('加载PPT数据 response', response)
+        if (response[2].result) {
+          this.$logger.info('使用历史评估数据', response[3].result)
         } else {
-          this.loading = false
-          this.$logger.info('loaded data', this.imgList, this.commentData)
+          const pageObjects = response[0].result.pageObjects
+          if (pageObjects.length) {
+            pageObjects.forEach(pItem => {
+              pItem.responseList = []
+              pItem.commentList = []
+              if (pItem.pageObjectId) {
+                this.rawSlideDataMap.set(pItem.pageObjectId, pItem)
+              }
+            })
+            this.loadStudentData()
+          } else {
+            this.loading = false
+            this.$logger.info('loaded data', this.imgList, this.commentData)
+          }
         }
 
         if (response[1].success) {
@@ -329,7 +411,7 @@ export default {
     },
 
     loadStudentData () {
-      this.$logger.info('loadStudentData')
+      this.$logger.info('loadStudentData', this.rawSlideDataMap)
       GetStudentResponse({ class_id: this.classId }).then(response => {
         this.$logger.info('GetStudentResponse response', response)
         const rawCommentDataList = response.data.presentation_comments
@@ -338,14 +420,14 @@ export default {
           const pageId = data.page_id
           const slideItem = this.rawSlideDataMap.get(pageId)
           if (slideItem) {
-            this.$logger.info('find slideItem comment' + data.page_id, data)
             slideItem.commentList.push({ ...data, user_id: item.user_id })
             this.rawSlideDataMap.set(pageId, slideItem)
           } else {
-            // this.$logger.info('commentList no get slideIem by pageId ' + pageId)
+            this.$logger.warn('commentList no get slideIem by pageId ' + pageId)
           }
         })
         const rawResponseData = response.data.response
+        const itemIdList = []
         rawResponseData.forEach((item) => {
           const responseData = JSON.parse(item.response_data)
           const itemData = JSON.parse(item.item_data)
@@ -353,14 +435,15 @@ export default {
           const studentUserId = item.student_user_id
           const pageId = responseData.page_id
           const slideItem = this.rawSlideDataMap.get(pageId)
-          if (slideItem) {
-            this.$logger.info('find slideItem response ' + responseData.page_id, responseData)
+          if (slideItem && itemIdList.indexOf(itemData.item_id) === -1) {
+            itemIdList.push(itemData.item_id)
+            this.$logger.info('find slideItem response ' + responseData.page_id, itemData)
             slideItem.responseList.push({ responseData, itemData, responseType, studentUserId })
             this.rawSlideDataMap.set(pageId, slideItem)
           } else {
-            // this.$logger.info('responseList no get slideIem by pageId ' + pageId)
           }
         })
+        this.$logger.info('after set rawSlideDataMap ', this.rawSlideDataMap)
 
         for (const [key, value] of this.rawSlideDataMap) {
           const material = {}
@@ -376,7 +459,11 @@ export default {
               }
             }
           })
-          this.slideDataList.push({ ...value, pageId: key, material })
+          this.slideDataList.push({ ...value,
+            pageId: key,
+            material: material,
+            score: 0,
+            teacherCommentList: [] })
           if (value.commentList.length) {
             this.$logger.info('commentList have data' + JSON.stringify(value))
           }
@@ -455,6 +542,22 @@ export default {
     handleEnsureEvidence () {
       this.$logger.info('handleEnsureEvidence ' + this.mode, this.mode === EvaluationTableMode.TeacherEvaluate ? this.selectedSlidePageIdList : this.selectedStudentSlidePageIdList)
       this.$emit('ensure-evidence-finish', { mode: this.mode, data: this.mode === EvaluationTableMode.TeacherEvaluate ? this.selectedSlidePageIdList : this.selectedStudentSlidePageIdList })
+    },
+
+    handleAddComment (data) {
+      this.$logger.info('handleAddComment', data)
+      data.extra.teacherCommentList.push({
+        comment: data.inputValue,
+        avatar: this.$store.getters.avatar,
+        createBy: this.$store.state.user.name,
+        createTime: new Date().getTime()
+      })
+    },
+
+    handleViewExpand (slideItem) {
+      this.$logger.info('handleViewExpand', slideItem)
+      this.currentViewSlideItem = slideItem
+      this.viewSlideItemVisible = true
     }
   }
 }
@@ -543,10 +646,9 @@ export default {
           padding: 10px;
           background: #FAFAFA;
           .data-list {
-            min-height: 100px;
             background: #fff;
             width: 300px;
-            max-height: 220px;
+            height: 220px;
             overflow-y: scroll;
             overflow-x: hidden;
 
@@ -569,11 +671,28 @@ export default {
             .data-item {
               position: relative;
               padding: 5px;
-              width: 200px;
+              width: 100%;
               display: flex;
               flex-direction: column;
               justify-content: center;
               border-radius: 4px;
+
+              .comment-bg {
+                margin: 5px 0;
+                position: relative;
+                width: 100%;
+                img.cover {
+                  width: 285px;
+                }
+
+                .expand-icon {
+                  position: absolute;
+                  right: 5px;
+                  top: 5px;
+                  width: 15px;
+                  cursor: pointer;
+                }
+              }
 
               audio {
                 height: 30px;
@@ -599,52 +718,82 @@ export default {
 
         .slide-comment {
           position: relative;
-          padding: 10px;
+          padding: 10px 0;
           background: #FFF;
-          .data-list {
-            min-height: 220px;
-            background: #fff;
-            width: 240px;
-            .data-item {
-              padding: 5px;
-              width: 180px;
-              display: flex;
-              flex-direction: column;
-              justify-content: center;
-              border-radius: 4px;
+          width: 265px;
+          .teacher-data {
+            width: 100%;
+            position: relative;
+            .teacher-score {
+              width: 100%;
+              min-height: 220px;
+              align-items: center;
+              justify-content: flex-start;
+              padding-bottom: 5px;
 
-              audio {
-                box-sizing: border-box;
-                height: 30px;
-                border: none;
-                outline: none;
-                width: 180px;
-              }
+              .comment-list {
+                padding: 5px 10px;
+                height: 140px;
+                overflow-y: scroll;
 
-              video {
-                box-sizing: border-box;
-                width: 180px;
-                border: none;
-                outline: none;
-              }
+                &::-webkit-scrollbar {
+                  width: 5px;
+                  height: 5px;
+                }
+                &::-webkit-scrollbar-track {
+                  border-radius: 3px;
+                  background: rgba(0,0,0,0.00);
+                  -webkit-box-shadow: inset 0 0 5px rgba(0,0,0,0.08);
+                }
+                /* 滚动条滑块 */
+                &::-webkit-scrollbar-thumb {
+                  border-radius: 5px;
+                  background: rgba(0,0,0,0.12);
+                  -webkit-box-shadow: inset 0 0 10px rgba(0,0,0,0.2);
+                }
+                .comment-item {
+                  margin: 5px 0;
+                  border-bottom: 1px solid #F3F3F3;
+                  .comment-user-info {
+                    display: flex;
+                    flex-direction: row;
+                    align-items: center;
+                    justify-content: flex-start;
 
-              img {
-                width: 180px;
-              }
+                    .avatar {
+                      img {
+                        width: 30px;
+                        border-radius: 30px;
+                      }
+                    }
+                    .profile {
+                      padding-left: 10px;
+                      .name {
+                        color: #000000;
+                        font-size: 13px;
+                      }
+                      .time {
+                        color: #ccc;
+                        font-size: 12px;
+                      }
+                    }
+                  }
 
-              .text {
-                font-family: Inter-Bold;
-                line-height: 24px;
-                color: #11142D;
-                font-size: 12px;
-                padding: 10px;
+                  .comment-detail {
+                    color: #000000;
+                    font-family: Inter-Bold;
+                    padding: 5px 5px 5px 40px;
+                  }
+                }
               }
             }
           }
         }
 
         .action-item {
-          margin-left: 30px;
+          position: absolute;
+          right: -105px;
+          top: 0;
 
           .action-btn-add {
             width: 80px;
@@ -869,5 +1018,67 @@ export default {
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+.score-item {
+}
+
+.comment-add {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  box-shadow: 0px -3px 6px rgba(0, 0, 0, 0.16);
+}
+.add-comment-wrapper {
+  padding: 5px 10px;
+  background: #fff;
+  .comment-user-info {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: center;
+
+    .avatar {
+      img {
+        width: 35px;
+        border-radius: 50%;
+      }
+    }
+
+    .user-name {
+      padding-left: 10px;
+      font-family: Inter-Bold;
+      line-height: 24px;
+      color: #474747;
+    }
+  }
+
+  .comment-input-wrapper {
+    margin-top: 3px;
+  }
+}
+
+.option-list {
+  width: 100%;
+  padding: 5px 0;
+  line-height: 25px;
+
+  .option-item {
+    width: 100%;
+    position: relative;
+    padding: 3px 5px;
+    background-color: #F3F3F3;
+    margin: 5px 0;
+    .correct-option {
+      position: absolute;
+      right: 5px;
+      padding: 0 5px;
+      background-color: rgba(21, 195, 154, 0.15);
+      color: #2DC9A4;
+      cursor: pointer;
+      font-weight: bold;
+    }
+  }
 }
 </style>
