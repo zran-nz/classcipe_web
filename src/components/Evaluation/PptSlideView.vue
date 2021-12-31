@@ -107,26 +107,26 @@
               </div>
 
               <div class="img-item-list" v-if="slideItem.material && slideItem.material.hasOwnProperty('image')" @click.stop="">
-                <div class="img-item" v-for="(imgItem, index) in slideItem.material.image" :key="index" @click.stop=''>
-                  <div :style="{'background-image': 'url(' + imgItem.url + ')'}" class='img-cover'/>
-                  <div class="view-item" @click.stop='handleViewItem(imgItem.url)'>View <a-icon type="eye" /></div>
+                <div class="img-item" v-for="(imgItem, index) in slideItem.material.image" :key="index" @click.stop="">
+                  <div :style="{'background-image': 'url(' + imgItem.url + ')'}" class="img-cover"/>
+                  <div class="view-item" @click.stop="handleViewItem(imgItem.url)">View <a-icon type="eye" /></div>
                 </div>
               </div>
 
               <div class="audio-item-list" v-if="slideItem.material && slideItem.material.hasOwnProperty('audio')">
-                <div class="audio-item" v-for="(audioItem, index) in slideItem.material.audio" :key="index" @click.stop=''>
-                  <img src="~@/assets/evaluation/evidence/audio.png" class='img-icon'>
+                <div class="audio-item" v-for="(audioItem, index) in slideItem.material.audio" :key="index" @click.stop="">
+                  <img src="~@/assets/evaluation/evidence/audio.png" class="img-icon">
                   <div class="audio-view">
-                    <audio controls :src='audioItem.url' />
+                    <audio controls :src="audioItem.url" />
                   </div>
                 </div>
               </div>
 
               <div class="video-item-list" v-if="slideItem.material && slideItem.material.hasOwnProperty('video')">
-                <div class="video-item" v-for="(videoItem, index) in slideItem.material.video" :key="index" @click.stop=''>
-                  <img src="~@/assets/evaluation/evidence/video.png" class='img-icon'>
+                <div class="video-item" v-for="(videoItem, index) in slideItem.material.video" :key="index" @click.stop="">
+                  <img src="~@/assets/evaluation/evidence/video.png" class="img-icon">
                   <div class="video-view">
-                    <video controls :src='videoItem.url' />
+                    <video controls :src="videoItem.url" />
                   </div>
                 </div>
               </div>
@@ -309,8 +309,6 @@ import StudentIcon from '@/assets/svgIcon/evaluation/StudentIcon.svg?inline'
 import TeacherIcon from '@/assets/svgIcon/evaluation/TeacherIcon.svg?inline'
 import {
   QueryByClassInfoSlideId,
-  QueryCommentsByClassId,
-  QueryPresentationCommentsByClassId,
   QueryResponseByClassId
 } from '@/api/classroom'
 import MediaPreview from '@/components/Task/MediaPreview'
@@ -609,7 +607,6 @@ export default {
           slideDataList: JSON.stringify(this.slideDataList)
         })
       })
-
     },
 
     handleAddComment (data) {
@@ -1246,6 +1243,5 @@ export default {
     }
   }
 }
-
 
 </style>

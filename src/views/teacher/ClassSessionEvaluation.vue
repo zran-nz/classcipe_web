@@ -450,7 +450,7 @@
           <ppt-slide-view
             :selected-id-list="currentEvidenceItem.evidence.selectedList"
             :selected-id-student-list="currentEvidenceItem.evidence.selectedStudentList"
-            :row-id='currentEvidenceItem.rowId'
+            :row-id="currentEvidenceItem.rowId"
             :form-id="currentActiveFormId"
             :class-id="classId"
             :slide-id="classInfo.slideId"

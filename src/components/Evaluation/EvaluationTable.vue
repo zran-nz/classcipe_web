@@ -967,7 +967,7 @@ export default {
     },
 
     handleEnsureSelectCriteria () {
-      this.$logger.info('[' + this.mode + '] handleEnsureSelectCriteria')
+      this.$logger.info('[' + this.mode + '] handleEnsureSelectCriteria', 'this.list', this.list)
       this.selectCurriculumVisible = false
 
       const selectedList = []
@@ -1087,6 +1087,9 @@ export default {
             }
           }
         }
+
+        this.list = this.list.filter(item => (!item.description || item.description.name))
+        this.$logger.info('CenturySkills 过滤掉没有Description的行', this.list)
       } else if (this.formType === this.tableType.Rubric) {
         if (selectedList.length >= 1) {
           // 如果只选择了一个，使用第一个填充当前行数据
@@ -1140,6 +1143,8 @@ export default {
             })
           }
         }
+        this.list = this.list.filter(item => (!item.criteria || item.criteria.name))
+        this.$logger.info('Rubric 过滤掉没有criteria的行', this.list)
       } else if (this.formType === this.tableType.Rubric_2) {
         this.$logger.info('[' + this.mode + '] tableType.Rubric selectedList', selectedList)
         if (selectedList.length >= 1) {
@@ -1182,6 +1187,8 @@ export default {
             })
           }
         }
+        this.list = this.list.filter(item => (!item.description || item.description.name))
+        this.$logger.info('Rubric_2 过滤掉没有Description的行', this.list)
       } else {
         this.$logger.info('[' + this.mode + '] rubric form no allow select')
       }

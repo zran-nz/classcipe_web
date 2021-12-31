@@ -21,7 +21,7 @@
       size="small"
       type="primary"
       @click="handleSendEvent"
-      @keyup.enter='handleSendEvent'>Send
+      @keyup.enter="handleSendEvent">Send
     </a-button>
   </div>
 </template>
