@@ -106,6 +106,28 @@
                 </div>
               </div>
 
+              <div class="img-item-list" v-if="slideItem.material && slideItem.material.hasOwnProperty('image')" @click.stop="">
+                <div class="img-item" v-for="(imgItem, index) in slideItem.material.image" :key="index">
+                  <img :src="imgItem.src" preview="0"/>
+                  <div class="view-item" >View <a-icon type="eye" /></div>
+                </div>
+              </div>
+
+              <div class="audio-item-list" v-if="slideItem.material && slideItem.material.hasOwnProperty('image')">
+                <div class="audio-item">
+                  <img src="~@/assets/evaluation/evidence/expand.png">
+                  <div class="">
+
+                  </div>
+                </div>
+              </div>
+
+              <div class="video-item-list" v-if="slideItem.material && slideItem.material.hasOwnProperty('image')">
+                <div class="video-item">
+
+                </div>
+              </div>
+
               <div class="data-item" v-for="(data, rIndex) in slideItem.responseList" :key="rIndex">
                 <template v-if="data.itemData.type === 'media'">
                   <template v-if="data.responseData.content.mediaType === 'audio'">
@@ -1090,6 +1112,24 @@ export default {
       color: #2DC9A4;
       cursor: pointer;
       font-weight: bold;
+    }
+  }
+}
+
+.img-item-list {
+  .img-item {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+
+    img {
+      width: 100px;
+    }
+
+    .view-item {
+      color: #2DC9A4;
+      font-size: 12px;
     }
   }
 }
