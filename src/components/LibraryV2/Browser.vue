@@ -189,9 +189,15 @@
         </div>
       </div>
       <div class="library-detail-preview-wrapper" :style="{width: rightBrowserWidth}">
-        <div class="expand-icon" @click="handleExpandDetail" :style="{'left': '-20px'}">
+        <div class="expand-icon" @click="handleExpandDetail" :style="{'left': expandedListFlag ? '10px' : '-20px'}">
           <template v-if="expandedListFlag">
-            <a-icon type="double-right" style="font-size: 20px; color: #07AB84"/>
+            <a-popover placement="right">
+              <template slot="content">
+                <div class='tips-content'>Navigate via curriculums</div>
+              </template>
+              <a-icon type="double-right" style="font-size: 20px; color: #07AB84"/>
+            </a-popover>
+
           </template>
           <template v-if="!expandedListFlag">
             <a-icon type="double-left" style="font-size: 20px; color: #07AB84"/>
