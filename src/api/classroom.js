@@ -19,9 +19,9 @@ export function QueryByClassInfoSlideId (parameter) {
     url: classRoomAPIUrl.queryByClassInfoSlideId,
     method: 'get',
     params: parameter,
-    headers: {
-      'X-Access-Token': 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE2NDIxNDk4NzQsInVzZXJuYW1lIjoiay5saXUyMzY5QGdtYWlsLmNvbSJ9.EzJIOsijuZz4U_wlIYd2SImK94nxBNxD-7aPUXvAwi0' // TODO 删除写死的TOKEN
-    }
+    // headers: {
+    //   'X-Access-Token': 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE2NDIxNDk4NzQsInVzZXJuYW1lIjoiay5saXUyMzY5QGdtYWlsLmNvbSJ9.EzJIOsijuZz4U_wlIYd2SImK94nxBNxD-7aPUXvAwi0' // TODO 删除写死的TOKEN
+    // }
   })
 }
 
@@ -49,9 +49,9 @@ export function QueryCommentsByClassId (parameter) {
     url: classRoomAPIUrl.queryCommentsByClassId,
     method: 'get',
     params: parameter,
-    headers: {
-      'X-Access-Token': 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE2NDIxNDk4NzQsInVzZXJuYW1lIjoiay5saXUyMzY5QGdtYWlsLmNvbSJ9.EzJIOsijuZz4U_wlIYd2SImK94nxBNxD-7aPUXvAwi0' // TODO 删除写死的TOKEN
-    }
+    // headers: {
+    //   'X-Access-Token': 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE2NDIxNDk4NzQsInVzZXJuYW1lIjoiay5saXUyMzY5QGdtYWlsLmNvbSJ9.EzJIOsijuZz4U_wlIYd2SImK94nxBNxD-7aPUXvAwi0' // TODO 删除写死的TOKEN
+    // }
   })
 }
 
@@ -60,9 +60,9 @@ export function QueryPresentationCommentsByClassId (parameter) {
     url: classRoomAPIUrl.queryPresentationCommentsByClassId,
     method: 'get',
     params: parameter,
-    headers: {
-      'X-Access-Token': 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE2NDIxNDk4NzQsInVzZXJuYW1lIjoiay5saXUyMzY5QGdtYWlsLmNvbSJ9.EzJIOsijuZz4U_wlIYd2SImK94nxBNxD-7aPUXvAwi0' // TODO 删除写死的TOKEN
-    }
+    // headers: {
+    //   'X-Access-Token': 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE2NDIxNDk4NzQsInVzZXJuYW1lIjoiay5saXUyMzY5QGdtYWlsLmNvbSJ9.EzJIOsijuZz4U_wlIYd2SImK94nxBNxD-7aPUXvAwi0' // TODO 删除写死的TOKEN
+    // }
   })
 }
 
@@ -71,8 +71,8 @@ export function QueryResponseByClassId (parameter) {
     url: classRoomAPIUrl.queryResponseByClassId,
     method: 'get',
     params: parameter,
-    headers: {
-      'X-Access-Token': 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE2NDIxNDk4NzQsInVzZXJuYW1lIjoiay5saXUyMzY5QGdtYWlsLmNvbSJ9.EzJIOsijuZz4U_wlIYd2SImK94nxBNxD-7aPUXvAwi0' // TODO 删除写死的TOKEN
-    }
+    // headers: {
+    //   'X-Access-Token': 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE2NDIxNDk4NzQsInVzZXJuYW1lIjoiay5saXUyMzY5QGdtYWlsLmNvbSJ9.EzJIOsijuZz4U_wlIYd2SImK94nxBNxD-7aPUXvAwi0' // TODO 删除写死的TOKEN
+    // }
   })
 }

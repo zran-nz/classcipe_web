@@ -55,9 +55,9 @@ export function TemplatesGetPresentation (parameter) {
     url: templateUrl.getPresentation,
     method: 'get',
     params: parameter,
-    headers: {
-      'X-Access-Token': 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE2NDIxNDk4NzQsInVzZXJuYW1lIjoiay5saXUyMzY5QGdtYWlsLmNvbSJ9.EzJIOsijuZz4U_wlIYd2SImK94nxBNxD-7aPUXvAwi0' // TODO 删除写死的TOKEN
-    }
+    // headers: {
+    //   'X-Access-Token': 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE2NDIxNDk4NzQsInVzZXJuYW1lIjoiay5saXUyMzY5QGdtYWlsLmNvbSJ9.EzJIOsijuZz4U_wlIYd2SImK94nxBNxD-7aPUXvAwi0' // TODO 删除写死的TOKEN
+    // }
   })
 }
 
