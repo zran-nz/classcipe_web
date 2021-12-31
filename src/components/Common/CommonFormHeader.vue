@@ -52,7 +52,7 @@
             </a-tooltip>
           </div>
         </div>
-        <a-tooltip title="Collaborate">
+        <a-tooltip title="Collaborate" v-if="isOwner">
           <div class="collaborate-comment" @click="handleStartCollaborate">
             <collaborate-user-icon class="active-icon"/>
           </div>
@@ -61,6 +61,7 @@
           <comment-icon class="active-icon"/>
         </div>
         <a-button
+          v-if="isOwner || isEditCollaborater"
           @click="handleSave"
           :loading="saving"
           class="my-form-header-btn"
@@ -78,9 +79,12 @@
           <div class="btn-icon">
             <img src="~@/assets/icons/common/form/baocun@2x.png" />
           </div>
-          <div class="btn-text">
+          <div class="btn-text" >
             Save & Exit
           </div>
+          <!--          <div class="btn-text" v-else>-->
+          <!--            Copy & Exit-->
+          <!--          </div>-->
         </a-button>
         <a-button
           v-if="isOwner && form.status === 0"
@@ -209,6 +213,17 @@ export default {
   computed: {
     isOwner () {
       return this.$store.getters.userInfo.email === this.form.createBy
+    },
+    isCollaborater () {
+      const index = this.collaborateUserList.findIndex(item => item.email === this.$store.getters.userInfo.email)
+      return index > -1
+    },
+    isEditCollaborater () {
+      const index = this.collaborateUserList.findIndex(item => item.email === this.$store.getters.userInfo.email)
+      if (index > -1) {
+        return this.collaborateUserList[index].permissions === 'Edit'
+      }
+      return false
     }
   },
   watch: {
@@ -226,7 +241,13 @@ export default {
   methods: {
     handleBack () {
       this.$logger.info('handleBack')
-      this.$emit('back')
+      if (this.isCollaborater) {
+        this.$router.push({ path: '/teacher/main/shared' })
+      } else {
+        this.$router.push({ path: '/teacher/main/created-by-me' })
+      }
+
+      // this.$emit('back')
     },
     handleSave () {
       this.saving = true

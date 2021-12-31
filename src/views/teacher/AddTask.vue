@@ -1646,7 +1646,7 @@ export default {
       }
     },
     beforeRouteLeave (to, from, next) {
-      if (JSON.stringify(this.form) !== JSON.stringify(this.oldForm)) {
+      if (this.initCompleted && JSON.stringify(this.form) !== JSON.stringify(this.oldForm)) {
         var that = this
         this.$confirm({
           title: 'Alert',
@@ -1803,6 +1803,7 @@ export default {
           }
           // copy副本 为了判断数据变更
           this.oldForm = JSON.parse(JSON.stringify(this.form))
+          this.initCompleted = true
         })
       },
 

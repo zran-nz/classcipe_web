@@ -16,7 +16,8 @@ export const BaseEventMixin = {
       showModuleList: [RightModule.imageUpload, RightModule.customTag, RightModule.recommend],
       rightWidth: 600,
       leftWidth: 700,
-      collaborate: {}
+      collaborate: {},
+      initCompleted: false
     }
   },
   created () {
