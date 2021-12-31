@@ -1661,7 +1661,6 @@ export default {
     beforeRouteLeave (to, from, next) {
       this.$logger.info('beforeRouteLeave', to, from, next)
       if (this.initCompleted && JSON.stringify(this.form) !== JSON.stringify(this.oldForm)) {
-        var that = this
         this.$confirm({
           title: 'Alert',
           okText: 'Save',
