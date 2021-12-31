@@ -208,7 +208,7 @@ export default {
       padding: 10px 5px;
       audio {
         height: 30px;
-        width: 226px;
+        width: 216px;
       }
     }
   }
