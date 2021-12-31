@@ -35,7 +35,7 @@
     <a-col span="9" class="unit-right-action">
       <a-space v-show="!hiddenRightButton">
         <div class="collaborate-users">
-          <a-dropdown v-if="collaborateUserList.length > 3">
+          <a-dropdown v-show="collaborateUserList.length > 3">
             <a class="ant-dropdown-link" >
               Others <a-icon type="more" />
             </a>
@@ -52,7 +52,7 @@
             </a-tooltip>
           </div>
         </div>
-        <a-tooltip title="Collaborate" v-if="isOwner">
+        <a-tooltip title="Collaborate" v-show="isOwner">
           <div class="collaborate-comment" @click="handleStartCollaborate">
             <collaborate-user-icon class="active-icon"/>
           </div>
@@ -61,7 +61,7 @@
           <comment-icon class="active-icon"/>
         </div>
         <a-button
-          v-if="isOwner || isEditCollaborater"
+          v-show="isOwner || isEditCollaborater"
           @click="handleSave"
           :loading="saving"
           class="my-form-header-btn"
@@ -79,7 +79,10 @@
           <div class="btn-icon">
             <img src="~@/assets/icons/common/form/baocun@2x.png" />
           </div>
-          <div class="btn-text" >
+          <div
+            class="btn-text"
+            :data-isOwner="isOwner + ''"
+            :data-isEditCollaborater="isEditCollaborater + ''" >
             Save & Exit
           </div>
           <!--          <div class="btn-text" v-else>-->
@@ -87,7 +90,7 @@
           <!--          </div>-->
         </a-button>
         <a-button
-          v-if="isOwner && form.status === 0"
+          v-show="isOwner && form.status === 0"
           :loading="publishing"
           class="my-form-header-btn"
           style="{
@@ -105,7 +108,10 @@
           <div class="btn-icon">
             <img src="~@/assets/icons/common/form/fabu@2x.png" />
           </div>
-          <div class="btn-text">
+          <div
+            class="btn-text"
+            :data-isOwner="isOwner + ''"
+            :data-form-status="form.status + ''" >
             Save & Publish
           </div>
         </a-button>
@@ -129,7 +135,10 @@
           <div class="btn-icon">
             <a-icon style="font-size: 16px" theme="filled" type="down-square" />
           </div>
-          <div class="btn-text">
+          <div
+            class="btn-text"
+            :data-isOwner="isOwner + ''"
+            :data-form-status="form.status + ''" >
             Unpublish
           </div>
         </a-button>

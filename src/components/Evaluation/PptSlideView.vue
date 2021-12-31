@@ -518,7 +518,7 @@ export default {
     },
 
     handleAddSlideItem (slideItem) {
-      this.$logger.info('handleAddPageId', slideItem)
+      this.$logger.info('handleAddSlideItem', slideItem)
       if (this.mode === EvaluationTableMode.TeacherEvaluate) {
         const index = this.selectedSlidePageIdList.indexOf(slideItem.pageId)
         if (index !== -1) {
