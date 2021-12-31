@@ -575,6 +575,7 @@ export default {
       .selected-list {
         padding: 10px 5px;
         z-index: 100;
+        min-height: 350px;
         overflow: scroll;
         .content-list {
           flex: 1;
