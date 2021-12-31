@@ -387,6 +387,7 @@ import { FindCustomTags } from '@/api/tag'
 import OldSessionList from '@/components/Teacher/OldSessionList'
 import { FindMyClasses } from '@/api/evaluation'
 import { ACCESS_TOKEN } from '@/store/mutation-types'
+import { TemplatesGetPresentation } from '@/api/template'
 
 export default {
   name: 'CreatedByMe',
@@ -512,6 +513,7 @@ export default {
       }).finally(() => {
         this.loading = false
         this.skeletonLoading = false
+        this.checkGoogleTokenExpired()
       })
     },
     toggleStatus (status, label) {
@@ -768,6 +770,17 @@ export default {
         this.$refs.classList1.loadTeacherClasses()
       } else {
         this.$refs.classList2.loadTeacherClasses()
+      }
+    },
+    checkGoogleTokenExpired () {
+      this.$logger.info('checkGoogleTokenExpired response')
+      var index = this.myContentList.findIndex(item => item.type === typeMap.task)
+      if (index > -1) {
+        TemplatesGetPresentation({
+          presentationId: this.myContentList[index].presentationId
+        }).then(response => {
+          this.$logger.info('TemplatesGetPresentation response', response)
+        })
       }
     }
   }
