@@ -10,6 +10,9 @@
         'browser-hide-menu': showMenu.indexOf(treeItemData.type) === -1,
         'tree-item-type' : true
       }"
+      :style="{
+        'background': treeItemData.backgroundColor
+      }"
       :current-item-type="treeItemData.type === NavigationType.learningOutcomes ? 'subject' : // 如果当前是大纲，那么第一层数据是不区分层级的subject
         (treeItemData.type === NavigationType.sync ? 'sync' : // 如果是sync第一次是外部的同步数据列表
           ((treeItemData.type === NavigationType.specificSkills || treeItemData.type === NavigationType.assessmentType) ? 'subject' : ( // 如果是specificSkills或assessmentType，那么第一层数据是subject，注意subject只有一层
@@ -25,6 +28,7 @@
       :question-index="questionIndex"
       :default-expand-status="treeItemData.expandStatus"
       :tree-item-type="treeItemData.type"
+      :data-item-type="treeItemData.type"
       :odd="index % 2 === 1"
       v-for="(treeItemData, index) in treeDataList"
       :key="index"/>
@@ -114,21 +118,27 @@ export default {
         type: NavigationType.learningOutcomes,
         name: skillCategory.length === 3 ? skillCategory[0] : 'Curriculum',
         children: [],
-        parent: null
+        parent: null,
+        sort: 2,
+        backgroundColor: '#B1D1CC'
       }
       const sdgData = {
         expandStatus: NavigationType.sdg === this.defaultActiveMenu,
         type: NavigationType.sdg,
         name: 'Big ideas',
         children: [],
-        parent: null
+        parent: null,
+        sort: 2,
+        backgroundColor: 'fade(@primary-color, 10%)'
       }
       const syncData = {
         expandStatus: NavigationType.sync === this.defaultActiveMenu,
         type: NavigationType.sync,
         name: 'Sync assessment objectives with linked content',
         children: [],
-        parent: null
+        parent: null,
+        sort: 2,
+        backgroundColor: 'rgba(19, 194, 194, 0.2)'
       }
       const all21CenturyData = {
         id: '1',
@@ -136,7 +146,9 @@ export default {
         type: NavigationType.all21Century,
         name: 'all21Century',
         children: [],
-        parent: null
+        parent: null,
+        sort: 2,
+        backgroundColor: '#D7E0E9'
       }
       if (this.syncData && this.syncData.length) {
         syncData.children = this.syncData
@@ -195,6 +207,7 @@ export default {
       }).finally(() => {
         this.treeDataList.push(curriculumData)
         this.treeDataList.push(sdgData)
+
         if (skillCategory.length === 3) {
           // Achievement objectives 是mainSubject-year-knowledge
           const specificSkillsData = {
@@ -203,7 +216,9 @@ export default {
             type: NavigationType.specificSkills,
             name: skillCategory[1],
             children: [],
-            parent: null
+            parent: null,
+            sort: 0,
+            backgroundColor: '#ffecd2'
           }
           // 从大纲数据中复制一份数据，只用mainSubject既第一层 且subjectType=2
           this.subjectTree.forEach(subjectItem => {
@@ -213,6 +228,29 @@ export default {
           })
           // skill放第一位
           this.treeDataList.unshift(specificSkillsData)
+
+          // IB大纲4、5
+          if (parseInt(this.defaultCurriculumId) === 4 || parseInt(this.defaultCurriculumId) === 5) {
+            // iduData 是year-idu list
+            const iduData = {
+              id: '6',
+              expandStatus: NavigationType.idu === this.defaultActiveMenu,
+              type: NavigationType.idu,
+              name: 'Integrated Subject Skill',
+              children: [],
+              gradeList: [],
+              parent: null,
+              sort: 1,
+              backgroundColor: 'rgba(253, 238, 218, 0.2)'
+            }
+            this.gradeList.forEach(gradeItem => {
+              gradeItem.isGrade = true
+              gradeItem.children = []
+              iduData.gradeList.push(JSON.parse(JSON.stringify(gradeItem)))
+              iduData.children.push(JSON.parse(JSON.stringify(gradeItem)))
+            })
+            this.treeDataList.push(iduData)
+          }
 
           // 隐藏assessmentType
           // assessmentTypeData 是mainSubject-year-knowledge
@@ -240,7 +278,9 @@ export default {
             name: skillCategory[2],
             children: [],
             gradeList: [],
-            parent: null
+            parent: null,
+            sort: 2,
+            backgroundColor: '#D7E0E9'
           }
           this.gradeList.forEach(gradeItem => {
             gradeItem.isGrade = true
@@ -263,7 +303,8 @@ export default {
               name: 'NZ-Key competencies',
               children: [],
               gradeList: [],
-              parent: null
+              parent: null,
+              backgroundColor: 'rgba(83, 196, 28, 0.2)'
             }
             this.gradeList.forEach(gradeItem => {
               gradeItem.isGrade = true
@@ -282,7 +323,9 @@ export default {
               name: 'AU-General capabilities',
               children: [],
               gradeList: [],
-              parent: null
+              parent: null,
+              sort: 2,
+              backgroundColor: 'rgba(83, 196, 28, 0.2)'
             }
             this.gradeList.forEach(gradeItem => {
               gradeItem.isGrade = true
@@ -299,26 +342,8 @@ export default {
           this.$logger.info('after handle treeDataList', this.treeDataList)
         }
 
-        // IB大纲4、5
-        if (parseInt(this.defaultCurriculumId) === 4 || parseInt(this.defaultCurriculumId) === 5) {
-          // iduData 是year-idu list
-          const iduData = {
-            id: '6',
-            expandStatus: NavigationType.idu === this.defaultActiveMenu,
-            type: NavigationType.idu,
-            name: 'Integrated Subject Skill',
-            children: [],
-            gradeList: [],
-            parent: null
-          }
-          this.gradeList.forEach(gradeItem => {
-            gradeItem.isGrade = true
-            gradeItem.children = []
-            iduData.gradeList.push(JSON.parse(JSON.stringify(gradeItem)))
-            iduData.children.push(JSON.parse(JSON.stringify(gradeItem)))
-          })
-          this.treeDataList.push(iduData)
-        }
+        this.treeDataList = this.treeDataList.sort((a, b) => a.sort - b.sort)
+        this.$logger.info('sort treeDataList', this.treeDataList)
         this.loaded = true
       })
     },
@@ -384,34 +409,6 @@ export default {
 
 .browser-hide-menu {
   display: none;
-}
-
-.tree-item-type:nth-child(1){
-  background-color: fade(@primary-color, 10%);
-}
-
-.tree-item-type:nth-child(2){
-  background-color: rgba(19, 194, 194, 0.2);
-}
-
-.tree-item-type:nth-child(3){
-  background-color: rgba(253, 238, 218, 0.2);
-}
-
-.tree-item-type:nth-child(4){
-  background-color: rgba(83, 196, 28, 0.2);
-}
-
-.tree-item-type:nth-child(5){
-  background-color: rgba(235, 47, 150, 0.2);
-}
-
-.tree-item-type:nth-child(6){
-  background-color: rgba(24, 144, 255, 0.2);
-}
-
-.tree-item-type:nth-child(7){
-  background-color: rgba(45, 183, 245, 0.2);
 }
 
 </style>
