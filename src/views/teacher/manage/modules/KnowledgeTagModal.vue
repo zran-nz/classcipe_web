@@ -22,37 +22,37 @@
     },
     data () {
       return {
-        title:'',
-        subKnowledgeId:'',
-        width:800,
+        title: '',
+        subKnowledgeId: '',
+        width: 800,
         visible: false,
         disableSubmit: false
       }
     },
     methods: {
       add (subKnowledgeId) {
-        this.visible=true
+        this.visible = true
         this.subKnowledgeId = subKnowledgeId
-        this.$nextTick(()=>{
-          this.$refs.realForm.add(this.subKnowledgeId);
+        this.$nextTick(() => {
+          this.$refs.realForm.add(this.subKnowledgeId)
         })
       },
       edit (record) {
-        this.visible=true
-        this.$nextTick(()=>{
-          this.$refs.realForm.edit(record);
+        this.visible = true
+        this.$nextTick(() => {
+          this.$refs.realForm.edit(record)
         })
       },
       close () {
-        this.$emit('close');
-        this.visible = false;
+        this.$emit('close')
+        this.visible = false
       },
       handleOk () {
-        this.$refs.realForm.submitForm();
+        this.$refs.realForm.submitForm()
       },
-      submitCallback(){
-        this.$emit('ok');
-        this.visible = false;
+      submitCallback () {
+        this.$emit('ok')
+        this.visible = false
       },
       handleCancel () {
         this.close()

@@ -229,7 +229,8 @@
                             <div class="form-input-item" v-for="(question, index) in form.questions" :key="index">
                               <a-textarea
                                 v-model="question.name"
-                                class="my-form-textarea" auto-size
+                                class="my-form-textarea"
+                                auto-size
                                 :placeholder="$store.getters.currentRole === 'teacher' ? $t('teacher.add-unit-plan.teacher-nth-key-question') : $t('teacher.add-unit-plan.expert-nth-key-question')"/>
                               <div class="delete-icon" @click="handleRemoveQuestion(index)">
                                 <a-icon type="delete" :style="{ fontSize: '20px' }" />
