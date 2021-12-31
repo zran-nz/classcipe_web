@@ -1856,7 +1856,12 @@ export default {
           if (response.success) {
             this.restoreTask(response.result.id, false)
             this.$message.success(this.$t('teacher.add-task.save-success'))
-            this.selectedSlideVisibleFromSave = true
+            if (window.history.length <= 1) {
+              this.$router.push({ path: '/teacher/main/created-by-me' })
+            } else {
+              this.$router.go(-1)
+            }
+            // this.selectedSlideVisibleFromSave = true
           } else {
             this.$message.error(response.message)
           }
