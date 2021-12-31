@@ -91,6 +91,22 @@
                         Rename the session
                       </div>
                     </div>
+                    <div class="class-more-item" @click="handleReopenSession(record)" v-if="record.status === 'close'">
+                      <div class="class-action-icon">
+                        <a-icon type="interaction" />
+                      </div>
+                      <div class="class-action-name">
+                        Reopen
+                      </div>
+                    </div>
+                    <div class="class-more-item" @click="handleEndSession(record)" v-else>
+                      <div class="class-action-icon">
+                        <a-icon type="close-circle" />
+                      </div>
+                      <div class="class-action-name">
+                        End the session
+                      </div>
+                    </div>
                   </div>
                 </template>
                 <div class="more-action">
@@ -341,6 +357,14 @@ export default {
           })
         }
       })
+    },
+
+    handleReopenSession (record) {
+
+    },
+
+    handleEndSession (record) {
+
     }
   }
 }
