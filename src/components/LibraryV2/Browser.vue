@@ -6,22 +6,31 @@
           <navigation :path="navPath" @pathChange="handleNavPathChange" v-show="libraryMode === LibraryMode.browserMode"/>
         </div>
         <div class="filter-line">
-          <div class="curriculum-filter-line">
-            <div class="curriculum-select">
-              <a-select
-                v-show="currentBrowserType !== BrowserTypeMap.sdg && curriculumOptions.length"
-                @change="handleCurriculumChange"
-                v-model="currentCurriculumId"
-                :default-value="$store.getters.bindCurriculum"
-                class="select-curriculum">
-                <a-select-option v-for="(curriculum,index) in curriculumOptions" :value="curriculum.id" :key="index">
-                  {{ curriculum.name }}
-                </a-select-option>
-                <div class="arrow-self" slot="suffixIcon">
-                  <img src="~@/assets/icons/library/arrow.png" />
+          <div class="filter-icon">
+            <a-popover
+              trigger="click"
+              placement="bottomLeft"
+              :overlayStyle="{ 'max-height': filterHeight + 'px', 'position': 'absolute','top':'190px','overflow-y': 'auto',' background-clip':'padding-box',' border-radius':'2px','box-shadow':' 0 2px 8px rgb(0 0 0 / 15%'}">
+              <template slot="content">
+                <search-filter
+                  @filter-config-update="handleUpdateFilterConfig"
+                  :filter-config="filterConfig"
+                  :age-options="filterAgeOptions"
+                  :subject-options="filterSubjectOptions"
+                  :type-options="filterTypeOptions"
+                  :filter-fa-options="filterFaOptions"
+                  :filter-sa-options="filterSaOptions"
+                  :filter-activity-options="filterActivityOptions"
+                />
+              </template>
+              <div class="filter-item">
+                <filter-icon class="filter-icon" />
+                <filter-active-icon class="filter-active-icon"/>
+                <div class="filter-label">
+                  Filter
                 </div>
-              </a-select>
-            </div>
+              </div>
+            </a-popover>
           </div>
           <div class="search-bar-line">
             <div class="search-input" @click.stop="">
@@ -70,32 +79,6 @@
           </div>
         </div>
         <div class="filter-bar">
-          <div class="filter-icon">
-            <a-popover
-              trigger="click"
-              placement="bottomLeft"
-              :overlayStyle="{ 'max-height': filterHeight + 'px', 'position': 'absolute','top':'190px','overflow-y': 'auto',' background-clip':'padding-box',' border-radius':'2px','box-shadow':' 0 2px 8px rgb(0 0 0 / 15%'}">
-              <template slot="content">
-                <search-filter
-                  @filter-config-update="handleUpdateFilterConfig"
-                  :filter-config="filterConfig"
-                  :age-options="filterAgeOptions"
-                  :subject-options="filterSubjectOptions"
-                  :type-options="filterTypeOptions"
-                  :filter-fa-options="filterFaOptions"
-                  :filter-sa-options="filterSaOptions"
-                  :filter-activity-options="filterActivityOptions"
-                />
-              </template>
-              <div class="filter-item">
-                <filter-icon class="filter-icon" />
-                <filter-active-icon class="filter-active-icon"/>
-                <div class="filter-label">
-                  Filter
-                </div>
-              </div>
-            </a-popover>
-          </div>
           <div class="filter-list">
             <div
               id="filter-list"
@@ -118,6 +101,23 @@
       class="library-detail-wrapper"
       :style="{top: currentBrowserType === BrowserTypeMap.sdg ? '136px' : '136px',
                height: currentBrowserType === BrowserTypeMap.sdg ? 'calc(100vh - 200px)': 'calc(100vh - 200px)'}">
+      <div class="curriculum-filter-line">
+        <div class="curriculum-select">
+          <a-select
+            v-show="currentBrowserType !== BrowserTypeMap.sdg && curriculumOptions.length"
+            @change="handleCurriculumChange"
+            v-model="currentCurriculumId"
+            :default-value="$store.getters.bindCurriculum"
+            class="select-curriculum">
+            <a-select-option v-for="(curriculum,index) in curriculumOptions" :value="curriculum.id" :key="index">
+              {{ curriculum.name }}
+            </a-select-option>
+            <div class="arrow-self" slot="suffixIcon">
+              <img src="~@/assets/icons/library/arrow.png" />
+            </div>
+          </a-select>
+        </div>
+      </div>
       <div class="library-detail-nav-wrapper" :style="{width: leftBrowserWidth}" @click="libraryMode = LibraryMode.browserMode">
         <div class="library-content">
           <div class="browser-action" v-if="hasLeftBlock && !expandedListFlag">
@@ -944,30 +944,6 @@ export default {
     justify-content: space-between;
     align-items: center;
 
-    .curriculum-filter-line {
-      display: flex;
-      flex-direction: row;
-      align-items: center;
-      width: 150px;
-      .curriculum-select {
-        background: #eaebef;
-        display: inline-block;
-        position: relative;
-        border-radius: 3px;
-        /deep/ .ant-select-selection{
-          width: 150px;
-        }
-        .select-curriculum {
-          position: relative;
-          font-size: 14px;
-          font-family: Inter-Bold;
-          line-height: 24px;
-          opacity: 1;
-          border-radius: 3px;
-        }
-      }
-    }
-
     .search-bar-line {
       width: 100%;
       padding-left: 20px;
@@ -991,6 +967,7 @@ export default {
     flex-direction: row;
     flex: 1;
     .library-detail-nav-wrapper {
+      padding-top: 40px;
       transition: all 200ms ease-in-out;
       overflow: hidden;
       position: relative;
@@ -1092,7 +1069,7 @@ export default {
       min-height: 600px;
       position: relative;
       flex: 1;
-      z-index: 100;
+      z-index: 150;
       box-shadow: -3px 0 5px 0 rgba(31, 33, 44, 10%);
 
       .expand-icon {
@@ -1313,51 +1290,51 @@ export default {
   display: flex;
   justify-content: flex-start;
   align-items: center;
+}
 
-  .filter-icon {
+.filter-icon {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  .filter-item {
+    color: #333;
+    cursor: pointer;
     display: flex;
     justify-content: flex-start;
     align-items: center;
-    .filter-item {
-      color: #333;
-      cursor: pointer;
-      display: flex;
-      justify-content: flex-start;
-      align-items: center;
-      background: #FFFFFF;
-      border: 1px solid #D3D3D3;
-      opacity: 1;
-      border-radius: 3px;
-      padding: 5px 15px;
-      white-space:nowrap;
+    background: #FFFFFF;
+    border: 1px solid #D3D3D3;
+    opacity: 1;
+    border-radius: 3px;
+    padding: 5px 15px;
+    white-space:nowrap;
 
-      svg {
-        height: 20px;
-      }
+    svg {
+      height: 20px;
+    }
+    .filter-active-icon {
+      display: none;
+    }
+    .filter-icon {
+      display: inline;
+    }
+
+    &:hover {
+      color: #38cfa6;
+      border: 1px solid #38cfa6;
       .filter-active-icon {
-        display: none;
-      }
-      .filter-icon {
         display: inline;
       }
 
-      &:hover {
-        color: #38cfa6;
-        border: 1px solid #38cfa6;
-        .filter-active-icon {
-          display: inline;
-        }
-
-        .filter-icon {
-          display: none;
-        }
+      .filter-icon {
+        display: none;
       }
+    }
 
-      .filter-label {
-        font-family: Inter-Bold;
-        line-height: 20px;
-        padding-left: 8px;
-      }
+    .filter-label {
+      font-family: Inter-Bold;
+      line-height: 20px;
+      padding-left: 8px;
     }
   }
 }
@@ -1367,7 +1344,6 @@ export default {
   flex-direction: row;
   align-items: center;
   justify-content: flex-start;
-  margin-left: 15px;
   height: 33px;
   overflow: hidden;
   flex-wrap: wrap;
@@ -1519,4 +1495,32 @@ export default {
   }
 }
 
+.curriculum-filter-line {
+  position: absolute;
+  top: 0;
+  display: flex;
+  flex-direction: row;
+  z-index: 110;
+  height: 40px;
+  background: #fff;
+  padding: 6px 5px 5px 5px;
+  width: 30vw;
+  .curriculum-select {
+    background: #eaebef;
+    display: inline-block;
+    position: relative;
+    border-radius: 3px;
+    /deep/ .ant-select-selection{
+      width: 150px;
+    }
+    .select-curriculum {
+      position: relative;
+      font-size: 14px;
+      font-family: Inter-Bold;
+      line-height: 24px;
+      opacity: 1;
+      border-radius: 3px;
+    }
+  }
+}
 </style>
