@@ -128,6 +128,23 @@
                   </div>
                 </div>
               </template>
+              <template v-if='data.materialList && data.materialList.length'>
+                <div class="block-main-label">
+                  Material list
+                </div>
+                <div class="overview-block">
+                  <div class='material-list'>
+                    <div class='material-item' v-for='(material, mIndex) in data.materialList' :key='mIndex'>
+                      <div class='material-name'>
+                        {{ material.name }}
+                      </div>
+                      <div class='material-link'>
+                        {{material.link}}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </template>
             </div>
           </div>
         </a-col>
@@ -1556,4 +1573,27 @@ export default {
   align-items: center;
 }
 
+.material-list {
+  background: #fff;
+  padding: 5px 15px;
+}
+.material-item {
+  margin: 10px 0;
+  .material-name {
+    font-family: Inter-Bold;
+    font-size: 14px;
+    font-weight: bold;
+    color: #182552;
+    padding-right: 10px;
+    box-sizing: border-box;
+  }
+
+  .material-link {
+    cursor: pointer;
+    font-family: Inter-Regular;
+    font-size: 13px;
+    color: #2DC9A4;
+    text-decoration: underline;
+  }
+}
 </style>
