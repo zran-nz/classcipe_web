@@ -193,7 +193,7 @@
           <template v-if="expandedListFlag">
             <a-popover placement="right">
               <template slot="content">
-                <div class='tips-content'>Navigate via curriculums</div>
+                <div class="tips-content">Navigate via curriculums</div>
               </template>
               <a-icon type="double-right" style="font-size: 20px; color: #07AB84"/>
             </a-popover>

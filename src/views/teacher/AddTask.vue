@@ -14,7 +14,7 @@
         @collaborate="handleStartCollaborate"
       />
     </div>
-    <a-card :bordered="false" :bodyStyle="{ padding: '16px 24px 40px 24px', height: '100%', minHeight: '1000px',minWidth:'1200px' }">
+    <a-card :bordered="false" :bodyStyle="{ padding: '16px 24px 40px 24px', height: '100%', minHeight: '1000px' }">
       <template v-if="mode === 'edit'">
         <a-row class="unit-content" v-if="!contentLoading" >
           <a-col span="24" class="main-content">
@@ -522,16 +522,29 @@
           </div>
           <div class="slide-form-block" v-show="form.presentationId">
             <div class="preview-list" v-if="!thumbnailListLoading">
-              <div
-                :class="{'preview-item-cover': true, 'preview-item-cover-active': selectedPageIdList.indexOf(item.id) !== -1}"
-                :style="{backgroundImage: 'url(' + item.contentUrl + ')'}"
-                v-for="(item,index) in thumbnailList"
-                :key="index"
-                @click="handleToggleThumbnail(item)">
-                <div class="template-select-icon" v-if="selectedPageIdList.indexOf(item.id) !== -1">
-                  <img src="~@/assets/icons/task/selected.png"/>
-                </div>
-              </div>
+              <a-row :gutter="[16, 16]">
+                <a-col
+                  class="gutter-row"
+                  :span="10"
+                  :xs="12"
+                  :sm="12"
+                  :md="8"
+                  :lg="8"
+                  :xl="6"
+                  :xxl="4"
+                  v-for="(item,index) in thumbnailList"
+                  :key="index">
+                  <div
+                    :class="{'preview-item-cover': true, 'preview-item-cover-active': selectedPageIdList.indexOf(item.id) !== -1}"
+                    :style="{backgroundImage: 'url(' + item.contentUrl + ')'}"
+                    :key="index"
+                    @click="handleToggleThumbnail(item)">
+                    <div class="template-select-icon" v-if="selectedPageIdList.indexOf(item.id) !== -1">
+                      <img src="~@/assets/icons/task/selected.png"/>
+                    </div>
+                  </div>
+                </a-col>
+              </a-row>
             </div>
             <div class="thumbnail-loading" v-if="thumbnailListLoading">
               <a-spin size="large" />
@@ -1646,6 +1659,7 @@ export default {
       }
     },
     beforeRouteLeave (to, from, next) {
+      this.$logger.info('beforeRouteLeave', to, from, next)
       if (this.initCompleted && JSON.stringify(this.form) !== JSON.stringify(this.oldForm)) {
         var that = this
         this.$confirm({
@@ -1654,7 +1668,7 @@ export default {
           cancelText: 'No',
           content: 'Do you want to save the changes?',
           onOk: function () {
-            that.handleSaveTask()
+            // that.handleSaveTask()
             setTimeout(() => {
               next()
             }, 500)
@@ -4208,13 +4222,10 @@ export default {
 
   .preview-list {
     overflow-y: scroll;
+    overflow-x: hidden;
     width: 100%;
+    min-height: 120px;
     max-height: 360px;
-    overflow-y: scroll;
-    display: flex;
-    flex-direction: row;
-    justify-content: flex-start;
-    flex-wrap: wrap;
     background: rgba(228, 228, 228, 0.2);
     border: 1px solid #D8D8D8;
     opacity: 1;
@@ -4224,7 +4235,7 @@ export default {
       background-size: cover;
       background-repeat: no-repeat;
       position: relative;
-      width: 225px;
+      width: 100%;
       height: 160px;
       border-radius: 5px;
       margin: 10px 5px 10px 10px;
@@ -4654,7 +4665,6 @@ export default {
   }
 
   .pick-task-slide-wrapper {
-    width: 1400px;
     margin: auto;
 
     .slide-form-block {

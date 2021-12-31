@@ -2,7 +2,7 @@
   <div class="new-library" id="new-library">
     <div class="navigation">
       <div class="navigation-item" v-show="!expandedListFlag" :style="{'left': (25) + 'px', 'width': (1000) + 'px',}">
-        <div class="select-curriculum" v-show='showCurriculum'>
+        <div class="select-curriculum" v-show="showCurriculum">
           <div class="my-curriculum-select">
             <a-select
               v-if="curriculumOptions.length"
@@ -22,7 +22,7 @@
         <new-navigation />
       </div>
       <div class="navigation-item" v-show="expandedListFlag" :style="{'left': (790) + 'px', 'width': (370) + 'px',}">
-        <div class="select-curriculum" v-show='showCurriculum'>
+        <div class="select-curriculum" v-show="showCurriculum">
           <div class="my-curriculum-select">
             <a-select
               v-if="curriculumOptions.length"
@@ -44,7 +44,7 @@
     </div>
     <div class="main">
       <div class="selected-content">
-        <div class='main-content-list'>
+        <div class="main-content-list">
           <div class="recommend-description" v-if="!isEmptyRecommend" >
             <div class="recommend-title">
               <h3>Recommended assessment objectives</h3>
@@ -56,7 +56,7 @@
                 </div>
                 <div
                   :class="{'recommend-item': true, 'my-selected-item': selectedRecommendIdList.indexOf(recommendItem.knowledgeId) !== -1,
-                         'disabled-select-item': mySelectedIdList.indexOf(recommendItem.knowledgeId) !== -1}"
+                           'disabled-select-item': mySelectedIdList.indexOf(recommendItem.knowledgeId) !== -1}"
                   v-for="(recommendItem, rI) in recommendDataItem.list"
                   :key="'ri-' + rI"
                   @click="handleAddRecommend(recommendItem)"

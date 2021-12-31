@@ -27,7 +27,7 @@
                         @keyup.enter="handleTabInputConfirm(editTabName)"
                       ></a-input>
                     </div>
-                    <div v-if="editTabIndex !== index" @dblclick='handleEditTabName(tag, index)'>
+                    <div v-if="editTabIndex !== index" @dblclick="handleEditTabName(tag, index)">
                       {{ tag[0] }}
                       <a-icon v-show="canDeleteTab" @click.stop="deleteTab(tag[0])" type="close-circle" />
                     </div>

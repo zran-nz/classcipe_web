@@ -61,63 +61,63 @@
         type: Boolean,
         default: true
       },
-      condition:{
-        type:String,
-        default:'',
-        required:false
+      condition: {
+        type: String,
+        default: '',
+        required: false
       }
     },
-    data() {
+    data () {
       return {
         dataSource: [],
         expandedRowKeys: []
       }
     },
     computed: {
-      getChildrenUrl() {
+      getChildrenUrl () {
         if (this.childrenUrl) {
           return this.childrenUrl
         } else {
           return this.url
         }
       },
-      slots() {
-        let slots = []
-        for (let column of this.columns) {
+      slots () {
+        const slots = []
+        for (const column of this.columns) {
           if (column.scopedSlots && column.scopedSlots.customRender) {
             slots.push(column.scopedSlots.customRender)
           }
         }
         return slots
       },
-      tableAttrs() {
+      tableAttrs () {
         return Object.assign(this.$attrs, this.tableProps)
       }
     },
     watch: {
       queryParams: {
         deep: true,
-        handler() {
+        handler () {
           this.loadData()
         }
       }
     },
-    created() {
+    created () {
       if (this.immediateRequest) this.loadData()
     },
     methods: {
 
-      /** 加载数据*/
-      loadData(id = this.topValue, first = true, url = this.url) {
+      /** 加载数据 */
+      loadData (id = this.topValue, first = true, url = this.url) {
         this.$emit('requestBefore', { first })
 
         if (first) {
           this.expandedRowKeys = []
         }
 
-        let params = Object.assign({}, this.queryParams || {})
+        const params = Object.assign({}, this.queryParams || {})
         params[this.queryKey] = id
-        if(this.condition && this.condition.length>0){
+        if (this.condition && this.condition.length > 0) {
           params['condition'] = this.condition
         }
 
@@ -130,17 +130,17 @@
           } else {
             throw '返回数据类型不识别'
           }
-          let dataSource = list.map(item => {
+          const dataSource = list.map(item => {
             // 判断是否标记了带有子级
             if (item.hasChildren === true) {
               // 查找第一个带有dataIndex的值的列
               let firstColumn
-              for (let column of this.columns) {
+              for (const column of this.columns) {
                 firstColumn = column.dataIndex
                 if (firstColumn) break
               }
               // 定义默认展开时显示的loading子级，实际子级数据只在展开时加载
-              let loadChild = { id: `${item.id}_loadChild`, [firstColumn]: 'loading...', isLoading: true }
+              const loadChild = { id: `${item.id}_loadChild`, [firstColumn]: 'loading...', isLoading: true }
               item.children = [loadChild]
             }
             return item
@@ -154,7 +154,7 @@
       },
 
       /** 点击展开图标时触发 */
-      handleExpand(expanded, record) {
+      handleExpand (expanded, record) {
         // 判断是否是展开状态
         if (expanded) {
           // 判断子级的首个项的标记是否是“正在加载中”，如果是就加载数据

@@ -19,74 +19,74 @@
 
   export default {
     name: 'JTreeDict',
-    data(){
+    data () {
       return {
-        treeData:[],
+        treeData: [],
         treeValue: null,
-        url_root:"/sys/category/loadTreeRoot",
-        url_children:"/sys/category/loadTreeChildren",
-        url_view:'/sys/category/loadOne',
+        url_root: '/sys/category/loadTreeRoot',
+        url_children: '/sys/category/loadTreeChildren',
+        url_view: '/sys/category/loadOne'
       }
     },
-    props:{
-      value:{
+    props: {
+      value: {
         type: String,
         required: false
       },
-      placeholder:{
+      placeholder: {
         type: String,
         default: '请选择',
         required: false
       },
-      parentCode:{
+      parentCode: {
         type: String,
         default: '',
         required: false
       },
-      field:{
+      field: {
         type: String,
         default: 'id',
         required: false
       },
-      root:{
-        type:Object,
-        required:false,
-        default:()=>{
+      root: {
+        type: Object,
+        required: false,
+        default: () => {
           return {
-            pid:'0'
+            pid: '0'
           }
         }
       },
-      async:{
-        type:Boolean,
-        default:false,
-        required:false
+      async: {
+        type: Boolean,
+        default: false,
+        required: false
       },
-      disabled:{
-        type:Boolean,
-        default:false,
-        required:false
+      disabled: {
+        type: Boolean,
+        default: false,
+        required: false
       }
     },
-    watch:{
-      root:{
-        handler(val){
-          console.log("root-change",val)
+    watch: {
+      root: {
+        handler (val) {
+          console.log('root-change', val)
         },
-        deep:true
+        deep: true
       },
-      parentCode:{
-        handler(){
+      parentCode: {
+        handler () {
           this.loadRoot()
         }
       },
-      value:{
-        handler(){
+      value: {
+        handler () {
           this.loadViewInfo()
         }
       }
     },
-    created(){
+    created () {
       this.loadRoot()
       this.loadViewInfo()
     },
@@ -94,42 +94,42 @@
       prop: 'value',
       event: 'change'
     },
-    methods:{
-      loadViewInfo(){
-        if(!this.value || this.value=="0"){
+    methods: {
+      loadViewInfo () {
+        if (!this.value || this.value == '0') {
           this.treeValue = null
-        }else{
-          let param = {
-            field:this.field,
-            val:this.value
+        } else {
+          const param = {
+            field: this.field,
+            val: this.value
           }
-          getAction(this.url_view,param).then(res=>{
-            if(res.success){
+          getAction(this.url_view, param).then(res => {
+            if (res.success) {
               this.treeValue = {
-                value:this.value,
-                label:res.result.name
+                value: this.value,
+                label: res.result.name
               }
             }
           })
         }
       },
-      loadRoot(){
-        let param = {
-          async:this.async,
-          pcode:this.parentCode
+      loadRoot () {
+        const param = {
+          async: this.async,
+          pcode: this.parentCode
         }
-        getAction(this.url_root,param).then(res=>{
-          if(res.success){
+        getAction(this.url_root, param).then(res => {
+          if (res.success) {
             this.handleTreeNodeValue(res.result)
             this.treeData = [...res.result]
-          }else{
+          } else {
             this.$message.error(res.message)
           }
         })
       },
       asyncLoadTreeData (treeNode) {
         return new Promise((resolve) => {
-          if(!this.async){
+          if (!this.async) {
             resolve()
             return
           }
@@ -137,59 +137,59 @@
             resolve()
             return
           }
-          let pid = treeNode.$vnode.key
-          let param = {
-            pid:pid
+          const pid = treeNode.$vnode.key
+          const param = {
+            pid: pid
           }
-          getAction(this.url_children,param).then(res=>{
-            if(res.success){
+          getAction(this.url_children, param).then(res => {
+            if (res.success) {
               this.handleTreeNodeValue(res.result)
-              this.addChildren(pid,res.result,this.treeData)
+              this.addChildren(pid, res.result, this.treeData)
               this.treeData = [...this.treeData]
             }
             resolve()
           })
         })
       },
-      addChildren(pid,children,treeArray){
-        if(treeArray && treeArray.length>0){
-          for(let item of treeArray){
-            if(item.key == pid){
-              if(!children || children.length==0){
+      addChildren (pid, children, treeArray) {
+        if (treeArray && treeArray.length > 0) {
+          for (const item of treeArray) {
+            if (item.key == pid) {
+              if (!children || children.length == 0) {
                 item.leaf = true
-              }else{
+              } else {
                 item.children = children
               }
               break
-            }else{
-              this.addChildren(pid,children,item.children)
+            } else {
+              this.addChildren(pid, children, item.children)
             }
           }
         }
       },
-      handleTreeNodeValue(result){
-        let storeField = this.field=='code'?'code':'key'
-        for(let i of result){
+      handleTreeNodeValue (result) {
+        const storeField = this.field == 'code' ? 'code' : 'key'
+        for (const i of result) {
           i.value = i[storeField]
-          i.isLeaf = (!i.leaf)?false:true
-          if(i.children && i.children.length>0){
+          i.isLeaf = !(!i.leaf)
+          if (i.children && i.children.length > 0) {
             this.handleTreeNodeValue(i.children)
           }
         }
       },
-      onChange(value){
+      onChange (value) {
         console.log(value)
-        if(!value){
-          this.$emit('change', '');
-        }else{
-          this.$emit('change', value.value);
+        if (!value) {
+          this.$emit('change', '')
+        } else {
+          this.$emit('change', value.value)
         }
         this.treeValue = value
       },
-      onSearch(value){
+      onSearch (value) {
         console.log(value)
       },
-      getCurrTreeData(){
+      getCurrTreeData () {
         return this.treeData
       }
     }

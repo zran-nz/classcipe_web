@@ -128,18 +128,18 @@
                   </div>
                 </div>
               </template>
-              <template v-if='data.materialList && data.materialList.length'>
+              <template v-if="data.materialList && data.materialList.length">
                 <div class="block-main-label">
                   Material list
                 </div>
                 <div class="overview-block">
-                  <div class='material-list'>
-                    <div class='material-item' v-for='(material, mIndex) in data.materialList' :key='mIndex'>
-                      <div class='material-name'>
+                  <div class="material-list">
+                    <div class="material-item" v-for="(material, mIndex) in data.materialList" :key="mIndex">
+                      <div class="material-name">
                         {{ material.name }}
                       </div>
-                      <div class='material-link'>
-                        {{material.link}}
+                      <div class="material-link">
+                        {{ material.link }}
                       </div>
                     </div>
                   </div>
