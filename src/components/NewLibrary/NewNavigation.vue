@@ -100,10 +100,10 @@ export default {
       white-space: nowrap;
       cursor: pointer;
 
-      &:hover {
-        background-color: #eee;
-        border-radius: 5px;
-      }
+      //&:hover {
+      //  background-color: #eee;
+      //  border-radius: 5px;
+      //}
     }
   }
 }

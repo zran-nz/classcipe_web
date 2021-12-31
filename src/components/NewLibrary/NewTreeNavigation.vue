@@ -114,7 +114,7 @@ export default {
       this.$logger.info('NewTreeNavigation defaultActiveMenu ' + this.defaultActiveMenu)
       const curriculumData = {
         id: '1',
-        expandStatus: NavigationType.learningOutcomes === this.defaultActiveMenu,
+        expandStatus:false,
         type: NavigationType.learningOutcomes,
         name: skillCategory.length === 3 ? skillCategory[0] : 'Curriculum',
         children: [],
@@ -123,7 +123,7 @@ export default {
         backgroundColor: '#B1D1CC'
       }
       const sdgData = {
-        expandStatus: NavigationType.sdg === this.defaultActiveMenu,
+        expandStatus:false,
         type: NavigationType.sdg,
         name: 'Big ideas',
         children: [],
@@ -132,7 +132,7 @@ export default {
         backgroundColor: 'fade(@primary-color, 10%)'
       }
       const syncData = {
-        expandStatus: NavigationType.sync === this.defaultActiveMenu,
+        expandStatus:false,
         type: NavigationType.sync,
         name: 'Sync assessment objectives with linked content',
         children: [],
@@ -142,7 +142,7 @@ export default {
       }
       const all21CenturyData = {
         id: '1',
-        expandStatus: NavigationType.all21Century === this.defaultActiveMenu,
+        expandStatus:false,
         type: NavigationType.all21Century,
         name: 'all21Century',
         children: [],
@@ -212,7 +212,7 @@ export default {
           // Achievement objectives 是mainSubject-year-knowledge
           const specificSkillsData = {
             id: '3',
-            expandStatus: NavigationType.specificSkills === this.defaultActiveMenu,
+            expandStatus:false,
             type: NavigationType.specificSkills,
             name: skillCategory[1],
             children: [],
@@ -234,7 +234,7 @@ export default {
             // iduData 是year-idu list
             const iduData = {
               id: '6',
-              expandStatus: NavigationType.idu === this.defaultActiveMenu,
+              expandStatus:false,
               type: NavigationType.idu,
               name: 'Integrated Subject Skill',
               children: [],
@@ -273,7 +273,7 @@ export default {
           // 21 century skills 是year-knowledge
           const centurySkillsData = {
             id: '5',
-            expandStatus: NavigationType.centurySkills === this.defaultActiveMenu,
+            expandStatus:false,
             type: NavigationType.centurySkills,
             name: skillCategory[2],
             children: [],
@@ -298,7 +298,7 @@ export default {
           if (parseInt(this.defaultCurriculumId) === 2) {
             const nZKeyCompetenciesData = {
               id: '51',
-              expandStatus: NavigationType.NZKeyCompetencies === this.defaultActiveMenu,
+              expandStatus:false,
               type: NavigationType.NZKeyCompetencies,
               name: 'NZ-Key competencies',
               children: [],
@@ -318,7 +318,7 @@ export default {
           if (parseInt(this.defaultCurriculumId) === 1) {
             const aUGeneralCapabilities = {
               id: '52',
-              expandStatus: NavigationType.AUGeneralCapabilities === this.defaultActiveMenu,
+              expandStatus:false,
               type: NavigationType.AUGeneralCapabilities,
               name: 'AU-General capabilities',
               children: [],
