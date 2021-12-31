@@ -44,198 +44,200 @@
     </div>
     <div class="main">
       <div class="selected-content">
-        <div class="recommend-description" v-if="!isEmptyRecommend" >
-          <div class="recommend-title">
-            <h3>Recommended assessment objectives</h3>
+        <div class='main-content-list'>
+          <div class="recommend-description" v-if="!isEmptyRecommend" >
+            <div class="recommend-title">
+              <h3>Recommended assessment objectives</h3>
+            </div>
+            <div class="recommend-detail">
+              <div class="recommend-list" v-for="(recommendDataItem, rIndex) in recommendData" :key="rIndex">
+                <div class="recommend-from" :data-from-id="recommendDataItem.fromId">
+                  <h4>From <span class="from-type-name">{{ recommendDataItem.fromTypeName }}</span> : {{ recommendDataItem.fromName }}</h4>
+                </div>
+                <div
+                  :class="{'recommend-item': true, 'my-selected-item': selectedRecommendIdList.indexOf(recommendItem.knowledgeId) !== -1,
+                         'disabled-select-item': mySelectedIdList.indexOf(recommendItem.knowledgeId) !== -1}"
+                  v-for="(recommendItem, rI) in recommendDataItem.list"
+                  :key="'ri-' + rI"
+                  @click="handleAddRecommend(recommendItem)"
+                  :data-knowledge-id="recommendItem.knowledgeId"
+                  :data-selected-id-list="mySelectedIdList">
+                  <a-tooltip class="my-tooltip">
+                    <template slot="title">
+                      {{ recommendItem.path }}
+                    </template>
+                    <div class="select-block">
+                      <a-icon
+                        class="select-block-icon"
+                        type="border"
+                        v-if="selectedRecommendIdList.indexOf(recommendItem.knowledgeId) === -1"/>
+                      <div class="selected-icon" v-if="selectedRecommendIdList.indexOf(recommendItem.knowledgeId) !== -1">
+                        <img src="~@/assets/icons/lesson/selected.png"/>
+                      </div>
+                    </div>
+
+                    <div class="right-name">
+                      {{ recommendItem.name }}
+                    </div>
+                  </a-tooltip>
+                </div>
+              </div>
+            </div>
           </div>
-          <div class="recommend-detail">
-            <div class="recommend-list" v-for="(recommendDataItem, rIndex) in recommendData" :key="rIndex">
-              <div class="recommend-from" :data-from-id="recommendDataItem.fromId">
-                <h4>From <span class="from-type-name">{{ recommendDataItem.fromTypeName }}</span> : {{ recommendDataItem.fromName }}</h4>
+          <div class="selected-list">
+            <div class="content-list">
+              <div
+                :class="{'content-item': true, 'selected-line': true}"
+                v-for="(item, mIndex) in mySelectedList"
+                :key="'my-' + mIndex">
+                <div class="name">
+                  <div class="name-text">
+                    {{ item.name }}
+                  </div>
+                  <div class="action-icon">
+                    <img src="~@/assets/icons/lesson/selected.png"/>
+                  </div>
+                  <div class="action-icon-right" @click="handleRemoveMySelected(item)">
+                    <img src="~@/assets/icons/evaluation/delete.png"/>
+                  </div>
+                </div>
               </div>
               <div
-                :class="{'recommend-item': true, 'my-selected-item': selectedRecommendIdList.indexOf(recommendItem.knowledgeId) !== -1,
-                         'disabled-select-item': mySelectedIdList.indexOf(recommendItem.knowledgeId) !== -1}"
-                v-for="(recommendItem, rI) in recommendDataItem.list"
-                :key="'ri-' + rI"
-                @click="handleAddRecommend(recommendItem)"
-                :data-knowledge-id="recommendItem.knowledgeId"
-                :data-selected-id-list="mySelectedIdList">
-                <a-tooltip class="my-tooltip">
-                  <template slot="title">
-                    {{ recommendItem.path }}
-                  </template>
-                  <div class="select-block">
-                    <a-icon
-                      class="select-block-icon"
-                      type="border"
-                      v-if="selectedRecommendIdList.indexOf(recommendItem.knowledgeId) === -1"/>
-                    <div class="selected-icon" v-if="selectedRecommendIdList.indexOf(recommendItem.knowledgeId) !== -1">
-                      <img src="~@/assets/icons/lesson/selected.png"/>
-                    </div>
+                :class="{'content-item': true, 'selected-line': true}"
+                v-for="(item, kIndex) in selectedCurriculumList"
+                :key="'curr-' + kIndex">
+                <div class="name">
+                  <div class="name-text">
+                    {{ item.knowledgeData.name }}
                   </div>
-
-                  <div class="right-name">
-                    {{ recommendItem.name }}
+                  <div class="action-icon">
+                    <img src="~@/assets/icons/lesson/selected.png"/>
                   </div>
-                </a-tooltip>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="selected-list">
-          <div class="content-list">
-            <div
-              :class="{'content-item': true, 'selected-line': true}"
-              v-for="(item, mIndex) in mySelectedList"
-              :key="'my-' + mIndex">
-              <div class="name">
-                <div class="name-text">
-                  {{ item.name }}
-                </div>
-                <div class="action-icon">
-                  <img src="~@/assets/icons/lesson/selected.png"/>
-                </div>
-                <div class="action-icon-right" @click="handleRemoveMySelected(item)">
-                  <img src="~@/assets/icons/evaluation/delete.png"/>
+                  <div class="action-icon-right" @click="handleRemoveSelected(item)">
+                    <img src="~@/assets/icons/evaluation/delete.png"/>
+                  </div>
                 </div>
               </div>
-            </div>
-            <div
-              :class="{'content-item': true, 'selected-line': true}"
-              v-for="(item, kIndex) in selectedCurriculumList"
-              :key="'curr-' + kIndex">
-              <div class="name">
-                <div class="name-text">
-                  {{ item.knowledgeData.name }}
-                </div>
-                <div class="action-icon">
-                  <img src="~@/assets/icons/lesson/selected.png"/>
-                </div>
-                <div class="action-icon-right" @click="handleRemoveSelected(item)">
-                  <img src="~@/assets/icons/evaluation/delete.png"/>
-                </div>
-              </div>
-            </div>
-            <div
-              :class="{'content-item': true, 'selected-line': true}"
-              v-for="(item, sIndex) in selectedSubjectSpecificSkillList"
-              :key="'sub-' + sIndex">
-              <div class="name">
-                <div class="name-text">
-                  {{ item.knowledgeData.name }}
-                </div>
-                <div class="action-icon">
-                  <img src="~@/assets/icons/lesson/selected.png"/>
-                </div>
-                <div class="action-icon-right" @click="handleRemoveSelected(item)">
-                  <img src="~@/assets/icons/evaluation/delete.png"/>
+              <div
+                :class="{'content-item': true, 'selected-line': true}"
+                v-for="(item, sIndex) in selectedSubjectSpecificSkillList"
+                :key="'sub-' + sIndex">
+                <div class="name">
+                  <div class="name-text">
+                    {{ item.knowledgeData.name }}
+                  </div>
+                  <div class="action-icon">
+                    <img src="~@/assets/icons/lesson/selected.png"/>
+                  </div>
+                  <div class="action-icon-right" @click="handleRemoveSelected(item)">
+                    <img src="~@/assets/icons/evaluation/delete.png"/>
+                  </div>
                 </div>
               </div>
-            </div>
 
-            <div
-              :class="{'content-item': true, 'selected-line': true}"
-              v-for="(item, aIndex) in selectedAssessmentList"
-              :key="'assessment-' + aIndex">
-              <div class="name">
-                <div class="name-text">
-                  {{ item.knowledgeData.name }}
-                </div>
-                <div class="action-icon">
-                  <img src="~@/assets/icons/lesson/selected.png"/>
-                </div>
-                <div class="action-icon-right" @click="handleRemoveSelected(item)">
-                  <img src="~@/assets/icons/evaluation/delete.png"/>
-                </div>
-              </div>
-            </div>
-
-            <div
-              :class="{'content-item': true, 'selected-line': true}"
-              v-for="(item, aIndex) in selected21CenturySkillList"
-              :key="'21-' + aIndex">
-              <div class="name">
-                <div class="name-text">
-                  {{ item.knowledgeData.name }}
-                </div>
-                <div class="action-icon">
-                  <img src="~@/assets/icons/lesson/selected.png"/>
-                </div>
-                <div class="action-icon-right" @click="handleRemoveSelected(item)">
-                  <img src="~@/assets/icons/evaluation/delete.png"/>
+              <div
+                :class="{'content-item': true, 'selected-line': true}"
+                v-for="(item, aIndex) in selectedAssessmentList"
+                :key="'assessment-' + aIndex">
+                <div class="name">
+                  <div class="name-text">
+                    {{ item.knowledgeData.name }}
+                  </div>
+                  <div class="action-icon">
+                    <img src="~@/assets/icons/lesson/selected.png"/>
+                  </div>
+                  <div class="action-icon-right" @click="handleRemoveSelected(item)">
+                    <img src="~@/assets/icons/evaluation/delete.png"/>
+                  </div>
                 </div>
               </div>
-            </div>
 
-            <div
-              :class="{'content-item': true, 'selected-line': true, 'my-selected-item': mySelectedIdList.indexOf(item.bigIdea) !== -1}"
-              v-for="(item, aIndex) in selectedBigIdeaList"
-              :key="'big-' + aIndex">
-              <div class="name">
-                <div class="name-text">
-                  {{ item.bigIdea }}
-                </div>
-                <div class="action-icon">
-                  <img src="~@/assets/icons/lesson/selected.png"/>
-                </div>
-                <div class="action-icon-right" @click="handleRemoveSelected(item)">
-                  <img src="~@/assets/icons/evaluation/delete.png"/>
+              <div
+                :class="{'content-item': true, 'selected-line': true}"
+                v-for="(item, aIndex) in selected21CenturySkillList"
+                :key="'21-' + aIndex">
+                <div class="name">
+                  <div class="name-text">
+                    {{ item.knowledgeData.name }}
+                  </div>
+                  <div class="action-icon">
+                    <img src="~@/assets/icons/lesson/selected.png"/>
+                  </div>
+                  <div class="action-icon-right" @click="handleRemoveSelected(item)">
+                    <img src="~@/assets/icons/evaluation/delete.png"/>
+                  </div>
                 </div>
               </div>
-            </div>
 
-            <div
-              :class="{'content-item': true, 'selected-line': true}"
-              v-for="(item, aIndex) in selectedAll21CenturyList"
-              :key="'all-21-' + aIndex">
-              <div class="name">
-                <div class="name-text">
-                  {{ item.item.name }}
-                </div>
-                <div class="action-icon">
-                  <img src="~@/assets/icons/lesson/selected.png"/>
-                </div>
-                <div class="action-icon-right" @click="handleRemoveSelected(item)">
-                  <img src="~@/assets/icons/evaluation/delete.png"/>
+              <div
+                :class="{'content-item': true, 'selected-line': true, 'my-selected-item': mySelectedIdList.indexOf(item.bigIdea) !== -1}"
+                v-for="(item, aIndex) in selectedBigIdeaList"
+                :key="'big-' + aIndex">
+                <div class="name">
+                  <div class="name-text">
+                    {{ item.bigIdea }}
+                  </div>
+                  <div class="action-icon">
+                    <img src="~@/assets/icons/lesson/selected.png"/>
+                  </div>
+                  <div class="action-icon-right" @click="handleRemoveSelected(item)">
+                    <img src="~@/assets/icons/evaluation/delete.png"/>
+                  </div>
                 </div>
               </div>
-            </div>
 
-            <div
-              :class="{'content-item': true, 'selected-line': true}"
-              v-for="(item, aIndex) in selectedKnowledgeList"
-              :key="'sync-' + aIndex">
-              <div class="name">
-                <div class="name-text">
-                  {{ item.name }}
-                </div>
-                <div class="action-icon">
-                  <img src="~@/assets/icons/lesson/selected.png"/>
-                </div>
-                <div class="action-icon-right" @click="handleRemoveSelected(item)">
-                  <img src="~@/assets/icons/evaluation/delete.png"/>
+              <div
+                :class="{'content-item': true, 'selected-line': true}"
+                v-for="(item, aIndex) in selectedAll21CenturyList"
+                :key="'all-21-' + aIndex">
+                <div class="name">
+                  <div class="name-text">
+                    {{ item.item.name }}
+                  </div>
+                  <div class="action-icon">
+                    <img src="~@/assets/icons/lesson/selected.png"/>
+                  </div>
+                  <div class="action-icon-right" @click="handleRemoveSelected(item)">
+                    <img src="~@/assets/icons/evaluation/delete.png"/>
+                  </div>
                 </div>
               </div>
-            </div>
 
-            <div
-              :class="{'content-item': true, 'selected-line': true}"
-              v-for="(item, aIndex) in selectedIduList"
-              :key="'idu-' + aIndex">
-              <div class="name">
-                <div class="name-text">
-                  {{ item.knowledgeData.name }}
-                </div>
-                <div class="action-icon" >
-                  <img src="~@/assets/icons/lesson/selected.png"/>
-                </div>
-                <div class="action-icon-right" @click="handleRemoveSelected(item)">
-                  <img src="~@/assets/icons/evaluation/delete.png"/>
+              <div
+                :class="{'content-item': true, 'selected-line': true}"
+                v-for="(item, aIndex) in selectedKnowledgeList"
+                :key="'sync-' + aIndex">
+                <div class="name">
+                  <div class="name-text">
+                    {{ item.name }}
+                  </div>
+                  <div class="action-icon">
+                    <img src="~@/assets/icons/lesson/selected.png"/>
+                  </div>
+                  <div class="action-icon-right" @click="handleRemoveSelected(item)">
+                    <img src="~@/assets/icons/evaluation/delete.png"/>
+                  </div>
                 </div>
               </div>
-            </div>
 
+              <div
+                :class="{'content-item': true, 'selected-line': true}"
+                v-for="(item, aIndex) in selectedIduList"
+                :key="'idu-' + aIndex">
+                <div class="name">
+                  <div class="name-text">
+                    {{ item.knowledgeData.name }}
+                  </div>
+                  <div class="action-icon" >
+                    <img src="~@/assets/icons/lesson/selected.png"/>
+                  </div>
+                  <div class="action-icon-right" @click="handleRemoveSelected(item)">
+                    <img src="~@/assets/icons/evaluation/delete.png"/>
+                  </div>
+                </div>
+              </div>
+
+            </div>
           </div>
         </div>
         <div class="selected-toggle-mask" v-show="!expandedListFlag" @click="expandedListFlag = !expandedListFlag"></div>
@@ -563,6 +565,7 @@ export default {
     align-items: flex-start;
     position: relative;
     .selected-content {
+      position: relative;
       z-index: 100;
       padding-bottom: 50px;
       position: relative;
@@ -575,7 +578,6 @@ export default {
       .selected-list {
         padding: 10px 5px;
         z-index: 100;
-        min-height: 350px;
         overflow: scroll;
         .content-list {
           flex: 1;
@@ -725,11 +727,16 @@ export default {
       }
 
       .modal-ensure-action-line-center {
+        background: #fff;
         width: 100%;
         display: flex;
         justify-content: center;
         align-items: center;
         padding: 10px;
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
       }
     }
 
@@ -897,5 +904,10 @@ export default {
   color: #2DC9A4;
   font-weight: bold;
   display: inline-block;
+}
+
+.main-content-list {
+  height: 375px;
+  overflow-y: scroll;
 }
 </style>
