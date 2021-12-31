@@ -14,7 +14,8 @@ export const CollaborateStatus = {
   'invite': 0,
   'agree': 1,
   'apply': 2,
-  'disAgree': -1
+  'disAgree': -1, // 拒绝邀请
+  'refuse': -2 // 申请被拒绝
 }
 
 export const typeMap = {

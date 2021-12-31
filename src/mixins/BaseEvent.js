@@ -17,7 +17,8 @@ export const BaseEventMixin = {
       rightWidth: 600,
       leftWidth: 700,
       collaborate: {},
-      initCompleted: false
+      initCompleted: false,
+      needAlertSave: true
     }
   },
   created () {
@@ -33,6 +34,19 @@ export const BaseEventMixin = {
     window.removeEventListener('beforeunload', (e) => this.beforeunloadHandler(e))
   },
   computed: {
+    isOwner () {
+      if (!this.oldForm) {
+        return false
+      }
+      return this.$store.getters.userInfo.email === this.oldForm.createBy
+    },
+    isCollaborater () {
+      if (!this.collaborate.users) {
+        return false
+      }
+      const index = this.collaborate.users.findIndex(item => item.email === this.$store.getters.userInfo.email)
+      return index > -1
+    },
     showRightModule () {
       return function (module) {
         if (this.showModuleList.indexOf(module) > -1) {

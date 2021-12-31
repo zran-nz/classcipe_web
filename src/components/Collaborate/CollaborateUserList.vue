@@ -132,6 +132,9 @@
                     <span v-if="user.receiveStatus === 1 && user.agreeFlag === collaborateStatus.disAgree">
                       Not Accept
                     </span>
+                    <span v-if="user.receiveStatus === 1 && user.agreeFlag === collaborateStatus.refuse">
+                      Application was rejected
+                    </span>
                   </div>
                   <div class="action" >
                     <div slot="actions">

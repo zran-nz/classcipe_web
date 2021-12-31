@@ -1660,22 +1660,28 @@ export default {
     },
     beforeRouteLeave (to, from, next) {
       this.$logger.info('beforeRouteLeave', to, from, next)
-      if (this.initCompleted && JSON.stringify(this.form) !== JSON.stringify(this.oldForm)) {
-        this.$confirm({
-          title: 'Alert',
-          okText: 'Save',
-          cancelText: 'No',
-          content: 'Do you want to save the changes?',
-          onOk: function () {
-            // that.handleSaveTask()
-            setTimeout(() => {
+      // owner或者协同着可以save
+      var that = this
+      if (this.needAlertSave && (this.isOwner || this.isCollaborater)) {
+        if (this.initCompleted && JSON.stringify(this.form) !== JSON.stringify(this.oldForm)) {
+          this.$confirm({
+            title: 'Alert',
+            okText: 'Save',
+            cancelText: 'No',
+            content: 'Do you want to save the changes?',
+            onOk: function () {
+              that.handleSaveTask()
+              setTimeout(() => {
+                next()
+              }, 500)
+            },
+            onCancel () {
               next()
-            }, 500)
-          },
-          onCancel () {
-            next()
-          }
-        })
+            }
+          })
+        } else {
+          next()
+        }
       } else {
         next()
       }
@@ -1867,7 +1873,8 @@ export default {
         TaskAddOrUpdate(taskData).then((response) => {
           logger.info('TaskAddOrUpdate', response.result)
           if (response.success) {
-            this.restoreTask(response.result.id, false)
+            // this.restoreTask(response.result.id, false)
+            this.needAlertSave = false
             this.$message.success(this.$t('teacher.add-task.save-success'))
             if (window.history.length <= 1) {
               this.$router.push({ path: '/teacher/main/created-by-me' })
@@ -1904,6 +1911,7 @@ export default {
           }
           this.form.status = status
           this.$refs.commonFormHeader.publishing = false
+          this.oldForm = JSON.parse(JSON.stringify(this.form))
         })
       },
 

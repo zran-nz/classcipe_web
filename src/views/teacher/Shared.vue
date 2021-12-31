@@ -157,7 +157,7 @@
                       <!--  邀请未接受状态-->
                       <template v-if="item.receiveStatus === 0 ">
                         <!--  需要审批的情况-->
-                        <template v-if="item.link && item.link.approveFlag">
+                        <template v-if="item.linkUser !== 0 && item.link.approveFlag">
                           <div class="action-item-wrapper action-item-block-wrapper" >
                             <div class="session-btn content-list-action-btn" @click="handleApply(item)">
                               <div class="session-btn-text">Apply</div>
@@ -181,6 +181,12 @@
                       <!--  已接受拒绝状态-->
                       <template v-else>
                         <span v-if="item.agreeFlag === collaborateStatus.disAgree">
+                          <a-tag color="red">
+                            Not Accept
+                          </a-tag>
+                        </span>
+
+                        <span v-if="item.agreeFlag === collaborateStatus.refuse">
                           <a-tag color="red">
                             Application was rejected
                           </a-tag>
@@ -269,7 +275,7 @@
                   <!--  邀请未接受状态-->
                   <template v-if="item.receiveStatus === 0 ">
                     <!--  需要审批的情况-->
-                    <template v-if="item.link && item.link.approveFlag">
+                    <template v-if="item.linkUser !== 0 && item.link.approveFlag">
 
                       <div class="action-item action-item-center">
                         <div class="session-btn session-btn-left" @click.stop="handleApply(item)" >
@@ -279,11 +285,6 @@
                         </div>
                       </div>
 
-                      <div class="action-item-wrapper action-item-block-wrapper" >
-                        <div class="session-btn content-list-action-btn" @click="handleApply(item)">
-                          <div class="session-btn-text">Apply</div>
-                        </div>
-                      </div>
                     </template>
                     <template v-else>
                       <div class="action-item action-item-center">

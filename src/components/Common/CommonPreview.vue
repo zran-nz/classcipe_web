@@ -22,17 +22,24 @@
             <div class="name">
               {{ data.name }}
             </div>
-            <div v-if="canEdit" class="action-item">
+            <div class="action-item">
               <div class="star">
                 <template v-if="data.createBy !== $store.getters.userInfo.email">
                   <img src="~@/assets/icons/common/preview/star_gray.png" @click="handleFavorite(data)" v-if="!data.isFavorite"/>
                   <img src="~@/assets/icons/common/preview/star_yellow.png" @click="handleFavorite(data)" v-if="data.isFavorite"/>
                 </template>
               </div>
-              <div class="edit" v-if="permissionEdit">
+              <div class="edit" v-if="isOwner || isCollaborater">
                 <a-button type="primary" shape="round" @click="handleEditItem(data)">
                   <div class="button-content" >
                     Edit <img class="edit-icon" src="~@/assets/icons/common/preview/edit_white.png" />
+                  </div>
+                </a-button>
+              </div>
+              <div class="edit" v-else>
+                <a-button :loading="copyLoading" class="copy-button" type="primary" shape="round" @click="handleDuplicateItem">
+                  <div class="button-content" >
+                    Copy <a-icon type="copy" style="margin-left: 6px;"/>
                   </div>
                 </a-button>
               </div>
@@ -390,13 +397,13 @@ import { PptPreviewMixin } from '@/mixins/PptPreviewMixin'
 import MediaPreview from '@/components/Task/MediaPreview'
 import TaskMaterialPreview from '@/components/Task/TaskMaterialPreview'
 import UiLearnOutSub from '@/components/UnitPlan/UiLearnOutSub'
+import { BaseEventMixin } from '@/mixins/BaseEvent'
+import { Duplicate } from '@/api/teacher'
 const { formatLocalUTC } = require('@/utils/util')
 const { UnitPlanQueryById } = require('@/api/unitPlan')
-const { LessonQueryById } = require('@/api/myLesson')
 const { TaskQueryById } = require('@/api/task')
 const { EvaluationQueryById } = require('@/api/evaluation')
 const { FavoritesAdd } = require('@/api/favorites')
-const { TopicQueryById } = require('@/api/topic')
 
 export default {
   name: 'CommonPreview',
@@ -428,7 +435,7 @@ export default {
       default: false
     }
   },
-  mixins: [PptPreviewMixin],
+  mixins: [PptPreviewMixin, BaseEventMixin],
   computed: {
     lastChangeSavedTime () {
       if (this.data) {
@@ -448,6 +455,7 @@ export default {
     return {
       loading: true,
       slideLoading: false,
+      copyLoading: false,
       data: null,
       imgList: [],
       viewMode: 'Detail',
@@ -465,18 +473,11 @@ export default {
       typeMap: typeMap,
 
       subPreviewVisible: false,
-      currentImgIndex: 0,
-      permissionEdit: true
+      currentImgIndex: 0
     }
   },
   created () {
     logger.info('CommonPreview id ' + this.id + ' type ' + this.type)
-    if (this.type === this.typeMap['unit-plan'] && this.$store.getters.currentRole === 'expert') {
-      this.permissionEdit = false
-    }
-    if (this.type === this.typeMap.topic && this.$store.getters.currentRole === 'teacher') {
-      this.permissionEdit = false
-    }
     this.loadData()
   },
   methods: {
@@ -489,11 +490,13 @@ export default {
         }).then(response => {
           logger.info('UnitPlanQueryById ' + this.id, response.result)
           this.data = response.result
+          this.oldForm = this.data
           if (this.data && this.data.image) {
             this.imgList = [this.data.image]
           }
         }).finally(() => {
           this.loading = false
+          this.queryContentCollaborates(this.id, this.type)
         })
       } else if (this.type === this.typeMap.task) {
         TaskQueryById({
@@ -501,23 +504,13 @@ export default {
         }).then(response => {
           logger.info('TaskQueryById ' + this.id, response.result)
           this.data = response.result
-        }).finally(() => {
           this.loading = false
+          this.oldForm = this.data
+          this.queryContentCollaborates(this.id, this.type)
           this.loadThumbnail()
           if (this.data.presentationId) {
             this.getClassInfo(this.data.presentationId)
           }
-        })
-      } else if (this.type === this.typeMap.lesson) {
-        LessonQueryById({
-          id: this.id
-        }).then(response => {
-          logger.info('LessonQueryById ' + this.id, response.result)
-          this.data = response.result
-          this.data.questions = [response.result.suggestingTag]
-        }).finally(() => {
-          this.loading = false
-          this.loadThumbnail()
         })
       } else if (this.type === this.typeMap.evaluation) {
         EvaluationQueryById({
@@ -525,23 +518,13 @@ export default {
         }).then(response => {
           logger.info('EvaluationQueryById ' + this.id, response.result)
           this.data = response.result
+          this.oldForm = this.data
           if (this.data && this.data.image) {
             this.imgList = [this.data.image]
           }
         }).finally(() => {
           this.loading = false
-        })
-      } else if (this.type === this.typeMap.topic) {
-        TopicQueryById({
-          id: this.id
-        }).then(response => {
-          logger.info('TopicQueryById ' + this.id, response.result)
-          this.data = response.result
-          if (this.data && this.data.image) {
-            this.imgList = [this.data.image]
-          }
-        }).finally(() => {
-          this.loading = false
+          this.queryContentCollaborates(this.id, this.type)
         })
       }
     },
@@ -642,6 +625,24 @@ export default {
         window.open('/teacher/evaluation-redirect/' + item.id
           , '_blank')
       }
+    },
+    handleDuplicateItem () {
+      this.$logger.info('handleDuplicateItem', this.data)
+      this.$confirm({
+        title: 'Confirm copy',
+        content: 'Are you sure to copy ' + this.data.name + ' ?',
+        centered: true,
+        onOk: () => {
+          this.copyLoading = true
+            Duplicate({ id: this.id, type: this.type }).then((response) => {
+            this.$logger.info('Duplicate response', response)
+            this.$message.success('Copy successfully')
+          }).finally(() => {
+            this.copyLoading = false
+            this.$router.push({ path: '/teacher/main/created-by-me' })
+          })
+        }
+      })
     }
   }
 }
@@ -701,6 +702,11 @@ export default {
               padding-left: 5px;
               width: 18px;
             }
+          }
+          .copy-button{
+            display: flex;
+            flex-direction: row;
+            align-items: center;
           }
         }
       }
