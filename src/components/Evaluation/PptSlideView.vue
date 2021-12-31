@@ -107,24 +107,27 @@
               </div>
 
               <div class="img-item-list" v-if="slideItem.material && slideItem.material.hasOwnProperty('image')" @click.stop="">
-                <div class="img-item" v-for="(imgItem, index) in slideItem.material.image" :key="index">
-                  <img :src="imgItem.src" preview="0"/>
-                  <div class="view-item" >View <a-icon type="eye" /></div>
+                <div class="img-item" v-for="(imgItem, index) in slideItem.material.image" :key="index" @click.stop=''>
+                  <div :style="{'background-image': 'url(' + imgItem.url + ')'}" class='img-cover'/>
+                  <div class="view-item" @click.stop='handleViewItem(imgItem.url)'>View <a-icon type="eye" /></div>
                 </div>
               </div>
 
-              <div class="audio-item-list" v-if="slideItem.material && slideItem.material.hasOwnProperty('image')">
-                <div class="audio-item">
-                  <img src="~@/assets/evaluation/evidence/expand.png">
-                  <div class="">
-
+              <div class="audio-item-list" v-if="slideItem.material && slideItem.material.hasOwnProperty('audio')">
+                <div class="audio-item" v-for="(audioItem, index) in slideItem.material.audio" :key="index" @click.stop=''>
+                  <img src="~@/assets/evaluation/evidence/audio.png" class='img-icon'>
+                  <div class="audio-view">
+                    <audio controls :src='audioItem.url' />
                   </div>
                 </div>
               </div>
 
-              <div class="video-item-list" v-if="slideItem.material && slideItem.material.hasOwnProperty('image')">
-                <div class="video-item">
-
+              <div class="video-item-list" v-if="slideItem.material && slideItem.material.hasOwnProperty('video')">
+                <div class="video-item" v-for="(videoItem, index) in slideItem.material.video" :key="index" @click.stop=''>
+                  <img src="~@/assets/evaluation/evidence/video.png" class='img-icon'>
+                  <div class="video-view">
+                    <video controls :src='videoItem.url' />
+                  </div>
                 </div>
               </div>
 
@@ -299,12 +302,17 @@
 <script>
 
 import { GetStudentResponse } from '@/api/lesson'
-import { QuerySessionEvaluation } from '@/api/evaluation'
+import { QuerySessionEvaluation, SaveSessionEvaluation } from '@/api/evaluation'
 import { TemplatesGetPresentation } from '@/api/template'
 import EvaluationTableMode from '@/components/Evaluation/EvaluationTableMode'
 import StudentIcon from '@/assets/svgIcon/evaluation/StudentIcon.svg?inline'
 import TeacherIcon from '@/assets/svgIcon/evaluation/TeacherIcon.svg?inline'
-import { QueryByClassInfoSlideId } from '@/api/classroom'
+import {
+  QueryByClassInfoSlideId,
+  QueryCommentsByClassId,
+  QueryPresentationCommentsByClassId,
+  QueryResponseByClassId
+} from '@/api/classroom'
 import MediaPreview from '@/components/Task/MediaPreview'
 import TaskMaterialPreview from '@/components/Task/TaskMaterialPreview'
 
@@ -345,6 +353,10 @@ export default {
       required: true
     },
     formId: {
+      type: String,
+      default: null
+    },
+    rowId: {
       type: String,
       default: null
     },
@@ -410,11 +422,17 @@ export default {
       Promise.all([
         TemplatesGetPresentation({ presentationId: this.slideId }),
         QueryByClassInfoSlideId({ slideId: this.slideId }),
-        QuerySessionEvaluation({ classId: this.classId, evaluationId: this.formId })
+        QuerySessionEvaluation({ classId: this.classId, formId: this.formId, rowId: this.rowId }),
+        QueryResponseByClassId({ classId: this.classId })
       ]).then(response => {
         this.$logger.info('加载PPT数据 response', response)
         if (response[2].result) {
-          this.$logger.info('使用历史评估数据', response[3].result)
+          this.$logger.info('使用历史评估数据')
+          const data = JSON.parse(response[2].result)
+          this.slideDataList = data.slideDataList
+          this.elementsList = data.elementsList
+          this.itemsList = data.itemsList
+          this.$logger.info('使用历史评估数据 this.slideDataList', this.slideDataList, ' this.elementsList', this.elementsList, ' this.itemsList', this.itemsList)
         } else {
           const pageObjects = response[0].result.pageObjects
           if (pageObjects.length) {
@@ -430,11 +448,11 @@ export default {
             this.loading = false
             this.$logger.info('loaded data', this.imgList, this.commentData)
           }
-        }
 
-        if (response[1].success) {
-          this.elementsList = response[1].result.relements
-          this.itemsList = response[1].result.items
+          if (response[1].success) {
+            this.elementsList = response[1].result.relements
+            this.itemsList = response[1].result.items
+          }
         }
       })
     },
@@ -570,7 +588,28 @@ export default {
 
     handleEnsureEvidence () {
       this.$logger.info('handleEnsureEvidence ' + this.mode, this.mode === EvaluationTableMode.TeacherEvaluate ? this.selectedSlidePageIdList : this.selectedStudentSlidePageIdList)
-      this.$emit('ensure-evidence-finish', { mode: this.mode, data: this.mode === EvaluationTableMode.TeacherEvaluate ? this.selectedSlidePageIdList : this.selectedStudentSlidePageIdList })
+
+      const data = {
+        slideDataList: this.slideDataList,
+        elementsList: this.elementsList,
+        itemsList: this.itemsList
+      }
+      this.$logger.info('保存evaluation数据', data)
+      SaveSessionEvaluation({
+        classId: this.classId,
+        formId: this.formId,
+        rowId: this.rowId,
+        result: JSON.stringify(data)
+      }).then(() => {
+        this.$emit('ensure-evidence-finish', {
+          mode: this.mode,
+          data: this.mode === EvaluationTableMode.TeacherEvaluate ? this.selectedSlidePageIdList : this.selectedStudentSlidePageIdList,
+          row: this.rowId,
+          formId: this.formId,
+          slideDataList: JSON.stringify(this.slideDataList)
+        })
+      })
+
     },
 
     handleAddComment (data) {
@@ -587,6 +626,10 @@ export default {
       this.$logger.info('handleViewExpand', slideItem)
       this.currentViewSlideItem = slideItem
       this.viewSlideItemVisible = true
+    },
+
+    handleViewItem (url) {
+      window.open(url, '_blank')
     }
   }
 }
@@ -1117,20 +1160,92 @@ export default {
 }
 
 .img-item-list {
+  margin: 5px 0;
   .img-item {
     display: flex;
     flex-direction: row;
     align-items: center;
-    justify-content: center;
+    justify-content: flex-start;
+    margin: 10px 0;
 
-    img {
-      width: 100px;
+    .img-cover {
+      width: 120px;
+      height: 100px;
+      border: 1px solid #f6f6f6;
+      background-size: cover;
+      background-position: center center;
+      background-repeat: no-repeat;
     }
 
     .view-item {
+      cursor: pointer;
       color: #2DC9A4;
-      font-size: 12px;
+      font-family: Inter-Bold;
+      text-decoration: underline;
+      padding-left: 10px;
+      font-size: 13px;
     }
   }
 }
+
+.audio-item-list {
+  margin: 5px 0;
+  .audio-item {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+    margin: 10px 0;
+    padding: 5px 0;
+
+    .img-icon {
+      width: 35px;
+      height: 35px;
+    }
+
+    .audio-view {
+      width: 100%;
+      padding-left: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+      cursor: pointer;
+      audio {
+        width: 80%;
+        height: 30px;
+      }
+    }
+  }
+}
+
+.video-item-list {
+  padding: 10px 0;
+  .video-item {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    justify-content: flex-start;
+    margin: 10px 0;
+    padding: 5px 0;
+
+    .img-icon {
+      width: 35px;
+      height: 35px;
+    }
+
+    .video-view {
+      padding-left: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+      cursor: pointer;
+      video {
+        width: 250px;
+        height: 200px;
+      }
+    }
+  }
+}
+
+
 </style>

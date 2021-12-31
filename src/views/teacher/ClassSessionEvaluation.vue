@@ -450,9 +450,10 @@
           <ppt-slide-view
             :selected-id-list="currentEvidenceItem.evidence.selectedList"
             :selected-id-student-list="currentEvidenceItem.evidence.selectedStudentList"
+            :row-id='currentEvidenceItem.rowId'
             :form-id="currentActiveFormId"
             class-id="a7546d95"
-            slide-id="1MnwiWnrA64NTTsYD15XH0jqZan99XkYu1NLmJtgG6ik"
+            slide-id="1jml7tIRREXr9sqm0YvDQtUdN7ZSgMNDVcPnG_ErMJSc"
             :mode="mode"
             @ensure-evidence-finish="handleEnsureEvidenceFinish"
             @add-evidence-finish="handleAddEvidenceFinish"/>
