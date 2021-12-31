@@ -426,7 +426,7 @@ export default {
         this.$logger.info('加载PPT数据 response', response)
         if (response[2].result) {
           this.$logger.info('使用历史评估数据')
-          const data = JSON.parse(response[2].result)
+          const data = JSON.parse(response[2].result.result)
           this.slideDataList = data.slideDataList
           this.elementsList = data.elementsList
           this.itemsList = data.itemsList
