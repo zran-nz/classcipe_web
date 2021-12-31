@@ -32,10 +32,10 @@ export const UtilMixin = {
         const week = Math.abs(parseInt(this.rangeDate[0].diff(this.rangeDate[1], 'days') / 7))
         const day = Math.abs(this.rangeDate[0].diff(this.rangeDate[1], 'days')) % 7
         if (week > 0) {
-          str += (week + ' weeks ')
+          str += ((week > 1) ? week + ' weeks ' : week + ' week ')
         }
         if (day > 0) {
-          str += (day + ' days')
+          str += ((day > 1) ? day + ' days ' : day + ' day ')
         }
         return str
       } else {
