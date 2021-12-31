@@ -87,7 +87,7 @@
           </div>
           <div class="slide-response">
             <div class="data-list">
-              <div class="data-item">
+              <div class="data-item" v-if="slideItem.commentList.length">
                 <div class="comment-bg">
                   <img :src="slideItem.contentUrl" class="cover">
                   <img src="~@/assets/evaluation/evidence/expand.png" class="expand-icon" @click.stop="handleViewExpand(slideItem)"/>
@@ -115,11 +115,6 @@
                       <a-radio :checked="optionItem.isAnswer">{{ optionItem.text }}</a-radio>
                       <span class="correct-option" v-if="optionItem.isAnswer">Correct answer</span>
                     </div>
-                  </div>
-                </template>
-                <template v-if="data">
-                  <div class="point-data" @click.stop="">
-                    {{ data }}
                   </div>
                 </template>
               </div>

@@ -3,7 +3,8 @@
     <div class="slide-cover">
       <img :src="slideItem.contentUrl" class="cover">
       <div
-        class="dot-item"
+        :class="{'dot-item': true,
+                 'heartbeat': currentActiveId === item.link + '_' + item.time}"
         @click="handleActiveItem(item)"
         @mouseover="handleActiveItem(item)"
         v-for="(item, index) in slideItem.commentList"
@@ -18,22 +19,32 @@
       </div>
     </div>
     <div class="slide-dot-list">
-      <div class="dot-item" v-for="(item, index) in slideItem.commentList" :key="index" @click="handleActiveItem(item)">
+      <div
+        :id="'dot-item-' + item.link + '_' + item.time"
+        :class="{'dot-item': true,
+                 'active-dot-item': currentActiveId === item.link + '_' + item.time,
+                 'in-active-dot-item': currentActiveId !== item.link + '_' + item.time}"
+        v-for="(item, index) in slideItem.commentList"
+        :key="index"
+        @mouseover="handleActiveItem(item)"
+        @click="handleActiveItem(item)">
         <div class="author-profile">
-          <div class="avatar"></div>
+          <div class="avatar">
+            <span class="avatar-user">{{ item.user_id ? item.user_id.slice(0, 1).toUpperCase() : 'C' }}</span>
+          </div>
           <div class="profile">
             <div class="author-name">{{ item.user_id }}</div>
-            <div class="author-time">{{ item.time | formatDate }}</div>
+            <div class="author-time">{{ item.time * 1000 | formatDate }}</div>
           </div>
         </div>
-        <div class="dot-detail">
-          <div v-if="item.type === 'audio'" :class="{'audio-item': true, 'active-dot-item': currentActiveId === item.id, 'in-active-dot-item': currentActiveId !== item.id}">
-            <audio :src="item.link" />
+        <div class="dot-detail" :data-item="JSON.stringify(item)">
+          <div v-if="item.type === 'audio'" :class="{'audio-item': true}">
+            <audio controls :src="item.link" />
           </div>
-          <div v-if="item.type === 'video'" :class="{'video-item': true, 'active-dot-item': currentActiveId === item.id, 'in-active-dot-item': currentActiveId !== item.id}">
-            <video :src="item.link" />
+          <div v-if="item.type === 'video'" :class="{'video-item': true}">
+            <video controls :src="item.link" />
           </div>
-          <div v-if="item.type === 'text'" :class="{'text-item': true, 'active-dot-item': currentActiveId === item.id, 'in-active-dot-item': currentActiveId !== item.id}">
+          <div v-if="item.type === 'text'" :class="{'text-item': true}">
             {{ item.link }}
           </div>
         </div>
@@ -61,10 +72,14 @@ export default {
   },
   methods: {
     handleActiveItem (item) {
-      if (this.currentActiveId === item.id) {
-        this.currentActiveId = null
-      } else {
-        this.currentActiveId = item.id
+      this.$logger.info('SlidePreview handleActiveItem', item)
+      this.currentActiveId = item.link + '_' + item.time
+      const domId = 'dot-item-' + item.link + '_' + item.time
+      const dom = document.getElementById(domId)
+      if (dom) {
+        dom.scrollIntoView({
+          behavior: 'smooth'
+        })
       }
     }
   }
@@ -88,14 +103,9 @@ export default {
     }
 
     .dot-item {
-      opacity: 0;
       width: 30px;
       height: 30px;
       border-radius: 30px;
-
-      &:hover {
-        opacity: 1;
-      }
     }
   }
   .slide-dot-list {
@@ -128,4 +138,108 @@ export default {
     }
   }
 }
+
+.in-active-dot-item {
+  opacity: 0.3;
+}
+
+.active-dot-item {
+  opacity: 1;
+}
+
+.dot-item {
+  cursor: pointer;
+  margin: 10px 0;
+  box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.16);
+
+  .author-profile {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+    background: #2DC9A4;
+    padding: 5px 0;
+    .avatar {
+      margin-left: 10px;
+      width: 30px;
+      height: 30px;
+      border-radius: 30px;
+      padding: 3px;
+      background: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      .avatar-user {
+        font-weight: bold;
+        font-size: 18px;
+        color: #2DC9A4;
+      }
+    }
+    .profile {
+      margin-left: 10px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: flex-start;
+      color: #fff;
+      .author-name {
+        font-weight: bold;
+        font-size: 14px;
+      }
+      .author-time {
+        font-size: 12px;
+      }
+    }
+  }
+
+  .dot-detail {
+
+    .text-item {
+      padding: 5px 10px;
+    }
+
+    .video-item {
+      video {
+        width: 226px;
+      }
+    }
+
+    .audio-item {
+      padding: 10px 5px;
+      audio {
+        height: 30px;
+        width: 226px;
+      }
+    }
+  }
+}
+
+.heartbeat {
+  animation: breathing 0.8s ease-out infinite normal;
+}
+
+@keyframes breathing {
+  0% {
+    opacity: 1;
+  }
+
+  25% {
+
+    opacity: 0.7;
+  }
+
+  50% {
+
+    opacity: 0.2;
+  }
+
+  75% {
+    opacity: 0.7;
+  }
+
+  100% {
+    opacity: 1;
+  }
+}
+
 </style>
