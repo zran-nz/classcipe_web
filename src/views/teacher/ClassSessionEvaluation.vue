@@ -452,8 +452,8 @@
             :selected-id-student-list="currentEvidenceItem.evidence.selectedStudentList"
             :row-id='currentEvidenceItem.rowId'
             :form-id="currentActiveFormId"
-            class-id="a7546d95"
-            slide-id="1jml7tIRREXr9sqm0YvDQtUdN7ZSgMNDVcPnG_ErMJSc"
+            :class-id="classId"
+            :slide-id="classInfo.slideId"
             :mode="mode"
             @ensure-evidence-finish="handleEnsureEvidenceFinish"
             @add-evidence-finish="handleAddEvidenceFinish"/>
@@ -516,7 +516,7 @@ export default {
     },
     mode: {
       type: String,
-      default: EvaluationTableMode.Edit
+      default: EvaluationTableMode.TeacherEvaluate
     }
   },
   computed: {

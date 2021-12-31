@@ -37,8 +37,8 @@
           <div class="slide-img">
             <img :src="slideItem.contentUrl" :data-url="slideItem.contentUrl" @click="handleClickImg($event)">
             <div class="top-icon-groups">
-              <a-col class="material-row" >
-                <div class="icon-group" v-if="Object.keys(slideItem.material).length > 0">
+              <a-col class="material-row" v-if="Object.keys(slideItem.material).length > 0">
+                <div class="icon-group">
                   <a-badge :count="slideItem.material['text'] ? slideItem.material['text'].length : 0" v-if="slideItem.material.hasOwnProperty('text')">
                     <div class="icon" @click="showPluginMaterial(slideItem,'text')">
                       <text-type-svg />
@@ -418,7 +418,7 @@ export default {
   methods: {
     loadData () {
       this.loading = true
-      this.$logger.info('加载PPT数据 ' + this.classId + ' slideId ' + this.slideId)
+      this.$logger.info('加载PPT数据 ' + this.classId + ' slideId ' + this.slideId + ' formId' + this.formId + ' rowId ' + this.rowId)
       Promise.all([
         TemplatesGetPresentation({ presentationId: this.slideId }),
         QueryByClassInfoSlideId({ slideId: this.slideId }),
