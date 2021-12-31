@@ -88,9 +88,21 @@
           <div class="slide-response">
             <div class="data-list">
               <div class="data-item" v-if="slideItem.commentList.length">
-                <div class="comment-bg">
+                <div class="comment-bg" @click.stop="">
                   <img :src="slideItem.contentUrl" class="cover">
                   <img src="~@/assets/evaluation/evidence/expand.png" class="expand-icon" @click.stop="handleViewExpand(slideItem)"/>
+                  <div
+                    class="dot-item"
+                    v-for="(item, index) in slideItem.commentList"
+                    :key="index"
+                    :style="{
+                      position: 'absolute',
+                      border: '2px solid #aaa',
+                      backgroundColor: item.background,
+                      left: ((item.left / item.content_width) * 280) + 'px',
+                      top: ((item.top / item.content_height) * 160) + 'px',
+                    }">
+                  </div>
                 </div>
               </div>
 
@@ -678,6 +690,11 @@ export default {
                 width: 100%;
                 img.cover {
                   width: 285px;
+                }
+                .dot-item {
+                  width: 15px;
+                  height: 15px;
+                  border-radius: 15px;
                 }
 
                 .expand-icon {
