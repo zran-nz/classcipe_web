@@ -1662,7 +1662,7 @@ export default {
       this.$logger.info('beforeRouteLeave', to, from, next)
       // owner或者协同着可以save
       var that = this
-      if (this.needAlertSave && (this.isOwner || this.isCollaborater)) {
+      if (this.isOwner || this.isCollaborater) {
         if (this.initCompleted && JSON.stringify(this.form) !== JSON.stringify(this.oldForm)) {
           this.$confirm({
             title: 'Alert',
@@ -1874,13 +1874,9 @@ export default {
           logger.info('TaskAddOrUpdate', response.result)
           if (response.success) {
             // this.restoreTask(response.result.id, false)
-            this.needAlertSave = false
+            this.oldForm = JSON.parse(JSON.stringify(this.form))
             this.$message.success(this.$t('teacher.add-task.save-success'))
-            if (window.history.length <= 1) {
-              this.$router.push({ path: '/teacher/main/created-by-me' })
-            } else {
-              this.$router.go(-1)
-            }
+            this.$router.push({ path: '/teacher/main/created-by-me' })
             // this.selectedSlideVisibleFromSave = true
           } else {
             this.$message.error(response.message)

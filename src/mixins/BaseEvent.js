@@ -17,8 +17,7 @@ export const BaseEventMixin = {
       rightWidth: 600,
       leftWidth: 700,
       collaborate: {},
-      initCompleted: false,
-      needAlertSave: true
+      initCompleted: false
     }
   },
   created () {

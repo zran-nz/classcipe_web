@@ -250,7 +250,9 @@ export default {
   methods: {
     handleBack () {
       this.$logger.info('handleBack')
-      if (this.isCollaborater) {
+      if (this.isOwner) {
+        this.$router.push({ path: '/teacher/main/created-by-me' })
+      } else if (this.isCollaborater) {
         this.$router.push({ path: '/teacher/main/shared' })
       } else {
         this.$router.push({ path: '/teacher/main/created-by-me' })

@@ -934,7 +934,7 @@ export default {
   },
   beforeRouteLeave (to, from, next) {
     var that = this
-    if (this.needAlertSave && (this.isOwner || this.isCollaborater)) {
+    if (this.isOwner || this.isCollaborater) {
       if (this.initCompleted && JSON.stringify(this.form) !== JSON.stringify(this.oldForm)) {
         this.$confirm({
           title: 'Alert',
