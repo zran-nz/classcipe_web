@@ -4,7 +4,7 @@
       <common-form-header
         ref="commonFormHeader"
         :form="form"
-        :collaborates-users="collaborate.users"
+        :collaborate="collaborate"
         :last-change-saved-time="lastChangeSavedTime"
         :hidden-right-button="mode === 'pick-task-slide'"
         @view-collaborate="handleViewCollaborate"
@@ -1876,7 +1876,8 @@ export default {
             // this.restoreTask(response.result.id, false)
             this.oldForm = JSON.parse(JSON.stringify(this.form))
             this.$message.success(this.$t('teacher.add-task.save-success'))
-            this.$router.push({ path: '/teacher/main/created-by-me' })
+            this.handleBack()
+            // this.$router.push({ path: '/teacher/main/created-by-me' })
             // this.selectedSlideVisibleFromSave = true
           } else {
             this.$message.error(response.message)
@@ -1934,7 +1935,7 @@ export default {
       },
 
       goBack () {
-        this.$router.push({ path: '/teacher/main/created-by-me' })
+        // this.$router.push({ path: '/teacher/main/created-by-me' })
       },
 
       handleShowSelectMyContent () {

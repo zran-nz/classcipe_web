@@ -70,14 +70,16 @@
           >
             <a-list-item class="my-list-item" slot="renderItem" key="item.key" slot-scope="item">
 
-              <span class="content-info-left" @click="handleViewDetail(item.content)">
-                <content-type-icon :type="item.content.type" />
+              <a-tooltip :title="item.message">
+                <span class="content-info-left" @click="handleViewDetail(item.content)">
+                  <content-type-icon :type="item.content.type" />
 
-                <span class="name-content">
-                  {{ item.content.name ? item.content.name : 'Unnamed' }}
+                  <span class="name-content">
+                    {{ item.content.name ? item.content.name : 'Unnamed' }}
+                  </span>
+
                 </span>
-
-              </span>
+              </a-tooltip>
 
               <span class="content-info-right">
 
@@ -1292,7 +1294,8 @@
           }
 
           &:hover {
-            box-shadow: 3px 3px 3px rgba(0, 0, 0, 0.10);
+            //box-shadow: 3px 3px 3px rgba(0, 0, 0, 0.10);
+            border: 1px solid #15C39A;
             .action-wrapper {
               .action-item-wrapper {
                 display: flex;

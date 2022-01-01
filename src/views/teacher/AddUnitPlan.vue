@@ -4,7 +4,7 @@
       <common-form-header
         ref="commonFormHeader"
         :form="form"
-        :collaborates-users="collaborate.users"
+        :collaborate="collaborate"
         :last-change-saved-time="lastChangeSavedTime"
         @view-collaborate="handleViewCollaborate"
         @back="goBack"
@@ -1316,7 +1316,7 @@ export default {
           this.oldForm = JSON.parse(JSON.stringify(this.form))
           // this.restoreUnitPlan(response.result.id, false)
           this.$message.success(this.$t('teacher.add-unit-plan.save-success'))
-          this.$router.push({ path: '/teacher/main/created-by-me' })
+          this.handleBack()
         } else {
           this.$message.error(response.message)
         }

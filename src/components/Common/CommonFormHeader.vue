@@ -51,6 +51,9 @@
               <a-avatar size="small" class="user-item" :src="user.userAvatar" />
             </a-tooltip>
           </div>
+          <a-tooltip :title="owner.email" placement="bottom" v-if="owner && !isOwner && isCollaborater">
+            <a-avatar size="small" class="user-item" :src="owner.avatar" />
+          </a-tooltip>
         </div>
         <a-tooltip title="Collaborate" v-show="isOwner">
           <div class="collaborate-comment" @click="handleStartCollaborate">
@@ -190,11 +193,9 @@ export default {
       type: Object,
       default: () => null
     },
-    collaboratesUsers: {
-      type: Array,
-      default: () => {
-        return []
-      }
+    collaborate: {
+      type: Object,
+      default: () => null
     },
     lastChangeSavedTime: {
       type: String,
@@ -216,7 +217,8 @@ export default {
       typeMap: typeMap,
       editFormNameMode: false,
       formName: '',
-      collaborateUserList: []
+      collaborateUserList: [],
+      owner: {}
     }
   },
   computed: {
@@ -236,8 +238,9 @@ export default {
     }
   },
   watch: {
-    collaboratesUsers (val) {
-      this.collaborateUserList = val
+    collaborate (val) {
+      this.collaborateUserList = val.users
+      this.owner = val.owner
     }
   },
   created () {
@@ -245,7 +248,8 @@ export default {
     if (this.form && this.form.name) {
       this.formName = this.form.name
     }
-    this.collaborateUserList = this.collaboratesUsers
+    this.collaborateUserList = this.collaborate.users ? this.collaborate.users : []
+    this.owner = this.collaborate.owner
   },
   methods: {
     handleBack () {
