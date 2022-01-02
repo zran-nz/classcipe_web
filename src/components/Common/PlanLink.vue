@@ -44,9 +44,15 @@
                 </a-popconfirm>
               </div>
             </div>
-            <div class="group-body">
-              <draggable v-model="group.contents" group="site" animation="300" @end="handleDragEnd" :disabled="!canEdit">
-                <transition-group>
+            <draggable
+              style="width: 100%; min-height: 50px"
+              v-model="group.contents"
+              group="site"
+              animation="300"
+              @end="handleDragEnd"
+              :disabled="!canEdit">
+              <div class="group-body">
+                <transition-group >
                   <div class="group-link-item" v-for="item in group.contents" :key="item.id">
                     <div class="left-info">
                       <div class="icon">
@@ -87,11 +93,10 @@
                         </a-dropdown>
                       </div>
                     </div>
-
                   </div>
                 </transition-group>
-              </draggable>
-            </div>
+              </div>
+            </draggable>
           </div>
 
         </div>

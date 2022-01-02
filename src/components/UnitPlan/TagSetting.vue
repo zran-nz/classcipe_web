@@ -152,7 +152,7 @@
 
 <script>
 import * as logger from '@/utils/logger'
-import { AddUserTagNew, FindCustomTags, AddUserParentTag, UserTagDeleteNew } from '@/api/tag'
+import { AddUserParentTag, AddUserTagNew, FindCustomTags, UpdateUserParentTag, UserTagDeleteNew } from '@/api/tag'
 import { UtilMixin } from '@/mixins/UtilMixin'
 
 const { debounce } = require('lodash-es')
@@ -190,7 +190,7 @@ export default {
       // 允许通过点击空白处确认输入
       allowClickEnsureInput: false,
       isEditTagName: false,
-      currentEditTag: null
+      currentEditTag: ''
     }
   },
   created () {
@@ -352,7 +352,7 @@ export default {
     handleEditTabName (tag, index) {
       this.$logger.info('handleEditTabName', tag, index)
       this.isEditTagName = true
-      this.currentEditTag = tag
+      this.currentEditTag = tag[0]
       this.editTabIndex = index
       this.editTabName = tag[0]
     },
@@ -371,11 +371,22 @@ export default {
         this.$message.warn('Please input tag type name')
         return
       }
-
+      this.$logger.info('tag', this.currentEditTag, this.editTabName)
       if (this.isEditTagName) {
-        // 修改编辑tag名称
-        // TODO 更新tag的名称
-        this.$logger.info('tag', this.currentEditTag, this.editTabName)
+        this.tagLoading = true
+        UpdateUserParentTag({ name: this.currentEditTag, newName: this.editTabName }).then((response) => {
+          this.$logger.info('add UpdateUserParentTag ', response.result)
+          if (response.success) {
+            this.editTabIndex = -1
+            this.selectLabel = tag
+            // this.userTagsMap = new Map()
+            this.handleUserTagsMap()
+            this.$message.success('Update tag type successfully')
+          } else {
+            this.$message.error(response.message)
+          }
+          this.tagLoading = false
+        })
       } else {
         this.tagLoading = true
         AddUserParentTag({ parentName: tag }).then((response) => {

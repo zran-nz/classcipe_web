@@ -5,6 +5,7 @@ export const tagAPIUrl = {
   UserTagAddOrUpdate: '/classcipe/api/tag/addOrUpdateUserTag',
   AddUserTagNew: '/classcipe/api/tag/addUserTagNew',
   AddUserParentTag: '/classcipe/api/tag/addUserParentTag',
+  UpdateUserParentTag: '/classcipe/api/tag/updateUserParentTag',
   UserTagDelete: '/classcipe/api/tag/userTagDelete',
   UserTagDeleteNew: '/classcipe/api/tag/userTagDeleteNew',
   GetTreeByKey: '/classcipe/api/tag/getTreeByKey',
@@ -110,6 +111,17 @@ export function AddUserTagNew (parameter) {
 export function AddUserParentTag (parameter) {
   return request({
     url: tagAPIUrl.AddUserParentTag,
+    method: 'post',
+    data: parameter,
+    headers: {
+      'Content-Type': 'application/json;charset=UTF-8'
+    }
+  })
+}
+
+export function UpdateUserParentTag (parameter) {
+  return request({
+    url: tagAPIUrl.UpdateUserParentTag,
     method: 'post',
     data: parameter,
     headers: {

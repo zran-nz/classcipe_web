@@ -717,7 +717,7 @@ export default {
     handleEnsure () {
       this.$logger.info('handleEnsure add group associate' + this.selectedGroup, this.groupNameList, this.mySelectedMap, this.groupName)
       if (!this.mySelectedMap.size) {
-        this.$message.warn('No my content be selected!')
+        this.$message.warn('No new ' + (this.fromType === this.typeMap.task ? 'assessment tool' : 'task') + ' selected!')
       } else if ((this.groupNameMode === 'select' && !this.selectedGroup)) {
         this.$message.warn('No group be selected!')
       } else {
