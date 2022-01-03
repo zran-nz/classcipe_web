@@ -2440,7 +2440,7 @@ export default {
 
     .form-block-title {
       /*font-family: PingFang SC;*/
-      //font-weight: 500;
+      font-weight: 500;
       line-height: 24px;
       color: #000000;
       margin-bottom: 10px;
@@ -3067,6 +3067,7 @@ export default {
   margin-top: -25px;
   /deep/ .ant-form-item-label label {
     font-weight: 500;
+    font-family: inherit;
     font-size:14px;
     line-height: 20px;
     color: #000000;
