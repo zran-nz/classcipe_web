@@ -23,7 +23,8 @@ export const teacherAPIUrl = {
   GetReferOutcomes: '/classcipe/api/teacher/getReferOutcomes',
   Duplicate: '/classcipe/api/teacher/content/duplicate',
   Rename: '/classcipe/api/teacher/content/rename',
-  FindSourceOutcomes: '/classcipe/api/teacher/findSourceOutcomes'
+  FindSourceOutcomes: '/classcipe/api/teacher/findSourceOutcomes',
+  FindBigIdeaSourceOutcomes: '/classcipe/api/teacher/findBigIdeaSourceOutcomes'
 }
 
 /**
@@ -253,6 +254,17 @@ export function Rename (parameter) {
 export function FindSourceOutcomes (parameter) {
   return request({
     url: teacherAPIUrl.FindSourceOutcomes,
+    method: 'post',
+    data: parameter,
+    headers: {
+      'Content-Type': 'application/json;charset=UTF-8'
+    }
+  })
+}
+
+export function FindBigIdeaSourceOutcomes (parameter) {
+  return request({
+    url: teacherAPIUrl.FindBigIdeaSourceOutcomes,
     method: 'post',
     data: parameter,
     headers: {

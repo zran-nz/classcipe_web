@@ -453,6 +453,20 @@ export const constantRouterMap = [
     component: () => import(/* webpackChunkName: "fail" */ '@/views/addon/PageRedirect')
   },
   {
+    path: '/collaborate/:code',
+    name: 'CollaborateJoin',
+    props: true,
+    meta: { title: 'Collaborate invite', keepAlive: true, icon: bxAnaalyse, permission: ['expert', 'teacher'] },
+    component: () => import(/* webpackChunkName: "fail" */ '@/views/collaborate/Join')
+  },
+  {
+    path: '/linkValid',
+    name: 'linkValid',
+    props: true,
+    meta: { title: 'Collaborate invite', keepAlive: true, icon: bxAnaalyse, permission: ['expert', 'teacher'] },
+    component: () => import(/* webpackChunkName: "fail" */ '@/views/collaborate/LinkValid')
+  },
+  {
     path: '/404',
     component: () => import(/* webpackChunkName: "fail" */ '@/views/exception/404')
   }

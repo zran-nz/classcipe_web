@@ -45,7 +45,9 @@
           </span>
 
           <span slot="status" slot-scope="status" class="flex-center">
-            <div v-if="active" style="color: #15C39A;"> {{ status }}</div>
+            <div v-if="active" style="color: #15C39A;">
+              {{ getStatusFormat(status) }}
+            </div>
             <div v-else style="color: #15C39A;"> Archived </div>
           </span>
 
@@ -357,6 +359,18 @@ export default {
           })
         }
       })
+    },
+
+    getStatusFormat (status) {
+      if (status === 'close') {
+        return 'Ended'
+      } else if (status === 'live' || status === 'student-paced') {
+        return 'Student-paced'
+      } else if (status === 'insturctor-paced') {
+        return 'Teacher-paced'
+      } else {
+        return status
+      }
     },
 
     handleReopenSession (record) {

@@ -15,7 +15,7 @@ export const BaseEventMixin = {
       rightModule: RightModule,
       showModuleList: [RightModule.imageUpload, RightModule.customTag, RightModule.recommend],
       rightWidth: 600,
-      leftWidth: 700,
+      leftWidth: 730,
       collaborate: {},
       initCompleted: false
     }
@@ -88,11 +88,11 @@ export const BaseEventMixin = {
     },
     resetWidth () {
       if (document.body.clientWidth < 1400) {
-        this.rightWidth = 500
+        this.rightWidth = 480
         this.leftWidth = 550
       } else {
         this.rightWidth = 600
-        this.leftWidth = 700
+        this.leftWidth = 720
       }
     },
     queryContentCollaborates (id, type) {

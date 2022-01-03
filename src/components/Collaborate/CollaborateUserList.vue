@@ -55,37 +55,40 @@
         </div>
 
         <template v-if="showUser">
+
           <div class="user-list">
-            <div class="user-item" v-for="(user,index) in userList" :key="index" v-if="userList.length">
-              <div class="user-avatar-email">
-                <div class="avatar">
-                  <img :src="user.avatar" />
+            <a-skeleton :loading="loading" active>
+              <div class="user-item" v-for="(user,index) in userList" :key="index" v-if="userList.length">
+                <div class="user-avatar-email">
+                  <div class="avatar">
+                    <img :src="user.avatar" />
+                  </div>
+                  <div class="email">
+                    {{ user.nickname }}
+                  </div>
                 </div>
-                <div class="email">
-                  {{ user.nickname }}
+                <div class="user-name">
+                  {{ user.email }}
                 </div>
-              </div>
-              <div class="user-name">
-                {{ user.email }}
-              </div>
-              <div class="action" >
-                <div slot="actions">
-                  <div class="action-wrapper">
-                    <div v-if="user.email !== $store.getters.userInfo.email" class="action-item" @click="handleAddToSelect(user)">
-                      <div class="active-status-icon">
-                        <img src="~@/assets/icons/collaborate/round.png" v-if="selectedUserEmailList.indexOf(user.email) === -1"/>
-                        <a-icon theme="filled" type="check-circle" v-if="selectedUserEmailList.indexOf(user.email) !== -1" />
+                <div class="action" >
+                  <div slot="actions">
+                    <div class="action-wrapper">
+                      <div v-if="user.email !== $store.getters.userInfo.email" class="action-item" @click="handleAddToSelect(user)">
+                        <div class="active-status-icon">
+                          <img src="~@/assets/icons/collaborate/round.png" v-if="selectedUserEmailList.indexOf(user.email) === -1"/>
+                          <a-icon theme="filled" type="check-circle" v-if="selectedUserEmailList.indexOf(user.email) !== -1" />
+                        </div>
+                        <div class="action-name"> + Select</div>
                       </div>
-                      <div class="action-name"> + Select</div>
+                      <div v-else>Owner</div>
                     </div>
-                    <div v-else>Owner</div>
                   </div>
                 </div>
               </div>
-            </div>
-            <div class="empty-user" v-if="userList.length === 0">
-              <no-more-resources tips="no user found!"/>
-            </div>
+              <div class="empty-user" v-if="userList.length === 0">
+                <no-more-resources tips="no user found!"/>
+              </div>
+            </a-skeleton>
           </div>
 
           <a-checkbox @change="onChangeSendMessage" class="message-check-wrapper">
@@ -121,6 +124,9 @@
                     <div class="email">
                       {{ user.nickName }}
                     </div>
+                    <a-tag color="red" style="position: absolute;top: -15px;right: 0px;" v-if="user.linkUser!== 0">
+                      Apply to join
+                    </a-tag>
                   </div>
                   <div class="user-email">
                     {{ user.userName }}
@@ -140,16 +146,16 @@
                     <div slot="actions">
                       <div v-if="user.agreeFlag === collaborateStatus.apply" >
                         <div class="action-wrapper">
-                          <a-button class="action-item action-cancel" shape="round" @click="handleAccept(user,collaborateStatus.disAgree)">Disagree</a-button>
+                          <a-button class="action-item action-cancel" shape="round" @click="handleAccept(user,collaborateStatus.refuse)">Disagree</a-button>
                           <a-button class="action-ensure action-item" :loading="agreeLoading" type="primary" shape="round" @click="handleAccept(user,collaborateStatus.agree)">Agree</a-button>
                         </div>
                       </div>
                       <div class="action-wrapper" v-else>
-                        <a-select default-value="Edit" style="width: 100px;" v-model="user.permissions">
+                        <a-select default-value="Edit" style="width: 100px;" v-model="user.permissions" @change="handleChange(user)">
                           <a-select-option value="Edit">
                             Edit
                           </a-select-option>
-                          <a-select-option value="View">
+                          <a-select-option value="Viewer">
                             Viewer
                           </a-select-option>
                         </a-select>
@@ -197,7 +203,7 @@ import NoMoreResources from '@/components/Common/NoMoreResources'
 import {
   CollaboratesAgree,
   CollaboratesInvite,
-  CollaboratesSearchUser,
+  CollaboratesSearchUser, CollaboratesUpdate,
   CollaboratesUpdateLink,
   QueryContentCollaborates
 } from '@/api/collaborate'
@@ -238,7 +244,7 @@ export default {
       })
     },
     linkUrl () {
-      return this.collaborate.link ? (process.env.VUE_APP_API_BASE_URL + '/c/' + this.collaborate.link.linkCode) : ''
+      return this.collaborate.link ? (process.env.VUE_APP_API_BASE_URL + '/collaborate/' + this.collaborate.link.linkCode) : ''
     }
   },
   watch: {
@@ -311,9 +317,12 @@ export default {
         return
       }
       var searchName = this.userNameOrEmail ? this.userNameOrEmail : ''
+      this.loading = true
       CollaboratesSearchUser({ name: searchName }).then(response => {
         this.$logger.info('SearchUser response', response)
         this.userList = response.result
+      }).finally(() => {
+        this.loading = false
       })
     },
     handleAddToSelect (user) {
@@ -407,6 +416,14 @@ export default {
       }).then(() => {
         this.agreeLoading = false
         this.queryContentCollaborates()
+      })
+    },
+    handleChange (user) {
+      this.$logger.info('handleChange', user)
+      CollaboratesUpdate(user).then(res => {
+        logger.info('handleChange', res)
+        this.$message.success('Update successfully')
+      }).then(() => {
       })
     }
   }
@@ -709,6 +726,7 @@ export default {
             display: flex;
             flex-direction: row;
             align-items: center;
+            position: relative;
             .avatar {
               img {
                 height: 40px;
@@ -863,7 +881,7 @@ export default {
       line-height: 30px;
     }
     .link-text{
-      max-width: 450px;
+      //max-width: 450px;
       text-align: center;
       overflow: hidden;
       height: 19px;

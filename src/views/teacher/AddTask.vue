@@ -2600,6 +2600,8 @@ export default {
 
           if (this.associateUnitPlanIdList.length > 0) {
             this.loadRefLearnOuts()
+          } else {
+            this.loadBigIdeaLearnOuts()
           }
         })
       },
@@ -3475,6 +3477,11 @@ export default {
     .main-content {
 
       .card-wrapper{
+        .task-form-left{
+          /deep/ .ant-steps-item-content{
+            padding-right: 30px;
+          }
+        }
 
         .task-form-right {
           overflow: visible;

@@ -32,7 +32,7 @@
               <div class="group-right-info" v-if="canEdit">
                 <div class="group-action">
                   <a-button type="primary" @click="handleLinkGroup(group)" :style="{'background-color': '#fff', 'color': '#000', 'border': 'none'}">
-                    <div class="btn-text" style="line-height: 20px">
+                    <div class="btn-text">
                       + Link
                     </div>
                   </a-button>
@@ -457,7 +457,6 @@ export default {
       margin-bottom: 25px;
       .group-item {
         .group-header {
-          margin-right: 25px;
           background-color: #C3EAFC;
           display: flex;
           border-top-left-radius: 4px;

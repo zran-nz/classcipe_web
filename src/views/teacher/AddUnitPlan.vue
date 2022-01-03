@@ -26,7 +26,7 @@
             :show-create="true"/>
         </a-col>-->
         <a-col span="24" class="main-content">
-          <a-card :bordered="false" :body-style="{'min-width': '1200px', padding: '16px', display: 'flex', 'justify-content': 'space-between'}" class="card-wrapper">
+          <a-card :bordered="false" :body-style="{ padding: '16px', display: 'flex', 'justify-content': 'space-between'}" class="card-wrapper">
             <div class="unit-plan-form-left root-locate-form" ref="form" @click="focusInput($event)" :style="{'width':leftWidth + 'px'}">
               <a-form-model :model="form" class="my-form-wrapper">
                 <a-steps :current="currentActiveStepIndex" direction="vertical" @change="onChangeStep">
@@ -204,6 +204,19 @@
                           @click="handleAddMoreSdg"></a-button>
                       </div>
 
+                      <div class="form-block form-block-rwc" >
+                        <a-form-model-item label="Real World Connection(s)">
+                          <a-select
+                            size="large"
+                            v-model="form.rwc"
+                            placeholder="Choose real world connection">
+                            <a-select-option :value="item.value" v-for="(item, index) in rwcList" :key="index" >
+                              {{ item.title }}
+                            </a-select-option>
+                          </a-select>
+                        </a-form-model-item>
+                      </div>
+
                       <div :class="{'form-block': true, 'form-block-disabled' : $store.getters.userInfo.disableQuestion}">
                         <comment-switch v-if="!$store.getters.userInfo.disableQuestion" field-name="question" :is-active="currentFieldName === 'question'" @switch="handleSwitchComment" class="my-comment-switch"/>
                         <a-form-item class="unit-question">
@@ -232,7 +245,7 @@
                                 class="my-form-textarea"
                                 auto-size
                                 :placeholder="$store.getters.currentRole === 'teacher' ? $t('teacher.add-unit-plan.teacher-nth-key-question') : $t('teacher.add-unit-plan.expert-nth-key-question')"/>
-                              <div class="delete-icon" @click="handleRemoveQuestion(index)">
+                              <div class="delete-icon" @click="handleRemoveQuestion(index)" v-if="form.questions.length > 1">
                                 <a-icon type="delete" :style="{ fontSize: '20px' }" />
                               </div>
                             </div>
@@ -653,19 +666,20 @@
 import * as logger from '@/utils/logger'
 import ContentTypeIcon from '@/components/Teacher/ContentTypeIcon'
 import { typeMap } from '@/const/teacher'
-import { CustomTagType } from '@/const/common'
-import { commonAPIUrl } from '@/api/common'
+import { CustomTagType, DICT_PLAN_RWC } from '@/const/common'
+import { commonAPIUrl, GetDictItems } from '@/api/common'
 import { GetAllSdgs, ScenarioSearch } from '@/api/scenario'
 import { debounce } from 'lodash-es'
 import InputSearch from '@/components/UnitPlan/InputSearch'
 import SdgTagInput from '@/components/UnitPlan/SdgTagInput'
 import {
-  GetMyGrades,
+  AddOrSaveGroupName,
   Associate,
-  GetAssociate,
-  GetReferOutcomes,
+  FindBigIdeaSourceOutcomes,
   FindSourceOutcomes,
-  AddOrSaveGroupName
+  GetAssociate,
+  GetMyGrades,
+  GetReferOutcomes
 } from '@/api/teacher'
 import { SubjectTree } from '@/api/subject'
 import { formatSubjectTree } from '@/utils/bizUtil'
@@ -910,7 +924,8 @@ export default {
       associateTaskIdList: [],
       associateId2Name: new Map(),
       defaultGroupName: 'Untitled category',
-      addCategoryLoading: false
+      addCategoryLoading: false,
+      rwcList: []
     }
   },
   watch: {
@@ -923,13 +938,15 @@ export default {
         this.showSidebar = true
       }
     },
-    'form.inquiry': function (value) {
-      this.$logger.info('watch form.inquiry change ' + value)
+    'form.inquiry': function (value, newValue) {
+      this.$logger.info('watch form.inquiry change ' + value, newValue)
       if (this.hideRecommendQuestion) {
         return
       }
       this.$logger.info('get recommend question ' + value)
       this.findQuestionsByBigIdea(value)
+      // 重新load recommend
+      this.loadBigIdeaLearnOuts()
     }
   },
   beforeRouteLeave (to, from, next) {
@@ -1042,7 +1059,8 @@ export default {
         GetAllSdgs(),
         // GetTreeByKey({ key: 'Related Concepts MYP' }),
         GetMyGrades(),
-        SubjectTree({ curriculumId: this.$store.getters.bindCurriculum })
+        SubjectTree({ curriculumId: this.$store.getters.bindCurriculum }),
+        GetDictItems(DICT_PLAN_RWC)
       ]).then((sdgListResponse) => {
         logger.info('initData done', sdgListResponse)
 
@@ -1071,6 +1089,11 @@ export default {
           subjectTree = formatSubjectTree(subjectTree)
           this.subjectTree = subjectTree
           logger.info('after format subjectTree', subjectTree)
+        }
+        // rwc list
+        if (!sdgListResponse[3].code) {
+          logger.info('rwc', sdgListResponse[3].result)
+          this.rwcList = sdgListResponse[3].result
         }
         logger.info('sdgList', this.sdgList)
       }).then(() => {
@@ -1825,6 +1848,39 @@ export default {
           }
           this.$logger.info('update task recommendData ', this.recommendData)
           this.$logger.info('************************update unit-plan recommendDataIdList ', this.recommendDataIdList)
+        }).finally(() => {
+        })
+      }
+      this.loadBigIdeaLearnOuts()
+    },
+    loadBigIdeaLearnOuts () {
+      // bigidea query learnout
+      if (this.form.inquiry) {
+        FindBigIdeaSourceOutcomes({
+          bigIdea: this.form.inquiry,
+          id: this.unitPlanId
+        }).then(response => {
+          this.$logger.info('FindBigIdeaSourceOutcomes response', response)
+          const recommendMap = new Map()
+          response.result.forEach(item => {
+            if (recommendMap.has(item.fromId)) {
+              recommendMap.get(item.fromId).push(item)
+            } else {
+              recommendMap.set(item.fromId, [item])
+            }
+            this.recommendDataIdList.push(item.knowledgeId)
+          })
+
+          for (const value of recommendMap.values()) {
+            this.recommendData.push({
+              fromId: value[0].fromId,
+              fromName: value[0].fromName,
+              fromTypeName: this.type2Name[value[0].fromType],
+              list: value
+            })
+          }
+          this.$logger.info('update unit-plan recommendData ', this.recommendData)
+          this.$logger.info('************************update unit-plan recommendDataIdList ', this.recommendDataIdList)
         })
       }
     },
@@ -2384,7 +2440,7 @@ export default {
 
     .form-block-title {
       /*font-family: PingFang SC;*/
-      /*font-weight: bold;*/
+      //font-weight: 500;
       line-height: 24px;
       color: #000000;
       margin-bottom: 10px;
@@ -2884,6 +2940,9 @@ export default {
 .card-wrapper{
   .unit-plan-form-left {
     position: relative;
+    /deep/ .ant-steps-item-content{
+      padding-right: 30px;
+    }
   }
 
   .unit-plan-form-right {
@@ -3000,9 +3059,17 @@ export default {
 }
 
 .inquiry {
-  width:96%;
   .inquiry-form-block {
     border: 1px solid #15C39A !important;
+  }
+}
+.form-block-rwc{
+  margin-top: -25px;
+  /deep/ .ant-form-item-label label {
+    font-weight: 500;
+    font-size:14px;
+    line-height: 20px;
+    color: #000000;
   }
 }
 
@@ -3020,7 +3087,7 @@ export default {
   transition: all 0.2s ease-in;
   position: absolute;
   right: -50px;
-  top: 0px;
+  top: -2px;
   line-height: 40px;
   width: 40px;
   height: 40px;
@@ -3037,7 +3104,7 @@ export default {
   font-size: 20px;
   padding: 0px 5px;
   position: absolute;
-  right: -5px;
+  right: -30px;
   top: 50px;
   cursor: pointer;
   display: flex;

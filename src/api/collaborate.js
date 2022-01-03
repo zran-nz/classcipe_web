@@ -20,7 +20,9 @@ export const userAPIUrl = {
   CollaboratesAgree: '/classcipe/api/collaborate/v2/agree',
   CollaboratesUpdate: '/classcipe/api/collaborate/v2/updateCollaborate',
   CollaboratesUpdateLink: '/classcipe/api/collaborate/v2/updateLink',
-  CollaboratesQueryShared: '/classcipe/api/collaborate/v2/queryShared'
+  CollaboratesQueryShared: '/classcipe/api/collaborate/v2/queryShared',
+  QueryByLinkCode: '/classcipe/api/collaborate/v2/queryByLinkCode',
+  CollaboratesApply: '/classcipe/api/collaborate/v2/apply'
 }
 
 export function InviteCollaborate (parameter) {
@@ -179,6 +181,25 @@ export function CollaboratesUpdateLink (parameter) {
 export function CollaboratesQueryShared (parameter) {
   return request({
     url: userAPIUrl.CollaboratesQueryShared,
+    method: 'post',
+    data: parameter,
+    headers: {
+      'Content-Type': 'application/json;charset=UTF-8'
+    }
+  })
+}
+
+export function CollaboratesQueryByLinkCode (parameter) {
+  return request({
+    url: userAPIUrl.QueryByLinkCode,
+    method: 'get',
+    params: parameter
+  })
+}
+
+export function CollaboratesApply (parameter) {
+  return request({
+    url: userAPIUrl.CollaboratesApply,
     method: 'post',
     data: parameter,
     headers: {

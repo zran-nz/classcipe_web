@@ -476,8 +476,8 @@
       }
       .delete-action {
         position: absolute;
-        top:0px;
-        right: 0px;
+        top:5px;
+        right: -35px;
         display: none;
         cursor: pointer;
         height: 35px;
