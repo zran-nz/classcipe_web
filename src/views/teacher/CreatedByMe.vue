@@ -774,7 +774,7 @@ export default {
     },
     checkGoogleTokenExpired () {
       this.$logger.info('checkGoogleTokenExpired response')
-      var index = this.myContentList.findIndex(item => item.type === typeMap.task)
+      var index = this.myContentList.findIndex(item => item.type === typeMap.task && item.presentationId)
       if (index > -1) {
         TemplatesGetPresentation({
           presentationId: this.myContentList[index].presentationId
