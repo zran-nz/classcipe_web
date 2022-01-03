@@ -313,7 +313,7 @@ import Navigation from './Navigation'
 import ContentTypeIcon from '@/components/Teacher/ContentTypeIcon'
 import DirIcon from '@/components/Library/DirIcon'
 import NoMoreResources from '@/components/Common/NoMoreResources'
-import PuBuIcon from '@/assets/icons/library/pubu .svg?inline'
+import PuBuIcon from '@/assets/icons/library/pubu.svg?inline'
 import ListModeIcon from '@/assets/icons/library/liebiao .svg?inline'
 import FilterIcon from '@/assets/svgIcon/library/shaixuan.svg?inline'
 import SearchIcon from '@/assets/svgIcon/library/sousuo.svg?inline'
@@ -365,7 +365,7 @@ export default {
       dataList: [],
       dataListLoading: false,
       currentDataId: null,
-      dataListMode: 'list',
+      dataListMode: 'card',
 
       bigIdeaList: [],
       currentBigIdea: null,
@@ -664,12 +664,10 @@ export default {
         color: #15c39a;
       }
       .loading-wrapper {
-        position: absolute;
-        width: 50px;
-        text-align: center;
-        top: 30%;
-        left: 50%;
-        margin-left: -25px;
+        min-height: 400px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
       }
     }
 
@@ -841,12 +839,10 @@ export default {
         color: #15c39a;
       }
       .loading-wrapper {
-        position: absolute;
-        width: 50px;
-        text-align: center;
-        top: 30%;
-        left: 50%;
-        margin-left: -25px;
+        min-height: 400px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
       }
     }
   }

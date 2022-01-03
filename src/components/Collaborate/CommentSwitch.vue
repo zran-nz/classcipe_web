@@ -63,6 +63,8 @@ export default {
       }
       this.$logger.info('event data', eventData)
       this.$emit('switch', eventData)
+      event.stopPropagation()
+      event.preventDefault()
     }
   }
 }

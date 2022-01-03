@@ -18,9 +18,12 @@ export const teacherAPIUrl = {
   UpdateContentStatus: '/classcipe/api/teacher/content/status',
   saveSessonTags: '/classcipe/api/sessonTags/addBatch',
   AddOrSaveGroupName: '/classcipe/api/teacher/addOrSaveGroupName',
+  SaveGroupItems: '/classcipe/api/teacher/saveGroupItems',
+  DeleteGroup: '/classcipe/api/teacher/deleteGroup',
   GetReferOutcomes: '/classcipe/api/teacher/getReferOutcomes',
   Duplicate: '/classcipe/api/teacher/content/duplicate',
-  Rename: '/classcipe/api/teacher/content/rename'
+  Rename: '/classcipe/api/teacher/content/rename',
+  FindSourceOutcomes: '/classcipe/api/teacher/findSourceOutcomes'
 }
 
 /**
@@ -185,6 +188,28 @@ export function AddOrSaveGroupName (parameter) {
   })
 }
 
+export function DeleteGroup (parameter) {
+  return request({
+    url: teacherAPIUrl.DeleteGroup,
+    method: 'post',
+    data: parameter,
+    headers: {
+      'Content-Type': 'application/json;charset=UTF-8'
+    }
+  })
+}
+
+export function SaveGroupItems (parameter) {
+  return request({
+    url: teacherAPIUrl.SaveGroupItems,
+    method: 'post',
+    data: parameter,
+    headers: {
+      'Content-Type': 'application/json;charset=UTF-8'
+    }
+  })
+}
+
 /**
  * getMyContent
  * @param parameter
@@ -217,6 +242,17 @@ export function Duplicate (parameter) {
 export function Rename (parameter) {
   return request({
     url: teacherAPIUrl.Rename,
+    method: 'post',
+    data: parameter,
+    headers: {
+      'Content-Type': 'application/json;charset=UTF-8'
+    }
+  })
+}
+
+export function FindSourceOutcomes (parameter) {
+  return request({
+    url: teacherAPIUrl.FindSourceOutcomes,
     method: 'post',
     data: parameter,
     headers: {

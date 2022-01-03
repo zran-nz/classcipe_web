@@ -10,6 +10,14 @@ export const statusMap = {
   'published': 1
 }
 
+export const CollaborateStatus = {
+  'invite': 0,
+  'agree': 1,
+  'apply': 2,
+  'disAgree': -1, // 拒绝邀请
+  'refuse': -2 // 申请被拒绝
+}
+
 export const typeMap = {
   'all-type': undefined,
   'topic': 1,
@@ -34,6 +42,6 @@ export function getLabelNameType (type) {
     case typeMap.lesson:
       return 'Lesson'
     case typeMap.evaluation:
-      return 'Evaluation'
+      return 'Assessment tool'
   }
 }

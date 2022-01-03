@@ -8,7 +8,7 @@ export default {
   'teacher.add-lesson.default-lesson-name': 'Unnamed lesson',
   'teacher.add-lesson.lesson': 'Lesson',
   'teacher.add-lesson.material': 'Material',
-  'teacher.add-lesson.evaluation': 'Evaluation',
+  'teacher.add-lesson.evaluation': 'Assessment tool',
   'teacher.add-lesson.add-to-this-lesson': 'add content',
   'teacher.add-lesson.link-content': 'link in my content',
   'teacher.add-lesson.lesson-name': 'Name',

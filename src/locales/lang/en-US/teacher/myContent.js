@@ -9,7 +9,7 @@ export default {
   'teacher.my-content.tasks-type': 'Tasks',
   'teacher.my-content.unit-plan-type': 'Unit plans',
   'teacher.my-content.lesson-type': 'Lesson',
-  'teacher.my-content.evaluation-type': 'Evaluations',
+  'teacher.my-content.evaluation-type': 'Assessment tools',
   'teacher.my-content.all-owner': 'All Owner',
   'teacher.my-content.owner-by-me': 'Owner by me',
   'teacher.my-content.owner-by-others': 'Owner by others',

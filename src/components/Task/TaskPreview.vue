@@ -1,5 +1,5 @@
 <template>
-  <div class="task-preview">
+  <div class="task-preview" :data-uid="rawSubTaskData ? rawSubTaskData._uid : ''">
     <template v-if="loading">
       <a-skeleton active />
     </template>
@@ -66,6 +66,11 @@
                 </div>
               </div>
             </div>
+            <div class="delete-icon">
+              <a-popconfirm title="Delete?" ok-text="Yes" @confirm="handleDeleteItem" cancel-text="No">
+                <img src="~@/assets/icons/tag/delete.png"/> Delete
+              </a-popconfirm>
+            </div>
           </div>
         </a-col>
       </a-row>
@@ -75,26 +80,21 @@
 
 <script>
 import * as logger from '@/utils/logger'
-import { TemplatesGetPresentation } from '@/api/template'
 import NoMoreResources from '@/components/Common/NoMoreResources'
-const { TaskQueryById } = require('@/api/task')
 
 export default {
   name: 'TaskPreview',
   components: { NoMoreResources },
   props: {
-    taskId: {
-      type: String,
-      default: null
-    },
     taskData: {
       type: Object,
-      default: null
+      required: true
     }
   },
   data () {
     return {
       loading: true,
+      rawSubTaskData: null,
       task: null,
       thumbnailList: [],
 
@@ -117,51 +117,19 @@ export default {
   methods: {
     loadTaskData () {
       this.loading = true
-      if (!this.taskData && this.taskId) {
-        logger.info('TaskPreview loadTaskData ' + this.taskId)
-        TaskQueryById({
-          id: this.taskId
-        }).then(response => {
-          logger.info('TaskQueryById ' + this.taskId, response.result)
-          this.task = response.result
-        }).finally(() => {
-          this.loadThumbnail()
-        })
-      } else if (this.taskData) {
-        logger.info('TaskPreview taskData ', this.taskData)
-        this.task = this.taskData
-        this.loadThumbnail()
-      }
+      logger.info('TaskPreview exist taskData ', this.taskData)
+      this.rawSubTaskData = this.taskData
+      this.task = this.taskData.subTask
+      // 手动把selectPageImages中图片复制到thumbnailList中
+      this.thumbnailList = []
+      this.rawSubTaskData.selectPageImages.forEach(image => {
+        this.thumbnailList.push({ contentUrl: image })
+      })
+      this.loading = false
     },
 
-    loadThumbnail () {
-      this.$logger.info('loadThumbnail ' + this.task.presentationId)
-      if (this.task.presentationId) {
-        TemplatesGetPresentation({
-          presentationId: this.task.presentationId
-        }).then(response => {
-          this.$logger.info('loadThumbnail response', response.result)
-          const pageObjects = response.result.pageObjects
-          this.thumbnailList = []
-          pageObjects.forEach(page => {
-            this.thumbnailList.push({ contentUrl: page.contentUrl, id: page.pageObjectId })
-          })
-        }).finally(() => {
-          this.loading = false
-        })
-      } else {
-        this.loading = false
-      }
-    },
-
-    handleSelectContentType (contentType) {
-      logger.info('handleSelectContentType ' + contentType)
-      this.activeContentType = contentType
-    },
-
-    handleSubPreviewClose () {
-      logger.info('handleSubPreviewClose')
-      this.subPreviewVisible = false
+    handleDeleteItem () {
+      this.$emit('delete-sub-task', this.rawSubTaskData)
     }
   }
 }
@@ -171,6 +139,11 @@ export default {
 @import "~@/components/index.less";
 
 .task-preview {
+  border: 1px solid #fff;
+
+  &:hover {
+    border: 1px solid #f9f9f9;
+  }
 
   .top-header {
     position: relative;
@@ -261,6 +234,7 @@ export default {
 
   .right-detail {
     .detail-wrapper {
+      position: relative;
       .detail-block {
         margin-bottom: 10px;
         border: 1px solid #f3f3f3;
@@ -268,7 +242,7 @@ export default {
         .block-title {
           font-weight: 700;
           font-size: 16px;
-          padding: 10px;
+          padding: 10px 90px 10px 10px;
           background-color: #fafafa;
 
           audio {
@@ -337,6 +311,19 @@ export default {
               }
             }
           }
+        }
+      }
+
+      .delete-icon {
+        position: absolute;
+        right: 10px;
+        top: 3px;
+        cursor: pointer;
+        color: #D01919;
+        background-color: #fafafa;
+
+        img {
+          width: 40px;
         }
       }
     }

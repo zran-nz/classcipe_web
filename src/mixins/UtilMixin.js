@@ -1,11 +1,48 @@
 export const UtilMixin = {
   data () {
-    return {}
+    return {
+      type2Name: {
+        1: 'Topic',
+        2: 'Unit Plan',
+        3: 'Material',
+        4: 'Task',
+        5: 'Lesson',
+        6: 'Evaluation'
+      },
+
+      browserDataType: {
+        'bigIdea': 'bigIdea',
+        'sync': 'sync',
+        'curriculum': 'curriculum',
+        'subjectSpecificSkill': 'subjectSpecificSkill',
+        'centurySkill': 'centurySkill',
+        'all21Century': 'all21Century',
+        'assessmentType': 'assessmentType',
+        'idu': 'idu'
+      }
+    }
   },
   created () {
 
   },
-  computed: {},
+  computed: {
+    getWeek () {
+      if (this.rangeDate.length === 2) {
+        let str = ''
+        const week = Math.abs(parseInt(this.rangeDate[0].diff(this.rangeDate[1], 'days') / 7))
+        const day = Math.abs(this.rangeDate[0].diff(this.rangeDate[1], 'days')) % 7
+        if (week > 0) {
+          str += ((week > 1) ? week + ' weeks ' : week + ' week ')
+        }
+        if (day > 0) {
+          str += ((day > 1) ? day + ' days ' : day + ' day ')
+        }
+        return str
+      } else {
+        return ''
+      }
+    }
+  },
   methods: {
 
     /**

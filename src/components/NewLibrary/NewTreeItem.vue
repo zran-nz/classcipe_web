@@ -263,7 +263,7 @@ export default {
         }
       }
     } else if (this.treeItemType === NavigationType.specificSkills) {
-      // subject specific skills 是mainSubject-year-knowledge
+      // Achievement objectives 是mainSubject-year-knowledge
       if (this.currentItemType === 'subject') {
         this.subItemType = 'grade'
       } else if (this.currentItemType === 'grade') {
@@ -510,7 +510,7 @@ export default {
       this.$logger.info('handleExpandCurriculumTreeItem handle finish!')
     },
 
-    // subject specific skills 是mainSubject-year-knowledge
+    // Achievement objectives 是mainSubject-year-knowledge
     handleExpandSpecificSkillTreeItem (treeItemData) {
       this.$logger.info('handleExpandSpecificSkillTreeItem data ', treeItemData, ' children ', treeItemData.children, ' deep ' + this.defaultDeep)
       if (this.defaultDeep === 0) {
@@ -642,7 +642,7 @@ export default {
       this.$logger.info('handleExpandCurriculumTreeItem handle finish!')
     },
 
-    // subject specific skills 是mainSubject-year-assessmentType-knowledge
+    // Achievement objectives 是mainSubject-year-assessmentType-knowledge
     handleExpandAssessmentTypeTreeItem (treeItemData) {
       this.$logger.info('handleExpandAssessmentTypeTreeItem data ', treeItemData, ' children ', treeItemData.children, ' deep ' + this.defaultDeep)
       if (this.defaultDeep === 0) {
@@ -1159,11 +1159,11 @@ export default {
 @import "~@/components/index.less";
 
 .even-line {
-  background-color: #ffffff;
+  //background-color: #ffffff;
 }
 
 .odd-line {
-  background-color: #F8F8F8;
+  //background-color: #F8F8F8;
 }
 
 .active-line {
@@ -1187,7 +1187,7 @@ export default {
     flex-direction: row;
     align-items: center;
     &:hover {
-      background-color: fade(@primary-color, 10%);
+      //background-color: fade(@primary-color, 10%);
     }
 
     .subtree-icon-wrapper {
@@ -1221,7 +1221,7 @@ export default {
       text-overflow: ellipsis;
       .display-label {
         font-weight: 500;
-        color: @text-color;
+        //color: @text-color;
       }
     }
   }

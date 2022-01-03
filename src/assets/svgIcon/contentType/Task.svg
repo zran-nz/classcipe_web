@@ -1,8 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="50" height="50" viewBox="0 0 50 50">
-  <g id="Task" transform="translate(19507.73 -10487)">
-    <circle id="椭圆_49" data-name="椭圆 49"  style="fill: #ced8dd;" class="cls-1" cx="25" cy="25" r="25" transform="translate(-19507.73 10487)"/>
-    <text id="Tsk" class="cls-2" style="  fill: #fff;
-        font-size: 20px;
-        font-family: FZY4JW--GB1-0, FZCuYuan-M03S;" transform="translate(-19482.73 10521)"><tspan x="-14.023" y="0">Tsk</tspan></text>
+  <g id="Task" transform="translate(19507.5 -10487.175)">
+    <circle id="椭圆_49" data-name="椭圆 49" cx="25" cy="25" r="25" transform="translate(-19507.5 10487.175)" fill="#ced8dd"/>
+    <path id="路径_2075" data-name="路径 2075" d="M-2.227-2.109V-17.227H-5.508q-1.641,0-1.758-2.109.117-1.875,1.758-1.992H5.625a2,2,0,0,1,1.992,1.992Q7.5-17.227,5.625-17.227H2.344V-2.109A2.114,2.114,0,0,1,0,0Q-2.227,0-2.227-2.109Z" transform="translate(-19482.234 10522.503)" fill="#fff"/>
   </g>
 </svg>

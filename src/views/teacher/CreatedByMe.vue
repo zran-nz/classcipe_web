@@ -23,9 +23,9 @@
         <div class="type-filter">
           <a-dropdown>
             <a-menu slot="overlay">
-              <a-menu-item disabled>
-                <span>{{ $t('teacher.my-content.choose-types-of-content') }}</span>
-              </a-menu-item>
+              <!--              <a-menu-item disabled>-->
+              <!--                <span>{{ $t('teacher.my-content.choose-types-of-content') }}</span>-->
+              <!--              </a-menu-item>-->
               <a-menu-item @click="toggleType('all-type', $t('teacher.my-content.all-type'))">
                 <span>{{ $t('teacher.my-content.all-type') }}</span>
               </a-menu-item>
@@ -48,6 +48,12 @@
               <!--              <a-menu-item @click="toggleType('lesson', $t('teacher.my-content.lesson-type'))">
                 <span>{{ $t('teacher.my-content.lesson-type') }}</span>
               </a-menu-item>-->
+              <a-divider style="margin: 10px 0px;" />
+
+              <a-menu-item @click="toggleType('Collabrated', 'Collabrated')">
+                <span>Collabrated</span>
+              </a-menu-item>
+
             </a-menu>
             <a-button
               class="type-filter-button"
@@ -86,6 +92,11 @@
                 <span class="name-content">
                   {{ item.name ? item.name : 'Unnamed' }}
                 </span>
+
+                <span class="collaborate-icon-item" v-if="item.collaborates > 0">
+                  <collaborate-svg />
+                </span>
+
               </span>
 
               <span class="content-info-right">
@@ -229,9 +240,12 @@
                   </div>
                 </div>
                 <div class="cover-img" :style="{backgroundImage: 'url(' + item.image + ')'}"></div>
+
                 <a-card-meta class="my-card-meta-info" :title="item.name ? item.name : 'Untitled'" :description="item.createTime | dayjs" @click="handleViewDetail(item)">
                   <content-type-icon :type="item.type" slot="avatar"></content-type-icon>
                 </a-card-meta>
+
+                <collaborate-svg class="card-collaborate-icon-item" v-if="item.collaborates > 0"/>
               </a-card>
             </a-list-item>
           </a-list>
@@ -268,13 +282,24 @@
         :title="null"
         :closable="false"
         destroyOnClose
-        width="750px">
-        <modal-header @close="viewPreviewSessionVisible = false"/>
+        :dialog-style="{ top: '30px' }"
+        width="1100px">
+        <modal-header title="Previous session" @close="viewPreviewSessionVisible = false" :white="true"/>
         <div class="preview-session-wrapper">
-          <class-list :slide-id="currentPreviewLesson.presentationId" :classData="currentPreviewLesson" v-if="currentPreviewLesson && currentPreviewLesson.presentationId"/>
-          <div class="no-session" v-else>
-            <no-more-resources tips="Not exist previous sessions"/>
-          </div>
+          <a-tabs default-active-key="1" @change="handleTabChange">
+            <a-tab-pane key="1" tab="Active">
+              <class-list-table ref="classList1" :slide-id="currentPreviewLesson.presentationId" :classData="currentPreviewLesson" v-if="currentPreviewLesson && currentPreviewLesson.presentationId" :active="true"/>
+              <div class="no-session" v-else>
+                <no-more-resources tips="Not exist previous sessions"/>
+              </div>
+            </a-tab-pane>
+            <a-tab-pane key="2" tab="Archived " force-render>
+              <class-list-table ref="classList2" :slide-id="currentPreviewLesson.presentationId" :classData="currentPreviewLesson" v-if="currentPreviewLesson && currentPreviewLesson.presentationId" :active="false"/>
+              <div class="no-session" v-else>
+                <no-more-resources tips="Not exist previous sessions"/>
+              </div>
+            </a-tab-pane>
+          </a-tabs>
         </div>
       </a-modal>
 
@@ -284,6 +309,7 @@
         :title="null"
         :closable="true"
         destroyOnClose
+        :dialog-style="{ top: '50px' }"
         width="900px">
         <div>
           <old-session-list :session-list="sessionList" @start-new-session="handleStartSession" @cancel="oldSelectSessionVisible=false" :mode="sessionMode" />
@@ -338,10 +364,12 @@ import StartEvaluation from '@/assets/icons/common/StartEvaluation.svg?inline'
 import StartSessionSvg from '@/assets/icons/common/StartSession.svg?inline'
 import TeacherPresenting from '@/assets/icons/common/TeacherPresenting.svg?inline'
 import StudentPace from '@/assets/icons/common/StudentPace.svg?inline'
-import ClassList from '@/components/Teacher/ClassList'
+import ClassListTable from '@/components/Teacher/ClassListTable'
 import CustomTag from '@/components/UnitPlan/CustomTag'
 import LiebiaoSvg from '@/assets/svgIcon/myContent/liebiao.svg?inline'
 import PubuSvg from '@/assets/svgIcon/myContent/pubu.svg?inline'
+import PSSvg from '@/assets/svgIcon/myContent/previous_session.svg?inline'
+import CollaborateSvg from '@/assets/icons/collaborate/collaborate_group.svg?inline'
 
 import storage from 'store'
 import {
@@ -358,6 +386,8 @@ import ModalHeader from '@/components/Common/ModalHeader'
 import { FindCustomTags } from '@/api/tag'
 import OldSessionList from '@/components/Teacher/OldSessionList'
 import { FindMyClasses } from '@/api/evaluation'
+import { ACCESS_TOKEN } from '@/store/mutation-types'
+import { TemplatesGetPresentation } from '@/api/template'
 
 export default {
   name: 'CreatedByMe',
@@ -365,7 +395,7 @@ export default {
     OldSessionList,
     NoMoreResources,
     CommonPreview,
-    ClassList,
+    ClassListTable,
     ContentStatusIcon,
     ContentTypeIcon,
     TvSvg,
@@ -381,7 +411,9 @@ export default {
     EditSvg,
     CopySvg,
     LiebiaoSvg,
-    PubuSvg
+    PubuSvg,
+    PSSvg,
+    CollaborateSvg
   },
   data () {
     return {
@@ -455,7 +487,8 @@ export default {
       FindMyContent({
         owner: ownerMap[this.currentOwner],
         status: statusMap[this.currentStatus],
-        types: this.currentType !== 'all-type' ? [typeMap[this.currentType]] : [],
+        collabrated: this.currentType === 'Collabrated',
+        types: this.currentType === 'all-type' || this.currentType === 'Collabrated' ? [] : [typeMap[this.currentType]],
         pageNo: this.pageNo,
         pageSize: this.pagination.pageSize,
         searchKey: this.$route.query.searchKey ? this.$route.query.searchKey : ''
@@ -480,6 +513,7 @@ export default {
       }).finally(() => {
         this.loading = false
         this.skeletonLoading = false
+        this.checkGoogleTokenExpired()
       })
     },
     toggleStatus (status, label) {
@@ -595,6 +629,7 @@ export default {
           author: this.$store.getters.email,
           slide_id: item.presentationId,
           copy_from: item.copyFromSlide,
+          revision_id: item.revisionId,
           file_name: item.name ? item.name : 'Unnamed',
           status: this.sessionMode === 1 ? lessonStatus.live : lessonStatus.studentPaced,
           redirect_url: null
@@ -606,13 +641,15 @@ export default {
           if (res.code === 'ok') {
             this.startLoading = false
             this.lessonSelectTagVisible = false
-            const targetUrl = lessonHost + 'd/' + res.data.class_id
+            const targetUrl = lessonHost + 'd/' + res.data.class_id + '?token=' + storage.get(ACCESS_TOKEN)
             this.$logger.info('try open ' + targetUrl)
             // window.open(targetUrl, '_blank')
             // 课堂那边需要点击返回回到表单，改成location.href跳转
-            const url = lessonHost + 't/' + res.data.class_id
+            const url = lessonHost + 't/' + res.data.class_id + '?token=' + storage.get(ACCESS_TOKEN)
             var windowObjectReference
-            var strWindowFeatures = 'width=1200,height=750,menubar=yes,location=yes,resizable=yes,scrollbars=true,status=true,top=100,left=200'
+            var height = document.documentElement.clientHeight * 0.7
+            var width = document.documentElement.clientWidth * 0.7
+            var strWindowFeatures = 'width=' + width + ',height=' + height + ',menubar=yes,location=yes,resizable=yes,scrollbars=true,status=true,top=100,left=200'
             if (this.sessionMode === 1) {
               windowObjectReference = window.open(
                 'about:blank',
@@ -687,7 +724,7 @@ export default {
       logger.info('loadTeacherClasses  slideId:' + item.presentationId)
       this.loading = true
       this.sessionList = []
-      FindMyClasses({ slideId: item.presentationId }).then(response => {
+      FindMyClasses({ slideId: item.presentationId, lastVersion: true }).then(response => {
         logger.info('findMyClasses', response.result.data)
         if (response.success) {
           this.sessionList = response.result
@@ -727,6 +764,24 @@ export default {
         }
         // this.$refs.customTag.tagLoading = false
       })
+    },
+    handleTabChange (tab) {
+      if (tab === '1') {
+        this.$refs.classList1.loadTeacherClasses()
+      } else {
+        this.$refs.classList2.loadTeacherClasses()
+      }
+    },
+    checkGoogleTokenExpired () {
+      this.$logger.info('checkGoogleTokenExpired response')
+      var index = this.myContentList.findIndex(item => item.type === typeMap.task)
+      if (index > -1) {
+        TemplatesGetPresentation({
+          presentationId: this.myContentList[index].presentationId
+        }).then(response => {
+          this.$logger.info('TemplatesGetPresentation response', response)
+        })
+      }
     }
   }
 }
@@ -754,6 +809,15 @@ export default {
   padding: 15px 10px;
   margin-bottom: 15px;
   cursor: pointer;
+  .collaborate-icon-item{
+    width:30px;
+    height: 30px;
+    margin-left: 10px;
+    text-align: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
 }
 
 .my-content {
@@ -1049,6 +1113,13 @@ a.delete-action {
   opacity: 1;
   border-radius: 6px;
   border: none;
+  position:relative;
+  .card-collaborate-icon-item{
+    width:30px;
+    position: absolute;
+    right: 0;
+    bottom: 5px;
+  }
 
   .cover-img {
     width: 100%;
@@ -1227,6 +1298,10 @@ a.delete-action {
 
   .no-session {
     padding: 100px;
+  }
+  .preview-session-search{
+    margin: 10px;
+    width: 400px;
   }
 }
 

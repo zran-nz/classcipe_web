@@ -3,8 +3,8 @@
     <div class="nav-left">
       <div class="nav-items menu-list">
         <a-menu mode="horizontal" theme="dark" :defaultSelectedKeys="defaultSelectedKeys" :selectedKeys="selectedKeys">
-          <a-menu-item key="/teacher/library">
-            <router-link to="/teacher/library">
+          <a-menu-item key="/teacher/library-v2">
+            <router-link to="/teacher/library-v2">
               <div class="nav-item">
                 <div class="nav-icon">
                   <library-icon-svg />
@@ -33,16 +33,16 @@
       </div>
     </div>
     <div class="nav-right">
-      <div class="nav-items search-box">
-        <a-input
-          placeholder="Search"
-          v-model="searchText"
-          @search="triggerSearch"
-          @pressEnter="triggerSearch"
-          class="my-nav-search">
-          <sousuo-icon-svg slot="prefix"/>
-        </a-input>
-      </div>
+      <!--      <div class="nav-items search-box">-->
+      <!--        <a-input-->
+      <!--          placeholder="Search"-->
+      <!--          v-model="searchText"-->
+      <!--          @search="triggerSearch"-->
+      <!--          @pressEnter="triggerSearch"-->
+      <!--          class="my-nav-search">-->
+      <!--          <sousuo-icon-svg slot="prefix"/>-->
+      <!--        </a-input>-->
+      <!--      </div>-->
       <div class="add-new">
         <a-dropdown>
           <a-menu slot="overlay">
@@ -71,18 +71,18 @@
             style="padding: 0 20px;display:flex; box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.16);align-items:center ;height: 32px;border-radius: 6px;background: #FFFFFF;border: 1px solid #eee;font-family: Inter-Bold;color: #182552;"> Create New <a-icon type="caret-down" /> </a-button>
         </a-dropdown>
       </div>
-      <a-menu mode="horizontal" theme="dark" :defaultSelectedKeys="defaultSelectedKeys" :selectedKeys="selectedKeys">
-        <a-menu-item key="/teacher/appraisal">
-          <div class="nav-item">
-            <div class="nav-icon">
-              <edit-icon-svg />
-            </div>
-            <div class="nav-label">
-              Appraisal
-            </div>
-          </div>
-        </a-menu-item>
-      </a-menu>
+      <!--      <a-menu mode="horizontal" theme="dark" :defaultSelectedKeys="defaultSelectedKeys" :selectedKeys="selectedKeys">-->
+      <!--        <a-menu-item key="/teacher/appraisal">-->
+      <!--          <div class="nav-item">-->
+      <!--            <div class="nav-icon">-->
+      <!--              <edit-icon-svg />-->
+      <!--            </div>-->
+      <!--            <div class="nav-label">-->
+      <!--              Appraisal-->
+      <!--            </div>-->
+      <!--          </div>-->
+      <!--        </a-menu-item>-->
+      <!--      </a-menu>-->
     </div>
   </div>
 </template>

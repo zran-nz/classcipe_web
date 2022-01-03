@@ -10,7 +10,9 @@ export const evaluationAPIUrl = {
   queryById: '/classcipe/api/evaluation/queryById',
   queryByIds: '/classcipe/api/evaluation/queryByIds',
   findMyClasses: '/classcipe/api/evaluation/findMyClasses',
-  GetSessionEvaluationByClassId: '/classcipe/api/evaluation/getSessionEvaluationByClassId'
+  GetSessionEvaluationByClassId: '/classcipe/api/evaluation/getSessionEvaluationByClassId',
+  querySessionEvaluation: '/classcipe/api/evaluation/querySessionEvaluation',
+  saveSessionEvaluation: '/classcipe/api/evaluation/saveSessionEvaluation'
 }
 
 /**
@@ -83,5 +85,21 @@ export function GetSessionEvaluationByClassId (parameter) {
     url: evaluationAPIUrl.GetSessionEvaluationByClassId,
     method: 'get',
     params: parameter
+  })
+}
+
+export function SaveSessionEvaluation (parameter) {
+  return request({
+    url: evaluationAPIUrl.saveSessionEvaluation,
+    method: 'post',
+    data: parameter
+  })
+}
+
+export function QuerySessionEvaluation (parameter) {
+  return request({
+    url: evaluationAPIUrl.querySessionEvaluation,
+    method: 'post',
+    data: parameter
   })
 }

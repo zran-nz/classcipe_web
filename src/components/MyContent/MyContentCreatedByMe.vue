@@ -284,7 +284,7 @@
         :footer="null"
         destroyOnClose
         width="1000px"
-        :zIndex="2000"
+        :zIndex="4000"
         :title="null"
         @ok="previewTemplateVisible = false"
         @cancel="previewTemplateVisible = false">

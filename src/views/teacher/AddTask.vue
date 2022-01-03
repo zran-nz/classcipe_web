@@ -4,7 +4,9 @@
       <common-form-header
         ref="commonFormHeader"
         :form="form"
+        :collaborate="collaborate"
         :last-change-saved-time="lastChangeSavedTime"
+        :hidden-right-button="mode === 'pick-task-slide'"
         @view-collaborate="handleViewCollaborate"
         @back="goBack"
         @save="handleSaveTask"
@@ -12,7 +14,7 @@
         @collaborate="handleStartCollaborate"
       />
     </div>
-    <a-card :bordered="false" :bodyStyle="{ padding: '16px 24px 40px 24px', height: '100%', minHeight: '1000px',minWidth:'1200px' }">
+    <a-card :bordered="false" :bodyStyle="{ padding: '16px 24px 40px 24px', height: '100%', minHeight: '1000px' }">
       <template v-if="mode === 'edit'">
         <a-row class="unit-content" v-if="!contentLoading" >
           <a-col span="24" class="main-content">
@@ -27,6 +29,27 @@
                           <comment-switch field-name="name" :is-active="showCollaborateCommentVisible && currentFieldName === 'name'" @switch="handleSwitchComment" class="my-comment-switch"/>
                           <a-form-item label="Task name" >
                             <a-input v-model="form.name" placeholder="Enter Task Name" class="my-form-input"/>
+                          </a-form-item>
+                        </div>
+
+                        <div class="form-block grade-time">
+                          <!--   <comment-switch field-name="name" :is-active="showCollaborateCommentVisible && currentFieldName === 'name'" @switch="handleSwitchComment" class="my-comment-switch"/>-->
+                          <a-form-item label="Grade level" style="width:26%;margin-bottom: 0px;">
+                            <a-select size="large" v-model="form.gradeId" class="my-big-select" placeholder="Select a grade">
+                              <a-select-option v-for="(grade,index) in gradeList" :value="grade.id" :key="index">
+                                {{ grade.name }}
+                              </a-select-option>
+                            </a-select>
+                          </a-form-item>
+                          <a-form-item class="range-time" label="Start Date" style="width:70%;margin-bottom: 0px;position:relative">
+                            <div class="week-time" v-if="getWeek">
+                              <a-tag color="cyan" style="border-radius: 10px;font-size: 14px;">
+                                {{ getWeek }}
+                              </a-tag>
+                            </div>
+                            <a-range-picker v-model="rangeDate" size="large" format="LLL" :show-time="{ format: 'HH:mm' }" style="width:100%">
+                              <a-icon slot="suffixIcon" type="calendar" />
+                            </a-range-picker>
                           </a-form-item>
                         </div>
 
@@ -47,13 +70,13 @@
                               <div class="self-field-label" >
                                 <div :class="{'task-type-item': true, 'green-active-task-type': form.taskType === 'FA'}" @click.stop.prevent="handleSelectTaskType('FA')">FA</div>
                                 <div :class="{'task-type-item': true, 'red-active-task-type': form.taskType === 'SA'}" @click.stop.prevent="handleSelectTaskType('SA')">SA</div>
-                                <div :class="{'task-type-item': true, 'task-type-activity': true,'blue-active-task-type': form.taskType === 'Activity'}" @click.stop.prevent="handleSelectTaskType('Activity')">Activity</div>
+                                <div :class="{'task-type-item': true, 'task-type-activity': true,'blue-active-task-type': form.taskType === 'Activity'}" @click.stop.prevent="handleSelectTaskType('Activity')"> <a-tooltip title="Teaching/Learning Activity" placement="top">Activity</a-tooltip></div>
                               </div>
                             </div>
                           </a-form-model-item>
                         </div>
 
-                        <div class="form-block form-question" v-if="associateQuestionList.length > 0 && form.taskType === 'FA'">
+                        <div class="form-block form-question" v-if="associateQuestionList.length > 0">
                           <comment-switch field-name="questions" :is-active="showCollaborateCommentVisible && currentFieldName === 'questions'" @switch="handleSwitchComment" class="my-comment-switch"/>
                           <a-form-model-item label="Choose Key questions">
                             <a-select
@@ -76,10 +99,10 @@
 
                         <div class="form-block" >
                           <comment-switch field-name="assessment" :is-active="showCollaborateCommentVisible && currentFieldName === 'assessment'" @switch="handleSwitchComment" class="my-comment-switch"/>
-                          <a-form-item label="Set assessment objectives" >
+                          <a-form-item label="Set learning objectives" >
                             <a-button type="primary" @click="handleSelectDescription">
                               <div class="btn-text" style="line-height: 20px">
-                                Add assessment objectives
+                                Add learning objectives
                               </div>
                             </a-button>
                           </a-form-item>
@@ -87,6 +110,41 @@
                           <!--knowledge tag-select -->
                           <ui-learn-out ref="learnOut" :learn-outs="form.learnOuts" @remove-learn-outs="handleRemoveLearnOuts" />
                         </div>
+
+                        <div class="form-block" style="clear: both">
+                          <div class="form-block-label">
+                            <a-switch v-model="materialListFlag" @change="handleMaterialListFlagChange" /> Material list
+                          </div>
+                          <div class="material-list">
+                            <div
+                              class="material-item"
+                              v-for="(materialItem, mIndex) in form.materialList"
+                              :key="mIndex">
+                              <a-row :gutter="[16,16]">
+                                <a-col span="8">
+                                  <a-input v-model="materialItem.name" aria-placeholder="Enter material name" placeholder="Enter material name"/>
+                                </a-col>
+                                <a-col span="14">
+                                  <a-tooltip placement="topLeft">
+                                    <template slot="title">
+                                      The link is provided to help other users or students prepare(purchase) the material for this task
+                                    </template>
+                                    <a-input v-model="materialItem.link" aria-placeholder="Enter URL" placeholder="Enter URL">
+                                      <a-icon slot="prefix" type="link" />
+                                    </a-input>
+                                  </a-tooltip>
+                                </a-col>
+                                <a-col span="2">
+                                  <div class="material-icon">
+                                    <a-icon type="plus-circle" :style="{ fontSize: '16px' }" v-if="mIndex === (form.materialList.length - 1)" @click="handleAddMaterial"/>
+                                    <img src="~@/assets/icons/evaluation/delete.png" v-if="mIndex < (form.materialList.length - 1)" class="delete-icon" @click="handleRemoveMaterialItem(materialItem, mIndex)"/>
+                                  </div>
+                                </a-col>
+                              </a-row>
+                            </div>
+                          </div>
+                        </div>
+
                       </template>
                     </a-step>
 
@@ -109,7 +167,7 @@
                               @click="changeSelected" />
                           </a-tooltip>
                         </div>
-                        <div class="top-icon-groups" v-if="Object.keys(currentPageMaterial).length > 0 && !form.showSelected">
+                        <div class="top-icon-groups" v-if="!form.showSelected">
                           <a-col class="material-row" >
                             <div class="icon-group">
                               <a-badge :count="showMaterialSize('text')" v-if="currentPageMaterial.hasOwnProperty('text')">
@@ -213,27 +271,27 @@
                                   <div class="plugin-tags" v-if="currentPageItem">
                                     <a-row class="tag-row">
                                       <span class="tag-item" v-if="currentPageItem.data.bloomLevel">
-                                        <span class="tag-title">Bloom level:</span>
+                                        <span class="tag-title">Bloom's Taxonomy:</span>
                                         <span class="tag-value" style="color:#F16A39">{{ currentPageItem.data.bloomLevel }}</span>
                                       </span>
                                       <span class="tag-item" v-if="currentPageItem.data.knowledgeLevel">
-                                        <span class="tag-title">Knowledge:</span>
+                                        <span class="tag-title">Knowledge dimension(s):</span>
                                         <span class="tag-value" style="color:#F16A39">{{ currentPageItem.data.knowledgeLevel }}</span>
                                       </span>
                                     </a-row>
                                     <a-row class="tag-row">
                                       <span class="tag-item" v-if="currentPageItem.data.verbs">
-                                        <span class="tag-title">Verbs:</span>
+                                        <span class="tag-title">Command terms:</span>
                                         <span class="tag-value" v-for="(v,index) in currentPageItem.data.verbs" :key="index" style="color:#15C39A">{{ v }}</span>
                                       </span>
                                       <span class="tag-item" v-if="currentPageTips">
-                                        <span class="tag-title">Tips added:</span>
+                                        <span class="tag-title">Tip added:</span>
                                         <span class="tag-value" style="color:#0054FF">{{ currentPageTips.tip }}</span>
                                       </span>
                                     </a-row>
                                     <a-row class="tag-row">
                                       <span class="tag-item">
-                                        <span class="tag-title">learning outcomes:</span>
+                                        <span class="tag-title">Assessment objective(s):</span>
                                         <span class="tag-value" v-for="(learn,index) in currentPageItem.data.learnOuts" :key="index" style="color:#00BCF2">
                                           <a-tooltip :title="learn.path" :overlayStyle="{ 'z-index': '3000'}">{{ learn.name }} </a-tooltip>
                                         </span>
@@ -269,11 +327,18 @@
                       <template v-if="currentActiveStepIndex === 2" slot="description">
                         <div class="form-block">
                           <a-form-item class="link-plan-title">
-                            <a-button type="primary" :style="{'background-color': '#fff', 'color': '#000', 'border': '1px solid #D8D8D8'}" @click="handleAddTerm">
-                              <div class="btn-text" style="line-height: 20px">
-                                + Add
-                              </div>
-                            </a-button>
+                            <a-space>
+                              <a-button type="primary" :style="{'background-color': '#fff', 'color': '#000', 'border': '1px solid #D8D8D8'}" @click="handleAddUnitPlanTerm">
+                                <div class="btn-text" style="line-height: 20px">
+                                  + Link Unit plan
+                                </div>
+                              </a-button>
+                              <a-button type="primary" :style="{'background-color': '#fff', 'color': '#000', 'border': '1px solid #D8D8D8'}" @click="handleAddTerm">
+                                <div class="btn-text" style="line-height: 20px">
+                                  + Add rubric
+                                </div>
+                              </a-button>
+                            </a-space>
                           </a-form-item>
                           <div class="common-link-wrapper">
                             <common-link ref="commonLink" :from-id="this.taskId" :from-type="this.contentType.task"/>
@@ -288,15 +353,7 @@
               </div>
 
               <div class="task-form-right" :style="{'width':rightWidth + 'px'}">
-
-                <!--购物车效果截图 -->
-                <div class="slide-animate-cover" id="slide-animate" v-show="currentSlideCoverImgSrc">
-                  <img
-                    id="slide-animate-img"
-                    :src="currentSlideCoverImgSrc"
-                    class="slide-animate-item" />
-                </div>
-                <template v-if="showAllCollaborateCommentVisible">
+                <template v-if="showRightModule(rightModule.collaborate)">
                   <a-skeleton :loading="showHistoryLoading" active>
                     <div class="collaborate-panel" :style="{'width':rightWidth + 'px', 'margin-top': '0px', 'z-index': 100, 'padding': '10px'}">
                       <div class="icon">
@@ -313,135 +370,144 @@
                     </div>
                   </a-skeleton>
                 </template>
-                <template v-else>
-                  <template v-if="showCollaborateCommentVisible">
-                    <div class="collaborate-panel" :style="{'width':rightWidth + 'px', 'margin-top':collaborateTop+'px', 'z-index': 100, 'padding': '10px'}">
-                      <collaborate-comment-panel :source-id="taskId" :source-type="contentType.task" :field-name="currentFieldName" :comment-list="currentCollaborateCommentList" @update-comment="handleUpdateCommentList"/>
-                    </div>
-                  </template>
-                  <template v-else>
-                    <div class="form-block-right" v-show="currentActiveStepIndex !== 1" >
-                      <!-- image-->
-                      <a-form-model-item class="img-wrapper">
-                        <a-upload-dragger
-                          name="file"
-                          accept="image/png, image/jpeg"
-                          :showUploadList="false"
-                          :customRequest="handleUploadImage"
-                        >
-                          <div class="delete-img" @click="handleDeleteImage($event)" v-show="form.image">
-                            <a-icon type="close-circle" />
+                <template v-if="showRightModule(rightModule.collaborateComment) && currentActiveStepIndex === 0">
+                  <div class="collaborate-panel" :style="{'width':rightWidth + 'px', 'margin-top':collaborateTop+'px', 'z-index': 100, 'padding': '10px'}">
+                    <collaborate-comment-panel :source-id="taskId" :source-type="contentType.task" :field-name="currentFieldName" :comment-list="currentCollaborateCommentList" @update-comment="handleUpdateCommentList"/>
+                  </div>
+                </template>
+                <template v-if="showRightModule(rightModule.imageUpload) && currentActiveStepIndex !== 1">
+                  <div class="form-block-right" >
+                    <!-- image-->
+                    <a-form-model-item class="img-wrapper">
+                      <a-upload-dragger
+                        name="file"
+                        accept="image/png, image/jpeg"
+                        :showUploadList="false"
+                        :customRequest="handleUploadImage"
+                      >
+                        <div class="delete-img" @click="handleDeleteImage($event)" v-show="form.image">
+                          <a-icon type="close-circle" />
+                        </div>
+                        <template v-if="uploading">
+                          <div class="upload-container">
+                            <p class="ant-upload-drag-icon">
+                              <a-icon type="cloud-upload" />
+                            </p>
+                            <p class="ant-upload-text">
+                              <a-spin />
+                              <span class="uploading-tips">{{ $t('teacher.add-unit-plan.uploading') }}</span>
+                            </p>
                           </div>
-                          <template v-if="uploading">
-                            <div class="upload-container">
-                              <p class="ant-upload-drag-icon">
-                                <a-icon type="cloud-upload" />
-                              </p>
-                              <p class="ant-upload-text">
-                                <a-spin />
-                                <span class="uploading-tips">{{ $t('teacher.add-unit-plan.uploading') }}</span>
-                              </p>
+                        </template>
+                        <template v-if="!uploading && form && form.image">
+                          <div class="image-preview">
+                            <img :src="form.image" alt="">
+                            <div class="upload-text-mask">
+                              <div class="upload-text">
+                                <a-button shape="round" type="primary">Upload a cover image</a-button>
+                              </div>
                             </div>
-                          </template>
-                          <template v-if="!uploading && form && form.image">
-                            <div class="image-preview">
-                              <img :src="form.image" alt="">
-                              <div class="upload-text-mask">
-                                <div class="upload-text">
-                                  <a-button shape="round" type="primary">Upload a cover image</a-button>
+                          </div>
+                        </template>
+                        <template v-if="!uploading && form && !form.image">
+                          <div class="upload-container">
+                            <p class="ant-upload-drag-icon">
+                              <img src="~@/assets/icons/lesson/upload_icon.png" class="upload-icon" />
+                            </p>
+                            <p class="ant-upload-text">
+                              Upload a cover image
+                            </p>
+                          </div>
+                        </template>
+                      </a-upload-dragger>
+                    </a-form-model-item>
+                  </div>
+                </template>
+                <template v-if="showRightModule(rightModule.recommend) && currentActiveStepIndex == 1">
+                  <!--购物车效果截图 -->
+                  <div class="slide-animate-cover" id="slide-animate" v-show="currentSlideCoverImgSrc">
+                    <img
+                      id="slide-animate-img"
+                      :src="currentSlideCoverImgSrc"
+                      class="slide-animate-item" />
+                  </div>
+                  <div class="recomend-loading" v-if="recomendListLoading">
+                    <a-spin size="large" />
+                  </div>
+                  <div class="form-block-right" v-if="!recomendListLoading">
+                    <div class="right-title">Recommended</div>
+                    <div class="slide-preview-list">
+                      <div class="slide-preview-item" v-for="(template, rIndex) in filterRecommendTemplateList" :key="rIndex">
+                        <div class="template-hover-action-mask">
+                          <div class="template-hover-action">
+                            <div class="modal-ensure-action-line">
+                              <a-button
+                                class="action-ensure action-item"
+                                shape="round"
+                                @click="handlePreviewTemplate(template)"
+                              >
+                                <a-icon type="eye" theme="filled"/>
+                                <div class="btn-text">
+                                  Preview
                                 </div>
-                              </div>
-                            </div>
-                          </template>
-                          <template v-if="!uploading && form && !form.image">
-                            <div class="upload-container">
-                              <p class="ant-upload-drag-icon">
-                                <img src="~@/assets/icons/lesson/upload_icon.png" class="upload-icon" />
-                              </p>
-                              <p class="ant-upload-text">
-                                Upload a cover image
-                              </p>
-                            </div>
-                          </template>
-                        </a-upload-dragger>
-                      </a-form-model-item>
-                    </div>
-                    <div class="recomend-loading" v-if="recomendListLoading">
-                      <a-spin size="large" />
-                    </div>
-                    <div class="form-block-right" v-show="currentActiveStepIndex === 1" v-if="!recomendListLoading">
-                      <div class="right-title">Recommended</div>
-                      <div class="slide-preview-list">
-                        <div class="slide-preview-item" v-for="(template, rIndex) in filterRecommendTemplateList" :key="rIndex">
-                          <div class="template-hover-action-mask">
-                            <div class="template-hover-action">
-                              <div class="modal-ensure-action-line">
-                                <a-button
-                                  class="action-ensure action-item"
-                                  shape="round"
-                                  @click="handlePreviewTemplate(template)"
-                                >
-                                  <a-icon type="eye" theme="filled"/>
-                                  <div class="btn-text">
-                                    Preview
-                                  </div>
-                                </a-button>
-                                <a-button
-                                  v-if="selectedTemplateIdList.indexOf(template.id) === -1"
-                                  class="action-ensure action-item"
-                                  shape="round"
-                                  @click="selectRecommendTemplate(template, rIndex, $event)">
-                                  <a-icon type="plus-circle" theme="filled"/>
-                                  <div class="btn-text">
-                                    Add
-                                  </div>
-                                </a-button>
-                                <a-button
-                                  v-else
-                                  class="action-ensure action-item"
-                                  shape="round"
-                                  @click="handleRemoveTemplate(template)"
-                                >
-                                  <a-icon type="minus-circle" theme="filled"/>
-                                  <div class="btn-text">
-                                    Remove
-                                  </div>
-                                </a-button>
-                              </div>
+                              </a-button>
+                              <a-button
+                                v-if="selectedTemplateIdList.indexOf(template.id) === -1"
+                                class="action-ensure action-item"
+                                shape="round"
+                                @click="selectRecommendTemplate(template, rIndex, $event)">
+                                <a-icon type="plus-circle" theme="filled"/>
+                                <div class="btn-text">
+                                  Add
+                                </div>
+                              </a-button>
+                              <a-button
+                                v-else
+                                class="action-ensure action-item"
+                                shape="round"
+                                @click="handleRemoveTemplate(template)"
+                              >
+                                <a-icon type="minus-circle" theme="filled"/>
+                                <div class="btn-text">
+                                  Remove
+                                </div>
+                              </a-button>
                             </div>
                           </div>
-                          <a-carousel arrows>
-                            <div slot="prevArrow" class="custom-slick-arrow" style="left: 10px;zIndex: 100" >
-                              <a-icon type="left-circle" />
-                            </div>
-                            <div slot="nextArrow" class="custom-slick-arrow" style="right: 10px;zIndex: 100">
-                              <a-icon type="right-circle" />
-                            </div>
-                            <div v-for="(item,index) in template.images" :key="index">
-                              <img :src="item" />
-                            </div>
-                          </a-carousel>
-                          <a-row v-if="template.introduce" class="slide-desc" :title="template.introduce">
-                            {{ template.introduce }}
-                          </a-row>
-                          <div class="recommend-slide-name">
-                            {{ template.name }}
+                        </div>
+                        <a-carousel arrows>
+                          <div slot="prevArrow" class="custom-slick-arrow" style="left: 10px;zIndex: 100" >
+                            <a-icon type="left-circle" />
                           </div>
+                          <div slot="nextArrow" class="custom-slick-arrow" style="right: 10px;zIndex: 100">
+                            <a-icon type="right-circle" />
+                          </div>
+                          <div v-for="(item,index) in template.images" :key="index">
+                            <img :src="item" />
+                          </div>
+                        </a-carousel>
+                        <a-row v-if="template.introduce" class="slide-desc" :title="template.introduce">
+                          {{ template.introduce }}
+                        </a-row>
+                        <div class="recommend-slide-name">
+                          {{ template.name }}
                         </div>
                       </div>
                     </div>
-                    <div v-if="!this.contentLoading && this.currentActiveStepIndex !== 1" :style="{'width':rightWidth+'px', 'margin-top':customTagTop+'px'}">
-                      <custom-tag
-                        :show-arrow="showCustomTag"
-                        :user-tags="userTags"
-                        :custom-tags-list="customTagList"
-                        ref="customTag"
-                        :selected-tags-list="form.customTags"
-                        @reload-user-tags="loadUserTags"
-                        @change-add-keywords="handleChangeAddKeywords"
-                        @change-user-tags="handleChangeUserTags"></custom-tag>
-                    </div>
-                  </template>
+                  </div>
+                </template>
+                <template v-if="showRightModule(rightModule.customTag) && this.currentActiveStepIndex !== 1">
+                  <div v-if="!this.contentLoading" :style="{'width':rightWidth+'px', 'margin-top':customTagTop+'px'}">
+                    <custom-tag
+                      :show-arrow="showCustomTag"
+                      :user-tags="userTags"
+                      :custom-tags-list="customTagList"
+                      ref="customTag"
+                      :selected-tags-list="form.customTags"
+                      @reload-user-tags="loadUserTags"
+                      @change-add-keywords="handleChangeAddKeywords"
+                      @change-user-tags="handleChangeUserTags"></custom-tag>
+                  </div>
                 </template>
               </div>
             </a-card>
@@ -456,27 +522,103 @@
           </div>
           <div class="slide-form-block" v-show="form.presentationId">
             <div class="preview-list" v-if="!thumbnailListLoading">
-              <div :class="{'preview-item-cover': true, 'preview-item-cover-active': selectedPageIdList.indexOf(item.id) !== -1}" :style="{backgroundImage: 'url(' + item.contentUrl + ')'}" v-for="(item,index) in thumbnailList" :key="index" @click="handleToggleThumbnail(item)">
-                <div class="template-select-icon" v-if="selectedPageIdList.indexOf(item.id) !== -1">
-                  <img src="~@/assets/icons/task/selected.png"/>
-                </div>
-              </div>
+              <a-row :gutter="[16, 16]">
+                <a-col
+                  class="gutter-row"
+                  :span="10"
+                  :xs="12"
+                  :sm="12"
+                  :md="8"
+                  :lg="8"
+                  :xl="6"
+                  :xxl="4"
+                  v-for="(item,index) in thumbnailList"
+                  :key="index">
+                  <div
+                    :class="{'preview-item-cover': true, 'preview-item-cover-active': selectedPageIdList.indexOf(item.id) !== -1}"
+                    :style="{backgroundImage: 'url(' + item.contentUrl + ')'}"
+                    :key="index"
+                    @click="handleToggleThumbnail(item)">
+                    <div class="template-select-icon" v-if="selectedPageIdList.indexOf(item.id) !== -1">
+                      <img src="~@/assets/icons/task/selected.png"/>
+                    </div>
+                  </div>
+                </a-col>
+              </a-row>
             </div>
             <div class="thumbnail-loading" v-if="thumbnailListLoading">
               <a-spin size="large" />
             </div>
             <div class="thumbnail-task-list">
               <div class="thumbnail-task-item" v-if="currentTaskFormData">
-                <task-form :parent-form-data="currentTaskFormData" :select-ids="selectedPageIdList" :task-id="taskId" :task-prefix="'task_' + taskIndex + '_'" @finish-task="handleFinishTask" />
+                <task-form
+                  :parent-form-data="currentTaskFormData"
+                  :select-ids="selectedPageIdList"
+                  :selected-page-item-data="selectedPageItemData"
+                  :task-id="taskId"
+                  :ppt-title="pptTitle"
+                  :task-prefix="'task_' + taskIndex + '_'"
+                  @add-sub-task="handleAddSubTask" />
               </div>
               <div class="task-preview-list">
                 <div class="task-preview" v-for="(task, index) in subTasks" :key="index">
-                  <task-preview :task-id="task.id" />
+                  <task-preview :task-data="task" @delete-sub-task="handleDeleteSubTask" />
+                </div>
+              </div>
+              <a-divider />
+              <div class="sub-task-save">
+                <div class="sub-task-save-action">
+                  <a-space v-show="subTasks.length">
+                    <a-button
+                      @click="handleSaveSubTask(0)"
+                      :loading="subTaskSaving"
+                      class="my-form-header-btn"
+                      style="{
+            width: 120px;
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: center;
+            background: rgba(21, 195, 154, 0.08);
+            border: 1px solid #15C39A;
+            border-radius: 20px;
+            padding: 15px 20px;
+          }">
+                      <div class="btn-icon">
+                        <img src="~@/assets/icons/common/form/baocun@2x.png" />
+                      </div>
+                      <div class="btn-text">
+                        Save & Exit
+                      </div>
+                    </a-button>
+                    <a-button
+                      :loading="subTaskPublishing"
+                      class="my-form-header-btn"
+                      style="{
+            width: 120px;
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: center;
+             background: rgba(21, 195, 154, 0.08);
+            border: 1px solid #15C39A;
+            border-radius: 20px;
+            padding: 15px 20px;
+          }"
+                      @click="handleSaveSubTask(1)" >
+                      <div class="btn-icon">
+                        <img src="~@/assets/icons/common/form/fabu@2x.png" />
+                      </div>
+                      <div class="btn-text">
+                        Save & Publish
+                      </div>
+                    </a-button>
+                  </a-space>
                 </div>
               </div>
             </div>
           </div>
-          <div class="no-data-slide-form-block" v-show="!form.presentationId">
+          <div class="no-data-slide-form-block" v-show="!contentLoading && !form.presentationId">
             <no-more-resources tips="The slide has not been created" />
             <div class="go-to-create">
               <a-button type="primary" @click="handleGotoEditMode">Back</a-button>
@@ -490,12 +632,12 @@
         :maskClosable="false"
         :closable="true"
         destroyOnClose
-        width="800px">
-        <collaborate-content
+        width="900px">
+        <collaborate-user-list
           :content-id="taskId"
           :main-content="collaborateContent"
           :content-type="contentType.task"
-          @finished="showCollaborateModalVisible = false"
+          @confirmSelect="confirmSelectCollaborateUsers"
           v-if="showCollaborateModalVisible"/>
       </a-modal>
       <a-modal
@@ -518,20 +660,47 @@
         </div>
       </a-modal>
       <a-modal
-        v-model="selectLinkContentVisible"
+        v-model="selectLinkUnitPlanContentVisible"
         :footer="null"
         destroyOnClose
+        :dialog-style="{ top: '10px'}"
         width="900px">
         <div class="my-modal-title" slot="title">
-          Link Evaluation Form(s)
+          Link Unit Plan
         </div>
         <div class="link-content-wrapper">
           <new-my-content
             :from-type="contentType.task"
             :from-id="taskId"
-            :filter-type-list="[contentType.evaluation, ]"
+            :filter-type-list="[contentType['unit-plan']]"
             :group-name-list="groupNameList"
-            :default-group-name="newTermName"
+            default-group-name="Relevant Unit Plan(s)"
+            :show-tabs="false"
+            :show-create="false"
+            :mode="'common-link'"
+            :group-name-mode="groupNameMode"
+            @cancel="selectLinkUnitPlanContentVisible = false"
+            @ensure="handleEnsureSelectedLink"/>
+        </div>
+      </a-modal>
+
+      <a-modal
+        v-model="selectLinkContentVisible"
+        :footer="null"
+        destroyOnClose
+        :dialog-style="{ top: '10px'}"
+        width="900px">
+        <div class="my-modal-title" slot="title">
+          Link Assessment rubric(s)
+        </div>
+        <div class="link-content-wrapper">
+          <new-my-content
+            :from-type="contentType.task"
+            :from-id="taskId"
+            :filter-type-list="[contentType.evaluation]"
+            :group-name-list="groupNameList"
+            default-group-name="Linked assessment tool(s)"
+            :show-tabs="false"
             :mode="'common-link'"
             :group-name-mode="groupNameMode"
             @cancel="selectLinkContentVisible = false"
@@ -590,7 +759,6 @@
               <!--                </div>-->
               <!--              </div>-->
               <div class="template-select-header">
-                <img @click="toggleUpFilter()" title="Collapse filter" v-if="showTemplateFilter" class="toggle-up" src="~@/assets/icons/myClass/gengduo_color.png">
                 <div class="group-filter">
                   <a-radio-group v-model="filterType" button-style="solid" @change="changeFilterType">
                     <a-radio-button :value="1">
@@ -627,16 +795,16 @@
                 </a-row>
                 <a-row v-if="filterType == 2 && showTemplateFilter">
                   <a-tabs
+                    class="assessments-tabs"
                     v-model="filterAssessmentsType"
                     :defaultActiveKey="filterAssessmentsType"
                     @change="changeFilterType"
                     :tabBarGutter="3"
-                    tabPosition="left"
                     :tabBarStyle="{margin:'10px 20px'}">
                     <a-tab-pane key="1" tab="Knowledge focus" >
                       <div class="filter-row">
                         <a-row >
-                          <div class="row-select">
+                          <div class="row-select row-select-assessments">
                             <a-col :span="24">
                               <!--                          <span class="sub-category">Knowledge focus </span>-->
                               <a-radio-group v-model="item.tooltip" :name="item.name" class="sub-select" v-for="(item ,index) in templateFilterCondition(templateType.Assessments,'Knowledge focus')" :key="index">
@@ -659,7 +827,7 @@
                     <a-tab-pane key="2" tab="Skill focus" force-render>
                       <div class="filter-row">
                         <a-row >
-                          <div class="row-select">
+                          <div class="row-select row-select-assessments">
                             <a-col :span="24">
                               <!--                          <span class="sub-category">Skill focus</span>-->
                               <a-radio-group v-model="item.tooltip" :name="item.name" class="sub-select" v-for="(item ,index) in templateFilterCondition(templateType.Assessments,'Skill focus')" :key="index">
@@ -739,6 +907,9 @@
                     </a-row>
                   </div>
                 </a-row>
+                <div class="expand-icon" v-if="showTemplateFilter" @click="toggleUpFilter()">
+                  <a-icon type="up-circle" theme="filled" title="Collapse filter" /> Close
+                </div>
               </div>
               <div class="template-list-wrapper">
                 <div class="template-list" v-if="!templateLoading">
@@ -1089,22 +1260,29 @@
         <div class="link-content-wrapper">
           <!-- 此处的questionIndex用于标识区分是哪个组件调用的，返回的事件数据中会带上，方便业务数据处理，可随意写，可忽略-->
           <new-browser
+            ref="newBrowser"
             :select-mode="selectModel.syncData"
             question-index="_questionIndex_1"
             :sync-data="syncData"
-            :show-menu="[ NavigationType.specificSkills, NavigationType.centurySkills, NavigationType.learningOutcomes, NavigationType.assessmentType ]"
+            :show-menu="[NavigationType.specificSkills,
+                         NavigationType.centurySkills,
+                         NavigationType.learningOutcomes,
+                         NavigationType.assessmentType,
+                         NavigationType.idu]"
             :default-active-menu="NavigationType.learningOutcomes"
             :recommend-data="recommendData"
+            :selected-list="selectedList"
+            :selected-id="selectedIdList"
             @select-assessmentType="handleSelectAssessmentType"
             @select-sync="handleSelectListData"
             @select-curriculum="handleSelectCurriculum"
             @select-subject-specific-skill="handleSelectSubjectSpecificSkillListData"
             @select-century-skill="handleSelect21CenturySkillListData"
+            @select-idu="handleSelectIdu"
+            @select-recommend="handleSelectRecommend"
+            @cancel-select="handleCancelSelectData"
+            @ensure-select="handleEnsureSelectData"
           />
-          <div class="modal-ensure-action-line-right">
-            <a-button class="action-item action-cancel" shape="round" @click="handleCancelSelectData">Cancel</a-button>
-            <a-button class="action-ensure action-item" type="primary" shape="round" @click="handleEnsureSelectData">Ok</a-button>
-          </div>
         </div>
       </a-modal>
 
@@ -1156,7 +1334,7 @@
 import * as logger from '@/utils/logger'
 import ContentTypeIcon from '@/components/Teacher/ContentTypeIcon'
 import { typeMap } from '@/const/teacher'
-import { Associate, GetAssociate, GetReferOutcomes, SaveSessonTags } from '@/api/teacher'
+import { Associate, FindSourceOutcomes, GetAssociate, GetMyGrades, GetReferOutcomes, SaveSessonTags } from '@/api/teacher'
 import InputSearch from '@/components/UnitPlan/InputSearch'
 import SdgTagInput from '@/components/UnitPlan/SdgTagInput'
 import SkillTag from '@/components/UnitPlan/SkillTag'
@@ -1177,7 +1355,7 @@ import CustomTag from '@/components/UnitPlan/CustomTag'
 import NewUiClickableKnowledgeTag from '@/components/UnitPlan/NewUiClickableKnowledgeTag'
 import { lessonHost, lessonStatus } from '@/const/googleSlide'
 import { StartLesson } from '@/api/lesson'
-import CollaborateContent from '@/components/Collaborate/CollaborateContent'
+import CollaborateUserList from '@/components/Collaborate/CollaborateUserList'
 import { CustomTagType, TemplateType } from '@/const/common'
 // import { SubjectTree } from '@/api/subject'
 // import { formatSubjectTree } from '@/utils/bizUtil'
@@ -1196,6 +1374,7 @@ import CollaborateCommentPanel from '@/components/Collaborate/CollaborateComment
 import CommentSwitch from '@/components/Collaborate/CommentSwitch'
 import CollaborateCommentView from '@/components/Collaborate/CollaborateCommentView'
 import commentIcon from '@/assets/icons/collaborate/comment.svg?inline'
+import ExpendSvg from '@/assets/icons/task/expend.svg?inline'
 import CollaborateHistory from '@/components/Collaborate/CollaborateHistory'
 import NoMoreResources from '@/components/Common/NoMoreResources'
 import TemplatePreview from '@/components/Task/TemplatePreview'
@@ -1203,2182 +1382,3770 @@ import TaskMaterialPreview from '@/components/Task/TaskMaterialPreview'
 import TaskPptPreview from '@/components/Task/TaskPptPreview'
 import { PptPreviewMixin } from '@/mixins/PptPreviewMixin'
 import MediaPreview from '@/components/Task/MediaPreview'
+import { UtilMixin } from '@/mixins/UtilMixin'
+import moment from 'moment'
+import { BaseEventMixin } from '@/mixins/BaseEvent'
+const { SplitTask } = require('@/api/task')
+
 export default {
-  name: 'AddTask',
-  components: {
-    TaskPptPreview,
-    TemplatePreview,
-    NoMoreResources,
-    CollaborateHistory,
-    CollaborateCommentView,
-    CommentSwitch,
-    CollaborateCommentPanel,
-    CommonFormHeader,
-    NewBrowser,
-    NewMyContent,
-    UiLearnOut,
-    CommonLink,
-    ModalHeader,
-    TaskPreview,
-    TaskForm,
-    ContentTypeIcon,
-    InputSearch,
-    SdgTagInput,
-    NewUiClickableKnowledgeTag,
-    SkillTag,
-    MyContentSelector,
-    RelevantTagSelector,
-    Collaborate,
-    AssociateSidebar,
-    CollaborateContent,
-    CustomTag,
-    commentIcon,
-    TaskMaterialPreview,
-    MediaPreview
-  },
-  mixins: [PptPreviewMixin],
-  props: {
-    taskId: {
-      type: String,
-      default: null
+    name: 'AddTask',
+    components: {
+      TaskPptPreview,
+      TemplatePreview,
+      NoMoreResources,
+      CollaborateHistory,
+      CollaborateCommentView,
+      CommentSwitch,
+      CollaborateCommentPanel,
+      CommonFormHeader,
+      NewBrowser,
+      NewMyContent,
+      UiLearnOut,
+      CommonLink,
+      ModalHeader,
+      TaskPreview,
+      TaskForm,
+      ContentTypeIcon,
+      InputSearch,
+      SdgTagInput,
+      NewUiClickableKnowledgeTag,
+      SkillTag,
+      MyContentSelector,
+      RelevantTagSelector,
+      Collaborate,
+      AssociateSidebar,
+      CollaborateUserList,
+      CustomTag,
+      commentIcon,
+      TaskMaterialPreview,
+      MediaPreview,
+      ExpendSvg
     },
-    mode: {
-      type: String,
-      default: 'edit'
-    }
-  },
-  data () {
-    return {
-      contentLoading: true,
-      referenceLoading: false,
-      contentType: typeMap,
-      templateTypeMap: TemplateTypeMap,
-      templateType: TemplateType,
-      creating: false,
-
-      leftAddExpandStatus: false,
-      selectLinkContentVisible: false,
-      viewInGoogleSlideVisible: false,
-      selectTemplateVisible: false,
-      showAddAudioVisible: false,
-      form: {
-        id: null,
-        image: '',
-        presentationId: '',
-        name: 'Untitled Task',
-        overview: '',
-        tasks: [],
-        status: 0,
-        taskType: '',
-        createTime: '',
-        updateTime: '',
-        customTags: [],
-        subjectIds: [],
-        gradeIds: [],
-        bloomCategories: '',
-        learnOuts: [],
-        showSelect: false
+    mixins: [PptPreviewMixin, UtilMixin, BaseEventMixin],
+    props: {
+      taskId: {
+        type: String,
+        default: null
       },
-      // Grades
-      // gradeList: [],
-      // SubjectTree
-      // subjectTree: [],
-
-      currentTemplateType: TemplateTypeMap['visible-thinking-tool'],
-      currentBloomCategory: '',
-      currentFasa: '',
-      templateList: [],
-      templateLoading: false,
-      selectedTemplateList: [],
-      currentUploading: false,
-      audioUrl: null,
-
-      selectedTaskIdList: [],
-      selectedMyContentVisible: false,
-      selectedMyContentKeyList: [],
-      selectedMyContentList: [],
-      selectedMyContentInfoMap: new Map(),
-      showChoseSelectTemplateVisible: false,
-
-      showCreateChoice: false,
-
-      pageObjectIds: [],
-      thumbnailList: [],
-      selectedPageIdList: [],
-      subTasks: [],
-
-      thumbnailListLoading: false,
-
-      taskIndex: 0,
-      taskSaving: false,
-      publishing: false,
-      initTemplates: [],
-      initBlooms: [],
-      uploading: false,
-      selectedSlideVisible: false,
-      taskSelectTagVisible: false,
-      sessionTags: [],
-      startLoading: false,
-      addLoading: false,
-      selectAddContentTypeVisible: false,
-      // 当前激活的step
-      currentActiveStepIndex: 0,
-
-      groupNameList: [],
-      groupNameListOther: [],
-      syncData: [],
-      selectSyncDataVisible: false,
-      selectedSyncList: [],
-      // 已选择的大纲知识点描述数据
-      selectedCurriculumList: [],
-      // specific skill
-      selectedSpecificSkillList: [],
-      // century skill
-      selectedCenturySkillList: [],
-      selectedAssessmentList: [],
-      selectModel: SelectModel,
-
-      editPPTMode: false,
-
-      recommendTemplateList: [],
-      learnExperienceList: [],
-      filterLearn: [],
-      assessmentsList: [],
-      filterAssessments: [],
-      centuryList: [],
-      filterCentury: [],
-      filterParentMap: new Map(),
-      recomendListLoading: false,
-      addRecomendLoading: false,
-      skeletonLoading: false,
-      associateQuestionList: [],
-      showCustomTag: false,
-      customTagTop: 20,
-      customTagList: [],
-      userTags: {},
-      NavigationType: NavigationType,
-      showCollaborateCommentVisible: false,
-
-      showCollaborateModalVisible: false,
-      collaborateContent: null,
-      currentFieldName: {},
-      // TODO mock数据待更新为接口请求（loadCollaborateData方法中的GetCollaborateComment)
-      collaborateCommentList: [],
-      currentCollaborateCommentList: [],
-      collaborateTop: 0,
-      showAllCollaborateCommentVisible: false,
-      // TODO mock数据待更新为接口请求（loadCollaborateData方法中的GetCollaborateModifiedHistory)
-      historyList: [],
-      centuryTagMap: new Map(),
-      selectYearTab: '',
-      showHistoryLoading: false,
-
-      // 复制当前表单数据，给选择slide创建task用‘pick-task-slide’
-      currentTaskFormData: null,
-      rightWidth: 600,
-      leftWidth: 700,
-      groupNameMode: 'input', // input、select,
-      newTermName: 'Untitled category',
-      previewTemplate: {},
-      previewTemplateVisible: false,
-      currentImgIndex: 0,
-      showTemplateFilter: false,
-      currentSlideCoverImgSrc: null,
-      filterType: undefined,
-      filterAssessmentsType: '1',
-      selectedTemplateMadelWidth: '90%',
-      selectedTemplateMarginLeft: '5%',
-      selectedTemplateDrawerVisible: false,
-      selectedTemplateDrawerZindex: 3000,
-      drawerSelectedTemplateList: [],
-
-      selectedSlideVisibleFromSave: false, // 点击保存时，是否显示选择slide的弹窗，此处不去选择slide直接goBack
-
-      recommendData: []
-    }
-  },
-  computed: {
-    lastChangeSavedTime () {
-      const time = this.form.updateTime || this.form.createTime
-      if (time) {
-        return formatLocalUTC(this.form.updateTime || this.form.createTime)
-      } else {
-        return ''
+      mode: {
+        type: String,
+        default: 'edit'
       }
     },
-    selectedTemplateIdList () {
-      const list = []
-      this.selectedTemplateList.forEach(item => {
-        list.push(item.id)
-      })
-      return list
-    },
-    drawerSelectedTemplateIds () {
-      const list = []
-      this.drawerSelectedTemplateList.forEach(item => {
-        list.push(item.id)
-      })
-      return list
-    },
-    filterRecommendTemplateList () {
-      const list = []
-      const selectedIds = this.selectedTemplateList.map(template => {
-        return template.id
-      })
-      this.recommendTemplateList.forEach(item => {
-        if (selectedIds.indexOf(item.id) === -1) {
-          list.push(item)
-        }
-      })
-      return list
-    },
-    filterGradeTips () {
-      return function (item) {
-        if (!this.selectYearTab) {
-          return item.name
-        }
-        const filerList = this.centuryTagMap.get(this.selectYearTab).filter(tag => tag.tagId === item.id)
-        return filerList.length > 0 ? filerList[0].tooltip : ''
+    data () {
+      return {
+        contentLoading: true,
+        referenceLoading: false,
+        contentType: typeMap,
+        templateTypeMap: TemplateTypeMap,
+        templateType: TemplateType,
+        creating: false,
+
+        leftAddExpandStatus: false,
+        selectLinkContentVisible: false,
+        selectLinkUnitPlanContentVisible: false,
+        viewInGoogleSlideVisible: false,
+        selectTemplateVisible: false,
+        showAddAudioVisible: false,
+        form: {
+          id: null,
+          image: '',
+          presentationId: '',
+          name: 'Untitled Task',
+          overview: '',
+          tasks: [],
+          status: 0,
+          taskType: '',
+          createTime: '',
+          updateTime: '',
+          customTags: [],
+          subjectIds: [],
+          gradeIds: [],
+          bloomCategories: '',
+          learnOuts: [],
+          showSelect: false,
+          startDate: '',
+          endDate: '',
+          gradeId: undefined,
+          materialList: []
+        },
+        rangeDate: [],
+        // Grades
+        gradeList: [],
+        // SubjectTree
+        // subjectTree: [],
+
+        currentTemplateType: TemplateTypeMap['visible-thinking-tool'],
+        currentBloomCategory: '',
+        currentFasa: '',
+        templateList: [],
+        templateLoading: false,
+        selectedTemplateList: [],
+        currentUploading: false,
+        audioUrl: null,
+
+        selectedTaskIdList: [],
+        selectedMyContentVisible: false,
+        selectedMyContentKeyList: [],
+        selectedMyContentList: [],
+        selectedMyContentInfoMap: new Map(),
+        showChoseSelectTemplateVisible: false,
+
+        showCreateChoice: false,
+
+        pageObjectIds: [],
+        thumbnailList: [],
+        selectedPageIdList: [],
+        selectedPageImageList: [],
+        subTasks: [],
+
+        thumbnailListLoading: false,
+
+        taskIndex: 0,
+        taskSaving: false,
+        publishing: false,
+        initTemplates: [],
+        initBlooms: [],
+        uploading: false,
+        selectedSlideVisible: false,
+        taskSelectTagVisible: false,
+        sessionTags: [],
+        startLoading: false,
+        addLoading: false,
+        selectAddContentTypeVisible: false,
+        // 当前激活的step
+        currentActiveStepIndex: 0,
+
+        groupNameList: [],
+        groupNameListOther: [],
+        syncData: [],
+        selectSyncDataVisible: false,
+        selectedSyncList: [],
+        // 已选择的大纲知识点描述数据
+        selectedCurriculumList: [],
+        // specific skill
+        selectedSpecificSkillList: [],
+        // century skill
+        selectedCenturySkillList: [],
+        selectedAssessmentList: [],
+        selectModel: SelectModel,
+
+        selectedIduList: [],
+        selectedRecommendList: [],
+
+        editPPTMode: false,
+
+        recommendTemplateList: [],
+        learnExperienceList: [],
+        filterLearn: [],
+        assessmentsList: [],
+        filterAssessments: [],
+        centuryList: [],
+        filterCentury: [],
+        filterParentMap: new Map(),
+        recomendListLoading: false,
+        addRecomendLoading: false,
+        skeletonLoading: false,
+        associateQuestionList: [],
+        showCustomTag: false,
+        customTagTop: 20,
+        customTagList: [],
+        userTags: {},
+        NavigationType: NavigationType,
+        showCollaborateCommentVisible: false,
+
+        showCollaborateModalVisible: false,
+        collaborateContent: null,
+        currentFieldName: {},
+        // TODO mock数据待更新为接口请求（loadCollaborateData方法中的GetCollaborateComment)
+        collaborateCommentList: [],
+        currentCollaborateCommentList: [],
+        collaborateTop: 0,
+        showAllCollaborateCommentVisible: false,
+        // TODO mock数据待更新为接口请求（loadCollaborateData方法中的GetCollaborateModifiedHistory)
+        historyList: [],
+        centuryTagMap: new Map(),
+        selectYearTab: '',
+        showHistoryLoading: false,
+
+        // 复制当前表单数据，给选择slide创建task用‘pick-task-slide’
+        currentTaskFormData: null,
+        groupNameMode: 'input', // input、select,
+        newTermName: 'Untitled category',
+        previewTemplate: {},
+        previewTemplateVisible: false,
+        currentImgIndex: 0,
+        showTemplateFilter: false,
+        currentSlideCoverImgSrc: null,
+        filterType: undefined,
+        filterAssessmentsType: '1',
+        selectedTemplateMadelWidth: '90%',
+        selectedTemplateMarginLeft: '5%',
+        selectedTemplateDrawerVisible: false,
+        selectedTemplateDrawerZindex: 3000,
+        drawerSelectedTemplateList: [],
+
+        selectedSlideVisibleFromSave: false, // 点击保存时，是否显示选择slide的弹窗，此处不去选择slide直接goBack
+
+        recommendData: [],
+        selectedList: [],
+
+        subTaskSaving: false,
+        subTaskPublishing: false,
+
+        selectedPageItemData: [],
+        pptTitle: '',
+        selectedIdList: [], // browser中已经选择的id列表
+
+        associateUnitPlanIdList: [],
+        associateTaskIdList: [],
+        associateId2Name: new Map(),
+
+        materialListFlag: false
       }
     },
-    presentationLink () {
-      return 'https://docs.google.com/presentation/d/' + this.form.presentationId + '/edit'
-    }
-  },
-  mounted () {
-    this.resetWidth()
-    window.onresize = () => {
-      this.resetWidth()
-    }
-  },
-  created () {
-    logger.info('add task created ' + this.taskId + ' ' + this.$route.path + ' mode: ' + this.mode)
-    // 初始化关联事件处理
-    MyContentEventBus.$on(MyContentEvent.LinkToMyContentItem, this.handleLinkMyContent)
-    MyContentEventBus.$on(MyContentEvent.ToggleSelectContentItem, this.handleToggleSelectContentItem)
-    LibraryEventBus.$on(LibraryEvent.ContentListSelectClick, this.handleDescriptionSelectClick)
-    this.initData()
-    this.getAssociate()
-    this.loadUserTags()
-    this.initTemplateFilter()
-    this.GetTagYearTips()
-
-    // 恢复step
-    this.currentActiveStepIndex = this.getSessionStep()
-  },
-  beforeDestroy () {
-    MyContentEventBus.$off(MyContentEvent.LinkToMyContentItem, this.handleLinkMyContent)
-    MyContentEventBus.$off(MyContentEvent.ToggleSelectContentItem, this.handleToggleSelectContentItem)
-    LibraryEventBus.$off(LibraryEvent.ContentListSelectClick, this.handleDescriptionSelectClick)
-    // logger.debug('beforeDestroy, try save!')
-    // this.handleSaveTask()
-  },
-  methods: {
-    initData () {
-      logger.info('initData doing...')
-      Promise.all([
-        // GetMyGrades(),
-        FilterTemplates({})
-        // SubjectTree({ curriculumId: this.$store.getters.bindCurriculum })
-      ]).then((response) => {
-        this.$logger.info('add task initData done', response)
-
-        // // GetMyGrades
-        // if (!response[0].code) {
-        //   this.$logger.info('GetMyGrades', response[0].result)
-        //   this.gradeList = response[0].result
-        // }
-
-        if (!response[0].code) {
-          this.$logger.info('template list', response[0].result)
-          this.templateList = response[0].result
-        }
-        // // SubjectTree
-        // if (!response[1].code) {
-        //   logger.info('SubjectTree', response[1].result)
-        //   let subjectTree = response[1].result
-        //   subjectTree = formatSubjectTree(subjectTree)
-        //   this.subjectTree = subjectTree
-        //   logger.info('after format subjectTree', subjectTree)
-        // }
-      }).then(() => {
-        if (this.taskId) {
-          this.$logger.info('restore task data ' + this.taskId)
-          this.restoreTask(this.taskId, true)
+    computed: {
+      lastChangeSavedTime () {
+        const time = this.form.updateTime || this.form.createTime
+        if (time) {
+          return formatLocalUTC(this.form.updateTime || this.form.createTime)
         } else {
-          this.contentLoading = false
+          return ''
         }
-      }).catch((e) => {
-        this.$logger.error(e)
-        this.$message.error(this.$t('teacher.add-task.init-data-failed'))
-      }).finally(() => {
-        this.referenceLoading = false
-      })
-    },
-
-    initTemplateFilter () {
-      GetTreeByKey({ key: 'template' }).then((response) => {
-        this.$logger.info('initTemplateFilter response', response.result)
-        if (response.success) {
-          this.treeItemData = response.result.children
-          this.treeItemData.forEach(item => {
-            if (item.name === TemplateType.Learning) {
-              this.learnExperienceList = item.children
-            }
-            if (item.name === TemplateType.Assessments) {
-              this.assessmentsList = item.children
-            }
-            if (item.name === TemplateType.Century) {
-              this.centuryList = item.children
-            }
-          })
-        } else {
-          this.$message.error(response.message)
-        }
-      })
-    },
-
-    restoreTask (taskId, isFirstLoad) {
-      if (isFirstLoad) {
-        this.contentLoading = true
-      }
-      logger.info('restoreTask ' + taskId)
-      TaskQueryById({
-        id: taskId
-      }).then(response => {
-        logger.info('TaskQueryById ' + taskId, response.result)
-        const taskData = response.result
-        this.form = taskData
-        this.form.showSelected = taskData.showSelected ? taskData.showSelected : false
-        this.form.bloomCategories = this.form.bloomCategories ? this.form.bloomCategories : undefined // 为了展示placeholder
-        this.selectedTemplateList = this.form.selectedTemplateList
-        if (this.selectedTemplateList.length === 0) {
-          this.form.showSelected = false
-        }
-      }).finally(() => {
-        this.contentLoading = false
-        this.loadCollaborateData()
-        if (this.form.presentationId) {
-          this.loadThumbnail()
-          this.getClassInfo(this.form.presentationId)
-          this.loadRecommendThumbnail()
-        }
-        if (this.mode === 'pick-task-slide') {
-          this.currentTaskFormData = Object.assign({}, this.form)
-        }
-      })
-    },
-
-    handleLinkMyContent (data) {
-      this.$logger.info('handleLinkMyContent ', data)
-      this.selectLinkContentVisible = false
-      // link到unit plan必须全question
-      this.loadRelevantTagInfo(data.item)
-    },
-
-    handleToggleSelectContentItem (data, event) {
-      this.$logger.info('handleToggleSelectContentItem', data, event)
-      if (this.drawerSelectedTemplateIds.indexOf(data.id) === -1) {
-        this.handleSelectTemplateMadelAnimate(data, event)
-      } else {
-        this.handleSelectTemplateMadel(data)
-      }
-
-      // const key = data.type + '-' + data.id
-      // const index = this.selectedMyContentKeyList.indexOf(key)
-      // if (index !== -1) {
-      //   this.selectedMyContentKeyList.splice(index, 1)
-      // } else {
-      //   this.selectedMyContentKeyList.push(key)
-      // }
-      // this.selectedMyContentInfoMap.set(key, data)
-    },
-
-    handleSaveTask () {
-      logger.info('handleSaveTask', this.form, this.questionDataObj)
-
-      const taskData = Object.assign({}, this.form)
-
-      if (this.taskId) {
-        taskData.id = this.taskId
-      }
-      taskData.selectedTemplateList = this.selectedTemplateList
-      // if (this.form.presentationId) {
-      //   this.loadThumbnail()
-      // }
-      logger.info('basic taskData', taskData)
-      logger.info('question taskData', taskData)
-      TaskAddOrUpdate(taskData).then((response) => {
-        logger.info('TaskAddOrUpdate', response.result)
-        if (response.success) {
-          this.restoreTask(response.result.id, false)
-          this.$message.success(this.$t('teacher.add-task.save-success'))
-          this.selectedSlideVisibleFromSave = true
-        } else {
-          this.$message.error(response.message)
-        }
-      }).finally(() => {
-        // this.selectedSlideVisible = true
-        this.$refs.commonFormHeader.saving = false
-      })
-    },
-    handlePublishTask (status) {
-      logger.info('handlePublishTask', {
-        id: this.taskId,
-        status: status
-      })
-      const taskData = Object.assign({}, this.form)
-      taskData.status = status
-      this.publishing = true
-      TaskAddOrUpdate(taskData).then(response => {
-        this.$logger.info('UpdateContentStatus response', response)
-        // this.$message.success('Publish success')
-        this.form.status = status
-      }).then(() => {
-        if (status === 1) {
-          this.selectedSlideVisible = true
-          this.$message.success(this.$t('teacher.add-task.publish-success'))
-        } else {
-          this.$message.success('Unpublish successfully')
-        }
-        this.form.status = status
-        this.$refs.commonFormHeader.publishing = false
-      })
-    },
-
-    handleSelectTaskType (type) {
-      this.$logger.info('handleSelectTaskType ' + type)
-      this.form.taskType = type
-      this.customTagList = []
-      if (type === 'FA') {
-        CustomTagType.task.fa.forEach(name => {
-          this.customTagList.push(name)
+      },
+      selectedTemplateIdList () {
+        const list = []
+        this.selectedTemplateList.forEach(item => {
+          list.push(item.id)
         })
-      } else if (type === 'SA') {
-        CustomTagType.task.sa.forEach(name => {
-          this.customTagList.push(name)
+        return list
+      },
+      drawerSelectedTemplateIds () {
+        const list = []
+        this.drawerSelectedTemplateList.forEach(item => {
+          list.push(item.id)
         })
-      } else if (type === 'Activity') {
-        CustomTagType.task.activity.forEach(name => {
-          this.customTagList.push(name)
+        return list
+      },
+      filterRecommendTemplateList () {
+        const list = []
+        const selectedIds = this.selectedTemplateList.map(template => {
+          return template.id
         })
-      }
-      this.showAllCollaborateCommentVisible = false
-      this.showCollaborateCommentVisible = false
-      this.customTagTop = 60
-      this.showCustomTag = true
-    },
-
-    goBack () {
-      this.$router.push({ path: '/teacher/main/created-by-me' })
-
-      // if (window.history.length <= 1) {
-      //   this.$router.push({ path: '/teacher/main/created-by-me' })
-      //   return false
-      // } else {
-      //   this.$router.go(-1)
-      // }
-      //
-      // setTimeout(() => {
-      //   this.$router.push({ path: '/teacher/main/created-by-me' })
-      // }, 500)
-    },
-
-    handleShowSelectMyContent () {
-      this.$logger.info('handleShowSelectMyContent')
-      this.selectedTaskIdList = []
-      this.selectedMyContentList = []
-      this.selectedMyContentVisible = true
-      this.templateLoading = false
-      this.drawerSelectedTemplateList = []
-      this.selectedTemplateList.forEach(item => {
-        this.drawerSelectedTemplateList.push(item)
-      })
-    },
-
-    handleRemoveTemplate (template) {
-      this.$logger.info('handleRemoveTemplate ', template)
-      const index = this.selectedTemplateList.findIndex(item => item.id === template.id)
-      this.form.showSelected = true
-      if (index !== -1) {
-        this.selectedTemplateList.splice(index, 1)
-      }
-    },
-
-    handleSelectTemplateMadelAnimate (template, event) {
-      this.$logger.info('handleSelectTemplateMadelAnimate ', template)
-      this.selectedTemplateMarginLeft = '0px'
-      this.selectedTemplateMadelWidth = '80%'
-      this.selectedTemplateDrawerVisible = true
-      this.selectedTemplateDrawerZindex = 3000
-      this.form.showSelected = true
-      this.$logger.info('event', event)
-      this.form.showSelected = true
-
-      // 计算元素位置，然后添加动画
-      this.currentSlideCoverImgSrc = template.cover ? template.cover : template.image
-      this.$nextTick(() => {
-        const slideAnimateDom = document.getElementById('slide-animate')
-        const slideAnimateImgDom = document.getElementById('slide-animate-img')
-        const imgDomPos = slideAnimateDom.getBoundingClientRect()
-        const containerDomPos = document.getElementById('drawerTemplateSelected').getBoundingClientRect()
-        const buttonPos = event.target.getBoundingClientRect()
-
-        console.log(containerDomPos)
-        console.log('buttonPos y ' + buttonPos.y + ' containerDomPos y ' + containerDomPos.y + ' containerDomPos h ' + containerDomPos.height + ' img y ' + imgDomPos.y + ' distY ' + (buttonPos.y - containerDomPos.y - containerDomPos.height / 2))
-        const offsetX = -(buttonPos.left + buttonPos.width / 2 - (containerDomPos.left + containerDomPos.width / 2))
-        const offsetY = -(event.clientY - (containerDomPos.y + containerDomPos.height / 2))
-        console.log('offsetX: ' + offsetX + ' offsetY: ' + offsetY)
-
-        // slide截图出现与初始定位
-        slideAnimateDom.style.left = buttonPos.left + buttonPos.width / 2 - 200 + 'px'
-        slideAnimateDom.style.top = buttonPos.top + buttonPos.height / 2 - 100 + 'px'
-        slideAnimateDom.style.display = 'block'
-
-        // 开始动画
-        slideAnimateDom.style.transform = 'translateX(' + offsetX + 'px)'
-        slideAnimateImgDom.style.transform = 'translateY(' + offsetY + 'px) scale(0.1)'
-        setTimeout(() => {
-          this.currentSlideCoverImgSrc = null
-          slideAnimateDom.style.transform = 'translateX(0px)'
-          slideAnimateImgDom.style.transform = 'translateY(0px) scale(1)'
-
-          if (this.drawerSelectedTemplateIds.indexOf(template.id) === -1) {
-            this.drawerSelectedTemplateList.unshift(template)
+        this.recommendTemplateList.forEach(item => {
+          if (selectedIds.indexOf(item.id) === -1) {
+            list.push(item)
           }
-        }, 600)
-      })
-    },
-
-    handleSelectTemplateMadel (template) {
-      this.$logger.info('handleSelectTemplateMadel ', template)
-      this.selectedTemplateMarginLeft = '0px'
-      this.selectedTemplateMadelWidth = '80%'
-      this.selectedTemplateDrawerVisible = true
-      this.selectedTemplateDrawerZindex = 3000
-      const index = this.drawerSelectedTemplateList.findIndex(item => item.id === template.id)
-      this.form.showSelected = true
-      if (index !== -1) {
-        this.drawerSelectedTemplateList.splice(index, 1)
-      } else {
-        this.drawerSelectedTemplateList.unshift(template)
+        })
+        return list
+      },
+      filterGradeTips () {
+        return function (item) {
+          if (!this.selectYearTab) {
+            return item.name
+          }
+          const filerList = this.centuryTagMap.get(this.selectYearTab).filter(tag => tag.tagId === item.id)
+          return filerList.length > 0 ? filerList[0].tooltip : ''
+        }
+      },
+      presentationLink () {
+        return 'https://docs.google.com/presentation/d/' + this.form.presentationId + '/edit'
       }
     },
-
-    handleAddTemplate () {
-      this.$logger.info('handleAddTemplate ', this.selectedTemplateList)
-      if (!this.creating) {
-        if (this.selectedTemplateList.length) {
-          const hideLoading = this.$message.loading('Creating ppt in Google side...', 0)
-          this.creating = true
-          TaskCreateNewTaskPPT({
-            taskId: this.taskId ? this.taskId : '',
-            name: this.form.name ? this.form.name : 'Unnamed Task',
-            overview: this.form.overview,
-            templatePresentationIds: this.selectedTemplateList.map(item => {
-              return item.presentationId
-            })
-          }).then(response => {
-            if (!response.success) {
-              this.$message.error(response.message)
-              return
+    watch: {
+      'selectedTemplateList': function (value) {
+        this.$logger.info('watch selectedTemplateList change ', value)
+        this.autoSave()
+      }
+    },
+    beforeRouteLeave (to, from, next) {
+      this.$logger.info('beforeRouteLeave', to, from, next)
+      // owner或者协同着可以save
+      var that = this
+      if (this.isOwner || this.isCollaborater) {
+        if (this.initCompleted && JSON.stringify(this.form) !== JSON.stringify(this.oldForm)) {
+          this.$confirm({
+            title: 'Alert',
+            okText: 'Save',
+            cancelText: 'No',
+            content: 'Do you want to save the changes?',
+            onOk: function () {
+              that.handleSaveTask()
+              setTimeout(() => {
+                next()
+              }, 500)
+            },
+            onCancel () {
+              next()
             }
-            this.$logger.info('handleAddTemplate response', response.result)
-            this.form.id = response.result.id
-            this.form.presentationId = response.result.presentationId
-            this.selectTemplateVisible = false
-            this.restoreTask(this.form.id, false)
-            this.$router.replace({
-              path: '/teacher/add-task/' + response.result.id
-            })
-            this.$message.success('Created Successfully in Google Slides')
-          }).finally(() => {
-            this.templateLoading = false
-            this.creating = false
-            this.selectedMyContentVisible = false
-            this.addRecomendLoading = false
-            hideLoading()
-            // this.loadThumbnail()
           })
         } else {
-          this.$message.warn('Please select template!')
+          next()
         }
       } else {
-        this.$logger.info('creating wait...')
+        next()
       }
     },
+    mounted () {
 
-    handleViewDetail (item) {
-      this.$logger.info('handleViewDetail ', item)
-      if (item.type === this.contentType['unit-plan']) {
-        this.$router.push({
-          path: '/teacher/unit-plan-redirect/' + item.id
-        })
-      }
     },
+    created () {
+      logger.info('add task created ' + this.taskId + ' ' + this.$route.path + ' mode: ' + this.mode)
+      // 初始化关联事件处理
+      MyContentEventBus.$on(MyContentEvent.LinkToMyContentItem, this.handleLinkMyContent)
+      MyContentEventBus.$on(MyContentEvent.ToggleSelectContentItem, this.handleToggleSelectContentItem)
+      LibraryEventBus.$on(LibraryEvent.ContentListSelectClick, this.handleDescriptionSelectClick)
+      this.initData()
+      this.getAssociate()
+      this.loadUserTags()
+      this.initTemplateFilter()
+      this.GetTagYearTips()
+      this.queryContentCollaborates(this.taskId, this.contentType.task)
 
-    handleUpdateSelected (data) {
-      this.$logger.info('handleUpdateSelected', data)
-      this.relevantSelectedQuestionList = data.questionList
+      // 恢复step
+      this.currentActiveStepIndex = this.getSessionStep()
     },
-
-    handleCancelSelectedMyContent () {
-      this.selectedMyContentVisible = false
-      this.selectedTaskIdList = []
-      this.selectedMyContentList = []
+    beforeDestroy () {
+      MyContentEventBus.$off(MyContentEvent.LinkToMyContentItem, this.handleLinkMyContent)
+      MyContentEventBus.$off(MyContentEvent.ToggleSelectContentItem, this.handleToggleSelectContentItem)
+      LibraryEventBus.$off(LibraryEvent.ContentListSelectClick, this.handleDescriptionSelectClick)
+      // logger.debug('beforeDestroy, try save!')
+      // this.handleSaveTask()
     },
+    methods: {
+      initData () {
+        logger.info('initData doing...')
+        Promise.all([
+          GetMyGrades(),
+          FilterTemplates({})
+          // SubjectTree({ curriculumId: this.$store.getters.bindCurriculum })
+        ]).then((response) => {
+          this.$logger.info('add task initData done', response)
 
-    handleConfirmSelectedMyContent () {
-      this.$logger.info('handleConfirmSelectedMyContent', this.selectedMyContentKeyList)
-      if (this.selectedMyContentKeyList.length === 0) {
-        this.$message.warn('Please select a content!')
-        return
-      }
-      this.selectedTaskIdList = []
-      this.selectedMyContentList = []
-      this.selectedMyContentKeyList.forEach(key => {
-        if (this.selectedMyContentInfoMap.has(key)) {
-          this.selectedMyContentList.push(this.selectedMyContentInfoMap.get(key))
-        }
+          // GetMyGrades
+          if (!response[0].code) {
+            this.$logger.info('GetMyGrades', response[0].result)
+            this.gradeList = response[0].result
+          }
 
-        const keyArr = key.split('-')
-        if (parseInt(keyArr[0]) === this.contentType.task) {
-          this.selectedTaskIdList.push(keyArr[1])
-        }
-      })
-      this.selectedMyContentList.forEach(item => {
-        if (this.selectedTemplateIdList.indexOf(item.id) === -1) {
-          // task和template图片字段不一致
-          item.cover = item.image
-          this.selectedTemplateList.unshift(item)
-        }
-      })
-      this.selectedMyContentVisible = false
-      if (this.selectedTemplateIdList.length > 0) {
-        this.form.showSelected = true
-      } else {
-        this.form.showSelected = false
-      }
-    },
-
-    handleCreateTask () {
-      this.$logger.info('handleCreateTask')
-      const hideLoading = this.$message.loading('Creating ppt in Google side...', 0)
-      if (!this.creating) {
-        this.creating = true
-        TaskCreateNewTaskPPT({
-          taskId: this.taskId ? this.taskId : '',
-          taskIds: this.selectedTaskIdList,
-          name: this.form.name ? this.form.name : 'Unnamed Task',
-          overview: this.form.overview
-        }).then(response => {
-          this.$logger.info('handleCreateTask', response.result)
-          this.showChoseSelectTemplateVisible = false
-          this.selectedMyContentVisible = false
-          this.form.id = response.result.id
-          this.form.presentationId = response.result.presentationId
-          this.selectTemplateVisible = false
-          // this.viewInGoogleSlideVisible = true
-          this.$router.replace({
-            path: '/teacher/task-redirect/' + response.result.id
-          })
-          this.$message.success('Created Successfully in Google Slides')
-          window.open('https://docs.google.com/presentation/d/' + this.form.presentationId)
-        }).finally(() => {
-          this.creating = false
-          this.selectedMyContentVisible = false
-          this.loadThumbnail()
-          hideLoading()
-        })
-      }
-    },
-
-    loadThumbnail () {
-      this.thumbnailListLoading = true
-      this.skeletonLoading = true
-      this.$logger.info('loadThumbnail ' + this.form.presentationId)
-      TemplatesGetPresentation({
-        presentationId: this.form.presentationId
-      }).then(response => {
-        this.$logger.info('loadThumbnail response', response.result)
-        const pageObjects = response.result.pageObjects
-        this.thumbnailList = []
-        pageObjects.forEach(page => {
-          this.thumbnailList.push({ contentUrl: page.contentUrl, id: page.pageObjectId })
-        })
-        this.thumbnailListLoading = false
-        this.skeletonLoading = false
-      })
-    },
-
-    // TODO 修改为加载推荐模板
-    loadRecommendThumbnail () {
-      this.$logger.info('loadRecommendThumbnail')
-      this.recomendListLoading = true
-      recommendTemplates({ taskId: this.taskId }).then(response => {
-        logger.info('loadRecommendThumbnail res:', response.result)
-        if (response.success) {
-          this.recommendTemplateList = response.result
-          this.recomendListLoading = false
-        }
-      })
-    },
-
-    handleToggleThumbnail (thumbnail) {
-      this.$logger.info('handleToggleThumbnail', thumbnail)
-      const index = this.selectedPageIdList.indexOf(thumbnail.id)
-      if (index !== -1) {
-        this.selectedPageIdList.splice(index, 1)
-      } else {
-        this.selectedPageIdList.push(thumbnail.id)
-      }
-      // 处理sub task封面
-      if (this.currentTaskFormData && this.selectedPageIdList.length > 0) {
-        const pageId = this.thumbnailList.filter(item => this.selectedPageIdList.indexOf(item.id) > -1)[0].id
-        const selectPage = this.thumbnailList.filter(item => item.id === pageId)
-        if (selectPage.length > 0) {
-          this.currentTaskFormData = {}
-          this.currentTaskFormData = Object.assign({}, this.form)
-          this.currentTaskFormData.image = selectPage[0].contentUrl
-        }
-      }
-    },
-
-    handleContinueSelectTemplate () {
-      this.showChoseSelectTemplateVisible = false
-      this.selectTemplateVisible = true
-    },
-
-    handleShowCreateChoice () {
-      this.showCreateChoice = false
-      this.selectedMyContentVisible = true
-    },
-
-    handleAudioResult (data) {
-      logger.info('handleAudioResult', data)
-      this.currentUploading = true
-      const formData = new FormData()
-      formData.append('file', data, 'audio.wav')
-      this.$http.post(commonAPIUrl.UploadFile, formData, { contentType: false, processData: false, headers: { 'Content-Type': 'multipart/form-data' }, timeout: 60000 })
-        .then((response) => {
-          logger.info('handleAudioResult upload response:', response)
-          this.audioUrl = this.$store.getters.downloadUrl + response.result
-          logger.info('handleAudioResult audioUrl', this.audioUrl)
-        }).catch(err => {
-        logger.error('handleAudioResult error', err)
-      }).finally(() => {
-        this.currentUploading = false
-      })
-    },
-
-    handleUploadAudio (data) {
-      logger.info('handleUploadAudio', data)
-      this.currentUploading = true
-      const formData = new FormData()
-      formData.append('file', data.file, data.file.name)
-      this.uploading = true
-      this.$http.post(commonAPIUrl.UploadFile, formData, { contentType: false, processData: false, headers: { 'Content-Type': 'multipart/form-data' }, timeout: 60000 })
-        .then((response) => {
-          logger.info('handleUploadAudio upload response:', response)
-          this.audioUrl = this.$store.getters.downloadUrl + response.result
-        }).catch(err => {
-        logger.error('handleUploadImage error', err)
-      }).finally(() => {
-        this.currentUploading = false
-      })
-    },
-
-    handleCancelAddAudio () {
-      this.audioUrl = null
-      this.showAddAudioVisible = false
-    },
-
-    handleConfirmAddAudio () {
-      if (this.audioUrl) {
-        this.form.audioUrl = this.audioUrl
-        this.audioUrl = null
-      }
-      this.showAddAudioVisible = false
-    },
-
-    handleAddAudioOverview () {
-      this.$logger.info('handleAddAudioOverview')
-      this.showAddAudioVisible = true
-    },
-
-    handleAddAnotherTask () {
-      this.$logger.info('handleAddAnotherTask')
-    },
-
-    handleFinishTask (data) {
-      this.$logger.info('handleFinishTask', data)
-      const task = Object.assign({
-        presentationId: this.form.presentationId,
-        selectPageObjectIds: this.selectedPageIdList,
-        taskId: this.form.id
-      }, data)
-      this.$logger.info('new task', task)
-      this.subTasks.push(task)
-      this.selectedPageIdList = []
-      this.taskIndex++
-      this.$logger.info('after add tasks ', this.form.tasks)
-    },
-
-    handleTaskDelete (task) {
-      this.$logger.info('handleTaskDelete', task)
-      const index = this.form.tasks.findIndex(item => item.__taskId === task.__taskId)
-      if (index !== -1) {
-        this.form.tasks.splice(index, 1)
-      }
-    },
-    handleStartSession (type) {
-      this.$logger.info('handleStartSession', this.form)
-      if (this.form.presentationId) {
-        this.$logger.info('selected sessionTags', this.sessionTags)
-        if (this.sessionTags.length === 0 && !type) {
-          this.$message.warn('Please add session tags')
-          return
-        }
-        this.startLoading = true
-        const requestData = {
-          author: this.$store.getters.email,
-          slide_id: this.form.presentationId,
-          file_name: this.form.name ? this.form.name : 'Unnamed',
-          status: lessonStatus.studentPaced,
-          redirect_url: null
-        }
-
-        this.$logger.info('handleStartSession', requestData)
-        StartLesson(requestData).then(res => {
-          this.$logger.info('StartLesson res', res)
-          if (res.code === 'ok') {
-            const dataTags = []
-            if (type && type === 'dash') {
-              this.startLoading = false
-              this.taskSelectTagVisible = false
-              const targetUrl = lessonHost + 'd/' + res.data.class_id
-              this.$logger.info('try open ' + targetUrl)
-              window.open(targetUrl, '_blank')
-            } else {
-              this.sessionTags.forEach(tag => {
-                dataTags.push({
-                  'name': tag.name,
-                  'parentId': tag.parentId,
-                  'isGlobal': tag.isGlobal ? 1 : 0,
-                  'classId': res.data.class_id,
-                  'presentationId': this.form.presentationId,
-                  'sourceId': this.form.id,
-                  'sourceType': this.form.type
-                })
-              })
-              SaveSessonTags(dataTags).then(() => {
-                this.startLoading = false
-                this.taskSelectTagVisible = false
-                // const targetUrl = lessonHost + 'slide_id=' + this.form.presentationId + '&class_id=' + res.data.class_id + '&type=classroom'
-                const targetUrl = lessonHost + 'd/' + res.data.class_id
-                this.$logger.info('try open ' + targetUrl)
-                window.open(targetUrl, '_blank')
-              })
-            }
+          if (!response[1].code) {
+            this.$logger.info('template list', response[1].result)
+            this.templateList = response[1].result
+          }
+          // // SubjectTree
+          // if (!response[1].code) {
+          //   logger.info('SubjectTree', response[1].result)
+          //   let subjectTree = response[1].result
+          //   subjectTree = formatSubjectTree(subjectTree)
+          //   this.subjectTree = subjectTree
+          //   logger.info('after format subjectTree', subjectTree)
+          // }
+        }).then(() => {
+          if (this.taskId) {
+            this.$logger.info('restore task data ' + this.taskId)
+            this.restoreTask(this.taskId, true)
           } else {
-            this.$message.warn('StartLesson Failed! ' + res.message)
-            this.startLoading = false
+            this.contentLoading = false
           }
+        }).catch((e) => {
+          this.$logger.error(e)
+          this.$message.error(this.$t('teacher.add-task.init-data-failed'))
+        }).finally(() => {
+          this.referenceLoading = false
         })
-      } else {
-        this.$message.warn('This record is not bound to PPT!')
-        this.startLoading = false
-      }
-    },
-    handleStartCollaborate () {
-      this.$logger.info('handleStartCollaborate')
-      this.collaborateContent = Object.assign({}, this.form)
-      this.showCollaborateModalVisible = true
-    },
-    handleUploadImage (data) {
-      logger.info('handleUploadImage', data)
-      const formData = new FormData()
-      formData.append('file', data.file, data.file.name)
-      this.uploading = true
-      this.$http.post(commonAPIUrl.UploadFile, formData, { contentType: false, processData: false, headers: { 'Content-Type': 'multipart/form-data' }, timeout: 60000 })
-        .then((response) => {
-          logger.info('handleUploadImage upload response:', response)
-          this.form.image = this.$store.getters.downloadUrl + response.result
-        }).catch(err => {
-        logger.error('handleUploadImage error', err)
-        this.$message.error(this.$t('teacher.add-unit-plan.upload-image-file-failed'))
-      }).finally(() => {
-        this.uploading = false
-      })
-    },
+      },
 
-    handleDeleteImage (e) {
-      logger.info('handleDeleteImage ', e)
-      e.stopPropagation()
-      e.preventDefault()
-      this.form.image = null
-    },
-
-    handleEditGoogleSlide () {
-      this.$logger.info('handleEditGoogleSlide', this.form.presentationId)
-      if (this.form.presentationId) {
-        window.open(this.presentationLink, '_blank')
-      } else {
-        this.handleCreateTask()
-      }
-    },
-
-    handleAddTaskWithSlide () {
-      this.$logger.info('handleAddTaskWithSlide')
-      this.selectedSlideVisible = false
-      this.selectedSlideVisibleFromSave = false
-      this.currentTaskFormData = Object.assign({}, this.form)
-      this.$router.push({
-        path: '/teacher/add-task/' + this.taskId + '/pick-task-slide'
-      })
-      this.$logger.info('currentTaskFormData', this.currentTaskFormData)
-    },
-
-    handleGotoEditMode () {
-      this.$logger.info('handleGotoEditMode')
-      this.$router.push({
-        path: '/teacher/add-task/' + this.taskId + '/edit'
-      })
-    },
-
-    handleCancelPickTaskSlide () {
-      this.$logger.info('handleCancelPickTaskSlide')
-      this.selectedSlideVisible = false
-      this.$router.push({
-        path: '/teacher/add-task/' + this.taskId + '/edit'
-      })
-    },
-    handleSelectedSessionTags (tags) {
-      this.sessionTags = tags
-      this.$logger.info('handleSelectedSessionTags', tags)
-    },
-    handleStartSessionTags () {
-      this.taskSelectTagVisible = true
-      this.sessionTags = []
-    },
-    handleAddTaskEvaluation () {
-      logger.info('handleAddTaskEvaluation ' + this.taskId)
-      // 下创建一个空的evaluation，然后关联，然后再跳转过去
-      if (!this.addLoading) {
-        this.addLoading = true
-        EvaluationAddOrUpdate({ name: null }).then((response) => {
-          this.$logger.info('EvaluationAddOrUpdate', response.result)
+      initTemplateFilter () {
+        GetTreeByKey({ key: 'template' }).then((response) => {
+          this.$logger.info('initTemplateFilter response', response.result)
           if (response.success) {
-            Associate({
-              fromId: this.taskId,
-              fromType: this.contentType.task,
-              toId: response.result.id,
-              toType: this.contentType.evaluation
-            }).then(response => {
-              this.$logger.info('Associate response ', response)
-              // 刷新子组件的关联数据
-              this.$refs.associate.loadAssociateData()
-            })
-            this.addLoading = false
-            this.$router.push({
-              path: '/teacher/evaluation-redirect/' + response.result.id
+            this.treeItemData = response.result.children
+            this.treeItemData.forEach(item => {
+              if (item.name === TemplateType.Learning) {
+                this.learnExperienceList = item.children
+              }
+              if (item.name === TemplateType.Assessments) {
+                this.assessmentsList = item.children
+              }
+              if (item.name === TemplateType.Century) {
+                this.centuryList = item.children
+              }
             })
           } else {
             this.$message.error(response.message)
           }
-        }).finally(() => {
-          this.addLoading = false
         })
-      } else {
-        this.$logger.info('add loading')
-      }
-    },
-    handleAddTerm () {
-      this.$logger.info('handleAddTerm', this.groupNameList)
+      },
 
-      // 如果第一部分有内容，点击link激活step 到第二部分，否则提示先输入第一部分表单内容
-      if (this.form.name ||
-        this.form.overview ||
-        this.form.questions.length) {
-        this.groupNameMode = 'input'
-        this.selectLinkContentVisible = true
-        this.setSessionStep(1)
-      } else {
-        this.$message.warn('Task Info is empty, please fill the form first!')
-      }
-    },
-    handleEnsureSelectedLink (data) {
-      this.$logger.info('handleEnsureSelectedLink', data)
-      this.selectLinkContentVisible = false
-      this.getAssociate()
-      // 刷新组件内的列表
-      this.$refs.commonLink.getAssociate()
-    },
-
-    getAssociate () {
-      this.$logger.info('AddTask GetAssociate id[' + this.taskId + '] fromType[' + this.contentType.task + ']')
-      GetAssociate({
-        id: this.taskId,
-        type: this.contentType.task
-      }).then(response => {
-        this.$logger.info('AddTask GetAssociate response', response)
-        this.groupNameList = []
-        this.groupNameListOther = []
-        response.result.owner.forEach(item => {
-          if (this.groupNameList.indexOf(item.group) === -1) {
-            this.groupNameList.push(item.group)
+      restoreTask (taskId, isFirstLoad) {
+        if (isFirstLoad) {
+          this.contentLoading = true
+        }
+        logger.info('restoreTask ' + taskId)
+        TaskQueryById({
+          id: taskId
+        }).then(response => {
+          logger.info('TaskQueryById ' + taskId, response.result)
+          const taskData = response.result
+          if (!taskData.materialList) {
+            taskData.materialList = []
           }
-        })
-        response.result.others.forEach(item => {
-          if (this.groupNameListOther.indexOf(item.group) === -1) {
-            this.groupNameListOther.push(item.group)
+          this.materialListFlag = taskData.materialList.length > 0
+          this.form = taskData
+          this.form.showSelected = taskData.showSelected ? taskData.showSelected : false
+          this.form.bloomCategories = this.form.bloomCategories ? this.form.bloomCategories : undefined // 为了展示placeholder
+          this.selectedTemplateList = this.form.selectedTemplateList
+          if (this.selectedTemplateList.length === 0) {
+            this.form.showSelected = false
           }
-          item.contents.forEach(content => {
-            console.log(content)
-            if (content.type === typeMap['unit-plan']) {
-              content.questions.forEach(question => {
-                this.associateQuestionList.push({
-                  ...question,
-                  unitName: content.name
-                })
-              })
+          if (!taskData.gradeId) {
+            this.form.gradeId = undefined
+          } else {
+            // 年级在本国大纲不存在的情况
+            if (this.gradeList.filter(grade => grade.id === taskData.gradeId).length === 0) {
+              this.form.gradeId = undefined
             }
-          })
-        })
-        if (this.groupNameList.length > 0 || this.groupNameListOther.length > 0) {
-          this.handleSyncData()
-        }
-        this.newTermName = 'Untitled category_' + (this.groupNameList.length)
-        this.$logger.info('AddTask GetAssociate formatted groupNameList', this.groupNameList, this.groupNameListOther)
-      }).finally(() => {
-        this.linkGroupLoading = false
-      })
-    },
-
-    // TODO 选择的assessment数据
-    handleSelectAssessmentType (data) {
-      this.$logger.info('handleSelectAssessmentType', data)
-      this.selectedAssessmentList = data
-    },
-
-    // TODO 自动更新选择的sync 的数据knowledgeId和name列表
-    handleSelectListData (data) {
-      this.$logger.info('handleSelectListData', data)
-      this.selectedSyncList = data
-    },
-
-    handleSelectCurriculum (data) {
-      this.$logger.info('handleSelectCurriculum', data)
-      this.selectedCurriculumList = data
-    },
-
-    handleSelectSubjectSpecificSkillListData (data) {
-      this.selectedSpecificSkillList = data
-      this.$logger.info('handleSelectSubjectSpecificSkillListData', data)
-    },
-
-    handleSelect21CenturySkillListData (data) {
-      this.$logger.info('handleSelect21CenturySkillListData', data)
-      this.selectedCenturySkillList = data
-    },
-
-    // TODO 自动更新选择的sync 的数据knowledgeId和name列表
-    handleCancelSelectData () {
-      this.selectedSyncList = []
-      this.selectedCurriculumList = []
-      this.selectedSpecificSkillList = []
-      this.selectedCenturySkillList = []
-      this.selectedAssessmentList = []
-      this.selectSyncDataVisible = false
-    },
-
-    // TODO 自动更新选择的sync 的数据knowledgeId和name列表
-    handleEnsureSelectData () {
-      this.$logger.info('handleEnsureSelectData',
-        this.selectedCurriculumList,
-        this.selectedSpecificSkillList,
-        this.selectedCenturySkillList,
-        this.selectedBigIdeaList,
-        this.selectedAssessmentList,
-        this.selectedSyncList)
-      this.selectedSyncList.forEach(data => {
-        const filterLearnOuts = this.form.learnOuts.filter(item => item.knowledgeId === data.knowledgeId)
-        if (filterLearnOuts.length > 0) {
-          return
-        }
-        this.form.learnOuts.push({
-          knowledgeId: data.knowledgeId,
-          name: data.name,
-          tags: data.tags,
-          tagType: data.tagType,
-          path: data.path
-        })
-      })
-      const selectList = this.selectedCurriculumList.concat(this.selectedSpecificSkillList).concat(this.selectedCenturySkillList)
-        .concat(this.selectedAssessmentList)
-      selectList.forEach(data => {
-        const filterLearnOuts = this.form.learnOuts.filter(item => item.knowledgeId === data.knowledgeId)
-        if (filterLearnOuts.length > 0) {
-          return
-        }
-        this.form.learnOuts.push({
-          knowledgeId: data.knowledgeData.id,
-          name: data.knowledgeData.name,
-          tagType: data.knowledgeData.tagType,
-          path: data.knowledgeData.path
-        })
-      })
-      this.$logger.info('this.form.learnOuts', this.form.learnOuts)
-      this.selectSyncDataVisible = false
-    },
-    handleRemoveLearnOuts (data) {
-      this.$logger.info('handleRemoveLearnOuts', data)
-      var index = this.form.learnOuts.findIndex(item => (item.knowledgeId === data.knowledgeId))
-      if (index > -1) {
-        this.form.learnOuts.splice(index, 1)
-      }
-    },
-    handleSelectDescription () {
-      this.recommendData = [{
-        fromName: this.form.name,
-        list: JSON.parse(JSON.stringify(this.form.learnOuts))
-      }]
-      this.$logger.info('handleSelectDescription recommendData', this.recommendData)
-      this.selectSyncDataVisible = true
-    },
-    // 加载协作的评论和历史记录数据
-    loadCollaborateData () {
-      return Promise.all([
-        GetCollaborateModifiedHistory({ sourceType: this.contentType.task, sourceId: this.form.id }),
-        GetCollaborateComment({ sourceType: this.contentType.task, sourceId: this.form.id })
-      ]).then(response => {
-        // TODO 将历史记录数据‘格式’后填充到historyList数组中，大部分数据可以直接赋值，复杂字段要处理一下,这样handleRestoreField()方法就可以直接赋值了。
-        this.historyList = []
-        this.$logger.info('GetCollaborateModifiedHistory', response[0])
-        if (!response[0].code) {
-          this.historyList = response[0].result
-        }
-        // TODO 将写作点评数据‘格式’后填充到collaborateCommentList数组中
-        this.collaborateCommentList = []
-        this.$logger.info('GetCollaborateComment', response[1])
-        if (!response[1].code) {
-          this.collaborateCommentList = response[1].result
-        }
-      })
-    },
-
-    handleSyncData () {
-      this.$logger.info(' handleSyncData')
-      GetReferOutcomes({
-        id: this.taskId,
-        type: this.contentType.task
-      }).then(response => {
-        this.$logger.info('getReferOutcomes response', response)
-        if (response.result.length) {
-          this.syncData = response.result
-        }
-      })
-    },
-
-    onChangeStep (current) {
-      console.log('onChange: setSessionStep', current)
-      if (typeof current === 'number') {
-        this.setSessionStep(current)
-        if (this.recommendTemplateList.length === 0) {
-          this.loadRecommendThumbnail()
-        }
-        setTimeout(function () {
-          const returnEle = document.querySelector('.ant-layout-content')
-          if (returnEle) {
-            returnEle.scrollIntoView(true) // true 是默认的
           }
-        }, 100)
-      }
-    },
-
-    handleCreateInGoogle () {
-      this.$logger.info('handleCreateInGoogle')
-      this.handleCreateTask()
-      // window.open('https://docs.google.com/presentation', '_blank')
-    },
-    filterSearch (inputValue, path) {
-      return path.some(option => option.name.toLowerCase().indexOf(inputValue.toLowerCase()) > -1)
-    },
-    selectFilter (data) {
-      this.$logger.info('selectFilter', data)
-      this.$logger.info('filterType', this.filterType)
-      this.templateLoading = true
-      FilterTemplates({
-        filterCategoryType: this.filterType,
-        filterLearn: this.filterLearn,
-        filterAssessments: this.getFilterAssessmentsParams(this.filterAssessments),
-        filterCentury: this.getFilterParams(this.filterCentury)
-      }).then(response => {
-        this.$logger.info('handleToggleTemplateType ', response)
-        this.templateList = response.result
-      }).finally(() => {
-        this.templateLoading = false
-      })
-    },
-    selectRecommendTemplate (template, rIndex, event) {
-      this.$logger.info('selectRecommendTemplate', template)
-      this.form.showSelected = true
-
-      // 计算元素位置，然后添加动画
-      this.currentSlideCoverImgSrc = template.images[0]
-      this.$nextTick(() => {
-        const slideAnimateDom = document.getElementById('slide-animate')
-        const slideAnimateImgDom = document.getElementById('slide-animate-img')
-        const imgDomPos = slideAnimateDom.getBoundingClientRect()
-        const containerDomPos = document.getElementById('templateSelected').getBoundingClientRect()
-        const buttonPos = event.target.getBoundingClientRect()
-
-        console.log(containerDomPos)
-        console.log('buttonPos y ' + buttonPos.y + ' containerDomPos y ' + containerDomPos.y + ' containerDomPos h ' + containerDomPos.height + ' img y ' + imgDomPos.y + ' distY ' + (buttonPos.y - containerDomPos.y - containerDomPos.height / 2))
-        const offsetX = -(buttonPos.left + buttonPos.width / 2 - (containerDomPos.left + containerDomPos.width / 2))
-        const offsetY = -(event.clientY - (containerDomPos.y + containerDomPos.height / 2))
-        console.log('offsetX: ' + offsetX + ' offsetY: ' + offsetY)
-
-        // slide截图出现与初始定位
-        slideAnimateDom.style.left = buttonPos.left + buttonPos.width / 2 - 200 + 'px'
-        slideAnimateDom.style.top = buttonPos.top + buttonPos.height / 2 - 100 + 'px'
-        slideAnimateDom.style.display = 'block'
-
-        // 开始动画
-        slideAnimateDom.style.transform = 'translateX(' + offsetX + 'px)'
-        slideAnimateImgDom.style.transform = 'translateY(' + offsetY + 'px) scale(0.1)'
-        setTimeout(() => {
-          this.currentSlideCoverImgSrc = null
-          slideAnimateDom.style.transform = 'translateX(0px)'
-          slideAnimateImgDom.style.transform = 'translateY(0px) scale(1)'
-          if (this.selectedTemplateIdList.indexOf(template.id) === -1) {
-            this.selectedTemplateList.unshift(template)
+          if (taskData.startDate && taskData.endDate) {
+            this.rangeDate.push(moment.utc(taskData.startDate).local())
+            this.rangeDate.push(moment.utc(taskData.endDate).local())
           }
-        }, 600)
-      })
-    },
-    loadUserTags () {
-      // this.$refs.customTag.tagLoading = true
-      FindCustomTags({}).then((response) => {
-        this.$logger.info('FindCustomTags response', response.result)
-        if (response.success) {
-          this.userTags = response.result
-          // 默认展示的tag分类
-          CustomTagType.task.default.forEach(name => {
+        }).finally(() => {
+          this.contentLoading = false
+          this.loadCollaborateData()
+          if (this.form.presentationId) {
+            this.loadThumbnail()
+            this.loadRecommendThumbnail()
+          }
+          if (this.mode === 'pick-task-slide') {
+            this.currentTaskFormData = Object.assign({}, this.form)
+          }
+          // copy副本 为了判断数据变更
+          this.oldForm = JSON.parse(JSON.stringify(this.form))
+          this.initCompleted = true
+        })
+      },
+
+      handleLinkMyContent (data) {
+        this.$logger.info('handleLinkMyContent ', data)
+        this.selectLinkContentVisible = false
+        // link到unit plan必须全question
+        this.loadRelevantTagInfo(data.item)
+      },
+
+      handleToggleSelectContentItem (data, event) {
+        this.$logger.info('handleToggleSelectContentItem', data, event)
+        if (this.drawerSelectedTemplateIds.indexOf(data.id) === -1) {
+          this.handleSelectTemplateMadelAnimate(data, event)
+        } else {
+          this.handleSelectTemplateMadel(data)
+        }
+
+        // const key = data.type + '-' + data.id
+        // const index = this.selectedMyContentKeyList.indexOf(key)
+        // if (index !== -1) {
+        //   this.selectedMyContentKeyList.splice(index, 1)
+        // } else {
+        //   this.selectedMyContentKeyList.push(key)
+        // }
+        // this.selectedMyContentInfoMap.set(key, data)
+      },
+
+      handleSaveTask () {
+        logger.info('handleSaveTask', this.form, this.questionDataObj)
+
+        const taskData = Object.assign({}, this.form)
+        if (this.rangeDate.length === 2) {
+          const startDate = this.rangeDate[0].clone()
+          const endDate = this.rangeDate[1].clone()
+          taskData.startDate = startDate.utc().format('YYYY-MM-DD HH:mm:ss')
+          taskData.endDate = endDate.utc().format('YYYY-MM-DD HH:mm:ss')
+        }
+        if (this.taskId) {
+          taskData.id = this.taskId
+        }
+        taskData.selectedTemplateList = this.selectedTemplateList
+        // if (this.form.presentationId) {
+        //   this.loadThumbnail()
+        // }
+        logger.info('basic taskData', taskData)
+        logger.info('question taskData', taskData)
+        TaskAddOrUpdate(taskData).then((response) => {
+          logger.info('TaskAddOrUpdate', response.result)
+          if (response.success) {
+            // this.restoreTask(response.result.id, false)
+            this.oldForm = JSON.parse(JSON.stringify(this.form))
+            this.$message.success(this.$t('teacher.add-task.save-success'))
+            this.handleBack()
+            // this.$router.push({ path: '/teacher/main/created-by-me' })
+            // this.selectedSlideVisibleFromSave = true
+          } else {
+            this.$message.error(response.message)
+          }
+        }).finally(() => {
+          // this.selectedSlideVisible = true
+          this.$refs.commonFormHeader.saving = false
+        })
+      },
+      handlePublishTask (status) {
+        logger.info('handlePublishTask', {
+          id: this.taskId,
+          status: status
+        })
+        const taskData = Object.assign({}, this.form)
+        taskData.status = status
+        this.publishing = true
+        TaskAddOrUpdate(taskData).then(response => {
+          this.$logger.info('UpdateContentStatus response', response)
+          // this.$message.success('Publish success')
+          this.form.status = status
+        }).then(() => {
+          if (status === 1) {
+            this.selectedSlideVisible = true
+            this.$message.success(this.$t('teacher.add-task.publish-success'))
+          } else {
+            this.$message.success('Unpublish successfully')
+          }
+          this.form.status = status
+          this.$refs.commonFormHeader.publishing = false
+          this.oldForm = JSON.parse(JSON.stringify(this.form))
+        })
+      },
+
+      handleSelectTaskType (type) {
+        this.$logger.info('handleSelectTaskType ' + type)
+        this.form.taskType = type
+        this.customTagList = []
+        if (type === 'FA') {
+          CustomTagType.task.fa.forEach(name => {
             this.customTagList.push(name)
           })
-          // 再拼接自己添加的
-          this.userTags.userTags.forEach(tag => {
-            if (this.customTagList.indexOf(tag.name) === -1) {
-              this.customTagList.push(tag.name)
+        } else if (type === 'SA') {
+          CustomTagType.task.sa.forEach(name => {
+            this.customTagList.push(name)
+          })
+        } else if (type === 'Activity') {
+          CustomTagType.task.activity.forEach(name => {
+            this.customTagList.push(name)
+          })
+        }
+        this.setRightModuleVisible(this.rightModule.customTag)
+        this.customTagTop = 450
+        this.showCustomTag = true
+      },
+
+      goBack () {
+        // this.$router.push({ path: '/teacher/main/created-by-me' })
+      },
+
+      handleShowSelectMyContent () {
+        this.$logger.info('handleShowSelectMyContent')
+        this.selectedTaskIdList = []
+        this.selectedMyContentList = []
+        this.selectedMyContentVisible = true
+        this.templateLoading = false
+        this.drawerSelectedTemplateList = []
+        this.selectedTemplateList.forEach(item => {
+          this.drawerSelectedTemplateList.push(item)
+        })
+      },
+
+      handleRemoveTemplate (template) {
+        this.$logger.info('handleRemoveTemplate ', template)
+        const index = this.selectedTemplateList.findIndex(item => item.id === template.id)
+        this.form.showSelected = true
+        if (index !== -1) {
+          this.selectedTemplateList.splice(index, 1)
+        }
+      },
+
+      handleSelectTemplateMadelAnimate (template, event) {
+        this.$logger.info('handleSelectTemplateMadelAnimate ', template)
+        this.selectedTemplateMarginLeft = '2%'
+        this.selectedTemplateMadelWidth = '80%'
+        this.selectedTemplateDrawerVisible = true
+        this.selectedTemplateDrawerZindex = 3000
+        this.form.showSelected = true
+        this.$logger.info('event', event)
+        this.form.showSelected = true
+
+        // 计算元素位置，然后添加动画
+        this.currentSlideCoverImgSrc = template.cover ? template.cover : template.image
+        this.$nextTick(() => {
+          const slideAnimateDom = document.getElementById('slide-animate')
+          const slideAnimateImgDom = document.getElementById('slide-animate-img')
+          const imgDomPos = slideAnimateDom.getBoundingClientRect()
+          const containerDomPos = document.getElementById('drawerTemplateSelected').getBoundingClientRect()
+          const buttonPos = event.target.getBoundingClientRect()
+
+          console.log(containerDomPos)
+          console.log('buttonPos y ' + buttonPos.y + ' containerDomPos y ' + containerDomPos.y + ' containerDomPos h ' + containerDomPos.height + ' img y ' + imgDomPos.y + ' distY ' + (buttonPos.y - containerDomPos.y - containerDomPos.height / 2))
+          const offsetX = -(buttonPos.left + buttonPos.width / 2 - (containerDomPos.left + containerDomPos.width / 2))
+          const offsetY = -(event.clientY - (containerDomPos.y + containerDomPos.height / 2))
+          console.log('offsetX: ' + offsetX + ' offsetY: ' + offsetY)
+
+          // slide截图出现与初始定位
+          slideAnimateDom.style.left = buttonPos.left + buttonPos.width / 2 - 200 + 'px'
+          slideAnimateDom.style.top = buttonPos.top + buttonPos.height / 2 - 100 + 'px'
+          slideAnimateDom.style.display = 'block'
+
+          // 开始动画
+          slideAnimateDom.style.transform = 'translateX(' + offsetX + 'px)'
+          slideAnimateImgDom.style.transform = 'translateY(' + offsetY + 'px) scale(0.1)'
+          setTimeout(() => {
+            this.currentSlideCoverImgSrc = null
+            slideAnimateDom.style.transform = 'translateX(0px)'
+            slideAnimateImgDom.style.transform = 'translateY(0px) scale(1)'
+
+            if (this.drawerSelectedTemplateIds.indexOf(template.id) === -1) {
+              this.drawerSelectedTemplateList.unshift(template)
+            }
+          }, 600)
+        })
+      },
+
+      handleSelectTemplateMadel (template) {
+        this.$logger.info('handleSelectTemplateMadel ', template)
+        this.selectedTemplateMarginLeft = '2%'
+        this.selectedTemplateMadelWidth = '80%'
+        this.selectedTemplateDrawerVisible = true
+        this.selectedTemplateDrawerZindex = 3000
+        const index = this.drawerSelectedTemplateList.findIndex(item => item.id === template.id)
+        this.form.showSelected = true
+        if (index !== -1) {
+          this.drawerSelectedTemplateList.splice(index, 1)
+        } else {
+          this.drawerSelectedTemplateList.unshift(template)
+        }
+      },
+
+      handleAddTemplate () {
+        this.$logger.info('handleAddTemplate ', this.selectedTemplateList)
+        if (!this.creating) {
+          if (this.selectedTemplateList.length) {
+            const hideLoading = this.$message.loading('Creating ppt in Google side...', 0)
+            this.creating = true
+            TaskCreateNewTaskPPT({
+              taskId: this.taskId ? this.taskId : '',
+              name: this.form.name ? this.form.name : 'Unnamed Task',
+              overview: this.form.overview,
+              templatePresentationIds: this.selectedTemplateList.map(item => {
+                return item.presentationId
+              })
+            }).then(response => {
+              if (!response.success) {
+                this.$message.error(response.message)
+                return
+              }
+              this.$logger.info('handleAddTemplate response', response.result)
+              this.form.id = response.result.id
+              this.form.presentationId = response.result.presentationId
+              this.selectTemplateVisible = false
+              this.restoreTask(this.form.id, false)
+              this.$router.replace({
+                path: '/teacher/add-task/' + response.result.id
+              })
+              this.$message.success('Created Successfully in Google Slides')
+            }).finally(() => {
+              this.templateLoading = false
+              this.creating = false
+              this.selectedMyContentVisible = false
+              this.addRecomendLoading = false
+              hideLoading()
+              // this.loadThumbnail()
+            })
+          } else {
+            this.$message.warn('Please select template!')
+          }
+        } else {
+          this.$logger.info('creating wait...')
+        }
+      },
+
+      handleViewDetail (item) {
+        this.$logger.info('handleViewDetail ', item)
+        if (item.type === this.contentType['unit-plan']) {
+          this.$router.push({
+            path: '/teacher/unit-plan-redirect/' + item.id
+          })
+        }
+      },
+
+      handleUpdateSelected (data) {
+        this.$logger.info('handleUpdateSelected', data)
+        this.relevantSelectedQuestionList = data.questionList
+      },
+
+      handleCancelSelectedMyContent () {
+        this.selectedMyContentVisible = false
+        this.selectedTaskIdList = []
+        this.selectedMyContentList = []
+      },
+
+      handleConfirmSelectedMyContent () {
+        this.$logger.info('handleConfirmSelectedMyContent', this.selectedMyContentKeyList)
+        if (this.selectedMyContentKeyList.length === 0) {
+          this.$message.warn('Please select a content!')
+          return
+        }
+        this.selectedTaskIdList = []
+        this.selectedMyContentList = []
+        this.selectedMyContentKeyList.forEach(key => {
+          if (this.selectedMyContentInfoMap.has(key)) {
+            this.selectedMyContentList.push(this.selectedMyContentInfoMap.get(key))
+          }
+
+          const keyArr = key.split('-')
+          if (parseInt(keyArr[0]) === this.contentType.task) {
+            this.selectedTaskIdList.push(keyArr[1])
+          }
+        })
+        this.selectedMyContentList.forEach(item => {
+          if (this.selectedTemplateIdList.indexOf(item.id) === -1) {
+            // task和template图片字段不一致
+            item.cover = item.image
+            this.selectedTemplateList.unshift(item)
+          }
+        })
+        this.selectedMyContentVisible = false
+        if (this.selectedTemplateIdList.length > 0) {
+          this.form.showSelected = true
+        } else {
+          this.form.showSelected = false
+        }
+      },
+
+      handleCreateTask () {
+        this.$logger.info('handleCreateTask')
+        const hideLoading = this.$message.loading('Creating ppt in Google side...', 0)
+        if (!this.creating) {
+          this.creating = true
+          TaskCreateNewTaskPPT({
+            taskId: this.taskId ? this.taskId : '',
+            taskIds: this.selectedTaskIdList,
+            name: this.form.name ? this.form.name : 'Unnamed Task',
+            overview: this.form.overview
+          }).then(response => {
+            this.$logger.info('handleCreateTask', response.result)
+            this.showChoseSelectTemplateVisible = false
+            this.selectedMyContentVisible = false
+            this.form.id = response.result.id
+            this.form.presentationId = response.result.presentationId
+            this.selectTemplateVisible = false
+            // this.viewInGoogleSlideVisible = true
+            this.$router.replace({
+              path: '/teacher/task-redirect/' + response.result.id
+            })
+            this.$message.success('Created Successfully in Google Slides')
+            window.open('https://docs.google.com/presentation/d/' + this.form.presentationId)
+          }).finally(() => {
+            this.creating = false
+            this.selectedMyContentVisible = false
+            this.loadThumbnail()
+            hideLoading()
+          })
+        }
+      },
+
+      loadThumbnail () {
+        this.thumbnailListLoading = true
+        this.skeletonLoading = true
+        this.$logger.info('loadThumbnail ' + this.form.presentationId)
+        TemplatesGetPresentation({
+          presentationId: this.form.presentationId
+        }).then(response => {
+          this.$logger.info('loadThumbnail response', response.result)
+          if (response.success) {
+            const pageObjects = response.result.pageObjects
+            this.pptTitle = response.result.title
+            this.thumbnailList = []
+            pageObjects.forEach(page => {
+              this.thumbnailList.push({ contentUrl: page.contentUrl, id: page.pageObjectId })
+            })
+          } else if (!response.success && response.code === 404) {
+            // 文件被删除 todo
+          } else {
+            this.$message.error(response.message)
+          }
+        }).finally(() => {
+          this.thumbnailListLoading = false
+          this.skeletonLoading = false
+          this.getClassInfo(this.form.presentationId)
+        })
+      },
+
+      // TODO 修改为加载推荐模板
+      loadRecommendThumbnail () {
+        this.$logger.info('loadRecommendThumbnail')
+        this.recomendListLoading = true
+        recommendTemplates({ taskId: this.taskId }).then(response => {
+          logger.info('loadRecommendThumbnail res:', response.result)
+          if (response.success) {
+            this.recommendTemplateList = response.result
+            this.recomendListLoading = false
+          }
+        })
+      },
+
+      handleToggleThumbnail (thumbnail) {
+        this.$logger.info('handleToggleThumbnail', thumbnail)
+        const pageId = thumbnail.id
+        const index = this.selectedPageIdList.indexOf(pageId)
+        if (index !== -1) {
+          this.selectedPageIdList.splice(index, 1)
+        } else {
+          this.selectedPageIdList.push(thumbnail.id)
+        }
+
+        const contentUrlIndex = this.selectedPageImageList.indexOf(thumbnail.contentUrl)
+        if (contentUrlIndex !== -1) {
+          this.selectedPageImageList.splice(contentUrlIndex, 1)
+        } else {
+          this.selectedPageImageList.push(thumbnail.contentUrl)
+        }
+
+        const pageDataIndex = this.selectedPageItemData.findIndex(item => item.pageId === pageId)
+        const pageData = this.getTargetPageItemData(pageId)
+        this.$logger.info('pageData', pageData)
+        if (pageDataIndex !== -1) {
+            this.selectedPageItemData.splice(pageDataIndex, 1)
+        } else if (pageData) {
+            pageData.pageId = pageId
+            this.selectedPageItemData.push(pageData)
+        }
+        this.$logger.info('selectedPageItemData', this.selectedPageItemData)
+
+        // 处理sub task封面
+        if (this.currentTaskFormData && this.selectedPageIdList.length > 0) {
+          const pageId = this.thumbnailList.filter(item => this.selectedPageIdList.indexOf(item.id) > -1)[0].id
+          const selectPage = this.thumbnailList.filter(item => item.id === pageId)
+          if (selectPage.length > 0) {
+            this.currentTaskFormData = {}
+            this.currentTaskFormData = Object.assign({}, this.form)
+            this.currentTaskFormData.image = selectPage[0].contentUrl
+          }
+        }
+      },
+
+      handleContinueSelectTemplate () {
+        this.showChoseSelectTemplateVisible = false
+        this.selectTemplateVisible = true
+      },
+
+      handleShowCreateChoice () {
+        this.showCreateChoice = false
+        this.selectedMyContentVisible = true
+      },
+
+      handleAudioResult (data) {
+        logger.info('handleAudioResult', data)
+        this.currentUploading = true
+        const formData = new FormData()
+        formData.append('file', data, 'audio.wav')
+        this.$http.post(commonAPIUrl.UploadFile, formData, { contentType: false, processData: false, headers: { 'Content-Type': 'multipart/form-data' }, timeout: 60000 })
+          .then((response) => {
+            logger.info('handleAudioResult upload response:', response)
+            this.audioUrl = this.$store.getters.downloadUrl + response.result
+            logger.info('handleAudioResult audioUrl', this.audioUrl)
+          }).catch(err => {
+          logger.error('handleAudioResult error', err)
+        }).finally(() => {
+          this.currentUploading = false
+        })
+      },
+
+      handleUploadAudio (data) {
+        logger.info('handleUploadAudio', data)
+        this.currentUploading = true
+        const formData = new FormData()
+        formData.append('file', data.file, data.file.name)
+        this.uploading = true
+        this.$http.post(commonAPIUrl.UploadFile, formData, { contentType: false, processData: false, headers: { 'Content-Type': 'multipart/form-data' }, timeout: 60000 })
+          .then((response) => {
+            logger.info('handleUploadAudio upload response:', response)
+            this.audioUrl = this.$store.getters.downloadUrl + response.result
+          }).catch(err => {
+          logger.error('handleUploadImage error', err)
+        }).finally(() => {
+          this.currentUploading = false
+        })
+      },
+
+      handleCancelAddAudio () {
+        this.audioUrl = null
+        this.showAddAudioVisible = false
+      },
+
+      handleConfirmAddAudio () {
+        if (this.audioUrl) {
+          this.form.audioUrl = this.audioUrl
+          this.audioUrl = null
+        }
+        this.showAddAudioVisible = false
+      },
+
+      handleAddAudioOverview () {
+        this.$logger.info('handleAddAudioOverview')
+        this.showAddAudioVisible = true
+      },
+
+      handleAddAnotherTask () {
+        this.$logger.info('handleAddAnotherTask')
+      },
+
+      handleAddSubTask (data) {
+        this.$logger.info('handleAddSubTask', data)
+        if (this.selectedPageIdList.length) {
+          const task = Object.assign({
+            _uid: '' + Math.random(), // 随机生成一个id方便后面删除
+            presentationId: this.form.presentationId,
+            selectPageObjectIds: this.selectedPageIdList,
+            selectPageImages: this.selectedPageImageList,
+            taskId: this.form.id
+          }, data)
+          this.$logger.info('add sub task', task)
+          this.subTasks.push(task)
+          this.selectedPageIdList = []
+          this.selectedPageImageList = []
+          this.selectedPageItemData = []
+          this.taskIndex++
+          this.$logger.info('after add tasks ', this.form.tasks)
+        } else {
+          this.$message.warn('Please select at least one slide!')
+        }
+      },
+
+      handleDeleteSubTask (data) {
+        this.$logger.info('handleDeleteSubTask data', data)
+        this.subTasks = this.subTasks.filter(item => item._uid !== data._uid)
+      },
+
+      handleTaskDelete (task) {
+        this.$logger.info('handleTaskDelete', task)
+        const index = this.form.tasks.findIndex(item => item.__taskId === task.__taskId)
+        if (index !== -1) {
+          this.form.tasks.splice(index, 1)
+        }
+      },
+      handleStartSession (type) {
+        this.$logger.info('handleStartSession', this.form)
+        if (this.form.presentationId) {
+          this.$logger.info('selected sessionTags', this.sessionTags)
+          if (this.sessionTags.length === 0 && !type) {
+            this.$message.warn('Please add session tags')
+            return
+          }
+          this.startLoading = true
+          const requestData = {
+            author: this.$store.getters.email,
+            slide_id: this.form.presentationId,
+            file_name: this.form.name ? this.form.name : 'Unnamed',
+            status: lessonStatus.studentPaced,
+            redirect_url: null
+          }
+
+          this.$logger.info('handleStartSession', requestData)
+          StartLesson(requestData).then(res => {
+            this.$logger.info('StartLesson res', res)
+            if (res.code === 'ok') {
+              const dataTags = []
+              if (type && type === 'dash') {
+                this.startLoading = false
+                this.taskSelectTagVisible = false
+                const targetUrl = lessonHost + 'd/' + res.data.class_id
+                this.$logger.info('try open ' + targetUrl)
+                window.open(targetUrl, '_blank')
+              } else {
+                this.sessionTags.forEach(tag => {
+                  dataTags.push({
+                    'name': tag.name,
+                    'parentId': tag.parentId,
+                    'isGlobal': tag.isGlobal ? 1 : 0,
+                    'classId': res.data.class_id,
+                    'presentationId': this.form.presentationId,
+                    'sourceId': this.form.id,
+                    'sourceType': this.form.type
+                  })
+                })
+                SaveSessonTags(dataTags).then(() => {
+                  this.startLoading = false
+                  this.taskSelectTagVisible = false
+                  // const targetUrl = lessonHost + 'slide_id=' + this.form.presentationId + '&class_id=' + res.data.class_id + '&type=classroom'
+                  const targetUrl = lessonHost + 'd/' + res.data.class_id
+                  this.$logger.info('try open ' + targetUrl)
+                  window.open(targetUrl, '_blank')
+                })
+              }
+            } else {
+              this.$message.warn('StartLesson Failed! ' + res.message)
+              this.startLoading = false
             }
           })
         } else {
-          this.$message.error(response.message)
+          this.$message.warn('This record is not bound to PPT!')
+          this.startLoading = false
         }
-        // this.$refs.customTag.tagLoading = false
-      })
-    },
-    focusInput (event) {
-      this.$logger.info('focusInput ', event.target)
-      // let isEditBase = false
-      // if (typeof event.target.className === 'string' && event.target.className.indexOf('ant-input') > -1) {
-      //   isEditBase= true
-      // }
-
-      // 设置一个父级定位专用的dom，设置class名称【root-locate-form】，
-      // 然后通过事件获取到当前元素，依次往上层查询父元素，累加偏离值，直到定位元素。
-      const eventDom = event.target
-      let formTop = eventDom.offsetTop ? eventDom.offsetTop : 0
-      let currentDom = eventDom.offsetParent
-      const currentFocus = ''
-      this.customTagList = []
-      console.log(currentDom)
-      while (currentDom !== null) {
-        formTop += (currentDom ? currentDom.offsetTop : 0)
-        currentDom = currentDom ? currentDom.offsetParent : undefined
-        if (!currentDom) {
-          break
-        }
-        // if(currentDom.classList.contains('div.task-type-item.green-active-task-type')) {
-        //   currentFocus = 'fa'
-        //   CustomTagType.task.fa.forEach(name => {
-        //     this.customTagList.push(name)
-        //   })
-        // }
-        if (currentDom.classList && currentDom.classList.contains('root-locate-form')) {
-          logger.info('classlist: ', currentDom.classList.toString())
-          break
-        }
-      }
-      // custom tag 自带了margin-top: 20px,这里减掉不然不对齐。
-      if (currentFocus) {
-        this.customTagTop = formTop - 20
-        this.showCustomTag = true
-      } else {
-        // if(isEditBase){
-        //   CustomTagType.task.base.forEach(name => {
-        //     this.customTagList.push(name)
-        //   })
-        // }
-        CustomTagType.task.default.forEach(name => {
-          this.customTagList.push(name)
+      },
+      handleStartCollaborate () {
+        this.$logger.info('handleStartCollaborate')
+        this.collaborateContent = Object.assign({}, this.form)
+        this.showCollaborateModalVisible = true
+      },
+      handleUploadImage (data) {
+        logger.info('handleUploadImage', data)
+        const formData = new FormData()
+        formData.append('file', data.file, data.file.name)
+        this.uploading = true
+        this.$http.post(commonAPIUrl.UploadFile, formData, { contentType: false, processData: false, headers: { 'Content-Type': 'multipart/form-data' }, timeout: 60000 })
+          .then((response) => {
+            logger.info('handleUploadImage upload response:', response)
+            this.form.image = this.$store.getters.downloadUrl + response.result
+            // 设置是否已经人工上传
+            if (this.form.presentationId) {
+              this.form.hasUploadImage = true
+            }
+          }).catch(err => {
+          logger.error('handleUploadImage error', err)
+          this.$message.error(this.$t('teacher.add-unit-plan.upload-image-file-failed'))
+        }).finally(() => {
+          this.uploading = false
         })
-        // // 再拼接自己添加的
-        this.userTags.userTags.forEach(tag => {
-          if (this.customTagList.indexOf(tag.name === -1)) {
-            this.customTagList.push(tag.name)
+      },
+
+      handleDeleteImage (e) {
+        logger.info('handleDeleteImage ', e)
+        e.stopPropagation()
+        e.preventDefault()
+        this.form.image = null
+        this.form.hasUploadImage = false
+      },
+
+      handleEditGoogleSlide () {
+        this.$logger.info('handleEditGoogleSlide', this.form.presentationId)
+        if (this.form.presentationId) {
+          window.open(this.presentationLink, '_blank')
+        } else {
+          this.handleCreateTask()
+        }
+      },
+
+      handleAddTaskWithSlide () {
+        this.$logger.info('handleAddTaskWithSlide')
+        this.selectedSlideVisible = false
+        this.selectedSlideVisibleFromSave = false
+        this.currentTaskFormData = Object.assign({}, this.form)
+        this.$router.push({
+          path: '/teacher/add-task/' + this.taskId + '/pick-task-slide'
+        })
+        this.$logger.info('currentTaskFormData', this.currentTaskFormData)
+      },
+
+      handleGotoEditMode () {
+        this.$logger.info('handleGotoEditMode')
+        this.$router.push({
+          path: '/teacher/add-task/' + this.taskId + '/edit'
+        })
+      },
+
+      handleCancelPickTaskSlide () {
+        this.$logger.info('handleCancelPickTaskSlide')
+        this.selectedSlideVisible = false
+        this.$router.push({
+          path: '/teacher/add-task/' + this.taskId + '/edit'
+        })
+      },
+      handleSelectedSessionTags (tags) {
+        this.sessionTags = tags
+        this.$logger.info('handleSelectedSessionTags', tags)
+      },
+      handleStartSessionTags () {
+        this.taskSelectTagVisible = true
+        this.sessionTags = []
+      },
+      handleAddTaskEvaluation () {
+        logger.info('handleAddTaskEvaluation ' + this.taskId)
+        // 下创建一个空的evaluation，然后关联，然后再跳转过去
+        if (!this.addLoading) {
+          this.addLoading = true
+          EvaluationAddOrUpdate({ name: null }).then((response) => {
+            this.$logger.info('EvaluationAddOrUpdate', response.result)
+            if (response.success) {
+              Associate({
+                fromId: this.taskId,
+                fromType: this.contentType.task,
+                toId: response.result.id,
+                toType: this.contentType.evaluation
+              }).then(response => {
+                this.$logger.info('Associate response ', response)
+                // 刷新子组件的关联数据
+              })
+              this.addLoading = false
+              this.$router.push({
+                path: '/teacher/evaluation-redirect/' + response.result.id
+              })
+            } else {
+              this.$message.error(response.message)
+            }
+          }).finally(() => {
+            this.addLoading = false
+          })
+        } else {
+          this.$logger.info('add loading')
+        }
+      },
+      handleAddUnitPlanTerm () {
+        this.$logger.info('handleAddUnitPlanTerm', this.groupNameList)
+
+        // 如果第一部分有内容，点击link激活step 到第二部分，否则提示先输入第一部分表单内容
+        if (this.form.name ||
+          this.form.overview ||
+          (this.form.questions && this.form.questions.length)) {
+          this.groupNameMode = 'input'
+          this.selectLinkUnitPlanContentVisible = true
+          this.setSessionStep(1)
+        } else {
+          this.$message.warn('Task Info is empty, please fill the form first!')
+        }
+      },
+      handleAddTerm () {
+        this.$logger.info('handleAddTerm', this.groupNameList)
+
+        // 如果第一部分有内容，点击link激活step 到第二部分，否则提示先输入第一部分表单内容
+        if (this.form.name ||
+          this.form.overview ||
+          (this.form.questions && this.form.questions.length)) {
+          this.groupNameMode = 'input'
+          this.selectLinkContentVisible = true
+          this.setSessionStep(1)
+        } else {
+          this.$message.warn('Task Info is empty, please fill the form first!')
+        }
+      },
+      handleEnsureSelectedLink (data) {
+        this.$logger.info('handleEnsureSelectedLink', data)
+        this.selectLinkUnitPlanContentVisible = false
+        this.selectLinkContentVisible = false
+        this.getAssociate()
+        // 刷新组件内的列表
+        this.$refs.commonLink.getAssociate()
+      },
+
+      getAssociate () {
+        this.$logger.info('AddTask GetAssociate id[' + this.taskId + '] fromType[' + this.contentType.task + ']')
+        this.associateUnitPlanIdList = []
+        this.associateTaskIdList = []
+        GetAssociate({
+          id: this.taskId,
+          type: this.contentType.task
+        }).then(response => {
+          this.$logger.info('AddTask GetAssociate response', response)
+          this.groupNameList = []
+          this.groupNameListOther = []
+          response.result.owner.forEach(item => {
+            if (this.groupNameList.indexOf(item.group) === -1) {
+              this.groupNameList.push(item.group)
+            }
+
+            item.contents.forEach(content => {
+              console.log(content)
+              if (content.type === this.contentType['unit-plan']) {
+                this.associateUnitPlanIdList.push(content.id)
+                this.associateId2Name.set(content.id, content.name)
+                content.questions.forEach(question => {
+                  this.associateQuestionList.push({
+                    ...question,
+                    unitName: content.name
+                  })
+                })
+              }
+
+              if (content.type === this.contentType.task) {
+                this.associateTaskIdList.push(content.id)
+                this.associateId2Name.set(content.id, content.name)
+              }
+            })
+          })
+          response.result.others.forEach(item => {
+            if (this.groupNameListOther.indexOf(item.group) === -1) {
+              this.groupNameListOther.push(item.group)
+            }
+            item.contents.forEach(content => {
+              console.log(content)
+              if (content.type === this.contentType['unit-plan']) {
+                this.associateUnitPlanIdList.push(content.id)
+                this.associateId2Name.set(content.id, content.name)
+                content.questions.forEach(question => {
+                  this.associateQuestionList.push({
+                    ...question,
+                    unitName: content.name
+                  })
+                })
+              }
+
+              if (content.type === this.contentType.task) {
+                this.associateTaskIdList.push(content.id)
+                this.associateId2Name.set(content.id, content.name)
+              }
+            })
+          })
+          if (this.groupNameList.length > 0 || this.groupNameListOther.length > 0) {
+            this.handleSyncData()
+          }
+          this.newTermName = 'Untitled category_' + (this.groupNameList.length)
+          this.$logger.info('AddTask GetAssociate formatted groupNameList', this.groupNameList, this.groupNameListOther)
+          this.$logger.info('*******************associateUnitPlanIdList', this.associateUnitPlanIdList)
+          this.$logger.info('associateTaskIdList', this.associateTaskIdList)
+        }).finally(() => {
+          this.linkGroupLoading = false
+
+          if (this.associateUnitPlanIdList.length > 0) {
+            this.loadRefLearnOuts()
           }
         })
-        this.customTagTop = 20
-        this.showCustomTag = false
-      }
-    },
-    handleChangeUserTags (tags) {
-      this.form.customTags = tags
-    },
-    handleChangeAddKeywords (tag) {
-      var index = this.userTags.userTags.findIndex(item => item.name === tag.parentName)
-      if (index > -1) {
-        this.userTags.userTags[index].keywords.push(tag.name)
-      }
-    },
+      },
 
-    // 切换当前的字段的点评数据，从总的collaborateCommentList筛选初当前字段相关的点评数据
-    handleSwitchComment (data) {
-      this.$logger.info('handleSwitchComment', data)
-      if (!data.activeStatus) {
-        // 关闭
-        this.showCollaborateCommentVisible = false
-        this.showCustomTag = true
-        return
-      }
-      this.currentFieldName = data.fieldName
-      this.showAllCollaborateCommentVisible = false
-      this.showCustomTag = false
-      this.currentCollaborateCommentList = []
-      const list = []
-      this.collaborateCommentList.forEach(item => {
-        if (item.fieldName === data.fieldName) {
-          list.push(item)
+      loadRefLearnOuts () {
+        FindSourceOutcomes({
+          type: this.contentType['unit-plan'],
+          ids: this.associateUnitPlanIdList
+        }).then(response => {
+          this.$logger.info('FindSourceOutcomes response', response)
+          const recommendMap = new Map()
+          response.result.forEach(item => {
+            if (recommendMap.has(item.fromId)) {
+              recommendMap.get(item.fromId).push(item)
+            } else {
+              recommendMap.set(item.fromId, [item])
+            }
+          })
+          this.recommendData = []
+          for (const value of recommendMap.values()) {
+            this.recommendData.push({
+              fromId: value[0].fromId,
+              fromName: value[0].fromName,
+              fromTypeName: this.type2Name[value[0].fromType],
+              list: value
+            })
+          }
+          this.$logger.info('update recommendData ', this.recommendData)
+        })
+      },
+
+      // TODO 选择的assessment数据
+      handleSelectAssessmentType (data) {
+        this.$logger.info('handleSelectAssessmentType', data)
+        this.selectedAssessmentList = data
+      },
+
+      // TODO 自动更新选择的sync 的数据knowledgeId和name列表
+      handleSelectListData (data) {
+        this.$logger.info('handleSelectListData', data)
+        this.selectedSyncList = data
+      },
+
+      handleSelectCurriculum (data) {
+        this.$logger.info('handleSelectCurriculum', data)
+        this.selectedCurriculumList = data
+      },
+
+      handleSelectSubjectSpecificSkillListData (data) {
+        this.selectedSpecificSkillList = data
+        this.$logger.info('handleSelectSubjectSpecificSkillListData', data)
+      },
+
+      handleSelect21CenturySkillListData (data) {
+        this.$logger.info('handleSelect21CenturySkillListData', data)
+        this.selectedCenturySkillList = data
+      },
+
+      handleSelectIdu (data) {
+        this.$logger.info('handleSelectIdu', data)
+        this.selectedIduList = data
+      },
+
+      handleSelectRecommend (data) {
+        this.$logger.info('handleSelectRecommend', data)
+        this.selectedRecommendList = data
+      },
+
+      // TODO 自动更新选择的sync 的数据knowledgeId和name列表
+      handleCancelSelectData () {
+        this.selectedSyncList = []
+        this.selectedCurriculumList = []
+        this.selectedSpecificSkillList = []
+        this.selectedCenturySkillList = []
+        this.selectedAssessmentList = []
+        this.selectedIduList = []
+        this.selectedRecommendList = []
+        this.selectSyncDataVisible = false
+      },
+
+      // TODO 自动更新选择的sync 的数据knowledgeId和name列表
+      handleEnsureSelectData () {
+        this.$logger.info('handleEnsureSelectData',
+          this.selectedCurriculumList,
+          this.selectedSpecificSkillList,
+          this.selectedCenturySkillList,
+          this.selectedAssessmentList,
+          this.selectedIduList,
+          this.selectedRecommendList,
+          this.selectedSyncList)
+        this.$logger.info('mySelectedList', this.$refs.newBrowser.mySelectedList)
+        this.$logger.info('learnOuts', this.form.learnOuts)
+        this.form.learnOuts = this.$refs.newBrowser.mySelectedList
+        this.$refs.newBrowser.selectedRecommendList.forEach(item => {
+          const index = this.form.learnOuts.findIndex(dataItem => dataItem.knowledgeId === item.knowledgeId)
+          if (index === -1) {
+            this.form.learnOuts.push(item)
+          }
+        })
+        this.selectedSyncList.forEach(data => {
+          const filterLearnOuts = this.form.learnOuts.filter(item => item.knowledgeId === data.knowledgeId)
+          if (filterLearnOuts.length > 0) {
+            return
+          }
+          this.form.learnOuts.push({
+            knowledgeId: data.knowledgeId,
+            name: data.name,
+            tags: data.tags,
+            tagType: data.tagType,
+            path: data.path
+          })
+        })
+
+        this.selectedRecommendList.forEach(data => {
+          const filterLearnOuts = this.form.learnOuts.filter(item => item.knowledgeId === data.knowledgeId)
+          if (filterLearnOuts.length > 0) {
+            return
+          }
+          this.form.learnOuts.push({
+            knowledgeId: data.knowledgeId,
+            name: data.name,
+            tags: data.tags,
+            tagType: data.tagType,
+            path: data.path
+          })
+        })
+
+        this.selectedIduList.forEach(data => {
+          const filterLearnOuts = this.form.learnOuts.filter(item => item.knowledgeId === data.id)
+          if (filterLearnOuts.length > 0) {
+            return
+          }
+          this.form.learnOuts.push({
+            knowledgeId: data.knowledgeData.id,
+            name: data.knowledgeData.name,
+            tagType: data.knowledgeData.tagType,
+            path: data.knowledgeData.path,
+            tags: data.tags
+          })
+        })
+        const selectList = this.selectedCurriculumList.concat(this.selectedSpecificSkillList).concat(this.selectedCenturySkillList)
+          .concat(this.selectedAssessmentList)
+        selectList.forEach(data => {
+          const filterLearnOuts = this.form.learnOuts.filter(item => item.knowledgeId === data.knowledgeId)
+          if (filterLearnOuts.length > 0) {
+            return
+          }
+          this.form.learnOuts.push({
+            knowledgeId: data.knowledgeData.id,
+            name: data.knowledgeData.name,
+            tagType: data.knowledgeData.tagType,
+            path: data.knowledgeData.path
+          })
+        })
+        this.$logger.info('this.form.learnOuts', this.form.learnOuts)
+        this.selectSyncDataVisible = false
+        this.handleCancelSelectData()
+      },
+      handleRemoveLearnOuts (data) {
+        this.$logger.info('handleRemoveLearnOuts', data)
+        var index = this.form.learnOuts.findIndex(item => (item.knowledgeId === data.knowledgeId))
+        if (index > -1) {
+          this.form.learnOuts.splice(index, 1)
         }
-      })
-      this.currentCollaborateCommentList = list
-      this.collaborateTop = data.top
-      this.showCollaborateCommentVisible = true
-      this.$logger.info('currentCollaborateCommentList', list)
-    },
+      },
+      handleSelectDescription () {
+        // 获取当前task关联的unit-plan的描述数据
+        this.selectedList = JSON.parse(JSON.stringify(this.form.learnOuts))
+        this.form.learnOuts.forEach(item => {
+          if (item.knowledgeId) {
+            this.selectedIdList.push(item.knowledgeId)
+          } else {
+            this.$logger.info('parentData selected id not exist ', item)
+          }
+        })
+        this.$logger.info('handleSelectDescription selectedList', this.selectedList, ' recommendData ', this.recommendData)
+        this.selectSyncDataVisible = true
+      },
+      // 加载协作的评论和历史记录数据
+      loadCollaborateData () {
+        return Promise.all([
+          GetCollaborateModifiedHistory({ sourceType: this.contentType.task, sourceId: this.form.id }),
+          GetCollaborateComment({ sourceType: this.contentType.task, sourceId: this.form.id })
+        ]).then(response => {
+          // TODO 将历史记录数据‘格式’后填充到historyList数组中，大部分数据可以直接赋值，复杂字段要处理一下,这样handleRestoreField()方法就可以直接赋值了。
+          this.historyList = []
+          this.$logger.info('GetCollaborateModifiedHistory', response[0])
+          if (!response[0].code) {
+            this.historyList = response[0].result
+          }
+          // TODO 将写作点评数据‘格式’后填充到collaborateCommentList数组中
+          this.collaborateCommentList = []
+          this.$logger.info('GetCollaborateComment', response[1])
+          if (!response[1].code) {
+            this.collaborateCommentList = response[1].result
+          }
+        })
+      },
 
-    // 每次点击都重新加载一下最新数据
-    handleViewCollaborate () {
-      this.showHistoryLoading = true
-      this.$logger.info('handleViewCollaborate')
-      this.showCollaborateCommentVisible = false
-      this.currentCollaborateCommentList = []
-      this.showAllCollaborateCommentVisible = !this.showAllCollaborateCommentVisible
-      this.loadCollaborateData().then(() => {
-        this.$logger.info('loadCollaborateData loaded')
-      }).finally(() => {
-        this.showHistoryLoading = false
-      })
-    },
+      handleSyncData () {
+        this.$logger.info(' handleSyncData')
+        GetReferOutcomes({
+          id: this.taskId,
+          type: this.contentType.task
+        }).then(response => {
+          this.$logger.info('getReferOutcomes response', response)
+          if (response.result.length) {
+            this.syncData = response.result
+          }
+        })
+      },
 
-    // TODO 发布评论后需要更新最新的评论列表,刷新数据
-    handleUpdateCommentList () {
-      this.$logger.info('handleUpdateCommentList')
-      this.currentCollaborateCommentList = []
-      this.loadCollaborateData().then(() => {
-        this.$logger.info('loadCollaborateData loaded')
-      }).finally(() => {
+      onChangeStep (current) {
+        console.log('onChange: setSessionStep', current)
+        if (typeof current === 'number') {
+          this.setSessionStep(current)
+          if (this.recommendTemplateList.length === 0) {
+            this.loadRecommendThumbnail()
+          }
+          setTimeout(function () {
+              const returnEle = document.querySelector('.ant-layout-content')
+              if (returnEle) {
+                returnEle.scrollIntoView(true) // true 是默认的
+              }
+          }, 100)
+        }
+      },
+
+      handleCreateInGoogle () {
+        this.$logger.info('handleCreateInGoogle')
+        this.handleCreateTask()
+        // window.open('https://docs.google.com/presentation', '_blank')
+      },
+      filterSearch (inputValue, path) {
+        return path.some(option => option.name.toLowerCase().indexOf(inputValue.toLowerCase()) > -1)
+      },
+      selectFilter (data) {
+        this.$logger.info('selectFilter', data)
+        this.$logger.info('filterType', this.filterType)
+        this.templateLoading = true
+        FilterTemplates({
+            filterCategoryType: this.filterType,
+            filterLearn: this.filterLearn,
+            filterAssessments: this.getFilterAssessmentsParams(this.filterAssessments),
+            filterCentury: this.getFilterParams(this.filterCentury)
+        }).then(response => {
+          this.$logger.info('handleToggleTemplateType ', response)
+          this.templateList = response.result
+        }).finally(() => {
+          this.templateLoading = false
+        })
+      },
+      selectRecommendTemplate (template, rIndex, event) {
+        this.$logger.info('selectRecommendTemplate', template)
+        this.form.showSelected = true
+
+        // 计算元素位置，然后添加动画
+        this.currentSlideCoverImgSrc = template.images[0]
+        this.$nextTick(() => {
+          const slideAnimateDom = document.getElementById('slide-animate')
+          const slideAnimateImgDom = document.getElementById('slide-animate-img')
+          const imgDomPos = slideAnimateDom.getBoundingClientRect()
+          const containerDomPos = document.getElementById('templateSelected').getBoundingClientRect()
+          const buttonPos = event.target.getBoundingClientRect()
+
+          console.log(containerDomPos)
+          console.log('buttonPos y ' + buttonPos.y + ' containerDomPos y ' + containerDomPos.y + ' containerDomPos h ' + containerDomPos.height + ' img y ' + imgDomPos.y + ' distY ' + (buttonPos.y - containerDomPos.y - containerDomPos.height / 2))
+          const offsetX = -(buttonPos.left + buttonPos.width / 2 - (containerDomPos.left + containerDomPos.width / 2))
+          const offsetY = -(event.clientY - (containerDomPos.y + containerDomPos.height / 2))
+          console.log('offsetX: ' + offsetX + ' offsetY: ' + offsetY)
+
+          // slide截图出现与初始定位
+          slideAnimateDom.style.left = buttonPos.left + buttonPos.width / 2 - 200 + 'px'
+          slideAnimateDom.style.top = buttonPos.top + buttonPos.height / 2 - 100 + 'px'
+          slideAnimateDom.style.display = 'block'
+
+          // 开始动画
+          slideAnimateDom.style.transform = 'translateX(' + offsetX + 'px)'
+          slideAnimateImgDom.style.transform = 'translateY(' + offsetY + 'px) scale(0.1)'
+          setTimeout(() => {
+            this.currentSlideCoverImgSrc = null
+            slideAnimateDom.style.transform = 'translateX(0px)'
+            slideAnimateImgDom.style.transform = 'translateY(0px) scale(1)'
+            if (this.selectedTemplateIdList.indexOf(template.id) === -1) {
+              this.selectedTemplateList.unshift(template)
+            }
+          }, 600)
+        })
+      },
+      loadUserTags () {
+        // this.$refs.customTag.tagLoading = true
+        FindCustomTags({}).then((response) => {
+          this.$logger.info('FindCustomTags response', response.result)
+          if (response.success) {
+            this.userTags = response.result
+            // 默认展示的tag分类
+            CustomTagType.task.default.forEach(name => {
+              this.customTagList.push(name)
+            })
+            // 再拼接自己添加的
+            this.userTags.userTags.forEach(tag => {
+              if (this.customTagList.indexOf(tag.name) === -1) {
+                this.customTagList.push(tag.name)
+              }
+            })
+          } else {
+            this.$message.error(response.message)
+          }
+          // this.$refs.customTag.tagLoading = false
+        })
+      },
+      focusInput (event) {
+        this.$logger.info('focusInput ', event.target)
+        // let isEditBase = false
+        // if (typeof event.target.className === 'string' && event.target.className.indexOf('ant-input') > -1) {
+        //   isEditBase= true
+        // }
+
+        // 设置一个父级定位专用的dom，设置class名称【root-locate-form】，
+        // 然后通过事件获取到当前元素，依次往上层查询父元素，累加偏离值，直到定位元素。
+        const eventDom = event.target
+        let formTop = eventDom.offsetTop ? eventDom.offsetTop : 0
+        let currentDom = eventDom.offsetParent
+        const currentFocus = ''
+        this.customTagList = []
+        console.log(currentDom)
+        while (currentDom !== null) {
+          formTop += (currentDom ? currentDom.offsetTop : 0)
+          currentDom = currentDom ? currentDom.offsetParent : undefined
+          if (!currentDom) {
+            break
+          }
+          // if(currentDom.classList.contains('div.task-type-item.green-active-task-type')) {
+          //   currentFocus = 'fa'
+          //   CustomTagType.task.fa.forEach(name => {
+          //     this.customTagList.push(name)
+          //   })
+          // }
+          if (currentDom.classList && currentDom.classList.contains('root-locate-form')) {
+            logger.info('classlist: ', currentDom.classList.toString())
+            break
+          }
+        }
+        // custom tag 自带了margin-top: 20px,这里减掉不然不对齐。
+        if (currentFocus) {
+          this.customTagTop = formTop - 20
+          this.showCustomTag = true
+          this.setRightModuleVisible(this.rightModule.customTag)
+        } else {
+          // if(isEditBase){
+          //   CustomTagType.task.base.forEach(name => {
+          //     this.customTagList.push(name)
+          //   })
+          // }
+          CustomTagType.task.default.forEach(name => {
+            this.customTagList.push(name)
+          })
+          // // 再拼接自己添加的
+          this.userTags.userTags.forEach(tag => {
+            if (this.customTagList.indexOf(tag.name === -1)) {
+              this.customTagList.push(tag.name)
+            }
+          })
+          this.showCustomTag = false
+          this.customTagTop = 20
+          // this.setRightModuleVisible()
+        }
+      },
+      handleChangeUserTags (tags) {
+        this.form.customTags = tags
+      },
+      handleChangeAddKeywords (tag) {
+        var index = this.userTags.userTags.findIndex(item => item.name === tag.parentName)
+        if (index > -1) {
+          this.userTags.userTags[index].keywords.push(tag.name)
+        }
+      },
+
+      // 切换当前的字段的点评数据，从总的collaborateCommentList筛选初当前字段相关的点评数据
+      handleSwitchComment (data) {
+        this.$logger.info('handleSwitchComment', data)
+        this.setRightModuleVisible(this.rightModule.collaborateComment)
+        if (!data.activeStatus) {
+          return
+        }
+        this.currentFieldName = data.fieldName
+        this.currentCollaborateCommentList = []
         const list = []
         this.collaborateCommentList.forEach(item => {
-          if (item.fieldName === this.currentFieldName) {
+          if (item.fieldName === data.fieldName) {
             list.push(item)
           }
         })
         this.currentCollaborateCommentList = list
+        this.collaborateTop = data.top
         this.$logger.info('currentCollaborateCommentList', list)
-      })
-    },
+      },
 
-    // historyData以及在接口请求的相应逻辑中正对数据进行‘格式’，
-    // 这样在这里就可以直接this.$set设置字段的数据
-    handleRestoreField (data) {
-      this.$logger.info('handleRestoreField', data, this.form)
-      if (data.historyData) {
-        data.historyData.forEach(dataItem => {
-          this.$logger.info('set ' + dataItem.fieldName, dataItem.data[0])
-          if (Array.isArray(dataItem.data[0])) {
-            dataItem.data[0].forEach((item, index) => {
-              this.$set(this.form[dataItem.fieldName], index, dataItem.data[0][index])
-            })
+      // 每次点击都重新加载一下最新数据
+      handleViewCollaborate () {
+        this.showHistoryLoading = true
+        this.$logger.info('handleViewCollaborate')
+        if (this.showModuleList.indexOf(this.rightModule.collaborate) !== -1) {
+          this.resetRightModuleVisible()
+        } else {
+          this.setRightModuleVisible(this.rightModule.collaborate)
+        }
+        // this.showCollaborateCommentVisible = false
+        this.currentCollaborateCommentList = []
+        // this.showAllCollaborateCommentVisible = !this.showAllCollaborateCommentVisible
+        this.loadCollaborateData().then(() => {
+          this.$logger.info('loadCollaborateData loaded')
+        }).finally(() => {
+          this.showHistoryLoading = false
+        })
+      },
+
+      // TODO 发布评论后需要更新最新的评论列表,刷新数据
+      handleUpdateCommentList () {
+        this.$logger.info('handleUpdateCommentList')
+        this.currentCollaborateCommentList = []
+        this.loadCollaborateData().then(() => {
+          this.$logger.info('loadCollaborateData loaded')
+        }).finally(() => {
+          const list = []
+          this.collaborateCommentList.forEach(item => {
+            if (item.fieldName === this.currentFieldName) {
+              list.push(item)
+            }
+          })
+          this.currentCollaborateCommentList = list
+          this.$logger.info('currentCollaborateCommentList', list)
+        })
+      },
+
+      // historyData以及在接口请求的相应逻辑中正对数据进行‘格式’，
+      // 这样在这里就可以直接this.$set设置字段的数据
+      handleRestoreField (data) {
+        this.$logger.info('handleRestoreField', data, this.form)
+        if (data.historyData) {
+          data.historyData.forEach(dataItem => {
+            this.$logger.info('set ' + dataItem.fieldName, dataItem.data[0])
+            if (Array.isArray(dataItem.data[0])) {
+              dataItem.data[0].forEach((item, index) => {
+                this.$set(this.form[dataItem.fieldName], index, dataItem.data[0][index])
+              })
+            } else {
+              this.$set(this.form, dataItem.fieldName, dataItem.data[0])
+            }
+          })
+          this.$message.success('restore successfully!')
+        }
+        this.$logger.info('after handleRestoreField', this.form)
+      },
+      templateFilterCondition (category1, category2) {
+        let list = []
+        if (category1 === TemplateType.Learning) {
+          list = this.learnExperienceList
+        } else if (category1 === TemplateType.Assessments) {
+          list = this.assessmentsList
+        } else if (category1 === TemplateType.Century) {
+          list = this.centuryList
+        }
+        if (!category2) {
+          return list
+        }
+        const resultList = list.filter(item => item.name === category2)
+        logger.info('templateFilterCondition ', resultList)
+        return resultList.length > 0 ? resultList[0].children : []
+      },
+      onChangeCheckBox (e, category, parent) {
+        logger.info('onChangeCheckBox ', e, category, parent)
+        logger.info('filterLearn ', this.filterLearn)
+        const id = e.target.value
+        if (category === TemplateType.Learning) {
+          if (this.filterLearn.indexOf(id) === -1) {
+            this.filterLearn.push(id)
           } else {
-            this.$set(this.form, dataItem.fieldName, dataItem.data[0])
+            this.filterLearn.splice(this.filterLearn.indexOf(id), 1)
+          }
+        } else if (category === TemplateType.Assessments) {
+          // 单选，去除同parent其他值
+          parent.children.forEach(item => {
+            if (this.filterAssessments.indexOf(item.id) !== -1) {
+              this.filterAssessments.splice(this.filterAssessments.indexOf(item.id), 1)
+            }
+          })
+          this.filterAssessments.push(id)
+        } else if (category === TemplateType.Century) {
+          if (this.filterCentury.indexOf(id) === -1) {
+            this.filterCentury.push(id)
+            // if (parentId && this.filterCentury.indexOf(parentId) === -1) {
+            //   this.filterCentury.push(parentId)
+            // }
+          } else {
+            this.filterCentury.splice(this.filterCentury.indexOf(id), 1)
+          }
+          // child设置
+          if (parent.id === id) {
+             parent.children.forEach(child => {
+               if (e.target.checked) {
+                 if (this.filterCentury.indexOf(child.id) === -1) {
+                   this.filterCentury.push(child.id)
+                 }
+               } else {
+                   this.filterCentury.splice(this.filterCentury.indexOf(child.id), 1)
+               }
+             })
+          }
+        }
+        // 如果选中的是子类 父id要从筛选条件中去除，记录关系
+        if (parent && parent.children.length > 0) {
+          this.filterParentMap.set(id, parent.id)
+        }
+        this.selectFilter()
+      },
+      clearFilter () {
+        if (this.filterType === 1) {
+          this.filterLearn = []
+        } else if (this.filterType === 2) {
+          this.filterAssessments = []
+          this.assessmentsList.forEach(parent => {
+            parent.children.forEach(child => {
+              child.tooltip = ''
+            })
+          })
+        } else if (this.filterType === 3) {
+          this.filterCentury = []
+        }
+        this.selectFilter()
+      },
+      getFilterParams (list) {
+        logger.info('getFilterParams ', list)
+        if (list.length === 0) {
+          return []
+        }
+        var resList = [...list]
+        console.log(this.filterParentMap)
+        list.forEach(id => {
+          if (this.filterParentMap.has(id)) {
+             const pId = this.filterParentMap.get(id)
+             if (resList.indexOf(pId) > -1) {
+               resList.splice(resList.indexOf(pId), 1)
+             }
           }
         })
-        this.$message.success('restore successfully!')
-      }
-      this.$logger.info('after handleRestoreField', this.form)
-    },
-    templateFilterCondition (category1, category2) {
-      let list = []
-      if (category1 === TemplateType.Learning) {
-        list = this.learnExperienceList
-      } else if (category1 === TemplateType.Assessments) {
-        list = this.assessmentsList
-      } else if (category1 === TemplateType.Century) {
-        list = this.centuryList
-      }
-      if (!category2) {
-        return list
-      }
-      const resultList = list.filter(item => item.name === category2)
-      logger.info('templateFilterCondition ', resultList)
-      return resultList.length > 0 ? resultList[0].children : []
-    },
-    onChangeCheckBox (e, category, parent) {
-      logger.info('onChangeCheckBox ', e, category, parent)
-      logger.info('filterLearn ', this.filterLearn)
-      const id = e.target.value
-      if (category === TemplateType.Learning) {
-        if (this.filterLearn.indexOf(id) === -1) {
-          this.filterLearn.push(id)
-        } else {
-          this.filterLearn.splice(this.filterLearn.indexOf(id), 1)
+        return resList
+      },
+      getFilterAssessmentsParams (list) {
+        if (list.length === 0) {
+          return []
         }
-      } else if (category === TemplateType.Assessments) {
-        // 单选，去除同parent其他值
-        parent.children.forEach(item => {
-          if (this.filterAssessments.indexOf(item.id) !== -1) {
-            this.filterAssessments.splice(this.filterAssessments.indexOf(item.id), 1)
+        var resList = []
+        if (!this.filterAssessmentsType) {
+          return list
+        }
+        if (this.assessmentsList.length !== 2) {
+          return list
+        }
+        if (this.filterAssessmentsType === '1') {
+          this.assessmentsList[0].children.forEach(parent => {
+            parent.children.forEach(child => {
+                if (list.indexOf(child.id) !== -1) {
+                  resList.push(child.id)
+                }
+            })
+          })
+        } else {
+          this.assessmentsList[1].children.forEach(parent => {
+            parent.children.forEach(child => {
+              if (list.indexOf(child.id) !== -1) {
+                resList.push(child.id)
+              }
+            })
+          })
+        }
+        console.log(resList)
+        return resList
+      },
+      GetTagYearTips () {
+        GetTagYearTips().then((response) => {
+          this.$logger.info('GetTagYearTips response', response.result)
+          if (response.success) {
+            const tagYears = response.result
+            tagYears.forEach(tag => {
+              if (!this.centuryTagMap.has(tag.yearName)) {
+                this.centuryTagMap.set(tag.yearName, [])
+              }
+              this.centuryTagMap.get(tag.yearName).push(tag)
+            })
+            if (tagYears.length > 0) {
+              this.selectYearTab = tagYears[0].yearName
+            }
+          } else {
+            this.$message.error(response.message)
           }
+          this.$logger.info('centuryTagMap ', this.centuryTagMap)
         })
-        this.filterAssessments.push(id)
-      } else if (category === TemplateType.Century) {
-        if (this.filterCentury.indexOf(id) === -1) {
-          this.filterCentury.push(id)
-          // if (parentId && this.filterCentury.indexOf(parentId) === -1) {
-          //   this.filterCentury.push(parentId)
-          // }
+      },
+      handleTabYearChange (activeKey) {
+        this.selectYearTab = activeKey
+      },
+
+      setSessionStep (step) {
+        this.resetRightModuleVisible()
+        this.currentActiveStepIndex = step
+        sessionStorage.setItem('task-step-' + this.taskId, step)
+      },
+      getSessionStep () {
+        const oldStep = sessionStorage.getItem('task-step-' + this.taskId)
+        if (oldStep !== null) {
+          return parseInt(oldStep)
         } else {
-          this.filterCentury.splice(this.filterCentury.indexOf(id), 1)
+          return 0
         }
-        // child设置
-        if (parent.id === id) {
-          parent.children.forEach(child => {
-            if (e.target.checked) {
-              if (this.filterCentury.indexOf(child.id) === -1) {
-                this.filterCentury.push(child.id)
+      },
+      handlePreviewTemplate (template) {
+        this.$logger.info('handlePreviewTemplate ', template)
+        this.previewTemplateVisible = true
+        this.previewTemplate = template
+      },
+      handleSelectPreviewTemplate (template) {
+        this.$logger.info('handleSelectPreviewTemplate ', template)
+        this.handleSelectTemplateMadel(template)
+        this.previewTemplateVisible = false
+      },
+      handleGotoImgIndex (index) {
+        this.$logger.info('handleGotoImgIndex ' + index)
+        this.currentImgIndex = index
+        this.$refs.carousel.goTo(index)
+      },
+      removeSelectTemplate (template) {
+        this.$logger.info('removeSelectTemplate ', template)
+        var index = this.selectedTemplateList.findIndex(item => item.id === template.id)
+        if (index > -1) {
+          this.selectedTemplateList.splice(index, 1)
+        }
+        if (this.selectedTemplateList.length === 0) {
+          this.form.showSelected = false
+        }
+      },
+      handleSelectedTemplate () {
+        this.$logger.info('handleSelectedTemplate ', this.handleSelectedTemplate)
+        this.selectedMyContentVisible = false
+      },
+      changeSelected (checked) {
+        this.$logger.info('changeSelected ', checked)
+        this.form.showSelected = checked
+      },
+      changeFilterType (e) {
+        this.showTemplateFilter = true
+        this.selectFilter()
+      },
+      toggleUpFilter () {
+        this.showTemplateFilter = false
+        // this.clearFilter()
+        this.filterType = ''
+      },
+      handleSelectDrawerClose () {
+        this.selectedTemplateMarginLeft = '5%'
+        this.selectedTemplateMadelWidth = '90%'
+        this.selectedTemplateDrawerVisible = false
+        this.selectedTemplateDrawerZindex = 1000
+        if (this.selectedTemplateIdList.length === 0) {
+          this.form.showSelected = false
+        }
+      },
+      handleSelectDrawerSave () {
+        this.selectedTemplateMarginLeft = '5%'
+        this.selectedTemplateMadelWidth = '90%'
+        this.selectedTemplateDrawerZindex = 1000
+        this.selectedTemplateDrawerVisible = false
+        this.selectedMyContentVisible = false
+        this.selectedTemplateList = this.drawerSelectedTemplateList
+        // to do insert
+        if (this.selectedTemplateList.length === 0) {
+          this.form.showSelected = false
+        }
+      },
+
+      handleSaveSubTask (status) {
+        this.$logger.info('handleSaveSubTask status ' + status, this.subTasks)
+        if (status) {
+          this.subTaskPublishing = true
+        } else {
+          this.subTaskSaving = true
+        }
+        const postData = {
+          taskId: this.taskId,
+          subTasks: []
+        }
+        this.subTasks.forEach(taskItem => {
+          taskItem.subTask.selectPageObjectIds = taskItem.selectPageObjectIds
+          taskItem.subTask.status = status
+          postData.subTasks.push(taskItem.subTask)
+        })
+        this.$logger.info('handleSaveSubTask postData', postData)
+        SplitTask(postData).then(response => {
+            this.$logger.info('handleSaveSubTask response', response)
+            if (response.success) {
+              this.$message.success('add successfully')
+              // 保存并退出
+              if (!status) {
+                this.$router.go(-1)
               }
             } else {
-              this.filterCentury.splice(this.filterCentury.indexOf(child.id), 1)
+              this.$message.error(response.message)
             }
-          })
-        }
-      }
-      // 如果选中的是子类 父id要从筛选条件中去除，记录关系
-      if (parent) {
-        this.filterParentMap.set(id, parent.id)
-      }
-      this.selectFilter()
-    },
-    clearFilter () {
-      if (this.filterType === 1) {
-        this.filterLearn = []
-      } else if (this.filterType === 2) {
-        this.filterAssessments = []
-        this.assessmentsList.forEach(parent => {
-          parent.children.forEach(child => {
-            child.tooltip = ''
-          })
+        }).finally(() => {
+          this.subTaskPublishing = false
+          this.subTaskSaving = false
         })
-      } else if (this.filterType === 3) {
-        this.filterCentury = []
-      }
-      this.selectFilter()
-    },
-    getFilterParams (list) {
-      if (list.length === 0) {
-        return []
-      }
-      var resList = [...list]
-      list.forEach(id => {
-        if (this.filterParentMap.has(id)) {
-          const pId = this.filterParentMap.get(id)
-          if (resList.indexOf(pId) > -1) {
-            resList.splice(resList.indexOf(pId), 1)
+      },
+      async autoSave () {
+        const taskData = Object.assign({}, this.form)
+        if (this.rangeDate.length === 2) {
+          const startDate = this.rangeDate[0].clone()
+          const endDate = this.rangeDate[1].clone()
+          taskData.startDate = startDate.utc().format('YYYY-MM-DD HH:mm:ss')
+          taskData.endDate = endDate.utc().format('YYYY-MM-DD HH:mm:ss')
+        }
+        if (this.taskId) {
+          taskData.id = this.taskId
+        }
+        taskData.selectedTemplateList = this.selectedTemplateList
+        logger.info('basic taskData', taskData)
+        TaskAddOrUpdate(taskData).then((response) => {
+          logger.info('TaskAddOrUpdate', response.result)
+          // if (response.success) {
+          //   this.restoreTask(response.result.id, false)
+          // }
+        }).finally(() => {
+
+        })
+      },
+      setCustomTagByPPT (nameList, parent) {
+        nameList.forEach(name => {
+          const res = this.form.customTags.filter(tag => tag.parentName === parent && name === tag.name)
+          if (res.length === 0) {
+            this.form.customTags.push({
+              name: name,
+              parentName: parent
+            })
           }
-        }
-      })
-      return resList
-    },
-    getFilterAssessmentsParams (list) {
-      if (list.length === 0) {
-        return []
-      }
-      var resList = []
-      if (!this.filterAssessmentsType) {
-        return list
-      }
-      if (this.assessmentsList.length !== 2) {
-        return list
-      }
-      if (this.filterAssessmentsType === '1') {
-        this.assessmentsList[0].children.forEach(parent => {
-          parent.children.forEach(child => {
-            if (list.indexOf(child.id) !== -1) {
-              resList.push(child.id)
-            }
-          })
         })
-      } else {
-        this.assessmentsList[1].children.forEach(parent => {
-          parent.children.forEach(child => {
-            if (list.indexOf(child.id) !== -1) {
-              resList.push(child.id)
-            }
-          })
+        console.log(this.form.customTags)
+      },
+
+      handleAddMaterial () {
+        this.form.materialList.push({
+          name: null,
+          link: null
         })
-      }
-      console.log(resList)
-      return resList
-    },
-    GetTagYearTips () {
-      GetTagYearTips().then((response) => {
-        this.$logger.info('GetTagYearTips response', response.result)
-        if (response.success) {
-          const tagYears = response.result
-          tagYears.forEach(tag => {
-            if (!this.centuryTagMap.has(tag.yearName)) {
-              this.centuryTagMap.set(tag.yearName, [])
-            }
-            this.centuryTagMap.get(tag.yearName).push(tag)
-          })
-          if (tagYears.length > 0) {
-            this.selectYearTab = tagYears[0].yearName
+        this.$logger.info('handleAddMaterial', this.form.materialList)
+      },
+
+      handleRemoveMaterialItem (item, index) {
+        this.form.materialList = this.form.materialList.filter((it, idx) => idx !== index)
+        this.$logger.info('handleRemoveMaterialItem ', this.form.materialList)
+      },
+
+      handleMaterialListFlagChange (checked) {
+        this.$logger.info('handleMaterialListFlagChange ', checked)
+        if (checked) {
+          if (this.form.materialList.length === 0) {
+            this.handleAddMaterial()
           }
         } else {
-          this.$message.error(response.message)
+          this.form.materialList = []
         }
-        this.$logger.info('centuryTagMap ', this.centuryTagMap)
-      })
-    },
-    handleTabYearChange (activeKey) {
-      this.selectYearTab = activeKey
-    },
-    resetWidth () {
-      if (document.body.clientWidth < 1400) {
-        this.rightWidth = 500
-        this.leftWidth = 550
-      } else {
-        this.rightWidth = 600
-        this.leftWidth = 700
-      }
-    },
-
-    setSessionStep (step) {
-      this.currentActiveStepIndex = step
-      sessionStorage.setItem('task-step-' + this.taskId, step)
-    },
-    getSessionStep () {
-      const oldStep = sessionStorage.getItem('task-step-' + this.taskId)
-      if (oldStep !== null) {
-        return parseInt(oldStep)
-      } else {
-        return 0
-      }
-    },
-    handlePreviewTemplate (template) {
-      this.$logger.info('handlePreviewTemplate ', template)
-      this.previewTemplateVisible = true
-      this.previewTemplate = template
-    },
-    handleSelectPreviewTemplate (template) {
-      this.$logger.info('handleSelectPreviewTemplate ', template)
-      this.handleSelectTemplateMadel(template)
-      this.previewTemplateVisible = false
-    },
-    handleGotoImgIndex (index) {
-      this.$logger.info('handleGotoImgIndex ' + index)
-      this.currentImgIndex = index
-      this.$refs.carousel.goTo(index)
-    },
-    removeSelectTemplate (template) {
-      this.$logger.info('removeSelectTemplate ', template)
-      var index = this.selectedTemplateList.findIndex(item => item.id === template.id)
-      if (index > -1) {
-        this.selectedTemplateList.splice(index, 1)
-      }
-      if (this.selectedTemplateList.length === 0) {
-        this.form.showSelected = false
-      }
-    },
-    handleSelectedTemplate () {
-      this.$logger.info('handleSelectedTemplate ', this.handleSelectedTemplate)
-      this.selectedMyContentVisible = false
-    },
-    changeSelected (checked) {
-      this.$logger.info('changeSelected ', checked)
-      this.form.showSelected = checked
-    },
-    changeFilterType (e) {
-      this.showTemplateFilter = true
-      this.selectFilter()
-    },
-    toggleUpFilter () {
-      this.showTemplateFilter = false
-      // this.clearFilter()
-      this.filterType = ''
-    },
-    handleSelectDrawerClose () {
-      this.selectedTemplateMarginLeft = '5%'
-      this.selectedTemplateMadelWidth = '90%'
-      this.selectedTemplateDrawerVisible = false
-      this.selectedTemplateDrawerZindex = 1000
-      if (this.selectedTemplateIdList.length === 0) {
-        this.form.showSelected = false
-      }
-    },
-    handleSelectDrawerSave () {
-      this.selectedTemplateMarginLeft = '5%'
-      this.selectedTemplateMadelWidth = '90%'
-      this.selectedTemplateDrawerZindex = 1000
-      this.selectedTemplateDrawerVisible = false
-      this.selectedMyContentVisible = false
-      this.selectedTemplateList = this.drawerSelectedTemplateList
-      // to do insert
-      if (this.selectedTemplateList.length === 0) {
-        this.form.showSelected = false
+        this.materialListFlag = checked
       }
     }
   }
-}
 </script>
 
 <style>
-.ant-cascader-menu{
-  min-width: 200px;
-  min-height: 270px;
-}
+  .ant-cascader-menu{
+    min-width: 200px;
+    min-height: 270px;
+  }
 </style>
 <style lang="less" scoped>
-@import "~@/components/index.less";
+  @import "~@/components/index.less";
 
-.task-header {
-  padding-bottom: 16px;
-  border-bottom: 1px solid  rgb(235, 238, 240);
+  .task-header {
+    padding-bottom: 16px;
+    border-bottom: 1px solid  rgb(235, 238, 240);
 
-  .nav-back-btn {
-    padding-left: 0;
-  }
-
-  .unit-nav-title {
-    color: @text-color;
-    font-weight: bold;
-  }
-
-  .unit-last-change-time {
-    line-height: 32px;
-    color: @text-color-secondary;
-  }
-
-  .unit-right-action {
-    display: flex;
-    justify-content: flex-end;
-    .anticon-more{
-      color: #15c39a;
-      font-size: 18px;
-    }
-  }
-}
-
-.unit-content {
-  .unit-menu-list {
-    margin-top: 10px;
-    padding: 0 0 16px 0;
-
-    .menu-category-item {
-      user-select: none;
-      cursor: pointer;
-
-      .menu-category-item-label {
-        font-weight: 600;
-        padding: 10px 0;
-      }
-
-      .menu-category-list {
-        display: flex;
-        flex-direction: column;
-        justify-content: flex-start;
-
-        .include-item {
-          color: @primary-color;
-          padding: 5px 0;
-          max-width: 100%;
-          text-decoration: underline;
-          overflow: hidden;
-          white-space: nowrap;
-          text-overflow: ellipsis;
-        }
-      }
-
-      .action-item {
-        color: @primary-color;
-        padding: 5px 0;
-        text-decoration: underline;
-      }
+    .nav-back-btn {
+      padding-left: 0;
     }
 
-    .already-add-to-list {
-      .add-to-type {
-        border-right: none;
-        color: @text-color;
-        .add-to-type-label {
-          padding: 15px 0 5px 0;
-          cursor: pointer;
+    .unit-nav-title {
+      color: @text-color;
+      font-weight: bold;
+    }
+
+    .unit-last-change-time {
+      line-height: 32px;
+      color: @text-color-secondary;
+    }
+
+    .unit-right-action {
+      display: flex;
+      justify-content: flex-end;
+      .anticon-more{
+        color: #15c39a;
+        font-size: 18px;
+      }
+    }
+  }
+
+  .unit-content {
+    .unit-menu-list {
+      margin-top: 10px;
+      padding: 0 0 16px 0;
+
+      .menu-category-item {
+        user-select: none;
+        cursor: pointer;
+
+        .menu-category-item-label {
+          font-weight: 600;
+          padding: 10px 0;
         }
-        .add-to-list {
+
+        .menu-category-list {
           display: flex;
           flex-direction: column;
           justify-content: flex-start;
-          line-height: 30px;
-          overflow: hidden;
-          text-overflow: ellipsis;
-          word-break: break-all;
-          white-space: nowrap;
+
+          .include-item {
+            color: @primary-color;
+            padding: 5px 0;
+            max-width: 100%;
+            text-decoration: underline;
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+          }
+        }
+
+        .action-item {
+          color: @primary-color;
+          padding: 5px 0;
+          text-decoration: underline;
+        }
+      }
+
+      .already-add-to-list {
+        .add-to-type {
+          border-right: none;
+          color: @text-color;
+          .add-to-type-label {
+            padding: 15px 0 5px 0;
+            cursor: pointer;
+          }
+          .add-to-list {
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            line-height: 30px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            word-break: break-all;
+            white-space: nowrap;
+          }
+        }
+      }
+    }
+
+    .main-content {
+
+      .card-wrapper{
+
+        .task-form-right {
+          overflow: visible;
+          .form-block-right{
+            .img-wrapper {
+              position: relative;
+            }
+            .right-title{
+              font-size: 16px;
+              font-family: Inter-Bold;
+              line-height: 24px;
+              color: #151515;
+              opacity: 1;
+              height: 40px;
+            }
+            .delete-img {
+              position: absolute;
+              top: -10px;
+              right: -10px;
+              background-color: #fafafa;
+              border-radius: 50%;
+              height: 30px;
+              width: 30px;
+              text-align: center;
+              vertical-align: middle;
+              color: @red-5;
+              z-index: 100;
+              font-size: 20px;
+            }
+          }
+        }
+      }
+
+      .image-preview {
+        position: relative;
+        img {
+          /*width: 100%;*/
+          max-width: 100%;
+          height: 250px;
+
+        }
+
+        .upload-text-mask {
+          display: none;
+          position: absolute;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background-color: rgba(0, 0, 0, 0.2);
+
+          .upload-text {
+            width: 200px;
+            text-align: center;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            margin-left: -100px;
+            margin-top: -20px;
+          }
+        }
+
+        &:hover {
+          .upload-text-mask {
+            display: block;
+          }
+        }
+      }
+
+      p.ant-upload-text {
+        color: #000;
+        font-family: Inter-Bold;
+      }
+
+      .upload-container {
+        padding: 16px 0;
+      }
+
+      .uploading-tips {
+        padding-left: 10px;
+      }
+
+      .upload-icon {
+        height: 70px;
+      }
+      .select-template {
+        text-align: center;
+
+        .task-select-template {
+          margin-left: 10px;
+          margin-right: 10px;
+        }
+      }
+
+      .form-block-title {
+        font-size: @font-size-lg;
+        color: #000;
+      }
+
+      .form-block-action {
+        padding: 10px 0 0 0;
+        text-align: center;
+      }
+
+      .action-line {
+        padding: 50px 0;
+        display: flex;
+        justify-content: center;
+      }
+
+      .question-item {
+        padding-bottom: 24px;
+      }
+
+      .content-blocks {
+        width: 600px;
+        position: relative;
+        border: 1px dotted #fff;
+        .sdg-delete-wrapper {
+          transition: all 0.2s ease-in;
+          display: none;
+          position: absolute;
+          text-align: center;
+          right: 15px;
+          top: 80px;
+          line-height: 50px;
+          width: 50px;
+          height: 50px;
+          cursor: pointer;
+          color: @link-hover-color;
+          z-index: 1000;
+        }
+
+        .knowledge-delete-wrapper {
+          transition: all 0.2s ease-in;
+          display: none;
+          position: absolute;
+          text-align: center;
+          right: 15px;
+          top: 180px;
+          line-height: 50px;
+          width: 50px;
+          height: 50px;
+          cursor: pointer;
+          color: @link-hover-color;
+          z-index: 1000;
+        }
+
+        .tag-select {
+          padding-bottom: 24px;
+
+          .tag-label {
+            color: @text-color-secondary;
+            text-align: center;
+            padding-bottom: 5px;
+          }
+        }
+      }
+
+      .img-wrapper {
+        position: relative;
+      }
+      .delete-img {
+        position: absolute;
+        top: -10px;
+        right: -10px;
+        background-color: #fafafa;
+        border-radius: 50%;
+        height: 30px;
+        width: 30px;
+        text-align: center;
+        vertical-align: middle;
+        color: @red-5;
+        z-index: 100;
+        font-size: 20px;
+      }
+    }
+
+    .add-to-item {
+      display: flex;
+      justify-content: flex-start;
+      flex-direction: row;
+      padding: 0 5px;
+      box-sizing: border-box;
+      cursor: pointer;
+      &:hover {
+        background-color: fade(@outline-color, 20%);
+      }
+
+      a {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: flex-start;
+        max-width: 150px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        word-break: break-all;
+        white-space: nowrap;
+
+        i {
+          padding-right: 5px;
+        }
+      }
+
+      .material-name {
+        max-width: 120px;
+        display: inline-block;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        word-break: break-all;
+        white-space: nowrap;
+      }
+
+      .hover-delete {
+        color: @red-4;
+        display: none;
+        cursor: pointer;
+        justify-content: center;
+        align-items: center;
+        padding-left: 5px;
+      }
+
+      &:hover {
+        .hover-delete {
+          display: flex;
+        }
+      }
+    }
+
+    .long-form-item-label {
+      padding: 10px;
+    }
+  }
+
+  .add-content-wrapper {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    .add-content-item {
+      width: 40%;
+      margin-right: 10px;
+      margin-left: 10px;
+      margin-bottom: 20px;
+      padding: 20px;
+      border: 1px solid #eee;
+      cursor: pointer;
+
+      &:hover {
+        background-color: fade(@outline-color, 20%);
+        border: 1px solid @primary-color;
+      }
+    }
+  }
+
+  .link-content-wrapper {
+
+  }
+
+  .select-template-wrapper {
+    display: flex;
+    cursor: pointer;
+    user-select: none;
+    flex-direction: column;
+    margin-bottom: 40px;
+    .template-show-filter{
+      position:relative;
+      img{
+        height: 25px;
+        width: 25px;
+        position: absolute;
+        top: -10px;
+        left: 5px;
+        cursor: pointer;
+      }
+    }
+
+    .template-select-header {
+      background: rgba(255, 255, 255, 0.2);
+      border: 1px solid #ddd;
+      opacity: 1;
+      border-radius: 4px;
+      padding: 10px ;
+      position: relative;
+      .expand-icon {
+        line-height: 30px;
+        font-size: 20px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+
+        i {
+          svg {
+            font-size: 23px;
+          }
+        }
+      }
+      .group-filter{
+        margin-left: 15px;
+        margin-bottom: 3px;
+      }
+      .filter-row{
+        position: relative;
+        margin-left: 10px;
+        width: 100%;
+        .ant-form-item-label{
+          font-weight: bold;
+          line-height: 24px;
+          color: #11142D;
+        }
+        .clear-all{
+          position: absolute;
+          right: 3px;
+          top: -3px;
+        }
+        .row-select{
+          .sub-category{
+            line-height: 24px;
+            color: #D3D3D3;
+          }
+          .sub-select{
+            margin-bottom: 10px;
+            .sub-items{
+              display:flex;
+              flex-wrap: wrap;
+              .sub-item{
+                margin: 3px 10px;
+                width: 250px;
+                word-break: break-word;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                word-break: break-all;
+                white-space: nowrap;
+              }
+            }
+          }
+          .first-child{
+            margin: 5px;
+          }
+          .sub-child{
+            padding-left: 20px;
+            .sub-child-child{
+              margin:3px;
+            }
+          }
+          margin: 5px 5px 10px 10px;
+          border: 1px solid #E4E4E4;
+          padding: 5px 15px;
+          max-height: 250px;
+          overflow: auto;
+        }
+
+        .row-select-assessments .sub-select {
+          width:100%;
+          .sub-items .sub-item{
+            width: 180px;
+          }
+        }
+      }
+
+      .header-title {
+        padding: 5px 15px 5px 15px;
+        .header-title-text {
+          font-size: 20px;
+          font-family: Inter-Bold;
+          line-height: 24px;
+          color: #182552;
+          opacity: 1;
+        }
+      }
+      .template-type-list {
+        display: inline-block;
+        flex-direction: row;
+        justify-content: flex-start;
+
+        .template-type-item {
+          margin-right: 10px;
+          margin-bottom: 10px;
+          padding: 5px 15px;
+          max-height: 50px;
+          display: inline-block;
+          justify-content: center;
+          align-items: center;
+          text-align: center;
+          font-size: 14px;
+          min-width: 70px;
+          background: rgba(245, 245, 245, 0.5);
+          border: 1px solid #ddd;
+          color: #11142D;
+          opacity: 1;
+          border-radius: 25px;
+        }
+
+        .active-template-type {
+          background: #15C39A;
+          opacity: 1;
+          color: #fff;
+          position: relative;
+          border-radius: 40px;
+          img {
+            height: 18px;
+            position: absolute;
+            right: -3px;
+            top: -7px;
+          }
+        }
+
+        .sub-active-template-type {
+          background: #FF3355;
+          opacity: 1;
+          color: #fff;
+          position: relative;
+          border-radius: 40px;
+          img {
+            height: 18px;
+            position: absolute;
+            right: -3px;
+            top: -7px;
+          }
+        }
+      }
+    }
+
+    .template-list-wrapper {
+      margin-top: 20px;
+      min-height: 250px;
+      max-height: 600px;
+      overflow-y: auto;
+      background: rgba(228, 228, 228, 0.2);
+      border: 1px solid #D8D8D8;
+      opacity: 1;
+      border-radius: 4px;
+      padding: 20px;
+
+      .template-list {
+        display: flex;
+        flex-direction: row;
+        align-items: flex-start;
+        justify-content: flex-start;
+        flex-wrap: wrap;
+
+        .template-item {
+          background-size: cover;
+          margin-right: 1%;
+          margin-left: 1%;
+          margin-bottom: 20px;
+          box-sizing: border-box;
+          width: 23%;
+          box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.16);
+          background: #FFFFFF;
+          border: 1px solid #E8E8E8;
+          border-radius: 4px;
+          position: relative;
+
+          .template-select-icon {
+            z-index: 50;
+            position: absolute;
+            right: 5px;
+            top: 5px;
+            img {
+              height: 18px;
+            }
+          }
+
+          .template-cover {
+            background-size: 100% 100%;
+            height: 150px;
+            border-radius: 4px;
+            width: 100%;
+            background-color: #ddd;
+            box-sizing: border-box;
+            padding: 0;
+          }
+
+          .template-info {
+            padding: 10px;
+            display: flex;
+            position: relative;
+            flex-direction: column;
+            justify-content: flex-start;
+
+            .template-name {
+              font-weight: 500;
+              font-size: 14px;
+              z-index: 10;
+              overflow: hidden;
+              white-space: nowrap;
+              text-overflow: ellipsis;
+              word-break: break-all;
+              padding: 10px 0;
+              min-height: 40px;
+            }
+            .template-intro {
+              min-height: 30px;
+              z-index: 10;
+              padding: 5px;
+              overflow: hidden;
+              white-space: nowrap;
+              text-overflow: ellipsis;
+              word-break: break-all;
+              color: rgba(0,0,0,.45);
+              font-size: 12px;
+              background: rgba(244, 244, 244, 0.5);
+              border-radius: 4px;
+              font-family: Inter-Bold;
+              color: #000000;
+            }
+          }
+          .template-hover-action-mask {
+            display: none;
+            z-index: 100;
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.3);
+            .template-hover-action{
+              width: 100%;
+              top:30%
+            }
+
+            .action-item {
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              padding: 6px 13px;
+              background: rgba(0, 0, 0, 0.45);
+              opacity: 1;
+              border: 1px solid rgba(188, 188, 188, 1);
+            }
+            .template-hover-action {
+              position: absolute;
+            }
+          }
+           &:hover {
+            .template-hover-action-mask {
+              display: block;
+            }
+          }
+        }
+
+        .template-item-active {
+          border: 1px solid #15C39A;
+          box-shadow: 0px 3px 6px rgba(21, 195, 154, 0.16);
+          opacity: 1;
+        }
+      }
+    }
+
+    .template-action {
+      padding: 20px 0 0;
+      display: flex;
+      flex-direction: row-reverse;
+      align-items: center;
+      justify-content: right;
+
+      .create-loading {
+        display: inline-block;
+        margin-right: 20px;
+      }
+    }
+  }
+
+  .template-loading {
+    margin-top: 20px;
+    min-height: 250px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .no-template {
+    margin-top: 20px;
+  }
+
+  .task-type-line {
+    margin-bottom: 20px;
+    .task-type {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      justify-content: flex-start;
+      padding: 5px 20%;
+      .task-type-item {
+        margin-right: 15px;
+        cursor: pointer;
+        padding: 5px;
+        line-height: 15px;
+        width: 25px;
+        height: 25px;
+        font-size: 14px;
+        background-color: fade(@outline-color, 20%);
+        color: @primary-color;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+      }
+
+      .active-task-type {
+        background-color: fade(#FF3355, 10%);
+        color: #FF3355;
+        border-radius: 50%;
+        font-weight: 500;
+        border-color:#FF3355
+      }
+    }
+  }
+
+  .view-in-google-slider {
+    display: flex;
+    min-height: 100px;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+
+    .view-line {
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+      justify-content: flex-start;
+
+      .link-url {
+        width: 100%;
+        word-break: break-all;
+        overflow: hidden;
+      }
+
+      .view-action {
+        width: 100%;
+        display: flex;
+        flex-direction: row;
+        justify-content: flex-end;
+        margin-top: 20px;
+        text-align: right;
+      }
+    }
+  }
+
+  .select-relevant-tag {
+    max-height: 60vh;
+    overflow-y: scroll;
+  }
+
+  .action-line {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-end;
+    align-items: center;
+    //margin-top: 20px;
+    .button-item {
+      margin-left: 10px;
+    }
+  }
+
+  *::-webkit-scrollbar {
+    width: 5px;
+    height: 10px;
+  }
+  *::-webkit-scrollbar-track {
+    border-radius: 1px;
+    background: rgba(0,0,0,0.00);
+    -webkit-box-shadow: inset 0 0 5px rgba(0,0,0,0.08);
+  }
+  /* 滚动条滑块 */
+  *::-webkit-scrollbar-thumb {
+    border-radius: 3px;
+    background: rgba(0,0,0,0.12);
+    -webkit-box-shadow: inset 0 0 10px rgba(0,0,0,0.2);
+  }
+
+  .audio-material-action {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+
+    .uploading-mask {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: fade(#eee, 80%);
+      z-index: 100;
+      .uploading {
+        z-index: 110;
+        position: absolute;
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+        width: 100px;
+        left: 50%;
+        top: 45%;
+        margin-left: -50px;
+      }
+    }
+
+    .action-item {
+      display: flex;
+      flex-direction: row;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .action-item-column {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 15px 0;
+      .action-tips {
+        line-height: 32px;
+        cursor: pointer;
+        user-select: none;
+      }
+    }
+  }
+
+  .material-action {
+    padding: 10px 0;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+
+    .action-item {
+      margin-left: 20px;
+    }
+  }
+
+  .selected-my-content {
+    .selected-item {
+      padding: 5px 0;
+      font-size: 14px;
+      margin-bottom: 5px;
+    }
+  }
+  .more-action {
+    margin-top: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    .action-item {
+      margin: 0 10px;
+    }
+  }
+
+  .preview-list {
+    overflow-y: scroll;
+    overflow-x: hidden;
+    width: 100%;
+    min-height: 120px;
+    max-height: 360px;
+    background: rgba(228, 228, 228, 0.2);
+    border: 1px solid #D8D8D8;
+    opacity: 1;
+    border-radius: 4px;
+    .preview-item-cover {
+      background-position: center center;
+      background-size: cover;
+      background-repeat: no-repeat;
+      position: relative;
+      width: 100%;
+      height: 160px;
+      border-radius: 5px;
+      margin: 10px 5px 10px 10px;
+      border: 1px solid #eee;
+      box-shadow: 0 4px 4px 4px #eee;
+
+      .template-select-icon {
+        z-index: 50;
+        position: absolute;
+        right: 5px;
+        top: 5px;
+        img {
+          height: 18px;
+        }
+      }
+    }
+
+    .preview-item-cover-active {
+      border: 1px solid #15C39A;
+      box-shadow: 0px 3px 6px rgba(21, 195, 154, 0.16);
+      border-radius: 5px;
+    }
+  }
+
+  .thumbnail-loading {
+    min-height: 200px;
+    margin-top: 20px;
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+  }
+  .task-audio-line {
+    position: relative;
+    //width: 600px;
+    .task-audio {
+      position: absolute;
+      right: -55px;
+      top: -30px;
+      cursor: pointer;
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      justify-content: flex-start;
+
+      img {
+        height: 40px;
+      }
+    }
+  }
+
+  .audio-wrapper {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    height: 30px;
+    audio {
+      height: 30px;
+      border: none;
+      outline: none;
+    }
+
+    span {
+      padding: 0 10px;
+      color: red;
+      cursor: pointer;
+    }
+  }
+
+  .thumbnail-task-list {
+    padding: 15px;
+    box-sizing: border-box;
+    margin: auto;
+    display: flex;
+    flex-direction: column;
+    .task-preview-list {
+      position: relative;
+      width: 800px;
+      .task-preview {
+        padding: 5px;
+      }
+      .task-delete {
+        position: absolute;
+        right: -30px;
+        top: 30%;
+      }
+    }
+  }
+
+  .evaluation-modal {
+    display: flex;
+    flex-direction: column;
+    .evaluation-header {
+      .my-modal-header {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        height: 40px;
+        .my-modal-icon {
+          img {
+            height: 25px;
+          }
+        }
+        .my-modal-title {
+          padding-left: 10px;
+          font-family: Inter-Bold;
+          color: #000000;
+        }
+      }
+    }
+    .associate-evaluation {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid #D8D8D8;
+      padding: 15px;
+      border-radius: 6px;
+      .tips-area {
+        display: flex;
+        justify-content: center;
+        padding: 10px;
+        box-sizing: border-box;
+        margin-bottom: 20px;
+        img {
+          height: 150px;
+        }
+      }
+      .tips {
+        text-align: center;
+        font-family: Inter-Bold;
+        color: #000;
+        margin: auto;
+      }
+    }
+
+    .associate-my-content-action {
+      margin-top: 20px;
+      display: flex;
+      flex-direction: row;
+      justify-content: flex-end;
+      padding-right: 10px;
+    }
+  }
+
+  .task-action-wrapper {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    .action-item-line {
+      margin: 0 25px;
+      padding: 15px;
+      box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.16);
+      opacity: 1;
+      border-radius: 3px;
+      .action-img {
+        width: 230px;
+      }
+      .action-label {
+        margin-top: 40px;
+        text-align: center;
+        .action-item {
+          border: 1px solid rgba(21, 195, 154, 1);
+          background: rgba(21, 195, 154, 0.1);
+          color: rgba(21, 195, 154, 1);
+          min-width: 120px;
         }
       }
     }
   }
 
-  .main-content {
+  .self-field-label {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-end;
+    line-height: 32px;
+    padding-right: 10px;
+  }
 
-    .card-wrapper{
+  .select-type-wrapper {
+    margin-bottom: 20px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
 
-      .task-form-right {
-        overflow: visible;
-        .form-block-right{
-          .img-wrapper {
-            position: relative;
-          }
-          .right-title{
-            font-size: 16px;
-            font-family: Inter-Bold;
-            line-height: 24px;
-            color: #151515;
-            opacity: 1;
-            height: 40px;
-          }
-          .delete-img {
-            position: absolute;
-            top: -10px;
-            right: -10px;
-            background-color: #fafafa;
-            border-radius: 50%;
-            height: 30px;
-            width: 30px;
-            text-align: center;
-            vertical-align: middle;
-            color: @red-5;
-            z-index: 100;
-            font-size: 20px;
-          }
+    .select-type {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .select-tips {
+      font-family: Inter-Bold;
+      line-height: 24px;
+      color: #000000;
+      padding: 0 10px;
+    }
+  }
+
+  .select-button {
+    padding: 0 5px;
+    img {
+      height: 12px;
+    }
+
+    .button-label {
+      padding: 0 5px;
+    }
+  }
+
+  .btn-icon {
+    height: 18px;
+  }
+
+  .btn-text {
+    padding: 0 5px;
+  }
+
+  .header-action {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: center;
+
+    .header-action-item {
+      padding-right: 20px;
+    }
+  }
+
+  .form-block {
+    position: relative;
+    margin-bottom: 35px;
+    &:hover {
+      .my-comment-switch {
+        display: block;
+      }
+    }
+    /deep/ .ant-form-item label{
+      font-size: 16px;
+      font-weight: 500;
+      font-family: Inter-Bold;
+      line-height: 24px;
+    }
+  }
+
+  .self-type-wrapper {
+    cursor: pointer;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+    .self-field-label {
+      width: 180px;
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      justify-content: center;
+      .task-type-item {
+        margin-right: 10px;
+        width: 33px;
+        height: 33px;
+        border-radius: 33px;
+        border: 2px solid #ddd;
+        font-weight: bold;
+        display: flex;
+        color: #bbb;
+        align-items: center;
+        justify-content: center;
+      }
+      .task-type-activity{
+        width: 70px;
+        border-radius: 50px;
+      }
+
+      .green-active-task-type {
+        background: rgba(21, 195, 154, 0.1);
+        border: 2px solid #15C39A;
+        border-radius: 50%;
+        font-weight: bold;
+        color: #15C39A;
+      }
+
+      .red-active-task-type {
+        background: rgba(255, 51, 85, 0.1);
+        border: 2px solid #FF3355;
+        border-radius: 50%;
+        opacity: 1;
+        font-weight: bold;
+        color: #FF3355;
+        opacity: 1;
+      }
+      .blue-active-task-type {
+        background: rgb(230, 247, 255);
+        border: 2px solid rgb(145, 213, 255);
+        border-radius: 50px;
+        opacity: 1;
+        font-weight: bold;
+        color: rgb(24, 144, 255);
+      }
+    }
+
+    .self-type-filter {
+      width: 500px;
+    }
+  }
+
+  .subject-grade-wrapper {
+    width: 600px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+
+    .select-item {
+      width: 280px;
+    }
+  }
+
+  .form-header {
+    z-index: 1000;
+    position: fixed;
+    top: 64px;
+    left: 0;
+    right: 0;
+  }
+
+  .my-full-form-wrapper {
+    margin-top: 70px;
+  }
+
+  .my-slide-pick-modal {
+    padding: 0;
+    box-sizing: border-box;
+    .ant-modal-body {
+      background: rgba(15, 53, 56, 0.5);
+      padding: 0;
+      box-sizing: border-box;
+    }
+  }
+  .select-slide-wrapper {
+    padding: 15px;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background: rgba(15, 53, 56, 1);
+    .modal-title {
+      font-size: 20px;
+      font-family: FZCuYuan-M03S;
+      font-weight: 400;
+      line-height: 24px;
+      color: #FFFFFF;
+      margin-bottom: 10px;
+      margin-top: 10px;
+    }
+
+    .main-tips {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      width: 500px;
+      height: 250px;
+      .left-img {
+        height: 250px;
+        display: flex;
+        flex-direction: row;
+        align-items: flex-end;
+        width: 250px;
+
+        img {
+          width: 250px;
+        }
+      }
+      .right-img-text {
+        height: 250px;
+        display: flex;
+        flex-direction: row;
+        align-items: flex-start;
+        width: 250px;
+        position: relative;
+        img {
+          width: 250px;
+        }
+
+        .img-text {
+          position: absolute;
+          font-size: 18px;
+          width: 190px;
+          height: 150px;
+          margin: auto;
+          left: 35px;
+          top: 40px;
+          font-family: FZCuYuan-M03S;
+          font-weight: 400;
+          line-height: 20px;
+          color: #0F3538;
+        }
+      }
+    }
+  }
+
+  .slide-action {
+    padding: 25px 0 30px 0;
+    background: rgba(15, 53, 56, 1);
+
+    .slide-btn-wrapper {
+      display: flex;
+      justify-content: center;
+      .slide-btn-item {
+        margin: 0 10px;
+      }
+
+      .slide-btn-item-no {
+
+      }
+
+      .slide-btn-item-yes {
+
+      }
+    }
+  }
+
+  .pick-task-slide-wrapper {
+    margin: auto;
+
+    .slide-form-block {
+    }
+  }
+  .template-tabs{
+    /deep/ .ant-tabs-nav-scroll{
+      margin: 0 auto;
+      text-align: center;
+    }
+    .filter-row /deep/ .ant-tabs-nav-scroll{
+      margin: 0 auto;
+      text-align: left;
+    }
+  }
+
+  .edit-in-slide {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-end;
+    margin-bottom: 20px;
+    margin-top: 20px;
+    .slide-switch{
+      margin-left: 10px;
+      height: 30px;
+      font-size: 14px;
+    }
+    /deep/ .ant-switch-loading-icon, .ant-switch::after {
+      position: absolute;
+      top: 5px;
+      left: 4px;
+    }
+    /deep/ .ant-switch-inner{
+      font-size: 14px;
+    }
+    /deep/ .ant-switch-checked::after {
+      margin-left: 40px;
+    }
+    /deep/ .ant-btn-round {
+      height: 30px;
+      padding: 0px 10px;
+      font-size: 14px;
+      border-radius: 32px;
+    }
+  }
+  .top-icon-groups {
+    position: relative;
+    color: rgba(0, 0, 0, 0.65);
+    background: #fff;
+    height:70px;
+    margin-top: -15px;
+    .icon-group{
+      display: flex;
+      flex-direction: row;
+      flex-wrap: nowrap;
+      flex-basis: auto;
+      justify-content: flex-start;
+      align-items: center;
+      /deep/ .ant-badge-count{
+        top:10px;
+        right:12px;
+      }
+      .icon {
+        width: 50px;
+        height: 50px;
+        margin:10px;
+        border: 1px solid #ddd;
+        border-radius: 6px;
+        background: #fafafa;
+        display: flex;
+        flex-direction: column;
+        font-weight: bold;
+        padding:2px;
+        cursor: pointer;
+        align-items: center;
+        .icon-text {
+          display: flex;
+          font-size: 12px;
+        }
+        svg {
+          display: flex;
+          width: 32px;
+          height: 32px;
         }
       }
     }
 
-    .image-preview {
-      position: relative;
-      img {
-        /*width: 100%;*/
-        max-height: 250px;
+    .title-line {
+      padding: 5px 0;
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      justify-content: space-between;
+      .name {
+        width: 70%;
+        overflow-x: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        word-break: break-all;
+        font-family: Inter-Bold;
+        font-size: 15px;
+        font-weight: bold;
+        color: #182552;
+        padding-right: 10px;
+        box-sizing: border-box;
       }
 
-      .upload-text-mask {
+      .action-item {
+        display: flex;
+        width: 30%;
+        flex-direction: row;
+        align-items: center;
+        justify-content: flex-end;
+
+        .star {
+          img {
+            width: 22px;
+          }
+        }
+
+        .edit {
+          margin-left: 15px;
+          .button-content {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            .edit-icon {
+              padding-left: 5px;
+              width: 18px;
+            }
+          }
+        }
+      }
+    }
+  }
+  .slide-select-wrapper {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: flex-start;
+    position: relative;
+    /deep/ .ant-carousel .slick-slide img{
+      width:100%;
+    }
+    /deep/ .ant-carousel{
+      .custom-slick-arrow:before {
         display: none;
+      }
+      .custom-slick-arrow:hover {
+        opacity: 0.5;
+      }
+      .slick-slide h3 {
+        color: #fff;
+      }
+      .anticon{
+        color: fade(@black, 45%);
+        font-size: 30px;
+      }
+    }
+    .slide-select {
+      background: #fff;
+      position: relative;
+      .slide-select-and-preview {
+        width:100%;
+        //min-height: 400px;
+
+        .reset-edit-basic-info {
+          z-index: 100;
+          position: absolute;
+          top: 10px;
+          left: 3px;
+          background: rgba(0,0,0, 0.8);
+          opacity: 0.7;
+          padding: 5px 10px;
+          font-size: 12px;
+          border-radius: 20px;
+          cursor: pointer;
+          color: #fff;
+        }
+
+        .slide-select-action {
+          height: 400px;
+          width: 600px;
+          img {
+            width:100%
+          }
+        }
+
+        .slide-preview {
+          border: 1px solid rgba(0, 0, 0, 0.1);
+          position: relative;
+          .slide-hover-action-mask {
+            display: none;
+            z-index: 100;
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.3);
+
+            .slide-hover-action {
+              position: absolute;
+              top: 50%;
+              left: 50%;
+              width: 500px;
+              margin-top: -30px;
+              margin-left: -250px;
+
+              .update-select-slide {
+
+              }
+            }
+          }
+
+          &:hover {
+            .slide-hover-action-mask {
+              display: block;
+            }
+          }
+        }
+      }
+    }
+    .slide-recommend {
+      width: 600px;
+      padding: 0 20px;
+      box-sizing: border-box;
+    }
+  }
+
+  .slide-preview-list {
+    max-height: 1000px;
+    overflow-y: scroll;
+    overflow-x: hidden;
+    width: 400px;
+    margin:0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    /deep/ .ant-carousel{
+      .slick-slide {
+        text-align: center;
+        height: 200px;
+        line-height: 200px;
+        background: #364d79;
+        overflow: hidden;
+      }
+      .slick-slide img{
+        width:400px;
+      }
+      custom-slick-arrow {
+        width: 25px;
+        height: 25px;
+        font-size: 25px;
+        color: #fff;
+        background-color: rgba(31, 45, 61, 0.11);
+        opacity: 0.3;
+      }
+      .custom-slick-arrow:before {
+        display: none;
+      }
+      .custom-slick-arrow:hover {
+        opacity: 0.5;
+      }
+      .slick-slide h3 {
+        color: #fff;
+      }
+      .anticon{
+        color: fade(@black, 45%);
+        font-size: 20px;
+      }
+    }
+    .slide-preview-item {
+      position: relative;
+      margin: 15px;
+      width: 400px;
+      .template-hover-action-mask {
+        display: none;
+        z-index: 100;
         position: absolute;
+        cursor: pointer;
         top: 0;
         left: 0;
         right: 0;
         bottom: 0;
-        background-color: rgba(0, 0, 0, 0.2);
+        background: rgba(0, 0, 0, 0.3);
+        .template-hover-action{
+          width: 100%;
+          top:30%
+        }
 
-        .upload-text {
-          width: 200px;
-          text-align: center;
+        .action-item {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          padding: 6px 13px;
+          background: rgba(0, 0, 0, 0.45);
+          opacity: 1;
+          border: 1px solid rgba(188, 188, 188, 1);
+        }
+        .template-hover-action {
           position: absolute;
-          top: 50%;
-          left: 50%;
-          margin-left: -100px;
-          margin-top: -20px;
         }
       }
-
       &:hover {
-        .upload-text-mask {
+        .template-hover-action-mask {
           display: block;
         }
       }
+
     }
-
-    p.ant-upload-text {
-      color: #000;
-      font-family: Inter-Bold;
-    }
-
-    .upload-container {
-      padding: 16px 0;
-    }
-
-    .uploading-tips {
-      padding-left: 10px;
-    }
-
-    .upload-icon {
-      height: 70px;
-    }
-    .select-template {
-      text-align: center;
-
-      .task-select-template {
-        margin-left: 10px;
-        margin-right: 10px;
-      }
-    }
-
-    .form-block-title {
-      font-size: @font-size-lg;
-      color: #000;
-    }
-
-    .form-block-action {
-      padding: 10px 0 0 0;
-      text-align: center;
-    }
-
-    .action-line {
-      padding: 50px 0;
-      display: flex;
-      justify-content: center;
-    }
-
-    .question-item {
-      padding-bottom: 24px;
-    }
-
-    .content-blocks {
-      width: 600px;
-      position: relative;
-      border: 1px dotted #fff;
-      .sdg-delete-wrapper {
-        transition: all 0.2s ease-in;
-        display: none;
-        position: absolute;
-        text-align: center;
-        right: 15px;
-        top: 80px;
-        line-height: 50px;
-        width: 50px;
-        height: 50px;
-        cursor: pointer;
-        color: @link-hover-color;
-        z-index: 1000;
-      }
-
-      .knowledge-delete-wrapper {
-        transition: all 0.2s ease-in;
-        display: none;
-        position: absolute;
-        text-align: center;
-        right: 15px;
-        top: 180px;
-        line-height: 50px;
-        width: 50px;
-        height: 50px;
-        cursor: pointer;
-        color: @link-hover-color;
-        z-index: 1000;
-      }
-
-      .tag-select {
-        padding-bottom: 24px;
-
-        .tag-label {
-          color: @text-color-secondary;
-          text-align: center;
-          padding-bottom: 5px;
-        }
-      }
-    }
-
-    .img-wrapper {
-      position: relative;
-    }
-    .delete-img {
-      position: absolute;
-      top: -10px;
-      right: -10px;
-      background-color: #fafafa;
-      border-radius: 50%;
-      height: 30px;
-      width: 30px;
-      text-align: center;
-      vertical-align: middle;
-      color: @red-5;
-      z-index: 100;
-      font-size: 20px;
+    .slide-desc{
+      width: 70%;
+      max-height: 50px;
+      margin: 0 auto;
+      margin-bottom: 10px;
+      overflow: hidden;
     }
   }
-
-  .add-to-item {
+  .recomend-loading {
+    min-height: 200px;
+    margin-top: 200px;
+    width: 100%;
     display: flex;
-    justify-content: flex-start;
     flex-direction: row;
-    padding: 0 5px;
-    box-sizing: border-box;
-    cursor: pointer;
-    &:hover {
-      background-color: fade(@outline-color, 20%);
-    }
+    justify-content: center;
+    align-items: center;
+  }
+  .question-options {
+    width: 100%;
+    display: block;
+    font-size: 18px;
+    font-family: Inter-Bold;
+    line-height: 24px;
+    color: #11142D;
+  }
 
-    a {
+  /deep/ .ant-steps-item-title{
+    font-size:18px
+  }
+  .root-locate-form {
+    position: relative;
+  }
+  .my-comment-switch {
+    display: none;
+    position: absolute;
+    right: -10px;
+    top: -5px;
+    z-index: 200;
+  }
+
+  .collaborate-panel {
+    background-color: #fff;
+    //box-shadow: 0px 6px 10px rgba(159, 159, 159, 0.16);
+    .icon {
+      padding: 10px 5px 0 15px;
       display: flex;
       flex-direction: row;
       align-items: center;
       justify-content: flex-start;
-      max-width: 150px;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      word-break: break-all;
-      white-space: nowrap;
 
-      i {
-        padding-right: 5px;
-      }
-    }
-
-    .material-name {
-      max-width: 120px;
-      display: inline-block;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      word-break: break-all;
-      white-space: nowrap;
-    }
-
-    .hover-delete {
-      color: @red-4;
-      display: none;
-      cursor: pointer;
-      justify-content: center;
-      align-items: center;
-      padding-left: 5px;
-    }
-
-    &:hover {
-      .hover-delete {
-        display: flex;
+      svg {
+        width: 30px;
       }
     }
   }
 
-  .long-form-item-label {
-    padding: 10px;
-  }
-}
-
-.add-content-wrapper {
-  display: flex;
-  flex-direction: row;
-  flex-wrap: wrap;
-  justify-content: center;
-  .add-content-item {
-    width: 40%;
-    margin-right: 10px;
-    margin-left: 10px;
-    margin-bottom: 20px;
-    padding: 20px;
-    border: 1px solid #eee;
-    cursor: pointer;
-
-    &:hover {
-      background-color: fade(@outline-color, 20%);
-      border: 1px solid @primary-color;
-    }
-  }
-}
-
-.link-content-wrapper {
-
-}
-
-.select-template-wrapper {
-  display: flex;
-  cursor: pointer;
-  user-select: none;
-  flex-direction: column;
-  margin-bottom: 40px;
-  .template-show-filter{
-    position:relative;
-    img{
-      height: 25px;
-      width: 25px;
-      position: absolute;
-      top: -10px;
-      left: 5px;
-      cursor: pointer;
+  .edit-slide {
+    display: flex;
+    align-items: center;
+    img {
+      margin-right: 5px;
     }
   }
 
-  .template-select-header {
-    background: rgba(255, 255, 255, 0.2);
-    border: 1px solid #ddd;
-    opacity: 1;
-    border-radius: 4px;
-    padding: 10px ;
-    position: relative;
-    .toggle-up{
-      position: absolute;
-      bottom: 4px;
-      left: 4px;
-      width:20px;
-      z-index:999
+  .no-data-slide-form-block {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    .go-to-create {
+      margin-top: 10px;
     }
-    .group-filter{
-      margin-left: 15px;
-      margin-bottom: 3px;
-    }
-    .filter-row{
-      position: relative;
-      margin-left: 10px;
-      width: 100%;
-      .ant-form-item-label{
-        font-weight: bold;
-        line-height: 24px;
-        color: #11142D;
-      }
-      .clear-all{
-        position: absolute;
-        right: 3px;
-        top: -3px;
-      }
-      .row-select{
-        .sub-category{
-          line-height: 24px;
-          color: #D3D3D3;
-        }
-        .sub-select{
-          margin-bottom: 10px;
-          .sub-items{
-            display:flex;
-            flex-wrap: wrap;
-            .sub-item{
-              margin: 3px 10px;
-              width: 250px;
-              word-break: break-word;
-              overflow: hidden;
-              text-overflow: ellipsis;
-              word-break: break-all;
-              white-space: nowrap;
-            }
-          }
-        }
-        .first-child{
-          margin: 5px;
-        }
-        .sub-child{
-          padding-left: 20px;
-          .sub-child-child{
-            margin:3px;
-          }
-        }
-        margin: 5px;
-        border: 1px solid #E4E4E4;
-        padding: 5px 15px;
-        max-height: 250px;
-        overflow: auto;
-      }
-    }
+  }
+  /deep/ .ant-breadcrumb > span:last-child {
+    color: rgba(0, 0, 0, 0.45);
+  }
 
-    .header-title {
-      padding: 5px 15px 5px 15px;
-      .header-title-text {
-        font-size: 20px;
-        font-family: Inter-Bold;
-        line-height: 24px;
-        color: #182552;
-        opacity: 1;
-      }
+  .page-info {
+    position: absolute;
+    right: 10px;
+    bottom: 10px;
+    background: #E4E4E4;
+    padding: 1px 10px;
+    border-radius: 20px;
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    align-items: center;
+    .page-num-tag {
+      display: inline;
+      background: rgba(228, 228, 228, 0.5);
+      padding: 1px 10px;
+      border-radius: 16px;
+      font-size: 8px;
+      font-family: Segoe UI;
+      font-weight: 400;
+      color: #808191;
     }
-    .template-type-list {
-      display: inline-block;
+  }
+
+  .carousel-page {
+    display: flex;
+    height: 110px;
+    width: 100%;
+    overflow-x: scroll;
+    overflow-y: hidden;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+
+    &::-webkit-scrollbar {
+      width: 5px;
+      height: 5px;
+    }
+    &::-webkit-scrollbar-track {
+      border-radius: 3px;
+      background: rgba(0,0,0,0.00);
+      -webkit-box-shadow: inset 0 0 5px rgba(0,0,0,0.08);
+    }
+    /* 滚动条滑块 */
+    &::-webkit-scrollbar-thumb {
+      border-radius: 5px;
+      background: rgba(0,0,0,0.12);
+      -webkit-box-shadow: inset 0 0 10px rgba(0,0,0,0.2);
+    }
+    .img-list-wrapper {
+      display: flex;
       flex-direction: row;
-      justify-content: flex-start;
-
-      .template-type-item {
-        margin-right: 10px;
-        margin-bottom: 10px;
-        padding: 5px 15px;
-        max-height: 50px;
-        display: inline-block;
+      align-items: center;
+      width: 100%;
+      .img-list {
+        cursor: pointer;
+        display: flex;
+        flex-direction: row;
         justify-content: center;
-        align-items: center;
-        text-align: center;
-        font-size: 14px;
-        min-width: 70px;
-        background: rgba(245, 245, 245, 0.5);
-        border: 1px solid #ddd;
-        color: #11142D;
-        opacity: 1;
-        border-radius: 25px;
-      }
-
-      .active-template-type {
-        background: #15C39A;
-        opacity: 1;
-        color: #fff;
-        position: relative;
-        border-radius: 40px;
-        img {
-          height: 18px;
-          position: absolute;
-          right: -3px;
-          top: -7px;
-        }
-      }
-
-      .sub-active-template-type {
-        background: #FF3355;
-        opacity: 1;
-        color: #fff;
-        position: relative;
-        border-radius: 40px;
-        img {
-          height: 18px;
-          position: absolute;
-          right: -3px;
-          top: -7px;
+        align-items: flex-start;
+        .img-item {
+          height: 80px;
+          border: 1px solid #ddd;
+          box-shadow: 0 4px 8px 0 rgba(31, 33, 44, 10%);
+          margin: 0 10px;
+          img {
+            height: 100%;
+          }
         }
       }
     }
   }
-
-  .template-list-wrapper {
-    margin-top: 20px;
-    min-height: 250px;
-    max-height: 600px;
+  .template-selected {
     overflow-y: auto;
     background: rgba(228, 228, 228, 0.2);
     border: 1px solid #D8D8D8;
     opacity: 1;
     border-radius: 4px;
     padding: 20px;
+    max-height: 500px;
 
     .template-list {
       display: flex;
       flex-direction: row;
       align-items: flex-start;
-      justify-content: flex-start;
+      justify-content: space-between;
       flex-wrap: wrap;
 
       .template-item {
@@ -3387,7 +5154,7 @@ export default {
         margin-left: 1%;
         margin-bottom: 20px;
         box-sizing: border-box;
-        width: 23%;
+        width: 45%;
         box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.16);
         background: #FFFFFF;
         border: 1px solid #E8E8E8;
@@ -3491,1439 +5258,270 @@ export default {
     }
   }
 
-  .template-action {
-    padding: 20px 0 0;
+  .recommend-slide-name {
     display: flex;
-    flex-direction: row-reverse;
-    align-items: center;
-    justify-content: right;
-
-    .create-loading {
-      display: inline-block;
-      margin-right: 20px;
-    }
-  }
-}
-
-.template-loading {
-  margin-top: 20px;
-  min-height: 250px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.no-template {
-  margin-top: 20px;
-}
-
-.task-type-line {
-  margin-bottom: 20px;
-  .task-type {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: flex-start;
-    padding: 5px 20%;
-    .task-type-item {
-      margin-right: 15px;
-      cursor: pointer;
-      padding: 5px;
-      line-height: 15px;
-      width: 25px;
-      height: 25px;
-      font-size: 14px;
-      background-color: fade(@outline-color, 20%);
-      color: @primary-color;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      text-align: center;
-    }
-
-    .active-task-type {
-      background-color: fade(#FF3355, 10%);
-      color: #FF3355;
-      border-radius: 50%;
-      font-weight: 500;
-      border-color:#FF3355
-    }
-  }
-}
-
-.view-in-google-slider {
-  display: flex;
-  min-height: 100px;
-  flex-direction: row;
-  align-items: center;
-  justify-content: center;
-
-  .view-line {
-    display: flex;
-    flex-direction: column;
-    width: 100%;
-    justify-content: flex-start;
-
-    .link-url {
-      width: 100%;
-      word-break: break-all;
-      overflow: hidden;
-    }
-
-    .view-action {
-      width: 100%;
-      display: flex;
-      flex-direction: row;
-      justify-content: flex-end;
-      margin-top: 20px;
-      text-align: right;
-    }
-  }
-}
-
-.select-relevant-tag {
-  max-height: 60vh;
-  overflow-y: scroll;
-}
-
-.action-line {
-  display: flex;
-  flex-direction: row;
-  justify-content: flex-end;
-  align-items: center;
-  //margin-top: 20px;
-  .button-item {
-    margin-left: 10px;
-  }
-}
-
-*::-webkit-scrollbar {
-  width: 5px;
-  height: 10px;
-}
-*::-webkit-scrollbar-track {
-  border-radius: 1px;
-  background: rgba(0,0,0,0.00);
-  -webkit-box-shadow: inset 0 0 5px rgba(0,0,0,0.08);
-}
-/* 滚动条滑块 */
-*::-webkit-scrollbar-thumb {
-  border-radius: 3px;
-  background: rgba(0,0,0,0.12);
-  -webkit-box-shadow: inset 0 0 10px rgba(0,0,0,0.2);
-}
-
-.audio-material-action {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-
-  .uploading-mask {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: fade(#eee, 80%);
-    z-index: 100;
-    .uploading {
-      z-index: 110;
-      position: absolute;
-      display: flex;
-      flex-direction: row;
-      justify-content: center;
-      width: 100px;
-      left: 50%;
-      top: 45%;
-      margin-left: -50px;
-    }
-  }
-
-  .action-item {
-    display: flex;
-    flex-direction: row;
     justify-content: center;
     align-items: center;
-  }
-
-  .action-item-column {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    padding: 15px 0;
-    .action-tips {
-      line-height: 32px;
-      cursor: pointer;
-      user-select: none;
-    }
-  }
-}
-
-.material-action {
-  padding: 10px 0;
-  display: flex;
-  justify-content: flex-end;
-  align-items: center;
-
-  .action-item {
-    margin-left: 20px;
-  }
-}
-
-.selected-my-content {
-  .selected-item {
-    padding: 5px 0;
-    font-size: 14px;
-    margin-bottom: 5px;
-  }
-}
-.more-action {
-  margin-top: 20px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  .action-item {
-    margin: 0 10px;
-  }
-}
-
-.preview-list {
-  overflow-y: scroll;
-  width: 100%;
-  max-height: 360px;
-  overflow-y: scroll;
-  display: flex;
-  flex-direction: row;
-  justify-content: flex-start;
-  flex-wrap: wrap;
-  background: rgba(228, 228, 228, 0.2);
-  border: 1px solid #D8D8D8;
-  opacity: 1;
-  border-radius: 4px;
-  .preview-item-cover {
-    background-position: center center;
-    background-size: cover;
-    background-repeat: no-repeat;
-    position: relative;
-    width: 225px;
-    height: 160px;
-    border-radius: 5px;
-    margin: 10px 5px 10px 10px;
-    border: 1px solid #eee;
-    box-shadow: 0 4px 4px 4px #eee;
-
-    .template-select-icon {
-      z-index: 50;
-      position: absolute;
-      right: 5px;
-      top: 5px;
-      img {
-        height: 18px;
-      }
-    }
-  }
-
-  .preview-item-cover-active {
-    border: 1px solid #15C39A;
-    box-shadow: 0px 3px 6px rgba(21, 195, 154, 0.16);
-    border-radius: 5px;
-  }
-}
-
-.thumbnail-loading {
-  min-height: 200px;
-  margin-top: 20px;
-  width: 100%;
-  display: flex;
-  flex-direction: row;
-  justify-content: center;
-  align-items: center;
-}
-.task-audio-line {
-  position: relative;
-  //width: 600px;
-  .task-audio {
-    position: absolute;
-    right: -55px;
-    top: -30px;
-    cursor: pointer;
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: flex-start;
-
-    img {
-      height: 40px;
-    }
-  }
-}
-
-.audio-wrapper {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  height: 30px;
-  audio {
-    height: 30px;
-    border: none;
-    outline: none;
-  }
-
-  span {
-    padding: 0 10px;
-    color: red;
-    cursor: pointer;
-  }
-}
-
-.thumbnail-task-list {
-  padding: 15px;
-  box-sizing: border-box;
-  margin: auto;
-  display: flex;
-  flex-direction: column;
-  .task-preview-list {
-    position: relative;
-
-    .task-preview {
-      padding: 5px;
-    }
-    .task-delete {
-      position: absolute;
-      right: -30px;
-      top: 30%;
-    }
-  }
-}
-
-.evaluation-modal {
-  display: flex;
-  flex-direction: column;
-  .evaluation-header {
-    .my-modal-header {
-      display: flex;
-      flex-direction: row;
-      align-items: center;
-      height: 40px;
-      .my-modal-icon {
-        img {
-          height: 25px;
-        }
-      }
-      .my-modal-title {
-        padding-left: 10px;
-        font-family: Inter-Bold;
-        color: #000000;
-      }
-    }
-  }
-  .associate-evaluation {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    border: 1px solid #D8D8D8;
-    padding: 15px;
-    border-radius: 6px;
-    .tips-area {
-      display: flex;
-      justify-content: center;
-      padding: 10px;
-      box-sizing: border-box;
-      margin-bottom: 20px;
-      img {
-        height: 150px;
-      }
-    }
-    .tips {
-      text-align: center;
-      font-family: Inter-Bold;
-      color: #000;
-      margin: auto;
-    }
-  }
-
-  .associate-my-content-action {
-    margin-top: 20px;
-    display: flex;
-    flex-direction: row;
-    justify-content: flex-end;
-    padding-right: 10px;
-  }
-}
-
-.task-action-wrapper {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: center;
-  .action-item-line {
-    margin: 0 25px;
-    padding: 15px;
-    box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.16);
-    opacity: 1;
-    border-radius: 3px;
-    .action-img {
-      width: 230px;
-    }
-    .action-label {
-      margin-top: 40px;
-      text-align: center;
-      .action-item {
-        border: 1px solid rgba(21, 195, 154, 1);
-        background: rgba(21, 195, 154, 0.1);
-        color: rgba(21, 195, 154, 1);
-        min-width: 120px;
-      }
-    }
-  }
-}
-
-.self-field-label {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: flex-end;
-  line-height: 32px;
-  padding-right: 10px;
-}
-
-.select-type-wrapper {
-  margin-bottom: 20px;
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: center;
-
-  .select-type {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .select-tips {
+    line-height: 40px;
     font-family: Inter-Bold;
-    line-height: 24px;
-    color: #000000;
-    padding: 0 10px;
-  }
-}
-
-.select-button {
-  padding: 0 5px;
-  img {
-    height: 12px;
-  }
-
-  .button-label {
-    padding: 0 5px;
-  }
-}
-
-.btn-icon {
-  height: 18px;
-}
-
-.btn-text {
-  padding: 0 5px;
-}
-
-.header-action {
-  display: flex;
-  flex-direction: row;
-  justify-content: flex-start;
-  align-items: center;
-
-  .header-action-item {
-    padding-right: 20px;
-  }
-}
-
-.form-block {
-  position: relative;
-  margin-bottom: 35px;
-  &:hover {
-    .my-comment-switch {
-      display: block;
-    }
-  }
-  /deep/ .ant-form-item label{
-    font-size: 16px;
     font-weight: 500;
-    font-family: Inter-Bold;
-    line-height: 24px;
-  }
-}
-
-.self-type-wrapper {
-  cursor: pointer;
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: flex-start;
-  .self-field-label {
-    width: 180px;
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: center;
-    .task-type-item {
-      margin-right: 10px;
-      width: 33px;
-      height: 33px;
-      border-radius: 33px;
-      border: 2px solid #ddd;
-      font-weight: bold;
-      display: flex;
-      color: #bbb;
-      align-items: center;
-      justify-content: center;
-    }
-    .task-type-activity{
-      width: 70px;
-      border-radius: 50px;
-    }
-
-    .green-active-task-type {
-      background: rgba(21, 195, 154, 0.1);
-      border: 2px solid #15C39A;
-      border-radius: 50%;
-      font-weight: bold;
-      color: #15C39A;
-    }
-
-    .red-active-task-type {
-      background: rgba(255, 51, 85, 0.1);
-      border: 2px solid #FF3355;
-      border-radius: 50%;
-      opacity: 1;
-      font-weight: bold;
-      color: #FF3355;
-      opacity: 1;
-    }
-    .blue-active-task-type {
-      background: rgb(230, 247, 255);
-      border: 2px solid rgb(145, 213, 255);
-      border-radius: 50px;
-      opacity: 1;
-      font-weight: bold;
-      color: rgb(24, 144, 255);
-    }
+    color: #333;
   }
 
-  .self-type-filter {
-    width: 500px;
+  .slide-animate-cover {
+    width: 400px;
+    height: 200px;
+    position: fixed;
+    transition: transform .6s;
+    transform: translateX(0px);
+    z-index:10000;
   }
-}
-
-.subject-grade-wrapper {
-  width: 600px;
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: space-between;
-
-  .select-item {
-    width: 280px;
+  .slide-animate-cover > img {
+    transform: translateY(0px);
+    transform: scale(1);
+    width: 400px;
+    height: 200px;
+    transition: transform .6s;
+    z-index:10000;
   }
-}
-
-.form-header {
-  z-index: 1000;
-  position: fixed;
-  top: 64px;
-  left: 0;
-  right: 0;
-}
-
-.my-full-form-wrapper {
-  margin-top: 70px;
-}
-
-.my-slide-pick-modal {
-  padding: 0;
-  box-sizing: border-box;
-  .ant-modal-body {
-    background: rgba(15, 53, 56, 0.5);
-    padding: 0;
-    box-sizing: border-box;
+  .slide-animate-cover {
+    transition-timing-function: linear;
+    opacity: 0.8;
+    z-index:10000;
   }
-}
-.select-slide-wrapper {
-  padding: 15px;
-  box-sizing: border-box;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  background: rgba(15, 53, 56, 1);
-  .modal-title {
-    font-size: 20px;
-    font-family: FZCuYuan-M03S;
-    font-weight: 400;
-    line-height: 24px;
-    color: #FFFFFF;
-    margin-bottom: 10px;
-    margin-top: 10px;
+  .slide-animate-cover > img {
+    transition-timing-function: cubic-bezier(.55,0,.85,.36);
+    outline: 1px solid #D8D8D8;
+    z-index:10000;
   }
-
-  .main-tips {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    width: 500px;
-    height: 250px;
-    .left-img {
-      height: 250px;
-      display: flex;
-      flex-direction: row;
-      align-items: flex-end;
-      width: 250px;
-
-      img {
-        width: 250px;
+  .plugin-tags{
+    height: 100px;
+    width: 650px;
+    overflow-y:auto;
+    background-color:#F7F7F7;
+    font-size: 12px;
+    padding-left: 15px;
+    font-family: Segoe UI;
+    .tag-row{
+      margin: 5px;
+      .tag-item{
+        margin-right: 15px;
       }
     }
-    .right-img-text {
-      height: 250px;
-      display: flex;
-      flex-direction: row;
-      align-items: flex-start;
-      width: 250px;
-      position: relative;
-      img {
-        width: 250px;
-      }
-
-      .img-text {
-        position: absolute;
-        font-size: 18px;
-        width: 190px;
-        height: 150px;
-        margin: auto;
-        left: 35px;
-        top: 40px;
-        font-family: FZCuYuan-M03S;
-        font-weight: 400;
-        line-height: 20px;
-        color: #0F3538;
-      }
+    .tag-title{
+      font-weight: 400;
+      line-height: 0px;
+      color: #808191;
+      opacity: 1;
+    }
+    .tag-value{
+      margin-left: 10px;
+      //max-width: 200px;
     }
   }
-}
+  .drawer-wrapper-row{
 
-.slide-action {
-  padding: 25px 0 30px 0;
-  background: rgba(15, 53, 56, 1);
+    .drawer-template-selected {
+      overflow-y: auto;
+      //background: rgba(228, 228, 228, 0.2);
+      border: 1px solid #D8D8D8;
+      opacity: 1;
+      border-radius: 4px;
+      padding: 10px;
+      height: auto;
 
-  .slide-btn-wrapper {
-    display: flex;
-    justify-content: center;
-    .slide-btn-item {
-      margin: 0 10px;
-    }
-
-    .slide-btn-item-no {
-
-    }
-
-    .slide-btn-item-yes {
-
-    }
-  }
-}
-
-.pick-task-slide-wrapper {
-  width: 1400px;
-  margin: auto;
-
-  .slide-form-block {
-  }
-}
-.template-tabs{
-  /deep/ .ant-tabs-nav-scroll{
-    margin: 0 auto;
-    text-align: center;
-  }
-  .filter-row /deep/ .ant-tabs-nav-scroll{
-    margin: 0 auto;
-    text-align: left;
-  }
-}
-
-.edit-in-slide {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: flex-end;
-  margin-bottom: 20px;
-  margin-top: 20px;
-  .slide-switch{
-    margin-left: 10px;
-    height: 30px;
-    font-size: 14px;
-  }
-  /deep/ .ant-switch-loading-icon, .ant-switch::after {
-    position: absolute;
-    top: 5px;
-    left: 4px;
-  }
-  /deep/ .ant-switch-inner{
-    font-size: 14px;
-  }
-  /deep/ .ant-switch-checked::after {
-    margin-left: 40px;
-  }
-  /deep/ .ant-btn-round {
-    height: 30px;
-    padding: 0px 10px;
-    font-size: 14px;
-    border-radius: 32px;
-  }
-}
-.top-icon-groups {
-  position: relative;
-  color: rgba(0, 0, 0, 0.65);
-  background: #fff;
-  margin-top: -15px;
-  .icon-group{
-    display: flex;
-    flex-direction: row;
-    flex-wrap: nowrap;
-    flex-basis: auto;
-    justify-content: flex-start;
-    align-items: center;
-    /deep/ .ant-badge-count{
-      top:10px;
-      right:12px;
-    }
-    .icon {
-      width: 50px;
-      height: 50px;
-      margin:10px;
-      border: 1px solid #ddd;
-      border-radius: 6px;
-      background: #fafafa;
-      display: flex;
-      flex-direction: column;
-      font-weight: bold;
-      padding:2px;
-      cursor: pointer;
-      align-items: center;
-      .icon-text {
+      .drawer-template-list {
         display: flex;
-        font-size: 12px;
-      }
-      svg {
-        display: flex;
-        width: 32px;
-        height: 32px;
-      }
-    }
-  }
+        flex-direction: row;
+        align-items: flex-start;
+        justify-content: flex-start;
+        flex-wrap: wrap;
 
-  .title-line {
-    padding: 5px 0;
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: space-between;
-    .name {
-      width: 70%;
-      overflow-x: hidden;
-      white-space: nowrap;
-      text-overflow: ellipsis;
-      word-break: break-all;
-      font-family: Inter-Bold;
-      font-size: 15px;
-      font-weight: bold;
-      color: #182552;
-      padding-right: 10px;
-      box-sizing: border-box;
-    }
+        .template-item {
+          background-size: cover;
+          margin: 0px 5px;
+          margin-bottom: 20px;
+          box-sizing: border-box;
+          width: 100%;
+          box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.16);
+          background: #FFFFFF;
+          border: 1px solid #E8E8E8;
+          border-radius: 4px;
+          position: relative;
 
-    .action-item {
-      display: flex;
-      width: 30%;
-      flex-direction: row;
-      align-items: center;
-      justify-content: flex-end;
-
-      .star {
-        img {
-          width: 22px;
-        }
-      }
-
-      .edit {
-        margin-left: 15px;
-        .button-content {
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          .edit-icon {
-            padding-left: 5px;
-            width: 18px;
-          }
-        }
-      }
-    }
-  }
-}
-.slide-select-wrapper {
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-  align-items: flex-start;
-  position: relative;
-  /deep/ .ant-carousel .slick-slide img{
-    width:100%;
-  }
-  /deep/ .ant-carousel{
-    .custom-slick-arrow:before {
-      display: none;
-    }
-    .custom-slick-arrow:hover {
-      opacity: 0.5;
-    }
-    .slick-slide h3 {
-      color: #fff;
-    }
-    .anticon{
-      color: fade(@black, 45%);
-      font-size: 30px;
-    }
-  }
-  .slide-select {
-    background: #fff;
-    position: relative;
-    .slide-select-and-preview {
-      width:100%;
-      //min-height: 400px;
-
-      .reset-edit-basic-info {
-        z-index: 100;
-        position: absolute;
-        top: 10px;
-        left: 3px;
-        background: rgba(0,0,0, 0.8);
-        opacity: 0.7;
-        padding: 5px 10px;
-        font-size: 12px;
-        border-radius: 20px;
-        cursor: pointer;
-        color: #fff;
-      }
-
-      .slide-select-action {
-        height: 400px;
-        width: 600px;
-        img {
-          width:100%
-        }
-      }
-
-      .slide-preview {
-        border: 1px solid rgba(0, 0, 0, 0.1);
-        position: relative;
-        .slide-hover-action-mask {
-          display: none;
-          z-index: 100;
-          position: absolute;
-          cursor: pointer;
-          top: 0;
-          left: 0;
-          right: 0;
-          bottom: 0;
-          background: rgba(0, 0, 0, 0.3);
-
-          .slide-hover-action {
+          .template-select-icon {
+            z-index: 50;
             position: absolute;
-            top: 50%;
-            left: 50%;
-            width: 500px;
-            margin-top: -30px;
-            margin-left: -250px;
+            right: 5px;
+            bottom: 5px;
+            img {
+              height: 18px;
+            }
+          }
 
-            .update-select-slide {
+          .template-cover {
+            background-size: 100% 100%;
+            height: 150px;
+            border-radius: 4px;
+            width: 100%;
+            background-color: #ddd;
+            box-sizing: border-box;
+            padding: 0;
+          }
 
+          .template-info {
+            padding: 10px;
+            display: flex;
+            position: relative;
+            flex-direction: column;
+            justify-content: flex-start;
+
+            .template-name {
+              font-weight: 500;
+              font-size: 14px;
+              z-index: 10;
+              overflow: hidden;
+              white-space: nowrap;
+              text-overflow: ellipsis;
+              word-break: break-all;
+              padding: 10px 0;
+              min-height: 40px;
+            }
+            .template-intro {
+              min-height: 30px;
+              z-index: 10;
+              padding: 5px;
+              overflow: hidden;
+              white-space: nowrap;
+              text-overflow: ellipsis;
+              word-break: break-all;
+              color: rgba(0,0,0,.45);
+              font-size: 12px;
+              background: rgba(244, 244, 244, 0.5);
+              border-radius: 4px;
+              font-family: Inter-Bold;
+              color: #000000;
+            }
+          }
+          .template-hover-action-mask {
+            display: none;
+            z-index: 100;
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.3);
+            .template-hover-action{
+              width: 100%;
+              top:30%
+            }
+
+            .action-item {
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              padding: 6px 13px;
+              background: rgba(0, 0, 0, 0.45);
+              opacity: 1;
+              border: 1px solid rgba(188, 188, 188, 1);
+            }
+            .template-hover-action {
+              position: absolute;
+            }
+          }
+          &:hover {
+            .template-hover-action-mask {
+              display: block;
             }
           }
         }
 
-        &:hover {
-          .slide-hover-action-mask {
-            display: block;
-          }
+        .template-item-active {
+          border: 1px solid #15C39A;
+          box-shadow: 0px 3px 6px rgba(21, 195, 154, 0.16);
+          opacity: 1;
         }
       }
     }
-  }
-  .slide-recommend {
-    width: 600px;
-    padding: 0 20px;
-    box-sizing: border-box;
-  }
-}
-
-.slide-preview-list {
-  max-height: 1000px;
-  overflow-y: scroll;
-  overflow-x: hidden;
-  width: 400px;
-  margin:0 auto;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: flex-start;
-  /deep/ .ant-carousel{
-    .slick-slide {
-      text-align: center;
-      height: 200px;
-      line-height: 200px;
-      background: #364d79;
-      overflow: hidden;
-    }
-    .slick-slide img{
-      width:400px;
-    }
-    custom-slick-arrow {
-      width: 25px;
-      height: 25px;
-      font-size: 25px;
-      color: #fff;
-      background-color: rgba(31, 45, 61, 0.11);
-      opacity: 0.3;
-    }
-    .custom-slick-arrow:before {
-      display: none;
-    }
-    .custom-slick-arrow:hover {
-      opacity: 0.5;
-    }
-    .slick-slide h3 {
-      color: #fff;
-    }
-    .anticon{
-      color: fade(@black, 45%);
-      font-size: 20px;
-    }
-  }
-  .slide-preview-item {
-    position: relative;
-    margin: 15px;
-    width: 400px;
-    .template-hover-action-mask {
-      display: none;
-      z-index: 100;
-      position: absolute;
-      cursor: pointer;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: rgba(0, 0, 0, 0.3);
-      .template-hover-action{
-        width: 100%;
-        top:30%
-      }
-
-      .action-item {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        padding: 6px 13px;
-        background: rgba(0, 0, 0, 0.45);
-        opacity: 1;
-        border: 1px solid rgba(188, 188, 188, 1);
-      }
-      .template-hover-action {
-        position: absolute;
-      }
-    }
-    &:hover {
-      .template-hover-action-mask {
-        display: block;
-      }
-    }
 
   }
-  .slide-desc{
-    width: 70%;
-    max-height: 50px;
-    margin: 0 auto;
-    margin-bottom: 10px;
-    overflow: hidden;
+  .drawer-action{
+    position: absolute;
+    z-index:9999;
+    bottom: 0px;
+    width: 100%;
+    border-top: 1px solid rgb(232, 232, 232);
+    padding: 10px 16px;
+    text-align: right;
+    left: 0px;
+    background: rgb(255, 255, 255);
+    border-radius: 0px 0px 4px 4px;
   }
-}
-.recomend-loading {
-  min-height: 200px;
-  margin-top: 200px;
-  width: 100%;
-  display: flex;
-  flex-direction: row;
-  justify-content: center;
-  align-items: center;
-}
-.question-options {
-  width: 100%;
-  display: block;
-  font-size: 18px;
-  font-family: Inter-Bold;
-  line-height: 24px;
-  color: #11142D;
-}
 
-/deep/ .ant-steps-item-title{
-  font-size:18px
-}
-.root-locate-form {
-  position: relative;
-}
-.my-comment-switch {
-  display: none;
-  position: absolute;
-  right: -10px;
-  top: -5px;
-  z-index: 200;
-}
-
-.collaborate-panel {
-  background-color: #fff;
-  //box-shadow: 0px 6px 10px rgba(159, 159, 159, 0.16);
-  .icon {
-    padding: 10px 5px 0 15px;
+  .sub-task-save {
+    margin-top: 50px;
+    text-align: center;
+    .sub-task-save-action {
+        height: 50px;
+    }
+  }
+  .btn-icon {
+    height: 20px;
     display: flex;
     flex-direction: row;
     align-items: center;
-    justify-content: flex-start;
-
-    svg {
-      width: 30px;
+    justify-content: center;
+    img {
+      height: 15px;
+      width: 15px;
     }
   }
-}
-
-.edit-slide {
-  display: flex;
-  align-items: center;
-  img {
-    margin-right: 5px;
+  .grade-time{
+    display: flex;
+    justify-content:space-between;
+    .range-time{
+      /deep/ .ant-input{
+        border-radius: 4px;
+        font-size:13px;
+        width:100%;
+        padding: 6px 7px;
+      }
+      .week-time{
+        position: absolute;
+        /* width: 300px; */
+        top: -50px;
+        right: 0px
+      }
+    }
   }
-}
+  .assessments-tabs{
+    /deep/ .ant-tabs-nav-scroll {
+      text-align: left;
 
-.no-data-slide-form-block {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  .go-to-create {
+    }
+  }
+
+  .form-block-label {
+    font-family: Inter-Bold;
+    line-height: 24px;
+    color: #000000;
+  }
+
+  .material-list {
     margin-top: 10px;
   }
-}
-/deep/ .ant-breadcrumb > span:last-child {
-  color: rgba(0, 0, 0, 0.45);
-}
 
-.page-info {
-  position: absolute;
-  right: 10px;
-  bottom: 10px;
-  background: #E4E4E4;
-  padding: 1px 10px;
-  border-radius: 20px;
-  display: flex;
-  flex-direction: row;
-  align-items: flex-start;
-  align-items: center;
-  .page-num-tag {
-    display: inline;
-    background: rgba(228, 228, 228, 0.5);
-    padding: 1px 10px;
-    border-radius: 16px;
-    font-size: 8px;
-    font-family: Segoe UI;
-    font-weight: 400;
-    color: #808191;
-  }
-}
-
-.carousel-page {
-  display: flex;
-  height: 110px;
-  width: 100%;
-  overflow-x: scroll;
-  overflow-y: hidden;
-  display: flex;
-  flex-direction: row;
-  justify-content: center;
-  align-items: center;
-
-  &::-webkit-scrollbar {
-    width: 5px;
-    height: 5px;
-  }
-  &::-webkit-scrollbar-track {
-    border-radius: 3px;
-    background: rgba(0,0,0,0.00);
-    -webkit-box-shadow: inset 0 0 5px rgba(0,0,0,0.08);
-  }
-  /* 滚动条滑块 */
-  &::-webkit-scrollbar-thumb {
-    border-radius: 5px;
-    background: rgba(0,0,0,0.12);
-    -webkit-box-shadow: inset 0 0 10px rgba(0,0,0,0.2);
-  }
-  .img-list-wrapper {
+  .material-icon {
+    height: 35px;
     display: flex;
     flex-direction: row;
     align-items: center;
-    width: 100%;
-    .img-list {
-      cursor: pointer;
-      display: flex;
-      flex-direction: row;
-      justify-content: center;
-      align-items: flex-start;
-      .img-item {
-        height: 80px;
-        border: 1px solid #ddd;
-        box-shadow: 0 4px 8px 0 rgba(31, 33, 44, 10%);
-        margin: 0 10px;
-        img {
-          height: 100%;
-        }
-      }
-    }
-  }
-}
-.template-selected {
-  overflow-y: auto;
-  background: rgba(228, 228, 228, 0.2);
-  border: 1px solid #D8D8D8;
-  opacity: 1;
-  border-radius: 4px;
-  padding: 20px;
-  max-height: 500px;
-
-  .template-list {
-    display: flex;
-    flex-direction: row;
-    align-items: flex-start;
-    justify-content: space-between;
-    flex-wrap: wrap;
-
-    .template-item {
-      background-size: cover;
-      margin-right: 1%;
-      margin-left: 1%;
-      margin-bottom: 20px;
-      box-sizing: border-box;
-      width: 45%;
-      box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.16);
-      background: #FFFFFF;
-      border: 1px solid #E8E8E8;
-      border-radius: 4px;
-      position: relative;
-
-      .template-select-icon {
-        z-index: 50;
-        position: absolute;
-        right: 5px;
-        top: 5px;
-        img {
-          height: 18px;
-        }
-      }
-
-      .template-cover {
-        background-size: 100% 100%;
-        height: 150px;
-        border-radius: 4px;
-        width: 100%;
-        background-color: #ddd;
-        box-sizing: border-box;
-        padding: 0;
-      }
-
-      .template-info {
-        padding: 10px;
-        display: flex;
-        position: relative;
-        flex-direction: column;
-        justify-content: flex-start;
-
-        .template-name {
-          font-weight: 500;
-          font-size: 14px;
-          z-index: 10;
-          overflow: hidden;
-          white-space: nowrap;
-          text-overflow: ellipsis;
-          word-break: break-all;
-          padding: 10px 0;
-          min-height: 40px;
-        }
-        .template-intro {
-          min-height: 30px;
-          z-index: 10;
-          padding: 5px;
-          overflow: hidden;
-          white-space: nowrap;
-          text-overflow: ellipsis;
-          word-break: break-all;
-          color: rgba(0,0,0,.45);
-          font-size: 12px;
-          background: rgba(244, 244, 244, 0.5);
-          border-radius: 4px;
-          font-family: Inter-Bold;
-          color: #000000;
-        }
-      }
-      .template-hover-action-mask {
-        display: none;
-        z-index: 100;
-        position: absolute;
-        cursor: pointer;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: rgba(0, 0, 0, 0.3);
-        .template-hover-action{
-          width: 100%;
-          top:30%
-        }
-
-        .action-item {
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          padding: 6px 13px;
-          background: rgba(0, 0, 0, 0.45);
-          opacity: 1;
-          border: 1px solid rgba(188, 188, 188, 1);
-        }
-        .template-hover-action {
-          position: absolute;
-        }
-      }
-      &:hover {
-        .template-hover-action-mask {
-          display: block;
-        }
-      }
-    }
-
-    .template-item-active {
-      border: 1px solid #15C39A;
-      box-shadow: 0px 3px 6px rgba(21, 195, 154, 0.16);
-      opacity: 1;
-    }
-  }
-}
-
-.recommend-slide-name {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  line-height: 40px;
-  font-family: Inter-Bold;
-  font-weight: 500;
-  color: #333;
-}
-
-.slide-animate-cover {
-  width: 400px;
-  height: 200px;
-  position: fixed;
-  transition: transform .6s;
-  transform: translateX(0px);
-  z-index:10000;
-}
-.slide-animate-cover > img {
-  transform: translateY(0px);
-  transform: scale(1);
-  width: 400px;
-  height: 200px;
-  transition: transform .6s;
-  z-index:10000;
-}
-.slide-animate-cover {
-  transition-timing-function: linear;
-  opacity: 0.8;
-  z-index:10000;
-}
-.slide-animate-cover > img {
-  transition-timing-function: cubic-bezier(.55,0,.85,.36);
-  outline: 1px solid #D8D8D8;
-  z-index:10000;
-}
-.plugin-tags{
-  height: 100px;
-  width: 650px;
-  overflow-y:auto;
-  background-color:#F7F7F7;
-  font-size: 12px;
-  font-family: Segoe UI;
-  .tag-row{
-    margin: 5px;
-  }
-  .tag-item{
-    margin-left: 15px;
-  }
-  .tag-title{
-    font-weight: 400;
-    line-height: 0px;
-    color: #808191;
-    opacity: 1;
-  }
-  .tag-value{
-    margin-left: 10px;
-    //max-width: 200px;
-  }
-}
-.drawer-wrapper-row{
-
-  .drawer-template-selected {
-    overflow-y: auto;
-    //background: rgba(228, 228, 228, 0.2);
-    border: 1px solid #D8D8D8;
-    opacity: 1;
-    border-radius: 4px;
-    padding: 10px;
-    height: auto;
-
-    .drawer-template-list {
-      display: flex;
-      flex-direction: row;
-      align-items: flex-start;
-      justify-content: flex-start;
-      flex-wrap: wrap;
-
-      .template-item {
-        background-size: cover;
-        margin: 0px 5px;
-        margin-bottom: 20px;
-        box-sizing: border-box;
-        width: 100%;
-        box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.16);
-        background: #FFFFFF;
-        border: 1px solid #E8E8E8;
-        border-radius: 4px;
-        position: relative;
-
-        .template-select-icon {
-          z-index: 50;
-          position: absolute;
-          right: 5px;
-          bottom: 5px;
-          img {
-            height: 18px;
-          }
-        }
-
-        .template-cover {
-          background-size: 100% 100%;
-          height: 150px;
-          border-radius: 4px;
-          width: 100%;
-          background-color: #ddd;
-          box-sizing: border-box;
-          padding: 0;
-        }
-
-        .template-info {
-          padding: 10px;
-          display: flex;
-          position: relative;
-          flex-direction: column;
-          justify-content: flex-start;
-
-          .template-name {
-            font-weight: 500;
-            font-size: 14px;
-            z-index: 10;
-            overflow: hidden;
-            white-space: nowrap;
-            text-overflow: ellipsis;
-            word-break: break-all;
-            padding: 10px 0;
-            min-height: 40px;
-          }
-          .template-intro {
-            min-height: 30px;
-            z-index: 10;
-            padding: 5px;
-            overflow: hidden;
-            white-space: nowrap;
-            text-overflow: ellipsis;
-            word-break: break-all;
-            color: rgba(0,0,0,.45);
-            font-size: 12px;
-            background: rgba(244, 244, 244, 0.5);
-            border-radius: 4px;
-            font-family: Inter-Bold;
-            color: #000000;
-          }
-        }
-        .template-hover-action-mask {
-          display: none;
-          z-index: 100;
-          position: absolute;
-          cursor: pointer;
-          top: 0;
-          left: 0;
-          right: 0;
-          bottom: 0;
-          background: rgba(0, 0, 0, 0.3);
-          .template-hover-action{
-            width: 100%;
-            top:30%
-          }
-
-          .action-item {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 6px 13px;
-            background: rgba(0, 0, 0, 0.45);
-            opacity: 1;
-            border: 1px solid rgba(188, 188, 188, 1);
-          }
-          .template-hover-action {
-            position: absolute;
-          }
-        }
-        &:hover {
-          .template-hover-action-mask {
-            display: block;
-          }
-        }
-      }
-
-      .template-item-active {
-        border: 1px solid #15C39A;
-        box-shadow: 0px 3px 6px rgba(21, 195, 154, 0.16);
-        opacity: 1;
-      }
-    }
+    justify-content: center;
   }
 
-}
-.drawer-action{
-  position: absolute;
-  z-index:9999;
-  bottom: 0px;
-  width: 100%;
-  border-top: 1px solid rgb(232, 232, 232);
-  padding: 10px 16px;
-  text-align: right;
-  left: 0px;
-  background: rgb(255, 255, 255);
-  border-radius: 0px 0px 4px 4px;
-}
-
+  .delete-icon {
+    width: 35px;
+  }
 </style>

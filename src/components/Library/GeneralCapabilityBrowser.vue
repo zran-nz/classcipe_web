@@ -229,7 +229,7 @@ import ContentTypeIcon from '@/components/Teacher/ContentTypeIcon'
 import { KnowledgeQueryContentByDescriptionId, Get21Century } from '@/api/knowledge'
 import DirIcon from '@/components/Library/DirIcon'
 import NoMoreResources from '@/components/Common/NoMoreResources'
-import PuBuIcon from '@/assets/icons/library/pubu .svg?inline'
+import PuBuIcon from '@/assets/icons/library/pubu.svg?inline'
 import ListModeIcon from '@/assets/icons/library/liebiao .svg?inline'
 import CardList from '@/views/list/CardList'
 import DataCardView from '@/components/Library/DataCardView'
@@ -284,7 +284,7 @@ export default {
       dataList: [],
       dataListLoading: false,
       currentDataId: null,
-      dataListMode: 'list',
+      dataListMode: 'card',
 
       currentTypeLabel: 'Choose type（S）of content',
       currentType: 0,
@@ -416,6 +416,7 @@ export default {
 
     handleClickBlock (blockIndex, path) {
       this.$logger.info('handleClickBlock ' + blockIndex)
+      alert(blockIndex)
       this.$emit('blockCollapse', { blockIndex, path })
     },
 
@@ -525,12 +526,10 @@ export default {
       color: #15c39a;
     }
     .loading-wrapper {
-      position: absolute;
-      width: 50px;
-      text-align: center;
-      top: 30%;
-      left: 50%;
-      margin-left: -25px;
+      min-height: 400px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
   }
 
@@ -679,12 +678,10 @@ export default {
       color: #15c39a;
     }
     .loading-wrapper {
-      position: absolute;
-      width: 50px;
-      text-align: center;
-      top: 30%;
-      left: 50%;
-      margin-left: -25px;
+      min-height: 400px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
   }
 }

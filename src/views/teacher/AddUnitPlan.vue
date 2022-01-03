@@ -4,6 +4,7 @@
       <common-form-header
         ref="commonFormHeader"
         :form="form"
+        :collaborate="collaborate"
         :last-change-saved-time="lastChangeSavedTime"
         @view-collaborate="handleViewCollaborate"
         @back="goBack"
@@ -25,8 +26,8 @@
             :show-create="true"/>
         </a-col>-->
         <a-col span="24" class="main-content">
-          <a-card :bordered="false" :body-style="{'min-width': '1350px', padding: '16px', display: 'flex', 'justify-content': 'space-between'}" class="card-wrapper">
-            <div class="unit-plan-form-left root-locate-form" ref="form" @click="focusInput($event)">
+          <a-card :bordered="false" :body-style="{'min-width': '1200px', padding: '16px', display: 'flex', 'justify-content': 'space-between'}" class="card-wrapper">
+            <div class="unit-plan-form-left root-locate-form" ref="form" @click="focusInput($event)" :style="{'width':leftWidth + 'px'}">
               <a-form-model :model="form" class="my-form-wrapper">
                 <a-steps :current="currentActiveStepIndex" direction="vertical" @change="onChangeStep">
                   <a-step title="Edit Unit plan" :status="currentActiveStepIndex === 0 ? 'process':'wait'">
@@ -48,64 +49,85 @@
                       </div>-->
 
                       <div class="form-block">
-                        <comment-switch field-name="name" :is-active="showCollaborateCommentVisible && currentFieldName === 'name'" @switch="handleSwitchComment" class="my-comment-switch"/>
+                        <comment-switch field-name="name" :is-active="currentFieldName === 'name'" @switch="handleSwitchComment" class="my-comment-switch"/>
                         <a-form-item label="Unit Name">
                           <a-input v-model="form.name" placeholder="Enter Unit Name" class="my-form-input"/>
                         </a-form-item>
                       </div>
 
-                      <div class="form-block over-form-block overview" id="overview">
-                        <comment-switch field-name="overview" :is-active="showCollaborateCommentVisible && currentFieldName === 'overview'" @switch="handleSwitchComment" class="my-comment-switch"/>
-                        <a-form-model-item class="task-audio-line" label="Unit Overview">
-                          <a-textarea class="overview" v-model="form.overview" placeholder="Overview" allow-clear />
-
-                          <a-button type="primary" ghost class="overview-toggle" @click="showTaskDetails = !showTaskDetails">
-                            Assessment task details
-                            <a-icon type="up" v-if="showTaskDetails"/>
-                            <a-icon type="down" v-else/>
-                          </a-button>
-
-                        </a-form-model-item>
-
-                        <Collapse>
-                          <div class="overview-task-details" v-if="showTaskDetails" >
-                            <a-textarea class="overview-summarize" v-model="form.summarize" placeholder="Add content to summarize your assessment tasks" allow-clear />
-                            <h4>This Unit is made up of <code>{{ associateTaskList.length }}</code> tasks</h4>
-                            <div class="task-item" v-for="(task,index) in associateTaskList" :key="index">
-                              <p><code>{{ task.name }}</code> focuses on "<code>{{ task.overview }}</code>".
-                                This task applies teaching strategies of  "<span v-if="tag.parentName === 'Teaching strategies'" v-for="(tag,tIndex) in task.customTags" :key="tIndex"><a-tag :color="tagColorList[tIndex % tagColorList.length]">{{ tag.name }}</a-tag></span>"
-                                and uses differentiated instructions of  "<span v-if="tag.parentName === 'Differentiated instructions'" v-for="(tag,tIndex) in task.customTags" :key="tIndex"><a-tag :color="tagColorList[tIndex % tagColorList.length]">{{ tag.name }}</a-tag></span>"
-                                to achieve assessment objectives listed below:</p>
-                              <a-list size="small" bordered :data-source="task.learnOuts" v-if="task.learnOuts.length > 0">
-                                <a-list-item slot="renderItem" slot-scope="learn">
-                                  <a-tooltip :title="learn.path" placement="top">
-                                    {{ learn.name }}
-                                  </a-tooltip>
-                                </a-list-item>
-                              </a-list>
-                              <div class="task-action-edit">
-                                <a-button
-                                  shape="round"
-                                  type="link"
-                                  size="small"
-                                  slot="extra"
-                                  href="#"
-                                  @click="handleEditTask(task)"><a-icon type="edit" /></a-button>
-                              </div>
-                            </div>
+                      <div class="form-block grade-time">
+                        <!--   <comment-switch field-name="name" :is-active="currentFieldName === 'name'" @switch="handleSwitchComment" class="my-comment-switch"/>-->
+                        <a-form-item label="Grade level" style="width:26%;margin-bottom: 0px;">
+                          <a-select size="large" v-model="form.gradeId" class="my-big-select" placeholder="Select a grade">
+                            <a-select-option v-for="(grade,index) in gradeList" :value="grade.id" :key="index">
+                              {{ grade.name }}
+                            </a-select-option>
+                          </a-select>
+                        </a-form-item>
+                        <a-form-item class="range-time" label="Start Date" style="width:70%;margin-bottom: 0px;position:relative">
+                          <div class="week-time" v-if="getWeek">
+                            <a-tag color="cyan" style="border-radius: 10px;font-size: 14px;">
+                              {{ getWeek }}
+                            </a-tag>
                           </div>
-                        </Collapse>
-
+                          <a-range-picker v-model="rangeDate" size="large" format="LLL" :show-time="{ format: 'HH:mm' }" style="width:100%">
+                            <a-icon slot="suffixIcon" type="calendar" />
+                          </a-range-picker>
+                        </a-form-item>
                       </div>
 
+                      <!--                      <div class="form-block over-form-block overview" id="overview">-->
+                      <!--                        <comment-switch field-name="overview" :is-active="showCollaborateCommentVisible && currentFieldName === 'overview'" @switch="handleSwitchComment" class="my-comment-switch"/>-->
+                      <!--                        &lt;!&ndash; 暂时隐藏Unit overview模块&ndash;&gt;-->
+                      <!--                        <a-form-model-item class="task-audio-line" label="Unit Overview">-->
+                      <!--                          <a-textarea class="overview" v-model="form.overview" placeholder="Overview" allow-clear />-->
+
+                      <!--                          &lt;!&ndash;                          <a-button type="primary" ghost class="overview-toggle" @click="showTaskDetails = !showTaskDetails">&ndash;&gt;-->
+                      <!--                          &lt;!&ndash;                            Assessment task details&ndash;&gt;-->
+                      <!--                          &lt;!&ndash;                            <a-icon type="up" v-if="showTaskDetails"/>&ndash;&gt;-->
+                      <!--                          &lt;!&ndash;                            <a-icon type="down" v-else/>&ndash;&gt;-->
+                      <!--                          &lt;!&ndash;                          </a-button>&ndash;&gt;-->
+                      <!--                        </a-form-model-item>-->
+                      <!--                        &lt;!&ndash;                        <Collapse>&ndash;&gt;-->
+                      <!--                        &lt;!&ndash;                          <div class="overview-task-details" v-if="showTaskDetails" >&ndash;&gt;-->
+                      <!--                        &lt;!&ndash;                            <a-textarea class="overview-summarize" v-model="form.summarize" placeholder="Add content to summarize your assessment tasks" allow-clear />&ndash;&gt;-->
+                      <!--                        &lt;!&ndash;                            <h4>This Unit is made up of <code>{{ associateTaskList.length }}</code> tasks</h4>&ndash;&gt;-->
+                      <!--                        &lt;!&ndash;                            <div class="task-item" v-for="(task,index) in associateTaskList" :key="index">&ndash;&gt;-->
+                      <!--                        &lt;!&ndash;                              <p><code>{{ task.name }}</code> focuses on "<code>{{ task.overview }}</code>".&ndash;&gt;-->
+                      <!--                        &lt;!&ndash;                                This task applies teaching strategies of  "<span v-if="tag.parentName === 'Teaching strategies'" v-for="(tag,tIndex) in task.customTags" :key="tIndex"><a-tag :color="tagColorList[tIndex % tagColorList.length]">{{ tag.name }}</a-tag></span>"&ndash;&gt;-->
+                      <!--                        &lt;!&ndash;                                and uses differentiated instructions of  "<span v-if="tag.parentName === 'Differentiated instructions'" v-for="(tag,tIndex) in task.customTags" :key="tIndex"><a-tag :color="tagColorList[tIndex % tagColorList.length]">{{ tag.name }}</a-tag></span>"&ndash;&gt;-->
+                      <!--                        &lt;!&ndash;                                to achieve assessment objectives listed below:</p>&ndash;&gt;-->
+                      <!--                        &lt;!&ndash;                              <a-list size="small" bordered :data-source="task.learnOuts" v-if="task.learnOuts.length > 0">&ndash;&gt;-->
+                      <!--                        &lt;!&ndash;                                <a-list-item slot="renderItem" slot-scope="learn">&ndash;&gt;-->
+                      <!--                        &lt;!&ndash;                                  <a-tooltip :title="learn.path" placement="top">&ndash;&gt;-->
+                      <!--                        &lt;!&ndash;                                    {{ learn.name }}&ndash;&gt;-->
+                      <!--                        &lt;!&ndash;                                  </a-tooltip>&ndash;&gt;-->
+                      <!--                        &lt;!&ndash;                                </a-list-item>&ndash;&gt;-->
+                      <!--                        &lt;!&ndash;                              </a-list>&ndash;&gt;-->
+                      <!--                        &lt;!&ndash;                              <div class="task-action-edit">&ndash;&gt;-->
+                      <!--                        &lt;!&ndash;                                <a-button&ndash;&gt;-->
+                      <!--                        &lt;!&ndash;                                  shape="round"&ndash;&gt;-->
+                      <!--                        &lt;!&ndash;                                  type="link"&ndash;&gt;-->
+                      <!--                        &lt;!&ndash;                                  size="small"&ndash;&gt;-->
+                      <!--                        &lt;!&ndash;                                  slot="extra"&ndash;&gt;-->
+                      <!--                        &lt;!&ndash;                                  href="#"&ndash;&gt;-->
+                      <!--                        &lt;!&ndash;                                  @click="handleEditTask(task)"><a-icon type="edit" /></a-button>&ndash;&gt;-->
+                      <!--                        &lt;!&ndash;                              </div>&ndash;&gt;-->
+                      <!--                        &lt;!&ndash;                            </div>&ndash;&gt;-->
+                      <!--                        &lt;!&ndash;                          </div>&ndash;&gt;-->
+                      <!--                        &lt;!&ndash;                        </Collapse>&ndash;&gt;-->
+
+                      <!--                      </div>-->
+
                       <div class="form-block inquiry-form-block" id="inquiry">
-                        <comment-switch field-name="inquiry" :is-active="showCollaborateCommentVisible && currentFieldName === 'inquiry'" @switch="handleSwitchComment" class="my-comment-switch"/>
+                        <comment-switch field-name="inquiry" :is-active="currentFieldName === 'inquiry'" @switch="handleSwitchComment" class="my-comment-switch"/>
                         <!--                <a-divider />-->
                         <a-form-item label="Big Idea/ Statement of Inquiry/ Central Idea" class="bigIdea" >
-                          <a-input
+                          <a-textarea
+                            class="my-form-textarea inquiry"
                             v-model="form.inquiry"
                             :placeholder="$store.getters.currentRole === 'teacher' ? $t('teacher.add-unit-plan.teacher-direction-of-inquiry') : $t('teacher.add-unit-plan.expert-direction-of-inquiry')"
-                            class="my-form-input inquiry"/>
+                          />
                         </a-form-item>
                         <a-tooltip title="Browse" @click.stop="selectBigIdeaDataVisible=true">
                           <span class="browse">
@@ -116,7 +138,7 @@
 
                       <!--            real-life-scenario-->
                       <div class="form-block ">
-                        <comment-switch field-name="sdg" :is-active="showCollaborateCommentVisible && currentFieldName === 'sdg'" @switch="handleSwitchComment" class="my-comment-switch" style="top:40px"/>
+                        <comment-switch field-name="sdg" :is-active="currentFieldName === 'sdg'" @switch="handleSwitchComment" class="my-comment-switch" style="top:40px"/>
                         <a-divider>Teaching goals</a-divider>
                         <a-row>
                           <a-col span="24">
@@ -183,8 +205,8 @@
                       </div>
 
                       <div :class="{'form-block': true, 'form-block-disabled' : $store.getters.userInfo.disableQuestion}">
-                        <comment-switch v-if="!$store.getters.userInfo.disableQuestion" field-name="question" :is-active="showCollaborateCommentVisible && currentFieldName === 'question'" @switch="handleSwitchComment" class="my-comment-switch"/>
-                        <a-form-item>
+                        <comment-switch v-if="!$store.getters.userInfo.disableQuestion" field-name="question" :is-active="currentFieldName === 'question'" @switch="handleSwitchComment" class="my-comment-switch"/>
+                        <a-form-item class="unit-question">
                           <span slot="label">
                             <a-tooltip title="Set key question/Line of inquiry">
                               <a-icon type="exclamation-circle" style="color: #15c39a;cursor: pointer;font-size: 18px" @click="questionSettingVisible=true" />
@@ -205,9 +227,10 @@
                               </div>
                             </div>
                             <div class="form-input-item" v-for="(question, index) in form.questions" :key="index">
-                              <a-input
+                              <a-textarea
                                 v-model="question.name"
-                                class="my-form-input"
+                                class="my-form-textarea"
+                                auto-size
                                 :placeholder="$store.getters.currentRole === 'teacher' ? $t('teacher.add-unit-plan.teacher-nth-key-question') : $t('teacher.add-unit-plan.expert-nth-key-question')"/>
                               <div class="delete-icon" @click="handleRemoveQuestion(index)">
                                 <a-icon type="delete" :style="{ fontSize: '20px' }" />
@@ -226,17 +249,32 @@
                       </div>
 
                       <div class="form-block">
-                        <comment-switch field-name="assessment" :is-active="showCollaborateCommentVisible && currentFieldName === 'assessment'" @switch="handleSwitchComment" class="my-comment-switch"/>
-                        <a-form-item label="Set assessment objectives" >
-                          <a-button type="primary" @click="handleSelectDescription()">
-                            <div class="btn-text" style="line-height: 20px">
-                              Add assessment objectives
-                            </div>
+                        <comment-switch field-name="assessment" :is-active="currentFieldName === 'assessment'" @switch="handleSwitchComment" class="my-comment-switch"/>
+                        <a-form-item label="Set learning objectives" >
+                          <a-badge :dot="hasExtraRecommend">
+                            <a-button type="primary" @click="handleSelectDescription()">
+                              <div class="btn-text" style="line-height: 20px">
+                                Add leaning objectives
+                              </div>
+                            </a-button>
+                          </a-badge>
+
+                          <a-button type="link" ghost class="assessment-task-button" @click="handleClickTaskDetail($event)" >
+                            Assessment task details
+                            <a-icon type="right"/>
                           </a-button>
+
                         </a-form-item>
 
                         <!--knowledge tag-select -->
                         <ui-learn-out :learn-outs="form.learnOuts" @remove-learn-outs="handleRemoveLearnOuts" />
+                      </div>
+
+                      <div class="form-block" style="clear:both">
+                        <comment-switch field-name="prior" :is-active="currentFieldName === 'prior'" @switch="handleSwitchComment" class="my-comment-switch"/>
+                        <a-form-model-item label="Prior learning experience">
+                          <a-textarea v-model="form.prior" placeholder="What are the approaches to find out what students already knew?" allow-clear />
+                        </a-form-model-item>
                       </div>
 
                     </template>
@@ -245,14 +283,21 @@
                     <template slot="description" v-if="currentActiveStepIndex === 1">
                       <div class="form-block">
                         <a-form-item label="Add task(s)" class="link-plan-title">
-                          <a-button type="primary" :style="{'background-color': '#fff', 'color': '#000', 'border': '1px solid #D8D8D8'}" @click="handleAddTerm">
-                            <div class="btn-text" style="line-height: 20px">
-                              + Add category
-                            </div>
-                          </a-button>
+                          <a-space>
+                            <a-button type="primary" :style="{'background-color': '#fff', 'color': '#000', 'border': '1px solid #D8D8D8'}" @click="handleAddTasks">
+                              <div class="btn-text" style="line-height: 20px">
+                                + Link Task(s)
+                              </div>
+                            </a-button>
+                            <a-button type="primary" class="addCategory" :loading="addCategoryLoading" :style="{'background-color': '#fff', 'color': '#000', 'border': '1px solid #D8D8D8'}" @click="handleAddTerm">
+                              <div class="btn-text" style="line-height: 20px">
+                                + Add category
+                              </div>
+                            </a-button>
+                          </a-space>
                         </a-form-item>
                         <div class="common-link-wrapper">
-                          <common-link ref="commonLink" :from-id="this.unitPlanId" :from-type="this.contentType['unit-plan']" @group-name-list-update="handleUpdateGroupNameList"/>
+                          <plan-link ref="planLink" :from-id="this.unitPlanId" :from-type="this.contentType['unit-plan']" @group-name-list-update="handleUpdateGroupNameList"/>
                         </div>
                       </div>
                     </template>
@@ -260,11 +305,12 @@
                 </a-steps>
               </a-form-model>
             </div>
-            <div class="unit-plan-form-right">
+
+            <div class="unit-plan-form-right" :style="{'width':rightWidth + 'px'}">
               <!--              优先级 所有comment预览 > 字段comment > tag选择-->
-              <template v-if="showAllCollaborateCommentVisible">
+              <template v-if="showRightModule(rightModule.collaborate)">
                 <a-skeleton :loading="showHistoryLoading" active>
-                  <div class="collaborate-panel" :style="{'width':'600px', 'margin-top': '0px', 'z-index': 100, 'padding': '10px'}">
+                  <div class="collaborate-panel" :style="{'width':rightWidth + 'px', 'margin-top': '0px', 'z-index': 100, 'padding': '10px'}">
                     <div class="icon">
                       <comment-icon />
                     </div>
@@ -279,67 +325,73 @@
                   </div>
                 </a-skeleton>
               </template>
-              <template v-else>
-                <template v-if="showCollaborateCommentVisible">
-                  <div class="collaborate-panel" :style="{'width':'600px', 'margin-top':collaborateTop+'px', 'z-index': 100, 'padding': '10px'}">
-                    <collaborate-comment-panel :source-id="unitPlanId" :source-type="contentType['unit-plan']" :field-name="currentFieldName" :comment-list="currentCollaborateCommentList" @update-comment="handleUpdateCommentList"/>
-                  </div>
-                </template>
-                <template v-else>
-                  <div class="form-block-right" >
-                    <!-- image-->
-                    <a-form-model-item class="img-wrapper" >
-                      <a-upload-dragger
-                        name="file"
-                        accept="image/png, image/jpeg"
-                        :showUploadList="false"
-                        :customRequest="handleUploadImage"
-                      >
-                        <div class="delete-img" @click="handleDeleteImage($event)" v-show="form.image">
-                          <a-icon type="close-circle" />
-                        </div>
-                        <template v-if="uploading">
-                          <div class="upload-container">
-                            <p class="ant-upload-drag-icon">
-                              <a-icon type="cloud-upload" />
-                            </p>
-                            <p class="ant-upload-text">
-                              <a-spin />
-                              <span class="uploading-tips">{{ $t('teacher.add-unit-plan.uploading') }}</span>
-                            </p>
-                          </div>
-                        </template>
-                        <template v-if="!uploading && form && form.image">
-                          <div class="image-preview">
-                            <img :src="form.image" alt="">
-                          </div>
-                        </template>
-                        <template v-if="!uploading && form && !form.image">
-                          <div class="upload-container">
-                            <p class="ant-upload-drag-icon">
-                              <img src="~@/assets/icons/lesson/upload_icon.png" class="upload-icon" />
-                            </p>
-                            <p class="ant-upload-text">
-                              {{ $t('teacher.add-unit-plan.upload-a-picture') }}
-                            </p>
-                          </div>
-                        </template>
-                      </a-upload-dragger>
-                    </a-form-model-item>
-                  </div>
-                  <div v-show="!this.contentLoading" :style="{'width':'600px','position': 'absolute', 'top':customTagTop+'px', 'z-index': 50}">
-                    <custom-tag
-                      :show-arrow="showCustomTag"
-                      :user-tags="userTags"
-                      :custom-tags-list="customTagList"
-                      ref="customTag"
-                      :selected-tags-list="form.customTags"
-                      @reload-user-tags="loadUserTags"
-                      @change-add-keywords="handleChangeAddKeywords"
-                      @change-user-tags="handleChangeUserTags"></custom-tag>
-                  </div>
-                </template>
+              <template v-if="showRightModule(rightModule.collaborateComment) && currentActiveStepIndex === 0">
+                <div class="collaborate-panel" :style="{'width':rightWidth + 'px', 'margin-top':collaborateTop+'px', 'z-index': 100, 'padding': '10px'}">
+                  <collaborate-comment-panel :source-id="unitPlanId" :source-type="contentType['unit-plan']" :field-name="currentFieldName" :comment-list="currentCollaborateCommentList" @update-comment="handleUpdateCommentList"/>
+                </div>
               </template>
+              <template v-if="showRightModule(rightModule.imageUpload)">
+                <div class="form-block-right" :style="{'width':rightWidth + 'px'}">
+                  <!-- image-->
+                  <a-form-model-item class="img-wrapper" >
+                    <a-upload-dragger
+                      name="file"
+                      accept="image/png, image/jpeg"
+                      :showUploadList="false"
+                      :customRequest="handleUploadImage"
+                    >
+                      <div class="delete-img" @click="handleDeleteImage($event)" v-show="form.image">
+                        <a-icon type="close-circle" />
+                      </div>
+                      <template v-if="uploading">
+                        <div class="upload-container">
+                          <p class="ant-upload-drag-icon">
+                            <a-icon type="cloud-upload" />
+                          </p>
+                          <p class="ant-upload-text">
+                            <a-spin />
+                            <span class="uploading-tips">{{ $t('teacher.add-unit-plan.uploading') }}</span>
+                          </p>
+                        </div>
+                      </template>
+                      <template v-if="!uploading && form && form.image">
+                        <div class="image-preview">
+                          <img :src="form.image" alt="">
+                        </div>
+                      </template>
+                      <template v-if="!uploading && form && !form.image">
+                        <div class="upload-container">
+                          <p class="ant-upload-drag-icon">
+                            <img src="~@/assets/icons/lesson/upload_icon.png" class="upload-icon" />
+                          </p>
+                          <p class="ant-upload-text">
+                            {{ $t('teacher.add-unit-plan.upload-a-picture') }}
+                          </p>
+                        </div>
+                      </template>
+                    </a-upload-dragger>
+                  </a-form-model-item>
+                </div>
+              </template>
+              <template v-if="showRightModule(rightModule.customTag)">
+                <div v-show="!this.contentLoading" :style="{'width':rightWidth+'px', 'margin-top':customTagTop+'px', 'z-index': 50}">
+                  <custom-tag
+                    :show-arrow="showCustomTag"
+                    :user-tags="userTags"
+                    :custom-tags-list="customTagList"
+                    ref="customTag"
+                    :selected-tags-list="form.customTags"
+                    @reload-user-tags="loadUserTags"
+                    @change-add-keywords="handleChangeAddKeywords"
+                    @change-user-tags="handleChangeUserTags"></custom-tag>
+                </div>
+              </template>
+              <template v-if="showRightModule(rightModule.taskDetails) && currentActiveStepIndex === 0">
+                <div class="task-details-panel" :style="{'width':rightWidth + 'px', 'margin-top':taskDetailsTop+'px', 'z-index': 200}">
+                  <Assessment-Task-Details :associate-task-list="associateTaskList" @hide-assessment-task="resetRightModuleVisible()"/>
+                </div>
+              </template>
+
             </div>
           </a-card>
         </a-col>
@@ -351,12 +403,12 @@
         :maskClosable="false"
         :closable="true"
         destroyOnClose
-        width="800px">
-        <collaborate-content
+        width="900px">
+        <collaborate-user-list
           :content-id="unitPlanId"
           :main-content="collaborateContent"
           :content-type="contentType['unit-plan']"
-          @finished="showCollaborateModalVisible = false"
+          @confirmSelect="confirmSelectCollaborateUsers"
           v-if="showCollaborateModalVisible"/>
       </a-modal>
 
@@ -481,6 +533,7 @@
         v-model="selectLinkContentVisible"
         :footer="null"
         destroyOnClose
+        :dialog-style="{ top: '10px'}"
         width="900px">
         <div class="my-modal-title" slot="title">
           Link my content
@@ -489,9 +542,10 @@
           <new-my-content
             :from-type="contentType['unit-plan']"
             :from-id="unitPlanId"
-            :filter-type-list="[contentType.task,contentType.evaluation]"
+            :filter-type-list="[contentType.task]"
             :group-name-list="groupNameList"
             :default-group-name="newTermName"
+            :selected-list="selectedTaskList"
             :mode="'common-link'"
             :group-name-mode="groupNameMode"
             @cancel="selectLinkContentVisible = false"
@@ -511,21 +565,25 @@
         <div class="link-content-wrapper">
           <!-- 此处的questionIndex用于标识区分是哪个组件调用的，返回的事件数据中会带上，方便业务数据处理，可随意写，可忽略, show-menu中列出的类型才会显示-->
           <new-browser
+            ref="newBrowser"
             :select-mode="selectModel.syncData"
             question-index="_questionIndex_1"
             :sync-data="syncData"
             :show-menu="showMenuList"
             :default-active-menu="defaultActiveMenu"
+            :recommend-data="recommendData"
+            :selected-list="selectedList"
+            :selected-id="selectedIdList"
             @select-assessmentType="handleSelectAssessmentType"
             @select-sync="handleSelectListData"
             @select-curriculum="handleSelectCurriculum"
             @select-subject-specific-skill="handleSelectSubjectSpecificSkillListData"
             @select-century-skill="handleSelect21CenturySkillListData"
+            @select-idu="handleSelectIdu"
+            @select-recommend="handleSelectRecommend"
+            @cancel-select="handleCancelSelectData"
+            @ensure-select="handleEnsureSelectData"
           />
-          <div class="modal-ensure-action-line-right">
-            <a-button class="action-item action-cancel" shape="round" @click="handleCancelSelectData">Cancel</a-button>
-            <a-button class="action-ensure action-item" type="primary" shape="round" @click="handleEnsureSelectData">Ok</a-button>
-          </div>
         </div>
       </a-modal>
 
@@ -601,7 +659,14 @@ import { GetAllSdgs, ScenarioSearch } from '@/api/scenario'
 import { debounce } from 'lodash-es'
 import InputSearch from '@/components/UnitPlan/InputSearch'
 import SdgTagInput from '@/components/UnitPlan/SdgTagInput'
-import { GetMyGrades, Associate, GetAssociate, GetReferOutcomes } from '@/api/teacher'
+import {
+  GetMyGrades,
+  Associate,
+  GetAssociate,
+  GetReferOutcomes,
+  FindSourceOutcomes,
+  AddOrSaveGroupName
+} from '@/api/teacher'
 import { SubjectTree } from '@/api/subject'
 import { formatSubjectTree } from '@/utils/bizUtil'
 import NewUiClickableKnowledgeTag from '@/components/UnitPlan/NewUiClickableKnowledgeTag'
@@ -618,7 +683,7 @@ import CustomTag from '../../components/UnitPlan/CustomTag'
 import { MyContentEvent, MyContentEventBus } from '@/components/MyContent/MyContentEventBus'
 import RelevantTagSelector from '@/components/UnitPlan/RelevantTagSelector'
 import AddKeywordTag from '@/components/Evaluation/AddKeywordTag'
-import CollaborateContent from '@/components/Collaborate/CollaborateContent'
+import CollaborateUserList from '@/components/Collaborate/CollaborateUserList'
 import CommonFormHeader from '@/components/Common/CommonFormHeader'
 import NewBrowser from '@/components/NewLibrary/NewBrowser'
 import { SelectModel } from '@/components/NewLibrary/SelectModel'
@@ -626,7 +691,7 @@ import DisplayMode from '@/components/MyContent/DisplayMode'
 import { LibraryEvent, LibraryEventBus } from '@/components/NewLibrary/LibraryEventBus'
 import ReferPreview from '@/components/UnitPlanRefer/ReferPreview'
 import UiLearnOut from '@/components/UnitPlan/UiLearnOut'
-import CommonLink from '@/components/Common/CommonLink'
+import PlanLink from '@/components/Common/PlanLink'
 import NewMyContent from '@/components/MyContent/NewMyContent'
 import { FindCustomTags } from '@/api/tag'
 import { GetCollaborateComment, GetCollaborateModifiedHistory } from '@/api/collaborate'
@@ -641,19 +706,24 @@ import BigIdeaBrowse from '@/components/UnitPlan/BigIdeaBrowse'
 import { FindQuestionsByBigIdea } from '@/api/question'
 import QuestionBrowse from '@/components/UnitPlan/QuestionBrowse'
 import Collapse from '@/utils/collapse.js'
+import { UtilMixin } from '@/mixins/UtilMixin'
+import moment from 'moment'
+import AssessmentTaskDetails from '@/components/UnitPlan/AssessmentTaskDetails'
+import { BaseEventMixin } from '@/mixins/BaseEvent'
 
 export default {
   name: 'AddUnitPlan',
   components: {
+    AssessmentTaskDetails,
     QuestionBrowse,
     CollaborateHistory,
     CollaborateCommentView,
     CommentSwitch,
     CollaborateCommentPanel,
     NewMyContent,
-    CommonLink,
+    PlanLink,
     ReferPreview,
-    CollaborateContent,
+    CollaborateUserList,
     CommonFormHeader,
     ContentTypeIcon,
     InputSearch,
@@ -678,6 +748,7 @@ export default {
       default: null
     }
   },
+  mixins: [UtilMixin, BaseEventMixin],
   data () {
     return {
       showCollaborateVisible: false,
@@ -726,9 +797,13 @@ export default {
         overview: '',
         subjectIds: [],
         gradeIds: [],
-        summarize: ''
+        summarize: '',
+        startDate: '',
+        endDate: '',
+        gradeId: undefined,
+        prior: ''
       },
-
+      rangeDate: [],
       uploading: false,
       sdgList: [],
 
@@ -773,6 +848,9 @@ export default {
       selectedSpecificSkillList: [],
       // century skill
       selectedCenturySkillList: [],
+      // idu
+      selectedIduList: [],
+      selectedRecommendList: [],
 
       // BigIdeaList
       selectedBigIdeaList: [],
@@ -781,14 +859,12 @@ export default {
 
       selectIdea: false,
       showCustomTag: false,
-      customTagTop: 300,
+      customTagTop: 0,
       customTagList: [],
       userTags: {},
       NavigationType: NavigationType,
       defaultActiveMenu: NavigationType.learningOutcomes,
-      showMenuList: [ NavigationType.specificSkills, NavigationType.centurySkills, NavigationType.learningOutcomes, NavigationType.assessmentType ],
-
-      showCollaborateCommentVisible: false,
+      showMenuList: [NavigationType.specificSkills, NavigationType.centurySkills, NavigationType.learningOutcomes, NavigationType.assessmentType, NavigationType.idu],
 
       showCollaborateModalVisible: false,
       collaborateContent: null,
@@ -798,7 +874,6 @@ export default {
       collaborateCommentList: [],
       currentCollaborateCommentList: [],
       collaborateTop: 0,
-      showAllCollaborateCommentVisible: false,
       // TODO mock数据待更新为接口请求（loadCollaborateData方法中的GetCollaborateModifiedHistory)
       historyList: [],
       questionSettingVisible: false,
@@ -814,7 +889,6 @@ export default {
 
       groupNameMode: 'input', // input、select,
       newTermName: 'Untitled category',
-      showTaskDetails: false,
       associateTaskList: [],
       tagColorList: [
         'pink',
@@ -824,7 +898,19 @@ export default {
         'blue',
         'red',
         'purple'
-      ]
+      ],
+
+      recommendData: [],
+      recommendDataIdList: [],
+      selectedIdList: [],
+      selectedList: [],
+      selectedTaskList: [],
+      taskDetailsTop: 0,
+      associateUnitPlanIdList: [],
+      associateTaskIdList: [],
+      associateId2Name: new Map(),
+      defaultGroupName: 'Untitled category',
+      addCategoryLoading: false
     }
   },
   watch: {
@@ -844,6 +930,32 @@ export default {
       }
       this.$logger.info('get recommend question ' + value)
       this.findQuestionsByBigIdea(value)
+    }
+  },
+  beforeRouteLeave (to, from, next) {
+    var that = this
+    if (this.isOwner || this.isCollaborater) {
+      if (this.initCompleted && JSON.stringify(this.form) !== JSON.stringify(this.oldForm)) {
+        this.$confirm({
+          title: 'Alert',
+          okText: 'Save',
+          cancelText: 'No',
+          content: 'Do you want to save the changes?',
+          onOk: function () {
+            that.handleSaveUnitPlan()
+            setTimeout(() => {
+              next()
+            }, 500)
+          },
+          onCancel () {
+            next()
+          }
+        })
+      } else {
+        next()
+      }
+    } else {
+      next()
     }
   },
   computed: {
@@ -880,7 +992,7 @@ export default {
       return true
     },
     selectQuestion () {
-     return this.form.questions.map(item => {
+      return this.form.questions.map(item => {
         return item.name
       })
     },
@@ -888,6 +1000,18 @@ export default {
       return this.form.questions.map(item => {
         return item.name
       })
+    },
+    hasExtraRecommend () {
+      this.$logger.info('-------------', this.form.learnOuts, this.recommendDataIdList)
+      let ret = false
+      this.form.learnOuts.forEach(item => {
+        if (this.recommendDataIdList.indexOf(item.knowledgeId) === -1) {
+          ret = true
+          this.$logger.info('------------learnOuts', item, ' not exist in ', this.recommendDataIdList)
+        }
+      })
+
+      return ret
     }
   },
   created () {
@@ -900,6 +1024,7 @@ export default {
     this.loadUserTags()
     this.debouncedGetSdgByDescription = debounce(this.searchScenario, 300)
     this.findQuestionsByBigIdea = debounce(this.findQuestionsByBigIdea, 800)
+    this.queryContentCollaborates(this.unitPlanId, this.contentType['unit-plan'])
 
     // 恢复step
     this.currentActiveStepIndex = this.getSessionStep()
@@ -960,8 +1085,8 @@ export default {
     // 加载协作的评论和历史记录数据
     loadCollaborateData () {
       return Promise.all([
-          GetCollaborateModifiedHistory({ sourceType: this.contentType['unit-plan'], sourceId: this.form.id }),
-          GetCollaborateComment({ sourceType: this.contentType['unit-plan'], sourceId: this.form.id })
+        GetCollaborateModifiedHistory({ sourceType: this.contentType['unit-plan'], sourceId: this.form.id }),
+        GetCollaborateComment({ sourceType: this.contentType['unit-plan'], sourceId: this.form.id })
       ]).then(response => {
         // TODO 将历史记录数据‘格式’后填充到historyList数组中，大部分数据可以直接赋值，复杂字段要处理一下,这样handleRestoreField()方法就可以直接赋值了。
         this.historyList = []
@@ -1014,6 +1139,18 @@ export default {
             }
           })
         }
+        if (!unitPlanData.gradeId) {
+          unitPlanData.gradeId = undefined
+        } else {
+          // 年级在本国大纲不存在的情况
+          if (this.gradeList.filter(grade => grade.id === unitPlanData.gradeId).length === 0) {
+            this.form.gradeId = undefined
+          }
+        }
+        if (unitPlanData.startDate && unitPlanData.endDate) {
+          this.rangeDate.push(moment.utc(unitPlanData.startDate).local())
+          this.rangeDate.push(moment.utc(unitPlanData.endDate).local())
+        }
         this.form = unitPlanData
         if (unitPlanData.questions.length === 0) {
           this.form.questions.push({ 'name': '' })
@@ -1021,6 +1158,9 @@ export default {
       }).finally(() => {
         this.contentLoading = false
         this.loadCollaborateData()
+        // copy副本 为了判断数据变更
+        this.oldForm = JSON.parse(JSON.stringify(this.form))
+        this.initCompleted = true
       })
     },
 
@@ -1156,44 +1296,32 @@ export default {
       this.$logger.info('after handleAddSkillTag questionDataObj ' + data.questionIndex, this.questionDataObj[data.questionIndex])
     },
 
-    autoSave () {
-
-    },
-
     handleSaveUnitPlan () {
       logger.info('handleSaveUnitPlan', this.form, this.sdgDataObj, this.questionDataObj)
-      const unitPlanData = {
-        image: this.form.image,
-        inquiry: this.form.inquiry,
-        name: this.form.name,
-        status: this.form.status,
-        subjects: this.form.subjects,
-        scenarios: this.form.scenarios,
-        questions: this.form.questions,
-        customTags: this.form.customTags,
-        overview: this.form.overview,
-        subjectIds: this.form.subjectIds,
-        gradeIds: this.form.gradeIds,
-        learnOuts: this.form.learnOuts,
-        summarize: this.form.summarize
+      const unitPlanData = Object.assign({}, this.form)
+      if (this.rangeDate.length === 2) {
+        const startDate = this.rangeDate[0].clone()
+        const endDate = this.rangeDate[1].clone()
+        unitPlanData.startDate = startDate.utc().format('YYYY-MM-DD HH:mm:ss')
+        unitPlanData.endDate = endDate.utc().format('YYYY-MM-DD HH:mm:ss')
       }
-
       if (this.unitPlanId) {
         unitPlanData.id = this.unitPlanId
       }
       logger.info('basic unitPlanData', unitPlanData)
-      logger.info('question unitPlanData', unitPlanData)
       UnitPlanAddOrUpdate(unitPlanData).then((response) => {
         logger.info('UnitPlanAddOrUpdate', response.result)
         if (response.success) {
-          this.restoreUnitPlan(response.result.id, false)
+          // 为了保存提示去掉
+          this.oldForm = JSON.parse(JSON.stringify(this.form))
+          // this.restoreUnitPlan(response.result.id, false)
           this.$message.success(this.$t('teacher.add-unit-plan.save-success'))
-          this.goBack()
+          this.handleBack()
         } else {
           this.$message.error(response.message)
         }
       }).then(() => {
-        this.$refs.commonFormHeader.saving = false
+        // this.$refs.commonFormHeader.saving = false
       })
     },
     handlePublishUnitPlan (status) {
@@ -1393,12 +1521,22 @@ export default {
       this.showCollaborateModalVisible = true
     },
     handleSelectDescription () {
-      this.selectSyncDataVisible = true
-      this.showMenuList = [ NavigationType.specificSkills,
+      this.showMenuList = [NavigationType.specificSkills,
         NavigationType.centurySkills,
         NavigationType.learningOutcomes,
-        NavigationType.assessmentType
+        NavigationType.assessmentType,
+        NavigationType.idu
       ]
+      this.selectedList = JSON.parse(JSON.stringify(this.form.learnOuts))
+      this.form.learnOuts.forEach(item => {
+        if (item.knowledgeId) {
+          this.selectedIdList.push(item.knowledgeId)
+        } else {
+          this.$logger.info('parentData selected id not exist ', item)
+        }
+      })
+      this.$logger.info('handleSelectDescription selectedList', this.selectedList, ' recommendData ', this.recommendData)
+      this.selectSyncDataVisible = true
       this.defaultActiveMenu = NavigationType.learningOutcomes
     },
     handleConfirmAssociate () {
@@ -1515,9 +1653,8 @@ export default {
       }
     },
 
-    handleAddTerm () {
-      this.$logger.info('handleAddTerm', this.groupNameList)
-
+    handleAddTasks () {
+      this.$logger.info('handleAddTasks', this.groupNameList)
       // 如果第一部分有内容，点击link激活step 到第二部分，否则提示先输入第一部分表单内容
       if (this.form.name ||
         this.form.overview ||
@@ -1525,6 +1662,7 @@ export default {
         this.form.scenarios.length ||
         this.form.questions.length) {
         this.groupNameMode = 'input'
+        this.newTermName = ''
         this.selectLinkContentVisible = true
         this.setSessionStep(1)
         // 添加link
@@ -1533,44 +1671,162 @@ export default {
       }
     },
 
+    handleAddTerm () {
+      this.$logger.info('handleAddTerm', this.groupNameList)
+      this.addCategoryLoading = true
+      AddOrSaveGroupName({
+        fromId: this.unitPlanId,
+        fromType: this.contentType['unit-plan'],
+        groupName: this.defaultGroupName + '_' + this.groupNameList.length
+      }).then(response => {
+        this.$logger.info('AddOrSaveGroupName', response)
+        this.$refs.planLink.getAssociate()
+        this.addCategoryLoading = false
+      })
+    },
+
     handleEnsureSelectedLink (data) {
       this.$logger.info('handleEnsureSelectedLink', data)
       this.selectLinkContentVisible = false
       this.getAssociate()
       // 刷新组件内的列表
-      this.$refs.commonLink.getAssociate()
+      this.$refs.planLink.getAssociate()
     },
 
     getAssociate () {
       this.$logger.info('AddUnitPlan GetAssociate id[' + this.unitPlanId + '] fromType[' + this.contentType['unit-plan'] + ']')
+      this.associateUnitPlanIdList = []
+      this.associateTaskIdList = []
+      this.associateTaskList = []
       GetAssociate({
         id: this.unitPlanId,
         type: this.contentType['unit-plan']
       }).then(response => {
         this.$logger.info('AddUnitPlan GetAssociate response', response)
-        this.groupNameList = []
+        this.groupNameList = response.result.groups
         this.groupNameListOther = []
+        this.selectedTaskList = []
         response.result.owner.forEach(item => {
-          if (this.groupNameList.indexOf(item.group) === -1) {
-            this.groupNameList.push(item.group)
-          }
           item.contents.forEach(content => {
-            this.associateTaskList.push(content)
+            this.selectedTaskList.push(content.type + '-' + content.id)
+            if (content.type === this.contentType['unit-plan']) {
+              this.associateUnitPlanIdList.push(content.id)
+              this.associateId2Name.set(content.id, content.name)
+              content.questions.forEach(question => {
+                this.associateQuestionList.push({
+                  ...question,
+                  unitName: content.name
+                })
+              })
+            }
+
+            if (content.type === this.contentType.task) {
+              this.associateTaskIdList.push(content.id)
+              this.associateId2Name.set(content.id, content.name)
+              this.associateTaskList.push(content)
+            }
           })
         })
         response.result.others.forEach(item => {
           if (this.groupNameListOther.indexOf(item.group) === -1) {
             this.groupNameListOther.push(item.group)
           }
+          item.contents.forEach(content => {
+            console.log(content)
+            if (content.type === this.contentType['unit-plan']) {
+              this.associateUnitPlanIdList.push(content.id)
+              this.associateId2Name.set(content.id, content.name)
+              content.questions.forEach(question => {
+                this.associateQuestionList.push({
+                  ...question,
+                  unitName: content.name
+                })
+              })
+            }
+
+            if (content.type === this.contentType.task) {
+              this.associateTaskIdList.push(content.id)
+              this.associateId2Name.set(content.id, content.name)
+            }
+          })
         })
-        if (this.groupNameList.length > 0 || this.groupNameListOther.length > 0) {
+        if (this.groupNameListOther.length > 0) {
           this.handleSyncData()
         }
         this.newTermName = 'Untitled category_' + (this.groupNameList.length)
-        this.$logger.info('AddUnitPlan GetAssociate formatted groupNameList', this.groupNameList, this.groupNameListOther)
+        this.$logger.info('AddTask GetAssociate formatted groupNameList', this.groupNameList, this.groupNameListOther)
+        this.$logger.info('*******************associateUnitPlanIdList', this.associateUnitPlanIdList)
+        this.$logger.info('*******************associateTaskIdList', this.associateTaskIdList)
+        this.$logger.info('associateTaskIdList', this.associateTaskIdList)
       }).finally(() => {
         this.linkGroupLoading = false
+
+        if (this.associateUnitPlanIdList.length > 0 || this.associateTaskIdList.length > 0) {
+          this.loadRefLearnOuts()
+        }
       })
+    },
+
+    loadRefLearnOuts () {
+      this.recommendData = []
+      this.recommendDataIdList = []
+      if (this.associateUnitPlanIdList.length) {
+        FindSourceOutcomes({
+          type: this.contentType['unit-plan'],
+          ids: this.associateUnitPlanIdList
+        }).then(response => {
+          this.$logger.info('FindSourceOutcomes unit-plan response', response)
+          const recommendMap = new Map()
+          response.result.forEach(item => {
+            if (recommendMap.has(item.fromId)) {
+              recommendMap.get(item.fromId).push(item)
+            } else {
+              recommendMap.set(item.fromId, [item])
+            }
+            this.recommendDataIdList.push(item.knowledgeId)
+          })
+
+          for (const value of recommendMap.values()) {
+            this.recommendData.push({
+              fromId: value[0].fromId,
+              fromName: value[0].fromName,
+              fromTypeName: this.type2Name[value[0].fromType],
+              list: value
+            })
+          }
+          this.$logger.info('update unit-plan recommendData ', this.recommendData)
+          this.$logger.info('************************update unit-plan recommendDataIdList ', this.recommendDataIdList)
+        })
+      }
+
+      if (this.associateTaskIdList.length) {
+        FindSourceOutcomes({
+          type: this.contentType.task,
+          ids: this.associateTaskIdList
+        }).then(response => {
+          this.$logger.info('FindSourceOutcomes task response', response)
+          const recommendMap = new Map()
+          response.result.forEach(item => {
+            if (recommendMap.has(item.fromId)) {
+              recommendMap.get(item.fromId).push(item)
+            } else {
+              recommendMap.set(item.fromId, [item])
+            }
+            this.recommendDataIdList.push(item.knowledgeId)
+          })
+
+          for (const value of recommendMap.values()) {
+            this.recommendData.push({
+              fromId: value[0].fromId,
+              fromName: value[0].fromName,
+              fromTypeName: this.type2Name[value[0].fromType],
+              list: value
+            })
+          }
+          this.$logger.info('update task recommendData ', this.recommendData)
+          this.$logger.info('************************update unit-plan recommendDataIdList ', this.recommendDataIdList)
+        })
+      }
     },
 
     handleUpdateGroupNameList () {
@@ -1579,7 +1835,7 @@ export default {
     },
 
     handleSelectBigIdeaData (data) {
-        this.selectNewBigIdea = data
+      this.selectNewBigIdea = data
     },
     // TODO 选择的assessment数据
     handleSelectAssessmentType (data) {
@@ -1608,6 +1864,16 @@ export default {
       this.selectedCenturySkillList = data
     },
 
+    handleSelectIdu (data) {
+      this.$logger.info('handleSelectIdu', data)
+      this.selectedIduList = data
+    },
+
+    handleSelectRecommend (data) {
+      this.$logger.info('handleSelectRecommend', data)
+      this.selectedRecommendList = data
+    },
+
     // TODO 自动更新选择的sync 的数据knowledgeId和name列表
     handleCancelSelectData () {
       this.selectedSyncList = []
@@ -1615,6 +1881,8 @@ export default {
       this.selectedSpecificSkillList = []
       this.selectedCenturySkillList = []
       this.selectedAssessmentList = []
+      this.selectedIduList = []
+      this.selectedRecommendList = []
       this.selectSyncDataVisible = false
     },
 
@@ -1626,7 +1894,17 @@ export default {
         this.selectedCenturySkillList,
         this.selectedBigIdeaList,
         this.selectedAssessmentList,
+        this.selectedIduList,
         this.selectedSyncList)
+      this.$logger.info('mySelectedList', this.$refs.newBrowser.mySelectedList)
+      this.$logger.info('learnOuts', this.form.learnOuts)
+      this.form.learnOuts = this.$refs.newBrowser.mySelectedList
+      this.$refs.newBrowser.selectedRecommendList.forEach(item => {
+        const index = this.form.learnOuts.findIndex(dataItem => dataItem.knowledgeId === item.knowledgeId)
+        if (index === -1) {
+          this.form.learnOuts.push(item)
+        }
+      })
       this.selectedSyncList.forEach(data => {
         const filterLearnOuts = this.form.learnOuts.filter(item => item.knowledgeId === data.knowledgeId)
         if (filterLearnOuts.length > 0) {
@@ -1638,6 +1916,20 @@ export default {
           tags: data.tags,
           tagType: data.tagType,
           path: data.path
+        })
+      })
+
+      this.selectedIduList.forEach(data => {
+        const filterLearnOuts = this.form.learnOuts.filter(item => item.knowledgeId === data.id)
+        if (filterLearnOuts.length > 0) {
+          return
+        }
+        this.form.learnOuts.push({
+          knowledgeId: data.knowledgeData.id,
+          name: data.knowledgeData.name,
+          tagType: data.knowledgeData.tagType,
+          path: data.knowledgeData.path,
+          tags: data.tags
         })
       })
       const selectList = this.selectedCurriculumList.concat(this.selectedSpecificSkillList).concat(this.selectedCenturySkillList)
@@ -1663,6 +1955,7 @@ export default {
       })
       this.$logger.info('this.form.learnOuts', this.form.learnOuts)
       this.selectSyncDataVisible = false
+      this.handleCancelSelectData()
     },
     handleRemoveLearnOuts (data) {
       this.$logger.info('handleRemoveLearnOuts', data)
@@ -1676,10 +1969,10 @@ export default {
       if (typeof current === 'number') {
         this.setSessionStep(current)
         setTimeout(function () {
-            const returnEle = document.querySelector('.ant-layout-content')
-            if (returnEle) {
-              returnEle.scrollIntoView(true) // true 是默认的
-            }
+          const returnEle = document.querySelector('.ant-layout-content')
+          if (returnEle) {
+            returnEle.scrollIntoView(true) // true 是默认的
+          }
         }, 100)
       }
     },
@@ -1732,6 +2025,11 @@ export default {
           CustomTagType.plan.bigIdea.forEach(name => {
             this.customTagList.push(name)
           })
+        } else if (currentDom && currentDom.classList.contains('unit-question')) {
+          currentFocus = 'question'
+          CustomTagType.plan.question.forEach(name => {
+            this.customTagList.push(name)
+          })
         }
         if (currentDom && currentDom.classList.contains('root-locate-form')) {
           console.log(currentDom.classList)
@@ -1743,8 +2041,7 @@ export default {
       if (currentFocus) {
         this.customTagTop = formTop - 20
         this.showCustomTag = true
-        this.showCollaborateCommentVisible = false
-        this.showAllCollaborateCommentVisible = false
+        this.setRightModuleVisible(this.rightModule.customTag)
       } else {
         // CustomTagType.plan.default.forEach(name => {
         //   this.customTagList.push(name)
@@ -1755,23 +2052,22 @@ export default {
             this.customTagList.push(tag.name)
           }
         })
-        this.customTagTop = 300
         this.showCustomTag = false
+        this.customTagTop = 0
+        // this.showModuleList.push(RightModule.imageUpload)
+        this.setRightModuleVisible()
       }
     },
 
     // 切换当前的字段的点评数据，从总的collaborateCommentList筛选初当前字段相关的点评数据
     handleSwitchComment (data) {
       this.$logger.info('handleSwitchComment', data)
+      this.setRightModuleVisible(this.rightModule.collaborateComment)
       if (!data.activeStatus) {
         // 关闭
-        this.showCollaborateCommentVisible = false
-        this.showCustomTag = true
         return
       }
       this.currentFieldName = data.fieldName
-      this.showAllCollaborateCommentVisible = false
-      this.showCustomTag = false
       this.currentCollaborateCommentList = []
       const list = []
       this.collaborateCommentList.forEach(item => {
@@ -1781,15 +2077,20 @@ export default {
       })
       this.currentCollaborateCommentList = list
       this.collaborateTop = data.top
-      this.showCollaborateCommentVisible = true
+      // this.showCollaborateCommentVisible = true
       this.$logger.info('currentCollaborateCommentList', list)
     },
 
     // 每次点击都重新加载一下最新数据
     handleViewCollaborate () {
       this.$logger.info('handleViewCollaborate')
-      this.showAllCollaborateCommentVisible = !this.showAllCollaborateCommentVisible
-      this.showCollaborateCommentVisible = false
+      if (this.showModuleList.indexOf(this.rightModule.collaborate) !== -1) {
+        this.resetRightModuleVisible()
+      } else {
+        this.setRightModuleVisible(this.rightModule.collaborate)
+      }
+      // this.showAllCollaborateCommentVisible = !this.showAllCollaborateCommentVisible
+      // this.showCollaborateCommentVisible = false
       this.currentCollaborateCommentList = []
       this.showHistoryLoading = true
       this.loadCollaborateData().then(() => {
@@ -1932,6 +2233,26 @@ export default {
     handleEditTask (item) {
       window.open('/teacher/task-redirect/' + item.id
         , '_blank')
+    },
+    handleClickTaskDetail (e) {
+      this.$logger.info('handleClickTaskDetail', this.showTaskDetails)
+      this.setRightModuleVisible(this.rightModule.taskDetails)
+      // this.showTaskDetails = !this.showTaskDetails
+      const eventDom = e.target
+      let formTop = eventDom.offsetTop
+      let currentDom = eventDom.offsetParent
+      while (currentDom !== null) {
+        formTop += currentDom.offsetTop
+        currentDom = currentDom.offsetParent
+        if (currentDom.classList && currentDom.classList.contains('root-locate-form')) {
+          console.log(currentDom.classList)
+          break
+        }
+      }
+      this.taskDetailsTop = formTop
+      console.log(this.taskDetailsTop)
+      e.preventDefault()
+      e.stopPropagation()
     }
   }
 }
@@ -2030,7 +2351,8 @@ export default {
   .main-content {
     .image-preview {
       img {
-        max-height: 250px;
+        height: 250px;
+        max-width: 100%;
         /*width: 100%;*/
       }
     }
@@ -2129,7 +2451,7 @@ export default {
           padding: 0 5px;
         }
         .my-big-select{
-          width: 600px;
+          //width: 600px;
         }
       }
 
@@ -2176,7 +2498,7 @@ export default {
       }
     }
     .content-blocks {
-      width: 600px;
+      //width: 600px;
       position: relative;
       border: 1px dotted #fff;
       .scenario-description{
@@ -2371,7 +2693,7 @@ export default {
 
 .task-audio-line {
   position: relative;
-  width: 600px;
+  //width: 600px;
   .task-audio {
     position: absolute;
     right: -55px;
@@ -2479,12 +2801,12 @@ export default {
 }
 
 //.form-block {
-  //position: relative;
-  //box-sizing: border-box;
-  //margin-bottom: 10px;
-  //border: 1px solid #fff;
-  //padding: 10px 150px 10px 10px;
-  //border-radius: 3px;
+//position: relative;
+//box-sizing: border-box;
+//margin-bottom: 10px;
+//border: 1px solid #fff;
+//padding: 10px 150px 10px 10px;
+//border-radius: 3px;
 //}
 
 .subject-grade-wrapper {
@@ -2499,7 +2821,6 @@ export default {
 }
 
 .form-block {
-  width: 600px;
   margin-bottom: 10px;
   position: relative;
   &:hover {
@@ -2563,16 +2884,14 @@ export default {
 .card-wrapper{
   .unit-plan-form-left {
     position: relative;
-    width: 700px;
   }
 
   .unit-plan-form-right {
     position: relative;
-    width: 600px;
     .form-block-right{
       .img-wrapper {
         position: relative;
-        width: 600px;
+        width:100%;
       }
       .delete-img {
         position: absolute;
@@ -2595,6 +2914,10 @@ export default {
 .form-input-item {
   margin-bottom: 20px;
   position: relative;
+}
+.my-form-textarea{
+  height:40px;
+  margin-bottom: 10px;
 }
 
 .preview-wrapper-row{
@@ -2670,13 +2993,14 @@ export default {
   .sdg-form-block {
     border: 1px solid #15C39A !important;
     .my-big-select{
-      width: 600px;
+      //width: 600px;
     }
   }
 
 }
 
 .inquiry {
+  width:96%;
   .inquiry-form-block {
     border: 1px solid #15C39A !important;
   }
@@ -2688,7 +3012,7 @@ export default {
   }
 }
 #inquiry{
-  margin-top: -10px;
+  //margin-top: -10px;
   position: relative;
 }
 
@@ -2713,7 +3037,7 @@ export default {
   font-size: 20px;
   padding: 0px 5px;
   position: absolute;
-  right: -30px;
+  right: -5px;
   top: 50px;
   cursor: pointer;
   display: flex;
@@ -2825,5 +3149,38 @@ code{
   font-size: .9em;
   border: 1px solid #eee;
   color: rgba(0, 0, 0, 0.85);
+}
+.grade-time{
+  display: flex;
+  justify-content:space-between;
+  .range-time{
+    /deep/ .ant-input{
+      border-radius: 4px;
+      font-size:13px;
+      width:100%;
+      padding: 6px 7px;
+    }
+    .week-time{
+      position: absolute;
+      /* width: 300px; */
+      top: -50px;
+      right: 0px
+    }
+  }
+
+}
+.assessment-task-button{
+  border: none;
+  font-size: 18px;
+  font-family: Inter-Bold;
+  line-height: 24px;
+  color: #15C39A;
+  opacity: 1;
+  float: right;
+  margin-top: 5px;
+}
+.addCategory /deep/ .anticon{
+  position: absolute;
+  left: 20px;
 }
 </style>

@@ -27,7 +27,10 @@
                         @keyup.enter="handleTabInputConfirm(editTabName)"
                       ></a-input>
                     </div>
-                    <div v-if="editTabIndex !== index">{{ tag[0] }}<a-icon v-show="canDeleteTab" @click="deleteTab(tag[0])" type="close-circle" /></div>
+                    <div v-if="editTabIndex !== index" @dblclick="handleEditTabName(tag, index)">
+                      {{ tag[0] }}
+                      <a-icon v-show="canDeleteTab" @click.stop="deleteTab(tag[0])" type="close-circle" />
+                    </div>
                   </span>
                   <div class="tab-content">
                     <a-col offset="0" :span="24">
@@ -149,7 +152,7 @@
 
 <script>
 import * as logger from '@/utils/logger'
-import { AddUserTagNew, FindCustomTags, AddUserParentTag, UserTagDeleteNew } from '@/api/tag'
+import { AddUserParentTag, AddUserTagNew, FindCustomTags, UpdateUserParentTag, UserTagDeleteNew } from '@/api/tag'
 import { UtilMixin } from '@/mixins/UtilMixin'
 
 const { debounce } = require('lodash-es')
@@ -185,7 +188,9 @@ export default {
       tagDeleteLoading: false,
 
       // 允许通过点击空白处确认输入
-      allowClickEnsureInput: false
+      allowClickEnsureInput: false,
+      isEditTagName: false,
+      currentEditTag: ''
     }
   },
   created () {
@@ -205,7 +210,7 @@ export default {
       }
       let activeKey = `Name your category`
       if (this.userTagsMap.has(activeKey)) {
-        activeKey = activeKey + '-1'
+        activeKey = activeKey + '-' + this.userTagsMap.size
       }
       this.editTabIndex = this.userTagsMap.size
       this.editTabName = activeKey
@@ -344,6 +349,14 @@ export default {
         this.confirmVisible = true
     },
 
+    handleEditTabName (tag, index) {
+      this.$logger.info('handleEditTabName', tag, index)
+      this.isEditTagName = true
+      this.currentEditTag = tag[0]
+      this.editTabIndex = index
+      this.editTabName = tag[0]
+    },
+
     // 如果正在编辑中，那么点击其他空白地方，自动保存当前编辑内容。和键盘按下Enter效果一样
     handleEnsureInput (event) {
       this.$logger.info('handleEnsureInput ' + this.editTabName)
@@ -358,20 +371,38 @@ export default {
         this.$message.warn('Please input tag type name')
         return
       }
-      this.tagLoading = true
-      AddUserParentTag({ parentName: tag }).then((response) => {
-        this.$logger.info('add AddUserParentTag ', response.result)
-        if (response.success) {
-          this.editTabIndex = -1
-          this.selectLabel = tag
-          // this.userTagsMap = new Map()
-          this.handleUserTagsMap()
-          this.$message.success('Add tag type successfully')
-        } else {
-          this.$message.error(response.message)
-        }
-        this.tagLoading = false
-      })
+      this.$logger.info('tag', this.currentEditTag, this.editTabName)
+      if (this.isEditTagName) {
+        this.tagLoading = true
+        UpdateUserParentTag({ name: this.currentEditTag, newName: this.editTabName }).then((response) => {
+          this.$logger.info('add UpdateUserParentTag ', response.result)
+          if (response.success) {
+            this.editTabIndex = -1
+            this.selectLabel = tag
+            // this.userTagsMap = new Map()
+            this.handleUserTagsMap()
+            this.$message.success('Update tag type successfully')
+          } else {
+            this.$message.error(response.message)
+          }
+          this.tagLoading = false
+        })
+      } else {
+        this.tagLoading = true
+        AddUserParentTag({ parentName: tag }).then((response) => {
+          this.$logger.info('add AddUserParentTag ', response.result)
+          if (response.success) {
+            this.editTabIndex = -1
+            this.selectLabel = tag
+            // this.userTagsMap = new Map()
+            this.handleUserTagsMap()
+            this.$message.success('Add tag type successfully')
+          } else {
+            this.$message.error(response.message)
+          }
+          this.tagLoading = false
+        })
+      }
     }
   }
 

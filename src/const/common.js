@@ -15,7 +15,9 @@ export const TagType = {
   'century': 3,
   'common': 4,
   'idu': 5,
-  'ibSkill': 6
+  'ibSkill': 6,
+  'bigIdea': 'bigIdea', // 前端自定义类型,后台不存在此类数据
+  'assessment': 'assessment' // 前端自定义类型,后台不存在此类数据
 }
 
 export const SubjectType = {
@@ -50,8 +52,9 @@ export const TemplateType = {
 export const CustomTagType = {
   plan: {
     sdg: [TAG_CATGORY_KEYWORDS],
-    bigIdea: ['Key words', 'Global context', 'Universal Concept'],
-    default: ['Teaching strategies', 'Differentiated instructions']
+    bigIdea: ['Global Context', 'Key Concepts', 'Relevant Concepts'],
+    default: ['Teaching strategies', 'Differentiated instructions'],
+    question: ['Knowledge Dimensions']
   },
   task: {
     sa: ['Teaching strategies', 'Differentiated instructions', 'The Arts-Assessment types', 'Science-Assessment types', 'Assessment as Learning', 'Assessment of Learning'],

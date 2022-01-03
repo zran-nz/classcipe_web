@@ -1,6 +1,6 @@
 <template>
   <a-row class="common-form-header">
-    <a-col span="17">
+    <a-col span="15">
       <a-space>
         <span class="back-icon">
           <a-icon type="left" />
@@ -32,12 +32,39 @@
         </template>
       </a-space>
     </a-col>
-    <a-col span="7" class="unit-right-action">
-      <a-space>
+    <a-col span="9" class="unit-right-action">
+      <a-space v-show="!hiddenRightButton">
+        <div class="collaborate-users">
+          <a-dropdown v-show="collaborateUserList.length > 3">
+            <a class="ant-dropdown-link" >
+              Others <a-icon type="more" />
+            </a>
+            <a-menu slot="overlay">
+              <a-menu-item v-if="index > 2" v-for="(user,index) in collaborateUserList" :key="index">
+                <a-avatar size="small" class="user-item" :src="user.userAvatar" />
+                {{ user.userName }}
+              </a-menu-item>
+            </a-menu>
+          </a-dropdown>
+          <div v-if="index < 3" v-for="(user,index) in collaborateUserList" :key="index">
+            <a-tooltip :title="user.userName" placement="bottom">
+              <a-avatar size="small" class="user-item" :src="user.userAvatar" />
+            </a-tooltip>
+          </div>
+          <a-tooltip :title="owner.email" placement="bottom" v-if="owner && !isOwner && isCollaborater">
+            <a-avatar size="small" class="user-item" :src="owner.avatar" />
+          </a-tooltip>
+        </div>
+        <a-tooltip title="Collaborate" v-show="isOwner">
+          <div class="collaborate-comment" @click="handleStartCollaborate">
+            <collaborate-user-icon class="active-icon"/>
+          </div>
+        </a-tooltip>
         <div class="collaborate-comment" @click="handleViewComment" v-if="form.type !== typeMap.evaluation">
           <comment-icon class="active-icon"/>
         </div>
         <a-button
+          v-show="isOwner || isEditCollaborater"
           @click="handleSave"
           :loading="saving"
           class="my-form-header-btn"
@@ -55,12 +82,18 @@
           <div class="btn-icon">
             <img src="~@/assets/icons/common/form/baocun@2x.png" />
           </div>
-          <div class="btn-text">
+          <div
+            class="btn-text"
+            :data-isOwner="isOwner + ''"
+            :data-isEditCollaborater="isEditCollaborater + ''" >
             Save & Exit
           </div>
+          <!--          <div class="btn-text" v-else>-->
+          <!--            Copy & Exit-->
+          <!--          </div>-->
         </a-button>
         <a-button
-          v-if="isOwner && form.status === 0"
+          v-show="isOwner && form.status === 0"
           :loading="publishing"
           class="my-form-header-btn"
           style="{
@@ -78,7 +111,10 @@
           <div class="btn-icon">
             <img src="~@/assets/icons/common/form/fabu@2x.png" />
           </div>
-          <div class="btn-text">
+          <div
+            class="btn-text"
+            :data-isOwner="isOwner + ''"
+            :data-form-status="form.status + ''" >
             Save & Publish
           </div>
         </a-button>
@@ -102,33 +138,36 @@
           <div class="btn-icon">
             <a-icon style="font-size: 16px" theme="filled" type="down-square" />
           </div>
-          <div class="btn-text">
+          <div
+            class="btn-text"
+            :data-isOwner="isOwner + ''"
+            :data-form-status="form.status + ''" >
             Unpublish
           </div>
         </a-button>
 
-        <a-button
-          v-if="showCollaborate && isOwner"
-          class="my-form-header-btn"
-          style="{
-            width: 120px;
-            display: flex;
-            flex-direction: row;
-            align-items: center;
-            justify-content: center;
-              background: rgba(21, 195, 154, 0.08);
-            border: 1px solid #15C39A;
-            border-radius: 20px;
-            padding: 15px 20px;
-          }"
-          @click="handleStartCollaborate">
-          <div class="btn-icon">
-            <img src="~@/assets/icons/common/form/fengxiang@2x.png" />
-          </div>
-          <div class="btn-text">
-            Collaborate
-          </div>
-        </a-button>
+        <!--        <a-button-->
+        <!--          v-if="showCollaborate && isOwner"-->
+        <!--          class="my-form-header-btn"-->
+        <!--          style="{-->
+        <!--            width: 120px;-->
+        <!--            display: flex;-->
+        <!--            flex-direction: row;-->
+        <!--            align-items: center;-->
+        <!--            justify-content: center;-->
+        <!--              background: rgba(21, 195, 154, 0.08);-->
+        <!--            border: 1px solid #15C39A;-->
+        <!--            border-radius: 20px;-->
+        <!--            padding: 15px 20px;-->
+        <!--          }"-->
+        <!--          @click="handleStartCollaborate">-->
+        <!--          <div class="btn-icon">-->
+        <!--            <img src="~@/assets/icons/common/form/fengxiang@2x.png" />-->
+        <!--          </div>-->
+        <!--          <div class="btn-text">-->
+        <!--            Collaborate-->
+        <!--          </div>-->
+        <!--        </a-button>-->
       </a-space>
     </a-col>
   </a-row>
@@ -137,6 +176,7 @@
 <script>
 
 import CommentIcon from '@/assets/icons/collaborate/comment.svg?inline'
+import CollaborateUserIcon from '@/assets/icons/collaborate/collaborate_user.svg?inline'
 import ContentTypeIcon from '@/components/Teacher/ContentTypeIcon'
 import { typeMap } from '@/const/teacher'
 import EditIcon from '@/assets/svgIcon/evaluation/bianji.svg?inline'
@@ -145,10 +185,15 @@ export default {
   components: {
     CommentIcon,
     ContentTypeIcon,
-    EditIcon
+    EditIcon,
+    CollaborateUserIcon
   },
   props: {
     form: {
+      type: Object,
+      default: () => null
+    },
+    collaborate: {
       type: Object,
       default: () => null
     },
@@ -159,6 +204,10 @@ export default {
     showCollaborate: {
       type: Boolean,
       default: true
+    },
+    hiddenRightButton: {
+      type: Boolean,
+      default: false
     }
   },
   data () {
@@ -167,12 +216,31 @@ export default {
       saving: false,
       typeMap: typeMap,
       editFormNameMode: false,
-      formName: ''
+      formName: '',
+      collaborateUserList: [],
+      owner: {}
     }
   },
   computed: {
     isOwner () {
       return this.$store.getters.userInfo.email === this.form.createBy
+    },
+    isCollaborater () {
+      const index = this.collaborateUserList.findIndex(item => item.email === this.$store.getters.userInfo.email)
+      return index > -1
+    },
+    isEditCollaborater () {
+      const index = this.collaborateUserList.findIndex(item => item.email === this.$store.getters.userInfo.email)
+      if (index > -1) {
+        return this.collaborateUserList[index].permissions === 'Edit'
+      }
+      return false
+    }
+  },
+  watch: {
+    collaborate (val) {
+      this.collaborateUserList = val.users
+      this.owner = val.owner
     }
   },
   created () {
@@ -180,11 +248,21 @@ export default {
     if (this.form && this.form.name) {
       this.formName = this.form.name
     }
+    this.collaborateUserList = this.collaborate.users ? this.collaborate.users : []
+    this.owner = this.collaborate.owner
   },
   methods: {
     handleBack () {
       this.$logger.info('handleBack')
-      this.$emit('back')
+      if (this.isOwner) {
+        this.$router.push({ path: '/teacher/main/created-by-me' })
+      } else if (this.isCollaborater) {
+        this.$router.push({ path: '/teacher/main/shared' })
+      } else {
+        this.$router.push({ path: '/teacher/main/created-by-me' })
+      }
+
+      // this.$emit('back')
     },
     handleSave () {
       this.saving = true
@@ -265,6 +343,13 @@ export default {
     right: 10px;
     justify-content: flex-end;
     .my-form-header-btn{
+
+    }
+    .collaborate-users{
+      display: flex;
+      .user-item{
+        margin:0px 4px;
+      }
     }
 
     .collaborate-comment {

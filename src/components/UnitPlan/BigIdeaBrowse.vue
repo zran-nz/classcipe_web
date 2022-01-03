@@ -17,7 +17,7 @@
           <div class="col-input-serach">
             <a-input-search
               v-model="inputTag"
-              placeholder="Create Tags"
+              placeholder="Search tags"
               class="search-input"
               @search="searchTag"
               @keyup="searchTag" >

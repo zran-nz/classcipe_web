@@ -151,7 +151,7 @@
         <tr v-for="(item, lIndex) in list" class="body-line" :key="lIndex" :data-row-id="item.rowId">
           <td
             v-for="(header, hIndex) in headers"
-            class="body-item"
+            :class="{'body-item': true, 'big-body-item': formType === tableType.CenturySkills && header.type === headerType.Description}"
             :key="lIndex + '-' + header.type"
             @click="handleClickBodyItem(item, header)"
             v-if="!(header.type === headerType.Evidence && !(mode === tableMode.TeacherEvaluate || mode === tableMode.StudentEvaluate))"
@@ -163,14 +163,14 @@
               <template v-if="header.type === headerType.Criteria">
                 <template v-if="formType === tableType.CenturySkills">
                   <template v-if="!item[headerType.Criteria] || !item[headerType.Criteria].name">
-                    <div class="data-item add-criteria" @click="handleAddCriteria(header, item, $event)" v-show="mode === tableMode.Edit">
+                    <div class="data-item add-criteria" @click.stop="handleAddCriteria(header, item, $event)" v-show="mode === tableMode.Edit">
                       <add-opacity-icon />
                       <div class="add-text">Click to choose the objectives</div>
                     </div>
                   </template>
                   <template v-else>
-                    <div class="data-item criteria-data">
-                      <div class="criteria-name" @dblclick="handleAddCriteria(header, item, $event)">
+                    <div class="data-item criteria-data" @dblclick.stop="handleAddCriteria(header, item, $event)">
+                      <div class="criteria-name">
                         {{ item[headerType.Criteria].name }}
                       </div>
                     </div>
@@ -225,9 +225,21 @@
                     </div>
                   </template>
                   <template v-else>
-                    <div class="data-item criteria-data" @dblclick="handleAddCriteria(header, item, $event)">
-                      <div class="criteria-name">
-                        {{ item[headerType.Description].name }}
+                    <div class="data-item criteria-data">
+                      <div class="criteria-name my-century-criteria" @dblclick="handleAddCriteria(header, item, $event)">
+                        <div class="criteria-left-name-list">
+                          <div :class="{'criteria-left-name-item': true, 'first-left-name': nIndex === 0, 'no-first-name': nIndex > 0}" v-for="(name, nIndex) in item[headerType.Description].parentNameList" :key="nIndex">
+                            {{ name }}
+                          </div>
+                        </div>
+                        <div class="criteria-right-description">
+                          <div class="description-name">
+                            {{ item[headerType.Description].userInputText ? item[headerType.Description].userInputText : item[headerType.Description].name }}
+                          </div>
+                          <span class="edit-description" @click.stop="handleClickEnterCriteriaDescription(header, item)">
+                            Please enter explanation for students to understand
+                          </span>
+                        </div>
                       </div>
                     </div>
                   </template>
@@ -238,7 +250,7 @@
             <template v-if="mode === tableMode.Edit">
               <!-- Indicators-->
               <template v-if="header.type === headerType.Indicators">
-                <div class="indicator-input">
+                <div class="my-indicator-input">
                   <a-textarea style="height: 100%" placeholder="Enter task specific indicators" class="my-text-input" v-model="item[headerType.Indicators].name" @blur="handleUpdateField(header, item)"/>
                 </div>
               </template>
@@ -265,46 +277,103 @@
 
               <!-- UserDefine-->
               <template v-if="header.type.startsWith(headerType.UserDefine)">
-                <div class="indicator-input">
+                <div class="user-define-indicator-input">
                   <a-textarea style="height: 100%" placeholder="Enter" class="my-text-input" v-model="item[header.type].name" @blur="handleUpdateField(header, item)"/>
                 </div>
               </template>
             </template>
 
+            <!-- AchievementLevel-->
+            <template v-if="header.type === headerType.AchievementLevel">
+              <div class="sub-level-data" :data="JSON.stringify(formBodyData && formBodyData[item.rowId] && formBodyData[item.rowId])">
+                <div class="sub-level-list">
+                  <div class="sub-level-item" v-for="(subLevel, sIndex) in item[headerType.AchievementLevel].subLevelDescription" :key="sIndex">
+                    <template v-if="mode === tableMode.Edit">
+                      <div class="start-index" @click.stop="handleSwitchModeTips" >
+                        <div class="select-block">
+                          <a-icon
+                            class="select-block-icon"
+                            type="border" />
+                        </div>
+                        {{ subLevel.startIndex }}
+                      </div>
+                      <div class="end-index" @click.stop="handleSwitchModeTips" v-show="subLevel.endIndex !== null" >
+                        <div class="select-block">
+                          <a-icon
+                            class="select-block-icon"
+                            type="border" />
+                        </div>
+                        {{ subLevel.endIndex }}
+                      </div>
+                    </template>
+                    <template v-if="mode !== tableMode.Edit">
+                      <div class="start-index">
+                        <div class="select-block" @click.stop="handleClickSubLevelItem(item, header, subLevel.startIndex)">
+                          <img src="~@/assets/icons/lesson/selected.png" v-if="formBodyData && formBodyData[item.rowId] && formBodyData[item.rowId].data === subLevel.startIndex"/>
+                          <a-icon
+                            class="select-block-icon"
+                            type="border"
+                            v-else />
+                        </div>
+                        {{ subLevel.startIndex }}
+                      </div>
+                      <div class="end-index" @click.stop="handleClickSubLevelItem(item, header, subLevel.endIndex)" v-show="subLevel.endIndex !== null" >
+                        <div class="select-block">
+                          <img src="~@/assets/icons/lesson/selected.png" v-if="formBodyData && formBodyData[item.rowId] && formBodyData[item.rowId].data === subLevel.endIndex"/>
+                          <a-icon
+                            class="select-block-icon"
+                            type="border"
+                            v-else />
+                        </div>
+                        {{ subLevel.endIndex }}
+                      </div>
+                    </template>
+                  </div>
+                </div>
+              </div>
+              <div
+                class="selected-icon"
+                v-if="header.type !== headerType.AchievementLevel &&
+                  header.type !== headerType.LevelDescriptor &&
+                  header.type !== headerType.Indicators">
+                <teacher-icon v-if="formBodyData && formBodyData[item.rowId] && formBodyData[item.rowId].teacherEvaluation === header.type && (currentEvaluateMode === tableMode.TeacherEvaluate || currentEvaluateMode === tableMode.StudentEvaluate)"/>
+                <student-icon v-if="formBodyData && formBodyData[item.rowId] && formBodyData[item.rowId].studentEvaluation === header.type && (currentEvaluateMode === tableMode.TeacherEvaluate || currentEvaluateMode === tableMode.StudentEvaluate)"/>
+                <peer-icon v-if="formBodyData && formBodyData[item.rowId] && formBodyData[item.rowId].peerEvaluation === header.type && (currentEvaluateMode === tableMode.TeacherEvaluate || currentEvaluateMode === tableMode.PeerEvaluate)"/>
+              </div>
+            </template>
+            <!-- LevelDescriptor-->
+            <template v-if="header.type === headerType.LevelDescriptor">
+              <div class="sub-level-data" @click.stop="">
+                <div class="sub-level-desc">
+                  <div class="sub-level-desc-item" v-for="(subLevel, sIndex) in item[headerType.AchievementLevel].subLevelDescription" :key="sIndex">
+                    <a-tooltip placement="topLeft">
+                      <template slot="title">
+                        {{ subLevel.description }}
+                      </template>
+                      {{ subLevel.description }}
+                    </a-tooltip>
+                  </div>
+                </div>
+              </div>
+              <div class="selected-icon" >
+                <teacher-icon v-if="formBodyData && formBodyData[item.rowId] && formBodyData[item.rowId].teacherEvaluation === header.type && (currentEvaluateMode === tableMode.TeacherEvaluate || currentEvaluateMode === tableMode.StudentEvaluate)"/>
+                <student-icon v-if="formBodyData && formBodyData[item.rowId] && formBodyData[item.rowId].studentEvaluation === header.type && (currentEvaluateMode === tableMode.TeacherEvaluate || currentEvaluateMode === tableMode.StudentEvaluate)"/>
+                <peer-icon v-if="formBodyData && formBodyData[item.rowId] && formBodyData[item.rowId].peerEvaluation === header.type && (currentEvaluateMode === tableMode.TeacherEvaluate || currentEvaluateMode === tableMode.PeerEvaluate)"/>
+              </div>
+            </template>
+
             <!-- 老师可以看到所有的评估数据，学生自评可以看到自己的和教师的，他评只能看到自己的-->
             <template v-if="mode === tableMode.TeacherEvaluate || mode === tableMode.StudentEvaluate || mode === tableMode.PeerEvaluate">
-              <!-- AchievementLevel-->
-              <template v-if="header.type === headerType.AchievementLevel">
-                <div class="indicator-data">
-                  {{ item[headerType.Indicators].name }}
-                </div>
-                <div class="selected-icon" >
-                  <teacher-icon v-if="formBodyData && formBodyData[item.rowId] && formBodyData[item.rowId].teacherEvaluation === header.type && (currentEvaluateMode === tableMode.TeacherEvaluate || currentEvaluateMode === tableMode.StudentEvaluate)"/>
-                  <student-icon v-if="formBodyData && formBodyData[item.rowId] && formBodyData[item.rowId].studentEvaluation === header.type && (currentEvaluateMode === tableMode.TeacherEvaluate || currentEvaluateMode === tableMode.StudentEvaluate)"/>
-                  <peer-icon v-if="formBodyData && formBodyData[item.rowId] && formBodyData[item.rowId].peerEvaluation === header.type && (currentEvaluateMode === tableMode.TeacherEvaluate || currentEvaluateMode === tableMode.PeerEvaluate)"/>
-                </div>
-              </template>
-              <!-- LevelDescriptor-->
-              <template v-if="header.type === headerType.LevelDescriptor">
-                <div class="indicator-data">
-                  {{ item[headerType.Indicators].name }}
-                </div>
-                <div class="selected-icon" >
-                  <teacher-icon v-if="formBodyData && formBodyData[item.rowId] && formBodyData[item.rowId].teacherEvaluation === header.type && (currentEvaluateMode === tableMode.TeacherEvaluate || currentEvaluateMode === tableMode.StudentEvaluate)"/>
-                  <student-icon v-if="formBodyData && formBodyData[item.rowId] && formBodyData[item.rowId].studentEvaluation === header.type && (currentEvaluateMode === tableMode.TeacherEvaluate || currentEvaluateMode === tableMode.StudentEvaluate)"/>
-                  <peer-icon v-if="formBodyData && formBodyData[item.rowId] && formBodyData[item.rowId].peerEvaluation === header.type && (currentEvaluateMode === tableMode.TeacherEvaluate || currentEvaluateMode === tableMode.PeerEvaluate)"/>
-                </div>
-              </template>
               <!-- Indicators-->
               <template v-if="header.type === headerType.Indicators">
                 <div class="indicator-data">
                   {{ item[headerType.Indicators].name }}
                 </div>
-                <div class="selected-icon" >
-                  <teacher-icon v-if="formBodyData && formBodyData[item.rowId] && formBodyData[item.rowId].teacherEvaluation === header.type && (currentEvaluateMode === tableMode.TeacherEvaluate || currentEvaluateMode === tableMode.StudentEvaluate)"/>
-                  <student-icon v-if="formBodyData && formBodyData[item.rowId] && formBodyData[item.rowId].studentEvaluation === header.type && (currentEvaluateMode === tableMode.TeacherEvaluate || currentEvaluateMode === tableMode.StudentEvaluate)"/>
-                  <peer-icon v-if="formBodyData && formBodyData[item.rowId] && formBodyData[item.rowId].peerEvaluation === header.type && (currentEvaluateMode === tableMode.TeacherEvaluate || currentEvaluateMode === tableMode.PeerEvaluate)"/>
-                </div>
+                <!--                <div class="selected-icon" >-->
+                <!--                  <teacher-icon v-if="formBodyData && formBodyData[item.rowId] && formBodyData[item.rowId].teacherEvaluation === header.type && (currentEvaluateMode === tableMode.TeacherEvaluate || currentEvaluateMode === tableMode.StudentEvaluate)"/>-->
+                <!--                  <student-icon v-if="formBodyData && formBodyData[item.rowId] && formBodyData[item.rowId].studentEvaluation === header.type && (currentEvaluateMode === tableMode.TeacherEvaluate || currentEvaluateMode === tableMode.StudentEvaluate)"/>-->
+                <!--                  <peer-icon v-if="formBodyData && formBodyData[item.rowId] && formBodyData[item.rowId].peerEvaluation === header.type && (currentEvaluateMode === tableMode.TeacherEvaluate || currentEvaluateMode === tableMode.PeerEvaluate)"/>-->
+                <!--                </div>-->
               </template>
               <template v-if="header.type === headerType.Novice">
                 <div class="indicator-data">
@@ -373,7 +442,7 @@
               </div>
             </template>
 
-            <template v-if="hIndex === headers.length - 1 && mode === tableMode.Edit">
+            <template v-if="hIndex === headers.length - 2 && mode === tableMode.Edit">
               <div class="add-more-header">
                 <a-popconfirm :title="'Delete this line ?'" class="rubric-delete-popconfirm" ok-text="Yes" @confirm="handleDeleteLine(item)" cancel-text="No">
                   <template slot="icon">
@@ -519,7 +588,7 @@ export default {
       selfHeaderAddIndex: 1,
       headers: [], // 表头
       list: [], // 表结构数据
-      defaultActiveMenu: NavigationType.learningOutcomes,
+      defaultActiveMenu: NavigationType.specificSkills,
       showMenuList: [ NavigationType.centurySkills ],
       mode: null,
 
@@ -597,7 +666,7 @@ export default {
       } else if (this.formType === EvaluationTableType.Rubric_2) {
         this.headers = [
           { label: 'Description', previewLabel: 'Description', type: EvaluationTableHeader.Description, editable: false, editing: false, required: true },
-          { label: 'Unnamed level', previewLabel: 'Unnamed level', type: EvaluationTableHeader.Indicators, editable: true, editing: false, required: false },
+          { label: 'Unnamed level', previewLabel: 'Unnamed level', type: EvaluationTableHeader.UserDefine, editable: true, editing: false, required: false },
           { label: 'Evidence', previewLabel: 'Evidence', type: EvaluationTableHeader.Evidence, editable: false, editing: false, required: true }
         ]
       } else if (this.formType === EvaluationTableType.CenturySkills) {
@@ -752,13 +821,31 @@ export default {
       })
 
       if (this.formType === this.tableType.CenturySkills) {
+        newLineItem[this.headerType.Description] = {
+          name: null,
+          rowId,
+          parentNameList: []
+        }
+
         newLineItem[this.headerType.Evidence] = {
           num: 0,
           selectedList: [],
           selectedStudentList: [],
           rowId
         }
-      } else if (this.formType === this.tableType.Rubric || this.formType === this.tableType.Rubric_2) {
+      } else if (this.formType === this.tableType.Rubric) {
+        newLineItem[this.headerType.AchievementLevel] = {
+          rowId,
+          subLevelDescription: []
+        }
+
+        newLineItem[this.headerType.Evidence] = {
+          num: 0,
+          selectedList: [],
+          selectedStudentList: [],
+          rowId
+        }
+      } else if (this.formType === this.tableType.Rubric_2) {
         newLineItem[this.headerType.Evidence] = {
           num: 0,
           selectedList: [],
@@ -797,9 +884,36 @@ export default {
           rowId: item.rowId,
           value: header.type, // 评价所选的列
           evaluateUserEmail: this.mode === EvaluationTableMode.TeacherEvaluate ? this.$store.getters.userInfo.email : this.evaluateStudentId,
-          evaluateUserName: this.mode === EvaluationTableMode.TeacherEvaluate ? this.$store.getters.userInfo.nickname : this.evaluateStudentName
+          evaluateUserName: this.mode === EvaluationTableMode.TeacherEvaluate ? this.$store.getters.userInfo.nickname : this.evaluateStudentName,
+          data: null
         })
       }
+    },
+
+    handleClickSubLevelItem (item, header, subLevel) {
+      this.$logger.info(subLevel + ' [' + this.mode + '][' + this.currentEvaluateMode + '] handleClickSubLevelItem ' + header.label, item, 'header', header)
+      if ([EvaluationTableHeader.Indicators,
+        EvaluationTableHeader.Novice,
+        EvaluationTableHeader.Learner,
+        EvaluationTableHeader.Practitoner,
+        EvaluationTableHeader.AchievementLevel,
+        EvaluationTableHeader.LevelDescriptor,
+        EvaluationTableHeader.Expert,
+        EvaluationTableHeader.UserDefine].indexOf(header.type) !== -1 || header.type.startsWith(EvaluationTableHeader.UserDefine)) {
+        this.$emit('update-evaluation', {
+          formId: this.formId,
+          evaluationMode: this.currentEvaluateMode,
+          rowId: item.rowId,
+          value: header.type, // 评价所选的列
+          evaluateUserEmail: this.mode === EvaluationTableMode.TeacherEvaluate ? this.$store.getters.userInfo.email : this.evaluateStudentId,
+          evaluateUserName: this.mode === EvaluationTableMode.TeacherEvaluate ? this.$store.getters.userInfo.nickname : this.evaluateStudentName,
+          data: subLevel
+        })
+      }
+    },
+
+    handleSwitchModeTips () {
+      this.$message.warn('Please switch to evaluation mode first!')
     },
 
     handleAddCriteria  (header, item, event) {
@@ -811,7 +925,7 @@ export default {
           /**
            * 第一种评估表能看到
            Learning outcomes
-           Subject specific skills
+           Achievement objectives
            Assessment types
            */
           this.showMenuList = [NavigationType.learningOutcomes, NavigationType.specificSkills, NavigationType.assessmentType]
@@ -819,7 +933,7 @@ export default {
         } else if (this.formType === this.tableType.Rubric) {
           /**
            * 第二种能看到IB大纲下的
-           * Subject specific skills，及IDU
+           * Achievement objectives，及IDU
            */
           this.showMenuList = [NavigationType.specificSkills, NavigationType.idu]
           this.defaultActiveMenu = NavigationType.specificSkills
@@ -853,7 +967,7 @@ export default {
     },
 
     handleEnsureSelectCriteria () {
-      this.$logger.info('[' + this.mode + '] handleEnsureSelectCriteria')
+      this.$logger.info('[' + this.mode + '] handleEnsureSelectCriteria', 'this.list', this.list)
       this.selectCurriculumVisible = false
 
       const selectedList = []
@@ -877,6 +991,7 @@ export default {
         selectedList.push(item)
       })
 
+      this.$logger.info('formType ' + this.formType + ' selectedList', selectedList)
       if (this.formType === this.tableType.CenturySkills) {
         if (selectedList.length >= 1) {
           /**
@@ -887,49 +1002,13 @@ export default {
            AU-General capabilities的入口，然后在第二列点击后看到21st century skills数据入口
            */
           const header = Object.assign(this.currentSelectHeader)
-          if (header.type === this.headerType.Criteria) {
-            this.currentSelectLine[this.headerType.Criteria] = {
-              name: selectedList[0].name,
-              rowId: this.currentSelectLine.rowId
-            }
-            this.$logger.info('[' + this.mode + '] update currentSelectLine with criteria data ', this.currentSelectLine)
-
-            // 如果多选，从第二个元素开始新建行填充数据
-            if (selectedList.length > 1) {
-              selectedList.forEach((item, index) => {
-                if (index > 0) {
-                  const newLineItem = {}
-                  const rowId = this.generateRowId()
-                  newLineItem.rowId = rowId
-                  this.headers.forEach(header => {
-                    newLineItem[header.type] = {
-                      name: null,
-                      rowId
-                    }
-                  })
-                  newLineItem[this.headerType.Criteria] = {
-                    name: item.name,
-                    rowId
-                  }
-
-                  newLineItem[this.headerType.Evidence] = {
-                    num: 0,
-                    selectedList: [],
-                    selectedStudentList: [],
-                    rowId
-                  }
-                  newLineItem.rowId = rowId
-                  this.$logger.info('[' + this.mode + '] CenturySkills add new line with criteria data ', newLineItem)
-                  this.list.push(newLineItem)
-                }
-              })
-            }
-          } else if (header.type === this.headerType.Description) {
+          if (header.type === this.headerType.Description) {
             this.currentSelectLine[this.headerType.Description] = {
               name: selectedList[0].name,
-              rowId: this.currentSelectLine.rowId
+              rowId: this.currentSelectLine.rowId,
+              parentNameList: selectedList[0].parentNameList
             }
-            this.$logger.info('[' + this.mode + '] update currentSelectLine with criteria data ', this.currentSelectLine)
+            this.$logger.info('[' + this.mode + '] update currentSelectLine with Description 1 data ', this.currentSelectLine)
 
             // 如果多选，从第二个元素开始新建行填充数据
             if (selectedList.length > 1) {
@@ -946,7 +1025,52 @@ export default {
                   })
                   newLineItem[this.headerType.Description] = {
                     name: item.name,
+                    rowId,
+                    parentNameList: item.parentNameList
+                  }
+
+                  newLineItem[this.headerType.Evidence] = {
+                    num: 0,
+                    selectedList: [],
+                    selectedStudentList: [],
                     rowId
+                  }
+                  newLineItem.rowId = rowId
+                  this.$logger.info('[' + this.mode + '] CenturySkills add new line with Description data ', newLineItem)
+                  this.list.push(newLineItem)
+                }
+              })
+            }
+          } else if (header.type === this.headerType.Criteria) {
+            this.currentSelectLine[this.headerType.Criteria] = {
+              name: selectedList[0].name,
+              rowId: this.currentSelectLine.rowId
+            }
+
+            this.$logger.info('[' + this.mode + '] update currentSelectLine with criteria 1 data ', this.currentSelectLine)
+
+            // 如果多选，从第二个元素开始新建行填充数据
+            if (selectedList.length > 1) {
+              selectedList.forEach((item, index) => {
+                if (index > 0) {
+                  const newLineItem = {}
+                  const rowId = this.generateRowId()
+                  newLineItem.rowId = rowId
+                  this.headers.forEach(header => {
+                    newLineItem[header.type] = {
+                      name: null,
+                      rowId
+                    }
+                  })
+                  newLineItem[this.headerType.Description] = {
+                    name: null,
+                    rowId,
+                    parentNameList: []
+                  }
+
+                  newLineItem[this.headerType.Criteria] = {
+                    name: item.name,
+                    rowId: newLineItem.rowId
                   }
 
                   newLineItem[this.headerType.Evidence] = {
@@ -963,12 +1087,21 @@ export default {
             }
           }
         }
+
+        this.list = this.list.filter(item => (!item.description || item.description.name))
+        this.$logger.info('CenturySkills 过滤掉没有Description的行', this.list)
       } else if (this.formType === this.tableType.Rubric) {
         if (selectedList.length >= 1) {
           // 如果只选择了一个，使用第一个填充当前行数据
           this.currentSelectLine[this.headerType.Criteria] = {
             name: selectedList[0].name,
             rowId: this.currentSelectLine.rowId
+          }
+
+          this.currentSelectLine[this.headerType.AchievementLevel] = {
+            name: selectedList[0].name,
+            rowId: this.currentSelectLine.rowId,
+            subLevelDescription: selectedList[0].subLevelDescription
           }
 
           this.$logger.info('[' + this.mode + '] update currentSelectLine with criteria data ', this.currentSelectLine)
@@ -990,6 +1123,12 @@ export default {
                   rowId
                 }
 
+                newLineItem[this.headerType.AchievementLevel] = {
+                  name: descriptionItem.name,
+                  rowId,
+                  subLevelDescription: descriptionItem.subLevelDescription
+                }
+
                 newLineItem[this.headerType.Evidence] = {
                   num: 0,
                   selectedList: [],
@@ -1004,6 +1143,8 @@ export default {
             })
           }
         }
+        this.list = this.list.filter(item => (!item.criteria || item.criteria.name))
+        this.$logger.info('Rubric 过滤掉没有criteria的行', this.list)
       } else if (this.formType === this.tableType.Rubric_2) {
         this.$logger.info('[' + this.mode + '] tableType.Rubric selectedList', selectedList)
         if (selectedList.length >= 1) {
@@ -1046,6 +1187,8 @@ export default {
             })
           }
         }
+        this.list = this.list.filter(item => (!item.description || item.description.name))
+        this.$logger.info('Rubric_2 过滤掉没有Description的行', this.list)
       } else {
         this.$logger.info('[' + this.mode + '] rubric form no allow select')
       }
@@ -1066,8 +1209,8 @@ export default {
       this.$logger.info('[' + this.mode + '] handleUpdateField', header, item)
     },
 
-    handleClickEnterDescription (header, item) {
-      this.$logger.info('[' + this.mode + '] handleClickEnterDescription', header, item)
+    handleClickEnterCriteriaDescription (header, item) {
+      this.$logger.info('[' + this.mode + '] handleClickEnterCriteriaDescription', header, item)
       if (this.mode === EvaluationTableMode.Edit) {
         this.inputDescription = item[this.headerType.Description].userInputText
         this.currentEnterDescriptionLine = item
@@ -1131,8 +1274,28 @@ export default {
       this.$logger.info('[' + this.mode + '] EvaluationTable handleSelectSubjectSpecificSkillListData', data)
       const descriptionList = []
       data.forEach(dataItem => {
+        // 处理提取年级和描述数据:
+        const rawSubLevelList = dataItem.knowledgeData.subLevelDescripton
+        const newSubLevelList = []
+        rawSubLevelList.forEach(item => {
+          const indexRange = item[0]
+          const indexRangeArray = indexRange.split('-')
+          const startIndex = parseInt(indexRangeArray[0])
+          let endIndex = null
+          if (indexRangeArray.length === 2) {
+            endIndex = parseInt(indexRangeArray[1])
+          }
+          const description = item[1]
+          newSubLevelList.push({
+            startIndex: startIndex,
+            endIndex: endIndex,
+            description: description
+          })
+        })
+        this.$logger.info('[' + this.mode + '] handle subLevel', rawSubLevelList, newSubLevelList)
         const descriptionItem = {
-          name: dataItem.knowledgeData.name
+          name: dataItem.knowledgeData.name,
+          subLevelDescription: newSubLevelList
         }
 
         descriptionList.push(descriptionItem)
@@ -1145,8 +1308,16 @@ export default {
       this.$logger.info('[' + this.mode + '] EvaluationTable handleSelectCurriculumListData', data)
       const descriptionList = []
       data.forEach(dataItem => {
+        const parentNameList = []
+        let parent = dataItem.knowledgeData.originParent
+        let count = 3
+        while (parent && count-- > 0) {
+          parentNameList.push(parent.name)
+          parent = parent.originParent
+        }
         const descriptionItem = {
-          name: dataItem.knowledgeData.name
+          name: dataItem.knowledgeData.name,
+          parentNameList: parentNameList
         }
 
         descriptionList.push(descriptionItem)
@@ -1173,8 +1344,37 @@ export default {
       this.$logger.info('[' + this.mode + '] EvaluationTable handleSelectIdu', data)
       const descriptionList = []
       data.forEach(dataItem => {
+        // 处理提取年级和描述数据:
+        const rawSubLevelList = dataItem.knowledgeData.subLevelDescripton
+        const newSubLevelList = []
+        rawSubLevelList.forEach(item => {
+          const indexRange = item[0]
+          // 兼容中英文的'-'号
+          let indexRangeArray = []
+          if (indexRange.indexOf('–') !== -1) {
+            indexRangeArray = indexRange.split('–')
+          } else if (indexRangeArray.indexOf('-') !== -1) {
+            indexRangeArray = indexRange.split('-')
+          } else {
+            indexRangeArray = [indexRange]
+          }
+          this.$logger.info('indexRangeArray', indexRangeArray, item)
+          const startIndex = parseInt(indexRangeArray[0])
+          let endIndex = null
+          if (indexRangeArray.length === 2) {
+            endIndex = parseInt(indexRangeArray[1])
+          }
+          const description = item[1]
+          newSubLevelList.push({
+            startIndex: startIndex,
+            endIndex: endIndex,
+            description: description
+          })
+        })
+        this.$logger.info('[' + this.mode + '] handle subLevel', rawSubLevelList, newSubLevelList)
         const descriptionItem = {
-          name: dataItem.knowledgeData.name
+          name: dataItem.knowledgeData.name,
+          subLevelDescription: newSubLevelList
         }
 
         descriptionList.push(descriptionItem)
@@ -1212,6 +1412,7 @@ export default {
     .rubric-table {
       margin-bottom: 10px;
       table-layout: fixed;
+      margin-right: 30px;
 
       .table-header {
         border-top: 1px solid #15C39A;
@@ -1231,8 +1432,6 @@ export default {
           border-right: 1px solid #999;
           border-bottom: 1px solid #999;
           padding: 0;
-          min-width: 100px;
-          max-width: 400px;
           overflow: hidden;
 
           .edit-icon {
@@ -1359,8 +1558,8 @@ export default {
         .body-line {
           .body-item {
             position: relative;
-            max-width: 400px;
-            min-width: 140px;
+            max-width: 300px;
+            min-width: 120px;
             height: 100px;
             font-size: 12px;
             font-family: Inter-Bold;
@@ -1373,21 +1572,34 @@ export default {
             vertical-align: top;
 
             .data-item {
-              padding: 10px;
+              padding: 5px;
               cursor: pointer;
               min-height: 50px;
             }
 
-           .indicator-data {
-            padding: 10px;
-            cursor: pointer;
-          }
+            .indicator-data {
+              padding: 10px;
+              cursor: pointer;
+            }
+
+            .sub-level-data {
+              padding: 0;
+              cursor: pointer;
+            }
 
             .indicator-input {
               height: 100%;
               textarea {
                 display: none;
               }
+            }
+
+            .user-define-indicator-input {
+              height: 100%;
+            }
+
+            .my-indicator-input {
+              height: 100%;
             }
             .add-criteria {
               cursor: pointer;
@@ -1492,6 +1704,9 @@ export default {
             }
           }
 
+          .big-body-item {
+            max-width: 600px !important;
+          }
           .body-item:last-child {
             overflow: visible;
           }
@@ -1671,7 +1886,7 @@ export default {
 }
 
 .selected-icon {
-  padding: 5px 15px;
+  padding: 0 15px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1684,4 +1899,117 @@ export default {
 .min-header-width {
   width: 100px;
 }
+
+.sub-level-list {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  .sub-level-item {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    height: 40px;
+    line-height: 40px;
+    width: 100%;
+    border-bottom: 1px solid #D8D8D8;
+
+    .start-index, .end-index {
+      height: 41px;
+      margin: 0 15px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      .select-block {
+        display: flex;
+        width: 35px;
+        align-items: center;
+        justify-content: center;
+        padding: 0 3px;
+        font-size: 18px;
+        color: #ccc;
+
+        img {
+          width: 20px;
+        }
+      }
+    }
+  }
+}
+
+.sub-level-desc {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  overflow: hidden;
+  .sub-level-desc-item {
+    display: flex;
+    flex-direction: row;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    vertical-align: middle;
+    align-items: center;
+    height: 40px;
+    line-height: 40px;
+    border-bottom: 1px solid #D8D8D8;
+    padding: 0 10px;
+
+    span {
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      vertical-align: middle;
+    }
+  }
+}
+
+.my-century-criteria {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+
+  .criteria-left-name-list {
+    display: flex;
+    flex-direction: column;
+    padding: 0 10px;
+    .criteria-left-name-item {
+      width: 150px;
+      display: flex;
+      flex-direction: row;
+      flex-wrap: nowrap;
+      margin: 3px 0;
+    }
+
+    .no-first-name {
+      padding: 0 8px;
+      background: #15C39A;
+      color: #fff;
+      opacity: 1;
+      border-radius: 4px;
+    }
+  }
+
+  .criteria-right-description {
+      width: 200px;
+      display: flex;
+      flex-direction: column;
+      .edit-description {
+        margin: 5px 0;
+        text-align: center;
+        display: inline-block;
+        font-size: 12px;
+        background: #E7E7E7;
+        opacity: 1;
+        border-radius: 4px;
+        padding: 3px;
+        font-family: Inter-Bold;
+        line-height: 20px;
+        color: #989898;
+        opacity: 1;
+      }
+  }
+}
+
 </style>
