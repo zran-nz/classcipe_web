@@ -205,6 +205,7 @@
         </div>
         <div
           class="browser-block-item-wrapper">
+          <a-card v-if="!searching && firstLoad" :bordered="false" title="Recommended:" ></a-card>
           <div
             class="browser-block-item-last"
             :style="{'flex-direction': dataListMode === 'list' ? 'column' : 'row'}">
@@ -363,7 +364,7 @@ import ContentTypeIcon from '@/components/Teacher/ContentTypeIcon'
 import DataCardView from '@/components/Library/DataCardView'
 import { LibraryMode } from '@/components/LibraryV2/libraryMode'
 import SearchFilter from '@/components/LibraryV2/SearchFilter'
-import { QueryContentsFilter } from '@/api/library'
+import { QueryContentsFilter, QueryRecommendContents } from '@/api/library'
 import { SubjectTree } from '@/api/subject'
 import { FindCustomTags } from '@/api/tag'
 const { Search, QueryContents, QueryKeyContents } = require('@/api/library')
@@ -518,7 +519,8 @@ export default {
       filterActivityOptions: [],
       filterHeight: 500,
 
-      searchResultVisible: false
+      searchResultVisible: false,
+      firstLoad: true
     }
   },
   created () {
@@ -527,6 +529,8 @@ export default {
       path: this.browserTypeLabelMap[this.currentBrowserType],
       blockIndex: 1
     })
+
+    this.getRecommended()
 
     getAllCurriculums().then((response) => {
       this.$logger.info('getAllCurriculums', response)
@@ -542,6 +546,15 @@ export default {
     this.$logger.info('globalWidth ' + this.blockWidth)
   },
   methods: {
+    getRecommended () {
+      this.dataListLoading = true
+      QueryRecommendContents().then(response => {
+        this.$logger.info('QueryRecommendContents response', response)
+        this.dataList = response.result ? response.result : []
+      }).finally(() => {
+        this.dataListLoading = false
+      })
+    },
     toggleBrowserType (browserTypeItem) {
       this.$logger.info('toggleBrowserType ' + browserTypeItem.type)
       if (browserTypeItem.type !== this.currentBrowserType) {
@@ -709,6 +722,7 @@ export default {
 
     handleClickBlock (data) {
       this.$logger.info('handleClickBlock', data)
+      this.firstLoad = false
       this.dataList = []
       this.dataListLoading = true
       this.previewVisible = false
@@ -721,7 +735,6 @@ export default {
         })
       } else {
         this.$logger.info('skip handleClickBlock', data)
-        this.dataListLoading = false
       }
     },
 
@@ -785,6 +798,7 @@ export default {
     handleSearchByFromType (item) {
       this.$logger.info('handleSearchByFromType ', item)
       this.searching = true
+      this.firstLoad = false
       QueryKeyContents(item).then(response => {
         this.$logger.info('QueryContents response', response)
         this.dataList = response.result ? response.result : []
@@ -820,7 +834,7 @@ export default {
           }
         })
       })
-
+      this.firstLoad = false
       this.searching = true
       QueryContentsFilter(filter).then(response => {
         this.$logger.info('QueryContentsFilter result : ', response)

@@ -4,7 +4,8 @@ export const libraryURL = {
   Search: '/classcipe/api/library/search',
   QueryContents: '/classcipe/api/library/queryContents',
   QueryKeyContents: '/classcipe/api/library/queryKeyContents',
-  queryContentsFilter: '/classcipe/api/library/queryContentsFilter'
+  queryContentsFilter: '/classcipe/api/library/queryContentsFilter',
+  QueryRecommendContents: '/classcipe/api/library/queryRecommendContents'
 }
 
 export function Search (parameter) {
@@ -37,6 +38,14 @@ export function QueryKeyContents (parameter) {
     headers: {
       'Content-Type': 'application/json;charset=UTF-8'
     }
+  })
+}
+
+export function QueryRecommendContents (parameter) {
+  return request({
+    url: libraryURL.QueryRecommendContents,
+    method: 'get',
+    params: parameter
   })
 }
 

@@ -2070,13 +2070,17 @@ export default {
         if (!currentDom) {
           break
         }
-        /* if (currentDom.classList.contains('sdg-content-blocks')) {
+        if (currentDom.classList.contains('sdg-content-blocks')) {
           currentFocus = 'sdg'
           CustomTagType.plan.sdg.forEach(name => {
             this.customTagList.push(name)
           })
-        } else */
-        if (currentDom && currentDom.classList.contains('bigIdea')) {
+        } else if (currentDom && currentDom.classList.contains('form-block-rwc')) {
+          currentFocus = 'rwc'
+          CustomTagType.plan.rwc.forEach(name => {
+            this.customTagList.push(name)
+          })
+        } else if (currentDom && currentDom.classList.contains('bigIdea')) {
           currentFocus = 'inquiry'
           CustomTagType.plan.bigIdea.forEach(name => {
             this.customTagList.push(name)

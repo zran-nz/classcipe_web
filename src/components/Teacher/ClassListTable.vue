@@ -101,7 +101,7 @@
                         Reopen
                       </div>
                     </div>
-                    <div class="class-more-item" @click="handleEndSession(record)" v-else>
+                    <div class="class-more-item" @click="handleEndSession(record)" v-if="record.status === 'live'">
                       <div class="class-action-icon">
                         <a-icon type="close-circle" />
                       </div>
@@ -373,12 +373,34 @@ export default {
       }
     },
 
-    handleReopenSession (record) {
-
+    handleReopenSession (item) {
+      this.$logger.info('handleRestoreSession', item)
+      this.$confirm({
+        title: 'Confirm reopen session',
+        content: 'Are you confirm reopen this session ?',
+        centered: true,
+        onOk: () => {
+          item.status = 'live'
+          AddOrUpdateClass(item).then(response => {
+            this.loadTeacherClasses()
+          })
+        }
+      })
     },
 
-    handleEndSession (record) {
-
+    handleEndSession (item) {
+      this.$logger.info('handleEndSession', item)
+      this.$confirm({
+        title: 'Confirm end session',
+        content: 'Are you confirm end this session ?',
+        centered: true,
+        onOk: () => {
+          item.status = 'close'
+          AddOrUpdateClass(item).then(response => {
+            this.loadTeacherClasses()
+          })
+        }
+      })
     }
   }
 }
