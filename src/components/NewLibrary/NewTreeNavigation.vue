@@ -29,6 +29,7 @@
       :question-index="questionIndex"
       :default-expand-status="treeItemData.expandStatus"
       :tree-item-type="treeItemData.type"
+      :root-type="treeItemData.type"
       :data-item-type="treeItemData.type"
       :data-default-grade-id="treeItemData.hasOwnProperty('defaultGradeId') ? treeItemData.defaultGradeId : null"
       :odd="index % 2 === 1"
