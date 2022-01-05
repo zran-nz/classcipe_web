@@ -4,7 +4,9 @@
       <a-card class="cover-card" :head-style="{background:'#15c39a',color:'#fff'}" title="Tag your content" :bordered="false">
         <a v-if="showArrow" class="header-triangle"></a>
         <a-button class="setting-button" slot="extra" href="#" @click="handleSetting">My tags <a-icon type="edit" /></a-button>
-
+        <div class="tag-title">
+          Tags added :
+        </div>
         <div class="tag-select-wrapper" v-show="tagList.length">
           <!--      skt-tag-list-->
           <a-row>
@@ -61,10 +63,6 @@
                       <div class="triangle"></div>
                       <!--      skt-tag-list-->
                       <div class="skt-tag-list">
-
-                        <div class="tag-title">
-                          Tags added :
-                        </div>
                         <div class="search-tag-wrapper tag-wrapper">
                           <div class="skt-tag-item" v-for="(keyword,index) in tagSearchList" :key="index" >
                             <a-tag
@@ -137,7 +135,7 @@ export default {
       type: Array,
       default: () => []
     },
-    userTags: {
+    customTags: {
       type: Object,
       required: true
     },
@@ -172,6 +170,7 @@ export default {
     }
   },
   created () {
+    this.$logger.info('customTags', this.customTags)
     this.debouncedSearchKnowledge = debounce(this.searchTag, 500)
     this.handleUserTagsMap()
   },
@@ -189,6 +188,7 @@ export default {
   },
   watch: {
     selectedTagsList () {
+      this.$logger.info('selectedTagsList', this.selectedTagsList)
        this.tagList = this.selectedTagsList
     },
     customTagsList () {
@@ -229,7 +229,7 @@ export default {
       }
     },
     handleUserTagsMap () {
-      this.mergeTags(this.userTags)
+      this.mergeTags(this.customTags)
       this.$logger.info('mergeTags tags', this.userTagsMap)
       this.userTagsMap.forEach((value, key) => {
         if (!this.selectLabel) {

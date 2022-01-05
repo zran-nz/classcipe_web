@@ -66,8 +66,36 @@
                         </a-form-item>
                       </div>
 
+                      <div class="form-block form-radio-wrapper">
+                        <comment-switch field-name="projectBased" :is-active="currentFieldName === 'projectBased'" @switch="handleSwitchComment" class="my-comment-switch"/>
+                        <a-form-item label="Project-based Unit" style="display:flex">
+                          <a-radio-group name="radioGroup" v-model="form.projectBased" style="margin-left:20px;">
+                            <a-radio :value="1">
+                              Yes
+                            </a-radio>
+                            <a-radio :value="0">
+                              No
+                            </a-radio>
+                          </a-radio-group>
+                        </a-form-item>
+                      </div>
+
+                      <div class="form-block form-radio-wrapper">
+                        <comment-switch field-name="unitType" :is-active="currentFieldName === 'unitType'" @switch="handleSwitchComment" class="my-comment-switch"/>
+                        <a-form-item label="Unit type" style="display:flex">
+                          <a-radio-group name="unitType" v-model="form.unitType" style="margin-left:20px;">
+                            <a-radio :value="0">
+                              Single-subject Unit
+                            </a-radio>
+                            <a-radio :value="1">
+                              Integrated Unit
+                            </a-radio>
+                          </a-radio-group>
+                        </a-form-item>
+                      </div>
+
                       <div class="form-block grade-time">
-                        <!--   <comment-switch field-name="name" :is-active="currentFieldName === 'name'" @switch="handleSwitchComment" class="my-comment-switch"/>-->
+                        <comment-switch field-name="startDate" :is-active="currentFieldName === 'startDate'" @switch="handleSwitchComment" class="my-comment-switch"/>
                         <a-form-item label="Grade level" style="width:26%;margin-bottom: 0px;">
                           <a-select
                             v-model="form.gradeId"
@@ -502,10 +530,10 @@
                     :custom-tags-list="customTagList"
                     :selected-tags-list="form.customTags"
                     :show-arrow="showCustomTag"
-                    :user-tags="userTags"
-                    @reload-user-tags="loadUserTags"
+                    :custom-tags="customTags"
+                    @reload-user-tags="loadCustomTags"
                     @change-add-keywords="handleChangeAddKeywords"
-                    @change-user-tags="handleChangeUserTags"></custom-tag>
+                    @change-user-tags="handleChangeCustomTags"></custom-tag>
                 </div>
               </template>
               <template v-if="showRightModule(rightModule.taskDetails) && currentActiveStepIndex === 0">
@@ -1020,7 +1048,7 @@ export default {
       showCustomTag: false,
       customTagTop: 0,
       customTagList: [],
-      userTags: {},
+      customTags: {},
       NavigationType: NavigationType,
       defaultActiveMenu: NavigationType.learningOutcomes,
       showMenuList: [NavigationType.specificSkills, NavigationType.centurySkills, NavigationType.learningOutcomes, NavigationType.assessmentType, NavigationType.idu],
@@ -1183,7 +1211,7 @@ export default {
     LibraryEventBus.$on(LibraryEvent.ContentListSelectClick, this.handleDescriptionSelectClick)
     this.initData()
     this.getAssociate()
-    this.loadUserTags()
+    this.loadCustomTags()
     this.debouncedGetSdgByDescription = debounce(this.searchScenario, 300)
     this.findQuestionsByBigIdea = debounce(this.findQuestionsByBigIdea, 800)
     this.queryContentCollaborates(this.unitPlanId, this.contentType['unit-plan'])
@@ -1635,13 +1663,13 @@ export default {
     goBack () {
       this.$router.push({ path: '/teacher/main/created-by-me' })
     },
-    handleChangeUserTags (tags) {
+    handleChangeCustomTags (tags) {
       this.form.customTags = tags
     },
     handleChangeAddKeywords (tag) {
-      var index = this.userTags.userTags.findIndex(item => item.name === tag.parentName)
+      var index = this.customTags.userTags.findIndex(item => item.name === tag.parentName)
       if (index > -1) {
-        this.userTags.userTags[index].keywords.push(tag.name)
+        this.customTags.userTags[index].keywords.push(tag.name)
       }
     },
     handleAudioResult (data) {
@@ -2016,9 +2044,9 @@ export default {
           this.$logger.info('update task recommendData ', this.recommendData)
           this.$logger.info('************************update unit-plan recommendDataIdList ', this.recommendDataIdList)
         }).finally(() => {
+          // this.loadBigIdeaLearnOuts()
         })
       }
-      this.loadBigIdeaLearnOuts()
     },
     loadBigIdeaLearnOuts () {
       // bigidea query learnout
@@ -2199,18 +2227,18 @@ export default {
         }, 100)
       }
     },
-    loadUserTags () {
+    loadCustomTags () {
       // this.$refs.customTag.tagLoading = true
       FindCustomTags({}).then((response) => {
         this.$logger.info('FindCustomTags response', response.result)
         if (response.success) {
-          this.userTags = response.result
+          this.customTags = response.result
           // // 默认展示的tag分类
           // CustomTagType.plan.default.forEach(name => {
           //   this.customTagList.push(name)
           // })
           // 再拼接自己添加的
-          this.userTags.userTags.forEach(tag => {
+          this.customTags.userTags.forEach(tag => {
             if (this.customTagList.indexOf(tag.name) === -1) {
               this.customTagList.push(tag.name)
             }
@@ -2274,7 +2302,7 @@ export default {
         //   this.customTagList.push(name)
         // })
         // // 再拼接自己添加的
-        this.userTags.userTags.forEach(tag => {
+        this.customTags.userTags.forEach(tag => {
           if (this.customTagList.indexOf(tag.name === -1)) {
             this.customTagList.push(tag.name)
           }
@@ -3148,6 +3176,16 @@ export default {
     /deep/ .ant-steps-item-content {
       padding-right: 30px;
     }
+    .form-radio-wrapper{
+      /deep/ .ant-radio-wrapper{
+        width:180px;
+      }
+      /deep/ .ant-form-item-label{
+        width:170px;
+        text-align: left;
+      }
+    }
+
   }
 
   .unit-plan-form-right {

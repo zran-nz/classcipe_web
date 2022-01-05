@@ -500,13 +500,13 @@
                   <div v-if="!this.contentLoading" :style="{'width':rightWidth+'px', 'margin-top':customTagTop+'px'}">
                     <custom-tag
                       :show-arrow="showCustomTag"
-                      :user-tags="userTags"
+                      :custom-tags="customTags"
                       :custom-tags-list="customTagList"
                       ref="customTag"
                       :selected-tags-list="form.customTags"
-                      @reload-user-tags="loadUserTags"
+                      @reload-user-tags="loadCustomTags"
                       @change-add-keywords="handleChangeAddKeywords"
-                      @change-user-tags="handleChangeUserTags"></custom-tag>
+                      @change-user-tags="handleChangeCustomTags"></custom-tag>
                   </div>
                 </template>
               </div>
@@ -1222,33 +1222,6 @@
       </a-modal>
 
       <a-modal
-        title="Add session tags"
-        v-model="taskSelectTagVisible"
-        :maskClosable="false"
-        :closable="true"
-        destroyOnClose
-        width="800px">
-        <div>
-          <custom-tag
-            :user-tags="userTags"
-            :custom-tags-list="['class']"
-            @reload-user-tags="loadUserTags"
-            @change-add-keywords="handleChangeAddKeywords"
-            :selected-tags-list="sessionTags"
-            ref="customTag"
-            @change-user-tags="handleSelectedSessionTags"></custom-tag>
-        </div>
-        <template slot="footer">
-          <a-button key="back" @click="taskSelectTagVisible=false">
-            Cancel
-          </a-button>
-          <a-button key="submit" type="primary" :loading="startLoading" @click="handleStartSession()">
-            Start
-          </a-button>
-        </template>
-      </a-modal>
-
-      <a-modal
         v-model="selectSyncDataVisible"
         :footer="null"
         destroyOnClose
@@ -1334,7 +1307,7 @@
 import * as logger from '@/utils/logger'
 import ContentTypeIcon from '@/components/Teacher/ContentTypeIcon'
 import { typeMap } from '@/const/teacher'
-import { Associate, FindSourceOutcomes, GetAssociate, GetMyGrades, GetReferOutcomes, SaveSessonTags } from '@/api/teacher'
+import { Associate, FindSourceOutcomes, GetAssociate, GetMyGrades, GetReferOutcomes } from '@/api/teacher'
 import InputSearch from '@/components/UnitPlan/InputSearch'
 import SdgTagInput from '@/components/UnitPlan/SdgTagInput'
 import SkillTag from '@/components/UnitPlan/SkillTag'
@@ -1353,8 +1326,6 @@ import Collaborate from '@/components/UnitPlan/Collaborate'
 import AssociateSidebar from '@/components/Associate/AssociateSidebar'
 import CustomTag from '@/components/UnitPlan/CustomTag'
 import NewUiClickableKnowledgeTag from '@/components/UnitPlan/NewUiClickableKnowledgeTag'
-import { lessonHost, lessonStatus } from '@/const/googleSlide'
-import { StartLesson } from '@/api/lesson'
 import CollaborateUserList from '@/components/Collaborate/CollaborateUserList'
 import { CustomTagType, TemplateType } from '@/const/common'
 // import { SubjectTree } from '@/api/subject'
@@ -1385,6 +1356,7 @@ import MediaPreview from '@/components/Task/MediaPreview'
 import { UtilMixin } from '@/mixins/UtilMixin'
 import moment from 'moment'
 import { BaseEventMixin } from '@/mixins/BaseEvent'
+
 const { SplitTask } = require('@/api/task')
 
 export default {
@@ -1550,7 +1522,7 @@ export default {
         showCustomTag: false,
         customTagTop: 20,
         customTagList: [],
-        userTags: {},
+        customTags: {},
         NavigationType: NavigationType,
         showCollaborateCommentVisible: false,
 
@@ -1697,7 +1669,7 @@ export default {
       LibraryEventBus.$on(LibraryEvent.ContentListSelectClick, this.handleDescriptionSelectClick)
       this.initData()
       this.getAssociate()
-      this.loadUserTags()
+      this.loadCustomTags()
       this.initTemplateFilter()
       this.GetTagYearTips()
       this.queryContentCollaborates(this.taskId, this.contentType.task)
@@ -2327,65 +2299,6 @@ export default {
           this.form.tasks.splice(index, 1)
         }
       },
-      handleStartSession (type) {
-        this.$logger.info('handleStartSession', this.form)
-        if (this.form.presentationId) {
-          this.$logger.info('selected sessionTags', this.sessionTags)
-          if (this.sessionTags.length === 0 && !type) {
-            this.$message.warn('Please add session tags')
-            return
-          }
-          this.startLoading = true
-          const requestData = {
-            author: this.$store.getters.email,
-            slide_id: this.form.presentationId,
-            file_name: this.form.name ? this.form.name : 'Unnamed',
-            status: lessonStatus.studentPaced,
-            redirect_url: null
-          }
-
-          this.$logger.info('handleStartSession', requestData)
-          StartLesson(requestData).then(res => {
-            this.$logger.info('StartLesson res', res)
-            if (res.code === 'ok') {
-              const dataTags = []
-              if (type && type === 'dash') {
-                this.startLoading = false
-                this.taskSelectTagVisible = false
-                const targetUrl = lessonHost + 'd/' + res.data.class_id
-                this.$logger.info('try open ' + targetUrl)
-                window.open(targetUrl, '_blank')
-              } else {
-                this.sessionTags.forEach(tag => {
-                  dataTags.push({
-                    'name': tag.name,
-                    'parentId': tag.parentId,
-                    'isGlobal': tag.isGlobal ? 1 : 0,
-                    'classId': res.data.class_id,
-                    'presentationId': this.form.presentationId,
-                    'sourceId': this.form.id,
-                    'sourceType': this.form.type
-                  })
-                })
-                SaveSessonTags(dataTags).then(() => {
-                  this.startLoading = false
-                  this.taskSelectTagVisible = false
-                  // const targetUrl = lessonHost + 'slide_id=' + this.form.presentationId + '&class_id=' + res.data.class_id + '&type=classroom'
-                  const targetUrl = lessonHost + 'd/' + res.data.class_id
-                  this.$logger.info('try open ' + targetUrl)
-                  window.open(targetUrl, '_blank')
-                })
-              }
-            } else {
-              this.$message.warn('StartLesson Failed! ' + res.message)
-              this.startLoading = false
-            }
-          })
-        } else {
-          this.$message.warn('This record is not bound to PPT!')
-          this.startLoading = false
-        }
-      },
       handleStartCollaborate () {
         this.$logger.info('handleStartCollaborate')
         this.collaborateContent = Object.assign({}, this.form)
@@ -2457,10 +2370,6 @@ export default {
       handleSelectedSessionTags (tags) {
         this.sessionTags = tags
         this.$logger.info('handleSelectedSessionTags', tags)
-      },
-      handleStartSessionTags () {
-        this.taskSelectTagVisible = true
-        this.sessionTags = []
       },
       handleAddTaskEvaluation () {
         logger.info('handleAddTaskEvaluation ' + this.taskId)
@@ -2600,9 +2509,10 @@ export default {
 
           if (this.associateUnitPlanIdList.length > 0) {
             this.loadRefLearnOuts()
-          } else {
-            this.loadBigIdeaLearnOuts()
           }
+          // else {
+          //   this.loadBigIdeaLearnOuts()
+          // }
         })
       },
 
@@ -2891,18 +2801,18 @@ export default {
           }, 600)
         })
       },
-      loadUserTags () {
+      loadCustomTags () {
         // this.$refs.customTag.tagLoading = true
         FindCustomTags({}).then((response) => {
           this.$logger.info('FindCustomTags response', response.result)
           if (response.success) {
-            this.userTags = response.result
+            this.customTags = response.result
             // 默认展示的tag分类
             CustomTagType.task.default.forEach(name => {
               this.customTagList.push(name)
             })
             // 再拼接自己添加的
-            this.userTags.userTags.forEach(tag => {
+            this.customTags.userTags.forEach(tag => {
               if (this.customTagList.indexOf(tag.name) === -1) {
                 this.customTagList.push(tag.name)
               }
@@ -2960,7 +2870,7 @@ export default {
             this.customTagList.push(name)
           })
           // // 再拼接自己添加的
-          this.userTags.userTags.forEach(tag => {
+          this.customTags.userTags.forEach(tag => {
             if (this.customTagList.indexOf(tag.name === -1)) {
               this.customTagList.push(tag.name)
             }
@@ -2970,13 +2880,13 @@ export default {
           // this.setRightModuleVisible()
         }
       },
-      handleChangeUserTags (tags) {
+      handleChangeCustomTags (tags) {
         this.form.customTags = tags
       },
       handleChangeAddKeywords (tag) {
-        var index = this.userTags.userTags.findIndex(item => item.name === tag.parentName)
+        var index = this.customTags.userTags.findIndex(item => item.name === tag.parentName)
         if (index > -1) {
-          this.userTags.userTags[index].keywords.push(tag.name)
+          this.customTags.userTags[index].keywords.push(tag.name)
         }
       },
 
