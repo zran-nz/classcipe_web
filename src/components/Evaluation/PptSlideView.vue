@@ -27,6 +27,14 @@
         @click='handleAddSlideItem(slideItem)'>
         <div class='slide-header-label'>
           <h3>Slide {{ sIndex + 1 }}</h3>
+          <div class='selected-icon'>
+            <div class='icon-item' v-if='selectedSlidePageIdList.indexOf(slideItem.pageObjectId) !== -1'>
+              <teacher-icon />
+            </div>
+            <div class='icon-item' v-if='selectedStudentSlidePageIdList.indexOf(slideItem.pageObjectId) !== -1'>
+              <student-icon />
+            </div>
+          </div>
         </div>
         <div class='slide-body'>
           <div class='slide-img'>
@@ -166,14 +174,6 @@
             </div>
           </div>
           <div class='slide-comment'>
-            <div class='selected-icon'>
-              <div class='icon-item' v-if='selectedSlidePageIdList.indexOf(slideItem.pageObjectId) !== -1'>
-                <teacher-icon />
-              </div>
-              <div class='icon-item' v-if='selectedStudentSlidePageIdList.indexOf(slideItem.pageObjectId) !== -1'>
-                <student-icon />
-              </div>
-            </div>
             <div class='teacher-data' @click.stop=''>
               <div class='teacher-score'>
                 <a-row :gutter='5' class='score-item'>
@@ -725,6 +725,7 @@ export default {
         border-radius: 6px 6px 0 0;
         background-color: rgba(21, 195, 154, 0.15);
         padding: 5px 10px 7px 10px;
+        position: relative;
 
         h3 {
           margin: 0;
@@ -990,6 +991,7 @@ export default {
 
     .active-slide-item {
       border: 2px solid #15C39A;
+      border-radius: 6px;
       box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.16);
     }
   }
@@ -1020,8 +1022,8 @@ export default {
   justify-content: flex-end;
   align-items: center;
   position: absolute;
-  right: -5px;
-  top: -5px;
+  right: -3px;
+  top: -3px;
 
   .icon-item {
     margin-right: 5px;
