@@ -3,18 +3,18 @@
     <div class="form-header">
       <common-form-header
         ref="commonFormHeader"
-        :form="form"
         :collaborate="collaborate"
+        :form="form"
         :last-change-saved-time="lastChangeSavedTime"
-        @view-collaborate="handleViewCollaborate"
         @back="goBack"
-        @save="handleSaveUnitPlan"
-        @publish="handlePublishUnitPlan"
         @collaborate="handleStartCollaborate"
+        @publish="handlePublishUnitPlan"
+        @save="handleSaveUnitPlan"
+        @view-collaborate="handleViewCollaborate"
       />
     </div>
-    <a-card :bordered="false" :bodyStyle="{ padding: '16px 24px', height: '100%', minHeight: '1200px' }">
-      <a-row class="unit-content" v-if="!contentLoading">
+    <a-card :bodyStyle="{ padding: '16px 24px', height: '100%', minHeight: '1200px' }" :bordered="false">
+      <a-row v-if="!contentLoading" class="unit-content">
         <!--        <a-col span="4" v-if="showSidebar">
           <associate-sidebar
             :name="form.name"
@@ -25,13 +25,20 @@
             @link="showSelectLinkContentVisible"
             :show-create="true"/>
         </a-col>-->
-        <a-col span="24" class="main-content">
-          <a-card :bordered="false" :body-style="{ padding: '16px', display: 'flex', 'justify-content': 'space-between'}" class="card-wrapper">
-            <div class="unit-plan-form-left root-locate-form" ref="form" @click="focusInput($event)" :style="{'width':leftWidth + 'px'}">
+        <a-col class="main-content" span="24">
+          <a-card
+            :body-style="{ padding: '16px', display: 'flex', 'justify-content': 'space-between'}"
+            :bordered="false"
+            class="card-wrapper">
+            <div
+              ref="form"
+              :style="{'width':leftWidth + 'px'}"
+              class="unit-plan-form-left root-locate-form"
+              @click="focusInput($event)">
               <a-form-model :model="form" class="my-form-wrapper">
                 <a-steps :current="currentActiveStepIndex" direction="vertical" @change="onChangeStep">
-                  <a-step title="Edit Unit plan" :status="currentActiveStepIndex === 0 ? 'process':'wait'">
-                    <template slot="description" v-if="currentActiveStepIndex === 0">
+                  <a-step :status="currentActiveStepIndex === 0 ? 'process':'wait'" title="Edit Unit plan">
+                    <template v-if="currentActiveStepIndex === 0" slot="description">
                       <!--                      <div class="form-block">
                         <div class="refer-action row-flex-right">
                           <div class="refer-text">
@@ -49,28 +56,44 @@
                       </div>-->
 
                       <div class="form-block">
-                        <comment-switch field-name="name" :is-active="currentFieldName === 'name'" @switch="handleSwitchComment" class="my-comment-switch"/>
+                        <comment-switch
+                          :is-active="currentFieldName === 'name'"
+                          class="my-comment-switch"
+                          field-name="name"
+                          @switch="handleSwitchComment" />
                         <a-form-item label="Unit Name">
-                          <a-input v-model="form.name" placeholder="Enter Unit Name" class="my-form-input"/>
+                          <a-input v-model="form.name" class="my-form-input" placeholder="Enter Unit Name" />
                         </a-form-item>
                       </div>
 
                       <div class="form-block grade-time">
                         <!--   <comment-switch field-name="name" :is-active="currentFieldName === 'name'" @switch="handleSwitchComment" class="my-comment-switch"/>-->
                         <a-form-item label="Grade level" style="width:26%;margin-bottom: 0px;">
-                          <a-select size="large" v-model="form.gradeId" class="my-big-select" placeholder="Select a grade">
-                            <a-select-option v-for="(grade,index) in gradeList" :value="grade.id" :key="index">
+                          <a-select
+                            v-model="form.gradeId"
+                            class="my-big-select"
+                            placeholder="Select a grade"
+                            size="large">
+                            <a-select-option v-for="(grade,index) in gradeList" :key="index" :value="grade.id">
                               {{ grade.name }}
                             </a-select-option>
                           </a-select>
                         </a-form-item>
-                        <a-form-item class="range-time" label="Start Date" style="width:70%;margin-bottom: 0px;position:relative">
-                          <div class="week-time" v-if="getWeek">
+                        <a-form-item
+                          class="range-time"
+                          label="Start Date"
+                          style="width:70%;margin-bottom: 0px;position:relative">
+                          <div v-if="getWeek" class="week-time">
                             <a-tag color="cyan" style="border-radius: 10px;font-size: 14px;">
                               {{ getWeek }}
                             </a-tag>
                           </div>
-                          <a-range-picker v-model="rangeDate" size="large" format="LLL" :show-time="{ format: 'HH:mm' }" style="width:100%">
+                          <a-range-picker
+                            v-model="rangeDate"
+                            :show-time="{ format: 'HH:mm' }"
+                            format="LLL"
+                            size="large"
+                            style="width:100%">
                             <a-icon slot="suffixIcon" type="calendar" />
                           </a-range-picker>
                         </a-form-item>
@@ -119,26 +142,36 @@
 
                       <!--                      </div>-->
 
-                      <div class="form-block inquiry-form-block" id="inquiry">
-                        <comment-switch field-name="inquiry" :is-active="currentFieldName === 'inquiry'" @switch="handleSwitchComment" class="my-comment-switch"/>
+                      <div id="inquiry" class="form-block inquiry-form-block">
+                        <comment-switch
+                          :is-active="currentFieldName === 'inquiry'"
+                          class="my-comment-switch"
+                          field-name="inquiry"
+                          @switch="handleSwitchComment" />
                         <!--                <a-divider />-->
-                        <a-form-item label="Big Idea/ Statement of Inquiry/ Central Idea" class="bigIdea" >
+                        <a-form-item class="bigIdea" label="Big Idea/ Statement of Inquiry/ Central Idea">
                           <a-textarea
-                            class="my-form-textarea inquiry"
                             v-model="form.inquiry"
                             :placeholder="$store.getters.currentRole === 'teacher' ? $t('teacher.add-unit-plan.teacher-direction-of-inquiry') : $t('teacher.add-unit-plan.expert-direction-of-inquiry')"
+                            auto-size
+                            class="my-form-textarea inquiry"
                           />
                         </a-form-item>
                         <a-tooltip title="Browse" @click.stop="selectBigIdeaDataVisible=true">
                           <span class="browse">
-                            <a-icon type="appstore" theme="twoTone" twoToneColor="rgba(21, 195, 154, 1)" />
+                            <a-icon theme="twoTone" twoToneColor="rgba(21, 195, 154, 1)" type="appstore" />
                           </span>
                         </a-tooltip>
                       </div>
 
                       <!--            real-life-scenario-->
                       <div class="form-block ">
-                        <comment-switch field-name="sdg" :is-active="currentFieldName === 'sdg'" @switch="handleSwitchComment" class="my-comment-switch" style="top:40px"/>
+                        <comment-switch
+                          :is-active="currentFieldName === 'sdg'"
+                          class="my-comment-switch"
+                          field-name="sdg"
+                          style="top:40px"
+                          @switch="handleSwitchComment" />
                         <a-divider>Teaching goals</a-divider>
                         <a-row>
                           <a-col span="24">
@@ -149,43 +182,54 @@
                         </a-row>
                         <!--sdg and KeyWords-->
                         <div
-                          class="sdg-content-blocks sdg-form-block"
-                          id="sdg"
                           v-for="(scenario, sdgIndex) in form.scenarios"
-                          :key="sdgIndex">
+                          id="sdg"
+                          :key="sdgIndex"
+                          class="sdg-content-blocks sdg-form-block">
 
                           <!--description-->
                           <div class="scenario-description">
-                            <div class="sdg-delete-wrapper" @click="handleDeleteSdg(sdgIndex)" v-show="form.scenarios.length > 1">
+                            <div
+                              v-show="form.scenarios.length > 1"
+                              class="sdg-delete-wrapper"
+                              @click="handleDeleteSdg(sdgIndex)">
                               <a-tooltip placement="top">
                                 <template slot="title">
                                   <span>{{ $t('teacher.add-unit-plan.delete-goal') }}</span>
                                 </template>
                                 <div class="sdg-delete">
-                                  <a-icon type="delete" :style="{ fontSize: '20px' }" />
+                                  <a-icon :style="{ fontSize: '20px' }" type="delete" />
                                 </div>
                               </a-tooltip>
                             </div>
                             <!--sdg-->
-                            <a-form-model-item >
-                              <a-select size="large" v-model="scenario.sdgId" class="my-big-select" placeholder="Select a goal from UN">
-                                <a-select-option v-for="(sdg,index) in sdgList" :value="sdg.id" :key="index" :disabled="selectedSdg.indexOf(sdg.id) != -1">
+                            <a-form-model-item>
+                              <a-select
+                                v-model="scenario.sdgId"
+                                class="my-big-select"
+                                placeholder="Select a goal from UN"
+                                size="large">
+                                <a-select-option
+                                  v-for="(sdg,index) in sdgList"
+                                  :key="index"
+                                  :disabled="selectedSdg.indexOf(sdg.id) != -1"
+                                  :value="sdg.id">
                                   {{ sdg.name }}
                                 </a-select-option>
                               </a-select>
                             </a-form-model-item>
 
-                            <a-form-model-item >
+                            <a-form-model-item>
                               <input-search
                                 ref="descriptionInputSearch"
+                                :currend-index="currentIndex"
                                 :default-value="scenario.description"
                                 :key-index="sdgIndex"
-                                :currend-index="currentIndex"
                                 :search-list="descriptionSearchList"
                                 label="description"
+                                @reset="descriptionSearchList = []"
                                 @search="handleDescriptionSearch"
-                                @select-item="handleSelectScenario"
-                                @reset="descriptionSearchList = []" />
+                                @select-item="handleSelectScenario" />
                             </a-form-model-item>
 
                           </div>
@@ -197,56 +241,79 @@
                         </div>
                         <a-button
                           class="add-button"
-                          style="top:-20px"
-                          type="link"
                           icon="plus-circle"
                           size="large"
+                          style="top:-20px"
+                          type="link"
                           @click="handleAddMoreSdg"></a-button>
                       </div>
 
-                      <div class="form-block form-block-rwc" >
+                      <div class="form-block form-block-rwc">
                         <a-form-model-item label="Real World Connection(s)">
                           <a-select
-                            size="large"
                             v-model="form.rwc"
-                            placeholder="Choose real world connection">
-                            <a-select-option :value="item.value" v-for="(item, index) in rwcList" :key="index" >
+                            placeholder="Choose real world connection"
+                            size="large">
+                            <a-select-option v-for="(item, index) in rwcList" :key="index" :value="item.value">
                               {{ item.title }}
                             </a-select-option>
                           </a-select>
                         </a-form-model-item>
                       </div>
 
-                      <div :class="{'form-block': true, 'form-block-disabled' : $store.getters.userInfo.disableQuestion}">
-                        <comment-switch v-if="!$store.getters.userInfo.disableQuestion" field-name="question" :is-active="currentFieldName === 'question'" @switch="handleSwitchComment" class="my-comment-switch"/>
+                      <div
+                        :class="{'form-block': true, 'form-block-disabled' : $store.getters.userInfo.disableQuestion}">
+                        <comment-switch
+                          v-if="!$store.getters.userInfo.disableQuestion"
+                          :is-active="currentFieldName === 'question'"
+                          class="my-comment-switch"
+                          field-name="question"
+                          @switch="handleSwitchComment" />
                         <a-form-item class="unit-question">
                           <span slot="label">
                             <a-tooltip title="Set key question/Line of inquiry">
-                              <a-icon type="exclamation-circle" style="color: #15c39a;cursor: pointer;font-size: 18px" @click="questionSettingVisible=true" />
+                              <a-icon
+                                style="color: #15c39a;cursor: pointer;font-size: 18px"
+                                type="exclamation-circle"
+                                @click="questionSettingVisible=true" />
                             </a-tooltip>
                             Key question(s) / Line(s) of inquiry
                           </span>
                           <div v-if="!$store.getters.userInfo.disableQuestion">
-                            <div class="question-more"><a-button @click="questionMoreVisible=true" type="link" >more</a-button></div>
-                            <div class="recommend-question" v-if="showRecommendQuestion">
-                              <a-icon type="close" class="close-icon" @click.stop="hideRecommendQuestion=true" />
+                            <div class="question-more">
+                              <a-button type="link" @click="questionMoreVisible=true">more</a-button>
+                            </div>
+                            <div v-if="showRecommendQuestion" class="recommend-question">
+                              <a-icon class="close-icon" type="close" @click.stop="hideRecommendQuestion=true" />
                               <div class="recommend-box">
-                                <a-tooltip title="You can add the key questions relevant to the big idea you chose above">
+                                <a-tooltip
+                                  title="You can add the key questions relevant to the big idea you chose above">
                                   <span class="title"><a-icon style="width: 25px" type="question-circle" />Recommended:</span>
                                 </a-tooltip>
                                 <ul class="recommend-ul">
-                                  <li v-if="rqIndex < 3 && selectQuestion.indexOf(item.name) === -1" v-for="(item,rqIndex) in recommendQuestionList" :key="rqIndex">{{ item.name }}<a-button @click.stop="handerInsertQuestion(item)" class="add-question" type="link">add</a-button></li>
+                                  <li
+                                    v-for="(item,rqIndex) in recommendQuestionList"
+                                    v-if="rqIndex < 3 && selectQuestion.indexOf(item.name) === -1"
+                                    :key="rqIndex">
+                                    {{ item.name }}
+                                    <a-button class="add-question" type="link" @click.stop="handerInsertQuestion(item)">
+                                      add
+                                    </a-button>
+                                  </li>
                                 </ul>
                               </div>
                             </div>
-                            <div class="form-input-item" v-for="(question, index) in form.questions" :key="index">
+                            <div v-for="(question, index) in form.questions" :key="index" class="form-input-item">
                               <a-textarea
                                 v-model="question.name"
-                                class="my-form-textarea"
+                                :placeholder="$store.getters.currentRole === 'teacher' ? $t('teacher.add-unit-plan.teacher-nth-key-question') : $t('teacher.add-unit-plan.expert-nth-key-question')"
                                 auto-size
-                                :placeholder="$store.getters.currentRole === 'teacher' ? $t('teacher.add-unit-plan.teacher-nth-key-question') : $t('teacher.add-unit-plan.expert-nth-key-question')"/>
-                              <div class="delete-icon" @click="handleRemoveQuestion(index)" v-if="form.questions.length > 1">
-                                <a-icon type="delete" :style="{ fontSize: '20px' }" />
+                                class="my-form-textarea" />
+                              <div
+                                v-if="form.questions.length > 1"
+                                class="delete-icon"
+                                @click="handleRemoveQuestion(index)">
+                                <a-icon :style="{ fontSize: '20px' }" type="delete" />
                               </div>
                             </div>
                           </div>
@@ -254,16 +321,20 @@
                         <a-button
                           v-if="!$store.getters.userInfo.disableQuestion"
                           class="add-button"
-                          style="top:-40px;"
-                          type="link"
                           icon="plus-circle"
                           size="large"
+                          style="top:-40px;"
+                          type="link"
                           @click="handleAddMoreQuestion"></a-button>
                       </div>
 
                       <div class="form-block">
-                        <comment-switch field-name="assessment" :is-active="currentFieldName === 'assessment'" @switch="handleSwitchComment" class="my-comment-switch"/>
-                        <a-form-item label="Set learning objectives" >
+                        <comment-switch
+                          :is-active="currentFieldName === 'assessment'"
+                          class="my-comment-switch"
+                          field-name="assessment"
+                          @switch="handleSwitchComment" />
+                        <a-form-item label="Set learning objectives">
                           <a-badge :dot="hasExtraRecommend">
                             <a-button type="primary" @click="handleSelectDescription()">
                               <div class="btn-text" style="line-height: 20px">
@@ -272,9 +343,13 @@
                             </a-button>
                           </a-badge>
 
-                          <a-button type="link" ghost class="assessment-task-button" @click="handleClickTaskDetail($event)" >
+                          <a-button
+                            class="assessment-task-button"
+                            ghost
+                            type="link"
+                            @click="handleClickTaskDetail($event)">
                             Assessment task details
-                            <a-icon type="right"/>
+                            <a-icon type="right" />
                           </a-button>
 
                         </a-form-item>
@@ -284,25 +359,40 @@
                       </div>
 
                       <div class="form-block" style="clear:both">
-                        <comment-switch field-name="prior" :is-active="currentFieldName === 'prior'" @switch="handleSwitchComment" class="my-comment-switch"/>
+                        <comment-switch
+                          :is-active="currentFieldName === 'prior'"
+                          class="my-comment-switch"
+                          field-name="prior"
+                          @switch="handleSwitchComment" />
                         <a-form-model-item label="Prior learning experience">
-                          <a-textarea v-model="form.prior" placeholder="What are the approaches to find out what students already knew?" allow-clear />
+                          <a-textarea
+                            v-model="form.prior"
+                            allow-clear
+                            placeholder="What are the approaches to find out what students already knew?" />
                         </a-form-model-item>
                       </div>
 
                     </template>
                   </a-step>
                   <a-step title="Link Plan content">
-                    <template slot="description" v-if="currentActiveStepIndex === 1">
+                    <template v-if="currentActiveStepIndex === 1" slot="description">
                       <div class="form-block">
-                        <a-form-item label="Add task(s)" class="link-plan-title">
+                        <a-form-item class="link-plan-title" label="Add task(s)">
                           <a-space>
-                            <a-button type="primary" :style="{'background-color': '#fff', 'color': '#000', 'border': '1px solid #D8D8D8'}" @click="handleAddTasks">
+                            <a-button
+                              :style="{'background-color': '#fff', 'color': '#000', 'border': '1px solid #D8D8D8'}"
+                              type="primary"
+                              @click="handleAddTasks">
                               <div class="btn-text" style="line-height: 20px">
                                 + Link Task(s)
                               </div>
                             </a-button>
-                            <a-button type="primary" class="addCategory" :loading="addCategoryLoading" :style="{'background-color': '#fff', 'color': '#000', 'border': '1px solid #D8D8D8'}" @click="handleAddTerm">
+                            <a-button
+                              :loading="addCategoryLoading"
+                              :style="{'background-color': '#fff', 'color': '#000', 'border': '1px solid #D8D8D8'}"
+                              class="addCategory"
+                              type="primary"
+                              @click="handleAddTerm">
                               <div class="btn-text" style="line-height: 20px">
                                 + Add category
                               </div>
@@ -310,7 +400,11 @@
                           </a-space>
                         </a-form-item>
                         <div class="common-link-wrapper">
-                          <plan-link ref="planLink" :from-id="this.unitPlanId" :from-type="this.contentType['unit-plan']" @group-name-list-update="handleUpdateGroupNameList"/>
+                          <plan-link
+                            ref="planLink"
+                            :from-id="this.unitPlanId"
+                            :from-type="this.contentType['unit-plan']"
+                            @group-name-list-update="handleUpdateGroupNameList" />
                         </div>
                       </div>
                     </template>
@@ -319,41 +413,54 @@
               </a-form-model>
             </div>
 
-            <div class="unit-plan-form-right" :style="{'width':rightWidth + 'px'}">
+            <div :style="{'width':rightWidth + 'px'}" class="unit-plan-form-right">
               <!--              优先级 所有comment预览 > 字段comment > tag选择-->
               <template v-if="showRightModule(rightModule.collaborate)">
                 <a-skeleton :loading="showHistoryLoading" active>
-                  <div class="collaborate-panel" :style="{'width':rightWidth + 'px', 'margin-top': '0px', 'z-index': 100, 'padding': '10px'}">
+                  <div
+                    :style="{'width':rightWidth + 'px', 'margin-top': '0px', 'z-index': 100, 'padding': '10px'}"
+                    class="collaborate-panel">
                     <div class="icon">
                       <comment-icon />
                     </div>
                     <a-tabs default-active-key="1">
                       <a-tab-pane key="1" tab="Comment">
-                        <collaborate-comment-view :source-id="unitPlanId" :source-type="contentType['unit-plan']" :comment-list="collaborateCommentList" @update-comment="handleUpdateCommentList"/>
+                        <collaborate-comment-view
+                          :comment-list="collaborateCommentList"
+                          :source-id="unitPlanId"
+                          :source-type="contentType['unit-plan']"
+                          @update-comment="handleUpdateCommentList" />
                       </a-tab-pane>
-                      <a-tab-pane key="2" tab="History" force-render>
-                        <collaborate-history :history-list="historyList" @restore="handleRestoreField"/>
+                      <a-tab-pane key="2" force-render tab="History">
+                        <collaborate-history :history-list="historyList" @restore="handleRestoreField" />
                       </a-tab-pane>
                     </a-tabs>
                   </div>
                 </a-skeleton>
               </template>
               <template v-if="showRightModule(rightModule.collaborateComment) && currentActiveStepIndex === 0">
-                <div class="collaborate-panel" :style="{'width':rightWidth + 'px', 'margin-top':collaborateTop+'px', 'z-index': 100, 'padding': '10px'}">
-                  <collaborate-comment-panel :source-id="unitPlanId" :source-type="contentType['unit-plan']" :field-name="currentFieldName" :comment-list="currentCollaborateCommentList" @update-comment="handleUpdateCommentList"/>
+                <div
+                  :style="{'width':rightWidth + 'px', 'margin-top':collaborateTop+'px', 'z-index': 100, 'padding': '10px'}"
+                  class="collaborate-panel">
+                  <collaborate-comment-panel
+                    :comment-list="currentCollaborateCommentList"
+                    :field-name="currentFieldName"
+                    :source-id="unitPlanId"
+                    :source-type="contentType['unit-plan']"
+                    @update-comment="handleUpdateCommentList" />
                 </div>
               </template>
               <template v-if="showRightModule(rightModule.imageUpload)">
-                <div class="form-block-right" :style="{'width':rightWidth + 'px'}">
+                <div :style="{'width':rightWidth + 'px'}" class="form-block-right">
                   <!-- image-->
-                  <a-form-model-item class="img-wrapper" >
+                  <a-form-model-item class="img-wrapper">
                     <a-upload-dragger
-                      name="file"
-                      accept="image/png, image/jpeg"
-                      :showUploadList="false"
                       :customRequest="handleUploadImage"
+                      :showUploadList="false"
+                      accept="image/png, image/jpeg"
+                      name="file"
                     >
-                      <div class="delete-img" @click="handleDeleteImage($event)" v-show="form.image">
+                      <div v-show="form.image" class="delete-img" @click="handleDeleteImage($event)">
                         <a-icon type="close-circle" />
                       </div>
                       <template v-if="uploading">
@@ -375,7 +482,7 @@
                       <template v-if="!uploading && form && !form.image">
                         <div class="upload-container">
                           <p class="ant-upload-drag-icon">
-                            <img src="~@/assets/icons/lesson/upload_icon.png" class="upload-icon" />
+                            <img class="upload-icon" src="~@/assets/icons/lesson/upload_icon.png" />
                           </p>
                           <p class="ant-upload-text">
                             {{ $t('teacher.add-unit-plan.upload-a-picture') }}
@@ -387,21 +494,27 @@
                 </div>
               </template>
               <template v-if="showRightModule(rightModule.customTag)">
-                <div v-show="!this.contentLoading" :style="{'width':rightWidth+'px', 'margin-top':customTagTop+'px', 'z-index': 50}">
+                <div
+                  v-show="!this.contentLoading"
+                  :style="{'width':rightWidth+'px', 'margin-top':customTagTop+'px', 'z-index': 50}">
                   <custom-tag
+                    ref="customTag"
+                    :custom-tags-list="customTagList"
+                    :selected-tags-list="form.customTags"
                     :show-arrow="showCustomTag"
                     :user-tags="userTags"
-                    :custom-tags-list="customTagList"
-                    ref="customTag"
-                    :selected-tags-list="form.customTags"
                     @reload-user-tags="loadUserTags"
                     @change-add-keywords="handleChangeAddKeywords"
                     @change-user-tags="handleChangeUserTags"></custom-tag>
                 </div>
               </template>
               <template v-if="showRightModule(rightModule.taskDetails) && currentActiveStepIndex === 0">
-                <div class="task-details-panel" :style="{'width':rightWidth + 'px', 'margin-top':taskDetailsTop+'px', 'z-index': 200}">
-                  <Assessment-Task-Details :associate-task-list="associateTaskList" @hide-assessment-task="resetRightModuleVisible()"/>
+                <div
+                  :style="{'width':rightWidth + 'px', 'margin-top':taskDetailsTop+'px', 'z-index': 200}"
+                  class="task-details-panel">
+                  <Assessment-Task-Details
+                    :associate-task-list="associateTaskList"
+                    @hide-assessment-task="resetRightModuleVisible()" />
                 </div>
               </template>
 
@@ -412,17 +525,17 @@
 
       <a-modal
         v-model="showCollaborateModalVisible"
+        :closable="true"
         :footer="null"
         :maskClosable="false"
-        :closable="true"
         destroyOnClose
         width="900px">
         <collaborate-user-list
+          v-if="showCollaborateModalVisible"
           :content-id="unitPlanId"
-          :main-content="collaborateContent"
           :content-type="contentType['unit-plan']"
-          @confirmSelect="confirmSelectCollaborateUsers"
-          v-if="showCollaborateModalVisible"/>
+          :main-content="collaborateContent"
+          @confirmSelect="confirmSelectCollaborateUsers" />
       </a-modal>
 
       <a-modal
@@ -430,28 +543,28 @@
         :footer="null"
         destroyOnClose
         title="Select Content Type"
-        @ok="selectAddContentTypeVisible = false"
-        @cancel="selectAddContentTypeVisible = false">
+        @cancel="selectAddContentTypeVisible = false"
+        @ok="selectAddContentTypeVisible = false">
         <div class="add-content-wrapper">
           <div class="add-content-item" @click="handleAddUnitPlanTask">
             <a>
-              <content-type-icon :type="contentType.task"/>
+              <content-type-icon :type="contentType.task" />
               {{ $t('teacher.add-unit-plan.task') }}
             </a>
           </div>
           <div class="add-content-item" @click="handleAddUnitPlanLesson">
-            <a >
-              <content-type-icon :type="contentType.lesson"/>
+            <a>
+              <content-type-icon :type="contentType.lesson" />
               {{ $t('teacher.add-unit-plan.lesson') }}
             </a>
           </div>
           <div class="add-content-item" @click="handleAddUnitPlanEvaluation">
-            <a >
-              <content-type-icon :type="contentType.evaluation"/>
+            <a>
+              <content-type-icon :type="contentType.evaluation" />
               {{ $t('teacher.add-unit-plan.evaluation') }}
             </a>
           </div>
-          <div class="add-loading" v-if="addLoading">
+          <div v-if="addLoading" class="add-loading">
             <a-spin />
           </div>
         </div>
@@ -462,18 +575,18 @@
         :footer="null"
         destroyOnClose
         title="Add Audio"
-        @ok="showAddAudioVisible = false"
-        @cancel="showAddAudioVisible = false">
+        @cancel="showAddAudioVisible = false"
+        @ok="showAddAudioVisible = false">
 
         <div class="audio-material-action">
-          <div class="uploading-mask" v-show="currentUploading">
+          <div v-show="currentUploading" class="uploading-mask">
             <div class="uploading">
               <a-spin large />
             </div>
           </div>
           <div class="action-item">
-            <a-upload name="file" accept="audio/*" :customRequest="handleUploadAudio" :showUploadList="false">
-              <a-button type="primary" icon="upload">{{ $t('teacher.add-unit-plan.upload-audio') }}</a-button>
+            <a-upload :customRequest="handleUploadAudio" :showUploadList="false" accept="audio/*" name="file">
+              <a-button icon="upload" type="primary">{{ $t('teacher.add-unit-plan.upload-audio') }}</a-button>
             </a-upload>
           </div>
           <a-divider>
@@ -485,11 +598,11 @@
               {{ $t('teacher.add-unit-plan.record-your-voice') }}
             </div>
           </div>
-          <div class="material-action" >
-            <a-button key="back" @click="handleCancelAddAudio" class="action-item">
+          <div class="material-action">
+            <a-button key="back" class="action-item" @click="handleCancelAddAudio">
               Cancel
             </a-button>
-            <a-button key="submit" type="primary" @click="handleConfirmAddAudio" class="action-item">
+            <a-button key="submit" class="action-item" type="primary" @click="handleConfirmAddAudio">
               Ok
             </a-button>
           </div>
@@ -500,33 +613,36 @@
         v-model="selectReferMyContentVisible"
         :footer="null"
         destroyOnClose
-        width="1150px"
         title="Refer MyContent"
-        @ok="selectReferMyContentVisible = false"
-        @cancel="selectReferMyContentVisible = false">
+        width="1150px"
+        @cancel="selectReferMyContentVisible = false"
+        @ok="selectReferMyContentVisible = false">
         <div class="link-content-wrapper">
-          <my-content-selector :current-id="unitPlanId" :filter-type-list="['unit-plan', 'topic']" :mode="DisplayMode.Refer" />
+          <my-content-selector
+            :current-id="unitPlanId"
+            :filter-type-list="['unit-plan', 'topic']"
+            :mode="DisplayMode.Refer" />
         </div>
       </a-modal>
 
       <a-drawer
-        destroyOnClose
-        placement="right"
         :closable="false"
         :mask="false"
-        width="700px"
         :visible="referDetailVisible"
+        destroyOnClose
+        placement="right"
+        width="700px"
         @close="handleCloseReferDetail"
       >
         <a-row class="preview-wrapper-row">
-          <a-col span="2" class="view-back-col">
+          <a-col class="view-back-col" span="2">
             <div class="view-back" @click="handleCloseReferDetail">
               <div class="back-icon">
                 <img src="~@/assets/icons/common/back.png" />
               </div>
             </div>
           </a-col>
-          <a-col span="24" class="preview-wrapper-col">
+          <a-col class="preview-wrapper-col" span="24">
             <div class="detail-wrapper">
               <div class="refer-detail">
                 <refer-preview
@@ -544,49 +660,49 @@
 
       <a-modal
         v-model="selectLinkContentVisible"
+        :dialog-style="{ top: '10px'}"
         :footer="null"
         destroyOnClose
-        :dialog-style="{ top: '10px'}"
         width="900px">
-        <div class="my-modal-title" slot="title">
+        <div slot="title" class="my-modal-title">
           Link my content
         </div>
         <div class="link-content-wrapper">
           <new-my-content
-            :from-type="contentType['unit-plan']"
-            :from-id="unitPlanId"
-            :filter-type-list="[contentType.task]"
-            :group-name-list="groupNameList"
             :default-group-name="newTermName"
-            :selected-list="selectedTaskList"
-            :mode="'common-link'"
+            :filter-type-list="[contentType.task]"
+            :from-id="unitPlanId"
+            :from-type="contentType['unit-plan']"
+            :group-name-list="groupNameList"
             :group-name-mode="groupNameMode"
+            :mode="'common-link'"
+            :selected-list="selectedTaskList"
             @cancel="selectLinkContentVisible = false"
-            @ensure="handleEnsureSelectedLink"/>
+            @ensure="handleEnsureSelectedLink" />
         </div>
       </a-modal>
 
       <a-modal
         v-model="selectSyncDataVisible"
+        :dialog-style="{ top: '20px' }"
         :footer="null"
+        :title="null"
         destroyOnClose
         width="1200px"
-        :dialog-style="{ top: '20px' }"
-        :title="null"
-        @ok="selectSyncDataVisible = false"
-        @cancel="selectSyncDataVisible = false">
+        @cancel="selectSyncDataVisible = false"
+        @ok="selectSyncDataVisible = false">
         <div class="link-content-wrapper">
           <!-- 此处的questionIndex用于标识区分是哪个组件调用的，返回的事件数据中会带上，方便业务数据处理，可随意写，可忽略, show-menu中列出的类型才会显示-->
           <new-browser
             ref="newBrowser"
-            :select-mode="selectModel.syncData"
-            question-index="_questionIndex_1"
-            :sync-data="syncData"
-            :show-menu="showMenuList"
             :default-active-menu="defaultActiveMenu"
             :recommend-data="recommendData"
-            :selected-list="selectedList"
+            :select-mode="selectModel.syncData"
             :selected-id="selectedIdList"
+            :selected-list="selectedList"
+            :show-menu="showMenuList"
+            :sync-data="syncData"
+            question-index="_questionIndex_1"
             @select-assessmentType="handleSelectAssessmentType"
             @select-sync="handleSelectListData"
             @select-curriculum="handleSelectCurriculum"
@@ -604,17 +720,30 @@
         v-model="questionSettingVisible"
         :footer="null"
         destroyOnClose
-        width="600px"
-        title="Set key question(s) / Line(s) of inquiry">
+        title="Set key question(s) / Line(s) of inquiry"
+        width="600px">
         <div class="ensure-setting-modal">
           <div class="tips">
-            <p>We understand that for some countries, "key questions/line of inquiry" is not required in Unit plan so you have the option to turn it off. You won't see that section once it's off.</p><p>
-            </p><p style="color: red">You might turn it on or change in your account setting If you need the section in future.</p>
+            <p>We understand that for some countries, "key questions/line of inquiry" is not required in Unit plan so
+              you have the option to turn it off. You won't see that section once it's off.</p>
+            <p>
+            </p>
+            <p style="color: red">You might turn it on or change in your account setting If you need the section in
+              future.</p>
           </div>
-          <a-switch v-model="disableQuestion" @change="onChangeSwitch"/> <span style="color: red ;font-family: Inter-Bold;font-size: 15px;"> Key question(s) / Line(s) of inquiry</span>
+          <a-switch v-model="disableQuestion" @change="onChangeSwitch" />
+          <span
+            style="color: red ;font-family: Inter-Bold;font-size: 15px;"> Key question(s) / Line(s) of inquiry</span>
           <div class="modal-ensure-action-line-center">
-            <a-button class="action-item action-cancel" shape="round" @click="questionSettingVisible=false">Cancel</a-button>
-            <a-button class="action-ensure action-item" :loading="confirmLoading" type="primary" shape="round" @click="handQuestionSetting">Confirm</a-button>
+            <a-button class="action-item action-cancel" shape="round" @click="questionSettingVisible=false">Cancel
+            </a-button>
+            <a-button
+              :loading="confirmLoading"
+              class="action-ensure action-item"
+              shape="round"
+              type="primary"
+              @click="handQuestionSetting">Confirm
+            </a-button>
           </div>
         </div>
       </a-modal>
@@ -623,18 +752,24 @@
         v-model="selectBigIdeaDataVisible"
         :footer="null"
         destroyOnClose
-        width="70%"
         title="Browse big idea"
-        @ok="selectBigIdeaDataVisible = false"
-        @cancel="selectBigIdeaDataVisible = false">
+        width="70%"
+        @cancel="selectBigIdeaDataVisible = false"
+        @ok="selectBigIdeaDataVisible = false">
         <div class="link-content-wrapper">
           <BigIdeaBrowse @handle-select="handleSelectBigIdeaData">
 
           </BigIdeaBrowse>
 
           <div class="modal-ensure-action-line-right">
-            <a-button class="action-item action-cancel" shape="round" @click="selectBigIdeaDataVisible=false">Cancel</a-button>
-            <a-button class="action-ensure action-item" type="primary" shape="round" @click="handleEnsureSelectBigIdeaData">Ok</a-button>
+            <a-button class="action-item action-cancel" shape="round" @click="selectBigIdeaDataVisible=false">Cancel
+            </a-button>
+            <a-button
+              class="action-ensure action-item"
+              shape="round"
+              type="primary"
+              @click="handleEnsureSelectBigIdeaData">Ok
+            </a-button>
           </div>
         </div>
       </a-modal>
@@ -643,16 +778,25 @@
         v-model="questionMoreVisible"
         :footer="null"
         destroyOnClose
-        width="900px"
         title="Browse Key Questions"
-        @ok="questionMoreVisible = false"
-        @cancel="questionMoreVisible = false">
+        width="900px"
+        @cancel="questionMoreVisible = false"
+        @ok="questionMoreVisible = false">
         <div class="link-content-wrapper">
-          <QuestionBrowse :big-idea="form.inquiry" :question-list="form.questions" @select-question="handleSelectQuestion"></QuestionBrowse>
+          <QuestionBrowse
+            :big-idea="form.inquiry"
+            :question-list="form.questions"
+            @select-question="handleSelectQuestion"></QuestionBrowse>
 
           <div class="modal-ensure-action-line-right" style="justify-content: center">
-            <a-button class="action-item action-cancel" shape="round" @click="questionMoreVisible=false">Cancel</a-button>
-            <a-button class="action-ensure action-item" type="primary" shape="round" @click="handleEnsureSelectQuestionData">Ok</a-button>
+            <a-button class="action-item action-cancel" shape="round" @click="questionMoreVisible=false">Cancel
+            </a-button>
+            <a-button
+              class="action-ensure action-item"
+              shape="round"
+              type="primary"
+              @click="handleEnsureSelectQuestionData">Ok
+            </a-button>
           </div>
         </div>
       </a-modal>
@@ -1192,7 +1336,12 @@ export default {
       const formData = new FormData()
       formData.append('file', data.file, data.file.name)
       this.uploading = true
-      this.$http.post(commonAPIUrl.UploadFile, formData, { contentType: false, processData: false, headers: { 'Content-Type': 'multipart/form-data' }, timeout: 60000 })
+      this.$http.post(commonAPIUrl.UploadFile, formData, {
+        contentType: false,
+        processData: false,
+        headers: { 'Content-Type': 'multipart/form-data' },
+        timeout: 60000
+      })
         .then((response) => {
           logger.info('handleUploadImage upload response:', response)
           this.form.image = this.$store.getters.downloadUrl + response.result
@@ -1414,7 +1563,8 @@ export default {
         LessonAddOrUpdate({
           name: 'Unnamed Lesson',
           associateId: this.form.id,
-          associateType: this.form.type }).then((response) => {
+          associateType: this.form.type
+        }).then((response) => {
           this.$logger.info('LessonAddOrUpdate', response.result)
           if (response.success) {
             Associate({
@@ -1492,7 +1642,12 @@ export default {
       this.currentUploading = true
       const formData = new FormData()
       formData.append('file', data, 'audio.wav')
-      this.$http.post(commonAPIUrl.UploadFile, formData, { contentType: false, processData: false, headers: { 'Content-Type': 'multipart/form-data' }, timeout: 60000 })
+      this.$http.post(commonAPIUrl.UploadFile, formData, {
+        contentType: false,
+        processData: false,
+        headers: { 'Content-Type': 'multipart/form-data' },
+        timeout: 60000
+      })
         .then((response) => {
           logger.info('handleAudioResult upload response:', response)
           this.audioUrl = this.$store.getters.downloadUrl + response.result
@@ -1510,7 +1665,12 @@ export default {
       const formData = new FormData()
       formData.append('file', data.file, data.file.name)
       this.uploading = true
-      this.$http.post(commonAPIUrl.UploadFile, formData, { contentType: false, processData: false, headers: { 'Content-Type': 'multipart/form-data' }, timeout: 60000 })
+      this.$http.post(commonAPIUrl.UploadFile, formData, {
+        contentType: false,
+        processData: false,
+        headers: { 'Content-Type': 'multipart/form-data' },
+        timeout: 60000
+      })
         .then((response) => {
           logger.info('handleUploadAudio upload response:', response)
           this.audioUrl = this.$store.getters.downloadUrl + response.result
@@ -2245,9 +2405,7 @@ export default {
             }
           })
         }
-      }).finally({
-
-      })
+      }).finally({})
     },
     handerInsertQuestion (question) {
       const formQuestion = this.form.questions.map(item => {
@@ -2318,12 +2476,12 @@ export default {
 }
 </script>
 
-<style lang="less" scoped>
+<style lang='less' scoped>
 @import "~@/components/index.less";
 
 .unit-plan-header {
   padding-bottom: 16px;
-  border-bottom: 1px solid  rgb(235, 238, 240);
+  border-bottom: 1px solid rgb(235, 238, 240);
 
   .nav-back-btn {
     padding-left: 0;
@@ -2390,10 +2548,12 @@ export default {
       .add-to-type {
         border-right: none;
         color: @text-color;
+
         .add-to-type-label {
           padding: 15px 0 5px 0;
           cursor: pointer;
         }
+
         .add-to-list {
           display: flex;
           flex-direction: column;
@@ -2433,6 +2593,7 @@ export default {
     .upload-icon {
       height: 70px;
     }
+
     .select-template {
       text-align: center;
 
@@ -2474,7 +2635,7 @@ export default {
       border-radius: 3px;
       margin-bottom: 5px;
 
-      .scenario-description{
+      .scenario-description {
         margin-top: 10px;
         position: relative;
 
@@ -2483,7 +2644,7 @@ export default {
           display: block;
           position: absolute;
           text-align: center;
-          right:-40px;
+          right: -40px;
           top: 0;
           line-height: 40px;
           width: 40px;
@@ -2492,7 +2653,8 @@ export default {
           color: @link-hover-color;
           z-index: 100;
         }
-        .browse{
+
+        .browse {
           padding: 10px 5px;
           position: absolute;
           right: -100px;
@@ -2503,14 +2665,17 @@ export default {
           justify-content: flex-start;
           border-radius: 6px;
         }
+
         .btn-icon {
           height: 18px;
           width: 18px;
         }
+
         .btn-text {
           padding: 0 5px;
         }
-        .my-big-select{
+
+        .my-big-select {
           //width: 600px;
         }
       }
@@ -2542,6 +2707,7 @@ export default {
         //border: 1px dotted @link-hover-color;
         cursor: pointer;
         box-sizing: border-box;
+
         .knowledge-delete-wrapper {
           display: block;
         }
@@ -2557,14 +2723,17 @@ export default {
         }
       }
     }
+
     .content-blocks {
       //width: 600px;
       position: relative;
       border: 1px dotted #fff;
-      .scenario-description{
+
+      .scenario-description {
         margin-top: 10px;
         position: relative;
-        .browse{
+
+        .browse {
           padding: 10px 5px;
           position: absolute;
           right: -100px;
@@ -2575,10 +2744,12 @@ export default {
           justify-content: flex-start;
           border-radius: 6px;
         }
+
         .btn-icon {
           height: 18px;
           width: 18px;
         }
+
         .btn-text {
           padding: 0 5px;
         }
@@ -2589,7 +2760,7 @@ export default {
         display: block;
         position: absolute;
         text-align: center;
-        right:-60px;
+        right: -60px;
         top: 5px;
         line-height: 50px;
         width: 50px;
@@ -2627,6 +2798,7 @@ export default {
         //border: 1px dotted @link-hover-color;
         cursor: pointer;
         box-sizing: border-box;
+
         .knowledge-delete-wrapper {
           display: block;
         }
@@ -2651,6 +2823,7 @@ export default {
     padding: 0 5px;
     box-sizing: border-box;
     cursor: pointer;
+
     &:hover {
       background-color: fade(@outline-color, 20%);
     }
@@ -2708,6 +2881,7 @@ export default {
   justify-content: center;
   align-items: center;
   position: relative;
+
   .add-loading {
     position: absolute;
     top: 50%;
@@ -2720,6 +2894,7 @@ export default {
     margin-left: -20px;
     margin-top: -20px;
   }
+
   .add-content-item {
     width: 80%;
     margin-bottom: 20px;
@@ -2746,6 +2921,7 @@ export default {
   justify-content: flex-end;
   align-items: center;
   margin-top: 20px;
+
   .button-item {
     margin-left: 10px;
   }
@@ -2768,7 +2944,8 @@ export default {
       height: 40px;
     }
   }
-  &.ant-form-item{
+
+  &.ant-form-item {
     margin-bottom: 0px;
   }
 }
@@ -2778,6 +2955,7 @@ export default {
   flex-direction: row;
   align-items: center;
   height: 30px;
+
   audio {
     height: 30px;
     border: none;
@@ -2790,6 +2968,7 @@ export default {
     cursor: pointer;
   }
 }
+
 .audio-material-action {
   position: relative;
   display: flex;
@@ -2803,6 +2982,7 @@ export default {
     bottom: 0;
     background-color: fade(#eee, 80%);
     z-index: 100;
+
     .uploading {
       z-index: 110;
       position: absolute;
@@ -2829,6 +3009,7 @@ export default {
     justify-content: center;
     align-items: center;
     padding: 15px 0;
+
     .action-tips {
       line-height: 32px;
       cursor: pointer;
@@ -2836,6 +3017,7 @@ export default {
     }
   }
 }
+
 .material-action {
   padding: 10px 0;
   display: flex;
@@ -2846,6 +3028,7 @@ export default {
     margin-left: 20px;
   }
 }
+
 .ant-select-dropdown-menu-item {
   overflow: auto;
   white-space: normal;
@@ -2883,11 +3066,13 @@ export default {
 .form-block {
   margin-bottom: 10px;
   position: relative;
+
   &:hover {
     .my-comment-switch {
       display: block;
     }
   }
+
   .refer-action {
     .refer-text {
       font-family: Inter-Bold;
@@ -2897,7 +3082,7 @@ export default {
     }
 
     .refer-btn {
-      .refer{
+      .refer {
         padding: 10px 15px;
         display: flex;
         flex-direction: row;
@@ -2905,16 +3090,19 @@ export default {
         justify-content: flex-start;
         border-radius: 6px;
       }
+
       .btn-icon {
         height: 12px;
         width: 12px;
       }
+
       .btn-text {
         padding-left: 8px;
       }
     }
   }
-  /deep/ .ant-form-item label{
+
+  /deep/ .ant-form-item label {
     font-size: 16px;
     font-weight: 500;
     font-family: Inter-Bold;
@@ -2941,21 +3129,24 @@ export default {
   }
 }
 
-.card-wrapper{
+.card-wrapper {
   .unit-plan-form-left {
     position: relative;
-    /deep/ .ant-steps-item-content{
+
+    /deep/ .ant-steps-item-content {
       padding-right: 30px;
     }
   }
 
   .unit-plan-form-right {
     position: relative;
-    .form-block-right{
+
+    .form-block-right {
       .img-wrapper {
         position: relative;
-        width:100%;
+        width: 100%;
       }
+
       .delete-img {
         position: absolute;
         top: -10px;
@@ -2978,20 +3169,23 @@ export default {
   margin-bottom: 20px;
   position: relative;
 }
-.my-form-textarea{
-  height:40px;
+
+.my-form-textarea {
+  height: 40px;
   margin-bottom: 10px;
 }
 
-.preview-wrapper-row{
-  .preview-wrapper-col{
+.preview-wrapper-row {
+  .preview-wrapper-col {
     margin: 15px;
   }
+
   .view-back-col {
     position: absolute;
     left: -20px;
     top: -20px;
-    .view-back{
+
+    .view-back {
       .back-icon {
         text-align: left;
 
@@ -3016,36 +3210,42 @@ export default {
   .over-form-block {
     border: 1px solid #15C39A !important;
   }
-  .overview-toggle{
-    color:#15c39a;
+
+  .overview-toggle {
+    color: #15c39a;
     float: right;
-    margin:5px 0px;
+    margin: 5px 0px;
     line-height: 20px;
     border-radius: 5px;
+
     &:hover {
       background-color: fade(@outline-color, 20%);
       color: @primary-color;
     }
   }
-  .overview-task-details{
+
+  .overview-task-details {
     //border: 1px solid #15C39A !important;
-    margin:10px 0px;
-    margin-bottom:30px;
-    .task-item{
-      line-height:25px;
+    margin: 10px 0px;
+    margin-bottom: 30px;
+
+    .task-item {
+      line-height: 25px;
       //border: 1px solid #e8e8e8;
       border: 1px solid #15c39a;
       padding: 10px;;
       margin-top: 5px;
       border-radius: 5px;
-      .task-action-edit{
+
+      .task-action-edit {
         height: 20px;
         margin-top: 8px;
         display: flex;
         align-items: center;
         justify-content: right;
       }
-      /deep/ .ant-tag{
+
+      /deep/ .ant-tag {
         border-radius: 5px;
       }
     }
@@ -3055,7 +3255,8 @@ export default {
 .sdg {
   .sdg-form-block {
     border: 1px solid #15C39A !important;
-    .my-big-select{
+
+    .my-big-select {
       //width: 600px;
     }
   }
@@ -3067,12 +3268,14 @@ export default {
     border: 1px solid #15C39A !important;
   }
 }
-.form-block-rwc{
+
+.form-block-rwc {
   margin-top: -25px;
+
   /deep/ .ant-form-item-label label {
     font-weight: 500;
     font-family: inherit;
-    font-size:14px;
+    font-size: 14px;
     line-height: 20px;
     color: #000000;
   }
@@ -3083,7 +3286,8 @@ export default {
     border: 1px solid #15C39A !important;
   }
 }
-#inquiry{
+
+#inquiry {
   //margin-top: -10px;
   position: relative;
 }
@@ -3105,7 +3309,8 @@ export default {
   font-weight: bold;
   margin-bottom: 15px;
 }
-.browse{
+
+.browse {
   font-size: 20px;
   padding: 0px 5px;
   position: absolute;
@@ -3118,8 +3323,9 @@ export default {
   justify-content: flex-start;
   border-radius: 6px;
 }
-/deep/ .ant-steps-item-title{
-  font-size:18px
+
+/deep/ .ant-steps-item-title {
+  font-size: 18px
 }
 
 .root-locate-form {
@@ -3137,6 +3343,7 @@ export default {
 .collaborate-panel {
   background-color: #fff;
   box-shadow: 0px 6px 10px rgba(159, 159, 159, 0.16);
+
   .icon {
     padding: 10px 5px 0 15px;
     display: flex;
@@ -3152,6 +3359,7 @@ export default {
 
 .ensure-setting-modal {
   padding: 20px;
+
   .tips {
     margin-bottom: 20px;
     font-family: Inter-Bold;
@@ -3168,52 +3376,63 @@ export default {
   }
 }
 
-.recommend-question{
+.recommend-question {
   background: rgba(245, 245, 245, 0.5);
   margin-bottom: 6px;
   position: relative;
-  .close-icon{
+
+  .close-icon {
     position: absolute;
     right: 10px;
     top: 10px;
     cursor: pointer;
   }
-  .recommend-box{
+
+  .recommend-box {
     padding: 10px;
-    .title{
+
+    .title {
       font-size: 16px;
       font-weight: bold;
     }
   }
-  .recommend-ul li{
+
+  .recommend-ul li {
     line-height: 25px;
     cursor: pointer;
     list-style-type: circle;
-    .add-question{
+
+    .add-question {
       //float: right;
     }
-    &:hover{
+
+    &:hover {
       color: #15c39a;
     }
   }
 }
-.question-more{
+
+.question-more {
   top: -40px;
   left: 500px;
   position: absolute;
   cursor: pointer;
 }
+
 /deep/ .ant-breadcrumb > span:last-child {
   color: rgba(0, 0, 0, 0.45);
 }
-.form-block-disabled{
+
+.form-block-disabled {
   background-color: #f5f5f5;
   cursor: not-allowed;
 }
-/deep/  textarea{
+
+/deep/ textarea {
   border-radius: 5px;
 }
-code{
+
+code {
   margin: 0 1px;
   background: #f2f4f5;
   padding: .2em .4em;
@@ -3222,17 +3441,20 @@ code{
   border: 1px solid #eee;
   color: rgba(0, 0, 0, 0.85);
 }
-.grade-time{
+
+.grade-time {
   display: flex;
-  justify-content:space-between;
-  .range-time{
-    /deep/ .ant-input{
+  justify-content: space-between;
+
+  .range-time {
+    /deep/ .ant-input {
       border-radius: 4px;
-      font-size:13px;
-      width:100%;
+      font-size: 13px;
+      width: 100%;
       padding: 6px 7px;
     }
-    .week-time{
+
+    .week-time {
       position: absolute;
       /* width: 300px; */
       top: -50px;
@@ -3241,7 +3463,8 @@ code{
   }
 
 }
-.assessment-task-button{
+
+.assessment-task-button {
   border: none;
   font-size: 18px;
   font-family: Inter-Bold;
@@ -3251,7 +3474,8 @@ code{
   float: right;
   margin-top: 5px;
 }
-.addCategory /deep/ .anticon{
+
+.addCategory /deep/ .anticon {
   position: absolute;
   left: 20px;
 }
