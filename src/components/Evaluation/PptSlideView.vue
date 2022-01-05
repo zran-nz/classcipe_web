@@ -306,6 +306,24 @@
     <div class='loading' v-if='loading'>
       <a-spin />
     </div>
+
+    <a-modal
+      destroyOnClose
+      :footer='null'
+      :closable='false'
+      width='800px'
+      v-model='previewItemVisible'
+      :bodyStyle="{
+        'padding': '0px',
+      }"
+      @ok='previewItemVisible = false'>
+      <div class='preview-item'>
+        <img :src='previewItemUrl' class='preview-img' @load='previewLoading = false' />
+        <div class='preview-loading' v-if='previewLoading'>
+          <a-spin class='preview-loading' />
+        </div>
+      </div>
+    </a-modal>
   </div>
 </template>
 
@@ -402,7 +420,10 @@ export default {
       currentPageElementLists: [],
       mediaList: [],
       currentViewSlideItem: null,
-      viewSlideItemVisible: false
+      viewSlideItemVisible: false,
+      previewItemUrl: null,
+      previewItemVisible: false,
+      previewLoading: false
     }
   },
   computed: {
@@ -430,7 +451,12 @@ export default {
       Promise.all([
         TemplatesGetPresentation({ presentationId: this.slideId }),
         QueryByClassInfoSlideId({ slideId: this.slideId }),
-        QuerySessionEvaluation({ classId: this.classId, formId: this.formId, rowId: this.rowId }),
+        QuerySessionEvaluation({
+          classId: this.classId,
+          formId: this.formId,
+          rowId: this.rowId,
+          user: this.studentName
+        }),
         QueryResponseByClassId({ classId: this.classId })
       ]).then(response => {
         this.$logger.info('加载PPT数据 response', response)
@@ -645,7 +671,9 @@ export default {
     },
 
     handleViewItem(url) {
-      window.open(url, '_blank')
+      this.previewItemUrl = url
+      this.previewItemVisible = true
+      this.previewLoading = true
     }
   }
 }
@@ -1215,6 +1243,7 @@ export default {
 
 .img-item-list {
   margin: 5px 0;
+  padding: 0 10px;
 
   .img-item {
     display: flex;
@@ -1245,6 +1274,7 @@ export default {
 
 .audio-item-list {
   margin: 5px 0;
+  padding: 0 10px;
 
   .audio-item {
     display: flex;
@@ -1268,7 +1298,7 @@ export default {
       cursor: pointer;
 
       audio {
-        width: 80%;
+        width: 100%;
         height: 30px;
       }
     }
@@ -1276,7 +1306,7 @@ export default {
 }
 
 .video-item-list {
-  padding: 10px 0;
+  padding: 10px 10px;
 
   .video-item {
     display: flex;
@@ -1323,6 +1353,25 @@ export default {
   border-radius: 3px;
   background: rgba(0, 0, 0, 0.12);
   -webkit-box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.2);
+}
+
+.preview-item {
+  width: 100%;
+  position: relative;
+
+  img {
+    width: 100%;
+    z-index: 500;
+  }
+
+  .preview-loading {
+    height: 300px;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 200;
+  }
 }
 
 </style>
