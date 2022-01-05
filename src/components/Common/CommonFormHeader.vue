@@ -1,74 +1,78 @@
 <template>
-  <a-row class="common-form-header">
-    <a-col span="15">
+  <a-row class='common-form-header'>
+    <a-col span='15'>
       <a-space>
-        <span class="back-icon">
-          <a-icon type="left" />
+        <span class='back-icon'>
+          <a-icon type='left' />
         </span>
-        <a-button class="nav-back-btn" type="link" @click="handleBack">{{ $t('teacher.add-lesson.back') }}</a-button>
-        <span> <content-type-icon :type="form.type" /></span>
-        <template v-if="form.type === typeMap.evaluation">
-          <div class="edit-form-name">
-            <div class="form-name">
-              <template v-if="!editFormNameMode">{{ form.name ? form.name : 'Untitled' }}</template>
+        <a-button class='nav-back-btn' type='link' @click='handleBack'>{{ $t('teacher.add-lesson.back') }}</a-button>
+        <span> <content-type-icon :type='form.type' /></span>
+        <template v-if='form.type === typeMap.evaluation'>
+          <div class='edit-form-name'>
+            <div class='form-name'>
+              <template v-if='!editFormNameMode'>{{ form.name ? form.name : 'Untitled' }}</template>
               <template v-else>
-                <a-input v-model="formName" :maxLength="240" @keyup.enter="handleEnsureNewFormName" @click.stop/>
+                <a-input v-model='formName' :maxLength='240' @keyup.enter='handleEnsureNewFormName' @click.stop />
               </template>
             </div>
-            <div class="edit-icon" @click.stop="editFormNameMode = !editFormNameMode" :data-editFormNameMode="editFormNameMode ? 'true': 'false'">
-              <img src="~@/assets/svgIcon/evaluation/bianji.png" />
+            <div class='edit-icon' @click.stop='editFormNameMode = !editFormNameMode'
+                 :data-editFormNameMode="editFormNameMode ? 'true': 'false'">
+              <img src='~@/assets/svgIcon/evaluation/bianji.png' />
             </div>
-            <div class="class-name" v-if="form.studentEvaluateData">{{ form.className ? form.className : 'Untitled className' }}</div>
+            <div class='class-name' v-if='form.studentEvaluateData'>
+              {{ form.className ? form.className : 'Untitled className' }}
+            </div>
           </div>
         </template>
-        <template v-if="form.type !== typeMap.evaluation">
-          <span class="unit-last-change-time" v-if="lastChangeSavedTime">
-            <span class="unit-nav-title">
+        <template v-if='form.type !== typeMap.evaluation'>
+          <span class='unit-last-change-time' v-if='lastChangeSavedTime'>
+            <span class='unit-nav-title'>
               {{ form.name }}
             </span>
-            <a-divider type="vertical" v-if="!!form.name" />
-            {{ $t('teacher.add-lesson.last-change-saved-at-time', {time: lastChangeSavedTime}) }}
+            <a-divider type='vertical' v-if='!!form.name' />
+            {{ $t('teacher.add-lesson.last-change-saved-at-time', { time: lastChangeSavedTime }) }}
           </span>
         </template>
       </a-space>
     </a-col>
-    <a-col span="9" class="unit-right-action">
-      <a-space v-show="!hiddenRightButton">
-        <div class="collaborate-users">
-          <a-dropdown v-show="collaborateUserList.length > 3">
-            <a class="ant-dropdown-link" >
-              Others <a-icon type="more" />
+    <a-col span='9' class='unit-right-action'>
+      <a-space v-show='!hiddenRightButton'>
+        <div class='collaborate-users'>
+          <a-dropdown v-show='collaborateUserList.length > 3'>
+            <a class='ant-dropdown-link'>
+              Others
+              <a-icon type='more' />
             </a>
-            <a-menu slot="overlay">
-              <a-menu-item v-if="index > 2" v-for="(user,index) in collaborateUserList" :key="index">
-                <a-avatar size="small" class="user-item" :src="user.userAvatar" />
+            <a-menu slot='overlay'>
+              <a-menu-item v-if='index > 2' v-for='(user,index) in collaborateUserList' :key='index'>
+                <a-avatar size='small' class='user-item' :src='user.userAvatar' />
                 {{ user.userName }}
               </a-menu-item>
             </a-menu>
           </a-dropdown>
-          <div v-if="index < 3" v-for="(user,index) in collaborateUserList" :key="index">
-            <a-tooltip :title="user.userName" placement="bottom">
-              <a-avatar size="small" class="user-item" :src="user.userAvatar" />
+          <div v-if='index < 3' v-for='(user,index) in collaborateUserList' :key='index'>
+            <a-tooltip :title='user.userName' placement='bottom'>
+              <a-avatar size='small' class='user-item' :src='user.userAvatar' />
             </a-tooltip>
           </div>
-          <a-tooltip :title="owner.email" placement="bottom" v-if="owner && !isOwner && isCollaborater">
-            <a-avatar size="small" class="user-item" :src="owner.avatar" />
+          <a-tooltip :title='owner.email' placement='bottom' v-if='owner && !isOwner && isCollaborater'>
+            <a-avatar size='small' class='user-item' :src='owner.avatar' />
           </a-tooltip>
         </div>
-        <a-tooltip title="Collaborate" v-show="isOwner">
-          <div class="collaborate-comment" @click="handleStartCollaborate">
-            <collaborate-user-icon class="active-icon"/>
+        <a-tooltip title='Collaborate' v-show='isOwner'>
+          <div class='collaborate-comment' @click='handleStartCollaborate'>
+            <collaborate-user-icon class='active-icon' />
           </div>
         </a-tooltip>
-        <div class="collaborate-comment" @click="handleViewComment" v-if="form.type !== typeMap.evaluation">
-          <comment-icon class="active-icon"/>
+        <div class='collaborate-comment' @click='handleViewComment' v-if='form.type !== typeMap.evaluation'>
+          <comment-icon class='active-icon' />
         </div>
         <a-button
-          v-show="isOwner || isEditCollaborater"
-          @click="handleSave"
-          :loading="saving"
-          class="my-form-header-btn"
-          style="{
+          v-show='isOwner || isEditCollaborater'
+          @click='handleSave'
+          :loading='saving'
+          class='my-form-header-btn'
+          style='{
             width: 120px;
             display: flex;
             flex-direction: row;
@@ -78,14 +82,14 @@
             border: 1px solid #15C39A;
             border-radius: 20px;
             padding: 15px 20px;
-          }">
-          <div class="btn-icon">
-            <img src="~@/assets/icons/common/form/baocun@2x.png" />
+          }'>
+          <div class='btn-icon'>
+            <img src='~@/assets/icons/common/form/baocun@2x.png' />
           </div>
           <div
-            class="btn-text"
+            class='btn-text'
             :data-isOwner="isOwner + ''"
-            :data-isEditCollaborater="isEditCollaborater + ''" >
+            :data-isEditCollaborater="isEditCollaborater + ''">
             Save & Exit
           </div>
           <!--          <div class="btn-text" v-else>-->
@@ -93,10 +97,10 @@
           <!--          </div>-->
         </a-button>
         <a-button
-          v-show="isOwner && form.status === 0"
-          :loading="publishing"
-          class="my-form-header-btn"
-          style="{
+          v-show='isOwner && form.status === 0'
+          :loading='publishing'
+          class='my-form-header-btn'
+          style='{
             width: 120px;
             display: flex;
             flex-direction: row;
@@ -106,24 +110,24 @@
             border: 1px solid #15C39A;
             border-radius: 20px;
             padding: 15px 20px;
-          }"
-          @click="handlePublish(1)" >
-          <div class="btn-icon">
-            <img src="~@/assets/icons/common/form/fabu@2x.png" />
+          }'
+          @click='handlePublish(1)'>
+          <div class='btn-icon'>
+            <img src='~@/assets/icons/common/form/fabu@2x.png' />
           </div>
           <div
-            class="btn-text"
+            class='btn-text'
             :data-isOwner="isOwner + ''"
-            :data-form-status="form.status + ''" >
+            :data-form-status="form.status + ''">
             Save & Publish
           </div>
         </a-button>
 
         <a-button
-          v-if="isOwner && form.status === 1"
-          :loading="publishing"
-          class="my-form-header-btn"
-          style="{
+          v-if='isOwner && form.status === 1'
+          :loading='publishing'
+          class='my-form-header-btn'
+          style='{
             width: 120px;
             display: flex;
             flex-direction: row;
@@ -133,15 +137,15 @@
             border: 1px solid #15C39A;
             border-radius: 20px;
             padding: 15px 20px;
-          }"
-          @click="handlePublish(0)" >
-          <div class="btn-icon">
-            <a-icon style="font-size: 16px" theme="filled" type="down-square" />
+          }'
+          @click='handlePublish(0)'>
+          <div class='btn-icon'>
+            <a-icon style='font-size: 16px' theme='filled' type='down-square' />
           </div>
           <div
-            class="btn-text"
+            class='btn-text'
             :data-isOwner="isOwner + ''"
-            :data-form-status="form.status + ''" >
+            :data-form-status="form.status + ''">
             Unpublish
           </div>
         </a-button>
@@ -180,6 +184,7 @@ import CollaborateUserIcon from '@/assets/icons/collaborate/collaborate_user.svg
 import ContentTypeIcon from '@/components/Teacher/ContentTypeIcon'
 import { typeMap } from '@/const/teacher'
 import EditIcon from '@/assets/svgIcon/evaluation/bianji.svg?inline'
+
 export default {
   name: 'CommonFormHeader',
   components: {
@@ -210,7 +215,7 @@ export default {
       default: false
     }
   },
-  data () {
+  data() {
     return {
       publishing: false,
       saving: false,
@@ -222,14 +227,14 @@ export default {
     }
   },
   computed: {
-    isOwner () {
+    isOwner() {
       return this.$store.getters.userInfo.email === this.form.createBy
     },
-    isCollaborater () {
+    isCollaborater() {
       const index = this.collaborateUserList.findIndex(item => item.email === this.$store.getters.userInfo.email)
       return index > -1
     },
-    isEditCollaborater () {
+    isEditCollaborater() {
       const index = this.collaborateUserList.findIndex(item => item.email === this.$store.getters.userInfo.email)
       if (index > -1) {
         return this.collaborateUserList[index].permissions === 'Edit'
@@ -238,21 +243,21 @@ export default {
     }
   },
   watch: {
-    collaborate (val) {
+    collaborate(val) {
       this.collaborateUserList = val.users
       this.owner = val.owner
     }
   },
-  created () {
+  created() {
     this.$logger.info('form header name:' + this.form.name + ' lastChangeSavedTime:' + this.lastChangeSavedTime)
     if (this.form && this.form.name) {
       this.formName = this.form.name
     }
-    this.collaborateUserList = this.collaborate.users ? this.collaborate.users : []
+    this.collaborateUserList = (this.collaborate.hasOwnProperty('users') && this.collaborate.users) ? this.collaborate.users : []
     this.owner = this.collaborate.owner
   },
   methods: {
-    handleBack () {
+    handleBack() {
       this.$logger.info('handleBack')
       if (this.isOwner) {
         this.$router.push({ path: '/teacher/main/created-by-me' })
@@ -264,25 +269,25 @@ export default {
 
       // this.$emit('back')
     },
-    handleSave () {
+    handleSave() {
       this.saving = true
       this.$logger.info('handleSave')
       this.$emit('save')
     },
-    handlePublish (status) {
+    handlePublish(status) {
       this.publishing = true
       this.$logger.info('handlePublish')
       this.$emit('publish', status)
     },
-    handleStartCollaborate () {
+    handleStartCollaborate() {
       this.$logger.info('handleStartCollaborate')
       this.$emit('collaborate')
     },
 
-    handleViewComment () {
+    handleViewComment() {
       this.$emit('view-collaborate')
     },
-    handleEnsureNewFormName () {
+    handleEnsureNewFormName() {
       this.$logger.info('handleEnsureNewFormName ' + this.form.name)
       this.editFormNameMode = false
       if (this.formName && this.formName !== this.form.name) {
@@ -296,7 +301,7 @@ export default {
 }
 </script>
 
-<style lang="less" scoped>
+<style lang='less' scoped>
 @import "~@/components/index.less";
 
 .common-form-header {
@@ -309,6 +314,7 @@ export default {
   .back-icon {
     color: rgba(24, 37, 82, 1);
   }
+
   .nav-back-btn {
     padding-left: 0;
     font-size: 14px;
@@ -342,13 +348,16 @@ export default {
     display: flex;
     right: 10px;
     justify-content: flex-end;
-    .my-form-header-btn{
+
+    .my-form-header-btn {
 
     }
-    .collaborate-users{
+
+    .collaborate-users {
       display: flex;
-      .user-item{
-        margin:0px 4px;
+
+      .user-item {
+        margin: 0px 4px;
       }
     }
 
@@ -358,6 +367,7 @@ export default {
       flex-direction: row;
       align-items: center;
       justify-content: center;
+
       svg {
         width: 30px;
       }
@@ -371,6 +381,7 @@ export default {
   flex-direction: row;
   align-items: center;
   justify-content: center;
+
   img {
     height: 15px;
     width: 15px;
@@ -388,14 +399,17 @@ export default {
   display: flex;
   flex-direction: row;
   align-items: center;
- .edit-icon {
-   margin-left: 10px;
-   margin-right: 30px;
-   cursor: pointer;
-   img {
-     width: 17px;
-   }
- }
+
+  .edit-icon {
+    margin-left: 10px;
+    margin-right: 30px;
+    cursor: pointer;
+
+    img {
+      width: 17px;
+    }
+  }
+
   .class-name {
     display: flex;
     align-items: center;
