@@ -1,12 +1,12 @@
 <template>
-  <div class='new-tree-navigation'>
+  <div class="new-tree-navigation">
     <new-tree-item
-      v-show='loaded'
-      :grade-list='gradeList'
-      :tree-item-data='treeItemData'
-      :tree-current-parent='null'
+      v-show="loaded"
+      :grade-list="gradeList"
+      :tree-item-data="treeItemData"
+      :tree-current-parent="null"
       :default-grade-id="treeItemData.hasOwnProperty('defaultGradeId') ? treeItemData.defaultGradeId : null"
-      :default-deep='0'
+      :default-deep="0"
       :class="{
         'browser-hide-menu': showMenu.indexOf(treeItemData.type) === -1,
         'tree-item-type' : true
@@ -25,18 +25,18 @@
               )
             )
             ))))"
-      :select-mode='selectMode'
-      :question-index='questionIndex'
-      :default-expand-status='treeItemData.expandStatus'
-      :tree-item-type='treeItemData.type'
-      :root-type='treeItemData.type'
-      :data-item-type='treeItemData.type'
+      :select-mode="selectMode"
+      :question-index="questionIndex"
+      :default-expand-status="treeItemData.expandStatus"
+      :tree-item-type="treeItemData.type"
+      :root-type="treeItemData.type"
+      :data-item-type="treeItemData.type"
       :data-default-grade-id="treeItemData.hasOwnProperty('defaultGradeId') ? treeItemData.defaultGradeId : null"
-      :odd='index % 2 === 1'
-      v-for='(treeItemData, index) in treeDataList'
-      :key='index' />
-    <div class='loading-spin'>
-      <a-spin v-show='!loaded' />
+      :odd="index % 2 === 1"
+      v-for="(treeItemData, index) in treeDataList"
+      :key="index" />
+    <div class="loading-spin">
+      <a-spin v-show="!loaded" />
     </div>
   </div>
 </template>
@@ -89,7 +89,7 @@ export default {
       default: null
     }
   },
-  data() {
+  data () {
     return {
       loaded: false,
       treeDataList: [],
@@ -101,7 +101,7 @@ export default {
     }
   },
   watch: {
-    defaultCurriculumId(val) {
+    defaultCurriculumId (val) {
       this.$logger.info('defaultCurriculumId change ' + val)
       this.loaded = false
       this.treeDataList = []
@@ -111,12 +111,12 @@ export default {
       this.initData()
     }
   },
-  created() {
+  created () {
     this.$logger.info('NewTreeNavigation selectMode', this.selectMode)
     this.initData()
   },
   methods: {
-    initData() {
+    initData () {
       const skillCategory = this.$store.getters.skillCategory
       this.$logger.info('NewTreeNavigation skillCategory ', skillCategory)
       this.$logger.info('NewTreeNavigation defaultActiveMenu ' + this.defaultActiveMenu)
@@ -359,7 +359,7 @@ export default {
       })
     },
     // 给任意层级的数据先增加gradeList属性，然后直接给vue进行监测数据更新。避免数据操作过程中加数据，太麻烦
-    addGradeListProperty(list) {
+    addGradeListProperty (list) {
       list.forEach(item => {
         if (!item.hasOwnProperty('gradeList')) {
           item.gradeList = []
@@ -374,7 +374,7 @@ export default {
     },
 
     // 给任意层级的数据先增加parentObj属性，方便evaluation的表格选择criteria时获取上级的内容
-    addParentObjListProperty(list, parent) {
+    addParentObjListProperty (list, parent) {
       list.forEach(item => {
         if (!item.hasOwnProperty('parentObj')) {
           item.parentObj = parent

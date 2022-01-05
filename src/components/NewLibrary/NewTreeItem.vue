@@ -1,175 +1,176 @@
 <template>
   <div
-    class='tree-item'
-    v-if='treeItemData'
-    :data-deep='defaultDeep'
-    :data-current-type='currentItemType'
-    :data-root-type='rootType'>
+    class="tree-item"
+    v-if="treeItemData"
+    :data-deep="defaultDeep"
+    :data-current-type="currentItemType"
+    :data-root-type="rootType">
     <div
       :class="{'item-wrapper': true , 'odd-line': odd, 'even-line': !odd}"
       :style="{paddingLeft: (defaultDeep * defaultPaddingLeft === 0 ? defaultPaddingLeft / 3 : defaultDeep * defaultPaddingLeft) + 'px'}">
-      <div class='subtree-icon-wrapper'>
-        <div class='subtree-icon-item' v-if='hasSubTree'>
-          <template v-if='!subTreeExpandStatus'>
+      <div class="subtree-icon-wrapper">
+        <div class="subtree-icon-item" v-if="hasSubTree">
+          <template v-if="!subTreeExpandStatus">
             <a-icon
-              type='right'
-              class='subtree-icon'
-              @click='handleExpandTreeItem(treeItemData)'
-              v-if='!subTreeLoading' />
-            <a-spin size='small' v-if='subTreeLoading' />
+              type="right"
+              class="subtree-icon"
+              @click="handleExpandTreeItem(treeItemData)"
+              v-if="!subTreeLoading" />
+            <a-spin size="small" v-if="subTreeLoading" />
           </template>
-          <template v-if='subTreeExpandStatus'>
+          <template v-if="subTreeExpandStatus">
             <a-icon
-              type='down'
-              class='subtree-icon'
-              @click='handleCollapseTreeItem(treeItemData)'
-              v-if='!subTreeLoading' />
-            <a-spin size='small' v-if='subTreeLoading' />
+              type="down"
+              class="subtree-icon"
+              @click="handleCollapseTreeItem(treeItemData)"
+              v-if="!subTreeLoading" />
+            <a-spin size="small" v-if="subTreeLoading" />
           </template>
         </div>
       </div>
-      <div class='type-icon-wrapper' @click='handleExpandTreeItem(treeItemData)'>
-        <a-icon type='folder-open' theme='filled' class='file-dir-icon' v-if='subTreeExpandStatus' />
-        <a-icon type='folder' theme='filled' class='file-dir-icon' v-if='!subTreeExpandStatus' />
+      <div class="type-icon-wrapper" @click="handleExpandTreeItem(treeItemData)">
+        <a-icon type="folder-open" theme="filled" class="file-dir-icon" v-if="subTreeExpandStatus" />
+        <a-icon type="folder" theme="filled" class="file-dir-icon" v-if="!subTreeExpandStatus" />
       </div>
-      <div class='display-label-wrapper' @click='handleExpandTreeItem(treeItemData)'>
-        <span :class="{
-          'display-label': true,
-          'selected-display-label': selected21CenturyItem === treeItemData
-        }">{{ treeItemData.name }}</span>
+      <div class="display-label-wrapper" @click="handleExpandTreeItem(treeItemData)">
+        <span
+          :class="{
+            'display-label': true,
+            'selected-display-label': selected21CenturyItem === treeItemData
+          }">{{ treeItemData.name }}</span>
         <img
-          src='~@/assets/icons/lesson/selected.png'
-          v-if='selected21CenturyItem === treeItemData' />
+          src="~@/assets/icons/lesson/selected.png"
+          v-if="selected21CenturyItem === treeItemData" />
       </div>
     </div>
-    <template v-if='subItemType'>
+    <template v-if="subItemType">
 
       <!--learningOutcomes 大纲浏览的展示逻辑-->
       <div
-        class='sub-tree'
-        v-show='subTreeExpandStatus && hasSubTree'
-        :data-sub-type='subItemType'
-        :data-hasSubTree='hasSubTree'>
+        class="sub-tree"
+        v-show="subTreeExpandStatus && hasSubTree"
+        :data-sub-type="subItemType"
+        :data-hasSubTree="hasSubTree">
         <template v-if="subItemType === 'subject'">
           <new-tree-item
-            :grade-list='gradeList'
-            :tree-current-parent='subTreeParent'
-            :tree-item-data='treeItem'
-            :default-grade-id='defaultGradeId'
-            :current-item-type='subItemType'
-            :data-default-grade-id='defaultGradeId'
-            :data-item-type='subItemType'
-            :select-mode='selectMode'
-            :question-index='questionIndex'
-            :tree-item-type='treeItemType'
-            :root-type='rootType'
-            :default-deep='(defaultDeep + 1)'
-            :default-expand-status='treeItem.expandStatus'
-            v-for='(treeItem, index) in treeItemData.children'
-            :odd='odd ? index % 2 === 1 : index % 2 === 0 '
-            :key='index' />
+            :grade-list="gradeList"
+            :tree-current-parent="subTreeParent"
+            :tree-item-data="treeItem"
+            :default-grade-id="defaultGradeId"
+            :current-item-type="subItemType"
+            :data-default-grade-id="defaultGradeId"
+            :data-item-type="subItemType"
+            :select-mode="selectMode"
+            :question-index="questionIndex"
+            :tree-item-type="treeItemType"
+            :root-type="rootType"
+            :default-deep="(defaultDeep + 1)"
+            :default-expand-status="treeItem.expandStatus"
+            v-for="(treeItem, index) in treeItemData.children"
+            :odd="odd ? index % 2 === 1 : index % 2 === 0 "
+            :key="index" />
         </template>
         <template v-if="subItemType === 'grade'">
           <new-tree-item
-            :grade-list='gradeList'
-            :tree-current-parent='subTreeParent'
-            :tree-item-data='treeItem'
-            :current-item-type='subItemType'
-            :select-mode='selectMode'
-            :question-index='questionIndex'
-            :tree-item-type='treeItemType'
-            :root-type='rootType'
-            :default-deep='(defaultDeep + 1)'
-            :default-expand-status='treeItem.expandStatus'
-            :default-grade-id='defaultGradeId'
-            :data-default-grade-id='defaultGradeId'
+            :grade-list="gradeList"
+            :tree-current-parent="subTreeParent"
+            :tree-item-data="treeItem"
+            :current-item-type="subItemType"
+            :select-mode="selectMode"
+            :question-index="questionIndex"
+            :tree-item-type="treeItemType"
+            :root-type="rootType"
+            :default-deep="(defaultDeep + 1)"
+            :default-expand-status="treeItem.expandStatus"
+            :default-grade-id="defaultGradeId"
+            :data-default-grade-id="defaultGradeId"
             :class="{'auto-selected-grade': defaultGradeId === treeItem.id }"
-            v-for='(treeItem, index) in treeItemData.gradeList'
-            :odd='odd ? index % 2 === 1 : index % 2 === 0 '
-            :key='index' />
+            v-for="(treeItem, index) in treeItemData.gradeList"
+            :odd="odd ? index % 2 === 1 : index % 2 === 0 "
+            :key="index" />
         </template>
         <template v-if="subItemType === 'assessmentType'">
           <new-tree-item
-            :grade-list='gradeList'
-            :tree-current-parent='subTreeParent'
-            :tree-item-data='treeItem'
-            :current-item-type='subItemType'
-            :select-mode='selectMode'
-            :question-index='questionIndex'
-            :tree-item-type='treeItemType'
-            :root-type='rootType'
-            :default-deep='(defaultDeep + 1)'
-            :default-expand-status='treeItem.expandStatus'
-            v-for='(treeItem, index) in treeItemData.children'
-            :odd='odd ? index % 2 === 1 : index % 2 === 0 '
-            :key='index' />
+            :grade-list="gradeList"
+            :tree-current-parent="subTreeParent"
+            :tree-item-data="treeItem"
+            :current-item-type="subItemType"
+            :select-mode="selectMode"
+            :question-index="questionIndex"
+            :tree-item-type="treeItemType"
+            :root-type="rootType"
+            :default-deep="(defaultDeep + 1)"
+            :default-expand-status="treeItem.expandStatus"
+            v-for="(treeItem, index) in treeItemData.children"
+            :odd="odd ? index % 2 === 1 : index % 2 === 0 "
+            :key="index" />
         </template>
         <!-- knowledge 下级列表不展示最后一级-->
         <template
           v-if="subItemType === 'knowledge' && (treeItemData.children.length !== 0 && treeItemData.children[0] && treeItemData.children[0].children && treeItemData.children[0].children.length)">
           <new-tree-item
-            :grade-list='gradeList'
-            :tree-current-parent='subTreeParent'
-            :tree-item-data='treeItem'
-            :current-item-type='subItemType'
-            :select-mode='selectMode'
-            :question-index='questionIndex'
-            :tree-item-type='treeItemType'
-            :root-type='rootType'
-            :default-deep='(defaultDeep + 1)'
-            :default-expand-status='treeItem.expandStatus'
-            v-for='(treeItem, index) in treeItemData.children'
-            :odd='odd ? index % 2 === 1 : index % 2 === 0 '
-            :key='index' />
+            :grade-list="gradeList"
+            :tree-current-parent="subTreeParent"
+            :tree-item-data="treeItem"
+            :current-item-type="subItemType"
+            :select-mode="selectMode"
+            :question-index="questionIndex"
+            :tree-item-type="treeItemType"
+            :root-type="rootType"
+            :default-deep="(defaultDeep + 1)"
+            :default-expand-status="treeItem.expandStatus"
+            v-for="(treeItem, index) in treeItemData.children"
+            :odd="odd ? index % 2 === 1 : index % 2 === 0 "
+            :key="index" />
         </template>
         <!--sdg列表-->
         <template v-if="subItemType === 'sdgList'">
           <new-tree-item
-            :grade-list='gradeList'
-            :tree-current-parent='subTreeParent'
-            :tree-item-data='treeItem'
-            :current-item-type='subItemType'
-            :select-mode='selectMode'
-            :question-index='questionIndex'
-            :tree-item-type='treeItemType'
-            :root-type='rootType'
-            :default-deep='(defaultDeep + 1)'
-            :default-expand-status='treeItem.expandStatus'
-            v-for='(treeItem, index) in treeItemData.children'
-            :odd='odd ? index % 2 === 1 : index % 2 === 0 '
-            :key='index' />
+            :grade-list="gradeList"
+            :tree-current-parent="subTreeParent"
+            :tree-item-data="treeItem"
+            :current-item-type="subItemType"
+            :select-mode="selectMode"
+            :question-index="questionIndex"
+            :tree-item-type="treeItemType"
+            :root-type="rootType"
+            :default-deep="(defaultDeep + 1)"
+            :default-expand-status="treeItem.expandStatus"
+            v-for="(treeItem, index) in treeItemData.children"
+            :odd="odd ? index % 2 === 1 : index % 2 === 0 "
+            :key="index" />
         </template>
         <template v-if="subItemType === 'sdgKeyword'">
           <new-tree-item
-            :grade-list='gradeList'
-            :tree-current-parent='subTreeParent'
-            :tree-item-data='treeItem'
-            :current-item-type='subItemType'
-            :select-mode='selectMode'
-            :question-index='questionIndex'
-            :tree-item-type='treeItemType'
-            :root-type='rootType'
-            :default-deep='(defaultDeep + 1)'
-            :default-expand-status='treeItem.expandStatus'
-            v-for='(treeItem, index) in treeItemData.children'
-            :odd='odd ? index % 2 === 1 : index % 2 === 0 '
-            :key='index' />
+            :grade-list="gradeList"
+            :tree-current-parent="subTreeParent"
+            :tree-item-data="treeItem"
+            :current-item-type="subItemType"
+            :select-mode="selectMode"
+            :question-index="questionIndex"
+            :tree-item-type="treeItemType"
+            :root-type="rootType"
+            :default-deep="(defaultDeep + 1)"
+            :default-expand-status="treeItem.expandStatus"
+            v-for="(treeItem, index) in treeItemData.children"
+            :odd="odd ? index % 2 === 1 : index % 2 === 0 "
+            :key="index" />
         </template>
         <template v-if="subItemType === 'all21Century'">
           <new-tree-item
-            :grade-list='gradeList'
-            :tree-current-parent='subTreeParent'
-            :tree-item-data='treeItem'
-            :current-item-type='subItemType'
-            :select-mode='selectMode'
-            :question-index='questionIndex'
-            :tree-item-type='treeItemType'
-            :root-type='rootType'
-            :default-deep='(defaultDeep + 1)'
-            :default-expand-status='treeItem.expandStatus'
-            v-for='(treeItem, index) in treeItemData.children'
-            :odd='odd ? index % 2 === 1 : index % 2 === 0 '
-            :key='index' />
+            :grade-list="gradeList"
+            :tree-current-parent="subTreeParent"
+            :tree-item-data="treeItem"
+            :current-item-type="subItemType"
+            :select-mode="selectMode"
+            :question-index="questionIndex"
+            :tree-item-type="treeItemType"
+            :root-type="rootType"
+            :default-deep="(defaultDeep + 1)"
+            :default-expand-status="treeItem.expandStatus"
+            v-for="(treeItem, index) in treeItemData.children"
+            :odd="odd ? index % 2 === 1 : index % 2 === 0 "
+            :key="index" />
         </template>
       </div>
     </template>
@@ -252,7 +253,7 @@ export default {
       default: null
     }
   },
-  data() {
+  data () {
     return {
       subTreeExpandStatus: ExpandStatus.collapse,
       hasSubTree: false,
@@ -266,7 +267,7 @@ export default {
     }
   },
   watch: {
-    hasSubTreeWatch() {
+    hasSubTreeWatch () {
       if (this.treeItemData) {
         if (this.currentItemType === 'subject' && this.treeItemData.children) {
           this.hasSubTree = true
@@ -288,7 +289,7 @@ export default {
       }
     }
   },
-  created() {
+  created () {
     this.subTreeExpandStatus = this.treeItemData.expandStatus
     if (this.treeItemData && this.treeItemData.children) {
       this.hasSubTree = true
@@ -302,7 +303,7 @@ export default {
     currentTreeWithParent.parent = this.treeCurrentParent
     this.subTreeParent = currentTreeWithParent
   },
-  mounted() {
+  mounted () {
     // 根据不同的列表类型判断下一层对应的数据类型（注意sync是同步数据只有一级，故没有下级。直接列表展示，所以这里忽略sync的处理）
     if (this.treeItemType === NavigationType.learningOutcomes) {
       if (this.currentItemType === 'subject') {
@@ -383,14 +384,14 @@ export default {
       }
     }
   },
-  destroyed() {
+  destroyed () {
     LibraryEventBus.$off(LibraryEvent.ContentListItemClick, this.handleContentListItemClick)
     LibraryEventBus.$off(LibraryEvent.CenturySkillsSelect, this.handleCenturySkillsSelect)
     LibraryEventBus.$off(LibraryEvent.CancelCenturySkillsSelect, this.handleCancelCenturySkillsSelect)
   },
   methods: {
     // 点击左侧菜单栏，同步右侧的列表以及展开当前下一级菜单。
-    handleExpandTreeItem(treeItemData) {
+    handleExpandTreeItem (treeItemData) {
       this.$logger.info('handleExpandTreeItem ' + (!this.subTreeExpandStatus))
       this.$logger.info('handleExpandTreeItem deep: ' + this.defaultDeep + ' treeItemType: ' + this.treeItemType + ' currentItemType ' + this.currentItemType + ' treeItemData', treeItemData, ' parent ', this.treeCurrentParent)
       if (this.treeItemType === NavigationType.learningOutcomes) {
@@ -423,7 +424,7 @@ export default {
       }
     },
 
-    handleExpandSyncDataList(data) {
+    handleExpandSyncDataList (data) {
       this.$logger.info('handleExpandSyncDataList', data)
       LibraryEventBus.$emit(LibraryEvent.ContentListUpdate, {
         deep: 0,
@@ -436,12 +437,12 @@ export default {
       this.subTreeLoading = false
     },
 
-    handleCollapseTreeItem(treeItemData) {
+    handleCollapseTreeItem (treeItemData) {
       this.$logger.info('handleExpandTreeItem ' + (!this.subTreeExpandStatus))
       this.subTreeExpandStatus = false
     },
 
-    handleExpandCurriculumTreeItem(treeItemData) {
+    handleExpandCurriculumTreeItem (treeItemData) {
       this.$logger.info('handleExpandCurriculumTreeItem[' + this.currentItemType + '] data ', treeItemData, ' children ', treeItemData.children, ' deep ' + this.defaultDeep)
 
       if (this.defaultDeep === 0) {
@@ -600,7 +601,7 @@ export default {
     },
 
     // Achievement objectives 是mainSubject-year-knowledge
-    handleExpandSpecificSkillTreeItem(treeItemData) {
+    handleExpandSpecificSkillTreeItem (treeItemData) {
       this.$logger.info('handleExpandSpecificSkillTreeItem data ', treeItemData, ' children ', treeItemData.children, ' deep ' + this.defaultDeep)
       if (this.defaultDeep === 0) {
         // 直接展开第一层mainSubject
@@ -731,7 +732,7 @@ export default {
       this.$logger.info('handleExpandCurriculumTreeItem handle finish!')
     },
     // Achievement objectives 是mainSubject-year-assessmentType-knowledge
-    handleExpandAssessmentTypeTreeItem(treeItemData) {
+    handleExpandAssessmentTypeTreeItem (treeItemData) {
       this.$logger.info('handleExpandAssessmentTypeTreeItem data ', treeItemData, ' children ', treeItemData.children, ' deep ' + this.defaultDeep)
       if (this.defaultDeep === 0) {
         // 直接展开第一层mainSubject
@@ -877,7 +878,7 @@ export default {
     },
 
     // All21Century直接遍历children
-    handleExpandAll21CenturyTypeTreeItem(treeItemData) {
+    handleExpandAll21CenturyTypeTreeItem (treeItemData) {
       if (this.defaultDeep === 0) {
         // 直接展开第一层
         this.subTreeExpandStatus = true
@@ -925,7 +926,7 @@ export default {
     },
 
     // All21Century直接遍历children
-    handleExpandIduTypeTreeItem(treeItemData) {
+    handleExpandIduTypeTreeItem (treeItemData) {
       this.$logger.info('handleExpandIduTypeTreeItem defaultDeep = ' + this.defaultDeep, treeItemData)
       if (this.defaultDeep === 0) {
         // 直接展开第一层
@@ -1000,7 +1001,7 @@ export default {
     },
 
     // 21 century skills 是year-knowledge
-    handleExpandCenturySkillTreeItem(treeItemData) {
+    handleExpandCenturySkillTreeItem (treeItemData) {
       this.subItemType = 'knowledge'
       this.$logger.info('handleExpandCenturySkillTreeItem data ', treeItemData, ' children ', treeItemData.children, ' deep ' + this.defaultDeep)
       if (this.defaultDeep === 0) {
@@ -1109,7 +1110,7 @@ export default {
       this.$logger.info('handleExpandCurriculumTreeItem handle finish!')
     },
 
-    handleExpandSdgTreeItem(treeItemData) {
+    handleExpandSdgTreeItem (treeItemData) {
       this.$logger.info('handleExpandSdgTreeItem data ', treeItemData, ' currentItemType ', this.currentItemType, ' children ', treeItemData.children, ' deep ' + this.defaultDeep)
       if (this.defaultDeep === 0) {
         LibraryEventBus.$emit(LibraryEvent.ContentListUpdate, {
@@ -1228,7 +1229,7 @@ export default {
       }
     },
 
-    handleContentListItemClick(data) {
+    handleContentListItemClick (data) {
       if (
         data.dataType === this.treeItemType &&
         data.eventType === 'syncDir' &&
@@ -1242,16 +1243,20 @@ export default {
       }
     },
 
-    handleCenturySkillsSelect(data) {
+    handleCenturySkillsSelect (data) {
       this.$logger.info('handleCenturySkillsSelect', data)
       this.selected21CenturyItem = data
     },
 
+<<<<<<< HEAD
     handleCancelCenturySkillsSelect() {
       this.selected21CenturyItem = null
     },
 
     handle21CenturyClick(data) {
+=======
+    handle21CenturyClick (data) {
+>>>>>>> 3263ace3b8375f2a98fa234c0c6158d616360647
       this.$logger.info('handle21CenturyClick start ', data)
       if (this.selected21CenturyItem === data) {
         LibraryEventBus.$emit(LibraryEvent.CancelCenturySkillsSelect) // 再次点击取消选中

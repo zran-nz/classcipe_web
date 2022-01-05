@@ -1,111 +1,120 @@
 <template>
-  <div class='ppt-slide-view'>
-    <div class='go-session-detail'>
-      <a-button shape='round' type='primary' @click='handleEnsureEvidence'>Finish adding</a-button>
+  <div class="ppt-slide-view">
+    <div class="go-session-detail">
+      <a-button shape="round" type="primary" @click="handleEnsureEvidence">Finish adding</a-button>
     </div>
-    <div class='student-profile' v-if='!loading'>
-      <div class='student-info'>
-        <div class='student-name'>Student :</div>
+    <div class="student-profile" v-if="!loading">
+      <div class="student-info">
+        <div class="student-name">Student :</div>
         {{ studentName }}
       </div>
-      <div class='student-info'>
-        <div class='student-score'>Score :</div>
+      <div class="student-info">
+        <div class="student-score">Score :</div>
         {{ studentScore }}/{{ totalScore }}
       </div>
     </div>
-    <div class='tips' v-if='!loading'>
+    <div class="tips" v-if="!loading">
       <h3>Multiple choice</h3>
     </div>
-    <div class='slide-content-list' v-if='!loading'>
+    <div class="slide-content-list" v-if="!loading">
       <div
         :class="{
           'slide-comment-item': true,
           'active-slide-item': selectedSlidePageIdList.indexOf(slideItem.pageObjectId) !== -1 || selectedStudentSlidePageIdList.indexOf(slideItem.pageObjectId) !== -1}"
-        v-for='(slideItem, sIndex) in slideDataList'
-        :key='sIndex'
-        :data-pageId='slideItem.pageId'
-        @click='handleAddSlideItem(slideItem)'>
-        <div class='slide-header-label'>
+        v-for="(slideItem, sIndex) in slideDataList"
+        :key="sIndex"
+        :data-pageId="slideItem.pageId"
+        @click="handleAddSlideItem(slideItem)">
+        <div class="slide-header-label">
           <h3>Slide {{ sIndex + 1 }}</h3>
-          <div class='selected-icon'>
-            <div class='icon-item' v-if='selectedSlidePageIdList.indexOf(slideItem.pageObjectId) !== -1'>
+          <div class="selected-icon">
+            <div class="icon-item" v-if="selectedSlidePageIdList.indexOf(slideItem.pageObjectId) !== -1">
               <teacher-icon />
             </div>
-            <div class='icon-item' v-if='selectedStudentSlidePageIdList.indexOf(slideItem.pageObjectId) !== -1'>
+            <div class="icon-item" v-if="selectedStudentSlidePageIdList.indexOf(slideItem.pageObjectId) !== -1">
               <student-icon />
             </div>
           </div>
         </div>
-        <div class='slide-body'>
-          <div class='slide-img'>
-            <img :src='slideItem.contentUrl' :data-url='slideItem.contentUrl' @click='handleClickImg($event)'>
-            <div class='top-icon-groups'>
-              <a-col class='material-row' v-if='Object.keys(slideItem.material).length > 0'>
-                <div class='icon-group'>
-                  <a-badge :count="slideItem.material['text'] ? slideItem.material['text'].length : 0"
-                           v-if="slideItem.material.hasOwnProperty('text')">
-                    <div class='icon' @click="showPluginMaterial(slideItem,'text')">
+        <div class="slide-body">
+          <div class="slide-img">
+            <img :src="slideItem.contentUrl" :data-url="slideItem.contentUrl" @click="handleClickImg($event)">
+            <div class="top-icon-groups">
+              <a-col class="material-row" v-if="Object.keys(slideItem.material).length > 0">
+                <div class="icon-group">
+                  <a-badge
+                    :count="slideItem.material['text'] ? slideItem.material['text'].length : 0"
+                    v-if="slideItem.material.hasOwnProperty('text')">
+                    <div class="icon" @click="showPluginMaterial(slideItem,'text')">
                       <text-type-svg />
-                      <div class='icon-text'>Text</div>
+                      <div class="icon-text">Text</div>
                     </div>
                   </a-badge>
-                  <a-badge :count="slideItem.material['image'] ? slideItem.material['image'].length : 0"
-                           v-if="slideItem.material.hasOwnProperty('image')">
-                    <div class='icon' @click="showPluginMaterial(slideItem,'image')">
+                  <a-badge
+                    :count="slideItem.material['image'] ? slideItem.material['image'].length : 0"
+                    v-if="slideItem.material.hasOwnProperty('image')">
+                    <div class="icon" @click="showPluginMaterial(slideItem,'image')">
                       <image-type-svg />
-                      <div class='icon-text'>Image</div>
+                      <div class="icon-text">Image</div>
                     </div>
                   </a-badge>
-                  <a-badge :count="slideItem.material['video'] ? slideItem.material['video'].length : 0"
-                           v-if="slideItem.material.hasOwnProperty('video')">
-                    <div class='icon' @click="showPluginMaterial(slideItem,'video')">
+                  <a-badge
+                    :count="slideItem.material['video'] ? slideItem.material['video'].length : 0"
+                    v-if="slideItem.material.hasOwnProperty('video')">
+                    <div class="icon" @click="showPluginMaterial(slideItem,'video')">
                       <video-type-svg />
-                      <div class='icon-text'>Video</div>
+                      <div class="icon-text">Video</div>
                     </div>
                   </a-badge>
-                  <a-badge :count="slideItem.material['audio'] ? slideItem.material['audio'].length : 0"
-                           v-if="slideItem.material.hasOwnProperty('audio')">
-                    <div class='icon' @click="showPluginMaterial(slideItem,'audio')">
+                  <a-badge
+                    :count="slideItem.material['audio'] ? slideItem.material['audio'].length : 0"
+                    v-if="slideItem.material.hasOwnProperty('audio')">
+                    <div class="icon" @click="showPluginMaterial(slideItem,'audio')">
                       <audio-type-svg />
-                      <div class='icon-text'>Audio</div>
+                      <div class="icon-text">Audio</div>
                     </div>
                   </a-badge>
-                  <a-badge :count="slideItem.material['iframe'] ? slideItem.material['iframe'].length : 0"
-                           v-if="slideItem.material.hasOwnProperty('iframe')">
-                    <div class='icon' @click="showPluginMaterial(slideItem,'iframe')">
+                  <a-badge
+                    :count="slideItem.material['iframe'] ? slideItem.material['iframe'].length : 0"
+                    v-if="slideItem.material.hasOwnProperty('iframe')">
+                    <div class="icon" @click="showPluginMaterial(slideItem,'iframe')">
                       <youtube-type-svg />
-                      <div class='icon-text'>Youtube</div>
+                      <div class="icon-text">Youtube</div>
                     </div>
                   </a-badge>
-                  <a-badge :count="slideItem.material['pdf'] ? slideItem.material['pdf'].length : 0"
-                           v-if="slideItem.material.hasOwnProperty('pdf')">
-                    <div class='icon' @click="showPluginMaterial(slideItem,'pdf')">
+                  <a-badge
+                    :count="slideItem.material['pdf'] ? slideItem.material['pdf'].length : 0"
+                    v-if="slideItem.material.hasOwnProperty('pdf')">
+                    <div class="icon" @click="showPluginMaterial(slideItem,'pdf')">
                       <pdf-type-svg />
-                      <div class='icon-text'>PDF</div>
+                      <div class="icon-text">PDF</div>
                     </div>
                   </a-badge>
-                  <a-badge :count="slideItem.material['website'] ? slideItem.material['website'].length : 0"
-                           v-if="slideItem.material.hasOwnProperty('website')">
-                    <div class='icon' @click="showPluginMaterial(slideItem,'website')">
+                  <a-badge
+                    :count="slideItem.material['website'] ? slideItem.material['website'].length : 0"
+                    v-if="slideItem.material.hasOwnProperty('website')">
+                    <div class="icon" @click="showPluginMaterial(slideItem,'website')">
                       <url-type-svg />
-                      <div class='icon-text'>Website</div>
+                      <div class="icon-text">Website</div>
                     </div>
                   </a-badge>
                 </div>
               </a-col>
             </div>
           </div>
-          <div class='slide-response'>
-            <div class='data-list'>
-              <div class='data-item' v-if='slideItem.commentList.length'>
-                <div class='comment-bg' @click.stop=''>
-                  <img :src='slideItem.contentUrl' class='cover'>
-                  <img src='~@/assets/evaluation/evidence/expand.png' class='expand-icon'
-                       @click.stop='handleViewExpand(slideItem)' />
+          <div class="slide-response">
+            <div class="data-list">
+              <div class="data-item" v-if="slideItem.commentList.length">
+                <div class="comment-bg" @click.stop="">
+                  <img :src="slideItem.contentUrl" class="cover">
+                  <img
+                    src="~@/assets/evaluation/evidence/expand.png"
+                    class="expand-icon"
+                    @click.stop="handleViewExpand(slideItem)" />
                   <div
-                    class='dot-item'
-                    v-for='(item, index) in slideItem.commentList'
-                    :key='index'
+                    class="dot-item"
+                    v-for="(item, index) in slideItem.commentList"
+                    :key="index"
                     :style="{
                       position: 'absolute',
                       border: '2px solid #aaa',
@@ -117,144 +126,152 @@
                 </div>
               </div>
 
-              <div class='img-item-list' v-if="slideItem.material && slideItem.material.hasOwnProperty('image')"
-                   @click.stop=''>
-                <div class='img-item' v-for='(imgItem, index) in slideItem.material.image' :key='index' @click.stop=''>
-                  <div :style="{'background-image': 'url(' + imgItem.url + ')'}" class='img-cover' />
-                  <div class='view-item' @click.stop='handleViewItem(imgItem.url)'>View
-                    <a-icon type='eye' />
+              <div
+                class="img-item-list"
+                v-if="slideItem.material && slideItem.material.hasOwnProperty('image')"
+                @click.stop="">
+                <div class="img-item" v-for="(imgItem, index) in slideItem.material.image" :key="index" @click.stop="">
+                  <div :style="{'background-image': 'url(' + imgItem.url + ')'}" class="img-cover" />
+                  <div class="view-item" @click.stop="handleViewItem(imgItem.url)">View
+                    <a-icon type="eye" />
                   </div>
                 </div>
               </div>
 
-              <div class='audio-item-list' v-if="slideItem.material && slideItem.material.hasOwnProperty('audio')">
-                <div class='audio-item' v-for='(audioItem, index) in slideItem.material.audio' :key='index'
-                     @click.stop=''>
-                  <img src='~@/assets/evaluation/evidence/audio.png' class='img-icon'>
-                  <div class='audio-view'>
-                    <audio controls :src='audioItem.url' />
+              <div class="audio-item-list" v-if="slideItem.material && slideItem.material.hasOwnProperty('audio')">
+                <div
+                  class="audio-item"
+                  v-for="(audioItem, index) in slideItem.material.audio"
+                  :key="index"
+                  @click.stop="">
+                  <img src="~@/assets/evaluation/evidence/audio.png" class="img-icon">
+                  <div class="audio-view">
+                    <audio controls :src="audioItem.url" />
                   </div>
                 </div>
               </div>
 
-              <div class='video-item-list' v-if="slideItem.material && slideItem.material.hasOwnProperty('video')">
-                <div class='video-item' v-for='(videoItem, index) in slideItem.material.video' :key='index'
-                     @click.stop=''>
-                  <img src='~@/assets/evaluation/evidence/video.png' class='img-icon'>
-                  <div class='video-view'>
-                    <video controls :src='videoItem.url' />
+              <div class="video-item-list" v-if="slideItem.material && slideItem.material.hasOwnProperty('video')">
+                <div
+                  class="video-item"
+                  v-for="(videoItem, index) in slideItem.material.video"
+                  :key="index"
+                  @click.stop="">
+                  <img src="~@/assets/evaluation/evidence/video.png" class="img-icon">
+                  <div class="video-view">
+                    <video controls :src="videoItem.url" />
                   </div>
                 </div>
               </div>
 
-              <div class='data-item' v-for='(data, rIndex) in slideItem.responseList' :key='rIndex'>
+              <div class="data-item" v-for="(data, rIndex) in slideItem.responseList" :key="rIndex">
                 <template v-if="data.itemData.type === 'media'">
                   <template v-if="data.responseData.content.mediaType === 'audio'">
-                    <audio :src='data.responseData.content.link' controls />
+                    <audio :src="data.responseData.content.link" controls />
                   </template>
                 </template>
                 <template v-if="data.responseData.type === 'audio'">
-                  <audio :src='data.responseData.content.link' controls />
+                  <audio :src="data.responseData.content.link" controls />
                 </template>
                 <template v-if="data.responseData.type === 'draw'">
-                  <img :src='data.responseData.content' />
+                  <img :src="data.responseData.content" />
                 </template>
                 <template v-if="data.responseData.type === 'text'">
                   {{ data.responseData.content }}
                 </template>
-                <template v-if='data.itemData && data.itemData.data && data.itemData.data.options'>
-                  <div class='option-list' @click.stop=''>
-                    <div class='option-item' v-for='(optionItem, oIndex) in data.itemData.data.options' :key='oIndex'>
-                      <a-radio :checked='optionItem.isAnswer'>{{ optionItem.text }}</a-radio>
-                      <span class='correct-option' v-if='optionItem.isAnswer'>Correct answer</span>
+                <template v-if="data.itemData && data.itemData.data && data.itemData.data.options">
+                  <div class="option-list" @click.stop="">
+                    <div class="option-item" v-for="(optionItem, oIndex) in data.itemData.data.options" :key="oIndex">
+                      <a-radio :checked="optionItem.isAnswer">{{ optionItem.text }}</a-radio>
+                      <span class="correct-option" v-if="optionItem.isAnswer">Correct answer</span>
                     </div>
                   </div>
                 </template>
               </div>
             </div>
           </div>
-          <div class='slide-comment'>
-            <div class='teacher-data' @click.stop=''>
-              <div class='teacher-score'>
-                <a-row :gutter='5' class='score-item'>
-                  <a-col span='5'>
-                    <h3 style='text-align: right'>Score</h3>
+          <div class="slide-comment">
+            <div class="teacher-data" @click.stop="">
+              <div class="teacher-score">
+                <a-row :gutter="5" class="score-item">
+                  <a-col span="5">
+                    <h3 style="text-align: right">Score</h3>
                   </a-col>
-                  <a-col span='16'>
+                  <a-col span="16">
                     <a-input
-                      placeholder='Max 10'
-                      type='number'
-                      min='0'
-                      max='10'
-                      v-model='slideItem.score'
-                      @keyup.native.stop='slideItem.score = slideItem.score > 10 ? 10 : slideItem.score' />
+                      placeholder="Max 10"
+                      type="number"
+                      min="0"
+                      max="10"
+                      v-model="slideItem.score"
+                      @keyup.native.stop="slideItem.score = slideItem.score > 10 ? 10 : slideItem.score" />
                   </a-col>
                 </a-row>
-                <div class='comment-list'>
-                  <div class='comment-item' v-for='(commentItem, cIndex) in slideItem.teacherCommentList' :key='cIndex'>
-                    <div class='comment-user-info'>
-                      <div class='avatar'>
-                        <img :src='commentItem.avatar' />
+                <div class="comment-list">
+                  <div class="comment-item" v-for="(commentItem, cIndex) in slideItem.teacherCommentList" :key="cIndex">
+                    <div class="comment-user-info">
+                      <div class="avatar">
+                        <img :src="commentItem.avatar" />
                       </div>
-                      <div class='profile'>
-                        <div class='name'>{{ commentItem.createBy }}</div>
-                        <div class='time'>{{ commentItem.createTime | formatDate }}</div>
+                      <div class="profile">
+                        <div class="name">{{ commentItem.createBy }}</div>
+                        <div class="time">{{ commentItem.createTime | formatDate }}</div>
                       </div>
                     </div>
-                    <div class='comment-detail'>{{ commentItem.comment }}</div>
+                    <div class="comment-detail">{{ commentItem.comment }}</div>
                   </div>
                 </div>
-                <div class='comment-add'>
-                  <div class='add-comment-wrapper'>
-                    <div class='comment-input-wrapper'>
-                      <div class='input'>
-                        <input-with-button :extra='slideItem' @send='handleAddComment' />
+                <div class="comment-add">
+                  <div class="add-comment-wrapper">
+                    <div class="comment-input-wrapper">
+                      <div class="input">
+                        <input-with-button :extra="slideItem" @send="handleAddComment" />
                       </div>
                     </div>
                   </div>
                 </div>
               </div>
             </div>
-            <div class='action-item'>
-              <template v-if='mode === EvaluationTableMode.TeacherEvaluate'>
-                <template v-if='(selectedSlidePageIdList.indexOf(slideItem.pageObjectId) !== -1)'>
-                  <div class='action-btn-delete'>
-                    <div class='action-icon'>
-                      <img src='~@/assets/icons/evaluation/shanchu@2x.png' alt=''>
+            <div class="action-item">
+              <template v-if="mode === EvaluationTableMode.TeacherEvaluate">
+                <template v-if="(selectedSlidePageIdList.indexOf(slideItem.pageObjectId) !== -1)">
+                  <div class="action-btn-delete">
+                    <div class="action-icon">
+                      <img src="~@/assets/icons/evaluation/shanchu@2x.png" alt="">
                     </div>
-                    <div class='text'>
+                    <div class="text">
                       Delete
                     </div>
                   </div>
                 </template>
-                <template v-if='selectedSlidePageIdList.indexOf(slideItem.pageObjectId) === -1'>
-                  <div class='action-btn-add'>
-                    <div class='action-icon'>
-                      <img src='~@/assets/icons/evaluation/tianjia@2x.png' alt=''>
+                <template v-if="selectedSlidePageIdList.indexOf(slideItem.pageObjectId) === -1">
+                  <div class="action-btn-add">
+                    <div class="action-icon">
+                      <img src="~@/assets/icons/evaluation/tianjia@2x.png" alt="">
                     </div>
-                    <div class='text'>
+                    <div class="text">
                       Add
                     </div>
                   </div>
                 </template>
               </template>
-              <template v-if='mode === EvaluationTableMode.StudentEvaluate'>
-                <template v-if='selectedStudentSlidePageIdList.indexOf(slideItem.pageObjectId) !== -1'>
-                  <div class='action-btn-delete'>
-                    <div class='action-icon'>
-                      <img src='~@/assets/icons/evaluation/shanchu@2x.png' alt=''>
+              <template v-if="mode === EvaluationTableMode.StudentEvaluate">
+                <template v-if="selectedStudentSlidePageIdList.indexOf(slideItem.pageObjectId) !== -1">
+                  <div class="action-btn-delete">
+                    <div class="action-icon">
+                      <img src="~@/assets/icons/evaluation/shanchu@2x.png" alt="">
                     </div>
-                    <div class='text'>
+                    <div class="text">
                       Delete
                     </div>
                   </div>
                 </template>
-                <template v-if='selectedStudentSlidePageIdList.indexOf(slideItem.pageObjectId) === -1'>
-                  <div class='action-btn-add'>
-                    <div class='action-icon'>
-                      <img src='~@/assets/icons/evaluation/tianjia@2x.png' alt=''>
+                <template v-if="selectedStudentSlidePageIdList.indexOf(slideItem.pageObjectId) === -1">
+                  <div class="action-btn-add">
+                    <div class="action-icon">
+                      <img src="~@/assets/icons/evaluation/tianjia@2x.png" alt="">
                     </div>
-                    <div class='text'>
+                    <div class="text">
                       Add
                     </div>
                   </div>
@@ -267,60 +284,61 @@
       </div>
 
       <a-modal
-        v-model='materialVisible'
-        :footer='null'
+        v-model="materialVisible"
+        :footer="null"
         destroyOnClose
-        width='800px'
-        :zIndex='6000'
-        title='My Materials'
-        @ok='materialVisible = false'
-        @cancel='materialVisible = false'>
-        <task-material-preview :current-page-element-lists='currentPageElementLists'
-                               :filter-type='filterMaterialType'></task-material-preview>
+        width="800px"
+        :zIndex="6000"
+        title="My Materials"
+        @ok="materialVisible = false"
+        @cancel="materialVisible = false">
+        <task-material-preview
+          :current-page-element-lists="currentPageElementLists"
+          :filter-type="filterMaterialType"></task-material-preview>
       </a-modal>
 
       <a-modal
-        v-model='mediaVisible'
-        :footer='null'
+        v-model="mediaVisible"
+        :footer="null"
         destroyOnClose
-        width='900px'
-        :zIndex='5000'
-        :title='null'
-        @ok='mediaVisible = false'
-        @cancel='mediaVisible = false'>
-        <media-preview :media-list='mediaList' :material-type='filterMaterialType'></media-preview>
+        width="900px"
+        :zIndex="5000"
+        :title="null"
+        @ok="mediaVisible = false"
+        @cancel="mediaVisible = false">
+        <media-preview :media-list="mediaList" :material-type="filterMaterialType"></media-preview>
       </a-modal>
 
       <a-modal
-        v-model='viewSlideItemVisible'
-        :footer='null'
+        v-model="viewSlideItemVisible"
+        :footer="null"
         destroyOnClose
-        width='1000px'
-        :zIndex='5000'
-        :title='null'
-        @ok='viewSlideItemVisible = false'
-        @cancel='viewSlideItemVisible = false'>
-        <slide-preview :slide-item='currentViewSlideItem' />
+        width="1000px"
+        :zIndex="5000"
+        :title="null"
+        @ok="viewSlideItemVisible = false"
+        @cancel="viewSlideItemVisible = false">
+        <slide-preview :slide-item="currentViewSlideItem" />
       </a-modal>
     </div>
-    <div class='loading' v-if='loading'>
+    <div class="loading" v-if="loading">
       <a-spin />
     </div>
 
     <a-modal
       destroyOnClose
-      :footer='null'
-      :closable='false'
-      width='800px'
-      v-model='previewItemVisible'
+      :footer="null"
+      :closable="false"
+      width="800px"
+      v-model="previewItemVisible"
       :bodyStyle="{
         'padding': '0px',
       }"
-      @ok='previewItemVisible = false'>
-      <div class='preview-item'>
-        <img :src='previewItemUrl' class='preview-img' @load='previewLoading = false' />
-        <div class='preview-loading' v-if='previewLoading'>
-          <a-spin class='preview-loading' />
+      @ok="previewItemVisible = false">
+      <div class="preview-item">
+        <img :src="previewItemUrl" class="preview-img" @load="previewLoading = false" />
+        <div class="preview-loading" v-if="previewLoading">
+          <a-spin class="preview-loading" />
         </div>
       </div>
     </a-modal>
@@ -403,7 +421,7 @@ export default {
       default: null
     }
   },
-  data() {
+  data () {
     return {
       loading: true,
       EvaluationTableMode: EvaluationTableMode,
@@ -427,25 +445,25 @@ export default {
     }
   },
   computed: {
-    studentScore() {
+    studentScore () {
       let score = 0
       this.slideDataList.forEach(slideData => {
         score += parseInt(slideData.score)
       })
       return score
     },
-    totalScore() {
+    totalScore () {
       return this.slideDataList.length * 10
     }
   },
-  created() {
+  created () {
     this.$logger.info('PptSlideView' + this.slideId + ' classId ' + this.classId, 'selectedIdList', this.selectedIdList, 'selectedIdStudentList', this.selectedIdStudentList, 'studentName', this.studentName)
     this.selectedSlidePageIdList = this.selectedIdList
     this.selectedStudentSlidePageIdList = this.selectedIdStudentList
     this.loadData()
   },
   methods: {
-    loadData() {
+    loadData () {
       this.loading = true
       this.$logger.info('加载PPT数据 ' + this.classId + ' slideId ' + this.slideId + ' formId' + this.formId + ' rowId ' + this.rowId)
       Promise.all([
@@ -493,7 +511,7 @@ export default {
       })
     },
 
-    loadStudentData() {
+    loadStudentData () {
       this.$logger.info('loadStudentData', this.rawSlideDataMap)
       GetStudentResponse({ class_id: this.classId }).then(response => {
         this.$logger.info('GetStudentResponse response', response)
@@ -563,7 +581,7 @@ export default {
       })
     },
 
-    showPluginMaterial(slideItem, type) {
+    showPluginMaterial (slideItem, type) {
       const data = slideItem.material[type]
       const pageId = slideItem.pageId
       this.$logger.info('showPluginMaterial ', slideItem, type)
@@ -595,7 +613,7 @@ export default {
       }
     },
 
-    handleAddSlideItem(slideItem) {
+    handleAddSlideItem (slideItem) {
       this.$logger.info('handleAddSlideItem', slideItem)
       if (this.mode === EvaluationTableMode.TeacherEvaluate) {
         const index = this.selectedSlidePageIdList.indexOf(slideItem.pageId)
@@ -614,12 +632,12 @@ export default {
       }
     },
 
-    handleClickImg(event) {
+    handleClickImg (event) {
       this.$logger.info('handleClickImg', event)
       event.target.src = event.target.src + '#' + (new Date().getTime())
     },
 
-    handleAddEvidenceClose() {
+    handleAddEvidenceClose () {
       this.$logger.info('handleAddEvidenceClose ' + this.mode, this.mode === EvaluationTableMode.TeacherEvaluate ? this.selectedSlidePageIdList : this.selectedStudentSlidePageIdList)
       this.$emit('add-evidence-finish', {
         mode: this.mode,
@@ -627,7 +645,7 @@ export default {
       })
     },
 
-    handleEnsureEvidence() {
+    handleEnsureEvidence () {
       this.$logger.info('handleEnsureEvidence ' + this.mode, this.mode === EvaluationTableMode.TeacherEvaluate ? this.selectedSlidePageIdList : this.selectedStudentSlidePageIdList)
 
       const data = {
@@ -654,7 +672,7 @@ export default {
       })
     },
 
-    handleAddComment(data) {
+    handleAddComment (data) {
       this.$logger.info('handleAddComment', data)
       data.extra.teacherCommentList.push({
         comment: data.inputValue,
@@ -664,13 +682,13 @@ export default {
       })
     },
 
-    handleViewExpand(slideItem) {
+    handleViewExpand (slideItem) {
       this.$logger.info('handleViewExpand', slideItem)
       this.currentViewSlideItem = slideItem
       this.viewSlideItemVisible = true
     },
 
-    handleViewItem(url) {
+    handleViewItem (url) {
       this.previewItemUrl = url
       this.previewItemVisible = true
       this.previewLoading = true
@@ -1337,7 +1355,6 @@ export default {
     }
   }
 }
-
 
 *::-webkit-scrollbar {
   width: 3px;
