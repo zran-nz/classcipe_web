@@ -373,6 +373,7 @@ export default {
     }
     LibraryEventBus.$on(LibraryEvent.ContentListItemClick, this.handleContentListItemClick)
     LibraryEventBus.$on(LibraryEvent.CenturySkillsSelect, this.handleCenturySkillsSelect)
+    LibraryEventBus.$on(LibraryEvent.CancelCenturySkillsSelect, this.handleCancelCenturySkillsSelect)
 
     // 添加learning outcome自动选中grade
     if (this.currentItemType === 'grade') {
@@ -385,6 +386,7 @@ export default {
   destroyed() {
     LibraryEventBus.$off(LibraryEvent.ContentListItemClick, this.handleContentListItemClick)
     LibraryEventBus.$off(LibraryEvent.CenturySkillsSelect, this.handleCenturySkillsSelect)
+    LibraryEventBus.$off(LibraryEvent.CancelCenturySkillsSelect, this.handleCancelCenturySkillsSelect)
   },
   methods: {
     // 点击左侧菜单栏，同步右侧的列表以及展开当前下一级菜单。
@@ -399,7 +401,6 @@ export default {
         this.handleExpandSpecificSkillTreeItem(treeItemData)
       } else if (this.treeItemType === NavigationType.centurySkills || this.treeItemType === NavigationType.NZKeyCompetencies || this.treeItemType === NavigationType.AUGeneralCapabilities) {
         this.handleExpandCenturySkillTreeItem(treeItemData)
-        this.handle21CenturyClick(treeItemData)
       } else if (this.treeItemType === NavigationType.sdg) {
         this.handleExpandSdgTreeItem(treeItemData)
       } else if (this.treeItemType === NavigationType.assessmentType) {
@@ -408,6 +409,17 @@ export default {
         this.handleExpandAll21CenturyTypeTreeItem(treeItemData)
       } else if (this.treeItemType === NavigationType.idu) {
         this.handleExpandIduTypeTreeItem(treeItemData)
+      }
+
+      // 针对任意层级的21centurySkill点击选择处理
+      if ((this.currentItemType === 'knowledge' &&
+          this.selectMode === SelectModel.evaluationMode) &&
+        (this.rootType === NavigationType.centurySkills ||
+          this.rootType === NavigationType.NZKeyCompetencies ||
+          this.rootType === NavigationType.AUGeneralCapabilities)) {
+        this.handle21CenturyClick(treeItemData)
+      } else {
+        this.handleCancel21CenturyClick()
       }
     },
 
@@ -1235,12 +1247,23 @@ export default {
       this.selected21CenturyItem = data
     },
 
+    handleCancelCenturySkillsSelect() {
+      this.selected21CenturyItem = null
+    },
+
     handle21CenturyClick(data) {
       this.$logger.info('handle21CenturyClick start ', data)
-      if (this.currentItemType === 'knowledge' && this.selectMode === SelectModel.evaluationMode && this.rootType === NavigationType.centurySkills) {
+      if (this.selected21CenturyItem === data) {
+        LibraryEventBus.$emit(LibraryEvent.CancelCenturySkillsSelect) // 再次点击取消选中
+      } else {
         this.$logger.info('emit ' + LibraryEvent.CenturySkillsSelect, data)
         LibraryEventBus.$emit(LibraryEvent.CenturySkillsSelect, data)
       }
+    },
+
+    handleCancel21CenturyClick() {
+      this.$logger.info('handleCancel21CenturyClick')
+      LibraryEventBus.$emit(LibraryEvent.CancelCenturySkillsSelect)
     }
   }
 }

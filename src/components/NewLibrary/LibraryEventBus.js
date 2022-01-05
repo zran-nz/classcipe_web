@@ -8,5 +8,6 @@ export const LibraryEvent = {
   ContentListSelectClick: 'ContentListSelectClick',
   ContentListSelectedListUpdate: 'ContentListSelectedListUpdate',
   GradeUpdate: 'GradeUpdate',
-  CenturySkillsSelect: 'CenturySkillsSelect' // 选择21世纪技能grade后的任意层级事件处理
+  CenturySkillsSelect: 'CenturySkillsSelect', // 选择21世纪技能grade后的任意层级事件处理
+  CancelCenturySkillsSelect: 'CancelCenturySkillsSelect' // 选择21世纪技能grade后的任意层级事件处理
 }
