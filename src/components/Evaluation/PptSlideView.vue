@@ -434,9 +434,10 @@ export default {
         QueryResponseByClassId({ classId: this.classId })
       ]).then(response => {
         this.$logger.info('加载PPT数据 response', response)
-        if (response[2].result) {
-          this.$logger.info('使用历史评估数据')
+        if (response[2].result && response[2].result.result) {
+          this.$logger.info('使用历史评估数据', response[2].result.result)
           const data = JSON.parse(response[2].result.result)
+          this.$logger.info('解析历史数据', data)
           this.slideDataList = data.slideDataList
           this.elementsList = data.elementsList
           this.itemsList = data.itemsList
@@ -612,6 +613,7 @@ export default {
       SaveSessionEvaluation({
         classId: this.classId,
         formId: this.formId,
+        user: this.studentName,
         rowId: this.rowId,
         result: JSON.stringify(data)
       }).then(() => {
@@ -619,6 +621,7 @@ export default {
           mode: this.mode,
           data: this.mode === EvaluationTableMode.TeacherEvaluate ? this.selectedSlidePageIdList : this.selectedStudentSlidePageIdList,
           row: this.rowId,
+          user: this.studentName,
           formId: this.formId,
           slideDataList: JSON.stringify(this.slideDataList)
         })

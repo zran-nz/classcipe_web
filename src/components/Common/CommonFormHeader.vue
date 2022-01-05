@@ -253,7 +253,7 @@ export default {
     if (this.form && this.form.name) {
       this.formName = this.form.name
     }
-    this.collaborateUserList = (this.collaborate.hasOwnProperty('users') && this.collaborate.users) ? this.collaborate.users : []
+    this.collaborateUserList = (this.collaborate && this.collaborate.users) ? this.collaborate.users : []
     this.owner = this.collaborate.owner
   },
   methods: {
