@@ -1,5 +1,10 @@
 <template>
-  <div class='tree-item' v-if='treeItemData' :data-deep='defaultDeep' :data-current-type='currentItemType'>
+  <div
+    class='tree-item'
+    v-if='treeItemData'
+    :data-deep='defaultDeep'
+    :data-current-type='currentItemType'
+    :data-root-type='rootType'>
     <div
       :class="{'item-wrapper': true , 'odd-line': odd, 'even-line': !odd}"
       :style="{paddingLeft: (defaultDeep * defaultPaddingLeft === 0 ? defaultPaddingLeft / 3 : defaultDeep * defaultPaddingLeft) + 'px'}">
@@ -28,8 +33,13 @@
         <a-icon type='folder' theme='filled' class='file-dir-icon' v-if='!subTreeExpandStatus' />
       </div>
       <div class='display-label-wrapper' @click='handleExpandTreeItem(treeItemData)'>
-        <span class='display-label'>{{ treeItemData.name }}</span>
-        <img src='~@/assets/icons/lesson/selected.png' />
+        <span :class="{
+          'display-label': true,
+          'selected-display-label': selected21CenturyItem === treeItemData
+        }">{{ treeItemData.name }}</span>
+        <img
+          src='~@/assets/icons/lesson/selected.png'
+          v-if='selected21CenturyItem === treeItemData' />
       </div>
     </div>
     <template v-if='subItemType'>
@@ -52,6 +62,7 @@
             :select-mode='selectMode'
             :question-index='questionIndex'
             :tree-item-type='treeItemType'
+            :root-type='rootType'
             :default-deep='(defaultDeep + 1)'
             :default-expand-status='treeItem.expandStatus'
             v-for='(treeItem, index) in treeItemData.children'
@@ -67,6 +78,7 @@
             :select-mode='selectMode'
             :question-index='questionIndex'
             :tree-item-type='treeItemType'
+            :root-type='rootType'
             :default-deep='(defaultDeep + 1)'
             :default-expand-status='treeItem.expandStatus'
             :default-grade-id='defaultGradeId'
@@ -85,6 +97,7 @@
             :select-mode='selectMode'
             :question-index='questionIndex'
             :tree-item-type='treeItemType'
+            :root-type='rootType'
             :default-deep='(defaultDeep + 1)'
             :default-expand-status='treeItem.expandStatus'
             v-for='(treeItem, index) in treeItemData.children'
@@ -102,6 +115,7 @@
             :select-mode='selectMode'
             :question-index='questionIndex'
             :tree-item-type='treeItemType'
+            :root-type='rootType'
             :default-deep='(defaultDeep + 1)'
             :default-expand-status='treeItem.expandStatus'
             v-for='(treeItem, index) in treeItemData.children'
@@ -118,6 +132,7 @@
             :select-mode='selectMode'
             :question-index='questionIndex'
             :tree-item-type='treeItemType'
+            :root-type='rootType'
             :default-deep='(defaultDeep + 1)'
             :default-expand-status='treeItem.expandStatus'
             v-for='(treeItem, index) in treeItemData.children'
@@ -133,6 +148,7 @@
             :select-mode='selectMode'
             :question-index='questionIndex'
             :tree-item-type='treeItemType'
+            :root-type='rootType'
             :default-deep='(defaultDeep + 1)'
             :default-expand-status='treeItem.expandStatus'
             v-for='(treeItem, index) in treeItemData.children'
@@ -148,6 +164,7 @@
             :select-mode='selectMode'
             :question-index='questionIndex'
             :tree-item-type='treeItemType'
+            :root-type='rootType'
             :default-deep='(defaultDeep + 1)'
             :default-expand-status='treeItem.expandStatus'
             v-for='(treeItem, index) in treeItemData.children'
@@ -170,6 +187,7 @@ import {
   KnowledgeQueryContentByDescriptionId,
   GetIBIduList
 } from '@/api/knowledge'
+import { SelectModel } from '@/components/NewLibrary/SelectModel'
 
 const { LibraryEvent } = require('@/components/NewLibrary/LibraryEventBus')
 const { KnowledgeGetTree, Get21Century } = require('@/api/knowledge')
@@ -197,6 +215,10 @@ export default {
       default: null
     },
     treeItemType: {
+      type: String,
+      default: null
+    },
+    rootType: {
       type: String,
       default: null
     },
@@ -237,7 +259,10 @@ export default {
       subTreeParent: null,
       subTreeLoading: false,
       subItemType: null,
-      NavigationType: NavigationType
+      NavigationType: NavigationType,
+
+      SelectModel: SelectModel,
+      selected21CenturyItem: null // 当前选中的21世纪层级项
     }
   },
   watch: {
@@ -347,6 +372,7 @@ export default {
       }
     }
     LibraryEventBus.$on(LibraryEvent.ContentListItemClick, this.handleContentListItemClick)
+    LibraryEventBus.$on(LibraryEvent.CenturySkillsSelect, this.handleCenturySkillsSelect)
 
     // 添加learning outcome自动选中grade
     if (this.currentItemType === 'grade') {
@@ -358,6 +384,7 @@ export default {
   },
   destroyed() {
     LibraryEventBus.$off(LibraryEvent.ContentListItemClick, this.handleContentListItemClick)
+    LibraryEventBus.$off(LibraryEvent.CenturySkillsSelect, this.handleCenturySkillsSelect)
   },
   methods: {
     // 点击左侧菜单栏，同步右侧的列表以及展开当前下一级菜单。
@@ -372,6 +399,7 @@ export default {
         this.handleExpandSpecificSkillTreeItem(treeItemData)
       } else if (this.treeItemType === NavigationType.centurySkills || this.treeItemType === NavigationType.NZKeyCompetencies || this.treeItemType === NavigationType.AUGeneralCapabilities) {
         this.handleExpandCenturySkillTreeItem(treeItemData)
+        this.handle21CenturyClick(treeItemData)
       } else if (this.treeItemType === NavigationType.sdg) {
         this.handleExpandSdgTreeItem(treeItemData)
       } else if (this.treeItemType === NavigationType.assessmentType) {
@@ -690,7 +718,6 @@ export default {
       }
       this.$logger.info('handleExpandCurriculumTreeItem handle finish!')
     },
-
     // Achievement objectives 是mainSubject-year-assessmentType-knowledge
     handleExpandAssessmentTypeTreeItem(treeItemData) {
       this.$logger.info('handleExpandAssessmentTypeTreeItem data ', treeItemData, ' children ', treeItemData.children, ' deep ' + this.defaultDeep)
@@ -1201,6 +1228,19 @@ export default {
         this.$logger.info('handleContentListItemClick start ', data, this.treeItemData, this.treeCurrentParent)
         this.handleExpandTreeItem(this.treeItemData)
       }
+    },
+
+    handleCenturySkillsSelect(data) {
+      this.$logger.info('handleCenturySkillsSelect', data)
+      this.selected21CenturyItem = data
+    },
+
+    handle21CenturyClick(data) {
+      this.$logger.info('handle21CenturyClick start ', data)
+      if (this.currentItemType === 'knowledge' && this.selectMode === SelectModel.evaluationMode && this.rootType === NavigationType.centurySkills) {
+        this.$logger.info('emit ' + LibraryEvent.CenturySkillsSelect, data)
+        LibraryEventBus.$emit(LibraryEvent.CenturySkillsSelect, data)
+      }
     }
   }
 }
@@ -1273,26 +1313,35 @@ export default {
     .display-label-wrapper {
       flex: 1;
       overflow: hidden;
+      padding-left: 2px;
+      align-items: center;
+      height: 25px;
+      line-height: 25px;
       white-space: nowrap;
       text-overflow: ellipsis;
       position: relative;
 
       .display-label {
         font-weight: 500;
+        line-height: 18px;
         padding-right: 40px;
+        padding-left: 3px;
       }
 
       img {
-        width: 15px;
+        width: 17px;
         position: absolute;
         right: 5px;
-        top: 5px;
+        top: 4px;
       }
     }
   }
+}
 
-  .sub-tree {
-
-  }
+.selected-display-label {
+  border: 1px solid #07AB84;
+  border-radius: 2px;
+  background: #e9f9f5;
+  box-shadow: 0 0 0 2px rgba(21, 195, 154, .5);
 }
 </style>

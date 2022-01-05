@@ -1,519 +1,577 @@
 <template>
-  <div class="rubric" @click="handleUpdateHeader">
-    <table class="rubric-table">
+  <div class='rubric' @click='handleUpdateHeader'>
+    <table class='rubric-table'>
       <thead>
 
-        <!--编辑允许修改变动-->
-        <draggable
-          v-model="headers"
-          tag="tr"
-          :disabled="disabledDraggable"
-          class="table-header"
-          @end="handleDragEnd"
-          v-if="mode === this.tableMode.Edit">
-          <th
-            v-for="(header, hIndex) in headers"
-            :class="{'header-item': true, 'preview-mode': formTableMode === tableMode.Preview, 'min-header-width': [
+      <!--编辑允许修改变动-->
+      <draggable
+        v-model='headers'
+        tag='tr'
+        :disabled='disabledDraggable'
+        class='table-header'
+        @end='handleDragEnd'
+        v-if='mode === this.tableMode.Edit'>
+        <th
+          v-for='(header, hIndex) in headers'
+          :class="{'header-item': true, 'preview-mode': formTableMode === tableMode.Preview, 'min-header-width': [
               headerType.Novice,
               headerType.Learner,
               headerType.Practitoner,
               headerType.Expert,
             ].indexOf(header.type) !== -1}"
-            :key="header.type"
-            :data-header-type="header.type"
-            :data-header-mode="formTableMode"
-            v-if="!(header.type === headerType.Evidence && !(mode === tableMode.TeacherEvaluate || mode === tableMode.StudentEvaluate))">
-            <!-- 表头文本-->
-            <div @click.stop="handleEditHeader(header)" class="label-text">
+          :key='header.type'
+          :data-header-type='header.type'
+          :data-header-mode='formTableMode'
+          v-if='!(header.type === headerType.Evidence && !(mode === tableMode.TeacherEvaluate || mode === tableMode.StudentEvaluate))'>
+          <!-- 表头文本-->
+          <div @click.stop='handleEditHeader(header)' class='label-text'>
 
-              <span class="header-label">{{ header.label }}</span>
-              <template v-if="header.type === headerType.Novice">
-                <a-tooltip placement="top">
-                  <template slot="title">
-                    Students are introduced to the skills, and can watch others performing it(observation)
-                  </template>
-                  <question-icon />
-                </a-tooltip>
-              </template>
-
-              <template v-if="header.type === headerType.Learner">
-                <a-tooltip placement="top">
-                  <template slot="title">
-                    Students copy others who use the skill and use the skill with scaffolding and guidance(emulation)
-                  </template>
-                  <question-icon />
-                </a-tooltip>
-              </template>
-
-              <template v-if="header.type === headerType.Practitoner">
-                <a-tooltip placement="top">
-                  <template slot="title">
-                    Students employ the skill confidently and effectively(demonstration)
-                  </template>
-                  <question-icon />
-                </a-tooltip>
-              </template>
-
-              <template v-if="header.type === headerType.Expert">
-                <a-tooltip placement="top">
-                  <template slot="title">
-                    Students can show others how to use the skill and accurately assess how effectively the skill is used(self-regulation)
-                  </template>
-                  <question-icon />
-                </a-tooltip>
-              </template>
-
-            </div>
-            <!-- 编辑状态下的输入框-->
-            <template v-if="header.editing">
-              <div class="label-input">
-                <input v-model="header.label" @click.stop @blur="handleUpdateHeader" @keyup.enter="handleUpdateHeader" class="header-input-item"/>
-              </div>
-            </template>
-
-            <template v-if="formType !== tableType.CenturySkills">
-              <div class="add-header-item">
-                <a-tooltip title="Add new level">
-                  <a-icon type="plus-circle" @click="handleAddNewHeader(hIndex)"/>
-                </a-tooltip>
-              </div>
-            </template>
-
-            <!-- 表头删除图标-->
-            <div class="remove-header" v-if="header.type.startsWith(headerType.UserDefine)">
-              <a-popconfirm :title="'Remove Header ?'" class="rubric-delete-popconfirm" ok-text="Yes" @confirm="handleRemoveHeader(header)" cancel-text="No">
-                <template slot="icon">
-                  <div class="rubric-big-delete">
-                    <img class="big-delete-icon" src="~@/assets/icons/evaluation/big_delete.png" />
-                  </div>
+            <span class='header-label'>{{ header.label }}</span>
+            <template v-if='header.type === headerType.Novice'>
+              <a-tooltip placement='top'>
+                <template slot='title'>
+                  Students are introduced to the skills, and can watch others performing it(observation)
                 </template>
-                <img src="~@/assets/icons/evaluation/delete.png" class="link-icon"/>
-              </a-popconfirm>
+                <question-icon />
+              </a-tooltip>
+            </template>
+
+            <template v-if='header.type === headerType.Learner'>
+              <a-tooltip placement='top'>
+                <template slot='title'>
+                  Students copy others who use the skill and use the skill with scaffolding and guidance(emulation)
+                </template>
+                <question-icon />
+              </a-tooltip>
+            </template>
+
+            <template v-if='header.type === headerType.Practitoner'>
+              <a-tooltip placement='top'>
+                <template slot='title'>
+                  Students employ the skill confidently and effectively(demonstration)
+                </template>
+                <question-icon />
+              </a-tooltip>
+            </template>
+
+            <template v-if='header.type === headerType.Expert'>
+              <a-tooltip placement='top'>
+                <template slot='title'>
+                  Students can show others how to use the skill and accurately assess how effectively the skill is
+                  used(self-regulation)
+                </template>
+                <question-icon />
+              </a-tooltip>
+            </template>
+
+          </div>
+          <!-- 编辑状态下的输入框-->
+          <template v-if='header.editing'>
+            <div class='label-input'>
+              <input v-model='header.label' @click.stop @blur='handleUpdateHeader' @keyup.enter='handleUpdateHeader'
+                     class='header-input-item' />
             </div>
+          </template>
 
-          </th>
-        </draggable>
-
-        <!--预览和评估模式下不允许修改变动-->
-        <tr class="table-header" v-if="mode !== this.tableMode.Edit">
-          <th
-            v-for="(header) in headers"
-            :class="{'header-item': true, 'preview-mode': formTableMode === tableMode.Preview}"
-            :key="header.type"
-            v-if="!(header.type === headerType.Evidence && !(mode === tableMode.TeacherEvaluate || mode === tableMode.StudentEvaluate))"
-            :data-header-type="header.type"
-            :data-header-mode="formTableMode">
-            <!-- 表头文本-->
-            <div class="label-text">
-
-              <span class="header-label">{{ header.label }}</span>
-              <template v-if="header.type === headerType.Novice">
-                <a-tooltip placement="top">
-                  <template slot="title">
-                    Students are introduced to the skills, and can watch others performing it(observation)
-                  </template>
-                  <question-icon />
-                </a-tooltip>
-              </template>
-
-              <template v-if="header.type === headerType.Learner">
-                <a-tooltip placement="top">
-                  <template slot="title">
-                    Students copy others who use the skill and use the skill with scaffolding and guidance(emulation)
-                  </template>
-                  <question-icon />
-                </a-tooltip>
-              </template>
-
-              <template v-if="header.type === headerType.Practitoner">
-                <a-tooltip placement="top">
-                  <template slot="title">
-                    Students employ the skill confidently and effectively(demonstration)
-                  </template>
-                  <question-icon />
-                </a-tooltip>
-              </template>
-
-              <template v-if="header.type === headerType.Expert">
-                <a-tooltip placement="top">
-                  <template slot="title">
-                    Students can show others how to use the skill and accurately assess how effectively the skill is used(self-regulation)
-                  </template>
-                  <question-icon />
-                </a-tooltip>
-              </template>
+          <template v-if='formType !== tableType.CenturySkills'>
+            <div class='add-header-item'>
+              <a-tooltip title='Add new level'>
+                <a-icon type='plus-circle' @click='handleAddNewHeader(hIndex)' />
+              </a-tooltip>
             </div>
-          </th>
-        </tr>
+          </template>
+
+          <!-- 表头删除图标-->
+          <div class='remove-header' v-if='header.type.startsWith(headerType.UserDefine)'>
+            <a-popconfirm :title="'Remove Header ?'" class='rubric-delete-popconfirm' ok-text='Yes'
+                          @confirm='handleRemoveHeader(header)' cancel-text='No'>
+              <template slot='icon'>
+                <div class='rubric-big-delete'>
+                  <img class='big-delete-icon' src='~@/assets/icons/evaluation/big_delete.png' />
+                </div>
+              </template>
+              <img src='~@/assets/icons/evaluation/delete.png' class='link-icon' />
+            </a-popconfirm>
+          </div>
+
+        </th>
+      </draggable>
+
+      <!--预览和评估模式下不允许修改变动-->
+      <tr class='table-header' v-if='mode !== this.tableMode.Edit'>
+        <th
+          v-for='(header) in headers'
+          :class="{'header-item': true, 'preview-mode': formTableMode === tableMode.Preview}"
+          :key='header.type'
+          v-if='!(header.type === headerType.Evidence && !(mode === tableMode.TeacherEvaluate || mode === tableMode.StudentEvaluate))'
+          :data-header-type='header.type'
+          :data-header-mode='formTableMode'>
+          <!-- 表头文本-->
+          <div class='label-text'>
+
+            <span class='header-label'>{{ header.label }}</span>
+            <template v-if='header.type === headerType.Novice'>
+              <a-tooltip placement='top'>
+                <template slot='title'>
+                  Students are introduced to the skills, and can watch others performing it(observation)
+                </template>
+                <question-icon />
+              </a-tooltip>
+            </template>
+
+            <template v-if='header.type === headerType.Learner'>
+              <a-tooltip placement='top'>
+                <template slot='title'>
+                  Students copy others who use the skill and use the skill with scaffolding and guidance(emulation)
+                </template>
+                <question-icon />
+              </a-tooltip>
+            </template>
+
+            <template v-if='header.type === headerType.Practitoner'>
+              <a-tooltip placement='top'>
+                <template slot='title'>
+                  Students employ the skill confidently and effectively(demonstration)
+                </template>
+                <question-icon />
+              </a-tooltip>
+            </template>
+
+            <template v-if='header.type === headerType.Expert'>
+              <a-tooltip placement='top'>
+                <template slot='title'>
+                  Students can show others how to use the skill and accurately assess how effectively the skill is
+                  used(self-regulation)
+                </template>
+                <question-icon />
+              </a-tooltip>
+            </template>
+          </div>
+        </th>
+      </tr>
       </thead>
 
-      <tbody class="table-body">
-        <tr v-for="(item, lIndex) in list" class="body-line" :key="lIndex" :data-row-id="item.rowId">
-          <td
-            v-for="(header, hIndex) in headers"
-            :class="{'body-item': true, 'big-body-item': formType === tableType.CenturySkills && header.type === headerType.Description}"
-            :key="lIndex + '-' + header.type"
-            @click="handleClickBodyItem(item, header)"
-            v-if="!(header.type === headerType.Evidence && !(mode === tableMode.TeacherEvaluate || mode === tableMode.StudentEvaluate))"
-            :data-row-id="item.rowId"
-            :data-header-type="header.type">
-            <template v-if="item.hasOwnProperty(header.type)">
+      <tbody class='table-body'>
+      <tr v-for='(item, lIndex) in list' class='body-line' :key='lIndex' :data-row-id='item.rowId'>
+        <td
+          v-for='(header, hIndex) in headers'
+          :class="{'body-item': true, 'big-body-item': formType === tableType.CenturySkills && header.type === headerType.Description}"
+          :key="lIndex + '-' + header.type"
+          @click='handleClickBodyItem(item, header)'
+          v-if='!(header.type === headerType.Evidence && !(mode === tableMode.TeacherEvaluate || mode === tableMode.StudentEvaluate))'
+          :data-row-id='item.rowId'
+          :data-header-type='header.type'>
+          <template v-if='item.hasOwnProperty(header.type)'>
 
-              <!-- 21 Century Criteria-->
-              <template v-if="header.type === headerType.Criteria">
-                <template v-if="formType === tableType.CenturySkills">
-                  <template v-if="!item[headerType.Criteria] || !item[headerType.Criteria].name">
-                    <div class="data-item add-criteria" @click.stop="handleAddCriteria(header, item, $event)" v-show="mode === tableMode.Edit">
-                      <add-opacity-icon />
-                      <div class="add-text">Click to choose the objectives</div>
-                    </div>
-                  </template>
-                  <template v-else>
-                    <div class="data-item criteria-data" @dblclick.stop="handleAddCriteria(header, item, $event)">
-                      <div class="criteria-name">
-                        {{ item[headerType.Criteria].name }}
-                      </div>
-                    </div>
-                  </template>
+            <!-- 21 Century Criteria-->
+            <template v-if='header.type === headerType.Criteria'>
+              <template v-if='formType === tableType.CenturySkills'>
+                <template v-if='!item[headerType.Criteria] || !item[headerType.Criteria].name'>
+                  <div class='data-item add-criteria' @click.stop='handleAddCriteria(header, item, $event)'
+                       v-show='mode === tableMode.Edit'>
+                    <add-opacity-icon />
+                    <div class='add-text'>Click to choose the objectives</div>
+                  </div>
                 </template>
-                <template v-if="formType === tableType.Rubric">
-                  <template v-if="!item[headerType.Criteria] || !item[headerType.Criteria].name">
-                    <div class="data-item add-criteria" @click="handleAddCriteria(header, item, $event)" v-show="mode === tableMode.Edit">
-                      <add-opacity-icon />
-                      <div class="add-text">Click to choose the objectives</div>
-                    </div>
-                  </template>
-                  <template v-else>
-                    <div class="data-item criteria-data" @dblclick="handleAddCriteria(header, item, $event)">
-                      <div class="criteria-name">
-                        {{ item[headerType.Criteria].name }}
-                      </div>
-                    </div>
-                  </template>
-                </template>
-                <template v-if="formType === tableType.Rubric_2">
-                  <div class="data-item criteria-data">
-                    <div class="criteria-name">
+                <template v-else>
+                  <div class='data-item criteria-data' @dblclick.stop='handleAddCriteria(header, item, $event)'>
+                    <div class='criteria-name'>
                       {{ item[headerType.Criteria].name }}
                     </div>
                   </div>
                 </template>
               </template>
-
-              <!-- Description rubric_2的description支持选择-->
-              <template v-if="header.type === headerType.Description">
-                <template v-if="formType === tableType.Rubric_2">
-                  <template v-if="!item[headerType.Description] || !item[headerType.Description].name">
-                    <div class="data-item add-criteria" @click="handleAddCriteria(header, item, $event)" v-show="mode === tableMode.Edit">
-                      <add-opacity-icon />
-                      <div class="add-text">Click to choose the objectives</div>
-                    </div>
-                  </template>
-                  <template v-else>
-                    <div class="data-item criteria-data" @dblclick="handleAddCriteria(header, item, $event)">
-                      <div class="criteria-name">
-                        {{ item[headerType.Description].name }}
-                      </div>
-                    </div>
-                  </template>
+              <template v-if='formType === tableType.Rubric'>
+                <template v-if='!item[headerType.Criteria] || !item[headerType.Criteria].name'>
+                  <div class='data-item add-criteria' @click='handleAddCriteria(header, item, $event)'
+                       v-show='mode === tableMode.Edit'>
+                    <add-opacity-icon />
+                    <div class='add-text'>Click to choose the objectives</div>
+                  </div>
                 </template>
-                <template v-if="formType === tableType.CenturySkills">
-                  <template v-if="!item[headerType.Description] || !item[headerType.Description].name">
-                    <div class="data-item add-criteria" @click="handleAddCriteria(header, item, $event)" v-show="mode === tableMode.Edit">
-                      <add-opacity-icon />
-                      <div class="add-text">Click to choose the objectives</div>
+                <template v-else>
+                  <div class='data-item criteria-data' @dblclick='handleAddCriteria(header, item, $event)'>
+                    <div class='criteria-name'>
+                      {{ item[headerType.Criteria].name }}
                     </div>
-                  </template>
-                  <template v-else>
-                    <div class="data-item criteria-data">
-                      <div class="criteria-name my-century-criteria" @dblclick="handleAddCriteria(header, item, $event)">
-                        <div class="criteria-left-name-list">
-                          <div :class="{'criteria-left-name-item': true, 'first-left-name': nIndex === 0, 'no-first-name': nIndex > 0}" v-for="(name, nIndex) in item[headerType.Description].parentNameList" :key="nIndex">
-                            {{ name }}
-                          </div>
+                  </div>
+                </template>
+              </template>
+              <template v-if='formType === tableType.Rubric_2'>
+                <div class='data-item criteria-data'>
+                  <div class='criteria-name'>
+                    {{ item[headerType.Criteria].name }}
+                  </div>
+                </div>
+              </template>
+            </template>
+
+            <!-- Description rubric_2的description支持选择-->
+            <template v-if='header.type === headerType.Description'>
+              <template v-if='formType === tableType.Rubric_2'>
+                <template v-if='!item[headerType.Description] || !item[headerType.Description].name'>
+                  <div class='data-item add-criteria' @click='handleAddCriteria(header, item, $event)'
+                       v-show='mode === tableMode.Edit'>
+                    <add-opacity-icon />
+                    <div class='add-text'>Click to choose the objectives</div>
+                  </div>
+                </template>
+                <template v-else>
+                  <div class='data-item criteria-data' @dblclick='handleAddCriteria(header, item, $event)'>
+                    <div class='criteria-name'>
+                      {{ item[headerType.Description].name }}
+                    </div>
+                  </div>
+                </template>
+              </template>
+              <template v-if='formType === tableType.CenturySkills'>
+                <template v-if='!item[headerType.Description] || !item[headerType.Description].name'>
+                  <div class='data-item add-criteria' @click='handleAddCriteria(header, item, $event)'
+                       v-show='mode === tableMode.Edit'>
+                    <add-opacity-icon />
+                    <div class='add-text'>Click to choose the objectives</div>
+                  </div>
+                </template>
+                <template v-else>
+                  <div class='data-item criteria-data'>
+                    <div class='criteria-name my-century-criteria' @dblclick='handleAddCriteria(header, item, $event)'>
+                      <div class='criteria-left-name-list'>
+                        <div
+                          :class="{'criteria-left-name-item': true, 'first-left-name': nIndex === 0, 'no-first-name': nIndex > 0}"
+                          v-for='(name, nIndex) in item[headerType.Description].parentNameList' :key='nIndex'>
+                          {{ name }}
                         </div>
-                        <div class="criteria-right-description">
-                          <div class="description-name">
-                            {{ item[headerType.Description].userInputText ? item[headerType.Description].userInputText : item[headerType.Description].name }}
-                          </div>
-                          <span class="edit-description" @click.stop="handleClickEnterCriteriaDescription(header, item)">
+                      </div>
+                      <div class='criteria-right-description'>
+                        <div class='description-name'>
+                          {{ item[headerType.Description].userInputText ? item[headerType.Description].userInputText : item[headerType.Description].name
+                          }}
+                        </div>
+                        <span class='edit-description' @click.stop='handleClickEnterCriteriaDescription(header, item)'>
                             Please enter explanation for students to understand
                           </span>
-                        </div>
                       </div>
                     </div>
-                  </template>
+                  </div>
                 </template>
               </template>
             </template>
+          </template>
 
-            <template v-if="mode === tableMode.Edit">
-              <!-- Indicators-->
-              <template v-if="header.type === headerType.Indicators">
-                <div class="my-indicator-input">
-                  <a-textarea style="height: 100%" placeholder="Enter task specific indicators" class="my-text-input" v-model="item[headerType.Indicators].name" @blur="handleUpdateField(header, item)"/>
-                </div>
-              </template>
-              <template v-if="header.type === headerType.Novice">
-                <div class="indicator-input">
-                  <a-textarea style="height: 100%" placeholder="Enter" class="my-text-input" v-model="item[headerType.Novice].name" @blur="handleUpdateField(header, item)"/>
-                </div>
-              </template>
-              <template v-if="header.type === headerType.Learner">
-                <div class="indicator-input">
-                  <a-textarea style="height: 100%" placeholder="Enter" class="my-text-input" v-model="item[headerType.Learner].name" @blur="handleUpdateField(header, item)"/>
-                </div>
-              </template>
-              <template v-if="header.type === headerType.Practitoner">
-                <div class="indicator-input">
-                  <a-textarea style="height: 100%" placeholder="Enter" class="my-text-input" v-model="item[headerType.Practitoner].name" @blur="handleUpdateField(header, item)"/>
-                </div>
-              </template>
-              <template v-if="header.type === headerType.Expert">
-                <div class="indicator-input">
-                  <a-textarea style="height: 100%" placeholder="Enter" class="my-text-input" v-model="item[headerType.Expert].name" @blur="handleUpdateField(header, item)"/>
-                </div>
-              </template>
-
-              <!-- UserDefine-->
-              <template v-if="header.type.startsWith(headerType.UserDefine)">
-                <div class="user-define-indicator-input">
-                  <a-textarea style="height: 100%" placeholder="Enter" class="my-text-input" v-model="item[header.type].name" @blur="handleUpdateField(header, item)"/>
-                </div>
-              </template>
+          <template v-if='mode === tableMode.Edit'>
+            <!-- Indicators-->
+            <template v-if='header.type === headerType.Indicators'>
+              <div class='my-indicator-input'>
+                <a-textarea style='height: 100%' placeholder='Enter task specific indicators' class='my-text-input'
+                            v-model='item[headerType.Indicators].name' @blur='handleUpdateField(header, item)' />
+              </div>
+            </template>
+            <template v-if='header.type === headerType.Novice'>
+              <div class='indicator-input'>
+                <a-textarea style='height: 100%' placeholder='Enter' class='my-text-input'
+                            v-model='item[headerType.Novice].name' @blur='handleUpdateField(header, item)' />
+              </div>
+            </template>
+            <template v-if='header.type === headerType.Learner'>
+              <div class='indicator-input'>
+                <a-textarea style='height: 100%' placeholder='Enter' class='my-text-input'
+                            v-model='item[headerType.Learner].name' @blur='handleUpdateField(header, item)' />
+              </div>
+            </template>
+            <template v-if='header.type === headerType.Practitoner'>
+              <div class='indicator-input'>
+                <a-textarea style='height: 100%' placeholder='Enter' class='my-text-input'
+                            v-model='item[headerType.Practitoner].name' @blur='handleUpdateField(header, item)' />
+              </div>
+            </template>
+            <template v-if='header.type === headerType.Expert'>
+              <div class='indicator-input'>
+                <a-textarea style='height: 100%' placeholder='Enter' class='my-text-input'
+                            v-model='item[headerType.Expert].name' @blur='handleUpdateField(header, item)' />
+              </div>
             </template>
 
-            <!-- AchievementLevel-->
-            <template v-if="header.type === headerType.AchievementLevel">
-              <div class="sub-level-data" :data="JSON.stringify(formBodyData && formBodyData[item.rowId] && formBodyData[item.rowId])">
-                <div class="sub-level-list">
-                  <div class="sub-level-item" v-for="(subLevel, sIndex) in item[headerType.AchievementLevel].subLevelDescription" :key="sIndex">
-                    <template v-if="mode === tableMode.Edit">
-                      <div class="start-index" @click.stop="handleSwitchModeTips" >
-                        <div class="select-block">
-                          <a-icon
-                            class="select-block-icon"
-                            type="border" />
-                        </div>
-                        {{ subLevel.startIndex }}
+            <!-- UserDefine-->
+            <template v-if='header.type.startsWith(headerType.UserDefine)'>
+              <div class='user-define-indicator-input'>
+                <a-textarea style='height: 100%' placeholder='Enter' class='my-text-input'
+                            v-model='item[header.type].name' @blur='handleUpdateField(header, item)' />
+              </div>
+            </template>
+          </template>
+
+          <!-- AchievementLevel-->
+          <template v-if='header.type === headerType.AchievementLevel'>
+            <div class='sub-level-data'
+                 :data='JSON.stringify(formBodyData && formBodyData[item.rowId] && formBodyData[item.rowId])'>
+              <div class='sub-level-list'>
+                <div class='sub-level-item'
+                     v-for='(subLevel, sIndex) in item[headerType.AchievementLevel].subLevelDescription' :key='sIndex'>
+                  <template v-if='mode === tableMode.Edit'>
+                    <div class='start-index' @click.stop='handleSwitchModeTips'>
+                      <div class='select-block'>
+                        <a-icon
+                          class='select-block-icon'
+                          type='border' />
                       </div>
-                      <div class="end-index" @click.stop="handleSwitchModeTips" v-show="subLevel.endIndex !== null" >
-                        <div class="select-block">
-                          <a-icon
-                            class="select-block-icon"
-                            type="border" />
-                        </div>
-                        {{ subLevel.endIndex }}
+                      {{ subLevel.startIndex }}
+                    </div>
+                    <div class='end-index' @click.stop='handleSwitchModeTips' v-show='subLevel.endIndex !== null'>
+                      <div class='select-block'>
+                        <a-icon
+                          class='select-block-icon'
+                          type='border' />
                       </div>
-                    </template>
-                    <template v-if="mode !== tableMode.Edit">
-                      <div class="start-index">
-                        <div class="select-block" @click.stop="handleClickSubLevelItem(item, header, subLevel.startIndex)">
-                          <img src="~@/assets/icons/lesson/selected.png" v-if="formBodyData && formBodyData[item.rowId] && formBodyData[item.rowId].data === subLevel.startIndex"/>
-                          <a-icon
-                            class="select-block-icon"
-                            type="border"
-                            v-else />
-                        </div>
-                        {{ subLevel.startIndex }}
+                      {{ subLevel.endIndex }}
+                    </div>
+                  </template>
+                  <template v-if='mode !== tableMode.Edit'>
+                    <div class='start-index'>
+                      <div class='select-block'
+                           @click.stop='handleClickSubLevelItem(item, header, subLevel.startIndex)'>
+                        <img src='~@/assets/icons/lesson/selected.png'
+                             v-if='formBodyData && formBodyData[item.rowId] && formBodyData[item.rowId].data === subLevel.startIndex' />
+                        <a-icon
+                          class='select-block-icon'
+                          type='border'
+                          v-else />
                       </div>
-                      <div class="end-index" @click.stop="handleClickSubLevelItem(item, header, subLevel.endIndex)" v-show="subLevel.endIndex !== null" >
-                        <div class="select-block">
-                          <img src="~@/assets/icons/lesson/selected.png" v-if="formBodyData && formBodyData[item.rowId] && formBodyData[item.rowId].data === subLevel.endIndex"/>
-                          <a-icon
-                            class="select-block-icon"
-                            type="border"
-                            v-else />
-                        </div>
-                        {{ subLevel.endIndex }}
+                      {{ subLevel.startIndex }}
+                    </div>
+                    <div class='end-index' @click.stop='handleClickSubLevelItem(item, header, subLevel.endIndex)'
+                         v-show='subLevel.endIndex !== null'>
+                      <div class='select-block'>
+                        <img src='~@/assets/icons/lesson/selected.png'
+                             v-if='formBodyData && formBodyData[item.rowId] && formBodyData[item.rowId].data === subLevel.endIndex' />
+                        <a-icon
+                          class='select-block-icon'
+                          type='border'
+                          v-else />
                       </div>
-                    </template>
-                  </div>
+                      {{ subLevel.endIndex }}
+                    </div>
+                  </template>
                 </div>
               </div>
-              <div
-                class="selected-icon"
-                v-if="header.type !== headerType.AchievementLevel &&
+            </div>
+            <div
+              class='selected-icon'
+              v-if='header.type !== headerType.AchievementLevel &&
                   header.type !== headerType.LevelDescriptor &&
-                  header.type !== headerType.Indicators">
-                <teacher-icon v-if="formBodyData && formBodyData[item.rowId] && formBodyData[item.rowId].teacherEvaluation === header.type && (currentEvaluateMode === tableMode.TeacherEvaluate || currentEvaluateMode === tableMode.StudentEvaluate)"/>
-                <student-icon v-if="formBodyData && formBodyData[item.rowId] && formBodyData[item.rowId].studentEvaluation === header.type && (currentEvaluateMode === tableMode.TeacherEvaluate || currentEvaluateMode === tableMode.StudentEvaluate)"/>
-                <peer-icon v-if="formBodyData && formBodyData[item.rowId] && formBodyData[item.rowId].peerEvaluation === header.type && (currentEvaluateMode === tableMode.TeacherEvaluate || currentEvaluateMode === tableMode.PeerEvaluate)"/>
+                  header.type !== headerType.Indicators'>
+              <teacher-icon
+                v-if='formBodyData && formBodyData[item.rowId] && formBodyData[item.rowId].teacherEvaluation === header.type && (currentEvaluateMode === tableMode.TeacherEvaluate || currentEvaluateMode === tableMode.StudentEvaluate)' />
+              <student-icon
+                v-if='formBodyData && formBodyData[item.rowId] && formBodyData[item.rowId].studentEvaluation === header.type && (currentEvaluateMode === tableMode.TeacherEvaluate || currentEvaluateMode === tableMode.StudentEvaluate)' />
+              <peer-icon
+                v-if='formBodyData && formBodyData[item.rowId] && formBodyData[item.rowId].peerEvaluation === header.type && (currentEvaluateMode === tableMode.TeacherEvaluate || currentEvaluateMode === tableMode.PeerEvaluate)' />
+            </div>
+          </template>
+          <!-- LevelDescriptor-->
+          <template v-if='header.type === headerType.LevelDescriptor'>
+            <div class='sub-level-data' @click.stop=''>
+              <div class='sub-level-desc'>
+                <div class='sub-level-desc-item'
+                     v-for='(subLevel, sIndex) in item[headerType.AchievementLevel].subLevelDescription' :key='sIndex'>
+                  <a-tooltip placement='topLeft'>
+                    <template slot='title'>
+                      {{ subLevel.description }}
+                    </template>
+                    {{ subLevel.description }}
+                  </a-tooltip>
+                </div>
+              </div>
+            </div>
+            <div class='selected-icon'>
+              <teacher-icon
+                v-if='formBodyData && formBodyData[item.rowId] && formBodyData[item.rowId].teacherEvaluation === header.type && (currentEvaluateMode === tableMode.TeacherEvaluate || currentEvaluateMode === tableMode.StudentEvaluate)' />
+              <student-icon
+                v-if='formBodyData && formBodyData[item.rowId] && formBodyData[item.rowId].studentEvaluation === header.type && (currentEvaluateMode === tableMode.TeacherEvaluate || currentEvaluateMode === tableMode.StudentEvaluate)' />
+              <peer-icon
+                v-if='formBodyData && formBodyData[item.rowId] && formBodyData[item.rowId].peerEvaluation === header.type && (currentEvaluateMode === tableMode.TeacherEvaluate || currentEvaluateMode === tableMode.PeerEvaluate)' />
+            </div>
+          </template>
+
+          <!-- 老师可以看到所有的评估数据，学生自评可以看到自己的和教师的，他评只能看到自己的-->
+          <template
+            v-if='mode === tableMode.TeacherEvaluate || mode === tableMode.StudentEvaluate || mode === tableMode.PeerEvaluate'>
+            <!-- Indicators-->
+            <template v-if='header.type === headerType.Indicators'>
+              <div class='indicator-data'>
+                {{ item[headerType.Indicators].name }}
+              </div>
+              <!--                <div class="selected-icon" >-->
+              <!--                  <teacher-icon v-if="formBodyData && formBodyData[item.rowId] && formBodyData[item.rowId].teacherEvaluation === header.type && (currentEvaluateMode === tableMode.TeacherEvaluate || currentEvaluateMode === tableMode.StudentEvaluate)"/>-->
+              <!--                  <student-icon v-if="formBodyData && formBodyData[item.rowId] && formBodyData[item.rowId].studentEvaluation === header.type && (currentEvaluateMode === tableMode.TeacherEvaluate || currentEvaluateMode === tableMode.StudentEvaluate)"/>-->
+              <!--                  <peer-icon v-if="formBodyData && formBodyData[item.rowId] && formBodyData[item.rowId].peerEvaluation === header.type && (currentEvaluateMode === tableMode.TeacherEvaluate || currentEvaluateMode === tableMode.PeerEvaluate)"/>-->
+              <!--                </div>-->
+            </template>
+            <template v-if='header.type === headerType.Novice'>
+              <div class='indicator-data'>
+                {{ item[headerType.Novice].name }}
+              </div>
+              <div class='selected-icon'>
+                <teacher-icon
+                  v-if='formBodyData && formBodyData[item.rowId] && formBodyData[item.rowId].teacherEvaluation === header.type && (currentEvaluateMode === tableMode.TeacherEvaluate || currentEvaluateMode === tableMode.StudentEvaluate)' />
+                <student-icon
+                  v-if='formBodyData && formBodyData[item.rowId] && formBodyData[item.rowId].studentEvaluation === header.type && (currentEvaluateMode === tableMode.TeacherEvaluate || currentEvaluateMode === tableMode.StudentEvaluate)' />
+                <peer-icon
+                  v-if='formBodyData && formBodyData[item.rowId] && formBodyData[item.rowId].peerEvaluation === header.type && (currentEvaluateMode === tableMode.TeacherEvaluate || currentEvaluateMode === tableMode.PeerEvaluate)' />
               </div>
             </template>
-            <!-- LevelDescriptor-->
-            <template v-if="header.type === headerType.LevelDescriptor">
-              <div class="sub-level-data" @click.stop="">
-                <div class="sub-level-desc">
-                  <div class="sub-level-desc-item" v-for="(subLevel, sIndex) in item[headerType.AchievementLevel].subLevelDescription" :key="sIndex">
-                    <a-tooltip placement="topLeft">
-                      <template slot="title">
-                        {{ subLevel.description }}
-                      </template>
-                      {{ subLevel.description }}
-                    </a-tooltip>
+            <template v-if='header.type === headerType.Learner'>
+              <div class='indicator-data'>
+                {{ item[headerType.Learner].name }}
+              </div>
+              <div class='selected-icon'>
+                <teacher-icon
+                  v-if='formBodyData && formBodyData[item.rowId] && formBodyData[item.rowId].teacherEvaluation === header.type && (currentEvaluateMode === tableMode.TeacherEvaluate || currentEvaluateMode === tableMode.StudentEvaluate)' />
+                <student-icon
+                  v-if='formBodyData && formBodyData[item.rowId] && formBodyData[item.rowId].studentEvaluation === header.type && (currentEvaluateMode === tableMode.TeacherEvaluate || currentEvaluateMode === tableMode.StudentEvaluate)' />
+                <peer-icon
+                  v-if='formBodyData && formBodyData[item.rowId] && formBodyData[item.rowId].peerEvaluation === header.type && (currentEvaluateMode === tableMode.TeacherEvaluate || currentEvaluateMode === tableMode.PeerEvaluate)' />
+              </div>
+            </template>
+            <template v-if='header.type === headerType.Practitoner'>
+              <div class='indicator-data'>
+                {{ item[headerType.Practitoner].name }}
+              </div>
+              <div class='selected-icon'>
+                <teacher-icon
+                  v-if='formBodyData && formBodyData[item.rowId] && formBodyData[item.rowId].teacherEvaluation === header.type && (currentEvaluateMode === tableMode.TeacherEvaluate || currentEvaluateMode === tableMode.StudentEvaluate)' />
+                <student-icon
+                  v-if='formBodyData && formBodyData[item.rowId] && formBodyData[item.rowId].studentEvaluation === header.type && (currentEvaluateMode === tableMode.TeacherEvaluate || currentEvaluateMode === tableMode.StudentEvaluate)' />
+                <peer-icon
+                  v-if='formBodyData && formBodyData[item.rowId] && formBodyData[item.rowId].peerEvaluation === header.type && (currentEvaluateMode === tableMode.TeacherEvaluate || currentEvaluateMode === tableMode.PeerEvaluate)' />
+              </div>
+            </template>
+            <template v-if='header.type === headerType.Expert'>
+              <div class='indicator-data'>
+                {{ item[headerType.Expert].name }}
+              </div>
+              <div class='selected-icon'>
+                <teacher-icon
+                  v-if='formBodyData && formBodyData[item.rowId] && formBodyData[item.rowId].teacherEvaluation === header.type && (currentEvaluateMode === tableMode.TeacherEvaluate || currentEvaluateMode === tableMode.StudentEvaluate)' />
+                <student-icon
+                  v-if='formBodyData && formBodyData[item.rowId] && formBodyData[item.rowId].studentEvaluation === header.type && (currentEvaluateMode === tableMode.TeacherEvaluate || currentEvaluateMode === tableMode.StudentEvaluate)' />
+                <peer-icon
+                  v-if='formBodyData && formBodyData[item.rowId] && formBodyData[item.rowId].peerEvaluation === header.type && (currentEvaluateMode === tableMode.TeacherEvaluate || currentEvaluateMode === tableMode.PeerEvaluate)' />
+              </div>
+            </template>
+
+            <!-- UserDefine-->
+            <template v-if='header.type.startsWith(headerType.UserDefine)'>
+              <div class='indicator-data'>
+                {{ item[header.type].name }}
+              </div>
+              <div class='selected-icon'>
+                <teacher-icon
+                  v-if='formBodyData && formBodyData[item.rowId] && formBodyData[item.rowId].teacherEvaluation === header.type && (currentEvaluateMode === tableMode.TeacherEvaluate || currentEvaluateMode === tableMode.StudentEvaluate)' />
+                <student-icon
+                  v-if='formBodyData && formBodyData[item.rowId] && formBodyData[item.rowId].studentEvaluation === header.type && (currentEvaluateMode === tableMode.TeacherEvaluate || currentEvaluateMode === tableMode.StudentEvaluate)' />
+                <peer-icon
+                  v-if='formBodyData && formBodyData[item.rowId] && formBodyData[item.rowId].peerEvaluation === header.type && (currentEvaluateMode === tableMode.TeacherEvaluate || currentEvaluateMode === tableMode.PeerEvaluate)' />
+              </div>
+            </template>
+          </template>
+
+          <!-- Evidence 仅在评估模式下显示-->
+          <template
+            v-if='header.type === headerType.Evidence && (mode === tableMode.TeacherEvaluate || mode === tableMode.StudentEvaluate || mode === tableMode.PeerEvaluate)'>
+            <div class='evidence-data'>
+              <template v-if='formBodyData && formBodyData[item.rowId] && formBodyData[item.rowId].evidenceIdList'>
+                <div :class="{'evidence-info': true, 'exist-evidence': item[headerType.Evidence].num}"
+                     @click='handleAddEvidenceLine(lIndex, item, $event)'
+                     v-show='mode === tableMode.TeacherEvaluate || mode === tableMode.StudentEvaluate'>
+                  <add-icon v-show='!formBodyData[item.rowId].evidenceIdList.length' />
+                  <add-small-green-icon v-show='formBodyData[item.rowId].evidenceIdList.length' />
+                  <div class='evidence-num'>(
+                    {{ formBodyData[item.rowId].evidenceIdList.length ? formBodyData[item.rowId].evidenceIdList.length : 0
+                    }} )
                   </div>
                 </div>
-              </div>
-              <div class="selected-icon" >
-                <teacher-icon v-if="formBodyData && formBodyData[item.rowId] && formBodyData[item.rowId].teacherEvaluation === header.type && (currentEvaluateMode === tableMode.TeacherEvaluate || currentEvaluateMode === tableMode.StudentEvaluate)"/>
-                <student-icon v-if="formBodyData && formBodyData[item.rowId] && formBodyData[item.rowId].studentEvaluation === header.type && (currentEvaluateMode === tableMode.TeacherEvaluate || currentEvaluateMode === tableMode.StudentEvaluate)"/>
-                <peer-icon v-if="formBodyData && formBodyData[item.rowId] && formBodyData[item.rowId].peerEvaluation === header.type && (currentEvaluateMode === tableMode.TeacherEvaluate || currentEvaluateMode === tableMode.PeerEvaluate)"/>
-              </div>
-            </template>
+              </template>
+            </div>
+          </template>
 
-            <!-- 老师可以看到所有的评估数据，学生自评可以看到自己的和教师的，他评只能看到自己的-->
-            <template v-if="mode === tableMode.TeacherEvaluate || mode === tableMode.StudentEvaluate || mode === tableMode.PeerEvaluate">
-              <!-- Indicators-->
-              <template v-if="header.type === headerType.Indicators">
-                <div class="indicator-data">
-                  {{ item[headerType.Indicators].name }}
-                </div>
-                <!--                <div class="selected-icon" >-->
-                <!--                  <teacher-icon v-if="formBodyData && formBodyData[item.rowId] && formBodyData[item.rowId].teacherEvaluation === header.type && (currentEvaluateMode === tableMode.TeacherEvaluate || currentEvaluateMode === tableMode.StudentEvaluate)"/>-->
-                <!--                  <student-icon v-if="formBodyData && formBodyData[item.rowId] && formBodyData[item.rowId].studentEvaluation === header.type && (currentEvaluateMode === tableMode.TeacherEvaluate || currentEvaluateMode === tableMode.StudentEvaluate)"/>-->
-                <!--                  <peer-icon v-if="formBodyData && formBodyData[item.rowId] && formBodyData[item.rowId].peerEvaluation === header.type && (currentEvaluateMode === tableMode.TeacherEvaluate || currentEvaluateMode === tableMode.PeerEvaluate)"/>-->
-                <!--                </div>-->
-              </template>
-              <template v-if="header.type === headerType.Novice">
-                <div class="indicator-data">
-                  {{ item[headerType.Novice].name }}
-                </div>
-                <div class="selected-icon">
-                  <teacher-icon v-if="formBodyData && formBodyData[item.rowId] && formBodyData[item.rowId].teacherEvaluation === header.type && (currentEvaluateMode === tableMode.TeacherEvaluate || currentEvaluateMode === tableMode.StudentEvaluate)"/>
-                  <student-icon v-if="formBodyData && formBodyData[item.rowId] && formBodyData[item.rowId].studentEvaluation === header.type && (currentEvaluateMode === tableMode.TeacherEvaluate || currentEvaluateMode === tableMode.StudentEvaluate)"/>
-                  <peer-icon v-if="formBodyData && formBodyData[item.rowId] && formBodyData[item.rowId].peerEvaluation === header.type && (currentEvaluateMode === tableMode.TeacherEvaluate || currentEvaluateMode === tableMode.PeerEvaluate)"/>
-                </div>
-              </template>
-              <template v-if="header.type === headerType.Learner">
-                <div class="indicator-data">
-                  {{ item[headerType.Learner].name }}
-                </div>
-                <div class="selected-icon" >
-                  <teacher-icon v-if="formBodyData && formBodyData[item.rowId] && formBodyData[item.rowId].teacherEvaluation === header.type && (currentEvaluateMode === tableMode.TeacherEvaluate || currentEvaluateMode === tableMode.StudentEvaluate)"/>
-                  <student-icon v-if="formBodyData && formBodyData[item.rowId] && formBodyData[item.rowId].studentEvaluation === header.type && (currentEvaluateMode === tableMode.TeacherEvaluate || currentEvaluateMode === tableMode.StudentEvaluate)"/>
-                  <peer-icon v-if="formBodyData && formBodyData[item.rowId] && formBodyData[item.rowId].peerEvaluation === header.type && (currentEvaluateMode === tableMode.TeacherEvaluate || currentEvaluateMode === tableMode.PeerEvaluate)"/>
-                </div>
-              </template>
-              <template v-if="header.type === headerType.Practitoner">
-                <div class="indicator-data">
-                  {{ item[headerType.Practitoner].name }}
-                </div>
-                <div class="selected-icon">
-                  <teacher-icon v-if="formBodyData && formBodyData[item.rowId] && formBodyData[item.rowId].teacherEvaluation === header.type && (currentEvaluateMode === tableMode.TeacherEvaluate || currentEvaluateMode === tableMode.StudentEvaluate)"/>
-                  <student-icon v-if="formBodyData && formBodyData[item.rowId] && formBodyData[item.rowId].studentEvaluation === header.type && (currentEvaluateMode === tableMode.TeacherEvaluate || currentEvaluateMode === tableMode.StudentEvaluate)"/>
-                  <peer-icon v-if="formBodyData && formBodyData[item.rowId] && formBodyData[item.rowId].peerEvaluation === header.type && (currentEvaluateMode === tableMode.TeacherEvaluate || currentEvaluateMode === tableMode.PeerEvaluate)"/>
-                </div>
-              </template>
-              <template v-if="header.type === headerType.Expert">
-                <div class="indicator-data">
-                  {{ item[headerType.Expert].name }}
-                </div>
-                <div class="selected-icon" >
-                  <teacher-icon v-if="formBodyData && formBodyData[item.rowId] && formBodyData[item.rowId].teacherEvaluation === header.type && (currentEvaluateMode === tableMode.TeacherEvaluate || currentEvaluateMode === tableMode.StudentEvaluate)"/>
-                  <student-icon v-if="formBodyData && formBodyData[item.rowId] && formBodyData[item.rowId].studentEvaluation === header.type && (currentEvaluateMode === tableMode.TeacherEvaluate || currentEvaluateMode === tableMode.StudentEvaluate)"/>
-                  <peer-icon v-if="formBodyData && formBodyData[item.rowId] && formBodyData[item.rowId].peerEvaluation === header.type && (currentEvaluateMode === tableMode.TeacherEvaluate || currentEvaluateMode === tableMode.PeerEvaluate)"/>
-                </div>
-              </template>
-
-              <!-- UserDefine-->
-              <template v-if="header.type.startsWith(headerType.UserDefine)">
-                <div class="indicator-data">
-                  {{ item[header.type].name }}
-                </div>
-                <div class="selected-icon" >
-                  <teacher-icon v-if="formBodyData && formBodyData[item.rowId] && formBodyData[item.rowId].teacherEvaluation === header.type && (currentEvaluateMode === tableMode.TeacherEvaluate || currentEvaluateMode === tableMode.StudentEvaluate)"/>
-                  <student-icon v-if="formBodyData && formBodyData[item.rowId] && formBodyData[item.rowId].studentEvaluation === header.type && (currentEvaluateMode === tableMode.TeacherEvaluate || currentEvaluateMode === tableMode.StudentEvaluate)"/>
-                  <peer-icon v-if="formBodyData && formBodyData[item.rowId] && formBodyData[item.rowId].peerEvaluation === header.type && (currentEvaluateMode === tableMode.TeacherEvaluate || currentEvaluateMode === tableMode.PeerEvaluate)"/>
-                </div>
-              </template>
-            </template>
-
-            <!-- Evidence 仅在评估模式下显示-->
-            <template v-if="header.type === headerType.Evidence && (mode === tableMode.TeacherEvaluate || mode === tableMode.StudentEvaluate || mode === tableMode.PeerEvaluate)">
-              <div class="evidence-data">
-                <template v-if="formBodyData && formBodyData[item.rowId] && formBodyData[item.rowId].evidenceIdList">
-                  <div :class="{'evidence-info': true, 'exist-evidence': item[headerType.Evidence].num}" @click="handleAddEvidenceLine(lIndex, item, $event)" v-show="mode === tableMode.TeacherEvaluate || mode === tableMode.StudentEvaluate">
-                    <add-icon v-show="!formBodyData[item.rowId].evidenceIdList.length"/>
-                    <add-small-green-icon v-show="formBodyData[item.rowId].evidenceIdList.length"/>
-                    <div class="evidence-num">( {{ formBodyData[item.rowId].evidenceIdList.length ? formBodyData[item.rowId].evidenceIdList.length : 0 }} )</div>
+          <template v-if='hIndex === headers.length - 2 && mode === tableMode.Edit'>
+            <div class='add-more-header'>
+              <a-popconfirm :title="'Delete this line ?'" class='rubric-delete-popconfirm' ok-text='Yes'
+                            @confirm='handleDeleteLine(item)' cancel-text='No'>
+                <template slot='icon'>
+                  <div class='rubric-big-delete'>
+                    <img class='big-delete-icon' src='~@/assets/icons/evaluation/big_delete.png' />
                   </div>
                 </template>
-              </div>
-            </template>
-
-            <template v-if="hIndex === headers.length - 2 && mode === tableMode.Edit">
-              <div class="add-more-header">
-                <a-popconfirm :title="'Delete this line ?'" class="rubric-delete-popconfirm" ok-text="Yes" @confirm="handleDeleteLine(item)" cancel-text="No">
-                  <template slot="icon">
-                    <div class="rubric-big-delete">
-                      <img class="big-delete-icon" src="~@/assets/icons/evaluation/big_delete.png" />
-                    </div>
-                  </template>
-                  <img src="~@/assets/icons/evaluation/delete.png" class="delete-row"/>
-                </a-popconfirm>
-              </div>
-            </template>
-          </td>
-        </tr>
+                <img src='~@/assets/icons/evaluation/delete.png' class='delete-row' />
+              </a-popconfirm>
+            </div>
+          </template>
+        </td>
+      </tr>
       </tbody>
     </table>
-    <div class="add-new-line" @click="handleAddNewLine" v-if="mode === tableMode.Edit">
-      <div class="add-new-line-item">
+    <div class='add-new-line' @click='handleAddNewLine' v-if='mode === tableMode.Edit'>
+      <div class='add-new-line-item'>
         <add-green-icon />
       </div>
     </div>
 
     <a-modal
-      v-model="selectCurriculumVisible"
-      @ok="handleEnsureSelectCriteria"
+      v-model='selectCurriculumVisible'
+      @ok='handleEnsureSelectCriteria'
       destroyOnClose
-      width="1200px"
+      width='1200px'
       :dialog-style="{ top: '20px' }">
-      <div class="associate-library">
+      <div class='associate-library'>
         <new-browser
-          :select-mode="selectModel.knowledgeDescription"
-          :show-menu="showMenuList"
-          :default-active-menu="defaultActiveMenu"
-          @select-all-21-century="handleSelectAll21CenturyListData"
-          @select-curriculum="handleSelectCurriculumListData"
-          @select-subject-specific-skill="handleSelectSubjectSpecificSkillListData"
-          @select-century-skill="handleSelect21CenturySkillListData"
-          @select-assessmentType="handleSelectAssessmentType"
-          @select-idu="handleSelectIdu"
-          question-index="evaluation_"/>
+          :select-mode='selectModel.evaluationMode'
+          :show-menu='showMenuList'
+          :default-active-menu='defaultActiveMenu'
+          @select-all-21-century='handleSelectAll21CenturyListData'
+          @select-curriculum='handleSelectCurriculumListData'
+          @select-subject-specific-skill='handleSelectSubjectSpecificSkillListData'
+          @select-century-skill='handleSelect21CenturySkillListData'
+          @select-assessmentType='handleSelectAssessmentType'
+          @select-idu='handleSelectIdu'
+          question-index='evaluation_' />
       </div>
     </a-modal>
 
     <a-modal
-      v-model="inputDescriptionVisible"
-      :footer="null"
-      :maskClosable="false"
-      :closable="false"
-      width="700px"
+      v-model='inputDescriptionVisible'
+      :footer='null'
+      :maskClosable='false'
+      :closable='false'
+      width='700px'
       destroyOnClose>
-      <modal-header @close="inputDescriptionVisible = false"/>
-      <div class="rubric-modal">
-        <div class="rubric-header">
-          <div class="my-modal-header">
+      <modal-header @close='inputDescriptionVisible = false' />
+      <div class='rubric-modal'>
+        <div class='rubric-header'>
+          <div class='my-modal-header'>
             The specific description you entered will be shown to students instead of the curriculum description
           </div>
         </div>
-        <div class="description-text">
-          <div class="old-description" v-if="currentEnterDescriptionLine">
+        <div class='description-text'>
+          <div class='old-description' v-if='currentEnterDescriptionLine'>
             {{ currentEnterDescriptionLine[headerType.Description].name }}
           </div>
         </div>
-        <div class="description-input">
+        <div class='description-input'>
           <a-textarea
-            placeholder="Enter task specific description"
-            :autosize="{ minRows: 3, maxRows: 6 }"
-            v-model="inputDescription"
-            @blur="handleUpdateDescription"/>
+            placeholder='Enter task specific description'
+            :autosize='{ minRows: 3, maxRows: 6 }'
+            v-model='inputDescription'
+            @blur='handleUpdateDescription' />
         </div>
-        <div class="select-rubric-action">
-          <a-button shape="round" class="my-rubric-btn" style="width: 80px;background-color: #F5F5F5; border-color:#F5F5F5;box-shadow: none; color: #000000 " type="primary" @click="handleCancelDescription">Cancel</a-button>
-          <a-button shape="round" class="my-rubric-btn" style="width: 80px;" type="primary" @click="handleEnsureDescription">Confirm</a-button>
+        <div class='select-rubric-action'>
+          <a-button shape='round' class='my-rubric-btn'
+                    style='width: 80px;background-color: #F5F5F5; border-color:#F5F5F5;box-shadow: none; color: #000000 '
+                    type='primary' @click='handleCancelDescription'>Cancel
+          </a-button>
+          <a-button shape='round' class='my-rubric-btn' style='width: 80px;' type='primary'
+                    @click='handleEnsureDescription'>Confirm
+          </a-button>
         </div>
       </div>
     </a-modal>
@@ -582,14 +640,14 @@ export default {
       default: () => null
     }
   },
-  data () {
+  data() {
     return {
       selectModel: SelectModel,
       selfHeaderAddIndex: 1,
       headers: [], // 表头
       list: [], // 表结构数据
       defaultActiveMenu: NavigationType.specificSkills,
-      showMenuList: [ NavigationType.centurySkills ],
+      showMenuList: [NavigationType.centurySkills],
       mode: null,
 
       selectCurriculumVisible: false,
@@ -631,7 +689,7 @@ export default {
       evaluateStudentName: null // 当前正在评估的学生姓名
     }
   },
-  created () {
+  created() {
     this.$logger.info('[' + this.formTableMode + '] EvaluationTable created formType ' + this.formType, 'initRawHeaders', this.initRawHeaders, 'initRawData', this.initRawData, ' formBodyData', this.formBodyData)
     this.mode = this.formTableMode
 
@@ -657,42 +715,189 @@ export default {
     } else {
       if (this.formType === EvaluationTableType.Rubric) {
         this.headers = [
-          { label: 'Criteria', previewLabel: 'Criteria', type: EvaluationTableHeader.Criteria, editable: false, editing: false, required: true },
-          { label: 'Achievement Level', previewLabel: 'Achievement Level', type: EvaluationTableHeader.AchievementLevel, editable: false, editing: false, required: true },
-          { label: 'Level descriptor', previewLabel: 'Level descriptor', type: EvaluationTableHeader.LevelDescriptor, editable: false, editing: false, required: true },
-          { label: 'Task specific indicators', previewLabel: 'Task specific indicators', type: EvaluationTableHeader.Indicators, editable: false, editing: false, required: true },
-          { label: 'Evidence', previewLabel: 'Evidence', type: EvaluationTableHeader.Evidence, editable: false, editing: false, required: true }
+          {
+            label: 'Criteria',
+            previewLabel: 'Criteria',
+            type: EvaluationTableHeader.Criteria,
+            editable: false,
+            editing: false,
+            required: true
+          },
+          {
+            label: 'Achievement Level',
+            previewLabel: 'Achievement Level',
+            type: EvaluationTableHeader.AchievementLevel,
+            editable: false,
+            editing: false,
+            required: true
+          },
+          {
+            label: 'Level descriptor',
+            previewLabel: 'Level descriptor',
+            type: EvaluationTableHeader.LevelDescriptor,
+            editable: false,
+            editing: false,
+            required: true
+          },
+          {
+            label: 'Task specific indicators',
+            previewLabel: 'Task specific indicators',
+            type: EvaluationTableHeader.Indicators,
+            editable: false,
+            editing: false,
+            required: true
+          },
+          {
+            label: 'Evidence',
+            previewLabel: 'Evidence',
+            type: EvaluationTableHeader.Evidence,
+            editable: false,
+            editing: false,
+            required: true
+          }
         ]
       } else if (this.formType === EvaluationTableType.Rubric_2) {
         this.headers = [
-          { label: 'Description', previewLabel: 'Description', type: EvaluationTableHeader.Description, editable: false, editing: false, required: true },
-          { label: 'Unnamed level', previewLabel: 'Unnamed level', type: EvaluationTableHeader.UserDefine, editable: true, editing: false, required: false },
-          { label: 'Evidence', previewLabel: 'Evidence', type: EvaluationTableHeader.Evidence, editable: false, editing: false, required: true }
+          {
+            label: 'Description',
+            previewLabel: 'Description',
+            type: EvaluationTableHeader.Description,
+            editable: false,
+            editing: false,
+            required: true
+          },
+          {
+            label: 'Unnamed level',
+            previewLabel: 'Unnamed level',
+            type: EvaluationTableHeader.UserDefine,
+            editable: true,
+            editing: false,
+            required: false
+          },
+          {
+            label: 'Evidence',
+            previewLabel: 'Evidence',
+            type: EvaluationTableHeader.Evidence,
+            editable: false,
+            editing: false,
+            required: true
+          }
         ]
       } else if (this.formType === EvaluationTableType.CenturySkills) {
         /**
          *  第三种表需要针对NZ和AU用户在最左侧添加一列命名为Criteria
-            Cambridge/IB/IGCSE的用户只看到第二列，点击后看到21st century skills数据入口
+         Cambridge/IB/IGCSE的用户只看到第二列，点击后看到21st century skills数据入口
          */
         const bindCurriculum = parseInt(this.$store.getters.bindCurriculum)
         if (bindCurriculum === 1 || bindCurriculum === 2) {
           this.headers = [
-            { label: 'Criteria', previewLabel: 'Criteria', type: EvaluationTableHeader.Criteria, editable: false, editing: false, required: true },
-            { label: '21st century skills', previewLabel: '21st century skills', type: EvaluationTableHeader.Description, editable: false, editing: false, required: true },
-            { label: 'Novice', previewLabel: 'Novice', type: EvaluationTableHeader.Novice, editable: false, editing: false, required: true },
-            { label: 'Learner', previewLabel: 'Learner', type: EvaluationTableHeader.Learner, editable: false, editing: false, required: true },
-            { label: 'Practitoner', previewLabel: 'Practitoner', type: EvaluationTableHeader.Practitoner, editable: false, editing: false, required: true },
-            { label: 'Expert', previewLabel: 'Expert', type: EvaluationTableHeader.Expert, editable: false, editing: false, required: true },
-            { label: 'Evidence', previewLabel: 'Evidence', type: EvaluationTableHeader.Evidence, editable: false, editing: false, required: true }
+            {
+              label: 'Criteria',
+              previewLabel: 'Criteria',
+              type: EvaluationTableHeader.Criteria,
+              editable: false,
+              editing: false,
+              required: true
+            },
+            {
+              label: '21st century skills',
+              previewLabel: '21st century skills',
+              type: EvaluationTableHeader.Description,
+              editable: false,
+              editing: false,
+              required: true
+            },
+            {
+              label: 'Novice',
+              previewLabel: 'Novice',
+              type: EvaluationTableHeader.Novice,
+              editable: false,
+              editing: false,
+              required: true
+            },
+            {
+              label: 'Learner',
+              previewLabel: 'Learner',
+              type: EvaluationTableHeader.Learner,
+              editable: false,
+              editing: false,
+              required: true
+            },
+            {
+              label: 'Practitoner',
+              previewLabel: 'Practitoner',
+              type: EvaluationTableHeader.Practitoner,
+              editable: false,
+              editing: false,
+              required: true
+            },
+            {
+              label: 'Expert',
+              previewLabel: 'Expert',
+              type: EvaluationTableHeader.Expert,
+              editable: false,
+              editing: false,
+              required: true
+            },
+            {
+              label: 'Evidence',
+              previewLabel: 'Evidence',
+              type: EvaluationTableHeader.Evidence,
+              editable: false,
+              editing: false,
+              required: true
+            }
           ]
         } else {
           this.headers = [
-            { label: '21st century skills', previewLabel: '21st century skills', type: EvaluationTableHeader.Description, editable: false, editing: false, required: true },
-            { label: 'Novice', previewLabel: 'Novice', type: EvaluationTableHeader.Novice, editable: false, editing: false, required: true },
-            { label: 'Learner', previewLabel: 'Learner', type: EvaluationTableHeader.Learner, editable: false, editing: false, required: true },
-            { label: 'Practitoner', previewLabel: 'Practitoner', type: EvaluationTableHeader.Practitoner, editable: false, editing: false, required: true },
-            { label: 'Expert', previewLabel: 'Expert', type: EvaluationTableHeader.Expert, editable: false, editing: false, required: true },
-            { label: 'Evidence', previewLabel: 'Evidence', type: EvaluationTableHeader.Evidence, editable: false, editing: false, required: true }
+            {
+              label: '21st century skills',
+              previewLabel: '21st century skills',
+              type: EvaluationTableHeader.Description,
+              editable: false,
+              editing: false,
+              required: true
+            },
+            {
+              label: 'Novice',
+              previewLabel: 'Novice',
+              type: EvaluationTableHeader.Novice,
+              editable: false,
+              editing: false,
+              required: true
+            },
+            {
+              label: 'Learner',
+              previewLabel: 'Learner',
+              type: EvaluationTableHeader.Learner,
+              editable: false,
+              editing: false,
+              required: true
+            },
+            {
+              label: 'Practitoner',
+              previewLabel: 'Practitoner',
+              type: EvaluationTableHeader.Practitoner,
+              editable: false,
+              editing: false,
+              required: true
+            },
+            {
+              label: 'Expert',
+              previewLabel: 'Expert',
+              type: EvaluationTableHeader.Expert,
+              editable: false,
+              editing: false,
+              required: true
+            },
+            {
+              label: 'Evidence',
+              previewLabel: 'Evidence',
+              type: EvaluationTableHeader.Evidence,
+              editable: false,
+              editing: false,
+              required: true
+            }
           ]
         }
       }
@@ -706,20 +911,20 @@ export default {
     }
     LibraryEventBus.$on(LibraryEvent.ContentListSelectClick, this.handleContentListSelectClick)
   },
-  destroyed () {
+  destroyed() {
     LibraryEventBus.$off(LibraryEvent.ContentListSelectClick, this.handleContentListSelectClick)
     this.$logger.info('[' + this.mode + '] off NewClickableKnowledgeTag ContentListSelectClick handler')
   },
   methods: {
 
-    handleContentListSelectClick (data) {
+    handleContentListSelectClick(data) {
       if (data.questionIndex === 'evaluation_') {
         this.$logger.info('[' + this.mode + '] evaluation handleContentListSelectClick hit', data)
         LibraryEventBus.$emit(LibraryEvent.ContentListSelectedListUpdate, { id: data.subKnowledgeId })
       }
     },
 
-    handleEditHeader (header) {
+    handleEditHeader(header) {
       this.disabledDraggable = true
       this.$logger.info('disabled Draggable')
       this.$logger.info('[' + this.mode + '] handleEditHeader', header)
@@ -744,7 +949,7 @@ export default {
       }
     },
 
-    handleUpdateHeader () {
+    handleUpdateHeader() {
       // 如果没输入表头，重置为默认表头
       this.headers.forEach(item => {
         if (item.label.length === 0) {
@@ -759,7 +964,7 @@ export default {
       this.disabledDraggable = false
     },
 
-    handleAddNewHeader (hIndex) {
+    handleAddNewHeader(hIndex) {
       this.$logger.info('[' + this.mode + '] handleAddNewHeader this.selfHeaderTypeIndex ' + this.selfHeaderAddIndex + ' hIndex ' + hIndex)
 
       // 重新生成一个唯一的表头类型，示例：user_define__1、user_define__2
@@ -794,7 +999,7 @@ export default {
       this.selfHeaderAddIndex++
     },
 
-    handleRemoveHeader (header) {
+    handleRemoveHeader(header) {
       this.$logger.info('[' + this.mode + '] handleRemoveHeader ', header)
       const index = this.headers.findIndex(item => item.type === header.type)
       if (index !== -1) {
@@ -808,7 +1013,7 @@ export default {
       this.$logger.info('[' + this.mode + '] after delete column update list', this.list)
     },
 
-    handleAddNewLine () {
+    handleAddNewLine() {
       this.$logger.info('[' + this.mode + '] handleAddNewLine ')
       const newLineItem = {}
       const rowId = this.generateRowId()
@@ -857,18 +1062,18 @@ export default {
       this.list.push(newLineItem)
     },
 
-    handleDragEnd () {
+    handleDragEnd() {
       this.$logger.info('[' + this.mode + '] handleDragEnd', this.headers)
     },
 
-    handleDeleteLine (deleteLine) {
+    handleDeleteLine(deleteLine) {
       this.$logger.info('[' + this.mode + '] handleDeleteLine', deleteLine)
       if (this.mode === EvaluationTableMode.Edit) {
         this.list = this.list.filter(item => item !== deleteLine)
       }
     },
 
-    handleClickBodyItem (item, header) {
+    handleClickBodyItem(item, header) {
       this.$logger.info('[' + this.mode + '][' + this.currentEvaluateMode + '] handleClickBodyItem ' + header.label, item, 'header', header)
       if ([EvaluationTableHeader.Indicators,
         EvaluationTableHeader.Novice,
@@ -890,7 +1095,7 @@ export default {
       }
     },
 
-    handleClickSubLevelItem (item, header, subLevel) {
+    handleClickSubLevelItem(item, header, subLevel) {
       this.$logger.info(subLevel + ' [' + this.mode + '][' + this.currentEvaluateMode + '] handleClickSubLevelItem ' + header.label, item, 'header', header)
       if ([EvaluationTableHeader.Indicators,
         EvaluationTableHeader.Novice,
@@ -912,11 +1117,11 @@ export default {
       }
     },
 
-    handleSwitchModeTips () {
+    handleSwitchModeTips() {
       this.$message.warn('Please switch to evaluation mode first!')
     },
 
-    handleAddCriteria  (header, item, event) {
+    handleAddCriteria(header, item, event) {
       event.preventDefault()
       event.stopPropagation()
       this.$logger.info('[' + this.mode + '] handleAddCriteria ' + header.type, header, item)
@@ -966,7 +1171,7 @@ export default {
       }
     },
 
-    handleEnsureSelectCriteria () {
+    handleEnsureSelectCriteria() {
       this.$logger.info('[' + this.mode + '] handleEnsureSelectCriteria', 'this.list', this.list)
       this.selectCurriculumVisible = false
 
@@ -1201,15 +1406,15 @@ export default {
       this.selectedIduList = []
     },
 
-    handleUpdateDescription (header, item) {
+    handleUpdateDescription(header, item) {
       this.$logger.info('[' + this.mode + '] handleUpdateDescription', header, item)
     },
 
-    handleUpdateField (header, item) {
+    handleUpdateField(header, item) {
       this.$logger.info('[' + this.mode + '] handleUpdateField', header, item)
     },
 
-    handleClickEnterCriteriaDescription (header, item) {
+    handleClickEnterCriteriaDescription(header, item) {
       this.$logger.info('[' + this.mode + '] handleClickEnterCriteriaDescription', header, item)
       if (this.mode === EvaluationTableMode.Edit) {
         this.inputDescription = item[this.headerType.Description].userInputText
@@ -1218,7 +1423,7 @@ export default {
       }
     },
 
-    handleEnsureDescription () {
+    handleEnsureDescription() {
       this.$logger.info('[' + this.mode + '] handleEnsureDescription ' + this.inputDescription)
       this.currentEnterDescriptionLine[this.headerType.Description].userInputText = this.inputDescription
       if (this.mode === EvaluationTableMode.Edit) {
@@ -1228,14 +1433,14 @@ export default {
       }
     },
 
-    handleCancelDescription () {
+    handleCancelDescription() {
       this.$logger.info('[' + this.mode + '] handleEnsureDescription ' + this.inputDescription)
       this.currentEnterDescriptionLine = null
       this.inputDescription = null
       this.inputDescriptionVisible = false
     },
 
-    handleAddEvidenceLine (lIndex, item, event) {
+    handleAddEvidenceLine(lIndex, item, event) {
       event.stopPropagation()
       event.preventDefault()
       this.$logger.info('[' + this.mode + '] handleAddEvidenceLine', lIndex, item)
@@ -1243,7 +1448,7 @@ export default {
         index: lIndex, data: item
       })
     },
-    handleSelectAll21CenturyListData (data) {
+    handleSelectAll21CenturyListData(data) {
       this.$logger.info('[' + this.mode + '] EvaluationTable handleSelectAll21CenturyListData', data)
       const descriptionList = []
       data.forEach(dataItem => {
@@ -1257,7 +1462,7 @@ export default {
       this.$logger.info('[' + this.mode + '] selectedAll21CenturyList ', descriptionList)
     },
 
-    handleSelectCurriculumListData  (data) {
+    handleSelectCurriculumListData(data) {
       this.$logger.info('[' + this.mode + '] EvaluationTable handleSelectCurriculumListData', data)
       const descriptionList = []
       data.forEach(dataItem => {
@@ -1270,7 +1475,7 @@ export default {
       this.$logger.info('[' + this.mode + '] handleSelectCurriculumListData ', descriptionList)
     },
 
-    handleSelectSubjectSpecificSkillListData (data) {
+    handleSelectSubjectSpecificSkillListData(data) {
       this.$logger.info('[' + this.mode + '] EvaluationTable handleSelectSubjectSpecificSkillListData', data)
       const descriptionList = []
       data.forEach(dataItem => {
@@ -1304,7 +1509,7 @@ export default {
       this.$logger.info('[' + this.mode + '] handleSelectSubjectSpecificSkillListData ', descriptionList)
     },
 
-    handleSelect21CenturySkillListData (data) {
+    handleSelect21CenturySkillListData(data) {
       this.$logger.info('[' + this.mode + '] EvaluationTable handleSelectCurriculumListData', data)
       const descriptionList = []
       data.forEach(dataItem => {
@@ -1326,7 +1531,7 @@ export default {
       this.$logger.info('[' + this.mode + '] handleSelectCurriculumListData ', descriptionList)
     },
 
-    handleSelectAssessmentType (data) {
+    handleSelectAssessmentType(data) {
       this.$logger.info('[' + this.mode + '] EvaluationTable handleSelectAssessmentType', data)
       const descriptionList = []
       data.forEach(dataItem => {
@@ -1340,7 +1545,7 @@ export default {
       this.$logger.info('[' + this.mode + '] handleSelectAssessmentType ', descriptionList)
     },
 
-    handleSelectIdu (data) {
+    handleSelectIdu(data) {
       this.$logger.info('[' + this.mode + '] EvaluationTable handleSelectIdu', data)
       const descriptionList = []
       data.forEach(dataItem => {
@@ -1382,10 +1587,10 @@ export default {
       this.selectedIduList = descriptionList
       this.$logger.info('[' + this.mode + '] handleSelectIdu ', descriptionList)
     },
-    handleCancelSelectData () {
+    handleCancelSelectData() {
     },
 
-    getTableStructData () {
+    getTableStructData() {
       this.$logger.info('getTableStructData', this.headers, this.list)
       return {
         headers: this.headers,
@@ -1394,7 +1599,7 @@ export default {
       }
     },
 
-    generateRowId () {
+    generateRowId() {
       let rowId = 'row_' + Math.random()
       while (this.list.findIndex(item => item.rowId === rowId) !== -1) {
         rowId = 'row_' + Math.random()
@@ -1406,47 +1611,61 @@ export default {
 }
 </script>
 
-<style lang="less" scoped>
+<style lang='less' scoped>
 @import "~@/components/index.less";
-  .rubric {
-    .rubric-table {
-      margin-bottom: 10px;
-      table-layout: fixed;
-      margin-right: 30px;
 
-      .table-header {
-        border-top: 1px solid #15C39A;
-        border-left: 1px solid #15C39A;
-        background: #15C39A;
+.rubric {
+  .rubric-table {
+    margin-bottom: 10px;
+    table-layout: fixed;
+    margin-right: 30px;
 
-        .header-item:hover {
-          //background: #07AB84;
-          .edit-icon {
-            display: flex;
+    .table-header {
+      border-top: 1px solid #15C39A;
+      border-left: 1px solid #15C39A;
+      background: #15C39A;
+
+      .header-item:hover {
+        //background: #07AB84;
+        .edit-icon {
+          display: flex;
+        }
+      }
+
+      .header-item {
+        position: relative;
+        box-sizing: border-box;
+        border-right: 1px solid #999;
+        border-bottom: 1px solid #999;
+        padding: 0;
+        overflow: hidden;
+
+        .edit-icon {
+          position: absolute;
+          right: 10px;
+          top: 10px;
+          display: none;
+          cursor: pointer;
+
+          img {
+            height: 15px;
           }
         }
 
-        .header-item {
-          position: relative;
-          box-sizing: border-box;
-          border-right: 1px solid #999;
-          border-bottom: 1px solid #999;
-          padding: 0;
-          overflow: hidden;
+        .label-text {
+          padding: 5px 10px;
+          font-weight: 300;
+          color: #fff;
+          display: flex;
+          align-items: center;
+          line-height: 25px;
+          vertical-align: middle;
+          cursor: pointer;
+          z-index: 50;
+          font-family: Inter-Bold;
 
-          .edit-icon {
-            position: absolute;
-            right: 10px;
-            top: 10px;
-            display: none;
-            cursor: pointer;
-
-            img {
-              height: 15px;
-            }
-          }
-          .label-text {
-            padding: 5px 10px;
+          .header-label {
+            padding: 0 5px;
             font-weight: 300;
             color: #fff;
             display: flex;
@@ -1454,320 +1673,318 @@ export default {
             line-height: 25px;
             vertical-align: middle;
             cursor: pointer;
-            z-index: 50;
+          }
+        }
+
+        .label-input {
+          z-index: 100;
+          position: absolute;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          width: 100%;
+          background-color: #fff;
+
+          input {
             font-family: Inter-Bold;
-
-            .header-label {
-              padding: 0 5px;
-              font-weight: 300;
-              color: #fff;
-              display: flex;
-              align-items: center;
-              line-height: 25px;
-              vertical-align: middle;
-              cursor: pointer;
-            }
-          }
-
-          .label-input {
-            z-index: 100;
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
+            outline: none;
+            vertical-align: middle;
+            padding: 5px 10px;
+            line-height: 25px;
             width: 100%;
+            border: none;
             background-color: #fff;
+          }
+        }
 
-            input {
+        .remove-header {
+          position: absolute;
+          right: 0px;
+          top: 50%;
+          margin-top: -13px;
+          color: red;
+          display: none;
+
+          img {
+            height: 30px;
+          }
+        }
+
+        .add-header-item {
+          background-color: #15C39A;
+          position: absolute;
+          right: 30px;
+          top: 50%;
+          margin-top: -13px;
+          color: #fff;
+          font-size: 19px;
+          display: none;
+
+          img {
+            height: 30px;
+          }
+        }
+      }
+
+      .preview-mode {
+        min-width: 50px;
+      }
+
+      .header-item:last-child {
+        overflow: visible;
+      }
+
+      .header-item:hover {
+        .remove-header {
+          display: block;
+          cursor: pointer;
+        }
+
+        .add-header-item {
+          display: block;
+          cursor: pointer;
+        }
+      }
+
+      .add-more-header {
+        cursor: pointer;
+        position: absolute;
+        right: -30px;
+        font-size: 20px;
+        color: @primary-color;
+        width: 20px;
+        height: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        top: 5px;
+      }
+    }
+
+    .table-body {
+      border-left: 1px solid rgba(216, 216, 216, 1);
+
+      .body-line {
+        .body-item {
+          position: relative;
+          max-width: 300px;
+          min-width: 120px;
+          height: 100px;
+          font-size: 12px;
+          font-family: Inter-Bold;
+          line-height: 16px;
+          color: #11142D;
+          line-height: 25px;
+          box-sizing: border-box;
+          border-right: 1px solid rgba(216, 216, 216, 1);
+          border-bottom: 1px solid rgba(216, 216, 216, 1);
+          vertical-align: top;
+
+          .data-item {
+            padding: 5px;
+            cursor: pointer;
+            min-height: 50px;
+          }
+
+          .indicator-data {
+            padding: 10px;
+            cursor: pointer;
+          }
+
+          .sub-level-data {
+            padding: 0;
+            cursor: pointer;
+          }
+
+          .indicator-input {
+            height: 100%;
+
+            textarea {
+              display: none;
+            }
+          }
+
+          .user-define-indicator-input {
+            height: 100%;
+          }
+
+          .my-indicator-input {
+            height: 100%;
+          }
+
+          .add-criteria {
+            cursor: pointer;
+            user-select: none;
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: center;
+
+            svg {
+              width: 18px;
+              height: 18px;
+            }
+
+            .add-text {
+              padding: 15px 10px;
+              font-size: 13px;
               font-family: Inter-Bold;
-              outline: none;
-              vertical-align: middle;
-              padding: 5px 10px;
-              line-height: 25px;
-              width: 100%;
-              border: none;
-              background-color: #fff;
+              line-height: 24px;
+              color: #888996;
             }
           }
 
-          .remove-header {
-            position: absolute;
-            right: 0px;
-            top: 50%;
-            margin-top: -13px;
-            color: red;
-            display: none;
-            img {
-              height: 30px;
+          .criteria-data {
+            .criteria-parent {
+              display: block;
+
+              .criteria-parent-item {
+                display: inline-block;
+                background: #15C39A;
+                opacity: 1;
+                border-radius: 4px;
+                padding: 0 10px;
+                color: #fff;
+                margin-bottom: 5px;
+                margin-top: 5px;
+              }
             }
           }
 
-          .add-header-item {
-            background-color: #15C39A;
-            position: absolute;
-            right: 30px;
-            top: 50%;
-            margin-top: -13px;
-            color: #fff;
-            font-size: 19px;
-            display: none;
-            img {
-              height: 30px;
+          .description-input {
+            margin-top: 10px;
+          }
+
+          .sub-user-input {
+            display: inline-block;
+            cursor: pointer;
+            background: #E7E7E7;
+            opacity: 1;
+            padding: 3px 10px;
+            border-radius: 4px;
+            margin-bottom: 5px;
+            margin-top: 5px;
+            font-size: 12px;
+            font-family: Inter-Bold;
+            line-height: 20px;
+            color: #989898;
+          }
+
+          .evidence-data {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+
+            .evidence-info {
+              cursor: pointer;
+              display: flex;
+              flex-direction: row;
+              align-items: center;
+              justify-content: center;
+
+              .evidence-num {
+                padding: 0 5px;
+                font-size: 12px;
+                font-family: Inter-Bold;
+                line-height: 24px;
+                color: #11142D;
+              }
+            }
+
+            .exist-evidence {
+
+              .evidence-num {
+                padding: 0 5px;
+                font-size: 12px;
+                font-family: Inter-Bold;
+                line-height: 24px;
+                color: #15C39A;
+              }
+
+              svg {
+                font-size: 12px;
+                font-family: Inter-Bold;
+                line-height: 24px;
+                color: #15C39A;
+              }
+            }
+
+            .exist-evidence {
+              color: #15C39A;
             }
           }
         }
 
-        .preview-mode {
-          min-width: 50px;
+        .big-body-item {
+          max-width: 600px !important;
         }
 
-        .header-item:last-child {
+        .body-item:last-child {
           overflow: visible;
-        }
-
-        .header-item:hover {
-          .remove-header {
-            display: block;
-            cursor: pointer;
-          }
-
-          .add-header-item {
-            display: block;
-            cursor: pointer;
-          }
         }
 
         .add-more-header {
           cursor: pointer;
           position: absolute;
           right: -30px;
-          font-size: 20px;
-          color: @primary-color;
-          width: 20px;
-          height: 20px;
-          display: flex;
+          font-size: 16px;
+          color: #ccc;
+          width: 25px;
+          height: 25px;
           align-items: center;
           justify-content: center;
-          top: 5px;
+          top: 50%;
+          margin-top: -15px;
+
+          img.delete-row {
+            display: none;
+            width: 30px;
+          }
+        }
+
+        .add-evidence {
+          cursor: pointer;
+          position: absolute;
+          right: -150px;
+          font-size: 14px;
+          top: 50%;
+          margin-top: -20px;
+          display: flex;
+          align-items: center;
+          padding: 6px 10px;
+          border: 1px solid #15c39a;
+          background: rgba(21, 195, 154, 0.1);
+          border-radius: 3px;
+
+          img {
+            height: 15px;
+          }
+
+          .add-text {
+            padding: 0 5px;
+            color: rgba(21, 195, 154, 1);
+          }
         }
       }
 
-      .table-body {
-        border-left: 1px solid rgba(216, 216, 216, 1);
-        .body-line {
-          .body-item {
-            position: relative;
-            max-width: 300px;
-            min-width: 120px;
-            height: 100px;
-            font-size: 12px;
-            font-family: Inter-Bold;
-            line-height: 16px;
-            color: #11142D;
-            line-height: 25px;
-            box-sizing: border-box;
-            border-right: 1px solid rgba(216, 216, 216, 1);
-            border-bottom: 1px solid rgba(216, 216, 216, 1);
-            vertical-align: top;
-
-            .data-item {
-              padding: 5px;
-              cursor: pointer;
-              min-height: 50px;
-            }
-
-            .indicator-data {
-              padding: 10px;
-              cursor: pointer;
-            }
-
-            .sub-level-data {
-              padding: 0;
-              cursor: pointer;
-            }
-
-            .indicator-input {
-              height: 100%;
-              textarea {
-                display: none;
-              }
-            }
-
-            .user-define-indicator-input {
-              height: 100%;
-            }
-
-            .my-indicator-input {
-              height: 100%;
-            }
-            .add-criteria {
-              cursor: pointer;
-              user-select: none;
-              display: flex;
-              flex-direction: row;
-              align-items: center;
-              justify-content: center;
-
-              svg {
-                width: 18px;
-                height: 18px;
-              }
-
-              .add-text {
-                padding: 15px 10px;
-                font-size: 13px;
-                font-family: Inter-Bold;
-                line-height: 24px;
-                color: #888996;
-              }
-            }
-
-            .criteria-data {
-              .criteria-parent {
-                display: block;
-                .criteria-parent-item {
-                  display: inline-block;
-                  background: #15C39A;
-                  opacity: 1;
-                  border-radius: 4px;
-                  padding: 0 10px;
-                  color: #fff;
-                  margin-bottom: 5px;
-                  margin-top: 5px;
-                }
-              }
-            }
-
-            .description-input {
-              margin-top: 10px;
-            }
-
-            .sub-user-input {
-              display: inline-block;
-              cursor: pointer;
-              background: #E7E7E7;
-              opacity: 1;
-              padding: 3px 10px;
-              border-radius: 4px;
-              margin-bottom: 5px;
-              margin-top: 5px;
-              font-size: 12px;
-              font-family: Inter-Bold;
-              line-height: 20px;
-              color: #989898;
-            }
-
-            .evidence-data {
-              display: flex;
-              flex-direction: row;
-              align-items: center;
-              justify-content: center;
-              height: 100%;
-              .evidence-info {
-                cursor: pointer;
-                display: flex;
-                flex-direction: row;
-                align-items: center;
-                justify-content: center;
-
-                .evidence-num {
-                  padding: 0 5px;
-                  font-size: 12px;
-                  font-family: Inter-Bold;
-                  line-height: 24px;
-                  color: #11142D;
-                }
-              }
-
-              .exist-evidence {
-
-                .evidence-num {
-                  padding: 0 5px;
-                  font-size: 12px;
-                  font-family: Inter-Bold;
-                  line-height: 24px;
-                  color: #15C39A;
-                }
-
-                svg {
-                  font-size: 12px;
-                  font-family: Inter-Bold;
-                  line-height: 24px;
-                  color: #15C39A;
-                }
-              }
-
-              .exist-evidence {
-                color: #15C39A;
-              }
-            }
-          }
-
-          .big-body-item {
-            max-width: 600px !important;
-          }
-          .body-item:last-child {
-            overflow: visible;
-          }
-
-          .add-more-header {
-            cursor: pointer;
-            position: absolute;
-            right: -30px;
-            font-size: 16px;
-            color: #ccc;
-            width: 25px;
-            height: 25px;
-            align-items: center;
-            justify-content: center;
-            top: 50%;
-            margin-top: -15px;
-            img.delete-row {
-              display: none;
-              width: 30px;
-            }
-          }
-
-          .add-evidence {
-            cursor: pointer;
-            position: absolute;
-            right: -150px;
-            font-size: 14px;
-            top: 50%;
-            margin-top: -20px;
-            display: flex;
-            align-items: center;
-            padding: 6px 10px;
-            border: 1px solid #15c39a;
-            background: rgba(21, 195, 154, 0.1);
-            border-radius: 3px;
-
-            img {
-              height: 15px;
-            }
-
-            .add-text {
-              padding: 0 5px;
-              color: rgba(21, 195, 154, 1);
-            }
-          }
-        }
-
-        .body-line:hover {
-          img.delete-row {
-            display: block;
-          }
+      .body-line:hover {
+        img.delete-row {
+          display: block;
         }
       }
     }
   }
+}
 
 .add-new-line {
   display: flex;
   flex-direction: row;
   justify-content: flex-start;
   align-items: center;
+
   .add-new-line-item {
     padding: 10px 0;
     cursor: pointer;
@@ -1795,9 +2012,11 @@ export default {
   display: flex;
   justify-content: center;
   cursor: pointer;
+
   i {
     height: 100%;
   }
+
   span {
     padding-left: 5px;
     font-size: 12px;
@@ -1819,6 +2038,7 @@ export default {
   display: flex;
   align-items: center;
   justify-content: center;
+
   .checked-flag {
     position: absolute;
     bottom: 10px;
@@ -1848,6 +2068,7 @@ export default {
     flex-direction: row;
     align-items: center;
     justify-content: center;
+
     .my-modal-header {
       font-family: Inter-Bold;
       font-size: 20px;
@@ -1856,12 +2077,14 @@ export default {
       opacity: 1;
       word-break: break-all;
     }
+
     margin-bottom: 15px;
   }
 
   .description-text {
     padding-top: 20px;
     padding-bottom: 30px;
+
     .old-description {
       font-size: 14px;
       font-family: Inter-Bold;
@@ -1943,6 +2166,7 @@ export default {
   flex-direction: column;
   align-items: flex-start;
   overflow: hidden;
+
   .sub-level-desc-item {
     display: flex;
     flex-direction: row;
@@ -1974,6 +2198,7 @@ export default {
     display: flex;
     flex-direction: column;
     padding: 0 10px;
+
     .criteria-left-name-item {
       width: 150px;
       display: flex;
@@ -1992,23 +2217,24 @@ export default {
   }
 
   .criteria-right-description {
-      width: 200px;
-      display: flex;
-      flex-direction: column;
-      .edit-description {
-        margin: 5px 0;
-        text-align: center;
-        display: inline-block;
-        font-size: 12px;
-        background: #E7E7E7;
-        opacity: 1;
-        border-radius: 4px;
-        padding: 3px;
-        font-family: Inter-Bold;
-        line-height: 20px;
-        color: #989898;
-        opacity: 1;
-      }
+    width: 200px;
+    display: flex;
+    flex-direction: column;
+
+    .edit-description {
+      margin: 5px 0;
+      text-align: center;
+      display: inline-block;
+      font-size: 12px;
+      background: #E7E7E7;
+      opacity: 1;
+      border-radius: 4px;
+      padding: 3px;
+      font-family: Inter-Bold;
+      line-height: 20px;
+      color: #989898;
+      opacity: 1;
+    }
   }
 }
 

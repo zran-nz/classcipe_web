@@ -7,5 +7,6 @@ export const LibraryEvent = {
   ContentListItemClick: 'ContentListItemClick',
   ContentListSelectClick: 'ContentListSelectClick',
   ContentListSelectedListUpdate: 'ContentListSelectedListUpdate',
-  GradeUpdate: 'GradeUpdate'
+  GradeUpdate: 'GradeUpdate',
+  CenturySkillsSelect: 'CenturySkillsSelect' // 选择21世纪技能grade后的任意层级事件处理
 }
