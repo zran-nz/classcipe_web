@@ -418,7 +418,7 @@ export default {
     }
   },
   created() {
-    this.$logger.info('PptSlideView' + this.slideId + ' classId ' + this.classId, 'selectedIdList', this.selectedIdList, 'selectedIdStudentList', this.selectedIdStudentList)
+    this.$logger.info('PptSlideView' + this.slideId + ' classId ' + this.classId, 'selectedIdList', this.selectedIdList, 'selectedIdStudentList', this.selectedIdStudentList, 'studentName', this.studentName)
     this.selectedSlidePageIdList = this.selectedIdList
     this.selectedStudentSlidePageIdList = this.selectedIdStudentList
     this.loadData()

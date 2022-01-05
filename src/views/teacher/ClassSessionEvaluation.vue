@@ -491,7 +491,7 @@
             :form-id='currentActiveFormId'
             :class-id='classId'
             :slide-id='classInfo.slideId'
-            :student-name='selectedMemberIdList.length ? selectedMemberNameList[0] : null'
+            :student-name='selectedMemberIdList.length ? selectedMemberIdList[0] : null'
             :mode='mode'
             @ensure-evidence-finish='handleEnsureEvidenceFinish'
             @add-evidence-finish='handleAddEvidenceFinish' />
