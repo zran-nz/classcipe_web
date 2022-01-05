@@ -5,6 +5,7 @@
       :grade-list="gradeList"
       :tree-item-data="treeItemData"
       :tree-current-parent="null"
+      :default-grade-id="treeItemData.hasOwnProperty('defaultGradeId') ? treeItemData.defaultGradeId : null"
       :default-deep="0"
       :class="{
         'browser-hide-menu': showMenu.indexOf(treeItemData.type) === -1,
@@ -29,9 +30,10 @@
       :default-expand-status="treeItemData.expandStatus"
       :tree-item-type="treeItemData.type"
       :data-item-type="treeItemData.type"
+      :data-default-grade-id="treeItemData.hasOwnProperty('defaultGradeId') ? treeItemData.defaultGradeId : null"
       :odd="index % 2 === 1"
       v-for="(treeItemData, index) in treeDataList"
-      :key="index"/>
+      :key="index" />
     <div class="loading-spin">
       <a-spin v-show="!loaded" />
     </div>
@@ -47,6 +49,7 @@ import { SubjectType } from '@/const/common'
 import storage from 'store'
 import { GRADE_COMMON } from '@/store/mutation-types'
 import { GetGradesByCurriculumId } from '@/api/preference'
+
 const { GetAllSdgs } = require('@/api/scenario')
 const { SubjectTree } = require('@/api/subject')
 
@@ -77,6 +80,10 @@ export default {
       default: null
     },
     defaultCurriculumId: {
+      type: String,
+      default: null
+    },
+    learningOutcomeGradeId: {
       type: String,
       default: null
     }
@@ -118,6 +125,7 @@ export default {
         type: NavigationType.learningOutcomes,
         name: skillCategory.length === 3 ? skillCategory[0] : 'Curriculum',
         children: [],
+        defaultGradeId: this.learningOutcomeGradeId,
         parent: null,
         sort: 2,
         backgroundColor: '#B1D1CC'
@@ -192,7 +200,9 @@ export default {
         this.$logger.info('GetAllSdgs Response ', initDataResponse[2])
         if (!initDataResponse[2].code) {
           this.sdgList = initDataResponse[2].result
-          this.sdgList.forEach(item => { item.children = [] })
+          this.sdgList.forEach(item => {
+            item.children = []
+          })
           sdgData.children = this.sdgList
         }
 
@@ -378,7 +388,7 @@ export default {
 }
 </script>
 
-<style lang="less" scoped>
+<style lang='less' scoped>
 
 @import "~@/components/index.less";
 

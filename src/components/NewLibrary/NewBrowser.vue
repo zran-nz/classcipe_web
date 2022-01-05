@@ -45,14 +45,15 @@
     <div class="main">
       <div class="selected-content">
         <div class="main-content-list">
-          <div class="recommend-description" v-if="!isEmptyRecommend" >
+          <div class="recommend-description" v-if="!isEmptyRecommend">
             <div class="recommend-title">
               <h3>Recommended assessment objectives</h3>
             </div>
             <div class="recommend-detail">
               <div class="recommend-list" v-for="(recommendDataItem, rIndex) in recommendData" :key="rIndex">
                 <div class="recommend-from" :data-from-id="recommendDataItem.fromId">
-                  <h4>From <span class="from-type-name">{{ recommendDataItem.fromTypeName }}</span> : {{ recommendDataItem.fromName }}</h4>
+                  <h4>From <span class="from-type-name">{{ recommendDataItem.fromTypeName }}</span> :
+                    {{ recommendDataItem.fromName }}</h4>
                 </div>
                 <div
                   :class="{'recommend-item': true, 'my-selected-item': selectedRecommendIdList.indexOf(recommendItem.knowledgeId) !== -1,
@@ -70,9 +71,11 @@
                       <a-icon
                         class="select-block-icon"
                         type="border"
-                        v-if="selectedRecommendIdList.indexOf(recommendItem.knowledgeId) === -1"/>
-                      <div class="selected-icon" v-if="selectedRecommendIdList.indexOf(recommendItem.knowledgeId) !== -1">
-                        <img src="~@/assets/icons/lesson/selected.png"/>
+                        v-if="selectedRecommendIdList.indexOf(recommendItem.knowledgeId) === -1" />
+                      <div
+                        class="selected-icon"
+                        v-if="selectedRecommendIdList.indexOf(recommendItem.knowledgeId) !== -1">
+                        <img src="~@/assets/icons/lesson/selected.png" />
                       </div>
                     </div>
 
@@ -95,10 +98,10 @@
                     {{ item.name }}
                   </div>
                   <div class="action-icon">
-                    <img src="~@/assets/icons/lesson/selected.png"/>
+                    <img src="~@/assets/icons/lesson/selected.png" />
                   </div>
                   <div class="action-icon-right" @click="handleRemoveMySelected(item)">
-                    <img src="~@/assets/icons/evaluation/delete.png"/>
+                    <img src="~@/assets/icons/evaluation/delete.png" />
                   </div>
                 </div>
               </div>
@@ -111,10 +114,10 @@
                     {{ item.knowledgeData.name }}
                   </div>
                   <div class="action-icon">
-                    <img src="~@/assets/icons/lesson/selected.png"/>
+                    <img src="~@/assets/icons/lesson/selected.png" />
                   </div>
                   <div class="action-icon-right" @click="handleRemoveSelected(item)">
-                    <img src="~@/assets/icons/evaluation/delete.png"/>
+                    <img src="~@/assets/icons/evaluation/delete.png" />
                   </div>
                 </div>
               </div>
@@ -127,10 +130,10 @@
                     {{ item.knowledgeData.name }}
                   </div>
                   <div class="action-icon">
-                    <img src="~@/assets/icons/lesson/selected.png"/>
+                    <img src="~@/assets/icons/lesson/selected.png" />
                   </div>
                   <div class="action-icon-right" @click="handleRemoveSelected(item)">
-                    <img src="~@/assets/icons/evaluation/delete.png"/>
+                    <img src="~@/assets/icons/evaluation/delete.png" />
                   </div>
                 </div>
               </div>
@@ -144,10 +147,10 @@
                     {{ item.knowledgeData.name }}
                   </div>
                   <div class="action-icon">
-                    <img src="~@/assets/icons/lesson/selected.png"/>
+                    <img src="~@/assets/icons/lesson/selected.png" />
                   </div>
                   <div class="action-icon-right" @click="handleRemoveSelected(item)">
-                    <img src="~@/assets/icons/evaluation/delete.png"/>
+                    <img src="~@/assets/icons/evaluation/delete.png" />
                   </div>
                 </div>
               </div>
@@ -161,10 +164,10 @@
                     {{ item.knowledgeData.name }}
                   </div>
                   <div class="action-icon">
-                    <img src="~@/assets/icons/lesson/selected.png"/>
+                    <img src="~@/assets/icons/lesson/selected.png" />
                   </div>
                   <div class="action-icon-right" @click="handleRemoveSelected(item)">
-                    <img src="~@/assets/icons/evaluation/delete.png"/>
+                    <img src="~@/assets/icons/evaluation/delete.png" />
                   </div>
                 </div>
               </div>
@@ -178,10 +181,10 @@
                     {{ item.bigIdea }}
                   </div>
                   <div class="action-icon">
-                    <img src="~@/assets/icons/lesson/selected.png"/>
+                    <img src="~@/assets/icons/lesson/selected.png" />
                   </div>
                   <div class="action-icon-right" @click="handleRemoveSelected(item)">
-                    <img src="~@/assets/icons/evaluation/delete.png"/>
+                    <img src="~@/assets/icons/evaluation/delete.png" />
                   </div>
                 </div>
               </div>
@@ -195,10 +198,10 @@
                     {{ item.item.name }}
                   </div>
                   <div class="action-icon">
-                    <img src="~@/assets/icons/lesson/selected.png"/>
+                    <img src="~@/assets/icons/lesson/selected.png" />
                   </div>
                   <div class="action-icon-right" @click="handleRemoveSelected(item)">
-                    <img src="~@/assets/icons/evaluation/delete.png"/>
+                    <img src="~@/assets/icons/evaluation/delete.png" />
                   </div>
                 </div>
               </div>
@@ -212,10 +215,10 @@
                     {{ item.name }}
                   </div>
                   <div class="action-icon">
-                    <img src="~@/assets/icons/lesson/selected.png"/>
+                    <img src="~@/assets/icons/lesson/selected.png" />
                   </div>
                   <div class="action-icon-right" @click="handleRemoveSelected(item)">
-                    <img src="~@/assets/icons/evaluation/delete.png"/>
+                    <img src="~@/assets/icons/evaluation/delete.png" />
                   </div>
                 </div>
               </div>
@@ -228,11 +231,11 @@
                   <div class="name-text">
                     {{ item.knowledgeData.name }}
                   </div>
-                  <div class="action-icon" >
-                    <img src="~@/assets/icons/lesson/selected.png"/>
+                  <div class="action-icon">
+                    <img src="~@/assets/icons/lesson/selected.png" />
                   </div>
                   <div class="action-icon-right" @click="handleRemoveSelected(item)">
-                    <img src="~@/assets/icons/evaluation/delete.png"/>
+                    <img src="~@/assets/icons/evaluation/delete.png" />
                   </div>
                 </div>
               </div>
@@ -240,19 +243,27 @@
             </div>
           </div>
         </div>
-        <div class="selected-toggle-mask" v-show="!expandedListFlag" @click="expandedListFlag = !expandedListFlag"></div>
-        <div class="expand-icon" @click="expandedListFlag = !expandedListFlag" :style="{'left': (!expandedListFlag ? 30 : 695) + 'px'}">
+        <div
+          class="selected-toggle-mask"
+          v-show="!expandedListFlag"
+          @click="expandedListFlag = !expandedListFlag"></div>
+        <div
+          class="expand-icon"
+          @click="expandedListFlag = !expandedListFlag"
+          :style="{'left': (!expandedListFlag ? 30 : 695) + 'px'}">
           <template v-if="expandedListFlag">
-            <a-icon type="double-left" style="font-size: 20px; color: #07AB84"/>
+            <a-icon type="double-left" style="font-size: 20px; color: #07AB84" />
           </template>
           <template v-if="!expandedListFlag">
-            <a-icon type="double-right" style="font-size: 20px; color: #07AB84"/>
+            <a-icon type="double-right" style="font-size: 20px; color: #07AB84" />
           </template>
         </div>
         <div class="modal-ensure-action-line-center" v-show="hasSelectedContent">
           <a-space>
             <a-button class="action-item action-cancel" shape="round" @click="handleCancelSelectData">Cancel</a-button>
-            <a-button class="action-ensure action-item" type="primary" shape="round" @click="handleEnsureSelectData">Ok</a-button>
+            <a-button class="action-ensure action-item" type="primary" shape="round" @click="handleEnsureSelectData">
+              Ok
+            </a-button>
           </a-space>
         </div>
       </div>
@@ -264,6 +275,7 @@
             :question-index="questionIndex"
             :sync-data="syncData"
             :show-menu="showMenu"
+            :learning-outcome-grade-id="learningOutcomeGradeId"
             :default-active-menu="defaultActiveMenu"
             :default-curriculum-id="defaultCurriculumId"
           />
@@ -339,6 +351,10 @@ export default {
     selectedList: {
       type: Array,
       default: () => []
+    },
+    learningOutcomeGradeId: {
+      type: String,
+      default: null
     }
   },
   mixins: [UtilMixin],
@@ -393,6 +409,7 @@ export default {
     this.$logger.info('recommendData', this.recommendData)
     this.$logger.info('selectedIdList', this.selectedIdList)
     this.$logger.info('selectedList', this.selectedList)
+    this.$logger.info('learningOutcomeGradeId ' + this.learningOutcomeGradeId)
     this.mySelectedIdList = this.selectedIdList
 
     getAllCurriculums().then((response) => {
@@ -467,7 +484,7 @@ export default {
       this.$logger.info('NewBrowser handleSelectAssessmentType', data)
       this.selectedAssessmentList = data
       this.$emit('select-assessmentType', data)
-},
+    },
 
     handleSelectIdu (data) {
       this.$logger.info('NewBrowser handleSelectIdu', data)
@@ -528,7 +545,7 @@ export default {
 }
 </script>
 
-<style lang="less" scoped>
+<style lang='less' scoped>
 
 @import "~@/components/index.less";
 
@@ -565,6 +582,7 @@ export default {
     justify-content: flex-start;
     align-items: flex-start;
     position: relative;
+
     .selected-content {
       position: relative;
       z-index: 100;
@@ -580,6 +598,7 @@ export default {
         padding: 10px 5px;
         z-index: 100;
         overflow: scroll;
+
         .content-list {
           flex: 1;
           overflow-y: scroll;
@@ -587,7 +606,7 @@ export default {
           white-space: nowrap;
           text-overflow: ellipsis;
           word-break: break-all;
-          height: calc(100%- 40);
+          height: calc(100% - 40);
 
           .content-empty {
             margin-top: 150px;
@@ -660,6 +679,7 @@ export default {
               padding-left: 25px;
               padding-right: 25px;
               width: 100%;
+
               .icon {
                 .file-dir-icon {
                   padding: 3px 0;
@@ -673,16 +693,19 @@ export default {
                 padding: 0 5px;
                 box-sizing: border-box;
                 word-break: break-word;
-                white-space:normal;
+                white-space: normal;
               }
-              .collapse-item{
+
+              .collapse-item {
                 display: flex;
                 padding: 10px;
-                .collapse-icon{
+
+                .collapse-icon {
                   right: 10px;
                   position: absolute;
                 }
-                .tag-item{
+
+                .tag-item {
                   color: rgb(21, 195, 154);
                   border: 1px solid rgb(21, 195, 154);
                   cursor: pointer;
@@ -754,6 +777,7 @@ export default {
       justify-content: flex-start;
       align-items: flex-start;
     }
+
     .tree-navigation {
       z-index: 150;
       width: 400px;
@@ -762,6 +786,7 @@ export default {
       overflow-y: scroll;
       background-color: #fff;
     }
+
     .content-list {
       height: 100%;
       overflow: hidden;
@@ -773,16 +798,19 @@ export default {
     width: 3px;
     height: 0;
   }
+
   *::-webkit-scrollbar-track {
     border-radius: 1px;
-    background: rgba(0,0,0,0.00);
-    -webkit-box-shadow: inset 0 0 5px rgba(0,0,0,0.08);
+    background: rgba(0, 0, 0, 0.00);
+    -webkit-box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.08);
   }
+
   /* 滚动条滑块 */
+
   *::-webkit-scrollbar-thumb {
     border-radius: 3px;
-    background: rgba(0,0,0,0.12);
-    -webkit-box-shadow: inset 0 0 10px rgba(0,0,0,0.2);
+    background: rgba(0, 0, 0, 0.12);
+    -webkit-box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.2);
   }
 }
 
@@ -801,6 +829,7 @@ export default {
 
   .recommend-title {
     padding: 5px 10px;
+
     h3 {
       color: #000000;
       font-weight: bold;
@@ -810,6 +839,7 @@ export default {
 
   .recommend-detail {
     padding: 0 10px 10px 10px;
+
     .recommend-list {
       .recommend-from {
         font-size: 14px;
@@ -827,6 +857,7 @@ export default {
         margin-bottom: 10px;
         box-sizing: content-box;
         border: 1px solid rgba(255, 187, 0, 0.1);
+
         span {
           font-size: 13px;
           cursor: pointer;
@@ -870,7 +901,8 @@ export default {
   display: flex;
   flex-direction: row;
   align-items: center;
-  .select-curriculum-tips{
+
+  .select-curriculum-tips {
     color: #aaa;
   }
 }
