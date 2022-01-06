@@ -1246,6 +1246,7 @@
             :recommend-data="recommendData"
             :selected-list="selectedList"
             :selected-id="selectedIdList"
+            :learning-outcome-grade-id="form.gradeId"
             @select-assessmentType="handleSelectAssessmentType"
             @select-sync="handleSelectListData"
             @select-curriculum="handleSelectCurriculum"
@@ -1676,11 +1677,15 @@ export default {
 
       // 恢复step
       this.currentActiveStepIndex = this.getSessionStep()
+
+      // library浏览learning outcome时，修改了grade，需要更新表单中的grade
+      LibraryEventBus.$on(LibraryEvent.GradeUpdate, this.handleGradeUpdate)
     },
     beforeDestroy () {
       MyContentEventBus.$off(MyContentEvent.LinkToMyContentItem, this.handleLinkMyContent)
       MyContentEventBus.$off(MyContentEvent.ToggleSelectContentItem, this.handleToggleSelectContentItem)
       LibraryEventBus.$off(LibraryEvent.ContentListSelectClick, this.handleDescriptionSelectClick)
+      LibraryEventBus.$off(LibraryEvent.GradeUpdate, this.handleGradeUpdate)
       // logger.debug('beforeDestroy, try save!')
       // this.handleSaveTask()
     },
@@ -3283,6 +3288,11 @@ export default {
           this.form.materialList = []
         }
         this.materialListFlag = checked
+      },
+
+      handleGradeUpdate (grade) {
+        this.$logger.info('handleGradeUpdate', grade)
+        this.form.gradeId = grade.id
       }
     }
   }
