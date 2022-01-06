@@ -330,23 +330,23 @@
                         'my-active-steps-item-icon': currentActiveStepIndex === 2,
                       }">2.1</div>
 
-                    <template v-if="currentActiveStepIndex === 2" slot="description">
+                    <template v-if="currentActiveStepIndex === 2 && showSubTaskDetail" slot="description">
                       <div class="pick-task-slide-wrapper">
                         <div class="pick-task-slide-title">
                           <h2>Pick slide(s)</h2>
                         </div>
                         <div class="slide-form-block" v-show="form.presentationId">
                           <div class="preview-list" v-if="!thumbnailListLoading">
-                            <a-row :gutter="[16, 16]">
+                            <a-row :gutter="[8, 8]">
                               <a-col
                                 class="gutter-row"
                                 :span="10"
-                                :xs="12"
-                                :sm="12"
-                                :md="8"
-                                :lg="8"
-                                :xl="6"
-                                :xxl="4"
+                                :xs="24"
+                                :sm="24"
+                                :md="12"
+                                :lg="12"
+                                :xl="8"
+                                :xxl="8"
                                 v-for="(item,index) in thumbnailList"
                                 :key="index">
                                 <div
@@ -380,7 +380,6 @@
                                 <task-preview :task-data="task" @delete-sub-task="handleDeleteSubTask" />
                               </div>
                             </div>
-                            <a-divider />
                             <div class="sub-task-save">
                               <div class="sub-task-save-action">
                                 <a-space v-show="subTasks.length">
@@ -403,7 +402,7 @@
                                       <img src="~@/assets/icons/common/form/baocun@2x.png" />
                                     </div>
                                     <div class="btn-text">
-                                      Save & Exit
+                                      Save
                                     </div>
                                   </a-button>
                                   <a-button
@@ -480,162 +479,176 @@
             </div>
 
             <div class="task-form-right" :style="{'width':rightWidth + 'px'}">
-              <template v-if="showRightModule(rightModule.collaborate)">
-                <a-skeleton :loading="showHistoryLoading" active>
-                  <div class="collaborate-panel" :style="{'width':rightWidth + 'px', 'margin-top': '0px', 'z-index': 100, 'padding': '10px'}">
-                    <div class="icon">
-                      <comment-icon />
-                    </div>
-                    <a-tabs default-active-key="1">
-                      <a-tab-pane key="1" tab="Comment">
-                        <collaborate-comment-view :source-id="taskId" :source-type="contentType.task" :comment-list="collaborateCommentList" @update-comment="handleUpdateCommentList"/>
-                      </a-tab-pane>
-                      <a-tab-pane key="2" tab="History" force-render>
-                        <collaborate-history :history-list="historyList" @restore="handleRestoreField"/>
-                      </a-tab-pane>
-                    </a-tabs>
-                  </div>
-                </a-skeleton>
-              </template>
-              <template v-if="showRightModule(rightModule.collaborateComment) && currentActiveStepIndex === 0">
-                <div class="collaborate-panel" :style="{'width':rightWidth + 'px', 'margin-top':collaborateTop+'px', 'z-index': 100, 'padding': '10px'}">
-                  <collaborate-comment-panel :source-id="taskId" :source-type="contentType.task" :field-name="currentFieldName" :comment-list="currentCollaborateCommentList" @update-comment="handleUpdateCommentList"/>
-                </div>
-              </template>
-              <template v-if="showRightModule(rightModule.imageUpload) && currentActiveStepIndex !== 1">
-                <div class="form-block-right" >
-                  <!-- image-->
-                  <a-form-model-item class="img-wrapper">
-                    <a-upload-dragger
-                      name="file"
-                      accept="image/png, image/jpeg"
-                      :showUploadList="false"
-                      :customRequest="handleUploadImage"
-                    >
-                      <div class="delete-img" @click="handleDeleteImage($event)" v-show="form.image">
-                        <a-icon type="close-circle" />
+              <template v-if='currentActiveStepIndex !== 2'>
+                <template v-if="showRightModule(rightModule.collaborate)">
+                  <a-skeleton :loading="showHistoryLoading" active>
+                    <div class="collaborate-panel" :style="{'width':rightWidth + 'px', 'margin-top': '0px', 'z-index': 100, 'padding': '10px'}">
+                      <div class="icon">
+                        <comment-icon />
                       </div>
-                      <template v-if="uploading">
-                        <div class="upload-container">
-                          <p class="ant-upload-drag-icon">
-                            <a-icon type="cloud-upload" />
-                          </p>
-                          <p class="ant-upload-text">
-                            <a-spin />
-                            <span class="uploading-tips">{{ $t('teacher.add-unit-plan.uploading') }}</span>
-                          </p>
+                      <a-tabs default-active-key="1">
+                        <a-tab-pane key="1" tab="Comment">
+                          <collaborate-comment-view :source-id="taskId" :source-type="contentType.task" :comment-list="collaborateCommentList" @update-comment="handleUpdateCommentList"/>
+                        </a-tab-pane>
+                        <a-tab-pane key="2" tab="History" force-render>
+                          <collaborate-history :history-list="historyList" @restore="handleRestoreField"/>
+                        </a-tab-pane>
+                      </a-tabs>
+                    </div>
+                  </a-skeleton>
+                </template>
+                <template v-if="showRightModule(rightModule.collaborateComment) && currentActiveStepIndex === 0">
+                  <div class="collaborate-panel" :style="{'width':rightWidth + 'px', 'margin-top':collaborateTop+'px', 'z-index': 100, 'padding': '10px'}">
+                    <collaborate-comment-panel :source-id="taskId" :source-type="contentType.task" :field-name="currentFieldName" :comment-list="currentCollaborateCommentList" @update-comment="handleUpdateCommentList"/>
+                  </div>
+                </template>
+                <template v-if="showRightModule(rightModule.imageUpload) && currentActiveStepIndex !== 1">
+                  <div class="form-block-right" >
+                    <!-- image-->
+                    <a-form-model-item class="img-wrapper">
+                      <a-upload-dragger
+                        name="file"
+                        accept="image/png, image/jpeg"
+                        :showUploadList="false"
+                        :customRequest="handleUploadImage"
+                      >
+                        <div class="delete-img" @click="handleDeleteImage($event)" v-show="form.image">
+                          <a-icon type="close-circle" />
                         </div>
-                      </template>
-                      <template v-if="!uploading && form && form.image">
-                        <div class="image-preview">
-                          <img :src="form.image" alt="">
-                          <div class="upload-text-mask">
-                            <div class="upload-text">
-                              <a-button shape="round" type="primary">Upload a cover image</a-button>
+                        <template v-if="uploading">
+                          <div class="upload-container">
+                            <p class="ant-upload-drag-icon">
+                              <a-icon type="cloud-upload" />
+                            </p>
+                            <p class="ant-upload-text">
+                              <a-spin />
+                              <span class="uploading-tips">{{ $t('teacher.add-unit-plan.uploading') }}</span>
+                            </p>
+                          </div>
+                        </template>
+                        <template v-if="!uploading && form && form.image">
+                          <div class="image-preview">
+                            <img :src="form.image" alt="">
+                            <div class="upload-text-mask">
+                              <div class="upload-text">
+                                <a-button shape="round" type="primary">Upload a cover image</a-button>
+                              </div>
+                            </div>
+                          </div>
+                        </template>
+                        <template v-if="!uploading && form && !form.image">
+                          <div class="upload-container">
+                            <p class="ant-upload-drag-icon">
+                              <img src="~@/assets/icons/lesson/upload_icon.png" class="upload-icon" />
+                            </p>
+                            <p class="ant-upload-text">
+                              Upload a cover image
+                            </p>
+                          </div>
+                        </template>
+                      </a-upload-dragger>
+                    </a-form-model-item>
+                  </div>
+                </template>
+                <template v-if="showRightModule(rightModule.recommend) && currentActiveStepIndex === 1">
+                  <!--购物车效果截图 -->
+                  <div class="slide-animate-cover" id="slide-animate" v-show="currentSlideCoverImgSrc">
+                    <img
+                      id="slide-animate-img"
+                      :src="currentSlideCoverImgSrc"
+                      class="slide-animate-item" />
+                  </div>
+                  <div class="recommend-loading" v-if="recomendListLoading">
+                    <a-spin size="large" />
+                  </div>
+                  <div class="form-block-right" v-if="!recomendListLoading">
+                    <div class="right-title">Recommended</div>
+                    <div class="slide-preview-list">
+                      <div class="slide-preview-item" v-for="(template, rIndex) in filterRecommendTemplateList" :key="rIndex">
+                        <div class="template-hover-action-mask">
+                          <div class="template-hover-action">
+                            <div class="modal-ensure-action-line">
+                              <a-button
+                                class="action-ensure action-item"
+                                shape="round"
+                                @click="handlePreviewTemplate(template)"
+                              >
+                                <a-icon type="eye" theme="filled"/>
+                                <div class="btn-text">
+                                  Preview
+                                </div>
+                              </a-button>
+                              <a-button
+                                v-if="selectedTemplateIdList.indexOf(template.id) === -1"
+                                class="action-ensure action-item"
+                                shape="round"
+                                @click="selectRecommendTemplate(template, rIndex, $event)">
+                                <a-icon type="plus-circle" theme="filled"/>
+                                <div class="btn-text">
+                                  Add
+                                </div>
+                              </a-button>
+                              <a-button
+                                v-else
+                                class="action-ensure action-item"
+                                shape="round"
+                                @click="handleRemoveTemplate(template)"
+                              >
+                                <a-icon type="minus-circle" theme="filled"/>
+                                <div class="btn-text">
+                                  Remove
+                                </div>
+                              </a-button>
                             </div>
                           </div>
                         </div>
-                      </template>
-                      <template v-if="!uploading && form && !form.image">
-                        <div class="upload-container">
-                          <p class="ant-upload-drag-icon">
-                            <img src="~@/assets/icons/lesson/upload_icon.png" class="upload-icon" />
-                          </p>
-                          <p class="ant-upload-text">
-                            Upload a cover image
-                          </p>
-                        </div>
-                      </template>
-                    </a-upload-dragger>
-                  </a-form-model-item>
-                </div>
-              </template>
-              <template v-if="showRightModule(rightModule.recommend) && currentActiveStepIndex == 1">
-                <!--购物车效果截图 -->
-                <div class="slide-animate-cover" id="slide-animate" v-show="currentSlideCoverImgSrc">
-                  <img
-                    id="slide-animate-img"
-                    :src="currentSlideCoverImgSrc"
-                    class="slide-animate-item" />
-                </div>
-                <div class="recomend-loading" v-if="recomendListLoading">
-                  <a-spin size="large" />
-                </div>
-                <div class="form-block-right" v-if="!recomendListLoading">
-                  <div class="right-title">Recommended</div>
-                  <div class="slide-preview-list">
-                    <div class="slide-preview-item" v-for="(template, rIndex) in filterRecommendTemplateList" :key="rIndex">
-                      <div class="template-hover-action-mask">
-                        <div class="template-hover-action">
-                          <div class="modal-ensure-action-line">
-                            <a-button
-                              class="action-ensure action-item"
-                              shape="round"
-                              @click="handlePreviewTemplate(template)"
-                            >
-                              <a-icon type="eye" theme="filled"/>
-                              <div class="btn-text">
-                                Preview
-                              </div>
-                            </a-button>
-                            <a-button
-                              v-if="selectedTemplateIdList.indexOf(template.id) === -1"
-                              class="action-ensure action-item"
-                              shape="round"
-                              @click="selectRecommendTemplate(template, rIndex, $event)">
-                              <a-icon type="plus-circle" theme="filled"/>
-                              <div class="btn-text">
-                                Add
-                              </div>
-                            </a-button>
-                            <a-button
-                              v-else
-                              class="action-ensure action-item"
-                              shape="round"
-                              @click="handleRemoveTemplate(template)"
-                            >
-                              <a-icon type="minus-circle" theme="filled"/>
-                              <div class="btn-text">
-                                Remove
-                              </div>
-                            </a-button>
+                        <a-carousel arrows>
+                          <div slot="prevArrow" class="custom-slick-arrow" style="left: 10px;zIndex: 100" >
+                            <a-icon type="left-circle" />
                           </div>
+                          <div slot="nextArrow" class="custom-slick-arrow" style="right: 10px;zIndex: 100">
+                            <a-icon type="right-circle" />
+                          </div>
+                          <div v-for="(item,index) in template.images" :key="index">
+                            <img :src="item" />
+                          </div>
+                        </a-carousel>
+                        <a-row v-if="template.introduce" class="slide-desc" :title="template.introduce">
+                          {{ template.introduce }}
+                        </a-row>
+                        <div class="recommend-slide-name">
+                          {{ template.name }}
                         </div>
-                      </div>
-                      <a-carousel arrows>
-                        <div slot="prevArrow" class="custom-slick-arrow" style="left: 10px;zIndex: 100" >
-                          <a-icon type="left-circle" />
-                        </div>
-                        <div slot="nextArrow" class="custom-slick-arrow" style="right: 10px;zIndex: 100">
-                          <a-icon type="right-circle" />
-                        </div>
-                        <div v-for="(item,index) in template.images" :key="index">
-                          <img :src="item" />
-                        </div>
-                      </a-carousel>
-                      <a-row v-if="template.introduce" class="slide-desc" :title="template.introduce">
-                        {{ template.introduce }}
-                      </a-row>
-                      <div class="recommend-slide-name">
-                        {{ template.name }}
                       </div>
                     </div>
                   </div>
-                </div>
+                </template>
+                <template v-if="showRightModule(rightModule.customTag) && this.currentActiveStepIndex !== 1">
+                  <div v-if="!this.contentLoading" :style="{'width':rightWidth+'px', 'margin-top':customTagTop+'px'}">
+                    <custom-tag
+                      :show-arrow="showCustomTag"
+                      :custom-tags="customTags"
+                      :custom-tags-list="customTagList"
+                      ref="customTag"
+                      :selected-tags-list="(form && form.customTags && form.customTags.length) ? form.customTags : []"
+                      @reload-user-tags="loadCustomTags"
+                      @change-add-keywords="handleChangeAddKeywords"
+                      @change-user-tags="handleChangeCustomTags"></custom-tag>
+                  </div>
+                </template>
               </template>
-              <template v-if="showRightModule(rightModule.customTag) && this.currentActiveStepIndex !== 1">
-                <div v-if="!this.contentLoading" :style="{'width':rightWidth+'px', 'margin-top':customTagTop+'px'}">
-                  <custom-tag
-                    :show-arrow="showCustomTag"
-                    :custom-tags="customTags"
-                    :custom-tags-list="customTagList"
-                    ref="customTag"
-                    :selected-tags-list="form.customTags"
-                    @reload-user-tags="loadCustomTags"
-                    @change-add-keywords="handleChangeAddKeywords"
-                    @change-user-tags="handleChangeCustomTags"></custom-tag>
-                </div>
-              </template>
+
+              <div class='sub-task-tag-wrapper' v-if='currentActiveStepIndex === 2 && currentTaskFormData'>
+                <custom-tag
+                  :show-arrow="showCustomTag"
+                  :custom-tags="customTags"
+                  :custom-tags-list="customTagList"
+                  ref="customTag"
+                  :selected-tags-list="currentTaskFormData.customTags"
+                  @reload-user-tags="loadCustomTags"
+                  @change-add-keywords="handleChangeAddKeywords"
+                  @change-user-tags="handleChangeSubCustomTags"></custom-tag>
+              </div>
             </div>
           </a-card>
         </a-col>
@@ -1170,9 +1183,9 @@
         width="700px"
         :closable="false">
         <div class="select-slide-wrapper">
-          <modal-header @close="selectedSlideVisible = false" :white="true"/>
+          <modal-header @close="handleCancelPickTaskSlide" :white="true"/>
           <div class="modal-title">
-            Congratulations! You have published your content successfully!
+            Would you like to breakdown your slides into small task
           </div>
           <div class="main-tips">
             <div class="left-img">
@@ -1181,7 +1194,7 @@
             <div class="right-img-text">
               <img src="~@/assets/icons/task/quote.png" />
               <div class="img-text">
-                Pick slides to create a brilliant task and use it in your future tasks or share with global educators
+                So its easier to be shared with global educators or saved for your future inspiration!
               </div>
             </div>
           </div>
@@ -1588,7 +1601,9 @@ export default {
         associateTaskIdList: [],
         associateId2Name: new Map(),
 
-        materialListFlag: false
+        materialListFlag: false,
+
+        showSubTaskDetail: false
       }
     },
     computed: {
@@ -1672,9 +1687,6 @@ export default {
       } else {
         next()
       }
-    },
-    mounted () {
-
     },
     created () {
       logger.info('add task created ' + this.taskId + ' ' + this.$route.path + ' mode: ' + this.mode)
@@ -1808,9 +1820,6 @@ export default {
             this.loadThumbnail()
             this.loadRecommendThumbnail()
           }
-          if (this.mode === 'pick-task-slide') {
-            this.currentTaskFormData = Object.assign({}, this.form)
-          }
           // copy副本 为了判断数据变更
           this.oldForm = JSON.parse(JSON.stringify(this.form))
           this.initCompleted = true
@@ -1856,9 +1865,6 @@ export default {
           taskData.id = this.taskId
         }
         taskData.selectedTemplateList = this.selectedTemplateList
-        // if (this.form.presentationId) {
-        //   this.loadThumbnail()
-        // }
         logger.info('basic taskData', taskData)
         logger.info('question taskData', taskData)
         TaskAddOrUpdate(taskData).then((response) => {
@@ -2043,7 +2049,6 @@ export default {
               this.selectedMyContentVisible = false
               this.addRecomendLoading = false
               hideLoading()
-              // this.loadThumbnail()
             })
           } else {
             this.$message.warn('Please select template!')
@@ -2162,6 +2167,11 @@ export default {
           this.thumbnailListLoading = false
           this.skeletonLoading = false
           this.getClassInfo(this.form.presentationId)
+
+          if (this.currentActiveStepIndex === 2 && this.thumbnailList.length > 1) {
+            this.selectedSlideVisible = true
+            this.currentTaskFormData = JSON.parse(JSON.stringify(this.form))
+          }
         })
       },
 
@@ -2205,14 +2215,14 @@ export default {
             this.selectedPageItemData.push(pageData)
         }
         this.$logger.info('selectedPageItemData', this.selectedPageItemData)
+        this.$logger.info('selectedPageIdList', this.selectedPageIdList)
 
         // 处理sub task封面
-        if (this.currentTaskFormData && this.selectedPageIdList.length > 0) {
+        if (this.selectedPageIdList.length > 0) {
           const pageId = this.thumbnailList.filter(item => this.selectedPageIdList.indexOf(item.id) > -1)[0].id
           const selectPage = this.thumbnailList.filter(item => item.id === pageId)
+          this.$logger.info('selectPage', selectPage)
           if (selectPage.length > 0) {
-            this.currentTaskFormData = {}
-            this.currentTaskFormData = Object.assign({}, this.form)
             this.currentTaskFormData.image = selectPage[0].contentUrl
           }
         }
@@ -2285,7 +2295,7 @@ export default {
       },
 
       handleAddSubTask (data) {
-        this.$logger.info('handleAddSubTask', data)
+        this.$logger.info('handleAddSubTask', data, this.currentTaskFormData)
         if (this.selectedPageIdList.length) {
           const task = Object.assign({
             _uid: '' + Math.random(), // 随机生成一个id方便后面删除
@@ -2293,14 +2303,14 @@ export default {
             selectPageObjectIds: this.selectedPageIdList,
             selectPageImages: this.selectedPageImageList,
             taskId: this.form.id
-          }, data)
+          }, JSON.parse(JSON.stringify(data)))
           this.$logger.info('add sub task', task)
           this.subTasks.push(task)
           this.selectedPageIdList = []
           this.selectedPageImageList = []
           this.selectedPageItemData = []
           this.taskIndex++
-          this.$logger.info('after add tasks ', this.form.tasks)
+          this.$logger.info('after add tasks ', this.subTasks)
         } else {
           this.$message.warn('Please select at least one slide!')
         }
@@ -2309,14 +2319,6 @@ export default {
       handleDeleteSubTask (data) {
         this.$logger.info('handleDeleteSubTask data', data)
         this.subTasks = this.subTasks.filter(item => item._uid !== data._uid)
-      },
-
-      handleTaskDelete (task) {
-        this.$logger.info('handleTaskDelete', task)
-        const index = this.form.tasks.findIndex(item => item.__taskId === task.__taskId)
-        if (index !== -1) {
-          this.form.tasks.splice(index, 1)
-        }
       },
       handleStartCollaborate () {
         this.$logger.info('handleStartCollaborate')
@@ -2365,10 +2367,9 @@ export default {
         this.$logger.info('handleAddTaskWithSlide')
         this.selectedSlideVisible = false
         this.selectedSlideVisibleFromSave = false
-        this.currentTaskFormData = Object.assign({}, this.form)
-        this.$router.push({
-          path: '/teacher/add-task/' + this.taskId + '/pick-task-slide'
-        })
+        this.currentActiveStepIndex = 2
+        this.showSubTaskDetail = true
+        this.currentTaskFormData = JSON.parse(JSON.stringify(this.form))
         this.$logger.info('currentTaskFormData', this.currentTaskFormData)
       },
 
@@ -2382,9 +2383,7 @@ export default {
       handleCancelPickTaskSlide () {
         this.$logger.info('handleCancelPickTaskSlide')
         this.selectedSlideVisible = false
-        this.$router.push({
-          path: '/teacher/add-task/' + this.taskId + '/edit'
-        })
+        this.currentActiveStepIndex = 3
       },
       handleSelectedSessionTags (tags) {
         this.sessionTags = tags
@@ -2757,8 +2756,10 @@ export default {
               }
           }, 100)
 
-          if(current === 2 && this.thumbnailList.length > 1) {
+          if (current === 2 && this.thumbnailList.length > 1) {
+            this.showSubTaskDetail = false
             this.$logger.info('click step 2.1', current, this.thumbnailList)
+            this.selectedSlideVisible = true
           }
         }
       },
@@ -2905,6 +2906,11 @@ export default {
       },
       handleChangeCustomTags (tags) {
         this.form.customTags = tags
+      },
+      handleChangeSubCustomTags (tags) {
+        if (this.currentTaskFormData) {
+          this.currentTaskFormData.customTags = tags
+        }
       },
       handleChangeAddKeywords (tag) {
         var index = this.customTags.userTags.findIndex(item => item.name === tag.parentName)
@@ -3237,9 +3243,6 @@ export default {
             if (response.success) {
               this.$message.success('add successfully')
               // 保存并退出
-              if (!status) {
-                this.$router.go(-1)
-              }
             } else {
               this.$message.error(response.message)
             }
@@ -3263,9 +3266,6 @@ export default {
         logger.info('basic taskData', taskData)
         TaskAddOrUpdate(taskData).then((response) => {
           logger.info('TaskAddOrUpdate', response.result)
-          // if (response.success) {
-          //   this.restoreTask(response.result.id, false)
-          // }
         }).finally(() => {
 
         })
@@ -4091,7 +4091,7 @@ export default {
   *::-webkit-scrollbar-thumb {
     border-radius: 3px;
     background: rgba(0,0,0,0.12);
-    -webkit-box-shadow: inset 0 0 10px rgba(0,0,0,0.2);
+    -webkit-box-shadow: inset 0 0 10px rgba(0,0,0,0.04);
   }
 
   .audio-material-action {
@@ -4179,6 +4179,7 @@ export default {
     border: 1px solid #D8D8D8;
     opacity: 1;
     border-radius: 4px;
+    padding-right: 15px;
     .preview-item-cover {
       background-position: center center;
       background-size: cover;
@@ -4256,14 +4257,12 @@ export default {
   }
 
   .thumbnail-task-list {
-    padding: 15px;
     box-sizing: border-box;
     margin: auto;
     display: flex;
     flex-direction: column;
     .task-preview-list {
       position: relative;
-      width: 800px;
       .task-preview {
         padding: 5px;
       }
@@ -4581,7 +4580,7 @@ export default {
           width: 190px;
           height: 150px;
           margin: auto;
-          left: 35px;
+          left: 50px;
           top: 40px;
           font-family: FZCuYuan-M03S;
           font-weight: 400;
@@ -4931,12 +4930,11 @@ export default {
     .slide-desc{
       width: 70%;
       max-height: 50px;
-      margin: 0 auto;
-      margin-bottom: 10px;
+      margin: 0 auto 10px;
       overflow: hidden;
     }
   }
-  .recomend-loading {
+  .recommend-loading {
     min-height: 200px;
     margin-top: 200px;
     width: 100%;
@@ -5046,13 +5044,13 @@ export default {
     &::-webkit-scrollbar-track {
       border-radius: 3px;
       background: rgba(0,0,0,0.00);
-      -webkit-box-shadow: inset 0 0 5px rgba(0,0,0,0.08);
+      -webkit-box-shadow: inset 0 0 5px rgba(0,0,0,0.03);
     }
     /* 滚动条滑块 */
     &::-webkit-scrollbar-thumb {
       border-radius: 5px;
       background: rgba(0,0,0,0.12);
-      -webkit-box-shadow: inset 0 0 10px rgba(0,0,0,0.2);
+      -webkit-box-shadow: inset 0 0 10px rgba(0,0,0,0.04);
     }
     .img-list-wrapper {
       display: flex;
@@ -5406,7 +5404,7 @@ export default {
   }
 
   .sub-task-save {
-    margin-top: 50px;
+    margin-top: 30px;
     text-align: center;
     .sub-task-save-action {
         height: 50px;
@@ -5471,6 +5469,9 @@ export default {
   }
 
   .my-steps-item-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
     width: 32px;
     height: 32px;
     margin-right: 8px;
@@ -5486,6 +5487,9 @@ export default {
   }
 
   .my-active-steps-item-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
     width: 32px;
     height: 32px;
     margin-right: 8px;
@@ -5508,5 +5512,9 @@ export default {
         color: #15c39a;
       }
     }
+  }
+
+  .sub-task-tag-wrapper {
+    padding-top: 150px;
   }
 </style>
