@@ -568,7 +568,8 @@ export default {
       this.$emit('ensure-select')
     },
     handleCenturySkillsSelect(data) {
-      this.selected21CenturyItem = data
+      this.$logger.info('NewBrowser handleCenturySkillsSelect', data)
+      this.selected21CenturyItem = data.item
     },
 
     handleCancelCenturySkillsSelect() {
