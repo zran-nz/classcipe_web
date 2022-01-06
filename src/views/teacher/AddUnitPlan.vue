@@ -528,7 +528,7 @@
                   :style="{'width':rightWidth+'px', 'margin-top':customTagTop+'px', 'z-index': 50}">
                   <custom-tag
                     ref="customTag"
-                    :custom-tags-list="customTagList"
+                    :scope-tags-list="customTagList"
                     :selected-tags-list="form.customTags"
                     :show-arrow="showCustomTag"
                     :custom-tags="customTags"
