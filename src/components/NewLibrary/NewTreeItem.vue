@@ -1244,7 +1244,6 @@ export default {
     },
 
     handleCenturySkillsSelect(data) {
-      this.$logger.info('handleCenturySkillsSelect', data)
       this.selected21CenturyItem = data
     },
 

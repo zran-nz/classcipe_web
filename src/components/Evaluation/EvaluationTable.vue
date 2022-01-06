@@ -589,6 +589,7 @@
           @select-century-skill="handleSelect21CenturySkillListData"
           @select-assessmentType="handleSelectAssessmentType"
           @select-idu="handleSelectIdu"
+          @ensure-select='handleEnsureSelectCriteria'
           question-index="evaluation_" />
       </div>
     </a-modal>
@@ -1591,6 +1592,9 @@ export default {
       })
       this.selectedCurriculumList = descriptionList
       this.$logger.info('[' + this.mode + '] handleSelectCurriculumListData ', descriptionList)
+
+      // 取消层级的选择
+      LibraryEventBus.$emit(LibraryEvent.CancelCenturySkillsSelect)
     },
 
     handleSelectAssessmentType (data) {
