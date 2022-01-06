@@ -13,7 +13,7 @@
 
             <div class="form-block over-form-block" id="overview" >
               <a-form-model-item class="task-audio-line" label="Course Overview" ref="overview">
-                <a-textarea v-model="form.overview" placeholder="Overview" allow-clear />
+                <a-textarea autoSize v-model="form.overview" placeholder="Overview" allow-clear />
               </a-form-model-item>
             </div>
 

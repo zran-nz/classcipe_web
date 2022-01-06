@@ -55,7 +55,7 @@
                       <div class="form-block over-form-block" id="overview" >
                         <comment-switch field-name="overview" :is-active="showCollaborateCommentVisible && currentFieldName === 'overview'" @switch="handleSwitchComment" class="my-comment-switch"/>
                         <a-form-model-item class="task-audio-line" label="Task details" ref="overview">
-                          <a-textarea v-model="form.overview" placeholder="Details" allow-clear />
+                          <a-textarea autoSize v-model="form.overview" placeholder="Details" allow-clear />
                         </a-form-model-item>
                       </div>
 
@@ -373,7 +373,8 @@
                                 :task-id="taskId"
                                 :ppt-title="pptTitle"
                                 :task-prefix="'task_' + taskIndex + '_'"
-                                @add-sub-task="handleAddSubTask" />
+                                @add-sub-task="handleAddSubTask"
+                                @select-task-type='handleSelectSubTaskType'/>
                             </div>
                             <div class="task-preview-list">
                               <div class="task-preview" v-for="(task, index) in subTasks" :key="index">
@@ -1929,6 +1930,25 @@ export default {
         this.setRightModuleVisible(this.rightModule.customTag)
         this.customTagTop = 450
         this.showCustomTag = true
+      },
+
+      handleSelectSubTaskType (type) {
+        this.$logger.info('handleSelectSubTaskType ' + type)
+        this.currentTaskFormData.taskType = type
+        this.customTagList = []
+        if (type === 'FA') {
+          CustomTagType.task.fa.forEach(name => {
+            this.customTagList.push(name)
+          })
+        } else if (type === 'SA') {
+          CustomTagType.task.sa.forEach(name => {
+            this.customTagList.push(name)
+          })
+        } else if (type === 'Activity') {
+          CustomTagType.task.activity.forEach(name => {
+            this.customTagList.push(name)
+          })
+        }
       },
 
       goBack () {
@@ -5515,6 +5535,6 @@ export default {
   }
 
   .sub-task-tag-wrapper {
-    padding-top: 150px;
+    padding-top: 550px;
   }
 </style>

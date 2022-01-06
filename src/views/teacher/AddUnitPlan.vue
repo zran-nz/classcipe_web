@@ -396,6 +396,7 @@
                           <a-textarea
                             v-model="form.prior"
                             allow-clear
+                            auto-size
                             placeholder="What are the approaches to find out what students already knew?" />
                         </a-form-model-item>
                       </div>
