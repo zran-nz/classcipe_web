@@ -15,9 +15,9 @@
                 <div class="skt-tag-item " v-for="tag in showTagList" :key="tag.name" >
                   <a-tooltip :title="tag.parentName">
                     <a-tag
-                      :closable="customTagsList.indexOf(tag.parentName)!== -1"
+                      :closable="scopeTagsList.indexOf(tag.parentName)!== -1"
                       @close="closeTag(tag)"
-                      :class="{'tag-item':true,'tag-disable':customTagsList.indexOf(tag.parentName) === -1 }">
+                      :class="{'tag-item':true,'tag-disable':scopeTagsList.indexOf(tag.parentName) === -1 }">
                       {{ tag.name }}
                     </a-tag>
                   </a-tooltip>
@@ -139,7 +139,7 @@ export default {
       type: Object,
       required: true
     },
-    customTagsList: {
+    scopeTagsList: {
       type: Array,
       default: () => []
     },
@@ -178,7 +178,7 @@ export default {
     showTagList: function () {
        const showList = []
        this.tagList.forEach(item => {
-         if (this.customTagsList.indexOf(item.parentName) > -1) {
+         if (this.scopeTagsList.indexOf(item.parentName) > -1) {
            showList.push(item)
          }
        })
@@ -191,7 +191,7 @@ export default {
       this.$logger.info('selectedTagsList', this.selectedTagsList)
        this.tagList = this.selectedTagsList
     },
-    customTagsList () {
+    scopeTagsList () {
       this.selectLabel = ''
       this.handleUserTagsMap()
     }
@@ -244,9 +244,9 @@ export default {
       const myTags = result.userTags
       this.userTagsMap = new Map()
       // const categorys = ['Key words', 'Global interactions']
-      if (this.customTagsList.length > 0) {
+      if (this.scopeTagsList.length > 0) {
         // 默认显示的tag，优先从个人库获取
-        this.customTagsList.forEach(parent => {
+        this.scopeTagsList.forEach(parent => {
           this.userTagsMap.set(parent, new Set())
           const tagC = myTags.filter(tag => tag.name === parent)
           if (tagC.length > 0) {

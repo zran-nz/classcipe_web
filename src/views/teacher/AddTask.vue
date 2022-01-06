@@ -501,7 +501,7 @@
                     <custom-tag
                       :show-arrow="showCustomTag"
                       :custom-tags="customTags"
-                      :custom-tags-list="customTagList"
+                      :scope-tags-list="customTagList"
                       ref="customTag"
                       :selected-tags-list="form.customTags"
                       @reload-user-tags="loadCustomTags"
@@ -1856,7 +1856,7 @@ export default {
           }
         }).finally(() => {
           // this.selectedSlideVisible = true
-          this.$refs.commonFormHeader.saving = false
+          // this.$refs.commonFormHeader.saving = false
         })
       },
       handlePublishTask (status) {
