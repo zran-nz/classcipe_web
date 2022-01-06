@@ -2235,16 +2235,16 @@ export default {
         this.$logger.info('FindCustomTags response', response.result)
         if (response.success) {
           this.customTags = response.result
-          // // 默认展示的tag分类
-          // CustomTagType.plan.default.forEach(name => {
-          //   this.customTagList.push(name)
-          // })
-          // 再拼接自己添加的
-          this.customTags.userTags.forEach(tag => {
-            if (this.customTagList.indexOf(tag.name) === -1) {
-              this.customTagList.push(tag.name)
-            }
+          // 默认展示的tag分类
+          CustomTagType.plan.default.forEach(name => {
+            this.customTagList.push(name)
           })
+          // // 再拼接自己添加的
+          // this.customTags.userTags.forEach(tag => {
+          //   if (this.customTagList.indexOf(tag.name) === -1) {
+          //     this.customTagList.push(tag.name)
+          //   }
+          // })
         } else {
           this.$message.error(response.message)
         }
@@ -2300,15 +2300,15 @@ export default {
         this.showCustomTag = true
         this.setRightModuleVisible(this.rightModule.customTag)
       } else {
-        // CustomTagType.plan.default.forEach(name => {
-        //   this.customTagList.push(name)
-        // })
-        // // 再拼接自己添加的
-        this.customTags.userTags.forEach(tag => {
-          if (this.customTagList.indexOf(tag.name === -1)) {
-            this.customTagList.push(tag.name)
-          }
+        CustomTagType.plan.default.forEach(name => {
+          this.customTagList.push(name)
         })
+        // // 再拼接自己添加的
+        // this.customTags.userTags.forEach(tag => {
+        //   if (this.customTagList.indexOf(tag.name === -1)) {
+        //     this.customTagList.push(tag.name)
+        //   }
+        // })
         this.showCustomTag = false
         this.customTagTop = 0
         // this.showModuleList.push(RightModule.imageUpload)

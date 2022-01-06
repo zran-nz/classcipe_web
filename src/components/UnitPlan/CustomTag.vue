@@ -34,11 +34,10 @@
             <a-col offset="0" span="24">
               <div>
                 <a-tabs
-                  :activeKey="selectLabel"
                   tab-position="top"
                   @change="changeTab"
                 >
-                  <a-tab-pane v-for="tag in userTagsMap" :key="tag[0]" :tab="tag[0]">
+                  <a-tab-pane v-for="(parent,index) in mergeTagList" :key="index" :tab="parent.name">
                     <a-row>
                       <a-col offset="0" :span="24">
                         <div class="tag-search-input">
@@ -51,42 +50,74 @@
                             @search="searchTag"
                             @keyup="searchTag" >
                             <a-icon slot="prefix" type="plus-circle" :style="{ fontSize: '16px', color: '#15c39a','margin-right':'5px' }" />
-                            <!--                            <a-button slot="enterButton">-->
-                            <!--                              Add-->
-                            <!--                            </a-button>-->
                           </a-input-search>
                         </div>
                       </a-col>
                     </a-row>
 
-                    <div class="skt-tag-wrapper" v-show="tagSearchList.length || createTagName">
+                    <div class="skt-tag-wrapper">
                       <div class="triangle"></div>
-                      <!--      skt-tag-list-->
-                      <div class="skt-tag-list">
-                        <div class="search-tag-wrapper tag-wrapper">
-                          <div class="skt-tag-item" v-for="(keyword,index) in tagSearchList" :key="index" >
-                            <a-tag
-                              draggable="true"
-                              @click="selectChooseTag(tag[0],keyword)"
-                              class="tag-item">
-                              {{ keyword }}
-                            </a-tag>
-                          </div>
-                        </div>
-                        <div class="create-tag-wrapper tag-wrapper">
-                          <div class="skt-tag-create-line" @click="handleCreateTagByInput" v-show="!tagNameIsExist(createTagName,showTagList) && !tagIsExist(createTagName,tagSearchList) && createTagName && createTagName.length >= 1">
-                            <div class="create-tag-label">
-                              Create
-                            </div>
-                            <div class="create-tag">
-                              <a-tag class="created-tag-item">
-                                {{ createTagName }}
+                      <template v-if="parent.customDeep === 1">
+                        <div class="skt-tag-list">
+                          <div class="search-tag-wrapper tag-wrapper">
+                            <div class="skt-tag-item" v-for="(keyword,index) in parent.keywords" :key="index" >
+                              <a-tag
+                                draggable="true"
+                                @click="selectChooseTag(parent,keyword)"
+                                class="tag-item">
+                                {{ keyword }}
                               </a-tag>
-                              <!--                    <a-icon type="plus-circle" @click="handleCreateTagByInput"/>-->
+                            </div>
+                          </div>
+                          <div class="create-tag-wrapper tag-wrapper">
+                            <div class="skt-tag-create-line" @click="handleCreateTagByInput" v-show="!tagNameIsExist(createTagName,showTagList) && !tagIsExist(createTagName,tagSearchList) && createTagName && createTagName.length >= 1">
+                              <div class="create-tag-label">
+                                Create
+                              </div>
+                              <div class="create-tag">
+                                <a-tag class="created-tag-item">
+                                  {{ createTagName }}
+                                </a-tag>
+                                <!--                    <a-icon type="plus-circle" @click="handleCreateTagByInput"/>-->
+                              </div>
                             </div>
                           </div>
                         </div>
-                      </div>
+                      </template>
+                      <template v-else>
+                        <a-tabs
+                          tab-position="top"
+                        >
+                          <a-tab-pane v-for="(child,indexC) in parent.children" :key="indexC" :tab="child.name">
+                            <div class="skt-tag-list">
+                              <div class="search-tag-wrapper tag-wrapper">
+                                <div class="skt-tag-item" v-for="(keyword,index) in child.keywords" :key="index" >
+                                  <a-tag
+                                    draggable="true"
+                                    @click="selectChooseTag(child,keyword)"
+                                    class="tag-item">
+                                    {{ keyword }}
+                                  </a-tag>
+                                </div>
+                              </div>
+                              <div class="create-tag-wrapper tag-wrapper">
+                                <div class="skt-tag-create-line" @click="handleCreateTagByInput" v-show="!tagNameIsExist(createTagName,showTagList) && !tagIsExist(createTagName,tagSearchList) && createTagName && createTagName.length >= 1">
+                                  <div class="create-tag-label">
+                                    Create
+                                  </div>
+                                  <div class="create-tag">
+                                    <a-tag class="created-tag-item">
+                                      {{ createTagName }}
+                                    </a-tag>
+                                    <!--                    <a-icon type="plus-circle" @click="handleCreateTagByInput"/>-->
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </a-tab-pane>
+                        </a-tabs>
+
+                      </template>
                     </div>
                   </a-tab-pane>
                 </a-tabs>
@@ -166,7 +197,8 @@ export default {
       createTagName: '',
       tagSearchList: [],
       userTagsMap: new Map(),
-      selectLabel: ''
+      selectLabel: '',
+      selectLabelSub: ''
     }
   },
   created () {
@@ -184,6 +216,38 @@ export default {
        })
       const lastList = this.tagList.filter(item => showList.indexOf(item) === -1)
       return showList.concat(lastList)
+    },
+
+    mergeTagList: function () {
+      const list = []
+      this.$logger.info('customTags', this.customTags)
+      this.$logger.info('scopeTagsList', this.scopeTagsList)
+      this.scopeTagsList.forEach(scope => {
+       const scopeIndex = this.customTags.recommends.findIndex(item => item.name === scope)
+        if (scopeIndex > -1) {
+          var parent = this.customTags.recommends[scopeIndex]
+          list.push(parent)
+        }
+      })
+
+      this.customTags.userTags.forEach(item => {
+        const index = list.findIndex(tag => tag.name === item.name)
+        if (!item.customDeep) {
+          item.customDeep = 1
+        }
+        if (index === -1) {
+          list.push(item)
+        } else {
+          var tags = list[index]
+          item.keywords.forEach(key => {
+            if (tags.keywords.indexOf(key) === -1) {
+              tags.keywords.push(key)
+            }
+          })
+        }
+      })
+      this.$logger.info('mergeTagList', list)
+      return list
     }
   },
   watch: {
@@ -198,6 +262,10 @@ export default {
   },
   methods: {
     changeTab (tabName) {
+      this.selectLabel = tabName
+      this.filterKeyword()
+    },
+    changeSubTab (tabName) {
       this.selectLabel = tabName
       this.filterKeyword()
     },
