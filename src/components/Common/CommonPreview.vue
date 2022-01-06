@@ -145,7 +145,7 @@
                       <div class="material-name">
                         {{ material.name }}
                       </div>
-                      <div class="material-link">
+                      <div class="material-link" @click="handleOpenLink(material.link)">
                         {{ material.link }}
                       </div>
                     </div>
@@ -643,6 +643,10 @@ export default {
           })
         }
       })
+    },
+
+    handleOpenLink (url) {
+      window.open(url, '_blank')
     }
   }
 }
