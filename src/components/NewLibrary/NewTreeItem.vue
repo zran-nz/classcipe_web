@@ -1244,21 +1244,26 @@ export default {
     },
 
     handleCenturySkillsSelect(data) {
-      this.$logger.info('handleCenturySkillsSelect', data)
-      this.selected21CenturyItem = data
+      this.selected21CenturyItem = data.item
     },
 
     handleCancelCenturySkillsSelect() {
       this.selected21CenturyItem = null
     },
 
-    handle21CenturyClick(data) {
-      this.$logger.info('handle21CenturyClick start ', data)
-      if (this.selected21CenturyItem === data) {
+    handle21CenturyClick(item) {
+      this.$logger.info('handle21CenturyClick start ', item)
+      if (this.selected21CenturyItem === item) {
         LibraryEventBus.$emit(LibraryEvent.CancelCenturySkillsSelect) // 再次点击取消选中
       } else {
-        this.$logger.info('emit ' + LibraryEvent.CenturySkillsSelect, data)
-        LibraryEventBus.$emit(LibraryEvent.CenturySkillsSelect, data)
+        this.$logger.info('emit ' + LibraryEvent.CenturySkillsSelect, {
+          item: item,
+          parent: this.treeCurrentParent
+        })
+        LibraryEventBus.$emit(LibraryEvent.CenturySkillsSelect, {
+          item: item,
+          parent: this.treeCurrentParent
+        })
       }
     },
 

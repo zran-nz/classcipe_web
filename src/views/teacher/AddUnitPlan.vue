@@ -1225,6 +1225,7 @@ export default {
   beforeDestroy () {
     MyContentEventBus.$off(MyContentEvent.ReferContentItem, this.handleReferItem)
     LibraryEventBus.$off(LibraryEvent.ContentListSelectClick, this.handleDescriptionSelectClick)
+    LibraryEventBus.$off(LibraryEvent.GradeUpdate, this.handleGradeUpdate)
     // logger.debug('beforeDestroy, try save!')
     // this.handleSaveUnitPlan()
   },

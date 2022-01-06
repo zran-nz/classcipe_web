@@ -89,6 +89,22 @@
           </div>
           <div class="selected-list">
             <div class="content-list">
+              <template v-if='selected21CenturyItem'>
+                <div
+                  :class="{'content-item': true, 'selected-line': true}">
+                  <div class="name">
+                    <div class="name-text">
+                      {{ selected21CenturyItem.name }}
+                    </div>
+                    <div class="action-icon">
+                      <img src="~@/assets/icons/lesson/selected.png" />
+                    </div>
+                    <div class="action-icon-right" @click="handleRemoveMySelected21Century">
+                      <img src="~@/assets/icons/evaluation/delete.png" />
+                    </div>
+                  </div>
+                </div>
+              </template>
               <div
                 :class="{'content-item': true, 'selected-line': true}"
                 v-for="(item, mIndex) in mySelectedList"
@@ -310,6 +326,7 @@ import { UtilMixin } from '@/mixins/UtilMixin'
 import {
   getAllCurriculums
 } from '@/api/preference'
+import { LibraryEvent, LibraryEventBus } from '@/components/NewLibrary/LibraryEventBus'
 
 export default {
   name: 'NewBrowser',
@@ -380,7 +397,9 @@ export default {
       mySelectedList: [],
 
       isEmptyRecommend: true,
-      showCurriculum: false
+      showCurriculum: false,
+
+      selected21CenturyItem: null
     }
   },
   computed: {
@@ -394,7 +413,8 @@ export default {
         this.selectedIduList.length ||
         this.selectedAll21CenturyList.length ||
         this.selectedBigIdeaList.length ||
-        this.selectedRecommendList.length
+        this.selectedRecommendList.length ||
+        this.selected21CenturyItem
     }
   },
   watch: {
@@ -440,6 +460,12 @@ export default {
     this.$logger.info('mySelectedList', this.mySelectedList)
     this.$logger.info('selectedRecommendList', this.selectedRecommendList)
     this.$logger.info('selectedRecommendIdList', this.selectedRecommendIdList)
+    LibraryEventBus.$on(LibraryEvent.CenturySkillsSelect, this.handleCenturySkillsSelect)
+    LibraryEventBus.$on(LibraryEvent.CancelCenturySkillsSelect, this.handleCancelCenturySkillsSelect)
+  },
+  destroyed() {
+    LibraryEventBus.$off(LibraryEvent.CenturySkillsSelect, this.handleCenturySkillsSelect)
+    LibraryEventBus.$off(LibraryEvent.CancelCenturySkillsSelect, this.handleCancelCenturySkillsSelect)
   },
   methods: {
 
@@ -540,6 +566,18 @@ export default {
     handleEnsureSelectData () {
       this.$logger.info('NewBrowser handleEnsureSelectData')
       this.$emit('ensure-select')
+    },
+    handleCenturySkillsSelect(data) {
+      this.$logger.info('NewBrowser handleCenturySkillsSelect', data)
+      this.selected21CenturyItem = data.item
+    },
+
+    handleCancelCenturySkillsSelect() {
+      this.selected21CenturyItem = null
+    },
+
+    handleRemoveMySelected21Century () {
+      LibraryEventBus.$emit(LibraryEvent.CancelCenturySkillsSelect) // 点击选择列表中的取消
     }
   }
 }

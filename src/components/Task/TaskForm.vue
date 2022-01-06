@@ -1,7 +1,7 @@
 <template>
   <div class="task-form-wrapper">
     <a-row class="unit-content">
-      <a-col span="10" class="main-content">
+      <a-col span="24" class="main-content">
         <a-form-model :model="form" class="my-form-wrapper">
           <div class="form-block-wrapper">
 
@@ -111,17 +111,6 @@
             </a-form-model-item></div>
         </a-form-model>
       </a-col>
-      <a-col offset="2" span="12" class="sub-task-custom-tag">
-        <custom-tag
-          :show-arrow="showCustomTag"
-          :user-tags="userTags"
-          :custom-tags-list="customTagList"
-          ref="subcustomTag"
-          :selected-tags-list="form.customTags"
-          @reload-user-tags="loadUserTags"
-          @change-add-keywords="handleChangeAddKeywords"
-          @change-user-tags="handleChangeUserTags"></custom-tag>
-      </a-col>
     </a-row>
     <a-modal
       v-model="selectSyncDataVisible"
@@ -173,11 +162,9 @@ import { formatLocalUTC } from '@/utils/util'
 import MyContentSelector from '@/components/MyContent/MyContentSelector'
 import RelevantTagSelector from '@/components/UnitPlan/RelevantTagSelector'
 import { TemplateTypeMap } from '@/const/template'
-import { commonAPIUrl, GetDictItems } from '@/api/common'
+import { commonAPIUrl } from '@/api/common'
 import { SubjectTree } from '@/api/subject'
 import { formatSubjectTree } from '@/utils/bizUtil'
-import { DICT_BLOOM_CATEGORY, CustomTagType } from '@/const/common'
-import { FindCustomTags } from '@/api/tag'
 import UiLearnOut from '@/components/UnitPlan/UiLearnOut'
 import { SelectModel } from '@/components/NewLibrary/SelectModel'
 import { NavigationType } from '@/components/NewLibrary/NavigationType'
@@ -262,7 +249,6 @@ export default {
         taskType: '',
         createTime: '',
         updateTime: '',
-        customTags: [],
         subjectIds: [],
         gradeIds: [],
         bloomCategories: '',
@@ -286,8 +272,6 @@ export default {
       audioUrl: null,
       currentUploading: false,
 
-      initBlooms: [],
-
       associateQuestionList: [],
 
       selectModel: SelectModel,
@@ -307,11 +291,6 @@ export default {
       selectedRecommendList: [],
       selectedIduList: [],
       uploading: false,
-
-      showCustomTag: true,
-      sessionTags: [],
-      customTagList: [],
-      userTags: {},
       taskNum: 1,
 
       parentData: null,
@@ -344,28 +323,42 @@ export default {
       this.$logger.info('selectPageObjectIds update', value)
       this.form.selectPageObjectIds = value
     },
-    parentFormData (v) {
-     this.form.image = v.image
+    'parentFormData.image': {
+      handler (v) {
+        this.$logger.info('parentFormData.image', v)
+        this.form.image = v
+      },
+      deep: true
+    },
+    'parentFormData.customTags': {
+      handler (v) {
+        this.$logger.info('parentFormData.customTag', v)
+        this.form.customTags = v
+      },
+      deep: true
     }
   },
   created () {
     logger.info('add task created ' + this.taskId + ' ' + this.$route.path)
-    this.questionPrefix = '' + this.taskPrefix + '__question_'
-    this.parentData = JSON.parse(JSON.stringify(this.parentFormData))
-    const formData = JSON.parse(JSON.stringify(this.parentFormData))
-    formData.id = null
-    formData.selectPageObjectIds = []
-    formData.learnOuts = []
-    formData.__taskId = '__taskId_' + this.taskPrefix
-    formData.name = formData.name ? (formData.name + ' sub task' + this.taskNum) : 'sub task' + this.taskNum
-    this.$logger.info('TaskForm parentFormData', formData)
-    this.$logger.info('TaskForm selectedPageItemData', this.selectedPageItemData)
-    this.form = formData
-    this.$logger.info('questionPrefix ' + this.questionPrefix)
-    this.$logger.info('questionDataObj ', this.questionDataObj)
+    this.initForm()
     this.initData()
   },
   methods: {
+    initForm() {
+      this.questionPrefix = '' + this.taskPrefix + '__question_'
+      this.parentData = JSON.parse(JSON.stringify(this.parentFormData))
+      const formData = JSON.parse(JSON.stringify(this.parentFormData))
+      formData.id = null
+      formData.selectPageObjectIds = []
+      formData.learnOuts = []
+      formData.__taskId = '__taskId_' + this.taskPrefix
+      formData.name = formData.name ? (formData.name + ' sub task' + this.taskNum) : 'sub task' + this.taskNum
+      this.$logger.info('TaskForm parentFormData', formData)
+      this.$logger.info('TaskForm selectedPageItemData', this.selectedPageItemData)
+      this.form = formData
+      this.$logger.info('questionPrefix ' + this.questionPrefix)
+      this.$logger.info('questionDataObj ', this.questionDataObj)
+    },
     initData () {
       logger.info('initData doing...')
       GetMyGrades().then((response) => {
@@ -384,15 +377,6 @@ export default {
          this.subjectTree = subjectTree
          logger.info('after format subjectTree', subjectTree)
       })
-
-      GetDictItems(DICT_BLOOM_CATEGORY).then(response => {
-        if (response.success) {
-          logger.info('DICT_BLOOM_CATEGORY', response.result)
-          this.initBlooms = response.result
-        }
-      })
-
-      this.loadUserTags()
     },
 
     // 此处只是添加到外层的数组中，并未保存。
@@ -411,26 +395,14 @@ export default {
       this.form.image = ''
       this.form.selectPageObjectIds = []
       this.form.learnOuts = []
+
+      this.initForm()
     },
 
     handleSelectTaskType (type) {
-      this.$logger.info('handleSelectTaskType ' + type, 'CustomTagType.task', CustomTagType.task)
+      this.$logger.info('handleSelectTaskType ' + type)
       this.form.taskType = type
-      this.customTagList = []
-      CustomTagType.task.sa.forEach(name => {
-        this.customTagList.push(name)
-      })
-      CustomTagType.task.fa.forEach(name => {
-        this.customTagList.push(name)
-      })
-      this.showAllCollaborateCommentVisible = false
-      this.showCollaborateCommentVisible = false
-      this.customTagTop = 60
-      this.showCustomTag = true
-    },
-
-    handleChangeUserTags (tags) {
-      this.form.customTags = tags
+      this.$emit('select-task-type', type)
     },
 
     handleSelectListData (data) {
@@ -458,7 +430,6 @@ export default {
       this.selectedRecommendList = data
     },
 
-    // TODO 自动更新选择的sync 的数据knowledgeId和name列表
     handleCancelSelectData () {
       this.selectedSyncList = []
       this.selectedCurriculumList = []
@@ -469,7 +440,6 @@ export default {
       this.selectSyncDataVisible = false
     },
 
-    // TODO 自动更新选择的sync 的数据knowledgeId和name列表
     handleEnsureSelectData () {
       this.$logger.info('handleEnsureSelectData',
         this.selectedCurriculumList,
@@ -626,41 +596,6 @@ export default {
       e.stopPropagation()
       e.preventDefault()
       this.form.image = null
-    },
-
-    loadUserTags () {
-      // this.$refs.customTag.tagLoading = true
-      FindCustomTags({}).then((response) => {
-        this.$logger.info('FindCustomTags response', response.result)
-        if (response.success) {
-          this.userTags = response.result
-          // 默认展示的tag分类
-          CustomTagType.task.default.forEach(name => {
-            this.customTagList.push(name)
-          })
-          // 再拼接自己添加的
-          this.userTags.userTags.forEach(tag => {
-            if (this.customTagList.indexOf(tag.name) === -1) {
-              this.customTagList.push(tag.name)
-            }
-          })
-        } else {
-          this.$message.error(response.message)
-        }
-        // this.$refs.customTag.tagLoading = false
-      })
-    },
-
-    handleChangeAddKeywords (tag) {
-      var index = this.userTags.userTags.findIndex(item => item.name === tag.parentName)
-      if (index > -1) {
-        this.userTags.userTags[index].keywords.push(tag.name)
-      }
-    },
-
-    handleSelectedSessionTags (tags) {
-      this.sessionTags = tags
-      this.$logger.info('handleSelectedSessionTags', tags)
     }
   }
 }
@@ -668,6 +603,16 @@ export default {
 
 <style lang="less" scoped>
 @import "~@/components/index.less";
+
+.task-form-wrapper {
+  position: relative;
+}
+
+.tag-select-wrapper {
+  position: absolute;
+  left: 800px;
+  top: 100px;
+}
 
 .task-header {
   padding-bottom: 16px;
@@ -1311,7 +1256,7 @@ export default {
 }
 
 .form-block {
-  width: 600px;
+  width: 100%;
 }
 
 .self-type-wrapper {

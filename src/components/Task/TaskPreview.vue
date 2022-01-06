@@ -4,15 +4,20 @@
       <a-skeleton active />
     </template>
     <template v-else>
-      <a-row class="top-header" :gutter="[16,24]">
+      <a-row class="top-header" :gutter="[8,8]">
         <a-col span="24">
+          <div class="delete-icon">
+            <a-popconfirm title="Delete?" ok-text="Yes" @confirm="handleDeleteItem" cancel-text="No">
+              <img src="~@/assets/icons/tag/delete.png"/> Delete
+            </a-popconfirm>
+          </div>
           <span class="title">
             {{ task.name }}
           </span>
         </a-col>
       </a-row>
-      <a-row class="top-info" :gutter="[16,24]">
-        <a-col class="left-preview" span="9">
+      <a-row class="top-info" :gutter="[8,8]">
+        <a-col class="left-preview" span="24">
           <a-carousel arrows>
             <div
               slot="prevArrow"
@@ -35,7 +40,9 @@
             </div>
           </a-carousel>
         </a-col>
-        <a-col class="right-detail" span="15">
+      </a-row>
+      <a-row :gutter="[8,8]">
+        <a-col class="right-detail" span="24">
           <div class="detail-wrapper">
             <div class="detail-block">
               <div class="block-title">
@@ -65,11 +72,6 @@
                   </div>
                 </div>
               </div>
-            </div>
-            <div class="delete-icon">
-              <a-popconfirm title="Delete?" ok-text="Yes" @confirm="handleDeleteItem" cancel-text="No">
-                <img src="~@/assets/icons/tag/delete.png"/> Delete
-              </a-popconfirm>
             </div>
           </div>
         </a-col>
@@ -140,6 +142,7 @@ export default {
 
 .task-preview {
   border: 1px solid #fff;
+  box-shadow: 0px 3px 3px rgba(0, 0, 0, 0.16);
 
   &:hover {
     border: 1px solid #f9f9f9;
@@ -149,11 +152,11 @@ export default {
     position: relative;
     color: rgba(0, 0, 0, 0.65);
     background: #fff;
-    border-bottom: 1px solid #e8e8e8;
     border-radius: 2px 2px 0 0;
 
     .title {
       font-weight: bold;
+      font-weight: 16px;
     }
 
     .last-change-time {
@@ -163,7 +166,6 @@ export default {
   }
 
   .top-info {
-    padding: 20px 0 0 0;
   }
 
   .left-preview {
@@ -237,11 +239,10 @@ export default {
       position: relative;
       .detail-block {
         margin-bottom: 10px;
-        border: 1px solid #f3f3f3;
 
         .block-title {
           font-weight: 700;
-          font-size: 16px;
+          font-size: 14px;
           padding: 10px 90px 10px 10px;
           background-color: #fafafa;
 
@@ -257,7 +258,6 @@ export default {
         }
 
         .block-content {
-          padding: 10px;
           .cover {
             img {
               height: 150px;
@@ -266,7 +266,7 @@ export default {
           .content-list {
             .label {
               font-weight: 500;
-              padding: 5px 0;
+              padding: 5px 10px;
               font-size: 15px;
             }
             .content-item {
@@ -299,7 +299,7 @@ export default {
               }
 
               .content-sub-list {
-                padding: 5px 0;
+                padding: 5px 10px;
                 background-color: #f9f9f9;
                 margin-bottom: 10px;
                 display: flex;
@@ -311,19 +311,6 @@ export default {
               }
             }
           }
-        }
-      }
-
-      .delete-icon {
-        position: absolute;
-        right: 10px;
-        top: 3px;
-        cursor: pointer;
-        color: #D01919;
-        background-color: #fafafa;
-
-        img {
-          width: 40px;
         }
       }
     }
@@ -354,6 +341,19 @@ export default {
   align-items: center;
   .content-sub-item {
     margin: 0 5px 5px 5px;
+  }
+}
+
+.delete-icon {
+  position: absolute;
+  right: 10px;
+  top: 0;
+  cursor: pointer;
+  color: #D01919;
+  background: #fff;
+
+  img {
+    width: 35px;
   }
 }
 </style>
