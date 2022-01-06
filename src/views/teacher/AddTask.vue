@@ -15,617 +15,631 @@
       />
     </div>
     <a-card :bordered="false" :bodyStyle="{ padding: '16px 24px 40px 24px', height: '100%', minHeight: '1000px' }">
-      <template v-if="mode === 'edit'">
-        <a-row class="unit-content" v-if="!contentLoading" >
-          <a-col span="24" class="main-content">
-            <a-card :bordered="false" :body-style="{padding: '16px', display: 'flex', 'justify-content': 'space-between'}" class="card-wrapper">
-              <div class="task-form-left root-locate-form" ref="form" @click="focusInput($event)" :style="{'width':leftWidth + 'px'}">
-                <a-form-model :model="form" class="my-form-wrapper" >
-                  <a-steps :current="currentActiveStepIndex" direction="vertical" @change="onChangeStep">
-                    <a-step class="step-1" title="Edit Task Info" :status="currentActiveStepIndex === 0 ? 'process':'wait'">
-                      <template v-if="currentActiveStepIndex === 0" slot="description">
+      <a-row class="unit-content" v-if="!contentLoading" >
+        <a-col span="24" class="main-content">
+          <a-card :bordered="false" :body-style="{padding: '16px', display: 'flex', 'justify-content': 'space-between'}" class="card-wrapper">
+            <div class="task-form-left root-locate-form" ref="form" @click="focusInput($event)" :style="{'width':leftWidth + 'px'}">
+              <a-form-model :model="form" class="my-form-wrapper" >
+                <a-steps :current="currentActiveStepIndex" direction="vertical" @change="onChangeStep">
+                  <a-step class="step-1" title="Edit Task Info" :status="currentActiveStepIndex === 0 ? 'process':'wait'">
+                    <template v-if="currentActiveStepIndex === 0" slot="description">
 
-                        <div class="form-block" >
-                          <comment-switch field-name="name" :is-active="showCollaborateCommentVisible && currentFieldName === 'name'" @switch="handleSwitchComment" class="my-comment-switch"/>
-                          <a-form-item label="Task name" >
-                            <a-input v-model="form.name" placeholder="Enter Task Name" class="my-form-input"/>
-                          </a-form-item>
-                        </div>
+                      <div class="form-block" >
+                        <comment-switch field-name="name" :is-active="showCollaborateCommentVisible && currentFieldName === 'name'" @switch="handleSwitchComment" class="my-comment-switch"/>
+                        <a-form-item label="Task name" >
+                          <a-input v-model="form.name" placeholder="Enter Task Name" class="my-form-input"/>
+                        </a-form-item>
+                      </div>
 
-                        <div class="form-block grade-time">
-                          <!--   <comment-switch field-name="name" :is-active="showCollaborateCommentVisible && currentFieldName === 'name'" @switch="handleSwitchComment" class="my-comment-switch"/>-->
-                          <a-form-item label="Grade level" style="width:26%;margin-bottom: 0px;">
-                            <a-select size="large" v-model="form.gradeId" class="my-big-select" placeholder="Select a grade">
-                              <a-select-option v-for="(grade,index) in gradeList" :value="grade.id" :key="index">
-                                {{ grade.name }}
-                              </a-select-option>
-                            </a-select>
-                          </a-form-item>
-                          <a-form-item class="range-time" label="Start Date" style="width:70%;margin-bottom: 0px;position:relative">
-                            <div class="week-time" v-if="getWeek">
-                              <a-tag color="cyan" style="border-radius: 10px;font-size: 14px;">
-                                {{ getWeek }}
-                              </a-tag>
+                      <div class="form-block grade-time">
+                        <!--   <comment-switch field-name="name" :is-active="showCollaborateCommentVisible && currentFieldName === 'name'" @switch="handleSwitchComment" class="my-comment-switch"/>-->
+                        <a-form-item label="Grade level" style="width:26%;margin-bottom: 0px;">
+                          <a-select size="large" v-model="form.gradeId" class="my-big-select" placeholder="Select a grade">
+                            <a-select-option v-for="(grade,index) in gradeList" :value="grade.id" :key="index">
+                              {{ grade.name }}
+                            </a-select-option>
+                          </a-select>
+                        </a-form-item>
+                        <a-form-item class="range-time" label="Start Date" style="width:70%;margin-bottom: 0px;position:relative">
+                          <div class="week-time" v-if="getWeek">
+                            <a-tag color="cyan" style="border-radius: 10px;font-size: 14px;">
+                              {{ getWeek }}
+                            </a-tag>
+                          </div>
+                          <a-range-picker v-model="rangeDate" size="large" format="LLL" :show-time="{ format: 'HH:mm' }" style="width:100%">
+                            <a-icon slot="suffixIcon" type="calendar" />
+                          </a-range-picker>
+                        </a-form-item>
+                      </div>
+
+                      <div class="form-block over-form-block" id="overview" >
+                        <comment-switch field-name="overview" :is-active="showCollaborateCommentVisible && currentFieldName === 'overview'" @switch="handleSwitchComment" class="my-comment-switch"/>
+                        <a-form-model-item class="task-audio-line" label="Task details" ref="overview">
+                          <a-textarea v-model="form.overview" placeholder="Details" allow-clear />
+                        </a-form-model-item>
+                      </div>
+
+                      <div class="form-block taskType" >
+                        <comment-switch field-name="taskType" :is-active="showCollaborateCommentVisible && currentFieldName === 'taskType'" @switch="handleSwitchComment" class="my-comment-switch"/>
+                        <a-form-model-item class="task-audio-line" ref="taskType" :colon="false">
+                          <div slot="label" >
+                            Choose Task Type(<span style="font-size: 13px">Formative Assessment/ Summative Assessment/ Activity</span>):
+                          </div>
+                          <div class="self-type-wrapper" >
+                            <div class="self-field-label" >
+                              <div :class="{'task-type-item': true, 'green-active-task-type': form.taskType === 'FA'}" @click.stop.prevent="handleSelectTaskType('FA')">FA</div>
+                              <div :class="{'task-type-item': true, 'red-active-task-type': form.taskType === 'SA'}" @click.stop.prevent="handleSelectTaskType('SA')">SA</div>
+                              <div :class="{'task-type-item': true, 'task-type-activity': true,'blue-active-task-type': form.taskType === 'Activity'}" @click.stop.prevent="handleSelectTaskType('Activity')"> <a-tooltip title="Teaching/Learning Activity" placement="top">Activity</a-tooltip></div>
                             </div>
-                            <a-range-picker v-model="rangeDate" size="large" format="LLL" :show-time="{ format: 'HH:mm' }" style="width:100%">
-                              <a-icon slot="suffixIcon" type="calendar" />
-                            </a-range-picker>
-                          </a-form-item>
-                        </div>
+                          </div>
+                        </a-form-model-item>
+                      </div>
 
-                        <div class="form-block over-form-block" id="overview" >
-                          <comment-switch field-name="overview" :is-active="showCollaborateCommentVisible && currentFieldName === 'overview'" @switch="handleSwitchComment" class="my-comment-switch"/>
-                          <a-form-model-item class="task-audio-line" label="Task details" ref="overview">
-                            <a-textarea v-model="form.overview" placeholder="Details" allow-clear />
-                          </a-form-model-item>
-                        </div>
+                      <div class="form-block form-question" v-if="associateQuestionList.length > 0">
+                        <comment-switch field-name="questions" :is-active="showCollaborateCommentVisible && currentFieldName === 'questions'" @switch="handleSwitchComment" class="my-comment-switch"/>
+                        <a-form-model-item label="Choose Key questions">
+                          <a-select
+                            size="large"
+                            class="my-big-select"
+                            v-model="form.questionIds"
+                            mode="multiple"
+                            placeholder="Choose Key questions"
+                            option-label-prop="label"
+                          >
+                            <a-select-option v-for="(item,index) in associateQuestionList" :value="item.id" :label="item.name" :key="index">
+                              <span class="question-options">
+                                {{ item.name }}
+                              </span>
+                              From Unit Plan({{ item.unitName }})
+                            </a-select-option>
+                          </a-select>
+                        </a-form-model-item>
+                      </div>
 
-                        <div class="form-block taskType" >
-                          <comment-switch field-name="taskType" :is-active="showCollaborateCommentVisible && currentFieldName === 'taskType'" @switch="handleSwitchComment" class="my-comment-switch"/>
-                          <a-form-model-item class="task-audio-line" ref="taskType" :colon="false">
-                            <div slot="label" >
-                              Choose Task Type(<span style="font-size: 13px">Formative Assessment/ Summative Assessment/ Activity</span>):
+                      <div class="form-block" >
+                        <comment-switch field-name="assessment" :is-active="showCollaborateCommentVisible && currentFieldName === 'assessment'" @switch="handleSwitchComment" class="my-comment-switch"/>
+                        <a-form-item label="Set learning objectives" >
+                          <a-button type="primary" @click="handleSelectDescription">
+                            <div class="btn-text" style="line-height: 20px">
+                              Add learning objectives
                             </div>
-                            <div class="self-type-wrapper" >
-                              <div class="self-field-label" >
-                                <div :class="{'task-type-item': true, 'green-active-task-type': form.taskType === 'FA'}" @click.stop.prevent="handleSelectTaskType('FA')">FA</div>
-                                <div :class="{'task-type-item': true, 'red-active-task-type': form.taskType === 'SA'}" @click.stop.prevent="handleSelectTaskType('SA')">SA</div>
-                                <div :class="{'task-type-item': true, 'task-type-activity': true,'blue-active-task-type': form.taskType === 'Activity'}" @click.stop.prevent="handleSelectTaskType('Activity')"> <a-tooltip title="Teaching/Learning Activity" placement="top">Activity</a-tooltip></div>
+                          </a-button>
+                        </a-form-item>
+
+                        <!--knowledge tag-select -->
+                        <ui-learn-out ref="learnOut" :learn-outs="form.learnOuts" @remove-learn-outs="handleRemoveLearnOuts" />
+                      </div>
+
+                      <div class="form-block" style="clear: both">
+                        <div class="form-block-label">
+                          <a-switch v-model="materialListFlag" @change="handleMaterialListFlagChange" /> Material list
+                        </div>
+                        <div class="material-list">
+                          <div
+                            class="material-item"
+                            v-for="(materialItem, mIndex) in form.materialList"
+                            :key="mIndex">
+                            <a-row :gutter="[16,16]">
+                              <a-col span="8">
+                                <a-input v-model="materialItem.name" aria-placeholder="Enter material name" placeholder="Enter material name"/>
+                              </a-col>
+                              <a-col span="14">
+                                <a-tooltip placement="topLeft">
+                                  <template slot="title">
+                                    The link is provided to help other users or students prepare(purchase) the material for this task
+                                  </template>
+                                  <a-input v-model="materialItem.link" aria-placeholder="Enter URL" placeholder="Enter URL">
+                                    <a-icon slot="prefix" type="link" />
+                                  </a-input>
+                                </a-tooltip>
+                              </a-col>
+                              <a-col span="2">
+                                <div class="material-icon">
+                                  <a-icon type="plus-circle" :style="{ fontSize: '16px' }" v-if="mIndex === (form.materialList.length - 1)" @click="handleAddMaterial"/>
+                                  <img src="~@/assets/icons/evaluation/delete.png" v-if="mIndex < (form.materialList.length - 1)" class="delete-icon" @click="handleRemoveMaterialItem(materialItem, mIndex)"/>
+                                </div>
+                              </a-col>
+                            </a-row>
+                          </div>
+                        </div>
+                      </div>
+
+                    </template>
+                  </a-step>
+
+                  <a-step title="Edit task slides" :status="currentActiveStepIndex === 1 ? 'process':'wait'" id="templateSelected">
+                    <template v-if="currentActiveStepIndex === 1" slot="description">
+                      <div class="edit-in-slide">
+                        <a-button class="action-ensure action-item edit-slide" type="primary" shape="round" @click="handleShowSelectMyContent" style="margin-right: 10px">
+                          Select slide(s)
+                        </a-button>
+                        <a-button class="action-ensure action-item edit-slide" :loading="creating" type="primary" shape="round" @click="handleEditGoogleSlide()">
+                          Edit google slide(s)
+                        </a-button>
+                        <a-tooltip placement="top" title="Select slide(s) on/off">
+                          <a-switch
+                            class="slide-switch"
+                            :disabled="selectedTemplateIdList.length === 0"
+                            checked-children="On"
+                            un-checked-children="Off"
+                            v-model="form.showSelected"
+                            @click="changeSelected" />
+                        </a-tooltip>
+                      </div>
+                      <div class="top-icon-groups" v-if="!form.showSelected">
+                        <a-col class="material-row" >
+                          <div class="icon-group">
+                            <a-badge :count="showMaterialSize('text')" v-if="currentPageMaterial.hasOwnProperty('text')">
+                              <div class="icon" @click="showPluginMaterial('text')">
+                                <text-type-svg />
+                                <div class="icon-text">Text</div>
+                              </div>
+                            </a-badge>
+                            <a-badge :count="showMaterialSize('image')" v-if="currentPageMaterial.hasOwnProperty('image')">
+                              <div class="icon" @click="showPluginMaterial('image')">
+                                <image-type-svg />
+                                <div class="icon-text">Image</div>
+                              </div>
+                            </a-badge>
+                            <a-badge :count="showMaterialSize('video')" v-if="currentPageMaterial.hasOwnProperty('video')">
+                              <div class="icon" @click="showPluginMaterial('video')">
+                                <video-type-svg />
+                                <div class="icon-text">Video</div>
+                              </div>
+                            </a-badge>
+                            <a-badge :count="showMaterialSize('audio')" v-if="currentPageMaterial.hasOwnProperty('audio')">
+                              <div class="icon" @click="showPluginMaterial('audio')">
+                                <audio-type-svg />
+                                <div class="icon-text">Audio</div>
+                              </div>
+                            </a-badge>
+                            <a-badge :count="showMaterialSize('iframe')" v-if="currentPageMaterial.hasOwnProperty('iframe')">
+                              <div class="icon" @click="showPluginMaterial('iframe')">
+                                <youtube-type-svg />
+                                <div class="icon-text">Youtube</div>
+                              </div>
+                            </a-badge>
+                            <a-badge :count="showMaterialSize('pdf')" v-if="currentPageMaterial.hasOwnProperty('pdf')" >
+                              <div class="icon" @click="showPluginMaterial('pdf')">
+                                <pdf-type-svg />
+                                <div class="icon-text">PDF</div>
+                              </div>
+                            </a-badge>
+                            <a-badge :count="showMaterialSize('website')" v-if="currentPageMaterial.hasOwnProperty('website')">
+                              <div class="icon" @click="showPluginMaterial('website')">
+                                <url-type-svg />
+                                <div class="icon-text">Website</div>
+                              </div>
+                            </a-badge>
+                          </div>
+                        </a-col>
+                      </div>
+                      <div class="template-selected" v-if="form.showSelected">
+                        <div class="template-list" v-if="!templateLoading">
+                          <div :class="{'template-item': true }" v-for="(template,index) in selectedTemplateList" :key="index">
+                            <div class="template-hover-action-mask">
+                              <div class="template-hover-action">
+                                <div class="modal-ensure-action-line">
+                                  <a-button class="action-ensure action-item" shape="round" @click="handlePreviewTemplate(template)">
+                                    <a-icon type="eye" theme="filled"/>
+                                    <div class="btn-text">
+                                      Preview
+                                    </div>
+                                  </a-button>
+                                  <a-button class="action-ensure action-item" shape="round" @click="removeSelectTemplate(template)">
+                                    <a-icon type="minus-circle" theme="filled"/>
+                                    <div class="btn-text">
+                                      Remove
+                                    </div>
+                                  </a-button>
+                                </div>
                               </div>
                             </div>
-                          </a-form-model-item>
+                            <div class="template-cover" :style="{backgroundImage: 'url(' + (template.cover ? template.cover : template.image) + ')'}">
+                            </div>
+                            <div class="template-info">
+                              <div class="template-name">{{ template.name }}</div>
+                              <div class="template-intro" v-show="template.introduce">{{ template.introduce }}</div>
+                            </div>
+                            <div class="template-select-icon" >
+                              <img src="~@/assets/icons/task/selected.png"/>
+                            </div>
+                          </div>
                         </div>
-
-                        <div class="form-block form-question" v-if="associateQuestionList.length > 0">
-                          <comment-switch field-name="questions" :is-active="showCollaborateCommentVisible && currentFieldName === 'questions'" @switch="handleSwitchComment" class="my-comment-switch"/>
-                          <a-form-model-item label="Choose Key questions">
-                            <a-select
-                              size="large"
-                              class="my-big-select"
-                              v-model="form.questionIds"
-                              mode="multiple"
-                              placeholder="Choose Key questions"
-                              option-label-prop="label"
-                            >
-                              <a-select-option v-for="(item,index) in associateQuestionList" :value="item.id" :label="item.name" :key="index">
-                                <span class="question-options">
-                                  {{ item.name }}
-                                </span>
-                                From Unit Plan({{ item.unitName }})
-                              </a-select-option>
-                            </a-select>
-                          </a-form-model-item>
+                      </div>
+                      <a-skeleton :loading="skeletonLoading" active >
+                        <div class="slide-select-wrapper" ref="slide" v-if="!form.showSelected">
+                          <div class="slide-select">
+                            <div class="slide-select-and-preview">
+                              <!--                            <div class="reset-edit-basic-info" >Edit Task Info</div>-->
+                              <div class="slide-select-action" v-show="!form.presentationId">
+                                <img src="https://dcdkqlzgpl5ba.cloudfront.net/file/202111271330492511-Welcome_slide.png" />
+                              </div>
+                              <div class="slide-preview" :style="{'width':(leftWidth- 50) + 'px'}" v-show="!form.showSelected && form.presentationId && thumbnailList.length">
+                                <a-carousel ref="carousel" arrows :after-change="onChangePage">
+                                  <div slot="prevArrow" class="custom-slick-arrow" style="left: 10px;zIndex: 9" >
+                                    <a-icon type="left-circle"/>
+                                  </div>
+                                  <div slot="nextArrow" class="custom-slick-arrow" style="right: 10px;zIndex: 9" >
+                                    <a-icon type="right-circle" />
+                                  </div>
+                                  <div v-for="(item,index) in thumbnailList" :key="index">
+                                    <img :src="item.contentUrl" />
+                                  </div>
+                                </a-carousel>
+                                <div class="plugin-tags" v-if="currentPageItem">
+                                  <a-row class="tag-row">
+                                    <span class="tag-item" v-if="currentPageItem.data.bloomLevel">
+                                      <span class="tag-title">Bloom's Taxonomy:</span>
+                                      <span class="tag-value" style="color:#F16A39">{{ currentPageItem.data.bloomLevel }}</span>
+                                    </span>
+                                    <span class="tag-item" v-if="currentPageItem.data.knowledgeLevel">
+                                      <span class="tag-title">Knowledge dimension(s):</span>
+                                      <span class="tag-value" style="color:#F16A39">{{ currentPageItem.data.knowledgeLevel }}</span>
+                                    </span>
+                                  </a-row>
+                                  <a-row class="tag-row">
+                                    <span class="tag-item" v-if="currentPageItem.data.verbs">
+                                      <span class="tag-title">Command terms:</span>
+                                      <span class="tag-value" v-for="(v,index) in currentPageItem.data.verbs" :key="index" style="color:#15C39A">{{ v }}</span>
+                                    </span>
+                                    <span class="tag-item" v-if="currentPageTips">
+                                      <span class="tag-title">Tip added:</span>
+                                      <span class="tag-value" style="color:#0054FF">{{ currentPageTips.tip }}</span>
+                                    </span>
+                                  </a-row>
+                                  <a-row class="tag-row">
+                                    <span class="tag-item">
+                                      <span class="tag-title">Assessment objective(s):</span>
+                                      <span class="tag-value" v-for="(learn,index) in currentPageItem.data.learnOuts" :key="index" style="color:#00BCF2">
+                                        <a-tooltip :title="learn.path" :overlayStyle="{ 'z-index': '3000'}">{{ learn.name }} </a-tooltip>
+                                      </span>
+                                    </span>
+                                  </a-row>
+                                  <a-row class="tag-row">
+                                    <span class="tag-item">
+                                      <span class="tag-title">This is a <span>{{ currentPageItem.type }}</span> slide</span>
+                                    </span>
+                                  </a-row>
+                                </div>
+                                <div class="page-info" v-if="thumbnailList && thumbnailList.length">
+                                  {{ currentImgIndex + 1 }} / {{ thumbnailList.length }}
+                                </div>
+                                <div class="carousel-page">
+                                  <div class="img-list-wrapper">
+                                    <div class="img-list">
+                                      <div class="img-item" v-for="(item,index) in thumbnailList" :key="'index' + index" @click="handleGotoImgIndex(index)">
+                                        <img :src="item.contentUrl" />
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
                         </div>
+                      </a-skeleton>
+                    </template>
+                  </a-step>
 
-                        <div class="form-block" >
-                          <comment-switch field-name="assessment" :is-active="showCollaborateCommentVisible && currentFieldName === 'assessment'" @switch="handleSwitchComment" class="my-comment-switch"/>
-                          <a-form-item label="Set learning objectives" >
-                            <a-button type="primary" @click="handleSelectDescription">
+                  <a-step title='Save sub-task(s)' :status="currentActiveStepIndex === 2 ? 'process':'wait'" v-show='thumbnailList.length > 1'>
+                    <div
+                      slot='icon'
+                      :class="{
+                        'my-steps-item-icon': currentActiveStepIndex !== 2,
+                        'my-active-steps-item-icon': currentActiveStepIndex === 2,
+                      }">2.1</div>
+
+                    <template v-if="currentActiveStepIndex === 2" slot="description">
+                      <div class="pick-task-slide-wrapper">
+                        <div class="pick-task-slide-title">
+                          <h2>Pick slide(s)</h2>
+                        </div>
+                        <div class="slide-form-block" v-show="form.presentationId">
+                          <div class="preview-list" v-if="!thumbnailListLoading">
+                            <a-row :gutter="[16, 16]">
+                              <a-col
+                                class="gutter-row"
+                                :span="10"
+                                :xs="12"
+                                :sm="12"
+                                :md="8"
+                                :lg="8"
+                                :xl="6"
+                                :xxl="4"
+                                v-for="(item,index) in thumbnailList"
+                                :key="index">
+                                <div
+                                  :class="{'preview-item-cover': true, 'preview-item-cover-active': selectedPageIdList.indexOf(item.id) !== -1}"
+                                  :style="{backgroundImage: 'url(' + item.contentUrl + ')'}"
+                                  :key="index"
+                                  @click="handleToggleThumbnail(item)">
+                                  <div class="template-select-icon" v-if="selectedPageIdList.indexOf(item.id) !== -1">
+                                    <img src="~@/assets/icons/task/selected.png"/>
+                                  </div>
+                                </div>
+                              </a-col>
+                            </a-row>
+                          </div>
+                          <div class="thumbnail-loading" v-if="thumbnailListLoading">
+                            <a-spin size="large" />
+                          </div>
+                          <div class="thumbnail-task-list">
+                            <div class="thumbnail-task-item" v-if="currentTaskFormData">
+                              <task-form
+                                :parent-form-data="currentTaskFormData"
+                                :select-ids="selectedPageIdList"
+                                :selected-page-item-data="selectedPageItemData"
+                                :task-id="taskId"
+                                :ppt-title="pptTitle"
+                                :task-prefix="'task_' + taskIndex + '_'"
+                                @add-sub-task="handleAddSubTask" />
+                            </div>
+                            <div class="task-preview-list">
+                              <div class="task-preview" v-for="(task, index) in subTasks" :key="index">
+                                <task-preview :task-data="task" @delete-sub-task="handleDeleteSubTask" />
+                              </div>
+                            </div>
+                            <a-divider />
+                            <div class="sub-task-save">
+                              <div class="sub-task-save-action">
+                                <a-space v-show="subTasks.length">
+                                  <a-button
+                                    @click="handleSaveSubTask(0)"
+                                    :loading="subTaskSaving"
+                                    class="my-form-header-btn"
+                                    style="{
+                                      width: 120px;
+                                      display: flex;
+                                      flex-direction: row;
+                                      align-items: center;
+                                      justify-content: center;
+                                      background: rgba(21, 195, 154, 0.08);
+                                      border: 1px solid #15C39A;
+                                      border-radius: 20px;
+                                      padding: 15px 20px;
+                                    }">
+                                    <div class="btn-icon">
+                                      <img src="~@/assets/icons/common/form/baocun@2x.png" />
+                                    </div>
+                                    <div class="btn-text">
+                                      Save & Exit
+                                    </div>
+                                  </a-button>
+                                  <a-button
+                                    :loading="subTaskPublishing"
+                                    class="my-form-header-btn"
+                                    style="{
+                                      width: 120px;
+                                      display: flex;
+                                      flex-direction: row;
+                                      align-items: center;
+                                      justify-content: center;
+                                       background: rgba(21, 195, 154, 0.08);
+                                      border: 1px solid #15C39A;
+                                      border-radius: 20px;
+                                      padding: 15px 20px;
+                                    }"
+                                    @click="handleSaveSubTask(1)" >
+                                    <div class="btn-icon">
+                                      <img src="~@/assets/icons/common/form/fabu@2x.png" />
+                                    </div>
+                                    <div class="btn-text">
+                                      Save & Publish
+                                    </div>
+                                  </a-button>
+                                </a-space>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                        <div class="no-data-slide-form-block" v-show="!contentLoading && !form.presentationId">
+                          <no-more-resources tips="The slide has not been created" />
+                          <div class="go-to-create">
+                            <a-button type="primary" @click="handleGotoEditMode">Back</a-button>
+                          </div>
+                        </div>
+                      </div>
+                    </template>
+                  </a-step>
+
+                  <a-step title="Link relevant content" :status="currentActiveStepIndex === 3 ? 'process':'wait'">
+                    <div
+                      slot='icon'
+                      :class="{
+                        'my-steps-item-icon': currentActiveStepIndex !== 3,
+                        'my-active-steps-item-icon': currentActiveStepIndex === 3,
+                      }">3</div>
+
+                    <template v-if="currentActiveStepIndex === 3" slot="description">
+                      <div class="form-block">
+                        <a-form-item class="link-plan-title">
+                          <a-space>
+                            <a-button type="primary" :style="{'background-color': '#fff', 'color': '#000', 'border': '1px solid #D8D8D8'}" @click="handleAddUnitPlanTerm">
                               <div class="btn-text" style="line-height: 20px">
-                                Add learning objectives
+                                + Link Unit plan
                               </div>
                             </a-button>
-                          </a-form-item>
-
-                          <!--knowledge tag-select -->
-                          <ui-learn-out ref="learnOut" :learn-outs="form.learnOuts" @remove-learn-outs="handleRemoveLearnOuts" />
-                        </div>
-
-                        <div class="form-block" style="clear: both">
-                          <div class="form-block-label">
-                            <a-switch v-model="materialListFlag" @change="handleMaterialListFlagChange" /> Material list
-                          </div>
-                          <div class="material-list">
-                            <div
-                              class="material-item"
-                              v-for="(materialItem, mIndex) in form.materialList"
-                              :key="mIndex">
-                              <a-row :gutter="[16,16]">
-                                <a-col span="8">
-                                  <a-input v-model="materialItem.name" aria-placeholder="Enter material name" placeholder="Enter material name"/>
-                                </a-col>
-                                <a-col span="14">
-                                  <a-tooltip placement="topLeft">
-                                    <template slot="title">
-                                      The link is provided to help other users or students prepare(purchase) the material for this task
-                                    </template>
-                                    <a-input v-model="materialItem.link" aria-placeholder="Enter URL" placeholder="Enter URL">
-                                      <a-icon slot="prefix" type="link" />
-                                    </a-input>
-                                  </a-tooltip>
-                                </a-col>
-                                <a-col span="2">
-                                  <div class="material-icon">
-                                    <a-icon type="plus-circle" :style="{ fontSize: '16px' }" v-if="mIndex === (form.materialList.length - 1)" @click="handleAddMaterial"/>
-                                    <img src="~@/assets/icons/evaluation/delete.png" v-if="mIndex < (form.materialList.length - 1)" class="delete-icon" @click="handleRemoveMaterialItem(materialItem, mIndex)"/>
-                                  </div>
-                                </a-col>
-                              </a-row>
-                            </div>
-                          </div>
-                        </div>
-
-                      </template>
-                    </a-step>
-
-                    <a-step title=" Edit task slides" :status="currentActiveStepIndex === 1 ? 'process':'wait'" id="templateSelected">
-                      <template v-if="currentActiveStepIndex === 1" slot="description">
-                        <div class="edit-in-slide">
-                          <a-button class="action-ensure action-item edit-slide" type="primary" shape="round" @click="handleShowSelectMyContent" style="margin-right: 10px">
-                            Select slide(s)
-                          </a-button>
-                          <a-button class="action-ensure action-item edit-slide" :loading="creating" type="primary" shape="round" @click="handleEditGoogleSlide()">
-                            Edit google slide(s)
-                          </a-button>
-                          <a-tooltip placement="top" title="Select slide(s) on/off">
-                            <a-switch
-                              class="slide-switch"
-                              :disabled="selectedTemplateIdList.length === 0"
-                              checked-children="On"
-                              un-checked-children="Off"
-                              v-model="form.showSelected"
-                              @click="changeSelected" />
-                          </a-tooltip>
-                        </div>
-                        <div class="top-icon-groups" v-if="!form.showSelected">
-                          <a-col class="material-row" >
-                            <div class="icon-group">
-                              <a-badge :count="showMaterialSize('text')" v-if="currentPageMaterial.hasOwnProperty('text')">
-                                <div class="icon" @click="showPluginMaterial('text')">
-                                  <text-type-svg />
-                                  <div class="icon-text">Text</div>
-                                </div>
-                              </a-badge>
-                              <a-badge :count="showMaterialSize('image')" v-if="currentPageMaterial.hasOwnProperty('image')">
-                                <div class="icon" @click="showPluginMaterial('image')">
-                                  <image-type-svg />
-                                  <div class="icon-text">Image</div>
-                                </div>
-                              </a-badge>
-                              <a-badge :count="showMaterialSize('video')" v-if="currentPageMaterial.hasOwnProperty('video')">
-                                <div class="icon" @click="showPluginMaterial('video')">
-                                  <video-type-svg />
-                                  <div class="icon-text">Video</div>
-                                </div>
-                              </a-badge>
-                              <a-badge :count="showMaterialSize('audio')" v-if="currentPageMaterial.hasOwnProperty('audio')">
-                                <div class="icon" @click="showPluginMaterial('audio')">
-                                  <audio-type-svg />
-                                  <div class="icon-text">Audio</div>
-                                </div>
-                              </a-badge>
-                              <a-badge :count="showMaterialSize('iframe')" v-if="currentPageMaterial.hasOwnProperty('iframe')">
-                                <div class="icon" @click="showPluginMaterial('iframe')">
-                                  <youtube-type-svg />
-                                  <div class="icon-text">Youtube</div>
-                                </div>
-                              </a-badge>
-                              <a-badge :count="showMaterialSize('pdf')" v-if="currentPageMaterial.hasOwnProperty('pdf')" >
-                                <div class="icon" @click="showPluginMaterial('pdf')">
-                                  <pdf-type-svg />
-                                  <div class="icon-text">PDF</div>
-                                </div>
-                              </a-badge>
-                              <a-badge :count="showMaterialSize('website')" v-if="currentPageMaterial.hasOwnProperty('website')">
-                                <div class="icon" @click="showPluginMaterial('website')">
-                                  <url-type-svg />
-                                  <div class="icon-text">Website</div>
-                                </div>
-                              </a-badge>
-                            </div>
-                          </a-col>
-                        </div>
-                        <div class="template-selected" v-if="form.showSelected">
-                          <div class="template-list" v-if="!templateLoading">
-                            <div :class="{'template-item': true }" v-for="(template,index) in selectedTemplateList" :key="index">
-                              <div class="template-hover-action-mask">
-                                <div class="template-hover-action">
-                                  <div class="modal-ensure-action-line">
-                                    <a-button class="action-ensure action-item" shape="round" @click="handlePreviewTemplate(template)">
-                                      <a-icon type="eye" theme="filled"/>
-                                      <div class="btn-text">
-                                        Preview
-                                      </div>
-                                    </a-button>
-                                    <a-button class="action-ensure action-item" shape="round" @click="removeSelectTemplate(template)">
-                                      <a-icon type="minus-circle" theme="filled"/>
-                                      <div class="btn-text">
-                                        Remove
-                                      </div>
-                                    </a-button>
-                                  </div>
-                                </div>
+                            <a-button type="primary" :style="{'background-color': '#fff', 'color': '#000', 'border': '1px solid #D8D8D8'}" @click="handleAddTerm">
+                              <div class="btn-text" style="line-height: 20px">
+                                + Add rubric
                               </div>
-                              <div class="template-cover" :style="{backgroundImage: 'url(' + (template.cover ? template.cover : template.image) + ')'}">
-                              </div>
-                              <div class="template-info">
-                                <div class="template-name">{{ template.name }}</div>
-                                <div class="template-intro" v-show="template.introduce">{{ template.introduce }}</div>
-                              </div>
-                              <div class="template-select-icon" >
-                                <img src="~@/assets/icons/task/selected.png"/>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                        <a-skeleton :loading="skeletonLoading" active >
-                          <div class="slide-select-wrapper" ref="slide" v-if="!form.showSelected">
-                            <div class="slide-select">
-                              <div class="slide-select-and-preview">
-                                <!--                            <div class="reset-edit-basic-info" >Edit Task Info</div>-->
-                                <div class="slide-select-action" v-show="!form.presentationId">
-                                  <img src="https://dcdkqlzgpl5ba.cloudfront.net/file/202111271330492511-Welcome_slide.png" />
-                                </div>
-                                <div class="slide-preview" :style="{'width':(leftWidth- 50) + 'px'}" v-show="!form.showSelected && form.presentationId && thumbnailList.length">
-                                  <a-carousel ref="carousel" arrows :after-change="onChangePage">
-                                    <div slot="prevArrow" class="custom-slick-arrow" style="left: 10px;zIndex: 9" >
-                                      <a-icon type="left-circle"/>
-                                    </div>
-                                    <div slot="nextArrow" class="custom-slick-arrow" style="right: 10px;zIndex: 9" >
-                                      <a-icon type="right-circle" />
-                                    </div>
-                                    <div v-for="(item,index) in thumbnailList" :key="index">
-                                      <img :src="item.contentUrl" />
-                                    </div>
-                                  </a-carousel>
-                                  <div class="plugin-tags" v-if="currentPageItem">
-                                    <a-row class="tag-row">
-                                      <span class="tag-item" v-if="currentPageItem.data.bloomLevel">
-                                        <span class="tag-title">Bloom's Taxonomy:</span>
-                                        <span class="tag-value" style="color:#F16A39">{{ currentPageItem.data.bloomLevel }}</span>
-                                      </span>
-                                      <span class="tag-item" v-if="currentPageItem.data.knowledgeLevel">
-                                        <span class="tag-title">Knowledge dimension(s):</span>
-                                        <span class="tag-value" style="color:#F16A39">{{ currentPageItem.data.knowledgeLevel }}</span>
-                                      </span>
-                                    </a-row>
-                                    <a-row class="tag-row">
-                                      <span class="tag-item" v-if="currentPageItem.data.verbs">
-                                        <span class="tag-title">Command terms:</span>
-                                        <span class="tag-value" v-for="(v,index) in currentPageItem.data.verbs" :key="index" style="color:#15C39A">{{ v }}</span>
-                                      </span>
-                                      <span class="tag-item" v-if="currentPageTips">
-                                        <span class="tag-title">Tip added:</span>
-                                        <span class="tag-value" style="color:#0054FF">{{ currentPageTips.tip }}</span>
-                                      </span>
-                                    </a-row>
-                                    <a-row class="tag-row">
-                                      <span class="tag-item">
-                                        <span class="tag-title">Assessment objective(s):</span>
-                                        <span class="tag-value" v-for="(learn,index) in currentPageItem.data.learnOuts" :key="index" style="color:#00BCF2">
-                                          <a-tooltip :title="learn.path" :overlayStyle="{ 'z-index': '3000'}">{{ learn.name }} </a-tooltip>
-                                        </span>
-                                      </span>
-                                    </a-row>
-                                    <a-row class="tag-row">
-                                      <span class="tag-item">
-                                        <span class="tag-title">This is a <span>{{ currentPageItem.type }}</span> slide</span>
-                                      </span>
-                                    </a-row>
-                                  </div>
-                                  <div class="page-info" v-if="thumbnailList && thumbnailList.length">
-                                    {{ currentImgIndex + 1 }} / {{ thumbnailList.length }}
-                                  </div>
-                                  <div class="carousel-page">
-                                    <div class="img-list-wrapper">
-                                      <div class="img-list">
-                                        <div class="img-item" v-for="(item,index) in thumbnailList" :key="'index' + index" @click="handleGotoImgIndex(index)">
-                                          <img :src="item.contentUrl" />
-                                        </div>
-                                      </div>
-                                    </div>
-                                  </div>
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        </a-skeleton>
-                      </template>
-                    </a-step>
-
-                    <a-step title="Link relevant content" :status="currentActiveStepIndex === 2 ? 'process':'wait'">
-                      <template v-if="currentActiveStepIndex === 2" slot="description">
-                        <div class="form-block">
-                          <a-form-item class="link-plan-title">
-                            <a-space>
-                              <a-button type="primary" :style="{'background-color': '#fff', 'color': '#000', 'border': '1px solid #D8D8D8'}" @click="handleAddUnitPlanTerm">
-                                <div class="btn-text" style="line-height: 20px">
-                                  + Link Unit plan
-                                </div>
-                              </a-button>
-                              <a-button type="primary" :style="{'background-color': '#fff', 'color': '#000', 'border': '1px solid #D8D8D8'}" @click="handleAddTerm">
-                                <div class="btn-text" style="line-height: 20px">
-                                  + Add rubric
-                                </div>
-                              </a-button>
-                            </a-space>
-                          </a-form-item>
-                          <div class="common-link-wrapper">
-                            <common-link ref="commonLink" :from-id="this.taskId" :from-type="this.contentType.task"/>
-                          </div>
-                        </div>
-                      </template>
-                    </a-step>
-
-                  </a-steps>
-
-                </a-form-model>
-              </div>
-
-              <div class="task-form-right" :style="{'width':rightWidth + 'px'}">
-                <template v-if="showRightModule(rightModule.collaborate)">
-                  <a-skeleton :loading="showHistoryLoading" active>
-                    <div class="collaborate-panel" :style="{'width':rightWidth + 'px', 'margin-top': '0px', 'z-index': 100, 'padding': '10px'}">
-                      <div class="icon">
-                        <comment-icon />
-                      </div>
-                      <a-tabs default-active-key="1">
-                        <a-tab-pane key="1" tab="Comment">
-                          <collaborate-comment-view :source-id="taskId" :source-type="contentType.task" :comment-list="collaborateCommentList" @update-comment="handleUpdateCommentList"/>
-                        </a-tab-pane>
-                        <a-tab-pane key="2" tab="History" force-render>
-                          <collaborate-history :history-list="historyList" @restore="handleRestoreField"/>
-                        </a-tab-pane>
-                      </a-tabs>
-                    </div>
-                  </a-skeleton>
-                </template>
-                <template v-if="showRightModule(rightModule.collaborateComment) && currentActiveStepIndex === 0">
-                  <div class="collaborate-panel" :style="{'width':rightWidth + 'px', 'margin-top':collaborateTop+'px', 'z-index': 100, 'padding': '10px'}">
-                    <collaborate-comment-panel :source-id="taskId" :source-type="contentType.task" :field-name="currentFieldName" :comment-list="currentCollaborateCommentList" @update-comment="handleUpdateCommentList"/>
-                  </div>
-                </template>
-                <template v-if="showRightModule(rightModule.imageUpload) && currentActiveStepIndex !== 1">
-                  <div class="form-block-right" >
-                    <!-- image-->
-                    <a-form-model-item class="img-wrapper">
-                      <a-upload-dragger
-                        name="file"
-                        accept="image/png, image/jpeg"
-                        :showUploadList="false"
-                        :customRequest="handleUploadImage"
-                      >
-                        <div class="delete-img" @click="handleDeleteImage($event)" v-show="form.image">
-                          <a-icon type="close-circle" />
-                        </div>
-                        <template v-if="uploading">
-                          <div class="upload-container">
-                            <p class="ant-upload-drag-icon">
-                              <a-icon type="cloud-upload" />
-                            </p>
-                            <p class="ant-upload-text">
-                              <a-spin />
-                              <span class="uploading-tips">{{ $t('teacher.add-unit-plan.uploading') }}</span>
-                            </p>
-                          </div>
-                        </template>
-                        <template v-if="!uploading && form && form.image">
-                          <div class="image-preview">
-                            <img :src="form.image" alt="">
-                            <div class="upload-text-mask">
-                              <div class="upload-text">
-                                <a-button shape="round" type="primary">Upload a cover image</a-button>
-                              </div>
-                            </div>
-                          </div>
-                        </template>
-                        <template v-if="!uploading && form && !form.image">
-                          <div class="upload-container">
-                            <p class="ant-upload-drag-icon">
-                              <img src="~@/assets/icons/lesson/upload_icon.png" class="upload-icon" />
-                            </p>
-                            <p class="ant-upload-text">
-                              Upload a cover image
-                            </p>
-                          </div>
-                        </template>
-                      </a-upload-dragger>
-                    </a-form-model-item>
-                  </div>
-                </template>
-                <template v-if="showRightModule(rightModule.recommend) && currentActiveStepIndex == 1">
-                  <!--购物车效果截图 -->
-                  <div class="slide-animate-cover" id="slide-animate" v-show="currentSlideCoverImgSrc">
-                    <img
-                      id="slide-animate-img"
-                      :src="currentSlideCoverImgSrc"
-                      class="slide-animate-item" />
-                  </div>
-                  <div class="recomend-loading" v-if="recomendListLoading">
-                    <a-spin size="large" />
-                  </div>
-                  <div class="form-block-right" v-if="!recomendListLoading">
-                    <div class="right-title">Recommended</div>
-                    <div class="slide-preview-list">
-                      <div class="slide-preview-item" v-for="(template, rIndex) in filterRecommendTemplateList" :key="rIndex">
-                        <div class="template-hover-action-mask">
-                          <div class="template-hover-action">
-                            <div class="modal-ensure-action-line">
-                              <a-button
-                                class="action-ensure action-item"
-                                shape="round"
-                                @click="handlePreviewTemplate(template)"
-                              >
-                                <a-icon type="eye" theme="filled"/>
-                                <div class="btn-text">
-                                  Preview
-                                </div>
-                              </a-button>
-                              <a-button
-                                v-if="selectedTemplateIdList.indexOf(template.id) === -1"
-                                class="action-ensure action-item"
-                                shape="round"
-                                @click="selectRecommendTemplate(template, rIndex, $event)">
-                                <a-icon type="plus-circle" theme="filled"/>
-                                <div class="btn-text">
-                                  Add
-                                </div>
-                              </a-button>
-                              <a-button
-                                v-else
-                                class="action-ensure action-item"
-                                shape="round"
-                                @click="handleRemoveTemplate(template)"
-                              >
-                                <a-icon type="minus-circle" theme="filled"/>
-                                <div class="btn-text">
-                                  Remove
-                                </div>
-                              </a-button>
-                            </div>
-                          </div>
-                        </div>
-                        <a-carousel arrows>
-                          <div slot="prevArrow" class="custom-slick-arrow" style="left: 10px;zIndex: 100" >
-                            <a-icon type="left-circle" />
-                          </div>
-                          <div slot="nextArrow" class="custom-slick-arrow" style="right: 10px;zIndex: 100">
-                            <a-icon type="right-circle" />
-                          </div>
-                          <div v-for="(item,index) in template.images" :key="index">
-                            <img :src="item" />
-                          </div>
-                        </a-carousel>
-                        <a-row v-if="template.introduce" class="slide-desc" :title="template.introduce">
-                          {{ template.introduce }}
-                        </a-row>
-                        <div class="recommend-slide-name">
-                          {{ template.name }}
+                            </a-button>
+                          </a-space>
+                        </a-form-item>
+                        <div class="common-link-wrapper">
+                          <common-link ref="commonLink" :from-id="this.taskId" :from-type="this.contentType.task"/>
                         </div>
                       </div>
-                    </div>
-                  </div>
-                </template>
-                <template v-if="showRightModule(rightModule.customTag) && this.currentActiveStepIndex !== 1">
-                  <div v-if="!this.contentLoading" :style="{'width':rightWidth+'px', 'margin-top':customTagTop+'px'}">
-                    <custom-tag
-                      :show-arrow="showCustomTag"
-                      :custom-tags="customTags"
-                      :custom-tags-list="customTagList"
-                      ref="customTag"
-                      :selected-tags-list="form.customTags"
-                      @reload-user-tags="loadCustomTags"
-                      @change-add-keywords="handleChangeAddKeywords"
-                      @change-user-tags="handleChangeCustomTags"></custom-tag>
-                  </div>
-                </template>
-              </div>
-            </a-card>
-          </a-col>
-        </a-row>
-      </template>
-      <template v-if="mode === 'pick-task-slide'">
+                    </template>
+                  </a-step>
 
-        <div class="pick-task-slide-wrapper">
-          <div class="pick-task-slide-title">
-            <h2>Pick slide(s)</h2>
-          </div>
-          <div class="slide-form-block" v-show="form.presentationId">
-            <div class="preview-list" v-if="!thumbnailListLoading">
-              <a-row :gutter="[16, 16]">
-                <a-col
-                  class="gutter-row"
-                  :span="10"
-                  :xs="12"
-                  :sm="12"
-                  :md="8"
-                  :lg="8"
-                  :xl="6"
-                  :xxl="4"
-                  v-for="(item,index) in thumbnailList"
-                  :key="index">
-                  <div
-                    :class="{'preview-item-cover': true, 'preview-item-cover-active': selectedPageIdList.indexOf(item.id) !== -1}"
-                    :style="{backgroundImage: 'url(' + item.contentUrl + ')'}"
-                    :key="index"
-                    @click="handleToggleThumbnail(item)">
-                    <div class="template-select-icon" v-if="selectedPageIdList.indexOf(item.id) !== -1">
-                      <img src="~@/assets/icons/task/selected.png"/>
+                </a-steps>
+
+              </a-form-model>
+            </div>
+
+            <div class="task-form-right" :style="{'width':rightWidth + 'px'}">
+              <template v-if="showRightModule(rightModule.collaborate)">
+                <a-skeleton :loading="showHistoryLoading" active>
+                  <div class="collaborate-panel" :style="{'width':rightWidth + 'px', 'margin-top': '0px', 'z-index': 100, 'padding': '10px'}">
+                    <div class="icon">
+                      <comment-icon />
                     </div>
+                    <a-tabs default-active-key="1">
+                      <a-tab-pane key="1" tab="Comment">
+                        <collaborate-comment-view :source-id="taskId" :source-type="contentType.task" :comment-list="collaborateCommentList" @update-comment="handleUpdateCommentList"/>
+                      </a-tab-pane>
+                      <a-tab-pane key="2" tab="History" force-render>
+                        <collaborate-history :history-list="historyList" @restore="handleRestoreField"/>
+                      </a-tab-pane>
+                    </a-tabs>
                   </div>
-                </a-col>
-              </a-row>
-            </div>
-            <div class="thumbnail-loading" v-if="thumbnailListLoading">
-              <a-spin size="large" />
-            </div>
-            <div class="thumbnail-task-list">
-              <div class="thumbnail-task-item" v-if="currentTaskFormData">
-                <task-form
-                  :parent-form-data="currentTaskFormData"
-                  :select-ids="selectedPageIdList"
-                  :selected-page-item-data="selectedPageItemData"
-                  :task-id="taskId"
-                  :ppt-title="pptTitle"
-                  :task-prefix="'task_' + taskIndex + '_'"
-                  @add-sub-task="handleAddSubTask" />
-              </div>
-              <div class="task-preview-list">
-                <div class="task-preview" v-for="(task, index) in subTasks" :key="index">
-                  <task-preview :task-data="task" @delete-sub-task="handleDeleteSubTask" />
+                </a-skeleton>
+              </template>
+              <template v-if="showRightModule(rightModule.collaborateComment) && currentActiveStepIndex === 0">
+                <div class="collaborate-panel" :style="{'width':rightWidth + 'px', 'margin-top':collaborateTop+'px', 'z-index': 100, 'padding': '10px'}">
+                  <collaborate-comment-panel :source-id="taskId" :source-type="contentType.task" :field-name="currentFieldName" :comment-list="currentCollaborateCommentList" @update-comment="handleUpdateCommentList"/>
                 </div>
-              </div>
-              <a-divider />
-              <div class="sub-task-save">
-                <div class="sub-task-save-action">
-                  <a-space v-show="subTasks.length">
-                    <a-button
-                      @click="handleSaveSubTask(0)"
-                      :loading="subTaskSaving"
-                      class="my-form-header-btn"
-                      style="{
-            width: 120px;
-            display: flex;
-            flex-direction: row;
-            align-items: center;
-            justify-content: center;
-            background: rgba(21, 195, 154, 0.08);
-            border: 1px solid #15C39A;
-            border-radius: 20px;
-            padding: 15px 20px;
-          }">
-                      <div class="btn-icon">
-                        <img src="~@/assets/icons/common/form/baocun@2x.png" />
+              </template>
+              <template v-if="showRightModule(rightModule.imageUpload) && currentActiveStepIndex !== 1">
+                <div class="form-block-right" >
+                  <!-- image-->
+                  <a-form-model-item class="img-wrapper">
+                    <a-upload-dragger
+                      name="file"
+                      accept="image/png, image/jpeg"
+                      :showUploadList="false"
+                      :customRequest="handleUploadImage"
+                    >
+                      <div class="delete-img" @click="handleDeleteImage($event)" v-show="form.image">
+                        <a-icon type="close-circle" />
                       </div>
-                      <div class="btn-text">
-                        Save & Exit
-                      </div>
-                    </a-button>
-                    <a-button
-                      :loading="subTaskPublishing"
-                      class="my-form-header-btn"
-                      style="{
-            width: 120px;
-            display: flex;
-            flex-direction: row;
-            align-items: center;
-            justify-content: center;
-             background: rgba(21, 195, 154, 0.08);
-            border: 1px solid #15C39A;
-            border-radius: 20px;
-            padding: 15px 20px;
-          }"
-                      @click="handleSaveSubTask(1)" >
-                      <div class="btn-icon">
-                        <img src="~@/assets/icons/common/form/fabu@2x.png" />
-                      </div>
-                      <div class="btn-text">
-                        Save & Publish
-                      </div>
-                    </a-button>
-                  </a-space>
+                      <template v-if="uploading">
+                        <div class="upload-container">
+                          <p class="ant-upload-drag-icon">
+                            <a-icon type="cloud-upload" />
+                          </p>
+                          <p class="ant-upload-text">
+                            <a-spin />
+                            <span class="uploading-tips">{{ $t('teacher.add-unit-plan.uploading') }}</span>
+                          </p>
+                        </div>
+                      </template>
+                      <template v-if="!uploading && form && form.image">
+                        <div class="image-preview">
+                          <img :src="form.image" alt="">
+                          <div class="upload-text-mask">
+                            <div class="upload-text">
+                              <a-button shape="round" type="primary">Upload a cover image</a-button>
+                            </div>
+                          </div>
+                        </div>
+                      </template>
+                      <template v-if="!uploading && form && !form.image">
+                        <div class="upload-container">
+                          <p class="ant-upload-drag-icon">
+                            <img src="~@/assets/icons/lesson/upload_icon.png" class="upload-icon" />
+                          </p>
+                          <p class="ant-upload-text">
+                            Upload a cover image
+                          </p>
+                        </div>
+                      </template>
+                    </a-upload-dragger>
+                  </a-form-model-item>
                 </div>
-              </div>
+              </template>
+              <template v-if="showRightModule(rightModule.recommend) && currentActiveStepIndex == 1">
+                <!--购物车效果截图 -->
+                <div class="slide-animate-cover" id="slide-animate" v-show="currentSlideCoverImgSrc">
+                  <img
+                    id="slide-animate-img"
+                    :src="currentSlideCoverImgSrc"
+                    class="slide-animate-item" />
+                </div>
+                <div class="recomend-loading" v-if="recomendListLoading">
+                  <a-spin size="large" />
+                </div>
+                <div class="form-block-right" v-if="!recomendListLoading">
+                  <div class="right-title">Recommended</div>
+                  <div class="slide-preview-list">
+                    <div class="slide-preview-item" v-for="(template, rIndex) in filterRecommendTemplateList" :key="rIndex">
+                      <div class="template-hover-action-mask">
+                        <div class="template-hover-action">
+                          <div class="modal-ensure-action-line">
+                            <a-button
+                              class="action-ensure action-item"
+                              shape="round"
+                              @click="handlePreviewTemplate(template)"
+                            >
+                              <a-icon type="eye" theme="filled"/>
+                              <div class="btn-text">
+                                Preview
+                              </div>
+                            </a-button>
+                            <a-button
+                              v-if="selectedTemplateIdList.indexOf(template.id) === -1"
+                              class="action-ensure action-item"
+                              shape="round"
+                              @click="selectRecommendTemplate(template, rIndex, $event)">
+                              <a-icon type="plus-circle" theme="filled"/>
+                              <div class="btn-text">
+                                Add
+                              </div>
+                            </a-button>
+                            <a-button
+                              v-else
+                              class="action-ensure action-item"
+                              shape="round"
+                              @click="handleRemoveTemplate(template)"
+                            >
+                              <a-icon type="minus-circle" theme="filled"/>
+                              <div class="btn-text">
+                                Remove
+                              </div>
+                            </a-button>
+                          </div>
+                        </div>
+                      </div>
+                      <a-carousel arrows>
+                        <div slot="prevArrow" class="custom-slick-arrow" style="left: 10px;zIndex: 100" >
+                          <a-icon type="left-circle" />
+                        </div>
+                        <div slot="nextArrow" class="custom-slick-arrow" style="right: 10px;zIndex: 100">
+                          <a-icon type="right-circle" />
+                        </div>
+                        <div v-for="(item,index) in template.images" :key="index">
+                          <img :src="item" />
+                        </div>
+                      </a-carousel>
+                      <a-row v-if="template.introduce" class="slide-desc" :title="template.introduce">
+                        {{ template.introduce }}
+                      </a-row>
+                      <div class="recommend-slide-name">
+                        {{ template.name }}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </template>
+              <template v-if="showRightModule(rightModule.customTag) && this.currentActiveStepIndex !== 1">
+                <div v-if="!this.contentLoading" :style="{'width':rightWidth+'px', 'margin-top':customTagTop+'px'}">
+                  <custom-tag
+                    :show-arrow="showCustomTag"
+                    :custom-tags="customTags"
+                    :custom-tags-list="customTagList"
+                    ref="customTag"
+                    :selected-tags-list="form.customTags"
+                    @reload-user-tags="loadCustomTags"
+                    @change-add-keywords="handleChangeAddKeywords"
+                    @change-user-tags="handleChangeCustomTags"></custom-tag>
+                </div>
+              </template>
             </div>
-          </div>
-          <div class="no-data-slide-form-block" v-show="!contentLoading && !form.presentationId">
-            <no-more-resources tips="The slide has not been created" />
-            <div class="go-to-create">
-              <a-button type="primary" @click="handleGotoEditMode">Back</a-button>
-            </div>
-          </div>
-        </div>
-      </template>
+          </a-card>
+        </a-col>
+      </a-row>
       <a-modal
         v-model="showCollaborateModalVisible"
         :footer="null"
@@ -2742,6 +2756,10 @@ export default {
                 returnEle.scrollIntoView(true) // true 是默认的
               }
           }, 100)
+
+          if(current === 2 && this.thumbnailList.length > 1) {
+            this.$logger.info('click step 2.1', current, this.thumbnailList)
+          }
         }
       },
 
@@ -5450,5 +5468,45 @@ export default {
 
   .delete-icon {
     width: 35px;
+  }
+
+  .my-steps-item-icon {
+    width: 32px;
+    height: 32px;
+    margin-right: 8px;
+    font-size: 16px;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'Helvetica Neue', Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';
+    line-height: 32px;
+    text-align: center;
+    border: 1px solid rgba(0, 0, 0, 0.25);
+    border-radius: 32px;
+    transition: background-color 0.3s, border-color 0.3s;
+    color: rgba(0, 0, 0, 0.25);
+    cursor: pointer;
+  }
+
+  .my-active-steps-item-icon {
+    width: 32px;
+    height: 32px;
+    margin-right: 8px;
+    font-size: 16px;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'Helvetica Neue', Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';
+    line-height: 32px;
+    text-align: center;
+    border: 1px solid #15c39a;
+    border-radius: 32px;
+    transition: background-color 0.3s, border-color 0.3s;
+    color: #fff;
+    background: #15c39a;
+    cursor: pointer;
+  }
+
+  .ant-steps-item-wait {
+    &:hover {
+      .my-steps-item-icon {
+        border-color: #15c39a;
+        color: #15c39a;
+      }
+    }
   }
 </style>
