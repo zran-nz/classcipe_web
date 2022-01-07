@@ -1669,9 +1669,13 @@ export default {
       this.form.customTags = tags
     },
     handleChangeAddKeywords (tag) {
-      var index = this.customTags.userTags.findIndex(item => item.name === tag.parentName)
-      if (index > -1) {
-        this.customTags.userTags[index].keywords.push(tag.name)
+      if (tag.isGlobal) {
+        this.customTags.userGlobalTags.push(tag)
+      } else {
+        var index = this.customTags.userTags.findIndex(item => item.name === tag.parentName)
+        if (index > -1) {
+          this.customTags.userTags[index].keywords.push(tag.name)
+        }
       }
     },
     handleAudioResult (data) {
@@ -2240,11 +2244,11 @@ export default {
             this.customTagList.push(name)
           })
           // // 再拼接自己添加的
-          // this.customTags.userTags.forEach(tag => {
-          //   if (this.customTagList.indexOf(tag.name) === -1) {
-          //     this.customTagList.push(tag.name)
-          //   }
-          // })
+          this.customTags.userTags.forEach(tag => {
+            if (this.customTagList.indexOf(tag.name) === -1) {
+              this.customTagList.push(tag.name)
+            }
+          })
         } else {
           this.$message.error(response.message)
         }

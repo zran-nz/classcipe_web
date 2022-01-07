@@ -1058,7 +1058,7 @@
         destroyOnClose
         placement="right"
         :closable="true"
-        style="width: 20%"
+        :style="{width: selectedTemplateDrawerVisible ? '20%': '0px'}"
         width="100%"
         :zIndex="selectedTemplateDrawerZindex"
         :mask="false"
@@ -2855,7 +2855,7 @@ export default {
             CustomTagType.task.default.forEach(name => {
               this.customTagList.push(name)
             })
-            // 再拼接自己添加的
+            // // 再拼接自己添加的
             this.customTags.userTags.forEach(tag => {
               if (this.customTagList.indexOf(tag.name) === -1) {
                 this.customTagList.push(tag.name)
@@ -2933,9 +2933,13 @@ export default {
         }
       },
       handleChangeAddKeywords (tag) {
-        var index = this.customTags.userTags.findIndex(item => item.name === tag.parentName)
-        if (index > -1) {
-          this.customTags.userTags[index].keywords.push(tag.name)
+        if (tag.isGlobal) {
+          this.customTags.userGlobalTags.push(tag)
+        } else {
+          var index = this.customTags.userTags.findIndex(item => item.name === tag.parentName)
+          if (index > -1) {
+            this.customTags.userTags[index].keywords.push(tag.name)
+          }
         }
       },
 

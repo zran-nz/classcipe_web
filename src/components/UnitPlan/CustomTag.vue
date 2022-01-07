@@ -15,9 +15,9 @@
                 <div class="skt-tag-item " v-for="tag in showTagList" :key="tag.name" >
                   <a-tooltip :title="tag.parentName">
                     <a-tag
-                      :closable="scopeTagsList.indexOf(tag.parentName)!== -1"
+                      :closable="canCloseTag(tag)"
                       @close="closeTag(tag)"
-                      :class="{'tag-item':true,'tag-disable':scopeTagsList.indexOf(tag.parentName) === -1 }">
+                      :class="{'tag-item':true,'tag-disable':!canCloseTag(tag) }">
                       {{ tag.name }}
                     </a-tag>
                   </a-tooltip>
@@ -29,13 +29,12 @@
 
         <a-spin v-show="tagLoading" class="spin-loading"/>
 
-        <div class="tag-category" v-show="!userTagsMap.length">
+        <div class="tag-category" >
           <a-row>
             <a-col offset="0" span="24">
               <div>
                 <a-tabs
                   tab-position="top"
-                  @change="changeTab"
                 >
                   <a-tab-pane v-for="(parent,index) in mergeTagList" :key="index" :tab="parent.name">
                     <a-row>
@@ -60,7 +59,7 @@
                       <template v-if="parent.customDeep === 1">
                         <div class="skt-tag-list">
                           <div class="search-tag-wrapper tag-wrapper">
-                            <div class="skt-tag-item" v-for="(keyword,index) in parent.keywords" :key="index" >
+                            <div class="skt-tag-item" v-for="(keyword,tagIndex) in filterKeywordListInput(parent.keywords)" :key="tagIndex" >
                               <a-tag
                                 draggable="true"
                                 @click="selectChooseTag(parent,keyword)"
@@ -70,7 +69,7 @@
                             </div>
                           </div>
                           <div class="create-tag-wrapper tag-wrapper">
-                            <div class="skt-tag-create-line" @click="handleCreateTagByInput" v-show="!tagNameIsExist(createTagName,showTagList) && !tagIsExist(createTagName,tagSearchList) && createTagName && createTagName.length >= 1">
+                            <div class="skt-tag-create-line" @click="handleCreateTagByInput(parent)" v-show="!tagNameIsExist(createTagName,showTagList) && !tagIsExist(createTagName,filterKeywordListInput(parent.keywords)) && createTagName && createTagName.length >= 1">
                               <div class="create-tag-label">
                                 Create
                               </div>
@@ -88,20 +87,20 @@
                         <a-tabs
                           tab-position="top"
                         >
-                          <a-tab-pane v-for="(child,indexC) in parent.children" :key="indexC" :tab="child.name">
+                          <a-tab-pane v-for="(child,childIndex) in parent.children" :key="childIndex" :tab="child.name">
                             <div class="skt-tag-list">
                               <div class="search-tag-wrapper tag-wrapper">
-                                <div class="skt-tag-item" v-for="(keyword,index) in child.keywords" :key="index" >
+                                <div class="skt-tag-item" v-for="(keyword, tagIndex) in filterKeywordListInput(child.keywords)" :key="tagIndex" >
                                   <a-tag
                                     draggable="true"
-                                    @click="selectChooseTag(child,keyword)"
+                                    @click="selectChooseTag(child,keyword,parent)"
                                     class="tag-item">
                                     {{ keyword }}
                                   </a-tag>
                                 </div>
                               </div>
                               <div class="create-tag-wrapper tag-wrapper">
-                                <div class="skt-tag-create-line" @click="handleCreateTagByInput" v-show="!tagNameIsExist(createTagName,showTagList) && !tagIsExist(createTagName,tagSearchList) && createTagName && createTagName.length >= 1">
+                                <div class="skt-tag-create-line" @click="handleCreateTagByInput(child,true)" v-show="!tagNameIsExist(createTagName,showTagList) && !tagIsExist(createTagName, filterKeywordListInput(child.keywords)) && createTagName && createTagName.length >= 1">
                                   <div class="create-tag-label">
                                     Create
                                   </div>
@@ -139,7 +138,7 @@
       width="1000px"
       :dialog-style="{ top: '20px' }">
       <div>
-        <tag-setting @add-user-tag="handleAddUserTag"/>
+        <tag-setting />
       </div>
     </a-modal>
 
@@ -153,7 +152,7 @@ import TagSetting from '@/components/UnitPlan/TagSetting'
 import { AddUserTagNew } from '@/api/tag'
 import { UtilMixin } from '@/mixins/UtilMixin'
 
-const { debounce } = require('lodash-es')
+// const { debounce } = require('lodash-es')
 
 export default {
   name: 'CustomTag',
@@ -195,16 +194,12 @@ export default {
       inputTag: '',
       tagName: '',
       createTagName: '',
-      tagSearchList: [],
-      userTagsMap: new Map(),
-      selectLabel: '',
-      selectLabelSub: ''
+      tagSearchList: []
     }
   },
   created () {
     this.$logger.info('customTags', this.customTags)
-    this.debouncedSearchKnowledge = debounce(this.searchTag, 500)
-    this.handleUserTagsMap()
+    // this.debouncedSearchKnowledge = debounce(this.searchTag, 500)
   },
   computed: {
     showTagList: function () {
@@ -222,53 +217,83 @@ export default {
       const list = []
       this.$logger.info('customTags', this.customTags)
       this.$logger.info('scopeTagsList', this.scopeTagsList)
+      const userGlobalTags = this.customTags.userGlobalTags
       this.scopeTagsList.forEach(scope => {
        const scopeIndex = this.customTags.recommends.findIndex(item => item.name === scope)
+        let parent = ''
         if (scopeIndex > -1) {
-          var parent = this.customTags.recommends[scopeIndex]
+          parent = this.customTags.recommends[scopeIndex]
+          if (parent.customDeep > 1) {
+            // 从user中合并tag
+            if (userGlobalTags.length > 0) {
+            parent.children.forEach(child => {
+                userGlobalTags.forEach(tag => {
+                  if (tag.parentId === child.id && child.keywords.indexOf(tag.name) === -1) {
+                    child.keywords.push(tag.name)
+                  }
+                })
+            })
+            }
+          }
+        }
+        // 再拼接user tags
+        const userIndex = this.customTags.userTags.findIndex(item => item.name === scope)
+        if (userIndex > -1) {
+          // recommend不存在
+          if (!parent) {
+            parent = this.customTags.userTags[userIndex]
+            if (!parent.customDeep) {
+              parent.customDeep = 1
+            }
+          } else {
+            // 合并
+            this.customTags.userTags[userIndex].keywords.forEach(key => {
+              if (parent.keywords.indexOf(key) === -1) {
+                parent.keywords.push(key)
+              }
+            })
+          }
+        }
+
+        if (parent) {
           list.push(parent)
         }
       })
 
-      this.customTags.userTags.forEach(item => {
-        const index = list.findIndex(tag => tag.name === item.name)
-        if (!item.customDeep) {
-          item.customDeep = 1
-        }
-        if (index === -1) {
-          list.push(item)
-        } else {
-          var tags = list[index]
-          item.keywords.forEach(key => {
-            if (tags.keywords.indexOf(key) === -1) {
-              tags.keywords.push(key)
-            }
-          })
-        }
-      })
       this.$logger.info('mergeTagList', list)
       return list
+    },
+    filterKeywordListInput() {
+      return function(keywords) {
+        if (!this.createTagName) {
+          return keywords
+        }
+        if (this.inputTag) {
+          return keywords.filter(item => item.toLowerCase().indexOf(this.inputTag.toLowerCase()) > -1)
+        }
+        return []
+      }
+    },
+    canCloseTag() {
+      return function(tag) {
+        if (this.scopeTagsList.indexOf(tag.parentName) !== -1) {
+          return true
+        } else if (tag.parentName.indexOf('-') > -1) {
+          if (this.scopeTagsList.indexOf(tag.parentName.split('-')[0] > -1)) {
+            return true
+          }
+        }
+        return false
+      }
     }
   },
   watch: {
     selectedTagsList () {
       this.$logger.info('selectedTagsList', this.selectedTagsList)
        this.tagList = this.selectedTagsList
-    },
-    scopeTagsList () {
-      this.selectLabel = ''
-      this.handleUserTagsMap()
     }
   },
   methods: {
-    changeTab (tabName) {
-      this.selectLabel = tabName
-      this.filterKeyword()
-    },
-    changeSubTab (tabName) {
-      this.selectLabel = tabName
-      this.filterKeyword()
-    },
     handleOk () {
     },
     handleCancel () {
@@ -283,7 +308,6 @@ export default {
     closeTag (tag) {
       console.log(tag)
       this.tagList.splice(this.tagList.findIndex(item => item.name === tag.name), 1)
-      this.filterKeyword()
       this.tagName = ''
       // this.$message.success('Remove label successfully')
       this.$emit('change-user-tags', this.tagList)
@@ -296,80 +320,27 @@ export default {
         this.tagName = tag.name
       }
     },
-    handleUserTagsMap () {
-      this.mergeTags(this.customTags)
-      this.$logger.info('mergeTags tags', this.userTagsMap)
-      this.userTagsMap.forEach((value, key) => {
-        if (!this.selectLabel) {
-          this.selectLabel = key
-        }
-      })
-      this.changeTab(this.selectLabel)
-      this.filterKeyword()
-    },
-    mergeTags (result) {
-      const recommendTags = result.recommends
-      const myTags = result.userTags
-      this.userTagsMap = new Map()
-      // const categorys = ['Key words', 'Global interactions']
-      if (this.scopeTagsList.length > 0) {
-        // 默认显示的tag，优先从个人库获取
-        this.scopeTagsList.forEach(parent => {
-          this.userTagsMap.set(parent, new Set())
-          const tagC = myTags.filter(tag => tag.name === parent)
-          if (tagC.length > 0) {
-            this.userTagsMap.set(parent, new Set(tagC[0].keywords))
-          }
-          const tagCRecommend = recommendTags.filter(tag => tag.name === parent)
-          if (tagCRecommend.length > 0) {
-            // 合并
-            const tags = new Set([...this.userTagsMap.get(parent), ...new Set(tagCRecommend[0].keywords)])
-            this.userTagsMap.set(parent, tags)
-          }
-        })
-      }
-    },
-    filterKeyword () {
-      this.tagSearchList = []
-      const keywords = this.userTagsMap.get(this.selectLabel)
-      if (!keywords) {
-        return
-      }
-      const tagListNames = []
-      this.tagList.forEach(item => {
-        tagListNames.push(item.name)
-      })
-      this.tagSearchList = Array.from(keywords)
-      this.tagSearchList = this.tagSearchList.filter(name => tagListNames.indexOf(name) === -1)
-      if (this.inputTag) {
-        this.tagSearchList = this.tagSearchList.filter(item => item.toLowerCase().indexOf(this.inputTag.toLowerCase()) > -1)
-      }
-    },
-    selectChooseTag (parent, tag) {
+    selectChooseTag (parent, tag, superParent) {
         this.tagList.unshift({
-          'parentName': parent,
+          'parentName': superParent ? (superParent.name + '-' + parent.name) : parent.name,
           'name': tag,
           'id': this.tagList.length
         })
-        this.filterKeyword()
-    },
-    handleAddUserTag (tags, isAdd) {
-       // this.handleUserTagsMap()
     },
     handleTagItemDrop (item, event) {
       console.log(item)
     },
-    handleCreateTagByInput () {
+    handleCreateTagByInput (parent, isSubTag) {
       this.$logger.info('skill handleCreateTagByInput ' + this.createTagName)
       const existTag = this.tagList.find(item => item.name.toLowerCase() === this.createTagName.toLowerCase())
-      const userTypeTags = Array.from(this.userTagsMap.get(this.selectLabel))
-      const existTag2 = userTypeTags.filter(name => name.toLocaleString() === this.createTagName.toLowerCase()).length > 0
-      if (existTag || existTag2) {
+      if (existTag) {
         this.$message.warn('already exist same name tag')
       } else {
         var item = {
           name: this.createTagName,
-          parentName: this.selectLabel
+          parentName: parent.name,
+          parentId: isSubTag ? parent.id : '',
+          isGlobal: isSubTag
         }
         this.tagLoading = true
         AddUserTagNew(item).then((response) => {
@@ -378,8 +349,6 @@ export default {
             item.id = response.result.id
             this.createTagName = ''
             this.inputTag = ''
-            this.userTagsMap.get(this.selectLabel).add(item.name)
-            this.changeTab(this.selectLabel)
             this.$message.success('Add tag successfully')
             this.$emit('change-add-keywords', item)
           } else {
@@ -401,7 +370,6 @@ export default {
       logger.info('tag searchTag', keyword)
       // this.debouncedSearchKnowledge(this.inputTag)
       this.createTagName = this.inputTag
-      this.filterKeyword()
     },
     refreshTag () {
       this.$emit('reload-user-tags')
