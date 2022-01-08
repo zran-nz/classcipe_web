@@ -5,6 +5,8 @@ const userApi = {
   Logout: '/classcipe/sys/logout',
   ChangeRole: '/classcipe/sys/changeRole',
   UserInfo: '/classcipe/sys/getUserInfoByToken',
+  SignUp: 'classcipe/sys/signUp',
+
   ForgePassword: '/auth/forge-password',
   Register: '/auth/register',
   twoStepCode: '/auth/2step-code',
@@ -27,6 +29,14 @@ const userApi = {
 export function login (parameter) {
   return request({
     url: userApi.Login,
+    method: 'post',
+    data: parameter
+  })
+}
+
+export function signUp (parameter) {
+  return request({
+    url: userApi.SignUp,
     method: 'post',
     data: parameter
   })

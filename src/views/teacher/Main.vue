@@ -4,13 +4,19 @@
       <a-layout-sider>
         <div class="nav-bar-left">
           <div class="nav-bar-wrapper">
-            <div :class="{'nav-bar-item': true, 'selected-nav-bar' : selectedKey === '/teacher/main/created-by-me'}">
+            <div :class="{ 'nav-bar-item': true, 'selected-nav-bar': selectedKey === '/teacher/main/created-by-me' }">
               <router-link to="/teacher/main/created-by-me">
                 <created-by-me-svg />
                 {{ $t('teacher.main.created-by-me') }}
               </router-link>
             </div>
-            <div :class="{'nav-bar-item': true, 'selected-nav-bar': true, 'selected-nav-bar' : selectedKey === '/teacher/main/shared'}">
+            <div
+              :class="{
+                'nav-bar-item': true,
+                'selected-nav-bar': true,
+                'selected-nav-bar': selectedKey === '/teacher/main/shared',
+              }"
+            >
               <router-link to="/teacher/main/shared">
                 <a-badge :count="$store.getters.sharedCount">
                   <shared-svg />
@@ -18,7 +24,13 @@
                 {{ $t('teacher.main.shared') }}
               </router-link>
             </div>
-            <div :class="{'nav-bar-item': true, 'nav-bar-item-split': true, 'selected-nav-bar' : selectedKey === '/teacher/main/my-favorite'}">
+            <div
+              :class="{
+                'nav-bar-item': true,
+                'nav-bar-item-split': true,
+                'selected-nav-bar': selectedKey === '/teacher/main/my-favorite',
+              }"
+            >
               <router-link to="/teacher/main/my-favorite">
                 <my-favorite-svg />
                 {{ $t('teacher.main.my-favorite') }}
@@ -51,6 +63,7 @@
         <router-view />
       </a-layout-content>
     </a-layout>
+    <AddPreference />
   </a-card>
 </template>
 
@@ -63,6 +76,7 @@ import MyFavoriteSvg from '@/assets/svgIcon/myContent/My_favorite.svg?inline'
 import PopularSvg from '@/assets/svgIcon/myContent/Popular.svg?inline'
 import SharedSvg from '@/assets/svgIcon/myContent/Shared.svg?inline'
 import SubscribesSvg from '@/assets/svgIcon/myContent/Subscribes.svg?inline'
+import AddPreference from '@/components/Teacher/AddPreference'
 
 export default {
   name: 'Main',
@@ -73,43 +87,42 @@ export default {
     MyFavoriteSvg,
     PopularSvg,
     SharedSvg,
-    SubscribesSvg
+    SubscribesSvg,
+    AddPreference
   },
-  data () {
+  data() {
     return {
-      selectedKey: '/teacher/main/created-by-me'
+      selectedKey: '/teacher/main/created-by-me',
+      visible: true
     }
   },
   watch: {
-    '$route.path' (to) {
+    '$route.path'(to) {
       logger.debug('My Content route.path change ' + to)
       this.selectedKey = to
     }
   },
-  computed: {
-  },
-  created () {
+  computed: {},
+  created() {
     this.selectedKey = this.$route.path
     logger.info('selectedKey ', this.selectedKey)
   },
-  mounted () {
-  },
-  methods: {
-  }
+  mounted() {},
+  methods: {}
 }
 </script>
 
 <style lang="css">
-  .nav-bar-left .ant-badge-count {
-    right: 5px;
-    min-width: 16px;
-    height: 16px;
-    padding: 0 3px;
-    color: #fff;
-    font-size: 10px;
-    line-height: 16px;
-    border-radius: 10px;
-  }
+.nav-bar-left .ant-badge-count {
+  right: 5px;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 3px;
+  color: #fff;
+  font-size: 10px;
+  line-height: 16px;
+  border-radius: 10px;
+}
 </style>
 
 <style lang="less" scoped>
@@ -138,7 +151,7 @@ export default {
       font-family: Inter-Bold;
       font-size: 14px;
       cursor: pointer;
-      background-image: url("~@/assets/icons/myContent/Rectangle@2x.png");
+      background-image: url('~@/assets/icons/myContent/Rectangle@2x.png');
       background-repeat: repeat;
       background-size: cover;
 
@@ -156,7 +169,7 @@ export default {
       }
 
       &:hover {
-        background: #EDF1F5;
+        background: #edf1f5;
         a {
           color: @primary-color;
         }
@@ -168,7 +181,7 @@ export default {
     }
 
     .selected-nav-bar {
-      background: #EDF1F5;
+      background: #edf1f5;
       a {
         color: @primary-color;
         font-weight: bold;
@@ -176,5 +189,4 @@ export default {
     }
   }
 }
-
 </style>
