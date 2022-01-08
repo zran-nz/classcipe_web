@@ -6,17 +6,6 @@
     </a-button>
 
     <div class="filter-item">
-      <div class="filter-label">Age</div>
-      <div class="filter-option-list">
-        <a-select class="age-select" @change="updateFilterConfig" v-model="filter.age">
-          <a-select-option :value="age.label" v-for="(age, aIndex) in ageOptions" :key="aIndex">
-            {{ age.label }}
-          </a-select-option>
-        </a-select>
-      </div>
-    </div>
-
-    <div class="filter-item">
       <div class="filter-label">Subject</div>
       <div class="filter-option-list" >
         <a-checkbox-group
@@ -28,18 +17,18 @@
     </div>
 
     <div class="filter-item">
-      <div class="filter-label">Type</div>
-      <div class="filter-option-list">
-        <a-checkbox-group
+      <div class="filter-label">Period</div>
+      <div class="filter-option-list" >
+        <a-radio-group
           @change="updateFilterConfig"
-          v-model="filter.type"
-          :options="typeOptions"
+          v-model="filter.period"
+          :options="periodOptions"
         />
       </div>
     </div>
 
-    <div class="filter-item filter-toggle">
-      <div class="filter-label"></div>
+    <div class="filter-item">
+      <div class="filter-label">Task Type</div>
       <div class="filter-toggle-list">
         <a-radio-group name="radioGroup" :default-value="1" v-model="filter.faSaActivityType" @change="updateFilterConfig">
           <a-radio :value="1">
@@ -53,36 +42,73 @@
           </a-radio>
         </a-radio-group>
       </div>
+
+      <div class="sub-item">
+        <div class="filter-item" v-if="filter.faSaActivityType === 1" v-for="(parent,index) in filterFaOptions" :key="index">
+          <div class="filter-label">{{ parent.name }}</div>
+          <div class="filter-option-list">
+            <a-checkbox-group
+              @change="updateFilterConfig"
+              v-model="faTags[index]"
+              :options="getGroupOptions(parent)"
+            />
+          </div>
+        </div>
+        <div class="filter-item" v-if="filter.faSaActivityType === 2" v-for="(parent,index) in filterSaOptions" :key="index">
+          <div
+            class="filter-labe
+          l">{{ parent.name }}</div>
+          <div class="filter-option-list">
+            <a-checkbox-group
+              @change="updateFilterConfig"
+              v-model="saTags[index]"
+              :options="getGroupOptions(parent)"
+            />
+          </div>
+        </div>
+        <div class="filter-item" v-if="filter.faSaActivityType === 3" v-for="(parent,index) in filterActivityOptions" :key="index">
+          <div class="filter-label">{{ parent.name }}</div>
+          <div class="filter-option-list">
+            <a-checkbox-group
+              @change="updateFilterConfig"
+              v-model="activityTags[index]"
+              :options="getGroupOptions(parent)"
+            />
+          </div>
+        </div>
+      </div>
+
     </div>
 
-    <div class="filter-item" v-if="filter.faSaActivityType === 1" v-for="(parent,index) in filterFaOptions" :key="index">
-      <div class="filter-label">{{ parent.name }}</div>
-      <div class="filter-option-list">
+    <div class="filter-item">
+      <div class="filter-label">Grade</div>
+      <div class="filter-option-list" >
         <a-checkbox-group
           @change="updateFilterConfig"
-          v-model="faTags[index]"
-          :options="getGroupOptions(parent)"
+          v-model="filter.age"
+          :options="ageOptions"
         />
       </div>
     </div>
 
-    <div class="filter-item" v-if="filter.faSaActivityType === 2" v-for="(parent,index) in filterSaOptions" :key="index">
-      <div class="filter-label">{{ parent.name }}</div>
-      <div class="filter-option-list">
-        <a-checkbox-group
+    <div class="filter-item">
+      <div class="filter-label">Unit Type</div>
+      <div class="filter-option-list" >
+        <a-radio-group
           @change="updateFilterConfig"
-          v-model="saTags[index]"
-          :options="getGroupOptions(parent)"
+          v-model="filter.unitType"
+          :options="unitTypeLabel"
         />
       </div>
     </div>
-    <div class="filter-item" v-if="filter.faSaActivityType === 3" v-for="(parent,index) in filterActivityOptions" :key="index">
-      <div class="filter-label">{{ parent.name }}</div>
-      <div class="filter-option-list">
-        <a-checkbox-group
+
+    <div class="filter-item">
+      <div class="filter-label">Project-based Unit</div>
+      <div class="filter-option-list" >
+        <a-radio-group
           @change="updateFilterConfig"
-          v-model="activityTags[index]"
-          :options="getGroupOptions(parent)"
+          v-model="filter.projectBased"
+          :options="projectBasedLabel"
         />
       </div>
     </div>
@@ -92,7 +118,7 @@
 
 <script>
 export default {
-  name: 'SearchFilter',
+  name: 'FilterContent',
   props: {
     filterConfig: {
       type: Object,
@@ -106,7 +132,7 @@ export default {
       type: Array,
       default: () => []
     },
-    typeOptions: {
+    periodOptions: {
       type: Array,
       default: () => []
     },
@@ -129,14 +155,24 @@ export default {
   },
   data () {
     return {
+      unitTypeLabel: [
+        { label: 'Single-subject Unit', value: '0' },
+        { label: 'Integrated Unit', value: '1' }
+      ],
+      projectBasedLabel: [
+        { label: 'Yes', value: '1' },
+        { label: 'No', value: '0' }
+      ],
       faTags: [],
       saTags: [],
       activityTags: [],
       filter: {
-        age: 'All',
+        age: [],
         subject: [],
-        type: [],
-        faSaActivityType: ''
+        period: '',
+        faSaActivityType: '',
+        unitType: '',
+        projectBased: ''
       }
     }
   },
@@ -177,7 +213,7 @@ export default {
     },
     clearFilter () {
       this.filter = {
-        age: 'All',
+        age: [],
         subject: [],
         type: [],
         faSaActivityType: ''
@@ -195,12 +231,15 @@ export default {
 @import "~@/components/index.less";
 
 .search-filter {
-  width: 250px;
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
+  position:relative;
+  flex-wrap: wrap;
 
   .filter-item {
-    margin-bottom: 10px;
+    //margin-bottom: 10px;
+    width: 25%;
+    min-width: 250px;
     .filter-label {
       font-size: 14px;
       font-family: Arial;

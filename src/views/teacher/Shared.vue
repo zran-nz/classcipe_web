@@ -17,6 +17,16 @@
       </div>
 
       <div class="type-owner">
+        <div class="my-search">
+          <a-input-search
+            placeholder="Search"
+            v-model="searchText"
+            @search="triggerSearch"
+            @pressEnter="triggerSearch"
+            size="large"
+          >
+          </a-input-search>
+        </div>
         <div class="type-filter">
           <a-dropdown>
             <a-menu slot="overlay">
@@ -550,7 +560,8 @@
         customTagList: [],
         oldSelectSessionVisible: false,
         sessionList: [],
-        sessionMode: 1
+        sessionMode: 1,
+        searchText: ''
       }
     },
     computed: {},
@@ -886,6 +897,9 @@
         }).then(() => {
           this.loadMyContent()
         })
+      },
+      triggerSearch() {
+        this.$logger.info('triggerSearch', this.searchText)
       }
     }
   }
@@ -1316,6 +1330,15 @@
     display: flex;
     flex-direction: row;
     align-items: center;
+  }
+  .my-search{
+    margin-right: 10px;
+    border-radius:6px;
+    width: 200px;
+    /deep/ .ant-input{
+      border-radius:6px;
+      height: 40px;
+    }
   }
 
   .view-mode-toggle {

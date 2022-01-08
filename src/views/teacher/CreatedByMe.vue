@@ -14,12 +14,24 @@
               <div :class="{'mode-item': true, 'general-active-mode' : currentStatus === 'draft'}" @click="toggleStatus('draft', $t('teacher.my-content.draft-status'))">
                 {{ $t('teacher.my-content.draft-status') }}
               </div>
+              <div :class="{'mode-item': true, 'general-active-mode' : currentStatus === 'archived'}" @click="toggleStatus('archived', 'Archived')">
+                Archived
+              </div>
             </div>
           </div>
         </div>
       </div>
 
       <div class="type-owner">
+        <div class="filter-icon" @click="showFilter = !showFilter">
+          <div class="filter-item">
+            <filter-icon class="filter-icon" />
+            <filter-active-icon class="filter-active-icon"/>
+            <div class="filter-label">
+              Filter
+            </div>
+          </div>
+        </div>
         <div class="type-filter">
           <a-dropdown>
             <a-menu slot="overlay">
@@ -74,6 +86,21 @@
         </div>
       </div>
     </div>
+    <div class="filter-params" v-if="showFilter">
+      <filter-content
+        @filter-config-update="handleUpdateFilterConfig"
+        :filter-config="filterConfig"
+        :age-options="filterAgeOptions"
+        :period-options="filterPeriodOptions"
+        :subject-options="filterSubjectOptions"
+        :filter-fa-options="filterFaOptions"
+        :filter-sa-options="filterSaOptions"
+        :filter-activity-options="filterActivityOptions"
+      />
+      <div class="expand-icon" v-if="showFilter" @click="showFilter = !showFilter">
+        <a-icon type="up-circle" theme="filled" title="Collapse filter" /> Close
+      </div>
+    </div>
     <div class="content-wrapper">
       <a-skeleton :loading="skeletonLoading" active>
         <div class="content-list">
@@ -110,66 +137,81 @@
                 <div class="action">
                   <div slot="actions">
                     <div class="action-wrapper">
-
-                      <!-- Task: 外置teacher-pace, student-pace, Edit, 折叠Delete, Duplicate, Previous session-->
-                      <template v-if="item.type === typeMap.task">
-                        <div class="start-session-wrapper action-item-wrapper">
-                          <div class="session-btn content-list-action-btn" @click="handleStartSessionHistory(item,1)">
-                            <div class="session-btn-icon">
-                              <teacher-presenting />
+                      <template v-if="currentStatus !== 'archived'">
+                        <!-- Task: 外置teacher-pace, student-pace, Edit, 折叠Delete, Duplicate, Previous session-->
+                        <template v-if="item.type === typeMap.task">
+                          <div class="start-session-wrapper action-item-wrapper">
+                            <div class="session-btn content-list-action-btn" @click="handleStartSessionHistory(item,1)">
+                              <div class="session-btn-icon">
+                                <teacher-presenting />
+                              </div>
+                              <div class="session-btn-text"> Teacher-paced</div>
                             </div>
-                            <div class="session-btn-text"> Teacher-paced</div>
                           </div>
-                        </div>
-                        <div class="start-session-wrapper action-item-wrapper">
-                          <div class="session-btn content-list-action-btn" @click="handleStartSessionHistory(item,2)">
-                            <div class="session-btn-icon">
-                              <student-pace />
+                          <div class="start-session-wrapper action-item-wrapper">
+                            <div class="session-btn content-list-action-btn" @click="handleStartSessionHistory(item,2)">
+                              <div class="session-btn-icon">
+                                <student-pace />
+                              </div>
+                              <div class="session-btn-text"> Student-paced</div>
                             </div>
-                            <div class="session-btn-text"> Student-paced</div>
                           </div>
-                        </div>
-                      </template>
-                      <!-- Unit plan:外置Edit，折叠Delete, Duplicate-->
+                        </template>
+                        <!-- Unit plan:外置Edit，折叠Delete, Duplicate-->
 
-                      <div class="start-session-wrapper action-item-wrapper">
-                        <div class="session-btn content-list-action-btn" @click="handleEditItem(item)">
-                          <div class="session-btn-icon">
-                            <bianji />
+                        <div class="start-session-wrapper action-item-wrapper">
+                          <div class="session-btn content-list-action-btn" @click="handleEditItem(item)">
+                            <div class="session-btn-icon">
+                              <bianji />
+                            </div>
+                            <div class="session-btn-text"> {{ $t('teacher.my-content.action-edit') }}</div>
                           </div>
-                          <div class="session-btn-text"> {{ $t('teacher.my-content.action-edit') }}</div>
                         </div>
-                      </div>
-                      <div class="more-action-wrapper action-item-wrapper" >
-                        <a-dropdown>
-                          <a-icon type="more" style="margin-right: 8px" />
-                          <a-menu slot="overlay">
-                            <a-menu-item>
-                              <a-popconfirm :title="$t('teacher.my-content.action-delete') + '?'" ok-text="Yes" @confirm="handleDeleteItem(item)" cancel-text="No">
-                                <a>
-                                  <a-icon type="delete" theme="filled" /> {{ $t('teacher.my-content.action-delete') }}
-                                </a>
-                              </a-popconfirm>
-                            </a-menu-item>
-                            <a-menu-item>
-                              <a @click="handleDuplicateItem(item)">
-                                <a-icon type="copy" /> Duplicate
-                              </a>
-                            </a-menu-item>
-                            <!-- Task里面有teacher-pace, student-pace, previous session -->
-                            <template v-if="item.type === typeMap.task">
+                        <div class="more-action-wrapper action-item-wrapper" >
+                          <a-dropdown>
+                            <a-icon type="more" style="margin-right: 8px" />
+                            <a-menu slot="overlay">
                               <a-menu-item>
-                                <a @click="handleViewPreviewSession(item)">
-                                  <previous-sessions-svg /> Previous session
+                                <a-popconfirm :title="$t('teacher.my-content.action-delete') + '?'" ok-text="Yes" @confirm="handleDeleteItem(item)" cancel-text="No">
+                                  <a>
+                                    <a-icon type="delete" theme="filled" /> {{ $t('teacher.my-content.action-delete') }}
+                                  </a>
+                                </a-popconfirm>
+                              </a-menu-item>
+                              <a-menu-item>
+                                <a @click="handleDuplicateItem(item)">
+                                  <a-icon type="copy" /> Duplicate
                                 </a>
                               </a-menu-item>
-                            </template>
+                              <!-- Task里面有teacher-pace, student-pace, previous session -->
+                              <template v-if="item.type === typeMap.task">
+                                <a-menu-item>
+                                  <a @click="handleViewPreviewSession(item)">
+                                    <previous-sessions-svg /> Previous session
+                                  </a>
+                                </a-menu-item>
+                              </template>
 
-                          </a-menu>
-                        </a-dropdown>
-                      </div>
+                            </a-menu>
+                          </a-dropdown>
+                        </div>
+                      </template>
+                      <template v-else>
+                        <div class="start-session-wrapper action-item-wrapper">
+                          <a-popconfirm :title="'Confirm restore ' +item.name+ ' ?'" ok-text="Yes" @confirm="handleRestoreItem(item)" cancel-text="No">
+                            <div class="session-btn content-list-action-btn" >
+                              <div class="session-btn-icon">
+                                <bianji />
+                              </div>
+                              <div class="session-btn-text">Restore</div>
+                            </div>
+                          </a-popconfirm>
+                        </div>
+                      </template>
                     </div>
-                  </div></div></span>
+                  </div>
+                </div>
+              </span>
             </a-list-item>
           </a-list>
           <a-list
@@ -348,7 +390,7 @@
 
 <script>
 import * as logger from '@/utils/logger'
-import { deleteMyContentByType, Duplicate, FindMyContent } from '@/api/teacher'
+import { ContentRestore, deleteMyContentByType, Duplicate, FindMyContent } from '@/api/teacher'
 import { ownerMap, statusMap, typeMap } from '@/const/teacher'
 import ContentStatusIcon from '@/components/Teacher/ContentStatusIcon'
 import ContentTypeIcon from '@/components/Teacher/ContentTypeIcon'
@@ -370,6 +412,8 @@ import LiebiaoSvg from '@/assets/svgIcon/myContent/liebiao.svg?inline'
 import PubuSvg from '@/assets/svgIcon/myContent/pubu.svg?inline'
 import PSSvg from '@/assets/svgIcon/myContent/previous_session.svg?inline'
 import CollaborateSvg from '@/assets/icons/collaborate/collaborate_group.svg?inline'
+import FilterIcon from '@/assets/libraryv2/filter.svg?inline'
+import FilterActiveIcon from '@/assets/libraryv2/filter_active.svg?inline'
 
 import storage from 'store'
 import {
@@ -388,6 +432,9 @@ import OldSessionList from '@/components/Teacher/OldSessionList'
 import { FindMyClasses } from '@/api/evaluation'
 import { ACCESS_TOKEN } from '@/store/mutation-types'
 import { TemplatesGetPresentation } from '@/api/template'
+import FilterContent from '@/components/UnitPlan/FilterContent'
+import { SubjectTree } from '@/api/subject'
+import { GetGradesByCurriculumId } from '@/api/preference'
 
 export default {
   name: 'CreatedByMe',
@@ -413,7 +460,10 @@ export default {
     LiebiaoSvg,
     PubuSvg,
     PSSvg,
-    CollaborateSvg
+    CollaborateSvg,
+    FilterIcon,
+    FilterActiveIcon,
+    FilterContent
   },
   data () {
     return {
@@ -461,7 +511,25 @@ export default {
       customTagList: [],
       oldSelectSessionVisible: false,
       sessionList: [],
-      sessionMode: 1
+      sessionMode: 1,
+      // 当前选中的配置项
+      filterConfig: {
+        age: null,
+        subject: [],
+        faSaActivityType: null,
+        teachingStrategy: [],
+        differenceInstructions: [],
+        assessmentCategory: [],
+        assessmentType: []
+      },
+      filterSubjectOptions: [],
+      filterAgeOptions: [],
+      filterPeriodOptions: [],
+      filterSaOptions: [],
+      filterFaOptions: [],
+      filterActivityOptions: [],
+      showFilter: false,
+      filterParams: {}
     }
   },
   locomputed: {
@@ -474,7 +542,7 @@ export default {
   created () {
     logger.info('teacher my content')
     this.loadMyContent()
-    this.loadUserTags()
+    this.initFilterOption()
   },
   methods: {
     toggleViewMode (viewMode) {
@@ -484,15 +552,20 @@ export default {
     },
     loadMyContent () {
       this.loading = true
-      FindMyContent({
+      let params = {
         owner: ownerMap[this.currentOwner],
         status: statusMap[this.currentStatus],
         collabrated: this.currentType === 'Collabrated',
         types: this.currentType === 'all-type' || this.currentType === 'Collabrated' ? [] : [typeMap[this.currentType]],
         pageNo: this.pageNo,
         pageSize: this.pagination.pageSize,
-        searchKey: this.$route.query.searchKey ? this.$route.query.searchKey : ''
-      }).then(res => {
+        searchKey: this.$route.query.searchKey ? this.$route.query.searchKey : '',
+        delFlag: this.currentStatus === 'archived' ? 1 : 0
+      }
+      if (this.filterParams) {
+        params = Object.assign(this.filterParams, params)
+      }
+      FindMyContent(params).then(res => {
         logger.info('getMyContent', res)
         if (res.success) {
           res.result.records.forEach((record, index) => {
@@ -513,7 +586,9 @@ export default {
       }).finally(() => {
         this.loading = false
         this.skeletonLoading = false
-        this.checkGoogleTokenExpired()
+        if (this.currentStatus !== 'archived') {
+          this.checkGoogleTokenExpired()
+        }
       })
     },
     toggleStatus (status, label) {
@@ -601,6 +676,9 @@ export default {
     },
     handleViewDetail (item) {
       logger.info('handleViewDetail', item)
+      if (this.currentStatus === 'archived') {
+        return
+      }
       this.previewCurrentId = item.id
       this.previewType = item.type
       this.previewVisible = true
@@ -748,21 +826,33 @@ export default {
       FindCustomTags({}).then((response) => {
         this.$logger.info('FindCustomTags response', response.result)
         if (response.success) {
-          this.userTags = response.result
+          this.filterSaOptions = []
+          this.filterFaOptions = []
+          this.filterActivityOptions = []
+          const recommends = response.result.recommends
           // 默认展示的tag分类
-          CustomTagType.task.default.forEach(name => {
-            this.customTagList.push(name)
+          CustomTagType.task.sa.forEach(name => {
+            recommends.forEach(parent => {
+              if (parent.name === name) {
+                this.filterSaOptions.push(parent)
+              }
+            })
           })
-          // 再拼接自己添加的
-          this.userTags.userTags.forEach(tag => {
-            if (this.customTagList.indexOf(tag.name) === -1) {
-              this.customTagList.push(tag.name)
-            }
+          CustomTagType.task.fa.forEach(name => {
+            recommends.forEach(parent => {
+              if (parent.name === name) {
+                this.filterFaOptions.push(parent)
+              }
+            })
           })
-        } else {
-          this.$message.error(response.message)
+          CustomTagType.task.activity.forEach(name => {
+            recommends.forEach(parent => {
+              if (parent.name === name) {
+                this.filterActivityOptions.push(parent)
+              }
+            })
+          })
         }
-        // this.$refs.customTag.tagLoading = false
       })
     },
     handleTabChange (tab) {
@@ -782,6 +872,66 @@ export default {
           this.$logger.info('TemplatesGetPresentation response', response)
         })
       }
+    },
+    handleUpdateFilterConfig (filter) {
+      // TODO 根据配置更新请求参数
+      this.$logger.info('handleUpdateFilterConfig', filter)
+      // this.searchByFilter(filter)
+      filter.fa = []
+      filter.sa = []
+      filter.activity = []
+      filter.faTags.forEach(parent => {
+        parent.forEach(child => {
+          if (child) {
+            filter.fa.push(child)
+          }
+        })
+      })
+      filter.saTags.forEach(parent => {
+        parent.forEach(child => {
+          if (child) {
+            filter.sa.push(child)
+          }
+        })
+      })
+      filter.activityTags.forEach(parent => {
+        parent.forEach(child => {
+          if (child) {
+            filter.activity.push(child)
+          }
+        })
+      })
+      this.filterParams = filter
+      this.loadMyContent()
+    },
+    initFilterOption() {
+      SubjectTree({ curriculumId: this.$store.getters.bindCurriculum }).then(response => {
+        this.$logger.info('getSubjectTree response', response.result)
+        this.filterSubjectOptions = []
+        response.result.forEach(subject => {
+          this.filterSubjectOptions.push({ label: subject.name, value: subject.id })
+        })
+      })
+      GetGradesByCurriculumId({ curriculumId: this.$store.getters.bindCurriculum }).then(response => {
+        this.$logger.info('GetGradesByCurriculumId', response.result)
+        this.filterAgeOptions = []
+        response.result.forEach(grade => {
+          this.filterAgeOptions.push({ label: grade.name, value: grade.id })
+        })
+      })
+      this.loadUserTags()
+      this.filterPeriodOptions = [
+        { label: 'This month', value: 'month' },
+        { label: 'Last 7 days', value: '7' }
+      ]
+    },
+    handleRestoreItem (item) {
+      logger.info('handleRestoreItem', item)
+      ContentRestore({ id: item.id, type: item.type }).then(response => {
+        this.$logger.info('handleRestoreItem response', response)
+      }).finally(() => {
+        this.loadMyContent()
+      })
     }
   }
 }
@@ -894,6 +1044,75 @@ export default {
       display: flex;
       flex-direction: row;
       align-items: center;
+    }
+
+    .filter-icon {
+      .filter-item {
+        color: #333;
+        cursor: pointer;
+        display: flex;
+        justify-content: flex-start;
+        align-items: center;
+        background: #FFFFFF;
+        border: 1px solid #D3D3D3;
+        opacity: 1;
+        border-radius: 6px;
+        padding: 9px 15px;
+        white-space:nowrap;
+        margin-right: 20px;
+
+        svg {
+          height: 20px;
+        }
+        .filter-active-icon {
+          display: none;
+        }
+        .filter-icon {
+          display: inline;
+        }
+
+        &:hover {
+          color: #38cfa6;
+          border: 1px solid #38cfa6;
+          .filter-active-icon {
+            display: inline;
+          }
+
+          .filter-icon {
+            display: none;
+          }
+        }
+
+        .filter-label {
+          font-family: Inter-Bold;
+          line-height: 20px;
+          padding-left: 8px;
+        }
+      }
+    }
+
+  }
+  .filter-params{
+    margin-bottom: 5px;
+    border: 1px solid #E4E4E4;
+    padding: 5px 15px;
+    max-height: 250px;
+    overflow: auto;
+    border-radius: 5px;
+    background: rgba(228, 228, 228, 0.2);
+    .expand-icon {
+      cursor: pointer;
+      line-height: 30px;
+      font-size: 20px;
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+
+      i {
+        svg {
+          font-size: 23px;
+        }
+      }
     }
   }
 

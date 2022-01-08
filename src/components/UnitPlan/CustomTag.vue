@@ -205,12 +205,9 @@ export default {
     showTagList: function () {
        const showList = []
        this.tagList.forEach(item => {
-         if (this.scopeTagsList.indexOf(item.parentName) > -1) {
-           showList.push(item)
-         }
+         showList.push(item)
        })
-      const lastList = this.tagList.filter(item => showList.indexOf(item) === -1)
-      return showList.concat(lastList)
+      return showList
     },
 
     mergeTagList: function () {
@@ -288,10 +285,10 @@ export default {
     }
   },
   watch: {
-    selectedTagsList () {
-      this.$logger.info('selectedTagsList', this.selectedTagsList)
-       this.tagList = this.selectedTagsList
-    }
+    // selectedTagsList () {
+    //   this.$logger.info('selectedTagsList', this.selectedTagsList)
+    //    this.tagList = this.selectedTagsList
+    // }
   },
   methods: {
     handleOk () {
@@ -311,14 +308,6 @@ export default {
       this.tagName = ''
       // this.$message.success('Remove label successfully')
       this.$emit('change-user-tags', this.tagList)
-    },
-    selectTag (tag) {
-      console.log(tag)
-      if (this.tagName === tag.name) {
-        this.tagName = ''
-      } else {
-        this.tagName = tag.name
-      }
     },
     selectChooseTag (parent, tag, superParent) {
         this.tagList.unshift({
