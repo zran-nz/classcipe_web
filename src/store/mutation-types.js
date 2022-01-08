@@ -1,6 +1,7 @@
 export const ACCESS_TOKEN = 'Access-Token'
 export const CURRENT_ROLE = 'Current-Role'
 export const IS_ADD_PREFERENCE = 'Is-Add-Preference'
+export const ADD_PREFERENCE_SKIP_TIME = 'Add-Preference-Skip-Time'
 export const USER_INFO = 'USER_INFO'
 
 export const SIDEBAR_TYPE = 'sidebar_type'

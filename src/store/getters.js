@@ -1,4 +1,4 @@
-import { defaultExpertRouter, defaultTeacherRouter } from '@/config/router.config'
+import { defaultExpertRouter, defaultTeacherRouter, defaultStudentRouter } from '@/config/router.config'
 
 const getters = {
   isMobile: state => state.app.isMobile,
@@ -20,7 +20,11 @@ const getters = {
   userInfo: state => state.user.info,
   addRouters: state => state.permission.addRouters,
   multiTab: state => state.app.multiTab,
-  defaultRouter: state => state.user.currentRole === 'expert' ? defaultExpertRouter : defaultTeacherRouter,
+  defaultRouter: state => {
+    return state.user.currentRole === 'expert' ? defaultExpertRouter
+          : state.user.currentRole === 'teacher' ? defaultTeacherRouter
+          : defaultStudentRouter
+  },
   sharedCount: state => state.user.sharedCount,
   sharedFindCount: state => state.user.sharedFindCount,
   skillCategory: state => state.user.skillCategory,
