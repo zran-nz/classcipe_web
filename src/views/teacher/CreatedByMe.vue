@@ -87,16 +87,18 @@
       </div>
     </div>
     <div class="filter-params" v-if="showFilter">
-      <filter-content
-        @filter-config-update="handleUpdateFilterConfig"
-        :filter-config="filterConfig"
-        :age-options="filterAgeOptions"
-        :period-options="filterPeriodOptions"
-        :subject-options="filterSubjectOptions"
-        :filter-fa-options="filterFaOptions"
-        :filter-sa-options="filterSaOptions"
-        :filter-activity-options="filterActivityOptions"
-      />
+      <div style="max-height: 250px;overflow: auto;">
+        <filter-content
+          @filter-config-update="handleUpdateFilterConfig"
+          :filter-config="filterConfig"
+          :age-options="filterAgeOptions"
+          :period-options="filterPeriodOptions"
+          :subject-options="filterSubjectOptions"
+          :filter-fa-options="filterFaOptions"
+          :filter-sa-options="filterSaOptions"
+          :filter-activity-options="filterActivityOptions"
+        />
+      </div>
       <div class="expand-icon" v-if="showFilter" @click="showFilter = !showFilter">
         <a-icon type="up-circle" theme="filled" title="Collapse filter" /> Close
       </div>
@@ -1096,8 +1098,6 @@ export default {
     margin-bottom: 5px;
     border: 1px solid #E4E4E4;
     padding: 5px 15px;
-    max-height: 250px;
-    overflow: auto;
     border-radius: 5px;
     background: rgba(228, 228, 228, 0.2);
     .expand-icon {
