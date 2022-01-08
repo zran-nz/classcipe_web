@@ -18,9 +18,9 @@
               }"
             >
               <router-link to="/teacher/main/shared">
-                <a-badge :count="$store.getters.sharedCount">
-                  <shared-svg />
-                </a-badge>
+                <!--                <a-badge :count="$store.getters.sharedCount">-->
+                <shared-svg />
+                <!--                </a-badge>-->
                 {{ $t('teacher.main.shared') }}
               </router-link>
             </div>
