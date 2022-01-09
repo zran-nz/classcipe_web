@@ -149,7 +149,7 @@
 
                   <a-step title="Edit task slides" :status="currentActiveStepIndex === 1 ? 'process':'wait'" id="templateSelected">
                     <template v-if="currentActiveStepIndex === 1" slot="description">
-                      <div class="edit-in-slide">
+                      <div class="edit-in-slide" v-if="!fileDeleted">
                         <a-button class="action-ensure action-item edit-slide" type="primary" shape="round" @click="handleShowSelectMyContent" style="margin-right: 10px">
                           Select slide(s)
                         </a-button>
@@ -1604,7 +1604,8 @@ export default {
 
         materialListFlag: false,
 
-        showSubTaskDetail: false
+        showSubTaskDetail: false,
+        fileDeleted: false // ppt文件被删除
       }
     },
     computed: {
@@ -2180,6 +2181,7 @@ export default {
             })
           } else if (!response.success && response.code === 404) {
             // 文件被删除 todo
+            this.fileDeleted = true
           } else {
             this.$message.error(response.message)
           }

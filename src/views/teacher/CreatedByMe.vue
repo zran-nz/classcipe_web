@@ -86,8 +86,8 @@
         </div>
       </div>
     </div>
-    <div class="filter-params" v-if="showFilter">
-      <div style="max-height: 250px;overflow: auto;">
+    <div v-if="showFilter">
+      <div class="filter-params">
         <filter-content
           @filter-config-update="handleUpdateFilterConfig"
           :filter-config="filterConfig"
@@ -200,7 +200,7 @@
                       </template>
                       <template v-else>
                         <div class="start-session-wrapper action-item-wrapper">
-                          <a-popconfirm :title="'Confirm restore ' +item.name+ ' ?'" ok-text="Yes" @confirm="handleRestoreItem(item)" cancel-text="No">
+                          <a-popconfirm :title="'Confirm restore ' +(item.name ? item.name : 'Untitled')+ ' ?'" ok-text="Yes" @confirm="handleRestoreItem(item)" cancel-text="No">
                             <div class="session-btn content-list-action-btn" >
                               <div class="session-btn-icon">
                                 <bianji />
@@ -226,7 +226,8 @@
             <a-list-item slot="renderItem" key="item.key" slot-scope="item">
               <a-card class="cover-card" >
                 <div class="mask"></div>
-                <div class="mask-actions">
+
+                <div class="mask-actions" v-if="currentStatus !== 'archived'">
                   <div class="action-item action-item-top">
                     <a-dropdown>
                       <a-icon type="more" style="margin-right: 8px" class="more-icon" />
@@ -281,6 +282,18 @@
                       </div>
                       <div class="session-btn-text">Preview</div>
                     </div>
+                  </div>
+                </div>
+                <div class="mask-actions" v-else>
+                  <div class="action-item action-item-bottom" style="margin-top:100px" >
+                    <a-popconfirm :title="'Confirm restore ' +(item.name ? item.name : 'Untitled')+ ' ?'" ok-text="Yes" @confirm="handleRestoreItem(item)" cancel-text="No">
+                      <div class="session-btn">
+                        <div class="session-btn-icon content-list-action-btn">
+                          <bianji />
+                        </div>
+                        <div class="session-btn-text">Restore</div>
+                      </div>
+                    </a-popconfirm>
                   </div>
                 </div>
                 <div class="cover-img" :style="{backgroundImage: 'url(' + item.image + ')'}"></div>
@@ -879,9 +892,9 @@ export default {
       // TODO 根据配置更新请求参数
       this.$logger.info('handleUpdateFilterConfig', filter)
       // this.searchByFilter(filter)
-      filter.fa = []
-      filter.sa = []
-      filter.activity = []
+      filter.faTags = []
+      filter.saTags = []
+      filter.activityTags = []
       filter.faTags.forEach(parent => {
         parent.forEach(child => {
           if (child) {
@@ -1099,19 +1112,23 @@ export default {
     border: 1px solid #E4E4E4;
     padding: 5px 15px;
     border-radius: 5px;
+    max-height: 250px;
+    overflow: auto;
     background: rgba(228, 228, 228, 0.2);
-    .expand-icon {
-      cursor: pointer;
-      line-height: 30px;
-      font-size: 20px;
-      display: flex;
-      justify-content: flex-end;
-      align-items: center;
 
-      i {
-        svg {
-          font-size: 23px;
-        }
+  }
+  .expand-icon {
+    margin-bottom: 10px;
+    cursor: pointer;
+    line-height: 30px;
+    font-size: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    i {
+      svg {
+        font-size: 23px;
       }
     }
   }

@@ -24,6 +24,7 @@
                         v-model="editTabName"
                         placeholder="Name your category"
                         id="input"
+                        @blur="handleTabInputConfirm(editTabName)"
                         @keyup.enter="handleTabInputConfirm(editTabName)"
                       ></a-input>
                     </div>
@@ -211,6 +212,10 @@ export default {
       let activeKey = `Name your category`
       if (this.userTagsMap.has(activeKey)) {
         activeKey = activeKey + '-' + this.userTagsMap.size
+        if (this.userTagsMap.has(activeKey)) {
+          // 存在重复的情况
+          activeKey = activeKey + '-' + parseInt(Math.random() * 100)
+        }
       }
       this.editTabIndex = this.userTagsMap.size
       this.editTabName = activeKey
@@ -373,11 +378,18 @@ export default {
       }
       this.$logger.info('tag', this.currentEditTag, this.editTabName)
       if (this.isEditTagName) {
+        if (this.currentEditTag === this.editTabName) {
+          this.editTabIndex = -1
+          this.currentEditTag = ''
+          this.selectLabel = tag
+          return
+        }
         this.tagLoading = true
         UpdateUserParentTag({ name: this.currentEditTag, newName: this.editTabName }).then((response) => {
           this.$logger.info('add UpdateUserParentTag ', response.result)
           if (response.success) {
             this.editTabIndex = -1
+            this.currentEditTag = ''
             this.selectLabel = tag
             // this.userTagsMap = new Map()
             this.handleUserTagsMap()
@@ -393,6 +405,7 @@ export default {
           this.$logger.info('add AddUserParentTag ', response.result)
           if (response.success) {
             this.editTabIndex = -1
+            this.currentEditTag = ''
             this.selectLabel = tag
             // this.userTagsMap = new Map()
             this.handleUserTagsMap()

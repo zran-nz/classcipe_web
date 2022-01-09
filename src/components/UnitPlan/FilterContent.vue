@@ -19,28 +19,24 @@
     <div class="filter-item">
       <div class="filter-label">Period</div>
       <div class="filter-option-list" >
-        <a-radio-group
-          @change="updateFilterConfig"
-          v-model="filter.period"
-          :options="periodOptions"
-        />
+        <a-radio v-for="(item,index) in periodOptions" :checked="filter.period === item.value" @click="clickRadioGroup('period',item.value)" :key="index">
+          {{ item.label }}
+        </a-radio>
       </div>
     </div>
 
     <div class="filter-item">
       <div class="filter-label">Task Type</div>
       <div class="filter-toggle-list">
-        <a-radio-group name="radioGroup" :default-value="1" v-model="filter.faSaActivityType" @change="updateFilterConfig">
-          <a-radio :value="1">
-            FA
-          </a-radio>
-          <a-radio :value="2">
-            SA
-          </a-radio>
-          <a-radio :value="3">
-            Activity
-          </a-radio>
-        </a-radio-group>
+        <a-radio :checked="filter.faSaActivityType === 1" @click="clickRadioGroup('faSaActivityType',1)" name="activityType" >
+          FA
+        </a-radio>
+        <a-radio :checked="filter.faSaActivityType === 2" @click="clickRadioGroup('faSaActivityType',2)" name="activityType" >
+          SA
+        </a-radio>
+        <a-radio :checked="filter.faSaActivityType === 3" @click="clickRadioGroup('faSaActivityType',3)" name="activityType" >
+          Activity
+        </a-radio>
       </div>
 
       <div class="sub-item">
@@ -94,22 +90,18 @@
     <div class="filter-item">
       <div class="filter-label">Unit Type</div>
       <div class="filter-option-list" >
-        <a-radio-group
-          @change="updateFilterConfig"
-          v-model="filter.unitType"
-          :options="unitTypeLabel"
-        />
+        <a-radio v-for="(item,index) in unitTypeLabel" :checked="filter.unitType === item.value" @click="clickRadioGroup('unitType',item.value)" :key="index">
+          {{ item.label }}
+        </a-radio>
       </div>
     </div>
 
     <div class="filter-item">
       <div class="filter-label">Project-based Unit</div>
       <div class="filter-option-list" >
-        <a-radio-group
-          @change="updateFilterConfig"
-          v-model="filter.projectBased"
-          :options="projectBasedLabel"
-        />
+        <a-radio v-for="(item,index) in projectBasedLabel" :checked="filter.projectBased === item.value" @click="clickRadioGroup('projectBased',item.value)" :key="index">
+          {{ item.label }}
+        </a-radio>
       </div>
     </div>
 
@@ -222,6 +214,15 @@ export default {
       this.saTags = []
       this.activityTags = []
       this.updateFilterConfig()
+    },
+    clickRadioGroup(property, value) {
+      this.$logger.info('clickRadioGroup property value', property, value)
+      if (this.filter[property] === value) {
+        this.filter[property] = ''
+      } else {
+        this.filter[property] = value
+      }
+      this.$emit('filter-config-update', this.filter)
     }
   }
 }

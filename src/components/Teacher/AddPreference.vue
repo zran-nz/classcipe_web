@@ -29,7 +29,7 @@
                 v-for="curriculumOption in curriculumOptions"
                 :key="curriculumOption.id"
                 @click.native="handleSelectCurriculumOption(curriculumOption)"
-                >{{ curriculumOption.name }}
+              >{{ curriculumOption.name }}
               </a-select-option>
             </a-select>
           </a-form-model-item>
@@ -41,7 +41,7 @@
                 v-for="schoolOption in schoolOptions"
                 :key="schoolOption.id"
                 @click.native="handleSelectSchool(schoolOption)"
-                >{{ schoolOption.name }}
+              >{{ schoolOption.name }}
               </a-select-option>
             </a-select>
           </a-form-model-item>
@@ -62,15 +62,18 @@
                 v-if="subject.subjectType === subjectType.Learn || subject.subjectType === subjectType.LearnAndSkill"
                 v-for="subject in subjectOptions"
                 :key="subject.id"
-                >{{ subject.name }}
+              >{{ subject.name }}
               </a-select-option>
             </a-select>
           </a-form-model-item>
 
           <a-form-model-item key="Grade" label="Grade" prop="gradeIds">
             <a-select v-model="teacherForm.gradeIds" placeholder="Please select grade" mode="multiple">
-              <a-select-option :value="gradeOption.id" v-for="gradeOption in gradeOptions" :key="gradeOption.id"
-                >{{ gradeOption.name }}
+              <a-select-option
+                :value="gradeOption.id"
+                v-for="gradeOption in gradeOptions"
+                :key="gradeOption.id"
+              >{{ gradeOption.name }}
               </a-select-option>
             </a-select>
           </a-form-model-item>
@@ -88,17 +91,12 @@
 </template>
 
 <script>
-import {
-  addPreference,
-  getAllCurriculums,
-  getAllSubjectsByCurriculumId,
-  GetGradesByCurriculumId
-} from '@/api/preference'
+import { addPreference, getAllCurriculums, getAllSubjectsByCurriculumId, GetGradesByCurriculumId } from '@/api/preference'
 import { getSchools } from '@/api/school'
 import * as logger from '@/utils/logger'
-import { CurriculumType, SubjectType } from '@/const/common'
+import { SubjectType } from '@/const/common'
 import storage from 'store'
-import { CURRENT_ROLE, IS_ADD_PREFERENCE, ADD_PREFERENCE_SKIP_TIME } from '@/store/mutation-types'
+import { ADD_PREFERENCE_SKIP_TIME, CURRENT_ROLE, IS_ADD_PREFERENCE } from '@/store/mutation-types'
 
 export default {
   name: 'AddPreference',

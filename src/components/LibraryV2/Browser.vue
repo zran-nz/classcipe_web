@@ -810,9 +810,9 @@ export default {
     searchByFilter (filter) {
       this.$logger.info('searchByFilter ', filter)
       filter.curriculumId = this.currentCurriculumId
-      filter.fa = []
-      filter.sa = []
-      filter.activity = []
+      filter.faTags = []
+      filter.saTags = []
+      filter.activityTags = []
       filter.faTags.forEach(parent => {
         parent.forEach(child => {
           if (child) {
