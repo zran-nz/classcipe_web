@@ -7,7 +7,7 @@
         </span>
         <a-button class="nav-back-btn" type="link" @click="handleBack">{{ $t('teacher.add-lesson.back') }}</a-button>
         <span> <content-type-icon :type="form.type" /></span>
-        <template v-if="form.type === typeMap.evaluation">
+        <template v-if="form.type === typeMap.classSessionEvaluation">
           <div class="edit-form-name">
             <div class="form-name">
               <template v-if="!editFormNameMode">{{ form.name ? form.name : 'Untitled' }}</template>
@@ -21,7 +21,7 @@
               :data-editFormNameMode="editFormNameMode ? 'true': 'false'">
               <img src="~@/assets/svgIcon/evaluation/bianji.png" />
             </div>
-            <div class="class-name" v-if="form.studentEvaluateData">
+            <div class="class-name" v-if="form.type === typeMap.classSessionEvaluation">
               {{ form.className ? form.className : 'Untitled className' }}
             </div>
           </div>
@@ -29,7 +29,7 @@
         <template v-if="form.type !== typeMap.evaluation">
           <span class="unit-last-change-time" v-if="lastChangeSavedTime">
             <span class="unit-nav-title">
-              {{ form.name }}
+              {{ form.name ? form.name : 'Untitled' }}
             </span>
             <a-divider type="vertical" v-if="!!form.name" />
             {{ $t('teacher.add-lesson.last-change-saved-at-time', { time: lastChangeSavedTime }) }}
@@ -310,6 +310,8 @@ export default {
   z-index: 1000;
   box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.16);
   opacity: 1;
+  display: flex;
+  align-items: center;
 
   .back-icon {
     color: rgba(24, 37, 82, 1);

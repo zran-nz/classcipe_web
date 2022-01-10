@@ -854,8 +854,9 @@ export default {
         this.$logger.info('allNoGroupStudentUserIdList', this.allNoGroupStudentUserIdList)
 
         // 使用班级信息填充表单基础信息，保持header显示的按钮标题兼容显示
-        if (data.classInfo) {
-          this.form.name = data.classInfo.className
+        if (data.classInfo && !data.evaluation) {
+          this.form.name = data.classInfo.fileName
+          this.form.className = data.classInfo.className
           this.form.createBy = data.classInfo.author
           this.form.createTime = new Date(data.classInfo.date * 1000)
           this.form.type = typeMap.classSessionEvaluation
@@ -979,6 +980,7 @@ export default {
 
         // 表单数据赋值
         this.form.className = this.classInfo.className
+        this.form.type = typeMap.classSessionEvaluation
       }).finally(() => {
         if ((!this.forms || this.forms.length === 0) && this.mode === EvaluationTableMode.Edit) {
           this.selectRubricVisible = true
