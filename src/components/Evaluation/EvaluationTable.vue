@@ -173,6 +173,7 @@
             :key="lIndex + '-' + header.type"
             @click='handleClickBodyItem(item, header)'
             v-if='header.visible'
+            :data-index='hIndex'
             :data-row-id='item.rowId'
             :data-header-type='header.type'>
             <template v-if='item.hasOwnProperty(header.type)'>
@@ -572,7 +573,7 @@
               </div>
             </template>
 
-            <template v-if='hIndex === headers.length - 2 && mode === tableMode.Edit'>
+            <template v-if='hIndex === headers.length - 3 && mode === tableMode.Edit'>
               <div class='add-more-header'>
                 <a-popconfirm
                   :title="'Delete this line ?'"
