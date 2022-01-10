@@ -1480,7 +1480,6 @@ export default {
     .keyword-item {
       font-weight: bold;
       color: #2DC9A4;
-      text-decoration: underline;
     }
   }
 
