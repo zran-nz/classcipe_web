@@ -12,7 +12,9 @@ export const evaluationAPIUrl = {
   findMyClasses: '/classcipe/api/evaluation/findMyClasses',
   GetSessionEvaluationByClassId: '/classcipe/api/evaluation/getSessionEvaluationByClassId',
   querySessionEvaluation: '/classcipe/api/evaluation/querySessionEvaluation',
-  saveSessionEvaluation: '/classcipe/api/evaluation/saveSessionEvaluation'
+  saveSessionEvaluation: '/classcipe/api/evaluation/saveSessionEvaluation',
+  querySessionEvidence: '/classcipe/api/evaluation/querySessionEvidence',
+  saveSessionEvidence: '/classcipe/api/evaluation/saveSessionEvidence'
 }
 
 /**
@@ -99,6 +101,22 @@ export function SaveSessionEvaluation (parameter) {
 export function QuerySessionEvaluation (parameter) {
   return request({
     url: evaluationAPIUrl.querySessionEvaluation,
+    method: 'post',
+    data: parameter
+  })
+}
+
+export function QuerySessionEvidence (parameter) {
+  return request({
+    url: evaluationAPIUrl.querySessionEvidence,
+    method: 'post',
+    data: parameter
+  })
+}
+
+export function SaveSessionEvidence (parameter) {
+  return request({
+    url: evaluationAPIUrl.saveSessionEvidence,
     method: 'post',
     data: parameter
   })

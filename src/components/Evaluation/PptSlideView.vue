@@ -348,7 +348,7 @@
 <script>
 
 import { GetStudentResponse } from '@/api/lesson'
-import { QuerySessionEvaluation, SaveSessionEvaluation } from '@/api/evaluation'
+import { QuerySessionEvidence, SaveSessionEvidence } from '@/api/evaluation'
 import { TemplatesGetPresentation } from '@/api/template'
 import EvaluationTableMode from '@/components/Evaluation/EvaluationTableMode'
 import StudentIcon from '@/assets/svgIcon/evaluation/StudentIcon.svg?inline'
@@ -469,7 +469,7 @@ export default {
       Promise.all([
         TemplatesGetPresentation({ presentationId: this.slideId }),
         QueryByClassInfoSlideId({ slideId: this.slideId }),
-        QuerySessionEvaluation({
+        QuerySessionEvidence({
           classId: this.classId,
           user: this.studentName
         }),
@@ -652,7 +652,7 @@ export default {
         itemsList: this.itemsList
       }
       this.$logger.info('保存evaluation数据', data)
-      SaveSessionEvaluation({
+      SaveSessionEvidence({
         classId: this.classId,
         user: this.studentName,
         result: JSON.stringify(data)

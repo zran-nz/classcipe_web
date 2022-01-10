@@ -554,7 +554,11 @@ import GroupIcon from '@/assets/svgIcon/evaluation/qunzu.svg?inline'
 import ArrowDown from '@/assets/svgIcon/evaluation/arrow_down.svg?inline'
 import ArrowTop from '@/assets/svgIcon/evaluation/arrow_top.svg?inline'
 import ModalHeader from '@/components/Common/ModalHeader'
-import { EvaluationAddOrUpdate, EvaluationQueryByIds, GetSessionEvaluationByClassId } from '@/api/evaluation'
+import {
+  SaveSessionEvaluation,
+  EvaluationQueryByIds,
+  GetSessionEvaluationByClassId
+} from '@/api/evaluation'
 import SelectEvaluationList from '@/components/Evaluation/SelectEvaluationList'
 import EvaluationTableType from '@/components/Evaluation/EvaluationTableType'
 import EvaluationTableMode from '@/components/Evaluation/EvaluationTableMode'
@@ -1417,8 +1421,8 @@ export default {
               }
               return false
             } else {
-              EvaluationAddOrUpdate(this.form).then((response) => {
-                this.$logger.info('EvaluationAddOrUpdate', response)
+              SaveSessionEvaluation(this.form).then((response) => {
+                this.$logger.info('SaveSessionEvaluation', response)
                 this.$message.success('Save successfully!')
                 this.formSaving = false
               }).then(() => {
@@ -1431,7 +1435,7 @@ export default {
                 }
                 if (this.mode === EvaluationTableMode.TeacherEvaluate && currentForm && (currentForm.pe || currentForm.se)) {
                   GetSessionEvaluationByClassId({ classId: this.classId }).then(response => {
-                    this.$logger.info('after EvaluationAddOrUpdate GetSessionEvaluationByClassId', response)
+                    this.$logger.info('after SaveSessionEvaluation GetSessionEvaluationByClassId', response)
 
                     const data = response.result
                     if (data.evaluation && data.evaluation.studentEvaluateData) {
@@ -1520,8 +1524,8 @@ export default {
           }
           return false
         } else {
-          EvaluationAddOrUpdate(this.form).then((response) => {
-            this.$logger.info('EvaluationAddOrUpdate', response)
+          SaveSessionEvaluation(this.form).then((response) => {
+            this.$logger.info('SaveSessionEvaluation', response)
             this.$message.success('Save successfully!')
             this.formSaving = false
           }).then(() => {
@@ -1534,7 +1538,7 @@ export default {
             }
             if (this.mode === EvaluationTableMode.TeacherEvaluate && currentForm && (currentForm.pe || currentForm.se)) {
               GetSessionEvaluationByClassId({ classId: this.classId }).then(response => {
-                this.$logger.info('after EvaluationAddOrUpdate GetSessionEvaluationByClassId', response)
+                this.$logger.info('after SaveSessionEvaluation GetSessionEvaluationByClassId', response)
 
                 const data = response.result
                 if (data.evaluation && data.evaluation.studentEvaluateData) {
@@ -1632,8 +1636,8 @@ export default {
               this.formSaving = false
               return false
             } else {
-              EvaluationAddOrUpdate(this.form).then((response) => {
-                this.$logger.info('EvaluationAddOrUpdate', response)
+              SaveSessionEvaluation(this.form).then((response) => {
+                this.$logger.info('SaveSessionEvaluation', response)
                 if (response.success) {
                   this.$message.success('Save successfully!')
                   this.formSaving = false
@@ -1686,8 +1690,8 @@ export default {
           this.formSaving = false
           return false
         } else {
-          EvaluationAddOrUpdate(this.form).then((response) => {
-            this.$logger.info('EvaluationAddOrUpdate', response)
+          SaveSessionEvaluation(this.form).then((response) => {
+            this.$logger.info('SaveSessionEvaluation', response)
             if (response.success) {
               this.$message.success('Save successfully!')
               this.formSaving = false
