@@ -1657,7 +1657,9 @@ export default {
     watch: {
       'selectedTemplateList': function (value) {
         this.$logger.info('watch selectedTemplateList change ', value)
-        this.autoSave()
+        if (this.isOwner || this.isCollaborater) {
+          this.autoSave()
+        }
       }
     },
     beforeRouteLeave (to, from, next) {
