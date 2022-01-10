@@ -949,7 +949,7 @@ export default {
       } else if (this.formType === EvaluationTableType.CenturySkills) {
         /**
          *  第三种表需要针对NZ和AU用户在最左侧添加一列命名为Criteria
-         Cambridge/IB/IGCSE的用户只看到第二列，点击后看到21st century skills数据入口
+         Cambridge/IB/IGCSE的用户只看到第二列，点击后看到21st Century Skills数据入口
          */
         const bindCurriculum = parseInt(this.$store.getters.bindCurriculum)
         if (bindCurriculum === 1 || bindCurriculum === 2) {
@@ -964,8 +964,8 @@ export default {
               visible: true
             },
             {
-              label: '21st century skills',
-              previewLabel: '21st century skills',
+              label: '21st Century Skills',
+              previewLabel: '21st Century Skills',
               type: EvaluationTableHeader.Description,
               editable: false,
               editing: false,
@@ -1030,8 +1030,8 @@ export default {
         } else {
           this.headers = [
             {
-              label: '21st century skills',
-              previewLabel: '21st century skills',
+              label: '21st Century Skills',
+              previewLabel: '21st Century Skills',
               type: EvaluationTableHeader.Description,
               editable: false,
               editing: false,
@@ -1345,10 +1345,10 @@ export default {
         } else if (this.formType === this.tableType.CenturySkills) {
           /**
            *  第三种表需要针对NZ和AU用户在最左侧添加一列命名为Criteria
-           Cambridge/IB/IGCSE的用户只看到第二列，点击后看到21st century skills数据入口
+           Cambridge/IB/IGCSE的用户只看到第二列，点击后看到21st Century Skills数据入口
            NZ和AU的用户在第一列criteria列点击后看到
            NZ-Key competencies
-           AU-General capabilities的入口，然后在第二列点击后看到21st century skills数据入口
+           AU-General capabilities的入口，然后在第二列点击后看到21st Century Skills数据入口
            */
           this.$logger.info('CenturySkills header.type ' + header.type, header.type === this.headerType.Description, header.type === this.headerType.Criteria)
           if (header.type === this.headerType.Description) {
@@ -1418,10 +1418,10 @@ export default {
         if (selectedList.length >= 1) {
           /**
            *  第三种表需要针对NZ和AU用户在最左侧添加一列命名为Criteria
-           Cambridge/IB/IGCSE的用户只看到第二列，点击后看到21st century skills数据入口
+           Cambridge/IB/IGCSE的用户只看到第二列，点击后看到21st Century Skills数据入口
            NZ和AU的用户在第一列criteria列点击后看到
            NZ-Key competencies
-           AU-General capabilities的入口，然后在第二列点击后看到21st century skills数据入口
+           AU-General capabilities的入口，然后在第二列点击后看到21st Century Skills数据入口
            */
           const header = Object.assign(this.currentSelectHeader)
           if (header.type === this.headerType.Description) {

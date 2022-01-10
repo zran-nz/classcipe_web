@@ -32,7 +32,7 @@
         </a-row>
 
         <a-row class="objectives-wrapper-block" v-if="getknowledgeListType(TagType.century).length > 0" >
-          <div class="title-item title-21">21centruy skill</div>
+          <div class="title-item title-21">21st Century Skills</div>
           <div class="objectives-list" v-for="(k,index) in getknowledgeListType(TagType.century)" :key="index">
             <div class="objectives-list-item objectives-list-item-21 objectives-list-item-top-fixed" @click="handleActiveDescription(TagType.century,k)">
               <!--              <a-breadcrumb separator=">">-->

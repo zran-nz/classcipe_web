@@ -143,7 +143,7 @@
                       Standard rubrics
                     </div>
                     <div :class="{'mode-item': true, 'knowledge-active-mode' : newFormType === EvaluationTableType.CenturySkills}" @click="handleToggleFormType(EvaluationTableType.CenturySkills)">
-                      21st century skills rubric
+                      21st Century Skills rubric
                     </div>
                   </div>
                 </div>
@@ -656,7 +656,7 @@ export default {
       } else if (newFormType === EvaluationTableType.Rubric_2) {
         this.newTableName = 'Rubric two ' + (this.forms.length + 1)
       } else if (newFormType === EvaluationTableType.CenturySkills) {
-        this.newTableName = 'CenturySkills ' + (this.forms.length + 1)
+        this.newTableName = '21st Century Skills ' + (this.forms.length + 1)
       }
     },
 

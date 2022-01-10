@@ -380,7 +380,7 @@
                   </div>
                 </div>
                 <div class="filter-row">
-                  <div class="ant-form-item-label">21 century skills:</div>
+                  <div class="ant-form-item-label">21st Century Skills:</div>
                   <div class="row-select">
                     <a-checkbox class="row-checkbox"></a-checkbox>
                     <a-select class="row-choose" >

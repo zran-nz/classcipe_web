@@ -796,7 +796,7 @@
                       Assessment
                     </a-radio-button>
                     <a-radio-button :value="3">
-                      21 century skills
+                      21st Century Skills
                     </a-radio-button>
                   </a-radio-group>
                   <a-button v-if="showTemplateFilter" type="link" class="clear-all" @click="clearFilter()" style="float:right;">
