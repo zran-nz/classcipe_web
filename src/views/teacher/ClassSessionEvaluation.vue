@@ -228,32 +228,6 @@
                           </template>
                         </div>
                       </a-button>
-                      <a-button
-                        class="my-form-header-btn"
-                        style="{
-                            width: 120px;
-                            display: flex;
-                            flex-direction: row;
-                            align-items: center;
-                            justify-content: center;
-                             background: rgba(21, 195, 154, 0.08);
-                            border: 1px solid #15C39A;
-                            border-radius: 20px;
-                            padding: 15px 20px;
-                          }"
-                        @click="handleSaveEvaluation">
-                        <div class="btn-icon">
-                          <img src="~@/assets/icons/common/form/fabu@2x.png" />
-                        </div>
-                        <div class="btn-text">
-                          <template v-if="mode=== EvaluationTableMode.Edit">
-                            Save
-                          </template>
-                          <template v-if="mode !== EvaluationTableMode.Edit && mode !== EvaluationTableMode.Preview">
-                            Submit
-                          </template>
-                        </div>
-                      </a-button>
                     </div>
                     <div class="form-setting">
                       <a-dropdown
@@ -1373,7 +1347,8 @@ export default {
         this.$router.push({ path: '/teacher/main/created-by-me' })
       }, 500)
     },
-    handleSaveEvaluation () {
+    // switchEvaluate标识是否跳转到评估页面，true为跳转，false为不跳转
+    handleSaveEvaluation (switchEvaluate) {
       this.$logger.info('handleSaveEvaluation', this.forms)
 
       if (!this.isEmptyStudentEvaluateData && this.mode === EvaluationTableMode.Edit) {
@@ -1415,6 +1390,9 @@ export default {
             if (formDataList.length === 0) {
               this.$message.error('Please add at least one form!')
               this.formSaving = false
+              if (switchEvaluate) {
+                this.goEvaluatePage()
+              }
               return false
             } else {
               EvaluationAddOrUpdate(this.form).then((response) => {
@@ -1472,6 +1450,10 @@ export default {
                     }
                   })
                 }
+              }).finally(() => {
+                if (switchEvaluate) {
+                  this.goEvaluatePage()
+                }
               })
             }
           }
@@ -1511,6 +1493,9 @@ export default {
         if (formDataList.length === 0) {
           this.$message.error('Please add at least one form!')
           this.formSaving = false
+          if (switchEvaluate) {
+            this.goEvaluatePage()
+          }
           return false
         } else {
           EvaluationAddOrUpdate(this.form).then((response) => {
@@ -1568,11 +1553,18 @@ export default {
                 }
               })
             }
+          }).finally(() => {
+            if (switchEvaluate) {
+              this.goEvaluatePage()
+            }
           })
         }
       }
     },
 
+    goEvaluatePage () {
+      window.location.pathname = '/teacher/class-evaluation/' + this.taskId + '/' + this.classId + '/teacher-evaluate'
+    },
     handleSaveAndBackEvaluation () {
       this.$logger.info('handleSaveAndBackEvaluation', this.forms)
 
@@ -1905,7 +1897,7 @@ export default {
             this.$confirm({
               content: 'Are you sure to switch to evaluate mode ?',
               onOk: () => {
-                window.location.pathname = '/teacher/class-evaluation/' + this.taskId + '/' + this.classId + '/teacher-evaluate'
+                this.handleSaveEvaluation(true)
               }
             })
           }
