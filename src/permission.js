@@ -6,14 +6,14 @@ import NProgress from 'nprogress' // progress bar
 import '@/components/NProgress/nprogress.less' // progress bar custom style
 import notification from 'ant-design-vue/es/notification'
 import { setDocumentTitle, domTitle } from '@/utils/domUtil'
-import { ACCESS_TOKEN, CURRENT_ROLE, IS_ADD_PREFERENCE } from '@/store/mutation-types'
+import { ACCESS_TOKEN, CURRENT_ROLE } from '@/store/mutation-types'
 import { i18nRender } from '@/locales'
-import { addPreferenceRouter, defaultTeacherRouter, defaultExpertRouter, selectRoleRouter } from '@/config/router.config'
+import { defaultTeacherRouter, defaultExpertRouter } from '@/config/router.config'
 import * as logger from '@/utils/logger'
 
 NProgress.configure({ showSpinner: false }) // NProgress Configuration
 
-const allowList = ['login', 'register', 'registerResult', 'authResult', 'authCheck', 'AddonPreview', 'PageRedirect'] // no redirect allowList
+const allowList = ['login', 'register', 'registerResult', 'authResult', 'authCheck', 'PageRedirect', 'AddonCallback'] // no redirect allowList
 const loginRoutePath = '/user/login'
 const authCheckPath = '/user/auth-check'
 
@@ -37,27 +37,28 @@ router.beforeEach((to, from, next) => {
     const sessionActive = window.sessionStorage.getItem(SESSION_ACTIVE_KEY)
     logger.info('sessionActive check', sessionActive)
     if (sessionActive) {
-    // 检查角色信息是否完善
-      if (to.path === selectRoleRouter) {
-        logger.info(' allow user select a role')
-        next()
-        NProgress.done()
-      } else if (!storage.get(CURRENT_ROLE)) {
-        logger.info('user must select a role first', storage.get(CURRENT_ROLE))
-        next({ path: selectRoleRouter })
-        NProgress.done()
-        // eslint-disable-next-line brace-style
-      }
+      // 检查角色信息是否完善
+      // if (to.path === selectRoleRouter) {
+      //   logger.info(' allow user select a role')
+      //   next()
+      //   NProgress.done()
+      // } else if (!storage.get(CURRENT_ROLE)) {
+      //   logger.info('user must select a role first', storage.get(CURRENT_ROLE))
+      //   next({ path: selectRoleRouter })
+      //   NProgress.done()
+      //   // eslint-disable-next-line brace-style
+      // }
       // 检查个人信息是否完善
-      else if (!storage.get(IS_ADD_PREFERENCE) && to.path === addPreferenceRouter) {
-        logger.info('allow user add preference')
-        next()
-        NProgress.done()
-      } else if (!storage.get(IS_ADD_PREFERENCE)) {
-        logger.info('user must add preference')
-        next({ path: addPreferenceRouter })
-        NProgress.done()
-      } else if (to.path === loginRoutePath) {
+      // else if (!storage.get(IS_ADD_PREFERENCE) && to.path === addPreferenceRouter) {
+      //   logger.info('allow user add preference')
+      //   next()
+      //   NProgress.done()
+      // } else if (!storage.get(IS_ADD_PREFERENCE)) {
+      //   logger.info('user must add preference')
+      //   next({ path: addPreferenceRouter })
+      //   NProgress.done()
+      // } else
+      if (to.path === loginRoutePath) {
         const defaultRoutePath = storage.get(CURRENT_ROLE) === 'expert' ? defaultExpertRouter : defaultTeacherRouter
         next({ path: defaultRoutePath })
         NProgress.done()

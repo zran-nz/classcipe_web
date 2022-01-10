@@ -58,6 +58,12 @@ export default {
   width: 100%;
   box-sizing: border-box;
 
+  &:hover {
+    .card-title {
+      text-decoration: underline;
+    }
+  }
+
   .card-cover {
     height: 130px;
     background-size: cover;

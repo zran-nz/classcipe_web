@@ -8,7 +8,8 @@ export const lessonAPIUrl = {
   NameSession: '/class/name_session',
   StartLesson: '/slide/start_lesson',
   GetStudents: '/class/get_students',
-  GetStudentResponse: '/class/get_student_response'
+  GetStudentResponse: '/class/get_student_response',
+  SlideGetAll: '/slide/get_all'
 }
 
 export function getMyClasses (parameter) {

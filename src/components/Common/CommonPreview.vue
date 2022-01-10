@@ -22,17 +22,24 @@
             <div class="name">
               {{ data.name }}
             </div>
-            <div v-if="canEdit" class="action-item">
+            <div class="action-item">
               <div class="star">
                 <template v-if="data.createBy !== $store.getters.userInfo.email">
                   <img src="~@/assets/icons/common/preview/star_gray.png" @click="handleFavorite(data)" v-if="!data.isFavorite"/>
                   <img src="~@/assets/icons/common/preview/star_yellow.png" @click="handleFavorite(data)" v-if="data.isFavorite"/>
                 </template>
               </div>
-              <div class="edit" v-if="permissionEdit">
+              <div class="edit" v-if="isOwner || isCollaborater">
                 <a-button type="primary" shape="round" @click="handleEditItem(data)">
                   <div class="button-content" >
                     Edit <img class="edit-icon" src="~@/assets/icons/common/preview/edit_white.png" />
+                  </div>
+                </a-button>
+              </div>
+              <div class="edit" v-else>
+                <a-button :loading="copyLoading" class="copy-button" type="primary" shape="round" @click="handleDuplicateItem">
+                  <div class="button-content" >
+                    Copy <a-icon type="copy" style="margin-left: 6px;"/>
                   </div>
                 </a-button>
               </div>
@@ -70,13 +77,30 @@
           <div class="sub-detail">
             <div class="detail-block">
               <div class="block-main-label">
-                Overview
+                <template v-if="data.type === typeMap.task">Task details</template>
+                <template v-else>Overview</template>
               </div>
               <div class="overview-block">
                 <div class="view-text">
                   {{ data.overview }}
                 </div>
               </div>
+              <template v-if="data.type === typeMap.task && data.questionNames.length > 0">
+                <div class="block-main-label">
+                  Key question(s)/Line(s) of Inquiry
+                </div>
+                <div class="detail-block" style="margin:10px;">
+                  <div class="keyword-block-content">
+                    <div class="content-list">
+                      <div class="content-item" v-for="(question,qIndex) in data.questionNames" :key="qIndex">
+                        <div class="question" v-if="question">
+                          {{ question }}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </template>
               <div class="block-main-label">
                 Customized tags
               </div>
@@ -92,21 +116,13 @@
                 </div>
               </div>
               <div class="block-main-label">
-                Assessment objectives
+                Learning Objectives
               </div>
               <div class="overview-block">
                 <div class="learn-question-tag">
-                  <template v-if="data.learnOuts && data.learnOuts.length">
-                    <div class="keyword-block-content">
-                      <div class="content-list" v-if="data.learnOuts && data.learnOuts.length">
-                        <div class="content-item" v-for="(learn,qIndex) in data.learnOuts" :key="'qIndex' + qIndex">
-                          <div class="question">
-                            {{ learn.name }}
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </template>
+                  <div class="learn-out" style="margin: 10px;">
+                    <ui-learn-out-sub :learn-outs="data.learnOuts" />
+                  </div>
                 </div>
               </div>
               <template v-if="data.inquiry">
@@ -116,6 +132,23 @@
                 <div class="inquiry-block-content">
                   <div class="inquiry">
                     {{ data.inquiry }}
+                  </div>
+                </div>
+              </template>
+              <template v-if="data.materialList && data.materialList.length">
+                <div class="block-main-label">
+                  Material list
+                </div>
+                <div class="overview-block">
+                  <div class="material-list">
+                    <div class="material-item" v-for="(material, mIndex) in data.materialList" :key="mIndex">
+                      <div class="material-name">
+                        {{ material.name }}
+                      </div>
+                      <div class="material-link" @click="handleOpenLink(material.link)">
+                        {{ material.link }}
+                      </div>
+                    </div>
                   </div>
                 </div>
               </template>
@@ -175,7 +208,7 @@
 
             <template v-if="data && data.questions && data.questions.length">
               <div class="block-main-label">
-                Line of inquiry/Key question
+                Key question(s)/Line(s) of Inquiry
               </div>
               <div class="detail-block">
                 <div class="keyword-block-content">
@@ -193,9 +226,9 @@
 
           <!-- lesson task img list-->
           <template v-if="type === typeMap.task && data.presentationId ">
-            <div v-if="Object.keys(currentPageMaterial).length > 0" class="top-icon-groups">
+            <div class="top-icon-groups">
               <a-col class="material-row" >
-                <div class="icon-group">
+                <div class="icon-group" v-if="Object.keys(currentPageMaterial).length > 0">
                   <a-badge :count="showMaterialSize('text')" v-if="currentPageMaterial.hasOwnProperty('text')">
                     <div class="icon" @click="showPluginMaterial('text')">
                       <text-type-svg />
@@ -261,27 +294,27 @@
                       <div class="plugin-tags" v-if="currentPageItem">
                         <a-row class="tag-row">
                           <span class="tag-item" v-if="currentPageItem.data.bloomLevel">
-                            <span class="tag-title">Bloom level:</span>
+                            <span class="tag-title">Bloom's Taxonomy:</span>
                             <span class="tag-value" style="color:#F16A39">{{ currentPageItem.data.bloomLevel }}</span>
                           </span>
                           <span class="tag-item" v-if="currentPageItem.data.knowledgeLevel">
-                            <span class="tag-title">Knowledge:</span>
+                            <span class="tag-title">Knowledge dimension(s):</span>
                             <span class="tag-value" style="color:#F16A39">{{ currentPageItem.data.knowledgeLevel }}</span>
                           </span>
                         </a-row>
                         <a-row class="tag-row">
                           <span class="tag-item" v-if="currentPageItem.data.verbs">
-                            <span class="tag-title">Verbs:</span>
+                            <span class="tag-title">Command terms:</span>
                             <span class="tag-value" v-for="(v,index) in currentPageItem.data.verbs" :key="index" style="color:#15C39A">{{ v }}</span>
                           </span>
                           <span class="tag-item" v-if="currentPageTips">
-                            <span class="tag-title">Tips added:</span>
+                            <span class="tag-title">Tip added:</span>
                             <span class="tag-value" style="color:#0054FF">{{ currentPageTips.tip }}</span>
                           </span>
                         </a-row>
                         <a-row class="tag-row">
                           <span class="tag-item">
-                            <span class="tag-title">learning outcomes:</span>
+                            <span class="tag-title">Learning Objectives:</span>
                             <span class="tag-value" v-for="(learn,index) in currentPageItem.data.learnOuts" :key="index" style="color:#00BCF2">
                               <a-tooltip :title="learn.path" :overlayStyle="{ 'z-index': '3000'}">{{ learn.name }} </a-tooltip>
                             </span>
@@ -363,17 +396,19 @@ import CommonLink from '@/components/Common/CommonLink'
 import { PptPreviewMixin } from '@/mixins/PptPreviewMixin'
 import MediaPreview from '@/components/Task/MediaPreview'
 import TaskMaterialPreview from '@/components/Task/TaskMaterialPreview'
+import UiLearnOutSub from '@/components/UnitPlan/UiLearnOutSub'
+import { BaseEventMixin } from '@/mixins/BaseEvent'
+import { Duplicate } from '@/api/teacher'
 const { formatLocalUTC } = require('@/utils/util')
 const { UnitPlanQueryById } = require('@/api/unitPlan')
-const { LessonQueryById } = require('@/api/myLesson')
 const { TaskQueryById } = require('@/api/task')
 const { EvaluationQueryById } = require('@/api/evaluation')
 const { FavoritesAdd } = require('@/api/favorites')
-const { TopicQueryById } = require('@/api/topic')
 
 export default {
   name: 'CommonPreview',
   components: {
+    UiLearnOutSub,
     EvaluationTablePreview,
     EvaluationPreview,
     CommonAssociatePreview,
@@ -400,7 +435,7 @@ export default {
       default: false
     }
   },
-  mixins: [PptPreviewMixin],
+  mixins: [PptPreviewMixin, BaseEventMixin],
   computed: {
     lastChangeSavedTime () {
       if (this.data) {
@@ -420,6 +455,7 @@ export default {
     return {
       loading: true,
       slideLoading: false,
+      copyLoading: false,
       data: null,
       imgList: [],
       viewMode: 'Detail',
@@ -437,18 +473,11 @@ export default {
       typeMap: typeMap,
 
       subPreviewVisible: false,
-      currentImgIndex: 0,
-      permissionEdit: true
+      currentImgIndex: 0
     }
   },
   created () {
     logger.info('CommonPreview id ' + this.id + ' type ' + this.type)
-    if (this.type === this.typeMap['unit-plan'] && this.$store.getters.currentRole === 'expert') {
-      this.permissionEdit = false
-    }
-    if (this.type === this.typeMap.topic && this.$store.getters.currentRole === 'teacher') {
-      this.permissionEdit = false
-    }
     this.loadData()
   },
   methods: {
@@ -461,11 +490,13 @@ export default {
         }).then(response => {
           logger.info('UnitPlanQueryById ' + this.id, response.result)
           this.data = response.result
+          this.oldForm = this.data
           if (this.data && this.data.image) {
             this.imgList = [this.data.image]
           }
         }).finally(() => {
           this.loading = false
+          this.queryContentCollaborates(this.id, this.type)
         })
       } else if (this.type === this.typeMap.task) {
         TaskQueryById({
@@ -473,23 +504,13 @@ export default {
         }).then(response => {
           logger.info('TaskQueryById ' + this.id, response.result)
           this.data = response.result
-        }).finally(() => {
           this.loading = false
+          this.oldForm = this.data
+          this.queryContentCollaborates(this.id, this.type)
           this.loadThumbnail()
           if (this.data.presentationId) {
             this.getClassInfo(this.data.presentationId)
           }
-        })
-      } else if (this.type === this.typeMap.lesson) {
-        LessonQueryById({
-          id: this.id
-        }).then(response => {
-          logger.info('LessonQueryById ' + this.id, response.result)
-          this.data = response.result
-          this.data.questions = [response.result.suggestingTag]
-        }).finally(() => {
-          this.loading = false
-          this.loadThumbnail()
         })
       } else if (this.type === this.typeMap.evaluation) {
         EvaluationQueryById({
@@ -497,23 +518,13 @@ export default {
         }).then(response => {
           logger.info('EvaluationQueryById ' + this.id, response.result)
           this.data = response.result
+          this.oldForm = this.data
           if (this.data && this.data.image) {
             this.imgList = [this.data.image]
           }
         }).finally(() => {
           this.loading = false
-        })
-      } else if (this.type === this.typeMap.topic) {
-        TopicQueryById({
-          id: this.id
-        }).then(response => {
-          logger.info('TopicQueryById ' + this.id, response.result)
-          this.data = response.result
-          if (this.data && this.data.image) {
-            this.imgList = [this.data.image]
-          }
-        }).finally(() => {
-          this.loading = false
+          this.queryContentCollaborates(this.id, this.type)
         })
       }
     },
@@ -614,6 +625,28 @@ export default {
         window.open('/teacher/evaluation-redirect/' + item.id
           , '_blank')
       }
+    },
+    handleDuplicateItem () {
+      this.$logger.info('handleDuplicateItem', this.data)
+      this.$confirm({
+        title: 'Confirm copy',
+        content: 'Are you sure to copy ' + this.data.name + ' ?',
+        centered: true,
+        onOk: () => {
+          this.copyLoading = true
+            Duplicate({ id: this.id, type: this.type }).then((response) => {
+            this.$logger.info('Duplicate response', response)
+            this.$message.success('Copy successfully')
+          }).finally(() => {
+            this.copyLoading = false
+            this.$router.push({ path: '/teacher/main/created-by-me' })
+          })
+        }
+      })
+    },
+
+    handleOpenLink (url) {
+      window.open(url, '_blank')
     }
   }
 }
@@ -673,6 +706,11 @@ export default {
               padding-left: 5px;
               width: 18px;
             }
+          }
+          .copy-button{
+            display: flex;
+            flex-direction: row;
+            align-items: center;
           }
         }
       }
@@ -1426,17 +1464,18 @@ export default {
   overflow-y:auto;
   background-color:#F7F7F7;
   font-size: 12px;
+  padding-left: 15px;
   font-family: Segoe UI;
   .tag-row{
     margin: 5px;
   }
   .tag-item{
-    margin-left: 15px;
+    margin-right: 15px;
   }
   .tag-title{
     font-weight: 400;
     line-height: 0px;
-    color: #808191;
+    color: #333334;
     opacity: 1;
   }
   .tag-value{
@@ -1452,6 +1491,7 @@ export default {
   position: relative;
   color: rgba(0, 0, 0, 0.65);
   background: #fff;
+  height:70px;
   .icon-group{
     display: flex;
     flex-direction: row;
@@ -1534,6 +1574,36 @@ export default {
         }
       }
     }
+  }
+}
+
+.material-row {
+  height: 70px;
+  display: flex;
+  align-items: center;
+}
+
+.material-list {
+  background: #fff;
+  padding: 5px 15px;
+}
+.material-item {
+  margin: 10px 0;
+  .material-name {
+    font-family: Inter-Bold;
+    font-size: 14px;
+    font-weight: bold;
+    color: #182552;
+    padding-right: 10px;
+    box-sizing: border-box;
+  }
+
+  .material-link {
+    cursor: pointer;
+    font-family: Inter-Regular;
+    font-size: 13px;
+    color: #2DC9A4;
+    text-decoration: underline;
   }
 }
 </style>

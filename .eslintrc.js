@@ -8,6 +8,7 @@ module.exports = {
     '@vue/standard'
   ],
   rules: {
+    'space-before-function-paren': 0,
     'no-console': 'off',
     'no-debugger': process.env.NODE_ENV === 'production' ? 'error' : 'off',
     'generator-star-spacing': 'off',
@@ -22,6 +23,7 @@ module.exports = {
         }
       }
     ],
+    'vue/html-quotes': 0,
     'vue/attribute-hyphenation': 0,
     'vue/html-self-closing': 0,
     'vue/component-name-in-template-casing': 0,

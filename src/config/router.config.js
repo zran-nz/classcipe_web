@@ -87,6 +87,12 @@ export const asyncRouterMap = [
             meta: { title: 'menu.library', keepAlive: true, permission: ['expert', 'teacher'], fullLayout: true }
           },
           {
+            path: '/teacher/library-v2/:browserType?/',
+            name: 'LibraryV2',
+            component: () => import('@/views/teacher/LibraryV2'),
+            meta: { title: 'menu.library', keepAlive: true, permission: ['expert', 'teacher'], fullLayout: true }
+          },
+          {
             path: '/teacher/managing',
             name: 'Managing',
             component: () => import('@/views/teacher/Managing'),
@@ -187,7 +193,7 @@ export const asyncRouterMap = [
             name: 'ClassEvaluation',
             props: true,
             component: () => import('@/views/teacher/ClassSessionEvaluation'),
-            meta: { title: 'menu.evaluation', keepAlive: true, permission: ['expert', 'teacher'] }
+            meta: { title: 'session evaluate', keepAlive: true, permission: ['expert', 'teacher'] }
           }
           // {
           //   path: '/teacher/unit-plan-material-redirect/:unitPlanId/:materialId',
@@ -282,25 +288,52 @@ export const asyncRouterMap = [
         ]
       },
 
+      // student
+      {
+        path: '/student',
+        name: 'student',
+        redirect: '/student/main/created-by-me',
+        component: RouteView,
+        meta: { title: 'menu.main', keepAlive: true, icon: bxAnaalyse, permission: ['student'] },
+        children: [
+          {
+            path: '/student/main',
+            name: 'Main',
+            redirect: '/student/main/created-by-me',
+            component: () => import('@/views/teacher/Main'),
+            meta: { title: 'menu.main', keepAlive: true, permission: ['student'] },
+            children: [
+              {
+                path: '/student/main/created-by-me',
+                name: 'CreatedByMe',
+                component: () => import('@/views/teacher/CreatedByMe'),
+                meta: { title: 'menu.my-content', keepAlive: true, permission: ['student'] }
+              }
+            ]
+          }
+
+        ]
+      },
+
       // account
       {
         path: '/account',
         component: RouteView,
         redirect: '/account/center',
         name: 'account',
-        meta: { title: 'menu.account', icon: 'user', keepAlive: true, permission: ['expert', 'teacher'] },
+        meta: { title: 'menu.account', icon: 'user', keepAlive: true, permission: ['expert', 'teacher', 'student'] },
         children: [
           {
             path: '/account/center',
             name: 'center',
             component: () => import('@/views/account/center'),
-            meta: { title: 'menu.account.center', keepAlive: true, permission: ['expert', 'teacher'] }
+            meta: { title: 'menu.account.center', keepAlive: true, permission: ['expert', 'teacher', 'student'] }
           },
           {
             path: '/account/settings',
             name: 'settings',
             component: () => import('@/views/account/settings/Index'),
-            meta: { title: 'menu.account.settings', hideHeader: true, permission: ['expert', 'teacher'] },
+            meta: { title: 'menu.account.settings', hideHeader: true, permission: ['expert', 'teacher', 'student'] },
             redirect: '/account/settings/basic',
             hideChildrenInMenu: true,
             children: [
@@ -308,7 +341,7 @@ export const asyncRouterMap = [
                 path: '/account/settings/basic',
                 name: 'BasicSettings',
                 component: () => import('@/views/account/settings/BasicSetting'),
-                meta: { title: 'account.settings.menuMap.profile', hidden: true, permission: ['expert', 'teacher'] }
+                meta: { title: 'account.settings.menuMap.profile', hidden: true, permission: ['expert', 'teacher', 'student'] }
               },
               {
                 path: '/account/settings/security',
@@ -318,20 +351,20 @@ export const asyncRouterMap = [
                   title: 'account.settings.menuMap.security',
                   hidden: true,
                   keepAlive: true,
-                  permission: ['expert', 'teacher']
+                  permission: ['expert', 'teacher', 'student']
                 }
               },
               {
                 path: '/account/settings/custom',
                 name: 'CustomSettings',
                 component: () => import('@/views/account/settings/Custom'),
-                meta: { title: 'account.settings.menuMap.custom', hidden: true, keepAlive: true, permission: ['expert', 'teacher'] }
+                meta: { title: 'account.settings.menuMap.custom', hidden: true, keepAlive: true, permission: ['expert', 'teacher', 'student'] }
               },
               {
                 path: '/account/settings/binding',
                 name: 'BindingSettings',
                 component: () => import('@/views/account/settings/Binding'),
-                meta: { title: 'account.settings.menuMap.binding', hidden: true, keepAlive: true, permission: ['expert', 'teacher'] }
+                meta: { title: 'account.settings.menuMap.binding', hidden: true, keepAlive: true, permission: ['expert', 'teacher', 'student'] }
               },
               {
                 path: '/account/settings/notification',
@@ -341,7 +374,7 @@ export const asyncRouterMap = [
                   title: 'account.settings.menuMap.notification',
                   hidden: true,
                   keepAlive: true,
-                  permission: ['expert', 'teacher']
+                  permission: ['expert', 'teacher', 'student']
                 }
               }
             ]
@@ -435,16 +468,30 @@ export const constantRouterMap = [
     ]
   },
   {
-    path: '/addon/preview/:sourceType?/:id',
-    name: 'AddonPreview',
+    path: '/addon/callback',
+    name: 'AddonCallback',
     props: true,
-    component: () => import(/* webpackChunkName: "fail" */ '@/views/addon/preview')
+    component: () => import(/* webpackChunkName: "fail" */ '@/views/addon/AddonCallback')
   },
   {
     path: '/addon/pageRedirect/:sourceType?/:id',
     name: 'PageRedirect',
     props: true,
     component: () => import(/* webpackChunkName: "fail" */ '@/views/addon/PageRedirect')
+  },
+  {
+    path: '/collaborate/:code',
+    name: 'CollaborateJoin',
+    props: true,
+    meta: { title: 'Collaborate invite', keepAlive: true, icon: bxAnaalyse, permission: ['expert', 'teacher'] },
+    component: () => import(/* webpackChunkName: "fail" */ '@/views/collaborate/Join')
+  },
+  {
+    path: '/linkValid',
+    name: 'linkValid',
+    props: true,
+    meta: { title: 'Collaborate invite', keepAlive: true, icon: bxAnaalyse, permission: ['expert', 'teacher'] },
+    component: () => import(/* webpackChunkName: "fail" */ '@/views/collaborate/LinkValid')
   },
   {
     path: '/404',
@@ -464,6 +511,8 @@ export const defaultTeacherRouter = '/teacher/main/created-by-me'
  */
 // export const defaultExpertRouter = '/expert/main/created-by-me'
 export const defaultExpertRouter = '/teacher/main/created-by-me'
+
+export const defaultStudentRouter = '/student/main/created-by-me'
 
 /**
  * select role router

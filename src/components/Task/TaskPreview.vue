@@ -1,18 +1,23 @@
 <template>
-  <div class="task-preview">
+  <div class="task-preview" :data-uid="rawSubTaskData ? rawSubTaskData._uid : ''">
     <template v-if="loading">
       <a-skeleton active />
     </template>
     <template v-else>
-      <a-row class="top-header" :gutter="[16,24]">
+      <a-row class="top-header" :gutter="[8,8]">
         <a-col span="24">
+          <div class="delete-icon">
+            <a-popconfirm title="Delete?" ok-text="Yes" @confirm="handleDeleteItem" cancel-text="No">
+              <img src="~@/assets/icons/tag/delete.png"/> Delete
+            </a-popconfirm>
+          </div>
           <span class="title">
             {{ task.name }}
           </span>
         </a-col>
       </a-row>
-      <a-row class="top-info" :gutter="[16,24]">
-        <a-col class="left-preview" span="9">
+      <a-row class="top-info" :gutter="[8,8]">
+        <a-col class="left-preview" span="24">
           <a-carousel arrows>
             <div
               slot="prevArrow"
@@ -35,7 +40,9 @@
             </div>
           </a-carousel>
         </a-col>
-        <a-col class="right-detail" span="15">
+      </a-row>
+      <a-row :gutter="[8,8]">
+        <a-col class="right-detail" span="24">
           <div class="detail-wrapper">
             <div class="detail-block">
               <div class="block-title">
@@ -52,9 +59,23 @@
               <div class="block-content">
                 <div class="content-list" v-if="task.customTags && task.customTags.length">
                   <div class="label">
-                    customTags
+                    Customized tags
                   </div>
                   <div class="content-sub-list">
+                    <div class="content-sub-item" v-for="(customTag, kIndex) in task.customTags" :key="kIndex">
+                      <div class="sub-title">
+                        <a-tag :color="tagColorList[kIndex % tagColorList.length]">
+                          {{ customTag.name }}
+                        </a-tag>
+                      </div>
+                    </div>
+                    <div class="content-sub-item" v-for="(customTag, kIndex) in task.customTags" :key="kIndex">
+                      <div class="sub-title">
+                        <a-tag :color="tagColorList[kIndex % tagColorList.length]">
+                          {{ customTag.name }}
+                        </a-tag>
+                      </div>
+                    </div>
                     <div class="content-sub-item" v-for="(customTag, kIndex) in task.customTags" :key="kIndex">
                       <div class="sub-title">
                         <a-tag :color="tagColorList[kIndex % tagColorList.length]">
@@ -75,26 +96,21 @@
 
 <script>
 import * as logger from '@/utils/logger'
-import { TemplatesGetPresentation } from '@/api/template'
 import NoMoreResources from '@/components/Common/NoMoreResources'
-const { TaskQueryById } = require('@/api/task')
 
 export default {
   name: 'TaskPreview',
   components: { NoMoreResources },
   props: {
-    taskId: {
-      type: String,
-      default: null
-    },
     taskData: {
       type: Object,
-      default: null
+      required: true
     }
   },
   data () {
     return {
       loading: true,
+      rawSubTaskData: null,
       task: null,
       thumbnailList: [],
 
@@ -117,51 +133,19 @@ export default {
   methods: {
     loadTaskData () {
       this.loading = true
-      if (!this.taskData && this.taskId) {
-        logger.info('TaskPreview loadTaskData ' + this.taskId)
-        TaskQueryById({
-          id: this.taskId
-        }).then(response => {
-          logger.info('TaskQueryById ' + this.taskId, response.result)
-          this.task = response.result
-        }).finally(() => {
-          this.loadThumbnail()
-        })
-      } else if (this.taskData) {
-        logger.info('TaskPreview taskData ', this.taskData)
-        this.task = this.taskData
-        this.loadThumbnail()
-      }
+      logger.info('TaskPreview exist taskData ', this.taskData)
+      this.rawSubTaskData = this.taskData
+      this.task = this.taskData.subTask
+      // 手动把selectPageImages中图片复制到thumbnailList中
+      this.thumbnailList = []
+      this.rawSubTaskData.selectPageImages.forEach(image => {
+        this.thumbnailList.push({ contentUrl: image })
+      })
+      this.loading = false
     },
 
-    loadThumbnail () {
-      this.$logger.info('loadThumbnail ' + this.task.presentationId)
-      if (this.task.presentationId) {
-        TemplatesGetPresentation({
-          presentationId: this.task.presentationId
-        }).then(response => {
-          this.$logger.info('loadThumbnail response', response.result)
-          const pageObjects = response.result.pageObjects
-          this.thumbnailList = []
-          pageObjects.forEach(page => {
-            this.thumbnailList.push({ contentUrl: page.contentUrl, id: page.pageObjectId })
-          })
-        }).finally(() => {
-          this.loading = false
-        })
-      } else {
-        this.loading = false
-      }
-    },
-
-    handleSelectContentType (contentType) {
-      logger.info('handleSelectContentType ' + contentType)
-      this.activeContentType = contentType
-    },
-
-    handleSubPreviewClose () {
-      logger.info('handleSubPreviewClose')
-      this.subPreviewVisible = false
+    handleDeleteItem () {
+      this.$emit('delete-sub-task', this.rawSubTaskData)
     }
   }
 }
@@ -171,16 +155,22 @@ export default {
 @import "~@/components/index.less";
 
 .task-preview {
+  border: 1px solid #fff;
+  box-shadow: 0px 3px 3px rgba(0, 0, 0, 0.16);
+
+  &:hover {
+    border: 1px solid #f9f9f9;
+  }
 
   .top-header {
     position: relative;
     color: rgba(0, 0, 0, 0.65);
     background: #fff;
-    border-bottom: 1px solid #e8e8e8;
     border-radius: 2px 2px 0 0;
 
     .title {
       font-weight: bold;
+      font-weight: 16px;
     }
 
     .last-change-time {
@@ -190,7 +180,6 @@ export default {
   }
 
   .top-info {
-    padding: 20px 0 0 0;
   }
 
   .left-preview {
@@ -261,14 +250,14 @@ export default {
 
   .right-detail {
     .detail-wrapper {
+      position: relative;
       .detail-block {
         margin-bottom: 10px;
-        border: 1px solid #f3f3f3;
 
         .block-title {
           font-weight: 700;
-          font-size: 16px;
-          padding: 10px;
+          font-size: 14px;
+          padding: 10px 90px 10px 10px;
           background-color: #fafafa;
 
           audio {
@@ -283,7 +272,6 @@ export default {
         }
 
         .block-content {
-          padding: 10px;
           .cover {
             img {
               height: 150px;
@@ -292,7 +280,7 @@ export default {
           .content-list {
             .label {
               font-weight: 500;
-              padding: 5px 0;
+              padding: 5px 10px;
               font-size: 15px;
             }
             .content-item {
@@ -325,14 +313,15 @@ export default {
               }
 
               .content-sub-list {
-                padding: 5px 0;
+                padding: 10px 0;
                 background-color: #f9f9f9;
                 margin-bottom: 10px;
                 display: flex;
                 flex-direction: row;
                 align-items: center;
+                flex-wrap: wrap;
                 .content-sub-item {
-                  margin: 0 5px 5px 0;
+                  margin: 0 10px 10px 0;
                 }
               }
             }
@@ -359,14 +348,32 @@ export default {
 }
 
 .content-sub-list {
-  padding: 5px 0;
+  padding: 10px 10px 0 10px;
+  width: 100%;
+  flex-wrap: wrap;
   background-color: #f9f9f9;
   margin-bottom: 10px;
   display: flex;
   flex-direction: row;
   align-items: center;
   .content-sub-item {
-    margin: 0 5px 5px 5px;
+    margin: 0 10px 10px 0;
+    .ant-tag {
+      border-radius: 8px;
+    }
+  }
+}
+
+.delete-icon {
+  position: absolute;
+  right: 10px;
+  top: 0;
+  cursor: pointer;
+  color: #D01919;
+  background: #fff;
+
+  img {
+    width: 35px;
   }
 }
 </style>

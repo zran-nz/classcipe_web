@@ -6,7 +6,7 @@ export const SESSION_CURRENT_PAGE = 'currentPage'
 export const SESSION_CURRENT_TYPE_LABEL = 'currentTypeLabel'
 export const DICT_TEMPLATE = 'ppt_template'
 export const DICT_BLOOM_CATEGORY = 'bloom_categories'
-
+export const DICT_PLAN_RWC = 'rwc'
 export const TAG_CATGORY_KEYWORDS = 'Key words'
 
 export const TagType = {
@@ -15,7 +15,9 @@ export const TagType = {
   'century': 3,
   'common': 4,
   'idu': 5,
-  'ibSkill': 6
+  'ibSkill': 6,
+  'bigIdea': 'bigIdea', // 前端自定义类型,后台不存在此类数据
+  'assessment': 'assessment' // 前端自定义类型,后台不存在此类数据
 }
 
 export const SubjectType = {
@@ -44,18 +46,20 @@ export const TagOriginType = {
 export const TemplateType = {
   Learning: 'Learning experience',
   Assessments: 'Assessments',
-  Century: '21 century skills'
+  Century: '21st century skills'
 }
 
 export const CustomTagType = {
   plan: {
     sdg: [TAG_CATGORY_KEYWORDS],
-    bigIdea: ['Key words', 'Global context', 'Universal Concept'],
-    default: ['Teaching strategies', 'Differentiated instructions']
+    rwc: ['Global Context'],
+    bigIdea: ['Global Context', 'Key Concepts', 'Relevant Concepts'],
+    default: ['Teaching strategies', 'Differentiated instructions'],
+    question: ['Knowledge Dimensions']
   },
   task: {
-    sa: ['Teaching strategies', 'Differentiated instructions', 'The Arts-Assessment types', 'Science-Assessment types', 'Assessment as Learning', 'Assessment of Learning'],
-    fa: ['Bloom\'s Taxonomy', 'Knowledge Dimensions', 'Teaching strategies', 'Differentiated instructions', 'The Arts-Assessment types', 'Science-Assessment types', 'Assessment as Learning', 'Assessment for Learning'],
+    sa: ['Teaching strategies', 'Differentiated instructions', 'Assessment types', 'Assessment as Learning', 'Assessment of Learning'],
+    fa: ['Bloom\'s Taxonomy', 'Knowledge Dimensions', 'Teaching strategies', 'Differentiated instructions', 'Assessment types', 'Assessment as Learning', 'Assessment for Learning'],
     activity: ['Teaching strategies', 'Differentiated instructions'],
     base: ['Assessment purpose'],
     default: ['Teaching strategies', 'Differentiated instructions', 'Bloom\'s Taxonomy', 'Knowledge Dimensions']

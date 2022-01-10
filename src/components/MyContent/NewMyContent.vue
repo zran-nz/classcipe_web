@@ -24,7 +24,7 @@
         </a-button>
       </a-dropdown>
     </div>-->
-    <div class="display-type-toggle">
+    <div class="display-type-toggle" v-if="showTabs">
       <div
         :class="{'display-type-item': true,
                  'active-display-type': currentType === typeMap.topic}"
@@ -54,7 +54,7 @@
         {{ $t('teacher.my-content.evaluation-type') }}
       </div>
     </div>
-    <div class="create-new-action">
+    <div class="create-new-action" v-if="showCreate">
       <div class="create-action" >
         <a-button type="primary" shape="round" icon="plus" :loading="createLoading" @click="handleEnsureCreate">
           Create New {{ currentTypeLabel }}
@@ -65,23 +65,6 @@
       <!--        <a-icon type="check" class="create-new-icon" v-if="createNewNameMode === 'input' && !createLoading" @click="handleEnsureCreate"/>-->
       <!--        <a-icon type="loading" class="create-new-icon" v-if="createLoading" />-->
       <!--      </div>-->
-    </div>
-    <div class="group-label">
-      <!-- unit plan下才有term概念,task不显示对应的操作和term名称-->
-      <template v-if="fromType === typeMap[&quot;unit-plan&quot;]">
-        <template v-if="groupNameMode === 'select'">
-          <div class="choose-label">Choose category</div>
-          <a-select :default-value="defaultGroupName" style="width: 100%" v-model="selectedGroup">
-            <a-select-option :value="groupNameItem" v-for="(groupNameItem, gIndex) in groupNameList" :key="gIndex">
-              {{ groupNameItem }}
-            </a-select-option>
-          </a-select>
-        </template>
-        <template v-if="groupNameMode === 'input'">
-          <div class="choose-label">Category name</div>
-          <a-input v-model="groupName" />
-        </template>
-      </template>
     </div>
     <div class="content-wrapper">
       <a-skeleton :loading="skeletonLoading" active>
@@ -285,6 +268,23 @@
               </div>
             </div>
           </a-list>
+          <div class="group-label">
+            <!-- unit plan下才有term概念,task不显示对应的操作和term名称-->
+            <template v-if="fromType === typeMap[&quot;unit-plan&quot;]">
+              <template v-if="groupNameMode === 'select'">
+                <div class="choose-label">Choose category</div>
+                <a-select :default-value="defaultGroupName" style="width: 100%" v-model="selectedGroup">
+                  <a-select-option :value="groupNameItem" v-for="(groupNameItem, gIndex) in groupNameList" :key="gIndex">
+                    {{ groupNameItem }}
+                  </a-select-option>
+                </a-select>
+              </template>
+              <template v-if="groupNameMode === 'input'">
+                <div class="choose-label">Category name</div>
+                <a-input v-model="groupName" />
+              </template>
+            </template>
+          </div>
           <div class="modal-ensure-action-line">
             <a-button class="action-item action-cancel" shape="round" @click="handleCancel">Cancel</a-button>
             <a-button
@@ -327,6 +327,7 @@
         </div>
       </a-drawer>
     </div>
+
   </div>
 </template>
 
@@ -342,7 +343,7 @@ import ContentTypeIcon from '@/components/Teacher/ContentTypeIcon'
 import { MyContentEventBus, MyContentEvent } from '@/components/MyContent/MyContentEventBus'
 import DisplayMode from '@/components/MyContent/DisplayMode'
 import NoMoreResources from '@/components/Common/NoMoreResources'
-import PuBuIcon from '@/assets/icons/library/pubu .svg?inline'
+import PuBuIcon from '@/assets/icons/library/pubu.svg?inline'
 import ListModeIcon from '@/assets/icons/library/liebiao .svg?inline'
 import { EvaluationAddOrUpdate } from '@/api/evaluation'
 import { TaskAddOrUpdate } from '@/api/task'
@@ -402,6 +403,14 @@ export default {
     groupNameMode: {
       type: String,
       default: 'select'
+    },
+    showTabs: {
+      type: Boolean,
+      default: true
+    },
+    showCreate: {
+      type: Boolean,
+      default: true
     }
   },
   data () {
@@ -475,7 +484,7 @@ export default {
     this.$logger.info('NewMyContent selectedList', this.selectedList)
     this.mySelectedList = this.selectedList
     this.selectedGroup = this.defaultGroupName
-    this.groupName = (this.groupNameList.length ? this.groupNameList[0] : this.defaultGroupName) // task下只有一个默认隐藏的分组,所以默认选第一个
+    this.groupName = this.defaultGroupName // task下只有一个默认隐藏的分组,所以默认选第一个
     this.loadMyContent()
   },
   methods: {
@@ -708,11 +717,9 @@ export default {
     handleEnsure () {
       this.$logger.info('handleEnsure add group associate' + this.selectedGroup, this.groupNameList, this.mySelectedMap, this.groupName)
       if (!this.mySelectedMap.size) {
-        // this.$message.warn('No my content be selected!')
+        this.$message.warn('No new ' + (this.fromType === this.typeMap.task ? 'assessment tool' : 'task') + ' selected!')
       } else if ((this.groupNameMode === 'select' && !this.selectedGroup)) {
         this.$message.warn('No group be selected!')
-      } else if (this.groupNameMode === 'input' && !this.groupName) {
-        this.$message.warn('group name is empty!')
       } else {
         // 开始关联数据
         const groupName = this.groupNameMode === 'input' ? this.groupName : (this.selectedGroup.length > 0 ? this.selectedGroup : '')
@@ -1427,5 +1434,10 @@ a.delete-action {
   .choose-label {
     padding-bottom: 3px;
   }
+}
+
+/deep/ .ant-spin-nested-loading{
+  max-height:400px;
+  overflow-y: auto;
 }
 </style>

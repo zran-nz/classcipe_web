@@ -78,8 +78,12 @@ export default {
   .nav-path {
     line-height: 25px;
     display: flex;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
     flex-direction: row;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    word-break: break-all;
     justify-content: flex-start;
     .nav-path-item {
       line-height: 25px;
@@ -87,8 +91,8 @@ export default {
         padding: 0 3px 0 0;
       }
       padding: 0 3px 0 3px;
-      color: @primary-color;
-      font-weight: 600;
+      //color: @primary-color;
+      //font-weight: 600;
       max-width: 300px;
       overflow: hidden;
       text-overflow: ellipsis;
@@ -96,10 +100,10 @@ export default {
       white-space: nowrap;
       cursor: pointer;
 
-      &:hover {
-        background-color: #eee;
-        border-radius: 5px;
-      }
+      //&:hover {
+      //  background-color: #eee;
+      //  border-radius: 5px;
+      //}
     }
   }
 }

@@ -1,6 +1,6 @@
 import storage from 'store'
-import { login, getInfo, logout, changeRole } from '@/api/login'
-import { ACCESS_TOKEN, CURRENT_ROLE, IS_ADD_PREFERENCE, USER_INFO } from '@/store/mutation-types'
+import { login, getInfo, logout, changeRole, signUp } from '@/api/login'
+import { ACCESS_TOKEN, CURRENT_ROLE, IS_ADD_PREFERENCE, USER_INFO, ADD_PREFERENCE_SKIP_TIME } from '@/store/mutation-types'
 import { welcome } from '@/utils/util'
 import * as logger from '@/utils/logger'
 import { SESSION_ACTIVE_KEY } from '@/const/common'
@@ -93,12 +93,39 @@ const user = {
     Login ({ commit }, userInfo) {
       return new Promise((resolve, reject) => {
         login(userInfo).then(response => {
-          const result = response.result
-          storage.set(ACCESS_TOKEN, result.token, 7 * 24 * 60 * 60 * 1000)
-          commit('SET_TOKEN', result.token)
-          window.sessionStorage.setItem(SESSION_ACTIVE_KEY, result.token)
-          resolve()
+          logger.info('Login', response)
+          if (response.success) {
+            const result = response.result
+            storage.set(ACCESS_TOKEN, result.token, 7 * 24 * 60 * 60 * 1000)
+            commit('SET_TOKEN', result.token)
+            window.sessionStorage.setItem(SESSION_ACTIVE_KEY, result.token)
+            resolve(response)
+          } else {
+            reject(response)
+          }
         }).catch(error => {
+          logger.info('Login err')
+          reject(error)
+        })
+      })
+    },
+
+    // 注册+登录
+    SignUp ({ commit }, userInfo) {
+      return new Promise((resolve, reject) => {
+        signUp(userInfo).then(response => {
+          logger.info('SignUp', response)
+          if (response.success) {
+            const result = response.result
+            storage.set(ACCESS_TOKEN, result.token, 7 * 24 * 60 * 60 * 1000)
+            commit('SET_TOKEN', result.token)
+            window.sessionStorage.setItem(SESSION_ACTIVE_KEY, result.token)
+            resolve(response)
+          } else {
+            reject(response)
+          }
+        }).catch(error => {
+          logger.info('SignUp err')
           reject(error)
         })
       })
@@ -113,7 +140,6 @@ const user = {
           commit('SET_ROLES', result.currentRole ? [result.currentRole] : [])
           commit('SET_PERMISSIONS', result.currentRole ? [result.currentRole] : [])
           commit('SET_INFO', result)
-
           commit('SET_NAME', { name: result.nickname, welcome: welcome() })
           commit('SET_AVATAR', result.avatar)
           commit('SET_EMAIL', result.email)
@@ -177,6 +203,7 @@ const user = {
           storage.remove(ACCESS_TOKEN)
           storage.remove(IS_ADD_PREFERENCE)
           storage.remove(USER_INFO)
+          storage.remove(ADD_PREFERENCE_SKIP_TIME)
           window.sessionStorage.removeItem(SESSION_ACTIVE_KEY)
           resolve()
         }).catch(() => {

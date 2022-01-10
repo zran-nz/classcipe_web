@@ -5,6 +5,7 @@ const EvaluationTableHeader = {
   LevelDescriptor: 'levelDescriptor',
   Description: 'description',
   Indicators: 'indicators',
+  Comment: 'comment',
   Evidence: 'evidence',
   Novice: 'novice',
   Learner: 'learner',

@@ -1,164 +1,286 @@
 <template>
   <div class="new-library" id="new-library">
     <div class="navigation">
-      <new-navigation />
+      <div class="navigation-item" v-show="!expandedListFlag" :style="{'left': (25) + 'px', 'width': (1000) + 'px',}">
+        <div class="select-curriculum" v-show="showCurriculum">
+          <div class="my-curriculum-select">
+            <a-select
+              v-if="curriculumOptions.length"
+              @change="handleCurriculumChange"
+              v-model="currentCurriculumId"
+              :default-value="$store.getters.bindCurriculum"
+              class="select-curriculum">
+              <a-select-option v-for="(curriculum,index) in curriculumOptions" :value="curriculum.id" :key="index">
+                {{ curriculum.name }}
+              </a-select-option>
+              <div class="arrow-self" slot="suffixIcon">
+                <img src="~@/assets/icons/library/arrow.png" />
+              </div>
+            </a-select>
+          </div>
+        </div>
+        <new-navigation />
+      </div>
+      <div class="navigation-item" v-show="expandedListFlag" :style="{'left': (790) + 'px', 'width': (370) + 'px',}">
+        <div class="select-curriculum" v-show="showCurriculum">
+          <div class="my-curriculum-select">
+            <a-select
+              v-if="curriculumOptions.length"
+              @change="handleCurriculumChange"
+              v-model="currentCurriculumId"
+              :default-value="$store.getters.bindCurriculum"
+              class="select-curriculum">
+              <a-select-option v-for="(curriculum,index) in curriculumOptions" :value="curriculum.id" :key="index">
+                {{ curriculum.name }}
+              </a-select-option>
+              <div class="arrow-self" slot="suffixIcon">
+                <img src="~@/assets/icons/library/arrow.png" />
+              </div>
+            </a-select>
+          </div>
+        </div>
+        <new-navigation />
+      </div>
     </div>
     <div class="main">
       <div class="selected-content">
-        <div class="recommend-description" v-if="recommendData.length">
-          <div class="recommend-title">
-            <h3>Recommended assessment objectives</h3>
+        <div class="main-content-list">
+          <div class="recommend-description" v-if="!isEmptyRecommend">
+            <div class="recommend-title">
+              <h3>Recommended assessment objectives</h3>
+            </div>
+            <div class="recommend-detail">
+              <div class="recommend-list" v-for="(recommendDataItem, rIndex) in recommendData" :key="rIndex">
+                <div class="recommend-from" :data-from-id="recommendDataItem.fromId">
+                  <h4>From <span class="from-type-name">{{ recommendDataItem.fromTypeName }}</span> :
+                    {{ recommendDataItem.fromName }}</h4>
+                </div>
+                <div
+                  :class="{'recommend-item': true, 'my-selected-item': selectedRecommendIdList.indexOf(recommendItem.knowledgeId) !== -1,
+                           'disabled-select-item': mySelectedIdList.indexOf(recommendItem.knowledgeId) !== -1}"
+                  v-for="(recommendItem, rI) in recommendDataItem.list"
+                  :key="'ri-' + rI"
+                  @click="handleAddRecommend(recommendItem)"
+                  :data-knowledge-id="recommendItem.knowledgeId"
+                  :data-selected-id-list="mySelectedIdList">
+                  <a-tooltip class="my-tooltip">
+                    <template slot="title">
+                      {{ recommendItem.path }}
+                    </template>
+                    <div class="select-block">
+                      <a-icon
+                        class="select-block-icon"
+                        type="border"
+                        v-if="selectedRecommendIdList.indexOf(recommendItem.knowledgeId) === -1" />
+                      <div
+                        class="selected-icon"
+                        v-if="selectedRecommendIdList.indexOf(recommendItem.knowledgeId) !== -1">
+                        <img src="~@/assets/icons/lesson/selected.png" />
+                      </div>
+                    </div>
+
+                    <div class="right-name">
+                      {{ recommendItem.name }}
+                    </div>
+                  </a-tooltip>
+                </div>
+              </div>
+            </div>
           </div>
-          <div class="recommend-detail">
-            <div class="recommend-list" v-for="(recommendDataItem, rIndex) in recommendData" :key="rIndex">
-              <div class="recommend-from">
-                From : <h4>{{ recommendDataItem.fromName }}</h4>
+          <div class="selected-list">
+            <div class="content-list">
+              <template v-if='selected21CenturyItem'>
+                <div
+                  :class="{'content-item': true, 'selected-line': true}">
+                  <div class="name">
+                    <div class="name-text">
+                      {{ selected21CenturyItem.name }}
+                    </div>
+                    <div class="action-icon">
+                      <img src="~@/assets/icons/lesson/selected.png" />
+                    </div>
+                    <div class="action-icon-right" @click="handleRemoveMySelected21Century">
+                      <img src="~@/assets/icons/evaluation/delete.png" />
+                    </div>
+                  </div>
+                </div>
+              </template>
+              <div
+                :class="{'content-item': true, 'selected-line': true}"
+                v-for="(item, mIndex) in mySelectedList"
+                :key="'my-' + mIndex">
+                <div class="name">
+                  <div class="name-text">
+                    {{ item.name }}
+                  </div>
+                  <div class="action-icon">
+                    <img src="~@/assets/icons/lesson/selected.png" />
+                  </div>
+                  <div class="action-icon-right" @click="handleRemoveMySelected(item)">
+                    <img src="~@/assets/icons/evaluation/delete.png" />
+                  </div>
+                </div>
               </div>
               <div
-                class="recommend-item"
-                v-for="(recommendItem, rI) in recommendDataItem.list"
-                :key="'ri-' + rI"
-                @click="handleAddRecommend(recommendItem)"
-                :data-id="recommendItem.id">
-                <a-tooltip class="my-tooltip">
-                  <template slot="title">
-                    {{ recommendItem.path }}
-                  </template>
-                  <div :class="{'left-icon': true, 'active-left-icon': selectedRecommendIdList.indexOf(recommendItem.knowledgeId) !== -1}">
-                    <a-icon type="check-circle" style="color: #07AB84; font-size: 16px;" class="recommend-selected" />
+                :class="{'content-item': true, 'selected-line': true}"
+                v-for="(item, kIndex) in selectedCurriculumList"
+                :key="'curr-' + kIndex">
+                <div class="name">
+                  <div class="name-text">
+                    {{ item.knowledgeData.name }}
                   </div>
-                  <div class="right-name">
-                    {{ recommendItem.name }}
+                  <div class="action-icon">
+                    <img src="~@/assets/icons/lesson/selected.png" />
                   </div>
-                </a-tooltip>
+                  <div class="action-icon-right" @click="handleRemoveSelected(item)">
+                    <img src="~@/assets/icons/evaluation/delete.png" />
+                  </div>
+                </div>
               </div>
+              <div
+                :class="{'content-item': true, 'selected-line': true}"
+                v-for="(item, sIndex) in selectedSubjectSpecificSkillList"
+                :key="'sub-' + sIndex">
+                <div class="name">
+                  <div class="name-text">
+                    {{ item.knowledgeData.name }}
+                  </div>
+                  <div class="action-icon">
+                    <img src="~@/assets/icons/lesson/selected.png" />
+                  </div>
+                  <div class="action-icon-right" @click="handleRemoveSelected(item)">
+                    <img src="~@/assets/icons/evaluation/delete.png" />
+                  </div>
+                </div>
+              </div>
+
+              <div
+                :class="{'content-item': true, 'selected-line': true}"
+                v-for="(item, aIndex) in selectedAssessmentList"
+                :key="'assessment-' + aIndex">
+                <div class="name">
+                  <div class="name-text">
+                    {{ item.knowledgeData.name }}
+                  </div>
+                  <div class="action-icon">
+                    <img src="~@/assets/icons/lesson/selected.png" />
+                  </div>
+                  <div class="action-icon-right" @click="handleRemoveSelected(item)">
+                    <img src="~@/assets/icons/evaluation/delete.png" />
+                  </div>
+                </div>
+              </div>
+
+              <div
+                :class="{'content-item': true, 'selected-line': true}"
+                v-for="(item, aIndex) in selected21CenturySkillList"
+                :key="'21-' + aIndex">
+                <div class="name">
+                  <div class="name-text">
+                    {{ item.knowledgeData.name }}
+                  </div>
+                  <div class="action-icon">
+                    <img src="~@/assets/icons/lesson/selected.png" />
+                  </div>
+                  <div class="action-icon-right" @click="handleRemoveSelected(item)">
+                    <img src="~@/assets/icons/evaluation/delete.png" />
+                  </div>
+                </div>
+              </div>
+
+              <div
+                :class="{'content-item': true, 'selected-line': true, 'my-selected-item': mySelectedIdList.indexOf(item.bigIdea) !== -1}"
+                v-for="(item, aIndex) in selectedBigIdeaList"
+                :key="'big-' + aIndex">
+                <div class="name">
+                  <div class="name-text">
+                    {{ item.bigIdea }}
+                  </div>
+                  <div class="action-icon">
+                    <img src="~@/assets/icons/lesson/selected.png" />
+                  </div>
+                  <div class="action-icon-right" @click="handleRemoveSelected(item)">
+                    <img src="~@/assets/icons/evaluation/delete.png" />
+                  </div>
+                </div>
+              </div>
+
+              <div
+                :class="{'content-item': true, 'selected-line': true}"
+                v-for="(item, aIndex) in selectedAll21CenturyList"
+                :key="'all-21-' + aIndex">
+                <div class="name">
+                  <div class="name-text">
+                    {{ item.item.name }}
+                  </div>
+                  <div class="action-icon">
+                    <img src="~@/assets/icons/lesson/selected.png" />
+                  </div>
+                  <div class="action-icon-right" @click="handleRemoveSelected(item)">
+                    <img src="~@/assets/icons/evaluation/delete.png" />
+                  </div>
+                </div>
+              </div>
+
+              <div
+                :class="{'content-item': true, 'selected-line': true}"
+                v-for="(item, aIndex) in selectedKnowledgeList"
+                :key="'sync-' + aIndex">
+                <div class="name">
+                  <div class="name-text">
+                    {{ item.name }}
+                  </div>
+                  <div class="action-icon">
+                    <img src="~@/assets/icons/lesson/selected.png" />
+                  </div>
+                  <div class="action-icon-right" @click="handleRemoveSelected(item)">
+                    <img src="~@/assets/icons/evaluation/delete.png" />
+                  </div>
+                </div>
+              </div>
+
+              <div
+                :class="{'content-item': true, 'selected-line': true}"
+                v-for="(item, aIndex) in selectedIduList"
+                :key="'idu-' + aIndex">
+                <div class="name">
+                  <div class="name-text">
+                    {{ item.knowledgeData.name }}
+                  </div>
+                  <div class="action-icon">
+                    <img src="~@/assets/icons/lesson/selected.png" />
+                  </div>
+                  <div class="action-icon-right" @click="handleRemoveSelected(item)">
+                    <img src="~@/assets/icons/evaluation/delete.png" />
+                  </div>
+                </div>
+              </div>
+
             </div>
           </div>
         </div>
-        <a-divider v-if="recommendData.length"/>
-        <div class="selected-list">
-          <div class="content-list">
-            <div
-              class="content-item selected-line"
-              v-for="(item, kIndex) in selectedCurriculumList"
-              :key="'curr-' + kIndex">
-              <div class="name">
-                <div class="name-text">
-                  {{ item.knowledgeData.name }}
-                </div>
-                <div class="action-icon" @click="handleRemoveSelected(item)">
-                  <a-icon type="close-circle" style="color: #07AB84; font-size: 16px;" />
-                </div>
-              </div>
-            </div>
-            <div
-              class="content-item selected-line"
-              v-for="(item, sIndex) in selectedSubjectSpecificSkillList"
-              :key="'sub-' + sIndex">
-              <div class="name">
-                <div class="name-text">
-                  {{ item.knowledgeData.name }}
-                </div>
-                <div class="action-icon" @click="handleRemoveSelected(item)">
-                  <a-icon type="close-circle" style="color: #07AB84; font-size: 16px;" />
-                </div>
-              </div>
-            </div>
-
-            <div
-              class="content-item selected-line"
-              v-for="(item, aIndex) in selectedAssessmentList"
-              :key="'assessment-' + aIndex">
-              <div class="name">
-                <div class="name-text">
-                  {{ item.knowledgeData.name }}
-                </div>
-                <div class="action-icon" @click="handleRemoveSelected(item)">
-                  <a-icon type="close-circle" style="color: #07AB84; font-size: 16px;" />
-                </div>
-              </div>
-            </div>
-
-            <div
-              class="content-item selected-line"
-              v-for="(item, aIndex) in selected21CenturySkillList"
-              :key="'21-' + aIndex">
-              <div class="name">
-                <div class="name-text">
-                  {{ item.knowledgeData.name }}
-                </div>
-                <div class="action-icon" @click="handleRemoveSelected(item)">
-                  <a-icon type="close-circle" style="color: #07AB84; font-size: 16px;" />
-                </div>
-              </div>
-            </div>
-
-            <div
-              class="content-item selected-line"
-              v-for="(item, aIndex) in selectedBigIdeaList"
-              :key="'big-' + aIndex">
-              <div class="name">
-                <div class="name-text">
-                  {{ item.bigIdea }}
-                </div>
-                <div class="action-icon" @click="handleRemoveSelected(item)">
-                  <a-icon type="close-circle" style="color: #07AB84; font-size: 16px;" />
-                </div>
-              </div>
-            </div>
-
-            <div
-              class="content-item selected-line"
-              v-for="(item, aIndex) in selectedAll21CenturyList"
-              :key="'all-21-' + aIndex">
-              <div class="name">
-                <div class="name-text">
-                  {{ item.item.name }}
-                </div>
-                <div class="action-icon" @click="handleRemoveSelected(item)">
-                  <a-icon type="close-circle" style="color: #07AB84; font-size: 16px;" />
-                </div>
-              </div>
-            </div>
-
-            <div
-              class="content-item selected-line"
-              v-for="(item, aIndex) in selectedKnowledgeList"
-              :key="'sync-' + aIndex">
-              <div class="name">
-                <div class="name-text">
-                  {{ item.name }}
-                </div>
-                <div class="action-icon" @click="handleRemoveSelected(item)">
-                  <a-icon type="close-circle" style="color: #07AB84; font-size: 16px;" />
-                </div>
-              </div>
-            </div>
-
-            <div
-              class="content-item selected-line"
-              v-for="(item, aIndex) in selectedRecommendList"
-              :key="'rec-' + aIndex">
-              <div class="name">
-                <div class="name-text">
-                  {{ item.name }}
-                </div>
-                <div class="action-icon" @click="handleRemoveSelectedRecommend(item)">
-                  <a-icon type="close-circle" style="color: #07AB84; font-size: 16px;" />
-                </div>
-              </div>
-            </div>
-
-          </div>
-        </div>
-        <div class="selected-toggle-mask" v-show="!expandedListFlag" @click="expandedListFlag = !expandedListFlag"></div>
-        <div class="expand-icon" @click="expandedListFlag = !expandedListFlag" :style="{'left': (!expandedListFlag ? 30 : 695) + 'px'}">
+        <div
+          class="selected-toggle-mask"
+          v-show="!expandedListFlag"
+          @click="expandedListFlag = !expandedListFlag"></div>
+        <div
+          class="expand-icon"
+          @click="expandedListFlag = !expandedListFlag"
+          :style="{'left': (!expandedListFlag ? 30 : 695) + 'px'}">
           <template v-if="expandedListFlag">
-            <a-icon type="double-left" style="font-size: 20px; color: #07AB84"/>
+            <a-icon type="double-left" style="font-size: 20px; color: #07AB84" />
           </template>
           <template v-if="!expandedListFlag">
-            <a-icon type="double-right" style="font-size: 20px; color: #07AB84"/>
+            <a-icon type="double-right" style="font-size: 20px; color: #07AB84" />
           </template>
+        </div>
+        <div class="modal-ensure-action-line-center" v-show="hasSelectedContent">
+          <a-space>
+            <a-button class="action-item action-cancel" shape="round" @click="handleCancelSelectData">Cancel</a-button>
+            <a-button class="action-ensure action-item" type="primary" shape="round" @click="handleEnsureSelectData">
+              Ok
+            </a-button>
+          </a-space>
         </div>
       </div>
       <div class="main-tree-content" :style="{'left': (expandedListFlag ? 765 : 100) + 'px'}">
@@ -169,11 +291,14 @@
             :question-index="questionIndex"
             :sync-data="syncData"
             :show-menu="showMenu"
+            :learning-outcome-grade-id="learningOutcomeGradeId"
             :default-active-menu="defaultActiveMenu"
+            :default-curriculum-id="defaultCurriculumId"
           />
         </div>
         <div class="content-list" v-show="!expandedListFlag">
           <new-content-list
+            :selected-list="mySelectedList"
             ref="contentList"
             @select-big-idea="handleSelectBigIdeaData"
             @select-sync="handleSelectListData"
@@ -183,6 +308,7 @@
             @select-all-21-century="handleSelectAll21CenturyListData"
             @select-assessmentType="handleSelectAssessmentType"
             @select-idu="handleSelectIdu"
+            @update-selected-list="handleUpdateSelectedList"
           />
         </div>
       </div>
@@ -196,6 +322,11 @@ import NewNavigation from '@/components/NewLibrary/NewNavigation'
 import NewContentList from '@/components/NewLibrary/NewContentList'
 import NewTreeNavigation from '@/components/NewLibrary/NewTreeNavigation'
 import ContentTypeIcon from '@/components/Teacher/ContentTypeIcon'
+import { UtilMixin } from '@/mixins/UtilMixin'
+import {
+  getAllCurriculums
+} from '@/api/preference'
+import { LibraryEvent, LibraryEventBus } from '@/components/NewLibrary/LibraryEventBus'
 
 export default {
   name: 'NewBrowser',
@@ -229,11 +360,24 @@ export default {
     recommendData: {
       type: Array,
       default: () => []
+    },
+    selectedIdList: {
+      type: Array,
+      default: () => []
+    },
+    selectedList: {
+      type: Array,
+      default: () => []
+    },
+    learningOutcomeGradeId: {
+      type: String,
+      default: null
     }
   },
+  mixins: [UtilMixin],
   data () {
     return {
-      expandedListFlag: false,
+      expandedListFlag: true,
       mainTreeContentLeft: 200,
       selectedCurriculumList: [],
       selectedKnowledgeList: [],
@@ -244,17 +388,92 @@ export default {
       selectedAll21CenturyList: [],
       selectedBigIdeaList: [],
       selectedRecommendList: [],
-      selectedRecommendIdList: []
+      selectedRecommendIdList: [],
+
+      currentCurriculumId: this.$store.getters.bindCurriculum ? this.$store.getters.bindCurriculum : '1',
+      defaultCurriculumId: this.$store.getters.bindCurriculum ? this.$store.getters.bindCurriculum : '1',
+      curriculumOptions: [],
+      mySelectedIdList: [], // 所有已选择的id和类型
+      mySelectedList: [],
+
+      isEmptyRecommend: true,
+      showCurriculum: false,
+
+      selected21CenturyItem: null
+    }
+  },
+  computed: {
+    hasSelectedContent () {
+      return this.mySelectedList.length ||
+        this.selectedCurriculumList.length ||
+        this.selectedKnowledgeList.length ||
+        this.selected21CenturySkillList.length ||
+        this.selectedSubjectSpecificSkillList.length ||
+        this.selectedAssessmentList.length ||
+        this.selectedIduList.length ||
+        this.selectedAll21CenturyList.length ||
+        this.selectedBigIdeaList.length ||
+        this.selectedRecommendList.length ||
+        this.selected21CenturyItem
+    }
+  },
+  watch: {
+    currentCurriculumId (val) {
+      this.$logger.info('NewBrowser change currentCurriculumId to ' + val)
+      this.defaultCurriculumId = val
     }
   },
   created () {
     this.$logger.info('NewBrowser selectMode', this.selectMode)
     this.$logger.info('NewBrowser showMenu', this.showMenu)
     this.$logger.info('recommendData', this.recommendData)
+    this.$logger.info('selectedIdList', this.selectedIdList)
+    this.$logger.info('selectedList', this.selectedList)
+    this.$logger.info('learningOutcomeGradeId ' + this.learningOutcomeGradeId)
+    this.mySelectedIdList = this.selectedIdList
+
+    getAllCurriculums().then((response) => {
+      this.$logger.info('getAllCurriculums', response)
+      this.curriculumOptions = response.result
+      this.$logger.info('getAllCurriculums', this.curriculumOptions)
+    })
+
+    const recommendIdList = []
+    this.recommendData.forEach((item) => {
+      item.list.forEach(dataItem => {
+        recommendIdList.push(dataItem.knowledgeId)
+      })
+      if (item.list.length > 0) {
+        this.isEmptyRecommend = false
+      }
+    })
+
+    this.mySelectedList = []
+    this.selectedList.forEach(item => {
+      if (recommendIdList.indexOf(item.knowledgeId) === -1) {
+        this.mySelectedList.push(item)
+      } else {
+        this.selectedRecommendIdList.push(item.knowledgeId)
+        this.selectedRecommendList.push(item)
+      }
+    })
+    this.$logger.info('mySelectedList', this.mySelectedList)
+    this.$logger.info('selectedRecommendList', this.selectedRecommendList)
+    this.$logger.info('selectedRecommendIdList', this.selectedRecommendIdList)
+    LibraryEventBus.$on(LibraryEvent.CenturySkillsSelect, this.handleCenturySkillsSelect)
+    LibraryEventBus.$on(LibraryEvent.CancelCenturySkillsSelect, this.handleCancelCenturySkillsSelect)
   },
-  mounted () {
+  destroyed() {
+    LibraryEventBus.$off(LibraryEvent.CenturySkillsSelect, this.handleCenturySkillsSelect)
+    LibraryEventBus.$off(LibraryEvent.CancelCenturySkillsSelect, this.handleCancelCenturySkillsSelect)
   },
   methods: {
+
+    handleCurriculumChange (value) {
+      this.$logger.info('handleCurriculumChange ' + value)
+      this.currentCurriculumId = value
+    },
+
     handleSelectListData (data) {
       this.$logger.info('NewBrowser handleSelectListData', data)
       this.selectedKnowledgeList = data
@@ -310,35 +529,88 @@ export default {
       this.$refs['contentList'].handleRemoveSelected(item)
     },
 
-    handleRemoveSelectedRecommend (recommendItem) {
-      this.$logger.info('NewBrowser handleRemoveSelected recommendItem', recommendItem)
-      this.handleAddRecommend(recommendItem)
+    handleUpdateSelectedList (data) {
+      this.$logger.info('NewBrowser handleUpdateSelectedList', data)
+      this.mySelectedList = data
+    },
+    handleAddRecommend (recommendItem) {
+      this.$logger.info('NewBrowser handleAddRecommend', recommendItem, 'this.mySelectedIdList.indexOf(recommendItem.knowledgeId)', this.mySelectedIdList.indexOf(recommendItem.knowledgeId))
+      if (this.mySelectedIdList.indexOf(recommendItem.knowledgeId) === -1) {
+        const existIndex = this.selectedRecommendList.findIndex(item => item.knowledgeId === recommendItem.knowledgeId)
+        const existIdIndex = this.selectedRecommendIdList.findIndex(item => item === recommendItem.knowledgeId)
+        if (existIndex !== -1) {
+          this.selectedRecommendList.splice(existIndex, 1)
+          this.selectedRecommendIdList.splice(existIdIndex, 1)
+        } else {
+          this.selectedRecommendList.push(recommendItem)
+          this.selectedRecommendIdList.push(recommendItem.knowledgeId)
+        }
+        this.$emit('select-recommend', this.selectedRecommendList)
+        this.$logger.info('after NewBrowser handleAddRecommend', this.selectedRecommendList, this.selectedRecommendIdList)
+      }
     },
 
-    handleAddRecommend (recommendItem) {
-      this.$logger.info('NewBrowser handleAddRecommend', recommendItem)
-      const existIndex = this.selectedRecommendList.findIndex(item => item.knowledgeId === recommendItem.knowledgeId)
-      const existIdIndex = this.selectedRecommendIdList.findIndex(item => item === recommendItem.knowledgeId)
-      if (existIndex !== -1) {
-        this.selectedRecommendList.splice(existIndex, 1)
-        this.selectedRecommendIdList.splice(existIdIndex, 1)
-      } else {
-        this.selectedRecommendList.push(recommendItem)
-        this.selectedRecommendIdList.push(recommendItem.knowledgeId)
+    handleRemoveMySelected (data) {
+      this.$logger.info('NewBrowser handleRemoveMySelected', data)
+      const index = this.mySelectedList.findIndex(item => (data.knowledgeId === item.knowledgeId))
+      if (index > -1) {
+        this.mySelectedList.splice(index, 1)
       }
-      this.$emit('select-recommend', this.selectedRecommendList)
-      this.$logger.info('after NewBrowser handleAddRecommend', this.selectedRecommendList, this.selectedRecommendIdList)
+    },
+
+    handleCancelSelectData () {
+      this.$logger.info('NewBrowser handleCancelSelectData')
+      this.$emit('cancel-select')
+    },
+
+    handleEnsureSelectData () {
+      this.$logger.info('NewBrowser handleEnsureSelectData')
+      this.$emit('ensure-select')
+    },
+    handleCenturySkillsSelect(data) {
+      this.$logger.info('NewBrowser handleCenturySkillsSelect', data)
+      this.selected21CenturyItem = data.item
+    },
+
+    handleCancelCenturySkillsSelect() {
+      this.selected21CenturyItem = null
+    },
+
+    handleRemoveMySelected21Century () {
+      LibraryEventBus.$emit(LibraryEvent.CancelCenturySkillsSelect) // 点击选择列表中的取消
     }
   }
 }
 </script>
 
-<style lang="less" scoped>
+<style lang='less' scoped>
 
 @import "~@/components/index.less";
 
 .new-library {
-  .navigation {}
+  .navigation {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: center;
+    padding-bottom: 10px;
+    height: 45px;
+
+    .navigation-item {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      top: 18px;
+      position: absolute;
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      word-break: break-word;
+      user-select: none;
+      transition: all 200ms ease-in;
+    }
+  }
+
   .main {
     border: 1px solid #e9e9e9;
     overflow-y: hidden;
@@ -348,8 +620,11 @@ export default {
     justify-content: flex-start;
     align-items: flex-start;
     position: relative;
+
     .selected-content {
+      position: relative;
       z-index: 100;
+      padding-bottom: 50px;
       position: relative;
       width: 770px;
       flex-shrink: 0;
@@ -358,9 +633,10 @@ export default {
       background-color: #fff;
 
       .selected-list {
+        padding: 10px 5px;
         z-index: 100;
-
         overflow: scroll;
+
         .content-list {
           flex: 1;
           overflow-y: scroll;
@@ -368,7 +644,7 @@ export default {
           white-space: nowrap;
           text-overflow: ellipsis;
           word-break: break-all;
-          height: calc(100%- 40);
+          height: calc(100% - 40);
 
           .content-empty {
             margin-top: 150px;
@@ -386,11 +662,32 @@ export default {
             position: relative;
 
             .action-icon {
-              display: block;
+              position: absolute;
+              left: 10px;
+              top: 50%;
+              margin-top: -10px;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+
+              img {
+                width: 20px;
+                height: 20px;
+              }
+            }
+
+            .action-icon-right {
               position: absolute;
               right: 5px;
               top: 50%;
-              margin-top: -10px;
+              margin-top: -20px;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+
+              img {
+                width: 40px;
+              }
             }
           }
 
@@ -408,7 +705,8 @@ export default {
             padding: 10px;
             margin: 3px;
             position: relative;
-            background-color: #F8F8F8;
+            border: 1px solid @primary-color;
+            background-color: #5fc9b04a !important;
 
             .name {
               cursor: pointer;
@@ -416,8 +714,10 @@ export default {
               flex-direction: row;
               align-items: flex-start;
               word-break: break-all;
-              padding: 0 10px;
+              padding-left: 25px;
+              padding-right: 25px;
               width: 100%;
+
               .icon {
                 .file-dir-icon {
                   padding: 3px 0;
@@ -431,16 +731,19 @@ export default {
                 padding: 0 5px;
                 box-sizing: border-box;
                 word-break: break-word;
-                white-space:normal;
+                white-space: normal;
               }
-              .collapse-item{
+
+              .collapse-item {
                 display: flex;
                 padding: 10px;
-                .collapse-icon{
+
+                .collapse-icon {
                   right: 10px;
                   position: absolute;
                 }
-                .tag-item{
+
+                .tag-item {
                   color: rgb(21, 195, 154);
                   border: 1px solid rgb(21, 195, 154);
                   cursor: pointer;
@@ -484,6 +787,19 @@ export default {
         z-index: 200;
         transition: none;
       }
+
+      .modal-ensure-action-line-center {
+        background: #fff;
+        width: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 10px;
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+      }
     }
 
     .main-tree-content {
@@ -499,6 +815,7 @@ export default {
       justify-content: flex-start;
       align-items: flex-start;
     }
+
     .tree-navigation {
       z-index: 150;
       width: 400px;
@@ -507,6 +824,7 @@ export default {
       overflow-y: scroll;
       background-color: #fff;
     }
+
     .content-list {
       height: 100%;
       overflow: hidden;
@@ -518,16 +836,19 @@ export default {
     width: 3px;
     height: 0;
   }
+
   *::-webkit-scrollbar-track {
     border-radius: 1px;
-    background: rgba(0,0,0,0.00);
-    -webkit-box-shadow: inset 0 0 5px rgba(0,0,0,0.08);
+    background: rgba(0, 0, 0, 0.00);
+    -webkit-box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.08);
   }
+
   /* 滚动条滑块 */
+
   *::-webkit-scrollbar-thumb {
     border-radius: 3px;
-    background: rgba(0,0,0,0.12);
-    -webkit-box-shadow: inset 0 0 10px rgba(0,0,0,0.2);
+    background: rgba(0, 0, 0, 0.12);
+    -webkit-box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.2);
   }
 }
 
@@ -542,26 +863,39 @@ export default {
 }
 
 .recommend-description {
+  background-color: rgba(253, 238, 218, 0.5);
 
   .recommend-title {
     padding: 5px 10px;
+
+    h3 {
+      color: #000000;
+      font-weight: bold;
+      font-family: Inter-Bold;
+    }
   }
 
   .recommend-detail {
-    padding: 0 10px;
+    padding: 0 10px 10px 10px;
+
     .recommend-list {
       .recommend-from {
         font-size: 14px;
         cursor: pointer;
 
         h4 {
+          color: #000000;
+          font-weight: bold;
           display: inline-block;
         }
       }
 
       .recommend-item {
-        background-color: #F8F8F8;
+        background-color: rgba(255, 187, 0, 0.1);
         margin-bottom: 10px;
+        box-sizing: content-box;
+        border: 1px solid rgba(255, 187, 0, 0.1);
+
         span {
           font-size: 13px;
           cursor: pointer;
@@ -569,21 +903,18 @@ export default {
           flex-direction: row;
           justify-content: flex-start;
           align-items: flex-start;
-          line-height: 35px;
+          line-height: 40px;
 
           .left-icon {
-            display: flex;
-            flex-direction: row;
-            align-items: center;
-            justify-content: center;
             width: 40px;
+            min-width: 40px;
             height: 35px;
             text-align: center;
-            opacity: 0;
+            display: none;
           }
 
           .active-left-icon {
-            opacity: 1;
+            display: none;
           }
 
           .right-name {
@@ -596,5 +927,58 @@ export default {
       }
     }
   }
+}
+
+.my-selected-item {
+  border: 1px solid @primary-color;
+  background-color: #5fc9b04a !important;
+}
+
+.my-curriculum-select {
+  min-width: 100px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+
+  .select-curriculum-tips {
+    color: #aaa;
+  }
+}
+
+.select-block {
+  cursor: pointer;
+  display: flex;
+  height: 40px;
+  width: 40px;
+  min-width: 40px;
+  justify-content: center;
+  align-items: center;
+
+  .select-block-icon {
+    color: #ccc;
+    font-size: 20px;
+    cursor: pointer;
+  }
+
+  .selected-icon {
+    img {
+      width: 20px;
+    }
+  }
+}
+
+.disabled-select-item {
+  color: #D8D8D8;
+}
+
+.from-type-name {
+  color: #2DC9A4;
+  font-weight: bold;
+  display: inline-block;
+}
+
+.main-content-list {
+  height: 375px;
+  overflow-y: scroll;
 }
 </style>

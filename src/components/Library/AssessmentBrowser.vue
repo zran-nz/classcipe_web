@@ -273,7 +273,7 @@
   import { GetAssessmentTypeList, QueryKnowledgesByAssessmentTypeId, KnowledgeQueryContentByDescriptionId } from '@/api/knowledge'
   import DirIcon from '@/components/Library/DirIcon'
   import NoMoreResources from '@/components/Common/NoMoreResources'
-  import PuBuIcon from '@/assets/icons/library/pubu .svg?inline'
+  import PuBuIcon from '@/assets/icons/library/pubu.svg?inline'
   import ListModeIcon from '@/assets/icons/library/liebiao .svg?inline'
   import CardList from '@/views/list/CardList'
   import DataCardView from '@/components/Library/DataCardView'
@@ -333,7 +333,7 @@
         dataList: [],
         dataListLoading: false,
         currentDataId: null,
-        dataListMode: 'list',
+        dataListMode: 'card',
 
         currentTypeLabel: 'Choose type（S）of content',
         currentType: 0,
@@ -577,12 +577,10 @@
       }
 
       .loading-wrapper {
-        position: absolute;
-        width: 50px;
-        text-align: center;
-        top: 30%;
-        left: 50%;
-        margin-left: -25px;
+        min-height: 400px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
       }
     }
 
@@ -773,12 +771,10 @@
       }
 
       .loading-wrapper {
-        position: absolute;
-        width: 50px;
-        text-align: center;
-        top: 30%;
-        left: 50%;
-        margin-left: -25px;
+        min-height: 400px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
       }
     }
   }

@@ -15,7 +15,14 @@
     <template v-if="!replyMode">
       <a-input class="my-padding-input" v-model="value" size="large"> </a-input>
     </template>
-    <a-button :loading="sendLoading" class="my-send-btn" size="small" type="primary" @click="handleSendEvent">Send</a-button>
+    <a-button
+      :loading="sendLoading"
+      class="my-send-btn"
+      size="small"
+      type="primary"
+      @click="handleSendEvent"
+      @keyup.enter="handleSendEvent">Send
+    </a-button>
   </div>
 </template>
 

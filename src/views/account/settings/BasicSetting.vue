@@ -519,12 +519,10 @@ export default {
   min-height: 300px;
 
   .loading-wrapper {
-    width: 100px;
-    text-align: center;
-    position: absolute;
-    top: 45%;
-    left: 50%;
-    margin-left: -50px;
+    //min-height: 400px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
 }
 

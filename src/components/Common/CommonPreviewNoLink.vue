@@ -67,29 +67,33 @@
       </a-row>
       <a-row class="data-info" v-if="viewMode === 'Detail'">
         <a-col class="right-detail" span="24" >
-          <!--          <div class="tag-detail-block">-->
-          <!--            <div class="info-tag">-->
-          <!--              <div class="info-tag-item" v-if="data.subjectNames" v-for="(subject, sIndex) in data.subjectNames" :key="'sIndex' + sIndex">-->
-          <!--                Subject / {{ subject }}-->
-          <!--              </div>-->
-          <!--              <div class="info-tag-item" v-if="data.gradeNames" v-for="(grade, gIndex) in data.gradeNames" :key="'gIndex' + gIndex">-->
-          <!--                Grade: {{ grade }}-->
-          <!--              </div>-->
-          <!--              <div class="info-tag-item" v-if="data.bloomCategoriesText">-->
-          <!--                {{ data.bloomCategoriesText }}-->
-          <!--              </div>-->
-          <!--            </div>-->
-          <!--          </div>-->
           <div class="sub-detail">
             <div class="detail-block">
               <div class="block-main-label">
-                Overview
+                <template v-if="data.type === typeMap.task">Task details</template>
+                <template v-else>Overview</template>
               </div>
               <div class="overview-block">
                 <div class="view-text">
                   {{ data.overview }}
                 </div>
               </div>
+              <template v-if="data.type === typeMap.task && data.questionNames.length > 0">
+                <div class="block-main-label">
+                  Key question(s)/Line(s) of Inquiry
+                </div>
+                <div class="detail-block" style="margin:10px;">
+                  <div class="keyword-block-content">
+                    <div class="content-list">
+                      <div class="content-item" v-for="(question,qIndex) in data.questionNames" :key="qIndex">
+                        <div class="question" v-if="question">
+                          {{ question }}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </template>
               <div class="block-main-label">
                 Customized tags
               </div>
@@ -105,21 +109,13 @@
                 </div>
               </div>
               <div class="block-main-label">
-                Assessment objectives
+                Learning Objectives
               </div>
               <div class="overview-block">
                 <div class="learn-question-tag">
-                  <template v-if="data.learnOuts && data.learnOuts.length">
-                    <div class="keyword-block-content">
-                      <div class="content-list" v-if="data.learnOuts && data.learnOuts.length">
-                        <div class="content-item" v-for="(learn,qIndex) in data.learnOuts" :key="'qIndex' + qIndex">
-                          <div class="question">
-                            {{ learn.name }}
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </template>
+                  <div class="learn-out" style="margin: 10px;">
+                    <ui-learn-out-sub :learn-outs="data.learnOuts" />
+                  </div>
                 </div>
               </div>
               <template v-if="data.inquiry">
@@ -188,7 +184,7 @@
 
             <template v-if="data && data.questions && data.questions.length">
               <div class="block-main-label">
-                Line of inquiry/Key question
+                Key question(s)/Line(s) of Inquiry
               </div>
               <div class="detail-block">
                 <div class="keyword-block-content">
@@ -197,70 +193,133 @@
                       <div class="question" v-if="question && question.name">
                         {{ question.name }}
                       </div>
-                      <!--                      <div class="content-sub-list" v-if="question && question.knowledgeTags && question.knowledgeTags.length">-->
-                      <!--                        <div class="content-sub-item" v-for="(knowledgeTag, kIndex) in question.knowledgeTags" :key="'kIndex' + kIndex">-->
-                      <!--                          <div class="sub-title">-->
-                      <!--                            <div class="sub-title-name">-->
-                      <!--                              {{ knowledgeTag.description }}-->
-                      <!--                              <div class="subject-name" v-if="knowledgeTag.subSubjectName">-->
-                      <!--                                {{ knowledgeTag.subSubjectName }}-->
-                      <!--                              </div>-->
-                      <!--                            </div>-->
-                      <!--                            <div class="sub-detail">-->
-                      <!--                              <a-tag class="tag">-->
-                      <!--                                {{ knowledgeTag.name }}-->
-                      <!--                              </a-tag>-->
-                      <!--                            </div>-->
-                      <!--                          </div>-->
-                      <!--                        </div>-->
-                      <!--                      </div>-->
-                      <!--                      <div class="content-sub-list" v-if="question && question.skillTags&& question.skillTags.length">-->
-                      <!--                        <div class="content-sub-item" v-for="(skillTag, sIndex) in question.skillTags" :key="'sIndex' + sIndex">-->
-                      <!--                          <div class="sub-title">-->
-                      <!--                            <div class="sub-title-name">-->
-                      <!--                              {{ skillTag.description }}-->
-                      <!--                            </div>-->
-                      <!--                            <div class="sub-detail">-->
-                      <!--                              <a-tag class="tag">-->
-                      <!--                                {{ skillTag.name }}-->
-                      <!--                              </a-tag>-->
-                      <!--                            </div>-->
-                      <!--                          </div>-->
-                      <!--                        </div>-->
-                      <!--                      </div>-->
                     </div>
                   </div>
                 </div>
               </div>
             </template>
           </div>
-          <a-spin v-show="slideLoading" class="spin-loading"/>
+
           <!-- lesson task img list-->
-          <template v-if="type === typeMap.lesson || type === typeMap.task ">
-            <a-col span="24">
-              <div v-if="!loading && !imgList.length" class="no-preview-img">
-                <no-more-resources />
-              </div>
-            </a-col>
-            <a-col class="left-preview" span="24">
-              <a-carousel ref="carousel" v-if="!loading && imgList.length" class="my-carousel">
-                <div v-for="(img,cIndex) in imgList" :key="'cIndex' + cIndex">
-                  <img :src="img" />
+          <template v-if="type === typeMap.task && data.presentationId ">
+            <div class="top-icon-groups">
+              <a-col class="material-row" >
+                <div class="icon-group" v-if="Object.keys(currentPageMaterial).length > 0">
+                  <a-badge :count="showMaterialSize('text')" v-if="currentPageMaterial.hasOwnProperty('text')">
+                    <div class="icon" @click="showPluginMaterial('text')">
+                      <text-type-svg />
+                      <div class="icon-text">Text</div>
+                    </div>
+                  </a-badge>
+                  <a-badge :count="showMaterialSize('image')" v-if="currentPageMaterial.hasOwnProperty('image')">
+                    <div class="icon" @click="showPluginMaterial('image')">
+                      <image-type-svg />
+                      <div class="icon-text">Image</div>
+                    </div>
+                  </a-badge>
+                  <a-badge :count="showMaterialSize('video')" v-if="currentPageMaterial.hasOwnProperty('video')">
+                    <div class="icon" @click="showPluginMaterial('video')">
+                      <video-type-svg />
+                      <div class="icon-text">Video</div>
+                    </div>
+                  </a-badge>
+                  <a-badge :count="showMaterialSize('audio')" v-if="currentPageMaterial.hasOwnProperty('audio')">
+                    <div class="icon" @click="showPluginMaterial('audio')">
+                      <audio-type-svg />
+                      <div class="icon-text">Audio</div>
+                    </div>
+                  </a-badge>
+                  <a-badge :count="showMaterialSize('iframe')" v-if="currentPageMaterial.hasOwnProperty('iframe')">
+                    <div class="icon" @click="showPluginMaterial('iframe')">
+                      <youtube-type-svg />
+                      <div class="icon-text">Youtube</div>
+                    </div>
+                  </a-badge>
+                  <a-badge :count="showMaterialSize('pdf')" v-if="currentPageMaterial.hasOwnProperty('pdf')" >
+                    <div class="icon" @click="showPluginMaterial('pdf')">
+                      <pdf-type-svg />
+                      <div class="icon-text">PDF</div>
+                    </div>
+                  </a-badge>
+                  <a-badge :count="showMaterialSize('website')" v-if="currentPageMaterial.hasOwnProperty('website')">
+                    <div class="icon" @click="showPluginMaterial('website')">
+                      <url-type-svg />
+                      <div class="icon-text">Website</div>
+                    </div>
+                  </a-badge>
                 </div>
-              </a-carousel>
-              <div class="page-info" v-if="imgList && imgList.length">
-                {{ currentImgIndex + 1 }} / {{ imgList.length }}
-              </div>
-              <div class="carousel-page">
-                <div class="img-list-wrapper">
-                  <div class="img-list">
-                    <div class="img-item" v-for="(img,index) in imgList" :key="'index' + index" @click="handleGotoImgIndex(index)">
-                      <img :src="img" />
+              </a-col>
+            </div>
+
+            <a-skeleton :loading="slideLoading" active >
+              <div class="slide-select-wrapper" ref="slide" >
+                <div class="slide-select">
+                  <div class="slide-select-and-preview">
+                    <div class="slide-preview" :style="{'width':'600px'}">
+                      <a-carousel ref="carousel" arrows :after-change="onChangePage">
+                        <div slot="prevArrow" class="custom-slick-arrow" style="left: 10px;zIndex: 9" >
+                          <a-icon type="left-circle"/>
+                        </div>
+                        <div slot="nextArrow" class="custom-slick-arrow" style="right: 10px;zIndex: 9" >
+                          <a-icon type="right-circle" />
+                        </div>
+                        <div v-for="(item,index) in imgList" :key="index">
+                          <img :src="item" />
+                        </div>
+                      </a-carousel>
+                      <div class="plugin-tags" v-if="currentPageItem">
+                        <a-row class="tag-row">
+                          <span class="tag-item" v-if="currentPageItem.data.bloomLevel">
+                            <span class="tag-title">Bloom's Taxonomy:</span>
+                            <span class="tag-value" style="color:#F16A39">{{ currentPageItem.data.bloomLevel }}</span>
+                          </span>
+                          <span class="tag-item" v-if="currentPageItem.data.knowledgeLevel">
+                            <span class="tag-title">Knowledge dimension(s):</span>
+                            <span class="tag-value" style="color:#F16A39">{{ currentPageItem.data.knowledgeLevel }}</span>
+                          </span>
+                        </a-row>
+                        <a-row class="tag-row">
+                          <span class="tag-item" v-if="currentPageItem.data.verbs">
+                            <span class="tag-title">Command terms:</span>
+                            <span class="tag-value" v-for="(v,index) in currentPageItem.data.verbs" :key="index" style="color:#15C39A">{{ v }}</span>
+                          </span>
+                          <span class="tag-item" v-if="currentPageTips">
+                            <span class="tag-title">Tip added:</span>
+                            <span class="tag-value" style="color:#0054FF">{{ currentPageTips.tip }}</span>
+                          </span>
+                        </a-row>
+                        <a-row class="tag-row">
+                          <span class="tag-item">
+                            <span class="tag-title">Learning Objectives:</span>
+                            <span class="tag-value" v-for="(learn,index) in currentPageItem.data.learnOuts" :key="index" style="color:#00BCF2">
+                              <a-tooltip :title="learn.path" :overlayStyle="{ 'z-index': '3000'}">{{ learn.name }} </a-tooltip>
+                            </span>
+                          </span>
+                        </a-row>
+                        <a-row class="tag-row">
+                          <span class="tag-item">
+                            <span class="tag-title">This is a <span>{{ currentPageItem.type }}</span> slide</span>
+                          </span>
+                        </a-row>
+                      </div>
+                      <div class="page-info" v-if="imgList && imgList.length">
+                        {{ currentImgIndex + 1 }} / {{ imgList.length }}
+                      </div>
+                      <div class="carousel-page">
+                        <div class="img-list-wrapper">
+                          <div class="img-list">
+                            <div class="img-item" v-for="(item,index) in imgList" :key="'index' + index" @click="handleGotoImgIndex(index)">
+                              <img :src="item" />
+                            </div>
+                          </div>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
               </div>
-            </a-col>
+            </a-skeleton>
+
             <!-- evaluation preview-->
           </template>
           <!-- evaluation-->
@@ -270,6 +329,31 @@
         </a-col>
       </a-row>
     </template>
+
+    <a-modal
+      v-model="materialVisible"
+      :footer="null"
+      destroyOnClose
+      width="800px"
+      :zIndex="6000"
+      title="My Materials"
+      @ok="materialVisible = false"
+      @cancel="materialVisible = false">
+      <task-material-preview :current-page-element-lists="currentPageElementLists" :filter-type="filterMaterialType" :current-page-index="currentImgIndex"></task-material-preview>
+    </a-modal>
+
+    <a-modal
+      v-model="mediaVisible"
+      :footer="null"
+      destroyOnClose
+      width="900px"
+      :zIndex="5000"
+      :title="null"
+      @ok="mediaVisible = false"
+      @cancel="mediaVisible = false">
+      <media-preview :media-list="mediaList" :material-type="filterMaterialType"></media-preview>
+    </a-modal>
+
   </div>
 </template>
 
@@ -281,6 +365,10 @@ import CommonAssociatePreview from '@/components/Common/CommonAssociatePreview'
 import { TemplatesGetPresentation, TemplatesGetPublishedPresentation } from '@/api/template'
 import EvaluationPreview from '@/components/Evaluation/EvaluationPreview'
 import EvaluationTablePreview from '@/components/Evaluation/EvaluationTablePreview'
+import { PptPreviewMixin } from '@/mixins/PptPreviewMixin'
+import MediaPreview from '@/components/Task/MediaPreview'
+import TaskMaterialPreview from '@/components/Task/TaskMaterialPreview'
+import UiLearnOutSub from '@/components/UnitPlan/UiLearnOutSub'
 const { formatLocalUTC } = require('@/utils/util')
 const { UnitPlanQueryById } = require('@/api/unitPlan')
 const { LessonQueryById } = require('@/api/myLesson')
@@ -291,7 +379,15 @@ const { TopicQueryById } = require('@/api/topic')
 
 export default {
   name: 'CommonPreviewNoLink',
-  components: { EvaluationTablePreview, EvaluationPreview, CommonAssociatePreview, NoMoreResources },
+  components: {
+    UiLearnOutSub,
+    EvaluationTablePreview,
+    EvaluationPreview,
+    CommonAssociatePreview,
+    NoMoreResources,
+    MediaPreview,
+    TaskMaterialPreview
+  },
   props: {
     id: {
       type: String,
@@ -310,6 +406,7 @@ export default {
       default: false
     }
   },
+  mixins: [PptPreviewMixin],
   computed: {
     lastChangeSavedTime () {
       if (this.data) {
@@ -385,6 +482,9 @@ export default {
         }).finally(() => {
           this.loading = false
           this.loadThumbnail()
+          if (this.data.presentationId) {
+            this.getClassInfo(this.data.presentationId)
+          }
         })
       } else if (this.type === this.typeMap.lesson) {
         LessonQueryById({
@@ -432,9 +532,11 @@ export default {
             presentationId: this.data.presentationId
           }).then(response => {
             const pageObjects = response.result.pageObjects
+            this.thumbnailList = []
             if (pageObjects.length) {
               pageObjects.forEach(page => {
                 this.imgList.push(page.contentUrl)
+                this.thumbnailList.push({ contentUrl: page.contentUrl, id: page.pageObjectId })
                 this.slideLoading = false
                 this.$logger.info('current imgList ', this.imgList)
               })
@@ -448,9 +550,11 @@ export default {
             presentationId: this.data.presentationId
           }).then(response => {
             const pageObjects = response.result.pageObjects
+            this.thumbnailList = []
             if (pageObjects.length) {
               pageObjects.forEach(page => {
                 this.imgList.push(page.contentUrl)
+                this.thumbnailList.push({ contentUrl: page.contentUrl, id: page.pageObjectId })
                 this.slideLoading = false
                 this.$logger.info('current imgList ', this.imgList)
               })
@@ -1260,15 +1364,191 @@ export default {
   }
 }
 
-/deep/ .ant-carousel {
-  .slick-dots li{
-    background:#364d79;
-    //&.slick-active{
-    //  background:#15c39a;
-    //}
+.slide-select-wrapper {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: flex-start;
+  position: relative;
+  /deep/ .ant-carousel .slick-slide img{
+    width:100%;
+  }
+  /deep/ .ant-carousel{
+    .custom-slick-arrow:before {
+      display: none;
+    }
+    .custom-slick-arrow:hover {
+      opacity: 0.5;
+    }
+    .slick-slide h3 {
+      color: #fff;
+    }
+    .anticon{
+      color: fade(@black, 45%);
+      font-size: 30px;
+    }
+  }
+  .slide-select {
+    background: #fff;
+    position: relative;
+    .slide-select-and-preview {
+      width:100%;
+      //min-height: 400px;
+
+      .reset-edit-basic-info {
+        z-index: 100;
+        position: absolute;
+        top: 10px;
+        left: 3px;
+        background: rgba(0,0,0, 0.8);
+        opacity: 0.7;
+        padding: 5px 10px;
+        font-size: 12px;
+        border-radius: 20px;
+        cursor: pointer;
+        color: #fff;
+      }
+
+      .slide-select-action {
+        height: 400px;
+        width: 600px;
+        img {
+          width:100%
+        }
+      }
+
+    }
+  }
+  .slide-recommend {
+    width: 600px;
+    padding: 0 20px;
+    box-sizing: border-box;
   }
 }
+
+.plugin-tags{
+  height: 100px;
+  width: 650px;
+  overflow-y:auto;
+  background-color:#F7F7F7;
+  font-size: 12px;
+  padding-left: 15px;
+  font-family: Segoe UI;
+  .tag-row{
+    margin: 5px;
+  }
+  .tag-item{
+    margin-right: 15px;
+  }
+  .tag-title{
+    font-weight: 400;
+    line-height: 0px;
+    color: #333334;
+    opacity: 1;
+  }
+  .tag-value{
+    margin-left: 10px;
+    //max-width: 200px;
+  }
+}
+
 .associate-info{
   padding: 10px 5px 10px 5px;
 }
+.top-icon-groups {
+  position: relative;
+  color: rgba(0, 0, 0, 0.65);
+  background: #fff;
+  height:70px;
+  .icon-group{
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    flex-basis: auto;
+    justify-content: flex-start;
+    align-items: center;
+    /deep/ .ant-badge-count{
+      top:10px;
+      right:12px;
+    }
+    .icon {
+      width: 50px;
+      height: 50px;
+      margin:10px;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      background: #fafafa;
+      display: flex;
+      flex-direction: column;
+      font-weight: bold;
+      padding:2px;
+      cursor: pointer;
+      align-items: center;
+      .icon-text {
+        display: flex;
+        font-size: 12px;
+      }
+      svg {
+        display: flex;
+        width: 32px;
+        height: 32px;
+      }
+    }
+  }
+
+  .title-line {
+    padding: 5px 0;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    .name {
+      width: 70%;
+      overflow-x: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      word-break: break-all;
+      font-family: Inter-Bold;
+      font-size: 15px;
+      font-weight: bold;
+      color: #182552;
+      padding-right: 10px;
+      box-sizing: border-box;
+    }
+
+    .action-item {
+      display: flex;
+      width: 30%;
+      flex-direction: row;
+      align-items: center;
+      justify-content: flex-end;
+
+      .star {
+        img {
+          width: 22px;
+        }
+      }
+
+      .edit {
+        margin-left: 15px;
+        .button-content {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          .edit-icon {
+            padding-left: 5px;
+            width: 18px;
+          }
+        }
+      }
+    }
+  }
+}
+
+.material-row {
+  height: 70px;
+  display: flex;
+  align-items: center;
+}
+
 </style>

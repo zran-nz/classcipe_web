@@ -143,7 +143,7 @@
                       Standard rubrics
                     </div>
                     <div :class="{'mode-item': true, 'knowledge-active-mode' : newFormType === EvaluationTableType.CenturySkills}" @click="handleToggleFormType(EvaluationTableType.CenturySkills)">
-                      21st century skills rubric
+                      21st Century Skills rubric
                     </div>
                   </div>
                 </div>
@@ -656,7 +656,7 @@ export default {
       } else if (newFormType === EvaluationTableType.Rubric_2) {
         this.newTableName = 'Rubric two ' + (this.forms.length + 1)
       } else if (newFormType === EvaluationTableType.CenturySkills) {
-        this.newTableName = 'CenturySkills ' + (this.forms.length + 1)
+        this.newTableName = '21st Century Skills ' + (this.forms.length + 1)
       }
     },
 
@@ -664,11 +664,15 @@ export default {
       this.$logger.info('handleDeleteForm', formItem)
       const forms = []
       this.forms.forEach(form => {
-        if (form.id !== formItem.id) {
+        if (form.formId !== formItem.formId) {
           forms.push(form)
         }
       })
       this.forms = forms
+
+      if (this.forms.length) {
+        this.currentActiveFormId = this.forms[this.forms.length - 1].formId
+      }
     },
 
     handleToggleStudentEvaluation (formItem) {
@@ -763,7 +767,7 @@ export default {
     align-items: flex-start;
 
     .class-group {
-      width: 280px;
+      width: 200px;
       .class-student-wrapper {
         height: 539px;
         background: #FFFFFF;
@@ -802,7 +806,7 @@ export default {
               flex-direction: row;
               align-items: center;
               justify-content: space-between;
-              padding: 13px 15px;
+              padding: 10px;
               cursor: pointer;
 
               &:hover {
@@ -849,7 +853,7 @@ export default {
                 flex-direction: column;
                 .list-item {
                   cursor: pointer;
-                  padding: 13px 30px 13px 15px;
+                  padding: 10px;
                   user-select: none;
                   display: flex;
                   flex-direction: row;
@@ -880,7 +884,7 @@ export default {
                   }
                   .select-status-icon {
                     position: absolute;
-                    right: 15px;
+                    right: 5px;
                     top: 50%;
                     margin-top: -7.5px;
                     img {
@@ -897,7 +901,7 @@ export default {
 
     .form-table-content {
       width: 100%;
-      padding: 0 20px;
+      padding: 0 0 0 20px;
 
       .table-content {
         .comment {

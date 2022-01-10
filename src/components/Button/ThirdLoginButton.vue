@@ -32,12 +32,12 @@ export default {
 </script>
 
 <style lang='less' scoped>
-@import "~@/components/index.less";
+@import '~@/components/index.less';
 .third-login-btn {
   cursor: pointer;
   user-select: none;
   min-width: 260px;
-  width: 368px;
+  // width: 368px;
   height: 40px;
   font-size: 16px;
   background: @primary-color;
@@ -48,6 +48,7 @@ export default {
   justify-content: center;
   transition: all 200ms ease-in;
   border: 1px solid rgba(27, 31, 35, 0.1);
+  border-radius: 8px;
   &:hover {
     background: fade(@primary-color, 80%);
   }
@@ -69,5 +70,4 @@ export default {
     }
   }
 }
-
 </style>

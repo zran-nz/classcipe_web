@@ -3,17 +3,18 @@
     <div class="form-header">
       <common-form-header
         ref="commonFormHeader"
+        :collaborate="collaborate"
         :form="form"
         :last-change-saved-time="lastChangeSavedTime"
-        @view-collaborate="handleViewCollaborate"
         @back="goBack"
-        @save="handleSaveUnitPlan"
-        @publish="handlePublishUnitPlan"
         @collaborate="handleStartCollaborate"
+        @publish="handlePublishUnitPlan"
+        @save="handleSaveUnitPlan"
+        @view-collaborate="handleViewCollaborate"
       />
     </div>
-    <a-card :bordered="false" :bodyStyle="{ padding: '16px 24px', height: '100%', minHeight: '1200px' }">
-      <a-row class="unit-content" v-if="!contentLoading">
+    <a-card :bodyStyle="{ padding: '16px 24px', height: '100%', minHeight: '1200px' }" :bordered="false">
+      <a-row v-if="!contentLoading" class="unit-content">
         <!--        <a-col span="4" v-if="showSidebar">
           <associate-sidebar
             :name="form.name"
@@ -24,13 +25,20 @@
             @link="showSelectLinkContentVisible"
             :show-create="true"/>
         </a-col>-->
-        <a-col span="24" class="main-content">
-          <a-card :bordered="false" :body-style="{'min-width': '1350px', padding: '16px', display: 'flex', 'justify-content': 'space-between'}" class="card-wrapper">
-            <div class="unit-plan-form-left root-locate-form" ref="form" @click="focusInput($event)">
+        <a-col class="main-content" span="24">
+          <a-card
+            :body-style="{ padding: '16px', display: 'flex', 'justify-content': 'space-between'}"
+            :bordered="false"
+            class="card-wrapper">
+            <div
+              ref="form"
+              :style="{'width':leftWidth + 'px'}"
+              class="unit-plan-form-left root-locate-form"
+              @click="focusInput($event)">
               <a-form-model :model="form" class="my-form-wrapper">
                 <a-steps :current="currentActiveStepIndex" direction="vertical" @change="onChangeStep">
-                  <a-step title="Edit Unit plan" :status="currentActiveStepIndex === 0 ? 'process':'wait'">
-                    <template slot="description" v-if="currentActiveStepIndex === 0">
+                  <a-step :status="currentActiveStepIndex === 0 ? 'process':'wait'" title="Edit Unit plan">
+                    <template v-if="currentActiveStepIndex === 0" slot="description">
                       <!--                      <div class="form-block">
                         <div class="refer-action row-flex-right">
                           <div class="refer-text">
@@ -48,75 +56,150 @@
                       </div>-->
 
                       <div class="form-block">
-                        <comment-switch field-name="name" :is-active="showCollaborateCommentVisible && currentFieldName === 'name'" @switch="handleSwitchComment" class="my-comment-switch"/>
+                        <comment-switch
+                          :is-active="currentFieldName === 'name'"
+                          class="my-comment-switch"
+                          field-name="name"
+                          @switch="handleSwitchComment" />
                         <a-form-item label="Unit Name">
-                          <a-input v-model="form.name" placeholder="Enter Unit Name" class="my-form-input"/>
+                          <a-input v-model="form.name" class="my-form-input" placeholder="Enter Unit Name" />
                         </a-form-item>
                       </div>
 
-                      <div class="form-block over-form-block overview" id="overview">
-                        <comment-switch field-name="overview" :is-active="showCollaborateCommentVisible && currentFieldName === 'overview'" @switch="handleSwitchComment" class="my-comment-switch"/>
-                        <a-form-model-item class="task-audio-line" label="Unit Overview">
-                          <a-textarea class="overview" v-model="form.overview" placeholder="Overview" allow-clear />
-
-                          <a-button type="primary" ghost class="overview-toggle" @click="showTaskDetails = !showTaskDetails">
-                            Assessment task details
-                            <a-icon type="up" v-if="showTaskDetails"/>
-                            <a-icon type="down" v-else/>
-                          </a-button>
-
-                        </a-form-model-item>
-
-                        <Collapse>
-                          <div class="overview-task-details" v-if="showTaskDetails" >
-                            <a-textarea class="overview-summarize" v-model="form.summarize" placeholder="Add content to summarize your assessment tasks" allow-clear />
-                            <h4>This Unit is made up of <code>{{ associateTaskList.length }}</code> tasks</h4>
-                            <div class="task-item" v-for="(task,index) in associateTaskList" :key="index">
-                              <p><code>{{ task.name }}</code> focuses on "<code>{{ task.overview }}</code>".
-                                This task applies teaching strategies of  "<span v-if="tag.parentName === 'Teaching strategies'" v-for="(tag,tIndex) in task.customTags" :key="tIndex"><a-tag :color="tagColorList[tIndex % tagColorList.length]">{{ tag.name }}</a-tag></span>"
-                                and uses differentiated instructions of  "<span v-if="tag.parentName === 'Differentiated instructions'" v-for="(tag,tIndex) in task.customTags" :key="tIndex"><a-tag :color="tagColorList[tIndex % tagColorList.length]">{{ tag.name }}</a-tag></span>"
-                                to achieve assessment objectives listed below:</p>
-                              <a-list size="small" bordered :data-source="task.learnOuts" v-if="task.learnOuts.length > 0">
-                                <a-list-item slot="renderItem" slot-scope="learn">
-                                  <a-tooltip :title="learn.path" placement="top">
-                                    {{ learn.name }}
-                                  </a-tooltip>
-                                </a-list-item>
-                              </a-list>
-                              <div class="task-action-edit">
-                                <a-button
-                                  shape="round"
-                                  type="link"
-                                  size="small"
-                                  slot="extra"
-                                  href="#"
-                                  @click="handleEditTask(task)"><a-icon type="edit" /></a-button>
-                              </div>
-                            </div>
-                          </div>
-                        </Collapse>
-
+                      <div class="form-block form-radio-wrapper">
+                        <comment-switch field-name="projectBased" :is-active="currentFieldName === 'projectBased'" @switch="handleSwitchComment" class="my-comment-switch"/>
+                        <a-form-item label="Project-based Unit" style="display:flex">
+                          <a-radio-group name="radioGroup" v-model="form.projectBased" style="margin-left:20px;">
+                            <a-radio :value="1">
+                              Yes
+                            </a-radio>
+                            <a-radio :value="0">
+                              No
+                            </a-radio>
+                          </a-radio-group>
+                        </a-form-item>
                       </div>
 
-                      <div class="form-block inquiry-form-block" id="inquiry">
-                        <comment-switch field-name="inquiry" :is-active="showCollaborateCommentVisible && currentFieldName === 'inquiry'" @switch="handleSwitchComment" class="my-comment-switch"/>
+                      <div class="form-block form-radio-wrapper">
+                        <comment-switch field-name="unitType" :is-active="currentFieldName === 'unitType'" @switch="handleSwitchComment" class="my-comment-switch"/>
+                        <a-form-item label="Unit type" style="display:flex">
+                          <a-radio-group name="unitType" v-model="form.unitType" style="margin-left:20px;">
+                            <a-radio :value="0">
+                              Single-subject Unit
+                            </a-radio>
+                            <a-radio :value="1">
+                              Integrated Unit
+                            </a-radio>
+                          </a-radio-group>
+                        </a-form-item>
+                      </div>
+
+                      <div class="form-block grade-time">
+                        <comment-switch field-name="startDate" :is-active="currentFieldName === 'startDate'" @switch="handleSwitchComment" class="my-comment-switch"/>
+                        <a-form-item label="Grade level" style="width:26%;margin-bottom: 0px;">
+                          <a-select
+                            v-model="form.gradeId"
+                            class="my-big-select"
+                            placeholder="Select a grade"
+                            size="large">
+                            <a-select-option v-for="(grade,index) in gradeList" :key="index" :value="grade.id">
+                              {{ grade.name }}
+                            </a-select-option>
+                          </a-select>
+                        </a-form-item>
+                        <a-form-item
+                          class="range-time"
+                          label="Start Date"
+                          style="width:70%;margin-bottom: 0px;position:relative">
+                          <div v-if="getWeek" class="week-time">
+                            <a-tag color="cyan" style="border-radius: 10px;font-size: 14px;">
+                              {{ getWeek }}
+                            </a-tag>
+                          </div>
+                          <a-range-picker
+                            v-model="rangeDate"
+                            :show-time="{ format: 'HH:mm' }"
+                            format="LLL"
+                            size="large"
+                            style="width:100%">
+                            <a-icon slot="suffixIcon" type="calendar" />
+                          </a-range-picker>
+                        </a-form-item>
+                      </div>
+
+                      <!--                      <div class="form-block over-form-block overview" id="overview">-->
+                      <!--                        <comment-switch field-name="overview" :is-active="showCollaborateCommentVisible && currentFieldName === 'overview'" @switch="handleSwitchComment" class="my-comment-switch"/>-->
+                      <!--                        &lt;!&ndash; 暂时隐藏Unit overview模块&ndash;&gt;-->
+                      <!--                        <a-form-model-item class="task-audio-line" label="Unit Overview">-->
+                      <!--                          <a-textarea class="overview" v-model="form.overview" placeholder="Overview" allow-clear />-->
+
+                      <!--                          &lt;!&ndash;                          <a-button type="primary" ghost class="overview-toggle" @click="showTaskDetails = !showTaskDetails">&ndash;&gt;-->
+                      <!--                          &lt;!&ndash;                            Assessment task details&ndash;&gt;-->
+                      <!--                          &lt;!&ndash;                            <a-icon type="up" v-if="showTaskDetails"/>&ndash;&gt;-->
+                      <!--                          &lt;!&ndash;                            <a-icon type="down" v-else/>&ndash;&gt;-->
+                      <!--                          &lt;!&ndash;                          </a-button>&ndash;&gt;-->
+                      <!--                        </a-form-model-item>-->
+                      <!--                        &lt;!&ndash;                        <Collapse>&ndash;&gt;-->
+                      <!--                        &lt;!&ndash;                          <div class="overview-task-details" v-if="showTaskDetails" >&ndash;&gt;-->
+                      <!--                        &lt;!&ndash;                            <a-textarea class="overview-summarize" v-model="form.summarize" placeholder="Add content to summarize your assessment tasks" allow-clear />&ndash;&gt;-->
+                      <!--                        &lt;!&ndash;                            <h4>This Unit is made up of <code>{{ associateTaskList.length }}</code> tasks</h4>&ndash;&gt;-->
+                      <!--                        &lt;!&ndash;                            <div class="task-item" v-for="(task,index) in associateTaskList" :key="index">&ndash;&gt;-->
+                      <!--                        &lt;!&ndash;                              <p><code>{{ task.name }}</code> focuses on "<code>{{ task.overview }}</code>".&ndash;&gt;-->
+                      <!--                        &lt;!&ndash;                                This task applies teaching strategies of  "<span v-if="tag.parentName === 'Teaching strategies'" v-for="(tag,tIndex) in task.customTags" :key="tIndex"><a-tag :color="tagColorList[tIndex % tagColorList.length]">{{ tag.name }}</a-tag></span>"&ndash;&gt;-->
+                      <!--                        &lt;!&ndash;                                and uses differentiated instructions of  "<span v-if="tag.parentName === 'Differentiated instructions'" v-for="(tag,tIndex) in task.customTags" :key="tIndex"><a-tag :color="tagColorList[tIndex % tagColorList.length]">{{ tag.name }}</a-tag></span>"&ndash;&gt;-->
+                      <!--                        &lt;!&ndash;                                to achieve assessment objectives listed below:</p>&ndash;&gt;-->
+                      <!--                        &lt;!&ndash;                              <a-list size="small" bordered :data-source="task.learnOuts" v-if="task.learnOuts.length > 0">&ndash;&gt;-->
+                      <!--                        &lt;!&ndash;                                <a-list-item slot="renderItem" slot-scope="learn">&ndash;&gt;-->
+                      <!--                        &lt;!&ndash;                                  <a-tooltip :title="learn.path" placement="top">&ndash;&gt;-->
+                      <!--                        &lt;!&ndash;                                    {{ learn.name }}&ndash;&gt;-->
+                      <!--                        &lt;!&ndash;                                  </a-tooltip>&ndash;&gt;-->
+                      <!--                        &lt;!&ndash;                                </a-list-item>&ndash;&gt;-->
+                      <!--                        &lt;!&ndash;                              </a-list>&ndash;&gt;-->
+                      <!--                        &lt;!&ndash;                              <div class="task-action-edit">&ndash;&gt;-->
+                      <!--                        &lt;!&ndash;                                <a-button&ndash;&gt;-->
+                      <!--                        &lt;!&ndash;                                  shape="round"&ndash;&gt;-->
+                      <!--                        &lt;!&ndash;                                  type="link"&ndash;&gt;-->
+                      <!--                        &lt;!&ndash;                                  size="small"&ndash;&gt;-->
+                      <!--                        &lt;!&ndash;                                  slot="extra"&ndash;&gt;-->
+                      <!--                        &lt;!&ndash;                                  href="#"&ndash;&gt;-->
+                      <!--                        &lt;!&ndash;                                  @click="handleEditTask(task)"><a-icon type="edit" /></a-button>&ndash;&gt;-->
+                      <!--                        &lt;!&ndash;                              </div>&ndash;&gt;-->
+                      <!--                        &lt;!&ndash;                            </div>&ndash;&gt;-->
+                      <!--                        &lt;!&ndash;                          </div>&ndash;&gt;-->
+                      <!--                        &lt;!&ndash;                        </Collapse>&ndash;&gt;-->
+
+                      <!--                      </div>-->
+
+                      <div id="inquiry" class="form-block inquiry-form-block">
+                        <comment-switch
+                          :is-active="currentFieldName === 'inquiry'"
+                          class="my-comment-switch"
+                          field-name="inquiry"
+                          @switch="handleSwitchComment" />
                         <!--                <a-divider />-->
-                        <a-form-item label="Big Idea/ Statement of Inquiry/ Central Idea" class="bigIdea" >
-                          <a-input
+                        <a-form-item class="bigIdea" label="Big Idea/ Statement of Inquiry/ Central Idea">
+                          <a-textarea
                             v-model="form.inquiry"
                             :placeholder="$store.getters.currentRole === 'teacher' ? $t('teacher.add-unit-plan.teacher-direction-of-inquiry') : $t('teacher.add-unit-plan.expert-direction-of-inquiry')"
-                            class="my-form-input inquiry"/>
+                            auto-size
+                            class="my-form-textarea inquiry"
+                          />
                         </a-form-item>
                         <a-tooltip title="Browse" @click.stop="selectBigIdeaDataVisible=true">
                           <span class="browse">
-                            <a-icon type="appstore" theme="twoTone" twoToneColor="rgba(21, 195, 154, 1)" />
+                            <a-icon theme="twoTone" twoToneColor="rgba(21, 195, 154, 1)" type="appstore" />
                           </span>
                         </a-tooltip>
                       </div>
 
                       <!--            real-life-scenario-->
                       <div class="form-block ">
-                        <comment-switch field-name="sdg" :is-active="showCollaborateCommentVisible && currentFieldName === 'sdg'" @switch="handleSwitchComment" class="my-comment-switch" style="top:40px"/>
+                        <comment-switch
+                          :is-active="currentFieldName === 'sdg'"
+                          class="my-comment-switch"
+                          field-name="sdg"
+                          style="top:40px"
+                          @switch="handleSwitchComment" />
                         <a-divider>Teaching goals</a-divider>
                         <a-row>
                           <a-col span="24">
@@ -127,43 +210,54 @@
                         </a-row>
                         <!--sdg and KeyWords-->
                         <div
-                          class="sdg-content-blocks sdg-form-block"
-                          id="sdg"
                           v-for="(scenario, sdgIndex) in form.scenarios"
-                          :key="sdgIndex">
+                          id="sdg"
+                          :key="sdgIndex"
+                          class="sdg-content-blocks sdg-form-block">
 
                           <!--description-->
                           <div class="scenario-description">
-                            <div class="sdg-delete-wrapper" @click="handleDeleteSdg(sdgIndex)" v-show="form.scenarios.length > 1">
+                            <div
+                              v-show="form.scenarios.length > 1"
+                              class="sdg-delete-wrapper"
+                              @click="handleDeleteSdg(sdgIndex)">
                               <a-tooltip placement="top">
                                 <template slot="title">
                                   <span>{{ $t('teacher.add-unit-plan.delete-goal') }}</span>
                                 </template>
                                 <div class="sdg-delete">
-                                  <a-icon type="delete" :style="{ fontSize: '20px' }" />
+                                  <a-icon :style="{ fontSize: '20px' }" type="delete" />
                                 </div>
                               </a-tooltip>
                             </div>
                             <!--sdg-->
-                            <a-form-model-item >
-                              <a-select size="large" v-model="scenario.sdgId" class="my-big-select" placeholder="Select a goal from UN">
-                                <a-select-option v-for="(sdg,index) in sdgList" :value="sdg.id" :key="index" :disabled="selectedSdg.indexOf(sdg.id) != -1">
+                            <a-form-model-item>
+                              <a-select
+                                v-model="scenario.sdgId"
+                                class="my-big-select"
+                                placeholder="Select a goal from UN"
+                                size="large">
+                                <a-select-option
+                                  v-for="(sdg,index) in sdgList"
+                                  :key="index"
+                                  :disabled="selectedSdg.indexOf(sdg.id) != -1"
+                                  :value="sdg.id">
                                   {{ sdg.name }}
                                 </a-select-option>
                               </a-select>
                             </a-form-model-item>
 
-                            <a-form-model-item >
+                            <a-form-model-item>
                               <input-search
                                 ref="descriptionInputSearch"
+                                :currend-index="currentIndex"
                                 :default-value="scenario.description"
                                 :key-index="sdgIndex"
-                                :currend-index="currentIndex"
                                 :search-list="descriptionSearchList"
                                 label="description"
+                                @reset="descriptionSearchList = []"
                                 @search="handleDescriptionSearch"
-                                @select-item="handleSelectScenario"
-                                @reset="descriptionSearchList = []" />
+                                @select-item="handleSelectScenario" />
                             </a-form-model-item>
 
                           </div>
@@ -175,42 +269,79 @@
                         </div>
                         <a-button
                           class="add-button"
-                          style="top:-20px"
-                          type="link"
                           icon="plus-circle"
                           size="large"
+                          style="top:-20px"
+                          type="link"
                           @click="handleAddMoreSdg"></a-button>
                       </div>
 
-                      <div :class="{'form-block': true, 'form-block-disabled' : $store.getters.userInfo.disableQuestion}">
-                        <comment-switch v-if="!$store.getters.userInfo.disableQuestion" field-name="question" :is-active="showCollaborateCommentVisible && currentFieldName === 'question'" @switch="handleSwitchComment" class="my-comment-switch"/>
-                        <a-form-item>
+                      <div class="form-block form-block-rwc" >
+                        <a-form-model-item label="Real World Connection(s)">
+                          <a-select
+                            size="large"
+                            v-model="form.rwc"
+                            placeholder="Choose real world connection">
+                            <a-select-option :value="item.id" v-for="(item, index) in rwcList" :key="index" >
+                              {{ item.name }}
+                            </a-select-option>
+                          </a-select>
+                        </a-form-model-item>
+                      </div>
+
+                      <div
+                        :class="{'form-block': true, 'form-block-disabled' : $store.getters.userInfo.disableQuestion}">
+                        <comment-switch
+                          v-if="!$store.getters.userInfo.disableQuestion"
+                          :is-active="currentFieldName === 'question'"
+                          class="my-comment-switch"
+                          field-name="question"
+                          @switch="handleSwitchComment" />
+                        <a-form-item class="unit-question">
                           <span slot="label">
                             <a-tooltip title="Set key question/Line of inquiry">
-                              <a-icon type="exclamation-circle" style="color: #15c39a;cursor: pointer;font-size: 18px" @click="questionSettingVisible=true" />
+                              <a-icon
+                                style="color: #15c39a;cursor: pointer;font-size: 18px"
+                                type="exclamation-circle"
+                                @click="questionSettingVisible=true" />
                             </a-tooltip>
                             Key question(s) / Line(s) of inquiry
                           </span>
                           <div v-if="!$store.getters.userInfo.disableQuestion">
-                            <div class="question-more"><a-button @click="questionMoreVisible=true" type="link" >more</a-button></div>
-                            <div class="recommend-question" v-if="showRecommendQuestion">
-                              <a-icon type="close" class="close-icon" @click.stop="hideRecommendQuestion=true" />
+                            <div class="question-more">
+                              <a-button type="link" @click="questionMoreVisible=true">more</a-button>
+                            </div>
+                            <div v-if="showRecommendQuestion" class="recommend-question">
+                              <a-icon class="close-icon" type="close" @click.stop="hideRecommendQuestion=true" />
                               <div class="recommend-box">
-                                <a-tooltip title="You can add the key questions relevant to the big idea you chose above">
+                                <a-tooltip
+                                  title="You can add the key questions relevant to the big idea you chose above">
                                   <span class="title"><a-icon style="width: 25px" type="question-circle" />Recommended:</span>
                                 </a-tooltip>
                                 <ul class="recommend-ul">
-                                  <li v-if="rqIndex < 3 && selectQuestion.indexOf(item.name) === -1" v-for="(item,rqIndex) in recommendQuestionList" :key="rqIndex">{{ item.name }}<a-button @click.stop="handerInsertQuestion(item)" class="add-question" type="link">add</a-button></li>
+                                  <li
+                                    v-for="(item,rqIndex) in recommendQuestionList"
+                                    v-if="rqIndex < 3 && selectQuestion.indexOf(item.name) === -1"
+                                    :key="rqIndex">
+                                    {{ item.name }}
+                                    <a-button class="add-question" type="link" @click.stop="handerInsertQuestion(item)">
+                                      add
+                                    </a-button>
+                                  </li>
                                 </ul>
                               </div>
                             </div>
-                            <div class="form-input-item" v-for="(question, index) in form.questions" :key="index">
-                              <a-input
+                            <div v-for="(question, index) in form.questions" :key="index" class="form-input-item">
+                              <a-textarea
                                 v-model="question.name"
-                                class="my-form-input"
-                                :placeholder="$store.getters.currentRole === 'teacher' ? $t('teacher.add-unit-plan.teacher-nth-key-question') : $t('teacher.add-unit-plan.expert-nth-key-question')"/>
-                              <div class="delete-icon" @click="handleRemoveQuestion(index)">
-                                <a-icon type="delete" :style="{ fontSize: '20px' }" />
+                                :placeholder="$store.getters.currentRole === 'teacher' ? $t('teacher.add-unit-plan.teacher-nth-key-question') : $t('teacher.add-unit-plan.expert-nth-key-question')"
+                                auto-size
+                                class="my-form-textarea" />
+                              <div
+                                v-if="form.questions.length > 1"
+                                class="delete-icon"
+                                @click="handleRemoveQuestion(index)">
+                                <a-icon :style="{ fontSize: '20px' }" type="delete" />
                               </div>
                             </div>
                           </div>
@@ -218,41 +349,91 @@
                         <a-button
                           v-if="!$store.getters.userInfo.disableQuestion"
                           class="add-button"
-                          style="top:-40px;"
-                          type="link"
                           icon="plus-circle"
                           size="large"
+                          style="top:-40px;"
+                          type="link"
                           @click="handleAddMoreQuestion"></a-button>
                       </div>
 
                       <div class="form-block">
-                        <comment-switch field-name="assessment" :is-active="showCollaborateCommentVisible && currentFieldName === 'assessment'" @switch="handleSwitchComment" class="my-comment-switch"/>
-                        <a-form-item label="Set assessment objectives" >
-                          <a-button type="primary" @click="handleSelectDescription()">
-                            <div class="btn-text" style="line-height: 20px">
-                              Add assessment objectives
-                            </div>
+                        <comment-switch
+                          :is-active="currentFieldName === 'assessment'"
+                          class="my-comment-switch"
+                          field-name="assessment"
+                          @switch="handleSwitchComment" />
+                        <a-form-item label="Set learning objectives">
+                          <a-badge :dot="hasExtraRecommend">
+                            <a-button type="primary" @click="handleSelectDescription()">
+                              <div class="btn-text" style="line-height: 20px">
+                                Add leaning objectives
+                              </div>
+                            </a-button>
+                          </a-badge>
+
+                          <a-button
+                            class="assessment-task-button"
+                            ghost
+                            type="link"
+                            @click="handleClickTaskDetail($event)">
+                            Assessment task details
+                            <a-icon type="right" />
                           </a-button>
+
                         </a-form-item>
 
                         <!--knowledge tag-select -->
                         <ui-learn-out :learn-outs="form.learnOuts" @remove-learn-outs="handleRemoveLearnOuts" />
                       </div>
 
+                      <div class="form-block" style="clear:both">
+                        <comment-switch
+                          :is-active="currentFieldName === 'prior'"
+                          class="my-comment-switch"
+                          field-name="prior"
+                          @switch="handleSwitchComment" />
+                        <a-form-model-item label="Prior learning experience">
+                          <a-textarea
+                            v-model="form.prior"
+                            allow-clear
+                            auto-size
+                            placeholder="What are the approaches to find out what students already knew?" />
+                        </a-form-model-item>
+                      </div>
+
                     </template>
                   </a-step>
                   <a-step title="Link Plan content">
-                    <template slot="description" v-if="currentActiveStepIndex === 1">
+                    <template v-if="currentActiveStepIndex === 1" slot="description">
                       <div class="form-block">
-                        <a-form-item label="Add task(s)" class="link-plan-title">
-                          <a-button type="primary" :style="{'background-color': '#fff', 'color': '#000', 'border': '1px solid #D8D8D8'}" @click="handleAddTerm">
-                            <div class="btn-text" style="line-height: 20px">
-                              + Add category
-                            </div>
-                          </a-button>
+                        <a-form-item class="link-plan-title" label="Add task(s)">
+                          <a-space>
+                            <a-button
+                              :style="{'background-color': '#fff', 'color': '#000', 'border': '1px solid #D8D8D8'}"
+                              type="primary"
+                              @click="handleAddTasks">
+                              <div class="btn-text" style="line-height: 20px">
+                                + Link Task(s)
+                              </div>
+                            </a-button>
+                            <a-button
+                              :loading="addCategoryLoading"
+                              :style="{'background-color': '#fff', 'color': '#000', 'border': '1px solid #D8D8D8'}"
+                              class="addCategory"
+                              type="primary"
+                              @click="handleAddTerm">
+                              <div class="btn-text" style="line-height: 20px">
+                                + Add category
+                              </div>
+                            </a-button>
+                          </a-space>
                         </a-form-item>
                         <div class="common-link-wrapper">
-                          <common-link ref="commonLink" :from-id="this.unitPlanId" :from-type="this.contentType['unit-plan']" @group-name-list-update="handleUpdateGroupNameList"/>
+                          <plan-link
+                            ref="planLink"
+                            :from-id="this.unitPlanId"
+                            :from-type="this.contentType['unit-plan']"
+                            @group-name-list-update="handleUpdateGroupNameList" />
                         </div>
                       </div>
                     </template>
@@ -260,86 +441,112 @@
                 </a-steps>
               </a-form-model>
             </div>
-            <div class="unit-plan-form-right">
+
+            <div :style="{'width':rightWidth + 'px'}" class="unit-plan-form-right">
               <!--              优先级 所有comment预览 > 字段comment > tag选择-->
-              <template v-if="showAllCollaborateCommentVisible">
+              <template v-if="showRightModule(rightModule.collaborate)">
                 <a-skeleton :loading="showHistoryLoading" active>
-                  <div class="collaborate-panel" :style="{'width':'600px', 'margin-top': '0px', 'z-index': 100, 'padding': '10px'}">
+                  <div
+                    :style="{'width':rightWidth + 'px', 'margin-top': '0px', 'z-index': 100, 'padding': '10px'}"
+                    class="collaborate-panel">
                     <div class="icon">
                       <comment-icon />
                     </div>
                     <a-tabs default-active-key="1">
                       <a-tab-pane key="1" tab="Comment">
-                        <collaborate-comment-view :source-id="unitPlanId" :source-type="contentType['unit-plan']" :comment-list="collaborateCommentList" @update-comment="handleUpdateCommentList"/>
+                        <collaborate-comment-view
+                          :comment-list="collaborateCommentList"
+                          :source-id="unitPlanId"
+                          :source-type="contentType['unit-plan']"
+                          @update-comment="handleUpdateCommentList" />
                       </a-tab-pane>
-                      <a-tab-pane key="2" tab="History" force-render>
-                        <collaborate-history :history-list="historyList" @restore="handleRestoreField"/>
+                      <a-tab-pane key="2" force-render tab="History">
+                        <collaborate-history :history-list="historyList" @restore="handleRestoreField" />
                       </a-tab-pane>
                     </a-tabs>
                   </div>
                 </a-skeleton>
               </template>
-              <template v-else>
-                <template v-if="showCollaborateCommentVisible">
-                  <div class="collaborate-panel" :style="{'width':'600px', 'margin-top':collaborateTop+'px', 'z-index': 100, 'padding': '10px'}">
-                    <collaborate-comment-panel :source-id="unitPlanId" :source-type="contentType['unit-plan']" :field-name="currentFieldName" :comment-list="currentCollaborateCommentList" @update-comment="handleUpdateCommentList"/>
-                  </div>
-                </template>
-                <template v-else>
-                  <div class="form-block-right" >
-                    <!-- image-->
-                    <a-form-model-item class="img-wrapper" >
-                      <a-upload-dragger
-                        name="file"
-                        accept="image/png, image/jpeg"
-                        :showUploadList="false"
-                        :customRequest="handleUploadImage"
-                      >
-                        <div class="delete-img" @click="handleDeleteImage($event)" v-show="form.image">
-                          <a-icon type="close-circle" />
-                        </div>
-                        <template v-if="uploading">
-                          <div class="upload-container">
-                            <p class="ant-upload-drag-icon">
-                              <a-icon type="cloud-upload" />
-                            </p>
-                            <p class="ant-upload-text">
-                              <a-spin />
-                              <span class="uploading-tips">{{ $t('teacher.add-unit-plan.uploading') }}</span>
-                            </p>
-                          </div>
-                        </template>
-                        <template v-if="!uploading && form && form.image">
-                          <div class="image-preview">
-                            <img :src="form.image" alt="">
-                          </div>
-                        </template>
-                        <template v-if="!uploading && form && !form.image">
-                          <div class="upload-container">
-                            <p class="ant-upload-drag-icon">
-                              <img src="~@/assets/icons/lesson/upload_icon.png" class="upload-icon" />
-                            </p>
-                            <p class="ant-upload-text">
-                              {{ $t('teacher.add-unit-plan.upload-a-picture') }}
-                            </p>
-                          </div>
-                        </template>
-                      </a-upload-dragger>
-                    </a-form-model-item>
-                  </div>
-                  <div v-show="!this.contentLoading" :style="{'width':'600px','position': 'absolute', 'top':customTagTop+'px', 'z-index': 50}">
-                    <custom-tag
-                      :show-arrow="showCustomTag"
-                      :user-tags="userTags"
-                      :custom-tags-list="customTagList"
-                      ref="customTag"
-                      :selected-tags-list="form.customTags"
-                      @reload-user-tags="loadUserTags"
-                      @change-add-keywords="handleChangeAddKeywords"
-                      @change-user-tags="handleChangeUserTags"></custom-tag>
-                  </div>
-                </template>
+              <template v-if="showRightModule(rightModule.collaborateComment) && currentActiveStepIndex === 0">
+                <div
+                  :style="{'width':rightWidth + 'px', 'margin-top':collaborateTop+'px', 'z-index': 100, 'padding': '10px'}"
+                  class="collaborate-panel">
+                  <collaborate-comment-panel
+                    :comment-list="currentCollaborateCommentList"
+                    :field-name="currentFieldName"
+                    :source-id="unitPlanId"
+                    :source-type="contentType['unit-plan']"
+                    @update-comment="handleUpdateCommentList" />
+                </div>
               </template>
+              <template v-if="showRightModule(rightModule.imageUpload)">
+                <div :style="{'width':rightWidth + 'px'}" class="form-block-right">
+                  <!-- image-->
+                  <a-form-model-item class="img-wrapper">
+                    <a-upload-dragger
+                      :customRequest="handleUploadImage"
+                      :showUploadList="false"
+                      accept="image/png, image/jpeg"
+                      name="file"
+                    >
+                      <div v-show="form.image" class="delete-img" @click="handleDeleteImage($event)">
+                        <a-icon type="close-circle" />
+                      </div>
+                      <template v-if="uploading">
+                        <div class="upload-container">
+                          <p class="ant-upload-drag-icon">
+                            <a-icon type="cloud-upload" />
+                          </p>
+                          <p class="ant-upload-text">
+                            <a-spin />
+                            <span class="uploading-tips">{{ $t('teacher.add-unit-plan.uploading') }}</span>
+                          </p>
+                        </div>
+                      </template>
+                      <template v-if="!uploading && form && form.image">
+                        <div class="image-preview">
+                          <img :src="form.image" alt="">
+                        </div>
+                      </template>
+                      <template v-if="!uploading && form && !form.image">
+                        <div class="upload-container">
+                          <p class="ant-upload-drag-icon">
+                            <img class="upload-icon" src="~@/assets/icons/lesson/upload_icon.png" />
+                          </p>
+                          <p class="ant-upload-text">
+                            {{ $t('teacher.add-unit-plan.upload-a-picture') }}
+                          </p>
+                        </div>
+                      </template>
+                    </a-upload-dragger>
+                  </a-form-model-item>
+                </div>
+              </template>
+              <template v-if="showRightModule(rightModule.customTag)">
+                <div
+                  v-show="!this.contentLoading"
+                  :style="{'width':rightWidth+'px', 'margin-top':customTagTop+'px', 'z-index': 50}">
+                  <custom-tag
+                    ref="customTag"
+                    :scope-tags-list="customTagList"
+                    :selected-tags-list="form.customTags"
+                    :show-arrow="showCustomTag"
+                    :custom-tags="customTags"
+                    @reload-user-tags="loadCustomTags"
+                    @change-add-keywords="handleChangeAddKeywords"
+                    @change-user-tags="handleChangeCustomTags"></custom-tag>
+                </div>
+              </template>
+              <template v-if="showRightModule(rightModule.taskDetails) && currentActiveStepIndex === 0">
+                <div
+                  :style="{'width':rightWidth + 'px', 'margin-top':taskDetailsTop+'px', 'z-index': 200}"
+                  class="task-details-panel">
+                  <Assessment-Task-Details
+                    :associate-task-list="associateTaskList"
+                    @hide-assessment-task="resetRightModuleVisible()" />
+                </div>
+              </template>
+
             </div>
           </a-card>
         </a-col>
@@ -347,17 +554,17 @@
 
       <a-modal
         v-model="showCollaborateModalVisible"
+        :closable="true"
         :footer="null"
         :maskClosable="false"
-        :closable="true"
         destroyOnClose
-        width="800px">
-        <collaborate-content
+        width="900px">
+        <collaborate-user-list
+          v-if="showCollaborateModalVisible"
           :content-id="unitPlanId"
-          :main-content="collaborateContent"
           :content-type="contentType['unit-plan']"
-          @finished="showCollaborateModalVisible = false"
-          v-if="showCollaborateModalVisible"/>
+          :main-content="collaborateContent"
+          @confirmSelect="confirmSelectCollaborateUsers" />
       </a-modal>
 
       <a-modal
@@ -365,28 +572,28 @@
         :footer="null"
         destroyOnClose
         title="Select Content Type"
-        @ok="selectAddContentTypeVisible = false"
-        @cancel="selectAddContentTypeVisible = false">
+        @cancel="selectAddContentTypeVisible = false"
+        @ok="selectAddContentTypeVisible = false">
         <div class="add-content-wrapper">
           <div class="add-content-item" @click="handleAddUnitPlanTask">
             <a>
-              <content-type-icon :type="contentType.task"/>
+              <content-type-icon :type="contentType.task" />
               {{ $t('teacher.add-unit-plan.task') }}
             </a>
           </div>
           <div class="add-content-item" @click="handleAddUnitPlanLesson">
-            <a >
-              <content-type-icon :type="contentType.lesson"/>
+            <a>
+              <content-type-icon :type="contentType.lesson" />
               {{ $t('teacher.add-unit-plan.lesson') }}
             </a>
           </div>
           <div class="add-content-item" @click="handleAddUnitPlanEvaluation">
-            <a >
-              <content-type-icon :type="contentType.evaluation"/>
+            <a>
+              <content-type-icon :type="contentType.evaluation" />
               {{ $t('teacher.add-unit-plan.evaluation') }}
             </a>
           </div>
-          <div class="add-loading" v-if="addLoading">
+          <div v-if="addLoading" class="add-loading">
             <a-spin />
           </div>
         </div>
@@ -397,18 +604,18 @@
         :footer="null"
         destroyOnClose
         title="Add Audio"
-        @ok="showAddAudioVisible = false"
-        @cancel="showAddAudioVisible = false">
+        @cancel="showAddAudioVisible = false"
+        @ok="showAddAudioVisible = false">
 
         <div class="audio-material-action">
-          <div class="uploading-mask" v-show="currentUploading">
+          <div v-show="currentUploading" class="uploading-mask">
             <div class="uploading">
               <a-spin large />
             </div>
           </div>
           <div class="action-item">
-            <a-upload name="file" accept="audio/*" :customRequest="handleUploadAudio" :showUploadList="false">
-              <a-button type="primary" icon="upload">{{ $t('teacher.add-unit-plan.upload-audio') }}</a-button>
+            <a-upload :customRequest="handleUploadAudio" :showUploadList="false" accept="audio/*" name="file">
+              <a-button icon="upload" type="primary">{{ $t('teacher.add-unit-plan.upload-audio') }}</a-button>
             </a-upload>
           </div>
           <a-divider>
@@ -420,11 +627,11 @@
               {{ $t('teacher.add-unit-plan.record-your-voice') }}
             </div>
           </div>
-          <div class="material-action" >
-            <a-button key="back" @click="handleCancelAddAudio" class="action-item">
+          <div class="material-action">
+            <a-button key="back" class="action-item" @click="handleCancelAddAudio">
               Cancel
             </a-button>
-            <a-button key="submit" type="primary" @click="handleConfirmAddAudio" class="action-item">
+            <a-button key="submit" class="action-item" type="primary" @click="handleConfirmAddAudio">
               Ok
             </a-button>
           </div>
@@ -435,33 +642,36 @@
         v-model="selectReferMyContentVisible"
         :footer="null"
         destroyOnClose
-        width="1150px"
         title="Refer MyContent"
-        @ok="selectReferMyContentVisible = false"
-        @cancel="selectReferMyContentVisible = false">
+        width="1150px"
+        @cancel="selectReferMyContentVisible = false"
+        @ok="selectReferMyContentVisible = false">
         <div class="link-content-wrapper">
-          <my-content-selector :current-id="unitPlanId" :filter-type-list="['unit-plan', 'topic']" :mode="DisplayMode.Refer" />
+          <my-content-selector
+            :current-id="unitPlanId"
+            :filter-type-list="['unit-plan', 'topic']"
+            :mode="DisplayMode.Refer" />
         </div>
       </a-modal>
 
       <a-drawer
-        destroyOnClose
-        placement="right"
         :closable="false"
         :mask="false"
-        width="700px"
         :visible="referDetailVisible"
+        destroyOnClose
+        placement="right"
+        width="700px"
         @close="handleCloseReferDetail"
       >
         <a-row class="preview-wrapper-row">
-          <a-col span="2" class="view-back-col">
+          <a-col class="view-back-col" span="2">
             <div class="view-back" @click="handleCloseReferDetail">
               <div class="back-icon">
                 <img src="~@/assets/icons/common/back.png" />
               </div>
             </div>
           </a-col>
-          <a-col span="24" class="preview-wrapper-col">
+          <a-col class="preview-wrapper-col" span="24">
             <div class="detail-wrapper">
               <div class="refer-detail">
                 <refer-preview
@@ -479,53 +689,60 @@
 
       <a-modal
         v-model="selectLinkContentVisible"
+        :dialog-style="{ top: '10px'}"
         :footer="null"
         destroyOnClose
         width="900px">
-        <div class="my-modal-title" slot="title">
+        <div slot="title" class="my-modal-title">
           Link my content
         </div>
         <div class="link-content-wrapper">
           <new-my-content
-            :from-type="contentType['unit-plan']"
-            :from-id="unitPlanId"
-            :filter-type-list="[contentType.task,contentType.evaluation]"
-            :group-name-list="groupNameList"
             :default-group-name="newTermName"
-            :mode="'common-link'"
+            :filter-type-list="[contentType.task]"
+            :from-id="unitPlanId"
+            :from-type="contentType['unit-plan']"
+            :group-name-list="groupNameList"
             :group-name-mode="groupNameMode"
+            :mode="'common-link'"
+            :selected-list="selectedTaskList"
             @cancel="selectLinkContentVisible = false"
-            @ensure="handleEnsureSelectedLink"/>
+            @ensure="handleEnsureSelectedLink" />
         </div>
       </a-modal>
 
       <a-modal
         v-model="selectSyncDataVisible"
+        :dialog-style="{ top: '20px' }"
         :footer="null"
+        :title="null"
         destroyOnClose
         width="1200px"
-        :dialog-style="{ top: '20px' }"
-        :title="null"
-        @ok="selectSyncDataVisible = false"
-        @cancel="selectSyncDataVisible = false">
+        @cancel="selectSyncDataVisible = false"
+        @ok="selectSyncDataVisible = false">
         <div class="link-content-wrapper">
           <!-- 此处的questionIndex用于标识区分是哪个组件调用的，返回的事件数据中会带上，方便业务数据处理，可随意写，可忽略, show-menu中列出的类型才会显示-->
           <new-browser
-            :select-mode="selectModel.syncData"
-            question-index="_questionIndex_1"
-            :sync-data="syncData"
-            :show-menu="showMenuList"
+            ref="newBrowser"
             :default-active-menu="defaultActiveMenu"
+            :recommend-data="recommendData"
+            :select-mode="selectModel.syncData"
+            :selected-id="selectedIdList"
+            :selected-list="selectedList"
+            :show-menu="showMenuList"
+            :sync-data="syncData"
+            :learning-outcome-grade-id="form.gradeId"
+            question-index="_questionIndex_1"
             @select-assessmentType="handleSelectAssessmentType"
             @select-sync="handleSelectListData"
             @select-curriculum="handleSelectCurriculum"
             @select-subject-specific-skill="handleSelectSubjectSpecificSkillListData"
             @select-century-skill="handleSelect21CenturySkillListData"
+            @select-idu="handleSelectIdu"
+            @select-recommend="handleSelectRecommend"
+            @cancel-select="handleCancelSelectData"
+            @ensure-select="handleEnsureSelectData"
           />
-          <div class="modal-ensure-action-line-right">
-            <a-button class="action-item action-cancel" shape="round" @click="handleCancelSelectData">Cancel</a-button>
-            <a-button class="action-ensure action-item" type="primary" shape="round" @click="handleEnsureSelectData">Ok</a-button>
-          </div>
         </div>
       </a-modal>
 
@@ -533,17 +750,30 @@
         v-model="questionSettingVisible"
         :footer="null"
         destroyOnClose
-        width="600px"
-        title="Set key question(s) / Line(s) of inquiry">
+        title="Set key question(s) / Line(s) of inquiry"
+        width="600px">
         <div class="ensure-setting-modal">
           <div class="tips">
-            <p>We understand that for some countries, "key questions/line of inquiry" is not required in Unit plan so you have the option to turn it off. You won't see that section once it's off.</p><p>
-            </p><p style="color: red">You might turn it on or change in your account setting If you need the section in future.</p>
+            <p>We understand that for some countries, "key questions/line of inquiry" is not required in Unit plan so
+              you have the option to turn it off. You won't see that section once it's off.</p>
+            <p>
+            </p>
+            <p style="color: red">You might turn it on or change in your account setting If you need the section in
+              future.</p>
           </div>
-          <a-switch v-model="disableQuestion" @change="onChangeSwitch"/> <span style="color: red ;font-family: Inter-Bold;font-size: 15px;"> Key question(s) / Line(s) of inquiry</span>
+          <a-switch v-model="disableQuestion" @change="onChangeSwitch" />
+          <span
+            style="color: red ;font-family: Inter-Bold;font-size: 15px;"> Key question(s) / Line(s) of inquiry</span>
           <div class="modal-ensure-action-line-center">
-            <a-button class="action-item action-cancel" shape="round" @click="questionSettingVisible=false">Cancel</a-button>
-            <a-button class="action-ensure action-item" :loading="confirmLoading" type="primary" shape="round" @click="handQuestionSetting">Confirm</a-button>
+            <a-button class="action-item action-cancel" shape="round" @click="questionSettingVisible=false">Cancel
+            </a-button>
+            <a-button
+              :loading="confirmLoading"
+              class="action-ensure action-item"
+              shape="round"
+              type="primary"
+              @click="handQuestionSetting">Confirm
+            </a-button>
           </div>
         </div>
       </a-modal>
@@ -552,18 +782,24 @@
         v-model="selectBigIdeaDataVisible"
         :footer="null"
         destroyOnClose
-        width="70%"
         title="Browse big idea"
-        @ok="selectBigIdeaDataVisible = false"
-        @cancel="selectBigIdeaDataVisible = false">
+        width="70%"
+        @cancel="selectBigIdeaDataVisible = false"
+        @ok="selectBigIdeaDataVisible = false">
         <div class="link-content-wrapper">
           <BigIdeaBrowse @handle-select="handleSelectBigIdeaData">
 
           </BigIdeaBrowse>
 
           <div class="modal-ensure-action-line-right">
-            <a-button class="action-item action-cancel" shape="round" @click="selectBigIdeaDataVisible=false">Cancel</a-button>
-            <a-button class="action-ensure action-item" type="primary" shape="round" @click="handleEnsureSelectBigIdeaData">Ok</a-button>
+            <a-button class="action-item action-cancel" shape="round" @click="selectBigIdeaDataVisible=false">Cancel
+            </a-button>
+            <a-button
+              class="action-ensure action-item"
+              shape="round"
+              type="primary"
+              @click="handleEnsureSelectBigIdeaData">Ok
+            </a-button>
           </div>
         </div>
       </a-modal>
@@ -572,16 +808,25 @@
         v-model="questionMoreVisible"
         :footer="null"
         destroyOnClose
-        width="900px"
         title="Browse Key Questions"
-        @ok="questionMoreVisible = false"
-        @cancel="questionMoreVisible = false">
+        width="900px"
+        @cancel="questionMoreVisible = false"
+        @ok="questionMoreVisible = false">
         <div class="link-content-wrapper">
-          <QuestionBrowse :big-idea="form.inquiry" :question-list="form.questions" @select-question="handleSelectQuestion"></QuestionBrowse>
+          <QuestionBrowse
+            :big-idea="form.inquiry"
+            :question-list="form.questions"
+            @select-question="handleSelectQuestion"></QuestionBrowse>
 
           <div class="modal-ensure-action-line-right" style="justify-content: center">
-            <a-button class="action-item action-cancel" shape="round" @click="questionMoreVisible=false">Cancel</a-button>
-            <a-button class="action-ensure action-item" type="primary" shape="round" @click="handleEnsureSelectQuestionData">Ok</a-button>
+            <a-button class="action-item action-cancel" shape="round" @click="questionMoreVisible=false">Cancel
+            </a-button>
+            <a-button
+              class="action-ensure action-item"
+              shape="round"
+              type="primary"
+              @click="handleEnsureSelectQuestionData">Ok
+            </a-button>
           </div>
         </div>
       </a-modal>
@@ -601,7 +846,15 @@ import { GetAllSdgs, ScenarioSearch } from '@/api/scenario'
 import { debounce } from 'lodash-es'
 import InputSearch from '@/components/UnitPlan/InputSearch'
 import SdgTagInput from '@/components/UnitPlan/SdgTagInput'
-import { GetMyGrades, Associate, GetAssociate, GetReferOutcomes } from '@/api/teacher'
+import {
+  AddOrSaveGroupName,
+  Associate,
+  FindBigIdeaSourceOutcomes,
+  FindSourceOutcomes,
+  GetAssociate,
+  GetMyGrades,
+  GetReferOutcomes
+} from '@/api/teacher'
 import { SubjectTree } from '@/api/subject'
 import { formatSubjectTree } from '@/utils/bizUtil'
 import NewUiClickableKnowledgeTag from '@/components/UnitPlan/NewUiClickableKnowledgeTag'
@@ -618,7 +871,7 @@ import CustomTag from '../../components/UnitPlan/CustomTag'
 import { MyContentEvent, MyContentEventBus } from '@/components/MyContent/MyContentEventBus'
 import RelevantTagSelector from '@/components/UnitPlan/RelevantTagSelector'
 import AddKeywordTag from '@/components/Evaluation/AddKeywordTag'
-import CollaborateContent from '@/components/Collaborate/CollaborateContent'
+import CollaborateUserList from '@/components/Collaborate/CollaborateUserList'
 import CommonFormHeader from '@/components/Common/CommonFormHeader'
 import NewBrowser from '@/components/NewLibrary/NewBrowser'
 import { SelectModel } from '@/components/NewLibrary/SelectModel'
@@ -626,9 +879,9 @@ import DisplayMode from '@/components/MyContent/DisplayMode'
 import { LibraryEvent, LibraryEventBus } from '@/components/NewLibrary/LibraryEventBus'
 import ReferPreview from '@/components/UnitPlanRefer/ReferPreview'
 import UiLearnOut from '@/components/UnitPlan/UiLearnOut'
-import CommonLink from '@/components/Common/CommonLink'
+import PlanLink from '@/components/Common/PlanLink'
 import NewMyContent from '@/components/MyContent/NewMyContent'
-import { FindCustomTags } from '@/api/tag'
+import { FindCustomTags, GetTreeByKey } from '@/api/tag'
 import { GetCollaborateComment, GetCollaborateModifiedHistory } from '@/api/collaborate'
 import { NavigationType } from '@/components/NewLibrary/NavigationType'
 import CollaborateCommentPanel from '@/components/Collaborate/CollaborateCommentPanel'
@@ -641,19 +894,24 @@ import BigIdeaBrowse from '@/components/UnitPlan/BigIdeaBrowse'
 import { FindQuestionsByBigIdea } from '@/api/question'
 import QuestionBrowse from '@/components/UnitPlan/QuestionBrowse'
 import Collapse from '@/utils/collapse.js'
+import { UtilMixin } from '@/mixins/UtilMixin'
+import moment from 'moment'
+import AssessmentTaskDetails from '@/components/UnitPlan/AssessmentTaskDetails'
+import { BaseEventMixin } from '@/mixins/BaseEvent'
 
 export default {
   name: 'AddUnitPlan',
   components: {
+    AssessmentTaskDetails,
     QuestionBrowse,
     CollaborateHistory,
     CollaborateCommentView,
     CommentSwitch,
     CollaborateCommentPanel,
     NewMyContent,
-    CommonLink,
+    PlanLink,
     ReferPreview,
-    CollaborateContent,
+    CollaborateUserList,
     CommonFormHeader,
     ContentTypeIcon,
     InputSearch,
@@ -678,6 +936,7 @@ export default {
       default: null
     }
   },
+  mixins: [UtilMixin, BaseEventMixin],
   data () {
     return {
       showCollaborateVisible: false,
@@ -726,9 +985,13 @@ export default {
         overview: '',
         subjectIds: [],
         gradeIds: [],
-        summarize: ''
+        summarize: '',
+        startDate: '',
+        endDate: '',
+        gradeId: undefined,
+        prior: ''
       },
-
+      rangeDate: [],
       uploading: false,
       sdgList: [],
 
@@ -773,6 +1036,9 @@ export default {
       selectedSpecificSkillList: [],
       // century skill
       selectedCenturySkillList: [],
+      // idu
+      selectedIduList: [],
+      selectedRecommendList: [],
 
       // BigIdeaList
       selectedBigIdeaList: [],
@@ -781,14 +1047,12 @@ export default {
 
       selectIdea: false,
       showCustomTag: false,
-      customTagTop: 300,
+      customTagTop: 0,
       customTagList: [],
-      userTags: {},
+      customTags: {},
       NavigationType: NavigationType,
       defaultActiveMenu: NavigationType.learningOutcomes,
-      showMenuList: [ NavigationType.specificSkills, NavigationType.centurySkills, NavigationType.learningOutcomes, NavigationType.assessmentType ],
-
-      showCollaborateCommentVisible: false,
+      showMenuList: [NavigationType.specificSkills, NavigationType.centurySkills, NavigationType.learningOutcomes, NavigationType.assessmentType, NavigationType.idu],
 
       showCollaborateModalVisible: false,
       collaborateContent: null,
@@ -798,7 +1062,6 @@ export default {
       collaborateCommentList: [],
       currentCollaborateCommentList: [],
       collaborateTop: 0,
-      showAllCollaborateCommentVisible: false,
       // TODO mock数据待更新为接口请求（loadCollaborateData方法中的GetCollaborateModifiedHistory)
       historyList: [],
       questionSettingVisible: false,
@@ -814,7 +1077,6 @@ export default {
 
       groupNameMode: 'input', // input、select,
       newTermName: 'Untitled category',
-      showTaskDetails: false,
       associateTaskList: [],
       tagColorList: [
         'pink',
@@ -824,7 +1086,20 @@ export default {
         'blue',
         'red',
         'purple'
-      ]
+      ],
+
+      recommendData: [],
+      recommendDataIdList: [],
+      selectedIdList: [],
+      selectedList: [],
+      selectedTaskList: [],
+      taskDetailsTop: 0,
+      associateUnitPlanIdList: [],
+      associateTaskIdList: [],
+      associateId2Name: new Map(),
+      defaultGroupName: 'Untitled category',
+      addCategoryLoading: false,
+      rwcList: []
     }
   },
   watch: {
@@ -837,13 +1112,41 @@ export default {
         this.showSidebar = true
       }
     },
-    'form.inquiry': function (value) {
-      this.$logger.info('watch form.inquiry change ' + value)
+    'form.inquiry': function (value, newValue) {
+      this.$logger.info('watch form.inquiry change ' + value, newValue)
       if (this.hideRecommendQuestion) {
         return
       }
       this.$logger.info('get recommend question ' + value)
       this.findQuestionsByBigIdea(value)
+      // 重新load recommend
+      this.loadBigIdeaLearnOuts()
+    }
+  },
+  beforeRouteLeave (to, from, next) {
+    var that = this
+    if (this.isOwner || this.isCollaborater) {
+      if (this.initCompleted && JSON.stringify(this.form) !== JSON.stringify(this.oldForm)) {
+        this.$confirm({
+          title: 'Alert',
+          okText: 'Save',
+          cancelText: 'No',
+          content: 'Do you want to save the changes?',
+          onOk: function () {
+            that.handleSaveUnitPlan()
+            setTimeout(() => {
+              next()
+            }, 500)
+          },
+          onCancel () {
+            next()
+          }
+        })
+      } else {
+        next()
+      }
+    } else {
+      next()
     }
   },
   computed: {
@@ -880,7 +1183,7 @@ export default {
       return true
     },
     selectQuestion () {
-     return this.form.questions.map(item => {
+      return this.form.questions.map(item => {
         return item.name
       })
     },
@@ -888,6 +1191,18 @@ export default {
       return this.form.questions.map(item => {
         return item.name
       })
+    },
+    hasExtraRecommend () {
+      this.$logger.info('-------------', this.form.learnOuts, this.recommendDataIdList)
+      let ret = false
+      this.form.learnOuts.forEach(item => {
+        if (this.recommendDataIdList.indexOf(item.knowledgeId) === -1) {
+          ret = true
+          this.$logger.info('------------learnOuts', item, ' not exist in ', this.recommendDataIdList)
+        }
+      })
+
+      return ret
     }
   },
   created () {
@@ -897,16 +1212,21 @@ export default {
     LibraryEventBus.$on(LibraryEvent.ContentListSelectClick, this.handleDescriptionSelectClick)
     this.initData()
     this.getAssociate()
-    this.loadUserTags()
+    this.loadCustomTags()
     this.debouncedGetSdgByDescription = debounce(this.searchScenario, 300)
     this.findQuestionsByBigIdea = debounce(this.findQuestionsByBigIdea, 800)
+    this.queryContentCollaborates(this.unitPlanId, this.contentType['unit-plan'])
 
     // 恢复step
     this.currentActiveStepIndex = this.getSessionStep()
+
+    // library浏览learning outcome时，修改了grade，需要更新表单中的grade
+    LibraryEventBus.$on(LibraryEvent.GradeUpdate, this.handleGradeUpdate)
   },
   beforeDestroy () {
     MyContentEventBus.$off(MyContentEvent.ReferContentItem, this.handleReferItem)
     LibraryEventBus.$off(LibraryEvent.ContentListSelectClick, this.handleDescriptionSelectClick)
+    LibraryEventBus.$off(LibraryEvent.GradeUpdate, this.handleGradeUpdate)
     // logger.debug('beforeDestroy, try save!')
     // this.handleSaveUnitPlan()
   },
@@ -917,7 +1237,8 @@ export default {
         GetAllSdgs(),
         // GetTreeByKey({ key: 'Related Concepts MYP' }),
         GetMyGrades(),
-        SubjectTree({ curriculumId: this.$store.getters.bindCurriculum })
+        SubjectTree({ curriculumId: this.$store.getters.bindCurriculum }),
+        GetTreeByKey({ key: 'Real world connections' })
       ]).then((sdgListResponse) => {
         logger.info('initData done', sdgListResponse)
 
@@ -947,6 +1268,11 @@ export default {
           this.subjectTree = subjectTree
           logger.info('after format subjectTree', subjectTree)
         }
+        // rwc list
+        if (!sdgListResponse[3].code) {
+          logger.info('rwc', sdgListResponse[3].result)
+          this.rwcList = sdgListResponse[3].result.children ? sdgListResponse[3].result.children : []
+        }
         logger.info('sdgList', this.sdgList)
       }).then(() => {
         this.restoreUnitPlan(this.unitPlanId, true)
@@ -960,8 +1286,8 @@ export default {
     // 加载协作的评论和历史记录数据
     loadCollaborateData () {
       return Promise.all([
-          GetCollaborateModifiedHistory({ sourceType: this.contentType['unit-plan'], sourceId: this.form.id }),
-          GetCollaborateComment({ sourceType: this.contentType['unit-plan'], sourceId: this.form.id })
+        GetCollaborateModifiedHistory({ sourceType: this.contentType['unit-plan'], sourceId: this.form.id }),
+        GetCollaborateComment({ sourceType: this.contentType['unit-plan'], sourceId: this.form.id })
       ]).then(response => {
         // TODO 将历史记录数据‘格式’后填充到historyList数组中，大部分数据可以直接赋值，复杂字段要处理一下,这样handleRestoreField()方法就可以直接赋值了。
         this.historyList = []
@@ -1014,6 +1340,21 @@ export default {
             }
           })
         }
+        if (!unitPlanData.gradeId) {
+          unitPlanData.gradeId = undefined
+        } else {
+          // 年级在本国大纲不存在的情况
+          if (this.gradeList.filter(grade => grade.id === unitPlanData.gradeId).length === 0) {
+            this.form.gradeId = undefined
+          }
+        }
+        if (!unitPlanData.rwc) {
+          unitPlanData.rwc = undefined
+        }
+        if (unitPlanData.startDate && unitPlanData.endDate) {
+          this.rangeDate.push(moment.utc(unitPlanData.startDate).local())
+          this.rangeDate.push(moment.utc(unitPlanData.endDate).local())
+        }
         this.form = unitPlanData
         if (unitPlanData.questions.length === 0) {
           this.form.questions.push({ 'name': '' })
@@ -1021,6 +1362,9 @@ export default {
       }).finally(() => {
         this.contentLoading = false
         this.loadCollaborateData()
+        // copy副本 为了判断数据变更
+        this.oldForm = JSON.parse(JSON.stringify(this.form))
+        this.initCompleted = true
       })
     },
 
@@ -1029,7 +1373,12 @@ export default {
       const formData = new FormData()
       formData.append('file', data.file, data.file.name)
       this.uploading = true
-      this.$http.post(commonAPIUrl.UploadFile, formData, { contentType: false, processData: false, headers: { 'Content-Type': 'multipart/form-data' }, timeout: 60000 })
+      this.$http.post(commonAPIUrl.UploadFile, formData, {
+        contentType: false,
+        processData: false,
+        headers: { 'Content-Type': 'multipart/form-data' },
+        timeout: 60000
+      })
         .then((response) => {
           logger.info('handleUploadImage upload response:', response)
           this.form.image = this.$store.getters.downloadUrl + response.result
@@ -1156,44 +1505,32 @@ export default {
       this.$logger.info('after handleAddSkillTag questionDataObj ' + data.questionIndex, this.questionDataObj[data.questionIndex])
     },
 
-    autoSave () {
-
-    },
-
     handleSaveUnitPlan () {
       logger.info('handleSaveUnitPlan', this.form, this.sdgDataObj, this.questionDataObj)
-      const unitPlanData = {
-        image: this.form.image,
-        inquiry: this.form.inquiry,
-        name: this.form.name,
-        status: this.form.status,
-        subjects: this.form.subjects,
-        scenarios: this.form.scenarios,
-        questions: this.form.questions,
-        customTags: this.form.customTags,
-        overview: this.form.overview,
-        subjectIds: this.form.subjectIds,
-        gradeIds: this.form.gradeIds,
-        learnOuts: this.form.learnOuts,
-        summarize: this.form.summarize
+      const unitPlanData = Object.assign({}, this.form)
+      if (this.rangeDate.length === 2) {
+        const startDate = this.rangeDate[0].clone()
+        const endDate = this.rangeDate[1].clone()
+        unitPlanData.startDate = startDate.utc().format('YYYY-MM-DD HH:mm:ss')
+        unitPlanData.endDate = endDate.utc().format('YYYY-MM-DD HH:mm:ss')
       }
-
       if (this.unitPlanId) {
         unitPlanData.id = this.unitPlanId
       }
       logger.info('basic unitPlanData', unitPlanData)
-      logger.info('question unitPlanData', unitPlanData)
       UnitPlanAddOrUpdate(unitPlanData).then((response) => {
         logger.info('UnitPlanAddOrUpdate', response.result)
         if (response.success) {
-          this.restoreUnitPlan(response.result.id, false)
+          // 为了保存提示去掉
+          this.oldForm = JSON.parse(JSON.stringify(this.form))
+          // this.restoreUnitPlan(response.result.id, false)
           this.$message.success(this.$t('teacher.add-unit-plan.save-success'))
-          this.goBack()
+          this.handleBack()
         } else {
           this.$message.error(response.message)
         }
       }).then(() => {
-        this.$refs.commonFormHeader.saving = false
+        // this.$refs.commonFormHeader.saving = false
       })
     },
     handlePublishUnitPlan (status) {
@@ -1263,7 +1600,8 @@ export default {
         LessonAddOrUpdate({
           name: 'Unnamed Lesson',
           associateId: this.form.id,
-          associateType: this.form.type }).then((response) => {
+          associateType: this.form.type
+        }).then((response) => {
           this.$logger.info('LessonAddOrUpdate', response.result)
           if (response.success) {
             Associate({
@@ -1327,13 +1665,17 @@ export default {
     goBack () {
       this.$router.push({ path: '/teacher/main/created-by-me' })
     },
-    handleChangeUserTags (tags) {
+    handleChangeCustomTags (tags) {
       this.form.customTags = tags
     },
     handleChangeAddKeywords (tag) {
-      var index = this.userTags.userTags.findIndex(item => item.name === tag.parentName)
-      if (index > -1) {
-        this.userTags.userTags[index].keywords.push(tag.name)
+      if (tag.isGlobal) {
+        this.customTags.userGlobalTags.push(tag)
+      } else {
+        var index = this.customTags.userTags.findIndex(item => item.name === tag.parentName)
+        if (index > -1) {
+          this.customTags.userTags[index].keywords.push(tag.name)
+        }
       }
     },
     handleAudioResult (data) {
@@ -1341,7 +1683,12 @@ export default {
       this.currentUploading = true
       const formData = new FormData()
       formData.append('file', data, 'audio.wav')
-      this.$http.post(commonAPIUrl.UploadFile, formData, { contentType: false, processData: false, headers: { 'Content-Type': 'multipart/form-data' }, timeout: 60000 })
+      this.$http.post(commonAPIUrl.UploadFile, formData, {
+        contentType: false,
+        processData: false,
+        headers: { 'Content-Type': 'multipart/form-data' },
+        timeout: 60000
+      })
         .then((response) => {
           logger.info('handleAudioResult upload response:', response)
           this.audioUrl = this.$store.getters.downloadUrl + response.result
@@ -1359,7 +1706,12 @@ export default {
       const formData = new FormData()
       formData.append('file', data.file, data.file.name)
       this.uploading = true
-      this.$http.post(commonAPIUrl.UploadFile, formData, { contentType: false, processData: false, headers: { 'Content-Type': 'multipart/form-data' }, timeout: 60000 })
+      this.$http.post(commonAPIUrl.UploadFile, formData, {
+        contentType: false,
+        processData: false,
+        headers: { 'Content-Type': 'multipart/form-data' },
+        timeout: 60000
+      })
         .then((response) => {
           logger.info('handleUploadAudio upload response:', response)
           this.audioUrl = this.$store.getters.downloadUrl + response.result
@@ -1393,12 +1745,22 @@ export default {
       this.showCollaborateModalVisible = true
     },
     handleSelectDescription () {
-      this.selectSyncDataVisible = true
-      this.showMenuList = [ NavigationType.specificSkills,
+      this.showMenuList = [NavigationType.specificSkills,
         NavigationType.centurySkills,
         NavigationType.learningOutcomes,
-        NavigationType.assessmentType
+        NavigationType.assessmentType,
+        NavigationType.idu
       ]
+      this.selectedList = JSON.parse(JSON.stringify(this.form.learnOuts))
+      this.form.learnOuts.forEach(item => {
+        if (item.knowledgeId) {
+          this.selectedIdList.push(item.knowledgeId)
+        } else {
+          this.$logger.info('parentData selected id not exist ', item)
+        }
+      })
+      this.$logger.info('handleSelectDescription selectedList', this.selectedList, ' recommendData ', this.recommendData)
+      this.selectSyncDataVisible = true
       this.defaultActiveMenu = NavigationType.learningOutcomes
     },
     handleConfirmAssociate () {
@@ -1515,9 +1877,8 @@ export default {
       }
     },
 
-    handleAddTerm () {
-      this.$logger.info('handleAddTerm', this.groupNameList)
-
+    handleAddTasks () {
+      this.$logger.info('handleAddTasks', this.groupNameList)
       // 如果第一部分有内容，点击link激活step 到第二部分，否则提示先输入第一部分表单内容
       if (this.form.name ||
         this.form.overview ||
@@ -1525,6 +1886,7 @@ export default {
         this.form.scenarios.length ||
         this.form.questions.length) {
         this.groupNameMode = 'input'
+        this.newTermName = ''
         this.selectLinkContentVisible = true
         this.setSessionStep(1)
         // 添加link
@@ -1533,44 +1895,195 @@ export default {
       }
     },
 
+    handleAddTerm () {
+      this.$logger.info('handleAddTerm', this.groupNameList)
+      this.addCategoryLoading = true
+      AddOrSaveGroupName({
+        fromId: this.unitPlanId,
+        fromType: this.contentType['unit-plan'],
+        groupName: this.defaultGroupName + '_' + this.groupNameList.length
+      }).then(response => {
+        this.$logger.info('AddOrSaveGroupName', response)
+        this.$refs.planLink.getAssociate()
+        this.addCategoryLoading = false
+      })
+    },
+
     handleEnsureSelectedLink (data) {
       this.$logger.info('handleEnsureSelectedLink', data)
       this.selectLinkContentVisible = false
       this.getAssociate()
       // 刷新组件内的列表
-      this.$refs.commonLink.getAssociate()
+      this.$refs.planLink.getAssociate()
     },
 
     getAssociate () {
       this.$logger.info('AddUnitPlan GetAssociate id[' + this.unitPlanId + '] fromType[' + this.contentType['unit-plan'] + ']')
+      this.associateUnitPlanIdList = []
+      this.associateTaskIdList = []
+      this.associateTaskList = []
       GetAssociate({
         id: this.unitPlanId,
         type: this.contentType['unit-plan']
       }).then(response => {
         this.$logger.info('AddUnitPlan GetAssociate response', response)
-        this.groupNameList = []
+        this.groupNameList = response.result.groups
         this.groupNameListOther = []
+        this.selectedTaskList = []
         response.result.owner.forEach(item => {
-          if (this.groupNameList.indexOf(item.group) === -1) {
-            this.groupNameList.push(item.group)
-          }
           item.contents.forEach(content => {
-            this.associateTaskList.push(content)
+            this.selectedTaskList.push(content.type + '-' + content.id)
+            if (content.type === this.contentType['unit-plan']) {
+              this.associateUnitPlanIdList.push(content.id)
+              this.associateId2Name.set(content.id, content.name)
+              content.questions.forEach(question => {
+                this.associateQuestionList.push({
+                  ...question,
+                  unitName: content.name
+                })
+              })
+            }
+
+            if (content.type === this.contentType.task) {
+              this.associateTaskIdList.push(content.id)
+              this.associateId2Name.set(content.id, content.name)
+              this.associateTaskList.push(content)
+            }
           })
         })
         response.result.others.forEach(item => {
           if (this.groupNameListOther.indexOf(item.group) === -1) {
             this.groupNameListOther.push(item.group)
           }
+          item.contents.forEach(content => {
+            console.log(content)
+            if (content.type === this.contentType['unit-plan']) {
+              this.associateUnitPlanIdList.push(content.id)
+              this.associateId2Name.set(content.id, content.name)
+              content.questions.forEach(question => {
+                this.associateQuestionList.push({
+                  ...question,
+                  unitName: content.name
+                })
+              })
+            }
+
+            if (content.type === this.contentType.task) {
+              this.associateTaskIdList.push(content.id)
+              this.associateId2Name.set(content.id, content.name)
+            }
+          })
         })
-        if (this.groupNameList.length > 0 || this.groupNameListOther.length > 0) {
+        if (this.groupNameListOther.length > 0) {
           this.handleSyncData()
         }
         this.newTermName = 'Untitled category_' + (this.groupNameList.length)
-        this.$logger.info('AddUnitPlan GetAssociate formatted groupNameList', this.groupNameList, this.groupNameListOther)
+        this.$logger.info('AddTask GetAssociate formatted groupNameList', this.groupNameList, this.groupNameListOther)
+        this.$logger.info('*******************associateUnitPlanIdList', this.associateUnitPlanIdList)
+        this.$logger.info('*******************associateTaskIdList', this.associateTaskIdList)
+        this.$logger.info('associateTaskIdList', this.associateTaskIdList)
       }).finally(() => {
         this.linkGroupLoading = false
+
+        if (this.associateUnitPlanIdList.length > 0 || this.associateTaskIdList.length > 0) {
+          this.loadRefLearnOuts()
+        }
       })
+    },
+
+    loadRefLearnOuts () {
+      this.recommendData = []
+      this.recommendDataIdList = []
+      if (this.associateUnitPlanIdList.length) {
+        FindSourceOutcomes({
+          type: this.contentType['unit-plan'],
+          ids: this.associateUnitPlanIdList
+        }).then(response => {
+          this.$logger.info('FindSourceOutcomes unit-plan response', response)
+          const recommendMap = new Map()
+          response.result.forEach(item => {
+            if (recommendMap.has(item.fromId)) {
+              recommendMap.get(item.fromId).push(item)
+            } else {
+              recommendMap.set(item.fromId, [item])
+            }
+            this.recommendDataIdList.push(item.knowledgeId)
+          })
+
+          for (const value of recommendMap.values()) {
+            this.recommendData.push({
+              fromId: value[0].fromId,
+              fromName: value[0].fromName,
+              fromTypeName: this.type2Name[value[0].fromType],
+              list: value
+            })
+          }
+          this.$logger.info('update unit-plan recommendData ', this.recommendData)
+          this.$logger.info('************************update unit-plan recommendDataIdList ', this.recommendDataIdList)
+        })
+      }
+
+      if (this.associateTaskIdList.length) {
+        FindSourceOutcomes({
+          type: this.contentType.task,
+          ids: this.associateTaskIdList
+        }).then(response => {
+          this.$logger.info('FindSourceOutcomes task response', response)
+          const recommendMap = new Map()
+          response.result.forEach(item => {
+            if (recommendMap.has(item.fromId)) {
+              recommendMap.get(item.fromId).push(item)
+            } else {
+              recommendMap.set(item.fromId, [item])
+            }
+            this.recommendDataIdList.push(item.knowledgeId)
+          })
+
+          for (const value of recommendMap.values()) {
+            this.recommendData.push({
+              fromId: value[0].fromId,
+              fromName: value[0].fromName,
+              fromTypeName: this.type2Name[value[0].fromType],
+              list: value
+            })
+          }
+          this.$logger.info('update task recommendData ', this.recommendData)
+          this.$logger.info('************************update unit-plan recommendDataIdList ', this.recommendDataIdList)
+        }).finally(() => {
+          // this.loadBigIdeaLearnOuts()
+        })
+      }
+    },
+    loadBigIdeaLearnOuts () {
+      // bigidea query learnout
+      if (this.form.inquiry) {
+        FindBigIdeaSourceOutcomes({
+          bigIdea: this.form.inquiry,
+          id: this.unitPlanId
+        }).then(response => {
+          this.$logger.info('FindBigIdeaSourceOutcomes response', response)
+          const recommendMap = new Map()
+          response.result.forEach(item => {
+            if (recommendMap.has(item.fromId)) {
+              recommendMap.get(item.fromId).push(item)
+            } else {
+              recommendMap.set(item.fromId, [item])
+            }
+            this.recommendDataIdList.push(item.knowledgeId)
+          })
+
+          for (const value of recommendMap.values()) {
+            this.recommendData.push({
+              fromId: value[0].fromId,
+              fromName: value[0].fromName,
+              fromTypeName: this.type2Name[value[0].fromType],
+              list: value
+            })
+          }
+          this.$logger.info('update unit-plan recommendData ', this.recommendData)
+          this.$logger.info('************************update unit-plan recommendDataIdList ', this.recommendDataIdList)
+        })
+      }
     },
 
     handleUpdateGroupNameList () {
@@ -1579,7 +2092,7 @@ export default {
     },
 
     handleSelectBigIdeaData (data) {
-        this.selectNewBigIdea = data
+      this.selectNewBigIdea = data
     },
     // TODO 选择的assessment数据
     handleSelectAssessmentType (data) {
@@ -1608,6 +2121,16 @@ export default {
       this.selectedCenturySkillList = data
     },
 
+    handleSelectIdu (data) {
+      this.$logger.info('handleSelectIdu', data)
+      this.selectedIduList = data
+    },
+
+    handleSelectRecommend (data) {
+      this.$logger.info('handleSelectRecommend', data)
+      this.selectedRecommendList = data
+    },
+
     // TODO 自动更新选择的sync 的数据knowledgeId和name列表
     handleCancelSelectData () {
       this.selectedSyncList = []
@@ -1615,6 +2138,8 @@ export default {
       this.selectedSpecificSkillList = []
       this.selectedCenturySkillList = []
       this.selectedAssessmentList = []
+      this.selectedIduList = []
+      this.selectedRecommendList = []
       this.selectSyncDataVisible = false
     },
 
@@ -1626,7 +2151,17 @@ export default {
         this.selectedCenturySkillList,
         this.selectedBigIdeaList,
         this.selectedAssessmentList,
+        this.selectedIduList,
         this.selectedSyncList)
+      this.$logger.info('mySelectedList', this.$refs.newBrowser.mySelectedList)
+      this.$logger.info('learnOuts', this.form.learnOuts)
+      this.form.learnOuts = this.$refs.newBrowser.mySelectedList
+      this.$refs.newBrowser.selectedRecommendList.forEach(item => {
+        const index = this.form.learnOuts.findIndex(dataItem => dataItem.knowledgeId === item.knowledgeId)
+        if (index === -1) {
+          this.form.learnOuts.push(item)
+        }
+      })
       this.selectedSyncList.forEach(data => {
         const filterLearnOuts = this.form.learnOuts.filter(item => item.knowledgeId === data.knowledgeId)
         if (filterLearnOuts.length > 0) {
@@ -1638,6 +2173,20 @@ export default {
           tags: data.tags,
           tagType: data.tagType,
           path: data.path
+        })
+      })
+
+      this.selectedIduList.forEach(data => {
+        const filterLearnOuts = this.form.learnOuts.filter(item => item.knowledgeId === data.id)
+        if (filterLearnOuts.length > 0) {
+          return
+        }
+        this.form.learnOuts.push({
+          knowledgeId: data.knowledgeData.id,
+          name: data.knowledgeData.name,
+          tagType: data.knowledgeData.tagType,
+          path: data.knowledgeData.path,
+          tags: data.tags
         })
       })
       const selectList = this.selectedCurriculumList.concat(this.selectedSpecificSkillList).concat(this.selectedCenturySkillList)
@@ -1663,6 +2212,7 @@ export default {
       })
       this.$logger.info('this.form.learnOuts', this.form.learnOuts)
       this.selectSyncDataVisible = false
+      this.handleCancelSelectData()
     },
     handleRemoveLearnOuts (data) {
       this.$logger.info('handleRemoveLearnOuts', data)
@@ -1676,25 +2226,25 @@ export default {
       if (typeof current === 'number') {
         this.setSessionStep(current)
         setTimeout(function () {
-            const returnEle = document.querySelector('.ant-layout-content')
-            if (returnEle) {
-              returnEle.scrollIntoView(true) // true 是默认的
-            }
+          const returnEle = document.querySelector('.ant-layout-content')
+          if (returnEle) {
+            returnEle.scrollIntoView(true) // true 是默认的
+          }
         }, 100)
       }
     },
-    loadUserTags () {
+    loadCustomTags () {
       // this.$refs.customTag.tagLoading = true
       FindCustomTags({}).then((response) => {
         this.$logger.info('FindCustomTags response', response.result)
         if (response.success) {
-          this.userTags = response.result
-          // // 默认展示的tag分类
-          // CustomTagType.plan.default.forEach(name => {
-          //   this.customTagList.push(name)
-          // })
-          // 再拼接自己添加的
-          this.userTags.userTags.forEach(tag => {
+          this.customTags = response.result
+          // 默认展示的tag分类
+          CustomTagType.plan.default.forEach(name => {
+            this.customTagList.push(name)
+          })
+          // // 再拼接自己添加的
+          this.customTags.userTags.forEach(tag => {
             if (this.customTagList.indexOf(tag.name) === -1) {
               this.customTagList.push(tag.name)
             }
@@ -1721,15 +2271,24 @@ export default {
         if (!currentDom) {
           break
         }
-        /* if (currentDom.classList.contains('sdg-content-blocks')) {
+        if (currentDom.classList.contains('sdg-content-blocks')) {
           currentFocus = 'sdg'
           CustomTagType.plan.sdg.forEach(name => {
             this.customTagList.push(name)
           })
-        } else */
-        if (currentDom && currentDom.classList.contains('bigIdea')) {
+        } else if (currentDom && currentDom.classList.contains('form-block-rwc')) {
+          currentFocus = 'rwc'
+          CustomTagType.plan.rwc.forEach(name => {
+            this.customTagList.push(name)
+          })
+        } else if (currentDom && currentDom.classList.contains('bigIdea')) {
           currentFocus = 'inquiry'
           CustomTagType.plan.bigIdea.forEach(name => {
+            this.customTagList.push(name)
+          })
+        } else if (currentDom && currentDom.classList.contains('unit-question')) {
+          currentFocus = 'question'
+          CustomTagType.plan.question.forEach(name => {
             this.customTagList.push(name)
           })
         }
@@ -1743,35 +2302,33 @@ export default {
       if (currentFocus) {
         this.customTagTop = formTop - 20
         this.showCustomTag = true
-        this.showCollaborateCommentVisible = false
-        this.showAllCollaborateCommentVisible = false
+        this.setRightModuleVisible(this.rightModule.customTag)
       } else {
-        // CustomTagType.plan.default.forEach(name => {
-        //   this.customTagList.push(name)
-        // })
-        // // 再拼接自己添加的
-        this.userTags.userTags.forEach(tag => {
-          if (this.customTagList.indexOf(tag.name === -1)) {
-            this.customTagList.push(tag.name)
-          }
+        CustomTagType.plan.default.forEach(name => {
+          this.customTagList.push(name)
         })
-        this.customTagTop = 300
+        // // 再拼接自己添加的
+        // this.customTags.userTags.forEach(tag => {
+        //   if (this.customTagList.indexOf(tag.name === -1)) {
+        //     this.customTagList.push(tag.name)
+        //   }
+        // })
         this.showCustomTag = false
+        this.customTagTop = 0
+        // this.showModuleList.push(RightModule.imageUpload)
+        this.setRightModuleVisible()
       }
     },
 
     // 切换当前的字段的点评数据，从总的collaborateCommentList筛选初当前字段相关的点评数据
     handleSwitchComment (data) {
       this.$logger.info('handleSwitchComment', data)
+      this.setRightModuleVisible(this.rightModule.collaborateComment)
       if (!data.activeStatus) {
         // 关闭
-        this.showCollaborateCommentVisible = false
-        this.showCustomTag = true
         return
       }
       this.currentFieldName = data.fieldName
-      this.showAllCollaborateCommentVisible = false
-      this.showCustomTag = false
       this.currentCollaborateCommentList = []
       const list = []
       this.collaborateCommentList.forEach(item => {
@@ -1781,15 +2338,20 @@ export default {
       })
       this.currentCollaborateCommentList = list
       this.collaborateTop = data.top
-      this.showCollaborateCommentVisible = true
+      // this.showCollaborateCommentVisible = true
       this.$logger.info('currentCollaborateCommentList', list)
     },
 
     // 每次点击都重新加载一下最新数据
     handleViewCollaborate () {
       this.$logger.info('handleViewCollaborate')
-      this.showAllCollaborateCommentVisible = !this.showAllCollaborateCommentVisible
-      this.showCollaborateCommentVisible = false
+      if (this.showModuleList.indexOf(this.rightModule.collaborate) !== -1) {
+        this.resetRightModuleVisible()
+      } else {
+        this.setRightModuleVisible(this.rightModule.collaborate)
+      }
+      // this.showAllCollaborateCommentVisible = !this.showAllCollaborateCommentVisible
+      // this.showCollaborateCommentVisible = false
       this.currentCollaborateCommentList = []
       this.showHistoryLoading = true
       this.loadCollaborateData().then(() => {
@@ -1884,9 +2446,7 @@ export default {
             }
           })
         }
-      }).finally({
-
-      })
+      }).finally({})
     },
     handerInsertQuestion (question) {
       const formQuestion = this.form.questions.map(item => {
@@ -1932,17 +2492,42 @@ export default {
     handleEditTask (item) {
       window.open('/teacher/task-redirect/' + item.id
         , '_blank')
+    },
+    handleClickTaskDetail (e) {
+      this.$logger.info('handleClickTaskDetail', this.showTaskDetails)
+      this.setRightModuleVisible(this.rightModule.taskDetails)
+      // this.showTaskDetails = !this.showTaskDetails
+      const eventDom = e.target
+      let formTop = eventDom.offsetTop
+      let currentDom = eventDom.offsetParent
+      while (currentDom !== null) {
+        formTop += currentDom.offsetTop
+        currentDom = currentDom.offsetParent
+        if (currentDom.classList && currentDom.classList.contains('root-locate-form')) {
+          console.log(currentDom.classList)
+          break
+        }
+      }
+      this.taskDetailsTop = formTop
+      console.log(this.taskDetailsTop)
+      e.preventDefault()
+      e.stopPropagation()
+    },
+
+    handleGradeUpdate (grade) {
+      this.$logger.info('handleGradeUpdate', grade)
+      this.form.gradeId = grade.id
     }
   }
 }
 </script>
 
-<style lang="less" scoped>
+<style lang='less' scoped>
 @import "~@/components/index.less";
 
 .unit-plan-header {
   padding-bottom: 16px;
-  border-bottom: 1px solid  rgb(235, 238, 240);
+  border-bottom: 1px solid rgb(235, 238, 240);
 
   .nav-back-btn {
     padding-left: 0;
@@ -2009,10 +2594,12 @@ export default {
       .add-to-type {
         border-right: none;
         color: @text-color;
+
         .add-to-type-label {
           padding: 15px 0 5px 0;
           cursor: pointer;
         }
+
         .add-to-list {
           display: flex;
           flex-direction: column;
@@ -2030,7 +2617,8 @@ export default {
   .main-content {
     .image-preview {
       img {
-        max-height: 250px;
+        height: 250px;
+        max-width: 100%;
         /*width: 100%;*/
       }
     }
@@ -2051,6 +2639,7 @@ export default {
     .upload-icon {
       height: 70px;
     }
+
     .select-template {
       text-align: center;
 
@@ -2062,7 +2651,7 @@ export default {
 
     .form-block-title {
       /*font-family: PingFang SC;*/
-      /*font-weight: bold;*/
+      font-weight: 500;
       line-height: 24px;
       color: #000000;
       margin-bottom: 10px;
@@ -2092,7 +2681,7 @@ export default {
       border-radius: 3px;
       margin-bottom: 5px;
 
-      .scenario-description{
+      .scenario-description {
         margin-top: 10px;
         position: relative;
 
@@ -2101,7 +2690,7 @@ export default {
           display: block;
           position: absolute;
           text-align: center;
-          right:-40px;
+          right: -40px;
           top: 0;
           line-height: 40px;
           width: 40px;
@@ -2110,7 +2699,8 @@ export default {
           color: @link-hover-color;
           z-index: 100;
         }
-        .browse{
+
+        .browse {
           padding: 10px 5px;
           position: absolute;
           right: -100px;
@@ -2121,15 +2711,18 @@ export default {
           justify-content: flex-start;
           border-radius: 6px;
         }
+
         .btn-icon {
           height: 18px;
           width: 18px;
         }
+
         .btn-text {
           padding: 0 5px;
         }
-        .my-big-select{
-          width: 600px;
+
+        .my-big-select {
+          //width: 600px;
         }
       }
 
@@ -2160,6 +2753,7 @@ export default {
         //border: 1px dotted @link-hover-color;
         cursor: pointer;
         box-sizing: border-box;
+
         .knowledge-delete-wrapper {
           display: block;
         }
@@ -2175,14 +2769,17 @@ export default {
         }
       }
     }
+
     .content-blocks {
-      width: 600px;
+      //width: 600px;
       position: relative;
       border: 1px dotted #fff;
-      .scenario-description{
+
+      .scenario-description {
         margin-top: 10px;
         position: relative;
-        .browse{
+
+        .browse {
           padding: 10px 5px;
           position: absolute;
           right: -100px;
@@ -2193,10 +2790,12 @@ export default {
           justify-content: flex-start;
           border-radius: 6px;
         }
+
         .btn-icon {
           height: 18px;
           width: 18px;
         }
+
         .btn-text {
           padding: 0 5px;
         }
@@ -2207,7 +2806,7 @@ export default {
         display: block;
         position: absolute;
         text-align: center;
-        right:-60px;
+        right: -60px;
         top: 5px;
         line-height: 50px;
         width: 50px;
@@ -2245,6 +2844,7 @@ export default {
         //border: 1px dotted @link-hover-color;
         cursor: pointer;
         box-sizing: border-box;
+
         .knowledge-delete-wrapper {
           display: block;
         }
@@ -2269,6 +2869,7 @@ export default {
     padding: 0 5px;
     box-sizing: border-box;
     cursor: pointer;
+
     &:hover {
       background-color: fade(@outline-color, 20%);
     }
@@ -2326,6 +2927,7 @@ export default {
   justify-content: center;
   align-items: center;
   position: relative;
+
   .add-loading {
     position: absolute;
     top: 50%;
@@ -2338,6 +2940,7 @@ export default {
     margin-left: -20px;
     margin-top: -20px;
   }
+
   .add-content-item {
     width: 80%;
     margin-bottom: 20px;
@@ -2364,6 +2967,7 @@ export default {
   justify-content: flex-end;
   align-items: center;
   margin-top: 20px;
+
   .button-item {
     margin-left: 10px;
   }
@@ -2371,7 +2975,7 @@ export default {
 
 .task-audio-line {
   position: relative;
-  width: 600px;
+  //width: 600px;
   .task-audio {
     position: absolute;
     right: -55px;
@@ -2386,7 +2990,8 @@ export default {
       height: 40px;
     }
   }
-  &.ant-form-item{
+
+  &.ant-form-item {
     margin-bottom: 0px;
   }
 }
@@ -2396,6 +3001,7 @@ export default {
   flex-direction: row;
   align-items: center;
   height: 30px;
+
   audio {
     height: 30px;
     border: none;
@@ -2408,6 +3014,7 @@ export default {
     cursor: pointer;
   }
 }
+
 .audio-material-action {
   position: relative;
   display: flex;
@@ -2421,6 +3028,7 @@ export default {
     bottom: 0;
     background-color: fade(#eee, 80%);
     z-index: 100;
+
     .uploading {
       z-index: 110;
       position: absolute;
@@ -2447,6 +3055,7 @@ export default {
     justify-content: center;
     align-items: center;
     padding: 15px 0;
+
     .action-tips {
       line-height: 32px;
       cursor: pointer;
@@ -2454,6 +3063,7 @@ export default {
     }
   }
 }
+
 .material-action {
   padding: 10px 0;
   display: flex;
@@ -2464,6 +3074,7 @@ export default {
     margin-left: 20px;
   }
 }
+
 .ant-select-dropdown-menu-item {
   overflow: auto;
   white-space: normal;
@@ -2479,12 +3090,12 @@ export default {
 }
 
 //.form-block {
-  //position: relative;
-  //box-sizing: border-box;
-  //margin-bottom: 10px;
-  //border: 1px solid #fff;
-  //padding: 10px 150px 10px 10px;
-  //border-radius: 3px;
+//position: relative;
+//box-sizing: border-box;
+//margin-bottom: 10px;
+//border: 1px solid #fff;
+//padding: 10px 150px 10px 10px;
+//border-radius: 3px;
 //}
 
 .subject-grade-wrapper {
@@ -2499,14 +3110,15 @@ export default {
 }
 
 .form-block {
-  width: 600px;
   margin-bottom: 10px;
   position: relative;
+
   &:hover {
     .my-comment-switch {
       display: block;
     }
   }
+
   .refer-action {
     .refer-text {
       font-family: Inter-Bold;
@@ -2516,7 +3128,7 @@ export default {
     }
 
     .refer-btn {
-      .refer{
+      .refer {
         padding: 10px 15px;
         display: flex;
         flex-direction: row;
@@ -2524,16 +3136,19 @@ export default {
         justify-content: flex-start;
         border-radius: 6px;
       }
+
       .btn-icon {
         height: 12px;
         width: 12px;
       }
+
       .btn-text {
         padding-left: 8px;
       }
     }
   }
-  /deep/ .ant-form-item label{
+
+  /deep/ .ant-form-item label {
     font-size: 16px;
     font-weight: 500;
     font-family: Inter-Bold;
@@ -2560,20 +3175,34 @@ export default {
   }
 }
 
-.card-wrapper{
+.card-wrapper {
   .unit-plan-form-left {
     position: relative;
-    width: 700px;
+
+    /deep/ .ant-steps-item-content {
+      padding-right: 30px;
+    }
+    .form-radio-wrapper{
+      /deep/ .ant-radio-wrapper{
+        width:180px;
+      }
+      /deep/ .ant-form-item-label{
+        width:170px;
+        text-align: left;
+      }
+    }
+
   }
 
   .unit-plan-form-right {
     position: relative;
-    width: 600px;
-    .form-block-right{
+
+    .form-block-right {
       .img-wrapper {
         position: relative;
-        width: 600px;
+        width: 100%;
       }
+
       .delete-img {
         position: absolute;
         top: -10px;
@@ -2597,15 +3226,22 @@ export default {
   position: relative;
 }
 
-.preview-wrapper-row{
-  .preview-wrapper-col{
+.my-form-textarea {
+  height: 40px;
+  margin-bottom: 10px;
+}
+
+.preview-wrapper-row {
+  .preview-wrapper-col {
     margin: 15px;
   }
+
   .view-back-col {
     position: absolute;
     left: -20px;
     top: -20px;
-    .view-back{
+
+    .view-back {
       .back-icon {
         text-align: left;
 
@@ -2630,36 +3266,42 @@ export default {
   .over-form-block {
     border: 1px solid #15C39A !important;
   }
-  .overview-toggle{
-    color:#15c39a;
+
+  .overview-toggle {
+    color: #15c39a;
     float: right;
-    margin:5px 0px;
+    margin: 5px 0px;
     line-height: 20px;
     border-radius: 5px;
+
     &:hover {
       background-color: fade(@outline-color, 20%);
       color: @primary-color;
     }
   }
-  .overview-task-details{
+
+  .overview-task-details {
     //border: 1px solid #15C39A !important;
-    margin:10px 0px;
-    margin-bottom:30px;
-    .task-item{
-      line-height:25px;
+    margin: 10px 0px;
+    margin-bottom: 30px;
+
+    .task-item {
+      line-height: 25px;
       //border: 1px solid #e8e8e8;
       border: 1px solid #15c39a;
       padding: 10px;;
       margin-top: 5px;
       border-radius: 5px;
-      .task-action-edit{
+
+      .task-action-edit {
         height: 20px;
         margin-top: 8px;
         display: flex;
         align-items: center;
         justify-content: right;
       }
-      /deep/ .ant-tag{
+
+      /deep/ .ant-tag {
         border-radius: 5px;
       }
     }
@@ -2669,8 +3311,9 @@ export default {
 .sdg {
   .sdg-form-block {
     border: 1px solid #15C39A !important;
-    .my-big-select{
-      width: 600px;
+
+    .my-big-select {
+      //width: 600px;
     }
   }
 
@@ -2682,13 +3325,26 @@ export default {
   }
 }
 
+.form-block-rwc {
+  margin-top: -25px;
+
+  /deep/ .ant-form-item-label label {
+    font-weight: 500;
+    font-family: inherit;
+    font-size: 14px;
+    line-height: 20px;
+    color: #000000;
+  }
+}
+
 .question {
   .question-form-blocks {
     border: 1px solid #15C39A !important;
   }
 }
-#inquiry{
-  margin-top: -10px;
+
+#inquiry {
+  //margin-top: -10px;
   position: relative;
 }
 
@@ -2696,7 +3352,7 @@ export default {
   transition: all 0.2s ease-in;
   position: absolute;
   right: -50px;
-  top: 0px;
+  top: -2px;
   line-height: 40px;
   width: 40px;
   height: 40px;
@@ -2709,7 +3365,8 @@ export default {
   font-weight: bold;
   margin-bottom: 15px;
 }
-.browse{
+
+.browse {
   font-size: 20px;
   padding: 0px 5px;
   position: absolute;
@@ -2722,8 +3379,9 @@ export default {
   justify-content: flex-start;
   border-radius: 6px;
 }
-/deep/ .ant-steps-item-title{
-  font-size:18px
+
+/deep/ .ant-steps-item-title {
+  font-size: 18px
 }
 
 .root-locate-form {
@@ -2741,6 +3399,7 @@ export default {
 .collaborate-panel {
   background-color: #fff;
   box-shadow: 0px 6px 10px rgba(159, 159, 159, 0.16);
+
   .icon {
     padding: 10px 5px 0 15px;
     display: flex;
@@ -2756,6 +3415,7 @@ export default {
 
 .ensure-setting-modal {
   padding: 20px;
+
   .tips {
     margin-bottom: 20px;
     font-family: Inter-Bold;
@@ -2772,52 +3432,63 @@ export default {
   }
 }
 
-.recommend-question{
+.recommend-question {
   background: rgba(245, 245, 245, 0.5);
   margin-bottom: 6px;
   position: relative;
-  .close-icon{
+
+  .close-icon {
     position: absolute;
     right: 10px;
     top: 10px;
     cursor: pointer;
   }
-  .recommend-box{
+
+  .recommend-box {
     padding: 10px;
-    .title{
+
+    .title {
       font-size: 16px;
       font-weight: bold;
     }
   }
-  .recommend-ul li{
+
+  .recommend-ul li {
     line-height: 25px;
     cursor: pointer;
     list-style-type: circle;
-    .add-question{
+
+    .add-question {
       //float: right;
     }
-    &:hover{
+
+    &:hover {
       color: #15c39a;
     }
   }
 }
-.question-more{
+
+.question-more {
   top: -40px;
   left: 500px;
   position: absolute;
   cursor: pointer;
 }
+
 /deep/ .ant-breadcrumb > span:last-child {
   color: rgba(0, 0, 0, 0.45);
 }
-.form-block-disabled{
+
+.form-block-disabled {
   background-color: #f5f5f5;
   cursor: not-allowed;
 }
-/deep/  textarea{
+
+/deep/ textarea {
   border-radius: 5px;
 }
-code{
+
+code {
   margin: 0 1px;
   background: #f2f4f5;
   padding: .2em .4em;
@@ -2825,5 +3496,43 @@ code{
   font-size: .9em;
   border: 1px solid #eee;
   color: rgba(0, 0, 0, 0.85);
+}
+
+.grade-time {
+  display: flex;
+  justify-content: space-between;
+
+  .range-time {
+    /deep/ .ant-input {
+      border-radius: 4px;
+      font-size: 13px;
+      width: 100%;
+      padding: 6px 7px;
+    }
+
+    .week-time {
+      position: absolute;
+      /* width: 300px; */
+      top: -50px;
+      right: 0px
+    }
+  }
+
+}
+
+.assessment-task-button {
+  border: none;
+  font-size: 18px;
+  font-family: Inter-Bold;
+  line-height: 24px;
+  color: #15C39A;
+  opacity: 1;
+  float: right;
+  margin-top: 5px;
+}
+
+.addCategory /deep/ .anticon {
+  position: absolute;
+  left: 20px;
 }
 </style>

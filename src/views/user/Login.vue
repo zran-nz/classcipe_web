@@ -1,14 +1,77 @@
 <template>
-  <div class="main">
-    <div class="third-login-wrapper">
-      <third-login-button icon="googleIcon" :label="$t('user.login.loginWithGoogle')" @click.native="thirdSignIn('google')"/>
+  <div class="user-login">
+    <div class="login">
+      <div>
+        <div><img src="~@/assets/logo/logo2.png" class="logo" /></div>
+        <div><img src="~@/assets/logo/Lasscipe-dark.png" class="name" /></div>
+        <div class="desc">Sign In</div>
+        <div class="desc2">
+          Don't have an account? | <span><router-link :to="{ path: '/user/register' }">Sign Up</router-link></span>
+        </div>
+      </div>
+      <a-form :form="form" class="login-form" @submit="handleSubmit">
+        <a-form-item class="form-email">
+          <a-input
+            size="large"
+            type="text"
+            :placeholder="$t('user.register.email.placeholder')"
+            v-decorator="[
+              'email',
+              {
+                rules: [
+                  {
+                    required: true,
+                    type: 'email',
+                    message: $t('user.email.required'),
+                  },
+                ],
+                validateTrigger: ['change', 'blur'],
+              },
+            ]"
+          ></a-input>
+        </a-form-item>
+
+        <a-form-item class="form-password">
+          <a-input-password
+            size="large"
+            :placeholder="$t('user.register.password.placeholder')"
+            v-decorator="[
+              'password',
+              {
+                rules: [{ required: true, message: $t('user.password.required') }],
+                validateTrigger: ['change', 'blur'],
+              },
+            ]"
+          ></a-input-password>
+        </a-form-item>
+
+        <!-- <div class="forget-password">
+          <a-button type="link">Forget password</a-button>
+        </div> -->
+
+        <a-form-item class="form-sumit">
+          <a-button type="primary" block :loading="loading" size="large" html-type="submit">Sign In</a-button>
+        </a-form-item>
+
+        <div class="third-login-wrapper">
+          <third-login-button
+            icon="googleIcon"
+            :label="$t('user.login.loginWithGoogle')"
+            @click.native="thirdSignIn('google')"
+          />
+        </div>
+      </a-form>
+      <div class="info">
+        Sign in or sign up means you agree to Classcipe's
+        <span><a href="https://www.classcipe.com/term.html" target="_blank">Terms of service</a></span>
+        and
+        <span><a href="https://www.classcipe.com/policy.html" target="_blank">Privacy Policy</a></span>
+      </div>
     </div>
   </div>
-
 </template>
 
 <script>
-import md5 from 'md5'
 import TwoStepCaptcha from '@/components/tools/TwoStepCaptcha'
 import ThirdLoginButton from '@/components/Button/ThirdLoginButton'
 import { mapActions } from 'vuex'
@@ -19,31 +82,31 @@ export default {
     TwoStepCaptcha,
     ThirdLoginButton
   },
-  data () {
+  data() {
     return {
-      customActiveKey: 'tab1',
-      loginBtn: false,
-      // login type: 0 email, 1 username, 2 telephone
-      loginType: 0,
-      isLoginError: false,
-      requiredTwoStepCaptcha: false,
-      stepCaptchaVisible: false,
-      form: this.$form.createForm(this),
-      state: {
-        time: 60,
-        loginBtn: false,
-        // login type: 0 email, 1 username, 2 telephone
-        loginType: 0,
-        smsSendBtn: false
-      }
+      loading: false,
+      // customActiveKey: 'tab1',
+      // loginBtn: false,
+      // // login type: 0 email, 1 username, 2 telephone
+      // loginType: 0,
+      // isLoginError: false,
+      // requiredTwoStepCaptcha: false,
+      // stepCaptchaVisible: false,
+      form: this.$form.createForm(this)
+      // state: {
+      //   time: 60,
+      //   loginBtn: false,
+      //   // login type: 0 email, 1 username, 2 telephone
+      //   loginType: 0,
+      //   smsSendBtn: false
+      // }
     }
   },
-  created () {
-  },
+  created() {},
   methods: {
     ...mapActions(['Login', 'Logout']),
 
-    thirdSignIn (source) {
+    thirdSignIn(source) {
       console.log('thirdSignIn', source)
       let url = getThirdAuthURL(source)
       url += '?callbackUrl='
@@ -52,7 +115,7 @@ export default {
       window.location.href = url
     },
     // handler
-    handleUsernameOrEmail (rule, value, callback) {
+    handleUsernameOrEmail(rule, value, callback) {
       const { state } = this
       const regex = /^([a-zA-Z0-9_-])+@([a-zA-Z0-9_-])+((\.[a-zA-Z0-9_-]{2,3}){1,2})$/
       if (regex.test(value)) {
@@ -62,45 +125,50 @@ export default {
       }
       callback()
     },
-    handleTabClick (key) {
+    handleTabClick(key) {
       this.customActiveKey = key
       // this.form.resetFields()
     },
-    handleSubmit (e) {
+    handleSubmit(e) {
       e.preventDefault()
       const {
         form: { validateFields },
-        state,
-        customActiveKey,
+        // state,
+        // customActiveKey,
         Login
       } = this
 
-      state.loginBtn = true
-
-      const validateFieldsKey = customActiveKey === 'tab1' ? ['username', 'password'] : ['mobile', 'captcha']
-
-      validateFields(validateFieldsKey, { force: true }, (err, values) => {
+      validateFields({ force: true }, (err, values) => {
         if (!err) {
+          this.loading = true
           console.log('login form', values)
-          const loginParams = { ...values }
-          delete loginParams.username
-          loginParams[!state.loginType ? 'email' : 'username'] = values.username
-          loginParams.password = md5(values.password)
-          Login(loginParams)
-            .then((res) => this.loginSuccess(res))
+          // loginParams.password = md5(values.password)
+          Login({
+            username: values.email,
+            password: values.password
+          })
+            .then(res => this.loginSuccess(res))
             .catch(err => this.requestFailed(err))
             .finally(() => {
-              state.loginBtn = false
+              this.loading = false
             })
-        } else {
-          setTimeout(() => {
-            state.loginBtn = false
-          }, 600)
         }
       })
     },
-    loginSuccess (res) {
-      console.log(res)
+    loginSuccess(res) {
+      this.$message.success(res.message)
+      this.$store
+        .dispatch('GetInfo')
+        .then(response => {
+          if (this.$store.getters.currentRole) {
+            this.$router.push(this.$store.getters.defaultRouter)
+          } else {
+            this.$router.push({ path: '/user/login' })
+          }
+        })
+        .catch(e => {
+          this.$message.error('GetInfo Failed,' + e)
+        })
       // check res.homePage define, set $router.push name res.homePage
       // Why not enter onComplete
       /*
@@ -112,74 +180,104 @@ export default {
         })
       })
       */
-      this.$router.push({ path: '/' })
-      this.isLoginError = false
+      // this.$router.push({ path: '/' })
     },
-    requestFailed (err) {
-      this.isLoginError = true
-      this.$notification['error']({
-        message: 'error',
-        description: ((err.response || {}).data || {}).message || 'Error',
-        duration: 4
-      })
+    requestFailed(err) {
+      this.$message.error(err.message)
+
+      // this.$notification['error']({
+      //   message: 'error',
+      //   description: ((err.response || {}).data || {}).message || 'Error',
+      //   duration: 4
+      // })
     }
   }
 }
 </script>
 
-<style lang="less" scoped>
-.main {
-  label {
-    font-size: 14px;
+<style lang="less">
+.user-login {
+  .ant-form-item-children {
+    &::after {
+      position: absolute;
+      top: -40px;
+      left: 24px;
+      content: '';
+    }
+    input {
+      height: 80px;
+      border-radius: 12px;
+      padding: 30px 24px 0px;
+    }
   }
-
-  .getCaptcha {
-    display: block;
-    width: 100%;
-    height: 40px;
-  }
-
-  .forge-password {
-    font-size: 14px;
-  }
-
-  button.login-button {
-    padding: 0 15px;
-    font-size: 16px;
-    height: 40px;
-    width: 100%;
-  }
-
-  .third-login-wrapper {
-    min-width: 260px;
-    margin-top:100px;
-    width: 368px;
-    box-sizing: border-box;
-    cursor: pointer;
-  }
-
-  .user-login-other {
-    text-align: left;
-    margin-top: 24px;
-    line-height: 22px;
-
-    .item-icon {
-      font-size: 24px;
-      color: rgba(0, 0, 0, 0.2);
-      margin-left: 16px;
-      vertical-align: middle;
-      cursor: pointer;
-      transition: color 0.3s;
-
-      &:hover {
-        color: #1890ff;
+  .form-email {
+    .ant-form-item-children {
+      &::after {
+        content: 'Email';
       }
     }
-
-    .register {
-      float: right;
+  }
+  .form-password {
+    .ant-form-item-children {
+      &::after {
+        content: 'Password';
+      }
+      .ant-input-suffix {
+        top: 70%;
+      }
     }
   }
+}
+</style>
+<style lang="less" scoped>
+.user-login {
+  width: 520px;
+  min-width: 520px;
+  margin: 0 auto;
+  border: 1px solid #d3d7ec;
+  border-radius: 20px;
+  padding: 0px 50px;
+  background-color: #fff;
+  position: relative;
 
+  .login {
+    padding: 40px 0px 55px;
+    text-align: center;
+    .logo {
+      margin-bottom: 5px;
+    }
+    .name {
+      margin-bottom: 10px;
+    }
+    .desc {
+      margin-bottom: 5px;
+      font-size: 16px;
+      color: #000;
+      font-family: FZCuYuan-M03S;
+      font-weight: 800;
+    }
+    .desc2 {
+      margin-bottom: 20px;
+    }
+    .forget-password {
+      text-align: right;
+      button {
+        padding: 0;
+        position: relative;
+        bottom: 20px;
+      }
+    }
+    .form-sumit {
+      button {
+        border-radius: 8px;
+      }
+    }
+    .third-login-wrapper {
+      margin-bottom: 20px;
+    }
+    .info {
+      text-align: left;
+    }
+  }
 }
 </style>

@@ -1,7 +1,7 @@
 <template>
   <div class="task-form-wrapper">
     <a-row class="unit-content">
-      <a-col span="10" class="main-content">
+      <a-col span="24" class="main-content">
         <a-form-model :model="form" class="my-form-wrapper">
           <div class="form-block-wrapper">
 
@@ -13,7 +13,7 @@
 
             <div class="form-block over-form-block" id="overview" >
               <a-form-model-item class="task-audio-line" label="Course Overview" ref="overview">
-                <a-textarea v-model="form.overview" placeholder="Overview" allow-clear />
+                <a-textarea autoSize v-model="form.overview" placeholder="Overview" allow-clear />
               </a-form-model-item>
             </div>
 
@@ -90,16 +90,16 @@
                 <a-form-item label="Set assessment objectives" >
                   <a-button type="primary" @click="handleSelectDescription">
                     <div class="btn-text" style="line-height: 20px">
-                      Add assessment objectives
+                      Add Learning Objectives
                     </div>
                   </a-button>
                 </a-form-item>
 
                 <!--knowledge tag-select -->
-                <ui-learn-out ref="learnOut" :learn-outs="form.learnOuts" @remove-learn-outs="handleRemoveLearnOuts" />
+                <ui-learn-out ref="learnOut" :learn-outs="form.learnOuts" @remove-learn-outs="handleRemoveLearnOuts" v-if="form.learnOuts.length" />
               </div>
               <div class="form-block task-action-line">
-                <a-button :loading="loadSaving" :style="{'display': 'flex', 'align-items': 'center', 'background' : '#15C39A', 'color': '#fff', 'justify-content': 'center', 'padding': '20px 15px', 'border-radius': '5px'}" @click="handleSaveTask">
+                <a-button :loading="loadSaving" :style="{'display': 'flex', 'align-items': 'center', 'background' : '#15C39A', 'color': '#fff', 'justify-content': 'center', 'padding': '20px 15px', 'border-radius': '5px', 'margin-top': '30px'}" @click="handleAddSubTask">
                   <div class="btn-icon">
                     <img src="~@/assets/icons/task/taskAdd.png" />
                   </div>
@@ -110,17 +110,6 @@
               </div>
             </a-form-model-item></div>
         </a-form-model>
-      </a-col>
-      <a-col offset="2" span="12" class="sub-task-custom-tag">
-        <custom-tag
-          :show-arrow="showCustomTag"
-          :user-tags="userTags"
-          :custom-tags-list="customTagList"
-          ref="subcustomTag"
-          :selected-tags-list="form.customTags"
-          @reload-user-tags="loadUserTags"
-          @change-add-keywords="handleChangeAddKeywords"
-          @change-user-tags="handleChangeUserTags"></custom-tag>
       </a-col>
     </a-row>
     <a-modal
@@ -135,22 +124,26 @@
       <div class="link-content-wrapper">
         <!-- 此处的questionIndex用于标识区分是哪个组件调用的，返回的事件数据中会带上，方便业务数据处理，可随意写，可忽略-->
         <new-browser
+          ref="newBrowser"
           :select-mode="selectModel.syncData"
           question-index="_questionIndex_1"
-          :show-menu="[ NavigationType.specificSkills, NavigationType.centurySkills, NavigationType.learningOutcomes ]"
+          :show-menu="[ NavigationType.specificSkills,
+                        NavigationType.centurySkills,
+                        NavigationType.learningOutcomes,
+                        NavigationType.idu,]"
           :default-active-menu="NavigationType.learningOutcomes"
           :recommend-data="recommendData"
+          :selected-list="selectedList"
+          :selected-id="selectedIdList"
           @select-big-idea="handleSelectListData"
           @select-sync="handleSelectListData"
           @select-curriculum="handleSelectCurriculum"
           @select-subject-specific-skill="handleSelectSubjectSpecificSkillListData"
           @select-century-skill="handleSelect21CenturySkillListData"
           @select-recommend="handleSelectRecommendData"
+          @cancel-select="handleCancelSelectData"
+          @ensure-select="handleEnsureSelectData"
         />
-        <div class="modal-ensure-action-line-right">
-          <a-button class="action-item action-cancel" shape="round" @click="handleCancelSelectData">Cancel</a-button>
-          <a-button class="action-ensure action-item" type="primary" shape="round" @click="handleEnsureSelectData">Ok</a-button>
-        </div>
       </div>
     </a-modal>
   </div>
@@ -169,17 +162,15 @@ import { formatLocalUTC } from '@/utils/util'
 import MyContentSelector from '@/components/MyContent/MyContentSelector'
 import RelevantTagSelector from '@/components/UnitPlan/RelevantTagSelector'
 import { TemplateTypeMap } from '@/const/template'
-import { commonAPIUrl, GetDictItems } from '@/api/common'
+import { commonAPIUrl } from '@/api/common'
 import { SubjectTree } from '@/api/subject'
 import { formatSubjectTree } from '@/utils/bizUtil'
-import { DICT_BLOOM_CATEGORY, CustomTagType } from '@/const/common'
-import { FindCustomTags } from '@/api/tag'
 import UiLearnOut from '@/components/UnitPlan/UiLearnOut'
 import { SelectModel } from '@/components/NewLibrary/SelectModel'
 import { NavigationType } from '@/components/NewLibrary/NavigationType'
 import NewBrowser from '@/components/NewLibrary/NewBrowser'
 import CustomTag from '@/components/UnitPlan/CustomTag'
-const { SpliteTask } = require('@/api/task')
+import { UtilMixin } from '@/mixins/UtilMixin'
 
 export default {
   name: 'TaskForm',
@@ -200,6 +191,10 @@ export default {
       type: String,
       default: ''
     },
+    pptTitle: {
+      type: String,
+      default: ''
+    },
     selectIds: {
       type: Array,
       default: () => {
@@ -214,8 +209,15 @@ export default {
     parentFormData: {
       type: Object,
       required: true
+    },
+    selectedPageItemData: {
+      type: Array,
+      default: () => {
+        return []
+      }
     }
   },
+  mixins: [UtilMixin],
   data () {
     return {
       contentType: typeMap,
@@ -247,7 +249,6 @@ export default {
         taskType: '',
         createTime: '',
         updateTime: '',
-        customTags: [],
         subjectIds: [],
         gradeIds: [],
         bloomCategories: '',
@@ -271,8 +272,6 @@ export default {
       audioUrl: null,
       currentUploading: false,
 
-      initBlooms: [],
-
       associateQuestionList: [],
 
       selectModel: SelectModel,
@@ -290,16 +289,15 @@ export default {
       // century skill
       selectedCenturySkillList: [],
       selectedRecommendList: [],
+      selectedIduList: [],
       uploading: false,
-
-      showCustomTag: true,
-      sessionTags: [],
-      customTagList: [],
-      userTags: {},
       taskNum: 1,
 
       parentData: null,
-      recommendData: []
+      recommendData: [],
+      selectedIdList: [],
+
+      selectedList: []
     }
   },
   computed: {
@@ -325,26 +323,42 @@ export default {
       this.$logger.info('selectPageObjectIds update', value)
       this.form.selectPageObjectIds = value
     },
-    parentFormData (v) {
-     this.form.image = v.image
+    'parentFormData.image': {
+      handler (v) {
+        this.$logger.info('parentFormData.image', v)
+        this.form.image = v
+      },
+      deep: true
+    },
+    'parentFormData.customTags': {
+      handler (v) {
+        this.$logger.info('parentFormData.customTag', v)
+        this.form.customTags = v
+      },
+      deep: true
     }
   },
   created () {
     logger.info('add task created ' + this.taskId + ' ' + this.$route.path)
-    this.questionPrefix = '' + this.taskPrefix + '__question_'
-    this.parentData = JSON.parse(JSON.stringify(this.parentFormData))
-    const formData = JSON.parse(JSON.stringify(this.parentFormData))
-    formData.id = null
-    formData.selectPageObjectIds = []
-    formData.__taskId = '__taskId_' + this.taskPrefix
-    formData.name = formData.name ? (formData.name + ' sub task' + this.taskNum) : 'sub task' + this.taskNum
-    this.$logger.info('TaskForm parentFormData', formData)
-    this.form = formData
-    this.$logger.info('questionPrefix ' + this.questionPrefix)
-    this.$logger.info('questionDataObj ', this.questionDataObj)
+    this.initForm()
     this.initData()
   },
   methods: {
+    initForm() {
+      this.questionPrefix = '' + this.taskPrefix + '__question_'
+      this.parentData = JSON.parse(JSON.stringify(this.parentFormData))
+      const formData = JSON.parse(JSON.stringify(this.parentFormData))
+      formData.id = null
+      formData.selectPageObjectIds = []
+      formData.learnOuts = []
+      formData.__taskId = '__taskId_' + this.taskPrefix
+      formData.name = formData.name ? (formData.name + ' sub task' + this.taskNum) : 'sub task' + this.taskNum
+      this.$logger.info('TaskForm parentFormData', formData)
+      this.$logger.info('TaskForm selectedPageItemData', this.selectedPageItemData)
+      this.form = formData
+      this.$logger.info('questionPrefix ' + this.questionPrefix)
+      this.$logger.info('questionDataObj ', this.questionDataObj)
+    },
     initData () {
       logger.info('initData doing...')
       GetMyGrades().then((response) => {
@@ -363,59 +377,32 @@ export default {
          this.subjectTree = subjectTree
          logger.info('after format subjectTree', subjectTree)
       })
-
-      GetDictItems(DICT_BLOOM_CATEGORY).then(response => {
-        if (response.success) {
-          logger.info('DICT_BLOOM_CATEGORY', response.result)
-          this.initBlooms = response.result
-        }
-      })
-
-      this.loadUserTags()
     },
 
-    handleSaveTask () {
-      logger.info('handleSaveTask', this.form)
-
-      const taskData = Object.assign({}, this.form)
-
+    // 此处只是添加到外层的数组中，并未保存。
+    handleAddSubTask () {
+      logger.info('handleAddSubTask', this.form)
+      const taskData = JSON.parse(JSON.stringify(this.form))
       taskData.selectPageObjectIds = this.form.selectPageObjectIds
-      logger.info('finish taskData', taskData)
-      const SpliteTaskData = {
+      const SubTaskData = {
         'taskId': this.taskId,
         'subTask': taskData
       }
-      this.loadSaving = true
-      SpliteTask(SpliteTaskData).then((response) => {
-        this.$logger.info('SpliteTask ', response.result)
-        if (response.success) {
-          this.$message.success('Add another task successfully')
-          taskData.id = response.result.id
-          this.$emit('finish-task', taskData)
-          this.taskNum = this.taskNum + 1
-          this.form.name = this.parentFormData.name ? (this.parentFormData.name + ' sub task' + this.taskNum) : 'sub task' + this.taskNum
-        } else {
-          this.$message.error(response.message)
-        }
-        this.loadSaving = false
-      })
+      logger.info('add-sub-task', taskData)
+      this.$emit('add-sub-task', SubTaskData)
+      this.form.name = ''
+      this.form.overview = ''
+      this.form.image = ''
+      this.form.selectPageObjectIds = []
+      this.form.learnOuts = []
+
+      this.initForm()
     },
 
     handleSelectTaskType (type) {
       this.$logger.info('handleSelectTaskType ' + type)
       this.form.taskType = type
-      this.customTagList = []
-      CustomTagType.task.safa.forEach(name => {
-        this.customTagList.push(name)
-      })
-      this.showAllCollaborateCommentVisible = false
-      this.showCollaborateCommentVisible = false
-      this.customTagTop = 60
-      this.showCustomTag = true
-    },
-
-    handleChangeUserTags (tags) {
-      this.form.customTags = tags
+      this.$emit('select-task-type', type)
     },
 
     handleSelectListData (data) {
@@ -443,24 +430,34 @@ export default {
       this.selectedRecommendList = data
     },
 
-    // TODO 自动更新选择的sync 的数据knowledgeId和name列表
     handleCancelSelectData () {
       this.selectedSyncList = []
       this.selectedCurriculumList = []
       this.selectedSpecificSkillList = []
       this.selectedCenturySkillList = []
+      this.selectedIduList = []
+      this.selectedRecommendList = []
       this.selectSyncDataVisible = false
     },
 
-    // TODO 自动更新选择的sync 的数据knowledgeId和name列表
     handleEnsureSelectData () {
       this.$logger.info('handleEnsureSelectData',
         this.selectedCurriculumList,
         this.selectedSpecificSkillList,
         this.selectedCenturySkillList,
-        this.selectedBigIdeaList,
+        this.selectedIduList,
         this.selectedRecommendList,
         this.selectedSyncList)
+      this.$logger.info('mySelectedList', this.$refs.newBrowser.mySelectedList)
+      this.$logger.info('learnOuts', this.form.learnOuts)
+      this.form.learnOuts = this.$refs.newBrowser.mySelectedList
+      this.$refs.newBrowser.selectedRecommendList.forEach(item => {
+        const index = this.form.learnOuts.findIndex(dataItem => dataItem.knowledgeId === item.knowledgeId)
+        if (index === -1) {
+          this.form.learnOuts.push(item)
+        }
+      })
+      this.$logger.info('learnOuts after selectedRecommendList', this.form.learnOuts)
       this.selectedSyncList.forEach(data => {
         const filterLearnOuts = this.form.learnOuts.filter(item => item.knowledgeId === data.knowledgeId)
         if (filterLearnOuts.length > 0) {
@@ -470,7 +467,21 @@ export default {
           knowledgeId: data.knowledgeId,
           name: data.name,
           tags: data.tags,
-          tagType: data.tagType
+          tagType: data.tagType,
+          path: data.path
+        })
+      })
+      this.selectedIduList.forEach(data => {
+        const filterLearnOuts = this.form.learnOuts.filter(item => item.knowledgeId === data.id)
+        if (filterLearnOuts.length > 0) {
+          return
+        }
+        this.form.learnOuts.push({
+          knowledgeId: data.knowledgeData.id,
+          name: data.knowledgeData.name,
+          tagType: data.knowledgeData.tagType,
+          path: data.knowledgeData.path,
+          tags: data.tags
         })
       })
       const selectList = this.selectedCurriculumList.concat(this.selectedSpecificSkillList).concat(this.selectedCenturySkillList)
@@ -495,12 +506,10 @@ export default {
           })
         }
       })
-      this.selectedRecommendList.forEach(item => {
-        this.form.learnOuts.push(item)
-      })
 
       this.$logger.info('this.form.learnOuts', this.form.learnOuts)
       this.selectSyncDataVisible = false
+      this.handleCancelSelectData()
     },
     handleRemoveLearnOuts (data) {
       this.$logger.info('handleRemoveLearnOuts', data)
@@ -510,10 +519,57 @@ export default {
       }
     },
     handleSelectDescription () {
+      this.selectedIdList = []
+      const learnOutsListData = JSON.parse(JSON.stringify(this.parentData.learnOuts))
+      learnOutsListData.forEach(item => {
+        item.newPath = item.path.split('>')
+        item.newPathName = item.newPath.slice(0, 4).join('>')
+      })
+      this.selectedList = JSON.parse(JSON.stringify(this.form.learnOuts))
       this.recommendData = [{
         fromName: this.parentData.name,
-        list: JSON.parse(JSON.stringify(this.parentData.learnOuts))
+        fromTypeName: this.type2Name[this.contentType.task],
+        list: learnOutsListData
       }]
+      this.$logger.info('parentData.learnOuts', this.parentData.learnOuts)
+      this.form.learnOuts.forEach(item => {
+        if (item.knowledgeId) {
+          this.selectedIdList.push(item.knowledgeId)
+        } else {
+          this.$logger.info('parentData selected id not exist ', item)
+        }
+      })
+      this.$logger.info('selectedPageItemData', this.selectedPageItemData)
+      if (this.selectedPageItemData.length) {
+        this.$logger.info('selectedPageItemData exist ', this.selectedPageItemData)
+        const pageItemLearnOuts = []
+        this.selectedPageItemData.forEach(item => {
+            item.data.learnOuts.forEach(data => {
+              const exist = pageItemLearnOuts.find(item => data.knowledgeId === item.knowledgeId)
+              this.$logger.info('add pageItemLearnOuts', data, 'existed ', !!exist)
+              if (data.knowledgeId && !exist) {
+                if (data && data.path) {
+                  data.newPath = data.path.split('>')
+                  data.newPathName = data.newPath.slice(0, 4).join('>')
+                }
+                pageItemLearnOuts.push(data)
+              } else {
+                if (exist) {
+                  this.$logger.info('selected id existed ', data)
+                } else {
+                  this.$logger.info('selected id not exist ', data)
+                }
+              }
+            })
+        })
+        this.recommendData.push({
+          fromName: this.pptTitle,
+          fromTypeName: 'PPT',
+          list: pageItemLearnOuts
+        })
+      } else {
+        this.$logger.info('selectedPageItemData empty!', this.selectedPageItemData)
+      }
       this.$logger.info('handleSelectDescription recommendData', this.recommendData)
       this.selectSyncDataVisible = true
     },
@@ -540,41 +596,6 @@ export default {
       e.stopPropagation()
       e.preventDefault()
       this.form.image = null
-    },
-
-    loadUserTags () {
-      // this.$refs.customTag.tagLoading = true
-      FindCustomTags({}).then((response) => {
-        this.$logger.info('FindCustomTags response', response.result)
-        if (response.success) {
-          this.userTags = response.result
-          // 默认展示的tag分类
-          CustomTagType.task.default.forEach(name => {
-            this.customTagList.push(name)
-          })
-          // 再拼接自己添加的
-          this.userTags.userTags.forEach(tag => {
-            if (this.customTagList.indexOf(tag.name) === -1) {
-              this.customTagList.push(tag.name)
-            }
-          })
-        } else {
-          this.$message.error(response.message)
-        }
-        // this.$refs.customTag.tagLoading = false
-      })
-    },
-
-    handleChangeAddKeywords (tag) {
-      var index = this.userTags.userTags.findIndex(item => item.name === tag.parentName)
-      if (index > -1) {
-        this.userTags.userTags[index].keywords.push(tag.name)
-      }
-    },
-
-    handleSelectedSessionTags (tags) {
-      this.sessionTags = tags
-      this.$logger.info('handleSelectedSessionTags', tags)
     }
   }
 }
@@ -582,6 +603,16 @@ export default {
 
 <style lang="less" scoped>
 @import "~@/components/index.less";
+
+.task-form-wrapper {
+  position: relative;
+}
+
+.tag-select-wrapper {
+  position: absolute;
+  left: 800px;
+  top: 100px;
+}
 
 .task-header {
   padding-bottom: 16px;
@@ -1225,7 +1256,7 @@ export default {
 }
 
 .form-block {
-  width: 600px;
+  width: 100%;
 }
 
 .self-type-wrapper {

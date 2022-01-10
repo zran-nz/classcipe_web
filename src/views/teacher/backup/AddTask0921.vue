@@ -82,7 +82,7 @@
                         <a-form-item label="Set assessment objectives" >
                           <a-button type="primary" @click="handleSelectDescription">
                             <div class="btn-text" style="line-height: 20px">
-                              Add assessment objectives
+                              Add Learning Objectives
                             </div>
                           </a-button>
                         </a-form-item>
@@ -380,7 +380,7 @@
                   </div>
                 </div>
                 <div class="filter-row">
-                  <div class="ant-form-item-label">21 century skills:</div>
+                  <div class="ant-form-item-label">21st Century Skills:</div>
                   <div class="row-select">
                     <a-checkbox class="row-checkbox"></a-checkbox>
                     <a-select class="row-choose" >
