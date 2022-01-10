@@ -879,12 +879,18 @@ export default {
     },
     checkGoogleTokenExpired () {
       this.$logger.info('checkGoogleTokenExpired response')
-      var index = this.myContentList.findIndex(item => item.type === typeMap.task && item.presentationId)
+      var index = this.myContentList.findIndex(item => item.type === typeMap.task && item.presentationId && !item.fileDeleted)
       if (index > -1) {
         TemplatesGetPresentation({
           presentationId: this.myContentList[index].presentationId
         }).then(response => {
           this.$logger.info('TemplatesGetPresentation response', response)
+          // forbid情况也强制登录
+          if (!response.success && response.code === 403) {
+            this.$message.error('Task:' + this.myContentList[index].name +
+              ' presentationId: ' + this.myContentList[index].presentationId + ' has no permisson!')
+            this.$router.push({ path: '/user/login' })
+          }
         })
       }
     },
