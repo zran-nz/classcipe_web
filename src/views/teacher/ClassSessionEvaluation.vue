@@ -877,7 +877,7 @@ export default {
           }
         }
 
-        if (!this.forms.length) {
+        if (!this.forms || this.forms.length === 0) {
           this.forms = this.taskForms
           this.$logger.info('forms empty, use task forms as forms', this.forms)
         }
