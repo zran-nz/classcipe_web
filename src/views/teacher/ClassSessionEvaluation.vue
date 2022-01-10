@@ -910,13 +910,13 @@ export default {
         this.$logger.info('isEmptyStudentEvaluateData ' + isEmptyStudentEvaluateData, data.evaluation)
         if (!isEmptyStudentEvaluateData) {
           this.studentEvaluateData = JSON.parse(data.evaluation.studentEvaluateData)
-          if (allStudentUserIdList.length && (this.mode !== EvaluationTableMode.Edit && this.formTableMode === EvaluationTableMode.Preview)) {
+          if (allStudentUserIdList.length && this.mode !== EvaluationTableMode.Edit && this.formTableMode !== EvaluationTableMode.Preview) {
             this.currentActiveStudentId = allStudentUserIdList[0]
             this.selectedMemberIdList.push(this.currentActiveStudentId)
           }
           this.$logger.info('restore studentEvaluateData', this.studentEvaluateData)
         } else if (allStudentUserIdList.length && this.forms.length) {
-          // studentEvaluateData[学生Id][表单Id][列Id] = 列数据
+          // 初始化学生表格数据, studentEvaluateData[学生Id][表单Id][列Id] = 列数据
           const studentEvaluateData = {}
           allStudentUserIdList.forEach(studentId => {
             studentEvaluateData[studentId] = {}
@@ -955,6 +955,12 @@ export default {
             this.currentActiveStudentId = allGroupStudentUserIdList[0]
             this.selectedMemberIdList.push(this.currentActiveStudentId)
             this.$logger.info('currentActiveFormId ' + this.currentActiveFormId + ' currentActiveStudentId ' + this.currentActiveStudentId)
+          }
+
+          // 老师评估模式默认选中第一个学生
+          if (this.mode === EvaluationTableMode.TeacherEvaluate) {
+            this.currentActiveStudentId = allStudentUserIdList[0]
+            this.selectedMemberIdList.push(this.currentActiveStudentId)
           }
         }
 
