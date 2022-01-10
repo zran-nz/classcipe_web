@@ -140,7 +140,6 @@
 import { deviceMixin } from '@/store/device-mixin'
 import ThirdLoginButton from '@/components/Button/ThirdLoginButton'
 import { getThirdAuthURL, thirdAuthCallbackUrl } from '@/api/thirdAuth'
-import { signUp } from '@/api/login'
 import { mapActions } from 'vuex'
 
 export default {
