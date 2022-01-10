@@ -201,7 +201,7 @@
           </div>
 
           <!-- lesson task img list-->
-          <template v-if="type === typeMap.task && data.presentationId ">
+          <template v-if="type === typeMap.task && data.presentationId && imgList.length > 0">
             <div class="top-icon-groups">
               <a-col class="material-row" >
                 <div class="icon-group" v-if="Object.keys(currentPageMaterial).length > 0">
@@ -319,8 +319,6 @@
                 </div>
               </div>
             </a-skeleton>
-
-            <!-- evaluation preview-->
           </template>
           <!-- evaluation-->
           <template v-if="type === typeMap.evaluation">
@@ -541,7 +539,7 @@ export default {
                 this.$logger.info('current imgList ', this.imgList)
               })
             } else {
-              this.imgList = [this.data.image]
+              this.imgList = []
               this.slideLoading = false
             }
           })
@@ -559,7 +557,7 @@ export default {
                 this.$logger.info('current imgList ', this.imgList)
               })
             } else {
-              this.imgList = [this.data.image]
+              this.imgList = []
               this.slideLoading = false
             }
           })
