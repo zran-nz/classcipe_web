@@ -228,6 +228,28 @@
                           </template>
                         </div>
                       </a-button>
+                      <a-button
+                        v-if='mode === EvaluationTableMode.StudentEvaluate'
+                        class="my-form-header-btn"
+                        style="{
+                            width: 120px;
+                            display: flex;
+                            flex-direction: row;
+                            align-items: center;
+                            justify-content: center;
+                             background: rgba(21, 195, 154, 0.08);
+                            border: 1px solid #15C39A;
+                            border-radius: 20px;
+                            padding: 15px 20px;
+                          }"
+                        @click="handleSaveEvaluation">
+                        <div class="btn-icon">
+                          <img src="~@/assets/icons/common/form/fabu@2x.png" />
+                        </div>
+                        <div class="btn-text">
+                          Submit
+                        </div>
+                      </a-button>
                     </div>
                     <div class="form-setting">
                       <a-dropdown
