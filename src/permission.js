@@ -6,9 +6,9 @@ import NProgress from 'nprogress' // progress bar
 import '@/components/NProgress/nprogress.less' // progress bar custom style
 import notification from 'ant-design-vue/es/notification'
 import { setDocumentTitle, domTitle } from '@/utils/domUtil'
-import { ACCESS_TOKEN, CURRENT_ROLE, IS_ADD_PREFERENCE } from '@/store/mutation-types'
+import { ACCESS_TOKEN, CURRENT_ROLE } from '@/store/mutation-types'
 import { i18nRender } from '@/locales'
-import { addPreferenceRouter, defaultTeacherRouter, defaultExpertRouter, selectRoleRouter } from '@/config/router.config'
+import { defaultTeacherRouter, defaultExpertRouter } from '@/config/router.config'
 import * as logger from '@/utils/logger'
 
 NProgress.configure({ showSpinner: false }) // NProgress Configuration

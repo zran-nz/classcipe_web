@@ -37,8 +37,6 @@
 </template>
 
 <script>
-import { addPreferenceRouter, defaultTeacherRouter } from '@/config/router.config'
-import * as logger from '@/utils/logger'
 
 export default {
   name: 'SelectRole',

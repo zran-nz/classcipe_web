@@ -72,7 +72,6 @@
 </template>
 
 <script>
-import md5 from 'md5'
 import TwoStepCaptcha from '@/components/tools/TwoStepCaptcha'
 import ThirdLoginButton from '@/components/Button/ThirdLoginButton'
 import { mapActions } from 'vuex'

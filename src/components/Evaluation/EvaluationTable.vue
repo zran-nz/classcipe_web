@@ -72,9 +72,8 @@
               <div class='label-input'>
                 <input
                   v-model='header.label'
-                  @click.stop
-                  @blur='handleUpdateHeader'
-                  @keyup.enter='handleUpdateHeader'
+                  @click.stop=''
+                  @keyup.enter.stop='handleUpdateHeader'
                   class='header-input-item' />
               </div>
             </template>
