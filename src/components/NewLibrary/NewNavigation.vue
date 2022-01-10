@@ -91,8 +91,8 @@ export default {
         padding: 0 3px 0 0;
       }
       padding: 0 3px 0 3px;
-      color: @primary-color;
-      font-weight: 600;
+      //color: @primary-color;
+      //font-weight: 600;
       max-width: 300px;
       overflow: hidden;
       text-overflow: ellipsis;

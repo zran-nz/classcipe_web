@@ -471,8 +471,6 @@ export default {
         QueryByClassInfoSlideId({ slideId: this.slideId }),
         QuerySessionEvaluation({
           classId: this.classId,
-          formId: this.formId,
-          rowId: this.rowId,
           user: this.studentName
         }),
         QueryResponseByClassId({ classId: this.classId })
@@ -656,9 +654,7 @@ export default {
       this.$logger.info('保存evaluation数据', data)
       SaveSessionEvaluation({
         classId: this.classId,
-        formId: this.formId,
         user: this.studentName,
-        rowId: this.rowId,
         result: JSON.stringify(data)
       }).then(() => {
         this.$emit('ensure-evidence-finish', {
