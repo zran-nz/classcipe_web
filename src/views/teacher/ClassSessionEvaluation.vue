@@ -651,7 +651,11 @@ export default {
         name: '',
         className: '',
         forms: [],
-        groups: []
+        groups: [],
+        updateTime: null,
+        createTime: null,
+        createBy: null,
+        type: typeMap.classSessionEvaluation
       },
 
       // 班级信息
@@ -849,10 +853,19 @@ export default {
         }
         this.$logger.info('allNoGroupStudentUserIdList', this.allNoGroupStudentUserIdList)
 
+        // 使用班级信息填充表单基础信息，保持header显示的按钮标题兼容显示
+        if (data.classInfo) {
+          this.form.name = data.classInfo.className
+          this.form.createBy = data.classInfo.author
+          this.form.createTime = new Date(data.classInfo.date * 1000)
+          this.form.type = typeMap.classSessionEvaluation
+          this.$logger.info('init form data', this.form)
+        }
+
         const allStudentUserIdList = this.allStudentUserIdList
         this.groups = data.groups
         if (data.evaluation) {
-          this.form = data.evaluation
+          this.form = Object.assign(this.form, data.evaluation)
 
           data.evaluation.forms.forEach(formItem => {
             this.forms.push({

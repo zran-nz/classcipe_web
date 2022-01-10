@@ -38,8 +38,8 @@
       </a-space>
     </a-col>
     <a-col span="9" class="unit-right-action">
-      <a-space v-show="!hiddenRightButton">
-        <div class="collaborate-users">
+      <a-space>
+        <div class="collaborate-users" v-if='form.type !== typeMap.classSessionEvaluation'>
           <a-dropdown v-show="collaborateUserList.length > 3">
             <a class="ant-dropdown-link">
               Others
@@ -61,12 +61,12 @@
             <a-avatar size="small" class="user-item" :src="owner.avatar" />
           </a-tooltip>
         </div>
-        <a-tooltip title="Collaborate" v-show="isOwner">
+        <a-tooltip title="Collaborate" v-show="isOwner && form.type !== typeMap.classSessionEvaluation">
           <div class="collaborate-comment" @click="handleStartCollaborate">
             <collaborate-user-icon class="active-icon" />
           </div>
         </a-tooltip>
-        <div class="collaborate-comment" @click="handleViewComment" v-if="form.type !== typeMap.evaluation">
+        <div class="collaborate-comment" @click="handleViewComment" v-if="form.type !== typeMap.evaluation && form.type !== typeMap.classSessionEvaluation">
           <comment-icon class="active-icon" />
         </div>
         <a-button
@@ -99,7 +99,7 @@
           <!--          </div>-->
         </a-button>
         <a-button
-          v-show="isOwner && form.status === 0"
+          v-show="isOwner && form.status === 0 && form.type !== typeMap.classSessionEvaluation"
           :loading="publishing"
           class="my-form-header-btn"
           style="{
@@ -211,10 +211,6 @@ export default {
     showCollaborate: {
       type: Boolean,
       default: true
-    },
-    hiddenRightButton: {
-      type: Boolean,
-      default: false
     }
   },
   data () {

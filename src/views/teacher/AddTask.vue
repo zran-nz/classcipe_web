@@ -6,7 +6,6 @@
         :form="form"
         :collaborate="collaborate"
         :last-change-saved-time="lastChangeSavedTime"
-        :hidden-right-button="mode === 'pick-task-slide'"
         @view-collaborate="handleViewCollaborate"
         @back="goBack"
         @save="handleSaveTask"
