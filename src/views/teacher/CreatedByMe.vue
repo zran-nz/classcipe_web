@@ -885,8 +885,10 @@ export default {
           presentationId: this.myContentList[index].presentationId
         }).then(response => {
           this.$logger.info('TemplatesGetPresentation response', response)
-          // forbid情况也强制登录
-          if (!response.success && response.code === 403) {
+          if (response.message.indexOf('Google access_token Forbidden') > -1) {
+            this.$router.push({ path: '/user/login' })
+          } else if (!response.success && response.code === 403) {
+            // forbid情况也强制登录
             this.$message.error('Task:' + this.myContentList[index].name +
               ' presentationId: ' + this.myContentList[index].presentationId + ' has no permisson!')
             this.$router.push({ path: '/user/login' })

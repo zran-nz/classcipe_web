@@ -149,7 +149,7 @@
 
                   <a-step title="Edit task slides" :status="currentActiveStepIndex === 1 ? 'process':'wait'" id="templateSelected">
                     <template v-if="currentActiveStepIndex === 1" slot="description">
-                      <div class="edit-in-slide" v-if="!fileDeleted">
+                      <div class="edit-in-slide" v-if="!form.fileDeleted">
                         <a-button class="action-ensure action-item edit-slide" type="primary" shape="round" @click="handleShowSelectMyContent" style="margin-right: 10px">
                           Select slide(s)
                         </a-button>
@@ -166,7 +166,7 @@
                             @click="changeSelected" />
                         </a-tooltip>
                       </div>
-                      <div class="top-icon-groups" v-if="!form.showSelected">
+                      <div class="top-icon-groups" v-if="!form.fileDeleted && !form.showSelected">
                         <a-col class="material-row" >
                           <div class="icon-group">
                             <a-badge :count="showMaterialSize('text')" v-if="currentPageMaterial.hasOwnProperty('text')">
@@ -1604,8 +1604,7 @@ export default {
 
         materialListFlag: false,
 
-        showSubTaskDetail: false,
-        fileDeleted: false // ppt文件被删除
+        showSubTaskDetail: false
       }
     },
     computed: {
@@ -2179,9 +2178,9 @@ export default {
             pageObjects.forEach(page => {
               this.thumbnailList.push({ contentUrl: page.contentUrl, id: page.pageObjectId })
             })
-          } else if (!response.success && response.code === 404) {
-            // 文件被删除 todo
-            this.fileDeleted = true
+            if (!this.form.fileDeleted && response.result.fileDeleted) {
+                this.form.fileDeleted = true
+            }
           } else {
             this.$message.error(response.message)
           }
