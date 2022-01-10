@@ -73,7 +73,8 @@
                 <input
                   v-model='header.label'
                   @click.stop=''
-                  @keyup.enter.stop='handleUpdateHeader'
+                  @blur='handleUpdateHeader'
+                  @keyup.enter='handleUpdateHeader'
                   class='header-input-item' />
               </div>
             </template>

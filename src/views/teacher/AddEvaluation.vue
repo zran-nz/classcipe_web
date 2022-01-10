@@ -664,11 +664,15 @@ export default {
       this.$logger.info('handleDeleteForm', formItem)
       const forms = []
       this.forms.forEach(form => {
-        if (form.id !== formItem.id) {
+        if (form.formId !== formItem.formId) {
           forms.push(form)
         }
       })
       this.forms = forms
+
+      if (this.forms.length) {
+        this.currentActiveFormId = this.forms[this.forms.length - 1].formId
+      }
     },
 
     handleToggleStudentEvaluation (formItem) {

@@ -1732,6 +1732,9 @@ export default {
         }
       })
       this.forms = forms
+      if (this.forms.length) {
+        this.currentActiveFormId = this.forms[this.forms.length - 1].formId
+      }
 
       this.allStudentUserIdList.forEach(studentId => {
         this.$delete(this.studentEvaluateData[studentId], formItem.formId)
@@ -1942,10 +1945,14 @@ export default {
 
     handleUpdateHeader (header) {
       this.$logger.info('ClassSessionEvaluation handleUpdateHeader')
-      this.$refs.evaluationTable.forEach(tableItem => {
-        tableItem.handleUpdateHeader()
-      })
-      this.$refs.commonFormHeader.handleEnsureNewFormName()
+      if (this.$refs.evaluationTable && this.$refs.evaluationTable.length > 0) {
+        this.$refs.evaluationTable.forEach(tableItem => {
+          tableItem.handleUpdateHeader()
+        })
+      }
+      if (this.$refs.commonFormHeader) {
+        this.$refs.commonFormHeader.handleEnsureNewFormName()
+      }
     }
   }
 }
