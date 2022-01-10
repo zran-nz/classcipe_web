@@ -59,9 +59,23 @@
               <div class="block-content">
                 <div class="content-list" v-if="task.customTags && task.customTags.length">
                   <div class="label">
-                    customTags
+                    Customized tags
                   </div>
                   <div class="content-sub-list">
+                    <div class="content-sub-item" v-for="(customTag, kIndex) in task.customTags" :key="kIndex">
+                      <div class="sub-title">
+                        <a-tag :color="tagColorList[kIndex % tagColorList.length]">
+                          {{ customTag.name }}
+                        </a-tag>
+                      </div>
+                    </div>
+                    <div class="content-sub-item" v-for="(customTag, kIndex) in task.customTags" :key="kIndex">
+                      <div class="sub-title">
+                        <a-tag :color="tagColorList[kIndex % tagColorList.length]">
+                          {{ customTag.name }}
+                        </a-tag>
+                      </div>
+                    </div>
                     <div class="content-sub-item" v-for="(customTag, kIndex) in task.customTags" :key="kIndex">
                       <div class="sub-title">
                         <a-tag :color="tagColorList[kIndex % tagColorList.length]">
@@ -299,14 +313,15 @@ export default {
               }
 
               .content-sub-list {
-                padding: 5px 10px;
+                padding: 10px 0;
                 background-color: #f9f9f9;
                 margin-bottom: 10px;
                 display: flex;
                 flex-direction: row;
                 align-items: center;
+                flex-wrap: wrap;
                 .content-sub-item {
-                  margin: 0 5px 5px 0;
+                  margin: 0 10px 10px 0;
                 }
               }
             }
@@ -333,14 +348,19 @@ export default {
 }
 
 .content-sub-list {
-  padding: 5px 0;
+  padding: 10px 10px 0 10px;
+  width: 100%;
+  flex-wrap: wrap;
   background-color: #f9f9f9;
   margin-bottom: 10px;
   display: flex;
   flex-direction: row;
   align-items: center;
   .content-sub-item {
-    margin: 0 5px 5px 5px;
+    margin: 0 10px 10px 0;
+    .ant-tag {
+      border-radius: 8px;
+    }
   }
 }
 
