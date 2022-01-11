@@ -291,7 +291,7 @@
             :question-index="questionIndex"
             :sync-data="syncData"
             :show-menu="showMenu"
-            :learning-outcome-grade-id="learningOutcomeGradeId"
+            :default-grade-id="defaultGradeId"
             :default-active-menu="defaultActiveMenu"
             :default-curriculum-id="defaultCurriculumId"
           />
@@ -369,7 +369,7 @@ export default {
       type: Array,
       default: () => []
     },
-    learningOutcomeGradeId: {
+    defaultGradeId: {
       type: String,
       default: null
     }
@@ -429,7 +429,7 @@ export default {
     this.$logger.info('recommendData', this.recommendData)
     this.$logger.info('selectedIdList', this.selectedIdList)
     this.$logger.info('selectedList', this.selectedList)
-    this.$logger.info('learningOutcomeGradeId ' + this.learningOutcomeGradeId)
+    this.$logger.info('defaultGradeId ' + this.defaultGradeId)
     this.mySelectedIdList = this.selectedIdList
 
     getAllCurriculums().then((response) => {

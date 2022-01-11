@@ -1273,7 +1273,7 @@
             :recommend-data="recommendData"
             :selected-list="selectedList"
             :selected-id="selectedIdList"
-            :learning-outcome-grade-id="form.gradeId"
+            :default-grade-id="form.gradeId"
             @select-assessmentType="handleSelectAssessmentType"
             @select-sync="handleSelectListData"
             @select-curriculum="handleSelectCurriculum"

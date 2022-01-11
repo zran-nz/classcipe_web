@@ -1,14 +1,15 @@
 <template>
   <div class="content-list-wrapper">
-    <div class="content-header">
+    <div class="content-header" :style="{'background-color': backgroundColor || '#eee'}">
       <div class="name" :style="{width: nameWidth + 'px'}">
         Name
       </div>
     </div>
-    <div class="content-list">
+    <div class="content-list" :style="{'background-color': backgroundColor || '#fff'}">
       <template v-if="contentDataList && contentDataList.length">
         <div
           :data-item-id="item.id"
+          :style="{'background-color': backgroundColor || '#fff'}"
           :class="{'content-item': true,
                    'odd-line': index % 2 === 0,'even-line': index % 2 === 1,
                    'active-line': currentId === item.id,
@@ -145,7 +146,8 @@ export default {
       selectedBigIdeaList: [],
       currentDataType: 'none',
 
-      mySelectedList: []
+      mySelectedList: [],
+      backgroundColor: '#ffffff'
     }
   },
   watch: {
@@ -183,6 +185,7 @@ export default {
 
     handleContentListUpdate (data) {
       this.$logger.info('handleContentListUpdate ', data)
+      this.backgroundColor = data.backgroundColor
       this.contentDataList = data.contentList
       this.parent = data.currentTreeData
       this.currentDataType = data.dataType
@@ -674,6 +677,7 @@ export default {
   .content-header {
     font-weight: 600;
     background-color: #eee;
+    border-bottom: 1px solid #999999;
     line-height: 30px;
     cursor: pointer;
     user-select: none;
@@ -724,7 +728,7 @@ export default {
     }
 
     .selected-line {
-      background-color: fade(@outline-color, 10%);
+      background-color: fade(@outline-color, 10%) !important;
       color: @text-color;
       border: 1px solid #15C39A !important;
       box-sizing: border-box;
@@ -748,7 +752,7 @@ export default {
     }
 
     .content-item {
-      border: 1px solid #fff;
+      //border: 1px solid #fff;
       display: flex;
       flex-direction: row;
       flex-wrap: wrap;
