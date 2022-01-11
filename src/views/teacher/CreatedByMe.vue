@@ -724,7 +724,7 @@ export default {
           copy_from: item.copyFromSlide,
           revision_id: item.revisionId,
           file_name: item.name ? item.name : 'Unnamed',
-          status: this.sessionMode === 1 ? lessonStatus.live : lessonStatus.studentPaced,
+          status: this.sessionMode === 1 ? lessonStatus.teacherPaced : lessonStatus.studentPaced,
           redirect_url: null
         }
 
