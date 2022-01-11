@@ -485,8 +485,7 @@ export default {
               parentTreeData: this.treeCurrentParent,
               contentList: treeItemData.gradeList,
               gradeList: treeItemData.gradeList,
-              questionIndex: this.questionIndex,
-              autoSelectGrade: gradeItem // 自动选择的年级
+              questionIndex: this.questionIndex
             })
             // subject的children为空，说明到底了。下一层就是grade
             this.subItemType = 'grade'
