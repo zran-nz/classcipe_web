@@ -1,11 +1,11 @@
 <template>
   <div class="content-list-wrapper">
-    <div class="content-header" :style="{'background-color': backgroundColor || '#eee'}">
+    <div class="content-header">
       <div class="name" :style="{width: nameWidth + 'px'}">
         Name
       </div>
     </div>
-    <div class="content-list" :style="{'background-color': backgroundColor || '#fff'}">
+    <div class="content-list" >
       <template v-if="contentDataList && contentDataList.length">
         <div
           :data-item-id="item.id"
@@ -677,7 +677,6 @@ export default {
   .content-header {
     font-weight: 600;
     background-color: #eee;
-    border-bottom: 1px solid #999999;
     line-height: 30px;
     cursor: pointer;
     user-select: none;
@@ -728,7 +727,7 @@ export default {
     }
 
     .selected-line {
-      background-color: fade(@outline-color, 10%) !important;
+      background-color: fade(@outline-color, 10%);
       color: @text-color;
       border: 1px solid #15C39A !important;
       box-sizing: border-box;
