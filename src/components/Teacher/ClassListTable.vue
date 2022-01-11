@@ -68,6 +68,14 @@
               <a-popover placement="rightTop" trigger="click">
                 <template slot="content">
                   <div class="class-more-icon-panel">
+                    <div class="class-more-item" @click="handleTakeAway(record)">
+                      <div class="class-action-icon">
+                        <take-away-icon />
+                      </div>
+                      <div class="class-action-name">
+                        Take away
+                      </div>
+                    </div>
                     <div class="class-more-item" @click="handleReviewEditEvaluation(record)">
                       <div class="class-action-icon">
                         <evaluate-icon />
@@ -84,7 +92,6 @@
                         Archive Session
                       </div>
                     </div>
-
                     <div class="class-more-item" @click="handleRenameSession(record)">
                       <div class="class-action-icon">
                         <Bianji />
@@ -93,6 +100,7 @@
                         Rename the session
                       </div>
                     </div>
+
                     <div class="class-more-item" @click="handleReopenSession(record)" v-if="record.status === 'close'">
                       <div class="class-action-icon">
                         <a-icon type="interaction" />
@@ -150,12 +158,135 @@
           <ppt-comment-preview :slide-id="slideId" :class-id="currentClassId" v-if="slideId"/>
         </div>
       </a-modal>
+
+      <a-modal
+        v-model="takeAwayPreviewVisible"
+        :footer="null"
+        destroyOnClose
+        :dialog-style="{ top: '30px' }"
+        width="1150px"
+        title="Take away"
+        @ok="takeAwayPreviewVisible = false"
+        @cancel="takeAwayPreviewVisible = false">
+        <div class="view-take-away">
+          <div class='class-student-list'>
+            <div class="class-group">
+              <div class="class-student-wrapper">
+                <div class="group-list-wrapper">
+                  <div class="no-group-student-list">
+                    <div class="student-list">
+                      <div
+                        :class="{'list-item': true, 'selected-student': currentActiveStudentId === member.userId}"
+                        v-for="(member, sIndex) in allNoGroupStudentUserList"
+                        :key="sIndex"
+                        :data-member-id="member.userId"
+                        @click="handleClickMember(member)">
+                        <div class="student-avatar">
+                          <img :src="member.studentAvatar" alt="" v-if="member.studentAvatar" />
+                          <img
+                            slot="prefix"
+                            src="~@/assets/icons/evaluation/default_avatar.png"
+                            alt=""
+                            v-if="!member.studentAvatar" />
+                        </div>
+                        <div class="student-name" :data-email="member.userId">
+                          <a-tooltip placement="top" :mouseEnterDelay="1">
+                            <template slot="title">
+                              {{ member.realName }}
+                            </template>
+                            {{ member.realName }}
+                          </a-tooltip>
+                        </div>
+                        <div class="select-status-icon" v-if="currentActiveStudentId === member.userId">
+                          <a-icon type="check-circle" style="{color: #07AB84}" theme="filled" class="my-selected-icon" />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div
+                    class="group-item"
+                    v-for="(group, gIdx) in groups"
+                    :key="gIdx"
+                    :data-group-id="group.id">
+                    <div class="group-item-info">
+                      <div class="group-left">
+                        <div class="group-icon">
+                          <group-icon />
+                        </div>
+                        <div class="group-name">
+                          {{ group.name }} ({{ group.members.length }})
+                        </div>
+                      </div>
+                      <div class="group-right" @click="handleToggleGroupExpand(group, $event)">
+                        <div class="group-expand-status">
+                          <template v-if="group.expand">
+                            <arrow-down />
+                          </template>
+                          <template v-if="!group.expand">
+                            <arrow-top />
+                          </template>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="group-student-list" v-show="group.expand">
+                      <div class="student-list">
+                        <div
+                          :class="{'list-item': true, 'selected-student': currentActiveStudentId === member.userId}"
+                          v-for="(member, sIndex) in group.members"
+                          :key="sIndex"
+                          :data-member-id="member.userId"
+                          @click="handleClickMember( member)">
+                          <div class="student-avatar">
+                            <img :src="member.studentAvatar" alt="" v-if="member.studentAvatar" />
+                            <img
+                              slot="prefix"
+                              src="~@/assets/icons/evaluation/default_avatar.png"
+                              alt=""
+                              v-if="!member.studentAvatar" />
+                          </div>
+                          <div class="student-name" :data-email="member.email">
+                            <a-tooltip placement="top" :mouseEnterDelay="1">
+                              <template slot="title">
+                                {{ member.realName }}
+                              </template>
+                              {{ member.realName }}
+                            </a-tooltip>
+                          </div>
+                          <div class="select-status-icon" v-if=" currentActiveStudentId === member.userId">
+                            <a-icon
+                              type="check-circle"
+                              style="{color: #07AB84}"
+                              theme="filled"
+                              class="my-selected-icon" />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="no-group-tips">
+                    <no-more-resources v-if="allStudentUserList.length === 0 && !loadingStudentList" tips="No student exist" />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class='ppt-slide-view'>
+            <div class="slide-preview" v-if="currentActiveStudentId">
+              <ppt-slide-view
+                ref='takeaway'
+                :class-id="takeAwayClassId"
+                :slide-id="takeAwaySlideId"
+                :student-name="currentActiveStudentId" />
+            </div>
+          </div>
+        </div>
+      </a-modal>
     </div>
   </div>
 </template>
 
 <script>
-import { FindMyClasses } from '@/api/evaluation'
+import { FindMyClasses, GetSessionEvaluationByClassId } from '@/api/evaluation'
 import TvSvg from '@/assets/icons/lesson/tv.svg?inline'
 import * as logger from '@/utils/logger'
 import { typeMap } from '@/const/teacher'
@@ -167,20 +298,24 @@ import ArchiveSessionIcon from '@/assets/svgIcon/evaluation/ArchiveSession.svg?i
 import EvaluateIcon from '@/assets/svgIcon/evaluation/Evaluate.svg?inline'
 import NoMoreResources from '@/components/Common/NoMoreResources'
 import Bianji from '@/assets/icons/common/Bianji.svg?inline'
+import TakeAwayIcon from '@/assets/icons/common/take_away.svg?inline'
 import { AddOrUpdateClass, ChangeClassStatus } from '@/api/classroom'
 import storage from 'store'
 import { ACCESS_TOKEN } from '@/store/mutation-types'
+import PptSlideView from '@/components/Evaluation/PptSlideView'
 
 export default {
   name: 'ClassTableList',
   components: {
+    PptSlideView,
     NoMoreResources,
     ReviewEvaluation,
     TvSvg,
     PptCommentPreview,
     ArchiveSessionIcon,
     EvaluateIcon,
-    Bianji
+    Bianji,
+    TakeAwayIcon
   },
   props: {
     slideId: {
@@ -250,10 +385,20 @@ export default {
           width: 100,
           scopedSlots: { customRender: 'action' }
         }
-      ]
+      ],
+
+      loadingStudentList: false,
+      takeAwayPreviewVisible: false,
+
+      groups: [],
+      allStudentUserList: [],
+      allNoGroupStudentUserList: [], // 所有未分组的学生列表
+      currentActiveStudentId: null,
+      takeAwaySlideId: null,
+      takeAwayClassId: null
     }
   },
-  created () {
+  mounted () {
     this.loadTeacherClasses()
   },
   methods: {
@@ -400,6 +545,72 @@ export default {
             this.loadTeacherClasses()
           })
         }
+      })
+    },
+
+    handleTakeAway (item) {
+      this.$logger.info('handleTakeAway', item)
+      this.takeAwayClassId = item.classId
+      this.takeAwaySlideId = item.slideId
+      this.currentActiveStudentId = null
+      this.loadingStudentList = true
+      this.loadingTakeAwayData = true
+      this.takeAwayPreviewVisible = true
+      this.loadTakeAwayClassStudentData(item.classId)
+    },
+
+    handleClickMember (member) {
+      this.$logger.info('handleClickMember', member)
+      if (this.$refs.takeaway) {
+        this.$refs.takeaway.handleEnsureEvidence()
+      }
+      this.currentActiveStudentId = member.userId
+    },
+    handleToggleGroupExpand (group, event) {
+      event.stopPropagation()
+      event.preventDefault()
+      this.$logger.info('handleToggleGroupExpand', group)
+      group.expand = !group.expand
+    },
+
+    loadTakeAwayClassStudentData (classId) {
+      this.$logger.info('loadTakeAwayClassStudentData classId ' + classId)
+      this.loadingTakeAwayData = true
+      GetSessionEvaluationByClassId({ classId }).then(response => {
+        this.$logger.info('init data response', response)
+        // 加载班级信息数据
+        this.$logger.info('GetSessionEvaluationByClassId response', response.result)
+        // 所有的学生id用于遍历构造学生评价数据 "对象"
+        const allGroupStudentUserIdList = []
+
+        const data = response.result
+        data.groups.forEach(group => {
+          group.expand = true // 默认分组展开显示
+          group.members.forEach(member => {
+            allGroupStudentUserIdList.push(member.userId)
+          })
+        })
+        this.groups = data.groups
+
+        // 遍历所有学生，找出不存在分组中的
+        this.allNoGroupStudentUserList = []
+        if (data.classMembersVos && data.classMembersVos.length) {
+          data.classMembersVos.forEach(item => {
+            item.userId = item.email
+          })
+          this.$logger.info('formatted classMembersVos', data.classMembersVos)
+          data.classMembersVos.forEach(studentItem => {
+            if (allGroupStudentUserIdList.indexOf(studentItem.userId) === -1) {
+              this.allNoGroupStudentUserList.push(studentItem)
+            }
+          })
+          this.allStudentUserList = data.classMembersVos
+        }
+      }).finally(() => {
+        if (this.allStudentUserList.length) {
+          this.handleClickMember(this.allStudentUserList[0])
+        }
+        this.loadingStudentList = false
       })
     }
   }
@@ -567,6 +778,7 @@ export default {
 
       svg {
         width: 30px;
+        max-height: 25px;
       }
     }
   }
@@ -590,5 +802,221 @@ export default {
 
 .no-data {
   padding: 100px;
+}
+
+.class-group {
+  width: 200px;
+  height: 100%;
+
+  .class-student-wrapper {
+    height: 500px;
+    background: #FFFFFF;
+    border: 1px solid #dadada;
+    opacity: 1;
+    border-radius: 0px 0px 4px 4px;
+
+    .group-list-wrapper {
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      max-height: 500px;
+      overflow-y: scroll;
+
+      &::-webkit-scrollbar {
+        width: 5px;
+        height: 5px;
+      }
+
+      &::-webkit-scrollbar-track {
+        border-radius: 3px;
+        background: rgba(0, 0, 0, 0.01);
+        -webkit-box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.01);
+      }
+
+      /* 滚动条滑块 */
+
+      &::-webkit-scrollbar-thumb {
+        border-radius: 5px;
+        background: rgba(0, 0, 0, 0.12);
+        -webkit-box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.01);
+      }
+
+      .group-item {
+        display: flex;
+        flex-direction: column;
+
+        .group-item-info {
+          line-height: 30px;
+          display: flex;
+          user-select: none;
+          flex-direction: row;
+          align-items: center;
+          justify-content: space-between;
+          padding: 10px;
+          cursor: pointer;
+
+          &:hover {
+            background-color: #F7F8FF;
+          }
+
+          .group-left {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            position: relative;
+
+            .group-icon {
+              display: flex;
+              flex-direction: row;
+              align-items: center;
+
+              svg {
+                height: 20px;
+              }
+            }
+
+            .group-name {
+              padding: 0 5px;
+            }
+
+            .group-select-status {
+              margin-left: 5px;
+              width: 30px;
+              user-select: none;
+
+              svg {
+                fill: #07AB84;
+                color: #07AB84;
+              }
+            }
+          }
+
+          .group-right {
+          }
+        }
+
+        .group-student-list {
+          .student-list {
+            display: flex;
+            flex-direction: column;
+
+            .list-item {
+              cursor: pointer;
+              padding: 10px;
+              user-select: none;
+              display: flex;
+              flex-direction: row;
+              align-items: center;
+              justify-content: flex-start;
+              position: relative;
+
+              &:hover {
+                background-color: #F7F8FF;
+              }
+
+              .student-avatar {
+                img {
+                  width: 30px;
+                }
+              }
+
+              .student-name {
+                padding: 0 5px;
+                font-family: Inter-Bold;
+                line-height: 24px;
+                color: #11142D;
+                width: 180px;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                word-break: break-all;
+                white-space: nowrap;
+              }
+
+              .select-status-icon {
+                position: absolute;
+                color: #15c39a;
+                right: 5px;
+                top: 50%;
+                margin-top: -7.5px;
+
+                img {
+                  height: 15px;
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+
+.no-group-tips {
+  margin-top: 100px;
+}
+
+.no-group-student-list {
+  .student-list {
+    display: flex;
+    flex-direction: column;
+
+    .list-item {
+      cursor: pointer;
+      padding: 10px;
+      user-select: none;
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      justify-content: flex-start;
+      position: relative;
+
+      &:hover {
+        background-color: #F7F8FF;
+      }
+
+      .student-avatar {
+        img {
+          width: 30px;
+        }
+      }
+
+      .student-name {
+        padding: 0 5px;
+        font-family: Inter-Bold;
+        line-height: 24px;
+        color: #11142D;
+        width: 180px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        word-break: break-all;
+        white-space: nowrap;
+      }
+
+      .select-status-icon {
+        position: absolute;
+        color: #15c39a;
+        right: 5px;
+        top: 50%;
+        margin-top: -7.5px;
+
+        img {
+          height: 15px;
+        }
+      }
+    }
+  }
+}
+
+.view-take-away {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  align-items: flex-start;
+}
+
+.ppt-slide-view {
+  padding-left: 10px;
+  min-width: 900px;
 }
 </style>
