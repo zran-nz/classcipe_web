@@ -51,7 +51,7 @@
             <div v-else style="color: #15C39A;"> Archived </div>
           </span>
 
-          <span slot="action" class="flex-center" slot-scope="text, record">
+          <span slot="action" class="flex-center" slot-scope="text, record, index">
             <div class="class-action" v-if="active">
               <div class="icon-action">
                 <a-tooltip>
@@ -65,7 +65,7 @@
                 </a-tooltip>
               </div>
 
-              <a-popover placement="rightTop" trigger="click">
+              <a-popover placement="rightTop" trigger="click" :visible="menuVisible && activeMenuIndex === index">
                 <template slot="content">
                   <div class="class-more-icon-panel">
                     <div class="class-more-item" @click="handleTakeAway(record)">
@@ -119,7 +119,7 @@
                     </div>
                   </div>
                 </template>
-                <div class="more-action">
+                <div class="more-action" @click='handleActivePopover(index)'>
                   <img src="~@/assets/icons/myClass/more.png"/>
                 </div>
               </a-popover>
@@ -387,6 +387,9 @@ export default {
         }
       ],
 
+      menuVisible: false,
+      activeMenuIndex: -1,
+
       loadingStudentList: false,
       takeAwayPreviewVisible: false,
 
@@ -554,9 +557,9 @@ export default {
       this.takeAwaySlideId = item.slideId
       this.currentActiveStudentId = null
       this.loadingStudentList = true
-      this.loadingTakeAwayData = true
       this.takeAwayPreviewVisible = true
       this.loadTakeAwayClassStudentData(item.classId)
+      this.menuVisible = false
     },
 
     handleClickMember (member) {
@@ -612,6 +615,11 @@ export default {
         }
         this.loadingStudentList = false
       })
+    },
+
+    handleActivePopover (index) {
+      this.activeMenuIndex = index
+      this.menuVisible = true
     }
   }
 }
