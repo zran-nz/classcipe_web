@@ -5,10 +5,11 @@
         Name
       </div>
     </div>
-    <div class="content-list">
+    <div class="content-list" >
       <template v-if="contentDataList && contentDataList.length">
         <div
           :data-item-id="item.id"
+          :style="{'background-color': backgroundColor || '#fff'}"
           :class="{'content-item': true,
                    'odd-line': index % 2 === 0,'even-line': index % 2 === 1,
                    'active-line': currentId === item.id,
@@ -145,7 +146,8 @@ export default {
       selectedBigIdeaList: [],
       currentDataType: 'none',
 
-      mySelectedList: []
+      mySelectedList: [],
+      backgroundColor: '#ffffff'
     }
   },
   watch: {
@@ -183,6 +185,7 @@ export default {
 
     handleContentListUpdate (data) {
       this.$logger.info('handleContentListUpdate ', data)
+      this.backgroundColor = data.backgroundColor
       this.contentDataList = data.contentList
       this.parent = data.currentTreeData
       this.currentDataType = data.dataType
@@ -748,7 +751,7 @@ export default {
     }
 
     .content-item {
-      border: 1px solid #fff;
+      //border: 1px solid #fff;
       display: flex;
       flex-direction: row;
       flex-wrap: wrap;

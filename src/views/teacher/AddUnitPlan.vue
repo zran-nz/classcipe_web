@@ -731,7 +731,7 @@
             :selected-list="selectedList"
             :show-menu="showMenuList"
             :sync-data="syncData"
-            :learning-outcome-grade-id="form.gradeId"
+            :default-grade-id="form.gradeId"
             question-index="_questionIndex_1"
             @select-assessmentType="handleSelectAssessmentType"
             @select-sync="handleSelectListData"
