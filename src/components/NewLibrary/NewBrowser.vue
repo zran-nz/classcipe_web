@@ -978,7 +978,7 @@ export default {
 }
 
 .main-content-list {
-  height: 375px;
+  height: 100%;
   overflow-y: scroll;
 }
 </style>
