@@ -412,7 +412,7 @@ export default {
         this.handleExpandIduTypeTreeItem(treeItemData)
       }
 
-      // 针对任意层级的21centurySkill点击选择处理
+      // 针对21centurySkill允许年级后的任意层级的点击选择处理（目前仅在evaluation评估表格模式中触发)
       if ((this.currentItemType === 'knowledge' &&
           this.selectMode === SelectModel.evaluationMode) &&
         (this.rootType === NavigationType.centurySkills ||
