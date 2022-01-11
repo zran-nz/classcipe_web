@@ -19,14 +19,14 @@
                 <a-tab-pane v-for="(tag,index) in userTagsMap" :key="tag[0]" >
                   <span slot="tab">
                     <div v-if="editTabIndex === index">
-                      <a-input
-                        class="my-tag-input"
+                      <input
+                        class="ant-input my-tag-input"
                         v-model="editTabName"
                         placeholder="Name your category"
                         id="input"
                         @blur="handleTabInputConfirm(editTabName)"
-                        @keyup.enter="handleTabInputConfirm(editTabName)"
-                      ></a-input>
+                        @keyup.enter="handleTabInputConfirm(editTabName,'enter')"
+                      ></input>
                     </div>
                     <div v-if="editTabIndex !== index" @dblclick="handleEditTabName(tag, index)">
                       {{ tag[0] }}
@@ -370,7 +370,7 @@ export default {
        this.handleTabInputConfirm(this.editTabName)
       }
     },
-    handleTabInputConfirm (tag) {
+    handleTabInputConfirm (tag, enter) {
       this.allowClickEnsureInput = false
       if (!tag || !tag.trim()) {
         this.$message.warn('Please input tag type name')
@@ -393,7 +393,7 @@ export default {
             this.selectLabel = tag
             // this.userTagsMap = new Map()
             this.handleUserTagsMap()
-            this.$message.success('Update tag type successfully')
+            if (!enter) this.$message.success('Update tag type successfully')
           } else {
             this.$message.error(response.message)
           }
@@ -409,7 +409,7 @@ export default {
             this.selectLabel = tag
             // this.userTagsMap = new Map()
             this.handleUserTagsMap()
-            this.$message.success('Add tag type successfully')
+            if (!enter) { this.$message.success('Add tag type successfully') }
           } else {
             this.$message.error(response.message)
           }
