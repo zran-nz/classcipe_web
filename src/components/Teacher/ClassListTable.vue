@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div @click.stop='hiddenMenu'>
     <div class="my-class-list">
       <a-input-search
         size="large"
@@ -50,7 +50,7 @@
             <div v-else style="color: #15C39A;"> Archived </div>
           </span>
 
-          <span slot="action" class="flex-center" slot-scope="text, record, index">
+          <span slot="action" class="flex-right" slot-scope="text, record, index">
             <div class="class-action" v-if="active">
               <div class="icon-action" v-if="record.status === lessonStatus.teacherPaced">
                 <a-tooltip>
@@ -129,7 +129,7 @@
                     </div>
                   </div>
                 </template>
-                <div class="more-action" @click='handleActivePopover(index)'>
+                <div class="more-action" @click.stop='handleActivePopover(index)'>
                   <img src="~@/assets/icons/myClass/more.png"/>
                 </div>
               </a-popover>
@@ -374,7 +374,7 @@ export default {
         {
           title: 'Class',
           dataIndex: 'fileName',
-          width: 280,
+          width: 200,
           scopedSlots: { customRender: 'fileName' }
         },
         {
@@ -386,7 +386,7 @@ export default {
         {
           title: 'Session name',
           dataIndex: 'className',
-          width: 200,
+          width: 280,
           scopedSlots: { customRender: 'className' }
         },
         {
@@ -635,6 +635,10 @@ export default {
     handleActivePopover (index) {
       this.activeMenuIndex = index
       this.menuVisible = true
+    },
+
+    hiddenMenu () {
+      this.menuVisible = false
     }
   }
 }
@@ -685,6 +689,12 @@ export default {
       display: flex;
       align-items: center;
       justify-content: center;
+      font-size: 13px;
+    }
+    .flex-right{
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
       font-size: 13px;
     }
     .table-date{
