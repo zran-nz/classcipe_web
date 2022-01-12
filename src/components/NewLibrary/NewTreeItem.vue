@@ -1448,9 +1448,9 @@ export default {
 }
 
 .selected-display-label {
-  border: 1px solid #07AB84;
-  border-radius: 2px;
-  background: #e9f9f5;
-  box-shadow: 0 0 0 2px rgba(21, 195, 154, .5);
+  //border: 1px solid #07AB84;
+  //border-radius: 2px;
+  //background: #e9f9f5;
+  //box-shadow: 0 0 0 2px rgba(21, 195, 154, .5);
 }
 </style>
