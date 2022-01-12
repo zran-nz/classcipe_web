@@ -13,11 +13,14 @@
           <th
             v-for='(header, hIndex) in headers'
             :class="{'header-item': true, 'preview-mode': formTableMode === tableMode.Preview, 'min-header-width': [
-              headerType.Novice,
-              headerType.Learner,
-              headerType.Practitoner,
-              headerType.Expert,
-            ].indexOf(header.type) !== -1}"
+                       headerType.AchievementLevel,
+                     ].indexOf(header.type) !== -1,
+                     'criteria-header-width': [
+                       headerType.Criteria,
+                     ].indexOf(header.type) !== -1, 'medium-header-width' : [
+                       headerType.Description
+                     ].indexOf(header.type) !== -1 && formType !== tableType.Rubric
+            }"
             :key='header.type'
             :data-header="JSON.stringify(header)"
             :data-header-type='header.type'
@@ -271,7 +274,7 @@
                             {{ item[headerType.Description].userInputText ? item[headerType.Description].userInputText : item[headerType.Description].name
                             }}
                           </div>
-                          <span class='edit-description' @click.stop='handleClickEnterCriteriaDescription(header, item)'>
+                          <span class='edit-description' @click.stop='handleClickEnterCriteriaDescription(header, item)' v-if='mode === tableMode.Edit'>
                             Please enter explanation for students to understand
                           </span>
                         </div>
@@ -338,7 +341,7 @@
                 <div class='comment-indicator-input'>
                   <a-textarea
                     style='height: 100%'
-                    placeholder='Please enter explanation for students to understand'
+                    placeholder=''
                     class='my-text-input'
                     v-model='item[headerType.Comment].name'
                     @blur='handleUpdateField(header, item)' />
@@ -530,7 +533,7 @@
                 <div class='comment-indicator-input'>
                   <a-textarea
                     style='height: 100%'
-                    placeholder='Please enter explanation for students to understand'
+                    placeholder=''
                     class='my-text-input'
                     v-model='item[headerType.Comment].name'
                     @blur='handleUpdateField(header, item)' />
@@ -2362,11 +2365,15 @@ export default {
 }
 
 .min-header-width {
-  width: 100px;
+  width: 150px;
+}
+
+.criteria-header-width {
+  width: 250px;
 }
 
 .medium-header-width {
-  width: 200px;
+  width: 400px;
 }
 
 .sub-level-list {
