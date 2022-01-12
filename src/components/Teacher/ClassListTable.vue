@@ -1,6 +1,5 @@
 <template>
   <div>
-
     <div class="my-class-list">
       <a-input-search
         size="large"
@@ -53,10 +52,21 @@
 
           <span slot="action" class="flex-center" slot-scope="text, record, index">
             <div class="class-action" v-if="active">
-              <div class="icon-action">
+              <div class="icon-action" v-if="record.status === lessonStatus.teacherPaced">
                 <a-tooltip>
-                  <template slot="title">
+                  <template slot="title" >
                     teacher-projecting
+                  </template>
+                  <div class="icon-action-item" @click="handleTeacherProjecting(record)">
+                    <img src="~@/assets/icons/myClass/Startasession@2x_color.png" class="icon-color" />
+                    <img src="~@/assets/icons/myClass/Startasession@2x_gray.png" class="icon-gray"/>
+                  </div>
+                </a-tooltip>
+              </div>
+              <div class="icon-action" v-if="record.status === lessonStatus.studentPaced || record.status === lessonStatus.live">
+                <a-tooltip>
+                  <template slot="title" >
+                    Student-paced
                   </template>
                   <div class="icon-action-item" @click="handleTeacherProjecting(record)">
                     <img src="~@/assets/icons/myClass/Startasession@2x_color.png" class="icon-color" />
@@ -292,7 +302,7 @@ import * as logger from '@/utils/logger'
 import { typeMap } from '@/const/teacher'
 
 import PptCommentPreview from '@/components/Teacher/PptCommentPreview'
-import { lessonHost } from '@/const/googleSlide'
+import { lessonHost, lessonStatus } from '@/const/googleSlide'
 import ReviewEvaluation from '@/components/Evaluation/ReviewEvaluation'
 import ArchiveSessionIcon from '@/assets/svgIcon/evaluation/ArchiveSession.svg?inline'
 import EvaluateIcon from '@/assets/svgIcon/evaluation/Evaluate.svg?inline'
@@ -398,7 +408,8 @@ export default {
       allNoGroupStudentUserList: [], // 所有未分组的学生列表
       currentActiveStudentId: null,
       takeAwaySlideId: null,
-      takeAwayClassId: null
+      takeAwayClassId: null,
+      lessonStatus: lessonStatus
     }
   },
   mounted () {
@@ -435,15 +446,19 @@ export default {
       var width = document.documentElement.clientWidth * 0.7
       var strWindowFeatures = 'width=' + width + ',height=' + height + ',menubar=yes,location=yes,resizable=yes,scrollbars=true,status=true,top=100,left=200'
       var windowObjectReference
-      windowObjectReference = window.open(
-        'about:blank',
-        '_blank',
-        strWindowFeatures
-      )
-      windowObjectReference.location = url
-      setTimeout(function () {
+      if (item.status === this.lessonStatus.teacherPaced) {
+        windowObjectReference = window.open(
+          'about:blank',
+          '_blank',
+          strWindowFeatures
+        )
+        windowObjectReference.location = url
+        setTimeout(function () {
+          window.location.href = targetUrl
+        }, 1000)
+      } else {
         window.location.href = targetUrl
-      }, 1000)
+      }
     },
 
     handleDashboard (item) {
@@ -958,7 +973,6 @@ export default {
     }
   }
 }
-
 
 .no-group-tips {
   margin-top: 100px;
