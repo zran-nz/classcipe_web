@@ -286,17 +286,6 @@
             </template>
 
             <template v-if='mode === tableMode.Edit'>
-              <!-- Indicators-->
-              <template v-if='header.type === headerType.Indicators'>
-                <div class='my-indicator-input'>
-                  <a-textarea
-                    style='height: 100%'
-                    placeholder='Enter task specific indicators'
-                    class='my-text-input'
-                    v-model='item[headerType.Indicators].name'
-                    @blur='handleUpdateField(header, item)' />
-                </div>
-              </template>
               <template v-if='header.type === headerType.Novice'>
                 <div class='indicator-input'>
                   <a-textarea
@@ -436,6 +425,7 @@
                   v-if='formBodyData && formBodyData[item.rowId] && formBodyData[item.rowId].peerEvaluation === header.type && (currentEvaluateMode === tableMode.TeacherEvaluate || currentEvaluateMode === tableMode.PeerEvaluate)' />
               </div>
             </template>
+
             <!-- LevelDescriptor-->
             <template v-if='header.type === headerType.LevelDescriptor'>
               <div class='sub-level-data' @click.stop=''>
@@ -463,19 +453,54 @@
               </div>
             </template>
 
+            <!-- Indicators-->
+            <template v-if='header.type === headerType.Indicators && mode === tableMode.Edit'>
+              <div class='sub-level-data' @click.stop=''>
+                <div class='sub-level-indicator'>
+                  <div
+                    class='sub-level-indicator-item'
+                    v-for='(subIndicator, sIndex) in item[headerType.Indicators].subLevelIndicators'
+                    :key='sIndex'>
+                    <a-input v-model='subIndicator.indicator' class='my-indicator-input'/>
+                  </div>
+                </div>
+              </div>
+              <div class='selected-icon'>
+                <teacher-icon
+                  v-if='formBodyData && formBodyData[item.rowId] && formBodyData[item.rowId].teacherEvaluation === header.type && (currentEvaluateMode === tableMode.TeacherEvaluate || currentEvaluateMode === tableMode.StudentEvaluate)' />
+                <student-icon
+                  v-if='formBodyData && formBodyData[item.rowId] && formBodyData[item.rowId].studentEvaluation === header.type && (currentEvaluateMode === tableMode.TeacherEvaluate || currentEvaluateMode === tableMode.StudentEvaluate)' />
+                <peer-icon
+                  v-if='formBodyData && formBodyData[item.rowId] && formBodyData[item.rowId].peerEvaluation === header.type && (currentEvaluateMode === tableMode.TeacherEvaluate || currentEvaluateMode === tableMode.PeerEvaluate)' />
+              </div>
+            </template>
+
             <!-- 老师可以看到所有的评估数据，学生自评可以看到自己的和教师的，他评只能看到自己的-->
             <template
               v-if='mode === tableMode.TeacherEvaluate || mode === tableMode.StudentEvaluate || mode === tableMode.PeerEvaluate'>
               <!-- Indicators-->
+              <!-- Indicators-->
               <template v-if='header.type === headerType.Indicators'>
-                <div class='indicator-data'>
-                  {{ item[headerType.Indicators].name }}
+                <div class='sub-level-data' @click.stop=''>
+                  <div class='sub-level-indicator'>
+                    <div
+                      class='sub-level-indicator-item'
+                      v-for='(subIndicator, sIndex) in item[headerType.Indicators].subLevelIndicators'
+                      :key='sIndex'>
+                      <div class='my-indicator-text'>
+                        {{subIndicator && subIndicator.indicator ? subIndicator.indicator : ''}}
+                      </div>
+                    </div>
+                  </div>
                 </div>
-              <!--                <div class="selected-icon" >-->
-              <!--                  <teacher-icon v-if="formBodyData && formBodyData[item.rowId] && formBodyData[item.rowId].teacherEvaluation === header.type && (currentEvaluateMode === tableMode.TeacherEvaluate || currentEvaluateMode === tableMode.StudentEvaluate)"/>-->
-              <!--                  <student-icon v-if="formBodyData && formBodyData[item.rowId] && formBodyData[item.rowId].studentEvaluation === header.type && (currentEvaluateMode === tableMode.TeacherEvaluate || currentEvaluateMode === tableMode.StudentEvaluate)"/>-->
-              <!--                  <peer-icon v-if="formBodyData && formBodyData[item.rowId] && formBodyData[item.rowId].peerEvaluation === header.type && (currentEvaluateMode === tableMode.TeacherEvaluate || currentEvaluateMode === tableMode.PeerEvaluate)"/>-->
-              <!--                </div>-->
+                <div class='selected-icon'>
+                  <teacher-icon
+                    v-if='formBodyData && formBodyData[item.rowId] && formBodyData[item.rowId].teacherEvaluation === header.type && (currentEvaluateMode === tableMode.TeacherEvaluate || currentEvaluateMode === tableMode.StudentEvaluate)' />
+                  <student-icon
+                    v-if='formBodyData && formBodyData[item.rowId] && formBodyData[item.rowId].studentEvaluation === header.type && (currentEvaluateMode === tableMode.TeacherEvaluate || currentEvaluateMode === tableMode.StudentEvaluate)' />
+                  <peer-icon
+                    v-if='formBodyData && formBodyData[item.rowId] && formBodyData[item.rowId].peerEvaluation === header.type && (currentEvaluateMode === tableMode.TeacherEvaluate || currentEvaluateMode === tableMode.PeerEvaluate)' />
+                </div>
               </template>
               <template v-if='header.type === headerType.Novice'>
                 <div class='indicator-data'>
@@ -1248,6 +1273,11 @@ export default {
           subLevelDescription: []
         }
 
+        newLineItem[this.headerType.Indicators] = {
+          rowId,
+          subLevelIndicators: []
+        }
+
         newLineItem[this.headerType.Evidence] = {
           num: 0,
           selectedList: [],
@@ -1532,6 +1562,17 @@ export default {
             subLevelDescription: selectedList[0].subLevelDescription
           }
 
+          const subLevelIndicators = []
+          selectedList[0].subLevelDescription.forEach(item => {
+            subLevelIndicators.push({
+              indicator: ''
+            })
+          })
+          this.currentSelectLine[this.headerType.Indicators] = {
+            rowId: this.currentSelectLine.rowId,
+            subLevelIndicators
+          }
+
           this.$logger.info('[' + this.mode + '] update currentSelectLine with criteria data ', this.currentSelectLine)
 
           // 如果多选，从第二个元素开始新建行填充数据
@@ -1555,6 +1596,17 @@ export default {
                   name: descriptionItem.name,
                   rowId,
                   subLevelDescription: descriptionItem.subLevelDescription
+                }
+
+                const subLevelIndicators = []
+                selectedList[0].subLevelDescription.forEach(item => {
+                  subLevelIndicators.push({
+                    indicator: ''
+                  })
+                })
+                this.currentSelectLine[this.headerType.Indicators] = {
+                  rowId,
+                  subLevelIndicators
                 }
 
                 newLineItem[this.headerType.Evidence] = {
@@ -2428,6 +2480,7 @@ export default {
     text-overflow: ellipsis;
     vertical-align: middle;
     align-items: center;
+    width: 100%;
     height: 40px;
     line-height: 40px;
     border-bottom: 1px solid #D8D8D8;
@@ -2491,4 +2544,20 @@ export default {
   }
 }
 
+.sub-level-indicator-item {
+  height: 40px;
+
+  .my-indicator-input {
+    border-top: none;
+    border-left: none;
+    border-right: none;
+  }
+
+  .my-indicator-text {
+    height: 40px;
+    line-height: 40px;
+    border-bottom: 1px solid #D8D8D8;
+    padding: 0 5px;
+  }
+}
 </style>
