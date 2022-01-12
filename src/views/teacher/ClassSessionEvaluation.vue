@@ -1656,11 +1656,7 @@ export default {
                 if (response.success) {
                   this.$message.success('Save successfully!')
                   this.formSaving = false
-                  if (window.history.length <= 1) {
-                    this.$router.push({ path: '/teacher/main/created-by-me' })
-                  } else {
-                    this.$router.go(-1)
-                  }
+                  this.$router.push({ path: '/teacher/main/created-by-me' })
                 } else {
                   this.$message.error(response.message)
                 }
@@ -1710,7 +1706,7 @@ export default {
             if (response.success) {
               this.$message.success('Save successfully!')
               this.formSaving = false
-              this.goBack()
+              this.$router.push({ path: '/teacher/main/created-by-me' })
             } else {
               this.$message.error(response.message)
             }
