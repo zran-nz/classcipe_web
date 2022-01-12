@@ -398,6 +398,7 @@ export default {
     LibraryEventBus.$on(LibraryEvent.ContentListItemClick, this.handleContentListItemClick)
     LibraryEventBus.$on(LibraryEvent.CenturySkillsSelect, this.handleCenturySkillsSelect)
     LibraryEventBus.$on(LibraryEvent.CancelCenturySkillsSelect, this.handleCancelCenturySkillsSelect)
+    LibraryEventBus.$on(LibraryEvent.GradeUpdate, this.handleGradeUpdate)
 
     // 添加learning outcome自动选中grade
     if (this.currentItemType === 'grade') {
@@ -412,6 +413,7 @@ export default {
     LibraryEventBus.$off(LibraryEvent.ContentListItemClick, this.handleContentListItemClick)
     LibraryEventBus.$off(LibraryEvent.CenturySkillsSelect, this.handleCenturySkillsSelect)
     LibraryEventBus.$off(LibraryEvent.CancelCenturySkillsSelect, this.handleCancelCenturySkillsSelect)
+    LibraryEventBus.$off(LibraryEvent.GradeUpdate, this.handleGradeUpdate)
   },
   methods: {
     // 点击左侧菜单栏，同步右侧的列表以及展开当前下一级菜单。
@@ -576,7 +578,7 @@ export default {
           }
 
           // 通知外部表单更新gradeId
-          LibraryEventBus.$emit(LibraryEvent.GradeUpdate, JSON.parse(JSON.stringify(this.treeItemData)))
+          LibraryEventBus.$emit(LibraryEvent.GradeUpdate, { rootType: this.rootType, data: JSON.parse(JSON.stringify(this.treeItemData)) })
         }
 
         // 加载知识点关联数据
@@ -720,7 +722,7 @@ export default {
           }
 
           // 通知外部表单更新gradeId
-          LibraryEventBus.$emit(LibraryEvent.GradeUpdate, JSON.parse(JSON.stringify(this.treeItemData)))
+          LibraryEventBus.$emit(LibraryEvent.GradeUpdate, { rootType: this.rootType, data: JSON.parse(JSON.stringify(this.treeItemData)) })
         }
 
         // 加载知识点关联数据
@@ -865,7 +867,7 @@ export default {
           this.subItemType = 'assessmentType'
 
           // 通知外部表单更新gradeId
-          LibraryEventBus.$emit(LibraryEvent.GradeUpdate, JSON.parse(JSON.stringify(this.treeItemData)))
+          LibraryEventBus.$emit(LibraryEvent.GradeUpdate, { rootType: this.rootType, data: JSON.parse(JSON.stringify(this.treeItemData)) })
         }
 
         // 加载assessmentType的列表
@@ -1122,7 +1124,7 @@ export default {
           }
 
           // 通知外部表单更新gradeId
-          LibraryEventBus.$emit(LibraryEvent.GradeUpdate, JSON.parse(JSON.stringify(this.treeItemData)))
+          LibraryEventBus.$emit(LibraryEvent.GradeUpdate, { rootType: this.rootType, data: JSON.parse(JSON.stringify(this.treeItemData)) })
         }
 
         // 加载知识点关联数据
@@ -1336,6 +1338,12 @@ export default {
     handleCancel21CenturyClick() {
       this.$logger.info('handleCancel21CenturyClick')
       LibraryEventBus.$emit(LibraryEvent.CancelCenturySkillsSelect)
+    },
+
+    handleGradeUpdate (data) {
+      if (this.treeItemData.isGrade === true && data.rootType === this.rootType && data.data.id !== this.treeItemData.id) {
+        this.subTreeExpandStatus = false
+      }
     }
   }
 }

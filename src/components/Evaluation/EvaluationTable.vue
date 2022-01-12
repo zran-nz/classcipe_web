@@ -2367,6 +2367,10 @@ export default {
   width: 100px;
 }
 
+.medium-header-width {
+  width: 200px;
+}
+
 .sub-level-list {
   display: flex;
   flex-direction: column;

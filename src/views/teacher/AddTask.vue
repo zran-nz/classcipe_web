@@ -3334,9 +3334,9 @@ export default {
         this.materialListFlag = checked
       },
 
-      handleGradeUpdate (grade) {
-        this.$logger.info('handleGradeUpdate', grade)
-        this.form.gradeId = grade.id
+      handleGradeUpdate (data) {
+        this.$logger.info('handleGradeUpdate', data)
+        this.form.gradeId = data.data.id
       }
     }
   }
