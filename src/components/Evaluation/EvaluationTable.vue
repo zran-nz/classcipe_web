@@ -572,25 +572,25 @@
                 </template>
               </div>
             </template>
-
-            <template v-if='hIndex === headers.length - 3 && mode === tableMode.Edit'>
-              <div class='add-more-header'>
-                <a-popconfirm
-                  :title="'Delete this line ?'"
-                  class='rubric-delete-popconfirm'
-                  ok-text='Yes'
-                  @confirm='handleDeleteLine(item)'
-                  cancel-text='No'>
-                  <template slot='icon'>
-                    <div class='rubric-big-delete'>
-                      <img class='big-delete-icon' src='~@/assets/icons/evaluation/big_delete.png' />
-                    </div>
-                  </template>
-                  <img src='~@/assets/icons/evaluation/delete.png' class='delete-row' />
-                </a-popconfirm>
-              </div>
-            </template>
           </td>
+
+          <template v-if='mode === tableMode.Edit'>
+            <div class='add-more-header'>
+              <a-popconfirm
+                :title="'Delete this line ?'"
+                class='rubric-delete-popconfirm'
+                ok-text='Yes'
+                @confirm='handleDeleteLine(item)'
+                cancel-text='No'>
+                <template slot='icon'>
+                  <div class='rubric-big-delete'>
+                    <img class='big-delete-icon' src='~@/assets/icons/evaluation/big_delete.png' />
+                  </div>
+                </template>
+                <img src='~@/assets/icons/evaluation/delete.png' class='delete-row' />
+              </a-popconfirm>
+            </div>
+          </template>
         </tr>
       </tbody>
     </table>
@@ -1989,8 +1989,7 @@ export default {
 
       .add-more-header {
         cursor: pointer;
-        position: absolute;
-        right: -30px;
+        margin-right: -35px;
         font-size: 20px;
         color: @primary-color;
         width: 20px;
@@ -1998,7 +1997,6 @@ export default {
         display: flex;
         align-items: center;
         justify-content: center;
-        top: 5px;
       }
     }
 
@@ -2006,6 +2004,7 @@ export default {
       border-left: 1px solid rgba(216, 216, 216, 1);
 
       .body-line {
+        height: 100%;
         .body-item {
           position: relative;
           max-width: 300px;
@@ -2172,20 +2171,19 @@ export default {
 
         .add-more-header {
           cursor: pointer;
-          position: absolute;
-          right: -30px;
-          font-size: 16px;
-          color: #ccc;
-          width: 25px;
-          height: 25px;
+          margin-right: -35px;
+          font-size: 20px;
+          color: @primary-color;
+          width: 20px;
+          display: flex;
           align-items: center;
           justify-content: center;
-          top: 50%;
-          margin-top: -15px;
 
           img.delete-row {
+            margin-top: 10px;
+            padding-left: 10px;
             display: none;
-            width: 30px;
+            width: 40px;
           }
         }
 
