@@ -265,12 +265,10 @@ export default {
         logger.info('FindMyClasses', response.result.data)
         if (response.success) {
           if (this.pageSize) {
-            this.data = this.data.concat(response.result)
-          } else {
-            this.data = response.result
+            this.data = response.result.classList
           }
         }
-        this.total = response.result.length
+        this.total = response.result.classList.length
         logger.info(' data', this.data)
         this.loading = false
       })
