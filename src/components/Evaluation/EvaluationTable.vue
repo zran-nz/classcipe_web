@@ -13,11 +13,14 @@
           <th
             v-for='(header, hIndex) in headers'
             :class="{'header-item': true, 'preview-mode': formTableMode === tableMode.Preview, 'min-header-width': [
-              headerType.Novice,
-              headerType.Learner,
-              headerType.Practitoner,
-              headerType.Expert,
-            ].indexOf(header.type) !== -1}"
+                       headerType.AchievementLevel,
+                     ].indexOf(header.type) !== -1,
+                     'criteria-header-width': [
+                       headerType.Criteria,
+                     ].indexOf(header.type) !== -1, 'medium-header-width' : [
+                       headerType.Description
+                     ].indexOf(header.type) !== -1 && formType !== tableType.Rubric
+            }"
             :key='header.type'
             :data-header="JSON.stringify(header)"
             :data-header-type='header.type'
@@ -271,7 +274,7 @@
                             {{ item[headerType.Description].userInputText ? item[headerType.Description].userInputText : item[headerType.Description].name
                             }}
                           </div>
-                          <span class='edit-description' @click.stop='handleClickEnterCriteriaDescription(header, item)'>
+                          <span class='edit-description' @click.stop='handleClickEnterCriteriaDescription(header, item)' v-if='mode === tableMode.Edit'>
                             Please enter explanation for students to understand
                           </span>
                         </div>
@@ -283,17 +286,6 @@
             </template>
 
             <template v-if='mode === tableMode.Edit'>
-              <!-- Indicators-->
-              <template v-if='header.type === headerType.Indicators'>
-                <div class='my-indicator-input'>
-                  <a-textarea
-                    style='height: 100%'
-                    placeholder='Enter task specific indicators'
-                    class='my-text-input'
-                    v-model='item[headerType.Indicators].name'
-                    @blur='handleUpdateField(header, item)' />
-                </div>
-              </template>
               <template v-if='header.type === headerType.Novice'>
                 <div class='indicator-input'>
                   <a-textarea
@@ -338,7 +330,7 @@
                 <div class='comment-indicator-input'>
                   <a-textarea
                     style='height: 100%'
-                    placeholder='Please enter explanation for students to understand'
+                    placeholder=''
                     class='my-text-input'
                     v-model='item[headerType.Comment].name'
                     @blur='handleUpdateField(header, item)' />
@@ -433,6 +425,7 @@
                   v-if='formBodyData && formBodyData[item.rowId] && formBodyData[item.rowId].peerEvaluation === header.type && (currentEvaluateMode === tableMode.TeacherEvaluate || currentEvaluateMode === tableMode.PeerEvaluate)' />
               </div>
             </template>
+
             <!-- LevelDescriptor-->
             <template v-if='header.type === headerType.LevelDescriptor'>
               <div class='sub-level-data' @click.stop=''>
@@ -460,19 +453,54 @@
               </div>
             </template>
 
+            <!-- Indicators-->
+            <template v-if='header.type === headerType.Indicators && mode === tableMode.Edit'>
+              <div class='sub-level-data' @click.stop=''>
+                <div class='sub-level-indicator'>
+                  <div
+                    class='sub-level-indicator-item'
+                    v-for='(subIndicator, sIndex) in item[headerType.Indicators].subLevelIndicators'
+                    :key='sIndex'>
+                    <a-input v-model='subIndicator.indicator' class='my-indicator-input'/>
+                  </div>
+                </div>
+              </div>
+              <div class='selected-icon'>
+                <teacher-icon
+                  v-if='formBodyData && formBodyData[item.rowId] && formBodyData[item.rowId].teacherEvaluation === header.type && (currentEvaluateMode === tableMode.TeacherEvaluate || currentEvaluateMode === tableMode.StudentEvaluate)' />
+                <student-icon
+                  v-if='formBodyData && formBodyData[item.rowId] && formBodyData[item.rowId].studentEvaluation === header.type && (currentEvaluateMode === tableMode.TeacherEvaluate || currentEvaluateMode === tableMode.StudentEvaluate)' />
+                <peer-icon
+                  v-if='formBodyData && formBodyData[item.rowId] && formBodyData[item.rowId].peerEvaluation === header.type && (currentEvaluateMode === tableMode.TeacherEvaluate || currentEvaluateMode === tableMode.PeerEvaluate)' />
+              </div>
+            </template>
+
             <!-- 老师可以看到所有的评估数据，学生自评可以看到自己的和教师的，他评只能看到自己的-->
             <template
               v-if='mode === tableMode.TeacherEvaluate || mode === tableMode.StudentEvaluate || mode === tableMode.PeerEvaluate'>
               <!-- Indicators-->
+              <!-- Indicators-->
               <template v-if='header.type === headerType.Indicators'>
-                <div class='indicator-data'>
-                  {{ item[headerType.Indicators].name }}
+                <div class='sub-level-data' @click.stop=''>
+                  <div class='sub-level-indicator'>
+                    <div
+                      class='sub-level-indicator-item'
+                      v-for='(subIndicator, sIndex) in item[headerType.Indicators].subLevelIndicators'
+                      :key='sIndex'>
+                      <div class='my-indicator-text'>
+                        {{subIndicator && subIndicator.indicator ? subIndicator.indicator : ''}}
+                      </div>
+                    </div>
+                  </div>
                 </div>
-              <!--                <div class="selected-icon" >-->
-              <!--                  <teacher-icon v-if="formBodyData && formBodyData[item.rowId] && formBodyData[item.rowId].teacherEvaluation === header.type && (currentEvaluateMode === tableMode.TeacherEvaluate || currentEvaluateMode === tableMode.StudentEvaluate)"/>-->
-              <!--                  <student-icon v-if="formBodyData && formBodyData[item.rowId] && formBodyData[item.rowId].studentEvaluation === header.type && (currentEvaluateMode === tableMode.TeacherEvaluate || currentEvaluateMode === tableMode.StudentEvaluate)"/>-->
-              <!--                  <peer-icon v-if="formBodyData && formBodyData[item.rowId] && formBodyData[item.rowId].peerEvaluation === header.type && (currentEvaluateMode === tableMode.TeacherEvaluate || currentEvaluateMode === tableMode.PeerEvaluate)"/>-->
-              <!--                </div>-->
+                <div class='selected-icon'>
+                  <teacher-icon
+                    v-if='formBodyData && formBodyData[item.rowId] && formBodyData[item.rowId].teacherEvaluation === header.type && (currentEvaluateMode === tableMode.TeacherEvaluate || currentEvaluateMode === tableMode.StudentEvaluate)' />
+                  <student-icon
+                    v-if='formBodyData && formBodyData[item.rowId] && formBodyData[item.rowId].studentEvaluation === header.type && (currentEvaluateMode === tableMode.TeacherEvaluate || currentEvaluateMode === tableMode.StudentEvaluate)' />
+                  <peer-icon
+                    v-if='formBodyData && formBodyData[item.rowId] && formBodyData[item.rowId].peerEvaluation === header.type && (currentEvaluateMode === tableMode.TeacherEvaluate || currentEvaluateMode === tableMode.PeerEvaluate)' />
+                </div>
               </template>
               <template v-if='header.type === headerType.Novice'>
                 <div class='indicator-data'>
@@ -530,7 +558,7 @@
                 <div class='comment-indicator-input'>
                   <a-textarea
                     style='height: 100%'
-                    placeholder='Please enter explanation for students to understand'
+                    placeholder=''
                     class='my-text-input'
                     v-model='item[headerType.Comment].name'
                     @blur='handleUpdateField(header, item)' />
@@ -572,25 +600,25 @@
                 </template>
               </div>
             </template>
-
-            <template v-if='hIndex === headers.length - 3 && mode === tableMode.Edit'>
-              <div class='add-more-header'>
-                <a-popconfirm
-                  :title="'Delete this line ?'"
-                  class='rubric-delete-popconfirm'
-                  ok-text='Yes'
-                  @confirm='handleDeleteLine(item)'
-                  cancel-text='No'>
-                  <template slot='icon'>
-                    <div class='rubric-big-delete'>
-                      <img class='big-delete-icon' src='~@/assets/icons/evaluation/big_delete.png' />
-                    </div>
-                  </template>
-                  <img src='~@/assets/icons/evaluation/delete.png' class='delete-row' />
-                </a-popconfirm>
-              </div>
-            </template>
           </td>
+
+          <template v-if='mode === tableMode.Edit'>
+            <div class='add-more-header'>
+              <a-popconfirm
+                :title="'Delete this line ?'"
+                class='rubric-delete-popconfirm'
+                ok-text='Yes'
+                @confirm='handleDeleteLine(item)'
+                cancel-text='No'>
+                <template slot='icon'>
+                  <div class='rubric-big-delete'>
+                    <img class='big-delete-icon' src='~@/assets/icons/evaluation/big_delete.png' />
+                  </div>
+                </template>
+                <img src='~@/assets/icons/evaluation/delete.png' class='delete-row' />
+              </a-popconfirm>
+            </div>
+          </template>
         </tr>
       </tbody>
     </table>
@@ -1245,6 +1273,11 @@ export default {
           subLevelDescription: []
         }
 
+        newLineItem[this.headerType.Indicators] = {
+          rowId,
+          subLevelIndicators: []
+        }
+
         newLineItem[this.headerType.Evidence] = {
           num: 0,
           selectedList: [],
@@ -1529,6 +1562,17 @@ export default {
             subLevelDescription: selectedList[0].subLevelDescription
           }
 
+          const subLevelIndicators = []
+          selectedList[0].subLevelDescription.forEach(item => {
+            subLevelIndicators.push({
+              indicator: ''
+            })
+          })
+          this.currentSelectLine[this.headerType.Indicators] = {
+            rowId: this.currentSelectLine.rowId,
+            subLevelIndicators
+          }
+
           this.$logger.info('[' + this.mode + '] update currentSelectLine with criteria data ', this.currentSelectLine)
 
           // 如果多选，从第二个元素开始新建行填充数据
@@ -1552,6 +1596,17 @@ export default {
                   name: descriptionItem.name,
                   rowId,
                   subLevelDescription: descriptionItem.subLevelDescription
+                }
+
+                const subLevelIndicators = []
+                selectedList[0].subLevelDescription.forEach(item => {
+                  subLevelIndicators.push({
+                    indicator: ''
+                  })
+                })
+                this.currentSelectLine[this.headerType.Indicators] = {
+                  rowId,
+                  subLevelIndicators
                 }
 
                 newLineItem[this.headerType.Evidence] = {
@@ -1989,8 +2044,7 @@ export default {
 
       .add-more-header {
         cursor: pointer;
-        position: absolute;
-        right: -30px;
+        margin-right: -35px;
         font-size: 20px;
         color: @primary-color;
         width: 20px;
@@ -1998,7 +2052,6 @@ export default {
         display: flex;
         align-items: center;
         justify-content: center;
-        top: 5px;
       }
     }
 
@@ -2006,6 +2059,7 @@ export default {
       border-left: 1px solid rgba(216, 216, 216, 1);
 
       .body-line {
+        height: 100%;
         .body-item {
           position: relative;
           max-width: 300px;
@@ -2172,20 +2226,19 @@ export default {
 
         .add-more-header {
           cursor: pointer;
-          position: absolute;
-          right: -30px;
-          font-size: 16px;
-          color: #ccc;
-          width: 25px;
-          height: 25px;
+          margin-right: -35px;
+          font-size: 20px;
+          color: @primary-color;
+          width: 20px;
+          display: flex;
           align-items: center;
           justify-content: center;
-          top: 50%;
-          margin-top: -15px;
 
           img.delete-row {
+            margin-top: 10px;
+            padding-left: 10px;
             display: none;
-            width: 30px;
+            width: 40px;
           }
         }
 
@@ -2364,7 +2417,15 @@ export default {
 }
 
 .min-header-width {
-  width: 100px;
+  width: 150px;
+}
+
+.criteria-header-width {
+  width: 250px;
+}
+
+.medium-header-width {
+  width: 400px;
 }
 
 .sub-level-list {
@@ -2419,6 +2480,7 @@ export default {
     text-overflow: ellipsis;
     vertical-align: middle;
     align-items: center;
+    width: 100%;
     height: 40px;
     line-height: 40px;
     border-bottom: 1px solid #D8D8D8;
@@ -2482,4 +2544,20 @@ export default {
   }
 }
 
+.sub-level-indicator-item {
+  height: 40px;
+
+  .my-indicator-input {
+    border-top: none;
+    border-left: none;
+    border-right: none;
+  }
+
+  .my-indicator-text {
+    height: 40px;
+    line-height: 40px;
+    border-bottom: 1px solid #D8D8D8;
+    padding: 0 5px;
+  }
+}
 </style>

@@ -175,7 +175,7 @@
         destroyOnClose
         :dialog-style="{ top: '30px' }"
         width="1150px"
-        title="Take away"
+        title="Takeaways"
         @ok="takeAwayPreviewVisible = false"
         @cancel="takeAwayPreviewVisible = false">
         <div class="view-take-away">
