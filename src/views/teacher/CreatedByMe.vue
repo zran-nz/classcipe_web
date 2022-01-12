@@ -339,7 +339,6 @@
         :title="null"
         :closable="false"
         destroyOnClose
-        :dialog-style="{ top: '30px' }"
         width="1100px">
         <modal-header title="Previous session" @close="viewPreviewSessionVisible = false" :white="true"/>
         <div class="preview-session-wrapper">
@@ -725,7 +724,7 @@ export default {
           copy_from: item.copyFromSlide,
           revision_id: this.lastedRevisionId ? this.lastedRevisionId : item.revisionId,
           file_name: item.name ? item.name : 'Unnamed',
-          status: this.sessionMode === 1 ? lessonStatus.live : lessonStatus.studentPaced,
+          status: this.sessionMode === 1 ? lessonStatus.teacherPaced : lessonStatus.studentPaced,
           redirect_url: null
         }
 

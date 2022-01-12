@@ -193,7 +193,7 @@ export const asyncRouterMap = [
             name: 'ClassEvaluation',
             props: true,
             component: () => import('@/views/teacher/ClassSessionEvaluation'),
-            meta: { title: 'session evaluate', keepAlive: true, permission: ['expert', 'teacher'] }
+            meta: { title: 'Session evaluate', keepAlive: true, permission: ['expert', 'teacher'] }
           }
           // {
           //   path: '/teacher/unit-plan-material-redirect/:unitPlanId/:materialId',

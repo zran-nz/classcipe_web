@@ -152,6 +152,12 @@ const user = {
           storage.set(IS_ADD_PREFERENCE, result.isAddPreference)
           storage.set(USER_INFO, result)
           window.sessionStorage.setItem(SESSION_ACTIVE_KEY, storage.get(ACCESS_TOKEN))
+          // 交换最新的后台token
+          if (storage.get(ACCESS_TOKEN) !== result.token) {
+            storage.set(ACCESS_TOKEN, result.token, 7 * 24 * 60 * 60 * 1000)
+            commit('SET_TOKEN', result.token)
+            window.sessionStorage.setItem(SESSION_ACTIVE_KEY, result.token)
+          }
           resolve(response)
         }).catch(error => {
           reject(error)

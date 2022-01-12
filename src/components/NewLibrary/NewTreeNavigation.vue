@@ -5,7 +5,8 @@
       :grade-list="gradeList"
       :tree-item-data="treeItemData"
       :tree-current-parent="null"
-      :default-grade-id="treeItemData.hasOwnProperty('defaultGradeId') ? treeItemData.defaultGradeId : null"
+      :default-grade-id="defaultGradeId"
+      :default-background-color="treeItemData.backgroundColor"
       :default-deep="0"
       :class="{
         'browser-hide-menu': showMenu.indexOf(treeItemData.type) === -1,
@@ -31,7 +32,7 @@
       :tree-item-type="treeItemData.type"
       :root-type="treeItemData.type"
       :data-item-type="treeItemData.type"
-      :data-default-grade-id="treeItemData.hasOwnProperty('defaultGradeId') ? treeItemData.defaultGradeId : null"
+      :data-default-grade-id="defaultGradeId"
       :odd="index % 2 === 1"
       v-for="(treeItemData, index) in treeDataList"
       :key="index" />
@@ -84,7 +85,7 @@ export default {
       type: String,
       default: null
     },
-    learningOutcomeGradeId: {
+    defaultGradeId: {
       type: String,
       default: null
     }
@@ -126,7 +127,7 @@ export default {
         type: NavigationType.learningOutcomes,
         name: skillCategory.length === 3 ? skillCategory[0] : 'Curriculum',
         children: [],
-        defaultGradeId: this.learningOutcomeGradeId,
+        defaultGradeId: this.defaultGradeId,
         parent: null,
         sort: 2,
         backgroundColor: '#B1D1CC'
@@ -136,6 +137,7 @@ export default {
         type: NavigationType.sdg,
         name: 'Big ideas',
         children: [],
+        defaultGradeId: this.defaultGradeId,
         parent: null,
         sort: 2,
         backgroundColor: 'fade(@primary-color, 10%)'
@@ -145,6 +147,7 @@ export default {
         type: NavigationType.sync,
         name: 'Sync assessment objectives with linked content',
         children: [],
+        defaultGradeId: this.defaultGradeId,
         parent: null,
         sort: 2,
         backgroundColor: 'rgba(19, 194, 194, 0.2)'
@@ -155,6 +158,7 @@ export default {
         type: NavigationType.all21Century,
         name: 'all21Century',
         children: [],
+        defaultGradeId: this.defaultGradeId,
         parent: null,
         sort: 2,
         backgroundColor: '#D7E0E9'
@@ -227,6 +231,7 @@ export default {
             type: NavigationType.specificSkills,
             name: skillCategory[1],
             children: [],
+            defaultGradeId: this.defaultGradeId,
             parent: null,
             sort: 0,
             backgroundColor: '#ffecd2'
@@ -249,6 +254,7 @@ export default {
               type: NavigationType.idu,
               name: 'Integrated Subject Skill',
               children: [],
+              defaultGradeId: this.defaultGradeId,
               gradeList: [],
               parent: null,
               sort: 1,
@@ -289,6 +295,7 @@ export default {
             name: skillCategory[2],
             children: [],
             gradeList: [],
+            defaultGradeId: this.defaultGradeId,
             parent: null,
             sort: 2,
             backgroundColor: '#D7E0E9'
@@ -313,6 +320,7 @@ export default {
               type: NavigationType.NZKeyCompetencies,
               name: 'NZ-Key competencies',
               children: [],
+              defaultGradeId: this.defaultGradeId,
               gradeList: [],
               parent: null,
               backgroundColor: 'rgba(83, 196, 28, 0.2)'
@@ -333,6 +341,7 @@ export default {
               type: NavigationType.AUGeneralCapabilities,
               name: 'AU-General capabilities',
               children: [],
+              defaultGradeId: this.defaultGradeId,
               gradeList: [],
               parent: null,
               sort: 2,
