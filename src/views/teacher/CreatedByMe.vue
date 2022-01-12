@@ -23,6 +23,17 @@
       </div>
 
       <div class="type-owner">
+        <div class="my-search">
+          <a-input-search
+            placeholder="Search"
+            v-model="searchText"
+            @search="triggerSearch"
+            @pressEnter="triggerSearch"
+            :allowClear="true"
+            size="large"
+          >
+          </a-input-search>
+        </div>
         <div class="filter-icon" @click="showFilter = !showFilter">
           <div class="filter-item">
             <filter-icon class="filter-icon" />
@@ -544,15 +555,13 @@ export default {
       filterActivityOptions: [],
       showFilter: false,
       filterParams: {},
-      lastedRevisionId: ''
+      lastedRevisionId: '',
+      searchText: ''
     }
   },
   locomputed: {
   },
   watch: {
-    '$route' (val) {
-      this.loadMyContent()
-    }
   },
   created () {
     logger.info('teacher my content')
@@ -574,7 +583,7 @@ export default {
         types: this.currentType === 'all-type' || this.currentType === 'Collabrated' ? [] : [typeMap[this.currentType]],
         pageNo: this.pageNo,
         pageSize: this.pagination.pageSize,
-        searchKey: this.$route.query.searchKey ? this.$route.query.searchKey : '',
+        searchKey: this.searchText ? this.searchText : '',
         delFlag: this.currentStatus === 'archived' ? 1 : 0
       }
       if (this.filterParams) {
@@ -721,7 +730,6 @@ export default {
         const requestData = {
           author: this.$store.getters.email,
           slide_id: item.presentationId,
-          copy_from: item.copyFromSlide,
           revision_id: this.lastedRevisionId ? this.lastedRevisionId : item.revisionId,
           file_name: item.name ? item.name : 'Unnamed',
           status: this.sessionMode === 1 ? lessonStatus.teacherPaced : lessonStatus.studentPaced,
@@ -857,12 +865,8 @@ export default {
         }).then(response => {
           this.$logger.info('TemplatesGetPresentation response', response)
           if (response.message.indexOf('Google access_token Forbidden') > -1) {
-            this.$router.push({ path: '/user/login' })
-          } else if (!response.success && response.code === 403) {
-            // forbid情况也强制登录
-            this.$message.error('Task:' + this.myContentList[index].name +
-              ' presentationId: ' + this.myContentList[index].presentationId + ' has no permisson!')
-            this.$router.push({ path: '/user/login' })
+            // 更新task?
+            // this.$router.push({ path: '/user/login' })
           }
         })
       }
@@ -926,6 +930,10 @@ export default {
       }).finally(() => {
         this.loadMyContent()
       })
+    },
+    triggerSearch() {
+      this.$logger.info('triggerSearch', this.searchText)
+      this.loadMyContent()
     }
   }
 }
@@ -1038,6 +1046,15 @@ export default {
       display: flex;
       flex-direction: row;
       align-items: center;
+    }
+    .my-search{
+      margin-right: 10px;
+      border-radius:6px;
+      width: 200px;
+      /deep/ .ant-input{
+        border-radius:6px;
+        height: 40px;
+      }
     }
 
     .filter-icon {
