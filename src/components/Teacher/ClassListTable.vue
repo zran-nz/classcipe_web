@@ -83,7 +83,7 @@
                         <take-away-icon />
                       </div>
                       <div class="class-action-name">
-                        Take away
+                        Takeaways
                       </div>
                     </div>
                     <div class="class-more-item" @click="handleReviewEditEvaluation(record)">
