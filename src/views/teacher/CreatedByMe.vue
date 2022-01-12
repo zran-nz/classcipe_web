@@ -543,7 +543,8 @@ export default {
       filterFaOptions: [],
       filterActivityOptions: [],
       showFilter: false,
-      filterParams: {}
+      filterParams: {},
+      lastedRevisionId: ''
     }
   },
   locomputed: {
@@ -721,7 +722,7 @@ export default {
           author: this.$store.getters.email,
           slide_id: item.presentationId,
           copy_from: item.copyFromSlide,
-          revision_id: item.revisionId,
+          revision_id: this.lastedRevisionId ? this.lastedRevisionId : item.revisionId,
           file_name: item.name ? item.name : 'Unnamed',
           status: this.sessionMode === 1 ? lessonStatus.teacherPaced : lessonStatus.studentPaced,
           redirect_url: null
@@ -766,36 +767,6 @@ export default {
       }
     },
 
-    handleDashboard (item) {
-      this.$logger.info('handleDashboard', item)
-      if (item.presentationId) {
-        const requestData = {
-          author: this.$store.getters.email,
-          slide_id: item.presentationId,
-          file_name: item.name ? item.name : 'Unnamed',
-          status: lessonStatus.studentPaced,
-          redirect_url: null
-        }
-
-        this.$logger.info('handleDashboard', requestData)
-        StartLesson(requestData).then(res => {
-          this.$logger.info('StartLesson res', res)
-          if (res.code === 'ok') {
-            // const targetUrl = lessonHost + 'slide_id=' + item.presentationId + '&class_id=' + res.data.class_id + '&direct=true&currentPage=0&type=dashboard'
-            const targetUrl = lessonHost + 'd/' + res.data.class_id
-            this.$logger.info('try open ' + targetUrl)
-            // window.open(targetUrl, '_blank')
-            // 课堂那边需要点击返回回到表单，改成location.href跳转
-            window.location.href = targetUrl
-          } else {
-            this.$message.warn('StartLesson Failed! ' + res.message)
-          }
-        })
-      } else {
-        this.$message.warn('This record is not bound to PPT!')
-      }
-    },
-
     handleViewPreviewSession (item) {
       this.$logger.info('handleViewPreviewSession', item)
       this.currentPreviewLesson = item
@@ -819,7 +790,8 @@ export default {
       FindMyClasses({ slideId: item.presentationId, lastVersion: true }).then(response => {
         logger.info('findMyClasses', response.result.data)
         if (response.success) {
-          this.sessionList = response.result
+          this.sessionList = response.result.classList
+          this.lastedRevisionId = response.result.revisionId
         }
         this.loading = false
       }).finally(() => {
