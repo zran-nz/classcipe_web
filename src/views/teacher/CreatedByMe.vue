@@ -866,7 +866,7 @@ export default {
           this.$logger.info('TemplatesGetPresentation response', response)
           if (response.message.indexOf('Google access_token Forbidden') > -1) {
             // 更新task?
-            // this.$router.push({ path: '/user/login' })
+            this.$router.push({ path: '/user/login' })
           }
         })
       }
