@@ -124,6 +124,9 @@ export default {
     changeNeedPassword() {
       this.$logger.info('changeNeedPassword ' + !this.shareContent.needPassword)
       this.shareContent.needPassword = !this.shareContent.needPassword
+      if(!this.shareContent.password) {
+        this.refreshPassword()
+      }
       this.updateContentShare()
     },
 
