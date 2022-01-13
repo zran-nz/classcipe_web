@@ -148,11 +148,23 @@
 
                   <a-step title="Edit task slides" :status="currentActiveStepIndex === 1 ? 'process':'wait'" id="templateSelected">
                     <template v-if="currentActiveStepIndex === 1" slot="description">
-                      <div class="edit-in-slide" v-if="!form.fileDeleted">
-                        <a-button class="action-ensure action-item edit-slide" type="primary" shape="round" @click="handleShowSelectMyContent" style="margin-right: 10px">
+                      <div class="edit-in-slide">
+                        <a-button
+                          v-if="!form.fileDeleted"
+                          class="action-ensure action-item edit-slide"
+                          type="primary"
+                          shape="round"
+                          @click="handleShowSelectMyContent"
+                          style="margin-right: 10px">
                           Select slide(s)
                         </a-button>
-                        <a-button class="action-ensure action-item edit-slide" :loading="creating" type="primary" shape="round" @click="handleEditGoogleSlide()">
+                        <a-button
+                          v-if="!form.fileDeleted"
+                          class="action-ensure action-item edit-slide"
+                          :loading="creating"
+                          type="primary"
+                          shape="round"
+                          @click="handleEditGoogleSlide()">
                           Edit google slide(s)
                         </a-button>
                         <a-tooltip placement="top" title="Select slide(s) on/off">
