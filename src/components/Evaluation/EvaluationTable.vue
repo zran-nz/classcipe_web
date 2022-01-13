@@ -488,7 +488,7 @@
                       v-for='(subIndicator, sIndex) in item[headerType.Indicators].subLevelIndicators'
                       :key='sIndex'>
                       <div class='my-indicator-text'>
-                        {{subIndicator && subIndicator.indicator ? subIndicator.indicator : ''}}
+                        {{ subIndicator && subIndicator.indicator ? subIndicator.indicator : ''}}
                       </div>
                     </div>
                   </div>
