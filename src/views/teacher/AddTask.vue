@@ -4,6 +4,7 @@
       <common-form-header
         ref='commonFormHeader'
         :form='form'
+        :share-status='shareStatus'
         :collaborate='collaborate'
         :last-change-saved-time='lastChangeSavedTime'
         @view-collaborate='handleViewCollaborate'
@@ -17,20 +18,29 @@
     <a-card :bordered='false' :bodyStyle="{ padding: '16px 24px 40px 24px', height: '100%', minHeight: '1000px' }">
       <a-row class='unit-content' v-if='!contentLoading'>
         <a-col span='24' class='main-content'>
-          <a-card :bordered='false' :body-style="{padding: '16px', display: 'flex', 'justify-content': 'space-between'}"
-                  class='card-wrapper'>
-            <div class='task-form-left root-locate-form' ref='form' @click='focusInput($event)'
-                 :style="{'width':leftWidth + 'px'}">
+          <a-card
+            :bordered='false'
+            :body-style="{padding: '16px', display: 'flex', 'justify-content': 'space-between'}"
+            class='card-wrapper'>
+            <div
+              class='task-form-left root-locate-form'
+              ref='form'
+              @click='focusInput($event)'
+              :style="{'width':leftWidth + 'px'}">
               <a-form-model :model='form' class='my-form-wrapper'>
                 <a-steps :current='currentActiveStepIndex' direction='vertical' @change='onChangeStep'>
-                  <a-step class='step-1' title='Edit Task Info'
-                          :status="currentActiveStepIndex === 0 ? 'process':'wait'">
+                  <a-step
+                    class='step-1'
+                    title='Edit Task Info'
+                    :status="currentActiveStepIndex === 0 ? 'process':'wait'">
                     <template v-if='currentActiveStepIndex === 0' slot='description'>
 
                       <div class='form-block'>
-                        <comment-switch field-name='name'
-                                        :is-active="showCollaborateCommentVisible && currentFieldName === 'name'"
-                                        @switch='handleSwitchComment' class='my-comment-switch' />
+                        <comment-switch
+                          field-name='name'
+                          :is-active="showCollaborateCommentVisible && currentFieldName === 'name'"
+                          @switch='handleSwitchComment'
+                          class='my-comment-switch' />
                         <a-form-item label='Task name'>
                           <a-input v-model='form.name' placeholder='Enter Task Name' class='my-form-input' />
                         </a-form-item>
@@ -39,51 +49,66 @@
                       <div class='form-block grade-time'>
                         <!--   <comment-switch field-name="name" :is-active="showCollaborateCommentVisible && currentFieldName === 'name'" @switch="handleSwitchComment" class="my-comment-switch"/>-->
                         <a-form-item label='Grade level' style='width:26%;margin-bottom: 0px;'>
-                          <a-select size='large' v-model='form.gradeId' class='my-big-select'
-                                    placeholder='Select a grade'>
+                          <a-select
+                            size='large'
+                            v-model='form.gradeId'
+                            class='my-big-select'
+                            placeholder='Select a grade'>
                             <a-select-option v-for='(grade,index) in gradeList' :value='grade.id' :key='index'>
                               {{ grade.name }}
                             </a-select-option>
                           </a-select>
                         </a-form-item>
-                        <a-form-item class='range-time' label='Start Date'
-                                     style='width:70%;margin-bottom: 0px;position:relative'>
+                        <a-form-item
+                          class='range-time'
+                          label='Start Date'
+                          style='width:70%;margin-bottom: 0px;position:relative'>
                           <div class='week-time' v-if='getWeek'>
                             <a-tag color='cyan' style='border-radius: 10px;font-size: 14px;'>
                               {{ getWeek }}
                             </a-tag>
                           </div>
-                          <a-range-picker v-model='rangeDate' size='large' format='LLL' :show-time="{ format: 'HH:mm' }"
-                                          style='width:100%'>
+                          <a-range-picker
+                            v-model='rangeDate'
+                            size='large'
+                            format='LLL'
+                            :show-time="{ format: 'HH:mm' }"
+                            style='width:100%'>
                             <a-icon slot='suffixIcon' type='calendar' />
                           </a-range-picker>
                         </a-form-item>
                       </div>
 
                       <div class='form-block over-form-block' id='overview'>
-                        <comment-switch field-name='overview'
-                                        :is-active="showCollaborateCommentVisible && currentFieldName === 'overview'"
-                                        @switch='handleSwitchComment' class='my-comment-switch' />
+                        <comment-switch
+                          field-name='overview'
+                          :is-active="showCollaborateCommentVisible && currentFieldName === 'overview'"
+                          @switch='handleSwitchComment'
+                          class='my-comment-switch' />
                         <a-form-model-item class='task-audio-line' label='Task details' ref='overview'>
                           <a-textarea autoSize v-model='form.overview' placeholder='Details' allow-clear />
                         </a-form-model-item>
                       </div>
 
                       <div class='form-block taskType'>
-                        <comment-switch field-name='taskType'
-                                        :is-active="showCollaborateCommentVisible && currentFieldName === 'taskType'"
-                                        @switch='handleSwitchComment' class='my-comment-switch' />
+                        <comment-switch
+                          field-name='taskType'
+                          :is-active="showCollaborateCommentVisible && currentFieldName === 'taskType'"
+                          @switch='handleSwitchComment'
+                          class='my-comment-switch' />
                         <a-form-model-item class='task-audio-line' ref='taskType' :colon='false'>
                           <div slot='label'>
                             Choose Task Type(<span style='font-size: 13px'>Formative Assessment/ Summative Assessment/ Activity</span>):
                           </div>
                           <div class='self-type-wrapper'>
                             <div class='self-field-label'>
-                              <div :class="{'task-type-item': true, 'green-active-task-type': form.taskType === 'FA'}"
-                                   @click.stop.prevent="handleSelectTaskType('FA')">FA
+                              <div
+                                :class="{'task-type-item': true, 'green-active-task-type': form.taskType === 'FA'}"
+                                @click.stop.prevent="handleSelectTaskType('FA')">FA
                               </div>
-                              <div :class="{'task-type-item': true, 'red-active-task-type': form.taskType === 'SA'}"
-                                   @click.stop.prevent="handleSelectTaskType('SA')">SA
+                              <div
+                                :class="{'task-type-item': true, 'red-active-task-type': form.taskType === 'SA'}"
+                                @click.stop.prevent="handleSelectTaskType('SA')">SA
                               </div>
                               <div
                                 :class="{'task-type-item': true, 'task-type-activity': true,'blue-active-task-type': form.taskType === 'Activity'}"
@@ -96,9 +121,11 @@
                       </div>
 
                       <div class='form-block form-question' v-if='associateQuestionList.length > 0'>
-                        <comment-switch field-name='questions'
-                                        :is-active="showCollaborateCommentVisible && currentFieldName === 'questions'"
-                                        @switch='handleSwitchComment' class='my-comment-switch' />
+                        <comment-switch
+                          field-name='questions'
+                          :is-active="showCollaborateCommentVisible && currentFieldName === 'questions'"
+                          @switch='handleSwitchComment'
+                          class='my-comment-switch' />
                         <a-form-model-item label='Choose Key questions'>
                           <a-select
                             size='large'
@@ -108,8 +135,11 @@
                             placeholder='Choose Key questions'
                             option-label-prop='label'
                           >
-                            <a-select-option v-for='(item,index) in associateQuestionList' :value='item.id'
-                                             :label='item.name' :key='index'>
+                            <a-select-option
+                              v-for='(item,index) in associateQuestionList'
+                              :value='item.id'
+                              :label='item.name'
+                              :key='index'>
                               <span class='question-options'>
                                 {{ item.name }}
                               </span>
@@ -120,9 +150,11 @@
                       </div>
 
                       <div class='form-block'>
-                        <comment-switch field-name='assessment'
-                                        :is-active="showCollaborateCommentVisible && currentFieldName === 'assessment'"
-                                        @switch='handleSwitchComment' class='my-comment-switch' />
+                        <comment-switch
+                          field-name='assessment'
+                          :is-active="showCollaborateCommentVisible && currentFieldName === 'assessment'"
+                          @switch='handleSwitchComment'
+                          class='my-comment-switch' />
                         <a-form-item label='Set learning objectives'>
                           <a-button type='primary' @click='handleSelectDescription'>
                             <div class='btn-text' style='line-height: 20px'>
@@ -132,8 +164,10 @@
                         </a-form-item>
 
                         <!--knowledge tag-select -->
-                        <ui-learn-out ref='learnOut' :learn-outs='form.learnOuts'
-                                      @remove-learn-outs='handleRemoveLearnOuts' />
+                        <ui-learn-out
+                          ref='learnOut'
+                          :learn-outs='form.learnOuts'
+                          @remove-learn-outs='handleRemoveLearnOuts' />
                       </div>
 
                       <div class='form-block' style='clear: both'>
@@ -148,8 +182,10 @@
                             :key='mIndex'>
                             <a-row :gutter='[16,16]'>
                               <a-col span='8'>
-                                <a-input v-model='materialItem.name' aria-placeholder='Enter material name'
-                                         placeholder='Enter material name' />
+                                <a-input
+                                  v-model='materialItem.name'
+                                  aria-placeholder='Enter material name'
+                                  placeholder='Enter material name' />
                               </a-col>
                               <a-col span='14'>
                                 <a-tooltip placement='topLeft'>
@@ -157,19 +193,26 @@
                                     The link is provided to help other users or students prepare(purchase) the material
                                     for this task
                                   </template>
-                                  <a-input v-model='materialItem.link' aria-placeholder='Enter URL'
-                                           placeholder='Enter URL'>
+                                  <a-input
+                                    v-model='materialItem.link'
+                                    aria-placeholder='Enter URL'
+                                    placeholder='Enter URL'>
                                     <a-icon slot='prefix' type='link' />
                                   </a-input>
                                 </a-tooltip>
                               </a-col>
                               <a-col span='2'>
                                 <div class='material-icon'>
-                                  <a-icon type='plus-circle' :style="{ fontSize: '16px' }"
-                                          v-if='mIndex === (form.materialList.length - 1)' @click='handleAddMaterial' />
-                                  <img src='~@/assets/icons/evaluation/delete.png'
-                                       v-if='mIndex < (form.materialList.length - 1)' class='delete-icon'
-                                       @click='handleRemoveMaterialItem(materialItem, mIndex)' />
+                                  <a-icon
+                                    type='plus-circle'
+                                    :style="{ fontSize: '16px' }"
+                                    v-if='mIndex === (form.materialList.length - 1)'
+                                    @click='handleAddMaterial' />
+                                  <img
+                                    src='~@/assets/icons/evaluation/delete.png'
+                                    v-if='mIndex < (form.materialList.length - 1)'
+                                    class='delete-icon'
+                                    @click='handleRemoveMaterialItem(materialItem, mIndex)' />
                                 </div>
                               </a-col>
                             </a-row>
@@ -180,16 +223,26 @@
                     </template>
                   </a-step>
 
-                  <a-step title='Edit task slides' :status="currentActiveStepIndex === 1 ? 'process':'wait'"
-                          id='templateSelected'>
+                  <a-step
+                    title='Edit task slides'
+                    :status="currentActiveStepIndex === 1 ? 'process':'wait'"
+                    id='templateSelected'>
                     <template v-if='currentActiveStepIndex === 1' slot='description'>
                       <div class='edit-in-slide' v-if='!form.fileDeleted'>
-                        <a-button class='action-ensure action-item edit-slide' type='primary' shape='round'
-                                  @click='handleShowSelectMyContent' style='margin-right: 10px'>
+                        <a-button
+                          class='action-ensure action-item edit-slide'
+                          type='primary'
+                          shape='round'
+                          @click='handleShowSelectMyContent'
+                          style='margin-right: 10px'>
                           Select slide(s)
                         </a-button>
-                        <a-button class='action-ensure action-item edit-slide' :loading='creating' type='primary'
-                                  shape='round' @click='handleEditGoogleSlide()'>
+                        <a-button
+                          class='action-ensure action-item edit-slide'
+                          :loading='creating'
+                          type='primary'
+                          shape='round'
+                          @click='handleEditGoogleSlide()'>
                           Edit google slide(s)
                         </a-button>
                         <a-tooltip placement='top' title='Select slide(s) on/off'>
@@ -205,36 +258,41 @@
                       <div class='top-icon-groups' v-if='!form.fileDeleted && !form.showSelected'>
                         <a-col class='material-row'>
                           <div class='icon-group'>
-                            <a-badge :count="showMaterialSize('text')"
-                                     v-if="currentPageMaterial.hasOwnProperty('text')">
+                            <a-badge
+                              :count="showMaterialSize('text')"
+                              v-if="currentPageMaterial.hasOwnProperty('text')">
                               <div class='icon' @click="showPluginMaterial('text')">
                                 <text-type-svg />
                                 <div class='icon-text'>Text</div>
                               </div>
                             </a-badge>
-                            <a-badge :count="showMaterialSize('image')"
-                                     v-if="currentPageMaterial.hasOwnProperty('image')">
+                            <a-badge
+                              :count="showMaterialSize('image')"
+                              v-if="currentPageMaterial.hasOwnProperty('image')">
                               <div class='icon' @click="showPluginMaterial('image')">
                                 <image-type-svg />
                                 <div class='icon-text'>Image</div>
                               </div>
                             </a-badge>
-                            <a-badge :count="showMaterialSize('video')"
-                                     v-if="currentPageMaterial.hasOwnProperty('video')">
+                            <a-badge
+                              :count="showMaterialSize('video')"
+                              v-if="currentPageMaterial.hasOwnProperty('video')">
                               <div class='icon' @click="showPluginMaterial('video')">
                                 <video-type-svg />
                                 <div class='icon-text'>Video</div>
                               </div>
                             </a-badge>
-                            <a-badge :count="showMaterialSize('audio')"
-                                     v-if="currentPageMaterial.hasOwnProperty('audio')">
+                            <a-badge
+                              :count="showMaterialSize('audio')"
+                              v-if="currentPageMaterial.hasOwnProperty('audio')">
                               <div class='icon' @click="showPluginMaterial('audio')">
                                 <audio-type-svg />
                                 <div class='icon-text'>Audio</div>
                               </div>
                             </a-badge>
-                            <a-badge :count="showMaterialSize('iframe')"
-                                     v-if="currentPageMaterial.hasOwnProperty('iframe')">
+                            <a-badge
+                              :count="showMaterialSize('iframe')"
+                              v-if="currentPageMaterial.hasOwnProperty('iframe')">
                               <div class='icon' @click="showPluginMaterial('iframe')">
                                 <youtube-type-svg />
                                 <div class='icon-text'>Youtube</div>
@@ -246,8 +304,9 @@
                                 <div class='icon-text'>PDF</div>
                               </div>
                             </a-badge>
-                            <a-badge :count="showMaterialSize('website')"
-                                     v-if="currentPageMaterial.hasOwnProperty('website')">
+                            <a-badge
+                              :count="showMaterialSize('website')"
+                              v-if="currentPageMaterial.hasOwnProperty('website')">
                               <div class='icon' @click="showPluginMaterial('website')">
                                 <url-type-svg />
                                 <div class='icon-text'>Website</div>
@@ -258,20 +317,26 @@
                       </div>
                       <div class='template-selected' v-if='form.showSelected'>
                         <div class='template-list' v-if='!templateLoading'>
-                          <div :class="{'template-item': true }" v-for='(template,index) in selectedTemplateList'
-                               :key='index'>
+                          <div
+                            :class="{'template-item': true }"
+                            v-for='(template,index) in selectedTemplateList'
+                            :key='index'>
                             <div class='template-hover-action-mask'>
                               <div class='template-hover-action'>
                                 <div class='modal-ensure-action-line'>
-                                  <a-button class='action-ensure action-item' shape='round'
-                                            @click='handlePreviewTemplate(template)'>
+                                  <a-button
+                                    class='action-ensure action-item'
+                                    shape='round'
+                                    @click='handlePreviewTemplate(template)'>
                                     <a-icon type='eye' theme='filled' />
                                     <div class='btn-text'>
                                       Preview
                                     </div>
                                   </a-button>
-                                  <a-button class='action-ensure action-item' shape='round'
-                                            @click='removeSelectTemplate(template)'>
+                                  <a-button
+                                    class='action-ensure action-item'
+                                    shape='round'
+                                    @click='removeSelectTemplate(template)'>
                                     <a-icon type='minus-circle' theme='filled' />
                                     <div class='btn-text'>
                                       Remove
@@ -280,8 +345,9 @@
                                 </div>
                               </div>
                             </div>
-                            <div class='template-cover'
-                                 :style="{backgroundImage: 'url(' + (template.cover ? template.cover : template.image) + ')'}">
+                            <div
+                              class='template-cover'
+                              :style="{backgroundImage: 'url(' + (template.cover ? template.cover : template.image) + ')'}">
                             </div>
                             <div class='template-info'>
                               <div class='template-name'>{{ template.name }}</div>
@@ -302,8 +368,10 @@
                                 <img
                                   src='https://dcdkqlzgpl5ba.cloudfront.net/file/202111271330492511-Welcome_slide.png' />
                               </div>
-                              <div class='slide-preview' :style="{'width':(leftWidth- 50) + 'px'}"
-                                   v-show='!form.showSelected && form.presentationId && thumbnailList.length'>
+                              <div
+                                class='slide-preview'
+                                :style="{'width':(leftWidth- 50) + 'px'}"
+                                v-show='!form.showSelected && form.presentationId && thumbnailList.length'>
                                 <a-carousel ref='carousel' arrows :after-change='onChangePage'>
                                   <div slot='prevArrow' class='custom-slick-arrow' style='left: 10px;zIndex: 9'>
                                     <a-icon type='left-circle' />
@@ -320,19 +388,23 @@
                                     <span class='tag-item' v-if='currentPageItem.data.bloomLevel'>
                                       <span class='tag-title'>Bloom's Taxonomy:</span>
                                       <span class='tag-value' style='color:#F16A39'>{{ currentPageItem.data.bloomLevel
-                                        }}</span>
+                                      }}</span>
                                     </span>
                                     <span class='tag-item' v-if='currentPageItem.data.knowledgeLevel'>
                                       <span class='tag-title'>Knowledge dimension(s):</span>
-                                      <span class='tag-value'
-                                            style='color:#F16A39'>{{ currentPageItem.data.knowledgeLevel }}</span>
+                                      <span
+                                        class='tag-value'
+                                        style='color:#F16A39'>{{ currentPageItem.data.knowledgeLevel }}</span>
                                     </span>
                                   </a-row>
                                   <a-row class='tag-row'>
                                     <span class='tag-item' v-if='currentPageItem.data.verbs'>
                                       <span class='tag-title'>Command terms:</span>
-                                      <span class='tag-value' v-for='(v,index) in currentPageItem.data.verbs'
-                                            :key='index' style='color:#15C39A'>{{ v }}</span>
+                                      <span
+                                        class='tag-value'
+                                        v-for='(v,index) in currentPageItem.data.verbs'
+                                        :key='index'
+                                        style='color:#15C39A'>{{ v }}</span>
                                     </span>
                                     <span class='tag-item' v-if='currentPageTips'>
                                       <span class='tag-title'>Tip added:</span>
@@ -342,17 +414,21 @@
                                   <a-row class='tag-row'>
                                     <span class='tag-item'>
                                       <span class='tag-title'>Assessment objective(s):</span>
-                                      <span class='tag-value' v-for='(learn,index) in currentPageItem.data.learnOuts'
-                                            :key='index' style='color:#00BCF2'>
-                                        <a-tooltip :title='learn.path'
-                                                   :overlayStyle="{ 'z-index': '3000'}">{{ learn.name }} </a-tooltip>
+                                      <span
+                                        class='tag-value'
+                                        v-for='(learn,index) in currentPageItem.data.learnOuts'
+                                        :key='index'
+                                        style='color:#00BCF2'>
+                                        <a-tooltip
+                                          :title='learn.path'
+                                          :overlayStyle="{ 'z-index': '3000'}">{{ learn.name }} </a-tooltip>
                                       </span>
                                     </span>
                                   </a-row>
                                   <a-row class='tag-row'>
                                     <span class='tag-item'>
                                       <span class='tag-title'>This is a <span>{{ currentPageItem.type
-                                        }}</span> slide</span>
+                                      }}</span> slide</span>
                                     </span>
                                   </a-row>
                                 </div>
@@ -362,8 +438,11 @@
                                 <div class='carousel-page'>
                                   <div class='img-list-wrapper'>
                                     <div class='img-list'>
-                                      <div class='img-item' v-for='(item,index) in thumbnailList' :key="'index' + index"
-                                           @click='handleGotoImgIndex(index)'>
+                                      <div
+                                        class='img-item'
+                                        v-for='(item,index) in thumbnailList'
+                                        :key="'index' + index"
+                                        @click='handleGotoImgIndex(index)'>
                                         <img :src='item.contentUrl' />
                                       </div>
                                     </div>
@@ -377,8 +456,10 @@
                     </template>
                   </a-step>
 
-                  <a-step title='Save sub-task(s)' :status="currentActiveStepIndex === 2 ? 'process':'wait'"
-                          v-show='thumbnailList.length > 1'>
+                  <a-step
+                    title='Save sub-task(s)'
+                    :status="currentActiveStepIndex === 2 ? 'process':'wait'"
+                    v-show='thumbnailList.length > 1'>
                     <div
                       slot='icon'
                       :class="{
@@ -513,16 +594,18 @@
                       <div class='form-block'>
                         <a-form-item class='link-plan-title'>
                           <a-space>
-                            <a-button type='primary'
-                                      :style="{'background-color': '#fff', 'color': '#000', 'border': '1px solid #D8D8D8'}"
-                                      @click='handleAddUnitPlanTerm'>
+                            <a-button
+                              type='primary'
+                              :style="{'background-color': '#fff', 'color': '#000', 'border': '1px solid #D8D8D8'}"
+                              @click='handleAddUnitPlanTerm'>
                               <div class='btn-text' style='line-height: 20px'>
                                 + Link Unit plan
                               </div>
                             </a-button>
-                            <a-button type='primary'
-                                      :style="{'background-color': '#fff', 'color': '#000', 'border': '1px solid #D8D8D8'}"
-                                      @click='handleAddTerm'>
+                            <a-button
+                              type='primary'
+                              :style="{'background-color': '#fff', 'color': '#000', 'border': '1px solid #D8D8D8'}"
+                              @click='handleAddTerm'>
                               <div class='btn-text' style='line-height: 20px'>
                                 + Add rubric
                               </div>
@@ -545,16 +628,19 @@
               <template v-if='currentActiveStepIndex !== 2'>
                 <template v-if='showRightModule(rightModule.collaborate)'>
                   <a-skeleton :loading='showHistoryLoading' active>
-                    <div class='collaborate-panel'
-                         :style="{'width':rightWidth + 'px', 'margin-top': '0px', 'z-index': 100, 'padding': '10px'}">
+                    <div
+                      class='collaborate-panel'
+                      :style="{'width':rightWidth + 'px', 'margin-top': '0px', 'z-index': 100, 'padding': '10px'}">
                       <div class='icon'>
                         <comment-icon />
                       </div>
                       <a-tabs default-active-key='1'>
                         <a-tab-pane key='1' tab='Comment'>
-                          <collaborate-comment-view :source-id='taskId' :source-type='contentType.task'
-                                                    :comment-list='collaborateCommentList'
-                                                    @update-comment='handleUpdateCommentList' />
+                          <collaborate-comment-view
+                            :source-id='taskId'
+                            :source-type='contentType.task'
+                            :comment-list='collaborateCommentList'
+                            @update-comment='handleUpdateCommentList' />
                         </a-tab-pane>
                         <a-tab-pane key='2' tab='History' force-render>
                           <collaborate-history :history-list='historyList' @restore='handleRestoreField' />
@@ -564,12 +650,15 @@
                   </a-skeleton>
                 </template>
                 <template v-if='showRightModule(rightModule.collaborateComment) && currentActiveStepIndex === 0'>
-                  <div class='collaborate-panel'
-                       :style="{'width':rightWidth + 'px', 'margin-top':collaborateTop+'px', 'z-index': 100, 'padding': '10px'}">
-                    <collaborate-comment-panel :source-id='taskId' :source-type='contentType.task'
-                                               :field-name='currentFieldName'
-                                               :comment-list='currentCollaborateCommentList'
-                                               @update-comment='handleUpdateCommentList' />
+                  <div
+                    class='collaborate-panel'
+                    :style="{'width':rightWidth + 'px', 'margin-top':collaborateTop+'px', 'z-index': 100, 'padding': '10px'}">
+                    <collaborate-comment-panel
+                      :source-id='taskId'
+                      :source-type='contentType.task'
+                      :field-name='currentFieldName'
+                      :comment-list='currentCollaborateCommentList'
+                      @update-comment='handleUpdateCommentList' />
                   </div>
                 </template>
                 <template v-if='showRightModule(rightModule.imageUpload) && currentActiveStepIndex !== 1'>
@@ -634,8 +723,10 @@
                   <div class='form-block-right' v-if='!recomendListLoading'>
                     <div class='right-title'>Recommended</div>
                     <div class='slide-preview-list'>
-                      <div class='slide-preview-item' v-for='(template, rIndex) in filterRecommendTemplateList'
-                           :key='rIndex'>
+                      <div
+                        class='slide-preview-item'
+                        v-for='(template, rIndex) in filterRecommendTemplateList'
+                        :key='rIndex'>
                         <div class='template-hover-action-mask'>
                           <div class='template-hover-action'>
                             <div class='modal-ensure-action-line'>
@@ -869,23 +960,31 @@
                       21st Century Skills
                     </a-radio-button>
                   </a-radio-group>
-                  <a-button v-if='showTemplateFilter' type='link' class='clear-all' @click='clearFilter()'
-                            style='float:right;'>
+                  <a-button
+                    v-if='showTemplateFilter'
+                    type='link'
+                    class='clear-all'
+                    @click='clearFilter()'
+                    style='float:right;'>
                     Clear all
                   </a-button>
                 </div>
                 <a-row v-if='filterType == 1 && showTemplateFilter'>
                   <div class='filter-row'>
                     <div class='row-select'>
-                      <div class='sub-select' v-for="(item ,index) in templateFilterCondition(templateType.Learning,'')"
-                           :key='index'>
+                      <div
+                        class='sub-select'
+                        v-for="(item ,index) in templateFilterCondition(templateType.Learning,'')"
+                        :key='index'>
                         <a-row>
                           <h4>{{ item.name }}</h4>
                         </a-row>
                         <div class='sub-items'>
                           <div class='sub-item' v-for='(child,cIndex) in item.children' :key='cIndex'>
-                            <a-checkbox :value='child.id' @change='onChangeCheckBox($event,templateType.Learning,item)'
-                                        :checked='filterLearn.indexOf(child.id) > -1 ? true: false'>
+                            <a-checkbox
+                              :value='child.id'
+                              @change='onChangeCheckBox($event,templateType.Learning,item)'
+                              :checked='filterLearn.indexOf(child.id) > -1 ? true: false'>
                               {{ child.name }}
                             </a-checkbox>
                           </div>
@@ -908,16 +1007,20 @@
                           <div class='row-select row-select-assessments'>
                             <a-col :span='24'>
                               <!--                          <span class="sub-category">Knowledge focus </span>-->
-                              <a-radio-group v-model='item.tooltip' :name='item.name' class='sub-select'
-                                             v-for="(item ,index) in templateFilterCondition(templateType.Assessments,'Knowledge focus')"
-                                             :key='index'>
+                              <a-radio-group
+                                v-model='item.tooltip'
+                                :name='item.name'
+                                class='sub-select'
+                                v-for="(item ,index) in templateFilterCondition(templateType.Assessments,'Knowledge focus')"
+                                :key='index'>
                                 <a-row>
                                   <h4>{{ item.name }}</h4>
                                 </a-row>
                                 <div class='sub-items'>
                                   <div class='sub-item' v-for='(child,cIndex) in item.children' :key='cIndex'>
-                                    <a-radio :value='child.id'
-                                             @change='onChangeCheckBox($event,templateType.Assessments,item)'>
+                                    <a-radio
+                                      :value='child.id'
+                                      @change='onChangeCheckBox($event,templateType.Assessments,item)'>
                                       {{ child.name }}
                                     </a-radio>
                                   </div>
@@ -934,16 +1037,20 @@
                           <div class='row-select row-select-assessments'>
                             <a-col :span='24'>
                               <!--                          <span class="sub-category">Skill focus</span>-->
-                              <a-radio-group v-model='item.tooltip' :name='item.name' class='sub-select'
-                                             v-for="(item ,index) in templateFilterCondition(templateType.Assessments,'Skill focus')"
-                                             :key='index'>
+                              <a-radio-group
+                                v-model='item.tooltip'
+                                :name='item.name'
+                                class='sub-select'
+                                v-for="(item ,index) in templateFilterCondition(templateType.Assessments,'Skill focus')"
+                                :key='index'>
                                 <a-row>
                                   <h4>{{ item.name }}</h4>
                                 </a-row>
                                 <div class='sub-items'>
                                   <div class='sub-item' v-for='(child,cIndex) in item.children' :key='cIndex'>
-                                    <a-radio :value='child.id'
-                                             @change='onChangeCheckBox($event,templateType.Assessments,item)'>
+                                    <a-radio
+                                      :value='child.id'
+                                      @change='onChangeCheckBox($event,templateType.Assessments,item)'>
                                       {{ child.name }}
                                     </a-radio>
                                   </div>
@@ -961,33 +1068,47 @@
                   <div class='filter-row'>
                     <a-row class='row-select'>
                       <a-row>
-                        <a-tabs :activeKey='selectYearTab' @change='handleTabYearChange' tab-position='top' size='small'
-                                :tabBarGutter='1'>
+                        <a-tabs
+                          :activeKey='selectYearTab'
+                          @change='handleTabYearChange'
+                          tab-position='top'
+                          size='small'
+                          :tabBarGutter='1'>
                           <a-tab-pane v-for='(tag) in centuryTagMap' :key='tag[0]' :tab='tag[0]' />
                         </a-tabs>
                       </a-row>
                       <a-col :span='12'>
-                        <a-col class='sub-select' v-if='index < 2' :span='24'
-                               v-for="(item ,index) in templateFilterCondition(templateType.Century,'')" :key='index'>
+                        <a-col
+                          class='sub-select'
+                          v-if='index < 2'
+                          :span='24'
+                          v-for="(item ,index) in templateFilterCondition(templateType.Century,'')"
+                          :key='index'>
                           <a-row>
                             <h4>{{ item.name }}</h4>
                           </a-row>
                           <a-row v-for='(child,cIndex) in item.children' :key='cIndex'>
                             <a-col :span='24' class='first-child'>
-                              <a-checkbox :value='child.id'
-                                          @change='onChangeCheckBox($event,templateType.Century,child)'
-                                          :checked='filterCentury.indexOf(child.id) > -1 ? true: false'>
+                              <a-checkbox
+                                :value='child.id'
+                                @change='onChangeCheckBox($event,templateType.Century,child)'
+                                :checked='filterCentury.indexOf(child.id) > -1 ? true: false'>
                                 {{ child.name }}
                               </a-checkbox>
                               <div class='sub-child'>
-                                <a-row v-if='child.children.length > 0' v-for='(subChild,subIndex) in child.children'
-                                       :key='subIndex'>
+                                <a-row
+                                  v-if='child.children.length > 0'
+                                  v-for='(subChild,subIndex) in child.children'
+                                  :key='subIndex'>
                                   <a-col :span='24' class='sub-child-child'>
-                                    <a-checkbox :value='subChild.id'
-                                                @change='onChangeCheckBox($event,templateType.Century,child)'
-                                                :checked='filterCentury.indexOf(subChild.id) > -1 ? true: false'>
-                                      <a-tooltip placement='right' :overlayStyle="{ 'z-index': '3000'}"
-                                                 :title='filterGradeTips(subChild)'> {{ subChild.name }}
+                                    <a-checkbox
+                                      :value='subChild.id'
+                                      @change='onChangeCheckBox($event,templateType.Century,child)'
+                                      :checked='filterCentury.indexOf(subChild.id) > -1 ? true: false'>
+                                      <a-tooltip
+                                        placement='right'
+                                        :overlayStyle="{ 'z-index': '3000'}"
+                                        :title='filterGradeTips(subChild)'> {{ subChild.name }}
                                       </a-tooltip>
                                     </a-checkbox>
                                   </a-col>
@@ -998,27 +1119,35 @@
                         </a-col>
                       </a-col>
                       <a-col :span='12'>
-                        <a-col class='sub-select' v-if='index >= 2' :span='24'
-                               v-for="(item ,index) in templateFilterCondition(templateType.Century,'')" :key='index'>
+                        <a-col
+                          class='sub-select'
+                          v-if='index >= 2'
+                          :span='24'
+                          v-for="(item ,index) in templateFilterCondition(templateType.Century,'')"
+                          :key='index'>
                           <a-row>
                             <h4>{{ item.name }}</h4>
                           </a-row>
                           <a-row v-for='(child,cIndex) in item.children' :key='cIndex'>
                             <a-col :span='24' class='first-child'>
-                              <a-checkbox :value='child.id'
-                                          @change='onChangeCheckBox($event,templateType.Century,child)'
-                                          :checked='filterCentury.indexOf(child.id) > -1 ? true: false'>
+                              <a-checkbox
+                                :value='child.id'
+                                @change='onChangeCheckBox($event,templateType.Century,child)'
+                                :checked='filterCentury.indexOf(child.id) > -1 ? true: false'>
                                 {{ child.name }}
                               </a-checkbox>
                               <div class='sub-child'>
-                                <a-row v-if='child.children.length > 0' v-for='(subChild,subIndex) in child.children'
-                                       :key='subIndex'>
+                                <a-row
+                                  v-if='child.children.length > 0'
+                                  v-for='(subChild,subIndex) in child.children'
+                                  :key='subIndex'>
                                   <a-col class='sub-child-child' :span='24'>
-                                    <a-checkbox :value='subChild.id'
-                                                @change='onChangeCheckBox($event,templateType.Century,child)'
-                                                :checked='filterCentury.indexOf(subChild.id) > -1 ? true: false'>
+                                    <a-checkbox
+                                      :value='subChild.id'
+                                      @change='onChangeCheckBox($event,templateType.Century,child)'
+                                      :checked='filterCentury.indexOf(subChild.id) > -1 ? true: false'>
                                       <a-tooltip placement='top' :title='filterGradeTips(subChild)'> {{ subChild.name
-                                        }}
+                                      }}
                                       </a-tooltip>
                                     </a-checkbox>
                                   </a-col>
@@ -1047,7 +1176,8 @@
                   <!--                  </div>-->
                   <div
                     :class="{'template-item': true, 'template-item-active': template.id && drawerSelectedTemplateIds.indexOf(template.id) !== -1 }"
-                    v-for='(template,index) in templateList' :key='index'>
+                    v-for='(template,index) in templateList'
+                    :key='index'>
                     <div class='template-hover-action-mask'>
                       <div class='template-hover-action'>
                         <div class='modal-ensure-action-line'>
@@ -1085,17 +1215,20 @@
                         </div>
                       </div>
                     </div>
-                    <div class='template-cover'
-                         :style="{backgroundImage: 'url(' + (template.cover ? template.cover : template.image) + ')'}">
+                    <div
+                      class='template-cover'
+                      :style="{backgroundImage: 'url(' + (template.cover ? template.cover : template.image) + ')'}">
                     </div>
                     <div class='template-info'>
                       <div class='template-name'>{{ template.name }}</div>
                       <div class='template-intro'>{{ template.introduce }}</div>
                     </div>
-                    <div class='template-select-icon'
-                         v-if='template.id && drawerSelectedTemplateIds.indexOf(template.id) !== -1'>
-                      <img src='~@/assets/icons/task/selected.png'
-                           v-if='template.id && drawerSelectedTemplateIds.indexOf(template.id) !== -1 ' />
+                    <div
+                      class='template-select-icon'
+                      v-if='template.id && drawerSelectedTemplateIds.indexOf(template.id) !== -1'>
+                      <img
+                        src='~@/assets/icons/task/selected.png'
+                        v-if='template.id && drawerSelectedTemplateIds.indexOf(template.id) !== -1 ' />
                     </div>
                   </div>
                 </div>
@@ -1173,17 +1306,23 @@
 
           <div class='drawer-template-selected'>
             <div class='drawer-template-list'>
-              <div :class="{'template-item': true }" v-for='(template,index) in drawerSelectedTemplateList'
-                   :key='index'>
+              <div
+                :class="{'template-item': true }"
+                v-for='(template,index) in drawerSelectedTemplateList'
+                :key='index'>
                 <div class='template-hover-action-mask'>
-                  <span class='delete-action' style='position: absolute;right: 0;'
-                        @click='handleSelectTemplateMadel(template)'>
+                  <span
+                    class='delete-action'
+                    style='position: absolute;right: 0;'
+                    @click='handleSelectTemplateMadel(template)'>
                     <img src='~@/assets/icons/tag/delete.png' width='50'>
                   </span>
                   <div class='template-hover-action'>
                     <div class='modal-ensure-action-line'>
-                      <a-button class='action-ensure action-item' shape='round'
-                                @click='handlePreviewTemplate(template)'>
+                      <a-button
+                        class='action-ensure action-item'
+                        shape='round'
+                        @click='handlePreviewTemplate(template)'>
                         <a-icon type='eye' theme='filled' />
                         <div class='btn-text'>
                           Preview
@@ -1192,8 +1331,9 @@
                     </div>
                   </div>
                 </div>
-                <div class='template-cover'
-                     :style="{backgroundImage: 'url(' + (template.cover ? template.cover : template.image) + ')'}">
+                <div
+                  class='template-cover'
+                  :style="{backgroundImage: 'url(' + (template.cover ? template.cover : template.image) + ')'}">
                 </div>
                 <div class='template-info'>
                   <div class='template-name'>{{ template.name }}</div>
@@ -1308,14 +1448,18 @@
         </div>
         <div class='slide-action row-flex-center'>
           <div class='slide-btn-wrapper'>
-            <a-button @click='handleCancelPickTaskSlide'
-                      style='background: #D7D9D9;border: 1px solid #D7D9D9;border-radius: 25px;color: #000;'
-                      class='slide-btn-item slide-btn-item-no ' type='primary'>
+            <a-button
+              @click='handleCancelPickTaskSlide'
+              style='background: #D7D9D9;border: 1px solid #D7D9D9;border-radius: 25px;color: #000;'
+              class='slide-btn-item slide-btn-item-no '
+              type='primary'>
               Not this time
             </a-button>
-            <a-button @click='handleAddTaskWithSlide'
-                      style='background: #15C39A;;border: 1px solid #15C39A;border-radius: 25px;color: #fff;'
-                      class='slide-btn-item slide-btn-item-yes' type='primary'>
+            <a-button
+              @click='handleAddTaskWithSlide'
+              style='background: #15C39A;;border: 1px solid #15C39A;border-radius: 25px;color: #fff;'
+              class='slide-btn-item slide-btn-item-yes'
+              type='primary'>
               Pick now
             </a-button>
           </div>
@@ -1349,14 +1493,18 @@
         </div>
         <div class='slide-action row-flex-center'>
           <div class='slide-btn-wrapper'>
-            <a-button @click='goBack'
-                      style='background: #D7D9D9;border: 1px solid #D7D9D9;border-radius: 25px;color: #000;'
-                      class='slide-btn-item slide-btn-item-no ' type='primary'>
+            <a-button
+              @click='goBack'
+              style='background: #D7D9D9;border: 1px solid #D7D9D9;border-radius: 25px;color: #000;'
+              class='slide-btn-item slide-btn-item-no '
+              type='primary'>
               Not this time
             </a-button>
-            <a-button @click='handleAddTaskWithSlide'
-                      style='background: #15C39A;;border: 1px solid #15C39A;border-radius: 25px;color: #fff;'
-                      class='slide-btn-item slide-btn-item-yes' type='primary'>
+            <a-button
+              @click='handleAddTaskWithSlide'
+              style='background: #15C39A;;border: 1px solid #15C39A;border-radius: 25px;color: #fff;'
+              class='slide-btn-item slide-btn-item-yes'
+              type='primary'>
               Pick now
             </a-button>
           </div>
@@ -1412,8 +1560,10 @@
         @ok='previewTemplateVisible = false'
         @cancel='previewTemplateVisible = false'>
         <div class='link-content-wrapper'>
-          <template-preview :template='previewTemplate' :selected-template-id-list='drawerSelectedTemplateIds'
-                            @handle-select='handleSelectPreviewTemplate'></template-preview>
+          <template-preview
+            :template='previewTemplate'
+            :selected-template-id-list='drawerSelectedTemplateIds'
+            @handle-select='handleSelectPreviewTemplate'></template-preview>
         </div>
       </a-modal>
 
@@ -1426,8 +1576,10 @@
         title='My Materials'
         @ok='materialVisible = false'
         @cancel='materialVisible = false'>
-        <task-material-preview :current-page-element-lists='currentPageElementLists' :filter-type='filterMaterialType'
-                               :current-page-index='currentImgIndex'></task-material-preview>
+        <task-material-preview
+          :current-page-element-lists='currentPageElementLists'
+          :filter-type='filterMaterialType'
+          :current-page-index='currentImgIndex'></task-material-preview>
       </a-modal>
 
       <a-modal
@@ -1443,14 +1595,18 @@
       </a-modal>
 
       <a-modal
-        v-model='shareVisiable'
+        v-model='shareVisible'
         :footer='null'
         destroyOnClose
         title='Share'
-        width='650px'
-        @ok='shareVisiable = false'
-        @cancel='shareVisiable = false'>
-        <share-content-setting :source-id='form.id' :source-type='form.type' />
+        width='680px'
+        @ok='shareVisible = false'
+        @cancel='shareVisible = false'>
+        <share-content-setting
+          :source-id='form.id'
+          :source-type='form.type'
+          @update-share-status='handleShareStatus'
+        />
       </a-modal>
 
       <a-skeleton :loading='contentLoading' active>
@@ -1513,6 +1669,7 @@ import { UtilMixin } from '@/mixins/UtilMixin'
 import moment from 'moment'
 import { BaseEventMixin } from '@/mixins/BaseEvent'
 import ShareContentSetting from '@/components/Share/ShareContentSetting'
+import { QueryContentShare } from '@/api/share'
 
 const { SplitTask } = require('@/api/task')
 
@@ -1735,7 +1892,8 @@ export default {
 
       showSubTaskDetail: false,
 
-      shareVisiable: false
+      shareVisible: false,
+      shareStatus: 0
     }
   },
   computed: {
@@ -1957,6 +2115,8 @@ export default {
         // copy副本 为了判断数据变更
         this.oldForm = JSON.parse(JSON.stringify(this.form))
         this.initCompleted = true
+
+        this.loadingShareContent()
       })
     },
 
@@ -3489,7 +3649,25 @@ export default {
 
     handleShareTask() {
       this.$logger.info('handleShareTask')
-      this.shareVisiable = true
+      this.shareVisible = true
+    },
+
+    loadingShareContent() {
+      QueryContentShare({
+        sourceId: this.form.id,
+        sourceType: this.form.type
+      }).then(response => {
+        this.$logger.info('form QueryContentShare response', response)
+        if (response.result) {
+          this.shareStatus = response.result.status
+        } else {
+          this.shareStatus = 0
+        }
+      })
+    },
+    handleShareStatus (status) {
+      this.$logger.info('handleShareStatus', status)
+      this.shareStatus = status
     }
   }
 }

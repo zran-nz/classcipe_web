@@ -19,7 +19,8 @@
           </template>
         </div>
       </div>
-      <div class='share-setting'>
+      <div class='share-setting' :style='{opacity: shareContent.status === 1 ? 1 : 0.2}'>
+        <div class='share-mask' v-if='shareContent.status === 0'></div>
         <div class='url-info'>
           <div class='url-and-copy'>
             <div class='url-text'>
@@ -156,6 +157,7 @@ export default {
         this.$logger.info('switchShareStatus response', response)
         this.shareContent = response.result
         this.$message.success('Set successfully')
+        this.$emit('update-share-status', this.shareContent.status)
       })
     },
 
@@ -173,7 +175,7 @@ export default {
 @import "~@/components/index.less";
 
 .loading-wrapper {
-  min-height: 400px;
+  min-height: 300px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -210,8 +212,18 @@ export default {
   .share-setting {
     padding: 30px 15px;
     box-sizing: border-box;
+    position: relative;
 
+    .share-mask {
+      position: absolute;
+      z-index: 200;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+    }
     .url-info {
+      z-index: 100;
       .url-and-copy {
         height: 44px;
         display: flex;
@@ -243,6 +255,7 @@ export default {
     }
 
     .password-info {
+      z-index: 100;
       padding-top: 40px;
 
       .password-setting {
