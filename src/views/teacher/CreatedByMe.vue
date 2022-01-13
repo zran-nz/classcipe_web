@@ -185,9 +185,9 @@
                             <a-icon type="more" style="margin-right: 8px" />
                             <a-menu slot="overlay">
                               <a-menu-item>
-                                <a-popconfirm :title="$t('teacher.my-content.action-delete') + '?'" ok-text="Yes" @confirm="handleDeleteItem(item)" cancel-text="No">
+                                <a-popconfirm title="Archive ?" ok-text="Yes" @confirm="handleDeleteItem(item)" cancel-text="No">
                                   <a>
-                                    <a-icon type="delete" theme="filled" /> {{ $t('teacher.my-content.action-delete') }}
+                                    <a-icon type="delete" theme="filled" /> Archive
                                   </a>
                                 </a-popconfirm>
                               </a-menu-item>
@@ -244,9 +244,9 @@
                       <a-icon type="more" style="margin-right: 8px" class="more-icon" />
                       <a-menu slot="overlay">
                         <a-menu-item>
-                          <a-popconfirm :title="$t('teacher.my-content.action-delete') + '?'" ok-text="Yes" @confirm="handleDeleteItem(item)" cancel-text="No">
+                          <a-popconfirm title="Archive ?" ok-text="Yes" @confirm="handleDeleteItem(item)" cancel-text="No">
                             <a>
-                              <a-icon type="delete" theme="filled" /> {{ $t('teacher.my-content.action-delete') }}
+                              <a-icon type="delete" theme="filled" /> Archive
                             </a>
                           </a-popconfirm>
                         </a-menu-item>
@@ -866,7 +866,7 @@ export default {
           this.$logger.info('TemplatesGetPresentation response', response)
           if (response.message.indexOf('Google access_token Forbidden') > -1) {
             // 更新task?
-            // this.$router.push({ path: '/user/login' })
+            this.$router.push({ path: '/user/login' })
           }
         })
       }
