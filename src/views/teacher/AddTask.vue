@@ -9,6 +9,7 @@
         @view-collaborate="handleViewCollaborate"
         @back="goBack"
         @save="handleSaveTask"
+        @share='handleShareTask'
         @publish="handlePublishTask"
         @collaborate="handleStartCollaborate"
       />
@@ -3338,6 +3339,11 @@ export default {
       handleGradeUpdate (data) {
         this.$logger.info('handleGradeUpdate', data)
         this.form.gradeId = data.data.id
+      },
+
+      handleShareTask () {
+        this.$logger.info('handleShareTask')
+        // TODO 添加判断表单分享状态
       }
     }
   }

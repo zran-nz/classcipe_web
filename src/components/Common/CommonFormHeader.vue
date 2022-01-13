@@ -71,6 +71,35 @@
         </div>
         <a-button
           v-show="isOwner || isEditCollaborater"
+          @click="handleSharing"
+          class="my-form-header-btn"
+          style="{
+            width: 120px;
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: center;
+            background: rgba(21, 195, 154, 0.08);
+            border: 1px solid #15C39A;
+            border-radius: 20px;
+            padding: 15px 20px;
+          }">
+
+          <div class="btn-icon">
+            <a-icon type="share-alt" :style="{ fontSize: '16px' }" />
+          </div>
+          <div
+            class="btn-text">
+            <template v-if='form && form.share'>
+              Sharing
+            </template>
+            <template>
+              Share
+            </template>
+          </div>
+        </a-button>
+        <a-button
+          v-show="isOwner || isEditCollaborater"
           @click="handleSave"
           :loading="saving"
           class="my-form-header-btn"
@@ -296,6 +325,12 @@ export default {
         this.$emit('update-form', data)
       }
       this.$logger.info('editFormNameMode ' + this.editFormNameMode)
+    },
+
+    handleSharing () {
+      this.sharing = true
+      this.$logger.info('handleSharing')
+      this.$emit('share')
     }
   }
 }
@@ -394,7 +429,7 @@ export default {
   font-family: Inter-Bold;
   line-height: 24px;
   color: #15C39A;
-  padding-left: 5px;
+  padding-left: 10px;
 }
 
 .edit-form-name {
