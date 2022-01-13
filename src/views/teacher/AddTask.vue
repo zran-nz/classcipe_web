@@ -1309,7 +1309,7 @@
         @ok="previewTemplateVisible = false"
         @cancel="previewTemplateVisible = false">
         <div class="link-content-wrapper">
-          <template-preview :template="previewTemplate" :selected-template-id-list="selectedTemplateIdList" @handle-select="handleSelectPreviewTemplate"></template-preview>
+          <template-preview :template="previewTemplate" :selected-template-id-list="drawerSelectedTemplateIds" @handle-select="handleSelectPreviewTemplate"></template-preview>
         </div>
       </a-modal>
 
@@ -1849,6 +1849,7 @@ export default {
 
       handleToggleSelectContentItem (data, event) {
         this.$logger.info('handleToggleSelectContentItem', data, event)
+        this.previewTemplateVisible = false
         if (this.drawerSelectedTemplateIds.indexOf(data.id) === -1) {
           this.handleSelectTemplateMadelAnimate(data, event)
         } else {
