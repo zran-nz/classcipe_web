@@ -141,7 +141,7 @@
 
               <span class="content-info-right">
                 <span class="update-time" >
-                  {{ item.updateTime || item.createTime | dayjs }}
+                  {{ item.updateTime | dayjs }}
                 </span>
                 <span class="status">
                   <template v-if="item.status === 0">Draft</template>
@@ -309,7 +309,7 @@
                 </div>
                 <div class="cover-img" :style="{backgroundImage: 'url(' + item.image + ')'}"></div>
 
-                <a-card-meta class="my-card-meta-info" :title="item.name ? item.name : 'Untitled'" :description="item.createTime | dayjs" @click="handleViewDetail(item)">
+                <a-card-meta class="my-card-meta-info" :title="item.name ? item.name : 'Untitled'" :description="item.updateTime | dayjs" @click="handleViewDetail(item)">
                   <content-type-icon :type="item.type" slot="avatar"></content-type-icon>
                 </a-card-meta>
 
