@@ -413,23 +413,6 @@ export const asyncRouterMap = [
     ]
   },
 
-  // share
-  {
-    path: '/share',
-    name: 'share',
-    component: BlankLayout,
-    meta: { title: 'Share', keepAlive: true },
-    children: [
-      {
-        path: '/share/:shareCode',
-        name: 'shareDetail',
-        props: true,
-        component: () => import('@/views/share/ShareDetail'),
-        meta: { title: 'Share', keepAlive: true }
-      }
-    ]
-  },
-
   {
     path: '*',
     redirect: '/404',
@@ -511,6 +494,24 @@ export const constantRouterMap = [
     meta: { title: 'Collaborate invite', keepAlive: true, icon: bxAnaalyse, permission: ['expert', 'teacher'] },
     component: () => import(/* webpackChunkName: "fail" */ '@/views/collaborate/LinkValid')
   },
+
+  // share
+  {
+    path: '/share',
+    name: 'share',
+    component: BlankLayout,
+    meta: { title: 'Share', keepAlive: true },
+    children: [
+      {
+        path: '/share/:shareCode',
+        name: 'shareDetail',
+        props: true,
+        component: () => import('@/views/share/ShareDetail'),
+        meta: { title: 'Share', keepAlive: true }
+      }
+    ]
+  },
+
   {
     path: '/404',
     component: () => import(/* webpackChunkName: "fail" */ '@/views/exception/404')
