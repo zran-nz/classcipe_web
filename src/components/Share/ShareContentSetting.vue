@@ -89,7 +89,7 @@ export default {
   },
   computed: {
     shareUrl() {
-      return this.shareContent.code ? (process.env.VUE_APP_API_BASE_URL + '/share/' + this.shareContent.code) : ''
+      return this.shareContent.code ? (window.location.origin + '/share/' + this.shareContent.code) : ''
     }
   },
   created() {
