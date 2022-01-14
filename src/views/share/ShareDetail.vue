@@ -11,9 +11,6 @@
       <template v-if='shareContent.contentType === typeMap["unit-plan"]'>
         <share-unit-plan :share-content='shareContent' />
       </template>
-      <template v-if='shareContent.contentType === typeMap.evaluation'>
-        <share-evaluation :share-content='shareContent' />
-      </template>
     </div>
     <div class='expired-share' v-if='shareExpired'>
       <share-expired />
@@ -37,14 +34,13 @@
 import SharePasswordAuth from '@/components/Share/SharePasswordAuth'
 import { AnonGetShareContentDetails, GetShareInfo } from '@/api/share'
 import ShareExpired from '@/components/Share/ShareExpired'
-import { typeMap } from "@/const/teacher"
+import { typeMap } from '@/const/teacher'
 import ShareTask from '@/components/Share/ShareTask'
 import ShareUnitPlan from '@/components/Share/ShareUnitPlan'
-import ShareEvaluation from '@/components/Share/ShareEvaluation'
 
 export default {
   name: 'ShareDetail',
-  components: { ShareEvaluation, ShareUnitPlan, ShareTask, ShareExpired, SharePasswordAuth },
+  components: { ShareUnitPlan, ShareTask, ShareExpired, SharePasswordAuth },
   props: {
     shareCode: {
       type: String,
@@ -124,7 +120,6 @@ export default {
           this.shareContent = response.result
           this.passwordDialogVisible = false
           sessionStorage.setItem('share-password-' + this.shareCode, password)
-          this.$message.success('Password verification successful!')
         } else {
           this.$message.error(response.result)
           this.passwordDialogVisible = true
