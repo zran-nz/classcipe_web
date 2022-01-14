@@ -15,10 +15,10 @@
             </template>
             <template v-if='!isLogin'>
               <div class='login'>
-                <a-button shape='round' class='my-plain-button wide-action-button'>Log in</a-button>
+                <a-button shape='round' class='my-plain-button wide-action-button' @click='handleLogin'>Log in</a-button>
               </div>
               <div class='sign-up'>
-                <a-button shape='round' type='primary' class='wide-action-button'>Sign up</a-button>
+                <a-button shape='round' type='primary' class='wide-action-button' @click='handleSignUp'>Sign up</a-button>
               </div>
             </template>
           </template>
@@ -58,6 +58,13 @@ export default {
   },
   methods: {
     goHome () {
+      this.$router.push('/')
+    },
+
+    handleLogin () {
+      this.$router.push('/')
+    },
+    handleSignUp () {
       this.$router.push('/')
     },
 
