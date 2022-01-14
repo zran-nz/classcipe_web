@@ -578,7 +578,7 @@ export default {
           }
 
           // 通知外部表单更新gradeId
-          LibraryEventBus.$emit(LibraryEvent.GradeUpdate, { rootType: this.rootType, data: JSON.parse(JSON.stringify(this.treeItemData)) })
+          LibraryEventBus.$emit(LibraryEvent.GradeUpdate, { rootType: this.rootType, data: this.treeItemData })
         }
 
         // 加载知识点关联数据
@@ -722,7 +722,7 @@ export default {
           }
 
           // 通知外部表单更新gradeId
-          LibraryEventBus.$emit(LibraryEvent.GradeUpdate, { rootType: this.rootType, data: JSON.parse(JSON.stringify(this.treeItemData)) })
+          LibraryEventBus.$emit(LibraryEvent.GradeUpdate, { rootType: this.rootType, data: this.treeItemData })
         }
 
         // 加载知识点关联数据
@@ -867,7 +867,7 @@ export default {
           this.subItemType = 'assessmentType'
 
           // 通知外部表单更新gradeId
-          LibraryEventBus.$emit(LibraryEvent.GradeUpdate, { rootType: this.rootType, data: JSON.parse(JSON.stringify(this.treeItemData)) })
+          LibraryEventBus.$emit(LibraryEvent.GradeUpdate, { rootType: this.rootType, data: this.treeItemData })
         }
 
         // 加载assessmentType的列表
@@ -997,6 +997,12 @@ export default {
         this.subTreeLoading = true
         this.subTreeExpandStatus = true
 
+        if (this.defaultDeep === 1 && treeItemData.isGrade) {
+          this.$logger.info('handleExpandIduTypeTreeItem defaultDeep = 1', treeItemData)
+          // 通知外部表单更新gradeId
+          LibraryEventBus.$emit(LibraryEvent.GradeUpdate, { rootType: this.rootType, data: this.treeItemData })
+        }
+
         if (this.treeItemData.children.length) {
           this.subItemType = 'iduList'
           this.hasSubTree = true
@@ -1124,7 +1130,7 @@ export default {
           }
 
           // 通知外部表单更新gradeId
-          LibraryEventBus.$emit(LibraryEvent.GradeUpdate, { rootType: this.rootType, data: JSON.parse(JSON.stringify(this.treeItemData)) })
+          LibraryEventBus.$emit(LibraryEvent.GradeUpdate, { rootType: this.rootType, data: this.treeItemData })
         }
 
         // 加载知识点关联数据
