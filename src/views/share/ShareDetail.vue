@@ -8,7 +8,7 @@
       {{ shareContent }}
     </div>
     <div class='expired-share' v-if='shareExpired'>
-      <share-expired />
+      <share-expired :message='message'/>
     </div>
     <a-modal
       v-model="passwordDialogVisible"
@@ -19,7 +19,7 @@
       destroyOnClose
       @ok="passwordDialogVisible = false"
       @cancel="passwordDialogVisible = false">
-      <share-password-auth :title='title' :cover-url='coverUrl' v-if='shareInfoLoaded' @try-password='handleTryPassword'/>
+      <share-password-auth :message='message' :title='title' :cover-url='coverUrl' v-if='shareInfoLoaded' @try-password='handleTryPassword'/>
     </a-modal>
   </div>
 </template>
@@ -52,7 +52,8 @@ export default {
 
       shareExpired: false,
 
-      localPassword: ''
+      localPassword: '',
+      message: ''
     }
   },
   created () {
@@ -68,13 +69,12 @@ export default {
       GetShareInfo({
         code: this.shareCode
       }).then((response) => {
-        this.$logger.info('ShareRedirect loadShareInfo ' + this.shareCode, response)
-        if (response.result) {
+        this.$logger.info('loadShareInfo response' + this.shareCode, response)
+        if (typeof response.result !== 'string') {
           this.title = response.result.title
           this.coverUrl = response.result.cover
           this.needPassword = response.result.needPassword
           if (this.needPassword && !this.localPassword) {
-            this.shareInfoLoaded = true
             this.passwordDialogVisible = true
           } else if (this.needPassword && this.localPassword) {
             this.handleTryPassword(this.localPassword)
@@ -86,12 +86,17 @@ export default {
               if (response.result) {
                 this.shareContent = response.result
               }
+            }).finally(() => {
               this.shareContentLoading = false
             })
           }
         } else {
+          this.$message.warn(response.result)
+          this.message = response.result
           this.shareExpired = true
         }
+      }).finally(() => {
+        this.shareInfoLoaded = true
       })
     },
 
@@ -101,18 +106,19 @@ export default {
         code: this.shareCode,
         password: password
       }).then(response => {
-        this.$logger.info('ShareRedirect AnonGetShareContentDetails ' + this.shareCode, response)
-        if (response.result) {
+        this.$logger.info('AnonGetShareContentDetails ' + this.shareCode, response)
+        if (typeof response.result !== 'string') {
           this.shareContent = response.result
           this.passwordDialogVisible = false
           sessionStorage.setItem('share-password-' + this.shareCode, password)
           this.$message.success('Password verification successful!')
+          this.shareContentLoading = true
         } else {
+          this.$message.error(response.result)
+          this.message = response.result
           this.passwordDialogVisible = true
+          this.shareContentLoading = false
         }
-        this.shareContentLoading = false
-      }).finally(() => {
-        this.shareInfoLoaded = true
       })
     }
   }
