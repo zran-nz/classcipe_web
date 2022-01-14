@@ -10,19 +10,13 @@
         <template v-if='form.type === typeMap.classSessionEvaluation'>
           <div class='edit-form-name'>
             <div class='form-name'>
-              <template v-if='!editFormNameMode'>{{ form.name ? form.name : 'Untitled' }}</template>
+              <template v-if='!editFormNameMode'>{{ form.className ? form.className : 'Untitled session' }}</template>
               <template v-else>
                 <a-input v-model='formName' :maxLength='240' @keyup.enter='handleEnsureNewFormName' @click.stop />
               </template>
             </div>
-            <div
-              class='edit-icon'
-              @click.stop='editFormNameMode = !editFormNameMode'
-              :data-editFormNameMode="editFormNameMode ? 'true': 'false'">
-              <img src='~@/assets/svgIcon/evaluation/bianji.png' />
-            </div>
-            <div class='class-name' v-if='form.type === typeMap.classSessionEvaluation'>
-              {{ form.className ? form.className : 'Untitled className' }}
+            <div class='class-name'>
+              {{ form.name ? form.name : 'Untitled className' }}
             </div>
           </div>
         </template>
@@ -474,6 +468,7 @@ export default {
     font-family: Inter-Bold;
     line-height: 24px;
     color: #11142D;
+    margin-left: 15px;
   }
 }
 </style>
