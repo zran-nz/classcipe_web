@@ -117,7 +117,7 @@ export default {
 .share-common-header {
   width: 100%;
   height: 300px;
-  background: #878DA8;
+  background: #bfc2d3;
   padding: 20px 30px;
 
   .header-content {
