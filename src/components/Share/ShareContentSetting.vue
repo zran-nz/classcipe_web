@@ -6,52 +6,66 @@
       </div>
     </template>
     <template v-if='!loading'>
-      <div class='share-tips'>
-        <div class='tips-text'>Who gets the link can access the file and multiple files linked with this file.</div>
-      </div>
-      <div class='turn-off' @click='switchShareStatus'>
-        <div class='turn-off-text'>
-          <template v-if='shareContent.status'>
-            Turn off sharing
-          </template>
-          <template v-else>
-            Turn on sharing
-          </template>
+      <template v-if='shareContent.status'>
+        <div class='share-tips'>
+          <div class='tips-text'>Who gets the link can access the file and multiple files linked with this file.</div>
         </div>
-      </div>
-      <div class='share-setting' :style='{opacity: shareContent.status === 1 ? 1 : 0.2}'>
-        <div class='share-mask' v-if='shareContent.status === 0'></div>
-        <div class='url-info'>
-          <div class='url-and-copy'>
-            <div class='url-text'>
-              <div class='url-text-text'>{{ shareUrl }}</div>
-            </div>
-            <div class='copy-text'>
-              <a-button type='primary' shape='round' size='small' @click='handleCopyLink'>
-                Copy
-              </a-button>
-            </div>
-          </div>
-          <div class='is-need-password'>
-            <a-radio @click='changeNeedPassword' :checked='shareContent.needPassword'>
-              Need password
-            </a-radio>
+        <div class='turn-off' @click='switchShareStatus'>
+          <div class='turn-off-text'>
+            <template v-if='shareContent.status'>
+              Turn off sharing
+            </template>
+            <template v-else>
+              Turn on sharing
+            </template>
           </div>
         </div>
-        <div class='password-info'>
-          <div class='password-setting'>
-            <div class='refresh-password'>
-              <refresh-svg @click='refreshPassword' />
+        <div class='share-setting'>
+          <div class='url-info'>
+            <div class='url-and-copy'>
+              <div class='url-text'>
+                <div class='url-text-text'>{{ shareUrl }}</div>
+              </div>
+              <div class='copy-text'>
+                <a-button type='primary' shape='round' size='small' @click='handleCopyLink'>
+                  Copy
+                </a-button>
+              </div>
             </div>
-            <div class='password-item'>
-              Password : <span class='password-text'>{{ shareContent.password }}</span>
+            <div class='is-need-password'>
+              <a-radio @click='changeNeedPassword' :checked='shareContent.needPassword'>
+                Need password
+              </a-radio>
             </div>
-            <a-spin v-if='refreshing'>
-              <a-icon slot='indicator' type='loading' style='font-size: 16px' spin />
-            </a-spin>
+          </div>
+          <div class='password-info'>
+            <div class='password-setting'>
+              <div class='refresh-password'>
+                <refresh-svg @click='refreshPassword' />
+              </div>
+              <div class='password-item'>
+                Password : <span class='password-text'>{{ shareContent.password }}</span>
+              </div>
+              <a-spin v-if='refreshing'>
+                <a-icon slot='indicator' type='loading' style='font-size: 16px' spin />
+              </a-spin>
+            </div>
           </div>
         </div>
-      </div>
+      </template>
+      <template v-if='!shareContent.status'>
+        <div class='turn-on'>
+          <div class='turn-on-img'>
+            <img src="~@/assets/background/share.png" />
+          </div>
+          <div class='turn-on-text'>
+            When opened to share , this file can be shared through links
+          </div>
+          <div class='turn-on-button'>
+            <a-button type='primary' shape='round' @click='switchShareStatus'>Open to share</a-button>
+          </div>
+        </div>
+      </template>
     </template>
   </div>
 </template>
@@ -216,15 +230,6 @@ export default {
     padding: 30px 15px;
     box-sizing: border-box;
     position: relative;
-
-    .share-mask {
-      position: absolute;
-      z-index: 200;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-    }
     .url-info {
       z-index: 100;
       .url-and-copy {
@@ -296,6 +301,33 @@ export default {
         }
       }
     }
+  }
+}
+
+.turn-on {
+  padding: 20px;
+  margin: auto;
+  text-align: center;
+
+  .turn-on-img {
+    img {
+      width: 200px;
+    }
+  }
+
+  .turn-on-text {
+    padding: 20px 0;
+    font-size: 20px;
+    font-family: Arial;
+    font-weight: 400;
+    color: #070707;
+  }
+
+  .turn-on-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px 0;
   }
 }
 
