@@ -1,5 +1,8 @@
 <template>
-
+  <div class='share-content'>
+    <div class='share-header'>
+    </div>
+  </div>
 </template>
 
 <script>
