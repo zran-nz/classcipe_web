@@ -137,7 +137,7 @@ export default {
         sourceType: this.sourceType
       }).then((response) => {
         this.$logger.info('ResetPassword response', response)
-        this.shareContent = response.result
+        this.shareContent.password = response.result.password
       }).finally(() => {
         this.refreshing = false
       })
