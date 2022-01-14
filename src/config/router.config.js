@@ -412,6 +412,24 @@ export const asyncRouterMap = [
       }
     ]
   },
+
+  // share
+  {
+    path: '/share',
+    name: 'Share',
+    props: true,
+    component: BlankLayout,
+    meta: { title: 'Share', keepAlive: true },
+    children: [
+      {
+        path: '/share/:code',
+        name: 'Share',
+        component: () => import('@/views/share/ShareRedirect'),
+        meta: { title: 'Share', keepAlive: true }
+      }
+    ]
+  },
+
   {
     path: '*',
     redirect: '/404',
