@@ -5,10 +5,18 @@
     </a-card>
 
     <div class='share-content' v-if='shareInfoLoaded && !shareContentLoading && !shareExpired'>
-      {{ shareContent }}
+      <template v-if='shareContent.contentType === typeMap.task'>
+        <share-task :share-content='shareContent' />
+      </template>
+      <template v-if='shareContent.contentType === typeMap["unit-plan"]'>
+        <share-unit-plan :share-content='shareContent' />
+      </template>
+      <template v-if='shareContent.contentType === typeMap.evaluation'>
+        <share-evaluation :share-content='shareContent' />
+      </template>
     </div>
     <div class='expired-share' v-if='shareExpired'>
-      <share-expired :message='message'/>
+      <share-expired />
     </div>
     <a-modal
       v-model="passwordDialogVisible"
@@ -19,7 +27,7 @@
       destroyOnClose
       @ok="passwordDialogVisible = false"
       @cancel="passwordDialogVisible = false">
-      <share-password-auth :message='message' :title='title' :cover-url='coverUrl' v-if='shareInfoLoaded' @try-password='handleTryPassword'/>
+      <share-password-auth :title='title' :cover-url='coverUrl' v-if='shareInfoLoaded' @try-password='handleTryPassword'/>
     </a-modal>
   </div>
 </template>
@@ -29,10 +37,14 @@
 import SharePasswordAuth from '@/components/Share/SharePasswordAuth'
 import { AnonGetShareContentDetails, GetShareInfo } from '@/api/share'
 import ShareExpired from '@/components/Share/ShareExpired'
+import { typeMap } from "@/const/teacher"
+import ShareTask from '@/components/Share/ShareTask'
+import ShareUnitPlan from '@/components/Share/ShareUnitPlan'
+import ShareEvaluation from '@/components/Share/ShareEvaluation'
 
 export default {
   name: 'ShareDetail',
-  components: { ShareExpired, SharePasswordAuth },
+  components: { ShareEvaluation, ShareUnitPlan, ShareTask, ShareExpired, SharePasswordAuth },
   props: {
     shareCode: {
       type: String,
@@ -53,7 +65,7 @@ export default {
       shareExpired: false,
 
       localPassword: '',
-      message: ''
+      typeMap: typeMap
     }
   },
   created () {
@@ -83,8 +95,10 @@ export default {
               code: this.shareCode
             }).then(response => {
               this.$logger.info('ShareRedirect AnonGetShareContentDetails ' + this.shareCode, response)
-              if (response.result) {
+              if (typeof response.result !== 'string') {
                 this.shareContent = response.result
+              } else {
+                this.$message.error(response.result)
               }
             }).finally(() => {
               this.shareContentLoading = false
@@ -92,7 +106,6 @@ export default {
           }
         } else {
           this.$message.warn(response.result)
-          this.message = response.result
           this.shareExpired = true
         }
       }).finally(() => {
@@ -112,13 +125,12 @@ export default {
           this.passwordDialogVisible = false
           sessionStorage.setItem('share-password-' + this.shareCode, password)
           this.$message.success('Password verification successful!')
-          this.shareContentLoading = true
         } else {
           this.$message.error(response.result)
-          this.message = response.result
           this.passwordDialogVisible = true
-          this.shareContentLoading = false
         }
+      }).finally(() => {
+        this.shareContentLoading = false
       })
     }
   }
