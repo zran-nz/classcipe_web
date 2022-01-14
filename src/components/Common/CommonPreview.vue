@@ -11,7 +11,7 @@
               Info
             </a-radio-button>
             <a-radio-button value="Preview" class="right-button">
-              Preview
+              Detail
             </a-radio-button>
           </a-radio-group>
         </a-col>
