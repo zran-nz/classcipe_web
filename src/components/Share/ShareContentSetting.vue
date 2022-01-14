@@ -317,7 +317,7 @@ export default {
 
   .turn-on-text {
     padding: 20px 0;
-    font-size: 20px;
+    font-size: 14px;
     font-family: Arial;
     font-weight: 400;
     color: #070707;
@@ -327,7 +327,7 @@ export default {
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 10px 0;
+    padding: 20px 0 0 0;
   }
 }
 
