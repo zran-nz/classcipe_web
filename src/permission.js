@@ -12,7 +12,7 @@ import * as logger from '@/utils/logger'
 
 NProgress.configure({ showSpinner: false }) // NProgress Configuration
 
-const allowList = ['login', 'register', 'registerResult', 'authResult', 'authCheck', 'PageRedirect', 'AddonCallback'] // no redirect allowList
+const allowList = ['login', 'register', 'registerResult', 'authResult', 'authCheck', 'PageRedirect', 'AddonCallback', 'shareDetail', 'share'] // no redirect allowList
 const loginRoutePath = '/user/login'
 
 router.beforeEach((to, from, next) => {
@@ -21,7 +21,7 @@ router.beforeEach((to, from, next) => {
 
   /* has token */
   logger.info('router', to)
-  if (allowList.includes(to.name)) {
+  if (allowList.includes(to.name) && to.name) {
     // 在免登录名单，直接进入
     logger.info('allowList ', to.name)
     next()

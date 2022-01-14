@@ -416,15 +416,15 @@ export const asyncRouterMap = [
   // share
   {
     path: '/share',
-    name: 'Share',
-    props: true,
+    name: 'share',
     component: BlankLayout,
     meta: { title: 'Share', keepAlive: true },
     children: [
       {
-        path: '/share/:code',
-        name: 'Share',
-        component: () => import('@/views/share/ShareRedirect'),
+        path: '/share/:shareCode',
+        name: 'shareDetail',
+        props: true,
+        component: () => import('@/views/share/ShareDetail'),
         meta: { title: 'Share', keepAlive: true }
       }
     ]
