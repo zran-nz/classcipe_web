@@ -909,6 +909,7 @@ export default {
         }
 
         .form-table-detail {
+          margin-right: -30px;
           overflow-x: scroll;
         }
       }
