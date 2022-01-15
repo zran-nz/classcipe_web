@@ -503,7 +503,7 @@ export const constantRouterMap = [
     meta: { title: 'Share', keepAlive: true },
     children: [
       {
-        path: '/share/:shareCode',
+        path: '/share/:code',
         name: 'shareDetail',
         props: true,
         component: () => import('@/views/share/ShareDetail'),
