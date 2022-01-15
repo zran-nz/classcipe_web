@@ -158,7 +158,11 @@ export default {
     },
 
     handleCopyLink() {
-      this.$copyText(this.shareUrl).then(() => {
+      let shareUrl = this.shareUrl
+      if (this.shareContent.needPassword) {
+        shareUrl += ' (Password:' + this.shareContent.password + ')'
+      }
+      this.$copyText(shareUrl).then(() => {
         this.$message.success('Copy successfully')
       }).catch(() => {
         this.$message.error('Copy failed')
