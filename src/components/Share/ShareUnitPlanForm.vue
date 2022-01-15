@@ -5,7 +5,7 @@
         Unit Name
       </div>
       <div class='form-item-text'>
-        {{shareContent.plan.name}}
+        {{ shareContent.plan.name }}
       </div>
     </div>
 
@@ -14,7 +14,7 @@
         Project-based Unit
       </div>
       <div class='form-item-text'>
-        {{shareContent.plan.projectBased ? 'Yes': 'No'}}
+        {{ shareContent.plan.projectBased ? 'Yes': 'No' }}
       </div>
     </div>
 
@@ -23,8 +23,8 @@
         Unit type
       </div>
       <div class='form-item-text'>
-        {{shareContent.plan.unitType === 0 ? 'Single-subject Unit': ''}}
-        {{shareContent.plan.unitType === 1 ? 'Integrated Unit': ''}}
+        {{ shareContent.plan.unitType === 0 ? 'Single-subject Unit': '' }}
+        {{ shareContent.plan.unitType === 1 ? 'Integrated Unit': '' }}
       </div>
     </div>
 
@@ -33,7 +33,7 @@
         Start Date
       </div>
       <div class='form-item-text'>
-        {{shareContent.plan.startDate}} - {{shareContent.plan.endDate}}
+        {{ shareContent.plan.startDate }} - {{ shareContent.plan.endDate }}
       </div>
     </div>
 
@@ -42,7 +42,7 @@
         Big Idea/ Statement of Inquiry/ Central Idea
       </div>
       <div class='form-item-text'>
-        {{shareContent.plan.inquiry}}
+        {{ shareContent.plan.inquiry }}
       </div>
     </div>
 
@@ -51,7 +51,7 @@
         Teaching goals
       </div>
       <div class='form-item-text'>
-        {{shareContent.plan.inquiry}}
+        {{ shareContent.plan.inquiry }}
       </div>
     </div>
 
@@ -120,7 +120,7 @@
         Prior learning experience
       </div>
       <div class='form-item-text'>
-        {{shareContent.plan.prior}}
+        {{ shareContent.plan.prior }}
       </div>
     </div>
   </div>
@@ -159,7 +159,6 @@ export default {
 
 <style lang="less" scoped>
 @import "~@/components/index.less";
-
 
 .share-plan-form {
   background: #F7F8FF;

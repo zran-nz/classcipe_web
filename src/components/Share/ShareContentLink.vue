@@ -114,7 +114,7 @@ export default {
       ownerLinkGroupList: [],
       othersLinkGroupList: [],
       selectedList: [],
-      groupNameList: [],
+      groupNameList: []
     }
   },
   created() {
