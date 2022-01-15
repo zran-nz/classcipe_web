@@ -166,7 +166,6 @@ export default {
 }
 
 .form-item {
-
   margin-bottom: 10px;
 
   .form-item-label {
