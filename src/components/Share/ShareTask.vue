@@ -17,6 +17,19 @@
       <div class='share-ppt-preview'>
         <share-ppt-preview :ppt-images='shareContent.presentationImages' />
       </div>
+      <div class='share-form'>
+        <div class='share-form-detail'>
+          <share-task-form :share-content='shareContent' />
+        </div>
+        <div class='share-form-link-tag'>
+          <div class='share-tags'>
+            <share-content-tag :share-content='shareContent'/>
+          </div>
+          <div class='share-links'>
+            <share-content-link :share-content='shareContent'/>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -24,9 +37,11 @@
 <script>
 import ShareCommonHeader from '@/components/Share/ShareCommonHeader'
 import SharePptPreview from '@/components/Share/SharePptPreview'
+import ShareTaskForm from '@/components/Share/ShareTaskForm'
+import ShareContentTag from '@/components/Share/ShareContentTag'
 export default {
   name: 'ShareTask',
-  components: { SharePptPreview, ShareCommonHeader },
+  components: { ShareContentTag, ShareTaskForm, SharePptPreview, ShareCommonHeader },
   props: {
     shareContent: {
       type: Object,
@@ -36,7 +51,6 @@ export default {
   created() {
   },
   methods: {
-
   }
 }
 </script>
@@ -47,6 +61,22 @@ export default {
 .share-body {
   max-width: 1000px;
   margin: 20px auto;
+}
+
+.share-form {
+  margin-top: 15px;
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  justify-content: space-between;
+
+  .share-form-detail {
+    width: 680px;
+  }
+
+  .share-form-link-tag {
+    width: 320px;
+  }
 }
 
 </style>
