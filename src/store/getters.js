@@ -30,7 +30,8 @@ const getters = {
   skillCategory: state => state.user.skillCategory,
   disableQuestion: state => state.user.disableQuestion,
   school: state => state.user.school,
-  schoolRole: state => state.user.schoolRole
+  schoolRole: state => state.user.schoolRole,
+  vueSocket: state => state.websocket.vueSocket
 }
 
 export default getters

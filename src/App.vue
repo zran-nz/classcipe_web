@@ -125,11 +125,15 @@
       }
     },
     mounted () {
-      console.log('load env', process.env)
-      // this.timerFun()
+      // console.log('load env', process.env)
+      // if (this.$store.getters.userInfo) {
+      //   this.initWebSocket()
+      //   this.heartCheckFun()
+      // }
+    },
+    created () {
       if (this.$store.getters.userInfo) {
-        this.initWebSocket()
-        this.heartCheckFun()
+        this.$store.dispatch('initData')
       }
     }
   }

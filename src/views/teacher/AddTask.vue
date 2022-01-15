@@ -1987,6 +1987,7 @@ export default {
 
     // library浏览learning outcome时，修改了grade，需要更新表单中的grade
     LibraryEventBus.$on(LibraryEvent.GradeUpdate, this.handleGradeUpdate)
+    console.log(this.$store.state.websocket)
   },
   beforeDestroy() {
     MyContentEventBus.$off(MyContentEvent.LinkToMyContentItem, this.handleLinkMyContent)
@@ -3491,6 +3492,10 @@ export default {
       this.previewTemplateVisible = false
     },
     handleGotoImgIndex(index) {
+      // this.$store.getters.vueSocket.sendMessageToUsers(FP, '1393741943869063170', {
+      //   groupId: 1,
+      //   memberIds: 12
+      // })
       this.$logger.info('handleGotoImgIndex ' + index)
       this.currentImgIndex = index
       this.$refs.carousel.goTo(index)

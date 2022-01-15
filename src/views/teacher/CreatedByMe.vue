@@ -220,6 +220,16 @@
                             </div>
                           </a-popconfirm>
                         </div>
+                        <div class="start-session-wrapper action-item-wrapper">
+                          <a-popconfirm :title="'Confirm permanent delete ' +(item.name ? item.name : 'Untitled')+ ' ?'" ok-text="Yes" @confirm="handlePermanentDeleteItem(item)" cancel-text="No">
+                            <div class="session-btn content-list-action-btn" >
+                              <div class="session-btn-icon">
+                                <a-icon type="delete" theme="filled" />
+                              </div>
+                              <div class="session-btn-text">Delete</div>
+                            </div>
+                          </a-popconfirm>
+                        </div>
                       </template>
                     </div>
                   </div>
@@ -303,6 +313,14 @@
                           <bianji />
                         </div>
                         <div class="session-btn-text">Restore</div>
+                      </div>
+                    </a-popconfirm>
+                    <a-popconfirm :title="'Confirm permanent delete ' +(item.name ? item.name : 'Untitled')+ ' ?'" ok-text="Yes" @confirm="handlePermanentDeleteItem(item)" cancel-text="No">
+                      <div class="session-btn">
+                        <div class="session-btn-icon content-list-action-btn">
+                          <a-icon type="delete" theme="filled" />
+                        </div>
+                        <div class="session-btn-text">Delete</div>
                       </div>
                     </a-popconfirm>
                   </div>
@@ -415,7 +433,7 @@
 
 <script>
 import * as logger from '@/utils/logger'
-import { ContentRestore, deleteMyContentByType, Duplicate, FindMyContent } from '@/api/teacher'
+import { ContentRestore, deleteMyContentByType, Duplicate, FindMyContent, PermanentDeleteMyContent } from '@/api/teacher'
 import { ownerMap, statusMap, typeMap } from '@/const/teacher'
 import ContentStatusIcon from '@/components/Teacher/ContentStatusIcon'
 import ContentTypeIcon from '@/components/Teacher/ContentTypeIcon'
@@ -694,6 +712,14 @@ export default {
       logger.info('handleDeleteItem', item)
       deleteMyContentByType(item).then(res => {
         logger.info('DeleteMyContentByType', res)
+      }).then(() => {
+        this.loadMyContent()
+      })
+    },
+    handlePermanentDeleteItem (item) {
+      logger.info('handlePermanentDeleteItem', item)
+      PermanentDeleteMyContent({ sourceId: item.id, sourceType: item.type }).then(res => {
+        logger.info('handlePermanentDeleteItem', res)
       }).then(() => {
         this.loadMyContent()
       })
