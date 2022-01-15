@@ -250,4 +250,8 @@ export default {
   }
 }
 
+.page-info {
+  padding: 0 5px;
+}
+
 </style>

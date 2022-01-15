@@ -42,13 +42,14 @@ export default {
   name: 'ShareDetail',
   components: { ShareUnitPlan, ShareTask, ShareExpired, SharePasswordAuth },
   props: {
-    shareCode: {
+    code: {
       type: String,
       required: true
     }
   },
   data () {
     return {
+      shareCode: null,
       shareContentLoading: true,
       passwordDialogVisible: false,
       shareContent: {},
@@ -65,8 +66,19 @@ export default {
     }
   },
   created () {
-    this.$logger.info('ShareRedirect created ' + this.shareCode)
-    this.localPassword = sessionStorage.getItem('share-password-' + this.shareCode)
+    this.$logger.info('ShareDetail created ' + this.code)
+    // check password
+    if (this.code.indexOf('Password') !== -1) {
+      const urlPassword = this.code.slice(this.code.indexOf(':') + 1, this.code.indexOf(':') + 5) // 提取密码
+      this.$logger.info('url contain password ' + urlPassword)
+      if (urlPassword) {
+        this.localPassword = urlPassword
+      }
+      this.shareCode = this.code.slice(0, this.code.indexOf(' '))
+    } else {
+      this.shareCode = this.code
+      this.localPassword = sessionStorage.getItem('share-password-' + this.shareCode)
+    }
     this.$logger.info('local password ' + this.localPassword)
     this.loadShareInfo()
   },
