@@ -39,9 +39,10 @@ import ShareCommonHeader from '@/components/Share/ShareCommonHeader'
 import SharePptPreview from '@/components/Share/SharePptPreview'
 import ShareTaskForm from '@/components/Share/ShareTaskForm'
 import ShareContentTag from '@/components/Share/ShareContentTag'
+import ShareContentLink from '@/components/Share/ShareContentLink'
 export default {
   name: 'ShareTask',
-  components: { ShareContentTag, ShareTaskForm, SharePptPreview, ShareCommonHeader },
+  components: { ShareContentTag, ShareTaskForm, SharePptPreview, ShareCommonHeader, ShareContentLink },
   props: {
     shareContent: {
       type: Object,
@@ -76,6 +77,7 @@ export default {
 
   .share-form-link-tag {
     width: 320px;
+    padding-left: 20px;
   }
 }
 
