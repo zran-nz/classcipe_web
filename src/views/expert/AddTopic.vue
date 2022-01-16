@@ -48,14 +48,14 @@
                       </div>-->
 
                       <div class="form-block">
-                        <comment-switch field-name="name" :is-active="showCollaborateCommentVisible && currentFieldName === 'name'" @switch="handleSwitchComment" class="my-comment-switch"/>
+                        <comment-switch v-show="this.canEdit" field-name="name" :is-active="showCollaborateCommentVisible && currentFieldName === 'name'" @switch="handleSwitchComment" class="my-comment-switch"/>
                         <a-form-item label="Topic Name">
                           <a-input v-model="form.name" placeholder="Enter Topic Name" class="my-form-input"/>
                         </a-form-item>
                       </div>
 
                       <div class="form-block over-form-block" id="overview">
-                        <comment-switch field-name="overview" :is-active="showCollaborateCommentVisible && currentFieldName === 'overview'" @switch="handleSwitchComment" class="my-comment-switch"/>
+                        <comment-switch v-show="this.canEdit" field-name="overview" :is-active="showCollaborateCommentVisible && currentFieldName === 'overview'" @switch="handleSwitchComment" class="my-comment-switch"/>
                         <a-form-model-item class="task-audio-line" label="Topic Overview">
                           <a-textarea class="overview" v-model="form.overview" placeholder="Overview" allow-clear />
                           <!--        <div class="audio-wrapper" v-if="form.audioUrl">
@@ -74,7 +74,7 @@
                       </div>
 
                       <div class="form-block inquiry-form-block" id="inquiry">
-                        <comment-switch field-name="inquiry" :is-active="showCollaborateCommentVisible && currentFieldName === 'inquiry'" @switch="handleSwitchComment" class="my-comment-switch"/>
+                        <comment-switch v-show="this.canEdit" field-name="inquiry" :is-active="showCollaborateCommentVisible && currentFieldName === 'inquiry'" @switch="handleSwitchComment" class="my-comment-switch"/>
                         <!--                <a-divider />-->
                         <a-form-item label="Big idea* (Or statement of inquiry / Enduring understanding)" class="bigIdea" >
                           <a-input
@@ -91,7 +91,13 @@
 
                       <!--            real-life-scenario-->
                       <div class="form-block ">
-                        <comment-switch field-name="sdg" :is-active="showCollaborateCommentVisible && currentFieldName === 'sdg'" @switch="handleSwitchComment" class="my-comment-switch" style="top:40px"/>
+                        <comment-switch
+                          v-show="this.canEdit"
+                          field-name="sdg"
+                          :is-active="showCollaborateCommentVisible && currentFieldName === 'sdg'"
+                          @switch="handleSwitchComment"
+                          class="my-comment-switch"
+                          style="top:40px"/>
                         <a-divider>Teach Goal</a-divider>
                         <a-row>
                           <a-col span="24">
@@ -158,7 +164,7 @@
                       </div>
 
                       <div class="form-block" v-if="!$store.getters.userInfo.disableQuestion">
-                        <comment-switch field-name="question" :is-active="showCollaborateCommentVisible && currentFieldName === 'question'" @switch="handleSwitchComment" class="my-comment-switch"/>
+                        <comment-switch v-show="this.canEdit" field-name="question" :is-active="showCollaborateCommentVisible && currentFieldName === 'question'" @switch="handleSwitchComment" class="my-comment-switch"/>
                         <a-form-item>
                           <span slot="label">
                             <a-tooltip title="Set key question/line of inquiry">
@@ -198,7 +204,7 @@
                       </div>
 
                       <div class="form-block">
-                        <comment-switch field-name="assessment" :is-active="showCollaborateCommentVisible && currentFieldName === 'assessment'" @switch="handleSwitchComment" class="my-comment-switch"/>
+                        <comment-switch v-show="this.canEdit" field-name="assessment" :is-active="showCollaborateCommentVisible && currentFieldName === 'assessment'" @switch="handleSwitchComment" class="my-comment-switch"/>
                         <a-form-item label="Set assessment objectives" >
                           <a-button type="primary" @click="handleSelectDescription()">
                             <div class="btn-text" style="line-height: 20px">

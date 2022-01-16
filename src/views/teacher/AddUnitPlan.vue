@@ -59,6 +59,7 @@
 
                       <div class='form-block'>
                         <comment-switch
+                          v-show="this.canEdit"
                           :is-active="currentFieldName === 'name'"
                           class='my-comment-switch'
                           field-name='name'
@@ -70,6 +71,7 @@
 
                       <div class='form-block form-radio-wrapper'>
                         <comment-switch
+                          v-show="this.canEdit"
                           field-name='projectBased'
                           :is-active="currentFieldName === 'projectBased'"
                           @switch='handleSwitchComment'
@@ -88,6 +90,7 @@
 
                       <div class='form-block form-radio-wrapper'>
                         <comment-switch
+                          v-show="this.canEdit"
                           field-name='unitType'
                           :is-active="currentFieldName === 'unitType'"
                           @switch='handleSwitchComment'
@@ -106,6 +109,7 @@
 
                       <div class='form-block grade-time'>
                         <comment-switch
+                          v-show="this.canEdit"
                           field-name='startDate'
                           :is-active="currentFieldName === 'startDate'"
                           @switch='handleSwitchComment'
@@ -142,7 +146,7 @@
                       </div>
 
                       <!--                      <div class="form-block over-form-block overview" id="overview">-->
-                      <!--                        <comment-switch field-name="overview" :is-active="showCollaborateCommentVisible && currentFieldName === 'overview'" @switch="handleSwitchComment" class="my-comment-switch"/>-->
+                      <!--                        <comment-switch v-show="this.canEdit" field-name="overview" :is-active="showCollaborateCommentVisible && currentFieldName === 'overview'" @switch="handleSwitchComment" class="my-comment-switch"/>-->
                       <!--                        &lt;!&ndash; 暂时隐藏Unit overview模块&ndash;&gt;-->
                       <!--                        <a-form-model-item class="task-audio-line" label="Unit Overview">-->
                       <!--                          <a-textarea class="overview" v-model="form.overview" placeholder="Overview" allow-clear />-->
@@ -186,6 +190,7 @@
 
                       <div id='inquiry' class='form-block inquiry-form-block'>
                         <comment-switch
+                          v-show="this.canEdit"
                           :is-active="currentFieldName === 'inquiry'"
                           class='my-comment-switch'
                           field-name='inquiry'
@@ -209,6 +214,7 @@
                       <!--            real-life-scenario-->
                       <div class='form-block '>
                         <comment-switch
+                          v-show="this.canEdit"
                           :is-active="currentFieldName === 'sdg'"
                           class='my-comment-switch'
                           field-name='sdg'
@@ -306,6 +312,7 @@
                       <div
                         :class="{'form-block': true, 'form-block-disabled' : $store.getters.userInfo.disableQuestion}">
                         <comment-switch
+                          v-show="this.canEdit"
                           v-if='!$store.getters.userInfo.disableQuestion'
                           :is-active="currentFieldName === 'question'"
                           class='my-comment-switch'
@@ -372,6 +379,7 @@
 
                       <div class='form-block'>
                         <comment-switch
+                          v-show="this.canEdit"
                           :is-active="currentFieldName === 'assessment'"
                           class='my-comment-switch'
                           field-name='assessment'
@@ -402,6 +410,7 @@
 
                       <div class='form-block' style='clear:both'>
                         <comment-switch
+                          v-show="this.canEdit"
                           :is-active="currentFieldName === 'prior'"
                           class='my-comment-switch'
                           field-name='prior'
@@ -420,8 +429,8 @@
                   <a-step title='Link Plan content'>
                     <template v-if='currentActiveStepIndex === 1' slot='description'>
                       <div class='form-block'>
-                        <a-form-item class='link-plan-title' label='Add task(s)'>
-                          <a-space>
+                        <a-form-item class='link-plan-title' label='Add task(s)' >
+                          <a-space v-show="canEdit">
                             <a-button
                               :style="{'background-color': '#fff', 'color': '#000', 'border': '1px solid #D8D8D8'}"
                               type='primary'
@@ -445,6 +454,7 @@
                         <div class='common-link-wrapper'>
                           <plan-link
                             ref='planLink'
+                            :can-edit="canEdit"
                             :from-id='this.unitPlanId'
                             :from-type="this.contentType['unit-plan']"
                             @group-name-list-update='handleUpdateGroupNameList' />
@@ -1161,7 +1171,7 @@ export default {
   },
   beforeRouteLeave(to, from, next) {
     var that = this
-    if (this.isOwner || this.isCollaborater) {
+    if (this.canEdit) {
       if (this.initCompleted && JSON.stringify(this.form) !== JSON.stringify(this.oldForm)) {
         this.$confirm({
           title: 'Alert',

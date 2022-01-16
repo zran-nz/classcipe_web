@@ -58,7 +58,7 @@
                       <div class="triangle"></div>
                       <template v-if="parent.customDeep === 1">
                         <div class="skt-tag-list">
-                          <div class="search-tag-wrapper tag-wrapper">
+                          <div class="search-tag-wrapper tag-wrapper" v-if="filterKeywordListInput(parent.keywords).length > 0">
                             <div class="skt-tag-item" v-for="(keyword,tagIndex) in filterKeywordListInput(parent.keywords)" :key="tagIndex" >
                               <a-tag
                                 draggable="true"
@@ -89,7 +89,7 @@
                         >
                           <a-tab-pane v-for="(child,childIndex) in parent.children" :key="childIndex" :tab="child.name">
                             <div class="skt-tag-list">
-                              <div class="search-tag-wrapper tag-wrapper">
+                              <div class="search-tag-wrapper tag-wrapper" v-if="filterKeywordListInput(child.keywords).length > 0">
                                 <div class="skt-tag-item" v-for="(keyword, tagIndex) in filterKeywordListInput(child.keywords)" :key="tagIndex" >
                                   <a-tag
                                     draggable="true"
@@ -100,7 +100,7 @@
                                 </div>
                               </div>
                               <div class="create-tag-wrapper tag-wrapper">
-                                <div class="skt-tag-create-line" @click="handleCreateTagByInput(child,true)" v-show="!tagNameIsExist(createTagName,showTagList) && !tagIsExist(createTagName, filterKeywordListInput(child.keywords)) && createTagName && createTagName.length >= 1">
+                                <div class="skt-tag-create-line" @click="handleCreateTagByInput(child,parent)" v-show="!tagNameIsExist(createTagName,showTagList) && !tagIsExist(createTagName, filterKeywordListInput(child.keywords)) && createTagName && createTagName.length >= 1">
                                   <div class="create-tag-label">
                                     Create
                                   </div>
@@ -262,13 +262,15 @@ export default {
     },
     filterKeywordListInput() {
       return function(keywords) {
-        if (!this.createTagName) {
-          return keywords
-        }
+        let result = keywords
         if (this.inputTag) {
-          return keywords.filter(item => item.toLowerCase().indexOf(this.inputTag.toLowerCase()) > -1)
+          result = keywords.filter(item => item.toLowerCase().indexOf(this.inputTag.toLowerCase()) > -1)
         }
-        return []
+        // 去除已经选择的
+        const existTagNames = this.tagList.map(item => {
+          return item.name.toLowerCase()
+        })
+        return result.filter(item => existTagNames.indexOf(item.toLowerCase()) === -1)
       }
     },
     canCloseTag() {
@@ -319,7 +321,7 @@ export default {
     handleTagItemDrop (item, event) {
       console.log(item)
     },
-    handleCreateTagByInput (parent, isSubTag) {
+    handleCreateTagByInput (parent, superParent) {
       this.$logger.info('skill handleCreateTagByInput ' + this.createTagName)
       const existTag = this.tagList.find(item => item.name.toLowerCase() === this.createTagName.toLowerCase())
       if (existTag) {
@@ -328,8 +330,8 @@ export default {
         var item = {
           name: this.createTagName,
           parentName: parent.name,
-          parentId: isSubTag ? parent.id : '',
-          isGlobal: isSubTag
+          parentId: superParent ? parent.id : '',
+          isGlobal: !!superParent
         }
         this.tagLoading = true
         AddUserTagNew(item).then((response) => {
@@ -340,6 +342,8 @@ export default {
             this.inputTag = ''
             this.$message.success('Add tag successfully')
             this.$emit('change-add-keywords', item)
+
+            this.selectChooseTag(parent, item.name, superParent)
           } else {
             this.$message.error(response.message)
           }

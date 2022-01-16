@@ -373,9 +373,9 @@ export default {
         },
         {
           title: 'Class',
-          dataIndex: 'fileName',
+          dataIndex: 'className',
           width: 200,
-          scopedSlots: { customRender: 'fileName' }
+          scopedSlots: { customRender: 'className' }
         },
         {
           title: 'Status',
@@ -385,9 +385,9 @@ export default {
         },
         {
           title: 'Session name',
-          dataIndex: 'className',
+          dataIndex: 'fileName',
           width: 280,
-          scopedSlots: { customRender: 'className' }
+          scopedSlots: { customRender: 'fileName' }
         },
         {
           title: '',

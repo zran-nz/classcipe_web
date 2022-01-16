@@ -1,9 +1,10 @@
-import { WEBSOCKET_TYPE_INIT } from '@/store/mutation-types'
+import { RECEIVE_MSG, WEBSOCKET_TYPE_INIT } from '@/store/mutation-types'
 import VueWebSocket from '@/websocket'
 
 const websocket = {
   state: {
-    vueSocket: null
+    vueSocket: null,
+    receiveMsg: false
   },
   mutations: {
     [WEBSOCKET_TYPE_INIT]: (state) => {
@@ -15,20 +16,14 @@ const websocket = {
       // if (userInfoList) {
       //   state.userInfoList = userInfoList
       // }
+    },
+    [RECEIVE_MSG]: (state, receiveMsg) => {
+      state.receiveMsg = receiveMsg
     }
   },
   actions: {
-    initData: ({ commit }) => commit(WEBSOCKET_TYPE_INIT)
-    // setLang ({ commit }, lang) {
-    //   return new Promise((resolve, reject) => {
-    //     commit(APP_LANGUAGE, lang)
-    //     loadLanguageAsync(lang).then(() => {
-    //       resolve()
-    //     }).catch((e) => {
-    //       reject(e)
-    //     })
-    //   })
-    // }
+    initData: ({ commit }) => commit(WEBSOCKET_TYPE_INIT),
+    receiveMsg: ({ commit }, receiveMsg) => commit(RECEIVE_MSG, receiveMsg)
   }
 }
 

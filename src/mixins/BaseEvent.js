@@ -46,6 +46,9 @@ export const BaseEventMixin = {
       const index = this.collaborate.users.findIndex(item => item.email === this.$store.getters.userInfo.email)
       return index > -1
     },
+    canEdit() {
+      return this.isOwner || this.isCollaborater
+    },
     showRightModule () {
       return function (module) {
         if (this.showModuleList.indexOf(module) > -1) {

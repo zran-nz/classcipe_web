@@ -734,7 +734,7 @@ export default {
       allStudentUserList: [],
       allNoGroupStudentUserIdList: [], // 所有未分组的学生邮箱列表
       allNoGroupStudentUserList: [], // 所有未分组的学生列表
-      initCompleted: false,
+      initCompleted: false
     }
   },
   beforeRouteLeave(to, from, next) {

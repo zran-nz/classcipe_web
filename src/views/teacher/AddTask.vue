@@ -37,6 +37,7 @@
 
                       <div class='form-block'>
                         <comment-switch
+                          v-show="this.canEdit"
                           field-name='name'
                           :is-active="showCollaborateCommentVisible && currentFieldName === 'name'"
                           @switch='handleSwitchComment'
@@ -47,7 +48,7 @@
                       </div>
 
                       <div class='form-block grade-time'>
-                        <!--   <comment-switch field-name="name" :is-active="showCollaborateCommentVisible && currentFieldName === 'name'" @switch="handleSwitchComment" class="my-comment-switch"/>-->
+                        <!--   <comment-switch v-show="this.canEdit" field-name="name" :is-active="showCollaborateCommentVisible && currentFieldName === 'name'" @switch="handleSwitchComment" class="my-comment-switch"/>-->
                         <a-form-item label='Grade level' style='width:26%;margin-bottom: 0px;'>
                           <a-select
                             size='large'
@@ -81,6 +82,7 @@
 
                       <div class='form-block over-form-block' id='overview'>
                         <comment-switch
+                          v-show="this.canEdit"
                           field-name='overview'
                           :is-active="showCollaborateCommentVisible && currentFieldName === 'overview'"
                           @switch='handleSwitchComment'
@@ -92,6 +94,7 @@
 
                       <div class='form-block taskType'>
                         <comment-switch
+                          v-show="this.canEdit"
                           field-name='taskType'
                           :is-active="showCollaborateCommentVisible && currentFieldName === 'taskType'"
                           @switch='handleSwitchComment'
@@ -122,6 +125,7 @@
 
                       <div class='form-block form-question' v-if='associateQuestionList.length > 0'>
                         <comment-switch
+                          v-show="this.canEdit"
                           field-name='questions'
                           :is-active="showCollaborateCommentVisible && currentFieldName === 'questions'"
                           @switch='handleSwitchComment'
@@ -151,6 +155,7 @@
 
                       <div class='form-block'>
                         <comment-switch
+                          v-show="this.canEdit"
                           field-name='assessment'
                           :is-active="showCollaborateCommentVisible && currentFieldName === 'assessment'"
                           @switch='handleSwitchComment'
@@ -226,6 +231,7 @@
                     <template v-if="currentActiveStepIndex === 1" slot="description">
                       <div class="edit-in-slide" v-if="!form.fileDeleted">
                         <a-button
+                          v-show="canEdit"
                           class='action-ensure action-item edit-slide'
                           type='primary'
                           shape='round'
@@ -325,6 +331,7 @@
                                     </div>
                                   </a-button>
                                   <a-button
+                                    v-show="canEdit"
                                     class='action-ensure action-item'
                                     shape='round'
                                     @click='removeSelectTemplate(template)'>
@@ -449,7 +456,7 @@
                   <a-step
                     title='Save sub-task(s)'
                     :status="currentActiveStepIndex === 2 ? 'process':'wait'"
-                    v-show='thumbnailList.length > 1'>
+                    v-show='thumbnailList.length > 1 && canEdit'>
                     <div
                       slot='icon'
                       :class="{
@@ -582,8 +589,8 @@
 
                     <template v-if='currentActiveStepIndex === 3' slot='description'>
                       <div class='form-block'>
-                        <a-form-item class='link-plan-title'>
-                          <a-space>
+                        <a-form-item class='link-plan-title' >
+                          <a-space v-show="canEdit">
                             <a-button
                               type='primary'
                               :style="{'background-color': '#fff', 'color': '#000', 'border': '1px solid #D8D8D8'}"
@@ -603,7 +610,7 @@
                           </a-space>
                         </a-form-item>
                         <div class='common-link-wrapper'>
-                          <common-link ref='commonLink' :from-id='this.taskId' :from-type='this.contentType.task' />
+                          <common-link :can-edit="canEdit" ref='commonLink' :from-id='this.taskId' :from-type='this.contentType.task' />
                         </div>
                       </div>
                     </template>
@@ -709,7 +716,7 @@
                   <div class='recommend-loading' v-if='recomendListLoading'>
                     <a-spin size='large' />
                   </div>
-                  <div class='form-block-right' v-if='!recomendListLoading'>
+                  <div class='form-block-right' v-if='!recomendListLoading && canEdit'>
                     <div class='right-title'>Recommended</div>
                     <div class='slide-preview-list'>
                       <div
@@ -1936,7 +1943,7 @@ export default {
   watch: {
     'selectedTemplateList': function(value) {
       this.$logger.info('watch selectedTemplateList change ', value)
-      if (this.isOwner || this.isCollaborater) {
+      if (this.canEdit) {
         this.autoSave()
       }
     }
@@ -1945,7 +1952,7 @@ export default {
     this.$logger.info('beforeRouteLeave', to, from, next)
     // owner或者协同着可以save
     var that = this
-    if (this.isOwner || this.isCollaborater) {
+    if (this.canEdit) {
       if (this.initCompleted && JSON.stringify(this.form) !== JSON.stringify(this.oldForm)) {
         this.$confirm({
           title: 'Alert',

@@ -2,7 +2,7 @@ import { WebSocketMessage } from './message/webMessage'
 import vuexStore from '@/store'
 import * as logger from '@/utils/logger'
 import { ACCESS_TOKEN } from '@/store/mutation-types'
-import GetFriendResultHandler from '@/websocket/handler/getfriendresultHandler'
+import ReceiveMsgHandler from '@/websocket/handler/receiveMsgHandler'
 import { CONNECT, DISCONNECT, HEARTCHECK } from '@/websocket/cmd'
 import LocalStore from '@/websocket/localstore'
 
@@ -97,7 +97,7 @@ export default class VueWebSocket {
     }
 
     initHandlerList() {
-        this.handlerList.push(new GetFriendResultHandler(this))
+        this.handlerList.push(new ReceiveMsgHandler(this))
     }
 
     processMessage(data) {

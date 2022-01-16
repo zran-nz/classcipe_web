@@ -6,7 +6,7 @@ export const CONNECT_ACK = 'CONNECT_ACK'
 export const PUBLISH = 'PUBLISH'
 export const PUB_ACK = 'PUB_ACK'
 // cmd
-export const FRP = 'FRP'
+export const RECEIVE_MSG = 'user'
 export const FP = 'FP'
 export const FALS = 'FALS'
 export const UPUI = 'UPUI'
