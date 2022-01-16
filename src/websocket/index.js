@@ -5,6 +5,7 @@ import { ACCESS_TOKEN } from '@/store/mutation-types'
 import ReceiveMsgHandler from '@/websocket/handler/receiveMsgHandler'
 import { CONNECT, DISCONNECT, HEARTCHECK } from '@/websocket/cmd'
 import LocalStore from '@/websocket/localstore'
+import ReceiveCollaborateHandler from '@/websocket/handler/receiveCollaborateHandler'
 
 export default class VueWebSocket {
     handlerList = [];
@@ -98,6 +99,7 @@ export default class VueWebSocket {
 
     initHandlerList() {
         this.handlerList.push(new ReceiveMsgHandler(this))
+        this.handlerList.push(new ReceiveCollaborateHandler(this))
     }
 
     processMessage(data) {

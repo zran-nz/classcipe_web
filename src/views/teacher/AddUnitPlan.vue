@@ -17,16 +17,6 @@
     </div>
     <a-card :bodyStyle="{ padding: '16px 24px', height: '100%', minHeight: '1200px' }" :bordered='false'>
       <a-row v-if='!contentLoading' class='unit-content'>
-        <!--        <a-col span="4" v-if="showSidebar">
-          <associate-sidebar
-            :name="form.name"
-            :type="contentType['unit-plan']"
-            :id="unitPlanId"
-            ref="associate"
-            @create="showSelectAddContentTypeVisible"
-            @link="showSelectLinkContentVisible"
-            :show-create="true"/>
-        </a-col>-->
         <a-col class='main-content' span='24'>
           <a-card
             :body-style="{ padding: '16px', display: 'flex', 'justify-content': 'space-between'}"
@@ -58,6 +48,7 @@
                       </div>-->
 
                       <div class='form-block'>
+                        <collaborate-tooltip :form-id="unitPlanId" fieldName="name" />
                         <comment-switch
                           v-show="this.canEdit"
                           :is-active="currentFieldName === 'name'"
@@ -65,11 +56,12 @@
                           field-name='name'
                           @switch='handleSwitchComment' />
                         <a-form-item label='Unit Name'>
-                          <a-input v-model='form.name' class='my-form-input' placeholder='Enter Unit Name' />
+                          <a-input v-model='form.name' class='my-form-input' placeholder='Enter Unit Name' @change="handleCollborateEvent(unitPlanId,'name',form.name)" />
                         </a-form-item>
                       </div>
 
                       <div class='form-block form-radio-wrapper'>
+                        <collaborate-tooltip :form-id="unitPlanId" fieldName="projectBased" style="top:-30px" />
                         <comment-switch
                           v-show="this.canEdit"
                           field-name='projectBased'
@@ -77,7 +69,7 @@
                           @switch='handleSwitchComment'
                           class='my-comment-switch' />
                         <a-form-item label='Project-based Unit' style='display:flex'>
-                          <a-radio-group name='radioGroup' v-model='form.projectBased' style='margin-left:20px;'>
+                          <a-radio-group name='radioGroup' v-model='form.projectBased' style='margin-left:20px;' @change="handleCollborateEvent(unitPlanId,'projectBased',form.projectBased)" >
                             <a-radio :value='1'>
                               Yes
                             </a-radio>
@@ -89,6 +81,7 @@
                       </div>
 
                       <div class='form-block form-radio-wrapper'>
+                        <collaborate-tooltip :form-id="unitPlanId" fieldName="unitType" style="top:-30px"/>
                         <comment-switch
                           v-show="this.canEdit"
                           field-name='unitType'
@@ -96,7 +89,7 @@
                           @switch='handleSwitchComment'
                           class='my-comment-switch' />
                         <a-form-item label='Unit type' style='display:flex'>
-                          <a-radio-group name='unitType' v-model='form.unitType' style='margin-left:20px;'>
+                          <a-radio-group name='unitType' v-model='form.unitType' style='margin-left:20px;' @change="handleCollborateEvent(unitPlanId,'unitType',form.unitType)" >
                             <a-radio :value='0'>
                               Single-subject Unit
                             </a-radio>
@@ -108,6 +101,7 @@
                       </div>
 
                       <div class='form-block grade-time'>
+                        <collaborate-tooltip :form-id="unitPlanId" fieldName="grade-time" />
                         <comment-switch
                           v-show="this.canEdit"
                           field-name='startDate'
@@ -189,6 +183,7 @@
                       <!--                      </div>-->
 
                       <div id='inquiry' class='form-block inquiry-form-block'>
+                        <collaborate-tooltip :form-id="unitPlanId" field-name='inquiry' />
                         <comment-switch
                           v-show="this.canEdit"
                           :is-active="currentFieldName === 'inquiry'"
@@ -202,6 +197,7 @@
                             :placeholder="$store.getters.currentRole === 'teacher' ? $t('teacher.add-unit-plan.teacher-direction-of-inquiry') : $t('teacher.add-unit-plan.expert-direction-of-inquiry')"
                             auto-size
                             class='my-form-textarea inquiry'
+                            @change="handleCollborateEvent(unitPlanId,'inquiry',form.inquiry)"
                           />
                         </a-form-item>
                         <a-tooltip title='Browse' @click.stop='selectBigIdeaDataVisible=true'>
@@ -940,6 +936,7 @@ import AssessmentTaskDetails from '@/components/UnitPlan/AssessmentTaskDetails'
 import { BaseEventMixin } from '@/mixins/BaseEvent'
 import ShareContentSetting from '@/components/Share/ShareContentSetting'
 import { QueryContentShare } from '@/api/share'
+import CollaborateTooltip from '@/components/Collaborate/CollaborateTooltip'
 
 export default {
   name: 'AddUnitPlan',
@@ -971,7 +968,8 @@ export default {
     commentIcon,
     UiLearnOut,
     BigIdeaBrowse,
-    Collapse
+    Collapse,
+    CollaborateTooltip
   },
   props: {
     unitPlanId: {
@@ -3182,6 +3180,9 @@ export default {
 .form-block {
   margin-bottom: 10px;
   position: relative;
+  .cb-tooltip{
+
+  }
 
   &:hover {
     .my-comment-switch {

@@ -1,4 +1,8 @@
 import { QueryContentCollaborates } from '@/api/collaborate'
+import { COLLABORATE } from '@/websocket/cmd'
+import UserInfo from '@/websocket/model/userInfo'
+import vuexStore from '@/store'
+import CollborateMsg from '@/websocket/model/collborateMsg'
 
 export const RightModule = {
   'collaborate': 1,
@@ -119,6 +123,15 @@ export const BaseEventMixin = {
       } else {
         this.$router.push({ path: '/teacher/main/created-by-me' })
       }
+    },
+    handleCollborateEvent(formId, fieldName, inputValue) {
+      const collaborate = new CollborateMsg()
+      collaborate.id = formId
+      collaborate.fieldName = fieldName
+      collaborate.inputValue = inputValue
+      const userIds = this.collaborate.users.map(item => { return item.userId })
+      this.$store.getters.vueSocket.sendMessageToUsers(COLLABORATE, userIds,
+        CollborateMsg.convert2CollborateMsg(collaborate))
     }
   }
 
