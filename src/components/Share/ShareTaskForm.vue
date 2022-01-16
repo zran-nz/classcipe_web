@@ -5,7 +5,7 @@
         Task name
       </div>
       <div class='form-item-text'>
-        {{shareContent.task.name}}
+        {{ shareContent.task.name }}
       </div>
     </div>
 
@@ -14,7 +14,7 @@
         Start Date
       </div>
       <div class='form-item-text'>
-        {{shareContent.task.startDate}} - {{shareContent.task.endDate}}
+        {{ shareContent.task.startDate }} - {{ shareContent.task.endDate }}
       </div>
     </div>
 
@@ -23,7 +23,7 @@
         Task details
       </div>
       <div class='form-item-text'>
-        {{shareContent.task.overview}}
+        {{ shareContent.task.overview }}
       </div>
     </div>
 
@@ -32,7 +32,7 @@
         Task Type
       </div>
       <div class='form-item-text'>
-        {{shareContent.task.taskType}}
+        {{ shareContent.task.taskType }}
       </div>
     </div>
 
@@ -128,7 +128,6 @@ export default {
 
 <style lang="less" scoped>
 @import "~@/components/index.less";
-
 
 .share-task-form {
   background: #F7F8FF;

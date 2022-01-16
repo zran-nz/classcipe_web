@@ -674,6 +674,8 @@ export default {
         copyFrom: null // null
       },
       forms: [], // 评估表格数据
+      oldFormsJson: null, // 保存旧的评估表格数据
+      oldStudentEvaluationJson: null, // 保存旧的评估数据
       groups: [], // 班级分组信息
 
       selectedGroupIdList: [],
@@ -690,7 +692,7 @@ export default {
       selectRubricVisible: false,
       newFormType: EvaluationTableType.CenturySkills,
       rubricType: 'create',
-      newTableName: 'Evaluation Form',
+      newTableName: '21st Century Skills',
 
       currentEditingTitle: null,
       currentFormItem: null,
@@ -731,7 +733,32 @@ export default {
 
       allStudentUserList: [],
       allNoGroupStudentUserIdList: [], // 所有未分组的学生邮箱列表
-      allNoGroupStudentUserList: [] // 所有未分组的学生列表
+      allNoGroupStudentUserList: [], // 所有未分组的学生列表
+      initCompleted: false,
+    }
+  },
+  beforeRouteLeave(to, from, next) {
+    this.$logger.info('beforeRouteLeave', to, from, next)
+    this.$logger.info('forms', this.forms, 'oldFormsJson', this.oldFormsJson)
+    this.$logger.info('studentEvaluateData', this.studentEvaluateData, 'oldStudentEvaluationJson', this.oldStudentEvaluationJson)
+    if (this.initCompleted && (JSON.stringify(this.forms) !== this.oldFormsJson || JSON.stringify(this.studentEvaluateData) !== this.oldStudentEvaluationJson)) {
+      this.$confirm({
+        title: 'Alert',
+        okText: 'Save',
+        cancelText: 'No',
+        content: 'Do you want to save the changes?',
+        onOk: () => {
+          this.handleSaveEvaluation()
+          setTimeout(() => {
+            next()
+          }, 500)
+        },
+        onCancel() {
+          next()
+        }
+      })
+    } else {
+      next()
     }
   },
   created () {
@@ -807,6 +834,8 @@ export default {
         } else {
           this.loadClassSessionEvaluationData()
         }
+
+        this.initCompleted = true
       })
     },
 
@@ -884,6 +913,7 @@ export default {
           })
 
           this.$logger.info('forms', this.forms)
+          this.oldFormsJson = JSON.stringify(this.forms)
 
           // forms为空那么数据已经失效
           if (!this.forms.length) {
@@ -924,6 +954,7 @@ export default {
         this.$logger.info('isEmptyStudentEvaluateData ' + isEmptyStudentEvaluateData, data.evaluation)
         if (!isEmptyStudentEvaluateData) {
           this.studentEvaluateData = JSON.parse(data.evaluation.studentEvaluateData)
+          this.oldStudentEvaluationJson = data.evaluation.studentEvaluateData
           if (allStudentUserIdList.length && this.mode !== EvaluationTableMode.Edit && this.formTableMode !== EvaluationTableMode.Preview) {
             this.currentActiveStudentId = allStudentUserIdList[0]
             this.selectedMemberIdList.push(this.currentActiveStudentId)
@@ -963,6 +994,7 @@ export default {
 
           this.$logger.info('studentEvaluateData init finished ', studentEvaluateData)
           this.studentEvaluateData = studentEvaluateData
+          this.oldStudentEvaluationJson = JSON.stringify(studentEvaluateData)
 
           if (this.mode !== EvaluationTableMode.Edit && this.formTableMode === EvaluationTableMode.Preview) {
             // 默认选中第一个学生的第一个评估表格
@@ -1756,6 +1788,7 @@ export default {
       } else if (newFormType === EvaluationTableType.CenturySkills) {
         this.newTableName = '21st Century Skills ' + (this.forms.length + 1)
       }
+      this.$logger.info('newTableName', this.newTableName)
     },
 
     handleDeleteForm (formItem) {
@@ -1976,6 +2009,14 @@ export default {
     },
     handleToggleFormType (formType) {
       this.newFormType = formType
+      if (formType === EvaluationTableType.Rubric) {
+        this.newTableName = 'Rubric ' + (this.forms.length + 1)
+      } else if (formType === EvaluationTableType.Rubric_2) {
+        this.newTableName = 'Rubric ' + (this.forms.length + 1)
+      } else if (formType === EvaluationTableType.CenturySkills) {
+        this.newTableName = '21st Century Skills ' + (this.forms.length + 1)
+      }
+      this.$logger.info('newTableName', this.newTableName)
     },
 
     handleUpdateHeader (header) {
