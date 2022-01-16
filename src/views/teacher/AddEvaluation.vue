@@ -302,7 +302,7 @@ export default {
       selectRubricVisible: false,
       newFormType: EvaluationTableType.CenturySkills,
       rubricType: 'create',
-      newTableName: '',
+      newTableName: '21st Century Skills',
 
       currentEditingTitle: null,
       currentFormItem: null,
@@ -388,7 +388,7 @@ export default {
     handleAddFormTable () {
       this.$logger.info('handleAddFormTable')
       const count = this.forms.length + 1
-      this.newTableName = 'Rubric one ' + count
+      this.newTableName = 'Rubric ' + count
       this.newFormType = EvaluationTableType.Rubric
       this.selectRubricVisible = true
     },
@@ -691,6 +691,14 @@ export default {
     },
     handleToggleFormType (formType) {
       this.newFormType = formType
+      if (formType === EvaluationTableType.Rubric) {
+        this.newTableName = 'Rubric ' + (this.forms.length + 1)
+      } else if (formType === EvaluationTableType.Rubric_2) {
+        this.newTableName = 'Rubric ' + (this.forms.length + 1)
+      } else if (formType === EvaluationTableType.CenturySkills) {
+        this.newTableName = '21st Century Skills ' + (this.forms.length + 1)
+      }
+      this.$logger.info('newTableName', this.newTableName)
     },
     handleUpdateHeader (header) {
       this.$logger.info('AddEvaluation handleUpdateHeader')

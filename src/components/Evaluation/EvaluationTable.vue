@@ -1205,8 +1205,8 @@ export default {
 
       // 新增表头
       const headerItem = {
-        label: 'Unnamed Level ' + this.selfHeaderAddIndex,
-        previewLabel: 'Unnamed Level ' + this.selfHeaderAddIndex,
+        label: 'Unnamed Level ',
+        previewLabel: 'Unnamed Level ',
         type: userDefineHeaderType,
         editable: true,
         editing: false,
@@ -1546,7 +1546,7 @@ export default {
           }
         }
 
-        this.list = this.list.filter(item => (!item.description || item.description.name))
+        this.list = this.list.filter(item => (!item.description || item.description.name) || (!item.criteria || item.criteria.name))
         this.$logger.info('CenturySkills 过滤掉没有Description的行', this.list)
       } else if (this.formType === this.tableType.Rubric) {
         if (selectedList.length >= 1) {
