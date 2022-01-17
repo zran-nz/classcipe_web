@@ -447,11 +447,6 @@ export const constantRouterMap = [
         component: () => import(/* webpackChunkName: "registerResult" */ '@/views/user/RegisterResult')
       },
       {
-        path: 'auth-result',
-        name: 'authResult',
-        component: () => import(/* webpackChunkName: "authResult" */ '@/views/user/AuthResult')
-      },
-      {
         path: 'select-role',
         name: 'selectRole',
         component: () => import(/* webpackChunkName: "selectRole" */ '@/views/user/SelectRole')
@@ -467,6 +462,12 @@ export const constantRouterMap = [
         component: () => import(/* webpackChunkName: "authCheck" */ '@/views/user/AuthCheck')
       }
     ]
+  },
+  {
+    path: '/user/auth-result',
+    name: 'authResult',
+    component: () => import(/* webpackChunkName: "authResult" */ '@/views/user/AuthResult'),
+    props: true
   },
   {
     path: '/addon/callback',

@@ -628,9 +628,9 @@ export default {
       }).finally(() => {
         this.loading = false
         this.skeletonLoading = false
-        if (this.currentStatus !== 'archived') {
-          this.checkGoogleTokenExpired()
-        }
+        // if (this.currentStatus !== 'archived') {
+        //   this.checkGoogleTokenExpired()
+        // }
       })
     },
     toggleStatus (status, label) {
