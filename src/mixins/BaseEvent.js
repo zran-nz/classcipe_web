@@ -1,7 +1,5 @@
 import { QueryContentCollaborates } from '@/api/collaborate'
 import { COLLABORATE } from '@/websocket/cmd'
-import UserInfo from '@/websocket/model/userInfo'
-import vuexStore from '@/store'
 import CollborateMsg from '@/websocket/model/collborateMsg'
 
 export const RightModule = {
