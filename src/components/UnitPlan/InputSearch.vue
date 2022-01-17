@@ -77,6 +77,7 @@ export default {
     handleSearch () {
       logger.info('handleSearch' + this.value)
       this.$emit('search', this.keyIndex, this.value)
+      this.$emit('change')
     },
     handleSelectItem (item) {
       logger.info('handleSelectItem', item)

@@ -15,7 +15,7 @@ export default class VueWebSocket {
     constructor() {
         const userId = vuexStore.getters.userInfo.id
         this.port = 443
-        this.heartbeatTimeout = 25 * 1000
+        this.heartbeatTimeout = 55 * 1000
         this.reconnectInterval = 30 * 1000
         this.binaryType = 'blob'
         this.url = process.env.VUE_APP_API_BASE_URL.replace('https://', 'wss://') + '/classcipe/websocket/' + userId + '/' + Math.random().toString(36).substr(-10)
