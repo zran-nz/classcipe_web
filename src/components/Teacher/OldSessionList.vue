@@ -93,7 +93,7 @@ export default {
         },
         {
           title: 'Class',
-          dataIndex: 'className'
+          dataIndex: 'realClassName'
         },
         {
           title: 'Code',
