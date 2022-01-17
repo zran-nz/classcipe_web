@@ -36,6 +36,7 @@
                     <template v-if='currentActiveStepIndex === 0' slot='description'>
 
                       <div class='form-block'>
+                        <collaborate-tooltip :form-id="taskId" fieldName="name" />
                         <comment-switch
                           v-show="this.canEdit"
                           field-name='name'
@@ -43,11 +44,18 @@
                           @switch='handleSwitchComment'
                           class='my-comment-switch' />
                         <a-form-item label='Task name'>
-                          <a-input v-model='form.name' placeholder='Enter Task Name' class='my-form-input' />
+                          <a-input v-model='form.name' placeholder='Enter Task Name' class='my-form-input' @change="handleCollaborateEvent(taskId,'name',form.name)" />
                         </a-form-item>
                       </div>
 
                       <div class='form-block grade-time'>
+                        <collaborate-tooltip :form-id="taskId" fieldName="startDate" />
+                        <comment-switch
+                          v-show="this.canEdit"
+                          field-name='startDate'
+                          :is-active="currentFieldName === 'startDate'"
+                          @switch='handleSwitchComment'
+                          class='my-comment-switch' />
                         <!--   <comment-switch v-show="this.canEdit" field-name="name" :is-active="showCollaborateCommentVisible && currentFieldName === 'name'" @switch="handleSwitchComment" class="my-comment-switch"/>-->
                         <a-form-item label='Grade level' style='width:26%;margin-bottom: 0px;'>
                           <a-select
@@ -70,6 +78,7 @@
                             </a-tag>
                           </div>
                           <a-range-picker
+                            @openChange="handleCollaborateEvent(taskId,'startDate',form.startDate)"
                             v-model='rangeDate'
                             size='large'
                             format='LLL'
@@ -81,6 +90,7 @@
                       </div>
 
                       <div class='form-block over-form-block' id='overview'>
+                        <collaborate-tooltip :form-id="taskId" fieldName="overview" />
                         <comment-switch
                           v-show="this.canEdit"
                           field-name='overview'
@@ -88,11 +98,12 @@
                           @switch='handleSwitchComment'
                           class='my-comment-switch' />
                         <a-form-model-item class='task-audio-line' label='Task details' ref='overview'>
-                          <a-textarea autoSize v-model='form.overview' placeholder='Details' allow-clear />
+                          <a-textarea autoSize v-model='form.overview' placeholder='Details' allow-clear @change="handleCollaborateEvent(taskId,'overview',form.overview)" />
                         </a-form-model-item>
                       </div>
 
                       <div class='form-block taskType'>
+                        <collaborate-tooltip :form-id="taskId" fieldName="taskType" style="left:20px" />
                         <comment-switch
                           v-show="this.canEdit"
                           field-name='taskType'
@@ -124,6 +135,7 @@
                       </div>
 
                       <div class='form-block form-question' v-if='associateQuestionList.length > 0'>
+                        <collaborate-tooltip :form-id="taskId" fieldName="questions" />
                         <comment-switch
                           v-show="this.canEdit"
                           field-name='questions'
@@ -132,6 +144,7 @@
                           class='my-comment-switch' />
                         <a-form-model-item label='Choose Key questions'>
                           <a-select
+                            @change="handleCollaborateEvent(taskId,'startDate',form.questions)"
                             size='large'
                             class='my-big-select'
                             v-model='form.questionIds'
@@ -154,6 +167,7 @@
                       </div>
 
                       <div class='form-block'>
+                        <collaborate-tooltip :form-id="taskId" fieldName="assessment" style="left:100px" />
                         <comment-switch
                           v-show="this.canEdit"
                           field-name='assessment'
@@ -176,6 +190,13 @@
                       </div>
 
                       <div class='form-block' style='clear: both'>
+                        <collaborate-tooltip :form-id="taskId" fieldName="materialList" />
+                        <comment-switch
+                          v-show="this.canEdit"
+                          field-name='materialList'
+                          :is-active="showCollaborateCommentVisible && currentFieldName === 'materialList'"
+                          @switch='handleSwitchComment'
+                          class='my-comment-switch' />
                         <div class='form-block-label'>
                           <a-switch v-model='materialListFlag' @change='handleMaterialListFlagChange' />
                           Material list
@@ -190,7 +211,8 @@
                                 <a-input
                                   v-model='materialItem.name'
                                   aria-placeholder='Enter material name'
-                                  placeholder='Enter material name' />
+                                  placeholder='Enter material name'
+                                  @change="handleCollaborateEvent(taskId,'materialList',form.materialList)"/>
                               </a-col>
                               <a-col span='14'>
                                 <a-tooltip placement='topLeft'>
@@ -201,7 +223,8 @@
                                   <a-input
                                     v-model='materialItem.link'
                                     aria-placeholder='Enter URL'
-                                    placeholder='Enter URL'>
+                                    placeholder='Enter URL'
+                                    @change="handleCollaborateEvent(taskId,'materialList',form.materialList)" >
                                     <a-icon slot='prefix' type='link' />
                                   </a-input>
                                 </a-tooltip>
@@ -589,6 +612,13 @@
 
                     <template v-if='currentActiveStepIndex === 3' slot='description'>
                       <div class='form-block'>
+                        <collaborate-tooltip :form-id="taskId" field-name='link' />
+                        <comment-switch
+                          v-show="this.canEdit"
+                          :is-active="currentFieldName === 'link'"
+                          class='my-comment-switch'
+                          field-name='link'
+                          @switch='handleSwitchComment' />
                         <a-form-item class='link-plan-title' >
                           <a-space v-show="canEdit">
                             <a-button
@@ -1666,6 +1696,7 @@ import moment from 'moment'
 import { BaseEventMixin } from '@/mixins/BaseEvent'
 import ShareContentSetting from '@/components/Share/ShareContentSetting'
 import { QueryContentShare } from '@/api/share'
+import CollaborateTooltip from '@/components/Collaborate/CollaborateTooltip'
 
 const { SplitTask } = require('@/api/task')
 
@@ -1702,7 +1733,8 @@ export default {
     commentIcon,
     TaskMaterialPreview,
     MediaPreview,
-    ExpendSvg
+    ExpendSvg,
+    CollaborateTooltip
   },
   mixins: [PptPreviewMixin, UtilMixin, BaseEventMixin],
   props: {
@@ -2220,6 +2252,9 @@ export default {
       this.setRightModuleVisible(this.rightModule.customTag)
       this.customTagTop = 450
       this.showCustomTag = true
+
+      // #协同编辑event事件
+      this.handleCollaborateEvent(this.taskId, 'taskType', this.form.taskType)
     },
 
     handleSelectSubTaskType(type) {
@@ -2759,6 +2794,9 @@ export default {
       } else {
         this.$message.warn('Task Info is empty, please fill the form first!')
       }
+
+      // #协同编辑event事件
+      this.handleCollaborateEvent(this.taskId, 'link', this.associateUnitPlanIdList)
     },
     handleAddTerm() {
       this.$logger.info('handleAddTerm', this.groupNameList)
@@ -2773,6 +2811,8 @@ export default {
       } else {
         this.$message.warn('Task Info is empty, please fill the form first!')
       }
+      // #协同编辑event事件
+      this.handleCollaborateEvent(this.taskId, 'link', this.associateUnitPlanIdList)
     },
     handleEnsureSelectedLink(data) {
       this.$logger.info('handleEnsureSelectedLink', data)
@@ -2781,6 +2821,8 @@ export default {
       this.getAssociate()
       // 刷新组件内的列表
       this.$refs.commonLink.getAssociate()
+      // #协同编辑event事件
+      this.handleCollaborateEvent(this.taskId, 'link', this.associateUnitPlanIdList)
     },
 
     getAssociate() {
@@ -2992,6 +3034,7 @@ export default {
           knowledgeId: data.knowledgeData.id,
           name: data.knowledgeData.name,
           tagType: data.knowledgeData.tagType,
+          gradeId: data.knowledgeData.selectedGradeId,
           path: data.knowledgeData.path,
           tags: data.tags
         })
@@ -3006,6 +3049,7 @@ export default {
         this.form.learnOuts.push({
           knowledgeId: data.knowledgeData.id,
           name: data.knowledgeData.name,
+          gradeId: data.knowledgeData.selectedGradeId,
           tagType: data.knowledgeData.tagType,
           path: data.knowledgeData.path
         })
@@ -3020,6 +3064,9 @@ export default {
       if (index > -1) {
         this.form.learnOuts.splice(index, 1)
       }
+
+      // #协同编辑event事件
+      this.handleCollaborateEvent(this.taskId, 'assessment', this.form.assessment)
     },
     handleSelectDescription() {
       // 获取当前task关联的unit-plan的描述数据
@@ -3033,6 +3080,9 @@ export default {
       })
       this.$logger.info('handleSelectDescription selectedList', this.selectedList, ' recommendData ', this.recommendData)
       this.selectSyncDataVisible = true
+
+      // #协同编辑event事件
+      this.handleCollaborateEvent(this.taskId, 'assessment', this.form.assessment)
     },
     // 加载协作的评论和历史记录数据
     loadCollaborateData() {
@@ -3267,6 +3317,9 @@ export default {
       this.currentCollaborateCommentList = list
       this.collaborateTop = data.top
       this.$logger.info('currentCollaborateCommentList', list)
+
+      // #协同编辑event事件
+      this.handleCollaborateEvent(this.taskId, data.fieldName, data.fieldName)
     },
 
     // 每次点击都重新加载一下最新数据

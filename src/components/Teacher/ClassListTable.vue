@@ -29,7 +29,7 @@
             </div>
           </span>
 
-          <span slot="fileName" slot-scope="text, record" class="flex-center">
+          <span slot="className" slot-scope="text, record" class="flex-center">
             <div class="class-name">
               <a-input
                 ref="inputRef"
@@ -373,9 +373,9 @@ export default {
         },
         {
           title: 'Class',
-          dataIndex: 'className',
+          dataIndex: 'realClassName',
           width: 200,
-          scopedSlots: { customRender: 'className' }
+          scopedSlots: { customRender: 'realClassName' }
         },
         {
           title: 'Status',
@@ -385,9 +385,9 @@ export default {
         },
         {
           title: 'Session name',
-          dataIndex: 'fileName',
+          dataIndex: 'className',
           width: 280,
-          scopedSlots: { customRender: 'fileName' }
+          scopedSlots: { customRender: 'className' }
         },
         {
           title: '',
@@ -499,7 +499,7 @@ export default {
         this.createNewName = ''
         return
       }
-      this.editItem.fileName = this.createNewName
+      this.editItem.className = this.createNewName
       AddOrUpdateClass(this.editItem).then(response => {
         this.editItem = {}
         this.createNewName = ''

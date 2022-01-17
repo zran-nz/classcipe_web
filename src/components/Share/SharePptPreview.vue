@@ -225,7 +225,8 @@ export default {
   }
 
   .img-list-wrapper {
-    width: 80%;
+    width: 90%;
+    padding-right: 15px;
 
     .img-list {
       cursor: pointer;

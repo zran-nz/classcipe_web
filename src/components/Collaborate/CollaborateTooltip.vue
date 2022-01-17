@@ -13,10 +13,6 @@
 
 <script>
 
-import storage from 'store'
-import { ACCESS_TOKEN } from '@/store/mutation-types'
-import { COLLABORATE } from '@/websocket/cmd'
-
 export default {
   name: 'CollaborateTooltip',
   components: {

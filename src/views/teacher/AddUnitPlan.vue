@@ -56,7 +56,7 @@
                           field-name='name'
                           @switch='handleSwitchComment' />
                         <a-form-item label='Unit Name'>
-                          <a-input v-model='form.name' class='my-form-input' placeholder='Enter Unit Name' @change="handleCollborateEvent(unitPlanId,'name',form.name)" />
+                          <a-input v-model='form.name' class='my-form-input' placeholder='Enter Unit Name' @change="handleCollaborateEvent(unitPlanId,'name',form.name)" />
                         </a-form-item>
                       </div>
 
@@ -69,7 +69,7 @@
                           @switch='handleSwitchComment'
                           class='my-comment-switch' />
                         <a-form-item label='Project-based Unit' style='display:flex'>
-                          <a-radio-group name='radioGroup' v-model='form.projectBased' style='margin-left:20px;' @change="handleCollborateEvent(unitPlanId,'projectBased',form.projectBased)" >
+                          <a-radio-group name='radioGroup' v-model='form.projectBased' style='margin-left:20px;' @change="handleCollaborateEvent(unitPlanId,'projectBased',form.projectBased)" >
                             <a-radio :value='1'>
                               Yes
                             </a-radio>
@@ -89,7 +89,7 @@
                           @switch='handleSwitchComment'
                           class='my-comment-switch' />
                         <a-form-item label='Unit type' style='display:flex'>
-                          <a-radio-group name='unitType' v-model='form.unitType' style='margin-left:20px;' @change="handleCollborateEvent(unitPlanId,'unitType',form.unitType)" >
+                          <a-radio-group name='unitType' v-model='form.unitType' style='margin-left:20px;' @change="handleCollaborateEvent(unitPlanId,'unitType',form.unitType)" >
                             <a-radio :value='0'>
                               Single-subject Unit
                             </a-radio>
@@ -101,7 +101,7 @@
                       </div>
 
                       <div class='form-block grade-time'>
-                        <collaborate-tooltip :form-id="unitPlanId" fieldName="grade-time" />
+                        <collaborate-tooltip :form-id="unitPlanId" fieldName="startDate" />
                         <comment-switch
                           v-show="this.canEdit"
                           field-name='startDate'
@@ -129,6 +129,7 @@
                             </a-tag>
                           </div>
                           <a-range-picker
+                            @openChange="handleCollaborateEvent(unitPlanId,'startDate',form.startDate)"
                             v-model='rangeDate'
                             :show-time="{ format: 'HH:mm' }"
                             format='LLL'
@@ -197,7 +198,7 @@
                             :placeholder="$store.getters.currentRole === 'teacher' ? $t('teacher.add-unit-plan.teacher-direction-of-inquiry') : $t('teacher.add-unit-plan.expert-direction-of-inquiry')"
                             auto-size
                             class='my-form-textarea inquiry'
-                            @change="handleCollborateEvent(unitPlanId,'inquiry',form.inquiry)"
+                            @change="handleCollaborateEvent(unitPlanId,'inquiry',form.inquiry)"
                           />
                         </a-form-item>
                         <a-tooltip title='Browse' @click.stop='selectBigIdeaDataVisible=true'>
@@ -209,6 +210,7 @@
 
                       <!--            real-life-scenario-->
                       <div class='form-block '>
+                        <collaborate-tooltip :form-id="unitPlanId" fieldName="sdg" />
                         <comment-switch
                           v-show="this.canEdit"
                           :is-active="currentFieldName === 'sdg'"
@@ -229,8 +231,8 @@
                           v-for='(scenario, sdgIndex) in form.scenarios'
                           id='sdg'
                           :key='sdgIndex'
-                          class='sdg-content-blocks sdg-form-block'>
-
+                          class='sdg-content-blocks sdg-form-block'
+                        >
                           <!--description-->
                           <div class='scenario-description'>
                             <div
@@ -250,6 +252,7 @@
                             <a-form-model-item>
                               <a-select
                                 v-model='scenario.sdgId'
+                                @change="handleCollaborateEvent(unitPlanId,'sdg',form.sdg)"
                                 class='my-big-select'
                                 placeholder='Select a goal from UN'
                                 size='large'>
@@ -273,7 +276,9 @@
                                 label='description'
                                 @reset='descriptionSearchList = []'
                                 @search='handleDescriptionSearch'
-                                @select-item='handleSelectScenario' />
+                                @select-item='handleSelectScenario'
+                                @change="handleCollaborateEvent(unitPlanId,'sdg',form.sdg)"
+                              />
                             </a-form-model-item>
 
                           </div>
@@ -293,11 +298,13 @@
                       </div>
 
                       <div class='form-block form-block-rwc'>
+                        <collaborate-tooltip :form-id="unitPlanId" fieldName="rwc" />
                         <a-form-model-item label='Real World Connection(s)'>
                           <a-select
                             size='large'
                             v-model='form.rwc'
-                            placeholder='Choose real world connection'>
+                            placeholder='Choose real world connection'
+                            @change="handleCollaborateEvent(unitPlanId,'rwc',form.rwc)">
                             <a-select-option :value='item.id' v-for='(item, index) in rwcList' :key='index'>
                               {{ item.name }}
                             </a-select-option>
@@ -307,6 +314,7 @@
 
                       <div
                         :class="{'form-block': true, 'form-block-disabled' : $store.getters.userInfo.disableQuestion}">
+                        <collaborate-tooltip :form-id="unitPlanId" fieldName="question" />
                         <comment-switch
                           v-show="this.canEdit"
                           v-if='!$store.getters.userInfo.disableQuestion'
@@ -353,7 +361,8 @@
                                 v-model='question.name'
                                 :placeholder="$store.getters.currentRole === 'teacher' ? $t('teacher.add-unit-plan.teacher-nth-key-question') : $t('teacher.add-unit-plan.expert-nth-key-question')"
                                 auto-size
-                                class='my-form-textarea' />
+                                class='my-form-textarea'
+                                @change="handleCollaborateEvent(unitPlanId,'question',form.question)"/>
                               <div
                                 v-if='form.questions.length > 1'
                                 class='delete-icon'
@@ -374,6 +383,7 @@
                       </div>
 
                       <div class='form-block'>
+                        <collaborate-tooltip :form-id="unitPlanId" fieldName="assessment" style="left:100px" />
                         <comment-switch
                           v-show="this.canEdit"
                           :is-active="currentFieldName === 'assessment'"
@@ -405,6 +415,7 @@
                       </div>
 
                       <div class='form-block' style='clear:both'>
+                        <collaborate-tooltip :form-id="unitPlanId" fieldName="prior" />
                         <comment-switch
                           v-show="this.canEdit"
                           :is-active="currentFieldName === 'prior'"
@@ -416,7 +427,8 @@
                             v-model='form.prior'
                             allow-clear
                             auto-size
-                            placeholder='What are the approaches to find out what students already knew?' />
+                            placeholder='What are the approaches to find out what students already knew?'
+                            @change="handleCollaborateEvent(unitPlanId,'prior',form.prior)"/>
                         </a-form-model-item>
                       </div>
 
@@ -425,6 +437,13 @@
                   <a-step title='Link Plan content'>
                     <template v-if='currentActiveStepIndex === 1' slot='description'>
                       <div class='form-block'>
+                        <collaborate-tooltip :form-id="unitPlanId" field-name='link' />
+                        <comment-switch
+                          v-show="this.canEdit"
+                          :is-active="currentFieldName === 'link'"
+                          class='my-comment-switch'
+                          field-name='link'
+                          @switch='handleSwitchComment' />
                         <a-form-item class='link-plan-title' label='Add task(s)' >
                           <a-space v-show="canEdit">
                             <a-button
@@ -487,7 +506,7 @@
                   </div>
                 </a-skeleton>
               </template>
-              <template v-if='showRightModule(rightModule.collaborateComment) && currentActiveStepIndex === 0'>
+              <template v-if='showRightModule(rightModule.collaborateComment)'>
                 <div
                   :style="{'width':rightWidth + 'px', 'margin-top':collaborateTop+'px', 'z-index': 100, 'padding': '10px'}"
                   class='collaborate-panel'>
@@ -1808,6 +1827,9 @@ export default {
       this.$logger.info('handleSelectDescription selectedList', this.selectedList, ' recommendData ', this.recommendData)
       this.selectSyncDataVisible = true
       this.defaultActiveMenu = NavigationType.learningOutcomes
+
+      // #协同编辑event事件
+      this.handleCollaborateEvent(this.unitPlanId, 'assessment', this.form.assessment)
     },
     handleConfirmAssociate() {
       this.$logger.info('handleConfirmAssociate')
@@ -1939,6 +1961,9 @@ export default {
       } else {
         this.$message.warn('Course info is empty, please fill the form first!')
       }
+
+      // #协同编辑event事件
+      this.handleCollaborateEvent(this.unitPlanId, 'link', this.associateTaskList)
     },
 
     handleAddTerm() {
@@ -1953,6 +1978,9 @@ export default {
         this.$refs.planLink.getAssociate()
         this.addCategoryLoading = false
       })
+
+      // #协同编辑event事件
+      this.handleCollaborateEvent(this.unitPlanId, 'link', this.associateTaskList)
     },
 
     handleEnsureSelectedLink(data) {
@@ -1961,6 +1989,9 @@ export default {
       this.getAssociate()
       // 刷新组件内的列表
       this.$refs.planLink.getAssociate()
+
+      // #协同编辑event事件
+      this.handleCollaborateEvent(this.unitPlanId, 'link', this.associateTaskList)
     },
 
     getAssociate() {
@@ -2122,7 +2153,7 @@ export default {
             this.recommendData.push({
               fromId: value[0].fromId,
               fromName: value[0].fromName,
-              fromTypeName: this.type2Name[value[0].fromType],
+              fromTypeName: 'Big Idea',
               list: value
             })
           }
@@ -2135,6 +2166,8 @@ export default {
     handleUpdateGroupNameList() {
       this.$logger.info('handleUpdateGroupNameList')
       this.getAssociate()
+      // #协同编辑event事件
+      this.handleCollaborateEvent(this.unitPlanId, 'link', this.associateTaskList)
     },
 
     handleSelectBigIdeaData(data) {
@@ -2266,6 +2299,8 @@ export default {
       if (index > -1) {
         this.form.learnOuts.splice(index, 1)
       }
+      // #协同编辑event事件
+      this.handleCollaborateEvent(this.unitPlanId, 'assessment', this.form.assessment)
     },
     onChangeStep(current) {
       console.log('onChange:', current)

@@ -1,7 +1,5 @@
 import { QueryContentCollaborates } from '@/api/collaborate'
 import { COLLABORATE } from '@/websocket/cmd'
-import UserInfo from '@/websocket/model/userInfo'
-import vuexStore from '@/store'
 import CollborateMsg from '@/websocket/model/collborateMsg'
 
 export const RightModule = {
@@ -124,14 +122,23 @@ export const BaseEventMixin = {
         this.$router.push({ path: '/teacher/main/created-by-me' })
       }
     },
-    handleCollborateEvent(formId, fieldName, inputValue) {
+    handleCollaborateEvent(formId, fieldName, inputValue) {
       const collaborate = new CollborateMsg()
       collaborate.id = formId
       collaborate.fieldName = fieldName
       collaborate.inputValue = inputValue
-      const userIds = this.collaborate.users.map(item => { return item.userId })
-      this.$store.getters.vueSocket.sendMessageToUsers(COLLABORATE, userIds,
-        CollborateMsg.convert2CollborateMsg(collaborate))
+      const userIds = this.collaborate.users.filter(user => user.userId !== this.$store.getters.userInfo.id)
+        .map(item => { return item.userId })
+      if (!this.isOwner) {
+          // 通知owner
+          if (userIds.indexOf(this.collaborate.owner.id) === -1) {
+            userIds.push(this.collaborate.owner.id)
+          }
+      }
+      if (userIds.length > 0) {
+        this.$store.getters.vueSocket.sendMessageToUsers(COLLABORATE, userIds,
+          CollborateMsg.convert2CollborateMsg(collaborate))
+      }
     }
   }
 

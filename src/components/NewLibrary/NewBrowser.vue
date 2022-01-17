@@ -50,7 +50,7 @@
               <h3>Recommended assessment objectives</h3>
             </div>
             <div class="recommend-detail">
-              <div class="recommend-list" v-for="(recommendDataItem, rIndex) in recommendData" :key="rIndex">
+              <div class="recommend-list" v-for="(recommendDataItem, rIndex) in recommendData" :key="rIndex" :data-item='JSON.stringify(recommendDataItem)'>
                 <div class="recommend-from" :data-from-id="recommendDataItem.fromId">
                   <h4>From <span class="from-type-name">{{ recommendDataItem.fromTypeName }}</span> :
                     {{ recommendDataItem.fromName }}</h4>
@@ -108,6 +108,7 @@
               <div
                 :class="{'content-item': true, 'selected-line': true}"
                 v-for="(item, mIndex) in mySelectedList"
+
                 :key="'my-' + mIndex">
                 <div class="name">
                   <div class="name-text">
@@ -140,6 +141,7 @@
               <div
                 :class="{'content-item': true, 'selected-line': true}"
                 v-for="(item, sIndex) in selectedSubjectSpecificSkillList"
+
                 :key="'sub-' + sIndex">
                 <div class="name">
                   <div class="name-text">
@@ -399,7 +401,8 @@ export default {
       isEmptyRecommend: true,
       showCurriculum: false,
 
-      selected21CenturyItem: null
+      selected21CenturyItem: null,
+      selectedGradeIdSet: new Set()
     }
   },
   computed: {
@@ -457,6 +460,8 @@ export default {
         this.selectedRecommendList.push(item)
       }
     })
+
+    this.updateSelectedGradeSet()
     this.$logger.info('mySelectedList', this.mySelectedList)
     this.$logger.info('selectedRecommendList', this.selectedRecommendList)
     this.$logger.info('selectedRecommendIdList', this.selectedRecommendIdList)
@@ -484,6 +489,8 @@ export default {
       this.$logger.info('NewBrowser handleSelectCurriculumListData', data)
       this.selectedCurriculumList = data
       this.$emit('select-curriculum', data)
+
+      this.updateSelectedGradeSet()
     },
 
     // subject-specific-skill
@@ -491,6 +498,8 @@ export default {
       this.$logger.info('NewBrowser handleSelectSubjectSpecificSkillListData', data)
       this.selectedSubjectSpecificSkillList = data
       this.$emit('select-subject-specific-skill', data)
+
+      this.updateSelectedGradeSet()
     },
 
     // century-skill
@@ -498,40 +507,54 @@ export default {
       this.$logger.info('NewBrowser handleSelect21CenturySkillListData', data)
       this.selected21CenturySkillList = data
       this.$emit('select-century-skill', data)
+
+      this.updateSelectedGradeSet()
     },
 
     handleSelectAll21CenturyListData (data) {
       this.$logger.info('NewBrowser handleSelectAll21CenturyListData', data)
       this.selectedAll21CenturyList = data
       this.$emit('select-all-21-century', data)
+
+      this.updateSelectedGradeSet()
     },
     // assessment type
     handleSelectAssessmentType (data) {
       this.$logger.info('NewBrowser handleSelectAssessmentType', data)
       this.selectedAssessmentList = data
       this.$emit('select-assessmentType', data)
+
+      this.updateSelectedGradeSet()
     },
 
     handleSelectIdu (data) {
       this.$logger.info('NewBrowser handleSelectIdu', data)
       this.selectedIduList = data
       this.$emit('select-idu', data)
+
+      this.updateSelectedGradeSet()
     },
 
     handleSelectBigIdeaData (data) {
       this.$logger.info('NewBrowser handleSelectBigIdeaData', data)
       this.selectedBigIdeaList = data
       this.$emit('select-big-idea', data)
+
+      this.updateSelectedGradeSet()
     },
 
     handleRemoveSelected (item) {
       this.$logger.info('NewBrowser handleRemoveSelected', item)
       this.$refs['contentList'].handleRemoveSelected(item)
+
+      this.updateSelectedGradeSet()
     },
 
     handleUpdateSelectedList (data) {
       this.$logger.info('NewBrowser handleUpdateSelectedList', data)
       this.mySelectedList = data
+
+      this.updateSelectedGradeSet()
     },
     handleAddRecommend (recommendItem) {
       this.$logger.info('NewBrowser handleAddRecommend', recommendItem, 'this.mySelectedIdList.indexOf(recommendItem.knowledgeId)', this.mySelectedIdList.indexOf(recommendItem.knowledgeId))
@@ -548,6 +571,8 @@ export default {
         this.$emit('select-recommend', this.selectedRecommendList)
         this.$logger.info('after NewBrowser handleAddRecommend', this.selectedRecommendList, this.selectedRecommendIdList)
       }
+
+      this.updateSelectedGradeSet()
     },
 
     handleRemoveMySelected (data) {
@@ -556,6 +581,7 @@ export default {
       if (index > -1) {
         this.mySelectedList.splice(index, 1)
       }
+      this.updateSelectedGradeSet()
     },
 
     handleCancelSelectData () {
@@ -565,7 +591,19 @@ export default {
 
     handleEnsureSelectData () {
       this.$logger.info('NewBrowser handleEnsureSelectData')
-      this.$emit('ensure-select')
+      if (this.selectedGradeIdSet.size > 1) {
+        this.$confirm({
+          title: 'Alert',
+          okText: 'Yes',
+          cancelText: 'Let me double check',
+          content: 'You have selected learning objectives from different grades/levels/stages, do you confirm to add them?',
+          onOk: () => {
+            this.$emit('ensure-select')
+          }
+        })
+      } else {
+        this.$emit('ensure-select')
+      }
     },
     handleCenturySkillsSelect(data) {
       this.$logger.info('NewBrowser handleCenturySkillsSelect', data)
@@ -578,6 +616,108 @@ export default {
 
     handleRemoveMySelected21Century () {
       LibraryEventBus.$emit(LibraryEvent.CancelCenturySkillsSelect) // 点击选择列表中的取消
+    },
+
+    updateSelectedGradeSet () {
+      this.$logger.info('NewBrowser updateSelectedGradeSet',
+        this.mySelectedList,
+        this.selectedCurriculumList,
+        this.selectedKnowledgeList,
+        this.selected21CenturySkillList,
+        this.selectedSubjectSpecificSkillList,
+        this.selectedAssessmentList,
+        this.selectedIduList,
+        this.selectedAll21CenturyList,
+        this.selectedRecommendList,
+        this.selected21CenturyItem
+      )
+      this.selectedGradeIdSet.clear()
+      this.mySelectedList.forEach(item => {
+        if (item.gradeId) {
+          this.selectedGradeIdSet.add(item.gradeId)
+        }
+
+        if (item.knowledgeData && item.knowledgeData.selectedGradeId) {
+          this.selectedGradeIdSet.add(item.knowledgeData.selectedGradeId)
+        }
+      })
+      this.selectedCurriculumList.forEach(item => {
+        if (item.gradeId) {
+          this.selectedGradeIdSet.add(item.gradeId)
+        }
+
+        if (item.knowledgeData && item.knowledgeData.selectedGradeId) {
+          this.selectedGradeIdSet.add(item.knowledgeData.selectedGradeId)
+        }
+      })
+      this.selectedKnowledgeList.forEach(item => {
+        if (item.gradeId) {
+          this.selectedGradeIdSet.add(item.gradeId)
+        }
+
+        if (item.knowledgeData && item.knowledgeData.selectedGradeId) {
+          this.selectedGradeIdSet.add(item.knowledgeData.selectedGradeId)
+        }
+      })
+      this.selected21CenturySkillList.forEach(item => {
+        if (item.gradeId) {
+          this.selectedGradeIdSet.add(item.gradeId)
+        }
+
+        if (item.knowledgeData && item.knowledgeData.selectedGradeId) {
+          this.selectedGradeIdSet.add(item.knowledgeData.selectedGradeId)
+        }
+      })
+      this.selectedSubjectSpecificSkillList.forEach(item => {
+        if (item.gradeId) {
+          this.selectedGradeIdSet.add(item.gradeId)
+        }
+
+        if (item.knowledgeData && item.knowledgeData.selectedGradeId) {
+          this.selectedGradeIdSet.add(item.knowledgeData.selectedGradeId)
+        }
+      })
+      this.selectedAssessmentList.forEach(item => {
+        if (item.gradeId) {
+          this.selectedGradeIdSet.add(item.gradeId)
+        }
+
+        if (item.knowledgeData && item.knowledgeData.selectedGradeId) {
+          this.selectedGradeIdSet.add(item.knowledgeData.selectedGradeId)
+        }
+      })
+      this.selectedIduList.forEach(item => {
+        if (item.gradeId) {
+          this.selectedGradeIdSet.add(item.gradeId)
+        }
+
+        if (item.knowledgeData && item.knowledgeData.selectedGradeId) {
+          this.selectedGradeIdSet.add(item.knowledgeData.selectedGradeId)
+        }
+      })
+      this.selectedAll21CenturyList.forEach(item => {
+        if (item.gradeId) {
+          this.selectedGradeIdSet.add(item.gradeId)
+        }
+
+        if (item.knowledgeData && item.knowledgeData.selectedGradeId) {
+          this.selectedGradeIdSet.add(item.knowledgeData.selectedGradeId)
+        }
+      })
+      this.selectedRecommendList.forEach(item => {
+        if (item.gradeId) {
+          this.selectedGradeIdSet.add(item.gradeId)
+        }
+
+        if (item.knowledgeData && item.knowledgeData.selectedGradeId) {
+          this.selectedGradeIdSet.add(item.knowledgeData.selectedGradeId)
+        }
+      })
+      if (this.selected21CenturyItem && this.selected21CenturyItem.gradeId) {
+        this.selectedGradeIdSet.add(this.selected21CenturyItem.gradeId)
+      }
+      this.$logger.info('------- this.selectedGradeIdSet', this.selectedGradeIdSet)
+      this.selectedGradeIdSet = this.selectedGradeIdSet
     }
   }
 }
@@ -981,4 +1121,5 @@ export default {
   height: 100%;
   overflow-y: scroll;
 }
+
 </style>
