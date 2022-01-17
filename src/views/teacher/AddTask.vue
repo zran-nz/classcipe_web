@@ -2992,6 +2992,7 @@ export default {
           knowledgeId: data.knowledgeData.id,
           name: data.knowledgeData.name,
           tagType: data.knowledgeData.tagType,
+          gradeId: data.knowledgeData.selectedGradeId,
           path: data.knowledgeData.path,
           tags: data.tags
         })
@@ -3006,6 +3007,7 @@ export default {
         this.form.learnOuts.push({
           knowledgeId: data.knowledgeData.id,
           name: data.knowledgeData.name,
+          gradeId: data.knowledgeData.selectedGradeId,
           tagType: data.knowledgeData.tagType,
           path: data.knowledgeData.path
         })
