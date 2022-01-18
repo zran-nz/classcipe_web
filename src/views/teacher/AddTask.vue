@@ -40,7 +40,7 @@
                         <comment-switch
                           v-show="this.canEdit"
                           field-name='name'
-                          :is-active="showCollaborateCommentVisible && currentFieldName === 'name'"
+                          :is-active="currentFieldName === 'name'"
                           @switch='handleSwitchComment'
                           class='my-comment-switch' />
                         <a-form-item label='Task name'>
@@ -56,7 +56,7 @@
                           :is-active="currentFieldName === 'startDate'"
                           @switch='handleSwitchComment'
                           class='my-comment-switch' />
-                        <!--   <comment-switch v-show="this.canEdit" field-name="name" :is-active="showCollaborateCommentVisible && currentFieldName === 'name'" @switch="handleSwitchComment" class="my-comment-switch"/>-->
+                        <!--   <comment-switch v-show="this.canEdit" field-name="name" :is-active="currentFieldName === 'name'" @switch="handleSwitchComment" class="my-comment-switch"/>-->
                         <a-form-item label='Grade level' style='width:26%;margin-bottom: 0px;'>
                           <a-select
                             :getPopupContainer="trigger => trigger.parentElement"
@@ -95,7 +95,7 @@
                         <comment-switch
                           v-show="this.canEdit"
                           field-name='overview'
-                          :is-active="showCollaborateCommentVisible && currentFieldName === 'overview'"
+                          :is-active="currentFieldName === 'overview'"
                           @switch='handleSwitchComment'
                           class='my-comment-switch' />
                         <a-form-model-item class='task-audio-line' label='Task details' ref='overview'>
@@ -108,7 +108,7 @@
                         <comment-switch
                           v-show="this.canEdit"
                           field-name='taskType'
-                          :is-active="showCollaborateCommentVisible && currentFieldName === 'taskType'"
+                          :is-active="currentFieldName === 'taskType'"
                           @switch='handleSwitchComment'
                           class='my-comment-switch' />
                         <a-form-model-item class='task-audio-line' ref='taskType' :colon='false'>
@@ -140,7 +140,7 @@
                         <comment-switch
                           v-show="this.canEdit"
                           field-name='questions'
-                          :is-active="showCollaborateCommentVisible && currentFieldName === 'questions'"
+                          :is-active="currentFieldName === 'questions'"
                           @switch='handleSwitchComment'
                           class='my-comment-switch' />
                         <a-form-model-item label='Choose Key questions'>
@@ -173,7 +173,7 @@
                         <comment-switch
                           v-show="this.canEdit"
                           field-name='assessment'
-                          :is-active="showCollaborateCommentVisible && currentFieldName === 'assessment'"
+                          :is-active="currentFieldName === 'assessment'"
                           @switch='handleSwitchComment'
                           class='my-comment-switch' />
                         <a-form-item label='Set learning objectives'>
@@ -196,7 +196,7 @@
                         <comment-switch
                           v-show="this.canEdit"
                           field-name='materialList'
-                          :is-active="showCollaborateCommentVisible && currentFieldName === 'materialList'"
+                          :is-active="currentFieldName === 'materialList'"
                           @switch='handleSwitchComment'
                           class='my-comment-switch' />
                         <div class='form-block-label'>
@@ -677,7 +677,7 @@
                     </div>
                   </a-skeleton>
                 </template>
-                <template v-if='showRightModule(rightModule.collaborateComment) && currentActiveStepIndex === 0'>
+                <template v-if='showRightModule(rightModule.collaborateComment)'>
                   <div
                     class='collaborate-panel'
                     :style="{'width':rightWidth + 'px', 'margin-top':collaborateTop+'px', 'z-index': 100, 'padding': '10px'}">

@@ -63,7 +63,7 @@
         <div
           class='collaborate-comment'
           @click='handleViewComment'
-          v-if='form.type !== typeMap.evaluation && form.type !== typeMap.classSessionEvaluation'>
+          v-if='form.type !== typeMap.evaluation && form.type !== typeMap.classSessionEvaluation && (isOwner || isEditCollaborater)'>
           <comment-icon class='active-icon' />
         </div>
         <a-button
