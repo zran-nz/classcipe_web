@@ -273,7 +273,7 @@
             <template v-if="fromType === typeMap[&quot;unit-plan&quot;]">
               <template v-if="groupNameMode === 'select'">
                 <div class="choose-label">Choose category</div>
-                <a-select :default-value="defaultGroupName" style="width: 100%" v-model="selectedGroup">
+                <a-select :getPopupContainer="trigger => trigger.parentElement" :default-value="defaultGroupName" style="width: 100%" v-model="selectedGroup">
                   <a-select-option :value="groupNameItem" v-for="(groupNameItem, gIndex) in groupNameList" :key="gIndex">
                     {{ groupNameItem }}
                   </a-select-option>

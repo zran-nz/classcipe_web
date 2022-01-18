@@ -43,7 +43,7 @@
             </div>
           </div>
 
-          <a-select size="large" default-value="Edit" style="width: 10%" v-model="permission">
+          <a-select :getPopupContainer="trigger => trigger.parentElement" size="large" default-value="Edit" style="width: 10%" v-model="permission">
             <a-select-option value="Edit">
               Edit
             </a-select-option>

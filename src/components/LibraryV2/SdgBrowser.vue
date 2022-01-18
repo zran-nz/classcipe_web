@@ -10,6 +10,7 @@
             </div>
             <div class="switch-type-wrapper library-select">
               <a-select
+                :getPopupContainer="trigger => trigger.parentElement"
                 @change="changeSubject"
                 v-model="selectedSubect"
                 class="filter-select library-filter-select"
@@ -61,7 +62,7 @@
             <filter-icon />
           </div>
           <div class="filter-list">
-            <a-select v-model="selectedConcept" class="filter-select  library-filter-select" placeholder="Universal Concept" :allowClear="true" >
+            <a-select :getPopupContainer="trigger => trigger.parentElement" v-model="selectedConcept" class="filter-select  library-filter-select" placeholder="Universal Concept" :allowClear="true" >
               <a-select-option :value="name" v-for="(name, index) in conceptList" :key="index" >
                 {{ name }}
               </a-select-option>

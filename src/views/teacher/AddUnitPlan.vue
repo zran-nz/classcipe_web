@@ -110,6 +110,7 @@
                           class='my-comment-switch' />
                         <a-form-item label='Grade level' style='width:26%;margin-bottom: 0px;'>
                           <a-select
+                            :getPopupContainer="trigger => trigger.parentElement"
                             v-model='form.gradeId'
                             class='my-big-select'
                             placeholder='Select a grade'
@@ -251,6 +252,7 @@
                             <!--sdg-->
                             <a-form-model-item>
                               <a-select
+                                :getPopupContainer="trigger => trigger.parentElement"
                                 v-model='scenario.sdgId'
                                 @change="handleCollaborateEvent(unitPlanId,'sdg',form.sdg)"
                                 class='my-big-select'

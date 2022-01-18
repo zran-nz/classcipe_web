@@ -47,7 +47,7 @@
             {{ userInfo.currentRole.substr(0, 1).toUpperCase() + userInfo.currentRole.substr(1) }}
           </div>
           <div class="profile-input profile-data" v-if="editMode">
-            <a-select v-model="userInfo.currentRole" placeholder="Please role">
+            <a-select :getPopupContainer="trigger => trigger.parentElement" v-model="userInfo.currentRole" placeholder="Please role">
               <a-select-option value="teacher">teacher</a-select-option>
               <a-select-option value="expert">expert</a-select-option>
             </a-select>
@@ -82,7 +82,7 @@
             </div>
           </div>
           <div class="profile-input profile-data" v-if="editMode">
-            <a-select v-model="userInfo.areaIds" placeholder="Please select" mode="multiple">
+            <a-select :getPopupContainer="trigger => trigger.parentElement" v-model="userInfo.areaIds" placeholder="Please select" mode="multiple">
               <a-select-option
                 :value="areaOption.id"
                 v-for="areaOption in areaOptions"
@@ -106,7 +106,7 @@
             {{ userInfo.curriculumName }}
           </div>
           <div class="profile-input profile-data" v-if="editMode">
-            <a-select v-model="userInfo.curriculumId" placeholder="Please select curriculum">
+            <a-select :getPopupContainer="trigger => trigger.parentElement" v-model="userInfo.curriculumId" placeholder="Please select curriculum">
               <a-select-option
                 :value="curriculumOption.id"
                 v-for="curriculumOption in curriculumOptions"
@@ -130,7 +130,7 @@
             </div>
           </div>
           <div class="profile-input profile-data" v-if="editMode">
-            <a-select v-model="userInfo.subjectIds" mode="multiple">
+            <a-select :getPopupContainer="trigger => trigger.parentElement" v-model="userInfo.subjectIds" mode="multiple">
               <a-select-option :value="subject.id" v-if="subject.subjectType === subjectType.Learn || subject.subjectType === subjectType.LearnAndSkill" v-for="subject in subjectOptions" :key="subject.id">{{ subject.name }}</a-select-option>
             </a-select>
           </div>
@@ -147,7 +147,7 @@
             </div>
           </div>
           <div class="profile-input profile-data" v-if="editMode">
-            <a-select v-model="userInfo.gradeIds" placeholder="Please select grade" mode="multiple">
+            <a-select :getPopupContainer="trigger => trigger.parentElement" v-model="userInfo.gradeIds" placeholder="Please select grade" mode="multiple">
               <a-select-option :value="gradeOption.id" v-for="gradeOption in gradeOptions" :key="gradeOption.id">
                 {{ gradeOption.name }}
               </a-select-option>
