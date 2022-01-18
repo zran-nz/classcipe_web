@@ -8,6 +8,7 @@
         <div class="filter-line" v-if="currentBrowserType !== BrowserTypeMap.sdg">
           <div class="curriculum-select">
             <a-select
+              :getPopupContainer="trigger => trigger.parentElement"
               v-if="curriculumOptions.length"
               @change="handleCurriculumChange"
               v-model="currentCurriculumId"

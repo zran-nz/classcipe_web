@@ -301,6 +301,7 @@
                         <collaborate-tooltip :form-id="unitPlanId" fieldName="rwc" />
                         <a-form-model-item label='Real World Connection(s)'>
                           <a-select
+                            :getPopupContainer="trigger => trigger.parentElement"
                             size='large'
                             v-model='form.rwc'
                             placeholder='Choose real world connection'

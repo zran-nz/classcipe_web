@@ -127,7 +127,7 @@
                             </div>
                             <!--sdg-->
                             <a-form-model-item >
-                              <a-select size="large" v-model="scenario.sdgId" class="my-big-select" placeholder="Select a goal from UN">
+                              <a-select :getPopupContainer="trigger => trigger.parentElement" size="large" v-model="scenario.sdgId" class="my-big-select" placeholder="Select a goal from UN">
                                 <a-select-option v-for="(sdg,index) in sdgList" :value="sdg.id" :key="index" :disabled="selectedSdg.indexOf(sdg.id) != -1">
                                   {{ sdg.name }}
                                 </a-select-option>

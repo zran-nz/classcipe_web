@@ -69,6 +69,7 @@
               <div class="form-block form-question" v-if="associateQuestionList.length > 0">
                 <a-form-model-item label="Choose Key questions">
                   <a-select
+                    :getPopupContainer="trigger => trigger.parentElement"
                     size="large"
                     class="my-big-select"
                     v-model="form.questionIds"

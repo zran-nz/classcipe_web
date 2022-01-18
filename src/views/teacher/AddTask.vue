@@ -59,6 +59,7 @@
                         <!--   <comment-switch v-show="this.canEdit" field-name="name" :is-active="showCollaborateCommentVisible && currentFieldName === 'name'" @switch="handleSwitchComment" class="my-comment-switch"/>-->
                         <a-form-item label='Grade level' style='width:26%;margin-bottom: 0px;'>
                           <a-select
+                            :getPopupContainer="trigger => trigger.parentElement"
                             size='large'
                             v-model='form.gradeId'
                             class='my-big-select'
@@ -144,6 +145,7 @@
                           class='my-comment-switch' />
                         <a-form-model-item label='Choose Key questions'>
                           <a-select
+                            :getPopupContainer="trigger => trigger.parentElement"
                             @change="handleCollaborateEvent(taskId,'startDate',form.questions)"
                             size='large'
                             class='my-big-select'

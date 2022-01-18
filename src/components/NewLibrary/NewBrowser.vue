@@ -5,6 +5,7 @@
         <div class="select-curriculum" v-show="showCurriculum">
           <div class="my-curriculum-select">
             <a-select
+              :getPopupContainer="trigger => trigger.parentElement"
               v-if="curriculumOptions.length"
               @change="handleCurriculumChange"
               v-model="currentCurriculumId"
@@ -25,6 +26,7 @@
         <div class="select-curriculum" v-show="showCurriculum">
           <div class="my-curriculum-select">
             <a-select
+              :getPopupContainer="trigger => trigger.parentElement"
               v-if="curriculumOptions.length"
               @change="handleCurriculumChange"
               v-model="currentCurriculumId"
