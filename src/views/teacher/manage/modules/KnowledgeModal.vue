@@ -18,7 +18,13 @@
         </a-form-model-item>
 
         <a-form-model-item label="grade" :labelCol="labelCol" :wrapperCol="wrapperCol" prop="gradeIds">
-          <a-select :getPopupContainer="trigger => trigger.parentElement" mode="multiple" @change="handleChangeGrade" v-model="model.gradeIds" placeholder="Please select grade" :readonly="true" >
+          <a-select
+            :getPopupContainer="trigger => trigger.parentElement"
+            mode="multiple"
+            @change="handleChangeGrade"
+            v-model="model.gradeIds"
+            placeholder="Please select grade"
+            :readonly="true" >
             <a-select-option :value="item.id" :key="item.id" v-for="item in gradeListAll">{{ item.name }}</a-select-option>
           </a-select>
         </a-form-model-item>
