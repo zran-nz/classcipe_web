@@ -1,7 +1,13 @@
 <template>
   <div class="comment-input">
-    <a-row>
-      <a-mentions v-model="value" @change="onChange" @select="onSelect" rows="2" placeholder="Comment or add others with @">
+    <div>
+      <a-mentions
+        @focus="commentItem.editing = true"
+        v-model="inputValue"
+        @change="onChange"
+        @select="onSelect"
+        rows="2"
+        placeholder="Reply or add others with @">
         <a-mentions-option value="afc163">
           afc163
         </a-mentions-option>
@@ -12,12 +18,12 @@
           yesmeck
         </a-mentions-option>
       </a-mentions>
-    </a-row>
-    <div class="confirm-button">
+    </div>
+    <div class="confirm-button" v-if="commentItem.editing">
       <a-button type="primary" :class="{'button-item':true,'disabled-button':isDisabled}" :disabled="isDisabled">
-        Comment
+        Reply
       </a-button>
-      <a-button class="button-item">
+      <a-button class="button-item" @click="cancelReply">
         Cancel
       </a-button>
     </div>
@@ -26,33 +32,39 @@
 
 <script>
 export default {
-  name: 'InputWithButton',
+  name: 'InputReplyButton',
   props: {
     replyMode: {
       type: Boolean,
       default: false
     },
-    replyUsername: {
-      type: String,
-      default: null
-    },
-    extra: {
+    commentItem: {
       type: Object,
-      default: null
+      default() {
+        return {}
+      }
+    }
+  },
+  watch: {
+    commentItem (val) {
+      this.$logger.info('commentItem ' + val)
+      this.inputValue = val.content
+      this.oldValue = val.content
     }
   },
   data () {
     return {
-      value: '',
+      inputValue: '',
       oldValue: '',
       isDisabled: true,
       sendLoading: false
     }
   },
+  created () {
+    this.inputValue = this.commentItem.content ? this.commentItem.content : ''
+    this.oldValue = this.commentItem.content ? this.commentItem.content : ''
+  },
   methods: {
-    created () {
-      this.oldValue = this.value
-    },
     onSelect(option) {
       console.log('select', option)
     },
@@ -61,15 +73,18 @@ export default {
       this.isDisabled = (value === this.oldValue)
       console.log('Change:', value)
     },
+    cancelReply() {
+      this.$emit('cancel', this.commentItem)
+    },
     handleSendEvent () {
       // 触发事件是把extra数据带回，方便外部区分处理逻辑。
-      this.$logger.info('trigger send ' + this.value)
-      if (!this.value) {
+      this.$logger.info('trigger send ' + this.inputValue)
+      if (!this.inputValue) {
         return
       }
       this.sendLoading = true
       this.$emit('send', {
-        inputValue: this.value,
+        inputValue: this.inputValue,
         extra: this.extra
       })
       setTimeout(() => {

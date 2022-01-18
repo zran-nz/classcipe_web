@@ -27,7 +27,7 @@
     <div class="comment-record-wrapper">
       <div class="record-list" v-for="(commentItem, cIndex) in formatCommentList" :key="cIndex">
         <div class="record-item">
-          <template v-if="!commentItem.isDelete">
+          <template>
             <div class="record-action" v-show="commentItem.username === $store.getters.userInfo.username">
               <div class="record-delete" @click="handleDeleteComment(commentItem)">
                 <delete-icon />
@@ -89,13 +89,6 @@
                     </div>
                   </div>
                 </template>
-              </div>
-            </div>
-          </template>
-          <template v-if="commentItem.isDelete">
-            <div class="deleted-comment">
-              <div class="deleted-tips">
-                The comment has been deleted.
               </div>
             </div>
           </template>
