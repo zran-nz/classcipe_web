@@ -1,34 +1,17 @@
 <template>
   <div id="userLayout" :class="['user-layout-wrapper', isMobile && 'mobile']">
     <div class="container">
-      <div class="user-layout-left">
-        <img src="~@/assets/background/login-bg.png" class="bg" />
-        <div class="user-layout-title">
-          <img src="~@/assets/logo/logo1.png" class="logo" />
-          <img src="~@/assets/logo/Lasscipe.png" class="name" />
-          <div class="title">Empowering, sharing and networking</div>
-        </div>
-      </div>
-      <div class="user-layout-right">
-        <div class="user-layout-lang">
-          <select-lang class="select-lang-trigger" />
+      <div class="user-layout-content">
+        <div class="top">
+          <div class="header">
+            <img src="~@/assets/logo/beatop.png" class="logo" alt="logo" />
+          </div>
         </div>
         <router-view />
       </div>
-
-      <!-- <div class="user-layout-content">
-        <div class="top">
-          <div class="header">
-            <a href="/">
-              <img src="~@/assets/logo/beatop.png" class="logo" alt="logo">
-            </a>
-          </div>
-          <div class="desc">
-            {{ $t('layouts.userLayout.title') }}
-          </div>
-        </div>
+      <!-- <div class="user-layout-lang">
+        <select-lang class="select-lang-trigger" />
       </div> -->
-
       <!-- <div class="footer">
         <div class="links">
           <a href="https://www.classcipe.com" target="_blank">Help</a>
@@ -53,10 +36,10 @@ export default {
     SelectLang
   },
   mixins: [deviceMixin],
-  mounted () {
+  mounted() {
     document.body.classList.add('userLayout')
   },
-  beforeDestroy () {
+  beforeDestroy() {
     document.body.classList.remove('userLayout')
   }
 }
@@ -79,15 +62,67 @@ export default {
 
   .container {
     width: 100%;
-    min-width: 1148px;
     height: 100vh;
-    min-height: 900px;
-    // background: #f0f2f5 url(~@/assets/background.svg) no-repeat 50%;
-    // background-size: 100%;
+    // min-height: 900px;
+    background: #f0f2f5 url(~@/assets/background.svg) no-repeat;
+    background-size: 100%;
     // padding: 50px 0 84px;
-    position: relative;
-    display: flex;
+    // position: relative;
     background-color: #f7f8ff;
+
+    .user-layout-content {
+      max-width: 1148px;
+      margin: 0 auto;
+      padding: 20px 0 20px;
+
+      .top {
+        // text-align: center;
+
+        .header {
+          height: 44px;
+          line-height: 44px;
+          margin-bottom: 20px;
+
+          .badge {
+            position: absolute;
+            display: inline-block;
+            line-height: 1;
+            vertical-align: middle;
+            margin-left: -12px;
+            margin-top: -10px;
+            opacity: 0.8;
+          }
+
+          .logo {
+            height: 44px;
+            vertical-align: top;
+            margin-right: 16px;
+            border-style: none;
+          }
+
+          .title {
+            font-size: 33px;
+            color: rgba(0, 0, 0, 0.85);
+            font-family: Avenir, 'Helvetica Neue', Arial, Helvetica, sans-serif;
+            font-weight: 600;
+            position: relative;
+            top: 2px;
+          }
+        }
+        .desc {
+          font-size: 14px;
+          color: rgba(0, 0, 0, 0.45);
+          margin-top: 12px;
+          margin-bottom: 40px;
+        }
+      }
+
+      .main {
+        min-width: 260px;
+        width: 368px;
+        margin: 0 auto;
+      }
+    }
 
     .user-layout-lang {
       position: absolute;
@@ -109,94 +144,6 @@ export default {
         vertical-align: middle;
       }
     }
-
-    .user-layout-left {
-      width: 40%;
-      min-width: 528px;
-      max-width: 628px;
-      background: #15c39a;
-      position: relative;
-
-      .user-layout-title {
-        position: absolute;
-        top: 106px;
-        left: 77px;
-        .logo {
-          margin-right: 13px;
-        }
-        .title {
-          font-size: 24px;
-          color: #fff;
-          margin-top: 9px;
-        }
-      }
-      .bg {
-        position: absolute;
-        bottom: 0px;
-        left: 0px;
-        width: 160%;
-      }
-    }
-    .user-layout-right {
-      min-width: 560px;
-      flex: 1;
-      z-index: 1;
-      padding: 0px 20px;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-    }
-
-    // .user-layout-content {
-    //   padding: 32px 0 24px;
-
-    //   .top {
-    //     text-align: center;
-
-    //     .header {
-    //       height: 44px;
-    //       line-height: 44px;
-
-    //       .badge {
-    //         position: absolute;
-    //         display: inline-block;
-    //         line-height: 1;
-    //         vertical-align: middle;
-    //         margin-left: -12px;
-    //         margin-top: -10px;
-    //         opacity: 0.8;
-    //       }
-
-    //       .logo {
-    //         height: 44px;
-    //         vertical-align: top;
-    //         margin-right: 16px;
-    //         border-style: none;
-    //       }
-
-    //       .title {
-    //         font-size: 33px;
-    //         color: rgba(0, 0, 0, 0.85);
-    //         font-family: Avenir, 'Helvetica Neue', Arial, Helvetica, sans-serif;
-    //         font-weight: 600;
-    //         position: relative;
-    //         top: 2px;
-    //       }
-    //     }
-    //     .desc {
-    //       font-size: 14px;
-    //       color: rgba(0, 0, 0, 0.45);
-    //       margin-top: 12px;
-    //       margin-bottom: 40px;
-    //     }
-    //   }
-
-    //   .main {
-    //     min-width: 260px;
-    //     width: 368px;
-    //     margin: 0 auto;
-    //   }
-    // }
 
     a {
       text-decoration: none;
