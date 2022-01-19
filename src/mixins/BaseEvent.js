@@ -139,6 +139,11 @@ export const BaseEventMixin = {
         this.$store.getters.vueSocket.sendMessageToUsers(COLLABORATE, userIds,
           CollborateMsg.convert2CollborateMsg(collaborate))
       }
+    },
+
+    // 取消comment
+    handleCancelComment() {
+      this.resetRightModuleVisible()
     }
   }
 

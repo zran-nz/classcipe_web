@@ -34,7 +34,7 @@
     <a-col span='9' class='unit-right-action'>
       <a-space>
         <div class='collaborate-users' v-if='form.type !== typeMap.classSessionEvaluation'>
-          <a-dropdown v-show='collaborateUserList.length > 3'>
+          <a-dropdown v-show='collaborateUserList.length > 3' :overlayStyle="{ 'z-index': '3000'}">
             <a class='ant-dropdown-link'>
               Others
               <a-icon type='more' />
@@ -55,7 +55,7 @@
             <a-avatar size='small' class='user-item' :src='owner.avatar' />
           </a-tooltip>
         </div>
-        <a-tooltip title='Collaborate' v-show='isOwner && form.type !== typeMap.classSessionEvaluation'>
+        <a-tooltip placement='bottom' title='Collaborate' v-show='isOwner && form.type !== typeMap.classSessionEvaluation'>
           <div class='collaborate-comment' @click='handleStartCollaborate'>
             <collaborate-user-icon class='active-icon' />
           </div>
@@ -411,4 +411,5 @@ export default {
     margin-left: 15px;
   }
 }
+
 </style>

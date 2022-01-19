@@ -11,7 +11,7 @@
       </div>
       <div class="comment-input-wrapper">
         <div class="input">
-          <input-with-button @cancelComment="cancelComment" @comment="handleComment" :sending="commentSending" />
+          <input-with-button :collaborate-user-list="collaborateUserList" @cancelComment="cancelComment" @comment="handleComment" :sending="commentSending" />
         </div>
       </div>
     </div>
@@ -19,7 +19,7 @@
     <div class="comment-record-wrapper" style="box-shadow: 0px 3px 6px rgb(0 0 0 / 16%)" v-if="rawCommentList.length > 0">
       <div class='delete-thread-mask' v-if="deleteThread">
         <div class="delete-group">
-          <div style="color: #fff">
+          <div style="color: #fff;margin: 5px;">
             Delete this comment Thread?
           </div>
           <div class="delete-group-button">
@@ -35,7 +35,7 @@
       <div class="record-list" v-for="(commentItem, cIndex) in rawCommentList" :key="cIndex">
         <div class='delete-mask' v-if="commentItem.delete">
           <div class="delete-group">
-            <div style="color: #fff">
+            <div style="color: #fff;margin: 5px;">
               Delete this comment?
             </div>
             <div class="delete-group-button">
@@ -85,7 +85,7 @@
             </div>
             <div class="comment-input-wrapper" v-if="commentItem.editing">
               <div class="input">
-                <input-reply-button @send="handleSend" :comment-item="commentItem" @cancel="handleCancel"/>
+                <input-reply-button :collaborate-user-list="collaborateUserList" @send="handleSend" :comment-item="commentItem" @cancel="handleCancel"/>
               </div>
             </div>
           </template>
@@ -93,7 +93,13 @@
       </div>
       <div class="comment-input-wrapper" style="margin-top:10px">
         <div class="input">
-          <input-reply-button @send="handleSend" :reply-mode="true" @cancel="handleCancelNewComment" :comment-item="newComment"/>
+          <input-reply-button
+            :collaborate-user-list="collaborateUserList"
+            @send="handleSend"
+            :reply-mode="true"
+            @cancel="handleCancelNewComment"
+            :comment-item="newComment"
+            @focusInput="handleFocusInput"/>
         </div>
       </div>
     </div>
@@ -102,20 +108,21 @@
 
 <script>
 
-import deleteIcon from '@/assets/icons/collaborate/delete.svg?inline'
-import InputWithButton from '@/components/Collaborate/InputWithButton'
-import { DeleteCollaborateCommentById, AddCollaborateComment } from '@/api/collaborate'
-import InputReplyButton from '@/components/Collaborate/InputReplyButton'
+import { CollaborateCommentMixin } from '@/mixins/CollaborateCommentMixin'
+import { AddCollaborateComment, DeleteCollaborateCommentById } from '@/api/collaborate'
 
 export default {
   name: 'CollaborateCommentPanel',
   components: {
-    InputWithButton,
-    InputReplyButton,
-    deleteIcon
+
   },
+  mixins: [CollaborateCommentMixin],
   props: {
     commentList: {
+      type: Array,
+      default: () => []
+    },
+    collaborateUserList: {
       type: Array,
       default: () => []
     },
@@ -138,17 +145,12 @@ export default {
         editing: false,
         content: '',
         sendLoading: false
-      },
-      deleteThread: false,
-      rawCommentList: [],
-      deleteCommentModalVisible: false,
-      currentDeleteComment: null,
-      commentSending: false
+      }
     }
   },
   watch: {
     commentList (value) {
-      this.$logger.info('commentList update ', value)
+      this.$logger.info('collaborateUserList ', this.collaborateUserList)
       this.rawCommentList = value
       this.rawCommentList.forEach(item => { item.sendLoading = false })
     }
@@ -191,20 +193,6 @@ export default {
         this.$set(this.rawCommentList, index, comment)
       })
     },
-
-    // TODO 删除逻辑
-    handleDeleteComment (comment, index) {
-      this.$logger.info('handleDeleteComment', comment)
-      DeleteCollaborateCommentById(comment).then(response => {
-        // 直接删除
-        if (comment.commentToId) {
-            this.rawCommentList.splice(index, 1)
-        } else {
-          // 整个删除
-          this.$emit('update-comment')
-        }
-      })
-    },
     handleDeleteCommentConfirm (comment, index, isDelete) {
       this.$logger.info('handleDeleteCommentConfirm', comment)
       if (comment.commentToId) {
@@ -214,57 +202,34 @@ export default {
         this.deleteThread = isDelete
       }
     },
-    handleEditComment (comment, index) {
-      this.$logger.info('handleEditComment', comment)
-      comment.editing = !comment.editing
-      this.$set(this.rawCommentList, index, comment)
+    // TODO 删除逻辑
+    handleDeleteComment (comment, index) {
+      this.$logger.info('handleDeleteComment', comment)
+      DeleteCollaborateCommentById(comment).then(response => {
+        // 直接删除
+        if (comment.commentToId) {
+          this.rawCommentList.splice(index, 1)
+        } else {
+          // 整个删除
+          this.$emit('update-comment')
+        }
+      })
     },
-    handleCancel (comment) {
-      this.$logger.info('handleCancel', comment)
-      comment.editing = false
+    handleFocusInput(comment) {
+      this.$logger.info('handleFocusInput')
+      comment.editing = true
       var index = this.rawCommentList.findIndex(item => item.id === comment.id)
       if (index !== -1) {
         this.$set(this.rawCommentList, index, comment)
       }
     },
-    handleComment(inputValue) {
-      const comment = {}
-      if (this.fieldName) {
-        comment.fieldName = this.fieldName
-      }
-      comment.sourceId = this.sourceId
-      comment.sourceType = this.sourceType
-      comment.content = inputValue
-      this.commentSending = true
-      this.$logger.info('handleComment', comment)
-      AddCollaborateComment(comment).then(response => {
-        // 减少load时间
-        this.rawCommentList.push(response.result)
-      }).finally(() => {
-        this.commentSending = false
-      })
-    },
-    cancelComment () {
-      this.$emit('cancel-comment')
-    },
-
     handleCancelNewComment (comment) {
       this.newComment = { editing: false }
     },
-
-    handleCancelDelete () {
-      this.$logger.info('handleCancelDelete')
-      this.deleteCommentModalVisible = false
-      this.currentDeleteComment = null
-    },
-
-    handleEnsureDelete () {
-      this.$logger.info('')
-      this.deleteCommentModalVisible = false
-      DeleteCollaborateCommentById(this.currentDeleteComment).then(response => {
-        this.$emit('update-comment')
-        this.currentDeleteComment = null
-      })
+    handleEditComment (comment, index) {
+      this.$logger.info('handleEditComment', comment)
+      comment.editing = !comment.editing
+      this.$set(this.rawCommentList, index, comment)
     }
   }
 }

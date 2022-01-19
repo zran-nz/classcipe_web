@@ -2,14 +2,8 @@
   <div class="comment-input">
     <a-row>
       <a-mentions v-model="inputValue" @change="onChange" @select="onSelect" rows="2" placeholder="Comment or add others with @">
-        <a-mentions-option value="afc163">
-          afc163
-        </a-mentions-option>
-        <a-mentions-option value="zombieJ">
-          zombieJ
-        </a-mentions-option>
-        <a-mentions-option value="yesmeck">
-          yesmeck
+        <a-mentions-option :value="userInfo.email" v-for="(userInfo,index) in collaborateUserList" :key="index">
+          {{ userInfo.email }}
         </a-mentions-option>
       </a-mentions>
     </a-row>
@@ -31,6 +25,10 @@ export default {
     sending: {
       type: Boolean,
       default: false
+    },
+    collaborateUserList: {
+      type: Array,
+      default: () => []
     }
   },
   data () {

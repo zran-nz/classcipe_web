@@ -2,20 +2,14 @@
   <div class="comment-input">
     <div>
       <a-mentions
-        @focus="commentItem.editing = true"
+        @focus="focusInput"
         v-model="inputValue"
         @change="onChange"
         @select="onSelect"
         rows="2"
         placeholder="Reply or add others with @">
-        <a-mentions-option value="afc163">
-          afc163
-        </a-mentions-option>
-        <a-mentions-option value="zombieJ">
-          zombieJ
-        </a-mentions-option>
-        <a-mentions-option value="yesmeck">
-          yesmeck
+        <a-mentions-option :value="userInfo.email" v-for="(userInfo,index) in collaborateUserList" :key="index">
+          {{ userInfo.email }}
         </a-mentions-option>
       </a-mentions>
     </div>
@@ -43,6 +37,10 @@ export default {
       default() {
         return {}
       }
+    },
+    collaborateUserList: {
+      type: Array,
+      default: () => []
     }
   },
   watch: {
@@ -83,6 +81,10 @@ export default {
       this.commentItem.content = this.inputValue
       this.commentItem.sendLoading = true
       this.$emit('send', this.commentItem)
+    },
+    focusInput() {
+      // this.commentItem.editing = true
+      this.$emit('focusInput', this.commentItem)
     }
   }
 }

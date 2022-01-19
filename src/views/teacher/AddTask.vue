@@ -668,6 +668,7 @@
                             :source-id='taskId'
                             :source-type='contentType.task'
                             :comment-list='collaborateCommentList'
+                            :collaborate-user-list="collaborate.users"
                             @update-comment='handleUpdateCommentList' />
                         </a-tab-pane>
                         <a-tab-pane key='2' tab='History' force-render>
@@ -686,6 +687,7 @@
                       :source-type='contentType.task'
                       :field-name='currentFieldName'
                       :comment-list='currentCollaborateCommentList'
+                      :collaborate-user-list="collaborate.users"
                       @cancel-comment="handleCancelComment"
                       @update-comment='handleUpdateCommentList' />
                   </div>
@@ -3360,11 +3362,6 @@ export default {
         this.currentCollaborateCommentList = list
         this.$logger.info('currentCollaborateCommentList', list)
       })
-    },
-
-    // 取消comment
-    handleCancelComment() {
-      this.resetRightModuleVisible()
     },
 
     // historyData以及在接口请求的相应逻辑中正对数据进行‘格式’，

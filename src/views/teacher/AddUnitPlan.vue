@@ -500,6 +500,7 @@
                           :comment-list='collaborateCommentList'
                           :source-id='unitPlanId'
                           :source-type="contentType['unit-plan']"
+                          :collaborate-user-list="collaborate.users"
                           @update-comment='handleUpdateCommentList' />
                       </a-tab-pane>
                       <a-tab-pane key='2' force-render tab='History'>
@@ -518,6 +519,8 @@
                     :field-name='currentFieldName'
                     :source-id='unitPlanId'
                     :source-type="contentType['unit-plan']"
+                    :collaborate-user-list="collaborate.users"
+                    @cancel-comment="handleCancelComment"
                     @update-comment='handleUpdateCommentList' />
                 </div>
               </template>
@@ -3509,7 +3512,7 @@ export default {
 
 .collaborate-panel {
   background-color: #fff;
-  box-shadow: 0px 6px 10px rgba(159, 159, 159, 0.16);
+  //box-shadow: 0px 6px 10px rgba(159, 159, 159, 0.16);
 
   .icon {
     padding: 10px 5px 0 15px;
