@@ -184,12 +184,11 @@ export default {
         // 减少load时间
         if (isAdd) {
           this.rawCommentList.push(response.result)
-          this.newComment = {}
+          this.newComment = { sendLoading: false }
         }
       }).finally(() => {
         comment.sendLoading = false
         comment.editing = false
-        this.newComment.sendLoading = false
         this.$set(this.rawCommentList, index, comment)
       })
     },
