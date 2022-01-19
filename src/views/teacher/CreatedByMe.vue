@@ -1134,10 +1134,25 @@ export default {
     border: 1px solid #E4E4E4;
     padding: 5px 15px;
     border-radius: 5px;
-    max-height: 250px;
+    max-height: 290px;
     overflow: auto;
     background: rgba(228, 228, 228, 0.2);
 
+    &::-webkit-scrollbar {
+      width: 5px;
+      height: 5px;
+    }
+    &::-webkit-scrollbar-track {
+      border-radius: 3px;
+      background: rgba(0,0,0,0.00);
+      -webkit-box-shadow: inset 0 0 5px rgba(0,0,0,0.01);
+    }
+    /* 滚动条滑块 */
+    &::-webkit-scrollbar-thumb {
+      border-radius: 5px;
+      background: rgba(0,0,0,0.12);
+      -webkit-box-shadow: inset 0 0 10px rgba(0,0,0,0.01);
+    }
   }
   .expand-icon {
     margin-bottom: 10px;
@@ -1149,6 +1164,11 @@ export default {
     align-items: center;
 
     i {
+      padding: 0 5px;
+      height: 30px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
       svg {
         font-size: 23px;
       }
@@ -1373,7 +1393,9 @@ a.delete-action {
   border: none;
   position:relative;
   .card-collaborate-icon-item{
-    width:30px;
+    width: 30px;
+    padding-top: 17px;
+    padding-right: 5px;
     position: absolute;
     right: 0;
     bottom: 5px;

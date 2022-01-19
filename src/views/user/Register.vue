@@ -37,99 +37,128 @@
         </div>
       </div>
       <div class="register" v-if="currentStep === 1">
-        <div>
-          <div><img src="~@/assets/logo/logo2.png" class="logo" /></div>
-          <div><img src="~@/assets/logo/Lasscipe-dark.png" class="name" /></div>
-          <div class="desc">Sign Up</div>
-          <div class="desc2">
-            Already have an account? | <span><router-link :to="{ path: '/user/login' }">Sign In</router-link></span>
+        <!-- 老师注册 -->
+        <div v-if="selectedRole === 2">
+          <div>
+            <div><img src="~@/assets/logo/logo2.png" class="logo" /></div>
+            <div><img src="~@/assets/logo/Lasscipe-dark.png" class="name" /></div>
+            <div class="desc">Sign Up to Classcipe using your Google account</div>
+            <div class="desc2">
+              Already have an account? |
+              <span><router-link :to="{ path: '/user/login?role=teacher' }">Sign In</router-link></span>
+            </div>
           </div>
-        </div>
-        <a-form :form="form" class="register-form" @submit="handleSubmit">
-          <a-form-item class="form-name">
-            <a-input
-              size="large"
-              type="text"
-              :placeholder="$t('user.register.name.placeholder')"
-              v-decorator="[
-                'name',
-                {
-                  rules: [
-                    {
-                      required: true,
-                      message: $t('user.register.name.required'),
-                    },
-                  ],
-                  validateTrigger: ['change', 'blur'],
-                },
-              ]"
-            ></a-input>
-          </a-form-item>
-
-          <a-form-item class="form-email">
-            <a-input
-              size="large"
-              type="text"
-              :placeholder="$t('user.register.email.placeholder')"
-              v-decorator="[
-                'email',
-                {
-                  rules: [
-                    //{
-                    //required: true,
-                    //type: 'email',
-                    //message: $t('user.email.required'),
-                    //},
-                    {
-                      validator: handleEmail,
-                    },
-                  ],
-                  validateTrigger: ['change', 'blur'],
-                },
-              ]"
-            ></a-input>
-          </a-form-item>
-
-          <a-form-item class="form-password">
-            <a-input-password
-              size="large"
-              :placeholder="$t('user.register.password.placeholder')"
-              v-decorator="[
-                'password',
-                {
-                  rules: [
-                    { required: true, message: $t('user.password.required') },
-                    {
-                      validator: handlePassword,
-                    },
-                  ],
-                  validateTrigger: ['change', 'blur'],
-                },
-              ]"
-            ></a-input-password>
-          </a-form-item>
-
-          <!-- <div class="forget-password">
-            <a-button type="link">Forget password</a-button>
-          </div> -->
-
-          <a-form-item class="form-sumit">
-            <a-button type="primary" block :loading="loading" size="large" html-type="submit">Sign Up</a-button>
-          </a-form-item>
-
           <div class="third-login-wrapper">
             <third-login-button
               icon="googleIcon"
               :label="$t('user.login.loginWithGoogle')"
-              @click.native="thirdSignIn('google')"
+              @click.native="thirdSignIn('google', 'teacher')"
             />
           </div>
-        </a-form>
-        <div class="info">
-          Sign in or sign up means you agree to Classcipe's
-          <span><a href="https://www.classcipe.com/term.html" target="_blank">Terms of service</a></span>
-          and
-          <span><a href="https://www.classcipe.com/policy.html" target="_blank">Privacy Policy</a></span>
+          <div class="info">
+            Sign in or sign up means you agree to Classcipe's
+            <span><a href="https://www.classcipe.com/term.html" target="_blank">Terms of service</a></span>
+            and
+            <span><a href="https://www.classcipe.com/policy.html" target="_blank">Privacy Policy</a></span>
+          </div>
+        </div>
+        <!-- 学生注册 -->
+        <div v-if="selectedRole === 4">
+          <div>
+            <div><img src="~@/assets/logo/logo2.png" class="logo" /></div>
+            <div><img src="~@/assets/logo/Lasscipe-dark.png" class="name" /></div>
+            <div class="desc">Sign Up</div>
+            <div class="desc2">
+              Already have an account? |
+              <span><router-link :to="{ path: '/user/login?role=student' }">Sign In</router-link></span>
+            </div>
+          </div>
+          <a-form :form="form" class="register-form" @submit="handleSubmit">
+            <a-form-item class="form-name">
+              <a-input
+                size="large"
+                type="text"
+                :placeholder="$t('user.register.name.placeholder')"
+                v-decorator="[
+                  'name',
+                  {
+                    rules: [
+                      {
+                        required: true,
+                        message: $t('user.register.name.required'),
+                      },
+                    ],
+                    validateTrigger: ['change', 'blur'],
+                  },
+                ]"
+              ></a-input>
+            </a-form-item>
+
+            <a-form-item class="form-email">
+              <a-input
+                size="large"
+                type="text"
+                :placeholder="$t('user.register.email.placeholder')"
+                v-decorator="[
+                  'email',
+                  {
+                    rules: [
+                      //{
+                      //required: true,
+                      //type: 'email',
+                      //message: $t('user.email.required'),
+                      //},
+                      {
+                        validator: handleEmail,
+                      },
+                    ],
+                    validateTrigger: ['change', 'blur'],
+                  },
+                ]"
+              ></a-input>
+            </a-form-item>
+
+            <a-form-item class="form-password">
+              <a-input-password
+                size="large"
+                :placeholder="$t('user.register.password.placeholder')"
+                v-decorator="[
+                  'password',
+                  {
+                    rules: [
+                      { required: true, message: $t('user.password.required') },
+                      {
+                        validator: handlePassword,
+                      },
+                    ],
+                    validateTrigger: ['change', 'blur'],
+                  },
+                ]"
+              ></a-input-password>
+            </a-form-item>
+
+            <!-- <div class="forget-password">
+            <a-button type="link">Forget password</a-button>
+          </div> -->
+
+            <a-form-item class="form-sumit">
+              <a-button type="primary" block :loading="loading" size="large" html-type="submit">Sign Up</a-button>
+            </a-form-item>
+
+            <div class="third-login-wrapper">
+              <third-login-button
+                icon="googleIcon"
+                :label="$t('user.login.loginWithGoogle')"
+                @click.native="thirdSignIn('google', 'student')"
+              />
+            </div>
+          </a-form>
+          <div class="info">
+            Sign in or sign up means you agree to Classcipe's
+            <span><a href="https://www.classcipe.com/term.html" target="_blank">Terms of service</a></span>
+            and
+            <span><a href="https://www.classcipe.com/policy.html" target="_blank">Privacy Policy</a></span>
+          </div>
         </div>
       </div>
     </div>
@@ -170,10 +199,10 @@ export default {
       this.selectedRole = role
       this.next()
     },
-    thirdSignIn(source) {
+    thirdSignIn(source, role) {
       console.log('thirdSignIn', source)
       let url = getThirdAuthURL(source)
-      url += '?callbackUrl='
+      url += `?role=${role}&callbackUrl=`
       url += thirdAuthCallbackUrl
       console.log('full auth url ', url)
       window.location.href = url
@@ -293,7 +322,7 @@ export default {
   width: 520px;
   min-width: 520px;
   margin: 0 auto;
-  border: 1px solid #d3d7ec;
+  border: 1px solid #e8e8e8;
   border-radius: 20px;
   padding: 0px 50px;
   background-color: #fff;
