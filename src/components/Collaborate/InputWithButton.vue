@@ -1,7 +1,7 @@
 <template>
   <div class="comment-input">
     <a-row>
-      <a-mentions v-model="value" @change="onChange" @select="onSelect" rows="2" placeholder="Comment or add others with @">
+      <a-mentions v-model="inputValue" @change="onChange" @select="onSelect" rows="2" placeholder="Comment or add others with @">
         <a-mentions-option value="afc163">
           afc163
         </a-mentions-option>
@@ -14,10 +14,10 @@
       </a-mentions>
     </a-row>
     <div class="confirm-button">
-      <a-button type="primary" :class="{'button-item':true,'disabled-button':isDisabled}" :disabled="isDisabled">
+      <a-button type="primary" :loading="sending" @click="handleComment" :class="{'button-item':true,'disabled-button':isDisabled}" :disabled="isDisabled">
         Comment
       </a-button>
-      <a-button class="button-item">
+      <a-button class="button-item" @click="cancelComment">
         Cancel
       </a-button>
     </div>
@@ -28,30 +28,21 @@
 export default {
   name: 'InputWithButton',
   props: {
-    replyMode: {
+    sending: {
       type: Boolean,
       default: false
-    },
-    replyUsername: {
-      type: String,
-      default: null
-    },
-    extra: {
-      type: Object,
-      default: null
     }
   },
   data () {
     return {
-      value: '',
+      inputValue: '',
       oldValue: '',
-      isDisabled: true,
-      sendLoading: false
+      isDisabled: true
     }
   },
   methods: {
     created () {
-      this.oldValue = this.value
+      this.oldValue = this.inputValue
     },
     onSelect(option) {
       console.log('select', option)
@@ -61,21 +52,16 @@ export default {
       this.isDisabled = (value === this.oldValue)
       console.log('Change:', value)
     },
-    handleSendEvent () {
-      // 触发事件是把extra数据带回，方便外部区分处理逻辑。
-      this.$logger.info('trigger send ' + this.value)
-      if (!this.value) {
+    handleComment() {
+      this.$logger.info('trigger handleComment ' + this.inputValue)
+      if (!this.inputValue) {
         return
       }
-      this.sendLoading = true
-      this.$emit('send', {
-        inputValue: this.value,
-        extra: this.extra
-      })
-      setTimeout(() => {
-        this.sendLoading = false
-        this.value = ''
-      }, 1000)
+      this.$emit('comment', this.inputValue)
+    },
+    cancelComment() {
+      this.inputValue = ''
+      this.$emit('cancelComment')
     }
   }
 }

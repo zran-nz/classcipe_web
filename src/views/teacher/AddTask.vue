@@ -686,6 +686,7 @@
                       :source-type='contentType.task'
                       :field-name='currentFieldName'
                       :comment-list='currentCollaborateCommentList'
+                      @cancel-comment="handleCancelComment"
                       @update-comment='handleUpdateCommentList' />
                   </div>
                 </template>
@@ -3359,6 +3360,11 @@ export default {
         this.currentCollaborateCommentList = list
         this.$logger.info('currentCollaborateCommentList', list)
       })
+    },
+
+    // 取消comment
+    handleCancelComment() {
+      this.resetRightModuleVisible()
     },
 
     // historyData以及在接口请求的相应逻辑中正对数据进行‘格式’，

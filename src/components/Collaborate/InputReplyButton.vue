@@ -20,7 +20,7 @@
       </a-mentions>
     </div>
     <div class="confirm-button" v-if="commentItem.editing">
-      <a-button type="primary" :class="{'button-item':true,'disabled-button':isDisabled}" :disabled="isDisabled">
+      <a-button type="primary" :loading="commentItem.sendLoading" @click="reply" :class="{'button-item':true,'disabled-button':isDisabled}" :disabled="isDisabled">
         Reply
       </a-button>
       <a-button class="button-item" @click="cancelReply">
@@ -56,11 +56,11 @@ export default {
     return {
       inputValue: '',
       oldValue: '',
-      isDisabled: true,
-      sendLoading: false
+      isDisabled: true
     }
   },
   created () {
+    this.commentItem.sendLoading = false
     this.inputValue = this.commentItem.content ? this.commentItem.content : ''
     this.oldValue = this.commentItem.content ? this.commentItem.content : ''
   },
@@ -76,21 +76,13 @@ export default {
     cancelReply() {
       this.$emit('cancel', this.commentItem)
     },
-    handleSendEvent () {
-      // 触发事件是把extra数据带回，方便外部区分处理逻辑。
-      this.$logger.info('trigger send ' + this.inputValue)
+    reply() {
       if (!this.inputValue) {
         return
       }
-      this.sendLoading = true
-      this.$emit('send', {
-        inputValue: this.inputValue,
-        extra: this.extra
-      })
-      setTimeout(() => {
-        this.sendLoading = false
-        this.value = ''
-      }, 1000)
+      this.commentItem.content = this.inputValue
+      this.commentItem.sendLoading = true
+      this.$emit('send', this.commentItem)
     }
   }
 }

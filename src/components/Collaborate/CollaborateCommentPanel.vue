@@ -1,6 +1,6 @@
 <template>
   <div class="collaborate-comment-panel">
-    <div class="add-comment-wrapper">
+    <div class="add-comment-wrapper" style="box-shadow: 0px 3px 6px rgb(0 0 0 / 16%)" v-if="rawCommentList.length === 0">
       <div class="comment-user-info">
         <div class="avatar">
           <img :src="$store.getters.avatar" />
@@ -11,12 +11,43 @@
       </div>
       <div class="comment-input-wrapper">
         <div class="input">
-          <input-with-button @send="handleSend" />
+          <input-with-button @cancelComment="cancelComment" @comment="handleComment" :sending="commentSending" />
         </div>
       </div>
     </div>
-    <div class="comment-record-wrapper">
+
+    <div class="comment-record-wrapper" style="box-shadow: 0px 3px 6px rgb(0 0 0 / 16%)" v-if="rawCommentList.length > 0">
+      <div class='delete-thread-mask' v-if="deleteThread">
+        <div class="delete-group">
+          <div style="color: #fff">
+            Delete this comment Thread?
+          </div>
+          <div class="delete-group-button">
+            <div class='upload-text'>
+              <a-button shape='round' type='primary' @click="handleDeleteComment(rawCommentList[0])">Delete</a-button>
+            </div>
+            <div class='upload-text'>
+              <a-button shape='round' @click="deleteThread = false">Cancel</a-button>
+            </div>
+          </div>
+        </div>
+      </div>
       <div class="record-list" v-for="(commentItem, cIndex) in rawCommentList" :key="cIndex">
+        <div class='delete-mask' v-if="commentItem.delete">
+          <div class="delete-group">
+            <div style="color: #fff">
+              Delete this comment?
+            </div>
+            <div class="delete-group-button">
+              <div class='upload-text'>
+                <a-button shape='round' type='primary' @click="handleDeleteComment(commentItem,cIndex)" >Delete</a-button>
+              </div>
+              <div class='upload-text'>
+                <a-button shape='round' @click="handleDeleteCommentConfirm(commentItem,cIndex,false)" >Cancel</a-button>
+              </div>
+            </div>
+          </div>
+        </div>
         <div class="record-item">
           <template>
             <div class="record-action" v-show="commentItem.username === $store.getters.userInfo.username">
@@ -25,7 +56,7 @@
                   <a-icon type="more" style="font-size: 20px;margin-top: 10px;" />
                   <a-menu slot="overlay">
                     <a-menu-item>
-                      <a @click="handleDeleteComment(commentItem)">
+                      <a @click="handleDeleteCommentConfirm(commentItem,cIndex,true)">
                         <a-icon type="delete" theme="filled" /> Delete
                       </a>
                     </a-menu-item>
@@ -44,7 +75,7 @@
               </div>
               <div class="user-name">
                 <div class="name-text"> {{ commentItem.username }}</div>
-                <div class="time-text"> {{ commentItem.createdTime | dayjs }}</div>
+                <div class="time-text"> {{ commentItem.createdTime | dayjs1 }}</div>
               </div>
             </div>
             <div class="comment-detail" v-if="!commentItem.editing">
@@ -54,7 +85,7 @@
             </div>
             <div class="comment-input-wrapper" v-if="commentItem.editing">
               <div class="input">
-                <input-reply-button @send="handleSend" :reply-mode="true" :comment-item="commentItem" @cancel="handleCancel"/>
+                <input-reply-button @send="handleSend" :comment-item="commentItem" @cancel="handleCancel"/>
               </div>
             </div>
           </template>
@@ -105,66 +136,82 @@ export default {
     return {
       newComment: {
         editing: false,
-        content: ''
+        content: '',
+        sendLoading: false
       },
+      deleteThread: false,
       rawCommentList: [],
       deleteCommentModalVisible: false,
-      currentDeleteComment: null
+      currentDeleteComment: null,
+      commentSending: false
     }
   },
   watch: {
     commentList (value) {
       this.$logger.info('commentList update ', value)
       this.rawCommentList = value
+      this.rawCommentList.forEach(item => { item.sendLoading = false })
     }
   },
   created () {
     this.$logger.info('CollaborateCommentPanel commentList', this.commentList)
     this.rawCommentList = this.commentList
+    this.rawCommentList.forEach(item => { item.sendLoading = false })
   },
   methods: {
-
-    // TODO 评论提交逻辑
-    /**
-     * 1、评论分两种一种是新建，一种是回复。根据rootCommentId是否为null判断，如果当前
-     * 是新增的评论那么rootCommentId为null，如果是回复他人的commentToId、rootCommentId
-     * 不为空，且下面所有的回复的rootCommentId都相同，代表在一个评论下面的追加回复。
-     * 2、如果有isDelete为true那么显示【该评论已被删除】,不展示数据。
-     * 3、后台数据过来后按照rootCommentId为null的数据分组，然后把其他数据追加到各个分组下面，
-     * 参考formatComment()逻辑
-     * @param data
-     */
-    handleSend (data) {
-      if (!data.inputValue) {
-        return
-      }
+    handleSend (comment) {
       if (this.fieldName) {
-        data.fieldName = this.fieldName
+        comment.fieldName = this.fieldName
       }
-      data.sourceId = this.sourceId
-      data.sourceType = this.sourceType
-      this.$logger.info('handleSend', data)
-      if (!data) {
-        this.$message.warn('Please enter some comments!')
-      } else {
-        AddCollaborateComment(data).then(response => {
-          this.$emit('update-comment')
-        })
+      const index = this.rawCommentList.findIndex(item => item.id === comment.id)
+      comment.sourceId = this.sourceId
+      comment.sourceType = this.sourceType
+      let isAdd = false
+      comment.sendLoading = true
+      this.$set(this.rawCommentList, index, comment)
+      if (!comment.id) {
+        // 新增
+        isAdd = true
+        this.newComment.sendLoading = true
+        if (this.rawCommentList.length > 0) {
+          comment.commentToId = this.rawCommentList[0].id
+        }
       }
+      this.$logger.info('handleSend', comment)
+      AddCollaborateComment(comment).then(response => {
+        // 减少load时间
+        if (isAdd) {
+          this.rawCommentList.push(response.result)
+          this.newComment = {}
+        }
+      }).finally(() => {
+        comment.sendLoading = false
+        comment.editing = false
+        this.newComment.sendLoading = false
+        this.$set(this.rawCommentList, index, comment)
+      })
     },
 
     // TODO 删除逻辑
-    handleDeleteComment (comment) {
+    handleDeleteComment (comment, index) {
       this.$logger.info('handleDeleteComment', comment)
-      this.currentDeleteComment = null
-      if (comment.hasOwnProperty('subCommentList')) {
-        this.deleteCommentModalVisible = true
-        this.currentDeleteComment = comment
-      } else {
-        // 非根评论，直接删除
-        DeleteCollaborateCommentById(comment).then(response => {
+      DeleteCollaborateCommentById(comment).then(response => {
+        // 直接删除
+        if (comment.commentToId) {
+            this.rawCommentList.splice(index, 1)
+        } else {
+          // 整个删除
           this.$emit('update-comment')
-        })
+        }
+      })
+    },
+    handleDeleteCommentConfirm (comment, index, isDelete) {
+      this.$logger.info('handleDeleteCommentConfirm', comment)
+      if (comment.commentToId) {
+        comment.delete = isDelete
+        this.$set(this.rawCommentList, index, comment)
+      } else {
+        this.deleteThread = isDelete
       }
     },
     handleEditComment (comment, index) {
@@ -180,6 +227,27 @@ export default {
         this.$set(this.rawCommentList, index, comment)
       }
     },
+    handleComment(inputValue) {
+      const comment = {}
+      if (this.fieldName) {
+        comment.fieldName = this.fieldName
+      }
+      comment.sourceId = this.sourceId
+      comment.sourceType = this.sourceType
+      comment.content = inputValue
+      this.commentSending = true
+      this.$logger.info('handleComment', comment)
+      AddCollaborateComment(comment).then(response => {
+        // 减少load时间
+        this.rawCommentList.push(response.result)
+      }).finally(() => {
+        this.commentSending = false
+      })
+    },
+    cancelComment () {
+      this.$emit('cancel-comment')
+    },
+
     handleCancelNewComment (comment) {
       this.newComment = { editing: false }
     },
@@ -243,7 +311,7 @@ export default {
   .comment-input-wrapper {
     margin-top: 10px;
     .input {
-      padding-left: 20px;
+      //padding-left: 20px;
     }
   }
 }
@@ -258,8 +326,10 @@ export default {
   background: #FFFFFF;
   border: 1px solid #E8E8E8;
   border-radius: 4px;
+  position:relative;
 
   .record-list {
+    position:relative;
     margin-top: 10px;
     border-bottom: 1px solid #D8D8D8;
     .record-item {
@@ -349,6 +419,60 @@ export default {
           font-style: italic;
           color: #999;
         }
+      }
+    }
+    .delete-mask{
+      cursor: pointer;
+      display: block;
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index:99;
+      background-color: rgba(0,0,0,0.7);
+      .delete-group{
+        display: flex;
+        flex-direction: column;
+        width: 200px;
+        text-align: center;
+        margin: 0 auto;
+        .delete-group-button{
+          display: flex;
+          width: 200px;
+          margin: 0 auto;
+          justify-content: space-evenly;
+        }
+        .upload-text {
+          text-align: center;
+        }
+      }
+    }
+  }
+  .delete-thread-mask{
+    cursor: pointer;
+    display: block;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index:99;
+    background-color: rgba(0,0,0,0.7);
+    .delete-group{
+      display: flex;
+      flex-direction: column;
+      width: 200px;
+      text-align: center;
+      margin: 0 auto;
+      .delete-group-button{
+        display: flex;
+        width: 200px;
+        margin: 0 auto;
+        justify-content: space-evenly;
+      }
+      .upload-text {
+        text-align: center;
       }
     }
   }
