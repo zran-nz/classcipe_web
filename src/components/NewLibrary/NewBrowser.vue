@@ -1195,4 +1195,8 @@ div[tag-type="4"] {
   background: rgb(215, 224, 233);
 }
 
+div[tag-type="2"] {
+  background: rgb(255, 236, 210);
+}
+
 </style>
