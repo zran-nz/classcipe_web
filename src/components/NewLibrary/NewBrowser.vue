@@ -47,6 +47,16 @@
     <div class="main">
       <div class="selected-content">
         <div class="main-content-list">
+
+          <div class='no-select-content' v-if='!hasSelectedContent && selectMode !== selectModelType.evaluationMode'>
+            <div class='no-select-img'>
+              <img src="~@/assets/newBrowser/no-selected.png" class="logo" />
+            </div>
+            <div class='no-select-text'>
+              You haven't added learning objectives yet
+            </div>
+          </div>
+
           <div class="recommend-description" v-if="!isEmptyRecommend">
             <div class="recommend-title">
               <h3>Recommended assessment objectives</h3>
@@ -95,6 +105,7 @@
                 <div
                   :class="{'content-item': true, 'selected-line': true}">
                   <div class="name">
+                    <div class='selected-left-bar' :tag-type='selected21CenturyItem.tagType'></div>
                     <div class="name-text">
                       {{ selected21CenturyItem.name }}
                     </div>
@@ -113,6 +124,7 @@
 
                 :key="'my-' + mIndex">
                 <div class="name">
+                  <div class='selected-left-bar' :tag-type='item.tagType'></div>
                   <div class="name-text">
                     {{ item.name }}
                   </div>
@@ -129,6 +141,7 @@
                 v-for="(item, kIndex) in selectedCurriculumList"
                 :key="'curr-' + kIndex">
                 <div class="name">
+                  <div class='selected-left-bar' :tag-type='item.knowledgeData.tagType'></div>
                   <div class="name-text">
                     {{ item.knowledgeData.name }}
                   </div>
@@ -146,6 +159,7 @@
 
                 :key="'sub-' + sIndex">
                 <div class="name">
+                  <div class='selected-left-bar' :tag-type='item.knowledgeData.tagType'></div>
                   <div class="name-text">
                     {{ item.knowledgeData.name }}
                   </div>
@@ -163,6 +177,7 @@
                 v-for="(item, aIndex) in selectedAssessmentList"
                 :key="'assessment-' + aIndex">
                 <div class="name">
+                  <div class='selected-left-bar' :tag-type='item.knowledgeData.tagType'></div>
                   <div class="name-text">
                     {{ item.knowledgeData.name }}
                   </div>
@@ -180,6 +195,7 @@
                 v-for="(item, aIndex) in selected21CenturySkillList"
                 :key="'21-' + aIndex">
                 <div class="name">
+                  <div class='selected-left-bar' :tag-type='item.knowledgeData.tagType'></div>
                   <div class="name-text">
                     {{ item.knowledgeData.name }}
                   </div>
@@ -197,6 +213,7 @@
                 v-for="(item, aIndex) in selectedBigIdeaList"
                 :key="'big-' + aIndex">
                 <div class="name">
+                  <div class='selected-left-bar' :tag-type='item.tagType'></div>
                   <div class="name-text">
                     {{ item.bigIdea }}
                   </div>
@@ -214,6 +231,7 @@
                 v-for="(item, aIndex) in selectedAll21CenturyList"
                 :key="'all-21-' + aIndex">
                 <div class="name">
+                  <div class='selected-left-bar' :tag-type='item.item.tagType'></div>
                   <div class="name-text">
                     {{ item.item.name }}
                   </div>
@@ -231,6 +249,7 @@
                 v-for="(item, aIndex) in selectedKnowledgeList"
                 :key="'sync-' + aIndex">
                 <div class="name">
+                  <div class='selected-left-bar' :tag-type='item.tagType'></div>
                   <div class="name-text">
                     {{ item.name }}
                   </div>
@@ -248,6 +267,7 @@
                 v-for="(item, aIndex) in selectedIduList"
                 :key="'idu-' + aIndex">
                 <div class="name">
+                  <div class='selected-left-bar' :tag-type='item.knowledgeData.tagType'></div>
                   <div class="name-text">
                     {{ item.knowledgeData.name }}
                   </div>
@@ -331,6 +351,8 @@ import {
   getAllCurriculums
 } from '@/api/preference'
 import { LibraryEvent, LibraryEventBus } from '@/components/NewLibrary/LibraryEventBus'
+import { SelectModel } from '@/components/NewLibrary/SelectModel'
+
 
 export default {
   name: 'NewBrowser',
@@ -404,7 +426,8 @@ export default {
       showCurriculum: false,
 
       selected21CenturyItem: null,
-      selectedGradeIdSet: new Set()
+      selectedGradeIdSet: new Set(),
+      selectModelType: SelectModel
     }
   },
   computed: {
@@ -839,13 +862,14 @@ export default {
           }
 
           .content-item {
+            position: relative;
             border: 1px solid #fff;
             display: flex;
             flex-direction: row;
             flex-wrap: wrap;
             align-items: center;
             padding: 10px;
-            margin: 3px;
+            margin: 3px 3px 5px 11px;
             position: relative;
             border: 1px solid @primary-color;
             background-color: #5fc9b04a !important;
@@ -1122,6 +1146,53 @@ export default {
 .main-content-list {
   height: 100%;
   overflow-y: scroll;
+}
+
+.no-select-content {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+
+  .no-select-img {
+    margin-top: 90px;
+    img {
+      height: 150px;
+    }
+  }
+
+  .no-select-text {
+    margin-top: 30px;
+    font-size: 16px;
+    font-family: Segoe UI;
+    font-weight: bold;
+    line-height: 0px;
+    color: #C6C6C6;
+  }
+}
+
+.selected-left-bar {
+  position: absolute;
+  top: -1px;
+  left: -11px;
+  bottom: -1px;
+  width: 10px;
+}
+
+div[tag-type="6"] {
+  background: rgb(255, 236, 210);
+}
+
+div[tag-type="5"] {
+  background: #67C23A;
+}
+
+div[tag-type="1"] {
+  background: rgb(177, 209, 204);
+}
+
+div[tag-type="4"] {
+  background: rgb(215, 224, 233);
 }
 
 </style>

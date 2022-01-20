@@ -12,9 +12,6 @@
         'browser-hide-menu': showMenu.indexOf(treeItemData.type) === -1,
         'tree-item-type' : true
       }"
-      :style="{
-        'background': treeItemData.backgroundColor
-      }"
       :current-item-type="treeItemData.type === NavigationType.learningOutcomes ? 'subject' : // 如果当前是大纲，那么第一层数据是不区分层级的subject
         (treeItemData.type === NavigationType.sync ? 'sync' : // 如果是sync第一次是外部的同步数据列表
           ((treeItemData.type === NavigationType.specificSkills || treeItemData.type === NavigationType.assessmentType) ? 'subject' : ( // 如果是specificSkills或assessmentType，那么第一层数据是subject，注意subject只有一层
@@ -258,7 +255,7 @@ export default {
               gradeList: [],
               parent: null,
               sort: 1,
-              backgroundColor: 'rgba(253, 238, 218, 0.2)'
+              backgroundColor: '#67C23A'
             }
             this.gradeList.forEach(gradeItem => {
               gradeItem.isGrade = true

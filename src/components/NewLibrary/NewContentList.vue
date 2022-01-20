@@ -9,7 +9,6 @@
       <template v-if="contentDataList && contentDataList.length">
         <div
           :data-item-id="item.id"
-          :style="{'background-color': backgroundColor || '#fff'}"
           :class="{'content-item': true,
                    'odd-line': index % 2 === 0,'even-line': index % 2 === 1,
                    'active-line': currentId === item.id,
@@ -719,7 +718,7 @@ export default {
     }
 
     .odd-line {
-      background-color: #F8F8F8;
+      background-color: rgba(228, 228, 228, 0.2);
     }
 
     .action-icon {
@@ -727,7 +726,7 @@ export default {
     }
 
     .selected-line {
-      background-color: fade(@outline-color, 10%);
+      background-color: fade(@outline-color, 10%) !important;
       color: @text-color;
       border: 1px solid #15C39A !important;
       box-sizing: border-box;
@@ -751,7 +750,7 @@ export default {
     }
 
     .content-item {
-      //border: 1px solid #fff;
+      border: 1px solid #fff;
       display: flex;
       flex-direction: row;
       flex-wrap: wrap;
@@ -759,6 +758,10 @@ export default {
       padding: 10px;
       margin: 3px;
       position: relative;
+
+      &:hover {
+        background-color: #EDF1F5;
+      }
 
       .name {
         cursor: pointer;

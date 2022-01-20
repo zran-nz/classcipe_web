@@ -8,6 +8,7 @@
     :data-selected-grade-id="treeItemData.selectedGradeId + ''"
     :data-selected-grade-name="treeItemData.selectedGradeName + ''"
     :data-root-type='rootType'>
+    <div class='border-left-tag' :style="{'background': treeItemData.backgroundColor}"></div>
     <div
       :class="{'item-wrapper': true , 'odd-line': odd, 'even-line': !odd}"
       :style="{paddingLeft: (defaultDeep * defaultPaddingLeft === 0 ? defaultPaddingLeft / 3 : defaultDeep * defaultPaddingLeft) + 'px'}">
@@ -1420,11 +1421,11 @@ export default {
 @import "~@/components/index.less";
 
 .even-line {
-  //background-color: #ffffff;
+  background-color: #ffffff;
 }
 
 .odd-line {
-  //background-color: #F8F8F8;
+  background-color: rgba(228, 228, 228, 0.2);
 }
 
 .active-line {
@@ -1433,6 +1434,7 @@ export default {
 }
 
 .tree-item {
+  position: relative;
   display: block;
   text-align: left;
   cursor: pointer;
@@ -1450,7 +1452,7 @@ export default {
     align-items: center;
 
     &:hover {
-      //background-color: fade(@primary-color, 10%);
+      background-color: #EDF1F5;
     }
 
     .subtree-icon-wrapper {
@@ -1526,5 +1528,14 @@ export default {
   //border-radius: 2px;
   //background: #e9f9f5;
   //box-shadow: 0 0 0 2px rgba(21, 195, 154, .5);
+}
+
+.border-left-tag {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 10px;
+  padding-right: 3px;
+  height: 35px;
 }
 </style>
