@@ -4,7 +4,7 @@
       <div class="user-layout-content">
         <div class="top">
           <div class="header">
-            <img src="~@/assets/logo/beatop.png" class="logo" alt="logo" />
+            <img src="~@/assets/logo/11.png" class="logo" alt="logo" />
           </div>
         </div>
         <router-view />
@@ -79,8 +79,8 @@ export default {
         // text-align: center;
 
         .header {
-          height: 44px;
-          line-height: 44px;
+          height: 56px;
+          line-height: 56px;
           margin-bottom: 20px;
 
           .badge {
@@ -94,7 +94,7 @@ export default {
           }
 
           .logo {
-            height: 44px;
+            height: 56px;
             vertical-align: top;
             margin-right: 16px;
             border-style: none;

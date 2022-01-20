@@ -4,8 +4,8 @@
       <a-tab-pane key="teacher" tab="Teacher">
         <div class="login">
           <div>
-            <div><img src="~@/assets/logo/logo2.png" class="logo" /></div>
-            <div><img src="~@/assets/logo/Lasscipe-dark.png" class="name" /></div>
+            <!-- <div><img src="~@/assets/logo/logo2.png" class="logo" /></div>
+            <div><img src="~@/assets/logo/Lasscipe-dark.png" class="name" /></div> -->
             <div class="desc">Sign In</div>
             <div class="desc2">
               Don't have an account? | <span><router-link :to="{ path: '/user/register' }">Sign Up</router-link></span>
@@ -20,19 +20,19 @@
             />
           </div>
 
-          <div class="info">
+          <!-- <div class="info">
             Sign in or sign up means you agree to Classcipe's
             <span><a href="https://www.classcipe.com/term.html" target="_blank">Terms of service</a></span>
             and
             <span><a href="https://www.classcipe.com/policy.html" target="_blank">Privacy Policy</a></span>
-          </div>
+          </div> -->
         </div>
       </a-tab-pane>
       <a-tab-pane key="student" tab="Student">
         <div class="login">
           <div>
-            <div><img src="~@/assets/logo/logo2.png" class="logo" /></div>
-            <div><img src="~@/assets/logo/Lasscipe-dark.png" class="name" /></div>
+            <!-- <div><img src="~@/assets/logo/logo2.png" class="logo" /></div>
+            <div><img src="~@/assets/logo/Lasscipe-dark.png" class="name" /></div> -->
             <div class="desc">Sign In</div>
             <div class="desc2">
               Don't have an account? | <span><router-link :to="{ path: '/user/register' }">Sign Up</router-link></span>
@@ -78,24 +78,28 @@
           <a-button type="link">Forget password</a-button>
         </div> -->
 
-            <a-form-item class="form-sumit">
+            <a-form-item class="form-submit">
               <a-button type="primary" block :loading="loading" size="large" html-type="submit">Sign In</a-button>
             </a-form-item>
-
-            <div class="third-login-wrapper">
-              <third-login-button
-                icon="googleIcon"
-                :label="$t('user.login.loginWithGoogle')"
-                @click.native="thirdSignIn('google', 'student')"
-              />
-            </div>
           </a-form>
-          <div class="info">
+
+          <div class="or">
+            <span>- or -</span>
+          </div>
+
+          <div class="third-login-wrapper">
+            <third-login-button
+              icon="googleIcon"
+              :label="$t('user.login.loginWithGoogle')"
+              @click.native="thirdSignIn('google', 'student')"
+            />
+          </div>
+          <!-- <div class="info">
             Sign in or sign up means you agree to Classcipe's
             <span><a href="https://www.classcipe.com/term.html" target="_blank">Terms of service</a></span>
             and
             <span><a href="https://www.classcipe.com/policy.html" target="_blank">Privacy Policy</a></span>
-          </div>
+          </div> -->
         </div>
       </a-tab-pane>
     </a-tabs>
@@ -295,8 +299,8 @@ export default {
       margin-bottom: 10px;
     }
     .desc {
-      margin-bottom: 5px;
-      font-size: 16px;
+      margin-bottom: 10px;
+      font-size: 24px;
       color: #000;
       font-family: FZCuYuan-M03S;
       font-weight: 800;
@@ -312,10 +316,14 @@ export default {
         bottom: 20px;
       }
     }
-    .form-sumit {
+    .form-submit {
+      margin-bottom: 0px;
       button {
         border-radius: 8px;
       }
+    }
+    .or{
+      margin: 10px 0px;
     }
     .third-login-wrapper {
       margin-bottom: 20px;
