@@ -426,10 +426,6 @@ export default {
       type: Number,
       required: true
     },
-    canEdit: {
-      type: Boolean,
-      default: true
-    },
     isLibrary: {
       type: Boolean,
       default: false
