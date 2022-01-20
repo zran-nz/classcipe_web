@@ -1453,7 +1453,6 @@
       </a-modal>
 
       <a-modal
-        class='my-slide-pick-modal'
         v-model='selectedSlideVisible'
         :footer='null'
         :title='null'
@@ -1640,6 +1639,20 @@
         />
       </a-modal>
 
+      <a-modal
+        v-model='updateContentVisible'
+        :footer='null'
+        :title='null'
+        destroyOnClose
+        width='700px'
+        :closable='false'>
+        <collaborate-update-content
+          :source-id='taskId'
+          :source-type='contentType.task'
+          @update-share-status='handleShareStatus'
+        />
+      </a-modal>
+
       <a-skeleton :loading='contentLoading' active>
       </a-skeleton>
     </a-card>
@@ -1702,6 +1715,7 @@ import { BaseEventMixin } from '@/mixins/BaseEvent'
 import ShareContentSetting from '@/components/Share/ShareContentSetting'
 import { QueryContentShare } from '@/api/share'
 import CollaborateTooltip from '@/components/Collaborate/CollaborateTooltip'
+import CollaborateUpdateContent from '@/components/Collaborate/CollaborateUpdateContent'
 
 const { SplitTask } = require('@/api/task')
 
@@ -1739,7 +1753,8 @@ export default {
     TaskMaterialPreview,
     MediaPreview,
     ExpendSvg,
-    CollaborateTooltip
+    CollaborateTooltip,
+    CollaborateUpdateContent
   },
   mixins: [PptPreviewMixin, UtilMixin, BaseEventMixin],
   props: {
@@ -2210,6 +2225,7 @@ export default {
       }).finally(() => {
         // this.selectedSlideVisible = true
         // this.$refs.commonFormHeader.saving = false
+        this.handleSaveContentEvent(this.taskId, this.contentType.task, this.oldForm)
       })
     },
     handlePublishTask(status) {

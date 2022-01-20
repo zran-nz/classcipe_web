@@ -1,6 +1,8 @@
 import { QueryContentCollaborates } from '@/api/collaborate'
-import { COLLABORATE } from '@/websocket/cmd'
+import { COLLABORATE, SAVE_CONTENT } from '@/websocket/cmd'
 import CollborateMsg from '@/websocket/model/collborateMsg'
+import SaveContentMsg from '@/websocket/model/saveContentMsg'
+import { RECEIVE_MSG } from '@/store/mutation-types'
 
 export const RightModule = {
   'collaborate': 1,
@@ -19,7 +21,20 @@ export const BaseEventMixin = {
       rightWidth: 600,
       leftWidth: 730,
       collaborate: {},
-      initCompleted: false
+      initCompleted: false,
+      updateContentVisible: false
+    }
+  },
+  watch: {
+    '$store.state.websocket.saveContentMsg': function (contentMsg) {
+      console.log(JSON.stringify(this.oldForm))
+      console.log(JSON.stringify(contentMsg.content.details))
+      console.log(JSON.stringify(contentMsg.content.details) === JSON.stringify(this.oldForm))
+      if (contentMsg && contentMsg.content.id === this.form.id) {
+        this.updateContentVisible = true
+      } else {
+        this.updateContentVisible = false
+      }
     }
   },
   created () {
@@ -138,6 +153,25 @@ export const BaseEventMixin = {
       if (userIds.length > 0) {
         this.$store.getters.vueSocket.sendMessageToUsers(COLLABORATE, userIds,
           CollborateMsg.convert2CollborateMsg(collaborate))
+      }
+    },
+
+    handleSaveContentEvent(id, type, contentData) {
+      const contentMsg = new SaveContentMsg()
+      contentMsg.id = id
+      contentMsg.type = type
+      contentMsg.details = contentData
+      const userIds = this.collaborate.users.filter(user => user.userId !== this.$store.getters.userInfo.id)
+        .map(item => { return item.userId })
+      if (!this.isOwner) {
+        // 通知owner
+        if (userIds.indexOf(this.collaborate.owner.id) === -1) {
+          userIds.push(this.collaborate.owner.id)
+        }
+      }
+      if (userIds.length > 0) {
+        this.$store.getters.vueSocket.sendMessageToUsers(SAVE_CONTENT, userIds,
+          SaveContentMsg.convert2SaveContentMsg(contentMsg))
       }
     },
 

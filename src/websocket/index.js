@@ -6,6 +6,7 @@ import ReceiveMsgHandler from '@/websocket/handler/receiveMsgHandler'
 import { CONNECT, DISCONNECT, HEARTCHECK } from '@/websocket/cmd'
 import LocalStore from '@/websocket/localstore'
 import ReceiveCollaborateHandler from '@/websocket/handler/receiveCollaborateHandler'
+import ReceiveSaveContentHandler from '@/websocket/handler/receiveSaveContentHandler'
 
 export default class VueWebSocket {
     handlerList = [];
@@ -100,6 +101,7 @@ export default class VueWebSocket {
     initHandlerList() {
         this.handlerList.push(new ReceiveMsgHandler(this))
         this.handlerList.push(new ReceiveCollaborateHandler(this))
+        this.handlerList.push(new ReceiveSaveContentHandler(this))
     }
 
     processMessage(data) {
