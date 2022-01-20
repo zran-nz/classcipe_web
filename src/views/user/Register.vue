@@ -8,16 +8,15 @@
     <div class="steps-content">
       <div class="role" v-if="currentStep === 0">
         <div>
-          <div><img src="~@/assets/logo/logo2.png" class="logo" /></div>
-          <div><img src="~@/assets/logo/Lasscipe-dark.png" class="name" /></div>
+          <!-- <div><img src="~@/assets/logo/logo2.png" class="logo" /></div>
+          <div><img src="~@/assets/logo/Lasscipe-dark.png" class="name" /></div> -->
           <div class="desc">Choose your role to enter</div>
         </div>
         <div class="role-item" :class="{ selected: selectedRole === 2 }" @click="handleSelectRole(2)">
           <div class="role-info">
             <img src="~@/assets/icons/role/teacher@2x.png" class="role-img" />
             <div>
-              <div class="role-name">I am a teacher</div>
-              <div class="role-desc">Teacher/Expert/Admin</div>
+              <div class="role-name">I am a teacher/admin/expert</div>
             </div>
           </div>
           <div class="arrow">
@@ -40,9 +39,10 @@
         <!-- 老师注册 -->
         <div v-if="selectedRole === 2">
           <div>
-            <div><img src="~@/assets/logo/logo2.png" class="logo" /></div>
-            <div><img src="~@/assets/logo/Lasscipe-dark.png" class="name" /></div>
-            <div class="desc">Sign Up to Classcipe using your Google account</div>
+            <!-- <div><img src="~@/assets/logo/logo2.png" class="logo" /></div>
+            <div><img src="~@/assets/logo/Lasscipe-dark.png" class="name" /></div> -->
+            <div class="desc">Sign Up</div>
+            <div class="desc2">Sign Up to Classcipe using your Google account</div>
             <div class="desc2">
               Already have an account? |
               <span><router-link :to="{ path: '/user/login?role=teacher' }">Sign In</router-link></span>
@@ -51,7 +51,7 @@
           <div class="third-login-wrapper">
             <third-login-button
               icon="googleIcon"
-              :label="$t('user.login.loginWithGoogle')"
+              :label="$t('user.login.SignUpWithGoogle')"
               @click.native="thirdSignIn('google', 'teacher')"
             />
           </div>
@@ -65,8 +65,8 @@
         <!-- 学生注册 -->
         <div v-if="selectedRole === 4">
           <div>
-            <div><img src="~@/assets/logo/logo2.png" class="logo" /></div>
-            <div><img src="~@/assets/logo/Lasscipe-dark.png" class="name" /></div>
+            <!-- <div><img src="~@/assets/logo/logo2.png" class="logo" /></div>
+            <div><img src="~@/assets/logo/Lasscipe-dark.png" class="name" /></div> -->
             <div class="desc">Sign Up</div>
             <div class="desc2">
               Already have an account? |
@@ -103,13 +103,10 @@
                   'email',
                   {
                     rules: [
-                      //{
-                      //required: true,
-                      //type: 'email',
-                      //message: $t('user.email.required'),
-                      //},
                       {
-                        validator: handleEmail,
+                        required: true,
+                        type: 'email',
+                        message: $t('user.email.required'),
                       },
                     ],
                     validateTrigger: ['change', 'blur'],
@@ -148,7 +145,7 @@
             <div class="third-login-wrapper">
               <third-login-button
                 icon="googleIcon"
-                :label="$t('user.login.loginWithGoogle')"
+                :label="$t('user.login.SignUpWithGoogle')"
                 @click.native="thirdSignIn('google', 'student')"
               />
             </div>
@@ -432,8 +429,9 @@ export default {
         margin-bottom: 10px;
       }
       .desc {
-        margin-bottom: 5px;
-        font-size: 16px;
+        margin-top: 10px;
+        margin-bottom: 10px;
+        font-size: 24px;
         color: #000;
         font-family: FZCuYuan-M03S;
         font-weight: 800;

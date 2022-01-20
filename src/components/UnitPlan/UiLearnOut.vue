@@ -363,9 +363,8 @@
       }
       .objectives-list-item {
         width: 100%;
-        box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.16);
         opacity: 1;
-        border-radius: 4px;
+        //border-radius: 4px;
         display: flex;
         flex-wrap: wrap;
         flex-direction: row;
@@ -375,9 +374,10 @@
         padding: 10px;
         position: relative;
         color: #000000;
+        box-shadow: 0px 3px 3px rgba(0, 0, 0, 0.16);
         &:hover {
           color: @primary-color;
-          border: 1px solid @primary-color !important;
+          //border: 1px solid @primary-color !important;
         }
         .skt-description {
           cursor: pointer;
@@ -457,22 +457,24 @@
         }
       }
       .objectives-list-item-skill{
-        background: #FEF3E4;
-        border: 1px solid #EED1AA;
-        opacity: 1;
-        border-radius: 10px;
+        //background: #FEF3E4;
+        //border: 1px solid #EED1AA;
+        border-left: 10px solid #FEF3E4;
+        //border-radius: 10px;
       }
       .objectives-list-item-learn{
-        background: #D4EBE7;
-        border: 1px solid #B1D1CC;
-        opacity: 1;
-        border-radius: 10px;
+        //background: #D4EBE7;
+        //border: 1px solid #B1D1CC;
+        border-left: 10px solid #D4EBE7;
+        //opacity: 1;
+        //border-radius: 10px;
       }
       .objectives-list-item-21{
-        background: #D7E0E9;
-        border: 1px solid #92B2D1;
-        opacity: 1;
-        border-radius: 10px;
+        //background: #D7E0E9;
+        //border: 1px solid #92B2D1;
+        //opacity: 1;
+        //border-radius: 10px;
+        border-left: 10px solid #D7E0E9;
       }
       .delete-action {
         position: absolute;

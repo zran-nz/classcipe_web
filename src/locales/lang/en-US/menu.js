@@ -13,6 +13,7 @@ export default {
     'menu.library.center': 'Library',
     'menu.managing': 'Managing',
     'menu.managing.skill': 'Managing skills',
+    'menu.managing.school-user': 'School User',
     'menu.my-content': 'MyContent',
     'menu.my-favorite': 'My Favorite',
     'menu.subscribe': 'Subscribe',
