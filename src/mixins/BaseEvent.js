@@ -2,7 +2,8 @@ import { QueryContentCollaborates } from '@/api/collaborate'
 import { COLLABORATE, SAVE_CONTENT } from '@/websocket/cmd'
 import CollborateMsg from '@/websocket/model/collborateMsg'
 import SaveContentMsg from '@/websocket/model/saveContentMsg'
-import { RECEIVE_MSG } from '@/store/mutation-types'
+import { isObjectValueEqual } from '@/utils/util'
+import { isEqualWith } from 'lodash-es'
 
 export const RightModule = {
   'collaborate': 1,
@@ -26,16 +27,6 @@ export const BaseEventMixin = {
     }
   },
   watch: {
-    '$store.state.websocket.saveContentMsg': function (contentMsg) {
-      console.log(JSON.stringify(this.oldForm))
-      console.log(JSON.stringify(contentMsg.content.details))
-      console.log(JSON.stringify(contentMsg.content.details) === JSON.stringify(this.oldForm))
-      if (contentMsg && contentMsg.content.id === this.form.id) {
-        this.updateContentVisible = true
-      } else {
-        this.updateContentVisible = false
-      }
-    }
   },
   created () {
   },
@@ -71,6 +62,20 @@ export const BaseEventMixin = {
         if (this.showModuleList.indexOf(module) > -1) {
           return true
         }
+        return false
+      }
+    },
+    showUpdateContent() {
+      const contentMsg = this.$store.state.websocket.saveContentMsg
+      console.log(contentMsg)
+      if (contentMsg && contentMsg.content.id === this.form.id) {
+        if (contentMsg.hideUpdate) {
+          return false
+        } else if (!isEqualWith(contentMsg.content.details, this.oldForm)) {
+          return true
+        }
+        return false
+      } else {
         return false
       }
     }

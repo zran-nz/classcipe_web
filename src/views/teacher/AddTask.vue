@@ -819,11 +819,11 @@
                 <template v-if='showRightModule(rightModule.customTag) && this.currentActiveStepIndex !== 1'>
                   <div v-if='!this.contentLoading' :style="{'width':rightWidth+'px', 'margin-top':customTagTop+'px'}">
                     <custom-tag
+                      ref='customTag'
                       :show-arrow='showCustomTag'
                       :custom-tags='customTags'
                       :scope-tags-list='customTagList'
-                      ref='customTag'
-                      :selected-tags-list='(form && form.customTags && form.customTags.length) ? form.customTags : []'
+                      :selected-tags-list='form.customTags'
                       @reload-user-tags='loadCustomTags'
                       @change-add-keywords='handleChangeAddKeywords'
                       @change-user-tags='handleChangeCustomTags'></custom-tag>
@@ -1640,16 +1640,17 @@
       </a-modal>
 
       <a-modal
-        v-model='updateContentVisible'
+        v-model='showUpdateContent'
         :footer='null'
         :title='null'
         destroyOnClose
         width='700px'
+        :maskClosable="false"
         :closable='false'>
         <collaborate-update-content
           :source-id='taskId'
           :source-type='contentType.task'
-          @update-share-status='handleShareStatus'
+          @update-content='handleUpdateContent'
         />
       </a-modal>
 
@@ -1716,6 +1717,7 @@ import ShareContentSetting from '@/components/Share/ShareContentSetting'
 import { QueryContentShare } from '@/api/share'
 import CollaborateTooltip from '@/components/Collaborate/CollaborateTooltip'
 import CollaborateUpdateContent from '@/components/Collaborate/CollaborateUpdateContent'
+import LocalStore from '@/websocket/localstore'
 
 const { SplitTask } = require('@/api/task')
 
@@ -3738,6 +3740,18 @@ export default {
     handleShareStatus (status) {
       this.$logger.info('handleShareStatus', status)
       this.shareStatus = status
+    },
+    handleUpdateContent() {
+      const contentMsg = this.$store.state.websocket.saveContentMsg
+      contentMsg.hideUpdate = true
+      // this.form = contentMsg.content.details
+      // if (contentMsg.content.details.startDate && contentMsg.content.details.endDate) {
+      //   this.rangeDate.push(moment.utc(contentMsg.content.details.startDate).local())
+      //   this.rangeDate.push(moment.utc(contentMsg.content.details.endDate).local())
+      // }
+      LocalStore.setFormContentLocal(this.form.id, this.form.type, JSON.stringify(this.form))
+      this.restoreTask(this.form.id)
+      this.$store.getters.vueSocket.sendAction('receiveSaveContentMsg', contentMsg)
     }
   }
 }

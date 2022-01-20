@@ -24,17 +24,17 @@
         </div>
       </div>
     </div>
-    <div class="root-comment" v-for="(rawCommentList,rootIndex) in formatCommentList" :key="rootIndex">
-      <a-divider orientation="left">To {{ rawCommentList.fieldName }}:</a-divider>
+    <div class="root-comment" v-for="(rootComment,rootIndex) in formatCommentList" :key="rootIndex">
+      <a-divider orientation="left">To {{ rootComment.fieldName }}:</a-divider>
       <div class="comment-record-wrapper" style="box-shadow: 0px 3px 6px rgb(0 0 0 / 16%)">
-        <div class='delete-thread-mask' v-if="rawCommentList.deleteThread">
+        <div class='delete-thread-mask' v-if="rootComment.deleteThread">
           <div class="delete-group">
             <div style="color: #fff;margin: 5px;">
               Delete this comment Thread?
             </div>
             <div class="delete-group-button">
               <div class='upload-text'>
-                <a-button shape='round' type='primary' @click="handleDeleteComment(rawCommentList,rootIndex)">Delete</a-button>
+                <a-button shape='round' type='primary' @click="handleDeleteComment(rootComment,rootIndex)">Delete</a-button>
               </div>
               <div class='upload-text'>
                 <a-button shape='round' @click="cancelDeleteThread(rootIndex)">Cancel</a-button>
@@ -42,7 +42,7 @@
             </div>
           </div>
         </div>
-        <div class="record-list" v-for="(commentItem, cIndex) in getCommentList(rawCommentList)" :key="cIndex">
+        <div class="record-list" v-for="(commentItem, cIndex) in getCommentList(rootComment)" :key="cIndex">
           <div class='delete-mask' v-if="commentItem.delete">
             <div class="delete-group">
               <div style="color: #fff;margin: 5px;">

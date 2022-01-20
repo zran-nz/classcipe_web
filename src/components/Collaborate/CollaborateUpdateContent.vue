@@ -44,7 +44,8 @@ export default {
   methods: {
 
     updateContent() {
-      this.$store.getters.vueSocket.sendAction('receiveSaveContentMsg', '')
+      this.$emit('update-content', '')
+
       // ShareStatus({
       //   sourceId: this.sourceId,
       //   sourceType: this.sourceType,
