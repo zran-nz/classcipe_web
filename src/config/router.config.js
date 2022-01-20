@@ -95,6 +95,7 @@ export const asyncRouterMap = [
           {
             path: '/teacher/managing',
             name: 'Managing',
+            redirect: '/teacher/managing/skill',
             component: () => import('@/views/teacher/Managing'),
             meta: { title: 'menu.managing', keepAlive: true, permission: ['expert', 'teacher'], fullLayout: true },
             children: [
@@ -103,6 +104,12 @@ export const asyncRouterMap = [
                 name: 'KnowledgeList',
                 component: () => import('@/views/teacher/manage/KnowledgeList'),
                 meta: { title: 'menu.managing.skill', keepAlive: true, permission: ['expert', 'teacher'] }
+              },
+              {
+                path: '/teacher/managing/school-user',
+                name: 'SchoolUser',
+                component: () => import('@/views/teacher/manage/SchoolUser'),
+                meta: { title: 'menu.managing.school-user', keepAlive: true, permission: ['expert', 'teacher'] }
               }
             ]
           },
