@@ -315,6 +315,13 @@ export const asyncRouterMap = [
             name: 'StudentEvaluation',
             component: () => import('@/views/student/StudentEvaluation'),
             meta: { title: 'Student Evaluation', keepAlive: true, permission: ['student'] }
+          },
+          {
+            path: '/student/peer-evaluation/:classId',
+            props: true,
+            name: 'PeerEvaluation',
+            component: () => import('@/views/student/PeerEvaluation'),
+            meta: { title: 'Peer Evaluation', keepAlive: true, permission: ['student'] }
           }
         ]
       },
