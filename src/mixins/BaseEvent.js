@@ -1,6 +1,9 @@
 import { QueryContentCollaborates } from '@/api/collaborate'
-import { COLLABORATE } from '@/websocket/cmd'
+import { COLLABORATE, SAVE_CONTENT } from '@/websocket/cmd'
 import CollborateMsg from '@/websocket/model/collborateMsg'
+import SaveContentMsg from '@/websocket/model/saveContentMsg'
+import { isObjectValueEqual } from '@/utils/util'
+import { isEqualWith } from 'lodash-es'
 
 export const RightModule = {
   'collaborate': 1,
@@ -19,8 +22,11 @@ export const BaseEventMixin = {
       rightWidth: 600,
       leftWidth: 730,
       collaborate: {},
-      initCompleted: false
+      initCompleted: false,
+      updateContentVisible: false
     }
+  },
+  watch: {
   },
   created () {
   },
@@ -56,6 +62,20 @@ export const BaseEventMixin = {
         if (this.showModuleList.indexOf(module) > -1) {
           return true
         }
+        return false
+      }
+    },
+    showUpdateContent() {
+      const contentMsg = this.$store.state.websocket.saveContentMsg
+      console.log(contentMsg)
+      if (contentMsg && contentMsg.content.id === this.form.id) {
+        if (contentMsg.hideUpdate) {
+          return false
+        } else if (!isEqualWith(contentMsg.content.details, this.oldForm)) {
+          return true
+        }
+        return false
+      } else {
         return false
       }
     }
@@ -138,6 +158,25 @@ export const BaseEventMixin = {
       if (userIds.length > 0) {
         this.$store.getters.vueSocket.sendMessageToUsers(COLLABORATE, userIds,
           CollborateMsg.convert2CollborateMsg(collaborate))
+      }
+    },
+
+    handleSaveContentEvent(id, type, contentData) {
+      const contentMsg = new SaveContentMsg()
+      contentMsg.id = id
+      contentMsg.type = type
+      contentMsg.details = contentData
+      const userIds = this.collaborate.users.filter(user => user.userId !== this.$store.getters.userInfo.id)
+        .map(item => { return item.userId })
+      if (!this.isOwner) {
+        // 通知owner
+        if (userIds.indexOf(this.collaborate.owner.id) === -1) {
+          userIds.push(this.collaborate.owner.id)
+        }
+      }
+      if (userIds.length > 0) {
+        this.$store.getters.vueSocket.sendMessageToUsers(SAVE_CONTENT, userIds,
+          SaveContentMsg.convert2SaveContentMsg(contentMsg))
       }
     },
 

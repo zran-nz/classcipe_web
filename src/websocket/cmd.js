@@ -8,6 +8,7 @@ export const PUB_ACK = 'PUB_ACK'
 // cmd
 export const MSG = 'user'
 export const COLLABORATE = 'collaborate'
+export const SAVE_CONTENT = 'save_content'
 export const FP = 'FP'
 export const FALS = 'FALS'
 export const UPUI = 'UPUI'

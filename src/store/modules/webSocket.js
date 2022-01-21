@@ -1,12 +1,13 @@
 import { RECEIVE_MSG, WEBSOCKET_TYPE_INIT } from '@/store/mutation-types'
 import VueWebSocket from '@/websocket'
-import { COLLABORATE } from '@/websocket/cmd'
+import { COLLABORATE, SAVE_CONTENT } from '@/websocket/cmd'
 
 const websocket = {
   state: {
     vueSocket: null,
     receiveMsg: false,
-    collaborateMsg: null
+    collaborateMsg: null,
+    saveContentMsg: null
   },
   mutations: {
     [WEBSOCKET_TYPE_INIT]: (state) => {
@@ -19,12 +20,16 @@ const websocket = {
     },
     [COLLABORATE]: (state, receiveMsg) => {
       state.collaborateMsg = receiveMsg
+    },
+    [SAVE_CONTENT]: (state, saveContentMsg) => {
+      state.saveContentMsg = saveContentMsg
     }
   },
   actions: {
     initData: ({ commit }) => commit(WEBSOCKET_TYPE_INIT),
     receiveMsg: ({ commit }, receiveMsg) => commit(RECEIVE_MSG, receiveMsg),
-    receiveCollaborate: ({ commit }, collaborateMsg) => commit(COLLABORATE, collaborateMsg)
+    receiveCollaborate: ({ commit }, collaborateMsg) => commit(COLLABORATE, collaborateMsg),
+    receiveSaveContentMsg: ({ commit }, saveContentMsg) => commit(SAVE_CONTENT, saveContentMsg)
   }
 }
 

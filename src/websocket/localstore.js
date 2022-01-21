@@ -63,6 +63,18 @@ export default class LocalStore {
         return localStorage.getItem(ACCESS_TOKEN)
     }
 
+    static getFormContentLocal(id, type) {
+      var value = localStorage.getItem('form_content_local' + '_' + id + '_' + type)
+      if (value) {
+        return JSON.parse(value)
+      }
+      return ''
+    }
+
+    static setFormContentLocal(id, type, content) {
+      localStorage.setItem('form_content_local' + '_' + id + '_' + type, content)
+    }
+
     static setSelectTarget(value) {
         localStorage.setItem('select_target', value)
     }

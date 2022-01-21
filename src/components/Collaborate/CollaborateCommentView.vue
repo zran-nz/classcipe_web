@@ -24,17 +24,17 @@
         </div>
       </div>
     </div>
-    <div class="root-comment" v-for="(rawCommentList,rootIndex) in formatCommentList" :key="rootIndex">
-      <a-divider orientation="left">To {{ rawCommentList.fieldName }}:</a-divider>
+    <div class="root-comment" v-for="(rootComment,rootIndex) in formatCommentList" :key="rootIndex">
+      <a-divider orientation="left">To {{ rootComment.fieldName }}:</a-divider>
       <div class="comment-record-wrapper" style="box-shadow: 0px 3px 6px rgb(0 0 0 / 16%)">
-        <div class='delete-thread-mask' v-if="rawCommentList.deleteThread">
+        <div class='delete-thread-mask' v-if="rootComment.deleteThread">
           <div class="delete-group">
             <div style="color: #fff;margin: 5px;">
               Delete this comment Thread?
             </div>
             <div class="delete-group-button">
               <div class='upload-text'>
-                <a-button shape='round' type='primary' @click="handleDeleteComment(rawCommentList,rootIndex)">Delete</a-button>
+                <a-button shape='round' type='primary' @click="handleDeleteComment(rootComment,rootIndex)">Delete</a-button>
               </div>
               <div class='upload-text'>
                 <a-button shape='round' @click="cancelDeleteThread(rootIndex)">Cancel</a-button>
@@ -42,7 +42,7 @@
             </div>
           </div>
         </div>
-        <div class="record-list" v-for="(commentItem, cIndex) in getCommentList(rawCommentList)" :key="cIndex">
+        <div class="record-list" v-for="(commentItem, cIndex) in getCommentList(rootComment)" :key="cIndex">
           <div class='delete-mask' v-if="commentItem.delete">
             <div class="delete-group">
               <div style="color: #fff;margin: 5px;">
@@ -268,18 +268,22 @@ export default {
     },
 
     // 按姓名过滤评论
-    handleFilterNameChange () {
-      this.$logger.info('handleFilterNameChange', this.filterName, this.rootCommentMap)
+    handleFilterNameChange (name) {
+      let fName = this.filterName
+      if (name && typeof name === 'string') {
+        fName = name
+      }
+      this.$logger.info('handleFilterNameChange', fName, this.rootCommentMap)
       this.formatCommentList = []
       if (this.currentType === 0) {
         for (const [rootCommentId, rootComment] of this.rootCommentMap.entries()) {
           this.$logger.info('rootCommentId ' + rootCommentId, rootComment)
           let isInvolvedMe = false
-          if (rootComment.username && rootComment.username.toLowerCase().indexOf(this.filterName.toLowerCase()) !== -1) {
+          if (rootComment.username && rootComment.username.toLowerCase().indexOf(fName.toLowerCase()) !== -1) {
             isInvolvedMe = true
           } else {
             rootComment.subCommentList.forEach(item => {
-              if (item.username && item.username.toLowerCase().indexOf(this.filterName.toLowerCase()) !== -1) {
+              if (item.username && item.username.toLowerCase().indexOf(fName.toLowerCase()) !== -1) {
                 isInvolvedMe = true
               }
             })
@@ -293,11 +297,11 @@ export default {
         for (const [rootCommentId, rootComment] of this.rootCommentMap.entries()) {
           this.$logger.info('rootCommentId ' + rootCommentId, rootComment)
           let isInvolvedMe = false
-          if (rootComment.username === this.$store.getters.userInfo.username && (rootComment.username && rootComment.username.toLowerCase().indexOf(this.filterName.toLowerCase()) !== -1)) {
+          if (rootComment.username === this.$store.getters.userInfo.username && (rootComment.username && rootComment.username.toLowerCase().indexOf(fName.toLowerCase()) !== -1)) {
             isInvolvedMe = true
           } else {
             rootComment.subCommentList.forEach(item => {
-              if (item.username === this.$store.getters.userInfo.username && (item.username && item.username.toLowerCase().indexOf(this.filterName.toLowerCase()) !== -1)) {
+              if (item.username === this.$store.getters.userInfo.username && (item.username && item.username.toLowerCase().indexOf(fName.toLowerCase()) !== -1)) {
                 isInvolvedMe = true
               }
             })
@@ -319,50 +323,8 @@ export default {
       if (this.currentType === 0) {
         this.formatComment()
       } else {
-        /**
-         * 格式化处理回复数据
-         * 按rootCommentId进行分组，为空的代表是一个评论组，
-         * 然后把下面的子评论(rootCommentId相同即为一组)追加到
-         * subCommentList数组中，按时间排序展示
-         */
-          // 过滤rootComment
-        this.rootCommentMap = new Map()
-        this.rawCommentList.forEach(item => {
-          const dataItem = Object.assign({}, item)
-          if (!dataItem.rootCommentId) {
-            dataItem.subCommentList = []
-            this.rootCommentMap.set(dataItem.id, dataItem)
-          }
-        })
-        // 追加下面的子讨论列表,按时间排序展示
-        this.rawCommentList.forEach(item => {
-          if (item.rootCommentId) {
-            if (this.rootCommentMap.has(item.rootCommentId)) {
-              const rootComment = this.rootCommentMap.get(item.rootCommentId)
-              rootComment.subCommentList.push(item)
-            } else {
-              this.$logger.info('no exit rootCommentId ' + item.rootCommentId, this.rootCommentMap)
-            }
-          }
-        })
-        // map转为数组
-        for (const [rootCommentId, rootComment] of this.rootCommentMap.entries()) {
-          this.$logger.info('rootCommentId ' + rootCommentId, rootComment)
-          let isInvolvedMe = false
-          if (rootComment.username === this.$store.getters.userInfo.username) {
-            isInvolvedMe = true
-          } else {
-            rootComment.subCommentList.forEach(item => {
-              if (item.username === this.$store.getters.userInfo.username) {
-                isInvolvedMe = true
-              }
-            })
-          }
+        this.handleFilterNameChange(this.$store.getters.userInfo.username)
 
-          if (isInvolvedMe) {
-            this.formatCommentList.push(rootComment)
-          }
-        }
         this.$logger.info('formatCommentList', this.formatCommentList)
       }
     },
