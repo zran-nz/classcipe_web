@@ -213,6 +213,7 @@ export default {
       this.filter = {
         age: [],
         subject: [],
+        period: '',
         type: [],
         faSaActivityType: ''
       }
