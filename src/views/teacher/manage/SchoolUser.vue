@@ -4,26 +4,26 @@
       <div class="toggle-mode-type-wrapper">
         <div class="toggle-mode-type">
           <div class="toggle-mode">
-            <div :class="{'mode-item': true, 'active' : currentStatus === 'teacher'}" @click="toggleStatus('teacher')">
+            <div :class="{ 'mode-item': true, active: currentStatus === 'teacher' }" @click="toggleStatus('teacher')">
               Teachers
             </div>
-            <div :class="{'mode-item': true, 'active' : currentStatus === 'student'}" @click="toggleStatus('student')">
+            <div :class="{ 'mode-item': true, active: currentStatus === 'student' }" @click="toggleStatus('student')">
               Students
             </div>
-            <div :class="{'mode-item': true, 'active' : currentStatus === 'admin'}" @click="toggleStatus('admin')">
+            <div :class="{ 'mode-item': true, active: currentStatus === 'admin' }" @click="toggleStatus('admin')">
               Admin
             </div>
-            <div :class="{'mode-item': true, 'active' : currentStatus === 'group'}" @click="toggleStatus('group')">
+            <div :class="{ 'mode-item': true, active: currentStatus === 'group' }" @click="toggleStatus('group')">
               Groups
             </div>
           </div>
         </div>
       </div>
     </div>
-    <SchoolUserTeacher v-if="currentStatus === 'teacher'"/>
-    <SchoolUserStudent v-if="currentStatus === 'student'"/>
-    <SchoolUserAdmin v-if="currentStatus === 'admin'"/>
-    <SchoolUserGroup v-if="currentStatus === 'group'"/>
+    <SchoolUserTeacher v-if="currentStatus === 'teacher'" />
+    <SchoolUserStudent v-if="currentStatus === 'student'" />
+    <SchoolUserAdmin v-if="currentStatus === 'admin'" />
+    <SchoolUserGroup v-if="currentStatus === 'group'" />
   </a-card>
 </template>
 
@@ -37,7 +37,10 @@ export default {
   name: 'SchoolUser',
   mixins: [],
   components: {
-    SchoolUserTeacher, SchoolUserStudent, SchoolUserAdmin, SchoolUserGroup
+    SchoolUserTeacher,
+    SchoolUserStudent,
+    SchoolUserAdmin,
+    SchoolUserGroup
   },
   data() {
     return {
@@ -46,8 +49,7 @@ export default {
   },
   created() {
   },
-  computed: {
-  },
+  computed: {},
   methods: {
     toggleStatus(status) {
       this.currentStatus = status
@@ -56,56 +58,57 @@ export default {
 }
 </script>
 <style lang="less" scoped>
-  .status-tab {
-    cursor: pointer;
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    .toggle-mode-type-wrapper {
-      width: 280px;
-      box-sizing: border-box;
-      .toggle-mode-type {
-        height: 40px;
-        display: inline-block;
+.status-tab {
+  cursor: pointer;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  margin-bottom: 8px;
+  .toggle-mode-type-wrapper {
+    width: 280px;
+    box-sizing: border-box;
+    .toggle-mode-type {
+      height: 40px;
+      display: inline-block;
+      border-radius: 40px;
+      background: rgba(228, 228, 228, 0.3);
+
+      .toggle-mode {
         border-radius: 40px;
-        background: rgba(228, 228, 228, 0.3);
+        height: 40px;
+        display: flex;
+        flex-direction: row;
+        font-size: 14px;
 
-        .toggle-mode {
-          border-radius: 40px;
+        //.mode-item:first-child {
+        //  border-bottom-left-radius: 35px;
+        //  border-top-left-radius: 35px;
+        //}
+        //
+        //.mode-item:last-child {
+        //  border-bottom-right-radius: 35px;
+        //  border-top-right-radius: 35px;
+        //}
+
+        .mode-item {
+          padding: 0 8px;
+          font-size: 12px;
           height: 40px;
+          color: rgba(17, 20, 45, 1);
+          border-radius: 40px;
+          font-family: Inter-Bold;
           display: flex;
-          flex-direction: row;
-          font-size: 14px;
+          align-items: center;
+          justify-content: center;
+          width: 90px;
+        }
 
-          //.mode-item:first-child {
-          //  border-bottom-left-radius: 35px;
-          //  border-top-left-radius: 35px;
-          //}
-          //
-          //.mode-item:last-child {
-          //  border-bottom-right-radius: 35px;
-          //  border-top-right-radius: 35px;
-          //}
-
-          .mode-item {
-            padding: 0 8px;
-            font-size: 12px;
-            height: 40px;
-            color: rgba(17, 20, 45, 1);
-            border-radius: 40px;
-            font-family: Inter-Bold;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 90px;
-          }
-
-          .active {
-            color: #fff;
-            background: rgba(21, 195, 154, 1);
-          }
+        .active {
+          color: #fff;
+          background: rgba(21, 195, 154, 1);
         }
       }
     }
   }
+}
 </style>
