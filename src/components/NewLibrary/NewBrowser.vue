@@ -48,7 +48,7 @@
       <div class="selected-content">
         <div class="main-content-list">
 
-          <div class='no-select-content' v-if='!hasSelectedContent && selectMode !== selectModelType.evaluationMode'>
+          <div class='no-select-content' v-if='!hasSelectedContent && selectMode !== selectModelType.evaluationMode && isEmptyRecommend'>
             <div class='no-select-img'>
               <img src="~@/assets/newBrowser/no-selected.png" class="logo" />
             </div>
@@ -94,6 +94,8 @@
                     <div class="right-name">
                       {{ recommendItem.name }}
                     </div>
+
+                    <div class='recommend-selected-left-bar' :tag-type='recommendItem.tagType'></div>
                   </a-tooltip>
                 </div>
               </div>
@@ -1056,10 +1058,13 @@ export default {
       }
 
       .recommend-item {
-        background-color: rgba(255, 187, 0, 0.1);
+        //background-color: rgba(255, 187, 0, 0.1);
         margin-bottom: 10px;
         box-sizing: content-box;
-        border: 1px solid rgba(255, 187, 0, 0.1);
+        position: relative;
+        //border: 1px solid rgba(255, 187, 0, 0.1);
+        box-shadow: 0 0px 8px 5px #fff;
+        margin-left: 10px;
 
         span {
           font-size: 13px;
@@ -1175,6 +1180,14 @@ export default {
   top: -1px;
   left: -11px;
   bottom: -1px;
+  width: 10px;
+}
+
+.recommend-selected-left-bar {
+  position: absolute;
+  top: 0;
+  left: -10px;
+  bottom: 0;
   width: 10px;
 }
 
