@@ -299,15 +299,15 @@ export const asyncRouterMap = [
       {
         path: '/student',
         name: 'student',
-        component: BasicLayout,
+        redirect: '/student/main',
+        component: RouteView,
         meta: { title: 'menu.main', keepAlive: true, icon: bxAnaalyse, permission: ['student'] },
         children: [
           {
-            path: '/student/home',
-            props: true,
-            name: 'StudentHome',
-            component: () => import('@/views/student/StudentHome'),
-            meta: { title: 'Student home', keepAlive: true, permission: ['student'] }
+            path: '/student/main',
+            name: 'Main',
+            component: () => import('@/views/student/Main'),
+            meta: { title: 'menu.main', keepAlive: true, permission: ['student'] }
           },
           {
             path: '/student/evaluation/:classId',

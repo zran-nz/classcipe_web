@@ -2,10 +2,10 @@
   <a-row class='common-form-header'>
     <a-col span='15'>
       <a-space>
-        <span class='back-icon'>
+        <span class='back-icon' v-if='showBack'>
           <a-icon type='left' />
         </span>
-        <a-button class='nav-back-btn' type='link' @click='handleBack'>{{ $t('teacher.add-lesson.back') }}</a-button>
+        <a-button class='nav-back-btn' type='link' @click='handleBack' v-if='showBack'>{{ $t('teacher.add-lesson.back') }}</a-button>
         <span> <content-type-icon :type='form.type' /></span>
         <template v-if='form.type === typeMap.classSessionEvaluation'>
           <div class='edit-form-name'>
@@ -166,6 +166,10 @@ export default {
       default: ''
     },
     showCollaborate: {
+      type: Boolean,
+      default: true
+    },
+    showBack: {
       type: Boolean,
       default: true
     },
