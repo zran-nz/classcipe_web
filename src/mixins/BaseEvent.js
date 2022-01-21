@@ -22,7 +22,8 @@ export const BaseEventMixin = {
       leftWidth: 730,
       collaborate: {},
       initCompleted: false,
-      updateContentVisible: false
+      updateContentVisible: false,
+      defaultHistoryKey: '1'
     }
   },
   watch: {

@@ -69,20 +69,6 @@
                         </a-tag>
                       </div>
                     </div>
-                    <div class="content-sub-item" v-for="(customTag, kIndex) in task.customTags" :key="kIndex">
-                      <div class="sub-title">
-                        <a-tag :color="tagColorList[kIndex % tagColorList.length]">
-                          {{ customTag.name }}
-                        </a-tag>
-                      </div>
-                    </div>
-                    <div class="content-sub-item" v-for="(customTag, kIndex) in task.customTags" :key="kIndex">
-                      <div class="sub-title">
-                        <a-tag :color="tagColorList[kIndex % tagColorList.length]">
-                          {{ customTag.name }}
-                        </a-tag>
-                      </div>
-                    </div>
                   </div>
                 </div>
               </div>
@@ -105,6 +91,12 @@ export default {
     taskData: {
       type: Object,
       required: true
+    },
+    classItemsList: {
+      type: Array,
+      default: () => {
+        return []
+      }
     }
   },
   data () {
@@ -141,7 +133,47 @@ export default {
       this.rawSubTaskData.selectPageImages.forEach(image => {
         this.thumbnailList.push({ contentUrl: image })
       })
+      // 按照选择的ppt 去加载对应的tag标签
+      this.getClassPptCustomTags()
       this.loading = false
+    },
+    getClassPptCustomTags() {
+      const pageIds = this.taskData.selectPageObjectIds
+      const blooms = []
+      const dimensions = []
+      this.classItemsList.forEach(e => {
+        if (pageIds.indexOf(e.pageId) !== -1) {
+          const json = JSON.parse(e.data)
+          if (json.data && json.data.bloomLevel) {
+            if (blooms.indexOf(json.data.bloomLevel) === -1) {
+              blooms.push(json.data.bloomLevel)
+            }
+          }
+          if (json.data && json.data.knowledgeLevel) {
+            if (dimensions.indexOf(json.data.knowledgeLevel) === -1) {
+              dimensions.push(json.data.knowledgeLevel)
+            }
+          }
+        }
+      })
+      logger.info('getClassPptCustomTags ', blooms, dimensions)
+      this.taskData.customTags = []
+      if (blooms.length > 0) {
+        blooms.forEach(tag => {
+          this.taskData.customTags.push({
+            name: tag,
+            parentName: 'Bloom\'s Taxonomy'
+          })
+        })
+      }
+      if (dimensions.length > 0) {
+        dimensions.forEach(tag => {
+          this.taskData.customTags.push({
+            name: tag,
+            parentName: 'Knowledge Dimensions'
+          })
+        })
+      }
     },
 
     handleDeleteItem () {

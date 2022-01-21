@@ -538,7 +538,7 @@
                             </div>
                             <div class='task-preview-list'>
                               <div class='task-preview' v-for='(task, index) in subTasks' :key='index'>
-                                <task-preview :task-data='task' @delete-sub-task='handleDeleteSubTask' />
+                                <task-preview :task-data='task' :class-items-list="itemsList" @delete-sub-task='handleDeleteSubTask' />
                               </div>
                             </div>
                             <div class='sub-task-save'>
@@ -662,7 +662,7 @@
                       <div class='icon'>
                         <comment-icon />
                       </div>
-                      <a-tabs default-active-key='1'>
+                      <a-tabs :default-active-key='defaultHistoryKey'>
                         <a-tab-pane key='1' tab='Comment'>
                           <collaborate-comment-view
                             :source-id='taskId'
@@ -1649,6 +1649,7 @@
         :maskClosable="false"
         :closable='false'>
         <collaborate-update-content
+          ref="collaborateUpdate"
           :source-id='taskId'
           :source-type='contentType.task'
           @update-content='handleUpdateContent'
@@ -2049,6 +2050,9 @@ export default {
 
     // library浏览learning outcome时，修改了grade，需要更新表单中的grade
     LibraryEventBus.$on(LibraryEvent.GradeUpdate, this.handleGradeUpdate)
+
+    // 重置协同消息提醒数据
+    this.$store.getters.vueSocket.sendAction('receiveSaveContentMsg', '')
   },
   beforeDestroy() {
     MyContentEventBus.$off(MyContentEvent.LinkToMyContentItem, this.handleLinkMyContent)
@@ -3387,17 +3391,18 @@ export default {
     // 这样在这里就可以直接this.$set设置字段的数据
     handleRestoreField(data) {
       this.$logger.info('handleRestoreField', data, this.form)
-      if (data.historyData) {
-        data.historyData.forEach(dataItem => {
-          this.$logger.info('set ' + dataItem.fieldName, dataItem.data[0])
-          if (Array.isArray(dataItem.data[0])) {
-            dataItem.data[0].forEach((item, index) => {
-              this.$set(this.form[dataItem.fieldName], index, dataItem.data[0][index])
-            })
-          } else {
-            this.$set(this.form, dataItem.fieldName, dataItem.data[0])
-          }
-        })
+      if (data) {
+        // data.historyData.forEach(dataItem => {
+        //   this.$logger.info('set ' + dataItem.fieldName, dataItem.data[0])
+        //   if (Array.isArray(dataItem.data[0])) {
+        //     dataItem.data[0].forEach((item, index) => {
+        //       this.$set(this.form[dataItem.fieldName], index, dataItem.data[0][index])
+        //     })
+        //   } else {
+        //     this.$set(this.form, dataItem.fieldName, dataItem.data[0])
+        //   }
+        // })
+        this.form = data
         this.$message.success('restore successfully!')
       }
       this.$logger.info('after handleRestoreField', this.form)
@@ -3743,16 +3748,21 @@ export default {
       this.shareStatus = status
     },
     handleUpdateContent() {
-      const contentMsg = this.$store.state.websocket.saveContentMsg
-      contentMsg.hideUpdate = true
+      // const contentMsg = this.$store.state.websocket.saveContentMsg
+      // contentMsg.hideUpdate = true
       // this.form = contentMsg.content.details
       // if (contentMsg.content.details.startDate && contentMsg.content.details.endDate) {
       //   this.rangeDate.push(moment.utc(contentMsg.content.details.startDate).local())
       //   this.rangeDate.push(moment.utc(contentMsg.content.details.endDate).local())
       // }
+      // 缓存时间少于最新的内容
+      this.form.updateTime = moment.utc(new Date()).local().format('YYYY-MM-DD HH:mm:ss')
       LocalStore.setFormContentLocal(this.form.id, this.form.type, JSON.stringify(this.form))
-      this.restoreTask(this.form.id)
-      this.$store.getters.vueSocket.sendAction('receiveSaveContentMsg', contentMsg)
+      this.defaultHistoryKey = '2'
+      this.handleViewCollaborate()
+      setTimeout(() => {
+        this.restoreTask(this.form.id)
+      }, 100)
     }
   }
 }

@@ -9,7 +9,7 @@
       </div>
       <div class='alert-text-sub'>Please edit on the latest</div>
       <div class='alert-button'>
-        <a-button class="button-text" type='primary' shape='round' @click='updateContent'>Update</a-button>
+        <a-button class="button-text" :loading="loading" type='primary' shape='round' @click='updateContent'>Update</a-button>
       </div>
     </div>
   </div>
@@ -33,29 +33,24 @@ export default {
   },
   data() {
     return {
-      loading: true,
+      loading: false,
       refreshing: false
     }
   },
   computed: {
   },
   created() {
+    this.loading = false
   },
   methods: {
 
     updateContent() {
+      const contentMsg = this.$store.state.websocket.saveContentMsg
+      contentMsg.hideUpdate = true
+      this.loading = true
+      this.$store.getters.vueSocket.sendAction('receiveSaveContentMsg', contentMsg)
       this.$emit('update-content', '')
-
-      // ShareStatus({
-      //   sourceId: this.sourceId,
-      //   sourceType: this.sourceType,
-      //   status: this.shareContent.status ? 0 : 1
-      // }).then(response => {
-      //   this.$logger.info('switchShareStatus response', response)
-      //   this.shareContent = response.result
-      //   this.$message.success('Set successfully')
-      //   this.$emit('update-share-status', this.shareContent.status)
-      // })
+      // this.loading = false
     }
   }
 }
