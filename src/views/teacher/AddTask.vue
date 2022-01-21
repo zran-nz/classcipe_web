@@ -4321,10 +4321,12 @@ export default {
         .template-select-icon {
           z-index: 50;
           position: absolute;
+          user-select: none;
           right: 5px;
           top: 5px;
 
           img {
+            user-select: none;
             height: 18px;
           }
         }
@@ -4653,10 +4655,12 @@ export default {
     .template-select-icon {
       z-index: 50;
       position: absolute;
+      user-select: none;
       right: 5px;
       top: 5px;
 
       img {
+        user-select: none;
         height: 18px;
       }
     }
@@ -5652,11 +5656,13 @@ export default {
       .template-select-icon {
         z-index: 50;
         position: absolute;
+        user-select: none;
         right: 5px;
         top: 5px;
 
         img {
           height: 18px;
+          user-select: none;
         }
       }
 
@@ -5855,10 +5861,12 @@ export default {
         .template-select-icon {
           z-index: 50;
           position: absolute;
+          user-select: none;
           right: 5px;
           bottom: 5px;
 
           img {
+            user-select: none;
             height: 18px;
           }
         }

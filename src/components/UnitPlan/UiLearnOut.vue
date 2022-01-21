@@ -4,7 +4,7 @@
 
       <div class="objectives-wrapper">
         <a-row class="objectives-wrapper-block" v-if="getknowledgeListType(TagType.skill).length > 0" >
-          <div class="title-item title-skill">Assessment objectives</div>
+          <div class="title-item title-skill">Achievement objectives</div>
           <div class="objectives-list" v-for="(k,index) in getknowledgeListType(TagType.skill)" :key="index">
             <div class="objectives-list-item objectives-list-item-skill objectives-list-item-top-fixed">
               <!--              <a-breadcrumb separator=">">-->
@@ -335,7 +335,7 @@
         margin-bottom: 10px;
       }
       .title-skill{
-        color: #474747;
+        color: #FEF3E4;
       }
       .title-learnout{
         color: #B1D1CC;
@@ -385,6 +385,7 @@
           padding-right: 10px;
           line-height: 22px;
           position: relative;
+          color: #444444;
           .description-txt {
             padding: 10px;
             border: 1px dashed #666;
@@ -459,12 +460,14 @@
       .objectives-list-item-skill{
         //background: #FEF3E4;
         //border: 1px solid #EED1AA;
+        color: #FEF3E4;
         border-left: 10px solid #FEF3E4;
         //border-radius: 10px;
       }
       .objectives-list-item-learn{
         //background: #D4EBE7;
         //border: 1px solid #B1D1CC;
+        color: #D4EBE7;
         border-left: 10px solid #D4EBE7;
         //opacity: 1;
         //border-radius: 10px;
@@ -474,6 +477,7 @@
         //border: 1px solid #92B2D1;
         //opacity: 1;
         //border-radius: 10px;
+        color: #D7E0E9;
         border-left: 10px solid #D7E0E9;
       }
       .delete-action {
