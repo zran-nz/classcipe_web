@@ -48,28 +48,29 @@
                       </div>-->
 
                       <div class='form-block'>
-                        <collaborate-tooltip :form-id="unitPlanId" fieldName="name" />
+                        <collaborate-tooltip :form-id="unitPlanId" :fieldName=planField.Name />
                         <comment-switch
                           v-show="this.canEdit"
-                          :is-active="currentFieldName === 'name'"
-                          class='my-comment-switch'
-                          field-name='name'
-                          @switch='handleSwitchComment' />
+                          :is-active="currentFieldName === planField.Name"
+                          :class="{'my-comment-switch':true,'my-comment-show':currentFieldName === planField.Name}"
+                          :field-name=planField.Name
+                          @switch='handleSwitchComment'/>
                         <a-form-item label='Unit Name'>
-                          <a-input v-model='form.name' class='my-form-input' placeholder='Enter Unit Name' @change="handleCollaborateEvent(unitPlanId,'name',form.name)" />
+                          <a-input v-model='form.name' class='my-form-input' placeholder='Enter Unit Name' @change="handleCollaborateEvent(unitPlanId,planField.Name,form.name)" />
                         </a-form-item>
                       </div>
 
                       <div class='form-block form-radio-wrapper'>
-                        <collaborate-tooltip :form-id="unitPlanId" fieldName="projectBased" style="top:-30px" />
+                        <collaborate-tooltip :form-id="unitPlanId" :fieldName=planField.ProjectBased style="top:-30px" />
                         <comment-switch
                           v-show="this.canEdit"
-                          field-name='projectBased'
-                          :is-active="currentFieldName === 'projectBased'"
+                          :field-name='planField.ProjectBased'
+                          :is-active="currentFieldName === planField.ProjectBased"
                           @switch='handleSwitchComment'
-                          class='my-comment-switch' />
+                          :class="{'my-comment-switch':true,'my-comment-show':currentFieldName === planField.ProjectBased}"
+                        />
                         <a-form-item label='Project-based Unit' style='display:flex'>
-                          <a-radio-group name='radioGroup' v-model='form.projectBased' style='margin-left:20px;' @change="handleCollaborateEvent(unitPlanId,'projectBased',form.projectBased)" >
+                          <a-radio-group name='radioGroup' v-model='form.projectBased' style='margin-left:20px;' @change="handleCollaborateEvent(unitPlanId,planField.ProjectBased,form.projectBased)" >
                             <a-radio :value='1'>
                               Yes
                             </a-radio>
@@ -81,15 +82,15 @@
                       </div>
 
                       <div class='form-block form-radio-wrapper'>
-                        <collaborate-tooltip :form-id="unitPlanId" fieldName="unitType" style="top:-30px"/>
+                        <collaborate-tooltip :form-id="unitPlanId" :fieldName=planField.UnitType style="top:-30px"/>
                         <comment-switch
                           v-show="this.canEdit"
-                          field-name='unitType'
-                          :is-active="currentFieldName === 'unitType'"
+                          :field-name=planField.UnitType
+                          :is-active="currentFieldName === planField.UnitType"
                           @switch='handleSwitchComment'
-                          class='my-comment-switch' />
+                          :class="{'my-comment-switch':true,'my-comment-show':currentFieldName === planField.UnitType}" />
                         <a-form-item label='Unit type' style='display:flex'>
-                          <a-radio-group name='unitType' v-model='form.unitType' style='margin-left:20px;' @change="handleCollaborateEvent(unitPlanId,'unitType',form.unitType)" >
+                          <a-radio-group name='unitType' v-model='form.unitType' style='margin-left:20px;' @change="handleCollaborateEvent(unitPlanId,planField.UnitType,form.unitType)" >
                             <a-radio :value='0'>
                               Single-subject Unit
                             </a-radio>
@@ -101,13 +102,13 @@
                       </div>
 
                       <div class='form-block grade-time'>
-                        <collaborate-tooltip :form-id="unitPlanId" fieldName="startDate" />
+                        <collaborate-tooltip :form-id="unitPlanId" :fieldName=planField.StartDate />
                         <comment-switch
                           v-show="this.canEdit"
-                          field-name='startDate'
-                          :is-active="currentFieldName === 'startDate'"
+                          :field-name=planField.StartDate
+                          :is-active="currentFieldName === planField.StartDate"
                           @switch='handleSwitchComment'
-                          class='my-comment-switch' />
+                          :class="{'my-comment-switch':true,'my-comment-show':currentFieldName === planField.StartDate}" />
                         <a-form-item label='Grade level' style='width:26%;margin-bottom: 0px;'>
                           <a-select
                             :getPopupContainer="trigger => trigger.parentElement"
@@ -130,7 +131,7 @@
                             </a-tag>
                           </div>
                           <a-range-picker
-                            @openChange="handleCollaborateEvent(unitPlanId,'startDate',form.startDate)"
+                            @openChange="handleCollaborateEvent(unitPlanId,planField.StartDate,form.startDate)"
                             v-model='rangeDate'
                             :show-time="{ format: 'HH:mm' }"
                             format='LLL'
@@ -185,12 +186,12 @@
                       <!--                      </div>-->
 
                       <div id='inquiry' class='form-block inquiry-form-block'>
-                        <collaborate-tooltip :form-id="unitPlanId" field-name='inquiry' />
+                        <collaborate-tooltip :form-id="unitPlanId" :field-name=planField.Inquiry />
                         <comment-switch
                           v-show="this.canEdit"
-                          :is-active="currentFieldName === 'inquiry'"
-                          class='my-comment-switch'
-                          field-name='inquiry'
+                          :is-active="currentFieldName === planField.Inquiry"
+                          :class="{'my-comment-switch':true,'my-comment-show':currentFieldName === planField.Inquiry}"
+                          :field-name=planField.Inquiry
                           @switch='handleSwitchComment' />
                         <!--                <a-divider />-->
                         <a-form-item class='bigIdea' label='Big Idea/ Statement of Inquiry/ Central Idea'>
@@ -199,7 +200,7 @@
                             :placeholder="$store.getters.currentRole === 'teacher' ? $t('teacher.add-unit-plan.teacher-direction-of-inquiry') : $t('teacher.add-unit-plan.expert-direction-of-inquiry')"
                             auto-size
                             class='my-form-textarea inquiry'
-                            @change="handleCollaborateEvent(unitPlanId,'inquiry',form.inquiry)"
+                            @change="handleCollaborateEvent(unitPlanId,planField.Inquiry,form.inquiry)"
                           />
                         </a-form-item>
                         <a-tooltip title='Browse' @click.stop='selectBigIdeaDataVisible=true'>
@@ -211,12 +212,12 @@
 
                       <!--            real-life-scenario-->
                       <div class='form-block '>
-                        <collaborate-tooltip :form-id="unitPlanId" fieldName="sdg" />
+                        <collaborate-tooltip :form-id="unitPlanId" :fieldName=planField.Sdg />
                         <comment-switch
                           v-show="this.canEdit"
-                          :is-active="currentFieldName === 'sdg'"
-                          class='my-comment-switch'
-                          field-name='sdg'
+                          :is-active="currentFieldName === planField.Sdg"
+                          :class="{'my-comment-switch':true,'my-comment-show':currentFieldName === planField.Sdg}"
+                          :field-name=planField.Sdg
                           style='top:40px'
                           @switch='handleSwitchComment' />
                         <a-divider>Teaching goals</a-divider>
@@ -254,7 +255,7 @@
                               <a-select
                                 :getPopupContainer="trigger => trigger.parentElement"
                                 v-model='scenario.sdgId'
-                                @change="handleCollaborateEvent(unitPlanId,'sdg',form.sdg)"
+                                @change="handleCollaborateEvent(unitPlanId,planField.Sdg,form.sdg)"
                                 class='my-big-select'
                                 placeholder='Select a goal from UN'
                                 size='large'>
@@ -279,7 +280,7 @@
                                 @reset='descriptionSearchList = []'
                                 @search='handleDescriptionSearch'
                                 @select-item='handleSelectScenario'
-                                @change="handleCollaborateEvent(unitPlanId,'sdg',form.sdg)"
+                                @change="handleCollaborateEvent(unitPlanId,planField.Sdg,form.sdg)"
                               />
                             </a-form-model-item>
 
@@ -300,14 +301,14 @@
                       </div>
 
                       <div class='form-block form-block-rwc'>
-                        <collaborate-tooltip :form-id="unitPlanId" fieldName="rwc" />
+                        <collaborate-tooltip :form-id="unitPlanId" :fieldName=planField.Rwc />
                         <a-form-model-item label='Real World Connection(s)'>
                           <a-select
                             :getPopupContainer="trigger => trigger.parentElement"
                             size='large'
                             v-model='form.rwc'
                             placeholder='Choose real world connection'
-                            @change="handleCollaborateEvent(unitPlanId,'rwc',form.rwc)">
+                            @change="handleCollaborateEvent(unitPlanId,planField.Rwc,form.rwc)">
                             <a-select-option :value='item.id' v-for='(item, index) in rwcList' :key='index'>
                               {{ item.name }}
                             </a-select-option>
@@ -317,13 +318,13 @@
 
                       <div
                         :class="{'form-block': true, 'form-block-disabled' : $store.getters.userInfo.disableQuestion}">
-                        <collaborate-tooltip :form-id="unitPlanId" fieldName="question" />
+                        <collaborate-tooltip :form-id="unitPlanId" :fieldName=planField.Question />
                         <comment-switch
                           v-show="this.canEdit"
                           v-if='!$store.getters.userInfo.disableQuestion'
-                          :is-active="currentFieldName === 'question'"
-                          class='my-comment-switch'
-                          field-name='question'
+                          :is-active="currentFieldName === planField.Question"
+                          :class="{'my-comment-switch':true,'my-comment-show':currentFieldName === planField.Question}"
+                          :field-name=planField.Question
                           @switch='handleSwitchComment' />
                         <a-form-item class='unit-question'>
                           <span slot='label'>
@@ -365,7 +366,7 @@
                                 :placeholder="$store.getters.currentRole === 'teacher' ? $t('teacher.add-unit-plan.teacher-nth-key-question') : $t('teacher.add-unit-plan.expert-nth-key-question')"
                                 auto-size
                                 class='my-form-textarea'
-                                @change="handleCollaborateEvent(unitPlanId,'question',form.question)"/>
+                                @change="handleCollaborateEvent(unitPlanId,planField.Question,form.question)"/>
                               <div
                                 v-if='form.questions.length > 1'
                                 class='delete-icon'
@@ -386,12 +387,12 @@
                       </div>
 
                       <div class='form-block'>
-                        <collaborate-tooltip :form-id="unitPlanId" fieldName="assessment" style="left:100px" />
+                        <collaborate-tooltip :form-id="unitPlanId" :fieldName=planField.Assessment style="left:100px" />
                         <comment-switch
                           v-show="this.canEdit"
-                          :is-active="currentFieldName === 'assessment'"
-                          class='my-comment-switch'
-                          field-name='assessment'
+                          :is-active="currentFieldName === planField.Assessment"
+                          :class="{'my-comment-switch':true,'my-comment-show':currentFieldName === planField.Assessment}"
+                          :field-name=planField.Assessment
                           @switch='handleSwitchComment' />
                         <a-form-item label='Set learning objectives'>
                           <a-badge :dot='hasExtraRecommend'>
@@ -418,12 +419,12 @@
                       </div>
 
                       <div class='form-block' style='clear:both'>
-                        <collaborate-tooltip :form-id="unitPlanId" fieldName="prior" />
+                        <collaborate-tooltip :form-id="unitPlanId" :fieldName=planField.Prior />
                         <comment-switch
                           v-show="this.canEdit"
-                          :is-active="currentFieldName === 'prior'"
-                          class='my-comment-switch'
-                          field-name='prior'
+                          :is-active="currentFieldName === planField.Prior"
+                          :class="{'my-comment-switch':true,'my-comment-show':currentFieldName === planField.Prior}"
+                          :field-name=planField.Prior
                           @switch='handleSwitchComment' />
                         <a-form-model-item label='Prior learning experience'>
                           <a-textarea
@@ -431,7 +432,7 @@
                             allow-clear
                             auto-size
                             placeholder='What are the approaches to find out what students already knew?'
-                            @change="handleCollaborateEvent(unitPlanId,'prior',form.prior)"/>
+                            @change="handleCollaborateEvent(unitPlanId,planField.Prior,form.prior)"/>
                         </a-form-model-item>
                       </div>
 
@@ -440,12 +441,12 @@
                   <a-step title='Link Plan content'>
                     <template v-if='currentActiveStepIndex === 1' slot='description'>
                       <div class='form-block'>
-                        <collaborate-tooltip :form-id="unitPlanId" field-name='link' />
+                        <collaborate-tooltip :form-id="unitPlanId" :field-name=planField.Link />
                         <comment-switch
                           v-show="this.canEdit"
-                          :is-active="currentFieldName === 'link'"
-                          class='my-comment-switch'
-                          field-name='link'
+                          :field-name="planField.Link"
+                          :is-active="currentFieldName === planField.Link "
+                          :class="{'my-comment-switch':true,'my-comment-show':currentFieldName === planField.Link}"
                           @switch='handleSwitchComment' />
                         <a-form-item class='link-plan-title' label='Add task(s)' >
                           <a-space v-show="canEdit">
@@ -917,7 +918,7 @@
 import * as logger from '@/utils/logger'
 import ContentTypeIcon from '@/components/Teacher/ContentTypeIcon'
 import { typeMap } from '@/const/teacher'
-import { CustomTagType } from '@/const/common'
+import { CustomTagType, PlanField } from '@/const/common'
 import { commonAPIUrl } from '@/api/common'
 import { GetAllSdgs, ScenarioSearch } from '@/api/scenario'
 import { debounce } from 'lodash-es'
@@ -1187,7 +1188,8 @@ export default {
       rwcList: [],
 
       shareVisible: false,
-      shareStatus: 0
+      shareStatus: 0,
+      planField: PlanField
     }
   },
   watch: {
@@ -1855,7 +1857,7 @@ export default {
       this.defaultActiveMenu = NavigationType.learningOutcomes
 
       // #协同编辑event事件
-      this.handleCollaborateEvent(this.unitPlanId, 'assessment', this.form.assessment)
+      this.handleCollaborateEvent(this.unitPlanId, this.planField.Assessment, this.form.assessment)
     },
     handleConfirmAssociate() {
       this.$logger.info('handleConfirmAssociate')
@@ -1989,7 +1991,7 @@ export default {
       }
 
       // #协同编辑event事件
-      this.handleCollaborateEvent(this.unitPlanId, 'link', this.associateTaskList)
+      this.handleCollaborateEvent(this.unitPlanId, this.planField.Link, this.associateTaskList)
     },
 
     handleAddTerm() {
@@ -2006,7 +2008,7 @@ export default {
       })
 
       // #协同编辑event事件
-      this.handleCollaborateEvent(this.unitPlanId, 'link', this.associateTaskList)
+      this.handleCollaborateEvent(this.unitPlanId, this.planField.Link, this.associateTaskList)
     },
 
     handleEnsureSelectedLink(data) {
@@ -2017,7 +2019,7 @@ export default {
       this.$refs.planLink.getAssociate()
 
       // #协同编辑event事件
-      this.handleCollaborateEvent(this.unitPlanId, 'link', this.associateTaskList)
+      this.handleCollaborateEvent(this.unitPlanId, this.planField.Link, this.associateTaskList)
     },
 
     getAssociate() {
@@ -2193,7 +2195,7 @@ export default {
       this.$logger.info('handleUpdateGroupNameList')
       this.getAssociate()
       // #协同编辑event事件
-      this.handleCollaborateEvent(this.unitPlanId, 'link', this.associateTaskList)
+      this.handleCollaborateEvent(this.unitPlanId, this.planField.Link, this.associateTaskList)
     },
 
     handleSelectBigIdeaData(data) {
@@ -2326,7 +2328,7 @@ export default {
         this.form.learnOuts.splice(index, 1)
       }
       // #协同编辑event事件
-      this.handleCollaborateEvent(this.unitPlanId, 'assessment', this.form.assessment)
+      this.handleCollaborateEvent(this.unitPlanId, this.planField.Assessment, this.form.assessment)
     },
     onChangeStep(current) {
       console.log('onChange:', current)
@@ -2415,11 +2417,11 @@ export default {
           this.customTagList.push(name)
         })
         // // 再拼接自己添加的
-        // this.customTags.userTags.forEach(tag => {
-        //   if (this.customTagList.indexOf(tag.name === -1)) {
-        //     this.customTagList.push(tag.name)
-        //   }
-        // })
+        this.customTags.userTags.forEach(tag => {
+          if (this.customTagList.indexOf(tag.name === -1)) {
+            this.customTagList.push(tag.name)
+          }
+        })
         this.showCustomTag = false
         this.customTagTop = 0
         // this.showModuleList.push(RightModule.imageUpload)
@@ -2430,11 +2432,13 @@ export default {
     // 切换当前的字段的点评数据，从总的collaborateCommentList筛选初当前字段相关的点评数据
     handleSwitchComment(data) {
       this.$logger.info('handleSwitchComment', data)
-      this.setRightModuleVisible(this.rightModule.collaborateComment)
       if (!data.activeStatus) {
         // 关闭
+        this.currentFieldName = ''
+        this.resetRightModuleVisible()
         return
       }
+      this.setRightModuleVisible(this.rightModule.collaborateComment)
       this.currentFieldName = data.fieldName
       this.currentCollaborateCommentList = []
       const list = []
@@ -2650,7 +2654,7 @@ export default {
     },
     handleUpdateContent() {
       // 缓存时间少于最新的内容
-      this.form.updateTime = moment.utc(new Date()).local().format('YYYY-MM-DD HH:mm:ss')
+      this.form.updateTime = moment.utc(new Date()).format('YYYY-MM-DD HH:mm:ss')
       LocalStore.setFormContentLocal(this.form.id, this.form.type, JSON.stringify(this.form))
       this.defaultHistoryKey = '2'
       this.handleViewCollaborate()
@@ -3540,6 +3544,9 @@ export default {
   top: -5px;
   z-index: 200;
 }
+.my-comment-show {
+  display: block;
+}
 
 .collaborate-panel {
   background-color: #fff;
@@ -3659,7 +3666,7 @@ code {
       position: absolute;
       /* width: 300px; */
       top: -50px;
-      right: 0px
+      right: 30px
     }
   }
 

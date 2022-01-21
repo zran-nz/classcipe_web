@@ -36,27 +36,26 @@
                     <template v-if='currentActiveStepIndex === 0' slot='description'>
 
                       <div class='form-block'>
-                        <collaborate-tooltip :form-id="taskId" fieldName="name" />
+                        <collaborate-tooltip :form-id="taskId" :fieldName=taskField.Name />
                         <comment-switch
                           v-show="this.canEdit"
-                          field-name='name'
-                          :is-active="currentFieldName === 'name'"
+                          :field-name=taskField.Name
+                          :is-active="currentFieldName === taskField.Name"
                           @switch='handleSwitchComment'
-                          class='my-comment-switch' />
+                          :class="{'my-comment-switch':true,'my-comment-show':currentFieldName === taskField.Name}" />
                         <a-form-item label='Task name'>
                           <a-input v-model='form.name' placeholder='Enter Task Name' class='my-form-input' @change="handleCollaborateEvent(taskId,'name',form.name)" />
                         </a-form-item>
                       </div>
 
                       <div class='form-block grade-time'>
-                        <collaborate-tooltip :form-id="taskId" fieldName="startDate" />
+                        <collaborate-tooltip :form-id="taskId" :fieldName="taskField.StartDate" />
                         <comment-switch
                           v-show="this.canEdit"
-                          field-name='startDate'
-                          :is-active="currentFieldName === 'startDate'"
+                          :field-name=taskField.StartDate
+                          :is-active="currentFieldName === taskField.StartDate"
                           @switch='handleSwitchComment'
-                          class='my-comment-switch' />
-                        <!--   <comment-switch v-show="this.canEdit" field-name="name" :is-active="currentFieldName === 'name'" @switch="handleSwitchComment" class="my-comment-switch"/>-->
+                          :class="{'my-comment-switch':true,'my-comment-show':currentFieldName === taskField.StartDate}" />
                         <a-form-item label='Grade level' style='width:26%;margin-bottom: 0px;'>
                           <a-select
                             :getPopupContainer="trigger => trigger.parentElement"
@@ -79,7 +78,7 @@
                             </a-tag>
                           </div>
                           <a-range-picker
-                            @openChange="handleCollaborateEvent(taskId,'startDate',form.startDate)"
+                            @openChange="handleCollaborateEvent(taskId,taskField.StartDate,form.startDate)"
                             v-model='rangeDate'
                             size='large'
                             format='LLL'
@@ -91,26 +90,26 @@
                       </div>
 
                       <div class='form-block over-form-block' id='overview'>
-                        <collaborate-tooltip :form-id="taskId" fieldName="overview" />
+                        <collaborate-tooltip :form-id="taskId" :fieldName=taskField.Overview />
                         <comment-switch
                           v-show="this.canEdit"
-                          field-name='overview'
-                          :is-active="currentFieldName === 'overview'"
+                          :field-name=taskField.Overview
+                          :is-active="currentFieldName === taskField.Overview"
                           @switch='handleSwitchComment'
-                          class='my-comment-switch' />
+                          :class="{'my-comment-switch':true,'my-comment-show':currentFieldName === taskField.Overview}" />
                         <a-form-model-item class='task-audio-line' label='Task details' ref='overview'>
-                          <a-textarea autoSize v-model='form.overview' placeholder='Details' allow-clear @change="handleCollaborateEvent(taskId,'overview',form.overview)" />
+                          <a-textarea autoSize v-model='form.overview' placeholder='Details' allow-clear @change="handleCollaborateEvent(taskId,taskField.Overview,form.overview)" />
                         </a-form-model-item>
                       </div>
 
                       <div class='form-block taskType'>
-                        <collaborate-tooltip :form-id="taskId" fieldName="taskType" style="left:20px" />
+                        <collaborate-tooltip :form-id="taskId" :fieldName=taskField.TaskType style="left:20px" />
                         <comment-switch
                           v-show="this.canEdit"
-                          field-name='taskType'
-                          :is-active="currentFieldName === 'taskType'"
+                          :field-name=taskField.TaskType
+                          :is-active="currentFieldName === taskField.TaskType"
                           @switch='handleSwitchComment'
-                          class='my-comment-switch' />
+                          :class="{'my-comment-switch':true,'my-comment-show':currentFieldName === taskField.TaskType}" />
                         <a-form-model-item class='task-audio-line' ref='taskType' :colon='false'>
                           <div slot='label'>
                             Choose Task Type(<span style='font-size: 13px'>Formative Assessment/ Summative Assessment/ Activity</span>):
@@ -136,17 +135,17 @@
                       </div>
 
                       <div class='form-block form-question' v-if='associateQuestionList.length > 0'>
-                        <collaborate-tooltip :form-id="taskId" fieldName="questions" />
+                        <collaborate-tooltip :form-id="taskId" :fieldName=taskField.Question />
                         <comment-switch
                           v-show="this.canEdit"
-                          field-name='questions'
-                          :is-active="currentFieldName === 'questions'"
+                          :field-name=taskField.Question
+                          :is-active="currentFieldName === taskField.Question"
                           @switch='handleSwitchComment'
-                          class='my-comment-switch' />
+                          :class="{'my-comment-switch':true,'my-comment-show':currentFieldName === taskField.Question}" />
                         <a-form-model-item label='Choose Key questions'>
                           <a-select
                             :getPopupContainer="trigger => trigger.parentElement"
-                            @change="handleCollaborateEvent(taskId,'startDate',form.questions)"
+                            @change="handleCollaborateEvent(taskId,taskField.Question,form.questions)"
                             size='large'
                             class='my-big-select'
                             v-model='form.questionIds'
@@ -169,13 +168,13 @@
                       </div>
 
                       <div class='form-block'>
-                        <collaborate-tooltip :form-id="taskId" fieldName="assessment" style="left:100px" />
+                        <collaborate-tooltip :form-id="taskId" :fieldName=taskField.Assessment style="left:100px" />
                         <comment-switch
                           v-show="this.canEdit"
-                          field-name='assessment'
-                          :is-active="currentFieldName === 'assessment'"
+                          :field-name=taskField.Assessment
+                          :is-active="currentFieldName === taskField.Assessment"
                           @switch='handleSwitchComment'
-                          class='my-comment-switch' />
+                          :class="{'my-comment-switch':true,'my-comment-show':currentFieldName === taskField.Assessment}" />
                         <a-form-item label='Set learning objectives'>
                           <a-button type='primary' @click='handleSelectDescription'>
                             <div class='btn-text' style='line-height: 20px'>
@@ -192,13 +191,13 @@
                       </div>
 
                       <div class='form-block' style='clear: both'>
-                        <collaborate-tooltip :form-id="taskId" fieldName="materialList" />
+                        <collaborate-tooltip :form-id="taskId" :fieldName=taskField.MaterialList />
                         <comment-switch
                           v-show="this.canEdit"
-                          field-name='materialList'
-                          :is-active="currentFieldName === 'materialList'"
+                          :field-name=taskField.MaterialList
+                          :is-active="currentFieldName === taskField.MaterialList"
                           @switch='handleSwitchComment'
-                          class='my-comment-switch' />
+                          :class="{'my-comment-switch':true,'my-comment-show':currentFieldName === taskField.MaterialList}" />
                         <div class='form-block-label'>
                           <a-switch v-model='materialListFlag' @change='handleMaterialListFlagChange' />
                           Material list
@@ -214,7 +213,7 @@
                                   v-model='materialItem.name'
                                   aria-placeholder='Enter material name'
                                   placeholder='Enter material name'
-                                  @change="handleCollaborateEvent(taskId,'materialList',form.materialList)"/>
+                                  @change="handleCollaborateEvent(taskId,taskField.MaterialList,form.materialList)"/>
                               </a-col>
                               <a-col span='14'>
                                 <a-tooltip placement='topLeft'>
@@ -226,7 +225,7 @@
                                     v-model='materialItem.link'
                                     aria-placeholder='Enter URL'
                                     placeholder='Enter URL'
-                                    @change="handleCollaborateEvent(taskId,'materialList',form.materialList)" >
+                                    @change="handleCollaborateEvent(taskId,taskField.MaterialList,form.materialList)" >
                                     <a-icon slot='prefix' type='link' />
                                   </a-input>
                                 </a-tooltip>
@@ -614,13 +613,13 @@
 
                     <template v-if='currentActiveStepIndex === 3' slot='description'>
                       <div class='form-block'>
-                        <collaborate-tooltip :form-id="taskId" field-name='link' />
+                        <collaborate-tooltip :form-id="taskId" :field-name=taskField.Link />
                         <comment-switch
                           v-show="this.canEdit"
-                          :is-active="currentFieldName === 'link'"
-                          class='my-comment-switch'
-                          field-name='link'
-                          @switch='handleSwitchComment' />
+                          :is-active="currentFieldName === taskField.Link"
+                          @switch='handleSwitchComment'
+                          :field-name=taskField.Link
+                          :class="{'my-comment-switch':true,'my-comment-show':currentFieldName === taskField.Link}" />
                         <a-form-item class='link-plan-title' >
                           <a-space v-show="canEdit">
                             <a-button
@@ -1686,7 +1685,7 @@ import AssociateSidebar from '@/components/Associate/AssociateSidebar'
 import CustomTag from '@/components/UnitPlan/CustomTag'
 import NewUiClickableKnowledgeTag from '@/components/UnitPlan/NewUiClickableKnowledgeTag'
 import CollaborateUserList from '@/components/Collaborate/CollaborateUserList'
-import { CustomTagType, TemplateType } from '@/const/common'
+import { CustomTagType, TaskField, TemplateType } from '@/const/common'
 // import { SubjectTree } from '@/api/subject'
 // import { formatSubjectTree } from '@/utils/bizUtil'
 import ModalHeader from '@/components/Common/ModalHeader'
@@ -1945,7 +1944,8 @@ export default {
       showSubTaskDetail: false,
 
       shareVisible: false,
-      shareStatus: 0
+      shareStatus: 0,
+      taskField: TaskField
     }
   },
   computed: {
@@ -2282,7 +2282,7 @@ export default {
       this.showCustomTag = true
 
       // #协同编辑event事件
-      this.handleCollaborateEvent(this.taskId, 'taskType', this.form.taskType)
+      this.handleCollaborateEvent(this.taskId, this.taskField.TaskType, this.form.taskType)
     },
 
     handleSelectSubTaskType(type) {
@@ -2824,7 +2824,7 @@ export default {
       }
 
       // #协同编辑event事件
-      this.handleCollaborateEvent(this.taskId, 'link', this.associateUnitPlanIdList)
+      this.handleCollaborateEvent(this.taskId, this.taskField.Link, this.associateUnitPlanIdList)
     },
     handleAddTerm() {
       this.$logger.info('handleAddTerm', this.groupNameList)
@@ -2840,7 +2840,7 @@ export default {
         this.$message.warn('Task Info is empty, please fill the form first!')
       }
       // #协同编辑event事件
-      this.handleCollaborateEvent(this.taskId, 'link', this.associateUnitPlanIdList)
+      this.handleCollaborateEvent(this.taskId, this.taskField.Link, this.associateUnitPlanIdList)
     },
     handleEnsureSelectedLink(data) {
       this.$logger.info('handleEnsureSelectedLink', data)
@@ -2850,7 +2850,7 @@ export default {
       // 刷新组件内的列表
       this.$refs.commonLink.getAssociate()
       // #协同编辑event事件
-      this.handleCollaborateEvent(this.taskId, 'link', this.associateUnitPlanIdList)
+      this.handleCollaborateEvent(this.taskId, this.taskField.Link, this.associateUnitPlanIdList)
     },
 
     getAssociate() {
@@ -3094,7 +3094,7 @@ export default {
       }
 
       // #协同编辑event事件
-      this.handleCollaborateEvent(this.taskId, 'assessment', this.form.assessment)
+      this.handleCollaborateEvent(this.taskId, this.taskField.Assessment, this.form.assessment)
     },
     handleSelectDescription() {
       // 获取当前task关联的unit-plan的描述数据
@@ -3110,7 +3110,7 @@ export default {
       this.selectSyncDataVisible = true
 
       // #协同编辑event事件
-      this.handleCollaborateEvent(this.taskId, 'assessment', this.form.assessment)
+      this.handleCollaborateEvent(this.taskId, this.taskField.Assessment, this.form.assessment)
     },
     // 加载协作的评论和历史记录数据
     loadCollaborateData() {
@@ -3330,10 +3330,12 @@ export default {
     // 切换当前的字段的点评数据，从总的collaborateCommentList筛选初当前字段相关的点评数据
     handleSwitchComment(data) {
       this.$logger.info('handleSwitchComment', data)
-      this.setRightModuleVisible(this.rightModule.collaborateComment)
       if (!data.activeStatus) {
+        this.currentFieldName = ''
+        this.resetRightModuleVisible()
         return
       }
+      this.setRightModuleVisible(this.rightModule.collaborateComment)
       this.currentFieldName = data.fieldName
       this.currentCollaborateCommentList = []
       const list = []
@@ -3756,7 +3758,7 @@ export default {
       //   this.rangeDate.push(moment.utc(contentMsg.content.details.endDate).local())
       // }
       // 缓存时间少于最新的内容
-      this.form.updateTime = moment.utc(new Date()).local().format('YYYY-MM-DD HH:mm:ss')
+      this.form.updateTime = moment.utc(new Date()).format('YYYY-MM-DD HH:mm:ss')
       LocalStore.setFormContentLocal(this.form.id, this.form.type, JSON.stringify(this.form))
       this.defaultHistoryKey = '2'
       this.handleViewCollaborate()
@@ -5543,6 +5545,9 @@ export default {
   top: -5px;
   z-index: 200;
 }
+.my-comment-show {
+  display: block;
+}
 
 .collaborate-panel {
   background-color: #fff;
@@ -6057,7 +6062,7 @@ export default {
       position: absolute;
       /* width: 300px; */
       top: -50px;
-      right: 0px
+      right: 30px
     }
   }
 }

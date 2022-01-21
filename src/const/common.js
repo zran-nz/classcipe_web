@@ -35,6 +35,33 @@ export const CurriculumType = {
   IBMYP: 5
 }
 
+export const PlanField = {
+  Name: 'name',
+  ProjectBased: 'projectBased',
+  UnitType: 'unitType',
+  StartDate: 'startDate',
+  Inquiry: 'inquiry',
+  Sdg: 'sdg',
+  Rwc: 'rwc',
+  Question: 'question',
+  Assessment: 'assessment',
+  Prior: 'prior',
+  Link: 'link'
+}
+
+export const TaskField = {
+  Name: 'name',
+  TaskType: 'taskType',
+  StartDate: 'startDate',
+  Overview: 'overview',
+  Sdg: 'sdg',
+  Rwc: 'rwc',
+  Question: 'question',
+  Assessment: 'assessment',
+  MaterialList: 'materialList',
+  Link: 'link'
+}
+
 export const TagOriginType = {
   Origin: 'Origin',
   Search: 'Search',

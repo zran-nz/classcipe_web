@@ -50,7 +50,9 @@ export default {
       this.loading = true
       this.$store.getters.vueSocket.sendAction('receiveSaveContentMsg', contentMsg)
       this.$emit('update-content', '')
-      // this.loading = false
+      setTimeout(() => {
+        this.$message.info({ content: 'The latest version has been loaded for you and the local offlice cache has been saved to the historical version', duration: 5 })
+      }, 1000)
     }
   }
 }
@@ -58,22 +60,6 @@ export default {
 
 <style lang='less' scoped>
 @import "~@/components/index.less";
-
-.loading-wrapper {
-  min-height: 300px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.content-update {
-  padding: 20px;
-  width: 100%;
-  height: 100%;
-  min-height: 300px;
-  margin: auto;
-
-}
 
 .alert {
   padding: 20px;
