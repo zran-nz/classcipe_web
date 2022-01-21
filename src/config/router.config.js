@@ -299,24 +299,15 @@ export const asyncRouterMap = [
       {
         path: '/student',
         name: 'student',
-        redirect: '/student/main/created-by-me',
+        redirect: '/student/main',
         component: RouteView,
         meta: { title: 'menu.main', keepAlive: true, icon: bxAnaalyse, permission: ['student'] },
         children: [
           {
             path: '/student/main',
             name: 'Main',
-            redirect: '/student/main/created-by-me',
-            component: () => import('@/views/teacher/Main'),
-            meta: { title: 'menu.main', keepAlive: true, permission: ['student'] },
-            children: [
-              {
-                path: '/student/main/created-by-me',
-                name: 'CreatedByMe',
-                component: () => import('@/views/teacher/CreatedByMe'),
-                meta: { title: 'menu.my-content', keepAlive: true, permission: ['student'] }
-              }
-            ]
+            component: () => import('@/views/student/Main'),
+            meta: { title: 'menu.main', keepAlive: true, permission: ['student'] }
           }
 
         ]
@@ -539,7 +530,7 @@ export const defaultTeacherRouter = '/teacher/main/created-by-me'
 // export const defaultExpertRouter = '/expert/main/created-by-me'
 export const defaultExpertRouter = '/teacher/main/created-by-me'
 
-export const defaultStudentRouter = '/student/main/created-by-me'
+export const defaultStudentRouter = '/student/main'
 
 /**
  * select role router
