@@ -353,7 +353,6 @@ import {
 import { LibraryEvent, LibraryEventBus } from '@/components/NewLibrary/LibraryEventBus'
 import { SelectModel } from '@/components/NewLibrary/SelectModel'
 
-
 export default {
   name: 'NewBrowser',
   components: {

@@ -1453,6 +1453,7 @@
       </a-modal>
 
       <a-modal
+        class='my-slide-pick-modal'
         v-model='selectedSlideVisible'
         :footer='null'
         :title='null'

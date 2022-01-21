@@ -2,7 +2,6 @@ import { QueryContentCollaborates } from '@/api/collaborate'
 import { COLLABORATE, SAVE_CONTENT } from '@/websocket/cmd'
 import CollborateMsg from '@/websocket/model/collborateMsg'
 import SaveContentMsg from '@/websocket/model/saveContentMsg'
-import { isObjectValueEqual } from '@/utils/util'
 import { isEqualWith } from 'lodash-es'
 
 export const RightModule = {
