@@ -464,6 +464,11 @@ export const constantRouterMap = [
         path: 'auth-check',
         name: 'authCheck',
         component: () => import(/* webpackChunkName: "authCheck" */ '@/views/user/AuthCheck')
+      },
+      {
+        path: 'auth-redirect',
+        name: 'authRedirect',
+        component: () => import(/* webpackChunkName: "authRedirect" */ '@/views/user/AuthRedirect')
       }
     ]
   },

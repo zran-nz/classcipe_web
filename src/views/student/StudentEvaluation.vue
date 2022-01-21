@@ -4,6 +4,7 @@
       <common-form-header
         ref="commonFormHeader"
         :form="form"
+        :show-back='false'
         :showCollaborate="false"
         :last-change-saved-time="lastChangeSavedTime"
         @update-form="handleUpdateForm"
@@ -757,8 +758,8 @@ export default {
     this.$logger.info('[' + this.formTableMode + '] created ClassSessionEvaluation classId' + this.classId)
     this.formTableMode = this.mode
 
-    this.evaluateStudentId = this.$store.getters.userInfo.userId
-    this.evaluateStudentName = this.$store.getters.userInfo.username
+    this.evaluateStudentId = this.$store.getters.userInfo.email
+    this.evaluateStudentName = this.$store.getters.userInfo.nickname
     this.$logger.info('evaluateStudentId ' + this.evaluateStudentId + ' evaluateStudentName ' + this.evaluateStudentName)
 
     this.loadClassSessionEvaluationData()
@@ -805,7 +806,7 @@ export default {
           })
           this.allStudentUserList = data.classMembersVos
           this.allStudentUserList.forEach(studentItem => {
-            this.allStudentUserIdList.push(studentItem.userId)
+            this.allStudentUserIdList.push(studentItem.email)
           })
         }
         this.$logger.info('allNoGroupStudentUserIdList', this.allNoGroupStudentUserIdList)
@@ -947,7 +948,7 @@ export default {
         }
 
         if (this.mode === EvaluationTableMode.StudentEvaluate) {
-          this.$logger.info('StudentEvaluate try fix currentActiveStudentId ' + this.evaluateStudentId, 'allGroupStudentUserIdList', this.allGroupStudentUserIdList)
+          this.$logger.info('StudentEvaluate try fix currentActiveStudentId ' + this.evaluateStudentId, 'allStudentUserIdList', this.allStudentUserIdList)
           if (this.allStudentUserIdList.indexOf(this.evaluateStudentId) === -1) {
             this.$logger.info('current use email ' + (this.evaluateStudentId) + ' not exist in ', this.allStudentUserIdList, ' cannot student evaluate')
             this.$confirm({
