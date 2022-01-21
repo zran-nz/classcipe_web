@@ -51,10 +51,12 @@ import * as logger from '@/utils/logger'
 
 import TeacherNav from '@/components/GlobalHeader/TeacherNav'
 import ExpertNav from '@/components/GlobalHeader/ExpertNav'
+import StudentNav from '@/components/GlobalHeader/StudentNav'
 
 export default {
   name: 'BasicLayout',
   components: {
+    StudentNav,
     RightContent,
     GlobalFooter,
     TeacherNav,
