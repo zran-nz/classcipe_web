@@ -494,7 +494,7 @@
                     <div class='icon'>
                       <comment-icon />
                     </div>
-                    <a-tabs default-active-key='1'>
+                    <a-tabs :default-active-key='defaultHistoryKey'>
                       <a-tab-pane key='1' tab='Comment'>
                         <collaborate-comment-view
                           :comment-list='collaborateCommentList'
@@ -891,6 +891,22 @@
         />
       </a-modal>
 
+      <a-modal
+        v-model='showUpdateContent'
+        :footer='null'
+        :title='null'
+        destroyOnClose
+        width='700px'
+        :maskClosable="false"
+        :closable='false'>
+        <collaborate-update-content
+          ref="collaborateUpdate"
+          :source-id='form.id'
+          :source-type='form.type'
+          @update-content='handleUpdateContent'
+        />
+      </a-modal>
+
       <a-skeleton :loading='contentLoading' active>
       </a-skeleton>
     </a-card>
@@ -962,6 +978,8 @@ import { BaseEventMixin } from '@/mixins/BaseEvent'
 import ShareContentSetting from '@/components/Share/ShareContentSetting'
 import { QueryContentShare } from '@/api/share'
 import CollaborateTooltip from '@/components/Collaborate/CollaborateTooltip'
+import LocalStore from '@/websocket/localstore'
+import CollaborateUpdateContent from '@/components/Collaborate/CollaborateUpdateContent'
 
 export default {
   name: 'AddUnitPlan',
@@ -994,7 +1012,8 @@ export default {
     UiLearnOut,
     BigIdeaBrowse,
     Collapse,
-    CollaborateTooltip
+    CollaborateTooltip,
+    CollaborateUpdateContent
   },
   props: {
     unitPlanId: {
@@ -1602,6 +1621,7 @@ export default {
         }
       }).then(() => {
         // this.$refs.commonFormHeader.saving = false
+        this.handleSaveContentEvent(this.unitPlanId, this.contentType['unit-plan'], this.oldForm)
       })
     },
     handlePublishUnitPlan(status) {
@@ -2470,19 +2490,20 @@ export default {
     // 这样在这里就可以直接this.$set设置字段的数据
     handleRestoreField(data) {
       this.$logger.info('handleRestoreField', data, this.form)
-      if (data.historyData) {
-        data.historyData.forEach(dataItem => {
-          this.$logger.info('set ' + dataItem.fieldName, dataItem.data[0])
-          if (Array.isArray(dataItem.data[0])) {
-            // 清空数组
-            this.form[dataItem.fieldName].splice(0, this.form[dataItem.fieldName].length)
-            dataItem.data[0].forEach((item, index) => {
-              this.$set(this.form[dataItem.fieldName], index, dataItem.data[0][index])
-            })
-          } else {
-            this.$set(this.form, dataItem.fieldName, dataItem.data[0])
-          }
-        })
+      if (data) {
+        // data.historyData.forEach(dataItem => {
+        //   this.$logger.info('set ' + dataItem.fieldName, dataItem.data[0])
+        //   if (Array.isArray(dataItem.data[0])) {
+        //     // 清空数组
+        //     this.form[dataItem.fieldName].splice(0, this.form[dataItem.fieldName].length)
+        //     dataItem.data[0].forEach((item, index) => {
+        //       this.$set(this.form[dataItem.fieldName], index, dataItem.data[0][index])
+        //     })
+        //   } else {
+        //     this.$set(this.form, dataItem.fieldName, dataItem.data[0])
+        //   }
+        // })
+        this.form = data
         this.$message.success('restore successfully!')
       }
       this.$logger.info('after handleRestoreField', this.form)
@@ -2626,6 +2647,16 @@ export default {
     handleShareStatus (status) {
       this.$logger.info('handleShareStatus', status)
       this.shareStatus = status
+    },
+    handleUpdateContent() {
+      // 缓存时间少于最新的内容
+      this.form.updateTime = moment.utc(new Date()).local().format('YYYY-MM-DD HH:mm:ss')
+      LocalStore.setFormContentLocal(this.form.id, this.form.type, JSON.stringify(this.form))
+      this.defaultHistoryKey = '2'
+      this.handleViewCollaborate()
+      setTimeout(() => {
+        this.restoreUnitPlan(this.form.id)
+      }, 100)
     }
   }
 }
