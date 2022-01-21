@@ -636,7 +636,7 @@ export default {
   },
   data () {
     return {
-      mode: EvaluationTableMode.StudentEvaluate,
+      mode: EvaluationTableMode.PeerEvaluate,
       loading: true,
       isExistFormTable: false, // 是否已经添加过表格
       currentActiveFormId: null,
@@ -690,7 +690,7 @@ export default {
 
       currentEditingTitle: null,
       currentFormItem: null,
-      formTableMode: EvaluationTableMode.StudentEvaluate,
+      formTableMode: EvaluationTableMode.PeerEvaluate,
 
       studentEvaluateData: {}, // 所有学生的评价数据对象，通过vue.$set设置属性，方便遍历对应的学生及表单数据
       currentActiveStudentId: null,
