@@ -2175,12 +2175,16 @@ export default {
                 }
 
                 .group-name {
+                  overflow: hidden;
+                  text-overflow: ellipsis;
+                  word-break: break-all;
+                  white-space: nowrap;
                   padding: 0 5px;
                 }
 
                 .group-select-status {
                   margin-left: 5px;
-                  width: 30px;
+                  width: 10px;
                   user-select: none;
 
                   svg {

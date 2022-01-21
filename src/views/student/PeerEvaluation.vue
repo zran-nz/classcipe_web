@@ -230,7 +230,7 @@
                         </div>
                       </a-button>
                       <a-button
-                        v-if='mode === EvaluationTableMode.StudentEvaluate'
+                        v-if='mode === EvaluationTableMode.PeerEvaluate'
                         class="my-form-header-btn"
                         style="{
                             width: 120px;
@@ -849,7 +849,7 @@ export default {
           }
         }
 
-        if (!this.forms || this.forms.length === 0) {
+        if (this.mode === EvaluationTableMode.Edit && (!this.forms || this.forms.length === 0)) {
           this.forms = this.taskForms
           this.$logger.info('forms empty, use task forms as forms', this.forms)
         }
@@ -964,19 +964,25 @@ export default {
 
         // 检查是否以及评估过了，有过评估数据不允许再评估。查找PeerEmail字段中是否有在currentUserGroupUserIdList中存在，有代表有过评估
         if (this.mode === EvaluationTableMode.PeerEvaluate) {
-          this.allowPeerEvaluate = true
-          this.allStudentUserIdList.forEach(studentId => {
-            const currentFormData = this.studentEvaluateData[studentId][this.currentActiveFormId]
-            const rowIdList = Object.keys(currentFormData)
-            rowIdList.forEach(rowId => {
-              const rowData = currentFormData[rowId]
-              this.$logger.info('currentFormData', currentFormData, 'rowId', rowData)
-              if (rowData && rowData.peerEmail && this.currentUserGroupUserIdList.indexOf(rowData.peerEmail) !== -1) {
-                this.$logger.info('student ' + studentId + ' row ' + rowId + ' has peerEvaluation')
-                this.allowPeerEvaluate = false
-              }
+
+          if (this.currentActiveFormId) {
+            this.allowPeerEvaluate = true
+            this.allStudentUserIdList.forEach(studentId => {
+              this.$logger.info('studentId ' + studentId + ' currentActiveFormId ', this.currentActiveFormId)
+              const currentFormData = this.studentEvaluateData[studentId][this.currentActiveFormId]
+              const rowIdList = Object.keys(currentFormData)
+              rowIdList.forEach(rowId => {
+                const rowData = currentFormData[rowId]
+                this.$logger.info('currentFormData', currentFormData, 'rowId', rowData)
+                if (rowData && rowData.peerEmail && this.currentUserGroupUserIdList.indexOf(rowData.peerEmail) !== -1) {
+                  this.$logger.info('student ' + studentId + ' row ' + rowId + ' has peerEvaluation')
+                  this.allowPeerEvaluate = false
+                }
+              })
             })
-          })
+          } else {
+            this.allowPeerEvaluate = false // 空表格不允许评估
+          }
         }
         this.loading = false
         this.initCompleted = true
@@ -1051,7 +1057,7 @@ export default {
         this.$logger.info('currentActiveGroupId ' + this.currentActiveFormId + ' selectedMemberIdList ', this.selectedMemberIdList)
       } else if (this.mode === EvaluationTableMode.PeerEvaluate) {
         if (!this.allowPeerEvaluate) {
-          this.$message.warn('You have evaluated!')
+          this.$message.warn('Not allowed to evaluate for this student!')
           this.currentActiveStudentId = member.userId
         } else if (!group || this.currentUserGroupUserIdList.indexOf(member.userId) !== -1) {
           this.$message.warn('Not allowed to evaluate for this student!')
@@ -2111,12 +2117,16 @@ export default {
                 }
 
                 .group-name {
+                  overflow: hidden;
+                  text-overflow: ellipsis;
+                  word-break: break-all;
+                  white-space: nowrap;
                   padding: 0 5px;
                 }
 
                 .group-select-status {
                   margin-left: 5px;
-                  width: 30px;
+                  width: 10px;
                   user-select: none;
 
                   svg {
