@@ -120,7 +120,7 @@
             :data-header-type='header.type'
             :data-header-mode='formTableMode'
             v-if='header.visible'>
-            <!-- 1.编辑模式下不显示add evidence-->
+            <!-- 1.编辑模式、自评、他评下不显示add evidence-->
             <!-- 2.21世纪表格有非描述项,不显示四个列表格，只显示comment，否则现在四个列表格-->
             <!-- 表头文本-->
             <!-- 表头文本-->
@@ -827,7 +827,7 @@ export default {
       this.has21CenturySkillNoDescriptionItem = flag
 
       // 编辑与他评模式不显示evidence
-      if (this.formTableMode === this.tableMode.TeacherEvaluate || this.formTableMode === this.tableMode.StudentEvaluate) {
+      if (this.formTableMode === this.tableMode.TeacherEvaluate) {
         this.headers.forEach(header => {
           if (header.type === this.headerType.Evidence) {
             header.visible = true

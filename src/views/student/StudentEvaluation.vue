@@ -566,6 +566,7 @@ import EvaluationTableMode from '@/components/Evaluation/EvaluationTableMode'
 import NoMoreResources from '@/components/Common/NoMoreResources'
 import PptSlideView from '@/components/Evaluation/PptSlideView'
 import { typeMap } from '@/const/teacher'
+import { defaultStudentRouter } from '@/config/router.config'
 
 export default {
   name: 'StudentEvaluation',
@@ -689,7 +690,7 @@ export default {
 
       currentEditingTitle: null,
       currentFormItem: null,
-      formTableMode: null,
+      formTableMode:  EvaluationTableMode.StudentEvaluate,
 
       studentEvaluateData: {}, // 所有学生的评价数据对象，通过vue.$set设置属性，方便遍历对应的学生及表单数据
       currentActiveStudentId: null,
@@ -756,8 +757,6 @@ export default {
   },
   created () {
     this.$logger.info('[' + this.formTableMode + '] created ClassSessionEvaluation classId' + this.classId)
-    this.formTableMode = this.mode
-
     this.evaluateStudentId = this.$store.getters.userInfo.email
     this.evaluateStudentName = this.$store.getters.userInfo.nickname
     this.$logger.info('evaluateStudentId ' + this.evaluateStudentId + ' evaluateStudentName ' + this.evaluateStudentName)
@@ -1056,6 +1055,10 @@ export default {
           this.currentActiveStudentId = member.userId
         } else if (!group || this.currentUserGroupUserIdList.indexOf(member.userId) !== -1) {
           this.$message.warn('Not allowed to evaluate for this student!')
+        }
+      } else {
+        if (member.userId !== this.currentActiveStudentId) {
+          this.$message.warn('Currently in self-assessment mode, you cannot use to view other people\'s assessment data')
         }
       }
     },
@@ -1558,7 +1561,9 @@ export default {
             }
           }).finally(() => {
             if (switchEvaluate) {
-              this.goEvaluatePage()
+              setTimeout(() => {
+                this.goEvaluatePage()
+              }, 1000);
             }
           })
         }
@@ -1566,7 +1571,8 @@ export default {
     },
 
     goEvaluatePage () {
-      window.location.pathname = '/teacher/class-evaluation/' + this.taskId + '/' + this.classId + '/teacher-evaluate'
+      this.$logger.info('goEvaluatePage')
+      window.location.pathname = defaultStudentRouter
     },
     handleSaveAndBackEvaluation () {
       this.$logger.info('handleSaveAndBackEvaluation', this.forms)
