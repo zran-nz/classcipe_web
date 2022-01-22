@@ -178,7 +178,7 @@
                         <a-form-item label='Set learning objectives'>
                           <a-button type='primary' @click='handleSelectDescription'>
                             <div class='btn-text' style='line-height: 20px'>
-                              Add learning objectives
+                              Add Learning Objectives
                             </div>
                           </a-button>
                         </a-form-item>
@@ -520,11 +520,18 @@
                               </a-col>
                             </a-row>
                           </div>
+                          <template v-if='!selectedPageIdList.length'>
+                            <a-alert
+                              message="Please pick slide(s)"
+                              banner
+                              closable
+                            />
+                          </template>
                           <div class='thumbnail-loading' v-if='thumbnailListLoading'>
                             <a-spin size='large' />
                           </div>
                           <div class='thumbnail-task-list'>
-                            <div class='thumbnail-task-item' v-if='currentTaskFormData'>
+                            <div class='thumbnail-task-item' v-if='currentTaskFormData' v-show='selectedPageIdList.length'>
                               <task-form
                                 :parent-form-data='currentTaskFormData'
                                 :select-ids='selectedPageIdList'
@@ -4582,14 +4589,14 @@ export default {
 *::-webkit-scrollbar-track {
   border-radius: 1px;
   background: rgba(0, 0, 0, 0.00);
-  -webkit-box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.08);
+  -webkit-box-shadow: inset 0 0 3px rgba(0, 0, 0, 0.04);
 }
 
 /* 滚动条滑块 */
 *::-webkit-scrollbar-thumb {
   border-radius: 3px;
-  background: rgba(0, 0, 0, 0.12);
-  -webkit-box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.04);
+  background: rgba(0, 0, 0, 0.04);
+  -webkit-box-shadow: inset 0 0 3px rgba(0, 0, 0, 0.04);
 }
 
 .audio-material-action {
@@ -4672,16 +4679,17 @@ export default {
 }
 
 .preview-list {
+  margin-bottom: 10px;
   overflow-y: scroll;
   overflow-x: hidden;
   width: 100%;
   min-height: 120px;
-  max-height: 360px;
+  max-height: 374px;
   background: rgba(228, 228, 228, 0.2);
   border: 1px solid #D8D8D8;
   opacity: 1;
-  border-radius: 4px;
-  padding-right: 15px;
+  border-radius: 2px;
+  padding: 5px;
 
   .preview-item-cover {
     background-position: center center;
@@ -4690,10 +4698,9 @@ export default {
     position: relative;
     width: 100%;
     height: 160px;
-    border-radius: 5px;
-    margin: 10px 5px 10px 10px;
+    border-radius: 2px;
     border: 1px solid #eee;
-    box-shadow: 0 4px 4px 4px #eee;
+    box-shadow: 0 0 4px 4px #fff;
 
     .template-select-icon {
       z-index: 50;
@@ -4711,8 +4718,8 @@ export default {
 
   .preview-item-cover-active {
     border: 1px solid #15C39A;
-    box-shadow: 0px 3px 6px rgba(21, 195, 154, 0.16);
-    border-radius: 5px;
+    box-shadow: 0px 0 4px 4px #fff;
+    border-radius: 2px;
   }
 }
 
@@ -6144,5 +6151,10 @@ export default {
 
 .sub-task-tag-wrapper {
   padding-top: 550px;
+}
+
+.thumbnail-task-item {
+  padding: 5px 10px;
+  background: #38cfa611;
 }
 </style>
