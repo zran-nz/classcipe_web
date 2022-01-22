@@ -1,92 +1,36 @@
 <template>
   <div class="task-preview" :data-uid="rawSubTaskData ? rawSubTaskData._uid : ''">
-    <template v-if="loading">
-      <a-skeleton active />
-    </template>
-    <template v-else>
-      <a-row class="top-header" :gutter="[8,8]">
-        <a-col span="24">
-          <div class="delete-icon">
-            <a-popconfirm title="Delete?" ok-text="Yes" @confirm="handleDeleteItem" cancel-text="No">
-              <img src="~@/assets/icons/tag/delete.png"/> Delete
-            </a-popconfirm>
+    <div class='mask'></div>
+    <div class='sub-task-item' :style="{backgroundImage: thumbnailList.length ? 'url(' + thumbnailList[0].contentUrl + ')' : ''}">
+    </div>
+    <div class="mask-actions">
+      <div class="action-item action-item-bottom" >
+        <div class="session-btn" @click.stop="handleDeleteItem">
+          <div class="session-btn-icon content-list-action-btn">
+            <bianji />
           </div>
-          <span class="title">
-            {{ task.name }}
-          </span>
-        </a-col>
-      </a-row>
-      <a-row class="top-info" :gutter="[8,8]">
-        <a-col class="left-preview" span="24">
-          <a-carousel arrows>
-            <div
-              slot="prevArrow"
-              class="custom-slick-arrow"
-              style="left: 10px;z-index: 1"
-            >
-              <a-icon type="left-circle" />
-            </div>
-            <div
-              slot="nextArrow"
-              class="custom-slick-arrow"
-              style="right: 10px">
-              <a-icon type="right-circle" />
-            </div>
-            <div v-if="!loading && !thumbnailList.length" class="no-preview-img">
-              <no-more-resources />
-            </div>
-            <div class="preview-img-item" v-for="(thumbnail,index) in thumbnailList" :key="index">
-              <div class="preview-block" :style="{backgroundImage: 'url(' + thumbnail.contentUrl + ')' }" :data-img="thumbnail"></div>
-            </div>
-          </a-carousel>
-        </a-col>
-      </a-row>
-      <a-row :gutter="[8,8]">
-        <a-col class="right-detail" span="24">
-          <div class="detail-wrapper">
-            <div class="detail-block">
-              <div class="block-title">
-                {{ task.overview }}
-                <span class="title-icon">
-                  <a-tooltip>
-                    <template slot="title">
-                      Overview
-                    </template>
-                    <a-icon type="info-circle" />
-                  </a-tooltip>
-                </span>
-              </div>
-              <div class="block-content">
-                <div class="content-list" v-if="task.customTags && task.customTags.length">
-                  <div class="label">
-                    Customized tags
-                  </div>
-                  <div class="content-sub-list">
-                    <div class="content-sub-item" v-for="(customTag, kIndex) in task.customTags" :key="kIndex">
-                      <div class="sub-title">
-                        <a-tag :color="tagColorList[kIndex % tagColorList.length]">
-                          {{ customTag.name }}
-                        </a-tag>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
+          <div class="session-btn-text">Remove</div>
+        </div>
+        <div class="session-btn" @click.stop="">
+          <div class="session-btn-icon content-list-action-btn">
+            <a-icon type="eye" theme="filled" />
           </div>
-        </a-col>
-      </a-row>
-    </template>
+          <div class="session-btn-text">Preview</div>
+        </div>
+      </div>
+    </div>
+    <div class='sub-task-name'> {{ task.name }}</div>
   </div>
 </template>
 
 <script>
 import * as logger from '@/utils/logger'
 import NoMoreResources from '@/components/Common/NoMoreResources'
+import Bianji from '@/assets/icons/common/Bianji.svg?inline'
 
 export default {
   name: 'TaskPreview',
-  components: { NoMoreResources },
+  components: { NoMoreResources, Bianji },
   props: {
     taskData: {
       type: Object,
@@ -124,7 +68,6 @@ export default {
   },
   methods: {
     loadTaskData () {
-      this.loading = true
       logger.info('TaskPreview exist taskData ', this.taskData)
       this.rawSubTaskData = this.taskData
       this.task = this.taskData.subTask
@@ -135,7 +78,6 @@ export default {
       })
       // 按照选择的ppt 去加载对应的tag标签
       this.getClassPptCustomTags()
-      this.loading = false
     },
     getClassPptCustomTags() {
       const pageIds = this.taskData.selectPageObjectIds
@@ -187,225 +129,129 @@ export default {
 @import "~@/components/index.less";
 
 .task-preview {
-  border: 1px solid #fff;
+  width: 210px;
+  height: 180px;
+  position: relative;
+  border-radius: 4px;
+  overflow: hidden;
   box-shadow: 0px 3px 3px rgba(0, 0, 0, 0.16);
 
+  .mask {
+    z-index: 100;
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #0A1C32;
+    transition: opacity 0.8s;
+    cursor: pointer;
+    opacity: 0;
+    border-radius: 4px;
+  }
+
   &:hover {
-    border: 1px solid #f9f9f9;
+    .mask {
+      opacity: 0.3;
+    }
+
+    .mask-actions {
+      display: flex;
+    }
   }
 
-  .top-header {
+  .sub-task-item {
+    z-index: 50;
+    cursor: pointer;
     position: relative;
-    color: rgba(0, 0, 0, 0.65);
-    background: #fff;
-    border-radius: 2px 2px 0 0;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    width: 210px;
+    height: 150px;
 
-    .title {
-      font-weight: bold;
-      font-weight: 16px;
-    }
-
-    .last-change-time {
-      font-size: 12px;
-      color: @text-color-secondary;
+    &:hover {
+      .task-action {
+        opacity: 1;
+      }
     }
   }
 
-  .top-info {
+  .sub-task-name {
+    user-select: none;
+    z-index: 50;
+    width: 100%;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    word-break: break-all;
+    background: #ffffff11;
+    color: #fff;
+    overflow: hidden;
+    color: rgba(0, 0, 0, 0.85);
+    font-weight: 500;
+    line-height: 30px;
+    font-size: 13px;
+    padding: 0 5px;
   }
 
-  .left-preview {
+  .mask-actions{
+    z-index: 150;
+    top: 100px;
     height: 100%;
-
-    .ant-carousel {
-
-      /deep/ .slick-list {
-        border: 1px solid #eee;
-        box-shadow: 0 4px 8px 0 rgba(31, 33, 44, 10%);
-      }
-
-      /deep/ .slick-slide {
-        text-align: center;
-        height: 200px;
-        line-height: 200px;
-        overflow: hidden;
-      }
-
-      /deep/ .custom-slick-arrow {
-        width: 25px;
-        height: 25px;
-        font-size: 25px;
-        color: #fff;
-        background-color: rgba(31, 45, 61, 0.81);
-        opacity: 0.1;
-        border-radius: 50%;
-        transition: all 0.3s ease-in;
-      }
-
-      &:hover {
-        /deep/ .custom-slick-arrow {
-          opacity: 0.3;
-        }
-      }
-
-      /deep/ .custom-slick-arrow:before {
-        display: none;
-      }
-
-      /deep/ .custom-slick-arrow:hover {
-        opacity: 0.3;
-      }
-
-      /deep/ .slick-slide h3 {
-        color: #fff;
-      }
-
-      /deep/ .no-preview-img {
-        padding: 20px;
-        .description {
-        }
-      }
-
-      /deep/ .preview-img-item {
-        .preview-block {
-          height: 200px;
-          background-position: center;
-          background-size: cover;
-        }
-      }
-    }
-
-    .edit-action {
-      margin-top: 20px;
-    }
-  }
-
-  .right-detail {
-    .detail-wrapper {
-      position: relative;
-      .detail-block {
-        margin-bottom: 10px;
-
-        .block-title {
-          font-weight: 700;
-          font-size: 14px;
-          padding: 10px 90px 10px 10px;
-          background-color: #fafafa;
-
-          audio {
-            height: 30px;
-            outline: none;
-          }
-          .title-icon {
-            font-size: 14px;
-            font-weight: normal;
-            color: @text-color-secondary;
+    width: 100%;
+    position: absolute;
+    flex-direction: column;
+    display: none;
+    .action-item-bottom{
+      cursor: pointer;
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      justify-content: space-around;
+      .session-btn {
+        height: 33px;
+        width: auto;
+        display: flex;
+        border-radius: 32px;
+        flex-direction: row;
+        align-items: center;
+        justify-content: center;
+        padding: 6px 10px;
+        transition: all 0.3s ease-in-out;
+        background: rgba(245, 245, 245, 1);
+        box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.16);
+        opacity: 1;
+        border: 1px solid rgba(188, 188, 188, 1);
+        .session-btn-icon {
+          display: flex;
+          flex-direction: row;
+          align-items: center;
+          justify-content: center;
+          font-size: 13px;
+          svg {
+            height: 14px;
+            fill: #182552;
+            stroke: #182552;
+            stroke-width: 0.5px;
           }
         }
 
-        .block-content {
-          .cover {
-            img {
-              height: 150px;
-            }
-          }
-          .content-list {
-            .label {
-              font-weight: 500;
-              padding: 5px 10px;
-              font-size: 15px;
-            }
-            .content-item {
-              margin-bottom: 10px;
-              .question {
-                padding-bottom: 5px;
-                font-size: 14px;
-                font-weight: 500;
-              }
-              .tags {
-                display: flex;
-                flex-direction: row;
-                flex-wrap: wrap;
-                padding-bottom: 10px;
+        .session-btn-text {
+          transition: all 0.3s ease-in-out;
+          display: none;
+          font-size: 13px;
+          padding-left: 7px;
+          font-family: Inter-Bold;
+          color: #182552;
+        }
+      }
 
-                .tag-label {
-                  font-weight: bold;
-                  padding-right: 10px;
-                }
-
-                .tag-item {
-                  font-size: 16px;
-                  margin-right: 5px;
-                  margin-bottom: 5px;
-                  overflow: hidden;
-                  text-overflow: ellipsis;
-                  word-break: break-all;
-                  white-space: nowrap;
-                }
-              }
-
-              .content-sub-list {
-                padding: 10px 0;
-                background-color: #f9f9f9;
-                margin-bottom: 10px;
-                display: flex;
-                flex-direction: row;
-                align-items: center;
-                flex-wrap: wrap;
-                .content-sub-item {
-                  margin: 0 10px 10px 0;
-                }
-              }
-            }
-          }
+      .session-btn:hover {
+        .session-btn-text {
+          display: inline-block;
         }
       }
     }
-  }
-
-  .bottom-relative {
-
-    .type-button {
-      width: 100px;
-    }
-
-    /deep/ .left-button {
-      border-radius: 16px 0 0 16px;
-    }
-
-    /deep/ .right-button {
-      border-radius: 0 16px 16px 0 ;
-    }
-  }
-}
-
-.content-sub-list {
-  padding: 10px 10px 0 10px;
-  width: 100%;
-  flex-wrap: wrap;
-  background-color: #f9f9f9;
-  margin-bottom: 10px;
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  .content-sub-item {
-    margin: 0 10px 10px 0;
-    .ant-tag {
-      border-radius: 8px;
-    }
-  }
-}
-
-.delete-icon {
-  position: absolute;
-  right: 10px;
-  top: 0;
-  cursor: pointer;
-  color: #D01919;
-  background: #fff;
-
-  img {
-    width: 35px;
   }
 }
 </style>

@@ -653,8 +653,7 @@ export default {
     handleRemoveMaterialItem(item, index) {
       this.form.materialList = this.form.materialList.filter((it, idx) => idx !== index)
       this.$logger.info('handleRemoveMaterialItem ', this.form.materialList)
-    },
-
+    }
   }
 }
 </script>
@@ -1344,7 +1343,6 @@ export default {
 .classcipe-btn {
   line-height: 20px;
 }
-
 
 .material-list {
   margin-top: 10px;
