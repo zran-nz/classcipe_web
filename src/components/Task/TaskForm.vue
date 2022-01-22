@@ -428,7 +428,6 @@ export default {
         this.form.selectPageObjectIds = []
         this.form.learnOuts = []
         this.form.materialList = []
-
       } else {
         this.$message.warn('Please pick slide(s)')
       }

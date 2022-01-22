@@ -547,7 +547,7 @@
                                 <task-preview :task-data='task' :class-items-list="itemsList" @delete-sub-task='handleDeleteSubTask' />
                               </div>
                             </div>
-                            <div class='sub-task-save'  v-show='subTasks.length'>
+                            <div class='sub-task-save' v-show='subTasks.length'>
                               <div class='sub-task-save-action'>
                                 <a-space v-show='subTasks.length'>
                                   <a-button
@@ -1672,7 +1672,7 @@
 import * as logger from '@/utils/logger'
 import ContentTypeIcon from '@/components/Teacher/ContentTypeIcon'
 import { typeMap } from '@/const/teacher'
-import { Associate, Duplicate, FindSourceOutcomes, GetAssociate, GetMyGrades, GetReferOutcomes } from '@/api/teacher'
+import { Associate, FindSourceOutcomes, GetAssociate, GetMyGrades, GetReferOutcomes } from '@/api/teacher'
 import InputSearch from '@/components/UnitPlan/InputSearch'
 import SdgTagInput from '@/components/UnitPlan/SdgTagInput'
 import SkillTag from '@/components/UnitPlan/SkillTag'
@@ -2705,7 +2705,7 @@ export default {
     },
 
     handleDeleteSubTask(data) {
-      this.$logger.info('handleDeleteSubTask data', data)
+      this.$logger.info('handleDeleteSubTask data', data, this.subTasks)
       this.subTasks = this.subTasks.filter(item => item._uid !== data._uid)
     },
     handleStartCollaborate() {
