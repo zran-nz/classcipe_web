@@ -62,6 +62,7 @@ import SchoolUserTeacherAdd from './SchoolUserTeacherAdd.vue'
 import { getSchoolRoleList, getSchoolGroupList, getSchoolClassList, getSchoolUsers } from '@/api/schoolUser'
 import store from '@/store'
 import { schoolUserStatusMap } from '@/const/schoolUser'
+import Moment from 'moment'
 
 const columns = [
   {
@@ -106,8 +107,15 @@ const columns = [
   },
   {
     title: 'Date of join',
-    dataIndex: '',
-    key: 'jointime'
+    dataIndex: 'userInfo.schoolJoinDate',
+    customRender: (text, row, index) => {
+      if (text) {
+        return Moment(text).format('YYYY-MM-DD')
+      } else {
+        return ''
+      }
+    },
+    key: 'joinDate'
   },
   {
     title: 'Status',

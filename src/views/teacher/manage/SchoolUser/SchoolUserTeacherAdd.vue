@@ -101,7 +101,7 @@
           <a-row>
             <a-col :span="12">
               <a-form-item label="Date of joining">
-                <a-date-picker v-decorator="['dateOfJoining', { rules: [] }]" />
+                <a-date-picker v-decorator="['schoolJoinDate', { rules: [] }]" />
               </a-form-item>
             </a-col>
           </a-row>
@@ -224,8 +224,8 @@ export default {
             avatar: this.avatar,
             ...values
           }
-          if (values.dateOfJoining) {
-            params.dateOfJoining = String(Moment(values.dateOfJoining).valueOf())
+          if (values.schoolJoinDate) {
+            params.schoolJoinDate = Moment(values.schoolJoinDate).valueOf()
           }
           const res = await addStaff(params)
           if (res.success) {
