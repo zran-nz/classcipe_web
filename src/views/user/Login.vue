@@ -8,7 +8,7 @@
             <div><img src="~@/assets/logo/Lasscipe-dark.png" class="name" /></div> -->
             <div class="desc">Sign In</div>
             <div class="desc2">
-              Don't have an account? | <span><router-link :to="{ path: '/user/register' }">Sign Up</router-link></span>
+              Don't have an account? | <span><router-link :to="{ path: registerPath }">Sign Up</router-link></span>
             </div>
           </div>
 
@@ -35,7 +35,7 @@
             <div><img src="~@/assets/logo/Lasscipe-dark.png" class="name" /></div> -->
             <div class="desc">Sign In</div>
             <div class="desc2">
-              Don't have an account? | <span><router-link :to="{ path: '/user/register' }">Sign Up</router-link></span>
+              Don't have an account? | <span><router-link :to="{ path: registerPath }">Sign Up</router-link></span>
             </div>
           </div>
           <a-form :form="form" class="login-form" @submit="handleSubmit">
@@ -128,7 +128,9 @@ export default {
       // isLoginError: false,
       // requiredTwoStepCaptcha: false,
       // stepCaptchaVisible: false,
-      form: this.$form.createForm(this)
+      form: this.$form.createForm(this),
+      registerPath: '/user/register',
+      inviteCode: ''
       // state: {
       //   time: 60,
       //   loginBtn: false,
@@ -141,6 +143,11 @@ export default {
   created() {
     const paramSearch = new URLSearchParams(window.location.search)
     const role = paramSearch.get('role')
+    const inviteCode = paramSearch.get('inviteCode')
+    if (inviteCode) {
+      this.inviteCode = inviteCode
+      this.registerPath = `/user/register?inviteCode=${inviteCode}`
+    }
     if (role) {
       this.defaultActiveKey = role
     }
@@ -151,7 +158,11 @@ export default {
     thirdSignIn(source, role) {
       console.log('thirdSignIn', source)
       let url = getThirdAuthURL(source)
-      url += `?role=${role}&callbackUrl=`
+      url += `?role=${role}`
+      if (this.inviteCode) {
+        url += `&inviteCode=${this.inviteCode}`
+      }
+      url += `&callbackUrl=`
       url += thirdAuthCallbackUrl
       console.log('full auth url ', url)
       window.location.href = url
@@ -184,11 +195,14 @@ export default {
         if (!err) {
           this.loading = true
           console.log('login form', values)
-          // loginParams.password = md5(values.password)
-          Login({
+          const loginParams = {
             username: values.email,
             password: values.password
-          })
+          }
+          if (this.inviteCode) {
+            loginParams.inviteCode = this.inviteCode
+          }
+          Login(loginParams)
             .then(res => this.loginSuccess(res))
             .catch(err => this.requestFailed(err))
             .finally(() => {
@@ -322,7 +336,7 @@ export default {
         border-radius: 8px;
       }
     }
-    .or{
+    .or {
       margin: 10px 0px;
     }
     .third-login-wrapper {
