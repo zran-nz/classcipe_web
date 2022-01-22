@@ -52,7 +52,7 @@
       :roleList="roleList"
       :groupList="groupList"
       :classList="classList"
-      @ok="loadDate"
+      @ok="loadData"
     />
   </div>
 </template>
@@ -156,7 +156,7 @@ export default {
     }
   },
   created() {
-    this.loadDate()
+    this.loadData()
     this.loadRoleList()
     this.loadGroupList()
     this.loadClassList()
@@ -181,7 +181,7 @@ export default {
       })
       this.classList = res?.result?.records || []
     },
-    async loadDate() {
+    async loadData() {
       this.loading = true
       const res = await getSchoolUsers({
         school: store.getters.userInfo.school,
@@ -200,7 +200,7 @@ export default {
       const pager = { ...this.pagination }
       pager.current = pagination.current
       this.pagination = pager
-      this.loadDate()
+      this.loadData()
     },
     handleEdit(p) {
       console.log(p)
