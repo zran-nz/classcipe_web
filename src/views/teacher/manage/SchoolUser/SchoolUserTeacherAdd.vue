@@ -10,8 +10,13 @@
       @cancel="handleCancel"
       cancelText="Cancel"
       okText="Add"
+      v-show="currentView === 'add'"
     >
       <a-spin :spinning="confirmLoading">
+        <div class="invite-enter-btn">
+          <a-button @click="handleInviteEnterBtn" type="primary">Invite by link<a-icon type="share-alt" /></a-button>
+        </div>
+
         <a-form :form="form" :label-col="{ span: 6 }" :wrapper-col="{ span: 16 }">
           <a-row>
             <a-col :span="12">
@@ -124,13 +129,42 @@
         </a-form>
       </a-spin>
     </j-modal>
+
+    <a-modal title="Invite by link" @cancel="handleInviteBackBtn" :footer="null" :visible="currentView === 'invite'">
+      <div class="invite">
+        <div class="invite-back-btn">
+          <a-button @click="handleInviteBackBtn" type="primary" icon="left">Back</a-button>
+        </div>
+        <a-spin :spinning="inviteLoading">
+          <div class="invite-link">
+            <a-row>
+              <a-col :span="18">
+                <a-input :value="inviteUrl" disabled> </a-input>
+              </a-col>
+              <a-col :span="4">
+                <a-button icon="copy" @click="onCopy"> Copy </a-button>
+              </a-col>
+            </a-row>
+          </div>
+          <div class="invite-checkbox">
+            <a-checkbox :checked="inviteCheckBoxChecked" @change="onInviteCheckBoxChange">
+              Applicants with this link will need your approval to join your school community
+            </a-checkbox>
+          </div>
+          <div class="invite-reset-btn">
+            <a-button @click="handleInviteResetBtn" type="primary" icon="sync" :loading="resetLoading">Reset</a-button>
+          </div>
+        </a-spin>
+      </div>
+    </a-modal>
+
     <avatar-modal ref="modal" @ok="setAvatar" />
   </a-card>
 </template>
 
 <script>
 import JModal from '@/components/jeecg/JModal'
-import { addStaff } from '@/api/schoolUser'
+import { addStaff, getOrCreateInvite } from '@/api/schoolUser'
 import store from '@/store'
 import * as logger from '@/utils/logger'
 import AvatarModal from '@/views/account/settings/AvatarModal'
@@ -165,7 +199,12 @@ export default {
       confirmLoading: false,
       uploadLoading: false,
       form: this.$form.createForm(this, { name: 'teacherAdd' }),
-      avatar: undefined
+      avatar: undefined,
+      currentView: 'add',
+      inviteCheckBoxChecked: true,
+      inviteUrl: '',
+      resetLoading: false,
+      inviteLoading: false
     }
   },
   created() {},
@@ -173,6 +212,7 @@ export default {
   methods: {
     show() {
       this.visible = true
+      this.currentView = 'add'
     },
     handleOk() {
       this.form.validateFields(async (err, values) => {
@@ -230,6 +270,39 @@ export default {
     setAvatar(url) {
       logger.info('setAvatar ' + url)
       this.avatar = url
+    },
+    async getInviteUrl(needRefresh) {
+      const res = await getOrCreateInvite({
+        schoolId: store.getters.userInfo.school,
+        role: 2,
+        need_approve: this.inviteCheckBoxChecked ? 1 : 0,
+        need_refresh: needRefresh
+      })
+      if (res?.success) {
+        this.inviteUrl = 'https://my.classcipe.com/user/login?role=teacher&inviteCode=' + res?.result?.inviteCode
+      }
+    },
+    async handleInviteEnterBtn() {
+      this.currentView = 'invite'
+      this.inviteLoading = true
+      await this.getInviteUrl(0)
+      this.inviteLoading = false
+    },
+    async handleInviteResetBtn() {
+      this.resetLoading = true
+      await this.getInviteUrl(1)
+      this.resetLoading = false
+    },
+    handleInviteBackBtn() {
+      this.currentView = 'add'
+    },
+    onInviteCheckBoxChange(e) {
+      this.inviteCheckBoxChecked = e.target.checked
+    },
+    onCopy() {
+      navigator.clipboard.writeText(this.inviteUrl).then(() => {
+        this.$message.success('copy success!')
+      })
     }
   }
 }
@@ -240,6 +313,16 @@ export default {
 }
 </style>
 <style lang="less" scoped>
+.invite-enter-btn {
+  text-align: right;
+  margin-bottom: 16px;
+}
+.invite-back-btn,
+.invite-link,
+.invite-checkbox,
+.invite-reset-btn {
+  margin-bottom: 16px;
+}
 .avatar-img img {
   max-width: 200px;
 }
