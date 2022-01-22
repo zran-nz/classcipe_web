@@ -2054,9 +2054,6 @@ export default {
 
     // library浏览learning outcome时，修改了grade，需要更新表单中的grade
     LibraryEventBus.$on(LibraryEvent.GradeUpdate, this.handleGradeUpdate)
-
-    // 重置协同消息提醒数据
-    this.$store.getters.vueSocket.sendAction('receiveSaveContentMsg', '')
   },
   beforeDestroy() {
     MyContentEventBus.$off(MyContentEvent.LinkToMyContentItem, this.handleLinkMyContent)
@@ -2207,7 +2204,7 @@ export default {
 
     handleSaveTask() {
       logger.info('handleSaveTask', this.form, this.questionDataObj)
-
+      this.cleaPageCache()
       const taskData = Object.assign({}, this.form)
       if (this.rangeDate.length === 2) {
         const startDate = this.rangeDate[0].clone()

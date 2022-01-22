@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <a-card :bordered="false">
     <div class="operator">
       <a-button @click="handleAdd" type="primary" icon="plus">Add</a-button>
       <!-- <a-button type="primary" icon="download" @click="downloadTemplate">Download template</a-button>
@@ -9,7 +9,7 @@
     </div>
     <a-table
       :columns="columns"
-      :data-source="groupList"
+      :data-source="classList"
       :loading="loading"
       :pagination="pagination"
       @change="handleTableChange"
@@ -43,34 +43,50 @@
       </span>
     </a-table>
 
-    <SchoolUserGroupAdd ref="modalForm" @ok="loadData" />
-  </div>
+    <ClassAdd ref="modalForm" @ok="loadData" />
+  </a-card>
 </template>
 
 <script>
-import SchoolUserGroupAdd from './SchoolUserGroupAdd.vue'
-import { getSchoolGroupList } from '@/api/schoolUser'
+import ClassAdd from './ClassAdd.vue'
+
+import { getSchoolClassList } from '@/api/schoolUser'
 import store from '@/store'
 const columns = [
   {
-    title: 'Name',
+    title: 'Class Name',
     dataIndex: 'name',
     key: 'name'
   },
   {
-    title: 'Members',
-    dataIndex: '',
-    key: 'members'
+    title: 'Class Type',
+    dataIndex: 'classType',
+    key: 'type'
   },
   {
-    title: 'Group type',
-    dataIndex: 'groupType',
-    key: 'groupType'
+    title: 'Teacher',
+    dataIndex: 'headTeacherName',
+    key: 'teacher'
   },
   {
-    title: 'Advisor',
+    title: 'Students No.',
     dataIndex: '',
-    key: 'advisor'
+    key: 'studentsNo'
+  },
+  {
+    title: 'Subject',
+    dataIndex: 'subject',
+    key: 'subject'
+  },
+  {
+    title: 'Grade',
+    dataIndex: 'gradeName',
+    key: 'grade'
+  },
+  {
+    title: 'Creat date',
+    dataIndex: 'createTime',
+    key: 'date'
   },
   {
     title: 'Action',
@@ -81,14 +97,14 @@ const columns = [
   }
 ]
 export default {
-  name: 'SchoolUserGroup',
+  name: 'Class',
   mixins: [],
   components: {
-    SchoolUserGroupAdd
+    ClassAdd
   },
   data() {
     return {
-      groupList: [],
+      classList: [],
       columns,
       loading: false,
       pagination: {
@@ -105,10 +121,10 @@ export default {
   methods: {
     async loadData() {
       this.loading = true
-      const res = await getSchoolGroupList({
+      const res = await getSchoolClassList({
         schoolId: store.getters.userInfo.school
       })
-      this.groupList = res?.result?.records || []
+      this.classList = res?.result?.records || []
       this.loading = false
     },
     handleTableChange(pagination) {
@@ -118,7 +134,7 @@ export default {
       this.loadData()
     },
     handleAdd: function() {
-      this.$refs.modalForm.title = 'Add Group'
+      this.$refs.modalForm.title = 'Add Class'
       this.$refs.modalForm.mode = 'add'
       this.$refs.modalForm.defaultData = {}
       this.$refs.modalForm.show()

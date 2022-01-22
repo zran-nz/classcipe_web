@@ -4,7 +4,7 @@ export default {
   'teacher.add-task.publish-success': 'Publish successfully',
   'teacher.add-task.save': 'Save',
   'teacher.add-task.save-success': 'Save successfully',
-  'teacher.add-task.last-change-saved-at-time': 'last saved at {time}',
+  'teacher.add-task.last-change-saved-at-time': 'Last saved at {time}',
   'teacher.add-task.default-task-name': 'Unnamed task',
   'teacher.add-task.task': 'Task',
   'teacher.add-task.material': 'Material',
