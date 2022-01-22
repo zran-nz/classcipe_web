@@ -2200,7 +2200,7 @@ export default {
 
     handleSaveTask() {
       logger.info('handleSaveTask', this.form, this.questionDataObj)
-
+      this.cleaPageCache()
       const taskData = Object.assign({}, this.form)
       if (this.rangeDate.length === 2) {
         const startDate = this.rangeDate[0].clone()

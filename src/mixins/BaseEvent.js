@@ -3,6 +3,7 @@ import { COLLABORATE, SAVE_CONTENT } from '@/websocket/cmd'
 import CollborateMsg from '@/websocket/model/collborateMsg'
 import SaveContentMsg from '@/websocket/model/saveContentMsg'
 import { isEqualWith } from 'lodash-es'
+import { SESSION_CURRENT_PAGE, SESSION_CURRENT_TYPE, SESSION_CURRENT_TYPE_LABEL } from '@/const/common'
 
 export const RightModule = {
   'collaborate': 1,
@@ -187,6 +188,12 @@ export const BaseEventMixin = {
     handleCancelComment() {
       this.resetRightModuleVisible()
       this.currentFieldName = ''
+    },
+    cleaPageCache() {
+      // del cache
+      sessionStorage.removeItem(SESSION_CURRENT_PAGE)
+      sessionStorage.removeItem(SESSION_CURRENT_TYPE_LABEL)
+      sessionStorage.removeItem(SESSION_CURRENT_TYPE)
     }
   }
 

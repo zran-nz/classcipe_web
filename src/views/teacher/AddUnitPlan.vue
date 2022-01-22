@@ -1595,6 +1595,7 @@ export default {
 
     handleSaveUnitPlan() {
       logger.info('handleSaveUnitPlan', this.form, this.sdgDataObj, this.questionDataObj)
+      this.cleaPageCache()
       const unitPlanData = Object.assign({}, this.form)
       if (this.rangeDate.length === 2) {
         const startDate = this.rangeDate[0].clone()
