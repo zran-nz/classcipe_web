@@ -377,6 +377,7 @@ export default {
       const formData = JSON.parse(JSON.stringify(this.parentFormData))
       formData.id = null
       formData.selectPageObjectIds = []
+      formData.materialList = []
       formData.learnOuts = []
       formData.__taskId = '__taskId_' + this.taskPrefix
       formData.name = formData.name ? (formData.name + ' sub task' + this.taskNum) : 'sub task' + this.taskNum
@@ -419,13 +420,16 @@ export default {
         }
         logger.info('add-sub-task', taskData)
         this.$emit('add-sub-task', SubTaskData)
+        const formData = JSON.parse(JSON.stringify(this.parentFormData))
+        formData.id = null
+        this.form = formData
         this.form.name = ''
         this.form.overview = ''
         this.form.image = ''
         this.form.selectPageObjectIds = []
         this.form.learnOuts = []
+        this.form.materialList = []
 
-        this.initForm()
       } else {
         this.$message.warn('Please pick slide(s)')
       }
