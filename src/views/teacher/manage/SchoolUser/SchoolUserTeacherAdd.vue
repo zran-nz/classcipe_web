@@ -9,11 +9,11 @@
       @ok="handleOk"
       @cancel="handleCancel"
       cancelText="Cancel"
-      okText="Add"
+      :okText="mode === 'add' ? 'Add' : 'Save'"
       v-show="currentView === 'add'"
     >
       <a-spin :spinning="confirmLoading">
-        <div class="invite-enter-btn">
+        <div class="invite-enter-btn" v-show="mode === 'add'">
           <a-button @click="handleInviteEnterBtn" type="primary">Invite by link<a-icon type="share-alt" /></a-button>
         </div>
 
@@ -22,14 +22,26 @@
             <a-col :span="12">
               <a-form-item label="First Name">
                 <a-input
-                  v-decorator="['firstname', { rules: [{ required: true, message: 'Please input first name!' }] }]"
+                  v-decorator="[
+                    'firstname',
+                    {
+                      initialValue: getDefaultFormData.firstname,
+                      rules: [{ required: true, message: 'Please input first name!' }],
+                    },
+                  ]"
                 />
               </a-form-item>
             </a-col>
             <a-col :span="12">
               <a-form-item label="Last Name">
                 <a-input
-                  v-decorator="['lastname', { rules: [{ required: true, message: 'Please input last name!' }] }]"
+                  v-decorator="[
+                    'lastname',
+                    {
+                      initialValue: getDefaultFormData.lastname,
+                      rules: [{ required: true, message: 'Please input last name!' }],
+                    },
+                  ]"
                 />
               </a-form-item>
             </a-col>
@@ -40,14 +52,25 @@
                 <a-input
                   v-decorator="[
                     'email',
-                    { rules: [{ required: true, type: 'email', message: 'Please input email!' }] },
+                    {
+                      initialValue: getDefaultFormData.email,
+                      rules: [{ required: true, type: 'email', message: 'Please input email!' }],
+                    },
                   ]"
                 />
               </a-form-item>
             </a-col>
             <a-col :span="12">
               <a-form-item label="Role">
-                <a-select v-decorator="['roles', { rules: [{ required: true, message: 'Please select role!' }] }]">
+                <a-select
+                  v-decorator="[
+                    'roles',
+                    {
+                      initialValue: getDefaultFormData.roles,
+                      rules: [{ required: true, message: 'Please select role!' }],
+                    },
+                  ]"
+                >
                   <a-select-option :value="item.id" :key="item.id" v-for="item in roleList">{{
                     item.name
                   }}</a-select-option>
@@ -58,7 +81,7 @@
           <a-row>
             <a-col :span="12">
               <a-form-item label="Group">
-                <a-select v-decorator="['groups', { rules: [] }]">
+                <a-select v-decorator="['groups', { initialValue: getDefaultFormData.groups, rules: [] }]">
                   <a-select-option :value="item.id" :key="item.id" v-for="item in groupList">{{
                     item.name
                   }}</a-select-option>
@@ -67,7 +90,7 @@
             </a-col>
             <a-col :span="12">
               <a-form-item label="Class">
-                <a-select v-decorator="['classes', { rules: [] }]">
+                <a-select v-decorator="['classes', { initialValue: getDefaultFormData.classes, rules: [] }]">
                   <a-select-option :value="item.id" :key="item.id" v-for="item in classList">{{
                     item.name
                   }}</a-select-option>
@@ -78,7 +101,11 @@
           <a-row>
             <a-col :span="12">
               <a-form-item label="Grade">
-                <a-input v-decorator="['grades', { rules: [] }]" />
+                <a-select v-decorator="['grades', { initialValue: getDefaultFormData.grades, rules: [] }]">
+                  <a-select-option :value="item.id" :key="item.id" v-for="item in gradeList">{{
+                    item.name
+                  }}</a-select-option>
+                </a-select>
               </a-form-item>
             </a-col>
             <a-col :span="12">
@@ -87,7 +114,7 @@
                   v-decorator="[
                     'archived',
                     {
-                      initialValue: 0,
+                      initialValue: getDefaultFormData.archived,
                       rules: [],
                     },
                   ]"
@@ -101,7 +128,9 @@
           <a-row>
             <a-col :span="12">
               <a-form-item label="Date of joining">
-                <a-date-picker v-decorator="['schoolJoinDate', { rules: [] }]" />
+                <a-date-picker
+                  v-decorator="['schoolJoinDate', { initialValue: getDefaultFormData.schoolJoinDate, rules: [] }]"
+                />
               </a-form-item>
             </a-col>
           </a-row>
@@ -189,16 +218,22 @@ export default {
     classList: {
       type: Array,
       default: () => []
+    },
+    gradeList: {
+      type: Array,
+      default: () => []
     }
   },
   data() {
     return {
       title: 'Add Teacher',
+      mode: 'add',
       width: 800,
       visible: false,
       confirmLoading: false,
       uploadLoading: false,
       form: this.$form.createForm(this, { name: 'teacherAdd' }),
+      defaultData: {},
       avatar: undefined,
       currentView: 'add',
       inviteCheckBoxChecked: true,
@@ -208,7 +243,28 @@ export default {
     }
   },
   created() {},
-  computed: {},
+  watch: {
+    defaultData(value) {
+      this.avatar = value?.userInfo?.avatar
+    }
+  },
+  computed: {
+    getDefaultFormData() {
+      return {
+        firstname: this.defaultData?.userInfo?.firstname,
+        lastname: this.defaultData?.userInfo?.lastname,
+        email: this.defaultData?.userInfo?.email,
+        roles: this.defaultData?.roles?.[0]?.id,
+        groups: this.defaultData?.groups?.[0]?.id,
+        classes: this.defaultData?.classes?.[0]?.id,
+        grades: this.defaultData?.grades?.[0]?.id,
+        archived: this.defaultData?.userInfo?.schoolUserStatus === 4 ? 1 : 0,
+        schoolJoinDate: this.defaultData?.userInfo?.schoolJoinDate
+          ? Moment(this.defaultData?.userInfo?.schoolJoinDate)
+          : undefined
+      }
+    }
+  },
   methods: {
     show() {
       this.visible = true

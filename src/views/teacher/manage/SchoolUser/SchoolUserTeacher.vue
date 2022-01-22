@@ -8,6 +8,58 @@
       </a-upload>
     </div>
 
+    <div class="search-box">
+      <a-form :label-col="{ span: 6 }" :wrapper-col="{ span: 16 }">
+        <a-row>
+          <a-col :span="6">
+            <a-form-item label="Status">
+              <a-select v-decorator="['status', { rules: [] }]">
+                <a-select-option :value="item.id" :key="item.id" v-for="item in statusList">{{
+                  item.name
+                }}</a-select-option>
+              </a-select>
+            </a-form-item>
+          </a-col>
+          <a-col :span="6">
+            <a-form-item label="Groups">
+              <a-select v-decorator="['groups', { rules: [] }]">
+                <a-select-option :value="item.id" :key="item.id" v-for="item in groupList">{{
+                  item.name
+                }}</a-select-option>
+              </a-select>
+            </a-form-item>
+          </a-col>
+          <a-col :span="6">
+            <a-form-item label="Role">
+              <a-select v-decorator="['roles', { rules: [] }]">
+                <a-select-option :value="item.id" :key="item.id" v-for="item in roleList">{{
+                  item.name
+                }}</a-select-option>
+              </a-select>
+            </a-form-item>
+          </a-col>
+          <a-col :span="6">
+            <a-form-item label="Class">
+              <a-select v-decorator="['classes', { rules: [] }]">
+                <a-select-option :value="item.id" :key="item.id" v-for="item in classList">{{
+                  item.name
+                }}</a-select-option>
+              </a-select>
+            </a-form-item>
+          </a-col>
+          <a-col :span="6">
+            <a-form-item label="Grade">
+              <a-select v-decorator="['grades', { rules: [] }]">
+                <a-select-option :value="item.id" :key="item.id" v-for="item in gradeList">{{
+                  item.name
+                }}</a-select-option>
+              </a-select>
+            </a-form-item>
+          </a-col>
+        </a-row>
+      </a-form>
+    </div>
+
     <a-table
       :columns="columns"
       :data-source="teacherList"
@@ -52,6 +104,7 @@
       :roleList="roleList"
       :groupList="groupList"
       :classList="classList"
+      :gradeList="gradeList"
       @ok="loadData"
     />
   </div>
@@ -60,8 +113,9 @@
 <script>
 import SchoolUserTeacherAdd from './SchoolUserTeacherAdd.vue'
 import { getSchoolRoleList, getSchoolGroupList, getSchoolClassList, getSchoolUsers } from '@/api/schoolUser'
+import { getGradeListBySchoolId } from '@/api/grade'
 import store from '@/store'
-import { schoolUserStatusMap } from '@/const/schoolUser'
+import { schoolUserStatusList } from '@/const/schoolUser'
 import Moment from 'moment'
 
 const columns = [
@@ -121,7 +175,7 @@ const columns = [
     title: 'Status',
     dataIndex: 'userInfo.schoolUserStatus',
     customRender: (text, row, index) => {
-      return schoolUserStatusMap[text]
+      return schoolUserStatusList.find(item => item.id === text)?.name
     },
     key: 'status'
   },
@@ -141,9 +195,11 @@ export default {
   },
   data() {
     return {
+      statusList: schoolUserStatusList,
       roleList: [],
       groupList: [],
       classList: [],
+      gradeList: [],
       teacherList: [],
       columns,
       loading: false,
@@ -160,6 +216,7 @@ export default {
     this.loadRoleList()
     this.loadGroupList()
     this.loadClassList()
+    this.loadGradeList()
   },
   computed: {},
   methods: {
@@ -181,6 +238,12 @@ export default {
       })
       this.classList = res?.result?.records || []
     },
+    async loadGradeList() {
+      const res = await getGradeListBySchoolId({
+        schoolId: store.getters.userInfo.school
+      })
+      this.gradeList = res?.result || []
+    },
     async loadData() {
       this.loading = true
       const res = await getSchoolUsers({
@@ -193,7 +256,17 @@ export default {
       this.pagination.total = res?.result?.total
       this.loading = false
     },
+    handleEdit(data) {
+      console.log(data)
+      this.$refs.modalForm.title = 'Edit Teacher'
+      this.$refs.modalForm.mode = 'edit'
+      this.$refs.modalForm.defaultData = data
+      this.$refs.modalForm.show()
+    },
     handleAdd: function() {
+      this.$refs.modalForm.title = 'Add Teacher'
+      this.$refs.modalForm.mode = 'add'
+      this.$refs.modalForm.defaultData = {}
       this.$refs.modalForm.show()
     },
     handleTableChange(pagination) {
@@ -201,9 +274,6 @@ export default {
       pager.current = pagination.current
       this.pagination = pager
       this.loadData()
-    },
-    handleEdit(p) {
-      console.log(p)
     },
     downloadTemplate() {
       const link = document.createElement('a')
@@ -220,6 +290,7 @@ export default {
 </script>
 <style lang="less" scoped>
 .operator {
+  margin-bottom: 16px;
   button {
     margin-right: 8px;
   }

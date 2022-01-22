@@ -63,7 +63,7 @@ export default {
   display: flex;
   flex-direction: row;
   align-items: center;
-  margin-bottom: 8px;
+  margin-bottom: 16px;
   .toggle-mode-type-wrapper {
     width: 280px;
     box-sizing: border-box;
