@@ -1672,7 +1672,7 @@
 import * as logger from '@/utils/logger'
 import ContentTypeIcon from '@/components/Teacher/ContentTypeIcon'
 import { typeMap } from '@/const/teacher'
-import { Associate, FindSourceOutcomes, GetAssociate, GetMyGrades, GetReferOutcomes } from '@/api/teacher'
+import { Associate, Duplicate, FindSourceOutcomes, GetAssociate, GetMyGrades, GetReferOutcomes } from '@/api/teacher'
 import InputSearch from '@/components/UnitPlan/InputSearch'
 import SdgTagInput from '@/components/UnitPlan/SdgTagInput'
 import SkillTag from '@/components/UnitPlan/SkillTag'
@@ -3151,12 +3151,14 @@ export default {
     },
 
     onChangeStep(current) {
-      console.log('onChange: setSessionStep', current)
+      console.log('onChange: setSessionStep', current, 'currentActiveStepIndex', this.currentActiveStepIndex)
+
       if (typeof current === 'number') {
         this.setSessionStep(current)
         if (this.recommendTemplateList.length === 0) {
           this.loadRecommendThumbnail()
         }
+
         setTimeout(function() {
           const returnEle = document.querySelector('.ant-layout-content')
           if (returnEle) {
