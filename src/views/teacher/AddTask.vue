@@ -2054,9 +2054,6 @@ export default {
 
     // library浏览learning outcome时，修改了grade，需要更新表单中的grade
     LibraryEventBus.$on(LibraryEvent.GradeUpdate, this.handleGradeUpdate)
-
-    // 重置协同消息提醒数据
-    this.$store.getters.vueSocket.sendAction('receiveSaveContentMsg', '')
   },
   beforeDestroy() {
     MyContentEventBus.$off(MyContentEvent.LinkToMyContentItem, this.handleLinkMyContent)

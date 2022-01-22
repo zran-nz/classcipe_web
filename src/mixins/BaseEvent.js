@@ -40,6 +40,8 @@ export const BaseEventMixin = {
       this.resetWidth()
     }
     window.addEventListener('beforeunload', (e) => this.beforeunloadHandler(e))
+    // 重置协同消息提醒数据
+    this.$store.getters.vueSocket.sendAction('receiveSaveContentMsg', '')
   },
   destroyed () {
     window.removeEventListener('beforeunload', (e) => this.beforeunloadHandler(e))
@@ -73,6 +75,10 @@ export const BaseEventMixin = {
       const contentMsg = this.$store.state.websocket.saveContentMsg
       console.log(contentMsg)
       if (contentMsg && contentMsg.content.id === this.form.id) {
+        console.log(JSON.stringify(contentMsg.content.details))
+        // 默认updateTime和grade不更新
+        contentMsg.content.details.updateTime = this.oldForm.updateTime
+        contentMsg.content.details.gradeId = this.oldForm.gradeId
         if (contentMsg.hideUpdate) {
           return false
         } else if (!isEqualWith(contentMsg.content.details, this.oldForm)) {
