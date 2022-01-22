@@ -23,7 +23,10 @@ export const BaseEventMixin = {
       collaborate: {},
       initCompleted: false,
       updateContentVisible: false,
-      defaultHistoryKey: '1'
+      defaultHistoryKey: '1',
+      showCollaborateModalVisible: false,
+      collaborateContent: null,
+      currentFieldName: {}
     }
   },
   watch: {
@@ -183,6 +186,7 @@ export const BaseEventMixin = {
     // 取消comment
     handleCancelComment() {
       this.resetRightModuleVisible()
+      this.currentFieldName = ''
     }
   }
 

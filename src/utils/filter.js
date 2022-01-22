@@ -3,6 +3,7 @@ import moment from 'moment'
 import 'moment/locale/zh-cn'
 import storage from 'store'
 import { GRADE_COMMON } from '@/store/mutation-types'
+import { PlanFieldDisplayName, TaskFieldDisplayName } from '@/const/common'
 moment.locale(navigator.language)
 
 Vue.filter('NumberFormat', function (value) {
@@ -23,6 +24,22 @@ Vue.filter('dayjs', function (dataStr, pattern = 'YYYY-MM-DD HH:mm:ss') {
 Vue.filter('dayjs1', function (dataStr, pattern = 'LLL') {
   if (dataStr) {
     return moment.utc(dataStr).local().format(pattern)
+  }
+  return ''
+})
+
+Vue.filter('dayComment', function (dataStr, pattern = 'LLL') {
+  if (dataStr) {
+    const date = moment.utc(dataStr).local()
+    const currentDate = new Date()
+    // 五分钟以内
+    if (currentDate.getTime() - date.toDate().getTime() < 5 * 1000) {
+        return 'Just now'
+    } else if (currentDate.getTime() - date.toDate().getTime() < 24 * 60 * 60 * 100) {
+        return 'Today ' + date.format('LT')
+    } else {
+      return date.format(pattern)
+    }
   }
   return ''
 })
