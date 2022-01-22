@@ -964,7 +964,6 @@ export default {
 
         // 检查是否以及评估过了，有过评估数据不允许再评估。查找PeerEmail字段中是否有在currentUserGroupUserIdList中存在，有代表有过评估
         if (this.mode === EvaluationTableMode.PeerEvaluate) {
-
           if (this.currentActiveFormId) {
             this.allowPeerEvaluate = true
             this.allStudentUserIdList.forEach(studentId => {
@@ -1578,7 +1577,7 @@ export default {
 
     goEvaluatePage () {
       this.$logger.info('goEvaluatePage')
-      window.location.pathname = defaultStudentRouter
+      // window.location.pathname = defaultStudentRouter
     },
     handleSaveAndBackEvaluation () {
       this.$logger.info('handleSaveAndBackEvaluation', this.forms)

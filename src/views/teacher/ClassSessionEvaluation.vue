@@ -647,6 +647,7 @@ export default {
       isExistFormTable: false, // 是否已经添加过表格
       currentActiveFormId: null,
       form: { // 基础表单数据
+        id: null,
         classId: '',
         name: '',
         className: '',
@@ -673,6 +674,7 @@ export default {
         responseLimitTime: null, // 1638201600,
         copyFrom: null // null
       },
+      id: null,
       forms: [], // 评估表格数据
       oldFormsJson: null, // 保存旧的评估表格数据
       oldStudentEvaluationJson: null, // 保存旧的评估数据
@@ -845,6 +847,9 @@ export default {
         // 加载班级信息数据
         this.$logger.info('GetSessionEvaluationByClassId response', response.result)
         // 所有的学生id用于遍历构造学生评价数据 "对象"
+        if (response.result && response.result.evaluation && response.result.evaluation.id) {
+          this.id = response.result.evaluation.id
+        }
         const allGroupStudentUserIdList = []
 
         const data = response.result
@@ -1468,8 +1473,14 @@ export default {
               }
               return false
             } else {
+              if (this.id) {
+                this.form.id = this.id
+              }
               SaveSessionEvaluation(this.form).then((response) => {
                 this.$logger.info('SaveSessionEvaluation', response)
+                if (response.result && response.result.id) {
+                  this.id = response.result.id
+                }
                 this.$message.success('Save successfully!')
                 this.formSaving = false
               }).then(() => {
@@ -1483,6 +1494,9 @@ export default {
                 if (this.mode === EvaluationTableMode.TeacherEvaluate && currentForm && (currentForm.pe || currentForm.se)) {
                   GetSessionEvaluationByClassId({ classId: this.classId }).then(response => {
                     this.$logger.info('after SaveSessionEvaluation GetSessionEvaluationByClassId', response)
+                    if (response.result && response.result.evaluation && response.result.evaluation.id) {
+                      this.id = response.result.evaluation.id
+                    }
 
                     const data = response.result
                     if (data.evaluation && data.evaluation.studentEvaluateData) {
@@ -1571,8 +1585,14 @@ export default {
           }
           return false
         } else {
+          if (this.id) {
+            this.form.id = this.id
+          }
           SaveSessionEvaluation(this.form).then((response) => {
             this.$logger.info('SaveSessionEvaluation', response)
+            if (response.result && response.result.id) {
+              this.id = response.result.id
+            }
             this.$message.success('Save successfully!')
             this.formSaving = false
           }).then(() => {
@@ -1586,6 +1606,9 @@ export default {
             if (this.mode === EvaluationTableMode.TeacherEvaluate && currentForm && (currentForm.pe || currentForm.se)) {
               GetSessionEvaluationByClassId({ classId: this.classId }).then(response => {
                 this.$logger.info('after SaveSessionEvaluation GetSessionEvaluationByClassId', response)
+                if (response.result && response.result.evaluation && response.result.evaluation.id) {
+                  this.id = response.result.evaluation.id
+                }
 
                 const data = response.result
                 if (data.evaluation && data.evaluation.studentEvaluateData) {
@@ -1636,7 +1659,7 @@ export default {
     },
 
     goEvaluatePage () {
-      window.location.pathname = '/teacher/class-evaluation/' + this.taskId + '/' + this.classId + '/teacher-evaluate'
+      // window.location.pathname = '/teacher/class-evaluation/' + this.taskId + '/' + this.classId + '/teacher-evaluate'
     },
     handleSaveAndBackEvaluation () {
       this.$logger.info('handleSaveAndBackEvaluation', this.forms)
@@ -1683,8 +1706,14 @@ export default {
               this.formSaving = false
               return false
             } else {
+              if (this.id) {
+                this.form.id = this.id
+              }
               SaveSessionEvaluation(this.form).then((response) => {
                 this.$logger.info('SaveSessionEvaluation', response)
+                if (response.result && response.result.id) {
+                  this.id = response.result.id
+                }
                 if (response.success) {
                   this.$message.success('Save successfully!')
                   this.formSaving = false
@@ -1733,8 +1762,14 @@ export default {
           this.formSaving = false
           return false
         } else {
+          if (this.id) {
+            this.form.id = this.id
+          }
           SaveSessionEvaluation(this.form).then((response) => {
             this.$logger.info('SaveSessionEvaluation', response)
+            if (response.result && response.result.id) {
+              this.id = response.result.id
+            }
             if (response.success) {
               this.$message.success('Save successfully!')
               this.formSaving = false
@@ -1960,7 +1995,7 @@ export default {
             this.$confirm({
               content: 'Are you sure to switch to edit mode ?',
               onOk: () => {
-                window.location.pathname = '/teacher/class-evaluation/' + this.taskId + '/' + this.classId + '/edit'
+                // window.location.pathname = '/teacher/class-evaluation/' + this.taskId + '/' + this.classId + '/edit'
               }
             })
           } else {
