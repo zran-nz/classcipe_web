@@ -362,6 +362,7 @@
         border: 1px solid #f9f9f9;
       }
       .objectives-list-item {
+        background: #fff;
         width: 100%;
         opacity: 1;
         //border-radius: 4px;

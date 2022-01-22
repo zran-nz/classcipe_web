@@ -6,7 +6,7 @@ export const schoolUserAPIUrl = {
   getSchoolClassList: '/classcipe/api/school/class/list',
   addStaff: '/classcipe/api/school/user/addStaff',
   addStudent: '/classcipe/api/school/user/addStudents',
-  createInvite: '/classcipe/api/school/user/createInvite',
+  getOrCreateInvite: '/classcipe/api/school/user/getOrCreateInvite',
   getSchoolUsers: '/classcipe/api/school/user/getSchoolUsers',
   queryUser: '/classcipe/api/school/user/queryUser'
 }
@@ -51,9 +51,9 @@ export function addStudent (parameter) {
     params: parameter
   })
 }
-export function createInvite (parameter) {
+export function getOrCreateInvite (parameter) {
   return request({
-    url: schoolUserAPIUrl.createInvite,
+    url: schoolUserAPIUrl.getOrCreateInvite,
     method: 'post',
     params: parameter
   })
