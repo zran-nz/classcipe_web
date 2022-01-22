@@ -52,6 +52,8 @@
 import SchoolUserStudentAdd from './SchoolUserStudentAdd.vue'
 import { getSchoolClassList, getSchoolUsers } from '@/api/schoolUser'
 import store from '@/store'
+import { schoolUserStatusMap } from '@/const/schoolUser'
+
 const columns = [
   {
     title: 'ID',
@@ -102,8 +104,11 @@ const columns = [
   },
   {
     title: 'Status',
-    dataIndex: 'userInfo.status',
-    key: 'stauts'
+    dataIndex: 'userInfo.schoolUserStatus',
+    customRender: (text, row, index) => {
+      return schoolUserStatusMap[text]
+    },
+    key: 'status'
   },
   {
     title: 'Action',
