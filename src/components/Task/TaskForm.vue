@@ -90,8 +90,7 @@
                         <a-input
                           v-model='materialItem.name'
                           aria-placeholder='Enter material name'
-                          placeholder='Enter material name'
-                          @change="handleCollaborateEvent(taskId,taskField.MaterialList,form.materialList)"/>
+                          placeholder='Enter material name'/>
                       </a-col>
                       <a-col span='14'>
                         <a-tooltip placement='topLeft'>
@@ -102,8 +101,7 @@
                           <a-input
                             v-model='materialItem.link'
                             aria-placeholder='Enter URL'
-                            placeholder='Enter URL'
-                            @change="handleCollaborateEvent(taskId,taskField.MaterialList,form.materialList)" >
+                            placeholder='Enter URL' >
                             <a-icon slot='prefix' type='link' />
                           </a-input>
                         </a-tooltip>
@@ -423,6 +421,7 @@ export default {
         const formData = JSON.parse(JSON.stringify(this.parentFormData))
         formData.id = null
         this.form = formData
+        this.materialListFlag = false
         this.form.name = ''
         this.form.overview = ''
         this.form.image = ''
