@@ -520,7 +520,7 @@
                               </a-col>
                             </a-row>
                           </div>
-                          <template v-if='!selectedPageIdList.length'>
+                          <template v-if='!selectedPageIdList.length && !subTasks.length'>
                             <a-alert
                               message="Please pick slide(s)"
                               banner
@@ -531,7 +531,7 @@
                             <a-spin size='large' />
                           </div>
                           <div class='thumbnail-task-list'>
-                            <div class='thumbnail-task-item' v-if='currentTaskFormData' v-show='selectedPageIdList.length'>
+                            <div class='thumbnail-task-item' v-if='currentTaskFormData'>
                               <task-form
                                 :parent-form-data='currentTaskFormData'
                                 :select-ids='selectedPageIdList'
@@ -542,12 +542,12 @@
                                 @add-sub-task='handleAddSubTask'
                                 @select-task-type='handleSelectSubTaskType' />
                             </div>
-                            <div class='task-preview-list'>
-                              <div class='task-preview' v-for='(task, index) in subTasks' :key='index'>
+                            <div class='task-preview-list' v-show='subTasks.length'>
+                              <div class='task-preview-wrapper' v-for='(task, index) in subTasks' :key='index'>
                                 <task-preview :task-data='task' :class-items-list="itemsList" @delete-sub-task='handleDeleteSubTask' />
                               </div>
                             </div>
-                            <div class='sub-task-save'>
+                            <div class='sub-task-save' v-show='subTasks.length'>
                               <div class='sub-task-save-action'>
                                 <a-space v-show='subTasks.length'>
                                   <a-button
@@ -2702,7 +2702,7 @@ export default {
     },
 
     handleDeleteSubTask(data) {
-      this.$logger.info('handleDeleteSubTask data', data)
+      this.$logger.info('handleDeleteSubTask data', data, this.subTasks)
       this.subTasks = this.subTasks.filter(item => item._uid !== data._uid)
     },
     handleStartCollaborate() {
@@ -3148,12 +3148,14 @@ export default {
     },
 
     onChangeStep(current) {
-      console.log('onChange: setSessionStep', current)
+      console.log('onChange: setSessionStep', current, 'currentActiveStepIndex', this.currentActiveStepIndex)
+
       if (typeof current === 'number') {
         this.setSessionStep(current)
         if (this.recommendTemplateList.length === 0) {
           this.loadRecommendThumbnail()
         }
+
         setTimeout(function() {
           const returnEle = document.querySelector('.ant-layout-content')
           if (returnEle) {
@@ -4772,16 +4774,43 @@ export default {
   flex-direction: column;
 
   .task-preview-list {
+    margin-top: 20px;
     position: relative;
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    flex-wrap: nowrap;
+    overflow-y: hidden;
+    overflow-x: scroll;
+    background: #38cfa611;
+    padding: 10px 10px 5px 10px;
 
-    .task-preview {
-      padding: 5px;
+    &:hover {
+      &::-webkit-scrollbar {
+        opacity: 1;
+      }
     }
 
-    .task-delete {
-      position: absolute;
-      right: -30px;
-      top: 30%;
+    &::-webkit-scrollbar {
+      opacity: 0;
+      transition: opacity 0.2s ease-in-out;
+      width: 5px;
+      height: 5px;
+    }
+    &::-webkit-scrollbar-track {
+      border-radius: 3px;
+      background: rgba(0,0,0,0.00);
+      -webkit-box-shadow: inset 0 0 5px rgba(0,0,0,0.08);
+    }
+    /* 滚动条滑块 */
+    &::-webkit-scrollbar-thumb {
+      border-radius: 5px;
+      background: rgba(0,0,0,0.12);
+      -webkit-box-shadow: inset 0 0 10px rgba(0,0,0,0.04);
+    }
+
+    .task-preview-wrapper {
+      padding: 5px;
     }
   }
 }
@@ -6026,8 +6055,10 @@ export default {
 }
 
 .sub-task-save {
-  margin-top: 30px;
-  text-align: center;
+  padding-top: 10px;
+  padding-right: 10px;
+  text-align: right;
+  background: #38cfa611;
 
   .sub-task-save-action {
     height: 50px;

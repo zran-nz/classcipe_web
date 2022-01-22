@@ -566,7 +566,7 @@ import EvaluationTableMode from '@/components/Evaluation/EvaluationTableMode'
 import NoMoreResources from '@/components/Common/NoMoreResources'
 import PptSlideView from '@/components/Evaluation/PptSlideView'
 import { typeMap } from '@/const/teacher'
-import { defaultStudentRouter } from '@/config/router.config'
+// import { defaultStudentRouter } from '@/config/router.config'
 
 export default {
   name: 'StudentEvaluation',
