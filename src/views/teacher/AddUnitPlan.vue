@@ -1140,10 +1140,6 @@ export default {
       defaultActiveMenu: NavigationType.learningOutcomes,
       showMenuList: [NavigationType.specificSkills, NavigationType.centurySkills, NavigationType.learningOutcomes, NavigationType.assessmentType, NavigationType.idu],
 
-      showCollaborateModalVisible: false,
-      collaborateContent: null,
-      currentFieldName: {},
-
       // TODO mock数据待更新为接口请求（loadCollaborateData方法中的GetCollaborateComment)
       collaborateCommentList: [],
       currentCollaborateCommentList: [],

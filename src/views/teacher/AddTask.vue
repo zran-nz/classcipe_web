@@ -1899,9 +1899,6 @@ export default {
       NavigationType: NavigationType,
       showCollaborateCommentVisible: false,
 
-      showCollaborateModalVisible: false,
-      collaborateContent: null,
-      currentFieldName: {},
       // TODO mock数据待更新为接口请求（loadCollaborateData方法中的GetCollaborateComment)
       collaborateCommentList: [],
       currentCollaborateCommentList: [],
