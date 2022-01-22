@@ -15,7 +15,11 @@
       :pagination="pagination"
       @change="handleTableChange"
       :scroll="{ x: true }"
+      rowKey="id"
     >
+      <span slot="avatar" slot-scope="avatar">
+        <img :src="avatar" class="avatar-img" />
+      </span>
       <span slot="roles" slot-scope="roles">
         <span v-for="role in roles" :key="role.id">
           {{ role.name }}
@@ -42,15 +46,28 @@
         <a>Delete</a> -->
       </span>
     </a-table>
-    <SchoolUserTeacherAdd ref="modalForm" :roleList="roleList" :groupList="groupList" />
+
+    <SchoolUserTeacherAdd
+      ref="modalForm"
+      :roleList="roleList"
+      :groupList="groupList"
+      :classList="classList"
+      @ok="loadDate"
+    />
   </div>
 </template>
 
 <script>
 import SchoolUserTeacherAdd from './SchoolUserTeacherAdd.vue'
-import { getSchoolRoleList, getSchoolGroupList, getSchoolUsers } from '@/api/schoolUser'
+import { getSchoolRoleList, getSchoolGroupList, getSchoolClassList, getSchoolUsers } from '@/api/schoolUser'
 import store from '@/store'
 const columns = [
+  {
+    title: 'Picture',
+    dataIndex: 'userInfo.avatar',
+    scopedSlots: { customRender: 'avatar' },
+    key: 'avatar'
+  },
   {
     title: 'Name',
     dataIndex: 'userInfo.nickname',
@@ -92,7 +109,7 @@ const columns = [
   },
   {
     title: 'Status',
-    dataIndex: 'status',
+    dataIndex: 'userInfo.status',
     key: 'stauts'
   },
   {
@@ -113,6 +130,7 @@ export default {
     return {
       roleList: [],
       groupList: [],
+      classList: [],
       teacherList: [],
       columns,
       loading: false,
@@ -120,13 +138,15 @@ export default {
         pageSize: 20,
         current: 1,
         total: 0
-      }
+      },
+      baseUrl: process.env.VUE_APP_API_BASE_URL
     }
   },
   created() {
-    this.loadTeacherList()
+    this.loadDate()
     this.loadRoleList()
     this.loadGroupList()
+    this.loadClassList()
   },
   computed: {},
   methods: {
@@ -142,10 +162,17 @@ export default {
       })
       this.groupList = res?.result?.records || []
     },
-    async loadTeacherList() {
+    async loadClassList() {
+      const res = await getSchoolClassList({
+        schoolId: store.getters.userInfo.school
+      })
+      this.classList = res?.result?.records || []
+    },
+    async loadDate() {
       this.loading = true
       const res = await getSchoolUsers({
         school: store.getters.userInfo.school,
+        currentRole: 'teacher',
         pageSize: this.pagination.pageSize,
         pageNo: this.pagination.current
       })
@@ -160,7 +187,7 @@ export default {
       const pager = { ...this.pagination }
       pager.current = pagination.current
       this.pagination = pager
-      this.loadTeacherList()
+      this.loadDate()
     },
     handleEdit(p) {
       console.log(p)
@@ -183,5 +210,8 @@ export default {
   button {
     margin-right: 8px;
   }
+}
+.avatar-img {
+  width: 100px;
 }
 </style>

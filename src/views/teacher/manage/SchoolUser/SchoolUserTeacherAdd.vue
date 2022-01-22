@@ -62,57 +62,69 @@
             </a-col>
             <a-col :span="12">
               <a-form-item label="Class">
-                <a-input v-decorator="['classes', { rules: [{ required: true, message: 'Please input class!' }] }]" />
+                <a-select v-decorator="['classes', { rules: [] }]">
+                  <a-select-option :value="item.id" :key="item.id" v-for="item in classList">{{
+                    item.name
+                  }}</a-select-option>
+                </a-select>
               </a-form-item>
             </a-col>
           </a-row>
           <a-row>
             <a-col :span="12">
               <a-form-item label="Grade">
-                <a-input v-decorator="['grades', { rules: [{ required: true, message: 'Please input grade!' }] }]" />
+                <a-input v-decorator="['grades', { rules: [] }]" />
               </a-form-item>
             </a-col>
-            <!-- <a-col :span="12">
+            <a-col :span="12">
               <a-form-item label="Archived">
                 <a-select
-                  v-decorator="['archived', { rules: [{ required: true, message: 'Please select archived!' }] }]"
+                  v-decorator="[
+                    'archived',
+                    {
+                      initialValue: 0,
+                      rules: [],
+                    },
+                  ]"
                 >
-                  <a-select-option value="male"> male </a-select-option>
+                  <a-select-option :value="1"> True </a-select-option>
+                  <a-select-option :value="0"> False </a-select-option>
                 </a-select>
               </a-form-item>
-            </a-col> -->
+            </a-col>
           </a-row>
-          <!-- <a-row>
+          <a-row>
             <a-col :span="12">
               <a-form-item label="Date of joining">
-                <a-input v-decorator="['grade', { rules: [{ required: true, message: 'Please input grade!' }] }]" />
+                <a-date-picker v-decorator="['dateOfJoining', { rules: [] }]" />
               </a-form-item>
             </a-col>
-          </a-row> -->
-          <!-- <a-row>
+          </a-row>
+          <a-row>
             <a-col :span="12">
               <a-form-item label="Picture">
-                <a-upload
-                  name="avatar"
-                  list-type="picture-card"
-                  class="avatar-uploader"
-                  :show-upload-list="false"
-                  action="https://www.mocky.io/v2/5cc8019d300000980a055e76"
-                  :before-upload="beforeUpload"
-                  @change="handleChange"
-                >
-                  <img v-if="imageUrl" :src="imageUrl" alt="avatar" />
-                  <div v-else>
-                    <a-icon :type="loading ? 'loading' : 'plus'" />
-                    <div class="ant-upload-text">Upload</div>
-                  </div>
-                </a-upload>
+                <div class="ant-upload-preview" @click="$refs.modal.edit(1)">
+                  <a-upload
+                    name="avatar"
+                    class="avatar-img"
+                    list-type="picture-card"
+                    :show-upload-list="false"
+                    :openFileDialogOnClick="false"
+                  >
+                    <img v-if="this.avatar" :src="this.avatar" alt="avatar" />
+                    <div v-else>
+                      <a-icon :type="uploadLoading ? 'loading' : 'plus'" />
+                      <div class="ant-upload-text">Upload</div>
+                    </div>
+                  </a-upload>
+                </div>
               </a-form-item>
             </a-col>
-          </a-row> -->
+          </a-row>
         </a-form>
       </a-spin>
     </j-modal>
+    <avatar-modal ref="modal" @ok="setAvatar" />
   </a-card>
 </template>
 
@@ -120,12 +132,16 @@
 import JModal from '@/components/jeecg/JModal'
 import { addStaff } from '@/api/schoolUser'
 import store from '@/store'
+import * as logger from '@/utils/logger'
+import AvatarModal from '@/views/account/settings/AvatarModal'
+import Moment from 'moment'
 
 export default {
   name: 'SchoolUserTeacherAdd',
   mixins: [],
   components: {
-    JModal
+    JModal,
+    AvatarModal
   },
   props: {
     roleList: {
@@ -133,6 +149,10 @@ export default {
       default: () => []
     },
     groupList: {
+      type: Array,
+      default: () => []
+    },
+    classList: {
       type: Array,
       default: () => []
     }
@@ -143,7 +163,9 @@ export default {
       width: 800,
       visible: false,
       confirmLoading: false,
-      form: this.$form.createForm(this, { name: 'teacherAdd' })
+      uploadLoading: false,
+      form: this.$form.createForm(this, { name: 'teacherAdd' }),
+      avatar: undefined
     }
   },
   created() {},
@@ -157,14 +179,21 @@ export default {
         if (!err) {
           this.confirmLoading = true
           console.log('Received values of form: ', values)
-          const res = await addStaff({
+          const params = {
             schoolId: store.getters.userInfo.school,
+            avatar: this.avatar,
             ...values
-          })
+          }
+          if (values.dateOfJoining) {
+            params.dateOfJoining = String(Moment(values.dateOfJoining).valueOf())
+          }
+          const res = await addStaff(params)
           if (res.success) {
             this.confirmLoading = false
             this.visible = false
+            this.$emit('ok')
           } else {
+            this.confirmLoading = false
             this.$message.error(res.message)
           }
         }
@@ -172,6 +201,35 @@ export default {
     },
     handleCancel() {
       this.visible = false
+      this.confirmLoading = false
+    },
+    // handleUploadImage(data) {
+    //   logger.info('handleUploadImage', data)
+    //   const formData = new FormData()
+    //   formData.append('file', data.file, data.file.name)
+    //   this.uploadLoading = true
+    //   this.$http
+    //     .post(commonAPIUrl.UploadFile, formData, {
+    //       contentType: false,
+    //       processData: false,
+    //       headers: { 'Content-Type': 'multipart/form-data' },
+    //       timeout: 60000
+    //     })
+    //     .then(response => {
+    //       logger.info('handleUploadImage upload response:', response)
+    //       this.avatar = this.$store.getters.downloadUrl + response.result
+    //     })
+    //     .catch(err => {
+    //       logger.error('handleUploadImage error', err)
+    //       this.$message.error(this.$t('teacher.add-unit-plan.upload-image-file-failed'))
+    //     })
+    //     .finally(() => {
+    //       this.uploadLoading = false
+    //     })
+    // },
+    setAvatar(url) {
+      logger.info('setAvatar ' + url)
+      this.avatar = url
     }
   }
 }
@@ -182,4 +240,7 @@ export default {
 }
 </style>
 <style lang="less" scoped>
+.avatar-img img {
+  max-width: 200px;
+}
 </style>
