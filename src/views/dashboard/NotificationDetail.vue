@@ -60,8 +60,10 @@ import backIconSvg from '@/assets/svgIcon/notification/back.svg?inline'
 import { NotificationTypeMap } from '@/views/dashboard/NotificationTypeMap'
 import { EditCementSend, NoticeQueryById } from '@/api/notice'
 import { RECEIVE_MSG } from '@/store/mutation-types'
-import { DeleteCollaborate, ReceiveCollaborate } from '@/api/collaborate'
+import { CollaboratesAgree, DeleteCollaborate } from '@/api/collaborate'
 import * as logger from '@/utils/logger'
+import { CollaborateStatus } from '@/const/teacher'
+
 export default {
   name: 'NotificationDetail',
   components: {
@@ -112,14 +114,23 @@ export default {
       handleAcceptCollaborate () {
         this.$logger.info('handleAcceptCollaborate', this.notificationData)
         this.acceptLoading = true
-        ReceiveCollaborate({ id: this.notificationData.busId }).then(res => {
-          logger.info('ReceiveCollaborate', res)
+        CollaboratesAgree({ id: this.notificationData.busId, agreeFlag: CollaborateStatus.agree }).then(res => {
+          logger.info('handleApply', res)
           this.$message.success('collaborate successfully')
         }).then(() => {
           this.acceptLoading = false
-        }).finally(() => {
           this.loadMessageData()
         })
+        // this.$logger.info('handleAcceptCollaborate', this.notificationData)
+        // this.acceptLoading = true
+        // ReceiveCollaborate({ id: this.notificationData.busId }).then(res => {
+        //   logger.info('ReceiveCollaborate', res)
+        //   this.$message.success('collaborate successfully')
+        // }).then(() => {
+        //   this.acceptLoading = false
+        // }).finally(() => {
+        //   this.loadMessageData()
+        // })
       },
 
       // TODO 处理按钮逻辑
