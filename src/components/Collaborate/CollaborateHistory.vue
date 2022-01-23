@@ -10,21 +10,34 @@
             </div>
           </div>
           <div class="restore">
-            <div class="restore-action" @click="handleRestoreHistory(historyItem)">Restore</div>
+            <div class="restore-action" @click="handleRestoreHistory(historyItem.content)">Restore</div>
           </div>
         </div>
         <div class="history-detail-list">
-          <div class="history-detail-item" v-for="(hDetail, hdIndex) in historyItem.historyData" :key="hdIndex">
-            <div class="user-name">
-              {{ hDetail.createdBy }}
+          <template v-if="historyItem.isCache">
+            <div class="history-detail-item">
+              <div class="user-name">
+                {{ $store.getters.userInfo.email }}
+              </div>
+              <div class="form-field" style="margin-left:100px;">
+                Cache offline <a-badge status="success" />
+              </div>
             </div>
-            <div class="action">
-              Modified
+
+          </template>
+          <template v-else>
+            <div class="history-detail-item" v-for="(hDetail, hdIndex) in historyItem.historyData" :key="hdIndex">
+              <div class="user-name">
+                {{ hDetail.createdBy }}
+              </div>
+              <div class="action">
+                Modified
+              </div>
+              <div class="form-field">
+                {{ hDetail.fieldDisplayName }}
+              </div>
             </div>
-            <div class="form-field">
-              {{ hDetail.fieldDisplayName }}
-            </div>
-          </div>
+          </template>
         </div>
       </div>
     </div>
@@ -32,6 +45,8 @@
 </template>
 
 <script>
+
+import LocalStore from '@/websocket/localstore'
 
 export default {
   name: 'CollaborateHistory',
@@ -49,11 +64,26 @@ export default {
   created () {
     this.$logger.info('CollaborateHistory created', this.historyList)
     this.collaborateHistoryList = this.historyList
+    if (this.collaborateHistoryList.length > 0) {
+      const historyItem = {}
+      const detail = JSON.parse(this.collaborateHistoryList[0].content)
+      const content = LocalStore.getFormContentLocal(detail.id, detail.type)
+      if (content) {
+        historyItem.createdTime = content.updateTime
+        historyItem.isCache = true
+        historyItem.content = content
+        this.collaborateHistoryList.unshift(historyItem)
+      }
+    }
   },
   methods: {
-    handleRestoreHistory (historyItem) {
-      this.$logger.info('handleRestoreHistory', historyItem)
-      this.$emit('restore', historyItem)
+    handleRestoreHistory (content) {
+      this.$logger.info('handleRestoreHistory', content)
+      if (content instanceof Object) {
+        this.$emit('restore', content)
+      } else {
+        this.$emit('restore', JSON.parse(content))
+      }
     }
   }
 }

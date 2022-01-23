@@ -124,7 +124,7 @@ ol {
 }
 
 .ant-pro-fixed-header {
-  z-index: 1000 !important;
+  z-index: 980 !important;
 }
 
 .class-list {
@@ -415,7 +415,7 @@ ol {
 
 
 .form-header {
-  z-index: 1000;
+  z-index: 999;
   position: fixed;
   top: 64px;
   left: 0;
@@ -681,8 +681,78 @@ ol {
   }
 }
 
+.filter-option-list-width-20 {
+  .ant-checkbox-group {
+    width: 100%;
+    .ant-checkbox-group-item {
+      line-height: 30px;
+      min-width: 22%;
+    }
+  }
+}
+
+.filter-option-list-width-30 {
+  .ant-checkbox-group {
+    width: 100%;
+    .ant-checkbox-group-item {
+      line-height: 30px;
+      min-width: 40%;
+    }
+  }
+}
+
 .keyword-item {
   font-weight: bold;
   color: #2DC9A4;
   text-decoration: underline;
+}
+
+button.my-plain-button.ant-btn {
+  border-color: #fff;
+}
+
+
+button.wide-action-button.ant-btn {
+  padding: 0 25px;
+}
+
+.my-star svg {
+  width: 10px;
+  height: 10px;
+}
+
+.my-star {
+  line-height: 14px;
+  margin-bottom: 0;
+  font-size: 12px;
+
+  li {
+    height: 12px;
+  }
+}
+
+.ant-form-item {
+  position: relative;
+}
+
+.ant-select-dropdown {
+  z-index: 900;
+}
+
+.split-task {
+  label {
+    font-weight: 500;
+  }
+}
+
+.task-audio-line {
+  .ant-form-item-label > label::after {
+    display: none;
+  }
+}
+
+.split-task {
+  .ant-form-item {
+    margin-bottom: 10px;
+  }
 }

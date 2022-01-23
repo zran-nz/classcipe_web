@@ -5,7 +5,8 @@ export const gradeAPIUrl = {
   GradeQueryById: '/classcipe/api/grade/queryById',
   GradeDelete: '/classcipe/api/grade/delete',
   GradeDeleteBatch: '/classcipe/api/grade/deleteBatch',
-  GradeList: '/classcipe/api/grade/list'
+  GradeList: '/classcipe/api/grade/list',
+  GradeBySchoolId: '/classcipe/api/grade/getGradesBySchoolId'
 }
 
 /**
@@ -77,6 +78,19 @@ export function GradeDeleteBatch (parameter) {
 export function GradeList (parameter) {
   return request({
     url: gradeAPIUrl.GradeList,
+    method: 'get',
+    params: parameter
+  })
+}
+
+/**
+ * @param parameter
+ * @returns {AxiosPromise}
+ * @constructor
+ */
+export function getGradeListBySchoolId (parameter) {
+  return request({
+    url: gradeAPIUrl.GradeBySchoolId,
     method: 'get',
     params: parameter
   })

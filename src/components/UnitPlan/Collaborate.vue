@@ -8,6 +8,7 @@
     :dialog-style="{ top: '100px' }">
     <div>
       <a-select
+        :getPopupContainer="trigger => trigger.parentElement"
         mode="multiple"
         :value="value"
         placeholder="Select users"

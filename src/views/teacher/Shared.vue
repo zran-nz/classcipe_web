@@ -109,7 +109,7 @@
                       <!-- Task: 外置teacher-pace, student-pace, Edit, 折叠Delete, Duplicate, Previous session-->
                       <template v-if="item.content.type === typeMap.task">
                         <div class="start-session-wrapper action-item-wrapper">
-                          <div class="session-btn content-list-action-btn" @click="handleStartSessionHistory(item,1)">
+                          <div class="session-btn content-list-action-btn" @click="handleStartSessionHistory(item.content,1)">
                             <div class="session-btn-icon">
                               <teacher-presenting />
                             </div>
@@ -117,7 +117,7 @@
                           </div>
                         </div>
                         <div class="start-session-wrapper action-item-wrapper">
-                          <div class="session-btn content-list-action-btn" @click="handleStartSessionHistory(item,2)">
+                          <div class="session-btn content-list-action-btn" @click="handleStartSessionHistory(item.content,2)">
                             <div class="session-btn-icon">
                               <student-pace />
                             </div>
@@ -255,13 +255,13 @@
                     </a-dropdown>
                   </div>
                   <div class="action-item action-item-center">
-                    <div class="session-btn session-btn-left" @click.stop="handleStartSessionHistory(item,1)" v-if="item.content.type === typeMap['task']" >
+                    <div class="session-btn session-btn-left" @click.stop="handleStartSessionHistory(item.content,1)" v-if="item.content.type === typeMap['task']" >
                       <div class="session-btn-text">
                         <teacher-presenting />
                         Teacher-paced
                       </div>
                     </div>
-                    <div class="session-btn session-btn-right" @click.stop="handleStartSessionHistory(item,2)" v-if="item.content.type === typeMap['task']">
+                    <div class="session-btn session-btn-right" @click.stop="handleStartSessionHistory(item.content,2)" v-if="item.content.type === typeMap['task']">
                       <div class="session-btn-text">
                         <student-pace />
                         Student-paced
@@ -451,7 +451,7 @@
 <script>
 
   import * as logger from '@/utils/logger'
-  import { Duplicate, SaveSessonTags } from '@/api/teacher'
+  import { Duplicate } from '@/api/teacher'
   import { CollaborateStatus, typeMap } from '@/const/teacher'
   import ContentStatusIcon from '@/components/Teacher/ContentStatusIcon'
   import ContentTypeIcon from '@/components/Teacher/ContentTypeIcon'
@@ -486,6 +486,7 @@
   import PSSvg from '@/assets/svgIcon/myContent/previous_session.svg'
   import CollaborateSvg from '@/assets/icons/collaborate/collaborate_group.svg'
   import { FindMyClasses } from '@/api/evaluation'
+  import { ACCESS_TOKEN } from '@/store/mutation-types'
   export const SHARED_VIEW_MODE = 'view_mode_shared'
 
   export default {
@@ -561,7 +562,8 @@
         oldSelectSessionVisible: false,
         sessionList: [],
         sessionMode: 1,
-        searchText: ''
+        searchText: '',
+        lastedRevisionId: ''
       }
     },
     computed: {},
@@ -580,7 +582,7 @@
         this.loading = true
         CollaboratesQueryShared({
           collaborateStatus: this.currentStatus,
-          type: this.currentType === 'all-type' ? typeMap[this.currentType] : '',
+          type: this.currentType !== 'all-type' ? typeMap[this.currentType] : '',
           pageNo: this.pageNo,
           pageSize: this.pagination.pageSize,
           searchKey: ''
@@ -699,11 +701,11 @@
       },
 
       handleStartSession () {
-        this.$logger.info('selected sessionTags', this.sessionTags)
-        if (this.sessionTags.length === 0) {
-          this.$message.warn('Please add session tags')
-          return
-        }
+        // this.$logger.info('selected sessionTags', this.sessionTags)
+        // if (this.sessionTags.length === 0) {
+        //   this.$message.warn('Please add session tags')
+        //   return
+        // }
         this.startLoading = true
         const item = this.sessionItem
         this.$logger.info('handleStartSession', item)
@@ -711,9 +713,9 @@
           const requestData = {
             author: this.$store.getters.email,
             slide_id: item.presentationId,
-            copy_from: item.copyFromSlide,
+            revision_id: this.lastedRevisionId ? this.lastedRevisionId : item.revisionId,
             file_name: item.name ? item.name : 'Unnamed',
-            status: lessonStatus.studentPaced,
+            status: this.sessionMode === 1 ? lessonStatus.teacherPaced : lessonStatus.studentPaced,
             redirect_url: null
           }
 
@@ -721,28 +723,30 @@
           StartLesson(requestData).then(res => {
             this.$logger.info('StartLesson res', res)
             if (res.code === 'ok') {
-              const dataTags = []
-              this.sessionTags.forEach(tag => {
-                dataTags.push({
-                  'name': tag.name,
-                  'parentId': tag.parentId,
-                  'isGlobal': tag.isGlobal ? 1 : 0,
-                  'classId': res.data.class_id,
-                  'presentationId': item.presentationId,
-                  'sourceId': item.id,
-                  'sourceType': item.type
-                })
-              })
-              SaveSessonTags(dataTags).then(() => {
-                this.startLoading = false
-                this.lessonSelectTagVisible = false
-                // const targetUrl = lessonHost + 'slide_id=' + item.presentationId + '&class_id=' + res.data.class_id + '&type=classroom'
-                const targetUrl = lessonHost + 'd/' + res.data.class_id
-                this.$logger.info('try open ' + targetUrl)
-                // window.open(targetUrl, '_blank')
-                // 课堂那边需要点击返回回到表单，改成location.href跳转
+              this.startLoading = false
+              this.lessonSelectTagVisible = false
+              const targetUrl = lessonHost + 'd/' + res.data.class_id + '?token=' + storage.get(ACCESS_TOKEN)
+              this.$logger.info('try open ' + targetUrl)
+              // window.open(targetUrl, '_blank')
+              // 课堂那边需要点击返回回到表单，改成location.href跳转
+              const url = lessonHost + 't/' + res.data.class_id + '?token=' + storage.get(ACCESS_TOKEN)
+              var windowObjectReference
+              var height = document.documentElement.clientHeight * 0.7
+              var width = document.documentElement.clientWidth * 0.7
+              var strWindowFeatures = 'width=' + width + ',height=' + height + ',menubar=yes,location=yes,resizable=yes,scrollbars=true,status=true,top=100,left=200'
+              if (this.sessionMode === 1) {
+                windowObjectReference = window.open(
+                  'about:blank',
+                  '_blank',
+                  strWindowFeatures
+                )
+                windowObjectReference.location = url
+                setTimeout(function () {
+                  window.location.href = targetUrl
+                }, 1000)
+              } else {
                 window.location.href = targetUrl
-              })
+              }
             } else {
               this.$message.warn('StartLesson Failed! ' + res.message)
               this.startLoading = false
@@ -864,7 +868,8 @@
         FindMyClasses({ slideId: item.presentationId, lastVersion: true }).then(response => {
           logger.info('findMyClasses', response.result.data)
           if (response.success) {
-            this.sessionList = response.result
+            this.sessionList = response.result.classList
+            this.lastedRevisionId = response.result.revisionId
           }
           this.loading = false
         }).finally(() => {
@@ -900,6 +905,7 @@
       },
       triggerSearch() {
         this.$logger.info('triggerSearch', this.searchText)
+        this.loadMyContent()
       }
     }
   }

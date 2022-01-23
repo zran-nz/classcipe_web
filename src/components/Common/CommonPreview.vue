@@ -11,7 +11,7 @@
               Info
             </a-radio-button>
             <a-radio-button value="Preview" class="right-button">
-              Preview
+              Detail
             </a-radio-button>
           </a-radio-group>
         </a-col>
@@ -425,10 +425,6 @@ export default {
     type: {
       type: Number,
       required: true
-    },
-    canEdit: {
-      type: Boolean,
-      default: true
     },
     isLibrary: {
       type: Boolean,

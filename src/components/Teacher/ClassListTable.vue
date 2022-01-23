@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div @click.stop='hiddenMenu'>
     <div class="my-class-list">
       <a-input-search
         size="large"
@@ -29,7 +29,7 @@
             </div>
           </span>
 
-          <span slot="fileName" slot-scope="text, record" class="flex-center">
+          <span slot="className" slot-scope="text, record" class="flex-center">
             <div class="class-name">
               <a-input
                 ref="inputRef"
@@ -50,7 +50,7 @@
             <div v-else style="color: #15C39A;"> Archived </div>
           </span>
 
-          <span slot="action" class="flex-center" slot-scope="text, record">
+          <span slot="action" class="flex-right" slot-scope="text, record, index">
             <div class="class-action" v-if="active">
               <div class="icon-action" v-if="record.status === lessonStatus.teacherPaced">
                 <a-tooltip>
@@ -75,7 +75,7 @@
                 </a-tooltip>
               </div>
 
-              <a-popover placement="rightTop" trigger="click">
+              <a-popover placement="rightTop" trigger="click" :visible="menuVisible && activeMenuIndex === index">
                 <template slot="content">
                   <div class="class-more-icon-panel">
                     <div class="class-more-item" @click="handleTakeAway(record)">
@@ -83,7 +83,7 @@
                         <take-away-icon />
                       </div>
                       <div class="class-action-name">
-                        Take away
+                        Takeaways
                       </div>
                     </div>
                     <div class="class-more-item" @click="handleReviewEditEvaluation(record)">
@@ -129,7 +129,7 @@
                     </div>
                   </div>
                 </template>
-                <div class="more-action">
+                <div class="more-action" @click.stop='handleActivePopover(index)'>
                   <img src="~@/assets/icons/myClass/more.png"/>
                 </div>
               </a-popover>
@@ -175,7 +175,7 @@
         destroyOnClose
         :dialog-style="{ top: '30px' }"
         width="1150px"
-        title="Take away"
+        title="Takeaways"
         @ok="takeAwayPreviewVisible = false"
         @cancel="takeAwayPreviewVisible = false">
         <div class="view-take-away">
@@ -373,9 +373,9 @@ export default {
         },
         {
           title: 'Class',
-          dataIndex: 'fileName',
-          width: 280,
-          scopedSlots: { customRender: 'fileName' }
+          dataIndex: 'realClassName',
+          width: 200,
+          scopedSlots: { customRender: 'realClassName' }
         },
         {
           title: 'Status',
@@ -386,7 +386,7 @@ export default {
         {
           title: 'Session name',
           dataIndex: 'className',
-          width: 200,
+          width: 280,
           scopedSlots: { customRender: 'className' }
         },
         {
@@ -396,6 +396,9 @@ export default {
           scopedSlots: { customRender: 'action' }
         }
       ],
+
+      menuVisible: false,
+      activeMenuIndex: -1,
 
       loadingStudentList: false,
       takeAwayPreviewVisible: false,
@@ -421,12 +424,10 @@ export default {
         logger.info('FindMyClasses', response.result.data)
         if (response.success) {
           if (this.pageSize) {
-            this.data = this.data.concat(response.result)
-          } else {
-            this.data = response.result
+            this.data = response.result.classList
           }
         }
-        this.total = response.result.length
+        this.total = response.result.classList.length
         logger.info(' data', this.data)
         this.loading = false
       })
@@ -498,7 +499,7 @@ export default {
         this.createNewName = ''
         return
       }
-      this.editItem.fileName = this.createNewName
+      this.editItem.className = this.createNewName
       AddOrUpdateClass(this.editItem).then(response => {
         this.editItem = {}
         this.createNewName = ''
@@ -569,9 +570,9 @@ export default {
       this.takeAwaySlideId = item.slideId
       this.currentActiveStudentId = null
       this.loadingStudentList = true
-      this.loadingTakeAwayData = true
       this.takeAwayPreviewVisible = true
       this.loadTakeAwayClassStudentData(item.classId)
+      this.menuVisible = false
     },
 
     handleClickMember (member) {
@@ -627,6 +628,15 @@ export default {
         }
         this.loadingStudentList = false
       })
+    },
+
+    handleActivePopover (index) {
+      this.activeMenuIndex = index
+      this.menuVisible = true
+    },
+
+    hiddenMenu () {
+      this.menuVisible = false
     }
   }
 }
@@ -677,6 +687,12 @@ export default {
       display: flex;
       align-items: center;
       justify-content: center;
+      font-size: 13px;
+    }
+    .flex-right{
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
       font-size: 13px;
     }
     .table-date{

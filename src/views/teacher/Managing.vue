@@ -2,30 +2,29 @@
   <a-card :bordered="false" :bodyStyle="{ padding: '16px 24px', height: '100%' }" :style="{ height: '100%' }">
     <a-layout>
       <a-layout-sider>
-        <div class="nav-bar-left">
-          <div class="nav-bar-wrapper">
-            <div :class="{'nav-bar-item': true, 'selected-nav-bar' : selectedKey === '/teacher/managing/skill'}">
-              <router-link to="/teacher/managing/skill">
-                <a-icon type="cloud-upload" class="memu-icon" />
-                IB skills
-              </router-link>
-            </div>
-            <!--            <div :class="{'nav-bar-item': true, 'selected-nav-bar': true, 'selected-nav-bar' : selectedKey === '/teacher/managing/shared'}">-->
-            <!--              <router-link to="/teacher/main/shared">-->
-            <!--                <a-badge :count="$store.getters.sharedCount">-->
-            <!--                  <shared-svg />-->
-            <!--                </a-badge>-->
-            <!--                {{ $t('teacher.main.shared') }}-->
-            <!--              </router-link>-->
-            <!--            </div>-->
-            <!--            <div :class="{'nav-bar-item': true, 'nav-bar-item-split': true, 'selected-nav-bar' : selectedKey === '/teacher/managing/my-favorite'}">-->
-            <!--              <router-link to="/teacher/main/my-favorite">-->
-            <!--                <my-favorite-svg />-->
-            <!--                {{ $t('teacher.main.my-favorite') }}-->
-            <!--              </router-link>-->
-            <!--            </div>-->
-          </div>
-        </div>
+        <a-menu
+          :default-selected-keys="[selectedKey]"
+          @select="handleMenuSelect"
+          mode="inline"
+          :inline-collapsed="false"
+        >
+          <a-menu-item key="/teacher/managing/skill">
+            <a-icon type="cloud-upload" />
+            <span>IB skills</span>
+          </a-menu-item>
+          <a-menu-item key="/teacher/managing/school-user">
+            <a-icon type="user" />
+            <span>School User</span>
+          </a-menu-item>
+          <a-menu-item key="/teacher/managing/class">
+            <a-icon type="desktop" />
+            <span>Classes</span>
+          </a-menu-item>
+          <a-sub-menu>
+            <span slot="title"><a-icon type="schedule" /><span>Academics</span></span>
+            <a-menu-item key="/teacher/managing/term"> Academics Terms </a-menu-item>
+          </a-sub-menu>
+        </a-menu>
       </a-layout-sider>
       <a-layout-content class="main-content">
         <router-view />
@@ -55,26 +54,27 @@ export default {
     SharedSvg,
     SubscribesSvg
   },
-  data () {
+  data() {
     return {
-      selectedKey: '/teacher/main/created-by-me'
+      selectedKey: '/teacher/managing/skill'
     }
   },
   watch: {
-    '$route.path' (to) {
+    '$route.path'(to) {
       logger.debug('My Content route.path change ' + to)
       this.selectedKey = to
     }
   },
-  computed: {
-  },
-  created () {
+  computed: {},
+  created() {
     this.selectedKey = this.$route.path
     logger.info('selectedKey ', this.selectedKey)
   },
-  mounted () {
-  },
+  mounted() {},
   methods: {
+    handleMenuSelect({ key }) {
+      this.$router.push({ path: key })
+    }
   }
 }
 </script>
@@ -118,9 +118,15 @@ export default {
       font-family: Inter-Bold;
       font-size: 14px;
       cursor: pointer;
-      background-image: url("~@/assets/icons/myContent/Rectangle@2x.png");
+      background-image: url('~@/assets/icons/myContent/Rectangle@2x.png');
       background-repeat: repeat;
       background-size: cover;
+
+      .memu-icon {
+        width: 30px;
+        height: 30px;
+        margin: 0px 10px;
+      }
 
       a {
         display: flex;
@@ -132,12 +138,12 @@ export default {
 
         i {
           width: 50px;
-          font-size:20px;
+          font-size: 20px;
         }
       }
 
       &:hover {
-        background: #EDF1F5;
+        background: #edf1f5;
         a {
           color: @primary-color;
         }
@@ -149,7 +155,7 @@ export default {
     }
 
     .selected-nav-bar {
-      background: #EDF1F5;
+      background: #edf1f5;
       a {
         color: @primary-color;
         font-weight: bold;
@@ -157,5 +163,4 @@ export default {
     }
   }
 }
-
 </style>

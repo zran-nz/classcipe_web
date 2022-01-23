@@ -5,7 +5,10 @@
     :data-deep='defaultDeep'
     :data-default-grade-id="defaultGradeId + ''"
     :data-current-type='currentItemType'
+    :data-selected-grade-id="treeItemData.selectedGradeId + ''"
+    :data-selected-grade-name="treeItemData.selectedGradeName + ''"
     :data-root-type='rootType'>
+    <div class='border-left-tag' :style="{'background': treeItemData.backgroundColor}"></div>
     <div
       :class="{'item-wrapper': true , 'odd-line': odd, 'even-line': !odd}"
       :style="{paddingLeft: (defaultDeep * defaultPaddingLeft === 0 ? defaultPaddingLeft / 3 : defaultDeep * defaultPaddingLeft) + 'px'}">
@@ -398,6 +401,7 @@ export default {
     LibraryEventBus.$on(LibraryEvent.ContentListItemClick, this.handleContentListItemClick)
     LibraryEventBus.$on(LibraryEvent.CenturySkillsSelect, this.handleCenturySkillsSelect)
     LibraryEventBus.$on(LibraryEvent.CancelCenturySkillsSelect, this.handleCancelCenturySkillsSelect)
+    LibraryEventBus.$on(LibraryEvent.GradeUpdate, this.handleGradeUpdate)
 
     // 添加learning outcome自动选中grade
     if (this.currentItemType === 'grade') {
@@ -412,6 +416,7 @@ export default {
     LibraryEventBus.$off(LibraryEvent.ContentListItemClick, this.handleContentListItemClick)
     LibraryEventBus.$off(LibraryEvent.CenturySkillsSelect, this.handleCenturySkillsSelect)
     LibraryEventBus.$off(LibraryEvent.CancelCenturySkillsSelect, this.handleCancelCenturySkillsSelect)
+    LibraryEventBus.$off(LibraryEvent.GradeUpdate, this.handleGradeUpdate)
   },
   methods: {
     // 点击左侧菜单栏，同步右侧的列表以及展开当前下一级菜单。
@@ -530,6 +535,7 @@ export default {
 
         // 判断年级判断是否已经有知识点了
         if (this.currentItemType === 'grade') {
+          // 给当前元素所有的children设置selectedGradeId
           if (!treeItemData.children.length) {
             this.subTreeLoading = true
             const gradeId = treeItemData.id
@@ -543,6 +549,8 @@ export default {
               this.$logger.info('KnowledgeGetTree response', response)
               response.result.forEach(rItem => {
                 rItem.gradeId = this.treeItemData.name
+                rItem.selectedGradeId = treeItemData.id
+                rItem.selectedGradeName = treeItemData.name
               }) // 把年级带上，evaluation 选择description时用到)
               treeItemData.children = response.result
               LibraryEventBus.$emit(LibraryEvent.ContentListUpdate, {
@@ -576,7 +584,7 @@ export default {
           }
 
           // 通知外部表单更新gradeId
-          LibraryEventBus.$emit(LibraryEvent.GradeUpdate, JSON.parse(JSON.stringify(this.treeItemData)))
+          LibraryEventBus.$emit(LibraryEvent.GradeUpdate, { rootType: this.rootType, data: this.treeItemData })
         }
 
         // 加载知识点关联数据
@@ -589,6 +597,10 @@ export default {
             this.subTreeLoading = true
             KnowledgeQueryContentByDescriptionId({ descriptionId: this.treeItemData.id }).then(response => {
               this.$logger.info('KnowledgeQueryContentByDescriptionId response', response.result)
+              response.result.forEach(rItem => {
+                rItem.selectedGradeId = treeItemData.selectedGradeId
+                rItem.selectedGradeName = treeItemData.selectedGradeName
+              })
               LibraryEventBus.$emit(LibraryEvent.ContentListUpdate, {
                 backgroundColor: this.defaultBackgroundColor,
                 currentTreeData: this.treeItemData,
@@ -605,8 +617,14 @@ export default {
             if (treeItemData.gradeId) {
               treeItemData.children.forEach(rItem => {
                 rItem.gradeId = treeItemData.gradeId
+                rItem.selectedGradeId = treeItemData.selectedGradeId
+                rItem.selectedGradeName = treeItemData.selectedGradeName
               })
             }
+            treeItemData.children.forEach(rItem => {
+              rItem.selectedGradeId = treeItemData.selectedGradeId
+              rItem.selectedGradeName = treeItemData.selectedGradeName
+            })
             LibraryEventBus.$emit(LibraryEvent.ContentListUpdate, {
               backgroundColor: this.defaultBackgroundColor,
               deep: this.defaultDeep,
@@ -677,6 +695,7 @@ export default {
 
         // 判断年级判断是否已经有知识点了
         if (this.currentItemType === 'grade') {
+          // 给当前元素所有的children设置selectedGradeId
           if (!treeItemData.children.length) {
             this.subTreeLoading = true
             const gradeId = treeItemData.id
@@ -689,6 +708,10 @@ export default {
             }).then((response) => {
               this.$logger.info('KnowledgeGetTree response', response)
               treeItemData.children = response.result
+              response.result.forEach(rItem => {
+                rItem.selectedGradeId = treeItemData.id
+                rItem.selectedGradeName = treeItemData.name
+              })
               LibraryEventBus.$emit(LibraryEvent.ContentListUpdate, {
                 backgroundColor: this.defaultBackgroundColor,
                 deep: this.defaultDeep,
@@ -720,7 +743,7 @@ export default {
           }
 
           // 通知外部表单更新gradeId
-          LibraryEventBus.$emit(LibraryEvent.GradeUpdate, JSON.parse(JSON.stringify(this.treeItemData)))
+          LibraryEventBus.$emit(LibraryEvent.GradeUpdate, { rootType: this.rootType, data: this.treeItemData })
         }
 
         // 加载知识点关联数据
@@ -733,6 +756,10 @@ export default {
             this.subTreeLoading = true
             KnowledgeQueryContentByDescriptionId({ descriptionId: this.treeItemData.id }).then(response => {
               this.$logger.info('KnowledgeQueryContentByDescriptionId response', response.result)
+              response.result.forEach(rItem => {
+                rItem.selectedGradeId = treeItemData.selectedGradeId
+                rItem.selectedGradeName = treeItemData.selectedGradeName
+              })
               LibraryEventBus.$emit(LibraryEvent.ContentListUpdate, {
                 backgroundColor: this.defaultBackgroundColor,
                 dataType: this.treeItemType,
@@ -748,6 +775,10 @@ export default {
           } else {
             // 非最后一层的knowledge 列表
             this.subTreeExpandStatus = true
+            treeItemData.children.forEach(rItem => {
+              rItem.selectedGradeId = treeItemData.selectedGradeId
+              rItem.selectedGradeName = treeItemData.selectedGradeName
+            })
             LibraryEventBus.$emit(LibraryEvent.ContentListUpdate, {
               backgroundColor: this.defaultBackgroundColor,
               deep: this.defaultDeep,
@@ -831,6 +862,8 @@ export default {
               response.result.forEach(item => {
                 item.children = []
                 item.isAssessmentType = true
+                item.selectedGradeId = treeItemData.selectedGradeId
+                item.selectedGradeName = treeItemData.selectedGradeName
               })
               this.$logger.info('assessmentType response.result', response.result)
               treeItemData.children = response.result
@@ -865,7 +898,7 @@ export default {
           this.subItemType = 'assessmentType'
 
           // 通知外部表单更新gradeId
-          LibraryEventBus.$emit(LibraryEvent.GradeUpdate, JSON.parse(JSON.stringify(this.treeItemData)))
+          LibraryEventBus.$emit(LibraryEvent.GradeUpdate, { rootType: this.rootType, data: this.treeItemData })
         }
 
         // 加载assessmentType的列表
@@ -884,6 +917,8 @@ export default {
               response.result.forEach(item => {
                 item.children = []
                 item.isKnowledge = true
+                item.selectedGradeId = treeItemData.selectedGradeId
+                item.selectedGradeName = treeItemData.selectedGradeName
               })
               LibraryEventBus.$emit(LibraryEvent.ContentListUpdate, {
                 backgroundColor: this.defaultBackgroundColor,
@@ -899,6 +934,10 @@ export default {
             })
           } else {
             this.subTreeExpandStatus = true
+            treeItemData.children.forEach(item => {
+              item.selectedGradeId = treeItemData.selectedGradeId
+              item.selectedGradeName = treeItemData.selectedGradeName
+            })
             LibraryEventBus.$emit(LibraryEvent.ContentListUpdate, {
               backgroundColor: this.defaultBackgroundColor,
               deep: this.defaultDeep,
@@ -995,6 +1034,20 @@ export default {
         this.subTreeLoading = true
         this.subTreeExpandStatus = true
 
+        if (this.defaultDeep === 1 && treeItemData.isGrade) {
+          this.$logger.info('handleExpandIduTypeTreeItem defaultDeep = 1', treeItemData)
+          // 通知外部表单更新gradeId
+          LibraryEventBus.$emit(LibraryEvent.GradeUpdate, {
+            rootType: this.rootType,
+            data: this.treeItemData
+          })
+
+          treeItemData.children.forEach(item => {
+            item.selectedGradeName = treeItemData.name
+            item.selectedGradeId = treeItemData.id
+          })
+        }
+
         if (this.treeItemData.children.length) {
           this.subItemType = 'iduList'
           this.hasSubTree = true
@@ -1027,6 +1080,10 @@ export default {
             }).then(response => {
               this.$logger.info('GetIBIduList response', response)
               if (response.result) {
+                response.result.forEach(rItem => {
+                  rItem.selectedGradeName = treeItemData.name
+                  rItem.selectedGradeId = treeItemData.id
+                })
                 treeItemData.children = response.result
                 LibraryEventBus.$emit(LibraryEvent.ContentListUpdate, {
                   backgroundColor: this.defaultBackgroundColor,
@@ -1087,6 +1144,10 @@ export default {
             }).then((response) => {
               this.$logger.info('Get21Century response', response)
               if (response.result) {
+                response.result.forEach(rItem => {
+                  rItem.selectedGradeId = treeItemData.id
+                  rItem.selectedGradeName = treeItemData.name
+                })
                 treeItemData.children = response.result
                 LibraryEventBus.$emit(LibraryEvent.ContentListUpdate, {
                   backgroundColor: this.defaultBackgroundColor,
@@ -1122,7 +1183,7 @@ export default {
           }
 
           // 通知外部表单更新gradeId
-          LibraryEventBus.$emit(LibraryEvent.GradeUpdate, JSON.parse(JSON.stringify(this.treeItemData)))
+          LibraryEventBus.$emit(LibraryEvent.GradeUpdate, { rootType: this.rootType, data: this.treeItemData })
         }
 
         // 加载知识点关联数据
@@ -1135,6 +1196,10 @@ export default {
             this.subTreeLoading = true
             KnowledgeQueryContentByDescriptionId({ descriptionId: this.treeItemData.id }).then(response => {
               this.$logger.info('KnowledgeQueryContentByDescriptionId response', response.result)
+              response.result.forEach(rItem => {
+                rItem.selectedGradeId = treeItemData.selectedGradeId
+                rItem.selectedGradeName = treeItemData.selectedGradeName
+              })
               LibraryEventBus.$emit(LibraryEvent.ContentListUpdate, {
                 backgroundColor: this.defaultBackgroundColor,
                 dataType: this.treeItemType,
@@ -1150,6 +1215,10 @@ export default {
           } else {
             // 非最后一层的knowledge 列表
             this.subTreeExpandStatus = true
+            treeItemData.children.forEach(rItem => {
+              rItem.selectedGradeId = treeItemData.selectedGradeId
+              rItem.selectedGradeName = treeItemData.selectedGradeName
+            })
             LibraryEventBus.$emit(LibraryEvent.ContentListUpdate, {
               backgroundColor: this.defaultBackgroundColor,
               dataType: this.treeItemType,
@@ -1336,6 +1405,12 @@ export default {
     handleCancel21CenturyClick() {
       this.$logger.info('handleCancel21CenturyClick')
       LibraryEventBus.$emit(LibraryEvent.CancelCenturySkillsSelect)
+    },
+
+    handleGradeUpdate (data) {
+      if (this.treeItemData.isGrade === true && data.rootType === this.rootType && data.data.id !== this.treeItemData.id) {
+        this.subTreeExpandStatus = false
+      }
     }
   }
 }
@@ -1346,11 +1421,11 @@ export default {
 @import "~@/components/index.less";
 
 .even-line {
-  //background-color: #ffffff;
+  background-color: #ffffff;
 }
 
 .odd-line {
-  //background-color: #F8F8F8;
+  background-color: rgba(228, 228, 228, 0.2);
 }
 
 .active-line {
@@ -1359,6 +1434,7 @@ export default {
 }
 
 .tree-item {
+  position: relative;
   display: block;
   text-align: left;
   cursor: pointer;
@@ -1376,7 +1452,7 @@ export default {
     align-items: center;
 
     &:hover {
-      //background-color: fade(@primary-color, 10%);
+      background-color: #EDF1F5;
     }
 
     .subtree-icon-wrapper {
@@ -1448,9 +1524,18 @@ export default {
 }
 
 .selected-display-label {
-  border: 1px solid #07AB84;
-  border-radius: 2px;
-  background: #e9f9f5;
-  box-shadow: 0 0 0 2px rgba(21, 195, 154, .5);
+  //border: 1px solid #07AB84;
+  //border-radius: 2px;
+  //background: #e9f9f5;
+  //box-shadow: 0 0 0 2px rgba(21, 195, 154, .5);
+}
+
+.border-left-tag {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 10px;
+  padding-right: 3px;
+  height: 35px;
 }
 </style>

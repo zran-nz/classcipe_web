@@ -15,7 +15,10 @@
       <div class="user-search-wrapper">
         <div class="search-header">
 
-          <div :class="{'tag-input-wrapper': true, 'active': active, 'tag-dom': true}" @click="handleFocusInput">
+          <div
+            :class="{'tag-input-wrapper': true, 'active': active, 'tag-dom': true}"
+            :style="{ width: selectedUserEmailList.length === 0 ? '100%' : '88%' }"
+            @click="handleFocusInput">
             <div class="tag-input-list tag-dom">
               <div class="tag-list tag-dom">
                 <a-icon type="search" :style="{ fontSize: '20px','margin-right':'5px' }" />
@@ -43,7 +46,13 @@
             </div>
           </div>
 
-          <a-select size="large" default-value="Edit" style="width: 10%" v-model="permission">
+          <a-select
+            :getPopupContainer="trigger => trigger.parentElement"
+            size="large"
+            default-value="Edit"
+            style="width: 10%;height:40px"
+            v-model="permission"
+            v-if="selectedUserEmailList.length > 0">
             <a-select-option value="Edit">
               Edit
             </a-select-option>
@@ -61,7 +70,8 @@
               <div class="user-item" v-for="(user,index) in userList" :key="index" v-if="userList.length">
                 <div class="user-avatar-email">
                   <div class="avatar">
-                    <img :src="user.avatar" />
+                    <img :src="user.avatar" v-if="collaborateHistoryUserEmails.indexOf(user.email) !== -1" />
+                    <img src="~@/assets/icons/collaborate/group.png" v-else />
                   </div>
                   <div class="email">
                     {{ user.nickname }}
@@ -91,7 +101,7 @@
             </a-skeleton>
           </div>
 
-          <a-checkbox @change="onChangeSendMessage" class="message-check-wrapper">
+          <a-checkbox default-checked @change="onChangeSendMessage" class="message-check-wrapper">
             Send a message
           </a-checkbox>
           <div class="message-wrapper" v-if="sendMessage">
@@ -183,9 +193,16 @@
                 <div class="link-text" >
                   {{ linkUrl }}
                 </div>
-                <a-button class="action-copy" type="primary" shape="round" @click="handleCopy()">
-                  copy
-                </a-button>
+                <div class="action-copy" @click="handleCopy()" style="width:50px;font-size: 20px;cursor: pointer;">
+                  <a-tooltip placement="top" title="Copy link">  <a-icon type="link" /></a-tooltip>
+                </div>
+                <!--                <div class="action-copy" @click="handleCopy()" style="width:50px;font-size: 20px;cursor: pointer;">-->
+                <!--                  <a-tooltip placement="top" title="Send email">   <a-icon type="mail" /></a-tooltip>-->
+                <!--                </div>-->
+
+                <!--                <a-button class="action-copy" type="primary" shape="round" @click="handleCopy()">-->
+                <!--                  copy-->
+                <!--                </a-button>-->
               </div>
               <div class="link-approve">
                 <a-radio @click="changeApprove" :checked="approveFlag">Approval confirmation is required when passing the link</a-radio>
@@ -209,6 +226,7 @@ import {
 } from '@/api/collaborate'
 import * as logger from '@/utils/logger'
 import { CollaborateStatus } from '@/const/teacher'
+import { isEmail } from '@/utils/util'
 
 export default {
   name: 'CollaborateUserList',
@@ -266,17 +284,21 @@ export default {
       inviteAll: false,
       showUser: false,
       approveFlag: false,
-      sendMessage: false,
+      sendMessage: true,
       permission: 'Edit',
       collaborateStatus: CollaborateStatus,
-      agreeLoading: false
+      agreeLoading: false,
+      collaborateHistoryUsers: [],
+      collaborateHistoryUserEmails: []
     }
   },
   created () {
     this.queryContentCollaborates()
+    this.findHistoryUsers()
   },
   methods: {
     handleFocusInput () {
+      console.log('handleFocusInput')
       this.$refs['input'].focus()
       this.active = true
     },
@@ -309,20 +331,37 @@ export default {
         this.selectedUserList = []
         this.userNameOrEmail = ''
         this.queryContentCollaborates()
+        this.searchUser()
       })
     },
     searchUser () {
       this.showUser = true
-      if (this.userNameOrEmail && this.userNameOrEmail.length < 3) {
+      if (!this.userNameOrEmail) {
+        this.userList = this.collaborateHistoryUsers
+        return
+      } else if (!isEmail(this.userNameOrEmail)) {
+        // 已经邀请的用户中选择
+        this.userList = this.collaborateHistoryUsers.filter(item =>
+          item.email.toLowerCase().indexOf(this.userNameOrEmail.toLowerCase()) !== -1 ||
+          item.nickname.toLowerCase().indexOf(this.userNameOrEmail.toLowerCase()) !== -1)
         return
       }
-      var searchName = this.userNameOrEmail ? this.userNameOrEmail : ''
       this.loading = true
-      CollaboratesSearchUser({ name: searchName }).then(response => {
+      CollaboratesSearchUser({ name: this.userNameOrEmail }).then(response => {
         this.$logger.info('SearchUser response', response)
         this.userList = response.result
       }).finally(() => {
         this.loading = false
+      })
+    },
+    findHistoryUsers () {
+      CollaboratesSearchUser({ name: '' }).then(response => {
+        this.$logger.info('SearchUser response', response)
+        this.collaborateHistoryUsers = response.result
+        this.collaborateHistoryUserEmails = response.result.map(user => {
+          return user.email
+        })
+      }).finally(() => {
       })
     },
     handleAddToSelect (user) {
@@ -334,6 +373,7 @@ export default {
         user.permission = this.permission
         this.selectedUserList.push(user)
       }
+      this.userNameOrEmail = ''
       this.$logger.info('selectedUserList ', this.selectedUserList)
     },
 
@@ -430,6 +470,11 @@ export default {
 }
 </script>
 
+<style>
+.ant-select-dropdown {
+  z-index: 1000;
+}
+</style>
 <style lang="less" scoped>
 @import "~@/components/index.less";
 
@@ -907,7 +952,6 @@ export default {
 .tag-input-wrapper {
   position: relative;
   display: inline-block;
-  width: 88%;
   line-height: @input-height-base;
   text-align: start;
   vertical-align: top;

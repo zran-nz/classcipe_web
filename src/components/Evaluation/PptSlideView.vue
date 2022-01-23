@@ -16,7 +16,7 @@
     <div class="tips" v-if="!loading">
       <h3>Multiple choice</h3>
     </div>
-    <div class="slide-content-list" v-if="!loading">
+    <div class="slide-content-list" v-if="!loading" :style="{'height': mode ? 'calc(100vh - 200px)': '400px'}">
       <div
         :class="{
           'slide-comment-item': true,
@@ -744,7 +744,6 @@ export default {
   .slide-content-list {
     display: flex;
     flex-direction: column;
-    height: calc(100vh - 200px);
     border: 1px solid #F3F3F3;
     overflow-y: scroll;
     box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.16);

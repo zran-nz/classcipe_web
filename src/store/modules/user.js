@@ -1,7 +1,7 @@
 import storage from 'store'
 import { login, getInfo, logout, changeRole, signUp } from '@/api/login'
 import { ACCESS_TOKEN, CURRENT_ROLE, IS_ADD_PREFERENCE, USER_INFO, ADD_PREFERENCE_SKIP_TIME } from '@/store/mutation-types'
-import { welcome } from '@/utils/util'
+import { welcome, setCookie, delCookie } from '@/utils/util'
 import * as logger from '@/utils/logger'
 import { SESSION_ACTIVE_KEY } from '@/const/common'
 
@@ -82,6 +82,7 @@ const user = {
           storage.set(ACCESS_TOKEN, accessToken, 7 * 24 * 60 * 60 * 1000)
           commit('SET_TOKEN', accessToken)
           window.sessionStorage.setItem(SESSION_ACTIVE_KEY, accessToken)
+          setCookie(ACCESS_TOKEN, accessToken)
           resolve()
         } else {
           reject(new Error('illegal token ' + accessToken))
@@ -99,6 +100,7 @@ const user = {
             storage.set(ACCESS_TOKEN, result.token, 7 * 24 * 60 * 60 * 1000)
             commit('SET_TOKEN', result.token)
             window.sessionStorage.setItem(SESSION_ACTIVE_KEY, result.token)
+            setCookie(ACCESS_TOKEN, result.token)
             resolve(response)
           } else {
             reject(response)
@@ -120,6 +122,7 @@ const user = {
             storage.set(ACCESS_TOKEN, result.token, 7 * 24 * 60 * 60 * 1000)
             commit('SET_TOKEN', result.token)
             window.sessionStorage.setItem(SESSION_ACTIVE_KEY, result.token)
+            setCookie(ACCESS_TOKEN, result.token)
             resolve(response)
           } else {
             reject(response)
@@ -211,6 +214,7 @@ const user = {
           storage.remove(USER_INFO)
           storage.remove(ADD_PREFERENCE_SKIP_TIME)
           window.sessionStorage.removeItem(SESSION_ACTIVE_KEY)
+          delCookie(ACCESS_TOKEN)
           resolve()
         }).catch(() => {
           resolve()
@@ -237,6 +241,7 @@ const user = {
         storage.remove(IS_ADD_PREFERENCE)
         storage.remove(USER_INFO)
         window.sessionStorage.removeItem(SESSION_ACTIVE_KEY)
+        delCookie(ACCESS_TOKEN)
         resolve()
       })
     }

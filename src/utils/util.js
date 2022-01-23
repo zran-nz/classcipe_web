@@ -145,23 +145,94 @@ export function filterObj (obj) {
   return obj
 }
 
-// 对比两个对象的值是否完全相等 返回值 true/false
-export function isObjectValueEqual (a, b) {
-  // 取对象a和b的属性名
+// // 对比两个对象的值是否完全相等 返回值 true/false
+// export function isObjectValueEqual (a, b) {
+//   // 取对象a和b的属性名
+//   var aProps = Object.getOwnPropertyNames(a)
+//   var bProps = Object.getOwnPropertyNames(b)
+//   // 判断属性名的length是否一致
+//   console.log(aProps.length + '--------' + bProps.length)
+//   if (aProps.length !== bProps.length) {
+//     return false
+//   }
+//   // 循环取出属性名，再判断属性值是否一致
+//   for (var i = 0; i < aProps.length; i++) {
+//     var propName = aProps[i]
+//     console.log(propName)
+//     if (typeof a[propName] === 'string') {
+//       if (a[propName] !== b[propName]) {
+//         console.log('not equal :' + a[propName] + '--------' + b[propName])
+//         return false
+//       }
+//     } else if (typeof a[propName] === 'string') {
+//
+//     }
+//   }
+//   return true
+// }
+
+export function isObjectValueEqual(a, b) {
   var aProps = Object.getOwnPropertyNames(a)
   var bProps = Object.getOwnPropertyNames(b)
-  // 判断属性名的length是否一致
-  console.log(aProps.length + '--------' + bProps.length)
-  // if (aProps.length !== bProps.length) {
-  //   return false
-  // }
-  // 循环取出属性名，再判断属性值是否一致
+  if (aProps.length !== bProps.length) {
+    return false
+  }
   for (var i = 0; i < aProps.length; i++) {
     var propName = aProps[i]
-    console.log(a[propName] + '--------' + b[propName])
-    if (a[propName] !== b[propName]) {
+
+    var propA = a[propName]
+    var propB = b[propName]
+    if (!b.hasOwnProperty(propName)) return false
+    if ((propA instanceof Object)) {
+      if (isObjectValueEqual(propA, propB)) {
+        // return true     这里不能return ,后面的对象还没判断
+      } else {
+        return false
+      }
+    } else if (propA !== propB) {
       return false
-    }
+    } else { }
   }
   return true
+}
+
+export function randomString(e) {
+  e = e || 32
+  const t = 'ABCDEFGHJKMNPQRSTWXYZabcdefhijkmnprstwxyz2345678'
+  const a = t.length
+  let n = ''
+  for (let i = 0; i < e; i++) n += t.charAt(Math.floor(Math.random() * a))
+  return n
+}
+
+export function setCookie(name, value) {
+  var Days = 7
+  var exp = new Date()
+  exp.setTime(exp.getTime() + Days * 24 * 60 * 60 * 1000)
+  document.cookie = name + '=' + escape(value) + ';expires=' + exp.toGMTString() + ';domain=.classcipe.com'
+}
+
+export function getCookie(name) {
+  const reg = new RegExp('(^| )' + name + '=([^;]*)(;|$)')
+  const arr = document.cookie.match(reg)
+  if (arr) {
+    return decodeURI(arr[2])
+  } else {
+    return null
+  }
+}
+
+export function delCookie(name) {
+  var exp = new Date()
+  exp.setTime(exp.getTime() - 1)
+  var cval = getCookie(name)
+  if (cval != null) { document.cookie = name + '=' + cval + ';expires=' + exp.toGMTString() }
+}
+
+/**
+ * 邮箱
+ * @param {*} s
+ */
+export function isEmail (s) {
+  return /^([a-zA-Z0-9._-])+@([a-zA-Z0-9_-])+((.[a-zA-Z0-9_-]{2,3}){1,2})$/.test(s)
 }

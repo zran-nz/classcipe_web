@@ -32,3 +32,5 @@ export const NAV_THEME = {
   LIGHT: 'light',
   DARK: 'dark'
 }
+
+export const WEBSOCKET_TYPE_INIT = 'websocket_init'

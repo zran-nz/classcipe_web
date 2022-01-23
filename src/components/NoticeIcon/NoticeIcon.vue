@@ -49,6 +49,7 @@ import * as logger from '@/utils/logger'
 import { ListCementByUser } from '@/api/notice'
 import { RECEIVE_MSG } from '../../store/mutation-types'
 import NoMoreResources from '@/components/Common/NoMoreResources'
+
 export default {
   name: 'HeaderNotice',
   data () {
@@ -79,7 +80,7 @@ export default {
     // this.timerFun()
   },
   watch: {
-    '$store.state.app.receiveMsg': function (newValue) {
+    '$store.state.websocket.receiveMsg': function (newValue) {
       if (newValue) {
         this.loadData()
         this.$store.commit(RECEIVE_MSG, false)

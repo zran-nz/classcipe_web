@@ -8,16 +8,15 @@
     <div class="steps-content">
       <div class="role" v-if="currentStep === 0">
         <div>
-          <div><img src="~@/assets/logo/logo2.png" class="logo" /></div>
-          <div><img src="~@/assets/logo/Lasscipe-dark.png" class="name" /></div>
+          <!-- <div><img src="~@/assets/logo/logo2.png" class="logo" /></div>
+          <div><img src="~@/assets/logo/Lasscipe-dark.png" class="name" /></div> -->
           <div class="desc">Choose your role to enter</div>
         </div>
         <div class="role-item" :class="{ selected: selectedRole === 2 }" @click="handleSelectRole(2)">
           <div class="role-info">
             <img src="~@/assets/icons/role/teacher@2x.png" class="role-img" />
             <div>
-              <div class="role-name">I am a teacher</div>
-              <div class="role-desc">Teacher/Expert/Admin</div>
+              <div class="role-name">I am a teacher/admin/expert</div>
             </div>
           </div>
           <div class="arrow">
@@ -37,99 +36,126 @@
         </div>
       </div>
       <div class="register" v-if="currentStep === 1">
-        <div>
-          <div><img src="~@/assets/logo/logo2.png" class="logo" /></div>
-          <div><img src="~@/assets/logo/Lasscipe-dark.png" class="name" /></div>
-          <div class="desc">Sign Up</div>
-          <div class="desc2">
-            Already have an account? | <span><router-link :to="{ path: '/user/login' }">Sign In</router-link></span>
+        <!-- 老师注册 -->
+        <div v-if="selectedRole === 2">
+          <div>
+            <!-- <div><img src="~@/assets/logo/logo2.png" class="logo" /></div>
+            <div><img src="~@/assets/logo/Lasscipe-dark.png" class="name" /></div> -->
+            <div class="desc">Sign Up</div>
+            <div class="desc2">Sign Up to Classcipe using your Google account</div>
+            <div class="desc2">
+              Already have an account? |
+              <span><router-link :to="{ path: teacherLoginPath }">Sign In</router-link></span>
+            </div>
           </div>
-        </div>
-        <a-form :form="form" class="register-form" @submit="handleSubmit">
-          <a-form-item class="form-name">
-            <a-input
-              size="large"
-              type="text"
-              :placeholder="$t('user.register.name.placeholder')"
-              v-decorator="[
-                'name',
-                {
-                  rules: [
-                    {
-                      required: true,
-                      message: $t('user.register.name.required'),
-                    },
-                  ],
-                  validateTrigger: ['change', 'blur'],
-                },
-              ]"
-            ></a-input>
-          </a-form-item>
-
-          <a-form-item class="form-email">
-            <a-input
-              size="large"
-              type="text"
-              :placeholder="$t('user.register.email.placeholder')"
-              v-decorator="[
-                'email',
-                {
-                  rules: [
-                    //{
-                    //required: true,
-                    //type: 'email',
-                    //message: $t('user.email.required'),
-                    //},
-                    {
-                      validator: handleEmail,
-                    },
-                  ],
-                  validateTrigger: ['change', 'blur'],
-                },
-              ]"
-            ></a-input>
-          </a-form-item>
-
-          <a-form-item class="form-password">
-            <a-input-password
-              size="large"
-              :placeholder="$t('user.register.password.placeholder')"
-              v-decorator="[
-                'password',
-                {
-                  rules: [
-                    { required: true, message: $t('user.password.required') },
-                    {
-                      validator: handlePassword,
-                    },
-                  ],
-                  validateTrigger: ['change', 'blur'],
-                },
-              ]"
-            ></a-input-password>
-          </a-form-item>
-
-          <!-- <div class="forget-password">
-            <a-button type="link">Forget password</a-button>
-          </div> -->
-
-          <a-form-item class="form-sumit">
-            <a-button type="primary" block :loading="loading" size="large" html-type="submit">Sign Up</a-button>
-          </a-form-item>
-
           <div class="third-login-wrapper">
             <third-login-button
               icon="googleIcon"
-              :label="$t('user.login.loginWithGoogle')"
-              @click.native="thirdSignIn('google')"
+              :label="$t('user.login.SignUpWithGoogle')"
+              @click.native="thirdSignIn('google', 'teacher')"
             />
           </div>
-        </a-form>
-        <div class="info">
-          Sign in or sign up means you agree to Classcipe's
-          <span><a href="https://www.classcipe.com/term.html" target="_blank">Terms of service</a></span>
-          and
-          <span><a href="https://www.classcipe.com/policy.html" target="_blank">Privacy Policy</a></span>
+          <div class="info">
+            Sign in or sign up means you agree to Classcipe's
+            <span><a href="https://www.classcipe.com/term.html" target="_blank">Terms of service</a></span>
+            and
+            <span><a href="https://www.classcipe.com/policy.html" target="_blank">Privacy Policy</a></span>
+          </div>
+        </div>
+        <!-- 学生注册 -->
+        <div v-if="selectedRole === 4">
+          <div>
+            <!-- <div><img src="~@/assets/logo/logo2.png" class="logo" /></div>
+            <div><img src="~@/assets/logo/Lasscipe-dark.png" class="name" /></div> -->
+            <div class="desc">Sign Up</div>
+            <div class="desc2">
+              Already have an account? |
+              <span><router-link :to="{ path: studentLoginPath }">Sign In</router-link></span>
+            </div>
+          </div>
+          <a-form :form="form" class="register-form" @submit="handleSubmit">
+            <a-form-item class="form-name">
+              <a-input
+                size="large"
+                type="text"
+                :placeholder="$t('user.register.name.placeholder')"
+                v-decorator="[
+                  'name',
+                  {
+                    rules: [
+                      {
+                        required: true,
+                        message: $t('user.register.name.required'),
+                      },
+                    ],
+                    validateTrigger: ['change', 'blur'],
+                  },
+                ]"
+              ></a-input>
+            </a-form-item>
+
+            <a-form-item class="form-email">
+              <a-input
+                size="large"
+                type="text"
+                :placeholder="$t('user.register.email.placeholder')"
+                v-decorator="[
+                  'email',
+                  {
+                    rules: [
+                      {
+                        required: true,
+                        type: 'email',
+                        message: $t('user.email.required'),
+                      },
+                    ],
+                    validateTrigger: ['change', 'blur'],
+                  },
+                ]"
+              ></a-input>
+            </a-form-item>
+
+            <a-form-item class="form-password">
+              <a-input-password
+                size="large"
+                :placeholder="$t('user.register.password.placeholder')"
+                v-decorator="[
+                  'password',
+                  {
+                    rules: [
+                      { required: true, message: $t('user.password.required') },
+                      {
+                        validator: handlePassword,
+                      },
+                    ],
+                    validateTrigger: ['change', 'blur'],
+                  },
+                ]"
+              ></a-input-password>
+            </a-form-item>
+
+            <!-- <div class="forget-password">
+            <a-button type="link">Forget password</a-button>
+          </div> -->
+
+            <a-form-item class="form-sumit">
+              <a-button type="primary" block :loading="loading" size="large" html-type="submit">Sign Up</a-button>
+            </a-form-item>
+
+            <div class="third-login-wrapper">
+              <third-login-button
+                icon="googleIcon"
+                :label="$t('user.login.SignUpWithGoogle')"
+                @click.native="thirdSignIn('google', 'student')"
+              />
+            </div>
+          </a-form>
+          <div class="info">
+            Sign in or sign up means you agree to Classcipe's
+            <span><a href="https://www.classcipe.com/term.html" target="_blank">Terms of service</a></span>
+            and
+            <span><a href="https://www.classcipe.com/policy.html" target="_blank">Privacy Policy</a></span>
+          </div>
         </div>
       </div>
     </div>
@@ -153,7 +179,21 @@ export default {
       loading: false,
       currentStep: 0,
       selectedRole: null,
-      form: this.$form.createForm(this)
+      form: this.$form.createForm(this),
+      loginPath: '/user/login',
+      teacherLoginPath: '/user/login?role=teacher',
+      studentLoginPath: '/user/login?role=student',
+      inviteCode: ''
+    }
+  },
+  created() {
+    const paramSearch = new URLSearchParams(window.location.search)
+    const inviteCode = paramSearch.get('inviteCode')
+    if (inviteCode) {
+      this.inviteCode = inviteCode
+      this.loginPath = `/user/login?inviteCode=${inviteCode}`
+      this.teacherLoginPath = `/user/login?role=teacher&inviteCode=${inviteCode}`
+      this.studentLoginPath = `/user/login?role=student&inviteCode=${inviteCode}`
     }
   },
   computed: {},
@@ -170,10 +210,14 @@ export default {
       this.selectedRole = role
       this.next()
     },
-    thirdSignIn(source) {
+    thirdSignIn(source, role) {
       console.log('thirdSignIn', source)
       let url = getThirdAuthURL(source)
-      url += '?callbackUrl='
+      url += `?role=${role}`
+      if (this.inviteCode) {
+        url += `&inviteCode=${this.inviteCode}`
+      }
+      url += `&callbackUrl=`
       url += thirdAuthCallbackUrl
       console.log('full auth url ', url)
       window.location.href = url
@@ -189,12 +233,16 @@ export default {
         if (!err) {
           this.loading = true
           console.log('signup submit', values)
-          SignUp({
+          const signUpParams = {
             nickname: values.name,
             password: values.password,
             username: values.email,
             role: this.selectedRole
-          })
+          }
+          if (this.inviteCode) {
+            signUpParams.inviteCode = this.inviteCode
+          }
+          SignUp(signUpParams)
             .then(res => this.loginSuccess(res))
             .catch(err => this.requestFailed(err))
             .finally(() => {
@@ -234,7 +282,7 @@ export default {
           if (this.$store.getters.currentRole) {
             this.$router.push(this.$store.getters.defaultRouter)
           } else {
-            this.$router.push({ path: '/user/login' })
+            this.$router.push({ path: this.loginPath })
           }
         })
         .catch(e => {
@@ -293,7 +341,7 @@ export default {
   width: 520px;
   min-width: 520px;
   margin: 0 auto;
-  border: 1px solid #d3d7ec;
+  border: 1px solid #e8e8e8;
   border-radius: 20px;
   padding: 0px 50px;
   background-color: #fff;
@@ -403,8 +451,9 @@ export default {
         margin-bottom: 10px;
       }
       .desc {
-        margin-bottom: 5px;
-        font-size: 16px;
+        margin-top: 10px;
+        margin-bottom: 10px;
+        font-size: 24px;
         color: #000;
         font-family: FZCuYuan-M03S;
         font-weight: 800;

@@ -27,6 +27,22 @@ Vue.filter('dayjs1', function (dataStr, pattern = 'LLL') {
   return ''
 })
 
+Vue.filter('dayComment', function (dataStr, pattern = 'LLL') {
+  if (dataStr) {
+    const date = moment.utc(dataStr).local()
+    const currentDate = new Date()
+    // 五分钟以内
+    if (currentDate.getTime() - date.toDate().getTime() < 5 * 1000) {
+        return 'Just now'
+    } else if (currentDate.getTime() - date.toDate().getTime() < 24 * 60 * 60 * 100) {
+        return 'Today ' + date.format('LT')
+    } else {
+      return date.format(pattern)
+    }
+  }
+  return ''
+})
+
 Vue.filter('moment', function (dataStr, pattern = 'YYYY-MM-DD HH:mm:ss') {
   if (dataStr) {
     return moment.utc(dataStr).local().format(pattern)

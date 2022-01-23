@@ -1,73 +1,108 @@
 <template>
   <div class="user-login">
-    <div class="login">
-      <div>
-        <div><img src="~@/assets/logo/logo2.png" class="logo" /></div>
-        <div><img src="~@/assets/logo/Lasscipe-dark.png" class="name" /></div>
-        <div class="desc">Sign In</div>
-        <div class="desc2">
-          Don't have an account? | <span><router-link :to="{ path: '/user/register' }">Sign Up</router-link></span>
+    <a-tabs type="card" :defaultActiveKey="defaultActiveKey">
+      <a-tab-pane key="teacher" tab="Teacher">
+        <div class="login">
+          <div>
+            <!-- <div><img src="~@/assets/logo/logo2.png" class="logo" /></div>
+            <div><img src="~@/assets/logo/Lasscipe-dark.png" class="name" /></div> -->
+            <div class="desc">Sign In</div>
+            <div class="desc2">
+              Don't have an account? | <span><router-link :to="{ path: registerPath }">Sign Up</router-link></span>
+            </div>
+          </div>
+
+          <div class="third-login-wrapper">
+            <third-login-button
+              icon="googleIcon"
+              :label="$t('user.login.loginWithGoogle')"
+              @click.native="thirdSignIn('google', 'teacher')"
+            />
+          </div>
+
+          <!-- <div class="info">
+            Sign in or sign up means you agree to Classcipe's
+            <span><a href="https://www.classcipe.com/term.html" target="_blank">Terms of service</a></span>
+            and
+            <span><a href="https://www.classcipe.com/policy.html" target="_blank">Privacy Policy</a></span>
+          </div> -->
         </div>
-      </div>
-      <a-form :form="form" class="login-form" @submit="handleSubmit">
-        <a-form-item class="form-email">
-          <a-input
-            size="large"
-            type="text"
-            :placeholder="$t('user.register.email.placeholder')"
-            v-decorator="[
-              'email',
-              {
-                rules: [
+      </a-tab-pane>
+      <a-tab-pane key="student" tab="Student">
+        <div class="login">
+          <div>
+            <!-- <div><img src="~@/assets/logo/logo2.png" class="logo" /></div>
+            <div><img src="~@/assets/logo/Lasscipe-dark.png" class="name" /></div> -->
+            <div class="desc">Sign In</div>
+            <div class="desc2">
+              Don't have an account? | <span><router-link :to="{ path: registerPath }">Sign Up</router-link></span>
+            </div>
+          </div>
+          <a-form :form="form" class="login-form" @submit="handleSubmit">
+            <a-form-item class="form-email">
+              <a-input
+                size="large"
+                type="text"
+                :placeholder="$t('user.register.email.placeholder')"
+                v-decorator="[
+                  'email',
                   {
-                    required: true,
-                    type: 'email',
-                    message: $t('user.email.required'),
+                    rules: [
+                      {
+                        required: true,
+                        type: 'email',
+                        message: $t('user.email.required'),
+                      },
+                    ],
+                    validateTrigger: ['change', 'blur'],
                   },
-                ],
-                validateTrigger: ['change', 'blur'],
-              },
-            ]"
-          ></a-input>
-        </a-form-item>
+                ]"
+              ></a-input>
+            </a-form-item>
 
-        <a-form-item class="form-password">
-          <a-input-password
-            size="large"
-            :placeholder="$t('user.register.password.placeholder')"
-            v-decorator="[
-              'password',
-              {
-                rules: [{ required: true, message: $t('user.password.required') }],
-                validateTrigger: ['change', 'blur'],
-              },
-            ]"
-          ></a-input-password>
-        </a-form-item>
+            <a-form-item class="form-password">
+              <a-input-password
+                size="large"
+                :placeholder="$t('user.register.password.placeholder')"
+                v-decorator="[
+                  'password',
+                  {
+                    rules: [{ required: true, message: $t('user.password.required') }],
+                    validateTrigger: ['change', 'blur'],
+                  },
+                ]"
+              ></a-input-password>
+            </a-form-item>
 
-        <!-- <div class="forget-password">
+            <!-- <div class="forget-password">
           <a-button type="link">Forget password</a-button>
         </div> -->
 
-        <a-form-item class="form-sumit">
-          <a-button type="primary" block :loading="loading" size="large" html-type="submit">Sign In</a-button>
-        </a-form-item>
+            <a-form-item class="form-submit">
+              <a-button type="primary" block :loading="loading" size="large" html-type="submit">Sign In</a-button>
+            </a-form-item>
+          </a-form>
 
-        <div class="third-login-wrapper">
-          <third-login-button
-            icon="googleIcon"
-            :label="$t('user.login.loginWithGoogle')"
-            @click.native="thirdSignIn('google')"
-          />
+          <div class="or">
+            <span>- or -</span>
+          </div>
+
+          <div class="third-login-wrapper">
+            <third-login-button
+              icon="googleIcon"
+              :label="$t('user.login.loginWithGoogle')"
+              @click.native="thirdSignIn('google', 'student')"
+            />
+          </div>
+          <!-- <div class="info">
+            Sign in or sign up means you agree to Classcipe's
+            <span><a href="https://www.classcipe.com/term.html" target="_blank">Terms of service</a></span>
+            and
+            <span><a href="https://www.classcipe.com/policy.html" target="_blank">Privacy Policy</a></span>
+          </div> -->
         </div>
-      </a-form>
-      <div class="info">
-        Sign in or sign up means you agree to Classcipe's
-        <span><a href="https://www.classcipe.com/term.html" target="_blank">Terms of service</a></span>
-        and
-        <span><a href="https://www.classcipe.com/policy.html" target="_blank">Privacy Policy</a></span>
-      </div>
-    </div>
+      </a-tab-pane>
+    </a-tabs>
   </div>
 </template>
 
@@ -85,6 +120,7 @@ export default {
   data() {
     return {
       loading: false,
+      defaultActiveKey: 'teacher',
       // customActiveKey: 'tab1',
       // loginBtn: false,
       // // login type: 0 email, 1 username, 2 telephone
@@ -92,7 +128,9 @@ export default {
       // isLoginError: false,
       // requiredTwoStepCaptcha: false,
       // stepCaptchaVisible: false,
-      form: this.$form.createForm(this)
+      form: this.$form.createForm(this),
+      registerPath: '/user/register',
+      inviteCode: ''
       // state: {
       //   time: 60,
       //   loginBtn: false,
@@ -102,14 +140,29 @@ export default {
       // }
     }
   },
-  created() {},
+  created() {
+    const paramSearch = new URLSearchParams(window.location.search)
+    const role = paramSearch.get('role')
+    const inviteCode = paramSearch.get('inviteCode')
+    if (inviteCode) {
+      this.inviteCode = inviteCode
+      this.registerPath = `/user/register?inviteCode=${inviteCode}`
+    }
+    if (role) {
+      this.defaultActiveKey = role
+    }
+  },
   methods: {
     ...mapActions(['Login', 'Logout']),
 
-    thirdSignIn(source) {
+    thirdSignIn(source, role) {
       console.log('thirdSignIn', source)
       let url = getThirdAuthURL(source)
-      url += '?callbackUrl='
+      url += `?role=${role}`
+      if (this.inviteCode) {
+        url += `&inviteCode=${this.inviteCode}`
+      }
+      url += `&callbackUrl=`
       url += thirdAuthCallbackUrl
       console.log('full auth url ', url)
       window.location.href = url
@@ -142,11 +195,14 @@ export default {
         if (!err) {
           this.loading = true
           console.log('login form', values)
-          // loginParams.password = md5(values.password)
-          Login({
+          const loginParams = {
             username: values.email,
             password: values.password
-          })
+          }
+          if (this.inviteCode) {
+            loginParams.inviteCode = this.inviteCode
+          }
+          Login(loginParams)
             .then(res => this.loginSuccess(res))
             .catch(err => this.requestFailed(err))
             .finally(() => {
@@ -227,22 +283,29 @@ export default {
       }
     }
   }
+  .ant-tabs {
+    .ant-tabs-bar {
+      margin: 0;
+      border-bottom: none;
+    }
+  }
 }
 </style>
 <style lang="less" scoped>
 .user-login {
+  margin: 0 auto;
   width: 520px;
   min-width: 520px;
-  margin: 0 auto;
-  border: 1px solid #d3d7ec;
-  border-radius: 20px;
-  padding: 0px 50px;
-  background-color: #fff;
-  position: relative;
 
   .login {
-    padding: 40px 0px 55px;
+    background-color: #fff;
+    padding: 40px 50px 55px;
+    border: 1px solid #e8e8e8;
+    border-top-right-radius: 20px;
+    border-bottom-left-radius: 20px;
+    border-bottom-right-radius: 20px;
     text-align: center;
+
     .logo {
       margin-bottom: 5px;
     }
@@ -250,8 +313,8 @@ export default {
       margin-bottom: 10px;
     }
     .desc {
-      margin-bottom: 5px;
-      font-size: 16px;
+      margin-bottom: 10px;
+      font-size: 24px;
       color: #000;
       font-family: FZCuYuan-M03S;
       font-weight: 800;
@@ -267,10 +330,14 @@ export default {
         bottom: 20px;
       }
     }
-    .form-sumit {
+    .form-submit {
+      margin-bottom: 0px;
       button {
         border-radius: 8px;
       }
+    }
+    .or {
+      margin: 10px 0px;
     }
     .third-login-wrapper {
       margin-bottom: 20px;

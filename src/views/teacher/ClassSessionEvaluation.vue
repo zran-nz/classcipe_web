@@ -647,6 +647,7 @@ export default {
       isExistFormTable: false, // 是否已经添加过表格
       currentActiveFormId: null,
       form: { // 基础表单数据
+        id: null,
         classId: '',
         name: '',
         className: '',
@@ -673,7 +674,10 @@ export default {
         responseLimitTime: null, // 1638201600,
         copyFrom: null // null
       },
+      id: null,
       forms: [], // 评估表格数据
+      oldFormsJson: null, // 保存旧的评估表格数据
+      oldStudentEvaluationJson: null, // 保存旧的评估数据
       groups: [], // 班级分组信息
 
       selectedGroupIdList: [],
@@ -690,7 +694,7 @@ export default {
       selectRubricVisible: false,
       newFormType: EvaluationTableType.CenturySkills,
       rubricType: 'create',
-      newTableName: 'Evaluation Form',
+      newTableName: '21st Century Skills',
 
       currentEditingTitle: null,
       currentFormItem: null,
@@ -731,7 +735,32 @@ export default {
 
       allStudentUserList: [],
       allNoGroupStudentUserIdList: [], // 所有未分组的学生邮箱列表
-      allNoGroupStudentUserList: [] // 所有未分组的学生列表
+      allNoGroupStudentUserList: [], // 所有未分组的学生列表
+      initCompleted: false
+    }
+  },
+  beforeRouteLeave(to, from, next) {
+    this.$logger.info('beforeRouteLeave', to, from, next)
+    this.$logger.info('forms', this.forms, 'oldFormsJson', this.oldFormsJson)
+    this.$logger.info('studentEvaluateData', this.studentEvaluateData, 'oldStudentEvaluationJson', this.oldStudentEvaluationJson)
+    if (this.initCompleted && (JSON.stringify(this.forms) !== this.oldFormsJson || JSON.stringify(this.studentEvaluateData) !== this.oldStudentEvaluationJson)) {
+      this.$confirm({
+        title: 'Alert',
+        okText: 'Save',
+        cancelText: 'No',
+        content: 'Do you want to save the changes?',
+        onOk: () => {
+          this.handleSaveEvaluation()
+          setTimeout(() => {
+            next()
+          }, 500)
+        },
+        onCancel() {
+          next()
+        }
+      })
+    } else {
+      next()
     }
   },
   created () {
@@ -807,6 +836,8 @@ export default {
         } else {
           this.loadClassSessionEvaluationData()
         }
+
+        this.initCompleted = true
       })
     },
 
@@ -816,6 +847,9 @@ export default {
         // 加载班级信息数据
         this.$logger.info('GetSessionEvaluationByClassId response', response.result)
         // 所有的学生id用于遍历构造学生评价数据 "对象"
+        if (response.result && response.result.evaluation && response.result.evaluation.id) {
+          this.id = response.result.evaluation.id
+        }
         const allGroupStudentUserIdList = []
 
         const data = response.result
@@ -884,6 +918,7 @@ export default {
           })
 
           this.$logger.info('forms', this.forms)
+          this.oldFormsJson = JSON.stringify(this.forms)
 
           // forms为空那么数据已经失效
           if (!this.forms.length) {
@@ -924,6 +959,7 @@ export default {
         this.$logger.info('isEmptyStudentEvaluateData ' + isEmptyStudentEvaluateData, data.evaluation)
         if (!isEmptyStudentEvaluateData) {
           this.studentEvaluateData = JSON.parse(data.evaluation.studentEvaluateData)
+          this.oldStudentEvaluationJson = data.evaluation.studentEvaluateData
           if (allStudentUserIdList.length && this.mode !== EvaluationTableMode.Edit && this.formTableMode !== EvaluationTableMode.Preview) {
             this.currentActiveStudentId = allStudentUserIdList[0]
             this.selectedMemberIdList.push(this.currentActiveStudentId)
@@ -963,6 +999,7 @@ export default {
 
           this.$logger.info('studentEvaluateData init finished ', studentEvaluateData)
           this.studentEvaluateData = studentEvaluateData
+          this.oldStudentEvaluationJson = JSON.stringify(studentEvaluateData)
 
           if (this.mode !== EvaluationTableMode.Edit && this.formTableMode === EvaluationTableMode.Preview) {
             // 默认选中第一个学生的第一个评估表格
@@ -1436,8 +1473,14 @@ export default {
               }
               return false
             } else {
+              if (this.id) {
+                this.form.id = this.id
+              }
               SaveSessionEvaluation(this.form).then((response) => {
                 this.$logger.info('SaveSessionEvaluation', response)
+                if (response.result && response.result.id) {
+                  this.id = response.result.id
+                }
                 this.$message.success('Save successfully!')
                 this.formSaving = false
               }).then(() => {
@@ -1451,6 +1494,9 @@ export default {
                 if (this.mode === EvaluationTableMode.TeacherEvaluate && currentForm && (currentForm.pe || currentForm.se)) {
                   GetSessionEvaluationByClassId({ classId: this.classId }).then(response => {
                     this.$logger.info('after SaveSessionEvaluation GetSessionEvaluationByClassId', response)
+                    if (response.result && response.result.evaluation && response.result.evaluation.id) {
+                      this.id = response.result.evaluation.id
+                    }
 
                     const data = response.result
                     if (data.evaluation && data.evaluation.studentEvaluateData) {
@@ -1539,8 +1585,14 @@ export default {
           }
           return false
         } else {
+          if (this.id) {
+            this.form.id = this.id
+          }
           SaveSessionEvaluation(this.form).then((response) => {
             this.$logger.info('SaveSessionEvaluation', response)
+            if (response.result && response.result.id) {
+              this.id = response.result.id
+            }
             this.$message.success('Save successfully!')
             this.formSaving = false
           }).then(() => {
@@ -1554,6 +1606,9 @@ export default {
             if (this.mode === EvaluationTableMode.TeacherEvaluate && currentForm && (currentForm.pe || currentForm.se)) {
               GetSessionEvaluationByClassId({ classId: this.classId }).then(response => {
                 this.$logger.info('after SaveSessionEvaluation GetSessionEvaluationByClassId', response)
+                if (response.result && response.result.evaluation && response.result.evaluation.id) {
+                  this.id = response.result.evaluation.id
+                }
 
                 const data = response.result
                 if (data.evaluation && data.evaluation.studentEvaluateData) {
@@ -1604,7 +1659,7 @@ export default {
     },
 
     goEvaluatePage () {
-      window.location.pathname = '/teacher/class-evaluation/' + this.taskId + '/' + this.classId + '/teacher-evaluate'
+      // window.location.pathname = '/teacher/class-evaluation/' + this.taskId + '/' + this.classId + '/teacher-evaluate'
     },
     handleSaveAndBackEvaluation () {
       this.$logger.info('handleSaveAndBackEvaluation', this.forms)
@@ -1651,16 +1706,18 @@ export default {
               this.formSaving = false
               return false
             } else {
+              if (this.id) {
+                this.form.id = this.id
+              }
               SaveSessionEvaluation(this.form).then((response) => {
                 this.$logger.info('SaveSessionEvaluation', response)
+                if (response.result && response.result.id) {
+                  this.id = response.result.id
+                }
                 if (response.success) {
                   this.$message.success('Save successfully!')
                   this.formSaving = false
-                  if (window.history.length <= 1) {
-                    this.$router.push({ path: '/teacher/main/created-by-me' })
-                  } else {
-                    this.$router.go(-1)
-                  }
+                  this.$router.push({ path: '/teacher/main/created-by-me' })
                 } else {
                   this.$message.error(response.message)
                 }
@@ -1705,12 +1762,18 @@ export default {
           this.formSaving = false
           return false
         } else {
+          if (this.id) {
+            this.form.id = this.id
+          }
           SaveSessionEvaluation(this.form).then((response) => {
             this.$logger.info('SaveSessionEvaluation', response)
+            if (response.result && response.result.id) {
+              this.id = response.result.id
+            }
             if (response.success) {
               this.$message.success('Save successfully!')
               this.formSaving = false
-              this.goBack()
+              this.$router.push({ path: '/teacher/main/created-by-me' })
             } else {
               this.$message.error(response.message)
             }
@@ -1760,6 +1823,7 @@ export default {
       } else if (newFormType === EvaluationTableType.CenturySkills) {
         this.newTableName = '21st Century Skills ' + (this.forms.length + 1)
       }
+      this.$logger.info('newTableName', this.newTableName)
     },
 
     handleDeleteForm (formItem) {
@@ -1931,7 +1995,7 @@ export default {
             this.$confirm({
               content: 'Are you sure to switch to edit mode ?',
               onOk: () => {
-                window.location.pathname = '/teacher/class-evaluation/' + this.taskId + '/' + this.classId + '/edit'
+                // window.location.pathname = '/teacher/class-evaluation/' + this.taskId + '/' + this.classId + '/edit'
               }
             })
           } else {
@@ -1980,6 +2044,14 @@ export default {
     },
     handleToggleFormType (formType) {
       this.newFormType = formType
+      if (formType === EvaluationTableType.Rubric) {
+        this.newTableName = 'Rubric ' + (this.forms.length + 1)
+      } else if (formType === EvaluationTableType.Rubric_2) {
+        this.newTableName = 'Rubric ' + (this.forms.length + 1)
+      } else if (formType === EvaluationTableType.CenturySkills) {
+        this.newTableName = '21st Century Skills ' + (this.forms.length + 1)
+      }
+      this.$logger.info('newTableName', this.newTableName)
     },
 
     handleUpdateHeader (header) {
@@ -2138,12 +2210,16 @@ export default {
                 }
 
                 .group-name {
+                  overflow: hidden;
+                  text-overflow: ellipsis;
+                  word-break: break-all;
+                  white-space: nowrap;
                   padding: 0 5px;
                 }
 
                 .group-select-status {
                   margin-left: 5px;
-                  width: 30px;
+                  width: 10px;
                   user-select: none;
 
                   svg {
@@ -2222,6 +2298,7 @@ export default {
         }
 
         .form-table-detail {
+          margin-right: -30px;
           overflow-x: scroll;
         }
       }

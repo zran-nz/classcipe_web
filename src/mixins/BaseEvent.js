@@ -1,4 +1,9 @@
 import { QueryContentCollaborates } from '@/api/collaborate'
+import { COLLABORATE, SAVE_CONTENT } from '@/websocket/cmd'
+import CollborateMsg from '@/websocket/model/collborateMsg'
+import SaveContentMsg from '@/websocket/model/saveContentMsg'
+import { isEqualWith } from 'lodash-es'
+import { SESSION_CURRENT_PAGE, SESSION_CURRENT_TYPE, SESSION_CURRENT_TYPE_LABEL } from '@/const/common'
 
 export const RightModule = {
   'collaborate': 1,
@@ -17,8 +22,15 @@ export const BaseEventMixin = {
       rightWidth: 600,
       leftWidth: 730,
       collaborate: {},
-      initCompleted: false
+      initCompleted: false,
+      updateContentVisible: false,
+      defaultHistoryKey: '1',
+      showCollaborateModalVisible: false,
+      collaborateContent: null,
+      currentFieldName: {}
     }
+  },
+  watch: {
   },
   created () {
   },
@@ -28,6 +40,8 @@ export const BaseEventMixin = {
       this.resetWidth()
     }
     window.addEventListener('beforeunload', (e) => this.beforeunloadHandler(e))
+    // 重置协同消息提醒数据
+    this.$store.getters.vueSocket.sendAction('receiveSaveContentMsg', '')
   },
   destroyed () {
     window.removeEventListener('beforeunload', (e) => this.beforeunloadHandler(e))
@@ -46,11 +60,32 @@ export const BaseEventMixin = {
       const index = this.collaborate.users.findIndex(item => item.email === this.$store.getters.userInfo.email)
       return index > -1
     },
+    canEdit() {
+      return this.isOwner || this.isCollaborater
+    },
     showRightModule () {
       return function (module) {
         if (this.showModuleList.indexOf(module) > -1) {
           return true
         }
+        return false
+      }
+    },
+    showUpdateContent() {
+      const contentMsg = this.$store.state.websocket.saveContentMsg
+      console.log(contentMsg)
+      if (contentMsg && contentMsg.content.id === this.form.id) {
+        console.log(JSON.stringify(contentMsg.content.details))
+        // 默认updateTime和grade不更新
+        contentMsg.content.details.updateTime = this.oldForm.updateTime
+        contentMsg.content.details.gradeId = this.oldForm.gradeId
+        if (contentMsg.hideUpdate) {
+          return false
+        } else if (!isEqualWith(contentMsg.content.details, this.oldForm)) {
+          return true
+        }
+        return false
+      } else {
         return false
       }
     }
@@ -116,6 +151,55 @@ export const BaseEventMixin = {
       } else {
         this.$router.push({ path: '/teacher/main/created-by-me' })
       }
+    },
+    handleCollaborateEvent(formId, fieldName, inputValue) {
+      const collaborate = new CollborateMsg()
+      collaborate.id = formId
+      collaborate.fieldName = fieldName
+      collaborate.inputValue = inputValue
+      const userIds = this.collaborate.users.filter(user => user.userId !== this.$store.getters.userInfo.id)
+        .map(item => { return item.userId })
+      if (!this.isOwner) {
+          // 通知owner
+          if (userIds.indexOf(this.collaborate.owner.id) === -1) {
+            userIds.push(this.collaborate.owner.id)
+          }
+      }
+      if (userIds.length > 0) {
+        this.$store.getters.vueSocket.sendMessageToUsers(COLLABORATE, userIds,
+          CollborateMsg.convert2CollborateMsg(collaborate))
+      }
+    },
+
+    handleSaveContentEvent(id, type, contentData) {
+      const contentMsg = new SaveContentMsg()
+      contentMsg.id = id
+      contentMsg.type = type
+      contentMsg.details = contentData
+      const userIds = this.collaborate.users.filter(user => user.userId !== this.$store.getters.userInfo.id)
+        .map(item => { return item.userId })
+      if (!this.isOwner) {
+        // 通知owner
+        if (userIds.indexOf(this.collaborate.owner.id) === -1) {
+          userIds.push(this.collaborate.owner.id)
+        }
+      }
+      if (userIds.length > 0) {
+        this.$store.getters.vueSocket.sendMessageToUsers(SAVE_CONTENT, userIds,
+          SaveContentMsg.convert2SaveContentMsg(contentMsg))
+      }
+    },
+
+    // 取消comment
+    handleCancelComment() {
+      this.resetRightModuleVisible()
+      this.currentFieldName = ''
+    },
+    cleaPageCache() {
+      // del cache
+      sessionStorage.removeItem(SESSION_CURRENT_PAGE)
+      sessionStorage.removeItem(SESSION_CURRENT_TYPE_LABEL)
+      sessionStorage.removeItem(SESSION_CURRENT_TYPE)
     }
   }
 

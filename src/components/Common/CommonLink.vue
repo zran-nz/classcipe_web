@@ -39,9 +39,9 @@
                   </div>
                 </template>
               </div>
-              <div class="group-right-info" v-if="canEdit">
+              <div class="group-right-info" >
                 <div class="group-action">
-                  <a-button type="primary" @click="handleLinkGroup(linkGroup)" :style="{'background-color': '#fff', 'color': '#000', 'border': 'none'}">
+                  <a-button v-show="canEdit" type="primary" @click="handleLinkGroup(linkGroup)" :style="{'background-color': '#fff', 'color': '#000', 'border': 'none'}">
                     <div class="btn-text" style="line-height: 20px">
                       + Link
                     </div>

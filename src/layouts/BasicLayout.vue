@@ -24,6 +24,7 @@
     <template v-slot:menuRender>
       <expert-nav v-show="$store.getters.currentRole === 'expert'"></expert-nav>
       <teacher-nav v-show="$store.getters.currentRole === 'teacher'"></teacher-nav>
+      <student-nav v-show="$store.getters.currentRole === 'student'"></student-nav>
     </template>
     <template v-slot:rightContentRender>
       <right-content :top-menu="settings.layout === 'topmenu'" :is-mobile="isMobile" :theme="settings.theme" @switch-role="handleSwitchRole" />
@@ -50,10 +51,12 @@ import * as logger from '@/utils/logger'
 
 import TeacherNav from '@/components/GlobalHeader/TeacherNav'
 import ExpertNav from '@/components/GlobalHeader/ExpertNav'
+import StudentNav from '@/components/GlobalHeader/StudentNav'
 
 export default {
   name: 'BasicLayout',
   components: {
+    StudentNav,
     RightContent,
     GlobalFooter,
     TeacherNav,

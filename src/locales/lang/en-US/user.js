@@ -16,6 +16,7 @@ export default {
   'user.login.signup': 'Sign up',
   'user.login.login': 'Sign in',
   'user.login.loginWithGoogle': 'Sign in with Google',
+  'user.login.SignUpWithGoogle': 'Sign up with Google',
   'user.register.register': 'Register',
   'user.register.name.placeholder': 'Please enter your name',
   'user.register.name.required': 'Please enter your name!',

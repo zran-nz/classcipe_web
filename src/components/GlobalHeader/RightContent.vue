@@ -6,7 +6,7 @@
     <!--          <a-icon type="mail" theme="filled" :class="{'icon-active': routeActive, 'icon-inactive': !routeActive}" />-->
     <!--        </a-badge>-->
     <!--      </router-link>-->
-    <Notice-Icon></Notice-Icon>
+    <Notice-Icon v-show="$store.getters.currentRole !== 'student'"></Notice-Icon>
     <!--    </div>-->
     <avatar-dropdown :menu="showMenu" :current-user="$store.getters.userInfo" :class="prefixCls" @switch-role="handleSwitchRole" />
     <!--    <select-lang :class="prefixCls" />-->

@@ -1,44 +1,36 @@
 <template>
-  <div class="my-full-form-wrapper">
-    <div class="form-header">
+  <div class='my-full-form-wrapper'>
+    <div class='form-header'>
       <common-form-header
-        ref="commonFormHeader"
-        :collaborate="collaborate"
-        :form="form"
-        :last-change-saved-time="lastChangeSavedTime"
-        @back="goBack"
-        @collaborate="handleStartCollaborate"
-        @publish="handlePublishUnitPlan"
-        @save="handleSaveUnitPlan"
-        @view-collaborate="handleViewCollaborate"
+        ref='commonFormHeader'
+        :collaborate='collaborate'
+        :form='form'
+        :share-status='shareStatus'
+        :last-change-saved-time='lastChangeSavedTime'
+        @back='goBack'
+        @collaborate='handleStartCollaborate'
+        @publish='handlePublishUnitPlan'
+        @save='handleSaveUnitPlan'
+        @share='handleShareUnitPlan'
+        @view-collaborate='handleViewCollaborate'
       />
     </div>
-    <a-card :bodyStyle="{ padding: '16px 24px', height: '100%', minHeight: '1200px' }" :bordered="false">
-      <a-row v-if="!contentLoading" class="unit-content">
-        <!--        <a-col span="4" v-if="showSidebar">
-          <associate-sidebar
-            :name="form.name"
-            :type="contentType['unit-plan']"
-            :id="unitPlanId"
-            ref="associate"
-            @create="showSelectAddContentTypeVisible"
-            @link="showSelectLinkContentVisible"
-            :show-create="true"/>
-        </a-col>-->
-        <a-col class="main-content" span="24">
+    <a-card :bodyStyle="{ padding: '16px 24px', height: '100%', minHeight: '1200px' }" :bordered='false'>
+      <a-row v-if='!contentLoading' class='unit-content'>
+        <a-col class='main-content' span='24'>
           <a-card
             :body-style="{ padding: '16px', display: 'flex', 'justify-content': 'space-between'}"
-            :bordered="false"
-            class="card-wrapper">
+            :bordered='false'
+            class='card-wrapper'>
             <div
-              ref="form"
+              ref='form'
               :style="{'width':leftWidth + 'px'}"
-              class="unit-plan-form-left root-locate-form"
-              @click="focusInput($event)">
-              <a-form-model :model="form" class="my-form-wrapper">
-                <a-steps :current="currentActiveStepIndex" direction="vertical" @change="onChangeStep">
-                  <a-step :status="currentActiveStepIndex === 0 ? 'process':'wait'" title="Edit Unit plan">
-                    <template v-if="currentActiveStepIndex === 0" slot="description">
+              class='unit-plan-form-left root-locate-form'
+              @click='focusInput($event)'>
+              <a-form-model :model='form' class='my-form-wrapper'>
+                <a-steps :current='currentActiveStepIndex' direction='vertical' @change='onChangeStep'>
+                  <a-step :status="currentActiveStepIndex === 0 ? 'process':'wait'" title='Edit Unit plan'>
+                    <template v-if='currentActiveStepIndex === 0' slot='description'>
                       <!--                      <div class="form-block">
                         <div class="refer-action row-flex-right">
                           <div class="refer-text">
@@ -55,80 +47,103 @@
                         </div>
                       </div>-->
 
-                      <div class="form-block">
+                      <div class='form-block'>
+                        <collaborate-tooltip :form-id="unitPlanId" :fieldName=planField.Name />
                         <comment-switch
-                          :is-active="currentFieldName === 'name'"
-                          class="my-comment-switch"
-                          field-name="name"
-                          @switch="handleSwitchComment" />
-                        <a-form-item label="Unit Name">
-                          <a-input v-model="form.name" class="my-form-input" placeholder="Enter Unit Name" />
+                          v-show="this.canEdit"
+                          :is-active="currentFieldName === planField.Name"
+                          :class="{'my-comment-switch':true,'my-comment-show':currentFieldName === planField.Name}"
+                          :field-name=planField.Name
+                          @switch='handleSwitchComment'/>
+                        <a-form-item label='Unit Name'>
+                          <a-input v-model='form.name' class='my-form-input' placeholder='Enter Unit Name' @change="handleCollaborateEvent(unitPlanId,planField.Name,form.name)" />
                         </a-form-item>
                       </div>
 
-                      <div class="form-block form-radio-wrapper">
-                        <comment-switch field-name="projectBased" :is-active="currentFieldName === 'projectBased'" @switch="handleSwitchComment" class="my-comment-switch"/>
-                        <a-form-item label="Project-based Unit" style="display:flex">
-                          <a-radio-group name="radioGroup" v-model="form.projectBased" style="margin-left:20px;">
-                            <a-radio :value="1">
+                      <div class='form-block form-radio-wrapper'>
+                        <collaborate-tooltip :form-id="unitPlanId" :fieldName=planField.ProjectBased style="top:-30px" />
+                        <comment-switch
+                          v-show="this.canEdit"
+                          :field-name='planField.ProjectBased'
+                          :is-active="currentFieldName === planField.ProjectBased"
+                          @switch='handleSwitchComment'
+                          :class="{'my-comment-switch':true,'my-comment-show':currentFieldName === planField.ProjectBased}"
+                        />
+                        <a-form-item label='Project-based Unit' style='display:flex'>
+                          <a-radio-group name='radioGroup' v-model='form.projectBased' style='margin-left:20px;' @change="handleCollaborateEvent(unitPlanId,planField.ProjectBased,form.projectBased)" >
+                            <a-radio :value='1'>
                               Yes
                             </a-radio>
-                            <a-radio :value="0">
+                            <a-radio :value='0'>
                               No
                             </a-radio>
                           </a-radio-group>
                         </a-form-item>
                       </div>
 
-                      <div class="form-block form-radio-wrapper">
-                        <comment-switch field-name="unitType" :is-active="currentFieldName === 'unitType'" @switch="handleSwitchComment" class="my-comment-switch"/>
-                        <a-form-item label="Unit type" style="display:flex">
-                          <a-radio-group name="unitType" v-model="form.unitType" style="margin-left:20px;">
-                            <a-radio :value="0">
+                      <div class='form-block form-radio-wrapper'>
+                        <collaborate-tooltip :form-id="unitPlanId" :fieldName=planField.UnitType style="top:-30px"/>
+                        <comment-switch
+                          v-show="this.canEdit"
+                          :field-name=planField.UnitType
+                          :is-active="currentFieldName === planField.UnitType"
+                          @switch='handleSwitchComment'
+                          :class="{'my-comment-switch':true,'my-comment-show':currentFieldName === planField.UnitType}" />
+                        <a-form-item label='Unit type' style='display:flex'>
+                          <a-radio-group name='unitType' v-model='form.unitType' style='margin-left:20px;' @change="handleCollaborateEvent(unitPlanId,planField.UnitType,form.unitType)" >
+                            <a-radio :value='0'>
                               Single-subject Unit
                             </a-radio>
-                            <a-radio :value="1">
+                            <a-radio :value='1'>
                               Integrated Unit
                             </a-radio>
                           </a-radio-group>
                         </a-form-item>
                       </div>
 
-                      <div class="form-block grade-time">
-                        <comment-switch field-name="startDate" :is-active="currentFieldName === 'startDate'" @switch="handleSwitchComment" class="my-comment-switch"/>
-                        <a-form-item label="Grade level" style="width:26%;margin-bottom: 0px;">
+                      <div class='form-block grade-time'>
+                        <collaborate-tooltip :form-id="unitPlanId" :fieldName=planField.StartDate />
+                        <comment-switch
+                          v-show="this.canEdit"
+                          :field-name=planField.StartDate
+                          :is-active="currentFieldName === planField.StartDate"
+                          @switch='handleSwitchComment'
+                          :class="{'my-comment-switch':true,'my-comment-show':currentFieldName === planField.StartDate}" />
+                        <a-form-item label='Grade level' style='width:26%;margin-bottom: 0px;'>
                           <a-select
-                            v-model="form.gradeId"
-                            class="my-big-select"
-                            placeholder="Select a grade"
-                            size="large">
-                            <a-select-option v-for="(grade,index) in gradeList" :key="index" :value="grade.id">
+                            :getPopupContainer="trigger => trigger.parentElement"
+                            v-model='form.gradeId'
+                            class='my-big-select'
+                            placeholder='Select a grade'
+                            size='large'>
+                            <a-select-option v-for='(grade,index) in gradeList' :key='index' :value='grade.id'>
                               {{ grade.name }}
                             </a-select-option>
                           </a-select>
                         </a-form-item>
                         <a-form-item
-                          class="range-time"
-                          label="Start Date"
-                          style="width:70%;margin-bottom: 0px;position:relative">
-                          <div v-if="getWeek" class="week-time">
-                            <a-tag color="cyan" style="border-radius: 10px;font-size: 14px;">
+                          class='range-time'
+                          label='Start Date'
+                          style='width:70%;margin-bottom: 0px;position:relative'>
+                          <div v-if='getWeek' class='week-time'>
+                            <a-tag color='cyan' style='border-radius: 10px;font-size: 14px;'>
                               {{ getWeek }}
                             </a-tag>
                           </div>
                           <a-range-picker
-                            v-model="rangeDate"
+                            @openChange="handleCollaborateEvent(unitPlanId,planField.StartDate,form.startDate)"
+                            v-model='rangeDate'
                             :show-time="{ format: 'HH:mm' }"
-                            format="LLL"
-                            size="large"
-                            style="width:100%">
-                            <a-icon slot="suffixIcon" type="calendar" />
+                            format='LLL'
+                            size='large'
+                            style='width:100%'>
+                            <a-icon slot='suffixIcon' type='calendar' />
                           </a-range-picker>
                         </a-form-item>
                       </div>
 
                       <!--                      <div class="form-block over-form-block overview" id="overview">-->
-                      <!--                        <comment-switch field-name="overview" :is-active="showCollaborateCommentVisible && currentFieldName === 'overview'" @switch="handleSwitchComment" class="my-comment-switch"/>-->
+                      <!--                        <comment-switch v-show="this.canEdit" field-name="overview" :is-active="showCollaborateCommentVisible && currentFieldName === 'overview'" @switch="handleSwitchComment" class="my-comment-switch"/>-->
                       <!--                        &lt;!&ndash; 暂时隐藏Unit overview模块&ndash;&gt;-->
                       <!--                        <a-form-model-item class="task-audio-line" label="Unit Overview">-->
                       <!--                          <a-textarea class="overview" v-model="form.overview" placeholder="Overview" allow-clear />-->
@@ -170,78 +185,85 @@
 
                       <!--                      </div>-->
 
-                      <div id="inquiry" class="form-block inquiry-form-block">
+                      <div id='inquiry' class='form-block inquiry-form-block'>
+                        <collaborate-tooltip :form-id="unitPlanId" :field-name=planField.Inquiry />
                         <comment-switch
-                          :is-active="currentFieldName === 'inquiry'"
-                          class="my-comment-switch"
-                          field-name="inquiry"
-                          @switch="handleSwitchComment" />
+                          v-show="this.canEdit"
+                          :is-active="currentFieldName === planField.Inquiry"
+                          :class="{'my-comment-switch':true,'my-comment-show':currentFieldName === planField.Inquiry}"
+                          :field-name=planField.Inquiry
+                          @switch='handleSwitchComment' />
                         <!--                <a-divider />-->
-                        <a-form-item class="bigIdea" label="Big Idea/ Statement of Inquiry/ Central Idea">
+                        <a-form-item class='bigIdea' label='Big Idea/ Statement of Inquiry/ Central Idea'>
                           <a-textarea
-                            v-model="form.inquiry"
+                            v-model='form.inquiry'
                             :placeholder="$store.getters.currentRole === 'teacher' ? $t('teacher.add-unit-plan.teacher-direction-of-inquiry') : $t('teacher.add-unit-plan.expert-direction-of-inquiry')"
                             auto-size
-                            class="my-form-textarea inquiry"
+                            class='my-form-textarea inquiry'
+                            @change="handleCollaborateEvent(unitPlanId,planField.Inquiry,form.inquiry)"
                           />
                         </a-form-item>
-                        <a-tooltip title="Browse" @click.stop="selectBigIdeaDataVisible=true">
-                          <span class="browse">
-                            <a-icon theme="twoTone" twoToneColor="rgba(21, 195, 154, 1)" type="appstore" />
+                        <a-tooltip title='Browse' @click.stop='selectBigIdeaDataVisible=true'>
+                          <span class='browse'>
+                            <a-icon theme='twoTone' twoToneColor='rgba(21, 195, 154, 1)' type='appstore' />
                           </span>
                         </a-tooltip>
                       </div>
 
                       <!--            real-life-scenario-->
-                      <div class="form-block ">
+                      <div class='form-block '>
+                        <collaborate-tooltip :form-id="unitPlanId" :fieldName=planField.Sdg />
                         <comment-switch
-                          :is-active="currentFieldName === 'sdg'"
-                          class="my-comment-switch"
-                          field-name="sdg"
-                          style="top:40px"
-                          @switch="handleSwitchComment" />
+                          v-show="this.canEdit"
+                          :is-active="currentFieldName === planField.Sdg"
+                          :class="{'my-comment-switch':true,'my-comment-show':currentFieldName === planField.Sdg}"
+                          :field-name=planField.Sdg
+                          style='top:40px'
+                          @switch='handleSwitchComment' />
                         <a-divider>Teaching goals</a-divider>
                         <a-row>
-                          <a-col span="24">
-                            <div class="form-block-title">
+                          <a-col span='24'>
+                            <div class='form-block-title'>
                               UN Sustainable Development Goal(s)
                             </div>
                           </a-col>
                         </a-row>
                         <!--sdg and KeyWords-->
                         <div
-                          v-for="(scenario, sdgIndex) in form.scenarios"
-                          id="sdg"
-                          :key="sdgIndex"
-                          class="sdg-content-blocks sdg-form-block">
-
+                          v-for='(scenario, sdgIndex) in form.scenarios'
+                          id='sdg'
+                          :key='sdgIndex'
+                          class='sdg-content-blocks sdg-form-block'
+                        >
                           <!--description-->
-                          <div class="scenario-description">
+                          <div class='scenario-description'>
                             <div
-                              v-show="form.scenarios.length > 1"
-                              class="sdg-delete-wrapper"
-                              @click="handleDeleteSdg(sdgIndex)">
-                              <a-tooltip placement="top">
-                                <template slot="title">
+                              v-show='form.scenarios.length > 1'
+                              class='sdg-delete-wrapper'
+                              @click='handleDeleteSdg(sdgIndex)'>
+                              <a-tooltip placement='top'>
+                                <template slot='title'>
                                   <span>{{ $t('teacher.add-unit-plan.delete-goal') }}</span>
                                 </template>
-                                <div class="sdg-delete">
-                                  <a-icon :style="{ fontSize: '20px' }" type="delete" />
+                                <div class='sdg-delete'>
+                                  <a-icon :style="{ fontSize: '20px' }" type='delete' />
                                 </div>
                               </a-tooltip>
                             </div>
                             <!--sdg-->
                             <a-form-model-item>
                               <a-select
-                                v-model="scenario.sdgId"
-                                class="my-big-select"
-                                placeholder="Select a goal from UN"
-                                size="large">
+                                :getPopupContainer="trigger => trigger.parentElement"
+                                v-model='scenario.sdgId'
+                                @change="handleCollaborateEvent(unitPlanId,planField.Sdg,form.sdg)"
+                                class='my-big-select'
+                                placeholder='Select a goal from UN'
+                                size='large'>
                                 <a-select-option
-                                  v-for="(sdg,index) in sdgList"
-                                  :key="index"
-                                  :disabled="selectedSdg.indexOf(sdg.id) != -1"
-                                  :value="sdg.id">
+                                  v-for='(sdg,index) in sdgList'
+                                  :key='index'
+                                  :disabled='selectedSdg.indexOf(sdg.id) != -1'
+                                  :value='sdg.id'>
                                   {{ sdg.name }}
                                 </a-select-option>
                               </a-select>
@@ -249,15 +271,17 @@
 
                             <a-form-model-item>
                               <input-search
-                                ref="descriptionInputSearch"
-                                :currend-index="currentIndex"
-                                :default-value="scenario.description"
-                                :key-index="sdgIndex"
-                                :search-list="descriptionSearchList"
-                                label="description"
-                                @reset="descriptionSearchList = []"
-                                @search="handleDescriptionSearch"
-                                @select-item="handleSelectScenario" />
+                                ref='descriptionInputSearch'
+                                :currend-index='currentIndex'
+                                :default-value='scenario.description'
+                                :key-index='sdgIndex'
+                                :search-list='descriptionSearchList'
+                                label='description'
+                                @reset='descriptionSearchList = []'
+                                @search='handleDescriptionSearch'
+                                @select-item='handleSelectScenario'
+                                @change="handleCollaborateEvent(unitPlanId,planField.Sdg,form.sdg)"
+                              />
                             </a-form-model-item>
 
                           </div>
@@ -268,21 +292,24 @@
                           </a-form-model-item>-->
                         </div>
                         <a-button
-                          class="add-button"
-                          icon="plus-circle"
-                          size="large"
-                          style="top:-20px"
-                          type="link"
-                          @click="handleAddMoreSdg"></a-button>
+                          class='add-button'
+                          icon='plus-circle'
+                          size='large'
+                          style='top:-20px'
+                          type='link'
+                          @click='handleAddMoreSdg'></a-button>
                       </div>
 
-                      <div class="form-block form-block-rwc" >
-                        <a-form-model-item label="Real World Connection(s)">
+                      <div class='form-block form-block-rwc'>
+                        <collaborate-tooltip :form-id="unitPlanId" :fieldName=planField.Rwc />
+                        <a-form-model-item label='Real World Connection(s)'>
                           <a-select
-                            size="large"
-                            v-model="form.rwc"
-                            placeholder="Choose real world connection">
-                            <a-select-option :value="item.id" v-for="(item, index) in rwcList" :key="index" >
+                            :getPopupContainer="trigger => trigger.parentElement"
+                            size='large'
+                            v-model='form.rwc'
+                            placeholder='Choose real world connection'
+                            @change="handleCollaborateEvent(unitPlanId,planField.Rwc,form.rwc)">
+                            <a-select-option :value='item.id' v-for='(item, index) in rwcList' :key='index'>
                               {{ item.name }}
                             </a-select-option>
                           </a-select>
@@ -291,149 +318,165 @@
 
                       <div
                         :class="{'form-block': true, 'form-block-disabled' : $store.getters.userInfo.disableQuestion}">
+                        <collaborate-tooltip :form-id="unitPlanId" :fieldName=planField.Question />
                         <comment-switch
-                          v-if="!$store.getters.userInfo.disableQuestion"
-                          :is-active="currentFieldName === 'question'"
-                          class="my-comment-switch"
-                          field-name="question"
-                          @switch="handleSwitchComment" />
-                        <a-form-item class="unit-question">
-                          <span slot="label">
-                            <a-tooltip title="Set key question/Line of inquiry">
+                          v-show="this.canEdit"
+                          v-if='!$store.getters.userInfo.disableQuestion'
+                          :is-active="currentFieldName === planField.Question"
+                          :class="{'my-comment-switch':true,'my-comment-show':currentFieldName === planField.Question}"
+                          :field-name=planField.Question
+                          @switch='handleSwitchComment' />
+                        <a-form-item class='unit-question'>
+                          <span slot='label'>
+                            <a-tooltip title='Set key question/Line of inquiry'>
                               <a-icon
-                                style="color: #15c39a;cursor: pointer;font-size: 18px"
-                                type="exclamation-circle"
-                                @click="questionSettingVisible=true" />
+                                style='color: #15c39a;cursor: pointer;font-size: 18px'
+                                type='exclamation-circle'
+                                @click='questionSettingVisible=true' />
                             </a-tooltip>
                             Key question(s) / Line(s) of inquiry
                           </span>
-                          <div v-if="!$store.getters.userInfo.disableQuestion">
-                            <div class="question-more">
-                              <a-button type="link" @click="questionMoreVisible=true">more</a-button>
+                          <div v-if='!$store.getters.userInfo.disableQuestion'>
+                            <div class='question-more'>
+                              <a-button type='link' @click='questionMoreVisible=true'>more</a-button>
                             </div>
-                            <div v-if="showRecommendQuestion" class="recommend-question">
-                              <a-icon class="close-icon" type="close" @click.stop="hideRecommendQuestion=true" />
-                              <div class="recommend-box">
+                            <div v-if='showRecommendQuestion' class='recommend-question'>
+                              <a-icon class='close-icon' type='close' @click.stop='hideRecommendQuestion=true' />
+                              <div class='recommend-box'>
                                 <a-tooltip
-                                  title="You can add the key questions relevant to the big idea you chose above">
-                                  <span class="title"><a-icon style="width: 25px" type="question-circle" />Recommended:</span>
+                                  title='You can add the key questions relevant to the big idea you chose above'>
+                                  <span class='title'><a-icon style='width: 25px' type='question-circle' />Recommended:</span>
                                 </a-tooltip>
-                                <ul class="recommend-ul">
+                                <ul class='recommend-ul'>
                                   <li
-                                    v-for="(item,rqIndex) in recommendQuestionList"
-                                    v-if="rqIndex < 3 && selectQuestion.indexOf(item.name) === -1"
-                                    :key="rqIndex">
+                                    v-for='(item,rqIndex) in recommendQuestionList'
+                                    v-if='rqIndex < 3 && selectQuestion.indexOf(item.name) === -1'
+                                    :key='rqIndex'>
                                     {{ item.name }}
-                                    <a-button class="add-question" type="link" @click.stop="handerInsertQuestion(item)">
+                                    <a-button class='add-question' type='link' @click.stop='handerInsertQuestion(item)'>
                                       add
                                     </a-button>
                                   </li>
                                 </ul>
                               </div>
                             </div>
-                            <div v-for="(question, index) in form.questions" :key="index" class="form-input-item">
+                            <div v-for='(question, index) in form.questions' :key='index' class='form-input-item'>
                               <a-textarea
-                                v-model="question.name"
+                                v-model='question.name'
                                 :placeholder="$store.getters.currentRole === 'teacher' ? $t('teacher.add-unit-plan.teacher-nth-key-question') : $t('teacher.add-unit-plan.expert-nth-key-question')"
                                 auto-size
-                                class="my-form-textarea" />
+                                class='my-form-textarea'
+                                @change="handleCollaborateEvent(unitPlanId,planField.Question,form.question)"/>
                               <div
-                                v-if="form.questions.length > 1"
-                                class="delete-icon"
-                                @click="handleRemoveQuestion(index)">
-                                <a-icon :style="{ fontSize: '20px' }" type="delete" />
+                                v-if='form.questions.length > 1'
+                                class='delete-icon'
+                                @click='handleRemoveQuestion(index)'>
+                                <a-icon :style="{ fontSize: '20px' }" type='delete' />
                               </div>
                             </div>
                           </div>
                         </a-form-item>
                         <a-button
-                          v-if="!$store.getters.userInfo.disableQuestion"
-                          class="add-button"
-                          icon="plus-circle"
-                          size="large"
-                          style="top:-40px;"
-                          type="link"
-                          @click="handleAddMoreQuestion"></a-button>
+                          v-if='!$store.getters.userInfo.disableQuestion'
+                          class='add-button'
+                          icon='plus-circle'
+                          size='large'
+                          style='top:-40px;'
+                          type='link'
+                          @click='handleAddMoreQuestion'></a-button>
                       </div>
 
-                      <div class="form-block">
+                      <div class='form-block'>
+                        <collaborate-tooltip :form-id="unitPlanId" :fieldName=planField.Assessment style="left:100px" />
                         <comment-switch
-                          :is-active="currentFieldName === 'assessment'"
-                          class="my-comment-switch"
-                          field-name="assessment"
-                          @switch="handleSwitchComment" />
-                        <a-form-item label="Set learning objectives">
-                          <a-badge :dot="hasExtraRecommend">
-                            <a-button type="primary" @click="handleSelectDescription()">
-                              <div class="btn-text" style="line-height: 20px">
+                          v-show="this.canEdit"
+                          :is-active="currentFieldName === planField.Assessment"
+                          :class="{'my-comment-switch':true,'my-comment-show':currentFieldName === planField.Assessment}"
+                          :field-name=planField.Assessment
+                          @switch='handleSwitchComment' />
+                        <a-form-item label='Set learning objectives'>
+                          <a-badge :dot='hasExtraRecommend'>
+                            <a-button type='primary' @click='handleSelectDescription()'>
+                              <div class='btn-text' style='line-height: 20px'>
                                 Add leaning objectives
                               </div>
                             </a-button>
                           </a-badge>
 
                           <a-button
-                            class="assessment-task-button"
+                            class='assessment-task-button'
                             ghost
-                            type="link"
-                            @click="handleClickTaskDetail($event)">
+                            type='link'
+                            @click='handleClickTaskDetail($event)'>
                             Assessment task details
-                            <a-icon type="right" />
+                            <a-icon type='right' />
                           </a-button>
 
                         </a-form-item>
 
                         <!--knowledge tag-select -->
-                        <ui-learn-out :learn-outs="form.learnOuts" @remove-learn-outs="handleRemoveLearnOuts" />
+                        <ui-learn-out :learn-outs='form.learnOuts' @remove-learn-outs='handleRemoveLearnOuts' />
                       </div>
 
-                      <div class="form-block" style="clear:both">
+                      <div class='form-block' style='clear:both'>
+                        <collaborate-tooltip :form-id="unitPlanId" :fieldName=planField.Prior />
                         <comment-switch
-                          :is-active="currentFieldName === 'prior'"
-                          class="my-comment-switch"
-                          field-name="prior"
-                          @switch="handleSwitchComment" />
-                        <a-form-model-item label="Prior learning experience">
+                          v-show="this.canEdit"
+                          :is-active="currentFieldName === planField.Prior"
+                          :class="{'my-comment-switch':true,'my-comment-show':currentFieldName === planField.Prior}"
+                          :field-name=planField.Prior
+                          @switch='handleSwitchComment' />
+                        <a-form-model-item label='Prior learning experience'>
                           <a-textarea
-                            v-model="form.prior"
+                            v-model='form.prior'
                             allow-clear
                             auto-size
-                            placeholder="What are the approaches to find out what students already knew?" />
+                            placeholder='What are the approaches to find out what students already knew?'
+                            @change="handleCollaborateEvent(unitPlanId,planField.Prior,form.prior)"/>
                         </a-form-model-item>
                       </div>
 
                     </template>
                   </a-step>
-                  <a-step title="Link Plan content">
-                    <template v-if="currentActiveStepIndex === 1" slot="description">
-                      <div class="form-block">
-                        <a-form-item class="link-plan-title" label="Add task(s)">
-                          <a-space>
+                  <a-step title='Link Plan content'>
+                    <template v-if='currentActiveStepIndex === 1' slot='description'>
+                      <div class='form-block'>
+                        <collaborate-tooltip :form-id="unitPlanId" :field-name=planField.Link />
+                        <comment-switch
+                          v-show="this.canEdit"
+                          :field-name="planField.Link"
+                          :is-active="currentFieldName === planField.Link "
+                          :class="{'my-comment-switch':true,'my-comment-show':currentFieldName === planField.Link}"
+                          @switch='handleSwitchComment' />
+                        <a-form-item class='link-plan-title' label='Add task(s)' >
+                          <a-space v-show="canEdit">
                             <a-button
                               :style="{'background-color': '#fff', 'color': '#000', 'border': '1px solid #D8D8D8'}"
-                              type="primary"
-                              @click="handleAddTasks">
-                              <div class="btn-text" style="line-height: 20px">
+                              type='primary'
+                              @click='handleAddTasks'>
+                              <div class='btn-text' style='line-height: 20px'>
                                 + Link Task(s)
                               </div>
                             </a-button>
                             <a-button
-                              :loading="addCategoryLoading"
+                              :loading='addCategoryLoading'
                               :style="{'background-color': '#fff', 'color': '#000', 'border': '1px solid #D8D8D8'}"
-                              class="addCategory"
-                              type="primary"
-                              @click="handleAddTerm">
-                              <div class="btn-text" style="line-height: 20px">
+                              class='addCategory'
+                              type='primary'
+                              @click='handleAddTerm'>
+                              <div class='btn-text' style='line-height: 20px'>
                                 + Add category
                               </div>
                             </a-button>
                           </a-space>
                         </a-form-item>
-                        <div class="common-link-wrapper">
+                        <div class='common-link-wrapper'>
                           <plan-link
-                            ref="planLink"
-                            :from-id="this.unitPlanId"
+                            ref='planLink'
+                            :can-edit="canEdit"
+                            :from-id='this.unitPlanId'
                             :from-type="this.contentType['unit-plan']"
-                            @group-name-list-update="handleUpdateGroupNameList" />
+                            @group-name-list-update='handleUpdateGroupNameList' />
                         </div>
                       </div>
                     </template>
@@ -442,78 +485,81 @@
               </a-form-model>
             </div>
 
-            <div :style="{'width':rightWidth + 'px'}" class="unit-plan-form-right">
+            <div :style="{'width':rightWidth + 'px'}" class='unit-plan-form-right'>
               <!--              优先级 所有comment预览 > 字段comment > tag选择-->
-              <template v-if="showRightModule(rightModule.collaborate)">
-                <a-skeleton :loading="showHistoryLoading" active>
+              <template v-if='showRightModule(rightModule.collaborate)'>
+                <a-skeleton :loading='showHistoryLoading' active>
                   <div
                     :style="{'width':rightWidth + 'px', 'margin-top': '0px', 'z-index': 100, 'padding': '10px'}"
-                    class="collaborate-panel">
-                    <div class="icon">
+                    class='collaborate-panel'>
+                    <div class='icon'>
                       <comment-icon />
                     </div>
-                    <a-tabs default-active-key="1">
-                      <a-tab-pane key="1" tab="Comment">
+                    <a-tabs :default-active-key='defaultHistoryKey'>
+                      <a-tab-pane key='1' tab='Comment'>
                         <collaborate-comment-view
-                          :comment-list="collaborateCommentList"
-                          :source-id="unitPlanId"
+                          :comment-list='collaborateCommentList'
+                          :source-id='unitPlanId'
                           :source-type="contentType['unit-plan']"
-                          @update-comment="handleUpdateCommentList" />
+                          :collaborate-user-list="collaborate.users"
+                          @update-comment='handleUpdateCommentList' />
                       </a-tab-pane>
-                      <a-tab-pane key="2" force-render tab="History">
-                        <collaborate-history :history-list="historyList" @restore="handleRestoreField" />
+                      <a-tab-pane key='2' force-render tab='History'>
+                        <collaborate-history :history-list='historyList' @restore='handleRestoreField' />
                       </a-tab-pane>
                     </a-tabs>
                   </div>
                 </a-skeleton>
               </template>
-              <template v-if="showRightModule(rightModule.collaborateComment) && currentActiveStepIndex === 0">
+              <template v-if='showRightModule(rightModule.collaborateComment)'>
                 <div
                   :style="{'width':rightWidth + 'px', 'margin-top':collaborateTop+'px', 'z-index': 100, 'padding': '10px'}"
-                  class="collaborate-panel">
+                  class='collaborate-panel'>
                   <collaborate-comment-panel
-                    :comment-list="currentCollaborateCommentList"
-                    :field-name="currentFieldName"
-                    :source-id="unitPlanId"
+                    :comment-list='currentCollaborateCommentList'
+                    :field-name='currentFieldName'
+                    :source-id='unitPlanId'
                     :source-type="contentType['unit-plan']"
-                    @update-comment="handleUpdateCommentList" />
+                    :collaborate-user-list="collaborate.users"
+                    @cancel-comment="handleCancelComment"
+                    @update-comment='handleUpdateCommentList' />
                 </div>
               </template>
-              <template v-if="showRightModule(rightModule.imageUpload)">
-                <div :style="{'width':rightWidth + 'px'}" class="form-block-right">
+              <template v-if='showRightModule(rightModule.imageUpload)'>
+                <div :style="{'width':rightWidth + 'px'}" class='form-block-right'>
                   <!-- image-->
-                  <a-form-model-item class="img-wrapper">
+                  <a-form-model-item class='img-wrapper'>
                     <a-upload-dragger
-                      :customRequest="handleUploadImage"
-                      :showUploadList="false"
-                      accept="image/png, image/jpeg"
-                      name="file"
+                      :customRequest='handleUploadImage'
+                      :showUploadList='false'
+                      accept='image/png, image/jpeg'
+                      name='file'
                     >
-                      <div v-show="form.image" class="delete-img" @click="handleDeleteImage($event)">
-                        <a-icon type="close-circle" />
+                      <div v-show='form.image' class='delete-img' @click='handleDeleteImage($event)'>
+                        <a-icon type='close-circle' />
                       </div>
-                      <template v-if="uploading">
-                        <div class="upload-container">
-                          <p class="ant-upload-drag-icon">
-                            <a-icon type="cloud-upload" />
+                      <template v-if='uploading'>
+                        <div class='upload-container'>
+                          <p class='ant-upload-drag-icon'>
+                            <a-icon type='cloud-upload' />
                           </p>
-                          <p class="ant-upload-text">
+                          <p class='ant-upload-text'>
                             <a-spin />
-                            <span class="uploading-tips">{{ $t('teacher.add-unit-plan.uploading') }}</span>
+                            <span class='uploading-tips'>{{ $t('teacher.add-unit-plan.uploading') }}</span>
                           </p>
                         </div>
                       </template>
-                      <template v-if="!uploading && form && form.image">
-                        <div class="image-preview">
-                          <img :src="form.image" alt="">
+                      <template v-if='!uploading && form && form.image'>
+                        <div class='image-preview'>
+                          <img :src='form.image' alt=''>
                         </div>
                       </template>
-                      <template v-if="!uploading && form && !form.image">
-                        <div class="upload-container">
-                          <p class="ant-upload-drag-icon">
-                            <img class="upload-icon" src="~@/assets/icons/lesson/upload_icon.png" />
+                      <template v-if='!uploading && form && !form.image'>
+                        <div class='upload-container'>
+                          <p class='ant-upload-drag-icon'>
+                            <img class='upload-icon' src='~@/assets/icons/lesson/upload_icon.png' />
                           </p>
-                          <p class="ant-upload-text">
+                          <p class='ant-upload-text'>
                             {{ $t('teacher.add-unit-plan.upload-a-picture') }}
                           </p>
                         </div>
@@ -522,28 +568,28 @@
                   </a-form-model-item>
                 </div>
               </template>
-              <template v-if="showRightModule(rightModule.customTag)">
+              <template v-if='showRightModule(rightModule.customTag)'>
                 <div
-                  v-show="!this.contentLoading"
+                  v-show='!this.contentLoading'
                   :style="{'width':rightWidth+'px', 'margin-top':customTagTop+'px', 'z-index': 50}">
                   <custom-tag
-                    ref="customTag"
-                    :scope-tags-list="customTagList"
-                    :selected-tags-list="form.customTags"
-                    :show-arrow="showCustomTag"
-                    :custom-tags="customTags"
-                    @reload-user-tags="loadCustomTags"
-                    @change-add-keywords="handleChangeAddKeywords"
-                    @change-user-tags="handleChangeCustomTags"></custom-tag>
+                    ref='customTag'
+                    :scope-tags-list='customTagList'
+                    :selected-tags-list='form.customTags'
+                    :show-arrow='showCustomTag'
+                    :custom-tags='customTags'
+                    @reload-user-tags='loadCustomTags'
+                    @change-add-keywords='handleChangeAddKeywords'
+                    @change-user-tags='handleChangeCustomTags'></custom-tag>
                 </div>
               </template>
-              <template v-if="showRightModule(rightModule.taskDetails) && currentActiveStepIndex === 0">
+              <template v-if='showRightModule(rightModule.taskDetails) && currentActiveStepIndex === 0'>
                 <div
                   :style="{'width':rightWidth + 'px', 'margin-top':taskDetailsTop+'px', 'z-index': 200}"
-                  class="task-details-panel">
+                  class='task-details-panel'>
                   <Assessment-Task-Details
-                    :associate-task-list="associateTaskList"
-                    @hide-assessment-task="resetRightModuleVisible()" />
+                    :associate-task-list='associateTaskList'
+                    @hide-assessment-task='resetRightModuleVisible()' />
                 </div>
               </template>
 
@@ -553,85 +599,85 @@
       </a-row>
 
       <a-modal
-        v-model="showCollaborateModalVisible"
-        :closable="true"
-        :footer="null"
-        :maskClosable="false"
+        v-model='showCollaborateModalVisible'
+        :closable='true'
+        :footer='null'
+        :maskClosable='false'
         destroyOnClose
-        width="900px">
+        width='900px'>
         <collaborate-user-list
-          v-if="showCollaborateModalVisible"
-          :content-id="unitPlanId"
+          v-if='showCollaborateModalVisible'
+          :content-id='unitPlanId'
           :content-type="contentType['unit-plan']"
-          :main-content="collaborateContent"
-          @confirmSelect="confirmSelectCollaborateUsers" />
+          :main-content='collaborateContent'
+          @confirmSelect='confirmSelectCollaborateUsers' />
       </a-modal>
 
       <a-modal
-        v-model="selectAddContentTypeVisible"
-        :footer="null"
+        v-model='selectAddContentTypeVisible'
+        :footer='null'
         destroyOnClose
-        title="Select Content Type"
-        @cancel="selectAddContentTypeVisible = false"
-        @ok="selectAddContentTypeVisible = false">
-        <div class="add-content-wrapper">
-          <div class="add-content-item" @click="handleAddUnitPlanTask">
+        title='Select Content Type'
+        @cancel='selectAddContentTypeVisible = false'
+        @ok='selectAddContentTypeVisible = false'>
+        <div class='add-content-wrapper'>
+          <div class='add-content-item' @click='handleAddUnitPlanTask'>
             <a>
-              <content-type-icon :type="contentType.task" />
+              <content-type-icon :type='contentType.task' />
               {{ $t('teacher.add-unit-plan.task') }}
             </a>
           </div>
-          <div class="add-content-item" @click="handleAddUnitPlanLesson">
+          <div class='add-content-item' @click='handleAddUnitPlanLesson'>
             <a>
-              <content-type-icon :type="contentType.lesson" />
+              <content-type-icon :type='contentType.lesson' />
               {{ $t('teacher.add-unit-plan.lesson') }}
             </a>
           </div>
-          <div class="add-content-item" @click="handleAddUnitPlanEvaluation">
+          <div class='add-content-item' @click='handleAddUnitPlanEvaluation'>
             <a>
-              <content-type-icon :type="contentType.evaluation" />
+              <content-type-icon :type='contentType.evaluation' />
               {{ $t('teacher.add-unit-plan.evaluation') }}
             </a>
           </div>
-          <div v-if="addLoading" class="add-loading">
+          <div v-if='addLoading' class='add-loading'>
             <a-spin />
           </div>
         </div>
       </a-modal>
 
       <a-modal
-        v-model="showAddAudioVisible"
-        :footer="null"
+        v-model='showAddAudioVisible'
+        :footer='null'
         destroyOnClose
-        title="Add Audio"
-        @cancel="showAddAudioVisible = false"
-        @ok="showAddAudioVisible = false">
+        title='Add Audio'
+        @cancel='showAddAudioVisible = false'
+        @ok='showAddAudioVisible = false'>
 
-        <div class="audio-material-action">
-          <div v-show="currentUploading" class="uploading-mask">
-            <div class="uploading">
+        <div class='audio-material-action'>
+          <div v-show='currentUploading' class='uploading-mask'>
+            <div class='uploading'>
               <a-spin large />
             </div>
           </div>
-          <div class="action-item">
-            <a-upload :customRequest="handleUploadAudio" :showUploadList="false" accept="audio/*" name="file">
-              <a-button icon="upload" type="primary">{{ $t('teacher.add-unit-plan.upload-audio') }}</a-button>
+          <div class='action-item'>
+            <a-upload :customRequest='handleUploadAudio' :showUploadList='false' accept='audio/*' name='file'>
+              <a-button icon='upload' type='primary'>{{ $t('teacher.add-unit-plan.upload-audio') }}</a-button>
             </a-upload>
           </div>
           <a-divider>
             {{ $t('teacher.add-unit-plan.or') }}
           </a-divider>
-          <div class="action-item-column">
+          <div class='action-item-column'>
             <!--            <vue-record-audio mode="press" @result="handleAudioResult" />-->
-            <div class="action-tips">
+            <div class='action-tips'>
               {{ $t('teacher.add-unit-plan.record-your-voice') }}
             </div>
           </div>
-          <div class="material-action">
-            <a-button key="back" class="action-item" @click="handleCancelAddAudio">
+          <div class='material-action'>
+            <a-button key='back' class='action-item' @click='handleCancelAddAudio'>
               Cancel
             </a-button>
-            <a-button key="submit" class="action-item" type="primary" @click="handleConfirmAddAudio">
+            <a-button key='submit' class='action-item' type='primary' @click='handleConfirmAddAudio'>
               Ok
             </a-button>
           </div>
@@ -639,47 +685,47 @@
       </a-modal>
 
       <a-modal
-        v-model="selectReferMyContentVisible"
-        :footer="null"
+        v-model='selectReferMyContentVisible'
+        :footer='null'
         destroyOnClose
-        title="Refer MyContent"
-        width="1150px"
-        @cancel="selectReferMyContentVisible = false"
-        @ok="selectReferMyContentVisible = false">
-        <div class="link-content-wrapper">
+        title='Refer MyContent'
+        width='1150px'
+        @cancel='selectReferMyContentVisible = false'
+        @ok='selectReferMyContentVisible = false'>
+        <div class='link-content-wrapper'>
           <my-content-selector
-            :current-id="unitPlanId"
+            :current-id='unitPlanId'
             :filter-type-list="['unit-plan', 'topic']"
-            :mode="DisplayMode.Refer" />
+            :mode='DisplayMode.Refer' />
         </div>
       </a-modal>
 
       <a-drawer
-        :closable="false"
-        :mask="false"
-        :visible="referDetailVisible"
+        :closable='false'
+        :mask='false'
+        :visible='referDetailVisible'
         destroyOnClose
-        placement="right"
-        width="700px"
-        @close="handleCloseReferDetail"
+        placement='right'
+        width='700px'
+        @close='handleCloseReferDetail'
       >
-        <a-row class="preview-wrapper-row">
-          <a-col class="view-back-col" span="2">
-            <div class="view-back" @click="handleCloseReferDetail">
-              <div class="back-icon">
-                <img src="~@/assets/icons/common/back.png" />
+        <a-row class='preview-wrapper-row'>
+          <a-col class='view-back-col' span='2'>
+            <div class='view-back' @click='handleCloseReferDetail'>
+              <div class='back-icon'>
+                <img src='~@/assets/icons/common/back.png' />
               </div>
             </div>
           </a-col>
-          <a-col class="preview-wrapper-col" span="24">
-            <div class="detail-wrapper">
-              <div class="refer-detail">
+          <a-col class='preview-wrapper-col' span='24'>
+            <div class='detail-wrapper'>
+              <div class='refer-detail'>
                 <refer-preview
-                  :id="referId"
-                  :type="referType"
-                  @refer="handleReferBlock"
-                  @hover-refer-block="handleHoverReferBlock"
-                  @refer-associate="handleReferAssociate"
+                  :id='referId'
+                  :type='referType'
+                  @refer='handleReferBlock'
+                  @hover-refer-block='handleHoverReferBlock'
+                  @refer-associate='handleReferAssociate'
                 />
               </div>
             </div>
@@ -688,149 +734,181 @@
       </a-drawer>
 
       <a-modal
-        v-model="selectLinkContentVisible"
+        v-model='selectLinkContentVisible'
         :dialog-style="{ top: '10px'}"
-        :footer="null"
+        :footer='null'
         destroyOnClose
-        width="900px">
-        <div slot="title" class="my-modal-title">
+        width='900px'>
+        <div slot='title' class='my-modal-title'>
           Link my content
         </div>
-        <div class="link-content-wrapper">
+        <div class='link-content-wrapper'>
           <new-my-content
-            :default-group-name="newTermName"
-            :filter-type-list="[contentType.task]"
-            :from-id="unitPlanId"
+            :default-group-name='newTermName'
+            :filter-type-list='[contentType.task]'
+            :from-id='unitPlanId'
             :from-type="contentType['unit-plan']"
-            :group-name-list="groupNameList"
-            :group-name-mode="groupNameMode"
+            :group-name-list='groupNameList'
+            :group-name-mode='groupNameMode'
             :mode="'common-link'"
-            :selected-list="selectedTaskList"
-            @cancel="selectLinkContentVisible = false"
-            @ensure="handleEnsureSelectedLink" />
+            :selected-list='selectedTaskList'
+            @cancel='selectLinkContentVisible = false'
+            @ensure='handleEnsureSelectedLink' />
         </div>
       </a-modal>
 
       <a-modal
-        v-model="selectSyncDataVisible"
+        v-model='selectSyncDataVisible'
         :dialog-style="{ top: '20px' }"
-        :footer="null"
-        :title="null"
+        :footer='null'
+        :title='null'
         destroyOnClose
-        width="1200px"
-        @cancel="selectSyncDataVisible = false"
-        @ok="selectSyncDataVisible = false">
-        <div class="link-content-wrapper">
+        width='1200px'
+        @cancel='selectSyncDataVisible = false'
+        @ok='selectSyncDataVisible = false'>
+        <div class='link-content-wrapper'>
           <!-- 此处的questionIndex用于标识区分是哪个组件调用的，返回的事件数据中会带上，方便业务数据处理，可随意写，可忽略, show-menu中列出的类型才会显示-->
           <new-browser
-            ref="newBrowser"
-            :default-active-menu="defaultActiveMenu"
-            :recommend-data="recommendData"
-            :select-mode="selectModel.syncData"
-            :selected-id="selectedIdList"
-            :selected-list="selectedList"
-            :show-menu="showMenuList"
-            :sync-data="syncData"
-            :default-grade-id="form.gradeId"
-            question-index="_questionIndex_1"
-            @select-assessmentType="handleSelectAssessmentType"
-            @select-sync="handleSelectListData"
-            @select-curriculum="handleSelectCurriculum"
-            @select-subject-specific-skill="handleSelectSubjectSpecificSkillListData"
-            @select-century-skill="handleSelect21CenturySkillListData"
-            @select-idu="handleSelectIdu"
-            @select-recommend="handleSelectRecommend"
-            @cancel-select="handleCancelSelectData"
-            @ensure-select="handleEnsureSelectData"
+            ref='newBrowser'
+            :default-active-menu='defaultActiveMenu'
+            :recommend-data='recommendData'
+            :select-mode='selectModel.syncData'
+            :selected-id='selectedIdList'
+            :selected-list='selectedList'
+            :show-menu='showMenuList'
+            :sync-data='syncData'
+            :default-grade-id='form.gradeId'
+            question-index='_questionIndex_1'
+            @select-assessmentType='handleSelectAssessmentType'
+            @select-sync='handleSelectListData'
+            @select-curriculum='handleSelectCurriculum'
+            @select-subject-specific-skill='handleSelectSubjectSpecificSkillListData'
+            @select-century-skill='handleSelect21CenturySkillListData'
+            @select-idu='handleSelectIdu'
+            @select-recommend='handleSelectRecommend'
+            @cancel-select='handleCancelSelectData'
+            @ensure-select='handleEnsureSelectData'
           />
         </div>
       </a-modal>
 
       <a-modal
-        v-model="questionSettingVisible"
-        :footer="null"
+        v-model='questionSettingVisible'
+        :footer='null'
         destroyOnClose
-        title="Set key question(s) / Line(s) of inquiry"
-        width="600px">
-        <div class="ensure-setting-modal">
-          <div class="tips">
+        title='Set key question(s) / Line(s) of inquiry'
+        width='600px'>
+        <div class='ensure-setting-modal'>
+          <div class='tips'>
             <p>We understand that for some countries, "key questions/line of inquiry" is not required in Unit plan so
               you have the option to turn it off. You won't see that section once it's off.</p>
             <p>
             </p>
-            <p style="color: red">You might turn it on or change in your account setting If you need the section in
+            <p style='color: red'>You might turn it on or change in your account setting If you need the section in
               future.</p>
           </div>
-          <a-switch v-model="disableQuestion" @change="onChangeSwitch" />
+          <a-switch v-model='disableQuestion' @change='onChangeSwitch' />
           <span
-            style="color: red ;font-family: Inter-Bold;font-size: 15px;"> Key question(s) / Line(s) of inquiry</span>
-          <div class="modal-ensure-action-line-center">
-            <a-button class="action-item action-cancel" shape="round" @click="questionSettingVisible=false">Cancel
+            style='color: red ;font-family: Inter-Bold;font-size: 15px;'> Key question(s) / Line(s) of inquiry</span>
+          <div class='modal-ensure-action-line-center'>
+            <a-button class='action-item action-cancel' shape='round' @click='questionSettingVisible=false'>Cancel
             </a-button>
             <a-button
-              :loading="confirmLoading"
-              class="action-ensure action-item"
-              shape="round"
-              type="primary"
-              @click="handQuestionSetting">Confirm
+              :loading='confirmLoading'
+              class='action-ensure action-item'
+              shape='round'
+              type='primary'
+              @click='handQuestionSetting'>Confirm
             </a-button>
           </div>
         </div>
       </a-modal>
 
       <a-modal
-        v-model="selectBigIdeaDataVisible"
-        :footer="null"
+        v-model='selectBigIdeaDataVisible'
+        :footer='null'
         destroyOnClose
-        title="Browse big idea"
-        width="70%"
-        @cancel="selectBigIdeaDataVisible = false"
-        @ok="selectBigIdeaDataVisible = false">
-        <div class="link-content-wrapper">
-          <BigIdeaBrowse @handle-select="handleSelectBigIdeaData">
+        title='Browse big idea'
+        width='70%'
+        @cancel='selectBigIdeaDataVisible = false'
+        @ok='selectBigIdeaDataVisible = false'>
+        <div class='link-content-wrapper'>
+          <BigIdeaBrowse @handle-select='handleSelectBigIdeaData'>
 
           </BigIdeaBrowse>
 
-          <div class="modal-ensure-action-line-right">
-            <a-button class="action-item action-cancel" shape="round" @click="selectBigIdeaDataVisible=false">Cancel
+          <div class='modal-ensure-action-line-right'>
+            <a-button class='action-item action-cancel' shape='round' @click='selectBigIdeaDataVisible=false'>Cancel
             </a-button>
             <a-button
-              class="action-ensure action-item"
-              shape="round"
-              type="primary"
-              @click="handleEnsureSelectBigIdeaData">Ok
+              class='action-ensure action-item'
+              shape='round'
+              type='primary'
+              @click='handleEnsureSelectBigIdeaData'>Ok
             </a-button>
           </div>
         </div>
       </a-modal>
 
       <a-modal
-        v-model="questionMoreVisible"
-        :footer="null"
+        v-model='questionMoreVisible'
+        :footer='null'
         destroyOnClose
-        title="Browse Key Questions"
-        width="900px"
-        @cancel="questionMoreVisible = false"
-        @ok="questionMoreVisible = false">
-        <div class="link-content-wrapper">
+        title='Browse Key Questions'
+        width='900px'
+        @cancel='questionMoreVisible = false'
+        @ok='questionMoreVisible = false'>
+        <div class='link-content-wrapper'>
           <QuestionBrowse
-            :big-idea="form.inquiry"
-            :question-list="form.questions"
-            @select-question="handleSelectQuestion"></QuestionBrowse>
+            :big-idea='form.inquiry'
+            :question-list='form.questions'
+            @select-question='handleSelectQuestion'></QuestionBrowse>
 
-          <div class="modal-ensure-action-line-right" style="justify-content: center">
-            <a-button class="action-item action-cancel" shape="round" @click="questionMoreVisible=false">Cancel
+          <div class='modal-ensure-action-line-right' style='justify-content: center'>
+            <a-button class='action-item action-cancel' shape='round' @click='questionMoreVisible=false'>Cancel
             </a-button>
             <a-button
-              class="action-ensure action-item"
-              shape="round"
-              type="primary"
-              @click="handleEnsureSelectQuestionData">Ok
+              class='action-ensure action-item'
+              shape='round'
+              type='primary'
+              @click='handleEnsureSelectQuestionData'>Ok
             </a-button>
           </div>
         </div>
       </a-modal>
-      <a-skeleton :loading="contentLoading" active>
+
+      <a-modal
+        v-model='shareVisible'
+        :footer='null'
+        destroyOnClose
+        title='Share'
+        width='680px'
+        @ok='shareVisible = false'
+        @cancel='shareVisible = false'>
+        <share-content-setting
+          :source-id='form.id'
+          :source-type='form.type'
+          @update-share-status='handleShareStatus'
+        />
+      </a-modal>
+
+      <a-modal
+        v-model='showUpdateContent'
+        :footer='null'
+        :title='null'
+        destroyOnClose
+        width='700px'
+        :maskClosable="false"
+        :closable='false'>
+        <collaborate-update-content
+          ref="collaborateUpdate"
+          :source-id='form.id'
+          :source-type='form.type'
+          @update-content='handleUpdateContent'
+        />
+      </a-modal>
+
+      <a-skeleton :loading='contentLoading' active>
       </a-skeleton>
     </a-card>
   </div>
@@ -840,7 +918,7 @@
 import * as logger from '@/utils/logger'
 import ContentTypeIcon from '@/components/Teacher/ContentTypeIcon'
 import { typeMap } from '@/const/teacher'
-import { CustomTagType } from '@/const/common'
+import { CustomTagType, PlanField } from '@/const/common'
 import { commonAPIUrl } from '@/api/common'
 import { GetAllSdgs, ScenarioSearch } from '@/api/scenario'
 import { debounce } from 'lodash-es'
@@ -898,10 +976,16 @@ import { UtilMixin } from '@/mixins/UtilMixin'
 import moment from 'moment'
 import AssessmentTaskDetails from '@/components/UnitPlan/AssessmentTaskDetails'
 import { BaseEventMixin } from '@/mixins/BaseEvent'
+import ShareContentSetting from '@/components/Share/ShareContentSetting'
+import { QueryContentShare } from '@/api/share'
+import CollaborateTooltip from '@/components/Collaborate/CollaborateTooltip'
+import LocalStore from '@/websocket/localstore'
+import CollaborateUpdateContent from '@/components/Collaborate/CollaborateUpdateContent'
 
 export default {
   name: 'AddUnitPlan',
   components: {
+    ShareContentSetting,
     AssessmentTaskDetails,
     QuestionBrowse,
     CollaborateHistory,
@@ -928,7 +1012,9 @@ export default {
     commentIcon,
     UiLearnOut,
     BigIdeaBrowse,
-    Collapse
+    Collapse,
+    CollaborateTooltip,
+    CollaborateUpdateContent
   },
   props: {
     unitPlanId: {
@@ -937,7 +1023,7 @@ export default {
     }
   },
   mixins: [UtilMixin, BaseEventMixin],
-  data () {
+  data() {
     return {
       showCollaborateVisible: false,
       contentLoading: true,
@@ -1054,10 +1140,6 @@ export default {
       defaultActiveMenu: NavigationType.learningOutcomes,
       showMenuList: [NavigationType.specificSkills, NavigationType.centurySkills, NavigationType.learningOutcomes, NavigationType.assessmentType, NavigationType.idu],
 
-      showCollaborateModalVisible: false,
-      collaborateContent: null,
-      currentFieldName: {},
-
       // TODO mock数据待更新为接口请求（loadCollaborateData方法中的GetCollaborateComment)
       collaborateCommentList: [],
       currentCollaborateCommentList: [],
@@ -1099,11 +1181,15 @@ export default {
       associateId2Name: new Map(),
       defaultGroupName: 'Untitled category',
       addCategoryLoading: false,
-      rwcList: []
+      rwcList: [],
+
+      shareVisible: false,
+      shareStatus: 0,
+      planField: PlanField
     }
   },
   watch: {
-    referDetailVisible (value) {
+    referDetailVisible(value) {
       this.$logger.info('watch referDetailVisible ' + value)
       this.$logger.info('screen width: ', document.body.clientWidth)
       if (value && document.body.clientWidth < 1700) {
@@ -1112,7 +1198,7 @@ export default {
         this.showSidebar = true
       }
     },
-    'form.inquiry': function (value, newValue) {
+    'form.inquiry': function(value, newValue) {
       this.$logger.info('watch form.inquiry change ' + value, newValue)
       if (this.hideRecommendQuestion) {
         return
@@ -1123,22 +1209,22 @@ export default {
       this.loadBigIdeaLearnOuts()
     }
   },
-  beforeRouteLeave (to, from, next) {
+  beforeRouteLeave(to, from, next) {
     var that = this
-    if (this.isOwner || this.isCollaborater) {
+    if (this.canEdit) {
       if (this.initCompleted && JSON.stringify(this.form) !== JSON.stringify(this.oldForm)) {
         this.$confirm({
           title: 'Alert',
           okText: 'Save',
           cancelText: 'No',
           content: 'Do you want to save the changes?',
-          onOk: function () {
+          onOk: function() {
             that.handleSaveUnitPlan()
             setTimeout(() => {
               next()
             }, 500)
           },
-          onCancel () {
+          onCancel() {
             next()
           }
         })
@@ -1150,7 +1236,7 @@ export default {
     }
   },
   computed: {
-    lastChangeSavedTime () {
+    lastChangeSavedTime() {
       const time = this.form.updateTime || this.form.createTime
       if (time) {
         return formatLocalUTC(this.form.updateTime || this.form.createTime)
@@ -1158,13 +1244,13 @@ export default {
         return ''
       }
     },
-    selectedSdg () {
+    selectedSdg() {
       const sdgList = []
       this.form.scenarios.forEach(item => sdgList.push(item.sdgId))
       console.log(sdgList)
       return sdgList
     },
-    showRecommendQuestion () {
+    showRecommendQuestion() {
       if (this.hideRecommendQuestion) {
         return false
       }
@@ -1182,17 +1268,17 @@ export default {
       }
       return true
     },
-    selectQuestion () {
+    selectQuestion() {
       return this.form.questions.map(item => {
         return item.name
       })
     },
-    getTaskTags () {
+    getTaskTags() {
       return this.form.questions.map(item => {
         return item.name
       })
     },
-    hasExtraRecommend () {
+    hasExtraRecommend() {
       this.$logger.info('-------------', this.form.learnOuts, this.recommendDataIdList)
       let ret = false
       this.form.learnOuts.forEach(item => {
@@ -1205,7 +1291,7 @@ export default {
       return ret
     }
   },
-  created () {
+  created() {
     logger.info('unitPlanId ' + this.unitPlanId + ' ' + this.$route.path)
     // 初始化关联事件处理
     MyContentEventBus.$on(MyContentEvent.ReferContentItem, this.handleReferItem)
@@ -1223,7 +1309,7 @@ export default {
     // library浏览learning outcome时，修改了grade，需要更新表单中的grade
     LibraryEventBus.$on(LibraryEvent.GradeUpdate, this.handleGradeUpdate)
   },
-  beforeDestroy () {
+  beforeDestroy() {
     MyContentEventBus.$off(MyContentEvent.ReferContentItem, this.handleReferItem)
     LibraryEventBus.$off(LibraryEvent.ContentListSelectClick, this.handleDescriptionSelectClick)
     LibraryEventBus.$off(LibraryEvent.GradeUpdate, this.handleGradeUpdate)
@@ -1231,7 +1317,7 @@ export default {
     // this.handleSaveUnitPlan()
   },
   methods: {
-    initData () {
+    initData() {
       logger.info('initData doing...')
       Promise.all([
         GetAllSdgs(),
@@ -1284,7 +1370,7 @@ export default {
     },
 
     // 加载协作的评论和历史记录数据
-    loadCollaborateData () {
+    loadCollaborateData() {
       return Promise.all([
         GetCollaborateModifiedHistory({ sourceType: this.contentType['unit-plan'], sourceId: this.form.id }),
         GetCollaborateComment({ sourceType: this.contentType['unit-plan'], sourceId: this.form.id })
@@ -1304,7 +1390,7 @@ export default {
       })
     },
 
-    handleSyncData () {
+    handleSyncData() {
       this.$logger.info(' handleSyncData')
       GetReferOutcomes({
         id: this.unitPlanId,
@@ -1317,7 +1403,7 @@ export default {
       })
     },
 
-    restoreUnitPlan (unitPlanId, isFirstLoad) {
+    restoreUnitPlan(unitPlanId, isFirstLoad) {
       if (isFirstLoad) {
         this.contentLoading = true
       }
@@ -1365,10 +1451,12 @@ export default {
         // copy副本 为了判断数据变更
         this.oldForm = JSON.parse(JSON.stringify(this.form))
         this.initCompleted = true
+
+        this.loadingShareContent()
       })
     },
 
-    handleUploadImage (data) {
+    handleUploadImage(data) {
       logger.info('handleUploadImage', data)
       const formData = new FormData()
       formData.append('file', data.file, data.file.name)
@@ -1390,20 +1478,20 @@ export default {
       })
     },
 
-    handleDeleteImage (e) {
+    handleDeleteImage(e) {
       logger.info('handleDeleteImage ', e)
       e.stopPropagation()
       e.preventDefault()
       this.form.image = null
     },
 
-    handleDescriptionSearch (index, description) {
+    handleDescriptionSearch(index, description) {
       logger.info('handleDescriptionSearch:', index, description)
       this.form.scenarios[index].description = description
       this.debouncedGetSdgByDescription(index, description)
     },
 
-    searchScenario (index, description) {
+    searchScenario(index, description) {
       logger.info('searchScenario', description)
       this.currentIndex = index
       if (typeof description === 'string' && description.trim().length >= 3) {
@@ -1421,7 +1509,7 @@ export default {
 
     // 由于Vue无法响应式处理数据元素，此处通过将数据转为scenarioObj的属性进行处理------------------废弃
     // 直接修改form.scenarios数据
-    handleSelectScenario (index, scenario) {
+    handleSelectScenario(index, scenario) {
       console.log(scenario)
       this.form.scenarios[index].description = scenario.description
       if (scenario.sdgKeyWords.length) {
@@ -1431,7 +1519,7 @@ export default {
       }
     },
 
-    handleAddMoreSdg () {
+    handleAddMoreSdg() {
       const sdg = {
         description: '',
         sdgId: undefined,
@@ -1442,7 +1530,7 @@ export default {
       // logger.info('after add scenarioObj: ', this.sdgDataObj, 'sdgMaxIndex ' + this.sdgMaxIndex, ' sdgTotal ' + this.sdgTotal)
     },
 
-    handleDeleteSdg (sdgIndex) {
+    handleDeleteSdg(sdgIndex) {
       if (this.form.scenarios.length > 1) {
         this.form.scenarios.splice(sdgIndex, 1)
         logger.info('scenarios ', this.form.scenarios, 'sdgTotal ' + this.form.scenarios.length)
@@ -1451,7 +1539,7 @@ export default {
       }
     },
 
-    handleAddSdgTag (data) {
+    handleAddSdgTag(data) {
       const tag = {
         name: data.tagName
       }
@@ -1461,7 +1549,7 @@ export default {
       logger.info('after handleAddSdgTag ', this.form.scenarios[sdgKey].sdgKeyWords)
     },
 
-    handleRemoveSdgTag (data) {
+    handleRemoveSdgTag(data) {
       const tagName = data.tagName
       const sdgKey = data.sdgKey
       logger.info('handleRemoveSdgTag ', tagName, sdgKey)
@@ -1469,12 +1557,12 @@ export default {
       logger.info('after handleRemoveSdgTag ', this.form.scenarios[sdgKey].sdgKeyWords)
     },
 
-    handleSelectSubject (subjects) {
+    handleSelectSubject(subjects) {
       logger.info('handleSelectSubject', subjects)
       this.form.subjects = subjects
     },
 
-    handleAddMoreQuestion () {
+    handleAddMoreQuestion() {
       const question = {
         id: null,
         name: ''
@@ -1482,7 +1570,7 @@ export default {
       logger.info('handleAddMoreQuestion ', question)
       this.form.questions.push(question)
     },
-    handleRemoveQuestion (index) {
+    handleRemoveQuestion(index) {
       logger.info('handleRemoveQuestion ', index)
       if (this.form.questions.length === 1) {
         this.form.questions[index].name = ''
@@ -1491,22 +1579,23 @@ export default {
       }
     },
 
-    handleRemoveSkillTag (data) {
+    handleRemoveSkillTag(data) {
       logger.info('Unit Plan handleRemoveSkillTag', data)
       logger.info('target question data', this.questionDataObj[data.questionIndex])
       this.questionDataObj[data.questionIndex].skillTags = this.questionDataObj[data.questionIndex].skillTags.filter(item => item.id !== data.id)
       logger.info('Unit Plan after handleRemoveSkillTag ', this.questionDataObj[data.questionIndex].skillTags)
     },
 
-    handleAddSkillTag (data) {
+    handleAddSkillTag(data) {
       logger.info('Unit Plan handleAddSkillTag', data)
       logger.info('target question data', this.questionDataObj[data.questionIndex])
       this.questionDataObj[data.questionIndex].skillTags.push(Object.assign({}, data))
       this.$logger.info('after handleAddSkillTag questionDataObj ' + data.questionIndex, this.questionDataObj[data.questionIndex])
     },
 
-    handleSaveUnitPlan () {
+    handleSaveUnitPlan() {
       logger.info('handleSaveUnitPlan', this.form, this.sdgDataObj, this.questionDataObj)
+      this.cleaPageCache()
       const unitPlanData = Object.assign({}, this.form)
       if (this.rangeDate.length === 2) {
         const startDate = this.rangeDate[0].clone()
@@ -1531,9 +1620,10 @@ export default {
         }
       }).then(() => {
         // this.$refs.commonFormHeader.saving = false
+        this.handleSaveContentEvent(this.unitPlanId, this.contentType['unit-plan'], this.oldForm)
       })
     },
-    handlePublishUnitPlan (status) {
+    handlePublishUnitPlan(status) {
       logger.info('handlePublishUnitPlan', {
         id: this.unitPlanId,
         status: status
@@ -1550,14 +1640,14 @@ export default {
       })
     },
 
-    handleAddUnitPlanMaterial () {
+    handleAddUnitPlanMaterial() {
       logger.info('handleAddUnitPlanMaterial ' + this.unitPlanId)
       this.$router.push({
         path: '/teacher/unit-plan-material-redirect/' + this.unitPlanId + '/create'
       })
     },
 
-    handleAddUnitPlanTask () {
+    handleAddUnitPlanTask() {
       this.$logger.info('handleAddUnitPlanTask ' + this.unitPlanId)
       // 下创建一个空的task，然后关联，然后再跳转过去
       if (!this.addLoading) {
@@ -1592,7 +1682,7 @@ export default {
       }
     },
 
-    handleAddUnitPlanLesson () {
+    handleAddUnitPlanLesson() {
       logger.info('handleAddUnitPlanLesson ' + this.unitPlanId)
       // 下创建一个空的lesson，然后关联，然后再跳转过去
       if (!this.addLoading) {
@@ -1627,7 +1717,7 @@ export default {
       }
     },
 
-    handleAddUnitPlanEvaluation () {
+    handleAddUnitPlanEvaluation() {
       logger.info('handleAddUnitPlanEvaluation ' + this.unitPlanId)
       // 下创建一个空的evaluation，然后关联，然后再跳转过去
       if (!this.addLoading) {
@@ -1662,13 +1752,13 @@ export default {
       }
     },
 
-    goBack () {
+    goBack() {
       this.$router.push({ path: '/teacher/main/created-by-me' })
     },
-    handleChangeCustomTags (tags) {
+    handleChangeCustomTags(tags) {
       this.form.customTags = tags
     },
-    handleChangeAddKeywords (tag) {
+    handleChangeAddKeywords(tag) {
       if (tag.isGlobal) {
         this.customTags.userGlobalTags.push(tag)
       } else {
@@ -1678,7 +1768,7 @@ export default {
         }
       }
     },
-    handleAudioResult (data) {
+    handleAudioResult(data) {
       logger.info('handleAudioResult', data)
       this.currentUploading = true
       const formData = new FormData()
@@ -1700,7 +1790,7 @@ export default {
       })
     },
 
-    handleUploadAudio (data) {
+    handleUploadAudio(data) {
       logger.info('handleUploadAudio', data)
       this.currentUploading = true
       const formData = new FormData()
@@ -1722,12 +1812,12 @@ export default {
       })
     },
 
-    handleCancelAddAudio () {
+    handleCancelAddAudio() {
       this.audioUrl = null
       this.showAddAudioVisible = false
     },
 
-    handleConfirmAddAudio () {
+    handleConfirmAddAudio() {
       if (this.audioUrl) {
         this.form.audioUrl = this.audioUrl
         this.audioUrl = null
@@ -1735,16 +1825,16 @@ export default {
       this.showAddAudioVisible = false
     },
 
-    handleAddAudioOverview () {
+    handleAddAudioOverview() {
       this.$logger.info('handleAddAudioOverview')
       this.showAddAudioVisible = true
     },
-    handleStartCollaborate () {
+    handleStartCollaborate() {
       this.$logger.info('handleStartCollaborate')
       this.collaborateContent = Object.assign({}, this.form)
       this.showCollaborateModalVisible = true
     },
-    handleSelectDescription () {
+    handleSelectDescription() {
       this.showMenuList = [NavigationType.specificSkills,
         NavigationType.centurySkills,
         NavigationType.learningOutcomes,
@@ -1762,24 +1852,27 @@ export default {
       this.$logger.info('handleSelectDescription selectedList', this.selectedList, ' recommendData ', this.recommendData)
       this.selectSyncDataVisible = true
       this.defaultActiveMenu = NavigationType.learningOutcomes
+
+      // #协同编辑event事件
+      this.handleCollaborateEvent(this.unitPlanId, this.planField.Assessment, this.form.assessment)
     },
-    handleConfirmAssociate () {
+    handleConfirmAssociate() {
       this.$logger.info('handleConfirmAssociate')
       this.associateLibraryVisible = false
     },
 
-    handleStartRefer () {
+    handleStartRefer() {
       this.$logger.info('handleStartRefer')
       this.selectReferMyContentVisible = true
       this.referDetailVisible = false
     },
 
-    handleDescriptionSelectClick (data) {
+    handleDescriptionSelectClick(data) {
       this.$logger.info('unit plan handleDescriptionSelectClick', data)
       this.selectSyncDataVisible = false
     },
 
-    handleReferItem (data) {
+    handleReferItem(data) {
       this.$logger.info('handleReferItem', data)
       this.referId = data.item.id
       this.referType = data.item.type
@@ -1788,7 +1881,7 @@ export default {
       this.$logger.info('referId ' + this.referId + ' referType ' + this.referType)
     },
 
-    handleCloseReferDetail () {
+    handleCloseReferDetail() {
       this.$logger.info('handleCloseReferDetail')
       this.referDetailVisible = false
       this.referId = null
@@ -1796,7 +1889,7 @@ export default {
       this.$refs['form'].className = 'unit-plan-form-left'
     },
 
-    handleHoverReferBlock (data) {
+    handleHoverReferBlock(data) {
       this.$logger.info('handleHoverReferBlock', data)
       this.$refs['form'].className = 'unit-plan-form-left ' + data.blockType
       document.getElementById(data.blockType).scrollIntoView({
@@ -1805,7 +1898,7 @@ export default {
       })
     },
 
-    handleReferBlock (data) {
+    handleReferBlock(data) {
       this.$logger.info('handleReferBlock', data)
       if (data.blockType === 'overview') {
         this.form.overview = data.data
@@ -1833,7 +1926,7 @@ export default {
       }
     },
 
-    handleReferAssociate (data) {
+    handleReferAssociate(data) {
       this.$logger.info('handleReferAssociate', data)
       Associate({
         fromId: this.unitPlanId,
@@ -1846,14 +1939,14 @@ export default {
         this.$message.success('associate successfully!')
       })
     },
-    showSelectLinkContentVisible () {
+    showSelectLinkContentVisible() {
       if (!this.form.questions || this.form.questions.length === 0) {
         this.$logger.info('no relevantQuestionList')
         var that = this
         this.$confirm({
           title: 'Alert',
           content: 'Please add questions and tags before linking',
-          onOk: function () {
+          onOk: function() {
             that.handleHoverReferBlock({ blockType: 'question' })
           }
         })
@@ -1861,14 +1954,14 @@ export default {
         this.selectLinkContentVisible = true
       }
     },
-    showSelectAddContentTypeVisible () {
+    showSelectAddContentTypeVisible() {
       if (!this.form.questions || this.form.questions.length === 0) {
         this.$logger.info('no relevantQuestionList')
         var that = this
         this.$confirm({
           title: 'Alert',
           content: 'Please add questions and tags before linking',
-          onOk: function () {
+          onOk: function() {
             that.handleHoverReferBlock({ blockType: 'question' })
           }
         })
@@ -1877,7 +1970,7 @@ export default {
       }
     },
 
-    handleAddTasks () {
+    handleAddTasks() {
       this.$logger.info('handleAddTasks', this.groupNameList)
       // 如果第一部分有内容，点击link激活step 到第二部分，否则提示先输入第一部分表单内容
       if (this.form.name ||
@@ -1893,9 +1986,12 @@ export default {
       } else {
         this.$message.warn('Course info is empty, please fill the form first!')
       }
+
+      // #协同编辑event事件
+      this.handleCollaborateEvent(this.unitPlanId, this.planField.Link, this.associateTaskList)
     },
 
-    handleAddTerm () {
+    handleAddTerm() {
       this.$logger.info('handleAddTerm', this.groupNameList)
       this.addCategoryLoading = true
       AddOrSaveGroupName({
@@ -1907,17 +2003,23 @@ export default {
         this.$refs.planLink.getAssociate()
         this.addCategoryLoading = false
       })
+
+      // #协同编辑event事件
+      this.handleCollaborateEvent(this.unitPlanId, this.planField.Link, this.associateTaskList)
     },
 
-    handleEnsureSelectedLink (data) {
+    handleEnsureSelectedLink(data) {
       this.$logger.info('handleEnsureSelectedLink', data)
       this.selectLinkContentVisible = false
       this.getAssociate()
       // 刷新组件内的列表
       this.$refs.planLink.getAssociate()
+
+      // #协同编辑event事件
+      this.handleCollaborateEvent(this.unitPlanId, this.planField.Link, this.associateTaskList)
     },
 
-    getAssociate () {
+    getAssociate() {
       this.$logger.info('AddUnitPlan GetAssociate id[' + this.unitPlanId + '] fromType[' + this.contentType['unit-plan'] + ']')
       this.associateUnitPlanIdList = []
       this.associateTaskIdList = []
@@ -1991,7 +2093,7 @@ export default {
       })
     },
 
-    loadRefLearnOuts () {
+    loadRefLearnOuts() {
       this.recommendData = []
       this.recommendDataIdList = []
       if (this.associateUnitPlanIdList.length) {
@@ -2054,7 +2156,7 @@ export default {
         })
       }
     },
-    loadBigIdeaLearnOuts () {
+    loadBigIdeaLearnOuts() {
       // bigidea query learnout
       if (this.form.inquiry) {
         FindBigIdeaSourceOutcomes({
@@ -2075,8 +2177,8 @@ export default {
           for (const value of recommendMap.values()) {
             this.recommendData.push({
               fromId: value[0].fromId,
-              fromName: value[0].fromName,
-              fromTypeName: this.type2Name[value[0].fromType],
+              fromName: this.form.inquiry,
+              fromTypeName: 'Big Idea',
               list: value
             })
           }
@@ -2086,53 +2188,55 @@ export default {
       }
     },
 
-    handleUpdateGroupNameList () {
+    handleUpdateGroupNameList() {
       this.$logger.info('handleUpdateGroupNameList')
       this.getAssociate()
+      // #协同编辑event事件
+      this.handleCollaborateEvent(this.unitPlanId, this.planField.Link, this.associateTaskList)
     },
 
-    handleSelectBigIdeaData (data) {
+    handleSelectBigIdeaData(data) {
       this.selectNewBigIdea = data
     },
     // TODO 选择的assessment数据
-    handleSelectAssessmentType (data) {
+    handleSelectAssessmentType(data) {
       this.$logger.info('handleSelectAssessmentType', data)
       this.selectedAssessmentList = data
     },
 
     // TODO 自动更新选择的sync 的数据knowledgeId和name列表
-    handleSelectListData (data) {
+    handleSelectListData(data) {
       this.$logger.info('handleSelectListData', data)
       this.selectedSyncList = data
     },
 
-    handleSelectCurriculum (data) {
+    handleSelectCurriculum(data) {
       this.$logger.info('handleSelectCurriculum', data)
       this.selectedCurriculumList = data
     },
 
-    handleSelectSubjectSpecificSkillListData (data) {
+    handleSelectSubjectSpecificSkillListData(data) {
       this.selectedSpecificSkillList = data
       this.$logger.info('handleSelectSubjectSpecificSkillListData', data)
     },
 
-    handleSelect21CenturySkillListData (data) {
+    handleSelect21CenturySkillListData(data) {
       this.$logger.info('handleSelect21CenturySkillListData', data)
       this.selectedCenturySkillList = data
     },
 
-    handleSelectIdu (data) {
+    handleSelectIdu(data) {
       this.$logger.info('handleSelectIdu', data)
       this.selectedIduList = data
     },
 
-    handleSelectRecommend (data) {
+    handleSelectRecommend(data) {
       this.$logger.info('handleSelectRecommend', data)
       this.selectedRecommendList = data
     },
 
     // TODO 自动更新选择的sync 的数据knowledgeId和name列表
-    handleCancelSelectData () {
+    handleCancelSelectData() {
       this.selectedSyncList = []
       this.selectedCurriculumList = []
       this.selectedSpecificSkillList = []
@@ -2144,7 +2248,7 @@ export default {
     },
 
     // TODO 自动更新选择的sync 的数据knowledgeId和name列表
-    handleEnsureSelectData () {
+    handleEnsureSelectData() {
       this.$logger.info('handleEnsureSelectData',
         this.selectedCurriculumList,
         this.selectedSpecificSkillList,
@@ -2214,18 +2318,20 @@ export default {
       this.selectSyncDataVisible = false
       this.handleCancelSelectData()
     },
-    handleRemoveLearnOuts (data) {
+    handleRemoveLearnOuts(data) {
       this.$logger.info('handleRemoveLearnOuts', data)
       var index = this.form.learnOuts.findIndex(item => (item.knowledgeId === data.knowledgeId))
       if (index > -1) {
         this.form.learnOuts.splice(index, 1)
       }
+      // #协同编辑event事件
+      this.handleCollaborateEvent(this.unitPlanId, this.planField.Assessment, this.form.assessment)
     },
-    onChangeStep (current) {
+    onChangeStep(current) {
       console.log('onChange:', current)
       if (typeof current === 'number') {
         this.setSessionStep(current)
-        setTimeout(function () {
+        setTimeout(function() {
           const returnEle = document.querySelector('.ant-layout-content')
           if (returnEle) {
             returnEle.scrollIntoView(true) // true 是默认的
@@ -2233,7 +2339,7 @@ export default {
         }, 100)
       }
     },
-    loadCustomTags () {
+    loadCustomTags() {
       // this.$refs.customTag.tagLoading = true
       FindCustomTags({}).then((response) => {
         this.$logger.info('FindCustomTags response', response.result)
@@ -2255,7 +2361,7 @@ export default {
         // this.$refs.customTag.tagLoading = false
       })
     },
-    focusInput (event) {
+    focusInput(event) {
       this.$logger.info('focusInput ', event.target)
       // 设置一个父级定位专用的dom，设置class名称【root-locate-form】，
       // 然后通过事件获取到当前元素，依次往上层查询父元素，累加偏离值，直到定位元素。
@@ -2308,11 +2414,11 @@ export default {
           this.customTagList.push(name)
         })
         // // 再拼接自己添加的
-        // this.customTags.userTags.forEach(tag => {
-        //   if (this.customTagList.indexOf(tag.name === -1)) {
-        //     this.customTagList.push(tag.name)
-        //   }
-        // })
+        this.customTags.userTags.forEach(tag => {
+          if (this.customTagList.indexOf(tag.name === -1)) {
+            this.customTagList.push(tag.name)
+          }
+        })
         this.showCustomTag = false
         this.customTagTop = 0
         // this.showModuleList.push(RightModule.imageUpload)
@@ -2321,13 +2427,15 @@ export default {
     },
 
     // 切换当前的字段的点评数据，从总的collaborateCommentList筛选初当前字段相关的点评数据
-    handleSwitchComment (data) {
+    handleSwitchComment(data) {
       this.$logger.info('handleSwitchComment', data)
-      this.setRightModuleVisible(this.rightModule.collaborateComment)
       if (!data.activeStatus) {
         // 关闭
+        this.currentFieldName = ''
+        this.resetRightModuleVisible()
         return
       }
+      this.setRightModuleVisible(this.rightModule.collaborateComment)
       this.currentFieldName = data.fieldName
       this.currentCollaborateCommentList = []
       const list = []
@@ -2343,7 +2451,7 @@ export default {
     },
 
     // 每次点击都重新加载一下最新数据
-    handleViewCollaborate () {
+    handleViewCollaborate() {
       this.$logger.info('handleViewCollaborate')
       if (this.showModuleList.indexOf(this.rightModule.collaborate) !== -1) {
         this.resetRightModuleVisible()
@@ -2362,7 +2470,7 @@ export default {
     },
 
     // TODO 发布评论后需要更新最新的评论列表,刷新数据
-    handleUpdateCommentList () {
+    handleUpdateCommentList() {
       this.$logger.info('handleUpdateCommentList')
       this.currentCollaborateCommentList = []
       this.loadCollaborateData().then(() => {
@@ -2381,26 +2489,27 @@ export default {
 
     // historyData以及在接口请求的相应逻辑中正对数据进行‘格式’，
     // 这样在这里就可以直接this.$set设置字段的数据
-    handleRestoreField (data) {
+    handleRestoreField(data) {
       this.$logger.info('handleRestoreField', data, this.form)
-      if (data.historyData) {
-        data.historyData.forEach(dataItem => {
-          this.$logger.info('set ' + dataItem.fieldName, dataItem.data[0])
-          if (Array.isArray(dataItem.data[0])) {
-            // 清空数组
-            this.form[dataItem.fieldName].splice(0, this.form[dataItem.fieldName].length)
-            dataItem.data[0].forEach((item, index) => {
-              this.$set(this.form[dataItem.fieldName], index, dataItem.data[0][index])
-            })
-          } else {
-            this.$set(this.form, dataItem.fieldName, dataItem.data[0])
-          }
-        })
+      if (data) {
+        // data.historyData.forEach(dataItem => {
+        //   this.$logger.info('set ' + dataItem.fieldName, dataItem.data[0])
+        //   if (Array.isArray(dataItem.data[0])) {
+        //     // 清空数组
+        //     this.form[dataItem.fieldName].splice(0, this.form[dataItem.fieldName].length)
+        //     dataItem.data[0].forEach((item, index) => {
+        //       this.$set(this.form[dataItem.fieldName], index, dataItem.data[0][index])
+        //     })
+        //   } else {
+        //     this.$set(this.form, dataItem.fieldName, dataItem.data[0])
+        //   }
+        // })
+        this.form = data
         this.$message.success('restore successfully!')
       }
       this.$logger.info('after handleRestoreField', this.form)
     },
-    handQuestionSetting () {
+    handQuestionSetting() {
       this.confirmLoading = true
       UserSetting({
         disableQuestion: !this.disableQuestion
@@ -2416,10 +2525,10 @@ export default {
         this.confirmLoading = false
       })
     },
-    onChangeSwitch (checked) {
+    onChangeSwitch(checked) {
       this.disableQuestion = checked
     },
-    handleEnsureSelectBigIdeaData () {
+    handleEnsureSelectBigIdeaData() {
       if (!this.selectNewBigIdea) {
         this.$message.error('Please select a big idea')
         return
@@ -2427,7 +2536,7 @@ export default {
       this.form.inquiry = this.selectNewBigIdea
       this.selectBigIdeaDataVisible = false
     },
-    findQuestionsByBigIdea (bigIdea) {
+    findQuestionsByBigIdea(bigIdea) {
       if (!bigIdea) {
         return
       }
@@ -2448,7 +2557,7 @@ export default {
         }
       }).finally({})
     },
-    handerInsertQuestion (question) {
+    handerInsertQuestion(question) {
       const formQuestion = this.form.questions.map(item => {
         return item.name
       })
@@ -2461,11 +2570,11 @@ export default {
       }
       this.form.questions.push(question)
     },
-    handleSelectQuestion (questions) {
+    handleSelectQuestion(questions) {
       logger.info('handleSelectQuestion ', questions)
       this.selectedQuestionList = questions
     },
-    handleEnsureSelectQuestionData () {
+    handleEnsureSelectQuestionData() {
       logger.info('handleEnsureSelectQuestionData ', this.selectedQuestionList)
       const formQuestion = this.form.questions.map(item => {
         return item.name
@@ -2477,11 +2586,11 @@ export default {
       })
       this.questionMoreVisible = false
     },
-    setSessionStep (step) {
+    setSessionStep(step) {
       this.currentActiveStepIndex = step
       sessionStorage.setItem('unit-plan-step-' + this.unitPlanId, step)
     },
-    getSessionStep () {
+    getSessionStep() {
       const oldStep = sessionStorage.getItem('unit-plan-step-' + this.unitPlanId)
       if (oldStep !== null) {
         return parseInt(oldStep)
@@ -2489,11 +2598,11 @@ export default {
         return 0
       }
     },
-    handleEditTask (item) {
+    handleEditTask(item) {
       window.open('/teacher/task-redirect/' + item.id
         , '_blank')
     },
-    handleClickTaskDetail (e) {
+    handleClickTaskDetail(e) {
       this.$logger.info('handleClickTaskDetail', this.showTaskDetails)
       this.setRightModuleVisible(this.rightModule.taskDetails)
       // this.showTaskDetails = !this.showTaskDetails
@@ -2514,9 +2623,41 @@ export default {
       e.stopPropagation()
     },
 
-    handleGradeUpdate (grade) {
-      this.$logger.info('handleGradeUpdate', grade)
-      this.form.gradeId = grade.id
+    handleGradeUpdate(data) {
+      this.$logger.info('handleGradeUpdate', data)
+      this.form.gradeId = data.data.id
+    },
+
+    handleShareUnitPlan() {
+      this.$logger.info('handleShareUnitPlan')
+      this.shareVisible = true
+    },
+    loadingShareContent() {
+      QueryContentShare({
+        sourceId: this.form.id,
+        sourceType: this.form.type
+      }).then(response => {
+        this.$logger.info('form QueryContentShare response', response)
+        if (response.result) {
+          this.shareStatus = response.result.status
+        } else {
+          this.shareStatus = 0
+        }
+      })
+    },
+    handleShareStatus (status) {
+      this.$logger.info('handleShareStatus', status)
+      this.shareStatus = status
+    },
+    handleUpdateContent() {
+      // 缓存时间少于最新的内容
+      this.form.updateTime = moment.utc(new Date()).format('YYYY-MM-DD HH:mm:ss')
+      LocalStore.setFormContentLocal(this.form.id, this.form.type, JSON.stringify(this.form))
+      this.defaultHistoryKey = '2'
+      this.handleViewCollaborate()
+      setTimeout(() => {
+        this.restoreUnitPlan(this.form.id)
+      }, 100)
     }
   }
 }
@@ -3112,6 +3253,9 @@ export default {
 .form-block {
   margin-bottom: 10px;
   position: relative;
+  .cb-tooltip{
+
+  }
 
   &:hover {
     .my-comment-switch {
@@ -3182,12 +3326,14 @@ export default {
     /deep/ .ant-steps-item-content {
       padding-right: 30px;
     }
-    .form-radio-wrapper{
-      /deep/ .ant-radio-wrapper{
-        width:180px;
+
+    .form-radio-wrapper {
+      /deep/ .ant-radio-wrapper {
+        width: 180px;
       }
-      /deep/ .ant-form-item-label{
-        width:170px;
+
+      /deep/ .ant-form-item-label {
+        width: 170px;
         text-align: left;
       }
     }
@@ -3395,10 +3541,13 @@ export default {
   top: -5px;
   z-index: 200;
 }
+.my-comment-show {
+  display: block;
+}
 
 .collaborate-panel {
   background-color: #fff;
-  box-shadow: 0px 6px 10px rgba(159, 159, 159, 0.16);
+  //box-shadow: 0px 6px 10px rgba(159, 159, 159, 0.16);
 
   .icon {
     padding: 10px 5px 0 15px;
@@ -3514,7 +3663,7 @@ code {
       position: absolute;
       /* width: 300px; */
       top: -50px;
-      right: 0px
+      right: 30px
     }
   }
 
