@@ -61,7 +61,8 @@
               <div class="user-item" v-for="(user,index) in userList" :key="index" v-if="userList.length">
                 <div class="user-avatar-email">
                   <div class="avatar">
-                    <img :src="user.avatar" />
+                    <img :src="user.avatar" v-if="collaborateHistoryUserEmails.indexOf(user.email) !== -1" />
+                    <img src="~@/assets/icons/collaborate/group.png" v-else />
                   </div>
                   <div class="email">
                     {{ user.nickname }}
@@ -269,14 +270,18 @@ export default {
       sendMessage: false,
       permission: 'Edit',
       collaborateStatus: CollaborateStatus,
-      agreeLoading: false
+      agreeLoading: false,
+      collaborateHistoryUsers: [],
+      collaborateHistoryUserEmails: []
     }
   },
   created () {
     this.queryContentCollaborates()
+    this.findHistoryUsers()
   },
   methods: {
     handleFocusInput () {
+      console.log('handleFocusInput')
       this.$refs['input'].focus()
       this.active = true
     },
@@ -309,20 +314,33 @@ export default {
         this.selectedUserList = []
         this.userNameOrEmail = ''
         this.queryContentCollaborates()
+        this.searchUser()
       })
     },
     searchUser () {
       this.showUser = true
-      if (this.userNameOrEmail && this.userNameOrEmail.length < 3) {
+      if (!this.userNameOrEmail) {
+        this.userList = this.collaborateHistoryUsers
+        return
+      } else if (this.userNameOrEmail.length < 3) {
         return
       }
-      var searchName = this.userNameOrEmail ? this.userNameOrEmail : ''
       this.loading = true
-      CollaboratesSearchUser({ name: searchName }).then(response => {
+      CollaboratesSearchUser({ name: this.userNameOrEmail }).then(response => {
         this.$logger.info('SearchUser response', response)
         this.userList = response.result
       }).finally(() => {
         this.loading = false
+      })
+    },
+    findHistoryUsers () {
+      CollaboratesSearchUser({ name: '' }).then(response => {
+        this.$logger.info('SearchUser response', response)
+        this.collaborateHistoryUsers = response.result
+        this.collaborateHistoryUserEmails = response.result.map(user => {
+          return user.email
+        })
+      }).finally(() => {
       })
     },
     handleAddToSelect (user) {
@@ -334,6 +352,7 @@ export default {
         user.permission = this.permission
         this.selectedUserList.push(user)
       }
+      this.userNameOrEmail = ''
       this.$logger.info('selectedUserList ', this.selectedUserList)
     },
 

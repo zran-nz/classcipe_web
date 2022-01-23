@@ -31,13 +31,18 @@
           <div class="action-btn-wrapper">
             <div class="action-btn-list">
               <!--// TODO 不同的消息类型不同的处理按钮逻辑-->
-              <template v-if="notificationData.busType === notificationTypeMap.collaborateInvite && notificationData.busFlag === '0'">
-                <div class="action-item">
-                  <a-button class="gray-btn" :loading="refuseLoading" :style="{'background': '#E5E5E5', 'border-color': '#E5E5E5', 'color': '#000000'}" shape="round" @click="handleRefuseCollaborate">Refuse</a-button>
-                </div>
-                <div class="action-item">
-                  <a-button type="primary" :loading="acceptLoading" shape="round" @click="handleAcceptCollaborate">Accept</a-button>
-                </div>
+              <template v-if="notificationData.busType === notificationTypeMap.collaborateInvite">
+                <!--                <div class="action-item">-->
+                <!--                  <router-link :to="'/teacher/add-task/' + notificationData.busId">-->
+                <!--                    <a-button type="primary" shape="round" >Enter</a-button>-->
+                <!--                  </router-link>-->
+                <!--                </div>-->
+                <!--                <div class="action-item">-->
+                <!--                  <a-button class="gray-btn" :loading="refuseLoading" :style="{'background': '#E5E5E5', 'border-color': '#E5E5E5', 'color': '#000000'}" shape="round" @click="handleRefuseCollaborate">Refuse</a-button>-->
+                <!--                </div>-->
+                <!--                <div class="action-item">-->
+                <!--                  <a-button type="primary" :loading="acceptLoading" shape="round" @click="handleAcceptCollaborate">Accept</a-button>-->
+                <!--                </div>-->
               </template>
             </div>
           </div>

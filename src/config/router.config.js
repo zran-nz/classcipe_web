@@ -499,13 +499,13 @@ export const constantRouterMap = [
   },
   {
     path: '/addon/callback',
-    name: 'AddonCallback',
+    name: 'addonCallback',
     props: true,
     component: () => import(/* webpackChunkName: "fail" */ '@/views/addon/AddonCallback')
   },
   {
     path: '/addon/pageRedirect/:sourceType?/:id',
-    name: 'PageRedirect',
+    name: 'pageRedirect',
     props: true,
     component: () => import(/* webpackChunkName: "fail" */ '@/views/addon/PageRedirect')
   },
