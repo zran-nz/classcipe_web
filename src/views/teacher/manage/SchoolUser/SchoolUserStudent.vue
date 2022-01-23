@@ -44,14 +44,17 @@
       </span>
     </a-table>
 
-    <SchoolUserStudentAdd ref="modalForm" :classList="classList" @ok="loadDate" />
+    <SchoolUserStudentAdd ref="modalForm" :classList="classList" :gradeList="gradeList" @ok="loadData" />
   </div>
 </template>
 
 <script>
 import SchoolUserStudentAdd from './SchoolUserStudentAdd.vue'
 import { getSchoolClassList, getSchoolUsers } from '@/api/schoolUser'
+import { getGradeListBySchoolId } from '@/api/grade'
 import store from '@/store'
+import { schoolUserStatusList } from '@/const/schoolUser'
+
 const columns = [
   {
     title: 'ID',
@@ -102,8 +105,11 @@ const columns = [
   },
   {
     title: 'Status',
-    dataIndex: 'userInfo.status',
-    key: 'stauts'
+    dataIndex: 'userInfo.schoolUserStatus',
+    customRender: (text, row, index) => {
+      return schoolUserStatusList.find(item => item.id === text)?.name
+    },
+    key: 'status'
   },
   {
     title: 'Action',
@@ -122,6 +128,7 @@ export default {
   data() {
     return {
       classList: [],
+      gradeList: [],
       studentList: [],
       columns,
       loading: false,
@@ -134,8 +141,9 @@ export default {
     }
   },
   created() {
-    this.loadDate()
+    this.loadData()
     this.loadClassList()
+    this.loadGradeList()
   },
   computed: {},
   methods: {
@@ -145,7 +153,13 @@ export default {
       })
       this.classList = res?.result?.records || []
     },
-    async loadDate() {
+    async loadGradeList() {
+      const res = await getGradeListBySchoolId({
+        schoolId: store.getters.userInfo.school
+      })
+      this.gradeList = res?.result || []
+    },
+    async loadData() {
       this.loading = true
       const res = await getSchoolUsers({
         school: store.getters.userInfo.school,
@@ -161,12 +175,19 @@ export default {
       const pager = { ...this.pagination }
       pager.current = pagination.current
       this.pagination = pager
-      this.loadDate()
+      this.loadData()
     },
-    handleEdit(p) {
-      console.log(p)
+    handleEdit(data) {
+      console.log(data)
+      this.$refs.modalForm.title = 'Edit Student'
+      this.$refs.modalForm.mode = 'edit'
+      this.$refs.modalForm.defaultData = data
+      this.$refs.modalForm.show()
     },
     handleAdd: function() {
+      this.$refs.modalForm.title = 'Add Student'
+      this.$refs.modalForm.mode = 'add'
+      this.$refs.modalForm.defaultData = {}
       this.$refs.modalForm.show()
     },
     downloadTemplate() {

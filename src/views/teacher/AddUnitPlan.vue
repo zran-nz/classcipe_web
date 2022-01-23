@@ -2177,7 +2177,7 @@ export default {
           for (const value of recommendMap.values()) {
             this.recommendData.push({
               fromId: value[0].fromId,
-              fromName: value[0].fromName,
+              fromName: this.form.inquiry,
               fromTypeName: 'Big Idea',
               list: value
             })

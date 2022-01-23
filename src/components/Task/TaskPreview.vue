@@ -19,7 +19,7 @@
         </div>
       </div>
     </div>
-    <div class='sub-task-name'> {{ task.name }}</div>
+    <div class='sub-task-name'>{{ task.name }}</div>
   </div>
 </template>
 
