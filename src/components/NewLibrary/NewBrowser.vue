@@ -67,37 +67,117 @@
                   <h4>From <span class="from-type-name">{{ recommendDataItem.fromTypeName }}</span> :
                     {{ recommendDataItem.fromName }}</h4>
                 </div>
-                <div
-                  :class="{'recommend-item': true, 'my-selected-item': selectedRecommendIdList.indexOf(recommendItem.knowledgeId) !== -1,
-                           'disabled-select-item': mySelectedIdList.indexOf(recommendItem.knowledgeId) !== -1}"
-                  v-for="(recommendItem, rI) in recommendDataItem.list"
-                  :key="'ri-' + rI"
-                  @click="handleAddRecommend(recommendItem)"
-                  :data-knowledge-id="recommendItem.knowledgeId"
-                  :data-selected-id-list="mySelectedIdList">
-                  <a-tooltip class="my-tooltip">
-                    <template slot="title">
-                      {{ recommendItem.path }}
-                    </template>
-                    <div class="select-block">
-                      <a-icon
-                        class="select-block-icon"
-                        type="border"
-                        v-if="selectedRecommendIdList.indexOf(recommendItem.knowledgeId) === -1" />
-                      <div
-                        class="selected-icon"
-                        v-if="selectedRecommendIdList.indexOf(recommendItem.knowledgeId) !== -1">
-                        <img src="~@/assets/icons/lesson/selected.png" />
+                <template v-if='recommendDataItem.skillList.length'>
+                  <div class='recommend-type-title'>
+                    <div class="title-item title-skill">Achievement objectives</div>
+                  </div>
+                  <div
+                    :class="{'recommend-item': true, 'my-selected-item': selectedRecommendIdList.indexOf(recommendItem.knowledgeId) !== -1,
+                             'disabled-select-item': mySelectedIdList.indexOf(recommendItem.knowledgeId) !== -1}"
+                    v-for="(recommendItem, rI) in recommendDataItem.skillList"
+                    :key="'ri-' + rI"
+                    @click="handleAddRecommend(recommendItem)"
+                    :data-tag-type='recommendItem.tagType'
+                    :data-knowledge-id="recommendItem.knowledgeId"
+                    :data-selected-id-list="mySelectedIdList">
+                    <a-tooltip class="my-tooltip">
+                      <template slot="title">
+                        {{ recommendItem.path }}
+                      </template>
+                      <div class="select-block">
+                        <a-icon
+                          class="select-block-icon"
+                          type="border"
+                          v-if="selectedRecommendIdList.indexOf(recommendItem.knowledgeId) === -1" />
+                        <div
+                          class="selected-icon"
+                          v-if="selectedRecommendIdList.indexOf(recommendItem.knowledgeId) !== -1">
+                          <img src="~@/assets/icons/lesson/selected.png" />
+                        </div>
                       </div>
-                    </div>
 
-                    <div class="right-name">
-                      {{ recommendItem.name }}
-                    </div>
+                      <div class="right-name">
+                        {{ recommendItem.name }}
+                      </div>
 
-                    <div class='recommend-selected-left-bar' :tag-type='recommendItem.tagType'></div>
-                  </a-tooltip>
-                </div>
+                      <div class='recommend-selected-left-bar' :tag-type='recommendItem.tagType'></div>
+                    </a-tooltip>
+                  </div>
+                </template>
+                <template v-if='recommendDataItem.knowledgeList.length'>
+                  <div class='recommend-type-title'>
+                    <div class="title-item title-learnout">Learning outcomes</div>
+                  </div>
+                  <div
+                    :class="{'recommend-item': true, 'my-selected-item': selectedRecommendIdList.indexOf(recommendItem.knowledgeId) !== -1,
+                             'disabled-select-item': mySelectedIdList.indexOf(recommendItem.knowledgeId) !== -1}"
+                    v-for="(recommendItem, rI) in recommendDataItem.knowledgeList"
+                    :key="'ri-' + rI"
+                    @click="handleAddRecommend(recommendItem)"
+                    :data-tag-type='recommendItem.tagType'
+                    :data-knowledge-id="recommendItem.knowledgeId"
+                    :data-selected-id-list="mySelectedIdList">
+                    <a-tooltip class="my-tooltip">
+                      <template slot="title">
+                        {{ recommendItem.path }}
+                      </template>
+                      <div class="select-block">
+                        <a-icon
+                          class="select-block-icon"
+                          type="border"
+                          v-if="selectedRecommendIdList.indexOf(recommendItem.knowledgeId) === -1" />
+                        <div
+                          class="selected-icon"
+                          v-if="selectedRecommendIdList.indexOf(recommendItem.knowledgeId) !== -1">
+                          <img src="~@/assets/icons/lesson/selected.png" />
+                        </div>
+                      </div>
+
+                      <div class="right-name">
+                        {{ recommendItem.name }}
+                      </div>
+
+                      <div class='recommend-selected-left-bar' :tag-type='recommendItem.tagType'></div>
+                    </a-tooltip>
+                  </div>
+                </template>
+                <template v-if='recommendDataItem.centuryList.length'>
+                  <div class='recommend-type-title'>
+                    <div class="title-item title-21">21st Century Skills</div>
+                  </div>
+                  <div
+                    :class="{'recommend-item': true, 'my-selected-item': selectedRecommendIdList.indexOf(recommendItem.knowledgeId) !== -1,
+                             'disabled-select-item': mySelectedIdList.indexOf(recommendItem.knowledgeId) !== -1}"
+                    v-for="(recommendItem, rI) in recommendDataItem.centuryList"
+                    :key="'ri-' + rI"
+                    @click="handleAddRecommend(recommendItem)"
+                    :data-tag-type='recommendItem.tagType'
+                    :data-knowledge-id="recommendItem.knowledgeId"
+                    :data-selected-id-list="mySelectedIdList">
+                    <a-tooltip class="my-tooltip">
+                      <template slot="title">
+                        {{ recommendItem.path }}
+                      </template>
+                      <div class="select-block">
+                        <a-icon
+                          class="select-block-icon"
+                          type="border"
+                          v-if="selectedRecommendIdList.indexOf(recommendItem.knowledgeId) === -1" />
+                        <div
+                          class="selected-icon"
+                          v-if="selectedRecommendIdList.indexOf(recommendItem.knowledgeId) !== -1">
+                          <img src="~@/assets/icons/lesson/selected.png" />
+                        </div>
+                      </div>
+
+                      <div class="right-name">
+                        {{ recommendItem.name }}
+                      </div>
+
+                      <div class='recommend-selected-left-bar' :tag-type='recommendItem.tagType'></div>
+                    </a-tooltip>
+                  </div>
+                </template>
               </div>
             </div>
           </div>
@@ -354,6 +434,7 @@ import {
 } from '@/api/preference'
 import { LibraryEvent, LibraryEventBus } from '@/components/NewLibrary/LibraryEventBus'
 import { SelectModel } from '@/components/NewLibrary/SelectModel'
+import { TagType } from '@/const/common'
 
 export default {
   name: 'NewBrowser',
@@ -428,7 +509,8 @@ export default {
 
       selected21CenturyItem: null,
       selectedGradeIdSet: new Set(),
-      selectModelType: SelectModel
+      selectModelType: SelectModel,
+      tagType: TagType
     }
   },
   computed: {
@@ -469,9 +551,30 @@ export default {
 
     const recommendIdList = []
     this.recommendData.forEach((item) => {
+      if (!item.skillList || (item.skillList && !item.skillList.length)) {
+        item.skillList = []
+      }
+
+      if (!item.centuryList || (item.centuryList && !item.centuryList.length)) {
+        item.centuryList = []
+      }
+
+      if (!item.knowledgeList || (item.knowledgeList && !item.knowledgeList.length)) {
+        item.knowledgeList = []
+      }
+
       item.list.forEach(dataItem => {
         recommendIdList.push(dataItem.knowledgeId)
+
+        if (dataItem.tagType === TagType.skill || dataItem.tagType === TagType.ibSkill || dataItem.tagType === TagType.idu) {
+          item.skillList.push(dataItem)
+        } else if (dataItem.tagType === TagType.century) {
+          item.centuryList.push(dataItem)
+        } else {
+          item.knowledgeList.push(dataItem)
+        }
       })
+
       if (item.list.length > 0) {
         this.isEmptyRecommend = false
       }
@@ -1057,14 +1160,21 @@ export default {
         }
       }
 
+      .recommend-item-divider {
+        height: 5px;
+        width: 100%;
+        background: #fff;
+      }
+
       .recommend-item {
-        //background-color: rgba(255, 187, 0, 0.1);
+        //background-color: rgba(253, 238, 218);
         margin-bottom: 10px;
-        box-sizing: content-box;
         position: relative;
-        //border: 1px solid rgba(255, 187, 0, 0.1);
-        box-shadow: 0 0px 8px 5px #fff;
-        margin-left: 10px;
+        box-shadow: 0 10px #fff;
+        padding-left: 10px;
+        box-sizing: border-box;
+        overflow: hidden;
+        height: 42px;
 
         span {
           font-size: 13px;
@@ -1186,9 +1296,20 @@ export default {
 .recommend-selected-left-bar {
   position: absolute;
   top: 0;
-  left: -10px;
+  left: 0px;
   bottom: 0;
   width: 10px;
+  z-index: 100;
+}
+
+.my-selected-item {
+  .recommend-selected-left-bar {
+    position: absolute;
+    top: -1px;
+    left: 0;
+    bottom: -1px;
+    width: 10px;
+  }
 }
 
 div[tag-type="6"] {
@@ -1209,6 +1330,12 @@ div[tag-type="4"] {
 
 div[tag-type="2"] {
   background: rgb(255, 236, 210);
+}
+
+.title-item {
+  padding-top: 3px;
+  font-weight: 500;
+  padding-bottom: 5px;
 }
 
 </style>
