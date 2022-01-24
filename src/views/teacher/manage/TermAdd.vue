@@ -38,9 +38,6 @@
 
 <script>
 import JModal from '@/components/jeecg/JModal'
-import store from '@/store'
-import * as logger from '@/utils/logger'
-import Moment from 'moment'
 
 export default {
   name: 'TermAdd',
