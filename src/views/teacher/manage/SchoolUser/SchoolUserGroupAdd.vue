@@ -71,7 +71,6 @@
 
 <script>
 import JModal from '@/components/jeecg/JModal'
-import store from '@/store'
 
 export default {
   name: 'SchoolUserGroupAdd',
