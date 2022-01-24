@@ -75,7 +75,7 @@
                     :class="{'recommend-item': true, 'my-selected-item': selectedRecommendIdList.indexOf(recommendItem.knowledgeId) !== -1,
                              'disabled-select-item': mySelectedIdList.indexOf(recommendItem.knowledgeId) !== -1}"
                     v-for="(recommendItem, rI) in recommendDataItem.skillList"
-                    :key="'ri-' + rI"
+                    :key="'ria-' + rI"
                     @click="handleAddRecommend(recommendItem)"
                     :data-tag-type='recommendItem.tagType'
                     :data-knowledge-id="recommendItem.knowledgeId"
@@ -112,7 +112,7 @@
                     :class="{'recommend-item': true, 'my-selected-item': selectedRecommendIdList.indexOf(recommendItem.knowledgeId) !== -1,
                              'disabled-select-item': mySelectedIdList.indexOf(recommendItem.knowledgeId) !== -1}"
                     v-for="(recommendItem, rI) in recommendDataItem.knowledgeList"
-                    :key="'ri-' + rI"
+                    :key="'ril-' + rI"
                     @click="handleAddRecommend(recommendItem)"
                     :data-tag-type='recommendItem.tagType'
                     :data-knowledge-id="recommendItem.knowledgeId"
@@ -149,7 +149,7 @@
                     :class="{'recommend-item': true, 'my-selected-item': selectedRecommendIdList.indexOf(recommendItem.knowledgeId) !== -1,
                              'disabled-select-item': mySelectedIdList.indexOf(recommendItem.knowledgeId) !== -1}"
                     v-for="(recommendItem, rI) in recommendDataItem.centuryList"
-                    :key="'ri-' + rI"
+                    :key="'ri2-' + rI"
                     @click="handleAddRecommend(recommendItem)"
                     :data-tag-type='recommendItem.tagType'
                     :data-knowledge-id="recommendItem.knowledgeId"
