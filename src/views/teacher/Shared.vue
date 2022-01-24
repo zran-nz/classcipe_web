@@ -687,7 +687,7 @@
           centered: true,
           onOk: () => {
             this.loading = true
-            Duplicate({ id: item.id, type: item.type }).then((response) => {
+            Duplicate({ id: item.sourceId, type: item.sourceType }).then((response) => {
               this.$logger.info('Duplicate response', response)
               this.loadMyContent()
             })
