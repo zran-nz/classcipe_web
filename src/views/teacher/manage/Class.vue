@@ -1,7 +1,26 @@
 <template>
   <a-card :bordered="false">
+
+    <div class="table-page-search-wrapper">
+      <a-form layout="inline">
+        <a-row type="flex" justify="start">
+          <a-col :span="8">
+            <a-input-search placeholder="Search for ID、Name、Email..." v-model="searchKey" enter-button @search="searchClass" @change="searchClass"/>
+          </a-col>
+          <a-col :span="4">
+          </a-col>
+          <a-col :span="4">
+
+          </a-col>
+          <a-col :span="4">
+            <a-button @click="handleAdd" type="primary" icon="plus">Add</a-button>
+          </a-col>
+        </a-row>
+      </a-form>
+    </div>
+
     <div class="operator">
-      <a-button @click="handleAdd" type="primary" icon="plus">Add</a-button>
+
       <!-- <a-button type="primary" icon="download" @click="downloadTemplate">Download template</a-button>
       <a-upload name="file" :showUploadList="false" :multiple="false">
         <a-button type="primary" icon="import">Upload</a-button>
@@ -43,7 +62,7 @@
       </span>
     </a-table>
 
-    <ClassAdd ref="modalForm" @ok="loadData" />
+    <ClassAdd ref="modalForm" @ok="loadData" :grade-list="gradeList" />
   </a-card>
 </template>
 
@@ -52,6 +71,7 @@ import ClassAdd from './ClassAdd.vue'
 
 import { getSchoolClassList } from '@/api/schoolUser'
 import store from '@/store'
+import { GetGradesByCurriculumId } from '@/api/preference'
 const columns = [
   {
     title: 'Class Name',
@@ -111,11 +131,14 @@ export default {
         pageSize: 20,
         current: 1,
         total: 0
-      }
+      },
+      searchKey: '',
+      gradeList: []
     }
   },
   created() {
     this.loadData()
+    this.getGradeList()
   },
   computed: {},
   methods: {
@@ -139,7 +162,16 @@ export default {
       this.$refs.modalForm.defaultData = {}
       this.$refs.modalForm.show()
     },
-    handleEdit(data) {}
+    handleEdit(data) {},
+    getGradeList() {
+      GetGradesByCurriculumId({ curriculumId: this.$store.getters.bindCurriculum }).then(response => {
+        this.$logger.info('GetGradesByCurriculumId', response.result)
+        this.gradeList = response.result
+      })
+    },
+    searchClass() {
+
+    }
   }
 }
 </script>
