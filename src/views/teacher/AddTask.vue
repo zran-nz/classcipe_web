@@ -846,10 +846,10 @@
 
               <div class='sub-task-tag-wrapper' v-if='currentActiveStepIndex === 2 && currentTaskFormData'>
                 <custom-tag
+                  ref='customTag'
                   :show-arrow='showCustomTag'
                   :custom-tags='customTags'
-                  :custom-tags-list='customTagList'
-                  ref='customTag'
+                  :scope-tags-list='customTagList'
                   :selected-tags-list='currentTaskFormData.customTags'
                   @reload-user-tags='loadCustomTags'
                   @change-add-keywords='handleChangeAddKeywords'
@@ -1733,7 +1733,6 @@ import { QueryContentShare } from '@/api/share'
 import CollaborateTooltip from '@/components/Collaborate/CollaborateTooltip'
 import CollaborateUpdateContent from '@/components/Collaborate/CollaborateUpdateContent'
 import LocalStore from '@/websocket/localstore'
-
 const { SplitTask } = require('@/api/task')
 
 export default {
@@ -2211,37 +2210,50 @@ export default {
 
     handleSaveTask() {
       logger.info('handleSaveTask', this.form, this.questionDataObj)
-      this.cleaPageCache()
-      const taskData = Object.assign({}, this.form)
-      if (this.rangeDate.length === 2) {
-        const startDate = this.rangeDate[0].clone()
-        const endDate = this.rangeDate[1].clone()
-        taskData.startDate = startDate.utc().format('YYYY-MM-DD HH:mm:ss')
-        taskData.endDate = endDate.utc().format('YYYY-MM-DD HH:mm:ss')
-      }
-      if (this.taskId) {
-        taskData.id = this.taskId
-      }
-      taskData.selectedTemplateList = this.selectedTemplateList
-      logger.info('basic taskData', taskData)
-      logger.info('question taskData', taskData)
-      TaskAddOrUpdate(taskData).then((response) => {
-        logger.info('TaskAddOrUpdate', response.result)
-        if (response.success) {
-          // this.restoreTask(response.result.id, false)
-          this.oldForm = JSON.parse(JSON.stringify(this.form))
-          this.$message.success(this.$t('teacher.add-task.save-success'))
-          this.handleBack()
-          // this.$router.push({ path: '/teacher/main/created-by-me' })
-          // this.selectedSlideVisibleFromSave = true
-        } else {
-          this.$message.error(response.message)
+
+      if (this.subTasks.length > 0) {
+        this.$confirm({
+          title: 'Save sub-task(s)',
+          okText: 'Yes',
+          content: 'Do you want to save the sub-tasks?',
+          onOk: () => {
+            this.currentActiveStepIndex = 2
+            this.handleSaveSubTaskAndForm(0)
+          }
+        })
+      } else {
+        this.cleaPageCache()
+        const taskData = Object.assign({}, this.form)
+        if (this.rangeDate.length === 2) {
+          const startDate = this.rangeDate[0].clone()
+          const endDate = this.rangeDate[1].clone()
+          taskData.startDate = startDate.utc().format('YYYY-MM-DD HH:mm:ss')
+          taskData.endDate = endDate.utc().format('YYYY-MM-DD HH:mm:ss')
         }
-      }).finally(() => {
-        // this.selectedSlideVisible = true
-        // this.$refs.commonFormHeader.saving = false
-        this.handleSaveContentEvent(this.taskId, this.contentType.task, this.oldForm)
-      })
+        if (this.taskId) {
+          taskData.id = this.taskId
+        }
+        taskData.selectedTemplateList = this.selectedTemplateList
+        logger.info('basic taskData', taskData)
+        logger.info('question taskData', taskData)
+        TaskAddOrUpdate(taskData).then((response) => {
+          logger.info('TaskAddOrUpdate', response.result)
+          if (response.success) {
+            // this.restoreTask(response.result.id, false)
+            this.oldForm = JSON.parse(JSON.stringify(this.form))
+            this.$message.success(this.$t('teacher.add-task.save-success'))
+            this.handleBack()
+            // this.$router.push({ path: '/teacher/main/created-by-me' })
+            // this.selectedSlideVisibleFromSave = true
+          } else {
+            this.$message.error(response.message)
+          }
+        }).finally(() => {
+          // this.selectedSlideVisible = true
+          // this.$refs.commonFormHeader.saving = false
+          this.handleSaveContentEvent(this.taskId, this.contentType.task, this.oldForm)
+        })
+      }
     },
     handlePublishTask(status) {
       logger.info('handlePublishTask', {
@@ -2553,6 +2565,8 @@ export default {
         if (this.currentActiveStepIndex === 2 && this.thumbnailList.length > 1) {
           this.selectedSlideVisible = true
           this.currentTaskFormData = JSON.parse(JSON.stringify(this.form))
+        } else {
+          this.currentTaskFormData = null
         }
       })
     },
@@ -2579,7 +2593,7 @@ export default {
       } else {
         // 不可用全选所有的ppt
         if (this.selectedPageIdList.length >= this.thumbnailList.length - 1) {
-          this.$message.warning('You can only select up to ' + this.thumbnailList.length +' slides')
+          this.$message.warning('You can only select up to ' + this.thumbnailList.length + ' slides')
           return
         }
         this.selectedPageIdList.push(thumbnail.id)
@@ -2773,7 +2787,7 @@ export default {
       this.currentActiveStepIndex = 2
       this.showSubTaskDetail = true
       this.currentTaskFormData = JSON.parse(JSON.stringify(this.form))
-      this.$logger.info('currentTaskFormData', this.currentTaskFormData)
+      this.$logger.info('currentTaskFormData', this.currentTaskFormData, 'customTags', this.customTags)
     },
 
     handleGotoEditMode() {
@@ -2786,6 +2800,7 @@ export default {
     handleCancelPickTaskSlide() {
       this.$logger.info('handleCancelPickTaskSlide')
       this.selectedSlideVisible = false
+      this.currentTaskFormData = null
       this.currentActiveStepIndex = 3
     },
     handleSelectedSessionTags(tags) {
@@ -3161,8 +3176,19 @@ export default {
     },
 
     onChangeStep(current) {
-      console.log('onChange: setSessionStep', current, 'currentActiveStepIndex', this.currentActiveStepIndex)
+      console.log('onChange: current step', current, ' currentActiveStepIndex', this.currentActiveStepIndex, typeof this.currentActiveStepIndex)
 
+      if (this.currentActiveStepIndex === 2 && this.subTasks.length) {
+        this.$confirm({
+          title: 'Save sub-task(s)',
+          okText: 'Yes',
+          content: 'Do you want to save the sub-tasks?',
+          onOk: () => {
+            this.currentActiveStepIndex = 2
+            this.handleSaveSubTask(0)
+          }
+        })
+      }
       if (typeof current === 'number') {
         this.setSessionStep(current)
         if (this.recommendTemplateList.length === 0) {
@@ -3672,7 +3698,39 @@ export default {
         this.$logger.info('handleSaveSubTask response', response)
         if (response.success) {
           this.$message.success('add successfully')
-          // 保存并退出
+          this.subTasks = []
+        } else {
+          this.$message.error(response.message)
+        }
+      }).finally(() => {
+        this.subTaskPublishing = false
+        this.subTaskSaving = false
+      })
+    },
+
+    handleSaveSubTaskAndForm (status) {
+      this.$logger.info('handleSaveSubTaskAndForm status ' + status, this.subTasks)
+      if (status) {
+        this.subTaskPublishing = true
+      } else {
+        this.subTaskSaving = true
+      }
+      const postData = {
+        taskId: this.taskId,
+        subTasks: []
+      }
+      this.subTasks.forEach(taskItem => {
+        taskItem.subTask.selectPageObjectIds = taskItem.selectPageObjectIds
+        taskItem.subTask.status = status
+        postData.subTasks.push(taskItem.subTask)
+      })
+      this.$logger.info('handleSaveSubTask postData', postData)
+      SplitTask(postData).then(response => {
+        this.$logger.info('handleSaveSubTask response', response)
+        if (response.success) {
+          this.$message.success('add successfully')
+          this.subTasks = []
+          // this.handleSaveTask()
         } else {
           this.$message.error(response.message)
         }
