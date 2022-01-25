@@ -6,7 +6,8 @@ export const SESSION_CURRENT_PAGE = 'currentPage'
 export const SESSION_CURRENT_TYPE_LABEL = 'currentTypeLabel'
 export const DICT_TEMPLATE = 'ppt_template'
 export const DICT_BLOOM_CATEGORY = 'bloom_categories'
-export const DICT_PLAN_RWC = 'rwc'
+export const DICT_PROMPT_PURPOSE = 'prompt_purpose'
+export const DICT_PROMPT_TYPE = 'prompt_type'
 export const TAG_CATGORY_KEYWORDS = 'Key words'
 
 export const TagType = {
