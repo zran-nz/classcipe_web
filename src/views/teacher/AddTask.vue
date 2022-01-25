@@ -496,7 +496,7 @@
                         </div>
                         <div class='slide-form-block' v-show='form.presentationId'>
                           <div class='preview-list' v-if='!thumbnailListLoading'>
-                            <a-row :gutter='[8, 8]'>
+                            <a-row :gutter='[5, 5]'>
                               <a-col
                                 class='gutter-row'
                                 :span='10'
@@ -513,6 +513,7 @@
                                   :style="{backgroundImage: 'url(' + item.contentUrl + ')'}"
                                   :key='index'
                                   @click='handleToggleThumbnail(item)'>
+                                  <div class='mask'></div>
                                   <div class='template-select-icon' v-if='selectedPageIdList.indexOf(item.id) !== -1'>
                                     <img src='~@/assets/icons/task/selected.png' />
                                   </div>
@@ -538,6 +539,7 @@
                                 :selected-page-item-data='selectedPageItemData'
                                 :task-id='taskId'
                                 :ppt-title='pptTitle'
+                                :sub-tasks.sync='subTasks'
                                 :task-prefix="'task_' + taskIndex + '_'"
                                 @add-sub-task='handleAddSubTask'
                                 @select-task-type='handleSelectSubTaskType' />
@@ -2704,6 +2706,7 @@ export default {
     handleDeleteSubTask(data) {
       this.$logger.info('handleDeleteSubTask data', data, this.subTasks)
       this.subTasks = this.subTasks.filter(item => item._uid !== data._uid)
+      this.$logger.info('after delete tasks ', this.subTasks)
     },
     handleStartCollaborate() {
       this.$logger.info('handleStartCollaborate')
@@ -4686,6 +4689,7 @@ export default {
   opacity: 1;
   border-radius: 2px;
   //padding: 5px;
+  padding-right: 3px;
 
   .preview-item-cover {
     background-position: center center;
@@ -4694,16 +4698,19 @@ export default {
     position: relative;
     width: 100%;
     height: 160px;
-    border-radius: 2px;
-    border: 1px solid #eee;
-    box-shadow: 0 0 4px 4px #fff;
+    border-radius: 4px;
+    border: 3px solid #fff;
+
+    .mask {
+      display: none;
+    }
 
     .template-select-icon {
       z-index: 50;
       position: absolute;
       user-select: none;
       right: 5px;
-      top: 5px;
+      top: 2px;
 
       img {
         user-select: none;
@@ -4713,9 +4720,20 @@ export default {
   }
 
   .preview-item-cover-active {
-    border: 1px solid #15C39A;
-    box-shadow: 0px 0 4px 4px #fff;
-    border-radius: 2px;
+    border: 3px solid #15C39A;
+    border-radius: 4px;
+
+    .mask {
+      display: block !important;
+      z-index: 30;
+      position: absolute;
+      left: 0;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      background: #000;
+      opacity: 0.4;
+    }
   }
 }
 
@@ -4780,7 +4798,6 @@ export default {
     flex-direction: row;
     align-items: flex-start;
     flex-wrap: nowrap;
-    overflow-y: hidden;
     overflow-x: scroll;
     background: #38cfa611;
     padding: 10px 10px 5px 10px;
@@ -6055,8 +6072,8 @@ export default {
 }
 
 .sub-task-save {
-  padding-top: 10px;
-  padding-right: 10px;
+  padding-top: 15px;
+  padding-right: 15px;
   text-align: right;
   background: #38cfa611;
 

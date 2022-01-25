@@ -7,7 +7,7 @@
       <div class="action-item action-item-bottom" >
         <div class="session-btn" @click.stop="handleDeleteItem">
           <div class="session-btn-icon content-list-action-btn">
-            <bianji />
+            <shanchu-icon />
           </div>
           <div class="session-btn-text">Remove</div>
         </div>
@@ -26,11 +26,11 @@
 <script>
 import * as logger from '@/utils/logger'
 import NoMoreResources from '@/components/Common/NoMoreResources'
-import Bianji from '@/assets/icons/common/Bianji.svg?inline'
+import ShanchuIcon from '@/assets/svgIcon/task/shanchu_icon.svg?inline'
 
 export default {
   name: 'TaskPreview',
-  components: { NoMoreResources, Bianji },
+  components: { NoMoreResources, ShanchuIcon },
   props: {
     taskData: {
       type: Object,
@@ -130,7 +130,7 @@ export default {
 
 .task-preview {
   width: 210px;
-  height: 180px;
+  height: 190px;
   position: relative;
   border-radius: 4px;
   overflow: hidden;
@@ -184,12 +184,12 @@ export default {
     white-space: nowrap;
     text-overflow: ellipsis;
     word-break: break-all;
-    background: #ffffff11;
+    background: #fff;
     color: #fff;
     overflow: hidden;
     color: rgba(0, 0, 0, 0.85);
     font-weight: 500;
-    line-height: 30px;
+    line-height: 40px;
     font-size: 13px;
     padding: 0 5px;
   }
@@ -210,6 +210,7 @@ export default {
       justify-content: space-around;
       .session-btn {
         height: 33px;
+        overflow: hidden;
         width: auto;
         display: flex;
         border-radius: 32px;
@@ -222,6 +223,7 @@ export default {
         box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.16);
         opacity: 1;
         border: 1px solid rgba(188, 188, 188, 1);
+
         .session-btn-icon {
           display: flex;
           flex-direction: row;
@@ -229,6 +231,7 @@ export default {
           justify-content: center;
           font-size: 13px;
           svg {
+            width: 14px;
             height: 14px;
             fill: #182552;
             stroke: #182552;
