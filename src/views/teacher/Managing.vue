@@ -2,37 +2,29 @@
   <a-card :bordered="false" :bodyStyle="{ padding: '16px 24px', height: '100%' }" :style="{ height: '100%' }">
     <a-layout>
       <a-layout-sider>
-        <div class="nav-bar-left">
-          <div class="nav-bar-wrapper">
-            <div :class="{ 'nav-bar-item': true, 'selected-nav-bar': selectedKey === '/teacher/managing/skill' }">
-              <router-link to="/teacher/managing/skill">
-                <a-icon type="cloud-upload" />
-                IB skills
-              </router-link>
-            </div>
-            <div :class="{ 'nav-bar-item': true, 'selected-nav-bar': selectedKey === '/teacher/managing/school-user' }">
-              <router-link to="/teacher/managing/school-user">
-                <!-- <a-icon type="cloud-upload" class="memu-icon" /> -->
-                <img src="~@/assets/icons/managing/school-user@2x.png" class="memu-icon" />
-                School User
-              </router-link>
-            </div>
-            <!--            <div :class="{'nav-bar-item': true, 'selected-nav-bar': true, 'selected-nav-bar' : selectedKey === '/teacher/managing/shared'}">-->
-            <!--              <router-link to="/teacher/main/shared">-->
-            <!--                <a-badge :count="$store.getters.sharedCount">-->
-            <!--                  <shared-svg />-->
-            <!--                </a-badge>-->
-            <!--                {{ $t('teacher.main.shared') }}-->
-            <!--              </router-link>-->
-            <!--            </div>-->
-            <!--            <div :class="{'nav-bar-item': true, 'nav-bar-item-split': true, 'selected-nav-bar' : selectedKey === '/teacher/managing/my-favorite'}">-->
-            <!--              <router-link to="/teacher/main/my-favorite">-->
-            <!--                <my-favorite-svg />-->
-            <!--                {{ $t('teacher.main.my-favorite') }}-->
-            <!--              </router-link>-->
-            <!--            </div>-->
-          </div>
-        </div>
+        <a-menu
+          :default-selected-keys="[selectedKey]"
+          @select="handleMenuSelect"
+          mode="inline"
+          :inline-collapsed="false"
+        >
+          <a-menu-item key="/teacher/managing/skill">
+            <a-icon type="cloud-upload" />
+            <span>IB skills</span>
+          </a-menu-item>
+          <a-menu-item key="/teacher/managing/school-user">
+            <a-icon type="user" />
+            <span>School User</span>
+          </a-menu-item>
+          <a-menu-item key="/teacher/managing/class">
+            <a-icon type="desktop" />
+            <span>Classes</span>
+          </a-menu-item>
+          <a-sub-menu>
+            <span slot="title"><a-icon type="schedule" /><span>Academics</span></span>
+            <a-menu-item key="/teacher/managing/term"> Academics Terms </a-menu-item>
+          </a-sub-menu>
+        </a-menu>
       </a-layout-sider>
       <a-layout-content class="main-content">
         <router-view />
@@ -64,7 +56,7 @@ export default {
   },
   data() {
     return {
-      selectedKey: '/teacher/main/created-by-me'
+      selectedKey: '/teacher/managing/skill'
     }
   },
   watch: {
@@ -79,7 +71,11 @@ export default {
     logger.info('selectedKey ', this.selectedKey)
   },
   mounted() {},
-  methods: {}
+  methods: {
+    handleMenuSelect({ key }) {
+      this.$router.push({ path: key })
+    }
+  }
 }
 </script>
 

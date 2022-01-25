@@ -183,7 +183,7 @@ export default {
     },
 
     handleContentListUpdate (data) {
-      this.$logger.info('handleContentListUpdate ', data)
+      this.$logger.info('NewContentList handleContentListUpdate ', data)
       this.backgroundColor = data.backgroundColor
       this.contentDataList = data.contentList
       this.parent = data.currentTreeData
@@ -250,7 +250,7 @@ export default {
             parent: this.parent,
             eventType: 'syncDir'
           })
-          this.$logger.info('$emit sync')
+          this.$logger.info('$emit sync', item, this.currentDataType, this.parent)
         } else {
           // 有的时候grade下面没数据，需要排除一下grade
           if (!item.hasOwnProperty('isGrade')) {
@@ -295,7 +295,7 @@ export default {
             parent: this.parent,
             eventType: 'syncDir'
           })
-          this.$logger.info('$emit sync')
+          this.$logger.info('$emit sync specificSkills', item, this.currentDataType, this.parent)
         } else {
           // 有的时候grade下面没数据，需要排除一下grade
           if (!item.hasOwnProperty('isGrade')) {

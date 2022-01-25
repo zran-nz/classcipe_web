@@ -4,7 +4,7 @@ export default {
   'teacher.add-evaluation.publish-success': 'Publish successfully',
   'teacher.add-evaluation.save': 'Save',
   'teacher.add-evaluation.save-success': 'Save successfully',
-  'teacher.add-evaluation.last-change-saved-at-time': 'last saved at {time}',
+  'teacher.add-evaluation.last-change-saved-at-time': 'Last saved at {time}',
   'teacher.add-evaluation.default-evaluation-name': 'Unnamed assessment tool',
   'teacher.add-evaluation.evaluation': 'Assessment tool',
   'teacher.add-evaluation.material': 'Material',

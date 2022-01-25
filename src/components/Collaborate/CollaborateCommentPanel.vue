@@ -51,6 +51,11 @@
         <div class="record-item">
           <template>
             <div class="record-action" v-show="commentItem.username === $store.getters.userInfo.username">
+              <div style="margin-right: 20px;font-size: 18px;margin-top: 8px;" v-if="cIndex === 0" @click="handleMarked(commentItem,cIndex)">
+                <a-tooltip placement="bottom" title="Marked as resolved and hide this discussion">
+                  <a-icon type="check" />
+                </a-tooltip>
+              </div>
               <div>
                 <a-dropdown>
                   <a-icon type="more" style="font-size: 20px;margin-top: 10px;" />
@@ -75,7 +80,7 @@
               </div>
               <div class="user-name">
                 <div class="name-text"> {{ commentItem.username }}</div>
-                <div class="time-text"> {{ commentItem.createdTime | dayjs1 }}</div>
+                <div class="time-text"> {{ commentItem.createdTime | dayComment }}</div>
               </div>
             </div>
             <div class="comment-detail" v-if="!commentItem.editing">
@@ -109,7 +114,7 @@
 <script>
 
 import { CollaborateCommentMixin } from '@/mixins/CollaborateCommentMixin'
-import { AddCollaborateComment, DeleteCollaborateCommentById } from '@/api/collaborate'
+import { AddCollaborateComment, DeleteCollaborateCommentById, MarkedCollaborateComment } from '@/api/collaborate'
 
 export default {
   name: 'CollaborateCommentPanel',
@@ -151,14 +156,24 @@ export default {
   watch: {
     commentList (value) {
       this.$logger.info('collaborateUserList ', this.collaborateUserList)
-      this.rawCommentList = value
-      this.rawCommentList.forEach(item => { item.sendLoading = false })
+      this.rawCommentList = []
+      value.forEach(item => {
+        item.sendLoading = false
+        if (!item.isDelete) {
+          this.rawCommentList.push(item)
+        }
+      })
     }
   },
   created () {
     this.$logger.info('CollaborateCommentPanel commentList', this.commentList)
-    this.rawCommentList = this.commentList
-    this.rawCommentList.forEach(item => { item.sendLoading = false })
+    this.rawCommentList = []
+    this.commentList.forEach(item => {
+      item.sendLoading = false
+      if (!item.isDelete) {
+        this.rawCommentList.push(item)
+      }
+    })
   },
   methods: {
     handleSend (comment) {
@@ -229,6 +244,22 @@ export default {
       this.$logger.info('handleEditComment', comment)
       comment.editing = !comment.editing
       this.$set(this.rawCommentList, index, comment)
+    },
+    handleMarked(comment, cIndex) {
+      this.$logger.info('handleMarked', comment)
+      this.rawCommentList.splice(cIndex, 1)
+      const childIds = this.rawCommentList.filter(item => item.commentToId === comment.id).map(item => {
+        return item.id
+      })
+      childIds.forEach(id => {
+        const index = this.rawCommentList.findIndex(item => item.id === id)
+        this.rawCommentList.splice(index, 1)
+      })
+      MarkedCollaborateComment(comment).then(response => {
+        this.$emit('update-comment')
+      }).finally(() => {
+        this.cancelComment()
+      })
     }
   }
 }
@@ -304,6 +335,8 @@ export default {
         cursor: pointer;
         top: 0;
         right: 0;
+        display: flex;
+        align-items: center;
 
         .record-delete {
           svg {

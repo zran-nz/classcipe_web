@@ -335,7 +335,7 @@
         margin-bottom: 10px;
       }
       .title-skill{
-        color: #FEF3E4;
+        color: #FF978E;
       }
       .title-learnout{
         color: #B1D1CC;
@@ -362,6 +362,7 @@
         border: 1px solid #f9f9f9;
       }
       .objectives-list-item {
+        background: #fff;
         width: 100%;
         opacity: 1;
         //border-radius: 4px;
@@ -460,8 +461,8 @@
       .objectives-list-item-skill{
         //background: #FEF3E4;
         //border: 1px solid #EED1AA;
-        color: #FEF3E4;
-        border-left: 10px solid #FEF3E4;
+        color: #FF978E;
+        border-left: 10px solid #FF978E;
         //border-radius: 10px;
       }
       .objectives-list-item-learn{

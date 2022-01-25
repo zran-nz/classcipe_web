@@ -24,9 +24,11 @@
         </div>
       </div>
     </div>
-    <div class="root-comment" v-for="(rootComment,rootIndex) in formatCommentList" :key="rootIndex">
-      <a-divider orientation="left">To {{ rootComment.fieldName }}:</a-divider>
-      <div class="comment-record-wrapper" style="box-shadow: 0px 3px 6px rgb(0 0 0 / 16%)">
+    <div class="root-comment" style=" box-shadow: rgb(0 0 0 / 16%) 0px 3px 6px;" v-for="(rootComment,rootIndex) in formatCommentList" :key="rootIndex">
+      <div class="root-comment-tab">Selected element | {{ getFieldDisplayName(rootComment.fieldName) }}
+        <div style="float: right;" v-if="rootComment.isDelete"><a-tag color="cyan">Marked as read</a-tag></div>
+      </div>
+      <div class="comment-record-wrapper">
         <div class='delete-thread-mask' v-if="rootComment.deleteThread">
           <div class="delete-group">
             <div style="color: #fff;margin: 5px;">
@@ -85,7 +87,7 @@
                 </div>
                 <div class="user-name">
                   <div class="name-text"> {{ commentItem.username }}</div>
-                  <div class="time-text"> {{ commentItem.createdTime | dayjs1 }}</div>
+                  <div class="time-text"> {{ commentItem.createdTime | dayComment }}</div>
                 </div>
               </div>
               <div class="comment-detail" v-if="!commentItem.editing">
@@ -121,6 +123,8 @@
 
 import { CollaborateCommentMixin } from '@/mixins/CollaborateCommentMixin'
 import { AddCollaborateComment, DeleteCollaborateCommentById } from '@/api/collaborate'
+import { PlanFieldDisplayName, TaskFieldDisplayName } from '@/const/common'
+import { typeMap } from '@/const/teacher'
 
 export default {
   name: 'CollaborateCommentView',
@@ -159,7 +163,6 @@ export default {
     }
   },
   computed: {
-
     getCommentList () {
         return function (rawCommentList) {
           const res = []
@@ -170,7 +173,19 @@ export default {
           console.log(res)
           return res
         }
+    },
+    getFieldDisplayName() {
+      return function (field) {
+        if (this.sourceType === typeMap.task) {
+          return TaskFieldDisplayName[field]
+        } else if (this.sourceType === typeMap['unit-plan']) {
+          return PlanFieldDisplayName[field]
+        } else {
+          return field
+        }
+      }
     }
+
   },
   watch: {
     commentList (value) {
@@ -378,6 +393,8 @@ export default {
 .all-collaborate-comment-view {
   padding: 20px;
   z-index: 100;
+  max-height: 1200px;
+  overflow-y: auto;
 
   .filter-line {
     display: flex;
@@ -429,17 +446,34 @@ export default {
     }
   }
 
+  .root-comment {
+    border-bottom-right-radius: 6px;
+    border-bottom-left-radius: 6px;
+    .root-comment-tab{
+      background-color: #f1f3f4;
+      padding: 10px;
+      color: rgba(0, 0, 0, 0.85);
+      font-weight: 500;
+      font-size: 16px;
+      white-space: nowrap;
+      text-align: left;
+      margin-top: 10px;
+      border-top-right-radius: 6px;
+      border-top-left-radius: 6px;
+      &:hover{
+        background-color:#feefc3
+      }
+    }
+  }
+
   .comment-record-wrapper {
-    margin-top: 10px;
     padding: 20px 15px;
-    border: 1px solid #E8E8E8;
     max-height: 1000px;
     overflow-y: auto;
-    box-shadow: 0px 3px 6px rgb(0 0 0 / 16%);
     background: #FFFFFF;
-    border: 1px solid #E8E8E8;
-    border-radius: 4px;
     position:relative;
+    border-bottom-right-radius: 6px;
+    border-bottom-left-radius: 6px;
 
     .record-list {
       position:relative;

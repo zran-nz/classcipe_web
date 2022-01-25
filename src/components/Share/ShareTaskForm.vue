@@ -276,7 +276,7 @@ export default {
     }
   }
   .objectives-list-item-skill{
-    background: #FEF3E4;
+    background: #FF978E;
     border: 1px solid #EED1AA;
     opacity: 1;
     border-radius: 10px;

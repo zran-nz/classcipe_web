@@ -4,6 +4,7 @@
     v-if='treeItemData'
     :data-deep='defaultDeep'
     :data-default-grade-id="defaultGradeId + ''"
+    :data-tree-type='treeItemType'
     :data-current-type='currentItemType'
     :data-selected-grade-id="treeItemData.selectedGradeId + ''"
     :data-selected-grade-name="treeItemData.selectedGradeName + ''"
@@ -1371,7 +1372,7 @@ export default {
         data.item.id === this.treeItemData.id &&
         data.item.name === this.treeItemData.name &&
         // 通过id和name无法唯一定位到指定的条目，因为多个subject下面的grade的id和name都相同，所以加一层父级的条目的名称一致性判断
-        (!data.parent || this.treeCurrentParent && this.treeCurrentParent.name === data.parent.name)) {
+        (!data.parent || (this.treeItemData.originParent && this.treeItemData.originParent.name === data.parent.name))) {
         // 同步导航栏和内容列表
         this.$logger.info('handleContentListItemClick start ', data, this.treeItemData, this.treeCurrentParent)
         this.handleExpandTreeItem(this.treeItemData)

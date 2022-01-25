@@ -14,6 +14,8 @@ export default {
     'menu.managing': 'Managing',
     'menu.managing.skill': 'Managing skills',
     'menu.managing.school-user': 'School User',
+    'menu.managing.class': 'Classes',
+    'menu.managing.term': 'Academics Terms',
     'menu.my-content': 'MyContent',
     'menu.my-favorite': 'My Favorite',
     'menu.subscribe': 'Subscribe',

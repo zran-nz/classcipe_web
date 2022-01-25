@@ -45,7 +45,7 @@
             <div class="desc2">Sign Up to Classcipe using your Google account</div>
             <div class="desc2">
               Already have an account? |
-              <span><router-link :to="{ path: '/user/login?role=teacher' }">Sign In</router-link></span>
+              <span><router-link :to="{ path: teacherLoginPath }">Sign In</router-link></span>
             </div>
           </div>
           <div class="third-login-wrapper">
@@ -70,7 +70,7 @@
             <div class="desc">Sign Up</div>
             <div class="desc2">
               Already have an account? |
-              <span><router-link :to="{ path: '/user/login?role=student' }">Sign In</router-link></span>
+              <span><router-link :to="{ path: studentLoginPath }">Sign In</router-link></span>
             </div>
           </div>
           <a-form :form="form" class="register-form" @submit="handleSubmit">
@@ -179,7 +179,21 @@ export default {
       loading: false,
       currentStep: 0,
       selectedRole: null,
-      form: this.$form.createForm(this)
+      form: this.$form.createForm(this),
+      loginPath: '/user/login',
+      teacherLoginPath: '/user/login?role=teacher',
+      studentLoginPath: '/user/login?role=student',
+      inviteCode: ''
+    }
+  },
+  created() {
+    const paramSearch = new URLSearchParams(window.location.search)
+    const inviteCode = paramSearch.get('inviteCode')
+    if (inviteCode) {
+      this.inviteCode = inviteCode
+      this.loginPath = `/user/login?inviteCode=${inviteCode}`
+      this.teacherLoginPath = `/user/login?role=teacher&inviteCode=${inviteCode}`
+      this.studentLoginPath = `/user/login?role=student&inviteCode=${inviteCode}`
     }
   },
   computed: {},
@@ -199,7 +213,11 @@ export default {
     thirdSignIn(source, role) {
       console.log('thirdSignIn', source)
       let url = getThirdAuthURL(source)
-      url += `?role=${role}&callbackUrl=`
+      url += `?role=${role}`
+      if (this.inviteCode) {
+        url += `&inviteCode=${this.inviteCode}`
+      }
+      url += `&callbackUrl=`
       url += thirdAuthCallbackUrl
       console.log('full auth url ', url)
       window.location.href = url
@@ -215,12 +233,16 @@ export default {
         if (!err) {
           this.loading = true
           console.log('signup submit', values)
-          SignUp({
+          const signUpParams = {
             nickname: values.name,
             password: values.password,
             username: values.email,
             role: this.selectedRole
-          })
+          }
+          if (this.inviteCode) {
+            signUpParams.inviteCode = this.inviteCode
+          }
+          SignUp(signUpParams)
             .then(res => this.loginSuccess(res))
             .catch(err => this.requestFailed(err))
             .finally(() => {
@@ -260,7 +282,7 @@ export default {
           if (this.$store.getters.currentRole) {
             this.$router.push(this.$store.getters.defaultRouter)
           } else {
-            this.$router.push({ path: '/user/login' })
+            this.$router.push({ path: this.loginPath })
           }
         })
         .catch(e => {

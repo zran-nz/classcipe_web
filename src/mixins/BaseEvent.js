@@ -3,6 +3,7 @@ import { COLLABORATE, SAVE_CONTENT } from '@/websocket/cmd'
 import CollborateMsg from '@/websocket/model/collborateMsg'
 import SaveContentMsg from '@/websocket/model/saveContentMsg'
 import { isEqualWith } from 'lodash-es'
+import { SESSION_CURRENT_PAGE, SESSION_CURRENT_TYPE, SESSION_CURRENT_TYPE_LABEL } from '@/const/common'
 
 export const RightModule = {
   'collaborate': 1,
@@ -23,7 +24,10 @@ export const BaseEventMixin = {
       collaborate: {},
       initCompleted: false,
       updateContentVisible: false,
-      defaultHistoryKey: '1'
+      defaultHistoryKey: '1',
+      showCollaborateModalVisible: false,
+      collaborateContent: null,
+      currentFieldName: {}
     }
   },
   watch: {
@@ -36,6 +40,8 @@ export const BaseEventMixin = {
       this.resetWidth()
     }
     window.addEventListener('beforeunload', (e) => this.beforeunloadHandler(e))
+    // 重置协同消息提醒数据
+    this.$store.getters.vueSocket.sendAction('receiveSaveContentMsg', '')
   },
   destroyed () {
     window.removeEventListener('beforeunload', (e) => this.beforeunloadHandler(e))
@@ -69,6 +75,10 @@ export const BaseEventMixin = {
       const contentMsg = this.$store.state.websocket.saveContentMsg
       console.log(contentMsg)
       if (contentMsg && contentMsg.content.id === this.form.id) {
+        console.log(JSON.stringify(contentMsg.content.details))
+        // 默认updateTime和grade不更新
+        contentMsg.content.details.updateTime = this.oldForm.updateTime
+        contentMsg.content.details.gradeId = this.oldForm.gradeId
         if (contentMsg.hideUpdate) {
           return false
         } else if (!isEqualWith(contentMsg.content.details, this.oldForm)) {
@@ -183,6 +193,13 @@ export const BaseEventMixin = {
     // 取消comment
     handleCancelComment() {
       this.resetRightModuleVisible()
+      this.currentFieldName = ''
+    },
+    cleaPageCache() {
+      // del cache
+      sessionStorage.removeItem(SESSION_CURRENT_PAGE)
+      sessionStorage.removeItem(SESSION_CURRENT_TYPE_LABEL)
+      sessionStorage.removeItem(SESSION_CURRENT_TYPE)
     }
   }
 

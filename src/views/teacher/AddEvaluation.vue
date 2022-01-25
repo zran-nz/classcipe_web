@@ -587,6 +587,7 @@ export default {
       if (this.$refs.commonFormHeader) {
         this.$refs.commonFormHeader.saving = true
       }
+      this.cleaPageCache()
 
       // 获取所有的表格结构（表头+表内容）
       const formDataList = []

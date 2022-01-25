@@ -110,6 +110,18 @@ export const asyncRouterMap = [
                 name: 'SchoolUser',
                 component: () => import('@/views/teacher/manage/SchoolUser'),
                 meta: { title: 'menu.managing.school-user', keepAlive: true, permission: ['teacher'] }
+              },
+              {
+                path: '/teacher/managing/class',
+                name: 'SchoolUser',
+                component: () => import('@/views/teacher/manage/Class'),
+                meta: { title: 'menu.managing.class', keepAlive: true, permission: ['teacher'] }
+              },
+              {
+                path: '/teacher/managing/term',
+                name: 'SchoolUser',
+                component: () => import('@/views/teacher/manage/Term'),
+                meta: { title: 'menu.managing.term', keepAlive: true, permission: ['teacher'] }
               }
             ]
           },
@@ -487,13 +499,13 @@ export const constantRouterMap = [
   },
   {
     path: '/addon/callback',
-    name: 'AddonCallback',
+    name: 'addonCallback',
     props: true,
     component: () => import(/* webpackChunkName: "fail" */ '@/views/addon/AddonCallback')
   },
   {
     path: '/addon/pageRedirect/:sourceType?/:id',
-    name: 'PageRedirect',
+    name: 'pageRedirect',
     props: true,
     component: () => import(/* webpackChunkName: "fail" */ '@/views/addon/PageRedirect')
   },

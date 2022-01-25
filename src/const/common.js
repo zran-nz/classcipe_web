@@ -36,6 +36,57 @@ export const CurriculumType = {
   IBMYP: 5
 }
 
+export const PlanField = {
+  Name: 'name',
+  ProjectBased: 'projectBased',
+  UnitType: 'unitType',
+  StartDate: 'startDate',
+  Inquiry: 'inquiry',
+  Sdg: 'sdg',
+  Rwc: 'rwc',
+  Question: 'question',
+  Assessment: 'assessment',
+  Prior: 'prior',
+  Link: 'link'
+}
+export const PlanFieldDisplayName = {
+  name: 'Unit plan',
+  projectBased: 'Project-based Unit',
+  unitType: 'Unit type',
+  startDate: 'Start Date',
+  inquiry: 'Big Idea/ Statement of Inquiry/ Central Idea',
+  sdg: 'UN Sustainable Development Goal',
+  rwc: 'Real World Connection(',
+  question: 'Key question(s) / Line(s) of inquiry',
+  assessment: 'Set learning objectives',
+  prior: 'Prior learning experience',
+  link: 'Link Plan content'
+}
+
+export const TaskField = {
+  Name: 'name',
+  TaskType: 'taskType',
+  StartDate: 'startDate',
+  Overview: 'overview',
+  Sdg: 'sdg',
+  Rwc: 'rwc',
+  Question: 'question',
+  Assessment: 'assessment',
+  MaterialList: 'materialList',
+  Link: 'link'
+}
+
+export const TaskFieldDisplayName = {
+  name: 'Task name',
+  taskType: 'Choose Task Type',
+  startDate: 'Start Date',
+  overview: 'Task details',
+  question: 'Choose Key questions',
+  assessment: 'Choose Key questions',
+  materialList: 'Material list',
+  link: 'Link relevant content'
+}
+
 export const TagOriginType = {
   Origin: 'Origin',
   Search: 'Search',
