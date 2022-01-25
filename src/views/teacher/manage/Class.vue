@@ -5,7 +5,7 @@
       <a-form layout="inline">
         <a-row type="flex" justify="start">
           <a-col :span="8">
-            <a-input-search placeholder="Search for ID、Name、Email..." v-model="searchKey" enter-button @search="searchClass" @change="searchClass"/>
+            <a-input-search placeholder="Search for ID、Name、Email..." v-model="searchKey" enter-button @search="searchClass"/>
           </a-col>
           <a-col :span="4">
           </a-col>
@@ -35,24 +35,19 @@
       :scroll="{ x: true }"
       rowKey="id"
     >
-      <span slot="roles" slot-scope="roles">
-        <span v-for="role in roles" :key="role.id">
-          {{ role.name }}
+      <span slot="studentsNo" slot-scope="record" >
+        <span>
+          {{ record.studentCount }}
+          <span class="ant-badge ant-badge-not-a-wrapper" v-if="record.newStudentCount > 0" style="margin-left:10px;">
+            <sup title="25" class="ant-scroll-number ant-badge-count ant-badge-multiple-words" data-show="true">
+              <p class="ant-scroll-number-only-unit current">+{{ record.newStudentCount }}</p>
+            </sup>
+          </span>
         </span>
       </span>
       <span slot="grades" slot-scope="grades">
         <span v-for="grade in grades" :key="grade.id">
           {{ grade.name }}
-        </span>
-      </span>
-      <span slot="classes" slot-scope="classes">
-        <span v-for="clas in classes" :key="clas.id">
-          {{ clas.name }}
-        </span>
-      </span>
-      <span slot="groups" slot-scope="groups">
-        <span v-for="group in groups" :key="group.id">
-          {{ group.name }}
         </span>
       </span>
       <span slot="action" slot-scope="item">
@@ -62,16 +57,19 @@
       </span>
     </a-table>
 
-    <ClassAdd ref="modalForm" @ok="loadData" :grade-list="gradeList" />
+    <ClassAdd ref="modalForm" @ok="loadData" :grade-list="gradeList" :subject-list="subjectList" :teacher-list="teacherList"/>
   </a-card>
 </template>
 
 <script>
 import ClassAdd from './ClassAdd.vue'
 
-import { getSchoolClassList } from '@/api/schoolUser'
+import { getSchoolClassList, getSchoolUsers } from '@/api/schoolUser'
 import store from '@/store'
 import { GetGradesByCurriculumId } from '@/api/preference'
+import { JeecgListMixin } from '@/mixins/JeecgListMixin'
+import { SubjectTree } from '@/api/subject'
+
 const columns = [
   {
     title: 'Class Name',
@@ -81,7 +79,10 @@ const columns = [
   {
     title: 'Class Type',
     dataIndex: 'classType',
-    key: 'type'
+    key: 'type',
+    customRender: function (t, r, index) {
+      return t === 0 ? 'Standard-Class' : 'Subject-Forcused Class'
+    }
   },
   {
     title: 'Teacher',
@@ -91,7 +92,8 @@ const columns = [
   {
     title: 'Students No.',
     dataIndex: '',
-    key: 'studentsNo'
+    key: 'studentCount',
+    scopedSlots: { customRender: 'studentsNo' }
   },
   {
     title: 'Subject',
@@ -118,7 +120,7 @@ const columns = [
 ]
 export default {
   name: 'Class',
-  mixins: [],
+  mixins: [JeecgListMixin],
   components: {
     ClassAdd
   },
@@ -133,12 +135,16 @@ export default {
         total: 0
       },
       searchKey: '',
-      gradeList: []
+      gradeList: [],
+      teacherList: [],
+      subjectList: []
     }
   },
   created() {
     this.loadData()
     this.getGradeList()
+    this.getSubjectList()
+    this.getTeacherList()
   },
   computed: {},
   methods: {
@@ -159,8 +165,7 @@ export default {
     handleAdd: function() {
       this.$refs.modalForm.title = 'Add Class'
       this.$refs.modalForm.mode = 'add'
-      this.$refs.modalForm.defaultData = {}
-      this.$refs.modalForm.show()
+      this.$refs.modalForm.add({})
     },
     handleEdit(data) {},
     getGradeList() {
@@ -169,8 +174,22 @@ export default {
         this.gradeList = response.result
       })
     },
+    async getTeacherList() {
+      const res = await getSchoolUsers({
+        school: store.getters.userInfo.school,
+        currentRole: 'teacher',
+        pageSize: 1000
+      })
+      this.$logger.info('getSchoolUsers', res.result)
+      this.teacherList = res.result ? res.result.records : []
+    },
+    async getSubjectList() {
+      const response = await SubjectTree({ curriculumId: this.curriculumId })
+      this.$logger.info('getSubjectTree response', response.result)
+      this.subjectList = response.result ? response.result : []
+    },
     searchClass() {
-
+      this.loadData()
     }
   }
 }
