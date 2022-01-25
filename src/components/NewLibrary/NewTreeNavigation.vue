@@ -231,7 +231,7 @@ export default {
             defaultGradeId: this.defaultGradeId,
             parent: null,
             sort: 0,
-            backgroundColor: '#ffecd2'
+            backgroundColor: '#FF978E'
           }
           // 从大纲数据中复制一份数据，只用mainSubject既第一层 且subjectType=2
           this.subjectTree.forEach(subjectItem => {

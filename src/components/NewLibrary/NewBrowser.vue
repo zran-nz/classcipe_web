@@ -1329,7 +1329,7 @@ div[tag-type="4"] {
 }
 
 div[tag-type="2"] {
-  background: rgb(255, 236, 210);
+  background: #FF978E;
 }
 
 .title-item {
