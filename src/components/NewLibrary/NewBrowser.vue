@@ -1331,6 +1331,9 @@ div[tag-type="4"] {
 div[tag-type="2"] {
   background: #FF978E;
 }
+div[tag-type="3"] {
+  background: rgb(215, 224, 233);
+}
 
 .title-item {
   padding-top: 3px;
