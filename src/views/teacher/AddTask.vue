@@ -4675,17 +4675,17 @@ export default {
 }
 
 .preview-list {
-  margin-bottom: 10px;
+  margin-bottom: 5px;
   overflow-y: scroll;
   overflow-x: hidden;
   width: 100%;
   min-height: 120px;
   max-height: 374px;
   background: rgba(228, 228, 228, 0.2);
-  border: 1px solid #D8D8D8;
+  //border: 1px solid #D8D8D8;
   opacity: 1;
   border-radius: 2px;
-  padding: 5px;
+  //padding: 5px;
 
   .preview-item-cover {
     background-position: center center;
@@ -4769,7 +4769,7 @@ export default {
 
 .thumbnail-task-list {
   box-sizing: border-box;
-  margin: auto;
+  margin: 5px auto;
   display: flex;
   flex-direction: column;
 
