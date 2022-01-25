@@ -2577,6 +2577,11 @@ export default {
       if (index !== -1) {
         this.selectedPageIdList.splice(index, 1)
       } else {
+        // 不可用全选所有的ppt
+        if (this.selectedPageIdList.length >= this.thumbnailList.length - 1) {
+          this.$message.warning('You can only select up to ' + this.thumbnailList.length +' slides')
+          return
+        }
         this.selectedPageIdList.push(thumbnail.id)
       }
 
