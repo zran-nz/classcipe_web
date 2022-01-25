@@ -15,11 +15,35 @@
           <div class="session-btn-icon content-list-action-btn">
             <a-icon type="eye" theme="filled" />
           </div>
-          <div class="session-btn-text">Preview</div>
+          <div class="session-btn-text" @click='handlePreviewSubTask'>Preview</div>
         </div>
       </div>
     </div>
     <div class='sub-task-name'>{{ task.name }}</div>
+
+    <a-drawer
+      destroyOnClose
+      placement="right"
+      :closable="false"
+      width="800px"
+      :visible="subTaskPreviewVisible"
+      @close="subTaskPreviewVisible = false"
+    >
+      <a-row class="preview-wrapper-row">
+        <a-col span="2">
+          <div class="view-back" @click="subTaskPreviewVisible = false">
+            <div class="back-icon">
+              <img src="~@/assets/icons/common/back.png" />
+            </div>
+          </div>
+        </a-col>
+        <a-col span="22">
+          <div class="detail-wrapper">
+            <split-task-preview :task-data='taskData'/>
+          </div>
+        </a-col>
+      </a-row>
+    </a-drawer>
   </div>
 </template>
 
@@ -27,10 +51,11 @@
 import * as logger from '@/utils/logger'
 import NoMoreResources from '@/components/Common/NoMoreResources'
 import ShanchuIcon from '@/assets/svgIcon/task/shanchu_icon.svg?inline'
+import SplitTaskPreview from '@/components/Common/SplitTaskPreview'
 
 export default {
   name: 'TaskPreview',
-  components: { NoMoreResources, ShanchuIcon },
+  components: { SplitTaskPreview, NoMoreResources, ShanchuIcon },
   props: {
     taskData: {
       type: Object,
@@ -59,7 +84,8 @@ export default {
         'red',
         'purple'
       ],
-      activeContentType: -1
+      activeContentType: -1,
+      subTaskPreviewVisible: false
     }
   },
   created () {
@@ -120,6 +146,10 @@ export default {
 
     handleDeleteItem () {
       this.$emit('delete-sub-task', this.rawSubTaskData)
+    },
+
+    handlePreviewSubTask () {
+      this.subTaskPreviewVisible = true
     }
   }
 }
@@ -256,5 +286,34 @@ export default {
       }
     }
   }
+}
+
+.preview-wrapper-row{
+  .preview-wrapper-col{
+    margin: 15px;
+  }
+  .view-back-col {
+    position: absolute;
+    left: -20px;
+    top: -20px;
+    .view-back{
+      .back-icon {
+        text-align: left;
+
+        img {
+          width: 90%;
+          cursor: pointer;
+        }
+      }
+    }
+  }
+}
+
+.detail-wrapper {
+  background: #FFFFFF;
+  border: 1px solid #D8D8D8;
+  box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.16);
+  opacity: 1;
+  border-radius: 10px;
 }
 </style>

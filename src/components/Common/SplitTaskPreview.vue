@@ -2,7 +2,7 @@
   <div class="my-unit-plan-preview">
     <a-row class="action-header">
       <a-col span="24" class="action-header-toggle">
-        <a-radio-group v-model="viewMode" button-style="solid" @change="handleViewModeChange">
+        <a-radio-group v-model="viewMode" button-style="solid">
           <a-radio-button value="Detail" class="left-button">
             Info
           </a-radio-button>
@@ -21,23 +21,9 @@
           <div class="action-item">
             <div class="star">
               <template v-if="data.createBy !== $store.getters.userInfo.email">
-                <img src="~@/assets/icons/common/preview/star_gray.png" @click="handleFavorite(data)" v-if="!data.isFavorite"/>
-                <img src="~@/assets/icons/common/preview/star_yellow.png" @click="handleFavorite(data)" v-if="data.isFavorite"/>
+                <img src="~@/assets/icons/common/preview/star_gray.png" v-if="!data.isFavorite"/>
+                <img src="~@/assets/icons/common/preview/star_yellow.png" v-if="data.isFavorite"/>
               </template>
-            </div>
-            <div class="edit" v-if="isOwner || isCollaborater">
-              <a-button type="primary" shape="round" @click="handleEditItem(data)">
-                <div class="button-content" >
-                  Edit <img class="edit-icon" src="~@/assets/icons/common/preview/edit_white.png" />
-                </div>
-              </a-button>
-            </div>
-            <div class="edit" v-else>
-              <a-button :loading="copyLoading" class="copy-button" type="primary" shape="round" @click="handleDuplicateItem">
-                <div class="button-content" >
-                  Copy <a-icon type="copy" style="margin-left: 6px;"/>
-                </div>
-              </a-button>
             </div>
           </div>
         </div>
@@ -53,9 +39,7 @@
             {{ data.createBy }}
           </div>
           <div class="created-time">
-            <template v-if="lastChangeSavedTime">
-              {{ lastChangeSavedTime }}
-            </template>
+            {{ new Date() | localFormatDate }}
           </div>
         </div>
         <div class="star-info">
@@ -97,30 +81,34 @@
                 </div>
               </div>
             </template>
-            <div class="block-main-label">
-              Customized tags
-            </div>
-            <div class="overview-block">
-              <div class="custom-tags">
-                <div class="tag-item" v-for="(tag,tagIndex) in data.customTags" :key="'tagIndex' + tagIndex">
-                  <a-tooltip :title="tag.parentName">
-                    <a-tag class="tag">
-                      {{ tag.name }}
-                    </a-tag>
-                  </a-tooltip>
+            <template v-show='data.customTags.length'>
+              <div class="block-main-label">
+                Customized tags
+              </div>
+              <div class="overview-block">
+                <div class="custom-tags">
+                  <div class="tag-item" v-for="(tag,tagIndex) in data.customTags" :key="'tagIndex' + tagIndex">
+                    <a-tooltip :title="tag.parentName">
+                      <a-tag class="tag">
+                        {{ tag.name }}
+                      </a-tag>
+                    </a-tooltip>
+                  </div>
                 </div>
               </div>
-            </div>
-            <div class="block-main-label">
-              Learning Objectives
-            </div>
-            <div class="overview-block">
-              <div class="learn-question-tag">
-                <div class="learn-out" style="margin: 10px;">
-                  <ui-learn-out-sub :learn-outs="data.learnOuts" />
+            </template>
+            <template v-show='data.learnOuts.length'>
+              <div class="block-main-label">
+                Learning Objectives
+              </div>
+              <div class="overview-block">
+                <div class="learn-question-tag">
+                  <div class="learn-out" style="margin: 10px;">
+                    <ui-learn-out-sub :learn-outs="data.learnOuts" />
+                  </div>
                 </div>
               </div>
-            </div>
+            </template>
             <template v-if="data.inquiry">
               <div class="block-main-label">
                 Big idea
@@ -165,9 +153,6 @@
                 class="scenario-item ref-block"
                 v-for="(scenario,sIndex) in data.scenarios"
                 :key="sIndex">
-                <!--                <div class="block-title">-->
-                <!--                  {{ scenario.description }}-->
-                <!--                </div>-->
                 <div class="scenario-block-content">
                   <div class="content-list">
                     <div class="content-item">
@@ -221,114 +206,24 @@
         </div>
 
         <!-- lesson task img list-->
-        <template v-if="type === typeMap.task && data.presentationId && imgList.length > 0">
-          <div class="top-icon-groups">
-            <a-col class="material-row" >
-              <div class="icon-group" v-if="Object.keys(currentPageMaterial).length > 0">
-                <a-badge :count="showMaterialSize('text')" v-if="currentPageMaterial.hasOwnProperty('text')">
-                  <div class="icon" @click="showPluginMaterial('text')">
-                    <text-type-svg />
-                    <div class="icon-text">Text</div>
-                  </div>
-                </a-badge>
-                <a-badge :count="showMaterialSize('image')" v-if="currentPageMaterial.hasOwnProperty('image')">
-                  <div class="icon" @click="showPluginMaterial('image')">
-                    <image-type-svg />
-                    <div class="icon-text">Image</div>
-                  </div>
-                </a-badge>
-                <a-badge :count="showMaterialSize('video')" v-if="currentPageMaterial.hasOwnProperty('video')">
-                  <div class="icon" @click="showPluginMaterial('video')">
-                    <video-type-svg />
-                    <div class="icon-text">Video</div>
-                  </div>
-                </a-badge>
-                <a-badge :count="showMaterialSize('audio')" v-if="currentPageMaterial.hasOwnProperty('audio')">
-                  <div class="icon" @click="showPluginMaterial('audio')">
-                    <audio-type-svg />
-                    <div class="icon-text">Audio</div>
-                  </div>
-                </a-badge>
-                <a-badge :count="showMaterialSize('iframe')" v-if="currentPageMaterial.hasOwnProperty('iframe')">
-                  <div class="icon" @click="showPluginMaterial('iframe')">
-                    <youtube-type-svg />
-                    <div class="icon-text">Youtube</div>
-                  </div>
-                </a-badge>
-                <a-badge :count="showMaterialSize('pdf')" v-if="currentPageMaterial.hasOwnProperty('pdf')" >
-                  <div class="icon" @click="showPluginMaterial('pdf')">
-                    <pdf-type-svg />
-                    <div class="icon-text">PDF</div>
-                  </div>
-                </a-badge>
-                <a-badge :count="showMaterialSize('website')" v-if="currentPageMaterial.hasOwnProperty('website')">
-                  <div class="icon" @click="showPluginMaterial('website')">
-                    <url-type-svg />
-                    <div class="icon-text">Website</div>
-                  </div>
-                </a-badge>
-              </div>
-            </a-col>
-          </div>
-
+        <template v-if="imgList.length > 0">
           <a-skeleton :loading="slideLoading" active >
             <div class="slide-select-wrapper" ref="slide" >
               <div class="slide-select">
                 <div class="slide-select-and-preview">
                   <div class="slide-preview" :style="{'width':'600px'}">
-                    <a-carousel ref="carousel" arrows :after-change="onChangePage">
-                      <div slot="prevArrow" class="custom-slick-arrow" style="left: 10px;zIndex: 9" >
-                        <a-icon type="left-circle"/>
-                      </div>
-                      <div slot="nextArrow" class="custom-slick-arrow" style="right: 10px;zIndex: 9" >
-                        <a-icon type="right-circle" />
-                      </div>
+                    <a-carousel ref="carousel" arrows>
                       <div v-for="(item,index) in imgList" :key="index">
                         <img :src="item" />
                       </div>
                     </a-carousel>
-                    <div class="plugin-tags" v-if="currentPageItem">
-                      <a-row class="tag-row">
-                          <span class="tag-item" v-if="currentPageItem.data.bloomLevel">
-                            <span class="tag-title">Bloom's Taxonomy:</span>
-                            <span class="tag-value" style="color:#F16A39">{{ currentPageItem.data.bloomLevel }}</span>
-                          </span>
-                        <span class="tag-item" v-if="currentPageItem.data.knowledgeLevel">
-                            <span class="tag-title">Knowledge dimension(s):</span>
-                            <span class="tag-value" style="color:#F16A39">{{ currentPageItem.data.knowledgeLevel }}</span>
-                          </span>
-                      </a-row>
-                      <a-row class="tag-row">
-                          <span class="tag-item" v-if="currentPageItem.data.verbs">
-                            <span class="tag-title">Command terms:</span>
-                            <span class="tag-value" v-for="(v,index) in currentPageItem.data.verbs" :key="index" style="color:#15C39A">{{ v }}</span>
-                          </span>
-                        <span class="tag-item" v-if="currentPageTips">
-                            <span class="tag-title">Tip added:</span>
-                            <span class="tag-value" style="color:#0054FF">{{ currentPageTips.tip }}</span>
-                          </span>
-                      </a-row>
-                      <a-row class="tag-row">
-                          <span class="tag-item">
-                            <span class="tag-title">Learning Objectives:</span>
-                            <span class="tag-value" v-for="(learn,index) in currentPageItem.data.learnOuts" :key="index" style="color:#00BCF2">
-                              <a-tooltip :title="learn.path" :overlayStyle="{ 'z-index': '3000'}">{{ learn.name }} </a-tooltip>
-                            </span>
-                          </span>
-                      </a-row>
-                      <a-row class="tag-row">
-                          <span class="tag-item">
-                            <span class="tag-title">This is a <span>{{ currentPageItem.type }}</span> slide</span>
-                          </span>
-                      </a-row>
-                    </div>
                     <div class="page-info" v-if="imgList && imgList.length">
                       {{ currentImgIndex + 1 }} / {{ imgList.length }}
                     </div>
                     <div class="carousel-page">
                       <div class="img-list-wrapper">
                         <div class="img-list">
-                          <div class="img-item" v-for="(item,index) in imgList" :key="'index' + index" @click="handleGotoImgIndex(index)">
+                          <div :class="{'img-item': true, 'active-img-item': index === currentImgIndex}" v-for="(item,index) in imgList" :key="'index' + index" @click="handleGotoImgIndex(index)">
                             <img :src="item" />
                           </div>
                         </div>
@@ -342,39 +237,8 @@
 
           <!-- evaluation preview-->
         </template>
-        <!-- evaluation-->
-        <template v-if="type === typeMap.evaluation">
-          <evaluation-table-preview :evaluation-id="data.id" />
-        </template>
       </a-col>
     </a-row>
-    <div class="associate-info" v-if="viewMode === 'Detail'">
-      <common-link :can-edit="false" ref="commonLink" :from-id="id" :from-type="type"/>
-    </div>
-
-    <a-modal
-      v-model="materialVisible"
-      :footer="null"
-      destroyOnClose
-      width="800px"
-      :zIndex="6000"
-      title="My Materials"
-      @ok="materialVisible = false"
-      @cancel="materialVisible = false">
-      <task-material-preview :current-page-element-lists="currentPageElementLists" :filter-type="filterMaterialType" :current-page-index="currentImgIndex"></task-material-preview>
-    </a-modal>
-
-    <a-modal
-      v-model="mediaVisible"
-      :footer="null"
-      destroyOnClose
-      width="900px"
-      :zIndex="5000"
-      :title="null"
-      @ok="mediaVisible = false"
-      @cancel="mediaVisible = false">
-      <media-preview :media-list="mediaList" :material-type="filterMaterialType"></media-preview>
-    </a-modal>
 
   </div>
 </template>
@@ -384,21 +248,12 @@ import * as logger from '@/utils/logger'
 import { typeMap } from '@/const/teacher'
 import NoMoreResources from '@/components/Common/NoMoreResources'
 import CommonAssociatePreview from '@/components/Common/CommonAssociatePreview'
-import { TemplatesGetPresentation, TemplatesGetPublishedPresentation } from '@/api/template'
 import EvaluationPreview from '@/components/Evaluation/EvaluationPreview'
 import EvaluationTablePreview from '@/components/Evaluation/EvaluationTablePreview'
 import CommonLink from '@/components/Common/CommonLink'
-import { PptPreviewMixin } from '@/mixins/PptPreviewMixin'
 import MediaPreview from '@/components/Task/MediaPreview'
 import TaskMaterialPreview from '@/components/Task/TaskMaterialPreview'
 import UiLearnOutSub from '@/components/UnitPlan/UiLearnOutSub'
-import { BaseEventMixin } from '@/mixins/BaseEvent'
-import { Duplicate } from '@/api/teacher'
-const { formatLocalUTC } = require('@/utils/util')
-const { UnitPlanQueryById } = require('@/api/unitPlan')
-const { TaskQueryById } = require('@/api/task')
-const { EvaluationQueryById } = require('@/api/evaluation')
-const { FavoritesAdd } = require('@/api/favorites')
 
 export default {
   name: 'SplitTaskPreview',
@@ -413,40 +268,15 @@ export default {
     TaskMaterialPreview
   },
   props: {
-    id: {
-      type: String,
+    taskData: {
+      type: Object,
       required: true
-    },
-    type: {
-      type: Number,
-      required: true
-    },
-    isLibrary: {
-      type: Boolean,
-      default: false
     }
-  },
-  mixins: [PptPreviewMixin, BaseEventMixin],
-  computed: {
-    lastChangeSavedTime () {
-      if (this.data) {
-        logger.info('lastChangeSavedTime data', this.data)
-        const time = this.data.createTime || this.data.updateTime
-        if (time) {
-          return formatLocalUTC(time)
-        }
-      }
-      return ''
-    }
-  },
-  mounted () {
-
   },
   data () {
     return {
       loading: true,
-      slideLoading: false,
-      copyLoading: false,
+      slideLoading: true,
       data: null,
       imgList: [],
       viewMode: 'Detail',
@@ -460,180 +290,25 @@ export default {
         'red',
         'purple'
       ],
-      activeContentType: -1,
       typeMap: typeMap,
 
-      subPreviewVisible: false,
       currentImgIndex: 0
     }
   },
   created () {
-    logger.info('CommonPreview id ' + this.id + ' type ' + this.type)
-    this.loadData()
+    logger.info('SplitTaskPreview', this.taskData)
+    this.data = this.taskData.subTask
+    this.initData()
   },
   methods: {
-    loadData () {
-      logger.info('loadData ' + this.id + ' type ' + this.type)
-      this.loading = true
-      if (this.type === this.typeMap['unit-plan']) {
-        UnitPlanQueryById({
-          id: this.id
-        }).then(response => {
-          logger.info('UnitPlanQueryById ' + this.id, response.result)
-          this.data = response.result
-          this.oldForm = this.data
-          if (this.data && this.data.image) {
-            this.imgList = [this.data.image]
-          }
-        }).finally(() => {
-          this.loading = false
-          this.queryContentCollaborates(this.id, this.type)
-        })
-      } else if (this.type === this.typeMap.task) {
-        TaskQueryById({
-          id: this.id
-        }).then(response => {
-          logger.info('TaskQueryById ' + this.id, response.result)
-          this.data = response.result
-          this.loading = false
-          this.oldForm = this.data
-          this.queryContentCollaborates(this.id, this.type)
-          this.loadThumbnail()
-          if (this.data.presentationId) {
-            this.getClassInfo(this.data.presentationId)
-          }
-        })
-      } else if (this.type === this.typeMap.evaluation) {
-        EvaluationQueryById({
-          id: this.id
-        }).then(response => {
-          logger.info('EvaluationQueryById ' + this.id, response.result)
-          this.data = response.result
-          this.oldForm = this.data
-          if (this.data && this.data.image) {
-            this.imgList = [this.data.image]
-          }
-        }).finally(() => {
-          this.loading = false
-          this.queryContentCollaborates(this.id, this.type)
-        })
-      }
-    },
-
-    loadThumbnail () {
-      this.$logger.info('Preview loadThumbnail ', this.data)
-      if (this.data.presentationId) {
-        if (this.isLibrary) {
-          TemplatesGetPublishedPresentation({
-            presentationId: this.data.presentationId
-          }).then(response => {
-            const pageObjects = response.result.pageObjects
-            this.thumbnailList = []
-            if (pageObjects.length) {
-              pageObjects.forEach(page => {
-                this.imgList.push(page.contentUrl)
-                this.thumbnailList.push({ contentUrl: page.contentUrl, id: page.pageObjectId })
-                this.slideLoading = false
-                this.$logger.info('current imgList ', this.imgList)
-              })
-            } else {
-              this.imgList = []
-              this.slideLoading = false
-            }
-          })
-        } else {
-          TemplatesGetPresentation({
-            presentationId: this.data.presentationId
-          }).then(response => {
-            const pageObjects = response.result.pageObjects
-            this.thumbnailList = []
-            if (pageObjects.length) {
-              pageObjects.forEach(page => {
-                this.imgList.push(page.contentUrl)
-                this.thumbnailList.push({ contentUrl: page.contentUrl, id: page.pageObjectId })
-                this.slideLoading = false
-                this.$logger.info('current imgList ', this.imgList)
-              })
-            } else {
-              this.imgList = []
-              this.slideLoading = false
-            }
-          })
-        }
-      } else {
-        this.slideLoading = false
-      }
-    },
-
-    handleSelectContentType (contentType) {
-      logger.info('handleSelectContentType ' + contentType)
-      this.activeContentType = contentType
-    },
-
-    handleSubPreviewClose () {
-      logger.info('handleSubPreviewClose')
-      this.subPreviewVisible = false
-    },
-
-    handleViewModeChange () {
-      this.$logger.info('handleViewModeChange ' + this.viewMode)
-    },
-    handleFavorite (item) {
-      logger.info('handleFavorite', item)
-      FavoritesAdd({
-        sourceId: item.id,
-        sourceType: item.type
-      }).then(response => {
-        logger.info('FavoritesAdd ', response)
-        item.isFavorite = !item.isFavorite
-        this.data.isFavorite = item.isFavorite
-      })
+    initData () {
+      this.imgList = this.taskData.selectPageImages
+      this.slideLoading = false
     },
     handleGotoImgIndex (index) {
       this.$logger.info('handleGotoImgIndex ' + index)
       this.currentImgIndex = index
       this.$refs.carousel.goTo(index)
-    },
-    handleEditItem (item) {
-      item.type = this.type
-      logger.info('handleEditItem', item)
-      if (item.type === typeMap['unit-plan']) {
-        window.open('/teacher/unit-plan-redirect/' + item.id
-          , '_blank')
-      } else if (item.type === typeMap['topic']) {
-        window.open('/expert/topic-redirect/' + item.id
-          , '_blank')
-      } else if (item.type === typeMap['material']) {
-        window.open('/teacher/add-material/' + item.id
-          , '_blank')
-      } else if (item.type === typeMap.task) {
-        window.open('/teacher/task-redirect/' + item.id
-          , '_blank')
-      } else if (item.type === typeMap.lesson) {
-        window.open('/teacher/lesson-redirect/' + item.id
-          , '_blank')
-      } else if (item.type === typeMap.evaluation) {
-        window.open('/teacher/evaluation-redirect/' + item.id
-          , '_blank')
-      }
-    },
-    handleDuplicateItem () {
-      this.$logger.info('handleDuplicateItem', this.data)
-      this.$confirm({
-        title: 'Confirm copy',
-        content: 'Are you sure to copy ' + this.data.name + ' ?',
-        centered: true,
-        onOk: () => {
-          this.copyLoading = true
-            Duplicate({ id: this.id, type: this.type }).then((response) => {
-            this.$logger.info('Duplicate response', response)
-            this.$message.success('Copy successfully')
-          }).finally(() => {
-            this.copyLoading = false
-            this.$router.push({ path: '/teacher/main/created-by-me' })
-          })
-        }
-      })
     },
 
     handleOpenLink (url) {
