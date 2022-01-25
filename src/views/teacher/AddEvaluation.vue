@@ -4,7 +4,8 @@
       <common-form-header
         ref="commonFormHeader"
         :form="form"
-        :showCollaborate="false"
+        :show-share='false'
+        :show-collaborate="false"
         :last-change-saved-time="lastChangeSavedTime"
         @update-form="handleUpdateForm"
         @back="goBack"
@@ -587,49 +588,55 @@ export default {
       if (this.$refs.commonFormHeader) {
         this.$refs.commonFormHeader.saving = true
       }
-      this.cleaPageCache()
 
       // 获取所有的表格结构（表头+表内容）
       const formDataList = []
-      this.$refs.evaluationTable.forEach(tableItem => {
-        const tableData = tableItem.getTableStructData()
-        this.forms.forEach(formItem => {
-          if (formItem.formId === tableData.formId) {
-            const formData = {
-              id: formItem.id,
-              formId: formItem.formId,
-              formType: formItem.formType,
-              title: formItem.title,
-              initRawHeaders: JSON.stringify(tableData.headers),
-              initRawData: JSON.stringify(tableData.list),
-              pe: formItem.pe,
-              se: formItem.se
+      if (this.$refs.evaluationTable) {
+        this.$refs.evaluationTable.forEach(tableItem => {
+          const tableData = tableItem.getTableStructData()
+          this.forms.forEach(formItem => {
+            if (formItem.formId === tableData.formId) {
+              const formData = {
+                id: formItem.id,
+                formId: formItem.formId,
+                formType: formItem.formType,
+                title: formItem.title,
+                initRawHeaders: JSON.stringify(tableData.headers),
+                initRawData: JSON.stringify(tableData.list),
+                pe: formItem.pe,
+                se: formItem.se
+              }
+              formDataList.push(formData)
             }
-            formDataList.push(formData)
-          }
+          })
         })
-      })
-      this.$logger.info('formDataList', formDataList)
-      this.form.forms = formDataList
-      if (formDataList.length === 0) {
-        this.$message.error('Please add at least one form!')
-        if (this.$refs.commonFormHeader) {
-          this.$refs.commonFormHeader.saving = false
-        }
-        return false
-      } else {
-        EvaluationAddOrUpdate(this.form).then((response) => {
-          this.$logger.info('EvaluationAddOrUpdate', response)
+        this.$logger.info('formDataList', formDataList)
+        this.form.forms = formDataList
+        if (formDataList.length === 0) {
+          this.$message.error('Please add at least one form!')
           if (this.$refs.commonFormHeader) {
             this.$refs.commonFormHeader.saving = false
           }
-          if (response.success) {
-            this.$message.success('Save successfully!')
-            this.goBack()
-          } else {
-            this.$message.error(response.message)
-          }
-        })
+          return false
+        } else {
+          EvaluationAddOrUpdate(this.form).then((response) => {
+            this.$logger.info('EvaluationAddOrUpdate', response)
+            if (this.$refs.commonFormHeader) {
+              this.$refs.commonFormHeader.saving = false
+            }
+            if (response.success) {
+              this.$message.success('Save successfully!')
+              this.initCompleted = false
+              this.goBack()
+            } else {
+              this.$message.error(response.message)
+            }
+          })
+        }
+      } else {
+        if (this.$refs.commonFormHeader) {
+          this.$refs.commonFormHeader.saving = false
+        }
       }
     },
     handlePublishEvaluation (status) {
