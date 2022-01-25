@@ -358,14 +358,12 @@ export default {
     },
     'parentFormData.image': {
       handler (v) {
-        this.$logger.info('parentFormData.image', v)
         this.form.image = v
       },
       deep: true
     },
     'parentFormData.customTags': {
       handler (v) {
-        this.$logger.info('parentFormData.customTag', v)
         this.form.customTags = v
       },
       deep: true

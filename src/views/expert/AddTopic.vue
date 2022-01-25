@@ -205,7 +205,7 @@
 
                       <div class="form-block">
                         <comment-switch v-show="this.canEdit" field-name="assessment" :is-active="showCollaborateCommentVisible && currentFieldName === 'assessment'" @switch="handleSwitchComment" class="my-comment-switch"/>
-                        <a-form-item label="Set assessment objectives" >
+                        <a-form-item label="Set learning objectives" >
                           <a-button type="primary" @click="handleSelectDescription()">
                             <div class="btn-text" style="line-height: 20px">
                               Add Learning Objectives
