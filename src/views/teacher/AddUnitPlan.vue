@@ -31,7 +31,7 @@
                 <a-steps :current='currentActiveStepIndex' direction='vertical' @change='onChangeStep'>
                   <a-step :status="currentActiveStepIndex === 0 ? 'process':'wait'" title='Edit Unit plan'>
                     <template slot='description'>
-                      <div class='step-detail'  v-show='currentActiveStepIndex === 0' >
+                      <div class='step-detail' v-show='currentActiveStepIndex === 0' >
 
                         <div class='form-block'>
                           <collaborate-tooltip :form-id="unitPlanId" :fieldName=planField.Name />
@@ -147,9 +147,9 @@
                             />
                           </a-form-item>
                           <a-tooltip title='Browse' @click.stop='selectBigIdeaDataVisible=true'>
-                          <span class='browse'>
-                            <a-icon theme='twoTone' twoToneColor='rgba(21, 195, 154, 1)' type='appstore' />
-                          </span>
+                            <span class='browse'>
+                              <a-icon theme='twoTone' twoToneColor='rgba(21, 195, 154, 1)' type='appstore' />
+                            </span>
                           </a-tooltip>
                         </div>
 
@@ -270,15 +270,15 @@
                             :field-name=planField.Question
                             @switch='handleSwitchComment' />
                           <a-form-item class='unit-question'>
-                          <span slot='label'>
-                            <a-tooltip title='Set key question/Line of inquiry'>
-                              <a-icon
-                                style='color: #15c39a;cursor: pointer;font-size: 18px'
-                                type='exclamation-circle'
-                                @click='questionSettingVisible=true' />
-                            </a-tooltip>
-                            Key question(s) / Line(s) of inquiry
-                          </span>
+                            <span slot='label'>
+                              <a-tooltip title='Set key question/Line of inquiry'>
+                                <a-icon
+                                  style='color: #15c39a;cursor: pointer;font-size: 18px'
+                                  type='exclamation-circle'
+                                  @click='questionSettingVisible=true' />
+                              </a-tooltip>
+                              Key question(s) / Line(s) of inquiry
+                            </span>
                             <div v-if='!$store.getters.userInfo.disableQuestion'>
                               <div class='question-more'>
                                 <a-button type='link' @click='questionMoreVisible=true'>more</a-button>
