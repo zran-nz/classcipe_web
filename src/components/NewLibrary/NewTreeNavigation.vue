@@ -142,7 +142,7 @@ export default {
       const syncData = {
         expandStatus: false,
         type: NavigationType.sync,
-        name: 'Sync assessment objectives with linked content',
+        name: 'Sync learning objectives with linked content',
         children: [],
         defaultGradeId: this.defaultGradeId,
         parent: null,
