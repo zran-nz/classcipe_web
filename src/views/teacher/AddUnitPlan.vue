@@ -30,7 +30,7 @@
               <a-form-model :model='form' class='my-form-wrapper'>
                 <a-steps :current='currentActiveStepIndex' direction='vertical' @change='onChangeStep'>
                   <a-step :status="currentActiveStepIndex === 0 ? 'process':'wait'" title='Edit Unit plan'>
-                    <template v-if='currentActiveStepIndex === 0' slot='description'>
+                    <template v-show='currentActiveStepIndex === 0' slot='description'>
                       <!--                      <div class="form-block">
                         <div class="refer-action row-flex-right">
                           <div class="refer-text">
@@ -439,7 +439,7 @@
                     </template>
                   </a-step>
                   <a-step title='Link Plan content'>
-                    <template v-if='currentActiveStepIndex === 1' slot='description'>
+                    <template v-show='currentActiveStepIndex === 1' slot='description'>
                       <div class='form-block'>
                         <collaborate-tooltip :form-id="unitPlanId" :field-name=planField.Link />
                         <comment-switch

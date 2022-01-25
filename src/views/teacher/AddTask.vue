@@ -33,7 +33,7 @@
                     class='step-1'
                     title='Edit Task Info'
                     :status="currentActiveStepIndex === 0 ? 'process':'wait'">
-                    <template v-if='currentActiveStepIndex === 0' slot='description'>
+                    <template v-show='currentActiveStepIndex === 0' slot='description'>
 
                       <div class='form-block'>
                         <collaborate-tooltip :form-id="taskId" :fieldName=taskField.Name />
@@ -252,7 +252,7 @@
                     </template>
                   </a-step>
                   <a-step title="Edit task slides" :status="currentActiveStepIndex === 1 ? 'process':'wait'" id="templateSelected">
-                    <template v-if="currentActiveStepIndex === 1" slot="description">
+                    <template v-show="currentActiveStepIndex === 1" slot="description">
                       <div class="edit-in-slide" v-if="!form.fileDeleted">
                         <a-button
                           v-show="canEdit"
@@ -489,7 +489,7 @@
                       }">2.1
                     </div>
 
-                    <template v-if='currentActiveStepIndex === 2 && showSubTaskDetail' slot='description'>
+                    <template v-show='currentActiveStepIndex === 2 && showSubTaskDetail' slot='description'>
                       <div class='pick-task-slide-wrapper'>
                         <div class='pick-task-slide-title'>
                           <h2>Pick slide(s)</h2>
@@ -620,7 +620,7 @@
                       }">3
                     </div>
 
-                    <template v-if='currentActiveStepIndex === 3' slot='description'>
+                    <template v-show='currentActiveStepIndex === 3' slot='description'>
                       <div class='form-block'>
                         <collaborate-tooltip :form-id="taskId" :field-name=taskField.Link />
                         <comment-switch
