@@ -10,6 +10,7 @@
         <div class='create-item-tag' @click='createNew'>
           Create {{ displayValue }}
         </div>
+        <a-spin size='small' v-show='creating' class='creating-spin'/>
       </div>
     </div>
   </div>
@@ -45,6 +46,7 @@ export default {
         this.$logger.info('defaultSelectedId changed ' + newVal)
         this.showOptionList = false
         this.selectedId = newVal
+        this.creating = false
       },
       deep: true
     }
@@ -54,7 +56,8 @@ export default {
       selectedId: null,
       displayValue: '',
       myOptionList: [],
-      showOptionList: false
+      showOptionList: false,
+      creating: false
     }
   },
   computed: {
@@ -69,14 +72,20 @@ export default {
   created() {
     this.myOptionList = this.optionList
     this.selectedId = this.defaultSelectedId
+    if (this.selectedId) {
+      this.displayValue = this.myOptionList.find(option => option.id === this.selectedId).name
+    }
   },
   mounted () {
     this.globalClick(this.handleClick)
   },
   methods: {
     createNew () {
-      this.$logger.info('create-new ' + this.displayValue)
-      this.$emit('create-new', { value: this.displayValue, index: this.index })
+      this.$logger.info('create-new ' + this.displayValue + ' ' + this.creating)
+      if (!this.creating) {
+        this.creating = true
+        this.$emit('create-new', { value: this.displayValue, index: this.index })
+      }
     },
 
     handleSelectItem (item) {
@@ -145,6 +154,12 @@ export default {
   color: #15C39A;
   font-size: 13px;
   background: rgba(21, 195, 154, 0.2);
+}
+
+.creating-spin {
+  margin-left: 5px;
+  display: flex;
+  align-items: center;
 }
 
 </style>
