@@ -29,7 +29,22 @@ export const UtilMixin = {
 
   },
   computed: {
-
+    getWeek () {
+      if (this.rangeDate.length === 2) {
+        let str = ''
+        const week = Math.abs(parseInt(this.rangeDate[0].diff(this.rangeDate[1], 'days') / 7))
+        const day = Math.abs(this.rangeDate[0].diff(this.rangeDate[1], 'days')) % 7
+        if (week > 0) {
+          str += ((week > 1) ? week + ' weeks ' : week + ' week ')
+        }
+        if (day > 0) {
+          str += ((day > 1) ? day + ' days ' : day + ' day ')
+        }
+        return str
+      } else {
+        return ''
+      }
+    }
   },
   methods: {
 
@@ -67,7 +82,7 @@ export const UtilMixin = {
       }
     },
 
-    getWeek (startDate, endDate) {
+    getWeekByDate (startDate, endDate) {
       this.$logger.info('getWeek', startDate, endDate)
       if (startDate && endDate) {
         let str = ''

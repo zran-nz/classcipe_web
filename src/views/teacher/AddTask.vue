@@ -2016,6 +2016,22 @@ export default {
       if (this.canEdit) {
         this.autoSave()
       }
+    },
+
+    // 自动选择第一个班级的年级为task的默认年级
+    'form.taskClassList': {
+      handler: function (newVal, oldVal) {
+        this.$logger.info('form.taskClassList changed ', newVal)
+        if (newVal && newVal.length > 0) {
+          const taskClassId = newVal[0].classId
+          const classItem = this.classList.find(item => item.id === taskClassId)
+          if (classItem) {
+            this.form.gradeId = classItem.gradeId
+            this.$logger.info('form.gradeId update ', this.form.gradeId)
+          }
+        }
+      },
+      deep: true
     }
   },
   beforeRouteLeave(to, from, next) {
@@ -2160,14 +2176,14 @@ export default {
           }]
         } else {
           taskData.taskClassList.forEach(item => {
-            item.checked = item.startDate && item.endDate
+            item.checked = !!(item.startDate && item.endDate)
             if (item.checked) {
               item.momentRangeDate = [
                 moment.utc(item.startDate).local(),
                 moment.utc(item.endDate).local()
               ]
 
-              item.weeks = this.getWeek(item.momentRangeDate[0], item.momentRangeDate[1])
+              item.weeks = this.getWeekByDate(item.momentRangeDate[0], item.momentRangeDate[1])
             }
           })
         }
@@ -3928,7 +3944,7 @@ export default {
       if (!status) {
         this.form.taskClassList.forEach(item => {
           if (item.checked && item.momentRangeDate.length === 2) {
-            item.weeks = this.getWeek(item.momentRangeDate[0], item.momentRangeDate[1])
+            item.weeks = this.getWeekByDate(item.momentRangeDate[0], item.momentRangeDate[1])
           }
         })
       }
