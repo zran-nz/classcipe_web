@@ -7,7 +7,7 @@
     switchFullscreen
     @ok="handleOk"
     @cancel="handleCancel"
-    cancelText="关闭">
+    cancelText="Close">
     <a-spin :spinning="confirmLoading">
       <a-form-model ref="form" :model="model" :rules="validatorRules">
 
@@ -15,7 +15,7 @@
           <a-input placeholder="Please input email" v-model="model.email" />
         </a-form-model-item>
         <a-form-model-item :labelCol="labelCol" :wrapperCol="wrapperCol" prop="studentName" label="Student Name">
-          <a-input placeholder="Please input name" v-model="model.firstname" />
+          <a-input placeholder="Please input name" v-model="model.studentName" />
         </a-form-model-item>
         <!--        <a-form-model-item :labelCol="labelCol" :wrapperCol="wrapperCol" prop="joinTime" label="创建时间">-->
         <!--          <a-date-picker showTime valueFormat='YYYY-MM-DD HH:mm:ss' v-model="model.joinTime" />-->
@@ -28,12 +28,13 @@
 <script>
 import { httpAction } from '@/api/manage'
 import JModal from '@/components/jeecg/JModal'
+import { schoolClassStudentAPIUrl } from '@/api/schoolClassStudent'
 
 export default {
     name: 'SchoolClassStudentModal',
     data () {
       return {
-        title: '操作',
+        title: 'Edit',
         visible: false,
         model: {},
         labelCol: {
@@ -47,14 +48,17 @@ export default {
 
         confirmLoading: false,
         validatorRules: {
-        status: [{ required: true, message: '请输入关联状态：0-待审批；1-审批通过；2-审批拒绝!' }]
-        },
-        url: {
-          add: '/school/schoolClassStudent/add',
-          edit: '/school/schoolClassStudent/addOrUpdate'
+          email: [{ required: true, message: 'Please input email!' }],
+          studentName: [{ required: true, message: 'Please input name!' }]
         }
       }
     },
+  props: {
+    classId: {
+      type: String,
+      default: ''
+    }
+  },
   components: {
     JModal
   },
@@ -63,7 +67,7 @@ export default {
     methods: {
       add () {
         // 初始化默认值
-        this.edit({})
+        this.edit({ classId: this.classId, status: 1 })
       },
       edit (record) {
         this.model = Object.assign({}, record)
@@ -80,16 +84,10 @@ export default {
          this.$refs.form.validate(valid => {
           if (valid) {
             that.confirmLoading = true
-            let httpurl = ''
-            let method = ''
-            if (!this.model.id) {
-              httpurl += this.url.add
-              method = 'post'
-            } else {
-              httpurl += this.url.edit
-               method = 'post'
-            }
-            httpAction(httpurl, this.model, method).then((res) => {
+            // if (!this.model.joinTime) {
+            //   this.model.joinTime = Moment(new Date()).format('YYYY-MM-DD HH:mm').toDate()
+            // }
+            httpAction(schoolClassStudentAPIUrl.SchoolClassStudentAddOrUpdate, this.model, 'post').then((res) => {
               if (res.success) {
                 that.$message.success(res.message)
                 that.$emit('ok')

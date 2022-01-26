@@ -51,8 +51,13 @@
 
         <span slot="action" slot-scope="text, record">
           <template v-if="record.status === 0">
-            <a @click="handleStatus(record,1)">Aprove</a>
-            <a @click="handleStatus(record,2)">Reject</a>
+            <a-popconfirm title="Aprove this student ?" ok-text="Yes" @confirm="handleStatus(record,1)" cancel-text="No">
+              <a href="#">Aprove</a>
+            </a-popconfirm>
+            <a-divider type="vertical" />
+            <a-popconfirm title="Reject this student ?" ok-text="Yes" @confirm="handleStatus(record,2)" cancel-text="No">
+              <a href="#">Reject</a>
+            </a-popconfirm>
           </template>
           <template v-else>
             <a-popconfirm title="Remove this student ?" ok-text="Yes" @confirm="handleDeleteRecord(record)" cancel-text="No">
@@ -66,14 +71,14 @@
     <!-- table区域-end -->
 
     <!-- 表单区域 -->
-    <schoolClassStudent-modal ref="modalForm" @ok="modalFormOk"></schoolClassStudent-modal>
+    <schoolClassStudent-modal :class-id="classId" ref="modalForm" @ok="modalFormOk"></schoolClassStudent-modal>
   </a-card>
 </template>
 
 <script>
 import SchoolClassStudentModal from './modules/SchoolClassStudentModal'
 import { JeecgListMixin } from '@/mixins/JeecgListMixin'
-import { deleteAction, getAction, postAction } from '@/api/manage'
+import { getAction } from '@/api/manage'
 import {
   SchoolClassStudentAddOrUpdate,
   schoolClassStudentAPIUrl,
@@ -168,14 +173,25 @@ export default {
       })
     },
     handleStatus(record, status) {
-      record.status = status
-      SchoolClassStudentAddOrUpdate(record).then(response => {
-        if (response.success) {
-          this.$message.success((status === 1 ? 'Aprove' : 'Reject') + ' successfully')
-        }
-      }).finally(() => {
-        this.loadData()
-      })
+      const model = Object.assign({}, record)
+      model.status = status
+      if (status === 1) {
+        SchoolClassStudentAddOrUpdate(model).then(response => {
+          if (response.success) {
+            this.$message.success((status === 1 ? 'Aprove' : 'Reject') + ' successfully')
+          }
+        }).finally(() => {
+          this.loadData()
+        })
+      } else {
+        SchoolClassStudentDelete(record).then((response) => {
+          if (response.success) {
+            this.$message.success((status === 1 ? 'Aprove' : 'Reject') + ' successfully')
+          }
+        }).finally(() => {
+          this.loadData()
+        })
+      }
     },
     handleDeleteRecord: function (record) {
       SchoolClassStudentDelete(record).then((res) => {

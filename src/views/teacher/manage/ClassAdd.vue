@@ -208,7 +208,7 @@ export default {
     downloadTemplate () {
       const link = document.createElement('a')
       link.style.display = 'none'
-      const url = this.baseUrl + '/classcipe/excel/knowledge_template_example.xlsx'
+      const url = 'https://dev.classcipe.com/classcipe/excel/student.xlsx'
       link.href = url
       document.body.appendChild(link)
       link.click()

@@ -39,7 +39,7 @@
         <span>
           {{ record.studentCount }}
           <span class="ant-badge ant-badge-not-a-wrapper" v-if="record.newStudentCount > 0" style="margin-left:10px;">
-            <sup title="25" class="ant-scroll-number ant-badge-count ant-badge-multiple-words" data-show="true">
+            <sup title="25" style="line-height: 20px;font-size: 14px;" class="ant-scroll-number ant-badge-count ant-badge-multiple-words" data-show="true">
               <p class="ant-scroll-number-only-unit current">+{{ record.newStudentCount }}</p>
             </sup>
           </span>
@@ -51,8 +51,8 @@
         </span>
       </span>
 
-      <span slot="action" slot-scope="item" style="display: flex;justify-content: space-between;">
-        <a-button type="primary" shape="round" >Teachers </a-button>
+      <span slot="action" slot-scope="item" style="display: flex;justify-content: space-between;align-items: center">
+        <a-button type="primary" shape="round" @click="handleTeacher(item)" >Teachers </a-button>
         <a-button type="primary" shape="round" @click="handleStudent(item)" >Students </a-button>
         <a-button type="primary" shape="round" @click="handleEdit(item)" >Edit </a-button>
 
@@ -91,6 +91,19 @@
       </div>
     </a-modal>
 
+    <a-modal
+      v-model="classTeacherListVisible"
+      :footer="null"
+      :title="null"
+      :closable="true"
+      destroyOnClose
+      :dialog-style="{ top: '50px' }"
+      width="1000px">
+      <div>
+        <Class-Teacher-List :classId="classId"></Class-Teacher-List>
+      </div>
+    </a-modal>
+
   </a-card>
 </template>
 
@@ -104,6 +117,7 @@ import { JeecgListMixin } from '@/mixins/JeecgListMixin'
 import { SubjectTree } from '@/api/subject'
 import { schoolClassAPIUrl } from '@/api/schoolClass'
 import ClassStudentList from '@/views/teacher/manage/ClassStudentList'
+import ClassTeacherList from '@/views/teacher/manage/ClassTeacherList'
 
 const columns = [
   {
@@ -157,7 +171,7 @@ export default {
   name: 'Class',
   mixins: [JeecgListMixin],
   components: {
-    ClassAdd, ClassStudentList
+    ClassAdd, ClassStudentList, ClassTeacherList
   },
   data() {
     return {
@@ -177,6 +191,7 @@ export default {
         delete: schoolClassAPIUrl.SchoolClassDelete
       },
       classStudentListVisible: false,
+      classTeacherListVisible: false,
       classId: ''
     }
   },
@@ -238,6 +253,10 @@ export default {
     handleStudent(item) {
       this.classId = item.id
         this.classStudentListVisible = true
+    },
+    handleTeacher(item) {
+      this.classId = item.id
+      this.classTeacherListVisible = true
     }
   }
 }
