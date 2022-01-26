@@ -9,6 +9,7 @@ export const schoolClassAPIUrl = {
   SchoolClassGetMyClasses: '/classcipe/api/school/class/getMyClasses',
   SchoolClassClassList: '/classcipe/api/school/class/list',
   SchoolClassListClassMembers: '/classcipe/api/school/class/listClassMembers',
+  SchoolClassDelete: '/classcipe/api/school/class/delete',
   SchoolClassRemoveClassMember: '/classcipe/api/school/class/removeClassMember'
 }
 

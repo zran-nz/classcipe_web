@@ -9,6 +9,7 @@
     @ok="handleOk"
     @cancel="handleCancel"
     destroyOnClose
+    :maskClosable="false"
   >
 
     <slot></slot>
