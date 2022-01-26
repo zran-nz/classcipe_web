@@ -9,7 +9,7 @@
         :dialog-style="{ top: '50px' }"
         class='feed-back-modal'
         @cancel='hiddenFeedback'
-        @ok='handleRecapture'
+        @ok='hiddenFeedback'
         width='900px'
         :visible='feedbackModalVisible'>
         <div id='my-canvas-container'></div>
