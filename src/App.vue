@@ -9,7 +9,7 @@
         :dialog-style="{ top: '50px' }"
         class='feed-back-modal'
         @cancel='hiddenFeedback'
-        @ok='handleRecapture'
+        @ok='hiddenFeedback'
         width='900px'
         :visible='feedbackModalVisible'>
         <div id='my-canvas-container'></div>
@@ -40,7 +40,8 @@ export default {
         if (!this.feedbackModalVisible) {
           this.feedbackModalVisible = true
           html2canvas(document.body, {
-            allowTaint: true,
+            useCORS: true,
+            foreignObjectRendering: true,
             scrollX: window.pageXOffset,
             scrollY: window.pageYOffset,
             x: window.pageXOffset,
@@ -64,18 +65,6 @@ export default {
 
       handleRecapture () {
         this.$logger.info('handleRecapture')
-        html2canvas(document.getElementById('my-canvas-container'), {
-          allowTaint: true,
-          backgroundColor: '#fff',
-          foreignObjectRendering: true,
-          useCORS: true,
-          scrollY: 0
-        }).then(canvas => {
-          const a = document.createElement('a')
-          a.href = canvas.toDataURL('image/png')
-          a.download = 'screenshot.png'
-          a.click()
-        })
       }
     },
     computed: {
