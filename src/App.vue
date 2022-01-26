@@ -6,7 +6,7 @@
         Feedback
       </div>
       <a-modal
-        @close='feedbackModalVisible = false'
+        @cancel='feedbackModalVisible = false'
         width='800px'
         :visible='feedbackModalVisible'>
         <img :src='feedbackImgData' v-if='feedbackImgData' class='feedback-img'/>
