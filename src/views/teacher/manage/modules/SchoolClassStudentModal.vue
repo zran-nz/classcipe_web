@@ -11,34 +11,15 @@
     <a-spin :spinning="confirmLoading">
       <a-form-model ref="form" :model="model" :rules="validatorRules">
 
-        <a-form-model-item :labelCol="labelCol" :wrapperCol="wrapperCol" prop="classId" label="班级ID">
-          <a-input placeholder="请输入班级ID" v-model="model.classId" />
+        <a-form-model-item :labelCol="labelCol" :wrapperCol="wrapperCol" prop="email" label="Email">
+          <a-input placeholder="Please input email" v-model="model.email" />
         </a-form-model-item>
-        <a-form-model-item :labelCol="labelCol" :wrapperCol="wrapperCol" prop="classFlag" label="班级类型(1-学校class,2-个人班级)">
-          <a-input placeholder="请输入班级类型(1-学校class,2-个人班级)" v-model="model.classFlag" />
+        <a-form-model-item :labelCol="labelCol" :wrapperCol="wrapperCol" prop="studentName" label="Student Name">
+          <a-input placeholder="Please input name" v-model="model.firstname" />
         </a-form-model-item>
-        <a-form-model-item :labelCol="labelCol" :wrapperCol="wrapperCol" prop="email" label="email">
-          <a-input placeholder="请输入email" v-model="model.email" />
-        </a-form-model-item>
-        <a-form-model-item :labelCol="labelCol" :wrapperCol="wrapperCol" prop="firstname" label="firstname">
-          <a-input placeholder="请输入firstname" v-model="model.firstname" />
-        </a-form-model-item>
-        <a-form-model-item :labelCol="labelCol" :wrapperCol="wrapperCol" prop="lastname" label="lastname">
-          <a-input placeholder="请输入lastname" v-model="model.lastname" />
-        </a-form-model-item>
-        <a-form-model-item :labelCol="labelCol" :wrapperCol="wrapperCol" prop="nickname" label="nickname">
-          <a-input placeholder="请输入nickname" v-model="model.nickname" />
-        </a-form-model-item>
-        <a-form-model-item :labelCol="labelCol" :wrapperCol="wrapperCol" prop="status" label="关联状态：0-待审批；1-审批通过；2-审批拒绝">
-          <a-input-number v-model="model.status"/>
-        </a-form-model-item>
-        <a-form-model-item :labelCol="labelCol" :wrapperCol="wrapperCol" prop="joinTime" label="创建时间">
-          <a-date-picker showTime valueFormat='YYYY-MM-DD HH:mm:ss' v-model="model.joinTime" />
-        </a-form-model-item>
-        <a-form-model-item :labelCol="labelCol" :wrapperCol="wrapperCol" prop="delFlag" label="删除状态(0-正常,1-已删除)">
-          <a-input placeholder="请输入删除状态(0-正常,1-已删除)" v-model="model.delFlag" />
-        </a-form-model-item>
-
+        <!--        <a-form-model-item :labelCol="labelCol" :wrapperCol="wrapperCol" prop="joinTime" label="创建时间">-->
+        <!--          <a-date-picker showTime valueFormat='YYYY-MM-DD HH:mm:ss' v-model="model.joinTime" />-->
+        <!--        </a-form-model-item>-->
       </a-form-model>
     </a-spin>
   </j-modal>

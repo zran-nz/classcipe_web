@@ -2,7 +2,7 @@
   <a-card :bordered="false">
 
     <!-- 查询区域 -->
-    <div class="table-page-search-wrapper">
+    <div class="table-page-search-wrapper" style="margin: 20px 0px;">
       <a-form layout="inline">
         <a-row type="flex" justify="start">
           <a-col :span="8">
@@ -47,23 +47,18 @@
         :pagination="ipagination"
         :loading="loading"
         class="j-table-force-nowrap"
-        :rowSelection="{selectedRowKeys: selectedRowKeys, onChange: onSelectChange}"
         @change="handleTableChange">
 
         <span slot="action" slot-scope="text, record">
-          <a @click="handleEdit(record)">编辑</a>
-
-          <a-divider type="vertical"/>
-          <a-dropdown>
-            <a class="ant-dropdown-link">更多 <a-icon type="down"/></a>
-            <a-menu slot="overlay">
-              <a-menu-item>
-                <a-popconfirm title="确定删除吗?" @confirm="() => handleDelete(record.id)">
-                  <a>删除</a>
-                </a-popconfirm>
-              </a-menu-item>
-            </a-menu>
-          </a-dropdown>
+          <template v-if="record.status === 0">
+            <a @click="handleStatus(record,1)">Aprove</a>
+            <a @click="handleStatus(record,2)">Reject</a>
+          </template>
+          <template v-else>
+            <a-popconfirm title="Remove this student ?" ok-text="Yes" @confirm="handleDeleteRecord(record)" cancel-text="No">
+              <a href="#">Remove</a>
+            </a-popconfirm>
+          </template>
         </span>
 
       </a-table>
@@ -78,7 +73,13 @@
 <script>
 import SchoolClassStudentModal from './modules/SchoolClassStudentModal'
 import { JeecgListMixin } from '@/mixins/JeecgListMixin'
-import { getAction } from '@/api/manage'
+import { deleteAction, getAction, postAction } from '@/api/manage'
+import {
+  SchoolClassStudentAddOrUpdate,
+  schoolClassStudentAPIUrl,
+  SchoolClassStudentDelete
+} from '@/api/schoolClassStudent'
+import moment from 'moment'
 
 export default {
   name: 'ClassStudentList',
@@ -98,7 +99,7 @@ export default {
       // 表头
       columns: [
         {
-          title: '#',
+          title: 'No',
           dataIndex: '',
           key: 'rowIndex',
           width: 60,
@@ -108,59 +109,41 @@ export default {
           }
         },
         {
+          title: 'studentName',
+          align: 'center',
+          dataIndex: 'studentName'
+        },
+        {
           title: 'email',
           align: 'center',
           dataIndex: 'email'
         },
         {
-          title: 'firstname',
+          title: 'Join at',
           align: 'center',
-          dataIndex: 'firstname'
+          dataIndex: 'joinTime',
+          customRender: function (t, r, index) {
+            return moment.utc(t).local().format('yyyy-MM-DD HH:mm')
+          }
         },
         {
-          title: 'lastname',
-          align: 'center',
-          dataIndex: 'lastname'
-        },
-        {
-          title: 'nickname',
-          align: 'center',
-          dataIndex: 'nickname'
-        },
-        {
-          title: '关联状态：0-待审批；1-审批通过；2-审批拒绝',
-          align: 'center',
-          dataIndex: 'status'
-        },
-        {
-          title: '创建时间',
-          align: 'center',
-          dataIndex: 'joinTime'
-        },
-        {
-          title: '删除状态(0-正常,1-已删除)',
-          align: 'center',
-          dataIndex: 'delFlag'
-        },
-        {
-          title: '操作',
+          title: 'Action',
           dataIndex: 'action',
           align: 'center',
           scopedSlots: { customRender: 'action' }
         }
       ],
       url: {
-        list: '/school/schoolClassStudent/list',
-        delete: '/school/schoolClassStudent/delete',
-        deleteBatch: '/school/schoolClassStudent/deleteBatch',
-        importExcelUrl: 'school/schoolClassStudent/importExcel'
+        list: schoolClassStudentAPIUrl.SchoolClassStudentList,
+        delete: schoolClassStudentAPIUrl.SchoolClassDelete,
+        importExcelUrl: schoolClassStudentAPIUrl.SchoolClassStudentImportExcel
       },
       searchKey: ''
     }
   },
   computed: {
     importExcelUrl: function () {
-      return this.baseUrl + `${this.url.importExcelUrl}`
+      return process.env.VUE_APP_API_BASE_URL + this.url.importExcelUrl + '?classId=' + this.classId
     }
   },
   methods: {
@@ -182,6 +165,26 @@ export default {
           }
         }
         this.loading = false
+      })
+    },
+    handleStatus(record, status) {
+      record.status = status
+      SchoolClassStudentAddOrUpdate(record).then(response => {
+        if (response.success) {
+          this.$message.success((status === 1 ? 'Aprove' : 'Reject') + ' successfully')
+        }
+      }).finally(() => {
+        this.loadData()
+      })
+    },
+    handleDeleteRecord: function (record) {
+      SchoolClassStudentDelete(record).then((res) => {
+        if (res.success) {
+          this.$message.success(res.message)
+          this.loadData()
+        } else {
+          this.$message.warning(res.message)
+        }
       })
     }
   }
