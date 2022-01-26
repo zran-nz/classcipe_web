@@ -6,9 +6,11 @@
         Feedback
       </div>
       <a-modal
+        :dialog-style="{ top: '50px' }"
         class='feed-back-modal'
         @cancel='hiddenFeedback'
-        width='800px'
+        @ok='hiddenFeedback'
+        width='900px'
         :visible='feedbackModalVisible'>
         <div id='my-canvas-container'></div>
       </a-modal>
@@ -39,6 +41,7 @@ export default {
           this.feedbackModalVisible = true
           html2canvas(document.body, {
             allowTaint: true,
+            useCORS: true,
             scrollX: window.pageXOffset,
             scrollY: window.pageYOffset,
             x: window.pageXOffset,
@@ -51,6 +54,7 @@ export default {
               'transform 0.3s cubic-bezier(0.42, 0, 0.58, 1),opacity 0.3s cubic-bezier(0.42, 0, 0.58, 1),-webkit-transform 0.3s cubic-bezier(0.42, 0, 0.58, 1)'
             console.log('my-canvas-container', document.getElementById('my-canvas-container'))
             document.getElementById('my-canvas-container').appendChild(canvas)
+            this.feedbackImgData = canvas.toDataURL('image/png', 1)
           })
         }
       },
@@ -58,6 +62,10 @@ export default {
         this.$logger.info('hiddenFeedback', this.feedbackModalVisible)
         document.getElementById('my-canvas-container').innerHTML = ''
         this.feedbackModalVisible = false
+      },
+
+      handleRecapture () {
+        this.$logger.info('handleRecapture')
       }
     },
     computed: {
@@ -97,12 +105,12 @@ export default {
 
 #my-canvas-container {
   position: relative;
-  min-width: 800px;
-  min-height: 500px;
+  min-width: 900px;
+  min-height: 550px;
 }
 
 .my-capture-canvas {
-  width: 800px !important;
+  width: 900px !important;
   height: auto !important;
 }
 </style>
