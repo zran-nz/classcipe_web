@@ -48,45 +48,43 @@
                           </a-form-item>
                         </div>
 
-                        <div class='form-block grade-time'>
-                          <collaborate-tooltip :form-id="taskId" :fieldName="taskField.StartDate" />
-                          <comment-switch
-                            v-show="this.canEdit"
-                            :field-name=taskField.StartDate
-                            :is-active="currentFieldName === taskField.StartDate"
-                            @switch='handleSwitchComment'
-                            :class="{'my-comment-switch':true,'my-comment-show':currentFieldName === taskField.StartDate}" />
-                          <a-form-item label='Grade level' style='width:26%;margin-bottom: 0px;'>
-                            <a-select
-                              :getPopupContainer="trigger => trigger.parentElement"
-                              size='large'
-                              v-model='form.gradeId'
-                              class='my-big-select'
-                              placeholder='Select a grade'>
-                              <a-select-option v-for='(grade,index) in gradeList' :value='grade.id' :key='index'>
-                                {{ grade.name }}
-                              </a-select-option>
-                            </a-select>
-                          </a-form-item>
-                          <a-form-item
-                            class='range-time'
-                            label='Start Date'
-                            style='width:70%;margin-bottom: 0px;position:relative'>
-                            <div class='week-time' v-if='getWeek'>
-                              <a-tag color='cyan' style='border-radius: 10px;font-size: 14px;'>
-                                {{ getWeek }}
-                              </a-tag>
-                            </div>
-                            <a-range-picker
-                              @openChange="handleCollaborateEvent(taskId,taskField.StartDate,form.startDate)"
-                              v-model='rangeDate'
-                              size='large'
-                              format='LLL'
-                              :show-time="{ format: 'HH:mm' }"
-                              style='width:100%'>
-                              <a-icon slot='suffixIcon' type='calendar' />
-                            </a-range-picker>
-                          </a-form-item>
+                        <!--关联班级以及开课时间 -->
+                        <div class='form-block link-class'>
+                          <div class='linked-class-list' v-for='(classItem, cIdx) in form.taskClassList' :key='cIdx'>
+                            <a-popconfirm cancel-text="No" ok-text="Yes" title="Delete ?" @confirm="handleDeleteClass(classItem)">
+                              <div class='remove-class-icon'>
+                                <img class='big-delete-icon' src='~@/assets/icons/evaluation/big_delete.png' />
+                              </div>
+                            </a-popconfirm>
+                            <a-form-item label='Choose class'>
+                              <input-with-create :option-list='classList' :index='cIdx' :default-selected-id='classItem.classId' @selected='classItem.classId = $event' @create-new='handleCreateNewClass'/>
+                            </a-form-item>
+
+                            <a-form-item label='Schedule a session for this class'>
+                              <div class='class-schedule-detail'>
+                                <a-switch size='small' class='my-switch' v-model='classItem.checked' @change="handleChangeClassSessionTime(classItem)" />
+                                <div
+                                  class='range-time'
+                                  v-show='classItem.checked'>
+                                  <div class='week-time' v-show='classItem.weeks'>
+                                    <a-tag color='cyan' style='border-radius: 10px;font-size: 14px;'>
+                                      {{ classItem.weeks }}
+                                    </a-tag>
+                                  </div>
+                                  <a-range-picker
+                                    v-model='classItem.momentRangeDate'
+                                    format='LLL'
+                                    :show-time="{ format: 'HH:mm' }"
+                                    @openChange='handleUpdateWeeks'>
+                                    <a-icon slot='suffixIcon' type='calendar' />
+                                  </a-range-picker>
+                                </div>
+                              </div>
+                            </a-form-item>
+                          </div>
+                          <div class='add-class'>
+                            <a-button type='primary' @click='handleAddLinkClass'> + Add class</a-button>
+                          </div>
                         </div>
 
                         <div class='form-block over-form-block' id='overview'>
@@ -1733,11 +1731,15 @@ import { QueryContentShare } from '@/api/share'
 import CollaborateTooltip from '@/components/Collaborate/CollaborateTooltip'
 import CollaborateUpdateContent from '@/components/Collaborate/CollaborateUpdateContent'
 import LocalStore from '@/websocket/localstore'
+import { PersonalAddOrUpdateClass, SchoolClassGetMyClasses } from '@/api/schoolClass'
+import InputWithCreate from '@/components/Common/InputWithCreate'
+
 const { SplitTask } = require('@/api/task')
 
 export default {
   name: 'AddTask',
   components: {
+    InputWithCreate,
     ShareContentSetting,
     TaskPptPreview,
     TemplatePreview,
@@ -1818,9 +1820,9 @@ export default {
         startDate: '',
         endDate: '',
         gradeId: undefined,
-        materialList: []
+        materialList: [],
+        taskClassList: []
       },
-      rangeDate: [],
       // Grades
       gradeList: [],
       // SubjectTree
@@ -1955,7 +1957,9 @@ export default {
 
       shareVisible: false,
       shareStatus: 0,
-      taskField: TaskField
+      taskField: TaskField,
+
+      classList: []
     }
   },
   computed: {
@@ -2074,8 +2078,8 @@ export default {
       logger.info('initData doing...')
       Promise.all([
         GetMyGrades(),
-        FilterTemplates({})
-        // SubjectTree({ curriculumId: this.$store.getters.bindCurriculum })
+        FilterTemplates({}),
+        SchoolClassGetMyClasses()
       ]).then((response) => {
         this.$logger.info('add task initData done', response)
 
@@ -2089,14 +2093,11 @@ export default {
           this.$logger.info('template list', response[1].result)
           this.templateList = response[1].result
         }
-        // // SubjectTree
-        // if (!response[1].code) {
-        //   logger.info('SubjectTree', response[1].result)
-        //   let subjectTree = response[1].result
-        //   subjectTree = formatSubjectTree(subjectTree)
-        //   this.subjectTree = subjectTree
-        //   logger.info('after format subjectTree', subjectTree)
-        // }
+
+        if (!response[2].code) {
+          this.$logger.info('class list', response[2].result)
+          this.classList = response[2].result
+        }
       }).then(() => {
         if (this.taskId) {
           this.$logger.info('restore task data ' + this.taskId)
@@ -2147,6 +2148,30 @@ export default {
         if (!taskData.materialList) {
           taskData.materialList = []
         }
+
+        if (!taskData.taskClassList.length) {
+          taskData.taskClassList = [{
+            classId: null,
+            startDate: null,
+            endDate: null,
+            checked: false,
+            momentRangeDate: [],
+            weeks: null
+          }]
+        } else {
+          taskData.taskClassList.forEach(item => {
+            item.checked = item.startDate && item.endDate
+            if (item.checked) {
+              item.momentRangeDate = [
+                moment.utc(item.startDate).local(),
+                moment.utc(item.endDate).local()
+              ]
+
+              item.weeks = this.getWeek(item.momentRangeDate[0], item.momentRangeDate[1])
+            }
+          })
+        }
+
         this.materialListFlag = taskData.materialList.length > 0
         this.form = taskData
         this.form.showSelected = taskData.showSelected ? taskData.showSelected : false
@@ -2163,10 +2188,6 @@ export default {
             this.form.gradeId = undefined
           }
         }
-        if (taskData.startDate && taskData.endDate) {
-          this.rangeDate.push(moment.utc(taskData.startDate).local())
-          this.rangeDate.push(moment.utc(taskData.endDate).local())
-        }
       }).finally(() => {
         this.contentLoading = false
         this.loadCollaborateData()
@@ -2177,6 +2198,7 @@ export default {
         // copy副本 为了判断数据变更
         this.oldForm = JSON.parse(JSON.stringify(this.form))
         this.initCompleted = true
+        this.$logger.info('restoreTask done', this.form)
 
         this.loadingShareContent()
       })
@@ -2224,12 +2246,24 @@ export default {
       } else {
         this.cleaPageCache()
         const taskData = Object.assign({}, this.form)
-        if (this.rangeDate.length === 2) {
-          const startDate = this.rangeDate[0].clone()
-          const endDate = this.rangeDate[1].clone()
-          taskData.startDate = startDate.utc().format('YYYY-MM-DD HH:mm:ss')
-          taskData.endDate = endDate.utc().format('YYYY-MM-DD HH:mm:ss')
-        }
+        const taskClassList = []
+        taskData.taskClassList.forEach(item => {
+          if (item.classId) {
+            const classScheduleData = {
+              classId: item.classId,
+              startDate: null,
+              endDate: null
+            }
+            if (item.checked && item.momentRangeDate.length === 2) {
+              const startDate = item.momentRangeDate[0].clone()
+              const endDate = item.momentRangeDate[1].clone()
+              classScheduleData.startDate = startDate.utc().format('YYYY-MM-DD HH:mm:ss')
+              classScheduleData.endDate = endDate.utc().format('YYYY-MM-DD HH:mm:ss')
+            }
+            taskClassList.push(classScheduleData)
+          }
+        })
+        taskData.taskClassList = taskClassList
         if (this.taskId) {
           taskData.id = this.taskId
         }
@@ -3741,12 +3775,24 @@ export default {
     },
     async autoSave() {
       const taskData = Object.assign({}, this.form)
-      if (this.rangeDate.length === 2) {
-        const startDate = this.rangeDate[0].clone()
-        const endDate = this.rangeDate[1].clone()
-        taskData.startDate = startDate.utc().format('YYYY-MM-DD HH:mm:ss')
-        taskData.endDate = endDate.utc().format('YYYY-MM-DD HH:mm:ss')
-      }
+      const taskClassList = []
+      taskData.taskClassList.forEach(item => {
+        if (item.classId) {
+          const classScheduleData = {
+            classId: item.classId,
+            startDate: null,
+            endDate: null
+          }
+          if (item.checked && item.momentRangeDate.length === 2) {
+            const startDate = item.momentRangeDate[0].clone()
+            const endDate = item.momentRangeDate[1].clone()
+            classScheduleData.startDate = startDate.utc().format('YYYY-MM-DD HH:mm:ss')
+            classScheduleData.endDate = endDate.utc().format('YYYY-MM-DD HH:mm:ss')
+          }
+          taskClassList.push(classScheduleData)
+        }
+      })
+      taskData.taskClassList = taskClassList
       if (this.taskId) {
         taskData.id = this.taskId
       }
@@ -3827,10 +3873,6 @@ export default {
       // const contentMsg = this.$store.state.websocket.saveContentMsg
       // contentMsg.hideUpdate = true
       // this.form = contentMsg.content.details
-      // if (contentMsg.content.details.startDate && contentMsg.content.details.endDate) {
-      //   this.rangeDate.push(moment.utc(contentMsg.content.details.startDate).local())
-      //   this.rangeDate.push(moment.utc(contentMsg.content.details.endDate).local())
-      // }
       // 缓存时间少于最新的内容
       this.form.updateTime = moment.utc(new Date()).format('YYYY-MM-DD HH:mm:ss')
       LocalStore.setFormContentLocal(this.form.id, this.form.type, JSON.stringify(this.form))
@@ -3839,6 +3881,57 @@ export default {
       setTimeout(() => {
         this.restoreTask(this.form.id)
       }, 100)
+    },
+
+    handleChangeClassSessionTime (classItem) {
+      this.$logger.info('handleChangeClassSessionTime', classItem)
+      if (!classItem.checked) {
+        classItem.momentRangeDate = []
+        classItem.startDate = null
+        classItem.endDate = null
+      }
+    },
+
+    handleAddLinkClass () {
+      this.form.taskClassList.push({
+        classId: null,
+        startDate: null,
+        endDate: null,
+        checked: false,
+        momentRangeDate: [],
+        weeks: null
+      })
+    },
+
+    handleDeleteClass (classItem) {
+      this.form.taskClassList = this.form.taskClassList.filter(it => it !== classItem)
+    },
+
+    handleCreateNewClass (data) {
+      this.$logger.info('handleCreateNewClass', data)
+      PersonalAddOrUpdateClass({ name: data.value }).then(response => {
+        SchoolClassGetMyClasses().then(response => {
+          this.$logger.info('SchoolClassGetMyClasses', response)
+          this.classList = response.result
+          // 自动选中刚刚新建的班级
+          const selectedClassItem = this.classList.find(item => item.name === data.value)
+          if (data.index !== -1 && this.form.taskClassList.length > data.index && selectedClassItem) {
+            this.$logger.info('handleCreateNewClass selectedClassItem', selectedClassItem)
+            this.form.taskClassList[data.index].classId = selectedClassItem.id
+          }
+        })
+      })
+    },
+
+    handleUpdateWeeks (status) {
+      this.$logger.info('handleUpdateWeeks', status)
+      if (!status) {
+        this.form.taskClassList.forEach(item => {
+          if (item.checked && item.momentRangeDate.length === 2) {
+            item.weeks = this.getWeek(item.momentRangeDate[0], item.momentRangeDate[1])
+          }
+        })
+      }
     }
   }
 }
@@ -5058,7 +5151,6 @@ export default {
 
 .form-block {
   position: relative;
-  margin-bottom: 35px;
 
   &:hover {
     .my-comment-switch {
@@ -6163,27 +6255,6 @@ export default {
   }
 }
 
-.grade-time {
-  display: flex;
-  justify-content: space-between;
-
-  .range-time {
-    /deep/ .ant-input {
-      border-radius: 4px;
-      font-size: 13px;
-      width: 100%;
-      padding: 6px 7px;
-    }
-
-    .week-time {
-      position: absolute;
-      /* width: 300px; */
-      top: -50px;
-      right: 30px
-    }
-  }
-}
-
 .assessments-tabs {
   /deep/ .ant-tabs-nav-scroll {
     text-align: left;
@@ -6266,5 +6337,66 @@ export default {
 .thumbnail-task-item {
   padding: 5px 10px;
   background: #38cfa611;
+}
+
+.linked-class-list {
+  padding: 10px 10px 0 10px;
+  cursor: pointer;
+  border: 1px dashed #15c39a;
+  margin-bottom: 15px;
+  position: relative;
+
+  .remove-class-icon {
+    position: absolute;
+    right: -25px;
+    top: 0;
+    width: 25px;
+    height: 100%;
+    display: none;
+    text-align: center;
+    img {
+      width: 15px;
+    }
+  }
+
+  &:hover {
+    .remove-class-icon {
+      display: block;
+    }
+  }
+}
+
+.class-schedule-detail {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+  position: relative;
+  line-height: 40px;
+  height: 40px;
+}
+
+.my-switch {
+  line-height: 32px;
+}
+
+.range-time {
+  margin-left: 10px;
+  min-width: 450px;
+  position: relative;
+
+  .week-time {
+    position: absolute;
+    top: -35px;
+    right: 90px;
+  }
+}
+
+.form-item {
+  padding-left: 10px;
+}
+
+.add-class {
+  margin-bottom: 15px;
 }
 </style>

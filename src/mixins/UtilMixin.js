@@ -29,22 +29,7 @@ export const UtilMixin = {
 
   },
   computed: {
-    getWeek () {
-      if (this.rangeDate.length === 2) {
-        let str = ''
-        const week = Math.abs(parseInt(this.rangeDate[0].diff(this.rangeDate[1], 'days') / 7))
-        const day = Math.abs(this.rangeDate[0].diff(this.rangeDate[1], 'days')) % 7
-        if (week > 0) {
-          str += ((week > 1) ? week + ' weeks ' : week + ' week ')
-        }
-        if (day > 0) {
-          str += ((day > 1) ? day + ' days ' : day + ' day ')
-        }
-        return str
-      } else {
-        return ''
-      }
-    }
+
   },
   methods: {
 
@@ -79,6 +64,24 @@ export const UtilMixin = {
         window.location.href = '/teacher/task-redirect/' + item.id
       } else if (item.type === typeMap.evaluation) {
         window.location.href = '/teacher/evaluation-redirect/' + item.id
+      }
+    },
+
+    getWeek (startDate, endDate) {
+      this.$logger.info('getWeek', startDate, endDate)
+      if (startDate && endDate) {
+        let str = ''
+        const week = Math.abs(parseInt(startDate.diff(endDate, 'days') / 7))
+        const day = Math.abs(startDate.diff(endDate), 'days') % 7
+        if (week > 0) {
+          str += ((week > 1) ? week + ' weeks ' : week + ' week ')
+        }
+        if (day > 0) {
+          str += ((day > 1) ? day + ' days ' : day + ' day ')
+        }
+        return str
+      } else {
+        return ''
       }
     }
   }
