@@ -3920,7 +3920,8 @@ export default {
     },
 
     handleDeleteClass (classItem) {
-      this.form.taskClassList = this.form.taskClassList.filter(it => it !== classItem)
+      this.$logger.info('handleDeleteClass', classItem)
+      this.form.taskClassList = this.form.taskClassList.filter(it => it.classId !== classItem.classId)
     },
 
     handleCreateNewClass (data) {
