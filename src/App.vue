@@ -6,9 +6,11 @@
         Feedback
       </div>
       <a-modal
+        :dialog-style="{ top: '50px' }"
         class='feed-back-modal'
         @cancel='hiddenFeedback'
-        width='800px'
+        @ok='handleRecapture'
+        width='900px'
         :visible='feedbackModalVisible'>
         <div id='my-canvas-container'></div>
       </a-modal>
@@ -58,6 +60,22 @@ export default {
         this.$logger.info('hiddenFeedback', this.feedbackModalVisible)
         document.getElementById('my-canvas-container').innerHTML = ''
         this.feedbackModalVisible = false
+      },
+
+      handleRecapture () {
+        this.$logger.info('handleRecapture')
+        html2canvas(document.getElementById('my-canvas-container'), {
+          allowTaint: true,
+          backgroundColor: '#fff',
+          foreignObjectRendering: true,
+          useCORS: true,
+          scrollY: 0
+        }).then(canvas => {
+          const a = document.createElement('a')
+          a.href = canvas.toDataURL('image/png')
+          a.download = 'screenshot.png'
+          a.click()
+        })
       }
     },
     computed: {
@@ -97,12 +115,12 @@ export default {
 
 #my-canvas-container {
   position: relative;
-  min-width: 800px;
-  min-height: 500px;
+  min-width: 900px;
+  min-height: 550px;
 }
 
 .my-capture-canvas {
-  width: 800px !important;
+  width: 900px !important;
   height: auto !important;
 }
 </style>
