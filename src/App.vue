@@ -6,10 +6,11 @@
         Feedback
       </div>
       <a-modal
-        @cancel='feedbackModalVisible = false'
+        class='feed-back-modal'
+        @cancel='hiddenFeedback'
         width='800px'
         :visible='feedbackModalVisible'>
-        <img :src='feedbackImgData' v-if='feedbackImgData' class='feedback-img'/>
+        <div id='my-canvas-container'></div>
       </a-modal>
     </div>
   </a-config-provider>
@@ -33,17 +34,30 @@ export default {
     },
     methods: {
       captureScreen () {
-        html2canvas(document.body, {
-          allowTaint: true,
-          backgroundColor: '#fff',
-          foreignObjectRendering: true,
-          useCORS: true,
-          scrollX: 0,
-          scrollY: 0
-        }).then(canvas => {
-          this.feedbackImgData = canvas.toDataURL('image/png')
+        this.$logger.info('captureScreen')
+        if (!this.feedbackModalVisible) {
           this.feedbackModalVisible = true
-        })
+          html2canvas(document.body, {
+            allowTaint: true,
+            scrollX: window.pageXOffset,
+            scrollY: window.pageYOffset,
+            x: window.pageXOffset,
+            y: window.pageYOffset
+          }).then(canvas => {
+            canvas.style.opacity = '1'
+            canvas.style.zIndex = '99999999'
+            canvas.className = 'my-capture-canvas'
+            canvas.style.transition =
+              'transform 0.3s cubic-bezier(0.42, 0, 0.58, 1),opacity 0.3s cubic-bezier(0.42, 0, 0.58, 1),-webkit-transform 0.3s cubic-bezier(0.42, 0, 0.58, 1)'
+            console.log('my-canvas-container', document.getElementById('my-canvas-container'))
+            document.getElementById('my-canvas-container').appendChild(canvas)
+          })
+        }
+      },
+      hiddenFeedback () {
+        this.$logger.info('hiddenFeedback', this.feedbackModalVisible)
+        document.getElementById('my-canvas-container').innerHTML = ''
+        this.feedbackModalVisible = false
       }
     },
     computed: {
@@ -75,16 +89,20 @@ export default {
   line-height: 30px;
   border-radius: 5px;
   box-shadow: 0 0 4px 4px rgba(0, 0, 0, 0.1);
-  z-index: 5000;
+  z-index: 3000;
   cursor: pointer;
   padding: 0 5px;
   font-size: 12px;
 }
 
-.feedback-img {
-  width: 100%;
-  height: 100%;
-  margin: auto;
-  max-width: 100%;
+#my-canvas-container {
+  position: relative;
+  min-width: 800px;
+  min-height: 500px;
+}
+
+.my-capture-canvas {
+  width: 800px !important;
+  height: auto !important;
 }
 </style>
