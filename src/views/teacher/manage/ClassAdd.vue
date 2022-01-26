@@ -37,7 +37,7 @@
               </a-col>
 
               <a-col :span="24">
-                <a-form-model-item label="Grade" prop="grade">
+                <a-form-model-item label="Grade" prop="gradeId">
                   <a-select :allowClear="true" v-model="model.gradeId" placeholder="Select grade" >
                     <a-select-option :value="item.id" :key="item.id" v-for="item in gradeList">{{ item.name }}</a-select-option>
                   </a-select>
@@ -73,9 +73,10 @@
 
 <script>
 import JModal from '@/components/jeecg/JModal'
-import { httpAction } from '@/api/manage'
+import { httpAction, uploadAction } from '@/api/manage'
 import { schoolClassAPIUrl } from '@/api/schoolClass'
 import store from '@/store'
+import { schoolClassStudentAPIUrl } from '@/api/schoolClassStudent'
 
 export default {
   name: 'TermAdd',
@@ -133,11 +134,13 @@ export default {
   },
   methods: {
     add () {
+      this.mode = 'add'
       // 初始化默认值
       this.edit({ classType: 0, schoolId: store.getters.userInfo.school })
     },
     edit (record) {
       this.model = Object.assign({}, record)
+      this.mode = 'update'
       this.visible = true
     },
     close () {
@@ -153,18 +156,42 @@ export default {
           that.confirmLoading = true
           httpAction(schoolClassAPIUrl.SchoolClassAddOrUpdate, this.model, 'post').then((res) => {
             if (res.success) {
-              that.$message.success(res.message)
-              this.$emit('ok')
+              this.model.id = res.result.id
+              if (this.fileList.length > 0) {
+                  this.handleUpload()
+              } else {
+                that.$message.success(res.message)
+                this.$emit('ok')
+                that.confirmLoading = false
+                that.close()
+              }
             } else {
               that.$message.warning(res.message)
             }
-          }).finally(() => {
-            that.confirmLoading = false
-            that.close()
           })
         } else {
           return false
         }
+      })
+    },
+    handleUpload() {
+      const formData = new FormData()
+      formData.append('file', this.fileList[0])
+      formData.append('classId', this.model.id)
+      this.uploading = true
+      const that = this
+      uploadAction(schoolClassStudentAPIUrl.SchoolClassStudentImportExcel, formData).then((res) => {
+        this.uploading = false
+        if (res.success) {
+          this.$message.success(res.message)
+          this.$emit('ok')
+        } else {
+          this.$message.warning(res.message)
+        }
+      }).finally(() => {
+        that.confirmLoading = false
+        that.close()
+        this.fileList = []
       })
     },
     handleCancel() {

@@ -50,14 +50,47 @@
           {{ grade.name }}
         </span>
       </span>
-      <span slot="action" slot-scope="item">
-        <a @click="handleEdit(item)"> <a-icon type="edit" theme="filled" /> Edit </a>
-        <!-- <a-divider type="vertical" />
-        <a>Delete</a> -->
+
+      <span slot="action" slot-scope="item" style="display: flex;justify-content: space-between;">
+        <a-button type="primary" shape="round" >Teachers </a-button>
+        <a-button type="primary" shape="round" @click="handleStudent(item)" >Students </a-button>
+        <a-button type="primary" shape="round" @click="handleEdit(item)" >Edit </a-button>
+
+        <div class="more-action-wrapper action-item-wrapper" >
+          <a-dropdown>
+            <a-icon type="more" style="margin-right: 8px" />
+            <a-menu slot="overlay">
+              <a-menu-item>
+                <a-popconfirm title="Delete this class ?" ok-text="Yes" @confirm="handleDelete(item)" cancel-text="No">
+                  <a>
+                    <a-icon type="delete" theme="filled" /> Delete
+                  </a>
+                </a-popconfirm>
+              </a-menu-item>
+            </a-menu>
+          </a-dropdown>
+        </div>
+
+        <!--        <a-divider type="vertical" />-->
+
       </span>
     </a-table>
 
     <ClassAdd ref="modalForm" @ok="loadData" :grade-list="gradeList" :subject-list="subjectList" :teacher-list="teacherList"/>
+
+    <a-modal
+      v-model="classStudentListVisible"
+      :footer="null"
+      :title="null"
+      :closable="true"
+      destroyOnClose
+      :dialog-style="{ top: '50px' }"
+      width="1000px">
+      <div>
+        <Class-Student-List :classId="classId"></Class-Student-List>
+      </div>
+    </a-modal>
+
   </a-card>
 </template>
 
@@ -69,6 +102,8 @@ import store from '@/store'
 import { GetGradesByCurriculumId } from '@/api/preference'
 import { JeecgListMixin } from '@/mixins/JeecgListMixin'
 import { SubjectTree } from '@/api/subject'
+import { schoolClassAPIUrl } from '@/api/schoolClass'
+import ClassStudentList from '@/views/teacher/manage/ClassStudentList'
 
 const columns = [
   {
@@ -97,7 +132,7 @@ const columns = [
   },
   {
     title: 'Subject',
-    dataIndex: 'subject',
+    dataIndex: 'subjectName',
     key: 'subject'
   },
   {
@@ -115,14 +150,14 @@ const columns = [
     key: 'action',
     // dataIndex: 'id',
     scopedSlots: { customRender: 'action' },
-    width: '150px'
+    width: '300px'
   }
 ]
 export default {
   name: 'Class',
   mixins: [JeecgListMixin],
   components: {
-    ClassAdd
+    ClassAdd, ClassStudentList
   },
   data() {
     return {
@@ -137,7 +172,12 @@ export default {
       searchKey: '',
       gradeList: [],
       teacherList: [],
-      subjectList: []
+      subjectList: [],
+      url: {
+        delete: schoolClassAPIUrl.SchoolClassDelete
+      },
+      classStudentListVisible: false,
+      classId: ''
     }
   },
   created() {
@@ -167,7 +207,11 @@ export default {
       this.$refs.modalForm.mode = 'add'
       this.$refs.modalForm.add({})
     },
-    handleEdit(data) {},
+    handleEdit(record) {
+      this.$refs.modalForm.title = 'Edit Class'
+      this.$refs.modalForm.edit(record)
+      this.$refs.modalForm.disableSubmit = false
+    },
     getGradeList() {
       GetGradesByCurriculumId({ curriculumId: this.$store.getters.bindCurriculum }).then(response => {
         this.$logger.info('GetGradesByCurriculumId', response.result)
@@ -190,11 +234,16 @@ export default {
     },
     searchClass() {
       this.loadData()
+    },
+    handleStudent(item) {
+      this.classId = item.id
+        this.classStudentListVisible = true
     }
   }
 }
 </script>
 <style lang="less" scoped>
+@import "~@/components/index.less";
 .operator {
   margin-bottom: 16px;
   button {
