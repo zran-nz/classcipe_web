@@ -51,8 +51,8 @@
                         <!--关联班级以及开课时间 -->
                         <div class='form-block link-class'>
                           <div class='linked-class-list' v-for='(classItem, cIdx) in form.taskClassList' :key='cIdx'>
-                            <a-popconfirm cancel-text="No" ok-text="Yes" title="Delete ?" @confirm="handleDeleteClass(classItem)">
-                              <div class='remove-class-icon'>
+                            <a-popconfirm cancel-text="No" ok-text="Yes" title="Delete ?">
+                              <div class='remove-class-icon' @confirm="handleDeleteClass(classItem)">
                                 <img class='big-delete-icon' src='~@/assets/icons/evaluation/big_delete.png' />
                               </div>
                             </a-popconfirm>
