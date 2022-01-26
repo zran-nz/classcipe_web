@@ -83,7 +83,7 @@ export const UtilMixin = {
     },
 
     getWeekByDate (startDate, endDate) {
-      this.$logger.info('getWeek', startDate, endDate)
+      this.$logger.info('getWeekByDate', startDate, endDate)
       if (startDate && endDate) {
         let str = ''
         const week = Math.abs(parseInt(startDate.diff(endDate, 'days') / 7))
