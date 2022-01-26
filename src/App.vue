@@ -41,6 +41,7 @@ export default {
           this.feedbackModalVisible = true
           html2canvas(document.body, {
             allowTaint: true,
+            useCORS: true,
             scrollX: window.pageXOffset,
             scrollY: window.pageYOffset,
             x: window.pageXOffset,
@@ -53,6 +54,7 @@ export default {
               'transform 0.3s cubic-bezier(0.42, 0, 0.58, 1),opacity 0.3s cubic-bezier(0.42, 0, 0.58, 1),-webkit-transform 0.3s cubic-bezier(0.42, 0, 0.58, 1)'
             console.log('my-canvas-container', document.getElementById('my-canvas-container'))
             document.getElementById('my-canvas-container').appendChild(canvas)
+            this.feedbackImgData = canvas.toDataURL('image/png', 1)
           })
         }
       },
@@ -64,18 +66,6 @@ export default {
 
       handleRecapture () {
         this.$logger.info('handleRecapture')
-        html2canvas(document.getElementById('my-canvas-container'), {
-          allowTaint: true,
-          backgroundColor: '#fff',
-          foreignObjectRendering: true,
-          useCORS: true,
-          scrollY: 0
-        }).then(canvas => {
-          const a = document.createElement('a')
-          a.href = canvas.toDataURL('image/png')
-          a.download = 'screenshot.png'
-          a.click()
-        })
       }
     },
     computed: {
