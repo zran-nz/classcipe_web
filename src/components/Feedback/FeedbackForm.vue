@@ -27,15 +27,16 @@
     </div>
 
     <a-modal
+      destroyOnClose
       class='edit-img-modal'
       @cancel='handleCancelEditImg'
       :title='null'
       :footer='null'
       :closable="false"
       :maskClosable="false"
-      width='800px'
+      width='1000px'
       :visible='imgEditModalVisible'>
-      <image-draw :img-data='imgBase64Data' v-if='imgBase64Data' />
+      <image-draw :img-raw-data='imgBase64Data' v-if='imgBase64Data' @close-drawing='handleCloseEditImg'/>
     </a-modal>
   </div>
 </template>
@@ -81,6 +82,14 @@ export default {
 
     handleCancelEditImg () {
       this.$logger.info('handleCancelEditImg')
+      this.imgEditModalVisible = false
+    },
+
+    handleCloseEditImg (data) {
+      this.$logger.info('handleCloseEditImg', data)
+      if (data) {
+        this.imgBase64Data = data
+      }
       this.imgEditModalVisible = false
     }
   }
