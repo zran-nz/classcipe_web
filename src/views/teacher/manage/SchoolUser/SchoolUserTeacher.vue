@@ -92,10 +92,37 @@
           {{ group.name }}
         </span>
       </span>
-      <span slot="action" slot-scope="item">
-        <a @click="handleEdit(item)"> <a-icon type="edit" theme="filled" /> Edit </a>
-        <!-- <a-divider type="vertical" />
-        <a>Delete</a> -->
+      <span slot="action" slot-scope="item" class="table-action">
+        <a-button
+          v-if="item.userInfo.schoolUserStatus !== 2 && item.userInfo.schoolUserStatus !== 3"
+          type="primary"
+          shape="round"
+          @click="handleEdit(item)"
+          icon="edit"
+        >
+          Edit
+        </a-button>
+        <a-button v-if="item.userInfo.schoolUserStatus === 2" shape="round" @click="handleApprove(item)">
+          Approve
+        </a-button>
+        <a-button v-if="item.userInfo.schoolUserStatus === 2" class="reject" shape="round" @click="handleReject(item)">
+          Reject
+        </a-button>
+        <div
+          v-if="item.userInfo.schoolUserStatus !== 2 && item.userInfo.schoolUserStatus !== 3"
+          class="more-action-wrapper action-item-wrapper"
+        >
+          <a-dropdown>
+            <a-icon type="more" style="margin-right: 8px" />
+            <a-menu slot="overlay">
+              <a-menu-item>
+                <a-popconfirm title="Delete this class ?" ok-text="Yes" @confirm="handleDelete(item)" cancel-text="No">
+                  <a> <a-icon type="delete" theme="filled" /> Delete </a>
+                </a-popconfirm>
+              </a-menu-item>
+            </a-menu>
+          </a-dropdown>
+        </div>
       </span>
     </a-table>
 
@@ -112,7 +139,13 @@
 
 <script>
 import SchoolUserTeacherAdd from './SchoolUserTeacherAdd.vue'
-import { getSchoolRoleList, getSchoolGroupList, getSchoolClassList, getSchoolUsers } from '@/api/schoolUser'
+import {
+  getSchoolRoleList,
+  getSchoolGroupList,
+  getSchoolClassList,
+  getSchoolUsers,
+  updateUserStatus
+} from '@/api/schoolUser'
 import { getGradeListBySchoolId } from '@/api/grade'
 import store from '@/store'
 import { schoolUserStatusList } from '@/const/schoolUser'
@@ -127,7 +160,10 @@ const columns = [
   },
   {
     title: 'Name',
-    dataIndex: 'userInfo.nickname',
+    dataIndex: 'userInfo',
+    customRender: (text, row, index) => {
+      return `${text.firstname} ${text.lastname}`
+    },
     key: 'name'
   },
   {
@@ -184,7 +220,7 @@ const columns = [
     key: 'action',
     // dataIndex: 'id',
     scopedSlots: { customRender: 'action' },
-    width: '150px'
+    width: '180px'
   }
 ]
 export default {
@@ -269,6 +305,26 @@ export default {
       this.$refs.modalForm.defaultData = {}
       this.$refs.modalForm.show()
     },
+    handleDelete(item) {},
+    async changeUserStatus(id, status) {
+      const res = await updateUserStatus({
+        schoolId: store.getters.userInfo.school,
+        schoolUserStatus: status,
+        userId: id
+      })
+      if (res.success) {
+        this.$message.success(res.message)
+        this.loadData()
+      } else {
+        this.$message.error(res.message)
+      }
+    },
+    handleApprove(item) {
+      this.changeUserStatus(item.id, 1)
+    },
+    handleReject(item) {
+      this.changeUserStatus(item.id, 3)
+    },
     handleTableChange(pagination) {
       const pager = { ...this.pagination }
       pager.current = pagination.current
@@ -288,6 +344,12 @@ export default {
   }
 }
 </script>
+
+<style lang="less">
+.ant-table-thead {
+  white-space: nowrap;
+}
+</style>
 <style lang="less" scoped>
 .operator {
   margin-bottom: 16px;
@@ -295,7 +357,15 @@ export default {
     margin-right: 8px;
   }
 }
+.table-action {
+  display: flex;
+  align-items: center;
+
+  button.reject {
+    color: red;
+  }
+}
 .avatar-img {
-  width: 100px;
+  width: 40px;
 }
 </style>
