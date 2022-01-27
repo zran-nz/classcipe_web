@@ -38,6 +38,7 @@ import html2canvas from 'html2canvas'
 import ServerIconSvg from '@/assets/icons/feedback/serve.svg?inline'
 import FeedbackForm from '@/components/Feedback/FeedbackForm'
 import NoMoreResources from '@/components/Common/NoMoreResources'
+import { FeedbackSave } from '@/api/feedback'
 
 export default {
   name: 'Feedback',
@@ -90,6 +91,11 @@ export default {
 
     handleSubmitFeedback (data) {
       this.$logger.info('handleSubmitFeedback', data)
+      FeedbackSave(data).then((response) => {
+        this.$logger.info('submit-feedback', response)
+        this.$message.success('Thank you for your feedback!')
+        this.feedbackModalVisible = false
+      })
     }
   }
 }
