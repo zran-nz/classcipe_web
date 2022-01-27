@@ -2,35 +2,16 @@
   <div class='my-feed-back'>
     <div
       id='feed-back'
-      :style="{'left': feedbackLeft + 'px', 'top': feedbackTop + 'px'}">
-      <a-popover
-        :getPopupContainer="trigger => trigger.parentElement"
-        trigger="click"
-        placement="leftBottom"
-        class='feed-back-detail'
-        :visible="feedbackTypeVisible"
-        @visibleChange="handleFeedbackTypeClickChange"
-      >
-        <div slot="content" class='feed-back-content'>
-          <div class='feed-type-title'>
-            Ready to streamline your customer support? Here we go!
-          </div>
-          <div class='feed-type-item' @click='handleSelectCaptureFeedback'>
-            Leave text comment
-          </div>
-          <div class='feed-type-item' @click='handleSelectChatFeedback'>
-            Chat with support
-          </div>
-        </div>
-        <div class='feed-back-icon'>
-          <server-icon-svg />
-        </div>
-        <div class='feed-back-text'>
-          <div class='text-item'>Help & </div>
-          <div class='text-item'>Support</div>
-        </div>
-      </a-popover>
+      @click.stop='handleSelectCaptureFeedback'>
+      <div class='feed-back-icon'>
+        <server-icon-svg />
+      </div>
+      <div class='feed-back-text'>
+        <div class='text-item'>Help & </div>
+        <div class='text-item'>Support</div>
+      </div>
     </div>
+
     <a-modal
       class='feed-back-modal'
       @cancel='handleCancelFeedback'
@@ -66,19 +47,10 @@ export default {
       feedbackTypeVisible: false,
       feedbackModalVisible: false,
       feedbackImgData: null,
-      captureCreating: false,
-      feedbackLeft: -1000,
-      feedbackTop: -1000
+      captureCreating: false
     }
   },
-  created() {
-    this.feedbackLeft = document.documentElement.clientWidth - 65
-    this.feedbackTop = document.documentElement.clientHeight - 180
-  },
   methods: {
-    handleFeedbackTypeClickChange (visible) {
-      this.feedbackTypeVisible = visible
-    },
 
     handleSelectChatFeedback () {
       this.feedbackTypeVisible = false
@@ -118,26 +90,6 @@ export default {
 
     handleSubmitFeedback (data) {
       this.$logger.info('handleSubmitFeedback', data)
-    },
-
-    startMoving (event) {
-      if (this.movingFlag) {
-        if (event.clientX > document.documentElement.clientWidth - 80) {
-          this.feedbackLeft = document.documentElement.clientWidth - 80
-        } else if (event.clientX < 80) {
-          this.feedbackLeft = 80
-        } else {
-          this.feedbackLeft = event.clientX
-        }
-
-        if (event.clientY > document.documentElement.clientHeight - 80) {
-          this.feedbackTop = document.documentElement.clientHeight - 80
-        } else if (event.clientY < 80) {
-          this.feedbackTop = 80
-        } else {
-          this.feedbackTop = event.clientY
-        }
-      }
     }
   }
 }
@@ -148,6 +100,8 @@ export default {
 
 #feed-back {
   position: fixed;
+  right: 35px;
+  bottom: 90px;
   color: #fff;
   line-height: 30px;
   border-radius: 5px;
