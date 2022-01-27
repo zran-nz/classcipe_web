@@ -29,6 +29,7 @@
 import { httpAction } from '@/api/manage'
 import JModal from '@/components/jeecg/JModal'
 import { schoolClassStudentAPIUrl } from '@/api/schoolClassStudent'
+import moment from 'moment'
 
 export default {
     name: 'SchoolClassStudentModal',
@@ -48,7 +49,9 @@ export default {
 
         confirmLoading: false,
         validatorRules: {
-          email: [{ required: true, message: 'Please input email!' }],
+          email: [
+            { required: true, type: 'email', message: 'Please input right email!', trigger: 'blur' }
+          ],
           studentName: [{ required: true, message: 'Please input name!' }]
         }
       }
@@ -84,9 +87,9 @@ export default {
          this.$refs.form.validate(valid => {
           if (valid) {
             that.confirmLoading = true
-            // if (!this.model.joinTime) {
-            //   this.model.joinTime = Moment(new Date()).format('YYYY-MM-DD HH:mm').toDate()
-            // }
+            if (!this.model.joinTime) {
+              this.model.joinTime = moment.utc(new Date()).format('YYYY-MM-DD HH:mm:ss')
+            }
             httpAction(schoolClassStudentAPIUrl.SchoolClassStudentAddOrUpdate, this.model, 'post').then((res) => {
               if (res.success) {
                 that.$message.success(res.message)

@@ -1,22 +1,59 @@
 <template>
-  <div>
-    <div class="table-page-search-wrapper" style="margin: 20px 0px;">
+  <div style="min-height:400px;">
+    <div class="table-page-search-wrapper" style="margin: 30px 0px;">
       <a-form layout="inline">
         <a-row type="flex" justify="start">
-          <a-col :span="8">
-            <a-input-search placeholder="Search for Name、Email..." v-model="searchKey" enter-button @search="searchQuery"/>
+          <a-col :span="10">
+            <a-auto-complete
+              class="global-search"
+              size="large"
+              style="width: 100%"
+              placeholder="search here"
+              option-label-prop="title"
+              @select="onSelect"
+              @search="handleSearch"
+            >
+              <template slot="dataSource">
+                <a-select-option v-for="item in dataSource" :key="item.userInfo.id" :title="item.userInfo.email">
+                  <div style="display:flex">
+                    <div class="user-avatar">
+                      <div class="avatar">
+                        <img :src="item.userInfo.avatar" />
+                      </div>
+                    </div>
+                    <div class="user-name-email">
+                      <div class="user-name">
+                        {{ item.userInfo.email }}
+                      </div>
+                      <div class="email">
+                        {{ item.userInfo.nickname }}
+                      </div>
+                    </div>
+                    <div class="action-wrapper">
+                      <a-button type="link" @click="handleAddTeacher(item.userInfo)">
+                        Add
+                      </a-button>
+                    </div>
+                  </div>
+                </a-select-option>
+              </template>
+              <a-input>
+                <a-icon slot="suffix" type="search" class="certain-category-icon" />
+              </a-input>
+            </a-auto-complete>
           </a-col>
-          <a-col :span="8">
+          <a-col :span="12">
           </a-col>
-          <a-col :span="4">
-          </a-col>
+          <!--          <a-col :span="4">-->
+          <!--            <a-button @click="handleAdd" type="primary" icon="plus">Add Teacher</a-button>-->
+          <!--          </a-col>-->
         </a-row>
       </a-form>
     </div>
 
     <a-table
       :columns="columns"
-      :data-source="teacherList"
+      :data-source="classTeacherList"
       :loading="loading"
       :pagination="pagination"
       @change="handleTableChange"
@@ -43,7 +80,7 @@
 </template>
 
 <script>
-import { getSchoolRoleList, getSchoolUsers } from '@/api/schoolUser'
+import { addStaff, getSchoolRoleList, getSchoolUsers } from '@/api/schoolUser'
 import store from '@/store'
 import { schoolUserStatusList } from '@/const/schoolUser'
 import moment from 'moment'
@@ -69,10 +106,16 @@ const columns = [
   },
   {
     title: 'Join at',
-    dataIndex: 'userInfo.schoolJoinDate',
+    dataIndex: 'classes',
     customRender: (text, row, index) => {
-      if (text) {
-        return moment.utc(text).local().format('yyyy-MM-DD HH:mm')
+      var that = this
+      if (text && text.length > 0) {
+        const index = text.findIndex(item => item.id === that.classId)
+        if (index > -1) {
+          return moment.utc(text[index]).local().format('yyyy-MM-DD HH:mm')
+        } else {
+          return ''
+        }
       } else {
         return ''
       }
@@ -97,13 +140,17 @@ export default {
     classId: {
       type: String,
       default: ''
+    },
+    teacherList: {
+      type: Array,
+      default: () => []
     }
   },
   data() {
     return {
       statusList: schoolUserStatusList,
       roleList: [],
-      teacherList: [],
+      classTeacherList: [],
       columns,
       loading: false,
       pagination: {
@@ -112,14 +159,18 @@ export default {
         total: 0
       },
       baseUrl: process.env.VUE_APP_API_BASE_URL,
-      searchKey: ''
+      searchKey: '',
+      dataSource: []
     }
   },
   created() {
     this.loadData()
     this.loadRoleList()
+    this.dataSource = this.teacherList
   },
-  computed: {},
+  computed: {
+
+  },
   methods: {
     async loadData() {
       this.loading = true
@@ -130,7 +181,7 @@ export default {
         pageSize: this.pagination.pageSize,
         pageNo: this.pagination.current
       })
-      this.teacherList = res?.result?.records || []
+      this.classTeacherList = res?.result?.records || []
       this.pagination.total = res?.result?.total
       this.loading = false
     },
@@ -149,6 +200,39 @@ export default {
           this.$message.warning(res.message)
         }
       })
+    },
+    handleAddTeacher(user) {
+      if (this.classTeacherList.findIndex(teacher => teacher.id === user.id) > -1) {
+        this.$message.error('This teacher has been added')
+      }
+      const params = {
+        schoolId: store.getters.userInfo.school,
+        avatar: this.avatar,
+        email: user.email,
+        archived: 1,
+        classes: this.classId,
+        roles: ''
+      }
+      this.loading = true
+       addStaff(params).then(res => {
+         if (res.success) {
+           this.loadData()
+         } else {
+           this.$message.error(res.message)
+         }
+       }).finally(() => {
+         this.loading = false
+       })
+    },
+    onSelect(value) {
+      console.log('onSelect', value)
+    },
+
+    handleSearch(value) {
+      this.dataSource = value ? this.searchResult(value) : []
+    },
+    searchResult(value) {
+      return this.teacherList.filter(teacher => teacher.userInfo.email.indexOf(value) > -1)
     }
   }
 }
@@ -159,5 +243,38 @@ export default {
   button {
     margin-right: 8px;
   }
+}
+.user-avatar {
+  width: 50px;
+  .avatar {
+    img {
+      height: 40px;
+      border-radius: 40px;
+    }
+  }
+}
+.user-name-email {
+  display: flex;
+  flex-direction:column;
+  width: 250px;
+  line-height: 24px;
+  font-family: Inter-Bold;
+  color: #000000;
+  display: flex;
+  align-items: flex-start;
+  .email {
+    padding-left: 10px;
+  }
+  .user-name {
+    text-align: center;
+    font-family: Inter-Bold;
+    line-height: 24px;
+    padding-left: 15px;
+    color: #000000;
+  }
+}
+.action-wrapper{
+  width:20%;
+  float: right
 }
 </style>
