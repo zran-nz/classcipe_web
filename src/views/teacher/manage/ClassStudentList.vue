@@ -2,27 +2,35 @@
   <a-card :bordered="false">
 
     <!-- 查询区域 -->
-    <div class="table-page-search-wrapper" style="margin: 20px 0px;">
+    <div class="table-page-search-wrapper" style="margin: 30px 0px;">
       <a-form layout="inline">
         <a-row type="flex" justify="start">
           <a-col :span="8">
-            <a-input-search placeholder="Search for ID、Name、Email..." v-model="searchKey" enter-button @search="searchQuery"/>
+            <a-input-search placeholder="Search for Name、Email..." v-model="searchKey" enter-button @search="searchQuery"/>
           </a-col>
-          <a-col :span="8">
+          <a-col :span="7">
           </a-col>
           <a-col :span="4">
             <a-button @click="handleAdd" type="primary" icon="plus">Add Student</a-button>
           </a-col>
-          <a-col :span="4">
+          <a-col :span="5">
             <a-upload
               name="file"
               :showUploadList="false"
               :multiple="false"
               :headers="tokenHeader"
               :action="importExcelUrl"
-              @change="handleImportExcel">
-              <a-button type="primary" icon="import"> Bulk import</a-button>
+              @change="handleMyImportExcel">
+              <a-button :loading="importLoading" type="primary" icon="import">{{ importLoadingText }}</a-button>
             </a-upload>
+            <a-dropdown>
+              <a-button type="link" shape="circle" icon="download" />
+              <a-menu slot="overlay">
+                <a-menu-item key="1">
+                  <a-button type="link" icon="download" @click="downloadTemplate">Download template</a-button>
+                </a-menu-item>
+              </a-menu>
+            </a-dropdown>
           </a-col>
         </a-row>
       </a-form>
@@ -143,7 +151,8 @@ export default {
         delete: schoolClassStudentAPIUrl.SchoolClassDelete,
         importExcelUrl: schoolClassStudentAPIUrl.SchoolClassStudentImportExcel
       },
-      searchKey: ''
+      searchKey: '',
+      importLoadingText: 'Bulk import'
     }
   },
   computed: {
@@ -160,6 +169,9 @@ export default {
       const params = this.getQueryParams()
       params.hasQuery = 'true'
       params.classId = this.classId
+      params.column = 'status'
+      params.order = 'asc'
+      params.searchKey = this.searchKey
       getAction(this.url.list, params).then((res) => {
         if (res.success) {
           this.dataSource = res.result.records || res.result
@@ -202,6 +214,27 @@ export default {
           this.$message.warning(res.message)
         }
       })
+    },
+    handleMyImportExcel(info) {
+      if (info.file.status === 'uploading') {
+        this.importLoading = true
+        this.importLoadingText = 'Uploading...'
+      }
+      if (info.file.status === 'done') {
+        this.importLoading = false
+        this.importLoadingText = 'Bulk import'
+      }
+      this.handleImportExcel(info)
+    },
+    downloadTemplate () {
+      const link = document.createElement('a')
+      link.style.display = 'none'
+      const url = 'https://dev.classcipe.com/classcipe/excel/student.xlsx'
+      link.href = url
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link) // 下载完成移除元素
+      window.URL.revokeObjectURL(url) // 释放掉blob对象
     }
   }
 }

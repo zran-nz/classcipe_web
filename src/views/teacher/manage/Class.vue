@@ -5,15 +5,31 @@
       <a-form layout="inline">
         <a-row type="flex" justify="start">
           <a-col :span="8">
-            <a-input-search placeholder="Search for ID、Name、Email..." v-model="searchKey" enter-button @search="searchClass"/>
+            <a-input-search placeholder="Search for Name、Email..." v-model="searchKey" enter-button @search="searchClass"/>
           </a-col>
-          <a-col :span="4">
+          <a-col :span="10">
           </a-col>
-          <a-col :span="4">
+          <a-col :span="6">
+            <a-button @click="handleAdd" type="primary" icon="plus" style="margin-right: 20px;" >Add</a-button>
 
-          </a-col>
-          <a-col :span="4">
-            <a-button @click="handleAdd" type="primary" icon="plus">Add</a-button>
+            <a-upload
+              name="file"
+              :showUploadList="false"
+              :multiple="false"
+              :headers="tokenHeader"
+              :action="importExcelUrl"
+              @change="handleMyImportExcel">
+              <a-button :loading="importLoading" type="primary" icon="import">{{ importLoadingText }}</a-button>
+              <a-dropdown>
+                <a-button type="link" shape="circle" icon="download" />
+                <a-menu slot="overlay">
+                  <a-menu-item key="1">
+                    <a-button type="link" icon="download" @click="downloadTemplate">Download template</a-button>
+                  </a-menu-item>
+                </a-menu>
+              </a-dropdown>
+            </a-upload>
+
           </a-col>
         </a-row>
       </a-form>
@@ -100,7 +116,7 @@
       :dialog-style="{ top: '50px' }"
       width="1000px">
       <div>
-        <Class-Teacher-List :classId="classId"></Class-Teacher-List>
+        <Class-Teacher-List :classId="classId" :teacher-list="teacherList"></Class-Teacher-List>
       </div>
     </a-modal>
 
@@ -192,7 +208,8 @@ export default {
       },
       classStudentListVisible: false,
       classTeacherListVisible: false,
-      classId: ''
+      classId: '',
+      importLoadingText: 'Bulk import'
     }
   },
   created() {
@@ -201,12 +218,17 @@ export default {
     this.getSubjectList()
     this.getTeacherList()
   },
-  computed: {},
+  computed: {
+    importExcelUrl: function () {
+      return process.env.VUE_APP_API_BASE_URL + schoolClassAPIUrl.SchoolClassImport
+    }
+  },
   methods: {
     async loadData() {
       this.loading = true
       const res = await getSchoolClassList({
-        schoolId: store.getters.userInfo.school
+        schoolId: store.getters.userInfo.school,
+        searchKey: this.searchKey
       })
       this.classList = res?.result?.records || []
       this.loading = false
@@ -257,6 +279,27 @@ export default {
     handleTeacher(item) {
       this.classId = item.id
       this.classTeacherListVisible = true
+    },
+    handleMyImportExcel(info) {
+      if (info.file.status === 'uploading') {
+        this.importLoading = true
+        this.importLoadingText = 'Uploading...'
+      }
+      if (info.file.status === 'done') {
+        this.importLoading = false
+        this.importLoadingText = 'Bulk import'
+      }
+      this.handleImportExcel(info)
+    },
+    downloadTemplate () {
+      const link = document.createElement('a')
+      link.style.display = 'none'
+      const url = 'https://dev.classcipe.com/classcipe/excel/class.xlsx'
+      link.href = url
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link) // 下载完成移除元素
+      window.URL.revokeObjectURL(url) // 释放掉blob对象
     }
   }
 }

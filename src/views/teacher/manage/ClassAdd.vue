@@ -29,11 +29,30 @@
               </a-col>
 
               <a-col :span="24">
+
                 <a-form-model-item label="Teacher" prop="headTeacherId">
                   <a-select :allowClear="true" v-model="model.headTeacherId" placeholder="Select teacher" >
                     <a-select-option :value="item.userInfo.id" :key="item.userInfo.id" v-for="item in teacherList">{{ item.userInfo.nickname }}</a-select-option>
                   </a-select>
                 </a-form-model-item>
+
+                <!--                <a-form-model-item label="Teacher" prop="teacher">-->
+                <!--                  <a-select-->
+                <!--                    mode="multiple"-->
+                <!--                    :allowClear="true"-->
+                <!--                    v-model="teacherIds"-->
+                <!--                    @change="changeTeacher"-->
+                <!--                    placeholder="Select teacher" >-->
+                <!--                    <a-select-option :value="item.userInfo.id" :key="item.userInfo.id" v-for="item in teacherList">{{ item.userInfo.nickname }}</a-select-option>-->
+                <!--                  </a-select>-->
+                <!--                </a-form-model-item>-->
+
+                <!--                <a-form-model-item label="Teacher" prop="teacherIds" >-->
+                <!--                  <a-select mode="multiple" v-model="model.teacherIds" placeholder="Select teacher" :filter-option="filterOption" >-->
+                <!--                    <a-select-option :value="item.userInfo.id" :key="item.userInfo.id" v-for="item in teacherList">{{ item.userInfo.nickname }}</a-select-option>-->
+                <!--                  </a-select>-->
+                <!--                </a-form-model-item>-->
+
               </a-col>
 
               <a-col :span="24">
@@ -48,7 +67,7 @@
                 <a-form-model-item label="Class Roster">
                   <div style="display: flex;align-items: baseline;">
                     <a-upload :file-list="fileList" :remove="handleRemove" :before-upload="beforeUpload" style="margin-right: 20px">
-                      <a-button> <a-icon type="upload" /> Uplad </a-button>
+                      <a-button> <a-icon type="upload" /> Upload </a-button>
                     </a-upload>
                     <a-button type="primary" icon="download" @click="downloadTemplate">Download template</a-button>
                   </div>
@@ -114,8 +133,9 @@ export default {
         classType: [
           { required: true, message: 'Please select class type!' }
         ],
-        headTeacherId: [
-          { required: true, message: 'Please select teacher!' }
+        teacherIds: [
+          { required: true, message: 'Please select teacher!' },
+          { validator: this.handleTeacherIds }
         ],
         gradeId: [
           { required: true, message: 'Please select grade!' }
@@ -130,9 +150,12 @@ export default {
     this.modelDefault = JSON.parse(JSON.stringify(this.model))
   },
   computed: {
-
   },
   methods: {
+    // 判断登录类型
+    handleTeacherIds (rule, value, callback) {
+      callback()
+    },
     add () {
       this.mode = 'add'
       // 初始化默认值
@@ -214,6 +237,11 @@ export default {
       link.click()
       document.body.removeChild(link) // 下载完成移除元素
       window.URL.revokeObjectURL(url) // 释放掉blob对象
+    },
+    filterOption(input, option) {
+      return (
+        option.componentOptions.children[0].text.toLowerCase().indexOf(input.toLowerCase()) >= 0
+      )
     }
   }
 }
