@@ -66,8 +66,9 @@ export default {
   methods: {
     handleSubmitFeedback () {
       this.$emit('submit-feedback', {
-        imgData: this.imgData,
-        comment: this.feedbackComment
+        imgBase64Data: this.imgData,
+        comment: this.feedbackComment,
+        pageUrl: window.location.href
       })
     },
 
