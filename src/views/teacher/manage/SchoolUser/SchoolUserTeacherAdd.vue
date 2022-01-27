@@ -160,31 +160,36 @@
     </j-modal>
 
     <a-modal title="Invite by link" @cancel="handleInviteBackBtn" :footer="null" :visible="currentView === 'invite'">
-      <div class="invite">
-        <div class="invite-back-btn">
+      <a-spin :spinning="inviteLoading">
+        <div class="invite">
+          <!-- <div class="invite-back-btn">
           <a-button @click="handleInviteBackBtn" type="primary" icon="left">Back</a-button>
-        </div>
-        <a-spin :spinning="inviteLoading">
+        </div> -->
+
           <div class="invite-link">
-            <a-row>
-              <a-col :span="18">
-                <a-input :value="inviteUrl" disabled> </a-input>
-              </a-col>
-              <a-col :span="4">
-                <a-button icon="copy" @click="onCopy"> Copy </a-button>
-              </a-col>
-            </a-row>
+            <div class="link-text">
+              {{ inviteUrl }}
+            </div>
+            <div class="action-copy" @click="onCopy">
+              <a-tooltip placement="top" title="Copy link">
+                <a-icon type="link" />
+              </a-tooltip>
+            </div>
           </div>
+
           <div class="invite-checkbox">
             <a-checkbox :checked="inviteCheckBoxChecked" @change="onInviteCheckBoxChange">
               Applicants with this link will need your approval to join your school community
             </a-checkbox>
           </div>
+
           <div class="invite-reset-btn">
-            <a-button @click="handleInviteResetBtn" type="primary" icon="sync" :loading="resetLoading">Reset</a-button>
+            <a-button @click="handleInviteResetBtn" shape="round" type="primary" icon="sync" :loading="resetLoading">
+              Reset
+            </a-button>
           </div>
-        </a-spin>
-      </div>
+        </div>
+      </a-spin>
     </a-modal>
 
     <avatar-modal ref="modal" @ok="setAvatar" />
@@ -299,30 +304,6 @@ export default {
       this.visible = false
       this.confirmLoading = false
     },
-    // handleUploadImage(data) {
-    //   logger.info('handleUploadImage', data)
-    //   const formData = new FormData()
-    //   formData.append('file', data.file, data.file.name)
-    //   this.uploadLoading = true
-    //   this.$http
-    //     .post(commonAPIUrl.UploadFile, formData, {
-    //       contentType: false,
-    //       processData: false,
-    //       headers: { 'Content-Type': 'multipart/form-data' },
-    //       timeout: 60000
-    //     })
-    //     .then(response => {
-    //       logger.info('handleUploadImage upload response:', response)
-    //       this.avatar = this.$store.getters.downloadUrl + response.result
-    //     })
-    //     .catch(err => {
-    //       logger.error('handleUploadImage error', err)
-    //       this.$message.error(this.$t('teacher.add-unit-plan.upload-image-file-failed'))
-    //     })
-    //     .finally(() => {
-    //       this.uploadLoading = false
-    //     })
-    // },
     setAvatar(url) {
       logger.info('setAvatar ' + url)
       this.avatar = url
@@ -373,12 +354,37 @@ export default {
   text-align: right;
   margin-bottom: 16px;
 }
-.invite-back-btn,
-.invite-link,
-.invite-checkbox,
-.invite-reset-btn {
-  margin-bottom: 16px;
+.invite {
+  & > div {
+    margin-bottom: 16px;
+  }
+  .invite-reset-btn {
+    text-align: center;
+  }
+  .invite-link {
+    height: 50px;
+    background: #f7f9fd;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    overflow: hidden;
+
+    .link-text {
+      padding: 8px 10px;
+      text-align: left;
+
+      line-height: 20px;
+      word-break: break-all;
+    }
+    .action-copy {
+      font-size: 20px;
+      padding: 10px;
+      cursor: pointer;
+    }
+  }
 }
+
 .avatar-img img {
   max-width: 200px;
 }
