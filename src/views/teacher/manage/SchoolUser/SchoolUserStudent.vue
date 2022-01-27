@@ -1,11 +1,76 @@
 <template>
-  <div>
+  <a-card>
     <div class="operator">
-      <a-button @click="handleAdd" type="primary" icon="plus">Add</a-button>
-      <a-button type="primary" icon="download" @click="downloadTemplate">Download template</a-button>
-      <a-upload name="file" :showUploadList="false" :multiple="false">
-        <a-button type="primary" icon="import">Upload</a-button>
-      </a-upload>
+      <div class="status-select">
+        <a :class="{ active: activeStatus === '' }" @click="handleChangeStatus('')"><span>All</span></a>
+        <a :class="{ active: activeStatus === '1' }" @click="handleChangeStatus('1')"><span>Active</span></a>
+        <a :class="{ active: activeStatus === '0,2' }" @click="handleChangeStatus('0,2')">
+          <span>Pending</span>
+        </a>
+        <a :class="{ active: activeStatus === '4' }" @click="handleChangeStatus('4')">
+          <span>Archived</span>
+        </a>
+      </div>
+      <div class="upload-wrapper">
+        <a-button @click="handleAdd" type="primary" icon="plus">Add</a-button>
+        <a-button type="primary" icon="download" @click="downloadTemplate">Download template</a-button>
+        <a-upload name="file" :showUploadList="false" :multiple="false">
+          <a-button type="primary" icon="import">Upload</a-button>
+        </a-upload>
+      </div>
+    </div>
+
+    <div class="search-box">
+      <a-form :form="form" :label-col="{ span: 6 }" :wrapper-col="{ span: 16 }">
+        <a-row>
+          <a-col :span="8">
+            <a-form-item label="">
+              <a-input-search
+                v-decorator="['name', { rules: [] }]"
+                style="width: 300px"
+                placeholder="Search for ID、Name、Email..."
+                enter-button
+                @search="handleSearch"
+              />
+            </a-form-item>
+          </a-col>
+          <a-col :span="4">
+            <div style="line-height: 32px; margin-top: 6px">
+              <a @click="handleAdvancedSearch">
+                <span>{{ showAdvancedSearch ? 'General Search' : 'Advanced Search' }}</span>
+              </a>
+            </div>
+          </a-col>
+        </a-row>
+        <a-card v-show="showAdvancedSearch">
+          <a-row>
+            <a-col :span="6">
+              <a-form-item label="Class">
+                <a-select allowClear v-decorator="['classes', { rules: [] }]">
+                  <a-select-option :value="item.id" :key="item.id" v-for="item in classList">{{
+                    item.name
+                  }}</a-select-option>
+                </a-select>
+              </a-form-item>
+            </a-col>
+            <a-col :span="6">
+              <a-form-item label="Grade">
+                <a-select allowClear v-decorator="['grades', { rules: [] }]">
+                  <a-select-option :value="item.id" :key="item.id" v-for="item in gradeList">{{
+                    item.name
+                  }}</a-select-option>
+                </a-select>
+              </a-form-item>
+            </a-col>
+            <a-col :span="6">
+              <div class="search-box-btn">
+                <a-button type="primary" shape="round" @click="handleReset">reset</a-button>
+                <a-button type="primary" shape="round" @click="handleSearch">search</a-button>
+              </div>
+            </a-col>
+          </a-row>
+        </a-card>
+      </a-form>
     </div>
 
     <a-table
@@ -73,7 +138,7 @@
     </a-table>
 
     <SchoolUserStudentAdd ref="modalForm" :classList="classList" :gradeList="gradeList" @ok="loadData" />
-  </div>
+  </a-card>
 </template>
 
 <script>
@@ -168,7 +233,10 @@ export default {
         current: 1,
         total: 0
       },
-      baseUrl: process.env.VUE_APP_API_BASE_URL
+      baseUrl: process.env.VUE_APP_API_BASE_URL,
+      activeStatus: '',
+      form: this.$form.createForm(this, { name: 'teacherSearch' }),
+      showAdvancedSearch: false
     }
   },
   created() {
@@ -192,15 +260,34 @@ export default {
     },
     async loadData() {
       this.loading = true
+      const searchParams = this.form.getFieldsValue()
       const res = await getSchoolUsers({
         school: store.getters.userInfo.school,
         currentRole: 'student',
         pageSize: this.pagination.pageSize,
-        pageNo: this.pagination.current
+        pageNo: this.pagination.current,
+        userStatus: this.activeStatus,
+        ...searchParams
       })
       this.studentList = res?.result?.records || []
       this.pagination.total = res?.result?.total
       this.loading = false
+    },
+    handleChangeStatus(status) {
+      this.activeStatus = status
+      this.loadData()
+    },
+    async handleSearch() {
+      const pager = { ...this.pagination }
+      pager.current = 1
+      this.pagination = pager
+      this.loadData()
+    },
+    handleReset() {
+      this.form.resetFields()
+    },
+    handleAdvancedSearch() {
+      this.showAdvancedSearch = !this.showAdvancedSearch
     },
     handleTableChange(pagination) {
       const pager = { ...this.pagination }
@@ -261,8 +348,37 @@ export default {
 </style>
 <style lang="less" scoped>
 .operator {
-  button {
-    margin-right: 8px;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  .status-select {
+    a {
+      color: #11142d;
+    }
+    span {
+      padding: 8px 16px;
+      cursor: pointer;
+    }
+    .active {
+      color: #15c39a;
+    }
+  }
+  .upload-wrapper {
+    button {
+      margin-right: 8px;
+    }
+  }
+}
+.search-box {
+  margin-bottom: 16px;
+  .search-box-btn {
+    margin-top: 4px;
+    text-align: center;
+    button {
+      margin: 0px 8px;
+    }
   }
 }
 .table-action {
