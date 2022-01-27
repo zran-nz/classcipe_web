@@ -8,7 +8,8 @@ export const schoolUserAPIUrl = {
   addStudent: '/classcipe/api/school/user/addStudents',
   getOrCreateInvite: '/classcipe/api/school/user/getOrCreateInvite',
   getSchoolUsers: '/classcipe/api/school/user/getSchoolUsers',
-  queryUser: '/classcipe/api/school/user/queryUser'
+  queryUser: '/classcipe/api/school/user/queryUser',
+  updateUserStatus: '/classcipe/api/school/user/updateUserStatus'
 }
 
 /**
@@ -69,6 +70,13 @@ export function queryUser (parameter) {
   return request({
     url: schoolUserAPIUrl.queryUser,
     method: 'get',
+    params: parameter
+  })
+}
+export function updateUserStatus (parameter) {
+  return request({
+    url: schoolUserAPIUrl.updateUserStatus,
+    method: 'post',
     params: parameter
   })
 }
