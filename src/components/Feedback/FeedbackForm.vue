@@ -2,8 +2,8 @@
   <div class='feed-back-form'>
     <div class='feed-back-img'>
       <div class='img-mask'>
-        <div class='img-edit'>
-          <img src="~@/assets/icons/feedback/screenshot.png" />
+        <div class='img-edit' @click='handleEditImg'>
+          <img src="~@/assets/icons/feedback/screenshot.png" alt='screenshot'/>
           <div class='edit-text'>
             Click to edit screenshot.
           </div>
@@ -19,19 +19,33 @@
         <a-textarea :auto-size="{ minRows: 3, maxRows: 6 }" allow-clear v-model='feedbackComment' placeholder='Enter text comment.'></a-textarea>
       </div>
       <div class='feed-back-submit'>
-         <a-space>
+        <a-space>
           <a-button @click='handleCancelFeedback'>Cancel</a-button>
-           <a-button type='primary' @click='handleSubmitFeedback'>Submit</a-button>
-         </a-space>
+          <a-button type='primary' @click='handleSubmitFeedback'>Submit</a-button>
+        </a-space>
       </div>
     </div>
+
+    <a-modal
+      class='edit-img-modal'
+      @cancel='handleCancelEditImg'
+      :title='null'
+      :footer='null'
+      :closable="false"
+      :maskClosable="false"
+      width='800px'
+      :visible='imgEditModalVisible'>
+      <image-draw :img-data='imgBase64Data' v-if='imgBase64Data' />
+    </a-modal>
   </div>
 </template>
 
 <script>
 
+import ImageDraw from '@/components/Feedback/ImageDraw'
 export default {
   name: 'FeedbackForm',
+  components: { ImageDraw },
   props: {
     imgData: {
       type: String,
@@ -41,11 +55,12 @@ export default {
   data() {
     return {
       imgBase64Data: null,
-      feedbackComment: ''
+      feedbackComment: '',
+      imgEditModalVisible: false
     }
   },
   created() {
-    this.imgBase64Data = this.imgData;
+    this.imgBase64Data = this.imgData
   },
   methods: {
     handleSubmitFeedback () {
@@ -57,6 +72,16 @@ export default {
 
     handleCancelFeedback () {
       this.$emit('cancel-feedback')
+    },
+
+    handleEditImg () {
+      this.$logger.info('handleEditImg')
+      this.imgEditModalVisible = true
+    },
+
+    handleCancelEditImg () {
+      this.$logger.info('handleCancelEditImg')
+      this.imgEditModalVisible = false
     }
   }
 }
