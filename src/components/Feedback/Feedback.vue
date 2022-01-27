@@ -1,6 +1,8 @@
 <template>
   <div class='my-feed-back'>
-    <div id='feed-back'>
+    <div
+      id='feed-back'
+      :style="{'left': feedbackLeft + 'px', 'top': feedbackTop + 'px'}">
       <a-popover
         :getPopupContainer="trigger => trigger.parentElement"
         trigger="click"
@@ -64,8 +66,14 @@ export default {
       feedbackTypeVisible: false,
       feedbackModalVisible: false,
       feedbackImgData: null,
-      captureCreating: false
+      captureCreating: false,
+      feedbackLeft: -1000,
+      feedbackTop: -1000
     }
+  },
+  created() {
+    this.feedbackLeft = document.documentElement.clientWidth - 65
+    this.feedbackTop = document.documentElement.clientHeight - 180
   },
   methods: {
     handleFeedbackTypeClickChange (visible) {
@@ -74,6 +82,7 @@ export default {
 
     handleSelectChatFeedback () {
       this.feedbackTypeVisible = false
+      document.getElementById('chat-widget-container').style.display = 'block'
     },
 
     handleSelectCaptureFeedback () {
@@ -109,6 +118,26 @@ export default {
 
     handleSubmitFeedback (data) {
       this.$logger.info('handleSubmitFeedback', data)
+    },
+
+    startMoving (event) {
+      if (this.movingFlag) {
+        if (event.clientX > document.documentElement.clientWidth - 80) {
+          this.feedbackLeft = document.documentElement.clientWidth - 80
+        } else if (event.clientX < 80) {
+          this.feedbackLeft = 80
+        } else {
+          this.feedbackLeft = event.clientX
+        }
+
+        if (event.clientY > document.documentElement.clientHeight - 80) {
+          this.feedbackTop = document.documentElement.clientHeight - 80
+        } else if (event.clientY < 80) {
+          this.feedbackTop = 80
+        } else {
+          this.feedbackTop = event.clientY
+        }
+      }
     }
   }
 }
@@ -119,8 +148,6 @@ export default {
 
 #feed-back {
   position: fixed;
-  right: 30px;
-  bottom: 30px;
   color: #fff;
   line-height: 30px;
   border-radius: 5px;

@@ -11,9 +11,9 @@
         <div class='tool-item' @click="drawingType = 'radius'">
           <circle-icon />
         </div>
-        <div class='tool-item' @click="drawingType = 'font'">
-          <text-icon />
-        </div>
+        <!--        <div class='tool-item' @click="drawingType = 'font'">-->
+        <!--          <text-icon />-->
+        <!--        </div>-->
         <div class='tool-item' @click="clear">
           <clear-icon />
         </div>
@@ -65,7 +65,7 @@ export default {
     RedoIcon,
     TextIcon,
     CloseIcon,
-    YesIcon,
+    YesIcon
   },
   props: {
     imgRawData: {
