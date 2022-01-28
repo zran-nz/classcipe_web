@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <a-card>
     <div class="operator">
       <a-button @click="handleAdd" type="primary" icon="plus">Add</a-button>
       <!-- <a-button type="primary" icon="download" @click="downloadTemplate">Download template</a-button>
@@ -7,6 +7,7 @@
         <a-button type="primary" icon="import">Upload</a-button>
       </a-upload> -->
     </div>
+
     <a-table
       :columns="columns"
       :data-source="groupList"
@@ -21,35 +22,46 @@
           {{ role.name }}
         </span>
       </span>
-      <span slot="grades" slot-scope="grades">
-        <span v-for="grade in grades" :key="grade.id">
-          {{ grade.name }}
-        </span>
-      </span>
-      <span slot="classes" slot-scope="classes">
-        <span v-for="clas in classes" :key="clas.id">
-          {{ clas.name }}
-        </span>
-      </span>
-      <span slot="groups" slot-scope="groups">
-        <span v-for="group in groups" :key="group.id">
-          {{ group.name }}
-        </span>
-      </span>
-      <span slot="action" slot-scope="item">
-        <a @click="handleEdit(item)"> <a-icon type="edit" theme="filled" /> Edit </a>
-        <!-- <a-divider type="vertical" />
-        <a>Delete</a> -->
+
+      <span slot="action" slot-scope="item" class="table-action">
+        <a-button type="primary" shape="round" @click="handleView(item)"> View </a-button>
+        <a-button type="primary" shape="round" @click="handleEdit(item)" icon="edit"> Edit </a-button>
+
+        <div class="more-action-wrapper action-item-wrapper">
+          <a-dropdown>
+            <a-icon type="more" style="margin-right: 8px" />
+            <a-menu slot="overlay">
+              <a-menu-item>
+                <a-popconfirm
+                  title="Archived this group ?"
+                  ok-text="Yes"
+                  @confirm="handleArchived(item)"
+                  cancel-text="No"
+                >
+                  <a> <a-icon type="delete" theme="filled" /> Archived </a>
+                </a-popconfirm>
+              </a-menu-item>
+              <a-menu-item>
+                <a-popconfirm title="Delete this group ?" ok-text="Yes" @confirm="handleDelete(item)" cancel-text="No">
+                  <a> <a-icon type="delete" theme="filled" /> Delete </a>
+                </a-popconfirm>
+              </a-menu-item>
+            </a-menu>
+          </a-dropdown>
+        </div>
+        <!-- <a-divider type="vertical" /> -->
       </span>
     </a-table>
 
     <SchoolUserGroupAdd ref="modalForm" @ok="loadData" />
-  </div>
+  </a-card>
 </template>
 
 <script>
 import SchoolUserGroupAdd from './SchoolUserGroupAdd.vue'
-import { getSchoolGroupList } from '@/api/schoolUser'
+import { getSchoolGroupList } from '@/api/schoolGroup'
+import { schoolGroupType } from '@/const/schoolGroup'
+
 import store from '@/store'
 const columns = [
   {
@@ -59,17 +71,20 @@ const columns = [
   },
   {
     title: 'Members',
-    dataIndex: '',
+    dataIndex: 'memberCount',
     key: 'members'
   },
   {
     title: 'Group type',
     dataIndex: 'groupType',
+    customRender: (text, row, index) => {
+      return schoolGroupType.find(item => item.id === text)?.name
+    },
     key: 'groupType'
   },
   {
     title: 'Advisor',
-    dataIndex: '',
+    dataIndex: 'advisor',
     key: 'advisor'
   },
   {
@@ -123,15 +138,60 @@ export default {
       this.$refs.modalForm.defaultData = {}
       this.$refs.modalForm.show()
     },
-    handleEdit(data) {}
+    handleView() {},
+    handleEdit(data) {},
+    handleArchived() {},
+    handleDelete(item) {}
   }
 }
 </script>
+
+<style lang="less">
+.ant-table-thead {
+  white-space: nowrap;
+}
+</style>
 <style lang="less" scoped>
 .operator {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
   margin-bottom: 16px;
-  button {
-    margin-right: 8px;
+  .status-select {
+    a {
+      color: #11142d;
+    }
+    span {
+      padding: 8px 16px;
+      cursor: pointer;
+    }
+    .active {
+      color: #15c39a;
+    }
+  }
+  .upload-wrapper {
+    button {
+      margin-right: 8px;
+    }
+  }
+}
+.search-box {
+  margin-bottom: 16px;
+  .search-box-btn {
+    margin-top: 4px;
+    text-align: center;
+    button {
+      margin: 0px 8px;
+    }
+  }
+}
+.table-action {
+  display: flex;
+  align-items: center;
+
+  button.reject {
+    color: red;
   }
 }
 </style>
