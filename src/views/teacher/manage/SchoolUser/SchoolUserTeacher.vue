@@ -101,26 +101,26 @@
       <span slot="avatar" slot-scope="avatar">
         <img :src="avatar" class="avatar-img" />
       </span>
-      <span slot="roles" slot-scope="roles">
+      <div slot="roles" slot-scope="roles" class="table-tag">
         <span v-for="role in roles" :key="role.id">
           {{ role.name }}
         </span>
-      </span>
-      <span slot="grades" slot-scope="grades">
+      </div>
+      <div slot="grades" slot-scope="grades" class="table-tag">
         <span v-for="grade in grades" :key="grade.id">
           {{ grade.name }}
         </span>
-      </span>
-      <span slot="classes" slot-scope="classes">
+      </div>
+      <div slot="classes" slot-scope="classes" class="table-tag">
         <span v-for="clas in classes" :key="clas.id">
           {{ clas.name }}
         </span>
-      </span>
-      <span slot="groups" slot-scope="groups">
+      </div>
+      <div slot="groups" slot-scope="groups" class="table-tag">
         <span v-for="group in groups" :key="group.id">
           {{ group.name }}
         </span>
-      </span>
+      </div>
       <span slot="action" slot-scope="item" class="table-action">
         <a-button
           v-if="item.userInfo.schoolUserStatus !== 2 && item.userInfo.schoolUserStatus !== 3"
@@ -145,7 +145,12 @@
             <a-icon type="more" style="margin-right: 8px" />
             <a-menu slot="overlay">
               <a-menu-item>
-                <a-popconfirm title="Delete this class ?" ok-text="Yes" @confirm="handleDelete(item)" cancel-text="No">
+                <a-popconfirm
+                  title="Delete this teacher ?"
+                  ok-text="Yes"
+                  @confirm="handleDelete(item)"
+                  cancel-text="No"
+                >
                   <a> <a-icon type="delete" theme="filled" /> Delete </a>
                 </a-popconfirm>
               </a-menu-item>
@@ -168,13 +173,8 @@
 
 <script>
 import SchoolUserTeacherAdd from './SchoolUserTeacherAdd.vue'
-import {
-  getSchoolRoleList,
-  getSchoolGroupList,
-  getSchoolClassList,
-  getSchoolUsers,
-  updateUserStatus
-} from '@/api/schoolUser'
+import { getSchoolRoleList, getSchoolClassList, getSchoolUsers, updateUserStatus } from '@/api/schoolUser'
+import { getSchoolGroupList } from '@/api/schoolGroup'
 import { getGradeListBySchoolId } from '@/api/grade'
 import store from '@/store'
 import { schoolUserStatusList } from '@/const/schoolUser'
@@ -249,6 +249,7 @@ const columns = [
     key: 'action',
     // dataIndex: 'id',
     scopedSlots: { customRender: 'action' },
+    // fixed: 'right',
     width: '180px'
   }
 ]
@@ -384,7 +385,7 @@ export default {
     downloadTemplate() {
       const link = document.createElement('a')
       link.style.display = 'none'
-      const url = this.baseUrl + '/classcipe/excel/knowledge_template_example.xlsx'
+      const url = this.baseUrl + '/classcipe/excel/school_staff_template.xlsx'
       link.href = url
       document.body.appendChild(link)
       link.click()
@@ -396,7 +397,8 @@ export default {
 </script>
 
 <style lang="less">
-.ant-table-thead {
+.ant-table-thead,
+.ant-table-tbody {
   white-space: nowrap;
 }
 </style>
@@ -432,6 +434,15 @@ export default {
     button {
       margin: 0px 8px;
     }
+  }
+}
+.table-tag {
+  span {
+    display: table;
+    border: 1px solid #15c39a;
+    border-radius: 6px;
+    margin: 4px;
+    padding: 0px 4px;
   }
 }
 .table-action {

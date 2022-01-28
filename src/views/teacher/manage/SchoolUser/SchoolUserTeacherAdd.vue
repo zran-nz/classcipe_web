@@ -63,6 +63,7 @@
             <a-col :span="12">
               <a-form-item label="Role">
                 <a-select
+                  mode="multiple"
                   v-decorator="[
                     'roles',
                     {
@@ -81,7 +82,10 @@
           <a-row>
             <a-col :span="12">
               <a-form-item label="Group">
-                <a-select v-decorator="['groups', { initialValue: getDefaultFormData.groups, rules: [] }]">
+                <a-select
+                  mode="multiple"
+                  v-decorator="['groups', { initialValue: getDefaultFormData.groups, rules: [] }]"
+                >
                   <a-select-option :value="item.id" :key="item.id" v-for="item in groupList">{{
                     item.name
                   }}</a-select-option>
@@ -90,7 +94,10 @@
             </a-col>
             <a-col :span="12">
               <a-form-item label="Class">
-                <a-select v-decorator="['classes', { initialValue: getDefaultFormData.classes, rules: [] }]">
+                <a-select
+                  mode="multiple"
+                  v-decorator="['classes', { initialValue: getDefaultFormData.classes, rules: [] }]"
+                >
                   <a-select-option :value="item.id" :key="item.id" v-for="item in classList">{{
                     item.name
                   }}</a-select-option>
@@ -101,7 +108,10 @@
           <a-row>
             <a-col :span="12">
               <a-form-item label="Grade">
-                <a-select v-decorator="['grades', { initialValue: getDefaultFormData.grades, rules: [] }]">
+                <a-select
+                  mode="multiple"
+                  v-decorator="['grades', { initialValue: getDefaultFormData.grades, rules: [] }]"
+                >
                   <a-select-option :value="item.id" :key="item.id" v-for="item in gradeList">{{
                     item.name
                   }}</a-select-option>
@@ -255,14 +265,19 @@ export default {
   },
   computed: {
     getDefaultFormData() {
+      const { roles = [], groups = [], classes = [], grades = [] } = this.defaultData
+      const defaultRoles = roles.map(item => item.id)
+      const defaultGroups = groups.map(item => item.id)
+      const defaultClasses = classes.map(item => item.id)
+      const defaultGrades = grades.map(item => item.id)
       return {
         firstname: this.defaultData?.userInfo?.firstname,
         lastname: this.defaultData?.userInfo?.lastname,
         email: this.defaultData?.userInfo?.email,
-        roles: this.defaultData?.roles?.[0]?.id,
-        groups: this.defaultData?.groups?.[0]?.id,
-        classes: this.defaultData?.classes?.[0]?.id,
-        grades: this.defaultData?.grades?.[0]?.id,
+        roles: defaultRoles,
+        groups: defaultGroups,
+        classes: defaultClasses,
+        grades: defaultGrades,
         archived: this.defaultData?.userInfo?.schoolUserStatus === 4 ? 1 : 0,
         schoolJoinDate: this.defaultData?.userInfo?.schoolJoinDate
           ? Moment(this.defaultData?.userInfo?.schoolJoinDate)
@@ -285,9 +300,22 @@ export default {
             avatar: this.avatar,
             ...values
           }
+          if (values.roles && values.roles.length > 0) {
+            params.roles = values.roles.reduce((total, item) => `${total},${item}`)
+          }
+          if (values.groups && values.groups.length > 0) {
+            params.groups = values.groups.reduce((total, item) => `${total},${item}`)
+          }
+          if (values.classes && values.classes.length > 0) {
+            params.classes = values.classes.reduce((total, item) => `${total},${item}`)
+          }
+          if (values.grades && values.grades.length > 0) {
+            params.grades = values.grades.reduce((total, item) => `${total},${item}`)
+          }
           if (values.schoolJoinDate) {
             params.schoolJoinDate = Moment(values.schoolJoinDate).valueOf()
           }
+          console.log('post params: ', params)
           const res = await addStaff(params)
           if (res.success) {
             this.confirmLoading = false

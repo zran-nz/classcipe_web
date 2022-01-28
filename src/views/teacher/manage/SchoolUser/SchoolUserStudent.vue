@@ -126,7 +126,12 @@
             <a-icon type="more" style="margin-right: 8px" />
             <a-menu slot="overlay">
               <a-menu-item>
-                <a-popconfirm title="Delete this class ?" ok-text="Yes" @confirm="handleDelete(item)" cancel-text="No">
+                <a-popconfirm
+                  title="Delete this student ?"
+                  ok-text="Yes"
+                  @confirm="handleDelete(item)"
+                  cancel-text="No"
+                >
                   <a> <a-icon type="delete" theme="filled" /> Delete </a>
                 </a-popconfirm>
               </a-menu-item>
@@ -331,7 +336,7 @@ export default {
     downloadTemplate() {
       const link = document.createElement('a')
       link.style.display = 'none'
-      const url = this.baseUrl + '/classcipe/excel/knowledge_template_example.xlsx'
+      const url = this.baseUrl + '/classcipe/excel/school_students_template.xlsx'
       link.href = url
       document.body.appendChild(link)
       link.click()
@@ -342,7 +347,8 @@ export default {
 }
 </script>
 <style lang="less">
-.ant-table-thead {
+.ant-table-thead,
+.ant-table-tbody {
   white-space: nowrap;
 }
 </style>
