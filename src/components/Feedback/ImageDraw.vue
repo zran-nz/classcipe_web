@@ -2,13 +2,13 @@
   <div class='img-draw'>
     <div class="tool-wrap">
       <div class='tool-list'>
-        <div class='tool-item' @click="drawingType = 'rectangle'">
+        <div :class="{'tool-item': true, 'active-item': drawingType === 'rectangle'}" @click="drawingType = 'rectangle'">
           <rect-icon />
         </div>
-        <div class='tool-item' @click="drawingType = 'route'">
+        <div :class="{'tool-item': true, 'active-item': drawingType === 'route'}" @click="drawingType = 'route'">
           <line-icon />
         </div>
-        <div class='tool-item' @click="drawingType = 'radius'">
+        <div :class="{'tool-item': true, 'active-item': drawingType === 'radius'}" @click="drawingType = 'radius'">
           <circle-icon />
         </div>
         <!--        <div class='tool-item' @click="drawingType = 'font'">-->
@@ -75,7 +75,6 @@ export default {
   },
   data() {
     return {
-      imgBase64Data: null,
       canvas: null,
       downX: 0,
       downY: 0,
@@ -90,9 +89,6 @@ export default {
       strokeStyle: '#ff0000'
     }
   },
-  created() {
-    this.imgBase64Data = this.imgData
-  },
   mounted() {
     this.canvas = this.$refs.canvas.getContext('2d')
     this.drawingImg()
@@ -105,6 +101,7 @@ export default {
       this.imgData = this.imgData.slice(0, this.imgDataIndex + 1)
       this.imgData.push(this.canvas.getImageData(0, 0, W, H))
       this.imgDataIndex = this.imgData.length - 1
+      console.log('imgData', this.imgData, 'imgDataIndex', this.imgDataIndex)
     },
     // 设置canvas最大尺寸是img尺寸最小尺寸是100%
     setCanvasAttr(imgW, imgH) {
@@ -146,7 +143,7 @@ export default {
       if (this.drawingType === '') {
         return
       }
-      this.downMs += new Date().getTime()
+      this.downMs = new Date().getTime()
       this.drawingStatus = true
       this.downX = event.offsetX
       this.downY = event.offsetY
@@ -154,7 +151,8 @@ export default {
       this.canvas.beginPath()
     },
     mouseup() {
-      const interval = (new Date().getTime()) - this.downMs > 20 && this.downMs
+      const interval = (new Date().getTime() - this.downMs) > 20 && this.downMs
+      console.log('interval', interval)
       if (interval) {
         this.pushCanvasData()
       }
@@ -299,7 +297,7 @@ export default {
       justify-content: center;
 
       &:hover {
-        background: #f6f6f6;
+        background: #e5e5e5;
       }
       svg {
         height: 20px;
@@ -312,5 +310,9 @@ export default {
       margin-left: 5px;
     }
   }
+}
+
+.active-item {
+  background: #e8e8e8;
 }
 </style>
