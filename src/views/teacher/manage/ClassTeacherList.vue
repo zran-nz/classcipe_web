@@ -5,11 +5,13 @@
         <a-row type="flex" justify="start">
           <a-col :span="10">
             <a-auto-complete
+              v-model="selectTeacher"
               class="global-search"
               size="large"
               style="width: 100%"
               placeholder="search here"
               option-label-prop="title"
+              @focus="handleSearch"
               @select="onSelect"
               @search="handleSearch"
             >
@@ -23,10 +25,10 @@
                     </div>
                     <div class="user-name-email">
                       <div class="user-name">
-                        {{ item.userInfo.email }}
+                        {{ item.userInfo.nickname }}
                       </div>
                       <div class="email">
-                        {{ item.userInfo.nickname }}
+                        {{ item.userInfo.email }}
                       </div>
                     </div>
                     <div class="action-wrapper">
@@ -71,7 +73,7 @@
         </span>
       </span>
       <span slot="action" slot-scope="record">
-        <a-popconfirm title="Remove this student ?" ok-text="Yes" @confirm="handleDeleteRecord(record)" cancel-text="No">
+        <a-popconfirm title="Remove this teacher ?" ok-text="Yes" @confirm="handleDeleteRecord(record)" cancel-text="No">
           <a href="#">Remove</a>
         </a-popconfirm>
       </span>
@@ -80,56 +82,13 @@
 </template>
 
 <script>
-import { addStaff, getSchoolRoleList, getSchoolUsers } from '@/api/schoolUser'
+import { getSchoolRoleList, getSchoolUsers } from '@/api/schoolUser'
 import store from '@/store'
 import { schoolUserStatusList } from '@/const/schoolUser'
 import moment from 'moment'
-import { SchoolClassStudentDelete } from '@/api/schoolClassStudent'
 import { JeecgListMixin } from '@/mixins/JeecgListMixin'
+import { SchoolClassAddClassMember, SchoolClassRemoveClassMember } from '@/api/schoolClass'
 
-const columns = [
-  {
-    title: 'Teacher Name',
-    dataIndex: 'userInfo.nickname',
-    key: 'name'
-  },
-  {
-    title: 'Role',
-    dataIndex: 'roles',
-    scopedSlots: { customRender: 'roles' },
-    key: 'roles'
-  },
-  {
-    title: 'Email',
-    dataIndex: 'userInfo.email',
-    key: 'email'
-  },
-  {
-    title: 'Join at',
-    dataIndex: 'classes',
-    customRender: (text, row, index) => {
-      var that = this
-      if (text && text.length > 0) {
-        const index = text.findIndex(item => item.id === that.classId)
-        if (index > -1) {
-          return moment.utc(text[index]).local().format('yyyy-MM-DD HH:mm')
-        } else {
-          return ''
-        }
-      } else {
-        return ''
-      }
-    },
-    key: 'joinDate'
-  },
-  {
-    title: 'Action',
-    key: 'action',
-    // dataIndex: 'id',
-    scopedSlots: { customRender: 'action' },
-    width: '150px'
-  }
-]
 export default {
   name: 'ClassTeacherList',
   mixins: [JeecgListMixin],
@@ -151,7 +110,48 @@ export default {
       statusList: schoolUserStatusList,
       roleList: [],
       classTeacherList: [],
-      columns,
+      columns: [
+        {
+          title: 'Teacher Name',
+          dataIndex: 'userInfo.nickname',
+          key: 'name'
+        },
+        {
+          title: 'Role',
+          dataIndex: 'roles',
+          scopedSlots: { customRender: 'roles' },
+          key: 'roles'
+        },
+        {
+          title: 'Email',
+          dataIndex: 'userInfo.email',
+          key: 'email'
+        },
+        {
+          title: 'Join at',
+          dataIndex: 'classes',
+          customRender: (text, row, index) => {
+            if (text && text.length > 0) {
+              const index = text.findIndex(item => item.id === this.classId)
+              if (index > -1) {
+                return moment.utc(text[index]).local().format('yyyy-MM-DD HH:mm')
+              } else {
+                return ''
+              }
+            } else {
+              return ''
+            }
+          },
+          key: 'joinDate'
+        },
+        {
+          title: 'Action',
+          key: 'action',
+          // dataIndex: 'id',
+          scopedSlots: { customRender: 'action' },
+          width: '150px'
+        }
+      ],
       loading: false,
       pagination: {
         pageSize: 20,
@@ -160,15 +160,22 @@ export default {
       },
       baseUrl: process.env.VUE_APP_API_BASE_URL,
       searchKey: '',
-      dataSource: []
+      dataSource: [],
+      selectTeacher: '',
+      roleManageId: ''
     }
   },
   created() {
     this.loadData()
     this.loadRoleList()
-    this.dataSource = this.teacherList
+    this.dataSource = this.teacherList.filter(teacher => this.selectedEmails.indexOf(teacher.userInfo.email) === -1)
   },
   computed: {
+    selectedEmails() {
+      return this.classTeacherList.map(item => {
+        return item.userInfo.email
+      })
+    }
 
   },
   methods: {
@@ -190,9 +197,20 @@ export default {
         schoolId: store.getters.userInfo.school
       })
       this.roleList = res?.result || []
+      // const index = this.roleList.findIndex(item => item.name === 'Class Manager')
+      // if (index > -1) {
+      //   this.roleManageId = this.roleList[index].id
+      // }
     },
     handleDeleteRecord: function (record) {
-      SchoolClassStudentDelete(record).then((res) => {
+      const params = {
+        schoolId: store.getters.userInfo.school,
+        userId: record.id,
+        classId: this.classId
+        // roles: 'teacher'
+      }
+      this.loading = true
+      SchoolClassRemoveClassMember(params).then((res) => {
         if (res.success) {
           this.$message.success(res.message)
           this.loadData()
@@ -207,21 +225,19 @@ export default {
       }
       const params = {
         schoolId: store.getters.userInfo.school,
-        avatar: this.avatar,
-        email: user.email,
-        archived: 1,
-        classes: this.classId,
-        roles: ''
+        userId: user.id,
+        classId: this.classId
+        // roles: 'teacher'
       }
+      this.selectTeacher = ''
       this.loading = true
-       addStaff(params).then(res => {
+      SchoolClassAddClassMember(params).then(res => {
          if (res.success) {
            this.loadData()
          } else {
            this.$message.error(res.message)
+           this.loading = false
          }
-       }).finally(() => {
-         this.loading = false
        })
     },
     onSelect(value) {
@@ -229,10 +245,15 @@ export default {
     },
 
     handleSearch(value) {
-      this.dataSource = value ? this.searchResult(value) : []
+      if (!value) {
+        this.dataSource = this.teacherList.filter(teacher => this.selectedEmails.indexOf(teacher.userInfo.email) === -1)
+      } else {
+        this.dataSource = value ? this.searchResult(value) : []
+      }
     },
     searchResult(value) {
-      return this.teacherList.filter(teacher => teacher.userInfo.email.indexOf(value) > -1)
+      return this.teacherList.filter(teacher => this.selectedEmails.indexOf(value) === -1 &&
+        teacher.userInfo.email.indexOf(value) > -1)
     }
   }
 }

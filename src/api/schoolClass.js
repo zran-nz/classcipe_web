@@ -11,14 +11,14 @@ export const schoolClassAPIUrl = {
   SchoolClassListClassMembers: '/classcipe/api/school/class/listClassMembers',
   SchoolClassDelete: '/classcipe/api/school/class/delete',
   SchoolClassRemoveClassMember: '/classcipe/api/school/class/removeClassMember',
-  SchoolClassImport: '/classcipe/api/school/class/import'
+  SchoolClassImport: '/classcipe/api/school/class/importClassExcel'
 }
 
 export function SchoolClassAddClassMember (parameter) {
   return request({
     url: schoolClassAPIUrl.SchoolClassAddClassMember,
-    method: 'get',
-    data: parameter
+    method: 'post',
+    params: parameter
   })
 }
 
@@ -81,9 +81,10 @@ export function SchoolClassListClassMembers () {
   })
 }
 
-export function SchoolClassRemoveClassMember () {
+export function SchoolClassRemoveClassMember (parameter) {
   return request({
     url: schoolClassAPIUrl.SchoolClassRemoveClassMember,
-    method: 'get'
+    method: 'post',
+    params: parameter
   })
 }

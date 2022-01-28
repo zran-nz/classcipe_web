@@ -8,10 +8,6 @@
           mode="inline"
           :inline-collapsed="false"
         >
-          <a-menu-item key="/teacher/managing/skill">
-            <a-icon type="cloud-upload" />
-            <span>IB skills</span>
-          </a-menu-item>
           <a-menu-item key="/teacher/managing/school-user">
             <a-icon type="user" />
             <span>School User</span>
@@ -24,6 +20,10 @@
             <span slot="title"><a-icon type="schedule" /><span>Academics</span></span>
             <a-menu-item key="/teacher/managing/term"> Academics Terms </a-menu-item>
           </a-sub-menu>
+          <a-menu-item key="/teacher/managing" v-if="$store.getters.bindCurriculum === curriculumType.IBMYP">
+            <a-icon type="cloud-upload" />
+            <span>IB skills</span>
+          </a-menu-item>
         </a-menu>
       </a-layout-sider>
       <a-layout-content class="main-content">
@@ -42,6 +42,7 @@ import MyFavoriteSvg from '@/assets/svgIcon/myContent/My_favorite.svg?inline'
 import PopularSvg from '@/assets/svgIcon/myContent/Popular.svg?inline'
 import SharedSvg from '@/assets/svgIcon/myContent/Shared.svg?inline'
 import SubscribesSvg from '@/assets/svgIcon/myContent/Subscribes.svg?inline'
+import { CurriculumType } from '@/const/common'
 
 export default {
   name: 'Main',
@@ -56,7 +57,8 @@ export default {
   },
   data() {
     return {
-      selectedKey: '/teacher/managing/skill'
+      selectedKey: '/teacher/managing/skill',
+      curriculumType: CurriculumType
     }
   },
   watch: {
