@@ -11,7 +11,7 @@ import * as logger from '@/utils/logger'
 
 NProgress.configure({ showSpinner: false }) // NProgress Configuration
 
-const allowList = ['login', 'register', 'registerResult', 'authResult', 'authCheck', 'pageRedirect', 'addonCallback', 'authRedirect', 'shareDetail'] // no redirect allowList
+const allowList = ['login', 'register', 'resetPassword', 'registerResult', 'authResult', 'authCheck', 'pageRedirect', 'addonCallback', 'authRedirect', 'shareDetail'] // no redirect allowList
 const loginRoutePath = '/user/login'
 
 router.beforeEach((to, from, next) => {

@@ -14,7 +14,7 @@
         </div>
         <div class="role-item" :class="{ selected: selectedRole === 2 }" @click="handleSelectRole(2)">
           <div class="role-info">
-            <img src="~@/assets/icons/role/teacher@2x.png" class="role-img" />
+            <img src="~@/assets/icons/role/teacher.png" class="role-img" />
             <div>
               <div class="role-name">I am a teacher/admin/expert</div>
             </div>
@@ -25,7 +25,7 @@
         </div>
         <div class="role-item" :class="{ selected: selectedRole === 4 }" @click="handleSelectRole(4)">
           <div class="role-info">
-            <img src="~@/assets/icons/role/student@2x.png" class="role-img" />
+            <img src="~@/assets/icons/role/student.png" class="role-img" />
             <div>
               <div class="role-name">I am a Student</div>
             </div>
@@ -141,7 +141,7 @@
             <a-button type="link">Forget password</a-button>
           </div> -->
 
-            <a-form-item class="form-sumit">
+            <a-form-item class="form-submit">
               <a-button
                 type="primary"
                 :disabled="this.disabled"
@@ -149,23 +149,27 @@
                 :loading="loading"
                 size="large"
                 html-type="submit"
-                >Sign Up</a-button
               >
+                Sign Up
+              </a-button>
             </a-form-item>
-
-            <div class="or">
-              <span>- or -</span>
-            </div>
-
-            <div class="third-login-wrapper">
-              <third-login-button
-                icon="googleIcon"
-                :label="$t('user.login.SignUpWithGoogle')"
-                @click.native="thirdSignIn('google', 'student')"
-                :disabled="this.disabled"
-              />
-            </div>
           </a-form>
+
+          <div class="or">
+            <div class="line"></div>
+            <div class="text">OR</div>
+            <div class="line"></div>
+          </div>
+
+          <div class="third-login-wrapper">
+            <third-login-button
+              icon="googleIcon"
+              :label="$t('user.login.SignUpWithGoogle')"
+              @click.native="thirdSignIn('google', 'student')"
+              :disabled="this.disabled"
+            />
+          </div>
+
           <div class="info">
             <a-checkbox @change="handleChange">
               I agree to Classcipe's
@@ -325,40 +329,40 @@ export default {
 <style lang="less">
 .user-register {
   .ant-form-item-children {
-    &::after {
-      position: absolute;
-      top: -40px;
-      left: 24px;
-      content: '';
-    }
+    // &::after {
+    //   position: absolute;
+    //   top: -40px;
+    //   left: 24px;
+    //   content: '';
+    // }
     input {
-      height: 80px;
-      border-radius: 12px;
-      padding: 30px 24px 0px;
+      height: 60px;
+      border-radius: 8px;
+      padding: 0px 12px 0px;
     }
   }
   .form-name {
     .ant-form-item-children {
-      &::after {
-        content: 'Name';
-      }
+      // &::after {
+      //   content: 'Name';
+      // }
     }
   }
   .form-email {
     .ant-form-item-children {
-      &::after {
-        content: 'Email';
-      }
+      // &::after {
+      //   content: 'Email';
+      // }
     }
   }
   .form-password {
     .ant-form-item-children {
-      &::after {
-        content: 'Password';
-      }
-      .ant-input-suffix {
-        top: 70%;
-      }
+      // &::after {
+      //   content: 'Password';
+      // }
+      // .ant-input-suffix {
+      //   top: 70%;
+      // }
     }
   }
 }
@@ -471,6 +475,9 @@ export default {
     .register {
       padding: 40px 0px 55px;
       text-align: center;
+      .register-form {
+        text-align: left;
+      }
       .logo {
         margin-bottom: 5px;
       }
@@ -496,14 +503,28 @@ export default {
           bottom: 20px;
         }
       }
-      .form-sumit {
+      .form-submit {
         margin-bottom: 0px;
         button {
           border-radius: 8px;
         }
       }
       .or {
-        margin: 10px 0px;
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: center;
+        margin: 20px 0px;
+        .line {
+          border-top: 1px solid rgba(0, 0, 0, 0.08);
+          height: 1px;
+          width: 40px;
+        }
+        .text {
+          padding: 2px 16px;
+          border-radius: 20px;
+          border: 1px solid rgba(0, 0, 0, 0.08);
+        }
       }
       .third-login-wrapper {
         margin-bottom: 20px;
