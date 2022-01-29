@@ -67,7 +67,7 @@
                             </div>
                             <a-popconfirm cancel-text="No" ok-text="Yes" title="Delete ?">
                               <div class='remove-class-icon' @confirm="handleDeleteClass(classItem)">
-                                <img class='big-delete-icon' src='~@/assets/icons/evaluation/big_delete.png' />
+                                <img class='big-delete-icon' src="~@/assets/icons/tag/delete.png"/>
                               </div>
                             </a-popconfirm>
                             <a-form-item label='Choose class'>
@@ -6424,7 +6424,7 @@ export default {
     display: none;
     text-align: center;
     img {
-      width: 15px;
+      width: 30px;
     }
   }
 
