@@ -21,7 +21,7 @@
       <div class='feed-back-submit'>
         <a-space>
           <a-button @click='handleCancelFeedback'>Cancel</a-button>
-          <a-button type='primary' @click='handleSubmitFeedback'>Submit</a-button>
+          <a-button type='primary' @click='handleSubmitFeedback' :loading='submitting'>Submit</a-button>
         </a-space>
       </div>
     </div>
@@ -57,14 +57,17 @@ export default {
     return {
       imgBase64Data: null,
       feedbackComment: '',
-      imgEditModalVisible: false
+      imgEditModalVisible: false,
+      submitting: false
     }
   },
   created() {
     this.imgBase64Data = this.imgData
+    this.submitting = false
   },
   methods: {
     handleSubmitFeedback () {
+      this.submitting = true
       this.$emit('submit-feedback', {
         imgBase64Data: this.imgData,
         comment: this.feedbackComment,
@@ -73,6 +76,7 @@ export default {
     },
 
     handleCancelFeedback () {
+      this.submitting = false
       this.$emit('cancel-feedback')
     },
 
