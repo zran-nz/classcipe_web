@@ -439,7 +439,7 @@ export default {
 .table-tag {
   span {
     display: table;
-    border: 1px solid #15c39a;
+    // border: 1px solid #15c39a;
     border-radius: 6px;
     margin: 4px;
     padding: 0px 4px;

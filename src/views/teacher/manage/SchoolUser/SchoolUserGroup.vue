@@ -1,6 +1,8 @@
 <template>
   <a-card>
     <div class="operator">
+      <div></div>
+      <!-- <a-input-search style="width: 300px" placeholder="Search for Group Name" enter-button @search="handleSearch" /> -->
       <a-button @click="handleAdd" type="primary" icon="plus">Add</a-button>
       <!-- <a-button type="primary" icon="download" @click="downloadTemplate">Download template</a-button>
       <a-upload name="file" :showUploadList="false" :multiple="false">
@@ -17,9 +19,9 @@
       :scroll="{ x: true }"
       rowKey="id"
     >
-      <span slot="roles" slot-scope="roles">
-        <span v-for="role in roles" :key="role.id">
-          {{ role.name }}
+      <span slot="advisor" slot-scope="advisor" class="table-tag">
+        <span v-for="adv in advisor" :key="adv.id">
+          {{ adv.email }}
         </span>
       </span>
 
@@ -32,16 +34,6 @@
             <a-icon type="more" style="margin-right: 8px" />
             <a-menu slot="overlay">
               <a-menu-item>
-                <a-popconfirm
-                  title="Archived this group ?"
-                  ok-text="Yes"
-                  @confirm="handleArchived(item)"
-                  cancel-text="No"
-                >
-                  <a> <a-icon type="delete" theme="filled" /> Archived </a>
-                </a-popconfirm>
-              </a-menu-item>
-              <a-menu-item>
                 <a-popconfirm title="Delete this group ?" ok-text="Yes" @confirm="handleDelete(item)" cancel-text="No">
                   <a> <a-icon type="delete" theme="filled" /> Delete </a>
                 </a-popconfirm>
@@ -53,15 +45,17 @@
       </span>
     </a-table>
 
-    <SchoolUserGroupAdd ref="modalForm" @ok="loadData" />
+    <SchoolUserGroupAdd ref="modalForm" @ok="loadData" :teacherList="teacherList" />
+    <SchoolUserGroupMember ref="modalMemberForm" @ok="loadData" :teacherList="teacherList" />
   </a-card>
 </template>
 
 <script>
 import SchoolUserGroupAdd from './SchoolUserGroupAdd.vue'
+import SchoolUserGroupMember from './SchoolUserGroupMember.vue'
 import { getSchoolGroupList } from '@/api/schoolGroup'
 import { schoolGroupType } from '@/const/schoolGroup'
-
+import { getSchoolUsers } from '@/api/schoolUser'
 import store from '@/store'
 const columns = [
   {
@@ -85,6 +79,7 @@ const columns = [
   {
     title: 'Advisor',
     dataIndex: 'advisor',
+    scopedSlots: { customRender: 'advisor' },
     key: 'advisor'
   },
   {
@@ -99,7 +94,8 @@ export default {
   name: 'SchoolUserGroup',
   mixins: [],
   components: {
-    SchoolUserGroupAdd
+    SchoolUserGroupAdd,
+    SchoolUserGroupMember
   },
   data() {
     return {
@@ -110,11 +106,13 @@ export default {
         pageSize: 20,
         current: 1,
         total: 0
-      }
+      },
+      teacherList: []
     }
   },
   created() {
     this.loadData()
+    this.loadTeacherList()
   },
   computed: {},
   methods: {
@@ -125,6 +123,14 @@ export default {
       })
       this.groupList = res?.result?.records || []
       this.loading = false
+    },
+    async loadTeacherList() {
+      const res = await getSchoolUsers({
+        school: store.getters.userInfo.school,
+        currentRole: 'teacher',
+        pageSize: 1000
+      })
+      this.teacherList = res?.result?.records || []
     },
     handleTableChange(pagination) {
       const pager = { ...this.pagination }
@@ -138,16 +144,39 @@ export default {
       this.$refs.modalForm.defaultData = {}
       this.$refs.modalForm.show()
     },
-    handleView() {},
-    handleEdit(data) {},
-    handleArchived() {},
+    handleView(data) {
+      console.log(data)
+      this.$refs.modalMemberForm.title = ''
+      this.$refs.modalMemberForm.defaultData = data
+      this.$refs.modalMemberForm.show()
+    },
+    handleEdit(data) {
+      console.log(data)
+      this.$refs.modalForm.title = 'Edit Group'
+      this.$refs.modalForm.mode = 'edit'
+      this.$refs.modalForm.defaultData = data
+      this.$refs.modalForm.show()
+    },
+    async handleSearch(name) {
+      const pager = { ...this.pagination }
+      pager.current = 1
+      this.pagination = pager
+      this.loading = true
+      const res = await getSchoolGroupList({
+        schoolId: store.getters.userInfo.school,
+        name: name
+      })
+      this.groupList = res?.result?.records || []
+      this.loading = false
+    },
     handleDelete(item) {}
   }
 }
 </script>
 
 <style lang="less">
-.ant-table-thead {
+.ant-table-thead,
+.ant-table-tbody {
   white-space: nowrap;
 }
 </style>
@@ -184,6 +213,15 @@ export default {
     button {
       margin: 0px 8px;
     }
+  }
+}
+.table-tag {
+  span {
+    display: table;
+    // border: 1px solid #15c39a;
+    border-radius: 6px;
+    margin: 4px;
+    padding: 0px 4px;
   }
 }
 .table-action {
