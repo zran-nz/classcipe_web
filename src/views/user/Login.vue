@@ -38,12 +38,13 @@
               Don't have an account? | <span><router-link :to="{ path: registerPath }">Sign Up</router-link></span>
             </div>
           </div>
+
           <a-form :form="form" class="login-form" @submit="handleSubmit">
             <a-form-item class="form-email">
               <a-input
                 size="large"
                 type="text"
-                :placeholder="$t('user.register.email.placeholder')"
+                :placeholder="$t('user.login.username.placeholder')"
                 v-decorator="[
                   'email',
                   {
@@ -63,7 +64,7 @@
             <a-form-item class="form-password">
               <a-input-password
                 size="large"
-                :placeholder="$t('user.register.password.placeholder')"
+                :placeholder="$t('user.login.password.placeholder')"
                 v-decorator="[
                   'password',
                   {
@@ -74,9 +75,9 @@
               ></a-input-password>
             </a-form-item>
 
-            <!-- <div class="forget-password">
-          <a-button type="link">Forget password</a-button>
-        </div> -->
+            <div class="forget-password">
+              <a-button type="link" @click="handleForget">Forget password</a-button>
+            </div>
 
             <a-form-item class="form-submit">
               <a-button type="primary" block :loading="loading" size="large" html-type="submit">Sign In</a-button>
@@ -103,41 +104,30 @@
         </div>
       </a-tab-pane>
     </a-tabs>
+    <forget-password-modal ref="modal" />
   </div>
 </template>
 
 <script>
 import TwoStepCaptcha from '@/components/tools/TwoStepCaptcha'
 import ThirdLoginButton from '@/components/Button/ThirdLoginButton'
+import ForgetPasswordModal from './ForgetPasswordModal.vue'
 import { mapActions } from 'vuex'
 import { getThirdAuthURL, thirdAuthCallbackUrl } from '@/api/thirdAuth'
 
 export default {
   components: {
     TwoStepCaptcha,
-    ThirdLoginButton
+    ThirdLoginButton,
+    ForgetPasswordModal
   },
   data() {
     return {
       loading: false,
       defaultActiveKey: 'teacher',
-      // customActiveKey: 'tab1',
-      // loginBtn: false,
-      // // login type: 0 email, 1 username, 2 telephone
-      // loginType: 0,
-      // isLoginError: false,
-      // requiredTwoStepCaptcha: false,
-      // stepCaptchaVisible: false,
       form: this.$form.createForm(this),
       registerPath: '/user/register',
       inviteCode: ''
-      // state: {
-      //   time: 60,
-      //   loginBtn: false,
-      //   // login type: 0 email, 1 username, 2 telephone
-      //   loginType: 0,
-      //   smsSendBtn: false
-      // }
     }
   },
   created() {
@@ -167,27 +157,10 @@ export default {
       console.log('full auth url ', url)
       window.location.href = url
     },
-    // handler
-    handleUsernameOrEmail(rule, value, callback) {
-      const { state } = this
-      const regex = /^([a-zA-Z0-9_-])+@([a-zA-Z0-9_-])+((\.[a-zA-Z0-9_-]{2,3}){1,2})$/
-      if (regex.test(value)) {
-        state.loginType = 0
-      } else {
-        state.loginType = 1
-      }
-      callback()
-    },
-    handleTabClick(key) {
-      this.customActiveKey = key
-      // this.form.resetFields()
-    },
     handleSubmit(e) {
       e.preventDefault()
       const {
         form: { validateFields },
-        // state,
-        // customActiveKey,
         Login
       } = this
 
@@ -246,6 +219,9 @@ export default {
       //   description: ((err.response || {}).data || {}).message || 'Error',
       //   duration: 4
       // })
+    },
+    handleForget() {
+      this.$refs.modal.show()
     }
   }
 }
@@ -254,33 +230,33 @@ export default {
 <style lang="less">
 .user-login {
   .ant-form-item-children {
-    &::after {
-      position: absolute;
-      top: -40px;
-      left: 24px;
-      content: '';
-    }
+    // &::after {
+    //   position: absolute;
+    //   top: -40px;
+    //   left: 24px;
+    //   content: '';
+    // }
     input {
-      height: 80px;
-      border-radius: 12px;
-      padding: 30px 24px 0px;
+      height: 60px;
+      border-radius: 8px;
+      padding: 0px 12px 0px;
     }
   }
   .form-email {
     .ant-form-item-children {
-      &::after {
-        content: 'Email';
-      }
+      // &::after {
+      //   content: 'Email';
+      // }
     }
   }
   .form-password {
     .ant-form-item-children {
-      &::after {
-        content: 'Password';
-      }
-      .ant-input-suffix {
-        top: 70%;
-      }
+      // &::after {
+      //   content: 'Password';
+      // }
+      // .ant-input-suffix {
+      //   top: 70%;
+      // }
     }
   }
   .ant-tabs {
@@ -305,7 +281,9 @@ export default {
     border-bottom-left-radius: 20px;
     border-bottom-right-radius: 20px;
     text-align: center;
-
+    .login-form {
+      text-align: left;
+    }
     .logo {
       margin-bottom: 5px;
     }

@@ -5,10 +5,10 @@ const userApi = {
   Logout: '/classcipe/sys/logout',
   ChangeRole: '/classcipe/sys/changeRole',
   UserInfo: '/classcipe/sys/getUserInfoByToken',
-  SignUp: 'classcipe/sys/signUp',
+  SignUp: '/classcipe/sys/signUp',
+  ForgePassword: '/classcipe/sys/sendResetPasswordLink',
+  ResetPassword: '/classcipe/sys/resetPassword',
 
-  ForgePassword: '/auth/forge-password',
-  Register: '/auth/register',
   twoStepCode: '/auth/2step-code',
   SendSms: '/account/sms',
   SendSmsErr: '/account/sms_err',
@@ -104,5 +104,20 @@ export function changeRole (parameter) {
     headers: {
       'Content-Type': 'application/json;charset=UTF-8'
     }
+  })
+}
+
+export function forgePassword (parameter) {
+  return request({
+    url: userApi.ForgePassword,
+    method: 'post',
+    params: parameter
+  })
+}
+export function resetPassword (parameter) {
+  return request({
+    url: userApi.ResetPassword,
+    method: 'post',
+    params: parameter
   })
 }
