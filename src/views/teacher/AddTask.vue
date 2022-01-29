@@ -6430,9 +6430,10 @@ export default {
 
   .class-type-tag {
     position: absolute;
-    right: 2px;
-    top: 5px;
+    right: 10px;
+    top: 44px;
     text-align: center;
+    z-index: 150;
   }
 
   &:hover {
