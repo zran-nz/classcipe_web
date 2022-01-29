@@ -14,7 +14,7 @@
         </div>
         <div class="role-item" :class="{ selected: selectedRole === 2 }" @click="handleSelectRole(2)">
           <div class="role-info">
-            <img src="~@/assets/icons/role/teacher@2x.png" class="role-img" />
+            <img src="~@/assets/icons/role/teacher.png" class="role-img" />
             <div>
               <div class="role-name">I am a teacher/admin/expert</div>
             </div>
@@ -25,7 +25,7 @@
         </div>
         <div class="role-item" :class="{ selected: selectedRole === 4 }" @click="handleSelectRole(4)">
           <div class="role-info">
-            <img src="~@/assets/icons/role/student@2x.png" class="role-img" />
+            <img src="~@/assets/icons/role/student.png" class="role-img" />
             <div>
               <div class="role-name">I am a Student</div>
             </div>
