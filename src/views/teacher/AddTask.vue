@@ -784,7 +784,7 @@
                   <div class='recommend-loading' v-if='recomendListLoading'>
                     <a-spin size='large' />
                   </div>
-                  <div class='form-block-right' v-if='!recomendListLoading && canEdit'>
+                  <div class='form-block-right' v-if='!recomendListLoading && canEdit && !form.fileDeleted'>
                     <div class='right-title'>Recommended</div>
                     <div class='slide-preview-list'>
                       <div

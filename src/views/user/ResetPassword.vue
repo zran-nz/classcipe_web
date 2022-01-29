@@ -85,6 +85,16 @@ export default {
         if (!err) {
           this.loading = true
           console.log('Received values of form: ', values)
+          if (values.password !== values.password2) {
+            this.$message.error("Those passwords didn't match. Try again.")
+            this.loading = false
+            return
+          }
+          if (!this.code) {
+            this.$message.error('code is invalid')
+            this.loading = false
+            return
+          }
           const params = {
             code: this.code,
             password: values.password

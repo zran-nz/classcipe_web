@@ -16,7 +16,7 @@
           <div class="role-info">
             <img src="~@/assets/icons/role/teacher.png" class="role-img" />
             <div>
-              <div class="role-name">I am a teacher/admin/expert</div>
+              <div class="role-name">I am a educator</div>
             </div>
           </div>
           <div class="arrow">
@@ -27,7 +27,7 @@
           <div class="role-info">
             <img src="~@/assets/icons/role/student.png" class="role-img" />
             <div>
-              <div class="role-name">I am a Student</div>
+              <div class="role-name">I am a student</div>
             </div>
           </div>
           <div class="arrow">
