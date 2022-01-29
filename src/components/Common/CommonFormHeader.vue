@@ -36,7 +36,7 @@
         <template v-if='showCollaborate'>
           <div class='collaborate-users' v-if='form.type !== typeMap.classSessionEvaluation'>
             <div :style="{'z-index': 1000-index}" :class="{'item-avator':true,'gray':onlineUsers.indexOf(user.email) === -1}" v-if='index < 5' v-for='(user,index) in collaborateUserList' :key='index'>
-              <a-tooltip :title='user.userName' placement='bottom'>
+              <a-tooltip :title='user.email' placement='bottom'>
                 <a-badge color="green"> <a-avatar :size="30" class='user-item' :src='user.userAvatar' /></a-badge>
               </a-tooltip>
             </div>
@@ -212,6 +212,8 @@ export default {
   watch: {
     collaborate(val) {
       this.owner = val.owner
+      const onlineList = [this.$store.getters.userInfo.email].concat(val.onlineEmails)
+      this.onlineUsers = onlineList
       this.formatUserList(val.users)
     },
     shareStatus(val) {
