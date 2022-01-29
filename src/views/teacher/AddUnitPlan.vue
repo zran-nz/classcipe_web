@@ -2704,9 +2704,8 @@ export default {
   .main-content {
     .image-preview {
       img {
-        height: 250px;
-        max-width: 100%;
-        /*width: 100%;*/
+        width: 100%;
+        height: auto;
       }
     }
 
