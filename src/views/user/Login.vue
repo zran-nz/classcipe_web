@@ -85,7 +85,9 @@
           </a-form>
 
           <div class="or">
-            <span>- or -</span>
+            <div class="line"></div>
+            <div class="text">OR</div>
+            <div class="line"></div>
           </div>
 
           <div class="third-login-wrapper">
@@ -315,7 +317,21 @@ export default {
       }
     }
     .or {
-      margin: 10px 0px;
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      justify-content: center;
+      margin: 20px 0px;
+      .line {
+        border-top: 1px solid rgba(0, 0, 0, 0.08);
+        height: 1px;
+        width: 40px;
+      }
+      .text {
+        padding: 2px 16px;
+        border-radius: 20px;
+        border: 1px solid rgba(0, 0, 0, 0.08);
+      }
     }
     .third-login-wrapper {
       margin-bottom: 20px;
