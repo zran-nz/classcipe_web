@@ -50,6 +50,9 @@
 
                         <!--关联班级以及开课时间 -->
                         <div class='form-block link-class'>
+                          <div class='link-class-tips' v-show='!isOwner && form.taskClassList.length'>
+                            Only the author of the current task can modify the class
+                          </div>
                           <div class='linked-class-list' v-for='(classItem, cIdx) in form.taskClassList' :key='cIdx'>
                             <div class='mask' v-show='!isOwner'></div>
                             <div class='class-type-tag' v-if='classItem.classType === 1'>
@@ -6471,5 +6474,11 @@ export default {
 
 .add-class {
   margin-bottom: 15px;
+}
+
+.link-class-tips {
+  color: #999;
+  font-size: 12px;
+  line-height: 30px;
 }
 </style>
