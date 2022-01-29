@@ -53,13 +53,16 @@
               icon="googleIcon"
               :label="$t('user.login.SignUpWithGoogle')"
               @click.native="thirdSignIn('google', 'teacher')"
+              :disabled="this.disabled"
             />
           </div>
           <div class="info">
-            Sign in or sign up means you agree to Classcipe's
-            <span><a href="https://www.classcipe.com/term.html" target="_blank">Terms of service</a></span>
-            and
-            <span><a href="https://www.classcipe.com/policy.html" target="_blank">Privacy Policy</a></span>
+            <a-checkbox @change="handleChange">
+              I agree to Classcipe's
+              <span><a href="https://www.classcipe.com/term.html" target="_blank">Terms of service</a></span>
+              and
+              <span><a href="https://www.classcipe.com/policy.html" target="_blank">Privacy Policy</a></span>
+            </a-checkbox>
           </div>
         </div>
         <!-- 学生注册 -->
@@ -139,22 +142,37 @@
           </div> -->
 
             <a-form-item class="form-sumit">
-              <a-button type="primary" block :loading="loading" size="large" html-type="submit">Sign Up</a-button>
+              <a-button
+                type="primary"
+                :disabled="this.disabled"
+                block
+                :loading="loading"
+                size="large"
+                html-type="submit"
+                >Sign Up</a-button
+              >
             </a-form-item>
+
+            <div class="or">
+              <span>- or -</span>
+            </div>
 
             <div class="third-login-wrapper">
               <third-login-button
                 icon="googleIcon"
                 :label="$t('user.login.SignUpWithGoogle')"
                 @click.native="thirdSignIn('google', 'student')"
+                :disabled="this.disabled"
               />
             </div>
           </a-form>
           <div class="info">
-            Sign in or sign up means you agree to Classcipe's
-            <span><a href="https://www.classcipe.com/term.html" target="_blank">Terms of service</a></span>
-            and
-            <span><a href="https://www.classcipe.com/policy.html" target="_blank">Privacy Policy</a></span>
+            <a-checkbox @change="handleChange">
+              I agree to Classcipe's
+              <span><a href="https://www.classcipe.com/term.html" target="_blank">Terms of service</a></span>
+              and
+              <span><a href="https://www.classcipe.com/policy.html" target="_blank">Privacy Policy</a></span>
+            </a-checkbox>
           </div>
         </div>
       </div>
@@ -183,7 +201,8 @@ export default {
       loginPath: '/user/login',
       teacherLoginPath: '/user/login?role=teacher',
       studentLoginPath: '/user/login?role=student',
-      inviteCode: ''
+      inviteCode: '',
+      disabled: true
     }
   },
   created() {
@@ -208,7 +227,15 @@ export default {
     },
     handleSelectRole(role) {
       this.selectedRole = role
+      this.disabled = true
       this.next()
+    },
+    handleChange(e) {
+      if (e.target.checked) {
+        this.disabled = false
+      } else {
+        this.disabled = true
+      }
     },
     thirdSignIn(source, role) {
       console.log('thirdSignIn', source)
@@ -470,9 +497,13 @@ export default {
         }
       }
       .form-sumit {
+        margin-bottom: 0px;
         button {
           border-radius: 8px;
         }
+      }
+      .or {
+        margin: 10px 0px;
       }
       .third-login-wrapper {
         margin-bottom: 20px;

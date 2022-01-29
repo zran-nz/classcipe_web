@@ -35,26 +35,22 @@
       <a-space>
         <template v-if='showCollaborate'>
           <div class='collaborate-users' v-if='form.type !== typeMap.classSessionEvaluation'>
-            <a-dropdown v-show='collaborateUserList.length > 3' :overlayStyle="{ 'z-index': '3000'}">
-              <a class='ant-dropdown-link'>
-                Others
-                <a-icon type='more' />
+            <div :style="{'z-index': 1000-index}" :class="{'item-avator':true,'gray':onlineUsers.indexOf(user.email) === -1}" v-if='index < 5' v-for='(user,index) in collaborateUserList' :key='index'>
+              <a-tooltip :title='user.userName' placement='bottom'>
+                <a-badge color="green"> <a-avatar :size="30" class='user-item' :src='user.userAvatar' /></a-badge>
+              </a-tooltip>
+            </div>
+            <a-dropdown v-show='collaborateUserList.length > 5' :overlayStyle="{ 'z-index': '3000'}">
+              <a class='ant-dropdown-link' style="font-size: 16px;margin-left: 15px;">
+                +{{ collaborateUserList.length - 5 }}
               </a>
               <a-menu slot='overlay'>
-                <a-menu-item v-if='index > 2' v-for='(user,index) in collaborateUserList' :key='index'>
-                  <a-avatar size='small' class='user-item' :src='user.userAvatar' />
+                <a-menu-item v-if='index > 4' v-for='(user,index) in collaborateUserList' :key='index'>
+                  <a-avatar size='small' :class="{'user-item':true,'gray':onlineUsers.indexOf(user.email) === -1}" :src='user.userAvatar' />
                   {{ user.userName }}
                 </a-menu-item>
               </a-menu>
             </a-dropdown>
-            <div v-if='index < 3' v-for='(user,index) in collaborateUserList' :key='index'>
-              <a-tooltip :title='user.userName' placement='bottom'>
-                <a-avatar size='small' class='user-item' :src='user.userAvatar' />
-              </a-tooltip>
-            </div>
-            <a-tooltip :title='owner.email' placement='bottom' v-if='owner && !isOwner && isCollaborater'>
-              <a-avatar size='small' class='user-item' :src='owner.avatar' />
-            </a-tooltip>
           </div>
           <a-tooltip placement='bottom' title='Collaborate' v-show='isOwner && form.type !== typeMap.classSessionEvaluation'>
             <div class='collaborate-comment' @click='handleStartCollaborate'>
@@ -193,7 +189,8 @@ export default {
       formName: '',
       collaborateUserList: [],
       owner: {},
-      isShare: false
+      isShare: false,
+      onlineUsers: [this.$store.getters.userInfo.email]
     }
   },
   computed: {
@@ -214,8 +211,8 @@ export default {
   },
   watch: {
     collaborate(val) {
-      this.collaborateUserList = val.users
       this.owner = val.owner
+      this.formatUserList(val.users)
     },
     shareStatus(val) {
       console.log('update is share ' + val)
@@ -227,12 +224,14 @@ export default {
     if (this.form && this.form.name) {
       this.formName = this.form.name
     }
-    if (this.collaborate) {
-      this.collaborateUserList = this.collaborate.users ? this.collaborate.users : []
-      this.owner = this.collaborate.owner
-    }
   },
   methods: {
+    formatUserList(users) {
+      let userList = [({ userName: this.owner.nickname, userAvatar: this.owner.avatar, email: this.owner.email })]
+      userList = userList.concat(users.filter(user => this.onlineUsers.indexOf(user.email) > -1 && user.email !== this.owner.email))
+      userList = userList.concat(users.filter(user => this.onlineUsers.indexOf(user.email) === -1 && user.email !== this.owner.email))
+      this.collaborateUserList = userList
+    },
     handleBack() {
       this.$logger.info('handleBack')
       if (this.isOwner) {
@@ -285,6 +284,11 @@ export default {
 
 <style lang='less' scoped>
 @import "~@/components/index.less";
+
+.gray {
+  filter: grayscale(100%);
+  filter: gray;
+}
 
 .common-form-header {
   padding: 15px;
@@ -344,11 +348,21 @@ export default {
       padding: 15px 20px;
     }
 
+    /deep/ .ant-badge-status-green {
+      right: 12px;
+      top: 2px;
+      background: #52c41a;
+    }
+
     .collaborate-users {
       display: flex;
       min-width: 160px;
       justify-content: flex-end;
-
+      margin-right:10px;
+      margin-top: 3px;
+      .item-avator{
+        margin-right: -15px;
+      }
       .user-item {
         margin: 0px 4px;
       }
