@@ -63,6 +63,7 @@
             <a-col :span="12">
               <a-form-item label="Role">
                 <a-select
+                  mode="multiple"
                   v-decorator="[
                     'roles',
                     {
@@ -81,7 +82,10 @@
           <a-row>
             <a-col :span="12">
               <a-form-item label="Group">
-                <a-select v-decorator="['groups', { initialValue: getDefaultFormData.groups, rules: [] }]">
+                <a-select
+                  mode="multiple"
+                  v-decorator="['groups', { initialValue: getDefaultFormData.groups, rules: [] }]"
+                >
                   <a-select-option :value="item.id" :key="item.id" v-for="item in groupList">{{
                     item.name
                   }}</a-select-option>
@@ -90,7 +94,10 @@
             </a-col>
             <a-col :span="12">
               <a-form-item label="Class">
-                <a-select v-decorator="['classes', { initialValue: getDefaultFormData.classes, rules: [] }]">
+                <a-select
+                  mode="multiple"
+                  v-decorator="['classes', { initialValue: getDefaultFormData.classes, rules: [] }]"
+                >
                   <a-select-option :value="item.id" :key="item.id" v-for="item in classList">{{
                     item.name
                   }}</a-select-option>
@@ -101,7 +108,10 @@
           <a-row>
             <a-col :span="12">
               <a-form-item label="Grade">
-                <a-select v-decorator="['grades', { initialValue: getDefaultFormData.grades, rules: [] }]">
+                <a-select
+                  mode="multiple"
+                  v-decorator="['grades', { initialValue: getDefaultFormData.grades, rules: [] }]"
+                >
                   <a-select-option :value="item.id" :key="item.id" v-for="item in gradeList">{{
                     item.name
                   }}</a-select-option>
@@ -160,31 +170,36 @@
     </j-modal>
 
     <a-modal title="Invite by link" @cancel="handleInviteBackBtn" :footer="null" :visible="currentView === 'invite'">
-      <div class="invite">
-        <div class="invite-back-btn">
+      <a-spin :spinning="inviteLoading">
+        <div class="invite">
+          <!-- <div class="invite-back-btn">
           <a-button @click="handleInviteBackBtn" type="primary" icon="left">Back</a-button>
-        </div>
-        <a-spin :spinning="inviteLoading">
+        </div> -->
+
           <div class="invite-link">
-            <a-row>
-              <a-col :span="18">
-                <a-input :value="inviteUrl" disabled> </a-input>
-              </a-col>
-              <a-col :span="4">
-                <a-button icon="copy" @click="onCopy"> Copy </a-button>
-              </a-col>
-            </a-row>
+            <div class="link-text">
+              {{ inviteUrl }}
+            </div>
+            <div class="action-copy" @click="onCopy">
+              <a-tooltip placement="top" title="Copy link">
+                <a-icon type="link" />
+              </a-tooltip>
+            </div>
           </div>
+
           <div class="invite-checkbox">
             <a-checkbox :checked="inviteCheckBoxChecked" @change="onInviteCheckBoxChange">
               Applicants with this link will need your approval to join your school community
             </a-checkbox>
           </div>
+
           <div class="invite-reset-btn">
-            <a-button @click="handleInviteResetBtn" type="primary" icon="sync" :loading="resetLoading">Reset</a-button>
+            <a-button @click="handleInviteResetBtn" shape="round" type="primary" icon="sync" :loading="resetLoading">
+              Reset
+            </a-button>
           </div>
-        </a-spin>
-      </div>
+        </div>
+      </a-spin>
     </a-modal>
 
     <avatar-modal ref="modal" @ok="setAvatar" />
@@ -250,14 +265,19 @@ export default {
   },
   computed: {
     getDefaultFormData() {
+      const { roles = [], groups = [], classes = [], grades = [] } = this.defaultData
+      const defaultRoles = roles.map(item => item.id)
+      const defaultGroups = groups.map(item => item.id)
+      const defaultClasses = classes.map(item => item.id)
+      const defaultGrades = grades.map(item => item.id)
       return {
         firstname: this.defaultData?.userInfo?.firstname,
         lastname: this.defaultData?.userInfo?.lastname,
         email: this.defaultData?.userInfo?.email,
-        roles: this.defaultData?.roles?.[0]?.id,
-        groups: this.defaultData?.groups?.[0]?.id,
-        classes: this.defaultData?.classes?.[0]?.id,
-        grades: this.defaultData?.grades?.[0]?.id,
+        roles: defaultRoles,
+        groups: defaultGroups,
+        classes: defaultClasses,
+        grades: defaultGrades,
         archived: this.defaultData?.userInfo?.schoolUserStatus === 4 ? 1 : 0,
         schoolJoinDate: this.defaultData?.userInfo?.schoolJoinDate
           ? Moment(this.defaultData?.userInfo?.schoolJoinDate)
@@ -280,9 +300,22 @@ export default {
             avatar: this.avatar,
             ...values
           }
+          if (values.roles && values.roles.length > 0) {
+            params.roles = values.roles.reduce((total, item) => `${total},${item}`)
+          }
+          if (values.groups && values.groups.length > 0) {
+            params.groups = values.groups.reduce((total, item) => `${total},${item}`)
+          }
+          if (values.classes && values.classes.length > 0) {
+            params.classes = values.classes.reduce((total, item) => `${total},${item}`)
+          }
+          if (values.grades && values.grades.length > 0) {
+            params.grades = values.grades.reduce((total, item) => `${total},${item}`)
+          }
           if (values.schoolJoinDate) {
             params.schoolJoinDate = Moment(values.schoolJoinDate).valueOf()
           }
+          console.log('post params: ', params)
           const res = await addStaff(params)
           if (res.success) {
             this.confirmLoading = false
@@ -299,30 +332,6 @@ export default {
       this.visible = false
       this.confirmLoading = false
     },
-    // handleUploadImage(data) {
-    //   logger.info('handleUploadImage', data)
-    //   const formData = new FormData()
-    //   formData.append('file', data.file, data.file.name)
-    //   this.uploadLoading = true
-    //   this.$http
-    //     .post(commonAPIUrl.UploadFile, formData, {
-    //       contentType: false,
-    //       processData: false,
-    //       headers: { 'Content-Type': 'multipart/form-data' },
-    //       timeout: 60000
-    //     })
-    //     .then(response => {
-    //       logger.info('handleUploadImage upload response:', response)
-    //       this.avatar = this.$store.getters.downloadUrl + response.result
-    //     })
-    //     .catch(err => {
-    //       logger.error('handleUploadImage error', err)
-    //       this.$message.error(this.$t('teacher.add-unit-plan.upload-image-file-failed'))
-    //     })
-    //     .finally(() => {
-    //       this.uploadLoading = false
-    //     })
-    // },
     setAvatar(url) {
       logger.info('setAvatar ' + url)
       this.avatar = url
@@ -373,12 +382,37 @@ export default {
   text-align: right;
   margin-bottom: 16px;
 }
-.invite-back-btn,
-.invite-link,
-.invite-checkbox,
-.invite-reset-btn {
-  margin-bottom: 16px;
+.invite {
+  & > div {
+    margin-bottom: 16px;
+  }
+  .invite-reset-btn {
+    text-align: center;
+  }
+  .invite-link {
+    height: 50px;
+    background: #f7f9fd;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    overflow: hidden;
+
+    .link-text {
+      padding: 8px 10px;
+      text-align: left;
+
+      line-height: 20px;
+      word-break: break-all;
+    }
+    .action-copy {
+      font-size: 20px;
+      padding: 10px;
+      cursor: pointer;
+    }
+  }
 }
+
 .avatar-img img {
   max-width: 200px;
 }

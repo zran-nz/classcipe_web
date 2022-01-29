@@ -7,7 +7,7 @@
       <div class="action-item action-item-bottom" >
         <div class="session-btn" @click.stop="handleDeleteItem">
           <div class="session-btn-icon content-list-action-btn">
-            <bianji />
+            <shanchu-icon />
           </div>
           <div class="session-btn-text">Remove</div>
         </div>
@@ -15,22 +15,47 @@
           <div class="session-btn-icon content-list-action-btn">
             <a-icon type="eye" theme="filled" />
           </div>
-          <div class="session-btn-text">Preview</div>
+          <div class="session-btn-text" @click='handlePreviewSubTask'>Preview</div>
         </div>
       </div>
     </div>
     <div class='sub-task-name'>{{ task.name }}</div>
+
+    <a-drawer
+      destroyOnClose
+      placement="right"
+      :closable="false"
+      width="800px"
+      :visible="subTaskPreviewVisible"
+      @close="subTaskPreviewVisible = false"
+    >
+      <a-row class="preview-wrapper-row">
+        <a-col span="2">
+          <div class="view-back" @click="subTaskPreviewVisible = false">
+            <div class="back-icon">
+              <img src="~@/assets/icons/common/back.png" />
+            </div>
+          </div>
+        </a-col>
+        <a-col span="22">
+          <div class="detail-wrapper">
+            <split-task-preview :task-data='taskData'/>
+          </div>
+        </a-col>
+      </a-row>
+    </a-drawer>
   </div>
 </template>
 
 <script>
 import * as logger from '@/utils/logger'
 import NoMoreResources from '@/components/Common/NoMoreResources'
-import Bianji from '@/assets/icons/common/Bianji.svg?inline'
+import ShanchuIcon from '@/assets/svgIcon/task/shanchu_icon.svg?inline'
+import SplitTaskPreview from '@/components/Common/SplitTaskPreview'
 
 export default {
   name: 'TaskPreview',
-  components: { NoMoreResources, Bianji },
+  components: { SplitTaskPreview, NoMoreResources, ShanchuIcon },
   props: {
     taskData: {
       type: Object,
@@ -59,7 +84,8 @@ export default {
         'red',
         'purple'
       ],
-      activeContentType: -1
+      activeContentType: -1,
+      subTaskPreviewVisible: false
     }
   },
   created () {
@@ -120,6 +146,10 @@ export default {
 
     handleDeleteItem () {
       this.$emit('delete-sub-task', this.rawSubTaskData)
+    },
+
+    handlePreviewSubTask () {
+      this.subTaskPreviewVisible = true
     }
   }
 }
@@ -130,7 +160,7 @@ export default {
 
 .task-preview {
   width: 210px;
-  height: 180px;
+  height: 190px;
   position: relative;
   border-radius: 4px;
   overflow: hidden;
@@ -184,12 +214,12 @@ export default {
     white-space: nowrap;
     text-overflow: ellipsis;
     word-break: break-all;
-    background: #ffffff11;
+    background: #fff;
     color: #fff;
     overflow: hidden;
     color: rgba(0, 0, 0, 0.85);
     font-weight: 500;
-    line-height: 30px;
+    line-height: 40px;
     font-size: 13px;
     padding: 0 5px;
   }
@@ -210,6 +240,7 @@ export default {
       justify-content: space-around;
       .session-btn {
         height: 33px;
+        overflow: hidden;
         width: auto;
         display: flex;
         border-radius: 32px;
@@ -222,6 +253,7 @@ export default {
         box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.16);
         opacity: 1;
         border: 1px solid rgba(188, 188, 188, 1);
+
         .session-btn-icon {
           display: flex;
           flex-direction: row;
@@ -229,6 +261,7 @@ export default {
           justify-content: center;
           font-size: 13px;
           svg {
+            width: 14px;
             height: 14px;
             fill: #182552;
             stroke: #182552;
@@ -253,5 +286,34 @@ export default {
       }
     }
   }
+}
+
+.preview-wrapper-row{
+  .preview-wrapper-col{
+    margin: 15px;
+  }
+  .view-back-col {
+    position: absolute;
+    left: -20px;
+    top: -20px;
+    .view-back{
+      .back-icon {
+        text-align: left;
+
+        img {
+          width: 90%;
+          cursor: pointer;
+        }
+      }
+    }
+  }
+}
+
+.detail-wrapper {
+  background: #FFFFFF;
+  border: 1px solid #D8D8D8;
+  box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.16);
+  opacity: 1;
+  border-radius: 10px;
 }
 </style>

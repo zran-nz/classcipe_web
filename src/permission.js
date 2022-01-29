@@ -3,11 +3,10 @@ import store from './store'
 import storage from 'store'
 import NProgress from 'nprogress' // progress bar
 import '@/components/NProgress/nprogress.less' // progress bar custom style
-import notification from 'ant-design-vue/es/notification'
-import { setDocumentTitle, domTitle } from '@/utils/domUtil'
+import { domTitle, setDocumentTitle } from '@/utils/domUtil'
 import { ACCESS_TOKEN, CURRENT_ROLE } from '@/store/mutation-types'
 import { i18nRender } from '@/locales'
-import { defaultTeacherRouter, defaultExpertRouter } from '@/config/router.config'
+import { defaultExpertRouter, defaultTeacherRouter } from '@/config/router.config'
 import * as logger from '@/utils/logger'
 
 NProgress.configure({ showSpinner: false }) // NProgress Configuration
@@ -86,7 +85,7 @@ router.beforeEach((to, from, next) => {
               })
             })
             .catch(() => {
-              notification.error({
+              logger.error({
                 message: 'Error',
                 description: 'Failed to get userinfo, Please try again!'
               })

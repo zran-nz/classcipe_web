@@ -232,7 +232,11 @@ export default {
   }
 }
 </script>
-
+<style lang="less">
+.ant-select-dropdown {
+  z-index: 9999;
+}
+</style>
 <style lang="less" scoped>
 @import '~@/components/index.less';
 .main-content {

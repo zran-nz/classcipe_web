@@ -1,14 +1,15 @@
 import request from '@/utils/request'
 
 export const schoolUserAPIUrl = {
-  getSchoolGroupList: '/classcipe/api/school/group/list',
   getSchoolRoleList: '/classcipe/api/school/role/getRoles',
   getSchoolClassList: '/classcipe/api/school/class/list',
+
   addStaff: '/classcipe/api/school/user/addStaff',
   addStudent: '/classcipe/api/school/user/addStudents',
   getOrCreateInvite: '/classcipe/api/school/user/getOrCreateInvite',
   getSchoolUsers: '/classcipe/api/school/user/getSchoolUsers',
-  queryUser: '/classcipe/api/school/user/queryUser'
+  queryUser: '/classcipe/api/school/user/queryUser',
+  updateUserStatus: '/classcipe/api/school/user/updateUserStatus'
 }
 
 /**
@@ -16,13 +17,6 @@ export const schoolUserAPIUrl = {
  * @returns {AxiosPromise}
  * @constructor
  */
-export function getSchoolGroupList (parameter) {
-  return request({
-    url: schoolUserAPIUrl.getSchoolGroupList,
-    method: 'get',
-    params: parameter
-  })
-}
 export function getSchoolRoleList (parameter) {
   return request({
     url: schoolUserAPIUrl.getSchoolRoleList,
@@ -69,6 +63,13 @@ export function queryUser (parameter) {
   return request({
     url: schoolUserAPIUrl.queryUser,
     method: 'get',
+    params: parameter
+  })
+}
+export function updateUserStatus (parameter) {
+  return request({
+    url: schoolUserAPIUrl.updateUserStatus,
+    method: 'post',
     params: parameter
   })
 }

@@ -237,6 +237,12 @@ export default {
       default: () => {
         return []
       }
+    },
+    subTasks: {
+      type: Array,
+      default: () => {
+        return []
+      }
     }
   },
   mixins: [UtilMixin],
@@ -314,7 +320,6 @@ export default {
       selectedRecommendList: [],
       selectedIduList: [],
       uploading: false,
-      taskNum: 1,
 
       parentData: null,
       recommendData: [],
@@ -341,6 +346,9 @@ export default {
       })
 
       return list
+    },
+    subTaskNum () {
+      return this.subTasks.length + 1
     }
   },
   watch: {
@@ -350,14 +358,12 @@ export default {
     },
     'parentFormData.image': {
       handler (v) {
-        this.$logger.info('parentFormData.image', v)
         this.form.image = v
       },
       deep: true
     },
     'parentFormData.customTags': {
       handler (v) {
-        this.$logger.info('parentFormData.customTag', v)
         this.form.customTags = v
       },
       deep: true
@@ -378,7 +384,7 @@ export default {
       formData.materialList = []
       formData.learnOuts = []
       formData.__taskId = '__taskId_' + this.taskPrefix
-      formData.name = formData.name ? (formData.name + ' sub task' + this.taskNum) : 'sub task' + this.taskNum
+      formData.name = 'subTask' + this.subTaskNum + ' of ' + (formData.name ? formData.name : '')
       this.$logger.info('TaskForm parentFormData', formData)
       this.$logger.info('TaskForm selectedPageItemData', this.selectedPageItemData)
       this.form = formData
@@ -422,8 +428,8 @@ export default {
         formData.id = null
         this.form = formData
         this.materialListFlag = false
-        this.form.name = ''
-        this.form.overview = ''
+        this.form.name = 'subTask' + (this.subTaskNum) + ' of ' + (this.parentFormData.name ? this.parentFormData.name : '')
+        this.form.overview = (this.parentFormData.overview ? this.parentFormData.overview : '')
         this.form.image = ''
         this.form.selectPageObjectIds = []
         this.form.learnOuts = []

@@ -3,6 +3,7 @@
 html,
 body,
 #app, #root {
+  position: relative;
   height: 100%;
   overflow-y: overlay;
   min-width: 800px;
@@ -754,5 +755,35 @@ button.wide-action-button.ant-btn {
 .split-task {
   .ant-form-item {
     margin-bottom: 10px;
+  }
+}
+
+.linked-class-list {
+  .ant-form-item {
+    margin-bottom: 8px;
+
+    .ant-form-item-label {
+      line-height: 25px;
+      font-size: 13px;
+    }
+  }
+}
+
+.feed-back-modal {
+  z-index: 99999;
+  .ant-modal-content {
+    border-radius: 0;
+  }
+}
+
+.edit-img-modal {
+  z-index: 999999;
+  .ant-modal-content {
+    border-radius: 0;
+    padding: 0;
+    position: relative;
+  }
+  .ant-modal-body {
+    padding: 0;
   }
 }

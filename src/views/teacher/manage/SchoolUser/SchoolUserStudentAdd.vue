@@ -61,6 +61,13 @@
               </a-form-item>
             </a-col>
             <a-col :span="12">
+              <a-form-item label="Student ID">
+                <a-input v-decorator="['workNo', { initialValue: getDefaultFormData.workNo, rules: [] }]" />
+              </a-form-item>
+            </a-col>
+          </a-row>
+          <a-row>
+            <a-col :span="12">
               <a-form-item label="Class">
                 <a-select v-decorator="['classes', { initialValue: getDefaultFormData.classes, rules: [] }]">
                   <a-select-option :value="item.id" :key="item.id" v-for="item in classList">{{
@@ -69,24 +76,18 @@
                 </a-select>
               </a-form-item>
             </a-col>
-          </a-row>
-          <a-row>
             <a-col :span="12">
-              <a-form-item label="Grade">
-                <a-select v-decorator="['grades', { initialValue: getDefaultFormData.grades, rules: [] }]">
-                  <a-select-option :value="item.id" :key="item.id" v-for="item in gradeList">{{
-                    item.name
-                  }}</a-select-option>
-                </a-select>
+              <a-form-item label="Age">
+                <a-input v-decorator="['age', { initialValue: getDefaultFormData.age, rules: [] }]" />
               </a-form-item>
             </a-col>
+          </a-row>
+          <a-row>
             <a-col :span="12">
               <a-form-item label="Parent Name">
                 <a-input v-decorator="['parentName', { initialValue: getDefaultFormData.parentName, rules: [] }]" />
               </a-form-item>
             </a-col>
-          </a-row>
-          <a-row>
             <a-col :span="12">
               <a-form-item label="Parent Email">
                 <a-input
@@ -100,16 +101,11 @@
                 />
               </a-form-item>
             </a-col>
-            <a-col :span="12">
-              <a-form-item label="Parent No">
-                <a-input v-decorator="['parentNo', { initialValue: getDefaultFormData.parentNo, rules: [] }]" />
-              </a-form-item>
-            </a-col>
           </a-row>
           <a-row>
             <a-col :span="12">
-              <a-form-item label="Age">
-                <a-input v-decorator="['age', { initialValue: getDefaultFormData.age, rules: [] }]" />
+              <a-form-item label="Parent No">
+                <a-input v-decorator="['parentNo', { initialValue: getDefaultFormData.parentNo, rules: [] }]" />
               </a-form-item>
             </a-col>
           </a-row>
@@ -118,31 +114,36 @@
     </j-modal>
 
     <a-modal title="Invite by link" @cancel="handleInviteBackBtn" :footer="null" :visible="currentView === 'invite'">
-      <div class="invite">
-        <div class="invite-back-btn">
+      <a-spin :spinning="inviteLoading">
+        <div class="invite">
+          <!-- <div class="invite-back-btn">
           <a-button @click="handleInviteBackBtn" type="primary" icon="left">Back</a-button>
-        </div>
-        <a-spin :spinning="inviteLoading">
+        </div> -->
+
           <div class="invite-link">
-            <a-row>
-              <a-col :span="18">
-                <a-input :value="inviteUrl" disabled> </a-input>
-              </a-col>
-              <a-col :span="4">
-                <a-button icon="copy" @click="onCopy"> Copy </a-button>
-              </a-col>
-            </a-row>
+            <div class="link-text">
+              {{ inviteUrl }}
+            </div>
+            <div class="action-copy" @click="onCopy">
+              <a-tooltip placement="top" title="Copy link">
+                <a-icon type="link" />
+              </a-tooltip>
+            </div>
           </div>
+
           <div class="invite-checkbox">
             <a-checkbox :checked="inviteCheckBoxChecked" @change="onInviteCheckBoxChange">
               Applicants with this link will need your approval to join your school community
             </a-checkbox>
           </div>
+
           <div class="invite-reset-btn">
-            <a-button @click="handleInviteResetBtn" type="primary" icon="sync" :loading="resetLoading">Reset</a-button>
+            <a-button @click="handleInviteResetBtn" shape="round" type="primary" icon="sync" :loading="resetLoading">
+              Reset
+            </a-button>
           </div>
-        </a-spin>
-      </div>
+        </div>
+      </a-spin>
     </a-modal>
   </a-card>
 </template>
@@ -191,12 +192,13 @@ export default {
         firstname: this.defaultData?.userInfo?.firstname,
         lastname: this.defaultData?.userInfo?.lastname,
         email: this.defaultData?.userInfo?.email,
+        workNo: this.defaultData?.userInfo?.workNo,
         classes: this.defaultData?.classes?.[0]?.id,
-        grades: this.defaultData?.grades?.[0]?.id,
+        age: this.defaultData?.userInfo?.age,
+        // grades: this.defaultData?.grades?.[0]?.id,
         parentName: this.defaultData?.userInfo?.parentName,
         parentEmail: this.defaultData?.userInfo?.parentEmail,
-        parentNo: this.defaultData?.userInfo?.parentNo,
-        age: this.defaultData?.userInfo?.age
+        parentNo: this.defaultData?.userInfo?.parentNo
       }
     }
   },
@@ -275,10 +277,34 @@ export default {
   text-align: right;
   margin-bottom: 16px;
 }
-.invite-back-btn,
-.invite-link,
-.invite-checkbox,
-.invite-reset-btn {
-  margin-bottom: 16px;
+.invite {
+  & > div {
+    margin-bottom: 16px;
+  }
+  .invite-reset-btn {
+    text-align: center;
+  }
+  .invite-link {
+    height: 50px;
+    background: #f7f9fd;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    overflow: hidden;
+
+    .link-text {
+      padding: 8px 10px;
+      text-align: left;
+
+      line-height: 20px;
+      word-break: break-all;
+    }
+    .action-copy {
+      font-size: 20px;
+      padding: 10px;
+      cursor: pointer;
+    }
+  }
 }
 </style>

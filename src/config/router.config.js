@@ -95,7 +95,7 @@ export const asyncRouterMap = [
           {
             path: '/teacher/managing',
             name: 'Managing',
-            redirect: '/teacher/managing/skill',
+            redirect: '/teacher/managing/school-user',
             component: () => import('@/views/teacher/Managing'),
             meta: { title: 'menu.managing', keepAlive: true, permission: ['teacher'], fullLayout: true },
             children: [

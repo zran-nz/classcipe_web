@@ -59,7 +59,7 @@
 
           <div class="recommend-description" v-if="!isEmptyRecommend">
             <div class="recommend-title">
-              <h3>Recommended assessment objectives</h3>
+              <h3>Recommended learning objectives</h3>
             </div>
             <div class="recommend-detail">
               <div class="recommend-list" v-for="(recommendDataItem, rIndex) in recommendData" :key="rIndex" :data-item='JSON.stringify(recommendDataItem)'>
@@ -75,7 +75,7 @@
                     :class="{'recommend-item': true, 'my-selected-item': selectedRecommendIdList.indexOf(recommendItem.knowledgeId) !== -1,
                              'disabled-select-item': mySelectedIdList.indexOf(recommendItem.knowledgeId) !== -1}"
                     v-for="(recommendItem, rI) in recommendDataItem.skillList"
-                    :key="'ri-' + rI"
+                    :key="'ria-' + rI"
                     @click="handleAddRecommend(recommendItem)"
                     :data-tag-type='recommendItem.tagType'
                     :data-knowledge-id="recommendItem.knowledgeId"
@@ -112,7 +112,7 @@
                     :class="{'recommend-item': true, 'my-selected-item': selectedRecommendIdList.indexOf(recommendItem.knowledgeId) !== -1,
                              'disabled-select-item': mySelectedIdList.indexOf(recommendItem.knowledgeId) !== -1}"
                     v-for="(recommendItem, rI) in recommendDataItem.knowledgeList"
-                    :key="'ri-' + rI"
+                    :key="'ril-' + rI"
                     @click="handleAddRecommend(recommendItem)"
                     :data-tag-type='recommendItem.tagType'
                     :data-knowledge-id="recommendItem.knowledgeId"
@@ -149,7 +149,7 @@
                     :class="{'recommend-item': true, 'my-selected-item': selectedRecommendIdList.indexOf(recommendItem.knowledgeId) !== -1,
                              'disabled-select-item': mySelectedIdList.indexOf(recommendItem.knowledgeId) !== -1}"
                     v-for="(recommendItem, rI) in recommendDataItem.centuryList"
-                    :key="'ri-' + rI"
+                    :key="'ri2-' + rI"
                     @click="handleAddRecommend(recommendItem)"
                     :data-tag-type='recommendItem.tagType'
                     :data-knowledge-id="recommendItem.knowledgeId"
@@ -1329,7 +1329,10 @@ div[tag-type="4"] {
 }
 
 div[tag-type="2"] {
-  background: rgb(255, 236, 210);
+  background: #FF978E;
+}
+div[tag-type="3"] {
+  background: rgb(215, 224, 233);
 }
 
 .title-item {
