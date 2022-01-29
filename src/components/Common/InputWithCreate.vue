@@ -2,11 +2,18 @@
   <div class='my-input-with-create' @click.stop=''>
     <a-input class='my-input-with-create' v-model='displayValue' @focus='showOptionList = true'>
     </a-input>
-    <div class='option-list' v-show='showOptionList' @click.stop=''>
+    <div class='option-list' v-show='showOptionList && (displayOptionList.length || displayValue)' @click.stop=''>
       <div class='option-item' v-for='(option, oIdx) in displayOptionList' :key='oIdx' @click='handleSelectItem(option)'>
-        {{ option.name }}
+        <div class='option-name'>
+          {{ option.name }}
+        </div>
+        <div :class="{'has-tag': option.tagLabel}">
+          <a-tag :color="option.tagColor" v-if='option.tagLabel'>
+            {{ option.tagLabel }}
+          </a-tag>
+        </div>
       </div>
-      <div class='create-item' v-show='displayOptionList.length === 0'>
+      <div class='create-item' v-show='displayOptionList.length === 0 && displayValue && displayValue.trim()'>
         <div class='create-item-tag' @click='createNew'>
           Create {{ displayValue }}
         </div>
@@ -28,16 +35,35 @@ export default {
       type: String,
       default: ''
     },
+    defaultDisplayName: {
+      type: String,
+      default: ''
+    },
     index: {
       type: Number,
       default: -1
+    },
+    tagTypeConfig: {
+      type: Object,
+      default: () => {}
     }
   },
   watch: {
     optionList: {
       handler: function (newVal, oldVal) {
         this.$logger.info('optionList changed ' + newVal)
-        this.myOptionList = newVal
+        this.myOptionList = []
+        newVal.forEach(option => {
+          const optionItem = Object.assign({}, option)
+          if (this.tagTypeConfig.hasOwnProperty(optionItem.classType)) {
+            optionItem.tagColor = this.tagTypeConfig[optionItem.classType].color
+            optionItem.tagLabel = this.typeTagConfig[optionItem.classType].label
+          } else {
+            optionItem.tagColor = null
+            optionItem.tagLabel = null
+          }
+          this.myOptionList.push(optionItem)
+        })
       },
       deep: true
     },
@@ -70,10 +96,28 @@ export default {
     }
   },
   created() {
-    this.myOptionList = this.optionList
+    this.myOptionList = []
+    this.optionList.forEach(option => {
+      const optionItem = Object.assign({}, option)
+      if (this.tagTypeConfig.hasOwnProperty(optionItem.classType)) {
+        optionItem.tagColor = this.tagTypeConfig[optionItem.classType].color
+        optionItem.tagLabel = this.tagTypeConfig[optionItem.classType].label
+      } else {
+        optionItem.tagColor = null
+        optionItem.tagLabel = null
+      }
+      this.myOptionList.push(optionItem)
+    })
+    this.$logger.info('myOptionList ', this.myOptionList)
     this.selectedId = this.defaultSelectedId
-    if (this.selectedId) {
-      this.displayValue = this.myOptionList.find(option => option.id === this.selectedId).name
+
+    if (this.defaultDisplayName) {
+      this.displayValue = this.defaultDisplayName
+    } else if (this.selectedId) {
+      const optionItem = this.myOptionList.find(option => option.id === this.selectedId)
+      if (optionItem) {
+        this.displayValue = optionItem.name
+      }
     }
   },
   mounted () {
@@ -89,7 +133,7 @@ export default {
     },
 
     handleSelectItem (item) {
-      this.$emit('selected', item.id)
+      this.$emit('selected', item)
       this.displayValue = item.name
       this.selectedId = item.id
       this.showOptionList = false
@@ -144,6 +188,22 @@ export default {
     padding: 0 10px;
     line-height: 40px;
     border-bottom: 1px solid #f6f6f6;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+
+    .option-name {
+      font-size: 14px;
+      line-height: 40px;
+    }
+
+    .has-tag {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+    }
+
     &:hover {
       background: #f5f5f5;
       color: #38cfa6;

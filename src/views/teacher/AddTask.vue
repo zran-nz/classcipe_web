@@ -51,13 +51,31 @@
                         <!--关联班级以及开课时间 -->
                         <div class='form-block link-class'>
                           <div class='linked-class-list' v-for='(classItem, cIdx) in form.taskClassList' :key='cIdx'>
+                            <div class='mask' v-show='!isOwner'></div>
+                            <div class='class-type-tag' v-if='classItem.classType === 1'>
+                              <a-tag color="#F4B183">
+                                Classcipe International School
+                              </a-tag>
+                            </div>
+                            <div class='class-type-tag' v-if='classItem.classType === 2'>
+                              <a-tag color="#9DC3E6">
+                                Personal
+                              </a-tag>
+                            </div>
                             <a-popconfirm cancel-text="No" ok-text="Yes" title="Delete ?">
                               <div class='remove-class-icon' @confirm="handleDeleteClass(classItem)">
                                 <img class='big-delete-icon' src='~@/assets/icons/evaluation/big_delete.png' />
                               </div>
                             </a-popconfirm>
                             <a-form-item label='Choose class'>
-                              <input-with-create :option-list='classList' :index='cIdx' :default-selected-id='classItem.classId' @selected='classItem.classId = $event' @create-new='handleCreateNewClass'/>
+                              <input-with-create
+                                :option-list='classList'
+                                :index='cIdx'
+                                :default-selected-id='classItem.classId'
+                                :default-display-name='classItem.className'
+                                :tag-type-config='tagTypeConfig'
+                                @selected='handleSelectClass(classItem, $event)'
+                                @create-new='handleCreateNewClass'/>
                             </a-form-item>
 
                             <a-form-item label='Schedule a session for this class'>
@@ -74,6 +92,7 @@
                                   <a-range-picker
                                     v-model='classItem.momentRangeDate'
                                     format='LLL'
+                                    style='width: 430px'
                                     :show-time="{ format: 'HH:mm' }"
                                     @openChange='handleUpdateWeeks'>
                                     <a-icon slot='suffixIcon' type='calendar' />
@@ -1810,6 +1829,7 @@ export default {
         status: 0,
         taskType: '',
         createTime: '',
+        createBy: '',
         updateTime: '',
         customTags: [],
         subjectIds: [],
@@ -1959,7 +1979,18 @@ export default {
       shareStatus: 0,
       taskField: TaskField,
 
-      classList: []
+      classList: [],
+
+      tagTypeConfig: {
+        1: {
+          color: '#F4B183',
+          label: 'Classcipe International School'
+        },
+        2: {
+          color: '#9DC3E6',
+          label: 'Personal'
+        }
+      }
     }
   },
   computed: {
@@ -2008,6 +2039,9 @@ export default {
     },
     presentationLink() {
       return 'https://docs.google.com/presentation/d/' + this.form.presentationId + '/edit'
+    },
+    isOwner() {
+      return this.$store.getters.userInfo.email === this.form.createBy
     }
   },
   watch: {
@@ -3938,6 +3972,13 @@ export default {
           }
         })
       })
+    },
+
+    handleSelectClass (classItem, eventData) {
+      this.$logger.info('handleSelectClass', classItem, event)
+      classItem.classId = eventData.id
+      classItem.classType = eventData.classType
+      classItem.className = eventData.name
     },
 
     handleUpdateWeeks (status) {
@@ -6361,6 +6402,16 @@ export default {
   margin-bottom: 15px;
   position: relative;
 
+  .mask {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    z-index: 100;
+    background: rgba(0,0,0, 0.07);
+  }
+
   .remove-class-icon {
     position: absolute;
     right: -25px;
@@ -6372,6 +6423,13 @@ export default {
     img {
       width: 15px;
     }
+  }
+
+  .class-type-tag {
+    position: absolute;
+    right: 2px;
+    top: 5px;
+    text-align: center;
   }
 
   &:hover {
