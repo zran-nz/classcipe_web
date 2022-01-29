@@ -7,8 +7,7 @@
         <server-icon-svg />
       </div>
       <div class='feed-back-text'>
-        <div class='text-item'>Help & </div>
-        <div class='text-item'>Support</div>
+        <div class='text-item'>Feedback</div>
       </div>
     </div>
 
