@@ -159,7 +159,7 @@ export default {
 
 .option-list {
   background: #fff;
-  z-index: 100;
+  z-index: 200;
   position: absolute;
   top: 43px;
   width: 100%;

@@ -13,10 +13,19 @@
       </div>
       <div class="upload-wrapper">
         <a-button @click="handleAdd" type="primary" icon="plus">Add</a-button>
-        <a-button type="primary" icon="download" @click="downloadTemplate">Download template</a-button>
-        <a-upload name="file" :showUploadList="false" :multiple="false">
-          <a-button type="primary" icon="import">Upload</a-button>
+
+        <a-upload name="file" :showUploadList="false" :multiple="false" :customRequest="handleMyImportExcel">
+          <a-button :loading="importLoading" type="primary" icon="import">{{ importLoadingText }}</a-button>
         </a-upload>
+
+        <a-dropdown>
+          <a-button type="link" shape="circle" icon="download" />
+          <a-menu slot="overlay">
+            <a-menu-item key="1">
+              <a-button type="link" icon="download" @click="downloadTemplate">Download template</a-button>
+            </a-menu-item>
+          </a-menu>
+        </a-dropdown>
       </div>
     </div>
 
@@ -173,12 +182,19 @@
 
 <script>
 import SchoolUserTeacherAdd from './SchoolUserTeacherAdd.vue'
-import { getSchoolRoleList, getSchoolClassList, getSchoolUsers, updateUserStatus } from '@/api/schoolUser'
+import {
+  getSchoolRoleList,
+  getSchoolClassList,
+  getSchoolUsers,
+  updateUserStatus,
+  schoolUserAPIUrl
+} from '@/api/schoolUser'
 import { getSchoolGroupList } from '@/api/schoolGroup'
 import { getGradeListBySchoolId } from '@/api/grade'
 import store from '@/store'
 import { schoolUserStatusList } from '@/const/schoolUser'
 import Moment from 'moment'
+import * as logger from '@/utils/logger'
 
 const columns = [
   {
@@ -276,7 +292,9 @@ export default {
       baseUrl: process.env.VUE_APP_API_BASE_URL,
       activeStatus: '',
       form: this.$form.createForm(this, { name: 'teacherSearch' }),
-      showAdvancedSearch: false
+      showAdvancedSearch: false,
+      importLoadingText: 'Bulk import',
+      importLoading: false
     }
   },
   created() {
@@ -391,6 +409,68 @@ export default {
       link.click()
       document.body.removeChild(link) // 下载完成移除元素
       window.URL.revokeObjectURL(url) // 释放掉blob对象
+    },
+    handleMyImportExcel(data) {
+      logger.info('import excel', data)
+      const formData = new FormData()
+      formData.append('file', data.file, data.file.name)
+      this.importLoading = true
+      this.$http
+        .post(schoolUserAPIUrl.importStaff, formData, {
+          contentType: false,
+          processData: false,
+          headers: { 'Content-Type': 'multipart/form-data' },
+          timeout: 60000,
+          params: {
+            schoolId: store.getters.userInfo.school
+          }
+        })
+        .then(res => {
+          logger.info('import excel res:', res)
+          if (res.success) {
+            const { result = {} } = res
+            const { alreadyImportedCount, insertCount, invalidCount, totalCount, updateCount } = result
+            // alreadyImportedCount: 0
+            // insertCount: 1
+            // invalidCount: 0
+            // totalCount: 1
+            // updateCount: 0
+            if (totalCount === insertCount) {
+              this.$success({
+                title: 'Import successfully'
+              })
+            } else {
+              this.$warning({
+                title: 'A bit more patience is needed',
+                content: (
+                  <div>
+                    <p>alreadyImportedCount: {alreadyImportedCount}</p>
+                    <p>insertCount: {insertCount}</p>
+                    <p>invalidCount: {invalidCount}</p>
+                    <p>totalCount: {totalCount}</p>
+                    <p>updateCount: {updateCount}</p>
+                  </div>
+                )
+              })
+            }
+          } else {
+            this.$error({
+              title: 'Import failed',
+              content: 'Import failed. Please upload again!'
+            })
+          }
+        })
+        .catch(err => {
+          logger.info('import excel err:', err)
+          this.$error({
+            title: 'Import failed',
+            content: 'Import failed. Please upload again!'
+          })
+        })
+        .finally(() => {
+          this.importLoading = false
+          this.loadData()
+        })
     }
   }
 }

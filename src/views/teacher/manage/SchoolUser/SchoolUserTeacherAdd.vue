@@ -50,6 +50,7 @@
             <a-col :span="12">
               <a-form-item label="Email">
                 <a-input
+                  :disabled="mode === 'edit'"
                   v-decorator="[
                     'email',
                     {

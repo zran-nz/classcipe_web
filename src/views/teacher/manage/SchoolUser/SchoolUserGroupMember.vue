@@ -55,11 +55,11 @@
         :scroll="{ x: true }"
         rowKey="id"
       >
-        <span slot="advisor" slot-scope="advisor" class="table-tag">
-          <span v-for="adv in advisor" :key="adv.id">
-            {{ adv.email }}
+        <div slot="classes" slot-scope="classes" class="table-tag">
+          <span v-for="clas in classes" :key="clas.id">
+            {{ clas.name }}
           </span>
-        </span>
+        </div>
 
         <span slot="action" slot-scope="item" class="table-action">
           <a-popconfirm title="Remove this teacher ?" ok-text="Yes" @confirm="handleRemove(item)" cancel-text="No">
@@ -91,6 +91,7 @@ import store from '@/store'
 const columns = [
   {
     title: 'Teacher Name',
+    dataIndex: 'userInfo',
     customRender: (text, row, index) => {
       return `${text.firstname} ${text.lastname}`
     },
@@ -98,12 +99,13 @@ const columns = [
   },
   {
     title: 'Class',
-    dataIndex: 'Class',
-    key: 'Class'
+    dataIndex: 'classes',
+    scopedSlots: { customRender: 'classes' },
+    key: 'classes'
   },
   {
     title: 'Join at',
-    dataIndex: 'schoolJoinDate',
+    dataIndex: 'userInfo.schoolJoinDate',
     key: 'joinat'
   },
   {
@@ -247,6 +249,15 @@ export default {
     line-height: 24px;
     padding-left: 15px;
     color: #000000;
+  }
+}
+.table-tag {
+  span {
+    display: table;
+    // border: 1px solid #15c39a;
+    border-radius: 6px;
+    margin: 4px;
+    padding: 0px 4px;
   }
 }
 </style>
