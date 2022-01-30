@@ -193,16 +193,16 @@
                 <div class="link-text" >
                   {{ linkUrl }}
                 </div>
-                <div class="action-copy" @click="handleCopy()" style="width:50px;font-size: 20px;cursor: pointer;">
+                <div class="action-copy" @click="handleCopy()" style="width:40px;font-size: 20px;cursor: pointer;">
                   <a-tooltip placement="top" title="Copy link">  <a-icon type="link" /></a-tooltip>
                 </div>
-                <!--                <div class="action-copy" @click="handleCopy()" style="width:50px;font-size: 20px;cursor: pointer;">-->
-                <!--                  <a-tooltip placement="top" title="Send email">   <a-icon type="mail" /></a-tooltip>-->
-                <!--                </div>-->
+                <div class="action-copy" @click="handleEmail()" style="width:40px;font-size: 20px;cursor: pointer;">
+                  <a-tooltip placement="top" title="Send email">   <a-icon type="mail" /></a-tooltip>
+                </div>
 
-                <!--                <a-button class="action-copy" type="primary" shape="round" @click="handleCopy()">-->
-                <!--                  copy-->
-                <!--                </a-button>-->
+                <!--                          <a-button class="action-copy" type="primary" shape="round" @click="handleCopy()">-->
+                <!--                            copy-->
+                <!--                          </a-button>-->
               </div>
               <div class="link-approve">
                 <a-radio @click="changeApprove" :checked="approveFlag">Approval confirmation is required when passing the link</a-radio>
@@ -212,6 +212,23 @@
         </a-skeleton>
       </div>
     </div>
+
+    <a-modal width="600px" title="Invite by email" @cancel="sendEmailVisibility=false" :footer="null" :visible="sendEmailVisibility">
+      <a-form-model ref="form" :model="model" :rules="validatorRules">
+        <a-form-model-item prop="email" label="email" :labelCol="labelCol" :wrapperCol="wrapperCol">
+          <a-input placeholder="Please input invite email" v-model="model.email" />
+        </a-form-model-item>
+        <a-button type="primary" :loading="sendLoading" @click="handleSendEmail" style="margin-left: 40%;margin-bottom: 20px;">
+          Send an email
+        </a-button>
+        <!--          <a-col :span="8">-->
+        <!--            <a-button type="primary" :loading="sendLoading" @click="handleSendEmail" >-->
+        <!--              Send an email-->
+        <!--            </a-button>-->
+        <!--          </a-col>-->
+      </a-form-model>
+    </a-modal>
+
   </div>
 </template>
 
@@ -220,7 +237,9 @@ import NoMoreResources from '@/components/Common/NoMoreResources'
 import {
   CollaboratesAgree,
   CollaboratesInvite,
-  CollaboratesSearchUser, CollaboratesUpdate,
+  CollaboratesSearchUser,
+  CollaboratesSendInviteEmail,
+  CollaboratesUpdate,
   CollaboratesUpdateLink,
   QueryContentCollaborates
 } from '@/api/collaborate'
@@ -293,7 +312,23 @@ export default {
       collaborateStatus: CollaborateStatus,
       agreeLoading: false,
       collaborateHistoryUsers: [],
-      collaborateHistoryUserEmails: []
+      collaborateHistoryUserEmails: [],
+      sendEmailVisibility: false,
+      validatorRules: {
+        email: [
+          { required: true, type: 'email', message: 'Please input right email!', trigger: 'blur' }
+        ]
+      },
+      model: {},
+      sendLoading: false,
+      labelCol: {
+        xs: { span: 24 },
+        sm: { span: 5 }
+      },
+      wrapperCol: {
+        xs: { span: 24 },
+        sm: { span: 16 }
+      }
     }
   },
   created () {
@@ -398,6 +433,10 @@ export default {
         this.$message.error('Copy failed')
       })
     },
+    handleEmail() {
+      this.$logger.info('handleEmail')
+      this.sendEmailVisibility = true
+    },
     resetLink () {
       this.collaborate.link.needUpdateCode = true
       CollaboratesUpdateLink(this.collaborate.link).then(response => {
@@ -468,6 +507,29 @@ export default {
         logger.info('handleChange', res)
         this.$message.success('Update successfully')
       }).then(() => {
+      })
+    },
+    handleSendEmail () {
+      const that = this
+      // 触发表单验证
+      this.$refs.form.validate(valid => {
+        if (valid) {
+          that.sendLoading = true
+          CollaboratesSendInviteEmail({
+            id: this.contentId,
+            type: this.contentType,
+            email: this.model.email
+          }).then(res => {
+            logger.info('handleChange', res)
+            this.$message.success('Send successfully')
+          }).finally(() => {
+            that.sendLoading = false
+            that.sendEmailVisibility = false
+            that.model.email = ''
+          })
+        } else {
+          return false
+        }
       })
     }
   }
