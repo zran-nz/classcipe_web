@@ -25,10 +25,10 @@
                       <template slot="title">
                         Rename
                       </template>
-                      <a-icon type="edit" v-if="!linkGroup.editing"/>
+                      <a-icon type="edit" :style="{ fontSize: '20px', color: '#15C39A', fontWeight: 'bold' }" v-if="!linkGroup.editing"/>
                     </a-tooltip>
 
-                    <a-icon type="check" v-if="linkGroup.editing"/>
+                    <a-icon type="check" :style="{ fontSize: '20px', color: '#15C39A', fontWeight: 'bold' }" v-if="linkGroup.editing"/>
                   </div>
                 </template>
                 <template v-else>
