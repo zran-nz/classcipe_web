@@ -9,7 +9,9 @@ export const schoolUserAPIUrl = {
   getOrCreateInvite: '/classcipe/api/school/user/getOrCreateInvite',
   getSchoolUsers: '/classcipe/api/school/user/getSchoolUsers',
   queryUser: '/classcipe/api/school/user/queryUser',
-  updateUserStatus: '/classcipe/api/school/user/updateUserStatus'
+  updateUserStatus: '/classcipe/api/school/user/updateUserStatus',
+  importStaff: '/classcipe/api/school/user/importStaffByExcel',
+  importStudent: '/classcipe/api/school/user/importStudentByExcel'
 }
 
 /**

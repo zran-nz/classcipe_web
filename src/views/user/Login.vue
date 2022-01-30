@@ -80,7 +80,7 @@
             </div>
 
             <a-form-item class="form-submit">
-              <a-button type="primary" block :loading="loading" size="large" html-type="submit">Sign In</a-button>
+              <a-button type="primary" block :loading="loading" size="large" html-type="submit"> Log In </a-button>
             </a-form-item>
           </a-form>
 

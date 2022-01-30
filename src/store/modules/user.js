@@ -4,6 +4,7 @@ import { ACCESS_TOKEN, CURRENT_ROLE, IS_ADD_PREFERENCE, USER_INFO, ADD_PREFERENC
 import { welcome, setCookie, delCookie } from '@/utils/util'
 import * as logger from '@/utils/logger'
 import { SESSION_ACTIVE_KEY } from '@/const/common'
+import { teacher } from '@/const/role'
 
 const user = {
   state: {
@@ -156,7 +157,7 @@ const user = {
           storage.set(USER_INFO, result)
           window.sessionStorage.setItem(SESSION_ACTIVE_KEY, storage.get(ACCESS_TOKEN))
           // 交换最新的后台token
-          if (storage.get(ACCESS_TOKEN) !== result.token) {
+          if (result.token && result.currentRole === teacher && storage.get(ACCESS_TOKEN) !== result.token) {
             storage.set(ACCESS_TOKEN, result.token, 7 * 24 * 60 * 60 * 1000)
             commit('SET_TOKEN', result.token)
             window.sessionStorage.setItem(SESSION_ACTIVE_KEY, result.token)

@@ -3547,6 +3547,7 @@ export default {
       } else if (category1 === TemplateType.Century) {
         list = this.centuryList
       }
+      console.log('list size:' + list.length)
       if (!category2) {
         return list
       }
@@ -3575,11 +3576,12 @@ export default {
       } else if (category === TemplateType.Century) {
         if (this.filterCentury.indexOf(id) === -1) {
           this.filterCentury.push(id)
-          // if (parentId && this.filterCentury.indexOf(parentId) === -1) {
-          //   this.filterCentury.push(parentId)
-          // }
         } else {
           this.filterCentury.splice(this.filterCentury.indexOf(id), 1)
+          // 去重父标签
+          if (!e.target.checked && parent && parent.id !== id && this.filterCentury.indexOf(parent.id) !== -1) {
+            this.filterCentury.splice(this.filterCentury.indexOf(parent.id), 1)
+          }
         }
         // child设置
         if (parent.id === id) {

@@ -50,6 +50,7 @@
             <a-col :span="12">
               <a-form-item label="Email">
                 <a-input
+                  :disabled="mode === 'edit'"
                   v-decorator="[
                     'email',
                     {
@@ -69,7 +70,16 @@
           <a-row>
             <a-col :span="12">
               <a-form-item label="Class">
-                <a-select v-decorator="['classes', { initialValue: getDefaultFormData.classes, rules: [] }]">
+                <a-select
+                  @change="this.handleClasses"
+                  v-decorator="[
+                    'classes',
+                    {
+                      initialValue: getDefaultFormData.classes,
+                      rules: [],
+                    },
+                  ]"
+                >
                   <a-select-option :value="item.id" :key="item.id" v-for="item in classList">{{
                     item.name
                   }}</a-select-option>
@@ -77,17 +87,22 @@
               </a-form-item>
             </a-col>
             <a-col :span="12">
+              <div style="height: 36px; margin-top: 8px">Reletive Grade: {{ this.reletiveGrade }}</div>
+            </a-col>
+          </a-row>
+          <a-row>
+            <a-col :span="12">
               <a-form-item label="Age">
                 <a-input v-decorator="['age', { initialValue: getDefaultFormData.age, rules: [] }]" />
               </a-form-item>
             </a-col>
-          </a-row>
-          <a-row>
             <a-col :span="12">
               <a-form-item label="Parent Name">
                 <a-input v-decorator="['parentName', { initialValue: getDefaultFormData.parentName, rules: [] }]" />
               </a-form-item>
             </a-col>
+          </a-row>
+          <a-row>
             <a-col :span="12">
               <a-form-item label="Parent Email">
                 <a-input
@@ -101,8 +116,6 @@
                 />
               </a-form-item>
             </a-col>
-          </a-row>
-          <a-row>
             <a-col :span="12">
               <a-form-item label="Parent No">
                 <a-input v-decorator="['parentNo', { initialValue: getDefaultFormData.parentNo, rules: [] }]" />
@@ -182,7 +195,8 @@ export default {
       inviteCheckBoxChecked: true,
       inviteUrl: '',
       resetLoading: false,
-      inviteLoading: false
+      inviteLoading: false,
+      reletiveGrade: ''
     }
   },
   created() {},
@@ -263,6 +277,12 @@ export default {
       navigator.clipboard.writeText(this.inviteUrl).then(() => {
         this.$message.success('copy success!')
       })
+    },
+    handleClasses(value) {
+      const classOne = this.classList.find(item => item.id === value)
+      if (classOne) {
+        this.reletiveGrade = classOne.gradeName
+      }
     }
   }
 }

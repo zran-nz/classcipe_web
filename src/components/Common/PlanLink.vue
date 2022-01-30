@@ -23,9 +23,9 @@
                     <template slot="title">
                       Rename
                     </template>
-                    <a-icon v-if="!group.editing" type="edit" />
+                    <a-icon v-if="!group.editing" :style="{ fontSize: '20px', color: '#15C39A' }" type="edit" />
                   </a-tooltip>
-                  <a-icon v-if="group.editing" type="check" />
+                  <a-icon v-if="group.editing" :style="{ fontSize: '20px', color: '#15C39A' }" type="check" />
                 </div>
 
               </div>
