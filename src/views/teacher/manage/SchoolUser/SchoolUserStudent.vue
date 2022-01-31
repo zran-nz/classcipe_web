@@ -380,7 +380,7 @@ export default {
             // invalidCount: 0
             // totalCount: 1
             // updateCount: 0
-            if (totalCount === insertCount) {
+            if (invalidCount === 0) {
               this.$success({
                 title: 'Import successfully'
               })
@@ -389,13 +389,14 @@ export default {
                 title: 'A bit more patience is needed',
                 content: (
                   <div>
-                    <p>alreadyImportedCount: {alreadyImportedCount}</p>
-                    <p>insertCount: {insertCount}</p>
-                    <p>invalidCount: {invalidCount}</p>
-                    <p>totalCount: {totalCount}</p>
-                    <p>updateCount: {updateCount}</p>
+                    <p>Success Count: {totalCount - invalidCount}</p>
+                    <p>Invalid Count: {invalidCount}</p>
                   </div>
-                )
+                ),
+                okText: 'Download the failed part',
+                onOk() {
+                  console.log('ok')
+                }
               })
             }
           } else {
