@@ -258,8 +258,13 @@ export default {
             gradeIds: this.teacherForm.gradeIds,
             school: this.teacherForm.school
           }
-          addPreference(param).then(response => {
-            this.hideModal()
+          addPreference(param).then(res => {
+            if (res.success) {
+              this.$store.dispatch('GetInfo')
+              this.hideModal()
+            } else {
+              this.$message.error(res.message)
+            }
           })
         } else {
           console.log('error submit!!')

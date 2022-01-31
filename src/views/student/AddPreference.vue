@@ -114,6 +114,7 @@ export default {
       this.submitLoading = true
       const res = await addPreference(param)
       if (res.success) {
+        this.$store.dispatch('GetInfo')
         this.hideModal()
       } else {
         this.$message.error(res.message)
