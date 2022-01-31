@@ -109,7 +109,7 @@ import {
   getAllSubjectsByCurriculumId,
   GetGradesByCurriculumId
 } from '@/api/preference'
-import { getSchoolList, createSchool } from '@/api/school'
+import { getSchools, createSchool } from '@/api/school'
 import * as logger from '@/utils/logger'
 import { SubjectType } from '@/const/common'
 import storage from 'store'
@@ -227,13 +227,13 @@ export default {
     },
     searchSchool(value) {
       if (!this.currentCurriculum) return
-      getSchoolList({
+      getSchools({
         curriculumId: this.currentCurriculum.id,
         name: value
       }).then(res => {
         logger.info('schools', res)
         if (res.success) {
-          this.schoolOptions = res.result.records
+          this.schoolOptions = res.result || []
         } else {
           this.schoolOptions = []
         }

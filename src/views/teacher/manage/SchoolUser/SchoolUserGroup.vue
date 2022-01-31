@@ -128,7 +128,8 @@ export default {
       const res = await getSchoolUsers({
         school: store.getters.userInfo.school,
         currentRole: 'teacher',
-        pageSize: 1000
+        pageSize: 1000,
+        userStatus: '1'
       })
       this.teacherList = res?.result?.records || []
     },
