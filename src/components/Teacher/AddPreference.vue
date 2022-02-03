@@ -11,7 +11,7 @@
       <div class="">
         <div><img src="~@/assets/logo/logo2.png" class="logo" /></div>
         <div class="desc">Welcome to Classcipe</div>
-        <div class="desc2">Fill in your personal information to start the teaching experience right away</div>
+        <div class="desc2">Fill in your personal information to start.</div>
       </div>
 
       <div class="form-items">
