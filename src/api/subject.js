@@ -6,7 +6,8 @@ export const subjectAPIUrl = {
   SubjectQueryById: '/classcipe/api/subject/queryById',
   SubjectDelete: '/classcipe/api/subject/delete',
   SubjectDeleteBatch: '/classcipe/api/subject/deleteBatch',
-  SubjectList: '/classcipe/api/subject/list'
+  SubjectList: '/classcipe/api/subject/list',
+  SubjectStudentList: '/classcipe/api/subject/getStudentSubjects'
 }
 
 /**
@@ -91,6 +92,19 @@ export function SubjectDeleteBatch (parameter) {
 export function SubjectList (parameter) {
   return request({
     url: subjectAPIUrl.SubjectList,
+    method: 'get',
+    params: parameter
+  })
+}
+
+/**
+ * @param parameter
+ * @returns {AxiosPromise}
+ * @constructor
+ */
+export function SubjectStudentList (parameter) {
+  return request({
+    url: subjectAPIUrl.SubjectStudentList,
     method: 'get',
     params: parameter
   })

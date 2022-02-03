@@ -900,31 +900,6 @@ export default {
     handleUpdateFilterConfig (filter) {
       // TODO 根据配置更新请求参数
       this.$logger.info('handleUpdateFilterConfig', filter)
-      // this.searchByFilter(filter)
-      filter.faTags = []
-      filter.saTags = []
-      filter.activityTags = []
-      filter.faTags.forEach(parent => {
-        parent.forEach(child => {
-          if (child) {
-            filter.fa.push(child)
-          }
-        })
-      })
-      filter.saTags.forEach(parent => {
-        parent.forEach(child => {
-          if (child) {
-            filter.sa.push(child)
-          }
-        })
-      })
-      filter.activityTags.forEach(parent => {
-        parent.forEach(child => {
-          if (child) {
-            filter.activity.push(child)
-          }
-        })
-      })
       this.filterParams = filter
       this.loadMyContent()
     },

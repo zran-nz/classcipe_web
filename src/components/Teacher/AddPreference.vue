@@ -5,13 +5,13 @@
     :maskClosable="false"
     :keyboard="false"
     :footer="null"
-    @cancel="handleCancel"
+    :closable="false"
   >
     <div class="main-content">
       <div class="">
         <div><img src="~@/assets/logo/logo2.png" class="logo" /></div>
         <div class="desc">Welcome to Classcipe</div>
-        <div class="desc2">Fill in your personal information to start the teaching experience right away</div>
+        <div class="desc2">Fill in your personal information to start.</div>
       </div>
 
       <div class="form-items">
@@ -35,24 +35,38 @@
           </a-form-model-item>
 
           <a-form-model-item key="School" label="School" prop="school">
-            <a-select v-model="teacherForm.school" placeholder="Please select school">
+            <a-select
+              v-model="teacherForm.school"
+              placeholder="Please select school"
+              show-search
+              :default-active-first-option="false"
+              :show-arrow="false"
+              :filter-option="false"
+              :not-found-content="null"
+              @search="handleSearchSchool"
+              @focus="handleSearchSchool"
+              @change="handleChange"
+            >
+              <div slot="dropdownRender" slot-scope="menu">
+                <v-nodes :vnodes="menu" />
+                <div v-if="ifShowCreate">
+                  <a-divider style="margin: 4px 0;" />
+                  <div
+                    style="padding: 4px 8px; cursor: pointer;"
+                    @mousedown="e => e.preventDefault()"
+                    @click="createSchool"
+                  >
+                    <a-icon type="plus" /> Create School: {{ searchText }}
+                  </div>
+                </div>
+              </div>
               <a-select-option
                 :value="schoolOption.id"
-                v-for="schoolOption in schoolOptions"
+                v-for="schoolOption in [...myCreateSchoolOptions,...schoolOptions]"
                 :key="schoolOption.id"
-                @click.native="handleSelectSchool(schoolOption)"
               >{{ schoolOption.name }}
               </a-select-option>
             </a-select>
-          </a-form-model-item>
-
-          <a-form-model-item
-            key="SchoolInput"
-            label="SchoolInput"
-            prop="school"
-            v-if="this.currentSchool && this.currentSchool.id === '-1'"
-          >
-            <a-input v-model="teacherForm.schoolinput" placeholder="Please input your school" />
           </a-form-model-item>
 
           <a-form-model-item key="Subject" label="Subject" prop="subjectIds">
@@ -83,23 +97,33 @@
       <div class="save-btn">
         <a-button type="primary" block size="large" @click="save">Start now</a-button>
       </div>
-      <div class="skip-btn">
-        <a-button type="link" @click="handleCancel">Don't want to fill it in now, remind me later ></a-button>
-      </div>
+
     </div>
   </a-modal>
 </template>
 
 <script>
-import { addPreference, getAllCurriculums, getAllSubjectsByCurriculumId, GetGradesByCurriculumId } from '@/api/preference'
-import { getSchools } from '@/api/school'
+import {
+  addPreference,
+  getAllCurriculums,
+  getAllSubjectsByCurriculumId,
+  GetGradesByCurriculumId
+} from '@/api/preference'
+import { getSchools, createSchool } from '@/api/school'
 import * as logger from '@/utils/logger'
 import { SubjectType } from '@/const/common'
 import storage from 'store'
-import { ADD_PREFERENCE_SKIP_TIME, CURRENT_ROLE, IS_ADD_PREFERENCE } from '@/store/mutation-types'
+import { CURRENT_ROLE, IS_ADD_PREFERENCE } from '@/store/mutation-types'
+const { debounce } = require('lodash-es')
 
 export default {
   name: 'AddPreference',
+  components: {
+    VNodes: {
+      functional: true,
+      render: (h, ctx) => ctx.props.vnodes
+    }
+  },
   data() {
     return {
       visible: false,
@@ -110,29 +134,37 @@ export default {
       teacherForm: {
         curriculumId: null,
         school: null,
-        schoolinput: null,
         subjectIds: [],
         gradeIds: []
       },
       teacherRules: {
         curriculumId: [{ required: true, message: 'Please select curriculum', trigger: 'blur' }],
-        school: [{ required: true, message: 'Please select school', trigger: 'blur' }],
-        schoolinput: [{ required: true, message: 'Please input your school', trigger: 'blur' }],
+        school: [{ required: false, message: 'Please select school', trigger: 'blur' }],
         subjectIds: [{ required: true, message: 'Please select subject', trigger: 'blur' }],
         gradeIds: [{ required: true, message: 'Please select grade', trigger: 'blur' }]
       },
 
       currentCurriculum: null,
-      currentSchool: null,
 
       curriculumOptions: [],
       schoolOptions: [],
       subjectOptions: [],
       gradeOptions: [],
-      subjectType: SubjectType
+      subjectType: SubjectType,
+
+      searchText: '',
+      myCreateSchoolOptions: []
+    }
+  },
+  computed: {
+    ifShowCreate() {
+      const list = [...this.myCreateSchoolOptions, ...this.schoolOptions]
+      const findOne = list.find(item => item.name === this.searchText)
+      return this.searchText && !findOne
     }
   },
   created() {
+    this.debouncedSearchSchool = debounce(this.searchSchool, 500)
     this.initOptions()
     this.showModal()
   },
@@ -140,25 +172,16 @@ export default {
     'teacherForm.curriculumId'(val) {
       logger.info('teacherForm.curriculumId change', val)
       this.loadSubjectByCurriculumId(val)
-      this.loadSchoolByCurriculumId(val)
     }
   },
   methods: {
     showModal() {
-      if (
-        (!storage.get(ADD_PREFERENCE_SKIP_TIME) || storage.get(ADD_PREFERENCE_SKIP_TIME) < Date.now()) &&
-        !storage.get(IS_ADD_PREFERENCE) &&
-        storage.get(CURRENT_ROLE) === 'teacher'
-      ) {
+      if (!storage.get(IS_ADD_PREFERENCE) && storage.get(CURRENT_ROLE) === 'teacher') {
         this.visible = true
       }
     },
     hideModal() {
       this.visible = false
-    },
-    handleCancel() {
-      this.hideModal()
-      storage.set(ADD_PREFERENCE_SKIP_TIME, Date.now() + 7 * 24 * 60 * 60 * 1000)
     },
     initOptions() {
       getAllCurriculums().then(response => {
@@ -171,6 +194,8 @@ export default {
       logger.info('handleSelectCurriculumOption', curriculum)
       if (this.currentCurriculum === null || this.currentCurriculum.id !== curriculum.id) {
         this.teacherForm.subjectIds = []
+        this.teacherForm.school = null
+        this.schoolOptions = []
       }
       this.currentCurriculum = curriculum
     },
@@ -193,35 +218,53 @@ export default {
         logger.info('gradeOptions', this.gradeOptions)
       })
     },
-    loadSchoolByCurriculumId(curriculumId) {
-      this.teacherForm.school = null
-      getSchools({ curriculumId }).then(response => {
-        logger.info('schools', response)
-        this.schoolOptions = [...response.result, { id: '-1', name: 'other' }]
+    handleSearchSchool(value) {
+      this.searchText = value
+      this.debouncedSearchSchool(value)
+    },
+    handleChange(value) {
+      logger.info('handleChange', value)
+    },
+    searchSchool(value) {
+      if (!this.currentCurriculum) return
+      getSchools({
+        curriculumId: this.currentCurriculum.id,
+        name: value
+      }).then(res => {
+        logger.info('schools', res)
+        if (res.success) {
+          this.schoolOptions = res.result || []
+        } else {
+          this.schoolOptions = []
+        }
+      })
+    },
+    createSchool() {
+      createSchool({ name: this.searchText }).then(res => {
+        if (res.success) {
+          this.myCreateSchoolOptions.push(res.result)
+        } else {
+          this.$message.error(res.message)
+        }
       })
     },
     save() {
       this.$refs.teacherForm.validate(valid => {
         if (valid) {
           logger.info('save teacher', this.teacherForm)
-          let param = {}
-          if (this.teacherForm.school === '-1') {
-            param = {
-              curriculumId: this.teacherForm.curriculumId,
-              subjectIds: this.teacherForm.subjectIds,
-              gradeIds: this.teacherForm.gradeIds,
-              school: this.teacherForm.schoolinput
-            }
-          } else {
-            param = {
-              curriculumId: this.teacherForm.curriculumId,
-              subjectIds: this.teacherForm.subjectIds,
-              gradeIds: this.teacherForm.gradeIds,
-              school: this.teacherForm.school
-            }
+          const param = {
+            curriculumId: this.teacherForm.curriculumId,
+            subjectIds: this.teacherForm.subjectIds,
+            gradeIds: this.teacherForm.gradeIds,
+            school: this.teacherForm.school
           }
-          addPreference(param).then(response => {
-            this.hideModal()
+          addPreference(param).then(res => {
+            if (res.success) {
+              this.$store.dispatch('GetInfo')
+              this.hideModal()
+            } else {
+              this.$message.error(res.message)
+            }
           })
         } else {
           console.log('error submit!!')
@@ -232,6 +275,7 @@ export default {
   }
 }
 </script>
+
 <style lang="less">
 .ant-select-dropdown {
   z-index: 9999;
@@ -241,7 +285,7 @@ export default {
 @import '~@/components/index.less';
 .main-content {
   text-align: center;
-  padding: 30px 35px 80px;
+  padding: 30px 35px 30px;
 
   .logo {
     margin-bottom: 5px;

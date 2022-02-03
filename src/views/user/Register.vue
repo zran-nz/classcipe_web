@@ -16,7 +16,7 @@
           <div class="role-info">
             <img src="~@/assets/icons/role/teacher.png" class="role-img" />
             <div>
-              <div class="role-name">I am a educator</div>
+              <div class="role-name">I am an educator</div>
             </div>
           </div>
           <div class="arrow">
