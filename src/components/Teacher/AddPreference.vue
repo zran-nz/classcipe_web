@@ -56,7 +56,7 @@
                     @mousedown="e => e.preventDefault()"
                     @click="createSchool"
                   >
-                    <a-icon type="plus" /> Create School
+                    <a-icon type="plus" /> Create School: {{ searchText }}
                   </div>
                 </div>
               </div>
@@ -139,7 +139,7 @@ export default {
       },
       teacherRules: {
         curriculumId: [{ required: true, message: 'Please select curriculum', trigger: 'blur' }],
-        school: [{ required: true, message: 'Please select school', trigger: 'blur' }],
+        school: [{ required: false, message: 'Please select school', trigger: 'blur' }],
         subjectIds: [{ required: true, message: 'Please select subject', trigger: 'blur' }],
         gradeIds: [{ required: true, message: 'Please select grade', trigger: 'blur' }]
       },
