@@ -205,7 +205,7 @@
                         </span>
 
                         <span v-if="item.agreeFlag === collaborateStatus.apply">
-                          <a-tag color="red">Applied </a-tag>
+                          <a-tag color="red">Wait for approval</a-tag>
                         </span>
 
                       </template>
@@ -316,16 +316,16 @@
 
                   <!--  已接受拒绝状态-->
                   <template v-else>
-                    <div class="action-item action-item-top" v-if="item.agreeFlag === collaborateStatus.disAgree">
-                      <a-tag color="red">
+                    <div class="action-item" v-if="item.agreeFlag === collaborateStatus.disAgree" style="margin-top: 50px;">
+                      <a-tag color="red" class="tag-info">
                         Application was rejected
                       </a-tag>
                     </div>
 
-                    <div class="action-item action-item-top" v-if="item.agreeFlag === collaborateStatus.apply">
+                    <div class="action-item" v-if="item.agreeFlag === collaborateStatus.apply" style="margin-top: 50px;">
                       <div class="session-btn" >
-                        <a-tag color="red">
-                          Applied
+                        <a-tag color="red" class="tag-info">
+                          Wait for approval
                         </a-tag>
                       </div>
                     </div>
@@ -1746,8 +1746,9 @@
         justify-content: flex-end;
         padding-top: 15px;
         i{
-          width: 25px;
-          font-size: 20px;
+          border-radius: 20px;
+          padding: 8px;
+          font-size: 18px;
           color: rgba(255, 255, 255, 1);
           display: flex;
           flex-direction: row;
@@ -1879,6 +1880,12 @@
     .ant-card-meta-avatar {
       padding-right: 0;
     }
+  }
+
+  .tag-info{
+    border-radius: 20px;
+    padding: 8px;
+    font-size: 16px;
   }
 
 </style>

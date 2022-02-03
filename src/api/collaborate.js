@@ -20,6 +20,7 @@ export const userAPIUrl = {
   CollaboratesInvite: '/classcipe/api/collaborate/v2/invite',
   CollaboratesAgree: '/classcipe/api/collaborate/v2/agree',
   CollaboratesUpdate: '/classcipe/api/collaborate/v2/updateCollaborate',
+  CollaboratesRemove: '/classcipe/api/collaborate/v2/remove',
   CollaboratesUpdateLink: '/classcipe/api/collaborate/v2/updateLink',
   CollaboratesQueryShared: '/classcipe/api/collaborate/v2/queryShared',
   QueryByLinkCode: '/classcipe/api/collaborate/v2/queryByLinkCode',
@@ -224,6 +225,17 @@ export function MarkedCollaborateComment (parameter) {
 export function CollaboratesSendInviteEmail (parameter) {
   return request({
     url: userAPIUrl.CollaboratesSendInviteEmail,
+    method: 'post',
+    data: parameter,
+    headers: {
+      'Content-Type': 'application/json;charset=UTF-8'
+    }
+  })
+}
+
+export function CollaboratesRemove (parameter) {
+  return request({
+    url: userAPIUrl.CollaboratesRemove,
     method: 'post',
     data: parameter,
     headers: {

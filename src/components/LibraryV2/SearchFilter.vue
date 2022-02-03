@@ -154,9 +154,30 @@ export default {
   },
   methods: {
     updateFilterConfig () {
-      this.filter.faTags = this.faTags
-      this.filter.saTags = this.saTags
-      this.filter.activityTags = this.activityTags
+      this.filter.faTags = []
+      this.faTags.forEach((option, index) => {
+        option.forEach(o => {
+          if (o) {
+            this.filter.faTags.push(o)
+          }
+        })
+      })
+      this.filter.saTags = []
+      this.saTags.forEach((option, index) => {
+        option.forEach(o => {
+          if (o) {
+            this.filter.saTags.push(o)
+          }
+        })
+      })
+      this.filter.activityTags = []
+      this.activityTags.forEach((option, index) => {
+        option.forEach(o => {
+          if (o) {
+            this.filter.activityTags.push(o)
+          }
+        })
+      })
       this.$logger.info('updateFilterConfig', this.filter)
       this.$emit('filter-config-update', this.filter)
     },

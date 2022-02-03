@@ -156,19 +156,31 @@
                     <div slot="actions">
                       <div v-if="user.agreeFlag === collaborateStatus.apply" >
                         <div class="action-wrapper">
-                          <a-button class="action-item action-cancel" shape="round" @click="handleAccept(user,collaborateStatus.refuse)">Disagree</a-button>
-                          <a-button class="action-ensure action-item" :loading="agreeLoading" type="primary" shape="round" @click="handleAccept(user,collaborateStatus.agree)">Agree</a-button>
+                          <a-button class="action-item action-cancel" shape="round" @click="handleAccept(user,collaborateStatus.refuse)">Reject</a-button>
+                          <a-button class="action-ensure action-item" :loading="agreeLoading" type="primary" shape="round" @click="handleAccept(user,collaborateStatus.agree)">Approve</a-button>
                         </div>
                       </div>
                       <div class="action-wrapper" v-else>
-                        <a-select default-value="Edit" style="width: 100px;" v-model="user.permissions" @change="handleChange(user)">
-                          <a-select-option value="Edit">
-                            Edit
-                          </a-select-option>
-                          <a-select-option value="Viewer">
-                            Viewer
-                          </a-select-option>
-                        </a-select>
+                        <div style="width: 100px">
+                          <a-dropdown>
+                            <a-menu slot="overlay">
+                              <a-menu-item @click="handleChange(user,'Edit',index)">
+                                <span>Edit</span>
+                              </a-menu-item>
+                              <a-menu-item @click="handleChange(user,'Viewer',index)">
+                                <span>Viewer</span>
+                              </a-menu-item>
+                              <a-divider style="margin: 10px 0px;" />
+                              <a-menu-item @click="handleRemove(user,index)">
+                                <span>Remove</span>
+                              </a-menu-item>
+                            </a-menu>
+                            <a-button class="type-filter-button" style="width: 85px;padding: 0 10px;display:flex; align-items:center ;height: 40px;border-radius: 6px;background: #FFFFFF;font-family: Inter-Bold;color: #182552;border: 1px solid #d9d9d9;">
+                              <span>{{ user.permissions }}</span>
+                              <a-icon type="caret-down" />
+                            </a-button>
+                          </a-dropdown>
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -205,7 +217,7 @@
                 <!--                          </a-button>-->
               </div>
               <div class="link-approve">
-                <a-radio @click="changeApprove" :checked="approveFlag">Approval confirmation is required when passing the link</a-radio>
+                <a-radio @click="changeApprove" :checked="approveFlag">Approval is required for collaborating via this link</a-radio>
               </div>
             </div>
           </template>
@@ -237,6 +249,7 @@ import NoMoreResources from '@/components/Common/NoMoreResources'
 import {
   CollaboratesAgree,
   CollaboratesInvite,
+  CollaboratesRemove,
   CollaboratesSearchUser,
   CollaboratesSendInviteEmail,
   CollaboratesUpdate,
@@ -371,6 +384,7 @@ export default {
         this.userNameOrEmail = ''
         this.queryContentCollaborates()
         this.searchUser()
+        this.showUser = false
       })
     },
     searchUser () {
@@ -501,12 +515,32 @@ export default {
         this.queryContentCollaborates()
       })
     },
-    handleChange (user) {
+    handleChange (user, permissions, index) {
+      user.permissions = permissions
+      this.$set(this.collaborateUserList, index, user)
       this.$logger.info('handleChange', user)
       CollaboratesUpdate(user).then(res => {
         logger.info('handleChange', res)
         this.$message.success('Update successfully')
       }).then(() => {
+
+      })
+    },
+    handleRemove(user, index) {
+      this.$logger.info('handleRemove', user)
+      var that = this
+      this.$confirm({
+        title: 'Confirm remove user',
+        content: 'Are you confirm remove user ' + user.nickName + ' ?',
+        centered: true,
+        onOk: () => {
+          CollaboratesRemove(user).then(response => {
+            this.$logger.info('handleRemove', response)
+            this.$message.success('Remove successfully')
+          }).finally(() => {
+            that.collaborateUserList.splice(index, 1)
+          })
+        }
       })
     },
     handleSendEmail () {

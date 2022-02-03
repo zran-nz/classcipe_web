@@ -811,30 +811,6 @@ export default {
     searchByFilter (filter) {
       this.$logger.info('searchByFilter ', filter)
       filter.curriculumId = this.currentCurriculumId
-      filter.faTags = []
-      filter.saTags = []
-      filter.activityTags = []
-      filter.faTags.forEach(parent => {
-        parent.forEach(child => {
-          if (child) {
-            filter.fa.push(child)
-          }
-        })
-      })
-      filter.saTags.forEach(parent => {
-        parent.forEach(child => {
-          if (child) {
-            filter.sa.push(child)
-          }
-        })
-      })
-      filter.activityTags.forEach(parent => {
-        parent.forEach(child => {
-          if (child) {
-            filter.activity.push(child)
-          }
-        })
-      })
       this.firstLoad = false
       this.searching = true
       QueryContentsFilter(filter).then(response => {
