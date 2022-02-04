@@ -1775,11 +1775,6 @@ export default {
       this.$logger.info('handleAddAudioOverview')
       this.showAddAudioVisible = true
     },
-    handleStartCollaborate() {
-      this.$logger.info('handleStartCollaborate')
-      this.collaborateContent = Object.assign({}, this.form)
-      this.showCollaborateModalVisible = true
-    },
     handleSelectDescription() {
       this.showMenuList = [NavigationType.specificSkills,
         NavigationType.centurySkills,

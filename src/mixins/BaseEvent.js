@@ -195,6 +195,11 @@ export const BaseEventMixin = {
       this.resetRightModuleVisible()
       this.currentFieldName = ''
     },
+    handleStartCollaborate() {
+      this.$logger.info('handleStartCollaborate')
+      this.collaborateContent = Object.assign({}, this.form)
+      this.showCollaborateModalVisible = true
+    },
     cleaPageCache() {
       // del cache
       sessionStorage.removeItem(SESSION_CURRENT_PAGE)

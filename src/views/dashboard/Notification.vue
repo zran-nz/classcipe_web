@@ -1,5 +1,22 @@
 <template>
-  <a-card :bordered="false" title="Notification">
+  <a-card :bordered="false">
+    <div slot="title" class="notification-title">
+      <div>Notification</div>
+      <div class="ant-tabs-nav-wrap">
+        <div class="ant-tabs-nav-scroll">
+          <div class="ant-tabs-nav ant-tabs-nav-animated">
+            <div>
+              <!--              ant-tabs-tab-active-->
+              <div :class="{'ant-tabs-tab':true,'ant-tabs-tab-active':selectTab === 'all'}" @click="handleSelectTab('all')">All</div>
+              <div :class="{'ant-tabs-tab':true,'ant-tabs-tab-active':selectTab === '0'}">
+                <a-badge style="width: 80px;" :count="$store.state.websocket.msgUnreadCount" :overflow-count="999" @click="handleSelectTab('0')">Unread</a-badge>
+              </div>
+              <div :class="{'ant-tabs-tab':true,'ant-tabs-tab-active':selectTab === '1'}" @click="handleSelectTab('1')">Read</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
     <a slot="extra" href="#" @click="markAlertVisible = true">Mark as read</a>
     <div>
       <a-list
@@ -19,7 +36,7 @@
               <div class="read-flag-dot" v-if="item.readFlag === '0'"></div>
             </div>
           </div>
-          <a-list-item-meta :description="item.msgContent" @click="handleViewItem(item)">
+          <a-list-item-meta :description="item.msgContent" @click="viewNotification(item)">
             <a slot="title">{{ item.titile }}</a>
             <img class="message-icon" slot="avatar" src="~@/assets/icons/header/message.png"/>
           </a-list-item-meta>
@@ -32,17 +49,17 @@
               <img src="~@/assets/icons/lesson/selected.png"/>
             </div>
           </div>
-          <div class="action-bar">
-            <!--// TODO 不同的消息类型不同的处理按钮逻辑-->
-            <template v-if="item.busType === notificationTypeMap.collaborateInvite && item.busFlag === '0'">
-              <div class="action-item">
-                <a-button class="gray-btn" :style="{'background': ' #E5E5E5', 'border-color': '#E5E5E5', 'color': '#000000'}" shape="round" @click="handleRefuseCollaborate(item)">Refuse</a-button>
-              </div>
-              <div class="action-item">
-                <a-button type="primary" shape="round" @click="handleAcceptCollaborate(item)">Accept</a-button>
-              </div>
-            </template>
-          </div>
+          <!--          <div class="action-bar">-->
+          <!--            &lt;!&ndash;// TODO 不同的消息类型不同的处理按钮逻辑&ndash;&gt;-->
+          <!--            <template v-if="item.busType === notificationTypeMap.collaborateInvite && item.busFlag === '0'">-->
+          <!--              <div class="action-item">-->
+          <!--                <a-button class="gray-btn" :style="{'background': ' #E5E5E5', 'border-color': '#E5E5E5', 'color': '#000000'}" shape="round" @click="handleRefuseCollaborate(item)">Refuse</a-button>-->
+          <!--              </div>-->
+          <!--              <div class="action-item">-->
+          <!--                <a-button type="primary" shape="round" @click="handleAcceptCollaborate(item)">Accept</a-button>-->
+          <!--              </div>-->
+          <!--            </template>-->
+          <!--          </div>-->
         </a-list-item>
       </a-list>
     </div>
@@ -88,6 +105,7 @@ import { EditCementSend, ListByMessage } from '@/api/notice'
 import { NotificationTypeMap } from '@/views/dashboard/NotificationTypeMap'
 import { RECEIVE_MSG } from '@/store/mutation-types'
 import { DeleteCollaborate, ReceiveCollaborate } from '@/api/collaborate'
+import { NoticeMixin } from '@/mixins/NoticeMixin'
 
 const directionType = {
   horizontal: 'horizontal',
@@ -96,7 +114,7 @@ const directionType = {
 
 export default {
   name: 'Notification',
-  mixins: [baseMixin],
+  mixins: [baseMixin, NoticeMixin],
   data () {
     this.directionType = directionType
     return {
@@ -119,7 +137,8 @@ export default {
       showSelect: false,
       acceptLoading: false,
       refuseLoading: false,
-      markAlertVisible: false
+      markAlertVisible: false,
+      selectTab: 'all'
     }
   },
   computed: {
@@ -133,7 +152,8 @@ export default {
       this.loading = true
       ListByMessage({
         pageNo: this.pageNo,
-        pageSize: this.pagination.pageSize
+        pageSize: this.pagination.pageSize,
+        flag: this.selectTab === 'all' ? '' : this.selectTab
       }).then((res) => {
         logger.info('ListByMessage ', res)
         this.loading = false
@@ -151,14 +171,6 @@ export default {
         }
       }).finally(() => {
         this.loading = false
-      })
-    },
-
-    // TODO 根据不同的通知类型，进行不同的操作。collaborate跳转协作页面，其他通知跳转消息详情等等。
-    handleViewItem (data) {
-      this.$logger.info('handleView ', data)
-      this.$router.push({
-        path: '/notification-detail/' + data.id
       })
     },
 
@@ -214,6 +226,10 @@ export default {
         })
       }
       this.markAlertVisible = false
+    },
+    handleSelectTab(tab) {
+      this.selectTab = tab
+      this.loadMessageData()
     }
   }
 }
@@ -221,6 +237,19 @@ export default {
 
 <style lang="less" scoped>
 @import "~@/components/index.less";
+
+.notification-title {
+  display: flex;
+  align-items: center;
+  .ant-tabs-nav-wrap{
+    margin-left: 50px;
+  }
+  .ant-tabs-nav{
+    margin: 0 12px 0 0;
+    padding: 5px 6px;
+  }
+}
+
 .message-icon{
   width: 50px;
   height: 50px;

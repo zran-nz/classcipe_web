@@ -287,10 +287,10 @@ export default {
     }
   },
   watch: {
-    // selectedTagsList () {
-    //   this.$logger.info('selectedTagsList', this.selectedTagsList)
-    //    this.tagList = this.selectedTagsList
-    // }
+    selectedTagsList () {
+      this.$logger.info('selectedTagsList', this.selectedTagsList)
+       this.tagList = this.selectedTagsList
+    }
   },
   methods: {
     handleOk () {
