@@ -4,7 +4,7 @@
     </a-spin>
     <div class='auth-failed' v-if='authFailed'>
       <div class='auth-failed-detail'>
-        <no-more-resources :tips='failedMessage'/>
+        <no-more-resources tips=''/>
       </div>
       <div class='auth-failed-tips'>
         Classcipe needs access to your google account to work properly, please grant permission again.
