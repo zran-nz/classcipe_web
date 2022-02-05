@@ -2,12 +2,12 @@
   <a-popover
     trigger="click"
     v-model="visible"
-    placement="bottomRight"
+    placement="bottom"
     :autoAdjustOverflow="true"
     :arrowPointAtCenter="true"
     overlayClassName="header-notice-wrapper"
     @visibleChange="handleHoverChange"
-    :overlayStyle="{ width: '300px', top: '50px' }"
+    :overlayStyle="{ width: '310px' }"
   >
     <template slot="content">
       <a-spin :spinning="loading">
@@ -15,7 +15,10 @@
           <a-tab-pane tab="Notification" key="1" >
             <template v-if="announcement1.length === 0" >
               <div class="no-data">
-                <no-more-resources tips="No notification"/>
+                <no-more-resources tips="No new notification"/>
+                <div style="margin-top: 5px;text-align: center">
+                  <a-button @click="goPage()" type="dashed" block>Show History</a-button>
+                </div>
               </div>
             </template>
             <a-list v-if="announcement1.length > 0">
@@ -46,9 +49,12 @@
 
 <script>
 import * as logger from '@/utils/logger'
-import { ListCementByUser } from '@/api/notice'
+import { EditCementSend, ListCementByUser } from '@/api/notice'
 import { RECEIVE_MSG } from '../../store/mutation-types'
 import NoMoreResources from '@/components/Common/NoMoreResources'
+import { NotificationTypeMap } from '@/views/dashboard/NotificationTypeMap'
+import { typeMap } from '@/const/teacher'
+import { NoticeMixin } from '@/mixins/NoticeMixin'
 
 export default {
   name: 'HeaderNotice',
@@ -69,6 +75,7 @@ export default {
   components: {
     NoMoreResources
   },
+  mixins: [NoticeMixin],
   computed: {
     msgTotal () {
       return parseInt(this.msg1Count) + parseInt(this.msg2Count)
@@ -127,8 +134,9 @@ export default {
             this.msg1Count = res.result.anntMsgTotal
             // this.announcement2 = res.result.sysMsgList
             // this.msg2Count = res.result.sysMsgTotal
+            this.$store.commit('SET_UNREAD_COUNT', this.msg1Count ? this.msg1Count : 0)
             this.$store.commit('SET_SHARED_COUNT', res.result.collaborate ? res.result.collaborate : 0)
-            this.$store.commit('SET_SHARED_FIND_COUNT', res.result.collaborateFind ? res.result.collaborateFind : 0)
+            // this.$store.commit('SET_SHARED_FIND_COUNT', res.result.collaborateFind ? res.result.collaborateFind : 0)
           }
         }).catch(error => {
           logger.error('系统消息通知异常', error)
@@ -150,15 +158,6 @@ export default {
         this.loadding = false
       }, 200)
     },
-    viewNotification (record) {
-      this.$logger.info('viewNotification', record)
-      // 到详情页
-      this.handleHoverChange(false)
-      this.$router.push({
-        path: '/notification-detail/' + record.id
-      })
-    },
-
     handleHoverChange (visible) {
       this.visible = visible
     }
@@ -178,7 +177,7 @@ export default {
     border-radius: 10px;
   }
   .header-notice-wrapper {
-    top: 40px !important;
+    top: 50px !important;
   }
 </style>
 <style lang="less" scoped>
@@ -199,6 +198,11 @@ export default {
   }
 .content-item{
   cursor: pointer;
+  &:hover {
+    color: #15c39a;
+    background-color: rgba(21, 195, 154, 0.1);
+    box-shadow: 2px 4px 6px rgba(21, 195, 154, 0.2);
+  }
 }
 .header-notice{
   display: inline-block;
@@ -232,7 +236,7 @@ export default {
 
 .my-read-status {
   position: absolute;
-  right: 10px;
+  right: 0px;
   top: 10px;
 }
 .read-flag-dot {

@@ -86,24 +86,24 @@
                     <div class="action-wrapper">
 
                       <!-- Task: 外置teacher-pace, student-pace, Edit, 折叠Delete, Duplicate, Previous session-->
-                      <template v-if="item.type === typeMap.task">
-                        <div class="start-session-wrapper action-item-wrapper">
-                          <div class="session-btn content-list-action-btn" @click="handleStartSessionTags(item)">
-                            <div class="session-btn-icon">
-                              <teacher-presenting />
-                            </div>
-                            <div class="session-btn-text"> Teacher-paced</div>
-                          </div>
-                        </div>
-                        <div class="start-session-wrapper action-item-wrapper">
-                          <div class="session-btn content-list-action-btn" @click="handleStartSessionTags(item)">
-                            <div class="session-btn-icon">
-                              <student-pace />
-                            </div>
-                            <div class="session-btn-text"> Student-paced</div>
-                          </div>
-                        </div>
-                      </template>
+                      <!--                      <template v-if="item.type === typeMap.task">-->
+                      <!--                        <div class="start-session-wrapper action-item-wrapper">-->
+                      <!--                          <div class="session-btn content-list-action-btn" @click="handleStartSessionTags(item)">-->
+                      <!--                            <div class="session-btn-icon">-->
+                      <!--                              <teacher-presenting />-->
+                      <!--                            </div>-->
+                      <!--                            <div class="session-btn-text"> Teacher-paced</div>-->
+                      <!--                          </div>-->
+                      <!--                        </div>-->
+                      <!--                        <div class="start-session-wrapper action-item-wrapper">-->
+                      <!--                          <div class="session-btn content-list-action-btn" @click="handleStartSessionTags(item)">-->
+                      <!--                            <div class="session-btn-icon">-->
+                      <!--                              <student-pace />-->
+                      <!--                            </div>-->
+                      <!--                            <div class="session-btn-text"> Student-paced</div>-->
+                      <!--                          </div>-->
+                      <!--                        </div>-->
+                      <!--                      </template>-->
                       <!-- Unit plan:外置Edit，折叠Delete, Duplicate-->
 
                       <div class="start-session-wrapper action-item-wrapper">
@@ -131,13 +131,13 @@
                               </a>
                             </a-menu-item>
                             <!-- Task里面有teacher-pace, student-pace, previous session -->
-                            <template v-if="item.type === typeMap.task">
-                              <a-menu-item>
-                                <a @click="handleViewPreviewSession(item)">
-                                  <previous-sessions-svg /> Previous session
-                                </a>
-                              </a-menu-item>
-                            </template>
+                            <!--                            <template v-if="item.type === typeMap.task">-->
+                            <!--                              <a-menu-item>-->
+                            <!--                                <a @click="handleViewPreviewSession(item)">-->
+                            <!--                                  <previous-sessions-svg /> Previous session-->
+                            <!--                                </a>-->
+                            <!--                              </a-menu-item>-->
+                            <!--                            </template>-->
 
                           </a-menu>
                         </a-dropdown>
@@ -174,29 +174,29 @@
                           </a>
                         </a-menu-item>
                         <!-- Task里面有teacher-pace, student-pace, previous session -->
-                        <template v-if="item.type === typeMap.task">
-                          <a-menu-item>
-                            <a @click="handleViewPreviewSession(item)">
-                              <previous-sessions-svg /> Previous session
-                            </a>
-                          </a-menu-item>
-                        </template>
+                        <!--                        <template v-if="item.type === typeMap.task">-->
+                        <!--                          <a-menu-item>-->
+                        <!--                            <a @click="handleViewPreviewSession(item)">-->
+                        <!--                              <previous-sessions-svg /> Previous session-->
+                        <!--                            </a>-->
+                        <!--                          </a-menu-item>-->
+                        <!--                        </template>-->
                       </a-menu>
                     </a-dropdown>
                   </div>
                   <div class="action-item action-item-center">
-                    <div class="session-btn session-btn-left" @click.stop="handleStartSessionTags(item)" v-if="item.type === typeMap['task']" >
-                      <div class="session-btn-text">
-                        <teacher-presenting />
-                        Teacher-paced
-                      </div>
-                    </div>
-                    <div class="session-btn session-btn-right" @click.stop="handleStartSessionTags(item)" v-if="item.type === typeMap['task']">
-                      <div class="session-btn-text">
-                        <student-pace />
-                        Student-pace
-                      </div>
-                    </div>
+                    <!--                    <div class="session-btn session-btn-left" @click.stop="handleStartSessionTags(item)" v-if="item.type === typeMap['task']" >-->
+                    <!--                      <div class="session-btn-text">-->
+                    <!--                        <teacher-presenting />-->
+                    <!--                        Teacher-paced-->
+                    <!--                      </div>-->
+                    <!--                    </div>-->
+                    <!--                    <div class="session-btn session-btn-right" @click.stop="handleStartSessionTags(item)" v-if="item.type === typeMap['task']">-->
+                    <!--                      <div class="session-btn-text">-->
+                    <!--                        <student-pace />-->
+                    <!--                        Student-pace-->
+                    <!--                      </div>-->
+                    <!--                    </div>-->
                   </div>
                   <div class="action-item action-item-bottom" >
                     <div class="session-btn" @click.stop="handleEditItem(item)">

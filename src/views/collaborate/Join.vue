@@ -17,8 +17,8 @@
       <!--        需要审批-->
       <div v-if="collaborate.link.approveFlag">
         <template v-if="!getUser">
-          <div class="btn" >
-            <div class="btn-text" @click="handleApply('Apply')">
+          <div class="btn" @click="handleApply('Apply')">
+            <div class="btn-text" >
               <span v-if="!applyLoading">Apply</span>
               <a-icon type="loading" v-if="applyLoading" />
             </div>
@@ -33,8 +33,8 @@
           </div>
         </template>
       </div>
-      <div class="btn" v-else>
-        <div class="btn-text" @click="handleApply('Join')">
+      <div class="btn" @click="handleApply('Join')" v-else>
+        <div class="btn-text" >
           <span v-if="!applyLoading">Start collaborating</span>
           <a-icon v-if="applyLoading" type="loading" />
         </div>

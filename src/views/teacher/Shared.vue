@@ -107,24 +107,24 @@
                     <div class="action-wrapper" v-if="item.receiveStatus === 1 && item.agreeFlag === 1">
 
                       <!-- Task: 外置teacher-pace, student-pace, Edit, 折叠Delete, Duplicate, Previous session-->
-                      <template v-if="item.content.type === typeMap.task">
-                        <div class="start-session-wrapper action-item-wrapper">
-                          <div class="session-btn content-list-action-btn" @click="handleStartSessionHistory(item.content,1)">
-                            <div class="session-btn-icon">
-                              <teacher-presenting />
-                            </div>
-                            <div class="session-btn-text"> Teacher-paced</div>
-                          </div>
-                        </div>
-                        <div class="start-session-wrapper action-item-wrapper">
-                          <div class="session-btn content-list-action-btn" @click="handleStartSessionHistory(item.content,2)">
-                            <div class="session-btn-icon">
-                              <student-pace />
-                            </div>
-                            <div class="session-btn-text"> Student-paced</div>
-                          </div>
-                        </div>
-                      </template>
+                      <!--                      <template v-if="item.content.type === typeMap.task">-->
+                      <!--                        <div class="start-session-wrapper action-item-wrapper">-->
+                      <!--                          <div class="session-btn content-list-action-btn" @click="handleStartSessionHistory(item.content,1)">-->
+                      <!--                            <div class="session-btn-icon">-->
+                      <!--                              <teacher-presenting />-->
+                      <!--                            </div>-->
+                      <!--                            <div class="session-btn-text"> Teacher-paced</div>-->
+                      <!--                          </div>-->
+                      <!--                        </div>-->
+                      <!--                        <div class="start-session-wrapper action-item-wrapper">-->
+                      <!--                          <div class="session-btn content-list-action-btn" @click="handleStartSessionHistory(item.content,2)">-->
+                      <!--                            <div class="session-btn-icon">-->
+                      <!--                              <student-pace />-->
+                      <!--                            </div>-->
+                      <!--                            <div class="session-btn-text"> Student-paced</div>-->
+                      <!--                          </div>-->
+                      <!--                        </div>-->
+                      <!--                      </template>-->
                       <!-- Unit plan:外置Edit，折叠Delete, Duplicate-->
 
                       <div class="start-session-wrapper action-item-wrapper">
@@ -153,13 +153,13 @@
                               </a>
                             </a-menu-item>
                             <!-- Task里面有teacher-pace, student-pace, previous session -->
-                            <template v-if="item.content.type === typeMap.task">
-                              <a-menu-item>
-                                <a @click="handleViewPreviewSession(item.content)">
-                                  <previous-sessions-svg /> Previous session
-                                </a>
-                              </a-menu-item>
-                            </template>
+                            <!--                            <template v-if="item.content.type === typeMap.task">-->
+                            <!--                              <a-menu-item>-->
+                            <!--                                <a @click="handleViewPreviewSession(item.content)">-->
+                            <!--                                  <previous-sessions-svg /> Previous session-->
+                            <!--                                </a>-->
+                            <!--                              </a-menu-item>-->
+                            <!--                            </template>-->
 
                           </a-menu>
                         </a-dropdown>
@@ -244,29 +244,29 @@
                           </a>
                         </a-menu-item>
                         <!-- Task里面有teacher-pace, student-pace, previous session -->
-                        <template v-if="item.content.type === typeMap.task">
-                          <a-menu-item>
-                            <a @click="handleViewPreviewSession(item)">
-                              <previous-sessions-svg /> Previous session
-                            </a>
-                          </a-menu-item>
-                        </template>
+                        <!--                        <template v-if="item.content.type === typeMap.task">-->
+                        <!--                          <a-menu-item>-->
+                        <!--                            <a @click="handleViewPreviewSession(item)">-->
+                        <!--                              <previous-sessions-svg /> Previous session-->
+                        <!--                            </a>-->
+                        <!--                          </a-menu-item>-->
+                        <!--                        </template>-->
                       </a-menu>
                     </a-dropdown>
                   </div>
                   <div class="action-item action-item-center">
-                    <div class="session-btn session-btn-left" @click.stop="handleStartSessionHistory(item.content,1)" v-if="item.content.type === typeMap['task']" >
-                      <div class="session-btn-text">
-                        <teacher-presenting />
-                        Teacher-paced
-                      </div>
-                    </div>
-                    <div class="session-btn session-btn-right" @click.stop="handleStartSessionHistory(item.content,2)" v-if="item.content.type === typeMap['task']">
-                      <div class="session-btn-text">
-                        <student-pace />
-                        Student-paced
-                      </div>
-                    </div>
+                    <!--                    <div class="session-btn session-btn-left" @click.stop="handleStartSessionHistory(item.content,1)" v-if="item.content.type === typeMap['task']" >-->
+                    <!--                      <div class="session-btn-text">-->
+                    <!--                        <teacher-presenting />-->
+                    <!--                        Teacher-paced-->
+                    <!--                      </div>-->
+                    <!--                    </div>-->
+                    <!--                    <div class="session-btn session-btn-right" @click.stop="handleStartSessionHistory(item.content,2)" v-if="item.content.type === typeMap['task']">-->
+                    <!--                      <div class="session-btn-text">-->
+                    <!--                        <student-pace />-->
+                    <!--                        Student-paced-->
+                    <!--                      </div>-->
+                    <!--                    </div>-->
                   </div>
                   <div class="action-item action-item-bottom" >
                     <div class="session-btn" @click.stop="handleEditItem(item.content)">
@@ -486,7 +486,7 @@
   import PSSvg from '@/assets/svgIcon/myContent/previous_session.svg'
   import CollaborateSvg from '@/assets/icons/collaborate/collaborate_group.svg'
   import { FindMyClasses } from '@/api/evaluation'
-  import { ACCESS_TOKEN } from '@/store/mutation-types'
+  import { ACCESS_TOKEN, RECEIVE_MSG } from '@/store/mutation-types'
   export const SHARED_VIEW_MODE = 'view_mode_shared'
 
   export default {
@@ -567,6 +567,14 @@
       }
     },
     computed: {},
+    watch: {
+      '$store.state.websocket.needRefreshCollaborate': function (newValue) {
+        if (newValue) {
+          this.$store.dispatch('refreshCollaborate', '')
+          this.loadMyContent()
+        }
+      }
+    },
     created () {
       logger.info('teacher my content')
       this.loadMyContent()

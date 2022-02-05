@@ -219,6 +219,12 @@ export default {
     shareStatus(val) {
       console.log('update is share ' + val)
       this.isShare = val === 1
+    },
+    '$store.state.websocket.needRefreshCollaborate': function (newValue) {
+      if (newValue && newValue.indexOf(this.form.id) > -1) {
+        this.$store.dispatch('refreshCollaborate', '')
+        this.handleStartCollaborate()
+      }
     }
   },
   created() {
@@ -226,6 +232,16 @@ export default {
     if (this.form && this.form.name) {
       this.formName = this.form.name
     }
+  },
+  mounted () {
+    setTimeout(() => {
+      // 判断是否打开协同框
+      const needRefreshCollaborate = this.$store.state.websocket.needRefreshCollaborate
+      if (needRefreshCollaborate && needRefreshCollaborate.indexOf(this.form.id) > -1) {
+        this.$store.dispatch('refreshCollaborate', '')
+        this.handleStartCollaborate()
+      }
+    }, 3000)
   },
   methods: {
     formatUserList(users) {

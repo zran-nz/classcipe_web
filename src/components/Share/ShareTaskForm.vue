@@ -1,6 +1,6 @@
 <template>
   <div class='share-task-form'>
-    <div class='form-item'>
+    <div class='form-item' v-if='shareContent.task.name'>
       <div class='form-item-label'>
         Task name
       </div>
@@ -9,7 +9,7 @@
       </div>
     </div>
 
-    <div class='form-item'>
+    <div class='form-item' v-if='shareContent.task.startDate || shareContent.task.endDate'>
       <div class='form-item-label'>
         Start Date
       </div>
@@ -18,7 +18,7 @@
       </div>
     </div>
 
-    <div class='form-item'>
+    <div class='form-item' v-if='shareContent.task.overview'>
       <div class='form-item-label'>
         Task details
       </div>
@@ -27,7 +27,7 @@
       </div>
     </div>
 
-    <div class='form-item'>
+    <div class='form-item' v-if='shareContent.task.taskType'>
       <div class='form-item-label'>
         Task Type
       </div>
@@ -36,7 +36,7 @@
       </div>
     </div>
 
-    <div class='form-item'>
+    <div class='form-item' v-if='assessmentObjectives.length'>
       <div class='form-item-label'>
         Assessment objectives
       </div>
@@ -51,7 +51,7 @@
       </div>
     </div>
 
-    <div class='form-item'>
+    <div class='form-item' v-if='learningOutcomes.length'>
       <div class='form-item-label'>
         Learning outcomes
       </div>
@@ -66,7 +66,7 @@
       </div>
     </div>
 
-    <div class='form-item'>
+    <div class='form-item' v-if='centurySkills.length'>
       <div class='form-item-label'>
         21st Century Skills
       </div>
@@ -81,7 +81,7 @@
       </div>
     </div>
 
-    <div class='form-item'>
+    <div class='form-item' v-if='shareContent.task.materialList.length'>
       <div class='form-item-label'>
         Material list
       </div>

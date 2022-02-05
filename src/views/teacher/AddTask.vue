@@ -138,15 +138,15 @@
                               <div class='self-field-label'>
                                 <div
                                   :class="{'task-type-item': true, 'green-active-task-type': form.taskType === 'FA'}"
-                                  @click.stop.prevent="handleSelectTaskType('FA')">FA
+                                  @click="handleSelectTaskType('FA')">FA
                                 </div>
                                 <div
                                   :class="{'task-type-item': true, 'red-active-task-type': form.taskType === 'SA'}"
-                                  @click.stop.prevent="handleSelectTaskType('SA')">SA
+                                  @click="handleSelectTaskType('SA')">SA
                                 </div>
                                 <div
                                   :class="{'task-type-item': true, 'task-type-activity': true,'blue-active-task-type': form.taskType === 'Activity'}"
-                                  @click.stop.prevent="handleSelectTaskType('Activity')">
+                                  @click="handleSelectTaskType('Activity')">
                                   <a-tooltip title='Teaching/Learning Activity' placement='top'>Activity</a-tooltip>
                                 </div>
                               </div>
@@ -2048,12 +2048,14 @@ export default {
     }
   },
   watch: {
-    'selectedTemplateList': function(value) {
-      this.$logger.info('watch selectedTemplateList change ', value)
-      if (this.canEdit) {
-        this.autoSave()
-      }
-    },
+    // 'selectedTemplateList': function(value) {
+    //   this.$logger.info('watch selectedTemplateList change ', value)
+    //   if (value.length != this.form.selectedTemplateList.length) {
+    //     if (this.canEdit) {
+    //       this.autoSave()
+    //     }
+    //   }
+    // },
 
     // 自动选择第一个班级的年级为task的默认年级
     'form.taskClassList': {
@@ -2370,24 +2372,6 @@ export default {
     handleSelectTaskType(type) {
       this.$logger.info('handleSelectTaskType ' + type)
       this.form.taskType = type
-      this.customTagList = []
-      if (type === 'FA') {
-        CustomTagType.task.fa.forEach(name => {
-          this.customTagList.push(name)
-        })
-      } else if (type === 'SA') {
-        CustomTagType.task.sa.forEach(name => {
-          this.customTagList.push(name)
-        })
-      } else if (type === 'Activity') {
-        CustomTagType.task.activity.forEach(name => {
-          this.customTagList.push(name)
-        })
-      }
-      this.setRightModuleVisible(this.rightModule.customTag)
-      this.customTagTop = 450
-      this.showCustomTag = true
-
       // #协同编辑event事件
       this.handleCollaborateEvent(this.taskId, this.taskField.TaskType, this.form.taskType)
     },
@@ -2434,6 +2418,7 @@ export default {
       if (index !== -1) {
         this.selectedTemplateList.splice(index, 1)
       }
+      this.autoSave()
     },
 
     handleSelectTemplateMadelAnimate(template, event) {
@@ -2589,6 +2574,7 @@ export default {
       } else {
         this.form.showSelected = false
       }
+      this.autoSave()
     },
 
     handleCreateTask() {
@@ -2652,6 +2638,8 @@ export default {
         if (this.currentActiveStepIndex === 2 && this.thumbnailList.length > 1) {
           this.selectedSlideVisible = true
           this.currentTaskFormData = JSON.parse(JSON.stringify(this.form))
+          // 只展示选中ppt的标签
+          this.currentTaskFormData.customTags = []
         } else {
           this.currentTaskFormData = null
         }
@@ -2714,6 +2702,30 @@ export default {
           this.currentTaskFormData.image = selectPage[0].contentUrl
         }
       }
+
+      // 处理选中的ppt封面的标签custom
+      this.currentTaskFormData.customTags = []
+      this.itemsList.forEach(e => {
+        if (this.selectedPageIdList.indexOf(e.pageId) !== -1) {
+          const json = JSON.parse(e.data)
+          if (json.data && json.data.bloomLevel) {
+            if (this.currentTaskFormData.customTags.findIndex(tag => tag.name === json.data.bloomLevel) === -1) {
+              this.currentTaskFormData.customTags.push({
+                name: json.data.bloomLevel,
+                parentName: 'Bloom\'s Taxonomy'
+              })
+            }
+          }
+          if (json.data && json.data.knowledgeLevel) {
+            if (this.currentTaskFormData.customTags.findIndex(tag => tag.name === json.data.knowledgeLevel) === -1) {
+              this.currentTaskFormData.customTags.push({
+                name: json.data.knowledgeLevel,
+                parentName: 'Knowledge Dimensions'
+              })
+            }
+          }
+        }
+      })
     },
 
     handleContinueSelectTemplate() {
@@ -2818,11 +2830,6 @@ export default {
       this.$logger.info('handleDeleteSubTask data', data, this.subTasks)
       this.subTasks = this.subTasks.filter(item => item._uid !== data._uid)
       this.$logger.info('after delete tasks ', this.subTasks)
-    },
-    handleStartCollaborate() {
-      this.$logger.info('handleStartCollaborate')
-      this.collaborateContent = Object.assign({}, this.form)
-      this.showCollaborateModalVisible = true
     },
     handleUploadImage(data) {
       logger.info('handleUploadImage', data)
@@ -3355,6 +3362,7 @@ export default {
           if (this.selectedTemplateIdList.indexOf(template.id) === -1) {
             this.selectedTemplateList.unshift(template)
           }
+          this.autoSave()
         }, 600)
       })
     },
@@ -3392,7 +3400,7 @@ export default {
       const eventDom = event.target
       let formTop = eventDom.offsetTop ? eventDom.offsetTop : 0
       let currentDom = eventDom.offsetParent
-      const currentFocus = ''
+      let currentFocus = ''
       this.customTagList = []
       console.log(currentDom)
       while (currentDom !== null) {
@@ -3401,12 +3409,24 @@ export default {
         if (!currentDom) {
           break
         }
-        // if(currentDom.classList.contains('div.task-type-item.green-active-task-type')) {
-        //   currentFocus = 'fa'
-        //   CustomTagType.task.fa.forEach(name => {
-        //     this.customTagList.push(name)
-        //   })
-        // }
+        if (currentDom.classList.contains('taskType')) {
+          currentFocus = 'fa'
+          this.customTagList = []
+          if (this.form.taskType === 'FA') {
+            CustomTagType.task.fa.forEach(name => {
+              this.customTagList.push(name)
+            })
+          } else if (this.form.taskType === 'SA') {
+            CustomTagType.task.sa.forEach(name => {
+              this.customTagList.push(name)
+            })
+          } else if (this.form.taskType === 'Activity') {
+            CustomTagType.task.activity.forEach(name => {
+              this.customTagList.push(name)
+            })
+          }
+          this.showCustomTag = true
+        }
         if (currentDom.classList && currentDom.classList.contains('root-locate-form')) {
           logger.info('classlist: ', currentDom.classList.toString())
           break
@@ -3726,6 +3746,7 @@ export default {
       if (this.selectedTemplateList.length === 0) {
         this.form.showSelected = false
       }
+      this.autoSave()
     },
     handleSelectedTemplate() {
       this.$logger.info('handleSelectedTemplate ', this.handleSelectedTemplate)
@@ -3764,6 +3785,7 @@ export default {
       if (this.selectedTemplateList.length === 0) {
         this.form.showSelected = false
       }
+      this.autoSave()
     },
 
     handleSaveSubTask(status) {

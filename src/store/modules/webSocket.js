@@ -7,7 +7,9 @@ const websocket = {
     vueSocket: null,
     receiveMsg: false,
     collaborateMsg: null,
-    saveContentMsg: null
+    saveContentMsg: null,
+    msgUnreadCount: 0,
+    needRefreshCollaborate: ''
   },
   mutations: {
     [WEBSOCKET_TYPE_INIT]: (state) => {
@@ -23,13 +25,20 @@ const websocket = {
     },
     [SAVE_CONTENT]: (state, saveContentMsg) => {
       state.saveContentMsg = saveContentMsg
+    },
+    SET_UNREAD_COUNT: (state, msgUnreadCount) => {
+      state.msgUnreadCount = msgUnreadCount
+    },
+    SET_REFRESH_COLLABORATE: (state, needRefreshCollaborate) => {
+      state.needRefreshCollaborate = needRefreshCollaborate
     }
   },
   actions: {
     initData: ({ commit }) => commit(WEBSOCKET_TYPE_INIT),
     receiveMsg: ({ commit }, receiveMsg) => commit(RECEIVE_MSG, receiveMsg),
     receiveCollaborate: ({ commit }, collaborateMsg) => commit(COLLABORATE, collaborateMsg),
-    receiveSaveContentMsg: ({ commit }, saveContentMsg) => commit(SAVE_CONTENT, saveContentMsg)
+    receiveSaveContentMsg: ({ commit }, saveContentMsg) => commit(SAVE_CONTENT, saveContentMsg),
+    refreshCollaborate: ({ commit }, needRefreshCollaborate) => commit('SET_REFRESH_COLLABORATE', needRefreshCollaborate)
   }
 }
 
