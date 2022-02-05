@@ -128,17 +128,15 @@ export default {
       loading: false,
       defaultActiveKey: 'teacher',
       form: this.$form.createForm(this),
-      registerPath: '/user/register',
-      inviteCode: ''
+      registerPath: '/user/register'
     }
   },
   created() {
     const paramSearch = new URLSearchParams(window.location.search)
     const role = paramSearch.get('role')
-    const inviteCode = paramSearch.get('inviteCode')
-    if (inviteCode) {
-      this.inviteCode = inviteCode
-      this.registerPath = `/user/register?inviteCode=${inviteCode}`
+    const redirect = paramSearch.get('redirect')
+    if (redirect) {
+      this.registerPath = `/user/register?redirect=${redirect}`
     }
     if (role) {
       this.defaultActiveKey = role
@@ -151,9 +149,6 @@ export default {
       console.log('thirdSignIn', source)
       let url = getThirdAuthURL(source)
       url += `?role=${role}`
-      if (this.inviteCode) {
-        url += `&inviteCode=${this.inviteCode}`
-      }
       url += `&callbackUrl=`
       url += thirdAuthCallbackUrl
       console.log('full auth url ', url)
@@ -173,9 +168,6 @@ export default {
           const loginParams = {
             username: values.email,
             password: values.password
-          }
-          if (this.inviteCode) {
-            loginParams.inviteCode = this.inviteCode
           }
           Login(loginParams)
             .then(res => this.loginSuccess(res))

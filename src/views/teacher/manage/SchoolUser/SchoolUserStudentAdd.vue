@@ -163,7 +163,7 @@
 
 <script>
 import JModal from '@/components/jeecg/JModal'
-import { addStudent, getOrCreateInvite } from '@/api/schoolUser'
+import { addStudent, getOrCreateInvite, updateInvite } from '@/api/schoolUser'
 import store from '@/store'
 
 export default {
@@ -196,7 +196,8 @@ export default {
       inviteUrl: '',
       resetLoading: false,
       inviteLoading: false,
-      reletiveGrade: ''
+      reletiveGrade: '',
+      inviteCodeId: undefined
     }
   },
   created() {},
@@ -253,7 +254,9 @@ export default {
         need_refresh: needRefresh
       })
       if (res?.success) {
-        this.inviteUrl = 'https://my.classcipe.com/user/login?role=student&inviteCode=' + res?.result?.inviteCode
+        this.inviteUrl = `${process.env.VUE_APP_BASE_URL}/user/invite?inviteCode=${res?.result?.inviteCode}`
+        this.inviteCheckBoxChecked = res?.result?.approveFlag
+        this.inviteCodeId = res?.result?.id
       }
     },
     async handleInviteEnterBtn() {
@@ -272,6 +275,18 @@ export default {
     },
     onInviteCheckBoxChange(e) {
       this.inviteCheckBoxChecked = e.target.checked
+      this.updateInviteCode(e.target.checked)
+    },
+    async updateInviteCode(bool) {
+      const res = await updateInvite({
+        need_approve: bool ? 1 : 0,
+        id: this.inviteCodeId
+      })
+      if (res.success) {
+
+      } else {
+        this.$message.error(res.message)
+      }
     },
     onCopy() {
       navigator.clipboard.writeText(this.inviteUrl).then(() => {
