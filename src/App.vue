@@ -3,7 +3,7 @@
     <div id="app">
       <router-view/>
       <!--只允许登陆后才可以反馈-->
-      <feedback v-if='$store.getters.email'/>
+      <feedback />
     </div>
   </a-config-provider>
 </template>

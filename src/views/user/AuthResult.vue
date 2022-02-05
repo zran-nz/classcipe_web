@@ -1,15 +1,35 @@
 <template>
   <div class="main-content">
-    <a-spin size="large">
+    <a-spin size="large" v-if='!authFailed'>
     </a-spin>
+    <div class='auth-failed' v-if='authFailed'>
+      <div class='auth-failed-detail'>
+        <no-more-resources :tips='failedMessage'/>
+      </div>
+      <div class='auth-failed-tips'>
+        Classcipe needs access to your google account to work properly, please grant permission again.
+      </div>
+      <div class='auth-failed-action'>
+        <a-button icon='redo' @click='handleRetryAuth' shape='round' type='primary'>Retry</a-button>
+      </div>
+    </div>
   </div>
 </template>
 
 <script>
 import { selectRoleRouter } from '@/config/router.config'
+import { getThirdAuthURL, thirdAuthCallbackUrl } from '@/api/thirdAuth'
+import NoMoreResources from '@/components/Common/NoMoreResources'
 
 export default {
   name: 'AuthResult',
+  components: { NoMoreResources },
+  data() {
+    return {
+      authFailed: false,
+      failedMessage: ''
+    }
+  },
   created () {
     const paramSearch = new URLSearchParams(window.location.search)
     const accessToken = paramSearch.get('accessToken')
@@ -21,26 +41,42 @@ export default {
           this.$router.push({ path: selectRoleRouter })
         }
       }).catch((e) => {
-        this.$message.error('GetInfo Failed,' + e)
+        this.authFailed = true
+        this.failedMessage = e
       })
     }).catch(() => {
       this.$router.push({ path: '/user/login' })
     })
   },
   methods: {
-    goHomeHandle () {
-      this.$router.push({ name: 'login' })
+    handleRetryAuth () {
+      let url = getThirdAuthURL('google')
+      url += `?role=teacher`
+      url += `&callbackUrl=`
+      url += thirdAuthCallbackUrl
+      window.location.href = url
     }
   }
 }
 </script>
 
-<style scoped>
+<style scoped lang='less'>
+@import "~@/components/index.less";
   .main-content {
     margin-top: 100px;
     display: flex;
     justify-content: center;
     flex-direction: row;
     align-items: center;
+  }
+
+  .auth-failed {
+    text-align: center;
+  }
+
+  .auth-failed-tips {
+    padding: 20px 10px;
+    color: #333;
+    width: 350px;
   }
 </style>
