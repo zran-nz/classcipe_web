@@ -11,7 +11,9 @@ export const schoolUserAPIUrl = {
   queryUser: '/classcipe/api/school/user/queryUser',
   updateUserStatus: '/classcipe/api/school/user/updateUserStatus',
   importStaff: '/classcipe/api/school/user/importStaffByExcel',
-  importStudent: '/classcipe/api/school/user/importStudentByExcel'
+  importStudent: '/classcipe/api/school/user/importStudentByExcel',
+  exportInvalidStaff: '/classcipe/api/school/user/exportInvalidStaff',
+  exportInvalidStudent: '/classcipe/api/school/user/exportInvalidStudent'
 }
 
 /**

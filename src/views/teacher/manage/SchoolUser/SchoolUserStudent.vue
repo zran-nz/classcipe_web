@@ -348,7 +348,7 @@ export default {
     downloadTemplate() {
       const link = document.createElement('a')
       link.style.display = 'none'
-      const url = this.baseUrl + '/classcipe/excel/school_students_template.xlsx'
+      const url = this.baseUrl + '/classcipe/excel/school_students_template.xls'
       link.href = url
       document.body.appendChild(link)
       link.click()
@@ -374,7 +374,7 @@ export default {
           logger.info('import excel res:', res)
           if (res.success) {
             const { result = {} } = res
-            const { alreadyImportedCount, insertCount, invalidCount, totalCount, updateCount } = result
+            const { alreadyImportedCount, insertCount, invalidCount, totalCount, updateCount, invalidDataKey } = result
             // alreadyImportedCount: 0
             // insertCount: 1
             // invalidCount: 0
@@ -395,7 +395,12 @@ export default {
                 ),
                 okText: 'Download the failed part',
                 onOk() {
-                  console.log('ok')
+                  const link = document.createElement('a')
+                  const objectUrl = `${process.env.VUE_APP_API_BASE_URL}${schoolUserAPIUrl.exportInvalidStudent}?key=${invalidDataKey}`
+                  link.href = objectUrl
+                  link.download = 'invalidStudent.xls' // 自定义文件名
+                  link.click() // 下载文件
+                  URL.revokeObjectURL(objectUrl) // 释放内存
                 }
               })
             }
