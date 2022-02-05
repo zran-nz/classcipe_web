@@ -1,6 +1,6 @@
 <template>
   <div class='share-plan-form'>
-    <div class='form-item'>
+    <div class='form-item' v-if='shareContent.plan.name'>
       <div class='form-item-label'>
         Unit Name
       </div>
@@ -28,7 +28,7 @@
       </div>
     </div>
 
-    <div class='form-item'>
+    <div class='form-item' v-if='shareContent.plan.startDate || shareContent.plan.endDate'>
       <div class='form-item-label'>
         Start Date
       </div>
@@ -37,7 +37,7 @@
       </div>
     </div>
 
-    <div class='form-item'>
+    <div class='form-item' v-if='shareContent.plan.inquiry'>
       <div class='form-item-label'>
         Big Idea/ Statement of Inquiry/ Central Idea
       </div>
@@ -46,12 +46,9 @@
       </div>
     </div>
 
-    <div class='form-item'>
+    <div class='form-item' v-if='shareContent.plan.scenarios'>
       <div class='form-item-label'>
         Teaching goals
-      </div>
-      <div class='form-item-text'>
-        {{ shareContent.plan.inquiry }}
       </div>
     </div>
 
@@ -70,7 +67,7 @@
       </div>
     </div>
 
-    <div class='form-item'>
+    <div class='form-item' v-if='assessmentObjectives.length'>
       <div class='form-item-label'>
         Assessment objectives
       </div>
@@ -85,7 +82,7 @@
       </div>
     </div>
 
-    <div class='form-item'>
+    <div class='form-item' v-if='learningOutcomes.length'>
       <div class='form-item-label'>
         Learning outcomes
       </div>
@@ -100,7 +97,7 @@
       </div>
     </div>
 
-    <div class='form-item'>
+    <div class='form-item' v-if='centurySkills.length'>
       <div class='form-item-label'>
         21st Century Skills
       </div>
@@ -115,7 +112,7 @@
       </div>
     </div>
 
-    <div class='form-item'>
+    <div class='form-item' v-if='shareContent.plan.prior '>
       <div class='form-item-label'>
         Prior learning experience
       </div>
