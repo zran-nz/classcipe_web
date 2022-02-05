@@ -139,30 +139,35 @@ const user = {
     GetInfo ({ commit }) {
       return new Promise((resolve, reject) => {
         getInfo({ token: storage.get(ACCESS_TOKEN) }).then(response => {
-          logger.info('GetInfo', response)
-          const result = response.result
-          commit('SET_ROLES', result.currentRole ? [result.currentRole] : [])
-          commit('SET_PERMISSIONS', result.currentRole ? [result.currentRole] : [])
-          commit('SET_INFO', result)
-          commit('SET_NAME', { name: result.nickname, welcome: welcome() })
-          commit('SET_AVATAR', result.avatar)
-          commit('SET_EMAIL', result.email)
-          commit('SET_BIND_CURRICULUM', result.bindCurriculum)
-          commit('SET_SKILL_CATEGORY', result.skillCategory)
-          commit('SET_CURRENT_ROLE', result.currentRole)
-          commit('SET_IS_ADD_PREFERENCE', result.isAddPreference)
-          commit('SET_DISABLED_QUESTION', result.disableQuestion)
-          storage.set(CURRENT_ROLE, result.currentRole)
-          storage.set(IS_ADD_PREFERENCE, result.isAddPreference)
-          storage.set(USER_INFO, result)
-          window.sessionStorage.setItem(SESSION_ACTIVE_KEY, storage.get(ACCESS_TOKEN))
-          // 交换最新的后台token
-          if (result.token && result.currentRole === teacher && storage.get(ACCESS_TOKEN) !== result.token) {
-            storage.set(ACCESS_TOKEN, result.token, 7 * 24 * 60 * 60 * 1000)
-            commit('SET_TOKEN', result.token)
-            window.sessionStorage.setItem(SESSION_ACTIVE_KEY, result.token)
+          logger.info('GetInfo result', response)
+
+          if (response.success) {
+            const result = response.result
+            commit('SET_ROLES', result.currentRole ? [result.currentRole] : [])
+            commit('SET_PERMISSIONS', result.currentRole ? [result.currentRole] : [])
+            commit('SET_INFO', result)
+            commit('SET_NAME', { name: result.nickname, welcome: welcome() })
+            commit('SET_AVATAR', result.avatar)
+            commit('SET_EMAIL', result.email)
+            commit('SET_BIND_CURRICULUM', result.bindCurriculum)
+            commit('SET_SKILL_CATEGORY', result.skillCategory)
+            commit('SET_CURRENT_ROLE', result.currentRole)
+            commit('SET_IS_ADD_PREFERENCE', result.isAddPreference)
+            commit('SET_DISABLED_QUESTION', result.disableQuestion)
+            storage.set(CURRENT_ROLE, result.currentRole)
+            storage.set(IS_ADD_PREFERENCE, result.isAddPreference)
+            storage.set(USER_INFO, result)
+            window.sessionStorage.setItem(SESSION_ACTIVE_KEY, storage.get(ACCESS_TOKEN))
+            // 交换最新的后台token
+            if (result.token && result.currentRole === teacher && storage.get(ACCESS_TOKEN) !== result.token) {
+              storage.set(ACCESS_TOKEN, result.token, 7 * 24 * 60 * 60 * 1000)
+              commit('SET_TOKEN', result.token)
+              window.sessionStorage.setItem(SESSION_ACTIVE_KEY, result.token)
+            }
+            resolve(response)
+          } else {
+            reject(response.message)
           }
-          resolve(response)
         }).catch(error => {
           reject(error)
         })

@@ -79,8 +79,11 @@
               slot="renderItem"
               key="item.key"
               slot-scope="item"
-              :class="{'my-list-item': true, 'active-item': mySelectedList.indexOf(item.type + '-' + item.id) !== -1}"
-            >
+              :data-id="item.type + '-' + item.id"
+              :class="{
+                'my-list-item': true,
+                'active-item': mySelectedList.indexOf(item.type + '-' + item.id) !== -1,
+                'active-new-item': item.id === editId}">
 
               <div class="select-block" @click="handleLinkItem(item, $event)">
                 <a-icon
@@ -694,6 +697,11 @@ export default {
           name: this.createNewName
         }).then((response) => {
           this.$logger.info('UnitPlanAddOrUpdate response', response)
+          this.editId = response.result.id
+          this.createNewNameMode = 'input'
+          const itemId = this.typeMap['unit-plan'] + '-' + this.editId
+          this.mySelectedList.push(itemId)
+          this.mySelectedMap.set(itemId, { id: this.editId, type: this.typeMap['unit-plan'] })
           this.loadMyContent()
         }).finally(() => {
           this.createLoading = false
@@ -821,8 +829,12 @@ export default {
 }
 
 .active-item {
-  border: 2px solid #15C39A;
   box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.16);
+}
+
+.active-new-item {
+  border: 2px solid #15C39A;
+  background: #15C39A11;
 }
 
 .my-content {
