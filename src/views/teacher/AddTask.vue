@@ -1998,7 +1998,7 @@ export default {
       },
 
       linkUnitPlanLoading: false,
-      linkRubricLoading: false,
+      linkRubricLoading: false
     }
   },
   computed: {
