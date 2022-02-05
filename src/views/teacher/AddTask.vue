@@ -658,15 +658,17 @@
                             <a-space v-show="canEdit">
                               <a-button
                                 type='primary'
-                                :style="{'background-color': '#fff', 'color': '#000', 'border': '1px solid #D8D8D8'}"
+                                :style="{'background-color': '#fff', 'color': '#000', 'border': '1px solid #D8D8D8', 'display': 'flex', 'align-items': 'center'}"
+                                :loading='linkUnitPlanLoading'
                                 @click='handleAddUnitPlanTerm'>
-                                <div class='btn-text' style='line-height: 20px'>
+                                <div class='btn-text' style='line-height: 20px; padding-left: 5px'>
                                   + Link Unit plan
                                 </div>
                               </a-button>
                               <a-button
                                 type='primary'
-                                :style="{'background-color': '#fff', 'color': '#000', 'border': '1px solid #D8D8D8'}"
+                                :style="{'background-color': '#fff', 'color': '#000', 'border': '1px solid #D8D8D8', 'display': 'flex', 'align-items': 'center'}"
+                                :loading='linkRubricLoading'
                                 @click='handleAddTerm'>
                                 <div class='btn-text' style='line-height: 20px'>
                                   + Add rubric
@@ -1993,7 +1995,10 @@ export default {
           color: '#9DC3E6',
           label: 'Personal'
         }
-      }
+      },
+
+      linkUnitPlanLoading: false,
+      linkRubricLoading: false,
     }
   },
   computed: {
@@ -2934,7 +2939,7 @@ export default {
     },
     handleAddUnitPlanTerm() {
       this.$logger.info('handleAddUnitPlanTerm', this.groupNameList)
-
+      this.linkUnitPlanLoading = true
       // 如果第一部分有内容，点击link激活step 到第二部分，否则提示先输入第一部分表单内容
       if (this.form.name ||
         this.form.overview ||
@@ -2948,10 +2953,16 @@ export default {
 
       // #协同编辑event事件
       this.handleCollaborateEvent(this.taskId, this.taskField.Link, this.associateUnitPlanIdList)
+
+      this.$nextTick(() => {
+        setTimeout(() => {
+          this.linkUnitPlanLoading = false
+        }, 500)
+      })
     },
     handleAddTerm() {
       this.$logger.info('handleAddTerm', this.groupNameList)
-
+      this.linkRubricLoading = true
       // 如果第一部分有内容，点击link激活step 到第二部分，否则提示先输入第一部分表单内容
       if (this.form.name ||
         this.form.overview ||
@@ -2964,6 +2975,12 @@ export default {
       }
       // #协同编辑event事件
       this.handleCollaborateEvent(this.taskId, this.taskField.Link, this.associateUnitPlanIdList)
+
+      this.$nextTick(() => {
+        setTimeout(() => {
+          this.linkRubricLoading = false
+        }, 500)
+      })
     },
     handleEnsureSelectedLink(data) {
       this.$logger.info('handleEnsureSelectedLink', data)
