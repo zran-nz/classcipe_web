@@ -396,10 +396,11 @@
                           <a-form-item class='link-plan-title' label='Add task(s)' >
                             <a-space v-show="canEdit">
                               <a-button
-                                :style="{'background-color': '#fff', 'color': '#000', 'border': '1px solid #D8D8D8'}"
+                                :style="{'background-color': '#fff', 'color': '#000', 'border': '1px solid #D8D8D8', 'display': 'flex', 'align-items': 'center'}"
                                 type='primary'
+                                :loading='linkLoading'
                                 @click='handleAddTasks'>
-                                <div class='btn-text' style='line-height: 20px'>
+                                <div class='btn-text' style='line-height: 20px; padding-left: 5px'>
                                   + Link Task(s)
                                 </div>
                               </a-button>
@@ -409,7 +410,7 @@
                                 class='addCategory'
                                 type='primary'
                                 @click='handleAddTerm'>
-                                <div class='btn-text' style='line-height: 20px'>
+                                <div class='btn-text' style='line-height: 20px; padding-left: 5px'>
                                   + Add category
                                 </div>
                               </a-button>
@@ -1131,7 +1132,9 @@ export default {
 
       shareVisible: false,
       shareStatus: 0,
-      planField: PlanField
+      planField: PlanField,
+
+      linkLoading: false
     }
   },
   watch: {
@@ -1913,6 +1916,7 @@ export default {
 
     handleAddTasks() {
       this.$logger.info('handleAddTasks', this.groupNameList)
+      this.linkLoading = true
       // 如果第一部分有内容，点击link激活step 到第二部分，否则提示先输入第一部分表单内容
       if (this.form.name ||
         this.form.overview ||
@@ -1930,6 +1934,13 @@ export default {
 
       // #协同编辑event事件
       this.handleCollaborateEvent(this.unitPlanId, this.planField.Link, this.associateTaskList)
+
+      // 页面渲染后隐藏loading
+      this.$nextTick(() => {
+        setTimeout(() => {
+          this.linkLoading = false
+        }, 500)
+      })
     },
 
     handleAddTerm() {
