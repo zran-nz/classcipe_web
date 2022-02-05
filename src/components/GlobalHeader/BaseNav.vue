@@ -49,7 +49,8 @@ export default {
     }
   },
   mounted() {
-    if (this.$store.getters.nickname) {
+    this.$logger.info('BaseNav mounted', this.$store.getters)
+    if (this.$store.getters.token) {
       this.isLogin = true
     } else {
       this.isLogin = false

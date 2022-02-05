@@ -23,7 +23,7 @@
           </div>
         </div>
         <div class='favorite-info' @click='handleFavorite'>
-          <div class='favorite-item' v-if='isFavorite'>
+          <div class='favorite-item' v-if='favoriteFlag'>
             <div class='favorite-button'>
               <div class='favorite-icon'>
                 <favorite-yellow />
@@ -31,7 +31,7 @@
               <div class='favorite-text'>Like</div>
             </div>
           </div>
-          <div class='unfavorite-item' v-if='!isFavorite'>
+          <div class='unfavorite-item' v-if='!favoriteFlag'>
             <div class='favorite-button'>
               <div class='favorite-icon'>
                 <favorite-white />
@@ -97,6 +97,14 @@ export default {
       default: false
     }
   },
+  data() {
+    return {
+      favoriteFlag: false
+    }
+  },
+  created() {
+    this.favoriteFlag = this.isFavorite
+  },
   methods: {
     handleFavorite () {
       FavoritesAdd({
@@ -104,7 +112,7 @@ export default {
         sourceType: this.type
       }).then(response => {
         this.$logger.info('FavoritesAdd ', response)
-        this.isFavorite = !this.isFavorite
+        this.favoriteFlag = !this.favoriteFlag
       })
     }
   }
@@ -116,9 +124,9 @@ export default {
 
 .share-common-header {
   width: 100%;
-  height: 300px;
+  height: 250px;
   background: #bfc2d3;
-  padding: 20px 30px;
+  padding: 10px 30px;
 
   .header-content {
     display: flex;
@@ -182,7 +190,7 @@ export default {
   display: flex;
   align-items: center;
   justify-content: center;
-  height: 260px;
+  height: 230px;
   max-width: 400px;
   overflow: hidden;
   img {
