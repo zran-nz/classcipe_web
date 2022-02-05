@@ -49,11 +49,9 @@
 
 <script>
 import * as logger from '@/utils/logger'
-import { EditCementSend, ListCementByUser } from '@/api/notice'
+import { ListCementByUser } from '@/api/notice'
 import { RECEIVE_MSG } from '../../store/mutation-types'
 import NoMoreResources from '@/components/Common/NoMoreResources'
-import { NotificationTypeMap } from '@/views/dashboard/NotificationTypeMap'
-import { typeMap } from '@/const/teacher'
 import { NoticeMixin } from '@/mixins/NoticeMixin'
 
 export default {
