@@ -7,7 +7,7 @@
         <no-more-resources :tips='failedMessage'/>
       </div>
       <div class='auth-failed-tips'>
-        classcipe needs access to your google account data to work properly, please grant permission again.
+        Classcipe needs access to your google account to work properly, please grant permission again.
       </div>
       <div class='auth-failed-action'>
         <a-button icon='redo' @click='handleRetryAuth' shape='round' type='primary'>Retry</a-button>
