@@ -671,7 +671,7 @@
                                 :loading='linkRubricLoading'
                                 @click='handleAddTerm'>
                                 <div class='btn-text' style='line-height: 20px'>
-                                  + Add rubric
+                                  + Add assessment tool
                                 </div>
                               </a-button>
                             </a-space>
