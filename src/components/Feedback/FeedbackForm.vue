@@ -69,7 +69,7 @@ export default {
     handleSubmitFeedback () {
       this.submitting = true
       this.$emit('submit-feedback', {
-        imgBase64Data: this.imgData,
+        imgBase64Data: this.imgBase64Data,
         comment: this.feedbackComment,
         pageUrl: window.location.href
       })
