@@ -566,7 +566,9 @@ import EvaluationTableMode from '@/components/Evaluation/EvaluationTableMode'
 import NoMoreResources from '@/components/Common/NoMoreResources'
 import PptSlideView from '@/components/Evaluation/PptSlideView'
 import { typeMap } from '@/const/teacher'
-// import { defaultStudentRouter } from '@/config/router.config'
+import { GetAssociate } from '@/api/teacher'
+import { getTaskBySessionId } from '@/api/task'
+import { defaultStudentRouter } from '@/config/router.config'
 
 export default {
   name: 'StudentEvaluation',
@@ -636,6 +638,7 @@ export default {
   },
   data () {
     return {
+      taskId: null,
       mode: EvaluationTableMode.StudentEvaluate,
       loading: true,
       isExistFormTable: false, // 是否已经添加过表格
@@ -761,11 +764,88 @@ export default {
     this.evaluateStudentName = this.$store.getters.userInfo.nickname
     this.$logger.info('evaluateStudentId ' + this.evaluateStudentId + ' evaluateStudentName ' + this.evaluateStudentName)
 
-    this.loadClassSessionEvaluationData()
+    this.initData()
     // 每次打开第一次提示多选模式
     window.sessionStorage.removeItem('multiConfirmVisible')
   },
   methods: {
+
+    initData () {
+      this.$logger.info('initData')
+      this.loading = true
+      getTaskBySessionId({
+        sessonId: this.classId
+      }).then((taskRes) => {
+          this.$logger.info('getTaskBySessionId', taskRes)
+          if (taskRes.success) {
+            this.taskId = taskRes.result.id
+            // 加载task关联的evaluation表单数据
+            this.$logger.info('ClassSessionEvaluation GetAssociate taskId ' + this.taskId)
+            const associateEvaluationIdList = []
+            GetAssociate({
+              id: this.taskId,
+              type: this.typeMap.task
+            }).then(response => {
+              this.$logger.info('ClassSessionEvaluation GetAssociate response', response)
+              response.result.owner.forEach(item => {
+                item.contents.forEach(content => {
+                  if (content.type === typeMap.evaluation) {
+                    associateEvaluationIdList.push(content.id)
+                  }
+                })
+              })
+
+              response.result.others.forEach(item => {
+                item.contents.forEach(content => {
+                  if (content.type === typeMap.evaluation) {
+                    associateEvaluationIdList.push(content.id)
+                  }
+                })
+              })
+            }).finally(() => {
+              this.$logger.info('associateEvaluationIdList ', associateEvaluationIdList)
+
+              if (associateEvaluationIdList.length) {
+                const forms = []
+                EvaluationQueryByIds({ ids: associateEvaluationIdList }).then((response) => {
+                  this.$logger.info('associateEvaluationIdList EvaluationQueryByIds ', response)
+                  response.result.forEach(evaluationItem => {
+                    evaluationItem.forms.forEach(formItem => {
+                      forms.push({
+                        title: formItem.title,
+                        titleEditing: false,
+                        comment: null,
+                        formType: formItem.formType,
+                        se: formItem.se,
+                        pe: formItem.pe,
+                        menuVisible: false,
+                        id: null,
+                        formId: formItem.formId,
+                        initRawHeaders: JSON.parse(formItem.initRawHeaders),
+                        initRawData: JSON.parse(formItem.initRawData)
+                      })
+                    })
+                  })
+                }).then(() => {
+                  this.taskForms = forms
+                  this.$logger.info('taskForms', this.taskForms)
+                  this.loadClassSessionEvaluationData()
+                })
+              } else {
+                this.loadClassSessionEvaluationData()
+              }
+
+              this.initCompleted = true
+            })
+          } else {
+            this.$message.error(taskRes.message)
+          }
+      }).catch(err => {
+        this.$logger.error('getTaskBySessionId', err)
+        this.$message.error('getTaskBySessionId error')
+      })
+    },
+
     loadClassSessionEvaluationData () {
       this.loading = true
       GetSessionEvaluationByClassId({ classId: this.classId }).then(response => {
@@ -1572,7 +1652,7 @@ export default {
 
     goEvaluatePage () {
       this.$logger.info('goEvaluatePage')
-      // window.location.pathname = defaultStudentRouter
+      window.location.pathname = defaultStudentRouter
     },
     handleSaveAndBackEvaluation () {
       this.$logger.info('handleSaveAndBackEvaluation', this.forms)
