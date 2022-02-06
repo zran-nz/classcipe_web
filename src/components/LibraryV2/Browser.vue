@@ -802,7 +802,15 @@ export default {
       this.firstLoad = false
       QueryKeyContents(item).then(response => {
         this.$logger.info('QueryContents response', response)
-        this.dataList = response.result ? response.result : []
+        const list = response.result ? response.result : []
+        list.sort(it => {
+          if (it.name.toLowerCase().indexOf(item.name) !== -1) {
+            return -1
+          } else {
+            return 1
+          }
+        })
+        this.dataList = list
       }).finally(() => {
         this.searching = false
       })
