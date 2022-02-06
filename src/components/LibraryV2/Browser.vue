@@ -42,7 +42,7 @@
                 @keyup.native="handleSearchKeyFocus"
                 enter-button
                 @search="handleSearchKeyFocus" />
-              <div class="search-result-wrapper" v-if="searchResultVisible">
+              <div class="search-result-wrapper" v-if="searchResultVisible && (searching || searchResultList.length)">
                 <div class="searching" v-if="searching">
                   <a-spin>
                     <a-icon slot="indicator" type="loading" style="font-size: 24px" spin />
