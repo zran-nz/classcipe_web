@@ -62,7 +62,7 @@
               <h3>Recommended learning objectives</h3>
             </div>
             <div class="recommend-detail">
-              <div class="recommend-list" v-for="(recommendDataItem, rIndex) in recommendData" :key="rIndex" :data-item='JSON.stringify(recommendDataItem)'>
+              <div class="recommend-list" v-for="(recommendDataItem, rIndex) in myRecommendData" :key="rIndex" :data-item='JSON.stringify(recommendDataItem)'>
                 <div class="recommend-from" :data-from-id="recommendDataItem.fromId">
                   <h4>From <span class="from-type-name">{{ recommendDataItem.fromTypeName }}</span> :
                     {{ recommendDataItem.fromName }}</h4>
@@ -510,7 +510,9 @@ export default {
       selected21CenturyItem: null,
       selectedGradeIdSet: new Set(),
       selectModelType: SelectModel,
-      tagType: TagType
+      tagType: TagType,
+
+      myRecommendData: []
     }
   },
   computed: {
@@ -542,6 +544,7 @@ export default {
     this.$logger.info('selectedList', this.selectedList)
     this.$logger.info('defaultGradeId ' + this.defaultGradeId)
     this.mySelectedIdList = this.selectedIdList
+    this.myRecommendData = JSON.parse(JSON.stringify(this.recommendData))
 
     getAllCurriculums().then((response) => {
       this.$logger.info('getAllCurriculums', response)
@@ -550,7 +553,7 @@ export default {
     })
 
     const recommendIdList = []
-    this.recommendData.forEach((item) => {
+    this.myRecommendData.forEach((item) => {
       if (!item.skillList || (item.skillList && !item.skillList.length)) {
         item.skillList = []
       }
