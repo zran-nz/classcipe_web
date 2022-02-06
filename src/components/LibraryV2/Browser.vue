@@ -6,7 +6,7 @@
           <navigation :path="navPath" @pathChange="handleNavPathChange" v-show="libraryMode === LibraryMode.browserMode"/>
         </div>
         <div class="filter-line">
-          <div class="filter-icon">
+          <div class="search-bar-line">
             <a-popover
               trigger="click"
               placement="bottomLeft"
@@ -31,8 +31,6 @@
                 </div>
               </div>
             </a-popover>
-          </div>
-          <div class="search-bar-line">
             <div class="search-input" @click.stop="">
               <a-input-search
                 placeholder="input search text"
@@ -690,7 +688,7 @@ export default {
             const tagItem = {
               fromType: item.fromType,
               name: item.name,
-              tagName: item.name.split(value).join('<span class="keyword-item">' + value + '</span>')
+              tagName: item.name.split(value).join('<span class="search-keyword-item">' + value + '</span>')
             }
             list.push(tagItem)
           }
@@ -937,7 +935,6 @@ export default {
 
     .search-bar-line {
       width: 100%;
-      padding-left: 20px;
       display: flex;
       flex-direction: row;
       align-items: center;
@@ -1283,50 +1280,48 @@ export default {
   align-items: center;
 }
 
-.filter-icon {
+.filter-item {
+  color: #333;
+  cursor: pointer;
   display: flex;
   justify-content: flex-start;
   align-items: center;
-  .filter-item {
-    color: #333;
-    cursor: pointer;
-    display: flex;
-    justify-content: flex-start;
-    align-items: center;
-    background: #FFFFFF;
-    border: 1px solid #D3D3D3;
-    opacity: 1;
-    border-radius: 3px;
-    padding: 5px 15px;
-    white-space:nowrap;
+  border-color: #eff3f6;
+  box-shadow: none;
+  background: #eff3f6;
+  border-top-left-radius: 3px;
+  border-bottom-left-radius: 3px;
+  padding: 0 0 0 10px;
+  height: 46px;
+  line-height: 46px;
+  white-space:nowrap;
 
-    svg {
-      height: 20px;
-    }
+  svg {
+    height: 15px;
+  }
+  .filter-active-icon {
+    display: none;
+  }
+  .filter-icon {
+    display: inline;
+  }
+
+  &:hover {
+    color: #38cfa6;
     .filter-active-icon {
-      display: none;
-    }
-    .filter-icon {
       display: inline;
     }
 
-    &:hover {
-      color: #38cfa6;
-      border: 1px solid #38cfa6;
-      .filter-active-icon {
-        display: inline;
-      }
-
-      .filter-icon {
-        display: none;
-      }
+    .filter-icon {
+      display: none;
     }
+  }
 
-    .filter-label {
-      font-family: Inter-Bold;
-      line-height: 20px;
-      padding-left: 8px;
-    }
+  .filter-label {
+    font-family: Inter-Bold;
+    line-height: 20px;
+    padding-right: 10px;
+    border-right: 1px solid #ccc;
   }
 }
 
@@ -1419,9 +1414,12 @@ export default {
 
 .search-result-wrapper {
   position: absolute;
-  top: 40px;
+  top: 50px;
   z-index: 150;
-  box-shadow: 0 0 8px rgba(0, 0, 0, 0.16);
+  padding: 10px 0;
+  border-radius: 3px;
+  box-shadow: 0 5px 10px rgba(29, 38, 45, 0.2);
+  color: #1d262d;
   width: calc(100% - 46px);
   background-color: #fff;
   max-height: 450px;
@@ -1446,17 +1444,13 @@ export default {
   }
 
   .search-result-item {
-    padding: 8px 10px;
+    padding: 0 20px;
     cursor: pointer;
-    border-bottom: 1px solid #f6f6f6;
+    height: 34px;
+    line-height: 34px;
+    color: #5f7d95;
     &:hover {
-      color: #15c39a;
-      background-color: #f6f6f6;
-    }
-
-    .keyword-item {
-      font-weight: bold;
-      color: #2DC9A4;
+      background-color: #e3e9ed;
     }
   }
 
@@ -1513,4 +1507,5 @@ export default {
     }
   }
 }
+
 </style>
