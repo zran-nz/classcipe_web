@@ -209,7 +209,7 @@
 
 <script>
 import JModal from '@/components/jeecg/JModal'
-import { addStaff, getOrCreateInvite } from '@/api/schoolUser'
+import { addStaff, getOrCreateInvite, updateInvite } from '@/api/schoolUser'
 import store from '@/store'
 import * as logger from '@/utils/logger'
 import AvatarModal from '@/views/account/settings/AvatarModal'
@@ -255,7 +255,8 @@ export default {
       inviteCheckBoxChecked: true,
       inviteUrl: '',
       resetLoading: false,
-      inviteLoading: false
+      inviteLoading: false,
+      inviteCodeId: undefined
     }
   },
   created() {},
@@ -345,7 +346,9 @@ export default {
         need_refresh: needRefresh
       })
       if (res?.success) {
-        this.inviteUrl = 'https://my.classcipe.com/user/login?role=teacher&inviteCode=' + res?.result?.inviteCode
+        this.inviteUrl = `${process.env.VUE_APP_BASE_URL}/user/invite?inviteCode=${res?.result?.inviteCode}`
+        this.inviteCheckBoxChecked = res?.result?.approveFlag
+        this.inviteCodeId = res?.result?.id
       }
     },
     async handleInviteEnterBtn() {
@@ -364,6 +367,18 @@ export default {
     },
     onInviteCheckBoxChange(e) {
       this.inviteCheckBoxChecked = e.target.checked
+      this.updateInviteCode(e.target.checked)
+    },
+    async updateInviteCode(bool) {
+      const res = await updateInvite({
+        need_approve: bool ? 1 : 0,
+        id: this.inviteCodeId
+      })
+      if (res.success) {
+
+      } else {
+        this.$message.error(res.message)
+      }
     },
     onCopy() {
       navigator.clipboard.writeText(this.inviteUrl).then(() => {
