@@ -597,6 +597,7 @@ export default {
     justify-content: flex-start;
       box-sizing: border-box;
     border-right: 1px solid #ddd;
+      background: rgba(228, 228, 228, 0.2);
 
     .switch-type-wrapper {
       padding: 20px;
@@ -718,10 +719,13 @@ export default {
         justify-content: center;
         .card-item {
           width: 100%;
-          //border: 1px solid #15C39A;
           box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.16);
           opacity: 1;
           border-radius: 6px;
+          background: #fff;
+          &:hover {
+            box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.16);
+          }
         }
       }
     }

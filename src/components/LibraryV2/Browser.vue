@@ -915,8 +915,7 @@ export default {
     align-items: center;
     transition: all 200ms ease-in-out;
     line-height: 30px;
-    height: 50px;
-    padding: 10px 0;
+    height: 42px;
 
     .curriculum-select {
       display: flex;
@@ -1174,6 +1173,7 @@ export default {
   flex-wrap: wrap;
   justify-content: flex-start;
   box-sizing: border-box;
+  background: rgba(228, 228, 228, 0.2);
 
   .browser-item {
     line-height: 20px;
@@ -1240,10 +1240,12 @@ export default {
       justify-content: center;
       .card-item {
         width: 100%;
-        //border: 1px solid #15C39A;
-        box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.16);
         opacity: 1;
         border-radius: 6px;
+        background: #fff;
+        &:hover {
+          box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.16);
+        }
       }
     }
   }
@@ -1275,6 +1277,7 @@ export default {
 }
 
 .filter-bar {
+  padding-top: 8px;
   height: 40px;
   display: flex;
   justify-content: flex-start;
