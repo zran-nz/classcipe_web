@@ -1273,8 +1273,7 @@ export default {
 }
 
 .filter-bar {
-  padding: 10px 0;
-  height: 55px;
+  height: 40px;
   display: flex;
   justify-content: flex-start;
   align-items: center;
