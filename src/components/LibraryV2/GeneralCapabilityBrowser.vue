@@ -547,7 +547,6 @@ export default {
     flex-wrap: wrap;
     justify-content: flex-start;
       box-sizing: border-box;
-      background: rgba(228, 228, 228, 0.2);
     border-right: 1px solid #ddd;
 
     .switch-type-wrapper {
@@ -658,7 +657,6 @@ export default {
       display: flex;
       flex-direction: row;
       flex-wrap: wrap;
-      padding: 10px;
       .card-item-wrapper {
         cursor: pointer;
         width: 50%;

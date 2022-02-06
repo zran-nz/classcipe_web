@@ -245,9 +245,9 @@
                       :span="10"
                       :xs="12"
                       :sm="12"
-                      :md="8"
-                      :lg="8"
-                      :xl="6"
+                      :md="6"
+                      :lg="6"
+                      :xl="4"
                       :xxl="4"
                       v-for="(dataItem, index) in dataList"
                       v-if="(currentType === 0 || dataItem.type === currentType)"
@@ -273,10 +273,10 @@
                       :span="10"
                       :xs="24"
                       :sm="12"
-                      :md="12"
-                      :lg="8"
-                      :xl="8"
-                      :xxl="6"
+                      :md="8"
+                      :lg="6"
+                      :xl="6"
+                      :xxl="4"
                       v-for="(dataItem, index) in dataList"
                       v-if="(currentType === 0 || dataItem.type === currentType)"
                       :key="index">
@@ -1050,16 +1050,14 @@ export default {
     .library-detail-preview-wrapper {
       padding: 10px;
       transition: all 200ms ease-in-out;
-      background: #fff;
       box-sizing: border-box;
       display: flex;
       flex-direction: row;
-      border-left: 1px solid #ddd;
       min-height: 600px;
       position: relative;
       flex: 1;
       z-index: 150;
-      box-shadow: -3px 0 5px 0 rgba(31, 33, 44, 10%);
+      background: #fafafa;
 
       .expand-icon {
         display: flex;
@@ -1173,7 +1171,6 @@ export default {
   flex-wrap: wrap;
   justify-content: flex-start;
   box-sizing: border-box;
-  background: rgba(228, 228, 228, 0.2);
 
   .browser-item {
     line-height: 20px;
