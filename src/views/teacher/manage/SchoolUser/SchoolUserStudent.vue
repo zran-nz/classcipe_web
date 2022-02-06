@@ -375,7 +375,7 @@ export default {
           if (res.success) {
             const { result = {} } = res
             // eslint-disable-next-line no-unused-vars
-            const { alreadyImportedCount, insertCount, invalidCount, totalCount, updateCount, invalidDataKey } = result
+            const { invalidCount, totalCount, invalidDataKey } = result
             // alreadyImportedCount: 0
             // insertCount: 1
             // invalidCount: 0
