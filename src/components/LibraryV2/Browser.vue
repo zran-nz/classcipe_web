@@ -38,6 +38,7 @@
                 v-model="searchKeyword"
                 class="library-search-input"
                 @click.native="handleSearchKeyFocus"
+                @focus.native='handleSearchKeyFocus'
                 @keyup.native="handleSearchKeyFocus"
                 enter-button
                 @search="handleSearchKeyFocus" />
@@ -668,6 +669,7 @@ export default {
       if (this.searchKeyword) {
         this.searchByKeyword(this.searchKeyword)
       } else {
+        this.searching = false
         this.searchResultList = []
       }
     },
@@ -1448,6 +1450,9 @@ export default {
     height: 34px;
     line-height: 34px;
     color: #5f7d95;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
     &:hover {
       background-color: #e3e9ed;
     }
