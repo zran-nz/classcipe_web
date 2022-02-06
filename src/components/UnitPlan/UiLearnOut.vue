@@ -132,7 +132,7 @@
               :fieldNames="{ label: 'name', value: 'name', children: 'children'}"
               v-model="centuryTagList[index]"
               :options="centuryList"
-              change-on-select/>
+              change-on-select />
             <a-button type="link" v-if="centuryTagList.length > 1" icon="minus" size="large" @click="handleRemoveCenturyTag(index)"></a-button>
           </div>
           <a-button type="link" icon="plus-circle" size="large" @click="handleAddCenturyTag()"></a-button>
@@ -204,6 +204,29 @@
       learnOuts (val) {
         this.$logger.info('learnOuts change!', val)
         this.knowledgeList = val
+      },
+      // 更新centuryList中的数据，禁用已经被选择的选项
+      centuryTagList (val) {
+        this.$logger.info('centuryTagList change!', val, this.centuryList)
+
+        // 重置所有的centuryList为可选
+        this.centuryList.forEach(child => this.removeDisabled(child))
+        // 只禁用已选择的
+        this.centuryTagList.forEach(tagNameList => {
+          let childList = this.centuryList
+          for (let i = 0; i < tagNameList.length; i++) {
+            const tagName = tagNameList[i]
+            const child = childList.find(item => item.name === tagName)
+            if (child) {
+              if (i === tagNameList.length - 1) {
+                child.disabled = true
+              }
+              childList = child.children
+            } else {
+              break
+            }
+          }
+        })
       }
     },
     methods: {
@@ -276,9 +299,14 @@
       handleRemoveCenturyTag (index) {
         logger.info('handleRemoveCenturyTag ', index)
         this.centuryTagList.splice(index, 1)
+        this.handleUpdateCenturyTag()
       },
       handleAddCenturyTag () {
+        this.$logger.info('handleAddCenturyTag ', this.centuryTagList)
         this.centuryTagList.push([])
+      },
+      handleUpdateCenturyTag () {
+        this.$logger.info('handleUpdateCenturyTag ', 'selected', this.centuryTagList, 'option', this.centuryList)
       },
       treeForeach (tree, func) {
         tree.forEach(data => {
@@ -293,6 +321,7 @@
           if (response.success) {
              this.centuryList = response.result
              this.treeForeach(this.centuryList, node => {
+               node.disabled = false
                if (node.children.length === 0) {
                  node.title = this.$options.filters['gradeFormat'](node.gradeNames)
                }
@@ -311,6 +340,15 @@
         } else {
           return this.knowledgeList.filter(item => item.tagType === type)
         }
+      },
+
+      removeDisabled(item) {
+        if (item.disabled) {
+          item.disabled = false
+        }
+        item.children && item.children.forEach(child => {
+          this.removeDisabled(child)
+        })
       }
     }
   }
