@@ -35,6 +35,7 @@ export default {
     const accessToken = paramSearch.get('accessToken')
     this.$store.dispatch('LoginWithToken', accessToken).then(() => {
       this.$store.dispatch('GetInfo').then(response => {
+        this.$logger.info('auth-result-redirect', this.$route)
         if (this.$store.getters.currentRole) {
           this.$router.push(this.$store.getters.defaultRouter)
         } else {

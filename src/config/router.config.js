@@ -438,7 +438,7 @@ export const asyncRouterMap = [
 
   {
     path: '*',
-    redirect: '/404',
+    redirect: '/',
     hidden: true
   }
 ]
