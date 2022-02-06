@@ -4,12 +4,12 @@
       <template v-if="groups.length && !linkGroupLoading">
         <div v-for="(group, lIndex) in groups" :key="lIndex" class="link-group">
           <div class="group-item">
-            <div v-if="group.groupName" class="group-header">
+            <div class="group-header">
               <div class="group-left-info">
                 <!-- unit plan下才有term概念,task不显示对应的操作和term名称-->
                 <div class="group-name">
                   <div v-if="!group.editing" class="group-name-text">
-                    {{ group.groupName }}
+                    {{ group.groupName ? group.groupName : 'Untitled' }}
                   </div>
                   <div v-if="group.editing" class="group-name-input">
                     <a-input
@@ -371,7 +371,7 @@ export default {
           fromId: this.fromId,
           fromType: this.fromType,
           id: linkGroup.id,
-          groupName: linkGroup.groupName
+          groupName: linkGroup.groupName ? linkGroup.groupName : 'Untitled'
         }).then(response => {
           this.$logger.info('AddOrSaveGroupName', response)
         }).finally(() => {
