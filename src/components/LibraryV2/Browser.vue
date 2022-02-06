@@ -37,9 +37,9 @@
                 :loading="searching"
                 v-model="searchKeyword"
                 class="library-search-input"
-                @click.native="handleSearchKeyFocus"
-                @focus.native='handleSearchKeyFocus'
-                @keyup.native="handleSearchKeyFocus"
+                @click.native="debouncedSearchKeyFocus"
+                @focus.native='debouncedSearchKeyFocus'
+                @keyup.native="debouncedSearchKeyFocus"
                 enter-button
                 @search="handleSearchKeyFocus" />
               <div class="search-result-wrapper" v-if="searchResultVisible && (searching || searchResultList.length)">
@@ -368,6 +368,7 @@ import { QueryContentsFilter, QueryRecommendContents } from '@/api/library'
 import { SubjectTree } from '@/api/subject'
 import { FindCustomTags } from '@/api/tag'
 const { Search, QueryContents, QueryKeyContents } = require('@/api/library')
+const { debounce } = require('lodash-es')
 
 const BrowserTypeMap = {
   curriculum: 'curriculum',
@@ -520,7 +521,9 @@ export default {
       filterHeight: 500,
 
       searchResultVisible: false,
-      firstLoad: true
+      firstLoad: true,
+
+      debouncedSearchKeyFocus: null
     }
   },
   created () {
@@ -539,6 +542,8 @@ export default {
     }).finally(() => {
       this.getfilterOptions()
     })
+
+    this.debouncedSearchKeyFocus = debounce(this.handleSearchKeyFocus, 600)
   },
   mounted () {
     this.blockWidth = this.$refs['wrapper'].getBoundingClientRect().width * 0.15
