@@ -1995,7 +1995,7 @@ export default {
             this.$confirm({
               content: 'Are you sure to switch to edit mode ?',
               onOk: () => {
-                // window.location.pathname = '/teacher/class-evaluation/' + this.taskId + '/' + this.classId + '/edit'
+                window.location.pathname = '/teacher/class-evaluation/' + this.taskId + '/' + this.classId + '/edit'
               }
             })
           } else {
