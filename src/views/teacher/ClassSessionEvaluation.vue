@@ -4,7 +4,7 @@
       <common-form-header
         ref="commonFormHeader"
         :form="form"
-        :showCollaborate="false"
+        :show-collaborate="false"
         :last-change-saved-time="lastChangeSavedTime"
         @update-form="handleUpdateForm"
         @back="goBack"
@@ -229,7 +229,7 @@
                         </div>
                       </a-button>
                       <a-button
-                        v-if='mode === EvaluationTableMode.StudentEvaluate'
+                        v-if='mode === EvaluationTableMode.StudentEvaluate || mode === EvaluationTableMode.TeacherEvaluate'
                         class="my-form-header-btn"
                         style="{
                             width: 120px;
