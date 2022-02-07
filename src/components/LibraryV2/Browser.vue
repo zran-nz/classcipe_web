@@ -205,7 +205,7 @@
         </div>
         <div
           class="browser-block-item-wrapper">
-          <a-card v-if="!searching && firstLoad" :bordered="false" title="Recommended:" ></a-card>
+          <a-card v-if="!searching && showRecommend" :bordered="false" title="Recommended:" ></a-card>
           <div
             class="browser-block-item-last"
             :style="{'flex-direction': dataListMode === 'list' ? 'column' : 'row'}">
@@ -468,6 +468,7 @@ export default {
       dataListLoading: false,
       currentDataId: null,
       dataListMode: 'card',
+      dataRecommendList: [],
 
       currentTypeLabel: 'Choose type（S）of content',
       currentType: 0,
@@ -522,6 +523,7 @@ export default {
 
       searchResultVisible: false,
       firstLoad: true,
+      showRecommend: true,
 
       debouncedSearchKeyFocus: null
     }
@@ -556,6 +558,7 @@ export default {
       QueryRecommendContents().then(response => {
         this.$logger.info('QueryRecommendContents response', response)
         this.dataList = response.result ? response.result : []
+        this.dataRecommendList = this.dataList
       }).finally(() => {
         this.dataListLoading = false
       })
@@ -707,11 +710,22 @@ export default {
       })
     },
 
+    searchContentByKeyword (value) {
+      if (value) {
+        this.$logger.info('searchContentByKeyword ' + value)
+        this.searchByFilter({ searchKey: value.trim() })
+      } else {
+        this.showRecommend = true
+        this.dataList = this.dataRecommendList
+      }
+    },
+
     handleSearchKeyFocus () {
       this.$logger.info('handleSearchKeyFocus')
       this.searchResultVisible = true
       this.searchResultList = []
       this.libraryMode = LibraryMode.searchMode
+      this.searchContentByKeyword(this.searchKeyword)
       this.handleSearchKey()
     },
     handleSearchKeyInputBlur () {
@@ -728,7 +742,7 @@ export default {
 
     handleClickBlock (data) {
       this.$logger.info('handleClickBlock', data)
-      this.firstLoad = false
+      this.showRecommend = false
       this.dataList = []
       this.dataListLoading = true
       this.previewVisible = false
@@ -804,7 +818,7 @@ export default {
     handleSearchByFromType (item) {
       this.$logger.info('handleSearchByFromType ', item)
       this.searching = true
-      this.firstLoad = false
+      this.showRecommend = false
       QueryKeyContents(item).then(response => {
         this.$logger.info('QueryContents response', response)
         const list = response.result ? response.result : []
@@ -824,7 +838,7 @@ export default {
     searchByFilter (filter) {
       this.$logger.info('searchByFilter ', filter)
       filter.curriculumId = this.currentCurriculumId
-      this.firstLoad = false
+      this.showRecommend = false
       this.searching = true
       QueryContentsFilter(filter).then(response => {
         this.$logger.info('QueryContentsFilter result : ', response)
