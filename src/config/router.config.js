@@ -438,7 +438,7 @@ export const asyncRouterMap = [
 
   {
     path: '*',
-    redirect: '/404',
+    redirect: '/',
     hidden: true
   }
 ]
@@ -468,6 +468,11 @@ export const constantRouterMap = [
         path: 'resetPassword',
         name: 'resetPassword',
         component: () => import(/* webpackChunkName: "resetPassword" */ '@/views/user/ResetPassword')
+      },
+      {
+        path: 'invite',
+        name: 'invite',
+        component: () => import(/* webpackChunkName: "invite" */ '@/views/user/Invite')
       },
       {
         path: 'register-result',

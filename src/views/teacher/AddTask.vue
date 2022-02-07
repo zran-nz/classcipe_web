@@ -3071,6 +3071,8 @@ export default {
     },
 
     loadRefLearnOuts() {
+      this.recommendData = []
+      this.recommendDataIdList = []
       FindSourceOutcomes({
         type: this.contentType['unit-plan'],
         ids: this.associateUnitPlanIdList

@@ -403,7 +403,7 @@ export default {
     downloadTemplate() {
       const link = document.createElement('a')
       link.style.display = 'none'
-      const url = this.baseUrl + '/classcipe/excel/school_staff_template.xlsx'
+      const url = this.baseUrl + '/classcipe/excel/school_staff_template.xls'
       link.href = url
       document.body.appendChild(link)
       link.click()
@@ -429,7 +429,8 @@ export default {
           logger.info('import excel res:', res)
           if (res.success) {
             const { result = {} } = res
-            const { alreadyImportedCount, insertCount, invalidCount, totalCount, updateCount } = result
+            // eslint-disable-next-line no-unused-vars
+            const { invalidCount, totalCount, invalidDataKey } = result
             // alreadyImportedCount: 0
             // insertCount: 1
             // invalidCount: 0
@@ -450,7 +451,20 @@ export default {
                 ),
                 okText: 'Download the failed part',
                 onOk() {
-                  console.log('ok')
+                  const link = document.createElement('a')
+                  const objectUrl = `${process.env.VUE_APP_API_BASE_URL}${schoolUserAPIUrl.exportInvalidStaff}?key=${invalidDataKey}`
+                  link.href = objectUrl
+                  link.download = 'invalidStaff.xls' // 自定义文件名
+                  link.click() // 下载文件
+                  URL.revokeObjectURL(objectUrl) // 释放内存
+                  // that.$http.get(schoolUserAPIUrl.exportInvalidStaff, {
+                  //   params: {
+                  //     key: invalidDataKey
+                  //   },
+                  //   responseType: 'blob'
+                  // }).then(res => {
+
+                  // })
                 }
               })
             }

@@ -8,7 +8,8 @@ export const taskAPIUrl = {
   deleteBatch: '/classcipe/api/task/deleteBatch',
   list: '/classcipe/api/task/list',
   queryById: '/classcipe/api/task/queryById',
-  splitTask: '/classcipe/api/task/spliteTask'
+  splitTask: '/classcipe/api/task/spliteTask',
+  getTaskBySessonId: '/classcipe/api/task/getTaskBySessonId'
 }
 
 /**
@@ -88,5 +89,13 @@ export function TaskDelete (parameter) {
     url: taskAPIUrl.delete + '?id=' + parameter.id,
     method: 'post',
     data: parameter
+  })
+}
+
+export function getTaskBySessionId (parameter) {
+  return request({
+    url: taskAPIUrl.getTaskBySessonId,
+    method: 'get',
+    params: parameter
   })
 }

@@ -205,18 +205,16 @@ export default {
       loginPath: '/user/login',
       teacherLoginPath: '/user/login?role=teacher',
       studentLoginPath: '/user/login?role=student',
-      inviteCode: '',
       disabled: true
     }
   },
   created() {
     const paramSearch = new URLSearchParams(window.location.search)
-    const inviteCode = paramSearch.get('inviteCode')
-    if (inviteCode) {
-      this.inviteCode = inviteCode
-      this.loginPath = `/user/login?inviteCode=${inviteCode}`
-      this.teacherLoginPath = `/user/login?role=teacher&inviteCode=${inviteCode}`
-      this.studentLoginPath = `/user/login?role=student&inviteCode=${inviteCode}`
+    const redirect = paramSearch.get('redirect')
+    if (redirect) {
+      this.loginPath = `/user/login?redirect=${redirect}`
+      this.teacherLoginPath = `/user/login?role=teacher&redirect=${redirect}`
+      this.studentLoginPath = `/user/login?role=student&redirect=${redirect}`
     }
   },
   computed: {},
@@ -245,9 +243,6 @@ export default {
       console.log('thirdSignIn', source)
       let url = getThirdAuthURL(source)
       url += `?role=${role}`
-      if (this.inviteCode) {
-        url += `&inviteCode=${this.inviteCode}`
-      }
       url += `&callbackUrl=`
       url += thirdAuthCallbackUrl
       console.log('full auth url ', url)
@@ -269,9 +264,6 @@ export default {
             password: values.password,
             username: values.email,
             role: this.selectedRole
-          }
-          if (this.inviteCode) {
-            signUpParams.inviteCode = this.inviteCode
           }
           SignUp(signUpParams)
             .then(res => this.loginSuccess(res))

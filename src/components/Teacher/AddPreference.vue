@@ -243,6 +243,7 @@ export default {
       createSchool({ name: this.searchText }).then(res => {
         if (res.success) {
           this.myCreateSchoolOptions.push(res.result)
+          this.teacherForm.school = res.result.id
         } else {
           this.$message.error(res.message)
         }

@@ -504,6 +504,7 @@ export default {
   height: 220px;
   width: 100%;
   box-sizing: border-box;
+  border-radius: 4px;
 
   .card-cover {
     height: 150px;

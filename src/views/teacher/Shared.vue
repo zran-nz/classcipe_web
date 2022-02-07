@@ -486,7 +486,7 @@
   import PSSvg from '@/assets/svgIcon/myContent/previous_session.svg'
   import CollaborateSvg from '@/assets/icons/collaborate/collaborate_group.svg'
   import { FindMyClasses } from '@/api/evaluation'
-  import { ACCESS_TOKEN, RECEIVE_MSG } from '@/store/mutation-types'
+  import { ACCESS_TOKEN } from '@/store/mutation-types'
   export const SHARED_VIEW_MODE = 'view_mode_shared'
 
   export default {
