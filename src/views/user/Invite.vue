@@ -2,7 +2,9 @@
   <div class="main-content">
     <a-spin :spinning="checkLoading">
       <div v-if="!invalid && !checkLoading">
-        <div class="title">You have been invited to join <span>{{ schoolName }}</span> community</div>
+        <div class="title">
+          You have been invited to join <span>{{ schoolName }}</span> community
+        </div>
         <a-button type="primary" block :loading="loading" size="large" @click="handleBtn">{{ btnText }}</a-button>
       </div>
       <div v-if="invalid" class="title">The invite code is invalid</div>
@@ -24,7 +26,11 @@ export default {
       loading: false,
       checkLoading: false,
       btnText: '',
-      invalid: false
+      invalid: false,
+      roleMap: {
+        2: 'teacher',
+        4: 'student'
+      }
     }
   },
   created () {
@@ -42,6 +48,8 @@ export default {
       this.checkLoading = false
       if (res.success) {
         if (!res?.result?.valid) {
+          this.invalid = true
+        } else if (this.roleMap[res?.result?.role] !== store.getters.currentRole) {
           this.invalid = true
         } else {
           this.schoolName = res?.result?.schoolName
@@ -68,7 +76,7 @@ export default {
 </script>
 
 <style scoped lang='less'>
-@import "~@/components/index.less";
+@import '~@/components/index.less';
 .main-content {
   text-align: center;
   .title {
@@ -79,11 +87,10 @@ export default {
     font-weight: 800;
     text-align: center;
   }
-  button{
+  button {
     width: 200px;
     border-radius: 8px;
     margin-top: 50px;
   }
 }
-
 </style>
