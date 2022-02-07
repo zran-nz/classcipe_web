@@ -34,7 +34,7 @@
     <a-col span='9' class='unit-right-action'>
       <a-space>
         <template v-if='showCollaborate'>
-          <div class='collaborate-users' v-if='form.type !== typeMap.classSessionEvaluation'>
+          <div class='collaborate-users'>
             <div :style="{'z-index': 1000-index}" :class="{'item-avator':true,'gray':onlineUsers.indexOf(user.email) === -1}" v-if='index < 5' v-for='(user,index) in collaborateUserList' :key='index'>
               <a-tooltip :title='user.email' placement='bottom'>
                 <a-badge color="green"> <a-avatar :size="30" class='user-item' :src='user.userAvatar' /></a-badge>
@@ -52,7 +52,7 @@
               </a-menu>
             </a-dropdown>
           </div>
-          <a-tooltip placement='bottom' title='Collaborate' v-show='isOwner && form.type !== typeMap.classSessionEvaluation'>
+          <a-tooltip placement='bottom' title='Collaborate' v-show='isOwner'>
             <div class='collaborate-comment' @click='handleStartCollaborate'>
               <collaborate-user-icon class='active-icon' />
             </div>
@@ -60,7 +60,7 @@
           <div
             class='collaborate-comment'
             @click='handleViewComment'
-            v-if='form.type !== typeMap.evaluation && form.type !== typeMap.classSessionEvaluation && (isOwner || isEditCollaborater)'>
+            v-if='isOwner || isEditCollaborater'>
             <comment-icon class='active-icon' />
           </div>
         </template>
