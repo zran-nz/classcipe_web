@@ -253,7 +253,10 @@ export default {
   methods: {
     getClassInfo () {
       this.loadingClass = true
-      QueryByClassInfoSlideId({ slideId: this.taskForm.presentationId }).then(response => {
+      const pageIds = this.thumbnailList.map(item => {
+        return item.id
+      })
+      QueryByClassInfoSlideId({ slideId: this.taskForm.presentationId, pageIds: pageIds }).then(response => {
         // QueryByClassInfoSlideId({ slideId: '1X9fE0m4j4Ey5BvSxof_a0bVxTDNaDfadJTlhkXmyikk' }).then(response => {
         this.$logger.info('QueryByClassInfoSlideId ', response)
         if (response.success) {
