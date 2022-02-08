@@ -17,14 +17,12 @@
             </router-link>
           </a-menu-item>
           <a-menu-item key="/teacher/managing" v-if="$store.getters.userInfo.schoolRole === 'admin'">
-            <router-link to="/teacher/managing/skill">
+            <router-link to="/teacher/managing">
               <div class="nav-item">
                 <div class="nav-icon">
                   <manage-icon-svg />
                 </div>
-                <div class="nav-label">
-                  Managing
-                </div>
+                <div class="nav-label">Managing</div>
                 <div class="nav-button-border"></div>
               </div>
             </router-link>

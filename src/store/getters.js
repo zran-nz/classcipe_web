@@ -1,4 +1,5 @@
 import { defaultExpertRouter, defaultTeacherRouter, defaultStudentRouter } from '@/config/router.config'
+import store from '@/store'
 
 const getters = {
   isMobile: state => state.app.isMobile,
@@ -30,7 +31,15 @@ const getters = {
   skillCategory: state => state.user.skillCategory,
   disableQuestion: state => state.user.disableQuestion,
   school: state => state.user.school,
-  schoolRole: state => state.user.schoolRole
+  schoolRole: state => state.user.schoolRole,
+  vueSocket: state => {
+    if (state.websocket.vueSocket) {
+      return state.websocket.vueSocket
+    } else {
+      store.dispatch('initData')
+      return state.websocket.vueSocket
+    }
+  }
 }
 
 export default getters

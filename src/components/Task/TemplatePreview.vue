@@ -111,17 +111,17 @@
               <div class="page-info" v-if="thumbnailList && thumbnailList.length">
                 {{ currentImgIndex + 1 }} / {{ thumbnailList.length }}
               </div>
-              <!--              <a-button-->
-              <!--                class="action-ensure action-item"-->
-              <!--                type="primary"-->
-              <!--                shape="round"-->
-              <!--                @click="handleSelectTemplate()"-->
-              <!--                v-if="selectedTemplateIdList.indexOf(template.id) === -1">-->
-              <!--                <a-icon type="plus-circle" class="btn-icon"/>-->
-              <!--                <div class="btn-text">-->
-              <!--                  Add-->
-              <!--                </div>-->
-              <!--              </a-button>-->
+              <a-button
+                class="action-ensure action-item"
+                type="primary"
+                shape="round"
+                @click="handleSelectTemplate($event)"
+                v-if="selectIds.indexOf(template.id) === -1">
+                <a-icon type="plus-circle" class="btn-icon"/>
+                <div class="btn-text">
+                  Insert
+                </div>
+              </a-button>
               <!--              <a-button-->
               <!--                v-else-->
               <!--                class="action-ensure action-item"-->
@@ -189,6 +189,7 @@ import { typeMap } from '@/const/teacher'
 import { TemplatesGetPresentation } from '@/api/template'
 import { PptPreviewMixin } from '@/mixins/PptPreviewMixin'
 import MediaPreview from '@/components/Task/MediaPreview'
+import { MyContentEvent, MyContentEventBus } from '@/components/MyContent/MyContentEventBus'
 
 export default {
   name: 'TemplatePreview',
@@ -215,6 +216,12 @@ export default {
       default: () => []
     }
   },
+  watch: {
+    selectedTemplateIdList (value) {
+      this.$logger.info('selectedTemplateIdList ', value)
+      this.selectIds = value
+    }
+  },
   computed: {
   },
   mounted () {
@@ -222,6 +229,7 @@ export default {
   },
   data () {
     return {
+      selectIds: [],
       templateData: {},
       loading: true,
       loadingClass: false,
@@ -232,7 +240,8 @@ export default {
   mixins: [PptPreviewMixin],
   created () {
     this.templateData = this.template
-    this.$logger.info('templateData ', this.templateData)
+    this.$logger.info('selectedTemplateIdList ', this.selectedTemplateIdList)
+    this.selectIds = this.selectedTemplateIdList
     if (this.templateData.type === typeMap.task) {
       this.loading = true
       TemplatesGetPresentation({
@@ -264,9 +273,10 @@ export default {
       this.currentImgIndex = index
       this.$refs.carousel.goTo(index)
     },
-    handleSelectTemplate () {
-      this.$logger.info('handleSelectTemplate ' + this.template.name)
-      this.$emit('handle-select', this.template)
+    handleSelectTemplate ($event) {
+      this.$logger.info('handleSelectTemplate ' + this.templateData.name)
+      // this.$emit('handle-select')
+      MyContentEventBus.$emit(MyContentEvent.ToggleSelectContentItem, this.templateData, $event)
     },
     handlePreviewMaterial (item) {
       this.$logger.info('handlePreviewMaterial ' + item)
@@ -403,6 +413,7 @@ export default {
       bottom: 0px;
       right:200px;
       width: 90px;
+      margin-right: -150px;
       .btn-icon {
         height: 18px;
         margin-right: 5px;

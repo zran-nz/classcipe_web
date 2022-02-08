@@ -79,8 +79,11 @@
               slot="renderItem"
               key="item.key"
               slot-scope="item"
-              :class="{'my-list-item': true, 'active-item': mySelectedList.indexOf(item.type + '-' + item.id) !== -1}"
-            >
+              :data-id="item.type + '-' + item.id"
+              :class="{
+                'my-list-item': true,
+                'active-item': mySelectedList.indexOf(item.type + '-' + item.id) !== -1,
+                'active-new-item': item.id === editId}">
 
               <div class="select-block" @click="handleLinkItem(item, $event)">
                 <a-icon
@@ -273,7 +276,7 @@
             <template v-if="fromType === typeMap[&quot;unit-plan&quot;]">
               <template v-if="groupNameMode === 'select'">
                 <div class="choose-label">Choose category</div>
-                <a-select :default-value="defaultGroupName" style="width: 100%" v-model="selectedGroup">
+                <a-select :getPopupContainer="trigger => trigger.parentElement" :default-value="defaultGroupName" style="width: 100%" v-model="selectedGroup">
                   <a-select-option :value="groupNameItem" v-for="(groupNameItem, gIndex) in groupNameList" :key="gIndex">
                     {{ groupNameItem }}
                   </a-select-option>
@@ -694,6 +697,11 @@ export default {
           name: this.createNewName
         }).then((response) => {
           this.$logger.info('UnitPlanAddOrUpdate response', response)
+          this.editId = response.result.id
+          this.createNewNameMode = 'input'
+          const itemId = this.typeMap['unit-plan'] + '-' + this.editId
+          this.mySelectedList.push(itemId)
+          this.mySelectedMap.set(itemId, { id: this.editId, type: this.typeMap['unit-plan'] })
           this.loadMyContent()
         }).finally(() => {
           this.createLoading = false
@@ -821,8 +829,12 @@ export default {
 }
 
 .active-item {
-  border: 2px solid #15C39A;
   box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.16);
+}
+
+.active-new-item {
+  border: 2px solid #15C39A;
+  background: #15C39A11;
 }
 
 .my-content {

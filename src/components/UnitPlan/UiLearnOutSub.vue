@@ -4,7 +4,7 @@
 
       <div class="objectives-wrapper">
         <a-row class="objectives-wrapper-block" v-if="getknowledgeListType(TagType.skill).length > 0" >
-          <div class="title-item title-skill">Assessment objectives</div>
+          <div class="title-item title-skill">Achievement objectives</div>
           <div class="objectives-list" v-for="(k,index) in getknowledgeListType(TagType.skill)" :key="index">
             <div class="objectives-list-item objectives-list-item-skill objectives-list-item-top-fixed">
               <!--              <a-breadcrumb separator=">">-->
@@ -410,7 +410,7 @@
         }
       }
       .objectives-list-item-skill{
-        background: #FEF3E4;
+        background: #FF978E;
         border: 1px solid #EED1AA;
         opacity: 1;
         border-radius: 10px;

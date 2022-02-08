@@ -6,7 +6,7 @@
           <navigation :path="navPath" @pathChange="handleNavPathChange" v-show="libraryMode === LibraryMode.browserMode"/>
         </div>
         <div class="filter-line">
-          <div class="filter-icon">
+          <div class="search-bar-line">
             <a-popover
               trigger="click"
               placement="bottomLeft"
@@ -31,19 +31,18 @@
                 </div>
               </div>
             </a-popover>
-          </div>
-          <div class="search-bar-line">
             <div class="search-input" @click.stop="">
               <a-input-search
                 placeholder="input search text"
                 :loading="searching"
                 v-model="searchKeyword"
                 class="library-search-input"
-                @click.native="handleSearchKeyFocus"
-                @keyup.native="handleSearchKeyFocus"
+                @click.native="debouncedSearchKeyFocus"
+                @focus.native='debouncedSearchKeyFocus'
+                @keyup.native="debouncedSearchKeyFocus"
                 enter-button
                 @search="handleSearchKeyFocus" />
-              <div class="search-result-wrapper" v-if="searchResultVisible">
+              <div class="search-result-wrapper" v-if="searchResultVisible && (searching || searchResultList.length)">
                 <div class="searching" v-if="searching">
                   <a-spin>
                     <a-icon slot="indicator" type="loading" style="font-size: 24px" spin />
@@ -104,6 +103,7 @@
       <div class="curriculum-filter-line">
         <div class="curriculum-select">
           <a-select
+            :getPopupContainer="trigger => trigger.parentElement"
             v-show="currentBrowserType !== BrowserTypeMap.sdg && curriculumOptions.length"
             @change="handleCurriculumChange"
             v-model="currentCurriculumId"
@@ -205,7 +205,7 @@
         </div>
         <div
           class="browser-block-item-wrapper">
-          <a-card v-if="!searching && firstLoad" :bordered="false" title="Recommended:" ></a-card>
+          <a-card v-if="!searching && showRecommend" :bordered="false" title="Recommended:" ></a-card>
           <div
             class="browser-block-item-last"
             :style="{'flex-direction': dataListMode === 'list' ? 'column' : 'row'}">
@@ -245,9 +245,9 @@
                       :span="10"
                       :xs="12"
                       :sm="12"
-                      :md="8"
-                      :lg="8"
-                      :xl="6"
+                      :md="6"
+                      :lg="6"
+                      :xl="4"
                       :xxl="4"
                       v-for="(dataItem, index) in dataList"
                       v-if="(currentType === 0 || dataItem.type === currentType)"
@@ -273,10 +273,10 @@
                       :span="10"
                       :xs="24"
                       :sm="12"
-                      :md="12"
-                      :lg="8"
-                      :xl="8"
-                      :xxl="6"
+                      :md="8"
+                      :lg="6"
+                      :xl="6"
+                      :xxl="4"
                       v-for="(dataItem, index) in dataList"
                       v-if="(currentType === 0 || dataItem.type === currentType)"
                       :key="index">
@@ -368,6 +368,7 @@ import { QueryContentsFilter, QueryRecommendContents } from '@/api/library'
 import { SubjectTree } from '@/api/subject'
 import { FindCustomTags } from '@/api/tag'
 const { Search, QueryContents, QueryKeyContents } = require('@/api/library')
+const { debounce } = require('lodash-es')
 
 const BrowserTypeMap = {
   curriculum: 'curriculum',
@@ -467,6 +468,7 @@ export default {
       dataListLoading: false,
       currentDataId: null,
       dataListMode: 'card',
+      dataRecommendList: [],
 
       currentTypeLabel: 'Choose type（S）of content',
       currentType: 0,
@@ -520,7 +522,10 @@ export default {
       filterHeight: 500,
 
       searchResultVisible: false,
-      firstLoad: true
+      firstLoad: true,
+      showRecommend: true,
+
+      debouncedSearchKeyFocus: null
     }
   },
   created () {
@@ -539,6 +544,8 @@ export default {
     }).finally(() => {
       this.getfilterOptions()
     })
+
+    this.debouncedSearchKeyFocus = debounce(this.handleSearchKeyFocus, 600)
   },
   mounted () {
     this.blockWidth = this.$refs['wrapper'].getBoundingClientRect().width * 0.15
@@ -551,6 +558,7 @@ export default {
       QueryRecommendContents().then(response => {
         this.$logger.info('QueryRecommendContents response', response)
         this.dataList = response.result ? response.result : []
+        this.dataRecommendList = this.dataList
       }).finally(() => {
         this.dataListLoading = false
       })
@@ -669,6 +677,7 @@ export default {
       if (this.searchKeyword) {
         this.searchByKeyword(this.searchKeyword)
       } else {
+        this.searching = false
         this.searchResultList = []
       }
     },
@@ -689,7 +698,7 @@ export default {
             const tagItem = {
               fromType: item.fromType,
               name: item.name,
-              tagName: item.name.split(value).join('<span class="keyword-item">' + value + '</span>')
+              tagName: item.name.split(value).join('<span class="search-keyword-item">' + value + '</span>')
             }
             list.push(tagItem)
           }
@@ -701,11 +710,22 @@ export default {
       })
     },
 
+    searchContentByKeyword (value) {
+      if (value) {
+        this.$logger.info('searchContentByKeyword ' + value)
+        this.searchByFilter({ searchKey: value.trim() })
+      } else {
+        this.showRecommend = true
+        this.dataList = this.dataRecommendList
+      }
+    },
+
     handleSearchKeyFocus () {
       this.$logger.info('handleSearchKeyFocus')
       this.searchResultVisible = true
       this.searchResultList = []
       this.libraryMode = LibraryMode.searchMode
+      this.searchContentByKeyword(this.searchKeyword)
       this.handleSearchKey()
     },
     handleSearchKeyInputBlur () {
@@ -722,7 +742,7 @@ export default {
 
     handleClickBlock (data) {
       this.$logger.info('handleClickBlock', data)
-      this.firstLoad = false
+      this.showRecommend = false
       this.dataList = []
       this.dataListLoading = true
       this.previewVisible = false
@@ -798,10 +818,18 @@ export default {
     handleSearchByFromType (item) {
       this.$logger.info('handleSearchByFromType ', item)
       this.searching = true
-      this.firstLoad = false
+      this.showRecommend = false
       QueryKeyContents(item).then(response => {
         this.$logger.info('QueryContents response', response)
-        this.dataList = response.result ? response.result : []
+        const list = response.result ? response.result : []
+        list.sort(it => {
+          if (it.name.toLowerCase().indexOf(item.name) !== -1) {
+            return -1
+          } else {
+            return 1
+          }
+        })
+        this.dataList = list
       }).finally(() => {
         this.searching = false
       })
@@ -810,31 +838,7 @@ export default {
     searchByFilter (filter) {
       this.$logger.info('searchByFilter ', filter)
       filter.curriculumId = this.currentCurriculumId
-      filter.faTags = []
-      filter.saTags = []
-      filter.activityTags = []
-      filter.faTags.forEach(parent => {
-        parent.forEach(child => {
-          if (child) {
-            filter.fa.push(child)
-          }
-        })
-      })
-      filter.saTags.forEach(parent => {
-        parent.forEach(child => {
-          if (child) {
-            filter.sa.push(child)
-          }
-        })
-      })
-      filter.activityTags.forEach(parent => {
-        parent.forEach(child => {
-          if (child) {
-            filter.activity.push(child)
-          }
-        })
-      })
-      this.firstLoad = false
+      this.showRecommend = false
       this.searching = true
       QueryContentsFilter(filter).then(response => {
         this.$logger.info('QueryContentsFilter result : ', response)
@@ -915,7 +919,7 @@ export default {
     top: 64px;
     right: 0;
     box-sizing: border-box;
-    box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.16);
+    box-shadow: 0px 3px 3px rgba(0, 0, 0, 0.06);
     background: #FFFFFF;
     z-index: 250;
 
@@ -938,8 +942,7 @@ export default {
     align-items: center;
     transition: all 200ms ease-in-out;
     line-height: 30px;
-    height: 50px;
-    padding: 10px 0;
+    height: 42px;
 
     .curriculum-select {
       display: flex;
@@ -960,7 +963,6 @@ export default {
 
     .search-bar-line {
       width: 100%;
-      padding-left: 20px;
       display: flex;
       flex-direction: row;
       align-items: center;
@@ -1075,16 +1077,14 @@ export default {
     .library-detail-preview-wrapper {
       padding: 10px;
       transition: all 200ms ease-in-out;
-      background: #fff;
       box-sizing: border-box;
       display: flex;
       flex-direction: row;
-      border-left: 1px solid #ddd;
       min-height: 600px;
       position: relative;
       flex: 1;
       z-index: 150;
-      box-shadow: -3px 0 5px 0 rgba(31, 33, 44, 10%);
+      background: #fafafa;
 
       .expand-icon {
         display: flex;
@@ -1264,10 +1264,12 @@ export default {
       justify-content: center;
       .card-item {
         width: 100%;
-        //border: 1px solid #15C39A;
-        box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.16);
         opacity: 1;
         border-radius: 6px;
+        background: #fff;
+        &:hover {
+          box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.16);
+        }
       }
     }
   }
@@ -1299,57 +1301,55 @@ export default {
 }
 
 .filter-bar {
-  padding: 10px 0;
-  height: 55px;
+  padding-top: 8px;
+  height: 40px;
   display: flex;
   justify-content: flex-start;
   align-items: center;
 }
 
-.filter-icon {
+.filter-item {
+  color: #333;
+  cursor: pointer;
   display: flex;
   justify-content: flex-start;
   align-items: center;
-  .filter-item {
-    color: #333;
-    cursor: pointer;
-    display: flex;
-    justify-content: flex-start;
-    align-items: center;
-    background: #FFFFFF;
-    border: 1px solid #D3D3D3;
-    opacity: 1;
-    border-radius: 3px;
-    padding: 5px 15px;
-    white-space:nowrap;
+  border-color: #eff3f6;
+  box-shadow: none;
+  background: #eff3f6;
+  border-top-left-radius: 3px;
+  border-bottom-left-radius: 3px;
+  padding: 0 0 0 10px;
+  height: 46px;
+  line-height: 46px;
+  white-space:nowrap;
 
-    svg {
-      height: 20px;
-    }
+  svg {
+    height: 15px;
+  }
+  .filter-active-icon {
+    display: none;
+  }
+  .filter-icon {
+    display: inline;
+  }
+
+  &:hover {
+    color: #38cfa6;
     .filter-active-icon {
-      display: none;
-    }
-    .filter-icon {
       display: inline;
     }
 
-    &:hover {
-      color: #38cfa6;
-      border: 1px solid #38cfa6;
-      .filter-active-icon {
-        display: inline;
-      }
-
-      .filter-icon {
-        display: none;
-      }
+    .filter-icon {
+      display: none;
     }
+  }
 
-    .filter-label {
-      font-family: Inter-Bold;
-      line-height: 20px;
-      padding-left: 8px;
-    }
+  .filter-label {
+    font-family: Inter-Bold;
+    line-height: 20px;
+    padding-right: 10px;
+    border-right: 1px solid #ccc;
   }
 }
 
@@ -1442,9 +1442,12 @@ export default {
 
 .search-result-wrapper {
   position: absolute;
-  top: 40px;
+  top: 50px;
   z-index: 150;
-  box-shadow: 0 0 8px rgba(0, 0, 0, 0.16);
+  padding: 10px 0;
+  border-radius: 3px;
+  box-shadow: 0 5px 10px rgba(29, 38, 45, 0.2);
+  color: #1d262d;
   width: calc(100% - 46px);
   background-color: #fff;
   max-height: 450px;
@@ -1469,17 +1472,16 @@ export default {
   }
 
   .search-result-item {
-    padding: 8px 10px;
+    padding: 0 20px;
     cursor: pointer;
-    border-bottom: 1px solid #f6f6f6;
+    height: 34px;
+    line-height: 34px;
+    color: #5f7d95;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
     &:hover {
-      color: #15c39a;
-      background-color: #f6f6f6;
-    }
-
-    .keyword-item {
-      font-weight: bold;
-      color: #2DC9A4;
+      background-color: #e3e9ed;
     }
   }
 
@@ -1536,4 +1538,5 @@ export default {
     }
   }
 }
+
 </style>

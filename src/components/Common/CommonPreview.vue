@@ -11,7 +11,7 @@
               Info
             </a-radio-button>
             <a-radio-button value="Preview" class="right-button">
-              Preview
+              Detail
             </a-radio-button>
           </a-radio-group>
         </a-col>
@@ -225,7 +225,7 @@
           </div>
 
           <!-- lesson task img list-->
-          <template v-if="type === typeMap.task && data.presentationId ">
+          <template v-if="type === typeMap.task && data.presentationId && imgList.length > 0">
             <div class="top-icon-groups">
               <a-col class="material-row" >
                 <div class="icon-group" v-if="Object.keys(currentPageMaterial).length > 0">
@@ -426,10 +426,6 @@ export default {
       type: Number,
       required: true
     },
-    canEdit: {
-      type: Boolean,
-      default: true
-    },
     isLibrary: {
       type: Boolean,
       default: false
@@ -546,7 +542,7 @@ export default {
                 this.$logger.info('current imgList ', this.imgList)
               })
             } else {
-              this.imgList = [this.data.image]
+              this.imgList = []
               this.slideLoading = false
             }
           })
@@ -564,7 +560,7 @@ export default {
                 this.$logger.info('current imgList ', this.imgList)
               })
             } else {
-              this.imgList = [this.data.image]
+              this.imgList = []
               this.slideLoading = false
             }
           })

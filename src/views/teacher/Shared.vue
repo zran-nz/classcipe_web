@@ -107,24 +107,24 @@
                     <div class="action-wrapper" v-if="item.receiveStatus === 1 && item.agreeFlag === 1">
 
                       <!-- Task: 外置teacher-pace, student-pace, Edit, 折叠Delete, Duplicate, Previous session-->
-                      <template v-if="item.content.type === typeMap.task">
-                        <div class="start-session-wrapper action-item-wrapper">
-                          <div class="session-btn content-list-action-btn" @click="handleStartSessionHistory(item,1)">
-                            <div class="session-btn-icon">
-                              <teacher-presenting />
-                            </div>
-                            <div class="session-btn-text"> Teacher-paced</div>
-                          </div>
-                        </div>
-                        <div class="start-session-wrapper action-item-wrapper">
-                          <div class="session-btn content-list-action-btn" @click="handleStartSessionHistory(item,2)">
-                            <div class="session-btn-icon">
-                              <student-pace />
-                            </div>
-                            <div class="session-btn-text"> Student-paced</div>
-                          </div>
-                        </div>
-                      </template>
+                      <!--                      <template v-if="item.content.type === typeMap.task">-->
+                      <!--                        <div class="start-session-wrapper action-item-wrapper">-->
+                      <!--                          <div class="session-btn content-list-action-btn" @click="handleStartSessionHistory(item.content,1)">-->
+                      <!--                            <div class="session-btn-icon">-->
+                      <!--                              <teacher-presenting />-->
+                      <!--                            </div>-->
+                      <!--                            <div class="session-btn-text"> Teacher-paced</div>-->
+                      <!--                          </div>-->
+                      <!--                        </div>-->
+                      <!--                        <div class="start-session-wrapper action-item-wrapper">-->
+                      <!--                          <div class="session-btn content-list-action-btn" @click="handleStartSessionHistory(item.content,2)">-->
+                      <!--                            <div class="session-btn-icon">-->
+                      <!--                              <student-pace />-->
+                      <!--                            </div>-->
+                      <!--                            <div class="session-btn-text"> Student-paced</div>-->
+                      <!--                          </div>-->
+                      <!--                        </div>-->
+                      <!--                      </template>-->
                       <!-- Unit plan:外置Edit，折叠Delete, Duplicate-->
 
                       <div class="start-session-wrapper action-item-wrapper">
@@ -153,13 +153,13 @@
                               </a>
                             </a-menu-item>
                             <!-- Task里面有teacher-pace, student-pace, previous session -->
-                            <template v-if="item.content.type === typeMap.task">
-                              <a-menu-item>
-                                <a @click="handleViewPreviewSession(item.content)">
-                                  <previous-sessions-svg /> Previous session
-                                </a>
-                              </a-menu-item>
-                            </template>
+                            <!--                            <template v-if="item.content.type === typeMap.task">-->
+                            <!--                              <a-menu-item>-->
+                            <!--                                <a @click="handleViewPreviewSession(item.content)">-->
+                            <!--                                  <previous-sessions-svg /> Previous session-->
+                            <!--                                </a>-->
+                            <!--                              </a-menu-item>-->
+                            <!--                            </template>-->
 
                           </a-menu>
                         </a-dropdown>
@@ -205,7 +205,7 @@
                         </span>
 
                         <span v-if="item.agreeFlag === collaborateStatus.apply">
-                          <a-tag color="red">Applied </a-tag>
+                          <a-tag color="red">Wait for approval</a-tag>
                         </span>
 
                       </template>
@@ -244,29 +244,29 @@
                           </a>
                         </a-menu-item>
                         <!-- Task里面有teacher-pace, student-pace, previous session -->
-                        <template v-if="item.content.type === typeMap.task">
-                          <a-menu-item>
-                            <a @click="handleViewPreviewSession(item)">
-                              <previous-sessions-svg /> Previous session
-                            </a>
-                          </a-menu-item>
-                        </template>
+                        <!--                        <template v-if="item.content.type === typeMap.task">-->
+                        <!--                          <a-menu-item>-->
+                        <!--                            <a @click="handleViewPreviewSession(item)">-->
+                        <!--                              <previous-sessions-svg /> Previous session-->
+                        <!--                            </a>-->
+                        <!--                          </a-menu-item>-->
+                        <!--                        </template>-->
                       </a-menu>
                     </a-dropdown>
                   </div>
                   <div class="action-item action-item-center">
-                    <div class="session-btn session-btn-left" @click.stop="handleStartSessionHistory(item,1)" v-if="item.content.type === typeMap['task']" >
-                      <div class="session-btn-text">
-                        <teacher-presenting />
-                        Teacher-paced
-                      </div>
-                    </div>
-                    <div class="session-btn session-btn-right" @click.stop="handleStartSessionHistory(item,2)" v-if="item.content.type === typeMap['task']">
-                      <div class="session-btn-text">
-                        <student-pace />
-                        Student-paced
-                      </div>
-                    </div>
+                    <!--                    <div class="session-btn session-btn-left" @click.stop="handleStartSessionHistory(item.content,1)" v-if="item.content.type === typeMap['task']" >-->
+                    <!--                      <div class="session-btn-text">-->
+                    <!--                        <teacher-presenting />-->
+                    <!--                        Teacher-paced-->
+                    <!--                      </div>-->
+                    <!--                    </div>-->
+                    <!--                    <div class="session-btn session-btn-right" @click.stop="handleStartSessionHistory(item.content,2)" v-if="item.content.type === typeMap['task']">-->
+                    <!--                      <div class="session-btn-text">-->
+                    <!--                        <student-pace />-->
+                    <!--                        Student-paced-->
+                    <!--                      </div>-->
+                    <!--                    </div>-->
                   </div>
                   <div class="action-item action-item-bottom" >
                     <div class="session-btn" @click.stop="handleEditItem(item.content)">
@@ -316,16 +316,16 @@
 
                   <!--  已接受拒绝状态-->
                   <template v-else>
-                    <div class="action-item action-item-top" v-if="item.agreeFlag === collaborateStatus.disAgree">
-                      <a-tag color="red">
+                    <div class="action-item" v-if="item.agreeFlag === collaborateStatus.disAgree" style="margin-top: 50px;">
+                      <a-tag color="red" class="tag-info">
                         Application was rejected
                       </a-tag>
                     </div>
 
-                    <div class="action-item action-item-top" v-if="item.agreeFlag === collaborateStatus.apply">
+                    <div class="action-item" v-if="item.agreeFlag === collaborateStatus.apply" style="margin-top: 50px;">
                       <div class="session-btn" >
-                        <a-tag color="red">
-                          Applied
+                        <a-tag color="red" class="tag-info">
+                          Wait for approval
                         </a-tag>
                       </div>
                     </div>
@@ -451,7 +451,7 @@
 <script>
 
   import * as logger from '@/utils/logger'
-  import { Duplicate, SaveSessonTags } from '@/api/teacher'
+  import { Duplicate } from '@/api/teacher'
   import { CollaborateStatus, typeMap } from '@/const/teacher'
   import ContentStatusIcon from '@/components/Teacher/ContentStatusIcon'
   import ContentTypeIcon from '@/components/Teacher/ContentTypeIcon'
@@ -486,6 +486,7 @@
   import PSSvg from '@/assets/svgIcon/myContent/previous_session.svg'
   import CollaborateSvg from '@/assets/icons/collaborate/collaborate_group.svg'
   import { FindMyClasses } from '@/api/evaluation'
+  import { ACCESS_TOKEN } from '@/store/mutation-types'
   export const SHARED_VIEW_MODE = 'view_mode_shared'
 
   export default {
@@ -561,10 +562,19 @@
         oldSelectSessionVisible: false,
         sessionList: [],
         sessionMode: 1,
-        searchText: ''
+        searchText: '',
+        lastedRevisionId: ''
       }
     },
     computed: {},
+    watch: {
+      '$store.state.websocket.needRefreshCollaborate': function (newValue) {
+        if (newValue) {
+          this.$store.dispatch('refreshCollaborate', '')
+          this.loadMyContent()
+        }
+      }
+    },
     created () {
       logger.info('teacher my content')
       this.loadMyContent()
@@ -580,7 +590,7 @@
         this.loading = true
         CollaboratesQueryShared({
           collaborateStatus: this.currentStatus,
-          type: this.currentType === 'all-type' ? typeMap[this.currentType] : '',
+          type: this.currentType !== 'all-type' ? typeMap[this.currentType] : '',
           pageNo: this.pageNo,
           pageSize: this.pagination.pageSize,
           searchKey: ''
@@ -685,7 +695,7 @@
           centered: true,
           onOk: () => {
             this.loading = true
-            Duplicate({ id: item.id, type: item.type }).then((response) => {
+            Duplicate({ id: item.sourceId, type: item.sourceType }).then((response) => {
               this.$logger.info('Duplicate response', response)
               this.loadMyContent()
             })
@@ -699,11 +709,11 @@
       },
 
       handleStartSession () {
-        this.$logger.info('selected sessionTags', this.sessionTags)
-        if (this.sessionTags.length === 0) {
-          this.$message.warn('Please add session tags')
-          return
-        }
+        // this.$logger.info('selected sessionTags', this.sessionTags)
+        // if (this.sessionTags.length === 0) {
+        //   this.$message.warn('Please add session tags')
+        //   return
+        // }
         this.startLoading = true
         const item = this.sessionItem
         this.$logger.info('handleStartSession', item)
@@ -711,9 +721,9 @@
           const requestData = {
             author: this.$store.getters.email,
             slide_id: item.presentationId,
-            copy_from: item.copyFromSlide,
+            revision_id: this.lastedRevisionId ? this.lastedRevisionId : item.revisionId,
             file_name: item.name ? item.name : 'Unnamed',
-            status: lessonStatus.studentPaced,
+            status: this.sessionMode === 1 ? lessonStatus.teacherPaced : lessonStatus.studentPaced,
             redirect_url: null
           }
 
@@ -721,28 +731,30 @@
           StartLesson(requestData).then(res => {
             this.$logger.info('StartLesson res', res)
             if (res.code === 'ok') {
-              const dataTags = []
-              this.sessionTags.forEach(tag => {
-                dataTags.push({
-                  'name': tag.name,
-                  'parentId': tag.parentId,
-                  'isGlobal': tag.isGlobal ? 1 : 0,
-                  'classId': res.data.class_id,
-                  'presentationId': item.presentationId,
-                  'sourceId': item.id,
-                  'sourceType': item.type
-                })
-              })
-              SaveSessonTags(dataTags).then(() => {
-                this.startLoading = false
-                this.lessonSelectTagVisible = false
-                // const targetUrl = lessonHost + 'slide_id=' + item.presentationId + '&class_id=' + res.data.class_id + '&type=classroom'
-                const targetUrl = lessonHost + 'd/' + res.data.class_id
-                this.$logger.info('try open ' + targetUrl)
-                // window.open(targetUrl, '_blank')
-                // 课堂那边需要点击返回回到表单，改成location.href跳转
+              this.startLoading = false
+              this.lessonSelectTagVisible = false
+              const targetUrl = lessonHost + 'd/' + res.data.class_id + '?token=' + storage.get(ACCESS_TOKEN)
+              this.$logger.info('try open ' + targetUrl)
+              // window.open(targetUrl, '_blank')
+              // 课堂那边需要点击返回回到表单，改成location.href跳转
+              const url = lessonHost + 't/' + res.data.class_id + '?token=' + storage.get(ACCESS_TOKEN)
+              var windowObjectReference
+              var height = document.documentElement.clientHeight * 0.7
+              var width = document.documentElement.clientWidth * 0.7
+              var strWindowFeatures = 'width=' + width + ',height=' + height + ',menubar=yes,location=yes,resizable=yes,scrollbars=true,status=true,top=100,left=200'
+              if (this.sessionMode === 1) {
+                windowObjectReference = window.open(
+                  'about:blank',
+                  '_blank',
+                  strWindowFeatures
+                )
+                windowObjectReference.location = url
+                setTimeout(function () {
+                  window.location.href = targetUrl
+                }, 1000)
+              } else {
                 window.location.href = targetUrl
-              })
+              }
             } else {
               this.$message.warn('StartLesson Failed! ' + res.message)
               this.startLoading = false
@@ -864,7 +876,8 @@
         FindMyClasses({ slideId: item.presentationId, lastVersion: true }).then(response => {
           logger.info('findMyClasses', response.result.data)
           if (response.success) {
-            this.sessionList = response.result
+            this.sessionList = response.result.classList
+            this.lastedRevisionId = response.result.revisionId
           }
           this.loading = false
         }).finally(() => {
@@ -900,6 +913,7 @@
       },
       triggerSearch() {
         this.$logger.info('triggerSearch', this.searchText)
+        this.loadMyContent()
       }
     }
   }
@@ -1740,8 +1754,9 @@
         justify-content: flex-end;
         padding-top: 15px;
         i{
-          width: 25px;
-          font-size: 20px;
+          border-radius: 20px;
+          padding: 8px;
+          font-size: 18px;
           color: rgba(255, 255, 255, 1);
           display: flex;
           flex-direction: row;
@@ -1873,6 +1888,12 @@
     .ant-card-meta-avatar {
       padding-right: 0;
     }
+  }
+
+  .tag-info{
+    border-radius: 20px;
+    padding: 8px;
+    font-size: 16px;
   }
 
 </style>

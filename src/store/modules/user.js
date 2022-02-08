@@ -1,9 +1,10 @@
 import storage from 'store'
 import { login, getInfo, logout, changeRole, signUp } from '@/api/login'
 import { ACCESS_TOKEN, CURRENT_ROLE, IS_ADD_PREFERENCE, USER_INFO, ADD_PREFERENCE_SKIP_TIME } from '@/store/mutation-types'
-import { welcome } from '@/utils/util'
+import { welcome, setCookie, delCookie } from '@/utils/util'
 import * as logger from '@/utils/logger'
 import { SESSION_ACTIVE_KEY } from '@/const/common'
+import { teacher } from '@/const/role'
 
 const user = {
   state: {
@@ -82,6 +83,7 @@ const user = {
           storage.set(ACCESS_TOKEN, accessToken, 7 * 24 * 60 * 60 * 1000)
           commit('SET_TOKEN', accessToken)
           window.sessionStorage.setItem(SESSION_ACTIVE_KEY, accessToken)
+          setCookie(ACCESS_TOKEN, accessToken)
           resolve()
         } else {
           reject(new Error('illegal token ' + accessToken))
@@ -99,6 +101,7 @@ const user = {
             storage.set(ACCESS_TOKEN, result.token, 7 * 24 * 60 * 60 * 1000)
             commit('SET_TOKEN', result.token)
             window.sessionStorage.setItem(SESSION_ACTIVE_KEY, result.token)
+            setCookie(ACCESS_TOKEN, result.token)
             resolve(response)
           } else {
             reject(response)
@@ -120,6 +123,7 @@ const user = {
             storage.set(ACCESS_TOKEN, result.token, 7 * 24 * 60 * 60 * 1000)
             commit('SET_TOKEN', result.token)
             window.sessionStorage.setItem(SESSION_ACTIVE_KEY, result.token)
+            setCookie(ACCESS_TOKEN, result.token)
             resolve(response)
           } else {
             reject(response)
@@ -135,24 +139,35 @@ const user = {
     GetInfo ({ commit }) {
       return new Promise((resolve, reject) => {
         getInfo({ token: storage.get(ACCESS_TOKEN) }).then(response => {
-          logger.info('GetInfo', response)
-          const result = response.result
-          commit('SET_ROLES', result.currentRole ? [result.currentRole] : [])
-          commit('SET_PERMISSIONS', result.currentRole ? [result.currentRole] : [])
-          commit('SET_INFO', result)
-          commit('SET_NAME', { name: result.nickname, welcome: welcome() })
-          commit('SET_AVATAR', result.avatar)
-          commit('SET_EMAIL', result.email)
-          commit('SET_BIND_CURRICULUM', result.bindCurriculum)
-          commit('SET_SKILL_CATEGORY', result.skillCategory)
-          commit('SET_CURRENT_ROLE', result.currentRole)
-          commit('SET_IS_ADD_PREFERENCE', result.isAddPreference)
-          commit('SET_DISABLED_QUESTION', result.disableQuestion)
-          storage.set(CURRENT_ROLE, result.currentRole)
-          storage.set(IS_ADD_PREFERENCE, result.isAddPreference)
-          storage.set(USER_INFO, result)
-          window.sessionStorage.setItem(SESSION_ACTIVE_KEY, storage.get(ACCESS_TOKEN))
-          resolve(response)
+          logger.info('GetInfo result', response)
+
+          if (response.success) {
+            const result = response.result
+            commit('SET_ROLES', result.currentRole ? [result.currentRole] : [])
+            commit('SET_PERMISSIONS', result.currentRole ? [result.currentRole] : [])
+            commit('SET_INFO', result)
+            commit('SET_NAME', { name: result.nickname, welcome: welcome() })
+            commit('SET_AVATAR', result.avatar)
+            commit('SET_EMAIL', result.email)
+            commit('SET_BIND_CURRICULUM', result.bindCurriculum)
+            commit('SET_SKILL_CATEGORY', result.skillCategory)
+            commit('SET_CURRENT_ROLE', result.currentRole)
+            commit('SET_IS_ADD_PREFERENCE', result.isAddPreference)
+            commit('SET_DISABLED_QUESTION', result.disableQuestion)
+            storage.set(CURRENT_ROLE, result.currentRole)
+            storage.set(IS_ADD_PREFERENCE, result.isAddPreference)
+            storage.set(USER_INFO, result)
+            window.sessionStorage.setItem(SESSION_ACTIVE_KEY, storage.get(ACCESS_TOKEN))
+            // 交换最新的后台token
+            if (result.token && result.currentRole === teacher && storage.get(ACCESS_TOKEN) !== result.token) {
+              storage.set(ACCESS_TOKEN, result.token, 7 * 24 * 60 * 60 * 1000)
+              commit('SET_TOKEN', result.token)
+              window.sessionStorage.setItem(SESSION_ACTIVE_KEY, result.token)
+            }
+            resolve(response)
+          } else {
+            reject(response.message)
+          }
         }).catch(error => {
           reject(error)
         })
@@ -205,6 +220,7 @@ const user = {
           storage.remove(USER_INFO)
           storage.remove(ADD_PREFERENCE_SKIP_TIME)
           window.sessionStorage.removeItem(SESSION_ACTIVE_KEY)
+          delCookie(ACCESS_TOKEN)
           resolve()
         }).catch(() => {
           resolve()
@@ -231,6 +247,7 @@ const user = {
         storage.remove(IS_ADD_PREFERENCE)
         storage.remove(USER_INFO)
         window.sessionStorage.removeItem(SESSION_ACTIVE_KEY)
+        delCookie(ACCESS_TOKEN)
         resolve()
       })
     }

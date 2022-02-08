@@ -1,5 +1,5 @@
 <template>
-  <div class="task-form-wrapper">
+  <div class="task-form-wrapper split-task">
     <a-row class="unit-content">
       <a-col span="24" class="main-content">
         <a-form-model :model="form" class="my-form-wrapper">
@@ -12,63 +12,42 @@
             </div>
 
             <div class="form-block over-form-block" id="overview" >
-              <a-form-model-item class="task-audio-line" label="Course Overview" ref="overview">
+              <a-form-model-item class="task-audio-line" label="Task details" ref="overview">
                 <a-textarea autoSize v-model="form.overview" placeholder="Overview" allow-clear />
               </a-form-model-item>
             </div>
 
             <div class="form-block taskType" >
-              <a-form-model-item class="task-audio-line" label="Choose type" ref="taskType">
-                <div class="self-type-wrapper" >
-                  <div class="self-field-label" >
-                    <div :class="{'task-type-item': true, 'green-active-task-type': form.taskType === 'FA'}" @click.stop.prevent="handleSelectTaskType('FA')">FA</div>
-                    <div :class="{'task-type-item': true, 'red-active-task-type': form.taskType === 'SA'}" @click.stop.prevent="handleSelectTaskType('SA')">SA</div>
+              <a-form-model-item class="task-audio-line" ref="taskType">
+                <div slot='label'>
+                  Choose Task Type(<span style='font-size: 13px'>Formative Assessment/ Summative Assessment/ Activity</span>)
+                </div>
+                <div class='self-type-wrapper'>
+                  <div class='self-field-label'>
+                    <div
+                      :class="{'task-type-item': true, 'green-active-task-type': form.taskType === 'FA'}"
+                      @click.stop.prevent="handleSelectTaskType('FA')">FA
+                    </div>
+                    <div
+                      :class="{'task-type-item': true, 'red-active-task-type': form.taskType === 'SA'}"
+                      @click.stop.prevent="handleSelectTaskType('SA')">SA
+                    </div>
+                    <div
+                      :class="{'task-type-item': true, 'task-type-activity': true,'blue-active-task-type': form.taskType === 'Activity'}"
+                      @click.stop.prevent="handleSelectTaskType('Activity')">
+                      <a-tooltip title='Teaching/Learning Activity' placement='top'>Activity</a-tooltip>
+                    </div>
                   </div>
                 </div>
               </a-form-model-item>
             </div>
 
             <a-form-model-item class="img-wrapper">
-              <a-upload-dragger
-                name="file"
-                accept="image/png, image/jpeg"
-                :showUploadList="false"
-                :customRequest="handleUploadImage"
-              >
-                <div class="delete-img" @click="handleDeleteImage($event)" v-show="form.image">
-                  <a-icon type="close-circle" />
-                </div>
-                <template v-if="uploading">
-                  <div class="upload-container">
-                    <p class="ant-upload-drag-icon">
-                      <a-icon type="cloud-upload" />
-                    </p>
-                    <p class="ant-upload-text">
-                      <a-spin />
-                      <span class="uploading-tips">{{ $t('teacher.add-unit-plan.uploading') }}</span>
-                    </p>
-                  </div>
-                </template>
-                <template v-if="!uploading && form && form.image">
-                  <div class="image-preview">
-                    <img :src="form.image" alt="">
-                  </div>
-                </template>
-                <template v-if="!uploading && form && !form.image">
-                  <div class="upload-container">
-                    <p class="ant-upload-drag-icon">
-                      <img src="~@/assets/icons/lesson/upload_icon.png" class="upload-icon" />
-                    </p>
-                    <p class="ant-upload-text">
-                      {{ $t('teacher.add-unit-plan.upload-a-picture') }}
-                    </p>
-                  </div>
-                </template>
-              </a-upload-dragger>
 
               <div class="form-block form-question" v-if="associateQuestionList.length > 0">
                 <a-form-model-item label="Choose Key questions">
                   <a-select
+                    :getPopupContainer="trigger => trigger.parentElement"
                     size="large"
                     class="my-big-select"
                     v-model="form.questionIds"
@@ -87,7 +66,7 @@
               </div>
 
               <div class="form-block" >
-                <a-form-item label="Set assessment objectives" >
+                <a-form-item label="Set learning objectives" >
                   <a-button type="primary" @click="handleSelectDescription">
                     <div class="btn-text" style="line-height: 20px">
                       Add Learning Objectives
@@ -97,15 +76,58 @@
 
                 <!--knowledge tag-select -->
                 <ui-learn-out ref="learnOut" :learn-outs="form.learnOuts" @remove-learn-outs="handleRemoveLearnOuts" v-if="form.learnOuts.length" />
+                <div class='form-block-label'>
+                  <a-switch v-model='materialListFlag' @change='handleMaterialListFlagChange' />
+                  Material list
+                </div>
+                <div class='material-list'>
+                  <div
+                    class='material-item'
+                    v-for='(materialItem, mIndex) in form.materialList'
+                    :key='mIndex'>
+                    <a-row :gutter='[16,16]'>
+                      <a-col span='8'>
+                        <a-input
+                          v-model='materialItem.name'
+                          aria-placeholder='Enter material name'
+                          placeholder='Enter material name'/>
+                      </a-col>
+                      <a-col span='14'>
+                        <a-tooltip placement='topLeft'>
+                          <template slot='title'>
+                            The link is provided to help other users or students prepare(purchase) the material
+                            for this task
+                          </template>
+                          <a-input
+                            v-model='materialItem.link'
+                            aria-placeholder='Enter URL'
+                            placeholder='Enter URL' >
+                            <a-icon slot='prefix' type='link' />
+                          </a-input>
+                        </a-tooltip>
+                      </a-col>
+                      <a-col span='2'>
+                        <div class='material-icon'>
+                          <a-icon
+                            type='plus-circle'
+                            :style="{ fontSize: '16px' }"
+                            v-if='mIndex === (form.materialList.length - 1)'
+                            @click='handleAddMaterial' />
+                          <img
+                            src='~@/assets/icons/evaluation/delete.png'
+                            v-if='mIndex < (form.materialList.length - 1)'
+                            class='delete-icon'
+                            @click='handleRemoveMaterialItem(materialItem, mIndex)' />
+                        </div>
+                      </a-col>
+                    </a-row>
+                  </div>
+                </div>
               </div>
+
               <div class="form-block task-action-line">
-                <a-button :loading="loadSaving" :style="{'display': 'flex', 'align-items': 'center', 'background' : '#15C39A', 'color': '#fff', 'justify-content': 'center', 'padding': '20px 15px', 'border-radius': '5px', 'margin-top': '30px'}" @click="handleAddSubTask">
-                  <div class="btn-icon">
-                    <img src="~@/assets/icons/task/taskAdd.png" />
-                  </div>
-                  <div class="btn-text">
-                    Add another task
-                  </div>
+                <a-button :loading="loadSaving" class='classcipe-btn' type='primary' @click="handleAddSubTask">
+                  Next
                 </a-button>
               </div>
             </a-form-model-item></div>
@@ -215,6 +237,12 @@ export default {
       default: () => {
         return []
       }
+    },
+    subTasks: {
+      type: Array,
+      default: () => {
+        return []
+      }
     }
   },
   mixins: [UtilMixin],
@@ -252,7 +280,8 @@ export default {
         subjectIds: [],
         gradeIds: [],
         bloomCategories: '',
-        learnOuts: []
+        learnOuts: [],
+        materialList: []
       },
       // Grades
       gradeList: [],
@@ -291,13 +320,14 @@ export default {
       selectedRecommendList: [],
       selectedIduList: [],
       uploading: false,
-      taskNum: 1,
 
       parentData: null,
       recommendData: [],
       selectedIdList: [],
 
-      selectedList: []
+      selectedList: [],
+
+      materialListFlag: false
     }
   },
   computed: {
@@ -316,6 +346,9 @@ export default {
       })
 
       return list
+    },
+    subTaskNum () {
+      return this.subTasks.length + 1
     }
   },
   watch: {
@@ -325,14 +358,12 @@ export default {
     },
     'parentFormData.image': {
       handler (v) {
-        this.$logger.info('parentFormData.image', v)
         this.form.image = v
       },
       deep: true
     },
     'parentFormData.customTags': {
       handler (v) {
-        this.$logger.info('parentFormData.customTag', v)
         this.form.customTags = v
       },
       deep: true
@@ -350,9 +381,10 @@ export default {
       const formData = JSON.parse(JSON.stringify(this.parentFormData))
       formData.id = null
       formData.selectPageObjectIds = []
+      formData.materialList = []
       formData.learnOuts = []
       formData.__taskId = '__taskId_' + this.taskPrefix
-      formData.name = formData.name ? (formData.name + ' sub task' + this.taskNum) : 'sub task' + this.taskNum
+      formData.name = 'subTask' + this.subTaskNum + ' of ' + (formData.name ? formData.name : '')
       this.$logger.info('TaskForm parentFormData', formData)
       this.$logger.info('TaskForm selectedPageItemData', this.selectedPageItemData)
       this.form = formData
@@ -382,21 +414,29 @@ export default {
     // 此处只是添加到外层的数组中，并未保存。
     handleAddSubTask () {
       logger.info('handleAddSubTask', this.form)
-      const taskData = JSON.parse(JSON.stringify(this.form))
-      taskData.selectPageObjectIds = this.form.selectPageObjectIds
-      const SubTaskData = {
-        'taskId': this.taskId,
-        'subTask': taskData
-      }
-      logger.info('add-sub-task', taskData)
-      this.$emit('add-sub-task', SubTaskData)
-      this.form.name = ''
-      this.form.overview = ''
-      this.form.image = ''
-      this.form.selectPageObjectIds = []
-      this.form.learnOuts = []
 
-      this.initForm()
+      if (this.form.selectPageObjectIds.length) {
+        const taskData = JSON.parse(JSON.stringify(this.form))
+        taskData.selectPageObjectIds = this.form.selectPageObjectIds
+        const SubTaskData = {
+          'taskId': this.taskId,
+          'subTask': taskData
+        }
+        logger.info('add-sub-task', taskData)
+        this.$emit('add-sub-task', SubTaskData)
+        const formData = JSON.parse(JSON.stringify(this.parentFormData))
+        formData.id = null
+        this.form = formData
+        this.materialListFlag = false
+        this.form.name = 'subTask' + (this.subTaskNum) + ' of ' + (this.parentFormData.name ? this.parentFormData.name : '')
+        this.form.overview = (this.parentFormData.overview ? this.parentFormData.overview : '')
+        this.form.image = ''
+        this.form.selectPageObjectIds = []
+        this.form.learnOuts = []
+        this.form.materialList = []
+      } else {
+        this.$message.warn('Please pick slide(s)')
+      }
     },
 
     handleSelectTaskType (type) {
@@ -596,6 +636,31 @@ export default {
       e.stopPropagation()
       e.preventDefault()
       this.form.image = null
+    },
+
+    handleMaterialListFlagChange(checked) {
+      this.$logger.info('handleMaterialListFlagChange ', checked)
+      if (checked) {
+        if (this.form.materialList.length === 0) {
+          this.handleAddMaterial()
+        }
+      } else {
+        this.form.materialList = []
+      }
+      this.materialListFlag = checked
+    },
+
+    handleAddMaterial() {
+      this.form.materialList.push({
+        name: null,
+        link: null
+      })
+      this.$logger.info('handleAddMaterial', this.form.materialList)
+    },
+
+    handleRemoveMaterialItem(item, index) {
+      this.form.materialList = this.form.materialList.filter((it, idx) => idx !== index)
+      this.$logger.info('handleRemoveMaterialItem ', this.form.materialList)
     }
   }
 }
@@ -605,6 +670,7 @@ export default {
 @import "~@/components/index.less";
 
 .task-form-wrapper {
+  padding-top: 10px;
   position: relative;
 }
 
@@ -639,70 +705,8 @@ export default {
 }
 
 .unit-content {
-  .unit-menu-list {
-    margin-top: 10px;
-    padding: 0 0 16px 0;
-
-    .menu-category-item {
-      user-select: none;
-      cursor: pointer;
-
-      .menu-category-item-label {
-        font-weight: 600;
-        padding: 10px 0;
-      }
-
-      .menu-category-list {
-        display: flex;
-        flex-direction: column;
-        justify-content: flex-start;
-
-        .include-item {
-          color: @primary-color;
-          padding: 5px 0;
-          max-width: 100%;
-          text-decoration: underline;
-          overflow: hidden;
-          white-space: nowrap;
-          text-overflow: ellipsis;
-        }
-      }
-
-      .menu-sub-add-action {
-        cursor: pointer;
-
-        .action-item {
-          color: @primary-color;
-          padding: 5px 0;
-          text-decoration: underline;
-        }
-      }
-    }
-
-    .already-add-to-list {
-      .add-to-type {
-        border-right: none;
-        color: @text-color;
-        .add-to-type-label {
-          padding: 15px 0 5px 0;
-          cursor: pointer;
-        }
-        .add-to-list {
-          display: flex;
-          flex-direction: column;
-          justify-content: flex-start;
-          line-height: 30px;
-          overflow: hidden;
-          text-overflow: ellipsis;
-          word-break: break-all;
-          white-space: nowrap;
-        }
-      }
-    }
-  }
 
   .main-content {
-    padding: 30px 0;
 
     .image-preview {
       img {
@@ -1259,54 +1263,6 @@ export default {
   width: 100%;
 }
 
-.self-type-wrapper {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: flex-start;
-  .self-field-label {
-    width: 100px;
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: center;
-    .lesson-type-item {
-      margin-right: 10px;
-      width: 33px;
-      height: 33px;
-      border-radius: 33px;
-      border: 2px solid #ddd;
-      font-weight: bold;
-      display: flex;
-      color: #bbb;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .green-active-task-type {
-      background: rgba(21, 195, 154, 0.1);
-      border: 2px solid #15C39A;
-      border-radius: 50%;
-      font-weight: bold;
-      color: #15C39A;
-    }
-
-    .red-active-task-type {
-      background: rgba(255, 51, 85, 0.1);
-      border: 2px solid #FF3355;
-      border-radius: 50%;
-      opacity: 1;
-      font-weight: bold;
-      color: #FF3355;
-      opacity: 1;
-    }
-  }
-
-  .self-type-filter {
-    width: 500px;
-  }
-}
-
 .ant-form-item label {
   font-size: 16px;
   font-weight: 500;
@@ -1320,12 +1276,13 @@ export default {
   flex-direction: row;
   align-items: center;
   justify-content: flex-start;
+
   .self-field-label {
-    width: 100px;
+    width: 180px;
     display: flex;
     flex-direction: row;
     align-items: center;
-    justify-content: center;
+
     .task-type-item {
       margin-right: 10px;
       width: 33px;
@@ -1337,6 +1294,11 @@ export default {
       color: #bbb;
       align-items: center;
       justify-content: center;
+    }
+
+    .task-type-activity {
+      width: 70px;
+      border-radius: 50px;
     }
 
     .green-active-task-type {
@@ -1355,6 +1317,15 @@ export default {
       font-weight: bold;
       color: #FF3355;
       opacity: 1;
+    }
+
+    .blue-active-task-type {
+      background: rgb(230, 247, 255);
+      border: 2px solid rgb(145, 213, 255);
+      border-radius: 50px;
+      opacity: 1;
+      font-weight: bold;
+      color: rgb(24, 144, 255);
     }
   }
 
@@ -1369,9 +1340,32 @@ export default {
 }
 
 .task-action-line {
+  margin-top: 15px;
+  padding-right: 10px;
   display: flex;
   align-items: center;
   flex-direction: row;
   justify-content: flex-end;
 }
+
+.classcipe-btn {
+  line-height: 20px;
+}
+
+.material-list {
+  margin-top: 10px;
+}
+
+.material-icon {
+  height: 35px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+}
+
+.delete-icon {
+  width: 35px;
+}
+
 </style>

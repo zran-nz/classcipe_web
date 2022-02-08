@@ -141,6 +141,10 @@ export default {
   box-sizing: border-box;
 }
 
+.main-content {
+  min-width: 1050px;
+}
+
 .nav-bar-left {
   height: 100%;
   box-sizing: border-box;

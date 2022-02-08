@@ -25,10 +25,10 @@
                       <template slot="title">
                         Rename
                       </template>
-                      <a-icon type="edit" v-if="!linkGroup.editing"/>
+                      <a-icon type="edit" :style="{ fontSize: '20px', color: '#15C39A', fontWeight: 'bold' }" v-if="!linkGroup.editing"/>
                     </a-tooltip>
 
-                    <a-icon type="check" v-if="linkGroup.editing"/>
+                    <a-icon type="check" :style="{ fontSize: '20px', color: '#15C39A', fontWeight: 'bold' }" v-if="linkGroup.editing"/>
                   </div>
                 </template>
                 <template v-else>
@@ -39,9 +39,9 @@
                   </div>
                 </template>
               </div>
-              <div class="group-right-info" v-if="canEdit">
+              <div class="group-right-info" >
                 <div class="group-action">
-                  <a-button type="primary" @click="handleLinkGroup(linkGroup)" :style="{'background-color': '#fff', 'color': '#000', 'border': 'none'}">
+                  <a-button v-show="canEdit" type="primary" @click="handleLinkGroup(linkGroup)" :style="{'background-color': '#fff', 'color': '#000', 'border': 'none'}">
                     <div class="btn-text" style="line-height: 20px">
                       + Link
                     </div>

@@ -5,6 +5,7 @@
         <div class="select-curriculum" v-show="showCurriculum">
           <div class="my-curriculum-select">
             <a-select
+              :getPopupContainer="trigger => trigger.parentElement"
               v-if="curriculumOptions.length"
               @change="handleCurriculumChange"
               v-model="currentCurriculumId"
@@ -25,6 +26,7 @@
         <div class="select-curriculum" v-show="showCurriculum">
           <div class="my-curriculum-select">
             <a-select
+              :getPopupContainer="trigger => trigger.parentElement"
               v-if="curriculumOptions.length"
               @change="handleCurriculumChange"
               v-model="currentCurriculumId"
@@ -45,45 +47,137 @@
     <div class="main">
       <div class="selected-content">
         <div class="main-content-list">
+
+          <div class='no-select-content' v-if='!hasSelectedContent && selectMode !== selectModelType.evaluationMode && isEmptyRecommend'>
+            <div class='no-select-img'>
+              <img src="~@/assets/newBrowser/no-selected.png" class="logo" />
+            </div>
+            <div class='no-select-text'>
+              You haven't added learning objectives yet
+            </div>
+          </div>
+
           <div class="recommend-description" v-if="!isEmptyRecommend">
             <div class="recommend-title">
-              <h3>Recommended assessment objectives</h3>
+              <h3>Recommended learning objectives</h3>
             </div>
             <div class="recommend-detail">
-              <div class="recommend-list" v-for="(recommendDataItem, rIndex) in recommendData" :key="rIndex">
+              <div class="recommend-list" v-for="(recommendDataItem, rIndex) in myRecommendData" :key="rIndex" :data-item='JSON.stringify(recommendDataItem)'>
                 <div class="recommend-from" :data-from-id="recommendDataItem.fromId">
                   <h4>From <span class="from-type-name">{{ recommendDataItem.fromTypeName }}</span> :
                     {{ recommendDataItem.fromName }}</h4>
                 </div>
-                <div
-                  :class="{'recommend-item': true, 'my-selected-item': selectedRecommendIdList.indexOf(recommendItem.knowledgeId) !== -1,
-                           'disabled-select-item': mySelectedIdList.indexOf(recommendItem.knowledgeId) !== -1}"
-                  v-for="(recommendItem, rI) in recommendDataItem.list"
-                  :key="'ri-' + rI"
-                  @click="handleAddRecommend(recommendItem)"
-                  :data-knowledge-id="recommendItem.knowledgeId"
-                  :data-selected-id-list="mySelectedIdList">
-                  <a-tooltip class="my-tooltip">
-                    <template slot="title">
-                      {{ recommendItem.path }}
-                    </template>
-                    <div class="select-block">
-                      <a-icon
-                        class="select-block-icon"
-                        type="border"
-                        v-if="selectedRecommendIdList.indexOf(recommendItem.knowledgeId) === -1" />
-                      <div
-                        class="selected-icon"
-                        v-if="selectedRecommendIdList.indexOf(recommendItem.knowledgeId) !== -1">
-                        <img src="~@/assets/icons/lesson/selected.png" />
+                <template v-if='recommendDataItem.skillList.length'>
+                  <div class='recommend-type-title'>
+                    <div class="title-item title-skill">Achievement objectives</div>
+                  </div>
+                  <div
+                    :class="{'recommend-item': true, 'my-selected-item': selectedRecommendIdList.indexOf(recommendItem.knowledgeId) !== -1,
+                             'disabled-select-item': mySelectedIdList.indexOf(recommendItem.knowledgeId) !== -1}"
+                    v-for="(recommendItem, rI) in recommendDataItem.skillList"
+                    :key="'ria-' + rI"
+                    @click="handleAddRecommend(recommendItem)"
+                    :data-tag-type='recommendItem.tagType'
+                    :data-knowledge-id="recommendItem.knowledgeId"
+                    :data-selected-id-list="mySelectedIdList">
+                    <a-tooltip class="my-tooltip">
+                      <template slot="title">
+                        {{ recommendItem.path }}
+                      </template>
+                      <div class="select-block">
+                        <a-icon
+                          class="select-block-icon"
+                          type="border"
+                          v-if="selectedRecommendIdList.indexOf(recommendItem.knowledgeId) === -1" />
+                        <div
+                          class="selected-icon"
+                          v-if="selectedRecommendIdList.indexOf(recommendItem.knowledgeId) !== -1">
+                          <img src="~@/assets/icons/lesson/selected.png" />
+                        </div>
                       </div>
-                    </div>
 
-                    <div class="right-name">
-                      {{ recommendItem.name }}
-                    </div>
-                  </a-tooltip>
-                </div>
+                      <div class="right-name">
+                        {{ recommendItem.name }}
+                      </div>
+
+                      <div class='recommend-selected-left-bar' :tag-type='recommendItem.tagType'></div>
+                    </a-tooltip>
+                  </div>
+                </template>
+                <template v-if='recommendDataItem.knowledgeList.length'>
+                  <div class='recommend-type-title'>
+                    <div class="title-item title-learnout">Learning outcomes</div>
+                  </div>
+                  <div
+                    :class="{'recommend-item': true, 'my-selected-item': selectedRecommendIdList.indexOf(recommendItem.knowledgeId) !== -1,
+                             'disabled-select-item': mySelectedIdList.indexOf(recommendItem.knowledgeId) !== -1}"
+                    v-for="(recommendItem, rI) in recommendDataItem.knowledgeList"
+                    :key="'ril-' + rI"
+                    @click="handleAddRecommend(recommendItem)"
+                    :data-tag-type='recommendItem.tagType'
+                    :data-knowledge-id="recommendItem.knowledgeId"
+                    :data-selected-id-list="mySelectedIdList">
+                    <a-tooltip class="my-tooltip">
+                      <template slot="title">
+                        {{ recommendItem.path }}
+                      </template>
+                      <div class="select-block">
+                        <a-icon
+                          class="select-block-icon"
+                          type="border"
+                          v-if="selectedRecommendIdList.indexOf(recommendItem.knowledgeId) === -1" />
+                        <div
+                          class="selected-icon"
+                          v-if="selectedRecommendIdList.indexOf(recommendItem.knowledgeId) !== -1">
+                          <img src="~@/assets/icons/lesson/selected.png" />
+                        </div>
+                      </div>
+
+                      <div class="right-name">
+                        {{ recommendItem.name }}
+                      </div>
+
+                      <div class='recommend-selected-left-bar' :tag-type='recommendItem.tagType'></div>
+                    </a-tooltip>
+                  </div>
+                </template>
+                <template v-if='recommendDataItem.centuryList.length'>
+                  <div class='recommend-type-title'>
+                    <div class="title-item title-21">21st Century Skills</div>
+                  </div>
+                  <div
+                    :class="{'recommend-item': true, 'my-selected-item': selectedRecommendIdList.indexOf(recommendItem.knowledgeId) !== -1,
+                             'disabled-select-item': mySelectedIdList.indexOf(recommendItem.knowledgeId) !== -1}"
+                    v-for="(recommendItem, rI) in recommendDataItem.centuryList"
+                    :key="'ri2-' + rI"
+                    @click="handleAddRecommend(recommendItem)"
+                    :data-tag-type='recommendItem.tagType'
+                    :data-knowledge-id="recommendItem.knowledgeId"
+                    :data-selected-id-list="mySelectedIdList">
+                    <a-tooltip class="my-tooltip">
+                      <template slot="title">
+                        {{ recommendItem.path }}
+                      </template>
+                      <div class="select-block">
+                        <a-icon
+                          class="select-block-icon"
+                          type="border"
+                          v-if="selectedRecommendIdList.indexOf(recommendItem.knowledgeId) === -1" />
+                        <div
+                          class="selected-icon"
+                          v-if="selectedRecommendIdList.indexOf(recommendItem.knowledgeId) !== -1">
+                          <img src="~@/assets/icons/lesson/selected.png" />
+                        </div>
+                      </div>
+
+                      <div class="right-name">
+                        {{ recommendItem.name }}
+                      </div>
+
+                      <div class='recommend-selected-left-bar' :tag-type='recommendItem.tagType'></div>
+                    </a-tooltip>
+                  </div>
+                </template>
               </div>
             </div>
           </div>
@@ -93,6 +187,7 @@
                 <div
                   :class="{'content-item': true, 'selected-line': true}">
                   <div class="name">
+                    <div class='selected-left-bar' :tag-type='selected21CenturyItem.tagType'></div>
                     <div class="name-text">
                       {{ selected21CenturyItem.name }}
                     </div>
@@ -108,8 +203,10 @@
               <div
                 :class="{'content-item': true, 'selected-line': true}"
                 v-for="(item, mIndex) in mySelectedList"
+
                 :key="'my-' + mIndex">
                 <div class="name">
+                  <div class='selected-left-bar' :tag-type='item.tagType'></div>
                   <div class="name-text">
                     {{ item.name }}
                   </div>
@@ -126,6 +223,7 @@
                 v-for="(item, kIndex) in selectedCurriculumList"
                 :key="'curr-' + kIndex">
                 <div class="name">
+                  <div class='selected-left-bar' :tag-type='item.knowledgeData.tagType'></div>
                   <div class="name-text">
                     {{ item.knowledgeData.name }}
                   </div>
@@ -140,8 +238,10 @@
               <div
                 :class="{'content-item': true, 'selected-line': true}"
                 v-for="(item, sIndex) in selectedSubjectSpecificSkillList"
+
                 :key="'sub-' + sIndex">
                 <div class="name">
+                  <div class='selected-left-bar' :tag-type='item.knowledgeData.tagType'></div>
                   <div class="name-text">
                     {{ item.knowledgeData.name }}
                   </div>
@@ -159,6 +259,7 @@
                 v-for="(item, aIndex) in selectedAssessmentList"
                 :key="'assessment-' + aIndex">
                 <div class="name">
+                  <div class='selected-left-bar' :tag-type='item.knowledgeData.tagType'></div>
                   <div class="name-text">
                     {{ item.knowledgeData.name }}
                   </div>
@@ -176,6 +277,7 @@
                 v-for="(item, aIndex) in selected21CenturySkillList"
                 :key="'21-' + aIndex">
                 <div class="name">
+                  <div class='selected-left-bar' :tag-type='item.knowledgeData.tagType'></div>
                   <div class="name-text">
                     {{ item.knowledgeData.name }}
                   </div>
@@ -193,6 +295,7 @@
                 v-for="(item, aIndex) in selectedBigIdeaList"
                 :key="'big-' + aIndex">
                 <div class="name">
+                  <div class='selected-left-bar' :tag-type='item.tagType'></div>
                   <div class="name-text">
                     {{ item.bigIdea }}
                   </div>
@@ -210,6 +313,7 @@
                 v-for="(item, aIndex) in selectedAll21CenturyList"
                 :key="'all-21-' + aIndex">
                 <div class="name">
+                  <div class='selected-left-bar' :tag-type='item.item.tagType'></div>
                   <div class="name-text">
                     {{ item.item.name }}
                   </div>
@@ -227,6 +331,7 @@
                 v-for="(item, aIndex) in selectedKnowledgeList"
                 :key="'sync-' + aIndex">
                 <div class="name">
+                  <div class='selected-left-bar' :tag-type='item.tagType'></div>
                   <div class="name-text">
                     {{ item.name }}
                   </div>
@@ -244,6 +349,7 @@
                 v-for="(item, aIndex) in selectedIduList"
                 :key="'idu-' + aIndex">
                 <div class="name">
+                  <div class='selected-left-bar' :tag-type='item.knowledgeData.tagType'></div>
                   <div class="name-text">
                     {{ item.knowledgeData.name }}
                   </div>
@@ -291,7 +397,7 @@
             :question-index="questionIndex"
             :sync-data="syncData"
             :show-menu="showMenu"
-            :learning-outcome-grade-id="learningOutcomeGradeId"
+            :default-grade-id="defaultGradeId"
             :default-active-menu="defaultActiveMenu"
             :default-curriculum-id="defaultCurriculumId"
           />
@@ -327,6 +433,8 @@ import {
   getAllCurriculums
 } from '@/api/preference'
 import { LibraryEvent, LibraryEventBus } from '@/components/NewLibrary/LibraryEventBus'
+import { SelectModel } from '@/components/NewLibrary/SelectModel'
+import { TagType } from '@/const/common'
 
 export default {
   name: 'NewBrowser',
@@ -369,7 +477,7 @@ export default {
       type: Array,
       default: () => []
     },
-    learningOutcomeGradeId: {
+    defaultGradeId: {
       type: String,
       default: null
     }
@@ -399,7 +507,12 @@ export default {
       isEmptyRecommend: true,
       showCurriculum: false,
 
-      selected21CenturyItem: null
+      selected21CenturyItem: null,
+      selectedGradeIdSet: new Set(),
+      selectModelType: SelectModel,
+      tagType: TagType,
+
+      myRecommendData: []
     }
   },
   computed: {
@@ -429,8 +542,9 @@ export default {
     this.$logger.info('recommendData', this.recommendData)
     this.$logger.info('selectedIdList', this.selectedIdList)
     this.$logger.info('selectedList', this.selectedList)
-    this.$logger.info('learningOutcomeGradeId ' + this.learningOutcomeGradeId)
+    this.$logger.info('defaultGradeId ' + this.defaultGradeId)
     this.mySelectedIdList = this.selectedIdList
+    this.myRecommendData = JSON.parse(JSON.stringify(this.recommendData))
 
     getAllCurriculums().then((response) => {
       this.$logger.info('getAllCurriculums', response)
@@ -439,10 +553,31 @@ export default {
     })
 
     const recommendIdList = []
-    this.recommendData.forEach((item) => {
+    this.myRecommendData.forEach((item) => {
+      if (!item.skillList || (item.skillList && !item.skillList.length)) {
+        item.skillList = []
+      }
+
+      if (!item.centuryList || (item.centuryList && !item.centuryList.length)) {
+        item.centuryList = []
+      }
+
+      if (!item.knowledgeList || (item.knowledgeList && !item.knowledgeList.length)) {
+        item.knowledgeList = []
+      }
+
       item.list.forEach(dataItem => {
         recommendIdList.push(dataItem.knowledgeId)
+
+        if (dataItem.tagType === TagType.skill || dataItem.tagType === TagType.ibSkill || dataItem.tagType === TagType.idu) {
+          item.skillList.push(dataItem)
+        } else if (dataItem.tagType === TagType.century) {
+          item.centuryList.push(dataItem)
+        } else {
+          item.knowledgeList.push(dataItem)
+        }
       })
+
       if (item.list.length > 0) {
         this.isEmptyRecommend = false
       }
@@ -457,6 +592,8 @@ export default {
         this.selectedRecommendList.push(item)
       }
     })
+
+    this.updateSelectedGradeSet()
     this.$logger.info('mySelectedList', this.mySelectedList)
     this.$logger.info('selectedRecommendList', this.selectedRecommendList)
     this.$logger.info('selectedRecommendIdList', this.selectedRecommendIdList)
@@ -484,6 +621,8 @@ export default {
       this.$logger.info('NewBrowser handleSelectCurriculumListData', data)
       this.selectedCurriculumList = data
       this.$emit('select-curriculum', data)
+
+      this.updateSelectedGradeSet()
     },
 
     // subject-specific-skill
@@ -491,6 +630,8 @@ export default {
       this.$logger.info('NewBrowser handleSelectSubjectSpecificSkillListData', data)
       this.selectedSubjectSpecificSkillList = data
       this.$emit('select-subject-specific-skill', data)
+
+      this.updateSelectedGradeSet()
     },
 
     // century-skill
@@ -498,40 +639,54 @@ export default {
       this.$logger.info('NewBrowser handleSelect21CenturySkillListData', data)
       this.selected21CenturySkillList = data
       this.$emit('select-century-skill', data)
+
+      this.updateSelectedGradeSet()
     },
 
     handleSelectAll21CenturyListData (data) {
       this.$logger.info('NewBrowser handleSelectAll21CenturyListData', data)
       this.selectedAll21CenturyList = data
       this.$emit('select-all-21-century', data)
+
+      this.updateSelectedGradeSet()
     },
     // assessment type
     handleSelectAssessmentType (data) {
       this.$logger.info('NewBrowser handleSelectAssessmentType', data)
       this.selectedAssessmentList = data
       this.$emit('select-assessmentType', data)
+
+      this.updateSelectedGradeSet()
     },
 
     handleSelectIdu (data) {
       this.$logger.info('NewBrowser handleSelectIdu', data)
       this.selectedIduList = data
       this.$emit('select-idu', data)
+
+      this.updateSelectedGradeSet()
     },
 
     handleSelectBigIdeaData (data) {
       this.$logger.info('NewBrowser handleSelectBigIdeaData', data)
       this.selectedBigIdeaList = data
       this.$emit('select-big-idea', data)
+
+      this.updateSelectedGradeSet()
     },
 
     handleRemoveSelected (item) {
       this.$logger.info('NewBrowser handleRemoveSelected', item)
       this.$refs['contentList'].handleRemoveSelected(item)
+
+      this.updateSelectedGradeSet()
     },
 
     handleUpdateSelectedList (data) {
       this.$logger.info('NewBrowser handleUpdateSelectedList', data)
       this.mySelectedList = data
+
+      this.updateSelectedGradeSet()
     },
     handleAddRecommend (recommendItem) {
       this.$logger.info('NewBrowser handleAddRecommend', recommendItem, 'this.mySelectedIdList.indexOf(recommendItem.knowledgeId)', this.mySelectedIdList.indexOf(recommendItem.knowledgeId))
@@ -548,6 +703,8 @@ export default {
         this.$emit('select-recommend', this.selectedRecommendList)
         this.$logger.info('after NewBrowser handleAddRecommend', this.selectedRecommendList, this.selectedRecommendIdList)
       }
+
+      this.updateSelectedGradeSet()
     },
 
     handleRemoveMySelected (data) {
@@ -556,6 +713,7 @@ export default {
       if (index > -1) {
         this.mySelectedList.splice(index, 1)
       }
+      this.updateSelectedGradeSet()
     },
 
     handleCancelSelectData () {
@@ -565,7 +723,19 @@ export default {
 
     handleEnsureSelectData () {
       this.$logger.info('NewBrowser handleEnsureSelectData')
-      this.$emit('ensure-select')
+      if (this.selectedGradeIdSet.size > 1) {
+        this.$confirm({
+          title: 'Alert',
+          okText: 'Yes',
+          cancelText: 'Let me double check',
+          content: 'You have selected learning objectives from different grades/levels/stages, do you confirm to add them?',
+          onOk: () => {
+            this.$emit('ensure-select')
+          }
+        })
+      } else {
+        this.$emit('ensure-select')
+      }
     },
     handleCenturySkillsSelect(data) {
       this.$logger.info('NewBrowser handleCenturySkillsSelect', data)
@@ -578,6 +748,108 @@ export default {
 
     handleRemoveMySelected21Century () {
       LibraryEventBus.$emit(LibraryEvent.CancelCenturySkillsSelect) // 点击选择列表中的取消
+    },
+
+    updateSelectedGradeSet () {
+      this.$logger.info('NewBrowser updateSelectedGradeSet',
+        this.mySelectedList,
+        this.selectedCurriculumList,
+        this.selectedKnowledgeList,
+        this.selected21CenturySkillList,
+        this.selectedSubjectSpecificSkillList,
+        this.selectedAssessmentList,
+        this.selectedIduList,
+        this.selectedAll21CenturyList,
+        this.selectedRecommendList,
+        this.selected21CenturyItem
+      )
+      this.selectedGradeIdSet.clear()
+      this.mySelectedList.forEach(item => {
+        if (item.gradeId) {
+          this.selectedGradeIdSet.add(item.gradeId)
+        }
+
+        if (item.knowledgeData && item.knowledgeData.selectedGradeId) {
+          this.selectedGradeIdSet.add(item.knowledgeData.selectedGradeId)
+        }
+      })
+      this.selectedCurriculumList.forEach(item => {
+        if (item.gradeId) {
+          this.selectedGradeIdSet.add(item.gradeId)
+        }
+
+        if (item.knowledgeData && item.knowledgeData.selectedGradeId) {
+          this.selectedGradeIdSet.add(item.knowledgeData.selectedGradeId)
+        }
+      })
+      this.selectedKnowledgeList.forEach(item => {
+        if (item.gradeId) {
+          this.selectedGradeIdSet.add(item.gradeId)
+        }
+
+        if (item.knowledgeData && item.knowledgeData.selectedGradeId) {
+          this.selectedGradeIdSet.add(item.knowledgeData.selectedGradeId)
+        }
+      })
+      this.selected21CenturySkillList.forEach(item => {
+        if (item.gradeId) {
+          this.selectedGradeIdSet.add(item.gradeId)
+        }
+
+        if (item.knowledgeData && item.knowledgeData.selectedGradeId) {
+          this.selectedGradeIdSet.add(item.knowledgeData.selectedGradeId)
+        }
+      })
+      this.selectedSubjectSpecificSkillList.forEach(item => {
+        if (item.gradeId) {
+          this.selectedGradeIdSet.add(item.gradeId)
+        }
+
+        if (item.knowledgeData && item.knowledgeData.selectedGradeId) {
+          this.selectedGradeIdSet.add(item.knowledgeData.selectedGradeId)
+        }
+      })
+      this.selectedAssessmentList.forEach(item => {
+        if (item.gradeId) {
+          this.selectedGradeIdSet.add(item.gradeId)
+        }
+
+        if (item.knowledgeData && item.knowledgeData.selectedGradeId) {
+          this.selectedGradeIdSet.add(item.knowledgeData.selectedGradeId)
+        }
+      })
+      this.selectedIduList.forEach(item => {
+        if (item.gradeId) {
+          this.selectedGradeIdSet.add(item.gradeId)
+        }
+
+        if (item.knowledgeData && item.knowledgeData.selectedGradeId) {
+          this.selectedGradeIdSet.add(item.knowledgeData.selectedGradeId)
+        }
+      })
+      this.selectedAll21CenturyList.forEach(item => {
+        if (item.gradeId) {
+          this.selectedGradeIdSet.add(item.gradeId)
+        }
+
+        if (item.knowledgeData && item.knowledgeData.selectedGradeId) {
+          this.selectedGradeIdSet.add(item.knowledgeData.selectedGradeId)
+        }
+      })
+      this.selectedRecommendList.forEach(item => {
+        if (item.gradeId) {
+          this.selectedGradeIdSet.add(item.gradeId)
+        }
+
+        if (item.knowledgeData && item.knowledgeData.selectedGradeId) {
+          this.selectedGradeIdSet.add(item.knowledgeData.selectedGradeId)
+        }
+      })
+      if (this.selected21CenturyItem && this.selected21CenturyItem.gradeId) {
+        this.selectedGradeIdSet.add(this.selected21CenturyItem.gradeId)
+      }
+      this.$logger.info('------- this.selectedGradeIdSet', this.selectedGradeIdSet)
+      this.selectedGradeIdSet = this.selectedGradeIdSet
     }
   }
 }
@@ -697,13 +969,14 @@ export default {
           }
 
           .content-item {
+            position: relative;
             border: 1px solid #fff;
             display: flex;
             flex-direction: row;
             flex-wrap: wrap;
             align-items: center;
             padding: 10px;
-            margin: 3px;
+            margin: 3px 3px 5px 11px;
             position: relative;
             border: 1px solid @primary-color;
             background-color: #5fc9b04a !important;
@@ -890,11 +1163,21 @@ export default {
         }
       }
 
+      .recommend-item-divider {
+        height: 5px;
+        width: 100%;
+        background: #fff;
+      }
+
       .recommend-item {
-        background-color: rgba(255, 187, 0, 0.1);
+        //background-color: rgba(253, 238, 218);
         margin-bottom: 10px;
-        box-sizing: content-box;
-        border: 1px solid rgba(255, 187, 0, 0.1);
+        position: relative;
+        box-shadow: 0 10px #fff;
+        padding-left: 10px;
+        box-sizing: border-box;
+        overflow: hidden;
+        height: 42px;
 
         span {
           font-size: 13px;
@@ -978,7 +1261,87 @@ export default {
 }
 
 .main-content-list {
-  height: 375px;
+  height: 100%;
   overflow-y: scroll;
 }
+
+.no-select-content {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+
+  .no-select-img {
+    margin-top: 90px;
+    img {
+      height: 150px;
+    }
+  }
+
+  .no-select-text {
+    margin-top: 30px;
+    font-size: 16px;
+    font-family: Segoe UI;
+    font-weight: bold;
+    line-height: 0px;
+    color: #C6C6C6;
+  }
+}
+
+.selected-left-bar {
+  position: absolute;
+  top: -1px;
+  left: -11px;
+  bottom: -1px;
+  width: 10px;
+}
+
+.recommend-selected-left-bar {
+  position: absolute;
+  top: 0;
+  left: 0px;
+  bottom: 0;
+  width: 10px;
+  z-index: 100;
+}
+
+.my-selected-item {
+  .recommend-selected-left-bar {
+    position: absolute;
+    top: -1px;
+    left: 0;
+    bottom: -1px;
+    width: 10px;
+  }
+}
+
+div[tag-type="6"] {
+  background: rgb(255, 236, 210);
+}
+
+div[tag-type="5"] {
+  background: #67C23A;
+}
+
+div[tag-type="1"] {
+  background: rgb(177, 209, 204);
+}
+
+div[tag-type="4"] {
+  background: rgb(215, 224, 233);
+}
+
+div[tag-type="2"] {
+  background: #FF978E;
+}
+div[tag-type="3"] {
+  background: rgb(215, 224, 233);
+}
+
+.title-item {
+  padding-top: 3px;
+  font-weight: 500;
+  padding-bottom: 5px;
+}
+
 </style>

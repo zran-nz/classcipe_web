@@ -22,6 +22,7 @@ export const teacherAPIUrl = {
   DeleteGroup: '/classcipe/api/teacher/deleteGroup',
   GetReferOutcomes: '/classcipe/api/teacher/getReferOutcomes',
   Duplicate: '/classcipe/api/teacher/content/duplicate',
+  PermanentDelete: '/classcipe/api/teacher/content/permanentDelete',
   Rename: '/classcipe/api/teacher/content/rename',
   FindSourceOutcomes: '/classcipe/api/teacher/findSourceOutcomes',
   FindBigIdeaSourceOutcomes: '/classcipe/api/teacher/findBigIdeaSourceOutcomes',
@@ -113,6 +114,17 @@ export function deleteMyContentByType (data) {
       logger.error('wrong delete type ' + MyContentType + ' id: ' + id)
       break
   }
+}
+
+export function PermanentDeleteMyContent (parameter) {
+  return request({
+    url: teacherAPIUrl.PermanentDelete,
+    method: 'post',
+    data: parameter,
+    headers: {
+      'Content-Type': 'application/json;charset=UTF-8'
+    }
+  })
 }
 
 /**

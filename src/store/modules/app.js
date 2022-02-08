@@ -1,19 +1,19 @@
 import storage from 'store'
 import {
+  APP_LANGUAGE,
+  DOWNLOAD_URL,
   SIDEBAR_TYPE,
-  TOGGLE_MOBILE_TYPE,
-  TOGGLE_NAV_THEME,
-  TOGGLE_LAYOUT,
+  SYS_CONFIG,
+  TOGGLE_COLOR,
+  TOGGLE_CONTENT_WIDTH,
   TOGGLE_FIXED_HEADER,
   TOGGLE_FIXED_SIDEBAR,
-  TOGGLE_CONTENT_WIDTH,
   TOGGLE_HIDE_HEADER,
-  TOGGLE_COLOR,
-  TOGGLE_WEAK,
+  TOGGLE_LAYOUT,
+  TOGGLE_MOBILE_TYPE,
   TOGGLE_MULTI_TAB,
-  // i18n
-  APP_LANGUAGE,
-  DOWNLOAD_URL, SYS_CONFIG, RECEIVE_MSG
+  TOGGLE_NAV_THEME,
+  TOGGLE_WEAK
 } from '@/store/mutation-types'
 import { loadLanguageAsync } from '@/locales'
 import { getSysConfig } from '@/api/common'
@@ -35,8 +35,7 @@ const app = {
     lang: 'en-US',
     _antLocale: {},
     sysConfig: null,
-    downloadUrl: '',
-    receiveMsg: false
+    downloadUrl: ''
   },
   mutations: {
     [SIDEBAR_TYPE]: (state, type) => {
@@ -92,9 +91,6 @@ const app = {
     },
     [DOWNLOAD_URL]: (state, downloadUrl) => {
       state.downloadUrl = downloadUrl
-    },
-    [RECEIVE_MSG]: (state, receiveMsg) => {
-      state.receiveMsg = receiveMsg
     }
   },
   actions: {

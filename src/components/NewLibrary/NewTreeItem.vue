@@ -3,8 +3,13 @@
     class='tree-item'
     v-if='treeItemData'
     :data-deep='defaultDeep'
+    :data-default-grade-id="defaultGradeId + ''"
+    :data-tree-type='treeItemType'
     :data-current-type='currentItemType'
+    :data-selected-grade-id="treeItemData.selectedGradeId + ''"
+    :data-selected-grade-name="treeItemData.selectedGradeName + ''"
     :data-root-type='rootType'>
+    <div class='border-left-tag' :style="{'background': treeItemData.backgroundColor}"></div>
     <div
       :class="{'item-wrapper': true , 'odd-line': odd, 'even-line': !odd}"
       :style="{paddingLeft: (defaultDeep * defaultPaddingLeft === 0 ? defaultPaddingLeft / 3 : defaultDeep * defaultPaddingLeft) + 'px'}">
@@ -21,7 +26,7 @@
           <template v-if='subTreeExpandStatus'>
             <a-icon
               type='down'
-              class='subtree-icon'
+              class='subtree-icon opened-subtree-icon'
               @click='handleCollapseTreeItem(treeItemData)'
               v-if='!subTreeLoading' />
             <a-spin size='small' v-if='subTreeLoading' />
@@ -29,13 +34,14 @@
         </div>
       </div>
       <div class='type-icon-wrapper' @click='handleExpandTreeItem(treeItemData)'>
-        <a-icon type='folder-open' theme='filled' class='file-dir-icon' v-if='subTreeExpandStatus' />
+        <a-icon type='folder-open' theme='filled' class='opened-file-dir-icon' v-if='subTreeExpandStatus' />
         <a-icon type='folder' theme='filled' class='file-dir-icon' v-if='!subTreeExpandStatus' />
       </div>
       <div class='display-label-wrapper' @click='handleExpandTreeItem(treeItemData)'>
         <span
           :class="{
             'display-label': true,
+            'opened-display-label': subTreeExpandStatus,
             'selected-display-label': selected21CenturyItem === treeItemData
           }">{{ treeItemData.name }}</span>
         <img
@@ -57,6 +63,7 @@
             :tree-current-parent='subTreeParent'
             :tree-item-data='treeItem'
             :default-grade-id='defaultGradeId'
+            :default-background-color='defaultBackgroundColor'
             :current-item-type='subItemType'
             :data-default-grade-id='defaultGradeId'
             :data-item-type='subItemType'
@@ -82,6 +89,7 @@
             :root-type='rootType'
             :default-deep='(defaultDeep + 1)'
             :default-expand-status='treeItem.expandStatus'
+            :default-background-color='defaultBackgroundColor'
             :default-grade-id='defaultGradeId'
             :data-default-grade-id='defaultGradeId'
             :class="{'auto-selected-grade': defaultGradeId === treeItem.id }"
@@ -100,6 +108,9 @@
             :tree-item-type='treeItemType'
             :root-type='rootType'
             :default-deep='(defaultDeep + 1)'
+            :default-background-color='defaultBackgroundColor'
+            :default-grade-id='defaultGradeId'
+            :data-default-grade-id='defaultGradeId'
             :default-expand-status='treeItem.expandStatus'
             v-for='(treeItem, index) in treeItemData.children'
             :odd='odd ? index % 2 === 1 : index % 2 === 0 '
@@ -118,6 +129,9 @@
             :tree-item-type='treeItemType'
             :root-type='rootType'
             :default-deep='(defaultDeep + 1)'
+            :default-background-color='defaultBackgroundColor'
+            :default-grade-id='defaultGradeId'
+            :data-default-grade-id='defaultGradeId'
             :default-expand-status='treeItem.expandStatus'
             v-for='(treeItem, index) in treeItemData.children'
             :odd='odd ? index % 2 === 1 : index % 2 === 0 '
@@ -135,6 +149,9 @@
             :tree-item-type='treeItemType'
             :root-type='rootType'
             :default-deep='(defaultDeep + 1)'
+            :default-background-color='defaultBackgroundColor'
+            :default-grade-id='defaultGradeId'
+            :data-default-grade-id='defaultGradeId'
             :default-expand-status='treeItem.expandStatus'
             v-for='(treeItem, index) in treeItemData.children'
             :odd='odd ? index % 2 === 1 : index % 2 === 0 '
@@ -151,6 +168,9 @@
             :tree-item-type='treeItemType'
             :root-type='rootType'
             :default-deep='(defaultDeep + 1)'
+            :default-background-color='defaultBackgroundColor'
+            :default-grade-id='defaultGradeId'
+            :data-default-grade-id='defaultGradeId'
             :default-expand-status='treeItem.expandStatus'
             v-for='(treeItem, index) in treeItemData.children'
             :odd='odd ? index % 2 === 1 : index % 2 === 0 '
@@ -167,6 +187,9 @@
             :tree-item-type='treeItemType'
             :root-type='rootType'
             :default-deep='(defaultDeep + 1)'
+            :default-background-color='defaultBackgroundColor'
+            :default-grade-id='defaultGradeId'
+            :data-default-grade-id='defaultGradeId'
             :default-expand-status='treeItem.expandStatus'
             v-for='(treeItem, index) in treeItemData.children'
             :odd='odd ? index % 2 === 1 : index % 2 === 0 '
@@ -248,7 +271,11 @@ export default {
       type: String,
       required: true
     },
-    defaultGradeId: { // learning outcomes 专用默认的年级id
+    defaultGradeId: { // 默认的年级id
+      type: String,
+      default: null
+    },
+    defaultBackgroundColor: { // 默认的背景色
       type: String,
       default: null
     }
@@ -375,11 +402,13 @@ export default {
     LibraryEventBus.$on(LibraryEvent.ContentListItemClick, this.handleContentListItemClick)
     LibraryEventBus.$on(LibraryEvent.CenturySkillsSelect, this.handleCenturySkillsSelect)
     LibraryEventBus.$on(LibraryEvent.CancelCenturySkillsSelect, this.handleCancelCenturySkillsSelect)
+    LibraryEventBus.$on(LibraryEvent.GradeUpdate, this.handleGradeUpdate)
 
     // 添加learning outcome自动选中grade
     if (this.currentItemType === 'grade') {
       if (this.defaultGradeId === this.treeItemData.id) {
         this.$logger.info('current', this.treeItemData, 'should be default grade')
+        this.subTreeLoading = true
         this.handleExpandTreeItem(this.treeItemData)
       }
     }
@@ -388,6 +417,7 @@ export default {
     LibraryEventBus.$off(LibraryEvent.ContentListItemClick, this.handleContentListItemClick)
     LibraryEventBus.$off(LibraryEvent.CenturySkillsSelect, this.handleCenturySkillsSelect)
     LibraryEventBus.$off(LibraryEvent.CancelCenturySkillsSelect, this.handleCancelCenturySkillsSelect)
+    LibraryEventBus.$off(LibraryEvent.GradeUpdate, this.handleGradeUpdate)
   },
   methods: {
     // 点击左侧菜单栏，同步右侧的列表以及展开当前下一级菜单。
@@ -412,7 +442,7 @@ export default {
         this.handleExpandIduTypeTreeItem(treeItemData)
       }
 
-      // 针对任意层级的21centurySkill点击选择处理
+      // 针对21centurySkill允许年级后的任意层级的点击选择处理（目前仅在evaluation评估表格模式中触发)
       if ((this.currentItemType === 'knowledge' &&
           this.selectMode === SelectModel.evaluationMode) &&
         (this.rootType === NavigationType.centurySkills ||
@@ -427,6 +457,7 @@ export default {
     handleExpandSyncDataList(data) {
       this.$logger.info('handleExpandSyncDataList', data)
       LibraryEventBus.$emit(LibraryEvent.ContentListUpdate, {
+        backgroundColor: this.defaultBackgroundColor,
         deep: 0,
         dataType: this.treeItemType,
         currentTreeData: this.treeItemData,
@@ -448,6 +479,7 @@ export default {
       if (this.defaultDeep === 0) {
         this.subTreeExpandStatus = true
         LibraryEventBus.$emit(LibraryEvent.ContentListUpdate, {
+          backgroundColor: this.defaultBackgroundColor,
           deep: this.defaultDeep,
           dataType: this.treeItemType,
           currentTreeData: this.treeItemData,
@@ -473,25 +505,21 @@ export default {
               this.$logger.info('use old gradeList ', treeItemData)
             }
 
-            // 查看是否表单已经设置默认选中年级
-            this.$logger.info('check default grade ', this.defaultGradeId)
-            const gradeItem = this.gradeList.find(item => item.id === this.defaultGradeId)
-            this.$logger.info('auto select learning outcomes grade', gradeItem)
-
             LibraryEventBus.$emit(LibraryEvent.ContentListUpdate, {
+              backgroundColor: this.defaultBackgroundColor,
               deep: this.defaultDeep,
               dataType: this.treeItemType,
               currentTreeData: this.treeItemData,
               parentTreeData: this.treeCurrentParent,
               contentList: treeItemData.gradeList,
               gradeList: treeItemData.gradeList,
-              questionIndex: this.questionIndex,
-              autoSelectGrade: gradeItem // 自动选择的年级
+              questionIndex: this.questionIndex
             })
             // subject的children为空，说明到底了。下一层就是grade
             this.subItemType = 'grade'
           } else {
             LibraryEventBus.$emit(LibraryEvent.ContentListUpdate, {
+              backgroundColor: this.defaultBackgroundColor,
               deep: this.defaultDeep,
               dataType: this.treeItemType,
               currentTreeData: this.treeItemData,
@@ -508,13 +536,12 @@ export default {
 
         // 判断年级判断是否已经有知识点了
         if (this.currentItemType === 'grade') {
+          // 给当前元素所有的children设置selectedGradeId
           if (!treeItemData.children.length) {
             this.subTreeLoading = true
             const gradeId = treeItemData.id
             const subjectId = this.treeCurrentParent.id
             this.$logger.info('knowledgeTree gradeId ' + gradeId + ' subjectId ' + subjectId)
-            // 通知外部表单更新gradeId
-            LibraryEventBus.$emit(LibraryEvent.GradeUpdate, JSON.parse(JSON.stringify(this.treeItemData)))
 
             KnowledgeGetTree({
               gradeId,
@@ -523,9 +550,12 @@ export default {
               this.$logger.info('KnowledgeGetTree response', response)
               response.result.forEach(rItem => {
                 rItem.gradeId = this.treeItemData.name
+                rItem.selectedGradeId = treeItemData.id
+                rItem.selectedGradeName = treeItemData.name
               }) // 把年级带上，evaluation 选择description时用到)
               treeItemData.children = response.result
               LibraryEventBus.$emit(LibraryEvent.ContentListUpdate, {
+                backgroundColor: this.defaultBackgroundColor,
                 deep: this.defaultDeep,
                 dataType: this.treeItemType,
                 currentTreeData: this.treeItemData,
@@ -542,6 +572,7 @@ export default {
             this.subItemType = 'knowledge'
           } else {
             LibraryEventBus.$emit(LibraryEvent.ContentListUpdate, {
+              backgroundColor: this.defaultBackgroundColor,
               deep: this.defaultDeep,
               dataType: this.treeItemType,
               currentTreeData: this.treeItemData,
@@ -552,6 +583,9 @@ export default {
             this.subTreeLoading = false
             this.subTreeExpandStatus = true
           }
+
+          // 通知外部表单更新gradeId
+          LibraryEventBus.$emit(LibraryEvent.GradeUpdate, { rootType: this.rootType, data: this.treeItemData })
         }
 
         // 加载知识点关联数据
@@ -564,7 +598,12 @@ export default {
             this.subTreeLoading = true
             KnowledgeQueryContentByDescriptionId({ descriptionId: this.treeItemData.id }).then(response => {
               this.$logger.info('KnowledgeQueryContentByDescriptionId response', response.result)
+              response.result.forEach(rItem => {
+                rItem.selectedGradeId = treeItemData.selectedGradeId
+                rItem.selectedGradeName = treeItemData.selectedGradeName
+              })
               LibraryEventBus.$emit(LibraryEvent.ContentListUpdate, {
+                backgroundColor: this.defaultBackgroundColor,
                 currentTreeData: this.treeItemData,
                 dataType: this.treeItemType,
                 parentTreeData: this.treeCurrentParent,
@@ -579,9 +618,16 @@ export default {
             if (treeItemData.gradeId) {
               treeItemData.children.forEach(rItem => {
                 rItem.gradeId = treeItemData.gradeId
+                rItem.selectedGradeId = treeItemData.selectedGradeId
+                rItem.selectedGradeName = treeItemData.selectedGradeName
               })
             }
+            treeItemData.children.forEach(rItem => {
+              rItem.selectedGradeId = treeItemData.selectedGradeId
+              rItem.selectedGradeName = treeItemData.selectedGradeName
+            })
             LibraryEventBus.$emit(LibraryEvent.ContentListUpdate, {
+              backgroundColor: this.defaultBackgroundColor,
               deep: this.defaultDeep,
               dataType: this.treeItemType,
               currentTreeData: this.treeItemData,
@@ -607,6 +653,7 @@ export default {
         // 直接展开第一层mainSubject
         this.subTreeExpandStatus = true
         LibraryEventBus.$emit(LibraryEvent.ContentListUpdate, {
+          backgroundColor: this.defaultBackgroundColor,
           deep: this.defaultDeep,
           dataType: this.treeItemType,
           currentTreeData: this.treeItemData,
@@ -634,6 +681,7 @@ export default {
             this.$logger.info('use old gradeList ', treeItemData)
           }
           LibraryEventBus.$emit(LibraryEvent.ContentListUpdate, {
+            backgroundColor: this.defaultBackgroundColor,
             deep: this.defaultDeep,
             dataType: this.treeItemType,
             currentTreeData: this.treeItemData,
@@ -648,6 +696,7 @@ export default {
 
         // 判断年级判断是否已经有知识点了
         if (this.currentItemType === 'grade') {
+          // 给当前元素所有的children设置selectedGradeId
           if (!treeItemData.children.length) {
             this.subTreeLoading = true
             const gradeId = treeItemData.id
@@ -660,7 +709,12 @@ export default {
             }).then((response) => {
               this.$logger.info('KnowledgeGetTree response', response)
               treeItemData.children = response.result
+              response.result.forEach(rItem => {
+                rItem.selectedGradeId = treeItemData.id
+                rItem.selectedGradeName = treeItemData.name
+              })
               LibraryEventBus.$emit(LibraryEvent.ContentListUpdate, {
+                backgroundColor: this.defaultBackgroundColor,
                 deep: this.defaultDeep,
                 dataType: this.treeItemType,
                 currentTreeData: this.treeItemData,
@@ -677,6 +731,7 @@ export default {
             this.subItemType = 'knowledge'
           } else {
             LibraryEventBus.$emit(LibraryEvent.ContentListUpdate, {
+              backgroundColor: this.defaultBackgroundColor,
               deep: this.defaultDeep,
               dataType: this.treeItemType,
               currentTreeData: this.treeItemData,
@@ -687,6 +742,9 @@ export default {
             this.subTreeLoading = false
             this.subTreeExpandStatus = true
           }
+
+          // 通知外部表单更新gradeId
+          LibraryEventBus.$emit(LibraryEvent.GradeUpdate, { rootType: this.rootType, data: this.treeItemData })
         }
 
         // 加载知识点关联数据
@@ -699,7 +757,12 @@ export default {
             this.subTreeLoading = true
             KnowledgeQueryContentByDescriptionId({ descriptionId: this.treeItemData.id }).then(response => {
               this.$logger.info('KnowledgeQueryContentByDescriptionId response', response.result)
+              response.result.forEach(rItem => {
+                rItem.selectedGradeId = treeItemData.selectedGradeId
+                rItem.selectedGradeName = treeItemData.selectedGradeName
+              })
               LibraryEventBus.$emit(LibraryEvent.ContentListUpdate, {
+                backgroundColor: this.defaultBackgroundColor,
                 dataType: this.treeItemType,
                 currentTreeData: this.treeItemData,
                 parentTreeData: this.treeCurrentParent,
@@ -713,7 +776,12 @@ export default {
           } else {
             // 非最后一层的knowledge 列表
             this.subTreeExpandStatus = true
+            treeItemData.children.forEach(rItem => {
+              rItem.selectedGradeId = treeItemData.selectedGradeId
+              rItem.selectedGradeName = treeItemData.selectedGradeName
+            })
             LibraryEventBus.$emit(LibraryEvent.ContentListUpdate, {
+              backgroundColor: this.defaultBackgroundColor,
               deep: this.defaultDeep,
               dataType: this.treeItemType,
               currentTreeData: this.treeItemData,
@@ -738,6 +806,7 @@ export default {
         // 直接展开第一层mainSubject
         this.subTreeExpandStatus = true
         LibraryEventBus.$emit(LibraryEvent.ContentListUpdate, {
+          backgroundColor: this.defaultBackgroundColor,
           deep: this.defaultDeep,
           dataType: this.treeItemType,
           currentTreeData: this.treeItemData,
@@ -765,6 +834,7 @@ export default {
             this.$logger.info('use old gradeList ', treeItemData)
           }
           LibraryEventBus.$emit(LibraryEvent.ContentListUpdate, {
+            backgroundColor: this.defaultBackgroundColor,
             deep: this.defaultDeep,
             dataType: this.treeItemType,
             currentTreeData: this.treeItemData,
@@ -793,10 +863,13 @@ export default {
               response.result.forEach(item => {
                 item.children = []
                 item.isAssessmentType = true
+                item.selectedGradeId = treeItemData.selectedGradeId
+                item.selectedGradeName = treeItemData.selectedGradeName
               })
               this.$logger.info('assessmentType response.result', response.result)
               treeItemData.children = response.result
               LibraryEventBus.$emit(LibraryEvent.ContentListUpdate, {
+                backgroundColor: this.defaultBackgroundColor,
                 deep: this.defaultDeep,
                 dataType: this.treeItemType,
                 currentTreeData: this.treeItemData,
@@ -811,6 +884,7 @@ export default {
             })
           } else {
             LibraryEventBus.$emit(LibraryEvent.ContentListUpdate, {
+              backgroundColor: this.defaultBackgroundColor,
               deep: this.defaultDeep,
               dataType: this.treeItemType,
               currentTreeData: this.treeItemData,
@@ -823,6 +897,9 @@ export default {
           }
           // grade下一层assessmentType
           this.subItemType = 'assessmentType'
+
+          // 通知外部表单更新gradeId
+          LibraryEventBus.$emit(LibraryEvent.GradeUpdate, { rootType: this.rootType, data: this.treeItemData })
         }
 
         // 加载assessmentType的列表
@@ -841,8 +918,11 @@ export default {
               response.result.forEach(item => {
                 item.children = []
                 item.isKnowledge = true
+                item.selectedGradeId = treeItemData.selectedGradeId
+                item.selectedGradeName = treeItemData.selectedGradeName
               })
               LibraryEventBus.$emit(LibraryEvent.ContentListUpdate, {
+                backgroundColor: this.defaultBackgroundColor,
                 dataType: this.treeItemType,
                 currentTreeData: this.treeItemData,
                 parentTreeData: this.treeCurrentParent,
@@ -855,7 +935,12 @@ export default {
             })
           } else {
             this.subTreeExpandStatus = true
+            treeItemData.children.forEach(item => {
+              item.selectedGradeId = treeItemData.selectedGradeId
+              item.selectedGradeName = treeItemData.selectedGradeName
+            })
             LibraryEventBus.$emit(LibraryEvent.ContentListUpdate, {
+              backgroundColor: this.defaultBackgroundColor,
               deep: this.defaultDeep,
               dataType: this.treeItemType,
               currentTreeData: this.treeItemData,
@@ -883,6 +968,7 @@ export default {
         // 直接展开第一层
         this.subTreeExpandStatus = true
         LibraryEventBus.$emit(LibraryEvent.ContentListUpdate, {
+          backgroundColor: this.defaultBackgroundColor,
           deep: this.defaultDeep,
           dataType: this.treeItemType,
           currentTreeData: this.treeItemData,
@@ -901,6 +987,7 @@ export default {
           this.subItemType = 'all21Century'
           this.hasSubTree = true
           LibraryEventBus.$emit(LibraryEvent.ContentListUpdate, {
+            backgroundColor: this.defaultBackgroundColor,
             deep: this.defaultDeep,
             dataType: this.treeItemType,
             currentTreeData: this.treeItemData,
@@ -912,6 +999,7 @@ export default {
           this.subItemType = 'all21CenturyDescription'
           this.hasSubTree = true
           LibraryEventBus.$emit(LibraryEvent.ContentListUpdate, {
+            backgroundColor: this.defaultBackgroundColor,
             deep: this.defaultDeep,
             dataType: this.treeItemType,
             currentTreeData: this.treeItemData,
@@ -932,6 +1020,7 @@ export default {
         // 直接展开第一层
         this.subTreeExpandStatus = true
         LibraryEventBus.$emit(LibraryEvent.ContentListUpdate, {
+          backgroundColor: this.defaultBackgroundColor,
           deep: this.defaultDeep,
           dataType: this.treeItemType,
           currentTreeData: this.treeItemData,
@@ -946,10 +1035,25 @@ export default {
         this.subTreeLoading = true
         this.subTreeExpandStatus = true
 
+        if (this.defaultDeep === 1 && treeItemData.isGrade) {
+          this.$logger.info('handleExpandIduTypeTreeItem defaultDeep = 1', treeItemData)
+          // 通知外部表单更新gradeId
+          LibraryEventBus.$emit(LibraryEvent.GradeUpdate, {
+            rootType: this.rootType,
+            data: this.treeItemData
+          })
+
+          treeItemData.children.forEach(item => {
+            item.selectedGradeName = treeItemData.name
+            item.selectedGradeId = treeItemData.id
+          })
+        }
+
         if (this.treeItemData.children.length) {
           this.subItemType = 'iduList'
           this.hasSubTree = true
           LibraryEventBus.$emit(LibraryEvent.ContentListUpdate, {
+            backgroundColor: this.defaultBackgroundColor,
             deep: this.defaultDeep,
             dataType: this.treeItemType,
             currentTreeData: this.treeItemData,
@@ -962,6 +1066,7 @@ export default {
             this.subItemType = 'iduList'
             this.hasSubTree = true
             LibraryEventBus.$emit(LibraryEvent.ContentListUpdate, {
+              backgroundColor: this.defaultBackgroundColor,
               deep: this.defaultDeep,
               dataType: this.treeItemType,
               currentTreeData: this.treeItemData,
@@ -976,8 +1081,13 @@ export default {
             }).then(response => {
               this.$logger.info('GetIBIduList response', response)
               if (response.result) {
+                response.result.forEach(rItem => {
+                  rItem.selectedGradeName = treeItemData.name
+                  rItem.selectedGradeId = treeItemData.id
+                })
                 treeItemData.children = response.result
                 LibraryEventBus.$emit(LibraryEvent.ContentListUpdate, {
+                  backgroundColor: this.defaultBackgroundColor,
                   deep: this.defaultDeep,
                   dataType: this.treeItemType,
                   currentTreeData: this.treeItemData,
@@ -1008,6 +1118,7 @@ export default {
         // 直接展开第一层gradeList
         this.subTreeExpandStatus = true
         LibraryEventBus.$emit(LibraryEvent.ContentListUpdate, {
+          backgroundColor: this.defaultBackgroundColor,
           deep: this.defaultDeep,
           dataType: this.treeItemType,
           currentTreeData: this.treeItemData,
@@ -1034,8 +1145,13 @@ export default {
             }).then((response) => {
               this.$logger.info('Get21Century response', response)
               if (response.result) {
+                response.result.forEach(rItem => {
+                  rItem.selectedGradeId = treeItemData.id
+                  rItem.selectedGradeName = treeItemData.name
+                })
                 treeItemData.children = response.result
                 LibraryEventBus.$emit(LibraryEvent.ContentListUpdate, {
+                  backgroundColor: this.defaultBackgroundColor,
                   deep: this.defaultDeep,
                   dataType: this.treeItemType,
                   currentTreeData: this.treeItemData,
@@ -1055,6 +1171,7 @@ export default {
             this.subItemType = 'knowledge'
           } else {
             LibraryEventBus.$emit(LibraryEvent.ContentListUpdate, {
+              backgroundColor: this.defaultBackgroundColor,
               deep: this.defaultDeep,
               dataType: this.treeItemType,
               currentTreeData: this.treeItemData,
@@ -1065,6 +1182,9 @@ export default {
             this.subTreeLoading = false
             this.subTreeExpandStatus = true
           }
+
+          // 通知外部表单更新gradeId
+          LibraryEventBus.$emit(LibraryEvent.GradeUpdate, { rootType: this.rootType, data: this.treeItemData })
         }
 
         // 加载知识点关联数据
@@ -1077,7 +1197,12 @@ export default {
             this.subTreeLoading = true
             KnowledgeQueryContentByDescriptionId({ descriptionId: this.treeItemData.id }).then(response => {
               this.$logger.info('KnowledgeQueryContentByDescriptionId response', response.result)
+              response.result.forEach(rItem => {
+                rItem.selectedGradeId = treeItemData.selectedGradeId
+                rItem.selectedGradeName = treeItemData.selectedGradeName
+              })
               LibraryEventBus.$emit(LibraryEvent.ContentListUpdate, {
+                backgroundColor: this.defaultBackgroundColor,
                 dataType: this.treeItemType,
                 currentTreeData: this.treeItemData,
                 parentTreeData: this.treeCurrentParent,
@@ -1091,7 +1216,12 @@ export default {
           } else {
             // 非最后一层的knowledge 列表
             this.subTreeExpandStatus = true
+            treeItemData.children.forEach(rItem => {
+              rItem.selectedGradeId = treeItemData.selectedGradeId
+              rItem.selectedGradeName = treeItemData.selectedGradeName
+            })
             LibraryEventBus.$emit(LibraryEvent.ContentListUpdate, {
+              backgroundColor: this.defaultBackgroundColor,
               dataType: this.treeItemType,
               deep: this.defaultDeep,
               currentTreeData: this.treeItemData,
@@ -1114,6 +1244,7 @@ export default {
       this.$logger.info('handleExpandSdgTreeItem data ', treeItemData, ' currentItemType ', this.currentItemType, ' children ', treeItemData.children, ' deep ' + this.defaultDeep)
       if (this.defaultDeep === 0) {
         LibraryEventBus.$emit(LibraryEvent.ContentListUpdate, {
+          backgroundColor: this.defaultBackgroundColor,
           deep: this.defaultDeep,
           dataType: this.treeItemType,
           currentTreeData: this.treeItemData,
@@ -1142,6 +1273,7 @@ export default {
               treeItemData.children = children
               this.$logger.info('init sdg keywords list', treeItemData.children)
               LibraryEventBus.$emit(LibraryEvent.ContentListUpdate, {
+                backgroundColor: this.defaultBackgroundColor,
                 deep: this.defaultDeep,
                 dataType: this.treeItemType,
                 currentTreeData: this.treeItemData,
@@ -1158,6 +1290,7 @@ export default {
           })
         } else {
           LibraryEventBus.$emit(LibraryEvent.ContentListUpdate, {
+            backgroundColor: this.defaultBackgroundColor,
             deep: this.defaultDeep,
             dataType: this.treeItemType,
             currentTreeData: this.treeItemData,
@@ -1190,6 +1323,7 @@ export default {
             treeItemData.children = children
             this.$logger.info('sdg bigIdea list', treeItemData.children)
             LibraryEventBus.$emit(LibraryEvent.ContentListUpdate, {
+              backgroundColor: this.defaultBackgroundColor,
               deep: this.defaultDeep,
               dataType: this.treeItemType,
               currentTreeData: this.treeItemData,
@@ -1206,6 +1340,7 @@ export default {
         } else {
           this.$logger.info('sdg children has data', treeItemData)
           LibraryEventBus.$emit(LibraryEvent.ContentListUpdate, {
+            backgroundColor: this.defaultBackgroundColor,
             deep: this.defaultDeep,
             dataType: this.treeItemType,
             currentTreeData: this.treeItemData,
@@ -1218,6 +1353,7 @@ export default {
         }
       } else {
         LibraryEventBus.$emit(LibraryEvent.ContentListUpdate, {
+          backgroundColor: this.defaultBackgroundColor,
           deep: this.defaultDeep,
           dataType: this.treeItemType,
           currentTreeData: this.treeItemData,
@@ -1236,7 +1372,7 @@ export default {
         data.item.id === this.treeItemData.id &&
         data.item.name === this.treeItemData.name &&
         // 通过id和name无法唯一定位到指定的条目，因为多个subject下面的grade的id和name都相同，所以加一层父级的条目的名称一致性判断
-        (!data.parent || this.treeCurrentParent && this.treeCurrentParent.name === data.parent.name)) {
+        (!data.parent || (this.treeItemData.originParent && this.treeItemData.originParent.name === data.parent.name))) {
         // 同步导航栏和内容列表
         this.$logger.info('handleContentListItemClick start ', data, this.treeItemData, this.treeCurrentParent)
         this.handleExpandTreeItem(this.treeItemData)
@@ -1270,6 +1406,12 @@ export default {
     handleCancel21CenturyClick() {
       this.$logger.info('handleCancel21CenturyClick')
       LibraryEventBus.$emit(LibraryEvent.CancelCenturySkillsSelect)
+    },
+
+    handleGradeUpdate (data) {
+      if (this.treeItemData.isGrade === true && data.rootType === this.rootType && data.data.id !== this.treeItemData.id) {
+        this.subTreeExpandStatus = false
+      }
     }
   }
 }
@@ -1280,11 +1422,11 @@ export default {
 @import "~@/components/index.less";
 
 .even-line {
-  //background-color: #ffffff;
+  background-color: #ffffff;
 }
 
 .odd-line {
-  //background-color: #F8F8F8;
+  background-color: rgba(228, 228, 228, 0.2);
 }
 
 .active-line {
@@ -1293,6 +1435,7 @@ export default {
 }
 
 .tree-item {
+  position: relative;
   display: block;
   text-align: left;
   cursor: pointer;
@@ -1310,7 +1453,7 @@ export default {
     align-items: center;
 
     &:hover {
-      //background-color: fade(@primary-color, 10%);
+      background-color: #EDF1F5;
     }
 
     .subtree-icon-wrapper {
@@ -1324,6 +1467,10 @@ export default {
           font-size: 15px;
           font-weight: 600;
         }
+
+        .opened-subtree-icon {
+          color: #15c39a;
+        }
       }
     }
 
@@ -1335,6 +1482,11 @@ export default {
 
       .file-dir-icon {
         color: #82c0d8;
+        font-size: 18px;
+      }
+
+      .opened-file-dir-icon {
+        color: #15c39a;
         font-size: 18px;
       }
     }
@@ -1357,6 +1509,11 @@ export default {
         padding-left: 3px;
       }
 
+      .opened-display-label {
+        color: #15c39a;
+        font-weight: bold;
+      }
+
       img {
         width: 17px;
         position: absolute;
@@ -1368,9 +1525,18 @@ export default {
 }
 
 .selected-display-label {
-  border: 1px solid #07AB84;
-  border-radius: 2px;
-  background: #e9f9f5;
-  box-shadow: 0 0 0 2px rgba(21, 195, 154, .5);
+  //border: 1px solid #07AB84;
+  //border-radius: 2px;
+  //background: #e9f9f5;
+  //box-shadow: 0 0 0 2px rgba(21, 195, 154, .5);
+}
+
+.border-left-tag {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 10px;
+  padding-right: 3px;
+  height: 35px;
 }
 </style>

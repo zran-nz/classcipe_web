@@ -1,21 +1,18 @@
 import router from './router'
 import store from './store'
-import { SESSION_ACTIVE_KEY } from './const/common'
 import storage from 'store'
 import NProgress from 'nprogress' // progress bar
 import '@/components/NProgress/nprogress.less' // progress bar custom style
-import notification from 'ant-design-vue/es/notification'
-import { setDocumentTitle, domTitle } from '@/utils/domUtil'
+import { domTitle, setDocumentTitle } from '@/utils/domUtil'
 import { ACCESS_TOKEN, CURRENT_ROLE } from '@/store/mutation-types'
 import { i18nRender } from '@/locales'
-import { defaultTeacherRouter, defaultExpertRouter } from '@/config/router.config'
+import { defaultExpertRouter, defaultTeacherRouter } from '@/config/router.config'
 import * as logger from '@/utils/logger'
 
 NProgress.configure({ showSpinner: false }) // NProgress Configuration
 
-const allowList = ['login', 'register', 'registerResult', 'authResult', 'authCheck', 'PageRedirect', 'AddonCallback'] // no redirect allowList
+const allowList = ['login', 'register', 'resetPassword', 'registerResult', 'authResult', 'authCheck', 'pageRedirect', 'addonCallback', 'authRedirect', 'shareDetail'] // no redirect allowList
 const loginRoutePath = '/user/login'
-const authCheckPath = '/user/auth-check'
 
 router.beforeEach((to, from, next) => {
   NProgress.start() // start progress bar
@@ -23,20 +20,19 @@ router.beforeEach((to, from, next) => {
 
   /* has token */
   logger.info('router', to)
-  if (allowList.includes(to.name)) {
+  if (allowList.includes(to.name) && to.name) {
     // 在免登录名单，直接进入
     logger.info('allowList ', to.name)
     next()
-  } else if (storage.get(ACCESS_TOKEN) && to.path !== authCheckPath) {
+  } else if (storage.get(ACCESS_TOKEN)) {
     /*  set new Token By Url */
     const token = to.query.token || from.query.token
     if (token) {
       storage.set(ACCESS_TOKEN, token)
-      window.sessionStorage.setItem(SESSION_ACTIVE_KEY, token)
     }
-    const sessionActive = window.sessionStorage.getItem(SESSION_ACTIVE_KEY)
-    logger.info('sessionActive check', sessionActive)
-    if (sessionActive) {
+    const accessToken = storage.get(ACCESS_TOKEN)
+    logger.info('accessToken check', accessToken)
+    if (accessToken) {
       // 检查角色信息是否完善
       // if (to.path === selectRoleRouter) {
       //   logger.info(' allow user select a role')
@@ -89,7 +85,7 @@ router.beforeEach((to, from, next) => {
               })
             })
             .catch(() => {
-              notification.error({
+              logger.error({
                 message: 'Error',
                 description: 'Failed to get userinfo, Please try again!'
               })
@@ -103,8 +99,7 @@ router.beforeEach((to, from, next) => {
         }
       }
     } else {
-      logger.info('go to authCheckPath')
-      next({ path: authCheckPath, query: { redirect: to.fullPath } })
+      next()
     }
   } else {
       next({ path: loginRoutePath, query: { redirect: to.fullPath } })

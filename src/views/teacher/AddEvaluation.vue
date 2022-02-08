@@ -4,7 +4,8 @@
       <common-form-header
         ref="commonFormHeader"
         :form="form"
-        :showCollaborate="false"
+        :show-share='false'
+        :show-collaborate="false"
         :last-change-saved-time="lastChangeSavedTime"
         @update-form="handleUpdateForm"
         @back="goBack"
@@ -277,6 +278,29 @@ export default {
       }
     }
   },
+  beforeRouteLeave(to, from, next) {
+    this.$logger.info('beforeRouteLeave', to, from, next)
+    this.$logger.info('forms', this.forms, 'oldFormsJson', this.oldFormsJson)
+    if (this.initCompleted && JSON.stringify(this.forms) !== this.oldFormsJson) {
+      this.$confirm({
+        title: 'Alert',
+        okText: 'Save',
+        cancelText: 'No',
+        content: 'Do you want to save the changes?',
+        onOk: () => {
+          this.handleSaveEvaluation()
+          setTimeout(() => {
+            next()
+          }, 500)
+        },
+        onCancel() {
+          next()
+        }
+      })
+    } else {
+      next()
+    }
+  },
   data () {
     return {
       loading: true,
@@ -287,6 +311,7 @@ export default {
         forms: [],
         status: 0
       },
+      oldFormsJson: null,
       forms: [], // 评估表格数据
 
       selectedGroupIdList: [],
@@ -302,14 +327,15 @@ export default {
       selectRubricVisible: false,
       newFormType: EvaluationTableType.CenturySkills,
       rubricType: 'create',
-      newTableName: '',
+      newTableName: '21st Century Skills',
 
       currentEditingTitle: null,
       currentFormItem: null,
       formTableMode: null,
 
       saving: false,
-      publishing: false
+      publishing: false,
+      initCompleted: false
     }
   },
   created () {
@@ -349,6 +375,8 @@ export default {
           this.currentActiveFormId = this.forms[0].formId
         }
         this.loading = false
+        this.oldFormsJson = JSON.stringify(this.forms)
+        this.initCompleted = true
       })
     },
 
@@ -388,7 +416,7 @@ export default {
     handleAddFormTable () {
       this.$logger.info('handleAddFormTable')
       const count = this.forms.length + 1
-      this.newTableName = 'Rubric one ' + count
+      this.newTableName = 'Rubric ' + count
       this.newFormType = EvaluationTableType.Rubric
       this.selectRubricVisible = true
     },
@@ -557,50 +585,65 @@ export default {
     },
     handleSaveEvaluation () {
       this.$logger.info('handleSaveEvaluation', this.forms)
-      this.$refs.commonFormHeader.saving = true
+      if (this.$refs.commonFormHeader) {
+        this.$refs.commonFormHeader.saving = true
+      }
 
       // 获取所有的表格结构（表头+表内容）
       const formDataList = []
-      this.$refs.evaluationTable.forEach(tableItem => {
-        const tableData = tableItem.getTableStructData()
-        this.forms.forEach(formItem => {
-          if (formItem.formId === tableData.formId) {
-            const formData = {
-              id: formItem.id,
-              formId: formItem.formId,
-              formType: formItem.formType,
-              title: formItem.title,
-              initRawHeaders: JSON.stringify(tableData.headers),
-              initRawData: JSON.stringify(tableData.list),
-              pe: formItem.pe,
-              se: formItem.se
+      if (this.$refs.evaluationTable) {
+        this.$refs.evaluationTable.forEach(tableItem => {
+          const tableData = tableItem.getTableStructData()
+          this.forms.forEach(formItem => {
+            if (formItem.formId === tableData.formId) {
+              const formData = {
+                id: formItem.id,
+                formId: formItem.formId,
+                formType: formItem.formType,
+                title: formItem.title,
+                initRawHeaders: JSON.stringify(tableData.headers),
+                initRawData: JSON.stringify(tableData.list),
+                pe: formItem.pe,
+                se: formItem.se
+              }
+              formDataList.push(formData)
             }
-            formDataList.push(formData)
-          }
+          })
         })
-      })
-      this.$logger.info('formDataList', formDataList)
-      this.form.forms = formDataList
-      if (formDataList.length === 0) {
-        this.$message.error('Please add at least one form!')
-        this.$refs.commonFormHeader.saving = false
-        return false
+        this.$logger.info('formDataList', formDataList)
+        this.form.forms = formDataList
+        if (formDataList.length === 0) {
+          this.$message.error('Please add at least one form!')
+          if (this.$refs.commonFormHeader) {
+            this.$refs.commonFormHeader.saving = false
+          }
+          return false
+        } else {
+          EvaluationAddOrUpdate(this.form).then((response) => {
+            this.$logger.info('EvaluationAddOrUpdate', response)
+            if (this.$refs.commonFormHeader) {
+              this.$refs.commonFormHeader.saving = false
+            }
+            if (response.success) {
+              this.$message.success('Save successfully!')
+              this.initCompleted = false
+              this.goBack()
+            } else {
+              this.$message.error(response.message)
+            }
+          })
+        }
       } else {
-        EvaluationAddOrUpdate(this.form).then((response) => {
-          this.$logger.info('EvaluationAddOrUpdate', response)
+        if (this.$refs.commonFormHeader) {
           this.$refs.commonFormHeader.saving = false
-          if (response.success) {
-            this.$message.success('Save successfully!')
-            this.goBack()
-          } else {
-            this.$message.error(response.message)
-          }
-        })
+        }
       }
     },
     handlePublishEvaluation (status) {
       this.$logger.info('handleSaveEvaluation status ' + status, this.forms)
-      this.$refs.commonFormHeader.publishing = true
+      if (this.$refs.commonFormHeader) {
+        this.$refs.commonFormHeader.publishing = true
+      }
 
       // 获取所有的表格结构（表头+表内容）
       const formDataList = []
@@ -627,7 +670,9 @@ export default {
       this.form.status = status
       if (formDataList.length === 0) {
         this.$message.error('Please add at least one form!')
-        this.$refs.commonFormHeader.publishing = false
+        if (this.$refs.commonFormHeader) {
+          this.$refs.commonFormHeader.publishing = false
+        }
         return false
       } else {
         EvaluationAddOrUpdate(this.form).then((response) => {
@@ -637,7 +682,9 @@ export default {
           } else {
             this.$message.success('Unpublish successfully')
           }
-          this.$refs.commonFormHeader.publishing = false
+          if (this.$refs.commonFormHeader) {
+            this.$refs.commonFormHeader.publishing = false
+          }
         })
       }
     },
@@ -691,11 +738,21 @@ export default {
     },
     handleToggleFormType (formType) {
       this.newFormType = formType
+      if (formType === EvaluationTableType.Rubric) {
+        this.newTableName = 'Rubric ' + (this.forms.length + 1)
+      } else if (formType === EvaluationTableType.Rubric_2) {
+        this.newTableName = 'Rubric ' + (this.forms.length + 1)
+      } else if (formType === EvaluationTableType.CenturySkills) {
+        this.newTableName = '21st Century Skills ' + (this.forms.length + 1)
+      }
+      this.$logger.info('newTableName', this.newTableName)
     },
     handleUpdateHeader (header) {
       this.$logger.info('AddEvaluation handleUpdateHeader')
       this.$refs.evaluationTable.forEach(tableItem => { tableItem.handleUpdateHeader() })
-      this.$refs.commonFormHeader.handleEnsureNewFormName()
+      if (this.$refs.commonFormHeader) {
+        this.$refs.commonFormHeader.handleEnsureNewFormName()
+      }
     }
   }
 }
@@ -909,6 +966,7 @@ export default {
         }
 
         .form-table-detail {
+          margin-right: -30px;
           overflow-x: scroll;
         }
       }

@@ -8,7 +8,6 @@
 import storage from 'store'
 import { ACCESS_TOKEN } from '@/store/mutation-types'
 import {
-  SESSION_ACTIVE_KEY,
   SESSION_CURRENT_PAGE,
   SESSION_CURRENT_TYPE,
   SESSION_CURRENT_TYPE_LABEL
@@ -31,7 +30,6 @@ export default {
     }
     if (token) {
       storage.set(ACCESS_TOKEN, token)
-      window.sessionStorage.setItem(SESSION_ACTIVE_KEY, token)
     }
     // del cache
     sessionStorage.removeItem(SESSION_CURRENT_PAGE)

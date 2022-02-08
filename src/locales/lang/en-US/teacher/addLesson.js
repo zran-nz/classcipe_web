@@ -4,7 +4,7 @@ export default {
   'teacher.add-lesson.publish-success': 'Publish successfully',
   'teacher.add-lesson.save': 'Save',
   'teacher.add-lesson.save-success': 'Save successfully',
-  'teacher.add-lesson.last-change-saved-at-time': 'last change saved at {time}',
+  'teacher.add-lesson.last-change-saved-at-time': 'last saved at {time}',
   'teacher.add-lesson.default-lesson-name': 'Unnamed lesson',
   'teacher.add-lesson.lesson': 'Lesson',
   'teacher.add-lesson.material': 'Material',

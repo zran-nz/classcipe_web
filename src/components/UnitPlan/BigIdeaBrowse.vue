@@ -57,6 +57,7 @@
 
           <div class="select-item">
             <a-select
+              :getPopupContainer="trigger => trigger.parentElement"
               @change="QueryBigIdea"
               v-model="selectedConcept"
               mode="multiple"

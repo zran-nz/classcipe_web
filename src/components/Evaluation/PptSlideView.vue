@@ -1,6 +1,6 @@
 <template>
   <div class="ppt-slide-view">
-    <div class="go-session-detail">
+    <div class="go-session-detail" v-show='mode'>
       <a-button shape="round" type="primary" @click="handleEnsureEvidence">Finish adding</a-button>
     </div>
     <div class="student-profile" v-if="!loading">
@@ -16,7 +16,7 @@
     <div class="tips" v-if="!loading">
       <h3>Multiple choice</h3>
     </div>
-    <div class="slide-content-list" v-if="!loading">
+    <div class="slide-content-list" v-if="!loading" :style="{'height': mode ? 'calc(100vh - 200px)': '400px'}">
       <div
         :class="{
           'slide-comment-item': true,
@@ -444,6 +444,11 @@ export default {
       previewLoading: false
     }
   },
+  watch: {
+    studentName () {
+      this.loadData()
+    }
+  },
   computed: {
     studentScore () {
       let score = 0
@@ -463,8 +468,27 @@ export default {
     this.loadData()
   },
   methods: {
+    resetData () {
+      this.rawSlideDataMap.clear()
+      this.selectedSlidePageIdList = []
+      this.selectedStudentSlidePageIdList = []
+      this.slideDataList = []
+      this.elementsList = []
+      this.itemsList = []
+      this.currentPageElementLists = []
+      this.mediaList = []
+      this.materialVisible = false
+      this.mediaVisible = false
+      this.viewSlideItemVisible = false
+      this.previewItemVisible = false
+      this.previewLoading = false
+      this.filterMaterialType = null
+      this.previewItemUrl = null
+      this.currentViewSlideItem = null
+    },
     loadData () {
       this.loading = true
+      this.resetData()
       this.$logger.info('加载PPT数据 ' + this.classId + ' slideId ' + this.slideId + ' formId' + this.formId + ' rowId ' + this.rowId)
       Promise.all([
         TemplatesGetPresentation({ presentationId: this.slideId }),
@@ -720,7 +744,6 @@ export default {
   .slide-content-list {
     display: flex;
     flex-direction: column;
-    height: calc(100vh - 200px);
     border: 1px solid #F3F3F3;
     overflow-y: scroll;
     box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.16);
@@ -1185,9 +1208,8 @@ export default {
 }
 
 .loading {
-  width: 100%;
-  height: 300px;
   display: flex;
+  height: 300px;
   align-items: center;
   justify-content: center;
 }

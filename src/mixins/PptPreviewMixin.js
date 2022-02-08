@@ -37,7 +37,7 @@ export const PptPreviewMixin = {
 
   },
   computed: {
-    currentPageElements () {
+      currentPageElements () {
       const showMenuList = []
       if (this.thumbnailList.length === 0) {
         return showMenuList
@@ -129,7 +129,10 @@ export const PptPreviewMixin = {
   methods: {
     getClassInfo (slideId) {
       this.loadingClass = true
-      QueryByClassInfoSlideId({ slideId: slideId }).then(response => {
+      const pageIds = this.thumbnailList.map((page) => {
+        return page.id
+      })
+      QueryByClassInfoSlideId({ slideId: slideId, pageIds: pageIds }).then(response => {
         // QueryByClassInfoSlideId({ slideId: '1X9fE0m4j4Ey5BvSxof_a0bVxTDNaDfadJTlhkXmyikk' }).then(response => {
         this.$logger.info('QueryByClassInfoSlideId ', response)
         if (response.success) {

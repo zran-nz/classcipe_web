@@ -8,16 +8,15 @@
     <div class="steps-content">
       <div class="role" v-if="currentStep === 0">
         <div>
-          <div><img src="~@/assets/logo/logo2.png" class="logo" /></div>
-          <div><img src="~@/assets/logo/Lasscipe-dark.png" class="name" /></div>
+          <!-- <div><img src="~@/assets/logo/logo2.png" class="logo" /></div>
+          <div><img src="~@/assets/logo/Lasscipe-dark.png" class="name" /></div> -->
           <div class="desc">Choose your role to enter</div>
         </div>
         <div class="role-item" :class="{ selected: selectedRole === 2 }" @click="handleSelectRole(2)">
           <div class="role-info">
-            <img src="~@/assets/icons/role/teacher@2x.png" class="role-img" />
+            <img src="~@/assets/icons/role/teacher.png" class="role-img" />
             <div>
-              <div class="role-name">I am a teacher</div>
-              <div class="role-desc">Teacher/Expert/Admin</div>
+              <div class="role-name">I am an educator</div>
             </div>
           </div>
           <div class="arrow">
@@ -26,9 +25,9 @@
         </div>
         <div class="role-item" :class="{ selected: selectedRole === 4 }" @click="handleSelectRole(4)">
           <div class="role-info">
-            <img src="~@/assets/icons/role/student@2x.png" class="role-img" />
+            <img src="~@/assets/icons/role/student.png" class="role-img" />
             <div>
-              <div class="role-name">I am a Student</div>
+              <div class="role-name">I am a student</div>
             </div>
           </div>
           <div class="arrow">
@@ -37,99 +36,148 @@
         </div>
       </div>
       <div class="register" v-if="currentStep === 1">
-        <div>
-          <div><img src="~@/assets/logo/logo2.png" class="logo" /></div>
-          <div><img src="~@/assets/logo/Lasscipe-dark.png" class="name" /></div>
-          <div class="desc">Sign Up</div>
-          <div class="desc2">
-            Already have an account? | <span><router-link :to="{ path: '/user/login' }">Sign In</router-link></span>
+        <!-- 老师注册 -->
+        <div v-if="selectedRole === 2">
+          <div>
+            <!-- <div><img src="~@/assets/logo/logo2.png" class="logo" /></div>
+            <div><img src="~@/assets/logo/Lasscipe-dark.png" class="name" /></div> -->
+            <div class="desc">Sign Up</div>
+            <div class="desc2">Sign Up to Classcipe using your Google account</div>
+            <div class="desc2">
+              Already have an account? |
+              <span><router-link :to="{ path: teacherLoginPath }">Sign In</router-link></span>
+            </div>
+          </div>
+          <div class="third-login-wrapper">
+            <third-login-button
+              icon="googleIcon"
+              :label="$t('user.login.SignUpWithGoogle')"
+              @click.native="thirdSignIn('google', 'teacher')"
+              :disabled="this.disabled"
+            />
+          </div>
+          <div class="info">
+            <a-checkbox @change="handleChange">
+              I agree to Classcipe's
+              <span><a href="https://www.classcipe.com/term.html" target="_blank">Terms of service</a></span>
+              and
+              <span><a href="https://www.classcipe.com/policy.html" target="_blank">Privacy Policy</a></span>
+            </a-checkbox>
           </div>
         </div>
-        <a-form :form="form" class="register-form" @submit="handleSubmit">
-          <a-form-item class="form-name">
-            <a-input
-              size="large"
-              type="text"
-              :placeholder="$t('user.register.name.placeholder')"
-              v-decorator="[
-                'name',
-                {
-                  rules: [
-                    {
-                      required: true,
-                      message: $t('user.register.name.required'),
-                    },
-                  ],
-                  validateTrigger: ['change', 'blur'],
-                },
-              ]"
-            ></a-input>
-          </a-form-item>
+        <!-- 学生注册 -->
+        <div v-if="selectedRole === 4">
+          <div>
+            <!-- <div><img src="~@/assets/logo/logo2.png" class="logo" /></div>
+            <div><img src="~@/assets/logo/Lasscipe-dark.png" class="name" /></div> -->
+            <div class="desc">Sign Up</div>
+            <div class="desc2">
+              Already have an account? |
+              <span><router-link :to="{ path: studentLoginPath }">Sign In</router-link></span>
+            </div>
+          </div>
+          <a-form :form="form" class="register-form" @submit="handleSubmit">
+            <a-form-item class="form-name">
+              <a-input
+                size="large"
+                type="text"
+                :placeholder="$t('user.register.name.placeholder')"
+                v-decorator="[
+                  'name',
+                  {
+                    rules: [
+                      {
+                        required: true,
+                        message: $t('user.register.name.required'),
+                      },
+                    ],
+                    validateTrigger: ['change', 'blur'],
+                  },
+                ]"
+              ></a-input>
+            </a-form-item>
 
-          <a-form-item class="form-email">
-            <a-input
-              size="large"
-              type="text"
-              :placeholder="$t('user.register.email.placeholder')"
-              v-decorator="[
-                'email',
-                {
-                  rules: [
-                    //{
-                    //required: true,
-                    //type: 'email',
-                    //message: $t('user.email.required'),
-                    //},
-                    {
-                      validator: handleEmail,
-                    },
-                  ],
-                  validateTrigger: ['change', 'blur'],
-                },
-              ]"
-            ></a-input>
-          </a-form-item>
+            <a-form-item class="form-email">
+              <a-input
+                size="large"
+                type="text"
+                :placeholder="$t('user.register.email.placeholder')"
+                v-decorator="[
+                  'email',
+                  {
+                    rules: [
+                      {
+                        required: true,
+                        type: 'email',
+                        message: $t('user.email.required'),
+                      },
+                    ],
+                    validateTrigger: ['change', 'blur'],
+                  },
+                ]"
+              ></a-input>
+            </a-form-item>
 
-          <a-form-item class="form-password">
-            <a-input-password
-              size="large"
-              :placeholder="$t('user.register.password.placeholder')"
-              v-decorator="[
-                'password',
-                {
-                  rules: [
-                    { required: true, message: $t('user.password.required') },
-                    {
-                      validator: handlePassword,
-                    },
-                  ],
-                  validateTrigger: ['change', 'blur'],
-                },
-              ]"
-            ></a-input-password>
-          </a-form-item>
+            <a-form-item class="form-password">
+              <a-input-password
+                size="large"
+                :placeholder="$t('user.register.password.placeholder')"
+                v-decorator="[
+                  'password',
+                  {
+                    rules: [
+                      { required: true, message: $t('user.password.required') },
+                      {
+                        validator: handlePassword,
+                      },
+                    ],
+                    validateTrigger: ['change', 'blur'],
+                  },
+                ]"
+              ></a-input-password>
+            </a-form-item>
 
-          <!-- <div class="forget-password">
+            <!-- <div class="forget-password">
             <a-button type="link">Forget password</a-button>
           </div> -->
 
-          <a-form-item class="form-sumit">
-            <a-button type="primary" block :loading="loading" size="large" html-type="submit">Sign Up</a-button>
-          </a-form-item>
+            <a-form-item class="form-submit">
+              <a-button
+                type="primary"
+                :disabled="this.disabled"
+                block
+                :loading="loading"
+                size="large"
+                html-type="submit"
+              >
+                Sign Up
+              </a-button>
+            </a-form-item>
+          </a-form>
+
+          <div class="or">
+            <div class="line"></div>
+            <div class="text">OR</div>
+            <div class="line"></div>
+          </div>
 
           <div class="third-login-wrapper">
             <third-login-button
               icon="googleIcon"
-              :label="$t('user.login.loginWithGoogle')"
-              @click.native="thirdSignIn('google')"
+              :label="$t('user.login.SignUpWithGoogle')"
+              @click.native="thirdSignIn('google', 'student')"
+              :disabled="this.disabled"
             />
           </div>
-        </a-form>
-        <div class="info">
-          Sign in or sign up means you agree to Classcipe's
-          <span><a href="https://www.classcipe.com/term.html" target="_blank">Terms of service</a></span>
-          and
-          <span><a href="https://www.classcipe.com/policy.html" target="_blank">Privacy Policy</a></span>
+
+          <div class="info">
+            <a-checkbox @change="handleChange">
+              I agree to Classcipe's
+              <span><a href="https://www.classcipe.com/term.html" target="_blank">Terms of service</a></span>
+              and
+              <span><a href="https://www.classcipe.com/policy.html" target="_blank">Privacy Policy</a></span>
+            </a-checkbox>
+          </div>
         </div>
       </div>
     </div>
@@ -153,7 +201,20 @@ export default {
       loading: false,
       currentStep: 0,
       selectedRole: null,
-      form: this.$form.createForm(this)
+      form: this.$form.createForm(this),
+      loginPath: '/user/login',
+      teacherLoginPath: '/user/login?role=teacher',
+      studentLoginPath: '/user/login?role=student',
+      disabled: true
+    }
+  },
+  created() {
+    const paramSearch = new URLSearchParams(window.location.search)
+    const redirect = paramSearch.get('redirect')
+    if (redirect) {
+      this.loginPath = `/user/login?redirect=${redirect}`
+      this.teacherLoginPath = `/user/login?role=teacher&redirect=${redirect}`
+      this.studentLoginPath = `/user/login?role=student&redirect=${redirect}`
     }
   },
   computed: {},
@@ -168,12 +229,21 @@ export default {
     },
     handleSelectRole(role) {
       this.selectedRole = role
+      this.disabled = true
       this.next()
     },
-    thirdSignIn(source) {
+    handleChange(e) {
+      if (e.target.checked) {
+        this.disabled = false
+      } else {
+        this.disabled = true
+      }
+    },
+    thirdSignIn(source, role) {
       console.log('thirdSignIn', source)
       let url = getThirdAuthURL(source)
-      url += '?callbackUrl='
+      url += `?role=${role}`
+      url += `&callbackUrl=`
       url += thirdAuthCallbackUrl
       console.log('full auth url ', url)
       window.location.href = url
@@ -189,12 +259,13 @@ export default {
         if (!err) {
           this.loading = true
           console.log('signup submit', values)
-          SignUp({
+          const signUpParams = {
             nickname: values.name,
             password: values.password,
             username: values.email,
             role: this.selectedRole
-          })
+          }
+          SignUp(signUpParams)
             .then(res => this.loginSuccess(res))
             .catch(err => this.requestFailed(err))
             .finally(() => {
@@ -234,7 +305,7 @@ export default {
           if (this.$store.getters.currentRole) {
             this.$router.push(this.$store.getters.defaultRouter)
           } else {
-            this.$router.push({ path: '/user/login' })
+            this.$router.push({ path: this.loginPath })
           }
         })
         .catch(e => {
@@ -250,40 +321,40 @@ export default {
 <style lang="less">
 .user-register {
   .ant-form-item-children {
-    &::after {
-      position: absolute;
-      top: -40px;
-      left: 24px;
-      content: '';
-    }
+    // &::after {
+    //   position: absolute;
+    //   top: -40px;
+    //   left: 24px;
+    //   content: '';
+    // }
     input {
-      height: 80px;
-      border-radius: 12px;
-      padding: 30px 24px 0px;
+      height: 60px;
+      border-radius: 8px;
+      padding: 0px 12px 0px;
     }
   }
   .form-name {
     .ant-form-item-children {
-      &::after {
-        content: 'Name';
-      }
+      // &::after {
+      //   content: 'Name';
+      // }
     }
   }
   .form-email {
     .ant-form-item-children {
-      &::after {
-        content: 'Email';
-      }
+      // &::after {
+      //   content: 'Email';
+      // }
     }
   }
   .form-password {
     .ant-form-item-children {
-      &::after {
-        content: 'Password';
-      }
-      .ant-input-suffix {
-        top: 70%;
-      }
+      // &::after {
+      //   content: 'Password';
+      // }
+      // .ant-input-suffix {
+      //   top: 70%;
+      // }
     }
   }
 }
@@ -293,7 +364,7 @@ export default {
   width: 520px;
   min-width: 520px;
   margin: 0 auto;
-  border: 1px solid #d3d7ec;
+  border: 1px solid #e8e8e8;
   border-radius: 20px;
   padding: 0px 50px;
   background-color: #fff;
@@ -396,6 +467,9 @@ export default {
     .register {
       padding: 40px 0px 55px;
       text-align: center;
+      .register-form {
+        text-align: left;
+      }
       .logo {
         margin-bottom: 5px;
       }
@@ -403,8 +477,9 @@ export default {
         margin-bottom: 10px;
       }
       .desc {
-        margin-bottom: 5px;
-        font-size: 16px;
+        margin-top: 10px;
+        margin-bottom: 10px;
+        font-size: 24px;
         color: #000;
         font-family: FZCuYuan-M03S;
         font-weight: 800;
@@ -420,9 +495,27 @@ export default {
           bottom: 20px;
         }
       }
-      .form-sumit {
+      .form-submit {
+        margin-bottom: 0px;
         button {
           border-radius: 8px;
+        }
+      }
+      .or {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: center;
+        margin: 20px 0px;
+        .line {
+          border-top: 1px solid rgba(0, 0, 0, 0.08);
+          height: 1px;
+          width: 40px;
+        }
+        .text {
+          padding: 2px 16px;
+          border-radius: 20px;
+          border: 1px solid rgba(0, 0, 0, 0.08);
         }
       }
       .third-login-wrapper {

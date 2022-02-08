@@ -1,6 +1,6 @@
 <template>
   <div class="collaborate-comment-panel">
-    <div class="add-comment-wrapper">
+    <div class="add-comment-wrapper" style="box-shadow: 0px 3px 6px rgb(0 0 0 / 16%)" v-if="rawCommentList.length === 0">
       <div class="comment-user-info">
         <div class="avatar">
           <img :src="$store.getters.avatar" />
@@ -11,17 +11,67 @@
       </div>
       <div class="comment-input-wrapper">
         <div class="input">
-          <input-with-button @send="handleSend" />
+          <input-with-button :collaborate-user-list="collaborateUserList" @cancelComment="cancelComment" @comment="handleComment" :sending="commentSending" />
         </div>
       </div>
     </div>
-    <div class="comment-record-wrapper">
-      <div class="record-list" v-for="(commentItem, cIndex) in formatCommentList" :key="cIndex">
+
+    <div class="comment-record-wrapper" style="box-shadow: 0px 3px 6px rgb(0 0 0 / 16%)" v-if="rawCommentList.length > 0">
+      <div class='delete-thread-mask' v-if="deleteThread">
+        <div class="delete-group">
+          <div style="color: #fff;margin: 5px;">
+            Delete this comment Thread?
+          </div>
+          <div class="delete-group-button">
+            <div class='upload-text'>
+              <a-button shape='round' type='primary' @click="handleDeleteComment(rawCommentList[0])">Delete</a-button>
+            </div>
+            <div class='upload-text'>
+              <a-button shape='round' @click="deleteThread = false">Cancel</a-button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="record-list" v-for="(commentItem, cIndex) in rawCommentList" :key="cIndex">
+        <div class='delete-mask' v-if="commentItem.delete">
+          <div class="delete-group">
+            <div style="color: #fff;margin: 5px;">
+              Delete this comment?
+            </div>
+            <div class="delete-group-button">
+              <div class='upload-text'>
+                <a-button shape='round' type='primary' @click="handleDeleteComment(commentItem,cIndex)" >Delete</a-button>
+              </div>
+              <div class='upload-text'>
+                <a-button shape='round' @click="handleDeleteCommentConfirm(commentItem,cIndex,false)" >Cancel</a-button>
+              </div>
+            </div>
+          </div>
+        </div>
         <div class="record-item">
-          <template v-if="!commentItem.isDelete">
+          <template>
             <div class="record-action" v-show="commentItem.username === $store.getters.userInfo.username">
-              <div class="record-delete" @click="handleDeleteComment(commentItem)">
-                <delete-icon />
+              <div style="margin-right: 20px;font-size: 18px;margin-top: 8px;" v-if="cIndex === 0" @click="handleMarked(commentItem,cIndex)">
+                <a-tooltip placement="bottom" title="Marked as resolved and hide this discussion">
+                  <a-icon type="check" />
+                </a-tooltip>
+              </div>
+              <div>
+                <a-dropdown>
+                  <a-icon type="more" style="font-size: 20px;margin-top: 10px;" />
+                  <a-menu slot="overlay">
+                    <a-menu-item>
+                      <a @click="handleDeleteCommentConfirm(commentItem,cIndex,true)">
+                        <a-icon type="delete" theme="filled" /> Delete
+                      </a>
+                    </a-menu-item>
+                    <a-menu-item>
+                      <a @click="handleEditComment(commentItem,cIndex)">
+                        <a-icon type="edit" theme="filled" /> Edit
+                      </a>
+                    </a-menu-item>
+                  </a-menu>
+                </a-dropdown>
               </div>
             </div>
             <div class="comment-user-info">
@@ -30,101 +80,54 @@
               </div>
               <div class="user-name">
                 <div class="name-text"> {{ commentItem.username }}</div>
-                <div class="time-text"> {{ commentItem.createdTime | dayjs }}</div>
+                <div class="time-text"> {{ commentItem.createdTime | dayComment }}</div>
               </div>
             </div>
-            <div class="comment-detail">
+            <div class="comment-detail" v-if="!commentItem.editing">
               <div class="comment-text">
                 {{ commentItem.content }}
               </div>
             </div>
-            <div class="comment-input-wrapper">
+            <div class="comment-input-wrapper" v-if="commentItem.editing">
               <div class="input">
-                <input-with-button @send="handleSend" :reply-mode="true" :reply-username="commentItem.username" :extra="commentItem"/>
-              </div>
-            </div>
-            <div class="sub-comment-list-wrapper">
-              <div class="record-list" v-for="(subCommentItem, scIndex) in commentItem.subCommentList" :key="scIndex">
-                <template v-if="!subCommentItem.isDelete">
-                  <div class="record-item">
-                    <div class="record-action" v-show="subCommentItem.userId === $store.getters.userInfo.id">
-                      <div class="record-delete" @click="handleDeleteComment(subCommentItem)">
-                        <delete-icon />
-                      </div>
-                    </div>
-                    <div class="comment-user-info">
-                      <div class="avatar">
-                        <img :src="commentItem.avatar" />
-                      </div>
-                      <div class="user-name">
-                        <div class="name-text"> {{ subCommentItem.username }}</div>
-                        <div class="time-text"> {{ subCommentItem.createdTime | dayjs }}</div>
-                      </div>
-                    </div>
-                    <div class="comment-detail">
-                      <div class="comment-text">
-                        {{ subCommentItem.content }}
-                      </div>
-                    </div>
-                    <div class="comment-input-wrapper">
-                      <div class="input">
-                        <input-with-button @send="handleSend" :reply-mode="true" :reply-username="subCommentItem.username" :extra="subCommentItem"/>
-                      </div>
-                    </div>
-                  </div>
-                </template>
-                <template v-if="subCommentItem.isDelete">
-                  <div class="sub-deleted-comment">
-                    <div class="sub-deleted-tips">
-                      The comment has been deleted.
-                    </div>
-                  </div>
-                </template>
+                <input-reply-button :collaborate-user-list="collaborateUserList" @send="handleSend" :comment-item="commentItem" @cancel="handleCancel"/>
               </div>
             </div>
           </template>
-          <template v-if="commentItem.isDelete">
-            <div class="deleted-comment">
-              <div class="deleted-tips">
-                The comment has been deleted.
-              </div>
-            </div>
-          </template>
+        </div>
+      </div>
+      <div class="comment-input-wrapper" style="margin-top:10px">
+        <div class="input">
+          <input-reply-button
+            :collaborate-user-list="collaborateUserList"
+            @send="handleSend"
+            :reply-mode="true"
+            @cancel="handleCancelNewComment"
+            :comment-item="newComment"
+            @focusInput="handleFocusInput"/>
         </div>
       </div>
     </div>
-    <a-modal
-      v-model="deleteCommentModalVisible"
-      :footer="null"
-      destroyOnClose
-      title="Delete comment">
-      <div class="ensure-delete-modal">
-        <div class="tips">
-          Your comments have been replied by other ,which cannot be revoked after deletion.
-        </div>
-        <div class="modal-ensure-action-line-center">
-          <a-button class="action-item action-cancel" shape="round" @click="handleCancelDelete">Cancel</a-button>
-          <a-button class="action-ensure action-item" type="primary" shape="round" @click="handleEnsureDelete">Confirm</a-button>
-        </div>
-      </div>
-    </a-modal>
   </div>
 </template>
 
 <script>
 
-import deleteIcon from '@/assets/icons/collaborate/delete.svg?inline'
-import InputWithButton from '@/components/Collaborate/InputWithButton'
-import { DeleteCollaborateCommentById, AddCollaborateComment } from '@/api/collaborate'
+import { CollaborateCommentMixin } from '@/mixins/CollaborateCommentMixin'
+import { AddCollaborateComment, DeleteCollaborateCommentById, MarkedCollaborateComment } from '@/api/collaborate'
 
 export default {
   name: 'CollaborateCommentPanel',
   components: {
-    InputWithButton,
-    deleteIcon
+
   },
+  mixins: [CollaborateCommentMixin],
   props: {
     commentList: {
+      type: Array,
+      default: () => []
+    },
+    collaborateUserList: {
       type: Array,
       default: () => []
     },
@@ -143,119 +146,119 @@ export default {
   },
   data () {
     return {
-      rawCommentList: [],
-      formatCommentList: [],
-
-      deleteCommentModalVisible: false,
-      currentDeleteComment: null
+      newComment: {
+        editing: false,
+        content: '',
+        sendLoading: false
+      }
     }
   },
   watch: {
     commentList (value) {
-      this.$logger.info('commentList update ', value)
-      this.rawCommentList = value
-      this.formatComment()
+      this.$logger.info('collaborateUserList ', this.collaborateUserList)
+      this.rawCommentList = []
+      value.forEach(item => {
+        item.sendLoading = false
+        if (!item.isDelete) {
+          this.rawCommentList.push(item)
+        }
+      })
     }
   },
   created () {
     this.$logger.info('CollaborateCommentPanel commentList', this.commentList)
-    this.rawCommentList = this.commentList
-    this.formatComment()
+    this.rawCommentList = []
+    this.commentList.forEach(item => {
+      item.sendLoading = false
+      if (!item.isDelete) {
+        this.rawCommentList.push(item)
+      }
+    })
   },
   methods: {
-    /**
-     * 格式化处理回复数据
-     * 按rootCommentId进行分组，为空的代表是一个评论组，
-     * 然后把下面的子评论(rootCommentId相同即为一组)追加到
-     * subCommentList数组中，按时间排序展示
-     */
-    formatComment () {
-        // 过滤rootComment
-      this.formatCommentList = []
-      const rootCommentMap = new Map()
-      this.rawCommentList.forEach(item => {
-        const dataItem = Object.assign({}, item)
-        if (!dataItem.rootCommentId) {
-          dataItem.subCommentList = []
-          rootCommentMap.set(dataItem.id, dataItem)
-        }
-      })
-      // 追加下面的子讨论列表,按时间排序展示
-      this.rawCommentList.forEach(item => {
-        if (item.rootCommentId) {
-          if (rootCommentMap.has(item.rootCommentId)) {
-            const rootComment = rootCommentMap.get(item.rootCommentId)
-            rootComment.subCommentList.push(item)
-            rootComment.subCommentList = rootComment.subCommentList.sort((i, j) => i.createdTime < j.createdTime)
-          } else {
-            this.$logger.info('no exit rootCommentId ' + item.rootCommentId, rootCommentMap)
-          }
-        }
-      })
-      // map转为数组
-      for (const [rootCommentId, rootComment] of rootCommentMap.entries()) {
-        this.$logger.info('rootCommentId ' + rootCommentId, rootComment)
-        this.formatCommentList.push(rootComment)
-      }
-      this.$logger.info('formatCommentList', this.formatCommentList)
-    },
-
-    // TODO 评论提交逻辑
-    /**
-     * 1、评论分两种一种是新建，一种是回复。根据rootCommentId是否为null判断，如果当前
-     * 是新增的评论那么rootCommentId为null，如果是回复他人的commentToId、rootCommentId
-     * 不为空，且下面所有的回复的rootCommentId都相同，代表在一个评论下面的追加回复。
-     * 2、如果有isDelete为true那么显示【该评论已被删除】,不展示数据。
-     * 3、后台数据过来后按照rootCommentId为null的数据分组，然后把其他数据追加到各个分组下面，
-     * 参考formatComment()逻辑
-     * @param data
-     */
-    handleSend (data) {
-      if (!data.inputValue) {
-        return
-      }
+    handleSend (comment) {
       if (this.fieldName) {
-        data.fieldName = this.fieldName
+        comment.fieldName = this.fieldName
       }
-      data.sourceId = this.sourceId
-      data.sourceType = this.sourceType
-      this.$logger.info('handleSend', data)
-      if (!data) {
-        this.$message.warn('Please enter some comments!')
+      const index = this.rawCommentList.findIndex(item => item.id === comment.id)
+      comment.sourceId = this.sourceId
+      comment.sourceType = this.sourceType
+      let isAdd = false
+      comment.sendLoading = true
+      this.$set(this.rawCommentList, index, comment)
+      if (!comment.id) {
+        // 新增
+        isAdd = true
+        this.newComment.sendLoading = true
+        if (this.rawCommentList.length > 0) {
+          comment.commentToId = this.rawCommentList[0].id
+        }
+      }
+      this.$logger.info('handleSend', comment)
+      AddCollaborateComment(comment).then(response => {
+        // 减少load时间
+        if (isAdd) {
+          this.rawCommentList.push(response.result)
+          this.newComment = { sendLoading: false }
+        }
+      }).finally(() => {
+        comment.sendLoading = false
+        comment.editing = false
+        this.$set(this.rawCommentList, index, comment)
+      })
+    },
+    handleDeleteCommentConfirm (comment, index, isDelete) {
+      this.$logger.info('handleDeleteCommentConfirm', comment)
+      if (comment.commentToId) {
+        comment.delete = isDelete
+        this.$set(this.rawCommentList, index, comment)
       } else {
-        AddCollaborateComment(data).then(response => {
-          this.$emit('update-comment')
-        })
+        this.deleteThread = isDelete
       }
     },
-
     // TODO 删除逻辑
-    handleDeleteComment (comment) {
+    handleDeleteComment (comment, index) {
       this.$logger.info('handleDeleteComment', comment)
-      this.currentDeleteComment = null
-      if (comment.hasOwnProperty('subCommentList')) {
-        this.deleteCommentModalVisible = true
-        this.currentDeleteComment = comment
-      } else {
-        // 非根评论，直接删除
-        DeleteCollaborateCommentById(comment).then(response => {
+      DeleteCollaborateCommentById(comment).then(response => {
+        // 直接删除
+        if (comment.commentToId) {
+          this.rawCommentList.splice(index, 1)
+        } else {
+          // 整个删除
           this.$emit('update-comment')
-        })
+        }
+      })
+    },
+    handleFocusInput(comment) {
+      this.$logger.info('handleFocusInput')
+      comment.editing = true
+      var index = this.rawCommentList.findIndex(item => item.id === comment.id)
+      if (index !== -1) {
+        this.$set(this.rawCommentList, index, comment)
       }
     },
-
-    handleCancelDelete () {
-      this.$logger.info('handleCancelDelete')
-      this.deleteCommentModalVisible = false
-      this.currentDeleteComment = null
+    handleCancelNewComment (comment) {
+      this.newComment = { editing: false }
     },
-
-    handleEnsureDelete () {
-      this.$logger.info('')
-      this.deleteCommentModalVisible = false
-      DeleteCollaborateCommentById(this.currentDeleteComment).then(response => {
+    handleEditComment (comment, index) {
+      this.$logger.info('handleEditComment', comment)
+      comment.editing = !comment.editing
+      this.$set(this.rawCommentList, index, comment)
+    },
+    handleMarked(comment, cIndex) {
+      this.$logger.info('handleMarked', comment)
+      this.rawCommentList.splice(cIndex, 1)
+      const childIds = this.rawCommentList.filter(item => item.commentToId === comment.id).map(item => {
+        return item.id
+      })
+      childIds.forEach(id => {
+        const index = this.rawCommentList.findIndex(item => item.id === id)
+        this.rawCommentList.splice(index, 1)
+      })
+      MarkedCollaborateComment(comment).then(response => {
         this.$emit('update-comment')
-        this.currentDeleteComment = null
+      }).finally(() => {
+        this.cancelComment()
       })
     }
   }
@@ -267,135 +270,135 @@ export default {
 
 .collaborate-comment-panel {
   background-color: #fff;
-  box-shadow: 0px 6px 10px rgba(159, 159, 159, 0.16);
   padding: 20px;
   z-index: 100;
-  .add-comment-wrapper {
-    padding: 20px 15px;
-    border-radius: 5px;
-    background: rgba(245, 245, 245, 0.5);
-    border: 1px solid #15C39A;
-    .comment-user-info {
-      display: flex;
-      flex-direction: row;
-      justify-content: flex-start;
-      align-items: center;
+}
+.add-comment-wrapper {
+  padding: 20px 15px;
+  border-radius: 5px;
+  background: rgba(245, 245, 245, 0.5);
+  box-shadow: 0px 3px 6px rgb(0 0 0 / 16%);
+  background: #FFFFFF;
+  border: 1px solid #E8E8E8;
+  border-radius: 4px;
+  .comment-user-info {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: center;
 
-      .avatar {
-        img {
-          width: 35px;
-          border-radius: 50%;
-        }
-      }
-
-      .user-name {
-        padding-left: 10px;
-        font-size: 18px;
-        font-family: Inter-Bold;
-        line-height: 24px;
-        color: #474747;
+    .avatar {
+      img {
+        width: 35px;
+        border-radius: 50%;
       }
     }
 
-    .comment-input-wrapper {
-      margin-top: 5px;
-      .input {
-        padding-left: 20px;
-      }
+    .user-name {
+      padding-left: 10px;
+      font-size: 18px;
+      font-family: Inter-Bold;
+      line-height: 24px;
+      color: #474747;
     }
   }
 
-  .comment-record-wrapper {
+  .comment-input-wrapper {
     margin-top: 10px;
-    background: rgba(245, 245, 245, 0.5);
-    padding: 20px 15px;
-    border-radius: 5px;
-    max-height: 1000px;
-    overflow-y: auto;
+    .input {
+      //padding-left: 20px;
+    }
+  }
+}
 
-    .record-list {
-      margin-top: 10px;
-      .record-item {
-        margin-bottom: 10px;
-        position: relative;
-        .record-action {
-          position: absolute;
-          cursor: pointer;
-          top: 0;
-          right: 0;
+.comment-record-wrapper {
+  margin-top: 10px;
+  padding: 20px 15px;
+  border: 1px solid #E8E8E8;
+  max-height: 1000px;
+  overflow-y: auto;
+  box-shadow: 0px 3px 6px rgb(0 0 0 / 16%);
+  background: #FFFFFF;
+  border: 1px solid #E8E8E8;
+  border-radius: 4px;
+  position:relative;
 
-          .record-delete {
-            svg {
-              width: 25px;
-            }
+  .record-list {
+    position:relative;
+    margin-top: 10px;
+    border-bottom: 1px solid #D8D8D8;
+    .record-item {
+      margin-bottom: 10px;
+      position: relative;
+      .record-action {
+        position: absolute;
+        cursor: pointer;
+        top: 0;
+        right: 0;
+        display: flex;
+        align-items: center;
+
+        .record-delete {
+          svg {
+            width: 25px;
+          }
+        }
+      }
+
+      .comment-user-info {
+        display: flex;
+        flex-direction: row;
+        justify-content: flex-start;
+        align-items: center;
+
+        .avatar {
+          user-select: none;
+          img {
+            width: 35px;
+            border-radius: 50%;
           }
         }
 
-        .comment-user-info {
+        .user-name {
           display: flex;
-          flex-direction: row;
-          justify-content: flex-start;
-          align-items: center;
-
-          .avatar {
-            user-select: none;
-            img {
-              width: 35px;
-              border-radius: 50%;
-            }
-          }
-
-          .user-name {
-            display: flex;
-            flex-direction: column;
-            padding-left: 10px;
-            .name-text {
-              font-size: 14px;
-              font-family: Inter-Bold;
-              color: #474747;
-            }
-
-            .time-text {
-              font-size: 12px;
-              font-family: Inter-Bold;
-              color: #999;
-              line-height: 12px;
-            }
-
-          }
-        }
-
-        .comment-detail {
-          .comment-text {
-            padding: 10px 45px 5px  45px ;
+          flex-direction: column;
+          padding-left: 10px;
+          .name-text {
+            font-size: 14px;
+            font-family: Inter-Bold;
             color: #474747;
-            line-height: 20px;
           }
-        }
 
-        .comment-input-wrapper {
-          margin-top: 10px;
-          padding-left: 25px;
-          .input {
-            padding-left: 20px;
+          .time-text {
+            font-size: 12px;
+            font-family: Inter-Bold;
+            color: #999;
+            line-height: 12px;
           }
-        }
 
-        .sub-comment-list-wrapper {
-          padding-left: 45px;
-          .sub-deleted-comment {
-            .sub-deleted-tips {
-              padding: 10px;
-              border-radius: 5px;
-              background-color: #eee;
-              font-style: italic;
-              color: #999;
-            }
-          }
         }
+      }
 
-        .deleted-comment {
-          .deleted-tips {
+      .comment-detail {
+        .comment-text {
+          padding: 10px 45px 5px  45px ;
+          color: #474747;
+          line-height: 20px;
+        }
+      }
+
+      .comment-input-wrapper {
+        margin-top: 10px;
+        padding-left: 25px;
+        .input {
+          padding-left: 20px;
+        }
+      }
+
+      .sub-comment-list-wrapper {
+        padding-left: 45px;
+        .sub-deleted-comment {
+          .sub-deleted-tips {
             padding: 10px;
             border-radius: 5px;
             background-color: #eee;
@@ -404,24 +407,72 @@ export default {
           }
         }
       }
+
+      .deleted-comment {
+        .deleted-tips {
+          padding: 10px;
+          border-radius: 5px;
+          background-color: #eee;
+          font-style: italic;
+          color: #999;
+        }
+      }
+    }
+    .delete-mask{
+      cursor: pointer;
+      display: block;
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index:99;
+      background-color: rgba(0,0,0,0.7);
+      .delete-group{
+        display: flex;
+        flex-direction: column;
+        width: 200px;
+        text-align: center;
+        margin: 0 auto;
+        .delete-group-button{
+          display: flex;
+          width: 200px;
+          margin: 0 auto;
+          justify-content: space-evenly;
+        }
+        .upload-text {
+          text-align: center;
+        }
+      }
+    }
+  }
+  .delete-thread-mask{
+    cursor: pointer;
+    display: block;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index:99;
+    background-color: rgba(0,0,0,0.7);
+    .delete-group{
+      display: flex;
+      flex-direction: column;
+      width: 200px;
+      text-align: center;
+      margin: 0 auto;
+      .delete-group-button{
+        display: flex;
+        width: 200px;
+        margin: 0 auto;
+        justify-content: space-evenly;
+      }
+      .upload-text {
+        text-align: center;
+      }
     }
   }
 }
 
-.ensure-delete-modal {
-  padding: 20px;
-  .tips {
-    margin-bottom: 20px;
-    font-family: Inter-Bold;
-    font-size: 15px;
-    color: #474747;
-  }
-
-  .modal-ensure-action-line-center {
-    width: 40%;
-    display: flex;
-    justify-content: space-between;
-    margin: 20px auto;
-  }
-}
 </style>

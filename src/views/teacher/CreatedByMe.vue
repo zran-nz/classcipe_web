@@ -23,6 +23,17 @@
       </div>
 
       <div class="type-owner">
+        <div class="my-search">
+          <a-input-search
+            placeholder="Search"
+            v-model="searchText"
+            @search="triggerSearch"
+            @pressEnter="triggerSearch"
+            :allowClear="true"
+            size="large"
+          >
+          </a-input-search>
+        </div>
         <div class="filter-icon" @click="showFilter = !showFilter">
           <div class="filter-item">
             <filter-icon class="filter-icon" />
@@ -130,7 +141,7 @@
 
               <span class="content-info-right">
                 <span class="update-time" >
-                  {{ item.updateTime || item.createTime | dayjs }}
+                  {{ item.updateTime | dayjs }}
                 </span>
                 <span class="status">
                   <template v-if="item.status === 0">Draft</template>
@@ -174,9 +185,9 @@
                             <a-icon type="more" style="margin-right: 8px" />
                             <a-menu slot="overlay">
                               <a-menu-item>
-                                <a-popconfirm :title="$t('teacher.my-content.action-delete') + '?'" ok-text="Yes" @confirm="handleDeleteItem(item)" cancel-text="No">
+                                <a-popconfirm title="Archive ?" ok-text="Yes" @confirm="handleDeleteItem(item)" cancel-text="No">
                                   <a>
-                                    <a-icon type="delete" theme="filled" /> {{ $t('teacher.my-content.action-delete') }}
+                                    <a-icon type="delete" theme="filled" /> Archive
                                   </a>
                                 </a-popconfirm>
                               </a-menu-item>
@@ -209,6 +220,16 @@
                             </div>
                           </a-popconfirm>
                         </div>
+                        <div class="start-session-wrapper action-item-wrapper">
+                          <a-popconfirm :title="'Confirm permanent delete ' +(item.name ? item.name : 'Untitled')+ ' ?'" ok-text="Yes" @confirm="handlePermanentDeleteItem(item)" cancel-text="No">
+                            <div class="session-btn content-list-action-btn" >
+                              <div class="session-btn-icon">
+                                <a-icon type="delete" theme="filled" />
+                              </div>
+                              <div class="session-btn-text">Delete</div>
+                            </div>
+                          </a-popconfirm>
+                        </div>
                       </template>
                     </div>
                   </div>
@@ -233,9 +254,9 @@
                       <a-icon type="more" style="margin-right: 8px" class="more-icon" />
                       <a-menu slot="overlay">
                         <a-menu-item>
-                          <a-popconfirm :title="$t('teacher.my-content.action-delete') + '?'" ok-text="Yes" @confirm="handleDeleteItem(item)" cancel-text="No">
+                          <a-popconfirm title="Archive ?" ok-text="Yes" @confirm="handleDeleteItem(item)" cancel-text="No">
                             <a>
-                              <a-icon type="delete" theme="filled" /> {{ $t('teacher.my-content.action-delete') }}
+                              <a-icon type="delete" theme="filled" /> Archive
                             </a>
                           </a-popconfirm>
                         </a-menu-item>
@@ -294,11 +315,19 @@
                         <div class="session-btn-text">Restore</div>
                       </div>
                     </a-popconfirm>
+                    <a-popconfirm :title="'Confirm permanent delete ' +(item.name ? item.name : 'Untitled')+ ' ?'" ok-text="Yes" @confirm="handlePermanentDeleteItem(item)" cancel-text="No">
+                      <div class="session-btn">
+                        <div class="session-btn-icon content-list-action-btn">
+                          <a-icon type="delete" theme="filled" />
+                        </div>
+                        <div class="session-btn-text">Delete</div>
+                      </div>
+                    </a-popconfirm>
                   </div>
                 </div>
                 <div class="cover-img" :style="{backgroundImage: 'url(' + item.image + ')'}"></div>
 
-                <a-card-meta class="my-card-meta-info" :title="item.name ? item.name : 'Untitled'" :description="item.createTime | dayjs" @click="handleViewDetail(item)">
+                <a-card-meta class="my-card-meta-info" :title="item.name ? item.name : 'Untitled'" :description="item.updateTime | dayjs" @click="handleViewDetail(item)">
                   <content-type-icon :type="item.type" slot="avatar"></content-type-icon>
                 </a-card-meta>
 
@@ -339,7 +368,6 @@
         :title="null"
         :closable="false"
         destroyOnClose
-        :dialog-style="{ top: '30px' }"
         width="1100px">
         <modal-header title="Previous session" @close="viewPreviewSessionVisible = false" :white="true"/>
         <div class="preview-session-wrapper">
@@ -405,7 +433,7 @@
 
 <script>
 import * as logger from '@/utils/logger'
-import { ContentRestore, deleteMyContentByType, Duplicate, FindMyContent } from '@/api/teacher'
+import { ContentRestore, deleteMyContentByType, Duplicate, FindMyContent, PermanentDeleteMyContent } from '@/api/teacher'
 import { ownerMap, statusMap, typeMap } from '@/const/teacher'
 import ContentStatusIcon from '@/components/Teacher/ContentStatusIcon'
 import ContentTypeIcon from '@/components/Teacher/ContentTypeIcon'
@@ -544,15 +572,14 @@ export default {
       filterFaOptions: [],
       filterActivityOptions: [],
       showFilter: false,
-      filterParams: {}
+      filterParams: {},
+      lastedRevisionId: '',
+      searchText: ''
     }
   },
   locomputed: {
   },
   watch: {
-    '$route' (val) {
-      this.loadMyContent()
-    }
   },
   created () {
     logger.info('teacher my content')
@@ -574,7 +601,7 @@ export default {
         types: this.currentType === 'all-type' || this.currentType === 'Collabrated' ? [] : [typeMap[this.currentType]],
         pageNo: this.pageNo,
         pageSize: this.pagination.pageSize,
-        searchKey: this.$route.query.searchKey ? this.$route.query.searchKey : '',
+        searchKey: this.searchText ? this.searchText : '',
         delFlag: this.currentStatus === 'archived' ? 1 : 0
       }
       if (this.filterParams) {
@@ -601,9 +628,9 @@ export default {
       }).finally(() => {
         this.loading = false
         this.skeletonLoading = false
-        if (this.currentStatus !== 'archived') {
-          this.checkGoogleTokenExpired()
-        }
+        // if (this.currentStatus !== 'archived') {
+        //   this.checkGoogleTokenExpired()
+        // }
       })
     },
     toggleStatus (status, label) {
@@ -689,6 +716,14 @@ export default {
         this.loadMyContent()
       })
     },
+    handlePermanentDeleteItem (item) {
+      logger.info('handlePermanentDeleteItem', item)
+      PermanentDeleteMyContent({ sourceId: item.id, sourceType: item.type }).then(res => {
+        logger.info('handlePermanentDeleteItem', res)
+      }).then(() => {
+        this.loadMyContent()
+      })
+    },
     handleViewDetail (item) {
       logger.info('handleViewDetail', item)
       if (this.currentStatus === 'archived') {
@@ -721,10 +756,9 @@ export default {
         const requestData = {
           author: this.$store.getters.email,
           slide_id: item.presentationId,
-          copy_from: item.copyFromSlide,
-          revision_id: item.revisionId,
+          revision_id: this.lastedRevisionId ? this.lastedRevisionId : item.revisionId,
           file_name: item.name ? item.name : 'Unnamed',
-          status: this.sessionMode === 1 ? lessonStatus.live : lessonStatus.studentPaced,
+          status: this.sessionMode === 1 ? lessonStatus.teacherPaced : lessonStatus.studentPaced,
           redirect_url: null
         }
 
@@ -767,36 +801,6 @@ export default {
       }
     },
 
-    handleDashboard (item) {
-      this.$logger.info('handleDashboard', item)
-      if (item.presentationId) {
-        const requestData = {
-          author: this.$store.getters.email,
-          slide_id: item.presentationId,
-          file_name: item.name ? item.name : 'Unnamed',
-          status: lessonStatus.studentPaced,
-          redirect_url: null
-        }
-
-        this.$logger.info('handleDashboard', requestData)
-        StartLesson(requestData).then(res => {
-          this.$logger.info('StartLesson res', res)
-          if (res.code === 'ok') {
-            // const targetUrl = lessonHost + 'slide_id=' + item.presentationId + '&class_id=' + res.data.class_id + '&direct=true&currentPage=0&type=dashboard'
-            const targetUrl = lessonHost + 'd/' + res.data.class_id
-            this.$logger.info('try open ' + targetUrl)
-            // window.open(targetUrl, '_blank')
-            // 课堂那边需要点击返回回到表单，改成location.href跳转
-            window.location.href = targetUrl
-          } else {
-            this.$message.warn('StartLesson Failed! ' + res.message)
-          }
-        })
-      } else {
-        this.$message.warn('This record is not bound to PPT!')
-      }
-    },
-
     handleViewPreviewSession (item) {
       this.$logger.info('handleViewPreviewSession', item)
       this.currentPreviewLesson = item
@@ -820,7 +824,8 @@ export default {
       FindMyClasses({ slideId: item.presentationId, lastVersion: true }).then(response => {
         logger.info('findMyClasses', response.result.data)
         if (response.success) {
-          this.sessionList = response.result
+          this.sessionList = response.result.classList
+          this.lastedRevisionId = response.result.revisionId
         }
         this.loading = false
       }).finally(() => {
@@ -886,11 +891,7 @@ export default {
         }).then(response => {
           this.$logger.info('TemplatesGetPresentation response', response)
           if (response.message.indexOf('Google access_token Forbidden') > -1) {
-            this.$router.push({ path: '/user/login' })
-          } else if (!response.success && response.code === 403) {
-            // forbid情况也强制登录
-            this.$message.error('Task:' + this.myContentList[index].name +
-              ' presentationId: ' + this.myContentList[index].presentationId + ' has no permisson!')
+            // 更新task?
             this.$router.push({ path: '/user/login' })
           }
         })
@@ -899,31 +900,6 @@ export default {
     handleUpdateFilterConfig (filter) {
       // TODO 根据配置更新请求参数
       this.$logger.info('handleUpdateFilterConfig', filter)
-      // this.searchByFilter(filter)
-      filter.faTags = []
-      filter.saTags = []
-      filter.activityTags = []
-      filter.faTags.forEach(parent => {
-        parent.forEach(child => {
-          if (child) {
-            filter.fa.push(child)
-          }
-        })
-      })
-      filter.saTags.forEach(parent => {
-        parent.forEach(child => {
-          if (child) {
-            filter.sa.push(child)
-          }
-        })
-      })
-      filter.activityTags.forEach(parent => {
-        parent.forEach(child => {
-          if (child) {
-            filter.activity.push(child)
-          }
-        })
-      })
       this.filterParams = filter
       this.loadMyContent()
     },
@@ -955,6 +931,10 @@ export default {
       }).finally(() => {
         this.loadMyContent()
       })
+    },
+    triggerSearch() {
+      this.$logger.info('triggerSearch', this.searchText)
+      this.loadMyContent()
     }
   }
 }
@@ -1068,6 +1048,15 @@ export default {
       flex-direction: row;
       align-items: center;
     }
+    .my-search{
+      margin-right: 10px;
+      border-radius:6px;
+      width: 200px;
+      /deep/ .ant-input{
+        border-radius:6px;
+        height: 40px;
+      }
+    }
 
     .filter-icon {
       .filter-item {
@@ -1120,10 +1109,25 @@ export default {
     border: 1px solid #E4E4E4;
     padding: 5px 15px;
     border-radius: 5px;
-    max-height: 250px;
+    max-height: 290px;
     overflow: auto;
     background: rgba(228, 228, 228, 0.2);
 
+    &::-webkit-scrollbar {
+      width: 5px;
+      height: 5px;
+    }
+    &::-webkit-scrollbar-track {
+      border-radius: 3px;
+      background: rgba(0,0,0,0.00);
+      -webkit-box-shadow: inset 0 0 5px rgba(0,0,0,0.01);
+    }
+    /* 滚动条滑块 */
+    &::-webkit-scrollbar-thumb {
+      border-radius: 5px;
+      background: rgba(0,0,0,0.12);
+      -webkit-box-shadow: inset 0 0 10px rgba(0,0,0,0.01);
+    }
   }
   .expand-icon {
     margin-bottom: 10px;
@@ -1135,6 +1139,11 @@ export default {
     align-items: center;
 
     i {
+      padding: 0 5px;
+      height: 30px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
       svg {
         font-size: 23px;
       }
@@ -1359,7 +1368,9 @@ a.delete-action {
   border: none;
   position:relative;
   .card-collaborate-icon-item{
-    width:30px;
+    width: 30px;
+    padding-top: 17px;
+    padding-right: 5px;
     position: absolute;
     right: 0;
     bottom: 5px;

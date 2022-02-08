@@ -5,7 +5,7 @@
         Name
       </div>
     </div>
-    <div class="content-list">
+    <div class="content-list" >
       <template v-if="contentDataList && contentDataList.length">
         <div
           :data-item-id="item.id"
@@ -145,7 +145,8 @@ export default {
       selectedBigIdeaList: [],
       currentDataType: 'none',
 
-      mySelectedList: []
+      mySelectedList: [],
+      backgroundColor: '#ffffff'
     }
   },
   watch: {
@@ -182,7 +183,8 @@ export default {
     },
 
     handleContentListUpdate (data) {
-      this.$logger.info('handleContentListUpdate ', data)
+      this.$logger.info('NewContentList handleContentListUpdate ', data)
+      this.backgroundColor = data.backgroundColor
       this.contentDataList = data.contentList
       this.parent = data.currentTreeData
       this.currentDataType = data.dataType
@@ -248,7 +250,7 @@ export default {
             parent: this.parent,
             eventType: 'syncDir'
           })
-          this.$logger.info('$emit sync')
+          this.$logger.info('$emit sync', item, this.currentDataType, this.parent)
         } else {
           // 有的时候grade下面没数据，需要排除一下grade
           if (!item.hasOwnProperty('isGrade')) {
@@ -293,7 +295,7 @@ export default {
             parent: this.parent,
             eventType: 'syncDir'
           })
-          this.$logger.info('$emit sync')
+          this.$logger.info('$emit sync specificSkills', item, this.currentDataType, this.parent)
         } else {
           // 有的时候grade下面没数据，需要排除一下grade
           if (!item.hasOwnProperty('isGrade')) {
@@ -716,7 +718,7 @@ export default {
     }
 
     .odd-line {
-      background-color: #F8F8F8;
+      background-color: rgba(228, 228, 228, 0.2);
     }
 
     .action-icon {
@@ -724,7 +726,7 @@ export default {
     }
 
     .selected-line {
-      background-color: fade(@outline-color, 10%);
+      background-color: fade(@outline-color, 10%) !important;
       color: @text-color;
       border: 1px solid #15C39A !important;
       box-sizing: border-box;
@@ -756,6 +758,10 @@ export default {
       padding: 10px;
       margin: 3px;
       position: relative;
+
+      &:hover {
+        background-color: #EDF1F5;
+      }
 
       .name {
         cursor: pointer;

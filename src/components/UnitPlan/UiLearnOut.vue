@@ -4,7 +4,7 @@
 
       <div class="objectives-wrapper">
         <a-row class="objectives-wrapper-block" v-if="getknowledgeListType(TagType.skill).length > 0" >
-          <div class="title-item title-skill">Assessment objectives</div>
+          <div class="title-item title-skill">Achievement objectives</div>
           <div class="objectives-list" v-for="(k,index) in getknowledgeListType(TagType.skill)" :key="index">
             <div class="objectives-list-item objectives-list-item-skill objectives-list-item-top-fixed">
               <!--              <a-breadcrumb separator=">">-->
@@ -132,7 +132,7 @@
               :fieldNames="{ label: 'name', value: 'name', children: 'children'}"
               v-model="centuryTagList[index]"
               :options="centuryList"
-              change-on-select/>
+              change-on-select />
             <a-button type="link" v-if="centuryTagList.length > 1" icon="minus" size="large" @click="handleRemoveCenturyTag(index)"></a-button>
           </div>
           <a-button type="link" icon="plus-circle" size="large" @click="handleAddCenturyTag()"></a-button>
@@ -204,6 +204,29 @@
       learnOuts (val) {
         this.$logger.info('learnOuts change!', val)
         this.knowledgeList = val
+      },
+      // 更新centuryList中的数据，禁用已经被选择的选项
+      centuryTagList (val) {
+        this.$logger.info('centuryTagList change!', val, this.centuryList)
+
+        // 重置所有的centuryList为可选
+        this.centuryList.forEach(child => this.removeDisabled(child))
+        // 只禁用已选择的
+        this.centuryTagList.forEach(tagNameList => {
+          let childList = this.centuryList
+          for (let i = 0; i < tagNameList.length; i++) {
+            const tagName = tagNameList[i]
+            const child = childList.find(item => item.name === tagName)
+            if (child) {
+              if (i === tagNameList.length - 1) {
+                child.disabled = true
+              }
+              childList = child.children
+            } else {
+              break
+            }
+          }
+        })
       }
     },
     methods: {
@@ -276,9 +299,14 @@
       handleRemoveCenturyTag (index) {
         logger.info('handleRemoveCenturyTag ', index)
         this.centuryTagList.splice(index, 1)
+        this.handleUpdateCenturyTag()
       },
       handleAddCenturyTag () {
+        this.$logger.info('handleAddCenturyTag ', this.centuryTagList)
         this.centuryTagList.push([])
+      },
+      handleUpdateCenturyTag () {
+        this.$logger.info('handleUpdateCenturyTag ', 'selected', this.centuryTagList, 'option', this.centuryList)
       },
       treeForeach (tree, func) {
         tree.forEach(data => {
@@ -293,6 +321,7 @@
           if (response.success) {
              this.centuryList = response.result
              this.treeForeach(this.centuryList, node => {
+               node.disabled = false
                if (node.children.length === 0) {
                  node.title = this.$options.filters['gradeFormat'](node.gradeNames)
                }
@@ -311,6 +340,15 @@
         } else {
           return this.knowledgeList.filter(item => item.tagType === type)
         }
+      },
+
+      removeDisabled(item) {
+        if (item.disabled) {
+          item.disabled = false
+        }
+        item.children && item.children.forEach(child => {
+          this.removeDisabled(child)
+        })
       }
     }
   }
@@ -335,7 +373,7 @@
         margin-bottom: 10px;
       }
       .title-skill{
-        color: #474747;
+        color: #FF978E;
       }
       .title-learnout{
         color: #B1D1CC;
@@ -362,10 +400,10 @@
         border: 1px solid #f9f9f9;
       }
       .objectives-list-item {
+        background: #fff;
         width: 100%;
-        box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.16);
         opacity: 1;
-        border-radius: 4px;
+        //border-radius: 4px;
         display: flex;
         flex-wrap: wrap;
         flex-direction: row;
@@ -375,9 +413,10 @@
         padding: 10px;
         position: relative;
         color: #000000;
+        box-shadow: 0px 3px 3px rgba(0, 0, 0, 0.16);
         &:hover {
           color: @primary-color;
-          border: 1px solid @primary-color !important;
+          //border: 1px solid @primary-color !important;
         }
         .skt-description {
           cursor: pointer;
@@ -385,6 +424,7 @@
           padding-right: 10px;
           line-height: 22px;
           position: relative;
+          color: #444444;
           .description-txt {
             padding: 10px;
             border: 1px dashed #666;
@@ -457,22 +497,27 @@
         }
       }
       .objectives-list-item-skill{
-        background: #FEF3E4;
-        border: 1px solid #EED1AA;
-        opacity: 1;
-        border-radius: 10px;
+        //background: #FEF3E4;
+        //border: 1px solid #EED1AA;
+        color: #FF978E;
+        border-left: 10px solid #FF978E;
+        //border-radius: 10px;
       }
       .objectives-list-item-learn{
-        background: #D4EBE7;
-        border: 1px solid #B1D1CC;
-        opacity: 1;
-        border-radius: 10px;
+        //background: #D4EBE7;
+        //border: 1px solid #B1D1CC;
+        color: #D4EBE7;
+        border-left: 10px solid #D4EBE7;
+        //opacity: 1;
+        //border-radius: 10px;
       }
       .objectives-list-item-21{
-        background: #D7E0E9;
-        border: 1px solid #92B2D1;
-        opacity: 1;
-        border-radius: 10px;
+        //background: #D7E0E9;
+        //border: 1px solid #92B2D1;
+        //opacity: 1;
+        //border-radius: 10px;
+        color: #D7E0E9;
+        border-left: 10px solid #D7E0E9;
       }
       .delete-action {
         position: absolute;

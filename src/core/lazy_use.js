@@ -44,7 +44,7 @@ import {
   Steps,
   Cascader,
   message,
-  notification, Switch, Rate, Collapse, DatePicker
+  notification, Switch, Rate, Collapse, DatePicker, Mentions, AutoComplete
 } from 'ant-design-vue'
 import Viser from 'viser-vue'
 
@@ -62,7 +62,6 @@ Vue.use(Rate)
 Vue.use(Collapse)
 Vue.use(CollapsePanel)
 Vue.use(Switch)
-Vue.use(ConfigProvider)
 Vue.use(ConfigProvider)
 Vue.use(Carousel)
 Vue.use(Layout)
@@ -105,6 +104,9 @@ Vue.use(Tree)
 Vue.use(Steps)
 Vue.use(Cascader)
 Vue.use(DatePicker)
+Vue.use(Collapse)
+Vue.use(Mentions)
+Vue.use(AutoComplete)
 
 Vue.prototype.$confirm = Modal.confirm
 Vue.prototype.$message = message

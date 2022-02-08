@@ -12,13 +12,19 @@
       <a-form-model ref="form" :model="model" :rules="validatorRules">
 
         <a-form-model-item label="Subject" :labelCol="labelCol" :wrapperCol="wrapperCol" prop="subjectId">
-          <a-select v-model="model.subjectId" placeholder="Please select subject" >
+          <a-select :getPopupContainer="trigger => trigger.parentElement" v-model="model.subjectId" placeholder="Please select subject" >
             <a-select-option v-if="item.subjectType === subjectType.Skill || item.subjectType === subjectType.LearnAndSkill" :value="item.id" :key="item.id" v-for="item in subjectList">{{ item.name }}</a-select-option>
           </a-select>
         </a-form-model-item>
 
         <a-form-model-item label="grade" :labelCol="labelCol" :wrapperCol="wrapperCol" prop="gradeIds">
-          <a-select mode="multiple" @change="handleChangeGrade" v-model="model.gradeIds" placeholder="Please select grade" :readonly="true" >
+          <a-select
+            :getPopupContainer="trigger => trigger.parentElement"
+            mode="multiple"
+            @change="handleChangeGrade"
+            v-model="model.gradeIds"
+            placeholder="Please select grade"
+            :readonly="true" >
             <a-select-option :value="item.id" :key="item.id" v-for="item in gradeListAll">{{ item.name }}</a-select-option>
           </a-select>
         </a-form-model-item>

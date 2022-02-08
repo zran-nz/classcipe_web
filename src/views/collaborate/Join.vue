@@ -4,36 +4,41 @@
       <div class="img">
         <img v-if="collaborate.content" :src="collaborate.content.image" alt="">
       </div>
-      <div class="title">
-        {{ collaborate.owner.nickname }} invites you to collaborate!
+      <div class="title" v-if="collaborate.link.approveFlag">
+        Apply to collaborate on {{ collaborate.content.name }}
       </div>
-      <div class="sub-title">
-        Name: {{ collaborate.content.name }}
+      <div class="title" v-if="!collaborate.link.approveFlag">
+        {{ collaborate.owner.nickname }} invited you to collaborate on {{ collaborate.content.name }}
       </div>
+      <!--      <div class="sub-title">-->
+      <!--        From: {{ collaborate.owner.nickname }}-->
+      <!--      </div>-->
 
-      <template v-if="!getUser">
-        <!--        需要审批-->
-        <div class="btn" v-if="collaborate.link.approveFlag">
-          <div class="btn-text" @click="handleApply('Apply')">
-            <span v-if="!applyLoading">Apply</span>
-            <a-icon type="loading" v-if="applyLoading" />
+      <!--        需要审批-->
+      <div v-if="collaborate.link.approveFlag">
+        <template v-if="!getUser">
+          <div class="btn" @click="handleApply('Apply')">
+            <div class="btn-text" >
+              <span v-if="!applyLoading">Apply</span>
+              <a-icon type="loading" v-if="applyLoading" />
+            </div>
           </div>
-        </div>
-        <div class="btn" v-else>
-          <div class="btn-text" @click="handleApply('Join')">
-            <span v-if="!applyLoading">Join in now</span>
-            <a-icon v-if="applyLoading" type="loading" />
+        </template>
+        <template v-else>
+          <!--        需要审批-->
+          <div class="btn btn-disable">
+            <div class="btn-text">
+              Wait for approval
+            </div>
           </div>
+        </template>
+      </div>
+      <div class="btn" @click="handleApply('Join')" v-else>
+        <div class="btn-text" >
+          <span v-if="!applyLoading">Start collaborating</span>
+          <a-icon v-if="applyLoading" type="loading" />
         </div>
-      </template>
-      <template v-else>
-        <!--        需要审批-->
-        <div class="btn btn-disable">
-          <div class="btn-text">
-            Applyed
-          </div>
-        </div>
-      </template>
+      </div>
     </div>
   </a-skeleton>
 </template>
@@ -116,6 +121,8 @@ export default {
           this.$message.success(type + ' successfully ！')
           if (type === 'Join') {
               this.handleLocationItem(this.collaborate.content)
+          } else {
+            this.$router.push({ path: '/teacher/main/shared' })
           }
         } else {
           this.applyLoading = false
@@ -150,6 +157,7 @@ export default {
       margin-top: 20px;
       color: rgba(44, 42, 80, 1);
       font-size: 20px;
+      text-align: center;
       font-family: FZCuYuan-M03S;
     }
     .sub-title{
