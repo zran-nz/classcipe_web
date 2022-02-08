@@ -41,9 +41,6 @@ export default {
       type: Number,
       required: true
     }
-  },
-  created () {
-    this.$logger.info('DataCardView ' + this.title, this.cover, this.createdTime, this.activeFlag)
   }
 }
 </script>

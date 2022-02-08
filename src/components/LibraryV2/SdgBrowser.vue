@@ -962,7 +962,7 @@ export default {
     .filter-select{
       cursor: pointer;
       margin: 5px;
-      min-width: 180px;
+      min-width: 90%;
       /deep/ .ant-select-selection--multiple{
         cursor: pointer;
       }

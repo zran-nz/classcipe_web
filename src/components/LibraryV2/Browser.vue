@@ -355,7 +355,7 @@ import BackSvg from '@/assets/svgIcon/library/back_btn.svg?inline'
 import GeneralCapabilityBrowser from '@/components/LibraryV2/GeneralCapabilityBrowser'
 import SubjectSpecificBrowser from '@/components/LibraryV2/SubjectSpecificBrowser'
 import IduBrowser from '@/components/LibraryV2/IduBrowser'
-import { CurriculumType, CustomTagType } from '@/const/common'
+import { CurriculumType, CustomTagType, TagType } from '@/const/common'
 import FilterIcon from '@/assets/libraryv2/filter.svg?inline'
 import FilterActiveIcon from '@/assets/libraryv2/filter_active.svg?inline'
 import PuBuIcon from '@/assets/icons/library/pubu.svg?inline'
@@ -427,19 +427,19 @@ export default {
       curriculumOptions: [],
       navPath: [],
       browserTypeListForIbMpy: [
-        { type: 'specificSkills', label: 'Achievement objectives' },
-        { type: 'curriculum', label: 'Learning outcomes' },
-        { type: 'assessmentType', label: 'Assessment type' },
-        { type: 'idu', label: 'Integrated Subject Skill' },
-        { type: 'centurySkills', label: '21st Century Skills' },
-        { type: 'sdg', label: 'Big idea' }
+        { type: 'specificSkills', label: 'Achievement objectives', tagType: TagType.skill },
+        { type: 'curriculum', label: 'Learning outcomes', tagType: TagType.knowledge },
+        { type: 'assessmentType', label: 'Assessment type', tagType: TagType.assessment },
+        { type: 'idu', label: 'Integrated Subject Skill', tagType: TagType.idu },
+        { type: 'centurySkills', label: '21st Century Skills', tagType: TagType.century },
+        { type: 'sdg', label: 'Big idea', tagType: TagType.bigIdea }
       ],
       browserTypeList: [
-        { type: 'specificSkills', label: 'Achievement objectives' },
-        { type: 'curriculum', label: 'Learning outcomes' },
-        { type: 'assessmentType', label: 'Assessment type' },
-        { type: 'centurySkills', label: '21st Century Skills' },
-        { type: 'sdg', label: 'Big idea' }
+        { type: 'specificSkills', label: 'Achievement objectives', tagType: TagType.skill },
+        { type: 'curriculum', label: 'Learning outcomes', tagType: TagType.knowledge },
+        { type: 'assessmentType', label: 'Assessment type', tagType: TagType.assessment },
+        { type: 'centurySkills', label: '21st Century Skills', tagType: TagType.century },
+        { type: 'sdg', label: 'Big idea', tagType: TagType.bigIdea }
       ],
       currentBrowserType: 'specificSkills',
       BrowserTypeMap: BrowserTypeMap,
@@ -564,7 +564,7 @@ export default {
       })
     },
     toggleBrowserType (browserTypeItem) {
-      this.$logger.info('toggleBrowserType ' + browserTypeItem.type)
+      this.$logger.info('toggleBrowserType ' + browserTypeItem.type + ' tagType:' + browserTypeItem.tagType)
       if (browserTypeItem.type !== this.currentBrowserType) {
         this.currentBrowserType = browserTypeItem.type
         this.navPath = []
@@ -572,10 +572,25 @@ export default {
         this.$logger.info('reset and add path ' + browserTypeItem.label)
       }
       this.dataList = []
-      this.dataListLoading = false
-      this.previewVisible = false
-    },
 
+      const postData = {
+        curriculumId: this.$store.getters.bindCurriculum,
+        tagType: browserTypeItem.tagType
+      }
+      if (typeof postData.tagType === 'number') {
+        QueryContents(postData).then(response => {
+          this.$logger.info('toggleBrowserType QueryContents response', response)
+          this.dataList = response.result ? response.result : []
+        }).finally(() => {
+          this.dataListLoading = false
+          this.previewVisible = false
+        })
+      } else {
+        this.$logger.info('toggleBrowserType skip handleClickBlock', postData)
+        this.dataListLoading = false
+        this.previewVisible = false
+      }
+    },
     handleBlockCollapse (data) {
       this.$logger.info('handleBlockCollapse data.blockIndex(' + data.blockIndex + ') this.blockIndex(' + this.blockIndex + ')', data)
       this.previewVisible = false
@@ -729,7 +744,6 @@ export default {
       this.handleSearchKey()
     },
     handleSearchKeyInputBlur () {
-      this.$logger.info('handleSearchKeyInputBlur')
       this.searchResultVisible = false
     },
 
@@ -1023,6 +1037,7 @@ export default {
           display: flex;
           flex-direction: row;
           border: 1px solid #ddd;
+          border-top: none;
           border-bottom: none;
           border-right: none;
           overflow: hidden;
