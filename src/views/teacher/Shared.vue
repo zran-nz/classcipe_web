@@ -147,11 +147,11 @@
                                 </a>
                               </a-popconfirm>
                             </a-menu-item>
-                            <a-menu-item>
-                              <a @click="handleDuplicateItem(item)">
-                                <a-icon type="copy" /> Duplicate
-                              </a>
-                            </a-menu-item>
+                            <!--                            <a-menu-item>-->
+                            <!--                              <a @click="handleDuplicateItem(item)">-->
+                            <!--                                <a-icon type="copy" /> Duplicate-->
+                            <!--                              </a>-->
+                            <!--                            </a-menu-item>-->
                             <!-- Task里面有teacher-pace, student-pace, previous session -->
                             <!--                            <template v-if="item.content.type === typeMap.task">-->
                             <!--                              <a-menu-item>-->
@@ -238,11 +238,11 @@
                             </a>
                           </a-popconfirm>
                         </a-menu-item>
-                        <a-menu-item>
-                          <a @click="handleDuplicateItem(item)">
-                            <a-icon type="copy" /> Duplicate
-                          </a>
-                        </a-menu-item>
+                        <!--                        <a-menu-item>-->
+                        <!--                          <a @click="handleDuplicateItem(item)">-->
+                        <!--                            <a-icon type="copy" /> Duplicate-->
+                        <!--                          </a>-->
+                        <!--                        </a-menu-item>-->
                         <!-- Task里面有teacher-pace, student-pace, previous session -->
                         <!--                        <template v-if="item.content.type === typeMap.task">-->
                         <!--                          <a-menu-item>-->
@@ -450,44 +450,41 @@
 
 <script>
 
-  import * as logger from '@/utils/logger'
-  import { Duplicate } from '@/api/teacher'
-  import { CollaborateStatus, typeMap } from '@/const/teacher'
-  import ContentStatusIcon from '@/components/Teacher/ContentStatusIcon'
-  import ContentTypeIcon from '@/components/Teacher/ContentTypeIcon'
-  import {
-    DeleteCollaborate,
-    ReceiveCollaborate,
-    CollaboratesQueryShared, CollaboratesAgree
-  } from '@/api/collaborate'
-  import { lessonStatus, lessonHost } from '@/const/googleSlide'
-  import { StartLesson } from '@/api/lesson'
-  import storage from 'store'
-  import TvSvg from '@/assets/icons/lesson/tv.svg?inline'
-  import EvaluationSvg from '@/assets/icons/common/evaluation.svg?inline'
-  import PreviousSessionsSvg from '@/assets/icons/common/PreviousSessions.svg?inline'
-  import EditSvg from '@/assets/icons/common/Edit.svg?inline'
-  import CopySvg from '@/assets/icons/common/copy.svg?inline'
-  import Bianji from '@/assets/icons/common/Bianji.svg?inline'
-  import StartEvaluation from '@/assets/icons/common/StartEvaluation.svg?inline'
-  import StartSessionSvg from '@/assets/icons/common/StartSession.svg?inline'
-  import TeacherPresenting from '@/assets/icons/common/TeacherPresenting.svg?inline'
-  import StudentPace from '@/assets/icons/common/StudentPace.svg?inline'
-  import CustomTag from '@/components/UnitPlan/CustomTag'
-  import LiebiaoSvg from '@/assets/svgIcon/myContent/liebiao.svg?inline'
-  import PubuSvg from '@/assets/svgIcon/myContent/pubu.svg?inline'
-  import { CustomTagType } from '@/const/common'
-  import CommonPreview from '@/components/Common/CommonPreview'
-  import NoMoreResources from '@/components/Common/NoMoreResources'
-  import ModalHeader from '@/components/Common/ModalHeader'
-  import { FindCustomTags } from '@/api/tag'
-  import OldSessionList from '@/components/Teacher/OldSessionList'
-  import ClassListTable from '@/components/Teacher/ClassListTable'
-  import PSSvg from '@/assets/svgIcon/myContent/previous_session.svg'
-  import CollaborateSvg from '@/assets/icons/collaborate/collaborate_group.svg'
-  import { FindMyClasses } from '@/api/evaluation'
-  import { ACCESS_TOKEN } from '@/store/mutation-types'
-  export const SHARED_VIEW_MODE = 'view_mode_shared'
+import * as logger from '@/utils/logger'
+import { Duplicate } from '@/api/teacher'
+import { CollaborateStatus, typeMap } from '@/const/teacher'
+import ContentStatusIcon from '@/components/Teacher/ContentStatusIcon'
+import ContentTypeIcon from '@/components/Teacher/ContentTypeIcon'
+import { CollaboratesAgree, CollaboratesQueryShared, DeleteCollaborate, ReceiveCollaborate } from '@/api/collaborate'
+import { lessonHost, lessonStatus } from '@/const/googleSlide'
+import { StartLesson } from '@/api/lesson'
+import storage from 'store'
+import TvSvg from '@/assets/icons/lesson/tv.svg?inline'
+import EvaluationSvg from '@/assets/icons/common/evaluation.svg?inline'
+import PreviousSessionsSvg from '@/assets/icons/common/PreviousSessions.svg?inline'
+import EditSvg from '@/assets/icons/common/Edit.svg?inline'
+import CopySvg from '@/assets/icons/common/copy.svg?inline'
+import Bianji from '@/assets/icons/common/Bianji.svg?inline'
+import StartEvaluation from '@/assets/icons/common/StartEvaluation.svg?inline'
+import StartSessionSvg from '@/assets/icons/common/StartSession.svg?inline'
+import TeacherPresenting from '@/assets/icons/common/TeacherPresenting.svg?inline'
+import StudentPace from '@/assets/icons/common/StudentPace.svg?inline'
+import CustomTag from '@/components/UnitPlan/CustomTag'
+import LiebiaoSvg from '@/assets/svgIcon/myContent/liebiao.svg?inline'
+import PubuSvg from '@/assets/svgIcon/myContent/pubu.svg?inline'
+import { CustomTagType } from '@/const/common'
+import CommonPreview from '@/components/Common/CommonPreview'
+import NoMoreResources from '@/components/Common/NoMoreResources'
+import ModalHeader from '@/components/Common/ModalHeader'
+import { FindCustomTags } from '@/api/tag'
+import OldSessionList from '@/components/Teacher/OldSessionList'
+import ClassListTable from '@/components/Teacher/ClassListTable'
+import PSSvg from '@/assets/svgIcon/myContent/previous_session.svg'
+import CollaborateSvg from '@/assets/icons/collaborate/collaborate_group.svg'
+import { FindMyClasses } from '@/api/evaluation'
+import { ACCESS_TOKEN } from '@/store/mutation-types'
+
+export const SHARED_VIEW_MODE = 'view_mode_shared'
 
   export default {
     name: 'Shared',
