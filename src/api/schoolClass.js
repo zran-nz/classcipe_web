@@ -88,3 +88,14 @@ export function SchoolClassRemoveClassMember (parameter) {
     params: parameter
   })
 }
+
+export function SchoolClassDelete (parameter) {
+  return request({
+    url: schoolClassAPIUrl.SchoolClassDelete + '?id=' + parameter.id,
+    method: 'post',
+    data: parameter,
+    headers: {
+      'Content-Type': 'application/json;charset=UTF-8'
+    }
+  })
+}

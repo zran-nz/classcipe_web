@@ -73,7 +73,7 @@
             <a-select v-model="teacherForm.subjectIds" mode="multiple">
               <a-select-option
                 :value="subject.id"
-                v-if="subject.subjectType === subjectType.Learn || subject.subjectType === subjectType.LearnAndSkill"
+                v-if="subject.subjectType === subjectType.Skill || subject.subjectType === subjectType.LearnAndSkill"
                 v-for="subject in subjectOptions"
                 :key="subject.id"
               >{{ subject.name }}
