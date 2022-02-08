@@ -148,7 +148,7 @@
                               </a-popconfirm>
                             </a-menu-item>
                             <a-menu-item>
-                              <a @click="handleDuplicateItem(item.content)">
+                              <a @click="handleDuplicateItem(item)">
                                 <a-icon type="copy" /> Duplicate
                               </a>
                             </a-menu-item>
