@@ -113,8 +113,8 @@ import {
 import { createSchool, getSchools } from '@/api/school'
 import * as logger from '@/utils/logger'
 import { SubjectType } from '@/const/common'
-
-const { debounce } = require('lodash-es')
+import storage from 'store'
+import { CURRENT_ROLE, IS_ADD_PREFERENCE } from '@/store/mutation-types'
 
 export default {
   name: 'AddPreference',
@@ -176,7 +176,9 @@ export default {
   },
   methods: {
     showModal() {
-      this.visible = true
+      if (!storage.get(IS_ADD_PREFERENCE) && storage.get(CURRENT_ROLE) === 'teacher') {
+        this.visible = true
+      }
     },
     hideModal() {
       this.visible = false
