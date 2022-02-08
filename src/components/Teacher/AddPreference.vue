@@ -2,6 +2,7 @@
   <a-modal
     v-model="visible"
     width="600px"
+    :dialog-style="{ top: '50px' }"
     :maskClosable="false"
     :keyboard="false"
     :footer="null"
@@ -23,7 +24,7 @@
           :wrapper-col="wrapperCol"
         >
           <a-form-model-item key="Curriculum" label="Curriculum" prop="curriculumId">
-            <a-select v-model="teacherForm.curriculumId" placeholder="Please select curriculum">
+            <a-select :getPopupContainer="trigger => trigger.parentElement" v-model="teacherForm.curriculumId" placeholder="Please select curriculum">
               <a-select-option
                 :value="curriculumOption.id"
                 v-for="curriculumOption in curriculumOptions"
@@ -70,7 +71,7 @@
           </a-form-model-item>
 
           <a-form-model-item key="Subject" label="Subject" prop="subjectIds">
-            <a-select v-model="teacherForm.subjectIds" mode="multiple">
+            <a-select v-model="teacherForm.subjectIds" mode="multiple" :filter-option='false' class='my-only-select'>
               <a-select-option
                 :value="subject.id"
                 v-if="subject.subjectType === subjectType.Skill || subject.subjectType === subjectType.LearnAndSkill"
@@ -109,11 +110,10 @@ import {
   getAllSubjectsByCurriculumId,
   GetGradesByCurriculumId
 } from '@/api/preference'
-import { getSchools, createSchool } from '@/api/school'
+import { createSchool, getSchools } from '@/api/school'
 import * as logger from '@/utils/logger'
 import { SubjectType } from '@/const/common'
-import storage from 'store'
-import { CURRENT_ROLE, IS_ADD_PREFERENCE } from '@/store/mutation-types'
+
 const { debounce } = require('lodash-es')
 
 export default {
@@ -176,9 +176,7 @@ export default {
   },
   methods: {
     showModal() {
-      if (!storage.get(IS_ADD_PREFERENCE) && storage.get(CURRENT_ROLE) === 'teacher') {
-        this.visible = true
-      }
+      this.visible = true
     },
     hideModal() {
       this.visible = false
