@@ -116,6 +116,8 @@ import { SubjectType } from '@/const/common'
 import storage from 'store'
 import { CURRENT_ROLE, IS_ADD_PREFERENCE } from '@/store/mutation-types'
 
+const { debounce } = require('lodash-es')
+
 export default {
   name: 'AddPreference',
   components: {
