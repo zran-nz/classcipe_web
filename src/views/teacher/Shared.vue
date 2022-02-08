@@ -697,7 +697,10 @@
             this.loading = true
             Duplicate({ id: item.sourceId, type: item.sourceType }).then((response) => {
               this.$logger.info('Duplicate response', response)
-              this.loadMyContent()
+              this.loading = false
+              // this.loadMyContent()
+            }).finally(() => {
+              this.$router.push({ path: '/teacher/main/created-by-me' })
             })
           }
         })
