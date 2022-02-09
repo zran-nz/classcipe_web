@@ -7,6 +7,7 @@ export const userAPIUrl = {
   GetSharedNotReceived: '/classcipe/api/collaborate/getSharedNotReceived',
   GetFindSharedNotReceived: '/classcipe/api/collaborate/getFindSharedNotReceived',
   DeleteCollaborate: '/classcipe/api/collaborate/delete',
+  DeleteByMeCollaborate: '/classcipe/api/collaborate/deleteByMe',
   ReceiveCollaborate: '/classcipe/api/collaborate/receive',
   // TODO mock接口，待修改
   GetCollaborateComment: '/classcipe/api/editMessage/queryMessage',
@@ -23,6 +24,7 @@ export const userAPIUrl = {
   CollaboratesRemove: '/classcipe/api/collaborate/v2/remove',
   CollaboratesUpdateLink: '/classcipe/api/collaborate/v2/updateLink',
   CollaboratesQueryShared: '/classcipe/api/collaborate/v2/queryShared',
+  CollaboratesQuerySharedOwner: '/classcipe/api/collaborate/v2/querySharedOwner',
   QueryByLinkCode: '/classcipe/api/collaborate/v2/queryByLinkCode',
   CollaboratesApply: '/classcipe/api/collaborate/v2/apply',
   CollaboratesSendInviteEmail: '/classcipe/api/collaborate/v2/sendInviteEmail'
@@ -79,6 +81,14 @@ export function GetFindSharedNotReceived (parameter) {
 export function DeleteCollaborate (parameter) {
   return request({
     url: userAPIUrl.DeleteCollaborate,
+    method: 'post',
+    data: parameter
+  })
+}
+
+export function DeleteByMeCollaborate (parameter) {
+  return request({
+    url: userAPIUrl.DeleteByMeCollaborate,
     method: 'post',
     data: parameter
   })
@@ -184,6 +194,17 @@ export function CollaboratesUpdateLink (parameter) {
 export function CollaboratesQueryShared (parameter) {
   return request({
     url: userAPIUrl.CollaboratesQueryShared,
+    method: 'post',
+    data: parameter,
+    headers: {
+      'Content-Type': 'application/json;charset=UTF-8'
+    }
+  })
+}
+
+export function CollaboratesQuerySharedOwner (parameter) {
+  return request({
+    url: userAPIUrl.CollaboratesQuerySharedOwner,
     method: 'post',
     data: parameter,
     headers: {
