@@ -240,7 +240,7 @@ export default {
   margin-bottom: 15px;
   .quick-action-item {
     user-select: none;
-    padding: 8px 0;
+    padding: 5px 0;
     box-sizing: border-box;
     display: flex;
     flex-direction: column;
@@ -263,8 +263,8 @@ export default {
 
     .action-icon {
       svg {
-        width: 30px;
-        height: 30px;
+        width: 26px;
+        height: 26px;
       }
     }
 
