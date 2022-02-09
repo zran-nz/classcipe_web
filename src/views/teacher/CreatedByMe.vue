@@ -395,7 +395,7 @@
         :closable="true"
         destroyOnClose
         :dialog-style="{ top: '50px' }"
-        width="900px">
+        width="750px">
         <div>
           <old-session-list :session-list="sessionList" @start-new-session="handleStartSession" @cancel="oldSelectSessionVisible=false" :mode="sessionMode" />
         </div>

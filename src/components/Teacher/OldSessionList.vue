@@ -24,7 +24,13 @@
 
     <div class="my-class-list">
       <div class="class-list-wrapper">
-        <a-table :columns="columns" :data-source="data" :pagination="false" :row-selection="rowSelection" >
+        <a-table
+          :columns="columns"
+          :data-source="data"
+          :pagination="false"
+          :row-selection="rowSelection"
+          :scroll="{ y: 240 }"
+          class='my-mini-table'>
           <span slot="dateTime" slot-scope="text">{{ text * 1000 | dayjs1 }} </span>
           <span slot="expireDay" slot-scope="text, record">
             <span v-if="record.responseLimitMode === 0">No expire time</span>
@@ -40,8 +46,8 @@
     </div>
 
     <div class="modal-ensure-action-line">
-      <a-button class="action-item action-cancel" shape="round" @click="handleCancelSelectData">Cancel</a-button>
-      <a-button class="action-ensure action-item" type="primary" shape="round" @click="handleEnsureSelectData">Resume</a-button>
+      <a-button class="action-item action-cancel" size='mini' shape="round" @click="handleCancelSelectData">Cancel</a-button>
+      <a-button class="action-ensure action-item" size='mini' type="primary" shape="round" @click="handleEnsureSelectData">Resume</a-button>
     </div>
   </div>
 </template>
@@ -89,7 +95,8 @@ export default {
           title: 'Date',
           dataIndex: 'date',
           key: 'dateTime',
-          scopedSlots: { customRender: 'dateTime' }
+          scopedSlots: { customRender: 'dateTime' },
+          width: 180
         },
         {
           title: 'Class',
@@ -97,12 +104,14 @@ export default {
         },
         {
           title: 'Code',
-          dataIndex: 'classId'
+          dataIndex: 'classId',
+          width: 80
         },
         {
           title: 'Expire day',
           key: 'expireDay',
           dataIndex: 'date',
+          width: 180,
           scopedSlots: { customRender: 'expireDay' }
         }
       ],
@@ -216,9 +225,7 @@ export default {
     .description{
       display: flex;
       justify-content: center;
-      margin: 10px;
       height: 22px;
-      font-size: 16px;
       font-family: Arial;
       font-weight: 400;
       line-height: 23px;
@@ -229,7 +236,7 @@ export default {
     .header-action-item {
       display: flex;
       justify-content: center;
-      margin: 10px;
+      margin-top: 10px;
       .button {
         height: 40px;
         background: #2DC9A4;
@@ -237,11 +244,9 @@ export default {
         border-radius: 20px;
       }
       .btn-text {
-        height: 31px;
         font-size: 20px;
         font-family: Arial;
         font-weight: 200;
-        line-height: 32px;
         color: #FFFFFF;
         opacity: 1;
       }
@@ -276,7 +281,6 @@ export default {
   }
 
   .class-list-wrapper {
-    padding: 15px 20px;
   }
 }
 }
@@ -284,11 +288,8 @@ export default {
   text-align: center;
   margin: 0 auto;
   .action-item{
-    padding: 20px 50px;
-    font-size: 20px;
     font-family: Arial;
     font-weight: 100;
-    line-height: 0px
   }
 }
 
