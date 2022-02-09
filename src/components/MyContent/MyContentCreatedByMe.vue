@@ -305,7 +305,7 @@ import { FavoritesGetMyFavorites } from '@/api/favorites'
 import { ownerMap, statusMap, typeMap } from '@/const/teacher'
 import ContentStatusIcon from '@/components/Teacher/ContentStatusIcon'
 import ContentTypeIcon from '@/components/Teacher/ContentTypeIcon'
-import { MyContentEventBus, MyContentEvent } from '@/components/MyContent/MyContentEventBus'
+import { MyContentEvent, MyContentEventBus } from '@/components/MyContent/MyContentEventBus'
 import DisplayMode from '@/components/MyContent/DisplayMode'
 import CommonPreview from '@/components/Common/CommonPreview'
 import NoMoreResources from '@/components/Common/NoMoreResources'
@@ -574,7 +574,7 @@ export default {
 }
 
 .my-list-item:hover {
-  box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.16);
+  box-shadow: 0px 0px 5px 2px rgba(0, 0, 0, 0.16);
 }
 
 .active-item {

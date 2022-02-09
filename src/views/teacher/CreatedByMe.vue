@@ -433,7 +433,13 @@
 
 <script>
 import * as logger from '@/utils/logger'
-import { ContentRestore, deleteMyContentByType, Duplicate, FindMyContent, PermanentDeleteMyContent } from '@/api/teacher'
+import {
+  ContentRestore,
+  deleteMyContentByType,
+  Duplicate,
+  FindMyContent,
+  PermanentDeleteMyContent
+} from '@/api/teacher'
 import { ownerMap, statusMap, typeMap } from '@/const/teacher'
 import ContentStatusIcon from '@/components/Teacher/ContentStatusIcon'
 import ContentTypeIcon from '@/components/Teacher/ContentTypeIcon'
@@ -1288,7 +1294,7 @@ export default {
         }
 
         &:hover {
-          box-shadow: 3px 3px 3px rgba(0, 0, 0, 0.10);
+          box-shadow: 0px 0px 5px 2px rgba(0, 0, 0, 0.10);
           .action-wrapper {
             .action-item-wrapper {
               display: flex;
