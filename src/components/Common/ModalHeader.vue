@@ -39,6 +39,7 @@ export default {
   width: 100%;
   color: rgba(44, 42, 80, 1);
   font-size: 20px;
+  font-weight: bold;
   font-family: FZCuYuan-M03S;
 }
 .my-modal-header {
