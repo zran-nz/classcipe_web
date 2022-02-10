@@ -2326,6 +2326,11 @@ export default {
           onOk: () => {
             this.currentActiveStepIndex = 2
             this.handleSaveSubTaskAndForm(0)
+          },
+          onCancel: () => {
+            // 取消时清空subTasks再进入正常保存逻辑
+            this.subTasks = []
+            this.handleSaveTask()
           }
         })
       } else {
@@ -3910,7 +3915,7 @@ export default {
         if (response.success) {
           this.$message.success('add successfully')
           this.subTasks = []
-          // this.handleSaveTask()
+          this.handleSaveTask()
         } else {
           this.$message.error(response.message)
         }
