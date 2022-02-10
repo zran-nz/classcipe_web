@@ -28,7 +28,9 @@
         <div class='purpose-type'>
           <a-dropdown :getPopupContainer="trigger => trigger.parentElement">
             <span>
-              Purpose of questions <a-icon type="down" />
+              <a-badge :dot="!!selectedPurposeList.length">
+                Purpose of questions <a-icon type="down" />
+              </a-badge>
             </span>
             <a-menu slot="overlay">
               <a-menu-item
