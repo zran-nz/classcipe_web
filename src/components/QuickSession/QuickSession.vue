@@ -1,7 +1,7 @@
 <template>
   <a-modal
     :dialog-style="{ top: '50px' }"
-    width="700px"
+    width="640px"
     :maskClosable="false"
     :keyboard="false"
     :footer="null"
@@ -42,23 +42,33 @@
           </a-dropdown>
         </div>
       </div>
-      <div class='prompt-list'>
-        <div class='prompt-item' :class="{'active-prompt-item': selectedPrompt && promptItem.id === selectedPrompt.id}" v-for='(promptItem, pIdx) in promptList' :key='pIdx' @click='selectedPrompt = promptItem'>
-          <div class='prompt-cover' :style="{'background-image': 'url(' + promptItem.cover + ')'}">
-            <template v-if='selectedPrompt && promptItem.id === selectedPrompt.id'>
-              <div class='mask'></div>
-              <div class='template-select-icon'>
-                <img src='~@/assets/icons/task/selected.png' alt=''/>
-              </div>
-            </template>
+      <a-spin :spinning="searching">
+        <div class='prompt-list'>
+          <div
+            class='prompt-item'
+            :class="{'active-prompt-item': selectedPrompt && promptItem.id === selectedPrompt.id}"
+            v-for='(promptItem, pIdx) in promptList'
+            :key='pIdx'
+            @click='handleSelectPromptItem(promptItem)'>
+            <div class='prompt-cover' :style="{'background-image': 'url(' + promptItem.cover + ')'}">
+              <template v-if='selectedPrompt && promptItem.id === selectedPrompt.id'>
+                <div class='mask'></div>
+                <div class='template-select-icon'>
+                  <img src='~@/assets/icons/task/selected.png' alt=''/>
+                </div>
+              </template>
+            </div>
+            <div class='prompt-title'>
+              {{ promptItem.name }}
+            </div>
           </div>
-          <div class='prompt-title'>
-            {{ promptItem.name }}
+          <div class='no-data-tips' v-if='promptList.length === 0 && !searching'>
+            <no-more-resources />
           </div>
         </div>
-      </div>
+      </a-spin>
       <div class='start-session'>
-        <a-button size='large' shape='round' type='primary' @click='handleStartSession'>Start session</a-button>
+        <a-button shape='round' :loading='startLoading' type='primary' @click='handleStartSession' :disabled='selectedPrompt === null'>Start session</a-button>
       </div>
     </div>
   </a-modal>
@@ -68,11 +78,16 @@
 import { GetDictItems } from '@/api/common'
 import { DICT_PROMPT_PURPOSE, DICT_PROMPT_TYPE } from '@/const/common'
 import ModalHeader from '@/components/Common/ModalHeader'
-import { filterNewPromptTemplates } from '@/api/quickTask'
+import { filterNewPromptTemplates, quickStartSession } from '@/api/quickTask'
+import NoMoreResources from '@/components/Common/NoMoreResources'
+import { lessonHost, lessonStatus } from '@/const/googleSlide'
+import { StartLesson } from '@/api/lesson'
+import storage from 'store'
+import { ACCESS_TOKEN } from '@/store/mutation-types'
 
 export default {
   name: 'QuickSession',
-  components: { ModalHeader },
+  components: { NoMoreResources, ModalHeader },
   props: {
     visible: {
       type: Boolean,
@@ -81,8 +96,6 @@ export default {
   },
   data () {
     return {
-      loading: true,
-
       selectedInteractiveList: [],
       interactiveTypeList: [],
 
@@ -92,7 +105,8 @@ export default {
       searching: false,
       promptList: [],
 
-      selectedPrompt: null
+      selectedPrompt: null,
+      startLoading: false
     }
   },
   created() {
@@ -100,7 +114,6 @@ export default {
   },
   methods: {
     initData () {
-      this.loading = true
       this.searching = true
       Promise.all([
         GetDictItems(DICT_PROMPT_TYPE),
@@ -125,7 +138,6 @@ export default {
           this.promptList = response[2].result
         }
       }).finally(() => {
-        this.loading = false
         this.searching = false
       })
     },
@@ -138,6 +150,7 @@ export default {
       } else {
         this.selectedInteractiveList.splice(idx, 1)
       }
+      this.updatePromptList()
     },
     handleTogglePurposeType (purpose) {
       this.$logger.info('toggle purpose type', purpose)
@@ -147,10 +160,92 @@ export default {
       } else {
         this.selectedPurposeList.splice(idx, 1)
       }
+      this.updatePromptList()
+    },
+
+    updatePromptList () {
+      this.searching = true
+      this.selectedPrompt = null
+      filterNewPromptTemplates({
+        interactiveList: this.selectedInteractiveList,
+        limit: 1000,
+        pruposeList: this.selectedPurposeList
+      }).then((response) => {
+        if (response.success) {
+          this.promptList = response.result
+        } else {
+          this.promptList = []
+        }
+      }).finally(() => {
+        this.searching = false
+      })
+    },
+
+    handleSelectPromptItem (promptItem) {
+      this.$logger.info('select prompt item', promptItem)
+      if (this.selectedPrompt !== promptItem) {
+        this.selectedPrompt = promptItem
+      } else {
+        this.selectedPrompt = null
+      }
     },
 
     handleStartSession () {
+      this.$logger.info('start session', this.selectedPrompt)
+      this.startLoading = true
+      quickStartSession({
+        name: this.selectedPrompt.name,
+        presentationId: this.selectedPrompt.presentationId
+      }).then((response) => {
+        this.$logger.info('start session response', response)
+        if (response.success) {
+          const item = response.result
+          const requestData = {
+            author: this.$store.getters.email,
+            slide_id: item.presentationId,
+            revision_id: item.revisionId,
+            file_name: item.name ? item.name : 'Unnamed',
+            status: lessonStatus.teacherPaced,
+            redirect_url: null
+          }
 
+          StartLesson(requestData).then(res => {
+            this.$logger.info('StartLesson res', res)
+            if (res.code === 'ok') {
+              const targetUrl = lessonHost + 'd/' + res.data.class_id + '?token=' + storage.get(ACCESS_TOKEN)
+              this.$logger.info('try open ' + targetUrl)
+              // window.open(targetUrl, '_blank')
+              // 课堂那边需要点击返回回到表单，改成location.href跳转
+              const url = lessonHost + 't/' + res.data.class_id + '?token=' + storage.get(ACCESS_TOKEN)
+              var windowObjectReference
+              var height = document.documentElement.clientHeight * 0.7
+              var width = document.documentElement.clientWidth * 0.7
+              var strWindowFeatures = 'width=' + width + ',height=' + height + ',menubar=yes,location=yes,resizable=yes,scrollbars=true,status=true,top=100,left=200'
+              if (this.sessionMode === 1) {
+                windowObjectReference = window.open(
+                  'about:blank',
+                  '_blank',
+                  strWindowFeatures
+                )
+                windowObjectReference.location = url
+                setTimeout(function () {
+                  window.location.href = targetUrl
+                }, 1000)
+              } else {
+                window.location.href = targetUrl
+              }
+            } else {
+              this.$message.warn('StartLesson Failed! ' + res.message)
+            }
+          }).then(() => {
+            this.$emit('close')
+          }).finally(() => {
+            this.startLoading = false
+          })
+        } else {
+          this.$message.warn(response.message)
+        }
+      })
     },
 
     handleCloseModal () {
@@ -179,7 +274,6 @@ export default {
   }
 
   .quick-filter-line {
-    margin-top: 10px;
     display: flex;
     flex-direction: row;
     justify-content: space-between;
@@ -225,26 +319,25 @@ export default {
   }
 
   .prompt-list {
-    height: 460px;
-    padding: 15px 5px 5px 0;
+    height: 400px;
+    padding: 10px 0 5px 0;
     box-sizing: border-box;
     overflow-y: auto;
     display: flex;
     flex-direction: row;
-    align-items: center;
     flex-wrap: wrap;
     justify-content: space-between;
     .prompt-item {
       cursor: pointer;
       user-select: none;
-      width: 310px;
-      margin-bottom: 10px;
+      width: 280px;
+      height: 180px;
       position: relative;
 
       .prompt-cover {
         position: relative;
         border-radius: 4px;
-        height: 180px;
+        height: 150px;
         width: 100%;
         background-position: center center;
         background-size: cover;
@@ -289,10 +382,16 @@ export default {
         }
       }
     }
+
+    .no-data-tips {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
   }
 
   .start-session {
-    margin-top: 10px;
     text-align: center;
   }
 }

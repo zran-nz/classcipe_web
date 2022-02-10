@@ -240,7 +240,7 @@ export default {
   margin-bottom: 15px;
   .quick-action-item {
     user-select: none;
-    padding: 5px 0;
+    padding: 8px 0;
     box-sizing: border-box;
     display: flex;
     flex-direction: column;
