@@ -65,8 +65,8 @@
                                 Personal
                               </a-tag>
                             </div>
-                            <a-popconfirm cancel-text="No" ok-text="Yes" title="Delete ?">
-                              <div class='remove-class-icon' @confirm="handleDeleteClass(classItem)">
+                            <a-popconfirm cancel-text="No" ok-text="Yes" title="Delete ?" @confirm="handleDeleteClass(classItem)">
+                              <div class='remove-class-icon'>
                                 <img class='big-delete-icon' src="~@/assets/icons/tag/delete.png"/>
                               </div>
                             </a-popconfirm>
