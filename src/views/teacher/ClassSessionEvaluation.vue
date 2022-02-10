@@ -647,7 +647,7 @@ export default {
       isExistFormTable: false, // 是否已经添加过表格
       currentActiveFormId: null,
       form: { // 基础表单数据
-        evaluationMode: this.mode,
+        evaluationMode: '',
         id: null,
         classId: '',
         name: '',

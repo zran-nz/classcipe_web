@@ -644,6 +644,7 @@ export default {
       isExistFormTable: false, // 是否已经添加过表格
       currentActiveFormId: null,
       form: { // 基础表单数据
+        evaluationMode: '',
         classId: '',
         name: '',
         className: '',
@@ -1020,6 +1021,7 @@ export default {
         // 表单数据赋值
         this.form.className = this.classInfo.className
         this.form.type = typeMap.classSessionEvaluation
+        this.form.evaluationMode = this.mode
       }).finally(() => {
         if ((!this.forms || this.forms.length === 0) && this.mode === EvaluationTableMode.Edit) {
           this.selectRubricVisible = true
