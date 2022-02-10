@@ -8,6 +8,8 @@ import { ACCESS_TOKEN, CURRENT_ROLE } from '@/store/mutation-types'
 import { i18nRender } from '@/locales'
 import { defaultExpertRouter, defaultTeacherRouter } from '@/config/router.config'
 import * as logger from '@/utils/logger'
+import { SESSION_ACTIVE_KEY } from '@/const/common'
+import { getToken } from './utils/util'
 
 NProgress.configure({ showSpinner: false }) // NProgress Configuration
 
@@ -24,13 +26,14 @@ router.beforeEach((to, from, next) => {
     // 在免登录名单，直接进入
     logger.info('allowList ', to.name)
     next()
-  } else if (storage.get(ACCESS_TOKEN)) {
+  } else if (getToken()) {
     /*  set new Token By Url */
     const token = to.query.token || from.query.token
     if (token) {
       storage.set(ACCESS_TOKEN, token)
+      window.sessionStorage.setItem(SESSION_ACTIVE_KEY, token)
     }
-    const accessToken = storage.get(ACCESS_TOKEN)
+    const accessToken = getToken()
     logger.info('accessToken check', accessToken)
     if (accessToken) {
       // 检查角色信息是否完善

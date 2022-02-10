@@ -75,11 +75,9 @@
               ></a-input-password>
             </a-form-item>
 
-            <div class="forget-password">
-              <a-button type="link" @click="handleForget">Forget password</a-button>
-            </div>
-
-            <a-form-item class="form-submit">
+            <a-form-item class="form-btn">
+              <a-checkbox defaultChecked @change="handleChange">Remember me</a-checkbox>
+              <a @click="handleForget" class="forget-password">Forget password</a>
               <a-button type="primary" block :loading="loading" size="large" html-type="submit"> Log In </a-button>
             </a-form-item>
           </a-form>
@@ -116,6 +114,8 @@ import ThirdLoginButton from '@/components/Button/ThirdLoginButton'
 import ForgetPasswordModal from './ForgetPasswordModal.vue'
 import { mapActions } from 'vuex'
 import { getThirdAuthURL, thirdAuthCallbackUrl } from '@/api/thirdAuth'
+import { NOT_REMEMBER_ME } from '@/store/mutation-types'
+import storage from 'store'
 
 export default {
   components: {
@@ -146,6 +146,9 @@ export default {
     ...mapActions(['Login', 'Logout']),
 
     thirdSignIn(source, role) {
+      if (role === 'teacher') {
+        storage.set(NOT_REMEMBER_ME, false)
+      }
       console.log('thirdSignIn', source)
       let url = getThirdAuthURL(source)
       url += `?role=${role}`
@@ -216,6 +219,10 @@ export default {
     },
     handleForget() {
       this.$refs.modal.show()
+    },
+    handleChange(e) {
+      const checked = e.target.checked
+      storage.set(NOT_REMEMBER_ME, !checked)
     }
   }
 }
@@ -294,16 +301,11 @@ export default {
     .desc2 {
       margin-bottom: 20px;
     }
-    .forget-password {
-      text-align: right;
-      button {
+    .form-btn {
+      .forget-password {
+        float: right;
         padding: 0;
-        position: relative;
-        bottom: 20px;
       }
-    }
-    .form-submit {
-      margin-bottom: 0px;
       button {
         border-radius: 8px;
       }

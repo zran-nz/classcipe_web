@@ -189,6 +189,8 @@ import { deviceMixin } from '@/store/device-mixin'
 import ThirdLoginButton from '@/components/Button/ThirdLoginButton'
 import { getThirdAuthURL, thirdAuthCallbackUrl } from '@/api/thirdAuth'
 import { mapActions } from 'vuex'
+import { NOT_REMEMBER_ME } from '@/store/mutation-types'
+import storage from 'store'
 
 export default {
   name: 'Register',
@@ -216,6 +218,7 @@ export default {
       this.teacherLoginPath = `/user/login?role=teacher&redirect=${redirect}`
       this.studentLoginPath = `/user/login?role=student&redirect=${redirect}`
     }
+    storage.set(NOT_REMEMBER_ME, false)
   },
   computed: {},
   methods: {
