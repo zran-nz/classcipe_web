@@ -271,7 +271,11 @@
                       </div>
                     </template>
                   </a-step>
-                  <a-step title="Edit task slides" :status="currentActiveStepIndex === 1 ? 'process':'wait'" id="templateSelected">
+                  <a-step
+                    title="Edit task slides"
+                    :sub-title="form.taskMode === 2 ? 'Quick task mode' : 'Create in Google Slides mode'"
+                    :status="currentActiveStepIndex === 1 ? 'process':'wait'"
+                    id="templateSelected">
                     <template slot="description">
                       <div class='step-detail' v-show="currentActiveStepIndex === 1">
                         <div class="edit-in-slide" v-if="!form.fileDeleted">
@@ -296,6 +300,16 @@
                               v-model='form.showSelected'
                               @click='changeSelected' />
                           </a-tooltip>
+                        </div>
+                        <div class='edit-in-slide' v-if='form.taskMode === 2'>
+                          <a-button
+                            class='action-ensure action-item edit-slide'
+                            type='primary'
+                            shape='round'
+                            @click='handleChooseAntherPrompt'
+                            style='margin-right: 10px'>
+                            Choose Another
+                          </a-button>
                         </div>
                         <div class='top-icon-groups' v-if='!form.fileDeleted && !form.showSelected'>
                           <a-col class='material-row'>
@@ -1691,6 +1705,13 @@
         />
       </a-modal>
 
+      <quick-session
+        @close='handleCloseQuickSession'
+        @select='handleEnsureChooseAnother'
+        :visible='chooseAnotherVisible'
+        :mode="'choose-another'"
+      />
+
       <a-skeleton :loading='contentLoading' active>
       </a-skeleton>
     </a-card>
@@ -1757,12 +1778,14 @@ import CollaborateUpdateContent from '@/components/Collaborate/CollaborateUpdate
 import LocalStore from '@/websocket/localstore'
 import { PersonalAddOrUpdateClass, SchoolClassGetMyClasses } from '@/api/schoolClass'
 import InputWithCreate from '@/components/Common/InputWithCreate'
-
+import QuickSession from '@/components/QuickSession/QuickSession'
+import { chooseAnother } from '@/api/quickTask'
 const { SplitTask } = require('@/api/task')
 
 export default {
   name: 'AddTask',
   components: {
+    QuickSession,
     InputWithCreate,
     ShareContentSetting,
     TaskPptPreview,
@@ -1998,7 +2021,9 @@ export default {
       },
 
       linkUnitPlanLoading: false,
-      linkRubricLoading: false
+      linkRubricLoading: false,
+
+      chooseAnotherVisible: false
     }
   },
   computed: {
@@ -2413,6 +2438,31 @@ export default {
       this.drawerSelectedTemplateList = []
       this.selectedTemplateList.forEach(item => {
         this.drawerSelectedTemplateList.push(item)
+      })
+    },
+
+    handleChooseAntherPrompt () {
+      this.$logger.info('handleChooseAntherPrompt')
+      this.chooseAnotherVisible = true
+    },
+
+    handleCloseQuickSession () {
+      this.$logger.info('handleCloseQuickSession')
+      this.chooseAnotherVisible = false
+    },
+
+    handleEnsureChooseAnother (data) {
+      this.$logger.info('handleEnsureChooseAnother', data)
+      chooseAnother({
+        presentationId: data.presentationId,
+        selectPageObjectIds: data.selectPageObjectIds,
+        taskId: this.taskId
+      }).then(response => {
+        if (response.success) {
+          this.$message.success('Choose another successfully')
+        } else {
+          this.$message.warn(response.message)
+        }
       })
     },
 

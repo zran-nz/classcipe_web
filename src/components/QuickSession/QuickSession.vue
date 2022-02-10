@@ -68,7 +68,19 @@
         </div>
       </a-spin>
       <div class='start-session'>
-        <a-button shape='round' :loading='startLoading' type='primary' @click='handleStartSession' :disabled='selectedPrompt === null'>Start session</a-button>
+        <a-button
+          v-if="mode === 'quick-session'"
+          shape='round'
+          :loading='startLoading'
+          type='primary'
+          @click='handleStartSession'
+          :disabled='selectedPrompt === null'>Start session</a-button>
+        <a-button
+          v-if="mode === 'choose-another'"
+          shape='round'
+          type='primary'
+          @click='handleEnsureSelect'
+          :disabled='selectedPrompt === null'>Confirm</a-button>
       </div>
     </div>
   </a-modal>
@@ -92,6 +104,10 @@ export default {
     visible: {
       type: Boolean,
       required: true
+    },
+    mode: {
+      type: String,
+      default: 'quick-session'
     }
   },
   data () {
@@ -221,19 +237,16 @@ export default {
               var height = document.documentElement.clientHeight * 0.7
               var width = document.documentElement.clientWidth * 0.7
               var strWindowFeatures = 'width=' + width + ',height=' + height + ',menubar=yes,location=yes,resizable=yes,scrollbars=true,status=true,top=100,left=200'
-              if (this.sessionMode === 1) {
-                windowObjectReference = window.open(
-                  'about:blank',
-                  '_blank',
-                  strWindowFeatures
-                )
-                windowObjectReference.location = url
-                setTimeout(function () {
-                  window.location.href = targetUrl
-                }, 1000)
-              } else {
+
+              windowObjectReference = window.open(
+                'about:blank',
+                '_blank',
+                strWindowFeatures
+              )
+              windowObjectReference.location = url
+              setTimeout(function () {
                 window.location.href = targetUrl
-              }
+              }, 1000)
             } else {
               this.$message.warn('StartLesson Failed! ' + res.message)
             }
@@ -245,6 +258,13 @@ export default {
         } else {
           this.$message.warn(response.message)
         }
+      })
+    },
+
+    handleEnsureSelect () {
+      this.$emit('select', {
+        presentationId: this.selectedPrompt.presentationId,
+        selectPageObjectIds: this.selectedPrompt.pageObjectIds
       })
     },
 
