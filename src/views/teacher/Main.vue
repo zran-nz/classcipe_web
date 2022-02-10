@@ -247,7 +247,7 @@ export default {
     justify-content: center;
     align-items: center;
     background: #FBFBFBFF;
-    border: 1px solid #DBDBDBFF;
+    border: 1px solid #eee;
     border-radius: 4px;
     transition: all 0.2s ease-in-out;
     cursor: pointer;
