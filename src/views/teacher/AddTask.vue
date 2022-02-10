@@ -2464,6 +2464,7 @@ export default {
         taskId: this.taskId
       }).then(response => {
         if (response.success) {
+          this.chooseAnotherVisible = false
           this.$message.success('Choose another successfully')
         } else {
           this.$message.warn(response.message)
