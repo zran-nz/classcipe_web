@@ -5,11 +5,11 @@
         <div class="toggle-mode-type-wrapper">
           <div class="toggle-mode-type">
             <div class="toggle-mode">
-              <div :class="{'mode-item': true, 'skill-active-mode' : currentStatus === 0}" @click="toggleStatus(0, 'All')">
-                All
+              <div :class="{'mode-item': true, 'knowledge-active-mode' : currentStatus === 1}" @click="toggleStatus(1)">
+                Owned by others
               </div>
-              <div :class="{'mode-item': true, 'knowledge-active-mode' : currentStatus === 1}" @click="toggleStatus(1, 'Collabrating')">
-                Collabrating
+              <div :class="{'mode-item': true, 'skill-active-mode' : currentStatus === 0}" @click="toggleStatus(0)">
+                Owned by me
               </div>
             </div>
           </div>
@@ -104,7 +104,7 @@
                 <div class="action">
                   <div slot="actions">
                     <!-- 接受并且同意协同-->
-                    <div class="action-wrapper" v-if="item.receiveStatus === 1 && item.agreeFlag === 1">
+                    <div class="action-wrapper" v-if="currentStatus === 0 || (item.receiveStatus === 1 && item.agreeFlag === 1)">
 
                       <!-- Task: 外置teacher-pace, student-pace, Edit, 折叠Delete, Duplicate, Previous session-->
                       <!--                      <template v-if="item.content.type === typeMap.task">-->
@@ -226,7 +226,7 @@
             <a-list-item slot="renderItem" key="item.key" slot-scope="item">
               <a-card class="cover-card" >
                 <div class="mask"></div>
-                <div class="mask-actions" v-if="item.receiveStatus === 1 && item.agreeFlag === 1">
+                <div class="mask-actions" v-if="currentStatus === 0 || (item.receiveStatus === 1 && item.agreeFlag === 1)">
                   <div class="action-item action-item-top">
                     <a-dropdown>
                       <a-icon type="more" style="margin-right: 8px" class="more-icon" />
@@ -455,7 +455,13 @@ import { Duplicate } from '@/api/teacher'
 import { CollaborateStatus, typeMap } from '@/const/teacher'
 import ContentStatusIcon from '@/components/Teacher/ContentStatusIcon'
 import ContentTypeIcon from '@/components/Teacher/ContentTypeIcon'
-import { CollaboratesAgree, CollaboratesQueryShared, DeleteCollaborate, ReceiveCollaborate } from '@/api/collaborate'
+import {
+  CollaboratesAgree,
+  CollaboratesQueryShared,
+  CollaboratesQuerySharedOwner, DeleteByMeCollaborate,
+  DeleteCollaborate,
+  ReceiveCollaborate
+} from '@/api/collaborate'
 import { lessonHost, lessonStatus } from '@/const/googleSlide'
 import { StartLesson } from '@/api/lesson'
 import storage from 'store'
@@ -518,8 +524,7 @@ export const SHARED_VIEW_MODE = 'view_mode_shared'
         loading: true,
         loadFailed: false,
         myContentList: [],
-        currentStatus: 0,
-        currentStatusLabel: 'All',
+        currentStatus: 1,
         currentType: 'all-type',
         currentTypeLabel: this.$t('teacher.my-content.all-type'),
         currentOwner: 'all-owner',
@@ -585,38 +590,66 @@ export const SHARED_VIEW_MODE = 'view_mode_shared'
       },
       loadMyContent () {
         this.loading = true
-        CollaboratesQueryShared({
-          collaborateStatus: this.currentStatus,
-          type: this.currentType !== 'all-type' ? typeMap[this.currentType] : '',
-          pageNo: this.pageNo,
-          pageSize: this.pagination.pageSize,
-          searchKey: ''
-        }).then(res => {
-          logger.info('CollaboratesQueryShared', res)
-          if (res.success) {
-            res.result.records.forEach((record, index) => {
-              record.key = index
-            })
-            this.myContentList = res.result.records
-            this.pagination.total = res.result.total
-            this.pagination.current = res.result.current
-            if (res.result.records.length === 0 && this.pagination.total > 0) {
-              this.pageNo = res.result.pages
-              this.loadMyContent()
+        if (this.currentStatus === 0) {
+          // owner
+          CollaboratesQuerySharedOwner({
+            type: this.currentType !== 'all-type' ? typeMap[this.currentType] : '',
+            pageNo: this.pageNo,
+            pageSize: this.pagination.pageSize,
+            searchKey: ''
+          }).then(res => {
+            logger.info('CollaboratesQueryShared', res)
+            if (res.success) {
+              res.result.records.forEach((record, index) => {
+                record.key = index
+              })
+              this.myContentList = res.result.records
+              this.pagination.total = res.result.total
+              this.pagination.current = res.result.current
+              if (res.result.records.length === 0 && this.pagination.total > 0) {
+                this.pageNo = res.result.pages
+                this.loadMyContent()
+              }
+            } else {
+              this.myContentList = []
+              this.pagination.total = 0
             }
-          } else {
-            this.myContentList = []
-            this.pagination.total = 0
-          }
-        }).finally(() => {
-          this.loading = false
-          this.skeletonLoading = false
-        })
+          }).finally(() => {
+            this.loading = false
+            this.skeletonLoading = false
+          })
+        } else {
+          CollaboratesQueryShared({
+            type: this.currentType !== 'all-type' ? typeMap[this.currentType] : '',
+            pageNo: this.pageNo,
+            pageSize: this.pagination.pageSize,
+            searchKey: ''
+          }).then(res => {
+            logger.info('CollaboratesQueryShared', res)
+            if (res.success) {
+              res.result.records.forEach((record, index) => {
+                record.key = index
+              })
+              this.myContentList = res.result.records
+              this.pagination.total = res.result.total
+              this.pagination.current = res.result.current
+              if (res.result.records.length === 0 && this.pagination.total > 0) {
+                this.pageNo = res.result.pages
+                this.loadMyContent()
+              }
+            } else {
+              this.myContentList = []
+              this.pagination.total = 0
+            }
+          }).finally(() => {
+            this.loading = false
+            this.skeletonLoading = false
+          })
+        }
       },
-      toggleStatus (status, label) {
-        logger.info('toggleStatus ' + status + ' label ' + label)
+      toggleStatus (status) {
+        logger.info('toggleStatus ' + status)
         this.currentStatus = status
-        this.currentStatusLabel = label
         this.loadMyContent()
       },
       toggleType (type, label) {
@@ -662,11 +695,19 @@ export const SHARED_VIEW_MODE = 'view_mode_shared'
       },
       handleDeleteItem (item) {
         logger.info('handleDeleteItem', item)
-        DeleteCollaborate({ id: item.id }).then(res => {
-          logger.info('DeleteCollaborate', res)
-        }).then(() => {
-          this.loadMyContent()
-        })
+        if (this.currentStatus === 0) {
+          DeleteByMeCollaborate({ sourceId: item.sourceId, sourceType: item.sourceType }).then(res => {
+            logger.info('DeleteCollaborate', res)
+          }).then(() => {
+            this.loadMyContent()
+          })
+        } else {
+          DeleteCollaborate({ id: item.id }).then(res => {
+            logger.info('DeleteCollaborate', res)
+          }).then(() => {
+            this.loadMyContent()
+          })
+        }
       },
       handleViewDetail (item) {
         logger.info('handleViewDetail', item)
@@ -1144,7 +1185,7 @@ export const SHARED_VIEW_MODE = 'view_mode_shared'
                 display: flex;
                 align-items: center;
                 justify-content: center;
-                width: 120px;
+                width: 150px;
               }
 
               .skill-active-mode {
