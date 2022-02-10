@@ -3,7 +3,6 @@ import { fileTypeMap } from '@/const/material'
 import { SESSION_ACTIVE_KEY } from '@/const/common'
 import { NOT_REMEMBER_ME, ACCESS_TOKEN } from '@/store/mutation-types'
 import storage from 'store'
-import store from '@/store'
 
 export function timeFix () {
   const time = new Date()
