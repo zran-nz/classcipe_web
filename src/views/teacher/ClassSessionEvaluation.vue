@@ -87,7 +87,7 @@
                       <div class="student-name" :data-email="member.userId">
                         <a-tooltip placement="top" :mouseEnterDelay="1">
                           <template slot="title">
-                            {{ member.realName }}
+                            {{ member.email }}
                           </template>
                           {{ member.realName }}
                         </a-tooltip>
@@ -151,7 +151,7 @@
                         <div class="student-name" :data-email="member.email">
                           <a-tooltip placement="top" :mouseEnterDelay="1">
                             <template slot="title">
-                              {{ member.realName }}
+                              {{ member.email }}
                             </template>
                             {{ member.realName }}
                           </a-tooltip>
@@ -223,13 +223,13 @@
                           <template v-if="mode=== EvaluationTableMode.Edit">
                             Evaluating
                           </template>
-                          <template v-if="mode !== EvaluationTableMode.Edit && mode !== EvaluationTableMode.Preview">
+                          <template v-if="mode !== EvaluationTableMode.Edit">
                             Editing
                           </template>
                         </div>
                       </a-button>
                       <a-button
-                        v-if='mode === EvaluationTableMode.StudentEvaluate || mode === EvaluationTableMode.TeacherEvaluate'
+                        v-if='mode === EvaluationTableMode.TeacherEvaluate'
                         class="my-form-header-btn"
                         style="{
                             width: 120px;
@@ -254,7 +254,7 @@
                     <div class="form-setting">
                       <a-dropdown
                         placement="bottomRight"
-                        v-if="isTeacher && (mode === EvaluationTableMode.Edit || mode === EvaluationTableMode.TeacherEvaluate)">
+                        v-if="isTeacher">
                         <a-icon type="setting" />
                         <a-menu slot="overlay">
                           <a-menu-item key="0">
@@ -279,7 +279,7 @@
                       </a-dropdown>
                     </div>
                   </div>
-                  <div class="comment" v-show="formTableMode === EvaluationTableMode.TeacherEvaluate">
+                  <div class="comment" v-show="mode === EvaluationTableMode.TeacherEvaluate">
                     <div class="summary-input" v-if="currentActiveFormId && currentActiveStudentId">
                       <a-textarea
                         v-model="studentEvaluateData[currentActiveStudentId][currentActiveFormId].comment"
@@ -296,10 +296,11 @@
                       :init-raw-headers="formItem.initRawHeaders"
                       :init-raw-data="formItem.initRawData"
                       :form-type="formItem.formType"
-                      :form-table-mode="formTableMode"
+                      :mode="mode"
                       :form-body-data="formBodyData"
                       @update-evaluation="handleUpdateEvaluate"
                       @add-evidence="handleAddEvidence"
+                      @error-mode='handleErrorMode'
                     />
                   </div>
                 </div>
@@ -311,7 +312,7 @@
               </div>
             </template>
             <template
-              v-else-if="mode !== EvaluationTableMode.Preview && mode !== EvaluationTableMode.Edit && !currentActiveStudentId && !loading">
+              v-else-if="mode !== EvaluationTableMode.Edit && !currentActiveStudentId && !loading">
               <div class="no-form-tips">
                 <no-more-resources tips="Please select a student first!" />
               </div>
@@ -557,11 +558,13 @@ import ModalHeader from '@/components/Common/ModalHeader'
 import {
   SaveSessionEvaluation,
   EvaluationQueryByIds,
-  GetSessionEvaluationByClassId
+  GetSessionEvaluationByClassId,
+  SaveEvaluationFormSet
 } from '@/api/evaluation'
 import SelectEvaluationList from '@/components/Evaluation/SelectEvaluationList'
 import EvaluationTableType from '@/components/Evaluation/EvaluationTableType'
 import EvaluationTableMode from '@/components/Evaluation/EvaluationTableMode'
+import TeacherEvaluationStatus from '@/components/Evaluation/TeacherEvaluationStatus'
 import NoMoreResources from '@/components/Common/NoMoreResources'
 import PptSlideView from '@/components/Evaluation/PptSlideView'
 import { GetAssociate } from '@/api/teacher'
@@ -618,27 +621,7 @@ export default {
     },
 
     isTeacher () {
-      return this.$store.getters && this.$store.getters.roles && this.$store.getters.roles.includes('teacher')
-    }
-  },
-  watch: {
-    currentActiveFormId (formId) {
-      this.$logger.info('update currentActiveFormId ' + formId)
-      // 判断当前的formId是否是允许他评
-      if (this.mode === EvaluationTableMode.PeerEvaluate && formId && this.studentEvaluateData) {
-        this.allowPeerEvaluate = true
-        this.allStudentUserIdList.forEach(studentId => {
-          const currentFormData = this.studentEvaluateData[studentId][formId]
-          const rowIdList = Object.keys(currentFormData)
-          rowIdList.forEach(rowId => {
-            const rowData = currentFormData[rowId]
-            if (rowData && rowData.peerEmail && this.currentUserGroupUserIdList.indexOf(rowData.peerEmail) !== -1) {
-              this.$logger.info('student ' + studentId + ' row ' + rowId + ' has peerEvaluation')
-              this.allowPeerEvaluate = false
-            }
-          })
-        })
-      }
+      return this.$store.getters && this.$store.getters.currentRole === 'teacher'
     }
   },
   data () {
@@ -688,6 +671,7 @@ export default {
       selectedStudentNameList: [],
       EvaluationTableType: EvaluationTableType,
       EvaluationTableMode: EvaluationTableMode,
+      TeacherEvaluationStatus: TeacherEvaluationStatus,
 
       groupNum: 0,
       memberNum: 0,
@@ -699,7 +683,6 @@ export default {
 
       currentEditingTitle: null,
       currentFormItem: null,
-      formTableMode: null,
 
       studentEvaluateData: {}, // 所有学生的评价数据对象，通过vue.$set设置属性，方便遍历对应的学生及表单数据
       currentActiveStudentId: null,
@@ -724,20 +707,19 @@ export default {
       // 当前用户所在组，他评用
       currentUserGroupId: null,
       currentUserGroupUserIdList: [],
-      allowPeerEvaluate: false,
 
       typeMap: typeMap,
       taskForms: [],
-
-      evaluateStudentId: null, // 当前正在评估的学生id
-      evaluateStudentName: null, // 当前正在评估的学生姓名
 
       isEmptyStudentEvaluateData: false,
 
       allStudentUserList: [],
       allNoGroupStudentUserIdList: [], // 所有未分组的学生邮箱列表
       allNoGroupStudentUserList: [], // 所有未分组的学生列表
-      initCompleted: false
+      initCompleted: false,
+
+      isInitForm: false,
+      evaluationId: null // 保存后才有
     }
   },
   beforeRouteLeave(to, from, next) {
@@ -765,13 +747,7 @@ export default {
     }
   },
   created () {
-    this.$logger.info('[' + this.formTableMode + '] created ClassSessionEvaluation classId' + this.classId + ' taskId ' + this.taskId)
-    this.formTableMode = this.mode
-
-    const params = new URLSearchParams(document.location.search)
-    this.evaluateStudentId = params.get('student-id')
-    this.evaluateStudentName = params.get('student-name')
-    this.$logger.info('evaluateStudentId ' + this.evaluateStudentId + ' evaluateStudentName ' + this.evaluateStudentName)
+    this.$logger.info('[' + this.mode + '] created ClassSessionEvaluation classId' + this.classId + ' taskId ' + this.taskId)
 
     this.initData()
     // 每次打开第一次提示多选模式
@@ -822,6 +798,7 @@ export default {
                   se: formItem.se,
                   pe: formItem.pe,
                   menuVisible: false,
+                  mode: formItem.mode, // 0-editing 1-evaluating
                   id: null,
                   formId: formItem.formId,
                   initRawHeaders: JSON.parse(formItem.initRawHeaders),
@@ -859,11 +836,6 @@ export default {
           group.expand = true // 默认分组展开显示
           group.members.forEach(member => {
             allGroupStudentUserIdList.push(member.userId)
-            if (member.userId === this.evaluateStudentId) {
-              this.currentUserGroupId = group.id
-              this.currentUserGroupUserIdList = group.members.map(member => member.userId)
-              this.$logger.info('currentUserGroupId' + this.currentUserGroupId, 'currentUserGroupUserIdList', this.currentUserGroupUserIdList)
-            }
           })
         })
 
@@ -911,6 +883,7 @@ export default {
               se: formItem.se,
               pe: formItem.pe,
               menuVisible: false,
+              mode: formItem.mode, // 0-editing 1-evaluating
               id: formItem.id,
               formId: formItem.formId,
               initRawHeaders: JSON.parse(formItem.initRawHeaders),
@@ -929,7 +902,10 @@ export default {
 
         if (!this.forms || this.forms.length === 0) {
           this.forms = this.taskForms
+          this.isInitForm = true // 当前是初始化逻辑，需要自动保存一下关联的评估表，保证服务端已存在对应的评估表数据。
           this.$logger.info('forms empty, use task forms as forms', this.forms)
+        } else {
+          this.isInitForm = false
         }
 
         if (this.forms.length) {
@@ -942,6 +918,7 @@ export default {
         let isEmptyStudentEvaluateData = false
         if (data.evaluation && data.evaluation.studentEvaluateData) {
           const evaluateDataObj = JSON.parse(data.evaluation.studentEvaluateData)
+          this.evaluationId = data.evaluation.id
           const userIds = Object.keys(evaluateDataObj)
           if (userIds.length === 0) {
             isEmptyStudentEvaluateData = true
@@ -961,7 +938,7 @@ export default {
         if (!isEmptyStudentEvaluateData) {
           this.studentEvaluateData = JSON.parse(data.evaluation.studentEvaluateData)
           this.oldStudentEvaluationJson = data.evaluation.studentEvaluateData
-          if (allStudentUserIdList.length && this.mode !== EvaluationTableMode.Edit && this.formTableMode !== EvaluationTableMode.Preview) {
+          if (allStudentUserIdList.length && this.mode !== EvaluationTableMode.Edit && this.mode !== EvaluationTableMode.Preview) {
             this.currentActiveStudentId = allStudentUserIdList[0]
             this.selectedMemberIdList.push(this.currentActiveStudentId)
           }
@@ -1002,13 +979,6 @@ export default {
           this.studentEvaluateData = studentEvaluateData
           this.oldStudentEvaluationJson = JSON.stringify(studentEvaluateData)
 
-          if (this.mode !== EvaluationTableMode.Edit && this.formTableMode === EvaluationTableMode.Preview) {
-            // 默认选中第一个学生的第一个评估表格
-            this.currentActiveStudentId = allGroupStudentUserIdList[0]
-            this.selectedMemberIdList.push(this.currentActiveStudentId)
-            this.$logger.info('currentActiveFormId ' + this.currentActiveFormId + ' currentActiveStudentId ' + this.currentActiveStudentId)
-          }
-
           // 老师评估模式默认选中第一个学生
           if (this.mode === EvaluationTableMode.TeacherEvaluate) {
             this.currentActiveStudentId = allStudentUserIdList[0]
@@ -1024,40 +994,51 @@ export default {
         if ((!this.forms || this.forms.length === 0) && this.mode === EvaluationTableMode.Edit) {
           this.selectRubricVisible = true
         }
-
-        if (this.mode === EvaluationTableMode.StudentEvaluate) {
-          this.$logger.info('StudentEvaluate try fix currentActiveStudentId ' + this.evaluateStudentId, 'allGroupStudentUserIdList', this.allGroupStudentUserIdList)
-          if (this.allStudentUserIdList.indexOf(this.evaluateStudentId) === -1) {
-            this.$logger.info('current use email ' + (this.evaluateStudentId) + ' not exist in ', this.allStudentUserIdList, ' cannot student evaluate')
-            this.$confirm({
-              content: 'You are not in the student list of the current class and cannot evaluate !'
-            })
-          } else {
-            this.currentActiveStudentId = this.evaluateStudentId
-            this.selectedMemberIdList = [this.evaluateStudentId]
-          }
-
-          this.currentActiveStudentId = this.evaluateStudentId
-          this.selectedMemberIdList = [this.evaluateStudentId]
+        if (this.isInitForm) {
+          // 如果是初始化，且有关联的表格数据，先自动保存一下。
+          this.initSaveEvaluation()
+        } else {
+          this.loading = false
         }
+      })
+    },
 
-        // 检查是否以及评估过了，有过评估数据不允许再评估。查找PeerEmail字段中是否有在currentUserGroupUserIdList中存在，有代表有过评估
-        if (this.mode === EvaluationTableMode.PeerEvaluate) {
-          this.allowPeerEvaluate = true
-          this.allStudentUserIdList.forEach(studentId => {
-            const currentFormData = this.studentEvaluateData[studentId][this.currentActiveFormId]
-            const rowIdList = Object.keys(currentFormData)
-            rowIdList.forEach(rowId => {
-              const rowData = currentFormData[rowId]
-              this.$logger.info('currentFormData', currentFormData, 'rowId', rowData)
-              if (rowData && rowData.peerEmail && this.currentUserGroupUserIdList.indexOf(rowData.peerEmail) !== -1) {
-                this.$logger.info('student ' + studentId + ' row ' + rowId + ' has peerEvaluation')
-                this.allowPeerEvaluate = false
-              }
-            })
+    initSaveEvaluation () {
+      this.$logger.info('initSaveEvaluation onOk')
+      // 获取所有的表格结构（表头+表内容）
+      const formData = JSON.parse(JSON.stringify(this.form))
+      const formDataList = JSON.parse(JSON.stringify(this.taskForms))
+      this.$logger.info('formDataList', formDataList, 'this.form', this.form, 'this.classId', this.classId)
+      formData.classId = this.classId
+      // 获取评估数据
+      this.$logger.info('!!!!!!!!!!!!!!!!!! studentEvaluateData !!!!!!!!!!!', this.studentEvaluateData)
+      formDataList.forEach(formItem => {
+        formItem.initRawHeaders = JSON.stringify(formItem.initRawHeaders)
+        formItem.initRawData = JSON.stringify(formItem.initRawData)
+      })
+      formData.forms = formDataList
+      formData.studentEvaluateData = '{}'
+
+      if (this.id) {
+        this.form.id = this.id
+      }
+      SaveSessionEvaluation(formData).then((response) => {
+        this.$logger.info('SaveSessionEvaluation', response)
+        if (response.result && response.result.id) {
+          this.id = response.result.id
+        }
+        if (response.success) {
+          this.forms = []
+          this.form.forms = []
+          this.taskForms = []
+          this.initData()
+        } else {
+          this.$confirm({
+            content: response.message,
+            onOk: this.handleErrorMode,
+            onCancel: this.handleErrorMode
           })
         }
-        this.loading = false
       })
     },
 
@@ -1127,13 +1108,6 @@ export default {
           }
         }
         this.$logger.info('currentActiveGroupId ' + this.currentActiveFormId + ' selectedMemberIdList ', this.selectedMemberIdList)
-      } else if (this.mode === EvaluationTableMode.PeerEvaluate) {
-        if (!this.allowPeerEvaluate) {
-          this.$message.warn('You have evaluated!')
-          this.currentActiveStudentId = member.userId
-        } else if (!group || this.currentUserGroupUserIdList.indexOf(member.userId) !== -1) {
-          this.$message.warn('Not allowed to evaluate for this student!')
-        }
       }
     },
 
@@ -1142,45 +1116,39 @@ export default {
       this.$logger.info('handleSelectGroup', group)
 
       // 只允许老师和他评选择小组
-      if (this.mode === EvaluationTableMode.TeacherEvaluate || this.mode === EvaluationTableMode.PeerEvaluate) {
-        if (this.mode === EvaluationTableMode.PeerEvaluate && group.id === this.currentUserGroupId) {
-          this.$message.warn('You are not allowed to evaluate your group!')
-        } else if (this.mode === EvaluationTableMode.PeerEvaluate && !this.allowPeerEvaluate) {
-          this.$message.warn('You have evaluated!')
-        } else {
-          const index = this.selectedGroupIdList.indexOf(group.id)
-          if (index === -1) {
-            this.selectedGroupIdList = [group.id]
+      if (this.mode === EvaluationTableMode.TeacherEvaluate) {
+        const index = this.selectedGroupIdList.indexOf(group.id)
+        if (index === -1) {
+          this.selectedGroupIdList = [group.id]
 
-            // 添加操作，只保留当前组内的选中人员，筛选掉其他小组人员
-            const memberIdList = []
-            const memberNameList = []
-            group.members.forEach(member => {
-              memberIdList.push(member.userId)
-              memberNameList.push(member.realName)
-            })
+          // 添加操作，只保留当前组内的选中人员，筛选掉其他小组人员
+          const memberIdList = []
+          const memberNameList = []
+          group.members.forEach(member => {
+            memberIdList.push(member.userId)
+            memberNameList.push(member.realName)
+          })
 
-            this.selectedMemberNameList = memberNameList
-            this.selectedMemberIdList = memberIdList
+          this.selectedMemberNameList = memberNameList
+          this.selectedMemberIdList = memberIdList
 
-            if (this.selectedMemberNameList.length > 1) {
-              const confirmVisible = window.sessionStorage.getItem('multiConfirmVisible')
-              this.$logger.info('confirmVisible ' + confirmVisible)
-              if (!confirmVisible) {
-                this.showMultiSelectedConfirm = true
-              }
+          if (this.selectedMemberNameList.length > 1) {
+            const confirmVisible = window.sessionStorage.getItem('multiConfirmVisible')
+            this.$logger.info('confirmVisible ' + confirmVisible)
+            if (!confirmVisible) {
+              this.showMultiSelectedConfirm = true
             }
-            this.currentActiveStudentId = this.selectedMemberNameList[0]
-            this.currentActiveGroupId = group.id
-          } else {
-            // 取消小组选择时，把已选择人员清空
-            this.selectedMemberIdList = []
-            this.selectedGroupIdList = []
-            this.currentActiveStudentId = null
-            this.currentActiveGroupId = null
           }
-          this.$logger.info('handleSelectGroup selectedMemberIdList', this.selectedMemberIdList)
+          this.currentActiveStudentId = this.selectedMemberNameList[0]
+          this.currentActiveGroupId = group.id
+        } else {
+          // 取消小组选择时，把已选择人员清空
+          this.selectedMemberIdList = []
+          this.selectedGroupIdList = []
+          this.currentActiveStudentId = null
+          this.currentActiveGroupId = null
         }
+        this.$logger.info('handleSelectGroup selectedMemberIdList', this.selectedMemberIdList)
       } else {
         this.$logger.info('current mode ' + this.mode + ' ignore it!')
       }
@@ -1239,6 +1207,7 @@ export default {
           pe: 0,
           menuVisible: false,
           comment: null,
+          mode: TeacherEvaluationStatus.Editing, // 0-editing 1-evaluating
           id: null,
           formId: selfId,
           tableData: {
@@ -1429,7 +1398,7 @@ export default {
     },
     // switchEvaluate标识是否跳转到评估页面，true为跳转，false为不跳转
     handleSaveEvaluation (switchEvaluate) {
-      this.$logger.info('handleSaveEvaluation', this.forms)
+      this.$logger.info('handleSaveEvaluation', this.forms, switchEvaluate)
 
       if (!this.isEmptyStudentEvaluateData && this.mode === EvaluationTableMode.Edit) {
         this.$info({
@@ -1470,9 +1439,6 @@ export default {
             if (formDataList.length === 0) {
               this.$message.error('Please add at least one form!')
               this.formSaving = false
-              if (switchEvaluate) {
-                this.goEvaluatePage()
-              }
               return false
             } else {
               if (this.id) {
@@ -1661,7 +1627,7 @@ export default {
     },
 
     goEvaluatePage () {
-      // window.location.pathname = '/teacher/class-evaluation/' + this.taskId + '/' + this.classId + '/teacher-evaluate'
+      window.location.pathname = '/teacher/class-evaluation/' + this.taskId + '/' + this.classId
     },
     handleSaveAndBackEvaluation () {
       this.$logger.info('handleSaveAndBackEvaluation', this.forms)
@@ -1851,27 +1817,30 @@ export default {
 
     handleToggleStudentEvaluation (formItem) {
       this.$logger.info('handleToggleStudentEvaluation', formItem)
-      formItem.menuVisible = !formItem.menuVisible
+      SaveEvaluationFormSet({
+        evaluationId: this.evaluationId,
+        formId: formItem.formId,
+        mode: formItem.mode,
+        pe: formItem.pe,
+        se: formItem.se
+      })
     },
 
     handleTogglePeerEvaluation (formItem) {
       this.$logger.info('handleTogglePeerEvaluation', formItem)
-      formItem.menuVisible = !formItem.menuVisible
-    },
-
-    handleToggleMenuVisible (formItem) {
-      this.$logger.info('handleToggleMenuVisible', formItem)
-      if (this.mode === EvaluationTableMode.Edit) {
-        formItem.menuVisible = !formItem.menuVisible
-      }
+      SaveEvaluationFormSet({
+        evaluationId: this.evaluationId,
+        formId: formItem.formId,
+        mode: formItem.mode,
+        pe: formItem.pe,
+        se: formItem.se
+      })
     },
 
     handleUpdateEvaluate (data) {
       this.$logger.info('handleUpdateEvaluate', data)
       this.$logger.info('before update studentEvaluateData', this.studentEvaluateData)
-      if (this.mode === EvaluationTableMode.TeacherEvaluate ||
-        this.mode === EvaluationTableMode.StudentEvaluate ||
-        this.mode === EvaluationTableMode.PeerEvaluate) {
+      if (this.mode === EvaluationTableMode.TeacherEvaluate) {
         // 更新当前选中的所有学生的对应的form的rowId的数据为对应列
         const allSelectedStudentUserId = []
         this.selectedMemberIdList.forEach(userId => {
@@ -1905,26 +1874,6 @@ export default {
             } else {
               this.studentEvaluateData[userId][data.formId][data.rowId].teacherEvaluation = data.value
             }
-          } else if (data.evaluationMode === EvaluationTableMode.StudentEvaluate) {
-            this.studentEvaluateData[userId][data.formId][data.rowId].studentEmail = data.evaluateUserEmail
-            this.studentEvaluateData[userId][data.formId][data.rowId].studentName = data.evaluateUserName
-            this.studentEvaluateData[userId][data.formId][data.rowId].data = data.data
-
-            if (this.studentEvaluateData[userId][data.formId][data.rowId].studentEvaluation === data.value) {
-              this.studentEvaluateData[userId][data.formId][data.rowId].studentEvaluation = ''
-            } else {
-              this.studentEvaluateData[userId][data.formId][data.rowId].studentEvaluation = data.value
-            }
-          } else if (data.evaluationMode === EvaluationTableMode.PeerEvaluate) {
-            this.studentEvaluateData[userId][data.formId][data.rowId].peerEmail = data.evaluateUserEmail
-            this.studentEvaluateData[userId][data.formId][data.rowId].peerName = data.evaluateUserName
-            this.studentEvaluateData[userId][data.formId][data.rowId].data = data.data
-
-            if (this.studentEvaluateData[userId][data.formId][data.rowId].peerEvaluation === data.value) {
-              this.studentEvaluateData[userId][data.formId][data.rowId].peerEvaluation = ''
-            } else {
-              this.studentEvaluateData[userId][data.formId][data.rowId].peerEvaluation = data.value
-            }
           }
           this.$logger.info('set ' + userId + ' formId ' + data.formId + ' row ' + data.rowId, this.studentEvaluateData[userId][data.formId][data.rowId], 'data', data)
         })
@@ -1946,6 +1895,11 @@ export default {
     handleAddEvidenceFinish (data) {
       this.$logger.info('handleAddEvidenceFinish', data)
       this.evidenceSelectVisible = false
+    },
+
+    handleErrorMode () {
+      this.initCompleted = false
+      window.location.pathname = '/'
     },
 
     handleEnsureEvidenceFinish (data) {
@@ -1991,23 +1945,21 @@ export default {
 
     handleToggleMode () {
       this.$logger.info('handleToggleMode')
-      if (this.$store.getters.roles.indexOf('teacher') !== -1) {
-        if (this.mode !== EvaluationTableMode.Preview) {
-          if (this.mode !== EvaluationTableMode.Edit) {
-            this.$confirm({
-              content: 'Are you sure to switch to edit mode ?',
-              onOk: () => {
-                window.location.pathname = '/teacher/class-evaluation/' + this.taskId + '/' + this.classId + '/edit'
-              }
-            })
-          } else {
-            this.$confirm({
-              content: 'Are you sure to switch to evaluate mode ?',
-              onOk: () => {
-                this.handleSaveEvaluation(true)
-              }
-            })
-          }
+      if (this.isTeacher) {
+        if (this.mode !== EvaluationTableMode.Edit) {
+          this.$confirm({
+            content: 'Are you sure to switch to edit mode ?',
+            onOk: () => {
+              window.location.pathname = '/teacher/class-evaluation/' + this.taskId + '/' + this.classId + '/edit'
+            }
+          })
+        } else {
+          this.$confirm({
+            content: 'Are you sure to switch to evaluate mode ?',
+            onOk: () => {
+              this.handleSaveEvaluation(true)
+            }
+          })
         }
       } else {
         this.$logger.info('role no permission', this.$store.getters.roles)
@@ -2056,7 +2008,7 @@ export default {
       this.$logger.info('newTableName', this.newTableName)
     },
 
-    handleUpdateHeader (header) {
+    handleUpdateHeader () {
       this.$logger.info('ClassSessionEvaluation handleUpdateHeader')
       if (this.$refs.evaluationTable && this.$refs.evaluationTable.length > 0) {
         this.$refs.evaluationTable.forEach(tableItem => {
