@@ -296,7 +296,7 @@
 </template>
 
 <script>
-import { FindMyClasses, GetSessionEvaluationByClassId } from '@/api/evaluation'
+import { FindMyClasses, GetEvaluationMode, GetSessionEvaluationByClassId } from '@/api/evaluation'
 import TvSvg from '@/assets/icons/lesson/tv.svg?inline'
 import * as logger from '@/utils/logger'
 import { typeMap } from '@/const/teacher'
@@ -313,6 +313,7 @@ import { AddOrUpdateClass, ChangeClassStatus } from '@/api/classroom'
 import storage from 'store'
 import { ACCESS_TOKEN } from '@/store/mutation-types'
 import PptSlideView from '@/components/Evaluation/PptSlideView'
+import TeacherEvaluationStatus from '@/components/Evaluation/TeacherEvaluationStatus'
 
 export default {
   name: 'ClassTableList',
@@ -466,8 +467,23 @@ export default {
 
     handleReviewEditEvaluation (item) {
       this.$logger.info('handleReviewEditEvaluation', item, this.classData)
-      this.$router.push({
-        path: `/teacher/class-evaluation/${this.classData.id}/${item.classId}`
+      // 先判断evaluation当前在状态，默认教师评估状态。然后进入不同的状态路由
+      GetEvaluationMode({
+        sessionId: item.classId
+      }).then(response => {
+          if (response.success) {
+            if (response.result.mode === TeacherEvaluationStatus.Editing) {
+              this.$router.push({
+                path: `/teacher/class-evaluation/${this.classData.id}/${item.classId}/edit`
+              })
+            } else {
+              this.$router.push({
+                path: `/teacher/class-evaluation/${this.classData.id}/${item.classId}`
+              })
+            }
+          } else {
+            this.$message.warn(response.message)
+          }
       })
     },
     searchSession () {
