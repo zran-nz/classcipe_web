@@ -873,8 +873,8 @@ export default {
         const allStudentUserIdList = this.allStudentUserIdList
         this.groups = data.groups
         if (data.evaluation) {
+          this.evaluationId = data.evaluation.id
           this.form = Object.assign(this.form, data.evaluation)
-
           data.evaluation.forms.forEach(formItem => {
             this.forms.push({
               title: formItem.title,
@@ -918,7 +918,6 @@ export default {
         let isEmptyStudentEvaluateData = false
         if (data.evaluation && data.evaluation.studentEvaluateData) {
           const evaluateDataObj = JSON.parse(data.evaluation.studentEvaluateData)
-          this.evaluationId = data.evaluation.id
           const userIds = Object.keys(evaluateDataObj)
           if (userIds.length === 0) {
             isEmptyStudentEvaluateData = true
