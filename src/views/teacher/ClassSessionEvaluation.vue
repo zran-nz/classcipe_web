@@ -633,6 +633,7 @@ export default {
         evaluationMode: '',
         id: null,
         classId: '',
+        email: this.$store.getters.email,
         name: '',
         className: '',
         forms: [],

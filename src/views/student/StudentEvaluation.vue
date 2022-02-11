@@ -375,6 +375,7 @@ export default {
         classId: '',
         name: '',
         className: '',
+        email: this.$store.getters.email,
         forms: [],
         groups: [],
         updateTime: null,
@@ -483,12 +484,6 @@ export default {
   },
   created () {
     this.$logger.info('[' + this.mode + '] created ClassSessionEvaluation classId' + this.classId)
-
-    GetEvaluationFormSet({
-      evaluationId: this.evaluationId
-    }).then(res => {
-
-    })
     this.initData()
     // 每次打开第一次提示多选模式
     window.sessionStorage.removeItem('multiConfirmVisible')
@@ -1202,17 +1197,7 @@ export default {
           this.$logger.info(data.evaluationMode + ' studentEvaluateData userId ' + userId, this.studentEvaluateData[userId])
           this.$logger.info(data.evaluationMode + ' studentEvaluateData formId ' + data.formId, this.studentEvaluateData[userId][data.formId])
           this.$logger.info(data.evaluationMode + ' studentEvaluateData rowId ' + data.rowId, this.studentEvaluateData[userId][data.formId][data.rowId])
-          if (data.evaluationMode === EvaluationTableMode.TeacherEvaluate) {
-            this.studentEvaluateData[userId][data.formId][data.rowId].teacherEmail = data.evaluateUserEmail
-            this.studentEvaluateData[userId][data.formId][data.rowId].teacherName = data.evaluateUserName
-            this.studentEvaluateData[userId][data.formId][data.rowId].data = data.data
-            // 点击选中，再点一次取消选中
-            if (this.studentEvaluateData[userId][data.formId][data.rowId].teacherEvaluation === data.value) {
-              this.studentEvaluateData[userId][data.formId][data.rowId].teacherEvaluation = ''
-            } else {
-              this.studentEvaluateData[userId][data.formId][data.rowId].teacherEvaluation = data.value
-            }
-          } else if (data.evaluationMode === EvaluationTableMode.StudentEvaluate) {
+          if (data.evaluationMode === EvaluationTableMode.StudentEvaluate) {
             this.studentEvaluateData[userId][data.formId][data.rowId].studentEmail = data.evaluateUserEmail
             this.studentEvaluateData[userId][data.formId][data.rowId].studentName = data.evaluateUserName
             this.studentEvaluateData[userId][data.formId][data.rowId].data = data.data
@@ -1221,16 +1206,6 @@ export default {
               this.studentEvaluateData[userId][data.formId][data.rowId].studentEvaluation = ''
             } else {
               this.studentEvaluateData[userId][data.formId][data.rowId].studentEvaluation = data.value
-            }
-          } else if (data.evaluationMode === EvaluationTableMode.PeerEvaluate) {
-            this.studentEvaluateData[userId][data.formId][data.rowId].peerEmail = data.evaluateUserEmail
-            this.studentEvaluateData[userId][data.formId][data.rowId].peerName = data.evaluateUserName
-            this.studentEvaluateData[userId][data.formId][data.rowId].data = data.data
-
-            if (this.studentEvaluateData[userId][data.formId][data.rowId].peerEvaluation === data.value) {
-              this.studentEvaluateData[userId][data.formId][data.rowId].peerEvaluation = ''
-            } else {
-              this.studentEvaluateData[userId][data.formId][data.rowId].peerEvaluation = data.value
             }
           }
           this.$logger.info('set ' + userId + ' formId ' + data.formId + ' row ' + data.rowId, this.studentEvaluateData[userId][data.formId][data.rowId], 'data', data)
