@@ -559,7 +559,7 @@ import {
   SaveSessionEvaluation,
   EvaluationQueryByIds,
   GetSessionEvaluationByClassId,
-  SaveEvaluationFormSet
+  SaveEvaluationFormSet, SaveEvaluationMode
 } from '@/api/evaluation'
 import SelectEvaluationList from '@/components/Evaluation/SelectEvaluationList'
 import EvaluationTableType from '@/components/Evaluation/EvaluationTableType'
@@ -751,6 +751,9 @@ export default {
     this.$logger.info('[' + this.mode + '] created ClassSessionEvaluation classId' + this.classId + ' taskId ' + this.taskId)
 
     this.initData()
+
+    this.updateMode()
+
     // 每次打开第一次提示多选模式
     window.sessionStorage.removeItem('multiConfirmVisible')
   },
@@ -817,6 +820,15 @@ export default {
         }
 
         this.initCompleted = true
+      })
+    },
+
+    updateMode () {
+      SaveEvaluationMode({
+        sessionId: this.classId,
+        mode: this.mode === EvaluationTableMode.Edit ? TeacherEvaluationStatus.Editing : TeacherEvaluationStatus.Evaluating,
+      }).then((response) => {
+        this.$logger.info('updateMode success', response)
       })
     },
 
@@ -990,6 +1002,7 @@ export default {
         this.form.className = this.classInfo.className
         this.form.type = typeMap.classSessionEvaluation
         this.form.evaluationMode = this.mode
+        this.form.email = this.$store.getters.email
       }).finally(() => {
         if ((!this.forms || this.forms.length === 0) && this.mode === EvaluationTableMode.Edit) {
           this.selectRubricVisible = true

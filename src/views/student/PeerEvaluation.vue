@@ -17,7 +17,7 @@
       :bordered="false"
       :bodyStyle="{ padding: '16px 24px', height: '100%', minHeight: '500px' }"
       :loading="loading">
-      <div class="class-session-evaluation">
+      <div class="class-session-evaluation" v-show='!showWaitingMask'>
         <div class="header">
           <div class="left-action">
             <div class="add-btn">
@@ -287,6 +287,9 @@
           </div>
         </div>
       </div>
+      <div class='waiting-mask' v-show='showWaitingMask'>
+        <no-more-resources tips='Teacher is editing, please wait...' />
+      </div>
     </a-card>
   </div>
 </template>
@@ -307,7 +310,7 @@ import ModalHeader from '@/components/Common/ModalHeader'
 import {
   SaveSessionEvaluation,
   EvaluationQueryByIds,
-  GetSessionEvaluationByClassId, GetEvaluationFormSet
+  GetSessionEvaluationByClassId, GetEvaluationMode
 } from '@/api/evaluation'
 import SelectEvaluationList from '@/components/Evaluation/SelectEvaluationList'
 import EvaluationTableType from '@/components/Evaluation/EvaluationTableType'
@@ -653,6 +656,7 @@ export default {
         this.groups = data.groups
         if (data.evaluation) {
           this.evaluationId = data.evaluation.id
+          this.startUpdateTeacherEvaluationStatus() // 轮询更新老师的评估模式状态
           this.form = Object.assign(this.form, data.evaluation)
 
           data.evaluation.forms.forEach(formItem => {
@@ -775,6 +779,7 @@ export default {
         this.form.className = this.classInfo.className
         this.form.type = typeMap.classSessionEvaluation
         this.form.evaluationMode = this.mode
+        this.form.email = this.$store.getters.email
       }).finally(() => {
         if (this.isInitForm) {
           // 如果是初始化，且有关联的表格数据，先自动保存一下。
@@ -815,19 +820,16 @@ export default {
         this.startUpdateTeacherEvaluationStatusTimer = null
       }
 
-      GetEvaluationFormSet({
-        evaluationId: this.evaluationId
+      GetEvaluationMode({
+        sessionId: this.classId
       }).then(response => {
         if (response.success) {
-          if (response.result && response.result.length) {
-            if (response.result.some(item => item.mode === TeacherEvaluationStatus.Editing)) {
-              // TODO 修改编辑状态查看逻辑
-              // this.showWaitingMask = true
-            } else {
-              this.showWaitingMask = true
-            }
-          } else {
-            this.showWaitingMask = true
+          const oldMode = this.showWaitingMask
+          this.showWaitingMask = response.result.mode === TeacherEvaluationStatus.Editing
+          // 老师编辑完页面，重新刷新加载！
+          if (oldMode && !this.showWaitingMask) {
+            this.initCompleted = false
+            window.location.reload()
           }
         }
       }).finally(() => {

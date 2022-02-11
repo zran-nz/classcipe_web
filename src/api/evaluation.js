@@ -16,7 +16,9 @@ export const evaluationAPIUrl = {
   querySessionEvidence: '/classcipe/api/evaluation/querySessionEvidence',
   saveSessionEvidence: '/classcipe/api/evaluation/saveSessionEvidence',
   getEvaluationFormSet: '/classcipe/api/evaluation/getEvaluationFormSet',
-  saveEvaluationFormSet: '/classcipe/api/evaluation/saveEvaluationFormSet'
+  saveEvaluationFormSet: '/classcipe/api/evaluation/saveEvaluationFormSet',
+  getEvaluationMode: '/classcipe/api/evaluation/getEvaluationMode',
+  saveEvaluationMode: '/classcipe/api/evaluation/saveEvaluationMode'
 }
 
 /**
@@ -135,6 +137,22 @@ export function GetEvaluationFormSet (parameter) {
 export function SaveEvaluationFormSet (parameter) {
   return request({
     url: evaluationAPIUrl.saveEvaluationFormSet,
+    method: 'post',
+    data: parameter
+  })
+}
+
+export function GetEvaluationMode (parameter) {
+  return request({
+    url: evaluationAPIUrl.getEvaluationMode,
+    method: 'post',
+    data: parameter
+  })
+}
+
+export function SaveEvaluationMode (parameter) {
+  return request({
+    url: evaluationAPIUrl.saveEvaluationMode,
     method: 'post',
     data: parameter
   })

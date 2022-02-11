@@ -253,8 +253,8 @@
           </div>
         </div>
       </div>
-      <div class='waiting-mask'>
-        <no-more-resources tips="Teacher is editing, please wait!" />
+      <div class='waiting-mask' v-show='showWaitingMask'>
+        <no-more-resources tips='Teacher is editing, please wait...' />
       </div>
     </a-card>
 
@@ -304,7 +304,7 @@ import {
   SaveSessionEvaluation,
   EvaluationQueryByIds,
   GetSessionEvaluationByClassId,
-  GetEvaluationFormSet
+  GetEvaluationMode
 } from '@/api/evaluation'
 import SelectEvaluationList from '@/components/Evaluation/SelectEvaluationList'
 import EvaluationTableType from '@/components/Evaluation/EvaluationTableType'
@@ -375,7 +375,7 @@ export default {
         classId: '',
         name: '',
         className: '',
-        email: this.$store.getters.email,
+        email: '',
         forms: [],
         groups: [],
         updateTime: null,
@@ -748,6 +748,7 @@ export default {
         this.form.className = this.classInfo.className
         this.form.type = typeMap.classSessionEvaluation
         this.form.evaluationMode = this.mode
+        this.form.email = this.$store.getters.email
       }).finally(() => {
         if (this.isInitForm) {
           // 如果是初始化，且有关联的表格数据，先自动保存一下。
@@ -782,19 +783,16 @@ export default {
         this.startUpdateTeacherEvaluationStatusTimer = null
       }
 
-      GetEvaluationFormSet({
-        evaluationId: this.evaluationId
+      GetEvaluationMode({
+        sessionId: this.classId
       }).then(response => {
         if (response.success) {
-          if (response.result && response.result.length) {
-            if (response.result.some(item => item.mode === TeacherEvaluationStatus.Editing)) {
-              // TODO 修改编辑状态查看逻辑
-               // this.showWaitingMask = true
-            } else {
-              this.showWaitingMask = true
-            }
-          } else {
-            this.showWaitingMask = true
+          const oldMode = this.showWaitingMask
+          this.showWaitingMask = response.result.mode === TeacherEvaluationStatus.Editing
+          // 老师编辑完页面，重新刷新加载！
+          if (oldMode && !this.showWaitingMask) {
+            this.initCompleted = false
+            window.location.reload()
           }
         }
       }).finally(() => {
@@ -1979,6 +1977,13 @@ export default {
       }
     }
   }
+}
+
+.waiting-mask {
+  height: 400px;
+  justify-content: center;
+  display: flex;
+  align-items: center;
 }
 
 </style>
