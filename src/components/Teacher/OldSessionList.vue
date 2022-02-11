@@ -47,8 +47,8 @@
     </div>
 
     <div class="modal-ensure-action-line">
-      <a-button class="action-item action-cancel" size='small' shape="round" @click="handleCancelSelectData">Cancel</a-button>
-      <a-button class="action-ensure action-item" size='small' type="primary" shape="round" @click="handleEnsureSelectData">Resume</a-button>
+      <a-button class="action-item action-cancel" shape="round" @click="handleCancelSelectData">Cancel</a-button>
+      <a-button class="action-ensure action-item" type="primary" shape="round" @click="handleEnsureSelectData">Resume</a-button>
     </div>
   </div>
 </template>
