@@ -7,20 +7,34 @@
         </span>
         <a-button class='nav-back-btn' type='link' @click='handleBack' v-if='showBack'>{{ $t('teacher.add-lesson.back') }}</a-button>
         <span> <content-type-icon :type='form.type' /></span>
+        <!--评估模式下头部显示不允许编辑,显示对应的课堂和班级名称-->
         <template v-if='form.type === typeMap.classSessionEvaluation'>
           <div class='edit-form-name'>
             <div class='form-name'>
-              <template v-if='!editFormNameMode'>{{ form.className ? form.className : 'Untitled session' }}</template>
-              <template v-else>
-                <a-input v-model='formName' :maxLength='240' @keyup.enter='handleEnsureNewFormName' @click.stop />
-              </template>
+              {{ form.className ? form.className : 'Untitled session' }}
             </div>
             <div class='class-name'>
               {{ form.name ? form.name : 'Untitled className' }}
             </div>
           </div>
         </template>
-        <template v-if='form.type !== typeMap.evaluation'>
+        <!--评估表编辑页面允许设置评估表名称-->
+        <template v-if='form.type === typeMap.evaluation'>
+          <div class='edit-form-name'>
+            <div class='form-name'>
+              <template v-if='!editFormNameMode'>{{ form.name ? form.name : 'Untitled session' }}</template>
+              <template v-else>
+                <a-input v-model='formName' :maxLength='240' @keyup.enter='handleEnsureNewFormName' @click.stop />
+              </template>
+            </div>
+            <div
+              class='edit-icon'
+              @click.stop='editFormNameMode = !editFormNameMode'>
+              <img src='~@/assets/svgIcon/evaluation/bianji.png' alt=''/>
+            </div>
+          </div>
+        </template>
+        <template v-if='form.type !== typeMap.evaluation && form.type !== typeMap.classSessionEvaluation'>
           <span class='unit-last-change-time' v-if='lastChangeSavedTime'>
             <span class='unit-nav-title'>
               {{ form.name ? form.name : 'Untitled' }}
