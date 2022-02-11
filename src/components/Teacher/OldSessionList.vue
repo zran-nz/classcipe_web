@@ -25,6 +25,7 @@
     <div class="my-class-list">
       <div class="class-list-wrapper">
         <a-table
+          rowKey="id"
           :columns="columns"
           :data-source="data"
           :pagination="false"
@@ -46,8 +47,8 @@
     </div>
 
     <div class="modal-ensure-action-line">
-      <a-button class="action-item action-cancel" size='mini' shape="round" @click="handleCancelSelectData">Cancel</a-button>
-      <a-button class="action-ensure action-item" size='mini' type="primary" shape="round" @click="handleEnsureSelectData">Resume</a-button>
+      <a-button class="action-item action-cancel" size='small' shape="round" @click="handleCancelSelectData">Cancel</a-button>
+      <a-button class="action-ensure action-item" size='small' type="primary" shape="round" @click="handleEnsureSelectData">Resume</a-button>
     </div>
   </div>
 </template>
