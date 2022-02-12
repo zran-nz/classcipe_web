@@ -6036,6 +6036,10 @@ export default {
         }
       }
 
+      .img-item:nth-last-child(1) {
+        margin-right: 0;
+      }
+
       .active-img-item {
         border: 2px solid #15C39A;
         box-shadow: 0 0 3px 3px #15C39A1A;
