@@ -427,13 +427,13 @@
                                 </div>
                                 <div
                                   class='slide-preview'
-                                  :style="{'width':(leftWidth- 50) + 'px'}"
+                                  :style="{'width':(leftWidth- 50) + 'px', 'padding': '0 35px'}"
                                   v-show='!form.showSelected && form.presentationId && thumbnailList.length'>
                                   <a-carousel ref='carousel' arrows :after-change='onChangePage'>
-                                    <div slot='prevArrow' class='custom-slick-arrow' style='left: 10px;zIndex: 9'>
+                                    <div slot='prevArrow' class='custom-slick-arrow' style='left: -29px;zIndex: 9'>
                                       <a-icon type='left-circle' />
                                     </div>
-                                    <div slot='nextArrow' class='custom-slick-arrow' style='right: 10px;zIndex: 9'>
+                                    <div slot='nextArrow' class='custom-slick-arrow' style='right: -25px;zIndex: 9'>
                                       <a-icon type='right-circle' />
                                     </div>
                                     <div v-for='(item,index) in thumbnailList' :key='index'>
@@ -496,6 +496,7 @@
                                       <div class='img-list'>
                                         <div
                                           class='img-item'
+                                          :class="{'active-img-item': currentImgIndex === index}"
                                           v-for='(item,index) in thumbnailList'
                                           :key="'index' + index"
                                           @click='handleGotoImgIndex(index)'>
@@ -4130,7 +4131,7 @@ export default {
 
     .anticon-more {
       color: #15c39a;
-      font-size: 18px;
+      font-size: 25px;
     }
   }
 }
@@ -5693,7 +5694,9 @@ export default {
 
     .anticon {
       color: fade(@black, 45%);
-      font-size: 30px;
+      svg {
+        font-size: 25px;
+      }
     }
   }
 
@@ -5729,7 +5732,6 @@ export default {
       }
 
       .slide-preview {
-        border: 1px solid rgba(0, 0, 0, 0.1);
         position: relative;
 
         .slide-hover-action-mask {
@@ -5820,7 +5822,7 @@ export default {
 
     .anticon {
       color: fade(@black, 45%);
-      font-size: 20px;
+      font-size: 25px;
     }
   }
 
@@ -6023,13 +6025,18 @@ export default {
 
       .img-item {
         height: 80px;
-        border: 1px solid #ddd;
+        border: 2px solid #fff;
         box-shadow: 0 4px 8px 0 rgba(31, 33, 44, 10%);
-        margin: 0 10px;
+        margin-right: 10px;
 
         img {
           height: 100%;
         }
+      }
+
+      .active-img-item {
+        border: 2px solid #15C39A;
+        box-shadow: 0 0 3px 3px #15C39A1A;
       }
     }
   }
