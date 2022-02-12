@@ -5677,6 +5677,7 @@ export default {
 
   /deep/ .ant-carousel .slick-slide img {
     width: 100%;
+    border: 2px solid #15C39A;
   }
 
   /deep/ .ant-carousel {
@@ -6017,6 +6018,7 @@ export default {
     width: 100%;
 
     .img-list {
+      margin-right: -10px;
       cursor: pointer;
       display: flex;
       flex-direction: row;
