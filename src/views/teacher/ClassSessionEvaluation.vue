@@ -826,7 +826,7 @@ export default {
     updateMode () {
       SaveEvaluationMode({
         sessionId: this.classId,
-        mode: this.mode === EvaluationTableMode.Edit ? TeacherEvaluationStatus.Editing : TeacherEvaluationStatus.Evaluating,
+        mode: this.mode === EvaluationTableMode.Edit ? TeacherEvaluationStatus.Editing : TeacherEvaluationStatus.Evaluating
       }).then((response) => {
         this.$logger.info('updateMode success', response)
       })
