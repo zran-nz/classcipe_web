@@ -888,9 +888,13 @@ export default {
       if (this.mode === EvaluationTableMode.PeerEvaluate) {
         if (!this.allowPeerEvaluate) {
           this.$message.warn('Not allowed to evaluate for this student!')
-          this.currentActiveStudentId = member.userId
         } else if (!group || this.currentUserGroupUserIdList.indexOf(member.userId) !== -1) {
           this.$message.warn('Not allowed to evaluate for this student!')
+        } else {
+          this.$logger.info('currentActiveStudentId', member)
+          this.selectedMemberIdList = [member.userId]
+          this.currentActiveStudentId = member.userId
+          this.selectedGroupIdList = []
         }
       }
     },
