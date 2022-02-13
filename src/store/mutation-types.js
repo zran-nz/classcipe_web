@@ -1,4 +1,6 @@
 export const ACCESS_TOKEN = 'Access-Token'
+export const TEACHER_TOKEN = 'teacher_token'
+export const STUDENT_TOKEN = 'student_token'
 export const CURRENT_ROLE = 'Current-Role'
 export const IS_ADD_PREFERENCE = 'Is-Add-Preference'
 export const ADD_PREFERENCE_SKIP_TIME = 'Add-Preference-Skip-Time'
