@@ -8,7 +8,14 @@
     <template v-if='!loading'>
       <template v-if='shareContent.status'>
         <div class='share-tips'>
-          <div class='tips-text'>Who gets the link can access the file and multiple files linked with this file.</div>
+          <div class='tips-text'>
+            <template v-if='shareContent.status'>
+              Everyone with this link have access to this content
+            </template>
+            <template v-else>
+              Once turned on, you can share knowledges with others via a link.
+            </template>
+          </div>
         </div>
         <div class='turn-off' @click='switchShareStatus'>
           <div class='turn-off-text'>
@@ -28,23 +35,28 @@
               </div>
               <div class='copy-text'>
                 <a-button type='primary' shape='round' size='small' @click='handleCopyLink'>
-                  Copy
+                  <template v-if='shareContent.needPassword'>
+                    Copy link and password
+                  </template>
+                  <template v-else>
+                    Copy link
+                  </template>
                 </a-button>
               </div>
             </div>
             <div class='is-need-password'>
               <a-radio @click='changeNeedPassword' :checked='shareContent.needPassword'>
-                Need password
+                Password required to access the content
               </a-radio>
             </div>
           </div>
           <div class='password-info'>
             <div class='password-setting'>
-              <div class='refresh-password'>
-                <refresh-svg @click='refreshPassword' />
+              <div class='refresh-password' @click='refreshPassword'>
+                <refresh-svg /> Reset password
               </div>
               <div class='password-item'>
-                Password : <span class='password-text'>{{ shareContent.password }}</span>
+                <span class='password-text'>{{ shareContent.password }}</span>
               </div>
               <a-spin v-if='refreshing'>
                 <a-icon slot='indicator' type='loading' style='font-size: 16px' spin />
@@ -59,7 +71,7 @@
             <img src="~@/assets/background/share.png" />
           </div>
           <div class='turn-on-text'>
-            When opened to share , this file can be shared through links
+            When opened to share , this file can be shared through links.
           </div>
           <div class='turn-on-button'>
             <a-button type='primary' shape='round' @click='switchShareStatus'>Open to share</a-button>
@@ -231,7 +243,7 @@ export default {
   }
 
   .share-setting {
-    padding: 30px 15px;
+    padding: 30px 0;
     box-sizing: border-box;
     position: relative;
     .url-info {
@@ -246,7 +258,13 @@ export default {
         padding: 10px;
 
         .url-text {
+          width: 210px;
           .url-text-text {
+            width: 100%;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            word-break: break-all;
+            white-space: nowrap;
             user-select: all;
             font-size: 14px;
             font-family: Segoe UI;
@@ -280,6 +298,7 @@ export default {
         height: 44px;
 
         .refresh-password {
+          user-select: none;
           display: flex;
           align-items: center;
           justify-content: flex-start;
@@ -309,7 +328,6 @@ export default {
 }
 
 .turn-on {
-  padding: 20px;
   margin: auto;
   text-align: center;
 

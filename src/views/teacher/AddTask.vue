@@ -1681,7 +1681,7 @@
         :footer='null'
         destroyOnClose
         title='Share'
-        width='680px'
+        width='500px'
         @ok='shareVisible = false'
         @cancel='shareVisible = false'>
         <share-content-setting
