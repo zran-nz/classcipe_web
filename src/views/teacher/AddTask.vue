@@ -456,7 +456,7 @@
                                       </span>
                                     </a-row>
                                     <a-row class='tag-row'>
-                                      <span class='tag-item' v-if='currentPageItem.data.verbs'>
+                                      <span class='tag-item' v-if='currentPageItem.data.verbs && currentPageItem.data.verbs.length > 0'>
                                         <span class='tag-title'>Command terms:</span>
                                         <span
                                           class='tag-value'
@@ -469,7 +469,7 @@
                                         <span class='tag-value' style='color:#0054FF'>{{ currentPageTips.tip }}</span>
                                       </span>
                                     </a-row>
-                                    <a-row class='tag-row'>
+                                    <a-row class='tag-row' v-if="currentPageItem.data.learnOuts && currentPageItem.data.learnOuts.length > 0">
                                       <span class='tag-item'>
                                         <span class='tag-title'>Assessment objective(s):</span>
                                         <span
