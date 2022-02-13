@@ -142,7 +142,6 @@ export default {
     } else if (callbackUrl) {
       this.registerPath = `/user/register?redirect=${callbackUrl}`
     }
-    alert(this.registerPath)
     if (role) {
       this.defaultActiveKey = role
     }
