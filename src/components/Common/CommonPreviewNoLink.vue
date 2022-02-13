@@ -279,7 +279,7 @@
                           </span>
                         </a-row>
                         <a-row class="tag-row">
-                          <span class="tag-item" v-if="currentPageItem.data.verbs">
+                          <span class='tag-item' v-if='currentPageItem.data.verbs && currentPageItem.data.verbs.length > 0'>
                             <span class="tag-title">Command terms:</span>
                             <span class="tag-value" v-for="(v,index) in currentPageItem.data.verbs" :key="index" style="color:#15C39A">{{ v }}</span>
                           </span>
@@ -288,7 +288,7 @@
                             <span class="tag-value" style="color:#0054FF">{{ currentPageTips.tip }}</span>
                           </span>
                         </a-row>
-                        <a-row class="tag-row">
+                        <a-row class='tag-row' v-if="currentPageItem.data.learnOuts && currentPageItem.data.learnOuts.length > 0">
                           <span class="tag-item">
                             <span class="tag-title">Learning Objectives:</span>
                             <span class="tag-value" v-for="(learn,index) in currentPageItem.data.learnOuts" :key="index" style="color:#00BCF2">

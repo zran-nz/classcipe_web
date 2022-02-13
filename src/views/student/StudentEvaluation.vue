@@ -1004,7 +1004,7 @@ export default {
 
     goEvaluatePage () {
       this.$logger.info('goEvaluatePage')
-      // window.location.pathname = defaultStudentRouter
+      window.location.pathname = defaultStudentRouter
     },
     handleSaveAndBackEvaluation () {
       this.$logger.info('handleSaveAndBackEvaluation', this.forms)

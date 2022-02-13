@@ -160,7 +160,7 @@ export default {
       let url = getThirdAuthURL(source)
       url += `?role=${role}`
       url += `&callbackUrl=`
-      url += thirdAuthCallbackUrl
+      url += (this.callbackUrl ? this.callbackUrl : thirdAuthCallbackUrl)
       console.log('full auth url ', url)
       window.location.href = url
     },
