@@ -1,7 +1,7 @@
 import moment from 'moment'
 import { fileTypeMap } from '@/const/material'
 import { SESSION_ACTIVE_KEY } from '@/const/common'
-import { NOT_REMEMBER_ME, ACCESS_TOKEN } from '@/store/mutation-types'
+import { NOT_REMEMBER_ME, ACCESS_TOKEN, TEACHER_TOKEN } from '@/store/mutation-types'
 import storage from 'store'
 
 export function timeFix () {
@@ -236,6 +236,9 @@ export function getToken() {
   let token = storage.get(ACCESS_TOKEN)
   if (storage.get(NOT_REMEMBER_ME)) {
      token = window.sessionStorage.getItem(SESSION_ACTIVE_KEY)
+  } else if (!token) {
+    token = storage.get(TEACHER_TOKEN)
+    console.log('teacher token:', token)
   }
   return token
 }
