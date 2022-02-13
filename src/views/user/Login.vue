@@ -113,7 +113,7 @@ import TwoStepCaptcha from '@/components/tools/TwoStepCaptcha'
 import ThirdLoginButton from '@/components/Button/ThirdLoginButton'
 import ForgetPasswordModal from './ForgetPasswordModal.vue'
 import { mapActions } from 'vuex'
-import { getThirdAuthURL, thirdAuthCallbackUrl } from '@/api/thirdAuth'
+import { getThirdAuthURL, thirdAuthcallbackUrl } from '@/api/thirdAuth'
 import { NOT_REMEMBER_ME } from '@/store/mutation-types'
 import storage from 'store'
 
@@ -129,22 +129,25 @@ export default {
       defaultActiveKey: 'teacher',
       form: this.$form.createForm(this),
       registerPath: '/user/register',
-      callBackUrl: ''
+      callbackUrl: ''
     }
   },
   created() {
     const paramSearch = new URLSearchParams(window.location.search)
     const role = paramSearch.get('role')
-    const callBackUrl = paramSearch.get('callBackUrl')
+    const callbackUrl = paramSearch.get('callbackUrl')
     const redirect = paramSearch.get('redirect')
     if (redirect) {
       this.registerPath = `/user/register?redirect=${redirect}`
+    } else if (callbackUrl) {
+      this.registerPath = `/user/register?redirect=${callbackUrl}`
     }
+    alert(this.registerPath)
     if (role) {
       this.defaultActiveKey = role
     }
-    if (callBackUrl) {
-      this.callBackUrl = callBackUrl
+    if (callbackUrl) {
+      this.callbackUrl = callbackUrl
     }
   },
   methods: {
@@ -158,7 +161,7 @@ export default {
       let url = getThirdAuthURL(source)
       url += `?role=${role}`
       url += `&callbackUrl=`
-      url += thirdAuthCallbackUrl
+      url += thirdAuthcallbackUrl
       console.log('full auth url ', url)
       window.location.href = url
     },
@@ -191,8 +194,8 @@ export default {
       this.$store
         .dispatch('GetInfo')
         .then(response => {
-          if (this.callBackUrl) {
-            window.location.href = this.callBackUrl + '?token=' + response.result.token
+          if (this.callbackUrl) {
+            window.location.href = this.callbackUrl + '?token=' + response.result.token
           } else if (this.$store.getters.currentRole) {
             this.$router.push(this.$store.getters.defaultRouter)
           } else {
