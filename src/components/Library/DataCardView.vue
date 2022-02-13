@@ -41,9 +41,6 @@ export default {
       type: Number,
       required: true
     }
-  },
-  created () {
-    this.$logger.info('DataCardView ' + this.title, this.cover, this.createdTime, this.activeFlag)
   }
 }
 </script>
@@ -57,6 +54,7 @@ export default {
   height: 200px;
   width: 100%;
   box-sizing: border-box;
+  border-radius: 4px;
 
   &:hover {
     .card-title {

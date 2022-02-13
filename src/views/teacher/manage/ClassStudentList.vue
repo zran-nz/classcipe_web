@@ -148,7 +148,7 @@ export default {
       ],
       url: {
         list: schoolClassStudentAPIUrl.SchoolClassStudentList,
-        delete: schoolClassStudentAPIUrl.SchoolClassDelete,
+        delete: schoolClassStudentAPIUrl.SchoolClassStudentDelete,
         importExcelUrl: schoolClassStudentAPIUrl.SchoolClassStudentImportExcel
       },
       searchKey: '',

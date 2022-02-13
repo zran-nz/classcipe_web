@@ -189,6 +189,8 @@ import { deviceMixin } from '@/store/device-mixin'
 import ThirdLoginButton from '@/components/Button/ThirdLoginButton'
 import { getThirdAuthURL, thirdAuthCallbackUrl } from '@/api/thirdAuth'
 import { mapActions } from 'vuex'
+import { NOT_REMEMBER_ME } from '@/store/mutation-types'
+import storage from 'store'
 
 export default {
   name: 'Register',
@@ -205,19 +207,20 @@ export default {
       loginPath: '/user/login',
       teacherLoginPath: '/user/login?role=teacher',
       studentLoginPath: '/user/login?role=student',
-      inviteCode: '',
-      disabled: true
+      disabled: true,
+      callbackUrl: ''
     }
   },
   created() {
     const paramSearch = new URLSearchParams(window.location.search)
-    const inviteCode = paramSearch.get('inviteCode')
-    if (inviteCode) {
-      this.inviteCode = inviteCode
-      this.loginPath = `/user/login?inviteCode=${inviteCode}`
-      this.teacherLoginPath = `/user/login?role=teacher&inviteCode=${inviteCode}`
-      this.studentLoginPath = `/user/login?role=student&inviteCode=${inviteCode}`
+    const redirect = paramSearch.get('redirect')
+    if (redirect) {
+      this.loginPath = `/user/login?redirect=${redirect}`
+      this.teacherLoginPath = `/user/login?role=teacher&redirect=${redirect}`
+      this.studentLoginPath = `/user/login?role=student&redirect=${redirect}`
+      this.callbackUrl = redirect
     }
+    storage.set(NOT_REMEMBER_ME, false)
   },
   computed: {},
   methods: {
@@ -245,9 +248,6 @@ export default {
       console.log('thirdSignIn', source)
       let url = getThirdAuthURL(source)
       url += `?role=${role}`
-      if (this.inviteCode) {
-        url += `&inviteCode=${this.inviteCode}`
-      }
       url += `&callbackUrl=`
       url += thirdAuthCallbackUrl
       console.log('full auth url ', url)
@@ -269,9 +269,6 @@ export default {
             password: values.password,
             username: values.email,
             role: this.selectedRole
-          }
-          if (this.inviteCode) {
-            signUpParams.inviteCode = this.inviteCode
           }
           SignUp(signUpParams)
             .then(res => this.loginSuccess(res))
@@ -310,7 +307,9 @@ export default {
       this.$store
         .dispatch('GetInfo')
         .then(response => {
-          if (this.$store.getters.currentRole) {
+          if (this.callbackUrl) {
+            window.location.href = this.callbackUrl + '?token=' + res.result.token
+          } else if (this.$store.getters.currentRole) {
             this.$router.push(this.$store.getters.defaultRouter)
           } else {
             this.$router.push({ path: this.loginPath })

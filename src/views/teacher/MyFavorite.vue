@@ -486,7 +486,10 @@ export default {
           this.loading = true
           Duplicate({ id: item.id, type: item.type }).then((response) => {
             this.$logger.info('Duplicate response', response)
-            this.loadMyContent()
+            this.loading = false
+            // this.loadMyContent()
+          }).finally(() => {
+            this.$router.push({ path: '/teacher/main/created-by-me' })
           })
         }
       })

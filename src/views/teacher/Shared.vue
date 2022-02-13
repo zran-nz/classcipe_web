@@ -5,11 +5,11 @@
         <div class="toggle-mode-type-wrapper">
           <div class="toggle-mode-type">
             <div class="toggle-mode">
-              <div :class="{'mode-item': true, 'skill-active-mode' : currentStatus === 0}" @click="toggleStatus(0, 'All')">
-                All
+              <div :class="{'mode-item': true, 'knowledge-active-mode' : currentStatus === 1}" @click="toggleStatus(1)">
+                Owned by others
               </div>
-              <div :class="{'mode-item': true, 'knowledge-active-mode' : currentStatus === 1}" @click="toggleStatus(1, 'Collabrating')">
-                Collabrating
+              <div :class="{'mode-item': true, 'skill-active-mode' : currentStatus === 0}" @click="toggleStatus(0)">
+                Owned by me
               </div>
             </div>
           </div>
@@ -104,7 +104,7 @@
                 <div class="action">
                   <div slot="actions">
                     <!-- 接受并且同意协同-->
-                    <div class="action-wrapper" v-if="item.receiveStatus === 1 && item.agreeFlag === 1">
+                    <div class="action-wrapper" v-if="currentStatus === 0 || (item.receiveStatus === 1 && item.agreeFlag === 1)">
 
                       <!-- Task: 外置teacher-pace, student-pace, Edit, 折叠Delete, Duplicate, Previous session-->
                       <!--                      <template v-if="item.content.type === typeMap.task">-->
@@ -147,11 +147,11 @@
                                 </a>
                               </a-popconfirm>
                             </a-menu-item>
-                            <a-menu-item>
-                              <a @click="handleDuplicateItem(item.content)">
-                                <a-icon type="copy" /> Duplicate
-                              </a>
-                            </a-menu-item>
+                            <!--                            <a-menu-item>-->
+                            <!--                              <a @click="handleDuplicateItem(item)">-->
+                            <!--                                <a-icon type="copy" /> Duplicate-->
+                            <!--                              </a>-->
+                            <!--                            </a-menu-item>-->
                             <!-- Task里面有teacher-pace, student-pace, previous session -->
                             <!--                            <template v-if="item.content.type === typeMap.task">-->
                             <!--                              <a-menu-item>-->
@@ -226,7 +226,7 @@
             <a-list-item slot="renderItem" key="item.key" slot-scope="item">
               <a-card class="cover-card" >
                 <div class="mask"></div>
-                <div class="mask-actions" v-if="item.receiveStatus === 1 && item.agreeFlag === 1">
+                <div class="mask-actions" v-if="currentStatus === 0 || (item.receiveStatus === 1 && item.agreeFlag === 1)">
                   <div class="action-item action-item-top">
                     <a-dropdown>
                       <a-icon type="more" style="margin-right: 8px" class="more-icon" />
@@ -238,11 +238,11 @@
                             </a>
                           </a-popconfirm>
                         </a-menu-item>
-                        <a-menu-item>
-                          <a @click="handleDuplicateItem(item)">
-                            <a-icon type="copy" /> Duplicate
-                          </a>
-                        </a-menu-item>
+                        <!--                        <a-menu-item>-->
+                        <!--                          <a @click="handleDuplicateItem(item)">-->
+                        <!--                            <a-icon type="copy" /> Duplicate-->
+                        <!--                          </a>-->
+                        <!--                        </a-menu-item>-->
                         <!-- Task里面有teacher-pace, student-pace, previous session -->
                         <!--                        <template v-if="item.content.type === typeMap.task">-->
                         <!--                          <a-menu-item>-->
@@ -412,7 +412,7 @@
         :closable="true"
         destroyOnClose
         :dialog-style="{ top: '50px' }"
-        width="900px">
+        width="750px">
         <div>
           <old-session-list :session-list="sessionList" @start-new-session="handleStartSession" @cancel="oldSelectSessionVisible=false" :mode="sessionMode" />
         </div>
@@ -450,44 +450,47 @@
 
 <script>
 
-  import * as logger from '@/utils/logger'
-  import { Duplicate } from '@/api/teacher'
-  import { CollaborateStatus, typeMap } from '@/const/teacher'
-  import ContentStatusIcon from '@/components/Teacher/ContentStatusIcon'
-  import ContentTypeIcon from '@/components/Teacher/ContentTypeIcon'
-  import {
-    DeleteCollaborate,
-    ReceiveCollaborate,
-    CollaboratesQueryShared, CollaboratesAgree
-  } from '@/api/collaborate'
-  import { lessonStatus, lessonHost } from '@/const/googleSlide'
-  import { StartLesson } from '@/api/lesson'
-  import storage from 'store'
-  import TvSvg from '@/assets/icons/lesson/tv.svg?inline'
-  import EvaluationSvg from '@/assets/icons/common/evaluation.svg?inline'
-  import PreviousSessionsSvg from '@/assets/icons/common/PreviousSessions.svg?inline'
-  import EditSvg from '@/assets/icons/common/Edit.svg?inline'
-  import CopySvg from '@/assets/icons/common/copy.svg?inline'
-  import Bianji from '@/assets/icons/common/Bianji.svg?inline'
-  import StartEvaluation from '@/assets/icons/common/StartEvaluation.svg?inline'
-  import StartSessionSvg from '@/assets/icons/common/StartSession.svg?inline'
-  import TeacherPresenting from '@/assets/icons/common/TeacherPresenting.svg?inline'
-  import StudentPace from '@/assets/icons/common/StudentPace.svg?inline'
-  import CustomTag from '@/components/UnitPlan/CustomTag'
-  import LiebiaoSvg from '@/assets/svgIcon/myContent/liebiao.svg?inline'
-  import PubuSvg from '@/assets/svgIcon/myContent/pubu.svg?inline'
-  import { CustomTagType } from '@/const/common'
-  import CommonPreview from '@/components/Common/CommonPreview'
-  import NoMoreResources from '@/components/Common/NoMoreResources'
-  import ModalHeader from '@/components/Common/ModalHeader'
-  import { FindCustomTags } from '@/api/tag'
-  import OldSessionList from '@/components/Teacher/OldSessionList'
-  import ClassListTable from '@/components/Teacher/ClassListTable'
-  import PSSvg from '@/assets/svgIcon/myContent/previous_session.svg'
-  import CollaborateSvg from '@/assets/icons/collaborate/collaborate_group.svg'
-  import { FindMyClasses } from '@/api/evaluation'
-  import { ACCESS_TOKEN, RECEIVE_MSG } from '@/store/mutation-types'
-  export const SHARED_VIEW_MODE = 'view_mode_shared'
+import * as logger from '@/utils/logger'
+import { Duplicate } from '@/api/teacher'
+import { CollaborateStatus, typeMap } from '@/const/teacher'
+import ContentStatusIcon from '@/components/Teacher/ContentStatusIcon'
+import ContentTypeIcon from '@/components/Teacher/ContentTypeIcon'
+import {
+  CollaboratesAgree,
+  CollaboratesQueryShared,
+  CollaboratesQuerySharedOwner, DeleteByMeCollaborate,
+  DeleteCollaborate,
+  ReceiveCollaborate
+} from '@/api/collaborate'
+import { lessonHost, lessonStatus } from '@/const/googleSlide'
+import { StartLesson } from '@/api/lesson'
+import storage from 'store'
+import TvSvg from '@/assets/icons/lesson/tv.svg?inline'
+import EvaluationSvg from '@/assets/icons/common/evaluation.svg?inline'
+import PreviousSessionsSvg from '@/assets/icons/common/PreviousSessions.svg?inline'
+import EditSvg from '@/assets/icons/common/Edit.svg?inline'
+import CopySvg from '@/assets/icons/common/copy.svg?inline'
+import Bianji from '@/assets/icons/common/Bianji.svg?inline'
+import StartEvaluation from '@/assets/icons/common/StartEvaluation.svg?inline'
+import StartSessionSvg from '@/assets/icons/common/StartSession.svg?inline'
+import TeacherPresenting from '@/assets/icons/common/TeacherPresenting.svg?inline'
+import StudentPace from '@/assets/icons/common/StudentPace.svg?inline'
+import CustomTag from '@/components/UnitPlan/CustomTag'
+import LiebiaoSvg from '@/assets/svgIcon/myContent/liebiao.svg?inline'
+import PubuSvg from '@/assets/svgIcon/myContent/pubu.svg?inline'
+import { CustomTagType } from '@/const/common'
+import CommonPreview from '@/components/Common/CommonPreview'
+import NoMoreResources from '@/components/Common/NoMoreResources'
+import ModalHeader from '@/components/Common/ModalHeader'
+import { FindCustomTags } from '@/api/tag'
+import OldSessionList from '@/components/Teacher/OldSessionList'
+import ClassListTable from '@/components/Teacher/ClassListTable'
+import PSSvg from '@/assets/svgIcon/myContent/previous_session.svg'
+import CollaborateSvg from '@/assets/icons/collaborate/collaborate_group.svg'
+import { FindMyClasses } from '@/api/evaluation'
+import { ACCESS_TOKEN } from '@/store/mutation-types'
+
+export const SHARED_VIEW_MODE = 'view_mode_shared'
 
   export default {
     name: 'Shared',
@@ -521,8 +524,7 @@
         loading: true,
         loadFailed: false,
         myContentList: [],
-        currentStatus: 0,
-        currentStatusLabel: 'All',
+        currentStatus: 1,
         currentType: 'all-type',
         currentTypeLabel: this.$t('teacher.my-content.all-type'),
         currentOwner: 'all-owner',
@@ -588,38 +590,66 @@
       },
       loadMyContent () {
         this.loading = true
-        CollaboratesQueryShared({
-          collaborateStatus: this.currentStatus,
-          type: this.currentType !== 'all-type' ? typeMap[this.currentType] : '',
-          pageNo: this.pageNo,
-          pageSize: this.pagination.pageSize,
-          searchKey: ''
-        }).then(res => {
-          logger.info('CollaboratesQueryShared', res)
-          if (res.success) {
-            res.result.records.forEach((record, index) => {
-              record.key = index
-            })
-            this.myContentList = res.result.records
-            this.pagination.total = res.result.total
-            this.pagination.current = res.result.current
-            if (res.result.records.length === 0 && this.pagination.total > 0) {
-              this.pageNo = res.result.pages
-              this.loadMyContent()
+        if (this.currentStatus === 0) {
+          // owner
+          CollaboratesQuerySharedOwner({
+            type: this.currentType !== 'all-type' ? typeMap[this.currentType] : '',
+            pageNo: this.pageNo,
+            pageSize: this.pagination.pageSize,
+            searchKey: ''
+          }).then(res => {
+            logger.info('CollaboratesQueryShared', res)
+            if (res.success) {
+              res.result.records.forEach((record, index) => {
+                record.key = index
+              })
+              this.myContentList = res.result.records
+              this.pagination.total = res.result.total
+              this.pagination.current = res.result.current
+              if (res.result.records.length === 0 && this.pagination.total > 0) {
+                this.pageNo = res.result.pages
+                this.loadMyContent()
+              }
+            } else {
+              this.myContentList = []
+              this.pagination.total = 0
             }
-          } else {
-            this.myContentList = []
-            this.pagination.total = 0
-          }
-        }).finally(() => {
-          this.loading = false
-          this.skeletonLoading = false
-        })
+          }).finally(() => {
+            this.loading = false
+            this.skeletonLoading = false
+          })
+        } else {
+          CollaboratesQueryShared({
+            type: this.currentType !== 'all-type' ? typeMap[this.currentType] : '',
+            pageNo: this.pageNo,
+            pageSize: this.pagination.pageSize,
+            searchKey: ''
+          }).then(res => {
+            logger.info('CollaboratesQueryShared', res)
+            if (res.success) {
+              res.result.records.forEach((record, index) => {
+                record.key = index
+              })
+              this.myContentList = res.result.records
+              this.pagination.total = res.result.total
+              this.pagination.current = res.result.current
+              if (res.result.records.length === 0 && this.pagination.total > 0) {
+                this.pageNo = res.result.pages
+                this.loadMyContent()
+              }
+            } else {
+              this.myContentList = []
+              this.pagination.total = 0
+            }
+          }).finally(() => {
+            this.loading = false
+            this.skeletonLoading = false
+          })
+        }
       },
-      toggleStatus (status, label) {
-        logger.info('toggleStatus ' + status + ' label ' + label)
+      toggleStatus (status) {
+        logger.info('toggleStatus ' + status)
         this.currentStatus = status
-        this.currentStatusLabel = label
         this.loadMyContent()
       },
       toggleType (type, label) {
@@ -665,11 +695,19 @@
       },
       handleDeleteItem (item) {
         logger.info('handleDeleteItem', item)
-        DeleteCollaborate({ id: item.id }).then(res => {
-          logger.info('DeleteCollaborate', res)
-        }).then(() => {
-          this.loadMyContent()
-        })
+        if (this.currentStatus === 0) {
+          DeleteByMeCollaborate({ sourceId: item.sourceId, sourceType: item.sourceType }).then(res => {
+            logger.info('DeleteCollaborate', res)
+          }).then(() => {
+            this.loadMyContent()
+          })
+        } else {
+          DeleteCollaborate({ id: item.id }).then(res => {
+            logger.info('DeleteCollaborate', res)
+          }).then(() => {
+            this.loadMyContent()
+          })
+        }
       },
       handleViewDetail (item) {
         logger.info('handleViewDetail', item)
@@ -697,7 +735,10 @@
             this.loading = true
             Duplicate({ id: item.sourceId, type: item.sourceType }).then((response) => {
               this.$logger.info('Duplicate response', response)
-              this.loadMyContent()
+              this.loading = false
+              // this.loadMyContent()
+            }).finally(() => {
+              this.$router.push({ path: '/teacher/main/created-by-me' })
             })
           }
         })
@@ -1144,7 +1185,7 @@
                 display: flex;
                 align-items: center;
                 justify-content: center;
-                width: 120px;
+                width: 150px;
               }
 
               .skill-active-mode {

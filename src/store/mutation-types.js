@@ -3,6 +3,7 @@ export const CURRENT_ROLE = 'Current-Role'
 export const IS_ADD_PREFERENCE = 'Is-Add-Preference'
 export const ADD_PREFERENCE_SKIP_TIME = 'Add-Preference-Skip-Time'
 export const USER_INFO = 'USER_INFO'
+export const NOT_REMEMBER_ME = 'not-remember-me'
 
 export const SIDEBAR_TYPE = 'sidebar_type'
 export const TOGGLE_MOBILE_TYPE = 'is_mobile'

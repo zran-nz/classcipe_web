@@ -129,7 +129,7 @@ export const PptPreviewMixin = {
   methods: {
     getClassInfo (slideId) {
       this.loadingClass = true
-      const pageIds = this.thumbnailList.map((page) => {
+      const pageIds = this.thumbnailList.map(page => {
         return page.id
       })
       QueryByClassInfoSlideId({ slideId: slideId, pageIds: pageIds }).then(response => {

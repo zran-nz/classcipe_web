@@ -630,7 +630,7 @@ export default {
         centered: true,
         onOk: () => {
           this.copyLoading = true
-            Duplicate({ id: this.id, type: this.type }).then((response) => {
+            Duplicate({ id: this.data.id, type: this.data.type }).then((response) => {
             this.$logger.info('Duplicate response', response)
             this.$message.success('Copy successfully')
           }).finally(() => {

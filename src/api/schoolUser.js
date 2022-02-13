@@ -7,11 +7,16 @@ export const schoolUserAPIUrl = {
   addStaff: '/classcipe/api/school/user/addStaff',
   addStudent: '/classcipe/api/school/user/addStudents',
   getOrCreateInvite: '/classcipe/api/school/user/getOrCreateInvite',
+  checkInvite: '/classcipe/api/school/user/checkInvite',
+  acceptInvite: '/classcipe/api/school/user/acceptInvite',
+  updateInvite: '/classcipe/api/school/user/updateInvite',
   getSchoolUsers: '/classcipe/api/school/user/getSchoolUsers',
   queryUser: '/classcipe/api/school/user/queryUser',
   updateUserStatus: '/classcipe/api/school/user/updateUserStatus',
   importStaff: '/classcipe/api/school/user/importStaffByExcel',
-  importStudent: '/classcipe/api/school/user/importStudentByExcel'
+  importStudent: '/classcipe/api/school/user/importStudentByExcel',
+  exportInvalidStaff: '/classcipe/api/school/user/exportInvalidStaff',
+  exportInvalidStudent: '/classcipe/api/school/user/exportInvalidStudent'
 }
 
 /**
@@ -50,6 +55,27 @@ export function addStudent (parameter) {
 export function getOrCreateInvite (parameter) {
   return request({
     url: schoolUserAPIUrl.getOrCreateInvite,
+    method: 'post',
+    params: parameter
+  })
+}
+export function checkInvite (parameter) {
+  return request({
+    url: schoolUserAPIUrl.checkInvite,
+    method: 'get',
+    params: parameter
+  })
+}
+export function acceptInvite (parameter) {
+  return request({
+    url: schoolUserAPIUrl.acceptInvite,
+    method: 'post',
+    params: parameter
+  })
+}
+export function updateInvite (parameter) {
+  return request({
+    url: schoolUserAPIUrl.updateInvite,
     method: 'post',
     params: parameter
   })

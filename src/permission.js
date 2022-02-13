@@ -8,6 +8,8 @@ import { ACCESS_TOKEN, CURRENT_ROLE } from '@/store/mutation-types'
 import { i18nRender } from '@/locales'
 import { defaultExpertRouter, defaultTeacherRouter } from '@/config/router.config'
 import * as logger from '@/utils/logger'
+import { SESSION_ACTIVE_KEY } from '@/const/common'
+import { getToken } from './utils/util'
 
 NProgress.configure({ showSpinner: false }) // NProgress Configuration
 
@@ -20,17 +22,20 @@ router.beforeEach((to, from, next) => {
 
   /* has token */
   logger.info('router', to)
+
+  const role = to.fullPath.indexOf('student') > -1 ? 'student' : 'teacher'
   if (allowList.includes(to.name) && to.name) {
     // 在免登录名单，直接进入
     logger.info('allowList ', to.name)
     next()
-  } else if (storage.get(ACCESS_TOKEN)) {
+  } else if (getToken()) {
     /*  set new Token By Url */
     const token = to.query.token || from.query.token
     if (token) {
       storage.set(ACCESS_TOKEN, token)
+      window.sessionStorage.setItem(SESSION_ACTIVE_KEY, token)
     }
-    const accessToken = storage.get(ACCESS_TOKEN)
+    const accessToken = getToken()
     logger.info('accessToken check', accessToken)
     if (accessToken) {
       // 检查角色信息是否完善
@@ -91,7 +96,7 @@ router.beforeEach((to, from, next) => {
               })
               // 失败时，获取用户信息失败时，调用登出，来清空历史保留信息
               store.dispatch('ClearAuth').then(() => {
-                next({ path: loginRoutePath, query: { redirect: to.fullPath } })
+                next({ path: loginRoutePath, query: { redirect: to.fullPath, role } })
               })
             })
         } else {
@@ -102,7 +107,8 @@ router.beforeEach((to, from, next) => {
       next()
     }
   } else {
-      next({ path: loginRoutePath, query: { redirect: to.fullPath } })
+    console.log(to)
+      next({ path: loginRoutePath, query: { redirect: to.fullPath, role } })
       NProgress.done() // if current page is login will not trigger afterEach hook, so manually handle it
   }
 })

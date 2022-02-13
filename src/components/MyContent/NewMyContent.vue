@@ -338,12 +338,12 @@
 import * as logger from '@/utils/logger'
 import UnitPlanPreview from '@/components/UnitPlan/UnitPlanPreview'
 import MaterialPreview from '@/components/Material/MaterialPreview'
-import { FindMyContent, Associate, Rename } from '@/api/teacher'
+import { Associate, FindMyContent, Rename } from '@/api/teacher'
 import { FavoritesGetMyFavorites } from '@/api/favorites'
-import { ownerMap, typeMap, getLabelNameType } from '@/const/teacher'
+import { getLabelNameType, ownerMap, typeMap } from '@/const/teacher'
 import ContentStatusIcon from '@/components/Teacher/ContentStatusIcon'
 import ContentTypeIcon from '@/components/Teacher/ContentTypeIcon'
-import { MyContentEventBus, MyContentEvent } from '@/components/MyContent/MyContentEventBus'
+import { MyContentEvent, MyContentEventBus } from '@/components/MyContent/MyContentEventBus'
 import DisplayMode from '@/components/MyContent/DisplayMode'
 import NoMoreResources from '@/components/Common/NoMoreResources'
 import PuBuIcon from '@/assets/icons/library/pubu.svg?inline'
@@ -825,7 +825,7 @@ export default {
 }
 
 .my-list-item:hover {
-  box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.16);
+  box-shadow: 0px 0px 5px 2px rgba(0, 0, 0, 0.16);
 }
 
 .active-item {

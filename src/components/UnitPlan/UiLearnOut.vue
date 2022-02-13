@@ -3,99 +3,133 @@
     <a-col span="24">
 
       <div class="objectives-wrapper">
-        <a-row class="objectives-wrapper-block" v-if="getknowledgeListType(TagType.skill).length > 0" >
+        <a-row class="objectives-wrapper-block">
           <div class="title-item title-skill">Achievement objectives</div>
-          <div class="objectives-list" v-for="(k,index) in getknowledgeListType(TagType.skill)" :key="index">
-            <div class="objectives-list-item objectives-list-item-skill objectives-list-item-top-fixed">
-              <!--              <a-breadcrumb separator=">">-->
-              <!--                <a-breadcrumb-item v-for="item in dealPath(k.path)" :key="item">{{ item }}</a-breadcrumb-item>-->
-              <!--              </a-breadcrumb>-->
-              <div class="skt-description" @dblclick="handleAddTag(k)">
-                <a-tooltip :title="k.path"> {{ k.name }}</a-tooltip>
-              </div>
-            </div>
-            <a-popconfirm title="Delete?" ok-text="Yes" @confirm="handleDeleteKnowledgeItem(k)" cancel-text="No">
-              <span class="delete-action" >
-                <img src="~@/assets/icons/tag/delete.png"/>
-              </span>
-            </a-popconfirm>
-          </div>
-        </a-row>
-
-        <a-row class="objectives-wrapper-block" v-if="getknowledgeListType(TagType.knowledge).length > 0" >
-          <div class="title-item title-learnout">Learning outcomes</div>
-          <div class="objectives-list" v-for="(k,index) in getknowledgeListType(TagType.knowledge)" :key="index">
-            <div class="objectives-list-item objectives-list-item-learn objectives-list-item-top-fixed">
-              <!--              <a-breadcrumb separator=">">-->
-              <!--                <a-breadcrumb-item v-for="item in dealPath(k.path)" :key="item">{{ item }}</a-breadcrumb-item>-->
-              <!--              </a-breadcrumb>-->
-              <div class="skt-description" @dblclick="handleAddTag(k)">
-                <a-tooltip :title="k.path"> {{ k.name }}</a-tooltip>
-              </div>
-              <!--              <div-->
-              <!--                v-if="k.tagType == TagType.knowledge || k.tagType == TagType.century"-->
-              <!--                class="actions">-->
-              <!--                <span class="add-action" @click.stop.prevent="handleAddTag(k)">-->
-              <!--                  <img src="~@/assets/icons/tag/add.png"/>-->
-              <!--                </span>-->
-              <!--                <span class="up-down">-->
-              <!--                  <a-icon type="up" v-if="k.tagListVisible"/>-->
-              <!--                  <a-icon type="down" v-else />-->
-              <!--                </span>-->
-              <!--              </div>-->
-              <!--              <a-divider style="margin: 10px 0px" v-if="k.tagListVisible" />-->
-              <!--              <div class="skt-description-tag-list" v-if="k.tagListVisible">-->
-              <!--                <div :class="{'tag-list-item': true,'skill-mode': true}" v-for="name in k.tags" :key="name">-->
-              <!--                  <a-tag class="tag-item" :closable="true" @close="handleDeleteTag(index,name)">{{ name }}</a-tag>-->
-              <!--                </div>-->
-              <!--              </div>-->
-            </div>
-            <a-popconfirm title="Delete?" ok-text="Yes" @confirm="handleDeleteKnowledgeItem(k)" cancel-text="No">
-              <span class="delete-action" >
-                <img src="~@/assets/icons/tag/delete.png"/>
-              </span>
-            </a-popconfirm>
-          </div>
-        </a-row>
-
-        <a-row class="objectives-wrapper-block" v-if="getknowledgeListType(TagType.century).length > 0" >
-          <div class="title-item title-21">21st Century Skills</div>
-          <div class="objectives-list" v-for="(k,index) in getknowledgeListType(TagType.century)" :key="index">
-            <div class="objectives-list-item objectives-list-item-21 objectives-list-item-top-fixed" @click="handleActiveDescription(TagType.century,k)">
-              <!--              <a-breadcrumb separator=">">-->
-              <!--                <a-breadcrumb-item v-for="item in dealPath(k.path)" :key="item">{{ item }}</a-breadcrumb-item>-->
-              <!--              </a-breadcrumb>-->
-              <div class="skt-description skt-description-21" @dblclick="handleAddTag(k)">
-                <a-tooltip :title="k.path"> {{ k.name }}</a-tooltip>
-              </div>
-              <div
-                v-if="k.tagType === TagType.century"
-                class="actions">
-                <span class="add-action" @click.stop.prevent="handleAddTag(k)">
-                  <img src="~@/assets/icons/tag/add.png"/>
-                </span>
-                <span class="up-down">
-                  <a-icon type="up" v-if="k.tagListVisible"/>
-                  <a-icon type="down" v-else />
-                </span>
-              </div>
-              <a-divider style="margin: 10px 0px" v-if="k.tagListVisible" />
-              <div class="skt-description-tag-list" v-if="k.tagListVisible">
-                <div :class="{'tag-list-item': true,'skill-mode': true}" v-for="name in k.tags" :key="name">
-                  <a-tag class="tag-item" :closable="true" @close="handleDeleteTag(k,name)">{{ name }}</a-tag>
+          <template v-if="getknowledgeListType(TagType.skill).length > 0" >
+            <div class="objectives-list" v-for="(k,index) in getknowledgeListType(TagType.skill)" :key="index">
+              <div class="objectives-list-item objectives-list-item-skill objectives-list-item-top-fixed">
+                <!--              <a-breadcrumb separator=">">-->
+                <!--                <a-breadcrumb-item v-for="item in dealPath(k.path)" :key="item">{{ item }}</a-breadcrumb-item>-->
+                <!--              </a-breadcrumb>-->
+                <div class="skt-description" @dblclick="handleAddTag(k)">
+                  <a-tooltip :title="k.path"> {{ k.name }}</a-tooltip>
                 </div>
               </div>
+              <a-popconfirm title="Delete?" ok-text="Yes" @confirm="handleDeleteKnowledgeItem(k)" cancel-text="No">
+                <span class="delete-action" >
+                  <img src="~@/assets/icons/tag/delete.png"/>
+                </span>
+              </a-popconfirm>
             </div>
-            <a-popconfirm title="Delete?" ok-text="Yes" @confirm="handleDeleteKnowledgeItem(k)" cancel-text="No">
-              <span class="delete-action" >
-                <img src="~@/assets/icons/tag/delete.png"/>
-              </span>
-            </a-popconfirm>
+          </template>
+          <div class='customize-objectives-list'>
+            <div
+              class="objectives-input-item objectives-input-item-skill"
+              v-for='(skillInput, sIdx) in skillInputList'
+              :key='sIdx'>
+              <a-input v-model='skillInput.name' class='skill-input' />
+              <img class='delete-input input-icon' src='~@/assets/icons/evaluation/big_delete.png' alt='' v-if='sIdx !== skillInputList.length - 1' @click='handleDeleteSkill(skillInput)'/>
+              <add-green-icon class='add-input input-icon' v-if='sIdx === skillInputList.length - 1' @click='handleAddNew(TagType.skill, skillInputList)'/>
+            </div>
           </div>
         </a-row>
 
-      </div>
+        <a-row class="objectives-wrapper-block">
+          <div class="title-item title-learnout">Learning outcomes</div>
+          <template v-if="getknowledgeListType(TagType.knowledge).length > 0" >
+            <div class="objectives-list" v-for="(k,index) in getknowledgeListType(TagType.knowledge)" :key="index">
+              <div class="objectives-list-item objectives-list-item-learn objectives-list-item-top-fixed">
+                <!--              <a-breadcrumb separator=">">-->
+                <!--                <a-breadcrumb-item v-for="item in dealPath(k.path)" :key="item">{{ item }}</a-breadcrumb-item>-->
+                <!--              </a-breadcrumb>-->
+                <div class="skt-description" @dblclick="handleAddTag(k)">
+                  <a-tooltip :title="k.path"> {{ k.name }}</a-tooltip>
+                </div>
+                <!--              <div-->
+                <!--                v-if="k.tagType == TagType.knowledge || k.tagType == TagType.century"-->
+                <!--                class="actions">-->
+                <!--                <span class="add-action" @click.stop.prevent="handleAddTag(k)">-->
+                <!--                  <img src="~@/assets/icons/tag/add.png"/>-->
+                <!--                </span>-->
+                <!--                <span class="up-down">-->
+                <!--                  <a-icon type="up" v-if="k.tagListVisible"/>-->
+                <!--                  <a-icon type="down" v-else />-->
+                <!--                </span>-->
+                <!--              </div>-->
+                <!--              <a-divider style="margin: 10px 0px" v-if="k.tagListVisible" />-->
+                <!--              <div class="skt-description-tag-list" v-if="k.tagListVisible">-->
+                <!--                <div :class="{'tag-list-item': true,'skill-mode': true}" v-for="name in k.tags" :key="name">-->
+                <!--                  <a-tag class="tag-item" :closable="true" @close="handleDeleteTag(index,name)">{{ name }}</a-tag>-->
+                <!--                </div>-->
+                <!--              </div>-->
+              </div>
+              <a-popconfirm title="Delete?" ok-text="Yes" @confirm="handleDeleteKnowledgeItem(k)" cancel-text="No">
+                <span class="delete-action" >
+                  <img src="~@/assets/icons/tag/delete.png"/>
+                </span>
+              </a-popconfirm>
+            </div>
+          </template>
+          <div class='customize-objectives-list'>
+            <div
+              class="objectives-input-item objectives-input-item-skill"
+              v-for='(knowledgeInput, sIdx) in knowledgeInputList'
+              :key='sIdx'>
+              <a-input v-model='knowledgeInput.name' class='knowledge-input' />
+              <img class='delete-input input-icon' src='~@/assets/icons/evaluation/big_delete.png' alt='' v-if='sIdx !== knowledgeInputList.length - 1' @click='handleDeleteKnowledge(knowledgeInput)'/>
+              <add-green-icon class='add-input input-icon' v-if='sIdx === knowledgeInputList.length - 1' @click='handleAddNew(TagType.knowledge, knowledgeInputList)'/>
+            </div>
+          </div>
+        </a-row>
 
+        <a-row class="objectives-wrapper-block">
+          <div class="title-item title-21">21st Century Skills</div>
+          <template v-if="getknowledgeListType(TagType.century).length > 0" >
+            <div class="objectives-list" v-for="(k,index) in getknowledgeListType(TagType.century)" :key="index">
+              <div class="objectives-list-item objectives-list-item-21 objectives-list-item-top-fixed" @click="handleActiveDescription(TagType.century,k)">
+                <!--              <a-breadcrumb separator=">">-->
+                <!--                <a-breadcrumb-item v-for="item in dealPath(k.path)" :key="item">{{ item }}</a-breadcrumb-item>-->
+                <!--              </a-breadcrumb>-->
+                <div class="skt-description skt-description-21" @dblclick="handleAddTag(k)">
+                  <a-tooltip :title="k.path"> {{ k.name }}</a-tooltip>
+                </div>
+                <div
+                  v-if="k.tagType === TagType.century"
+                  class="actions">
+                  <span class="add-action" @click.stop.prevent="handleAddTag(k)">
+                    <img src="~@/assets/icons/tag/add.png"/>
+                  </span>
+                  <span class="up-down">
+                    <a-icon type="up" v-if="k.tagListVisible"/>
+                    <a-icon type="down" v-else />
+                  </span>
+                </div>
+                <a-divider style="margin: 10px 0px" v-if="k.tagListVisible" />
+                <div class="skt-description-tag-list" v-if="k.tagListVisible">
+                  <div :class="{'tag-list-item': true,'skill-mode': true}" v-for="name in k.tags" :key="name">
+                    <a-tag class="tag-item" :closable="true" @close="handleDeleteTag(k,name)">{{ name }}</a-tag>
+                  </div>
+                </div>
+              </div>
+              <a-popconfirm title="Delete?" ok-text="Yes" @confirm="handleDeleteKnowledgeItem(k)" cancel-text="No">
+                <span class="delete-action" >
+                  <img src="~@/assets/icons/tag/delete.png"/>
+                </span>
+              </a-popconfirm>
+            </div>
+          </template>
+          <div class='customize-objectives-list'>
+            <div
+              class="objectives-input-item objectives-input-item-skill"
+              v-for='(centuryInput, sIdx) in centuryInputList'
+              :key='sIdx'>
+              <a-input v-model='centuryInput.name' class='century-input' />
+              <img class='delete-input input-icon' src='~@/assets/icons/evaluation/big_delete.png' alt='' v-if='sIdx !== centuryInputList.length - 1' @click='handleDeleteCentury(centuryInput)'/>
+              <add-green-icon class='add-input input-icon' v-if='sIdx === centuryInputList.length - 1' @click='handleAddNew(TagType.century, centuryInputList)'/>
+            </div>
+          </div>
+        </a-row>
+      </div>
     </a-col>
 
     <a-modal
@@ -132,7 +166,7 @@
               :fieldNames="{ label: 'name', value: 'name', children: 'children'}"
               v-model="centuryTagList[index]"
               :options="centuryList"
-              change-on-select/>
+              change-on-select />
             <a-button type="link" v-if="centuryTagList.length > 1" icon="minus" size="large" @click="handleRemoveCenturyTag(index)"></a-button>
           </div>
           <a-button type="link" icon="plus-circle" size="large" @click="handleAddCenturyTag()"></a-button>
@@ -154,15 +188,21 @@
   import LearnOutAddTag from '@/components/UnitPlan/LearnOutAddTag'
   import { TagType } from '@/const/common'
   import { getAll21Century } from '@/api/knowledge'
+  import AddGreenIcon from '@/assets/svgIcon/evaluation/form/tianjia_green.svg?inline'
 
   export default {
     name: 'UiLearnOut',
     components: {
       LearnOutAddTag,
-      NoMoreResources
+      NoMoreResources,
+      AddGreenIcon
     },
     props: {
       learnOuts: {
+        type: Array,
+        default: () => []
+      },
+      selfOuts: {
         type: Array,
         default: () => []
       }
@@ -192,21 +232,95 @@
         knowledge: {},
         tags: [],
         TagType: TagType,
-        centuryList: []
+        centuryList: [],
+
+        skillInputList: [],
+        knowledgeInputList: [],
+        centuryInputList: []
       }
     },
     created () {
       this.knowledgeList = this.learnOuts
       logger.info('knowledgeList ', this.knowledgeList)
       this.get21century()
+      this.initSelfOuts()
     },
     watch: {
       learnOuts (val) {
         this.$logger.info('learnOuts change!', val)
         this.knowledgeList = val
+      },
+
+      selfOuts (val) {
+        this.$logger.info('selfOuts change!', val)
+        this.initSelfOuts()
+      },
+      // 更新centuryList中的数据，禁用已经被选择的选项
+      centuryTagList (val) {
+        this.$logger.info('centuryTagList change!', val, this.centuryList)
+
+        // 重置所有的centuryList为可选
+        this.centuryList.forEach(child => this.removeDisabled(child))
+        // 只禁用已选择的
+        this.centuryTagList.forEach(tagNameList => {
+          let childList = this.centuryList
+          for (let i = 0; i < tagNameList.length; i++) {
+            const tagName = tagNameList[i]
+            const child = childList.find(item => item.name === tagName)
+            if (child) {
+              if (i === tagNameList.length - 1) {
+                child.disabled = true
+              }
+              childList = child.children
+            } else {
+              break
+            }
+          }
+        })
       }
     },
     methods: {
+
+      initSelfOuts () {
+        this.$logger.info('!!!!!!!!!!!!!!!!!!!!!!!!!!!initSelfOuts', this.selfOuts)
+        const skillInputList = this.selfOuts.filter(item => item.tagType === TagType.skill)
+        const knowledgeInputList = this.selfOuts.filter(item => item.tagType === TagType.knowledge)
+        const centuryInputList = this.selfOuts.filter(item => item.tagType === TagType.century)
+
+        if (skillInputList.length) {
+          this.skillInputList = skillInputList
+        } else {
+          this.skillInputList.push({
+            name: '',
+            tagType: TagType.skill,
+            key: Math.random() + ''
+          })
+        }
+        this.$logger.info('skillInputList', this.skillInputList)
+
+        if (knowledgeInputList.length) {
+          this.knowledgeInputList = knowledgeInputList
+        } else {
+          this.knowledgeInputList.push({
+            name: '',
+            tagType: TagType.knowledge,
+            key: Math.random() + ''
+          })
+        }
+        this.$logger.info('knowledgeInputList', this.skillInputList)
+
+        if (centuryInputList.length) {
+          this.centuryInputList = centuryInputList
+        } else {
+          this.centuryInputList.push({
+            name: '',
+            tagType: TagType.century,
+            key: Math.random() + ''
+          })
+        }
+        this.$logger.info('centuryInputList', this.skillInputList)
+      },
+
       handleActiveDescription (type, k) {
         var index = this.knowledgeList.findIndex(item => item.knowledgeId === k.knowledgeId)
         if (this.knowledgeList[index].tagType !== TagType.knowledge &&
@@ -276,9 +390,14 @@
       handleRemoveCenturyTag (index) {
         logger.info('handleRemoveCenturyTag ', index)
         this.centuryTagList.splice(index, 1)
+        this.handleUpdateCenturyTag()
       },
       handleAddCenturyTag () {
+        this.$logger.info('handleAddCenturyTag ', this.centuryTagList)
         this.centuryTagList.push([])
+      },
+      handleUpdateCenturyTag () {
+        this.$logger.info('handleUpdateCenturyTag ', 'selected', this.centuryTagList, 'option', this.centuryList)
       },
       treeForeach (tree, func) {
         tree.forEach(data => {
@@ -293,6 +412,7 @@
           if (response.success) {
              this.centuryList = response.result
              this.treeForeach(this.centuryList, node => {
+               node.disabled = false
                if (node.children.length === 0) {
                  node.title = this.$options.filters['gradeFormat'](node.gradeNames)
                }
@@ -311,6 +431,69 @@
         } else {
           return this.knowledgeList.filter(item => item.tagType === type)
         }
+      },
+
+      removeDisabled(item) {
+        if (item.disabled) {
+          item.disabled = false
+        }
+        item.children && item.children.forEach(child => {
+          this.removeDisabled(child)
+        })
+      },
+
+      handleDeleteSkill (skill) {
+        this.$logger.info('handleDelete ', skill)
+        this.skillInputList = this.skillInputList.filter(item => item.key !== skill.key)
+      },
+
+      handleDeleteKnowledge (knowledge) {
+        this.$logger.info('handleDelete ', knowledge)
+        this.knowledgeInputList = this.knowledgeInputList.filter(item => item.key !== knowledge.key)
+      },
+
+      handleDeleteCentury (century) {
+        this.$logger.info('handleDelete ', century)
+        this.centuryInputList = this.centuryInputList.filter(item => item.key !== century.key)
+      },
+
+      handleAddNew(tagType, inputList) {
+        this.$logger.info('handleAddNew ', inputList)
+        inputList.push({
+          name: '',
+          key: Math.random() + '',
+          tagType: tagType
+        })
+      },
+
+      getSelfOuts () {
+        const selfOuts = []
+        if (this.skillInputList.length) {
+          this.skillInputList.forEach(item => {
+            if (item.name && item.name.trim()) {
+              selfOuts.push(item)
+            }
+          })
+        }
+
+        if (this.knowledgeInputList.length) {
+          this.knowledgeInputList.forEach(item => {
+            if (item.name && item.name.trim()) {
+              selfOuts.push(item)
+            }
+          })
+        }
+
+        if (this.centuryInputList.length) {
+          this.centuryInputList.forEach(item => {
+            if (item.name && item.name.trim()) {
+              selfOuts.push(item)
+            }
+          })
+        }
+
+        this.$logger.info('getSelfOuts ', selfOuts)
+        return selfOuts
       }
     }
   }
@@ -544,6 +727,46 @@
       justify-content: space-between;
       margin: 0px auto;
       margin-top: 40px;
+    }
+  }
+
+  .customize-objectives-list {
+    .objectives-input-item {
+      padding-left: 2px;
+      position: relative;
+      margin-top: 10px;
+      margin-bottom: 10px;
+
+      img.input-icon {
+        position: absolute;
+        top: 3px;
+        right: -30px;
+        cursor: pointer;
+        width: 17px;
+      }
+
+      svg.input-icon {
+        position: absolute;
+        top: 3px;
+        right: -30px;
+        cursor: pointer;
+        width: 20px;
+      }
+    }
+
+    .skill-input {
+      border: 1px solid #FF978E;
+      box-shadow: 0 0 0 2px rgba(255, 151, 142, 0.2);
+    }
+
+    .knowledge-input {
+      border: 1px solid #D4EBE7;
+      box-shadow: 0 0 0 2px rgba(212, 235, 231, 0.2);
+    }
+
+    .century-input {
+      border: 1px solid #D7E0E9;
+      box-shadow: 0 0 0 2px rgba(215, 224, 225, 0.2);
     }
   }
 </style>

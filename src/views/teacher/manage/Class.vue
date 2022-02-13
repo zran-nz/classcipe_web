@@ -131,7 +131,7 @@ import store from '@/store'
 import { GetGradesByCurriculumId } from '@/api/preference'
 import { JeecgListMixin } from '@/mixins/JeecgListMixin'
 import { SubjectTree } from '@/api/subject'
-import { schoolClassAPIUrl } from '@/api/schoolClass'
+import { schoolClassAPIUrl, SchoolClassDelete } from '@/api/schoolClass'
 import ClassStudentList from '@/views/teacher/manage/ClassStudentList'
 import ClassTeacherList from '@/views/teacher/manage/ClassTeacherList'
 
@@ -248,6 +248,13 @@ export default {
       this.$refs.modalForm.title = 'Edit Class'
       this.$refs.modalForm.edit(record)
       this.$refs.modalForm.disableSubmit = false
+    },
+    handleDelete(record) {
+      this.$logger.info('handleDelete ', record)
+      SchoolClassDelete(record).then(response => {
+        this.$logger.info('SchoolClassDelete', response.result)
+        this.loadData()
+      })
     },
     getGradeList() {
       GetGradesByCurriculumId({ curriculumId: this.$store.getters.bindCurriculum }).then(response => {

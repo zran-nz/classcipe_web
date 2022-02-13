@@ -360,11 +360,13 @@ export default {
       this.currentEditTag = tag[0]
       this.editTabIndex = index
       this.editTabName = tag[0]
+      this.allowClickEnsureInput = true
     },
 
     // 如果正在编辑中，那么点击其他空白地方，自动保存当前编辑内容。和键盘按下Enter效果一样
     handleEnsureInput (event) {
       this.$logger.info('handleEnsureInput ' + this.editTabName)
+      this.$logger.info('classList ', event.target.classList, this.editTabIndex, this.allowClickEnsureInput)
       console.log(event)
       if (!event.target.classList.contains('my-tag-input') && this.editTabIndex !== -1 && this.allowClickEnsureInput) {
        this.handleTabInputConfirm(this.editTabName)

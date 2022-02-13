@@ -24,7 +24,14 @@
 
     <div class="my-class-list">
       <div class="class-list-wrapper">
-        <a-table :columns="columns" :data-source="data" :pagination="false" :row-selection="rowSelection" >
+        <a-table
+          rowKey="id"
+          :columns="columns"
+          :data-source="data"
+          :pagination="false"
+          :row-selection="rowSelection"
+          :scroll="{ y: 240 }"
+          class='my-mini-table'>
           <span slot="dateTime" slot-scope="text">{{ text * 1000 | dayjs1 }} </span>
           <span slot="expireDay" slot-scope="text, record">
             <span v-if="record.responseLimitMode === 0">No expire time</span>
@@ -89,7 +96,8 @@ export default {
           title: 'Date',
           dataIndex: 'date',
           key: 'dateTime',
-          scopedSlots: { customRender: 'dateTime' }
+          scopedSlots: { customRender: 'dateTime' },
+          width: 180
         },
         {
           title: 'Class',
@@ -97,12 +105,14 @@ export default {
         },
         {
           title: 'Code',
-          dataIndex: 'classId'
+          dataIndex: 'classId',
+          width: 80
         },
         {
           title: 'Expire day',
           key: 'expireDay',
           dataIndex: 'date',
+          width: 180,
           scopedSlots: { customRender: 'expireDay' }
         }
       ],
@@ -133,11 +143,14 @@ export default {
         this.$message.warn('Please select a record')
         return
       }
-      const targetUrl = lessonHost + 'd/' + this.sessionList[this.selectedRowKeys[0]].classId + '?token=' + storage.get(ACCESS_TOKEN)
+      console.log(this.sessionList)
+      const id = this.selectedRowKeys[0]
+      const index = this.sessionList.findIndex(session => session.id === id)
+      const targetUrl = lessonHost + 'd/' + this.sessionList[index].classId + '?token=' + storage.get(ACCESS_TOKEN)
       this.$logger.info('try open ' + targetUrl)
       // window.open(targetUrl, '_blank')
       // 课堂那边需要点击返回回到表单，改成location.href跳转
-      const url = lessonHost + 't/' + this.sessionList[this.selectedRowKeys[0]].classId + '?token=' + storage.get(ACCESS_TOKEN)
+      const url = lessonHost + 't/' + this.sessionList[index].classId + '?token=' + storage.get(ACCESS_TOKEN)
       var height = document.documentElement.clientHeight * 0.7
       var width = document.documentElement.clientWidth * 0.7
       var strWindowFeatures = 'width=' + width + ',height=' + height + ',menubar=yes,location=yes,resizable=yes,scrollbars=true,status=true,top=100,left=200'
@@ -216,9 +229,7 @@ export default {
     .description{
       display: flex;
       justify-content: center;
-      margin: 10px;
       height: 22px;
-      font-size: 16px;
       font-family: Arial;
       font-weight: 400;
       line-height: 23px;
@@ -229,7 +240,7 @@ export default {
     .header-action-item {
       display: flex;
       justify-content: center;
-      margin: 10px;
+      margin-top: 10px;
       .button {
         height: 40px;
         background: #2DC9A4;
@@ -237,11 +248,9 @@ export default {
         border-radius: 20px;
       }
       .btn-text {
-        height: 31px;
         font-size: 20px;
         font-family: Arial;
         font-weight: 200;
-        line-height: 32px;
         color: #FFFFFF;
         opacity: 1;
       }
@@ -276,7 +285,6 @@ export default {
   }
 
   .class-list-wrapper {
-    padding: 15px 20px;
   }
 }
 }
@@ -284,11 +292,8 @@ export default {
   text-align: center;
   margin: 0 auto;
   .action-item{
-    padding: 20px 50px;
-    font-size: 20px;
     font-family: Arial;
     font-weight: 100;
-    line-height: 0px
   }
 }
 

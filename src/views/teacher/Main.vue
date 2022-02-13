@@ -3,6 +3,30 @@
     <a-layout>
       <a-layout-sider>
         <div class="nav-bar-left">
+          <div class='quick-action'>
+            <a-row :gutter="10">
+              <a-col span='12'>
+                <div class='quick-action-item' @click='handleViewQuickSession'>
+                  <div class='action-icon'>
+                    <quick-session-svg />
+                  </div>
+                  <div class='action-title'>
+                    Quick session
+                  </div>
+                </div>
+              </a-col>
+              <a-col span='12'>
+                <div class='quick-action-item' @click='handleOpenGoogleSlide'>
+                  <div class='action-icon'>
+                    <google-slide-svg />
+                  </div>
+                  <div class='action-title'>
+                    Google slide
+                  </div>
+                </div>
+              </a-col>
+            </a-row>
+          </div>
           <div class="nav-bar-wrapper">
             <div :class="{ 'nav-bar-item': true, 'selected-nav-bar': selectedKey === '/teacher/main/created-by-me' }">
               <router-link to="/teacher/main/created-by-me">
@@ -64,6 +88,7 @@
       </a-layout-content>
     </a-layout>
     <AddPreference />
+    <quick-session @close='hiddenQuickSession' :visible.sync='quickSessionVisible' v-if='quickSessionVisible'/>
   </a-card>
 </template>
 
@@ -77,10 +102,14 @@ import PopularSvg from '@/assets/svgIcon/myContent/Popular.svg?inline'
 import SharedSvg from '@/assets/svgIcon/myContent/Shared.svg?inline'
 import SubscribesSvg from '@/assets/svgIcon/myContent/Subscribes.svg?inline'
 import AddPreference from '@/components/Teacher/AddPreference'
+import QuickSessionSvg from '@/assets/icons/quickSession/Quick session.svg?inline'
+import GoogleSlideSvg from '@/assets/icons/quickSession/Google slide.svg?inline'
+import QuickSession from '@/components/QuickSession/QuickSession'
 
 export default {
   name: 'Main',
   components: {
+    QuickSession,
     PageHeaderWrapper,
     CreatedByMeSvg,
     DiscoverSvg,
@@ -88,12 +117,14 @@ export default {
     PopularSvg,
     SharedSvg,
     SubscribesSvg,
-    AddPreference
+    AddPreference,
+    QuickSessionSvg,
+    GoogleSlideSvg
   },
   data() {
     return {
       selectedKey: '/teacher/main/created-by-me',
-      visible: true
+      quickSessionVisible: false
     }
   },
   watch: {
@@ -108,7 +139,19 @@ export default {
     logger.info('selectedKey ', this.selectedKey)
   },
   mounted() {},
-  methods: {}
+  methods: {
+    handleViewQuickSession () {
+      this.quickSessionVisible = true
+    },
+
+    hiddenQuickSession () {
+      this.quickSessionVisible = false
+    },
+
+    handleOpenGoogleSlide () {
+      window.open('https://docs.google.com/presentation', '_blank')
+    }
+  }
 }
 </script>
 
@@ -148,7 +191,6 @@ export default {
 .nav-bar-left {
   height: 100%;
   box-sizing: border-box;
-  margin-top: 70px;
   padding-right: 5px;
   .nav-bar-wrapper {
     .nav-bar-item {
@@ -190,6 +232,46 @@ export default {
         color: @primary-color;
         font-weight: bold;
       }
+    }
+  }
+}
+
+.quick-action {
+  margin-bottom: 15px;
+  .quick-action-item {
+    user-select: none;
+    padding: 8px 0;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background: #FBFBFBFF;
+    border: 1px solid #eee;
+    border-radius: 4px;
+    transition: all 0.2s ease-in-out;
+    cursor: pointer;
+
+    &:hover {
+      background: #15C39A1A;
+      border: 1px solid #15C39AFF;
+    }
+
+    &:active {
+      box-shadow: 0 0 3px 3px #15C39A1A;
+    }
+
+    .action-icon {
+      svg {
+        width: 26px;
+        height: 26px;
+      }
+    }
+
+    .action-title {
+      line-height: 12px;
+      font-size: 12px;
+      font-weight: bold;
     }
   }
 }

@@ -65,8 +65,8 @@
                                 Personal
                               </a-tag>
                             </div>
-                            <a-popconfirm cancel-text="No" ok-text="Yes" title="Delete ?">
-                              <div class='remove-class-icon' @confirm="handleDeleteClass(classItem)">
+                            <a-popconfirm cancel-text="No" ok-text="Yes" title="Delete ?" @confirm="handleDeleteClass(classItem)">
+                              <div class='remove-class-icon'>
                                 <img class='big-delete-icon' src="~@/assets/icons/tag/delete.png"/>
                               </div>
                             </a-popconfirm>
@@ -207,6 +207,7 @@
                           <ui-learn-out
                             ref='learnOut'
                             :learn-outs='form.learnOuts'
+                            :self-outs='form.selfOuts'
                             @remove-learn-outs='handleRemoveLearnOuts' />
                         </div>
 
@@ -271,7 +272,11 @@
                       </div>
                     </template>
                   </a-step>
-                  <a-step title="Edit task slides" :status="currentActiveStepIndex === 1 ? 'process':'wait'" id="templateSelected">
+                  <a-step
+                    title="Edit task slides"
+                    :sub-title="form.taskMode === 2 ? 'Quick task mode' : 'Create in Google Slides mode'"
+                    :status="currentActiveStepIndex === 1 ? 'process':'wait'"
+                    id="templateSelected">
                     <template slot="description">
                       <div class='step-detail' v-show="currentActiveStepIndex === 1">
                         <div class="edit-in-slide" v-if="!form.fileDeleted">
@@ -296,6 +301,16 @@
                               v-model='form.showSelected'
                               @click='changeSelected' />
                           </a-tooltip>
+                        </div>
+                        <div class='edit-in-slide' v-if='form.taskMode === 2'>
+                          <a-button
+                            class='action-ensure action-item edit-slide'
+                            type='primary'
+                            shape='round'
+                            @click='handleChooseAntherPrompt'
+                            style='margin-right: 10px'>
+                            Choose Another
+                          </a-button>
                         </div>
                         <div class='top-icon-groups' v-if='!form.fileDeleted && !form.showSelected'>
                           <a-col class='material-row'>
@@ -413,13 +428,13 @@
                                 </div>
                                 <div
                                   class='slide-preview'
-                                  :style="{'width':(leftWidth- 50) + 'px'}"
+                                  :style="{'width':(leftWidth- 50) + 'px', 'padding': '0 35px'}"
                                   v-show='!form.showSelected && form.presentationId && thumbnailList.length'>
                                   <a-carousel ref='carousel' arrows :after-change='onChangePage'>
-                                    <div slot='prevArrow' class='custom-slick-arrow' style='left: 10px;zIndex: 9'>
+                                    <div slot='prevArrow' class='custom-slick-arrow' style='left: -29px;zIndex: 9'>
                                       <a-icon type='left-circle' />
                                     </div>
-                                    <div slot='nextArrow' class='custom-slick-arrow' style='right: 10px;zIndex: 9'>
+                                    <div slot='nextArrow' class='custom-slick-arrow' style='right: -25px;zIndex: 9'>
                                       <a-icon type='right-circle' />
                                     </div>
                                     <div v-for='(item,index) in thumbnailList' :key='index'>
@@ -482,6 +497,7 @@
                                       <div class='img-list'>
                                         <div
                                           class='img-item'
+                                          :class="{'active-img-item': currentImgIndex === index}"
                                           v-for='(item,index) in thumbnailList'
                                           :key="'index' + index"
                                           @click='handleGotoImgIndex(index)'>
@@ -1665,7 +1681,7 @@
         :footer='null'
         destroyOnClose
         title='Share'
-        width='680px'
+        width='500px'
         @ok='shareVisible = false'
         @cancel='shareVisible = false'>
         <share-content-setting
@@ -1690,6 +1706,13 @@
           @update-content='handleUpdateContent'
         />
       </a-modal>
+
+      <quick-session
+        @close='handleCloseQuickSession'
+        @select='handleEnsureChooseAnother'
+        :visible='chooseAnotherVisible'
+        :mode="'choose-another'"
+      />
 
       <a-skeleton :loading='contentLoading' active>
       </a-skeleton>
@@ -1757,12 +1780,14 @@ import CollaborateUpdateContent from '@/components/Collaborate/CollaborateUpdate
 import LocalStore from '@/websocket/localstore'
 import { PersonalAddOrUpdateClass, SchoolClassGetMyClasses } from '@/api/schoolClass'
 import InputWithCreate from '@/components/Common/InputWithCreate'
-
+import QuickSession from '@/components/QuickSession/QuickSession'
+import { chooseAnother } from '@/api/quickTask'
 const { SplitTask } = require('@/api/task')
 
 export default {
   name: 'AddTask',
   components: {
+    QuickSession,
     InputWithCreate,
     ShareContentSetting,
     TaskPptPreview,
@@ -1841,6 +1866,7 @@ export default {
         gradeIds: [],
         bloomCategories: '',
         learnOuts: [],
+        selfOuts: [],
         showSelect: false,
         startDate: '',
         endDate: '',
@@ -1998,7 +2024,11 @@ export default {
       },
 
       linkUnitPlanLoading: false,
-      linkRubricLoading: false
+      linkRubricLoading: false,
+
+      chooseAnotherVisible: false,
+
+      customizeLearnOut: []
     }
   },
   computed: {
@@ -2301,6 +2331,11 @@ export default {
           onOk: () => {
             this.currentActiveStepIndex = 2
             this.handleSaveSubTaskAndForm(0)
+          },
+          onCancel: () => {
+            // 取消时清空subTasks再进入正常保存逻辑
+            this.subTasks = []
+            this.handleSaveTask()
           }
         })
       } else {
@@ -2328,6 +2363,9 @@ export default {
           taskData.id = this.taskId
         }
         taskData.selectedTemplateList = this.selectedTemplateList
+
+        // 更新selfOuts数据
+        taskData.selfOuts = this.$refs.learnOut.getSelfOuts()
         logger.info('basic taskData', taskData)
         logger.info('question taskData', taskData)
         TaskAddOrUpdate(taskData).then((response) => {
@@ -2413,6 +2451,32 @@ export default {
       this.drawerSelectedTemplateList = []
       this.selectedTemplateList.forEach(item => {
         this.drawerSelectedTemplateList.push(item)
+      })
+    },
+
+    handleChooseAntherPrompt () {
+      this.$logger.info('handleChooseAntherPrompt')
+      this.chooseAnotherVisible = true
+    },
+
+    handleCloseQuickSession () {
+      this.$logger.info('handleCloseQuickSession')
+      this.chooseAnotherVisible = false
+    },
+
+    handleEnsureChooseAnother (data) {
+      this.$logger.info('handleEnsureChooseAnother', data)
+      chooseAnother({
+        presentationId: data.presentationId,
+        selectPageObjectIds: data.selectPageObjectIds,
+        taskId: this.taskId
+      }).then(response => {
+        if (response.success) {
+          this.chooseAnotherVisible = false
+          this.$message.success('Choose another successfully')
+        } else {
+          this.$message.warn(response.message)
+        }
       })
     },
 
@@ -3071,6 +3135,8 @@ export default {
     },
 
     loadRefLearnOuts() {
+      this.recommendData = []
+      this.recommendDataIdList = []
       FindSourceOutcomes({
         type: this.contentType['unit-plan'],
         ids: this.associateUnitPlanIdList
@@ -3158,7 +3224,7 @@ export default {
         this.selectedSyncList)
       this.$logger.info('mySelectedList', this.$refs.newBrowser.mySelectedList)
       this.$logger.info('learnOuts', this.form.learnOuts)
-      this.form.learnOuts = this.$refs.newBrowser.mySelectedList
+      this.form.learnOuts = JSON.parse(JSON.stringify(this.$refs.newBrowser.mySelectedList))
       this.$refs.newBrowser.selectedRecommendList.forEach(item => {
         const index = this.form.learnOuts.findIndex(dataItem => dataItem.knowledgeId === item.knowledgeId)
         if (index === -1) {
@@ -3235,6 +3301,21 @@ export default {
 
       // #协同编辑event事件
       this.handleCollaborateEvent(this.taskId, this.taskField.Assessment, this.form.assessment)
+    },
+
+    handleUpdateSelfOuts (data) {
+      this.$logger.info('handleUpdateSelfOuts', data)
+      const tagType = data.tagType
+      const dataList = data.list
+      let selfOuts = this.form.selfOuts
+      selfOuts = selfOuts.filter(item => item.tagType !== tagType)
+      dataList.forEach(item => {
+        if (item.name && item.name.trim() !== '') {
+          selfOuts.push(item)
+        }
+      })
+      this.form.selfOutss = selfOuts
+      this.$logger.info('selfOuts', selfOuts)
     },
     handleSelectDescription() {
       // 获取当前task关联的unit-plan的描述数据
@@ -3858,7 +3939,7 @@ export default {
         if (response.success) {
           this.$message.success('add successfully')
           this.subTasks = []
-          // this.handleSaveTask()
+          this.handleSaveTask()
         } else {
           this.$message.error(response.message)
         }
@@ -3891,6 +3972,7 @@ export default {
         taskData.id = this.taskId
       }
       taskData.selectedTemplateList = this.selectedTemplateList
+      taskData.selfOuts = this.$refs.learnOut.getSelfOuts()
       logger.info('basic taskData', taskData)
       TaskAddOrUpdate(taskData).then((response) => {
         logger.info('TaskAddOrUpdate', response.result)
@@ -4072,7 +4154,7 @@ export default {
 
     .anticon-more {
       color: #15c39a;
-      font-size: 18px;
+      font-size: 25px;
     }
   }
 }
@@ -5618,6 +5700,7 @@ export default {
 
   /deep/ .ant-carousel .slick-slide img {
     width: 100%;
+    border: 2px solid #15C39A;
   }
 
   /deep/ .ant-carousel {
@@ -5635,7 +5718,9 @@ export default {
 
     .anticon {
       color: fade(@black, 45%);
-      font-size: 30px;
+      svg {
+        font-size: 25px;
+      }
     }
   }
 
@@ -5671,7 +5756,6 @@ export default {
       }
 
       .slide-preview {
-        border: 1px solid rgba(0, 0, 0, 0.1);
         position: relative;
 
         .slide-hover-action-mask {
@@ -5762,7 +5846,7 @@ export default {
 
     .anticon {
       color: fade(@black, 45%);
-      font-size: 20px;
+      font-size: 25px;
     }
   }
 
@@ -5957,6 +6041,7 @@ export default {
     width: 100%;
 
     .img-list {
+      margin-right: -10px;
       cursor: pointer;
       display: flex;
       flex-direction: row;
@@ -5965,13 +6050,22 @@ export default {
 
       .img-item {
         height: 80px;
-        border: 1px solid #ddd;
+        border: 2px solid #fff;
         box-shadow: 0 4px 8px 0 rgba(31, 33, 44, 10%);
-        margin: 0 10px;
+        margin-right: 10px;
 
         img {
           height: 100%;
         }
+      }
+
+      .img-item:nth-last-child(1) {
+        margin-right: 0;
+      }
+
+      .active-img-item {
+        border: 2px solid #15C39A;
+        box-shadow: 0 0 3px 3px #15C39A1A;
       }
     }
   }

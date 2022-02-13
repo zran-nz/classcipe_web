@@ -12,7 +12,7 @@
           v-if='mode === this.tableMode.Edit'>
           <th
             v-for='(header, hIndex) in headers'
-            :class="{'header-item': true, 'preview-mode': formTableMode === tableMode.Preview, 'min-header-width': [
+            :class="{'header-item': true, 'preview-mode': mode === tableMode.Preview, 'min-header-width': [
                        headerType.AchievementLevel,
                      ].indexOf(header.type) !== -1,
                      'criteria-header-width': [
@@ -24,7 +24,7 @@
             :key='header.type'
             :data-header="JSON.stringify(header)"
             :data-header-type='header.type'
-            :data-header-mode='formTableMode'
+            :data-header-mode='mode'
             v-if='header.visible'>
             <!-- 1.编辑模式下不显示add evidence-->
             <!-- 2.21世纪表格有非描述项,不显示四个列表格，只显示comment，否则现在四个列表格-->
@@ -114,11 +114,11 @@
         <tr class='table-header' v-if='mode !== this.tableMode.Edit'>
           <th
             v-for='(header) in headers'
-            :class="{'header-item': true, 'preview-mode': formTableMode === tableMode.Preview}"
+            :class="{'header-item': true, 'preview-mode': mode === tableMode.Preview}"
             :key='header.type'
             :data-header="JSON.stringify(header)"
             :data-header-type='header.type'
-            :data-header-mode='formTableMode'
+            :data-header-mode='mode'
             v-if='header.visible'>
             <!-- 1.编辑模式、自评、他评下不显示add evidence-->
             <!-- 2.21世纪表格有非描述项,不显示四个列表格，只显示comment，否则现在四个列表格-->
@@ -418,11 +418,11 @@
                   header.type !== headerType.LevelDescriptor &&
                   header.type !== headerType.Indicators'>
                 <teacher-icon
-                  v-if='formBodyData && formBodyData[item.rowId] && formBodyData[item.rowId].teacherEvaluation === header.type && (currentEvaluateMode === tableMode.TeacherEvaluate || currentEvaluateMode === tableMode.StudentEvaluate)' />
+                  v-if='formBodyData && formBodyData[item.rowId] && formBodyData[item.rowId].teacherEvaluation === header.type && (mode === tableMode.TeacherEvaluate || mode === tableMode.StudentEvaluate)' />
                 <student-icon
-                  v-if='formBodyData && formBodyData[item.rowId] && formBodyData[item.rowId].studentEvaluation === header.type && (currentEvaluateMode === tableMode.TeacherEvaluate || currentEvaluateMode === tableMode.StudentEvaluate)' />
+                  v-if='formBodyData && formBodyData[item.rowId] && formBodyData[item.rowId].studentEvaluation === header.type && (mode === tableMode.TeacherEvaluate || mode === tableMode.StudentEvaluate)' />
                 <peer-icon
-                  v-if='formBodyData && formBodyData[item.rowId] && formBodyData[item.rowId].peerEvaluation === header.type && (currentEvaluateMode === tableMode.TeacherEvaluate || currentEvaluateMode === tableMode.PeerEvaluate)' />
+                  v-if='formBodyData && formBodyData[item.rowId] && formBodyData[item.rowId].peerEvaluation === header.type && (mode === tableMode.TeacherEvaluate || mode === tableMode.PeerEvaluate)' />
               </div>
             </template>
 
@@ -445,11 +445,11 @@
               </div>
               <div class='selected-icon'>
                 <teacher-icon
-                  v-if='formBodyData && formBodyData[item.rowId] && formBodyData[item.rowId].teacherEvaluation === header.type && (currentEvaluateMode === tableMode.TeacherEvaluate || currentEvaluateMode === tableMode.StudentEvaluate)' />
+                  v-if='formBodyData && formBodyData[item.rowId] && formBodyData[item.rowId].teacherEvaluation === header.type && (mode === tableMode.TeacherEvaluate || mode === tableMode.StudentEvaluate)' />
                 <student-icon
-                  v-if='formBodyData && formBodyData[item.rowId] && formBodyData[item.rowId].studentEvaluation === header.type && (currentEvaluateMode === tableMode.TeacherEvaluate || currentEvaluateMode === tableMode.StudentEvaluate)' />
+                  v-if='formBodyData && formBodyData[item.rowId] && formBodyData[item.rowId].studentEvaluation === header.type && (mode === tableMode.TeacherEvaluate || mode === tableMode.StudentEvaluate)' />
                 <peer-icon
-                  v-if='formBodyData && formBodyData[item.rowId] && formBodyData[item.rowId].peerEvaluation === header.type && (currentEvaluateMode === tableMode.TeacherEvaluate || currentEvaluateMode === tableMode.PeerEvaluate)' />
+                  v-if='formBodyData && formBodyData[item.rowId] && formBodyData[item.rowId].peerEvaluation === header.type && (mode === tableMode.TeacherEvaluate || mode === tableMode.PeerEvaluate)' />
               </div>
             </template>
 
@@ -467,11 +467,11 @@
               </div>
               <div class='selected-icon'>
                 <teacher-icon
-                  v-if='formBodyData && formBodyData[item.rowId] && formBodyData[item.rowId].teacherEvaluation === header.type && (currentEvaluateMode === tableMode.TeacherEvaluate || currentEvaluateMode === tableMode.StudentEvaluate)' />
+                  v-if='formBodyData && formBodyData[item.rowId] && formBodyData[item.rowId].teacherEvaluation === header.type && (mode === tableMode.TeacherEvaluate || mode === tableMode.StudentEvaluate)' />
                 <student-icon
-                  v-if='formBodyData && formBodyData[item.rowId] && formBodyData[item.rowId].studentEvaluation === header.type && (currentEvaluateMode === tableMode.TeacherEvaluate || currentEvaluateMode === tableMode.StudentEvaluate)' />
+                  v-if='formBodyData && formBodyData[item.rowId] && formBodyData[item.rowId].studentEvaluation === header.type && (mode === tableMode.TeacherEvaluate || mode === tableMode.StudentEvaluate)' />
                 <peer-icon
-                  v-if='formBodyData && formBodyData[item.rowId] && formBodyData[item.rowId].peerEvaluation === header.type && (currentEvaluateMode === tableMode.TeacherEvaluate || currentEvaluateMode === tableMode.PeerEvaluate)' />
+                  v-if='formBodyData && formBodyData[item.rowId] && formBodyData[item.rowId].peerEvaluation === header.type && (mode === tableMode.TeacherEvaluate || mode === tableMode.PeerEvaluate)' />
               </div>
             </template>
 
@@ -495,11 +495,11 @@
                 </div>
                 <div class='selected-icon'>
                   <teacher-icon
-                    v-if='formBodyData && formBodyData[item.rowId] && formBodyData[item.rowId].teacherEvaluation === header.type && (currentEvaluateMode === tableMode.TeacherEvaluate || currentEvaluateMode === tableMode.StudentEvaluate)' />
+                    v-if='formBodyData && formBodyData[item.rowId] && formBodyData[item.rowId].teacherEvaluation === header.type && (mode === tableMode.TeacherEvaluate || mode === tableMode.StudentEvaluate)' />
                   <student-icon
-                    v-if='formBodyData && formBodyData[item.rowId] && formBodyData[item.rowId].studentEvaluation === header.type && (currentEvaluateMode === tableMode.TeacherEvaluate || currentEvaluateMode === tableMode.StudentEvaluate)' />
+                    v-if='formBodyData && formBodyData[item.rowId] && formBodyData[item.rowId].studentEvaluation === header.type && (mode === tableMode.TeacherEvaluate || mode === tableMode.StudentEvaluate)' />
                   <peer-icon
-                    v-if='formBodyData && formBodyData[item.rowId] && formBodyData[item.rowId].peerEvaluation === header.type && (currentEvaluateMode === tableMode.TeacherEvaluate || currentEvaluateMode === tableMode.PeerEvaluate)' />
+                    v-if='formBodyData && formBodyData[item.rowId] && formBodyData[item.rowId].peerEvaluation === header.type && (mode === tableMode.TeacherEvaluate || mode === tableMode.PeerEvaluate)' />
                 </div>
               </template>
               <template v-if='header.type === headerType.Novice'>
@@ -508,11 +508,11 @@
                 </div>
                 <div class='selected-icon'>
                   <teacher-icon
-                    v-if='formBodyData && formBodyData[item.rowId] && formBodyData[item.rowId].teacherEvaluation === header.type && (currentEvaluateMode === tableMode.TeacherEvaluate || currentEvaluateMode === tableMode.StudentEvaluate)' />
+                    v-if='formBodyData && formBodyData[item.rowId] && formBodyData[item.rowId].teacherEvaluation === header.type && (mode === tableMode.TeacherEvaluate || mode === tableMode.StudentEvaluate)' />
                   <student-icon
-                    v-if='formBodyData && formBodyData[item.rowId] && formBodyData[item.rowId].studentEvaluation === header.type && (currentEvaluateMode === tableMode.TeacherEvaluate || currentEvaluateMode === tableMode.StudentEvaluate)' />
+                    v-if='formBodyData && formBodyData[item.rowId] && formBodyData[item.rowId].studentEvaluation === header.type && (mode === tableMode.TeacherEvaluate || mode === tableMode.StudentEvaluate)' />
                   <peer-icon
-                    v-if='formBodyData && formBodyData[item.rowId] && formBodyData[item.rowId].peerEvaluation === header.type && (currentEvaluateMode === tableMode.TeacherEvaluate || currentEvaluateMode === tableMode.PeerEvaluate)' />
+                    v-if='formBodyData && formBodyData[item.rowId] && formBodyData[item.rowId].peerEvaluation === header.type && (mode === tableMode.TeacherEvaluate || mode === tableMode.PeerEvaluate)' />
                 </div>
               </template>
               <template v-if='header.type === headerType.Learner'>
@@ -521,11 +521,11 @@
                 </div>
                 <div class='selected-icon'>
                   <teacher-icon
-                    v-if='formBodyData && formBodyData[item.rowId] && formBodyData[item.rowId].teacherEvaluation === header.type && (currentEvaluateMode === tableMode.TeacherEvaluate || currentEvaluateMode === tableMode.StudentEvaluate)' />
+                    v-if='formBodyData && formBodyData[item.rowId] && formBodyData[item.rowId].teacherEvaluation === header.type && (mode === tableMode.TeacherEvaluate || mode === tableMode.StudentEvaluate)' />
                   <student-icon
-                    v-if='formBodyData && formBodyData[item.rowId] && formBodyData[item.rowId].studentEvaluation === header.type && (currentEvaluateMode === tableMode.TeacherEvaluate || currentEvaluateMode === tableMode.StudentEvaluate)' />
+                    v-if='formBodyData && formBodyData[item.rowId] && formBodyData[item.rowId].studentEvaluation === header.type && (mode === tableMode.TeacherEvaluate || mode === tableMode.StudentEvaluate)' />
                   <peer-icon
-                    v-if='formBodyData && formBodyData[item.rowId] && formBodyData[item.rowId].peerEvaluation === header.type && (currentEvaluateMode === tableMode.TeacherEvaluate || currentEvaluateMode === tableMode.PeerEvaluate)' />
+                    v-if='formBodyData && formBodyData[item.rowId] && formBodyData[item.rowId].peerEvaluation === header.type && (mode === tableMode.TeacherEvaluate || mode === tableMode.PeerEvaluate)' />
                 </div>
               </template>
               <template v-if='header.type === headerType.Practitoner'>
@@ -534,11 +534,11 @@
                 </div>
                 <div class='selected-icon'>
                   <teacher-icon
-                    v-if='formBodyData && formBodyData[item.rowId] && formBodyData[item.rowId].teacherEvaluation === header.type && (currentEvaluateMode === tableMode.TeacherEvaluate || currentEvaluateMode === tableMode.StudentEvaluate)' />
+                    v-if='formBodyData && formBodyData[item.rowId] && formBodyData[item.rowId].teacherEvaluation === header.type && (mode === tableMode.TeacherEvaluate || mode === tableMode.StudentEvaluate)' />
                   <student-icon
-                    v-if='formBodyData && formBodyData[item.rowId] && formBodyData[item.rowId].studentEvaluation === header.type && (currentEvaluateMode === tableMode.TeacherEvaluate || currentEvaluateMode === tableMode.StudentEvaluate)' />
+                    v-if='formBodyData && formBodyData[item.rowId] && formBodyData[item.rowId].studentEvaluation === header.type && (mode === tableMode.TeacherEvaluate || mode === tableMode.StudentEvaluate)' />
                   <peer-icon
-                    v-if='formBodyData && formBodyData[item.rowId] && formBodyData[item.rowId].peerEvaluation === header.type && (currentEvaluateMode === tableMode.TeacherEvaluate || currentEvaluateMode === tableMode.PeerEvaluate)' />
+                    v-if='formBodyData && formBodyData[item.rowId] && formBodyData[item.rowId].peerEvaluation === header.type && (mode === tableMode.TeacherEvaluate || mode === tableMode.PeerEvaluate)' />
                 </div>
               </template>
               <template v-if='header.type === headerType.Expert'>
@@ -547,11 +547,11 @@
                 </div>
                 <div class='selected-icon'>
                   <teacher-icon
-                    v-if='formBodyData && formBodyData[item.rowId] && formBodyData[item.rowId].teacherEvaluation === header.type && (currentEvaluateMode === tableMode.TeacherEvaluate || currentEvaluateMode === tableMode.StudentEvaluate)' />
+                    v-if='formBodyData && formBodyData[item.rowId] && formBodyData[item.rowId].teacherEvaluation === header.type && (mode === tableMode.TeacherEvaluate || mode === tableMode.StudentEvaluate)' />
                   <student-icon
-                    v-if='formBodyData && formBodyData[item.rowId] && formBodyData[item.rowId].studentEvaluation === header.type && (currentEvaluateMode === tableMode.TeacherEvaluate || currentEvaluateMode === tableMode.StudentEvaluate)' />
+                    v-if='formBodyData && formBodyData[item.rowId] && formBodyData[item.rowId].studentEvaluation === header.type && (mode === tableMode.TeacherEvaluate || mode === tableMode.StudentEvaluate)' />
                   <peer-icon
-                    v-if='formBodyData && formBodyData[item.rowId] && formBodyData[item.rowId].peerEvaluation === header.type && (currentEvaluateMode === tableMode.TeacherEvaluate || currentEvaluateMode === tableMode.PeerEvaluate)' />
+                    v-if='formBodyData && formBodyData[item.rowId] && formBodyData[item.rowId].peerEvaluation === header.type && (mode === tableMode.TeacherEvaluate || mode === tableMode.PeerEvaluate)' />
                 </div>
               </template>
               <template v-if='header.type === headerType.Comment'>
@@ -572,11 +572,11 @@
                 </div>
                 <div class='selected-icon'>
                   <teacher-icon
-                    v-if='formBodyData && formBodyData[item.rowId] && formBodyData[item.rowId].teacherEvaluation === header.type && (currentEvaluateMode === tableMode.TeacherEvaluate || currentEvaluateMode === tableMode.StudentEvaluate)' />
+                    v-if='formBodyData && formBodyData[item.rowId] && formBodyData[item.rowId].teacherEvaluation === header.type && (mode === tableMode.TeacherEvaluate || mode === tableMode.StudentEvaluate)' />
                   <student-icon
-                    v-if='formBodyData && formBodyData[item.rowId] && formBodyData[item.rowId].studentEvaluation === header.type && (currentEvaluateMode === tableMode.TeacherEvaluate || currentEvaluateMode === tableMode.StudentEvaluate)' />
+                    v-if='formBodyData && formBodyData[item.rowId] && formBodyData[item.rowId].studentEvaluation === header.type && (mode === tableMode.TeacherEvaluate || mode === tableMode.StudentEvaluate)' />
                   <peer-icon
-                    v-if='formBodyData && formBodyData[item.rowId] && formBodyData[item.rowId].peerEvaluation === header.type && (currentEvaluateMode === tableMode.TeacherEvaluate || currentEvaluateMode === tableMode.PeerEvaluate)' />
+                    v-if='formBodyData && formBodyData[item.rowId] && formBodyData[item.rowId].peerEvaluation === header.type && (mode === tableMode.TeacherEvaluate || mode === tableMode.PeerEvaluate)' />
                 </div>
               </template>
             </template>
@@ -746,9 +746,9 @@ export default {
       type: String,
       required: true
     },
-    formTableMode: {
+    mode: {
       type: String,
-      default: EvaluationTableMode.Edit
+      required: true
     },
     formType: {
       type: Number,
@@ -767,7 +767,6 @@ export default {
       list: [], // 表结构数据
       defaultActiveMenu: NavigationType.specificSkills,
       showMenuList: [NavigationType.centurySkills],
-      mode: null,
 
       selectCurriculumVisible: false,
       selectKnowledgeTagVisible: false,
@@ -800,12 +799,8 @@ export default {
       inputDescriptionVisible: false,
       inputDescription: null,
       currentEnterDescriptionLine: null,
-      currentEvaluateMode: EvaluationTableMode.TeacherEvaluate, // 评价模式,
 
       disabledDraggable: false,
-
-      evaluateStudentId: null, // 当前正在评估的学生id
-      evaluateStudentName: null, // 当前正在评估的学生姓名
 
       selected21CenturyItem: null,
       has21CenturySkillNoDescriptionItem: false // 是否有选择21世纪技能非描述的项目
@@ -827,7 +822,7 @@ export default {
       this.has21CenturySkillNoDescriptionItem = flag
 
       // 编辑与他评模式不显示evidence
-      if (this.formTableMode === this.tableMode.TeacherEvaluate) {
+      if (this.mode === this.tableMode.TeacherEvaluate) {
         this.headers.forEach(header => {
           if (header.type === this.headerType.Evidence) {
             header.visible = true
@@ -874,26 +869,43 @@ export default {
     }
   },
   created() {
-    this.$logger.info('[' + this.formTableMode + '] EvaluationTable created formType ' + this.formType, 'initRawHeaders', this.initRawHeaders, 'initRawData', this.initRawData, ' formBodyData', this.formBodyData)
-    this.mode = this.formTableMode
+    this.$logger.info('[' + this.mode + '] EvaluationTable created formType ' + this.formType, 'initRawHeaders', this.initRawHeaders, 'initRawData', this.initRawData, ' formBodyData', this.formBodyData)
 
-    const params = new URLSearchParams(document.location.search)
-    this.evaluateStudentId = params.get('student-id')
-    this.evaluateStudentName = params.get('student-name')
-    this.$logger.info('evaluateStudentId ' + this.evaluateStudentId + ' evaluateStudentName ' + this.evaluateStudentName)
-
-    if (this.formTableMode === EvaluationTableMode.TeacherEvaluate && this.$store.getters.userInfo.roles.indexOf('teacher') !== -1) {
-      this.currentEvaluateMode = EvaluationTableMode.TeacherEvaluate
-    } else {
-      if (this.formTableMode === EvaluationTableMode.StudentEvaluate) {
-        this.currentEvaluateMode = EvaluationTableMode.StudentEvaluate
-      } else if (this.formTableMode === EvaluationTableMode.PeerEvaluate) {
-        this.currentEvaluateMode = EvaluationTableMode.PeerEvaluate
-      } else {
-        this.$logger.info('current formTableMode illegal ' + this.formTableMode)
-      }
-      this.$logger.info('current currentEvaluateMode ' + this.currentEvaluateMode)
+    // 评估模式参数校验
+    if ([
+      EvaluationTableMode.Edit,
+      EvaluationTableMode.Preview,
+      EvaluationTableMode.TeacherEvaluate,
+      EvaluationTableMode.StudentEvaluate,
+      EvaluationTableMode.PeerEvaluate
+    ].indexOf(this.mode) === -1) {
+      this.$confirm({
+        title: 'Parameter error',
+        content: 'Please make sure your link is correct, the current evaluation mode is ' + this.mode + '.',
+        centered: true,
+        onOk: () => {
+          this.$emit('error-mode')
+        },
+        onCancel: () => {
+          this.$emit('error-mode')
+        }
+      })
     }
+    // 只有老师才可以进入老师评价模式
+    if (this.mode === EvaluationTableMode.TeacherEvaluate && this.$store.getters.currentRole !== 'teacher') {
+      this.$confirm({
+        title: 'Access denied',
+        content: 'Only teachers have access to teacher mode',
+        centered: true,
+        onOk: () => {
+          this.$emit('error-mode')
+        },
+        onCancel: () => {
+          this.$emit('error-mode')
+        }
+      })
+    }
+
     if (this.initRawHeaders.length) {
       this.headers = this.initRawHeaders
     } else {
@@ -1308,7 +1320,7 @@ export default {
     },
 
     handleClickBodyItem(item, header) {
-      this.$logger.info('[' + this.mode + '][' + this.currentEvaluateMode + '] handleClickBodyItem ' + header.label, item, 'header', header)
+      this.$logger.info('[' + this.mode + '][' + this.mode + '] handleClickBodyItem ' + header.label, item, 'header', header)
       if ([EvaluationTableHeader.Indicators,
         EvaluationTableHeader.Novice,
         EvaluationTableHeader.Learner,
@@ -1319,18 +1331,18 @@ export default {
         EvaluationTableHeader.UserDefine].indexOf(header.type) !== -1 || header.type.startsWith(EvaluationTableHeader.UserDefine)) {
         this.$emit('update-evaluation', {
           formId: this.formId,
-          evaluationMode: this.currentEvaluateMode,
+          evaluationMode: this.mode,
           rowId: item.rowId,
           value: header.type, // 评价所选的列
-          evaluateUserEmail: this.mode === EvaluationTableMode.TeacherEvaluate ? this.$store.getters.userInfo.email : this.evaluateStudentId,
-          evaluateUserName: this.mode === EvaluationTableMode.TeacherEvaluate ? this.$store.getters.userInfo.nickname : this.evaluateStudentName,
+          evaluateUserEmail: this.$store.getters.email,
+          evaluateUserName: this.$store.getters.nickname,
           data: null
         })
       }
     },
 
     handleClickSubLevelItem(item, header, subLevel) {
-      this.$logger.info(subLevel + ' [' + this.mode + '][' + this.currentEvaluateMode + '] handleClickSubLevelItem ' + header.label, item, 'header', header)
+      this.$logger.info(subLevel + ' [' + this.mode + '][' + this.mode + '] handleClickSubLevelItem ' + header.label, item, 'header', header)
       if ([EvaluationTableHeader.Indicators,
         EvaluationTableHeader.Novice,
         EvaluationTableHeader.Learner,
@@ -1341,11 +1353,11 @@ export default {
         EvaluationTableHeader.UserDefine].indexOf(header.type) !== -1 || header.type.startsWith(EvaluationTableHeader.UserDefine)) {
         this.$emit('update-evaluation', {
           formId: this.formId,
-          evaluationMode: this.currentEvaluateMode,
+          evaluationMode: this.mode,
           rowId: item.rowId,
           value: header.type, // 评价所选的列
-          evaluateUserEmail: this.mode === EvaluationTableMode.TeacherEvaluate ? this.$store.getters.userInfo.email : this.evaluateStudentId,
-          evaluateUserName: this.mode === EvaluationTableMode.TeacherEvaluate ? this.$store.getters.userInfo.nickname : this.evaluateStudentName,
+          evaluateUserEmail: this.$store.getters.email,
+          evaluateUserName: this.$store.getters.nickname,
           data: subLevel
         })
       }

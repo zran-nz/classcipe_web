@@ -1,19 +1,22 @@
 <template>
-  <div class="nav-path-wrapper">
-    <div class="nav-path">
-      <div class="nav-path-item" v-for="(path,index) in navPath" :key="index" @click="handleLibraryNavClick(path)">
-        <template v-if="path">
-          <template v-if="path.name && path.name.length > 20">
-            <a-tooltip :mouseEnterDelay="1">
-              <template slot="title">
-                {{ path.name }}
-              </template>
-              <a-icon type="right" /> {{ path.name }}
-            </a-tooltip>
-          </template>
-          <template v-else>
-            <a-icon type="right" />  {{ path.name }}
-          </template>
+  <div class='nav-path-wrapper'>
+    <div class='nav-path'>
+      <div class='nav-path-item' v-show='curriculumLabel && navPath.length'>
+        {{ curriculumLabel }}
+      </div>
+      <div v-for='(path,index) in navPath' :key='index' class='nav-path-item' @click='handleLibraryNavClick(path)' v-if='path'>
+        <template v-if='path.name && path.name.length > 20'>
+          <a-tooltip :mouseEnterDelay='1'>
+            <template slot='title'>
+              {{ path.name }}
+            </template>
+            <a-icon type='right' />
+            {{ path.name }}
+          </a-tooltip>
+        </template>
+        <template v-else>
+          <a-icon type='right' />
+          {{ path.name }}
         </template>
       </div>
     </div>
@@ -22,25 +25,27 @@
 
 <script>
 import { LibraryEvent, LibraryEventBus } from '@/components/NewLibrary/LibraryEventBus'
+import { getAllCurriculums } from '@/api/preference'
+
 export default {
   name: 'NewNavigation',
-  components: {
-  },
-  data () {
+  components: {},
+  data() {
     return {
-      navPath: []
+      navPath: [],
+      curriculumLabel: null
     }
   },
-  computed: {
-  },
-  created () {
+  computed: {},
+  created() {
     this.$logger.info('NewNavigation')
+    this.getCurriculums()
   },
-  mounted () {
+  mounted() {
     LibraryEventBus.$on(LibraryEvent.ContentListUpdate, this.handleContentListUpdate)
   },
   methods: {
-    handleContentListUpdate (data) {
+    handleContentListUpdate(data) {
       this.$logger.info('handleContentListUpdate', data)
       const currentTreeItem = Object.assign({}, data)
       const navPathObjList = [currentTreeItem.parentTreeData, currentTreeItem.currentTreeData]
@@ -52,22 +57,34 @@ export default {
       this.navPath = navPathObjList
     },
 
-    handleLibraryNavClick (path) {
+    handleLibraryNavClick(path) {
       this.$logger.info('handleLibraryNavClick ', path)
       LibraryEventBus.$emit(LibraryEvent.ContentListItemClick, {
         item: path,
         parent: path.parent
       })
+    },
+    getCurriculums() {
+      getAllCurriculums().then((response) => {
+        this.$logger.info('getAllCurriculums', response)
+        if (response.success) {
+          const curriculum = response.result.find(item => parseInt(item.id) === parseInt(this.$store.getters.bindCurriculum))
+          this.$logger.info('bindCurriculum', curriculum)
+          if (curriculum) {
+            this.curriculumLabel = curriculum.name
+          }
+        }
+      })
     }
   },
-  destroyed () {
+  destroyed() {
     LibraryEventBus.$off(LibraryEvent.ContentListUpdate, this.handleContentListUpdate)
     this.$logger.info('off NewNavigation ContentListUpdate handler')
   }
 }
 </script>
 
-<style lang="less" scoped>
+<style lang='less' scoped>
 
 @import "~@/components/index.less";
 
@@ -75,6 +92,7 @@ export default {
   display: flex;
   min-height: 25px;
   margin-bottom: 5px;
+
   .nav-path {
     line-height: 25px;
     display: flex;
@@ -85,14 +103,10 @@ export default {
     text-overflow: ellipsis;
     word-break: break-all;
     justify-content: flex-start;
+
     .nav-path-item {
       line-height: 25px;
-      :nth-child(0) {
-        padding: 0 3px 0 0;
-      }
-      padding: 0 3px 0 3px;
-      //color: @primary-color;
-      //font-weight: 600;
+      margin-right: 3px;
       max-width: 300px;
       overflow: hidden;
       text-overflow: ellipsis;

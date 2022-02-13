@@ -739,7 +739,6 @@
         display: flex;
         flex-direction: row;
         flex-wrap: wrap;
-        padding: 10px;
 
         .card-item-wrapper {
           cursor: pointer;
@@ -753,10 +752,12 @@
 
           .card-item {
             width: 100%;
-            //border: 1px solid #15C39A;
-            box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.16);
             opacity: 1;
             border-radius: 6px;
+            background: #fff;
+            &:hover {
+              box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.16);
+            }
           }
         }
       }

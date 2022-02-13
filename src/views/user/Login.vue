@@ -75,11 +75,9 @@
               ></a-input-password>
             </a-form-item>
 
-            <div class="forget-password">
-              <a-button type="link" @click="handleForget">Forget password</a-button>
-            </div>
-
-            <a-form-item class="form-submit">
+            <a-form-item class="form-btn">
+              <a-checkbox defaultChecked @change="handleChange">Remember me</a-checkbox>
+              <a @click="handleForget" class="forget-password">Forget password</a>
               <a-button type="primary" block :loading="loading" size="large" html-type="submit"> Log In </a-button>
             </a-form-item>
           </a-form>
@@ -116,6 +114,8 @@ import ThirdLoginButton from '@/components/Button/ThirdLoginButton'
 import ForgetPasswordModal from './ForgetPasswordModal.vue'
 import { mapActions } from 'vuex'
 import { getThirdAuthURL, thirdAuthCallbackUrl } from '@/api/thirdAuth'
+import { NOT_REMEMBER_ME } from '@/store/mutation-types'
+import storage from 'store'
 
 export default {
   components: {
@@ -129,31 +129,36 @@ export default {
       defaultActiveKey: 'teacher',
       form: this.$form.createForm(this),
       registerPath: '/user/register',
-      inviteCode: ''
+      callbackUrl: ''
     }
   },
   created() {
     const paramSearch = new URLSearchParams(window.location.search)
     const role = paramSearch.get('role')
-    const inviteCode = paramSearch.get('inviteCode')
-    if (inviteCode) {
-      this.inviteCode = inviteCode
-      this.registerPath = `/user/register?inviteCode=${inviteCode}`
+    const callbackUrl = paramSearch.get('callbackUrl')
+    const redirect = paramSearch.get('redirect')
+    if (redirect) {
+      this.registerPath = `/user/register?redirect=${redirect}`
+    } else if (callbackUrl) {
+      this.registerPath = `/user/register?redirect=${callbackUrl}`
     }
     if (role) {
       this.defaultActiveKey = role
+    }
+    if (callbackUrl) {
+      this.callbackUrl = callbackUrl
     }
   },
   methods: {
     ...mapActions(['Login', 'Logout']),
 
     thirdSignIn(source, role) {
+      if (role === 'teacher') {
+        storage.set(NOT_REMEMBER_ME, false)
+      }
       console.log('thirdSignIn', source)
       let url = getThirdAuthURL(source)
       url += `?role=${role}`
-      if (this.inviteCode) {
-        url += `&inviteCode=${this.inviteCode}`
-      }
       url += `&callbackUrl=`
       url += thirdAuthCallbackUrl
       console.log('full auth url ', url)
@@ -174,9 +179,6 @@ export default {
             username: values.email,
             password: values.password
           }
-          if (this.inviteCode) {
-            loginParams.inviteCode = this.inviteCode
-          }
           Login(loginParams)
             .then(res => this.loginSuccess(res))
             .catch(err => this.requestFailed(err))
@@ -191,7 +193,10 @@ export default {
       this.$store
         .dispatch('GetInfo')
         .then(response => {
-          if (this.$store.getters.currentRole) {
+          console.log(response)
+          if (this.callbackUrl) {
+            window.location.href = this.callbackUrl + '?token=' + res.result.token
+          } else if (this.$store.getters.currentRole) {
             this.$router.push(this.$store.getters.defaultRouter)
           } else {
             this.$router.push({ path: '/user/login' })
@@ -224,6 +229,10 @@ export default {
     },
     handleForget() {
       this.$refs.modal.show()
+    },
+    handleChange(e) {
+      const checked = e.target.checked
+      storage.set(NOT_REMEMBER_ME, !checked)
     }
   }
 }
@@ -302,16 +311,11 @@ export default {
     .desc2 {
       margin-bottom: 20px;
     }
-    .forget-password {
-      text-align: right;
-      button {
+    .form-btn {
+      .forget-password {
+        float: right;
         padding: 0;
-        position: relative;
-        bottom: 20px;
       }
-    }
-    .form-submit {
-      margin-bottom: 0px;
       button {
         border-radius: 8px;
       }

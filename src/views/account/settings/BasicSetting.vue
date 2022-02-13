@@ -131,7 +131,7 @@
           </div>
           <div class="profile-input profile-data" v-if="editMode">
             <a-select :getPopupContainer="trigger => trigger.parentElement" v-model="userInfo.subjectIds" mode="multiple">
-              <a-select-option :value="subject.id" v-if="subject.subjectType === subjectType.Learn || subject.subjectType === subjectType.LearnAndSkill" v-for="subject in subjectOptions" :key="subject.id">{{ subject.name }}</a-select-option>
+              <a-select-option :value="subject.id" v-if="subject.subjectType === subjectType.Skill || subject.subjectType === subjectType.LearnAndSkill" v-for="subject in subjectOptions" :key="subject.id">{{ subject.name }}</a-select-option>
             </a-select>
           </div>
         </div>
