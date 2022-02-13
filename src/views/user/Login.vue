@@ -116,6 +116,7 @@ import { mapActions } from 'vuex'
 import { getThirdAuthURL, thirdAuthCallbackUrl } from '@/api/thirdAuth'
 import { NOT_REMEMBER_ME } from '@/store/mutation-types'
 import storage from 'store'
+import { SESSION_CALLBACK_URL } from '@/const/common'
 
 export default {
   components: {
@@ -160,7 +161,10 @@ export default {
       let url = getThirdAuthURL(source)
       url += `?role=${role}`
       url += `&callbackUrl=`
-      url += (this.callbackUrl ? this.callbackUrl : thirdAuthCallbackUrl)
+      url += thirdAuthCallbackUrl
+      if (this.callbackUrl) {
+        window.sessionStorage.setItem(SESSION_CALLBACK_URL, this.callbackUrl)
+      }
       console.log('full auth url ', url)
       window.location.href = url
     },

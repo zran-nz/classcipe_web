@@ -9,6 +9,7 @@ export const DICT_BLOOM_CATEGORY = 'bloom_categories'
 export const DICT_PROMPT_PURPOSE = 'prompt_purpose'
 export const DICT_PROMPT_TYPE = 'prompt_type'
 export const TAG_CATGORY_KEYWORDS = 'Key words'
+export const SESSION_CALLBACK_URL = 'classcipe_callback_url'
 
 export const TagType = {
   'knowledge': 1,
