@@ -128,18 +128,23 @@ export default {
       loading: false,
       defaultActiveKey: 'teacher',
       form: this.$form.createForm(this),
-      registerPath: '/user/register'
+      registerPath: '/user/register',
+      callBackUrl: ''
     }
   },
   created() {
     const paramSearch = new URLSearchParams(window.location.search)
     const role = paramSearch.get('role')
+    const callBackUrl = paramSearch.get('callBackUrl')
     const redirect = paramSearch.get('redirect')
     if (redirect) {
       this.registerPath = `/user/register?redirect=${redirect}`
     }
     if (role) {
       this.defaultActiveKey = role
+    }
+    if (callBackUrl) {
+      this.callBackUrl = callBackUrl
     }
   },
   methods: {
@@ -186,7 +191,9 @@ export default {
       this.$store
         .dispatch('GetInfo')
         .then(response => {
-          if (this.$store.getters.currentRole) {
+          if (this.callBackUrl) {
+            window.location.href = this.callBackUrl + '?token=' + response.result.token
+          } else if (this.$store.getters.currentRole) {
             this.$router.push(this.$store.getters.defaultRouter)
           } else {
             this.$router.push({ path: '/user/login' })
