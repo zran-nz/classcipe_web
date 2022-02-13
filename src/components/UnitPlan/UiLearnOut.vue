@@ -250,6 +250,11 @@
         this.$logger.info('learnOuts change!', val)
         this.knowledgeList = val
       },
+
+      selfOuts (val) {
+        this.$logger.info('selfOuts change!', val)
+        this.initSelfOuts()
+      },
       // 更新centuryList中的数据，禁用已经被选择的选项
       centuryTagList (val) {
         this.$logger.info('centuryTagList change!', val, this.centuryList)
@@ -277,9 +282,10 @@
     methods: {
 
       initSelfOuts () {
-        const skillInputList = this.selfOuts.filter(item => item.type === TagType.skill)
-        const knowledgeInputList = this.selfOuts.filter(item => item.type === TagType.knowledge)
-        const centuryInputList = this.selfOuts.filter(item => item.type === TagType.century)
+        this.$logger.info('!!!!!!!!!!!!!!!!!!!!!!!!!!!initSelfOuts', this.selfOuts)
+        const skillInputList = this.selfOuts.filter(item => item.tagType === TagType.skill)
+        const knowledgeInputList = this.selfOuts.filter(item => item.tagType === TagType.knowledge)
+        const centuryInputList = this.selfOuts.filter(item => item.tagType === TagType.century)
 
         if (skillInputList.length) {
           this.skillInputList = skillInputList
@@ -290,6 +296,7 @@
             key: Math.random() + ''
           })
         }
+        this.$logger.info('skillInputList', this.skillInputList)
 
         if (knowledgeInputList.length) {
           this.knowledgeInputList = knowledgeInputList
@@ -300,6 +307,7 @@
             key: Math.random() + ''
           })
         }
+        this.$logger.info('knowledgeInputList', this.skillInputList)
 
         if (centuryInputList.length) {
           this.centuryInputList = centuryInputList
@@ -310,6 +318,7 @@
             key: Math.random() + ''
           })
         }
+        this.$logger.info('centuryInputList', this.skillInputList)
       },
 
       handleActiveDescription (type, k) {
@@ -435,24 +444,25 @@
 
       handleDeleteSkill (skill) {
         this.$logger.info('handleDelete ', skill)
-        this.skillInputList = this.skillInputList.filter(item => item.key === skill.key)
+        this.skillInputList = this.skillInputList.filter(item => item.key !== skill.key)
       },
 
       handleDeleteKnowledge (knowledge) {
         this.$logger.info('handleDelete ', knowledge)
-        this.knowledgeInputList = this.knowledgeInputList.filter(item => item.key === knowledge.key)
+        this.knowledgeInputList = this.knowledgeInputList.filter(item => item.key !== knowledge.key)
       },
 
       handleDeleteCentury (century) {
         this.$logger.info('handleDelete ', century)
-        this.centuryInputList = this.centuryInputList.filter(item => item.key === century.key)
+        this.centuryInputList = this.centuryInputList.filter(item => item.key !== century.key)
       },
 
       handleAddNew(tagType, inputList) {
         this.$logger.info('handleAddNew ', inputList)
         inputList.push({
           name: '',
-          key: Math.random() + ''
+          key: Math.random() + '',
+          tagType: tagType
         })
       },
 
@@ -723,32 +733,24 @@
   .customize-objectives-list {
     .objectives-input-item {
       padding-left: 2px;
-      padding-right: 32px;
       position: relative;
+      margin-top: 10px;
       margin-bottom: 10px;
 
       img.input-icon {
-        display: none;
         position: absolute;
         top: 3px;
-        right: 4px;
+        right: -30px;
         cursor: pointer;
         width: 17px;
       }
 
       svg.input-icon {
-        display: none;
         position: absolute;
         top: 3px;
-        right: 3px;
+        right: -30px;
         cursor: pointer;
         width: 20px;
-      }
-
-      &:hover {
-        .input-icon {
-          display: block;
-        }
       }
     }
 
