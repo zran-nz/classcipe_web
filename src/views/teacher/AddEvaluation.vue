@@ -90,7 +90,7 @@
                       :init-raw-headers="formItem.initRawHeaders"
                       :init-raw-data="formItem.initRawData"
                       :form-type="formItem.formType"
-                      :form-table-mode="formTableMode"
+                      :mode="formTableMode"
                     />
                   </div>
                 </div>
@@ -331,7 +331,7 @@ export default {
 
       currentEditingTitle: null,
       currentFormItem: null,
-      formTableMode: null,
+      formTableMode: EvaluationTableMode.Edit,
 
       saving: false,
       publishing: false,

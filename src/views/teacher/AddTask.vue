@@ -207,6 +207,7 @@
                           <ui-learn-out
                             ref='learnOut'
                             :learn-outs='form.learnOuts'
+                            :self-outs='form.selfOuts'
                             @remove-learn-outs='handleRemoveLearnOuts' />
                         </div>
 
@@ -1865,6 +1866,7 @@ export default {
         gradeIds: [],
         bloomCategories: '',
         learnOuts: [],
+        selfOuts: [],
         showSelect: false,
         startDate: '',
         endDate: '',
@@ -2024,7 +2026,9 @@ export default {
       linkUnitPlanLoading: false,
       linkRubricLoading: false,
 
-      chooseAnotherVisible: false
+      chooseAnotherVisible: false,
+
+      customizeLearnOut: []
     }
   },
   computed: {
@@ -2359,6 +2363,9 @@ export default {
           taskData.id = this.taskId
         }
         taskData.selectedTemplateList = this.selectedTemplateList
+
+        // 更新selfOuts数据
+        taskData.selfOuts = this.$refs.learnOut.getSelfOuts()
         logger.info('basic taskData', taskData)
         logger.info('question taskData', taskData)
         TaskAddOrUpdate(taskData).then((response) => {
@@ -3217,7 +3224,7 @@ export default {
         this.selectedSyncList)
       this.$logger.info('mySelectedList', this.$refs.newBrowser.mySelectedList)
       this.$logger.info('learnOuts', this.form.learnOuts)
-      this.form.learnOuts = this.$refs.newBrowser.mySelectedList
+      this.form.learnOuts = JSON.parse(JSON.stringify(this.$refs.newBrowser.mySelectedList))
       this.$refs.newBrowser.selectedRecommendList.forEach(item => {
         const index = this.form.learnOuts.findIndex(dataItem => dataItem.knowledgeId === item.knowledgeId)
         if (index === -1) {
@@ -3294,6 +3301,21 @@ export default {
 
       // #协同编辑event事件
       this.handleCollaborateEvent(this.taskId, this.taskField.Assessment, this.form.assessment)
+    },
+
+    handleUpdateSelfOuts (data) {
+      this.$logger.info('handleUpdateSelfOuts', data)
+      const tagType = data.tagType
+      const dataList = data.list
+      let selfOuts = this.form.selfOuts
+      selfOuts = selfOuts.filter(item => item.tagType !== tagType)
+      dataList.forEach(item => {
+        if (item.name && item.name.trim() !== '') {
+          selfOuts.push(item)
+        }
+      })
+      this.form.selfOutss = selfOuts
+      this.$logger.info('selfOuts', selfOuts)
     },
     handleSelectDescription() {
       // 获取当前task关联的unit-plan的描述数据
@@ -3950,6 +3972,7 @@ export default {
         taskData.id = this.taskId
       }
       taskData.selectedTemplateList = this.selectedTemplateList
+      taskData.selfOuts = this.$refs.learnOut.getSelfOuts()
       logger.info('basic taskData', taskData)
       TaskAddOrUpdate(taskData).then((response) => {
         logger.info('TaskAddOrUpdate', response.result)
@@ -5677,6 +5700,7 @@ export default {
 
   /deep/ .ant-carousel .slick-slide img {
     width: 100%;
+    border: 2px solid #15C39A;
   }
 
   /deep/ .ant-carousel {
@@ -6017,6 +6041,7 @@ export default {
     width: 100%;
 
     .img-list {
+      margin-right: -10px;
       cursor: pointer;
       display: flex;
       flex-direction: row;
@@ -6032,6 +6057,10 @@ export default {
         img {
           height: 100%;
         }
+      }
+
+      .img-item:nth-last-child(1) {
+        margin-right: 0;
       }
 
       .active-img-item {
