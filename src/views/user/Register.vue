@@ -207,7 +207,8 @@ export default {
       loginPath: '/user/login',
       teacherLoginPath: '/user/login?role=teacher',
       studentLoginPath: '/user/login?role=student',
-      disabled: true
+      disabled: true,
+      callbackUrl: ''
     }
   },
   created() {
@@ -217,6 +218,7 @@ export default {
       this.loginPath = `/user/login?redirect=${redirect}`
       this.teacherLoginPath = `/user/login?role=teacher&redirect=${redirect}`
       this.studentLoginPath = `/user/login?role=student&redirect=${redirect}`
+      this.callbackUrl = redirect
     }
     storage.set(NOT_REMEMBER_ME, false)
   },
@@ -305,7 +307,9 @@ export default {
       this.$store
         .dispatch('GetInfo')
         .then(response => {
-          if (this.$store.getters.currentRole) {
+          if (this.callbackUrl) {
+            window.location.href = this.callbackUrl + '?token=' + res.result.token
+          } else if (this.$store.getters.currentRole) {
             this.$router.push(this.$store.getters.defaultRouter)
           } else {
             this.$router.push({ path: this.loginPath })

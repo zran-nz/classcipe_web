@@ -113,7 +113,7 @@ import TwoStepCaptcha from '@/components/tools/TwoStepCaptcha'
 import ThirdLoginButton from '@/components/Button/ThirdLoginButton'
 import ForgetPasswordModal from './ForgetPasswordModal.vue'
 import { mapActions } from 'vuex'
-import { getThirdAuthURL, thirdAuthcallbackUrl } from '@/api/thirdAuth'
+import { getThirdAuthURL, thirdAuthCallbackUrl } from '@/api/thirdAuth'
 import { NOT_REMEMBER_ME } from '@/store/mutation-types'
 import storage from 'store'
 
@@ -160,7 +160,7 @@ export default {
       let url = getThirdAuthURL(source)
       url += `?role=${role}`
       url += `&callbackUrl=`
-      url += thirdAuthcallbackUrl
+      url += thirdAuthCallbackUrl
       console.log('full auth url ', url)
       window.location.href = url
     },
@@ -193,8 +193,9 @@ export default {
       this.$store
         .dispatch('GetInfo')
         .then(response => {
+          console.log(response)
           if (this.callbackUrl) {
-            window.location.href = this.callbackUrl + '?token=' + response.result.token
+            window.location.href = this.callbackUrl + '?token=' + res.result.token
           } else if (this.$store.getters.currentRole) {
             this.$router.push(this.$store.getters.defaultRouter)
           } else {
