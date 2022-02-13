@@ -20,6 +20,7 @@
 import { selectRoleRouter } from '@/config/router.config'
 import { getThirdAuthURL, thirdAuthCallbackUrl } from '@/api/thirdAuth'
 import NoMoreResources from '@/components/Common/NoMoreResources'
+import { SESSION_CALLBACK_URL } from '@/const/common'
 
 export default {
   name: 'AuthResult',
@@ -36,7 +37,11 @@ export default {
     this.$store.dispatch('LoginWithToken', accessToken).then(() => {
       this.$store.dispatch('GetInfo').then(response => {
         this.$logger.info('auth-result-redirect', this.$route)
-        if (this.$store.getters.currentRole) {
+        const callbackUrl = window.sessionStorage.getItem(SESSION_CALLBACK_URL)
+        if (callbackUrl) {
+          window.sessionStorage.removeItem(SESSION_CALLBACK_URL)
+          window.location.href = callbackUrl + '?token=' + accessToken
+        } else if (this.$store.getters.currentRole) {
           this.$router.push(this.$store.getters.defaultRouter)
         } else {
           this.$router.push({ path: selectRoleRouter })
