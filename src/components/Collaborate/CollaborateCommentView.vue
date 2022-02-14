@@ -122,7 +122,6 @@
 <script>
 
 import { CollaborateCommentMixin } from '@/mixins/CollaborateCommentMixin'
-import { AddCollaborateComment, DeleteCollaborateCommentById } from '@/api/collaborate'
 import { PlanFieldDisplayName, TaskFieldDisplayName } from '@/const/common'
 import { typeMap } from '@/const/teacher'
 
@@ -151,10 +150,6 @@ export default {
   },
   data () {
     return {
-      newComment: [],
-      rawCommentList: [],
-      rootCommentMap: new Map(),
-
       deleteCommentModalVisible: false,
       currentDeleteComment: null,
       filterName: null,
@@ -163,17 +158,6 @@ export default {
     }
   },
   computed: {
-    getCommentList () {
-        return function (rawCommentList) {
-          const res = []
-          res.push(rawCommentList)
-          rawCommentList.subCommentList.forEach(item => {
-            res.push(item)
-          })
-          console.log(res)
-          return res
-        }
-    },
     getFieldDisplayName() {
       return function (field) {
         if (this.sourceType === typeMap.task) {
@@ -202,85 +186,6 @@ export default {
     this.formatComment()
   },
   methods: {
-    handleSend (comment) {
-      if (!this.fieldName) {
-        // 从父节点获取
-        var parentIndex = this.rawCommentList.findIndex(item => item.id === comment.commentToId)
-        comment.fieldName = this.rawCommentList[parentIndex].fieldName
-      }
-      const index = this.rawCommentList.findIndex(item => item.id === comment.id)
-      comment.sourceId = this.sourceId
-      comment.sourceType = this.sourceType
-      comment.sendLoading = true
-      let isAdd = false
-      if (!comment.id) {
-        isAdd = true
-        this.newComment.sendLoading = true
-        this.$set(this.newComment, comment.index, comment)
-      }
-      this.$logger.info('handleSend', comment)
-      AddCollaborateComment(comment).then(response => {
-        // 减少load时间
-        if (isAdd) {
-          this.rawCommentList.push(response.result)
-          comment.sendLoading = false
-          comment.editing = false
-          comment.content = ''
-          this.$set(this.newComment, comment.index, comment)
-        } else {
-          comment.sendLoading = false
-          comment.editing = false
-          this.$set(this.rawCommentList, index, comment)
-        }
-      }).finally(() => {
-
-      })
-    },
-    formatComment () {
-      /**
-       * 格式化处理回复数据
-       * 按rootCommentId进行分组，为空的代表是一个评论组，
-       * 然后把下面的子评论(rootCommentId相同即为一组)追加到
-       * subCommentList数组中，按时间排序展示
-       */
-        // 过滤rootComment
-      this.formatCommentList = []
-      this.rootCommentMap = new Map()
-      this.rawCommentList.forEach(item => {
-        const dataItem = Object.assign({}, item)
-        if (!dataItem.commentToId) {
-          dataItem.subCommentList = []
-          this.rootCommentMap.set(dataItem.id, dataItem)
-        }
-      })
-      // 追加下面的子讨论列表,按时间排序展示
-      this.rawCommentList.forEach(item => {
-        if (item.commentToId) {
-          if (this.rootCommentMap.has(item.commentToId)) {
-            const rootComment = this.rootCommentMap.get(item.commentToId)
-            rootComment.subCommentList.push(item)
-          } else {
-            this.$logger.info('no exit rootCommentId ' + item.rootCommentId, this.rootCommentMap)
-          }
-        }
-      })
-      // map转为数组
-      this.newComment = []
-      let newCommentIndex = 0
-      for (const [rootCommentId, rootComment] of this.rootCommentMap.entries()) {
-        this.$logger.info('rootCommentId ' + rootCommentId, rootComment)
-        this.formatCommentList.push(rootComment)
-        this.newComment.push({
-            commentToId: rootCommentId,
-            index: newCommentIndex,
-            editing: false,
-            content: '',
-            sendLoading: false
-        })
-        newCommentIndex++
-      }
-      this.$logger.info('formatCommentList', this.formatCommentList)
-    },
 
     // 按姓名过滤评论
     handleFilterNameChange (name) {
@@ -342,47 +247,8 @@ export default {
 
         this.$logger.info('formatCommentList', this.formatCommentList)
       }
-    },
-    handleDeleteCommentConfirm (comment, index, rootIndex, isDelete) {
-      this.$logger.info('handleDeleteCommentConfirm', comment)
-      if (index > 0) {
-        comment.delete = isDelete
-        this.$set(this.formatCommentList[rootIndex].subCommentList, index - 1, comment)
-      } else {
-        const formatComment = this.formatCommentList[rootIndex]
-        formatComment.deleteThread = true
-        this.$set(this.formatCommentList, rootIndex, comment)
-      }
-    },
-    // TODO 删除逻辑
-    handleDeleteComment (comment, index, rootIndex) {
-      this.$logger.info('handleDeleteComment', comment)
-      DeleteCollaborateCommentById(comment).then(response => {
-        this.$emit('update-comment')
-      })
-    },
-    cancelDeleteThread(index) {
-      this.formatCommentList[index].deleteThread = false
-      this.$set(this.formatCommentList, index, this.formatCommentList[index])
-    },
-    handleCancelNewComment (comment) {
-      this.$logger.info('handleFocusInput')
-      comment.editing = false
-      var index = this.newComment.findIndex(item => item.id === comment.id)
-      if (index !== -1) {
-        this.$set(this.newComment, index, comment)
-      }
-    },
-    handleEditComment (comment, index, rootIndex) {
-      this.$logger.info('handleEditComment', comment)
-      comment.editing = !comment.editing
-      this.$set(this.formatCommentList[rootIndex].subCommentList, index - 1, comment)
-    },
-    handleFocusInput(comment) {
-      this.$logger.info('handleFocusInput')
-      comment.editing = true
-      this.$set(this.newComment, comment.index, comment)
     }
+
   }
 }
 </script>
