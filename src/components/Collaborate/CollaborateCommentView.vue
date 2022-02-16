@@ -176,7 +176,7 @@ export default {
       this.$logger.info('commentList update ', value)
       this.rawCommentList = value
       this.rawCommentList.forEach(item => { item.sendLoading = false })
-      // this.formatComment()
+      this.formatComment()
     }
   },
   created () {

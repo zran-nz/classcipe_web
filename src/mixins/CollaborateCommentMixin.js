@@ -88,6 +88,7 @@ export const CollaborateCommentMixin = {
         })
         newCommentIndex++
       }
+      this.addRoot = this.formatCommentList.length === 0
       this.$logger.info('formatCommentList', this.formatCommentList)
     },
 

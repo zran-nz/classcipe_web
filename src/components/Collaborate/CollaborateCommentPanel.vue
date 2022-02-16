@@ -175,9 +175,6 @@ export default {
       }
     })
     this.formatComment()
-    if (this.formatCommentList.length === 0) {
-      this.addRoot = true
-    }
   },
   methods: {
     handleMarked(comment, cIndex, rootIndex) {
