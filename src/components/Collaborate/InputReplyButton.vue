@@ -53,6 +53,11 @@ export default {
       this.inputValue = val.content
       this.oldValue = val.content
       this.loading = val.sendLoading ? val.sendLoading : false
+    },
+    sending(val) {
+      if (!val) {
+        this.inputValue = ''
+      }
     }
   },
   data () {
