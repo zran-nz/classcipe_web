@@ -110,7 +110,7 @@
               @send="handleSend"
               :reply-mode="true"
               @cancel="handleCancelNewComment"
-              :comment-item="newComment[rootIndex]"
+              :comment-item="newComments[rootIndex]"
               @focusInput="handleFocusInput"/>
           </div>
         </div>

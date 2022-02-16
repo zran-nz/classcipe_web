@@ -1,6 +1,6 @@
 <template>
   <div class="collaborate-comment-panel">
-    <a-tooltip title="Add comment" placement="right"><add-green-icon class='add-icon' @click="addRootComment"/></a-tooltip>
+    <a-tooltip v-if="rawCommentList.length > 0" title="Add comment" placement="right"><add-green-icon class='add-icon' @click="addRootComment"/></a-tooltip>
     <div class="add-comment-wrapper" v-if="addRoot" style="box-shadow: 0px 3px 6px rgb(0 0 0 / 16%)" >
       <div class="comment-user-info">
         <div class="avatar">
@@ -12,7 +12,7 @@
       </div>
       <div class="comment-input-wrapper">
         <div class="input">
-          <input-with-button :collaborate-user-list="collaborateUserList" @cancelComment="cancelComment" @comment="handleComment" :sending="commentSending" />
+          <input-with-button :collaborate-user-list="collaborateUserList" :comment-item="newComment" @cancelComment="cancelComment" @comment="handleComment" :sending="newComment.sendLoading" />
         </div>
       </div>
     </div>
@@ -25,7 +25,7 @@
             </div>
             <div class="delete-group-button">
               <div class='upload-text'>
-                <a-button shape='round' type='primary' @click="handleDeleteComment(rootComment,rootIndex)">Delete</a-button>
+                <a-button shape='round' type='primary' @click="handleDeleteCommentRoot(rootComment,rootIndex)">Delete</a-button>
               </div>
               <div class='upload-text'>
                 <a-button shape='round' @click="cancelDeleteThread(rootIndex)">Cancel</a-button>
@@ -104,7 +104,7 @@
               @send="handleSend"
               :reply-mode="true"
               @cancel="handleCancelNewComment"
-              :comment-item="newComment[rootIndex]"
+              :comment-item="newComments[rootIndex]"
               @focusInput="handleFocusInput"/>
           </div>
         </div>
@@ -149,11 +149,7 @@ export default {
   },
   data () {
     return {
-      newComment: {
-        editing: false,
-        content: '',
-        sendLoading: false
-      }
+
     }
   },
   watch: {
@@ -166,7 +162,7 @@ export default {
           this.rawCommentList.push(item)
         }
       })
-      this.formatComment()
+      // this.formatComment()
     }
   },
   created () {
@@ -179,25 +175,16 @@ export default {
       }
     })
     this.formatComment()
-    if (this.formatCommentList.length === 0) {
-      this.addRoot = true
-    }
   },
   methods: {
     handleMarked(comment, cIndex, rootIndex) {
       this.$logger.info('handleMarked', comment)
-      this.rawCommentList.splice(cIndex, 1)
-      const childIds = this.rawCommentList.filter(item => item.commentToId === comment.id).map(item => {
-        return item.id
-      })
-      childIds.forEach(id => {
-        const index = this.rawCommentList.findIndex(item => item.id === id)
-        this.rawCommentList.splice(index, 1)
-      })
+      this.formatCommentList.splice(rootIndex, 1)
       MarkedCollaborateComment(comment).then(response => {
         this.$emit('update-comment')
       }).finally(() => {
-        this.cancelComment()
+        // this.cancelComment()
+        this.$emit('update-comment')
       })
     },
     addRootComment() {

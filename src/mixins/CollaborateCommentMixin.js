@@ -10,7 +10,7 @@ export const CollaborateCommentMixin = {
   },
   data () {
     return {
-      newComment: [],
+      newComments: [],
       rootCommentMap: new Map(),
       formatCommentList: [],
       deleteThread: false,
@@ -18,7 +18,12 @@ export const CollaborateCommentMixin = {
       deleteCommentModalVisible: false,
       currentDeleteComment: null,
       commentSending: false,
-      addRoot: false
+      addRoot: false,
+      newComment: {
+        editing: false,
+        content: '',
+        sendLoading: false
+      }
     }
   },
   created () {
@@ -29,10 +34,11 @@ export const CollaborateCommentMixin = {
       return function (rawCommentList) {
         const res = []
         res.push(rawCommentList)
+        // rawCommentList.subCommentList.sort((a, b) =>
+        //   new Date(a.createdTime).getTime() - new Date(b.createdTime).getTime())
         rawCommentList.subCommentList.forEach(item => {
           res.push(item)
         })
-        console.log(res)
         return res
       }
     }
@@ -68,12 +74,12 @@ export const CollaborateCommentMixin = {
         }
       })
       // map转为数组
-      this.newComment = []
+      this.newComments = []
       let newCommentIndex = 0
       for (const [rootCommentId, rootComment] of this.rootCommentMap.entries()) {
         this.$logger.info('rootCommentId ' + rootCommentId, rootComment)
         this.formatCommentList.push(rootComment)
-        this.newComment.push({
+        this.newComments.push({
           commentToId: rootCommentId,
           index: newCommentIndex,
           editing: false,
@@ -82,6 +88,7 @@ export const CollaborateCommentMixin = {
         })
         newCommentIndex++
       }
+      this.addRoot = this.formatCommentList.length === 0
       this.$logger.info('formatCommentList', this.formatCommentList)
     },
 
@@ -101,13 +108,31 @@ export const CollaborateCommentMixin = {
       comment.sourceId = this.sourceId
       comment.sourceType = this.sourceType
       comment.content = inputValue
-      this.commentSending = true
+      this.newComment.sendLoading = true
       this.$logger.info('handleComment', comment)
       AddCollaborateComment(comment).then(response => {
         // 减少load时间
-        this.rawCommentList.push(response.result)
+        // this.rawCommentList.push(response.result)
+        const item = response.result
+        item.subCommentList = []
+        // 添加到第一个
+        this.newComments.unshift({
+          commentToId: item.id,
+          index: 0,
+          editing: false,
+          content: '',
+          sendLoading: false
+        })
+        this.newComments.forEach((comment, i) => {
+          comment.index = i
+        })
+        this.formatCommentList.unshift(item)
       }).finally(() => {
-        this.commentSending = false
+        this.newComment.sendLoading = false
+        this.newComment.editing = false
+        this.newComment.content = ''
+        this.addRoot = false
+        this.$emit('update-comment')
         // this.formatComment()
       })
     },
@@ -137,17 +162,13 @@ export const CollaborateCommentMixin = {
       } else {
         comment.fieldName = this.fieldName
       }
-      console.log(comment)
       const index = this.rawCommentList.findIndex(item => item.id === comment.id)
-      console.log(this.rawCommentList)
-      console.log(index)
       comment.sourceId = this.sourceId
       comment.sourceType = this.sourceType
       comment.sendLoading = true
       let isAdd = false
       if (!comment.id) {
         isAdd = true
-        this.newComment.sendLoading = true
         this.$set(this.newComment, comment.index, comment)
       }
       this.$logger.info('handleSend', comment)
@@ -158,7 +179,7 @@ export const CollaborateCommentMixin = {
           comment.sendLoading = false
           comment.editing = false
           comment.content = ''
-          this.$set(this.newComment, comment.index, comment)
+          this.$set(this.newComments, comment.index, comment)
         } else {
           comment.sendLoading = false
           comment.editing = false
@@ -166,6 +187,7 @@ export const CollaborateCommentMixin = {
         }
       }).finally(() => {
         this.formatComment()
+        this.$emit('update-comment')
       })
     },
     handleDeleteCommentConfirm (comment, index, rootIndex, isDelete) {
@@ -179,11 +201,33 @@ export const CollaborateCommentMixin = {
         this.$set(this.formatCommentList, rootIndex, comment)
       }
     },
-    // TODO 删除逻辑
-    handleDeleteComment (comment, index, rootIndex) {
-      this.$logger.info('handleDeleteComment', comment)
+    handleDeleteCommentRoot (comment, rootIndex) {
+      this.$logger.info('handleDeleteComment', comment, rootIndex)
       DeleteCollaborateCommentById(comment).then(response => {
         this.$emit('update-comment')
+      }).finally(() => {
+        this.formatCommentList.splice(rootIndex, 1)
+        const firstIndex = this.rawCommentList.findIndex(item => item.id === comment.id)
+        if (firstIndex !== -1) {
+          this.rawCommentList.splice(firstIndex, 1)
+        }
+        comment.subCommentList.forEach(item => {
+          const index = this.rawCommentList.findIndex(sub => sub.commentToId === item.id)
+          if (index > -1) {
+            this.rawCommentList.splice(index, 1)
+          }
+        })
+      })
+    },
+    // TODO 删除逻辑
+    handleDeleteComment (comment, index, rootIndex) {
+      this.$logger.info('handleDeleteComment', comment, index, rootIndex)
+      DeleteCollaborateCommentById(comment).then(response => {
+        this.$emit('update-comment')
+      }).finally(() => {
+        this.formatCommentList[rootIndex].subCommentList.splice(index - 1, 1)
+        const rindex = this.rawCommentList.findIndex(item => item.id === comment.id)
+        this.rawCommentList.splice(rindex, 1)
       })
     },
     cancelDeleteThread(index) {
@@ -206,7 +250,7 @@ export const CollaborateCommentMixin = {
     handleFocusInput(comment) {
       this.$logger.info('handleFocusInput')
       comment.editing = true
-      this.$set(this.newComment, comment.index, comment)
+      this.$set(this.newComments, comment.index, comment)
     }
   }
 

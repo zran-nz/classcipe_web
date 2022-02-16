@@ -907,7 +907,6 @@ import UiLearnOut from '@/components/UnitPlan/UiLearnOut'
 import PlanLink from '@/components/Common/PlanLink'
 import NewMyContent from '@/components/MyContent/NewMyContent'
 import { FindCustomTags, GetTreeByKey } from '@/api/tag'
-import { GetCollaborateComment, GetCollaborateModifiedHistory } from '@/api/collaborate'
 import { NavigationType } from '@/components/NewLibrary/NavigationType'
 import CollaborateCommentPanel from '@/components/Collaborate/CollaborateCommentPanel'
 import CommentSwitch from '@/components/Collaborate/CommentSwitch'
@@ -1087,12 +1086,7 @@ export default {
       defaultActiveMenu: NavigationType.learningOutcomes,
       showMenuList: [NavigationType.specificSkills, NavigationType.centurySkills, NavigationType.learningOutcomes, NavigationType.assessmentType, NavigationType.idu],
 
-      // TODO mock数据待更新为接口请求（loadCollaborateData方法中的GetCollaborateComment)
-      collaborateCommentList: [],
-      currentCollaborateCommentList: [],
       collaborateTop: 0,
-      // TODO mock数据待更新为接口请求（loadCollaborateData方法中的GetCollaborateModifiedHistory)
-      historyList: [],
       questionSettingVisible: false,
       disableQuestion: false,
       confirmLoading: false,
@@ -1318,27 +1312,6 @@ export default {
       })
     },
 
-    // 加载协作的评论和历史记录数据
-    loadCollaborateData() {
-      return Promise.all([
-        GetCollaborateModifiedHistory({ sourceType: this.contentType['unit-plan'], sourceId: this.form.id }),
-        GetCollaborateComment({ sourceType: this.contentType['unit-plan'], sourceId: this.form.id })
-      ]).then(response => {
-        // TODO 将历史记录数据‘格式’后填充到historyList数组中，大部分数据可以直接赋值，复杂字段要处理一下,这样handleRestoreField()方法就可以直接赋值了。
-        this.historyList = []
-        this.$logger.info('GetCollaborateModifiedHistory', response[0])
-        if (!response[0].code) {
-          this.historyList = response[0].result
-        }
-        // TODO 将写作点评数据‘格式’后填充到collaborateCommentList数组中
-        this.collaborateCommentList = []
-        this.$logger.info('GetCollaborateComment', response[1])
-        if (!response[1].code) {
-          this.collaborateCommentList = response[1].result
-        }
-      })
-    },
-
     handleSyncData() {
       this.$logger.info(' handleSyncData')
       GetReferOutcomes({
@@ -1396,7 +1369,7 @@ export default {
         }
       }).finally(() => {
         this.contentLoading = false
-        this.loadCollaborateData()
+        this.loadCollaborateData(this.form.type, this.form.id)
         // copy副本 为了判断数据变更
         this.oldForm = JSON.parse(JSON.stringify(this.form))
         this.initCompleted = true
@@ -2414,29 +2387,14 @@ export default {
       // this.showCollaborateCommentVisible = false
       this.currentCollaborateCommentList = []
       this.showHistoryLoading = true
-      this.loadCollaborateData().then(() => {
-        this.$logger.info('loadCollaborateData loaded')
-      }).finally(() => {
-        this.showHistoryLoading = false
-      })
+      this.loadCollaborateData(this.form.type, this.form.id)
     },
 
     // TODO 发布评论后需要更新最新的评论列表,刷新数据
     handleUpdateCommentList() {
       this.$logger.info('handleUpdateCommentList')
       this.currentCollaborateCommentList = []
-      this.loadCollaborateData().then(() => {
-        this.$logger.info('loadCollaborateData loaded')
-      }).finally(() => {
-        const list = []
-        this.collaborateCommentList.forEach(item => {
-          if (item.fieldName === this.currentFieldName) {
-            list.push(item)
-          }
-        })
-        this.currentCollaborateCommentList = list
-        this.$logger.info('currentCollaborateCommentList', list)
-      })
+      this.GetCollaborateComment(this.form.type, this.form.id)
     },
 
     // historyData以及在接口请求的相应逻辑中正对数据进行‘格式’，
