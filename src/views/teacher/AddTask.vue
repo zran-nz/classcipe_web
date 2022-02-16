@@ -309,7 +309,7 @@
                             shape='round'
                             @click='handleChooseAntherPrompt'
                             style='margin-right: 10px'>
-                            Choose Another
+                            Choose another
                           </a-button>
                         </div>
                         <div class='top-icon-groups' v-if='!form.fileDeleted && !form.showSelected'>
@@ -2470,6 +2470,7 @@ export default {
       }).then(response => {
         if (response.success) {
           this.chooseAnotherVisible = false
+          this.thumbnailList = [{ contentUrl: data.selectedPrompt.cover, id: data.selectPageObjectIds[0] }]
           this.$message.success('Choose another successfully')
         } else {
           this.$message.warn(response.message)
