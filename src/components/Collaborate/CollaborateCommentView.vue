@@ -44,7 +44,7 @@
             </div>
           </div>
         </div>
-        <div class="record-list" v-for="(commentItem, cIndex) in getCommentList(rootComment)" :key="cIndex">
+        <div class="record-list" v-for="(commentItem, cIndex) in rootComment.subCommentList" :key="cIndex">
           <div class='delete-mask' v-if="commentItem.delete">
             <div class="delete-group">
               <div style="color: #fff;margin: 5px;">

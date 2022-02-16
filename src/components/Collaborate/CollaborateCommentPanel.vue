@@ -1,6 +1,6 @@
 <template>
   <div class="collaborate-comment-panel">
-    <a-tooltip v-if="rawCommentList.length > 0" title="Add comment" placement="right"><add-green-icon class='add-icon' @click="addRootComment"/></a-tooltip>
+    <a-tooltip v-if="formatCommentList.length > 0" title="Add comment" placement="right"><add-green-icon class='add-icon' @click="addRootComment"/></a-tooltip>
     <div class="add-comment-wrapper" v-if="addRoot" style="box-shadow: 0px 3px 6px rgb(0 0 0 / 16%)" >
       <div class="comment-user-info">
         <div class="avatar">
@@ -33,7 +33,56 @@
             </div>
           </div>
         </div>
-        <div class="record-list" v-for="(commentItem, cIndex) in getCommentList(rootComment)" :key="cIndex">
+        <div class="record-list" :key="-1">
+          <div class="record-item">
+            <template>
+              <div class="record-action" v-show="rootComment.username === $store.getters.userInfo.username">
+                <div style="margin-right: 20px;font-size: 18px;margin-top: 8px;" @click="handleMarked(rootComment,rootIndex)">
+                  <a-tooltip placement="bottom" title="Marked as resolved and hide this discussion">
+                    <a-icon type="check" />
+                  </a-tooltip>
+                </div>
+                <div>
+                  <a-dropdown>
+                    <a-icon type="more" style="font-size: 20px;margin-top: 10px;" />
+                    <a-menu slot="overlay">
+                      <a-menu-item>
+                        <a @click="handleDeleteRootCommentConfirm(rootComment,rootIndex,true)">
+                          <a-icon type="delete" theme="filled" /> Delete
+                        </a>
+                      </a-menu-item>
+                      <a-menu-item>
+                        <a @click="handleEditCommentRoot(rootComment,rootIndex)">
+                          <a-icon type="edit" theme="filled" /> Edit
+                        </a>
+                      </a-menu-item>
+                    </a-menu>
+                  </a-dropdown>
+                </div>
+              </div>
+              <div class="comment-user-info">
+                <div class="avatar">
+                  <img :src="rootComment.avatar" />
+                </div>
+                <div class="user-name">
+                  <div class="name-text"> {{ rootComment.username }}</div>
+                  <div class="time-text"> {{ rootComment.createdTime | dayComment }}</div>
+                </div>
+              </div>
+              <div class="comment-detail" v-if="!rootComment.editing">
+                <div class="comment-text">
+                  {{ rootComment.content }}
+                </div>
+              </div>
+              <div class="comment-input-wrapper" v-if="rootComment.editing">
+                <div class="input">
+                  <input-reply-button :collaborate-user-list="collaborateUserList" @send="handleSend" :comment-item="rootComment" @cancel="handleCancel" />
+                </div>
+              </div>
+            </template>
+          </div>
+        </div>
+        <div class="record-list" v-for="(commentItem, cIndex) in rootComment.subCommentList" :key="cIndex">
           <div class='delete-mask' v-if="commentItem.delete">
             <div class="delete-group">
               <div style="color: #fff;margin: 5px;">
@@ -52,11 +101,6 @@
           <div class="record-item">
             <template>
               <div class="record-action" v-show="commentItem.username === $store.getters.userInfo.username">
-                <div style="margin-right: 20px;font-size: 18px;margin-top: 8px;" v-if="cIndex === 0" @click="handleMarked(commentItem,cIndex,rootIndex)">
-                  <a-tooltip placement="bottom" title="Marked as resolved and hide this discussion">
-                    <a-icon type="check" />
-                  </a-tooltip>
-                </div>
                 <div>
                   <a-dropdown>
                     <a-icon type="more" style="font-size: 20px;margin-top: 10px;" />
@@ -102,8 +146,8 @@
             <input-reply-button
               :collaborate-user-list="collaborateUserList"
               @send="handleSend"
-              :reply-mode="true"
               @cancel="handleCancelNewComment"
+              :sending="newComments[rootIndex].sendLoading"
               :comment-item="newComments[rootIndex]"
               @focusInput="handleFocusInput"/>
           </div>
@@ -154,36 +198,45 @@ export default {
   },
   watch: {
     commentList (value) {
-      this.$logger.info('commentList update ', value)
+      this.$logger.info('CollaborateCommentPanel commentList', value)
       this.rawCommentList = []
       value.forEach(item => {
         item.sendLoading = false
-        if (!item.isDelete) {
+        if (!item.isDelete && this.fieldName === item.fieldName) {
           this.rawCommentList.push(item)
         }
       })
-      // this.formatComment()
+      this.formatCommentList = this.rawCommentList
+      this.addRoot = this.formatCommentList.length === 0
+      this.$logger.info('formatCommentList', this.formatCommentList)
+      // this.formatNewReply()
     }
+  },
+  computed: {
+
   },
   created () {
     this.$logger.info('CollaborateCommentPanel commentList', this.commentList)
+    this.originalCommentList = this.commentList
     this.rawCommentList = []
     this.commentList.forEach(item => {
       item.sendLoading = false
-      if (!item.isDelete) {
+      if (!item.isDelete && this.fieldName === item.fieldName) {
         this.rawCommentList.push(item)
       }
     })
-    this.formatComment()
+    this.$logger.info('rawCommentList', this.rawCommentList)
+    this.formatCommentList = this.rawCommentList
+    this.addRoot = this.formatCommentList.length === 0
+    this.$logger.info('formatCommentList', this.formatCommentList)
+    this.formatNewReply()
   },
   methods: {
-    handleMarked(comment, cIndex, rootIndex) {
+    handleMarked(comment, rootIndex) {
       this.$logger.info('handleMarked', comment)
-      this.formatCommentList.splice(rootIndex, 1)
       MarkedCollaborateComment(comment).then(response => {
-        this.$emit('update-comment')
+        this.formatCommentList.splice(rootIndex, 1)
       }).finally(() => {
-        // this.cancelComment()
         this.$emit('update-comment')
       })
     },
