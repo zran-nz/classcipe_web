@@ -78,6 +78,30 @@
             <div class="table-content">
               <div class="form-table-item" v-for="(formItem,tIdx) in forms" :key="tIdx">
                 <div class="form-table-item-content" v-show="formItem.formId === currentActiveFormId">
+                  <div class="form-setting">
+                    <a-dropdown
+                      placement="bottomRight">
+                      <a-icon type="setting" />
+                      <a-menu slot="overlay">
+                        <a-menu-item key="0">
+                          <div class="menu-icon">
+                            <a-switch
+                              size="small"
+                              v-model="formItem.se" />
+                          </div>
+                          Student Eval
+                        </a-menu-item>
+                        <a-menu-item key="1">
+                          <div class="menu-icon">
+                            <a-switch
+                              size="small"
+                              v-model="formItem.pe" />
+                          </div>
+                          Peer Eval
+                        </a-menu-item>
+                      </a-menu>
+                    </a-dropdown>
+                  </div>
                   <div class="comment" v-show="formTableMode === EvaluationTableMode.TeacherEvaluate">
                     <div class="summary-input">
                       <a-textarea v-model="formItem.comment" placeholder="Write a comment" aria-placeholder="Write a comment" class="my-textarea" />
@@ -455,8 +479,8 @@ export default {
           title: selfTitle,
           titleEditing: false,
           formType: this.newFormType,
-          se: 0,
-          pe: 0,
+          se: true,
+          pe: true,
           menuVisible: false,
           comment: null,
           id: null,
@@ -720,16 +744,6 @@ export default {
       if (this.forms.length) {
         this.currentActiveFormId = this.forms[this.forms.length - 1].formId
       }
-    },
-
-    handleToggleStudentEvaluation (formItem) {
-      this.$logger.info('handleToggleStudentEvaluation', formItem)
-      formItem.menuVisible = !formItem.menuVisible
-    },
-
-    handleTogglePeerEvaluation (formItem) {
-      this.$logger.info('handleTogglePeerEvaluation', formItem)
-      formItem.menuVisible = !formItem.menuVisible
     },
 
     handleToggleMenuVisible (formItem) {
@@ -1239,5 +1253,11 @@ export default {
       }
     }
   }
+}
+
+.form-setting {
+  text-align: right;
+  padding-bottom: 10px;
+  cursor: pointer;
 }
 </style>
