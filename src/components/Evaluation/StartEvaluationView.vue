@@ -124,7 +124,11 @@
       >
         <div class="add-evaluation-evidence-wrapper">
           <div class="slide-preview">
-            <ppt-slide-view :slide-id="slideId" :class-id="currentClassId" v-if="slideId" @ensure-evidence-finish="handleEnsureEvidenceFinish" @add-evidence-finish="handleAddEvidenceFinish"/>
+            <ppt-slide-view
+              :slide-id="slideId"
+              :class-id="currentClassId"
+              v-if="slideId"
+              @ensure-evidence-finish="handleEnsureEvidenceFinish" />
             <template v-if="!slideId">
               <no-more-resources tips="no slide" />
             </template>
@@ -672,10 +676,6 @@ export default {
     handleAddEvaluationClose () {
       this.$logger.info('handleAddEvaluationClose')
       this.addEvaluationVisible = false
-    },
-
-    handleAddEvidenceFinish (data) {
-      this.$logger.info('handleAddEvidenceFinish', data)
     },
 
     handleEnsureEvidenceFinish (data) {

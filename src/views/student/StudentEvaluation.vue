@@ -277,7 +277,7 @@
             :student-name="selectedMemberIdList.length ? selectedMemberIdList[0] : null"
             :mode="mode"
             @ensure-evidence-finish="handleEnsureEvidenceFinish"
-            @add-evidence-finish="handleAddEvidenceFinish" />
+            @cancel-evidence-finish="handleCancelEvidenceFinish"/>
           <template v-if="!classInfo || !classInfo.slideId">
             <no-more-resources tips="no slide" />
           </template>
@@ -1223,8 +1223,7 @@ export default {
       }
     },
 
-    handleAddEvidenceFinish (data) {
-      this.$logger.info('handleAddEvidenceFinish', data)
+    handleCancelEvidenceFinish () {
       this.evidenceSelectVisible = false
     },
 
