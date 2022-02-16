@@ -517,6 +517,7 @@
       destroyOnClose
       placement="right"
       width="1020px"
+      :closable='false'
       :visible="evidenceSelectVisible"
       @close="evidenceSelectVisible = false"
     >
@@ -532,7 +533,7 @@
             :student-name="selectedMemberIdList.length ? selectedMemberIdList[0] : null"
             :mode="mode"
             @ensure-evidence-finish="handleEnsureEvidenceFinish"
-            @add-evidence-finish="handleAddEvidenceFinish" />
+            @cancel-evidence-finish="handleCancelEvidenceFinish" />
           <template v-if="!classInfo || !classInfo.slideId">
             <no-more-resources tips="no slide" />
           </template>
@@ -1905,11 +1906,6 @@ export default {
       }
     },
 
-    handleAddEvidenceFinish (data) {
-      this.$logger.info('handleAddEvidenceFinish', data)
-      this.evidenceSelectVisible = false
-    },
-
     handleErrorMode () {
       this.initCompleted = false
       window.location.pathname = '/'
@@ -1947,6 +1943,10 @@ export default {
         }
         this.$logger.info('evidence update user id ' + userId + ' row ' + rowId + ' data', this.studentEvaluateData[userId][this.currentActiveFormId][rowId])
       })
+      this.evidenceSelectVisible = false
+    },
+
+    handleCancelEvidenceFinish () {
       this.evidenceSelectVisible = false
     },
 

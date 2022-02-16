@@ -266,7 +266,8 @@ export default {
     handleEnsureSelect () {
       this.$emit('select', {
         presentationId: this.selectedPrompt.presentationId,
-        selectPageObjectIds: this.selectedPrompt.pageObjectIds
+        selectPageObjectIds: this.selectedPrompt.pageObjectIds,
+        selectedPrompt: this.selectedPrompt
       })
     },
 

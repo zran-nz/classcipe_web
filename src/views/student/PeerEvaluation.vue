@@ -1428,11 +1428,6 @@ export default {
       }
     },
 
-    handleAddEvidenceFinish (data) {
-      this.$logger.info('handleAddEvidenceFinish', data)
-      this.evidenceSelectVisible = false
-    },
-
     handleErrorMode () {
       this.initCompleted = false
       window.location.pathname = '/'

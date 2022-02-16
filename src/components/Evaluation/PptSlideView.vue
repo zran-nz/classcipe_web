@@ -1,7 +1,10 @@
 <template>
   <div class="ppt-slide-view">
     <div class="go-session-detail" v-show='mode'>
-      <a-button shape="round" type="primary" @click="handleEnsureEvidence">Finish adding</a-button>
+      <a-space>
+        <a-button shape="round" type="primary" @click="handleEnsureEvidence" :disabled='loading'>Confirm</a-button>
+        <a-button shape="round" @click="handleCancelEvidence">Cancel</a-button>
+      </a-space>
     </div>
     <div class="student-profile" v-if="!loading">
       <div class="student-info">
@@ -659,14 +662,6 @@ export default {
       event.target.src = event.target.src + '#' + (new Date().getTime())
     },
 
-    handleAddEvidenceClose () {
-      this.$logger.info('handleAddEvidenceClose ' + this.mode, this.mode === EvaluationTableMode.TeacherEvaluate ? this.selectedSlidePageIdList : this.selectedStudentSlidePageIdList)
-      this.$emit('add-evidence-finish', {
-        mode: this.mode,
-        data: this.mode === EvaluationTableMode.TeacherEvaluate ? this.selectedSlidePageIdList : this.selectedStudentSlidePageIdList
-      })
-    },
-
     handleEnsureEvidence () {
       this.$logger.info('handleEnsureEvidence ' + this.mode, this.mode === EvaluationTableMode.TeacherEvaluate ? this.selectedSlidePageIdList : this.selectedStudentSlidePageIdList)
 
@@ -690,6 +685,10 @@ export default {
           slideDataList: JSON.stringify(this.slideDataList)
         })
       })
+    },
+
+    handleCancelEvidence () {
+      this.$emit('cancel-evidence-finish')
     },
 
     handleAddComment (data) {
@@ -1038,6 +1037,7 @@ export default {
   display: flex;
   flex-direction: row;
   align-items: center;
+  justify-content: flex-end;
   margin-bottom: 10px;
 
   .view-back {

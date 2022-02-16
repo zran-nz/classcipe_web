@@ -146,7 +146,7 @@ const columns = [
     dataIndex: 'classType',
     key: 'type',
     customRender: function (t, r, index) {
-      return t === 0 ? 'Standard-Class' : 'Subject-Forcused Class'
+      return t === 0 ? 'Standard-Class' : 'Subject-focused Class'
     }
   },
   {
