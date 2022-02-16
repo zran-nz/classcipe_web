@@ -16,7 +16,7 @@ export const NavigationType = {
   // 同步其他人link后的数据
   sync: 'sync',
   // 二十一世纪大纲，evaluation选择用
-  all21Century: 'all21Century',
+  all21Century: '21st century skills',
   // idu grade-idu
   idu: 'idu'
 }
