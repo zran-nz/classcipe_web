@@ -222,21 +222,12 @@ export const BaseEventMixin = {
     },
     GetCollaborateComment(sourceType, sourceId) {
       GetCollaborateComment({ sourceType: sourceType, sourceId: sourceId }).then(response => {
-        this.collaborateCommentList = []
         this.$logger.info('GetCollaborateComment', response)
         if (!response.code) {
           this.collaborateCommentList = response.result
         }
       }).finally(() => {
         this.showHistoryLoading = false
-        const list = []
-        this.collaborateCommentList.forEach(item => {
-          if (item.fieldName === this.currentFieldName) {
-            list.push(item)
-          }
-        })
-        this.currentCollaborateCommentList = list
-        this.$logger.info('currentCollaborateCommentList', list)
       })
     },
     loadCollaborateData(sourceType, sourceId) {

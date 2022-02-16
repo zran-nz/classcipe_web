@@ -14,7 +14,7 @@
       </a-mentions>
     </div>
     <div class="confirm-button" v-if="commentItem.editing">
-      <a-button type="primary" :loading="loading" @click="reply" :class="{'button-item':true,'disabled-button':isDisabled}" :disabled="isDisabled">
+      <a-button type="primary" :loading="sending" @click="reply" :class="{'button-item':true,'disabled-button':isDisabled}" :disabled="isDisabled">
         Reply
       </a-button>
       <a-button class="button-item" @click="cancelReply">
@@ -28,6 +28,10 @@
 export default {
   name: 'InputReplyButton',
   props: {
+    sending: {
+      type: Boolean,
+      default: false
+    },
     replyMode: {
       type: Boolean,
       default: false

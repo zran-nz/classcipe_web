@@ -463,7 +463,7 @@
                   :style="{'width':rightWidth + 'px', 'margin-top':collaborateTop+'px', 'z-index': 100, 'padding': '10px'}"
                   class='collaborate-panel'>
                   <collaborate-comment-panel
-                    :comment-list='currentCollaborateCommentList'
+                    :comment-list='collaborateCommentList'
                     :field-name='currentFieldName'
                     :source-id='unitPlanId'
                     :source-type="contentType['unit-plan']"
@@ -2362,17 +2362,14 @@ export default {
       }
       this.setRightModuleVisible(this.rightModule.collaborateComment)
       this.currentFieldName = data.fieldName
-      this.currentCollaborateCommentList = []
       const list = []
       this.collaborateCommentList.forEach(item => {
-        if (item.fieldName === data.fieldName) {
-          list.push(item)
-        }
+        list.push(item)
       })
-      this.currentCollaborateCommentList = list
+      this.collaborateCommentList = list
       this.collaborateTop = data.top
       // this.showCollaborateCommentVisible = true
-      this.$logger.info('currentCollaborateCommentList', list)
+      // this.$logger.info('currentCollaborateCommentList', this.currentCollaborateCommentList)
     },
 
     // 每次点击都重新加载一下最新数据
@@ -2385,7 +2382,7 @@ export default {
       }
       // this.showAllCollaborateCommentVisible = !this.showAllCollaborateCommentVisible
       // this.showCollaborateCommentVisible = false
-      this.currentCollaborateCommentList = []
+      // this.currentCollaborateCommentList = []
       this.showHistoryLoading = true
       this.loadCollaborateData(this.form.type, this.form.id)
     },
@@ -2393,7 +2390,6 @@ export default {
     // TODO 发布评论后需要更新最新的评论列表,刷新数据
     handleUpdateCommentList() {
       this.$logger.info('handleUpdateCommentList')
-      this.currentCollaborateCommentList = []
       this.GetCollaborateComment(this.form.type, this.form.id)
     },
 

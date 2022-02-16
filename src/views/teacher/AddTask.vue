@@ -1757,7 +1757,6 @@ import NewBrowser from '@/components/NewLibrary/NewBrowser'
 import NewMyContent from '@/components/MyContent/NewMyContent'
 import { FindCustomTags, GetTagYearTips, GetTreeByKey } from '@/api/tag'
 import { NavigationType } from '@/components/NewLibrary/NavigationType'
-import { GetCollaborateComment, GetCollaborateModifiedHistory } from '@/api/collaborate'
 import CollaborateCommentPanel from '@/components/Collaborate/CollaborateCommentPanel'
 import CommentSwitch from '@/components/Collaborate/CommentSwitch'
 import CollaborateCommentView from '@/components/Collaborate/CollaborateCommentView'
@@ -1782,6 +1781,7 @@ import { PersonalAddOrUpdateClass, SchoolClassGetMyClasses } from '@/api/schoolC
 import InputWithCreate from '@/components/Common/InputWithCreate'
 import QuickSession from '@/components/QuickSession/QuickSession'
 import { chooseAnother } from '@/api/quickTask'
+
 const { SplitTask } = require('@/api/task')
 
 export default {
@@ -1959,12 +1959,9 @@ export default {
       showCollaborateCommentVisible: false,
 
       // TODO mock数据待更新为接口请求（loadCollaborateData方法中的GetCollaborateComment)
-      collaborateCommentList: [],
-      currentCollaborateCommentList: [],
       collaborateTop: 0,
       showAllCollaborateCommentVisible: false,
       // TODO mock数据待更新为接口请求（loadCollaborateData方法中的GetCollaborateModifiedHistory)
-      historyList: [],
       centuryTagMap: new Map(),
       selectYearTab: '',
       showHistoryLoading: false,
@@ -2280,7 +2277,7 @@ export default {
         }
       }).finally(() => {
         this.contentLoading = false
-        this.loadCollaborateData()
+        this.loadCollaborateData(this.form.type, this.form.id)
         if (this.form.presentationId) {
           this.loadThumbnail()
           this.loadRecommendThumbnail()
@@ -3333,26 +3330,6 @@ export default {
       // #协同编辑event事件
       this.handleCollaborateEvent(this.taskId, this.taskField.Assessment, this.form.assessment)
     },
-    // 加载协作的评论和历史记录数据
-    loadCollaborateData() {
-      return Promise.all([
-        GetCollaborateModifiedHistory({ sourceType: this.contentType.task, sourceId: this.form.id }),
-        GetCollaborateComment({ sourceType: this.contentType.task, sourceId: this.form.id })
-      ]).then(response => {
-        // TODO 将历史记录数据‘格式’后填充到historyList数组中，大部分数据可以直接赋值，复杂字段要处理一下,这样handleRestoreField()方法就可以直接赋值了。
-        this.historyList = []
-        this.$logger.info('GetCollaborateModifiedHistory', response[0])
-        if (!response[0].code) {
-          this.historyList = response[0].result
-        }
-        // TODO 将写作点评数据‘格式’后填充到collaborateCommentList数组中
-        this.collaborateCommentList = []
-        this.$logger.info('GetCollaborateComment', response[1])
-        if (!response[1].code) {
-          this.collaborateCommentList = response[1].result
-        }
-      })
-    },
 
     handleSyncData() {
       this.$logger.info(' handleSyncData')
@@ -3608,32 +3585,14 @@ export default {
       } else {
         this.setRightModuleVisible(this.rightModule.collaborate)
       }
-      // this.showCollaborateCommentVisible = false
-      this.currentCollaborateCommentList = []
-      // this.showAllCollaborateCommentVisible = !this.showAllCollaborateCommentVisible
-      this.loadCollaborateData().then(() => {
-        this.$logger.info('loadCollaborateData loaded')
-      }).finally(() => {
-        this.showHistoryLoading = false
-      })
+      this.showHistoryLoading = true
+      this.loadCollaborateData(this.form.type, this.form.id)
     },
 
     // TODO 发布评论后需要更新最新的评论列表,刷新数据
     handleUpdateCommentList() {
       this.$logger.info('handleUpdateCommentList')
-      this.currentCollaborateCommentList = []
-      this.loadCollaborateData().then(() => {
-        this.$logger.info('loadCollaborateData loaded')
-      }).finally(() => {
-        const list = []
-        this.collaborateCommentList.forEach(item => {
-          if (item.fieldName === this.currentFieldName) {
-            list.push(item)
-          }
-        })
-        this.currentCollaborateCommentList = list
-        this.$logger.info('currentCollaborateCommentList', list)
-      })
+      this.GetCollaborateComment(this.form.type, this.form.id)
     },
 
     // historyData以及在接口请求的相应逻辑中正对数据进行‘格式’，
