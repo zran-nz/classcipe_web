@@ -1861,7 +1861,9 @@ export default {
       form: {
         id: null,
         image: '',
+        copyFromSlide: null,
         presentationId: '',
+        pageObjectIds: '',
         name: 'Untitled Task',
         overview: '',
         tasks: [],
@@ -2479,8 +2481,11 @@ export default {
       }).then(response => {
         if (response.success) {
           this.thumbnailList = [{ contentUrl: data.selectedPrompt.cover, id: data.selectPageObjectIds[0] }]
+          this.form.pageObjectIds = response.result.pageObjectIds
           this.form.presentationId = response.result.presentationId
           this.form.fileDeleted = response.result.fileDeleted
+          this.form.copyFromSlide = response.result.copyFromSlide
+          this.form.image = response.result.image
           this.$message.success('Choose another successfully')
           this.chooseAnotherVisible = false
           this.loadThumbnail()
