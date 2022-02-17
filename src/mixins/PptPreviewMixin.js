@@ -42,27 +42,30 @@ export const PptPreviewMixin = {
       if (this.thumbnailList.length === 0) {
         return showMenuList
       }
-      const currentPageId = this.thumbnailList[this.currentImgIndex].id
-      this.elementsList.forEach(e => {
-        if (currentPageId === e.pageId) {
-          const data = JSON.parse(e.data)
-          if (data.type === 'iframe') {
-            showMenuList.push(fileTypeMap.youtube)
-          } else if (data.type === 'image') {
-            showMenuList.push(fileTypeMap.img)
-          } else if (data.type === 'audio') {
-            showMenuList.push(fileTypeMap.audio)
-          } else if (data.type === 'text') {
-            showMenuList.push(fileTypeMap.txt)
-          } else if (data.type === 'video') {
-            showMenuList.push(fileTypeMap.video)
-          } else if (data.type === 'pdf') {
-            showMenuList.push(fileTypeMap.pdf)
-          } else if (data.type === 'website') {
-            showMenuList.push(fileTypeMap.link)
+
+      if (this.thumbnailList[this.currentImgIndex]) {
+        const currentPageId = this.thumbnailList[this.currentImgIndex].id
+        this.elementsList.forEach(e => {
+          if (currentPageId === e.pageId) {
+            const data = JSON.parse(e.data)
+            if (data.type === 'iframe') {
+              showMenuList.push(fileTypeMap.youtube)
+            } else if (data.type === 'image') {
+              showMenuList.push(fileTypeMap.img)
+            } else if (data.type === 'audio') {
+              showMenuList.push(fileTypeMap.audio)
+            } else if (data.type === 'text') {
+              showMenuList.push(fileTypeMap.txt)
+            } else if (data.type === 'video') {
+              showMenuList.push(fileTypeMap.video)
+            } else if (data.type === 'pdf') {
+              showMenuList.push(fileTypeMap.pdf)
+            } else if (data.type === 'website') {
+              showMenuList.push(fileTypeMap.link)
+            }
           }
-        }
-      })
+        })
+      }
       console.log(showMenuList)
       return showMenuList
     },
@@ -71,14 +74,16 @@ export const PptPreviewMixin = {
       if (this.thumbnailList.length === 0) {
         return pageElementsList
       }
-      // const currentPageId = 'g1018d7b0139_0_0'
-      const currentPageId = this.thumbnailList[this.currentImgIndex].id
-      this.elementsList.forEach(e => {
-        if (currentPageId === e.pageId) {
-          const data = JSON.parse(e.data)
-          pageElementsList.push(data)
-        }
-      })
+      if (this.thumbnailList[this.currentImgIndex]) {
+        // const currentPageId = 'g1018d7b0139_0_0'
+        const currentPageId = this.thumbnailList[this.currentImgIndex].id
+        this.elementsList.forEach(e => {
+          if (currentPageId === e.pageId) {
+            const data = JSON.parse(e.data)
+            pageElementsList.push(data)
+          }
+        })
+      }
       return pageElementsList
     },
     currentPageItem () {
@@ -86,13 +91,15 @@ export const PptPreviewMixin = {
       if (this.thumbnailList.length === 0) {
         return ''
       }
-      const currentPageId = this.thumbnailList[this.currentImgIndex].id
-      this.itemsList.forEach(e => {
-        if (currentPageId === e.pageId) {
-          const data = JSON.parse(e.data)
-          pageItemsList.push(data)
-        }
-      })
+      if (this.thumbnailList[this.currentImgIndex]) {
+        const currentPageId = this.thumbnailList[this.currentImgIndex].id
+        this.itemsList.forEach(e => {
+          if (currentPageId === e.pageId) {
+            const data = JSON.parse(e.data)
+            pageItemsList.push(data)
+          }
+        })
+      }
       return pageItemsList.length > 0 ? pageItemsList[0] : ''
     },
     currentPageTips () {
@@ -110,19 +117,22 @@ export const PptPreviewMixin = {
       if (this.thumbnailList.length === 0) {
         return material
       }
-      const currentPageId = this.thumbnailList[this.currentImgIndex].id
-      this.elementsList.forEach(e => {
-        if (currentPageId === e.pageId) {
-          const data = JSON.parse(e.data)
-          // 把tip从material踢出去
-          if (data.type !== 'tip') {
-            if (!material.hasOwnProperty(data.type)) {
-              material[data.type] = []
+
+      if (this.thumbnailList[this.currentImgIndex]) {
+        const currentPageId = this.thumbnailList[this.currentImgIndex].id
+        this.elementsList.forEach(e => {
+          if (currentPageId === e.pageId) {
+            const data = JSON.parse(e.data)
+            // 把tip从material踢出去
+            if (data.type !== 'tip') {
+              if (!material.hasOwnProperty(data.type)) {
+                material[data.type] = []
+              }
+              material[data.type].push(data)
             }
-            material[data.type].push(data)
           }
-        }
-      })
+        })
+      }
       return material
     }
   },

@@ -2478,9 +2478,13 @@ export default {
         taskId: this.taskId
       }).then(response => {
         if (response.success) {
-          this.chooseAnotherVisible = false
           this.thumbnailList = [{ contentUrl: data.selectedPrompt.cover, id: data.selectPageObjectIds[0] }]
+          this.form.presentationId = response.result.presentationId
+          this.form.fileDeleted = response.result.fileDeleted
           this.$message.success('Choose another successfully')
+          this.chooseAnotherVisible = false
+          this.loadThumbnail()
+          this.loadRecommendThumbnail()
         } else {
           this.$message.warn(response.message)
         }
