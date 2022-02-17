@@ -875,6 +875,50 @@
                       </div>
                     </div>
                   </div>
+                  <!--quick-task recommend -->
+                  <div class='form-block-right' v-if='!recomendListLoading && canEdit && form.taskMode === 2'>
+                    <div class='right-title'>Recommended</div>
+                    <div class='slide-preview-list'>
+                      <div
+                        class='slide-preview-item'
+                        v-for='(template, rIndex) in filterRecommendTemplateList'
+                        :key='rIndex'>
+                        <div class='template-hover-action-mask'>
+                          <div class='template-hover-action'>
+                            <div class='modal-ensure-action-line'>
+                              <a-button
+                                class='action-ensure action-item'
+                                shape='round'
+                                @click='handlePreviewQuickTaskTemplate(template)'
+                              >
+                                <a-icon type='eye' theme='filled' />
+                                <div class='btn-text'>
+                                  Preview
+                                </div>
+                              </a-button>
+                            </div>
+                          </div>
+                        </div>
+                        <a-carousel arrows>
+                          <div slot='prevArrow' class='custom-slick-arrow' style='left: 10px;zIndex: 100'>
+                            <a-icon type='left-circle' />
+                          </div>
+                          <div slot='nextArrow' class='custom-slick-arrow' style='right: 10px;zIndex: 100'>
+                            <a-icon type='right-circle' />
+                          </div>
+                          <div v-for='(item,index) in template.images' :key='index'>
+                            <img :src='item' />
+                          </div>
+                        </a-carousel>
+                        <a-row v-if='template.introduce' class='slide-desc' :title='template.introduce'>
+                          {{ template.introduce }}
+                        </a-row>
+                        <div class='recommend-slide-name'>
+                          {{ template.name }}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                 </template>
                 <template v-if='showRightModule(rightModule.customTag) && this.currentActiveStepIndex !== 1'>
                   <div v-if='!this.contentLoading' :style="{'width':rightWidth+'px', 'margin-top':customTagTop+'px'}">
@@ -1659,6 +1703,22 @@
       </a-modal>
 
       <a-modal
+        v-model='quickTaskPreviewTemplateVisible'
+        :footer='null'
+        destroyOnClose
+        width='1000px'
+        :zIndex='4000'
+        :title='null'
+        @ok='quickTaskPreviewTemplateVisible = false'
+        @cancel='quickTaskPreviewTemplateVisible = false'>
+        <div class='link-content-wrapper'>
+          <quick-task-template-preview
+            :template='quickTaskPreviewTemplate'
+            @handle-select='handleSelectQuickTaskPreviewTemplate'></quick-task-template-preview>
+        </div>
+      </a-modal>
+
+      <a-modal
         v-model='materialVisible'
         :footer='null'
         destroyOnClose
@@ -1790,12 +1850,14 @@ import { PersonalAddOrUpdateClass, SchoolClassGetMyClasses } from '@/api/schoolC
 import InputWithCreate from '@/components/Common/InputWithCreate'
 import QuickSession from '@/components/QuickSession/QuickSession'
 import { chooseAnother } from '@/api/quickTask'
+import QuickTaskTemplatePreview from '@/components/Task/QuickTaskTemplatePreview'
 
 const { SplitTask } = require('@/api/task')
 
 export default {
   name: 'AddTask',
   components: {
+    QuickTaskTemplatePreview,
     QuickSession,
     InputWithCreate,
     ShareContentSetting,
@@ -2036,7 +2098,10 @@ export default {
 
       chooseAnotherVisible: false,
 
-      customizeLearnOut: []
+      customizeLearnOut: [],
+
+      quickTaskPreviewTemplateVisible: false,
+      quickTaskPreviewTemplate: null,
     }
   },
   computed: {
@@ -2480,7 +2545,6 @@ export default {
         taskId: this.taskId
       }).then(response => {
         if (response.success) {
-          this.thumbnailList = [{ contentUrl: data.selectedPrompt.cover, id: data.selectPageObjectIds[0] }]
           this.form.pageObjectIds = response.result.pageObjectIds
           this.form.presentationId = response.result.presentationId
           this.form.fileDeleted = response.result.fileDeleted
@@ -3807,10 +3871,22 @@ export default {
       this.previewTemplateVisible = true
       this.previewTemplate = template
     },
+    handlePreviewQuickTaskTemplate(template) {
+      this.$logger.info('handlePreviewTemplate ', template)
+      this.quickTaskPreviewTemplate = template
+      this.quickTaskPreviewTemplateVisible = true
+    },
     handleSelectPreviewTemplate(template) {
       this.$logger.info('handleSelectPreviewTemplate ', template)
       this.handleSelectTemplateMadel(template)
       this.previewTemplateVisible = false
+    },
+    handleSelectQuickTaskPreviewTemplate(data) {
+      this.$logger.info('handleSelectQuickTaskPreviewTemplate ', data)
+      if (data.presentationId && data.selectPageObjectIds && data.selectPageObjectIds.length > 0) {
+        this.handleEnsureChooseAnother(data)
+      }
+      this.quickTaskPreviewTemplateVisible = false
     },
     handleGotoImgIndex(index) {
       this.$logger.info('handleGotoImgIndex ' + index)
