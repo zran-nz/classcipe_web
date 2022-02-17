@@ -109,16 +109,21 @@
               <div class="page-info" v-if="thumbnailList && thumbnailList.length">
                 {{ currentImgIndex + 1 }} / {{ thumbnailList.length }}
               </div>
-              <a-button
-                class="action-ensure action-item"
-                type="primary"
-                shape="round"
-                @click="handleSelectTemplate($event)">
-                <a-icon type="plus-circle" class="btn-icon"/>
-                <div class="btn-text">
-                  Insert
-                </div>
-              </a-button>
+              <div class='action-bar'>
+                <a-space>
+                  <div @click='handleSelectAll'>Select all</div>
+                  <a-button
+                    class="action-ensure action-item"
+                    type="primary"
+                    shape="round"
+                    @click="handleSelectTemplate($event)">
+                    <a-icon type="plus-circle" class="btn-icon"/>
+                    <div class="btn-text">
+                      Insert
+                    </div>
+                  </a-button>
+                </a-space>
+              </div>
             </div>
             <div class="carousel-page">
               <div class="img-list-wrapper">
@@ -192,6 +197,10 @@ export default {
     MediaPreview
   },
   props: {
+    showReplaceTips: {
+      type: Boolean,
+      default: false
+    },
     template: {
       type: Object,
       default: () => null
@@ -248,12 +257,31 @@ export default {
       this.currentImgIndex = index
       this.$refs.carousel.goTo(index)
     },
-    handleSelectTemplate ($event) {
-      this.$logger.info('handleSelectTemplate ' + this.templateData.name)
-      this.$emit('handle-select', {
-        presentationId: this.templateData.presentationId,
-        selectPageObjectIds: this.selectPageObjectIds
-      })
+    handleSelectTemplate () {
+      this.$logger.info('handleSelectTemplate ' + this.templateData.name + ' ' + this.showReplaceTips)
+      if (this.showReplaceTips && this.selectPageObjectIds.length > 0) {
+        this.$confirm({
+          title: 'Notice',
+          zIndex: 6001,
+          okText: 'Confirm',
+          cancelText: 'Cancel',
+          content: 'The current task existing  PPT, insert will replace the original PPT! Are you sure you want to replace??',
+          onOk: () => {
+            this.$emit('handle-select', {
+              presentationId: this.templateData.presentationId,
+              selectPageObjectIds: this.selectPageObjectIds
+            })
+          }
+        })
+      } else {
+        this.$emit('handle-select', {
+          presentationId: this.templateData.presentationId,
+          selectPageObjectIds: this.selectPageObjectIds
+        })
+      }
+    },
+    handleSelectAll () {
+      this.selectPageObjectIds = this.thumbnailList.map(item => item.id)
     }
   }
 }

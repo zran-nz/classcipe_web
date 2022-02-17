@@ -1713,6 +1713,7 @@
         @cancel='quickTaskPreviewTemplateVisible = false'>
         <div class='link-content-wrapper'>
           <quick-task-template-preview
+            :show-replace-tips='form.presentationId && form.taskMode === 2'
             :template='quickTaskPreviewTemplate'
             @handle-select='handleSelectQuickTaskPreviewTemplate'></quick-task-template-preview>
         </div>
@@ -2101,7 +2102,7 @@ export default {
       customizeLearnOut: [],
 
       quickTaskPreviewTemplateVisible: false,
-      quickTaskPreviewTemplate: null,
+      quickTaskPreviewTemplate: null
     }
   },
   computed: {
