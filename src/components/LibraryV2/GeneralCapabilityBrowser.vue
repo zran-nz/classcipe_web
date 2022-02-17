@@ -342,7 +342,7 @@ export default {
         curriculumId: this.curriculumId
       }).then((response) => {
         this.$logger.info('Get21Century response', response)
-        this.mainKnowledgeList = response.result
+        this.mainKnowledgeList = response.result ? response.result : []
         this.knowledgeDeep = 1
         if (this.mainKnowledgeList.length > 0) {
           this.knowledges[0].knowledgeList = this.mainKnowledgeList
