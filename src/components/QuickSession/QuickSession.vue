@@ -9,10 +9,9 @@
     :visible="visible"
     destroyOnClose>
     <div class='quick-start-session'>
-      <modal-header title='Quick start a course' @close='handleCloseModal'/>
+      <modal-header title='' @close='handleCloseModal'/>
       <div class='quick-start-tips'>
-        <div class='tip-item'>Quickly select a lesson template and start the class immediately!</div>
-        <div class='tip-item'>We know that some classes only need 1 Text topic, or 1 video to start the educational journey, thus we offer you a quick start!</div>
+        <div class='tip-item'>You can start a quick session by selecting one <span style='font-weight: bold'>template</span> <br/> without editing it in Google Slides.</div>
       </div>
       <div class='quick-filter-line'>
         <div class='interactive-type'>
@@ -284,9 +283,9 @@ export default {
 .quick-start-session {
 
   .quick-start-tips {
-    padding: 10px 0;
+    padding-bottom: 10px;
     width: 70%;
-    margin: auto;
+    margin: -10px auto;
   }
 
   .tip-item {
@@ -301,6 +300,7 @@ export default {
     flex-direction: row;
     justify-content: space-between;
     align-items: center;
+    margin-top: 10px;
 
     .interactive-type {
       display: flex;
@@ -415,6 +415,7 @@ export default {
   }
 
   .start-session {
+    margin-top: 10px;
     text-align: center;
   }
 }
