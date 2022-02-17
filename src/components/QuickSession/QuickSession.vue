@@ -11,7 +11,7 @@
     <div class='quick-start-session'>
       <modal-header title='' @close='handleCloseModal'/>
       <div class='quick-start-tips'>
-        <div class='tip-item'>You can start a quick session by selecting one <span style='font-weight: bold'>template</span> <br/> without editing it in Google Slides.</div>
+        <div class='tip-item'>You can start a quick session by selecting <span style='font-weight: bold; color: #15C39A;'>one template</span> <br/> without editing it in Google Slides.</div>
       </div>
       <div class='quick-filter-line'>
         <div class='interactive-type'>
@@ -285,13 +285,12 @@ export default {
   .quick-start-tips {
     padding-bottom: 10px;
     width: 70%;
-    margin: -10px auto;
+    margin: -30px auto 0 auto;
   }
 
   .tip-item {
-    font-size: 12px;
     font-family: Inter-Bold;
-    color: #aaa;
+    color: #999;
     text-align: center;
   }
 
@@ -300,7 +299,6 @@ export default {
     flex-direction: row;
     justify-content: space-between;
     align-items: center;
-    margin-top: 10px;
 
     .interactive-type {
       display: flex;
