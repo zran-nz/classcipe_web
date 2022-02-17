@@ -281,7 +281,7 @@
                       <div class='step-detail' v-show="currentActiveStepIndex === 1">
                         <div class="edit-in-slide" v-if="!form.fileDeleted">
                           <a-button
-                            v-show="canEdit"
+                            v-show="canEdit && form.taskMode === 1"
                             class='action-ensure action-item edit-slide'
                             type='primary'
                             shape='round'
@@ -289,10 +289,19 @@
                             style='margin-right: 10px'>
                             Select slide(s)
                           </a-button>
-                          <a-button class="action-ensure action-item edit-slide" :loading="creating" type="primary" shape="round" @click="handleEditGoogleSlide()">
+                          <a-button
+                            class="action-ensure action-item edit-slide"
+                            :loading="creating"
+                            type="primary"
+                            shape="round"
+                            @click="handleEditGoogleSlide()"
+                            v-show='form.taskMode === 1'>
                             Edit google slide(s)
                           </a-button>
-                          <a-tooltip placement='top' title='Select slide(s) on/off'>
+                          <a-tooltip
+                            placement='top'
+                            title='Select slide(s) on/off'
+                            v-show='form.taskMode === 1'>
                             <a-switch
                               class='slide-switch'
                               :disabled='selectedTemplateIdList.length === 0'
@@ -3376,6 +3385,10 @@ export default {
           this.showSubTaskDetail = false
           this.$logger.info('click step 2.1', current, this.thumbnailList)
           this.selectedSlideVisible = true
+        }
+
+        if (current === 1 && this.form.taskMode === 2 && !this.form.presentationId) {
+          this.chooseAnotherVisible = true
         }
       }
     },
