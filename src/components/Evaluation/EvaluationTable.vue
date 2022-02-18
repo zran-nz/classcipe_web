@@ -1396,12 +1396,17 @@ export default {
            NZ-Key competencies
            AU-General capabilities的入口，然后在第二列点击后看到21st Century Skills数据入口
            */
+          const bindCurriculum = parseInt(this.$store.getters.bindCurriculum)
           this.$logger.info('CenturySkills header.type ' + header.type, header.type === this.headerType.Description, header.type === this.headerType.Criteria)
           if (header.type === this.headerType.Description) {
-            this.showMenuList = [NavigationType.centurySkills]
-            this.defaultActiveMenu = NavigationType.centurySkills
+            if (bindCurriculum === 1 || bindCurriculum === 2) {
+              this.showMenuList = [NavigationType.all21Century]
+              this.defaultActiveMenu = NavigationType.all21Century
+            } else {
+              this.showMenuList = [NavigationType.centurySkills]
+              this.defaultActiveMenu = NavigationType.centurySkills
+            }
           } else if (header.type === this.headerType.Criteria) {
-            const bindCurriculum = parseInt(this.$store.getters.bindCurriculum)
             if (bindCurriculum === 1) {
               this.showMenuList = [NavigationType.AUGeneralCapabilities]
               this.defaultActiveMenu = NavigationType.AUGeneralCapabilities
@@ -1740,8 +1745,16 @@ export default {
       const descriptionList = []
       data.forEach(dataItem => {
         const item = dataItem.item
+        const parentNameList = []
+        let parent = item.originParent
+        let count = 3
+        while (parent && count-- > 0) {
+          parentNameList.push(parent.name)
+          parent = parent.originParent
+        }
         const descriptionItem = {
-          name: item.name,
+          name: dataItem.item.name,
+          parentNameList: parentNameList,
           isDescription: true
         }
         descriptionList.push(descriptionItem)

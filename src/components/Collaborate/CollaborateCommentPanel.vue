@@ -76,7 +76,7 @@
               </div>
               <div class="comment-input-wrapper" v-if="rootComment.editing">
                 <div class="input">
-                  <input-reply-button :collaborate-user-list="collaborateUserList" @send="handleSend" :comment-item="rootComment" @cancel="handleCancel" />
+                  <input-reply-button :collaborate-user-list="collaborateUserList" @send="handleSend" :comment-item="rootComment" @cancel="handleCancel" :sending="rootComment.sendLoading" />
                 </div>
               </div>
             </template>
@@ -135,7 +135,7 @@
               </div>
               <div class="comment-input-wrapper" v-if="commentItem.editing">
                 <div class="input">
-                  <input-reply-button :collaborate-user-list="collaborateUserList" @send="handleSend" :comment-item="commentItem" @cancel="handleCancel" />
+                  <input-reply-button :collaborate-user-list="collaborateUserList" @send="handleSend" :comment-item="commentItem" @cancel="handleCancel" :sending="commentItem.sendLoading" />
                 </div>
               </div>
             </template>
@@ -160,7 +160,6 @@
 <script>
 
 import { CollaborateCommentMixin } from '@/mixins/CollaborateCommentMixin'
-import { MarkedCollaborateComment } from '@/api/collaborate'
 import AddGreenIcon from '@/assets/svgIcon/evaluation/form/tianjia_green.svg?inline'
 
 export default {
@@ -232,14 +231,6 @@ export default {
     this.formatNewReply()
   },
   methods: {
-    handleMarked(comment, rootIndex) {
-      this.$logger.info('handleMarked', comment)
-      MarkedCollaborateComment(comment).then(response => {
-        this.formatCommentList.splice(rootIndex, 1)
-      }).finally(() => {
-        this.$emit('update-comment')
-      })
-    },
     addRootComment() {
       this.addRoot = true
     }

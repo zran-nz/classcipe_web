@@ -66,7 +66,7 @@
                       :init-raw-headers="formItem.initRawHeaders"
                       :init-raw-data="formItem.initRawData"
                       :form-type="formItem.formType"
-                      :form-table-mode="EvaluationTableMode.Preview"
+                      :mode="EvaluationTableMode.Preview"
                     />
                   </div>
                 </div>

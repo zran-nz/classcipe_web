@@ -1,4 +1,4 @@
-import { AddCollaborateComment, DeleteCollaborateCommentById } from '@/api/collaborate'
+import { AddCollaborateComment, DeleteCollaborateCommentById, MarkedCollaborateComment } from '@/api/collaborate'
 import InputWithButton from '@/components/Collaborate/InputWithButton'
 import InputReplyButton from '@/components/Collaborate/InputReplyButton'
 import deleteIcon from '@/assets/icons/collaborate/delete.svg'
@@ -91,9 +91,13 @@ export const CollaborateCommentMixin = {
     handleCancel (comment) {
       this.$logger.info('handleCancel', comment)
       comment.editing = false
-      var index = this.rawCommentList.findIndex(item => item.id === comment.id)
-      if (index !== -1) {
-        this.$set(this.rawCommentList, index, comment)
+      if (comment.commentToId) {
+        const rootIndex = this.formatCommentList.findIndex(item => item.id === comment.commentToId)
+        const index = this.formatCommentList[rootIndex].subCommentList.findIndex(item => item.id === comment.id)
+        this.$set(this.formatCommentList[rootIndex].subCommentList, index, comment)
+      } else {
+        var index = this.formatCommentList.findIndex(item => item.id === comment.id)
+        this.$set(this.formatCommentList, index, comment)
       }
     },
     handleComment(inputValue) {
@@ -133,7 +137,11 @@ export const CollaborateCommentMixin = {
       })
     },
     cancelComment () {
-      this.$emit('cancel-comment')
+      if (this.formatCommentList.length > 0) {
+        this.addRoot = false
+      } else {
+        this.$emit('cancel-comment')
+      }
     },
 
     handleCancelDelete () {
@@ -151,12 +159,13 @@ export const CollaborateCommentMixin = {
       })
     },
     handleSend (comment) {
-      let rootIndex = ''
-      const isRoot = !comment.commentToId
-      if (!this.field || !isRoot) {
-        // 从父节点获取
+      let rootIndex = this.formatCommentList.findIndex(item => item.id === comment.id)
+      if (rootIndex === -1) {
         rootIndex = this.formatCommentList.findIndex(item => item.id === comment.commentToId)
-        comment.fieldName = this.rawCommentList[rootIndex].fieldName
+      }
+      const isRoot = !comment.commentToId
+      if (!this.fieldName) {
+        comment.fieldName = this.formatCommentList[rootIndex].fieldName
       } else {
         comment.fieldName = this.fieldName
       }
@@ -167,6 +176,13 @@ export const CollaborateCommentMixin = {
       if (!comment.id) {
         isAdd = true
         this.$set(this.newComments, comment.index, comment)
+      } else {
+        if (isRoot) {
+          this.$set(this.formatCommentList, rootIndex, comment)
+        } else {
+          const index = this.formatCommentList[rootIndex].subCommentList.findIndex(item => item.id === comment.id)
+          this.$set(this.formatCommentList[rootIndex].subCommentList, index, comment)
+        }
       }
       this.$logger.info('handleSend', comment)
       AddCollaborateComment(comment).then(response => {
@@ -186,11 +202,11 @@ export const CollaborateCommentMixin = {
         } else {
           comment.sendLoading = false
           comment.editing = false
-          if (rootIndex) {
+          if (isRoot) {
             this.$set(this.formatCommentList, rootIndex, comment)
           } else {
             const index = this.formatCommentList[rootIndex].subCommentList.findIndex(item => item.id === comment.id)
-            this.$set(this.formatCommentList[rootIndex], index, comment)
+            this.$set(this.formatCommentList[rootIndex].subCommentList, index, comment)
           }
         }
       }).finally(() => {
@@ -243,12 +259,21 @@ export const CollaborateCommentMixin = {
     handleEditCommentRoot (comment, rootIndex) {
       this.$logger.info('handleEditCommentRoot', comment)
       comment.editing = !comment.editing
-      this.$set(this.formatCommentList[rootIndex], rootIndex, comment)
+      this.$set(this.formatCommentList, rootIndex, comment)
     },
     handleFocusInput(comment) {
       this.$logger.info('handleFocusInput')
       comment.editing = true
       this.$set(this.newComments, comment.index, comment)
+    },
+    handleMarked(comment, rootIndex) {
+      this.$logger.info('handleMarked', comment)
+      this.formatCommentList.splice(rootIndex, 1)
+      MarkedCollaborateComment(comment).then(response => {
+        this.$message.success('Marked successfully')
+      }).finally(() => {
+        this.$emit('update-comment')
+      })
     }
   }
 

@@ -361,7 +361,6 @@ import { typeMap } from '@/const/teacher'
 import NoMoreResources from '@/components/Common/NoMoreResources'
 import CommonAssociatePreview from '@/components/Common/CommonAssociatePreview'
 import { TemplatesGetPresentation, TemplatesGetPublishedPresentation } from '@/api/template'
-import EvaluationPreview from '@/components/Evaluation/EvaluationPreview'
 import EvaluationTablePreview from '@/components/Evaluation/EvaluationTablePreview'
 import { PptPreviewMixin } from '@/mixins/PptPreviewMixin'
 import MediaPreview from '@/components/Task/MediaPreview'
@@ -380,7 +379,6 @@ export default {
   components: {
     UiLearnOutSub,
     EvaluationTablePreview,
-    EvaluationPreview,
     CommonAssociatePreview,
     NoMoreResources,
     MediaPreview,

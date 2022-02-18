@@ -9,10 +9,9 @@
     :visible="visible"
     destroyOnClose>
     <div class='quick-start-session'>
-      <modal-header title='Quick start a course' @close='handleCloseModal'/>
+      <modal-header title='' @close='handleCloseModal'/>
       <div class='quick-start-tips'>
-        <div class='tip-item'>Quickly select a lesson template and start the class immediately!</div>
-        <div class='tip-item'>We know that some classes only need 1 Text topic, or 1 video to start the educational journey, thus we offer you a quick start!</div>
+        <div class='tip-item'>You can start a quick session by selecting <span style='font-weight: bold; color: #15C39A;'>one template</span> <br/> without editing it in Google Slides.</div>
       </div>
       <div class='quick-filter-line'>
         <div class='interactive-type'>
@@ -266,7 +265,8 @@ export default {
     handleEnsureSelect () {
       this.$emit('select', {
         presentationId: this.selectedPrompt.presentationId,
-        selectPageObjectIds: this.selectedPrompt.pageObjectIds
+        selectPageObjectIds: this.selectedPrompt.pageObjectIds,
+        selectedPrompt: this.selectedPrompt
       })
     },
 
@@ -283,15 +283,14 @@ export default {
 .quick-start-session {
 
   .quick-start-tips {
-    padding: 10px 0;
+    padding-bottom: 10px;
     width: 70%;
-    margin: auto;
+    margin: -30px auto 0 auto;
   }
 
   .tip-item {
-    font-size: 12px;
     font-family: Inter-Bold;
-    color: #aaa;
+    color: #999;
     text-align: center;
   }
 
@@ -414,6 +413,7 @@ export default {
   }
 
   .start-session {
+    margin-top: 10px;
     text-align: center;
   }
 }

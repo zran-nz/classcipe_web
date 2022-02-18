@@ -273,7 +273,7 @@
           </a-list>
           <div class="group-label">
             <!-- unit plan下才有term概念,task不显示对应的操作和term名称-->
-            <template v-if="fromType === typeMap[&quot;unit-plan&quot;]">
+            <template v-if="fromType === typeMap['unit-plan']">
               <template v-if="groupNameMode === 'select'">
                 <div class="choose-label">Choose category</div>
                 <a-select :getPopupContainer="trigger => trigger.parentElement" :default-value="defaultGroupName" style="width: 100%" v-model="selectedGroup">

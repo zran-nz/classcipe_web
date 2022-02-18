@@ -44,6 +44,50 @@
             </div>
           </div>
         </div>
+        <div class="record-list" :key="-1">
+          <div class="record-item">
+            <template>
+              <div class="record-action" v-show="rootComment.username === $store.getters.userInfo.username">
+                <div>
+                  <a-dropdown>
+                    <a-icon type="more" style="font-size: 20px;margin-top: 10px;" />
+                    <a-menu slot="overlay">
+                      <a-menu-item>
+                        <a @click="handleDeleteRootCommentConfirm(rootComment,rootIndex,true)">
+                          <a-icon type="delete" theme="filled" /> Delete
+                        </a>
+                      </a-menu-item>
+                      <a-menu-item>
+                        <a @click="handleEditCommentRoot(rootComment,rootIndex)">
+                          <a-icon type="edit" theme="filled" /> Edit
+                        </a>
+                      </a-menu-item>
+                    </a-menu>
+                  </a-dropdown>
+                </div>
+              </div>
+              <div class="comment-user-info">
+                <div class="avatar">
+                  <img :src="rootComment.avatar" />
+                </div>
+                <div class="user-name">
+                  <div class="name-text"> {{ rootComment.username }}</div>
+                  <div class="time-text"> {{ rootComment.createdTime | dayComment }}</div>
+                </div>
+              </div>
+              <div class="comment-detail" v-if="!rootComment.editing">
+                <div class="comment-text">
+                  {{ rootComment.content }}
+                </div>
+              </div>
+              <div class="comment-input-wrapper" v-if="rootComment.editing">
+                <div class="input">
+                  <input-reply-button :collaborate-user-list="collaborateUserList" @send="handleSend" :comment-item="rootComment" @cancel="handleCancel" :sending="rootComment.sendLoading" />
+                </div>
+              </div>
+            </template>
+          </div>
+        </div>
         <div class="record-list" v-for="(commentItem, cIndex) in rootComment.subCommentList" :key="cIndex">
           <div class='delete-mask' v-if="commentItem.delete">
             <div class="delete-group">
@@ -97,7 +141,7 @@
               </div>
               <div class="comment-input-wrapper" v-if="commentItem.editing">
                 <div class="input">
-                  <input-reply-button :collaborate-user-list="collaborateUserList" @send="handleSend" :comment-item="commentItem" @cancel="handleCancel" />
+                  <input-reply-button :collaborate-user-list="collaborateUserList" @send="handleSend" :comment-item="commentItem" @cancel="handleCancel" :sending="commentItem.sendLoading"/>
                 </div>
               </div>
             </template>
@@ -108,8 +152,8 @@
             <input-reply-button
               :collaborate-user-list="collaborateUserList"
               @send="handleSend"
-              :reply-mode="true"
               @cancel="handleCancelNewComment"
+              :sending="newComments[rootIndex].sendLoading"
               :comment-item="newComments[rootIndex]"
               @focusInput="handleFocusInput"/>
           </div>
@@ -173,17 +217,29 @@ export default {
   },
   watch: {
     commentList (value) {
-      this.$logger.info('commentList update ', value)
-      this.rawCommentList = value
-      this.rawCommentList.forEach(item => { item.sendLoading = false })
-      this.formatComment()
+      this.$logger.info('CollaborateCommentPanel commentList', value)
+      this.rawCommentList = []
+      value.forEach(item => {
+        item.sendLoading = false
+        this.rawCommentList.push(item)
+      })
+      this.formatCommentList = this.rawCommentList
+      this.$logger.info('formatCommentList', this.formatCommentList)
+      // this.formatNewReply()
     }
   },
   created () {
     this.$logger.info('CollaborateCommentPanel commentList', this.commentList)
-    this.rawCommentList = this.commentList
-    this.rawCommentList.forEach(item => { item.sendLoading = false })
-    this.formatComment()
+    this.originalCommentList = this.commentList
+    this.rawCommentList = []
+    this.commentList.forEach(item => {
+      item.sendLoading = false
+      this.rawCommentList.push(item)
+    })
+    this.$logger.info('rawCommentList', this.rawCommentList)
+    this.formatCommentList = this.rawCommentList
+    this.$logger.info('formatCommentList', this.formatCommentList)
+    this.formatNewReply()
   },
   methods: {
 
@@ -193,11 +249,10 @@ export default {
       if (name && typeof name === 'string') {
         fName = name
       }
-      this.$logger.info('handleFilterNameChange', fName, this.rootCommentMap)
-      this.formatCommentList = []
+      this.$logger.info('handleFilterNameChange', fName, this.formatCommentList)
+      const tmpCommentList = []
       if (this.currentType === 0) {
-        for (const [rootCommentId, rootComment] of this.rootCommentMap.entries()) {
-          this.$logger.info('rootCommentId ' + rootCommentId, rootComment)
+        this.commentList.forEach(rootComment => {
           let isInvolvedMe = false
           if (rootComment.username && rootComment.username.toLowerCase().indexOf(fName.toLowerCase()) !== -1) {
             isInvolvedMe = true
@@ -208,14 +263,12 @@ export default {
               }
             })
           }
-
           if (isInvolvedMe) {
-            this.formatCommentList.push(rootComment)
+            tmpCommentList.push(rootComment)
           }
-        }
+        })
       } else {
-        for (const [rootCommentId, rootComment] of this.rootCommentMap.entries()) {
-          this.$logger.info('rootCommentId ' + rootCommentId, rootComment)
+        this.commentList.forEach(rootComment => {
           let isInvolvedMe = false
           if (rootComment.username === this.$store.getters.userInfo.username && (rootComment.username && rootComment.username.toLowerCase().indexOf(fName.toLowerCase()) !== -1)) {
             isInvolvedMe = true
@@ -226,13 +279,13 @@ export default {
               }
             })
           }
-
           if (isInvolvedMe) {
-            this.formatCommentList.push(rootComment)
+            tmpCommentList.push(rootComment)
           }
-        }
-        this.$logger.info('formatCommentList', this.formatCommentList)
+        })
+        this.$logger.info('tmpCommentList', tmpCommentList)
       }
+      this.formatCommentList = tmpCommentList
     },
 
     toggleType (type, label) {
@@ -241,10 +294,9 @@ export default {
       this.currentTypeLabel = label
       this.formatCommentList = []
       if (this.currentType === 0) {
-        this.formatComment()
+        this.formatCommentList = this.commentList
       } else {
         this.handleFilterNameChange(this.$store.getters.userInfo.username)
-
         this.$logger.info('formatCommentList', this.formatCommentList)
       }
     }

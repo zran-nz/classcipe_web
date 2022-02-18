@@ -23,7 +23,7 @@
                 <a-form-model-item label="Class Type" prop="classType">
                   <a-select :allowClear="true" v-model="model.classType" placeholder="Select classType" >
                     <a-select-option :value="0">Standard-Class</a-select-option>
-                    <a-select-option :value="1">Subject-Forcused Class</a-select-option>
+                    <a-select-option :value="1">Subject-focused Class</a-select-option>
                   </a-select>
                 </a-form-model-item>
               </a-col>

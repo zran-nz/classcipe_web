@@ -682,6 +682,7 @@ export default {
       if (this.libraryMode === LibraryMode.searchMode) {
         this.handleSearchKey()
       }
+      this.getRecommended()
     },
 
     handleSearchKey () {

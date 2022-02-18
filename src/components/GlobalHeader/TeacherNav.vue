@@ -50,15 +50,8 @@
               </a>
             </a-menu-item>
             <a-menu-item>
-              <router-link to="/teacher/task-redirect">
-                {{ $t('menu.task') }}
-              </router-link>
+              <a @click='showTaskModeChoose'> {{ $t('menu.task') }}</a>
             </a-menu-item>
-            <!--            <a-menu-item>
-              <router-link to="/teacher/lesson-redirect">
-                {{ $t('menu.lessons') }}
-              </router-link>
-            </a-menu-item>-->
             <a-menu-item>
               <router-link to="/teacher/evaluation-redirect">
                 {{ $t('menu.evaluation') }}
@@ -69,19 +62,9 @@
             style="padding: 0 20px;display:flex; box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.16);align-items:center ;height: 32px;border-radius: 6px;background: #FFFFFF;border: 1px solid #eee;font-family: Inter-Bold;color: #182552;"> Create New <a-icon type="caret-down" /> </a-button>
         </a-dropdown>
       </div>
-      <!--      <a-menu mode="horizontal" theme="dark" :defaultSelectedKeys="defaultSelectedKeys" :selectedKeys="selectedKeys">-->
-      <!--        <a-menu-item key="/teacher/appraisal">-->
-      <!--          <div class="nav-item">-->
-      <!--            <div class="nav-icon">-->
-      <!--              <edit-icon-svg />-->
-      <!--            </div>-->
-      <!--            <div class="nav-label">-->
-      <!--              Appraisal-->
-      <!--            </div>-->
-      <!--          </div>-->
-      <!--        </a-menu-item>-->
-      <!--      </a-menu>-->
     </div>
+
+    <task-mode-choose @close='closeTaskModeChoose' :visible='showTaskMode' v-if='showTaskMode'/>
   </div>
 </template>
 <script>
@@ -91,10 +74,12 @@ import LibraryIconSvg from '@/assets/icons/header/Librar_icony.svg?inline'
 import EditIconSvg from '@/assets/icons/header/bianji.svg?inline'
 import SousuoIconSvg from '@/assets/icons/header/sousuo.svg?inline'
 import ManageIconSvg from '@/assets/icons/header/Managing_icon.svg?inline'
+import TaskModeChoose from '@/components/QuickSession/TaskModeChoose'
 
 export default {
   name: 'TeacherNav',
   components: {
+    TaskModeChoose,
     LibraryIconSvg,
     EditIconSvg,
     ManageIconSvg,
@@ -104,7 +89,8 @@ export default {
     return {
       searchText: null,
       defaultSelectedKeys: [],
-      selectedKeys: []
+      selectedKeys: [],
+      showTaskMode: false
     }
   },
   watch: {
@@ -126,6 +112,12 @@ export default {
       this.$router.push({
         path: '/teacher/unit-plan-redirect/create'
       })
+    },
+    showTaskModeChoose () {
+      this.showTaskMode = true
+    },
+    closeTaskModeChoose() {
+      this.showTaskMode = false
     }
   }
 }

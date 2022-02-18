@@ -146,6 +146,13 @@ export const asyncRouterMap = [
             meta: { title: 'menu.task', keepAlive: true, permission: ['teacher'] }
           },
           {
+            path: '/teacher/task-redirect-by-mode/:taskMode',
+            name: 'TaskByModeRedirect',
+            props: true,
+            component: () => import('@/views/teacher/TaskRedirectByMode'),
+            meta: { title: 'menu.task', keepAlive: true, permission: ['teacher'] }
+          },
+          {
             path: '/teacher/add-evaluation/:evaluationId?/:mode?',
             name: 'AddEvaluation',
             props: true,

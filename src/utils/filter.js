@@ -32,7 +32,7 @@ Vue.filter('dayComment', function (dataStr, pattern = 'LLL') {
     const date = moment.utc(dataStr).local()
     const currentDate = new Date()
     // 五分钟以内
-    if (currentDate.getTime() - date.toDate().getTime() < 5 * 1000) {
+    if (currentDate.getTime() - date.toDate().getTime() < 5 * 60 * 1000) {
         return 'Just now'
     } else if (currentDate.getTime() - date.toDate().getTime() < 24 * 60 * 60 * 100) {
         return 'Today ' + date.format('LT')

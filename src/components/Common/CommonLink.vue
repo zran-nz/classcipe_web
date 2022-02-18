@@ -101,60 +101,60 @@
 
         </div>
       </template>
-      <template v-if="othersLinkGroupList.length && !linkGroupLoading">
-        <div class="link-group" data-group="othersLinkGroupList">
-          <div class="group-item">
-            <div class="group-header">
-              <div class="group-left-info">
-                <div class="group-name">
-                  <div class="group-name-text">Linked by others</div>
-                  <!--                  <div class="group-name-text" v-if="fromType === typeMap.task" >Relevant Unit plan(s)</div>-->
-                  <!--                  <div class="group-name-input" v-if="linkGroup.editing">-->
-                  <!--                    <input v-model="linkGroup.group" class="group-name-input"/>-->
-                  <!--                  </div>-->
-                </div>
-                <!--                <div class="group-edit-icon" @click="handleToggleEditGroupName(linkGroup)">-->
-                <!--                  <a-icon type="edit" v-if="!linkGroup.editing"/>-->
-                <!--                  <a-icon type="check" v-if="linkGroup.editing"/>-->
-                <!--                </div>-->
-              </div>
-              <!--              <div class="group-right-info">-->
-              <!--                <div class="group-action">-->
-              <!--                  <a-button type="primary" @click="handleLinkGroup(linkGroup)">-->
-              <!--                    <div class="btn-text" style="line-height: 20px">-->
-              <!--                      + Link-->
-              <!--                    </div>-->
-              <!--                  </a-button>-->
-              <!--                </div>-->
-              <!--              </div>-->
-            </div>
-            <div class="group-body">
-              <div class="group-link-item" v-for="(item,index) in othersLinkGroupList" :key="index">
-                <div class="left-info">
-                  <div class="icon">
-                    <content-type-icon :type="item.type"/>
-                  </div>
-                  <div class="name" @click="handleViewDetail(item)">
-                    <a-tooltip placement="top">
-                      <template slot="title">
-                        {{ item.name ? item.name : 'untitled' }}
-                      </template>
-                      {{ item.name ? item.name : 'untitled' }}
-                    </a-tooltip>
-                  </div>
-                </div>
-                <div class="right-info">
-                  <div class="date">{{ item.createTime | dayjs }}</div>
-                  <div class="status">
-                    <template v-if="item.status === 0">Draft</template>
-                    <template v-if="item.status === 1">Published</template>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </template>
+      <!--      <template v-if="othersLinkGroupList.length && !linkGroupLoading">-->
+      <!--        <div class="link-group" data-group="othersLinkGroupList">-->
+      <!--          <div class="group-item">-->
+      <!--            <div class="group-header">-->
+      <!--              <div class="group-left-info">-->
+      <!--                <div class="group-name">-->
+      <!--                  <div class="group-name-text">Linked by others</div>-->
+      <!--                  &lt;!&ndash;                  <div class="group-name-text" v-if="fromType === typeMap.task" >Relevant Unit plan(s)</div>&ndash;&gt;-->
+      <!--                  &lt;!&ndash;                  <div class="group-name-input" v-if="linkGroup.editing">&ndash;&gt;-->
+      <!--                  &lt;!&ndash;                    <input v-model="linkGroup.group" class="group-name-input"/>&ndash;&gt;-->
+      <!--                  &lt;!&ndash;                  </div>&ndash;&gt;-->
+      <!--                </div>-->
+      <!--                &lt;!&ndash;                <div class="group-edit-icon" @click="handleToggleEditGroupName(linkGroup)">&ndash;&gt;-->
+      <!--                &lt;!&ndash;                  <a-icon type="edit" v-if="!linkGroup.editing"/>&ndash;&gt;-->
+      <!--                &lt;!&ndash;                  <a-icon type="check" v-if="linkGroup.editing"/>&ndash;&gt;-->
+      <!--                &lt;!&ndash;                </div>&ndash;&gt;-->
+      <!--              </div>-->
+      <!--              &lt;!&ndash;              <div class="group-right-info">&ndash;&gt;-->
+      <!--              &lt;!&ndash;                <div class="group-action">&ndash;&gt;-->
+      <!--              &lt;!&ndash;                  <a-button type="primary" @click="handleLinkGroup(linkGroup)">&ndash;&gt;-->
+      <!--              &lt;!&ndash;                    <div class="btn-text" style="line-height: 20px">&ndash;&gt;-->
+      <!--              &lt;!&ndash;                      + Link&ndash;&gt;-->
+      <!--              &lt;!&ndash;                    </div>&ndash;&gt;-->
+      <!--              &lt;!&ndash;                  </a-button>&ndash;&gt;-->
+      <!--              &lt;!&ndash;                </div>&ndash;&gt;-->
+      <!--              &lt;!&ndash;              </div>&ndash;&gt;-->
+      <!--            </div>-->
+      <!--            <div class="group-body">-->
+      <!--              <div class="group-link-item" v-for="(item,index) in othersLinkGroupList" :key="index">-->
+      <!--                <div class="left-info">-->
+      <!--                  <div class="icon">-->
+      <!--                    <content-type-icon :type="item.type"/>-->
+      <!--                  </div>-->
+      <!--                  <div class="name" @click="handleViewDetail(item)">-->
+      <!--                    <a-tooltip placement="top">-->
+      <!--                      <template slot="title">-->
+      <!--                        {{ item.name ? item.name : 'untitled' }}-->
+      <!--                      </template>-->
+      <!--                      {{ item.name ? item.name : 'untitled' }}-->
+      <!--                    </a-tooltip>-->
+      <!--                  </div>-->
+      <!--                </div>-->
+      <!--                <div class="right-info">-->
+      <!--                  <div class="date">{{ item.createTime | dayjs }}</div>-->
+      <!--                  <div class="status">-->
+      <!--                    <template v-if="item.status === 0">Draft</template>-->
+      <!--                    <template v-if="item.status === 1">Published</template>-->
+      <!--                  </div>-->
+      <!--                </div>-->
+      <!--              </div>-->
+      <!--            </div>-->
+      <!--          </div>-->
+      <!--        </div>-->
+      <!--      </template>-->
     </div>
 
     <a-modal
