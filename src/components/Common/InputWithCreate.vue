@@ -2,7 +2,7 @@
   <div class='my-input-with-create' @click.stop=''>
     <a-input class='my-input-with-create' v-model='displayValue' @focus='showOptionList = true'>
     </a-input>
-    <div class='option-list' v-show='showOptionList && (displayOptionList.length || displayValue)' @click.stop=''>
+    <div class='option-list' :style="{'max-height': optionListHeight + 'px'}" v-show='showOptionList && (displayOptionList.length || displayValue)' @click.stop=''>
       <div class='option-item' v-for='(option, oIdx) in displayOptionList' :key='oIdx' @click='handleSelectItem(option)'>
         <div class='option-name'>
           {{ option.name }}
@@ -46,18 +46,22 @@ export default {
     tagTypeConfig: {
       type: Object,
       default: () => {}
+    },
+    optionListHeight: {
+      type: Number,
+      default: 273
     }
   },
   watch: {
     optionList: {
       handler: function (newVal, oldVal) {
-        this.$logger.info('optionList changed ' + newVal)
+        this.$logger.info('optionList changed ', newVal)
         this.myOptionList = []
         newVal.forEach(option => {
           const optionItem = Object.assign({}, option)
           if (this.tagTypeConfig.hasOwnProperty(optionItem.classType)) {
             optionItem.tagColor = this.tagTypeConfig[optionItem.classType].color
-            optionItem.tagLabel = this.typeTagConfig[optionItem.classType].label
+            optionItem.tagLabel = this.tagTypeConfig[optionItem.classType].label
           } else {
             optionItem.tagColor = null
             optionItem.tagLabel = null
@@ -163,7 +167,6 @@ export default {
   position: absolute;
   top: 43px;
   width: 100%;
-  max-height: 287px;
   overflow-y: scroll;
   box-shadow: 0 0 3px 3px rgba(0, 0, 0, 0.1);
 

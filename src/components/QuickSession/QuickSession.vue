@@ -68,6 +68,31 @@
           </div>
         </div>
       </a-spin>
+      <div class='class-tips'>
+        You can also start an open session without choosing any class.
+      </div>
+      <div class='link-class'>
+        <div class='linked-class-list'>
+          <div class='class-type-tag' v-if='classItem && classItem.classType === 1'>
+            <a-tag color="#F4B183">
+              Classcipe International School
+            </a-tag>
+          </div>
+          <div class='class-type-tag' v-if='classItem && classItem.classType === 2'>
+            <a-tag color="#9DC3E6">
+              Personal
+            </a-tag>
+          </div>
+          <a-form-item label='Choose class'>
+            <input-with-create
+              :option-list='classList'
+              :option-list-height='80'
+              :tag-type-config='tagTypeConfig'
+              @selected='handleSelectClass(classItem)'
+              @create-new='handleCreateNewClass'/>
+          </a-form-item>
+        </div>
+      </div>
       <div class='start-session'>
         <a-button
           v-if="mode === 'quick-session'"
@@ -97,10 +122,12 @@ import { lessonHost, lessonStatus } from '@/const/googleSlide'
 import { StartLesson } from '@/api/lesson'
 import storage from 'store'
 import { ACCESS_TOKEN } from '@/store/mutation-types'
+import InputWithCreate from '@/components/Common/InputWithCreate'
+import { PersonalAddOrUpdateClass, SchoolClassGetMyClasses } from '@/api/schoolClass'
 
 export default {
   name: 'QuickSession',
-  components: { NoMoreResources, ModalHeader },
+  components: { InputWithCreate, NoMoreResources, ModalHeader },
   props: {
     visible: {
       type: Boolean,
@@ -123,7 +150,20 @@ export default {
       promptList: [],
 
       selectedPrompt: null,
-      startLoading: false
+      startLoading: false,
+
+      tagTypeConfig: {
+        1: {
+          color: '#F4B183',
+          label: 'Classcipe International School'
+        },
+        2: {
+          color: '#9DC3E6',
+          label: 'Personal'
+        }
+      },
+      classList: [],
+      classItem: null
     }
   },
   created() {
@@ -139,7 +179,8 @@ export default {
           interactiveList: this.selectedInteractiveList,
           limit: 1000,
           pruposeList: this.selectedPurposeList
-        })
+        }),
+        SchoolClassGetMyClasses()
       ]).then(response => {
         this.$logger.info('quick session dict', response)
 
@@ -153,6 +194,11 @@ export default {
 
         if (response[2].success) {
           this.promptList = response[2].result
+        }
+
+        if (!response[3].code) {
+          this.$logger.info('class list', response[3].result)
+          this.classList = response[3].result
         }
       }).finally(() => {
         this.searching = false
@@ -212,7 +258,8 @@ export default {
       this.startLoading = true
       quickStartSession({
         name: this.selectedPrompt.name,
-        presentationId: this.selectedPrompt.presentationId
+        presentationId: this.selectedPrompt.presentationId,
+        classId: this.classItem ? this.classItem.id : null
       }).then((response) => {
         this.$logger.info('start session response', response)
         if (response.success) {
@@ -272,6 +319,27 @@ export default {
 
     handleCloseModal () {
       this.$emit('close')
+    },
+
+    handleSelectClass (eventData) {
+      this.$logger.info('handleSelectClass', eventData)
+      this.classItem = eventData
+    },
+
+    handleCreateNewClass (data) {
+      this.$logger.info('handleCreateNewClass', data)
+      PersonalAddOrUpdateClass({ name: data.value }).then(response => {
+        SchoolClassGetMyClasses().then(response => {
+          this.$logger.info('SchoolClassGetMyClasses', response)
+          this.classList = response.result
+          // 自动选中刚刚新建的班级
+          const selectedClassItem = this.classList.find(item => item.name === data.value)
+          if (data.index !== -1 && this.form.taskClassList.length > data.index && selectedClassItem) {
+            this.$logger.info('handleCreateNewClass selectedClassItem', selectedClassItem)
+            this.form.taskClassList[data.index].classId = selectedClassItem.id
+          }
+        })
+      })
     }
   }
 }
@@ -416,5 +484,56 @@ export default {
     margin-top: 10px;
     text-align: center;
   }
+}
+
+.linked-class-list {
+  padding: 10px 10px 0 10px;
+  cursor: pointer;
+  border: 1px dashed #15c39a;
+  margin-bottom: 15px;
+  position: relative;
+
+  .mask {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    z-index: 100;
+    background: rgba(0,0,0, 0.07);
+  }
+
+  .remove-class-icon {
+    position: absolute;
+    right: -25px;
+    top: 0;
+    width: 25px;
+    height: 100%;
+    display: none;
+    text-align: center;
+    img {
+      width: 30px;
+    }
+  }
+
+  .class-type-tag {
+    position: absolute;
+    right: 10px;
+    top: 44px;
+    text-align: center;
+    z-index: 150;
+  }
+
+  &:hover {
+    .remove-class-icon {
+      display: block;
+    }
+  }
+}
+
+.class-tips {
+  font-size: 13px;
+  color: #999;
+  line-height: 30px;
 }
 </style>
