@@ -105,14 +105,14 @@ export default {
       selectedRowKeys: [],
       columns: [
         {
-          title: 'Scheduled',
+          title: 'Starting time',
           dataIndex: 'date',
           key: 'dateTime',
           scopedSlots: { customRender: 'dateTime' },
           width: '150px'
         },
         {
-          title: 'Starting time',
+          title: 'Scheduled',
           dataIndex: 'sessionStartTime',
           key: 'sessionStartTime',
           scopedSlots: { customRender: 'startTime' },
@@ -221,8 +221,8 @@ export default {
         // 状态需要提交后台处理
         data.status = status
         // 课程开始时间未设置
-        if (!data.sessionStartTime) {
-          data.sessionStartTime = moment.utc(new Date()).format('YYYY-MM-DD HH:mm:ss')
+        if (!data.date) {
+          data.date = parseInt(moment.utc(new Date()).toDate().getTime() / 1000)
         }
         AddOrUpdateClass(data).then(response => {
           item.startLoading = false
