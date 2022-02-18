@@ -8,7 +8,7 @@
     :closable="false"
     :visible="visible"
     destroyOnClose>
-    <div class='quick-start-session'>
+    <div class='quick-start-session' @click='handleHiddenInputOptionList'>
       <modal-header title='' @close='handleCloseModal'/>
       <div class='quick-start-tips'>
         <div class='tip-item'>You can start a quick session by selecting <span style='font-weight: bold; color: #15C39A;'>one template</span> <br/> without editing it in Google Slides.</div>
@@ -85,6 +85,7 @@
           </div>
           <a-form-item label='Choose class'>
             <input-with-create
+              ref='inputOptionList'
               :option-list='classList'
               :option-list-height='80'
               :tag-type-config='tagTypeConfig'
@@ -340,6 +341,10 @@ export default {
           }
         })
       })
+    },
+
+    handleHiddenInputOptionList () {
+      this.$refs.inputOptionList.handleClick()
     }
   }
 }
