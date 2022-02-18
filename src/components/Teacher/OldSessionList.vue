@@ -42,10 +42,10 @@
             <span v-if="record.responseLimitMode === 2">{{ (record.date + record.responseLimitTime) * 1000 | dayjs1 }}</span>
           </span>
           <span slot="action" class="flex-right" slot-scope="text, record">
-            <a-button type="primary" class="flex-center" @click="handleStartOrJoin(record)" v-if="record.status === classStatus.scheduled">
+            <a-button type="primary" class="flex-center" :loading="record.startLoading" @click="handleStartOrJoin(record)" v-if="record.status === classStatus.scheduled">
               Start
             </a-button>
-            <a-button type="primary" class="flex-center" @click="handleStartOrJoin(record)" v-else>
+            <a-button type="primary" class="flex-center" :loading="record.startLoading" @click="handleStartOrJoin(record)" v-else>
               Join
             </a-button>
           </span>
@@ -99,7 +99,6 @@ export default {
   data () {
     return {
       loading: false,
-      startLoading: false,
       typeMap: typeMap,
       reviewEvaluationVisible: false,
       currentReviewEvaluationSessionItem: null,
@@ -155,11 +154,15 @@ export default {
         }
       ],
       data: [],
-      classStatus: lessonStatus
+      classStatus: lessonStatus,
+      startLoading: false
     }
   },
   created () {
     this.data = this.sessionList
+    this.sessionList.forEach(item => {
+      item.startLoading = false
+    })
     logger.info('sessionList :', this.data)
   },
   computed: {
@@ -211,19 +214,23 @@ export default {
     },
 
     handleStartOrJoin (item) {
+      item.startLoading = true
       const status = this.mode === 1 ? this.classStatus.teacherPaced : this.classStatus.studentPaced
       if (item.status !== status) {
+        const data = Object.assign({}, item)
         // 状态需要提交后台处理
-        item.status = status
+        data.status = status
         // 课程开始时间未设置
-        if (!item.sessionStartTime) {
-          item.sessionStartTime = moment.utc(new Date()).format('YYYY-MM-DD HH:mm:ss')
+        if (!data.sessionStartTime) {
+          data.sessionStartTime = moment.utc(new Date()).format('YYYY-MM-DD HH:mm:ss')
         }
-        AddOrUpdateClass(item).then(response => {
+        AddOrUpdateClass(data).then(response => {
+          item.startLoading = false
           this.goToClassPage(item.classId)
         })
       } else {
         this.goToClassPage(item.classId)
+        item.startLoading = false
       }
     },
 
