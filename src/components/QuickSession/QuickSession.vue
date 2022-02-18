@@ -88,7 +88,7 @@
               :option-list='classList'
               :option-list-height='80'
               :tag-type-config='tagTypeConfig'
-              @selected='handleSelectClass(classItem)'
+              @selected='handleSelectClass'
               @create-new='handleCreateNewClass'/>
           </a-form-item>
         </div>
@@ -408,7 +408,7 @@ export default {
   }
 
   .prompt-list {
-    height: 400px;
+    height: 300px;
     padding: 10px 0 5px 0;
     box-sizing: border-box;
     overflow-y: auto;
