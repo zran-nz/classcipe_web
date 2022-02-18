@@ -6,7 +6,9 @@ export const classRoomAPIUrl = {
   queryCommentsByClassId: '/classcipe/api/classRoom/queryCommentsByClassId',
   queryPresentationCommentsByClassId: '/classcipe/api/classRoom/queryPresentationCommentsByClassId',
   queryResponseByClassId: '/classcipe/api/classRoom/queryResponseByClassId',
-  addOrUpdateClass: '/classcipe/api/classRoom/addOrUpdateClass'
+  addOrUpdateClass: '/classcipe/api/classRoom/addOrUpdateClass',
+  FindNewClasses: '/classcipe/api/classRoom/findNewClasses',
+  StartOpenSession: '/classcipe/api/classRoom/startOpenSession'
 }
 
 /**
@@ -62,5 +64,27 @@ export function QueryResponseByClassId (parameter) {
     url: classRoomAPIUrl.queryResponseByClassId,
     method: 'get',
     params: parameter
+  })
+}
+
+export function FindNewClasses (parameter) {
+  return request({
+    url: classRoomAPIUrl.FindNewClasses,
+    method: 'post',
+    data: parameter,
+    headers: {
+      'Content-Type': 'application/json;charset=UTF-8'
+    }
+  })
+}
+
+export function StartOpenSession (parameter) {
+  return request({
+    url: classRoomAPIUrl.StartOpenSession,
+    method: 'post',
+    data: parameter,
+    headers: {
+      'Content-Type': 'application/json;charset=UTF-8'
+    }
   })
 }

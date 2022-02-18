@@ -52,7 +52,7 @@
 
           <span slot="action" class="flex-right" slot-scope="text, record, index">
             <div class="class-action" v-if="active">
-              <div class="icon-action" v-if="record.status === lessonStatus.teacherPaced">
+              <div class="icon-action" v-if="record.status === classStatus.teacherPaced">
                 <a-tooltip>
                   <template slot="title" >
                     teacher-projecting
@@ -63,7 +63,7 @@
                   </div>
                 </a-tooltip>
               </div>
-              <div class="icon-action" v-if="record.status === lessonStatus.studentPaced || record.status === lessonStatus.live">
+              <div class="icon-action" v-if="record.status === classStatus.studentPaced || record.status === classStatus.live">
                 <a-tooltip>
                   <template slot="title" >
                     Student-paced
@@ -374,9 +374,9 @@ export default {
         },
         {
           title: 'Class',
-          dataIndex: 'realClassName',
+          dataIndex: 'taskClassName',
           width: 200,
-          scopedSlots: { customRender: 'realClassName' }
+          scopedSlots: { customRender: 'taskClassName' }
         },
         {
           title: 'Status',
@@ -410,7 +410,7 @@ export default {
       currentActiveStudentId: null,
       takeAwaySlideId: null,
       takeAwayClassId: null,
-      lessonStatus: lessonStatus
+      classStatus: lessonStatus
     }
   },
   mounted () {
@@ -445,7 +445,7 @@ export default {
       var width = document.documentElement.clientWidth * 0.7
       var strWindowFeatures = 'width=' + width + ',height=' + height + ',menubar=yes,location=yes,resizable=yes,scrollbars=true,status=true,top=100,left=200'
       var windowObjectReference
-      if (item.status === this.lessonStatus.teacherPaced) {
+      if (item.status === this.classStatus.teacherPaced) {
         windowObjectReference = window.open(
           'about:blank',
           '_blank',
@@ -539,12 +539,12 @@ export default {
     },
 
     getStatusFormat (status) {
-      if (status === 'close') {
+      if (status === this.classStatus.close) {
         return 'Ended'
-      } else if (status === 'live' || status === 'student-paced') {
-        return 'Student-paced'
-      } else if (status === 'insturctor-paced') {
-        return 'Teacher-paced'
+      } else if (status === this.classStatus.live || status === this.classStatus.studentPaced) {
+        return this.classStatus.studentPaced
+      } else if (status === this.classStatus.teacherPaced) {
+        return this.classStatus.teacherPaced
       } else {
         return status
       }

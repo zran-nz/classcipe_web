@@ -395,7 +395,7 @@
         :closable="true"
         destroyOnClose
         :dialog-style="{ top: '50px' }"
-        width="750px">
+        width="950px">
         <div>
           <old-session-list :session-list="sessionList" @start-new-session="handleStartSession" @cancel="oldSelectSessionVisible=false" :mode="sessionMode" />
         </div>
@@ -444,7 +444,6 @@ import { ownerMap, statusMap, typeMap } from '@/const/teacher'
 import ContentStatusIcon from '@/components/Teacher/ContentStatusIcon'
 import ContentTypeIcon from '@/components/Teacher/ContentTypeIcon'
 import { lessonHost, lessonStatus } from '@/const/googleSlide'
-import { StartLesson } from '@/api/lesson'
 import TvSvg from '@/assets/icons/lesson/tv.svg?inline'
 import EvaluationSvg from '@/assets/icons/common/evaluation.svg?inline'
 import PreviousSessionsSvg from '@/assets/icons/common/PreviousSessions.svg?inline'
@@ -478,12 +477,12 @@ import NoMoreResources from '@/components/Common/NoMoreResources'
 import ModalHeader from '@/components/Common/ModalHeader'
 import { FindCustomTags } from '@/api/tag'
 import OldSessionList from '@/components/Teacher/OldSessionList'
-import { FindMyClasses } from '@/api/evaluation'
 import { ACCESS_TOKEN } from '@/store/mutation-types'
 import { TemplatesGetPresentation } from '@/api/template'
 import FilterContent from '@/components/UnitPlan/FilterContent'
 import { SubjectTree } from '@/api/subject'
 import { GetGradesByCurriculumId } from '@/api/preference'
+import { StartOpenSession, FindNewClasses } from '@/api/classroom'
 
 export default {
   name: 'CreatedByMe',
@@ -760,25 +759,20 @@ export default {
       this.$logger.info('handleStartSession', item)
       if (item.presentationId) {
         const requestData = {
-          author: this.$store.getters.email,
-          slide_id: item.presentationId,
-          revision_id: this.lastedRevisionId ? this.lastedRevisionId : item.revisionId,
-          file_name: item.name ? item.name : 'Unnamed',
-          status: this.sessionMode === 1 ? lessonStatus.teacherPaced : lessonStatus.studentPaced,
-          redirect_url: null
+          taskId: item.id,
+          mode: this.sessionMode === 1 ? lessonStatus.teacherPaced : lessonStatus.studentPaced
         }
-
         this.$logger.info('handleStartSession', requestData)
-        StartLesson(requestData).then(res => {
-          this.$logger.info('StartLesson res', res)
-          if (res.code === 'ok') {
+        StartOpenSession(requestData).then(res => {
+          this.$logger.info('StartOpenSession res', res)
+          if (res.success) {
             this.startLoading = false
             this.lessonSelectTagVisible = false
-            const targetUrl = lessonHost + 'd/' + res.data.class_id + '?token=' + storage.get(ACCESS_TOKEN)
+            const targetUrl = lessonHost + 'd/' + res.result.classId + '?token=' + storage.get(ACCESS_TOKEN)
             this.$logger.info('try open ' + targetUrl)
             // window.open(targetUrl, '_blank')
             // 课堂那边需要点击返回回到表单，改成location.href跳转
-            const url = lessonHost + 't/' + res.data.class_id + '?token=' + storage.get(ACCESS_TOKEN)
+            const url = lessonHost + 't/' + res.result.classId + '?token=' + storage.get(ACCESS_TOKEN)
             var windowObjectReference
             var height = document.documentElement.clientHeight * 0.7
             var width = document.documentElement.clientWidth * 0.7
@@ -826,22 +820,18 @@ export default {
       }
       logger.info('loadTeacherClasses  slideId:' + item.presentationId)
       this.loading = true
-      this.sessionList = []
-      FindMyClasses({ slideId: item.presentationId, lastVersion: true }).then(response => {
-        logger.info('findMyClasses', response.result.data)
+      // this.sessionList = []
+      FindNewClasses({ slideId: item.presentationId }).then(response => {
+        logger.info('FindNewClasses', response.result.data)
         if (response.success) {
           this.sessionList = response.result.classList
           this.lastedRevisionId = response.result.revisionId
         }
         this.loading = false
       }).finally(() => {
-        if (this.sessionList.length > 0) {
-          this.oldSelectSessionVisible = true
-        } else {
-          this.handleStartSession()
-        }
+        this.oldSelectSessionVisible = true
       })
-      this.sessionTags = []
+      // this.sessionTags = []
     },
 
     handleEvaluateItem (item) {
