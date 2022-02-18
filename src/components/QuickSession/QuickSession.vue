@@ -119,8 +119,7 @@ import { DICT_PROMPT_PURPOSE, DICT_PROMPT_TYPE } from '@/const/common'
 import ModalHeader from '@/components/Common/ModalHeader'
 import { filterNewPromptTemplates, quickStartSession } from '@/api/quickTask'
 import NoMoreResources from '@/components/Common/NoMoreResources'
-import { lessonHost, lessonStatus } from '@/const/googleSlide'
-import { StartLesson } from '@/api/lesson'
+import { lessonHost } from '@/const/googleSlide'
 import storage from 'store'
 import { ACCESS_TOKEN } from '@/store/mutation-types'
 import InputWithCreate from '@/components/Common/InputWithCreate'
@@ -263,47 +262,26 @@ export default {
         classId: this.classItem ? this.classItem.id : null
       }).then((response) => {
         this.$logger.info('start session response', response)
+        this.startLoading = false
         if (response.success) {
-          const item = response.result
-          const requestData = {
-            author: this.$store.getters.email,
-            slide_id: item.presentationId,
-            revision_id: item.revisionId,
-            file_name: item.name ? item.name : 'Unnamed',
-            status: lessonStatus.teacherPaced,
-            redirect_url: null
-          }
+          const targetUrl = lessonHost + 'd/' + response.result.classId + '?token=' + storage.get(ACCESS_TOKEN)
+          this.$logger.info('try open ' + targetUrl)
+          // 课堂那边需要点击返回回到表单，改成location.href跳转
+          const url = lessonHost + 't/' + response.result.classId + '?token=' + storage.get(ACCESS_TOKEN)
+          var windowObjectReference
+          var height = document.documentElement.clientHeight * 0.7
+          var width = document.documentElement.clientWidth * 0.7
+          var strWindowFeatures = 'width=' + width + ',height=' + height + ',menubar=yes,location=yes,resizable=yes,scrollbars=true,status=true,top=100,left=200'
 
-          StartLesson(requestData).then(res => {
-            this.$logger.info('StartLesson res', res)
-            if (res.code === 'ok') {
-              const targetUrl = lessonHost + 'd/' + res.data.class_id + '?token=' + storage.get(ACCESS_TOKEN)
-              this.$logger.info('try open ' + targetUrl)
-              // window.open(targetUrl, '_blank')
-              // 课堂那边需要点击返回回到表单，改成location.href跳转
-              const url = lessonHost + 't/' + res.data.class_id + '?token=' + storage.get(ACCESS_TOKEN)
-              var windowObjectReference
-              var height = document.documentElement.clientHeight * 0.7
-              var width = document.documentElement.clientWidth * 0.7
-              var strWindowFeatures = 'width=' + width + ',height=' + height + ',menubar=yes,location=yes,resizable=yes,scrollbars=true,status=true,top=100,left=200'
-
-              windowObjectReference = window.open(
-                'about:blank',
-                '_blank',
-                strWindowFeatures
-              )
-              windowObjectReference.location = url
-              setTimeout(function () {
-                window.location.href = targetUrl
-              }, 1000)
-            } else {
-              this.$message.warn('StartLesson Failed! ' + res.message)
-            }
-          }).then(() => {
-            this.$emit('close')
-          }).finally(() => {
-            this.startLoading = false
-          })
+          windowObjectReference = window.open(
+            'about:blank',
+            '_blank',
+            strWindowFeatures
+          )
+          windowObjectReference.location = url
+          setTimeout(function () {
+            window.location.href = targetUrl
+          }, 1000)
         } else {
           this.$message.warn(response.message)
         }

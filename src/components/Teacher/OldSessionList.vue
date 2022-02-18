@@ -29,10 +29,10 @@
           :columns="columns"
           :data-source="data"
           :pagination="false"
-          :row-selection="rowSelection"
           :scroll="{ y: 350 }"
           class='my-mini-table'>
-          <span slot="dateTime" slot-scope="text">{{ text * 1000 | dayjs1 }} </span>]
+          <span slot="dateTime" slot-scope="text">{{ text * 1000 | dayjs1 }} </span>
+          <span slot="startTime" slot-scope="text">{{ text | dayjs1 }} </span>
           <span slot="status" slot-scope="status" class="flex-center">
             {{ getStatusFormat(status) }}
           </span>
@@ -75,6 +75,7 @@ import EvaluateIcon from '@/assets/svgIcon/evaluation/Evaluate.svg?inline'
 import storage from 'store'
 import { ACCESS_TOKEN } from '@/store/mutation-types'
 import { AddOrUpdateClass } from '@/api/classroom'
+import moment from 'moment'
 
 export default {
   name: 'OldSessionList',
@@ -105,38 +106,45 @@ export default {
       selectedRowKeys: [],
       columns: [
         {
-          title: 'Scheduled/Starting time',
+          title: 'Scheduled',
           dataIndex: 'date',
           key: 'dateTime',
           scopedSlots: { customRender: 'dateTime' },
-          width: 180
+          width: '150px'
+        },
+        {
+          title: 'Starting time',
+          dataIndex: 'sessionStartTime',
+          key: 'sessionStartTime',
+          scopedSlots: { customRender: 'startTime' },
+          width: '150px'
         },
         {
           title: 'Class',
           dataIndex: 'taskClassName',
-          width: 100
+          width: '150px'
         },
-        {
-          title: 'Session name',
-          width: 150,
-          dataIndex: 'className'
-        },
+        // {
+        //   title: 'Session name',
+        //   width: 150,
+        //   dataIndex: 'className'
+        // },
         {
           title: 'Status',
           dataIndex: 'status',
-          width: 100,
+          width: '100px',
           scopedSlots: { customRender: 'status' }
         },
         {
           title: 'Code',
           dataIndex: 'classId',
-          width: 80
+          width: '80px'
         },
         {
           title: 'Expire date',
           key: 'expireDay',
           dataIndex: 'expireDay',
-          width: 120,
+          width: '150px',
           scopedSlots: { customRender: 'expireDay' }
         },
         {
@@ -207,6 +215,10 @@ export default {
       if (item.status !== status) {
         // 状态需要提交后台处理
         item.status = status
+        // 课程开始时间未设置
+        if (!item.sessionStartTime) {
+          item.sessionStartTime = moment.utc(new Date()).format('YYYY-MM-DD HH:mm:ss')
+        }
         AddOrUpdateClass(item).then(response => {
           this.goToClassPage(item.classId)
         })
@@ -342,6 +354,9 @@ export default {
   }
 
   .class-list-wrapper {
+    /deep/ .ant-table-row-cell-break-word{
+      text-align: center;
+    }
   }
 }
 }
