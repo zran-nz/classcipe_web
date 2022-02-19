@@ -1,6 +1,6 @@
 <template>
   <div class='my-input-with-create' @click.stop=''>
-    <a-input class='my-input-with-create' v-model='displayValue' @focus='showOptionList = true'>
+    <a-input class='my-input-with-create' v-model='displayValue' @focus='showOptionList = true' @click.native='showFilterOption = false' @input.native='showFilterOption = true'>
     </a-input>
     <div class='option-list' :style="{'max-height': optionListHeight + 'px'}" v-show='showOptionList && (displayOptionList.length || displayValue)' @click.stop=''>
       <div class='option-item' v-for='(option, oIdx) in displayOptionList' :key='oIdx' @click='handleSelectItem(option)'>
@@ -57,6 +57,7 @@ export default {
       handler: function (newVal, oldVal) {
         this.$logger.info('optionList changed ', newVal)
         this.myOptionList = []
+
         newVal.forEach(option => {
           const optionItem = Object.assign({}, option)
           if (this.tagTypeConfig.hasOwnProperty(optionItem.classType)) {
@@ -87,12 +88,13 @@ export default {
       displayValue: '',
       myOptionList: [],
       showOptionList: false,
-      creating: false
+      creating: false,
+      showFilterOption: false
     }
   },
   computed: {
     displayOptionList () {
-       if (this.displayValue) {
+       if (this.displayValue && this.showFilterOption) {
          return this.myOptionList.filter(option => option.name.indexOf(this.displayValue.trim()) !== -1)
        } else {
          return this.myOptionList
@@ -145,7 +147,7 @@ export default {
 
     handleClick () {
       this.showOptionList = false
-      if (!this.defaultSelectedId) {
+      if (!this.defaultSelectedId && !this.selectedId) {
         this.displayValue = ''
       }
     }
