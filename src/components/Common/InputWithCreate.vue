@@ -57,7 +57,7 @@ export default {
           const optionItem = Object.assign({}, option)
           if (this.tagTypeConfig.hasOwnProperty(optionItem.classType)) {
             optionItem.tagColor = this.tagTypeConfig[optionItem.classType].color
-            optionItem.tagLabel = this.typeTagConfig[optionItem.classType].label
+            optionItem.tagLabel = this.tagTypeConfig[optionItem.classType].label
           } else {
             optionItem.tagColor = null
             optionItem.tagLabel = null
