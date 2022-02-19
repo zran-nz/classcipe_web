@@ -828,7 +828,7 @@ export default {
           }
         }
       }).finally(() => {
-        this.startUpdateTeacherEvaluationStatusTimer = setTimeout(this.startUpdateTeacherEvaluationStatus, 1000)
+        this.startUpdateTeacherEvaluationStatusTimer = setTimeout(this.startUpdateTeacherEvaluationStatus, 5000)
       })
     },
 
