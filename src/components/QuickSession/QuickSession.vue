@@ -292,7 +292,8 @@ export default {
       this.$emit('select', {
         presentationId: this.selectedPrompt.presentationId,
         selectPageObjectIds: this.selectedPrompt.pageObjectIds,
-        selectedPrompt: this.selectedPrompt
+        selectedPrompt: this.selectedPrompt,
+        classItem: this.classItem
       })
     },
 

@@ -2102,7 +2102,9 @@ export default {
       customizeLearnOut: [],
 
       quickTaskPreviewTemplateVisible: false,
-      quickTaskPreviewTemplate: null
+      quickTaskPreviewTemplate: null,
+
+      quickSessionTaskClassId: null // quick-session中选择的classId
     }
   },
   computed: {
@@ -2553,8 +2555,18 @@ export default {
           this.form.image = response.result.image
           this.$message.success('Choose another successfully')
           this.chooseAnotherVisible = false
+          if (data.classItem) {
+            this.form.taskClassList.push({
+              classId: data.classItem.classId,
+              className: data.classItem.className,
+              classType: data.classItem.classType,
+              startDate: null,
+              endDate: null
+            })
+          }
           this.loadThumbnail()
           this.loadRecommendThumbnail()
+          this.updateQuickSessionTaskClassId()
         } else {
           this.$message.warn(response.message)
         }
@@ -4175,6 +4187,10 @@ export default {
           }
         })
       }
+    },
+
+    updateQuickSessionTaskClassId () {
+
     }
   }
 }
