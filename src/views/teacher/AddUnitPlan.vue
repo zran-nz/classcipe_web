@@ -358,7 +358,11 @@
                           </a-form-item>
 
                           <!--knowledge tag-select -->
-                          <ui-learn-out :learn-outs='form.learnOuts' @remove-learn-outs='handleRemoveLearnOuts' />
+                          <ui-learn-out
+                            ref='learnOut'
+                            :learn-outs='form.learnOuts'
+                            :self-outs='form.selfOuts'
+                            @remove-learn-outs='handleRemoveLearnOuts' />
                         </div>
 
                         <div class='form-block' style='clear:both'>
@@ -994,6 +998,7 @@ export default {
         status: 0,
         subjects: '',
         learnOuts: [],
+        selfOuts: [],
         questions: [
           {
             id: '',
@@ -1528,6 +1533,7 @@ export default {
       if (this.unitPlanId) {
         unitPlanData.id = this.unitPlanId
       }
+      unitPlanData.selfOuts = this.$refs.learnOut.getSelfOuts()
       logger.info('basic unitPlanData', unitPlanData)
       UnitPlanAddOrUpdate(unitPlanData).then((response) => {
         logger.info('UnitPlanAddOrUpdate', response.result)
@@ -1750,6 +1756,20 @@ export default {
     handleAddAudioOverview() {
       this.$logger.info('handleAddAudioOverview')
       this.showAddAudioVisible = true
+    },
+    handleUpdateSelfOuts (data) {
+      this.$logger.info('handleUpdateSelfOuts', data)
+      const tagType = data.tagType
+      const dataList = data.list
+      let selfOuts = this.form.selfOuts
+      selfOuts = selfOuts.filter(item => item.tagType !== tagType)
+      dataList.forEach(item => {
+        if (item.name && item.name.trim() !== '') {
+          selfOuts.push(item)
+        }
+      })
+      this.form.selfOutss = selfOuts
+      this.$logger.info('selfOuts', selfOuts)
     },
     handleSelectDescription() {
       this.showMenuList = [NavigationType.specificSkills,
