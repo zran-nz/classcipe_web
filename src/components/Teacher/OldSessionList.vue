@@ -29,10 +29,10 @@
           :columns="columns"
           :data-source="data"
           :pagination="false"
-          :row-selection="rowSelection"
           :scroll="{ y: 350 }"
           class='my-mini-table'>
-          <span slot="dateTime" slot-scope="text">{{ text * 1000 | dayjs1 }} </span>]
+          <span slot="dateTime" slot-scope="text">{{ text * 1000 | dayjs1 }} </span>
+          <span slot="startTime" slot-scope="text">{{ text | dayjs1 }} </span>
           <span slot="status" slot-scope="status" class="flex-center">
             {{ getStatusFormat(status) }}
           </span>
@@ -42,10 +42,10 @@
             <span v-if="record.responseLimitMode === 2">{{ (record.date + record.responseLimitTime) * 1000 | dayjs1 }}</span>
           </span>
           <span slot="action" class="flex-right" slot-scope="text, record">
-            <a-button type="primary" class="flex-center" @click="handleStartOrJoin(record)" v-if="record.status === classStatus.scheduled">
+            <a-button type="primary" class="flex-center" :loading="record.startLoading" @click="handleStartOrJoin(record)" v-if="record.status === classStatus.scheduled">
               Start
             </a-button>
-            <a-button type="primary" class="flex-center" @click="handleStartOrJoin(record)" v-else>
+            <a-button type="primary" class="flex-center" :loading="record.startLoading" @click="handleStartOrJoin(record)" v-else>
               Join
             </a-button>
           </span>
@@ -75,6 +75,7 @@ import EvaluateIcon from '@/assets/svgIcon/evaluation/Evaluate.svg?inline'
 import storage from 'store'
 import { ACCESS_TOKEN } from '@/store/mutation-types'
 import { AddOrUpdateClass } from '@/api/classroom'
+import moment from 'moment'
 
 export default {
   name: 'OldSessionList',
@@ -98,45 +99,51 @@ export default {
   data () {
     return {
       loading: false,
-      startLoading: false,
       typeMap: typeMap,
       reviewEvaluationVisible: false,
       currentReviewEvaluationSessionItem: null,
       selectedRowKeys: [],
       columns: [
         {
-          title: 'Scheduled/Starting time',
+          title: 'Starting time',
           dataIndex: 'date',
           key: 'dateTime',
           scopedSlots: { customRender: 'dateTime' },
-          width: 180
+          width: '150px'
+        },
+        {
+          title: 'Scheduled',
+          dataIndex: 'sessionStartTime',
+          key: 'sessionStartTime',
+          scopedSlots: { customRender: 'startTime' },
+          width: '150px'
         },
         {
           title: 'Class',
           dataIndex: 'taskClassName',
-          width: 100
+          width: '150px'
         },
-        {
-          title: 'Session name',
-          width: 150,
-          dataIndex: 'className'
-        },
+        // {
+        //   title: 'Session name',
+        //   width: 150,
+        //   dataIndex: 'className'
+        // },
         {
           title: 'Status',
           dataIndex: 'status',
-          width: 100,
+          width: '100px',
           scopedSlots: { customRender: 'status' }
         },
         {
           title: 'Code',
           dataIndex: 'classId',
-          width: 80
+          width: '80px'
         },
         {
           title: 'Expire date',
           key: 'expireDay',
           dataIndex: 'expireDay',
-          width: 120,
+          width: '150px',
           scopedSlots: { customRender: 'expireDay' }
         },
         {
@@ -147,11 +154,15 @@ export default {
         }
       ],
       data: [],
-      classStatus: lessonStatus
+      classStatus: lessonStatus,
+      startLoading: false
     }
   },
   created () {
     this.data = this.sessionList
+    this.sessionList.forEach(item => {
+      item.startLoading = false
+    })
     logger.info('sessionList :', this.data)
   },
   computed: {
@@ -203,15 +214,23 @@ export default {
     },
 
     handleStartOrJoin (item) {
+      item.startLoading = true
       const status = this.mode === 1 ? this.classStatus.teacherPaced : this.classStatus.studentPaced
       if (item.status !== status) {
+        const data = Object.assign({}, item)
         // 状态需要提交后台处理
-        item.status = status
-        AddOrUpdateClass(item).then(response => {
+        data.status = status
+        // 课程开始时间未设置
+        if (!data.date) {
+          data.date = parseInt(moment.utc(new Date()).toDate().getTime() / 1000)
+        }
+        AddOrUpdateClass(data).then(response => {
+          item.startLoading = false
           this.goToClassPage(item.classId)
         })
       } else {
         this.goToClassPage(item.classId)
+        item.startLoading = false
       }
     },
 
@@ -342,6 +361,9 @@ export default {
   }
 
   .class-list-wrapper {
+    /deep/ .ant-table-row-cell-break-word{
+      text-align: center;
+    }
   }
 }
 }
