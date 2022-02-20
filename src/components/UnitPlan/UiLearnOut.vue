@@ -282,7 +282,7 @@
     methods: {
 
       initSelfOuts () {
-        this.$logger.info('!!!!!!!!!!!!!!!!!!!!!!!!!!!initSelfOuts', this.selfOuts)
+        this.$logger.info('initSelfOuts', this.selfOuts)
         const skillInputList = this.selfOuts.filter(item => item.tagType === TagType.skill)
         const knowledgeInputList = this.selfOuts.filter(item => item.tagType === TagType.knowledge)
         const centuryInputList = this.selfOuts.filter(item => item.tagType === TagType.century)
