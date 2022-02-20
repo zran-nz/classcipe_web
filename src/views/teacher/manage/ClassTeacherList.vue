@@ -9,7 +9,7 @@
               class="global-search"
               size="large"
               style="width: 100%"
-              placeholder="search here"
+              placeholder="Search and add by name/email"
               option-label-prop="title"
               @focus="handleSearch"
               @select="onSelect"

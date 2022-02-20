@@ -358,7 +358,11 @@
                           </a-form-item>
 
                           <!--knowledge tag-select -->
-                          <ui-learn-out :learn-outs='form.learnOuts' @remove-learn-outs='handleRemoveLearnOuts' />
+                          <ui-learn-out
+                            ref='learnOut'
+                            :learn-outs='form.learnOuts'
+                            :self-outs='form.selfOuts'
+                            @remove-learn-outs='handleRemoveLearnOuts' />
                         </div>
 
                         <div class='form-block' style='clear:both'>
@@ -463,7 +467,7 @@
                   :style="{'width':rightWidth + 'px', 'margin-top':collaborateTop+'px', 'z-index': 100, 'padding': '10px'}"
                   class='collaborate-panel'>
                   <collaborate-comment-panel
-                    :comment-list='currentCollaborateCommentList'
+                    :comment-list='collaborateCommentList'
                     :field-name='currentFieldName'
                     :source-id='unitPlanId'
                     :source-type="contentType['unit-plan']"
@@ -907,7 +911,6 @@ import UiLearnOut from '@/components/UnitPlan/UiLearnOut'
 import PlanLink from '@/components/Common/PlanLink'
 import NewMyContent from '@/components/MyContent/NewMyContent'
 import { FindCustomTags, GetTreeByKey } from '@/api/tag'
-import { GetCollaborateComment, GetCollaborateModifiedHistory } from '@/api/collaborate'
 import { NavigationType } from '@/components/NewLibrary/NavigationType'
 import CollaborateCommentPanel from '@/components/Collaborate/CollaborateCommentPanel'
 import CommentSwitch from '@/components/Collaborate/CommentSwitch'
@@ -995,6 +998,7 @@ export default {
         status: 0,
         subjects: '',
         learnOuts: [],
+        selfOuts: [],
         questions: [
           {
             id: '',
@@ -1087,12 +1091,7 @@ export default {
       defaultActiveMenu: NavigationType.learningOutcomes,
       showMenuList: [NavigationType.specificSkills, NavigationType.centurySkills, NavigationType.learningOutcomes, NavigationType.assessmentType, NavigationType.idu],
 
-      // TODO mock数据待更新为接口请求（loadCollaborateData方法中的GetCollaborateComment)
-      collaborateCommentList: [],
-      currentCollaborateCommentList: [],
       collaborateTop: 0,
-      // TODO mock数据待更新为接口请求（loadCollaborateData方法中的GetCollaborateModifiedHistory)
-      historyList: [],
       questionSettingVisible: false,
       disableQuestion: false,
       confirmLoading: false,
@@ -1318,27 +1317,6 @@ export default {
       })
     },
 
-    // 加载协作的评论和历史记录数据
-    loadCollaborateData() {
-      return Promise.all([
-        GetCollaborateModifiedHistory({ sourceType: this.contentType['unit-plan'], sourceId: this.form.id }),
-        GetCollaborateComment({ sourceType: this.contentType['unit-plan'], sourceId: this.form.id })
-      ]).then(response => {
-        // TODO 将历史记录数据‘格式’后填充到historyList数组中，大部分数据可以直接赋值，复杂字段要处理一下,这样handleRestoreField()方法就可以直接赋值了。
-        this.historyList = []
-        this.$logger.info('GetCollaborateModifiedHistory', response[0])
-        if (!response[0].code) {
-          this.historyList = response[0].result
-        }
-        // TODO 将写作点评数据‘格式’后填充到collaborateCommentList数组中
-        this.collaborateCommentList = []
-        this.$logger.info('GetCollaborateComment', response[1])
-        if (!response[1].code) {
-          this.collaborateCommentList = response[1].result
-        }
-      })
-    },
-
     handleSyncData() {
       this.$logger.info(' handleSyncData')
       GetReferOutcomes({
@@ -1396,7 +1374,7 @@ export default {
         }
       }).finally(() => {
         this.contentLoading = false
-        this.loadCollaborateData()
+        this.loadCollaborateData(this.form.type, this.form.id)
         // copy副本 为了判断数据变更
         this.oldForm = JSON.parse(JSON.stringify(this.form))
         this.initCompleted = true
@@ -1555,6 +1533,7 @@ export default {
       if (this.unitPlanId) {
         unitPlanData.id = this.unitPlanId
       }
+      unitPlanData.selfOuts = this.$refs.learnOut.getSelfOuts()
       logger.info('basic unitPlanData', unitPlanData)
       UnitPlanAddOrUpdate(unitPlanData).then((response) => {
         logger.info('UnitPlanAddOrUpdate', response.result)
@@ -1777,6 +1756,20 @@ export default {
     handleAddAudioOverview() {
       this.$logger.info('handleAddAudioOverview')
       this.showAddAudioVisible = true
+    },
+    handleUpdateSelfOuts (data) {
+      this.$logger.info('handleUpdateSelfOuts', data)
+      const tagType = data.tagType
+      const dataList = data.list
+      let selfOuts = this.form.selfOuts
+      selfOuts = selfOuts.filter(item => item.tagType !== tagType)
+      dataList.forEach(item => {
+        if (item.name && item.name.trim() !== '') {
+          selfOuts.push(item)
+        }
+      })
+      this.form.selfOutss = selfOuts
+      this.$logger.info('selfOuts', selfOuts)
     },
     handleSelectDescription() {
       this.showMenuList = [NavigationType.specificSkills,
@@ -2389,17 +2382,14 @@ export default {
       }
       this.setRightModuleVisible(this.rightModule.collaborateComment)
       this.currentFieldName = data.fieldName
-      this.currentCollaborateCommentList = []
       const list = []
       this.collaborateCommentList.forEach(item => {
-        if (item.fieldName === data.fieldName) {
-          list.push(item)
-        }
+        list.push(item)
       })
-      this.currentCollaborateCommentList = list
+      this.collaborateCommentList = list
       this.collaborateTop = data.top
       // this.showCollaborateCommentVisible = true
-      this.$logger.info('currentCollaborateCommentList', list)
+      // this.$logger.info('currentCollaborateCommentList', this.currentCollaborateCommentList)
     },
 
     // 每次点击都重新加载一下最新数据
@@ -2412,31 +2402,15 @@ export default {
       }
       // this.showAllCollaborateCommentVisible = !this.showAllCollaborateCommentVisible
       // this.showCollaborateCommentVisible = false
-      this.currentCollaborateCommentList = []
+      // this.currentCollaborateCommentList = []
       this.showHistoryLoading = true
-      this.loadCollaborateData().then(() => {
-        this.$logger.info('loadCollaborateData loaded')
-      }).finally(() => {
-        this.showHistoryLoading = false
-      })
+      this.loadCollaborateData(this.form.type, this.form.id)
     },
 
     // TODO 发布评论后需要更新最新的评论列表,刷新数据
     handleUpdateCommentList() {
       this.$logger.info('handleUpdateCommentList')
-      this.currentCollaborateCommentList = []
-      this.loadCollaborateData().then(() => {
-        this.$logger.info('loadCollaborateData loaded')
-      }).finally(() => {
-        const list = []
-        this.collaborateCommentList.forEach(item => {
-          if (item.fieldName === this.currentFieldName) {
-            list.push(item)
-          }
-        })
-        this.currentCollaborateCommentList = list
-        this.$logger.info('currentCollaborateCommentList', list)
-      })
+      this.GetCollaborateComment(this.form.type, this.form.id)
     },
 
     // historyData以及在接口请求的相应逻辑中正对数据进行‘格式’，

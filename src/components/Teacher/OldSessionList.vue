@@ -9,12 +9,12 @@
         <div class="title" v-if="mode === 2">Student presenting mode</div>
       </div>
       <div class="description">
-        you can start a new session or check the previous sessions
+        <!--        you can start a new session or check the previous sessions-->
       </div>
       <div class="header-action-item">
         <a-button class="button" :loading="startLoading" @click="handleStartSession" type="primary" >
           <div class="btn-text">
-            Start a new session
+            Start an open session
           </div>
         </a-button>
       </div>
@@ -29,14 +29,25 @@
           :columns="columns"
           :data-source="data"
           :pagination="false"
-          :row-selection="rowSelection"
-          :scroll="{ y: 240 }"
+          :scroll="{ y: 350 }"
           class='my-mini-table'>
           <span slot="dateTime" slot-scope="text">{{ text * 1000 | dayjs1 }} </span>
+          <span slot="startTime" slot-scope="text">{{ text | dayjs1 }} </span>
+          <span slot="status" slot-scope="status" class="flex-center">
+            {{ getStatusFormat(status) }}
+          </span>
           <span slot="expireDay" slot-scope="text, record">
             <span v-if="record.responseLimitMode === 0">No expire time</span>
             <span v-if="record.responseLimitMode === 1">{{ record.responseLimitTime * 1000 | dayjs1 }}</span>
             <span v-if="record.responseLimitMode === 2">{{ (record.date + record.responseLimitTime) * 1000 | dayjs1 }}</span>
+          </span>
+          <span slot="action" class="flex-right" slot-scope="text, record">
+            <a-button type="primary" class="flex-center" :loading="record.startLoading" @click="handleStartOrJoin(record)" v-if="record.status === classStatus.scheduled">
+              Start
+            </a-button>
+            <a-button type="primary" class="flex-center" :loading="record.startLoading" @click="handleStartOrJoin(record)" v-else>
+              Join
+            </a-button>
           </span>
         </a-table>
         <div class="loading" v-if="loading">
@@ -46,10 +57,10 @@
 
     </div>
 
-    <div class="modal-ensure-action-line">
-      <a-button class="action-item action-cancel" shape="round" @click="handleCancelSelectData">Cancel</a-button>
-      <a-button class="action-ensure action-item" type="primary" shape="round" @click="handleEnsureSelectData">Resume</a-button>
-    </div>
+    <!--    <div class="modal-ensure-action-line">-->
+    <!--      <a-button class="action-item action-cancel" shape="round" @click="handleCancelSelectData">Cancel</a-button>-->
+    <!--      <a-button class="action-ensure action-item" type="primary" shape="round" @click="handleEnsureSelectData">Resume</a-button>-->
+    <!--    </div>-->
   </div>
 </template>
 
@@ -58,11 +69,13 @@ import TvSvg from '@/assets/icons/lesson/tv.svg?inline'
 import * as logger from '@/utils/logger'
 import { typeMap } from '@/const/teacher'
 
-import { lessonHost } from '@/const/googleSlide'
+import { lessonHost, lessonStatus } from '@/const/googleSlide'
 import ArchiveSessionIcon from '@/assets/svgIcon/evaluation/ArchiveSession.svg?inline'
 import EvaluateIcon from '@/assets/svgIcon/evaluation/Evaluate.svg?inline'
 import storage from 'store'
 import { ACCESS_TOKEN } from '@/store/mutation-types'
+import { AddOrUpdateClass } from '@/api/classroom'
+import moment from 'moment'
 
 export default {
   name: 'OldSessionList',
@@ -86,41 +99,70 @@ export default {
   data () {
     return {
       loading: false,
-      startLoading: false,
       typeMap: typeMap,
       reviewEvaluationVisible: false,
       currentReviewEvaluationSessionItem: null,
       selectedRowKeys: [],
       columns: [
         {
-          title: 'Date',
+          title: 'Starting time',
           dataIndex: 'date',
           key: 'dateTime',
           scopedSlots: { customRender: 'dateTime' },
-          width: 180
+          width: '150px'
+        },
+        {
+          title: 'Scheduled',
+          dataIndex: 'sessionStartTime',
+          key: 'sessionStartTime',
+          scopedSlots: { customRender: 'startTime' },
+          width: '150px'
         },
         {
           title: 'Class',
-          dataIndex: 'realClassName'
+          dataIndex: 'taskClassName',
+          width: '150px'
+        },
+        // {
+        //   title: 'Session name',
+        //   width: 150,
+        //   dataIndex: 'className'
+        // },
+        {
+          title: 'Status',
+          dataIndex: 'status',
+          width: '100px',
+          scopedSlots: { customRender: 'status' }
         },
         {
           title: 'Code',
           dataIndex: 'classId',
-          width: 80
+          width: '80px'
         },
         {
-          title: 'Expire day',
+          title: 'Expire date',
           key: 'expireDay',
-          dataIndex: 'date',
-          width: 180,
+          dataIndex: 'expireDay',
+          width: '150px',
           scopedSlots: { customRender: 'expireDay' }
+        },
+        {
+          title: '',
+          dataIndex: 'action',
+          width: 100,
+          scopedSlots: { customRender: 'action' }
         }
       ],
-      data: []
+      data: [],
+      classStatus: lessonStatus,
+      startLoading: false
     }
   },
   created () {
     this.data = this.sessionList
+    this.sessionList.forEach(item => {
+      item.startLoading = false
+    })
     logger.info('sessionList :', this.data)
   },
   computed: {
@@ -143,14 +185,15 @@ export default {
         this.$message.warn('Please select a record')
         return
       }
-      console.log(this.sessionList)
       const id = this.selectedRowKeys[0]
       const index = this.sessionList.findIndex(session => session.id === id)
-      const targetUrl = lessonHost + 'd/' + this.sessionList[index].classId + '?token=' + storage.get(ACCESS_TOKEN)
-      this.$logger.info('try open ' + targetUrl)
-      // window.open(targetUrl, '_blank')
-      // 课堂那边需要点击返回回到表单，改成location.href跳转
-      const url = lessonHost + 't/' + this.sessionList[index].classId + '?token=' + storage.get(ACCESS_TOKEN)
+      const classId = this.sessionList[index].classId
+      this.goToClassPage(classId)
+    },
+
+    goToClassPage(classId) {
+      const dashUrl = lessonHost + 'd/' + classId + '?token=' + storage.get(ACCESS_TOKEN)
+      const url = lessonHost + 't/' + classId + '?token=' + storage.get(ACCESS_TOKEN)
       var height = document.documentElement.clientHeight * 0.7
       var width = document.documentElement.clientWidth * 0.7
       var strWindowFeatures = 'width=' + width + ',height=' + height + ',menubar=yes,location=yes,resizable=yes,scrollbars=true,status=true,top=100,left=200'
@@ -163,12 +206,34 @@ export default {
         )
         windowObjectReference.location = url
         setTimeout(function () {
-          window.location.href = targetUrl
+          window.location.href = dashUrl
         }, 1000)
       } else {
-        window.location.href = targetUrl
+        window.location.href = dashUrl
       }
     },
+
+    handleStartOrJoin (item) {
+      item.startLoading = true
+      const status = this.mode === 1 ? this.classStatus.teacherPaced : this.classStatus.studentPaced
+      if (item.status !== status) {
+        const data = Object.assign({}, item)
+        // 状态需要提交后台处理
+        data.status = status
+        // 课程开始时间未设置
+        if (!data.date) {
+          data.date = parseInt(moment.utc(new Date()).toDate().getTime() / 1000)
+        }
+        AddOrUpdateClass(data).then(response => {
+          item.startLoading = false
+          this.goToClassPage(item.classId)
+        })
+      } else {
+        this.goToClassPage(item.classId)
+        item.startLoading = false
+      }
+    },
+
     handleCancelSelectData () {
       this.$emit('cancel')
     },
@@ -185,6 +250,17 @@ export default {
     handleDashboard (item) {
       this.$logger.info('handleDashboard', item)
       window.open(lessonHost + 'd/' + item.classId, '_blank')
+    },
+    getStatusFormat (status) {
+      if (status === this.classStatus.close) {
+        return 'Ended'
+      } else if (status === this.classStatus.live || status === this.classStatus.studentPaced) {
+        return this.classStatus.studentPaced
+      } else if (status === this.classStatus.teacherPaced) {
+        return this.classStatus.teacherPaced
+      } else {
+        return status
+      }
     }
   }
 }
@@ -262,9 +338,9 @@ export default {
   opacity: 1;
   //border: 1px solid #D8D8D8;
   border-radius: 6px;
-  max-height: 300px;
+  max-height: 400px;
   margin-top: 10px;
-  margin-bottom: 15px;
+  margin-bottom: 40px;
   overflow-y: auto;
   background: rgba(255, 255, 255, 1);
 
@@ -285,6 +361,9 @@ export default {
   }
 
   .class-list-wrapper {
+    /deep/ .ant-table-row-cell-break-word{
+      text-align: center;
+    }
   }
 }
 }

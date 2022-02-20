@@ -169,7 +169,7 @@
           <div class="form-table-content" :data-mode="mode">
             <div
               class="table-content"
-              v-show="(currentActiveStudentId || mode === EvaluationTableMode.Edit) && !loading">
+              v-if="currentActiveStudentId && !loading">
               <div class="form-table-item" v-for="(formItem,tIdx) in forms" :key="tIdx">
                 <div class="form-table-item-content" v-show="formItem.formId === currentActiveFormId">
                   <div class="form-header-line">
@@ -277,7 +277,7 @@
             :student-name="selectedMemberIdList.length ? selectedMemberIdList[0] : null"
             :mode="mode"
             @ensure-evidence-finish="handleEnsureEvidenceFinish"
-            @add-evidence-finish="handleAddEvidenceFinish" />
+            @cancel-evidence-finish="handleCancelEvidenceFinish"/>
           <template v-if="!classInfo || !classInfo.slideId">
             <no-more-resources tips="no slide" />
           </template>
@@ -687,10 +687,44 @@ export default {
         this.isEmptyStudentEvaluateData = isEmptyStudentEvaluateData
         this.$logger.info('isEmptyStudentEvaluateData ' + isEmptyStudentEvaluateData, data.evaluation)
         if (!isEmptyStudentEvaluateData) {
-          this.studentEvaluateData = JSON.parse(data.evaluation.studentEvaluateData)
+          const studentEvaluateData = JSON.parse(data.evaluation.studentEvaluateData)
+          this.$logger.info('exist studentEvaluateData', studentEvaluateData)
+          // 处理新增的学生
+          allStudentUserIdList.forEach(studentId => {
+            if (!studentEvaluateData.hasOwnProperty(studentId)) {
+              this.$logger.info('new student', studentId)
+              studentEvaluateData[studentId] = {}
+              this.forms.forEach(formItem => {
+                studentEvaluateData[studentId][formItem.formId] = {
+                  comment: null
+                }
+                formItem.initRawData.forEach(rowItem => {
+                  studentEvaluateData[studentId][formItem.formId][rowItem.rowId] = {
+                    teacherEvaluation: null, // 老师评价
+                    teacherName: null, // 老师评价
+                    teacherEmail: null, // 老师评价
+
+                    peerEvaluation: null, // 他人评价
+                    peerName: null, // 他人评价
+                    peerEmail: null, // 他人评价
+
+                    studentEvaluation: null, // 学生自评
+                    studentName: null, // 学生自评
+                    studentEmail: null, // 学生自评
+
+                    data: null, // subLevel数据
+
+                    evidenceIdList: [], // ppt证据pageId列表
+                    evidenceIdStudentList: [] // ppt证据pageId列表-学生选择
+                  }
+                })
+              })
+            }
+          })
+          this.studentEvaluateData = studentEvaluateData
           this.oldStudentEvaluationJson = data.evaluation.studentEvaluateData
           if (allStudentUserIdList.length && this.mode !== EvaluationTableMode.Edit && this.mode !== EvaluationTableMode.Preview) {
-            this.currentActiveStudentId = allStudentUserIdList[0]
+            this.currentActiveStudentId = this.$store.getters.email
             this.selectedMemberIdList.push(this.currentActiveStudentId)
           }
           this.$logger.info('restore studentEvaluateData', this.studentEvaluateData)
@@ -753,8 +787,6 @@ export default {
         if (this.isInitForm) {
           // 如果是初始化，且有关联的表格数据，先自动保存一下。
           this.initSaveEvaluation()
-        } else {
-          this.loading = false
         }
 
         if (this.mode === EvaluationTableMode.StudentEvaluate) {
@@ -796,7 +828,7 @@ export default {
           }
         }
       }).finally(() => {
-        this.startUpdateTeacherEvaluationStatusTimer = setTimeout(this.startUpdateTeacherEvaluationStatus, 1000)
+        this.startUpdateTeacherEvaluationStatusTimer = setTimeout(this.startUpdateTeacherEvaluationStatus, 5000)
       })
     },
 
@@ -1004,7 +1036,7 @@ export default {
 
     goEvaluatePage () {
       this.$logger.info('goEvaluatePage')
-      window.location.pathname = defaultStudentRouter
+      // window.location.pathname = defaultStudentRouter
     },
     handleSaveAndBackEvaluation () {
       this.$logger.info('handleSaveAndBackEvaluation', this.forms)
@@ -1223,8 +1255,7 @@ export default {
       }
     },
 
-    handleAddEvidenceFinish (data) {
-      this.$logger.info('handleAddEvidenceFinish', data)
+    handleCancelEvidenceFinish () {
       this.evidenceSelectVisible = false
     },
 

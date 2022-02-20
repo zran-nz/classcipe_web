@@ -153,7 +153,7 @@ export default {
         id: '1',
         expandStatus: false,
         type: NavigationType.all21Century,
-        name: 'all21Century',
+        name: NavigationType.all21Century,
         children: [],
         defaultGradeId: this.defaultGradeId,
         parent: null,

@@ -8,11 +8,10 @@
     :closable="false"
     :visible="visible"
     destroyOnClose>
-    <div class='quick-start-session'>
-      <modal-header title='Quick start a course' @close='handleCloseModal'/>
+    <div class='quick-start-session' @click='handleHiddenInputOptionList'>
+      <modal-header title='' @close='handleCloseModal'/>
       <div class='quick-start-tips'>
-        <div class='tip-item'>Quickly select a lesson template and start the class immediately!</div>
-        <div class='tip-item'>We know that some classes only need 1 Text topic, or 1 video to start the educational journey, thus we offer you a quick start!</div>
+        <div class='tip-item'>You can start a quick session by selecting <span style='font-weight: bold; color: #15C39A;'>one template</span> <br/> without editing it in Google Slides.</div>
       </div>
       <div class='quick-filter-line'>
         <div class='interactive-type'>
@@ -69,6 +68,32 @@
           </div>
         </div>
       </a-spin>
+      <div class='class-tips'>
+        You can also start an open session without choosing any class.
+      </div>
+      <div class='link-class'>
+        <div class='linked-class-list'>
+          <div class='class-type-tag' v-if='classItem && classItem.classType === 1'>
+            <a-tag color="#F4B183">
+              Classcipe International School
+            </a-tag>
+          </div>
+          <div class='class-type-tag' v-if='classItem && classItem.classType === 2'>
+            <a-tag color="#9DC3E6">
+              Personal
+            </a-tag>
+          </div>
+          <a-form-item label='Choose class'>
+            <input-with-create
+              ref='inputOptionList'
+              :option-list='classList'
+              :option-list-height='80'
+              :tag-type-config='tagTypeConfig'
+              @selected='handleSelectClass'
+              @create-new='handleCreateNewClass'/>
+          </a-form-item>
+        </div>
+      </div>
       <div class='start-session'>
         <a-button
           v-if="mode === 'quick-session'"
@@ -94,14 +119,15 @@ import { DICT_PROMPT_PURPOSE, DICT_PROMPT_TYPE } from '@/const/common'
 import ModalHeader from '@/components/Common/ModalHeader'
 import { filterNewPromptTemplates, quickStartSession } from '@/api/quickTask'
 import NoMoreResources from '@/components/Common/NoMoreResources'
-import { lessonHost, lessonStatus } from '@/const/googleSlide'
-import { StartLesson } from '@/api/lesson'
+import { lessonHost } from '@/const/googleSlide'
 import storage from 'store'
 import { ACCESS_TOKEN } from '@/store/mutation-types'
+import InputWithCreate from '@/components/Common/InputWithCreate'
+import { PersonalAddOrUpdateClass, SchoolClassGetMyClasses } from '@/api/schoolClass'
 
 export default {
   name: 'QuickSession',
-  components: { NoMoreResources, ModalHeader },
+  components: { InputWithCreate, NoMoreResources, ModalHeader },
   props: {
     visible: {
       type: Boolean,
@@ -124,7 +150,20 @@ export default {
       promptList: [],
 
       selectedPrompt: null,
-      startLoading: false
+      startLoading: false,
+
+      tagTypeConfig: {
+        1: {
+          color: '#F4B183',
+          label: 'Classcipe International School'
+        },
+        2: {
+          color: '#9DC3E6',
+          label: 'Personal'
+        }
+      },
+      classList: [],
+      classItem: null
     }
   },
   created() {
@@ -140,7 +179,8 @@ export default {
           interactiveList: this.selectedInteractiveList,
           limit: 1000,
           pruposeList: this.selectedPurposeList
-        })
+        }),
+        SchoolClassGetMyClasses()
       ]).then(response => {
         this.$logger.info('quick session dict', response)
 
@@ -154,6 +194,11 @@ export default {
 
         if (response[2].success) {
           this.promptList = response[2].result
+        }
+
+        if (!response[3].code) {
+          this.$logger.info('class list', response[3].result)
+          this.classList = response[3].result
         }
       }).finally(() => {
         this.searching = false
@@ -213,50 +258,30 @@ export default {
       this.startLoading = true
       quickStartSession({
         name: this.selectedPrompt.name,
-        presentationId: this.selectedPrompt.presentationId
+        presentationId: this.selectedPrompt.presentationId,
+        classId: this.classItem ? this.classItem.id : null
       }).then((response) => {
         this.$logger.info('start session response', response)
+        this.startLoading = false
         if (response.success) {
-          const item = response.result
-          const requestData = {
-            author: this.$store.getters.email,
-            slide_id: item.presentationId,
-            revision_id: item.revisionId,
-            file_name: item.name ? item.name : 'Unnamed',
-            status: lessonStatus.teacherPaced,
-            redirect_url: null
-          }
+          const targetUrl = lessonHost + 'd/' + response.result.classId + '?token=' + storage.get(ACCESS_TOKEN)
+          this.$logger.info('try open ' + targetUrl)
+          // 课堂那边需要点击返回回到表单，改成location.href跳转
+          const url = lessonHost + 't/' + response.result.classId + '?token=' + storage.get(ACCESS_TOKEN)
+          var windowObjectReference
+          var height = document.documentElement.clientHeight * 0.7
+          var width = document.documentElement.clientWidth * 0.7
+          var strWindowFeatures = 'width=' + width + ',height=' + height + ',menubar=yes,location=yes,resizable=yes,scrollbars=true,status=true,top=100,left=200'
 
-          StartLesson(requestData).then(res => {
-            this.$logger.info('StartLesson res', res)
-            if (res.code === 'ok') {
-              const targetUrl = lessonHost + 'd/' + res.data.class_id + '?token=' + storage.get(ACCESS_TOKEN)
-              this.$logger.info('try open ' + targetUrl)
-              // window.open(targetUrl, '_blank')
-              // 课堂那边需要点击返回回到表单，改成location.href跳转
-              const url = lessonHost + 't/' + res.data.class_id + '?token=' + storage.get(ACCESS_TOKEN)
-              var windowObjectReference
-              var height = document.documentElement.clientHeight * 0.7
-              var width = document.documentElement.clientWidth * 0.7
-              var strWindowFeatures = 'width=' + width + ',height=' + height + ',menubar=yes,location=yes,resizable=yes,scrollbars=true,status=true,top=100,left=200'
-
-              windowObjectReference = window.open(
-                'about:blank',
-                '_blank',
-                strWindowFeatures
-              )
-              windowObjectReference.location = url
-              setTimeout(function () {
-                window.location.href = targetUrl
-              }, 1000)
-            } else {
-              this.$message.warn('StartLesson Failed! ' + res.message)
-            }
-          }).then(() => {
-            this.$emit('close')
-          }).finally(() => {
-            this.startLoading = false
-          })
+          windowObjectReference = window.open(
+            'about:blank',
+            '_blank',
+            strWindowFeatures
+          )
+          windowObjectReference.location = url
+          setTimeout(function () {
+            window.location.href = targetUrl
+          }, 1000)
         } else {
           this.$message.warn(response.message)
         }
@@ -266,12 +291,39 @@ export default {
     handleEnsureSelect () {
       this.$emit('select', {
         presentationId: this.selectedPrompt.presentationId,
-        selectPageObjectIds: this.selectedPrompt.pageObjectIds
+        selectPageObjectIds: this.selectedPrompt.pageObjectIds,
+        selectedPrompt: this.selectedPrompt,
+        classItem: this.classItem
       })
     },
 
     handleCloseModal () {
       this.$emit('close')
+    },
+
+    handleSelectClass (eventData) {
+      this.$logger.info('handleSelectClass', eventData)
+      this.classItem = eventData
+    },
+
+    handleCreateNewClass (data) {
+      this.$logger.info('handleCreateNewClass', data)
+      PersonalAddOrUpdateClass({ name: data.value }).then(response => {
+        SchoolClassGetMyClasses().then(response => {
+          this.$logger.info('SchoolClassGetMyClasses', response)
+          this.classList = response.result
+          // 自动选中刚刚新建的班级
+          const selectedClassItem = this.classList.find(item => item.name === data.value)
+          if (data.index !== -1 && this.form.taskClassList.length > data.index && selectedClassItem) {
+            this.$logger.info('handleCreateNewClass selectedClassItem', selectedClassItem)
+            this.form.taskClassList[data.index].classId = selectedClassItem.id
+          }
+        })
+      })
+    },
+
+    handleHiddenInputOptionList () {
+      this.$refs.inputOptionList.handleClick()
     }
   }
 }
@@ -283,15 +335,14 @@ export default {
 .quick-start-session {
 
   .quick-start-tips {
-    padding: 10px 0;
+    padding-bottom: 10px;
     width: 70%;
-    margin: auto;
+    margin: -30px auto 0 auto;
   }
 
   .tip-item {
-    font-size: 12px;
     font-family: Inter-Bold;
-    color: #aaa;
+    color: #999;
     text-align: center;
   }
 
@@ -341,7 +392,7 @@ export default {
   }
 
   .prompt-list {
-    height: 400px;
+    height: 300px;
     padding: 10px 0 5px 0;
     box-sizing: border-box;
     overflow-y: auto;
@@ -414,7 +465,59 @@ export default {
   }
 
   .start-session {
+    margin-top: 10px;
     text-align: center;
   }
+}
+
+.linked-class-list {
+  padding: 10px 10px 0 10px;
+  cursor: pointer;
+  border: 1px dashed #15c39a;
+  margin-bottom: 15px;
+  position: relative;
+
+  .mask {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    z-index: 100;
+    background: rgba(0,0,0, 0.07);
+  }
+
+  .remove-class-icon {
+    position: absolute;
+    right: -25px;
+    top: 0;
+    width: 25px;
+    height: 100%;
+    display: none;
+    text-align: center;
+    img {
+      width: 30px;
+    }
+  }
+
+  .class-type-tag {
+    position: absolute;
+    right: 10px;
+    top: 44px;
+    text-align: center;
+    z-index: 150;
+  }
+
+  &:hover {
+    .remove-class-icon {
+      display: block;
+    }
+  }
+}
+
+.class-tips {
+  font-size: 13px;
+  color: #999;
+  line-height: 30px;
 }
 </style>

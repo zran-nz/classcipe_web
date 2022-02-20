@@ -2,11 +2,14 @@
   <div class='my-feed-back'>
     <div
       id='feed-back'
-      @click.stop='handleSelectCaptureFeedback'>
-      <div class='feed-back-icon'>
-        <server-icon-svg />
+      class="classcipe-feedback">
+      <div class="classcipe-hidden-feedback" @click.stop="handleCloseFeedback">
+        <img src="~@/assets/icons/feedback/close.png" alt=""/>
       </div>
-      <div class='feed-back-text'>
+      <div class='feed-back-icon'>
+        <server-icon-svg @click.stop='handleSelectCaptureFeedback'/>
+      </div>
+      <div class='feed-back-text' @click.stop='handleSelectCaptureFeedback'>
         <div class='text-item'>Feedback</div>
       </div>
     </div>
@@ -87,7 +90,11 @@ export default {
       this.feedbackModalVisible = false
       this.feedbackImgData = null
     },
-
+    handleCloseFeedback () {
+      console.log('handleCloseFeedback')
+      document.getElementById('chat-widget-container').style.display = 'none'
+      document.getElementById('feed-back').style.display = 'none'
+    },
     handleSubmitFeedback (data) {
       this.$logger.info('handleSubmitFeedback', data)
       FeedbackSave(data).then((response) => {
@@ -194,4 +201,17 @@ export default {
   }
 }
 
+.classcipe-hidden-feedback {
+  display: none;
+}
+
+.classcipe-hidden-feedback img {
+  width: 15px;
+  position: absolute;
+  right: -5px;
+  top: -5px;
+}
+#feed-back:hover .classcipe-hidden-feedback {
+  display: block;
+}
 </style>

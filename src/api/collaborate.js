@@ -10,7 +10,7 @@ export const userAPIUrl = {
   DeleteByMeCollaborate: '/classcipe/api/collaborate/deleteByMe',
   ReceiveCollaborate: '/classcipe/api/collaborate/receive',
   // TODO mock接口，待修改
-  GetCollaborateComment: '/classcipe/api/editMessage/queryMessage',
+  GetCollaborateComment: '/classcipe/api/editMessage/queryNewMessage',
   DeleteCollaborateCommentById: '/classcipe/api/editMessage/delete',
   MarkedCollaborateComment: '/classcipe/api/editMessage/marked',
   AddCollaborateComment: '/classcipe/api/editMessage/addMessage',

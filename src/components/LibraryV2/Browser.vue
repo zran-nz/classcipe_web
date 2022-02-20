@@ -682,6 +682,7 @@ export default {
       if (this.libraryMode === LibraryMode.searchMode) {
         this.handleSearchKey()
       }
+      this.getRecommended()
     },
 
     handleSearchKey () {
@@ -689,7 +690,7 @@ export default {
       this.leftBrowserWidth = '0vw'
       this.rightBrowserWidth = '100vw'
       this.expandedListFlag = true
-      if (this.searchKeyword) {
+      if (this.searchKeyword && this.searchKeyword.trim().length > 0) {
         this.searchByKeyword(this.searchKeyword)
       } else {
         this.searching = false
@@ -710,10 +711,18 @@ export default {
         // 添加高亮标签
         response.result.forEach(item => {
           if (item.name) {
+            let lastIndex = 0
+            let index = item.name.toLowerCase().indexOf(value)
+            let tagName = ''
+            while (index !== -1 && index + value.length <= item.name.length) {
+              tagName += item.name.substring(lastIndex, index) + '<span class="search-keyword-item">' + item.name.substring(index, index + value.length) + '</span>'
+              lastIndex = index + value.length
+              index = item.name.toLowerCase().indexOf(value, index + value.length)
+            }
             const tagItem = {
               fromType: item.fromType,
               name: item.name,
-              tagName: item.name.split(value).join('<span class="search-keyword-item">' + value + '</span>')
+              tagName: tagName
             }
             list.push(tagItem)
           }

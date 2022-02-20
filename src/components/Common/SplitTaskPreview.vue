@@ -248,7 +248,6 @@ import * as logger from '@/utils/logger'
 import { typeMap } from '@/const/teacher'
 import NoMoreResources from '@/components/Common/NoMoreResources'
 import CommonAssociatePreview from '@/components/Common/CommonAssociatePreview'
-import EvaluationPreview from '@/components/Evaluation/EvaluationPreview'
 import EvaluationTablePreview from '@/components/Evaluation/EvaluationTablePreview'
 import CommonLink from '@/components/Common/CommonLink'
 import MediaPreview from '@/components/Task/MediaPreview'
@@ -260,7 +259,6 @@ export default {
   components: {
     UiLearnOutSub,
     EvaluationTablePreview,
-    EvaluationPreview,
     CommonAssociatePreview,
     NoMoreResources,
     CommonLink,

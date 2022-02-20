@@ -12,7 +12,7 @@
       :okText="mode === 'add' ? 'Add' : 'Save'"
     >
       <a-spin :spinning="confirmLoading">
-        <a-form-model ref="form" :model="model" :rules="validatorRules" :label-col="{ span: 6 }" :wrapper-col="{ span: 14 }">
+        <a-form-model ref="form" :model="model" :rules="validatorRules" :label-col="{ span: 8 }" :wrapper-col="{ span: 14 }">
           <a-row>
             <a-col :span="24">
               <a-form-model-item label="Class Name" prop="name">
@@ -23,14 +23,14 @@
                 <a-form-model-item label="Class Type" prop="classType">
                   <a-select :allowClear="true" v-model="model.classType" placeholder="Select classType" >
                     <a-select-option :value="0">Standard-Class</a-select-option>
-                    <a-select-option :value="1">Subject-Forcused Class</a-select-option>
+                    <a-select-option :value="1">Subject-focused Class</a-select-option>
                   </a-select>
                 </a-form-model-item>
               </a-col>
 
               <a-col :span="24">
 
-                <a-form-model-item label="Teacher" prop="headTeacherId">
+                <a-form-model-item label="Home Teacher/Subject Coordinator" prop="headTeacherId">
                   <a-select :allowClear="true" v-model="model.headTeacherId" placeholder="Select teacher" >
                     <a-select-option :value="item.userInfo.id" :key="item.userInfo.id" v-for="item in teacherList">{{ item.userInfo.nickname }}</a-select-option>
                   </a-select>
@@ -74,7 +74,7 @@
                 </a-form-model-item>
               </a-col>
 
-              <a-col :span="24" v-if="model.classType === 1">
+              <a-col :span="24">
                 <a-form-model-item label="Subject" prop="subject">
                   <a-select :allowClear="true" v-model="model.subject" placeholder="Select subject" >
                     <a-select-option :value="item.id" :key="item.id" v-for="item in subjectList">{{ item.name }}</a-select-option>
@@ -126,21 +126,6 @@ export default {
       confirmLoading: false,
       form: this.$form.createForm(this, { name: 'classAdd' }),
       model: {},
-      validatorRules: {
-        name: [
-          { required: true, message: 'Please input class name!' }
-        ],
-        classType: [
-          { required: true, message: 'Please select class type!' }
-        ],
-        teacherIds: [
-          { required: true, message: 'Please select teacher!' },
-          { validator: this.handleTeacherIds }
-        ],
-        gradeId: [
-          { required: true, message: 'Please select grade!' }
-        ]
-      },
       fileList: [],
       uploading: false
     }
@@ -150,6 +135,26 @@ export default {
     this.modelDefault = JSON.parse(JSON.stringify(this.model))
   },
   computed: {
+    validatorRules() {
+      var res = {
+        name: [
+          { required: true, message: 'Please input class name!' }
+        ],
+        classType: [
+          { required: true, message: 'Please select class type!' }
+        ],
+        teacherIds: [
+          { required: true, message: 'Please select teacher!' },
+          { validator: this.handleTeacherIds }
+        ]
+      }
+      if (this.model.classType === 0) {
+        res.gradeId = [{ required: true, message: 'Please select grade!' }]
+      } else {
+        res.subject = [{ required: true, message: 'Please select subject!' }]
+      }
+      return res
+    }
   },
   methods: {
     // 判断登录类型

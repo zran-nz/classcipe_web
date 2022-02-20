@@ -14,7 +14,7 @@
       </a-mentions>
     </div>
     <div class="confirm-button" v-if="commentItem.editing">
-      <a-button type="primary" :loading="commentItem.sendLoading" @click="reply" :class="{'button-item':true,'disabled-button':isDisabled}" :disabled="isDisabled">
+      <a-button type="primary" :loading="sending" @click="reply" :class="{'button-item':true,'disabled-button':isDisabled}" :disabled="isDisabled">
         Reply
       </a-button>
       <a-button class="button-item" @click="cancelReply">
@@ -28,6 +28,10 @@
 export default {
   name: 'InputReplyButton',
   props: {
+    sending: {
+      type: Boolean,
+      default: false
+    },
     replyMode: {
       type: Boolean,
       default: false
@@ -48,17 +52,24 @@ export default {
       this.$logger.info('commentItem ' + val)
       this.inputValue = val.content
       this.oldValue = val.content
+      this.loading = val.sendLoading ? val.sendLoading : false
+    },
+    sending(val) {
+      if (!val) {
+        this.inputValue = ''
+      }
     }
   },
   data () {
     return {
       inputValue: '',
       oldValue: '',
-      isDisabled: true
+      isDisabled: true,
+      loading: false
     }
   },
   created () {
-    this.commentItem.sendLoading = false
+    this.loading = this.commentItem.sendLoading ? this.commentItem.sendLoading : false
     this.inputValue = this.commentItem.content ? this.commentItem.content : ''
     this.oldValue = this.commentItem.content ? this.commentItem.content : ''
   },
@@ -79,7 +90,6 @@ export default {
         return
       }
       this.commentItem.content = this.inputValue
-      this.commentItem.sendLoading = true
       this.$emit('send', this.commentItem)
     },
     focusInput() {

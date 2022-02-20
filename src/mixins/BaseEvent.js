@@ -1,4 +1,4 @@
-import { QueryContentCollaborates } from '@/api/collaborate'
+import { GetCollaborateComment, GetCollaborateModifiedHistory, QueryContentCollaborates } from '@/api/collaborate'
 import { COLLABORATE, SAVE_CONTENT } from '@/websocket/cmd'
 import CollborateMsg from '@/websocket/model/collborateMsg'
 import SaveContentMsg from '@/websocket/model/saveContentMsg'
@@ -27,7 +27,10 @@ export const BaseEventMixin = {
       defaultHistoryKey: '1',
       showCollaborateModalVisible: false,
       collaborateContent: null,
-      currentFieldName: {}
+      currentFieldName: {},
+      historyList: [],
+      collaborateCommentList: [],
+      currentCollaborateCommentList: []
     }
   },
   watch: {
@@ -205,6 +208,31 @@ export const BaseEventMixin = {
       sessionStorage.removeItem(SESSION_CURRENT_PAGE)
       sessionStorage.removeItem(SESSION_CURRENT_TYPE_LABEL)
       sessionStorage.removeItem(SESSION_CURRENT_TYPE)
+    },
+
+    // 加载协作的评论和历史记录数据
+    GetCollaborateModifiedHistory(sourceType, sourceId) {
+      GetCollaborateModifiedHistory({ sourceType: sourceType, sourceId: sourceId }).then(response => {
+        this.historyList = []
+        this.$logger.info('GetCollaborateModifiedHistory', response)
+        if (!response.code) {
+          this.historyList = response.result
+        }
+      })
+    },
+    GetCollaborateComment(sourceType, sourceId) {
+      GetCollaborateComment({ sourceType: sourceType, sourceId: sourceId }).then(response => {
+        this.$logger.info('GetCollaborateComment', response)
+        if (!response.code) {
+          this.collaborateCommentList = response.result
+        }
+      }).finally(() => {
+        this.showHistoryLoading = false
+      })
+    },
+    loadCollaborateData(sourceType, sourceId) {
+      this.GetCollaborateModifiedHistory(sourceType, sourceId)
+      this.GetCollaborateComment(sourceType, sourceId)
     }
   }
 

@@ -671,10 +671,6 @@ export default {
     handleAddEvaluationClose () {
       this.$logger.info('handleAddEvaluationClose')
       this.addEvaluationVisible = false
-    },
-
-    handleAddEvidenceFinish (data) {
-      this.$logger.info('handleAddEvidenceFinish', data)
     }
   }
 }

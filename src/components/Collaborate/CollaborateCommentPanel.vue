@@ -1,6 +1,7 @@
 <template>
   <div class="collaborate-comment-panel">
-    <div class="add-comment-wrapper" style="box-shadow: 0px 3px 6px rgb(0 0 0 / 16%)" v-if="rawCommentList.length === 0">
+    <a-tooltip v-if="formatCommentList.length > 0" title="Add comment" placement="right"><add-green-icon class='add-icon' @click="addRootComment"/></a-tooltip>
+    <div class="add-comment-wrapper" v-if="addRoot" style="box-shadow: 0px 3px 6px rgb(0 0 0 / 16%)" >
       <div class="comment-user-info">
         <div class="avatar">
           <img :src="$store.getters.avatar" />
@@ -11,100 +12,145 @@
       </div>
       <div class="comment-input-wrapper">
         <div class="input">
-          <input-with-button :collaborate-user-list="collaborateUserList" @cancelComment="cancelComment" @comment="handleComment" :sending="commentSending" />
+          <input-with-button :collaborate-user-list="collaborateUserList" :comment-item="newComment" @cancelComment="cancelComment" @comment="handleComment" :sending="newComment.sendLoading" />
         </div>
       </div>
     </div>
-
-    <div class="comment-record-wrapper" style="box-shadow: 0px 3px 6px rgb(0 0 0 / 16%)" v-if="rawCommentList.length > 0">
-      <div class='delete-thread-mask' v-if="deleteThread">
-        <div class="delete-group">
-          <div style="color: #fff;margin: 5px;">
-            Delete this comment Thread?
-          </div>
-          <div class="delete-group-button">
-            <div class='upload-text'>
-              <a-button shape='round' type='primary' @click="handleDeleteComment(rawCommentList[0])">Delete</a-button>
-            </div>
-            <div class='upload-text'>
-              <a-button shape='round' @click="deleteThread = false">Cancel</a-button>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="record-list" v-for="(commentItem, cIndex) in rawCommentList" :key="cIndex">
-        <div class='delete-mask' v-if="commentItem.delete">
+    <div class="root-comment" style=" box-shadow: rgb(0 0 0 / 16%) 0px 3px 6px;" v-for="(rootComment,rootIndex) in formatCommentList" :key="rootIndex">
+      <div class="comment-record-wrapper" style="box-shadow: 0px 3px 6px rgb(0 0 0 / 16%)">
+        <div class='delete-thread-mask' v-if="rootComment.deleteThread">
           <div class="delete-group">
             <div style="color: #fff;margin: 5px;">
-              Delete this comment?
+              Delete this comment Thread?
             </div>
             <div class="delete-group-button">
               <div class='upload-text'>
-                <a-button shape='round' type='primary' @click="handleDeleteComment(commentItem,cIndex)" >Delete</a-button>
+                <a-button shape='round' type='primary' @click="handleDeleteCommentRoot(rootComment,rootIndex)">Delete</a-button>
               </div>
               <div class='upload-text'>
-                <a-button shape='round' @click="handleDeleteCommentConfirm(commentItem,cIndex,false)" >Cancel</a-button>
+                <a-button shape='round' @click="cancelDeleteThread(rootIndex)">Cancel</a-button>
               </div>
             </div>
           </div>
         </div>
-        <div class="record-item">
-          <template>
-            <div class="record-action" v-show="commentItem.username === $store.getters.userInfo.username">
-              <div style="margin-right: 20px;font-size: 18px;margin-top: 8px;" v-if="cIndex === 0" @click="handleMarked(commentItem,cIndex)">
-                <a-tooltip placement="bottom" title="Marked as resolved and hide this discussion">
-                  <a-icon type="check" />
-                </a-tooltip>
+        <div class="record-list" :key="-1">
+          <div class="record-item">
+            <template>
+              <div class="record-action" v-show="rootComment.username === $store.getters.userInfo.username">
+                <div style="margin-right: 20px;font-size: 18px;margin-top: 8px;" @click="handleMarked(rootComment,rootIndex)">
+                  <a-tooltip placement="bottom" title="Marked as resolved and hide this discussion">
+                    <a-icon type="check" />
+                  </a-tooltip>
+                </div>
+                <div>
+                  <a-dropdown>
+                    <a-icon type="more" style="font-size: 20px;margin-top: 10px;" />
+                    <a-menu slot="overlay">
+                      <a-menu-item>
+                        <a @click="handleDeleteRootCommentConfirm(rootComment,rootIndex,true)">
+                          <a-icon type="delete" theme="filled" /> Delete
+                        </a>
+                      </a-menu-item>
+                      <a-menu-item>
+                        <a @click="handleEditCommentRoot(rootComment,rootIndex)">
+                          <a-icon type="edit" theme="filled" /> Edit
+                        </a>
+                      </a-menu-item>
+                    </a-menu>
+                  </a-dropdown>
+                </div>
               </div>
-              <div>
-                <a-dropdown>
-                  <a-icon type="more" style="font-size: 20px;margin-top: 10px;" />
-                  <a-menu slot="overlay">
-                    <a-menu-item>
-                      <a @click="handleDeleteCommentConfirm(commentItem,cIndex,true)">
-                        <a-icon type="delete" theme="filled" /> Delete
-                      </a>
-                    </a-menu-item>
-                    <a-menu-item>
-                      <a @click="handleEditComment(commentItem,cIndex)">
-                        <a-icon type="edit" theme="filled" /> Edit
-                      </a>
-                    </a-menu-item>
-                  </a-menu>
-                </a-dropdown>
+              <div class="comment-user-info">
+                <div class="avatar">
+                  <img :src="rootComment.avatar" />
+                </div>
+                <div class="user-name">
+                  <div class="name-text"> {{ rootComment.username }}</div>
+                  <div class="time-text"> {{ rootComment.createdTime | dayComment }}</div>
+                </div>
               </div>
-            </div>
-            <div class="comment-user-info">
-              <div class="avatar">
-                <img :src="commentItem.avatar" />
+              <div class="comment-detail" v-if="!rootComment.editing">
+                <div class="comment-text">
+                  {{ rootComment.content }}
+                </div>
               </div>
-              <div class="user-name">
-                <div class="name-text"> {{ commentItem.username }}</div>
-                <div class="time-text"> {{ commentItem.createdTime | dayComment }}</div>
+              <div class="comment-input-wrapper" v-if="rootComment.editing">
+                <div class="input">
+                  <input-reply-button :collaborate-user-list="collaborateUserList" @send="handleSend" :comment-item="rootComment" @cancel="handleCancel" :sending="rootComment.sendLoading" />
+                </div>
               </div>
-            </div>
-            <div class="comment-detail" v-if="!commentItem.editing">
-              <div class="comment-text">
-                {{ commentItem.content }}
-              </div>
-            </div>
-            <div class="comment-input-wrapper" v-if="commentItem.editing">
-              <div class="input">
-                <input-reply-button :collaborate-user-list="collaborateUserList" @send="handleSend" :comment-item="commentItem" @cancel="handleCancel"/>
-              </div>
-            </div>
-          </template>
+            </template>
+          </div>
         </div>
-      </div>
-      <div class="comment-input-wrapper" style="margin-top:10px">
-        <div class="input">
-          <input-reply-button
-            :collaborate-user-list="collaborateUserList"
-            @send="handleSend"
-            :reply-mode="true"
-            @cancel="handleCancelNewComment"
-            :comment-item="newComment"
-            @focusInput="handleFocusInput"/>
+        <div class="record-list" v-for="(commentItem, cIndex) in rootComment.subCommentList" :key="cIndex">
+          <div class='delete-mask' v-if="commentItem.delete">
+            <div class="delete-group">
+              <div style="color: #fff;margin: 5px;">
+                Delete this comment?
+              </div>
+              <div class="delete-group-button">
+                <div class='upload-text'>
+                  <a-button shape='round' type='primary' @click="handleDeleteComment(commentItem,cIndex,rootIndex)" >Delete</a-button>
+                </div>
+                <div class='upload-text'>
+                  <a-button shape='round' @click="handleDeleteCommentConfirm(commentItem,cIndex,rootIndex,false)" >Cancel</a-button>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="record-item">
+            <template>
+              <div class="record-action" v-show="commentItem.username === $store.getters.userInfo.username">
+                <div>
+                  <a-dropdown>
+                    <a-icon type="more" style="font-size: 20px;margin-top: 10px;" />
+                    <a-menu slot="overlay">
+                      <a-menu-item>
+                        <a @click="handleDeleteCommentConfirm(commentItem,cIndex,rootIndex,true)">
+                          <a-icon type="delete" theme="filled" /> Delete
+                        </a>
+                      </a-menu-item>
+                      <a-menu-item>
+                        <a @click="handleEditComment(commentItem,cIndex,rootIndex)">
+                          <a-icon type="edit" theme="filled" /> Edit
+                        </a>
+                      </a-menu-item>
+                    </a-menu>
+                  </a-dropdown>
+                </div>
+              </div>
+              <div class="comment-user-info">
+                <div class="avatar">
+                  <img :src="commentItem.avatar" />
+                </div>
+                <div class="user-name">
+                  <div class="name-text"> {{ commentItem.username }}</div>
+                  <div class="time-text"> {{ commentItem.createdTime | dayComment }}</div>
+                </div>
+              </div>
+              <div class="comment-detail" v-if="!commentItem.editing">
+                <div class="comment-text">
+                  {{ commentItem.content }}
+                </div>
+              </div>
+              <div class="comment-input-wrapper" v-if="commentItem.editing">
+                <div class="input">
+                  <input-reply-button :collaborate-user-list="collaborateUserList" @send="handleSend" :comment-item="commentItem" @cancel="handleCancel" :sending="commentItem.sendLoading" />
+                </div>
+              </div>
+            </template>
+          </div>
+        </div>
+        <div class="comment-input-wrapper" style="margin-top:10px">
+          <div class="input">
+            <input-reply-button
+              :collaborate-user-list="collaborateUserList"
+              @send="handleSend"
+              @cancel="handleCancelNewComment"
+              :sending="newComments[rootIndex].sendLoading"
+              :comment-item="newComments[rootIndex]"
+              @focusInput="handleFocusInput"/>
+          </div>
         </div>
       </div>
     </div>
@@ -114,12 +160,12 @@
 <script>
 
 import { CollaborateCommentMixin } from '@/mixins/CollaborateCommentMixin'
-import { AddCollaborateComment, DeleteCollaborateCommentById, MarkedCollaborateComment } from '@/api/collaborate'
+import AddGreenIcon from '@/assets/svgIcon/evaluation/form/tianjia_green.svg?inline'
 
 export default {
   name: 'CollaborateCommentPanel',
   components: {
-
+    AddGreenIcon
   },
   mixins: [CollaborateCommentMixin],
   props: {
@@ -146,120 +192,47 @@ export default {
   },
   data () {
     return {
-      newComment: {
-        editing: false,
-        content: '',
-        sendLoading: false
-      }
+
     }
   },
   watch: {
     commentList (value) {
-      this.$logger.info('collaborateUserList ', this.collaborateUserList)
+      this.$logger.info('CollaborateCommentPanel commentList', value)
       this.rawCommentList = []
       value.forEach(item => {
         item.sendLoading = false
-        if (!item.isDelete) {
+        if (!item.isDelete && this.fieldName === item.fieldName) {
           this.rawCommentList.push(item)
         }
       })
+      this.formatCommentList = this.rawCommentList
+      this.addRoot = this.formatCommentList.length === 0
+      this.$logger.info('formatCommentList', this.formatCommentList)
+      // this.formatNewReply()
     }
+  },
+  computed: {
+
   },
   created () {
     this.$logger.info('CollaborateCommentPanel commentList', this.commentList)
+    this.originalCommentList = this.commentList
     this.rawCommentList = []
     this.commentList.forEach(item => {
       item.sendLoading = false
-      if (!item.isDelete) {
+      if (!item.isDelete && this.fieldName === item.fieldName) {
         this.rawCommentList.push(item)
       }
     })
+    this.$logger.info('rawCommentList', this.rawCommentList)
+    this.formatCommentList = this.rawCommentList
+    this.addRoot = this.formatCommentList.length === 0
+    this.$logger.info('formatCommentList', this.formatCommentList)
+    this.formatNewReply()
   },
   methods: {
-    handleSend (comment) {
-      if (this.fieldName) {
-        comment.fieldName = this.fieldName
-      }
-      const index = this.rawCommentList.findIndex(item => item.id === comment.id)
-      comment.sourceId = this.sourceId
-      comment.sourceType = this.sourceType
-      let isAdd = false
-      comment.sendLoading = true
-      this.$set(this.rawCommentList, index, comment)
-      if (!comment.id) {
-        // 新增
-        isAdd = true
-        this.newComment.sendLoading = true
-        if (this.rawCommentList.length > 0) {
-          comment.commentToId = this.rawCommentList[0].id
-        }
-      }
-      this.$logger.info('handleSend', comment)
-      AddCollaborateComment(comment).then(response => {
-        // 减少load时间
-        if (isAdd) {
-          this.rawCommentList.push(response.result)
-          this.newComment = { sendLoading: false }
-        }
-      }).finally(() => {
-        comment.sendLoading = false
-        comment.editing = false
-        this.$set(this.rawCommentList, index, comment)
-      })
-    },
-    handleDeleteCommentConfirm (comment, index, isDelete) {
-      this.$logger.info('handleDeleteCommentConfirm', comment)
-      if (comment.commentToId) {
-        comment.delete = isDelete
-        this.$set(this.rawCommentList, index, comment)
-      } else {
-        this.deleteThread = isDelete
-      }
-    },
-    // TODO 删除逻辑
-    handleDeleteComment (comment, index) {
-      this.$logger.info('handleDeleteComment', comment)
-      DeleteCollaborateCommentById(comment).then(response => {
-        // 直接删除
-        if (comment.commentToId) {
-          this.rawCommentList.splice(index, 1)
-        } else {
-          // 整个删除
-          this.$emit('update-comment')
-        }
-      })
-    },
-    handleFocusInput(comment) {
-      this.$logger.info('handleFocusInput')
-      comment.editing = true
-      var index = this.rawCommentList.findIndex(item => item.id === comment.id)
-      if (index !== -1) {
-        this.$set(this.rawCommentList, index, comment)
-      }
-    },
-    handleCancelNewComment (comment) {
-      this.newComment = { editing: false }
-    },
-    handleEditComment (comment, index) {
-      this.$logger.info('handleEditComment', comment)
-      comment.editing = !comment.editing
-      this.$set(this.rawCommentList, index, comment)
-    },
-    handleMarked(comment, cIndex) {
-      this.$logger.info('handleMarked', comment)
-      this.rawCommentList.splice(cIndex, 1)
-      const childIds = this.rawCommentList.filter(item => item.commentToId === comment.id).map(item => {
-        return item.id
-      })
-      childIds.forEach(id => {
-        const index = this.rawCommentList.findIndex(item => item.id === id)
-        this.rawCommentList.splice(index, 1)
-      })
-      MarkedCollaborateComment(comment).then(response => {
-        this.$emit('update-comment')
-      }).finally(() => {
-        this.cancelComment()
-      })
+    addRootComment() {
+      this.addRoot = true
     }
   }
 }
@@ -272,6 +245,14 @@ export default {
   background-color: #fff;
   padding: 20px;
   z-index: 100;
+  position:relative;
+  svg.add-icon {
+    top: -10px;
+    position: absolute;
+    left: 20px;
+    cursor: pointer;
+    width: 20px;
+  }
 }
 .add-comment-wrapper {
   padding: 20px 15px;

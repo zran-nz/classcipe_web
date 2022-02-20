@@ -718,12 +718,42 @@ export default {
         this.isEmptyStudentEvaluateData = isEmptyStudentEvaluateData
         this.$logger.info('isEmptyStudentEvaluateData ' + isEmptyStudentEvaluateData, data.evaluation)
         if (!isEmptyStudentEvaluateData) {
-          this.studentEvaluateData = JSON.parse(data.evaluation.studentEvaluateData)
+          const studentEvaluateData = JSON.parse(data.evaluation.studentEvaluateData)
+          this.$logger.info('exist studentEvaluateData', studentEvaluateData)
+          // 处理新增的学生
+          allStudentUserIdList.forEach(studentId => {
+            if (!studentEvaluateData.hasOwnProperty(studentId)) {
+              this.$logger.info('new student', studentId)
+              studentEvaluateData[studentId] = {}
+              this.forms.forEach(formItem => {
+                studentEvaluateData[studentId][formItem.formId] = {
+                  comment: null
+                }
+                formItem.initRawData.forEach(rowItem => {
+                  studentEvaluateData[studentId][formItem.formId][rowItem.rowId] = {
+                    teacherEvaluation: null, // 老师评价
+                    teacherName: null, // 老师评价
+                    teacherEmail: null, // 老师评价
+
+                    peerEvaluation: null, // 他人评价
+                    peerName: null, // 他人评价
+                    peerEmail: null, // 他人评价
+
+                    studentEvaluation: null, // 学生自评
+                    studentName: null, // 学生自评
+                    studentEmail: null, // 学生自评
+
+                    data: null, // subLevel数据
+
+                    evidenceIdList: [], // ppt证据pageId列表
+                    evidenceIdStudentList: [] // ppt证据pageId列表-学生选择
+                  }
+                })
+              })
+            }
+          })
+          this.studentEvaluateData = studentEvaluateData
           this.oldStudentEvaluationJson = data.evaluation.studentEvaluateData
-          if (allStudentUserIdList.length && this.mode !== EvaluationTableMode.Edit && this.mode !== EvaluationTableMode.Preview) {
-            this.currentActiveStudentId = allStudentUserIdList[0]
-            this.selectedMemberIdList.push(this.currentActiveStudentId)
-          }
           this.$logger.info('restore studentEvaluateData', this.studentEvaluateData)
         } else if (allStudentUserIdList.length && this.forms.length) {
           // 初始化学生表格数据, studentEvaluateData[学生Id][表单Id][列Id] = 列数据
@@ -761,17 +791,11 @@ export default {
           this.studentEvaluateData = studentEvaluateData
           this.oldStudentEvaluationJson = JSON.stringify(studentEvaluateData)
 
-          if (this.mode !== EvaluationTableMode.Edit && this.mode === EvaluationTableMode.Preview) {
+          if (this.mode === EvaluationTableMode.Preview) {
             // 默认选中第一个学生的第一个评估表格
             this.currentActiveStudentId = allGroupStudentUserIdList[0]
             this.selectedMemberIdList.push(this.currentActiveStudentId)
             this.$logger.info('currentActiveFormId ' + this.currentActiveFormId + ' currentActiveStudentId ' + this.currentActiveStudentId)
-          }
-
-          // 老师评估模式默认选中第一个学生
-          if (this.mode === EvaluationTableMode.TeacherEvaluate) {
-            this.currentActiveStudentId = allStudentUserIdList[0]
-            this.selectedMemberIdList.push(this.currentActiveStudentId)
           }
         }
 
@@ -833,7 +857,7 @@ export default {
           }
         }
       }).finally(() => {
-        this.startUpdateTeacherEvaluationStatusTimer = setTimeout(this.startUpdateTeacherEvaluationStatus, 1000)
+        this.startUpdateTeacherEvaluationStatusTimer = setTimeout(this.startUpdateTeacherEvaluationStatus, 5000)
       })
     },
 
@@ -1205,7 +1229,7 @@ export default {
 
     goEvaluatePage () {
       this.$logger.info('goEvaluatePage')
-      window.location.pathname = defaultStudentRouter
+      // window.location.pathname = defaultStudentRouter
     },
     handleSaveAndBackEvaluation () {
       this.$logger.info('handleSaveAndBackEvaluation', this.forms)
@@ -1426,11 +1450,6 @@ export default {
       } else {
         this.$message.warn('You can only add evidence for one student at a time, and now you\'ve selected ' + this.selectedMemberIdList.length + ' students')
       }
-    },
-
-    handleAddEvidenceFinish (data) {
-      this.$logger.info('handleAddEvidenceFinish', data)
-      this.evidenceSelectVisible = false
     },
 
     handleErrorMode () {

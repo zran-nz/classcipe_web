@@ -33,14 +33,14 @@
                   <input
                     type="text"
                     placeholder="Invite teacher by email"
-                    @keyup.enter="searchUser"
-                    @focus="searchUser"
+                    @keyup.enter="debounceSearchUser"
+                    @focus="debounceSearchUser"
                     @blur="active = false"
-                    @search="searchUser"
-                    @keyup="searchUser"
+                    @search="debounceSearchUser"
+                    @keyup="debounceSearchUser"
                     v-model="userNameOrEmail"
                     ref="input"
-                    class="tag-dom">
+                    class="search-input">
                 </div>
               </div>
             </div>
@@ -259,6 +259,7 @@ import {
 import * as logger from '@/utils/logger'
 import { CollaborateStatus } from '@/const/teacher'
 import { isEmail } from '@/utils/util'
+const { debounce } = require('lodash-es')
 
 export default {
   name: 'CollaborateUserList',
@@ -341,10 +342,12 @@ export default {
       wrapperCol: {
         xs: { span: 24 },
         sm: { span: 16 }
-      }
+      },
+      debounceSearchUser: null
     }
   },
   created () {
+    this.debounceSearchUser = debounce(this.searchUser, 500)
     this.queryContentCollaborates()
     this.findHistoryUsers()
   },
@@ -1091,7 +1094,7 @@ export default {
           border-radius: @border-radius-base;
           position: relative;
           display: inline-block;
-          width: 100%;
+          width: 500px;
           padding: @input-padding-vertical-base 0;
           color: @black;
           //font-size: @font-size-lg;

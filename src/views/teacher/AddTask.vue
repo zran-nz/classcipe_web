@@ -281,7 +281,7 @@
                       <div class='step-detail' v-show="currentActiveStepIndex === 1">
                         <div class="edit-in-slide" v-if="!form.fileDeleted">
                           <a-button
-                            v-show="canEdit"
+                            v-show="canEdit && form.taskMode === 1"
                             class='action-ensure action-item edit-slide'
                             type='primary'
                             shape='round'
@@ -289,10 +289,19 @@
                             style='margin-right: 10px'>
                             Select slide(s)
                           </a-button>
-                          <a-button class="action-ensure action-item edit-slide" :loading="creating" type="primary" shape="round" @click="handleEditGoogleSlide()">
+                          <a-button
+                            class="action-ensure action-item edit-slide"
+                            :loading="creating"
+                            type="primary"
+                            shape="round"
+                            @click="handleEditGoogleSlide()"
+                            v-show='form.taskMode === 1'>
                             Edit google slide(s)
                           </a-button>
-                          <a-tooltip placement='top' title='Select slide(s) on/off'>
+                          <a-tooltip
+                            placement='top'
+                            title='Select slide(s) on/off'
+                            v-show='form.taskMode === 1'>
                             <a-switch
                               class='slide-switch'
                               :disabled='selectedTemplateIdList.length === 0'
@@ -309,7 +318,7 @@
                             shape='round'
                             @click='handleChooseAntherPrompt'
                             style='margin-right: 10px'>
-                            Choose Another
+                            Choose another
                           </a-button>
                         </div>
                         <div class='top-icon-groups' v-if='!form.fileDeleted && !form.showSelected'>
@@ -841,6 +850,50 @@
                                 <a-icon type='minus-circle' theme='filled' />
                                 <div class='btn-text'>
                                   Remove
+                                </div>
+                              </a-button>
+                            </div>
+                          </div>
+                        </div>
+                        <a-carousel arrows>
+                          <div slot='prevArrow' class='custom-slick-arrow' style='left: 10px;zIndex: 100'>
+                            <a-icon type='left-circle' />
+                          </div>
+                          <div slot='nextArrow' class='custom-slick-arrow' style='right: 10px;zIndex: 100'>
+                            <a-icon type='right-circle' />
+                          </div>
+                          <div v-for='(item,index) in template.images' :key='index'>
+                            <img :src='item' />
+                          </div>
+                        </a-carousel>
+                        <a-row v-if='template.introduce' class='slide-desc' :title='template.introduce'>
+                          {{ template.introduce }}
+                        </a-row>
+                        <div class='recommend-slide-name'>
+                          {{ template.name }}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <!--quick-task recommend -->
+                  <div class='form-block-right' v-if='!recomendListLoading && canEdit && form.taskMode === 2'>
+                    <div class='right-title'>Recommended</div>
+                    <div class='slide-preview-list'>
+                      <div
+                        class='slide-preview-item'
+                        v-for='(template, rIndex) in filterRecommendTemplateList'
+                        :key='rIndex'>
+                        <div class='template-hover-action-mask'>
+                          <div class='template-hover-action'>
+                            <div class='modal-ensure-action-line'>
+                              <a-button
+                                class='action-ensure action-item'
+                                shape='round'
+                                @click='handlePreviewQuickTaskTemplate(template)'
+                              >
+                                <a-icon type='eye' theme='filled' />
+                                <div class='btn-text'>
+                                  Preview
                                 </div>
                               </a-button>
                             </div>
@@ -1650,6 +1703,23 @@
       </a-modal>
 
       <a-modal
+        v-model='quickTaskPreviewTemplateVisible'
+        :footer='null'
+        destroyOnClose
+        width='1000px'
+        :zIndex='4000'
+        :title='null'
+        @ok='quickTaskPreviewTemplateVisible = false'
+        @cancel='quickTaskPreviewTemplateVisible = false'>
+        <div class='link-content-wrapper'>
+          <quick-task-template-preview
+            :show-replace-tips='form.presentationId && form.taskMode === 2'
+            :template='quickTaskPreviewTemplate'
+            @handle-select='handleSelectQuickTaskPreviewTemplate'></quick-task-template-preview>
+        </div>
+      </a-modal>
+
+      <a-modal
         v-model='materialVisible'
         :footer='null'
         destroyOnClose
@@ -1757,7 +1827,6 @@ import NewBrowser from '@/components/NewLibrary/NewBrowser'
 import NewMyContent from '@/components/MyContent/NewMyContent'
 import { FindCustomTags, GetTagYearTips, GetTreeByKey } from '@/api/tag'
 import { NavigationType } from '@/components/NewLibrary/NavigationType'
-import { GetCollaborateComment, GetCollaborateModifiedHistory } from '@/api/collaborate'
 import CollaborateCommentPanel from '@/components/Collaborate/CollaborateCommentPanel'
 import CommentSwitch from '@/components/Collaborate/CommentSwitch'
 import CollaborateCommentView from '@/components/Collaborate/CollaborateCommentView'
@@ -1782,11 +1851,14 @@ import { PersonalAddOrUpdateClass, SchoolClassGetMyClasses } from '@/api/schoolC
 import InputWithCreate from '@/components/Common/InputWithCreate'
 import QuickSession from '@/components/QuickSession/QuickSession'
 import { chooseAnother } from '@/api/quickTask'
+import QuickTaskTemplatePreview from '@/components/Task/QuickTaskTemplatePreview'
+
 const { SplitTask } = require('@/api/task')
 
 export default {
   name: 'AddTask',
   components: {
+    QuickTaskTemplatePreview,
     QuickSession,
     InputWithCreate,
     ShareContentSetting,
@@ -1852,7 +1924,9 @@ export default {
       form: {
         id: null,
         image: '',
+        copyFromSlide: null,
         presentationId: '',
+        pageObjectIds: '',
         name: 'Untitled Task',
         overview: '',
         tasks: [],
@@ -1959,12 +2033,9 @@ export default {
       showCollaborateCommentVisible: false,
 
       // TODO mock数据待更新为接口请求（loadCollaborateData方法中的GetCollaborateComment)
-      collaborateCommentList: [],
-      currentCollaborateCommentList: [],
       collaborateTop: 0,
       showAllCollaborateCommentVisible: false,
       // TODO mock数据待更新为接口请求（loadCollaborateData方法中的GetCollaborateModifiedHistory)
-      historyList: [],
       centuryTagMap: new Map(),
       selectYearTab: '',
       showHistoryLoading: false,
@@ -2028,7 +2099,10 @@ export default {
 
       chooseAnotherVisible: false,
 
-      customizeLearnOut: []
+      customizeLearnOut: [],
+
+      quickTaskPreviewTemplateVisible: false,
+      quickTaskPreviewTemplate: null
     }
   },
   computed: {
@@ -2280,7 +2354,7 @@ export default {
         }
       }).finally(() => {
         this.contentLoading = false
-        this.loadCollaborateData()
+        this.loadCollaborateData(this.form.type, this.form.id)
         if (this.form.presentationId) {
           this.loadThumbnail()
           this.loadRecommendThumbnail()
@@ -2472,8 +2546,24 @@ export default {
         taskId: this.taskId
       }).then(response => {
         if (response.success) {
-          this.chooseAnotherVisible = false
+          this.form.pageObjectIds = response.result.pageObjectIds
+          this.form.presentationId = response.result.presentationId
+          this.form.fileDeleted = response.result.fileDeleted
+          this.form.copyFromSlide = response.result.copyFromSlide
+          this.form.image = response.result.image
           this.$message.success('Choose another successfully')
+          this.chooseAnotherVisible = false
+          if (data.classItem) {
+            this.form.taskClassList.push({
+              classId: data.classItem.id,
+              className: data.classItem.name,
+              classType: data.classItem.classType,
+              startDate: null,
+              endDate: null
+            })
+          }
+          this.loadThumbnail()
+          this.loadRecommendThumbnail()
         } else {
           this.$message.warn(response.message)
         }
@@ -3333,26 +3423,6 @@ export default {
       // #协同编辑event事件
       this.handleCollaborateEvent(this.taskId, this.taskField.Assessment, this.form.assessment)
     },
-    // 加载协作的评论和历史记录数据
-    loadCollaborateData() {
-      return Promise.all([
-        GetCollaborateModifiedHistory({ sourceType: this.contentType.task, sourceId: this.form.id }),
-        GetCollaborateComment({ sourceType: this.contentType.task, sourceId: this.form.id })
-      ]).then(response => {
-        // TODO 将历史记录数据‘格式’后填充到historyList数组中，大部分数据可以直接赋值，复杂字段要处理一下,这样handleRestoreField()方法就可以直接赋值了。
-        this.historyList = []
-        this.$logger.info('GetCollaborateModifiedHistory', response[0])
-        if (!response[0].code) {
-          this.historyList = response[0].result
-        }
-        // TODO 将写作点评数据‘格式’后填充到collaborateCommentList数组中
-        this.collaborateCommentList = []
-        this.$logger.info('GetCollaborateComment', response[1])
-        if (!response[1].code) {
-          this.collaborateCommentList = response[1].result
-        }
-      })
-    },
 
     handleSyncData() {
       this.$logger.info(' handleSyncData')
@@ -3398,6 +3468,10 @@ export default {
           this.showSubTaskDetail = false
           this.$logger.info('click step 2.1', current, this.thumbnailList)
           this.selectedSlideVisible = true
+        }
+
+        if (current === 1 && this.form.taskMode === 2 && !this.form.presentationId) {
+          this.chooseAnotherVisible = true
         }
       }
     },
@@ -3608,32 +3682,14 @@ export default {
       } else {
         this.setRightModuleVisible(this.rightModule.collaborate)
       }
-      // this.showCollaborateCommentVisible = false
-      this.currentCollaborateCommentList = []
-      // this.showAllCollaborateCommentVisible = !this.showAllCollaborateCommentVisible
-      this.loadCollaborateData().then(() => {
-        this.$logger.info('loadCollaborateData loaded')
-      }).finally(() => {
-        this.showHistoryLoading = false
-      })
+      this.showHistoryLoading = true
+      this.loadCollaborateData(this.form.type, this.form.id)
     },
 
     // TODO 发布评论后需要更新最新的评论列表,刷新数据
     handleUpdateCommentList() {
       this.$logger.info('handleUpdateCommentList')
-      this.currentCollaborateCommentList = []
-      this.loadCollaborateData().then(() => {
-        this.$logger.info('loadCollaborateData loaded')
-      }).finally(() => {
-        const list = []
-        this.collaborateCommentList.forEach(item => {
-          if (item.fieldName === this.currentFieldName) {
-            list.push(item)
-          }
-        })
-        this.currentCollaborateCommentList = list
-        this.$logger.info('currentCollaborateCommentList', list)
-      })
+      this.GetCollaborateComment(this.form.type, this.form.id)
     },
 
     // historyData以及在接口请求的相应逻辑中正对数据进行‘格式’，
@@ -3825,10 +3881,22 @@ export default {
       this.previewTemplateVisible = true
       this.previewTemplate = template
     },
+    handlePreviewQuickTaskTemplate(template) {
+      this.$logger.info('handlePreviewTemplate ', template)
+      this.quickTaskPreviewTemplate = template
+      this.quickTaskPreviewTemplateVisible = true
+    },
     handleSelectPreviewTemplate(template) {
       this.$logger.info('handleSelectPreviewTemplate ', template)
       this.handleSelectTemplateMadel(template)
       this.previewTemplateVisible = false
+    },
+    handleSelectQuickTaskPreviewTemplate(data) {
+      this.$logger.info('handleSelectQuickTaskPreviewTemplate ', data)
+      if (data.presentationId && data.selectPageObjectIds && data.selectPageObjectIds.length > 0) {
+        this.handleEnsureChooseAnother(data)
+      }
+      this.quickTaskPreviewTemplateVisible = false
     },
     handleGotoImgIndex(index) {
       this.$logger.info('handleGotoImgIndex ' + index)

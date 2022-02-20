@@ -13,7 +13,7 @@
           <a-auto-complete
             size="large"
             style="width: 100%; margin-bottom: 16px"
-            placeholder="search here to add member"
+            placeholder="Search here to add member"
             option-label-prop="title"
             @focus="handleSearch"
             @search="handleSearch"
