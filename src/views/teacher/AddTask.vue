@@ -2555,8 +2555,8 @@ export default {
           this.chooseAnotherVisible = false
           if (data.classItem) {
             this.form.taskClassList.push({
-              classId: data.classItem.classId,
-              className: data.classItem.className,
+              classId: data.classItem.id,
+              className: data.classItem.name,
               classType: data.classItem.classType,
               startDate: null,
               endDate: null
