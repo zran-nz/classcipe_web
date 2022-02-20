@@ -65,9 +65,9 @@
                                 Personal
                               </a-tag>
                             </div>
-                            <a-popconfirm cancel-text="No" ok-text="Yes" title="Delete ?" @confirm="handleDeleteClass(classItem)">
+                            <a-popconfirm cancel-text="No" ok-text="Yes" title="Delete ?" @confirm="handleDeleteClass(classItem)" v-show='form.taskMode !== 2'>
                               <div class='remove-class-icon'>
-                                <img class='big-delete-icon' src="~@/assets/icons/tag/delete.png"/>
+                                <img class='big-delete-icon' src="~@/assets/icons/tag/delete.png" alt=''/>
                               </div>
                             </a-popconfirm>
                             <a-form-item label='Choose class'>
@@ -104,7 +104,7 @@
                               </div>
                             </a-form-item>
                           </div>
-                          <div class='add-class'>
+                          <div class='add-class' v-show='form.taskMode !== 2'>
                             <a-button type='primary' @click='handleAddLinkClass'> + Add class</a-button>
                           </div>
                         </div>
@@ -1778,8 +1778,10 @@
       </a-modal>
 
       <quick-session
+        v-if='chooseAnotherVisible'
         @close='handleCloseQuickSession'
         @select='handleEnsureChooseAnother'
+        :selected-class='quickSessionClassItem'
         :visible='chooseAnotherVisible'
         :mode="'choose-another'"
       />
@@ -2102,7 +2104,9 @@ export default {
       customizeLearnOut: [],
 
       quickTaskPreviewTemplateVisible: false,
-      quickTaskPreviewTemplate: null
+      quickTaskPreviewTemplate: null,
+
+      quickSessionClassItem: null
     }
   },
   computed: {
@@ -2334,6 +2338,13 @@ export default {
               item.weeks = this.getWeekByDate(item.momentRangeDate[0], item.momentRangeDate[1])
             }
           })
+
+          this.quickSessionClassItem = {
+            id: taskData.taskClassList[0].classId,
+            name: taskData.taskClassList[0].className,
+            ...taskData.taskClassList[0]
+          }
+          this.$logger.info('init quickSessionClassItem', this.quickSessionClassItem)
         }
 
         this.materialListFlag = taskData.materialList.length > 0
@@ -2553,13 +2564,17 @@ export default {
           this.form.image = response.result.image
           this.$message.success('Choose another successfully')
           this.chooseAnotherVisible = false
-          if (data.classItem) {
-            this.form.taskClassList.push({
-              classId: data.classItem.id,
-              className: data.classItem.name,
-              classType: data.classItem.classType,
-              startDate: null,
-              endDate: null
+          if (data.classItem && this.form.taskMode === 2) {
+            this.form.taskClassList = []
+            this.$nextTick(() => {
+              this.form.taskClassList.push({
+                classId: data.classItem.id,
+                className: data.classItem.name,
+                classType: data.classItem.classType,
+                startDate: null,
+                endDate: null
+              })
+              this.$logger.info('handleEnsureChooseAnother update form.taskClassList', this.form.taskClassList)
             })
           }
           this.loadThumbnail()
@@ -4173,6 +4188,12 @@ export default {
       classItem.classId = eventData.id
       classItem.classType = eventData.classType
       classItem.className = eventData.name
+      if (this.form.taskMode === 2) {
+        eventData.classId = eventData.id
+        eventData.className = eventData.name
+        this.quickSessionClassItem = eventData
+        this.$logger.info('handleSelectClass quickSessionClassItem', this.quickSessionClassItem)
+      }
     },
 
     handleUpdateWeeks (status) {

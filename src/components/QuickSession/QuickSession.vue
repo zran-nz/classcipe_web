@@ -88,6 +88,8 @@
               ref='inputOptionList'
               :option-list='classList'
               :option-list-height='80'
+              :default-selected-id='selectedClass ? selectedClass.id : null'
+              :default-display-name='selectedClass ? selectedClass.name : null'
               :tag-type-config='tagTypeConfig'
               @selected='handleSelectClass'
               @create-new='handleCreateNewClass'/>
@@ -136,6 +138,10 @@ export default {
     mode: {
       type: String,
       default: 'quick-session'
+    },
+    selectedClass: {
+      type: Object,
+      default: null
     }
   },
   data () {
@@ -167,6 +173,10 @@ export default {
     }
   },
   created() {
+    this.$logger.info('QuickSession created', this.selectedClass)
+    if (this.selectedClass) {
+      this.classItem = this.selectedClass
+    }
     this.initData()
   },
   methods: {
@@ -279,6 +289,14 @@ export default {
             strWindowFeatures
           )
           windowObjectReference.location = url
+
+          // 更新外部的task中的class列表
+          this.$emit('select', {
+            presentationId: this.selectedPrompt.presentationId,
+            selectPageObjectIds: this.selectedPrompt.pageObjectIds,
+            selectedPrompt: this.selectedPrompt,
+            classItem: this.classItem
+          })
           setTimeout(function () {
             window.location.href = targetUrl
           }, 1000)

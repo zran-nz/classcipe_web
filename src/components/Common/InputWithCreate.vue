@@ -154,7 +154,7 @@ export default {
 
     inputChange () {
       this.showFilterOption = true
-      const optionList = this.myOptionList.filter(option => option.name.indexOf(this.displayValue.trim()) !== -1);
+      const optionList = this.myOptionList.filter(option => option.name.indexOf(this.displayValue.trim()) !== -1)
       if (optionList.length === 0) {
         this.selectedId = null
         this.$emit('selected', null)
