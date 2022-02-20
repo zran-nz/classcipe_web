@@ -2102,9 +2102,7 @@ export default {
       customizeLearnOut: [],
 
       quickTaskPreviewTemplateVisible: false,
-      quickTaskPreviewTemplate: null,
-
-      quickSessionTaskClassId: null // quick-session中选择的classId
+      quickTaskPreviewTemplate: null
     }
   },
   computed: {
@@ -2566,7 +2564,6 @@ export default {
           }
           this.loadThumbnail()
           this.loadRecommendThumbnail()
-          this.updateQuickSessionTaskClassId()
         } else {
           this.$message.warn(response.message)
         }
@@ -4187,10 +4184,6 @@ export default {
           }
         })
       }
-    },
-
-    updateQuickSessionTaskClassId () {
-
     }
   }
 }

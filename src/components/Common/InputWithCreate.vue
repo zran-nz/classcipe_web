@@ -1,6 +1,6 @@
 <template>
   <div class='my-input-with-create' @click.stop=''>
-    <a-input class='my-input-with-create' v-model='displayValue' @focus='showOptionList = true' @click.native='showFilterOption = false' @input.native='showFilterOption = true'>
+    <a-input class='my-input-with-create' v-model='displayValue' @focus='showOptionList = true' @click.native='showFilterOption = false' @input.native='inputChange'>
     </a-input>
     <div class='option-list' :style="{'max-height': optionListHeight + 'px'}" v-show='showOptionList && (displayOptionList.length || displayValue)' @click.stop=''>
       <div class='option-item' v-for='(option, oIdx) in displayOptionList' :key='oIdx' @click='handleSelectItem(option)'>
@@ -149,6 +149,15 @@ export default {
       this.showOptionList = false
       if (!this.defaultSelectedId && !this.selectedId) {
         this.displayValue = ''
+      }
+    },
+
+    inputChange () {
+      this.showFilterOption = true
+      const optionList = this.myOptionList.filter(option => option.name.indexOf(this.displayValue.trim()) !== -1);
+      if (optionList.length === 0) {
+        this.selectedId = null
+        this.$emit('selected', null)
       }
     }
   }
