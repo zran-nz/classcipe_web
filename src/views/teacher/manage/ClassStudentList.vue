@@ -5,10 +5,46 @@
     <div class="table-page-search-wrapper" style="margin: 30px 0px;">
       <a-form layout="inline">
         <a-row type="flex" justify="start">
-          <a-col :span="8">
-            <a-input-search placeholder="Search for Name、Email..." v-model="searchKey" enter-button @search="searchQuery"/>
-          </a-col>
-          <a-col :span="7">
+          <a-col :span="11" style="margin-right: 10%;">
+            <a-auto-complete
+              v-model="selectStudent"
+              class="global-search"
+              size="large"
+              style="width: 100%;"
+              placeholder="Search and add by name/email"
+              option-label-prop="title"
+              @focus="handleSearch"
+              @select="onSelect"
+              @search="handleSearch"
+            >
+              <template slot="dataSource">
+                <a-select-option v-for="item in optionsList" :key="item.userInfo.id" :title="item.userInfo.email">
+                  <div style="display:flex">
+                    <div class="user-avatar">
+                      <div class="avatar">
+                        <img :src="item.userInfo.avatar" />
+                      </div>
+                    </div>
+                    <div class="user-name-email">
+                      <div class="user-name">
+                        {{ item.userInfo.nickname }}
+                      </div>
+                      <div class="email">
+                        {{ item.userInfo.email }}
+                      </div>
+                    </div>
+                    <div class="action-wrapper">
+                      <a-button type="link" @click="handleAddStudent(item.userInfo)">
+                        Add
+                      </a-button>
+                    </div>
+                  </div>
+                </a-select-option>
+              </template>
+              <a-input>
+                <a-icon slot="suffix" type="search" class="certain-category-icon" />
+              </a-input>
+            </a-auto-complete>
           </a-col>
           <a-col :span="4">
             <a-button @click="handleAdd" type="primary" icon="plus">Add Student</a-button>
@@ -93,6 +129,7 @@ import {
   SchoolClassStudentDelete
 } from '@/api/schoolClassStudent'
 import moment from 'moment'
+import store from '@/store'
 
 export default {
   name: 'ClassStudentList',
@@ -104,6 +141,10 @@ export default {
     classId: {
       type: String,
       default: ''
+    },
+    studentList: {
+      type: Array,
+      default: () => []
     }
   },
   data() {
@@ -137,7 +178,8 @@ export default {
           dataIndex: 'joinTime',
           customRender: function (t, r, index) {
             return moment.utc(t).local().format('yyyy-MM-DD HH:mm')
-          }
+          },
+          sorter: true
         },
         {
           title: 'Action',
@@ -152,13 +194,23 @@ export default {
         importExcelUrl: schoolClassStudentAPIUrl.SchoolClassStudentImportExcel
       },
       searchKey: '',
-      importLoadingText: 'Bulk import'
+      importLoadingText: 'Bulk import',
+      selectStudent: '',
+      optionsList: []
     }
   },
   computed: {
     importExcelUrl: function () {
       return process.env.VUE_APP_API_BASE_URL + this.url.importExcelUrl + '?classId=' + this.classId
+    },
+    selectedEmails() {
+      return this.dataSource.map(item => {
+        return item.email
+      })
     }
+  },
+  created() {
+    this.optionsList = this.studentList.filter(student => this.selectedEmails.indexOf(student.userInfo.email) === -1)
   },
   methods: {
     loadData (arg) {
@@ -169,8 +221,8 @@ export default {
       const params = this.getQueryParams()
       params.hasQuery = 'true'
       params.classId = this.classId
-      params.column = 'status'
-      params.order = 'asc'
+      params.column = 'joinTime'
+      params.order = 'desc'
       params.searchKey = this.searchKey
       getAction(this.url.list, params).then((res) => {
         if (res.success) {
@@ -182,6 +234,8 @@ export default {
           }
         }
         this.loading = false
+      }).finally(() => {
+        this.$emit('reloadClass')
       })
     },
     handleStatus(record, status) {
@@ -235,6 +289,48 @@ export default {
       link.click()
       document.body.removeChild(link) // 下载完成移除元素
       window.URL.revokeObjectURL(url) // 释放掉blob对象
+    },
+    onSelect(value) {
+      console.log('onSelect', value)
+    },
+    handleAddStudent(user) {
+      console.log(user)
+      if (this.dataSource.findIndex(student => student.email === user.email) > -1) {
+        this.$message.error('This teacher has been added')
+      }
+      const params = {
+        schoolId: store.getters.userInfo.school,
+        classFlag: 1,
+        classId: this.classId,
+        email: user.email,
+        studentName: user.nickname,
+        status: 1,
+        joinTime: moment.utc(new Date()).format('YYYY-MM-DD HH:mm:ss')
+        // roles: 'teacher'
+      }
+      this.selectTeacher = ''
+      this.loading = true
+      SchoolClassStudentAddOrUpdate(params).then(response => {
+        if (response.success) {
+          this.loadData()
+        } else {
+          this.$message.error(response.message)
+          this.loading = false
+        }
+      }).finally(() => {
+        this.$emit('reloadClass')
+      })
+    },
+    handleSearch(value) {
+      if (!value) {
+        this.optionsList = this.studentList.filter(student => this.selectedEmails.indexOf(student.userInfo.email) === -1)
+      } else {
+        this.optionsList = value ? this.searchResult(value) : []
+      }
+    },
+    searchResult(value) {
+      return this.studentList.filter(teacher => this.selectedEmails.indexOf(value) === -1 &&
+        teacher.userInfo.email.indexOf(value) > -1)
     }
   }
 }
@@ -242,4 +338,37 @@ export default {
 
 <style lang="less" scoped>
 @import "~@/components/index.less";
+.user-avatar {
+  width: 50px;
+  .avatar {
+    img {
+      height: 40px;
+      border-radius: 40px;
+    }
+  }
+}
+.user-name-email {
+  display: flex;
+  flex-direction:column;
+  width: 250px;
+  line-height: 24px;
+  font-family: Inter-Bold;
+  color: #000000;
+  display: flex;
+  align-items: flex-start;
+  .email {
+    padding-left: 10px;
+  }
+  .user-name {
+    text-align: center;
+    font-family: Inter-Bold;
+    line-height: 24px;
+    padding-left: 15px;
+    color: #000000;
+  }
+}
+.action-wrapper{
+  width:20%;
+  float: right
+}
 </style>

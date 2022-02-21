@@ -176,7 +176,6 @@ export default {
         return item.userInfo.email
       })
     }
-
   },
   methods: {
     async loadData() {
@@ -246,9 +245,9 @@ export default {
 
     handleSearch(value) {
       if (!value) {
-        this.dataSource = this.teacherList.filter(teacher => this.selectedEmails.indexOf(teacher.userInfo.email) === -1)
+        this.optionsList = this.teacherList.filter(teacher => this.selectedEmails.indexOf(teacher.userInfo.email) === -1)
       } else {
-        this.dataSource = value ? this.searchResult(value) : []
+        this.optionsList = value ? this.searchResult(value) : []
       }
     },
     searchResult(value) {
