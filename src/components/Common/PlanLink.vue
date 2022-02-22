@@ -4,7 +4,7 @@
       <template v-if="groups.length && !linkGroupLoading">
         <div v-for="(group, lIndex) in groups" :key="lIndex" class="link-group">
           <div class="group-item">
-            <div class="group-header">
+            <div class="group-header" v-show='group.groupName'>
               <div class="group-left-info">
                 <!-- unit plan下才有term概念,task不显示对应的操作和term名称-->
                 <div class="group-name">
@@ -13,7 +13,7 @@
                   </div>
                   <div v-if="group.editing" class="group-name-input">
                     <a-input
-                      v-model="group.groupName"
+                      v-model="newGroupName"
                       class="group-name-input"
                       @pressEnter="handleToggleEditGroupName(group,lIndex)" />
                   </div>
@@ -106,60 +106,6 @@
 
         </div>
       </template>
-      <!--      <template v-if="othersLinkGroupList.length && !linkGroupLoading">-->
-      <!--        <div class="link-group" data-group="othersLinkGroupList">-->
-      <!--          <div class="group-item">-->
-      <!--            <div class="group-header">-->
-      <!--              <div class="group-left-info">-->
-      <!--                <div class="group-name">-->
-      <!--                  <div class="group-name-text">Linked by others</div>-->
-      <!--                  &lt;!&ndash;                  <div class="group-name-text" v-if="fromType === typeMap.task" >Relevant Unit plan(s)</div>&ndash;&gt;-->
-      <!--                  &lt;!&ndash;                  <div class="group-name-input" v-if="linkGroup.editing">&ndash;&gt;-->
-      <!--                  &lt;!&ndash;                    <input v-model="linkGroup.group" class="group-name-input"/>&ndash;&gt;-->
-      <!--                  &lt;!&ndash;                  </div>&ndash;&gt;-->
-      <!--                </div>-->
-      <!--                &lt;!&ndash;                <div class="group-edit-icon" @click="handleToggleEditGroupName(linkGroup)">&ndash;&gt;-->
-      <!--                &lt;!&ndash;                  <a-icon type="edit" v-if="!linkGroup.editing"/>&ndash;&gt;-->
-      <!--                &lt;!&ndash;                  <a-icon type="check" v-if="linkGroup.editing"/>&ndash;&gt;-->
-      <!--                &lt;!&ndash;                </div>&ndash;&gt;-->
-      <!--              </div>-->
-      <!--              &lt;!&ndash;              <div class="group-right-info">&ndash;&gt;-->
-      <!--              &lt;!&ndash;                <div class="group-action">&ndash;&gt;-->
-      <!--              &lt;!&ndash;                  <a-button type="primary" @click="handleLinkGroup(linkGroup)">&ndash;&gt;-->
-      <!--              &lt;!&ndash;                    <div class="btn-text" style="line-height: 20px">&ndash;&gt;-->
-      <!--              &lt;!&ndash;                      + Link&ndash;&gt;-->
-      <!--              &lt;!&ndash;                    </div>&ndash;&gt;-->
-      <!--              &lt;!&ndash;                  </a-button>&ndash;&gt;-->
-      <!--              &lt;!&ndash;                </div>&ndash;&gt;-->
-      <!--              &lt;!&ndash;              </div>&ndash;&gt;-->
-      <!--            </div>-->
-      <!--            <div class="group-body">-->
-      <!--              <div class="group-link-item" v-for="(item,index) in othersLinkGroupList" :key="index">-->
-      <!--                <div class="left-info">-->
-      <!--                  <div class="icon">-->
-      <!--                    <content-type-icon :type="item.type"/>-->
-      <!--                  </div>-->
-      <!--                  <div class="name" @click="handleViewDetail(item)">-->
-      <!--                    <a-tooltip placement="top">-->
-      <!--                      <template slot="title">-->
-      <!--                        {{ item.name ? item.name : 'untitled' }}-->
-      <!--                      </template>-->
-      <!--                      {{ item.name ? item.name : 'untitled' }}-->
-      <!--                    </a-tooltip>-->
-      <!--                  </div>-->
-      <!--                </div>-->
-      <!--                <div class="right-info">-->
-      <!--                  <div class="date">{{ item.createTime | dayjs }}</div>-->
-      <!--                  <div class="status">-->
-      <!--                    <template v-if="item.status === 0">Draft</template>-->
-      <!--                    <template v-if="item.status === 1">Published</template>-->
-      <!--                  </div>-->
-      <!--                </div>-->
-      <!--              </div>-->
-      <!--            </div>-->
-      <!--          </div>-->
-      <!--        </div>-->
-      <!--      </template>-->
     </div>
 
     <a-modal
@@ -291,7 +237,8 @@ export default {
       showTabs: true,
       linkTitle: 'Link Content',
       editingGroup: '',
-      groupRransition: []
+      groupRransition: [],
+      newGroupName: null
     }
   },
   created () {
@@ -367,11 +314,28 @@ export default {
     handleToggleEditGroupName (linkGroup, index) {
       this.$logger.info('handleToggleEditGroupName', linkGroup)
       if (linkGroup.editing) {
+        // 生成一个唯一的groupName
+        let uniqueGroupName = 'Untitled group '
+        let count = 1
+        while (true) {
+          let isUnique = true
+          this.groups.forEach(item => {
+            if (item.groupName === uniqueGroupName + count) {
+              isUnique = false
+            }
+          })
+          if (isUnique) {
+            uniqueGroupName = uniqueGroupName + count
+            break
+          }
+          count++
+        }
+        linkGroup.groupName = (this.newGroupName && this.newGroupName.trim().length) ? this.newGroupName : uniqueGroupName
         AddOrSaveGroupName({
           fromId: this.fromId,
           fromType: this.fromType,
           id: linkGroup.id,
-          groupName: linkGroup.groupName ? linkGroup.groupName : 'Untitled'
+          groupName: linkGroup.groupName
         }).then(response => {
           this.$logger.info('AddOrSaveGroupName', response)
         }).finally(() => {
@@ -380,6 +344,7 @@ export default {
           this.$set(this.groups, index, linkGroup)
         })
       } else {
+        this.newGroupName = linkGroup.groupName
         linkGroup.editing = true
         this.$set(this.groups, index, linkGroup)
       }
