@@ -22,6 +22,12 @@ export const TagType = {
   'assessment': 8
 }
 
+export const ClassType = {
+  'school': 1,
+  'personal': 2,
+  'openSession': 3
+}
+
 export const SubjectType = {
   'Learn': 1,
   'Skill': 2,
