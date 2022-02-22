@@ -1008,7 +1008,7 @@ export default {
         if ((!this.forms || this.forms.length === 0) && this.mode === EvaluationTableMode.Edit) {
           this.selectRubricVisible = true
         }
-        if (this.isInitForm) {
+        if (this.isInitForm && this.forms.length) {
           // 如果是初始化，且有关联的表格数据，先自动保存一下。
           this.initSaveEvaluation()
         } else {
