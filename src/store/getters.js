@@ -39,7 +39,9 @@ const getters = {
       store.dispatch('initData')
       return state.websocket.vueSocket
     }
-  }
+  },
+
+  evaluationSet: state => state.websocket.evaluationSet
 }
 
 export default getters

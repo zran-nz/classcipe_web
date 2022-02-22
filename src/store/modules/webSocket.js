@@ -1,6 +1,6 @@
 import { RECEIVE_MSG, WEBSOCKET_TYPE_INIT } from '@/store/mutation-types'
 import VueWebSocket from '@/websocket'
-import { COLLABORATE, SAVE_CONTENT } from '@/websocket/cmd'
+import { COLLABORATE, SAVE_CONTENT, EVALUATION_SET_CHANGE } from '@/websocket/cmd'
 
 const websocket = {
   state: {
@@ -9,7 +9,8 @@ const websocket = {
     collaborateMsg: null,
     saveContentMsg: null,
     msgUnreadCount: 0,
-    needRefreshCollaborate: ''
+    needRefreshCollaborate: '',
+    evaluationSet: null
   },
   mutations: {
     [WEBSOCKET_TYPE_INIT]: (state) => {
@@ -31,6 +32,9 @@ const websocket = {
     },
     SET_REFRESH_COLLABORATE: (state, needRefreshCollaborate) => {
       state.needRefreshCollaborate = needRefreshCollaborate
+    },
+    [EVALUATION_SET_CHANGE]: (state, evaluationSetMsg) => {
+      state.evaluationSet = evaluationSetMsg.content
     }
   },
   actions: {
@@ -38,7 +42,8 @@ const websocket = {
     receiveMsg: ({ commit }, receiveMsg) => commit(RECEIVE_MSG, receiveMsg),
     receiveCollaborate: ({ commit }, collaborateMsg) => commit(COLLABORATE, collaborateMsg),
     receiveSaveContentMsg: ({ commit }, saveContentMsg) => commit(SAVE_CONTENT, saveContentMsg),
-    refreshCollaborate: ({ commit }, needRefreshCollaborate) => commit('SET_REFRESH_COLLABORATE', needRefreshCollaborate)
+    refreshCollaborate: ({ commit }, needRefreshCollaborate) => commit('SET_REFRESH_COLLABORATE', needRefreshCollaborate),
+    receiveEvaluationSetChange: ({ commit }, evaluationSetMsg) => commit(EVALUATION_SET_CHANGE, evaluationSetMsg)
   }
 }
 

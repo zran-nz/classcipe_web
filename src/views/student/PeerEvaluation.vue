@@ -387,6 +387,21 @@ export default {
           })
         })
       }
+    },
+    '$store.getters.evaluationSet': {
+      handler(evaluationSet) {
+        this.$logger.info('evaluationSet change', evaluationSet)
+        if (evaluationSet.sessionId === this.classId) {
+          const oldMode = this.showWaitingMask
+          this.showWaitingMask = evaluationSet.mode === TeacherEvaluationStatus.Editing
+          // 老师编辑完页面，重新刷新加载！
+          if (oldMode && !this.showWaitingMask) {
+            this.initCompleted = false
+            window.location.reload()
+          }
+        }
+      },
+      immediate: true
     }
   },
   data () {
@@ -486,7 +501,6 @@ export default {
 
       isInitForm: false,
       evaluationId: null, // 保存后才有
-      startUpdateTeacherEvaluationStatusTimer: null,
       showWaitingMask: false
     }
   },
@@ -833,17 +847,13 @@ export default {
             this.allowPeerEvaluate = false // 空表格不允许评估
           }
         }
+        this.updateTeacherEvaluationStatus()
         this.loading = false
         this.initCompleted = true
       })
     },
 
-    startUpdateTeacherEvaluationStatus () {
-      if (this.startUpdateTeacherEvaluationStatusTimer) {
-        clearTimeout(this.startUpdateTeacherEvaluationStatusTimer)
-        this.startUpdateTeacherEvaluationStatusTimer = null
-      }
-
+    updateTeacherEvaluationStatus () {
       GetEvaluationMode({
         sessionId: this.classId
       }).then(response => {
@@ -856,8 +866,6 @@ export default {
             window.location.reload()
           }
         }
-      }).finally(() => {
-        this.startUpdateTeacherEvaluationStatusTimer = setTimeout(this.startUpdateTeacherEvaluationStatus, 5000)
       })
     },
 
