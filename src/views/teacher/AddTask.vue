@@ -956,7 +956,7 @@
         :maskClosable='false'
         :closable='true'
         destroyOnClose
-        width='900px'>
+        width='640px'>
         <collaborate-user-list
           :content-id='taskId'
           :main-content='collaborateContent'

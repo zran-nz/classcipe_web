@@ -1,11 +1,6 @@
 <template>
-  <div class="collaborate-user-list">
+  <div class="collaborate" @click='showUser = false'>
     <div class="toggle-header">
-      <div v-if="showUser" class="view-back" @click="back()">
-        <div class="back-icon">
-          <img src="~@/assets/icons/common/back.png" />
-        </div>
-      </div>
       <div class="toggle-mode-type-wrapper">
         <div class="header-icon"><img src="~@/assets/icons/collaborate/group.png" /></div>
         <div>Invite People</div>
@@ -13,133 +8,121 @@
     </div>
     <div class="user-select-wrapper">
       <div class="user-search-wrapper">
-        <div class="search-header">
+        <a-skeleton :loading="loading" active>
+          <div class="search-content">
+            <div class='search-left' :style="{ width: selectedUserEmailList.length === 0 ? '600px' : '500px' }">
+              <div
+                :class="{'tag-input-wrapper': true, 'active': active, 'tag-dom': true}"
+                @click.stop="handleFocusInput">
+                <div class="tag-input-list tag-dom">
+                  <div class="tag-list tag-dom">
+                    <div class="tag-item tag-dom" v-for="(user,index) in selectedUserList" :key="index">
+                      <a-tag closable @close="handleCloseTag(user.email)" class="tag-dom input-tag-item">
+                        <a-avatar size="small" :src="user.avatar"/>
+                        {{ user.email }}
+                      </a-tag>
+                    </div>
 
-          <div
-            :class="{'tag-input-wrapper': true, 'active': active, 'tag-dom': true}"
-            :style="{ width: selectedUserEmailList.length === 0 ? '100%' : '88%' }"
-            @click="handleFocusInput">
-            <div class="tag-input-list tag-dom">
-              <div class="tag-list tag-dom">
-                <a-icon type="search" :style="{ fontSize: '20px','margin-right':'5px' }" />
-                <div class="tag-item tag-dom" v-for="(user,index) in selectedUserList" :key="index">
-                  <a-tag closable @close="handleCloseTag(user.email)" class="tag-dom input-tag-item">
-                    <a-avatar size="small" :src="user.avatar"/>
-                    {{ user.email }}
-                  </a-tag>
-                </div>
-
-                <div class="tag-input tag-dom ">
-                  <input
-                    type="text"
-                    placeholder="Invite teacher by email"
-                    @keyup.enter="debounceSearchUser"
-                    @focus="debounceSearchUser"
-                    @blur="active = false"
-                    @search="debounceSearchUser"
-                    @keyup="debounceSearchUser"
-                    v-model="userNameOrEmail"
-                    ref="input"
-                    class="search-input">
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <a-select
-            :getPopupContainer="trigger => trigger.parentElement"
-            size="large"
-            default-value="Edit"
-            style="width: 10%;height:40px"
-            v-model="permission"
-            v-if="selectedUserEmailList.length > 0">
-            <a-select-option value="Edit">
-              Edit
-            </a-select-option>
-            <a-select-option value="Viewer">
-              Viewer
-            </a-select-option>
-          </a-select>
-
-        </div>
-
-        <template v-if="showUser">
-
-          <div class="user-list">
-            <a-skeleton :loading="loading" active>
-              <div class="user-item" v-for="(user,index) in userList" :key="index" v-if="userList.length">
-                <div class="user-avatar-email">
-                  <div class="avatar">
-                    <img :src="user.avatar" v-if="collaborateHistoryUserEmails.indexOf(user.email) !== -1" />
-                    <img src="~@/assets/icons/collaborate/group.png" v-else />
-                  </div>
-                  <div class="email">
-                    {{ user.nickname }}
-                  </div>
-                </div>
-                <div class="user-name">
-                  {{ user.email }}
-                </div>
-                <div class="action" >
-                  <div slot="actions">
-                    <div class="action-wrapper">
-                      <div v-if="user.email !== $store.getters.userInfo.email" class="action-item" @click="handleAddToSelect(user)">
-                        <div class="active-status-icon">
-                          <img src="~@/assets/icons/collaborate/round.png" v-if="selectedUserEmailList.indexOf(user.email) === -1"/>
-                          <a-icon theme="filled" type="check-circle" v-if="selectedUserEmailList.indexOf(user.email) !== -1" />
-                        </div>
-                        <div class="action-name"> + Select</div>
-                      </div>
-                      <div v-else>Owner</div>
+                    <div class="tag-input tag-dom" :style="{ width: selectedUserEmailList.length === 0 ? '150px' : '20px' }">
+                      <input
+                        type="text"
+                        :placeholder="selectedUserEmailList.length === 0 ? 'Invite teacher by email' : ''"
+                        @keyup.enter="debounceSearchUser"
+                        @focus="debounceSearchUser"
+                        @blur="active = false"
+                        @search="debounceSearchUser"
+                        @keyup="debounceSearchUser"
+                        v-model="userNameOrEmail"
+                        ref="input"
+                        class="search-input">
                     </div>
                   </div>
                 </div>
               </div>
-              <div class="empty-user" v-if="userList.length === 0">
-                <no-more-resources tips="no user found!"/>
+              <div class='search-user-list' @click.stop='' v-if='showUser'>
+                <div class="user-list" :style="{ width: selectedUserEmailList.length === 0 ? '590px' : '500px' }" v-if="displaySelectUserList.length">
+                  <a-skeleton :loading="loading" active>
+                    <div class="user-item" v-for="user in displaySelectUserList" :key="user.email" @click="handleAddToSelect(user)">
+                      <div class="user-avatar-email">
+                        <div class="avatar">
+                          <img :src="user.avatar" v-if="collaborateHistoryUserEmails.indexOf(user.email) !== -1" alt=''/>
+                          <img src="~@/assets/icons/collaborate/group.png" v-else alt=''/>
+                        </div>
+                        <div class='email-name'>
+                          <div class="user-name">
+                            {{ user.email }}
+                          </div>
+                          <div class="email">
+                            {{ user.nickname }}
+                          </div>
+                        </div>
+                      </div>
+                      <div class="action" >
+                        <div slot="actions">
+                          <div class="action-wrapper">
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </a-skeleton>
+                </div>
               </div>
-            </a-skeleton>
+            </div>
+            <a-dropdown v-if="selectedUserEmailList.length">
+              <div class='my-collaborate-select'>
+                <span class='permission-set'>{{ permission }}</span>
+                <a-icon type="caret-down" />
+              </div>
+              <a-menu slot="overlay">
+                <a-menu-item>
+                  <a @click="permission = 'Edit'">
+                    Edit
+                  </a>
+                </a-menu-item>
+                <a-menu-item>
+                  <a @click="permission = 'Viewer'">
+                    Viewer
+                  </a>
+                </a-menu-item>
+              </a-menu>
+            </a-dropdown>
+          </div>
+          <div class='send-message' v-if='selectedUserEmailList.length'>
+            <a-checkbox default-checked @change="onChangeSendMessage" class="message-check-wrapper">
+              Send a message
+            </a-checkbox>
+            <div class="message-wrapper" v-if="sendMessage">
+              <a-textarea
+                :auto-size="{ minRows: 4, maxRows: 6 }"
+                allow-clear
+                v-model="inviteMessage"
+                placeholder="Entre message"
+                aria-placeholder="Entre message"
+                class="my-collaborate-textarea" />
+            </div>
           </div>
 
-          <a-checkbox default-checked @change="onChangeSendMessage" class="message-check-wrapper">
-            Send a message
-          </a-checkbox>
-          <div class="message-wrapper" v-if="sendMessage">
-            <a-textarea v-model="inviteMessage" placeholder="Entre message" aria-placeholder="Entre message" class="my-textarea" />
-          </div>
-          <div class="action-line">
-            <a-button
-              :disabled="selectedUserList.length === 0"
-              :loading="conformLoading"
-              class="button-item"
-              type="primary"
-              shape="round"
-              @click="handleEnsureSelect"> Confirm </a-button>
-          </div>
-        </template>
-        <a-skeleton :loading="loading" active>
-          <template v-if="!showUser">
+          <template v-if='selectedUserEmailList.length === 0'>
             <div
               class="collaborate-user"
-              v-if="collaborateUserList.length && !showUser">
-              <div class="collaborate-title">
-                Collaborators({{ collaborateUserList.length }})
-              </div>
+              v-if="collaborateUserList.length">
               <div class="collaborate-user-list">
                 <div class="user-item" v-for="(user,index) in collaborateUserList" :key="index">
                   <div class="user-avatar-email">
                     <div class="avatar">
                       <img :src="user.userAvatar" />
                     </div>
-                    <div class="email">
-                      {{ user.nickName }}
+                    <div class='email-name'>
+                      <div class="user-name">
+                        {{ user.nickName }}
+                      </div>
+                      <div class="email">
+                        {{ user.userName }}
+                      </div>
                     </div>
-                    <a-tag color="red" style="position: absolute;top: -15px;right: 0px;" v-if="user.linkUser!== 0">
+                    <a-tag color="red" style="position: absolute;top: -15px;right: 0;" v-if="user.linkUser!== 0">
                       Apply to join
                     </a-tag>
-                  </div>
-                  <div class="user-email">
-                    {{ user.userName }}
                   </div>
                   <div class="user-status">
                     <span v-if="user.receiveStatus === 0">
@@ -161,7 +144,7 @@
                         </div>
                       </div>
                       <div class="action-wrapper" v-else>
-                        <div style="width: 100px">
+                        <div style="width: 80px">
                           <a-dropdown>
                             <a-menu slot="overlay">
                               <a-menu-item @click="handleChange(user,'Edit',index)">
@@ -175,10 +158,10 @@
                                 <span>Remove</span>
                               </a-menu-item>
                             </a-menu>
-                            <a-button class="type-filter-button" style="width: 85px;padding: 0 10px;display:flex; align-items:center ;height: 40px;border-radius: 6px;background: #FFFFFF;font-family: Inter-Bold;color: #182552;border: 1px solid #d9d9d9;">
-                              <span>{{ user.permissions }}</span>
+                            <div class='my-collaborate-list-item-select'>
+                              <span class='permission-set'>{{ user.permissions }}</span>
                               <a-icon type="caret-down" />
-                            </a-button>
+                            </div>
                           </a-dropdown>
                         </div>
                       </div>
@@ -187,7 +170,7 @@
                 </div>
               </div>
             </div>
-            <div class="no-collaborate-users" v-if="!showUser && collaborateUserList.length === 0">
+            <div class="no-collaborate-users" v-if="collaborateUserList.length === 0">
               <div class="icon">
                 <img src="~@/assets/icons/collaborate/no_user.png" />
               </div>
@@ -197,11 +180,11 @@
                 </a>
               </div>
             </div>
-
             <div class="link-wrapper">
-
               <div class="link-setting">
-                <a-tooltip placement="top" title="Click to Reset link"><img @click="resetLink" src="~@/assets/icons/collaborate/refresh.png" class="refresh-icon" /></a-tooltip>
+                <a-tooltip placement="top" title="Click to Reset link">
+                  <img @click="resetLink" src="~@/assets/icons/collaborate/refresh.png" class="refresh-icon" alt=''/>
+                </a-tooltip>
                 <div class="link-text" >
                   {{ linkUrl }}
                 </div>
@@ -211,16 +194,22 @@
                 <div class="action-copy" @click="handleEmail()" style="width:40px;font-size: 20px;cursor: pointer;">
                   <a-tooltip placement="top" title="Send email">   <a-icon type="mail" /></a-tooltip>
                 </div>
-
-                <!--                          <a-button class="action-copy" type="primary" shape="round" @click="handleCopy()">-->
-                <!--                            copy-->
-                <!--                          </a-button>-->
               </div>
               <div class="link-approve">
                 <a-radio @click="changeApprove" :checked="approveFlag">Approval is required for collaborating via this link</a-radio>
               </div>
             </div>
           </template>
+
+          <div class="action-line" v-if='selectedUserEmailList.length'>
+            <a-button
+              :disabled="selectedUserList.length === 0"
+              :loading="conformLoading"
+              class="button-item"
+              type="primary"
+              shape="round"
+              @click="handleEnsureSelect"> Confirm </a-button>
+          </div>
         </a-skeleton>
       </div>
     </div>
@@ -233,11 +222,6 @@
         <a-button type="primary" :loading="sendLoading" @click="handleSendEmail" style="margin-left: 40%;margin-bottom: 20px;">
           Send an email
         </a-button>
-        <!--          <a-col :span="8">-->
-        <!--            <a-button type="primary" :loading="sendLoading" @click="handleSendEmail" >-->
-        <!--              Send an email-->
-        <!--            </a-button>-->
-        <!--          </a-col>-->
       </a-form-model>
     </a-modal>
 
@@ -300,6 +284,15 @@ export default {
         linkUrl = linkUrl.replace('https://api', 'https://my')
       }
       return linkUrl
+    },
+    displaySelectUserList () {
+      const displayUserList = []
+      this.userList.forEach(user => {
+        if (this.selectedUserEmailList.indexOf(user.email) === -1 && user.email !== this.$store.getters.userInfo.email) {
+          displayUserList.push(user)
+        }
+      })
+      return displayUserList
     }
   },
   watch: {
@@ -376,7 +369,6 @@ export default {
       this.conformLoading = true
       CollaboratesInvite(inviteData).then(response => {
         if (response.success) {
-          this.showUser = false
           this.$message.success('Invite successfully')
         } else {
           this.$message.error(response.message)
@@ -581,130 +573,59 @@ export default {
 <style lang="less" scoped>
 @import "~@/components/index.less";
 
-.collaborate-user-list {
-  margin-top: 5px;
+.toggle-header {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  padding-bottom: 10px;
 
-  .toggle-header {
+  .toggle-mode-type-wrapper {
+    box-sizing: border-box;
     display: flex;
-    flex-direction: row;
     justify-content: center;
-    padding-bottom: 10px;
-
-    .toggle-mode-type-wrapper {
-      box-sizing: border-box;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      .header-icon{
-        img{
-          width:40px;
-          margin:5px;
-        }
+    align-items: center;
+    .header-icon{
+      padding-right: 5px;
+      img{
+        width:40px;
+        margin:5px;
       }
-      font-size: 16px;
-      font-family: Segoe UI;
-      font-weight: bold;
-      line-height: 20px;
-      color: #000000;
-      opacity: 1;
     }
+    font-size: 16px;
+    font-family: Segoe UI;
+    font-weight: bold;
+    line-height: 20px;
+    color: #000000;
+    opacity: 1;
+  }
+}
+
+.user-search-wrapper {
+  display: flex;
+  flex-direction: column;
+  opacity: 1;
+  border-radius: 4px;
+  box-sizing: border-box;
+  margin-bottom: 20px;
+  position: relative;
+  .search-content {
+    display: flex;
+    justify-content: space-between;
+    margin: auto;
+    width: 100%;
+    position: relative;
   }
 
-  .user-search-wrapper {
-    display: flex;
-    flex-direction: column;
-    opacity: 1;
-    border-radius: 4px;
-    box-sizing: border-box;
-    margin-bottom: 20px;
-    .search-header {
+  .collaborate-user {
+    max-height: 250px;
+    overflow-y: auto;
+    margin-top: 10px;
+    .collaborate-user-list {
       display: flex;
-      justify-content:space-between;
-      margin: auto;
-      width: 90%;
-      border-radius: 4px;
+      width: 100%;
+      max-height: 250px;
       margin-bottom: 10px;
-      //padding: 15px 10px 5px 10px;
-
-      .search-line {
-        display: flex;
-        flex-direction: row;
-        justify-content: space-between;
-        align-items: center;
-        .label {
-          display: flex;
-          flex-direction: row;
-          align-items: center;
-
-          img {
-            height: 30px;
-          }
-
-          .label-title {
-            font-family: PingFang SC;
-            font-weight: bold;
-            color: #11142D;
-            padding-left: 10px;
-          }
-        }
-
-        .search-by-id {
-          border-radius: 4px;
-          .user-search {
-            border-radius: 4px;
-            outline: none;
-            border: 1px solid rgba(216, 216, 216, 1);
-            box-shadow: none;
-          }
-          .search-icon {
-            height: 15px;
-          }
-        }
-
-        .search-by-group {
-          margin-left: 10px;
-        }
-      }
-
-      .header-label-line {
-        padding: 10px;
-        display: flex;
-        flex-direction: row;
-        align-items: center;
-        font-family: PingFang SC;
-        font-weight: 400;
-        line-height: 24px;
-        color: #11142D;
-        cursor: pointer;
-
-        .label-item-email {
-          width: 30%;
-        }
-
-        .label-item-name {
-          width: 30%;
-        }
-
-        .label-item-action {
-          width: 40%;
-        }
-      }
-
-      /deep/ .ant-input{
-        border-bottom-left-radius: 30px;
-        border-top-left-radius: 30px
-      }
-    }
-
-    .user-list {
-      display: flex;
-      padding: 0 10px;
-      max-height: 380px;
-      width: 90%;
-      margin: auto;
       overflow-y: auto;
-      border: 1px solid #D8D8D8;
       flex-direction: column;
 
       &::-webkit-scrollbar {
@@ -726,21 +647,20 @@ export default {
         padding: 15px 0;
       }
       .user-item {
-        margin: 1px 0;
-        //box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.16);
-        /* box-shadow: 0px 3px 6px rgb(0 0 0 / 16%); */
-        border-bottom: 1px solid #D8D8D8;
         opacity: 1;
+        cursor: pointer;
         border-radius: 4px;
         padding: 10px;
         display: flex;
         flex-direction: row;
         align-items: center;
-        &:last-child{
-          border-bottom: none;
+
+        &:hover {
+          background: #f1f2f3;
         }
+
         .user-avatar-email {
-          width: 40%;
+          width: 60%;
           line-height: 24px;
           font-family: Inter-Bold;
           line-height: 24px;
@@ -748,21 +668,36 @@ export default {
           display: flex;
           flex-direction: row;
           align-items: center;
+          position: relative;
           .avatar {
             img {
               height: 40px;
               border-radius: 40px;
             }
           }
-          .email {
+          .email-name {
             padding-left: 10px;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            align-items: flex-start;
+
+            .user-name {
+              color: #000;
+              line-height: 20px;
+            }
+
+            .email {
+              color: #999;
+              line-height: 12px;
+            }
           }
         }
 
-        .user-name {
-          width: 40%;
-          text-align: center;
+        .user-status {
+          width: 20%;
           font-family: Inter-Bold;
+          text-align: center;
           line-height: 24px;
           padding-left: 15px;
           color: #000000;
@@ -771,10 +706,9 @@ export default {
         .action {
           width: 20%;
           display: flex;
-          text-align: center;
           flex-direction: row;
           align-items: center;
-          justify-content: center;
+          justify-content: flex-end;
           .action-wrapper {
             display: flex;
             flex-direction: row;
@@ -810,159 +744,24 @@ export default {
                 }
               }
             }
-          }
-        }
-      }
-    }
-
-    .collaborate-user {
-      margin-top:20px;
-      min-height:250px;
-      .collaborate-title {
-        font-size: 16px;
-        line-height: 25px;
-        width: 90%;
-        margin: auto;
-        color: #000;
-        padding: 5px 18px;
-      }
-      .collaborate-user-list {
-        display: flex;
-        width: 90%;
-        margin: auto;
-        padding: 0px 10px;
-        max-height: 380px;
-        margin-bottom: 20px;
-        overflow-y: auto;
-        border: 1px solid #D8D8D8;
-        flex-direction: column;
-
-        &::-webkit-scrollbar {
-          width: 5px;
-          height: 5px;
-        }
-        &::-webkit-scrollbar-track {
-          border-radius: 3px;
-          background: rgba(0,0,0,0.00);
-          -webkit-box-shadow: inset 0 0 5px rgba(0,0,0,0.08);
-        }
-        /* 滚动条滑块 */
-        &::-webkit-scrollbar-thumb {
-          border-radius: 5px;
-          background: rgba(0,0,0,0.12);
-          -webkit-box-shadow: inset 0 0 10px rgba(0,0,0,0.2);
-        }
-        .empty-user {
-          padding: 15px 0;
-        }
-        .user-item {
-          margin: 10px 0;
-          box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.16);
-          opacity: 1;
-          border-radius: 4px;
-          padding: 10px;
-          display: flex;
-          flex-direction: row;
-          align-items: center;
-
-          .user-avatar-email {
-            width: 30%;
-            line-height: 24px;
-            font-family: Inter-Bold;
-            line-height: 24px;
-            color: #000000;
-            display: flex;
-            flex-direction: row;
-            align-items: center;
-            position: relative;
-            .avatar {
-              img {
-                height: 40px;
-                border-radius: 40px;
-              }
-            }
-            .email {
-              padding-left: 10px;
-            }
-          }
-
-          .user-email {
-            width: 30%;
-            font-family: Inter-Bold;
-            text-align: center;
-            line-height: 24px;
-            padding-left: 15px;
-            color: #000000;
-          }
-          .user-status {
-            width: 20%;
-            font-family: Inter-Bold;
-            text-align: center;
-            line-height: 24px;
-            padding-left: 15px;
-            color: #000000;
-          }
-
-          .action {
-            width: 20%;
-            display: flex;
-            flex-direction: row;
-            align-items: center;
-            justify-content: flex-end;
-            .action-wrapper {
-              display: flex;
-              flex-direction: row;
-              align-items: center;
-              justify-content: center;
-              .action-item {
-                display: flex;
-                flex-direction: row;
-                justify-content: center;
-                align-items: center;
-                padding: 0 10px;
-                user-select: none;
-
-                .active-status-icon {
-                  display: flex;
-                  flex-direction: row;
-                  align-items: center;
-                  width: 20px;
-                  img {
-                    height: 18px;
-                  }
-
-                  font-size: 15px;
-                  color: rgba(21, 195, 154, 1);
-                }
-                .action-name {
-                  padding: 0 5px;
-                }
-
-                .active-icon {
-                  img {
-                    height: 14px;
-                  }
-                }
-              }
-              .action-ensure{
-                margin-left:10px;
-              }
+            .action-ensure{
+              margin-left:10px;
             }
           }
         }
       }
     }
   }
+}
 
-  .message-action-wrapper {
-    height: 50px;
-    display: flex;
-    margin-top: 10px;
-    padding-bottom: 10px;
-    flex-direction: row;
-    align-items: center;
-    justify-content: center;
-  }
+.message-action-wrapper {
+  height: 50px;
+  display: flex;
+  margin-top: 10px;
+  padding-bottom: 10px;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
 }
 
 .no-collaborate-users {
@@ -974,7 +773,7 @@ export default {
 
   .icon {
     img {
-      width: 250px;
+      width: 100px;
     }
   }
 
@@ -997,19 +796,14 @@ export default {
   }
 }
 .message-check-wrapper{
-  width: 90%;
-  margin: 20px auto;
+  margin: 10px auto;
+  color: #111;
 }
-.message-wrapper{
-  width: 90%;
-  margin: 5px auto;
-}
+
 .link-wrapper{
   clear:both;
-  width: 80%;
-  margin:0 auto;
+  width: 100%;
   padding-top: 20px;
-  margin-bottom:30px;
   .link-setting{
     margin: 0 auto;
     height: 50px;
@@ -1020,16 +814,18 @@ export default {
     align-items: center;
     justify-content: space-between;
     .refresh-icon{
-      width:30px;
-      margin:5px;
       margin-left: 10px;
+      width: 15px;
       cursor: pointer;
     }
     .action-copy{
-      line-height: 30px;
+      color: #07AB84;
+      display: flex;
+      justify-content: center;
+      align-items: center;
     }
     .link-text{
-      //max-width: 450px;
+      user-select: all;
       text-align: center;
       overflow: hidden;
       height: 19px;
@@ -1037,19 +833,24 @@ export default {
       font-family: Segoe UI;
       font-weight: 400;
       line-height: 20px;
-      color: #000000;
+      color: #3c4043;
       opacity: 1;
+      cursor: pointer;
+
+      &:hover {
+        color: #38cfa6;
+      }
     }
   }
   .link-approve{
-    margin: 0 auto;
+    margin: 10px auto;
     font-size: 12px;
+    padding: 0 10px;
     font-family: Segoe UI;
     font-weight: 400;
     line-height: 20px;
     color: #000000;
     opacity: 1;
-    margin-top:20px;
   }
 }
 .tag-input-wrapper {
@@ -1060,17 +861,18 @@ export default {
   vertical-align: top;
   color: @text-color;
   cursor: pointer;
-  border-radius: 15px;
   transition: all 0.3s;
-  padding: 0 @input-padding-horizontal-base;
-  border: @border-width-base solid #d9d9d9;
   outline: 0;
+  width: 100%;
+  background: #f1f3f4;
+  -webkit-border-radius: 6px 6px 0 0;
+  border-radius: 6px 6px 0 0;
+  border-bottom: 1px solid #15C39A;
+  padding: 4px 12px;
 
   &:hover {
-    border-color: @input-hover-border-color;
-    border-right-width: @border-width-base !important;
+    background: #E3E5E6;
   }
-
   .tag-input-list {
     display: flex;
     flex-direction: row;
@@ -1088,23 +890,20 @@ export default {
       .tag-input {
         display: inline-block;
         input {
+          background: transparent;
           border: none;
           outline: none;
           height: @input-height-base;
           border-radius: @border-radius-base;
           position: relative;
           display: inline-block;
-          width: 500px;
           padding: @input-padding-vertical-base 0;
           color: @black;
-          //font-size: @font-size-lg;
-          //line-height: @line-height-base;
-          background-color: @input-bg;
-          background-image: none;
-          border: none;
           font-size: 14px;
           font-family: Inter-Bold;
           line-height: 24px;
+          margin: 4px;
+          width: 100%;
           &:focus,
           &:active {
             border: none;
@@ -1117,21 +916,27 @@ export default {
 }
 
 .active {
-  border-right-width: @border-width-base !important;
   outline: 0;
-  box-shadow: @input-outline-offset @outline-blur-size @outline-width fade(@outline-color, 20%);
+  background: #E3E5E6;
 }
 
 .input-tag-item {
   border-radius: 26px;
   padding: 3px 10px;
-  margin: 2px;
-  background: rgba(255, 255, 255, 0.1);
+  margin: 4px;
+  background: #ffffff;
   border: 1px solid #D8D8D8;
-  font-size: 12px;
+  font-size: 13px;
   font-family: Inter-Bold;
+  cursor: pointer;
   line-height: 24px;
+  font-weight: 500;
   color: #11142D;
+
+  &:hover {
+    background: white;
+    color: #000000;
+  }
 }
 
 .view-back {
@@ -1144,5 +949,182 @@ export default {
       height: 50px;
     }
   }
+}
+
+.my-collaborate-select {
+  border: none;
+  background: #f1f3f4;
+  width: 85px;
+  height: 50px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  line-height: 50px;
+  font-size: 14px;
+  color: #5f6368;
+  cursor: pointer;
+
+  .permission-set {
+    padding-right: 5px;
+  }
+
+  &:hover {
+    color: #333;
+    background: #E3E5E6;
+  }
+}
+
+.my-collaborate-list-item-select {
+  border: none;
+  background: #f1f3f4;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  line-height: 30px;
+  height: 30px;
+  font-size: 14px;
+  color: #5f6368;
+  cursor: pointer;
+
+  .permission-set {
+    padding-right: 5px;
+  }
+
+  &:hover {
+    color: #333;
+    background: #E3E5E6;
+  }
+}
+
+.search-user-list {
+  position: relative;
+  .user-list {
+    z-index: 100;
+    position: fixed;
+    border-top: 1px solid #15C39A;
+    background: #fff;
+    display: flex;
+    max-height: 380px;
+    margin: auto;
+    overflow-y: auto;
+    flex-direction: column;
+    box-shadow: 0 3px 3px 3px rgba(0, 0, 0, 0.2);
+
+    &::-webkit-scrollbar {
+      width: 5px;
+      height: 5px;
+    }
+    &::-webkit-scrollbar-track {
+      border-radius: 3px;
+      background: rgba(0,0,0,0.00);
+      -webkit-box-shadow: inset 0 0 5px rgba(0,0,0,0.08);
+    }
+    /* 滚动条滑块 */
+    &::-webkit-scrollbar-thumb {
+      border-radius: 5px;
+      background: rgba(0,0,0,0.12);
+      -webkit-box-shadow: inset 0 0 10px rgba(0,0,0,0.2);
+    }
+    .empty-user {
+      padding: 15px 0;
+    }
+    .user-item {
+      cursor: pointer;
+      opacity: 1;
+      border-radius: 4px;
+      padding: 10px 15px;
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      justify-content: space-between;
+
+      &:hover {
+        background: #f3f3f3;
+      }
+      &:last-child{
+        border-bottom: none;
+      }
+      .user-avatar-email {
+        width: 60%;
+        line-height: 24px;
+        font-family: Inter-Bold;
+        color: #000000;
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        .avatar {
+          img {
+            height: 40px;
+            border-radius: 40px;
+          }
+        }
+        .email-name {
+          padding-left: 10px;
+          display: flex;
+          flex-direction: column;
+          justify-content: flex-start;
+          align-items: flex-start;
+
+          .user-name {
+            color: #000;
+            line-height: 20px;
+          }
+
+          .email {
+            color: #999;
+            line-height: 12px;
+          }
+        }
+      }
+
+      .action {
+        width: 35%;
+        display: flex;
+        text-align: center;
+        flex-direction: row;
+        align-items: center;
+        justify-content: center;
+        .action-wrapper {
+          display: flex;
+          flex-direction: row;
+          align-items: center;
+          justify-content: center;
+          .action-item {
+            display: flex;
+            flex-direction: row;
+            justify-content: center;
+            align-items: center;
+            padding: 0 10px;
+            user-select: none;
+
+            .active-status-icon {
+              display: flex;
+              flex-direction: row;
+              align-items: center;
+              width: 20px;
+              img {
+                height: 18px;
+              }
+
+              font-size: 15px;
+              color: rgba(21, 195, 154, 1);
+            }
+            .action-name {
+              padding: 0 5px;
+            }
+
+            .active-icon {
+              img {
+                height: 14px;
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+.send-message {
 }
 </style>

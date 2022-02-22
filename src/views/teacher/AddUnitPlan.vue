@@ -555,7 +555,7 @@
         :footer='null'
         :maskClosable='false'
         destroyOnClose
-        width='900px'>
+        width='640px'>
         <collaborate-user-list
           v-if='showCollaborateModalVisible'
           :content-id='unitPlanId'
