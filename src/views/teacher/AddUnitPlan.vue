@@ -1438,11 +1438,13 @@ export default {
     // 直接修改form.scenarios数据
     handleSelectScenario(index, scenario) {
       console.log(scenario)
-      this.form.scenarios[index].description = scenario.description
-      if (scenario.sdgKeyWords.length) {
-        const keyWords = scenario.sdgKeyWords
-        logger.info('scenario[' + index + '].sdgKeyWords', keyWords)
-        this.form.scenarios[index].sdgKeyWords = keyWords
+      if (this.form.scenarios.hasOwnProperty(index) && scenario && scenario.sdgKeyWords && scenario.description) {
+        this.form.scenarios[index].description = scenario.description
+        if (scenario.sdgKeyWords.length) {
+          const keyWords = scenario.sdgKeyWords
+          logger.info('scenario[' + index + '].sdgKeyWords', keyWords)
+          this.form.scenarios[index].sdgKeyWords = keyWords
+        }
       }
     },
 
