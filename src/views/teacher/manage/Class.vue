@@ -92,7 +92,12 @@
       </span>
     </a-table>
 
-    <ClassAdd ref="modalForm" @ok="loadData" :grade-list="gradeList" :subject-list="subjectList" :teacher-list="teacherList"/>
+    <ClassAdd
+      ref="modalForm"
+      @ok="loadData"
+      :grade-list="gradeList"
+      :subject-list="subjectList"
+      :teacher-list="teacherList"/>
 
     <a-modal
       v-model="classStudentListVisible"
@@ -103,7 +108,7 @@
       :dialog-style="{ top: '50px' }"
       width="1000px">
       <div>
-        <Class-Student-List :classId="classId"></Class-Student-List>
+        <Class-Student-List :classId="classId" :student-list="studentList" @reloadClass="loadData"></Class-Student-List>
       </div>
     </a-modal>
 
@@ -202,6 +207,7 @@ export default {
       searchKey: '',
       gradeList: [],
       teacherList: [],
+      studentList: [],
       subjectList: [],
       url: {
         delete: schoolClassAPIUrl.SchoolClassDelete
@@ -217,6 +223,7 @@ export default {
     this.getGradeList()
     this.getSubjectList()
     this.getTeacherList()
+    this.getStudentList()
   },
   computed: {
     importExcelUrl: function () {
@@ -270,6 +277,15 @@ export default {
       })
       this.$logger.info('getSchoolUsers', res.result)
       this.teacherList = res.result ? res.result.records : []
+    },
+    async getStudentList() {
+      const res = await getSchoolUsers({
+        school: store.getters.userInfo.school,
+        currentRole: 'student',
+        pageSize: 1000
+      })
+      this.$logger.info('getSchoolUsers', res.result)
+      this.studentList = res.result ? res.result.records : []
     },
     async getSubjectList() {
       const response = await SubjectTree({ curriculumId: this.curriculumId })
