@@ -86,7 +86,7 @@
                         Takeaways
                       </div>
                     </div>
-                    <div class="class-more-item" @click="handleReviewEditEvaluation(record)">
+                    <div class="class-more-item" @click="handleReviewEditEvaluation(record)" v-if="record.taskClassId">
                       <div class="class-action-icon">
                         <evaluate-icon />
                       </div>
@@ -314,6 +314,7 @@ import storage from 'store'
 import { ACCESS_TOKEN } from '@/store/mutation-types'
 import PptSlideView from '@/components/Evaluation/PptSlideView'
 import TeacherEvaluationStatus from '@/components/Evaluation/TeacherEvaluationStatus'
+import { ClassType } from '@/const/common'
 
 export default {
   name: 'ClassTableList',
@@ -410,7 +411,8 @@ export default {
       currentActiveStudentId: null,
       takeAwaySlideId: null,
       takeAwayClassId: null,
-      classStatus: lessonStatus
+      classStatus: lessonStatus,
+      classType: ClassType
     }
   },
   mounted () {
