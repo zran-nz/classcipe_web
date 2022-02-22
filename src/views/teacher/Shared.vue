@@ -1163,7 +1163,7 @@ export const SHARED_VIEW_MODE = 'view_mode_shared'
               height: 40px;
               display: flex;
               flex-direction: row;
-              font-size: 14px;
+              font-size: 12px;
 
               //.mode-item:first-child {
               //  border-bottom-left-radius: 35px;
