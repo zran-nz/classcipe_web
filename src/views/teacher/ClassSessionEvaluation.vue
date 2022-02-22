@@ -1005,8 +1005,8 @@ export default {
         this.form.evaluationMode = this.mode
         this.form.email = this.$store.getters.email
       }).finally(() => {
-        if ((!this.forms || this.forms.length === 0) && this.mode === EvaluationTableMode.Edit) {
-          this.selectRubricVisible = true
+        if ((!this.forms || this.forms.length === 0) && this.mode !== EvaluationTableMode.Edit) {
+          window.location.pathname = '/teacher/class-evaluation/' + this.taskId + '/' + this.classId + '/edit'
         }
         if (this.isInitForm && this.forms.length) {
           // 如果是初始化，且有关联的表格数据，先自动保存一下。
@@ -1021,7 +1021,7 @@ export default {
       this.$logger.info('initSaveEvaluation onOk')
       // 获取所有的表格结构（表头+表内容）
       const formData = JSON.parse(JSON.stringify(this.form))
-      const formDataList = JSON.parse(JSON.stringify(this.taskForms))
+      const formDataList = JSON.parse(JSON.stringify(this.forms))
       this.$logger.info('formDataList', formDataList, 'this.form', this.form, 'this.classId', this.classId)
       formData.classId = this.classId
       // 获取评估数据
