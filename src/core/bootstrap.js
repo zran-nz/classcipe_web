@@ -13,6 +13,7 @@ import {
 import defaultSettings from '@/config/defaultSettings'
 
 export default function Initializer () {
+  console.log('----------------------------- bootstrap -----------------------------')
   store.commit(TOGGLE_LAYOUT, storage.get(TOGGLE_LAYOUT, defaultSettings.layout))
   store.commit(TOGGLE_FIXED_HEADER, storage.get(TOGGLE_FIXED_HEADER, defaultSettings.fixedHeader))
   store.commit(TOGGLE_FIXED_SIDEBAR, storage.get(TOGGLE_FIXED_SIDEBAR, defaultSettings.fixSiderbar))

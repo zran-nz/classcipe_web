@@ -54,7 +54,6 @@ const user = {
       state.info = info
     },
     SET_CURRENT_ROLE: (state, currentRole) => {
-      logger.info('SET_CURRENT_ROLE', currentRole)
       state.currentRole = currentRole
     },
     SET_IS_ADD_PREFERENCE: (state, isAddPreference) => {

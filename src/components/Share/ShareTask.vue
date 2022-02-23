@@ -14,6 +14,11 @@
     </div>
 
     <div class='share-body'>
+      <div
+        class='share-action'
+        v-if='$store.getters.userInfo.email && (collaborateUserEmailList.indexOf($store.getters.userInfo.email) !== -1 || $store.getters.userInfo.email === shareContent.task.createBy)'>
+        <a-button type='primary' @click='handleEdit'>Edit</a-button>
+      </div>
       <div class='share-ppt-preview'>
         <share-ppt-preview :ppt-images='shareContent.presentationImages' />
       </div>
@@ -40,6 +45,7 @@ import SharePptPreview from '@/components/Share/SharePptPreview'
 import ShareTaskForm from '@/components/Share/ShareTaskForm'
 import ShareContentTag from '@/components/Share/ShareContentTag'
 import ShareContentLink from '@/components/Share/ShareContentLink'
+import { QueryContentCollaborates } from '@/api/collaborate'
 export default {
   name: 'ShareTask',
   components: { ShareContentTag, ShareTaskForm, SharePptPreview, ShareCommonHeader, ShareContentLink },
@@ -49,9 +55,31 @@ export default {
       required: true
     }
   },
+  data() {
+    return {
+      collaborateUserEmailList: []
+    }
+  },
   created() {
+    this.$logger.info('ShareUnitPlan created', this.shareContent)
+    if (this.$store.getters.token) {
+      this.queryContentCollaborates()
+    }
   },
   methods: {
+    queryContentCollaborates() {
+      QueryContentCollaborates({ id: this.shareContent.task.id, type: this.shareContent.task.type }).then(response => {
+        this.$logger.info('QueryContentCollaborates response:', response)
+        if (response.success) {
+          this.collaborateUserEmailList = response.result.users.map(user => user.email)
+        }
+      })
+    },
+    handleEdit () {
+      this.$router.push({
+        path: '/teacher/task-redirect/' + this.shareContent.task.id
+      })
+    }
   }
 }
 </script>
@@ -80,5 +108,11 @@ export default {
     padding-left: 20px;
   }
 }
-
+.share-action {
+  padding: 10px 0;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+}
 </style>
