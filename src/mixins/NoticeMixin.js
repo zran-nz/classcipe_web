@@ -36,7 +36,9 @@ export const NoticeMixin = {
         setTimeout(() => {
           this.gotoContent(record)
         }, 500)
-      } else if (record.busType === NotificationTypeMap.collaborateAccepted) {
+      } else if (record.busType === NotificationTypeMap.collaborateAccepted ||
+        record.busType === NotificationTypeMap.collaborateInvite ||
+        record.busType === NotificationTypeMap.collaborateRejected) {
         this.gotoContent(record)
       } else if (record.openType === 'url') {
         // 链接跳转
