@@ -120,7 +120,7 @@
                         {{ user.userName }}
                       </div>
                     </div>
-                    <a-tag color="red" style="position: absolute;top: -15px;right: 0;" v-if="user.linkUser!== 0">
+                    <a-tag color="red" style="position: absolute;top: 9px;right: 0;" v-if="user.linkUser!== 0">
                       Apply to join
                     </a-tag>
                   </div>
@@ -698,9 +698,9 @@ export default {
           width: 20%;
           font-family: Inter-Bold;
           text-align: center;
-          line-height: 24px;
           padding-left: 15px;
-          color: #000000;
+          color: #999;
+          font-size: 12px;
         }
 
         .action {
