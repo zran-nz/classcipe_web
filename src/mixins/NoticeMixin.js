@@ -32,10 +32,10 @@ export const NoticeMixin = {
     viewNotification (record) {
       this.$logger.info('viewNotification', record)
       if (record.busType === NotificationTypeMap.collaborateApply) {
-        this.$store.dispatch('refreshCollaborate', record.busId)
+        this.gotoContent(record)
         setTimeout(() => {
-          this.gotoContent(record)
-        }, 500)
+          this.$store.dispatch('refreshCollaborate', record.busId)
+        }, 1000)
       } else if (record.busType === NotificationTypeMap.collaborateAccepted ||
         record.busType === NotificationTypeMap.collaborateInvite ||
         record.busType === NotificationTypeMap.collaborateRejected) {
