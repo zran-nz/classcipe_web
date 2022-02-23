@@ -148,6 +148,8 @@ export default {
     }
     if (callbackUrl) {
       this.callbackUrl = callbackUrl
+    } else if (redirect) {
+      this.callbackUrl = redirect
     }
   },
   methods: {

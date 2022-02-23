@@ -50,7 +50,7 @@
         <template v-if='showCollaborate'>
           <div class='collaborate-users'>
             <div :style="{'z-index': 1000-index}" :class="{'item-avator':true,'gray':onlineUsers.indexOf(user.email) === -1}" v-if='index < 5' v-for='(user,index) in collaborateUserList' :key='index'>
-              <a-tooltip :title='user.email' placement='bottom'>
+              <a-tooltip :title="formatOnlineEmail(user.email)" placement='bottom'>
                 <a-badge color="green"> <a-avatar :size="30" class='user-item' :src='user.userAvatar' /></a-badge>
               </a-tooltip>
             </div>
@@ -309,6 +309,9 @@ export default {
       this.sharing = true
       this.$logger.info('handleSharing')
       this.$emit('share')
+    },
+    formatOnlineEmail(email) {
+      return email === this.form.createBy ? 'Owner: ' + email : email
     }
   }
 }
