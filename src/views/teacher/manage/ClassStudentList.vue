@@ -163,7 +163,7 @@ export default {
           }
         },
         {
-          title: 'studentName',
+          title: 'Student name',
           align: 'center',
           dataIndex: 'studentName'
         },
