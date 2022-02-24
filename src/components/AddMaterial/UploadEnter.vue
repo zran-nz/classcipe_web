@@ -124,7 +124,7 @@ import GoogleDriveIcon from '@/assets/svgIcon/addMaterial/google_drive.svg?inlin
 import GoogleImageSearchIcon from '@/assets/svgIcon/addMaterial/google_image_search.svg?inline'
 import YoutubeIcon from '@/assets/svgIcon/addMaterial/youtube.svg?inline'
 import OpenDirSvg from '@/assets/svgIcon/library/open_dir.svg?inline'
-// import GooglePicker from '@/utils/googlePicker'
+import GooglePicker from './Utils/GooglePicker'
 import { uploadImageToFirebaseByUrl } from './Utils/Common'
 // import googleImageSearch from './googleImageSearch.vue'
 // import GoogleYoutubeVedio from './googleYoutubeVedio.vue'
@@ -237,27 +237,22 @@ export default {
       this.$refs.googleyoutubevideo.closeYoutubeVideo()
     },
     addDrive() {
-      // GooglePicker.init((driveUpLoadProgress) => {
-      //   hideLoading()
-      //   this.driveUpLoadProgress = driveUpLoadProgress
-      // }, (type, url, mediaType) => {
-      //   if (url) {
-      //     console.log('===done', url, mediaType)
-      //     AddMaterialEventBus.$emit(ModalEventsNameEnum.ADD_NEW_MEDIA, {
-      //       type: mediaType.indexOf('image') > -1 ? 'image' : 'video',
-      //       url: url
-      //     })
-      //     hideLoading()
-      //   }
-      //   this.$nextTick(() => {
-      //     this.driveUpLoadProgress = 0
-      //   })
-      // })
+      GooglePicker.init((driveUpLoadProgress) => {
+        this.driveUpLoadProgress = driveUpLoadProgress
+      }, (type, url, mediaType) => {
+        if (url) {
+          this.$logger.info('addDrive done', url, mediaType)
+          AddMaterialEventBus.$emit(ModalEventsNameEnum.ADD_NEW_MEDIA, {
+            type: mediaType.indexOf('image') > -1 ? 'image' : 'video',
+            url: url
+          })
+        }
+        this.$nextTick(() => {
+          this.driveUpLoadProgress = 0
+        })
+      })
     },
     cancelUpDrive() {
-      // GooglePicker.cancelUpDrive()
-      // this.driveUpLoadProgress = 0
-      // console.log('onProgressUpLoad')
     },
     searchImage() {
       if (this.imageName) {
