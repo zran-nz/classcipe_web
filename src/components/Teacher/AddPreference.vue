@@ -57,7 +57,7 @@
                     @mousedown="e => e.preventDefault()"
                     @click="createSchool"
                   >
-                    <a-icon type="plus" /> Create School: {{ searchText }}
+                    Create School: <a-tag color="#15c39a">{{ searchText }}</a-tag>
                   </div>
                 </div>
               </div>
