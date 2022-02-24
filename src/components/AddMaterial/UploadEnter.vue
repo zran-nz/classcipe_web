@@ -92,15 +92,13 @@
     <a-modal
       title="Search image by Google"
       :visible.sync="showImageSearch"
-      @close="closeImageSearch"
+      @cancel="closeImageSearch"
       width="70%"
-      :append-to-body="true"
       :destroy-on-close="destroyOnClose"
     >
-      <!--      <google-image-search-->
-      <!--        style="width: 100%; height: 600px; overflow: auto"-->
-      <!--        :doneSelect="doneSelect"-->
-      <!--      />-->
+      <google-image-search
+        :doneSelect="doneSelect"
+      />
     </a-modal>
     <div class='material-recorder'>
       <record-video
@@ -134,8 +132,10 @@ import CommonUpload from './Common/CommonUpload'
 import RecordAudio from './Audio/RecordAudio'
 import RecordVideo from './Video/RecordVideo'
 import CommonProgress from './Common/CommonProgress'
+import GoogleImageSearch from '@/components/AddMaterial/Google/GoogleImageSearch'
 export default {
   components: {
+    GoogleImageSearch,
     GoogleDriveIcon,
     GoogleImageSearchIcon,
     YoutubeIcon,
@@ -287,7 +287,7 @@ export default {
     doneSelect(imageUrl) {
       uploadImageToFirebaseByUrl(imageUrl).then((url) => {
         this.closeImageSearch()
-        // console.log(url)
+        this.$logger.info('uploadImageToFirebaseByUrl', url)
         AddMaterialEventBus.$emit(ModalEventsNameEnum.ADD_NEW_MEDIA, {
           type: 'image',
           url
