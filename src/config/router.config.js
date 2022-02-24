@@ -113,13 +113,13 @@ export const asyncRouterMap = [
               },
               {
                 path: '/teacher/managing/class',
-                name: 'SchoolUser',
+                name: 'ManagingClass',
                 component: () => import('@/views/teacher/manage/Class'),
                 meta: { title: 'menu.managing.class', keepAlive: true, permission: ['teacher'] }
               },
               {
                 path: '/teacher/managing/term',
-                name: 'SchoolUser',
+                name: 'ManageTerm',
                 component: () => import('@/views/teacher/manage/Term'),
                 meta: { title: 'menu.managing.term', keepAlive: true, permission: ['teacher'] }
               }

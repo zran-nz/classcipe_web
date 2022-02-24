@@ -132,7 +132,7 @@ import { videoTypes, audioTypes } from './Utils/Constants'
 // import MetarialWebSite from './metarialWebSite.vue'
 import CommonUpload from './Common/CommonUpload'
 import RecordAudio from './Audio/RecordAudio'
-// import RecordVideo from '../common/recordVideo.vue'
+import RecordVideo from './Video/RecordVideo'
 import CommonProgress from './Common/CommonProgress'
 export default {
   components: {
@@ -145,7 +145,7 @@ export default {
     // MetarialWebSite,
     CommonUpload,
     RecordAudio,
-    // RecordVideo,
+    RecordVideo,
     CommonProgress
   },
   data() {

@@ -53,44 +53,45 @@ export default {
   border-radius: 5px;
 }
 .progress {
-  height: 10px;
+  height: 13px;
   background: #ebebeb;
   border-left: 1px solid transparent;
   border-right: 1px solid transparent;
-  border-radius: 5px;
+  border-radius: 7px;
+  font-weight: normal;
 }
 .progress > span {
   position: relative;
   float: left;
   margin: 0 -1px;
   min-width: 40px;
-  height: 10px;
-  line-height: 8px;
+  height: 13px;
+  line-height: 11px;
   text-align: right;
   border: 1px solid rgba(21, 195, 154, 1);
-  border-radius: 10px;
+  border-radius: 8px;
   font-size: 8px;
   background: rgba(21, 195, 154, 1);
 }
-.progress .green {
-
-}
 .progress > span > span {
   padding: 0;
-  font-size: 11px;
-  font-weight: bold;
+  font-size: 10px;
   color: #fff;
   text-shadow: 0 1px rgba(255, 255, 255, 0.4);
+  font-weight: normal;
 }
 .cancel {
   width: 80px;
-  height: 15px;
+  height: 16px;
   background: rgba(21, 195, 154, 1);
   text-align: center;
   color: #fff;
   border-radius: 15px;
   cursor: pointer;
-  font-size: 10px;
-  margin: 5px auto 0;
+  font-size: 12px;
+  font-weight: normal;
+  margin-top: 6px;
+  margin-left: auto;
+  margin-right: auto;
 }
 </style>
