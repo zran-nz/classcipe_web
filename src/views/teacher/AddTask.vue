@@ -378,6 +378,11 @@
                                   <div class='icon-text'>Website</div>
                                 </div>
                               </a-badge>
+                              <a-badge>
+                                <div class='my-add-material'>
+                                  <upload-enter />
+                                </div>
+                              </a-badge>
                             </div>
                           </a-col>
                         </div>
@@ -1854,12 +1859,15 @@ import InputWithCreate from '@/components/Common/InputWithCreate'
 import QuickSession from '@/components/QuickSession/QuickSession'
 import { chooseAnother } from '@/api/quickTask'
 import QuickTaskTemplatePreview from '@/components/Task/QuickTaskTemplatePreview'
+import { AddMaterialEventBus, ModalEventsNameEnum } from '@/components/AddMaterial/AddMaterialEventBus'
+import UploadEnter from '@/components/AddMaterial/UploadEnter'
 
 const { SplitTask } = require('@/api/task')
 
 export default {
   name: 'AddTask',
   components: {
+    UploadEnter,
     QuickTaskTemplatePreview,
     QuickSession,
     InputWithCreate,
@@ -2232,6 +2240,14 @@ export default {
 
     // library浏览learning outcome时，修改了grade，需要更新表单中的grade
     LibraryEventBus.$on(LibraryEvent.GradeUpdate, this.handleGradeUpdate)
+
+    // addMaterial事件处理
+    AddMaterialEventBus.$on(ModalEventsNameEnum.ADD_NEW_MEDIA, url => {
+      this.addMaterialList(url)
+    })
+    AddMaterialEventBus.$on(ModalEventsNameEnum.DELETE_MEDIA_ELEMENT, data => {
+      this.deleteMaterial(data)
+    })
   },
   beforeDestroy() {
     MyContentEventBus.$off(MyContentEvent.LinkToMyContentItem, this.handleLinkMyContent)
@@ -4205,6 +4221,20 @@ export default {
           }
         })
       }
+    },
+
+    addMaterialList({ url, type }) {
+      this.$logger.info('addMaterialList', url, type)
+      // const page_id = this.currentPageId;
+      // const itemData = {
+      //   page_id: page_id,
+      //   url: url,
+      //   type: type,
+      //   position: { x: 0, y: 0, w: 0, h: 0 }
+      // };
+    },
+    deleteMaterial(id) {
+      this.$logger.info('addMaterialList', id)
     }
   }
 }
@@ -5687,6 +5717,7 @@ export default {
   background: #fff;
   height: 70px;
   margin-top: -15px;
+  padding: 0 25px;
 
   .icon-group {
     display: flex;
@@ -6705,5 +6736,20 @@ export default {
   color: #999;
   font-size: 12px;
   line-height: 30px;
+}
+
+.add-material {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-end;
+  position: relative;
+}
+
+.my-add-material {
+  height: 44px;
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
 }
 </style>

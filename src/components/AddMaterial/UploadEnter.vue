@@ -1,0 +1,383 @@
+<template>
+  <div class="media-enter">
+    <a-dropdown :getPopupContainer="trigger => trigger.parentElement">
+      <div class="add-material-label">
+        <img src='~@/assets/icons/addMaterial/media-add.png' alt='' class='add-material-icon'>
+        <strong>Add Material</strong>
+      </div>
+      <a-menu slot="overlay">
+        <a-menu-item class='my-add-material-menu-item'>
+          <a-tooltip title="Record Audio" placement="right">
+            <div class='upload-type-item'>
+              <div class="remark-button-outer">
+                <img @click="audio" src="~@/assets/icons/addMaterial/voice-button.png" class="remark-button" alt=''/>
+              </div>
+            </div>
+          </a-tooltip>
+        </a-menu-item>
+        <a-menu-item class='my-add-material-menu-item'>
+          <a-tooltip title="Record Video" placement="right">
+            <div class='upload-type-item'>
+              <div class="remark-button-outer">
+                <img @click="video" src="~@/assets/icons/addMaterial/video.png" class="remark-button" alt=''/>
+              </div>
+            </div>
+          </a-tooltip>
+        </a-menu-item>
+        <a-menu-item class='my-add-material-menu-item'>
+          <a-tooltip title="my computer" placement="right">
+            <div class='upload-type-item'>
+              <open-dir-svg class="opened" />
+              <common-upload accept="image/*,video/*,audio/*" :onSuccess="onSuccess"/>
+            </div>
+          </a-tooltip>
+        </a-menu-item>
+        <a-menu-item class='my-add-material-menu-item'>
+          <a-tooltip title="google drive" placement="right">
+            <div class='upload-type-item'>
+              <google-drive-icon @click="addDrive" class='svg-icon'/>
+            </div>
+          </a-tooltip>
+        </a-menu-item>
+        <a-menu-item class='my-add-material-menu-item'>
+          <a-tooltip title="google image search" placement="right">
+            <div class='upload-type-item'>
+              <google-image-search-icon @click="addGoogleImage" class='svg-icon' />
+            </div>
+          </a-tooltip>
+        </a-menu-item>
+        <a-menu-item class='my-add-material-menu-item'>
+          <a-tooltip title="youtube" placement="right">
+            <div class='upload-type-item'>
+              <youtube-icon @click="addYoutube" class='svg-icon'/>
+            </div>
+          </a-tooltip>
+        </a-menu-item>
+      </a-menu>
+    </a-dropdown>
+    <a-modal
+      title="youtube"
+      :visible.sync="showYoutube"
+      @close="closeYoutubeDialog"
+      :append-to-body="true"
+      :destroy-on-close="false"
+      width="85%"
+    >
+      <!--      <google-youtube-vedio-->
+      <!--        ref="googleyoutubevideo"-->
+      <!--        style="-->
+      <!--          width: 100%;-->
+      <!--          height: 600px;-->
+      <!--          overflow: auto;-->
+      <!--          background-color: #fff;-->
+      <!--        "-->
+      <!--        :nextYoutube="nextYoutube"-->
+      <!--      />-->
+    </a-modal>
+    <a-modal
+      title="website"
+      :visible.sync="showWebSite"
+      :append-to-body="true"
+    >
+      <!--      <metarial-web-site-->
+      <!--        style="-->
+      <!--          width: 100%;-->
+      <!--          height: 300px;-->
+      <!--          overflow: auto;-->
+      <!--          background-color: #fff;-->
+      <!--        "-->
+      <!--        :nextWebSite="nextWebSite"-->
+      <!--      />-->
+    </a-modal>
+    <a-modal
+      title="Search image by Google"
+      :visible.sync="showImageSearch"
+      @close="closeImageSearch"
+      width="70%"
+      :append-to-body="true"
+      :destroy-on-close="destroyOnClose"
+    >
+      <!--      <google-image-search-->
+      <!--        style="width: 100%; height: 600px; overflow: auto"-->
+      <!--        :doneSelect="doneSelect"-->
+      <!--      />-->
+    </a-modal>
+    <div class='material-recorder'>
+      <record-video
+        v-if="recordType === ModalEventsTypeEnum.VIDEO"
+        :onSend="onSendVideo"
+        :cancel="cancelRecord"
+      />
+      <record-audio
+        v-else-if="recordType === ModalEventsTypeEnum.AUDIO"
+        :onSend="onSendAudio"
+        :cancel="cancelRecord"
+        :autoDone="true"
+      />
+      <common-progress :progress="driveUpLoadProgress" :cancel="cancelUpDrive"/>
+    </div>
+  </div>
+</template>
+<script>
+import { ModalEventsNameEnum, ModalEventsTypeEnum, AddMaterialEventBus } from './AddMaterialEventBus'
+import GoogleDriveIcon from '@/assets/svgIcon/addMaterial/google_drive.svg?inline'
+import GoogleImageSearchIcon from '@/assets/svgIcon/addMaterial/google_image_search.svg?inline'
+import YoutubeIcon from '@/assets/svgIcon/addMaterial/youtube.svg?inline'
+import OpenDirSvg from '@/assets/svgIcon/library/open_dir.svg?inline'
+// import GooglePicker from '@/utils/googlePicker'
+import { uploadImageToFirebaseByUrl } from './Utils/Common'
+// import googleImageSearch from './googleImageSearch.vue'
+// import GoogleYoutubeVedio from './googleYoutubeVedio.vue'
+import { videoTypes, audioTypes } from './Utils/Constants'
+// import MetarialWebSite from './metarialWebSite.vue'
+import CommonUpload from './Common/CommonUpload'
+import RecordAudio from './Audio/RecordAudio'
+// import RecordVideo from '../common/recordVideo.vue'
+import CommonProgress from './Common/CommonProgress'
+export default {
+  components: {
+    GoogleDriveIcon,
+    GoogleImageSearchIcon,
+    YoutubeIcon,
+    OpenDirSvg,
+    // googleImageSearch,
+    // GoogleYoutubeVedio,
+    // MetarialWebSite,
+    CommonUpload,
+    RecordAudio,
+    // RecordVideo,
+    CommonProgress
+  },
+  data() {
+    return {
+      fileList: [],
+      showYoutube: false,
+      youtubeUrl: '',
+      withKeyUrl: '',
+      showIframe: false,
+      showImageSearch: false,
+      imagesList: [],
+      imageName: '',
+      imageSelectedIndex: -1,
+      destroyOnClose: true,
+      showWebSite: false,
+      recordType: null,
+      ModalEventsTypeEnum,
+      ModalEventsNameEnum,
+      driveUpLoadProgress: 0
+    }
+  },
+  mounted() {
+
+  },
+  methods: {
+    onSuccess(file, result) {
+      console.log(file.name)
+      const nameList = file.type.split('/')
+      const fileNameList = file.name.split('.')
+      let name = ''
+      try {
+        name = fileNameList[fileNameList.length - 1] || nameList[1]
+      } catch (e) {}
+      name = name.toLocaleLowerCase()
+      let type = 'image'
+      if (videoTypes.indexOf(name) > -1) {
+        type = 'video'
+      } else if (audioTypes.indexOf(name) > -1) {
+        type = 'audio'
+      }
+
+      AddMaterialEventBus.$emit(ModalEventsNameEnum.ADD_NEW_MEDIA, {
+        type,
+        url: result
+      })
+    },
+    addYoutube() {
+      this.showYoutube = true
+    },
+    addWebsite() {
+      this.showWebSite = true
+    },
+    openYoutube() {
+      window.open('https://www.youtube.com')
+    },
+    youtubePreview() {
+      if (this.youtubeUrl) {
+        this.showIframe = false
+        this.$nextTick(() => {
+          const tvid = this.youtubeUrl.split('?v=')[1].split('&')[0]
+          this.withKeyUrl = 'https://www.youtube.com/embed/' + tvid
+          this.showIframe = true
+        })
+      }
+    },
+    nextYoutube(videoUrl) {
+      console.log(this.withKeyUrl)
+      if (videoUrl) {
+        AddMaterialEventBus.$emit(ModalEventsNameEnum.ADD_NEW_MEDIA, {
+          type: 'iframe',
+          url: videoUrl
+        })
+        this.showYoutube = false
+      }
+    },
+    nextWebSite(url) {
+      if (url) {
+        AddMaterialEventBus.$emit(ModalEventsNameEnum.ADD_NEW_MEDIA, {
+          type: 'website',
+          url
+        })
+        this.showWebSite = false
+      }
+    },
+    closeYoutubeDialog() {
+      this.youtubeUrl = null
+      this.withKeyUrl = null
+      this.showIframe = false
+      this.$refs.googleyoutubevideo.closeYoutubeVideo()
+    },
+    addDrive() {
+      // GooglePicker.init((driveUpLoadProgress) => {
+      //   hideLoading()
+      //   this.driveUpLoadProgress = driveUpLoadProgress
+      // }, (type, url, mediaType) => {
+      //   if (url) {
+      //     console.log('===done', url, mediaType)
+      //     AddMaterialEventBus.$emit(ModalEventsNameEnum.ADD_NEW_MEDIA, {
+      //       type: mediaType.indexOf('image') > -1 ? 'image' : 'video',
+      //       url: url
+      //     })
+      //     hideLoading()
+      //   }
+      //   this.$nextTick(() => {
+      //     this.driveUpLoadProgress = 0
+      //   })
+      // })
+    },
+    cancelUpDrive() {
+      // GooglePicker.cancelUpDrive()
+      // this.driveUpLoadProgress = 0
+      // console.log('onProgressUpLoad')
+    },
+    searchImage() {
+      if (this.imageName) {
+        this.load()
+      }
+    },
+    load() {
+      fetch(
+        `https://www.googleapis.com/customsearch/v1?key=AIzaSyBwZ7igOKSCZ8nitWRvR_oZIO198pBs7jQ&cx=f0726c917433f216e&q=${this.imageName}&fileType=png,jpg&searchType=image&alt=json`,
+        {
+          headers: {
+            'Content-Type': 'application/json;charset=UTF-8'
+          }
+        }
+      )
+        .then((response) => {
+          // // console.log(d)
+          return response.json()
+        })
+        .then((d) => {
+          // console.log(d.items)
+          if (d.items.length > 0) {
+            this.imagesList = d.items
+          }
+        })
+        .catch(() => {
+        })
+    },
+    selectImage(index) {
+      this.imageSelectedIndex = index
+    },
+    doneSelect(imageUrl) {
+      uploadImageToFirebaseByUrl(imageUrl).then((url) => {
+        this.closeImageSearch()
+        // console.log(url)
+        AddMaterialEventBus.$emit(ModalEventsNameEnum.ADD_NEW_MEDIA, {
+          type: 'image',
+          url
+        })
+      }).catch(() => {
+        this.closeImageSearch()
+        this.$message.error('The image you selected is not available')
+      })
+    },
+    closeImageSearch() {
+      this.imageSelectedIndex = -1
+      this.showImageSearch = false
+      this.imagesList = []
+      this.imageName = ''
+    },
+    addGoogleImage() {
+      this.showImageSearch = true
+    },
+    audio() {
+      this.recordType = ModalEventsTypeEnum.AUDIO
+    },
+    video() {
+      this.recordType = ModalEventsTypeEnum.VIDEO
+    },
+    cancelRecord() {
+      this.recordType = null
+    },
+    onSendAudio(url) {
+      console.log(url)
+      AddMaterialEventBus.$emit(ModalEventsNameEnum.ADD_NEW_MEDIA, {
+        type: 'audio',
+        url
+      })
+      this.recordType = null
+    },
+    onSendVideo(url) {
+      AddMaterialEventBus.$emit(ModalEventsNameEnum.ADD_NEW_MEDIA, {
+        type: 'video',
+        url
+      })
+      this.recordType = null
+    }
+  }
+}
+</script>
+<style scoped>
+
+.media-enter {
+  color: #36425a;
+  font-weight: bold;
+  cursor: pointer;
+  font-size: 14px;
+  position: relative;
+}
+.add-material-label {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+.add-material-icon {
+  width: 25px;
+}
+.remark-button{
+  width: 32px;
+  height: 32px;
+}
+.svg-icon {
+  width: 32px;
+  height: 32px;
+}
+.remark-button-outer {
+  width: 32px;
+}
+.upload-type-item {
+  position: relative;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  width: 32px;
+}
+.material-recorder {
+  position: absolute;
+  right: -250px;
+  top: 0;
+}
+</style>

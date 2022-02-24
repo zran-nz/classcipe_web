@@ -1,0 +1,12 @@
+<svg
+  class="icon"
+  viewBox="0 0 1024 1024"
+  version="1.1"
+  xmlns="http://www.w3.org/2000/svg"
+  width="32"
+  height="32"
+>
+  <path
+    d="M678 629.8L350.8 64h322.4l327.2 565.8H678z m-275 47.2L241.8 960h621L1024 677H403zM308.2 134.8L0 677 161.2 960 474 417.6 308.2 134.8z"
+  ></path>
+</svg>
