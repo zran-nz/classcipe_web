@@ -63,32 +63,12 @@
       :destroy-on-close="false"
       width="85%"
     >
-      <!--      <google-youtube-vedio-->
-      <!--        ref="googleyoutubevideo"-->
-      <!--        style="-->
-      <!--          width: 100%;-->
-      <!--          height: 600px;-->
-      <!--          overflow: auto;-->
-      <!--          background-color: #fff;-->
-      <!--        "-->
-      <!--        :nextYoutube="nextYoutube"-->
-      <!--      />-->
+      <google-youtube-video
+        ref="googleyoutubevideo"
+        :nextYoutube="nextYoutube"
+      />
     </a-modal>
-    <a-modal
-      title="website"
-      :visible.sync="showWebSite"
-      :append-to-body="true"
-    >
-      <!--      <metarial-web-site-->
-      <!--        style="-->
-      <!--          width: 100%;-->
-      <!--          height: 300px;-->
-      <!--          overflow: auto;-->
-      <!--          background-color: #fff;-->
-      <!--        "-->
-      <!--        :nextWebSite="nextWebSite"-->
-      <!--      />-->
-    </a-modal>
+
     <a-modal
       title="Search image by Google"
       :visible.sync="showImageSearch"
@@ -133,8 +113,10 @@ import RecordAudio from './Audio/RecordAudio'
 import RecordVideo from './Video/RecordVideo'
 import CommonProgress from './Common/CommonProgress'
 import GoogleImageSearch from '@/components/AddMaterial/Google/GoogleImageSearch'
+import GoogleYoutubeVideo from '@/components/AddMaterial/Google/GoogleYoutubeVideo'
 export default {
   components: {
+    GoogleYoutubeVideo,
     GoogleImageSearch,
     GoogleDriveIcon,
     GoogleImageSearchIcon,
@@ -160,7 +142,6 @@ export default {
       imageName: '',
       imageSelectedIndex: -1,
       destroyOnClose: true,
-      showWebSite: false,
       recordType: null,
       ModalEventsTypeEnum,
       ModalEventsNameEnum,
@@ -195,9 +176,6 @@ export default {
     addYoutube() {
       this.showYoutube = true
     },
-    addWebsite() {
-      this.showWebSite = true
-    },
     openYoutube() {
       window.open('https://www.youtube.com')
     },
@@ -219,15 +197,6 @@ export default {
           url: videoUrl
         })
         this.showYoutube = false
-      }
-    },
-    nextWebSite(url) {
-      if (url) {
-        AddMaterialEventBus.$emit(ModalEventsNameEnum.ADD_NEW_MEDIA, {
-          type: 'website',
-          url
-        })
-        this.showWebSite = false
       }
     },
     closeYoutubeDialog() {
