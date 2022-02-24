@@ -7,8 +7,8 @@
           v-model='image_type_value'
           placeholder='Image type'
           @change='imageTypeChange'>
-          <a-select-option  v-for='item in imageTypes' :key='item.value' :value='item.value'>
-            {{item.label}}
+          <a-select-option v-for='item in imageTypes' :key='item.value' :value='item.value'>
+            {{ item.label }}
           </a-select-option >
         </a-select>
 

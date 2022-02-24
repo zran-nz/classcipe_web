@@ -9,7 +9,7 @@
         <div class="title-text">{{ title }}</div>
       </div>
       <div class="card-time">
-        {{ createdTime | dayjs }}
+        {{ updateTime | dayjs }}
       </div>
     </div>
   </div>
@@ -29,7 +29,7 @@ export default {
       type: String,
       default: null
     },
-    createdTime: {
+    updateTime: {
       type: String,
       default: null
     },
@@ -104,7 +104,6 @@ export default {
       line-height: 24px;
       color: #000000;
       opacity: 0.5;
-      padding-left: 5px;
       white-space: nowrap;
       text-overflow: ellipsis;
     }
