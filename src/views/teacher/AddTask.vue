@@ -378,7 +378,7 @@
                                   <div class='icon-text'>Website</div>
                                 </div>
                               </a-badge>
-                              <a-badge>
+                              <a-badge v-if='isOwner || isCollaborater'>
                                 <div class='my-add-material'>
                                   <upload-enter />
                                 </div>
