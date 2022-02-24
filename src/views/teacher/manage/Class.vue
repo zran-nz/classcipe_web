@@ -288,7 +288,7 @@ export default {
       this.studentList = res.result ? res.result.records : []
     },
     async getSubjectList() {
-      const response = await SubjectTree({ curriculumId: this.curriculumId })
+      const response = await SubjectTree({ curriculumId: this.$store.getters.bindCurriculum })
       this.$logger.info('getSubjectTree response', response.result)
       this.subjectList = response.result ? response.result : []
     },

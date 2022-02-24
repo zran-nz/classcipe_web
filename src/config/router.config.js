@@ -113,13 +113,13 @@ export const asyncRouterMap = [
               },
               {
                 path: '/teacher/managing/class',
-                name: 'SchoolUser',
+                name: 'ManagingClass',
                 component: () => import('@/views/teacher/manage/Class'),
                 meta: { title: 'menu.managing.class', keepAlive: true, permission: ['teacher'] }
               },
               {
                 path: '/teacher/managing/term',
-                name: 'SchoolUser',
+                name: 'ManageTerm',
                 component: () => import('@/views/teacher/manage/Term'),
                 meta: { title: 'menu.managing.term', keepAlive: true, permission: ['teacher'] }
               }
@@ -255,37 +255,37 @@ export const asyncRouterMap = [
             children: [
               {
                 path: '/expert/main/created-by-me',
-                name: 'CreatedByMe',
+                name: 'ExpertCreatedByMe',
                 component: () => import('@/views/teacher/CreatedByMe'),
                 meta: { title: 'menu.my-content', keepAlive: true, permission: ['teacher'] }
               },
               {
                 path: '/expert/main/my-favorite',
-                name: 'MyFavorite',
+                name: 'ExpertMyFavorite',
                 component: () => import('@/views/teacher/MyFavorite'),
                 meta: { title: 'menu.my-favorite', keepAlive: true, permission: ['teacher'] }
               },
               {
                 path: '/expert/main/shared',
-                name: 'Shared',
+                name: 'ExpertShared',
                 component: () => import('@/views/teacher/Shared'),
                 meta: { title: 'menu.shared', keepAlive: true, permission: ['teacher'] }
               },
               {
                 path: '/expert/main/discover',
-                name: 'Discover',
+                name: 'ExpertDiscover',
                 component: () => import('@/views/teacher/Discover'),
                 meta: { title: 'menu.discover', keepAlive: true, permission: ['teacher'] }
               },
               {
                 path: '/expert/main/subscribes',
-                name: 'Subscribes',
+                name: 'ExpertSubscribes',
                 component: () => import('@/views/teacher/Subscribes'),
                 meta: { title: 'menu.subscribes', keepAlive: true, permission: ['teacher'] }
               },
               {
                 path: '/expert/main/popular',
-                name: 'Popular',
+                name: 'ExpertPopular',
                 component: () => import('@/views/teacher/Popular'),
                 meta: { title: 'menu.popular', keepAlive: true, permission: ['teacher'] }
               }
