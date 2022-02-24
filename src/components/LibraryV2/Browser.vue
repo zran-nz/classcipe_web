@@ -555,7 +555,7 @@ export default {
   methods: {
     getRecommended () {
       this.dataListLoading = true
-      QueryRecommendContents().then(response => {
+      QueryRecommendContents({ curriculumId: this.currentCurriculumId ? this.currentCurriculumId : this.$store.getters.bindCurriculum }).then(response => {
         this.$logger.info('QueryRecommendContents response', response)
         this.dataList = response.result ? response.result : []
         this.dataRecommendList = this.dataList
