@@ -292,7 +292,7 @@
                   :active-flag="currentDataId === dataItem.id"
                   :cover="dataItem.image"
                   :title="dataItem.name"
-                  :created-time="dataItem.createTime"
+                  :update-time="dataItem.updateTime"
                   :content-type="dataItem.type"
                 />
               </div>

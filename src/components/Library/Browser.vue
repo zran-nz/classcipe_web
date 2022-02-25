@@ -25,7 +25,7 @@
         </div>
       </div>
     </div>
-    <div class="library-detail-wrapper" :style="{top: currentBrowserType === BrowserTypeMap.sdg ? '74px' : '126px', height: currentBrowserType === BrowserTypeMap.sdg ? 'calc(100vh - 138px)': 'calc(100vh - 190px)'}">
+    <div class="library-detail-wrapper" :style="{top: currentBrowserType === BrowserTypeMap.sdg ? '111px' : '163px', height: currentBrowserType === BrowserTypeMap.sdg ? 'calc(100vh - 100px)': 'calc(100vh - 164px)'}">
       <div class="library-detail-nav-wrapper">
         <div class="library-content">
           <div class="browser-action" v-if="hasLeftBlock">

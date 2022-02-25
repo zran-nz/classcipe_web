@@ -1,6 +1,6 @@
 <template>
   <div class="library-wrapper" ref="wrapper" data-version="v2" @click="handleSearchKeyInputBlur">
-    <div class="nav-header" :style="{height: currentBrowserType === BrowserTypeMap.sdg ? '137px' : '137px'}">
+    <div class="nav-header" :style="{height: currentBrowserType === BrowserTypeMap.sdg ? '100px' : '100px'}">
       <div class="header-info">
         <div class="library-nav-bar" >
           <navigation :path="navPath" @pathChange="handleNavPathChange" v-show="libraryMode === LibraryMode.browserMode"/>
@@ -77,29 +77,12 @@
             </div>
           </div>
         </div>
-        <div class="filter-bar">
-          <div class="filter-list">
-            <div
-              id="filter-list"
-              :class="{
-                'filter-list-item': true,
-                'active-filter-list-item': filterItem.name === currentFromItemName
-              }"
-              v-for="(filterItem, fIndex) in filterList"
-              :key="fIndex"
-              v-show="fIndex < 10"
-              @click="handleActiveFilterItem(filterItem)"
-              :data-item="JSON.stringify(filterItem)">
-              <a-tooltip :title="filterItem.name" placement="topLeft"><span class="filter-keyword">{{ filterItem.name }}</span></a-tooltip>
-            </div>
-          </div>
-        </div>
       </div>
     </div>
     <div
       class="library-detail-wrapper"
-      :style="{top: currentBrowserType === BrowserTypeMap.sdg ? '136px' : '136px',
-               height: currentBrowserType === BrowserTypeMap.sdg ? 'calc(100vh - 200px)': 'calc(100vh - 200px)'}">
+      :style="{top: currentBrowserType === BrowserTypeMap.sdg ? '100px' : '100px',
+               height: currentBrowserType === BrowserTypeMap.sdg ? 'calc(100vh - 164px)': 'calc(100vh - 164px)'}">
       <div class="curriculum-filter-line">
         <div class="curriculum-select">
           <a-select
@@ -231,7 +214,7 @@
                     {{ dataItem.name }}
                   </span>
                   <span class="data-time">
-                    {{ dataItem.createTime | dayjs }}
+                    {{ dataItem.updateTime | dayjs }}
                   </span>
                 </a-tooltip>
               </div>
@@ -241,35 +224,7 @@
                 <a-row :gutter="[16, 16]">
                   <template v-if="libraryMode === LibraryMode.searchMode || expandedListFlag === true">
                     <a-col
-                      class="gutter-row"
-                      :span="10"
-                      :xs="12"
-                      :sm="12"
-                      :md="6"
-                      :lg="6"
-                      :xl="4"
-                      :xxl="4"
-                      v-for="(dataItem, index) in dataList"
-                      v-if="(currentType === 0 || dataItem.type === currentType)"
-                      :key="index">
-                      <div
-                        class="card-item-wrapper"
-                        @click="handleSelectDataItem(dataItem)">
-                        <div class="card-item">
-                          <data-card-view
-                            :active-flag="currentDataId === dataItem.id"
-                            :cover="dataItem.image"
-                            :title="dataItem.name"
-                            :created-time="dataItem.createTime"
-                            :content-type="dataItem.type"
-                          />
-                        </div>
-                      </div>
-                    </a-col>
-                  </template>
-                  <template v-else>
-                    <a-col
-                      class="gutter-row"
+                      class="gutter-row search-mode"
                       :span="10"
                       :xs="24"
                       :sm="12"
@@ -288,7 +243,35 @@
                             :active-flag="currentDataId === dataItem.id"
                             :cover="dataItem.image"
                             :title="dataItem.name"
-                            :created-time="dataItem.createTime"
+                            :update-time="dataItem.updateTime"
+                            :content-type="dataItem.type"
+                          />
+                        </div>
+                      </div>
+                    </a-col>
+                  </template>
+                  <template v-else>
+                    <a-col
+                      class="gutter-row list-mode"
+                      :span="10"
+                      :xs="24"
+                      :sm="12"
+                      :md="8"
+                      :lg="6"
+                      :xl="6"
+                      :xxl="4"
+                      v-for="(dataItem, index) in dataList"
+                      v-if="(currentType === 0 || dataItem.type === currentType)"
+                      :key="index">
+                      <div
+                        class="card-item-wrapper"
+                        @click="handleSelectDataItem(dataItem)">
+                        <div class="card-item">
+                          <data-card-view
+                            :active-flag="currentDataId === dataItem.id"
+                            :cover="dataItem.image"
+                            :title="dataItem.name"
+                            :update-time="dataItem.updateTime"
                             :content-type="dataItem.type"
                           />
                         </div>
@@ -415,12 +398,6 @@ export default {
     ListModeIcon,
     DataCardView
   },
-  props: {
-    browserType: {
-      default: 'specificSkills',
-      type: String
-    }
-  },
   data () {
     return {
       currentCurriculumId: this.$store.getters.bindCurriculum ? this.$store.getters.bindCurriculum : '1',
@@ -441,7 +418,7 @@ export default {
         { type: 'centurySkills', label: '21st Century Skills', tagType: TagType.century },
         { type: 'sdg', label: 'Big idea', tagType: TagType.bigIdea }
       ],
-      currentBrowserType: 'specificSkills',
+      currentBrowserType: null,
       BrowserTypeMap: BrowserTypeMap,
       browserTypeLabelMap: BrowserTypeLabelMap,
       hasLeftBlock: false,
@@ -461,8 +438,6 @@ export default {
 
       searchKeyword: null,
       searching: false,
-      leftBrowserWidth: '30vw',
-      rightBrowserWidth: '70vw',
 
       dataList: [],
       dataListLoading: false,
@@ -476,8 +451,6 @@ export default {
 
       expandedListFlag: false,
 
-      filterList: [],
-      rawSearchResultList: [],
       searchResultList: [],
       libraryMode: LibraryMode.browserMode,
       LibraryMode: LibraryMode,
@@ -528,13 +501,20 @@ export default {
       debouncedSearchKeyFocus: null
     }
   },
+  computed: {
+    leftBrowserWidth () {
+      let width = '30vw'
+      if (this.showRecommend) {
+        width = '15vw'
+      }
+      return width
+    },
+    rightBrowserWidth () {
+      return this.showRecommend ? '70vw' : '85vw'
+    }
+  },
   created () {
-    this.currentBrowserType = this.browserType
-    this.navPath.push({
-      path: this.browserTypeLabelMap[this.currentBrowserType],
-      blockIndex: 1
-    })
-
+    this.currentBrowserType = null
     this.getRecommended()
 
     getAllCurriculums().then((response) => {
@@ -555,16 +535,18 @@ export default {
   methods: {
     getRecommended () {
       this.dataListLoading = true
-      QueryRecommendContents().then(response => {
+      QueryRecommendContents({ curriculumId: this.currentCurriculumId ? this.currentCurriculumId : this.$store.getters.bindCurriculum }).then(response => {
         this.$logger.info('QueryRecommendContents response', response)
         this.dataList = response.result ? response.result : []
         this.dataRecommendList = this.dataList
       }).finally(() => {
         this.dataListLoading = false
+        this.showRecommend = true
       })
     },
     toggleBrowserType (browserTypeItem) {
       this.$logger.info('toggleBrowserType ' + browserTypeItem.type + ' tagType:' + browserTypeItem.tagType)
+      this.showRecommend = false
       if (browserTypeItem.type !== this.currentBrowserType) {
         this.currentBrowserType = browserTypeItem.type
         this.navPath = []
@@ -706,7 +688,6 @@ export default {
         key: value
       }).then(response => {
         this.$logger.info('searchByKeyword ' + value, response)
-        this.rawSearchResultList = response.result
         const list = []
         // 添加高亮标签
         response.result.forEach(item => {
@@ -758,7 +739,6 @@ export default {
 
     handleClickSearchResultItem (item) {
       this.$logger.info('handleClickSearchResultItem', item)
-      this.filterList = this.rawSearchResultList
       this.handleActiveFilterItem(item)
       this.searchResultVisible = false
     },
@@ -860,10 +840,11 @@ export default {
 
     searchByFilter (filter) {
       this.$logger.info('searchByFilter ', filter)
-      filter.curriculumId = this.currentCurriculumId
+      const filterData = Object.assign({}, filter)
+      delete filterData.curriculumId
       this.showRecommend = false
       this.searching = true
-      QueryContentsFilter(filter).then(response => {
+      QueryContentsFilter(filterData).then(response => {
         this.$logger.info('QueryContentsFilter result : ', response)
         this.dataList = response.result ? response.result : []
       }).finally(() => {
