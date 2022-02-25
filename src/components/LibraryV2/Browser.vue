@@ -398,12 +398,6 @@ export default {
     ListModeIcon,
     DataCardView
   },
-  props: {
-    browserType: {
-      default: 'specificSkills',
-      type: String
-    }
-  },
   data () {
     return {
       currentCurriculumId: this.$store.getters.bindCurriculum ? this.$store.getters.bindCurriculum : '1',
@@ -424,7 +418,7 @@ export default {
         { type: 'centurySkills', label: '21st Century Skills', tagType: TagType.century },
         { type: 'sdg', label: 'Big idea', tagType: TagType.bigIdea }
       ],
-      currentBrowserType: 'specificSkills',
+      currentBrowserType: null,
       BrowserTypeMap: BrowserTypeMap,
       browserTypeLabelMap: BrowserTypeLabelMap,
       hasLeftBlock: false,
@@ -444,8 +438,6 @@ export default {
 
       searchKeyword: null,
       searching: false,
-      leftBrowserWidth: '30vw',
-      rightBrowserWidth: '70vw',
 
       dataList: [],
       dataListLoading: false,
@@ -509,13 +501,20 @@ export default {
       debouncedSearchKeyFocus: null
     }
   },
+  computed: {
+    leftBrowserWidth () {
+      let width = '30vw'
+      if (this.showRecommend) {
+        width = '15vw'
+      }
+      return width
+    },
+    rightBrowserWidth () {
+      return this.showRecommend ? '70vw' : '85vw'
+    }
+  },
   created () {
-    this.currentBrowserType = this.browserType
-    this.navPath.push({
-      path: this.browserTypeLabelMap[this.currentBrowserType],
-      blockIndex: 1
-    })
-
+    this.currentBrowserType = null
     this.getRecommended()
 
     getAllCurriculums().then((response) => {
@@ -542,10 +541,12 @@ export default {
         this.dataRecommendList = this.dataList
       }).finally(() => {
         this.dataListLoading = false
+        this.showRecommend = true
       })
     },
     toggleBrowserType (browserTypeItem) {
       this.$logger.info('toggleBrowserType ' + browserTypeItem.type + ' tagType:' + browserTypeItem.tagType)
+      this.showRecommend = false
       if (browserTypeItem.type !== this.currentBrowserType) {
         this.currentBrowserType = browserTypeItem.type
         this.navPath = []
