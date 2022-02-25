@@ -2,6 +2,21 @@
   <div class="top-nav teacher-nav">
     <div class="nav-left">
       <div class="nav-items menu-list">
+        <a-menu mode="horizontal" theme="dark" :defaultSelectedKeys="defaultSelectedKeys" :selectedKeys="selectedKeys">
+          <a-menu-item key="/student/library-v2">
+            <router-link to="/student/library-v2">
+              <div class="nav-item">
+                <div class="nav-icon">
+                  <library-icon-svg />
+                </div>
+                <div class="nav-label">
+                  {{ $t('menu.library') }}
+                </div>
+                <div class="nav-button-border"></div>
+              </div>
+            </router-link>
+          </a-menu-item>
+        </a-menu>
       </div>
     </div>
     <div class="nav-right">
@@ -10,6 +25,7 @@
 </template>
 <script>
 
+import * as logger from '@/utils/logger'
 import LibraryIconSvg from '@/assets/icons/header/Librar_icony.svg?inline'
 import EditIconSvg from '@/assets/icons/header/bianji.svg?inline'
 import SousuoIconSvg from '@/assets/icons/header/sousuo.svg?inline'
@@ -25,9 +41,18 @@ export default {
   },
   data () {
     return {
+      defaultSelectedKeys: [],
+      selectedKeys: []
+    }
+  },
+  watch: {
+    '$route.path' (to) {
+      logger.debug('nav watch route path change ' + to)
+      this.selectedKeys = [to]
     }
   },
   mounted () {
+    this.defaultSelectedKeys.push(this.$route.path)
   },
   methods: {
   }

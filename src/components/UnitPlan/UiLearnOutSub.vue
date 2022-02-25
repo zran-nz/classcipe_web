@@ -3,6 +3,35 @@
     <a-col>
 
       <div class="objectives-wrapper">
+
+        <a-row class="objectives-wrapper-block" v-if="getknowledgeListType(TagType.skill).length > 0" >
+          <div class="title-item title-bloom">Assessment objectives</div>
+          <div class="objectives-list" v-for="(k,index) in getknowledgeListType(TagType.skill)" :key="index">
+            <div class="objectives-list-item objectives-list-item-bloom objectives-list-item-top-fixed">
+              <!--              <a-breadcrumb separator=">">-->
+              <!--                <a-breadcrumb-item v-for="item in dealPath(k.path)" :key="item">{{ item }}</a-breadcrumb-item>-->
+              <!--              </a-breadcrumb>-->
+              <div class="skt-description">
+                <a-tooltip :title="k.path"> {{ k.name }}</a-tooltip>
+                <div class="skt-chart">
+                  <div class="skt-chart-detail">
+                    <label>Bloom taxnology</label>
+                    <a-rate class="rate-bar-con">
+                      <div slot="character">
+                        <div class="rate-bar"></div>
+                      </div>
+                    </a-rate>
+                  </div>
+                  <div class="skt-chart-detail">
+                    <label>Dimension</label>
+                    <a-tag color="purple" class="tag-item">Conceptual</a-tag>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </a-row>
+
         <a-row class="objectives-wrapper-block" v-if="getknowledgeListType(TagType.skill).length > 0" >
           <div class="title-item title-skill">Achievement objectives</div>
           <div class="objectives-list" v-for="(k,index) in getknowledgeListType(TagType.skill)" :key="index">
@@ -296,6 +325,9 @@
       .title-21{
         color: #92B2D1
       }
+      .title-bloom {
+        color: #474747;
+      }
     }
     .objectives-list {
       //display: flex;
@@ -349,6 +381,25 @@
         }
         .skt-description-21{
           width: 90%;
+        }
+        .skt-chart {
+          display: flex;
+          border-top: 1px solid #333;
+          justify-content: space-between;
+          align-items: center;
+          height: 40px;
+          padding-top: 5px;
+          margin-top: 5px;
+          .skt-chart-detail {
+            display: flex;
+            align-items: center;
+            label {
+              margin-right: 10px;
+            }
+            .tag-item {
+              line-height: 30px;
+            }
+          }
         }
 
         .skt-description-tag-list {
@@ -424,6 +475,12 @@
       .objectives-list-item-21{
         background: #D7E0E9;
         border: 1px solid #92B2D1;
+        opacity: 1;
+        border-radius: 10px;
+      }
+      .objectives-list-item-bloom{
+        background: #FF978E;
+        border: 1px solid #EED1AA;
         opacity: 1;
         border-radius: 10px;
       }

@@ -6,6 +6,9 @@
 @ant-global-header-zindex   : 105;
 @btn-default-color: #fff;
 
+@bar-width: 10px, 15px, 20px, 25px, 30px;
+@bar-con-len: length(@bar-width);
+
 button.ant-btn {
   color: @primary-color;
   border-color: @primary-color;
@@ -20,3 +23,33 @@ button.ant-btn-primary {
 .ant-tooltip{
   max-width:400px;
 }
+
+// bloom rate
+.rate-bar-con {
+  margin-bottom: 0;
+  .ant-rate-star:not(:last-child) {
+    margin-right: 5px;
+  }
+  .rate-bar {
+    width: 8px;
+    height: 30px;
+    background: #e8e8e8;
+  }
+  .ant-rate-star-full {
+    .rate-bar {
+      background: #fbdb13;
+    }
+  }
+}
+
+.Loop(@index) when (@index < @bar-con-len){
+  .rate-bar-con .ant-rate-star:nth-child(@{index}){
+    height: extract(@bar-width, @index);
+    .rate-bar{
+      height: extract(@bar-width, @index);
+    }
+  }
+  .Loop(@index+1);
+}
+
+.Loop(0);

@@ -329,6 +329,12 @@ export const asyncRouterMap = [
             meta: { title: 'menu.main', keepAlive: true, permission: ['student'] }
           },
           {
+            path: '/student/library-v2/:browserType?/',
+            name: 'StudentLibraryV2',
+            component: () => import('@/views/student/LibraryV2'),
+            meta: { title: 'menu.library', keepAlive: true, permission: ['student'], fullLayout: true }
+          },
+          {
             path: '/student/evaluation/:classId',
             props: true,
             name: 'StudentEvaluation',

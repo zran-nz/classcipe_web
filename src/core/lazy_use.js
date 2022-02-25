@@ -44,6 +44,7 @@ import {
   Steps,
   Cascader,
   message,
+  Progress,
   notification, Switch, Rate, Collapse, DatePicker, Mentions, AutoComplete
 } from 'ant-design-vue'
 import Viser from 'viser-vue'
@@ -53,6 +54,7 @@ import VueCropper from 'vue-cropper'
 import Dialog from '@/components/Dialog'
 import PermissionHelper from '@/core/permission/permission'
 import './directives/action'
+import './directives/hasRole'
 
 // logger
 import * as logger from '@/utils/logger'
@@ -107,6 +109,7 @@ Vue.use(DatePicker)
 Vue.use(Collapse)
 Vue.use(Mentions)
 Vue.use(AutoComplete)
+Vue.use(Progress)
 
 Vue.prototype.$confirm = Modal.confirm
 Vue.prototype.$message = message

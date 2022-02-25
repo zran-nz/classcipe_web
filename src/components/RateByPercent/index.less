@@ -1,0 +1,45 @@
+.rate-percent-con {
+  position: relative;
+  width: 100%;
+  .rate-percent-wrap {
+    background: #F7F8FF;
+    padding: 20px 30px;
+    display: flex;
+    align-items: center;
+    // justify-content: space-between;
+    .rate-percent__sum {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      .sum-title {
+        height: 53px;
+        font-size: 40px;
+        font-family: Segoe UI;
+        font-weight: bold;
+        line-height: 53px;
+        color: #182552;
+        opacity: 1;
+      }
+    }
+    .rate-percent__detail {
+      margin-left: 45px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      flex: 1;
+      .detail-bar {
+        line-height: 25px;
+        .ant-progress {
+          width: 135px;
+          .ant-progress-inner {
+            background-color: #c1c1c1;
+          }
+        }
+      }
+      span {
+        font-size: 12px;
+        line-height: 1;
+      }
+    }
+  }
+}

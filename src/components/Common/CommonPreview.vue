@@ -13,6 +13,9 @@
             <a-radio-button value="Preview" class="right-button">
               Detail
             </a-radio-button>
+            <a-radio-button value="Reviews" class="right-button" v-hasRole="['student']">
+              Reviews
+            </a-radio-button>
           </a-radio-group>
         </a-col>
       </a-row>
@@ -37,13 +40,28 @@
                 </a-button>
               </div>
               <div class="edit" v-else>
-                <a-button :loading="copyLoading" class="copy-button" type="primary" shape="round" @click="handleDuplicateItem">
-                  <div class="button-content" >
+                <a-button
+                  v-hasRole="['teacher']"
+                  :loading="copyLoading"
+                  class="copy-button"
+                  type="primary"
+                  shape="round"
+                  @click="handleDuplicateItem"
+                >
+                  <div class="button-content">
                     Copy <a-icon type="copy" style="margin-left: 6px;"/>
+                  </div>
+                </a-button>
+                <a-button v-hasRole="['student']" :loading="copyLoading" class="copy-button" type="primary" shape="round" @click="handleDuplicateItem">
+                  <div class="button-content" >
+                    Buy now
                   </div>
                 </a-button>
               </div>
             </div>
+          </div>
+          <div class="price-line" v-hasRole="['student']">
+            <label for="">$ 15.00</label>
           </div>
         </a-col>
       </a-row>
@@ -107,6 +125,20 @@
               <div class="overview-block">
                 <div class="custom-tags">
                   <div class="tag-item" v-for="(tag,tagIndex) in data.customTags" :key="'tagIndex' + tagIndex">
+                    <a-tooltip :title="tag.parentName">
+                      <a-tag class="tag">
+                        {{ tag.name }}
+                      </a-tag>
+                    </a-tooltip>
+                  </div>
+                </div>
+              </div>
+              <div class="block-main-label" v-hasRole="['student']">
+                This task contains interactive questions of
+              </div>
+              <div class="overview-block" v-hasRole="['student']">
+                <div class="custom-tags">
+                  <div class="tag-item" v-for="(tag,tagIndex) in data.customTags" :key="'interActiveIndex' + tagIndex">
                     <a-tooltip :title="tag.parentName">
                       <a-tag class="tag">
                         {{ tag.name }}
@@ -352,7 +384,10 @@
           </template>
         </a-col>
       </a-row>
-      <div class="associate-info" v-if="viewMode === 'Detail'">
+      <a-row class="reviews-info" v-if="viewMode === 'Reviews'">
+        <rate-by-percent />
+      </a-row>
+      <div class="associate-info" v-if="viewMode === 'Detail'" v-hasRole="['teacher']">>
         <common-link :can-edit="false" ref="commonLink" :from-id="id" :from-type="type"/>
       </div>
     </template>
@@ -396,6 +431,7 @@ import { PptPreviewMixin } from '@/mixins/PptPreviewMixin'
 import MediaPreview from '@/components/Task/MediaPreview'
 import TaskMaterialPreview from '@/components/Task/TaskMaterialPreview'
 import UiLearnOutSub from '@/components/UnitPlan/UiLearnOutSub'
+import RateByPercent from '@/components/RateByPercent'
 import { BaseEventMixin } from '@/mixins/BaseEvent'
 import { Duplicate } from '@/api/teacher'
 const { formatLocalUTC } = require('@/utils/util')
@@ -413,7 +449,8 @@ export default {
     NoMoreResources,
     CommonLink,
     MediaPreview,
-    TaskMaterialPreview
+    TaskMaterialPreview,
+    RateByPercent
   },
   props: {
     id: {
@@ -714,6 +751,22 @@ export default {
       font-size: 12px;
       color: @text-color-secondary;
     }
+
+    .price-line {
+      position: absolute;
+      right: 0;
+      top: -27px;
+      label {
+        height: 27px;
+        font-size: 20px;
+        font-family: Segoe UI;
+        font-weight: bold;
+        line-height: 24px;
+        font-style: italic;
+        color: #182552;
+        opacity: 1;
+      }
+    }
   }
 
   .author-info {
@@ -999,6 +1052,12 @@ export default {
     opacity: 1;
   }
 
+  .reviews-info {
+    .rate-percent-con {
+      margin-top: 20px;
+    }
+  }
+
   .left-preview {
     margin-top: 10px;
     height: 100%;
@@ -1019,7 +1078,10 @@ export default {
     }
 
     /deep/ .right-button {
-      border-radius: 0 16px 16px 0 ;
+      border-radius: 0 ;
+      &:last-child {
+        border-radius: 0 16px 16px 0;
+      }
     }
   }
 }
@@ -1031,14 +1093,17 @@ export default {
 }
 
 /deep/ .right-button {
-  border-radius: 0 16px 16px 0 ;
-  background: rgba(247, 248, 255, 1);
-  border: none;
+  border-radius: 0 ;
   font-size: 14px;
   font-family: Inter-Bold;
+  background: rgba(247, 248, 255, 1);
   color: #11142D;
   opacity: 1;
-  top:-1px;
+  border-right-width: 0;
+  &:last-child {
+    border-radius: 0 16px 16px 0;
+    border-right-width: 1px;
+  }
 }
 
 .action-header {
