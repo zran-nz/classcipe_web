@@ -521,18 +521,6 @@ export const constantRouterMap = [
     props: true
   },
   {
-    path: '/addon/callback',
-    name: 'addonCallback',
-    props: true,
-    component: () => import(/* webpackChunkName: "fail" */ '@/views/addon/AddonCallback')
-  },
-  {
-    path: '/addon/pageRedirect/:sourceType?/:id',
-    name: 'pageRedirect',
-    props: true,
-    component: () => import(/* webpackChunkName: "fail" */ '@/views/addon/PageRedirect')
-  },
-  {
     path: '/collaborate/:code',
     name: 'CollaborateJoin',
     props: true,
@@ -546,7 +534,34 @@ export const constantRouterMap = [
     meta: { title: 'Collaborate invite', keepAlive: true, icon: bxAnaalyse, permission: ['teacher'] },
     component: () => import(/* webpackChunkName: "fail" */ '@/views/collaborate/LinkValid')
   },
-
+  // addon
+  {
+    path: '/addon',
+    name: 'addon',
+    component: BlankLayout,
+    children: [
+      {
+        path: '/addon/callback',
+        name: 'addonCallback',
+        props: true,
+        component: () => import(/* webpackChunkName: "fail" */ '@/views/addon/AddonCallback'),
+        meta: { title: 'Redirectt', keepAlive: true }
+      },
+      {
+        path: '/addon/pageRedirect/:sourceType?/:id',
+        name: 'pageRedirect',
+        props: true,
+        component: () => import(/* webpackChunkName: "fail" */ '@/views/addon/PageRedirect')
+      },
+      {
+        path: '/addon/classGoBack',
+        name: 'classGoBack',
+        props: true,
+        component: () => import(/* webpackChunkName: "fail" */ '@/views/addon/ClassGoBack'),
+        meta: { title: 'Back', keepAlive: true }
+      }
+    ]
+  },
   // share
   {
     path: '/share',
