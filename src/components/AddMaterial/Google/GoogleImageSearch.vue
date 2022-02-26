@@ -300,7 +300,7 @@ export default {
       var gcse = document.createElement('script')
       gcse.type = 'text/javascript'
       gcse.async = true
-      gcse.src = 'https://www.window.google.com/cse/cse.js?cx=2f882a468dfb03fa9'
+      gcse.src = 'https://cse.google.com/cse?cx=2f882a468dfb03fa9'
       var s = document.getElementsByTagName('script')[0]
       s.parentNode.insertBefore(gcse, s)
     }
