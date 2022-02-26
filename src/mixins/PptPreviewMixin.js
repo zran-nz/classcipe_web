@@ -47,7 +47,7 @@ export const PptPreviewMixin = {
         const currentPageId = this.thumbnailList[this.currentImgIndex].id
         this.elementsList.forEach(e => {
           if (currentPageId === e.pageId) {
-            const data = JSON.parse(e.data)
+            const data = e.data
             if (data.type === 'iframe') {
               showMenuList.push(fileTypeMap.youtube)
             } else if (data.type === 'image') {
@@ -79,7 +79,7 @@ export const PptPreviewMixin = {
         const currentPageId = this.thumbnailList[this.currentImgIndex].id
         this.elementsList.forEach(e => {
           if (currentPageId === e.pageId) {
-            const data = JSON.parse(e.data)
+            const data = e.data
             pageElementsList.push(data)
           }
         })
@@ -95,12 +95,20 @@ export const PptPreviewMixin = {
         const currentPageId = this.thumbnailList[this.currentImgIndex].id
         this.itemsList.forEach(e => {
           if (currentPageId === e.pageId) {
-            const data = JSON.parse(e.data)
+            const data = e.data
             pageItemsList.push(data)
           }
         })
       }
       return pageItemsList.length > 0 ? pageItemsList[0] : ''
+    },
+    currentPageId () {
+      if (this.thumbnailList.length === 0) {
+        return null
+      }
+      if (this.thumbnailList[this.currentImgIndex]) {
+        return this.thumbnailList[this.currentImgIndex].id
+      }
     },
     currentPageTips () {
       if (this.thumbnailList.length === 0) {
@@ -122,7 +130,7 @@ export const PptPreviewMixin = {
         const currentPageId = this.thumbnailList[this.currentImgIndex].id
         this.elementsList.forEach(e => {
           if (currentPageId === e.pageId) {
-            const data = JSON.parse(e.data)
+            const data = e.data
             // 把tip从material踢出去
             if (data.type !== 'tip') {
               if (!material.hasOwnProperty(data.type)) {
@@ -146,6 +154,16 @@ export const PptPreviewMixin = {
         // QueryByClassInfoSlideId({ slideId: '1X9fE0m4j4Ey5BvSxof_a0bVxTDNaDfadJTlhkXmyikk' }).then(response => {
         this.$logger.info('QueryByClassInfoSlideId ', response)
         if (response.success) {
+          response.result.relements.forEach(e => {
+            if (typeof e.data === 'string') {
+              e.data = JSON.parse(e.data)
+            }
+          })
+          response.result.items.forEach(e => {
+            if (typeof e.data === 'string') {
+              e.data = JSON.parse(e.data)
+            }
+          })
           this.elementsList = response.result.relements
           this.itemsList = response.result.items
         }
@@ -163,7 +181,7 @@ export const PptPreviewMixin = {
       const dimensions = []
       this.itemsList.forEach(e => {
         if (pageIds.indexOf(e.pageId) !== -1) {
-          const json = JSON.parse(e.data)
+          const json = e.data
           if (json.data && json.data.bloomLevel) {
             if (blooms.indexOf(json.data.bloomLevel) === -1) {
               blooms.push(json.data.bloomLevel)
@@ -217,7 +235,7 @@ export const PptPreviewMixin = {
       const currentPageId = this.thumbnailList[this.currentImgIndex].id
       this.elementsList.forEach(e => {
         if (currentPageId === e.pageId) {
-          const data = JSON.parse(e.data)
+          const data = e.data
           if (data.type === type) {
             size++
           }
@@ -233,7 +251,7 @@ export const PptPreviewMixin = {
       let data = null
       this.itemsList.forEach(e => {
         if (pageId === e.pageId) {
-          data = JSON.parse(e.data)
+          data = e.data
         }
       })
       return data

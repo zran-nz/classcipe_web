@@ -378,6 +378,11 @@
                                   <div class='icon-text'>Website</div>
                                 </div>
                               </a-badge>
+                              <a-badge>
+                                <div class='my-add-material' v-if='form.presentationId && (isOwner || isCollaborater)'>
+                                  <upload-enter />
+                                </div>
+                              </a-badge>
                             </div>
                           </a-col>
                         </div>
@@ -1856,6 +1861,7 @@ import { chooseAnother } from '@/api/quickTask'
 import QuickTaskTemplatePreview from '@/components/Task/QuickTaskTemplatePreview'
 import { AddMaterialEventBus, ModalEventsNameEnum } from '@/components/AddMaterial/AddMaterialEventBus'
 import UploadEnter from '@/components/AddMaterial/UploadEnter'
+import { addBatchElements } from '@/api/addMaterial'
 
 const { SplitTask } = require('@/api/task')
 
@@ -4220,13 +4226,26 @@ export default {
 
     addMaterialList({ url, type }) {
       this.$logger.info('addMaterialList', url, type)
-      // const page_id = this.currentPageId;
-      // const itemData = {
-      //   page_id: page_id,
-      //   url: url,
-      //   type: type,
-      //   position: { x: 0, y: 0, w: 0, h: 0 }
-      // };
+      const pageId = this.currentPageId
+      const itemData = {
+        page_id: pageId,
+        url: url,
+        type: type,
+        position: { x: 0, y: 0, w: 0, h: 0 }
+      }
+      const elementItem = {
+        data: itemData,
+        pageId: pageId,
+        slideId: this.form.presentationId
+      }
+      const elementList = [elementItem]
+      addBatchElements({
+        elementsList: elementList,
+        itemsList: []
+      }).then(response => {
+        this.$logger.info('addBatchElements', response)
+        this.getClassInfo(this.form.presentationId)
+      })
     },
     deleteMaterial(id) {
       this.$logger.info('addMaterialList', id)

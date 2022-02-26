@@ -14,6 +14,7 @@ import PermissionHelper from '@/core/permission/permission'
 // import '@/components/use'
 import './directives/action'
 import './directives/hasRole'
+import './directives/exCludeRole'
 
 VueClipboard.config.autoSetContainer = true
 
