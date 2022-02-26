@@ -5,15 +5,15 @@
       <div class="objectives-wrapper">
 
         <a-row class="objectives-wrapper-block" v-if="getknowledgeListType(TagType.skill).length > 0" >
-          <div class="title-item title-bloom">Assessment objectives</div>
+          <div class="title-item title-skill">Achievement objectives</div>
           <div class="objectives-list" v-for="(k,index) in getknowledgeListType(TagType.skill)" :key="index">
-            <div class="objectives-list-item objectives-list-item-bloom objectives-list-item-top-fixed">
+            <div class="objectives-list-item objectives-list-item-skill objectives-list-item-top-fixed">
               <!--              <a-breadcrumb separator=">">-->
               <!--                <a-breadcrumb-item v-for="item in dealPath(k.path)" :key="item">{{ item }}</a-breadcrumb-item>-->
               <!--              </a-breadcrumb>-->
               <div class="skt-description">
                 <a-tooltip :title="k.path"> {{ k.name }}</a-tooltip>
-                <div class="skt-chart">
+                <div class="skt-chart" v-hasRole="['student']">
                   <div class="skt-chart-detail">
                     <label>Bloom taxnology</label>
                     <a-rate class="rate-bar-con">
@@ -23,24 +23,10 @@
                     </a-rate>
                   </div>
                   <div class="skt-chart-detail">
-                    <label>Dimension</label>
+                    <label>Knowledge dimension</label>
                     <a-tag color="purple" class="tag-item">Conceptual</a-tag>
                   </div>
                 </div>
-              </div>
-            </div>
-          </div>
-        </a-row>
-
-        <a-row class="objectives-wrapper-block" v-if="getknowledgeListType(TagType.skill).length > 0" >
-          <div class="title-item title-skill">Achievement objectives</div>
-          <div class="objectives-list" v-for="(k,index) in getknowledgeListType(TagType.skill)" :key="index">
-            <div class="objectives-list-item objectives-list-item-skill objectives-list-item-top-fixed">
-              <!--              <a-breadcrumb separator=">">-->
-              <!--                <a-breadcrumb-item v-for="item in dealPath(k.path)" :key="item">{{ item }}</a-breadcrumb-item>-->
-              <!--              </a-breadcrumb>-->
-              <div class="skt-description">
-                <a-tooltip :title="k.path"> {{ k.name }}</a-tooltip>
               </div>
             </div>
           </div>

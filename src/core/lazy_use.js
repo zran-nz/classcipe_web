@@ -55,6 +55,7 @@ import Dialog from '@/components/Dialog'
 import PermissionHelper from '@/core/permission/permission'
 import './directives/action'
 import './directives/hasRole'
+import './directives/exCludeRole'
 
 // logger
 import * as logger from '@/utils/logger'

@@ -41,7 +41,7 @@
               </div>
               <div class="edit" v-else>
                 <a-button
-                  v-hasRole="['teacher']"
+                  v-excludeRole="['student']"
                   :loading="copyLoading"
                   class="copy-button"
                   type="primary"
@@ -58,7 +58,8 @@
                   class="copy-button"
                   type="primary"
                   shape="round"
-                  @click="handleDuplicateItem">
+                  @click="handleDuplicateItem"
+                >
                   <div class="button-content" >
                     Buy now
                   </div>
@@ -71,7 +72,7 @@
           </div>
         </a-col>
       </a-row>
-      <a-row class="author-info">
+      <a-row class="author-info" v-excludeRole="['student']">
         <a-col span="3" class="avatar-icon">
           <img src="~@/assets/icons/library/default-avatar.png" />
         </a-col>
@@ -96,6 +97,31 @@
           </div>
         </a-col>
       </a-row>
+      <a-space class="author-info" v-hasRole="['student']" v-if="viewMode !== 'Reviews'">
+        <div class="avatar-icon" :class="{'avatar-small': viewMode === 'Detail'}">
+          <img :src="collaborate.owner && collaborate.owner.avatar" />
+        </div>
+        <div>
+          <div class="sub-info">
+            <div class="created-by">
+              {{ collaborate.owner && collaborate.owner.nickname }}
+            </div>
+            <div class="created-time">
+              <template v-if="lastChangeSavedTime">
+                {{ lastChangeSavedTime }}
+              </template>
+            </div>
+          </div>
+          <div class="star-info" v-if="viewMode === 'Preview'">
+            <a-tooltip placement="right">
+              <template slot="title">
+                10 people gave a score of 5 stars
+              </template>
+              <a-rate :default-value="5" allow-half disabled/>
+            </a-tooltip>
+          </div>
+        </div>
+      </a-space>
       <a-row class="data-info" v-if="viewMode === 'Detail'">
         <a-col class="right-detail" span="24" >
           <div class="sub-detail">
@@ -391,9 +417,66 @@
         </a-col>
       </a-row>
       <a-row class="reviews-info" v-if="viewMode === 'Reviews'">
-        <rate-by-percent />
+        <a-col class="slide-reviews" span="24">
+          <rate-by-percent />
+          <div class="reviews-wrapper">
+            <div class="reviews-title">
+              <h2>Reviews</h2>
+            </div>
+            <div class="reviews-search">
+              <div class="my-search">
+                <a-input-search
+                  placeholder="Search"
+                  v-model="searchText"
+                  @search="triggerSearch"
+                  @pressEnter="triggerSearch"
+                  :allowClear="true"
+                  size="large"
+                >
+                </a-input-search>
+              </div>
+              <a-select :getPopupContainer="trigger => trigger.parentElement" size="large" default-value="1" @change="triggerChangeRate">
+                <a-select-option value="1">
+                  All ratings
+                </a-select-option>
+                <a-select-option value="5">
+                  5 rating
+                </a-select-option>
+              </a-select>
+            </div>
+            <a-skeleton :loading="reviewsLoading" active >
+              <div class="reviews-content">
+                <div class="reviews-content-detail" v-for="(item, index) in [0, 1]" :key="'review_'+index">
+                  <div class="content-detail__avatar">
+                    <img :src="collaborate.owner && collaborate.owner.avatar"/>
+                  </div>
+                  <div class="content-detail__rate">
+                    <a-rate :default-value="5" allow-half disabled/>
+                  </div>
+                  <div>
+                    <div class="content-detail__title">
+                      <div class="title-info">
+                        <div class="info-author">
+                          Author name
+                        </div>
+                        <div class="info-time">
+                          6 days ago
+                        </div>
+                      </div>
+                    </div>
+                    <div class="content-detail__review">
+                      <label>
+                        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean euismod bibendum laoreet.
+                      </label>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </a-skeleton>
+          </div>
+        </a-col>
       </a-row>
-      <div class="associate-info" v-if="viewMode === 'Detail'" v-hasRole="['teacher']">>
+      <div class="associate-info" v-if="viewMode === 'Detail'" v-excludeRole="['student']">>
         <common-link :can-edit="false" ref="commonLink" :from-id="id" :from-type="type"/>
       </div>
     </template>
@@ -493,6 +576,7 @@ export default {
       loading: true,
       slideLoading: false,
       copyLoading: false,
+      reviewsLoading: false,
       data: null,
       imgList: [],
       viewMode: 'Detail',
@@ -510,7 +594,8 @@ export default {
       typeMap: typeMap,
 
       subPreviewVisible: false,
-      currentImgIndex: 0
+      currentImgIndex: 0,
+      searchText: ''
     }
   },
   created () {
@@ -684,6 +769,12 @@ export default {
 
     handleOpenLink (url) {
       window.open(url, '_blank')
+    },
+    triggerSearch() {
+
+    },
+    triggerChangeRate(value) {
+
     }
   }
 }
@@ -777,6 +868,7 @@ export default {
 
   .author-info {
     margin-top: 10px;
+    margin-bottom: 20px;
     display: flex;
     flex-direction: row;
     align-items: center;
@@ -787,7 +879,15 @@ export default {
       align-items: center;
       justify-content: flex-start;
       img {
-        width: 80%;
+        width: 64px;
+        height: 64px;
+        border-radius: 100%;
+      }
+      &.avatar-small {
+        img {
+          width: 32px;
+          height: 32px;
+        }
       }
     }
     .sub-info {
@@ -1059,8 +1159,94 @@ export default {
   }
 
   .reviews-info {
-    .rate-percent-con {
-      margin-top: 20px;
+    .slide-reviews {
+      padding: 20px 0;
+      .reviews-wrapper {
+        position: relative;
+        margin-top: 20px;
+        .reviews-title {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+        }
+        .reviews-search {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          .my-search{
+            margin-right: 10px;
+            border-radius:6px;
+            flex: 1;
+            /deep/ .ant-input{
+              border-radius:6px;
+              height: 40px;
+            }
+          }
+          /deep/ .ant-select-dropdown {
+            z-index: 1001;
+          }
+        }
+        .reviews-content {
+          margin-top: 20px;
+          .reviews-content-detail {
+            position: relative;
+            padding: 15px 20px;
+            background: #F7F8FF;
+            display: flex;
+            & ~ .reviews-content-detail {
+              margin-top: 20px;
+            }
+            .content-detail__avatar {
+              margin-right: 10px;
+              img {
+                width: 30px;
+                height: 30px;
+                border-radius: 30px;
+              }
+            }
+            .content-detail__rate {
+              position: absolute;
+              top: 10px;
+              right: 20px;
+            }
+            .content-detail__title {
+              display: flex;
+              align-items: flex-start;
+              .title-info {
+                display: flex;
+                flex-direction: column;
+                .info-author{
+                  height: 19px;
+                  font-size: 14px;
+                  font-family: Segoe UI;
+                  font-weight: bold;
+                  line-height: 24px;
+                  color: #182552;
+                  opacity: 1;
+                }
+                .info-time {
+                  height: 24px;
+                  font-size: 18px;
+                  font-family: Inter-Bold;
+                  line-height: 24px;
+                  color: #929292;
+                  opacity: 1;
+                  margin-top: 5px;
+                }
+              }
+            }
+            .content-detail__review {
+              height: 48px;
+              font-size: 18px;
+              font-family: Inter-Bold;
+              line-height: 24px;
+              color: #000000;
+              opacity: 1;
+              margin-top: 10px;
+            }
+          }
+        }
+      }
     }
   }
 
@@ -1102,7 +1288,7 @@ export default {
   border-radius: 0 ;
   font-size: 14px;
   font-family: Inter-Bold;
-  background: rgba(247, 248, 255, 1);
+  // background: rgba(247, 248, 255, 1);
   color: #11142D;
   opacity: 1;
   border-right-width: 0;
