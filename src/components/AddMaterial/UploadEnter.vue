@@ -255,12 +255,12 @@ export default {
     },
     doneSelect(imageUrl) {
       uploadImageToFirebaseByUrl(imageUrl).then((url) => {
-        this.closeImageSearch()
         this.$logger.info('uploadImageToFirebaseByUrl', url)
         AddMaterialEventBus.$emit(ModalEventsNameEnum.ADD_NEW_MEDIA, {
           type: 'image',
           url
         })
+        this.closeImageSearch()
       }).catch(() => {
         this.closeImageSearch()
         this.$message.error('The image you selected is not available')
