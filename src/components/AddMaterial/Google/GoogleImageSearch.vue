@@ -132,7 +132,7 @@ export default {
   methods: {
     // 显示提示
     showPrivate() {
-      window.open('https://support.window.google.com/drive/answer/179622?p=docs_image_search&hl=en&visit_id=637765802042272752-1731005835&rd=1')
+      window.open('https://support.google.com/drive/answer/179622?p=docs_image_search&hl=en&visit_id=637765802042272752-1731005835&rd=1');
     },
     imageTypeChange() {
       const _this = this
@@ -234,18 +234,6 @@ export default {
               },
               tag: 'search'
             })
-            // window.google.search.cse.element.render({
-            //   div: "image_result",
-            //   attributes: {
-            //     disableWebSearch: true,
-            //     image_type: _this.image_type_value,
-            //     image_dominantcolor:
-            //       _this.currentColorIndex == -1
-            //         ? ""
-            //         : _this.colorStr[_this.currentColorIndex]
-            //   },
-            //   tag: "search"
-            // });
             console.log('init call back 1', _this.image_type_value)
           } else {
             // Document is not ready yet, when Search Element is initialized.
