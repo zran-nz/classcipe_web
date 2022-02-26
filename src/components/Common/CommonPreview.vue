@@ -52,7 +52,13 @@
                     Copy <a-icon type="copy" style="margin-left: 6px;"/>
                   </div>
                 </a-button>
-                <a-button v-hasRole="['student']" :loading="copyLoading" class="copy-button" type="primary" shape="round" @click="handleDuplicateItem">
+                <a-button
+                  v-hasRole="['student']"
+                  :loading="copyLoading"
+                  class="copy-button"
+                  type="primary"
+                  shape="round"
+                  @click="handleDuplicateItem">
                   <div class="button-content" >
                     Buy now
                   </div>
