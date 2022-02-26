@@ -1,12 +1,12 @@
 import lessonAPIRequest from '@/utils/lessonAPIRequest'
 
-export const lessonAPIUrl = {
-  fileUpload: '/file/upload'
+export const addMaterialUrl = {
+  'addBatchElements': '/classroom/api/v2/classroom/elements/addBatch'
 }
 
-export function fileUpload (parameter) {
+export function addBatchElements (parameter) {
   return lessonAPIRequest({
-    url: lessonAPIUrl.fileUpload,
+    url: addMaterialUrl.addBatchElements,
     method: 'post',
     data: parameter
   })
