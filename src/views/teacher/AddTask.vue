@@ -321,7 +321,7 @@
                             Choose another
                           </a-button>
                         </div>
-                        <div class='top-icon-groups' v-if='!form.fileDeleted && !form.showSelected'>
+                        <div class='top-icon-groups' v-if='!form.showSelected'>
                           <a-col class='material-row'>
                             <div class='icon-group'>
                               <a-badge
@@ -4244,6 +4244,11 @@ export default {
         itemsList: []
       }).then(response => {
         this.$logger.info('addBatchElements', response)
+        if (response.success) {
+          this.$message.success('Upload successfully')
+        } else {
+          this.$message.error('Upload failed ' + response.message)
+        }
         this.getClassInfo(this.form.presentationId)
       })
     },

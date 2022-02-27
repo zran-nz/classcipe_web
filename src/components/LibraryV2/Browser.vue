@@ -105,7 +105,7 @@
         <div class="library-content">
           <div class="browser-action" v-if="hasLeftBlock && !expandedListFlag">
             <div class="action-item" @click="handleViewLeft">
-              <back-svg style="width: 15vw"/>
+              <back-svg style="width: 8vw"/>
             </div>
           </div>
           <div class="browser-table-wrapper" :style="{left: -browserMarginLeft + 'px'}">
@@ -188,7 +188,7 @@
         </div>
         <div
           class="browser-block-item-wrapper">
-          <a-card v-if="!searching && showRecommend" :bordered="false" title="Recommended:" ></a-card>
+          <a-card v-if="!searching && showRecommend" :bordered="false"></a-card>
           <div
             class="browser-block-item-last"
             :style="{'flex-direction': dataListMode === 'list' ? 'column' : 'row'}">
@@ -504,13 +504,21 @@ export default {
   computed: {
     leftBrowserWidth () {
       let width = '30vw'
-      if (this.showRecommend) {
-        width = '15vw'
-      }
+       if (this.expandedListFlag) {
+        width = '0vw'
+      } else if (this.showRecommend) {
+         width = '15vw'
+       }
       return width
     },
     rightBrowserWidth () {
-      return this.showRecommend ? '70vw' : '85vw'
+      let width = '85vw'
+      if (this.expandedListFlag) {
+        width = '100vw'
+      } else if (this.showRecommend) {
+        width = '70vw'
+      }
+      return width
     }
   },
   created () {
@@ -656,10 +664,7 @@ export default {
       this.hasLeftBlock = false
       this.blockIndex = 0
       this.browserMarginLeft = 0
-      this.navPath = [{
-        path: this.browserTypeLabelMap[this.currentBrowserType],
-        blockIndex: 0
-      }]
+      this.currentBrowserType = null
 
       if (this.libraryMode === LibraryMode.searchMode) {
         this.handleSearchKey()
@@ -669,8 +674,6 @@ export default {
 
     handleSearchKey () {
       this.$logger.info('handleSearchKey ' + this.searchKeyword)
-      this.leftBrowserWidth = '0vw'
-      this.rightBrowserWidth = '100vw'
       this.expandedListFlag = true
       if (this.searchKeyword && this.searchKeyword.trim().length > 0) {
         this.searchByKeyword(this.searchKeyword)
@@ -787,12 +790,8 @@ export default {
     handleExpandDetail () {
       this.$logger.info('handleExpandDetail ' + this.blockIndex + ' ' + this.expandedListFlag)
       if (this.expandedListFlag) {
-        this.leftBrowserWidth = '30vw'
-        this.rightBrowserWidth = '70vw'
         this.expandedListFlag = false
       } else {
-        this.leftBrowserWidth = '0vw'
-        this.rightBrowserWidth = '100vw'
         this.expandedListFlag = true
       }
 

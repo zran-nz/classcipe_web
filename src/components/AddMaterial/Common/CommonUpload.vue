@@ -1,14 +1,11 @@
 <template>
-  <div>
-    <div class="upload-file" >
-      <input
-        class="upload-file"
-        type="file"
-        :accept="accept"
-        ref="uploadFile"
-        @change="onUpload"/>
-    </div>
-    <common-progress :progress="progress" :cancel="cancel" :appendBody="true"/>
+  <div class="upload-file" >
+    <input
+      class="upload-file"
+      type="file"
+      :accept="accept"
+      ref="uploadFile"
+      @change="onUpload"/>
   </div>
 </template>
 <script>
