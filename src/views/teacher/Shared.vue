@@ -1177,7 +1177,7 @@ export const SHARED_VIEW_MODE = 'view_mode_shared'
 
               .mode-item {
                 padding: 0 8px;
-                font-size: 14px;
+                font-size: 12px;
                 height: 40px;
                 color: rgba(17, 20, 45, 1);
                 border-radius: 30px;
