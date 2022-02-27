@@ -332,6 +332,7 @@ export default {
   box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.16);
   opacity: 1;
   display: flex;
+  min-width: 1000px;
   align-items: center;
 
   .back-icon {
@@ -351,7 +352,7 @@ export default {
     font-family: Inter-Bold;
     line-height: 24px;
     color: #182552;
-    max-width: 450px;
+    max-width: 350px;
     display: inline-block;
     overflow: hidden;
     white-space: nowrap;
@@ -360,16 +361,20 @@ export default {
   }
 
   .unit-last-change-time {
-    line-height: 32px;
     font-family: Inter-Bold;
     line-height: 24px;
     color: #aaa;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+    flex-wrap: nowrap;
     font-size: 13px;
   }
 
   .unit-right-action {
     display: flex;
-    //right: 10px;
+    background: #fff;
     justify-content: flex-end;
 
     .my-form-header-btn {
@@ -391,7 +396,6 @@ export default {
 
     .collaborate-users {
       display: flex;
-      min-width: 160px;
       justify-content: flex-end;
       margin-right:10px;
       margin-top: 3px;
