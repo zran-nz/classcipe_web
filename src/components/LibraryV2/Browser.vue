@@ -105,7 +105,7 @@
         <div class="library-content">
           <div class="browser-action" v-if="hasLeftBlock && !expandedListFlag">
             <div class="action-item" @click="handleViewLeft">
-              <back-svg style="width: 15vw"/>
+              <back-svg style="width: 8vw"/>
             </div>
           </div>
           <div class="browser-table-wrapper" :style="{left: -browserMarginLeft + 'px'}">
@@ -188,7 +188,7 @@
         </div>
         <div
           class="browser-block-item-wrapper">
-          <a-card v-if="!searching && showRecommend" :bordered="false" title="Recommended:" ></a-card>
+          <a-card v-if="!searching && showRecommend" :bordered="false"></a-card>
           <div
             class="browser-block-item-last"
             :style="{'flex-direction': dataListMode === 'list' ? 'column' : 'row'}">
@@ -664,10 +664,7 @@ export default {
       this.hasLeftBlock = false
       this.blockIndex = 0
       this.browserMarginLeft = 0
-      this.navPath = [{
-        path: this.browserTypeLabelMap[this.currentBrowserType],
-        blockIndex: 0
-      }]
+      this.currentBrowserType = null
 
       if (this.libraryMode === LibraryMode.searchMode) {
         this.handleSearchKey()
