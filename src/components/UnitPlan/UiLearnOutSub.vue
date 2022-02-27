@@ -13,10 +13,10 @@
               <!--              </a-breadcrumb>-->
               <div class="skt-description">
                 <a-tooltip :title="k.path"> {{ k.name }}</a-tooltip>
-                <div class="skt-chart" v-hasRole="['student']">
+                <div class="skt-chart" v-hasRole="['student']" v-if="bloomInfo(k.knowledgeId, 'knowledgeLevel').length > 0">
                   <div class="skt-chart-detail">
                     <label>Bloom taxnology</label>
-                    <a-rate class="rate-bar-con">
+                    <a-rate class="rate-bar-con" :count="6" :value="bloomInfo(k.knowledgeId, 'bloomLevel')" disabled>
                       <div slot="character">
                         <div class="rate-bar"></div>
                       </div>
@@ -24,7 +24,9 @@
                   </div>
                   <div class="skt-chart-detail">
                     <label>Knowledge dimension</label>
-                    <a-tag color="purple" class="tag-item">Conceptual</a-tag>
+                    <a-tag color="purple" class="tag-item" v-for="(item, tagIndex) in bloomInfo(k.knowledgeId, 'knowledgeLevel')" :key="k.name + 'bloom_tag'+tagIndex">
+                      {{ item }}
+                    </a-tag>
                   </div>
                 </div>
               </div>
@@ -41,6 +43,22 @@
               <!--              </a-breadcrumb>-->
               <div class="skt-description">
                 <a-tooltip :title="k.path"> {{ k.name }}</a-tooltip>
+                <div class="skt-chart" v-hasRole="['student']" v-if="bloomInfo(k.knowledgeId, 'knowledgeLevel').length > 0">
+                  <div class="skt-chart-detail">
+                    <label>Bloom taxnology</label>
+                    <a-rate class="rate-bar-con" :count="6" :value="bloomInfo(k.knowledgeId, 'bloomLevel')" disabled>
+                      <div slot="character">
+                        <div class="rate-bar"></div>
+                      </div>
+                    </a-rate>
+                  </div>
+                  <div class="skt-chart-detail">
+                    <label>Knowledge dimension</label>
+                    <a-tag color="purple" class="tag-item" v-for="(item, tagIndex) in bloomInfo(k.knowledgeId, 'knowledgeLevel')" :key="k.name + 'bloom_tag'+tagIndex">
+                      {{ item }}
+                    </a-tag>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -55,6 +73,22 @@
               <!--              </a-breadcrumb>-->
               <div class="skt-description skt-description-21">
                 <a-tooltip :title="k.path"> {{ k.name }}</a-tooltip>
+                <div class="skt-chart" v-hasRole="['student']" v-if="bloomInfo(k.knowledgeId, 'knowledgeLevel').length > 0">
+                  <div class="skt-chart-detail">
+                    <label>Bloom taxnology</label>
+                    <a-rate class="rate-bar-con" :count="6" :value="bloomInfo(k.knowledgeId, 'bloomLevel')" disabled>
+                      <div slot="character">
+                        <div class="rate-bar"></div>
+                      </div>
+                    </a-rate>
+                  </div>
+                  <div class="skt-chart-detail">
+                    <label>Knowledge dimension</label>
+                    <a-tag color="purple" class="tag-item" v-for="(item, tagIndex) in bloomInfo(k.knowledgeId, 'knowledgeLevel')" :key="k.name + 'bloom_tag'+tagIndex">
+                      {{ item }}
+                    </a-tag>
+                  </div>
+                </div>
               </div>
               <a-divider style="margin: 10px 0px" v-if="k.tagListVisible" />
               <div class="skt-description-tag-list" v-if="k.tagListVisible">
@@ -124,8 +158,9 @@
   import * as logger from '@/utils/logger'
   import NoMoreResources from '@/components/Common/NoMoreResources'
   import LearnOutAddTag from '@/components/UnitPlan/LearnOutAddTag'
-  import { TagType } from '@/const/common'
+  import { TagType, DICT_BLOOM_TAXONOMY } from '@/const/common'
   import { getAll21Century } from '@/api/knowledge'
+  import { GetDictItems } from '@/api/common'
 
   export default {
     name: 'UiLearnOutSub',
@@ -135,6 +170,10 @@
     },
     props: {
       learnOuts: {
+        type: Array,
+        default: () => []
+      },
+      classInfoList: {
         type: Array,
         default: () => []
       }
@@ -153,6 +192,29 @@
           }
           return path.split('>')
         }
+      },
+      bloomInfo () {
+        return (knowledgeId, key) => {
+          if (!knowledgeId || this.classInfoList.length === 0) {
+            return []
+          }
+          const datas = this.classInfoList.map(item => item.data ? item.data.data ? item.data.data : '' : '')
+          const datasLearnOut = datas.filter(item => item && item.learnOuts && item.learnOuts.length > 0)
+          const data = datasLearnOut.filter(item => item.learnOuts.find(learnout => learnout.knowledgeId === knowledgeId))
+
+          // knowledge 显示多个，bloom显示最高级
+          const result = {
+            knowledgeLevel: [],
+            bloomLevel: 1
+          }
+          result.knowledgeLevel = data.map(item => item.knowledgeLevel).filter(item => item !== '')
+          result.bloomLevel = data.map(item => {
+            const val = this.bloomLevel.find(bloom => bloom.text === item.bloomLevel)
+            return val ? parseInt(val.value) : ''
+          }).filter(item => item !== '').sort().pop()
+          console.log(result)
+          return result[key]
+        }
       }
     },
     data () {
@@ -164,17 +226,27 @@
         knowledge: {},
         tags: [],
         TagType: TagType,
-        centuryList: []
+        centuryList: [],
+        bloomLevel: []
       }
     },
     created () {
       this.knowledgeList = this.learnOuts
       logger.info('knowledgeList ', this.knowledgeList)
       this.get21century()
+      this.initData()
     },
     watch: {
     },
     methods: {
+      initData() {
+        GetDictItems(DICT_BLOOM_TAXONOMY).then(response => {
+          if (response.success) {
+            logger.info('DICT_BLOOM_TAXONOMY', response.result)
+            this.bloomLevel = response.result
+          }
+        })
+      },
       handleActiveDescription (type, k) {
         var index = this.knowledgeList.findIndex(item => item.knowledgeId === k.knowledgeId)
         if (this.knowledgeList[index].tagType !== TagType.knowledge &&
@@ -373,7 +445,7 @@
           border-top: 1px solid #333;
           justify-content: space-between;
           align-items: center;
-          height: 40px;
+          height: 50px;
           padding-top: 5px;
           margin-top: 5px;
           .skt-chart-detail {

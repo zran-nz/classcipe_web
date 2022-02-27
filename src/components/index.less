@@ -1,12 +1,12 @@
-@import "~ant-design-vue/lib/style/index";
+@import '~ant-design-vue/lib/style/index';
 
 // The prefix to use on all css classes from ant-pro.
-@ant-pro-prefix             : ant-pro;
-@ant-global-sider-zindex    : 106;
-@ant-global-header-zindex   : 105;
+@ant-pro-prefix: ant-pro;
+@ant-global-sider-zindex: 106;
+@ant-global-header-zindex: 105;
 @btn-default-color: #fff;
 
-@bar-width: 10px, 15px, 20px, 25px, 30px;
+@bar-width: 10px, 15px, 20px, 25px, 30px, 35px;
 @bar-con-len: length(@bar-width);
 
 button.ant-btn {
@@ -20,8 +20,8 @@ button.ant-btn-primary {
   color: @btn-default-color;
 }
 
-.ant-tooltip{
-  max-width:400px;
+.ant-tooltip {
+  max-width: 400px;
 }
 
 // bloom rate
@@ -33,7 +33,7 @@ button.ant-btn-primary {
   .rate-bar {
     width: 8px;
     height: 30px;
-    background: #e8e8e8;
+    background: #aaa;
   }
   .ant-rate-star-full {
     .rate-bar {
@@ -42,10 +42,10 @@ button.ant-btn-primary {
   }
 }
 
-.Loop(@index) when (@index < @bar-con-len){
-  .rate-bar-con .ant-rate-star:nth-child(@{index}){
+.Loop(@index) when (@index < @bar-con-len) {
+  .rate-bar-con .ant-rate-star:nth-child(@{index}) {
     height: extract(@bar-width, @index);
-    .rate-bar{
+    .rate-bar {
       height: extract(@bar-width, @index);
     }
   }

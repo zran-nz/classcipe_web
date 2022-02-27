@@ -170,10 +170,10 @@
               </div>
               <div class="overview-block" v-hasRole="['student']">
                 <div class="custom-tags">
-                  <div class="tag-item" v-for="(tag,tagIndex) in data.customTags" :key="'interActiveIndex' + tagIndex">
-                    <a-tooltip :title="tag.parentName">
+                  <div class="tag-item" v-for="(tag,tagIndex) in inActiveTypes" :key="'interActiveIndex' + tagIndex">
+                    <a-tooltip :title="tag">
                       <a-tag class="tag">
-                        {{ tag.name }}
+                        {{ tag }}
                       </a-tag>
                     </a-tooltip>
                   </div>
@@ -185,7 +185,7 @@
               <div class="overview-block">
                 <div class="learn-question-tag">
                   <div class="learn-out" style="margin: 10px;">
-                    <ui-learn-out-sub :learn-outs="data.learnOuts" />
+                    <ui-learn-out-sub :learn-outs="data.learnOuts" :class-info-list="itemsList" />
                   </div>
                 </div>
               </div>
@@ -523,6 +523,8 @@ import UiLearnOutSub from '@/components/UnitPlan/UiLearnOutSub'
 import RateByPercent from '@/components/RateByPercent'
 import { BaseEventMixin } from '@/mixins/BaseEvent'
 import { Duplicate } from '@/api/teacher'
+import { DICT_BLOOM_CATEGORY, DICT_PROMPT_TYPE } from '@/const/common'
+import { GetDictItems } from '@/api/common'
 const { formatLocalUTC } = require('@/utils/util')
 const { UnitPlanQueryById } = require('@/api/unitPlan')
 const { TaskQueryById } = require('@/api/task')
@@ -566,6 +568,13 @@ export default {
         }
       }
       return ''
+    },
+    inActiveTypes () {
+      let activeTypes = []
+      if (this.itemsList) {
+        activeTypes = this.itemsList.map(item => item.type)
+      }
+      return Array.from(new Set(activeTypes))
     }
   },
   mounted () {
@@ -595,7 +604,8 @@ export default {
 
       subPreviewVisible: false,
       currentImgIndex: 0,
-      searchText: ''
+      searchText: '',
+      initPrompts: []
     }
   },
   created () {
@@ -649,6 +659,18 @@ export default {
           this.queryContentCollaborates(this.id, this.type)
         })
       }
+      GetDictItems(DICT_BLOOM_CATEGORY).then(response => {
+        if (response.success) {
+          logger.info('DICT_BLOOM_CATEGORY', response.result)
+          this.initBlooms = response.result
+        }
+      })
+      GetDictItems(DICT_PROMPT_TYPE).then(response => {
+        if (response.success) {
+          logger.info('DICT_PROMPT_TYPE', response.result)
+          this.initPrompts = response.result
+        }
+      })
     },
 
     loadThumbnail () {
