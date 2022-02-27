@@ -19,10 +19,8 @@
   data () {
   },
   created () {
-    let token = this.$route.query.token
-
-    if (!token) {
-      token = this.$route.query.accessToken
+    const token = this.$route.query.token
+    if (token) {
       storage.set(ACCESS_TOKEN, token)
     }
     setTimeout(() => {
