@@ -321,7 +321,7 @@
                             Choose another
                           </a-button>
                         </div>
-                        <div class='top-icon-groups' v-if='!form.fileDeleted && !form.showSelected'>
+                        <div class='top-icon-groups' v-if='!form.showSelected'>
                           <a-col class='material-row'>
                             <div class='icon-group'>
                               <a-badge

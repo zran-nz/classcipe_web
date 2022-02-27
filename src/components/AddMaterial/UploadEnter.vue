@@ -261,7 +261,9 @@ export default {
           url
         })
         this.closeImageSearch()
-      }).catch(() => {
+      }).catch((e) => {
+        console.log(e)
+        this.$logger.warn('uploadImageToFirebaseByUrl', e)
         this.closeImageSearch()
         this.$message.error('The image you selected is not available')
       })
