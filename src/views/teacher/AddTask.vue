@@ -4246,7 +4246,7 @@ export default {
         this.$logger.info('addBatchElements', response)
         if (response.success) {
           this.$message.success('Upload successfully')
-        } else{
+        } else {
           this.$message.error('Upload failed ' + response.message)
         }
         this.getClassInfo(this.form.presentationId)

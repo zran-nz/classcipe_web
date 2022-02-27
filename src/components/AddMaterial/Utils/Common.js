@@ -7,6 +7,7 @@ import { upFireBaseFile } from '@/components/AddMaterial/Utils/FirebaseUploadFil
 export const uploadImageToFirebaseByUrl = async (url) => {
   return new Promise((resolve, reject) => {
     downloadImageBlob(url).then(({ data }) => {
+      console.log('downloadImageBlob', data)
       const {
         result,
         success
@@ -24,7 +25,7 @@ export const uploadImageToFirebaseByUrl = async (url) => {
 
 // 上传图片到后台
 export const downloadImageBlob = async (imageUrl) => {
-  return axios.post(process.env.VUE_APP_API_BASE_URL + `/classcipe/common/downloadImage`, `imageUrl=${imageUrl}`, {
+  return axios.post(process.env.VUE_APP_API_BASE_URL + `/classcipe/common/downloadImage`, `imageUrl=${imageUrl}&returnUrl=true`, {
     headers: {
       'X-Access-Token': storage.get(ACCESS_TOKEN),
       'content-type': 'application/x-www-form-urlencoded'
@@ -33,6 +34,7 @@ export const downloadImageBlob = async (imageUrl) => {
 }
 
 const tryDownloadByClient = async (url, resolve, reject) => {
+  console.log('tryDownloadByClient')
   if (url.indexOf('https') > -1) {
     // 本地下载 只处理https
     const image = new Image()
