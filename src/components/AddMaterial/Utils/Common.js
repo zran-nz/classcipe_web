@@ -24,7 +24,7 @@ export const uploadImageToFirebaseByUrl = async (url) => {
 
 // 上传图片到后台
 export const downloadImageBlob = async (imageUrl) => {
-  return axios.post(process.env.VUE_APP_API_BASE_URL + `/classcipe/common/downloadImage`, `imageUrl=${imageUrl}&returnUrl=true`, {
+  return axios.post(process.env.VUE_APP_API_BASE_URL + `/classcipe/common/downloadImage`, `imageUrl=${imageUrl}`, {
     headers: {
       'X-Access-Token': storage.get(ACCESS_TOKEN),
       'content-type': 'application/x-www-form-urlencoded'
