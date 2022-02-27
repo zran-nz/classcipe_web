@@ -1139,6 +1139,7 @@
                     v-model='filterAssessmentsType'
                     :defaultActiveKey='filterAssessmentsType'
                     @change='changeFilterType'
+                    :animated="false"
                     :tabBarGutter='3'
                     :tabBarStyle="{margin:'10px 20px'}">
                     <a-tab-pane key='1' tab='Knowledge focus'>
@@ -1147,9 +1148,7 @@
                           <div class='row-select row-select-assessments'>
                             <a-col :span='24'>
                               <!--                          <span class="sub-category">Knowledge focus </span>-->
-                              <a-radio-group
-                                v-model='item.tooltip'
-                                :name='item.name'
+                              <div
                                 class='sub-select'
                                 v-for="(item ,index) in templateFilterCondition(templateType.Assessments,'Knowledge focus')"
                                 :key='index'>
@@ -1159,13 +1158,15 @@
                                 <div class='sub-items'>
                                   <div class='sub-item' v-for='(child,cIndex) in item.children' :key='cIndex'>
                                     <a-radio
+                                      :name='item.name'
                                       :value='child.id'
-                                      @change='onChangeCheckBox($event,templateType.Assessments,item)'>
+                                      :checked="filterAssessments.indexOf(child.id) !== -1"
+                                      @click='onClickRadio($event,templateType.Assessments,item)'>
                                       {{ child.name }}
                                     </a-radio>
                                   </div>
                                 </div>
-                              </a-radio-group>
+                              </div>
                             </a-col>
                           </div>
                         </a-row>
@@ -1177,9 +1178,7 @@
                           <div class='row-select row-select-assessments'>
                             <a-col :span='24'>
                               <!--                          <span class="sub-category">Skill focus</span>-->
-                              <a-radio-group
-                                v-model='item.tooltip'
-                                :name='item.name'
+                              <div
                                 class='sub-select'
                                 v-for="(item ,index) in templateFilterCondition(templateType.Assessments,'Skill focus')"
                                 :key='index'>
@@ -1189,13 +1188,15 @@
                                 <div class='sub-items'>
                                   <div class='sub-item' v-for='(child,cIndex) in item.children' :key='cIndex'>
                                     <a-radio
+                                      :name='item.name'
                                       :value='child.id'
-                                      @change='onChangeCheckBox($event,templateType.Assessments,item)'>
+                                      :checked="filterAssessments.indexOf(child.id) !== -1"
+                                      @click='onClickRadio($event,templateType.Assessments,item)'>
                                       {{ child.name }}
                                     </a-radio>
                                   </div>
                                 </div>
-                              </a-radio-group>
+                              </div>
                             </a-col>
                           </div>
                         </a-row>
@@ -3760,6 +3761,22 @@ export default {
       const resultList = list.filter(item => item.name === category2)
       logger.info('templateFilterCondition ', resultList)
       return resultList.length > 0 ? resultList[0].children : []
+    },
+    onClickRadio(e, category, parent) {
+      logger.info('onChangeCheckBox ', e, category, parent)
+      logger.info('filterLearn ', this.filterLearn)
+      const id = e.target.value
+      const isAdd = this.filterAssessments.indexOf(id) === -1
+      // 单选，去除同parent其他值
+      parent.children.forEach(item => {
+        if (this.filterAssessments.indexOf(item.id) !== -1) {
+          this.filterAssessments.splice(this.filterAssessments.indexOf(item.id), 1)
+        }
+      })
+      if (isAdd) {
+        this.filterAssessments.push(id)
+      }
+      this.selectFilter()
     },
     onChangeCheckBox(e, category, parent) {
       logger.info('onChangeCheckBox ', e, category, parent)

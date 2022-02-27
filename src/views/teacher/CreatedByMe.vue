@@ -562,13 +562,15 @@ export default {
       sessionMode: 1,
       // 当前选中的配置项
       filterConfig: {
-        age: null,
+        age: [],
         subject: [],
-        faSaActivityType: null,
-        teachingStrategy: [],
-        differenceInstructions: [],
-        assessmentCategory: [],
-        assessmentType: []
+        period: '',
+        faSaActivityType: '',
+        unitType: '',
+        projectBased: '',
+        faTags: [],
+        saTags: [],
+        activityTags: []
       },
       filterSubjectOptions: [],
       filterAgeOptions: [],

@@ -23,9 +23,15 @@
             </template>
             <a-list v-if="announcement1.length > 0">
               <a-list-item class="content-item" :key="index" v-for="(record, index) in announcement1">
-                <a-list-item-meta :title="record.titile" :description="record.sendTime| dayjs" @click="viewNotification(record)">
+                <a-list-item-meta :title="record.titile" @click="viewNotification(record)">
                   <!-- TODO 是触发消息的用户头像 -->
                   <img class="message-icon" slot="avatar" :src="record.avatar ? record.avatar : 'https://dcdkqlzgpl5ba.cloudfront.net/file/202106290118339914-avatar.png'"/>
+                  <div slot="description">
+                    {{ record.sendTime| dayjs }}
+                    <a-tooltip :title="record.msgContent" placement="left" v-if="record.msgContent">
+                      <div class="message-content">{{ record.msgContent }}</div>
+                    </a-tooltip>
+                  </div>
                 </a-list-item-meta>
                 <div class="my-read-status" slot="extra">
                   <div class="read-flag-dot"></div>
@@ -196,6 +202,13 @@ export default {
   }
 .content-item{
   cursor: pointer;
+  .message-content{
+    width: 100%;
+    word-break: keep-all;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
   &:hover {
     color: #15c39a;
     background-color: rgba(21, 195, 154, 0.1);

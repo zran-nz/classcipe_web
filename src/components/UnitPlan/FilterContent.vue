@@ -179,6 +179,9 @@ export default {
   },
   created () {
     this.$logger.info('SearchFilter created', this.filterConfig)
+    if (this.filterConfig) {
+      this.filter = this.filterConfig
+    }
     this.filterSaOptions.forEach((option, index) => {
       this.saTags.push([])
     })

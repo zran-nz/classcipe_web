@@ -20,7 +20,7 @@ export default class VueWebSocket {
         this.heartbeatTimeout = 55 * 1000
         this.reconnectInterval = 30 * 1000
         this.binaryType = 'blob'
-        this.url = process.env.VUE_APP_API_BASE_URL.replace('https://', 'wss://') + '/classcipe/websocket/' + userId
+        this.url = process.env.VUE_APP_API_BASE_URL.replace('http://', 'ws://') + '/classcipe/websocket/' + userId
         logger.info('userId :', userId)
         this.initHandlerList()
         this.connect(true)
