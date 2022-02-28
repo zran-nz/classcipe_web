@@ -58,18 +58,18 @@
                   class="copy-button"
                   type="primary"
                   shape="round"
-                  @click="handleDuplicateItem"
+                  @click="handleStartTask"
                 >
                   <div class="button-content" >
-                    Buy now
+                    Start
                   </div>
                 </a-button>
               </div>
             </div>
           </div>
-          <div class="price-line" v-hasRole="['student']">
+          <!-- <div class="price-line" v-hasRole="['student']">
             <label for="">$ 15.00</label>
-          </div>
+          </div> -->
         </a-col>
       </a-row>
       <a-row class="author-info" v-excludeRole="['student']">
@@ -115,9 +115,10 @@
           <div class="star-info" v-if="viewMode === 'Preview'">
             <a-tooltip placement="right">
               <template slot="title">
-                10 people gave a score of 5 stars
+                {{ reviewsStats.reviewsScoreStatDetail && reviewsStats.reviewsScoreStatDetail[4] && reviewsStats.reviewsScoreStatDetail[4].reviewsScoreCount }}
+                people gave a score of 5 stars
               </template>
-              <a-rate :default-value="5" allow-half disabled/>
+              <a-rate :value="reviewsStats.avgReviewsScore" allow-half disabled/>
             </a-tooltip>
           </div>
         </div>
@@ -172,7 +173,7 @@
                 <div class="custom-tags">
                   <div class="tag-item" v-for="(tag,tagIndex) in inActiveTypes" :key="'interActiveIndex' + tagIndex">
                     <a-tooltip :title="tag">
-                      <a-tag class="tag">
+                      <a-tag class="tag" :color="tagColorList[tagIndex]">
                         {{ tag }}
                       </a-tag>
                     </a-tooltip>
@@ -418,62 +419,8 @@
       </a-row>
       <a-row class="reviews-info" v-if="viewMode === 'Reviews'">
         <a-col class="slide-reviews" span="24">
-          <rate-by-percent />
-          <div class="reviews-wrapper">
-            <div class="reviews-title">
-              <h2>Reviews</h2>
-            </div>
-            <div class="reviews-search">
-              <div class="my-search">
-                <a-input-search
-                  placeholder="Search"
-                  v-model="searchText"
-                  @search="triggerSearch"
-                  @pressEnter="triggerSearch"
-                  :allowClear="true"
-                  size="large"
-                >
-                </a-input-search>
-              </div>
-              <a-select :getPopupContainer="trigger => trigger.parentElement" size="large" default-value="1" @change="triggerChangeRate">
-                <a-select-option value="1">
-                  All ratings
-                </a-select-option>
-                <a-select-option value="5">
-                  5 rating
-                </a-select-option>
-              </a-select>
-            </div>
-            <a-skeleton :loading="reviewsLoading" active >
-              <div class="reviews-content">
-                <div class="reviews-content-detail" v-for="(item, index) in [0, 1]" :key="'review_'+index">
-                  <div class="content-detail__avatar">
-                    <img :src="collaborate.owner && collaborate.owner.avatar"/>
-                  </div>
-                  <div class="content-detail__rate">
-                    <a-rate :default-value="5" allow-half disabled/>
-                  </div>
-                  <div>
-                    <div class="content-detail__title">
-                      <div class="title-info">
-                        <div class="info-author">
-                          Author name
-                        </div>
-                        <div class="info-time">
-                          6 days ago
-                        </div>
-                      </div>
-                    </div>
-                    <div class="content-detail__review">
-                      <label>
-                        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean euismod bibendum laoreet.
-                      </label>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </a-skeleton>
-          </div>
+          <rate-by-percent :rates="reviewsStats"/>
+          <reviews-preview :id="id"/>
         </a-col>
       </a-row>
       <div class="associate-info" v-if="viewMode === 'Detail'" v-excludeRole="['student']">>
@@ -521,15 +468,17 @@ import MediaPreview from '@/components/Task/MediaPreview'
 import TaskMaterialPreview from '@/components/Task/TaskMaterialPreview'
 import UiLearnOutSub from '@/components/UnitPlan/UiLearnOutSub'
 import RateByPercent from '@/components/RateByPercent'
+import ReviewsPreview from '@/components/Common/ReviewsPreview'
 import { BaseEventMixin } from '@/mixins/BaseEvent'
 import { Duplicate } from '@/api/teacher'
-import { DICT_BLOOM_CATEGORY, DICT_PROMPT_TYPE } from '@/const/common'
+import { DICT_PROMPT_TYPE } from '@/const/common'
 import { GetDictItems } from '@/api/common'
 const { formatLocalUTC } = require('@/utils/util')
 const { UnitPlanQueryById } = require('@/api/unitPlan')
 const { TaskQueryById } = require('@/api/task')
 const { EvaluationQueryById } = require('@/api/evaluation')
 const { FavoritesAdd } = require('@/api/favorites')
+const { ReviewsTaskStats } = require('@/api/reviewsTask')
 
 export default {
   name: 'CommonPreview',
@@ -541,7 +490,8 @@ export default {
     CommonLink,
     MediaPreview,
     TaskMaterialPreview,
-    RateByPercent
+    RateByPercent,
+    ReviewsPreview
   },
   props: {
     id: {
@@ -585,7 +535,6 @@ export default {
       loading: true,
       slideLoading: false,
       copyLoading: false,
-      reviewsLoading: false,
       data: null,
       imgList: [],
       viewMode: 'Detail',
@@ -604,8 +553,11 @@ export default {
 
       subPreviewVisible: false,
       currentImgIndex: 0,
-      searchText: '',
-      initPrompts: []
+      initPrompts: [],
+      reviewsStats: {
+        avgReviewsScore: 0,
+        reviewsScoreStat: []
+      }
     }
   },
   created () {
@@ -659,18 +611,13 @@ export default {
           this.queryContentCollaborates(this.id, this.type)
         })
       }
-      GetDictItems(DICT_BLOOM_CATEGORY).then(response => {
-        if (response.success) {
-          logger.info('DICT_BLOOM_CATEGORY', response.result)
-          this.initBlooms = response.result
-        }
-      })
       GetDictItems(DICT_PROMPT_TYPE).then(response => {
         if (response.success) {
           logger.info('DICT_PROMPT_TYPE', response.result)
           this.initPrompts = response.result
         }
       })
+      this.loadReviewStats()
     },
 
     loadThumbnail () {
@@ -716,6 +663,16 @@ export default {
       } else {
         this.slideLoading = false
       }
+    },
+
+    loadReviewStats () {
+      ReviewsTaskStats({
+        taskId: this.id
+      }).then(res => {
+        if (res.success) {
+          this.reviewsStats = res.result
+        }
+      })
     },
 
     handleSelectContentType (contentType) {
@@ -789,14 +746,12 @@ export default {
       })
     },
 
+    handleStartTask () {
+
+    },
+
     handleOpenLink (url) {
       window.open(url, '_blank')
-    },
-    triggerSearch() {
-
-    },
-    triggerChangeRate(value) {
-
     }
   }
 }
@@ -1184,90 +1139,7 @@ export default {
     .slide-reviews {
       padding: 20px 0;
       .reviews-wrapper {
-        position: relative;
         margin-top: 20px;
-        .reviews-title {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-        }
-        .reviews-search {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          .my-search{
-            margin-right: 10px;
-            border-radius:6px;
-            flex: 1;
-            /deep/ .ant-input{
-              border-radius:6px;
-              height: 40px;
-            }
-          }
-          /deep/ .ant-select-dropdown {
-            z-index: 1001;
-          }
-        }
-        .reviews-content {
-          margin-top: 20px;
-          .reviews-content-detail {
-            position: relative;
-            padding: 15px 20px;
-            background: #F7F8FF;
-            display: flex;
-            & ~ .reviews-content-detail {
-              margin-top: 20px;
-            }
-            .content-detail__avatar {
-              margin-right: 10px;
-              img {
-                width: 30px;
-                height: 30px;
-                border-radius: 30px;
-              }
-            }
-            .content-detail__rate {
-              position: absolute;
-              top: 10px;
-              right: 20px;
-            }
-            .content-detail__title {
-              display: flex;
-              align-items: flex-start;
-              .title-info {
-                display: flex;
-                flex-direction: column;
-                .info-author{
-                  height: 19px;
-                  font-size: 14px;
-                  font-family: Segoe UI;
-                  font-weight: bold;
-                  line-height: 24px;
-                  color: #182552;
-                  opacity: 1;
-                }
-                .info-time {
-                  height: 24px;
-                  font-size: 18px;
-                  font-family: Inter-Bold;
-                  line-height: 24px;
-                  color: #929292;
-                  opacity: 1;
-                  margin-top: 5px;
-                }
-              }
-            }
-            .content-detail__review {
-              height: 48px;
-              font-size: 18px;
-              font-family: Inter-Bold;
-              line-height: 24px;
-              color: #000000;
-              opacity: 1;
-              margin-top: 10px;
-            }
-          }
-        }
       }
     }
   }

@@ -37,3 +37,5 @@ export const NAV_THEME = {
 }
 
 export const WEBSOCKET_TYPE_INIT = 'websocket_init'
+
+export const TOOGLE_STUDY_MODE = 'study_mode'

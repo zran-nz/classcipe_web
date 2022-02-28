@@ -325,8 +325,23 @@ export const asyncRouterMap = [
           {
             path: '/student/main',
             name: 'Main',
+            redirect: '/student/main/my-task',
             component: () => import('@/views/student/Main'),
-            meta: { title: 'menu.main', keepAlive: true, permission: ['student'] }
+            meta: { title: 'menu.main', keepAlive: true, permission: ['student'] },
+            children: [
+              {
+                path: '/student/main/my-task',
+                name: 'MyTask',
+                component: () => import('@/views/student/MyTask'),
+                meta: { title: 'menu.my-task', keepAlive: true, permission: ['student'] }
+              },
+              {
+                path: '/student/main/my-favorite',
+                name: 'MyFavorite',
+                component: () => import('@/views/student/MyFavorite'),
+                meta: { title: 'menu.my-favorite', keepAlive: true, permission: ['student'] }
+              }
+            ]
           },
           {
             path: '/student/library-v2/:browserType?/',

@@ -13,6 +13,7 @@ import account from './en-US/account'
 import role from './en-US/role'
 
 import teacher from './en-US/teacher'
+import student from './en-US/student'
 
 const components = {
   antLocale: antdEnUS,
@@ -36,5 +37,6 @@ export default {
   ...result,
   ...account,
   ...role,
-  ...teacher
+  ...teacher,
+  ...student
 }
