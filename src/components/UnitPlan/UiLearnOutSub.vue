@@ -15,8 +15,8 @@
                 <a-tooltip :title="k.path"> {{ k.name }}</a-tooltip>
                 <div class="skt-chart" v-hasRole="['student']" v-if="bloomInfo(k.knowledgeId, 'knowledgeLevel').length > 0">
                   <div class="skt-chart-detail">
-                    <label>Bloom taxnology</label>
-                    <a-rate class="rate-bar-con" :count="6" :value="bloomInfo(k.knowledgeId, 'bloomLevel')" disabled>
+                    <label>Bloom Taxonomy</label>
+                    <a-rate class="rate-bar-con" :tooltips="bloomLevelDesc" :count="6" :value="bloomInfo(k.knowledgeId, 'bloomLevel')" disabled>
                       <div slot="character">
                         <div class="rate-bar"></div>
                       </div>
@@ -45,8 +45,8 @@
                 <a-tooltip :title="k.path"> {{ k.name }}</a-tooltip>
                 <div class="skt-chart" v-hasRole="['student']" v-if="bloomInfo(k.knowledgeId, 'knowledgeLevel').length > 0">
                   <div class="skt-chart-detail">
-                    <label>Bloom taxnology</label>
-                    <a-rate class="rate-bar-con" :count="6" :value="bloomInfo(k.knowledgeId, 'bloomLevel')" disabled>
+                    <label>Bloom Taxonomy</label>
+                    <a-rate class="rate-bar-con" :tooltips="bloomLevelDesc" :count="6" :value="bloomInfo(k.knowledgeId, 'bloomLevel')" disabled>
                       <div slot="character">
                         <div class="rate-bar"></div>
                       </div>
@@ -75,8 +75,8 @@
                 <a-tooltip :title="k.path"> {{ k.name }}</a-tooltip>
                 <div class="skt-chart" v-hasRole="['student']" v-if="bloomInfo(k.knowledgeId, 'knowledgeLevel').length > 0">
                   <div class="skt-chart-detail">
-                    <label>Bloom taxnology</label>
-                    <a-rate class="rate-bar-con" :count="6" :value="bloomInfo(k.knowledgeId, 'bloomLevel')" disabled>
+                    <label>Bloom Taxonomy</label>
+                    <a-rate class="rate-bar-con" :tooltips="bloomLevelDesc" :count="6" :value="bloomInfo(k.knowledgeId, 'bloomLevel')" disabled>
                       <div slot="character">
                         <div class="rate-bar"></div>
                       </div>
@@ -214,6 +214,13 @@
           }).filter(item => item !== '').sort().pop()
           console.log(result)
           return result[key]
+        }
+      },
+      bloomLevelDesc() {
+        if (this.bloomLevel) {
+          return this.bloomLevel.map(item => item.title)
+        } else {
+          return []
         }
       }
     },

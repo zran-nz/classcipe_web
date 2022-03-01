@@ -20,14 +20,14 @@
       </div>
     </div>
     <div class="nav-right">
-      <a-select :value="studyMode" class="study-mode" @change="handleChange">
-        <a-select-option value="selfStudy">
-          Self-study
-        </a-select-option>
-        <!-- <a-select-option value="schoolStudy">
-          School-study
-        </a-select-option> -->
-      </a-select>
+      <div class="study-mode">
+        <label class="self-mode" :class="{active: studyMode === 'selfStudy'}" @click="handleChange('selfStudy')">Self-study</label>
+        <a-select :value="school" class="school-mode" :class="{active: studyMode === 'schoolStudy'}" @focus="handleChange('schoolStudy')" @change="handleChangeSchool">
+          <a-select-option value="eastWest">
+            East west study
+          </a-select-option>
+        </a-select>
+      </div>
     </div>
   </div>
 </template>
@@ -52,7 +52,8 @@ export default {
   data () {
     return {
       defaultSelectedKeys: [],
-      selectedKeys: []
+      selectedKeys: [],
+      school: 'eastWest'
     }
   },
   watch: {
@@ -81,6 +82,9 @@ export default {
       if (val === 'schoolStudy' && this.$route.name === 'StudentLibraryV2') {
         this.$router.push({ path: '/student/main/my-task' })
       }
+    },
+    handleChangeSchool(val) {
+      console.log(val)
     }
   }
 }
@@ -94,6 +98,21 @@ export default {
 }
 
 .study-mode {
+  display: flex;
+  align-items: center;
+  .self-mode {
+    margin-right: 20px;
+    color: #fff;
+    cursor: pointer;
+    &.active {
+      color: #f59a23;
+    }
+  }
+  .school-mode {
+    &.active {
+      background: #f59a23;
+    }
+  }
   /deep/ .ant-select-selection {
     background: transparent;
     color: #fff;

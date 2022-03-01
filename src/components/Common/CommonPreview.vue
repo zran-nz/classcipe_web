@@ -98,7 +98,7 @@
         </a-col>
       </a-row>
       <a-space class="author-info" v-hasRole="['student']" v-if="viewMode !== 'Reviews'">
-        <div class="avatar-icon" :class="{'avatar-small': viewMode === 'Detail'}">
+        <div class="avatar-icon">
           <img :src="collaborate.owner && collaborate.owner.avatar" />
         </div>
         <div>
@@ -112,7 +112,7 @@
               </template>
             </div>
           </div>
-          <div class="star-info" v-if="viewMode === 'Preview'">
+          <div class="star-info" @click="() => this.viewMode = 'Reviews'">
             <a-tooltip placement="right">
               <template slot="title">
                 {{ reviewsStats.reviewsScoreStatDetail && reviewsStats.reviewsScoreStatDetail[4] && reviewsStats.reviewsScoreStatDetail[4].reviewsScoreCount }}

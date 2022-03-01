@@ -42,7 +42,7 @@ button.ant-btn-primary {
   }
 }
 
-.Loop(@index) when (@index < @bar-con-len) {
+.Loop(@index) when (@index <= @bar-con-len) {
   .rate-bar-con .ant-rate-star:nth-child(@{index}) {
     height: extract(@bar-width, @index);
     .rate-bar {
